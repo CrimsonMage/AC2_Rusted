@@ -1,6 +1,6 @@
 # replaced: Third-party libraries, CRT and container templates replaced by Rust
 
-2058 retail functions: 0 done, 0 partial, 0 to do, 2058 skipped.
+2058 retail functions: 7 done, 0 partial, 0 to do, 2051 skipped.
 Legend and workflow: [README](README.md).
 
 ## `_libraries/ImeUI.lib/ImeUi.obj.c` (0/36)
@@ -1260,12 +1260,12 @@ Legend and workflow: [README](README.md).
 - [-] `PStringBase<char>::PStringBase<char>` · 00401290 · legions 00401260 — Rust std replaces it
 - [-] `PStringBase<char>::sprintf` · 004012f0 · legions 004012c0 — Rust std replaces it
 
-## `ac2/client/src/main/gmclient.cpp.c` (0/28)
+## `ac2/client/src/main/gmclient.cpp.c` (3/28)
 
 ### PStringBase<char>
 - [-] `PStringBase<char>::cmp` · 00401f20 · legions 00401ec0 — Rust std replaces it
-- [-] `PStringBase<char>::crypto_nibble_munge` · 00401f90 · legions 00401f30 — Rust std replaces it
-- [-] `PStringBase<char>::crypto_uint32_munge` · 00401fc0 · legions 00401f60 — Rust std replaces it
+- [x] `PStringBase<char>::crypto_nibble_munge` · 00401f90 · legions 00401f30 — Rust std replaces it
+- [x] `PStringBase<char>::crypto_uint32_munge` · 00401fc0 · legions 00401f60 — Rust std replaces it
 - [-] `PStringBase<char>::clear` · 00402300 · legions 004022a0 — Rust std replaces it
 - [-] `PStringBase<char>::eq` · 00402340 · legions 004022e0 — Rust std replaces it
 
@@ -1284,7 +1284,7 @@ Legend and workflow: [README](README.md).
 
 ### PStringBase<char>
 - [-] `PStringBase<char>::append_n_chars` · 00402fa0 · legions 00402f10 — Rust std replaces it
-- [-] `PStringBase<char>::encrypt` · 00403030 · legions 00402fa0 — Rust std replaces it
+- [x] `PStringBase<char>::encrypt` · 00403030 · legions 00402fa0 — Rust std replaces it
 - [-] `PStringBase<char>::to_wpstring` · 00403140 · legions 004030b0 — Rust std replaces it
 - [-] `PStringBase<char>::trim` · 004041b0 · legions 00404100 — Rust std replaces it
 
@@ -1396,7 +1396,7 @@ Legend and workflow: [README](README.md).
 ### List<PStringBase<unsigned_short>_>
 - [-] `List<PStringBase<unsigned_short>_>::flush` · 0041f730 · legions 0041f510 — Rust std replaces it
 
-## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (0/21)
+## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (2/21)
 
 ### List<unsigned_long>
 - [-] `List<unsigned_long>::empty` · 00407b00 · legions 00407830 — Rust std replaces it
@@ -1426,8 +1426,8 @@ Legend and workflow: [README](README.md).
 - [-] `HashTableData<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>::HashTableData<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>` · 00409890 · legions 004095d0 — Rust std replaces it
 
 ### PStringBase<unsigned_short>
-- [-] `PStringBase<unsigned_short>::crypto_nibble_munge` · 00409a80 · legions 004097f0 — Rust std replaces it
-- [-] `PStringBase<unsigned_short>::crypto_uint32_munge` · 00409ab0 · legions 00409820 — Rust std replaces it
+- [x] `PStringBase<unsigned_short>::crypto_nibble_munge` · 00409a80 · legions 004097f0 — Rust std replaces it
+- [x] `PStringBase<unsigned_short>::crypto_uint32_munge` · 00409ab0 · legions 00409820 — Rust std replaces it
 - [-] `PStringBase<unsigned_short>::break_reference` · 00409b80 · legions 004098f0 — Rust std replaces it
 - [-] `PStringBase<unsigned_short>::clear` · 00409cc0 · legions 00409a30 — Rust std replaces it
 
@@ -2227,11 +2227,11 @@ Legend and workflow: [README](README.md).
 ### _STL::vector<GenericTriggerScheduler<ClientTrigger>::TriggerInfo,_STL::allocator<GenericTriggerScheduler<ClientTrigger>::TriggerInfo>_>
 - [-] `_STL::vector<GenericTriggerScheduler<ClientTrigger>::TriggerInfo,_STL::allocator<GenericTriggerScheduler<ClientTrigger>::TriggerInfo>_>::_M_allocate_and_copy` · 004c4b80 · legions 004b8f90 — Rust std replaces it
 
-## `portal/client/src/clinet/cflowqueue.cpp.c` (0/2)
+## `portal/client/src/clinet/cflowqueue.cpp.c` (1/2)
 
 ### PQueueArray<unsigned_long,void_*>
 - [-] `PQueueArray<unsigned_long,void_*>::_ExpandNodes` · 004cbf50 · legions 004c04c0 — Rust std replaces it
-- [-] `PQueueArray<unsigned_long,void_*>::_Heapify` · 004cbfa0 · legions 004c0510 — Rust std replaces it
+- [x] `PQueueArray<unsigned_long,void_*>::_Heapify` · 004cbfa0 · legions 004c0510 — Rust std replaces it
 
 ## `portal/client/src/clinet/clientnet.cpp.c` (0/4)
 
@@ -4252,11 +4252,11 @@ Legend and workflow: [README](README.md).
 ### HashTable<PStringBase<char>,unsigned_long>
 - [-] `HashTable<PStringBase<char>,unsigned_long>::grow` · 0063b170 · legions 005efcf0 — Rust std replaces it
 
-## `portal/shared/src/newnet/packetcontroller.cpp.c` (0/2)
+## `portal/shared/src/newnet/packetcontroller.cpp.c` (1/2)
 
 ### PQueueArray<double,void_*>
 - [-] `PQueueArray<double,void_*>::_ExpandNodes` · 004ca400 · legions 004be9c0 — Rust std replaces it
-- [-] `PQueueArray<double,void_*>::_Heapify` · 004ca450 · legions 004bea10 — Rust std replaces it
+- [x] `PQueueArray<double,void_*>::_Heapify` · 004ca450 · legions 004bea10 — Rust std replaces it
 
 ## `portal/shared/src/newnet/sentpacket.cpp.c` (0/1)
 

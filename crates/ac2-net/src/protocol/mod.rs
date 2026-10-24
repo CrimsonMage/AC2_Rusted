@@ -1,33 +1,72 @@
 //! Encode and decode of Asheron's Call 2 network events.
 //!
-//! An event is a blob whose first u32 is its opcode (`DispatchEvent`), followed by the event's
-//! `StreamPack` fields. Strings and nested structures align to 4 bytes measured from the start of
-//! the event. Positions are cell-local: a cell id and AC-axis (z-up) coordinates relative to the
-//! landblock the cell names.
+//! An event is a blob whose first u32 is its opcode (`CEventQueue::PostEvent`), followed by the
+//! event's `StreamPack` fields. Strings and nested structures align to 4 bytes measured from
+//! the start of the blob. Positions are cell-local: a cell id and AC-axis (z-up) coordinates
+//! relative to the landblock the cell names.
 
 mod character;
 mod client_event;
+mod dat_event;
 mod error;
 mod object;
 mod opcode;
+mod physics;
+mod physics_event;
 mod position;
 mod reader;
 mod server_event;
+mod string_info;
+mod types;
+mod visual;
+mod weenie_desc;
 
-pub use character::{CharacterIdentity, CharacterSet};
+pub use character::{CharacterIdentity, CharacterSet, MinimalCharacterSet};
 pub use client_event::ClientEvent;
+pub use dat_event::{
+    dat_request, end_ddd, interrogation_response, read_int_set, DatEvent, MissingIteration,
+};
 pub use error::ProtocolError;
-pub use object::{CreateObject, PhysicsDesc, VisualDesc};
+pub use object::CreateObject;
 pub use opcode::Opcode;
+pub use physics::{BehaviorParams, PhysicsDesc};
+pub use physics_event::{ObjectAction, ObjectEvent};
 pub use position::{
-    heading_from_u8, heading_to_u8, motion_from_u24, motion_to_u24, CellPosition, ClientPosition,
-    ServerPosition,
+    heading_from_u8, heading_to_u8, motion_from_u24, motion_to_u24, ClientPosition, ServerPosition,
 };
 pub use server_event::ServerEvent;
+pub use string_info::{StringInfo, StringVariable};
+pub use types::{CellPosition, InstanceIdWithStamp, Position};
+pub use visual::{IconLayer, PartGroupDesc, VisualDesc};
+pub use weenie_desc::WeenieDesc;
 
-/// Receive queue the client's `CEventQueue` reads world and login events from.
+/// Receive queue `CEventQueue` reads world and login events from (`Turbine::Client::InitNet`).
 pub const QUEUE_EVENTS: u16 = 1;
-/// Ordered client queue for in-world actions (movement, script calls).
+/// Receive queue whose events the client discards (`ProcessControlEventQueue`).
+pub const QUEUE_SERVER_CONTROL: u16 = 2;
+/// Ordered client queue (`Proto_UI::SendBuff` orders queues 3 and 7).
 pub const QUEUE_ORDERED: u16 = 3;
-/// Unordered client queue for login and session control.
+/// Unordered client queue to the logon connection (login control, logoff).
 pub const QUEUE_CONTROL: u16 = 4;
+/// Data-download queue.
+pub const QUEUE_DAT: u16 = 5;
+
+/// The client build whose login layouts a decoder follows: the Legions DVD client (7160) or
+/// the admin build (7148) the PDB names come from. They differ in `CharacterSet`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum Build {
+    Admin7148,
+    #[default]
+    Legions7160,
+}
+
+impl Build {
+    /// The build a logon version string names.
+    pub fn from_version(version: &str) -> Self {
+        if version == "7148" {
+            Self::Admin7148
+        } else {
+            Self::Legions7160
+        }
+    }
+}

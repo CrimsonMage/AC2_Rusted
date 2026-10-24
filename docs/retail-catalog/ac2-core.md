@@ -1,6 +1,6 @@
 # ac2-core: Core runtime: ids, strings, timers, errors, serialization helpers
 
-589 retail functions: 0 done, 0 partial, 185 to do, 404 skipped.
+589 retail functions: 11 done, 0 partial, 174 to do, 404 skipped.
 Legend and workflow: [README](README.md).
 
 ## `core/src/debug/crashcleaners.cpp.c` (0/3)
@@ -362,7 +362,7 @@ Legend and workflow: [README](README.md).
 ### `AC2CoreSDKCopy::GrowBuffer::GrowExact'::__l2
 - [ ] ``AC2CoreSDKCopy::GrowBuffer::GrowExact'::__l2::s_FreeListHelper` · 00a43c30
 
-## `core/src/timer/timer.cpp.c` (0/11)
+## `core/src/timer/timer.cpp.c` (3/11)
 
 ### (free functions)
 - [ ] `get_elapsed_time_internal` · 0064b0c0 · legions 005fa3f0
@@ -378,12 +378,12 @@ Legend and workflow: [README](README.md).
 - [ ] `Win32TimeWrapper::get_elapsed_time` · 0064b460 · legions 005fa790
 
 ### Timer
-- [ ] `Timer::Init` · 0064b540 · legions 005fa870
+- [x] `Timer::Init` · 0064b540 · legions 005fa870
 - [ ] `Timer::asctime` · 0064b5a0 · legions 005fa8d0
 - [ ] `Timer::strftime` · 0064b5d0 · legions 005fa900
 - [ ] `Timer::get_elapsed_time` · 0064b610 · legions 00455160
-- [ ] `Timer::set_time` · 0064b620 · legions 005fa950
-- [ ] `Timer::update_time` · 0064b660 · legions 005fa990
+- [x] `Timer::set_time` · 0064b620 · legions 005fa950
+- [x] `Timer::update_time` · 0064b660 · legions 005fa990
 
 ## `core/src/utils/strtoint64.cpp.c` (0/6)
 
@@ -989,24 +989,24 @@ Legend and workflow: [README](README.md).
 - [-] `ProjectSettings::InitFromIni` · 0066c300 · legions 00616c00 — project setup (admin tools)
 - [-] `ProjectSettings::InitFromRegistry` · 0066c360 · legions 00616c40 — project setup (admin tools)
 
-## `portal/shared/src/stringtoken/stringtoken.cpp.c` (0/4)
+## `portal/shared/src/stringtoken/stringtoken.cpp.c` (2/4)
 
 ### (free functions)
-- [ ] `Tokenize` · 0065a4a0 · legions 00608e10
+- [x] `Tokenize` · 0065a4a0 · legions 00608e10
 - [ ] `Tokenize` · 0065a510 · legions 00608e80
 - [ ] `Tokenize` · 0065a580 · legions 00608ef0
-- [ ] `Tokenize` · 0065a5a0 · legions 00608f10
+- [x] `Tokenize` · 0065a5a0 · legions 00608f10
 
-## `portal/shared/src/timestamper/tsrecv.cpp.c` (0/7)
+## `portal/shared/src/timestamper/tsrecv.cpp.c` (5/7)
 
 ### TSRecv
-- [ ] `TSRecv::TSRecv` · 0065b1e0 · legions 00609af0
-- [ ] `TSRecv::GetNextReadyEntry` · 0065b210 · legions 00609b20
+- [x] `TSRecv::TSRecv` · 0065b1e0 · legions 00609af0
+- [x] `TSRecv::GetNextReadyEntry` · 0065b210 · legions 00609b20
 - [ ] `TSRecv::~TSRecv` · 0065b2d0 · legions 00609be0
 - [ ] `TSRecv::AddEntryLatest` · 0065b340 · legions 00609c50
-- [ ] `TSRecv::AddEntry` · 0065b3c0 · legions 00609cd0
-- [ ] `TSRecv::AddEntryBlocking` · 0065b480 · legions 00609d90
-- [ ] `TSRecv::AddAndCheck` · 0065b5b0 · legions 00609ec0
+- [x] `TSRecv::AddEntry` · 0065b3c0 · legions 00609cd0
+- [x] `TSRecv::AddEntryBlocking` · 0065b480 · legions 00609d90
+- [x] `TSRecv::AddAndCheck` · 0065b5b0 · legions 00609ec0
 
 ## `portal/shared/src/utils/argparser.cpp.c` (0/13)
 
@@ -1039,10 +1039,10 @@ Legend and workflow: [README](README.md).
 ### ArgumentParser
 - [ ] `ArgumentParser::ParseArgs` · 0065c6c0 · legions 0060aff0
 
-## `portal/shared/src/utils/checksum.cpp.c` (0/1)
+## `portal/shared/src/utils/checksum.cpp.c` (1/1)
 
 ### PortalChecksum
-- [ ] `PortalChecksum::CalcChecksum32` · 0065f3d0 · legions 0060dce0
+- [x] `PortalChecksum::CalcChecksum32` · 0065f3d0 · legions 0060dce0
 
 ## `portal/shared/src/utils/emailutils.cpp.c` (0/2)
 

@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 15 done, 3 partial, 368 to do, 40 skipped.
+426 retail functions: 15 done, 5 partial, 366 to do, 40 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (0/5)
@@ -188,7 +188,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Heading::get_degrees_0_centered` · 0061a8f0 · legions 005d6550
 - [ ] `Heading::get_radians` · 0061a910 · legions 005d6570
 - [ ] `Heading::get_radians_0_centered` · 0061a920 · legions 005d6580
-- [ ] `Heading::ToUInt8` · 0061a940 · legions 005d65a0
+- [~] `Heading::ToUInt8` · 0061a940 · legions 005d65a0 — wire quantizer in ac2-net protocol::position (ac2-math has no Heading yet)
 - [ ] `Heading::Heading` · 0061a960 · legions 005d65c0
 - [ ] `Heading::operator=` · 0061a980 · legions 005d65e0
 
@@ -199,14 +199,14 @@ Legend and workflow: [README](README.md).
 ### Heading
 - [ ] `Heading::set` · 0061aa30 · legions 005d6690
 - [ ] `Heading::set_degrees` · 0061aaa0 · legions 005d6700
-- [ ] `Heading::FromUInt8` · 0061aaf0 · legions 005d6750
+- [~] `Heading::FromUInt8` · 0061aaf0 · legions 005d6750 — wire quantizer in ac2-net protocol::position (ac2-math has no Heading yet)
 - [ ] `Heading::Heading` · 0061ab50 · legions 005d67b0
 - [ ] `Heading::Heading` · 0061ab60 · legions 005d67c0
-- [ ] `Heading::abs` · 0061ab80 · legions 005d67e0
+- [ ] `Heading::abs` · 0061ab80 · legions 005d67e0 — in ac2-weenie reporter (ac2-math has no Heading yet)
 - [ ] `Heading::lerp` · 0061abf0 · legions 005d6850
-- [ ] `Heading::is_in_range` · 0061acb0 · legions 005d6910
+- [ ] `Heading::is_in_range` · 0061acb0 · legions 005d6910 — in ac2-weenie reporter (ac2-math has no Heading yet)
 - [ ] `Heading::is_inside` · 0061ad30 · legions 005d6990
-- [ ] `Heading::equals` · 0061ad80 · legions 005d69e0
+- [ ] `Heading::equals` · 0061ad80 · legions 005d69e0 — in ac2-weenie reporter (ac2-math has no Heading yet)
 - [ ] `Heading::is_zero` · 0061add0 · legions 005d6a30
 - [ ] `Heading::ToPString` · 0061ae20 · legions 005d6a80
 - [ ] `Heading::ToWPString` · 0061b2e0 · legions 005d6f40
@@ -598,9 +598,9 @@ Legend and workflow: [README](README.md).
 
 ### Vector
 - [x] `Vector::FromSpherical` · 00620e20 · legions 005dc5c0
-- [ ] `Vector::UnitVectorFromUInt24` · 00620e60 · legions 005dc600
+- [ ] `Vector::UnitVectorFromUInt24` · 00620e60 · legions 005dc600 — wire quantizer in ac2-net protocol::position
 - [-] `Vector::ToFileNode` · 00620ed0 · legions 005dc670 — text source format (admin tools)
-- [ ] `Vector::UnitVectorToUInt24` · 00620f70 · legions 005dc710
+- [ ] `Vector::UnitVectorToUInt24` · 00620f70 · legions 005dc710 — wire quantizer in ac2-net protocol::position
 - [-] `Vector::FromFileNode` · 00621090 · legions 005dc830 — text source format (admin tools)
 - [ ] `Vector::GetString` · 00621160 · legions 005dc900
 - [ ] `Vector::GetStringW` · 00621190 · legions 005dc930

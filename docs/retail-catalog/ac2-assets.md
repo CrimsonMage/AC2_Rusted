@@ -1110,7 +1110,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PartGroupDataDesc::AddChildPointer` · 006442f0 · legions 005f6410
 - [ ] `PartGroupDataDesc::HasFX` · 00644330 · legions 005f6450
 - [ ] `PartGroupDataDesc::GetPackBitfield` · 00644350 · legions 005f6470
-- [ ] `PartGroupDataDesc::StreamPack` · 006443c0 · legions 005f64e0
+- [ ] `PartGroupDataDesc::StreamPack` · 006443c0 · legions 005f64e0 — m_fx_overrides (FXData/FXNode) refused as unsupported
 - [ ] `PartGroupDataDesc::AugmentAtomCollection` · 00644510 · legions 005f6690
 - [ ] `PartGroupDataDesc::WriteAppearanceKeys` · 00644590
 - [ ] `PartGroupDataDesc::GetSubDataIDs` · 00644950 · legions 005f6710
@@ -1247,7 +1247,7 @@ Legend and workflow: [README](README.md).
 - [ ] `VisualDesc::ModVDesc_DeleteStragglers` · 0063d450 · legions 005f1a40
 - [ ] `VisualDesc::BuildAtomCollection` · 0063d680 · legions 005f1c70
 - [ ] `VisualDesc::GatherAppearanceKeys` · 0063d740 · legions 005f1d10
-- [ ] `VisualDesc::StreamPack` · 0063d7f0
+- [ ] `VisualDesc::StreamPack` · 0063d7f0 — part-group FX overrides (FXData/FXNode) refused as unsupported
 - [ ] `VisualDesc::AddPGDDesc` · 0063db70 · legions 005f2140
 - [ ] `VisualDesc::HasAppliedAppKey` · 0063dcc0 · legions 005f2290
 - [ ] `VisualDesc::InqAppInfoHashForPartGroup` · 0063dd00 · legions 005f22d0

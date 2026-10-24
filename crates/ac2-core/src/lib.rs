@@ -13,6 +13,7 @@ mod enums;
 mod fast_hash;
 mod ids;
 mod scalar;
+mod timer;
 mod turbine_guid;
 
 pub use color::{ColorArgb, ColorArgbByteReader};
@@ -20,4 +21,5 @@ pub use enums::*;
 pub use fast_hash::{fast_hash_set_with_capacity, FastHashMap, FastHashSet, FastHasher};
 pub use ids::{CellId, DataId, InstanceId, ObjectId, QualifiedDataId, VersionHandle};
 pub use scalar::VersionToken;
+pub use timer::Timer;
 pub use turbine_guid::TurbineGuid;

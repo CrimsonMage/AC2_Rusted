@@ -4,8 +4,11 @@ use crate::protocol::ProtocolError;
 
 /// Longest string accepted from the server, in bytes.
 pub(crate) const MAX_STRING: usize = 4096;
+/// Longest counted list accepted from the server.
+pub(crate) const MAX_ITEMS: usize = 4096;
 
-/// Little-endian reader whose alignment is measured from the start of the event.
+/// Little-endian reader. Alignment is measured from the start of the blob, which retail
+/// allocates 4-aligned, so `STREAMPACK_ALIGN` on the absolute pointer is alignment to the blob.
 pub(crate) struct Reader<'a> {
     bytes: &'a [u8],
     pos: usize,
@@ -37,6 +40,10 @@ impl<'a> Reader<'a> {
         Ok(u16::from_le_bytes([b[0], b[1]]))
     }
 
+    pub(crate) fn i16(&mut self) -> Result<i16, ProtocolError> {
+        Ok(self.u16()? as i16)
+    }
+
     pub(crate) fn u32(&mut self) -> Result<u32, ProtocolError> {
         let b = self.take(4)?;
         Ok(u32::from_le_bytes([b[0], b[1], b[2], b[3]]))
@@ -54,8 +61,18 @@ impl<'a> Reader<'a> {
         Ok(f64::from_bits(self.u64()?))
     }
 
+    /// `Vector::StreamPack` (`STREAMPACK_SIZEOF`): three floats.
     pub(crate) fn vec3(&mut self) -> Result<[f32; 3], ProtocolError> {
         Ok([self.f32()?, self.f32()?, self.f32()?])
+    }
+
+    /// A u32 count, refused above [`MAX_ITEMS`] before anything is allocated.
+    pub(crate) fn count(&mut self) -> Result<usize, ProtocolError> {
+        let count = self.u32()? as usize;
+        if count > MAX_ITEMS {
+            return Err(ProtocolError::Invalid("count"));
+        }
+        Ok(count)
     }
 
     /// `STREAMPACK_ALIGN`.
@@ -80,7 +97,7 @@ impl<'a> Reader<'a> {
     }
 }
 
-/// Little-endian event writer.
+/// Little-endian event writer; alignment counts from the opcode.
 pub(crate) struct Writer {
     pub(crate) bytes: Vec<u8>,
 }
@@ -113,6 +130,11 @@ impl Writer {
     }
     pub(crate) fn string(&mut self, value: &[u8]) -> &mut Self {
         pack_string(&mut self.bytes, 0, value);
+        self
+    }
+    #[cfg(test)]
+    pub(crate) fn wide_string(&mut self, value: &str) -> &mut Self {
+        crate::pack_wide_string(&mut self.bytes, 0, value);
         self
     }
     pub(crate) fn align(&mut self) -> &mut Self {

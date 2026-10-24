@@ -102,6 +102,9 @@ dependencies = [
 [[package]]
 name = "ac2-net"
 version = "0.1.0"
+dependencies = [
+ "ac2-core",
+]
 
 [[package]]
 name = "ac2-physics"

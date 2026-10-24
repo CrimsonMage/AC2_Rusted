@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 0 done, 0 partial, 349 to do, 5 skipped.
+354 retail functions: 7 done, 2 partial, 340 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -33,7 +33,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [ ] `WinMain` · 004013a0 · legions 00401370
 
-## `ac2/client/src/main/gmclient.cpp.c` (0/92)
+## `ac2/client/src/main/gmclient.cpp.c` (5/92)
 
 ### PackObj
 - [ ] `PackObj::ALIGN_PTR` · 00401a60 · legions 00401980
@@ -41,9 +41,9 @@ Legend and workflow: [README](README.md).
 ### NetError
 - [ ] `NetError::operator!=` · 00401aa0 · legions 004019c0
 - [ ] `NetError::operator_StringInfo` · 00401ad0 · legions 004019f0
-- [ ] `NetError::GetPackSize` · 00401b20 · legions 00401a40
-- [ ] `NetError::Pack` · 00401b30 · legions 00401a50
-- [ ] `NetError::UnPack` · 00401b80 · legions 00401aa0
+- [x] `NetError::GetPackSize` · 00401b20 · legions 00401a40
+- [x] `NetError::Pack` · 00401b30 · legions 00401a50
+- [x] `NetError::UnPack` · 00401b80 · legions 00401aa0
 
 ### ArgumentParser
 - [ ] `ArgumentParser::OnCommandLineEvaluationDone` · 00401bd0 · legions 00401af0
@@ -91,7 +91,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmClient::UseTime` · 00401e30 · legions 00401da0
 
 ### PStringBase<char>
-- [ ] `PStringBase<char>::GetPackSize` · 00401e70 · legions 00401e10
+- [x] `PStringBase<char>::GetPackSize` · 00401e70 · legions 00401e10
 - [ ] `PStringBase<char>::operator==` · 00401ea0 · legions 00401e40
 
 ### PSmartArray<unsigned_long>
@@ -180,7 +180,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmClient::CreateChatInterfaceProvider` · 00404190 · legions 004040e0
 
 ### PStringBase<char>
-- [ ] `PStringBase<char>::Pack` · 004042f0 · legions 00404240
+- [x] `PStringBase<char>::Pack` · 004042f0 · legions 00404240
 
 ### accountID
 - [ ] `accountID::operator=` · 004043d0
@@ -292,7 +292,7 @@ Legend and workflow: [README](README.md).
 - [ ] `InitCliCrypto::Delete` · 00568db0 · legions 00538d40
 - [ ] `InitCliCrypto::Init` · 00568dd0 · legions 00538d60
 
-## `portal/client/src/main/client.cpp.c` (0/37)
+## `portal/client/src/main/client.cpp.c` (2/37)
 
 ### CChatEvent
 - [ ] `CChatEvent::CreateForSend` · 0071f6b0 · legions 0069ffb0
@@ -314,9 +314,9 @@ Legend and workflow: [README](README.md).
 - [ ] `Turbine::Client::FinishOutputText` · 0071f9f0
 - [ ] `Turbine::Client::GetCharactersToWrapUsageTo` · 0071fa00 · legions 006a02b0
 - [ ] `Turbine::Client::GetLastCryptoError` · 0071fa10 · legions 006a02c0
-- [ ] `Turbine::Client::AddNetQueue` · 0071fa40 · legions 006a02f0
-- [ ] `Turbine::Client::ProcessControlEventQueue` · 0071fab0 · legions 006a0360
-- [ ] `Turbine::Client::ProcessLogonEventQueue` · 0071fb10 · legions 006a03c0
+- [x] `Turbine::Client::AddNetQueue` · 0071fa40 · legions 006a02f0
+- [x] `Turbine::Client::ProcessControlEventQueue` · 0071fab0 · legions 006a0360
+- [~] `Turbine::Client::ProcessLogonEventQueue` · 0071fb10 · legions 006a03c0 — chat (0x100d3) recognised, not handed to a chat client
 
 ### Turbine::Client::ChatInterfaceProvider
 - [ ] `Turbine::Client::ChatInterfaceProvider::SendData` · 0071fba0 · legions 006a0450
@@ -328,7 +328,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ArgumentParser::GetCharactersToWrapUsageTo` · 0071fc40 · legions 006a04f0
 
 ### Turbine::Client
-- [ ] `Turbine::Client::InitNet` · 0071fc50 · legions 006a0500
+- [~] `Turbine::Client::InitNet` · 0071fc50 · legions 006a0500 — queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
 - [ ] `Turbine::Client::SetLanguage` · 0071fde0 · legions 006a0640
 - [ ] `Turbine::Client::~Client` · 0071fe30 · legions 006a0690
 - [ ] `Turbine::Client::CleanupNet` · 00720090 · legions 006a08c0

@@ -1,13 +1,13 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 0 done, 0 partial, 260 to do, 2 skipped.
+262 retail functions: 18 done, 3 partial, 239 to do, 2 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/client/src/objects/cbookkeep.cpp.c` (0/22)
+## `portal/client/src/objects/cbookkeep.cpp.c` (5/22)
 
 ### CBookKeep
 - [ ] `CBookKeep::CBookKeep` · 004d9b70 · legions 004cc5e0
-- [ ] `CBookKeep::HandleOrderedBlob` · 004d9c00 · legions 004cc670
+- [x] `CBookKeep::HandleOrderedBlob` · 004d9c00 · legions 004cc670
 - [ ] `CBookKeep::ChangeCell` · 004d9c50 · legions 004cc6c0
 - [ ] `CBookKeep::GotoLostCell` · 004d9c80 · legions 004cc6f0
 - [ ] `CBookKeep::RemoveFromLostCell` · 004d9ce0 · legions 004cc750
@@ -17,9 +17,9 @@ Legend and workflow: [README](README.md).
 - [ ] `CBookKeep::HasParent` · 004d9da0 · legions 004cc810
 - [ ] `CBookKeep::SyncPointers` · 004d9dc0 · legions 004cc830
 - [ ] `CBookKeep::~CBookKeep` · 004d9e20 · legions 004cc890
-- [ ] `CBookKeep::FlushVisualOrderedEvents` · 004d9e90 · legions 004cc900
-- [ ] `CBookKeep::Notice_CreateEventReceived` · 004d9f10 · legions 004cc980
-- [ ] `CBookKeep::FlushOrderedEvents` · 004d9f30 · legions 004cc9a0
+- [x] `CBookKeep::FlushVisualOrderedEvents` · 004d9e90 · legions 004cc900
+- [x] `CBookKeep::Notice_CreateEventReceived` · 004d9f10 · legions 004cc980
+- [x] `CBookKeep::FlushOrderedEvents` · 004d9f30 · legions 004cc9a0
 - [ ] `CBookKeep::SetPhysObj` · 004d9f80 · legions 004cc9f0
 - [ ] `CBookKeep::SetWeenieObj` · 004d9f90 · legions 004cca00
 - [ ] `CBookKeep::AddObjectToBeDestroyed` · 004d9fa0 · legions 004cca10
@@ -27,7 +27,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CBookKeep::HandleEnterWorld` · 004da0f0 · legions 004ccb60
 - [ ] `CBookKeep::HandleLeaveWorld` · 004da120 · legions 004ccb90
 - [ ] `CBookKeep::ObjectBeingDestructed` · 004da150 · legions 004ccbc0
-- [ ] `CBookKeep::HandleVisualOrderedBlob` · 004da200 · legions 004ccc70
+- [x] `CBookKeep::HandleVisualOrderedBlob` · 004da200 · legions 004ccc70
 
 ## `portal/client/src/objects/clostcell.cpp.c` (0/4)
 
@@ -37,7 +37,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CLostCell::RemoveObject` · 004da260 · legions 004cccc0
 - [ ] `CLostCell::AddObject` · 004da2a0 · legions 004ccd00
 
-## `portal/client/src/objects/cobjmaint.cpp.c` (0/65)
+## `portal/client/src/objects/cobjmaint.cpp.c` (6/65)
 
 ### CObjectMaint
 - [ ] `CObjectMaint::CreatePhysicsObj` · 004d4fb0 · legions 004c7930
@@ -60,7 +60,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PriorityHash<InstanceID,double>::bubble_down` · 004d5680 · legions 004c8130
 
 ### FXScalarAndTarget
-- [ ] `FXScalarAndTarget::StreamPack` · 004d5720 · legions 004c81d0
+- [x] `FXScalarAndTarget::StreamPack` · 004d5720 · legions 004c81d0
 
 ### PhysicsDesc
 - [ ] `PhysicsDesc::get_position` · 004d5770 · legions 004c8220
@@ -123,7 +123,7 @@ Legend and workflow: [README](README.md).
 - [ ] `_STL::_Rb_tree<unsigned_long,_STL::pair<unsigned_long_const_,FXScalarAndTarget>,_STL::_Select1st<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>::operator=` · 004d7dc0 · legions 004ca830
 
 ### ObjectEventQueue
-- [ ] `ObjectEventQueue::push` · 004d7e80 · legions 004ca8f0
+- [x] `ObjectEventQueue::push` · 004d7e80 · legions 004ca8f0
 
 ### CObjectMaint
 - [ ] `CObjectMaint::DeallocateTemporaryID` · 004d7ef0 · legions 004ca960
@@ -137,35 +137,35 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjectMaint::StartEntityCreation` · 004d84a0 · legions 004caf10
 - [ ] `CObjectMaint::DestroyObjectInternal` · 004d86f0 · legions 004cb160
 - [ ] `CObjectMaint::HandlePendingDeletion` · 004d87b0 · legions 004cb220
-- [ ] `CObjectMaint::FlushEventQueueForBookie` · 004d8820 · legions 004cb290
+- [x] `CObjectMaint::FlushEventQueueForBookie` · 004d8820 · legions 004cb290
 - [ ] `CObjectMaint::FlushObjectTable` · 004d8940 · legions 004cb3b0
 - [ ] `CObjectMaint::DestroyEventQueues` · 004d8a00 · legions 004cb470
-- [ ] `CObjectMaint::FinishEntityCreation` · 004d8a40 · legions 004cb4b0
+- [~] `CObjectMaint::FinishEntityCreation` · 004d8a40 · legions 004cb4b0 — visual-queue release and queued-event replay only; no CPhysicsObj built
 - [ ] `CObjectMaint::DestroyObjects` · 004d8c00 · legions 004cb670
 - [ ] `CObjectMaint::CObjectMaint` · 004d8de0 · legions 004cb850
 - [ ] `CObjectMaint::~CObjectMaint` · 004d8f30 · legions 004cb9a0
-- [ ] `CObjectMaint::FinishEntityCreation` · 004d9150 · legions 004cbbc0
+- [~] `CObjectMaint::FinishEntityCreation` · 004d9150 · legions 004cbbc0 — visual-queue release and queued-event replay only; no CPhysicsObj built
 - [ ] `CObjectMaint::UseTime` · 004d9480 · legions 004cbef0
 
 ### _STL::map<InstanceID,ObjectEventQueue,_STL::less<InstanceID>,_STL::allocator<_STL::pair<InstanceID_const_,ObjectEventQueue>_>_>
 - [ ] `_STL::map<InstanceID,ObjectEventQueue,_STL::less<InstanceID>,_STL::allocator<_STL::pair<InstanceID_const_,ObjectEventQueue>_>_>::operator[]` · 004d9770 · legions 004cc1e0
 
 ### CObjectMaint
-- [ ] `CObjectMaint::QueueEventForBookie` · 004d98b0 · legions 004cc320
-- [ ] `CObjectMaint::GetObjectOrQueueEvent` · 004d98e0 · legions 004cc350
-- [ ] `CObjectMaint::RecvEvt_CreateObject` · 004d99c0 · legions 004cc430
-- [ ] `CObjectMaint::RecvEvt_DestroyObject` · 004d9b00 · legions 004cc570
+- [x] `CObjectMaint::QueueEventForBookie` · 004d98b0 · legions 004cc320
+- [x] `CObjectMaint::GetObjectOrQueueEvent` · 004d98e0 · legions 004cc350
+- [~] `CObjectMaint::RecvEvt_CreateObject` · 004d99c0 · legions 004cc430 — creation is immediate (no async entity loading); parent/stamp/update rules kept
+- [x] `CObjectMaint::RecvEvt_DestroyObject` · 004d9b00 · legions 004cc570
 
-## `portal/client/src/objects/visualorderingqueue.cpp.c` (0/7)
+## `portal/client/src/objects/visualorderingqueue.cpp.c` (7/7)
 
 ### VisualOrderingQueue
-- [ ] `VisualOrderingQueue::IsHeavilyBlocked` · 004da2e0 · legions 004ccd40
-- [ ] `VisualOrderingQueue::DiscardEvents` · 004da320 · legions 004ccd80
-- [ ] `VisualOrderingQueue::VisualOrderingQueue` · 004da550 · legions 004ccfb0
-- [ ] `VisualOrderingQueue::HandleVisualOrderedEvent` · 004da590 · legions 004ccff0
-- [ ] `VisualOrderingQueue::ExtractNextEvent` · 004da5d0 · legions 004cd030
-- [ ] `VisualOrderingQueue::DiscardAllEvents` · 004da700 · legions 004cd160
-- [ ] `VisualOrderingQueue::~VisualOrderingQueue` · 004da7b0 · legions 004cd210
+- [x] `VisualOrderingQueue::IsHeavilyBlocked` · 004da2e0 · legions 004ccd40
+- [x] `VisualOrderingQueue::DiscardEvents` · 004da320 · legions 004ccd80
+- [x] `VisualOrderingQueue::VisualOrderingQueue` · 004da550 · legions 004ccfb0
+- [x] `VisualOrderingQueue::HandleVisualOrderedEvent` · 004da590 · legions 004ccff0
+- [x] `VisualOrderingQueue::ExtractNextEvent` · 004da5d0 · legions 004cd030
+- [x] `VisualOrderingQueue::DiscardAllEvents` · 004da700 · legions 004cd160
+- [x] `VisualOrderingQueue::~VisualOrderingQueue` · 004da7b0 · legions 004cd210
 
 ## `portal/client/src/smartbox/camera/camerafx.cpp.c` (0/10)
 

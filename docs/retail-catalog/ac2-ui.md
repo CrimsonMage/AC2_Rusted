@@ -159,7 +159,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmGamePlayUI::SetErrorMsg` · 00407940 · legions 00407650
 - [ ] `gmGamePlayUI::RecvNotice_EndCharacterSession` · 00407980
 - [ ] `gmGamePlayUI::RecvNotice_Logoff` · 00407990
-- [ ] `gmGamePlayUI::RecvNotice_NextFrameDrawn` · 004079b0
+- [ ] `gmGamePlayUI::RecvNotice_NextFrameDrawn` · 004079b0 — OnlineSession::scene_ready, called by the client once the scene draws
 - [ ] `gmGamePlayUI::RecvNotice_BeingDeleted` · 004079c0
 - [ ] `gmGamePlayUI::MakePleaseWaitDialog` · 004079e0 · legions 004076f0
 - [ ] `gmGamePlayUI::MakeResurrectDialog` · 00407a40 · legions 00407750
@@ -206,7 +206,7 @@ Legend and workflow: [README](README.md).
 
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::Create` · 00408e70
-- [ ] `gmGamePlayUI::EndSession` · 00408e90 · legions 00408bd0
+- [ ] `gmGamePlayUI::EndSession` · 00408e90 · legions 00408bd0 — LogOffCharacter only; no UI or game-option upload
 - [ ] `gmGamePlayUI::RecvNotice_FinishPlaySequence` · 00408f50 · legions 00408c90
 - [ ] `gmGamePlayUI::RecvNotice_PlaySequence` · 00408fa0 · legions 00408ce0
 - [ ] `gmGamePlayUI::CheckPortalScene` · 00409000 · legions 00408d40
