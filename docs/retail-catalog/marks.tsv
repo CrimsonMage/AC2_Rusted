@@ -890,9 +890,52 @@ key	status	note
 0067def0	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 0067df60	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 00684b00	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+00689ab0	~	ac2-anim Ac2SliderTracker; slider interpolators not modelled
+00689d60	x	ac2-anim Ac2SliderTracker
+00689da0	x	ac2-anim Ac2SliderTracker
+00689de0	x	ac2-anim Ac2SliderTracker
+0068a1d0	x	ac2-anim Ac2SliderTracker
+0068a400	x	ac2-anim Ac2SliderTracker
+0068a840	x	ac2-anim Ac2SliderTracker
+0068a900	x	ac2-anim Ac2ModeTracker
+0068a9f0	x	ac2-anim Ac2ModeTracker
+0068aac0	x	ac2-anim Ac2ModeTracker
+0068ab10	x	ac2-anim Ac2ModeTracker
+0068ab90	x	ac2-anim Ac2ModeTracker
+0068ac50	x	ac2-anim Ac2ModeTracker
+0068acd0	x	ac2-anim Ac2ModeTracker
+0068ad20	x	ac2-anim Ac2ModeTracker
+0068ad50	x	ac2-anim Ac2ModeTracker
+0068ad70	x	ac2-anim Ac2ModeTracker
+0068adf0	x	ac2-anim Ac2ModeTracker
+0068ae30	x	ac2-anim Ac2ModeTracker
+0068b060	x	ac2-anim Ac2ModeTracker
+0068b0b0	x	ac2-anim Ac2ModeTracker
+0068b1d0	~	ac2-anim Ac2ModeTracker; effect triggers become StartFx/StopFx events, no TriggerUpdate
+0068b400	x	ac2-anim Ac2ModeTracker
+0068b450	x	ac2-anim Ac2ModeTracker
+0068b510	~	ac2-anim Ac2ModeTracker; effect triggers become StartFx/StopFx events, no TriggerUpdate
+0068bba0	x	ac2-anim Ac2BehaviorTracker
+0068bbf0	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+0068bd50	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+0068c400	x	ac2-anim Ac2BehaviorTracker
+0068c4c0	x	ac2-anim Ac2BehaviorTracker
+0068c500	x	ac2-anim Ac2BehaviorTracker
+0068c720	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+0068cbd0	x	ac2-anim Ac2BehaviorTracker
+0068cda0	x	ac2-anim Ac2BehaviorTracker
+0068ce80	x	ac2-anim Ac2BehaviorTracker
+0068d0b0	x	ac2-anim Ac2BehaviorTracker
+0068d340	x	ac2-anim Ac2BehaviorTracker
+0068d520	x	ac2-anim Ac2BehaviorTracker
+0068d800	x	ac2-anim Ac2BehaviorTracker
+0068db80	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+0068dfc0	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+0068e410	x	ac2-anim Ac2BehaviorTracker
 0068eaf0	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 0068eb00	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 0068eb90	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+0068f520	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
 0069bd90	x	
 0069be20	x	
 0069bfd0	x	

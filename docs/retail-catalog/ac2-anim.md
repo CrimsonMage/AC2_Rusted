@@ -1,6 +1,6 @@
 # ac2-anim: Animation system
 
-532 retail functions: 16 done, 2 partial, 478 to do, 36 skipped.
+532 retail functions: 50 done, 11 partial, 435 to do, 36 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/anim/charactersetup.cpp.c` (0/67)
@@ -662,7 +662,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/animsys/behaviortrack.cpp.c` (0/4)
 
 ### BehaviorTrack
-- [ ] `BehaviorTrack::Update` · 0068f520 · legions 006300a0
+- [~] `BehaviorTrack::Update` · 0068f520 · legions 006300a0 — ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
 - [ ] `BehaviorTrack::~BehaviorTrack` · 0068f980 · legions 00630500
 
 ### (free functions)
@@ -671,12 +671,12 @@ Legend and workflow: [README](README.md).
 ### BehaviorTrack
 - [ ] `BehaviorTrack::StreamPack` · 0068fb60 · legions 006306e0
 
-## `portal/shared/src/animsys/behaviortracker.cpp.c` (0/34)
+## `portal/shared/src/animsys/behaviortracker.cpp.c` (12/34)
 
 ### BehaviorTracker
-- [ ] `BehaviorTracker::SendAndClearCallback` · 0068bba0 · legions 0062cbd0
-- [ ] `BehaviorTracker::ProcessParamFlags` · 0068bbf0 · legions 0062cc20
-- [ ] `BehaviorTracker::ProcessRampingDownParamFlags` · 0068bd50 · legions 0062cd80
+- [x] `BehaviorTracker::SendAndClearCallback` · 0068bba0 · legions 0062cbd0 — ac2-anim Ac2BehaviorTracker
+- [~] `BehaviorTracker::ProcessParamFlags` · 0068bbf0 · legions 0062cc20 — ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+- [~] `BehaviorTracker::ProcessRampingDownParamFlags` · 0068bd50 · legions 0062cd80 — ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
 - [ ] `BehaviorTracker::StreamPack` · 0068be30 · legions 0062ce60
 
 ### SmartArray<WeenieHook>
@@ -689,26 +689,26 @@ Legend and workflow: [README](README.md).
 - [ ] `BehaviorTracker::Destroy` · 0068c1e0 · legions 0062d210
 - [ ] `BehaviorTracker::AddTriggers` · 0068c290 · legions 0062d2c0
 - [ ] `BehaviorTracker::CheckActiveBehaviorsForDynamicFPCamera` · 0068c300 · legions 0062d330
-- [ ] `BehaviorTracker::ReleaseBehavior` · 0068c400 · legions 0062d430
-- [ ] `BehaviorTracker::GetTrack` · 0068c4c0 · legions 0062d4f0
-- [ ] `BehaviorTracker::IsDoingBehavior` · 0068c500 · legions 0062d530
+- [x] `BehaviorTracker::ReleaseBehavior` · 0068c400 · legions 0062d430 — ac2-anim Ac2BehaviorTracker
+- [x] `BehaviorTracker::GetTrack` · 0068c4c0 · legions 0062d4f0 — ac2-anim Ac2BehaviorTracker
+- [x] `BehaviorTracker::IsDoingBehavior` · 0068c500 · legions 0062d530 — ac2-anim Ac2BehaviorTracker
 - [ ] `BehaviorTracker::~BehaviorTracker` · 0068c640 · legions 0062d670
-- [ ] `BehaviorTracker::Update` · 0068c720 · legions 0062d750
-- [ ] `BehaviorTracker::StopBehavior` · 0068cbd0 · legions 0062dbf0
-- [ ] `BehaviorTracker::StopAllWeenieBehaviors` · 0068cda0 · legions 0062ddc0
-- [ ] `BehaviorTracker::StopLayer` · 0068ce80 · legions 0062dea0
+- [~] `BehaviorTracker::Update` · 0068c720 · legions 0062d750 — ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+- [x] `BehaviorTracker::StopBehavior` · 0068cbd0 · legions 0062dbf0 — ac2-anim Ac2BehaviorTracker
+- [x] `BehaviorTracker::StopAllWeenieBehaviors` · 0068cda0 · legions 0062ddc0 — ac2-anim Ac2BehaviorTracker
+- [x] `BehaviorTracker::StopLayer` · 0068ce80 · legions 0062dea0 — ac2-anim Ac2BehaviorTracker
 
 ### _STL::_Rb_tree<unsigned_long,unsigned_long,_STL::_Identity<unsigned_long>,_STL::less<unsigned_long>,_STL::allocator<unsigned_long>_>
 - [ ] `_STL::_Rb_tree<unsigned_long,unsigned_long,_STL::_Identity<unsigned_long>,_STL::less<unsigned_long>,_STL::allocator<unsigned_long>_>::operator=` · 0068cfd0 · legions 0062dff0
 
 ### BehaviorTracker
-- [ ] `BehaviorTracker::StopMoveToCancelsBehaviors` · 0068d0b0 · legions 0062e0d0
+- [x] `BehaviorTracker::StopMoveToCancelsBehaviors` · 0068d0b0 · legions 0062e0d0 — ac2-anim Ac2BehaviorTracker
 
 ### AnimTrack
 - [ ] `AnimTrack::~AnimTrack` · 0068d270 · legions 0062e290
 
 ### BehaviorTracker
-- [ ] `BehaviorTracker::BehaviorTracker` · 0068d340 · legions 0062e360
+- [x] `BehaviorTracker::BehaviorTracker` · 0068d340 · legions 0062e360 — ac2-anim Ac2BehaviorTracker
 
 ### AnimTrack
 - [ ] `AnimTrack::operator=` · 0068d3e0 · legions 0062e400
@@ -716,7 +716,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AnimTrack::IsRampingDown` · 0068d4e0
 
 ### BehaviorTrack
-- [ ] `BehaviorTrack::BehaviorTrack` · 0068d520 · legions 0062e540
+- [x] `BehaviorTrack::BehaviorTrack` · 0068d520 · legions 0062e540 — ac2-anim Ac2BehaviorTracker
 - [ ] `BehaviorTrack::IsRampingDown` · 0068d5b0
 
 ### AnimTrack
@@ -727,15 +727,15 @@ Legend and workflow: [README](README.md).
 
 ### BehaviorTrack
 - [ ] `BehaviorTrack::operator=` · 0068d710 · legions 0062e730
-- [ ] `BehaviorTrack::BehaviorTrack` · 0068d800 · legions 0062e820
+- [x] `BehaviorTrack::BehaviorTrack` · 0068d800 · legions 0062e820 — ac2-anim Ac2BehaviorTracker
 
 ### PHashTable<unsigned_long,BehaviorTrack>
 - [ ] `PHashTable<unsigned_long,BehaviorTrack>::StreamPack` · 0068d900
 
 ### BehaviorTracker
-- [ ] `BehaviorTracker::Init` · 0068db80 · legions 0062eba0
-- [ ] `BehaviorTracker::DoBehavior` · 0068dfc0 · legions 0062efe0
-- [ ] `BehaviorTracker::DoAutonomousBehavior` · 0068e410 · legions 0062f430
+- [~] `BehaviorTracker::Init` · 0068db80 · legions 0062eba0 — ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+- [~] `BehaviorTracker::DoBehavior` · 0068dfc0 · legions 0062efe0 — ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+- [x] `BehaviorTracker::DoAutonomousBehavior` · 0068e410 · legions 0062f430 — ac2-anim Ac2BehaviorTracker
 
 ## `portal/shared/src/animsys/chartemplate.cpp.c` (2/26)
 
@@ -930,32 +930,32 @@ Legend and workflow: [README](README.md).
 - [ ] `Mode::Mode` · 0068f400 · legions 0062ff80
 - [ ] `Mode::StreamPack` · 0068f410
 
-## `portal/shared/src/animsys/modetracker.cpp.c` (0/23)
+## `portal/shared/src/animsys/modetracker.cpp.c` (16/23)
 
 ### ModeTracker
 - [ ] `ModeTracker::GetTriggerUpdate` · 0068a8b0 · legions 0062b8f0
 - [ ] `ModeTracker::SetAnimationObj` · 0068a8d0 · legions 0062b910
-- [ ] `ModeTracker::Init` · 0068a900 · legions 0062b940
-- [ ] `ModeTracker::SetMode` · 0068a9f0 · legions 0062ba20
-- [ ] `ModeTracker::DoAutonomousBehavior` · 0068aac0 · legions 0062baf0
-- [ ] `ModeTracker::ReleaseBehavior` · 0068ab10 · legions 0062bb40
-- [ ] `ModeTracker::StopBehavior` · 0068ab90 · legions 0062bbc0
-- [ ] `ModeTracker::StopMoveToCancelsBehaviors` · 0068ac50 · legions 0062bc80
-- [ ] `ModeTracker::StopLayer` · 0068acd0 · legions 0062bd00
-- [ ] `ModeTracker::StopAllWeenieBehaviors` · 0068ad20 · legions 0062bd50
-- [ ] `ModeTracker::GetElement` · 0068ad50 · legions 0062bd80
-- [ ] `ModeTracker::IsDoingBehavior` · 0068ad70 · legions 0062bda0
+- [x] `ModeTracker::Init` · 0068a900 · legions 0062b940 — ac2-anim Ac2ModeTracker
+- [x] `ModeTracker::SetMode` · 0068a9f0 · legions 0062ba20 — ac2-anim Ac2ModeTracker
+- [x] `ModeTracker::DoAutonomousBehavior` · 0068aac0 · legions 0062baf0 — ac2-anim Ac2ModeTracker
+- [x] `ModeTracker::ReleaseBehavior` · 0068ab10 · legions 0062bb40 — ac2-anim Ac2ModeTracker
+- [x] `ModeTracker::StopBehavior` · 0068ab90 · legions 0062bbc0 — ac2-anim Ac2ModeTracker
+- [x] `ModeTracker::StopMoveToCancelsBehaviors` · 0068ac50 · legions 0062bc80 — ac2-anim Ac2ModeTracker
+- [x] `ModeTracker::StopLayer` · 0068acd0 · legions 0062bd00 — ac2-anim Ac2ModeTracker
+- [x] `ModeTracker::StopAllWeenieBehaviors` · 0068ad20 · legions 0062bd50 — ac2-anim Ac2ModeTracker
+- [x] `ModeTracker::GetElement` · 0068ad50 · legions 0062bd80 — ac2-anim Ac2ModeTracker
+- [x] `ModeTracker::IsDoingBehavior` · 0068ad70 · legions 0062bda0 — ac2-anim Ac2ModeTracker
 - [ ] `ModeTracker::CheckForDynamicFPCamera` · 0068adb0 · legions 0062bde0
 - [ ] `ModeTracker::GetNetworkBehaviorParams` · 0068add0 · legions 0062be00
-- [ ] `ModeTracker::ModeTracker` · 0068adf0 · legions 0062be20
-- [ ] `ModeTracker::GetDesiredModeState` · 0068ae30 · legions 0062be60
+- [x] `ModeTracker::ModeTracker` · 0068adf0 · legions 0062be20 — ac2-anim Ac2ModeTracker
+- [x] `ModeTracker::GetDesiredModeState` · 0068ae30 · legions 0062be60 — ac2-anim Ac2ModeTracker
 - [ ] `ModeTracker::StreamPack` · 0068ae60 · legions 0062be90
-- [ ] `ModeTracker::GetModeState` · 0068b060 · legions 0062c090
-- [ ] `ModeTracker::DoBehavior` · 0068b0b0 · legions 0062c0e0
-- [ ] `ModeTracker::StartTransitioning` · 0068b1d0 · legions 0062c200
-- [ ] `ModeTracker::DoElement` · 0068b400 · legions 0062c430
-- [ ] `ModeTracker::DoMode` · 0068b450 · legions 0062c480
-- [ ] `ModeTracker::Update` · 0068b510 · legions 0062c540
+- [x] `ModeTracker::GetModeState` · 0068b060 · legions 0062c090 — ac2-anim Ac2ModeTracker
+- [x] `ModeTracker::DoBehavior` · 0068b0b0 · legions 0062c0e0 — ac2-anim Ac2ModeTracker
+- [~] `ModeTracker::StartTransitioning` · 0068b1d0 · legions 0062c200 — ac2-anim Ac2ModeTracker; effect triggers become StartFx/StopFx events, no TriggerUpdate
+- [x] `ModeTracker::DoElement` · 0068b400 · legions 0062c430 — ac2-anim Ac2ModeTracker
+- [x] `ModeTracker::DoMode` · 0068b450 · legions 0062c480 — ac2-anim Ac2ModeTracker
+- [~] `ModeTracker::Update` · 0068b510 · legions 0062c540 — ac2-anim Ac2ModeTracker; effect triggers become StartFx/StopFx events, no TriggerUpdate
 
 ## `portal/shared/src/animsys/slider.cpp.c` (0/2)
 
@@ -963,7 +963,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Slider::Slider` · 0068f3b0 · legions 0062ff30
 - [ ] `Slider::StreamPack` · 0068f3c0 · legions 0062ff40
 
-## `portal/shared/src/animsys/slidertracker.cpp.c` (0/16)
+## `portal/shared/src/animsys/slidertracker.cpp.c` (6/16)
 
 ### SliderInterpolator
 - [ ] `SliderInterpolator::Activate` · 006898e0 · legions 0062a900
@@ -978,15 +978,15 @@ Legend and workflow: [README](README.md).
 - [ ] `SliderInterpolator::StreamPack` · 006899c0 · legions 0062a980
 
 ### SliderTracker
-- [ ] `SliderTracker::Update` · 00689ab0 · legions 0062aab0
+- [~] `SliderTracker::Update` · 00689ab0 · legions 0062aab0 — ac2-anim Ac2SliderTracker; slider interpolators not modelled
 - [ ] `SliderTracker::GetNetworkSliders` · 00689c20 · legions 0062ac20
-- [ ] `SliderTracker::GetSliderCurrentValue` · 00689d60 · legions 0062ada0
-- [ ] `SliderTracker::GetSliderDesiredValue` · 00689da0 · legions 0062ade0
-- [ ] `SliderTracker::GetSliderVelocity` · 00689de0 · legions 0062ae20
+- [x] `SliderTracker::GetSliderCurrentValue` · 00689d60 · legions 0062ada0 — ac2-anim Ac2SliderTracker
+- [x] `SliderTracker::GetSliderDesiredValue` · 00689da0 · legions 0062ade0 — ac2-anim Ac2SliderTracker
+- [x] `SliderTracker::GetSliderVelocity` · 00689de0 · legions 0062ae20 — ac2-anim Ac2SliderTracker
 - [ ] `SliderTracker::~SliderTracker` · 0068a130 · legions 0062b170
-- [ ] `SliderTracker::DoSlider` · 0068a1d0 · legions 0062b210
+- [x] `SliderTracker::DoSlider` · 0068a1d0 · legions 0062b210 — ac2-anim Ac2SliderTracker
 - [ ] `SliderTracker::GetSliderInterpolator` · 0068a320 · legions 0062b360
-- [ ] `SliderTracker::Init` · 0068a400 · legions 0062b440
+- [x] `SliderTracker::Init` · 0068a400 · legions 0062b440 — ac2-anim Ac2SliderTracker
 
 ### PHashTable<unsigned_long,SliderInfo>
 - [ ] `PHashTable<unsigned_long,SliderInfo>::StreamPack` · 0068a490
@@ -995,7 +995,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHashTable<unsigned_long,SliderInterpolator>::StreamPack` · 0068a660 · legions 0062b6a0
 
 ### SliderTracker
-- [ ] `SliderTracker::SliderTracker` · 0068a840 · legions 0062b880
+- [x] `SliderTracker::SliderTracker` · 0068a840 · legions 0062b880 — ac2-anim Ac2SliderTracker
 
 ## `portal/shared/src/animsys/trigger.cpp.c` (0/7)
 

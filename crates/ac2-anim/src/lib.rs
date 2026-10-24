@@ -6,6 +6,7 @@
 
 mod animation;
 mod animator;
+mod behavior;
 mod behavior_table;
 mod setup;
 
@@ -13,6 +14,12 @@ pub use animation::{load_ac2_motion_animation, Ac2AnimMap, Ac2Animation, Ac2Bone
 pub use animator::{
     load_ac2_motion_animator, Ac2Blend, Ac2MotionAnimator, AC2_SLIDER_FORWARD_SPEED,
     AC2_SLIDER_SIDESTEP_SPEED, AC2_SLIDER_TURN_RATE,
+};
+pub use behavior::{
+    Ac2AnimEvent, Ac2AnimationSource, Ac2BehaviorParams, Ac2BehaviorTrack, Ac2BehaviorTracker,
+    Ac2ModeTracker, Ac2SliderTracker, AC2_BEHAVIOR_IDLE, AC2_BEHAVIOR_IDLE_LAYER,
+    AC2_BEHAVIOR_MOVE, AC2_SLIDER_INIT, AC2_STOP_LAYER_BUSY, AC2_STOP_NOT_ACTIVE,
+    AC2_STOP_NOT_PLAYING,
 };
 pub use behavior_table::{
     Ac2BehaviorInfo, Ac2BehaviorTable, Ac2CharTemplate, Ac2ComboInfo, Ac2ModeState,

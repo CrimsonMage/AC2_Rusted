@@ -20,7 +20,8 @@ fn table_bytes() -> Vec<u8> {
     w.extend([1, G, PEACE, G, COMBAT, 0x4000_0099, 0, 0]);
     w.extend([1, 0x8000_0001]);
     w.extend([1, 0]);
-    let edges: [((u32, u32), &[(u32, u32)]); 4] = [
+    type Edge<'a> = ((u32, u32), &'a [(u32, u32)]);
+    let edges: [Edge; 4] = [
         ((G, PEACE), &[(G, COMBAT), (A, PEACE)]),
         ((G, COMBAT), &[(G, PEACE)]),
         ((A, PEACE), &[(A, COMBAT), (G, PEACE)]),
