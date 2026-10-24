@@ -506,6 +506,7 @@ key	status	note
 004ddc20	x	ac2-physics transition/placement.rs (asm float order; Legions identical)
 004ddda0	x	ac2-physics transition/placement.rs (asm float order; Legions identical)
 004dddc0	x	
+004dde80	x	ac2-physics interp (slice 3)
 004de020	x	
 004de0d0	x	
 004de490	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
@@ -516,12 +517,17 @@ key	status	note
 004de940	x	
 004de980	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004de990	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004dead0	x	ac2-physics interp (slice 3)
+004deb70	x	ac2-physics interp (slice 3)
+004dec30	x	ac2-physics interp (slice 3)
+004dec50	x	ac2-physics interp (slice 3)
 004df5a0	~	no IsDoingBehavior(jump) check (behaviours not ported)
 004df670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004df6a0	x	
 004df6d0	x	
 004df6e0	x	
 004df700	x	
+004df710	x	ac2-physics interp (slice 3)
 004df750	x	
 004dfa20	x	
 004dfa90	x	
@@ -530,12 +536,14 @@ key	status	note
 004dffe0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004e05a0	x	
 004e05d0	x	
+004e05e0	x	ac2-physics interp (slice 3)
 004e0620	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e06c0	x	
 004e0890	x	ac2-physics anim_pose fire_impulse
 004e0a70	x	
 004e0af0	x	
 004e0e30	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+004e12f0	x	ac2-physics interp (slice 3)
 004e1520	x	
 004e1c90	~	no admin moves or missiles
 004e1d70	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
@@ -543,6 +551,7 @@ key	status	note
 004e23b0	~	instance stamp kept per object in ac2-weenie ObjectTable
 004e30e0	x	
 004e3280	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+004e3310	x	ac2-physics interp (slice 3)
 004e3aa0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e3b90	~	elements go through ModeTracker::DoElement; the no-cell DoElement(GROUND) is not ported
 004e3e20	~	no pushers (CCollisionManager::UpdatePusherValues)
@@ -580,7 +589,7 @@ key	status	note
 004ec350	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ec730	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ed190	~	flags 0x1010 into PhysicsBody::place
-004ed1f0	~	the player's server placement (SetPositionSimple(pos, 1))
+004ed1f0	~	interp blips use set_position_checked(SLIDE); parent/placement-position bookkeeping not ported
 004ed470	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
 004ee7d0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f0a10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -618,16 +627,20 @@ key	status	note
 00509790	x	
 005097b0	x	
 005097e0	x	ac2-physics MovementState turning_to / turn_to_degrees
-00509800	x	
+00509800	x	ac2-physics interp (slice 3)
 00509980	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 00509a10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 00509a90	x	
 00509ab0	x	
 00509af0	x	
 00509b40	x	
+00509b70	x	ac2-physics interp (slice 3)
 00509ed0	x	
 00509f20	x	
 0050a1b0	x	
+0050a290	x	ac2-physics interp (slice 3)
+0050a420	x	ac2-physics interp (slice 3)
+0050a480	x	ac2-physics interp (slice 3)
 0050a4f0	~	ac2-physics: behaviours ported (motion_interp_behaviors); InterpolationManager/MoveToManager paths pending
 0050b470	x	
 0050b540	x	
@@ -637,6 +650,32 @@ key	status	note
 0050b7f0	x	
 0050b800	x	
 0050b820	x	
+0050b990	x	ac2-physics interp (slice 3)
+0050cb30	x	ac2-physics interp (slice 3)
+0050cc10	x	ac2-physics interp (slice 3)
+0050cc40	x	ac2-physics interp (slice 3)
+0050cfe0	x	ac2-physics interp (slice 3)
+0050d150	x	ac2-physics interp (slice 3)
+0050d380	x	ac2-physics interp (slice 3)
+0050d3c0	x	ac2-physics interp (slice 3)
+0050d500	x	ac2-physics interp (slice 3)
+0050d660	x	ac2-physics interp (slice 3)
+0050e090	x	ac2-physics interp (slice 3)
+0050e0c0	x	ac2-physics interp (slice 3)
+0050e100	x	ac2-physics interp (slice 3)
+0050e1c0	~	no ConstraintManager (GetConstraintManager is null for these bodies)
+0050e340	x	ac2-physics interp (slice 3)
+0050e8b0	x	ac2-physics interp (slice 3)
+0050f7d0	x	ac2-physics interp (slice 3)
+0050fa00	x	ac2-physics interp (slice 3)
+0050fe00	x	ac2-physics interp (slice 3)
+0050fec0	x	ac2-physics interp (slice 3)
+005103a0	x	ac2-physics interp (slice 3)
+005105a0	x	ac2-physics interp (slice 3)
+005106d0	x	ac2-physics interp (slice 3)
+00510700	x	ac2-physics interp (slice 3)
+00510950	x	ac2-physics interp (slice 3)
+00510b60	x	ac2-physics interp (slice 3)
 00517fd0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 00518250	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 005185a0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
@@ -782,7 +821,7 @@ key	status	note
 0061a220	x	
 0061a240	x	
 0061a310	x	
-0061a3c0	~	D3DXQuaternionSlerp is CPU-dispatched in retail; reference slerp
+0061a3c0	x	ac2-physics interp (slice 3)
 0061a5b0	x	
 0061a810	x	
 0061a8f0	x	
@@ -812,6 +851,9 @@ key	status	note
 0061ef30	x	
 0061f140	x	
 0061f300	x	
+0061fdb0	x	ac2-physics interp (slice 3)
+0061fdf0	x	ac2-physics interp (slice 3)
+0061fe90	x	ac2-physics interp (slice 3)
 006200b0	x	
 00620e20	x	
 00620e60	~	wire quantizer in ac2-net protocol::position

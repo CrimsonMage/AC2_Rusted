@@ -28,6 +28,7 @@ fn forward_input_accelerates_then_holds_the_forward_speed() {
     interp.update_movement(
         0.1,
         &ground_context(Vector::ZERO),
+        false,
         &mut RecordingRep::default(),
     );
     assert_eq!(interp.local_desired_vel, Vector::new(0.0, 4.0, 0.0));
@@ -36,12 +37,14 @@ fn forward_input_accelerates_then_holds_the_forward_speed() {
     interp.update_movement(
         0.1,
         &ground_context(Vector::new(0.0, 3.5, 0.0)),
+        false,
         &mut RecordingRep::default(),
     );
     assert_eq!(interp.acceleration().y, st((4.0 - 3.5) / ld(0.1)));
     interp.update_movement(
         0.1,
         &ground_context(Vector::new(0.0, 4.0, 0.0)),
+        false,
         &mut RecordingRep::default(),
     );
     assert_eq!(interp.acceleration(), Vector::ZERO);
@@ -53,12 +56,14 @@ fn releasing_input_brakes_with_the_stop_rate() {
     interp.update_movement(
         0.1,
         &ground_context(Vector::new(2.5, 3.0, 0.0)),
+        false,
         &mut RecordingRep::default(),
     );
     assert_eq!(interp.acceleration(), Vector::new(-20.0, -20.0, 0.0));
     interp.update_movement(
         0.1,
         &ground_context(Vector::new(1.0, 1.0, 0.0)),
+        false,
         &mut RecordingRep::default(),
     );
     assert_eq!(interp.acceleration().y, st(-1.0 / ld(0.1)));
@@ -71,6 +76,7 @@ fn backward_and_strafe_use_their_own_limits() {
     interp.update_movement(
         0.1,
         &ground_context(Vector::ZERO),
+        false,
         &mut RecordingRep::default(),
     );
     // The input is normalised: both axes at 1/sqrt(2).
@@ -82,6 +88,7 @@ fn backward_and_strafe_use_their_own_limits() {
     interp.update_movement(
         0.1,
         &ground_context(Vector::ZERO),
+        false,
         &mut RecordingRep::default(),
     );
     assert_eq!(interp.local_desired_vel.x, st(ld(0.5) * 4.0));
@@ -93,12 +100,14 @@ fn turning_ramps_the_turn_rate_by_speed() {
     interp.update_movement(
         0.1,
         &ground_context(Vector::ZERO),
+        false,
         &mut RecordingRep::default(),
     );
     assert_eq!(interp.max_turn_vel, 60.0);
     interp.update_movement(
         0.1,
         &ground_context(Vector::new(0.0, 2.0, 0.0)),
+        false,
         &mut RecordingRep::default(),
     );
     assert_eq!(interp.max_turn_vel, 75.0);
@@ -121,6 +130,7 @@ fn ground_contact_cancels_vertical_velocity() {
     interp.update_movement(
         0.1,
         &ground_context(Vector::new(0.0, 0.0, -2.0)),
+        false,
         &mut RecordingRep::default(),
     );
     assert_eq!(interp.acceleration().z, 20.0);
@@ -128,12 +138,13 @@ fn ground_contact_cancels_vertical_velocity() {
     interp.update_movement(
         0.1,
         &ground_context(Vector::new(0.0, 1.0, -2.0)),
+        false,
         &mut RecordingRep::default(),
     );
     assert_eq!(interp.acceleration().z, 3.0);
     let mut airborne = ground_context(Vector::new(0.0, 0.0, -2.0));
     airborne.height_above_walkable = 1.5;
-    interp.update_movement(0.1, &airborne, &mut RecordingRep::default());
+    interp.update_movement(0.1, &airborne, false, &mut RecordingRep::default());
     assert_eq!(interp.acceleration().z, 0.0);
 }
 
@@ -157,11 +168,11 @@ fn hovering_bodies_brake_onto_their_hover_height() {
     let mut interp = MotionInterp::new(Some(desc(&[(ELEMENT_GROUND, values)])));
     let mut low = ground_context(Vector::ZERO);
     low.height_above_walkable = 1.0;
-    interp.update_movement(0.1, &low, &mut RecordingRep::default());
+    interp.update_movement(0.1, &low, false, &mut RecordingRep::default());
     assert_eq!(interp.acceleration().z, 5.0);
     let mut rising = ground_context(Vector::new(0.0, 0.0, 3.0));
     rising.height_above_walkable = 1.9;
-    interp.update_movement(0.1, &rising, &mut RecordingRep::default());
+    interp.update_movement(0.1, &rising, false, &mut RecordingRep::default());
     // Would overshoot: decelerate at v^2 / 2d, limited to the vertical acceleration.
     assert_eq!(interp.acceleration().z, -5.0);
 }
@@ -173,6 +184,7 @@ fn missing_desc_moves_nothing() {
     interp.update_movement(
         0.1,
         &ground_context(Vector::ZERO),
+        false,
         &mut RecordingRep::default(),
     );
     assert_eq!(interp.acceleration(), Vector::ZERO);
@@ -185,6 +197,7 @@ fn turn_to_spins_the_short_way_and_clamps_on_arrival() {
     interp.update_movement(
         0.1,
         &ground_context(Vector::ZERO),
+        false,
         &mut RecordingRep::default(),
     );
     // Facing north (heading 0); turn to west (270): counter-clockwise, positive yaw rate.

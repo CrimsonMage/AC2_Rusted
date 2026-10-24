@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 92 done, 10 partial, 285 to do, 39 skipped.
+426 retail functions: 96 done, 9 partial, 282 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -132,7 +132,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DetectionObjRay::~DetectionObjRay` · 0062ac40 · legions 005e4d20
 - [ ] `DetectionObjRay::AddRay` · 0062ac80 · legions 005e4d60
 
-## `portal/shared/src/geometry/frame.cpp.c` (7/19)
+## `portal/shared/src/geometry/frame.cpp.c` (8/19)
 
 ### Frame
 - [x] `Frame::cache_matrix` · 00619f70 · legions 005d5c10
@@ -147,7 +147,7 @@ Legend and workflow: [README](README.md).
 - [-] `Frame::FromFileNode` · 0061a2d0 — text source format (admin tools)
 - [-] `Frame::ToFileNode` · 0061a300 — text source format (admin tools)
 - [x] `Frame::grotate` · 0061a310 · legions 005d5f70
-- [~] `Frame::slerp_rotation` · 0061a3c0 · legions 005d6020 — D3DXQuaternionSlerp is CPU-dispatched in retail; reference slerp
+- [x] `Frame::slerp_rotation` · 0061a3c0 · legions 005d6020 — ac2-physics interp (slice 3)
 - [ ] `Frame::OrientFrame` · 0061a460 · legions 005d60c0
 - [ ] `Frame::subtract2` · 0061a4e0 · legions 005d6140
 - [x] `Frame::set_vector_heading` · 0061a5b0 · legions 005d6210
@@ -378,15 +378,15 @@ Legend and workflow: [README](README.md).
 - [ ] `CPortalPoly::StreamPack` · 0072f890 · legions 006ad130
 - [-] `CPortalPoly::FromFileNode` · 0072f930 — text source format (admin tools)
 
-## `portal/shared/src/geometry/position.cpp.c` (1/36)
+## `portal/shared/src/geometry/position.cpp.c` (4/36)
 
 ### Position
 - [ ] `Position::Position` · 0061fd70 · legions 005db6b0
-- [ ] `Position::distance` · 0061fdb0 · legions 005db6f0
-- [ ] `Position::distance_squared` · 0061fdf0 · legions 005db730
+- [x] `Position::distance` · 0061fdb0 · legions 005db6f0 — ac2-physics interp (slice 3)
+- [x] `Position::distance_squared` · 0061fdf0 · legions 005db730 — ac2-physics interp (slice 3)
 - [ ] `Position::xy_distance` · 0061fe30 · legions 005db770
 - [ ] `Position::xy_distance_squared` · 0061fe60 · legions 005db7a0
-- [ ] `Position::heading` · 0061fe90 · legions 005db7d0
+- [x] `Position::heading` · 0061fe90 · legions 005db7d0 — ac2-physics interp (slice 3)
 - [ ] `Position::pitch` · 0061ff20 · legions 005db860
 - [ ] `Position::determine_quadrant` · 0061ffa0 · legions 005db8e0
 - [ ] `Position::GetPackSize` · 00620060 · legions 005db9a0

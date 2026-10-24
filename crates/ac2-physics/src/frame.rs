@@ -280,30 +280,31 @@ impl Frame {
             && near(self.q.z, other.q.z)
     }
 
-    /// `Frame::slerp_rotation`: the rotation `t` of the way from `from` to `to`
-    /// (`D3DXQuaternionSlerp`, CPU-dispatched in retail; this is the reference formula), stored
-    /// through `set_rotate`.
+    /// `Frame::slerp_rotation`: the rotation `t` of the way from `from` to `to` by
+    /// `D3DXQuaternionSlerp` (the x87 `c_` path the statically linked D3DX takes without
+    /// 3DNow!), stored through `set_rotate`.
     pub(crate) fn slerp_rotation(&mut self, from: &Frame, to: &Frame, t: f32) {
-        let a = [from.q.w, from.q.x, from.q.y, from.q.z].map(ld);
-        let mut b = [to.q.w, to.q.x, to.q.y, to.q.z].map(ld);
-        let t = ld(t);
-        let mut cos = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
-        if cos < 0.0 {
-            cos = -cos;
-            b = b.map(|v| -v);
-        }
-        let (scale_a, scale_b) = if 1.0 - cos > 1e-6 {
-            let angle = cos.acos();
-            let sine = angle.sin();
-            (((1.0 - t) * angle).sin() / sine, (t * angle).sin() / sine)
+        let (w1, x1, y1, z1) = (ld(from.q.w), ld(from.q.x), ld(from.q.y), ld(from.q.z));
+        let (w2, x2, y2, z2) = (ld(to.q.w), ld(to.q.x), ld(to.q.y), ld(to.q.z));
+        let tt = ld(t);
+        let s = 1.0 - tt;
+        let dot = ((x1 * x2 + z2 * z1) + y2 * y1) + w2 * w1;
+        let sign: f64 = if dot < 0.0 { -1.0 } else { 1.0 };
+        let d = sign * dot;
+        let (a, b) = if 1.0 - d > ld(1.192_092_9e-7_f32) {
+            let sin_theta = (1.0 - d * d).sqrt();
+            let theta = ld(st(sin_theta.atan2(ld(st(d)))));
+            let inverse = ld(st(1.0 / sin_theta));
+            ((theta * s).sin() * inverse, (theta * tt).sin() * inverse)
         } else {
-            (1.0 - t, t)
+            (s, tt)
         };
+        let b = b * sign;
         let q = Quaternion::new(
-            st(scale_a * a[0] + scale_b * b[0]),
-            st(scale_a * a[1] + scale_b * b[1]),
-            st(scale_a * a[2] + scale_b * b[2]),
-            st(scale_a * a[3] + scale_b * b[3]),
+            st(b * w2 + a * w1),
+            st(a * x1 + b * x2),
+            st(b * y2 + a * y1),
+            st(b * z2 + a * z1),
         );
         self.set_rotate(q);
     }

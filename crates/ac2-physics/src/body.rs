@@ -238,11 +238,79 @@ impl PhysicsBody {
 
     /// Runs the quanta the clock owes at `now`; returns how many ran.
     pub fn update(&mut self, clock: &mut PhysicsClock, now: f64, terrain: &Terrain) -> u32 {
+        self.set_time(now);
         let quanta = clock.advance(now);
         for _ in 0..quanta {
             self.step_quantum(terrain);
         }
         quanta
+    }
+
+    /// `Timer::cur_time` for interpolation: the clock server positions are stamped on
+    /// (`update` sets it to its `now`).
+    pub fn set_time(&mut self, now: f64) {
+        self.object.cur_time = now;
+    }
+
+    /// `CPhysicsObj::InterpolateTo`, for a server-driven body: steer toward `position` (its
+    /// heading, the sender's do-motion and contact flag) along the queue of positions, or jump
+    /// there when it is more than 15 m away. `time_sent` orders the positions.
+    pub fn interpolate_to(
+        &mut self,
+        time_sent: f64,
+        position: Position,
+        heading_degrees: f32,
+        motion: [f32; 3],
+        has_contact: bool,
+        terrain: &Terrain,
+    ) {
+        let [x, y, z] = motion;
+        self.object.interpolate_to(
+            time_sent,
+            &position,
+            Vector::new(x, y, z),
+            Heading::from_degrees(heading_degrees),
+            has_contact,
+            terrain,
+        );
+    }
+
+    /// `CPhysicsObj::InterpolateAndImpulse`: a queued position where the sender jumped (or was
+    /// pushed) with `velocity`; the body takes the impulse on reaching it.
+    pub fn interpolate_and_impulse(
+        &mut self,
+        time_sent: f64,
+        position: Position,
+        heading_degrees: f32,
+        motion: [f32; 3],
+        velocity: [f32; 3],
+        jump: bool,
+    ) {
+        let [x, y, z] = motion;
+        let [vx, vy, vz] = velocity;
+        self.object.interpolate_and_impulse(
+            time_sent,
+            &position,
+            Vector::new(x, y, z),
+            Heading::from_degrees(heading_degrees),
+            Vector::new(vx, vy, vz),
+            jump,
+        );
+    }
+
+    /// `CPhysicsObj::StopInterpolating`.
+    pub fn stop_interpolating(&mut self) {
+        if let Some(interp) = self.object.interp.as_mut() {
+            interp.stop();
+        }
+    }
+
+    /// `CPhysicsObj::IsInterpolating`.
+    pub fn is_interpolating(&self) -> bool {
+        self.object
+            .interp
+            .as_ref()
+            .is_some_and(|interp| interp.active)
     }
 
     /// `CPhysicsObj::JumpLogic`: when `can_jump`, `Jump` (or, standing with a behaviour table,

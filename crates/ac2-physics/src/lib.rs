@@ -23,6 +23,7 @@ mod find_cells;
 mod fpu;
 mod frame;
 mod heading;
+mod interp;
 mod landdefs;
 mod loader;
 mod loader_anim;

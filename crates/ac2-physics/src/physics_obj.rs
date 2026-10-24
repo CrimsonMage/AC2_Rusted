@@ -93,6 +93,10 @@ pub(crate) struct PhysicsObj {
     pub motion: MotionInterp,
     /// `PHYSICSOBJREP`'s mode and slider trackers.
     pub(crate) anim: AnimRep,
+    /// `CMotionInterp::mInterpolationManager`, made by the first server position.
+    pub(crate) interp: Option<crate::interp::InterpolationManager>,
+    /// `Timer::cur_time` as interpolation reads it (seconds, the clock positions are sent on).
+    pub cur_time: f64,
     pub shape: BodyShape,
     /// `CSetup::m_physics_containment_radius` of the body's spheres (unscaled).
     pub setup_containment: f32,
@@ -132,6 +136,8 @@ impl PhysicsObj {
             element: ELEMENT_GROUND,
             motion,
             anim: AnimRep::unanimated(),
+            interp: None,
+            cur_time: 0.0,
             setup_containment: ObjectShape::new(Vec::new(), Vec::new(), shape.spheres.clone())
                 .containment_radius,
             shape,
@@ -260,10 +266,18 @@ impl PhysicsObj {
         }
         self.calc_element(terrain);
         self.sync_mode();
+        // The head of `CMotionInterp::UpdateMovement`: an active interpolation steers.
+        let managed = match self.interp_update(quantum, terrain) {
+            Some(steering) => {
+                self.motion.steer(steering.motion, steering.heading);
+                true
+            }
+            None => false,
+        };
         let context = self.motion_context(terrain);
         let clamp = self
             .motion
-            .update_movement(quantum, &context, &mut self.anim);
+            .update_movement(quantum, &context, managed, &mut self.anim);
         self.sync_mode();
         self.clamp_heading = clamp.heading;
         self.clamp_omega = Some(clamp.omega_z);

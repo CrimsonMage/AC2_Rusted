@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 190 done, 46 partial, 1826 to do, 62 skipped.
+2124 retail functions: 228 done, 47 partial, 1787 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (0/9)
@@ -1506,66 +1506,66 @@ Legend and workflow: [README](README.md).
 ### IMotionInterp
 - [ ] `IMotionInterp::IMotionInterp` · 0069f9a0 · legions 0063c810
 
-## `portal/shared/src/physobj/minterp/interpolationmanager.cpp.c` (0/33)
+## `portal/shared/src/physobj/minterp/interpolationmanager.cpp.c` (24/33)
 
 ### InterpolationManager
 - [ ] `InterpolationManager::SetPhysicsObject` · 0050cb20
-- [ ] `InterpolationManager::StopInterpolating` · 0050cb30
+- [x] `InterpolationManager::StopInterpolating` · 0050cb30 — ac2-physics interp (slice 3)
 - [ ] `InterpolationManager::GetDebugDisplayValues` · 0050cb60
 - [ ] `InterpolationManager::StreamPack` · 0050cbb0 · legions 004fac20
 
 ### (free functions)
-- [ ] `clamp` · 0050cc10 · legions 004fac80
+- [x] `clamp` · 0050cc10 · legions 004fac80 — ac2-physics interp (slice 3)
 
 ### InterpolationManager::QueuedPosition
-- [ ] `InterpolationManager::QueuedPosition::QueuedPosition` · 0050cc40 · legions 004facb0
+- [x] `InterpolationManager::QueuedPosition::QueuedPosition` · 0050cc40 · legions 004facb0 — ac2-physics interp (slice 3)
 
 ### _STL::_Deque_iterator<_STL::pair<InterpolationManager::QueuedPosition,float>,_STL::_Nonconst_traits<_STL::pair<InterpolationManager::QueuedPosition,float>_>_>
 - [ ] `_STL::_Deque_iterator<_STL::pair<InterpolationManager::QueuedPosition,float>,_STL::_Nonconst_traits<_STL::pair<InterpolationManager::QueuedPosition,float>_>_>::operator+` · 0050ccd0 · legions 004fad40
 - [ ] `_STL::_Deque_iterator<_STL::pair<InterpolationManager::QueuedPosition,float>,_STL::_Nonconst_traits<_STL::pair<InterpolationManager::QueuedPosition,float>_>_>::operator-` · 0050cd20 · legions 004fad90
 
 ### InterpolationManager::InterpolationPath
-- [ ] `InterpolationManager::InterpolationPath::FindKeyframesForDistance` · 0050cfe0 · legions 004fb050
-- [ ] `InterpolationManager::InterpolationPath::GetPointFromDistance` · 0050d150 · legions 004fb1c0
-- [ ] `InterpolationManager::InterpolationPath::HasContact` · 0050d380 · legions 004fb3f0
-- [ ] `InterpolationManager::InterpolationPath::ShouldImpulseHere` · 0050d3c0 · legions 004fb430
-- [ ] `InterpolationManager::InterpolationPath::GetInterpolatedValuesForDistance` · 0050d500 · legions 004fb570
-- [ ] `InterpolationManager::InterpolationPath::FindClosestPoint` · 0050d660 · legions 004fb6d0
-- [ ] `InterpolationManager::InterpolationPath::GetLast` · 0050e090 · legions 004fc100
-- [ ] `InterpolationManager::InterpolationPath::GetTotalDistance` · 0050e0c0 · legions 004fc130
-- [ ] `InterpolationManager::InterpolationPath::GetInterpolatedDistance` · 0050e100 · legions 004fc170
+- [x] `InterpolationManager::InterpolationPath::FindKeyframesForDistance` · 0050cfe0 · legions 004fb050 — ac2-physics interp (slice 3)
+- [x] `InterpolationManager::InterpolationPath::GetPointFromDistance` · 0050d150 · legions 004fb1c0 — ac2-physics interp (slice 3)
+- [x] `InterpolationManager::InterpolationPath::HasContact` · 0050d380 · legions 004fb3f0 — ac2-physics interp (slice 3)
+- [x] `InterpolationManager::InterpolationPath::ShouldImpulseHere` · 0050d3c0 · legions 004fb430 — ac2-physics interp (slice 3)
+- [x] `InterpolationManager::InterpolationPath::GetInterpolatedValuesForDistance` · 0050d500 · legions 004fb570 — ac2-physics interp (slice 3)
+- [x] `InterpolationManager::InterpolationPath::FindClosestPoint` · 0050d660 · legions 004fb6d0 — ac2-physics interp (slice 3)
+- [x] `InterpolationManager::InterpolationPath::GetLast` · 0050e090 · legions 004fc100 — ac2-physics interp (slice 3)
+- [x] `InterpolationManager::InterpolationPath::GetTotalDistance` · 0050e0c0 · legions 004fc130 — ac2-physics interp (slice 3)
+- [x] `InterpolationManager::InterpolationPath::GetInterpolatedDistance` · 0050e100 · legions 004fc170 — ac2-physics interp (slice 3)
 
 ### InterpolationManager
-- [ ] `InterpolationManager::DoConstraint` · 0050e1c0 · legions 004fc230
-- [ ] `InterpolationManager::Blip` · 0050e340 · legions 004fc3b0
+- [~] `InterpolationManager::DoConstraint` · 0050e1c0 · legions 004fc230 — no ConstraintManager (GetConstraintManager is null for these bodies)
+- [x] `InterpolationManager::Blip` · 0050e340 · legions 004fc3b0 — ac2-physics interp (slice 3)
 - [ ] `InterpolationManager::GetLastReceivedMotionVector` · 0050e430
-- [ ] `InterpolationManager::DoImpulseLogic` · 0050e8b0 · legions 004fc920
+- [x] `InterpolationManager::DoImpulseLogic` · 0050e8b0 · legions 004fc920 — ac2-physics interp (slice 3)
 
 ### _STL::deque<_STL::pair<InterpolationManager::QueuedPosition,float>,_STL::allocator<_STL::pair<InterpolationManager::QueuedPosition,float>_>_>
 - [ ] `_STL::deque<_STL::pair<InterpolationManager::QueuedPosition,float>,_STL::allocator<_STL::pair<InterpolationManager::QueuedPosition,float>_>_>::~deque<_STL::pair<InterpolationManager::QueuedPosition,float>,_STL::allocator<_STL::pair<InterpolationManager::QueuedPosition,float>_>_>` · 0050ed60 · legions 004fcdd0
 
 ### InterpolationManager::InterpolationPath
-- [ ] `InterpolationManager::InterpolationPath::ThrowAway` · 0050f7d0 · legions 004fd840
+- [x] `InterpolationManager::InterpolationPath::ThrowAway` · 0050f7d0 · legions 004fd840 — ac2-physics interp (slice 3)
 
 ### InterpolationManager
-- [ ] `InterpolationManager::Seek` · 0050fa00 · legions 004fda70
-- [ ] `InterpolationManager::CheckProgress` · 0050fe00 · legions 004fde70
-- [ ] `InterpolationManager::PerformInterpolation` · 0050fec0 · legions 004fdf30
+- [x] `InterpolationManager::Seek` · 0050fa00 · legions 004fda70 — ac2-physics interp (slice 3)
+- [x] `InterpolationManager::CheckProgress` · 0050fe00 · legions 004fde70 — ac2-physics interp (slice 3)
+- [x] `InterpolationManager::PerformInterpolation` · 0050fec0 · legions 004fdf30 — ac2-physics interp (slice 3)
 
 ### InterpolationManager::InterpolationPath
-- [ ] `InterpolationManager::InterpolationPath::Add` · 005103a0 · legions 004fe410
+- [x] `InterpolationManager::InterpolationPath::Add` · 005103a0 · legions 004fe410 — ac2-physics interp (slice 3)
 
 ### InterpolationManager
-- [ ] `InterpolationManager::InterpolationManager` · 005105a0 · legions 004fe610
-- [ ] `InterpolationManager::Create` · 005106d0 · legions 004fe740
-- [ ] `InterpolationManager::AddImpulseEvent` · 00510700 · legions 004fe770
-- [ ] `InterpolationManager::AddEvent` · 00510950 · legions 004fe9c0
-- [ ] `InterpolationManager::Update` · 00510b60
+- [x] `InterpolationManager::InterpolationManager` · 005105a0 · legions 004fe610 — ac2-physics interp (slice 3)
+- [x] `InterpolationManager::Create` · 005106d0 · legions 004fe740 — ac2-physics interp (slice 3)
+- [x] `InterpolationManager::AddImpulseEvent` · 00510700 · legions 004fe770 — ac2-physics interp (slice 3)
+- [x] `InterpolationManager::AddEvent` · 00510950 · legions 004fe9c0 — ac2-physics interp (slice 3)
+- [x] `InterpolationManager::Update` · 00510b60 — ac2-physics interp (slice 3)
 
 ### InterpolationManager::InterpolationPath
 - [ ] `InterpolationManager::InterpolationPath::StreamPack` · 00510cf0 · legions 004fed00
 
-## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (21/62)
+## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (25/62)
 
 ### CMotionInterp
 - [ ] `CMotionInterp::Init` · 00509630 · legions 004f7680
@@ -1579,7 +1579,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CMotionInterp::IsMovingTo` · 005097d0
 - [x] `CMotionInterp::IsTurningTo` · 005097e0 — ac2-physics MovementState turning_to / turn_to_degrees
 - [ ] `CMotionInterp::ReachedPersistentTarget` · 005097f0
-- [x] `CMotionInterp::ConvertDoMotionToLocalDesired` · 00509800
+- [x] `CMotionInterp::ConvertDoMotionToLocalDesired` · 00509800 — ac2-physics interp (slice 3)
 - [ ] `CMotionInterp::GetDesiredModeState` · 00509910
 - [ ] `CMotionInterp::UpdateTargetInfo` · 00509930
 - [ ] `CMotionInterp::MoveToEvent` · 00509950
@@ -1595,7 +1595,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CMotionInterp::GetDefaultHoverHeight` · 00509ae0
 - [x] `CMotionInterp::TurnTo` · 00509af0
 - [x] `CMotionInterp::StopTurnTo` · 00509b40 · legions 004f7b80
-- [ ] `CMotionInterp::StopInterpolating` · 00509b70
+- [x] `CMotionInterp::StopInterpolating` · 00509b70 — ac2-physics interp (slice 3)
 - [ ] `CMotionInterp::IsInterpolating` · 00509b80
 - [ ] `CMotionInterp::GetRemoteDoMotionValues` · 00509ba0
 - [ ] `CMotionInterp::MakeInterpolationManager` · 00509bc0 · legions 004f7c00
@@ -1614,9 +1614,9 @@ Legend and workflow: [README](README.md).
 - [x] `CMotionInterp::SetOmegaVelocity` · 00509ed0 · legions 004f7f10
 - [x] `CMotionInterp::CalculateOmegaAcceleration` · 00509f20 · legions 004f7f60
 - [x] `CMotionInterp::DoMotion` · 0050a1b0
-- [ ] `CMotionInterp::ClampVelocity` · 0050a290
-- [ ] `CMotionInterp::InterpolateTo` · 0050a420 · legions 004f8460
-- [ ] `CMotionInterp::ImpulseAt` · 0050a480 · legions 004f84c0
+- [x] `CMotionInterp::ClampVelocity` · 0050a290 — ac2-physics interp (slice 3)
+- [x] `CMotionInterp::InterpolateTo` · 0050a420 · legions 004f8460 — ac2-physics interp (slice 3)
+- [x] `CMotionInterp::ImpulseAt` · 0050a480 · legions 004f84c0 — ac2-physics interp (slice 3)
 - [~] `CMotionInterp::UpdateMovement` · 0050a4f0 · legions 004f8530 — ac2-physics: behaviours ported (motion_interp_behaviors); InterpolationManager/MoveToManager paths pending
 - [ ] `CMotionInterp::GetPackBitfield` · 0050b080 · legions 004f90c0
 - [ ] `CMotionInterp::StreamPack` · 0050b230 · legions 004f9270
@@ -1823,10 +1823,10 @@ Legend and workflow: [README](README.md).
 ### MovementReturn
 - [ ] `MovementReturn::MovementReturn` · 0069cbe0 · legions 0063b670
 
-## `portal/shared/src/physobj/minterp/movetomanager.cpp.c` (0/19)
+## `portal/shared/src/physobj/minterp/movetomanager.cpp.c` (1/19)
 
 ### Position
-- [ ] `Position::add_local_offset` · 0050b990 · legions 004f99d0
+- [x] `Position::add_local_offset` · 0050b990 · legions 004f99d0 — ac2-physics interp (slice 3)
 
 ### MoveToManager
 - [ ] `MoveToManager::Destroy` · 0050ba00 · legions 004f9a40
@@ -2160,14 +2160,14 @@ Legend and workflow: [README](README.md).
 - [ ] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (53/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (62/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
 
 ### Position
 - [ ] `Position::set_heading` · 004dde50 · legions 004d08b0
-- [ ] `Position::lerp_origin` · 004dde80 · legions 004d08e0
+- [x] `Position::lerp_origin` · 004dde80 · legions 004d08e0 — ac2-physics interp (slice 3)
 - [ ] `Position::slerp` · 004ddf50 · legions 004d09b0
 
 ### EtherealPhysicsType
@@ -2256,10 +2256,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::SetMotionInterpreter` · 004dea70 · legions 004d14d0
 - [ ] `CPhysicsObj::GetMotionInterpreter` · 004deab0
 - [ ] `CPhysicsObj::GetModeTracker` · 004deac0
-- [ ] `CPhysicsObj::InterpolateAndImpulse` · 004dead0 · legions 004d1530
-- [ ] `CPhysicsObj::InterpolateTo` · 004deb70 · legions 004d15d0
-- [ ] `CPhysicsObj::StopInterpolating` · 004dec30 · legions 004d1690
-- [ ] `CPhysicsObj::IsInterpolating` · 004dec50 · legions 004d16b0
+- [x] `CPhysicsObj::InterpolateAndImpulse` · 004dead0 · legions 004d1530 — ac2-physics interp (slice 3)
+- [x] `CPhysicsObj::InterpolateTo` · 004deb70 · legions 004d15d0 — ac2-physics interp (slice 3)
+- [x] `CPhysicsObj::StopInterpolating` · 004dec30 · legions 004d1690 — ac2-physics interp (slice 3)
+- [x] `CPhysicsObj::IsInterpolating` · 004dec50 · legions 004d16b0 — ac2-physics interp (slice 3)
 - [ ] `CPhysicsObj::GetConstraintFactor` · 004dec70 · legions 004d16d0
 - [ ] `CPhysicsObj::MissileInitPlaceAndFire` · 004decb0
 - [ ] `CPhysicsObj::MissileInitEnd` · 004dece0 · legions 004d1740
@@ -2302,7 +2302,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::UnclampHeading` · 004df6d0 · legions 004d2130
 - [x] `CPhysicsObj::ClampOmegaVelocity` · 004df6e0 · legions 004d2140
 - [x] `CPhysicsObj::UnclampOmegaVelocity` · 004df700 · legions 004d2160
-- [ ] `CPhysicsObj::SetVelocityRail` · 004df710 · legions 004d2170
+- [x] `CPhysicsObj::SetVelocityRail` · 004df710 · legions 004d2170 — ac2-physics interp (slice 3)
 - [ ] `CPhysicsObj::DisableVelocityRail` · 004df740 · legions 004d21a0
 - [x] `CPhysicsObj::UpdateRotation` · 004df750 · legions 004d21b0
 - [x] `CPhysicsObj::CullVelocity` · 004dfa20 · legions 004d2480
@@ -2328,7 +2328,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::leave_cell` · 004e0560 · legions 004d2fc0
 - [x] `CPhysicsObj::is_valid_walkable` · 004e05a0
 - [x] `CPhysicsObj::get_walkable_z` · 004e05d0
-- [ ] `CPhysicsObj::set_contact` · 004e05e0 · legions 004d3040
+- [x] `CPhysicsObj::set_contact` · 004e05e0 · legions 004d3040 — ac2-physics interp (slice 3)
 - [x] `CPhysicsObj::HandleHitGround` · 004e0620 · legions 004d3080 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `CPhysicsObj::HandleHitWater` · 004e06c0 · legions 004d3120
 - [ ] `CPhysicsObj::set_frame` · 004e0720
@@ -2366,7 +2366,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::set_animation_active` · 004e11f0 · legions 004d3c50
 - [ ] `CPhysicsObj::set_misc_active` · 004e1250 · legions 004d3cb0
 - [ ] `CPhysicsObj::set_edge_slide` · 004e12b0
-- [ ] `CPhysicsObj::set_synchronize_transition` · 004e12f0 · legions 004d3d50
+- [x] `CPhysicsObj::set_synchronize_transition` · 004e12f0 · legions 004d3d50 — ac2-physics interp (slice 3)
 - [ ] `CPhysicsObj::set_ignore_collisions` · 004e1330
 - [ ] `CPhysicsObj::set_gamedraw` · 004e1360 · legions 004d3dc0
 - [ ] `CPhysicsObj::set_toolsdraw` · 004e13a0
@@ -2483,7 +2483,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetDefaultRenderBoundingBox` · 004e31a0 · legions 004d5bf0
 - [ ] `CPhysicsObj::GetScaledDefaultRenderBoundingBox` · 004e3200
 - [x] `CPhysicsObj::CalcPhysicsBoundingBox` · 004e3280 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-- [ ] `CPhysicsObj::ApplyImpulse` · 004e3310 · legions 004d5d60
+- [x] `CPhysicsObj::ApplyImpulse` · 004e3310 · legions 004d5d60 — ac2-physics interp (slice 3)
 - [ ] `CPhysicsObj::AddImpulse` · 004e3350
 - [ ] `CPhysicsObj::AddTargetedImpulse` · 004e33d0
 - [ ] `CPhysicsObj::MoveTo` · 004e3510 · legions 004d5f60
@@ -2737,7 +2737,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::set_description` · 004ec830
 - [ ] `CPhysicsObj::makeObject` · 004ed160 · legions 004dfac0
 - [~] `CPhysicsObj::SetPositionSimple` · 004ed190 · legions 004dfaf0 — flags 0x1010 into PhysicsBody::place
-- [~] `CPhysicsObj::SyncPositionSimple` · 004ed1f0 · legions 004dfb50 — the player's server placement (SetPositionSimple(pos, 1))
+- [~] `CPhysicsObj::SyncPositionSimple` · 004ed1f0 · legions 004dfb50 — interp blips use set_position_checked(SLIDE); parent/placement-position bookkeeping not ported
 - [ ] `CPhysicsObj::makeObject` · 004ed270 · legions 004dfbd0
 - [ ] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40
 - [~] `CPhysicsObj::RecvEvt_Position` · 004ed470 — stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics

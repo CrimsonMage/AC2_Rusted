@@ -226,6 +226,15 @@ impl MotionInterp {
         self.turn_to = true;
     }
 
+    /// What `InterpolationManager::Update` / `MoveToManager::Update` write through their
+    /// pointers into the interpreter: the do-motion and the turn target, with the turn on and
+    /// not instant.
+    pub(crate) fn steer(&mut self, motion: Vector, heading: Heading) {
+        self.last_do_motion = motion;
+        self.turn_to_dir = heading;
+        self.turn_to = true;
+    }
+
     /// `CMotionInterp::IsTurningTo`.
     pub(crate) fn is_turning_to(&self) -> bool {
         self.turn_to
@@ -274,24 +283,77 @@ impl MotionInterp {
         } else {
             1.0
         };
+        let motion = self.last_do_motion;
+        self.local_desired_vel = self.local_desired_for(motion, values, ctx.scale, factor);
+    }
+
+    /// The local velocity `ConvertDoMotionToLocalDesired(motion, factor, out, 1)` gives a
+    /// do-motion vector: forward or backward speed on y, strafe (forward over 0.7 forward) on
+    /// x, the vertical speed on z, at the velocity scale and the body's effects scale.
+    pub(crate) fn local_desired_for(
+        &self,
+        motion: Vector,
+        values: &Ac2MotionValues,
+        scale: Vector,
+        factor: f64,
+    ) -> Vector {
         let forward = factor * ld(values.max_forward_velocity);
         let backward = factor * ld(values.max_backward_velocity);
         let strafe = ld(st(factor * ld(values.max_strafe_velocity)));
-        let motion = self.last_do_motion;
-        let scale = ld(self.vel_scale);
+        let vel = ld(self.vel_scale);
         let speed = if ld(motion.y) > 0.0 {
             forward
         } else {
             backward
         };
-        self.local_desired_vel.y = st(scale * ld(motion.y) * ld(ctx.scale.y) * speed);
+        let y = st(vel * ld(motion.y) * ld(scale.y) * speed);
         let side = if ld(motion.y) > ld(0.7_f32) {
             forward
         } else {
             strafe
         };
-        self.local_desired_vel.x = st(ld(motion.x) * scale * ld(ctx.scale.x) * side);
-        self.local_desired_vel.z = st(ld(values.max_vertical_velocity) * ld(motion.z));
+        let x = st(ld(motion.x) * vel * ld(scale.x) * side);
+        let z = st(ld(values.max_vertical_velocity) * ld(motion.z));
+        Vector::new(x, y, z)
+    }
+
+    /// `CMotionInterp::ClampVelocity`: only upper limits. x is first held to the forward
+    /// speed (retail compares it with the y-scaled forward limit), y to the forward or backward
+    /// limit, then x to the forward or strafe limit by how much of the y limit y uses, z to the
+    /// vertical speed.
+    pub(crate) fn clamp_velocity(
+        &self,
+        v: Vector,
+        values: &Ac2MotionValues,
+        scale: Vector,
+    ) -> Vector {
+        let vel = ld(self.vel_scale);
+        let forward = ld(values.max_forward_velocity);
+        let below = |limit: f64, value: f32| if limit < ld(value) { st(limit) } else { value };
+        let mut out = v;
+        out.x = below(ld(scale.y) * vel * forward, out.x);
+        let scaled_y = ld(scale.y) * vel;
+        let limit_y = if ld(out.y) > 0.0 {
+            scaled_y * forward
+        } else {
+            scaled_y * ld(values.max_backward_velocity)
+        };
+        out.y = below(limit_y, out.y);
+        let stored_y = ld(st(limit_y));
+        let ratio = if !(ld(F_EPSILON) > stored_y.abs()) {
+            ld(out.y) / stored_y
+        } else {
+            0.0
+        };
+        let scaled_x = ld(scale.x) * vel;
+        let limit_x = if ratio > ld(0.7_f32) {
+            scaled_x * forward
+        } else {
+            scaled_x * ld(values.max_strafe_velocity)
+        };
+        out.x = below(limit_x, out.x);
+        out.z = below(ld(values.max_vertical_velocity), out.z);
+        out
     }
 
     /// `CMotionInterp::UpdateMovement` (without the interpolation and move-to managers): the
@@ -301,6 +363,7 @@ impl MotionInterp {
         &mut self,
         quantum: f32,
         ctx: &MotionContext,
+        managed: bool,
         rep: &mut dyn MotionRep,
     ) -> OmegaClamp {
         self.advance_jump_timers(quantum);
@@ -317,7 +380,8 @@ impl MotionInterp {
         }
         self.turn_to_dir = Heading::from_u8(self.turn_to_dir.to_u8());
         let values = self.motion_values(ctx.desired_element);
-        self.convert_do_motion_to_local_desired(&values, ctx, true);
+        // A managed body (interpolating or moving to) skips the constraint factor.
+        self.convert_do_motion_to_local_desired(&values, ctx, !managed);
         self.acl = Vector::ZERO;
         self.omega_acl = Vector::ZERO;
         self.update_behaviors(quantum, ctx, rep);

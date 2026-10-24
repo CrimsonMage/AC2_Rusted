@@ -6,7 +6,14 @@ use ac2_core::{DataId, QualifiedDataId};
 use ac2_db::ResourcePackedDecode;
 use ac2_world::{Ac2MotionInterpDesc, Ac2MotionValues};
 
-use crate::motion_interp::MODE_DEFAULT;
+use crate::body::PhysicsBody;
+use crate::frame::Frame;
+use crate::landdefs::SIDE_VERTEX_COUNT;
+use crate::motion_interp::{ELEMENT_AIR, ELEMENT_GROUND, MODE_DEFAULT};
+use crate::physics_obj::BodyShape;
+use crate::position::Position;
+use crate::terrain::Terrain;
+use crate::vector::{Quaternion, Sphere, Vector};
 
 /// Synthetic locomotion: 4 m/s forward, 2 m/s back, 3 m/s strafe, 10 m/s^2 accelerations,
 /// 20 m/s^2 brakes, 60/90 deg/s turns with 360 deg/s^2 turn acceleration.
@@ -139,8 +146,6 @@ pub(crate) fn body_animation() -> crate::anim_rep::BodyAnimation {
         Ac2ComboInfo, Ac2DbAnimator, Ac2ModeTransition,
     };
 
-    use crate::motion_interp::{ELEMENT_AIR, ELEMENT_GROUND};
-
     let (idle, mv) = (0x4000_0002, 0x4000_0001);
     let mut combos = HashMap::new();
     for element in [ELEMENT_GROUND, ELEMENT_AIR] {
@@ -212,4 +217,50 @@ pub(crate) fn body_animation() -> crate::anim_rep::BodyAnimation {
         setup: None,
         vdesc_scale: [1.0; 3],
     }
+}
+
+pub(crate) const BLOCK: u32 = 0x7F7F_FFFF;
+
+/// A block whose vertex heights are `height(x, y)` (vertex steps of 10 m).
+pub(crate) fn terrain(height: impl Fn(usize, usize) -> f32) -> Terrain {
+    let heights: Vec<f32> = (0..SIDE_VERTEX_COUNT)
+        .flat_map(|x| (0..SIDE_VERTEX_COUNT).map(move |y| (x, y)))
+        .map(|(x, y)| height(x, y))
+        .collect();
+    let mut terrain = Terrain::new();
+    terrain.insert_heights(BLOCK, &heights, |_, _| false);
+    terrain
+}
+
+/// Two stacked 0.4 m spheres, 1.8 m tall, 0.5 m steps.
+pub(crate) fn shape() -> BodyShape {
+    BodyShape {
+        spheres: vec![
+            Sphere::new(Vector::new(0.0, 0.0, 0.4), 0.4),
+            Sphere::new(Vector::new(0.0, 0.0, 1.2), 0.4),
+        ],
+        height: 1.8,
+        step_up_height: 0.5,
+        step_down_height: 0.5,
+        scale: 1.0,
+        allow_free_heading: false,
+    }
+}
+
+pub(crate) fn body_at(x: f32, y: f32, z: f32) -> PhysicsBody {
+    let cell =
+        crate::landdefs::lcoord_to_gid(0x7F * 8 + (x / 20.0) as i32, 0x7F * 8 + (y / 20.0) as i32);
+    let mut values_air = walking_values();
+    values_air.forward_acceleration = 0.0;
+    values_air.backward_acceleration = 0.0;
+    values_air.strafe_acceleration = 0.0;
+    let desc = desc(&[
+        (ELEMENT_GROUND, walking_values()),
+        (ELEMENT_AIR, values_air),
+    ]);
+    PhysicsBody::new(
+        Position::new(cell, Frame::new(Vector::new(x, y, z), Quaternion::IDENTITY)),
+        shape(),
+        Some(desc),
+    )
 }
