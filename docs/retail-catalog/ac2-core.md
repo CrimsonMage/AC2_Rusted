@@ -1,6 +1,6 @@
 # ac2-core: Core runtime: ids, strings, timers, errors, serialization helpers
 
-589 retail functions: 3 done, 0 partial, 182 to do, 404 skipped.
+589 retail functions: 8 done, 0 partial, 177 to do, 404 skipped.
 Legend and workflow: [README](README.md).
 
 ## `core/src/debug/crashcleaners.cpp.c` (0/3)
@@ -989,13 +989,13 @@ Legend and workflow: [README](README.md).
 - [-] `ProjectSettings::InitFromIni` · 0066c300 · legions 00616c00 — project setup (admin tools)
 - [-] `ProjectSettings::InitFromRegistry` · 0066c360 · legions 00616c40 — project setup (admin tools)
 
-## `portal/shared/src/stringtoken/stringtoken.cpp.c` (0/4)
+## `portal/shared/src/stringtoken/stringtoken.cpp.c` (4/4)
 
 ### (free functions)
-- [ ] `Tokenize` · 0065a4a0 · legions 00608e10
-- [ ] `Tokenize` · 0065a510 · legions 00608e80
-- [ ] `Tokenize` · 0065a580 · legions 00608ef0
-- [ ] `Tokenize` · 0065a5a0 · legions 00608f10
+- [x] `Tokenize` · 0065a4a0 · legions 00608e10
+- [x] `Tokenize` · 0065a510 · legions 00608e80
+- [x] `Tokenize` · 0065a580 · legions 00608ef0
+- [x] `Tokenize` · 0065a5a0 · legions 00608f10
 
 ## `portal/shared/src/timestamper/tsrecv.cpp.c` (0/7)
 
@@ -1039,10 +1039,10 @@ Legend and workflow: [README](README.md).
 ### ArgumentParser
 - [ ] `ArgumentParser::ParseArgs` · 0065c6c0 · legions 0060aff0
 
-## `portal/shared/src/utils/checksum.cpp.c` (0/1)
+## `portal/shared/src/utils/checksum.cpp.c` (1/1)
 
 ### PortalChecksum
-- [ ] `PortalChecksum::CalcChecksum32` · 0065f3d0 · legions 0060dce0
+- [x] `PortalChecksum::CalcChecksum32` · 0065f3d0 · legions 0060dce0
 
 ## `portal/shared/src/utils/emailutils.cpp.c` (0/2)
 

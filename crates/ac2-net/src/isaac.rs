@@ -14,6 +14,14 @@ pub struct Isaac {
     remaining: usize,
 }
 
+impl std::fmt::Debug for Isaac {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Isaac")
+            .field("remaining", &self.remaining)
+            .finish_non_exhaustive()
+    }
+}
+
 impl Isaac {
     pub fn new(seed: u32) -> Self {
         let mut state = Self {

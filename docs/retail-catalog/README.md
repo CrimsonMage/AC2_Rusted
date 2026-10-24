@@ -34,11 +34,11 @@ scripts/retail_catalog.py status
 
 | Crate | Functions | Done | Partial | To do | Skipped |
 |---|---:|---:|---:|---:|---:|
-| [ac2-core](ac2-core.md) | 589 | 3 | 0 | 182 | 404 |
+| [ac2-core](ac2-core.md) | 589 | 8 | 0 | 177 | 404 |
 | [ac2-math](ac2-math.md) | 426 | 11 | 0 | 375 | 40 |
 | [ac2-dat](ac2-dat.md) | 507 | 0 | 0 | 502 | 5 |
 | [ac2-db](ac2-db.md) | 633 | 4 | 0 | 590 | 39 |
-| [ac2-net](ac2-net.md) | 556 | 0 | 0 | 556 | 0 |
+| [ac2-net](ac2-net.md) | 556 | 197 | 14 | 345 | 0 |
 | [ac2-weenie](ac2-weenie.md) | 1904 | 0 | 0 | 1898 | 6 |
 | [ac2-anim](ac2-anim.md) | 532 | 0 | 0 | 496 | 36 |
 | [ac2-assets](ac2-assets.md) | 785 | 1 | 0 | 662 | 122 |
@@ -47,11 +47,11 @@ scripts/retail_catalog.py status
 | [ac2-gpu](ac2-gpu.md) | 95 | 0 | 0 | 95 | 0 |
 | [ac2-physics](ac2-physics.md) | 2124 | 1 | 0 | 2063 | 60 |
 | [ac2-smartbox](ac2-smartbox.md) | 262 | 0 | 0 | 260 | 2 |
-| [ac2-client](ac2-client.md) | 354 | 0 | 0 | 349 | 5 |
-| [ac2-ui](ac2-ui.md) | 2247 | 0 | 0 | 2230 | 17 |
+| [ac2-client](ac2-client.md) | 354 | 5 | 0 | 344 | 5 |
+| [ac2-ui](ac2-ui.md) | 2247 | 4 | 0 | 2226 | 17 |
 | [ac2-script](ac2-script.md) | 2468 | 0 | 0 | 2384 | 84 |
 | [ac2-gameplay](ac2-gameplay.md) | 499 | 0 | 0 | 490 | 9 |
 | [ac2-audio](ac2-audio.md) | 367 | 0 | 0 | 350 | 17 |
-| [replaced](replaced.md) | 2058 | 0 | 0 | 0 | 2058 |
+| [replaced](replaced.md) | 2058 | 7 | 0 | 0 | 2051 |
 
 Data formats ([data-formats.md](data-formats.md)): 81 `DBObj` types, 1 done, 0 partial, 80 to do.

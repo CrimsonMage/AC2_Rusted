@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 0 done, 0 partial, 556 to do, 0 skipped.
+556 retail functions: 197 done, 14 partial, 345 to do, 0 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -261,92 +261,92 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [ ] `FUN_004be6bb` · 004be6bb · legions 004b29db
 
-## `portal/client/src/clinet/arrivedephinfo.cpp.c` (0/3)
+## `portal/client/src/clinet/arrivedephinfo.cpp.c` (3/3)
 
 ### ArrivedEphInfo
-- [ ] `ArrivedEphInfo::UpdateNetBlobID` · 004cee60 · legions 004c3430
-- [ ] `ArrivedEphInfo::fTimedOut` · 004cee90 · legions 004c3460
-- [ ] `ArrivedEphInfo::ArrivedEphInfo` · 004ceeb0 · legions 004c3480
+- [x] `ArrivedEphInfo::UpdateNetBlobID` · 004cee60 · legions 004c3430
+- [x] `ArrivedEphInfo::fTimedOut` · 004cee90 · legions 004c3460
+- [x] `ArrivedEphInfo::ArrivedEphInfo` · 004ceeb0 · legions 004c3480
 
-## `portal/client/src/clinet/cflowqueue.cpp.c` (0/39)
+## `portal/client/src/clinet/cflowqueue.cpp.c` (31/39)
 
 ### FlowQueue
-- [ ] `FlowQueue::DequeuePacket` · 004cbe20 · legions 004c0360
-- [ ] `FlowQueue::EncryptChecksum` · 004cbe60 · legions 004c03a0
-- [ ] `FlowQueue::IncrementLocalInterval` · 004cbeb0 · legions 004c03f0
+- [x] `FlowQueue::DequeuePacket` · 004cbe20 · legions 004c0360
+- [x] `FlowQueue::EncryptChecksum` · 004cbe60 · legions 004c03a0
+- [x] `FlowQueue::IncrementLocalInterval` · 004cbeb0 · legions 004c03f0
 
 ### ClientFlowQueue
-- [ ] `ClientFlowQueue::RecordBytesSent` · 004cbec0 · legions 004c0400
+- [x] `ClientFlowQueue::RecordBytesSent` · 004cbec0 · legions 004c0400
 
 ### NIList<NetBlob_*>
 - [ ] `NIList<NetBlob_*>::DeleteContents` · 004cbee0 · legions 004b3360
 
 ### CTimeSyncHeader
-- [ ] `CTimeSyncHeader::UpdateTimeSensitivePayload` · 004cc010 · legions 004c0580
+- [x] `CTimeSyncHeader::UpdateTimeSensitivePayload` · 004cc010 · legions 004c0580
 
 ### CEchoRequestHeader
-- [ ] `CEchoRequestHeader::UpdateTimeSensitivePayload` · 004cc030
+- [x] `CEchoRequestHeader::UpdateTimeSensitivePayload` · 004cc030
 
 ### FlowQueue
 - [ ] `FlowQueue::SharedStaticCleanup` · 004cc040 · legions 004c05b0
-- [ ] `FlowQueue::DequeueAck` · 004cc080 · legions 004c05f0
-- [ ] `FlowQueue::EnqueuePacket` · 004cc140 · legions 004c06b0
+- [x] `FlowQueue::DequeueAck` · 004cc080 · legions 004c05f0
+- [x] `FlowQueue::EnqueuePacket` · 004cc140 · legions 004c06b0
 
 ### PQueueArray<unsigned_long,void_*>
-- [ ] `PQueueArray<unsigned_long,void_*>::Insert` · 004cc1b0 · legions 004c0720
-- [ ] `PQueueArray<unsigned_long,void_*>::RemoveMin` · 004cc210 · legions 004c0780
+- [x] `PQueueArray<unsigned_long,void_*>::Insert` · 004cc1b0 · legions 004c0720
+- [x] `PQueueArray<unsigned_long,void_*>::RemoveMin` · 004cc210 · legions 004c0780
 
 ### CSeqIDListHeader<8192,33>
-- [ ] `CSeqIDListHeader<8192,33>::CSeqIDListHeader<8192,33>` · 004cc2c0 · legions 004c0830
+- [x] `CSeqIDListHeader<8192,33>::CSeqIDListHeader<8192,33>` · 004cc2c0 · legions 004c0830
 
 ### CTimeSyncHeader
-- [ ] `CTimeSyncHeader::CreateFromData` · 004cc320 · legions 004c0890
+- [x] `CTimeSyncHeader::CreateFromData` · 004cc320 · legions 004c0890
 
 ### CEchoRequestHeader
-- [ ] `CEchoRequestHeader::CreateFromData` · 004cc370 · legions 004c08e0
+- [x] `CEchoRequestHeader::CreateFromData` · 004cc370 · legions 004c08e0
 
 ### FlowQueue
-- [ ] `FlowQueue::EnqueueOptionalHeader` · 004cc3c0 · legions 004c0930
-- [ ] `FlowQueue::FlushSentPackets` · 004cc410 · legions 004c0980
-- [ ] `FlowQueue::CoalesceData` · 004cc490 · legions 004c0a00
-- [ ] `FlowQueue::TransmitNewPackets` · 004cc7b0 · legions 004c0d20
+- [x] `FlowQueue::EnqueueOptionalHeader` · 004cc3c0 · legions 004c0930
+- [x] `FlowQueue::FlushSentPackets` · 004cc410 · legions 004c0980
+- [x] `FlowQueue::CoalesceData` · 004cc490 · legions 004c0a00
+- [x] `FlowQueue::TransmitNewPackets` · 004cc7b0 · legions 004c0d20
 
 ### ClientFlowQueue
-- [ ] `ClientFlowQueue::Enqueue` · 004cca20 · legions 004c0f90
-- [ ] `ClientFlowQueue::Dequeue` · 004cca70 · legions 004c0fe0
+- [x] `ClientFlowQueue::Enqueue` · 004cca20 · legions 004c0f90
+- [x] `ClientFlowQueue::Dequeue` · 004cca70 · legions 004c0fe0
 
 ### NIListIter<unsigned_long>
 - [ ] `NIListIter<unsigned_long>::AddBeforeCur` · 004ccaa0 · legions 004c1010
 
 ### CPackObjHeader<NetError,2097152,2>
-- [ ] `CPackObjHeader<NetError,2097152,2>::CreateFromData` · 004ccb40 · legions 004c10b0
+- [x] `CPackObjHeader<NetError,2097152,2>::CreateFromData` · 004ccb40 · legions 004c10b0
 
 ### COnePrimHeader<4194304,7,CICMDCommandStruct>
-- [ ] `COnePrimHeader<4194304,7,CICMDCommandStruct>::CreateFromData` · 004ccbc0 · legions 004c1130
+- [x] `COnePrimHeader<4194304,7,CICMDCommandStruct>::CreateFromData` · 004ccbc0 · legions 004c1130
 
 ### ClientFlowQueue
-- [ ] `ClientFlowQueue::OnLocalIntervalAck` · 004ccc10 · legions 004c1180
-- [ ] `ClientFlowQueue::IncrementLocalInterval` · 004ccc60 · legions 004c11d0
+- [~] `ClientFlowQueue::OnLocalIntervalAck` · 004ccc10 · legions 004c1180 — not called by the client paths ported
+- [x] `ClientFlowQueue::IncrementLocalInterval` · 004ccc60 · legions 004c11d0
 
 ### FlowQueue
 - [ ] `FlowQueue::~FlowQueue` · 004ccde0 · legions 004c1350
-- [ ] `FlowQueue::DequeueEmptyAck` · 004cce50 · legions 004c13c0
-- [ ] `FlowQueue::CompileEmptyAcks` · 004ccec0 · legions 004c1430
-- [ ] `FlowQueue::TransmitNaks` · 004ccf30 · legions 004c14a0
+- [x] `FlowQueue::DequeueEmptyAck` · 004cce50 · legions 004c13c0
+- [x] `FlowQueue::CompileEmptyAcks` · 004ccec0 · legions 004c1430
+- [x] `FlowQueue::TransmitNaks` · 004ccf30 · legions 004c14a0
 - [ ] `FlowQueue::Destroy` · 004ccfc0 · legions 004c1530
-- [ ] `FlowQueue::EnqueueEmptyAck` · 004cd140 · legions 004c16b0
-- [ ] `FlowQueue::TransmitAcks` · 004cd1f0 · legions 004c1760
+- [x] `FlowQueue::EnqueueEmptyAck` · 004cd140 · legions 004c16b0
+- [x] `FlowQueue::TransmitAcks` · 004cd1f0 · legions 004c1760
 
 ### ClientFlowQueue
 - [ ] `ClientFlowQueue::~ClientFlowQueue` · 004cd340 · legions 004c18b0
 
 ### FlowQueue
-- [ ] `FlowQueue::EnqueueAcks` · 004cd370 · legions 004c18e0
-- [ ] `FlowQueue::Empty` · 004cd4b0 · legions 004c1a20
-- [ ] `FlowQueue::FlowQueue` · 004cd5d0 · legions 004c1b40
+- [x] `FlowQueue::EnqueueAcks` · 004cd370 · legions 004c18e0
+- [x] `FlowQueue::Empty` · 004cd4b0 · legions 004c1a20
+- [x] `FlowQueue::FlowQueue` · 004cd5d0 · legions 004c1b40
 
 ### ClientFlowQueue
-- [ ] `ClientFlowQueue::ClientFlowQueue` · 004cd6e0 · legions 004c1c50
+- [x] `ClientFlowQueue::ClientFlowQueue` · 004cd6e0 · legions 004c1c50
 
 ### FlowQueue
 - [ ] `FlowQueue::SharedStaticInit` · 004cd7a0 · legions 004c1d10
@@ -356,7 +356,7 @@ Legend and workflow: [README](README.md).
 ### CharGenData
 - [ ] `CharGenData::Save` · 004cdf20 · legions 004c2490
 
-## `portal/client/src/clinet/cindicator.cpp.c` (0/15)
+## `portal/client/src/clinet/cindicator.cpp.c` (6/15)
 
 ### HashBaseIter<unsigned___int64>
 - [ ] `HashBaseIter<unsigned___int64>::DeleteCurrent` · 004ce190 · legions 004c2700
@@ -370,50 +370,50 @@ Legend and workflow: [README](README.md).
 - [ ] `UI64Hash<NetBlob>::add` · 004ce350 · legions 004c2900
 
 ### Indicator
-- [ ] `Indicator::SendBlobToQueue` · 004ce3f0 · legions 004c2960
+- [x] `Indicator::SendBlobToQueue` · 004ce3f0 · legions 004c2960
 - [ ] `Indicator::Indicator` · 004ce440 · legions 004c29b0
-- [ ] `Indicator::AddArrivedEphInfo` · 004ce560 · legions 004c2ad0
-- [ ] `Indicator::FlushTimedOutEphInfo` · 004ce5c0 · legions 004c2b30
-- [ ] `Indicator::FragIsObsoleteEmphemeral` · 004ce640 · legions 004c2bb0
+- [x] `Indicator::AddArrivedEphInfo` · 004ce560 · legions 004c2ad0
+- [x] `Indicator::FlushTimedOutEphInfo` · 004ce5c0 · legions 004c2b30
+- [x] `Indicator::FragIsObsoleteEmphemeral` · 004ce640 · legions 004c2bb0
 
 ### UI64Hash<ArrivedEphInfo>
 - [ ] `UI64Hash<ArrivedEphInfo>::destroy_contents` · 004ce710 · legions 004c2c80
 
 ### Indicator
 - [ ] `Indicator::CleanupWaitingBlobs` · 004ce770 · legions 004c2ce0
-- [ ] `Indicator::AcceptFrag` · 004ce830 · legions 004c2da0
+- [x] `Indicator::AcceptFrag` · 004ce830 · legions 004c2da0
 - [ ] `Indicator::~Indicator` · 004ce980 · legions 004c2ef0
-- [ ] `Indicator::CheckInPacket` · 004ce9d0 · legions 004c2f40
+- [x] `Indicator::CheckInPacket` · 004ce9d0 · legions 004c2f40
 
-## `portal/client/src/clinet/clientnet.cpp.c` (0/83)
+## `portal/client/src/clinet/clientnet.cpp.c` (51/83)
 
 ### CQuickTimer
 - [ ] `CQuickTimer::Expired` · 004c52b0 · legions 004b9670
 
 ### SharedNet
-- [ ] `SharedNet::UseTime` · 004c52d0 · legions 004b9690
-- [ ] `SharedNet::ReadAndProcessPackets` · 004c5360 · legions 004b9720
-- [ ] `SharedNet::ProcessNewestSeqNum` · 004c53e0 · legions 004b97a0
-- [ ] `SharedNet::ChecksumHeader` · 004c5440 · legions 004b9800
-- [ ] `SharedNet::ProcessOptionalHeaders` · 004c54a0 · legions 004b9860
-- [ ] `SharedNet::ProcessBlobFrags` · 004c5500 · legions 004b98c0
-- [ ] `SharedNet::ProcessConnections` · 004c5520 · legions 004b98e0
-- [ ] `SharedNet::SendBuff` · 004c5570 · legions 004b9930
-- [ ] `SharedNet::SendPacket` · 004c5640 · legions 004b9a00
-- [ ] `SharedNet::SetConnectionState` · 004c5760 · legions 004b9b20
+- [~] `SharedNet::UseTime` · 004c52d0 · legions 004b9690 — frame order kept; perf counters and the UseTime time limit not kept
+- [x] `SharedNet::ReadAndProcessPackets` · 004c5360 · legions 004b9720
+- [x] `SharedNet::ProcessNewestSeqNum` · 004c53e0 · legions 004b97a0
+- [x] `SharedNet::ChecksumHeader` · 004c5440 · legions 004b9800
+- [x] `SharedNet::ProcessOptionalHeaders` · 004c54a0 · legions 004b9860
+- [x] `SharedNet::ProcessBlobFrags` · 004c5500 · legions 004b98c0
+- [x] `SharedNet::ProcessConnections` · 004c5520 · legions 004b98e0
+- [x] `SharedNet::SendBuff` · 004c5570 · legions 004b9930
+- [x] `SharedNet::SendPacket` · 004c5640 · legions 004b9a00
+- [x] `SharedNet::SetConnectionState` · 004c5760 · legions 004b9b20
 
 ### (free functions)
 - [ ] `ParseInAddr` · 004c57b0 · legions 004b9b70
 
 ### ClientNet
-- [ ] `ClientNet::UseTime` · 004c5870 · legions 004b9c30
+- [x] `ClientNet::UseTime` · 004c5870 · legions 004b9c30
 - [ ] `ClientNet::OnStateBegun` · 004c5890 · legions 004b9c50
-- [ ] `ClientNet::EnterWorld` · 004c58b0 · legions 004b9c70
-- [ ] `ClientNet::ExitWorldDisconnect` · 004c58d0 · legions 004b9c90
-- [ ] `ClientNet::SendBuff` · 004c5950 · legions 004b9d10
+- [x] `ClientNet::EnterWorld` · 004c58b0 · legions 004b9c70
+- [~] `ClientNet::ExitWorldDisconnect` · 004c58d0 · legions 004b9c90 — logoff path only
+- [x] `ClientNet::SendBuff` · 004c5950 · legions 004b9d10
 
 ### COnePrimHeader<512,7,sockaddr_in>
-- [ ] `COnePrimHeader<512,7,sockaddr_in>::InqData` · 004c59b0 · legions 004b9d70
+- [x] `COnePrimHeader<512,7,sockaddr_in>::InqData` · 004c59b0 · legions 004b9d70
 
 ### AVLNode<unsigned_long,unsigned_long>
 - [ ] `AVLNode<unsigned_long,unsigned_long>::~AVLNode<unsigned_long,unsigned_long>` · 004c59f0 · legions 004b9db0
@@ -422,77 +422,77 @@ Legend and workflow: [README](README.md).
 - [ ] `AVL<unsigned_long,unsigned_long>::LeftRightRotate` · 004c5a40 · legions 005d0c70
 
 ### CEchoResponseHeader
-- [ ] `CEchoResponseHeader::UpdateTimeSensitivePayload` · 004c5b80
+- [x] `CEchoResponseHeader::UpdateTimeSensitivePayload` · 004c5b80
 
 ### CLinkStatusAverages
 - [ ] `CLinkStatusAverages::CLinkStatusAverages` · 004c5b90 · legions 004b9f50
 
 ### SharedNet
-- [ ] `SharedNet::ReadNextPacket` · 004c5c80 · legions 004ba040
-- [ ] `SharedNet::HandlePak` · 004c5d20 · legions 004ba0e0
-- [ ] `SharedNet::HandleNak` · 004c5d60 · legions 004ba120
-- [ ] `SharedNet::SetNakState` · 004c5db0 · legions 004ba170
+- [x] `SharedNet::ReadNextPacket` · 004c5c80 · legions 004ba040
+- [x] `SharedNet::HandlePak` · 004c5d20 · legions 004ba0e0
+- [x] `SharedNet::HandleNak` · 004c5d60 · legions 004ba120
+- [x] `SharedNet::SetNakState` · 004c5db0 · legions 004ba170
 - [ ] `SharedNet::AddToPerfCounter` · 004c5de0 · legions 004ba1a0
 
 ### ClientNet
 - [ ] `ClientNet::AddToPerfCounter` · 004c5ed0 · legions 004ba290
 
 ### TimeStampUtils
-- [ ] `TimeStampUtils::OverflowCompare` · 004c5fd0 · legions 004ba390
+- [x] `TimeStampUtils::OverflowCompare` · 004c5fd0 · legions 004ba390
 
 ### CEchoResponseHeader
-- [ ] `CEchoResponseHeader::CreateFromData` · 004c60c0 · legions 004ba480
+- [x] `CEchoResponseHeader::CreateFromData` · 004c60c0 · legions 004ba480
 
 ### NetPacket
-- [ ] `NetPacket::CreateForSend` · 004c6120 · legions 004ba4e0
+- [x] `NetPacket::CreateForSend` · 004c6120 · legions 004ba4e0
 - [ ] `NetPacket::~NetPacket` · 004c61c0 · legions 004ba580
 
 ### SharedNet
 - [ ] `SharedNet::~SharedNet` · 004c6260 · legions 004ba6a0
-- [ ] `SharedNet::SplitPacketData` · 004c63b0 · legions 004ba7f0
-- [ ] `SharedNet::ProcessOptionalHeader` · 004c65f0 · legions 004baa30
-- [ ] `SharedNet::SendOptionalHeader` · 004c66e0 · legions 004bab20
+- [x] `SharedNet::SplitPacketData` · 004c63b0 · legions 004ba7f0
+- [x] `SharedNet::ProcessOptionalHeader` · 004c65f0 · legions 004baa30
+- [x] `SharedNet::SendOptionalHeader` · 004c66e0 · legions 004bab20
 
 ### (free functions)
 - [ ] `ParseInterfaceString` · 004c67d0 · legions 004bac10
 
 ### ClientNet
-- [ ] `ClientNet::EndState` · 004c6900 · legions 004bad40
-- [ ] `ClientNet::InitCrypto` · 004c6980 · legions 004badc0
-- [ ] `ClientNet::VerifyHeader` · 004c6bd0 · legions 004bb010
+- [~] `ClientNet::EndState` · 004c6900 · legions 004bad40 — logon outcome as an event; no async state machine
+- [~] `ClientNet::InitCrypto` · 004c6980 · legions 004badc0 — no CryptoAPI RSA import or RC4 session key
+- [x] `ClientNet::VerifyHeader` · 004c6bd0 · legions 004bb010
 - [ ] `ClientNet::NotifyPluginsOfStatusChange` · 004c6d80 · legions 004bb1c0
 - [ ] `ClientNet::NotifyPluginsOfHeartbeat` · 004c6dd0 · legions 004bb210
 
 ### COnePrimHeader<134217728,16,CFlowStruct>
-- [ ] `COnePrimHeader<134217728,16,CFlowStruct>::CreateFromData` · 004c6e10 · legions 004bb250
+- [x] `COnePrimHeader<134217728,16,CFlowStruct>::CreateFromData` · 004c6e10 · legions 004bb250
 
 ### CPackObjHeader<NetError,1048576,7>
-- [ ] `CPackObjHeader<NetError,1048576,7>::CreateFromData` · 004c6e60 · legions 004bb2a0
+- [x] `CPackObjHeader<NetError,1048576,7>::CreateFromData` · 004c6e60 · legions 004bb2a0
 
 ### COnePrimHeader<2048,1073741922,CReferralStruct>
-- [ ] `COnePrimHeader<2048,1073741922,CReferralStruct>::CreateFromData` · 004c6ee0 · legions 004bb320
+- [x] `COnePrimHeader<2048,1073741922,CReferralStruct>::CreateFromData` · 004c6ee0 · legions 004bb320
 
 ### AVL<unsigned_long,unsigned_long>
 - [ ] `AVL<unsigned_long,unsigned_long>::ReBalanceTree` · 004c6f30 · legions 004bb370
 - [ ] `AVL<unsigned_long,unsigned_long>::FindSuccessor` · 004c6fa0 · legions 004bb3e0
 
 ### TimeStampUtils
-- [ ] `TimeStampUtils::lhs_newer` · 004c7040 · legions 004bb480
-- [ ] `TimeStampUtils::lhs_newer` · 004c7080 · legions 004bb4c0
+- [x] `TimeStampUtils::lhs_newer` · 004c7040 · legions 004bb480
+- [x] `TimeStampUtils::lhs_newer` · 004c7080 · legions 004bb4c0
 
 ### SharedNet
-- [ ] `SharedNet::SeqIDSanityCheck` · 004c70c0 · legions 004bb500
-- [ ] `SharedNet::ProcessNewRemoteInterval` · 004c7120 · legions 004bb560
-- [ ] `SharedNet::EnqueuePak` · 004c71b0 · legions 004bb5f0
-- [ ] `SharedNet::EnqueueNaks` · 004c7270 · legions 004bb6b0
+- [x] `SharedNet::SeqIDSanityCheck` · 004c70c0 · legions 004bb500
+- [x] `SharedNet::ProcessNewRemoteInterval` · 004c7120 · legions 004bb560
+- [x] `SharedNet::EnqueuePak` · 004c71b0 · legions 004bb5f0
+- [x] `SharedNet::EnqueueNaks` · 004c7270 · legions 004bb6b0
 
 ### ClientNet
 - [ ] `ClientNet::OnContextEnded` · 004c7360 · legions 004bb7a0
-- [ ] `ClientNet::HandleTimeSynch` · 004c73d0 · legions 004bb810
-- [ ] `ClientNet::HandleServerSwitch` · 004c74c0 · legions 004bb900
-- [ ] `ClientNet::LogOffServer` · 004c7590 · legions 004bb9d0
-- [ ] `ClientNet::SendConnectAck` · 004c7630 · legions 004bba70
-- [ ] `ClientNet::ProcessReferralQueue` · 004c7730 · legions 004bbb70
+- [x] `ClientNet::HandleTimeSynch` · 004c73d0 · legions 004bb810
+- [x] `ClientNet::HandleServerSwitch` · 004c74c0 · legions 004bb900
+- [x] `ClientNet::LogOffServer` · 004c7590 · legions 004bb9d0
+- [x] `ClientNet::SendConnectAck` · 004c7630 · legions 004bba70
+- [x] `ClientNet::ProcessReferralQueue` · 004c7730 · legions 004bbb70
 
 ### AVL<unsigned_long,unsigned_long>
 - [ ] `AVL<unsigned_long,unsigned_long>::Remove` · 004c7950 · legions 004bbd80
@@ -504,26 +504,26 @@ Legend and workflow: [README](README.md).
 - [ ] `CClientsideLoginStateHandler::OnStateHandlerInit` · 004c7b10 · legions 004bbfd0
 
 ### SharedNet
-- [ ] `SharedNet::ProcessNewSeqNum` · 004c7c00 · legions 004bc0c0
-- [ ] `SharedNet::ProcessPacket` · 004c7d00 · legions 004bc1c0
-- [ ] `SharedNet::HandleEmptyAck` · 004c7e60 · legions 004bc320
-- [ ] `SharedNet::ProcessConnection` · 004c7ec0 · legions 004bc380
+- [x] `SharedNet::ProcessNewSeqNum` · 004c7c00 · legions 004bc0c0
+- [x] `SharedNet::ProcessPacket` · 004c7d00 · legions 004bc1c0
+- [x] `SharedNet::HandleEmptyAck` · 004c7e60 · legions 004bc320
+- [x] `SharedNet::ProcessConnection` · 004c7ec0 · legions 004bc380
 
 ### ClientNet
 - [ ] `ClientNet::OnContextBegun` · 004c7ef0 · legions 004bc3b0
-- [ ] `ClientNet::ProcessPacket` · 004c7f80 · legions 004bc440
-- [ ] `ClientNet::ProcessOptionalHeader` · 004c8020 · legions 004bc4e0
-- [ ] `ClientNet::RemoveConnection` · 004c8240 · legions 004bc700
-- [ ] `ClientNet::SendLoginRequest` · 004c82c0 · legions 004bc780
-- [ ] `ClientNet::ProcessConnections` · 004c8420 · legions 004bc8e0
-- [ ] `ClientNet::ProcessConnection` · 004c8430 · legions 004bc8f0
+- [x] `ClientNet::ProcessPacket` · 004c7f80 · legions 004bc440
+- [x] `ClientNet::ProcessOptionalHeader` · 004c8020 · legions 004bc4e0
+- [x] `ClientNet::RemoveConnection` · 004c8240 · legions 004bc700
+- [x] `ClientNet::SendLoginRequest` · 004c82c0 · legions 004bc780
+- [x] `ClientNet::ProcessConnections` · 004c8420 · legions 004bc8e0
+- [~] `ClientNet::ProcessConnection` · 004c8430 · legions 004bc8f0 — heartbeat link-status snapshots not kept; 140 s silence reports a timeout instead of re-referring
 - [ ] `ClientNet::~ClientNet` · 004c8950 · legions 004bcea0
-- [ ] `ClientNet::LogonUseTime` · 004c8a50 · legions 004bcfa0
+- [x] `ClientNet::LogonUseTime` · 004c8a50 · legions 004bcfa0
 - [ ] `ClientNet::InitAddresses` · 004c8b40 · legions 004bd090
-- [ ] `ClientNet::Init` · 004c9050 · legions 004bd5a0
-- [ ] `ClientNet::HandleConnectionRequest` · 004c9200 · legions 004bd750
-- [ ] `ClientNet::HandleReferral` · 004c9480 · legions 004bd9d0
-- [ ] `ClientNet::Init` · 004c95a0 · legions 004bdaf0
+- [~] `ClientNet::Init` · 004c9050 · legions 004bd5a0 — connection sequence from real time; no address/interface parsing or crypto key export
+- [x] `ClientNet::HandleConnectionRequest` · 004c9200 · legions 004bd750
+- [x] `ClientNet::HandleReferral` · 004c9480 · legions 004bd9d0
+- [~] `ClientNet::Init` · 004c95a0 · legions 004bdaf0 — connection sequence from real time; no address/interface parsing or crypto key export
 
 ### PerfMonCounterFactory
 - [ ] `PerfMonCounterFactory::CreateNewCounter` · 004c9650 · legions 004bdc40
@@ -558,12 +558,12 @@ Legend and workflow: [README](README.md).
 - [ ] `RemoveLinkStatusPlugin` · 004ca2b0 · legions 004be890
 - [ ] `AddLinkStatusPlugin` · 004ca2e0 · legions 004be8c0
 
-## `portal/client/src/clinet/pui.cpp.c` (0/8)
+## `portal/client/src/clinet/pui.cpp.c` (2/8)
 
 ### Proto_UI
-- [ ] `Proto_UI::SendBlob` · 004c9b70 · legions 004be150
-- [ ] `Proto_UI::SetOrderingStamp` · 004c9c10 · legions 004be1f0
-- [ ] `Proto_UI::SendBuff` · 004c9c20 · legions 004be200
+- [~] `Proto_UI::SendBlob` · 004c9b70 · legions 004be150 — queues 6-8 are not RC4-encrypted (no session key)
+- [x] `Proto_UI::SetOrderingStamp` · 004c9c10 · legions 004be1f0
+- [x] `Proto_UI::SendBuff` · 004c9c20 · legions 004be200
 - [ ] `Proto_UI::LogOffCharacter` · 004c9d10 · legions 004be2f0
 - [ ] `Proto_UI::SendCharGenResult` · 004c9d40 · legions 004be320
 - [ ] `Proto_UI::SendDeleteCharacter` · 004c9e00 · legions 004be3e0
@@ -675,7 +675,7 @@ Legend and workflow: [README](README.md).
 - [ ] `WinInetImplementation::GetToFileHandle` · 006fb6f0 · legions 0067b4f0
 - [ ] `WinInetImplementation::GetToSmartBuffer` · 006fb740 · legions 0067b540
 
-## `portal/shared/src/crypto/cryptosystem.cpp.c` (0/10)
+## `portal/shared/src/crypto/cryptosystem.cpp.c` (7/10)
 
 ### CryptoSystem
 - [ ] `CryptoSystem::~CryptoSystem` · 0065fd60 · legions 0060e670
@@ -687,19 +687,19 @@ Legend and workflow: [README](README.md).
 - [ ] `QTIsaac<8,unsigned_long>::randctx::~randctx` · 0065fec0 · legions 0060e7d0
 
 ### QTIsaac<8,unsigned_long>
-- [ ] `QTIsaac<8,unsigned_long>::QTIsaac<8,unsigned_long>` · 0065fee0 · legions 0060e7f0
-- [ ] `QTIsaac<8,unsigned_long>::randinit` · 0065ff80 · legions 0060e890
-- [ ] `QTIsaac<8,unsigned_long>::shuffle` · 00660280 · legions 0060eb90
+- [x] `QTIsaac<8,unsigned_long>::QTIsaac<8,unsigned_long>` · 0065fee0 · legions 0060e7f0
+- [x] `QTIsaac<8,unsigned_long>::randinit` · 0065ff80 · legions 0060e890
+- [x] `QTIsaac<8,unsigned_long>::shuffle` · 00660280 · legions 0060eb90
 
 ### CryptoSystem
-- [ ] `CryptoSystem::CryptoSystem` · 00660390 · legions 0060eca0
+- [x] `CryptoSystem::CryptoSystem` · 00660390 · legions 0060eca0
 
 ### QTIsaac<8,unsigned_long>
-- [ ] `QTIsaac<8,unsigned_long>::isaac` · 006603e0 · legions 0060ecf0
+- [x] `QTIsaac<8,unsigned_long>::isaac` · 006603e0 · legions 0060ecf0
 
 ### CryptoSystem
-- [ ] `CryptoSystem::GetNextCryptoKey` · 006606a0 · legions 0060efb0
-- [ ] `CryptoSystem::EncryptData` · 006606e0 · legions 0060eff0
+- [x] `CryptoSystem::GetNextCryptoKey` · 006606a0 · legions 0060efb0
+- [x] `CryptoSystem::EncryptData` · 006606e0 · legions 0060eff0
 
 ## `portal/shared/src/crypto/portaldh.cpp.c` (0/1)
 
@@ -745,13 +745,13 @@ Legend and workflow: [README](README.md).
 ### CAsyncStateHandler
 - [ ] `CAsyncStateHandler::RegisterContextDataName` · 0063b400 · legions 005eff30
 
-## `portal/shared/src/newnet/blobfrag.cpp.c` (0/4)
+## `portal/shared/src/newnet/blobfrag.cpp.c` (4/4)
 
 ### BlobFrag
-- [ ] `BlobFrag::BlobFrag` · 004cbc30 · legions 004c0170
-- [ ] `BlobFrag::BlobFrag` · 004cbd00 · legions 004c0240
-- [ ] `BlobFrag::CreateForSend` · 004cbd60 · legions 004c02a0
-- [ ] `BlobFrag::CreateForRecv` · 004cbda0 · legions 004c02e0
+- [x] `BlobFrag::BlobFrag` · 004cbc30 · legions 004c0170
+- [x] `BlobFrag::BlobFrag` · 004cbd00 · legions 004c0240
+- [x] `BlobFrag::CreateForSend` · 004cbd60 · legions 004c02a0
+- [x] `BlobFrag::CreateForRecv` · 004cbda0 · legions 004c02e0
 
 ## `portal/shared/src/newnet/interfaceenumerator.cpp.c` (0/2)
 
@@ -759,19 +759,19 @@ Legend and workflow: [README](README.md).
 - [ ] `InterfaceEnumerator::InterfaceEnumerator` · 0063c590 · legions 005f10e0
 - [ ] `InterfaceEnumerator::~InterfaceEnumerator` · 0063c630 · legions 005f1180
 
-## `portal/shared/src/newnet/netauthenticator.cpp.c` (0/11)
+## `portal/shared/src/newnet/netauthenticator.cpp.c` (4/11)
 
 ### NetAuthenticator::CGrowBuffer
 - [ ] `NetAuthenticator::CGrowBuffer::Grow` · 004c4ed0 · legions 004b92e0
 
 ### NetAuthenticator
-- [ ] `NetAuthenticator::SetCryptoKey` · 004c4f10 · legions 004b9320
+- [~] `NetAuthenticator::SetCryptoKey` · 004c4f10 · legions 004b9320 — no CryptoAPI session key: auth flag bit 0 never set, crypto blob empty
 
 ### NetAuthenticator::CGrowBuffer
-- [ ] `NetAuthenticator::CGrowBuffer::StreamPack` · 004c4f80 · legions 004b9390
+- [x] `NetAuthenticator::CGrowBuffer::StreamPack` · 004c4f80 · legions 004b9390
 
 ### NetAuthenticator
-- [ ] `NetAuthenticator::NetAuthenticator` · 004c4ff0 · legions 004b9400
+- [x] `NetAuthenticator::NetAuthenticator` · 004c4ff0 · legions 004b9400
 
 ### StreamPackObj
 - [ ] `StreamPackObj::GetPackSize` · 004c5050 · legions 004759b0
@@ -784,37 +784,37 @@ Legend and workflow: [README](README.md).
 
 ### NetAuthenticator
 - [ ] `NetAuthenticator::~NetAuthenticator` · 004c5100 · legions 004b94e0
-- [ ] `NetAuthenticator::SetToAuthType` · 004c5170 · legions 004b9550
+- [x] `NetAuthenticator::SetToAuthType` · 004c5170 · legions 004b9550
 - [ ] `NetAuthenticator::SetAdminAccountOverride` · 004c51e0
-- [ ] `NetAuthenticator::StreamPack` · 004c5200 · legions 004b95c0
+- [x] `NetAuthenticator::StreamPack` · 004c5200 · legions 004b95c0
 
-## `portal/shared/src/newnet/netblob.cpp.c` (0/10)
+## `portal/shared/src/newnet/netblob.cpp.c` (6/10)
 
 ### NetBlob
-- [ ] `NetBlob::ReceiveAddFragment` · 004cd9a0 · legions 004c1f10
-- [ ] `NetBlob::ReceiveBlobReady` · 004cdab0 · legions 004c2020
-- [ ] `NetBlob::Send` · 004cdac0 · legions 004c2030
+- [x] `NetBlob::ReceiveAddFragment` · 004cd9a0 · legions 004c1f10
+- [x] `NetBlob::ReceiveBlobReady` · 004cdab0 · legions 004c2020
+- [x] `NetBlob::Send` · 004cdac0 · legions 004c2030
 - [ ] `NetBlob::Pack` · 004cdb10
 - [ ] `NetBlob::UnPack` · 004cdbe0 · legions 004c2150
-- [ ] `NetBlob::NetBlob` · 004cdcb0 · legions 004c2220
+- [x] `NetBlob::NetBlob` · 004cdcb0 · legions 004c2220
 - [ ] `NetBlob::GetPackSize` · 004cdd50
-- [ ] `NetBlob::NetBlob` · 004cdd60 · legions 004c22d0
+- [x] `NetBlob::NetBlob` · 004cdd60 · legions 004c22d0
 - [ ] `NetBlob::~NetBlob` · 004cddc0 · legions 004c2330
-- [ ] `NetBlob::Fragmentize` · 004cde10 · legions 004c2380
+- [x] `NetBlob::Fragmentize` · 004cde10 · legions 004c2380
 
-## `portal/shared/src/newnet/netblobid.cpp.c` (0/10)
+## `portal/shared/src/newnet/netblobid.cpp.c` (10/10)
 
 ### NetBlobIDUtils
-- [ ] `NetBlobIDUtils::IsCellFlagSet` · 0063a540 · legions 005ef190
-- [ ] `NetBlobIDUtils::IsEphemeralFlagSet` · 0063a560 · legions 005ef1b0
-- [ ] `NetBlobIDUtils::IsOutOfWorldFlagSet` · 0063a580 · legions 005ef1d0
-- [ ] `NetBlobIDUtils::GetOrderingType` · 0063a5a0 · legions 005ef1f0
-- [ ] `NetBlobIDUtils::GetOrderingStamp` · 0063a5b0 · legions 005ef200
-- [ ] `NetBlobIDUtils::GetSequenceID` · 0063a5c0 · legions 005ef210
-- [ ] `NetBlobIDUtils::MakeInitialSequenceID` · 0063a5d0 · legions 005ef220
-- [ ] `NetBlobIDUtils::MakeNetBlobID` · 0063a600 · legions 005ef250
-- [ ] `NetBlobIDUtils::NextNonEphemeralSequenceID` · 0063a660 · legions 005ef2b0
-- [ ] `NetBlobIDUtils::LHSNewerOrderingStamp` · 0063a690 · legions 005ef2e0
+- [x] `NetBlobIDUtils::IsCellFlagSet` · 0063a540 · legions 005ef190
+- [x] `NetBlobIDUtils::IsEphemeralFlagSet` · 0063a560 · legions 005ef1b0
+- [x] `NetBlobIDUtils::IsOutOfWorldFlagSet` · 0063a580 · legions 005ef1d0
+- [x] `NetBlobIDUtils::GetOrderingType` · 0063a5a0 · legions 005ef1f0
+- [x] `NetBlobIDUtils::GetOrderingStamp` · 0063a5b0 · legions 005ef200
+- [x] `NetBlobIDUtils::GetSequenceID` · 0063a5c0 · legions 005ef210
+- [x] `NetBlobIDUtils::MakeInitialSequenceID` · 0063a5d0 · legions 005ef220
+- [x] `NetBlobIDUtils::MakeNetBlobID` · 0063a600 · legions 005ef250
+- [x] `NetBlobIDUtils::NextNonEphemeralSequenceID` · 0063a660 · legions 005ef2b0
+- [x] `NetBlobIDUtils::LHSNewerOrderingStamp` · 0063a690 · legions 005ef2e0
 
 ## `portal/shared/src/newnet/netinitializer.cpp.c` (0/3)
 
@@ -825,11 +825,11 @@ Legend and workflow: [README](README.md).
 ### NetInitializer::AllSocketsCrashCleaner
 - [ ] `NetInitializer::AllSocketsCrashCleaner::CrashCleanup` · 0063b630 · legions 005f0160
 
-## `portal/shared/src/newnet/netinterface.cpp.c` (0/2)
+## `portal/shared/src/newnet/netinterface.cpp.c` (1/2)
 
 ### NetInterface
 - [ ] `NetInterface::NetInterface` · 004cd980 · legions 004c1ef0
-- [ ] `NetInterface::GetNonEphemeralID` · 004cd990 · legions 004c1f00
+- [x] `NetInterface::GetNonEphemeralID` · 004cd990 · legions 004c1f00
 
 ## `portal/shared/src/newnet/netkeyexch.cpp.c` (0/5)
 
@@ -847,18 +847,18 @@ Legend and workflow: [README](README.md).
 - [ ] `CNetLayerPacket::Create` · 0063b4c0 · legions 005efff0
 - [ ] `CNetLayerPacket::Clear` · 0063b4e0 · legions 005f0010
 
-## `portal/shared/src/newnet/netpacket.cpp.c` (0/9)
+## `portal/shared/src/newnet/netpacket.cpp.c` (9/9)
 
 ### NetPacket
-- [ ] `NetPacket::ComputeChecksum` · 004cb7d0 · legions 004bfd10
-- [ ] `NetPacket::ApplySpecialFrags` · 004cb8a0 · legions 004bfde0
-- [ ] `NetPacket::AddToTail` · 004cb8d0 · legions 004bfe10
-- [ ] `NetPacket::AddToHead` · 004cb900 · legions 004bfe40
-- [ ] `NetPacket::Remove` · 004cb950 · legions 004bfe90
-- [ ] `NetPacket::AddOptionalHeader` · 004cb990 · legions 004bfed0
-- [ ] `NetPacket::RemoveDisposableOptionalHeaders` · 004cba40 · legions 004bff80
-- [ ] `NetPacket::UpdateTimeSensitiveHeaders` · 004cbb00 · legions 004c0040
-- [ ] `NetPacket::AddFrag` · 004cbb70 · legions 004c00b0
+- [x] `NetPacket::ComputeChecksum` · 004cb7d0 · legions 004bfd10
+- [x] `NetPacket::ApplySpecialFrags` · 004cb8a0 · legions 004bfde0
+- [x] `NetPacket::AddToTail` · 004cb8d0 · legions 004bfe10
+- [x] `NetPacket::AddToHead` · 004cb900 · legions 004bfe40
+- [x] `NetPacket::Remove` · 004cb950 · legions 004bfe90
+- [x] `NetPacket::AddOptionalHeader` · 004cb990 · legions 004bfed0
+- [x] `NetPacket::RemoveDisposableOptionalHeaders` · 004cba40 · legions 004bff80
+- [x] `NetPacket::UpdateTimeSensitiveHeaders` · 004cbb00 · legions 004c0040
+- [x] `NetPacket::AddFrag` · 004cbb70 · legions 004c00b0
 
 ## `portal/shared/src/newnet/netutils.cpp.c` (0/3)
 
@@ -867,166 +867,166 @@ Legend and workflow: [README](README.md).
 - [ ] `NetUtils::GetIPString` · 0063b6c0 · legions 005f01f0
 - [ ] `NetUtils::GetLastErrorString` · 0063b730 · legions 005f0260
 
-## `portal/shared/src/newnet/optionalheader.cpp.c` (0/28)
+## `portal/shared/src/newnet/optionalheader.cpp.c` (28/28)
 
 ### COptionalHeaderFactory
-- [ ] `COptionalHeaderFactory::RegisterOptionalHeaderType` · 0063b7e0 · legions 005f0310
+- [x] `COptionalHeaderFactory::RegisterOptionalHeaderType` · 0063b7e0 · legions 005f0310
 
 ### CBufferIterator
-- [ ] `CBufferIterator::ReadPrimArray` · 0063b830 · legions 005f0360
+- [x] `CBufferIterator::ReadPrimArray` · 0063b830 · legions 005f0360
 
 ### COptionalHeaderFactory
-- [ ] `COptionalHeaderFactory::AddOptionalHeadersToPacket` · 0063b880 · legions 005f03b0
+- [x] `COptionalHeaderFactory::AddOptionalHeadersToPacket` · 0063b880 · legions 005f03b0
 
 ### CPackObjHeader<NetError,1048576,7>
-- [ ] `CPackObjHeader<NetError,1048576,7>::CPackObjHeader<NetError,1048576,7>` · 0063b900 · legions 005f0430
+- [x] `CPackObjHeader<NetError,1048576,7>::CPackObjHeader<NetError,1048576,7>` · 0063b900 · legions 005f0430
 
 ### COnePrimHeader<512,7,sockaddr_in>
-- [ ] `COnePrimHeader<512,7,sockaddr_in>::COnePrimHeader<512,7,sockaddr_in>` · 0063b990 · legions 005f04c0
+- [x] `COnePrimHeader<512,7,sockaddr_in>::COnePrimHeader<512,7,sockaddr_in>` · 0063b990 · legions 005f04c0
 
 ### CPackObjHeader<NetError,2097152,2>
-- [ ] `CPackObjHeader<NetError,2097152,2>::CPackObjHeader<NetError,2097152,2>` · 0063b9e0 · legions 005f0510
+- [x] `CPackObjHeader<NetError,2097152,2>::CPackObjHeader<NetError,2097152,2>` · 0063b9e0 · legions 005f0510
 
 ### CTimeSyncHeader
-- [ ] `CTimeSyncHeader::CreateFromStream` · 0063ba70
+- [x] `CTimeSyncHeader::CreateFromStream` · 0063ba70
 
 ### CEchoRequestHeader
-- [ ] `CEchoRequestHeader::CreateFromStream` · 0063baf0
+- [x] `CEchoRequestHeader::CreateFromStream` · 0063baf0
 
 ### CEchoResponseHeader
-- [ ] `CEchoResponseHeader::CreateFromStream` · 0063bb50
+- [x] `CEchoResponseHeader::CreateFromStream` · 0063bb50
 
 ### CConnectHeader
-- [ ] `CConnectHeader::CreateFromStream` · 0063bbe0
+- [x] `CConnectHeader::CreateFromStream` · 0063bbe0
 
 ### COnePrimHeader<134217728,16,CFlowStruct>
-- [ ] `COnePrimHeader<134217728,16,CFlowStruct>::CreateFromStream` · 0063bc60
+- [x] `COnePrimHeader<134217728,16,CFlowStruct>::CreateFromStream` · 0063bc60
 
 ### CPackObjHeader<NetError,1048576,7>
-- [ ] `CPackObjHeader<NetError,1048576,7>::CreateFromStream` · 0063bcd0
+- [x] `CPackObjHeader<NetError,1048576,7>::CreateFromStream` · 0063bcd0
 
 ### CSeqIDListHeader<4096,33>
-- [ ] `CSeqIDListHeader<4096,33>::CreateFromStream` · 0063bd00
+- [x] `CSeqIDListHeader<4096,33>::CreateFromStream` · 0063bd00
 
 ### COnePrimHeader<16384,1,unsigned_long>
-- [ ] `COnePrimHeader<16384,1,unsigned_long>::CreateFromStream` · 0063bde0
+- [x] `COnePrimHeader<16384,1,unsigned_long>::CreateFromStream` · 0063bde0
 
 ### CSeqIDListHeader<8192,33>
-- [ ] `CSeqIDListHeader<8192,33>::CreateFromStream` · 0063be40
+- [x] `CSeqIDListHeader<8192,33>::CreateFromStream` · 0063be40
 
 ### COnePrimHeader<131072,7,unsigned___int64>
-- [ ] `COnePrimHeader<131072,7,unsigned___int64>::CreateFromStream` · 0063bf20
+- [x] `COnePrimHeader<131072,7,unsigned___int64>::CreateFromStream` · 0063bf20
 
 ### CEmptyHeader<32768,3>
-- [ ] `CEmptyHeader<32768,3>::CreateFromStream` · 0063bf90
+- [x] `CEmptyHeader<32768,3>::CreateFromStream` · 0063bf90
 
 ### CEmptyHeader<1024,7>
-- [ ] `CEmptyHeader<1024,7>::CreateFromStream` · 0063bfd0
+- [x] `CEmptyHeader<1024,7>::CreateFromStream` · 0063bfd0
 
 ### COnePrimHeader<524288,536870919,unsigned___int64>
-- [ ] `COnePrimHeader<524288,536870919,unsigned___int64>::CreateFromStream` · 0063c010
+- [x] `COnePrimHeader<524288,536870919,unsigned___int64>::CreateFromStream` · 0063c010
 
 ### COnePrimHeader<256,96,CServerSwitchStruct>
-- [ ] `COnePrimHeader<256,96,CServerSwitchStruct>::CreateFromStream` · 0063c080
+- [x] `COnePrimHeader<256,96,CServerSwitchStruct>::CreateFromStream` · 0063c080
 
 ### COnePrimHeader<512,7,sockaddr_in>
-- [ ] `COnePrimHeader<512,7,sockaddr_in>::CreateFromStream` · 0063c0f0
+- [x] `COnePrimHeader<512,7,sockaddr_in>::CreateFromStream` · 0063c0f0
 
 ### COnePrimHeader<2048,1073741922,CReferralStruct>
-- [ ] `COnePrimHeader<2048,1073741922,CReferralStruct>::CreateFromStream` · 0063c150
+- [x] `COnePrimHeader<2048,1073741922,CReferralStruct>::CreateFromStream` · 0063c150
 
 ### COnePrimHeader<4194304,7,CICMDCommandStruct>
-- [ ] `COnePrimHeader<4194304,7,CICMDCommandStruct>::CreateFromStream` · 0063c1d0
+- [x] `COnePrimHeader<4194304,7,CICMDCommandStruct>::CreateFromStream` · 0063c1d0
 
 ### CPackObjHeader<NetError,2097152,2>
-- [ ] `CPackObjHeader<NetError,2097152,2>::CreateFromStream` · 0063c240
+- [x] `CPackObjHeader<NetError,2097152,2>::CreateFromStream` · 0063c240
 
 ### CLogonHeader
-- [ ] `CLogonHeader::CLogonHeader` · 0063c270 · legions 005f0dc0
-- [ ] `CLogonHeader::CLogonHeader` · 0063c2c0 · legions 005f0e10
-- [ ] `CLogonHeader::CreateFromData` · 0063c340 · legions 005f0e90
-- [ ] `CLogonHeader::CreateFromStream` · 0063c410
+- [x] `CLogonHeader::CLogonHeader` · 0063c270 · legions 005f0dc0
+- [x] `CLogonHeader::CLogonHeader` · 0063c2c0 · legions 005f0e10
+- [x] `CLogonHeader::CreateFromData` · 0063c340 · legions 005f0e90
+- [x] `CLogonHeader::CreateFromStream` · 0063c410
 
-## `portal/shared/src/newnet/packetcontroller.cpp.c` (0/19)
+## `portal/shared/src/newnet/packetcontroller.cpp.c` (15/19)
 
 ### PacketController
-- [ ] `PacketController::Instance` · 004ca310 · legions 004be8f0
-- [ ] `PacketController::AddReceiveQueue` · 004ca320 · legions 004be900
-- [ ] `PacketController::EnqueueRecip` · 004ca340 · legions 004be920
-- [ ] `PacketController::SendBlob` · 004ca370 · legions 004be950
-- [ ] `PacketController::GetRecipient` · 004ca3a0 · legions 004be980
+- [x] `PacketController::Instance` · 004ca310 · legions 004be8f0
+- [x] `PacketController::AddReceiveQueue` · 004ca320 · legions 004be900
+- [x] `PacketController::EnqueueRecip` · 004ca340 · legions 004be920
+- [x] `PacketController::SendBlob` · 004ca370 · legions 004be950
+- [x] `PacketController::GetRecipient` · 004ca3a0 · legions 004be980
 - [ ] `PacketController::CallNetHook` · 004ca3b0
 - [ ] `PacketController::~PacketController` · 004ca530 · legions 004beaf0
-- [ ] `PacketController::GetNonEphemeralID` · 004ca5e0
-- [ ] `PacketController::EnqueueOptionalHeader` · 004ca620 · legions 004bebc0
+- [x] `PacketController::GetNonEphemeralID` · 004ca5e0
+- [x] `PacketController::EnqueueOptionalHeader` · 004ca620 · legions 004bebc0
 
 ### PQueueArray<double,void_*>
-- [ ] `PQueueArray<double,void_*>::Insert` · 004ca660 · legions 004bec00
-- [ ] `PQueueArray<double,void_*>::RemoveMin` · 004ca6e0 · legions 004bec80
-- [ ] `PQueueArray<double,void_*>::RemoveByData` · 004ca760 · legions 004bed00
+- [x] `PQueueArray<double,void_*>::Insert` · 004ca660 · legions 004bec00
+- [x] `PQueueArray<double,void_*>::RemoveMin` · 004ca6e0 · legions 004bec80
+- [x] `PQueueArray<double,void_*>::RemoveByData` · 004ca760 · legions 004bed00
 
 ### PacketController
-- [ ] `PacketController::CheckFlowControlTimers` · 004ca880 · legions 004bee20
-- [ ] `PacketController::UseTime` · 004ca960 · legions 004bef00
-- [ ] `PacketController::AddRecipient` · 004ca9c0 · legions 004bef60
-- [ ] `PacketController::DeleteRecipient` · 004caad0 · legions 004bf070
+- [x] `PacketController::CheckFlowControlTimers` · 004ca880 · legions 004bee20
+- [x] `PacketController::UseTime` · 004ca960 · legions 004bef00
+- [x] `PacketController::AddRecipient` · 004ca9c0 · legions 004bef60
+- [x] `PacketController::DeleteRecipient` · 004caad0 · legions 004bf070
 
 ### (free functions)
 - [ ] `GetIPFromRecipientID` · 004cab90 · legions 004bf130
 
 ### PacketController
-- [ ] `PacketController::AddReceivedBlobToQueue` · 004cabe0 · legions 004bf180
-- [ ] `PacketController::PacketController` · 004cacf0 · legions 004bf280
+- [x] `PacketController::AddReceivedBlobToQueue` · 004cabe0 · legions 004bf180
+- [~] `PacketController::PacketController` · 004cacf0 · legions 004bf280 — net hook DLL and perf counters not loaded
 
-## `portal/shared/src/newnet/receiverdata.cpp.c` (0/16)
+## `portal/shared/src/newnet/receiverdata.cpp.c` (11/16)
 
 ### ReceiverData
-- [ ] `ReceiverData::SetConnectionState` · 004caed0 · legions 004bf410
-- [ ] `ReceiverData::GetConnectionStateDuration` · 004caef0 · legions 004bf430
-- [ ] `ReceiverData::AddToQueue` · 004caf00 · legions 004bf440
-- [ ] `ReceiverData::RemoveFromQueue` · 004caf30 · legions 004bf470
-- [ ] `ReceiverData::Encrypt` · 004cafb0 · legions 004bf4f0
-- [ ] `ReceiverData::Decrypt` · 004cafc0 · legions 004bf500
+- [x] `ReceiverData::SetConnectionState` · 004caed0 · legions 004bf410
+- [x] `ReceiverData::GetConnectionStateDuration` · 004caef0 · legions 004bf430
+- [x] `ReceiverData::AddToQueue` · 004caf00 · legions 004bf440
+- [x] `ReceiverData::RemoveFromQueue` · 004caf30 · legions 004bf470
+- [x] `ReceiverData::Encrypt` · 004cafb0 · legions 004bf4f0
+- [x] `ReceiverData::Decrypt` · 004cafc0 · legions 004bf500
 
 ### AVLNode<unsigned_long,unsigned_long>
 - [ ] `AVLNode<unsigned_long,unsigned_long>::AVLNode<unsigned_long,unsigned_long>` · 004cafd0 · legions 004bf510
 
 ### ReceiverData
-- [ ] `ReceiverData::InitCrypto` · 004cb010 · legions 004bf550
+- [x] `ReceiverData::InitCrypto` · 004cb010 · legions 004bf550
 - [ ] `ReceiverData::ReceiverData` · 004cb0a0 · legions 004bf5e0
 - [ ] `ReceiverData::~ReceiverData` · 004cb0e0 · legions 004bf620
-- [ ] `ReceiverData::SharedInit` · 004cb160 · legions 004bf6a0
-- [ ] `ReceiverData::Init` · 004cb210 · legions 004bf750
-- [ ] `ReceiverData::Clear` · 004cb270 · legions 004bf7b0
-- [ ] `ReceiverData::GetNaks` · 004cb330 · legions 004bf870
+- [x] `ReceiverData::SharedInit` · 004cb160 · legions 004bf6a0
+- [x] `ReceiverData::Init` · 004cb210 · legions 004bf750
+- [~] `ReceiverData::Clear` · 004cb270 · legions 004bf7b0 — slot interval and byte count kept; crypto/key exchange freed with the receiver
+- [x] `ReceiverData::GetNaks` · 004cb330 · legions 004bf870
 
 ### AVL<unsigned_long,unsigned_long>
 - [ ] `AVL<unsigned_long,unsigned_long>::Add` · 004cb3b0 · legions 004bf8f0
 
 ### ReceiverData
-- [ ] `ReceiverData::AddNakked` · 004cb4b0 · legions 004bf9f0
+- [x] `ReceiverData::AddNakked` · 004cb4b0 · legions 004bf9f0
 
-## `portal/shared/src/newnet/recipientdata.cpp.c` (0/8)
+## `portal/shared/src/newnet/recipientdata.cpp.c` (6/8)
 
 ### RecipientData
-- [ ] `RecipientData::TouchConnection` · 004cb520 · legions 004bfa60
-- [ ] `RecipientData::IndicateReceivedPacket` · 004cb540 · legions 004bfa80
-- [ ] `RecipientData::EnqueueBlob` · 004cb570 · legions 004bfab0
-- [ ] `RecipientData::UseTime` · 004cb590 · legions 004bfad0
-- [ ] `RecipientData::RecipientData` · 004cb5d0 · legions 004bfb10
+- [~] `RecipientData::TouchConnection` · 004cb520 · legions 004bfa60 — lastTouched_ not tracked (no reader in the client)
+- [x] `RecipientData::IndicateReceivedPacket` · 004cb540 · legions 004bfa80
+- [x] `RecipientData::EnqueueBlob` · 004cb570 · legions 004bfab0
+- [x] `RecipientData::UseTime` · 004cb590 · legions 004bfad0
+- [x] `RecipientData::RecipientData` · 004cb5d0 · legions 004bfb10
 - [ ] `RecipientData::~RecipientData` · 004cb6a0 · legions 004bfbe0
-- [ ] `RecipientData::QueueFlush` · 004cb730 · legions 004bfc70
-- [ ] `RecipientData::ProcessNaks` · 004cb770 · legions 004bfcb0
+- [x] `RecipientData::QueueFlush` · 004cb730 · legions 004bfc70
+- [x] `RecipientData::ProcessNaks` · 004cb770 · legions 004bfcb0
 
-## `portal/shared/src/newnet/sentpacket.cpp.c` (0/7)
+## `portal/shared/src/newnet/sentpacket.cpp.c` (3/7)
 
 ### SentPacketStore
-- [ ] `SentPacketStore::Contains` · 004cea50 · legions 004c2fc0
-- [ ] `SentPacketStore::GenerateAck` · 004cea80 · legions 004c2ff0
+- [x] `SentPacketStore::Contains` · 004cea50 · legions 004c2fc0
+- [x] `SentPacketStore::GenerateAck` · 004cea80 · legions 004c2ff0
 - [ ] `SentPacketStore::~SentPacketStore` · 004ceab0 · legions 004c3080
-- [ ] `SentPacketStore::AddSentPacket` · 004ceb80 · legions 004c3150
+- [~] `SentPacketStore::AddSentPacket` · 004ceb80 · legions 004c3150 — ephemeral blob-id bookkeeping (m_sentNetBlobIDInfo) not kept
 - [ ] `SentPacketStore::EraseNetBlobID` · 004cecd0 · legions 004c32a0
-- [ ] `SentPacketStore::Flush` · 004ced50 · legions 004c3320
+- [x] `SentPacketStore::Flush` · 004ced50 · legions 004c3320
 - [ ] `SentPacketStore::SentPacketStore` · 004cee30 · legions 004c3400
 
 ## `portal/shared/src/rpc/rpcserv.cpp.c` (0/13)

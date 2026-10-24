@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 0 done, 0 partial, 2230 to do, 17 skipped.
+2247 retail functions: 4 done, 0 partial, 2226 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (0/53)
@@ -152,7 +152,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700
 - [ ] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0
 
-## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (0/58)
+## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (3/58)
 
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::Show` · 00407910 · legions 00407620
@@ -233,9 +233,9 @@ Legend and workflow: [README](README.md).
 - [ ] `STREAMPACK` · 004098e0 · legions 00409650
 
 ### PStringBase<unsigned_short>
-- [ ] `PStringBase<unsigned_short>::GetPackSize` · 00409960 · legions 004096d0
-- [ ] `PStringBase<unsigned_short>::Pack` · 00409990 · legions 00409700
-- [ ] `PStringBase<unsigned_short>::UnPack` · 00409be0 · legions 00409950
+- [x] `PStringBase<unsigned_short>::GetPackSize` · 00409960 · legions 004096d0
+- [x] `PStringBase<unsigned_short>::Pack` · 00409990 · legions 00409700
+- [x] `PStringBase<unsigned_short>::UnPack` · 00409be0 · legions 00409950
 
 ### PHashTable<unsigned_long,float>
 - [ ] `PHashTable<unsigned_long,float>::StreamPack` · 00409e00
@@ -1612,7 +1612,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmSocialUI::ListenToMessage` · 00430650 · legions 00430410
 - [ ] `gmSocialUI::gmSocialUI` · 004306b0 · legions 00430470
 
-## `ac2/client/src/ui/gmuiflow.cpp.c` (0/37)
+## `ac2/client/src/ui/gmuiflow.cpp.c` (1/37)
 
 ### gmUIFlow
 - [ ] `gmUIFlow::~gmUIFlow` · 00405d80 · legions 00405a60
@@ -1648,7 +1648,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ImportData::StreamPack` · 00406c60 · legions 00406970
 
 ### PStringBase<char>
-- [ ] `PStringBase<char>::UnPack` · 00406cb0 · legions 004069c0
+- [x] `PStringBase<char>::UnPack` · 00406cb0 · legions 004069c0
 
 ### DualHash<PStringBase<char>,CheckpointExportData>
 - [ ] `DualHash<PStringBase<char>,CheckpointExportData>::clear` · 00406d90 · legions 00406aa0

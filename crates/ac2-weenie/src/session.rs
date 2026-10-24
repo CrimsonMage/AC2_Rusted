@@ -90,9 +90,8 @@ impl OnlineSession {
                 version: config.version,
                 account: config.account.clone(),
                 credential: config.credential,
-                connection_sequence: 0,
+                connection_sequence: ac2_net::real_time() as u32,
             },
-            connect_timeout: config.connect_timeout,
         })?;
         Ok(Self {
             client,
@@ -121,7 +120,7 @@ impl OnlineSession {
         self.phase == Phase::Closed
     }
 
-    fn send(&self, event: ClientEvent) {
+    fn send(&mut self, event: ClientEvent) {
         let (queue, bytes) = event.encode();
         self.client.send(queue, bytes);
     }
@@ -170,7 +169,7 @@ impl OnlineSession {
                 self.phase = Phase::Selecting;
                 out.push(SessionEvent::Connected);
             }
-            NetEvent::TimeSync(_) => {}
+            NetEvent::TimeSync(_) | NetEvent::LoggedOn | NetEvent::ServerSwitch { .. } => {}
             NetEvent::Disconnected(error) => {
                 self.phase = Phase::Closed;
                 out.push(SessionEvent::Disconnected(error.to_string()));

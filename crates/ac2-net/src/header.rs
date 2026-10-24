@@ -3,43 +3,60 @@ use crate::checksum::checksum32;
 /// Size of `ProtoHeader`.
 pub const HEADER_LEN: usize = 20;
 
-/// Header flag bits: `NetPacket` state bits and the optional-header masks
-/// (`COptionalHeaderFactory::RegisterOptionalHeaderType`).
+/// `ProtoHeader::header_` bits. The low byte carries packet state (`TransmitNewPackets`,
+/// `TransmitAcks`); every higher bit is the mask of one optional header type
+/// (`COptionalHeaderFactory::RegisterOptionalHeaderType`, template argument 1 of each
+/// `COnePrimHeader`/`CEmptyHeader`/`CSeqIDListHeader`/`CPackObjHeader`). Optional headers follow
+/// the `ProtoHeader` in ascending mask order (`NetPacket::AddOptionalHeader`).
 pub mod flags {
-    /// The checksum's body part is XORed with the sequence's ISAAC key.
+    /// The datagram resends a sequence the peer NAKed (`FlowQueue::TransmitAcks` sets `3`/`7`).
+    pub const RETRANSMISSION: u32 = 0x0000_0001;
+    /// The body checksum is XORed with the sequence's ISAAC key; set on every reliable packet.
     pub const ENCRYPTED_CHECKSUM: u32 = 0x0000_0002;
     /// Blob fragments follow the optional headers.
     pub const BLOB_FRAGMENTS: u32 = 0x0000_0004;
-    /// `CSeqIDListHeader<4096>`: sequences the sender is missing.
+    /// `COnePrimHeader<256,96,CServerSwitchStruct>`.
+    pub const SERVER_SWITCH: u32 = 0x0000_0100;
+    /// `COnePrimHeader<512,7,sockaddr_in>`: the logon server's address.
+    pub const LOGON_SERVER_ADDR: u32 = 0x0000_0200;
+    /// `CEmptyHeader<1024,7>`.
+    pub const EMPTY_HEADER: u32 = 0x0000_0400;
+    /// `COnePrimHeader<2048,1073741922,CReferralStruct>`: connect to another server.
+    pub const REFERRAL: u32 = 0x0000_0800;
+    /// `CSeqIDListHeader<4096,33>`: sequences the sender is missing.
     pub const NAK: u32 = 0x0000_1000;
-    /// `CSeqIDListHeader<8192>`: sequences known to carry nothing.
+    /// `CSeqIDListHeader<8192,33>`: NAKed sequences that will not be resent.
     pub const EMPTY_ACK: u32 = 0x0000_2000;
-    /// `COnePrimHeader<16384, u32>`: highest contiguous sequence received.
+    /// `COnePrimHeader<16384,1,unsigned long>`: the highest sequence received.
     pub const ACK: u32 = 0x0000_4000;
-    /// `CEmptyHeader<32768>`: the sender is leaving.
+    /// `CEmptyHeader<32768,3>`: the sender is leaving.
     pub const LOGOFF: u32 = 0x0000_8000;
     /// `CLogonHeader`.
     pub const LOGON: u32 = 0x0001_0000;
+    /// `COnePrimHeader<131072,7,unsigned __int64>`: the referral cookie, sent to a world server.
+    pub const WORLD_LOGIN_REQUEST: u32 = 0x0002_0000;
     /// `CConnectHeader`.
     pub const CONNECT: u32 = 0x0004_0000;
-    /// `COnePrimHeader<524288, u64>`: the connect cookie echoed back.
+    /// `COnePrimHeader<524288,536870919,unsigned __int64>`: the connect cookie echoed back.
     pub const CONNECT_ACK: u32 = 0x0008_0000;
-    /// `CPackObjHeader<NetError, 1048576>`.
+    /// `CPackObjHeader<NetError,1048576,7>`.
     pub const NET_ERROR: u32 = 0x0010_0000;
-    /// `CPackObjHeader<NetError, 2097152>`: the server is closing the connection.
+    /// `CPackObjHeader<NetError,2097152,2>`: the connection is closing.
     pub const NET_ERROR_DISCONNECT: u32 = 0x0020_0000;
+    /// `COnePrimHeader<4194304,7,CICMDCommandStruct>`.
+    pub const CICMD: u32 = 0x0040_0000;
     /// `CTimeSyncHeader`: f64 server time.
     pub const TIME_SYNC: u32 = 0x0100_0000;
-    /// `CEchoRequestHeader`: f32 sender time.
+    /// `CEchoRequestHeader`: f32 sender local time.
     pub const ECHO_REQUEST: u32 = 0x0200_0000;
-    /// `CEchoResponseHeader`: the echoed f32 and the responder's f32.
+    /// `CEchoResponseHeader`: the echoed f32 and the f32 time the response waited.
     pub const ECHO_RESPONSE: u32 = 0x0400_0000;
-    /// `COnePrimHeader<134217728, CFlowStruct>`: u32 bytes and u16 interval.
+    /// `COnePrimHeader<134217728,16,CFlowStruct>`: u32 bytes and u16 interval.
     pub const FLOW: u32 = 0x0800_0000;
 }
 
-/// `ProtoHeader`: little-endian sequence, flags, checksum, recipient, interval, payload size and
-/// iteration.
+/// `ProtoHeader`: little-endian sequence, header bits, checksum, recipient, interval, data
+/// length and iteration.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct PacketHeader {
     pub sequence: u32,
@@ -114,13 +131,23 @@ mod tests {
     }
 
     #[test]
-    fn header_checksum_ignores_the_stored_checksum() {
-        let a = PacketHeader {
+    fn header_checksum_sums_the_header_with_the_badd70dd_placeholder() {
+        let header = PacketHeader {
             sequence: 2,
-            checksum: 1,
-            ..Default::default()
+            flags: 0x4000,
+            checksum: 99,
+            recipient: 3,
+            interval: 4,
+            size: 4,
+            iteration: 1,
         };
-        let b = PacketHeader { checksum: 99, ..a };
-        assert_eq!(a.header_checksum(), b.header_checksum());
+        // 20 << 16, seq, flags, 0xBADD70DD, (interval << 16 | recipient), (iteration << 16 | size).
+        let expected = (20u32 << 16)
+            .wrapping_add(2)
+            .wrapping_add(0x4000)
+            .wrapping_add(0xBADD_70DD)
+            .wrapping_add(0x0004_0003)
+            .wrapping_add(0x0001_0004);
+        assert_eq!(header.header_checksum(), expected);
     }
 }

@@ -1,36 +1,37 @@
-//! One datagram's optional headers and blob fragments.
+//! `NetPacket`: one datagram's optional headers and blob fragments, built for sending
+//! (`NetPacket::AddOptionalHeader`, `AddFrag`, `ComputeChecksum`, `SharedNet::SendPacket`) and
+//! parsed on receipt (`SharedNet::SplitPacketData`).
 //!
-//! `NetPacket::ComputeChecksum` sums each optional header's bytes and each fragment's 16-byte
-//! header and data as separate `checksum32` segments. With [`flags::ENCRYPTED_CHECKSUM`] that body
-//! sum is XORed with the sequence's ISAAC key; the header checksum is added last
-//! (`SharedNet::SendPacket`).
+//! The checksum of a datagram is the body sum plus the header sum
+//! (`SharedNet::ChecksumHeader`). The body sum adds `checksum32` of each optional header's bytes
+//! and of each fragment's 16-byte header and data separately; on a reliable packet it is XORed
+//! with the sequence's ISAAC key first (`FlowQueue::EncryptChecksum`).
 
 use crate::checksum::checksum32;
 use crate::header::{flags, PacketHeader, HEADER_LEN};
+use crate::optional::{
+    OptionalHeader, CONNECTIONLESS, EXCLUSIVE, MASKS, SINGLE_TRY, TIME_SENSITIVE, UNRELIABLE,
+};
 use crate::NetError;
 
 /// Size of `BlobFragHeader_t`: u64 blob id, u16 fragment count, u16 size including this header,
 /// u16 fragment index, u16 queue.
 pub const FRAGMENT_HEADER_LEN: usize = 16;
-/// Largest datagram accepted or produced.
-pub const MAX_DATAGRAM: usize = 65_507;
-/// `CSeqIDListHeader` lists hold fewer than 0x73 sequences.
-const MAX_SEQUENCE_LIST: u32 = 0x73;
+/// Largest `ProtoHeader::datalen_` the client builds: one full fragment (`0x1d0`).
+pub const MAX_PACKET_BODY: usize = 0x1D0;
+/// Largest datagram read (`SharedNet::ReadNextPacket` reads into `0xffe0` bytes).
+pub const MAX_DATAGRAM: usize = 0xFFE0;
 
-/// Optional headers decoded by a session packet, in the order they appear on the wire.
-const SESSION_OPTIONAL: [u32; 10] = [
-    flags::NAK,
-    flags::EMPTY_ACK,
-    flags::ACK,
-    flags::LOGOFF,
-    flags::NET_ERROR,
-    flags::NET_ERROR_DISCONNECT,
-    flags::TIME_SYNC,
-    flags::ECHO_REQUEST,
-    flags::ECHO_RESPONSE,
-    flags::FLOW,
-];
+/// `NetPacket::flags_`: the checksum holds its encrypted form.
+pub(crate) const PACKET_ENCRYPTED: u32 = 1;
+/// `NetPacket::flags_`: a time-sensitive header is aboard.
+pub(crate) const PACKET_TIME_SENSITIVE: u32 = 2;
+/// `NetPacket::flags_`: the packet needs a sequence.
+pub(crate) const PACKET_RELIABLE: u32 = 4;
+/// `NetPacket::flags_`: a single-try header is aboard (flow control never holds it).
+pub(crate) const PACKET_SINGLE_TRY: u32 = 8;
 
+/// One blob fragment: `BlobFragHeader_t` and its data.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Fragment {
     pub blob_id: u64,
@@ -41,316 +42,427 @@ pub struct Fragment {
 }
 
 impl Fragment {
-    fn decode(segment: &[u8]) -> Result<Self, NetError> {
-        let u16_at = |i: usize| u16::from_le_bytes([segment[i], segment[i + 1]]);
-        let mut id = [0; 8];
-        id.copy_from_slice(&segment[..8]);
-        let count = u16_at(8);
-        let index = u16_at(12);
-        if count == 0 || index >= count || segment.len() <= FRAGMENT_HEADER_LEN {
-            return Err(NetError::Fragment);
-        }
-        Ok(Self {
-            blob_id: u64::from_le_bytes(id),
-            count,
-            index,
-            queue: u16_at(14),
-            data: segment[FRAGMENT_HEADER_LEN..].to_vec(),
-        })
+    /// `blobFragSize`: the data plus the 16-byte header.
+    pub fn size(&self) -> usize {
+        self.data.len() + FRAGMENT_HEADER_LEN
     }
 
-    pub(crate) fn encode(&self) -> Vec<u8> {
-        let mut out = Vec::with_capacity(FRAGMENT_HEADER_LEN + self.data.len());
-        out.extend(self.blob_id.to_le_bytes());
-        out.extend(self.count.to_le_bytes());
-        out.extend(((self.data.len() + FRAGMENT_HEADER_LEN) as u16).to_le_bytes());
-        out.extend(self.index.to_le_bytes());
-        out.extend(self.queue.to_le_bytes());
-        out.extend(&self.data);
+    pub(crate) fn header_bytes(&self) -> [u8; FRAGMENT_HEADER_LEN] {
+        let mut out = [0; FRAGMENT_HEADER_LEN];
+        out[0..8].copy_from_slice(&self.blob_id.to_le_bytes());
+        out[8..10].copy_from_slice(&self.count.to_le_bytes());
+        out[10..12].copy_from_slice(&(self.size() as u16).to_le_bytes());
+        out[12..14].copy_from_slice(&self.index.to_le_bytes());
+        out[14..16].copy_from_slice(&self.queue.to_le_bytes());
+        out
+    }
+
+    /// The two `checksum32` segments `NetPacket::AddFrag` adds.
+    fn checksum(&self) -> u32 {
+        checksum32(&self.header_bytes()).wrapping_add(checksum32(&self.data))
+    }
+
+    /// `BlobFrag::BlobFrag` (receive): the header's size must lie in `16..=0x1d0` and fit.
+    fn decode(rest: &[u8]) -> Option<Self> {
+        let size = usize::from(u16::from_le_bytes([*rest.get(10)?, *rest.get(11)?]));
+        if !(FRAGMENT_HEADER_LEN..=MAX_PACKET_BODY).contains(&size) || size > rest.len() {
+            return None;
+        }
+        let u16_at = |i: usize| u16::from_le_bytes([rest[i], rest[i + 1]]);
+        let mut id = [0; 8];
+        id.copy_from_slice(&rest[..8]);
+        Some(Self {
+            blob_id: u64::from_le_bytes(id),
+            count: u16_at(8),
+            index: u16_at(12),
+            queue: u16_at(14),
+            data: rest[FRAGMENT_HEADER_LEN..size].to_vec(),
+        })
+    }
+}
+
+/// An optional header queued for sending, with the local time it was built at
+/// (`CEchoResponseHeader::m_LocalTimeConstructed`).
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct OutHeader {
+    pub header: OptionalHeader,
+    pub constructed: f64,
+    pub bytes: Vec<u8>,
+}
+
+impl OutHeader {
+    pub fn new(header: OptionalHeader, local_time: f64) -> Self {
+        let bytes = header.encode();
+        Self {
+            header,
+            constructed: local_time,
+            bytes,
+        }
+    }
+
+    pub fn mask(&self) -> u32 {
+        self.header.mask()
+    }
+
+    pub fn retail_flags(&self) -> u32 {
+        self.header.retail_flags()
+    }
+
+    /// `UpdateTimeSensitivePayload` of the three time-sensitive types.
+    fn update(&mut self, local_time: f64, server_time: f64) {
+        match &mut self.header {
+            // `CTimeSyncHeader`: `Timer::get_elapsed_time() + Timer::base_time`.
+            OptionalHeader::TimeSync(time) => *time = server_time,
+            // `CEchoRequestHeader`: `(float)Timer::local_time`.
+            OptionalHeader::EchoRequest(time) => *time = local_time as f32,
+            // `CEchoResponseHeader`: how long the response waited.
+            OptionalHeader::EchoResponse { holding, .. } => {
+                *holding = (local_time - self.constructed) as f32;
+            }
+            _ => {}
+        }
+        self.bytes = self.header.encode();
+    }
+}
+
+/// `NetPacket` on the send side.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct OutPacket {
+    pub headers: Vec<OutHeader>,
+    pub fragments: Vec<Fragment>,
+    pub size: usize,
+    pub sequence: u32,
+    pub crypto_key: u32,
+    pub checksum: u32,
+    pub flags: u32,
+}
+
+impl OutPacket {
+    /// `NetPacket::CreateForSend`.
+    pub fn new() -> Self {
+        Self {
+            headers: Vec::new(),
+            fragments: Vec::new(),
+            size: 0,
+            sequence: 0,
+            crypto_key: 0,
+            checksum: 0,
+            flags: 0,
+        }
+    }
+
+    /// `NetPacket::AddOptionalHeader`: inserted after every header of lower or equal mask.
+    pub fn add_header(&mut self, header: OutHeader) {
+        let at = self
+            .headers
+            .iter()
+            .rposition(|h| h.mask() <= header.mask())
+            .map_or(0, |i| i + 1);
+        self.size += header.bytes.len();
+        self.checksum = self.checksum.wrapping_add(checksum32(&header.bytes));
+        let retail = header.retail_flags();
+        if retail & TIME_SENSITIVE != 0 {
+            self.flags |= PACKET_TIME_SENSITIVE;
+        }
+        if retail & UNRELIABLE == 0 {
+            self.flags |= PACKET_RELIABLE;
+        }
+        if retail & SINGLE_TRY != 0 {
+            self.flags |= PACKET_SINGLE_TRY;
+        }
+        self.headers.insert(at, header);
+    }
+
+    /// `NetPacket::AddFrag`.
+    pub fn add_fragment(&mut self, fragment: Fragment) {
+        self.size += fragment.size();
+        self.checksum = self.checksum.wrapping_add(fragment.checksum());
+        self.flags |= PACKET_RELIABLE;
+        self.fragments.push(fragment);
+    }
+
+    /// `NetPacket::ApplySpecialFrags`: the OR of every header mask.
+    pub fn header_masks(&self) -> u32 {
+        self.headers.iter().fold(0, |all, h| all | h.mask())
+    }
+
+    /// Whether this packet's only header is exclusive (`CoalesceData` adds nothing to it).
+    pub fn closed(&self) -> bool {
+        self.headers.len() == 1 && self.headers[0].retail_flags() & EXCLUSIVE != 0
+    }
+
+    /// `NetPacket::ComputeChecksum`.
+    pub fn compute_checksum(&mut self) {
+        self.flags &= !PACKET_ENCRYPTED;
+        self.checksum = self
+            .headers
+            .iter()
+            .map(|h| checksum32(&h.bytes))
+            .chain(self.fragments.iter().map(Fragment::checksum))
+            .fold(0, u32::wrapping_add);
+    }
+
+    /// `NetPacket::UpdateTimeSensitiveHeaders`: rewrite time-sensitive payloads and drop the
+    /// stale checksum.
+    pub fn update_time_sensitive(&mut self, local_time: f64, server_time: f64) {
+        if self.flags & PACKET_TIME_SENSITIVE == 0 {
+            return;
+        }
+        let mut any = false;
+        for header in &mut self.headers {
+            if header.retail_flags() & TIME_SENSITIVE != 0 {
+                header.update(local_time, server_time);
+                any = true;
+            }
+        }
+        if any {
+            self.flags &= !PACKET_ENCRYPTED;
+            self.checksum = 0;
+        } else {
+            self.flags &= !PACKET_TIME_SENSITIVE;
+        }
+    }
+
+    /// `NetPacket::RemoveDisposableOptionalHeaders`: drop unreliable headers before storing the
+    /// packet for resending.
+    pub fn remove_disposable(&mut self) {
+        let before = self.headers.len();
+        let mut removed = 0;
+        self.headers.retain(|h| {
+            let keep = h.retail_flags() & UNRELIABLE == 0;
+            if !keep {
+                removed += h.bytes.len();
+            }
+            keep
+        });
+        self.size -= removed;
+        if self.headers.len() != before {
+            self.checksum = 0;
+            self.flags &= !PACKET_ENCRYPTED;
+        }
+    }
+
+    /// `SharedNet::SendPacket`: the `ProtoHeader` (its checksum field holding the body sum
+    /// gains the header sum), the header bytes, then each fragment.
+    pub fn datagram(&self, mut header: PacketHeader) -> Vec<u8> {
+        header.checksum = header.checksum.wrapping_add(header.header_checksum());
+        let mut out = Vec::with_capacity(HEADER_LEN + self.size);
+        out.extend(header.encode());
+        for h in &self.headers {
+            out.extend(&h.bytes);
+        }
+        for fragment in &self.fragments {
+            out.extend(fragment.header_bytes());
+            out.extend(&fragment.data);
+        }
         out
     }
 }
 
-/// A validated session datagram.
-#[derive(Debug, Clone, Default, PartialEq)]
+/// A received datagram that passed `SharedNet::SplitPacketData`.
+#[derive(Debug, Clone, PartialEq)]
 pub struct InboundPacket {
     pub header: PacketHeader,
-    pub naks: Vec<u32>,
-    pub empty_acks: Vec<u32>,
-    pub ack: Option<u32>,
-    pub logoff: bool,
-    /// `NetError` string and table ids.
-    pub net_error: Option<(u32, u32)>,
-    pub disconnect: Option<(u32, u32)>,
-    pub time_sync: Option<f64>,
-    pub echo_request: Option<f32>,
-    pub echo_response: Option<(f32, f32)>,
-    pub flow: Option<(u32, u16)>,
+    pub optional: Vec<OptionalHeader>,
     pub fragments: Vec<Fragment>,
 }
 
-struct Cursor<'a> {
-    bytes: &'a [u8],
-    pos: usize,
-}
-
-impl<'a> Cursor<'a> {
-    fn take(&mut self, n: usize) -> Result<&'a [u8], NetError> {
-        let end = self.pos.checked_add(n).ok_or(NetError::Length)?;
-        let slice = self.bytes.get(self.pos..end).ok_or(NetError::Truncated)?;
-        self.pos = end;
-        Ok(slice)
-    }
-    fn u16(&mut self) -> Result<u16, NetError> {
-        let b = self.take(2)?;
-        Ok(u16::from_le_bytes([b[0], b[1]]))
-    }
-    fn u32(&mut self) -> Result<u32, NetError> {
-        let b = self.take(4)?;
-        Ok(u32::from_le_bytes([b[0], b[1], b[2], b[3]]))
-    }
-    fn f64(&mut self) -> Result<f64, NetError> {
-        let b = self.take(8)?;
-        let mut a = [0; 8];
-        a.copy_from_slice(b);
-        Ok(f64::from_le_bytes(a))
-    }
-}
-
-/// Decodes a session datagram. `key` is the ISAAC key of its sequence and is required when the
-/// header sets [`flags::ENCRYPTED_CHECKSUM`].
-pub fn decode_packet(bytes: &[u8], key: Option<u32>) -> Result<InboundPacket, NetError> {
-    if bytes.len() > MAX_DATAGRAM {
-        return Err(NetError::Length);
-    }
+/// `SharedNet::SplitPacketData`. `checksum` is the header's checksum less the header sum, and
+/// decrypted (`ReceiverData::Decrypt`) when the packet is encrypted; `connected` is whether the
+/// sender has a `ReceiverData`.
+pub fn split_packet(
+    bytes: &[u8],
+    checksum: u32,
+    connected: bool,
+) -> Result<InboundPacket, NetError> {
     let header = PacketHeader::decode(bytes).ok_or(NetError::Truncated)?;
-    if bytes.len() != HEADER_LEN + usize::from(header.size) {
-        return Err(NetError::Length);
-    }
-    let known = SESSION_OPTIONAL.iter().fold(
-        flags::ENCRYPTED_CHECKSUM | flags::BLOB_FRAGMENTS,
-        |all, flag| all | flag,
-    );
-    if header.flags & !known != 0 {
-        return Err(NetError::UnsupportedFlags(header.flags & !known));
-    }
-    let encrypted = header.flags & flags::ENCRYPTED_CHECKSUM != 0;
-    if encrypted && (header.sequence == 0 || key.is_none()) {
-        return Err(NetError::UnsupportedFlags(flags::ENCRYPTED_CHECKSUM));
-    }
-    let body = &bytes[HEADER_LEN..];
-    let mut cursor = Cursor {
-        bytes: body,
-        pos: 0,
-    };
-    let mut packet = InboundPacket {
-        header,
-        ..Default::default()
-    };
+    let body = bytes.get(HEADER_LEN..).ok_or(NetError::Truncated)?;
+    let mut pos = 0;
+    let mut optional = Vec::new();
     let mut sum = 0u32;
-    for flag in SESSION_OPTIONAL {
-        if header.flags & flag == 0 {
+    let mut reliable = false;
+    let mut remaining = header.flags;
+    // `COptionalHeaderFactory::AddOptionalHeadersToPacket`: ascending masks; any bit above the
+    // packet-state byte that no type claims fails the packet.
+    for mask in MASKS {
+        if remaining & 0xFFFF_FF00 == 0 {
+            break;
+        }
+        if header.flags & mask == 0 {
             continue;
         }
-        let start = cursor.pos;
-        match flag {
-            flags::NAK | flags::EMPTY_ACK => {
-                let count = cursor.u32()?;
-                if count >= MAX_SEQUENCE_LIST {
-                    return Err(NetError::Length);
-                }
-                let list = (0..count)
-                    .map(|_| cursor.u32())
-                    .collect::<Result<Vec<_>, _>>()?;
-                if flag == flags::NAK {
-                    packet.naks = list;
-                } else {
-                    packet.empty_acks = list;
-                }
-            }
-            flags::ACK => packet.ack = Some(cursor.u32()?),
-            flags::LOGOFF => packet.logoff = true,
-            flags::NET_ERROR => packet.net_error = Some((cursor.u32()?, cursor.u32()?)),
-            flags::NET_ERROR_DISCONNECT => {
-                packet.disconnect = Some((cursor.u32()?, cursor.u32()?));
-            }
-            flags::TIME_SYNC => packet.time_sync = Some(cursor.f64()?),
-            flags::ECHO_REQUEST => packet.echo_request = Some(f32::from_bits(cursor.u32()?)),
-            flags::ECHO_RESPONSE => {
-                let echoed = f32::from_bits(cursor.u32()?);
-                packet.echo_response = Some((echoed, f32::from_bits(cursor.u32()?)));
-            }
-            flags::FLOW => packet.flow = Some((cursor.u32()?, cursor.u16()?)),
-            _ => unreachable!("only listed optional headers are decoded"),
-        }
-        sum = sum.wrapping_add(checksum32(&body[start..cursor.pos]));
+        remaining &= !mask;
+        let start = pos;
+        let decoded = OptionalHeader::decode(mask, body, &mut pos)?;
+        sum = sum.wrapping_add(checksum32(&body[start..pos]));
+        reliable |= decoded.retail_flags() & UNRELIABLE == 0;
+        optional.push(decoded);
     }
+    if remaining & 0xFFFF_FF00 != 0 {
+        return Err(NetError::UnsupportedFlags(remaining & 0xFFFF_FF00));
+    }
+    for decoded in &optional {
+        let retail = decoded.retail_flags();
+        if retail & EXCLUSIVE != 0 && optional.len() > 1 {
+            return Err(NetError::UnsupportedFlags(decoded.mask()));
+        }
+        if !connected && retail & CONNECTIONLESS == 0 {
+            return Err(NetError::Sequence);
+        }
+    }
+    let mut fragments = Vec::new();
     if header.flags & flags::BLOB_FRAGMENTS != 0 {
-        while cursor.pos < body.len() {
-            let rest = &body[cursor.pos..];
-            if rest.len() < FRAGMENT_HEADER_LEN {
-                return Err(NetError::Truncated);
-            }
-            let size = usize::from(u16::from_le_bytes([rest[10], rest[11]]));
-            let segment = cursor.take(size)?;
-            if segment.len() < FRAGMENT_HEADER_LEN {
-                return Err(NetError::Fragment);
-            }
-            packet.fragments.push(Fragment::decode(segment)?);
-            sum = sum
-                .wrapping_add(checksum32(&segment[..FRAGMENT_HEADER_LEN]))
-                .wrapping_add(checksum32(&segment[FRAGMENT_HEADER_LEN..]));
+        if !connected {
+            return Err(NetError::Sequence);
         }
-        if packet.fragments.is_empty() {
-            return Err(NetError::Length);
+        // Fragments are read while more than a bare fragment header remains.
+        while body.len() > pos && body.len() - pos > FRAGMENT_HEADER_LEN {
+            let fragment = Fragment::decode(&body[pos..]).ok_or(NetError::Fragment)?;
+            pos += fragment.size();
+            sum = sum.wrapping_add(fragment.checksum());
+            reliable = true;
+            fragments.push(fragment);
         }
     }
-    if cursor.pos != body.len() {
+    if pos != body.len() {
         return Err(NetError::Length);
     }
-    if let (true, Some(key)) = (encrypted, key) {
-        sum ^= key;
+    let encrypted = header.flags & flags::ENCRYPTED_CHECKSUM != 0;
+    if encrypted != reliable || (encrypted && header.sequence == 0) {
+        return Err(NetError::UnsupportedFlags(flags::ENCRYPTED_CHECKSUM));
     }
-    if header.checksum != sum.wrapping_add(header.header_checksum()) {
+    if sum != checksum {
         return Err(NetError::Checksum);
     }
-    Ok(packet)
-}
-
-/// Encodes a datagram: the given optional headers (flag and bytes, any order) and fragments.
-/// `key` masks the body checksum and sets [`flags::ENCRYPTED_CHECKSUM`].
-pub(crate) fn encode_packet(
-    mut header: PacketHeader,
-    optional: &[(u32, Vec<u8>)],
-    fragments: &[Fragment],
-    key: Option<u32>,
-) -> Vec<u8> {
-    let mut optional: Vec<&(u32, Vec<u8>)> = optional.iter().collect();
-    optional.sort_by_key(|(flag, _)| *flag);
-    let mut body = Vec::new();
-    let mut sum = 0u32;
-    header.flags = 0;
-    for (flag, bytes) in optional {
-        header.flags |= flag;
-        sum = sum.wrapping_add(checksum32(bytes));
-        body.extend(bytes);
-    }
-    if !fragments.is_empty() {
-        header.flags |= flags::BLOB_FRAGMENTS;
-        for fragment in fragments {
-            let encoded = fragment.encode();
-            sum = sum
-                .wrapping_add(checksum32(&encoded[..FRAGMENT_HEADER_LEN]))
-                .wrapping_add(checksum32(&encoded[FRAGMENT_HEADER_LEN..]));
-            body.extend(encoded);
-        }
-    }
-    if let Some(key) = key {
-        header.flags |= flags::ENCRYPTED_CHECKSUM;
-        sum ^= key;
-    }
-    header.size = body.len() as u16;
-    header.checksum = header.header_checksum().wrapping_add(sum);
-    let mut out = header.encode().to_vec();
-    out.extend(body);
-    out
-}
-
-/// Decodes a handshake datagram (one plain logon, connect or connect-ack header at sequence 0).
-pub(crate) fn decode_handshake(bytes: &[u8]) -> Result<(PacketHeader, &[u8]), NetError> {
-    let header = PacketHeader::decode(bytes).ok_or(NetError::Truncated)?;
-    if !matches!(
-        header.flags,
-        flags::LOGON | flags::CONNECT | flags::CONNECT_ACK
-    ) || header.sequence != 0
-    {
-        return Err(NetError::UnsupportedFlags(header.flags));
-    }
-    if bytes.len() != HEADER_LEN + usize::from(header.size) {
-        return Err(NetError::Length);
-    }
-    let payload = &bytes[HEADER_LEN..];
-    if header.checksum != header.header_checksum().wrapping_add(checksum32(payload)) {
-        return Err(NetError::Checksum);
-    }
-    Ok((header, payload))
+    Ok(InboundPacket {
+        header,
+        optional,
+        fragments,
+    })
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{decode_packet, encode_packet, Fragment};
+    use super::{split_packet, Fragment, OutHeader, OutPacket, PACKET_RELIABLE};
+    use crate::checksum::checksum32;
     use crate::header::{flags, PacketHeader};
+    use crate::optional::OptionalHeader;
     use crate::NetError;
 
-    fn header(sequence: u32) -> PacketHeader {
-        PacketHeader {
-            sequence,
-            recipient: 3,
-            iteration: 1,
-            ..Default::default()
-        }
-    }
-
-    #[test]
-    fn optional_headers_and_fragments_round_trip_with_a_masked_checksum() {
-        let fragment = Fragment {
-            blob_id: 0x0100_0001_0000_0001,
+    fn fragment(data: &[u8]) -> Fragment {
+        Fragment {
+            blob_id: 0x0300_0001_0000_0000,
             count: 1,
             index: 0,
-            queue: 3,
-            data: vec![1, 2, 3, 4, 5],
-        };
-        let bytes = encode_packet(
-            header(2),
-            &[(flags::ACK, 7u32.to_le_bytes().to_vec())],
-            &[fragment.clone()],
-            Some(0xDEAD_BEEF),
-        );
-        let packet = decode_packet(&bytes, Some(0xDEAD_BEEF)).unwrap();
-        assert_eq!(packet.ack, Some(7));
-        assert_eq!(packet.fragments, vec![fragment]);
-        assert_eq!(
-            packet.header.flags,
-            flags::ACK | flags::BLOB_FRAGMENTS | flags::ENCRYPTED_CHECKSUM
-        );
-        assert_eq!(decode_packet(&bytes, Some(1)), Err(NetError::Checksum));
-        for end in 0..bytes.len() {
-            assert!(decode_packet(&bytes[..end], Some(0xDEAD_BEEF)).is_err());
+            queue: 4,
+            data: data.to_vec(),
         }
     }
 
     #[test]
-    fn control_headers_decode_in_ascending_flag_order() {
-        let mut echo = 1.5f32.to_le_bytes().to_vec();
-        echo.extend(2.5f32.to_le_bytes());
-        let bytes = encode_packet(
-            header(0),
-            &[
-                (flags::ECHO_RESPONSE, echo),
-                (flags::TIME_SYNC, 12.25f64.to_le_bytes().to_vec()),
-                (
-                    flags::NAK,
-                    [1u32, 9].iter().flat_map(|v| v.to_le_bytes()).collect(),
-                ),
-            ],
-            &[],
-            None,
-        );
-        let packet = decode_packet(&bytes, None).unwrap();
-        assert_eq!(packet.naks, vec![9]);
-        assert_eq!(packet.time_sync, Some(12.25));
-        assert_eq!(packet.echo_response, Some((1.5, 2.5)));
+    fn headers_insert_in_ascending_mask_order_and_set_packet_flags() {
+        let mut packet = OutPacket::new();
+        packet.add_header(OutHeader::new(OptionalHeader::TimeSync(1.0), 0.0));
+        packet.add_header(OutHeader::new(OptionalHeader::Ack(5), 0.0));
+        packet.add_header(OutHeader::new(OptionalHeader::EchoRequest(0.0), 0.0));
+        let masks: Vec<u32> = packet.headers.iter().map(OutHeader::mask).collect();
+        assert_eq!(masks, [flags::ACK, flags::TIME_SYNC, flags::ECHO_REQUEST]);
+        assert_eq!(packet.size, 4 + 8 + 4);
+        assert_eq!(packet.flags, 2 | PACKET_RELIABLE);
+        packet.remove_disposable();
+        assert_eq!(packet.headers.len(), 2);
+        assert_eq!((packet.size, packet.checksum), (12, 0));
     }
 
     #[test]
-    fn unknown_flags_and_unkeyed_encryption_are_rejected() {
-        let mut bytes = encode_packet(header(0), &[], &[], None);
-        bytes[4] = 0x01;
+    fn an_ack_alone_is_unreliable_and_parses_back() {
+        let mut packet = OutPacket::new();
+        packet.add_header(OutHeader::new(OptionalHeader::Ack(9), 0.0));
+        assert_eq!(packet.flags, 0);
+        let body_sum = packet.checksum;
+        assert_eq!(body_sum, checksum32(&9u32.to_le_bytes()));
+        let header = PacketHeader {
+            sequence: 3,
+            flags: flags::ACK,
+            checksum: body_sum,
+            recipient: 5,
+            interval: 2,
+            size: packet.size as u16,
+            iteration: 1,
+        };
+        let bytes = packet.datagram(header);
+        assert_eq!(bytes.len(), 24);
+        let wire = PacketHeader::decode(&bytes).unwrap();
+        assert_eq!(
+            wire.checksum,
+            body_sum.wrapping_add(header.header_checksum())
+        );
+        let parsed = split_packet(&bytes, body_sum, true).unwrap();
+        assert_eq!(parsed.optional, vec![OptionalHeader::Ack(9)]);
+        assert_eq!(
+            split_packet(&bytes, body_sum + 1, true),
+            Err(NetError::Checksum)
+        );
+    }
+
+    #[test]
+    fn reliability_must_match_the_encrypted_bit() {
+        let mut packet = OutPacket::new();
+        packet.add_fragment(fragment(b"abcd"));
+        let header = PacketHeader {
+            sequence: 2,
+            flags: flags::BLOB_FRAGMENTS,
+            checksum: packet.checksum,
+            size: packet.size as u16,
+            ..Default::default()
+        };
+        let plain = packet.datagram(header);
+        assert!(split_packet(&plain, packet.checksum, true).is_err());
+        let encrypted = packet.datagram(PacketHeader {
+            flags: flags::BLOB_FRAGMENTS | flags::ENCRYPTED_CHECKSUM,
+            ..header
+        });
+        let parsed = split_packet(&encrypted, packet.checksum, true).unwrap();
+        assert_eq!(parsed.fragments, vec![fragment(b"abcd")]);
+        // Fragments need a connection.
+        assert!(split_packet(&encrypted, packet.checksum, false).is_err());
+    }
+
+    #[test]
+    fn unknown_masks_exclusive_headers_and_trailing_bytes_fail() {
+        let header = PacketHeader {
+            flags: 0x0000_0080 | 0x1000_0000,
+            ..Default::default()
+        };
+        let bytes = OutPacket::new().datagram(header);
         assert!(matches!(
-            decode_packet(&bytes, None),
-            Err(NetError::UnsupportedFlags(_))
+            split_packet(&bytes, 0, true),
+            Err(NetError::UnsupportedFlags(0x1000_0000))
         ));
-        let encrypted = encode_packet(header(5), &[(flags::ACK, vec![0; 4])], &[], Some(9));
-        assert!(decode_packet(&encrypted, None).is_err());
+        let mut packet = OutPacket::new();
+        packet.add_header(OutHeader::new(OptionalHeader::Logoff, 0.0));
+        packet.add_header(OutHeader::new(OptionalHeader::Ack(1), 0.0));
+        let header = PacketHeader {
+            flags: flags::ACK | flags::LOGOFF,
+            size: 4,
+            ..Default::default()
+        };
+        let bytes = packet.datagram(header);
+        assert!(split_packet(&bytes, packet.checksum, true).is_err());
+        // Encryption without reliable content fails; so does a bare 16-byte fragment tail.
+        let header = PacketHeader {
+            flags: flags::BLOB_FRAGMENTS | flags::ENCRYPTED_CHECKSUM,
+            sequence: 2,
+            ..Default::default()
+        };
+        let empty = OutPacket::new().datagram(header);
+        assert!(split_packet(&empty, 0, true).is_err());
+        let mut tail = OutPacket::new();
+        tail.add_fragment(fragment(b""));
+        let bytes = tail.datagram(PacketHeader { size: 16, ..header });
+        assert_eq!(
+            split_packet(&bytes, tail.checksum, true),
+            Err(NetError::Length)
+        );
     }
 }

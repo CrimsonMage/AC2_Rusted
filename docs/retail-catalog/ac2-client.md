@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 0 done, 0 partial, 349 to do, 5 skipped.
+354 retail functions: 5 done, 0 partial, 344 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -33,7 +33,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [ ] `WinMain` · 004013a0 · legions 00401370
 
-## `ac2/client/src/main/gmclient.cpp.c` (0/92)
+## `ac2/client/src/main/gmclient.cpp.c` (5/92)
 
 ### PackObj
 - [ ] `PackObj::ALIGN_PTR` · 00401a60 · legions 00401980
@@ -41,9 +41,9 @@ Legend and workflow: [README](README.md).
 ### NetError
 - [ ] `NetError::operator!=` · 00401aa0 · legions 004019c0
 - [ ] `NetError::operator_StringInfo` · 00401ad0 · legions 004019f0
-- [ ] `NetError::GetPackSize` · 00401b20 · legions 00401a40
-- [ ] `NetError::Pack` · 00401b30 · legions 00401a50
-- [ ] `NetError::UnPack` · 00401b80 · legions 00401aa0
+- [x] `NetError::GetPackSize` · 00401b20 · legions 00401a40
+- [x] `NetError::Pack` · 00401b30 · legions 00401a50
+- [x] `NetError::UnPack` · 00401b80 · legions 00401aa0
 
 ### ArgumentParser
 - [ ] `ArgumentParser::OnCommandLineEvaluationDone` · 00401bd0 · legions 00401af0
@@ -91,7 +91,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmClient::UseTime` · 00401e30 · legions 00401da0
 
 ### PStringBase<char>
-- [ ] `PStringBase<char>::GetPackSize` · 00401e70 · legions 00401e10
+- [x] `PStringBase<char>::GetPackSize` · 00401e70 · legions 00401e10
 - [ ] `PStringBase<char>::operator==` · 00401ea0 · legions 00401e40
 
 ### PSmartArray<unsigned_long>
@@ -180,7 +180,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmClient::CreateChatInterfaceProvider` · 00404190 · legions 004040e0
 
 ### PStringBase<char>
-- [ ] `PStringBase<char>::Pack` · 004042f0 · legions 00404240
+- [x] `PStringBase<char>::Pack` · 004042f0 · legions 00404240
 
 ### accountID
 - [ ] `accountID::operator=` · 004043d0
