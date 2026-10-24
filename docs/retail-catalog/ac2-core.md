@@ -1,6 +1,6 @@
 # ac2-core: Core runtime: ids, strings, timers, errors, serialization helpers
 
-589 retail functions: 0 done, 0 partial, 185 to do, 404 skipped.
+589 retail functions: 3 done, 0 partial, 182 to do, 404 skipped.
 Legend and workflow: [README](README.md).
 
 ## `core/src/debug/crashcleaners.cpp.c` (0/3)
@@ -362,7 +362,7 @@ Legend and workflow: [README](README.md).
 ### `AC2CoreSDKCopy::GrowBuffer::GrowExact'::__l2
 - [ ] ``AC2CoreSDKCopy::GrowBuffer::GrowExact'::__l2::s_FreeListHelper` · 00a43c30
 
-## `core/src/timer/timer.cpp.c` (0/11)
+## `core/src/timer/timer.cpp.c` (3/11)
 
 ### (free functions)
 - [ ] `get_elapsed_time_internal` · 0064b0c0 · legions 005fa3f0
@@ -378,12 +378,12 @@ Legend and workflow: [README](README.md).
 - [ ] `Win32TimeWrapper::get_elapsed_time` · 0064b460 · legions 005fa790
 
 ### Timer
-- [ ] `Timer::Init` · 0064b540 · legions 005fa870
+- [x] `Timer::Init` · 0064b540 · legions 005fa870
 - [ ] `Timer::asctime` · 0064b5a0 · legions 005fa8d0
 - [ ] `Timer::strftime` · 0064b5d0 · legions 005fa900
 - [ ] `Timer::get_elapsed_time` · 0064b610 · legions 00455160
-- [ ] `Timer::set_time` · 0064b620 · legions 005fa950
-- [ ] `Timer::update_time` · 0064b660 · legions 005fa990
+- [x] `Timer::set_time` · 0064b620 · legions 005fa950
+- [x] `Timer::update_time` · 0064b660 · legions 005fa990
 
 ## `core/src/utils/strtoint64.cpp.c` (0/6)
 

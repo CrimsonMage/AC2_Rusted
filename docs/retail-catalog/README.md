@@ -34,7 +34,7 @@ scripts/retail_catalog.py status
 
 | Crate | Functions | Done | Partial | To do | Skipped |
 |---|---:|---:|---:|---:|---:|
-| [ac2-core](ac2-core.md) | 589 | 0 | 0 | 185 | 404 |
+| [ac2-core](ac2-core.md) | 589 | 3 | 0 | 182 | 404 |
 | [ac2-math](ac2-math.md) | 426 | 11 | 0 | 375 | 40 |
 | [ac2-dat](ac2-dat.md) | 507 | 0 | 0 | 502 | 5 |
 | [ac2-db](ac2-db.md) | 633 | 4 | 0 | 590 | 39 |
