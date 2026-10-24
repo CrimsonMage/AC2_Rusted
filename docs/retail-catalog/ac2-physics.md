@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 1 done, 0 partial, 2063 to do, 60 skipped.
+2124 retail functions: 90 done, 19 partial, 1953 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (0/9)
@@ -69,7 +69,7 @@ Legend and workflow: [README](README.md).
 - [-] `BSPNODE::FromFileNode` · 0049df70 — text source format (admin tools)
 - [ ] `BSPNODE::GetPosPlanes` · 0049e140 · legions 00495530
 
-## `portal/shared/src/bsp/bsptree.cpp.c` (0/20)
+## `portal/shared/src/bsp/bsptree.cpp.c` (1/20)
 
 ### Plane
 - [ ] `Plane::Scale` · 0049b420 · legions 004932c0
@@ -81,7 +81,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SPHEREPATH::set_neg_poly_hit` · 0049b4f0 · legions 00493390
 
 ### COLLISIONINFO
-- [ ] `COLLISIONINFO::set_contact_plane` · 0049b540 · legions 004933e0
+- [x] `COLLISIONINFO::set_contact_plane` · 0049b540 · legions 004933e0
 
 ### BSPTREE
 - [ ] `BSPTREE::GetBoundingSphere` · 0049b580 · legions 00493420
@@ -543,10 +543,10 @@ Legend and workflow: [README](README.md).
 - [ ] `PathSystem::InqPathNodeDataByNodeID` · 00630ff0 · legions 005e8a20
 - [ ] `PathSystem::InqPathNodeDataByPosition` · 00631050 · legions 005e8a80
 
-## `portal/shared/src/physics/cellarray.cpp.c` (0/1)
+## `portal/shared/src/physics/cellarray.cpp.c` (1/1)
 
 ### CELLARRAY
-- [ ] `CELLARRAY::add_cell` · 004da7e0 · legions 004cd240
+- [x] `CELLARRAY::add_cell` · 004da7e0 · legions 004cd240
 
 ## `portal/shared/src/physics/collisioninfo.cpp.c` (0/1)
 
@@ -569,100 +569,100 @@ Legend and workflow: [README](README.md).
 - [-] `PhysicsMaterial::FromFileNode` · 0063a3c0 — text source format (admin tools)
 - [-] `PhysicsMaterial::ToFileNode` · 0063a4d0 — text source format (admin tools)
 
-## `portal/shared/src/physics/objectinfo.cpp.c` (0/5)
+## `portal/shared/src/physics/objectinfo.cpp.c` (5/5)
 
 ### OBJECTINFO
-- [ ] `OBJECTINFO::is_valid_walkable` · 004db340 · legions 004cdda0
-- [ ] `OBJECTINFO::kill_velocity` · 004db350 · legions 004cddb0
-- [ ] `OBJECTINFO::get_walkable_z` · 004db380 · legions 004cdde0
-- [ ] `OBJECTINFO::init` · 004db390 · legions 004cddf0
-- [ ] `OBJECTINFO::validate_walkable` · 004db410 · legions 004cde70
+- [x] `OBJECTINFO::is_valid_walkable` · 004db340 · legions 004cdda0
+- [x] `OBJECTINFO::kill_velocity` · 004db350 · legions 004cddb0
+- [x] `OBJECTINFO::get_walkable_z` · 004db380 · legions 004cdde0
+- [x] `OBJECTINFO::init` · 004db390 · legions 004cddf0
+- [x] `OBJECTINFO::validate_walkable` · 004db410 · legions 004cde70
 
-## `portal/shared/src/physics/physicsmodule.cpp.c` (0/4)
+## `portal/shared/src/physics/physicsmodule.cpp.c` (1/4)
 
 ### PhysicsModule
 - [ ] `PhysicsModule::PhysicsModule` · 00737cc0 · legions 006b3880
 - [ ] `PhysicsModule::~PhysicsModule` · 00737ce0 · legions 006b38a0
-- [ ] `PhysicsModule::UpdatePhysics` · 00737cf0 · legions 006b38b0
+- [x] `PhysicsModule::UpdatePhysics` · 00737cf0 · legions 006b38b0
 - [ ] `PhysicsModule::UpdateAnimation` · 00737dd0 · legions 006b3990
 
-## `portal/shared/src/physics/spherepath.cpp.c` (0/13)
+## `portal/shared/src/physics/spherepath.cpp.c` (6/13)
 
 ### Position
 - [ ] `Position::globaltolocalvec` · 004da840 · legions 004cd2a0
 
 ### SPHEREPATH
-- [ ] `SPHEREPATH::init` · 004da8a0 · legions 004cd300
-- [ ] `SPHEREPATH::init_sphere` · 004da930 · legions 004cd390
-- [ ] `SPHEREPATH::cache_global_curr_center` · 004da9e0 · legions 004cd440
-- [ ] `SPHEREPATH::cache_global_sphere` · 004daaa0 · legions 004cd500
-- [ ] `SPHEREPATH::adjust_check_pos` · 004dac40 · legions 004cd6a0
+- [x] `SPHEREPATH::init` · 004da8a0 · legions 004cd300
+- [x] `SPHEREPATH::init_sphere` · 004da930 · legions 004cd390
+- [x] `SPHEREPATH::cache_global_curr_center` · 004da9e0 · legions 004cd440
+- [x] `SPHEREPATH::cache_global_sphere` · 004daaa0 · legions 004cd500
+- [x] `SPHEREPATH::adjust_check_pos` · 004dac40 · legions 004cd6a0
 - [ ] `SPHEREPATH::step_up_slide` · 004dacc0 · legions 004cd720
-- [ ] `SPHEREPATH::check_walkables` · 004dad00 · legions 004cd760
+- [~] `SPHEREPATH::check_walkables` · 004dad00 · legions 004cd760 — no physics-BSP walkable/negative polygons (neg-poly slide, step_up, precipice_slide)
 - [ ] `SPHEREPATH::precipice_slide` · 004dad40 · legions 004cd7a0
 - [ ] `SPHEREPATH::SPHEREPATH` · 004daed0 · legions 004cd930
 - [ ] `SPHEREPATH::~SPHEREPATH` · 004db030 · legions 004cda90
 - [ ] `SPHEREPATH::cache_localspace_sphere` · 004db0b0 · legions 004cdb10
-- [ ] `SPHEREPATH::init_path` · 004db2a0 · legions 004cdd00
+- [x] `SPHEREPATH::init_path` · 004db2a0 · legions 004cdd00
 
-## `portal/shared/src/physics/transition.cpp.c` (0/35)
+## `portal/shared/src/physics/transition.cpp.c` (19/35)
 
 ### AFrame
-- [ ] `AFrame::operator==` · 004db790 · legions 004ce1f0
+- [x] `AFrame::operator==` · 004db790 · legions 004ce1f0
 
 ### Frame
-- [ ] `Frame::set_rotate` · 004db850 · legions 004ce2b0
+- [x] `Frame::set_rotate` · 004db850 · legions 004ce2b0
 
 ### Plane
-- [ ] `Plane::snap_to_plane` · 004db8f0 · legions 004ce350
+- [x] `Plane::snap_to_plane` · 004db8f0 · legions 004ce350
 
 ### COLLISIONINFO
-- [ ] `COLLISIONINFO::set_sliding_normal` · 004db950 · legions 004ce3b0
+- [x] `COLLISIONINFO::set_sliding_normal` · 004db950 · legions 004ce3b0
 
 ### CTransition
-- [ ] `CTransition::cleanupTransition` · 004db9d0 · legions 004ce430
-- [ ] `CTransition::init_object` · 004db9e0 · legions 004ce440
-- [ ] `CTransition::init_sphere` · 004db9f0 · legions 004ce450
-- [ ] `CTransition::init_path` · 004dba00 · legions 004ce460
-- [ ] `CTransition::calc_num_steps` · 004dba10 · legions 004ce470
+- [-] `CTransition::cleanupTransition` · 004db9d0 · legions 004ce430 — static CTransition pool; one Rust value per transition
+- [x] `CTransition::init_object` · 004db9e0 · legions 004ce440
+- [x] `CTransition::init_sphere` · 004db9f0 · legions 004ce450
+- [x] `CTransition::init_path` · 004dba00 · legions 004ce460
+- [x] `CTransition::calc_num_steps` · 004dba10 · legions 004ce470
 
 ### COLLISIONINFO
-- [ ] `COLLISIONINFO::init` · 004dbc00 · legions 004ce660
+- [x] `COLLISIONINFO::init` · 004dbc00 · legions 004ce660
 
 ### CTransition
-- [ ] `CTransition::init` · 004dbc30 · legions 004ce690
-- [ ] `CTransition::adjust_offset` · 004dbcb0 · legions 004ce710
-- [ ] `CTransition::build_cell_array` · 004dbff0 · legions 004cea50
-- [ ] `CTransition::cliff_slide` · 004dc030 · legions 004cea90
+- [x] `CTransition::init` · 004dbc30 · legions 004ce690
+- [x] `CTransition::adjust_offset` · 004dbcb0 · legions 004ce710
+- [x] `CTransition::build_cell_array` · 004dbff0 · legions 004cea50
+- [x] `CTransition::cliff_slide` · 004dc030 · legions 004cea90
 
 ### SPHEREPATH
-- [ ] `SPHEREPATH::save_check_pos` · 004dc230 · legions 004cec90
-- [ ] `SPHEREPATH::set_check_pos` · 004dc260 · legions 004cecc0
+- [x] `SPHEREPATH::save_check_pos` · 004dc230 · legions 004cec90
+- [x] `SPHEREPATH::set_check_pos` · 004dc260 · legions 004cecc0
 - [ ] `SPHEREPATH::set_walkable_check_pos` · 004dc2a0 · legions 004ced00
 - [ ] `SPHEREPATH::get_walkable_pos` · 004dc2d0 · legions 004ced30
 
 ### CTransition
-- [ ] `CTransition::validate_transition` · 004dc320 · legions 004ced80
+- [x] `CTransition::validate_transition` · 004dc320 · legions 004ced80
 - [ ] `CTransition::validate_placement_transition` · 004dc690 · legions 004cf0f0
 - [ ] `CTransition::check_other_cells` · 004dc720 · legions 004cf180
-- [ ] `CTransition::check_walkable` · 004dc910 · legions 004cf370
+- [~] `CTransition::check_walkable` · 004dc910 · legions 004cf370 — no physics-BSP walkable/negative polygons (neg-poly slide, step_up, precipice_slide)
 
 ### SPHEREPATH
-- [ ] `SPHEREPATH::restore_check_pos` · 004dca10 · legions 004cf470
+- [x] `SPHEREPATH::restore_check_pos` · 004dca10 · legions 004cf470
 
 ### CTransition
-- [ ] `CTransition::CTransition` · 004dca60 · legions 004cf4c0
-- [ ] `CTransition::makeTransition` · 004dcb20 · legions 004cf580
+- [x] `CTransition::CTransition` · 004dca60 · legions 004cf4c0
+- [-] `CTransition::makeTransition` · 004dcb20 · legions 004cf580 — static CTransition pool; one Rust value per transition
 - [ ] `CTransition::placement_insert` · 004dcba0 · legions 004cf600
 - [ ] `CTransition::validate_placement` · 004dcc40 · legions 004cf6a0
-- [ ] `CTransition::step_down` · 004dccd0 · legions 004cf730
-- [ ] `CTransition::edge_slide` · 004dce00 · legions 004cf860
+- [x] `CTransition::step_down` · 004dccd0 · legions 004cf730
+- [~] `CTransition::edge_slide` · 004dce00 · legions 004cf860 — no physics-BSP walkable/negative polygons (neg-poly slide, step_up, precipice_slide)
 - [ ] `CTransition::step_up` · 004dd060 · legions 004cfac0
-- [ ] `CTransition::transitional_insert` · 004dd150 · legions 004cfbb0
+- [~] `CTransition::transitional_insert` · 004dd150 · legions 004cfbb0 — no physics-BSP walkable/negative polygons (neg-poly slide, step_up, precipice_slide)
 - [ ] `CTransition::find_placement_pos` · 004dd4d0 · legions 004cff30
-- [ ] `CTransition::find_transitional_position` · 004dd900 · legions 004d0360
+- [~] `CTransition::find_transitional_position` · 004dd900 · legions 004d0360 — placement insert (find_placement_position) not ported
 - [ ] `CTransition::find_placement_position` · 004ddc20 · legions 004d0680
-- [ ] `CTransition::find_valid_position` · 004ddda0 · legions 004d0800
+- [~] `CTransition::find_valid_position` · 004ddda0 · legions 004d0800 — placement insert (find_placement_position) not ported
 
 ## `portal/shared/src/physobj/childlist.cpp.c` (0/9)
 
@@ -1565,7 +1565,7 @@ Legend and workflow: [README](README.md).
 ### InterpolationManager::InterpolationPath
 - [ ] `InterpolationManager::InterpolationPath::StreamPack` · 00510cf0 · legions 004fed00
 
-## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (0/62)
+## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (16/62)
 
 ### CMotionInterp
 - [ ] `CMotionInterp::Init` · 00509630 · legions 004f7680
@@ -1574,12 +1574,12 @@ Legend and workflow: [README](README.md).
 - [ ] `CMotionInterp::SetPhysobjRep` · 00509730
 - [ ] `CMotionInterp::SetTerrainType` · 00509770
 - [ ] `CMotionInterp::GetPhysObj` · 00509780
-- [ ] `CMotionInterp::GetSeaFloorMultiplier` · 00509790
-- [ ] `CMotionInterp::GetWaterMultiplier` · 005097b0
+- [x] `CMotionInterp::GetSeaFloorMultiplier` · 00509790
+- [x] `CMotionInterp::GetWaterMultiplier` · 005097b0
 - [ ] `CMotionInterp::IsMovingTo` · 005097d0
 - [ ] `CMotionInterp::IsTurningTo` · 005097e0
 - [ ] `CMotionInterp::ReachedPersistentTarget` · 005097f0
-- [ ] `CMotionInterp::ConvertDoMotionToLocalDesired` · 00509800
+- [x] `CMotionInterp::ConvertDoMotionToLocalDesired` · 00509800
 - [ ] `CMotionInterp::GetDesiredModeState` · 00509910
 - [ ] `CMotionInterp::UpdateTargetInfo` · 00509930
 - [ ] `CMotionInterp::MoveToEvent` · 00509950
@@ -1589,12 +1589,12 @@ Legend and workflow: [README](README.md).
 - [ ] `CMotionInterp::LeaveGround` · 00509a10
 - [ ] `CMotionInterp::GetMaxSpeed` · 00509a60
 - [ ] `CMotionInterp::SetLocalDesiredVelocity` · 00509a70
-- [ ] `CMotionInterp::IsAffectedByGravity` · 00509a90
+- [x] `CMotionInterp::IsAffectedByGravity` · 00509a90
 - [ ] `CMotionInterp::ResetHoverHeight` · 00509aa0
-- [ ] `CMotionInterp::GetHoverHeight` · 00509ab0
+- [x] `CMotionInterp::GetHoverHeight` · 00509ab0
 - [ ] `CMotionInterp::GetDefaultHoverHeight` · 00509ae0
-- [ ] `CMotionInterp::TurnTo` · 00509af0
-- [ ] `CMotionInterp::StopTurnTo` · 00509b40 · legions 004f7b80
+- [x] `CMotionInterp::TurnTo` · 00509af0
+- [x] `CMotionInterp::StopTurnTo` · 00509b40 · legions 004f7b80
 - [ ] `CMotionInterp::StopInterpolating` · 00509b70
 - [ ] `CMotionInterp::IsInterpolating` · 00509b80
 - [ ] `CMotionInterp::GetRemoteDoMotionValues` · 00509ba0
@@ -1611,40 +1611,40 @@ Legend and workflow: [README](README.md).
 
 ### CMotionInterp
 - [ ] `CMotionInterp::Destroy` · 00509de0 · legions 004f7e20
-- [ ] `CMotionInterp::SetOmegaVelocity` · 00509ed0 · legions 004f7f10
-- [ ] `CMotionInterp::CalculateOmegaAcceleration` · 00509f20 · legions 004f7f60
-- [ ] `CMotionInterp::DoMotion` · 0050a1b0
+- [x] `CMotionInterp::SetOmegaVelocity` · 00509ed0 · legions 004f7f10
+- [x] `CMotionInterp::CalculateOmegaAcceleration` · 00509f20 · legions 004f7f60
+- [x] `CMotionInterp::DoMotion` · 0050a1b0
 - [ ] `CMotionInterp::ClampVelocity` · 0050a290
 - [ ] `CMotionInterp::InterpolateTo` · 0050a420 · legions 004f8460
 - [ ] `CMotionInterp::ImpulseAt` · 0050a480 · legions 004f84c0
-- [ ] `CMotionInterp::UpdateMovement` · 0050a4f0 · legions 004f8530
+- [~] `CMotionInterp::UpdateMovement` · 0050a4f0 · legions 004f8530 — animation behaviours/FX (run, skid, land, fall, swim) and the Interpolation/MoveTo managers not ported
 - [ ] `CMotionInterp::GetPackBitfield` · 0050b080 · legions 004f90c0
 - [ ] `CMotionInterp::StreamPack` · 0050b230 · legions 004f9270
-- [ ] `CMotionInterp::FindMotionValues` · 0050b470 · legions 004f94b0
+- [x] `CMotionInterp::FindMotionValues` · 0050b470 · legions 004f94b0
 - [ ] `CMotionInterp::GetMotionValuesForElement` · 0050b540
-- [ ] `CMotionInterp::GetMotionValues` · 0050b5d0
-- [ ] `CMotionInterp::GetDesiredMotionValues` · 0050b660 · legions 004f96a0
+- [x] `CMotionInterp::GetMotionValues` · 0050b5d0
+- [x] `CMotionInterp::GetDesiredMotionValues` · 0050b660 · legions 004f96a0
 - [ ] `CMotionInterp::ClearTerrainModifiers` · 0050b710
 - [ ] `CMotionInterp::AddTerrainModifier` · 0050b720
 - [ ] `CMotionInterp::~CMotionInterp` · 0050b740 · legions 004f9780
 - [ ] `CMotionInterp::GetTerrainType` · 0050b7b0
 - [ ] `CMotionInterp::GetConstraintManager` · 0050b7c0
 - [ ] `CMotionInterp::GetTurnToDirection` · 0050b7d0 · legions 004f9810
-- [ ] `CMotionInterp::GetAcceleration` · 0050b7f0
-- [ ] `CMotionInterp::GetOmegaAcceleration` · 0050b800
+- [x] `CMotionInterp::GetAcceleration` · 0050b7f0
+- [x] `CMotionInterp::GetOmegaAcceleration` · 0050b800
 - [ ] `CMotionInterp::GetAccelerationScale` · 0050b810
-- [ ] `CMotionInterp::CMotionInterp` · 0050b820 · legions 004f9860
+- [x] `CMotionInterp::CMotionInterp` · 0050b820 · legions 004f9860
 
-## `portal/shared/src/physobj/minterp/motioninterpdesc.cpp.c` (0/25)
+## `portal/shared/src/physobj/minterp/motioninterpdesc.cpp.c` (4/25)
 
 ### MotionInterpDesc
-- [ ] `MotionInterpDesc::StreamPack` · 0069dad0 · legions 0063b9b0
+- [x] `MotionInterpDesc::StreamPack` · 0069dad0 · legions 0063b9b0
 
 ### TerrainList
-- [ ] `TerrainList::StreamPack` · 0069db60 · legions 0063ba40
+- [x] `TerrainList::StreamPack` · 0069db60 · legions 0063ba40
 
 ### MSList
-- [ ] `MSList::StreamPack` · 0069dba0 · legions 0063ba80
+- [x] `MSList::StreamPack` · 0069dba0 · legions 0063ba80
 
 ### MotionValues
 - [ ] `MotionValues::operator=` · 0069dbf0 · legions 0063bad0
@@ -1656,7 +1656,7 @@ Legend and workflow: [README](README.md).
 - [ ] `HashTable<unsigned_long,MotionValues>::operator=` · 0069dea0 · legions 0063bc20
 
 ### MotionInterpDesc
-- [ ] `MotionInterpDesc::GetMotionValues` · 0069df90 · legions 0063bd10
+- [x] `MotionInterpDesc::GetMotionValues` · 0069df90 · legions 0063bd10
 - [ ] `MotionInterpDesc::Destroy` · 0069e240
 
 ### TerrainList
@@ -1703,10 +1703,10 @@ Legend and workflow: [README](README.md).
 ### CMotionInterpFactory
 - [ ] `CMotionInterpFactory::Create` · 00509610 · legions 004f7660
 
-## `portal/shared/src/physobj/minterp/motionvalues.cpp.c` (0/23)
+## `portal/shared/src/physobj/minterp/motionvalues.cpp.c` (2/23)
 
 ### MotionValues
-- [ ] `MotionValues::MotionValues` · 0069cc40 · legions 0063b6d0
+- [x] `MotionValues::MotionValues` · 0069cc40 · legions 0063b6d0
 
 ### Heading
 - [ ] `Heading::get_degrees` · 0069cca0 · legions 0063b730
@@ -1742,7 +1742,7 @@ Legend and workflow: [README](README.md).
 
 ### MotionValues
 - [ ] `MotionValues::GetHoverHeight` · 0069cdc0 · legions 0063b860
-- [ ] `MotionValues::StreamPack` · 0069cdd0 · legions 0063b870
+- [x] `MotionValues::StreamPack` · 0069cdd0 · legions 0063b870
 - [-] `MotionValues::ToFileNode` · 0069cf10 — text source format (admin tools)
 - [-] `MotionValues::FromFileNode` · 0069d320 — text source format (admin tools)
 
@@ -2160,10 +2160,10 @@ Legend and workflow: [README](README.md).
 - [ ] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (0/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (34/526)
 
 ### Quaternion
-- [ ] `Quaternion::multiply` · 004dddc0 · legions 004d0820
+- [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
 
 ### Position
 - [ ] `Position::set_heading` · 004dde50 · legions 004d08b0
@@ -2178,8 +2178,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CollisionParameters::SetPhysicsMovementType` · 004de000 · legions 004d0a60
 
 ### CTransition
-- [ ] `CTransition::init_contact_plane` · 004de020 · legions 004d0a80
-- [ ] `CTransition::get_contact_plane` · 004de0d0 · legions 004d0b30
+- [x] `CTransition::init_contact_plane` · 004de020 · legions 004d0a80
+- [x] `CTransition::get_contact_plane` · 004de0d0 · legions 004d0b30
 
 ### CMissileManager
 - [ ] `CMissileManager::DetonatesOnProximityTo` · 004de130 · legions 004d0b90
@@ -2218,8 +2218,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetNumCylsphere` · 004de570
 - [ ] `CPhysicsObj::GetCylsphere` · 004de580
 - [ ] `CPhysicsObj::GetRadius` · 004de590 · legions 004d0ff0
-- [ ] `CPhysicsObj::GetHeight` · 004de5b0 · legions 004d1010
-- [ ] `CPhysicsObj::GetStepUpHeight` · 004de5d0
+- [x] `CPhysicsObj::GetHeight` · 004de5b0 · legions 004d1010
+- [x] `CPhysicsObj::GetStepUpHeight` · 004de5d0
 - [ ] `CPhysicsObj::SetStepDownHeight` · 004de5f0
 - [ ] `CPhysicsObj::GetDepth` · 004de610
 - [ ] `CPhysicsObj::AllowsFreeHeading` · 004de620
@@ -2239,7 +2239,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::StopMoveToCancelsBehaviors` · 004de900
 - [ ] `CPhysicsObj::StopAllWeenieBehaviors` · 004de910
 - [ ] `CPhysicsObj::StopLayer` · 004de920 · legions 004d1380
-- [ ] `CPhysicsObj::DoMotion` · 004de940 · legions 004d13a0
+- [x] `CPhysicsObj::DoMotion` · 004de940 · legions 004d13a0
 - [ ] `CPhysicsObj::GetElement` · 004de980 · legions 004d13f0
 - [ ] `CPhysicsObj::GetDesiredElement` · 004de990
 - [ ] `CPhysicsObj::GetMode` · 004de9a0
@@ -2298,17 +2298,17 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::RemoveVoyeur` · 004df570 · legions 004d1fd0
 - [ ] `CPhysicsObj::can_jump` · 004df5a0 · legions 004d2000
 - [ ] `CPhysicsObj::IsSlidingDown` · 004df670 · legions 004d20d0
-- [ ] `CPhysicsObj::ClampHeading` · 004df6a0 · legions 004d2100
-- [ ] `CPhysicsObj::UnclampHeading` · 004df6d0 · legions 004d2130
-- [ ] `CPhysicsObj::ClampOmegaVelocity` · 004df6e0 · legions 004d2140
-- [ ] `CPhysicsObj::UnclampOmegaVelocity` · 004df700 · legions 004d2160
+- [x] `CPhysicsObj::ClampHeading` · 004df6a0 · legions 004d2100
+- [x] `CPhysicsObj::UnclampHeading` · 004df6d0 · legions 004d2130
+- [x] `CPhysicsObj::ClampOmegaVelocity` · 004df6e0 · legions 004d2140
+- [x] `CPhysicsObj::UnclampOmegaVelocity` · 004df700 · legions 004d2160
 - [ ] `CPhysicsObj::SetVelocityRail` · 004df710 · legions 004d2170
 - [ ] `CPhysicsObj::DisableVelocityRail` · 004df740 · legions 004d21a0
-- [ ] `CPhysicsObj::UpdateRotation` · 004df750 · legions 004d21b0
-- [ ] `CPhysicsObj::CullVelocity` · 004dfa20 · legions 004d2480
-- [ ] `CPhysicsObj::CalcAcceleration` · 004dfa90 · legions 004d24f0
-- [ ] `CPhysicsObj::CalcFriction` · 004dfd10 · legions 004d2770
-- [ ] `CPhysicsObj::GetCurrentGravity` · 004dffc0
+- [x] `CPhysicsObj::UpdateRotation` · 004df750 · legions 004d21b0
+- [x] `CPhysicsObj::CullVelocity` · 004dfa20 · legions 004d2480
+- [x] `CPhysicsObj::CalcAcceleration` · 004dfa90 · legions 004d24f0
+- [x] `CPhysicsObj::CalcFriction` · 004dfd10 · legions 004d2770
+- [x] `CPhysicsObj::GetCurrentGravity` · 004dffc0
 - [ ] `CPhysicsObj::GetCurrentWind` · 004dffd0
 - [ ] `CPhysicsObj::CanCollide` · 004dffe0 · legions 004d2a40
 - [ ] `CPhysicsObj::AddToTempEtherealList` · 004e0050
@@ -2326,11 +2326,11 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::change_cell` · 004e04c0 · legions 004d2f20
 - [ ] `CPhysicsObj::enter_cell` · 004e0510 · legions 004d2f70
 - [ ] `CPhysicsObj::leave_cell` · 004e0560 · legions 004d2fc0
-- [ ] `CPhysicsObj::is_valid_walkable` · 004e05a0
-- [ ] `CPhysicsObj::get_walkable_z` · 004e05d0
+- [x] `CPhysicsObj::is_valid_walkable` · 004e05a0
+- [x] `CPhysicsObj::get_walkable_z` · 004e05d0
 - [ ] `CPhysicsObj::set_contact` · 004e05e0 · legions 004d3040
-- [ ] `CPhysicsObj::HandleHitGround` · 004e0620 · legions 004d3080
-- [ ] `CPhysicsObj::HandleHitWater` · 004e06c0 · legions 004d3120
+- [~] `CPhysicsObj::HandleHitGround` · 004e0620 · legions 004d3080 — HitGround/LeaveGround FX events not ported
+- [x] `CPhysicsObj::HandleHitWater` · 004e06c0 · legions 004d3120
 - [ ] `CPhysicsObj::set_frame` · 004e0720
 - [ ] `CPhysicsObj::SetNoCellPosition` · 004e0730 · legions 004d3190
 - [ ] `CPhysicsObj::SetInitialFrame` · 004e0760
@@ -2344,8 +2344,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::get_distance_to_object` · 004e09a0
 - [ ] `CPhysicsObj::get_distance_to_object_squared` · 004e09f0
 - [ ] `CPhysicsObj::get_global_velocity` · 004e0a40 · legions 004d34a0
-- [ ] `CPhysicsObj::get_local_velocity` · 004e0a70 · legions 004d34d0
-- [ ] `CPhysicsObj::get_heading` · 004e0af0
+- [x] `CPhysicsObj::get_local_velocity` · 004e0a70 · legions 004d34d0
+- [x] `CPhysicsObj::get_heading` · 004e0af0
 - [ ] `CPhysicsObj::get_vector_heading` · 004e0b10
 - [ ] `CPhysicsObj::calc_heading` · 004e0b30
 - [ ] `CPhysicsObj::HasBoneType` · 004e0b50
@@ -2376,7 +2376,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::set_mobile` · 004e1480
 - [ ] `CPhysicsObj::align_to_path` · 004e14b0
 - [ ] `CPhysicsObj::set_path_clipping` · 004e14e0
-- [ ] `CPhysicsObj::set_affected_by_gravity` · 004e1520
+- [x] `CPhysicsObj::set_affected_by_gravity` · 004e1520
 - [ ] `CPhysicsObj::set_undetectable` · 004e1550
 - [ ] `CPhysicsObj::set_inelastic` · 004e15d0
 - [ ] `CPhysicsObj::set_lights` · 004e1600
@@ -2399,7 +2399,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetObjectProperties` · 004e1bf0
 - [ ] `CPhysicsObj::InqCurrentProperties` · 004e1c30
 - [ ] `CPhysicsObj::InqCurrentProperty` · 004e1c60
-- [ ] `CPhysicsObj::get_object_info` · 004e1c90 · legions 004d46f0
+- [~] `CPhysicsObj::get_object_info` · 004e1c90 · legions 004d46f0 — no admin moves or missiles
 - [ ] `CPhysicsObj::AdjustPosition` · 004e1d70 · legions 004d47d0
 - [ ] `CPhysicsObj::CheckPositionInternal` · 004e1eb0 · legions 004d4910
 - [ ] `CPhysicsObj::UpdateGravity` · 004e1f70 · legions 004d49c0
@@ -2478,7 +2478,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::InitObjectBegin` · 004e2ed0 · legions 004d5920
 - [ ] `CPhysicsObj::InitObjectEnd` · 004e2fe0 · legions 004d5a30
 - [ ] `CPhysicsObj::RecvEvt_AddImpulse` · 004e30b0
-- [ ] `CPhysicsObj::GetStepDownHeight` · 004e30e0
+- [x] `CPhysicsObj::GetStepDownHeight` · 004e30e0
 - [ ] `CPhysicsObj::GetRenderBoundingBox` · 004e3140 · legions 004d5b90
 - [ ] `CPhysicsObj::GetDefaultRenderBoundingBox` · 004e31a0 · legions 004d5bf0
 - [ ] `CPhysicsObj::GetScaledDefaultRenderBoundingBox` · 004e3200
@@ -2494,17 +2494,17 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::IsLOSBlocking` · 004e3a50
 - [ ] `CPhysicsObj::GetTargetInfo` · 004e3a70
 - [ ] `CPhysicsObj::Jump` · 004e3aa0 · legions 004d64f0
-- [ ] `CPhysicsObj::CalcElement` · 004e3b90 · legions 004d65e0
-- [ ] `CPhysicsObj::CalcExternalForces` · 004e3e20 · legions 004d6870
-- [ ] `CPhysicsObj::transition` · 004e4170 · legions 004d6bc0
+- [~] `CPhysicsObj::CalcElement` · 004e3b90 · legions 004d65e0 — DoElement sets the element directly (ModeTracker element transitions not ported)
+- [~] `CPhysicsObj::CalcExternalForces` · 004e3e20 · legions 004d6870 — no pushers (CCollisionManager::UpdatePusherValues)
+- [~] `CPhysicsObj::transition` · 004e4170 · legions 004d6bc0 — no admin moves or missiles
 - [ ] `CPhysicsObj::ResetLightCache` · 004e4280 · legions 004d6cd0
 - [ ] `CPhysicsObj::get_landscape_coord` · 004e42f0
 - [ ] `CPhysicsObj::remove_shadows_from_cells` · 004e4310 · legions 004d6d60
 - [ ] `CPhysicsObj::AreShadowObjectsComplete` · 004e4360 · legions 004d6db0
-- [ ] `CPhysicsObj::set_on_walkable` · 004e43b0 · legions 004d6e00
+- [~] `CPhysicsObj::set_on_walkable` · 004e43b0 · legions 004d6e00 — HitGround/LeaveGround FX events not ported
 - [ ] `CPhysicsObj::SetPlacementFrame` · 004e4410
-- [ ] `CPhysicsObj::set_velocity` · 004e4430
-- [ ] `CPhysicsObj::set_heading` · 004e44e0
+- [~] `CPhysicsObj::set_velocity` · 004e4430 — only the zero velocity of OBJECTINFO::kill_velocity
+- [x] `CPhysicsObj::set_heading` · 004e44e0
 - [ ] `CPhysicsObj::SetParent` · 004e4580
 - [ ] `CPhysicsObj::TopParent` · 004e4590
 - [ ] `CPhysicsObj::ApplyVisualDesc` · 004e45b0
@@ -2549,9 +2549,9 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::Destroy` · 004e5540 · legions 004d7f90
 - [ ] `CPhysicsObj::GetScaledRenderBoundingBox` · 004e5660
 - [ ] `CPhysicsObj::JumpLogic` · 004e56e0
-- [ ] `CPhysicsObj::GetHeightAboveWalkable` · 004e5780
+- [~] `CPhysicsObj::GetHeightAboveWalkable` · 004e5780 — vertical distance to the terrain polygon instead of CObjCell::LOSCheck
 - [ ] `CPhysicsObj::UpdateChild` · 004e5980 · legions 004d83d0
-- [ ] `CPhysicsObj::handle_all_collisions` · 004e5d10 · legions 004d8760
+- [~] `CPhysicsObj::handle_all_collisions` · 004e5d10 · legions 004d8760 — environment response only; object collisions and the collision manager not ported
 - [ ] `CPhysicsObj::CheckRayIntersect` · 004e60f0
 - [ ] `CPhysicsObj::SetVisualDesc` · 004e6650 · legions 004d90a0
 - [ ] `CPhysicsObj::SetScale` · 004e6690
@@ -2580,7 +2580,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::MissileRetarget` · 004e6eb0
 - [ ] `CPhysicsObj::UpdateAnimationRecursive` · 004e6f30 · legions 004d9980
 - [ ] `CPhysicsObj::UpdateFXRecursive` · 004e6f80 · legions 004d99d0
-- [ ] `CPhysicsObj::UpdateMovementInternal` · 004e6ff0 · legions 004d9a40
+- [x] `CPhysicsObj::UpdateMovementInternal` · 004e6ff0 · legions 004d9a40
 - [ ] `CPhysicsObj::FindObjCollisions` · 004e7580
 - [ ] `CPhysicsObj::HandleCollision` · 004e79a0 · legions 004da3f0
 - [ ] `CPhysicsObj::CollisionRemoveObject` · 004e79e0
@@ -2609,7 +2609,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::MissileInitialize` · 004e8e40
 - [ ] `CPhysicsObj::MissileInitMissileParameters` · 004e8ec0
 - [ ] `CPhysicsObj::MissileInitTargetingParameters` · 004e8f20
-- [ ] `CPhysicsObj::UpdatePositionInternal` · 004e8f80 · legions 004db960
+- [x] `CPhysicsObj::UpdatePositionInternal` · 004e8f80 · legions 004db960
 - [ ] `CPhysicsObj::ReportCollisions` · 004e9040 · legions 004dba20
 - [ ] `CPhysicsObj::EndAllCollisions` · 004e90c0 · legions 004dbaa0
 - [ ] `CPhysicsObj::add_shadows_to_cells` · 004e9140 · legions 004dbb20
@@ -2621,12 +2621,12 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::UpdateMisc` · 004e9bb0 · legions 004dc430
 - [ ] `CPhysicsObj::calc_cross_cells_static` · 004e9be0
 - [ ] `CPhysicsObj::calc_cross_cells` · 004e9d30 · legions 004dc5b0
-- [ ] `CPhysicsObj::SetPositionInternal` · 004e9f50 · legions 004dc7d0
+- [~] `CPhysicsObj::SetPositionInternal` · 004e9f50 · legions 004dc7d0 — no cell residency, shadow or material updates; LeaveGround FX not ported
 - [ ] `CPhysicsObj::CombineAndApplyVisualDesc` · 004ea290
 - [ ] `CPhysicsObj::DoBehavior` · 004ea490
 - [ ] `CPhysicsObj::DoBehavior` · 004ea500
 - [ ] `CPhysicsObj::AddToTargetList` · 004ea670 · legions 004dcfa0
-- [ ] `CPhysicsObj::UpdateMovementInternal` · 004ea780 · legions 004dd0b0
+- [~] `CPhysicsObj::UpdateMovementInternal` · 004ea780 · legions 004dd0b0 — no path-aligned heading, targeting or missiles
 - [ ] `CPhysicsObj::ForceIntoCell` · 004ea990 · legions 004dd2c0
 - [ ] `CPhysicsObj::recalc_cross_cells` · 004ea9f0 · legions 004dd320
 - [ ] `CPhysicsObj::SetPositionInternal` · 004eaa30 · legions 004dd360
@@ -2652,7 +2652,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::on_ground` · 004eaea0 · legions 004dd7d0
 - [ ] `CPhysicsObj::off_ground` · 004eaed0
 - [ ] `CPhysicsObj::reports_collisions` · 004eaee0
-- [ ] `CPhysicsObj::do_edge_sliding` · 004eaef0
+- [x] `CPhysicsObj::do_edge_sliding` · 004eaef0
 - [ ] `CPhysicsObj::ignore_collisions` · 004eaf00
 - [ ] `CPhysicsObj::is_mobile` · 004eaf10
 - [ ] `CPhysicsObj::is_nodraw` · 004eaf20
@@ -2665,23 +2665,23 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::is_misc_active` · 004eafa0
 - [ ] `CPhysicsObj::is_active` · 004eafb0 · legions 004dd8e0
 - [ ] `CPhysicsObj::is_inactive` · 004eaff0
-- [ ] `CPhysicsObj::on_walkable` · 004eb000
-- [ ] `CPhysicsObj::reset_stationary_stuck_fall` · 004eb010
-- [ ] `CPhysicsObj::activate_stationary_fall` · 004eb020
-- [ ] `CPhysicsObj::activate_stationary_stop` · 004eb030
-- [ ] `CPhysicsObj::activate_stationary_stuck` · 004eb040
+- [x] `CPhysicsObj::on_walkable` · 004eb000
+- [x] `CPhysicsObj::reset_stationary_stuck_fall` · 004eb010
+- [x] `CPhysicsObj::activate_stationary_fall` · 004eb020
+- [x] `CPhysicsObj::activate_stationary_stop` · 004eb030
+- [x] `CPhysicsObj::activate_stationary_stuck` · 004eb040
 - [ ] `CPhysicsObj::is_stationary_fall` · 004eb050
 - [ ] `CPhysicsObj::is_stationary_stuck` · 004eb060
 - [ ] `CPhysicsObj::is_stationary_stop` · 004eb070
-- [ ] `CPhysicsObj::has_contact` · 004eb080
+- [x] `CPhysicsObj::has_contact` · 004eb080
 - [ ] `CPhysicsObj::contact_is_water` · 004eb090
 - [ ] `CPhysicsObj::has_sliding` · 004eb0a0
 - [ ] `CPhysicsObj::get_contact_plane_cell_id` · 004eb0b0
 - [ ] `CPhysicsObj::get_contact_plane` · 004eb0c0
-- [ ] `CPhysicsObj::is_affected_by_gravity` · 004eb0d0
+- [x] `CPhysicsObj::is_affected_by_gravity` · 004eb0d0
 - [ ] `CPhysicsObj::lights_on` · 004eb0e0
 - [ ] `CPhysicsObj::is_undetectable` · 004eb0f0
-- [ ] `CPhysicsObj::is_inelastic` · 004eb100
+- [x] `CPhysicsObj::is_inelastic` · 004eb100
 - [ ] `CPhysicsObj::is_movement_frozen` · 004eb110
 - [ ] `CPhysicsObj::is_animation_frozen` · 004eb120
 - [ ] `CPhysicsObj::SetScale` · 004eb130
@@ -2702,7 +2702,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetChild` · 004eb260
 - [ ] `CPhysicsObj::AddToIntersection` · 004eb280 · legions 004ddbc0
 - [ ] `CPhysicsObj::AddToIntersection_Targeted` · 004eb320 · legions 004ddc60
-- [ ] `CPhysicsObj::UpdateMovement` · 004eb370
+- [~] `CPhysicsObj::UpdateMovement` · 004eb370 — no player-distance range checks, parent or missile paths
 - [ ] `CPhysicsObj::SetScatterPositionInternal` · 004eb4c0 · legions 004dde00
 - [ ] `CPhysicsObj::CleanupMarkerObjects` · 004eb600 · legions 004ddf40
 

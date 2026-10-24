@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 11 done, 0 partial, 375 to do, 40 skipped.
+426 retail functions: 33 done, 1 partial, 352 to do, 40 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (0/5)
@@ -53,7 +53,7 @@ Legend and workflow: [README](README.md).
 ### AnimAssetWeightKey
 - [-] `AnimAssetWeightKey::FromFileNode` · 00736a50 · legions 006b2630 — text source format (admin tools)
 
-## `portal/shared/src/geometry/bbox.cpp.c` (0/26)
+## `portal/shared/src/geometry/bbox.cpp.c` (1/26)
 
 ### Plane
 - [ ] `Plane::IsValid` · 0061ca70 · legions 005d8660
@@ -74,7 +74,7 @@ Legend and workflow: [README](README.md).
 - [ ] `BBox::GetPoints` · 0061d1e0 · legions 005d8dd0
 - [ ] `BBox::StreamPack` · 0061d2b0
 - [ ] `BBox::InitFromCylSpheres` · 0061d300 · legions 005d8ef0
-- [ ] `BBox::InitFromSpheres` · 0061d440 · legions 005d9030
+- [x] `BBox::InitFromSpheres` · 0061d440 · legions 005d9030
 - [ ] `BBox::CalculateRadius` · 0061d580 · legions 005d9170
 - [ ] `BBox::Intersects` · 0061d660 · legions 005d9250
 - [ ] `BBox::FindCoverRays` · 0061d750 · legions 005d9340
@@ -132,26 +132,26 @@ Legend and workflow: [README](README.md).
 - [ ] `DetectionObjRay::~DetectionObjRay` · 0062ac40 · legions 005e4d20
 - [ ] `DetectionObjRay::AddRay` · 0062ac80 · legions 005e4d60
 
-## `portal/shared/src/geometry/frame.cpp.c` (0/19)
+## `portal/shared/src/geometry/frame.cpp.c` (7/19)
 
 ### Frame
-- [ ] `Frame::cache_matrix` · 00619f70 · legions 005d5c10
-- [ ] `Frame::cache_quaternion` · 00619fe0 · legions 005d5c80
+- [x] `Frame::cache_matrix` · 00619f70 · legions 005d5c10
+- [x] `Frame::cache_quaternion` · 00619fe0 · legions 005d5c80
 - [ ] `Frame::SetMatrix` · 0061a040 · legions 005d5ce0
 - [ ] `Frame::GetMatrix` · 0061a170 · legions 005d5e10
-- [ ] `Frame::get_vector_heading` · 0061a220 · legions 005d5ec0
-- [ ] `Frame::get_heading` · 0061a240 · legions 005d5ee0
+- [x] `Frame::get_vector_heading` · 0061a220 · legions 005d5ec0
+- [x] `Frame::get_heading` · 0061a240 · legions 005d5ee0
 - [ ] `Frame::get_pitch` · 0061a270 · legions 005d5f10
 - [ ] `Frame::Pack` · 0061a290 · legions 005d5f30
 - [ ] `Frame::UnPack` · 0061a2a0 · legions 005d5f40
 - [-] `Frame::FromFileNode` · 0061a2d0 — text source format (admin tools)
 - [-] `Frame::ToFileNode` · 0061a300 — text source format (admin tools)
-- [ ] `Frame::grotate` · 0061a310 · legions 005d5f70
-- [ ] `Frame::slerp_rotation` · 0061a3c0 · legions 005d6020
+- [x] `Frame::grotate` · 0061a310 · legions 005d5f70
+- [~] `Frame::slerp_rotation` · 0061a3c0 · legions 005d6020 — D3DXQuaternionSlerp is CPU-dispatched in retail; reference slerp
 - [ ] `Frame::OrientFrame` · 0061a460 · legions 005d60c0
 - [ ] `Frame::subtract2` · 0061a4e0 · legions 005d6140
-- [ ] `Frame::set_vector_heading` · 0061a5b0 · legions 005d6210
-- [ ] `Frame::set_heading` · 0061a810 · legions 005d6470
+- [x] `Frame::set_vector_heading` · 0061a5b0 · legions 005d6210
+- [x] `Frame::set_heading` · 0061a810 · legions 005d6470
 - [ ] `Frame::set_pitch` · 0061a860 · legions 005d64c0
 - [ ] `Frame::slerp` · 0061a8a0 · legions 005d6500
 
@@ -182,26 +182,26 @@ Legend and workflow: [README](README.md).
 - [-] `Sphere::FromFileNode` · 00628f40 — text source format (admin tools)
 - [-] `Sphere::ToFileNode` · 00629040 — text source format (admin tools)
 
-## `portal/shared/src/geometry/heading.cpp.c` (0/21)
+## `portal/shared/src/geometry/heading.cpp.c` (6/21)
 
 ### Heading
-- [ ] `Heading::get_degrees_0_centered` · 0061a8f0 · legions 005d6550
-- [ ] `Heading::get_radians` · 0061a910 · legions 005d6570
+- [x] `Heading::get_degrees_0_centered` · 0061a8f0 · legions 005d6550
+- [x] `Heading::get_radians` · 0061a910 · legions 005d6570
 - [ ] `Heading::get_radians_0_centered` · 0061a920 · legions 005d6580
-- [ ] `Heading::ToUInt8` · 0061a940 · legions 005d65a0
+- [x] `Heading::ToUInt8` · 0061a940 · legions 005d65a0
 - [ ] `Heading::Heading` · 0061a960 · legions 005d65c0
 - [ ] `Heading::operator=` · 0061a980 · legions 005d65e0
 
 ### (free functions)
 - [ ] `operator+` · 0061a990 · legions 005d65f0
-- [ ] `operator-` · 0061a9e0 · legions 005d6640
+- [x] `operator-` · 0061a9e0 · legions 005d6640
 
 ### Heading
 - [ ] `Heading::set` · 0061aa30 · legions 005d6690
 - [ ] `Heading::set_degrees` · 0061aaa0 · legions 005d6700
-- [ ] `Heading::FromUInt8` · 0061aaf0 · legions 005d6750
+- [x] `Heading::FromUInt8` · 0061aaf0 · legions 005d6750
 - [ ] `Heading::Heading` · 0061ab50 · legions 005d67b0
-- [ ] `Heading::Heading` · 0061ab60 · legions 005d67c0
+- [x] `Heading::Heading` · 0061ab60 · legions 005d67c0
 - [ ] `Heading::abs` · 0061ab80 · legions 005d67e0
 - [ ] `Heading::lerp` · 0061abf0 · legions 005d6850
 - [ ] `Heading::is_in_range` · 0061acb0 · legions 005d6910
@@ -211,7 +211,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Heading::ToPString` · 0061ae20 · legions 005d6a80
 - [ ] `Heading::ToWPString` · 0061b2e0 · legions 005d6f40
 
-## `portal/shared/src/geometry/landdefs.cpp.c` (1/13)
+## `portal/shared/src/geometry/landdefs.cpp.c` (3/13)
 
 ### LandDefs
 - [ ] `LandDefs::init_misc` · 0061ed40 · legions 005da680
@@ -219,10 +219,10 @@ Legend and workflow: [README](README.md).
 - [ ] `LandDefs::set_height_table` · 0061efd0 · legions 005da910
 - [ ] `LandDefs::Interpolate` · 0061f020 · legions 005da960
 - [ ] `LandDefs::MoveVectorToBeInBlock` · 0061f0e0 · legions 005daa20
-- [ ] `LandDefs::get_outside_lcoord` · 0061f140 · legions 005daa80
+- [x] `LandDefs::get_outside_lcoord` · 0061f140 · legions 005daa80
 - [ ] `LandDefs::GetBlockOffset` · 0061f200 · legions 005dab40
 - [ ] `LandDefs::init_size` · 0061f240 · legions 005dab80
-- [ ] `LandDefs::adjust_to_outside` · 0061f300 · legions 005dac40
+- [x] `LandDefs::adjust_to_outside` · 0061f300 · legions 005dac40
 - [ ] `LandDefs::BlockRayClip` · 0061f400 · legions 005dad40
 - [ ] `LandDefs::GetNearestPixel` · 0061f880 · legions 005db1c0
 - [ ] `LandDefs::InqLandblockIIDFromStaticObjectIID` · 0061fb30 · legions 005db470
@@ -311,7 +311,7 @@ Legend and workflow: [README](README.md).
 - [-] `Plane::ToFileNode` · 00624550 — text source format (admin tools)
 - [ ] `Plane::SplitPolygon` · 006245b0 · legions 005df810
 
-## `portal/shared/src/geometry/polygon.cpp.c` (0/36)
+## `portal/shared/src/geometry/polygon.cpp.c` (2/36)
 
 ### SPHEREPATH
 - [ ] `SPHEREPATH::is_walkable_allowable` · 00499290 · legions 004917c0
@@ -319,7 +319,7 @@ Legend and workflow: [README](README.md).
 ### CPolygon
 - [ ] `CPolygon::CPolygon` · 004992b0
 - [ ] `CPolygon::GetVertexLoc` · 004992d0 · legions 00491800
-- [ ] `CPolygon::point_in_poly2D` · 004992f0 · legions 00491820
+- [x] `CPolygon::point_in_poly2D` · 004992f0 · legions 00491820
 - [ ] `CPolygon::circle_in_poly2D` · 00499380 · legions 004918b0
 - [ ] `CPolygon::Destroy` · 00499530 · legions 00491a60
 - [ ] `CPolygon::InitEmpty` · 00499570 · legions 00491aa0
@@ -334,7 +334,7 @@ Legend and workflow: [README](README.md).
 
 ### CPolygon
 - [ ] `CPolygon::operator=` · 004998f0 · legions 00491de0
-- [ ] `CPolygon::MakePlane` · 00499940 · legions 00491e30
+- [x] `CPolygon::MakePlane` · 00499940 · legions 00491e30
 - [ ] `CPolygon::UnPack` · 00499a90 · legions 00491f80
 - [ ] `CPolygon::polygon_hits_sphere_slow_but_sure` · 00499b90 · legions 00492080
 - [ ] `CPolygon::point_in_polygon` · 00499e60 · legions 00492350
@@ -438,17 +438,17 @@ Legend and workflow: [README](README.md).
 - [-] `PositionOffset::FromFileNode` · 00625980 — text source format (admin tools)
 - [-] `PositionOffset::ToFileNode` · 00625b60 — text source format (admin tools)
 
-## `portal/shared/src/geometry/quaternion.cpp.c` (0/11)
+## `portal/shared/src/geometry/quaternion.cpp.c` (3/11)
 
 ### Quaternion
-- [ ] `Quaternion::rotate` · 0061c210 · legions 005d7e70
+- [x] `Quaternion::rotate` · 0061c210 · legions 005d7e70
 - [ ] `Quaternion::Transform` · 0061c2e0 · legions 005d7f40
 - [ ] `Quaternion::RotationAxis` · 0061c3c0 · legions 005d8020
 - [ ] `Quaternion::SetRotationAxesInternal` · 0061c3f0 · legions 005d8050
-- [ ] `Quaternion::InqRotationAxes` · 0061c570 · legions 005d81d0
+- [x] `Quaternion::InqRotationAxes` · 0061c570 · legions 005d81d0
 - [ ] `Quaternion::Pack` · 0061c640 · legions 005d82a0
 - [ ] `Quaternion::SetRotationAxesAndNormalize` · 0061c680 · legions 005d82e0
-- [ ] `Quaternion::SetRotationAxes` · 0061c700 · legions 005d8360
+- [x] `Quaternion::SetRotationAxes` · 0061c700 · legions 005d8360
 - [ ] `Quaternion::UnPack` · 0061c710 · legions 005d8370
 - [-] `Quaternion::ToFileNode` · 0061c850 — text source format (admin tools)
 - [-] `Quaternion::FromFileNode` · 0061c8c0 · legions 005d84b0 — text source format (admin tools)
@@ -530,10 +530,10 @@ Legend and workflow: [README](README.md).
 - [ ] `SphCone::Intersects` · 00737150 · legions 006b2d30
 - [ ] `SphCone::StreamPack` · 00737290 · legions 006b2e70
 
-## `portal/shared/src/geometry/sphere.cpp.c` (0/15)
+## `portal/shared/src/geometry/sphere.cpp.c` (1/15)
 
 ### (free functions)
-- [ ] `IsFloatZero` · 0049e170 · legions 00495560
+- [x] `IsFloatZero` · 0049e170 · legions 00495560
 
 ### Position
 - [ ] `Position::localtoglobal` · 0049e190 · legions 00495580

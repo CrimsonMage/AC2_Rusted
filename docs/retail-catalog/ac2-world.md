@@ -1,9 +1,9 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 75 done, 5 partial, 766 to do, 143 skipped.
+989 retail functions: 87 done, 10 partial, 749 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/cell/envcell.cpp.c` (3/140)
+## `portal/shared/src/cell/envcell.cpp.c` (4/140)
 
 ### PackObj
 - [ ] `PackObj::Pack` · 0047f1a0
@@ -12,7 +12,7 @@ Legend and workflow: [README](README.md).
 - [ ] `STREAMPACK_ALIGN` · 0047f1c0 · legions 004791d0
 
 ### Frame
-- [ ] `Frame::localtoglobalvec` · 0047f1f0 · legions 00479200
+- [x] `Frame::localtoglobalvec` · 0047f1f0 · legions 00479200
 
 ### FileNodeName_Bool
 - [ ] `FileNodeName_Bool::Clone` · 0047f250 · legions 00479260
@@ -53,7 +53,7 @@ Legend and workflow: [README](README.md).
 
 ### CEnvCell
 - [ ] `CEnvCell::point_in_cell` · 0047fa10
-- [ ] `CEnvCell::find_collisions` · 0047fa50
+- [~] `CEnvCell::find_collisions` · 0047fa50 — terrain only; find_obj_collisions not ported
 - [ ] `CEnvCell::find_env_collisions` · 0047fa80
 - [ ] `CEnvCell::GetSubDataIDs` · 0047fb70 · legions 00479b10
 - [ ] `CEnvCell::SumBumpMapVectors` · 0047fbd0 · legions 00479b70
@@ -443,7 +443,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CLandBlockInfo::InitLoad` · 00491a50 · legions 0048a750
 - [-] `CLandBlockInfo::FromFileNode` · 00491b10 — text source format (admin tools)
 
-## `portal/shared/src/cell/landblockmesh.cpp.c` (0/15)
+## `portal/shared/src/cell/landblockmesh.cpp.c` (4/15)
 
 ### CLandBlockMesh
 - [ ] `CLandBlockMesh::CLandBlockMesh` · 0048c390 · legions 00485bb0
@@ -451,15 +451,15 @@ Legend and workflow: [README](README.md).
 - [ ] `CLandBlockMesh::HasWater` · 0048c490 · legions 00485cb0
 - [ ] `CLandBlockMesh::GetWaterIndex` · 0048c4a0 · legions 00485cc0
 - [ ] `CLandBlockMesh::GetWaterPlane` · 0048c4b0 · legions 00485cd0
-- [ ] `CLandBlockMesh::InqWaterPlane` · 0048c4d0 · legions 00485cf0
+- [x] `CLandBlockMesh::InqWaterPlane` · 0048c4d0 · legions 00485cf0
 - [ ] `CLandBlockMesh::SetVertexValueInternal` · 0048c510 · legions 00485d30
 - [ ] `CLandBlockMesh::~CLandBlockMesh` · 0048c690 · legions 00485eb0
 - [ ] `CLandBlockMesh::Init` · 0048c6b0 · legions 00485ed0
 - [ ] `CLandBlockMesh::SetMinMax` · 0048c7d0 · legions 00485ff0
-- [ ] `CLandBlockMesh::ConstructVertices` · 0048ca50 · legions 00486270
-- [ ] `CLandBlockMesh::SetPolygon` · 0048cb40 · legions 00486360
+- [x] `CLandBlockMesh::ConstructVertices` · 0048ca50 · legions 00486270
+- [x] `CLandBlockMesh::SetPolygon` · 0048cb40 · legions 00486360
 - [ ] `CLandBlockMesh::Refresh` · 0048cbf0 · legions 00486410
-- [ ] `CLandBlockMesh::ConstructPolygons` · 0048cca0 · legions 004864c0
+- [x] `CLandBlockMesh::ConstructPolygons` · 0048cca0 · legions 004864c0
 - [ ] `CLandBlockMesh::GenerateMesh` · 0048d0a0 · legions 004868c0
 
 ## `portal/shared/src/cell/landblockquadtree.cpp.c` (0/22)
@@ -512,7 +512,7 @@ Legend and workflow: [README](README.md).
 ### CLandBlockQuadTree
 - [ ] `CLandBlockQuadTree::Generate` · 00492b60 · legions 0048b510
 
-## `portal/shared/src/cell/landcell.cpp.c` (0/38)
+## `portal/shared/src/cell/landcell.cpp.c` (7/38)
 
 ### (free functions)
 - [ ] `AreFloatEqual` · 0047d8e0 · legions 00477910
@@ -521,7 +521,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Position::adjust_to_outside` · 0047d900 · legions 00477930
 
 ### PositionOffset
-- [ ] `PositionOffset::GetOffset` · 0047d920 · legions 00489c10
+- [x] `PositionOffset::GetOffset` · 0047d920 · legions 00489c10
 
 ### Ray
 - [ ] `Ray::Ray` · 0047d990 · legions 00477950
@@ -536,19 +536,19 @@ Legend and workflow: [README](README.md).
 - [ ] `Plane::Plane` · 0047db50 · legions 00477b10
 
 ### SPHEREPATH
-- [ ] `SPHEREPATH::add_offset_to_check_pos` · 0047db90 · legions 00477b50
+- [x] `SPHEREPATH::add_offset_to_check_pos` · 0047db90 · legions 00477b50
 
 ### COLLISIONINFO
-- [ ] `COLLISIONINFO::set_collision_normal` · 0047dbe0 · legions 00477ba0
+- [x] `COLLISIONINFO::set_collision_normal` · 0047dbe0 · legions 00477ba0
 
 ### CLandCell
 - [ ] `CLandCell::CLandCell` · 0047dc60 · legions 00477c20
 - [ ] `CLandCell::~CLandCell` · 0047dca0 · legions 00477c60
 - [ ] `CLandCell::SetPolygon` · 0047dcc0 · legions 00477c80
-- [ ] `CLandCell::InqWaterPlane` · 0047dce0
-- [ ] `CLandCell::find_terrain_poly` · 0047dd00 · legions 00477cc0
+- [x] `CLandCell::InqWaterPlane` · 0047dce0
+- [x] `CLandCell::find_terrain_poly` · 0047dd00 · legions 00477cc0
 - [ ] `CLandCell::find_terrain_plane` · 0047dd60 · legions 00477d20
-- [ ] `CLandCell::point_in_cell` · 0047ddc0
+- [x] `CLandCell::point_in_cell` · 0047ddc0
 - [ ] `CLandCell::GetViewerDistance` · 0047de50
 - [ ] `CLandCell::GrabVisibleCells` · 0047dea0
 - [ ] `CLandCell::ReleaseVisibleCells` · 0047deb0
@@ -561,7 +561,7 @@ Legend and workflow: [README](README.md).
 ### CLandCell
 - [ ] `CLandCell::Allocate` · 0047df80
 - [ ] `CLandCell::CheckRadius` · 0047dfe0 · legions 00478000
-- [ ] `CLandCell::AddOutsideCell` · 0047e160 · legions 00478180
+- [~] `CLandCell::AddOutsideCell` · 0047e160 · legions 00478180 — outdoor land cells only; touching env cells not followed
 - [ ] `CLandCell::handle_move_restriction` · 0047e2c0 · legions 004782e0
 
 ### DBObjGrabber<CLandBlockData>
@@ -571,8 +571,8 @@ Legend and workflow: [README](README.md).
 - [ ] `LOSParameters::SetCurrentRay` · 0047e520 · legions 00478560
 
 ### CLandCell
-- [ ] `CLandCell::FindOutsideCells` · 0047e570 · legions 004785b0
-- [ ] `CLandCell::find_env_collisions` · 0047e670
+- [x] `CLandCell::FindOutsideCells` · 0047e570 · legions 004785b0
+- [~] `CLandCell::find_env_collisions` · 0047e670 — unloaded-landblock move restriction not ported
 - [ ] `CLandCell::TraceRay` · 0047e7d0 · legions 00478810
 
 ### SmartArray<Plane>
@@ -659,10 +659,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjCell::SendObjectDetection` · 0047ba40 · legions 00475b70
 - [ ] `CObjCell::SetObjectMaintainer` · 0047bb10 · legions 00475c40
 - [ ] `CObjCell::GetViewerDistance` · 0047bb20
-- [ ] `CObjCell::FindCells` · 0047bb40 · legions 00475c70
+- [~] `CObjCell::FindCells` · 0047bb40 · legions 00475c70 — outdoor land cells only; touching env cells not followed
 - [ ] `CObjCell::FindCellsLocal` · 0047bbd0 · legions 00475d00
 - [ ] `CObjCell::FindCellsLocal` · 0047bcb0 · legions 00475de0
-- [ ] `CObjCell::FindCells` · 0047bd90 · legions 00475ec0
+- [~] `CObjCell::FindCells` · 0047bd90 · legions 00475ec0 — outdoor land cells only; touching env cells not followed
 - [ ] `CObjCell::LOSCheck` · 0047be70 · legions 00475fa0
 
 ### _STL::pair<ICPhysicsObj_*,BBox>
