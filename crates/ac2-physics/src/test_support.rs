@@ -135,8 +135,8 @@ pub(crate) fn body_animation() -> crate::anim_rep::BodyAnimation {
     use std::collections::HashMap;
 
     use ac2_anim::{
-        Ac2Animation, Ac2BehaviorInfo, Ac2BehaviorTable, Ac2CharTemplate, Ac2ComboInfo,
-        Ac2ModeTransition, Ac2MotionAnimator,
+        Ac2AnimAsset, Ac2AssetBone, Ac2BehaviorInfo, Ac2BehaviorTable, Ac2CharTemplate,
+        Ac2ComboInfo, Ac2DbAnimator, Ac2ModeTransition,
     };
 
     use crate::motion_interp::{ELEMENT_AIR, ELEMENT_GROUND};
@@ -193,15 +193,23 @@ pub(crate) fn body_animation() -> crate::anim_rep::BodyAnimation {
         default_element: ELEMENT_GROUND,
         default_mode: MODE_DEFAULT,
     };
-    let clip = || {
-        Arc::new(Ac2MotionAnimator::from_clip(Ac2Animation {
+    let clip = |x: f32| {
+        Arc::new(Ac2DbAnimator::Asset(Arc::new(Ac2AnimAsset {
             period: 1.0,
-            bones: Arc::from(Vec::new()),
-        }))
+            bones: vec![Ac2AssetBone {
+                scale: vec![([1.0; 3], 0.0)],
+                offset: vec![([x, 0.0, 0.0], 0.0)],
+                rotation: vec![([1.0, 0.0, 0.0, 0.0], 0.0)],
+                weight: vec![(1.0, 0.0)],
+            }],
+            info: None,
+        })))
     };
     crate::anim_rep::BodyAnimation {
         table: Arc::new(table),
         template: Arc::new(template),
-        animators: HashMap::from([(1, clip()), (2, clip())]),
+        animators: HashMap::from([(1, clip(0.25)), (2, clip(0.5))]),
+        setup: None,
+        vdesc_scale: [1.0; 3],
     }
 }

@@ -288,6 +288,13 @@ impl PhysicsBody {
         self.object.anim.modes.is_doing_behavior(behavior)
     }
 
+    /// The body's bones posed by the last animation step, in model space (relative to the
+    /// body's frame, AC axes); the Setup rest pose before the first step, empty without a
+    /// Setup. Part `i` of the Setup is drawn with bone `i`'s transform.
+    pub fn posed_parts(&self) -> Vec<ac2_anim::Ac2Transform> {
+        self.object.posed_parts()
+    }
+
     /// The behaviour callbacks and FX the animation raised since the last call, in order.
     pub fn take_animation_events(&mut self) -> Vec<Ac2AnimEvent> {
         self.object.take_animation_events()

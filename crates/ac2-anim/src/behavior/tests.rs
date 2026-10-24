@@ -21,7 +21,7 @@ struct Source {
 }
 
 impl Ac2AnimationSource for Source {
-    fn combo_cvel(&self, combo: Ac2ComboInfo) -> f32 {
+    fn combo_cvel(&self, _tracker: crate::Ac2TrackerState, combo: Ac2ComboInfo) -> f32 {
         if combo.anim_key == 99 {
             0.0
         } else {
@@ -29,7 +29,11 @@ impl Ac2AnimationSource for Source {
         }
     }
 
-    fn hold_loop(&self, _combo: Ac2ComboInfo) -> Option<(f32, f32)> {
+    fn hold_loop(
+        &self,
+        _tracker: crate::Ac2TrackerState,
+        _combo: Ac2ComboInfo,
+    ) -> Option<(f32, f32)> {
         None
     }
 }

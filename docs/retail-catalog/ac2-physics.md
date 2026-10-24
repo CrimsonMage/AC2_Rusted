@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 185 done, 44 partial, 1833 to do, 62 skipped.
+2124 retail functions: 190 done, 46 partial, 1826 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (0/9)
@@ -1988,7 +1988,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [x] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
-## `portal/shared/src/physobj/partarray.cpp.c` (2/72)
+## `portal/shared/src/physobj/partarray.cpp.c` (3/72)
 
 ### CPartArray
 - [ ] `CPartArray::SetOwnerID` · 004edfc0 · legions 004e0930
@@ -2067,14 +2067,14 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartArray::DestroyAnimCache` · 004f0710 · legions 004e3040
 - [ ] `CPartArray::Destroy` · 004f0900 · legions 004e3230
 - [x] `CPartArray::GetComboCVel` · 004f0a10 · legions 004e3340 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-- [ ] `CPartArray::GetHoldLocations` · 004f0a80 · legions 004e33b0
-- [ ] `CPartArray::AddAnimation` · 004f0af0 · legions 004e3420
+- [x] `CPartArray::GetHoldLocations` · 004f0a80 · legions 004e33b0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [~] `CPartArray::AddAnimation` · 004f0af0 · legions 004e3420 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 - [ ] `CPartArray::CPartArray` · 004f0c10 · legions 004e3540
 - [ ] `CPartArray::SetColor` · 004f0d10 · legions 004e3640
 - [ ] `CPartArray::~CPartArray` · 004f0d40 · legions 004e3670
-- [ ] `CPartArray::DoAnimation` · 004f0de0 · legions 004e3710
+- [~] `CPartArray::DoAnimation` · 004f0de0 · legions 004e3710 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 
-## `portal/shared/src/physobj/partgroup.cpp.c` (1/44)
+## `portal/shared/src/physobj/partgroup.cpp.c` (2/44)
 
 ### CPartGroup
 - [ ] `CPartGroup::InitSetup` · 004f45e0 · legions 004e6e00
@@ -2088,7 +2088,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartGroup::RemoveChild` · 004f48d0 · legions 004e70f0
 - [ ] `CPartGroup::GetPartGroup` · 004f4980 · legions 004e71a0
 - [ ] `CPartGroup::GetTransitionGTime` · 004f49d0 · legions 004e71f0
-- [ ] `CPartGroup::DoAnimation` · 004f4a40 · legions 004e7260
+- [x] `CPartGroup::DoAnimation` · 004f4a40 · legions 004e7260 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [~] `CPartGroup::GetComboCVel` · 004f4aa0 · legions 004e72c0 — ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
 - [ ] `CPartGroup::GetHoldLocations` · 004f4b20 · legions 004e7340
 - [ ] `CPartGroup::SetParentConnection` · 004f4bb0 · legions 004e73d0
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [ ] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (52/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (53/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2338,7 +2338,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::IsMoving` · 004e07e0
 - [ ] `CPhysicsObj::set_missile_velocity` · 004e0820
 - [ ] `CPhysicsObj::set_omega_velocity` · 004e0860
-- [ ] `CPhysicsObj::set_local_velocity` · 004e0890 · legions 004d32f0
+- [x] `CPhysicsObj::set_local_velocity` · 004e0890 · legions 004d32f0 — ac2-physics anim_pose fire_impulse
 - [ ] `CPhysicsObj::set_local_omega_velocity` · 004e08d0
 - [ ] `CPhysicsObj::get_distance_to_position` · 004e0950
 - [ ] `CPhysicsObj::get_distance_to_object` · 004e09a0
@@ -2503,7 +2503,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::AreShadowObjectsComplete` · 004e4360 · legions 004d6db0
 - [x] `CPhysicsObj::set_on_walkable` · 004e43b0 · legions 004d6e00 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [ ] `CPhysicsObj::SetPlacementFrame` · 004e4410
-- [~] `CPhysicsObj::set_velocity` · 004e4430 — only the zero velocity of OBJECTINFO::kill_velocity
+- [~] `CPhysicsObj::set_velocity` · 004e4430 — the F_EPSILON change test and CullVelocity in anim_pose fire_impulse; kill_velocity and PhysicsBody::set_velocity assign directly
 - [x] `CPhysicsObj::set_heading` · 004e44e0
 - [ ] `CPhysicsObj::SetParent` · 004e4580
 - [ ] `CPhysicsObj::TopParent` · 004e4590
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40
 - [~] `CPhysicsObj::RecvEvt_Position` · 004ed470 — stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (17/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (19/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0
@@ -2815,9 +2815,9 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::GetConstraintFactor` · 004f1a20
 - [ ] `PHYSICSOBJREP::GetLocalVelocity` · 004f1a40
 - [ ] `PHYSICSOBJREP::GetTransitionCVel` · 004f1a70 · legions 004e43a0
-- [ ] `PHYSICSOBJREP::DoAnimation` · 004f1ad0
+- [x] `PHYSICSOBJREP::DoAnimation` · 004f1ad0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [x] `PHYSICSOBJREP::GetComboCVel` · 004f1b00 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-- [~] `PHYSICSOBJREP::GetHoldLocations` · 004f1b90 — ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+- [x] `PHYSICSOBJREP::GetHoldLocations` · 004f1b90 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [~] `PHYSICSOBJREP::SetupSliderTracker` · 004f1c40 · legions 004e4540 — ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
 - [ ] `PHYSICSOBJREP::SetupFXScriptTracker` · 004f1cb0 · legions 004e45b0
 - [x] `PHYSICSOBJREP::SetupModeTracker` · 004f1d10 · legions 004e4610 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -2915,7 +2915,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::GetBaseSetupName` · 004f3460
 - [ ] `PHYSICSOBJREP::ApplyStartupFX` · 004f3510 · legions 004e5d70
 - [ ] `PHYSICSOBJREP::InitInternal` · 004f35f0 · legions 004e5ee0
-- [ ] `PHYSICSOBJREP::SetupCompositor` · 004f36a0 · legions 004e5f90
+- [~] `PHYSICSOBJREP::SetupCompositor` · 004f36a0 · legions 004e5f90 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 
 ### HashTable<ModeStateKey,int>
 - [ ] `HashTable<ModeStateKey,int>::operator=` · 004f3800 · legions 0063bed0

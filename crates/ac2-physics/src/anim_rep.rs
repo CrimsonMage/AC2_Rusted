@@ -1,13 +1,15 @@
 //! The animation half of `PHYSICSOBJREP`: its `ModeTracker` (over the body's behaviour table),
-//! its `SliderTracker`, and the `AnimationObj` answers (`GetComboCVel` from the animator each
-//! anim key plays) the trackers ask for.
+//! its `SliderTracker`, the `DBAnimator` each anim key plays, and the `AnimationObj` answers
+//! (`GetComboCVel`, `GetHoldLocations`, `GetSliderCurrentValue`) the trackers and animators ask
+//! for.
 
 use std::collections::HashMap;
 use std::sync::Arc;
 
 use ac2_anim::{
-    Ac2AnimEvent, Ac2AnimationSource, Ac2BehaviorTable, Ac2CharTemplate, Ac2ComboInfo,
-    Ac2ModeTracker, Ac2MotionAnimator, Ac2SliderTracker,
+    Ac2AnimEvent, Ac2AnimationSource, Ac2AnimatorContext, Ac2BehaviorTable, Ac2BoneTransform,
+    Ac2CharTemplate, Ac2ComboInfo, Ac2DbAnimator, Ac2ModeTracker, Ac2Setup, Ac2SliderTracker,
+    Ac2TrackerState,
 };
 
 use crate::fpu::{ld, st};
@@ -15,39 +17,73 @@ use crate::motion_interp::{ELEMENT_GROUND, MODE_DEFAULT};
 use crate::motion_interp_behaviors::MotionRep;
 
 /// What a body animates with: its behaviour table (`VisualDesc` behaviour table DID, DB
-/// 0x40000040), the `CharTemplate` (0x2F000000) and the animator each of the table's anim keys
-/// plays through the body's `AnimMap`.
+/// 0x40000040), the `CharTemplate` (0x2F000000), the animator each of the table's anim keys
+/// plays through the body's `AnimMap`, and the Setup whose bones the animators pose.
 #[derive(Debug, Clone)]
 pub struct BodyAnimation {
     pub table: Arc<Ac2BehaviorTable>,
     pub template: Arc<Ac2CharTemplate>,
-    pub animators: HashMap<u32, Arc<Ac2MotionAnimator>>,
+    pub animators: HashMap<u32, Arc<Ac2DbAnimator>>,
+    pub setup: Option<Arc<Ac2Setup>>,
+    /// `PHYSICSOBJREP::m_scale` (`GetVdescScale`).
+    pub vdesc_scale: [f32; 3],
 }
 
 #[derive(Debug, Clone)]
 pub(crate) struct AnimRep {
     pub(crate) modes: Ac2ModeTracker,
     pub(crate) sliders: Ac2SliderTracker,
-    animators: Arc<HashMap<u32, Arc<Ac2MotionAnimator>>>,
+    pub(crate) animators: Arc<HashMap<u32, Arc<Ac2DbAnimator>>>,
+    pub(crate) table: Option<Arc<Ac2BehaviorTable>>,
+    pub(crate) setup: Option<Arc<Ac2Setup>>,
+    pub(crate) vdesc_scale: [f32; 3],
+    /// The bone `TransformBase`s of the last `DoAnimation`.
+    pub(crate) bones: Vec<Ac2BoneTransform>,
     player: bool,
     events: Vec<Ac2AnimEvent>,
 }
 
-/// `PHYSICSOBJREP` as the trackers' `AnimationObj`.
-pub(crate) struct RepSource<'a> {
-    animators: &'a HashMap<u32, Arc<Ac2MotionAnimator>>,
-    sliders: &'a [(u32, f32)],
+/// `PHYSICSOBJREP` as the trackers' `AnimationObj`: animator periods at the current slider
+/// values.
+struct RepSource<'a> {
+    animators: &'a HashMap<u32, Arc<Ac2DbAnimator>>,
+    sliders: &'a Ac2SliderTracker,
     player: bool,
 }
 
+/// The read-only `AnimationObj` view animator periods need (sliders only).
+struct SliderView<'a>(&'a Ac2SliderTracker);
+
+impl Ac2AnimatorContext for SliderView<'_> {
+    fn slider(&self, slider: u32) -> f32 {
+        self.0.value(slider)
+    }
+    fn do_slider(&mut self, _slider: u32, _pos: f32, _time: f32) {}
+    fn anim_velocity(&self) -> [f32; 3] {
+        [0.0; 3]
+    }
+    fn effects_scale(&self) -> [f32; 3] {
+        [1.0; 3]
+    }
+    fn vdesc_scale(&self) -> [f32; 3] {
+        [1.0; 3]
+    }
+    fn omega(&self) -> [f32; 3] {
+        [0.0; 3]
+    }
+    fn terrain_type(&self) -> u32 {
+        0
+    }
+}
+
 impl Ac2AnimationSource for RepSource<'_> {
-    /// `CPartArray::GetComboCVel`: the inverse of the animator's period at the current slider
-    /// values (0 without an animator or with a zero period).
-    fn combo_cvel(&self, combo: Ac2ComboInfo) -> f32 {
+    /// `PHYSICSOBJREP::GetComboCVel` -> `CPartArray::GetComboCVel`: the inverse of the
+    /// animator's period (0 without an animator or with a zero period).
+    fn combo_cvel(&self, tracker: Ac2TrackerState, combo: Ac2ComboInfo) -> f32 {
         let Some(animator) = self.animators.get(&combo.anim_key) else {
             return 0.0;
         };
-        let period = animator.blend(self.sliders).period();
+        let period = animator.period(&SliderView(self.sliders), tracker);
         if period == 0.0 {
             0.0
         } else {
@@ -55,9 +91,12 @@ impl Ac2AnimationSource for RepSource<'_> {
         }
     }
 
-    /// `CPartArray::GetHoldLocations`: the `AnimInfo` hold loop is not decoded.
-    fn hold_loop(&self, _combo: Ac2ComboInfo) -> Option<(f32, f32)> {
-        None
+    /// `PHYSICSOBJREP::GetHoldLocations` (a loop of 0 to 0 is none).
+    fn hold_loop(&self, tracker: Ac2TrackerState, combo: Ac2ComboInfo) -> Option<(f32, f32)> {
+        self.animators
+            .get(&combo.anim_key)?
+            .hold_loop(&SliderView(self.sliders), tracker)
+            .filter(|&(start, end)| start != 0.0 || end != 0.0)
     }
 
     fn is_the_player(&self) -> bool {
@@ -77,6 +116,10 @@ impl AnimRep {
             modes: Ac2ModeTracker::new(template),
             sliders: Ac2SliderTracker::new(),
             animators: Arc::new(HashMap::new()),
+            table: None,
+            setup: None,
+            vdesc_scale: [1.0; 3],
+            bones: Vec::new(),
             player: true,
             events: Vec::new(),
         }
@@ -88,21 +131,16 @@ impl AnimRep {
             modes: Ac2ModeTracker::new(animation.template),
             sliders: Ac2SliderTracker::new(),
             animators: Arc::new(animation.animators),
+            table: Some(Arc::clone(&animation.table)),
+            setup: animation.setup,
+            vdesc_scale: animation.vdesc_scale,
+            bones: Vec::new(),
             player,
             events: Vec::new(),
         };
-        let source = rep.source_parts();
         let table = Some(animation.table);
-        rep.modes.init(table, &source.as_source());
+        rep.with_modes(|modes, source| modes.init(table, source));
         rep
-    }
-
-    fn source_parts(&self) -> SourceParts {
-        SourceParts {
-            animators: Arc::clone(&self.animators),
-            sliders: self.sliders.values(),
-            player: self.player,
-        }
     }
 
     pub(crate) fn is_player(&self) -> bool {
@@ -118,8 +156,11 @@ impl AnimRep {
         &mut self,
         call: impl FnOnce(&mut Ac2ModeTracker, &dyn Ac2AnimationSource) -> R,
     ) -> R {
-        let parts = self.source_parts();
-        let source = parts.as_source();
+        let source = RepSource {
+            animators: &self.animators,
+            sliders: &self.sliders,
+            player: self.player,
+        };
         let result = call(&mut self.modes, &source);
         self.events.extend(self.modes.take_events());
         result
@@ -136,30 +177,12 @@ impl AnimRep {
         self.events.extend(self.sliders.take_events());
     }
 
-    /// `PHYSICSOBJREP::UpdateAnimation` (`ModeTracker::Update`).
-    pub(crate) fn update_animation(&mut self, quantum: f32) {
-        self.with_modes(|modes, source| modes.update(quantum, source));
+    pub(crate) fn push_events(&mut self, events: impl IntoIterator<Item = Ac2AnimEvent>) {
+        self.events.extend(events);
     }
 
     pub(crate) fn take_events(&mut self) -> Vec<Ac2AnimEvent> {
         std::mem::take(&mut self.events)
-    }
-}
-
-/// The owned inputs of a [`RepSource`] (so the mode tracker can be borrowed mutably).
-struct SourceParts {
-    animators: Arc<HashMap<u32, Arc<Ac2MotionAnimator>>>,
-    sliders: Vec<(u32, f32)>,
-    player: bool,
-}
-
-impl SourceParts {
-    fn as_source(&self) -> RepSource<'_> {
-        RepSource {
-            animators: &self.animators,
-            sliders: &self.sliders,
-            player: self.player,
-        }
     }
 }
 
@@ -187,45 +210,5 @@ impl MotionRep for AnimRep {
     /// `PHYSICSOBJREP::DoFX`: queued for the FX manager.
     fn do_fx(&mut self, fx: u32, intensity: f32) {
         self.events.push(Ac2AnimEvent::StartFx { fx, intensity });
-    }
-}
-
-impl crate::physics_obj::PhysicsObj {
-    /// `CPhysicsObj::UpdateAnimation` for an object updated every animation tick (the player;
-    /// the distance-degraded step, look-at, FX scripts and triggers are not modelled): the
-    /// slider tracker, the half-step of local acceleration added to the animation velocity, then
-    /// `ModeTracker::Update` when the body has a behaviour table.
-    pub(crate) fn update_animation(&mut self, quantum: f32) {
-        self.anim.update_sliders(quantum);
-        let a = self.position.frame.global_to_local_vec(self.acceleration);
-        let q = ld(quantum);
-        let half = ld(0.5_f32);
-        let cz = ld(st(ld(a.z) * half));
-        let ax1 = ld(st(ld(a.x) * half * q));
-        let by = ld(a.y) * half * q;
-        let ax = st(ax1 * q);
-        let ay = st(by * q);
-        let az = cz * q * q;
-        let v = self.anim_velocity;
-        self.anim_velocity = crate::vector::Vector::new(
-            st(ld(ax) + ld(v.x)),
-            st(ld(ay) + ld(v.y)),
-            st(az + ld(v.z)),
-        );
-        if self.anim.can_animate() {
-            self.anim.update_animation(quantum);
-            self.sync_mode();
-        }
-    }
-
-    /// Installs the body's behaviour table (`PHYSICSOBJREP::SetupModeTracker`), keeping its
-    /// current element as the desired one.
-    pub(crate) fn set_animation(&mut self, animation: BodyAnimation, player: bool) {
-        self.anim = AnimRep::new(animation, player);
-        self.sync_mode();
-    }
-
-    pub(crate) fn take_animation_events(&mut self) -> Vec<Ac2AnimEvent> {
-        self.anim.take_events()
     }
 }

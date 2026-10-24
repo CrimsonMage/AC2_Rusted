@@ -7,6 +7,9 @@
 //! Positions are retail `Position`s: a cell id and a frame in AC axes (z up) relative to the
 //! cell's landblock. Arithmetic follows the retail x87 model (see `fpu`).
 
+mod anim_pose;
+#[cfg(test)]
+mod anim_real_data_tests;
 mod anim_rep;
 mod body;
 mod bsp;
@@ -22,6 +25,7 @@ mod frame;
 mod heading;
 mod landdefs;
 mod loader;
+mod loader_anim;
 mod motion_interp;
 mod motion_interp_behaviors;
 mod objects;
@@ -58,6 +62,7 @@ pub use loader::{
     load_block_interiors, load_block_objects, load_body_shape, load_object_shape,
     load_terrain_block,
 };
+pub use loader_anim::load_body_animation;
 pub use motion_interp::MotionInterp;
 pub use objects::{BBox, ObjectShape, StaticObject};
 pub use physics_obj::BodyShape;

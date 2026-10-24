@@ -278,3 +278,40 @@ fn walking_plays_the_move_behaviour_and_standing_stops_it() {
         body.movement_state()
     );
 }
+
+#[test]
+fn the_posed_bone_follows_the_playing_behaviours() {
+    use ac2_anim::{Ac2Bone, Ac2PlacementFrame, Ac2Setup, Ac2Transform};
+    use std::sync::Arc;
+
+    let ground = terrain(|_, _| 50.0);
+    let mut body = body_at(70.0, 30.0, 50.0);
+    let mut animation = crate::test_support::body_animation();
+    animation.setup = Some(Arc::new(Ac2Setup {
+        meshes: Arc::from(Vec::new()),
+        bones: Arc::from(vec![Ac2Bone {
+            parent: None,
+            name: 0,
+        }]),
+        placements: Arc::from(vec![Ac2PlacementFrame {
+            kind: 0,
+            bones: Arc::from(vec![Ac2Transform::IDENTITY]),
+        }]),
+        holding_points: Arc::from(Vec::new()),
+        connection_points: Arc::from(Vec::new()),
+        bounds_min: ac2_math::Vec3::ZERO,
+        bounds_max: ac2_math::Vec3::ZERO,
+    }));
+    body.set_animation(animation);
+    assert_eq!(
+        body.posed_parts()[0].offset.x,
+        0.0,
+        "rest pose before animating"
+    );
+    run_animated(&mut body, &ground, 0.5);
+    assert_eq!(body.posed_parts()[0].offset.x, 0.25, "idle clip");
+    body.do_motion([0.0, 1.0, 0.0]);
+    run_animated(&mut body, &ground, 1.0);
+    // The move layer (1) sits above idle (0) and takes the bone once fully ramped in.
+    assert_eq!(body.posed_parts()[0].offset.x, 0.5);
+}

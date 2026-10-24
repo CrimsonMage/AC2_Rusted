@@ -8,6 +8,7 @@ use super::{Ac2AnimEvent, Env};
 use crate::behavior_table::{
     Ac2ComboInfo, AC2_BEHAVIOR_ACTION, AC2_BEHAVIOR_DYNAMIC_FP_CAMERA, AC2_BEHAVIOR_HOLD,
 };
+use crate::dbanimator::Ac2TrackerState;
 
 /// The locomotion behaviour `Update` watches (`mIsPlayingMove`).
 pub const AC2_BEHAVIOR_MOVE: u32 = 0x4000_0001;
@@ -92,8 +93,16 @@ impl Ac2BehaviorTracker {
     }
 
     /// `AnimationObj::GetComboCVel` through the table: 0 for an invalid combo.
-    fn combo_cvel(env: &Env, combo: Option<Ac2ComboInfo>) -> f32 {
-        combo.map_or(0.0, |combo| env.source.combo_cvel(combo))
+    fn combo_cvel(&self, env: &Env, combo: Option<Ac2ComboInfo>) -> f32 {
+        combo.map_or(0.0, |combo| env.source.combo_cvel(self.state(), combo))
+    }
+
+    /// The element and mode animators switch on.
+    pub(crate) fn state(&self) -> Ac2TrackerState {
+        Ac2TrackerState {
+            element: self.element,
+            mode: self.mode,
+        }
     }
 
     /// `BehaviorTracker::SendAndClearCallback`.
@@ -179,7 +188,7 @@ impl Ac2BehaviorTracker {
                         Self::send_and_clear_callback(env, old, ERROR_INTERRUPTED);
                     }
                     Some(combo) => {
-                        track.ctime_vel = env.source.combo_cvel(combo);
+                        track.ctime_vel = env.source.combo_cvel(self.state(), combo);
                         if track.ctime_vel == 0.0 {
                             self.process_ramping_down_param_flags(env, old);
                             if old.params.lock_actions {
@@ -211,7 +220,7 @@ impl Ac2BehaviorTracker {
             let Some(combo) = env.table.combo_info(element, mode, behavior) else {
                 continue;
             };
-            let cvel = env.source.combo_cvel(combo);
+            let cvel = env.source.combo_cvel(self.state(), combo);
             if cvel == 0.0 {
                 continue;
             }
@@ -276,7 +285,7 @@ impl Ac2BehaviorTracker {
         let Some(combo) = self.combo(env, behavior) else {
             return refuse(env, params.context, ERROR_INVALID_COMBO);
         };
-        let cvel = env.source.combo_cvel(combo);
+        let cvel = env.source.combo_cvel(self.state(), combo);
         if cvel == 0.0 {
             return refuse(env, params.context, ERROR_NO_ANIMATION);
         }
@@ -306,7 +315,7 @@ impl Ac2BehaviorTracker {
         track.is_dynamic_fp_camera = flags & AC2_BEHAVIOR_DYNAMIC_FP_CAMERA != 0;
         Self::process_param_flags(env, &track);
         if track.is_hold {
-            match env.source.hold_loop(combo) {
+            match env.source.hold_loop(self.state(), combo) {
                 Some((start, end)) if start != 0.0 || end != 0.0 => {
                     track.loop_start = start;
                     track.loop_end = end;
@@ -455,7 +464,7 @@ impl Ac2BehaviorTracker {
             let Some(mut track) = self.tracks.get(behavior).cloned() else {
                 continue;
             };
-            track.ctime_vel = Self::combo_cvel(env, combo);
+            track.ctime_vel = self.combo_cvel(env, combo);
             track.update(quantum);
             if track.is_hold && track.params.hold_cycles <= track.repeats {
                 Self::send_and_clear_callback(env, &mut track, 0);

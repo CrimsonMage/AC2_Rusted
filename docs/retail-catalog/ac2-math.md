@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 90 done, 10 partial, 287 to do, 39 skipped.
+426 retail functions: 92 done, 10 partial, 285 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -568,14 +568,14 @@ Legend and workflow: [README](README.md).
 - [ ] `SphPlaneCone::Intersects` · 007379a0 · legions 006b3560
 - [ ] `SphPlaneCone::StreamPack` · 00737bd0 · legions 006b3790
 
-## `portal/shared/src/geometry/transform.cpp.c` (0/13)
+## `portal/shared/src/geometry/transform.cpp.c` (2/13)
 
 ### TransformBase
 - [ ] `TransformBase::GetPackSize` · 00624ed0 · legions 005e0130
 - [ ] `TransformBase::Pack` · 00624ee0 · legions 005e0140
 - [ ] `TransformBase::SetFrame` · 00624f60 · legions 005e01c0
-- [ ] `TransformBase::AddWeightedTransform` · 00624fb0 · legions 005e0210
-- [ ] `TransformBase::WeightTransform` · 00625070 · legions 005e02d0
+- [x] `TransformBase::AddWeightedTransform` · 00624fb0 · legions 005e0210 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [x] `TransformBase::WeightTransform` · 00625070 · legions 005e02d0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `TransformBase::NormalizeEvenInvalid` · 00625110 · legions 005e0370
 - [ ] `TransformBase::FillMatrix` · 00625190 · legions 005e03f0
 

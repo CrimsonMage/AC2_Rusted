@@ -1,6 +1,6 @@
 # ac2-anim: Animation system
 
-532 retail functions: 50 done, 11 partial, 435 to do, 36 skipped.
+532 retail functions: 83 done, 17 partial, 396 to do, 36 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/anim/charactersetup.cpp.c` (0/67)
@@ -149,37 +149,37 @@ Legend and workflow: [README](README.md).
 - [ ] `Animator::FromFile` · 0068ed70
 - [ ] `Animator::SaveToFile` · 0068f1a0
 
-## `portal/shared/src/animsys/animblender.cpp.c` (0/4)
+## `portal/shared/src/animsys/animblender.cpp.c` (3/4)
 
 ### AnimBlender
-- [ ] `AnimBlender::Animate` · 0068fde0 · legions 00630960
+- [x] `AnimBlender::Animate` · 0068fde0 · legions 00630960 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `AnimBlender::~AnimBlender` · 00690040 · legions 00630bc0
-- [ ] `AnimBlender::SetNumAnimations` · 00690090 · legions 00630c10
-- [ ] `AnimBlender::AddAnimation` · 006900c0 · legions 00630c40
+- [x] `AnimBlender::SetNumAnimations` · 00690090 · legions 00630c10 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [x] `AnimBlender::AddAnimation` · 006900c0 · legions 00630c40 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 
-## `portal/shared/src/animsys/animcompositor.cpp.c` (0/7)
+## `portal/shared/src/animsys/animcompositor.cpp.c` (3/7)
 
 ### AnimCompositor
 - [ ] `AnimCompositor::Destroy` · 0068b6c0 · legions 0062c6f0
-- [ ] `AnimCompositor::Clear` · 0068b730 · legions 0062c760
-- [ ] `AnimCompositor::AddAnimation` · 0068b770 · legions 0062c7a0
-- [ ] `AnimCompositor::Init` · 0068b7a0 · legions 0062c7d0
-- [ ] `AnimCompositor::Animate` · 0068b890 · legions 0062c8c0
+- [x] `AnimCompositor::Clear` · 0068b730 · legions 0062c760 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [x] `AnimCompositor::AddAnimation` · 0068b770 · legions 0062c7a0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [~] `AnimCompositor::Init` · 0068b7a0 · legions 0062c7d0 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+- [x] `AnimCompositor::Animate` · 0068b890 · legions 0062c8c0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `AnimCompositor::~AnimCompositor` · 0068bad0 · legions 0062cb00
 - [ ] `AnimCompositor::AnimCompositor` · 0068bb40 · legions 0062cb70
 
-## `portal/shared/src/animsys/animinfo.cpp.c` (0/12)
+## `portal/shared/src/animsys/animinfo.cpp.c` (2/12)
 
 ### BaseList<unsigned_long,11>
 - [ ] `BaseList<unsigned_long,11>::GetReferences` · 00739420 · legions 006b4f60
 
 ### AnimInfo
-- [ ] `AnimInfo::GetHoldLoop` · 00739430 · legions 006b4f70
-- [ ] `AnimInfo::StreamPack` · 00739460 · legions 006b4fa0
+- [x] `AnimInfo::GetHoldLoop` · 00739430 · legions 006b4f70 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [x] `AnimInfo::StreamPack` · 00739460 · legions 006b4fa0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `AnimInfo::ParseLoopNode` · 007397a0
 - [ ] `AnimInfo::ParseComboAttackNode` · 00739990 · legions 006b5570
 - [-] `AnimInfo::ToFileNode` · 00739a90 · legions 006b5670 — text source format (admin tools)
-- [ ] `AnimInfo::GetTriggers` · 0073ab60 · legions 006b6db0
+- [~] `AnimInfo::GetTriggers` · 0073ab60 · legions 006b6db0 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 - [ ] `AnimInfo::ParseImpulseNode` · 0073b010
 - [ ] `AnimInfo::ParseEffectsNode` · 0073b320
 - [ ] `AnimInfo::ParseStopEffectsNode` · 0073b860
@@ -246,7 +246,7 @@ Legend and workflow: [README](README.md).
 ### AMAngle
 - [ ] `AMAngle::CopyMe` · 00693470
 
-## `portal/shared/src/animsys/animmodules/amhuman.cpp.c` (0/13)
+## `portal/shared/src/animsys/animmodules/amhuman.cpp.c` (3/13)
 
 ### AMHuman
 - [ ] `AMHuman::AMHuman` · 00694960 · legions 006349f0
@@ -257,12 +257,12 @@ Legend and workflow: [README](README.md).
 ### AMHuman
 - [ ] `AMHuman::HasAnimator` · 006949a0
 - [ ] `AMHuman::CheckAnimationBoneNum` · 00694a10
-- [ ] `AMHuman::GetPeriod` · 00694a80
+- [x] `AMHuman::GetPeriod` · 00694a80 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `AMHuman::CopyMe` · 00694af0
 - [ ] `AMHuman::Destroy` · 00694b30 · legions 00634b70
-- [ ] `AMHuman::GetTriggers` · 00694b50
+- [x] `AMHuman::GetTriggers` · 00694b50 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `AMHuman::StreamPack` · 00694bd0
-- [ ] `AMHuman::Animate` · 00694c00
+- [x] `AMHuman::Animate` · 00694c00 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `AMHuman::DataToFileNode` · 00695020
 - [ ] `AMHuman::GetRecursiveSubDataIDs` · 006950e0
 - [ ] `AMHuman::DataFromFileNode` · 00695170
@@ -292,10 +292,10 @@ Legend and workflow: [README](README.md).
 - [ ] `AMRandom::CopyMe` · 00691590
 - [ ] `AMRandom::DataFromFileNode` · 00691610
 
-## `portal/shared/src/animsys/animmodules/amswitchme.cpp.c` (0/16)
+## `portal/shared/src/animsys/animmodules/amswitchme.cpp.c` (6/16)
 
 ### AMSwitchME
-- [ ] `AMSwitchME::StreamPack` · 006934c0 · legions 00633630
+- [x] `AMSwitchME::StreamPack` · 006934c0 · legions 00633630 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `AMSwitchME::GetSubDataIDs` · 00693560
 - [ ] `AMSwitchME::CheckAnimationBoneNum` · 006935d0
 - [ ] `AMSwitchME::DataToFileNode` · 00693700
@@ -303,16 +303,16 @@ Legend and workflow: [README](README.md).
 - [ ] `AMSwitchME::Destroy` · 00693b50 · legions 00633c30
 - [ ] `AMSwitchME::HasAnimator` · 00693c20
 - [ ] `AMSwitchME::~AMSwitchME` · 00693f70 · legions 00634020
-- [ ] `AMSwitchME::GetAnimator` · 00694000 · legions 006340b0
-- [ ] `AMSwitchME::GetPeriod` · 00694120 · legions 006341b0
+- [x] `AMSwitchME::GetAnimator` · 00694000 · legions 006340b0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [x] `AMSwitchME::GetPeriod` · 00694120 · legions 006341b0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `AMSwitchME::DataFromFileNode` · 00694150
-- [ ] `AMSwitchME::GetTriggers` · 00694770 · legions 00634800
-- [ ] `AMSwitchME::GetHoldLoop` · 006947a0 · legions 00634830
-- [ ] `AMSwitchME::Animate` · 00694880 · legions 00634910
+- [x] `AMSwitchME::GetTriggers` · 00694770 · legions 00634800 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [x] `AMSwitchME::GetHoldLoop` · 006947a0 · legions 00634830 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [x] `AMSwitchME::Animate` · 00694880 · legions 00634910 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `AMSwitchME::AMSwitchME` · 006948c0 · legions 00634950
 - [ ] `AMSwitchME::CopyMe` · 00694910
 
-## `portal/shared/src/animsys/animmodules/animasset.cpp.c` (0/53)
+## `portal/shared/src/animsys/animmodules/animasset.cpp.c` (6/53)
 
 ### AnimAssetOffsetKey
 - [ ] `AnimAssetOffsetKey::AnimAssetOffsetKey` · 00698830
@@ -325,9 +325,9 @@ Legend and workflow: [README](README.md).
 
 ### AnimAsset
 - [ ] `AnimAsset::Destroy` · 00698860 · legions 006374d0
-- [ ] `AnimAsset::GetPeriod` · 00698920
-- [ ] `AnimAsset::GetTriggers` · 00698930
-- [ ] `AnimAsset::GetHoldLoop` · 00698990
+- [x] `AnimAsset::GetPeriod` · 00698920 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [x] `AnimAsset::GetTriggers` · 00698930 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [x] `AnimAsset::GetHoldLoop` · 00698990 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 
 ### AnimAssetScaleKey
 - [ ] `AnimAssetScaleKey::AnimAssetScaleKey` · 00698cb0
@@ -336,7 +336,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AnimAsset::AnimAsset` · 00698cc0 · legions 00637930
 
 ### KeyframeLookupTable<AnimAssetScaleKey>
-- [ ] `KeyframeLookupTable<AnimAssetScaleKey>::FindLargestLTEQ` · 00698ce0 · legions 00637950
+- [x] `KeyframeLookupTable<AnimAssetScaleKey>::FindLargestLTEQ` · 00698ce0 · legions 00637950 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 
 ### KeyframeLookupTable<AnimAssetQuatKey>
 - [ ] `KeyframeLookupTable<AnimAssetQuatKey>::FindLargestLTEQ` · 00698d80 · legions 006379f0
@@ -367,7 +367,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AnimInfo::~AnimInfo` · 00699340 · legions 00637fb0
 
 ### AnimAsset
-- [ ] `AnimAsset::Animate` · 00699400
+- [x] `AnimAsset::Animate` · 00699400 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `AnimAsset::SetKeyFrame` · 00699990 · legions 00638600
 - [ ] `AnimAsset::SetScaleKeyFrame` · 00699a90 · legions 00638700
 
@@ -408,7 +408,7 @@ Legend and workflow: [README](README.md).
 - [ ] `KeyframeLookupTable<AnimAssetWeightKey>::InitLookupTable` · 0069a9b0 · legions 006393b0
 
 ### AnimAsset
-- [ ] `AnimAsset::StreamPackInternal` · 0069ab70 · legions 00639570
+- [x] `AnimAsset::StreamPackInternal` · 0069ab70 · legions 00639570 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `AnimAsset::SetNumScaleKeys` · 0069aca0 · legions 006396a0
 - [ ] `AnimAsset::SetNumKeyFrames` · 0069ace0 · legions 006396e0
 - [ ] `AnimAsset::ReadBinaryAnim` · 0069ad90 · legions 00639790
@@ -433,7 +433,7 @@ Legend and workflow: [README](README.md).
 - [-] `AnimAsset::ToFileNode` · 0069ba90 — text source format (admin tools)
 - [ ] `AnimAsset::CopyMe` · 0069bbf0
 
-## `portal/shared/src/animsys/animmodules/animcube.cpp.c` (0/22)
+## `portal/shared/src/animsys/animmodules/animcube.cpp.c` (3/22)
 
 ### AnimCube
 - [ ] `AnimCube::FlushCache` · 006965a0 · legions 00636140
@@ -446,13 +446,13 @@ Legend and workflow: [README](README.md).
 - [ ] `AnimCube::GetFromLocalCache` · 006966c0
 - [ ] `AnimCube::AnimCube` · 00696770 · legions 00636290
 - [ ] `AnimCube::Destroy` · 006967b0 · legions 006362d0
-- [ ] `AnimCube::GetAnimatorWeights` · 006967e0 · legions 00636300
+- [x] `AnimCube::GetAnimatorWeights` · 006967e0 · legions 00636300 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `AnimCube::~AnimCube` · 00696a00 · legions 00636520
 - [ ] `AnimCube::GetRecursiveSubDataIDs` · 00696a90
 - [ ] `AnimCube::HasAnimator` · 00696b70
 - [ ] `AnimCube::StreamPack` · 00696ce0 · legions 006367e0
-- [ ] `AnimCube::Animate` · 00696d80
-- [ ] `AnimCube::GetPeriod` · 00696e10
+- [x] `AnimCube::Animate` · 00696d80 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [x] `AnimCube::GetPeriod` · 00696e10 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `AnimCube::GetAnimatorWeights` · 00696ea0
 - [-] `AnimCube::ToFileNode` · 00697180 — text source format (admin tools)
 
@@ -460,7 +460,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AnimCube::SliderAndTickList::SliderAndTickList` · 00697860
 
 ### AnimCube
-- [ ] `AnimCube::GetTriggers` · 00697a20
+- [~] `AnimCube::GetTriggers` · 00697a20 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 
 ### SmartArray<AnimCube::SliderAndTickList>
 - [ ] `SmartArray<AnimCube::SliderAndTickList>::operator=` · 00697ff0 · legions 006372c0
@@ -687,7 +687,7 @@ Legend and workflow: [README](README.md).
 
 ### BehaviorTracker
 - [ ] `BehaviorTracker::Destroy` · 0068c1e0 · legions 0062d210
-- [ ] `BehaviorTracker::AddTriggers` · 0068c290 · legions 0062d2c0
+- [~] `BehaviorTracker::AddTriggers` · 0068c290 · legions 0062d2c0 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 - [ ] `BehaviorTracker::CheckActiveBehaviorsForDynamicFPCamera` · 0068c300 · legions 0062d330
 - [x] `BehaviorTracker::ReleaseBehavior` · 0068c400 · legions 0062d430 — ac2-anim Ac2BehaviorTracker
 - [x] `BehaviorTracker::GetTrack` · 0068c4c0 · legions 0062d4f0 — ac2-anim Ac2BehaviorTracker
@@ -824,16 +824,16 @@ Legend and workflow: [README](README.md).
 ### ComboKey
 - [x] `ComboKey::StreamPack` · 0068eb90 · legions 0062fb50 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 
-## `portal/shared/src/animsys/dbanimator.cpp.c` (0/16)
+## `portal/shared/src/animsys/dbanimator.cpp.c` (4/16)
 
 ### DBAnimator
 - [ ] `DBAnimator::DBAnimator` · 0067a440 · legions 00623ed0
 - [ ] `DBAnimator::GetSubDataIDs` · 0067a460
 - [ ] `DBAnimator::GetRecursiveSubDataIDs` · 0067a470 · legions 00623f00
-- [ ] `DBAnimator::Animate` · 0067a480 · legions 00623f10
-- [ ] `DBAnimator::GetTriggers` · 0067a490 · legions 00623f20
-- [ ] `DBAnimator::GetHoldLoop` · 0067a4a0 · legions 00623f30
-- [ ] `DBAnimator::GetPeriod` · 0067a4b0 · legions 00623f40
+- [x] `DBAnimator::Animate` · 0067a480 · legions 00623f10 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [x] `DBAnimator::GetTriggers` · 0067a490 · legions 00623f20 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [x] `DBAnimator::GetHoldLoop` · 0067a4a0 · legions 00623f30 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [x] `DBAnimator::GetPeriod` · 0067a4b0 · legions 00623f40 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `DBAnimator::Refresh` · 0067a4c0
 - [ ] `DBAnimator::CopyInto` · 0067a4d0
 - [ ] `DBAnimator::Destroy` · 0067a4f0 · legions 00623f80
@@ -917,12 +917,12 @@ Legend and workflow: [README](README.md).
 - [ ] `FXTrack::FXTrack` · 006902d0 · legions 00630e40
 - [ ] `FXTrack::FXTrack` · 00690300 · legions 00630e70
 
-## `portal/shared/src/animsys/impulsetrigger.cpp.c` (0/3)
+## `portal/shared/src/animsys/impulsetrigger.cpp.c` (1/3)
 
 ### ImpulseTrigger
 - [ ] `ImpulseTrigger::operator==` · 00689180 · legions 0062a1a0
 - [ ] `ImpulseTrigger::operator<` · 006891f0 · legions 0062a210
-- [ ] `ImpulseTrigger::StreamPack` · 00689210 · legions 0062a230
+- [x] `ImpulseTrigger::StreamPack` · 00689210 · legions 0062a230 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 
 ## `portal/shared/src/animsys/mode.cpp.c` (0/2)
 
@@ -997,7 +997,7 @@ Legend and workflow: [README](README.md).
 ### SliderTracker
 - [x] `SliderTracker::SliderTracker` · 0068a840 · legions 0062b880 — ac2-anim Ac2SliderTracker
 
-## `portal/shared/src/animsys/trigger.cpp.c` (0/7)
+## `portal/shared/src/animsys/trigger.cpp.c` (1/7)
 
 ### Trigger
 - [ ] `Trigger::operator==` · 00688fa0 · legions 00629fc0
@@ -1006,7 +1006,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Trigger::Trigger` · 00689040 · legions 0062a060
 - [ ] `Trigger::Trigger` · 00689080 · legions 0062a0a0
 - [ ] `Trigger::Trigger` · 006890c0 · legions 0062a0e0
-- [ ] `Trigger::StreamPack` · 00689100
+- [x] `Trigger::StreamPack` · 00689100 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 
 ## `portal/shared/src/animsys/triggerupdate.cpp.c` (0/8)
 
@@ -1014,11 +1014,11 @@ Legend and workflow: [README](README.md).
 - [ ] `TriggerUpdate::StreamPack` · 00689290 · legions 0062a2b0
 - [ ] `TriggerUpdate::IsEmpty` · 006892f0 · legions 0062a310
 - [ ] `TriggerUpdate::AddWeenieHook` · 00689330 · legions 0062a350
-- [ ] `TriggerUpdate::AddImpulseTrigger` · 006893b0 · legions 0062a3d0
+- [~] `TriggerUpdate::AddImpulseTrigger` · 006893b0 · legions 0062a3d0 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 - [ ] `TriggerUpdate::OnTrackTerminated` · 006894d0 · legions 0062a4f0
 - [ ] `TriggerUpdate::CleanUp` · 00689680 · legions 0062a6a0
 - [ ] `TriggerUpdate::AddEffectsTrigger` · 00689710 · legions 0062a730
-- [ ] `TriggerUpdate::AddTrackTriggers` · 00689880 · legions 0062a8a0
+- [~] `TriggerUpdate::AddTrackTriggers` · 00689880 · legions 0062a8a0 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 
 ## `portal/shared/src/animsys/validmodes.cpp.c` (0/7)
 
@@ -1031,10 +1031,10 @@ Legend and workflow: [README](README.md).
 - [-] `ValidModes::ToFileNode` · 00685680 — text source format (admin tools)
 - [-] `ValidModes::FromFileNode` · 00685790 — text source format (admin tools)
 
-## `portal/shared/src/animsys/weeniehook.cpp.c` (0/4)
+## `portal/shared/src/animsys/weeniehook.cpp.c` (1/4)
 
 ### WeenieHook
 - [ ] `WeenieHook::operator==` · 0068f440 · legions 0062ffc0
 - [ ] `WeenieHook::operator<` · 0068f470 · legions 0062fff0
 - [ ] `WeenieHook::WeenieHook` · 0068f490 · legions 00630010
-- [ ] `WeenieHook::StreamPack` · 0068f4c0 · legions 00630040
+- [x] `WeenieHook::StreamPack` · 0068f4c0 · legions 00630040 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)

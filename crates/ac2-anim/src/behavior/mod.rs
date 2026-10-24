@@ -22,17 +22,19 @@ pub use tracker::{
 };
 
 use crate::behavior_table::{Ac2BehaviorTable, Ac2CharTemplate, Ac2ComboInfo};
+use crate::dbanimator::Ac2TrackerState;
 
 /// `F_EPSILON` (0.0002), the slider and weight tolerance.
 const F_EPSILON: f32 = 0.0002;
 
 /// What the animation state machine asks of the animated object (`AnimationObj`).
 pub trait Ac2AnimationSource {
-    /// `GetComboCVel`: the inverse period of the animation `combo` plays at the current slider
-    /// values (`CPartArray::GetComboCVel`), 0 when the object has none.
-    fn combo_cvel(&self, combo: Ac2ComboInfo) -> f32;
+    /// `GetComboCVel`: the inverse period of the animation `combo` plays for a tracker in
+    /// `tracker`'s element and mode at the current slider values (`CPartArray::GetComboCVel`),
+    /// 0 when the object has none.
+    fn combo_cvel(&self, tracker: Ac2TrackerState, combo: Ac2ComboInfo) -> f32;
     /// `GetHoldLocations`: the hold loop of `combo`'s animation, `None` without one.
-    fn hold_loop(&self, combo: Ac2ComboInfo) -> Option<(f32, f32)>;
+    fn hold_loop(&self, tracker: Ac2TrackerState, combo: Ac2ComboInfo) -> Option<(f32, f32)>;
     /// `IsThePlayer` (behaviours lock the player's actions).
     fn is_the_player(&self) -> bool {
         false

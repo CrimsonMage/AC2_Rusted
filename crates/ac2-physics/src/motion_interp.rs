@@ -109,6 +109,11 @@ impl MotionInterp {
         self.mode
     }
 
+    /// `CMotionInterp::GetTerrainType` (`mTerrainType`).
+    pub(crate) fn terrain_type(&self) -> u32 {
+        self.terrain_type
+    }
+
     /// The desired mode the motion values are looked up in.
     pub(crate) fn set_mode(&mut self, mode: u32) {
         self.mode = mode;

@@ -65,6 +65,9 @@ pub struct Ac2BehaviorTrack {
     pub loop_start: f32,
     pub loop_end: f32,
     pub repeats: u32,
+    /// `AnimTrack::mImpulses`: the impulse triggers the animation has reached, each with its
+    /// `mTriggered` flag (an impulse fires once per track).
+    pub impulses: Vec<(crate::Ac2ImpulseTrigger, bool)>,
 }
 
 impl Ac2BehaviorTrack {
@@ -92,6 +95,7 @@ impl Ac2BehaviorTrack {
             loop_start: 0.0,
             loop_end: 0.0,
             repeats: 0,
+            impulses: Vec::new(),
         }
     }
 

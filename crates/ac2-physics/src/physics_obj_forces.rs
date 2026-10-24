@@ -81,7 +81,7 @@ impl PhysicsObj {
     }
 
     /// `CPhysicsObj::CullVelocity`: speeds above the terminal velocity are scaled back to it.
-    pub(super) fn cull_velocity(&mut self) {
+    pub(crate) fn cull_velocity(&mut self) {
         let terminal = self
             .motion
             .motion_values(self.desired_element())

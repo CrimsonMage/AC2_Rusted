@@ -8,6 +8,7 @@ mod animation;
 mod animator;
 mod behavior;
 mod behavior_table;
+mod dbanimator;
 mod setup;
 
 pub use animation::{load_ac2_motion_animation, Ac2AnimMap, Ac2Animation, Ac2BoneTrack};
@@ -25,5 +26,10 @@ pub use behavior_table::{
     Ac2BehaviorInfo, Ac2BehaviorTable, Ac2CharTemplate, Ac2ComboInfo, Ac2ModeState,
     Ac2ModeTransition, Ac2TransitionInfo, AC2_BEHAVIOR_ACTION, AC2_BEHAVIOR_DYNAMIC_FP_CAMERA,
     AC2_BEHAVIOR_HOLD,
+};
+pub use dbanimator::{
+    load_ac2_db_animator, Ac2AnimAsset, Ac2AnimInfo, Ac2AnimTrigger, Ac2AnimatorContext,
+    Ac2AssetBone, Ac2BoneTransform, Ac2Compositor, Ac2CubeSlider, Ac2DbAnimator, Ac2ImpulseTrigger,
+    Ac2PoseInput, Ac2TrackerState, Ac2WeenieHook,
 };
 pub use setup::{Ac2Bone, Ac2Location, Ac2PlacementFrame, Ac2Setup, Ac2Transform};

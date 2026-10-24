@@ -134,6 +134,22 @@ impl Ac2ModeTracker {
         (self.from.as_ref(), self.to.as_ref(), self.transition_ctime)
     }
 
+    /// Every track of the outgoing then the incoming tracker, in retail iteration order, with
+    /// its tracker's element and mode (`CPartArray::AddAnimation`'s trigger pass).
+    pub fn visit_tracks_mut(
+        &mut self,
+        mut visit: impl FnMut(crate::Ac2TrackerState, &mut super::Ac2BehaviorTrack),
+    ) {
+        for tracker in [self.from.as_mut(), self.to.as_mut()].into_iter().flatten() {
+            let state = tracker.state();
+            for behavior in tracker.tracks.keys() {
+                if let Some(track) = tracker.tracks.get_mut(behavior) {
+                    visit(state, track);
+                }
+            }
+        }
+    }
+
     /// `ModeTracker::IsDoingBehavior`: the incoming tracker's behaviours during a transition;
     /// none while a transition with no incoming tracker is still timed.
     pub fn is_doing_behavior(&self, behavior: u32) -> bool {
@@ -300,7 +316,12 @@ impl Ac2ModeTracker {
             if info.behavior != 0 {
                 self.do_behavior(&Ac2BehaviorParams::new(info.behavior), source);
                 let combo = table.combo_info(key.dst_element, key.dst_mode, info.behavior);
-                let cvel = combo.map_or(0.0, |combo| source.combo_cvel(combo));
+                // `GetComboCVel` is asked of the outgoing tracker.
+                let state = self.from.as_ref().map(Ac2BehaviorTracker::state);
+                let cvel = match (combo, state) {
+                    (Some(combo), Some(state)) => source.combo_cvel(state, combo),
+                    _ => 0.0,
+                };
                 if cvel != 0.0 {
                     self.transition_cvel = cvel;
                 }
