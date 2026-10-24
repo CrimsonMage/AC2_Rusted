@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 19 done, 7 partial, 742 to do, 13 skipped.
+781 retail functions: 21 done, 9 partial, 738 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1070,7 +1070,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeSky::CreateDeletePhysicsObjects` · 00585ba0 · legions 00555290
 - [ ] `LScapeSky::UpdateTimeOfDay` · 00585cf0 · legions 005553e0
 
-## `portal/client/src/smartbox/worldrender/lscapeterrainmesh.cpp.c` (1/48)
+## `portal/client/src/smartbox/worldrender/lscapeterrainmesh.cpp.c` (3/48)
 
 ### LM_UVTranslate
 - [ ] `LM_UVTranslate::SetVTranslate` · 005880a0 · legions 005577e0
@@ -1098,7 +1098,7 @@ Legend and workflow: [README](README.md).
 
 ### LScapeTerrainMesh
 - [ ] `LScapeTerrainMesh::DrawTerrain` · 00588610
-- [ ] `LScapeTerrainMesh::DrawWaterMesh` · 00588840 · legions 00557ee0
+- [~] `LScapeTerrainMesh::DrawWaterMesh` · 00588840 · legions 00557ee0 — near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
 - [ ] `LScapeTerrainMesh::ApplyList` · 00588a30 · legions 005580d0
 - [ ] `LScapeTerrainMesh::InqNearBlockIndex` · 00588aa0 · legions 00558140
 
@@ -1145,15 +1145,15 @@ Legend and workflow: [README](README.md).
 
 ### LScapeTerrainMesh
 - [ ] `LScapeTerrainMesh::DestroyLScapeMaterialInfo` · 0058ad30 · legions 0055a3b0
-- [ ] `LScapeTerrainMesh::DrawWater` · 0058ad90
+- [~] `LScapeTerrainMesh::DrawWater` · 0058ad90 — near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
 - [ ] `LScapeTerrainMesh::ReOrderNearVertices` · 0058b460 · legions 0055aad0
-- [ ] `LScapeTerrainMesh::BuildNearWaterMesh` · 0058b600 · legions 0055ac70
+- [x] `LScapeTerrainMesh::BuildNearWaterMesh` · 0058b600 · legions 0055ac70 — ac2-render object::load_water_model
 - [ ] `LScapeTerrainMesh::Destroy` · 0058b8a0 · legions 0055af10
 - [~] `LScapeTerrainMesh::BuildNearTerrainMesh` · 0058b9e0 · legions 0055b050 — per-block near mesh; no cloud-shadow UVs or shared near vertex array
 - [ ] `LScapeTerrainMesh::~LScapeTerrainMesh` · 0058bc10 · legions 0055b280
 - [ ] `LScapeTerrainMesh::InitFarMesh` · 0058bce0 · legions 0055b350
 - [~] `LScapeTerrainMesh::UpdateNearTerrain` · 0058c8c0 · legions 0055bf30 — per-block near mesh; no cloud-shadow UVs or shared near vertex array
-- [ ] `LScapeTerrainMesh::UpdateNearWater` · 0058d700 · legions 0055cd70
+- [x] `LScapeTerrainMesh::UpdateNearWater` · 0058d700 · legions 0055cd70 — ac2-render object::load_water_model
 - [ ] `LScapeTerrainMesh::GenerateShore` · 0058dcb0 · legions 0055d320
 - [ ] `LScapeTerrainMesh::Init` · 0058e940 · legions 0055dfb0
 - [ ] `LScapeTerrainMesh::LScapeTerrainMesh` · 0058eb20 · legions 0055e190

@@ -9,6 +9,7 @@ mod pass;
 mod pass_tests;
 mod pixel_shader;
 mod texture_matrix;
+mod water;
 
 pub use lights::{ObjectLights, SunLight};
 pub use model::{
@@ -21,3 +22,4 @@ pub use pass::{
 pub use pixel_shader::{
     parse_pixel_shader, PixelProgram, PsInstruction, PsOp, PsRegister, PsSource, PsSourceModifier,
 };
+pub use water::load_water_model;

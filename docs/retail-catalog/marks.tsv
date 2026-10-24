@@ -481,8 +481,12 @@ key	status	note
 005835c0	x	
 00583890	x	
 00588320	x	
+00588840	~	near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
+0058ad90	~	near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
+0058b600	x	ac2-render object::load_water_model
 0058b9e0	~	per-block near mesh; no cloud-shadow UVs or shared near vertex array
 0058c8c0	~	per-block near mesh; no cloud-shadow UVs or shared near vertex array
+0058d700	x	ac2-render object::load_water_model
 0058f1d0	x	
 005901f0	~	day light and fog; no region fog blocks (CalcCombineFog) or water light
 00590c80	x	

@@ -14,7 +14,7 @@ use ac2_gpu::{
     COLOR_FORMAT,
 };
 use ac2_math::{Mat4, Vec3};
-use ac2_render::object::{load_object_model, RenderSettings};
+use ac2_render::object::{load_object_model, load_water_model, RenderSettings};
 use ac2_render::terrain::build_terrain_mesh;
 use ac2_render::{load_material_image, load_texture_image, Camera, SceneLighting};
 use ac2_world::Ac2WorldSource;
@@ -55,14 +55,20 @@ fn daylight(world: &Ac2WorldSource) -> SceneLighting {
         .unwrap_or_default()
 }
 
-#[test]
-fn town_block_renders_its_objects() {
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
-        return;
-    };
+/// What one area render produced.
+struct AreaStats {
+    drawn_models: usize,
+    water_blocks: usize,
+    means: Vec<f32>,
+}
+
+/// Renders the 3 x 3 blocks around `center` (terrain, `CLandBlockInfo` entities and scenery, near
+/// water) from each `(name, eye offset)` looking at the centre block's highest vertex.
+fn render_area(center: (u8, u8), views: &[(&str, Vec3)]) -> Option<AreaStats> {
+    let root = std::env::var_os("AC2_DAT_DIR")?;
     let Ok(gpu) = Gpu::headless() else {
         eprintln!("no GPU adapter; skipping");
-        return;
+        return None;
     };
     let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let world = Ac2WorldSource::open(Arc::new(ResourceStore::new(dataset)))
@@ -85,11 +91,10 @@ fn town_block_renders_its_objects() {
             .unwrap_or(2),
         ..RenderSettings::default()
     };
-    let center = (0xCB_u8, 0x4D_u8);
     let mut blocks = Vec::new();
     let mut models: HashMap<DataId, Option<GpuObjectModel>> = HashMap::new();
     let mut placements = Vec::new();
-    let mut pass_counts = HashMap::<bool, usize>::new();
+    let mut waters = Vec::new();
     for dx in -1..=1_i32 {
         for dy in -1..=1_i32 {
             let (x, y) = (
@@ -102,32 +107,19 @@ fn town_block_renders_its_objects() {
             };
             let mesh = build_terrain_mesh(id, &landblock, world.block_size());
             blocks.push(terrain.upload_block(&gpu, &mesh, world.block_size(), &mut load));
+            if let Some(water) = world.block_water(id, &landblock) {
+                if let Some(model) =
+                    load_water_model(&store, id, &water, world.block_size(), &settings).unwrap()
+                {
+                    waters.push(objects.upload(&gpu, &model, &mut load));
+                }
+            }
             for marker in world.entity_markers(id).unwrap().iter() {
                 let visual = marker.visual();
                 if !models.contains_key(&visual) {
-                    let model = load_object_model(&store, visual, &settings).unwrap();
-                    for batch in model
-                        .iter()
-                        .flat_map(|m| m.parts.iter())
-                        .flat_map(|p| p.batches.iter())
-                    {
-                        for pass in batch.material.passes([1.0; 4], 0.0) {
-                            if pass.pixel_program.is_some()
-                                && std::env::var_os("AC2_DEBUG_PS").is_some()
-                            {
-                                eprintln!(
-                                    "PS pass {visual:?} prog {:?} stages {:?}",
-                                    pass.program,
-                                    pass.stages
-                                        .iter()
-                                        .map(|s| (s.texture, s.tex_coord))
-                                        .collect::<Vec<_>>()
-                                );
-                            }
-                            *pass_counts.entry(pass.pixel_program.is_some()).or_insert(0) += 1;
-                        }
-                    }
-                    let model = model.map(|model| objects.upload(&gpu, &model, &mut load));
+                    let model = load_object_model(&store, visual, &settings)
+                        .unwrap()
+                        .map(|model| objects.upload(&gpu, &model, &mut load));
                     models.insert(visual, model);
                 }
                 let world_matrix =
@@ -144,17 +136,21 @@ fn town_block_renders_its_objects() {
                 world: *world,
             })
         })
+        .chain(waters.iter().map(|model| ObjectInstance {
+            model,
+            world: Mat4::IDENTITY,
+        }))
         .collect();
     let drawn_models = models.values().filter(|m| m.is_some()).count();
-    eprintln!("layer passes by pixel shader: {pass_counts:?}");
     eprintln!(
-        "{} placements, {} instances, {} of {} visuals drawable",
+        "{:02X}{:02X}: {} placements, {} of {} visuals drawable, {} water blocks",
+        center.0,
+        center.1,
         placements.len(),
-        instances.len(),
         drawn_models,
-        models.len()
+        models.len(),
+        waters.len()
     );
-    assert!(drawn_models > 10, "town visuals resolve to drawable models");
 
     let lighting = daylight(&world);
     let block = world.block_size();
@@ -164,30 +160,18 @@ fn town_block_renders_its_objects() {
         .unwrap()
         .height_grid();
     let ground = grid.iter().copied().fold(f32::MIN, f32::max);
-    let town = Vec3::new(
+    let focus = Vec3::new(
         (f32::from(center.0) + 0.5) * block,
         (f32::from(center.1) + 0.5) * block,
         ground,
     );
     let aspect = SIZE.0 as f32 / SIZE.1 as f32;
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
-    for (name, eye) in [
-        (
-            "objects_cb4d_oblique.png",
-            town + Vec3::new(-150.0, -150.0, 90.0),
-        ),
-        (
-            "objects_cb4d_street.png",
-            town + Vec3::new(-60.0, -20.0, 12.0),
-        ),
-        (
-            "objects_cb4d_close.png",
-            town + Vec3::new(-75.0, -12.0, 4.0),
-        ),
-    ] {
+    let mut means = Vec::new();
+    for (name, offset) in views {
         let camera = Camera {
-            eye,
-            target: town,
+            eye: focus + *offset,
+            target: focus,
             fov_y: 60_f32.to_radians(),
             near: 0.5,
             far: 4000.0,
@@ -207,5 +191,41 @@ fn town_block_renders_its_objects() {
             / (rgba.len() / 4 * 3) as f32;
         eprintln!("{name}: mean {mean:.1}");
         assert!((15.0..240.0).contains(&mean), "{name}: lit frame ({mean})");
+        means.push(mean);
     }
+    Some(AreaStats {
+        drawn_models,
+        water_blocks: waters.len(),
+        means,
+    })
+}
+
+#[test]
+fn town_block_renders_its_objects() {
+    let Some(stats) = render_area(
+        (0xCB, 0x4D),
+        &[
+            ("objects_cb4d_oblique.png", Vec3::new(-150.0, -150.0, 90.0)),
+            ("objects_cb4d_street.png", Vec3::new(-60.0, -20.0, 12.0)),
+            ("objects_cb4d_close.png", Vec3::new(-75.0, -12.0, 4.0)),
+        ],
+    ) else {
+        return;
+    };
+    assert!(
+        stats.drawn_models > 10,
+        "town visuals resolve to drawable models"
+    );
+    assert_eq!(stats.means.len(), 3);
+}
+
+#[test]
+fn lake_block_renders_its_water() {
+    let Some(stats) = render_area(
+        (0xC0, 0x4E),
+        &[("water_c04e_oblique.png", Vec3::new(-200.0, -200.0, 120.0))],
+    ) else {
+        return;
+    };
+    assert!(stats.water_blocks > 0, "the lake blocks have near water");
 }

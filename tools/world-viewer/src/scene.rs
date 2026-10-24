@@ -9,7 +9,7 @@ use ac2_gpu::{
     Gpu, GpuObjectModel, ObjectInstance, ObjectRenderer, TerrainBlock, TerrainRenderer, TextureKey,
 };
 use ac2_math::{Mat4, Vec3};
-use ac2_render::object::{load_object_model, RenderSettings};
+use ac2_render::object::{load_object_model, load_water_model, RenderSettings};
 use ac2_render::terrain::build_terrain_mesh;
 use ac2_render::{load_material_image, load_texture_image, Camera, SceneLighting};
 use ac2_world::Ac2WorldSource;
@@ -21,6 +21,8 @@ pub const DAY_SECONDS: f64 = 7347.0;
 struct Block {
     terrain: Option<TerrainBlock>,
     placements: Vec<(DataId, Mat4)>,
+    /// Near water (`LScapeTerrainMesh::UpdateNearWater`), already in world space.
+    water: Option<GpuObjectModel>,
 }
 
 pub struct Scene {
@@ -99,16 +101,21 @@ impl Scene {
                     continue;
                 }
                 let id = block_id((x, y));
-                let terrain = self
-                    .world
-                    .load_landblock(id)
-                    .ok()
-                    .flatten()
-                    .map(|landblock| {
-                        let mesh = build_terrain_mesh(id, &landblock, self.world.block_size());
-                        self.renderer
-                            .upload_block(gpu, &mesh, self.world.block_size(), &mut load)
-                    });
+                let landblock = self.world.load_landblock(id).ok().flatten();
+                let terrain = landblock.as_ref().map(|landblock| {
+                    let mesh = build_terrain_mesh(id, landblock, self.world.block_size());
+                    self.renderer
+                        .upload_block(gpu, &mesh, self.world.block_size(), &mut load)
+                });
+                let water = landblock
+                    .as_ref()
+                    .and_then(|landblock| self.world.block_water(id, landblock))
+                    .and_then(|water| {
+                        load_water_model(&store, id, &water, self.world.block_size(), &settings)
+                            .ok()
+                            .flatten()
+                    })
+                    .map(|model| self.objects.upload(gpu, &model, &mut load));
                 let mut placements = Vec::new();
                 for marker in self.world.entity_markers(id).iter().flat_map(|m| m.iter()) {
                     let visual = marker.visual();
@@ -131,6 +138,7 @@ impl Scene {
                     Block {
                         terrain,
                         placements,
+                        water,
                     },
                 );
             }
@@ -178,7 +186,7 @@ impl Scene {
             .values()
             .flat_map(|block| block.placements.iter().copied())
             .collect();
-        let instances = instances(&self.models, &self.frame_placements);
+        let instances = instances(&self.models, &self.frame_placements, &self.blocks);
         self.objects
             .prepare(gpu, camera, &lighting, aspect, time, &instances);
         lighting
@@ -189,14 +197,17 @@ impl Scene {
             pass,
             self.blocks.values().filter_map(|b| b.terrain.as_ref()),
         );
-        let instances = instances(&self.models, &self.frame_placements);
+        let instances = instances(&self.models, &self.frame_placements, &self.blocks);
         self.objects.draw(pass, &instances);
     }
 }
 
+/// The frame's object instances followed by the resident blocks' water. Both `prepare` and
+/// `draw` build it from unchanged state, so the order matches.
 fn instances<'a>(
     models: &'a HashMap<DataId, Option<GpuObjectModel>>,
     placements: &[(DataId, Mat4)],
+    blocks: &'a HashMap<(u8, u8), Block>,
 ) -> Vec<ObjectInstance<'a>> {
     placements
         .iter()
@@ -206,6 +217,12 @@ fn instances<'a>(
                 world: *world,
             })
         })
+        .chain(blocks.values().filter_map(|block| {
+            Some(ObjectInstance {
+                model: block.water.as_ref()?,
+                world: Mat4::IDENTITY,
+            })
+        }))
         .collect()
 }
 
