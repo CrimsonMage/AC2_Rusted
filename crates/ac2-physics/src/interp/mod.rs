@@ -67,7 +67,7 @@ impl InterpolationPath {
     /// `InterpolationPath::Add`: queue `qp` (an impulse only if newer than the last one taken)
     /// unless older than the last node; a position on top of the last one updates it instead.
     pub(crate) fn add(&mut self, qp: &QueuedPosition) {
-        if qp.impulse && !(self.last_impulse_stamp < qp.impulse_stamp) {
+        if qp.impulse && self.last_impulse_stamp >= qp.impulse_stamp {
             return;
         }
         let mut total = 0.0_f32;
@@ -247,7 +247,7 @@ impl InterpolationPath {
         let mut remaining = behind - 1;
         while remaining != 0 {
             let front = &self.queue[0].0;
-            if front.impulse && !(front.impulse_stamp <= self.last_impulse_stamp) {
+            if front.impulse && front.impulse_stamp > self.last_impulse_stamp {
                 break;
             }
             self.queue.pop_front();
