@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use ac2_core::{CellId, DataId};
+use ac2_core::{CellId, DataId, Random};
 use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_db::ResourceStore;
 use ac2_gpu::{
@@ -17,7 +17,9 @@ use ac2_math::{Mat4, Vec3};
 use ac2_render::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
 use ac2_render::object::{load_object_model, load_water_model, ObjectEnvironment, RenderSettings};
 use ac2_render::sky::sky_frame;
-use ac2_render::terrain::build_terrain_mesh;
+use ac2_render::terrain::{
+    build_terrain_mesh, far_radius_for_draw_distance, FarTerrain, FIRST_FAR_CHUNK, NEAR_RADIUS,
+};
 use ac2_render::{load_material_image, load_texture_image, Camera, SceneLighting};
 use ac2_world::Ac2WorldSource;
 
@@ -70,8 +72,8 @@ struct AreaStats {
 }
 
 /// Renders the 3 x 3 blocks around `center` (terrain, `CLandBlockInfo` entities and scenery, near
-/// water, sky) from each `(name, eye offset, target offset)` around the centre block's highest
-/// vertex.
+/// water, sky) and the far landscape past them from each `(name, eye offset, target offset)`
+/// around the centre block's highest vertex.
 fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaStats> {
     let root = std::env::var_os("AC2_DAT_DIR")?;
     let Ok(gpu) = Gpu::headless() else {
@@ -141,6 +143,28 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
             }
         }
     }
+    // The far mesh at the default draw distance, its diagonals from a fresh `Random` stream.
+    let far_layout = FarTerrain::new(
+        NEAR_RADIUS,
+        far_radius_for_draw_distance(2),
+        16,
+        world.block_size(),
+        &mut Random::default(),
+    );
+    let far_desc = world.far_terrain();
+    let center_block = (i32::from(center.0), i32::from(center.1));
+    let far_vertices = far_layout.vertices(&world, center_block, &far_desc);
+    let far = terrain.upload_far(
+        &gpu,
+        &far_layout,
+        &far_vertices,
+        far_desc.texture,
+        &mut load,
+    );
+    let far_water = far_layout
+        .water_model(&store, &far_desc, &far_vertices, &settings)
+        .unwrap()
+        .map(|model| objects.upload(&gpu, &model, &mut load));
     // `AC2_SKY_TIME` (server seconds) overrides the brightest daylight.
     let (server_time, lighting) = match std::env::var("AC2_SKY_TIME")
         .ok()
@@ -178,6 +202,7 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
         .chain(
             waters
                 .iter()
+                .chain(&far_water)
                 .map(|model| ObjectInstance::new(model, Mat4::IDENTITY)),
         )
         .collect();
@@ -289,14 +314,17 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
                 DrawGroup {
                     instances: &before,
                     ordered: true,
+                    environment: None,
                 },
                 DrawGroup {
                     instances: &world_instances,
                     ordered: false,
+                    environment: None,
                 },
                 DrawGroup {
                     instances: &after,
                     ordered: true,
+                    environment: None,
                 },
             ],
         );
@@ -310,6 +338,7 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
                 quad.draw(pass);
             }
             terrain.draw(pass, &blocks);
+            terrain.draw_far(pass, &far, FIRST_FAR_CHUNK);
             objects.draw(pass, 1, &world_instances);
             objects.draw(pass, 2, &after);
         });
@@ -352,6 +381,11 @@ fn town_block_renders_its_objects() {
                 Vec3::ZERO,
             ),
             (
+                "objects_cb4d_horizon.png",
+                Vec3::new(0.0, 0.0, 60.0),
+                Vec3::new(900.0, 300.0, 0.0),
+            ),
+            (
                 "objects_cb4d_sky.png",
                 Vec3::new(0.0, 0.0, 3.0),
                 Vec3::new(60.0, 60.0, 50.0),
@@ -364,7 +398,7 @@ fn town_block_renders_its_objects() {
         stats.drawn_models > 10,
         "town visuals resolve to drawable models"
     );
-    assert_eq!(stats.means.len(), 4);
+    assert_eq!(stats.means.len(), 5);
 }
 
 #[test]

@@ -130,6 +130,19 @@ impl Ac2WorldSource {
         })))
     }
 
+    /// The far-landscape parameters of the region's current surface info
+    /// (`CRegionDesc::GetCurrentSurfaceInfo`, read by `LScapeTerrainMesh::InitFarMesh`).
+    pub fn far_terrain(&self) -> crate::Ac2FarTerrain {
+        crate::Ac2FarTerrain {
+            texture: self.surfaces.far_texture,
+            texture_scale: self.surfaces.far_texture_scale,
+            water_material: self.surfaces.far_water_material,
+            cloud_texture: self.surfaces.cloud_texture,
+            cloud_texture_scale: self.surfaces.cloud_texture_scale,
+            cloud_scroll: self.surfaces.cloud_scroll,
+        }
+    }
+
     /// `LandscapeDefs` block edge in metres (cells per block x cell size).
     pub fn block_size(&self) -> f32 {
         self.block_size

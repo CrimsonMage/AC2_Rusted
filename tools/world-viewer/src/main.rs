@@ -8,6 +8,7 @@
 //! fast, `[` and `]` step the time of day.
 
 mod fly;
+mod interiors;
 mod scene;
 mod window;
 

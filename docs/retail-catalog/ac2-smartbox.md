@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 53 done, 26 partial, 181 to do, 2 skipped.
+262 retail functions: 54 done, 26 partial, 180 to do, 2 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (5/22)
@@ -330,11 +330,11 @@ Legend and workflow: [README](README.md).
 - [~] `CellManager::OnTopLevelRequestFinished` · 0057c040 · legions 0054b910 — an interior's visible cells in other blocks are not requested
 - [x] `CellManager::UpdateVisibleCells` · 0057c360 · legions 0054bc30
 
-## `portal/client/src/smartbox/worldmanager/lscapemanager.cpp.c` (0/21)
+## `portal/client/src/smartbox/worldmanager/lscapemanager.cpp.c` (1/21)
 
 ### LScapeManager
 - [ ] `LScapeManager::GetBlockShift` · 0057a510 · legions 00549e70
-- [ ] `LScapeManager::SetFarRadius` · 0057a590 · legions 00549ef0
+- [x] `LScapeManager::SetFarRadius` · 0057a590 · legions 00549ef0 — far radius consumed by FarTerrain::new
 - [ ] `LScapeManager::GrabVisibleCells` · 0057a5b0 · legions 00549f10
 - [ ] `LScapeManager::ReleaseVisibleCells` · 0057a640 · legions 00549fa0
 - [~] `LScapeManager::Init` · 0057a780 · legions 0054a060 — near radius 1, far radius 4

@@ -66,6 +66,18 @@ impl SurfaceType {
     }
 }
 
+/// `CSurfaceDesc`'s far-landscape fields: the far terrain texture and its UV scale per metre,
+/// the far water material, and the cloud-shadow texture with its scale and scroll rates.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Ac2FarTerrain {
+    pub texture: DataId,
+    pub texture_scale: f32,
+    pub water_material: DataId,
+    pub cloud_texture: DataId,
+    pub cloud_texture_scale: f32,
+    pub cloud_scroll: [f32; 2],
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct Ac2SurfaceDesc {
     pub(crate) far_texture: DataId,
