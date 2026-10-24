@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 285 done, 64 partial, 1713 to do, 62 skipped.
+2124 retail functions: 289 done, 66 partial, 1707 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (75/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (79/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2168,7 +2168,7 @@ Legend and workflow: [README](README.md).
 ### Position
 - [ ] `Position::set_heading` · 004dde50 · legions 004d08b0
 - [x] `Position::lerp_origin` · 004dde80 · legions 004d08e0 — ac2_physics::Position::lerp_origin (across blocks the z sum is stored first)
-- [ ] `Position::slerp` · 004ddf50 · legions 004d09b0
+- [x] `Position::slerp` · 004ddf50 · legions 004d09b0 — ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 
 ### EtherealPhysicsType
 - [ ] `EtherealPhysicsType::SetBit` · 004ddf90 · legions 004d09f0
@@ -2373,7 +2373,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::set_nodraw` · 004e13e0
 - [ ] `CPhysicsObj::set_cloaked` · 004e1410
 - [ ] `CPhysicsObj::set_missile` · 004e1450
-- [ ] `CPhysicsObj::set_mobile` · 004e1480
+- [x] `CPhysicsObj::set_mobile` · 004e1480 — ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 - [ ] `CPhysicsObj::align_to_path` · 004e14b0
 - [ ] `CPhysicsObj::set_path_clipping` · 004e14e0
 - [x] `CPhysicsObj::set_affected_by_gravity` · 004e1520
@@ -2404,7 +2404,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::CheckPositionInternal` · 004e1eb0 · legions 004d4910 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 - [ ] `CPhysicsObj::UpdateGravity` · 004e1f70 · legions 004d49c0
 - [ ] `CPhysicsObj::find_inside_position` · 004e1fb0
-- [ ] `CPhysicsObj::SetPlacementPosition` · 004e2030 · legions 004d4a80
+- [~] `CPhysicsObj::SetPlacementPosition` · 004e2030 · legions 004d4a80 — ac2-physics: the drawn position slerp / previous position only (PhysicsBody::drawing_position)
 - [~] `CPhysicsObj::EnterWorld` · 004e20b0 — ac2-client remote.rs
 - [~] `CPhysicsObj::EnterWorldSimple` · 004e2100 — ac2-client remote.rs over PhysicsBody::place (flags 0x11)
 - [ ] `CPhysicsObj::HandleTeleportStart` · 004e2160 · legions 004d4bb0
@@ -2586,7 +2586,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::CollisionRemoveObject` · 004e79e0
 - [ ] `CPhysicsObj::AlwaysPrepareObject` · 004e7a60
 - [ ] `CPhysicsObj::UpdateViewerDistance` · 004e7af0
-- [ ] `CPhysicsObj::PrepareObjectForDrawing` · 004e7c80
+- [~] `CPhysicsObj::PrepareObjectForDrawing` · 004e7c80 — ac2-physics: the drawn position slerp / previous position only (PhysicsBody::drawing_position)
 - [ ] `CPhysicsObj::Draw` · 004e7db0
 - [ ] `CPhysicsObj::AddChildInternal` · 004e86c0 · legions 004db0a0
 - [ ] `CPhysicsObj::StickySetParent` · 004e8750
@@ -2654,7 +2654,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::reports_collisions` · 004eaee0
 - [x] `CPhysicsObj::do_edge_sliding` · 004eaef0
 - [ ] `CPhysicsObj::ignore_collisions` · 004eaf00
-- [ ] `CPhysicsObj::is_mobile` · 004eaf10
+- [x] `CPhysicsObj::is_mobile` · 004eaf10 — ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 - [ ] `CPhysicsObj::is_nodraw` · 004eaf20
 - [ ] `CPhysicsObj::is_cloaked` · 004eaf30
 - [ ] `CPhysicsObj::is_pushable` · 004eaf40
@@ -2693,7 +2693,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::get_update_time` · 004eb1b0
 - [ ] `CPhysicsObj::inc_update_time` · 004eb1c0
 - [ ] `CPhysicsObj::GetPosition` · 004eb1d0
-- [ ] `CPhysicsObj::GetDrawingPosition` · 004eb1e0
+- [x] `CPhysicsObj::GetDrawingPosition` · 004eb1e0 — ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 - [ ] `CPhysicsObj::SetTerrainType` · 004eb1f0
 - [ ] `CPhysicsObj::GetWorldMatrix` · 004eb210 · legions 004ddb50
 - [ ] `CPhysicsObj::GetNumShadowObjects` · 004eb220

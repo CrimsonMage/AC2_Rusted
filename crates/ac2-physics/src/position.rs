@@ -41,6 +41,13 @@ impl Position {
         );
     }
 
+    /// `Position::slerp`: `lerp_origin` then `Frame::slerp_rotation`, `t` of the way from
+    /// `from` to `to` (in `from`'s cell).
+    pub fn slerp(&mut self, from: &Position, to: &Position, t: f32) {
+        self.lerp_origin(from, to, t);
+        self.frame.slerp_rotation(&from.frame, &to.frame, t);
+    }
+
     /// `PositionOffset::GetOffset`: the vector from `self` to `other`. The landblock delta and
     /// `other`'s x and y are summed and stored before `self`'s origin is subtracted.
     pub fn offset_to(&self, other: &Position) -> Vector {

@@ -555,6 +555,7 @@ key	status	note
 004ddda0	x	ac2-physics transition/placement.rs (asm float order; Legions identical)
 004dddc0	x	
 004dde80	x	ac2_physics::Position::lerp_origin (across blocks the z sum is stored first)
+004ddf50	x	ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 004de020	x	
 004de0d0	x	
 004de320	x	ac2-client motion.rs
@@ -596,10 +597,12 @@ key	status	note
 004e0dc0	~	ac2-weenie: the delta becomes the local description; the part rebuild (CompareAndModify) is the renderer's
 004e0e30	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004e12f0	x	ac2-physics interp (slice 3)
+004e1480	x	ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 004e1520	x	
 004e1c90	~	no admin moves or missiles
 004e1d70	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 004e1eb0	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
+004e2030	~	ac2-physics: the drawn position slerp / previous position only (PhysicsBody::drawing_position)
 004e20b0	~	ac2-client remote.rs
 004e2100	~	ac2-client remote.rs over PhysicsBody::place (flags 0x11)
 004e21e0	x	ac2-client remote.rs
@@ -637,6 +640,7 @@ key	status	note
 004e6bd0	x	ac2-weenie Appearance::from_delta (the effects description is empty)
 004e6ff0	x	
 004e7580	~	ac2-physics objects.rs: static objects only; Interpermiable/CollisionParameters ethereal filter, missile proximity and temp ignore lists not ported
+004e7c80	~	ac2-physics: the drawn position slerp / previous position only (PhysicsBody::drawing_position)
 004e8f80	x	
 004e9140	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 004e9700	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
@@ -647,6 +651,7 @@ key	status	note
 004ea990	~	ac2-physics: FORCE_SPF sets the position only (no cell entry, shadows or cell material)
 004eaa30	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 004eaef0	x	
+004eaf10	x	ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 004eb000	x	
 004eb010	x	
 004eb020	x	
@@ -656,6 +661,7 @@ key	status	note
 004eb0d0	x	
 004eb100	x	
 004eb1b0	x	
+004eb1e0	x	ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 004eb370	~	no player-distance range checks, parent or missile paths
 004eb8b0	x	
 004ec350	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
