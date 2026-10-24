@@ -9,6 +9,7 @@ use crate::fpu::{ld, st};
 use crate::heading::Heading;
 use crate::motion_interp::MotionInterp;
 use crate::physics_obj::{BodyShape, PhysicsObj};
+use crate::physics_obj_place::SetPositionError;
 use crate::position::Position;
 use crate::terrain::Terrain;
 use crate::vector::Vector;
@@ -131,6 +132,13 @@ impl PhysicsBody {
         self.object.position = position;
         self.object.prev_position = position;
         self.object.anim_position = position;
+    }
+
+    /// `CPhysicsObj::SetPosition`: place the body at `position` through a placement check
+    /// (`SLIDE_SPF` lets it move to a free spot nearby, `FORCE_SPF` skips the check). On
+    /// failure the body stays where it was.
+    pub fn place(&mut self, position: Position, flags: u32, world: &Terrain) -> SetPositionError {
+        self.object.set_position_checked(position, flags, world)
     }
 
     /// `CPhysicsObj::DoMotion` (and `TurnTo` when a heading is given); the turn rate is applied

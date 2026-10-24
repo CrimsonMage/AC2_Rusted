@@ -1,9 +1,9 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 108 done, 8 partial, 730 to do, 143 skipped.
+989 retail functions: 110 done, 8 partial, 728 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/cell/envcell.cpp.c` (9/140)
+## `portal/shared/src/cell/envcell.cpp.c` (11/140)
 
 ### PackObj
 - [ ] `PackObj::Pack` · 0047f1a0
@@ -91,7 +91,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::Destroy` · 00480650 · legions 0047a520
 - [ ] `CEnvCell::RecoverFromFreelist` · 004807b0
 - [ ] `CEnvCell::ClearForFreelist` · 00480800 · legions 0047a6d0
-- [ ] `CEnvCell::GetTouchesOutside` · 00480860 · legions 0047a730
+- [x] `CEnvCell::GetTouchesOutside` · 00480860 · legions 0047a730 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 - [ ] `CEnvCell::DestroyStaticLights` · 00480890 · legions 0047a760
 - [ ] `CEnvCell::DrawCellMesh` · 00480900 · legions 0047a7d0
 - [ ] `CEnvCell::CullObjects` · 00480a80 · legions 0047a940
@@ -200,7 +200,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::DrawEnvironment` · 004856b0
 - [ ] `CEnvCell::DrawPostEffects` · 00485770
 - [ ] `CEnvCell::GatherVisibleInsideObjects` · 00485800
-- [ ] `CEnvCell::find_visible_child_cell` · 00485890 · legions 0047f140
+- [x] `CEnvCell::find_visible_child_cell` · 00485890 · legions 0047f140 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 - [ ] `CEnvCell::TraceRay` · 00485930 · legions 0047f1e0
 
 ### PList<MaterialModifierAtom>

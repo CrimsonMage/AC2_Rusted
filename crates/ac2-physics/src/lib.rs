@@ -29,6 +29,7 @@ mod objects_real_data_tests;
 mod objects_tests;
 mod physics_obj;
 mod physics_obj_contact;
+mod physics_obj_place;
 #[cfg(test)]
 mod physics_obj_tests;
 mod position;
@@ -54,6 +55,7 @@ pub use loader::{
 pub use motion_interp::MotionInterp;
 pub use objects::{BBox, ObjectShape, StaticObject};
 pub use physics_obj::BodyShape;
+pub use physics_obj_place::{SetPositionError, FORCE_SPF, SLIDE_SPF};
 pub use position::Position;
 pub use shapes::cylsphere::CylSphere;
 pub use terrain::Terrain;

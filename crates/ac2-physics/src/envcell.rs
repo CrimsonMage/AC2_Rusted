@@ -74,13 +74,22 @@ pub struct EnvCell {
     pub position: Position,
     pub structure: Arc<CellStructure>,
     pub portals: Vec<CellPortal>,
-    /// `CEnvCell::GetTouchesOutside`.
+    /// `CEnvCell::m_seenOutside`.
     pub seen_outside: bool,
+    /// `CObjCell::m_stabList`: the cells visible from this one.
+    pub stab_list: Vec<u32>,
     /// `CObjCell::m_staticShadowList`.
     pub objects: Vec<u32>,
 }
 
 impl EnvCell {
+    /// `CEnvCell::GetTouchesOutside`: a portal opens to the outside.
+    pub(crate) fn touches_outside(&self) -> bool {
+        self.portals
+            .iter()
+            .any(|portal| portal.other_cell.is_none())
+    }
+
     /// `CEnvCell::point_in_cell`: a point of the cell's landblock inside its cell BSP.
     pub(crate) fn point_in_cell(&self, point: Vector) -> bool {
         let local = self.position.frame.global_to_local(point);

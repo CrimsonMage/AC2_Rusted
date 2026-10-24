@@ -175,7 +175,7 @@ impl Terrain {
             else {
                 continue;
             };
-            if !cell.seen_outside {
+            if !cell.touches_outside() {
                 continue;
             }
             let mut position = cell.position;

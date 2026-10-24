@@ -153,7 +153,7 @@ impl PhysicsObj {
         self.transient_state & ON_WALKABLE_TS != 0
     }
 
-    fn is_mobile(&self) -> bool {
+    pub(crate) fn is_mobile(&self) -> bool {
         self.state & MOBILE_PS != 0
     }
 

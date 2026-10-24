@@ -146,7 +146,7 @@ impl PhysicsObj {
     }
 
     /// `CPhysicsObj::SetPositionInternal(CTransition*)`.
-    fn set_position_internal(&mut self, transition: &Transition) {
+    pub(crate) fn set_position_internal(&mut self, transition: &Transition) {
         let prev_on_walkable = self.on_walkable();
         let path = &transition.sphere_path;
         if path.curr_cell.is_none() {
@@ -209,7 +209,11 @@ impl PhysicsObj {
     /// collision manager's sounds and materials are not ported): a body that left or never had
     /// walkable ground reflects its velocity off the collision normal; falling in place stops
     /// it, and the stationary state follows the frame count.
-    fn handle_all_collisions(&mut self, collisions: &CollisionInfo, prev_on_walkable: bool) {
+    pub(crate) fn handle_all_collisions(
+        &mut self,
+        collisions: &CollisionInfo,
+        prev_on_walkable: bool,
+    ) {
         let left_ground = !prev_on_walkable || !self.on_walkable();
         let frames = collisions.frames_stationary_fall;
         if frames < 2 {

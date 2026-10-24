@@ -5,6 +5,7 @@
 
 pub(crate) mod collision;
 mod localspace;
+mod placement;
 pub(crate) mod sphere_path;
 mod steps;
 
@@ -141,8 +142,9 @@ impl Transition {
     pub(crate) fn find_valid_position(&mut self, cells: &dyn CellSource) -> bool {
         match self.sphere_path.insert_type {
             InsertType::Transition => self.find_transitional_position(cells),
-            // `find_placement_position` is not part of this port.
-            InsertType::Placement | InsertType::InitialPlacement => false,
+            InsertType::Placement | InsertType::InitialPlacement => {
+                self.find_placement_position(cells)
+            }
         }
     }
 
@@ -256,8 +258,15 @@ impl Transition {
                     break;
                 }
             } else {
-                // Placement inserts are not part of this port.
-                return false;
+                let inserted = self.transitional_insert(3, cells);
+                ts = self.validate_placement_transition(inserted);
+                if ts == TransitionState::Ok {
+                    return true;
+                }
+                if !self.sphere_path.placement_allows_sliding {
+                    return false;
+                }
+                self.sphere_path.add_offset_to_check_pos(adjusted);
             }
             if (self.collision_info.collision_normal_valid
                 && self.object_info.state & PATH_CLIPPED_OI != 0)

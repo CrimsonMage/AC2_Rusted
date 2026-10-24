@@ -14,6 +14,7 @@ use crate::fpu::{ld, st};
 use crate::frame::Frame;
 use crate::loader::{load_block_objects, load_body_shape, load_terrain_block};
 use crate::objects::{StaticObject, HAS_PHYSICS_BSP_PS};
+use crate::physics_obj_place::{SetPositionError, SLIDE_SPF};
 use crate::position::Position;
 use crate::terrain::Terrain;
 use crate::vector::{Quaternion, Sphere, Vector};
@@ -175,4 +176,29 @@ fn walking_at_physics_bsp_objects_never_enters_their_polygons() {
         deflected > 0,
         "walking at the objects slid along at least one"
     );
+
+    // Placing the body at each object's origin with sliding leaves it clear of the polygons.
+    let mut placed = 0;
+    for &id in &world.objects {
+        let object = world.terrain.object(id).expect("object");
+        if object.state & HAS_PHYSICS_BSP_PS == 0 {
+            continue;
+        }
+        let target = Position::new(
+            object.position.cell_id,
+            Frame::new(object.position.frame.origin, Quaternion::IDENTITY),
+        );
+        let mut body = PhysicsBody::new(target, shape.clone(), Some(Arc::clone(&desc)));
+        if body.place(target, SLIDE_SPF, &world.terrain) != SetPositionError::Ok {
+            continue;
+        }
+        for tree in &object.shape.bsps {
+            for sphere in local_spheres(&body, &spheres, object) {
+                let inside = tree.polygons.iter().any(|p| p.hits_sphere(&sphere));
+                assert!(!inside, "placed into object {id}: {:?}", body.position());
+            }
+        }
+        placed += 1;
+    }
+    assert!(placed > 0);
 }

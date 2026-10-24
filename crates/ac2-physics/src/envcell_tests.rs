@@ -10,6 +10,7 @@ use crate::frame::Frame;
 use crate::landdefs::{lcoord_to_gid, SIDE_VERTEX_COUNT};
 use crate::motion_interp::{ELEMENT_AIR, ELEMENT_GROUND};
 use crate::physics_obj::BodyShape;
+use crate::physics_obj_place::SetPositionError;
 use crate::position::Position;
 use crate::terrain::Terrain;
 use crate::test_support::{desc, walking_values};
@@ -187,6 +188,7 @@ fn rooms() -> Terrain {
             },
         ],
         seen_outside: true,
+        stab_list: vec![ROOM_B],
         objects: Vec::new(),
     });
     let mut b_walls = door_wall(4.0, 1.0);
@@ -200,6 +202,7 @@ fn rooms() -> Terrain {
             polygon: doorway(4.0),
         }],
         seen_outside: false,
+        stab_list: vec![ROOM_A],
         objects: Vec::new(),
     });
     terrain.connect_block(BLOCK, &[ROOM_A]);
@@ -309,4 +312,25 @@ fn walking_in_from_outside_enters_the_building() {
     assert!(path
         .iter()
         .any(|p| p.cell_id == ROOM_A && p.frame.origin.y > BASE.1 + 1.0));
+}
+
+#[test]
+fn placing_in_a_room_puts_the_body_on_its_floor() {
+    let world = rooms();
+    let mut body = walker(ROOM_A, BASE.0 + 2.0, BASE.1 + 2.0);
+    let target = Position::new(
+        ROOM_B,
+        Frame::new(v(BASE.0 + 2.0, BASE.1 + 6.0, 0.2), Quaternion::IDENTITY),
+    );
+    assert_eq!(body.place(target, 0, &world), SetPositionError::Ok);
+    let state = body.movement_state();
+    assert_eq!(state.cell_id, ROOM_B);
+    assert!(state.contact && state.origin[2].abs() < 0.01, "{state:?}");
+    // A point of room A named with room B's id resolves through B's stab list.
+    let misnamed = Position::new(
+        ROOM_B,
+        Frame::new(v(BASE.0 + 2.0, BASE.1 + 2.0, 0.0), Quaternion::IDENTITY),
+    );
+    assert_eq!(body.place(misnamed, 0, &world), SetPositionError::Ok);
+    assert_eq!(body.position().cell_id, ROOM_A);
 }

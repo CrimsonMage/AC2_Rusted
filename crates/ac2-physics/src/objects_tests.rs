@@ -10,6 +10,7 @@ use crate::landdefs::{lcoord_to_gid, SIDE_VERTEX_COUNT};
 use crate::motion_interp::{ELEMENT_AIR, ELEMENT_GROUND};
 use crate::objects::{ObjectShape, StaticObject};
 use crate::physics_obj::BodyShape;
+use crate::physics_obj_place::{SetPositionError, FORCE_SPF, SLIDE_SPF};
 use crate::position::Position;
 use crate::shapes::cylsphere::CylSphere;
 use crate::terrain::Terrain;
@@ -257,4 +258,57 @@ fn a_scaled_object_collides_at_its_scaled_size() {
     let path = walk_north(&mut body, &world, 3.0);
     let last = path.last().expect("steps");
     assert!(last[1] <= 82.5 - 0.39 && last[1] > 81.5, "{path:?}");
+}
+
+#[test]
+fn placing_into_a_box_wall_slides_out_or_fails() {
+    let block = bsp_box(
+        position(80.0, 84.0, 0.0),
+        Vector::new(-1.0, -1.0, 0.0),
+        Vector::new(1.0, 1.0, 2.0),
+    );
+    let world = world_with(block);
+    let mut body = walker(70.0, 70.0, 0.0);
+    let before = body.position();
+    // The body's spheres would cut the box's north face (y = 85).
+    let error = body.place(position(80.0, 85.2, 0.0), 0, &world);
+    assert_ne!(error, SetPositionError::Ok);
+    assert_eq!(
+        body.position(),
+        before,
+        "a failed placement leaves the body"
+    );
+    let error = body.place(position(80.0, 85.2, 0.0), SLIDE_SPF, &world);
+    assert_eq!(error, SetPositionError::Ok);
+    let p = body.position().frame.origin;
+    let (dx, dy) = (p.x - 80.0, p.y - 84.0);
+    assert!(
+        dx.abs() >= 1.39 || dy.abs() >= 1.39 || p.z >= 2.0,
+        "placed clear of the box: {p:?}"
+    );
+}
+
+#[test]
+fn placing_near_the_ground_steps_down_onto_it() {
+    let world = flat();
+    let mut body = walker(70.0, 70.0, 0.0);
+    assert_eq!(
+        body.place(position(75.0, 75.0, 0.3), 0, &world),
+        SetPositionError::Ok
+    );
+    let state = body.movement_state();
+    assert!(state.contact && state.origin[2].abs() < 0.01, "{state:?}");
+    assert_eq!(
+        body.place(position(75.0, 75.0, 5.0), 0, &world),
+        SetPositionError::Ok
+    );
+    let state = body.movement_state();
+    assert!(
+        !state.contact && (state.origin[2] - 5.0).abs() < 1e-6,
+        "{state:?}"
+    );
+    assert_eq!(
+        body.place(position(75.0, 75.0, 5.0), FORCE_SPF, &world),
+        SetPositionError::Ok
+    );
 }

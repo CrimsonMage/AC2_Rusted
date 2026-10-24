@@ -15,6 +15,7 @@ use crate::landdefs::is_outside;
 use crate::loader::{
     load_block_interiors, load_block_objects, load_body_shape, load_terrain_block,
 };
+use crate::physics_obj_place::{SetPositionError, SLIDE_SPF};
 use crate::position::Position;
 use crate::terrain::Terrain;
 use crate::vector::Quaternion;
@@ -60,7 +61,7 @@ fn interiors_load_connect_and_hold_a_body_on_their_floors() {
     let shape = load_body_shape(&store, DataId::new(HUMAN_MALE_VISUAL))
         .expect("body setup decodes")
         .expect("human body setup");
-    let mut settled = 0;
+    let (mut settled, mut tried) = (0, 0);
     for index in 0..interiors as u32 {
         let cell_id = BLOCK | (0x0100 + index);
         let Some(cell) = terrain.env_cell(cell_id) else {
@@ -81,6 +82,16 @@ fn interiors_load_connect_and_hold_a_body_on_their_floors() {
         }
         let position = Position::new(cell_id, Frame::new(start, Quaternion::IDENTITY));
         let mut body = PhysicsBody::new(position, shape.clone(), Some(Arc::clone(&desc)));
+        // A start inside a solid leaf of the cell's physics tree cannot be placed (retail
+        // `BSPTREE::placement_insert` keeps adjusting by nothing); the rest must place.
+        tried += 1;
+        if body.place(position, SLIDE_SPF, &terrain) != SetPositionError::Ok {
+            continue;
+        }
+        assert!(
+            !is_outside(body.position().cell_id),
+            "cell {cell_id:08x}: placed outdoors"
+        );
         for _ in 0..(4.0 / PHYSICS_QUANTUM) as usize {
             body.step_quantum(&terrain);
         }
@@ -96,5 +107,8 @@ fn interiors_load_connect_and_hold_a_body_on_their_floors() {
         );
         settled += 1;
     }
-    assert!(settled > 0, "some cell has its tree centre inside it");
+    assert!(
+        settled * 10 >= tried * 9,
+        "{settled} of {tried} cells placed"
+    );
 }

@@ -55,9 +55,11 @@ key	status	note
 0047fa10	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 0047fa50	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 0047fa80	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+00480860	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 00480cb0	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 00482450	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 00484680	~	ac2-physics load_block_interiors: cell entities as static objects (no ObjectClearance/CollisionParameters)
+00485890	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 004883d0	x	
 00488f10	x	
 00489160	x	
@@ -476,17 +478,22 @@ key	status	note
 004dc2a0	x	ac2-physics transition/localspace.rs, sphere_path.rs
 004dc2d0	x	ac2-physics transition/localspace.rs, sphere_path.rs
 004dc320	x	
+004dc690	x	ac2-physics transition/placement.rs (asm float order; Legions identical)
 004dc720	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 004dc910	x	ac2-physics transition: step_up, check_walkable, neg-poly and precipice branches (Legions identical)
 004dca10	x	
 004dca60	x	
 004dcb20	-	static CTransition pool; one Rust value per transition
+004dcba0	x	ac2-physics transition/placement.rs (asm float order; Legions identical)
+004dcc40	x	ac2-physics transition/placement.rs (asm float order; Legions identical)
 004dccd0	x	
 004dce00	x	ac2-physics transition: step_up, check_walkable, neg-poly and precipice branches (Legions identical)
 004dd060	x	ac2-physics transition: step_up, check_walkable, neg-poly and precipice branches (Legions identical)
 004dd150	x	ac2-physics transition: step_up, check_walkable, neg-poly and precipice branches (Legions identical)
-004dd900	~	placement insert (find_placement_position) not ported
-004ddda0	~	placement insert (find_placement_position) not ported
+004dd4d0	x	ac2-physics transition/placement.rs (asm float order; Legions identical)
+004dd900	x	ac2-physics transition/placement.rs (asm float order; Legions identical)
+004ddc20	x	ac2-physics transition/placement.rs (asm float order; Legions identical)
+004ddda0	x	ac2-physics transition/placement.rs (asm float order; Legions identical)
 004dddc0	x	
 004de020	x	
 004de0d0	x	
@@ -514,6 +521,8 @@ key	status	note
 004e0e30	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004e1520	x	
 004e1c90	~	no admin moves or missiles
+004e1d70	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
+004e1eb0	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 004e23b0	~	instance stamp kept per object in ac2-weenie ObjectTable
 004e30e0	x	
 004e3280	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
@@ -535,6 +544,8 @@ key	status	note
 004e9d30	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 004e9f50	~	no cell residency, shadow or material updates; LeaveGround FX not ported
 004ea780	~	no path-aligned heading, targeting or missiles
+004ea990	~	ac2-physics: FORCE_SPF sets the position only (no cell entry, shadows or cell material)
+004eaa30	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 004eaef0	x	
 004eb000	x	
 004eb010	x	
@@ -547,6 +558,8 @@ key	status	note
 004eb1b0	x	
 004eb370	~	no player-distance range checks, parent or missile paths
 004eb8b0	_	
+004ec350	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
+004ec730	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ed470	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
 004ee7d0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f1f40	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box

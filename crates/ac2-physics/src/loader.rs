@@ -292,6 +292,7 @@ pub fn load_block_interiors(
             structure,
             portals,
             seen_outside: cell.seen_outside,
+            stab_list: cell.visible_cells.iter().map(|id| id.raw()).collect(),
             objects: Vec::new(),
         });
         cells.push(cell);
