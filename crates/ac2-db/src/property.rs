@@ -105,6 +105,12 @@ pub fn install_ac2_property_types(store: &ResourceStore) -> ResourceResult<bool>
     Ok(true)
 }
 
+/// `MasterProperty::InqPropertyType` against the installed table: the value type of property
+/// `name`, if the table is installed and names it.
+pub fn ac2_property_type(name: u32) -> Option<u32> {
+    PROPERTY_TYPES.get()?.types.get(&name).copied()
+}
+
 /// Steps over a `PropertyCollection` embedded in another record (see
 /// [`skip_property_collection`]).
 pub fn skip_ac2_property_collection(cursor: &mut ArchiveCursor<'_>) -> Result<(), &'static str> {

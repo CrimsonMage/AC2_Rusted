@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 92 done, 33 partial, 1937 to do, 62 skipped.
+2124 retail functions: 94 done, 36 partial, 1932 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (0/9)
@@ -1350,7 +1350,7 @@ Legend and workflow: [README](README.md).
 
 ### LightSourceFX
 - [ ] `LightSourceFX::LightSourceFX` · 006aaa30 · legions 00643c70
-- [~] `LightSourceFX::StreamPack` · 006aaa90 · legions 00643cd0 — unpack only, in ac2-net protocol::fx; property collection (bit 0x80) refused: value types come from the MasterProperty DAT table
+- [~] `LightSourceFX::StreamPack` · 006aaa90 · legions 00643cd0 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 - [-] `LightSourceFX::FromFileNode` · 006aab00 — text source format (admin tools)
 - [-] `LightSourceFX::ToFileNode` · 006aad00 — text source format (admin tools)
 
@@ -1978,14 +1978,14 @@ Legend and workflow: [README](README.md).
 - [ ] `MissileTargetingParameters::SetAlwaysStartTowardTarget` · 006abc70 · legions 00644b90
 - [ ] `MissileTargetingParameters::CopyInto` · 006abc80 · legions 00644ba0
 
-## `portal/shared/src/physobj/packclasses.cpp.c` (0/4)
+## `portal/shared/src/physobj/packclasses.cpp.c` (1/4)
 
 ### PositionPack
 - [ ] `PositionPack::PositionPack` · 0069bd90 · legions 0063a7b0
 - [ ] `PositionPack::StreamPack` · 0069be20 · legions 0063a840
 
 ### CPositionPack
-- [ ] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
+- [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [ ] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
 ## `portal/shared/src/physobj/partarray.cpp.c` (0/72)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [ ] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (35/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (36/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2207,7 +2207,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::RecvEvt_SetVelocityScale` · 004de430
 - [ ] `CPhysicsObj::RecvEvt_SetJumpScale` · 004de450
 - [ ] `CPhysicsObj::RecvEvt_SetHoverHeight` · 004de470
-- [ ] `CPhysicsObj::RecvEvt_MoveTo` · 004de490 · legions 004d0ef0
+- [~] `CPhysicsObj::RecvEvt_MoveTo` · 004de490 · legions 004d0ef0 — stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
 - [ ] `CPhysicsObj::RecvEvt_PositionCell` · 004de4e0
 - [ ] `CPhysicsObj::RecvEvt_DoFX` · 004de4f0
 - [ ] `CPhysicsObj::RecvEvt_DoTargettedFX` · 004de500
@@ -2424,7 +2424,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::SetAccelerationScale` · 004e2340
 - [ ] `CPhysicsObj::SetJumpScale` · 004e2350
 - [ ] `CPhysicsObj::GetJumpScale` · 004e23a0
-- [ ] `CPhysicsObj::get_instance_stamp` · 004e23b0 · legions 004d4e00
+- [~] `CPhysicsObj::get_instance_stamp` · 004e23b0 · legions 004d4e00 — instance stamp kept per object in ac2-weenie ObjectTable
 - [ ] `CPhysicsObj::RestoreCamera` · 004e23d0
 - [ ] `CPhysicsObj::SetCameraAnimParent` · 004e23f0
 - [ ] `CPhysicsObj::SetCameraAnimTarget` · 004e2400
@@ -2690,7 +2690,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::IsDummyObject` · 004eb180
 - [ ] `CPhysicsObj::GetDistanceToViewer` · 004eb190
 - [ ] `CPhysicsObj::HasParent` · 004eb1a0
-- [ ] `CPhysicsObj::get_update_time` · 004eb1b0
+- [x] `CPhysicsObj::get_update_time` · 004eb1b0
 - [ ] `CPhysicsObj::inc_update_time` · 004eb1c0
 - [ ] `CPhysicsObj::GetPosition` · 004eb1d0
 - [ ] `CPhysicsObj::GetDrawingPosition` · 004eb1e0
@@ -2740,7 +2740,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::SyncPositionSimple` · 004ed1f0 · legions 004dfb50
 - [ ] `CPhysicsObj::makeObject` · 004ed270 · legions 004dfbd0
 - [ ] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40
-- [ ] `CPhysicsObj::RecvEvt_Position` · 004ed470
+- [~] `CPhysicsObj::RecvEvt_Position` · 004ed470 — stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
 
 ## `portal/shared/src/physobj/physicsobjrep.cpp.c` (0/171)
 

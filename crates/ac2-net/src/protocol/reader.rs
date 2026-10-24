@@ -1,5 +1,6 @@
 use crate::{pack_string, unpack_string, unpack_wide_string};
 
+use crate::protocol::property::PropertyTypes;
 use crate::protocol::ProtocolError;
 
 /// Longest string accepted from the server, in bytes.
@@ -12,11 +13,25 @@ pub(crate) const MAX_ITEMS: usize = 4096;
 pub(crate) struct Reader<'a> {
     bytes: &'a [u8],
     pos: usize,
+    /// The `MasterProperty` types property collections need, when the caller has them.
+    pub(crate) property_types: Option<&'a dyn PropertyTypes>,
 }
 
 impl<'a> Reader<'a> {
     pub(crate) fn new(bytes: &'a [u8]) -> Self {
-        Self { bytes, pos: 0 }
+        Self {
+            bytes,
+            pos: 0,
+            property_types: None,
+        }
+    }
+
+    pub(crate) fn with_property_types(bytes: &'a [u8], types: &'a dyn PropertyTypes) -> Self {
+        Self {
+            bytes,
+            pos: 0,
+            property_types: Some(types),
+        }
     }
 
     pub(crate) fn rest(&mut self) -> &'a [u8] {

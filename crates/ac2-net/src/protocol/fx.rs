@@ -1,6 +1,7 @@
 //! `FXData` and `FXNode` as `PartGroupDataDesc` FX overrides carry them (`FXData::StreamPack`,
 //! `FXNode::StreamPack`: admin 0x006A6180, Legions 0x00642410, instruction-identical).
 
+use crate::protocol::property::{read_property_collection, PropertyGroup};
 use crate::protocol::reader::Reader;
 use crate::protocol::types::hash_count;
 use crate::protocol::ProtocolError;
@@ -14,7 +15,7 @@ pub struct Waveform {
 }
 
 impl Waveform {
-    fn read(reader: &mut Reader<'_>) -> Result<Self, ProtocolError> {
+    pub(crate) fn read(reader: &mut Reader<'_>) -> Result<Self, ProtocolError> {
         let kind = reader.u32()?;
         let mut values = [0.0; 10];
         for value in &mut values {
@@ -76,6 +77,8 @@ pub struct EntityDesc {
     pub offset: Option<[f32; 16]>,
     pub scale: Option<[f32; 3]>,
     pub version: Option<u32>,
+    /// Bit `0x80`: the property collection (decoded only with `MasterProperty` types).
+    pub properties: Vec<PropertyGroup>,
     /// Bit `0x100`: the workbench name.
     pub workbench_name: Option<Vec<u8>>,
 }
@@ -112,9 +115,12 @@ impl EntityDesc {
         if bits & 0x80 != 0 {
             // `BaseProperty::StreamPack` types each value by `MasterProperty`'s table for its
             // name, which only the DAT holds.
-            return Err(ProtocolError::Unsupported(
-                "EntityDesc property collection (MasterProperty types)",
-            ));
+            let Some(types) = reader.property_types else {
+                return Err(ProtocolError::Unsupported(
+                    "EntityDesc property collection (MasterProperty types)",
+                ));
+            };
+            d.properties = read_property_collection(reader, types)?;
         }
         if bits & 0x40 != 0 {
             d.version = Some(reader.u32()?);
@@ -422,6 +428,23 @@ mod tests {
         );
         assert_eq!(data.terrain[0].0, 0x0D);
         assert_eq!(data.terrain[0].1.visual_desc, Some(0x1F00_0005));
+    }
+
+    #[test]
+    fn a_light_with_properties_reads_them_with_the_master_property_types() {
+        let mut b = (0x1u64 << 32).to_le_bytes().to_vec();
+        words(&mut b, &[1, 0x80, 1, 0x2000_0001, 1, 0x30]); // one group, one property
+        floats(&mut b, &[2.5, 1.0, 2.0]); // its float value, lifespan, fade
+        let types = |name: u32| (name == 0x30).then_some(0x4000_0003);
+        let mut reader = Reader::with_property_types(&b, &types);
+        let light = FxNode::read(&mut reader).unwrap().light.unwrap().1;
+        reader.finish().unwrap();
+        let property = &light.entity.properties[0].properties[0];
+        assert_eq!(
+            (property.name, &property.value),
+            (0x30, &crate::protocol::property::PropertyValue::Float(2.5))
+        );
+        assert_eq!((light.lifespan, light.fade_time), (1.0, 2.0));
     }
 
     #[test]

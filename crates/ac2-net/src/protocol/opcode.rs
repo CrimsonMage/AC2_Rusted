@@ -66,8 +66,27 @@ impl Opcode {
     /// C: `ECM_Interp::SendEvt_InterpSEventEncrypt`, queue 7.
     pub const INTERP_S_EVENT_ENCRYPT: u32 = 0x0001_00D0;
 
-    // Qualities (`ECM_Qualities`): private/visual pairs.
+    // Qualities (`ECM_Qualities::RecvEvt_Update*_Private` / `_Visual`, `CEventQueue::DispatchEvent`):
+    // the private event updates the player, the visual one names its object.
     pub const UPDATE_INT_PRIVATE: u32 = 0x0001_0069;
+    pub const UPDATE_INT_VISUAL: u32 = 0x0001_006A;
+    pub const UPDATE_BOOL_PRIVATE: u32 = 0x0001_006B;
+    pub const UPDATE_BOOL_VISUAL: u32 = 0x0001_006C;
+    pub const UPDATE_FLOAT_PRIVATE: u32 = 0x0001_006D;
+    pub const UPDATE_FLOAT_VISUAL: u32 = 0x0001_006E;
+    pub const UPDATE_STRING_PRIVATE: u32 = 0x0001_006F;
+    pub const UPDATE_STRING_VISUAL: u32 = 0x0001_0070;
+    pub const UPDATE_DATA_ID_PRIVATE: u32 = 0x0001_0071;
+    pub const UPDATE_DATA_ID_VISUAL: u32 = 0x0001_0072;
+    pub const UPDATE_INSTANCE_ID_PRIVATE: u32 = 0x0001_0073;
+    pub const UPDATE_INSTANCE_ID_VISUAL: u32 = 0x0001_0074;
+    pub const UPDATE_POSITION_PRIVATE: u32 = 0x0001_0075;
+    pub const UPDATE_POSITION_VISUAL: u32 = 0x0001_0076;
+    pub const UPDATE_TIMESTAMP_PRIVATE: u32 = 0x0001_0077;
+    pub const UPDATE_TIMESTAMP_VISUAL: u32 = 0x0001_0078;
+    pub const UPDATE_STRING_INFO_PRIVATE: u32 = 0x0001_00BC;
+    pub const UPDATE_STRING_INFO_VISUAL: u32 = 0x0001_00BD;
+    pub const UPDATE_LONG_INT_PRIVATE: u32 = 0x0001_00D4;
     pub const UPDATE_LONG_INT_VISUAL: u32 = 0x0001_00D5;
 
     // Physics (`ECM_Physics`, `CM_Physics`).

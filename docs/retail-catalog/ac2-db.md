@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 7 done, 1 partial, 586 to do, 39 skipped.
+633 retail functions: 7 done, 11 partial, 576 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -528,10 +528,10 @@ Legend and workflow: [README](README.md).
 - [ ] `BaseProperty::BaseProperty` · 006b20f0 · legions 0064b380
 - [ ] `BaseProperty::~BaseProperty` · 006b2110 · legions 0064b3a0
 - [ ] `BaseProperty::operator=` · 006b2130 · legions 0064b3c0
-- [ ] `BaseProperty::SetPropertyName` · 006b2180 · legions 0064b410
+- [~] `BaseProperty::SetPropertyName` · 006b2180 · legions 0064b410 — value type via PropertyTypes (MasterProperty::InqPropertyType); group lookup and defaults not modelled
 - [ ] `BaseProperty::InqPropertyBit` · 006b21e0 · legions 0064b470
 - [ ] `BaseProperty::Compare` · 006b2210 · legions 0064b4a0
-- [ ] `BaseProperty::StreamPack` · 006b2250
+- [~] `BaseProperty::StreamPack` · 006b2250 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 - [ ] `BaseProperty::BaseProperty` · 006b22c0 · legions 0064b550
 - [ ] `BaseProperty::SetPropertyNameW` · 006b2310 · legions 0064b5a0
 - [ ] `BaseProperty::InqPropertyNameW` · 006b2380 · legions 0064b610
@@ -566,7 +566,7 @@ Legend and workflow: [README](README.md).
 
 ### ColorPropertyValue
 - [ ] `ColorPropertyValue::ColorPropertyValue` · 006b3e30
-- [ ] `ColorPropertyValue::StreamPack` · 006b3e60
+- [~] `ColorPropertyValue::StreamPack` · 006b3e60 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 - [-] `ColorPropertyValue::FromFileNode` · 006b3e70 — text source format (admin tools)
 - [-] `ColorPropertyValue::ToFileNode` · 006b3e90 — text source format (admin tools)
 - [ ] `ColorPropertyValue::InqColor` · 006b3eb0
@@ -628,7 +628,7 @@ Legend and workflow: [README](README.md).
 - [ ] `VectorPropertyValue::Set` · 006b4560
 - [ ] `VectorPropertyValue::Compare` · 006b4580
 - [ ] `VectorPropertyValue::Copy` · 006b4600
-- [ ] `VectorPropertyValue::StreamPack` · 006b4650
+- [~] `VectorPropertyValue::StreamPack` · 006b4650 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
 ### WaveformPropertyValue
 - [ ] `WaveformPropertyValue::WaveformPropertyValue` · 006b46b0 · legions 0064d070
@@ -650,7 +650,7 @@ Legend and workflow: [README](README.md).
 
 ### WaveformPropertyValue
 - [ ] `WaveformPropertyValue::Copy` · 006b4950
-- [ ] `WaveformPropertyValue::StreamPack` · 006b49d0
+- [~] `WaveformPropertyValue::StreamPack` · 006b49d0 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
 ### PositionPropertyValue
 - [ ] `PositionPropertyValue::PositionPropertyValue` · 006b4a20
@@ -659,7 +659,7 @@ Legend and workflow: [README](README.md).
 - [-] `PositionPropertyValue::ToFileNode` · 006b4a90 — text source format (admin tools)
 - [ ] `PositionPropertyValue::Set` · 006b4ab0
 - [ ] `PositionPropertyValue::Compare` · 006b4ad0
-- [ ] `PositionPropertyValue::StreamPack` · 006b4b80
+- [~] `PositionPropertyValue::StreamPack` · 006b4b80 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
 ### MasterProperty
 - [ ] `MasterProperty::InqPropertyNameEnum` · 006b4be0 · legions 0064d510
@@ -697,7 +697,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StringInfoPropertyValue::SetStringInfo` · 006b5100
 - [ ] `StringInfoPropertyValue::Set` · 006b5120
 - [ ] `StringInfoPropertyValue::HasValidData` · 006b5140
-- [ ] `StringInfoPropertyValue::StreamPack` · 006b5160
+- [~] `StringInfoPropertyValue::StreamPack` · 006b5160 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
 ### (free functions)
 - [ ] `STREAMPACK_PACKOBJ` · 006b5190 · legions 00578ab0
@@ -714,7 +714,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PositionPropertyValue::SetPosition` · 006b54a0
 
 ### MasterProperty
-- [ ] `MasterProperty::AllocatePropertyValue` · 006b54c0 · legions 0064dbf0
+- [~] `MasterProperty::AllocatePropertyValue` · 006b54c0 · legions 0064dbf0 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
 ### BoolPropertyValue
 - [ ] `BoolPropertyValue::GetValueAsString` · 006b5680
@@ -741,7 +741,7 @@ Legend and workflow: [README](README.md).
 - [ ] `VectorPropertyValue::GetValueAsString` · 006b5880
 
 ### StringPropertyValue
-- [ ] `StringPropertyValue::StreamPack` · 006b5950
+- [~] `StringPropertyValue::StreamPack` · 006b5950 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
 ### (free functions)
 - [ ] `STREAMPACK_PACKOBJ` · 006b5980
@@ -819,7 +819,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PropertyGroup::InqPropertyGroupName` · 006b2890
 - [ ] `PropertyGroup::Destroy` · 006b28b0 · legions 0064b8e0
 - [ ] `PropertyGroup::GetSubDataIDs` · 006b2920 · legions 0064b950
-- [ ] `PropertyGroup::StreamPack` · 006b2960 · legions 0064b990
+- [~] `PropertyGroup::StreamPack` · 006b2960 · legions 0064b990 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 - [-] `PropertyGroup::ToFileNode` · 006b29b0 — text source format (admin tools)
 - [ ] `PropertyGroup::RemoveProperty` · 006b2a00 · legions 0064b9e0
 - [ ] `PropertyGroup::GetProperty` · 006b2a80 · legions 0064ba60

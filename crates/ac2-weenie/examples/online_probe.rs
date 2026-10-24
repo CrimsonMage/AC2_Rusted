@@ -28,6 +28,7 @@ fn main() -> Result<(), String> {
     let mut server_key = None;
     let mut language = 0;
     let mut dat_iterations = Vec::new();
+    let mut property_types = false;
     let mut args = std::env::args().skip(1);
     while let Some(flag) = args.next() {
         let value = args.next().ok_or(format!("missing value for {flag}"))?;
@@ -44,6 +45,9 @@ fn main() -> Result<(), String> {
                 let dataset = ac2_dat::DatDataset::open(ac2_dat::DatOpenOptions::new(&value))
                     .map_err(|e| format!("{value}: {e}"))?;
                 dat_iterations = ac2_weenie::dat_iterations(&dataset)?;
+                let store = ac2_db::ResourceStore::new(dataset);
+                property_types =
+                    ac2_db::install_ac2_property_types(&store).map_err(|e| e.to_string())?;
                 println!(
                     "interrogation answer: {:?}",
                     dat_iterations
@@ -73,6 +77,9 @@ fn main() -> Result<(), String> {
         dat_iterations,
     })
     .map_err(|e| e.to_string())?;
+    if property_types {
+        session.set_property_types(Box::new(ac2_db::ac2_property_type));
+    }
     let entry = session.wait_for_world(Duration::from_secs(45))?;
     println!(
         "entered world: player {:#x} instance {} cell {:08X} at {:?} visual {:?}",
@@ -93,14 +100,11 @@ fn main() -> Result<(), String> {
                 origin: [origin[0], origin[1] + distance, origin[2]],
             },
             heading_degrees: 0.0,
+            turn_to_heading: None,
             motion: if walking { [0.0, 1.0, 0.0] } else { [0.0; 3] },
             times_jumped: 0,
             velocity: [0.0; 3],
-            actively_moving: false,
-            instance_stamp: entry.instance,
-            teleport_stamp: 0,
-            force_position_stamp: 0,
-            moveto_stamp: 0,
+            actively_moving: walking,
         });
         reports += 1;
         for event in session.poll() {

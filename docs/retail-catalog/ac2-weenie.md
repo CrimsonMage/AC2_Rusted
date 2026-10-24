@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 75 done, 2 partial, 1821 to do, 6 skipped.
+1904 retail functions: 109 done, 6 partial, 1783 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1262,7 +1262,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ActionMap::UnPack` · 0072f200
 - [ ] `ActionMap::Allocate` · 0072f370
 
-## `portal/client/src/action/movement/playermovementmodule.cpp.c` (4/17)
+## `portal/client/src/action/movement/playermovementmodule.cpp.c` (5/17)
 
 ### PlayerMovementModule
 - [ ] `PlayerMovementModule::Startup` · 00568e20 · legions 00538db0
@@ -1280,8 +1280,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PlayerMovementModule::InterruptMoveTo` · 00569450 · legions 005393e0
 - [ ] `PlayerMovementModule::StopAttackingIfAutoMoving` · 00569470 · legions 00539400
 - [ ] `PlayerMovementModule::Shutdown` · 005694a0 · legions 00539430
-- [ ] `PlayerMovementModule::SetPlayerID` · 005694f0 · legions 00539480
-- [ ] `PlayerMovementModule::UseTime` · 00569550 · legions 005394e0
+- [x] `PlayerMovementModule::SetPlayerID` · 005694f0 · legions 00539480
+- [~] `PlayerMovementModule::UseTime` · 00569550 · legions 005394e0 — only the report tail (ShouldSend*/Send*); the action-key loop and camera heading belong to input/camera, actively_moving comes from the caller
 
 ## `portal/client/src/cfactory/cenginefactory.cpp.c` (0/5)
 
@@ -1353,7 +1353,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Interp::SendEvt_InterpSEvent` · 00498f30 · legions 00491440
 - [ ] `ECM_Interp::SendEvt_InterpSEventEncrypt` · 00498fe0 · legions 004914f0
 
-## `portal/client/src/events/ecm_login.cpp.c` (10/21)
+## `portal/client/src/events/ecm_login.cpp.c` (11/21)
 
 ### ECM_Login
 - [x] `ECM_Login::RecvEvt_CharExitGame` · 004933b0 · legions 0048be00
@@ -1372,7 +1372,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Login::SendNotice_CharacterDeletion` · 00493810
 - [ ] `ECM_Login::SendNotice_CharacterError` · 004938a0 · legions 0048c230
 - [ ] `ECM_Login::SendNotice_CharacterSet` · 00493930
-- [ ] `ECM_Login::SendNotice_LoginFinished` · 004939b0
+- [x] `ECM_Login::SendNotice_LoginFinished` · 004939b0
 - [ ] `ECM_Login::SendNotice_ServerDied` · 00493a30
 - [ ] `ECM_Login::SendNotice_WorldName` · 00493ab0
 - [x] `ECM_Login::RecvEvt_CharacterSet` · 00493b30 · legions 0048c380
@@ -1465,29 +1465,29 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Physics::RecvEvt_ReleaseBehavior` · 004978c0 · legions 0048fdd0
 - [x] `ECM_Physics::RecvEvt_DoBehavior` · 00497a00 · legions 0048ff10
 
-## `portal/client/src/events/ecm_qualities.cpp.c` (0/20)
+## `portal/client/src/events/ecm_qualities.cpp.c` (20/20)
 
 ### ECM_Qualities
-- [ ] `ECM_Qualities::RecvEvt_UpdateBool_Private` · 00497af0 · legions 00490000
-- [ ] `ECM_Qualities::RecvEvt_UpdateBool_Visual` · 00497ba0 · legions 004900b0
-- [ ] `ECM_Qualities::RecvEvt_UpdateDataID_Private` · 00497c90 · legions 004901a0
-- [ ] `ECM_Qualities::RecvEvt_UpdateDataID_Visual` · 00497d40 · legions 00490250
-- [ ] `ECM_Qualities::RecvEvt_UpdateFloat_Private` · 00497e30 · legions 00490340
-- [ ] `ECM_Qualities::RecvEvt_UpdateFloat_Visual` · 00497ef0 · legions 00490400
-- [ ] `ECM_Qualities::RecvEvt_UpdateInstanceID_Private` · 00497ff0 · legions 00490500
-- [ ] `ECM_Qualities::RecvEvt_UpdateInstanceID_Visual` · 004980b0 · legions 004905c0
-- [ ] `ECM_Qualities::RecvEvt_UpdateInt_Private` · 004981b0 · legions 004906c0
-- [ ] `ECM_Qualities::RecvEvt_UpdateInt_Visual` · 00498260 · legions 00490770
-- [ ] `ECM_Qualities::RecvEvt_UpdateLongInt_Private` · 00498350 · legions 00490860
-- [ ] `ECM_Qualities::RecvEvt_UpdateLongInt_Visual` · 00498410 · legions 00490920
-- [ ] `ECM_Qualities::RecvEvt_UpdatePosition_Private` · 00498510 · legions 00490a20
-- [ ] `ECM_Qualities::RecvEvt_UpdatePosition_Visual` · 00498600 · legions 00490b10
-- [ ] `ECM_Qualities::RecvEvt_UpdateStringInfo_Private` · 00498740 · legions 00490c50
-- [ ] `ECM_Qualities::RecvEvt_UpdateStringInfo_Visual` · 00498800 · legions 00490d10
-- [ ] `ECM_Qualities::RecvEvt_UpdateTimestamp_Private` · 00498910 · legions 00490e20
-- [ ] `ECM_Qualities::RecvEvt_UpdateTimestamp_Visual` · 004989e0 · legions 00490ef0
-- [ ] `ECM_Qualities::RecvEvt_UpdateString_Private` · 00498af0 · legions 00491000
-- [ ] `ECM_Qualities::RecvEvt_UpdateString_Visual` · 00498c00 · legions 00491110
+- [x] `ECM_Qualities::RecvEvt_UpdateBool_Private` · 00497af0 · legions 00490000
+- [x] `ECM_Qualities::RecvEvt_UpdateBool_Visual` · 00497ba0 · legions 004900b0
+- [x] `ECM_Qualities::RecvEvt_UpdateDataID_Private` · 00497c90 · legions 004901a0
+- [x] `ECM_Qualities::RecvEvt_UpdateDataID_Visual` · 00497d40 · legions 00490250
+- [x] `ECM_Qualities::RecvEvt_UpdateFloat_Private` · 00497e30 · legions 00490340
+- [x] `ECM_Qualities::RecvEvt_UpdateFloat_Visual` · 00497ef0 · legions 00490400
+- [x] `ECM_Qualities::RecvEvt_UpdateInstanceID_Private` · 00497ff0 · legions 00490500
+- [x] `ECM_Qualities::RecvEvt_UpdateInstanceID_Visual` · 004980b0 · legions 004905c0
+- [x] `ECM_Qualities::RecvEvt_UpdateInt_Private` · 004981b0 · legions 004906c0
+- [x] `ECM_Qualities::RecvEvt_UpdateInt_Visual` · 00498260 · legions 00490770
+- [x] `ECM_Qualities::RecvEvt_UpdateLongInt_Private` · 00498350 · legions 00490860
+- [x] `ECM_Qualities::RecvEvt_UpdateLongInt_Visual` · 00498410 · legions 00490920
+- [x] `ECM_Qualities::RecvEvt_UpdatePosition_Private` · 00498510 · legions 00490a20
+- [x] `ECM_Qualities::RecvEvt_UpdatePosition_Visual` · 00498600 · legions 00490b10
+- [x] `ECM_Qualities::RecvEvt_UpdateStringInfo_Private` · 00498740 · legions 00490c50
+- [x] `ECM_Qualities::RecvEvt_UpdateStringInfo_Visual` · 00498800 · legions 00490d10
+- [x] `ECM_Qualities::RecvEvt_UpdateTimestamp_Private` · 00498910 · legions 00490e20
+- [x] `ECM_Qualities::RecvEvt_UpdateTimestamp_Visual` · 004989e0 · legions 00490ef0
+- [x] `ECM_Qualities::RecvEvt_UpdateString_Private` · 00498af0 · legions 00491000
+- [x] `ECM_Qualities::RecvEvt_UpdateString_Visual` · 00498c00 · legions 00491110
 
 ## `portal/client/src/events/globaleventhandler.cpp.c` (3/21)
 
@@ -1804,10 +1804,10 @@ Legend and workflow: [README](README.md).
 - [ ] `PSmartArray<Season>::StreamPack` · 004a9af0 · legions 004a0a20
 
 ### PSmartArray<PropertyGroup>
-- [ ] `PSmartArray<PropertyGroup>::StreamPack` · 004a9b90 · legions 004a0b60
+- [~] `PSmartArray<PropertyGroup>::StreamPack` · 004a9b90 · legions 004a0b60 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
 ### PSmartArray<BaseProperty>
-- [ ] `PSmartArray<BaseProperty>::StreamPack` · 004a9c30 · legions 004a0c00
+- [~] `PSmartArray<BaseProperty>::StreamPack` · 004a9c30 · legions 004a0c00 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
 ### CNativeFactory
 - [ ] `CNativeFactory::GetReferences` · 004a9cd0 · legions 004a0d40
@@ -2576,7 +2576,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWDistributor::DispatchInterpMsg` · 0052e150 · legions 005124d0
 - [ ] `CWDistributor::RecvEvt_InterpCEvent_Private` · 0052e250 · legions 00512590
 
-## `portal/shared/src/weenie/interface/winterface.cpp.c` (0/52)
+## `portal/shared/src/weenie/interface/winterface.cpp.c` (1/52)
 
 ### CWInterface
 - [ ] `CWInterface::CWInterface` · 0052e280 · legions 005125c0
@@ -2599,7 +2599,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWInterface::IsCreature` · 0052e600 · legions 00512940
 - [ ] `CWInterface::IsThePlayer` · 0052e620 · legions 00512960
 - [ ] `CWInterface::OnStatChanged` · 0052e660 · legions 005129a0
-- [~] `CWInterface::RecvEvt_PlayerDesc` · 0052e6a0 · legions 005129e0 — qualities surface as SessionEvent::PlayerQualities; no CWRepository or LoginFinished notice
+- [x] `CWInterface::RecvEvt_PlayerDesc` · 0052e6a0 · legions 005129e0
 - [ ] `CWInterface::HandleIntersectionDone` · 0052e6c0 · legions 00512a00
 - [ ] `CWInterface::InqDetectionProfile` · 0052e6e0 · legions 00512a20
 - [ ] `CWInterface::HandleCollision` · 0052e700 · legions 00512a40
@@ -2699,13 +2699,13 @@ Legend and workflow: [README](README.md).
 - [ ] `WState::SaveStateByID` · 006b7da0 · legions 0064f5c0
 - [ ] `WState::SaveStateByType` · 006b7ea0 · legions 0064f6c0
 
-## `portal/shared/src/weenie/repository/wrepository.cpp.c` (0/101)
+## `portal/shared/src/weenie/repository/wrepository.cpp.c` (11/101)
 
 ### CWRepository
-- [ ] `CWRepository::Construct` · 00530e70 · legions 00514e10
+- [~] `CWRepository::Construct` · 00530e70 · legions 00514e10 — qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
 - [ ] `CWRepository::~CWRepository` · 00530f10 · legions 00514eb0
-- [ ] `CWRepository::SetWeenieDesc` · 00530f40 · legions 00514ee0
-- [ ] `CWRepository::SetQualities` · 00530f70 · legions 00514f10
+- [~] `CWRepository::SetWeenieDesc` · 00530f40 · legions 00514ee0 — qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
+- [x] `CWRepository::SetQualities` · 00530f70 · legions 00514f10
 - [ ] `CWRepository::HandleEnterWorld` · 00530f90 · legions 00514f30
 - [ ] `CWRepository::HandleLeaveWorld` · 00530fa0 · legions 00514f40
 - [ ] `CWRepository::InqWeenieDescription` · 00530fb0
@@ -2766,16 +2766,16 @@ Legend and workflow: [README](README.md).
 - [ ] `CWRepository::AdjAndTruncateLongInt` · 00531910 · legions 005158b0
 - [ ] `CWRepository::AdjFloat` · 00531970 · legions 00515910
 - [ ] `CWRepository::AdjAndTruncateFloat` · 005319b0 · legions 00515950
-- [ ] `CWRepository::RecvEvt_UpdateInt_Private` · 005319f0 · legions 00515990
-- [ ] `CWRepository::RecvEvt_UpdateLongInt_Private` · 00531a30 · legions 005159d0
-- [ ] `CWRepository::RecvEvt_UpdateBool_Private` · 00531a70 · legions 00515a10
-- [ ] `CWRepository::RecvEvt_UpdateFloat_Private` · 00531ab0 · legions 00515a50
-- [ ] `CWRepository::RecvEvt_UpdateTimestamp_Private` · 00531af0 · legions 00515a90
-- [ ] `CWRepository::RecvEvt_UpdateString_Private` · 00531b30 · legions 00515ad0
-- [ ] `CWRepository::RecvEvt_UpdateDataID_Private` · 00531b70 · legions 00515b10
-- [ ] `CWRepository::RecvEvt_UpdateInstanceID_Private` · 00531bb0 · legions 00515b50
-- [ ] `CWRepository::RecvEvt_UpdatePosition_Private` · 00531bf0 · legions 00515b90
-- [ ] `CWRepository::RecvEvt_UpdateStringInfo_Private` · 00531c30 · legions 00515bd0
+- [x] `CWRepository::RecvEvt_UpdateInt_Private` · 005319f0 · legions 00515990
+- [x] `CWRepository::RecvEvt_UpdateLongInt_Private` · 00531a30 · legions 005159d0
+- [x] `CWRepository::RecvEvt_UpdateBool_Private` · 00531a70 · legions 00515a10
+- [x] `CWRepository::RecvEvt_UpdateFloat_Private` · 00531ab0 · legions 00515a50
+- [x] `CWRepository::RecvEvt_UpdateTimestamp_Private` · 00531af0 · legions 00515a90
+- [x] `CWRepository::RecvEvt_UpdateString_Private` · 00531b30 · legions 00515ad0
+- [x] `CWRepository::RecvEvt_UpdateDataID_Private` · 00531b70 · legions 00515b10
+- [x] `CWRepository::RecvEvt_UpdateInstanceID_Private` · 00531bb0 · legions 00515b50
+- [x] `CWRepository::RecvEvt_UpdatePosition_Private` · 00531bf0 · legions 00515b90
+- [x] `CWRepository::RecvEvt_UpdateStringInfo_Private` · 00531c30 · legions 00515bd0
 - [ ] `CWRepository::CWRepository` · 00531c70 · legions 00515c10
 - [ ] `CWRepository::GetPhysObjID` · 00531ce0 · legions 00515c80
 - [ ] `CWRepository::GetScale` · 00531d10 · legions 00515cb0

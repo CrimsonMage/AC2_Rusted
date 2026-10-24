@@ -119,3 +119,49 @@ fn events_for_unknown_objects_wait_and_visual_order_is_kept() {
     assert_eq!(opcodes(&events), [0x10058, 0x100A9]);
     assert_eq!(world.objects.get(npc).unwrap().mode, Some(0x55));
 }
+
+#[test]
+fn the_player_description_replaces_qualities_and_updates_change_them() {
+    let mut world = World::new(Build::Legions7160);
+    world.start_entering_world();
+    world.receive(blob(0x0300_0001, 1, create_player()), 0.0);
+    world.receive(blob(0x0300_0002, 2, create_object(PLAYER, 1, 0)), 0.0);
+    // `CBaseQualities::UnPack`: header (int table), DID, one int.
+    let mut desc = 0x0001_0068u32.to_le_bytes().to_vec();
+    for word in [2u32, 0x8100_110F, 1, 0x19, 7] {
+        desc.extend(word.to_le_bytes());
+    }
+    world.receive(blob(0x0300_0003, 3, desc), 0.0);
+    let q = &world.objects.get(PLAYER).unwrap().qualities;
+    assert_eq!((q.did, q.ints.get(&0x19)), (0x8100_110F, Some(&7)));
+    // Private int update: the player.
+    let mut update = 0x0001_0069u32.to_le_bytes().to_vec();
+    for word in [0x19u32, 8] {
+        update.extend(word.to_le_bytes());
+    }
+    world.receive(blob(0x0300_0004, 4, update), 0.0);
+    assert_eq!(
+        world.objects.get(PLAYER).unwrap().qualities.ints.get(&0x19),
+        Some(&8)
+    );
+    // A visual quantity update for an object not yet created waits for it, then lands in
+    // its weenie description.
+    let npc: u64 = 0x7000_0000_0000_0042;
+    let mut visual = 0x0001_006Au32.to_le_bytes().to_vec();
+    visual.extend(npc.to_le_bytes());
+    visual.extend([4, 0, 0, 0]);
+    for word in [0x106u32, 3] {
+        visual.extend(word.to_le_bytes());
+    }
+    assert!(world.receive(blob(0x0300_0005, 5, visual), 0.0).is_empty());
+    world.receive(blob(0x0300_0006, 6, create_object(npc, 4, 0)), 0.0);
+    let w = world
+        .objects
+        .get(npc)
+        .unwrap()
+        .qualities
+        .weenie
+        .clone()
+        .unwrap();
+    assert_eq!((w.quantity, w.data_mask & 0x800), (Some(3), 0x800));
+}

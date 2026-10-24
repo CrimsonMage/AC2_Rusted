@@ -137,7 +137,9 @@ name = "ac2-weenie"
 version = "0.1.0"
 dependencies = [
  "ac2-dat",
+ "ac2-db",
  "ac2-net",
+ "ac2-physics",
 ]
 
 [[package]]
