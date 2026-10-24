@@ -1,0 +1,26 @@
+[package]
+name = "ac2-gpu"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[dependencies]
+ac2-core = { path = "../ac2-core" }
+ac2-math = { path = "../ac2-math" }
+ac2-render = { path = "../ac2-render" }
+bytemuck = { version = "1.16", features = ["derive"] }
+pollster = "0.4"
+wgpu = { version = "26.0.1", default-features = false, features = ["std", "parking_lot", "wgsl"] }
+
+[target.'cfg(any(target_os = "windows", target_os = "linux"))'.dependencies]
+wgpu = { version = "26.0.1", default-features = false, features = ["vulkan", "gles"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+wgpu = { version = "26.0.1", default-features = false, features = ["metal"] }
+
+[dev-dependencies]
+ac2-dat = { path = "../ac2-dat" }
+ac2-db = { path = "../ac2-db" }
+ac2-world = { path = "../ac2-world" }
+png = "0.18"

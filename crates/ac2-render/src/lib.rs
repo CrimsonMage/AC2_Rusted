@@ -6,5 +6,7 @@
 
 mod image;
 pub mod terrain;
+mod view;
 
 pub use image::{load_material_image, load_texture_image, Image, ImageLevel};
+pub use view::{Camera, SceneLighting};

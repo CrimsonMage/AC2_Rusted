@@ -8,3 +8,9 @@ mod geometry;
 pub use frame::Frame;
 pub use geometry::{BBox, Plane, Sphere};
 pub use glam::{EulerRot, Mat4, Quat, Vec2, Vec3, Vec4};
+
+/// Right-handed view and projection matrices; `perspective` maps depth to `[0, 1]`.
+pub mod camera {
+    pub use glam::camera::rh::proj::directx::perspective;
+    pub use glam::camera::rh::view::look_at_mat4;
+}
