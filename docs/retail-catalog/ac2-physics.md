@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 131 done, 21 partial, 1910 to do, 62 skipped.
+2124 retail functions: 133 done, 36 partial, 1893 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (0/9)
@@ -385,7 +385,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UndersideInfo::~UndersideInfo` · 00638880 · legions 005eebd0
 
 ### PSmartArray<unsigned_long>
-- [ ] `PSmartArray<unsigned_long>::StreamPack` · 006388c0 · legions 004554e0
+- [~] `PSmartArray<unsigned_long>::StreamPack` · 006388c0 · legions 004554e0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 
 ### UndersideInfo
 - [-] `UndersideInfo::ToFileNode` · 006389b0 — text source format (admin tools)
@@ -1181,7 +1181,7 @@ Legend and workflow: [README](README.md).
 ### DecalFX
 - [ ] `DecalFX::SetDefaults` · 006a9890 · legions 00643910
 - [ ] `DecalFX::DecalFX` · 006a9900 · legions 006439a0
-- [ ] `DecalFX::StreamPack` · 006a9930 · legions 006439d0
+- [~] `DecalFX::StreamPack` · 006a9930 · legions 006439d0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 - [-] `DecalFX::FromFileNode` · 006a99e0 — text source format (admin tools)
 - [-] `DecalFX::ToFileNode` · 006a9d20 — text source format (admin tools)
 
@@ -1191,7 +1191,7 @@ Legend and workflow: [README](README.md).
 - [ ] `FXNode::GetSubDataIDs` · 006a4c10 · legions 00641b70
 
 ### FXData
-- [ ] `FXData::StreamPack` · 006a4ce0 · legions 00641c40
+- [~] `FXData::StreamPack` · 006a4ce0 · legions 00641c40 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 
 ### StreakFX
 - [ ] `StreakFX::operator=` · 006a4d30 · legions 00641c90
@@ -1199,7 +1199,7 @@ Legend and workflow: [README](README.md).
 ### FXNode
 - [ ] `FXNode::GetSoundID` · 006a4db0 · legions 00641d10
 - [ ] `FXNode::GetParticleID` · 006a4e00 · legions 00641d60
-- [ ] `FXNode::get_pack_bitfield` · 006a4e50 · legions 00641db0
+- [~] `FXNode::get_pack_bitfield` · 006a4e50 · legions 00641db0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 
 ### DecalFX
 - [ ] `DecalFX::operator=` · 006a51a0 · legions 00642100
@@ -1208,7 +1208,7 @@ Legend and workflow: [README](README.md).
 - [-] `FXNode::ToFileNode` · 006a52f0 — text source format (admin tools)
 - [ ] `FXNode::ReadColor` · 006a5f00
 - [ ] `FXNode::SetDefaults` · 006a5fc0 · legions 00642250
-- [ ] `FXNode::StreamPack` · 006a6180
+- [~] `FXNode::StreamPack` · 006a6180 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 
 ### FXData
 - [-] `FXData::ToFileNode` · 006a68d0 — text source format (admin tools)
@@ -1350,7 +1350,7 @@ Legend and workflow: [README](README.md).
 
 ### LightSourceFX
 - [ ] `LightSourceFX::LightSourceFX` · 006aaa30 · legions 00643c70
-- [ ] `LightSourceFX::StreamPack` · 006aaa90 · legions 00643cd0
+- [~] `LightSourceFX::StreamPack` · 006aaa90 · legions 00643cd0 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 - [-] `LightSourceFX::FromFileNode` · 006aab00 — text source format (admin tools)
 - [-] `LightSourceFX::ToFileNode` · 006aad00 — text source format (admin tools)
 
@@ -1454,7 +1454,7 @@ Legend and workflow: [README](README.md).
 
 ### RepulsorFX
 - [ ] `RepulsorFX::RepulsorFX` · 006aa5b0 · legions 00643bc0
-- [ ] `RepulsorFX::StreamPack` · 006aa5d0 · legions 00643be0
+- [~] `RepulsorFX::StreamPack` · 006aa5d0 · legions 00643be0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 - [-] `RepulsorFX::FromFileNode` · 006aa660 — text source format (admin tools)
 - [-] `RepulsorFX::ToFileNode` · 006aa8c0 — text source format (admin tools)
 
@@ -1463,7 +1463,7 @@ Legend and workflow: [README](README.md).
 ### StreakFX
 - [ ] `StreakFX::GetSubDataIDs` · 006a9f00 · legions 00643a80
 - [ ] `StreakFX::StreakFX` · 006a9f20 · legions 00643aa0
-- [ ] `StreakFX::StreamPack` · 006a9f80 · legions 00643b00
+- [~] `StreakFX::StreamPack` · 006a9f80 · legions 00643b00 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 - [-] `StreakFX::FromFileNode` · 006aa040 — text source format (admin tools)
 - [-] `StreakFX::ToFileNode` · 006aa3a0 — text source format (admin tools)
 
@@ -1787,7 +1787,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UISceneEntity::SetInstanceID` · 0069c530 · legions 00579750
 
 ### MovementParameters
-- [ ] `MovementParameters::StreamPack` · 0069c550 · legions 0063afe0
+- [~] `MovementParameters::StreamPack` · 0069c550 · legions 0063afe0 — unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 - [ ] `MovementParameters::set_target_position` · 0069c6e0 · legions 0063b170
 
 ### GamePlayUI
@@ -1978,14 +1978,14 @@ Legend and workflow: [README](README.md).
 - [ ] `MissileTargetingParameters::SetAlwaysStartTowardTarget` · 006abc70 · legions 00644b90
 - [ ] `MissileTargetingParameters::CopyInto` · 006abc80 · legions 00644ba0
 
-## `portal/shared/src/physobj/packclasses.cpp.c` (0/4)
+## `portal/shared/src/physobj/packclasses.cpp.c` (1/4)
 
 ### PositionPack
 - [ ] `PositionPack::PositionPack` · 0069bd90 · legions 0063a7b0
 - [ ] `PositionPack::StreamPack` · 0069be20 · legions 0063a840
 
 ### CPositionPack
-- [ ] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
+- [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [ ] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
 ## `portal/shared/src/physobj/partarray.cpp.c` (1/72)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [ ] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (38/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (39/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2207,7 +2207,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::RecvEvt_SetVelocityScale` · 004de430
 - [ ] `CPhysicsObj::RecvEvt_SetJumpScale` · 004de450
 - [ ] `CPhysicsObj::RecvEvt_SetHoverHeight` · 004de470
-- [ ] `CPhysicsObj::RecvEvt_MoveTo` · 004de490 · legions 004d0ef0
+- [~] `CPhysicsObj::RecvEvt_MoveTo` · 004de490 · legions 004d0ef0 — stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
 - [ ] `CPhysicsObj::RecvEvt_PositionCell` · 004de4e0
 - [ ] `CPhysicsObj::RecvEvt_DoFX` · 004de4f0
 - [ ] `CPhysicsObj::RecvEvt_DoTargettedFX` · 004de500
@@ -2424,7 +2424,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::SetAccelerationScale` · 004e2340
 - [ ] `CPhysicsObj::SetJumpScale` · 004e2350
 - [ ] `CPhysicsObj::GetJumpScale` · 004e23a0
-- [ ] `CPhysicsObj::get_instance_stamp` · 004e23b0 · legions 004d4e00
+- [~] `CPhysicsObj::get_instance_stamp` · 004e23b0 · legions 004d4e00 — instance stamp kept per object in ac2-weenie ObjectTable
 - [ ] `CPhysicsObj::RestoreCamera` · 004e23d0
 - [ ] `CPhysicsObj::SetCameraAnimParent` · 004e23f0
 - [ ] `CPhysicsObj::SetCameraAnimTarget` · 004e2400
@@ -2690,7 +2690,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::IsDummyObject` · 004eb180
 - [ ] `CPhysicsObj::GetDistanceToViewer` · 004eb190
 - [ ] `CPhysicsObj::HasParent` · 004eb1a0
-- [ ] `CPhysicsObj::get_update_time` · 004eb1b0
+- [x] `CPhysicsObj::get_update_time` · 004eb1b0
 - [ ] `CPhysicsObj::inc_update_time` · 004eb1c0
 - [ ] `CPhysicsObj::GetPosition` · 004eb1d0
 - [ ] `CPhysicsObj::GetDrawingPosition` · 004eb1e0
@@ -2740,7 +2740,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::SyncPositionSimple` · 004ed1f0 · legions 004dfb50
 - [ ] `CPhysicsObj::makeObject` · 004ed270 · legions 004dfbd0
 - [ ] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40
-- [ ] `CPhysicsObj::RecvEvt_Position` · 004ed470
+- [~] `CPhysicsObj::RecvEvt_Position` · 004ed470 — stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
 
 ## `portal/shared/src/physobj/physicsobjrep.cpp.c` (2/171)
 
@@ -3063,7 +3063,7 @@ Legend and workflow: [README](README.md).
 ### StoryHookData
 - [ ] `StoryHookData::GetTargetID` · 006ad970 · legions 00646ae0
 - [ ] `StoryHookData::StoryHookData` · 006ad990 · legions 00646c10
-- [ ] `StoryHookData::StreamPack` · 006ad9f0 · legions 00646c70
+- [~] `StoryHookData::StreamPack` · 006ad9f0 · legions 00646c70 — unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 
 ### PhysicsStory
 - [ ] `PhysicsStory::IsNull` · 006adb60 · legions 00646de0
@@ -3078,12 +3078,12 @@ Legend and workflow: [README](README.md).
 - [ ] `PhysicsStory::AddHook` · 006ae240 · legions 006474d0
 
 ### (free functions)
-- [ ] `STREAMPACK_STL_SET` · 006ae260 · legions 006474f0
+- [~] `STREAMPACK_STL_SET` · 006ae260 · legions 006474f0 — unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 
 ### PhysicsStory
 - [ ] `PhysicsStory::PhysicsStory` · 006ae420 · legions 006476b0
 - [ ] `PhysicsStory::PhysicsStory` · 006ae4d0 · legions 00647760
-- [ ] `PhysicsStory::StreamPack` · 006ae550 · legions 006477e0
+- [~] `PhysicsStory::StreamPack` · 006ae550 · legions 006477e0 — unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 
 ## `portal/shared/src/physobj/story/storymanager.cpp.c` (0/15)
 

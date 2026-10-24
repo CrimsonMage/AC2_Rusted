@@ -6,10 +6,12 @@ use std::sync::Arc;
 
 use ac2_core::{CellId, DataId};
 use ac2_gpu::{
-    Gpu, GpuObjectModel, ObjectInstance, ObjectRenderer, TerrainBlock, TerrainRenderer, TextureKey,
+    DrawGroup, Gpu, GpuObjectModel, ObjectInstance, ObjectRenderer, ScreenQuad, TerrainBlock,
+    TerrainRenderer, TextureKey,
 };
 use ac2_math::{Mat4, Vec3};
-use ac2_render::object::{load_object_model, RenderSettings};
+use ac2_render::object::{load_object_model, load_water_model, RenderSettings};
+use ac2_render::sky::{sky_frame, SkyFrame, SkyPlacement};
 use ac2_render::terrain::build_terrain_mesh;
 use ac2_render::{load_material_image, load_texture_image, Camera, SceneLighting};
 use ac2_world::Ac2WorldSource;
@@ -21,12 +23,16 @@ pub const DAY_SECONDS: f64 = 7347.0;
 struct Block {
     terrain: Option<TerrainBlock>,
     placements: Vec<(DataId, Mat4)>,
+    /// Near water (`LScapeTerrainMesh::UpdateNearWater`), already in world space.
+    water: Option<GpuObjectModel>,
 }
 
 pub struct Scene {
     pub world: Arc<Ac2WorldSource>,
     pub renderer: TerrainRenderer,
     objects: ObjectRenderer,
+    fog_quad: ScreenQuad,
+    sky: SkyFrame,
     models: HashMap<DataId, Option<GpuObjectModel>>,
     blocks: HashMap<(u8, u8), Block>,
     /// The placements `prepare` laid out, in draw order.
@@ -46,6 +52,8 @@ impl Scene {
             world,
             renderer: TerrainRenderer::new(gpu, format),
             objects: ObjectRenderer::new(gpu, format),
+            fog_quad: ScreenQuad::new(gpu, format),
+            sky: SkyFrame::default(),
             models: HashMap::new(),
             blocks: HashMap::new(),
             frame_placements: Vec::new(),
@@ -99,16 +107,21 @@ impl Scene {
                     continue;
                 }
                 let id = block_id((x, y));
-                let terrain = self
-                    .world
-                    .load_landblock(id)
-                    .ok()
-                    .flatten()
-                    .map(|landblock| {
-                        let mesh = build_terrain_mesh(id, &landblock, self.world.block_size());
-                        self.renderer
-                            .upload_block(gpu, &mesh, self.world.block_size(), &mut load)
-                    });
+                let landblock = self.world.load_landblock(id).ok().flatten();
+                let terrain = landblock.as_ref().map(|landblock| {
+                    let mesh = build_terrain_mesh(id, landblock, self.world.block_size());
+                    self.renderer
+                        .upload_block(gpu, &mesh, self.world.block_size(), &mut load)
+                });
+                let water = landblock
+                    .as_ref()
+                    .and_then(|landblock| self.world.block_water(id, landblock))
+                    .and_then(|water| {
+                        load_water_model(&store, id, &water, self.world.block_size(), &settings)
+                            .ok()
+                            .flatten()
+                    })
+                    .map(|model| self.objects.upload(gpu, &model, &mut load));
                 let mut placements = Vec::new();
                 for marker in self.world.entity_markers(id).iter().flat_map(|m| m.iter()) {
                     let visual = marker.visual();
@@ -131,6 +144,7 @@ impl Scene {
                     Block {
                         terrain,
                         placements,
+                        water,
                     },
                 );
             }
@@ -169,7 +183,10 @@ impl Scene {
 
     /// Writes the frame's camera and lighting and lays out the object draws; `time` is client
     /// time in seconds for animated materials.
-    pub fn prepare(&mut self, gpu: &Gpu, camera: &Camera, aspect: f32, time: f64) -> SceneLighting {
+    /// Writes the frame's camera and lighting and lays out the draws: the sky before the world
+    /// (`LScapeSky::Draw(0)`), the world, then the sky after it (`Draw(1)`). `time` is client time
+    /// in seconds for animated materials.
+    pub fn prepare(&mut self, gpu: &Gpu, camera: &Camera, aspect: f32, time: f64) {
         let lighting = self.lighting();
         self.renderer
             .set_frame(&gpu.queue, camera, &lighting, aspect);
@@ -178,34 +195,114 @@ impl Scene {
             .values()
             .flat_map(|block| block.placements.iter().copied())
             .collect();
-        let instances = instances(&self.models, &self.frame_placements);
-        self.objects
-            .prepare(gpu, camera, &lighting, aspect, time, &instances);
-        lighting
+        let sky_objects = self
+            .world
+            .region()
+            .and_then(|region| region.sky_objects(self.time_of_day))
+            .unwrap_or_default();
+        self.sky = sky_frame(
+            &sky_objects,
+            camera.eye,
+            false,
+            lighting.fog_color,
+            lighting.fog_sky,
+        );
+        let store = self.world.resource_store().clone();
+        let settings = RenderSettings::default();
+        let mut load = |key: TextureKey| match key {
+            TextureKey::Material(did) => load_material_image(&store, did).ok().flatten(),
+            TextureKey::Mask(did) | TextureKey::Texture(did) => {
+                load_texture_image(&store, did).ok().flatten()
+            }
+        };
+        for placement in self.sky.before.iter().chain(&self.sky.after) {
+            if !self.models.contains_key(&placement.gfx) {
+                let model = load_object_model(&store, placement.gfx, &settings)
+                    .ok()
+                    .flatten()
+                    .map(|model| self.objects.upload(gpu, &model, &mut load));
+                self.models.insert(placement.gfx, model);
+            }
+        }
+        if let Some(color) = self.sky.fog_quad {
+            self.fog_quad.set_color(&gpu.queue, color);
+        }
+        let world = instances(&self.models, &self.frame_placements, &self.blocks);
+        let before = sky_instances(&self.models, &self.sky.before);
+        let after = sky_instances(&self.models, &self.sky.after);
+        self.objects.prepare(
+            gpu,
+            camera,
+            &lighting,
+            aspect,
+            time,
+            &[
+                DrawGroup {
+                    instances: &before,
+                    ordered: true,
+                },
+                DrawGroup {
+                    instances: &world,
+                    ordered: false,
+                },
+                DrawGroup {
+                    instances: &after,
+                    ordered: true,
+                },
+            ],
+        );
     }
 
+    /// Records the frame into a pass cleared to `SceneTool::backgroundColor` (black).
     pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
+        self.objects
+            .draw(pass, 0, &sky_instances(&self.models, &self.sky.before));
+        if self.sky.fog_quad.is_some() {
+            self.fog_quad.draw(pass);
+        }
         self.renderer.draw(
             pass,
             self.blocks.values().filter_map(|b| b.terrain.as_ref()),
         );
-        let instances = instances(&self.models, &self.frame_placements);
-        self.objects.draw(pass, &instances);
+        let instances = instances(&self.models, &self.frame_placements, &self.blocks);
+        self.objects.draw(pass, 1, &instances);
+        self.objects
+            .draw(pass, 2, &sky_instances(&self.models, &self.sky.after));
     }
+}
+
+/// The frame's object instances followed by the resident blocks' water. Both `prepare` and
+/// `draw` build it from unchanged state, so the order matches.
+fn sky_instances<'a>(
+    models: &'a HashMap<DataId, Option<GpuObjectModel>>,
+    placements: &[SkyPlacement],
+) -> Vec<ObjectInstance<'a>> {
+    placements
+        .iter()
+        .filter_map(|placement| {
+            Some(ObjectInstance {
+                tint: placement.tint,
+                ..ObjectInstance::new(models.get(&placement.gfx)?.as_ref()?, placement.world)
+            })
+        })
+        .collect()
 }
 
 fn instances<'a>(
     models: &'a HashMap<DataId, Option<GpuObjectModel>>,
     placements: &[(DataId, Mat4)],
+    blocks: &'a HashMap<(u8, u8), Block>,
 ) -> Vec<ObjectInstance<'a>> {
     placements
         .iter()
         .filter_map(|(visual, world)| {
-            Some(ObjectInstance {
-                model: models.get(visual)?.as_ref()?,
-                world: *world,
-            })
+            Some(ObjectInstance::new(models.get(visual)?.as_ref()?, *world))
         })
+        .chain(
+            blocks.values().filter_map(|block| {
+                Some(ObjectInstance::new(block.water.as_ref()?, Mat4::IDENTITY))
+            }),
+        )
         .collect()
 }
 

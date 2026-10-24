@@ -6,6 +6,9 @@ use crate::protocol::object::CreateObject;
 use crate::protocol::opcode::Opcode;
 use crate::protocol::physics_event::ObjectEvent;
 use crate::protocol::position::ServerPosition;
+use crate::protocol::property::PropertyTypes;
+use crate::protocol::qualities::Qualities;
+use crate::protocol::quality_event::QualityUpdate;
 use crate::protocol::reader::Reader;
 use crate::protocol::types::InstanceIdWithStamp;
 use crate::protocol::{Build, ProtocolError};
@@ -32,8 +35,8 @@ pub enum ServerEvent {
         region: u32,
     },
     CreateObject(Box<CreateObject>),
-    /// The player's qualities (`CBaseQualities::UnPack`), not unpacked here.
-    PlayerDescription(Vec<u8>),
+    /// `ECM_Login::RecvEvt_PlayerDesc`: the player's qualities (`CBaseQualities::UnPack`).
+    PlayerDescription(Box<Qualities>),
     /// `0x10086`.
     UpdatePosition(ServerPosition),
     /// `0x100C1`: a position with cell semantics, same layout.
@@ -44,6 +47,11 @@ pub enum ServerEvent {
     Contain(InstanceIdWithStamp),
     /// The other per-object physics events.
     Object(ObjectEvent),
+    /// `ECM_Qualities::RecvEvt_Update*`: one quality of the player or of an object.
+    Quality(QualityUpdate),
+    /// `ECM_Physics::RecvEvt_DoFX_Private`: FX ids played on the player (no sender;
+    /// `PSmartArray<unsigned long>::StreamPack`, a u32 count then the ids).
+    PrivateFx(Vec<u32>),
     /// `ECM_Login::RecvEvt_CharExitGame`.
     CharExitGame,
     /// `ECM_Login::RecvEvt_CharacterDeletion`.
@@ -58,7 +66,20 @@ pub enum ServerEvent {
 impl ServerEvent {
     /// Decodes a blob. Login layouts that differ between builds follow `build`.
     pub fn decode(bytes: &[u8], build: Build) -> Result<Self, ProtocolError> {
-        let mut r = Reader::new(bytes);
+        Self::decode_from(Reader::new(bytes), bytes, build)
+    }
+
+    /// [`ServerEvent::decode`] with the `MasterProperty` types, so property collections (in
+    /// light FX) decode too.
+    pub fn decode_with_properties(
+        bytes: &[u8],
+        build: Build,
+        types: &dyn PropertyTypes,
+    ) -> Result<Self, ProtocolError> {
+        Self::decode_from(Reader::with_property_types(bytes, types), bytes, build)
+    }
+
+    fn decode_from(mut r: Reader<'_>, bytes: &[u8], build: Build) -> Result<Self, ProtocolError> {
         let opcode = r.u32()?;
         let event = match opcode {
             Opcode::DAT_DATA
@@ -96,20 +117,28 @@ impl ServerEvent {
                 Self::CreatePlayer { id, region }
             }
             Opcode::CREATE_OBJECT => Self::CreateObject(Box::new(CreateObject::read(&mut r)?)),
-            Opcode::PLAYER_DESCRIPTION => Self::PlayerDescription(r.rest().to_vec()),
+            Opcode::PLAYER_DESCRIPTION => {
+                Self::PlayerDescription(Box::new(Qualities::read(&mut r)?))
+            }
             Opcode::UPDATE_POSITION => Self::UpdatePosition(ServerPosition::read(&mut r)?),
             Opcode::POSITION_CELL => Self::PositionCell(ServerPosition::read(&mut r)?),
             Opcode::DESTROY_OBJECT => Self::DestroyObject(InstanceIdWithStamp::read(&mut r)?),
             Opcode::CONTAIN => Self::Contain(InstanceIdWithStamp::read(&mut r)?),
+            Opcode::DO_FX_PRIVATE => {
+                Self::PrivateFx((0..r.count()?).map(|_| r.u32()).collect::<Result<_, _>>()?)
+            }
             Opcode::CHAR_EXIT_GAME => Self::CharExitGame,
             Opcode::CHARACTER_DELETION => {
                 let id = r.u64()?;
                 r.align()?;
                 Self::CharacterDeleted(id)
             }
-            opcode => match ObjectEvent::read(opcode, &mut r) {
-                Some(event) => Self::Object(event?),
-                None => {
+            opcode => {
+                if let Some(event) = ObjectEvent::read(opcode, &mut r) {
+                    Self::Object(event?)
+                } else if let Some(update) = QualityUpdate::read(opcode, &mut r) {
+                    Self::Quality(update?)
+                } else {
                     let mut r = Reader::new(bytes);
                     r.u32()?;
                     return Ok(Self::Other {
@@ -117,7 +146,7 @@ impl ServerEvent {
                         body: r.rest().to_vec(),
                     });
                 }
-            },
+            }
         };
         r.finish()?;
         Ok(event)

@@ -9,11 +9,16 @@ mod character;
 mod client_event;
 mod dat_event;
 mod error;
+mod fx;
+mod movement;
 mod object;
 mod opcode;
 mod physics;
 mod physics_event;
 mod position;
+mod property;
+mod qualities;
+mod quality_event;
 mod reader;
 mod server_event;
 mod string_info;
@@ -27,6 +32,8 @@ pub use dat_event::{
     dat_request, end_ddd, interrogation_response, read_int_set, DatEvent, MissingIteration,
 };
 pub use error::ProtocolError;
+pub use fx::{DecalFx, EntityDesc, FxData, FxNode, LightSourceFx, RepulsorFx, StreakFx, Waveform};
+pub use movement::{MoveTarget, MovementParameters, PhysicsStory, StoryHook, TargetPosition};
 pub use object::CreateObject;
 pub use opcode::Opcode;
 pub use physics::{BehaviorParams, PhysicsDesc};
@@ -34,6 +41,9 @@ pub use physics_event::{ObjectAction, ObjectEvent};
 pub use position::{
     heading_from_u8, heading_to_u8, motion_from_u24, motion_to_u24, ClientPosition, ServerPosition,
 };
+pub use property::{Property, PropertyGroup, PropertyTypes, PropertyValue};
+pub use qualities::Qualities;
+pub use quality_event::{QualityUpdate, QualityValue};
 pub use server_event::ServerEvent;
 pub use string_info::{StringInfo, StringVariable};
 pub use types::{CellPosition, InstanceIdWithStamp, Position};

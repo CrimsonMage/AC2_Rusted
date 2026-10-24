@@ -6,6 +6,7 @@
 
 use crate::flow::standalone;
 use crate::optional::OptionalHeader;
+use crate::session_key::SessionCrypto;
 use crate::string::{pack_string, unpack_string};
 use crate::NetError;
 
@@ -56,22 +57,26 @@ pub struct Logon {
     /// `m_dwConnectionSequenceNumber`: `Timer::get_real_time()` (Unix seconds) when
     /// `ClientNet::Init` ran.
     pub connection_sequence: u32,
+    /// The session key `ClientNet::Init` exports into the crypto blob. Retail never logs on
+    /// without one; `None` sends auth flags 0 and an empty blob, for servers without the
+    /// RSA private key.
+    pub crypto: Option<SessionCrypto>,
 }
 
 impl Logon {
     /// `NetAuthenticator::StreamPack`: auth type, auth flags, connection sequence, packed
     /// account, then the crypto blob and the extra-data blob (`CGrowBuffer::StreamPack`: u32
-    /// length and bytes). The retail client exports a CryptoAPI RC4 session key under the
-    /// server's RSA key into the crypto blob and sets flag bit 0 (`ClientNet::Init`,
-    /// `NetAuthenticator::SetCryptoKey`); this client exports none, so the flags stay 0 and
-    /// the blob is empty.
+    /// length and bytes). `NetAuthenticator::SetCryptoKey` sets flag bit 0 with the exported
+    /// session key; bit 1 (`SetAdminAccountOverride`, admin builds only) is never set.
     fn authenticator(&self) -> Vec<u8> {
+        let blob = self.crypto.as_ref().map_or(&[][..], |c| &c.blob[..]);
         let mut out = Vec::new();
         out.extend(self.credential.auth_type().to_le_bytes());
-        out.extend(0u32.to_le_bytes());
+        out.extend(u32::from(!blob.is_empty()).to_le_bytes());
         out.extend(self.connection_sequence.to_le_bytes());
         pack_string(&mut out, 0, self.account.as_bytes());
-        out.extend(0u32.to_le_bytes());
+        out.extend((blob.len() as u32).to_le_bytes());
+        out.extend(blob);
         let extra = self.credential.extra_data();
         out.extend((extra.len() as u32).to_le_bytes());
         out.extend(extra);
@@ -136,6 +141,7 @@ mod tests {
     use super::{Credential, Logon, LEGIONS_VERSION};
     use crate::checksum::checksum32;
     use crate::header::{flags, PacketHeader};
+    use crate::session_key::{SessionCrypto, SessionKey};
 
     fn logon(credential: Credential) -> Logon {
         Logon {
@@ -143,6 +149,7 @@ mod tests {
             account: "local".into(),
             credential,
             connection_sequence: 0x6543_2100,
+            crypto: None,
         }
     }
 
@@ -182,6 +189,28 @@ mod tests {
             ("7160", 1, "local")
         );
         assert!(extra.is_empty());
+    }
+
+    #[test]
+    fn the_session_key_blob_sets_auth_flag_one() {
+        let mut logon = logon(Credential::Account);
+        logon.crypto = Some(SessionCrypto {
+            key: SessionKey::from_bytes([1, 2, 3, 4, 5]),
+            blob: (0..76).collect(),
+        });
+        let payload = logon.payload();
+        let mut expected = vec![4, 0, 0x4B, 0x81, 0xE7, 0xE6, 0, 0];
+        expected.extend((28u32 + 76).to_le_bytes());
+        expected.extend(1u32.to_le_bytes());
+        expected.extend(1u32.to_le_bytes());
+        expected.extend(0x6543_2100u32.to_le_bytes());
+        expected.extend([5, 0, 0xFE, 0x64, 0xB2, 0xF3, 0xC6, 0]);
+        expected.extend(76u32.to_le_bytes());
+        expected.extend(0..76u8);
+        expected.extend(0u32.to_le_bytes());
+        assert_eq!(payload, expected);
+        let (_, auth, account, extra) = Logon::decode_payload(&payload).unwrap();
+        assert_eq!((auth, account.as_str(), extra.len()), (1, "local", 0));
     }
 
     #[test]

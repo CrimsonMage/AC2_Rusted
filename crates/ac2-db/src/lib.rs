@@ -62,9 +62,9 @@ pub use preparation_queue::{
     PreparationTransport, SequencedPreparation, RETAIL_PREPARATION_FAST_QUEUE_CAPACITY,
 };
 pub use property::{
-    install_ac2_property_types, read_ac2_property_collection, read_ac2_property_groups,
-    skip_ac2_property_collection, skip_property_collection, update_ac2_property_collection,
-    Ac2PropertyGroup, Ac2PropertyTypes, Ac2PropertyValue,
+    ac2_property_type, install_ac2_property_types, read_ac2_property_collection,
+    read_ac2_property_groups, skip_ac2_property_collection, skip_property_collection,
+    update_ac2_property_collection, Ac2PropertyGroup, Ac2PropertyTypes, Ac2PropertyValue,
 };
 pub use resource_runtime::ResourceRuntime;
 pub use resource_runtime::{

@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 200 done, 14 partial, 342 to do, 0 skipped.
+556 retail functions: 204 done, 11 partial, 341 to do, 0 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -385,7 +385,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Indicator::~Indicator` · 004ce980 · legions 004c2ef0
 - [x] `Indicator::CheckInPacket` · 004ce9d0 · legions 004c2f40
 
-## `portal/client/src/clinet/clientnet.cpp.c` (51/83)
+## `portal/client/src/clinet/clientnet.cpp.c` (52/83)
 
 ### CQuickTimer
 - [ ] `CQuickTimer::Expired` · 004c52b0 · legions 004b9670
@@ -458,7 +458,7 @@ Legend and workflow: [README](README.md).
 
 ### ClientNet
 - [~] `ClientNet::EndState` · 004c6900 · legions 004bad40 — logon outcome as an event; no async state machine
-- [~] `ClientNet::InitCrypto` · 004c6980 · legions 004badc0 — no CryptoAPI RSA import or RC4 session key
+- [x] `ClientNet::InitCrypto` · 004c6980 · legions 004badc0 — SessionKey::generate + ServerPublicKey: Base-provider 40-bit RC4 with 11-byte zero salt; key-container fallback (InitCliCrypto) not needed
 - [x] `ClientNet::VerifyHeader` · 004c6bd0 · legions 004bb010
 - [ ] `ClientNet::NotifyPluginsOfStatusChange` · 004c6d80 · legions 004bb1c0
 - [ ] `ClientNet::NotifyPluginsOfHeartbeat` · 004c6dd0 · legions 004bb210
@@ -520,7 +520,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ClientNet::~ClientNet` · 004c8950 · legions 004bcea0
 - [x] `ClientNet::LogonUseTime` · 004c8a50 · legions 004bcfa0
 - [ ] `ClientNet::InitAddresses` · 004c8b40 · legions 004bd090
-- [~] `ClientNet::Init` · 004c9050 · legions 004bd5a0 — connection sequence from real time; no address/interface parsing or crypto key export
+- [~] `ClientNet::Init` · 004c9050 · legions 004bd5a0 — connection sequence from real time and SIMPLEBLOB session-key export; no address/interface parsing
 - [x] `ClientNet::HandleConnectionRequest` · 004c9200 · legions 004bd750
 - [x] `ClientNet::HandleReferral` · 004c9480 · legions 004bd9d0
 - [~] `ClientNet::Init` · 004c95a0 · legions 004bdaf0 — connection sequence from real time; no address/interface parsing or crypto key export
@@ -558,10 +558,10 @@ Legend and workflow: [README](README.md).
 - [ ] `RemoveLinkStatusPlugin` · 004ca2b0 · legions 004be890
 - [ ] `AddLinkStatusPlugin` · 004ca2e0 · legions 004be8c0
 
-## `portal/client/src/clinet/pui.cpp.c` (5/8)
+## `portal/client/src/clinet/pui.cpp.c` (6/8)
 
 ### Proto_UI
-- [~] `Proto_UI::SendBlob` · 004c9b70 · legions 004be150 — queues 6-8 are not RC4-encrypted (no session key)
+- [x] `Proto_UI::SendBlob` · 004c9b70 · legions 004be150
 - [x] `Proto_UI::SetOrderingStamp` · 004c9c10 · legions 004be1f0
 - [x] `Proto_UI::SendBuff` · 004c9c20 · legions 004be200
 - [x] `Proto_UI::LogOffCharacter` · 004c9d10 · legions 004be2f0
@@ -759,13 +759,13 @@ Legend and workflow: [README](README.md).
 - [ ] `InterfaceEnumerator::InterfaceEnumerator` · 0063c590 · legions 005f10e0
 - [ ] `InterfaceEnumerator::~InterfaceEnumerator` · 0063c630 · legions 005f1180
 
-## `portal/shared/src/newnet/netauthenticator.cpp.c` (4/11)
+## `portal/shared/src/newnet/netauthenticator.cpp.c` (6/11)
 
 ### NetAuthenticator::CGrowBuffer
-- [ ] `NetAuthenticator::CGrowBuffer::Grow` · 004c4ed0 · legions 004b92e0
+- [x] `NetAuthenticator::CGrowBuffer::Grow` · 004c4ed0 · legions 004b92e0
 
 ### NetAuthenticator
-- [~] `NetAuthenticator::SetCryptoKey` · 004c4f10 · legions 004b9320 — no CryptoAPI session key: auth flag bit 0 never set, crypto blob empty
+- [x] `NetAuthenticator::SetCryptoKey` · 004c4f10 · legions 004b9320
 
 ### NetAuthenticator::CGrowBuffer
 - [x] `NetAuthenticator::CGrowBuffer::StreamPack` · 004c4f80 · legions 004b9390

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 8 done, 0 partial, 2222 to do, 17 skipped.
+2247 retail functions: 8 done, 2 partial, 2220 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -238,7 +238,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PStringBase<unsigned_short>::UnPack` · 00409be0 · legions 00409950
 
 ### PHashTable<unsigned_long,float>
-- [ ] `PHashTable<unsigned_long,float>::StreamPack` · 00409e00
+- [~] `PHashTable<unsigned_long,float>::StreamPack` · 00409e00 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 
 ### PHashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>
 - [ ] `PHashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>::~PHashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>` · 0040a190 · legions 0040a020
@@ -1292,7 +1292,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmPaperDollUI::InitSlots` · 00442e60 · legions 004437b0
 
 ### PHashTable<unsigned_long,InstanceID>
-- [ ] `PHashTable<unsigned_long,InstanceID>::StreamPack` · 004431d0
+- [~] `PHashTable<unsigned_long,InstanceID>::StreamPack` · 004431d0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 
 ### gmPaperDollUI
 - [ ] `gmPaperDollUI::GetInventory` · 00443400 · legions 00443d50

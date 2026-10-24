@@ -7,3 +7,4 @@ license.workspace = true
 
 [dependencies]
 ac2-core = { path = "../ac2-core" }
+getrandom = "0.3"

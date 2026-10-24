@@ -181,8 +181,7 @@ impl State {
         let view = output.texture.create_view(&Default::default());
         let aspect = self.config.width as f32 / self.config.height as f32;
         let time = self.started.elapsed().as_secs_f64();
-        let lighting = self
-            .scene
+        self.scene
             .prepare(&self.gpu, &self.fly.camera(), aspect, time);
         let scene = &self.scene;
         render_to(
@@ -190,7 +189,7 @@ impl State {
             &self.gpu.queue,
             &view,
             &self.depth,
-            lighting.fog_color,
+            [0.0; 3],
             |pass| scene.draw(pass),
         );
         output.present();

@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 19 done, 7 partial, 742 to do, 13 skipped.
+781 retail functions: 24 done, 13 partial, 731 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -854,7 +854,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneTool::DisableSunlight` · 0056eef0 · legions 0053f2d0
 - [~] `SceneTool::SetSunlight` · 0056ef40 · legions 0053f320 — object::ObjectLights; static/volumetric shadow strengths not used yet
 - [ ] `SceneTool::DrawLine` · 0056f230 · legions 0053f610
-- [ ] `SceneTool::DrawScreenQuad` · 0056f260 · legions 0053f640
+- [~] `SceneTool::DrawScreenQuad` · 0056f260 · legions 0053f640 — untextured colour quad (ac2-gpu ScreenQuad) only
 - [ ] `SceneTool::SwitchTextureTargets` · 0056f2e0 · legions 0053f6c0
 - [ ] `SceneTool::Render` · 0056f440 · legions 0053f820
 
@@ -1057,20 +1057,20 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeRender::FillRainVertices` · 00584d70 · legions 00554490
 - [ ] `LScapeRender::UpdateRain` · 005856f0 · legions 00554de0
 
-## `portal/client/src/smartbox/worldrender/lscapesky.cpp.c` (0/9)
+## `portal/client/src/smartbox/worldrender/lscapesky.cpp.c` (3/9)
 
 ### LScapeSky
-- [ ] `LScapeSky::SetSkyFog` · 005857b0 · legions 00554ea0
-- [ ] `LScapeSky::CalcFrame` · 005857f0 · legions 00554ee0
+- [x] `LScapeSky::SetSkyFog` · 005857b0 · legions 00554ea0 — ac2-world region::sky_objects, ac2-render sky
+- [x] `LScapeSky::CalcFrame` · 005857f0 · legions 00554ee0 — ac2-world region::sky_objects, ac2-render sky
 - [ ] `LScapeSky::Clear` · 00585870 · legions 00554f60
-- [ ] `LScapeSky::SetViewerPosition` · 005858b0 · legions 00554fa0
-- [ ] `LScapeSky::Draw` · 00585980 · legions 00555070
+- [x] `LScapeSky::SetViewerPosition` · 005858b0 · legions 00554fa0 — ac2-world region::sky_objects, ac2-render sky
+- [~] `LScapeSky::Draw` · 00585980 · legions 00555070 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 - [ ] `LScapeSky::LScapeSky` · 00585b30 · legions 00555220
 - [ ] `LScapeSky::~LScapeSky` · 00585b50 · legions 00555240
-- [ ] `LScapeSky::CreateDeletePhysicsObjects` · 00585ba0 · legions 00555290
-- [ ] `LScapeSky::UpdateTimeOfDay` · 00585cf0 · legions 005553e0
+- [~] `LScapeSky::CreateDeletePhysicsObjects` · 00585ba0 · legions 00555290 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
+- [~] `LScapeSky::UpdateTimeOfDay` · 00585cf0 · legions 005553e0 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 
-## `portal/client/src/smartbox/worldrender/lscapeterrainmesh.cpp.c` (1/48)
+## `portal/client/src/smartbox/worldrender/lscapeterrainmesh.cpp.c` (3/48)
 
 ### LM_UVTranslate
 - [ ] `LM_UVTranslate::SetVTranslate` · 005880a0 · legions 005577e0
@@ -1098,7 +1098,7 @@ Legend and workflow: [README](README.md).
 
 ### LScapeTerrainMesh
 - [ ] `LScapeTerrainMesh::DrawTerrain` · 00588610
-- [ ] `LScapeTerrainMesh::DrawWaterMesh` · 00588840 · legions 00557ee0
+- [~] `LScapeTerrainMesh::DrawWaterMesh` · 00588840 · legions 00557ee0 — near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
 - [ ] `LScapeTerrainMesh::ApplyList` · 00588a30 · legions 005580d0
 - [ ] `LScapeTerrainMesh::InqNearBlockIndex` · 00588aa0 · legions 00558140
 
@@ -1145,15 +1145,15 @@ Legend and workflow: [README](README.md).
 
 ### LScapeTerrainMesh
 - [ ] `LScapeTerrainMesh::DestroyLScapeMaterialInfo` · 0058ad30 · legions 0055a3b0
-- [ ] `LScapeTerrainMesh::DrawWater` · 0058ad90
+- [~] `LScapeTerrainMesh::DrawWater` · 0058ad90 — near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
 - [ ] `LScapeTerrainMesh::ReOrderNearVertices` · 0058b460 · legions 0055aad0
-- [ ] `LScapeTerrainMesh::BuildNearWaterMesh` · 0058b600 · legions 0055ac70
+- [x] `LScapeTerrainMesh::BuildNearWaterMesh` · 0058b600 · legions 0055ac70 — ac2-render object::load_water_model
 - [ ] `LScapeTerrainMesh::Destroy` · 0058b8a0 · legions 0055af10
 - [~] `LScapeTerrainMesh::BuildNearTerrainMesh` · 0058b9e0 · legions 0055b050 — per-block near mesh; no cloud-shadow UVs or shared near vertex array
 - [ ] `LScapeTerrainMesh::~LScapeTerrainMesh` · 0058bc10 · legions 0055b280
 - [ ] `LScapeTerrainMesh::InitFarMesh` · 0058bce0 · legions 0055b350
 - [~] `LScapeTerrainMesh::UpdateNearTerrain` · 0058c8c0 · legions 0055bf30 — per-block near mesh; no cloud-shadow UVs or shared near vertex array
-- [ ] `LScapeTerrainMesh::UpdateNearWater` · 0058d700 · legions 0055cd70
+- [x] `LScapeTerrainMesh::UpdateNearWater` · 0058d700 · legions 0055cd70 — ac2-render object::load_water_model
 - [ ] `LScapeTerrainMesh::GenerateShore` · 0058dcb0 · legions 0055d320
 - [ ] `LScapeTerrainMesh::Init` · 0058e940 · legions 0055dfb0
 - [ ] `LScapeTerrainMesh::LScapeTerrainMesh` · 0058eb20 · legions 0055e190

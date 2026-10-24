@@ -101,6 +101,26 @@ struct QueuedDraw {
 pub struct ObjectInstance<'a> {
     pub model: &'a GpuObjectModel,
     pub world: Mat4,
+    /// Material tint (`CPhysicsObj` diffuse colour and opacity); white leaves it unchanged.
+    pub tint: [f32; 4],
+}
+
+impl<'a> ObjectInstance<'a> {
+    /// An untinted instance.
+    pub fn new(model: &'a GpuObjectModel, world: Mat4) -> Self {
+        Self {
+            model,
+            world,
+            tint: [1.0; 4],
+        }
+    }
+}
+
+/// Instances laid out together; `ordered` keeps their order instead of sorting translucency.
+#[derive(Clone, Copy)]
+pub struct DrawGroup<'a> {
+    pub instances: &'a [ObjectInstance<'a>],
+    pub ordered: bool,
 }
 
 pub struct ObjectRenderer {
@@ -123,6 +143,8 @@ pub struct ObjectRenderer {
     time: f64,
     /// Laid out by `prepare`, recorded by `draw`.
     queue: Vec<QueuedDraw>,
+    /// Ranges of `queue` by draw group.
+    groups: Vec<Range<usize>>,
 }
 
 impl ObjectRenderer {
@@ -209,6 +231,7 @@ impl ObjectRenderer {
             textures: TextureCache::new(device, &gpu.queue),
             time: 0.0,
             queue: Vec::new(),
+            groups: Vec::new(),
         }
     }
 
@@ -347,6 +370,10 @@ impl ObjectRenderer {
     /// Writes the frame's camera, lights and fog, re-evaluates animated layers at client time
     /// `time`, and lays out this frame's draws: layers that write depth in instance order, then the
     /// rest back to front.
+    /// Writes the frame's camera, lights and fog, re-evaluates animated or tinted layers at
+    /// client time `time`, and lays out each group's draws. A group in draw order keeps its
+    /// instances' order (the sky); otherwise layers that write depth go first in instance order
+    /// and the rest back to front.
     pub fn prepare(
         &mut self,
         gpu: &Gpu,
@@ -354,47 +381,51 @@ impl ObjectRenderer {
         lighting: &SceneLighting,
         aspect: f32,
         time: f64,
-        instances: &[ObjectInstance<'_>],
+        groups: &[DrawGroup<'_>],
     ) {
         self.time = time;
         self.write_frame(&gpu.queue, camera, lighting, aspect);
-        let mut opaque = Vec::new();
-        let mut translucent = Vec::new();
-        for (instance_index, instance) in instances.iter().enumerate() {
-            let center = instance.world.transform_point3(instance.model.center);
-            let distance = center.distance_squared(camera.eye);
-            for (part_index, part) in instance.model.parts.iter().enumerate() {
-                let model = instance.world * part.transform;
-                for (batch_index, batch) in part.batches.iter().enumerate() {
-                    let animated = batch
-                        .material
-                        .animated()
-                        .then(|| batch.material.passes([1.0; 4], time));
-                    for (pass_index, gpu_pass) in batch.passes.iter().enumerate() {
-                        let pass = animated.as_ref().map_or(&gpu_pass.pass, |p| &p[pass_index]);
-                        let draw = QueuedDraw {
-                            key: pipeline_key(pass, gpu_pass.program),
-                            offset: 0,
-                            instance: instance_index,
-                            part: part_index,
-                            batch: batch_index,
-                            layer: pass_index,
-                        };
-                        let entry = (draw_uniform(model, pass), draw);
-                        if pass.depth_write {
-                            opaque.push(entry);
-                        } else {
-                            translucent.push((distance, entry));
+        let mut entries = Vec::new();
+        let mut bounds = Vec::with_capacity(groups.len());
+        for group in groups {
+            let start = entries.len();
+            let mut opaque = Vec::new();
+            let mut translucent = Vec::new();
+            for (instance_index, instance) in group.instances.iter().enumerate() {
+                let center = instance.world.transform_point3(instance.model.center);
+                let distance = center.distance_squared(camera.eye);
+                for (part_index, part) in instance.model.parts.iter().enumerate() {
+                    let model = instance.world * part.transform;
+                    for (batch_index, batch) in part.batches.iter().enumerate() {
+                        let recomputed = (batch.material.animated() || instance.tint != [1.0; 4])
+                            .then(|| batch.material.passes(instance.tint, time));
+                        for (pass_index, gpu_pass) in batch.passes.iter().enumerate() {
+                            let pass = recomputed
+                                .as_ref()
+                                .map_or(&gpu_pass.pass, |p| &p[pass_index]);
+                            let draw = QueuedDraw {
+                                key: pipeline_key(pass, gpu_pass.program),
+                                offset: 0,
+                                instance: instance_index,
+                                part: part_index,
+                                batch: batch_index,
+                                layer: pass_index,
+                            };
+                            let entry = (draw_uniform(model, pass), draw);
+                            if group.ordered || pass.depth_write {
+                                opaque.push(entry);
+                            } else {
+                                translucent.push((distance, entry));
+                            }
                         }
                     }
                 }
             }
+            translucent.sort_by(|a, b| b.0.total_cmp(&a.0));
+            entries.extend(opaque);
+            entries.extend(translucent.into_iter().map(|(_, entry)| entry));
+            bounds.push(start..entries.len());
         }
-        translucent.sort_by(|a, b| b.0.total_cmp(&a.0));
-        let entries: Vec<_> = opaque
-            .into_iter()
-            .chain(translucent.into_iter().map(|(_, entry)| entry))
-            .collect();
         let needed = DRAW_STRIDE * entries.len().max(1) as u64;
         if needed > self.draw_capacity {
             let capacity = needed.next_power_of_two();
@@ -417,6 +448,7 @@ impl ObjectRenderer {
             draw.offset = offset as u32;
             self.queue.push(draw);
         }
+        self.groups = bounds;
         gpu.queue.write_buffer(&self.draw_buffer, 0, &bytes);
     }
 
@@ -455,12 +487,20 @@ impl ObjectRenderer {
         queue.write_buffer(&self.frame_buffer, 0, bytemuck::bytes_of(&uniform));
     }
 
-    /// Records the draws laid out by the last `prepare`, which must have been given the same
-    /// `instances`.
-    pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>, instances: &[ObjectInstance<'_>]) {
+    /// Records group `group` of the draws laid out by the last `prepare`, which must have been
+    /// given the same `instances` for it.
+    pub fn draw(
+        &self,
+        pass: &mut wgpu::RenderPass<'_>,
+        group: usize,
+        instances: &[ObjectInstance<'_>],
+    ) {
+        let Some(range) = self.groups.get(group) else {
+            return;
+        };
         pass.set_bind_group(0, &self.frame_group, &[]);
         let mut current: Option<PipelineKey> = None;
-        for draw in &self.queue {
+        for draw in &self.queue[range.clone()] {
             let Some(part) = instances
                 .get(draw.instance)
                 .and_then(|instance| instance.model.parts.get(draw.part))

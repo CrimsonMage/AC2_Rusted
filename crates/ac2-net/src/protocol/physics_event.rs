@@ -2,10 +2,11 @@
 //! `InstanceIDWithStamp`, then its arguments, every one followed by `STREAMPACK_ALIGN`.
 //! Argument names follow the `CPhysicsObj::RecvEvt_*` signatures they are passed to.
 
+use crate::protocol::movement::{MovementParameters, PhysicsStory, TargetPosition};
 use crate::protocol::opcode::Opcode;
 use crate::protocol::physics::BehaviorParams;
 use crate::protocol::reader::Reader;
-use crate::protocol::types::InstanceIdWithStamp;
+use crate::protocol::types::{InstanceIdWithStamp, Position};
 use crate::protocol::visual::VisualDesc;
 use crate::protocol::ProtocolError;
 
@@ -66,8 +67,38 @@ pub enum ObjectAction {
         direction: [f32; 3],
         contact: u32,
     },
+    /// `0x10099`: target, magnitude, falloff and vertical impulse.
+    AddTargetedImpulse {
+        target: u64,
+        magnitude: f32,
+        falloff: u32,
+        vertical: f32,
+    },
+    /// `0x100A5`: terrain type and modifier.
+    AddTerrainModifier {
+        terrain: u32,
+        modifier: u32,
+    },
     /// `0x1007F`.
     DoBehavior(Box<BehaviorParams>),
+    /// `0x1009B`: the behavior id and its parameters.
+    ReleaseBehavior {
+        behavior: u32,
+        params: Box<BehaviorParams>,
+    },
+    /// `0x10083`: the movement and its move-to stamp.
+    MoveTo {
+        params: Box<MovementParameters>,
+        stamp: u16,
+    },
+    /// `0x100A8`.
+    DoStory(Box<PhysicsStory>),
+    /// `0x100B5`: launch position, velocity and target.
+    InitializeMissile {
+        position: Position,
+        velocity: [f32; 3],
+        target: Box<TargetPosition>,
+    },
     /// `0x1009F`: a delta `VisualDesc`.
     UpdateVisualDesc(Box<VisualDesc>),
     /// `0x100C5`, `0x100CF`, `0x100A6`: no arguments.
@@ -84,7 +115,7 @@ pub struct ObjectEvent {
 }
 
 /// The opcodes [`ObjectEvent::read`] decodes.
-const HANDLED: [u32; 26] = [
+const HANDLED: [u32; 32] = [
     Opcode::DO_MODE,
     Opcode::SET_MODE,
     Opcode::STOP_LAYER,
@@ -110,6 +141,12 @@ const HANDLED: [u32; 26] = [
     Opcode::UPDATE_VISUAL_DESC,
     Opcode::STOP_ALL_WEENIE_BEHAVIORS,
     Opcode::STOP_MOVE_TO_CANCELS_BEHAVIORS,
+    Opcode::ADD_TARGETED_IMPULSE,
+    Opcode::ADD_TERRAIN_MODIFIER,
+    Opcode::RELEASE_BEHAVIOR,
+    Opcode::MOVE_TO,
+    Opcode::DO_STORY,
+    Opcode::INITIALIZE_MISSILE,
     Opcode::CLEAR_TERRAIN_MODIFIERS,
 ];
 
@@ -184,7 +221,33 @@ impl ObjectEvent {
                     direction: [float(r)?, float(r)?, float(r)?],
                     contact: word(r)?,
                 },
+                Opcode::ADD_TARGETED_IMPULSE => ObjectAction::AddTargetedImpulse {
+                    target: id(r)?,
+                    magnitude: float(r)?,
+                    falloff: word(r)?,
+                    vertical: float(r)?,
+                },
+                Opcode::ADD_TERRAIN_MODIFIER => ObjectAction::AddTerrainModifier {
+                    terrain: word(r)?,
+                    modifier: word(r)?,
+                },
                 Opcode::DO_BEHAVIOR => ObjectAction::DoBehavior(Box::new(BehaviorParams::read(r)?)),
+                Opcode::RELEASE_BEHAVIOR => ObjectAction::ReleaseBehavior {
+                    behavior: word(r)?,
+                    params: Box::new(BehaviorParams::read(r)?),
+                },
+                Opcode::MOVE_TO => {
+                    let params = Box::new(MovementParameters::read(r)?);
+                    let stamp = r.u16()?;
+                    r.align()?;
+                    ObjectAction::MoveTo { params, stamp }
+                }
+                Opcode::DO_STORY => ObjectAction::DoStory(Box::new(PhysicsStory::read(r)?)),
+                Opcode::INITIALIZE_MISSILE => ObjectAction::InitializeMissile {
+                    position: Position::read(r)?,
+                    velocity: r.vec3()?,
+                    target: Box::new(TargetPosition::read(r)?),
+                },
                 Opcode::UPDATE_VISUAL_DESC => {
                     ObjectAction::UpdateVisualDesc(Box::new(VisualDesc::read(r)?))
                 }
@@ -231,5 +294,40 @@ mod tests {
         r.finish().unwrap();
         assert_eq!(event.action, ObjectAction::LeaveWorld(7));
         assert!(ObjectEvent::read(0x1234, &mut Reader::new(&sender())).is_none());
+    }
+
+    #[test]
+    fn move_to_ends_with_its_aligned_stamp_and_impulses_align_each_argument() {
+        let mut b = sender();
+        b.extend(0x22u32.to_le_bytes()); // object target, no distances
+        b.extend(9u64.to_le_bytes());
+        b.extend([0u32, 5].iter().flat_map(|v| v.to_le_bytes())); // no waypoints, context
+        b.extend([4, 0, 0, 0]);
+        let mut r = Reader::new(&b);
+        let event = ObjectEvent::read(Opcode::MOVE_TO, &mut r).unwrap().unwrap();
+        r.finish().unwrap();
+        let ObjectAction::MoveTo { params, stamp } = event.action else {
+            panic!("move to");
+        };
+        assert_eq!((params.context_id, stamp), (5, 4));
+        let mut b = sender();
+        b.extend(7u64.to_le_bytes());
+        b.extend(2.0f32.to_le_bytes());
+        b.extend(1u32.to_le_bytes());
+        b.extend(0.5f32.to_le_bytes());
+        let mut r = Reader::new(&b);
+        let event = ObjectEvent::read(Opcode::ADD_TARGETED_IMPULSE, &mut r)
+            .unwrap()
+            .unwrap();
+        r.finish().unwrap();
+        assert_eq!(
+            event.action,
+            ObjectAction::AddTargetedImpulse {
+                target: 7,
+                magnitude: 2.0,
+                falloff: 1,
+                vertical: 0.5
+            }
+        );
     }
 }

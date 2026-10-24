@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 3 done, 0 partial, 487 to do, 9 skipped.
+499 retail functions: 14 done, 7 partial, 469 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
@@ -626,12 +626,12 @@ Legend and workflow: [README](README.md).
 ### PHashTable<unsigned_long,long>
 - [ ] `PHashTable<unsigned_long,long>::PHashTable<unsigned_long,long>` · 00517f10 · legions 005060c0
 - [ ] `PHashTable<unsigned_long,long>::PHashTable<unsigned_long,long>` · 00517f90 · legions 00506140
-- [ ] `PHashTable<unsigned_long,long>::StreamPack` · 00517fd0
+- [~] `PHashTable<unsigned_long,long>::StreamPack` · 00517fd0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 
 ### PHashTable<unsigned_long,__int64>
 - [ ] `PHashTable<unsigned_long,__int64>::PHashTable<unsigned_long,__int64>` · 00518190 · legions 00506340
 - [ ] `PHashTable<unsigned_long,__int64>::PHashTable<unsigned_long,__int64>` · 00518210 · legions 005063c0
-- [ ] `PHashTable<unsigned_long,__int64>::StreamPack` · 00518250
+- [~] `PHashTable<unsigned_long,__int64>::StreamPack` · 00518250 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 
 ### PHashTable<unsigned_long,int>
 - [ ] `PHashTable<unsigned_long,int>::PHashTable<unsigned_long,int>` · 00518440 · legions 005065f0
@@ -643,12 +643,12 @@ Legend and workflow: [README](README.md).
 ### PHashTable<unsigned_long,double>
 - [ ] `PHashTable<unsigned_long,double>::PHashTable<unsigned_long,double>` · 005184e0 · legions 00506690
 - [ ] `PHashTable<unsigned_long,double>::PHashTable<unsigned_long,double>` · 00518560 · legions 00506710
-- [ ] `PHashTable<unsigned_long,double>::StreamPack` · 005185a0
+- [~] `PHashTable<unsigned_long,double>::StreamPack` · 005185a0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 
 ### PHashTable<unsigned_long,PStringBase<char>_>
 - [ ] `PHashTable<unsigned_long,PStringBase<char>_>::PHashTable<unsigned_long,PStringBase<char>_>` · 00518760 · legions 00506910
 - [ ] `PHashTable<unsigned_long,PStringBase<char>_>::PHashTable<unsigned_long,PStringBase<char>_>` · 005187a0 · legions 00506950
-- [ ] `PHashTable<unsigned_long,PStringBase<char>_>::StreamPack` · 005187e0
+- [~] `PHashTable<unsigned_long,PStringBase<char>_>::StreamPack` · 005187e0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 
 ### PHashTable<unsigned_long,unsigned_long>
 - [ ] `PHashTable<unsigned_long,unsigned_long>::PHashTable<unsigned_long,unsigned_long>` · 005189d0 · legions 00506b80
@@ -660,19 +660,19 @@ Legend and workflow: [README](README.md).
 ### PHashTable<unsigned_long,Position>
 - [ ] `PHashTable<unsigned_long,Position>::PHashTable<unsigned_long,Position>` · 00518a70 · legions 00506c20
 - [ ] `PHashTable<unsigned_long,Position>::PHashTable<unsigned_long,Position>` · 00518af0 · legions 00506ca0
-- [ ] `PHashTable<unsigned_long,Position>::StreamPack` · 00518b30
+- [~] `PHashTable<unsigned_long,Position>::StreamPack` · 00518b30 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 
 ### PHashTable<unsigned_long,StringInfo>
 - [ ] `PHashTable<unsigned_long,StringInfo>::PHashTable<unsigned_long,StringInfo>` · 00518d00 · legions 00506eb0
 - [ ] `PHashTable<unsigned_long,StringInfo>::PHashTable<unsigned_long,StringInfo>` · 00518d80 · legions 00506f30
-- [ ] `PHashTable<unsigned_long,StringInfo>::StreamPack` · 00518dc0
+- [~] `PHashTable<unsigned_long,StringInfo>::StreamPack` · 00518dc0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 
 ### CBaseQualities
 - [ ] `CBaseQualities::CopyTables` · 00518fd0 · legions 00507180
-- [ ] `CBaseQualities::UnPack` · 005192f0 · legions 005074a0
+- [~] `CBaseQualities::UnPack` · 005192f0 · legions 005074a0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 - [ ] `CBaseQualities::operator=` · 00519840 · legions 005079f0
 
-## `portal/shared/src/gameplay/qualities/basequalitiesstats.cpp.c` (0/69)
+## `portal/shared/src/gameplay/qualities/basequalitiesstats.cpp.c` (11/69)
 
 ### CBaseQualities
 - [ ] `CBaseQualities::InqWeenieDescription` · 00519880
@@ -681,7 +681,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CBaseQualities::TruncateInt` · 00519930 · legions 00507ae0
 - [ ] `CBaseQualities::TruncateLongInt` · 00519970 · legions 00507b20
 - [ ] `CBaseQualities::TruncateFloat` · 00519a00 · legions 00507bb0
-- [ ] `CBaseQualities::IsInWeenieDesc` · 00519a60 · legions 00507c10
+- [x] `CBaseQualities::IsInWeenieDesc` · 00519a60 · legions 00507c10
 - [ ] `CBaseQualities::SetWeenieDesc` · 00519ac0 · legions 00507c70
 - [ ] `CBaseQualities::DumpWeenieDesc` · 00519af0 · legions 00507ca0
 - [ ] `CBaseQualities::RemoveInt` · 00519ba0 · legions 00507d50
@@ -727,22 +727,22 @@ Legend and workflow: [README](README.md).
 - [ ] `CBaseQualities::AllocatePositionTable` · 0051ac10 · legions 00508d60
 - [ ] `CBaseQualities::AllocateStringInfoTable` · 0051ac70 · legions 00508dc0
 - [ ] `CBaseQualities::AllocatePackageIDTable` · 0051acd0 · legions 00508e20
-- [ ] `CBaseQualities::SetInt` · 0051ad30 · legions 00508e80
+- [x] `CBaseQualities::SetInt` · 0051ad30 · legions 00508e80
 - [ ] `CBaseQualities::AdjInt` · 0051adb0 · legions 00508f00
 - [ ] `CBaseQualities::AdjAndTruncateInt` · 0051ae70 · legions 00508fc0
-- [ ] `CBaseQualities::SetLongInt` · 0051af80 · legions 005090d0
+- [x] `CBaseQualities::SetLongInt` · 0051af80 · legions 005090d0
 - [ ] `CBaseQualities::AdjLongInt` · 0051b000 · legions 00509150
 - [ ] `CBaseQualities::AdjAndTruncateLongInt` · 0051b110 · legions 00509260
-- [ ] `CBaseQualities::SetBool` · 0051b270 · legions 005093c0
-- [ ] `CBaseQualities::SetFloat` · 0051b2f0 · legions 00509440
+- [x] `CBaseQualities::SetBool` · 0051b270 · legions 005093c0
+- [x] `CBaseQualities::SetFloat` · 0051b2f0 · legions 00509440
 - [ ] `CBaseQualities::AdjFloat` · 0051b370 · legions 005094c0
 - [ ] `CBaseQualities::AdjAndTruncateFloat` · 0051b430 · legions 00509580
-- [ ] `CBaseQualities::SetTimestamp` · 0051b540 · legions 00509690
-- [ ] `CBaseQualities::SetDataID` · 0051b5c0 · legions 00509710
-- [ ] `CBaseQualities::SetInstanceID` · 0051b640 · legions 00509790
-- [ ] `CBaseQualities::SetString` · 0051b6c0 · legions 00509810
-- [ ] `CBaseQualities::SetPosition` · 0051b740 · legions 00509890
-- [ ] `CBaseQualities::SetStringInfo` · 0051b7c0 · legions 00509910
+- [x] `CBaseQualities::SetTimestamp` · 0051b540 · legions 00509690
+- [x] `CBaseQualities::SetDataID` · 0051b5c0 · legions 00509710
+- [x] `CBaseQualities::SetInstanceID` · 0051b640 · legions 00509790
+- [x] `CBaseQualities::SetString` · 0051b6c0 · legions 00509810
+- [x] `CBaseQualities::SetPosition` · 0051b740 · legions 00509890
+- [x] `CBaseQualities::SetStringInfo` · 0051b7c0 · legions 00509910
 - [ ] `CBaseQualities::SetPackageID` · 0051b840 · legions 00509990
 
 ## `portal/shared/src/gameplay/qualities/physobjprofile.cpp.c` (0/1)

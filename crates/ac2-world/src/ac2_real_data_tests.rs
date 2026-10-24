@@ -122,6 +122,20 @@ fn ac2_region_publishes_sky_lighting_and_fog() {
     }
     assert!(pitches.iter().any(|p| *p < 60.0) && pitches.iter().any(|p| *p > 100.0));
     assert!(region.sky_day_context_at(3600.0).is_some());
+    // `CDayDesc::GetSky`: some sky object is up at every hour, and every graphic is a Setup or
+    // visual description.
+    for step in 0..24 {
+        let objects = region
+            .sky_objects(f64::from(step) * 7347.0 / 24.0)
+            .expect("the day has sky objects");
+        if std::env::var_os("AC2_DEBUG_SKY").is_some() {
+            eprintln!("{step:2}: {objects:?}");
+        }
+        assert!(objects.iter().any(|object| object.gfx.is_some()));
+        for gfx in objects.iter().filter_map(|object| object.gfx) {
+            assert!(matches!(gfx.raw() >> 24, 0x04 | 0x1F), "{gfx:?}");
+        }
+    }
 }
 
 #[test]

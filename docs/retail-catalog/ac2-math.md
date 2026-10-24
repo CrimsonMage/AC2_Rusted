@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 55 done, 5 partial, 326 to do, 40 skipped.
+426 retail functions: 56 done, 5 partial, 325 to do, 40 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (0/5)
@@ -428,11 +428,11 @@ Legend and workflow: [README](README.md).
 - [-] `Position::FromFileNode` · 00620d20 — text source format (admin tools)
 - [-] `Position::ToFileNode` · 00620db0 — text source format (admin tools)
 
-## `portal/shared/src/geometry/positionoffset.cpp.c` (0/6)
+## `portal/shared/src/geometry/positionoffset.cpp.c` (1/6)
 
 ### PositionOffset
 - [ ] `PositionOffset::ToPosition` · 00625860 · legions 005e0a40
-- [ ] `PositionOffset::FromPosition` · 006258e0 · legions 005e0ac0
+- [x] `PositionOffset::FromPosition` · 006258e0 · legions 005e0ac0
 - [ ] `PositionOffset::PositionOffset` · 00625900 · legions 005e0ae0
 - [ ] `PositionOffset::StreamPack` · 00625930 · legions 005e0b10
 - [-] `PositionOffset::FromFileNode` · 00625980 — text source format (admin tools)

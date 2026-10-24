@@ -37,6 +37,8 @@ pub struct SceneLighting {
     pub fog_color: [f32; 3],
     /// Linear fog start and end distances in metres.
     pub fog_range: (f32, f32),
+    /// `m_finalFogSky`: how far the sky fades to the fog colour (`LScapeSky::SetSkyFog`).
+    pub fog_sky: f32,
 }
 
 impl Default for SceneLighting {
@@ -50,6 +52,7 @@ impl Default for SceneLighting {
             ambient: [0.7; 3],
             fog_color: [1.0; 3],
             fog_range: (0.0, 10_000.0),
+            fog_sky: 0.0,
         }
     }
 }
@@ -66,6 +69,7 @@ impl SceneLighting {
             ambient: rgb(sample.ambient_color()).map(|c| c * sample.ambient_brightness()),
             fog_color: rgb(fog.color()),
             fog_range: (fog.min_distance(), fog.max_distance()),
+            fog_sky: fog.sky(),
         }
     }
 }

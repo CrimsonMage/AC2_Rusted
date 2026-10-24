@@ -66,8 +66,27 @@ impl Opcode {
     /// C: `ECM_Interp::SendEvt_InterpSEventEncrypt`, queue 7.
     pub const INTERP_S_EVENT_ENCRYPT: u32 = 0x0001_00D0;
 
-    // Qualities (`ECM_Qualities`): private/visual pairs.
+    // Qualities (`ECM_Qualities::RecvEvt_Update*_Private` / `_Visual`, `CEventQueue::DispatchEvent`):
+    // the private event updates the player, the visual one names its object.
     pub const UPDATE_INT_PRIVATE: u32 = 0x0001_0069;
+    pub const UPDATE_INT_VISUAL: u32 = 0x0001_006A;
+    pub const UPDATE_BOOL_PRIVATE: u32 = 0x0001_006B;
+    pub const UPDATE_BOOL_VISUAL: u32 = 0x0001_006C;
+    pub const UPDATE_FLOAT_PRIVATE: u32 = 0x0001_006D;
+    pub const UPDATE_FLOAT_VISUAL: u32 = 0x0001_006E;
+    pub const UPDATE_STRING_PRIVATE: u32 = 0x0001_006F;
+    pub const UPDATE_STRING_VISUAL: u32 = 0x0001_0070;
+    pub const UPDATE_DATA_ID_PRIVATE: u32 = 0x0001_0071;
+    pub const UPDATE_DATA_ID_VISUAL: u32 = 0x0001_0072;
+    pub const UPDATE_INSTANCE_ID_PRIVATE: u32 = 0x0001_0073;
+    pub const UPDATE_INSTANCE_ID_VISUAL: u32 = 0x0001_0074;
+    pub const UPDATE_POSITION_PRIVATE: u32 = 0x0001_0075;
+    pub const UPDATE_POSITION_VISUAL: u32 = 0x0001_0076;
+    pub const UPDATE_TIMESTAMP_PRIVATE: u32 = 0x0001_0077;
+    pub const UPDATE_TIMESTAMP_VISUAL: u32 = 0x0001_0078;
+    pub const UPDATE_STRING_INFO_PRIVATE: u32 = 0x0001_00BC;
+    pub const UPDATE_STRING_INFO_VISUAL: u32 = 0x0001_00BD;
+    pub const UPDATE_LONG_INT_PRIVATE: u32 = 0x0001_00D4;
     pub const UPDATE_LONG_INT_VISUAL: u32 = 0x0001_00D5;
 
     // Physics (`ECM_Physics`, `CM_Physics`).
@@ -79,6 +98,7 @@ impl Opcode {
     pub const STOP_BEHAVIOR: u32 = 0x0001_0080;
     pub const DO_SLIDER: u32 = 0x0001_0081;
     pub const DO_MODE: u32 = 0x0001_0082;
+    /// S: `ECM_Physics::RecvEvt_MoveTo`.
     pub const MOVE_TO: u32 = 0x0001_0083;
     /// S: `ECM_Physics::RecvEvt_Position`.
     pub const UPDATE_POSITION: u32 = 0x0001_0086;
@@ -95,17 +115,22 @@ impl Opcode {
     /// S: `ECM_Physics::RecvEvt_LookAt`.
     pub const LOOK_AT: u32 = 0x0001_0096;
     pub const ADD_IMPULSE: u32 = 0x0001_0098;
+    /// S: `ECM_Physics::RecvEvt_AddTargetedImpulse`.
     pub const ADD_TARGETED_IMPULSE: u32 = 0x0001_0099;
+    /// S: `ECM_Physics::RecvEvt_ReleaseBehavior`.
     pub const RELEASE_BEHAVIOR: u32 = 0x0001_009B;
     pub const UPDATE_VISUAL_DESC: u32 = 0x0001_009F;
     pub const DO_FX: u32 = 0x0001_00A0;
     pub const STOP_FX: u32 = 0x0001_00A1;
     pub const DO_TARGETTED_FX: u32 = 0x0001_00A2;
+    /// S: `ECM_Physics::RecvEvt_AddTerrainModifier`.
     pub const ADD_TERRAIN_MODIFIER: u32 = 0x0001_00A5;
     pub const CLEAR_TERRAIN_MODIFIERS: u32 = 0x0001_00A6;
     pub const SET_GLOBAL_MODIFIER: u32 = 0x0001_00A7;
+    /// S: `ECM_Physics::RecvEvt_DoStory`.
     pub const DO_STORY: u32 = 0x0001_00A8;
     pub const SET_MODE: u32 = 0x0001_00A9;
+    /// S: `ECM_Physics::RecvEvt_InitializeMissile`.
     pub const INITIALIZE_MISSILE: u32 = 0x0001_00B5;
     pub const SET_JUMP_SCALE: u32 = 0x0001_00BA;
     pub const DO_FX_SCRIPT: u32 = 0x0001_00BE;
@@ -123,6 +148,7 @@ impl Opcode {
     pub const LOOK: u32 = 0x0001_00C9;
     pub const CONTAIN: u32 = 0x0001_00CB;
     pub const STOP_MOVE_TO_CANCELS_BEHAVIORS: u32 = 0x0001_00CF;
+    /// S: `ECM_Physics::RecvEvt_DoFX_Private`.
     pub const DO_FX_PRIVATE: u32 = 0x0001_00D2;
 
     // Admin (`ECM_Admin`).
