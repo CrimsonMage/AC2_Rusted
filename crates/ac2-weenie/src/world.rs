@@ -306,6 +306,15 @@ impl World {
                 }
                 self.objects.apply_position(update);
             }
+            // `ECM_Interp::RecvEvt_InterpCEvent_Cell`: through `GetObjectOrQueueEvent`.
+            ServerEvent::Interp {
+                object: Some(sender),
+                ..
+            } => {
+                if !self.get_object_or_queue(sender, &blob) {
+                    return;
+                }
+            }
             ServerEvent::Object(object) => {
                 if !self.get_object_or_queue(&object.sender, &blob) {
                     return;

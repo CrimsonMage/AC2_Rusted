@@ -1,9 +1,9 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 92 done, 12 partial, 742 to do, 143 skipped.
+989 retail functions: 112 done, 10 partial, 724 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/cell/envcell.cpp.c` (5/140)
+## `portal/shared/src/cell/envcell.cpp.c` (12/140)
 
 ### PackObj
 - [ ] `PackObj::Pack` · 0047f1a0
@@ -52,9 +52,9 @@ Legend and workflow: [README](README.md).
 - [ ] `Frustum::operator=` · 0047f9b0 · legions 00479980
 
 ### CEnvCell
-- [ ] `CEnvCell::point_in_cell` · 0047fa10 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
-- [~] `CEnvCell::find_collisions` · 0047fa50 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
-- [ ] `CEnvCell::find_env_collisions` · 0047fa80 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+- [x] `CEnvCell::point_in_cell` · 0047fa10 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+- [x] `CEnvCell::find_collisions` · 0047fa50 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+- [x] `CEnvCell::find_env_collisions` · 0047fa80 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [ ] `CEnvCell::GetSubDataIDs` · 0047fb70 · legions 00479b10
 - [ ] `CEnvCell::SumBumpMapVectors` · 0047fbd0 · legions 00479b70
 - [ ] `CEnvCell::NormalizeBumpMapVectors` · 0047fd00 · legions 00479ca0
@@ -91,14 +91,14 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::Destroy` · 00480650 · legions 0047a520
 - [ ] `CEnvCell::RecoverFromFreelist` · 004807b0
 - [ ] `CEnvCell::ClearForFreelist` · 00480800 · legions 0047a6d0
-- [ ] `CEnvCell::GetTouchesOutside` · 00480860 · legions 0047a730 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
+- [x] `CEnvCell::GetTouchesOutside` · 00480860 · legions 0047a730 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 - [ ] `CEnvCell::DestroyStaticLights` · 00480890 · legions 0047a760
 - [~] `CEnvCell::DrawCellMesh` · 00480900 · legions 0047a7d0 — cell mesh with appearance atoms at the cell frame, point lights cached at 1.5x bbox radius; degrade selection fixed at top
 - [ ] `CEnvCell::CullObjects` · 00480a80 · legions 0047a940
 - [ ] `CEnvCell::LinkStaticLights` · 00480bc0 · legions 0047aa80
 - [ ] `CEnvCell::LinkDynamicLights` · 00480c00 · legions 0047aac0
 - [ ] `CEnvCell::RenderLightCoronas` · 00480c40 · legions 0047ab00
-- [ ] `CEnvCell::FindTransitCellsInternal` · 00480cb0 · legions 0047ab70 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+- [x] `CEnvCell::FindTransitCellsInternal` · 00480cb0 · legions 0047ab70 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [ ] `CEnvCell::ReleaseSubObjects` · 00480f30 · legions 0047adf0
 - [ ] `CEnvCell::CopyDiffuseToVB` · 00480fa0 · legions 0047ae60
 - [ ] `CEnvCell::CacheDiffuseFromVB` · 00480ff0 · legions 0047aeb0
@@ -137,7 +137,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::GetGatherTimestamp` · 004822e0
 - [ ] `CEnvCell::GetDBOType` · 004822f0
 - [ ] `CEnvCell::~CEnvCell` · 00482310 · legions 0047c240
-- [ ] `CEnvCell::FindTransitCells` · 00482450 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+- [x] `CEnvCell::FindTransitCells` · 00482450 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [ ] `CEnvCell::GetSubObjects` · 00482460
 - [ ] `CEnvCell::ApplyAtomCollection` · 004825c0 · legions 0047c490
 - [ ] `CEnvCell::UpdateDynamicLights` · 00482710 · legions 0047c5b0
@@ -181,7 +181,7 @@ Legend and workflow: [README](README.md).
 - [-] `CEnvCell::FromFileNode` · 00483a60 — text source format (admin tools)
 - [ ] `CEnvCell::AddStaticLights` · 00484090 · legions 0047d900
 - [ ] `CEnvCell::GetNearbyGeometry` · 00484200 · legions 0047da70
-- [ ] `CEnvCell::InitStaticObjects` · 00484680 · legions 0047def0 — ac2-physics load_block_interiors: cell entities as static objects (no ObjectClearance/CollisionParameters)
+- [~] `CEnvCell::InitStaticObjects` · 00484680 · legions 0047def0 — ac2-physics load_block_interiors: cell entities as static objects (no ObjectClearance/CollisionParameters)
 - [ ] `CEnvCell::InitLightSources` · 00484710 · legions 0047df80
 - [ ] `CEnvCell::GatherInsideObjects` · 00484760 · legions 0047dfd0
 - [ ] `CEnvCell::InitLoad` · 00484800
@@ -200,7 +200,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::DrawEnvironment` · 004856b0
 - [ ] `CEnvCell::DrawPostEffects` · 00485770
 - [ ] `CEnvCell::GatherVisibleInsideObjects` · 00485800
-- [ ] `CEnvCell::find_visible_child_cell` · 00485890 · legions 0047f140 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
+- [x] `CEnvCell::find_visible_child_cell` · 00485890 · legions 0047f140 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 - [ ] `CEnvCell::TraceRay` · 00485930 · legions 0047f1e0
 
 ### PList<MaterialModifierAtom>
@@ -249,7 +249,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::FlushCellGroups` · 004876a0 · legions 00480ed0
 - [~] `CEnvCell::flush_cells` · 00487750 · legions 00480f80 — static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
 
-## `portal/shared/src/cell/landblock.cpp.c` (10/72)
+## `portal/shared/src/cell/landblock.cpp.c` (12/72)
 
 ### LandDefs
 - [ ] `LandDefs::GetBlockOffset` · 00488140 · legions 00481970
@@ -334,19 +334,19 @@ Legend and workflow: [README](README.md).
 
 ### CLandBlock
 - [ ] `CLandBlock::Clear` · 0048a420 · legions 00483d10
-- [ ] `CLandBlock::InitCellConnections` · 0048a460 · legions 00483d50 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+- [x] `CLandBlock::InitCellConnections` · 0048a460 · legions 00483d50 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [ ] `CLandBlock::CreateAmbientSoundPoints` · 0048a620 · legions 00483f10
 - [ ] `CLandBlock::DoIntersection` · 0048a7e0 · legions 00484090
 
 ### PSmartArray<InstanceID>
-- [ ] `PSmartArray<InstanceID>::StreamPack` · 0048a9c0
+- [x] `PSmartArray<InstanceID>::StreamPack` · 0048a9c0
 
 ### CLandBlock
 - [ ] `CLandBlock::~CLandBlock` · 0048ab10 · legions 004843c0
 - [x] `CLandBlock::AddEntityToClearList` · 0048abb0 · legions 00484460
 - [x] `CLandBlock::StartSceneGroup` · 0048ace0 · legions 00484590
 - [x] `CLandBlock::ProcEntity` · 0048ad70 · legions 00484620
-- [ ] `CLandBlock::CreateStaticObjects` · 0048ae10 · legions 004846c0 — ac2-physics load_block_objects: colliding entity markers as static objects (no ObjectClearance/weenie filter, no CollisionParameters)
+- [~] `CLandBlock::CreateStaticObjects` · 0048ae10 · legions 004846c0 — ac2-physics load_block_objects: colliding entity markers as static objects (no ObjectClearance/weenie filter, no CollisionParameters)
 - [ ] `CLandBlock::AddDynamicObject` · 0048afe0 · legions 00484890
 - [ ] `CLandBlock::AddToBrushList` · 0048b010 · legions 004848c0
 - [ ] `CLandBlock::GetAmbientSoundPoints` · 0048b170 · legions 00484a20
@@ -512,7 +512,7 @@ Legend and workflow: [README](README.md).
 ### CLandBlockQuadTree
 - [ ] `CLandBlockQuadTree::Generate` · 00492b60 · legions 0048b510
 
-## `portal/shared/src/cell/landcell.cpp.c` (7/38)
+## `portal/shared/src/cell/landcell.cpp.c` (9/38)
 
 ### (free functions)
 - [ ] `AreFloatEqual` · 0047d8e0 · legions 00477910
@@ -533,7 +533,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LOSParameters::SetImpactNormal` · 0047db20 · legions 00477ae0
 
 ### Plane
-- [ ] `Plane::Plane` · 0047db50 · legions 00477b10 — ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+- [x] `Plane::Plane` · 0047db50 · legions 00477b10 — ac2-physics shapes/sphere.rs (asm float order; Legions identical)
 
 ### SPHEREPATH
 - [x] `SPHEREPATH::add_offset_to_check_pos` · 0047db90 · legions 00477b50
@@ -561,7 +561,7 @@ Legend and workflow: [README](README.md).
 ### CLandCell
 - [ ] `CLandCell::Allocate` · 0047df80
 - [ ] `CLandCell::CheckRadius` · 0047dfe0 · legions 00478000
-- [~] `CLandCell::AddOutsideCell` · 0047e160 · legions 00478180 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+- [x] `CLandCell::AddOutsideCell` · 0047e160 · legions 00478180 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [ ] `CLandCell::handle_move_restriction` · 0047e2c0 · legions 004782e0
 
 ### DBObjGrabber<CLandBlockData>
@@ -636,7 +636,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CLightInfo::Allocator` · 0048ed70
 - [-] `CLightInfo::FromFileNode` · 0048ed90 — text source format (admin tools)
 
-## `portal/shared/src/cell/objcell.cpp.c` (1/53)
+## `portal/shared/src/cell/objcell.cpp.c` (10/53)
 
 ### DBObj
 - [ ] `DBObj::SaveToFile` · 0047b860
@@ -659,10 +659,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjCell::SendObjectDetection` · 0047ba40 · legions 00475b70
 - [ ] `CObjCell::SetObjectMaintainer` · 0047bb10 · legions 00475c40
 - [ ] `CObjCell::GetViewerDistance` · 0047bb20
-- [~] `CObjCell::FindCells` · 0047bb40 · legions 00475c70 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-- [ ] `CObjCell::FindCellsLocal` · 0047bbd0 · legions 00475d00 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-- [ ] `CObjCell::FindCellsLocal` · 0047bcb0 · legions 00475de0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-- [~] `CObjCell::FindCells` · 0047bd90 · legions 00475ec0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+- [x] `CObjCell::FindCells` · 0047bb40 · legions 00475c70 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+- [x] `CObjCell::FindCellsLocal` · 0047bbd0 · legions 00475d00 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+- [x] `CObjCell::FindCellsLocal` · 0047bcb0 · legions 00475de0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+- [x] `CObjCell::FindCells` · 0047bd90 · legions 00475ec0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [ ] `CObjCell::LOSCheck` · 0047be70 · legions 00475fa0
 
 ### _STL::pair<ICPhysicsObj_*,BBox>
@@ -675,9 +675,9 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjCell::RemoveShadowObject` · 0047c330 · legions 00476400
 - [ ] `CObjCell::InitDynamicObjects` · 0047c390 · legions 00476460
 - [ ] `CObjCell::DoIntersection` · 0047c3f0 · legions 004764c0
-- [ ] `CObjCell::FindCellsLocal` · 0047c440 · legions 00476510 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-- [ ] `CObjCell::FindCellsLocal` · 0047c460 · legions 00476530 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-- [ ] `CObjCell::find_obj_collisions` · 0047c510 · legions 004765e0 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+- [x] `CObjCell::FindCellsLocal` · 0047c440 · legions 00476510 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+- [x] `CObjCell::FindCellsLocal` · 0047c460 · legions 00476530 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+- [x] `CObjCell::find_obj_collisions` · 0047c510 · legions 004765e0 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `CObjCell::TraceRayObjects` · 0047c560 · legions 00476630
 
 ### SmartArray<ObjectClearance>
@@ -695,7 +695,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjCell::~CObjCell` · 0047c9e0 · legions 00476ad0
 - [ ] `CObjCell::InvalidateShadowObjects` · 0047ca70 · legions 00476b60
 - [ ] `CObjCell::ReleaseDynamicObjects` · 0047cb40 · legions 00476c30
-- [ ] `CObjCell::find_obj_collisions` · 0047cb70 · legions 00476c60 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+- [x] `CObjCell::find_obj_collisions` · 0047cb70 · legions 00476c60 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 
 ### SmartArray<BBox>
 - [ ] `SmartArray<BBox>::operator=` · 0047cbb0 · legions 00476ca0
@@ -707,7 +707,7 @@ Legend and workflow: [README](README.md).
 - [x] `ObjectClearance::operator=` · 0047cd90 · legions 00476e80
 
 ### CObjCell
-- [ ] `CObjCell::AddTouchingCell` · 0047ce60 · legions 00476f50 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+- [x] `CObjCell::AddTouchingCell` · 0047ce60 · legions 00476f50 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [ ] `CObjCell::AddShadowObject` · 0047cfc0 · legions 00477050
 - [ ] `CObjCell::UpdateAllVoyeur` · 0047d020 · legions 004770b0
 - [ ] `CObjCell::HideObject` · 0047d0c0 · legions 00477150

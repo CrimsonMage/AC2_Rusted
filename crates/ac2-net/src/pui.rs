@@ -57,6 +57,19 @@ impl ClientNet {
         self.send_blob(id, 5, data).then_some(id)
     }
 
+    /// `ChatInterfaceProvider::SendData` -> `CChatEvent::CreateForSend`: `0x100D3`, the length,
+    /// the chat client's bytes; a `CCliDatEvent` id (its own stamp counter) on queue 4.
+    pub fn send_chat(&mut self, data: &[u8]) -> Option<u64> {
+        let mut blob = crate::protocol::Opcode::CHAT.to_le_bytes().to_vec();
+        blob.extend((data.len() as u32).to_le_bytes());
+        blob.extend_from_slice(data);
+        let stamp = self.dat_stamp;
+        self.dat_stamp = self.dat_stamp.wrapping_add(1);
+        let sequence = self.next_non_ephemeral();
+        let id = make_blob_id(DAT_EVENT_TYPE, stamp, sequence);
+        self.send_blob(id, 4, blob).then_some(id)
+    }
+
     /// `Proto_UI::SendBlob` and `NetBlob::Send` (priority 5). Queues 6, 7 and 8 are
     /// encrypted in place with the session key first (`CryptEncrypt(hSessionKey_, 0, TRUE)`);
     /// without one they go in the clear.

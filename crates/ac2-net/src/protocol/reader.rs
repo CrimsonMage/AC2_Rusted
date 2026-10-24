@@ -34,6 +34,10 @@ impl<'a> Reader<'a> {
         }
     }
 
+    pub(crate) fn remaining(&self) -> usize {
+        self.bytes.len() - self.pos
+    }
+
     pub(crate) fn rest(&mut self) -> &'a [u8] {
         let rest = &self.bytes[self.pos..];
         self.pos = self.bytes.len();

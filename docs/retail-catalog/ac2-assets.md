@@ -1,9 +1,9 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 24 done, 8 partial, 631 to do, 122 skipped.
+785 retail functions: 32 done, 9 partial, 622 to do, 122 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (12/62)
+## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (13/62)
 
 ### gmWeenieDesc
 - [ ] `gmWeenieDesc::~gmWeenieDesc` · 00601b00 · legions 005c29e0
@@ -66,7 +66,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmWeenieDesc::GetSubDataIDs` · 006034f0 · legions 005c43d0
 - [ ] `gmWeenieDesc::gmWeenieDesc` · 00603530 · legions 005c4410
 - [ ] `gmWeenieDesc::operator=` · 006035a0 · legions 005c4480
-- [ ] `gmWeenieDesc::StreamPack` · 006037c0 · legions 005c46a0
+- [x] `gmWeenieDesc::StreamPack` · 006037c0 · legions 005c46a0
 - [ ] `gmWeenieDesc::gmWeenieDesc` · 00603b70 · legions 005c4a50
 - [ ] `gmWeenieDesc::Copy` · 00603ba0
 - [ ] `gmWeenieDesc::operator=` · 00603bf0
@@ -855,10 +855,10 @@ Legend and workflow: [README](README.md).
 - [-] `CVertexSetData::FromFileNode` · 004d4e90 — text source format (admin tools)
 - [ ] `CVertexSetData::CVertexSetData` · 004d4f60
 
-## `portal/shared/src/objdesc/appearance/appearanceinfo.cpp.c` (0/13)
+## `portal/shared/src/objdesc/appearance/appearanceinfo.cpp.c` (1/13)
 
 ### AppearanceInfo
-- [ ] `AppearanceInfo::StreamPack` · 0064a5b0
+- [x] `AppearanceInfo::StreamPack` · 0064a5b0
 - [ ] `AppearanceInfo::GetAppliedAppKeyIter` · 0064a5e0 · legions 005f9c90
 - [ ] `AppearanceInfo::GetAppliedAppKeyEnd` · 0064a610 · legions 005f9cc0
 - [ ] `AppearanceInfo::AugmentAtomCollection` · 0064a630 · legions 005f9ce0
@@ -1147,7 +1147,7 @@ Legend and workflow: [README](README.md).
 - [ ] `VisualModTable::VisualModTable` · 0064b010 · legions 005fa340
 - [ ] `VisualModTable::~VisualModTable` · 0064b070 · legions 005fa3a0
 
-## `portal/shared/src/objdesc/icon/icondesc.cpp.c` (0/18)
+## `portal/shared/src/objdesc/icon/icondesc.cpp.c` (2/18)
 
 ### RGBAColor
 - [ ] `RGBAColor::operator==` · 0063faf0 · legions 005f3a20
@@ -1156,7 +1156,7 @@ Legend and workflow: [README](README.md).
 - [ ] `IconLayerDesc::HasColor` · 0063fb60
 
 ### IconDesc
-- [ ] `IconDesc::StreamPack` · 0063fb80
+- [x] `IconDesc::StreamPack` · 0063fb80
 - [ ] `IconDesc::operator==` · 0063fc00 · legions 005f3b10
 - [ ] `IconDesc::IsValid` · 0063fc80 · legions 005f3b90
 - [ ] `IconDesc::GetSubDataIDs` · 0063fcd0 · legions 005f3be0
@@ -1166,7 +1166,7 @@ Legend and workflow: [README](README.md).
 ### PList<IconLayerDesc>
 - [ ] `PList<IconLayerDesc>::Pack` · 00640100 · legions 005f3e30
 - [ ] `PList<IconLayerDesc>::GetPackSize` · 00640150
-- [ ] `PList<IconLayerDesc>::UnPack` · 00640190 · legions 005f3ed4
+- [x] `PList<IconLayerDesc>::UnPack` · 00640190 · legions 005f3ed4
 
 ### IconDesc
 - [ ] `IconDesc::IconDesc` · 006402c0 · legions 005f3ff0
@@ -1177,7 +1177,7 @@ Legend and workflow: [README](README.md).
 - [-] `IconDesc::FromFileNode` · 00640480 — text source format (admin tools)
 - [ ] `IconDesc::ApplyAdditiveIconDesc` · 00640580 · legions 005f41b0
 
-## `portal/shared/src/objdesc/icon/iconlayerdesc.cpp.c` (0/7)
+## `portal/shared/src/objdesc/icon/iconlayerdesc.cpp.c` (1/7)
 
 ### IconLayerDesc
 - [ ] `IconLayerDesc::Clear` · 006405c0 · legions 005f41f0
@@ -1188,11 +1188,11 @@ Legend and workflow: [README](README.md).
 
 ### IconLayerDesc
 - [ ] `IconLayerDesc::IconLayerDesc` · 00640660 · legions 005f4290
-- [ ] `IconLayerDesc::StreamPack` · 006406a0 · legions 005f42d0
+- [x] `IconLayerDesc::StreamPack` · 006406a0 · legions 005f42d0
 - [-] `IconLayerDesc::ToFileNode` · 00640700 — text source format (admin tools)
 - [-] `IconLayerDesc::FromFileNode` · 00640890 — text source format (admin tools)
 
-## `portal/shared/src/objdesc/physicsdesc.cpp.c` (0/14)
+## `portal/shared/src/objdesc/physicsdesc.cpp.c` (3/14)
 
 ### PhysicsDesc
 - [ ] `PhysicsDesc::get_timestamp` · 00640b30 · legions 005f4330
@@ -1205,13 +1205,13 @@ Legend and workflow: [README](README.md).
 - [ ] `PhysicsDesc::get_fx` · 00640bb0 · legions 005f43b0
 
 ### (free functions)
-- [ ] `STREAMPACK_STL` · 00640f40 · legions 005f4740
-- [ ] `STREAMPACK_STL` · 006410e0 · legions 005f48e0
+- [x] `STREAMPACK_STL` · 00640f40 · legions 005f4740
+- [x] `STREAMPACK_STL` · 006410e0 · legions 005f48e0
 
 ### PhysicsDesc
 - [ ] `PhysicsDesc::Destroy` · 006412a0 · legions 005f4aa0
 - [ ] `PhysicsDesc::~PhysicsDesc` · 00641450 · legions 005f4c50
-- [ ] `PhysicsDesc::StreamPack` · 00641530
+- [x] `PhysicsDesc::StreamPack` · 00641530
 - [ ] `PhysicsDesc::PhysicsDesc` · 00641c70 · legions 005f5470
 
 ## `portal/shared/src/objdesc/visualdesc.cpp.c` (0/58)
@@ -1247,7 +1247,7 @@ Legend and workflow: [README](README.md).
 - [ ] `VisualDesc::ModVDesc_DeleteStragglers` · 0063d450 · legions 005f1a40
 - [ ] `VisualDesc::BuildAtomCollection` · 0063d680 · legions 005f1c70
 - [ ] `VisualDesc::GatherAppearanceKeys` · 0063d740 · legions 005f1d10
-- [ ] `VisualDesc::StreamPack` · 0063d7f0 — part-group FX overrides (FXData/FXNode) refused as unsupported
+- [~] `VisualDesc::StreamPack` · 0063d7f0 — part-group FX overrides (FXData/FXNode) refused as unsupported
 - [ ] `VisualDesc::AddPGDDesc` · 0063db70 · legions 005f2140
 - [ ] `VisualDesc::HasAppliedAppKey` · 0063dcc0 · legions 005f2290
 - [ ] `VisualDesc::InqAppInfoHashForPartGroup` · 0063dd00 · legions 005f22d0

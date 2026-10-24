@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 109 done, 6 partial, 1783 to do, 6 skipped.
+1904 retail functions: 118 done, 5 partial, 1775 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1262,7 +1262,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ActionMap::UnPack` · 0072f200
 - [ ] `ActionMap::Allocate` · 0072f370
 
-## `portal/client/src/action/movement/playermovementmodule.cpp.c` (5/17)
+## `portal/client/src/action/movement/playermovementmodule.cpp.c` (7/17)
 
 ### PlayerMovementModule
 - [ ] `PlayerMovementModule::Startup` · 00568e20 · legions 00538db0
@@ -1276,12 +1276,12 @@ Legend and workflow: [README](README.md).
 - [ ] `PlayerMovementModule::StopBehavior` · 005693d0 · legions 00539360
 - [ ] `PlayerMovementModule::StartCameraAction` · 00569400 · legions 00539390
 - [ ] `PlayerMovementModule::StopCameraAction` · 00569420 · legions 005393b0
-- [ ] `PlayerMovementModule::LockActions` · 00569440 · legions 005393d0
+- [x] `PlayerMovementModule::LockActions` · 00569440 · legions 005393d0
 - [ ] `PlayerMovementModule::InterruptMoveTo` · 00569450 · legions 005393e0
 - [ ] `PlayerMovementModule::StopAttackingIfAutoMoving` · 00569470 · legions 00539400
 - [ ] `PlayerMovementModule::Shutdown` · 005694a0 · legions 00539430
 - [x] `PlayerMovementModule::SetPlayerID` · 005694f0 · legions 00539480
-- [~] `PlayerMovementModule::UseTime` · 00569550 · legions 005394e0 — only the report tail (ShouldSend*/Send*); the action-key loop and camera heading belong to input/camera, actively_moving comes from the caller
+- [x] `PlayerMovementModule::UseTime` · 00569550 · legions 005394e0
 
 ## `portal/client/src/cfactory/cenginefactory.cpp.c` (0/5)
 
@@ -1334,24 +1334,24 @@ Legend and workflow: [README](README.md).
 - [x] `CEventQueue::FinishEnteringWorld` · 00494b00 · legions 0048d2d0
 - [x] `CEventQueue::UseTime` · 00494b10 · legions 0048d2e0
 
-## `portal/client/src/events/ecm_admin.cpp.c` (0/5)
+## `portal/client/src/events/ecm_admin.cpp.c` (3/5)
 
 ### benchScope
 - [ ] `benchScope::benchScope` · 00493150
 
 ### ECM_Admin
-- [ ] `ECM_Admin::RecvEvt_AccountBooted` · 00493190 · legions 0048bc20
-- [ ] `ECM_Admin::RecvEvt_DisplayStringInfo` · 00493200 · legions 0048bc90
-- [ ] `ECM_Admin::RecvEvt_WorldName` · 004932b0 · legions 0048bd40
+- [x] `ECM_Admin::RecvEvt_AccountBooted` · 00493190 · legions 0048bc20
+- [x] `ECM_Admin::RecvEvt_DisplayStringInfo` · 00493200 · legions 0048bc90
+- [x] `ECM_Admin::RecvEvt_WorldName` · 004932b0 · legions 0048bd40
 - [ ] `ECM_Admin::SendNotice_DisplayAdminStringInfo` · 00493320
 
-## `portal/client/src/events/ecm_interp.cpp.c` (0/4)
+## `portal/client/src/events/ecm_interp.cpp.c` (4/4)
 
 ### ECM_Interp
-- [ ] `ECM_Interp::RecvEvt_InterpCEvent_Broadcast` · 00498d60 · legions 00491380
-- [ ] `ECM_Interp::RecvEvt_InterpCEvent_Cell` · 00498e20 · legions 00491270
-- [ ] `ECM_Interp::SendEvt_InterpSEvent` · 00498f30 · legions 00491440
-- [ ] `ECM_Interp::SendEvt_InterpSEventEncrypt` · 00498fe0 · legions 004914f0
+- [x] `ECM_Interp::RecvEvt_InterpCEvent_Broadcast` · 00498d60 · legions 00491380
+- [x] `ECM_Interp::RecvEvt_InterpCEvent_Cell` · 00498e20 · legions 00491270
+- [x] `ECM_Interp::SendEvt_InterpSEvent` · 00498f30 · legions 00491440
+- [x] `ECM_Interp::SendEvt_InterpSEventEncrypt` · 00498fe0 · legions 004914f0
 
 ## `portal/client/src/events/ecm_login.cpp.c` (11/21)
 

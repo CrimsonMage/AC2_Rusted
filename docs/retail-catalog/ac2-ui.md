@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 8 done, 2 partial, 2220 to do, 17 skipped.
+2247 retail functions: 13 done, 3 partial, 2214 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -152,14 +152,14 @@ Legend and workflow: [README](README.md).
 - [ ] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700
 - [ ] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0
 
-## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (0/58)
+## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (4/58)
 
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::Show` · 00407910 · legions 00407620
 - [ ] `gmGamePlayUI::SetErrorMsg` · 00407940 · legions 00407650
 - [ ] `gmGamePlayUI::RecvNotice_EndCharacterSession` · 00407980
 - [ ] `gmGamePlayUI::RecvNotice_Logoff` · 00407990
-- [ ] `gmGamePlayUI::RecvNotice_NextFrameDrawn` · 004079b0 — OnlineSession::scene_ready, called by the client once the scene draws
+- [~] `gmGamePlayUI::RecvNotice_NextFrameDrawn` · 004079b0 — OnlineSession::scene_ready, called by the client once the scene draws
 - [ ] `gmGamePlayUI::RecvNotice_BeingDeleted` · 004079c0
 - [ ] `gmGamePlayUI::MakePleaseWaitDialog` · 004079e0 · legions 004076f0
 - [ ] `gmGamePlayUI::MakeResurrectDialog` · 00407a40 · legions 00407750
@@ -206,7 +206,7 @@ Legend and workflow: [README](README.md).
 
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::Create` · 00408e70
-- [ ] `gmGamePlayUI::EndSession` · 00408e90 · legions 00408bd0 — LogOffCharacter only; no UI or game-option upload
+- [~] `gmGamePlayUI::EndSession` · 00408e90 · legions 00408bd0 — LogOffCharacter only; no UI or game-option upload
 - [ ] `gmGamePlayUI::RecvNotice_FinishPlaySequence` · 00408f50 · legions 00408c90
 - [ ] `gmGamePlayUI::RecvNotice_PlaySequence` · 00408fa0 · legions 00408ce0
 - [ ] `gmGamePlayUI::CheckPortalScene` · 00409000 · legions 00408d40
@@ -233,12 +233,12 @@ Legend and workflow: [README](README.md).
 - [ ] `STREAMPACK` · 004098e0 · legions 00409650
 
 ### PStringBase<unsigned_short>
-- [ ] `PStringBase<unsigned_short>::GetPackSize` · 00409960 · legions 004096d0
-- [ ] `PStringBase<unsigned_short>::Pack` · 00409990 · legions 00409700
-- [ ] `PStringBase<unsigned_short>::UnPack` · 00409be0 · legions 00409950
+- [x] `PStringBase<unsigned_short>::GetPackSize` · 00409960 · legions 004096d0
+- [x] `PStringBase<unsigned_short>::Pack` · 00409990 · legions 00409700
+- [x] `PStringBase<unsigned_short>::UnPack` · 00409be0 · legions 00409950
 
 ### PHashTable<unsigned_long,float>
-- [~] `PHashTable<unsigned_long,float>::StreamPack` · 00409e00 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+- [x] `PHashTable<unsigned_long,float>::StreamPack` · 00409e00
 
 ### PHashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>
 - [ ] `PHashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>::~PHashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>` · 0040a190 · legions 0040a020
@@ -1612,7 +1612,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmSocialUI::ListenToMessage` · 00430650 · legions 00430410
 - [ ] `gmSocialUI::gmSocialUI` · 004306b0 · legions 00430470
 
-## `ac2/client/src/ui/gmuiflow.cpp.c` (0/37)
+## `ac2/client/src/ui/gmuiflow.cpp.c` (1/37)
 
 ### gmUIFlow
 - [ ] `gmUIFlow::~gmUIFlow` · 00405d80 · legions 00405a60
@@ -1648,7 +1648,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ImportData::StreamPack` · 00406c60 · legions 00406970
 
 ### PStringBase<char>
-- [ ] `PStringBase<char>::UnPack` · 00406cb0 · legions 004069c0
+- [x] `PStringBase<char>::UnPack` · 00406cb0 · legions 004069c0
 
 ### DualHash<PStringBase<char>,CheckpointExportData>
 - [ ] `DualHash<PStringBase<char>,CheckpointExportData>::clear` · 00406d90 · legions 00406aa0

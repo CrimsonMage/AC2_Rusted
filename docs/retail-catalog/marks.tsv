@@ -9,15 +9,15 @@ key	status	note
 004042f0	x	
 00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
-00406cb0	_	
-004079b0	_	OnlineSession::scene_ready, called by the client once the scene draws
-00408e90	_	LogOffCharacter only; no UI or game-option upload
-00409960	_	
-00409990	_	
+00406cb0	x	
+004079b0	~	OnlineSession::scene_ready, called by the client once the scene draws
+00408e90	~	LogOffCharacter only; no UI or game-option upload
+00409960	x	
+00409990	x	
 00409a80	x	
 00409ab0	x	
-00409be0	_	
-00409e00	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+00409be0	x	
+00409e00	x	
 004233d0	x	
 00423490	x	
 00423550	x	
@@ -27,53 +27,53 @@ key	status	note
 00431e20	x	
 00431e90	x	
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
-0047bb40	~	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-0047bbd0	_	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-0047bcb0	_	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-0047bd90	~	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+0047bb40	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+0047bbd0	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+0047bcb0	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+0047bd90	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047bed0	x	
-0047c440	_	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-0047c460	_	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-0047c510	_	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-0047cb70	_	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+0047c440	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+0047c460	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+0047c510	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+0047cb70	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 0047cd90	x	
-0047ce60	_	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+0047ce60	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047d920	x	
-0047db50	_	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+0047db50	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
 0047db90	x	
 0047dbe0	x	
 0047dce0	x	
 0047dd00	x	
 0047ddc0	x	
-0047e160	~	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+0047e160	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047e570	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047e670	~	unloaded-landblock move restriction not ported
 0047f1f0	x	
 0047f410	x	
 0047f4b0	x	
 0047f500	x	
-0047fa10	_	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
-0047fa50	~	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
-0047fa80	_	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
-00480860	_	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
+0047fa10	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+0047fa50	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+0047fa80	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+00480860	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 00480900	~	cell mesh with appearance atoms at the cell frame, point lights cached at 1.5x bbox radius; degrade selection fixed at top
-00480cb0	_	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+00480cb0	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 00481030	x	ac2-render object::cell / point_lights
-00482450	_	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
-00484680	_	ac2-physics load_block_interiors: cell entities as static objects (no ObjectClearance/CollisionParameters)
-00485890	_	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
+00482450	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+00484680	~	ac2-physics load_block_interiors: cell entities as static objects (no ObjectClearance/CollisionParameters)
+00485890	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 00487750	~	static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
 004883d0	x	
 00488f10	x	
 00489160	x	
 00489230	~	ported; CLandCell::CheckRadius per-cell test not re-verified
 0048a160	x	
-0048a460	_	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-0048a9c0	_	
+0048a460	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+0048a9c0	x	
 0048abb0	x	
 0048ace0	x	
 0048ad70	x	
-0048ae10	_	ac2-physics load_block_objects: colliding entity markers as static objects (no ObjectClearance/weenie filter, no CollisionParameters)
+0048ae10	~	ac2-physics load_block_objects: colliding entity markers as static objects (no ObjectClearance/weenie filter, no CollisionParameters)
 0048b450	x	
 0048b4c0	x	
 0048b700	x	
@@ -94,6 +94,9 @@ key	status	note
 00492cb0	x	
 00492ce0	x	
 00492d20	x	
+00493190	x	
+00493200	x	
+004932b0	x	
 004933b0	x	
 004933c0	x	
 00493410	x	
@@ -182,22 +185,26 @@ key	status	note
 004989e0	x	
 00498af0	x	
 00498c00	x	
-00499290	_	ac2-physics transition/localspace.rs, sphere_path.rs
-004992f0	_	
-00499670	_	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
-00499700	_	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
-00499800	_	ac2-physics bsp: placement insert (Legions identical)
-00499940	_	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
-00499b90	_	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
-00499e60	_	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
-00499f30	_	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
-0049a160	_	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
-0049a3a0	_	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
-0049a860	_	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
-0049a8b0	_	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
-0049a8d0	_	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
-0049a9f0	_	ac2-physics envcell.rs: portal clipping against the cell-search box
-0049acb0	_	ac2-physics envcell.rs: portal clipping against the cell-search box
+00498d60	x	
+00498e20	x	
+00498f30	x	
+00498fe0	x	
+00499290	x	ac2-physics transition/localspace.rs, sphere_path.rs
+004992f0	x	
+00499670	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+00499700	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+00499800	x	ac2-physics bsp: placement insert (Legions identical)
+00499940	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+00499b90	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+00499e60	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+00499f30	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+0049a160	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+0049a3a0	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+0049a860	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+0049a8b0	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+0049a8d0	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+0049a9f0	x	ac2-physics envcell.rs: portal clipping against the cell-search box
+0049acb0	x	ac2-physics envcell.rs: portal clipping against the cell-search box
 0049b420	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 0049b490	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 0049b4f0	x	ac2-physics transition/localspace.rs, sphere_path.rs
@@ -214,8 +221,8 @@ key	status	note
 0049bcf0	x	ac2-physics bsp: placement insert (Legions identical)
 0049bf70	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 0049c2c0	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
-0049c7a0	_	ac2-physics envcell.rs: portal clipping against the cell-search box
-0049c810	-	ac2-physics envcell.rs: portal clipping against the cell-search box
+0049c7a0	x	ac2-physics envcell.rs: portal clipping against the cell-search box
+0049c810	x	ac2-physics envcell.rs: portal clipping against the cell-search box
 0049ce40	x	
 0049cff0	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 0049d040	x	ac2-physics bsp/node.rs (Legions identical)
@@ -223,21 +230,21 @@ key	status	note
 0049d230	x	ac2-physics bsp/node.rs (Legions identical)
 0049d2e0	x	ac2-physics bsp/node.rs (Legions identical)
 0049d3b0	x	ac2-physics bsp: placement insert (Legions identical)
-0049e170	_	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
-0049e190	_	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
-0049e230	_	ac2-physics transition/localspace.rs, sphere_path.rs
-0049e260	_	ac2-physics transition/localspace.rs, sphere_path.rs
-0049e2b0	_	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
-0049e3a0	_	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
-0049e3e0	_	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
-0049e620	_	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
-0049e860	_	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
-0049eb70	_	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
-0049eec0	_	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
-0049ef60	_	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
-0049f000	_	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
-0049f0a0	_	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
-0049f5f0	_	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+0049e170	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+0049e190	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
+0049e230	x	ac2-physics transition/localspace.rs, sphere_path.rs
+0049e260	x	ac2-physics transition/localspace.rs, sphere_path.rs
+0049e2b0	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+0049e3a0	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+0049e3e0	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+0049e620	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+0049e860	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+0049eb70	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+0049eec0	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+0049ef60	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+0049f000	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+0049f0a0	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+0049f5f0	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
 0049f770	x	ac2-physics bsp/node.rs (Legions identical)
 0049f7e0	x	ac2-physics bsp/node.rs (Legions identical)
 0049f870	x	ac2-physics bsp/node.rs (Legions identical)
@@ -560,7 +567,7 @@ key	status	note
 004eb100	x	
 004eb1b0	x	
 004eb370	~	no player-distance range checks, parent or missile paths
-004eb8b0	_	
+004eb8b0	x	
 004ec350	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ec730	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ed470	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
@@ -641,8 +648,9 @@ key	status	note
 00569020	x	
 00569200	x	
 005692e0	x	
+00569440	x	
 005694f0	x	
-00569550	~	only the report tail (ShouldSend*/Send*); the action-key loop and camera heading belong to input/camera, actively_moving comes from the caller
+00569550	x	
 0056b150	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b170	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b1c0	x	
@@ -719,47 +727,49 @@ key	status	note
 00602b60	x	
 00603090	x	
 00603470	x	
-006037c0	_	
+006037c0	x	
 0060e3d0	~	ac2-physics ObjectShape::new: physics containment radius and box only
 006169c0	x	
 00617370	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
-00619f70	_	
-00619fe0	_	
-0061a220	_	
-0061a240	_	
-0061a310	_	
-0061a3c0	_	D3DXQuaternionSlerp is CPU-dispatched in retail; reference slerp
-0061a5b0	_	
-0061a810	_	
-0061a8f0	_	
-0061a910	_	
-0061a940	~	wire quantizer in ac2-net protocol::position (ac2-math has no Heading yet)
-0061a9e0	_	
-0061aaf0	~	wire quantizer in ac2-net protocol::position (ac2-math has no Heading yet)
-0061ab60	_	
-0061ab80	_	in ac2-weenie reporter (ac2-math has no Heading yet)
-0061acb0	_	in ac2-weenie reporter (ac2-math has no Heading yet)
-0061ad80	_	in ac2-weenie reporter (ac2-math has no Heading yet)
+00619f70	x	
+00619fe0	x	
+0061a220	x	
+0061a240	x	
+0061a310	x	
+0061a3c0	~	D3DXQuaternionSlerp is CPU-dispatched in retail; reference slerp
+0061a5b0	x	
+0061a810	x	
+0061a8f0	x	
+0061a910	x	
+0061a940	x	
+0061a9e0	x	
+0061aa30	x	
+0061aaa0	x	
+0061aaf0	x	
+0061ab60	x	
+0061ab80	~	in ac2-weenie reporter (ac2-math has no Heading yet)
+0061acb0	~	in ac2-weenie reporter (ac2-math has no Heading yet)
+0061ad80	~	in ac2-weenie reporter (ac2-math has no Heading yet)
 0061b390	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0061b3e0	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0061b520	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0061b570	x	ac2-render object::pass / texture_matrix, ac2-gpu object
-0061c210	_	
-0061c570	_	
-0061c700	_	
-0061c710	_	
-0061cc30	_	ac2-physics envcell.rs: portal clipping against the cell-search box
-0061cd10	_	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-0061d070	_	ac2-physics envcell.rs: portal clipping against the cell-search box
-0061d300	_	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-0061d440	_	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+0061c210	x	
+0061c570	x	
+0061c700	x	
+0061c710	x	
+0061cc30	x	ac2-physics envcell.rs: portal clipping against the cell-search box
+0061cd10	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+0061d070	x	ac2-physics envcell.rs: portal clipping against the cell-search box
+0061d300	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+0061d440	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 0061ef30	x	
-0061f140	_	
-0061f300	_	
-006200b0	_	
+0061f140	x	
+0061f300	x	
+006200b0	x	
 00620e20	x	
-00620e60	_	wire quantizer in ac2-net protocol::position
-00620f70	_	wire quantizer in ac2-net protocol::position
+00620e60	~	wire quantizer in ac2-net protocol::position
+00620f70	~	wire quantizer in ac2-net protocol::position
 00621380	x	
 00621390	x	
 00621410	x	
@@ -768,17 +778,17 @@ key	status	note
 00622900	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 00622cf0	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
 00622f10	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
-00623960	_	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
+00623960	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 006258e0	x	
-00625930	_	
+00625930	x	
 00628460	x	
 00628580	x	
 006290f0	x	
 006292a0	x	
 006294f0	x	
 00629d60	x	
-0062acf0	_	
-0062ae10	_	
+0062acf0	x	
+0062ae10	x	
 006388c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 0063a540	x	
 0063a560	x	
@@ -819,19 +829,19 @@ key	status	note
 0063c310	x	
 0063c340	x	
 0063c410	x	
-0063d7f0	_	part-group FX overrides (FXData/FXNode) refused as unsupported
+0063d7f0	~	part-group FX overrides (FXData/FXNode) refused as unsupported
 0063f6c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
-0063fb80	_	
-00640190	_	
-006406a0	_	
-00640f40	_	
-006410e0	_	
-00641530	_	
+0063fb80	x	
+00640190	x	
+006406a0	x	
+00640f40	x	
+006410e0	x	
+00641530	x	
 00641ea0	x	
 00641fa0	x	
 006443c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 00645f00	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
-0064a5b0	_	
+0064a5b0	x	
 0064b540	x	
 0064b620	x	
 0064b660	x	
@@ -860,10 +870,10 @@ key	status	note
 00662120	_	
 00679220	x	
 0067cfb0	x	
-0069bd90	_	
-0069be20	_	
+0069bd90	x	
+0069be20	x	
 0069bfd0	x	
-0069c060	_	
+0069c060	x	
 0069c550	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 0069cc40	x	
 0069cdd0	x	
@@ -871,7 +881,7 @@ key	status	note
 0069db60	x	
 0069dba0	x	
 0069df90	x	
-0069fed0	_	
+0069fed0	x	
 006a4ce0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006a4e50	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006a6180	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
@@ -954,22 +964,26 @@ key	status	note
 006db0f0	x	
 006db450	x	
 006db7f0	x	
+006ed9c0	x	
+006eda20	x	
+0071f6b0	x	
 0071fa40	x	
 0071fab0	x	
-0071fb10	~	chat (0x100d3) recognised, not handed to a chat client
+0071fb10	x	
+0071fba0	x	
 0071fc50	~	queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
 00723280	x	
 007269d0	x	
 0072f3b0	~	ac2-physics ObjectShape::new: physics containment radius and box only
-00731160	_	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
-007311c0	_	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
-007312d0	_	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
-00731810	_	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
-007318c0	_	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
-007319d0	_	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
-00731b40	_	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
-00731bf0	_	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
-007320f0	_	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+00731160	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+007311c0	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+007312d0	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+00731810	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+007318c0	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+007319d0	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+00731b40	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+00731bf0	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+007320f0	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
 007326e0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 00737cf0	x	
 DB_TYPE_SURFACE_DESC	x	

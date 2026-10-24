@@ -8,6 +8,7 @@
 //! server sends them; callers convert to their own frame.
 
 mod ddd;
+mod movement_module;
 mod objects;
 mod ordering;
 mod qualities;
@@ -18,6 +19,12 @@ mod world;
 pub use ac2_net::protocol::{CellPosition, CharacterIdentity, CharacterSet};
 pub use ac2_net::Credential;
 pub use ddd::{dat_file_id, dat_iterations};
+pub use movement_module::{
+    ActiveAction, BodyFacts, CameraState, MovementCommands, MovementModule, ACTION_ABOUT_FACE,
+    ACTION_CLASS_MOVEMENT, ACTION_FORWARD, ACTION_JUMP, ACTION_STRAFE_NEGATIVE,
+    ACTION_STRAFE_POSITIVE, ACTION_TURN_MINUS_90, ACTION_TURN_NEGATIVE, ACTION_TURN_PLUS_90,
+    ACTION_TURN_POSITIVE,
+};
 pub use objects::{
     ObjectTable, RemoteObject, STAMP_FORCE_POSITION, STAMP_MOVE_TO, STAMP_POSITION, STAMP_TELEPORT,
 };

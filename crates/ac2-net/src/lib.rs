@@ -30,7 +30,7 @@ pub use blob::{
     ORDERING_VISUAL,
 };
 pub use checksum::checksum32;
-pub use client::{real_time, NetClient, NetClientConfig};
+pub use client::{real_time, NetClient, NetClientConfig, Transport, UdpTransport};
 pub use error::NetError;
 pub use flow::Destination;
 pub use handshake::{Credential, Logon, LEGIONS_VERSION};

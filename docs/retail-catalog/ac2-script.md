@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 0 done, 0 partial, 2384 to do, 84 skipped.
+2468 retail functions: 2 done, 0 partial, 2382 to do, 84 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -3484,7 +3484,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PackageState::~PackageState` · 006e16d0 · legions 00668510
 - [ ] `PackageState::UnPack` · 006e1700 · legions 00668540
 
-## `portal/shared/src/interp/packing/packbuffer.cpp.c` (0/20)
+## `portal/shared/src/interp/packing/packbuffer.cpp.c` (2/20)
 
 ### PackBuffer
 - [ ] `PackBuffer::~PackBuffer` · 006ed4f0 · legions 00672300
@@ -3501,8 +3501,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PackBuffer::UnPackPackage` · 006ed870 · legions 00672680
 - [ ] `PackBuffer::Grow` · 006ed920 · legions 00672730
 - [ ] `PackBuffer::PackBuffer` · 006ed9a0 · legions 006727b0
-- [ ] `PackBuffer::Pack` · 006ed9c0 · legions 006727d0
-- [ ] `PackBuffer::UnPack` · 006eda20 · legions 00672830
+- [x] `PackBuffer::Pack` · 006ed9c0 · legions 006727d0
+- [x] `PackBuffer::UnPack` · 006eda20 · legions 00672830
 - [ ] `PackBuffer::PackRaw` · 006edaa0
 - [ ] `PackBuffer::PackPackage` · 006edb40
 - [ ] `PackBuffer::UnPackBuffer_Int` · 006edc00 · legions 00672920

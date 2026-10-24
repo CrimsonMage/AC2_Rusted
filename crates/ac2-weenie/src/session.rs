@@ -9,11 +9,14 @@
 //! (`gmGamePlayUI::EndSession`), the server's `CharExitGame`, then the transport logoff.
 
 use std::net::SocketAddr;
-use std::time::{Duration, Instant};
+use std::time::Duration;
+
+/// Pause between frames while waiting.
+const FRAME: Duration = Duration::from_millis(10);
 
 use ac2_net::protocol::{
     interrogation_response, Build, CellPosition, CharacterSet, ClientEvent, DatEvent, Qualities,
-    ServerEvent, QUEUE_DAT, QUEUE_EVENTS,
+    ServerEvent, StringInfo, QUEUE_DAT, QUEUE_EVENTS,
 };
 use ac2_net::{
     Credential, Logon, NetClient, NetClientConfig, NetError, NetEvent, ServerPublicKey,
@@ -95,6 +98,32 @@ pub enum SessionEvent {
     LeftWorld,
     /// The server refused something; the session may continue.
     Rejected(String),
+    /// `ECM_Login::RecvEvt_CharGenVerification`: the server's answer to a character creation
+    /// (its response, the character, the weenie's result).
+    CharGenVerification {
+        response: u32,
+        character: u64,
+        name: String,
+        result: u32,
+    },
+    /// Queue 4 chat data for the chat client.
+    Chat(Vec<u8>),
+    /// A script event (`CWDistributor::RecvEvt_InterpCEvent_Private`): the object (the player
+    /// for broadcasts), the function id and its packed arguments.
+    Interp {
+        object: u64,
+        function: u32,
+        arguments: Vec<u8>,
+    },
+    /// `GlobalEventHandler::RecvEvt_DisplayStringInfo`: a display type and its text.
+    SystemMessage {
+        kind: u32,
+        text: StringInfo,
+    },
+    /// `GlobalEventHandler::RecvEvt_WorldName`.
+    WorldName(StringInfo),
+    /// `GlobalEventHandler::RecvEvt_AccountBooted`: the reason.
+    AccountBooted(StringInfo),
     /// The session ended.
     Disconnected(String),
 }
@@ -118,22 +147,35 @@ pub struct OnlineSession {
 impl OnlineSession {
     /// Starts the logon; progress arrives from [`OnlineSession::poll`].
     pub fn connect(config: OnlineConfig) -> Result<Self, NetError> {
+        let transport = ac2_net::UdpTransport::bind(config.server)?;
+        Self::with_transport(config, Box::new(transport))
+    }
+
+    /// [`OnlineSession::connect`] over `transport` (a scripted server in tests).
+    pub fn with_transport(
+        config: OnlineConfig,
+        mut transport: Box<dyn ac2_net::Transport>,
+    ) -> Result<Self, NetError> {
+        let connection_sequence = transport.clock().1 as u32;
         let build = Build::from_version(&config.version);
         let crypto = config
             .server_key
             .as_ref()
             .map(SessionCrypto::new)
             .transpose()?;
-        let client = NetClient::connect(NetClientConfig {
-            server: config.server,
-            logon: Logon {
-                version: config.version,
-                account: config.account.clone(),
-                credential: config.credential,
-                connection_sequence: ac2_net::real_time() as u32,
-                crypto,
+        let client = NetClient::with_transport(
+            NetClientConfig {
+                server: config.server,
+                logon: Logon {
+                    version: config.version,
+                    account: config.account.clone(),
+                    credential: config.credential,
+                    connection_sequence,
+                    crypto,
+                },
             },
-        })?;
+            transport,
+        );
         Ok(Self {
             client,
             account: config.account,
@@ -192,9 +234,9 @@ impl OnlineSession {
     /// Runs frames until the player is in the world, or fails after `timeout`. The other
     /// events it sees come back from the next [`OnlineSession::poll`].
     pub fn wait_for_world(&mut self, timeout: Duration) -> Result<WorldEntry, String> {
-        let deadline = Instant::now() + timeout;
+        let deadline = self.client.elapsed() + timeout.as_secs_f64();
         let mut seen = Vec::new();
-        while Instant::now() < deadline {
+        while self.client.elapsed() < deadline {
             let mut entered = None;
             for event in self.poll() {
                 match event {
@@ -208,7 +250,7 @@ impl OnlineSession {
                 self.pending = seen;
                 return Ok(entry);
             }
-            std::thread::sleep(Duration::from_millis(10));
+            self.client.sleep(FRAME);
         }
         Err("timed out waiting for world entry".into())
     }
@@ -237,7 +279,15 @@ impl OnlineSession {
                     self.client.net_mut().send_dat_event(response);
                 }
             }
-            // Queue 2 is discarded and queue 4 carries chat (`ProcessLogonEventQueue`).
+            // `Turbine::Client::ProcessLogonEventQueue`: queue 4 hands `0x100D3` to the chat
+            // client and drops everything else; queue 2 is discarded.
+            NetEvent::Blob(blob) if blob.queue == 4 => {
+                if let Ok(ServerEvent::Chat(data)) =
+                    ServerEvent::decode(&blob.data, Build::default())
+                {
+                    out.push(SessionEvent::Chat(data));
+                }
+            }
             NetEvent::Blob(_) => {}
         }
     }
@@ -301,6 +351,34 @@ impl OnlineSession {
                 out.push(SessionEvent::PlayerQualities(qualities.clone()));
                 out.push(SessionEvent::LoginFinished);
             }
+            ServerEvent::CharGenVerification {
+                response,
+                identity,
+                weenie_result,
+            } => out.push(SessionEvent::CharGenVerification {
+                response,
+                character: identity.id,
+                name: identity.name,
+                result: weenie_result,
+            }),
+            ServerEvent::Interp {
+                object,
+                function,
+                arguments,
+            } => {
+                if let Some(object) = object.map(|o| o.id).or(self.world.player()) {
+                    out.push(SessionEvent::Interp {
+                        object,
+                        function,
+                        arguments,
+                    });
+                }
+            }
+            ServerEvent::DisplayStringInfo { kind, text } => {
+                out.push(SessionEvent::SystemMessage { kind, text: *text })
+            }
+            ServerEvent::WorldName(text) => out.push(SessionEvent::WorldName(*text)),
+            ServerEvent::AccountBooted(text) => out.push(SessionEvent::AccountBooted(*text)),
             ServerEvent::Quality(update) => {
                 if let Some(object) = update.object.map(|o| o.id).or(self.world.player()) {
                     out.push(SessionEvent::QualityChanged {
@@ -364,6 +442,20 @@ impl OnlineSession {
     }
 
     /// `PlayerMovementModule::UseTime`: report the player's body when retail would.
+    /// `ChatInterfaceProvider::SendData`: chat data out on queue 4.
+    pub fn send_chat(&mut self, data: &[u8]) {
+        self.client.net_mut().send_chat(data);
+    }
+
+    /// A script event to the server (`ECM_Interp::SendEvt_InterpSEvent[Encrypt]`).
+    pub fn send_interp(&mut self, function: u32, arguments: Vec<u8>, encrypted: bool) {
+        self.send(ClientEvent::Interp {
+            function,
+            arguments,
+            encrypted,
+        });
+    }
+
     /// The stamps come from the player's object as the server last set them
     /// (`CPhysicsObj::get_instance_stamp`, `get_update_time`).
     pub fn report_body(&mut self, body: &BodyState) {
@@ -407,8 +499,8 @@ impl OnlineSession {
         let mut left = false;
         if let (Some(character), true) = (self.world.player(), self.entered) {
             self.send(ClientEvent::LogOffCharacter { character });
-            let deadline = Instant::now() + wait;
-            'wait: while Instant::now() < deadline && !self.closed {
+            let deadline = self.client.elapsed() + wait.as_secs_f64();
+            'wait: while self.client.elapsed() < deadline && !self.closed {
                 for event in self.poll() {
                     left |= event == SessionEvent::LeftWorld;
                     if matches!(
@@ -418,7 +510,7 @@ impl OnlineSession {
                         break 'wait;
                     }
                 }
-                std::thread::sleep(Duration::from_millis(10));
+                self.client.sleep(FRAME);
             }
         }
         self.closed = true;
