@@ -2,7 +2,8 @@
 //! terrain and collision, print the frames, log off.
 //!
 //! `cargo run -p ac2-client --example headless_probe -- --dat-dir DIR [--server 127.0.0.1:9000]
-//!   [--account local] [--version 7148] [--client-exe PATH] [--seconds 4]`
+//!   [--account local] [--version 7148] [--client-exe PATH] [--seconds 4] [--character NAME]
+//!   [--walk 0.5]` (the fraction of the seconds spent walking forward)
 
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -21,6 +22,8 @@ fn main() -> Result<(), String> {
     let mut dat_dir = None;
     let mut server_key = None;
     let mut seconds = 4.0f64;
+    let mut walk_fraction = 0.5f64;
+    let mut character = CharacterChoice::First;
     let mut args = std::env::args().skip(1);
     while let Some(flag) = args.next() {
         let value = args.next().ok_or(format!("missing value for {flag}"))?;
@@ -30,6 +33,8 @@ fn main() -> Result<(), String> {
             "--version" => version = value,
             "--dat-dir" => dat_dir = Some(value),
             "--seconds" => seconds = value.parse().map_err(|e| format!("{e}"))?,
+            "--walk" => walk_fraction = value.parse().map_err(|e| format!("{e}"))?,
+            "--character" => character = CharacterChoice::Name(value),
             "--client-exe" => {
                 let exe = std::fs::read(&value).map_err(|e| format!("{value}: {e}"))?;
                 server_key = ac2_net::ServerPublicKey::find_in_client(&exe);
@@ -48,7 +53,7 @@ fn main() -> Result<(), String> {
         account,
         credential: Credential::Account,
         version,
-        character: CharacterChoice::First,
+        character,
         server_key,
         language: 0,
         dat_iterations: ac2_weenie::dat_iterations(&dataset)?,
@@ -84,14 +89,28 @@ fn main() -> Result<(), String> {
         ..FrameInput::default()
     };
     let start = Instant::now();
+    let mut next_report = 0.0;
     while start.elapsed().as_secs_f64() < seconds {
-        let input = if start.elapsed().as_secs_f64() < seconds / 2.0 {
+        if start.elapsed().as_secs_f64() >= next_report {
+            next_report += 1.0;
+            for o in client.frame().objects {
+                println!(
+                    "object {:#x} in_world {} active {} cell {:08X} at {:?} mode {:?} motion {:?}",
+                    o.id, o.in_world, o.active, o.cell, o.origin, o.mode, o.motion
+                );
+            }
+        }
+        let input = if start.elapsed().as_secs_f64() < seconds * walk_fraction {
             &walk
         } else {
             &idle
         };
         for event in client.use_time(input)? {
-            if !matches!(event, ac2_weenie::SessionEvent::Interp { .. }) {
+            if !matches!(
+                event,
+                ac2_weenie::SessionEvent::Interp { .. }
+                    | ac2_weenie::SessionEvent::ObjectMoved { .. }
+            ) {
                 println!("{event:?}");
             }
         }

@@ -127,24 +127,73 @@ impl ObjectTable {
         Some(PositionApplied { forced, teleported })
     }
 
-    pub(crate) fn apply_action(&mut self, id: u64, action: &ObjectAction) {
-        let Some(object) = self.objects.get_mut(&id) else {
-            return;
-        };
+    /// `CPhysicsObj::is_newer_then_update`: a newer stamp is taken and reported.
+    fn newer_then_update(object: &mut RemoteObject, stamp: usize, value: u16) -> bool {
+        if !is_newer(object.update_times[stamp], value) {
+            return false;
+        }
+        object.update_times[stamp] = value;
+        true
+    }
+
+    /// The bookkeeping of the per-object physics events (`CPhysicsObj::RecvEvt_*`). Returns the
+    /// object that left the world, if one did (`RecvEvt_LeaveWorld`, `RecvEvt_DeParent`).
+    pub(crate) fn apply_action(
+        &mut self,
+        id: u64,
+        action: &ObjectAction,
+        is_player: bool,
+    ) -> Option<u64> {
+        // `CPhysicsObj::RecvEvt_DeParent`: the child named (at its instance), on a newer
+        // position stamp, is unparented and leaves the world.
+        if let ObjectAction::DeParent(child) = action {
+            let object = self.objects.get_mut(&child.id)?;
+            if object.instance != child.instance
+                || !Self::newer_then_update(object, STAMP_POSITION, child.other)
+            {
+                return None;
+            }
+            object.parent = None;
+            object.position = None;
+            return Some(child.id);
+        }
+        let object = self.objects.get_mut(&id)?;
         match action {
             ObjectAction::SetMode(mode) => object.mode = Some(*mode),
+            // `CPhysicsObj::RecvEvt_Parent`: on a newer position stamp.
             ObjectAction::Parent {
                 parent, location, ..
             } => {
-                object.parent = Some((parent.id, *location));
-                object.position = None;
+                if Self::newer_then_update(object, STAMP_POSITION, parent.other) {
+                    object.parent = Some((parent.id, *location));
+                    object.position = None;
+                }
             }
-            ObjectAction::DeParent(_) => object.parent = None,
-            ObjectAction::LeaveWorld(_) => object.position = None,
-            // `CPhysicsObj::RecvEvt_MoveTo`.
-            ObjectAction::MoveTo { stamp, .. } => object.update_times[STAMP_MOVE_TO] = *stamp,
+            // `CPhysicsObj::RecvEvt_LeaveWorld`: an object other than the player, on a newer
+            // position stamp, is unparented and leaves the world.
+            ObjectAction::LeaveWorld(stamp) => {
+                if !is_player && Self::newer_then_update(object, STAMP_POSITION, *stamp) {
+                    object.parent = None;
+                    object.position = None;
+                    return Some(id);
+                }
+            }
+            // `CPhysicsObj::RecvEvt_MoveTo` acts on the player only.
+            ObjectAction::MoveTo { stamp, .. } if is_player => {
+                object.update_times[STAMP_MOVE_TO] = *stamp;
+            }
             _ => {}
         }
+        None
+    }
+
+    /// The objects held by `id` (`CPhysicsObj::m_children`).
+    pub(crate) fn children(&self, id: u64) -> Vec<u64> {
+        self.objects
+            .values()
+            .filter(|o| o.parent.is_some_and(|(holder, _)| holder == id))
+            .map(|o| o.id)
+            .collect()
     }
 
     /// `CWRepository::SetQualities`: the player description replaces the object's qualities.

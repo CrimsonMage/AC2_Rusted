@@ -16,6 +16,7 @@ use ac2_net::protocol::{
 use ac2_net::{is_cell, is_out_of_world, ORDERING_VISUAL};
 use ac2_net::{ordering_stamp, ordering_type, Blob, ORDERING_ORDERED, ORDERING_UNORDERED};
 
+use crate::destruction::{Destruction, OUT_OF_VIEW_LIFETIME};
 use crate::objects::{ObjectTable, PositionApplied, RemoteObject};
 use crate::ordering::{TsRecv, TsResult, VisualOrderingQueue};
 
@@ -39,6 +40,8 @@ pub enum WorldEvent {
     /// `VisualOrderingQueue::IsHeavilyBlocked`: ask the server to re-create the object
     /// (`ECM_Physics::SendEvt_CForceCreate`).
     ForceCreate(u64),
+    /// `CObjectMaint::DestroyObjectInternal` removed the object (`HandlePendingDeletion`).
+    Destroyed(u64),
 }
 
 /// `ObjectEventQueue`: blobs held for an object, when the last arrived, and whether any is not
@@ -84,6 +87,8 @@ pub struct World {
     /// `CObjectMaint::m_event_queue_table`.
     waiting: BTreeMap<u64, ObjectEventQueue>,
     pub objects: ObjectTable,
+    /// `m_objectDestructionQueue` and `m_pendingDeletions`.
+    destruction: Destruction,
     out: Vec<WorldEvent>,
     cur_time: f64,
     /// `MasterProperty` types for property collections, when the client has the DATs.
@@ -109,6 +114,7 @@ impl World {
             bookies: BTreeMap::new(),
             waiting: BTreeMap::new(),
             objects: ObjectTable::default(),
+            destruction: Destruction::default(),
             out: Vec::new(),
             cur_time: 0.0,
             property_types: None,
@@ -142,6 +148,47 @@ impl World {
         self.bookies.clear();
         self.waiting.clear();
         self.objects.clear();
+        self.destruction.clear();
+    }
+
+    /// `CBookKeep::AddObjectToBeDestroyed`: an object other than the player that left the
+    /// client's view is destroyed 25 s from now unless it comes back; its children with it.
+    pub fn add_object_to_be_destroyed(&mut self, id: u64) {
+        if Some(id) == self.player {
+            return;
+        }
+        let due = self.cur_time + OUT_OF_VIEW_LIFETIME;
+        for object in std::iter::once(id).chain(self.objects.children(id)) {
+            // `CObjectMaint::AddObjectToBeDestroyed` only queues objects that exist.
+            if self.objects.get(object).is_some() {
+                self.destruction.to_destroy.insert(object, due);
+            }
+        }
+    }
+
+    /// `CBookKeep::RemoveObjectToBeDestroyed`: the object (and its children) came back.
+    pub fn remove_object_to_be_destroyed(&mut self, id: u64) {
+        for object in std::iter::once(id).chain(self.objects.children(id)) {
+            self.destruction.to_destroy.remove(object);
+        }
+    }
+
+    /// Whether the object waits in `m_objectDestructionQueue`.
+    pub fn is_to_be_destroyed(&self, id: u64) -> bool {
+        self.destruction.to_destroy.contains(id)
+    }
+
+    /// `CObjectMaint::DestroyObjectInternal`: out of the object table, both destruction
+    /// queues and the event queues.
+    fn destroy_object_internal(&mut self, id: u64) {
+        if self.objects.get(id).is_none() {
+            return;
+        }
+        self.objects.remove(id);
+        self.bookies.remove(&id);
+        self.destruction.forget(id);
+        self.waiting.remove(&id);
+        self.out.push(WorldEvent::Destroyed(id));
     }
 
     /// `CEventQueue::UseTime` for one queue-1 blob; returns what reached the game.
@@ -282,6 +329,12 @@ impl World {
     /// non-cell blob, and is dropped unless it is the player's.
     pub fn use_time(&mut self, cur_time: f64) -> Vec<WorldEvent> {
         self.cur_time = cur_time;
+        // The destruction queue's due objects become pending deletions now.
+        while let Some(id) = self.destruction.to_destroy.take_due(cur_time) {
+            if self.objects.get(id).is_some() {
+                self.destruction.pending.insert(id, cur_time);
+            }
+        }
         let mut timed_out = Vec::new();
         for (&id, queue) in &self.waiting {
             if !queue.queue.is_empty() && EVENT_QUEUE_TIMEOUT < cur_time - queue.update_time {
@@ -295,6 +348,10 @@ impl World {
         }
         for id in timed_out {
             self.waiting.remove(&id);
+        }
+        // `HandlePendingDeletion`.
+        while let Some(id) = self.destruction.pending.take_due(cur_time) {
+            self.destroy_object_internal(id);
         }
         std::mem::take(&mut self.out)
     }
@@ -340,13 +397,14 @@ impl World {
                 self.flush_waiting(object.id);
                 return;
             }
+            // `CObjectMaint::RecvEvt_DestroyObject`: `HandleDestruction`, then `DestroyObject`
+            // makes it a pending deletion, removed at the next `CObjectMaint::UseTime`.
             ServerEvent::DestroyObject(sender) => {
                 if Some(sender.id) != self.player {
                     if !self.get_object_or_queue(sender, &blob) {
                         return;
                     }
-                    self.bookies.remove(&sender.id);
-                    self.objects.remove(sender.id);
+                    self.destruction.pending.insert(sender.id, self.cur_time);
                 }
             }
             ServerEvent::UpdatePosition(update) | ServerEvent::PositionCell(update) => {
@@ -373,7 +431,15 @@ impl World {
                 if !self.get_object_or_queue(&object.sender, &blob) {
                     return;
                 }
-                self.objects.apply_action(object.sender.id, &object.action);
+                let is_player = Some(object.sender.id) == self.player;
+                let left = self
+                    .objects
+                    .apply_action(object.sender.id, &object.action, is_player);
+                // `RecvEvt_LeaveWorld` / `RecvEvt_DeParent`: `LeaveWorld` queues the object for
+                // destruction (`CBookKeep::HandleLeaveWorld`).
+                if let Some(left) = left {
+                    self.add_object_to_be_destroyed(left);
+                }
             }
             // `ECM_Login::RecvEvt_PlayerDesc` -> `CWInterface::RecvEvt_PlayerDesc`.
             ServerEvent::PlayerDescription(qualities) => {

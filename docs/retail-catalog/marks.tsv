@@ -34,9 +34,11 @@ key	status	note
 0047bcb0	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047bd90	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047bed0	x	
+0047c390	~	ac2-client: CellManager's block changes
 0047c440	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047c460	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047c510	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+0047cb40	~	ac2-client: CellManager's block changes
 0047cb70	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 0047cd90	x	
 0047ce60	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
@@ -434,21 +436,42 @@ key	status	note
 004d31b0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004d3230	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004d5720	x	
+004d57b0	~	SyncPositionSimple(pos, 1) for the same instance
 004d5a90	x	
+004d5da0	x	
+004d5dd0	~	for every cell of a released block: objects in the world, unless held, leave visibility
+004d6210	x	ac2-client remote.rs, for every cell of a block made resident
+004d6e20	x	ac2-client remote.rs
+004d6ea0	x	ac2-client remote.rs
+004d76d0	~	25 s; no temporary ids (0.25 s)
+004d7730	x	
+004d77e0	x	ac2-client remote.rs (lost-cell table)
 004d7e80	x	
+004d86f0	~	table, both queues and the event queue; no weenie or physics teardown hooks
+004d87b0	x	
 004d8820	x	
-004d8a40	~	visual-queue release and queued-event replay only; no CPhysicsObj built
-004d9150	~	visual-queue release and queued-event replay only; no CPhysicsObj built
-004d9480	~	the event-queue pass: queues held over 25 s ask for their object (SendEvt_CForceCreate) and are dropped unless the player's; no other maintenance
+004d8a40	~	ac2-client: the physics object once its Setup loads on a loader thread, then SyncPositionSimple(pos, 1); the table entry is created on receipt
+004d9150	~	ac2-client: the physics object once its Setup loads on a loader thread, then SyncPositionSimple(pos, 1); the table entry is created on receipt
+004d9480	~	destruction queue to pending deletions, the event-queue timeouts, HandlePendingDeletion; creation is not deferred to it (no temporary objects)
 004d98b0	x	
 004d98e0	x	
 004d99c0	~	creation is immediate (no async entity loading); parent/stamp/update rules kept
-004d9b00	x	
+004d9b00	x	ac2-weenie World: a pending deletion at cur_time
 004d9c00	x	
+004d9c80	x	
+004d9ce0	x	
+004d9d50	~	the pending deletion only
+004d9d80	x	
 004d9e90	x	
 004d9f10	x	
 004d9f30	x	
+004d9fa0	x	OnlineSession::add_object_to_be_destroyed (children too)
+004da060	x	
+004da0f0	x	
+004da120	x	
 004da200	x	
+004da260	x	
+004da2a0	x	
 004da2e0	x	
 004da320	x	
 004da550	x	
@@ -511,10 +534,12 @@ key	status	note
 004dde80	x	ac2_physics::Position::lerp_origin (across blocks the z sum is stored first)
 004de020	x	
 004de0d0	x	
-004de490	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
+004de490	~	the player only, its move-to stamp; no MoveToEvent
 004de5b0	x	
 004de5d0	x	
 004de940	x	
+004dead0	~	ac2-client remote.rs: snaps, then the velocity
+004deb70	~	ac2-client remote.rs: snaps (InterpolationManager::Blip) until ac2-physics has the InterpolationManager
 004df5a0	~	no IsDoingBehavior(jump) check (behaviours not ported)
 004df6a0	x	
 004df6d0	x	
@@ -537,7 +562,14 @@ key	status	note
 004e1c90	~	no admin moves or missiles
 004e1d70	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 004e1eb0	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
+004e20b0	~	ac2-client remote.rs
+004e2100	~	ac2-client remote.rs over PhysicsBody::place (flags 0x11)
+004e21e0	x	ac2-client remote.rs
+004e2220	x	ac2-client remote.rs
+004e2240	x	ac2-client remote.rs
 004e23b0	~	instance stamp kept per object in ac2-weenie ObjectTable
+004e2900	~	ac2-client: the object stops stepping physics
+004e2980	~	ac2-client: the object steps physics again
 004e30e0	x	
 004e3280	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004e3aa0	x	
@@ -548,9 +580,16 @@ key	status	note
 004e4430	~	only the zero velocity of OBJECTINFO::kill_velocity
 004e44e0	x	
 004e4640	~	ac2-physics: vdesc scale x placement scale; the body uses the root z scale
+004e4b60	~	no adjust_to_outside
+004e4c10	~	ac2-client remote.rs: out of the world, queued for destruction
+004e4ca0	~	the bookie part only
+004e4d00	x	ac2-client remote.rs
 004e56e0	~	the standing jump behaviour is not ported; jumps at once
 004e5780	~	vertical distance to the terrain polygon instead of CObjCell::LOSCheck
 004e5d10	~	environment response only; object collisions and the collision manager not ported
+004e6780	x	ac2-weenie ObjectTable::apply_action (newer position stamp), then LeaveWorld
+004e67c0	~	ac2-weenie: newer position stamp, the parent recorded
+004e6810	x	ac2-weenie ObjectTable::apply_action
 004e6ff0	x	
 004e7580	~	ac2-physics objects.rs: static objects only; Interpermiable/CollisionParameters ethereal filter, missile proximity and temp ignore lists not ported
 004e8f80	x	
@@ -573,10 +612,12 @@ key	status	note
 004eb370	~	no player-distance range checks, parent or missile paths
 004eb8b0	x	
 004ec350	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
+004ec400	~	the bookie part only
 004ec730	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
+004ec7d0	~	ac2-client remote.rs
 004ed190	~	flags 0x1010 into PhysicsBody::place
-004ed1f0	~	the player's server placement (SetPositionSimple(pos, 1))
-004ed470	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
+004ed1f0	~	ac2-client remote.rs over PhysicsBody::place
+004ed470	~	the non-player branch (lost cell when not resident, 96 m physics range, teleport/out-of-range/out-of-world snap); InterpolateTo snaps until ac2-physics has the InterpolationManager
 004ee7d0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f1f40	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f1f90	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
@@ -1067,7 +1108,7 @@ key	status	note
 00732200	~	Timer::local_time drives the physics clock
 00732240	~	the player body only (CPhysics::UpdateAllPhysics over remote objects not simulated)
 007322c0	x	PhysicsClock::render_interpolation
-00732400	~	the player's quantum and PlayerPhysicsUpdatedCallback only
+00732400	~	the player's quantum with PlayerPhysicsUpdatedCallback, then every other object in the world and in range
 007326e0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 00737cf0	x	
 DB_TYPE_SURFACE_DESC	x	

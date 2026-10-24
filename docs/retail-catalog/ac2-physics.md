@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 159 done, 42 partial, 1861 to do, 62 skipped.
+2124 retail functions: 165 done, 54 partial, 1843 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (1/9)
@@ -13,7 +13,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysics::UpdateAnimation` · 00732280
 - [x] `CPhysics::UpdateRenderInterpolation` · 007322c0 · legions 006ae760 — PhysicsClock::render_interpolation
 - [ ] `CPhysics::GetObjectA` · 00732380 · legions 006ae820
-- [~] `CPhysics::UpdateAllPhysics` · 00732400 — the player's quantum and PlayerPhysicsUpdatedCallback only
+- [~] `CPhysics::UpdateAllPhysics` · 00732400 — the player's quantum with PlayerPhysicsUpdatedCallback, then every other object in the world and in range
 - [ ] `CPhysics::UpdateAllAnimation` · 007325a0
 
 ## `portal/shared/src/bsp/bspleaf.cpp.c` (5/13)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [ ] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (44/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (50/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2207,7 +2207,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::RecvEvt_SetVelocityScale` · 004de430
 - [ ] `CPhysicsObj::RecvEvt_SetJumpScale` · 004de450
 - [ ] `CPhysicsObj::RecvEvt_SetHoverHeight` · 004de470
-- [~] `CPhysicsObj::RecvEvt_MoveTo` · 004de490 · legions 004d0ef0 — stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
+- [~] `CPhysicsObj::RecvEvt_MoveTo` · 004de490 · legions 004d0ef0 — the player only, its move-to stamp; no MoveToEvent
 - [ ] `CPhysicsObj::RecvEvt_PositionCell` · 004de4e0
 - [ ] `CPhysicsObj::RecvEvt_DoFX` · 004de4f0
 - [ ] `CPhysicsObj::RecvEvt_DoTargettedFX` · 004de500
@@ -2256,8 +2256,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::SetMotionInterpreter` · 004dea70 · legions 004d14d0
 - [ ] `CPhysicsObj::GetMotionInterpreter` · 004deab0
 - [ ] `CPhysicsObj::GetModeTracker` · 004deac0
-- [ ] `CPhysicsObj::InterpolateAndImpulse` · 004dead0 · legions 004d1530
-- [ ] `CPhysicsObj::InterpolateTo` · 004deb70 · legions 004d15d0
+- [~] `CPhysicsObj::InterpolateAndImpulse` · 004dead0 · legions 004d1530 — ac2-client remote.rs: snaps, then the velocity
+- [~] `CPhysicsObj::InterpolateTo` · 004deb70 · legions 004d15d0 — ac2-client remote.rs: snaps (InterpolationManager::Blip) until ac2-physics has the InterpolationManager
 - [ ] `CPhysicsObj::StopInterpolating` · 004dec30 · legions 004d1690
 - [ ] `CPhysicsObj::IsInterpolating` · 004dec50 · legions 004d16b0
 - [ ] `CPhysicsObj::GetConstraintFactor` · 004dec70 · legions 004d16d0
@@ -2405,14 +2405,14 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::UpdateGravity` · 004e1f70 · legions 004d49c0
 - [ ] `CPhysicsObj::find_inside_position` · 004e1fb0
 - [ ] `CPhysicsObj::SetPlacementPosition` · 004e2030 · legions 004d4a80
-- [ ] `CPhysicsObj::EnterWorld` · 004e20b0
-- [ ] `CPhysicsObj::EnterWorldSimple` · 004e2100
+- [~] `CPhysicsObj::EnterWorld` · 004e20b0 — ac2-client remote.rs
+- [~] `CPhysicsObj::EnterWorldSimple` · 004e2100 — ac2-client remote.rs over PhysicsBody::place (flags 0x11)
 - [ ] `CPhysicsObj::HandleTeleportStart` · 004e2160 · legions 004d4bb0
 - [ ] `CPhysicsObj::OnCellAddedToFreelist` · 004e21c0
 - [ ] `CPhysicsObj::OnCellRemovedFromFreelist` · 004e21d0
-- [ ] `CPhysicsObj::LeaveVisibility` · 004e21e0 · legions 004d4c30
-- [ ] `CPhysicsObj::ReEnterVisibility` · 004e2220 · legions 004d4c70
-- [ ] `CPhysicsObj::ReEnterVisibility` · 004e2240
+- [x] `CPhysicsObj::LeaveVisibility` · 004e21e0 · legions 004d4c30 — ac2-client remote.rs
+- [x] `CPhysicsObj::ReEnterVisibility` · 004e2220 · legions 004d4c70 — ac2-client remote.rs
+- [x] `CPhysicsObj::ReEnterVisibility` · 004e2240 — ac2-client remote.rs
 - [ ] `CPhysicsObj::IsThePlayer` · 004e2260
 - [ ] `CPhysicsObj::SetHoverHeight` · 004e2290
 - [ ] `CPhysicsObj::ResetHoverHeight` · 004e22a0
@@ -2455,8 +2455,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::SetFXTarget` · 004e2890 · legions 004d52e0
 - [ ] `CPhysicsObj::InqCellObjects` · 004e28b0
 - [ ] `CPhysicsObj::InqBlockObjects` · 004e28d0
-- [ ] `CPhysicsObj::HandleOutOfPhysicsRange` · 004e2900 · legions 004d5350
-- [ ] `CPhysicsObj::HandleInPhysicsRange` · 004e2980 · legions 004d53d0
+- [~] `CPhysicsObj::HandleOutOfPhysicsRange` · 004e2900 · legions 004d5350 — ac2-client: the object stops stepping physics
+- [~] `CPhysicsObj::HandleInPhysicsRange` · 004e2980 · legions 004d53d0 — ac2-client: the object steps physics again
 
 ### Frame
 - [ ] `Frame::combine` · 004e2ae0 · legions 004d5530
@@ -2517,10 +2517,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::ApplyProperty` · 004e49b0 · legions 004d7400
 - [ ] `CPhysicsObj::UpdateCellMaterial` · 004e4a60 · legions 004d74b0
 - [ ] `CPhysicsObj::local_to_global` · 004e4af0
-- [ ] `CPhysicsObj::StorePosition` · 004e4b60
-- [ ] `CPhysicsObj::LeaveWorld` · 004e4c10 · legions 004d7660
-- [ ] `CPhysicsObj::HandleEnterWorld` · 004e4ca0 · legions 004d76f0
-- [ ] `CPhysicsObj::LeaveVisibility` · 004e4d00
+- [~] `CPhysicsObj::StorePosition` · 004e4b60 — no adjust_to_outside
+- [~] `CPhysicsObj::LeaveWorld` · 004e4c10 · legions 004d7660 — ac2-client remote.rs: out of the world, queued for destruction
+- [~] `CPhysicsObj::HandleEnterWorld` · 004e4ca0 · legions 004d76f0 — the bookie part only
+- [x] `CPhysicsObj::LeaveVisibility` · 004e4d00 — ac2-client remote.rs
 - [ ] `CPhysicsObj::DoFX` · 004e4d80 · legions 004d77d0
 - [ ] `CPhysicsObj::DoTargettedFX` · 004e4dc0 · legions 004d7810
 - [ ] `CPhysicsObj::StopFX` · 004e4e10 · legions 004d7860
@@ -2558,9 +2558,9 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::ApplyPropertyCollection` · 004e66a0
 - [ ] `CPhysicsObj::HasMissileManager` · 004e6710
 - [ ] `CPhysicsObj::is_newer_then_update` · 004e6720 · legions 004d9170
-- [ ] `CPhysicsObj::RecvEvt_LeaveWorld` · 004e6780
-- [ ] `CPhysicsObj::RecvEvt_Parent` · 004e67c0
-- [ ] `CPhysicsObj::RecvEvt_DeParent` · 004e6810
+- [x] `CPhysicsObj::RecvEvt_LeaveWorld` · 004e6780 — ac2-weenie ObjectTable::apply_action (newer position stamp), then LeaveWorld
+- [~] `CPhysicsObj::RecvEvt_Parent` · 004e67c0 — ac2-weenie: newer position stamp, the parent recorded
+- [x] `CPhysicsObj::RecvEvt_DeParent` · 004e6810 — ac2-weenie ObjectTable::apply_action
 - [ ] `CPhysicsObj::RecvEvt_Contain` · 004e6890
 - [ ] `CPhysicsObj::DoAppearanceFX` · 004e6920 · legions 004d9370
 - [ ] `CPhysicsObj::RemoveAppearanceFX` · 004e6990 · legions 004d93e0
@@ -2723,7 +2723,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::RecvEvt_ReleaseBehavior` · 004ec290
 - [ ] `CPhysicsObj::GetTriggerUpdate` · 004ec310 · legions 004dec80
 - [~] `CPhysicsObj::SetPositionInternal` · 004ec350 · legions 004decc0 — ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
-- [ ] `CPhysicsObj::HandleLeaveWorld` · 004ec400 · legions 004ded70
+- [~] `CPhysicsObj::HandleLeaveWorld` · 004ec400 · legions 004ded70 — the bookie part only
 
 ### _STL::map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>
 - [ ] `_STL::map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>::~map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>` · 004ec4a0 · legions 004dee10
@@ -2733,14 +2733,14 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::makeObjectInternal` · 004ec520 · legions 004dee90
 - [ ] `CPhysicsObj::RecvEvt_DoBehavior` · 004ec680
 - [~] `CPhysicsObj::SetPosition` · 004ec730 · legions 004df090 — ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
-- [ ] `CPhysicsObj::EnterWorld` · 004ec7d0
+- [~] `CPhysicsObj::EnterWorld` · 004ec7d0 — ac2-client remote.rs
 - [ ] `CPhysicsObj::set_description` · 004ec830
 - [ ] `CPhysicsObj::makeObject` · 004ed160 · legions 004dfac0
 - [~] `CPhysicsObj::SetPositionSimple` · 004ed190 · legions 004dfaf0 — flags 0x1010 into PhysicsBody::place
-- [~] `CPhysicsObj::SyncPositionSimple` · 004ed1f0 · legions 004dfb50 — the player's server placement (SetPositionSimple(pos, 1))
+- [~] `CPhysicsObj::SyncPositionSimple` · 004ed1f0 · legions 004dfb50 — ac2-client remote.rs over PhysicsBody::place
 - [ ] `CPhysicsObj::makeObject` · 004ed270 · legions 004dfbd0
 - [ ] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40
-- [~] `CPhysicsObj::RecvEvt_Position` · 004ed470 — stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
+- [~] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch (lost cell when not resident, 96 m physics range, teleport/out-of-range/out-of-world snap); InterpolateTo snaps until ac2-physics has the InterpolationManager
 
 ## `portal/shared/src/physobj/physicsobjrep.cpp.c` (2/171)
 

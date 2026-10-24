@@ -109,23 +109,108 @@ impl Default for Spawn {
     }
 }
 
-/// The player's `CreateObject`: a visual parent, a physics position and the stamps
-/// (position 4, teleport 5, force position 6, move-to 7), no weenie fields.
-fn create_object(spawn: &Spawn) -> Vec<u8> {
+/// An object the server creates (`CreateObject`, `0x10058`).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ObjectSpawn {
+    pub id: u64,
+    pub instance: u16,
+    /// The `VisualDesc` parent DID.
+    pub visual: u32,
+    pub cell: u32,
+    pub origin: [f32; 3],
+    /// (w, x, y, z).
+    pub rotation: [f32; 4],
+    /// `PhysicsDesc` timestamps: position, teleport, force position, move-to.
+    pub stamps: [u16; 4],
+}
+
+/// `CreateObject`: the id; `VisualDesc` with its parent (bit 2); `PhysicsDesc` with a position
+/// (bit `0x8000`), the instance stamp, visual stamp 0, the cell and frame, the four timestamps;
+/// an empty `WeenieDesc`.
+pub fn create_object_bytes(object: &ObjectSpawn) -> Vec<u8> {
     let mut b = 0x0001_0058u32.to_le_bytes().to_vec();
-    b.extend(PLAYER.to_le_bytes());
-    words(&mut b, &[2, 0x1F00_0023, 0x8000]);
-    b.extend(9u16.to_le_bytes()); // instance stamp
+    b.extend(object.id.to_le_bytes());
+    words(&mut b, &[2, object.visual, 0x8000]);
+    b.extend(object.instance.to_le_bytes());
     b.extend(0u16.to_le_bytes());
-    words(&mut b, &[spawn.cell]);
-    for v in spawn.origin.iter().chain(spawn.rotation.iter()) {
+    words(&mut b, &[object.cell]);
+    for v in object.origin.iter().chain(object.rotation.iter()) {
         b.extend(v.to_le_bytes());
     }
-    for stamp in [4u16, 5, 6, 7] {
+    for stamp in object.stamps {
         b.extend(stamp.to_le_bytes());
     }
     words(&mut b, &[0]);
     b
+}
+
+/// A server position (`ECM_Physics::RecvEvt_Position`, `0x10086`).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ObjectPosition {
+    pub id: u64,
+    pub instance: u16,
+    pub time: f64,
+    pub cell: u32,
+    pub origin: [f32; 3],
+    /// `Heading::ToUInt8 << 24 | Vector::UnitVectorToUInt24` of the do-motion values.
+    pub heading_and_motion: u32,
+    /// `PositionPack` flags: 2 jump, 4 contact, 8 impulse.
+    pub flags: u32,
+    /// Position, teleport and force-position stamps.
+    pub stamps: [u16; 3],
+    /// The jump or impulse velocity (flag 2 or 8).
+    pub velocity: Option<[f32; 3]>,
+}
+
+/// `PositionPack::StreamPack` after the sender: time, cell and origin, the heading/motion
+/// word, the flags, the position, force-position and teleport stamps, the velocity, aligned.
+pub fn position_bytes(p: &ObjectPosition) -> Vec<u8> {
+    let mut b = 0x0001_0086u32.to_le_bytes().to_vec();
+    b.extend(p.id.to_le_bytes());
+    b.extend(p.instance.to_le_bytes());
+    b.extend(0u16.to_le_bytes());
+    b.extend(p.time.to_le_bytes());
+    words(&mut b, &[p.cell]);
+    for v in p.origin {
+        b.extend(v.to_le_bytes());
+    }
+    words(&mut b, &[p.heading_and_motion, p.flags]);
+    for stamp in [p.stamps[0], p.stamps[2], p.stamps[1]] {
+        b.extend(stamp.to_le_bytes());
+    }
+    if let Some(velocity) = p.velocity {
+        for v in velocity {
+            b.extend(v.to_le_bytes());
+        }
+    }
+    while !b.len().is_multiple_of(4) {
+        b.push(0);
+    }
+    b
+}
+
+/// A per-object event: opcode, the sender (id, instance, visual stamp 0), its words.
+pub fn object_event_bytes(opcode: u32, id: u64, instance: u16, args: &[u32]) -> Vec<u8> {
+    let mut b = opcode.to_le_bytes().to_vec();
+    b.extend(id.to_le_bytes());
+    b.extend(instance.to_le_bytes());
+    b.extend(0u16.to_le_bytes());
+    words(&mut b, args);
+    b
+}
+
+/// The player's `CreateObject`: a visual parent, a physics position and the stamps
+/// (position 4, teleport 5, force position 6, move-to 7), no weenie fields.
+fn create_object(spawn: &Spawn) -> Vec<u8> {
+    create_object_bytes(&ObjectSpawn {
+        id: PLAYER,
+        instance: 9,
+        visual: 0x1F00_0023,
+        cell: spawn.cell,
+        origin: spawn.origin,
+        rotation: spawn.rotation,
+        stamps: [4, 5, 6, 7],
+    })
 }
 
 fn player_description() -> Vec<u8> {
@@ -175,6 +260,13 @@ impl State {
         self.next_object_blob += 1;
         let id = 0x0300_0000_0000_0000 | u64::from(self.next_object_blob) << 32 | 0x100;
         self.reliable_blob(id, 1, &b);
+    }
+
+    /// Queues an unordered queue-1 event blob (`CEventQueue::DispatchEvent` order).
+    pub fn send_event(&mut self, data: &[u8]) {
+        self.next_object_blob += 1;
+        let id = 0x0300_0000_0000_0000 | u64::from(self.next_object_blob) << 32 | 0x100;
+        self.reliable_blob(id, 1, data);
     }
 
     fn interval(&self) -> u16 {

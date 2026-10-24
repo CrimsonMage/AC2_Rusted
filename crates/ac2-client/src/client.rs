@@ -29,8 +29,9 @@ use ac2_world::GameClock;
 
 use crate::camera::{CameraManager, CameraSubject};
 use crate::cells::CellManager;
-use crate::frame::{ClientFrame, ObjectFrame, PlayerFrame};
+use crate::frame::{ClientFrame, PlayerFrame};
 use crate::loader::{Loaded, Loader, Request};
+use crate::remote::Remotes;
 use crate::scene::{frame_is_valid, CameraFrame, SceneCamera};
 use crate::world_data::{BodyData, WorldData};
 
@@ -72,8 +73,8 @@ pub enum Notice {
 }
 
 /// The player's simulated body, once its Setup has loaded.
-struct Body {
-    physics: PhysicsBody,
+pub(crate) struct Body {
+    pub(crate) physics: PhysicsBody,
     /// `GetHeight` and `GetRadius` (x87 values) and `GetTotalScale` z.
     height: f64,
     radius: f64,
@@ -81,20 +82,20 @@ struct Body {
 }
 
 /// The player object (`CreateObject` of the player).
-struct Player {
-    id: u64,
+pub(crate) struct Player {
+    pub(crate) id: u64,
     visual: Option<u32>,
     /// `get_position` until the body exists.
     position: Position,
-    body: Option<Body>,
+    pub(crate) body: Option<Body>,
     /// `CPhysicsObj::IsInWorld`.
-    in_world: bool,
+    pub(crate) in_world: bool,
     /// The heading the motion interpreter turns to, held across frames as `TurnTo` holds it.
     turn_to: Option<f32>,
 }
 
 impl Player {
-    fn position(&self) -> Position {
+    pub(crate) fn position(&self) -> Position {
         self.body
             .as_ref()
             .map_or(self.position, |body| body.physics.position())
@@ -103,11 +104,11 @@ impl Player {
 
 /// The headless client: an online session, the resident world and the player body.
 pub struct Client {
-    session: OnlineSession,
-    loader: Loader,
-    terrain: Terrain,
-    cells: CellManager,
-    player: Option<Player>,
+    pub(crate) session: OnlineSession,
+    pub(crate) loader: Loader,
+    pub(crate) terrain: Terrain,
+    pub(crate) cells: CellManager,
+    pub(crate) player: Option<Player>,
     module: MovementModule,
     camera: CameraManager,
     scene: SceneCamera,
@@ -123,6 +124,8 @@ pub struct Client {
     render_interpolation: f32,
     load_budget: Duration,
     notices: Vec<Notice>,
+    /// The physics objects of everything but the player.
+    pub(crate) remotes: Remotes,
 }
 
 fn physics_position(cell: u32, origin: [f32; 3], rotation: [f32; 4]) -> Position {
@@ -175,6 +178,7 @@ impl Client {
             render_interpolation: 0.0,
             load_budget: Duration::from_millis(4),
             notices: Vec::new(),
+            remotes: Remotes::default(),
         }
     }
 
@@ -267,10 +271,21 @@ impl Client {
 
     fn take_loaded(&mut self, loaded: Loaded) -> Result<(), String> {
         match loaded {
-            Loaded::Body(visual, body) => self.body_loaded(visual, body?),
-            other => self
-                .cells
-                .loaded(other, &mut self.terrain, &mut self.loader)?,
+            Loaded::Body(visual, body) => {
+                self.remote_body_loaded(visual, body.clone());
+                let for_player = self
+                    .player
+                    .as_ref()
+                    .is_some_and(|p| p.visual == visual && p.body.is_none());
+                if for_player {
+                    self.body_loaded(visual, body?);
+                }
+            }
+            other => {
+                self.cells
+                    .loaded(other, &mut self.terrain, &mut self.loader)?;
+                self.object_cells();
+            }
         }
         Ok(())
     }
@@ -378,6 +393,7 @@ impl Client {
             &mut self.loader,
         );
         self.blocking_load = false;
+        self.object_cells();
         if self.cells.is_blocking() {
             return;
         }
@@ -430,19 +446,20 @@ impl Client {
         let now = self.session.local_time();
         let quanta = self.physics_clock.advance(now);
         for _ in 0..quanta {
-            let Some(body) = self
+            let player = self
                 .player
                 .as_mut()
                 .filter(|p| p.in_world)
-                .and_then(|p| p.body.as_mut())
-            else {
-                break;
-            };
-            body.physics.step_quantum(&self.terrain);
-            // `SmartBox::PlayerPhysicsUpdatedCallback`.
-            if !self.camera.mouse_look {
-                self.update_camera(PHYSICS_QUANTUM, true);
+                .and_then(|p| p.body.as_mut());
+            if let Some(body) = player {
+                body.physics.step_quantum(&self.terrain);
+                // `SmartBox::PlayerPhysicsUpdatedCallback`.
+                if !self.camera.mouse_look {
+                    self.update_camera(PHYSICS_QUANTUM, true);
+                }
             }
+            // `CPhysics::UpdateAllPhysics`: the other objects.
+            self.remotes.step_quantum(&self.terrain);
         }
         Ok(events)
     }
@@ -502,10 +519,12 @@ impl Client {
             SessionEvent::LeftWorld | SessionEvent::Disconnected(_) => {
                 self.player = None;
                 self.camera.reset();
+                self.remotes.clear();
                 self.cells
                     .update_visible_cells(0, false, &mut self.terrain, &mut self.loader);
+                self.cells.take_changes();
             }
-            _ => {}
+            other => self.apply_remote(other),
         }
         Ok(())
     }
@@ -603,25 +622,7 @@ impl Client {
                 contact: state.contact,
             })
         });
-        let player_id = self.player.as_ref().map(|p| p.id);
-        let objects = self
-            .session
-            .objects()
-            .iter()
-            .filter(|o| Some(o.id) != player_id)
-            .filter_map(|o| {
-                let position = o.position?;
-                Some(ObjectFrame {
-                    id: o.id,
-                    visual: o.visual,
-                    setup: o.setup,
-                    cell: position.cell,
-                    origin: position.origin,
-                    rotation: position.rotation,
-                    heading_degrees: o.heading_degrees,
-                })
-            })
-            .collect();
+        let objects = self.object_frames();
         ClientFrame {
             server_time,
             time_of_day: self.game_clock.as_ref().map(GameClock::present_time_of_day),
