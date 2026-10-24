@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 6 done, 1 partial, 587 to do, 39 skipped.
+633 retail functions: 7 done, 1 partial, 586 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -36,7 +36,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCharNameCharacterValidator::IsCharacterValid` · 0060cb90 · legions 005cd990
 - [ ] `gmCharNameCharacterValidator::IsCharacterValidForTransitions` · 0060cc50 · legions 005cda50
 
-## `portal/client/src/clcache/clcachemain.cpp.c` (0/132)
+## `portal/client/src/clcache/clcachemain.cpp.c` (1/132)
 
 ### EntityDesc
 - [ ] `EntityDesc::Allocator` · 004be6e0 · legions 004b2a20
@@ -284,7 +284,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CThreadsafeDiskController::CThreadsafeDiskController` · 004bfb60 · legions 004b3f00
 
 ### DiskConBase
-- [ ] `DiskConBase::GetDatFileID` · 004bfb90 · legions 004b3f30
+- [x] `DiskConBase::GetDatFileID` · 004bfb90 · legions 004b3f30
 
 ### DiskController
 - [ ] `DiskController::HowmuchFreeSpace` · 004bfbb0 · legions 004b3f50
@@ -309,7 +309,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ThreadedCache::~ThreadedCache` · 004bfe10 · legions 004b4250
 
 ### CLCache
-- [~] `CLCache::OnServerInterrogation` · 004bfeb0 — answered with an empty iteration list (no DAT history)
+- [~] `CLCache::OnServerInterrogation` · 004bfeb0 — ac2-weenie dat_iterations + session answer; internal.dat (slot 4) not opened; language id is configuration (EnumMapper 0x4000002A lookup not ported)
 - [ ] `CLCache::OnBeginDDD` · 004c0060 · legions 004b44a0
 - [ ] `CLCache::SetLanguageInternal` · 004c00f0 · legions 004b4530
 - [ ] `CLCache::OnEndDDD` · 004c0610 · legions 004b4aa0

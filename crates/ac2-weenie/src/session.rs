@@ -44,6 +44,11 @@ pub struct OnlineConfig {
     /// The RSA key the session key is exported under: the one the client executable carries
     /// (`ServerPublicKey::find_in_client`). `None` logs on without a session key.
     pub server_key: Option<ServerPublicKey>,
+    /// `DBCache::GetLocalLanguage`: the language id the local DAT was opened for.
+    pub language: u32,
+    /// The DATs' file ids and iterations (`crate::dat_iterations`) for the interrogation
+    /// response; empty when no DATs are open.
+    pub dat_iterations: Vec<(u64, Vec<i32>)>,
 }
 
 /// Where the player entered the world.
@@ -95,6 +100,8 @@ pub struct OnlineSession {
     closed: bool,
     /// Events [`OnlineSession::wait_for_world`] saw, for the next [`OnlineSession::poll`].
     pending: Vec<SessionEvent>,
+    language: u32,
+    dat_iterations: Vec<(u64, Vec<i32>)>,
 }
 
 impl OnlineSession {
@@ -126,6 +133,8 @@ impl OnlineSession {
             scene_ready_sent: false,
             closed: false,
             pending: Vec::new(),
+            language: config.language,
+            dat_iterations: config.dat_iterations,
         })
     }
 
@@ -200,12 +209,12 @@ impl OnlineSession {
                 }
             }
             NetEvent::Blob(blob) if blob.queue == QUEUE_DAT => {
-                // `CLCache::UseTime`: data-download events. This client patches no DATs, so an
-                // interrogation is answered with no iteration lists (retail lists each DAT).
+                // `CLCache::UseTime` -> `CLCache::OnServerInterrogation`: the language and each
+                // open DAT's iterations. This client patches no DATs beyond that answer.
                 if let Ok(ServerEvent::Dat(DatEvent::Interrogation(_))) =
                     ServerEvent::decode(&blob.data, Build::default())
                 {
-                    let response = interrogation_response(0, &[]);
+                    let response = interrogation_response(self.language, &self.dat_iterations);
                     self.client.net_mut().send_dat_event(response);
                 }
             }

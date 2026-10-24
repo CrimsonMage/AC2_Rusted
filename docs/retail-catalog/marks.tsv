@@ -143,7 +143,8 @@ key	status	note
 0049b540	x	
 0049ce40	x	
 0049e170	_	
-004bfeb0	~	answered with an empty iteration list (no DAT history)
+004bfb90	x	
+004bfeb0	~	ac2-weenie dat_iterations + session answer; internal.dat (slot 4) not opened; language id is configuration (EnumMapper 0x4000002A lookup not ported)
 004c4ed0	x	
 004c4f10	x	
 004c4f80	x	
@@ -624,6 +625,8 @@ key	status	note
 0064b540	x	
 0064b620	x	
 0064b660	x	
+0064bc00	~	history read via ac2-dat read_packed(0xFFFF0001) + ac2-net read_int_set in ac2-weenie::dat_iterations
+0064c0e0	x	
 0064c170	x	
 00651b20	x	
 00652db0	x	
@@ -719,12 +722,14 @@ key	status	note
 006c8d90	~	decoded; field order after m_nDirectHeading not re-verified
 006d7830	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 006da360	x	
-006da480	~	layout only; the client sends no DAT iteration lists
+006da480	x	
 006da500	x	
 006da550	x	
-006da600	~	layout only; the client sends no DAT iteration lists
+006da5b0	x	
+006da600	x	
 006da680	x	
 006da7b0	x	
+006da8b0	x	
 006db0f0	x	
 006db450	x	
 006db7f0	x	

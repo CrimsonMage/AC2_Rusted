@@ -3,12 +3,13 @@
 //!
 //! `cargo run -p ac2-weenie --example online_probe -- --server 127.0.0.1:9000 \
 //!   --account local [--password PW] [--character NAME] [--seconds 10] [--walk 2.0] \
-//!   [--version 7160] [--client-exe PATH]`
+//!   [--version 7160] [--client-exe PATH] [--dat-dir PATH] [--language N]`
 //!
 //! The Legions DVD client logs on as `7160`; servers that only accept the admin build need
 //! `--version 7148` (the default here, for the local test server). `--client-exe` reads the RSA
 //! key a retail `ac2client.exe` carries and logs on with an exported session key, as retail
-//! does; without it the logon carries no session key.
+//! does; without it the logon carries no session key. `--dat-dir` answers the DAT interrogation
+//! with those DATs' iterations, as retail does; without it the answer lists none.
 
 use std::time::{Duration, Instant};
 
@@ -25,6 +26,8 @@ fn main() -> Result<(), String> {
     let mut walk_speed = 2.0f32;
     let mut version = "7148".to_string();
     let mut server_key = None;
+    let mut language = 0;
+    let mut dat_iterations = Vec::new();
     let mut args = std::env::args().skip(1);
     while let Some(flag) = args.next() {
         let value = args.next().ok_or(format!("missing value for {flag}"))?;
@@ -36,6 +39,19 @@ fn main() -> Result<(), String> {
             "--seconds" => seconds = value.parse().map_err(|e| format!("{e}"))?,
             "--walk" => walk_speed = value.parse().map_err(|e| format!("{e}"))?,
             "--version" => version = value,
+            "--language" => language = value.parse().map_err(|e| format!("{e}"))?,
+            "--dat-dir" => {
+                let dataset = ac2_dat::DatDataset::open(ac2_dat::DatOpenOptions::new(&value))
+                    .map_err(|e| format!("{value}: {e}"))?;
+                dat_iterations = ac2_weenie::dat_iterations(&dataset)?;
+                println!(
+                    "interrogation answer: {:?}",
+                    dat_iterations
+                        .iter()
+                        .map(|(id, its)| (format!("{id:#018X}"), its.len()))
+                        .collect::<Vec<_>>()
+                );
+            }
             "--client-exe" => {
                 let exe = std::fs::read(&value).map_err(|e| format!("{value}: {e}"))?;
                 let key = ac2_net::ServerPublicKey::find_in_client(&exe)
@@ -53,6 +69,8 @@ fn main() -> Result<(), String> {
         version,
         character,
         server_key,
+        language,
+        dat_iterations,
     })
     .map_err(|e| e.to_string())?;
     let entry = session.wait_for_world(Duration::from_secs(45))?;

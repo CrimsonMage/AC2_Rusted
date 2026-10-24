@@ -6,4 +6,5 @@ publish.workspace = true
 license.workspace = true
 
 [dependencies]
+ac2-dat = { path = "../ac2-dat" }
 ac2-net = { path = "../ac2-net" }
