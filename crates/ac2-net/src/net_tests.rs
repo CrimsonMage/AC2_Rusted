@@ -26,6 +26,7 @@ fn logon() -> Logon {
         account: "local".into(),
         credential: Credential::Account,
         connection_sequence: REAL as u32,
+        crypto: None,
     }
 }
 
@@ -373,6 +374,40 @@ fn blobs_sent_in_a_frame_leave_in_the_next_with_send_buff_ids() {
         Some(keys.next_key()),
     );
     assert_eq!(out[0].1, expected);
+}
+
+#[test]
+fn queues_six_to_eight_leave_rc4_encrypted_with_the_session_key() {
+    let (mut net, _) = logged_on();
+    let key = crate::SessionKey::from_bytes([0x86, 0x85, 0x25, 0x7E, 0x18]);
+    net.session_key = Some(key.clone());
+    let result = vec![0x2A, 0, 1, 0, 9, 8, 7, 6];
+    let id = net.send_buff(8, result.clone()).unwrap();
+    let (out, _) = net.use_time(1.0, REAL, vec![]);
+    let mut encrypted = result.clone();
+    key.encrypt(&mut encrypted);
+    assert_ne!(encrypted, result);
+    let header = PacketHeader::decode(&out[0].1).unwrap();
+    let mut keys = Isaac::new(IN_SEED);
+    let expected = datagram(
+        client_header(
+            2,
+            flags::BLOB_FRAGMENTS | flags::ENCRYPTED_CHECKSUM,
+            header.interval,
+        ),
+        &[&fragment_header(id, 1, 24, 0, 8), &encrypted],
+        Some(keys.next_key()),
+    );
+    assert_eq!(out[0].1, expected);
+    // Every blob starts the key stream again; queue 4 stays in the clear.
+    let again = net.send_buff(6, result.clone()).unwrap();
+    let plain = net.send_buff(4, result.clone()).unwrap();
+    let (out, _) = net.use_time(1.5, REAL, vec![]);
+    let body = &out[0].1[20..];
+    assert_eq!(&body[..16], &fragment_header(again, 1, 24, 0, 6));
+    assert_eq!(&body[16..24], &encrypted[..]);
+    assert_eq!(&body[24..40], &fragment_header(plain, 1, 24, 0, 4));
+    assert_eq!(&body[40..48], &result[..]);
 }
 
 #[test]

@@ -19,6 +19,7 @@ use crate::header::{flags, PacketHeader, HEADER_LEN};
 use crate::optional::{Connect, NetErrorId, OptionalHeader};
 use crate::packet::{split_packet, InboundPacket, MAX_DATAGRAM};
 use crate::receiver::{ConnectionState, Receiver};
+use crate::session_key::SessionKey;
 use crate::NetError;
 
 /// Logon requests sent before giving up (`ClientNet::LogonUseTime`: more than `0x13` fails).
@@ -93,6 +94,8 @@ pub struct ClientNet {
     lagging_since: f64,
     out: Vec<(SocketAddr, Vec<u8>)>,
     events: Vec<NetEvent>,
+    /// `hSessionKey_`: encrypts queue 6-8 blobs (`Proto_UI::SendBlob`).
+    pub(crate) session_key: Option<SessionKey>,
 }
 
 impl ClientNet {
@@ -125,6 +128,7 @@ impl ClientNet {
             lagging_since: 0.0,
             out: Vec::new(),
             events: Vec::new(),
+            session_key: logon.crypto.as_ref().map(|c| c.key.clone()),
         }
     }
 

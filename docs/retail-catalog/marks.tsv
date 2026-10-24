@@ -131,7 +131,8 @@ key	status	note
 0049ce40	x	
 0049e170	_	
 004bfeb0	~	answered with an empty iteration list (no DAT history)
-004c4f10	~	no CryptoAPI session key: auth flag bit 0 never set, crypto blob empty
+004c4ed0	x	
+004c4f10	x	
 004c4f80	x	
 004c4ff0	x	
 004c5170	x	
@@ -164,7 +165,7 @@ key	status	note
 004c65f0	x	
 004c66e0	x	
 004c6900	~	logon outcome as an event; no async state machine
-004c6980	~	no CryptoAPI RSA import or RC4 session key
+004c6980	x	SessionKey::generate + ServerPublicKey: Base-provider 40-bit RC4 with 11-byte zero salt; key-container fallback (InitCliCrypto) not needed
 004c6bd0	x	
 004c6e10	x	
 004c6e60	x	
@@ -191,11 +192,11 @@ key	status	note
 004c8420	x	
 004c8430	~	heartbeat link-status snapshots not kept; 140 s silence reports a timeout instead of re-referring
 004c8a50	x	
-004c9050	~	connection sequence from real time; no address/interface parsing or crypto key export
+004c9050	~	connection sequence from real time and SIMPLEBLOB session-key export; no address/interface parsing
 004c9200	x	
 004c9480	x	
 004c95a0	~	connection sequence from real time; no address/interface parsing or crypto key export
-004c9b70	~	queues 6-8 are not RC4-encrypted (no session key)
+004c9b70	x	
 004c9c10	x	
 004c9c20	x	
 004c9d10	x	

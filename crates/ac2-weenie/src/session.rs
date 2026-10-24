@@ -15,7 +15,10 @@ use ac2_net::protocol::{
     interrogation_response, Build, CellPosition, CharacterSet, ClientEvent, DatEvent, ServerEvent,
     QUEUE_DAT, QUEUE_EVENTS,
 };
-use ac2_net::{Credential, Logon, NetClient, NetClientConfig, NetError, NetEvent};
+use ac2_net::{
+    Credential, Logon, NetClient, NetClientConfig, NetError, NetEvent, ServerPublicKey,
+    SessionCrypto,
+};
 
 use crate::objects::ObjectTable;
 use crate::reporter::{BodyState, PositionReporter};
@@ -38,6 +41,9 @@ pub struct OnlineConfig {
     /// client; servers that only accept the admin build take `"7148"`.
     pub version: String,
     pub character: CharacterChoice,
+    /// The RSA key the session key is exported under: the one the client executable carries
+    /// (`ServerPublicKey::find_in_client`). `None` logs on without a session key.
+    pub server_key: Option<ServerPublicKey>,
 }
 
 /// Where the player entered the world.
@@ -90,6 +96,11 @@ impl OnlineSession {
     /// Starts the logon; progress arrives from [`OnlineSession::poll`].
     pub fn connect(config: OnlineConfig) -> Result<Self, NetError> {
         let build = Build::from_version(&config.version);
+        let crypto = config
+            .server_key
+            .as_ref()
+            .map(SessionCrypto::new)
+            .transpose()?;
         let client = NetClient::connect(NetClientConfig {
             server: config.server,
             logon: Logon {
@@ -97,6 +108,7 @@ impl OnlineSession {
                 account: config.account.clone(),
                 credential: config.credential,
                 connection_sequence: ac2_net::real_time() as u32,
+                crypto,
             },
         })?;
         Ok(Self {

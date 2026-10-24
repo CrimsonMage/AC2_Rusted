@@ -57,10 +57,17 @@ impl ClientNet {
         self.send_blob(id, 5, data).then_some(id)
     }
 
-    /// `Proto_UI::SendBlob` and `NetBlob::Send` (priority 5).
-    fn send_blob(&mut self, id: u64, queue: u16, data: Vec<u8>) -> bool {
+    /// `Proto_UI::SendBlob` and `NetBlob::Send` (priority 5). Queues 6, 7 and 8 are
+    /// encrypted in place with the session key first (`CryptEncrypt(hSessionKey_, 0, TRUE)`);
+    /// without one they go in the clear.
+    fn send_blob(&mut self, id: u64, queue: u16, mut data: Vec<u8>) -> bool {
         if self.world_rec == 0 {
             return false;
+        }
+        if (6..9).contains(&queue) {
+            if let Some(key) = &self.session_key {
+                key.encrypt(&mut data);
+            }
         }
         let recipient = if matches!(queue, 4 | 5 | 8) {
             self.logon_rec
