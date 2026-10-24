@@ -14,8 +14,6 @@ mod generate;
 mod geometry;
 mod hash;
 #[cfg(test)]
-mod real_data_expected;
-#[cfg(test)]
 mod real_data_tests;
 
 use std::cell::RefCell;
