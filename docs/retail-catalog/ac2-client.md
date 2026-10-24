@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 10 done, 3 partial, 336 to do, 5 skipped.
+354 retail functions: 10 done, 5 partial, 334 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -88,7 +88,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmClient::InitWeenie` · 00401da0 · legions 00401d10
 - [ ] `gmClient::OnDDDEvent` · 00401dc0 · legions 00401d30
 - [ ] `gmClient::RecvNotice_CharacterSet` · 00401e00
-- [ ] `gmClient::UseTime` · 00401e30 · legions 00401da0
+- [~] `gmClient::UseTime` · 00401e30 · legions 00401da0 — no TurbineGun (GUN) step
 
 ### PStringBase<char>
 - [x] `PStringBase<char>::GetPackSize` · 00401e70 · legions 00401e10
@@ -349,7 +349,7 @@ Legend and workflow: [README](README.md).
 
 ### Turbine::Client
 - [ ] `Turbine::Client::Init` · 00722c90 · legions 006a3060
-- [ ] `Turbine::Client::UseTime` · 00722f20
+- [~] `Turbine::Client::UseTime` · 00722f20 — headless frame order in ac2-client Client::use_time; no render, sound, UI, triggers or DB cache step
 
 ## `portal/client/src/main/realclient.cpp.c` (0/3)
 
