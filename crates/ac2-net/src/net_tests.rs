@@ -127,7 +127,6 @@ impl Server {
     }
 
     /// An unreliable packet of one header.
-    #[allow(dead_code)]
     fn plain(&self, interval: u16, header: OptionalHeader) -> Vec<u8> {
         let mask = header.mask();
         let bytes = header.encode();
@@ -401,4 +400,67 @@ fn net_error_tokens_match_tokenize() {
     assert_eq!(tokenize(b"A"), 0x8200_0000);
     // Second character shifted right by 7.
     assert_eq!(tokenize(b"AB"), 0x8200_0000 ^ (0x8400_0000 >> 7));
+}
+
+#[test]
+fn a_new_remote_interval_reports_the_previous_interval_in_a_flow_header() {
+    let (mut net, mut server) = logged_on();
+    // The first data packet (interval 1, 20 + 16 + 4 bytes) came after the connect (52 bytes):
+    // both count toward interval 1. A packet at interval 2 closes it.
+    let next = server.blob(2, 0x0300_0002_0000_0002, 1, b"abcd");
+    let (out, _) = net.use_time(1.0, REAL, vec![(addr(SERVER), next)]);
+    // The flow header is a piggyback header: alone it waits.
+    assert!(out.is_empty());
+    let (out, _) = net.use_time(2.25, REAL, vec![]);
+    let header = PacketHeader::decode(&out[0].1).unwrap();
+    assert_eq!(
+        header.flags,
+        flags::ACK | flags::FLOW | flags::ENCRYPTED_CHECKSUM
+    );
+    let flow = OptionalHeader::Flow {
+        bytes: 52 + 40,
+        interval: 1,
+    }
+    .encode();
+    let mut keys = Isaac::new(IN_SEED);
+    let expected = datagram(
+        client_header(2, header.flags, header.interval),
+        &[&3u32.to_le_bytes(), &flow],
+        Some(keys.next_key()),
+    );
+    assert_eq!(out[0].1, expected);
+}
+
+#[test]
+fn duplicates_are_dropped_and_a_server_nak_resends_the_stored_packet() {
+    let (mut net, mut server) = logged_on();
+    let packet = server.blob(1, 0x0300_0002_0000_0002, 1, b"once");
+    let (_, events) = net.use_time(1.0, REAL, vec![(addr(SERVER), packet.clone())]);
+    assert_eq!(events.len(), 1);
+    let (_, events) = net.use_time(1.25, REAL, vec![(addr(SERVER), packet)]);
+    assert!(events.is_empty());
+    // The client sends a blob (sequence 2), then the server NAKs it.
+    net.send_buff(4, vec![0x2B, 0, 1, 0]).unwrap();
+    let (sent, _) = net.use_time(1.5, REAL, vec![]);
+    assert_eq!(PacketHeader::decode(&sent[0].1).unwrap().sequence, 2);
+    let nak = server.plain(1, OptionalHeader::Nak(vec![2]));
+    let (out, _) = net.use_time(1.625, REAL, vec![(addr(SERVER), nak)]);
+    let resend = PacketHeader::decode(&out[0].1).unwrap();
+    assert_eq!(resend.sequence, 2);
+    assert_eq!(
+        resend.flags,
+        flags::RETRANSMISSION | flags::ENCRYPTED_CHECKSUM | flags::BLOB_FRAGMENTS
+    );
+    assert_eq!(&out[0].1[20..], &sent[0].1[20..]);
+    // A NAK for a sequence never sent is answered with an empty ack.
+    let nak = server.plain(1, OptionalHeader::Nak(vec![9]));
+    let (out, _) = net.use_time(1.75, REAL, vec![(addr(SERVER), nak)]);
+    let empty = PacketHeader::decode(&out[0].1).unwrap();
+    assert_eq!(empty.flags, flags::EMPTY_ACK);
+    let expected = datagram(
+        client_header(2, flags::EMPTY_ACK, empty.interval),
+        &[&[1u32.to_le_bytes(), 9u32.to_le_bytes()].concat()],
+        None,
+    );
+    assert_eq!(out[0].1, expected);
 }
