@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 25 done, 18 partial, 725 to do, 13 skipped.
+781 retail functions: 29 done, 18 partial, 721 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -748,20 +748,20 @@ Legend and workflow: [README](README.md).
 ### Frustum
 - [ ] `Frustum::CheckPolygon` · 005733e0 · legions 005433e0
 
-## `portal/client/src/scenerender/scenecamera.cpp.c` (0/11)
+## `portal/client/src/scenerender/scenecamera.cpp.c` (4/11)
 
 ### SceneCamera
 - [ ] `SceneCamera::~SceneCamera` · 00572820 · legions 0053a560
 - [ ] `SceneCamera::ApplyProperty` · 00572840
 - [ ] `SceneCamera::BuildOptionalProperties` · 005728f0
-- [ ] `SceneCamera::SetFOV` · 00572aa0 · legions 0053a7e0
+- [x] `SceneCamera::SetFOV` · 00572aa0 · legions 0053a7e0
 - [ ] `SceneCamera::SetVerticalScale` · 00572ab0 · legions 0053a7f0
-- [ ] `SceneCamera::slerp` · 00572ac0 · legions 0053a800
+- [x] `SceneCamera::slerp` · 00572ac0 · legions 0053a800
 - [ ] `SceneCamera::SceneCamera` · 00572b00 · legions 0053a840
 - [ ] `SceneCamera::ApplyPropertyCollection` · 00572bc0
-- [ ] `SceneCamera::SetPreviousPosition` · 00572c70 · legions 0053a9b0
+- [x] `SceneCamera::SetPreviousPosition` · 00572c70 · legions 0053a9b0
 - [ ] `SceneCamera::SetRenderPosition` · 00572c90 · legions 0053a9d0
-- [ ] `SceneCamera::SetCurrentPosition` · 00572cb0 · legions 0053a9f0
+- [x] `SceneCamera::SetCurrentPosition` · 00572cb0 · legions 0053a9f0
 
 ## `portal/client/src/scenerender/scenetool.cpp.c` (4/100)
 

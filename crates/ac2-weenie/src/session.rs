@@ -141,7 +141,6 @@ pub struct OnlineSession {
     world: World,
     reporter: Option<PositionReporter>,
     entered: bool,
-    scene_ready_sent: bool,
     closed: bool,
     /// Events [`OnlineSession::wait_for_world`] saw, for the next [`OnlineSession::poll`].
     pending: Vec<SessionEvent>,
@@ -193,7 +192,6 @@ impl OnlineSession {
             world: World::new(build),
             reporter: None,
             entered: false,
-            scene_ready_sent: false,
             closed: false,
             pending: Vec::new(),
             language: config.language,
@@ -254,6 +252,17 @@ impl OnlineSession {
         let mut out = std::mem::take(&mut self.pending);
         for event in std::mem::take(&mut self.net_events) {
             self.handle(event, &mut out);
+        }
+        out
+    }
+
+    /// `CObjectMaint::UseTime` (from `WorldManager::Update`): held event queues that waited too
+    /// long for their object ask for it to be created and are dropped.
+    pub fn object_maint_use_time(&mut self) -> Vec<SessionEvent> {
+        let cur_time = self.cur_time();
+        let mut out = Vec::new();
+        for event in self.world.use_time(cur_time) {
+            self.handle_world(event, &mut out);
         }
         out
     }
@@ -452,7 +461,6 @@ impl OnlineSession {
                 self.world.leave_world();
                 self.reporter = None;
                 self.entered = false;
-                self.scene_ready_sent = false;
                 out.push(SessionEvent::LeftWorld);
             }
             _ => {}
@@ -492,11 +500,11 @@ impl OnlineSession {
         }
     }
 
-    /// `gmGamePlayUI::RecvNotice_NextFrameDrawn`: the scene around the player has drawn; once
-    /// per world entry.
+    /// `gmGamePlayUI::RecvNotice_NextFrameDrawn`: the first frame drawn after the player was
+    /// ready to enter the world (`RecvNotice_PlayerReadyToEnterWorld` asked for the notice);
+    /// sent for every entry, a teleport's included.
     pub fn scene_ready(&mut self) {
-        if self.entered && !self.scene_ready_sent {
-            self.scene_ready_sent = true;
+        if self.entered {
             self.send(ClientEvent::SceneRenderingComplete);
         }
     }

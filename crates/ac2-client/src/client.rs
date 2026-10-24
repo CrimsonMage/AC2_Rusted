@@ -2,60 +2,127 @@
 //! or UI: one call is one client frame, in retail's order.
 //!
 //! 1. `Timer::update_time`, `ClientNet::UseTime`: datagrams in and out.
-//! 2. `PlayerMovementModule::UseTime`: the actions drive the player's motion interpreter, then
+//! 2. `DBCache::UseTime`: finished loader work, within a time budget (the cells' rings, the
+//!    player body).
+//! 3. `PlayerMovementModule::UseTime`: the actions drive the player's motion interpreter, then
 //!    the movement and head reports.
-//! 3. `SmartBox::UseTime`: `UpdatePlayer` makes the landblocks around the player resident
-//!    (`CellManager::UpdateVisibleCells`), then `WorldManager::Update` steps physics
-//!    (`CPhysics::UpdatePhysics` on `Timer::local_time`, `PHYSICS_QUANTUM` steps).
-//! 4. `CEventQueue::UseTime` and the logon queue: the server's events, which create and move
-//!    the player body.
+//! 4. `SmartBox::UseTime`: `UpdatePlayer` (cells, world entry), `WorldManager::Update`
+//!    (`GameTime::UseTime`, then unless blocking for cells `CObjectMaint::UseTime` and
+//!    `CPhysics::UpdatePhysics`, whose every player quantum runs
+//!    `SmartBox::PlayerPhysicsUpdatedCallback`), the mouse-look camera and `SceneCamera::slerp`.
+//! 5. `CEventQueue::UseTime` and the logon queue: the server's events.
+//! 6. The render step: `CPhysics::UpdateRenderInterpolation`, and the frame-drawn notice
+//!    (`SceneRenderingComplete`) a world entry asked for.
 
+use std::sync::Arc;
 use std::time::Duration;
 
 use ac2_physics::{
     Frame, Heading, MovementInput, MovementState, PhysicsBody, PhysicsClock, Position, Quaternion,
-    Terrain, Vector,
+    SetPositionError, Terrain, Vector, PHYSICS_QUANTUM,
 };
 use ac2_weenie::{
-    ActiveAction, BodyFacts, BodyState, CameraState, CellPosition, MovementCommands,
-    MovementModule, OnlineSession, SessionEvent, WorldEntry,
+    ActiveAction, BodyFacts, BodyState, CellPosition, MovementCommands, MovementModule,
+    OnlineSession, SessionEvent, WorldEntry,
 };
+use ac2_world::GameClock;
 
+use crate::camera::{CameraManager, CameraSubject};
 use crate::cells::CellManager;
 use crate::frame::{ClientFrame, ObjectFrame, PlayerFrame};
-use crate::world_data::WorldData;
+use crate::loader::{Loaded, Loader, Request};
+use crate::scene::{frame_is_valid, CameraFrame, SceneCamera};
+use crate::world_data::{BodyData, WorldData};
 
 /// `SetPositionSimple(p, sliding = 1)`'s flags (`SyncPositionSimple(pos, 1)`): `0x1000` and
 /// `SLIDE_SPF`.
 pub const SYNC_POSITION_FLAGS: u32 = 0x1010;
+/// `CPhysicsObj::EnterWorldSimple(pos, sliding = 1)`'s `SetPositionStruct` flags: `PLACEMENT`
+/// and `SLIDE_SPF`.
+pub const ENTER_WORLD_FLAGS: u32 = 0x11;
+/// `SmartBox::mInitialCameraHeight`: the look-at point sits at this fraction of the height.
+const INITIAL_CAMERA_HEIGHT: f32 = 0.75;
+/// `SmartBox::UpdatePlayer`'s camera step on world entry.
+const ENTRY_CAMERA_QUANTUM: f32 = 0.1;
 
-/// One frame's input: the actions the action interpreter resolved, the camera, and the head
-/// direction (head x and z sliders) with whether the player looks at an object.
+/// A camera action from the action interpreter (`CameraManager::StartAction`/`StopAction`).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CameraAction {
+    pub action: u32,
+    pub extent: f32,
+    pub start: bool,
+}
+
+/// One frame's input: the actions the action interpreter resolved, the camera actions, and the
+/// head direction (head x and z sliders) with whether the player looks at an object.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct FrameInput {
     pub actions: Vec<ActiveAction>,
-    pub camera: CameraState,
+    pub camera_actions: Vec<CameraAction>,
     pub head: Option<((f32, f32), bool)>,
 }
 
-/// The player's simulated body.
+/// Client-side notices of the frame.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Notice {
+    /// `SendNotice_PlayerReadyToEnterWorld` (`SmartBox::UpdatePlayer`).
+    PlayerReadyToEnterWorld,
+    /// `SendNotice_NextFrameDrawn` (`WorldRender::Render`), which sent `SceneRenderingComplete`.
+    NextFrameDrawn,
+}
+
+/// The player's simulated body, once its Setup has loaded.
+struct Body {
+    physics: PhysicsBody,
+    /// `GetHeight` and `GetRadius` (x87 values) and `GetTotalScale` z.
+    height: f64,
+    radius: f64,
+    scale: f32,
+}
+
+/// The player object (`CreateObject` of the player).
 struct Player {
     id: u64,
     visual: Option<u32>,
-    body: PhysicsBody,
-    clock: PhysicsClock,
+    /// `get_position` until the body exists.
+    position: Position,
+    body: Option<Body>,
+    /// `CPhysicsObj::IsInWorld`.
+    in_world: bool,
     /// The heading the motion interpreter turns to, held across frames as `TurnTo` holds it.
     turn_to: Option<f32>,
+}
+
+impl Player {
+    fn position(&self) -> Position {
+        self.body
+            .as_ref()
+            .map_or(self.position, |body| body.physics.position())
+    }
 }
 
 /// The headless client: an online session, the resident world and the player body.
 pub struct Client {
     session: OnlineSession,
-    data: Box<dyn WorldData>,
+    loader: Loader,
     terrain: Terrain,
     cells: CellManager,
     player: Option<Player>,
     module: MovementModule,
+    camera: CameraManager,
+    scene: SceneCamera,
+    game_clock: Option<GameClock>,
+    physics_clock: PhysicsClock,
+    /// `SmartBox::m_bBlockingLoad`.
+    blocking_load: bool,
+    /// `SmartBox::SetWantNoticeOnNextFrameDrawn`.
+    want_frame_drawn: bool,
+    /// `SmartBox::mtCameraUpdate`.
+    camera_update_time: f64,
+    /// `CPhysics::sRenderInterpolation`, from the last render step.
+    render_interpolation: f32,
+    load_budget: Duration,
+    notices: Vec<Notice>,
 }
 
 fn physics_position(cell: u32, origin: [f32; 3], rotation: [f32; 4]) -> Position {
@@ -87,14 +154,27 @@ fn body_state(state: &MovementState, actively_moving: bool) -> BodyState {
 }
 
 impl Client {
-    pub fn new(session: OnlineSession, data: Box<dyn WorldData>) -> Self {
+    /// A client over `session` reading `data` on two loader threads.
+    pub fn new(session: OnlineSession, data: Arc<dyn WorldData>) -> Self {
+        let game_clock = data.game_clock();
+        let now = session.local_time();
         Self {
             session,
-            data,
+            loader: Loader::new(data, 2),
             terrain: Terrain::new(),
             cells: CellManager::default(),
             player: None,
             module: MovementModule::default(),
+            camera: CameraManager::new(),
+            scene: SceneCamera::default(),
+            game_clock,
+            physics_clock: PhysicsClock::new(now),
+            blocking_load: false,
+            want_frame_drawn: false,
+            camera_update_time: now,
+            render_interpolation: 0.0,
+            load_budget: Duration::from_millis(4),
+            notices: Vec::new(),
         }
     }
 
@@ -106,133 +186,413 @@ impl Client {
         &mut self.session
     }
 
+    pub fn camera(&self) -> &CameraManager {
+        &self.camera
+    }
+
+    /// How long one frame may spend taking in finished loads.
+    pub fn set_load_budget(&mut self, budget: Duration) {
+        self.load_budget = budget;
+    }
+
     /// Waits between frames on the session transport's clock.
     pub fn sleep(&mut self, duration: Duration) {
         self.session.sleep(duration);
     }
 
+    /// Waits (on this thread) until the loader threads have finished everything asked of them,
+    /// taking each result in as it comes (so a finished ring's follow-up is waited for too): a
+    /// deterministic frame sequence for tests and probes. A frame never waits like this.
+    pub fn settle_loads(&mut self, timeout: Duration) -> Result<(), String> {
+        while self.loader.busy() {
+            let loaded = self
+                .loader
+                .wait(timeout)
+                .ok_or("the loader threads did not finish")?;
+            self.take_loaded(loaded)?;
+        }
+        Ok(())
+    }
+
+    /// The notices since the last call.
+    pub fn take_notices(&mut self) -> Vec<Notice> {
+        std::mem::take(&mut self.notices)
+    }
+
     /// One client frame (see the module docs); returns the session's events.
     pub fn use_time(&mut self, input: &FrameInput) -> Result<Vec<SessionEvent>, String> {
         self.session.net_use_time();
+        self.db_cache()?;
         self.movement(input);
-        self.smart_box()?;
-        let events = self.session.dispatch_events();
-        for event in &events {
+        let mut events = self.smart_box()?;
+        let dispatched = self.session.dispatch_events();
+        for event in &dispatched {
             self.apply(event)?;
         }
-        // `gmGamePlayUI::RecvNotice_NextFrameDrawn`: once a frame has run with the player in the
-        // world, the scene counts as rendered (the session sends it once).
-        if self.player.is_some() {
-            self.session.scene_ready();
-        }
+        events.extend(dispatched);
+        self.camera_actions(input);
+        self.render();
         Ok(events)
+    }
+
+    /// `ActionInterpreter::UseTime`'s camera actions (`CameraManager::StartAction` and
+    /// `StopAction`), which the next frame's camera update sees.
+    fn camera_actions(&mut self, input: &FrameInput) {
+        let subject = self.camera_subject(false);
+        for camera_action in &input.camera_actions {
+            if camera_action.start {
+                self.camera.start_action(
+                    camera_action.action,
+                    camera_action.extent,
+                    subject.as_ref(),
+                );
+            } else {
+                self.camera
+                    .stop_action(camera_action.action, subject.as_ref());
+            }
+        }
+    }
+
+    /// `DBCache::UseTime`: finished loads, within the frame's budget.
+    fn db_cache(&mut self) -> Result<(), String> {
+        let start = std::time::Instant::now();
+        while let Some(loaded) = self.loader.try_next() {
+            self.take_loaded(loaded)?;
+            if start.elapsed() >= self.load_budget {
+                break;
+            }
+        }
+        Ok(())
+    }
+
+    fn take_loaded(&mut self, loaded: Loaded) -> Result<(), String> {
+        match loaded {
+            Loaded::Body(visual, body) => self.body_loaded(visual, body?),
+            other => self
+                .cells
+                .loaded(other, &mut self.terrain, &mut self.loader)?,
+        }
+        Ok(())
+    }
+
+    /// The player's Setup arrived: the body is built at the stored position, out of the world,
+    /// and the camera targets it (`SmartBox::InitPlayer` -> `SetCameraDefaults`).
+    fn body_loaded(&mut self, visual: Option<u32>, data: BodyData) {
+        let Some(player) = self.player.as_mut().filter(|p| p.visual == visual) else {
+            return;
+        };
+        if player.body.is_some() {
+            return;
+        }
+        let scale = data.shape.scale;
+        let height = f64::from(data.shape.height) * f64::from(scale);
+        let radius = f64::from(data.radius) * f64::from(scale);
+        let physics = PhysicsBody::new(player.position, data.shape, data.motion);
+        player.body = Some(Body {
+            physics,
+            height,
+            radius,
+            scale,
+        });
+        if let Some(subject) = self.camera_subject(false) {
+            self.camera.set_player(&subject, INITIAL_CAMERA_HEIGHT);
+        }
+    }
+
+    /// What the camera reads from the player's physics object.
+    fn camera_subject(&self, require_in_world: bool) -> Option<CameraSubject> {
+        let player = self.player.as_ref()?;
+        if require_in_world && !player.in_world {
+            return None;
+        }
+        let body = player.body.as_ref()?;
+        let position = body.physics.position();
+        let state = body.physics.movement_state();
+        let [vx, vy, vz] = state.velocity;
+        Some(CameraSubject {
+            position,
+            height: body.height,
+            radius: body.radius,
+            scale_z: body.scale,
+            local_velocity: position.frame.global_to_local_vec(Vector::new(vx, vy, vz)),
+            element: state.element,
+            no_draw: false,
+        })
     }
 
     /// `PlayerMovementModule::UseTime`.
     fn movement(&mut self, input: &FrameInput) {
-        let Some(player) = &mut self.player else {
+        let camera = self.camera.movement_state();
+        let Some(player) = self.player.as_mut().filter(|p| p.in_world) else {
             return;
         };
-        let state = player.body.movement_state();
+        let Some(body) = &mut player.body else {
+            return;
+        };
+        let state = body.physics.movement_state();
         let facts = BodyFacts {
             moving_to: false,
             turning_to: state.turning_to,
             interpolating: false,
             heading_degrees: state.heading_degrees,
         };
-        let commands = self.module.use_time(&facts, &input.actions, &input.camera);
-        apply_commands(player, &commands, &state);
-        let report = body_state(&player.body.movement_state(), commands.actively_moving);
+        let commands = self.module.use_time(&facts, &input.actions, &camera);
+        apply_commands(&mut player.turn_to, &mut body.physics, &commands, &state);
+        let report = body_state(&body.physics.movement_state(), commands.actively_moving);
         self.session.report_body(&report);
         if let Some((head, looking_at_object)) = input.head {
             self.session.report_head(looking_at_object, head);
         }
     }
 
-    /// `SmartBox::UseTime`: `UpdatePlayer`, then `WorldManager::Update`'s physics step.
-    fn smart_box(&mut self) -> Result<(), String> {
-        let Some(player) = &mut self.player else {
-            return Ok(());
-        };
-        let cell = player.body.position().cell_id;
-        self.cells
-            .update_visible_cells(cell, &mut self.terrain, &*self.data)?;
-        let now = self.session.local_time();
-        player.body.update(&mut player.clock, now, &self.terrain);
-        Ok(())
+    /// `SmartBox::UseTime`.
+    fn smart_box(&mut self) -> Result<Vec<SessionEvent>, String> {
+        self.update_player();
+        let events = self.world_manager_update()?;
+        let in_world = self.player.as_ref().is_some_and(|p| p.in_world);
+        if in_world && self.camera.mouse_look {
+            let now = self.session.local_time();
+            let quantum = (now - self.camera_update_time) as f32;
+            self.update_camera(quantum, false);
+            self.camera_update_time = now;
+        }
+        self.scene.slerp(self.render_interpolation);
+        // `CameraManager::UseTime`: no camera effects run, so the field of view is 65 and the
+        // current position gains no distortion.
+        self.scene.fov = self.camera.fov();
+        Ok(events)
     }
 
-    /// The events that create, move and remove the player body.
+    /// `SmartBox::UpdatePlayer`: the cells around the player, then (unless blocking for them)
+    /// world entry: `ReEnterVisibility` places the body (`EnterWorldSimple`, sliding), the
+    /// player is ready to enter the world, and the camera starts behind it.
+    fn update_player(&mut self) {
+        let Some(player) = &self.player else {
+            return;
+        };
+        let cell = player.position().cell_id;
+        self.cells.update_visible_cells(
+            cell,
+            self.blocking_load,
+            &mut self.terrain,
+            &mut self.loader,
+        );
+        self.blocking_load = false;
+        if self.cells.is_blocking() {
+            return;
+        }
+        let Some(player) = self.player.as_mut().filter(|p| !p.in_world) else {
+            return;
+        };
+        let entered = match &mut player.body {
+            Some(body) if cell != 0 => {
+                let position = body.physics.position();
+                let placed = body
+                    .physics
+                    .place(position, ENTER_WORLD_FLAGS, &self.terrain);
+                placed == SetPositionError::Ok
+            }
+            _ => false,
+        };
+        if cell == 0 || entered {
+            player.in_world = entered;
+            self.notices.push(Notice::PlayerReadyToEnterWorld);
+            // `gmGamePlayUI::RecvNotice_PlayerReadyToEnterWorld`.
+            self.want_frame_drawn = true;
+        }
+        if entered {
+            let at = self
+                .player
+                .as_ref()
+                .map(Player::position)
+                .unwrap_or_default();
+            let subject = self.camera_subject(true);
+            let desired = self
+                .camera
+                .update_camera(ENTRY_CAMERA_QUANTUM, subject.as_ref(), &at);
+            self.set_camera_position(desired, true);
+        }
+    }
+
+    /// `WorldManager::Update`.
+    fn world_manager_update(&mut self) -> Result<Vec<SessionEvent>, String> {
+        if let Some(clock) = &mut self.game_clock {
+            clock.use_time(self.session.cur_time());
+        }
+        if self.cells.is_blocking() {
+            return Ok(Vec::new());
+        }
+        let events = self.session.object_maint_use_time();
+        for event in &events {
+            self.apply(event)?;
+        }
+        // `CPhysics::UpdatePhysics` on `Timer::local_time`.
+        let now = self.session.local_time();
+        let quanta = self.physics_clock.advance(now);
+        for _ in 0..quanta {
+            let Some(body) = self
+                .player
+                .as_mut()
+                .filter(|p| p.in_world)
+                .and_then(|p| p.body.as_mut())
+            else {
+                break;
+            };
+            body.physics.step_quantum(&self.terrain);
+            // `SmartBox::PlayerPhysicsUpdatedCallback`.
+            if !self.camera.mouse_look {
+                self.update_camera(PHYSICS_QUANTUM, true);
+            }
+        }
+        Ok(events)
+    }
+
+    /// `SmartBox::UpdateCamera(quantum, _bInterpolate)`: the camera manager's viewer position
+    /// becomes the scene camera's current one, the old current its previous.
+    fn update_camera(&mut self, quantum: f32, interpolate: bool) {
+        let Some(subject) = self.camera_subject(true) else {
+            return;
+        };
+        let current = self.scene.current;
+        let desired = self.camera.update_camera(quantum, Some(&subject), &current);
+        self.scene.fov = self.camera.fov();
+        self.scene.previous = self.scene.current;
+        if !self.camera.no_ray_trace() {
+            // The camera's line-of-sight pull-in (`CObjCell::LOSCheck` from the player's head
+            // to the desired position) is not ported: the desired position stands.
+            self.set_camera_position(desired, !interpolate);
+        } else if frame_is_valid(&desired.frame) {
+            self.scene.current = desired;
+        }
+    }
+
+    /// `SmartBox::SetCameraPosition`.
+    fn set_camera_position(&mut self, position: Position, set_desired: bool) {
+        if !frame_is_valid(&position.frame) {
+            return;
+        }
+        self.scene.current = position;
+        if set_desired {
+            self.scene.previous = position;
+        }
+    }
+
+    /// The render step: `CPhysics::UpdateRenderInterpolation`, and `WorldRender::Render`'s
+    /// frame-drawn notice (`gmGamePlayUI::RecvNotice_NextFrameDrawn` sends
+    /// `SceneRenderingComplete`).
+    fn render(&mut self) {
+        let now = self.session.local_time();
+        self.render_interpolation = self.physics_clock.render_interpolation(now);
+        if std::mem::take(&mut self.want_frame_drawn) {
+            self.session.scene_ready();
+            self.notices.push(Notice::NextFrameDrawn);
+        }
+    }
+
+    /// The events that create, move and remove the player.
     fn apply(&mut self, event: &SessionEvent) -> Result<(), String> {
         match event {
-            SessionEvent::EnteredWorld(entry) => self.create_player(entry)?,
+            SessionEvent::EnteredWorld(entry) => self.create_player(entry),
             SessionEvent::PlayerMoved {
                 position,
                 heading_degrees,
                 teleported,
                 impulse,
-            } => {
-                let Some(player) = &mut self.player else {
-                    return Ok(());
-                };
-                // `RecvEvt_Position`: the received position faces the body's own heading unless
-                // this was a teleport (`Position::set_heading`).
-                let heading = if *teleported {
-                    *heading_degrees
-                } else {
-                    player.body.movement_state().heading_degrees
-                };
-                let mut frame = Frame::new(
-                    Vector::new(position.origin[0], position.origin[1], position.origin[2]),
-                    Quaternion::new(1.0, 0.0, 0.0, 0.0),
-                );
-                frame.set_heading(Heading::from_degrees(heading));
-                let target = Position::new(position.cell, frame);
-                self.cells
-                    .update_visible_cells(position.cell, &mut self.terrain, &*self.data)?;
-                player
-                    .body
-                    .place(target, SYNC_POSITION_FLAGS, &self.terrain);
-                if let Some(velocity) = impulse {
-                    player.body.set_velocity(*velocity);
-                }
-            }
+            } => self.player_moved(position, *heading_degrees, *teleported, *impulse),
             SessionEvent::LeftWorld | SessionEvent::Disconnected(_) => {
                 self.player = None;
+                self.camera.reset();
                 self.cells
-                    .update_visible_cells(0, &mut self.terrain, &*self.data)?;
+                    .update_visible_cells(0, false, &mut self.terrain, &mut self.loader);
             }
             _ => {}
         }
         Ok(())
     }
 
-    /// The player's `CreateObject` (the session's world entry): its cells, then the body placed
-    /// at the server position.
-    fn create_player(&mut self, entry: &WorldEntry) -> Result<(), String> {
-        let cell = entry.position.cell;
-        self.cells
-            .update_visible_cells(cell, &mut self.terrain, &*self.data)?;
-        let body = self.data.body(entry.visual)?;
-        let position = physics_position(cell, entry.position.origin, entry.orientation);
-        let mut physics = PhysicsBody::new(position, body.shape, body.motion);
-        physics.place(position, SYNC_POSITION_FLAGS, &self.terrain);
+    /// `CPhysicsObj::RecvEvt_Position`'s player branch: `SyncPositionSimple(pos, 1)` keeping the
+    /// body's heading unless teleported, the impulse, then on a teleport
+    /// `SmartBox::HandleTeleport` (out of the world at the new position, a blocking load).
+    fn player_moved(
+        &mut self,
+        position: &CellPosition,
+        heading_degrees: f32,
+        teleported: bool,
+        impulse: Option<[f32; 3]>,
+    ) {
+        let Some(player) = &mut self.player else {
+            return;
+        };
+        let current = player.position();
+        let heading = if teleported {
+            heading_degrees
+        } else {
+            current.frame.heading().degrees()
+        };
+        let mut frame = Frame::new(
+            Vector::new(position.origin[0], position.origin[1], position.origin[2]),
+            Quaternion::new(1.0, 0.0, 0.0, 0.0),
+        );
+        frame.set_heading(Heading::from_degrees(heading));
+        let target = Position::new(position.cell, frame);
+        match &mut player.body {
+            Some(body) if player.in_world => {
+                body.physics
+                    .place(target, SYNC_POSITION_FLAGS, &self.terrain);
+                if let Some(velocity) = impulse {
+                    body.physics.set_velocity(velocity);
+                }
+            }
+            Some(body) => body.physics.set_position(target),
+            None => player.position = target,
+        }
+        if !teleported {
+            return;
+        }
+        // `SmartBox::HandleTeleport`: the camera jumps to its place around the new position,
+        // then the body leaves the world there (`LeaveWorld`, `StorePosition`).
+        let subject = self.camera_subject(false);
+        let desired = self
+            .camera
+            .update_camera(ENTRY_CAMERA_QUANTUM, subject.as_ref(), &target);
+        self.set_camera_position(desired, true);
+        if let Some(player) = &mut self.player {
+            player.in_world = false;
+            match &mut player.body {
+                Some(body) => body.physics.set_position(target),
+                None => player.position = target,
+            }
+        }
+        self.blocking_load = true;
+    }
+
+    /// `SmartBox::RecvNotice_CreatePlayerObject`: the player object at the server position;
+    /// its Setup loads on a loader thread, and the first cells load blocking (`m_bBlockingLoad`).
+    fn create_player(&mut self, entry: &WorldEntry) {
+        let position = physics_position(
+            entry.position.cell,
+            entry.position.origin,
+            entry.orientation,
+        );
         self.player = Some(Player {
             id: entry.player,
             visual: entry.visual,
-            body: physics,
-            clock: PhysicsClock::new(self.session.local_time()),
+            position,
+            body: None,
+            in_world: false,
             turn_to: None,
         });
-        Ok(())
+        self.loader.request(Request::Body(entry.visual));
+        self.blocking_load = true;
     }
 
     /// The frame for the renderer.
     pub fn frame(&self) -> ClientFrame {
         let server_time = self.session.cur_time();
-        let player = self.player.as_ref().map(|p| {
-            let state = p.body.movement_state();
-            PlayerFrame {
+        let in_world = self.player.as_ref().is_some_and(|p| p.in_world);
+        let player = self.player.as_ref().and_then(|p| {
+            let state = p.body.as_ref()?.physics.movement_state();
+            Some(PlayerFrame {
                 id: p.id,
                 cell: state.cell_id,
                 origin: state.origin,
@@ -241,9 +601,9 @@ impl Client {
                 visual: p.visual,
                 velocity: state.velocity,
                 contact: state.contact,
-            }
+            })
         });
-        let player_id = player.map(|p| p.id);
+        let player_id = self.player.as_ref().map(|p| p.id);
         let objects = self
             .session
             .objects()
@@ -264,32 +624,65 @@ impl Client {
             .collect();
         ClientFrame {
             server_time,
-            time_of_day: self.data.time_of_day(server_time),
+            time_of_day: self.game_clock.as_ref().map(GameClock::present_time_of_day),
             cell_id: player.map(|p| p.cell),
+            in_world,
+            blocking_for_cells: self.cells.is_blocking(),
             player,
+            camera: self.camera_frame(),
             objects,
             blocks: self.cells.resident().collect(),
         }
+    }
+
+    /// The scene camera's render position, and the point it looks at: the camera distance
+    /// ahead along its view axis (the player's head in third person).
+    fn camera_frame(&self) -> Option<CameraFrame> {
+        let subject = self.camera_subject(true)?;
+        let render = self.scene.render;
+        let forward = render.frame.vector_heading();
+        let distance =
+            f64::from(self.camera.targeting.camera_distance) * f64::from(subject.scale_z);
+        let o = render.frame.origin;
+        let ahead =
+            |origin: f32, axis: f32| (f64::from(origin) + f64::from(axis) * distance) as f32;
+        let q = render.frame.q;
+        Some(CameraFrame {
+            cell: render.cell_id,
+            origin: [o.x, o.y, o.z],
+            rotation: [q.w, q.x, q.y, q.z],
+            target: [
+                ahead(o.x, forward.x),
+                ahead(o.y, forward.y),
+                ahead(o.z, forward.z),
+            ],
+            fov: self.scene.fov,
+        })
     }
 }
 
 /// The `UseTime` calls on the body: jumps during the action loop, then `DoMotion` with the turn
 /// (a `TurnTo` target stays until the turn ends; `SetOmegaVelocity` otherwise).
-fn apply_commands(player: &mut Player, commands: &MovementCommands, state: &MovementState) {
+fn apply_commands(
+    turn_to: &mut Option<f32>,
+    body: &mut PhysicsBody,
+    commands: &MovementCommands,
+    state: &MovementState,
+) {
     if commands.turn_off_run_lock || !commands.movement_active {
         return;
     }
     for _ in 0..commands.jumps {
-        player.body.jump();
+        body.jump();
     }
     if let Some(heading) = commands.steer.or(commands.turn_to) {
-        player.turn_to = Some(heading);
+        *turn_to = Some(heading);
     } else if !state.turning_to {
-        player.turn_to = None;
+        *turn_to = None;
     }
-    player.body.set_input(MovementInput {
+    body.set_input(MovementInput {
         motion: commands.do_motion.unwrap_or(state.do_motion),
-        heading: player.turn_to,
+        heading: *turn_to,
         turn: commands.omega.unwrap_or(0.0),
     });
 }

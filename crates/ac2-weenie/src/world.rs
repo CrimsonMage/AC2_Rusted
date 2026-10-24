@@ -13,7 +13,7 @@ use std::collections::{BTreeMap, VecDeque};
 use ac2_net::protocol::{
     Build, CreateObject, InstanceIdWithStamp, Opcode, PropertyTypes, ServerEvent,
 };
-use ac2_net::{is_out_of_world, ORDERING_VISUAL};
+use ac2_net::{is_cell, is_out_of_world, ORDERING_VISUAL};
 use ac2_net::{ordering_stamp, ordering_type, Blob, ORDERING_ORDERED, ORDERING_UNORDERED};
 
 use crate::objects::{ObjectTable, PositionApplied, RemoteObject};
@@ -41,6 +41,29 @@ pub enum WorldEvent {
     ForceCreate(u64),
 }
 
+/// `ObjectEventQueue`: blobs held for an object, when the last arrived, and whether any is not
+/// a cell blob.
+#[derive(Debug, Default)]
+struct ObjectEventQueue {
+    update_time: f64,
+    queue: VecDeque<Blob>,
+    has_non_cell: bool,
+}
+
+impl ObjectEventQueue {
+    /// `ObjectEventQueue::push`.
+    fn push(&mut self, blob: Blob, cur_time: f64) {
+        if !is_cell(blob.id) {
+            self.has_non_cell = true;
+        }
+        self.update_time = cur_time;
+        self.queue.push_back(blob);
+    }
+}
+
+/// `CObjectMaint::UseTime`: a held queue older than this (seconds) is given up on.
+const EVENT_QUEUE_TIMEOUT: f64 = 25.0;
+
 /// `CBookKeep`: an object's ordering state.
 #[derive(Debug, Default)]
 struct Bookie {
@@ -59,7 +82,7 @@ pub struct World {
     player: Option<u64>,
     bookies: BTreeMap<u64, Bookie>,
     /// `CObjectMaint::m_event_queue_table`.
-    waiting: BTreeMap<u64, VecDeque<Blob>>,
+    waiting: BTreeMap<u64, ObjectEventQueue>,
     pub objects: ObjectTable,
     out: Vec<WorldEvent>,
     cur_time: f64,
@@ -153,7 +176,8 @@ impl World {
                 let player_known = self.player.is_some_and(|p| self.bookies.contains_key(&p));
                 if !player_known && opcode != Opcode::CREATE_OBJECT {
                     let id = self.player.unwrap_or(u64::MAX);
-                    self.waiting.entry(id).or_default().push_back(blob.clone());
+                    let now = self.cur_time;
+                    self.waiting.entry(id).or_default().push(blob.clone(), now);
                     return true;
                 }
                 false
@@ -232,11 +256,12 @@ impl World {
     /// `CObjectMaint::GetObjectOrQueueEvent`: `true` when the object exists at this instance;
     /// an unknown object or a newer instance holds the blob for it, an older instance drops it.
     fn get_object_or_queue(&mut self, sender: &InstanceIdWithStamp, blob: &Blob) -> bool {
+        let now = self.cur_time;
         let Some(bookie) = self.bookies.get(&sender.id) else {
             self.waiting
                 .entry(sender.id)
                 .or_default()
-                .push_back(blob.clone());
+                .push(blob.clone(), now);
             return false;
         };
         let current = bookie.instance_stamp;
@@ -245,11 +270,33 @@ impl World {
                 self.waiting
                     .entry(sender.id)
                     .or_default()
-                    .push_back(blob.clone());
+                    .push(blob.clone(), now);
             }
             return false;
         }
         true
+    }
+
+    /// `CObjectMaint::UseTime`'s event-queue pass: a queue that has waited more than 25 s for
+    /// its object asks the server to create it (`SendEvt_CForceCreate`) when it holds a
+    /// non-cell blob, and is dropped unless it is the player's.
+    pub fn use_time(&mut self, cur_time: f64) -> Vec<WorldEvent> {
+        self.cur_time = cur_time;
+        let mut timed_out = Vec::new();
+        for (&id, queue) in &self.waiting {
+            if !queue.queue.is_empty() && EVENT_QUEUE_TIMEOUT < cur_time - queue.update_time {
+                if queue.has_non_cell {
+                    self.out.push(WorldEvent::ForceCreate(id));
+                }
+                if Some(id) != self.player {
+                    timed_out.push(id);
+                }
+            }
+        }
+        for id in timed_out {
+            self.waiting.remove(&id);
+        }
+        std::mem::take(&mut self.out)
     }
 
     /// `CEventQueue::PostEvent` -> `DispatchEvent`, and the object bookkeeping each handler does.
@@ -400,7 +447,7 @@ impl World {
     /// `CObjectMaint::FlushEventQueueForBookie`.
     fn flush_waiting(&mut self, id: u64) {
         if let Some(queue) = self.waiting.remove(&id) {
-            for blob in queue {
+            for blob in queue.queue {
                 self.process_net_blob(blob);
             }
         }

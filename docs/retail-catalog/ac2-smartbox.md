@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 19 done, 9 partial, 232 to do, 2 skipped.
+262 retail functions: 53 done, 26 partial, 181 to do, 2 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (5/22)
@@ -145,7 +145,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjectMaint::CObjectMaint` · 004d8de0 · legions 004cb850
 - [ ] `CObjectMaint::~CObjectMaint` · 004d8f30 · legions 004cb9a0
 - [~] `CObjectMaint::FinishEntityCreation` · 004d9150 · legions 004cbbc0 — visual-queue release and queued-event replay only; no CPhysicsObj built
-- [ ] `CObjectMaint::UseTime` · 004d9480 · legions 004cbef0
+- [~] `CObjectMaint::UseTime` · 004d9480 · legions 004cbef0 — the event-queue pass: queues held over 25 s ask for their object (SendEvt_CForceCreate) and are dropped unless the player's; no other maintenance
 
 ### _STL::map<InstanceID,ObjectEventQueue,_STL::less<InstanceID>,_STL::allocator<_STL::pair<InstanceID_const_,ObjectEventQueue>_>_>
 - [ ] `_STL::map<InstanceID,ObjectEventQueue,_STL::less<InstanceID>,_STL::allocator<_STL::pair<InstanceID_const_,ObjectEventQueue>_>_>::operator[]` · 004d9770 · legions 004cc1e0
@@ -197,58 +197,58 @@ Legend and workflow: [README](README.md).
 - [ ] `CameraFxManager::AddCameraDistance` · 005790e0 · legions 00548a40
 - [ ] `CameraFxManager::StopAllCameraFX` · 00579160 · legions 00548ac0
 
-## `portal/client/src/smartbox/camera/cameramanager.cpp.c` (0/46)
+## `portal/client/src/smartbox/camera/cameramanager.cpp.c` (14/46)
 
 ### TargetingModule
-- [ ] `TargetingModule::TargetingModule` · 00574850 · legions 00544720
+- [x] `TargetingModule::TargetingModule` · 00574850 · legions 00544720
 
 ### CameraManager
 - [ ] `CameraManager::GetCameraManager` · 00574970 · legions 00544840
-- [ ] `CameraManager::CalcAlignToSlope` · 00574980 · legions 00544850
-- [ ] `CameraManager::UseTime` · 00574b50 · legions 00544a20
-- [ ] `CameraManager::GetFirstPersonIsReady` · 00574c50 · legions 00544b20
+- [x] `CameraManager::CalcAlignToSlope` · 00574980 · legions 00544850 — ac2-client camera.rs
+- [~] `CameraManager::UseTime` · 00574b50 · legions 00544a20 — field of view 65; no camera effects (distortion, blur, flash)
+- [x] `CameraManager::GetFirstPersonIsReady` · 00574c50 · legions 00544b20
 - [ ] `CameraManager::CheckEnvOnly` · 00574ca0 · legions 00544b70
-- [ ] `CameraManager::NoRayTrace` · 00574cc0 · legions 00544b90
-- [ ] `CameraManager::ZoomIn` · 00574cf0 · legions 00544bc0
-- [ ] `CameraManager::ZoomOut` · 00574d40 · legions 00544c10
+- [x] `CameraManager::NoRayTrace` · 00574cc0 · legions 00544b90
+- [x] `CameraManager::ZoomIn` · 00574cf0 · legions 00544bc0 — camera action 0x4000002D
+- [x] `CameraManager::ZoomOut` · 00574d40 · legions 00544c10 — camera action 0x400000B2
 - [ ] `CameraManager::SetParentObject` · 00574d80 · legions 00544c50
 - [ ] `CameraManager::SetupCameraDummyObjects` · 00574db0 · legions 00544c80
-- [ ] `CameraManager::ResetCamera` · 00574eb0 · legions 00544d80
+- [~] `CameraManager::ResetCamera` · 00574eb0 · legions 00544d80 — the player target only
 - [ ] `CameraManager::SetFreeCamera` · 00574ff0 · legions 00544ec0
 - [ ] `CameraManager::SetTargetedCamera` · 00575040 · legions 00544f10
 - [ ] `CameraManager::RestorePlayerCamera` · 00575090 · legions 00544f60
-- [ ] `CameraManager::GetGlobalDirection` · 005750d0 · legions 00544fa0
+- [x] `CameraManager::GetGlobalDirection` · 005750d0 · legions 00544fa0 — CameraManager::global_direction, fed to the movement module
 - [ ] `CameraManager::SetCameraAnimTarget` · 005750f0 · legions 00544fc0
 - [ ] `CameraManager::SetCameraAnimParent` · 00575150 · legions 00545020
 - [ ] `CameraManager::FakeTransition` · 005751b0 · legions 00546710
-- [ ] `CameraManager::SetupPrefs` · 005751c0 · legions 00545090
+- [~] `CameraManager::SetupPrefs` · 005751c0 · legions 00545090 — the preference defaults (height 0, distance 4.5, tilt 0.25, speeds 1, auto distance, align to slope, third person steers)
 - [ ] `CameraManager::StopAllCameraFX` · 00575a20
 
 ### CameraFxTrack
 - [ ] `CameraFxTrack::operator=` · 00575a30 · legions 00545900
 
 ### CameraManager
-- [ ] `CameraManager::GetCameraDistance` · 00575ab0 · legions 00545980
-- [ ] `CameraManager::ShoulderView` · 00575ad0 · legions 005459a0
-- [ ] `CameraManager::SetTargetObject` · 00575b40 · legions 00545a10
+- [x] `CameraManager::GetCameraDistance` · 00575ab0 · legions 00545980 — no camera effects run, so their distance sum is 0
+- [x] `CameraManager::ShoulderView` · 00575ad0 · legions 005459a0 — camera action 0x4000002A
+- [~] `CameraManager::SetTargetObject` · 00575b40 · legions 00545a10 — the player target only
 - [ ] `CameraManager::GetInterpViewerOffset` · 00575bc0 · legions 00545a90
-- [ ] `CameraManager::CalcShoulderOffset` · 00575c00 · legions 00545ad0
+- [x] `CameraManager::CalcShoulderOffset` · 00575c00 · legions 00545ad0
 - [ ] `CameraManager::HandleApply` · 00575ee0 · legions 00545db0
 - [ ] `CameraManager::DoCameraFX` · 00575f20 · legions 00545df0
-- [ ] `CameraManager::UpdateCamera` · 005760f0 · legions 00545fb0
+- [~] `CameraManager::UpdateCamera` · 005760f0 · legions 00545fb0 — no dynamic first-person head-bone camera, no camera effects
 - [ ] `CameraManager::LookAtSelf` · 005767a0 · legions 00546660
 - [ ] `CameraManager::SwingOutLeft` · 00576850 · legions 005467f0
 - [ ] `CameraManager::SwingOutRight` · 00576930
 - [ ] `CameraManager::SetMapView` · 00576a10 · legions 005468d0
 - [ ] `CameraManager::GetTargetOffset` · 00576b00 · legions 005469c0
-- [ ] `CameraManager::SetDefaults` · 00576b40 · legions 00546a30
-- [ ] `CameraManager::LookAtGround` · 00576c70 · legions 00546b60
-- [ ] `CameraManager::SetMouseLookState` · 00576d10 · legions 00546c00
-- [ ] `CameraManager::SetFirstPersonState` · 00576dc0 · legions 00546cb0
-- [ ] `CameraManager::HandleChange` · 00576e30
-- [ ] `CameraManager::StartAction` · 00577100 · legions 00546ff0
-- [ ] `CameraManager::StopAction` · 00577360 · legions 00547250
-- [ ] `CameraManager::CameraManager` · 005775a0 · legions 005475f0
+- [x] `CameraManager::SetDefaults` · 00576b40 · legions 00546a30
+- [x] `CameraManager::LookAtGround` · 00576c70 · legions 00546b60 — camera action 0x400000AE (no map view)
+- [x] `CameraManager::SetMouseLookState` · 00576d10 · legions 00546c00
+- [x] `CameraManager::SetFirstPersonState` · 00576dc0 · legions 00546cb0
+- [~] `CameraManager::HandleChange` · 00576e30 — applied once with the preference defaults
+- [~] `CameraManager::StartAction` · 00577100 · legions 00546ff0 — no swing-out, look-at-self, map view, zoom-scale animation or camera effects
+- [~] `CameraManager::StopAction` · 00577360 · legions 00547250 — no zoom-scale animation
+- [~] `CameraManager::CameraManager` · 005775a0 · legions 005475f0 — no camera effects manager
 
 ### _STL::deque<_STL::pair<long,long>,_STL::allocator<_STL::pair<long,long>_>_>
 - [ ] `_STL::deque<_STL::pair<long,long>,_STL::allocator<_STL::pair<long,long>_>_>::~deque<_STL::pair<long,long>,_STL::allocator<_STL::pair<long,long>_>_>` · 00577720 · legions 005752f0
@@ -257,22 +257,22 @@ Legend and workflow: [README](README.md).
 - [ ] `CameraManager::~CameraManager` · 00577840 · legions 005477e0
 - [ ] `CameraManager::MouseMove` · 005778a0 · legions 00547840
 
-## `portal/client/src/smartbox/camera/targetingmodule.cpp.c` (0/11)
+## `portal/client/src/smartbox/camera/targetingmodule.cpp.c` (6/11)
 
 ### TargetingModule
-- [ ] `TargetingModule::SetPlayer` · 00579180 · legions 00548ae0
-- [ ] `TargetingModule::TurnOn` · 005791a0 · legions 00548b00
-- [ ] `TargetingModule::CalcCameraDistance` · 00579210 · legions 00548b70
+- [x] `TargetingModule::SetPlayer` · 00579180 · legions 00548ae0
+- [x] `TargetingModule::TurnOn` · 005791a0 · legions 00548b00
+- [x] `TargetingModule::CalcCameraDistance` · 00579210 · legions 00548b70
 - [ ] `TargetingModule::GetInterpViewerOffset` · 00579420 · legions 00548d80
-- [ ] `TargetingModule::FakeTransition` · 005794b0 · legions 00548e10
-- [ ] `TargetingModule::GetPosition` · 00579500 · legions 00548e60
-- [ ] `TargetingModule::StoreTargetPos` · 00579670 · legions 00548fd0
+- [x] `TargetingModule::FakeTransition` · 005794b0 · legions 00548e10
+- [~] `TargetingModule::GetPosition` · 00579500 · legions 00548e60 — the physics position stands in for the render-slerped drawing position
+- [~] `TargetingModule::StoreTargetPos` · 00579670 · legions 00548fd0 — bone 0, the player or no target
 - [ ] `TargetingModule::StoreParentPos` · 00579700 · legions 00549060
-- [ ] `TargetingModule::Update` · 00579780 · legions 005490e0
-- [ ] `TargetingModule::InternalCalcViewerPos` · 00579910 · legions 00549270
-- [ ] `TargetingModule::CalcViewerPos` · 0057a320 · legions 00549c80
+- [x] `TargetingModule::Update` · 00579780 · legions 005490e0
+- [~] `TargetingModule::InternalCalcViewerPos` · 00579910 · legions 00549270 — a player target without parent or bone (third and first person)
+- [x] `TargetingModule::CalcViewerPos` · 0057a320 · legions 00549c80
 
-## `portal/client/src/smartbox/smartbox.cpp.c` (0/30)
+## `portal/client/src/smartbox/smartbox.cpp.c` (5/30)
 
 ### Position
 - [ ] `Position::operator!=` · 005734b0 · legions 005434b0
@@ -285,35 +285,35 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartBox::ExitPortalSpace` · 00573560 · legions 00543560
 - [ ] `SmartBox::InPortalSpace` · 00573570 · legions 00543570
 - [ ] `SmartBox::RenderScreenshot` · 00573580 · legions 00543580
-- [ ] `SmartBox::SetCameraPosition` · 005735e0 · legions 005435e0
-- [ ] `SmartBox::SetCameraDefaults` · 00573630 · legions 00543630
+- [x] `SmartBox::SetCameraPosition` · 005735e0 · legions 005435e0
+- [x] `SmartBox::SetCameraDefaults` · 00573630 · legions 00543630
 - [ ] `SmartBox::RecvNotice_SetRegionID` · 005736e0 · legions 005436e0
-- [ ] `SmartBox::SetWantNoticeOnNextFrameDrawn` · 005736f0 · legions 005436f0
+- [x] `SmartBox::SetWantNoticeOnNextFrameDrawn` · 005736f0 · legions 005436f0
 - [ ] `SmartBox::GetWantNoticeOnNextFrameDrawn` · 00573700 · legions 00543700
 - [ ] `SmartBox::SmartBox` · 00573710 · legions 00543710
 - [ ] `SmartBox::IsVisible` · 005737e0 · legions 005437e0
 - [ ] `SmartBox::Show` · 005737f0 · legions 005437f0
 - [ ] `SmartBox::Hide` · 00573800 · legions 00543800
 - [ ] `SmartBox::InitPreferences` · 00573810 · legions 00543810
-- [~] `SmartBox::UpdatePlayer` · 00573930 · legions 00543930 — visible cells only; no camera or PlayerReadyToEnterWorld notice
+- [x] `SmartBox::UpdatePlayer` · 00573930 · legions 00543930 — cells, ReEnterVisibility (EnterWorldSimple flags 0x11), PlayerReadyToEnterWorld, the entry camera
 - [ ] `SmartBox::UpdateRenderTargets` · 005739f0 · legions 005439f0
 - [ ] `SmartBox::Render` · 00573a10
 - [ ] `SmartBox::ResetWorldState` · 00573a60 · legions 00543a30
-- [ ] `SmartBox::InitPlayer` · 00573b50 · legions 00543b20
-- [ ] `SmartBox::UpdateCamera` · 00573bd0 · legions 00543ba0
-- [ ] `SmartBox::RecvNotice_CreatePlayerObject` · 00574220 · legions 00544170
-- [ ] `SmartBox::PlayerPhysicsUpdatedCallback` · 00574280 · legions 005441d0
-- [ ] `SmartBox::HandleTeleport` · 005742d0 · legions 00544220
+- [~] `SmartBox::InitPlayer` · 00573b50 · legions 00543b20 — SetCameraDefaults once the body's Setup has loaded
+- [~] `SmartBox::UpdateCamera` · 00573bd0 · legions 00543ba0 — the line-of-sight pull-in (CObjCell::LOSCheck) is not ported: the desired position stands
+- [~] `SmartBox::RecvNotice_CreatePlayerObject` · 00574220 · legions 00544170 — the body loads on a loader thread; m_bBlockingLoad set
+- [x] `SmartBox::PlayerPhysicsUpdatedCallback` · 00574280 · legions 005441d0 — after every player physics quantum outside mouse look
+- [~] `SmartBox::HandleTeleport` · 005742d0 · legions 00544220 — the camera, LeaveWorld, StorePosition and the blocking load; no run-lock reset
 - [ ] `SmartBox::~SmartBox` · 005743e0 · legions 00544330
 - [ ] `SmartBox::Init` · 005744f0 · legions 00544420
-- [~] `SmartBox::UseTime` · 005746d0 · legions 005445d0 — UpdatePlayer and the physics step; no camera
+- [~] `SmartBox::UseTime` · 005746d0 · legions 005445d0 — UpdatePlayer, WorldManager::Update, the mouse-look camera, SceneCamera::slerp; no camera effects
 
-## `portal/client/src/smartbox/worldmanager/cellmanager.cpp.c` (0/14)
+## `portal/client/src/smartbox/worldmanager/cellmanager.cpp.c` (6/14)
 
 ### CellManager
 - [ ] `CellManager::~CellManager` · 0057ba00 · legions 0054b2e0
-- [ ] `CellManager::OnContextFinished` · 0057ba10 · legions 0054b2f0
-- [ ] `CellManager::ReleaseCells` · 0057ba40 · legions 0054b320
+- [x] `CellManager::OnContextFinished` · 0057ba10 · legions 0054b2f0
+- [x] `CellManager::ReleaseCells` · 0057ba40 · legions 0054b320
 - [ ] `CellManager::SetFarRadius` · 0057baa0 · legions 0054b380
 - [ ] `CellManager::NotifyChangeRegion` · 0057bac0 · legions 0054b3a0
 
@@ -321,14 +321,14 @@ Legend and workflow: [README](README.md).
 - [ ] `Position::get_outside_cell_id` · 0057bad0 · legions 0054b3b0
 
 ### CellManager
-- [ ] `CellManager::CellManager` · 0057bb10 · legions 0054b3f0
-- [~] `CellManager::RequestAsyncLoadBlockRadius` · 0057bba0 · legions 0054b480 — the radius block set (synchronous)
-- [ ] `CellManager::RequestAsyncLoadBlockRadiusSceneObjects` · 0057bcd0 · legions 0054b5b0
+- [x] `CellManager::CellManager` · 0057bb10 · legions 0054b3f0
+- [x] `CellManager::RequestAsyncLoadBlockRadius` · 0057bba0 · legions 0054b480 — ring requests to the loader threads
+- [~] `CellManager::RequestAsyncLoadBlockRadiusSceneObjects` · 0057bcd0 · legions 0054b5b0 — the near blocks' objects come with their sub-data, so nothing is left to request
 - [ ] `CellManager::ResetWorldState` · 0057be70 · legions 0054b750
-- [ ] `CellManager::FinishUpdateVisibleCells` · 0057be90 · legions 0054b770
-- [ ] `CellManager::AsyncGetCells` · 0057bf80 · legions 0054b850
-- [ ] `CellManager::OnTopLevelRequestFinished` · 0057c040 · legions 0054b910
-- [~] `CellManager::UpdateVisibleCells` · 0057c360 · legions 0054bc30 — block radius 1 loaded at once (no async request)
+- [~] `CellManager::FinishUpdateVisibleCells` · 0057be90 · legions 0054b770 — an interior keeps the near window around its block
+- [x] `CellManager::AsyncGetCells` · 0057bf80 · legions 0054b850
+- [~] `CellManager::OnTopLevelRequestFinished` · 0057c040 · legions 0054b910 — an interior's visible cells in other blocks are not requested
+- [x] `CellManager::UpdateVisibleCells` · 0057c360 · legions 0054bc30
 
 ## `portal/client/src/smartbox/worldmanager/lscapemanager.cpp.c` (0/21)
 
@@ -337,7 +337,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeManager::SetFarRadius` · 0057a590 · legions 00549ef0
 - [ ] `LScapeManager::GrabVisibleCells` · 0057a5b0 · legions 00549f10
 - [ ] `LScapeManager::ReleaseVisibleCells` · 0057a640 · legions 00549fa0
-- [ ] `LScapeManager::Init` · 0057a780 · legions 0054a060
+- [~] `LScapeManager::Init` · 0057a780 · legions 0054a060 — near radius 1, far radius 4
 - [ ] `LScapeManager::ReloadLandBlocks` · 0057a7b0 · legions 0054a090
 - [ ] `LScapeManager::InitFreeBlocks` · 0057a810 · legions 0054a0f0
 - [ ] `LScapeManager::CleanupFreeBlocks` · 0057a880 · legions 0054a160
@@ -353,16 +353,16 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeManager::AddBlockToRefreshList` · 0057b260 · legions 0054ab40
 - [ ] `LScapeManager::UpdateBlocks` · 0057b270 · legions 0054ab50
 - [ ] `LScapeManager::LScapeManager` · 0057b8f0 · legions 0054b1d0
-- [ ] `LScapeManager::UpdateVisibleCells` · 0057b980 · legions 0054b260
+- [~] `LScapeManager::UpdateVisibleCells` · 0057b980 · legions 0054b260 — the near window (radius 1) resident, the rest released
 
-## `portal/client/src/smartbox/worldmanager/worldmanager.cpp.c` (0/9)
+## `portal/client/src/smartbox/worldmanager/worldmanager.cpp.c` (3/9)
 
 ### WorldManager
 - [ ] `WorldManager::WorldManager` · 0057c420 · legions 0054bcf0
 - [ ] `WorldManager::Init` · 0057c440 · legions 0054bd10
-- [ ] `WorldManager::IsBlockingForCells` · 0057c500 · legions 0054bdd0
-- [~] `WorldManager::Update` · 0057c510 · legions 0054bde0 — physics step only; no GameTime or CObjectMaint::UseTime
-- [~] `WorldManager::UpdateVisibleCells` · 0057c540 · legions 0054be10 — blocking 3x3 block load in CellManager
+- [x] `WorldManager::IsBlockingForCells` · 0057c500 · legions 0054bdd0
+- [x] `WorldManager::Update` · 0057c510 · legions 0054bde0 — GameTime::UseTime, then unless blocking CObjectMaint::UseTime and the physics step
+- [x] `WorldManager::UpdateVisibleCells` · 0057c540 · legions 0054be10
 - [ ] `WorldManager::SetRegion` · 0057c570 · legions 0054be40
 - [ ] `WorldManager::Refresh` · 0057c5e0 · legions 0054beb0
 - [ ] `WorldManager::~WorldManager` · 0057c610 · legions 0054bee0

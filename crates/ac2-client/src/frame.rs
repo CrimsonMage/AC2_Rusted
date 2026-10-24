@@ -33,11 +33,17 @@ pub struct ObjectFrame {
 pub struct ClientFrame {
     /// `Timer::cur_time` (server time).
     pub server_time: f64,
-    /// The region calendar's time of day.
+    /// `GameTime::present_time_of_day`.
     pub time_of_day: Option<f32>,
-    /// The player's cell, when in the world.
+    /// The player's cell, when its body exists.
     pub cell_id: Option<u32>,
+    /// `CPhysicsObj::IsInWorld` for the player.
+    pub in_world: bool,
+    /// `CellManager::IsBlockingForCells`: the player's physics waits for its cells.
+    pub blocking_for_cells: bool,
     pub player: Option<PlayerFrame>,
+    /// The camera, while the player is in the world.
+    pub camera: Option<crate::scene::CameraFrame>,
     /// Placed remote objects (held or contained ones have no position and are left out).
     pub objects: Vec<ObjectFrame>,
     /// The resident landblocks (`xxyy0000`).

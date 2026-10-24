@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 159 done, 41 partial, 1862 to do, 62 skipped.
+2124 retail functions: 159 done, 42 partial, 1861 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (1/9)
@@ -13,7 +13,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysics::UpdateAnimation` · 00732280
 - [x] `CPhysics::UpdateRenderInterpolation` · 007322c0 · legions 006ae760 — PhysicsClock::render_interpolation
 - [ ] `CPhysics::GetObjectA` · 00732380 · legions 006ae820
-- [ ] `CPhysics::UpdateAllPhysics` · 00732400
+- [~] `CPhysics::UpdateAllPhysics` · 00732400 — the player's quantum and PlayerPhysicsUpdatedCallback only
 - [ ] `CPhysics::UpdateAllAnimation` · 007325a0
 
 ## `portal/shared/src/bsp/bspleaf.cpp.c` (5/13)
