@@ -45,7 +45,9 @@ fn render(
     let mut renderer = TerrainRenderer::new(gpu, COLOR_FORMAT);
     let mut load = |key: TextureKey| match key {
         TextureKey::Material(did) => load_material_image(&store, did).ok().flatten(),
-        TextureKey::Mask(did) => load_texture_image(&store, did).ok().flatten(),
+        TextureKey::Mask(did) | TextureKey::Texture(did) => {
+            load_texture_image(&store, did).ok().flatten()
+        }
     };
     let mut blocks = Vec::new();
     for dx in -radius..=radius {

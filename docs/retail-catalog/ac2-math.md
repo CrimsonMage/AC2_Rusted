@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 11 done, 0 partial, 375 to do, 40 skipped.
+426 retail functions: 15 done, 3 partial, 368 to do, 40 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (0/5)
@@ -260,18 +260,18 @@ Legend and workflow: [README](README.md).
 - [ ] `LightSource::ApplyPropertyCollection` · 00622650
 - [ ] `LightSource::GetDiffuse` · 00622730 · legions 005ddb00
 - [ ] `LightSource::GetWeight` · 00622760 · legions 005ddb30
-- [ ] `LightSource::FillRenderLight` · 00622900 · legions 005ddcd0
+- [~] `LightSource::FillRenderLight` · 00622900 · legions 005ddcd0 — outdoor sun only; dynamic/point lights and shadow direction not yet
 
-## `portal/shared/src/geometry/matrix4.cpp.c` (0/18)
+## `portal/shared/src/geometry/matrix4.cpp.c` (4/18)
 
 ### Matrix4
-- [ ] `Matrix4::Translate` · 0061b390 · legions 005d6ff0
-- [ ] `Matrix4::Translate` · 0061b3e0 · legions 005d7040
+- [x] `Matrix4::Translate` · 0061b390 · legions 005d6ff0 — ac2-render object::pass / texture_matrix, ac2-gpu object
+- [x] `Matrix4::Translate` · 0061b3e0 · legions 005d7040 — ac2-render object::pass / texture_matrix, ac2-gpu object
 - [ ] `Matrix4::Translate3` · 0061b430 · legions 005d7090
 - [ ] `Matrix4::RotateX` · 0061b480 · legions 005d70e0
 - [ ] `Matrix4::RotateY` · 0061b4d0 · legions 005d7130
-- [ ] `Matrix4::RotateZ` · 0061b520 · legions 005d7180
-- [ ] `Matrix4::Scale` · 0061b570 · legions 005d71d0
+- [x] `Matrix4::RotateZ` · 0061b520 · legions 005d7180 — ac2-render object::pass / texture_matrix, ac2-gpu object
+- [x] `Matrix4::Scale` · 0061b570 · legions 005d71d0 — ac2-render object::pass / texture_matrix, ac2-gpu object
 - [ ] `Matrix4::CalcDeterminant` · 0061b5c0 · legions 005d7220
 - [ ] `Matrix4::Adjoint` · 0061b780 · legions 005d73e0
 - [ ] `Matrix4::Inverse3` · 0061bb10 · legions 005d7770
@@ -672,8 +672,8 @@ Legend and workflow: [README](README.md).
 ### Waveform
 - [ ] `Waveform::SetDefaults` · 00622c40 · legions 005de010
 - [ ] `Waveform::GetUpperBounds` · 00622c70 · legions 005de040
-- [ ] `Waveform::GetValueForPhase` · 00622cf0 · legions 005de0c0
-- [ ] `Waveform::GetValue` · 00622f10 · legions 005de2e0
+- [~] `Waveform::GetValueForPhase` · 00622cf0 · legions 005de0c0 — ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
+- [~] `Waveform::GetValue` · 00622f10 · legions 005de2e0 — ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
 - [ ] `Waveform::Waveform` · 00622f30 · legions 005de300
 - [ ] `Waveform::Waveform` · 00622f60 · legions 005de330
 - [ ] `Waveform::Waveform` · 00622fa0 · legions 005de370

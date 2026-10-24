@@ -38,7 +38,12 @@ key	status	note
 00525d30	x	
 00525d90	x	
 00525f70	x	
+0056b150	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+0056b170	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b1c0	x	
+0056ef40	~	object::ObjectLights; static/volumetric shadow strengths not used yet
+00572110	~	outdoor sun only; dynamic/point lights and shadow direction not yet
+0057cb50	~	outdoor sun, ambient and fog; indoor and sky environments not yet
 005835c0	x	
 00583890	x	
 00588320	x	
@@ -58,12 +63,40 @@ key	status	note
 005919d0	x	
 00591a40	x	
 005b75b0	x	
+005b7a50	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005b97c0	~	hardware-class layer filter (object::layer_drawn); property field pruning not needed after load_ac2_material
+005c4e90	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005c4f20	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005c4fb0	~	point/linear per stage; anisotropic preference not modelled, mip filter linear
+005c6410	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005c70b0	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005c7120	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005c7190	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005c7200	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005c7270	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005c7740	~	sun dir light and c_AmbientColor in ac2-gpu object; point lights and pixel-shader constants not yet
+005c88f0	~	object::pass::layer_pass; special textures (frame buffer, distortion map) unbound, TEXTUREFACTOR taken as material diffuse while lit
+005cb7e0	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005cbae0	~	fragment.dll programs ported to object.wgsl for unlit/lit/lit-vertex-diffuse; bump and per-pixel programs not
+005d03d0	~	fragment.dll programs ported to object.wgsl for unlit/lit/lit-vertex-diffuse; bump and per-pixel programs not
+005d06e0	~	fragment.dll programs ported to object.wgsl for unlit/lit/lit-vertex-diffuse; bump and per-pixel programs not
+005d61b0	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005d6310	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005d6470	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005d6560	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 006169c0	x	
+0061b390	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+0061b3e0	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+0061b520	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+0061b570	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0061ef30	x	
 00620e20	x	
 00621380	x	
 00621390	x	
 00621410	x	
+00622900	~	outdoor sun only; dynamic/point lights and shadow direction not yet
+00622cf0	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
+00622f10	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
 00628460	x	
 00628580	x	
 006290f0	x	

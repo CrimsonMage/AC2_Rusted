@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 16 done, 4 partial, 748 to do, 13 skipped.
+781 retail functions: 19 done, 7 partial, 742 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -432,7 +432,7 @@ Legend and workflow: [README](README.md).
 - [ ] `RenderVertexStreamD3D::Create` · 005dc0f0 · legions 0059cef0
 - [ ] `RenderVertexStreamD3D::Destroy` · 005dc160 · legions 0059cf60
 
-## `portal/client/src/render/core/vertexbuffer/rendervertexbuffer.cpp.c` (1/17)
+## `portal/client/src/render/core/vertexbuffer/rendervertexbuffer.cpp.c` (2/17)
 
 ### RenderVertexBuffer
 - [ ] `RenderVertexBuffer::Begin` · 005b6f90 · legions 005813c0
@@ -448,7 +448,7 @@ Legend and workflow: [README](README.md).
 - [ ] `RenderVertexBuffer::RenderIndexBufferPrimitives` · 005b77a0 · legions 00581b40
 - [ ] `RenderVertexBuffer::AnimateVertices` · 005b7860
 - [ ] `RenderVertexBuffer::RenderIndexBufferUsingMaterial` · 005b7880 · legions 00581c50
-- [ ] `RenderVertexBuffer::RenderIndexedUsingMaterial` · 005b7a50 · legions 00581e10
+- [x] `RenderVertexBuffer::RenderIndexedUsingMaterial` · 005b7a50 · legions 00581e10 — ac2-render object::pass / texture_matrix, ac2-gpu object
 - [ ] `RenderVertexBuffer::RenderUsingMaterial` · 005b7c40 · legions 00581ff0
 - [ ] `RenderVertexBuffer::RayIntersectsTriList` · 005b7e00 · legions 005821b0
 - [ ] `RenderVertexBuffer::LockAnimVertices` · 005b8450 · legions 00582800
@@ -763,7 +763,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneCamera::SetRenderPosition` · 00572c90 · legions 0053a9d0
 - [ ] `SceneCamera::SetCurrentPosition` · 00572cb0 · legions 0053a9f0
 
-## `portal/client/src/scenerender/scenetool.cpp.c` (1/100)
+## `portal/client/src/scenerender/scenetool.cpp.c` (3/100)
 
 ### SceneTool
 - [ ] `SceneTool::UsingSceneMotionBlur` · 0056a5d0 · legions 0053aa10
@@ -797,8 +797,8 @@ Legend and workflow: [README](README.md).
 - [ ] `LightSorterPredicate::operator()` · 0056b100 · legions 0053b520
 
 ### SceneTool
-- [ ] `SceneTool::SetAmbientLight` · 0056b150 · legions 0053b570
-- [ ] `SceneTool::SetOutdoorAmbient` · 0056b170 · legions 0053b590
+- [x] `SceneTool::SetAmbientLight` · 0056b150 · legions 0053b570 — ac2-render object::pass / texture_matrix, ac2-gpu object
+- [x] `SceneTool::SetOutdoorAmbient` · 0056b170 · legions 0053b590 — ac2-render object::pass / texture_matrix, ac2-gpu object
 - [ ] `SceneTool::SetFogProperties` · 0056b1a0 · legions 0053b5c0
 - [x] `SceneTool::IlluminateMeshVertices` · 0056b1c0 · legions 0053b5e0
 - [ ] `SceneTool::PrepareGenericRenderTarget0` · 0056b1e0 · legions 0053b600
@@ -852,7 +852,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneTool::SetupCamera` · 0056ea20 · legions 0053ee00
 - [ ] `SceneTool::GetPointLightShadowVector` · 0056ed50 · legions 0053f130
 - [ ] `SceneTool::DisableSunlight` · 0056eef0 · legions 0053f2d0
-- [ ] `SceneTool::SetSunlight` · 0056ef40 · legions 0053f320
+- [~] `SceneTool::SetSunlight` · 0056ef40 · legions 0053f320 — object::ObjectLights; static/volumetric shadow strengths not used yet
 - [ ] `SceneTool::DrawLine` · 0056f230 · legions 0053f610
 - [ ] `SceneTool::DrawScreenQuad` · 0056f260 · legions 0053f640
 - [ ] `SceneTool::SwitchTextureTargets` · 0056f2e0 · legions 0053f6c0
@@ -892,7 +892,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneTool::EndFrame` · 00571a40 · legions 00541ef0
 - [ ] `SceneTool::SortLights` · 00571da0 · legions 00542250
 - [ ] `SceneTool::CacheStaticLights` · 00571ec0 · legions 00542370
-- [ ] `SceneTool::ApplyLights` · 00572110 · legions 005425c0
+- [~] `SceneTool::ApplyLights` · 00572110 · legions 005425c0 — outdoor sun only; dynamic/point lights and shadow direction not yet
 - [ ] `SceneTool::GetLightsForPosition` · 005726b0 · legions 00542b60
 
 ## `portal/client/src/smartbox/worldrender/cellrender.cpp.c` (0/2)
@@ -1209,7 +1209,7 @@ Legend and workflow: [README](README.md).
 - [ ] `WorldRender::ForceShadowRefresh` · 0057caf0 · legions 0054c3c0
 - [ ] `WorldRender::UpdateAmbientSounds` · 0057cb00 · legions 0054c3d0
 - [ ] `WorldRender::InitAmbientSounds` · 0057cb40
-- [ ] `WorldRender::SetupEnvironment` · 0057cb50 · legions 0054c420
+- [~] `WorldRender::SetupEnvironment` · 0057cb50 · legions 0054c420 — outdoor sun, ambient and fog; indoor and sky environments not yet
 - [ ] `WorldRender::UpdateRainSounds` · 0057cf80 · legions 0054c850
 
 ### SceneCamera

@@ -43,6 +43,8 @@ struct State {
     keys: std::collections::HashSet<KeyCode>,
     looking: bool,
     last_frame: Instant,
+    /// Client time origin (`Timer::local_time`) for animated materials.
+    started: Instant,
 }
 
 impl ApplicationHandler for App {
@@ -96,6 +98,7 @@ impl ApplicationHandler for App {
             keys: Default::default(),
             looking: false,
             last_frame: Instant::now(),
+            started: Instant::now(),
         });
     }
 
@@ -176,11 +179,11 @@ impl State {
             return;
         };
         let view = output.texture.create_view(&Default::default());
-        let lighting = self.scene.lighting();
         let aspect = self.config.width as f32 / self.config.height as f32;
-        self.scene
-            .renderer
-            .set_frame(&self.gpu.queue, &self.fly.camera(), &lighting, aspect);
+        let time = self.started.elapsed().as_secs_f64();
+        let lighting = self
+            .scene
+            .prepare(&self.gpu, &self.fly.camera(), aspect, time);
         let scene = &self.scene;
         render_to(
             &self.gpu.device,

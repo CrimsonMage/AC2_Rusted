@@ -30,6 +30,8 @@ pub struct SceneLighting {
     pub light_dir: Vec3,
     /// `m_finalDirColor`.
     pub dir_color: [f32; 3],
+    /// `m_finalDirBright`: the sun's diffuse intensity (`SceneTool::SetSunlight`).
+    pub dir_brightness: f32,
     /// `GetAmbientLight`: ambient colour times ambient brightness.
     pub ambient: [f32; 3],
     pub fog_color: [f32; 3],
@@ -44,6 +46,7 @@ impl Default for SceneLighting {
         Self {
             light_dir: Vec3::new(0.6, 0.0, 0.8) * 0.1,
             dir_color: [1.0; 3],
+            dir_brightness: 0.1,
             ambient: [0.7; 3],
             fog_color: [1.0; 3],
             fog_range: (0.0, 10_000.0),
@@ -59,6 +62,7 @@ impl SceneLighting {
         Self {
             light_dir: Vec3::from_array(sample.light_vector()) * sample.directional_brightness(),
             dir_color: rgb(sample.directional_color()),
+            dir_brightness: sample.directional_brightness(),
             ambient: rgb(sample.ambient_color()).map(|c| c * sample.ambient_brightness()),
             fog_color: rgb(fog.color()),
             fog_range: (fog.min_distance(), fog.max_distance()),

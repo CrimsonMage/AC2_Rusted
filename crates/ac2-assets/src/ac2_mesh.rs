@@ -32,6 +32,11 @@ pub struct Ac2MeshFragment {
 pub struct Ac2Mesh {
     pub materials: Arc<[DataId]>,
     pub vertices: Arc<[DecodedMeshVertex]>,
+    /// `D3DFVF_DIFFUSE` colour per vertex (a `D3DCOLOR`, `0xAARRGGBB`) when the format has one.
+    pub colors: Option<Arc<[u32]>>,
+    /// Texture coordinate sets after the first (which is `DecodedMeshVertex::uv`), in vertex
+    /// format order.
+    pub extra_uvs: Arc<[Arc<[Vec2]>]>,
     /// Up to four (bone, weight) influences per vertex when the vertex format carries matrices.
     pub skin: Option<Arc<[[(u8, f32); 4]]>>,
     pub fragments: Arc<[Ac2MeshFragment]>,
@@ -87,8 +92,17 @@ impl ResourcePackedDecode for Ac2Mesh {
         cursor.align_to(4)?;
         let mut vertices = Vec::with_capacity(vertex_count);
         let mut skin = format.matrices.then(|| Vec::with_capacity(vertex_count));
+        let mut colors = format.diffuse.map(|_| Vec::with_capacity(vertex_count));
+        let mut extra_uvs =
+            vec![Vec::with_capacity(vertex_count); format.uv_sets.saturating_sub(1)];
         for texel in raw.chunks_exact(format.size) {
             vertices.push(format.vertex(texel));
+            if let (Some(colors), Some(offset)) = (colors.as_mut(), format.diffuse) {
+                colors.push(read_u32(texel, offset));
+            }
+            for (set, uvs) in extra_uvs.iter_mut().enumerate() {
+                uvs.push(format.uv(texel, set + 1));
+            }
             if let Some(skin) = skin.as_mut() {
                 skin.push(format.influences(texel));
             }
@@ -127,6 +141,8 @@ impl ResourcePackedDecode for Ac2Mesh {
         Ok(Self {
             materials,
             vertices: Arc::from(vertices),
+            colors: colors.map(Arc::from),
+            extra_uvs: extra_uvs.into_iter().map(Arc::from).collect(),
             skin: skin.map(Arc::from),
             fragments: Arc::from(fragments),
             bounds_min: Vec3::new(x0?, y0?, z0?),
@@ -157,7 +173,9 @@ fn count(cursor: &mut ArchiveCursor<'_>, min_item_bytes: usize) -> Option<usize>
 struct VertexFormat {
     size: usize,
     normal: Option<usize>,
+    diffuse: Option<usize>,
     uv: Option<usize>,
+    uv_sets: usize,
     matrices: bool,
     matrix_indices: usize,
     matrix_weights: usize,
@@ -179,7 +197,9 @@ impl VertexFormat {
         let mut offset = if format & 0xE != 0 { 12 } else { 0 } + weights * 4;
         let normal = (format & 0x10 != 0).then_some(offset);
         offset += if format & 0x10 != 0 { 12 } else { 0 };
-        for bit in [0x20, 0x40, 0x80] {
+        offset += if format & 0x20 != 0 { 4 } else { 0 };
+        let diffuse = (format & 0x40 != 0).then_some(offset);
+        for bit in [0x40, 0x80] {
             offset += if format & bit != 0 { 4 } else { 0 };
         }
         for bit in [0x1000_0000, 0x2000_0000, 0x4000_0000] {
@@ -197,7 +217,9 @@ impl VertexFormat {
         Self {
             size: offset.max(1),
             normal,
+            diffuse,
             uv,
+            uv_sets: tc_pairs,
             matrices: matrix_count > 0,
             matrix_indices,
             matrix_weights,
@@ -220,6 +242,13 @@ impl VertexFormat {
         }
     }
 
+    fn uv(&self, texel: &[u8], set: usize) -> Vec2 {
+        self.uv.map_or(Vec2::ZERO, |o| {
+            let o = o + set * 8;
+            Vec2::new(read_f32(texel, o), read_f32(texel, o + 4))
+        })
+    }
+
     fn influences(&self, texel: &[u8]) -> [(u8, f32); 4] {
         let mut out = [(0_u8, 0.0_f32); 4];
         for (slot, influence) in out.iter_mut().enumerate().take(self.matrix_count) {
@@ -235,6 +264,16 @@ impl VertexFormat {
     }
 }
 
+fn read_u32(texel: &[u8], offset: usize) -> u32 {
+    texel
+        .get(offset..offset + 4)
+        .map_or(0, |b| u32::from_le_bytes([b[0], b[1], b[2], b[3]]))
+}
+
+fn read_f32(texel: &[u8], offset: usize) -> f32 {
+    f32::from_bits(read_u32(texel, offset))
+}
+
 #[cfg(test)]
 mod tests {
     use super::VertexFormat;
@@ -242,6 +281,8 @@ mod tests {
     #[test]
     fn legions_vertex_formats_have_their_recovered_strides() {
         assert_eq!(VertexFormat::new(0x0000_02D2).size, 48);
+        let lit = VertexFormat::new(0x0000_02D2);
+        assert_eq!((lit.diffuse, lit.uv, lit.uv_sets), (Some(24), Some(32), 2));
         assert_eq!(VertexFormat::new(0x3000_02D2).size, 72);
         assert_eq!(VertexFormat::new(0x3004_02D2).size, 92);
         assert_eq!(VertexFormat::new(0x3003_02D2).size, 87);

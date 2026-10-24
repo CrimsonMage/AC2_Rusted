@@ -1,23 +1,36 @@
-//! What the viewer draws: the near landscape of the blocks around the camera, lit by the region
-//! sky at the viewer's time of day.
+//! What the viewer draws: the near landscape and the placed objects of the blocks around the
+//! camera, lit by the region sky at the viewer's time of day.
 
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use ac2_core::CellId;
-use ac2_gpu::{Gpu, TerrainBlock, TerrainRenderer, TextureKey};
-use ac2_math::Vec3;
+use ac2_core::{CellId, DataId};
+use ac2_gpu::{
+    Gpu, GpuObjectModel, ObjectInstance, ObjectRenderer, TerrainBlock, TerrainRenderer, TextureKey,
+};
+use ac2_math::{Mat4, Vec3};
+use ac2_render::object::{load_object_model, RenderSettings};
 use ac2_render::terrain::build_terrain_mesh;
-use ac2_render::{load_material_image, load_texture_image, SceneLighting};
+use ac2_render::{load_material_image, load_texture_image, Camera, SceneLighting};
 use ac2_world::Ac2WorldSource;
 
 /// `GameTime` day length in seconds for the Legions region.
 pub const DAY_SECONDS: f64 = 7347.0;
 
+/// One resident block: its near terrain and its placed objects (visual, world matrix).
+struct Block {
+    terrain: Option<TerrainBlock>,
+    placements: Vec<(DataId, Mat4)>,
+}
+
 pub struct Scene {
     pub world: Arc<Ac2WorldSource>,
     pub renderer: TerrainRenderer,
-    blocks: HashMap<(u8, u8), Option<TerrainBlock>>,
+    objects: ObjectRenderer,
+    models: HashMap<DataId, Option<GpuObjectModel>>,
+    blocks: HashMap<(u8, u8), Block>,
+    /// The placements `prepare` laid out, in draw order.
+    frame_placements: Vec<(DataId, Mat4)>,
     pub radius: i32,
     pub time_of_day: f64,
 }
@@ -32,7 +45,10 @@ impl Scene {
         Self {
             world,
             renderer: TerrainRenderer::new(gpu, format),
+            objects: ObjectRenderer::new(gpu, format),
+            models: HashMap::new(),
             blocks: HashMap::new(),
+            frame_placements: Vec::new(),
             radius,
             time_of_day: 0.0,
         }
@@ -66,9 +82,12 @@ impl Scene {
         };
         self.blocks.retain(|block, _| near(block));
         let store = self.world.resource_store().clone();
+        let settings = RenderSettings::default();
         let mut load = |key: TextureKey| match key {
             TextureKey::Material(did) => load_material_image(&store, did).ok().flatten(),
-            TextureKey::Mask(did) => load_texture_image(&store, did).ok().flatten(),
+            TextureKey::Mask(did) | TextureKey::Texture(did) => {
+                load_texture_image(&store, did).ok().flatten()
+            }
         };
         for dx in -radius..=radius {
             for dy in -radius..=radius {
@@ -80,7 +99,7 @@ impl Scene {
                     continue;
                 }
                 let id = block_id((x, y));
-                let block = self
+                let terrain = self
                     .world
                     .load_landblock(id)
                     .ok()
@@ -90,7 +109,30 @@ impl Scene {
                         self.renderer
                             .upload_block(gpu, &mesh, self.world.block_size(), &mut load)
                     });
-                self.blocks.insert((x, y), block);
+                let mut placements = Vec::new();
+                for marker in self.world.entity_markers(id).iter().flat_map(|m| m.iter()) {
+                    let visual = marker.visual();
+                    if !self.models.contains_key(&visual) {
+                        let model = load_object_model(&store, visual, &settings)
+                            .ok()
+                            .flatten()
+                            .map(|model| self.objects.upload(gpu, &model, &mut load));
+                        self.models.insert(visual, model);
+                    }
+                    if self.models[&visual].is_some() {
+                        placements.push((
+                            visual,
+                            marker.world_frame().to_mat4() * Mat4::from_scale(marker.scale()),
+                        ));
+                    }
+                }
+                self.blocks.insert(
+                    (x, y),
+                    Block {
+                        terrain,
+                        placements,
+                    },
+                );
             }
         }
     }
@@ -125,9 +167,46 @@ impl Scene {
             .unwrap_or(0.0);
     }
 
-    pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
-        self.renderer.draw(pass, self.blocks.values().flatten());
+    /// Writes the frame's camera and lighting and lays out the object draws; `time` is client
+    /// time in seconds for animated materials.
+    pub fn prepare(&mut self, gpu: &Gpu, camera: &Camera, aspect: f32, time: f64) -> SceneLighting {
+        let lighting = self.lighting();
+        self.renderer
+            .set_frame(&gpu.queue, camera, &lighting, aspect);
+        self.frame_placements = self
+            .blocks
+            .values()
+            .flat_map(|block| block.placements.iter().copied())
+            .collect();
+        let instances = instances(&self.models, &self.frame_placements);
+        self.objects
+            .prepare(gpu, camera, &lighting, aspect, time, &instances);
+        lighting
     }
+
+    pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
+        self.renderer.draw(
+            pass,
+            self.blocks.values().filter_map(|b| b.terrain.as_ref()),
+        );
+        let instances = instances(&self.models, &self.frame_placements);
+        self.objects.draw(pass, &instances);
+    }
+}
+
+fn instances<'a>(
+    models: &'a HashMap<DataId, Option<GpuObjectModel>>,
+    placements: &[(DataId, Mat4)],
+) -> Vec<ObjectInstance<'a>> {
+    placements
+        .iter()
+        .filter_map(|(visual, world)| {
+            Some(ObjectInstance {
+                model: models.get(visual)?.as_ref()?,
+                world: *world,
+            })
+        })
+        .collect()
 }
 
 pub fn block_id((x, y): (u8, u8)) -> CellId {

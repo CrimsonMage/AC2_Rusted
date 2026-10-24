@@ -5,6 +5,7 @@
 //! the retail `smartbox/worldrender` pipeline (`LScapeTerrainMesh`, `LScapeMaterialInfo`).
 
 mod image;
+pub mod object;
 pub mod terrain;
 mod view;
 

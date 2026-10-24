@@ -6,10 +6,13 @@
 //! back for headless checks. Colour math stays in gamma space as the retail D3D blender did.
 
 mod frame;
+mod object;
+mod object_state;
 mod terrain;
 mod texture;
 
 pub use frame::{render_to, FrameTarget, COLOR_FORMAT, DEPTH_FORMAT};
+pub use object::{GpuObjectModel, ObjectInstance, ObjectRenderer};
 pub use terrain::{TerrainBlock, TerrainRenderer};
 pub use texture::{TextureCache, TextureKey};
 

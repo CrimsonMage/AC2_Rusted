@@ -5,11 +5,13 @@ use std::collections::HashMap;
 use ac2_core::DataId;
 use ac2_render::Image;
 
-/// What a texture is for: a `RenderMaterial`'s base texture or an alpha mask `RenderTexture`.
+/// What a texture is for: a `RenderMaterial`'s base texture, an alpha mask `RenderTexture`, or a
+/// layer stage's `RenderTexture`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum TextureKey {
     Material(DataId),
     Mask(DataId),
+    Texture(DataId),
 }
 
 /// Uploaded textures by key; a key whose image cannot be loaded maps to a 1x1 white texture.

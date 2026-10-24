@@ -64,7 +64,10 @@ pub use ac2_appearance::{
 };
 pub use ac2_cell_surface::decode_ac2_cell_surfaces;
 pub use ac2_entity::{read_ac2_entity_desc, Ac2EntityDesc};
-pub use ac2_material::{Ac2LayerModifier, Ac2MaterialLayer, Ac2RenderMaterial, Ac2Waveform};
+pub use ac2_material::{
+    Ac2LayerLighting, Ac2LayerModifier, Ac2LayerStage, Ac2MaterialLayer, Ac2RenderMaterial,
+    Ac2Waveform,
+};
 pub use ac2_material_instance::load_ac2_material;
 pub use ac2_mesh::Ac2Mesh;
 pub use ac2_particle_desc::{
@@ -73,7 +76,8 @@ pub use ac2_particle_desc::{
 pub use ac2_physics_mesh::{Ac2PhysicsBspNode, Ac2PhysicsMesh, Ac2PhysicsPolygon, Ac2SetupPhysics};
 pub(crate) use ac2_static_model::resolve_ac2_visual_setup;
 pub use ac2_static_model::{
-    decode_ac2_posed_model, decode_ac2_static_model, resolve_ac2_visual_parts, Ac2Pose,
+    decode_ac2_posed_model, decode_ac2_static_model, resolve_ac2_visual_meshes,
+    resolve_ac2_visual_parts, Ac2Pose,
 };
 pub use ac2_terrain::{ac2_mipmapped_clamped_texture, compose_ac2_vertex_blended_terrain_texture};
 pub use ac2_texture::{load_ac2_texture_asset, resolve_ac2_material_texture_chain};

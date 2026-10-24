@@ -1,6 +1,6 @@
 # ac2-gpu: The render device
 
-95 retail functions: 0 done, 0 partial, 95 to do, 0 skipped.
+95 retail functions: 8 done, 3 partial, 84 to do, 0 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/render/core/d3d/renderd3d.cpp.c` (0/11)
@@ -18,7 +18,7 @@ Legend and workflow: [README](README.md).
 - [ ] `RenderD3D::DetectDisplayModes` · 005d9dc0 · legions 0059b3a0
 - [ ] `RenderD3D::Startup` · 005d9e70 · legions 0059b450
 
-## `portal/client/src/render/core/d3d/renderdeviced3d.cpp.c` (0/84)
+## `portal/client/src/render/core/d3d/renderdeviced3d.cpp.c` (8/84)
 
 ### RenderIndexBuffer
 - [ ] `RenderIndexBuffer::~RenderIndexBuffer` · 005c49d0 · legions 0058ba80
@@ -30,9 +30,9 @@ Legend and workflow: [README](README.md).
 
 ### RenderDeviceD3D
 - [ ] `RenderDeviceD3D::SetStageTexture` · 005c4e00
-- [ ] `RenderDeviceD3D::SetStageColorSource` · 005c4e90 · legions 0058beb0
-- [ ] `RenderDeviceD3D::SetStageAlphaSource` · 005c4f20 · legions 0058bf40
-- [ ] `RenderDeviceD3D::SetStageFilterMode` · 005c4fb0 · legions 0058bfd0
+- [x] `RenderDeviceD3D::SetStageColorSource` · 005c4e90 · legions 0058beb0 — ac2-render object::pass / texture_matrix, ac2-gpu object
+- [x] `RenderDeviceD3D::SetStageAlphaSource` · 005c4f20 · legions 0058bf40 — ac2-render object::pass / texture_matrix, ac2-gpu object
+- [~] `RenderDeviceD3D::SetStageFilterMode` · 005c4fb0 · legions 0058bfd0 — point/linear per stage; anisotropic preference not modelled, mip filter linear
 - [ ] `RenderDeviceD3D::SetMultiSampleAntialias` · 005c5080 · legions 0058c0a0
 - [ ] `RenderDeviceD3D::Begin` · 005c50d0 · legions 0058c0f0
 - [ ] `RenderDeviceD3D::End` · 005c5170 · legions 0058c190
@@ -59,7 +59,7 @@ Legend and workflow: [README](README.md).
 - [ ] `RenderDeviceD3D::Clear` · 005c6210
 - [ ] `RenderDeviceD3D::Flip` · 005c6350
 - [ ] `RenderDeviceD3D::IsResetPossible` · 005c63e0 · legions 0058d3e0
-- [ ] `RenderDeviceD3D::SetAmbient` · 005c6410
+- [x] `RenderDeviceD3D::SetAmbient` · 005c6410 — ac2-render object::pass / texture_matrix, ac2-gpu object
 - [ ] `RenderDeviceD3D::CreateVertexShaderFromSource` · 005c6440 · legions 0058d440
 - [ ] `RenderDeviceD3D::CreateVertexShader` · 005c64e0
 - [ ] `RenderDeviceD3D::DeleteVertexShader` · 005c6700
@@ -98,16 +98,16 @@ Legend and workflow: [README](README.md).
 - [ ] `RenderVertexBufferD3D::~RenderVertexBufferD3D` · 005c7050 · legions 0058e0c0
 
 ### RenderDeviceD3D
-- [ ] `RenderDeviceD3D::SetSourceBlend` · 005c70b0 · legions 0058e120
-- [ ] `RenderDeviceD3D::SetDestBlend` · 005c7120 · legions 0058e190
-- [ ] `RenderDeviceD3D::SetDepthWrite` · 005c7190 · legions 0058e200
-- [ ] `RenderDeviceD3D::SetDepthTest` · 005c7200 · legions 0058e270
-- [ ] `RenderDeviceD3D::SetDepthFog` · 005c7270 · legions 0058e2e0
+- [x] `RenderDeviceD3D::SetSourceBlend` · 005c70b0 · legions 0058e120 — ac2-render object::pass / texture_matrix, ac2-gpu object
+- [x] `RenderDeviceD3D::SetDestBlend` · 005c7120 · legions 0058e190 — ac2-render object::pass / texture_matrix, ac2-gpu object
+- [x] `RenderDeviceD3D::SetDepthWrite` · 005c7190 · legions 0058e200 — ac2-render object::pass / texture_matrix, ac2-gpu object
+- [x] `RenderDeviceD3D::SetDepthTest` · 005c7200 · legions 0058e270 — ac2-render object::pass / texture_matrix, ac2-gpu object
+- [x] `RenderDeviceD3D::SetDepthFog` · 005c7270 · legions 0058e2e0 — ac2-render object::pass / texture_matrix, ac2-gpu object
 - [ ] `RenderDeviceD3D::CreateVertexBuffer` · 005c72e0
 - [ ] `RenderDeviceD3D::ClearLights` · 005c7300
 - [ ] `RenderDeviceD3D::SetupVertexStates` · 005c7320 · legions 0058e390
-- [ ] `RenderDeviceD3D::SetupVertexShaderConstants` · 005c7740 · legions 0058e7b0
-- [ ] `RenderDeviceD3D::SetupState` · 005c88f0
+- [~] `RenderDeviceD3D::SetupVertexShaderConstants` · 005c7740 · legions 0058e7b0 — sun dir light and c_AmbientColor in ac2-gpu object; point lights and pixel-shader constants not yet
+- [~] `RenderDeviceD3D::SetupState` · 005c88f0 — object::pass::layer_pass; special textures (frame buffer, distortion map) unbound, TEXTUREFACTOR taken as material diffuse while lit
 - [ ] `RenderDeviceD3D::SetDefaultDeviceStates` · 005c91c0 · legions 00590190
 - [ ] `RenderDeviceD3D::DetectDisplayFormats` · 005c9820 · legions 005907f0
 - [ ] `RenderDeviceD3D::SetupDisplayInfo` · 005c9980 · legions 00590950

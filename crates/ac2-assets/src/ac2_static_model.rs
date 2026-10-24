@@ -81,6 +81,36 @@ pub fn resolve_ac2_visual_parts(
         .collect())
 }
 
+/// Every mesh a `VisualDesc` (or bare `CSetup`) draws in its default placement, with its
+/// model-space transform: skinned meshes are authored in Setup space and ride the part root; rigid
+/// mesh `i` rides bone `i` of the rest pose (the root when the Setup has fewer bones than meshes).
+pub fn resolve_ac2_visual_meshes(
+    store: &ResourceStore,
+    did: DataId,
+) -> ResourceResult<Vec<(DataId, Ac2Transform)>> {
+    let mut meshes = Vec::new();
+    for part in place_parts(store, did, None)? {
+        let Some(setup) = load::<Ac2Setup>(store, part.setup)? else {
+            continue;
+        };
+        let bind = setup.rest_pose();
+        for (index, mesh_did) in setup.meshes.iter().enumerate() {
+            let skinned =
+                load::<Ac2Mesh>(store, *mesh_did)?.is_some_and(|mesh| mesh.skin.is_some());
+            let local = if skinned {
+                Ac2Transform::IDENTITY
+            } else {
+                bind.get(index)
+                    .or_else(|| bind.first())
+                    .copied()
+                    .unwrap_or(Ac2Transform::IDENTITY)
+            };
+            meshes.push((*mesh_did, part.root.compose(&local)));
+        }
+    }
+    Ok(meshes)
+}
+
 /// A Setup placed by a visual: its root transform and, for the animated root group, the posed
 /// model-space bone transforms that drive its skin.
 struct PlacedPart {

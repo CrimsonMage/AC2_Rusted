@@ -12,22 +12,8 @@ pub(crate) const AC2_TEXTURE_CHAIN_PREFIX: u32 = 0x4000_0000;
 const MAX_LAYER_STAGES: usize = 4;
 const WAVEFORM_BYTES: usize = 44;
 
-/// AC2 `Waveform`: an animated scalar (`WaveformType` plus base/amplitude/phase/frequency/roughness
-/// and their velocities).
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
-pub struct Ac2Waveform {
-    pub kind: u32,
-    pub base: f32,
-    pub base_velocity: f32,
-    pub amplitude: f32,
-    pub amplitude_velocity: f32,
-    pub phase: f32,
-    pub phase_velocity: f32,
-    pub frequency: f32,
-    pub frequency_velocity: f32,
-    pub roughness: f32,
-    pub roughness_velocity: f32,
-}
+/// AC2 `Waveform`, evaluated by `Waveform::GetValue` in `ac2-math`.
+pub use ac2_math::Waveform as Ac2Waveform;
 
 /// AC2 `LayerStage`: one fixed-function texture stage.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]

@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 1 done, 0 partial, 662 to do, 122 skipped.
+785 retail functions: 6 done, 4 partial, 653 to do, 122 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (0/62)
@@ -95,7 +95,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Graphic::Draw` · 00568470 · legions 00538400
 - [ ] `Graphic::InitFromIconLayerDesc` · 00568920 · legions 005388b0
 
-## `portal/client/src/render/material/layermodifier.cpp.c` (0/46)
+## `portal/client/src/render/material/layermodifier.cpp.c` (4/46)
 
 ### LM_Origin
 - [ ] `LM_Origin::LM_Origin` · 005d5a80
@@ -116,13 +116,13 @@ Legend and workflow: [README](README.md).
 
 ### LM_UVTranslate
 - [ ] `LM_UVTranslate::LM_UVTranslate` · 005d6170 · legions 00599170
-- [ ] `LM_UVTranslate::ApplyTextureTransform` · 005d61b0 · legions 00599250
+- [x] `LM_UVTranslate::ApplyTextureTransform` · 005d61b0 · legions 00599250 — ac2-render object::pass / texture_matrix, ac2-gpu object
 
 ### LM_UVRotate
 - [ ] `LM_UVRotate::LM_UVRotate` · 005d6270 · legions 00599310
 - [ ] `LM_UVRotate::GetSize` · 005d62a0 · legions 00599350
 - [ ] `LM_UVRotate::operator=` · 005d62b0 · legions 00599360
-- [ ] `LM_UVRotate::ApplyTextureTransform` · 005d6310 · legions 005993c0
+- [x] `LM_UVRotate::ApplyTextureTransform` · 005d6310 · legions 005993c0 — ac2-render object::pass / texture_matrix, ac2-gpu object
 
 ### LM_UVScale
 - [ ] `LM_UVScale::LM_UVScale` · 005d6370 · legions 00599420
@@ -132,7 +132,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LM_UVTranslate::operator=` · 005d63d0 · legions 005991b0
 
 ### LM_UVScale
-- [ ] `LM_UVScale::ApplyTextureTransform` · 005d6470
+- [x] `LM_UVScale::ApplyTextureTransform` · 005d6470 — ac2-render object::pass / texture_matrix, ac2-gpu object
 
 ### LM_UVTransform
 - [ ] `LM_UVTransform::LM_UVTransform` · 005d64f0 · legions 00599500
@@ -142,7 +142,7 @@ Legend and workflow: [README](README.md).
 
 ### LM_UVTransform
 - [ ] `LM_UVTransform::GetSize` · 005d6550
-- [ ] `LM_UVTransform::ApplyTextureTransform` · 005d6560
+- [x] `LM_UVTransform::ApplyTextureTransform` · 005d6560 — ac2-render object::pass / texture_matrix, ac2-gpu object
 
 ### (free functions)
 - [ ] `STREAMPACK_SIZEOF` · 005d6590 · legions 005995a0
@@ -241,11 +241,11 @@ Legend and workflow: [README](README.md).
 - [ ] `MaterialInstance::Allocate` · 005bb7c0
 - [ ] `MaterialInstance::~MaterialInstance` · 005bb7d0 · legions 00584f30
 
-## `portal/client/src/render/material/materiallayer.cpp.c` (0/20)
+## `portal/client/src/render/material/materiallayer.cpp.c` (1/20)
 
 ### MaterialLayer
 - [ ] `MaterialLayer::Begin` · 005cb660 · legions 00592640
-- [ ] `MaterialLayer::BuildCompilerFlags` · 005cb7e0 · legions 005927c0
+- [x] `MaterialLayer::BuildCompilerFlags` · 005cb7e0 · legions 005927c0 — ac2-render object::pass / texture_matrix, ac2-gpu object
 
 ### (free functions)
 - [ ] `STREAMPACK_SIZEOF` · 005cb8b0 · legions 00592890
@@ -253,7 +253,7 @@ Legend and workflow: [README](README.md).
 ### MaterialLayer
 - [ ] `MaterialLayer::End` · 005cb9b0 · legions 005928e0
 - [ ] `MaterialLayer::Destroy` · 005cbad0 · legions 00592a00
-- [ ] `MaterialLayer::GetVertexShader` · 005cbae0 · legions 00592a10
+- [~] `MaterialLayer::GetVertexShader` · 005cbae0 · legions 00592a10 — fragment.dll programs ported to object.wgsl for unlit/lit/lit-vertex-diffuse; bump and per-pixel programs not
 
 ### MaterialLayer::ShaderInfo
 - [ ] `MaterialLayer::ShaderInfo::ShaderInfo` · 005cbbd0
@@ -280,8 +280,8 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartArray<MaterialLayer::ShaderInfo>::AddToEnd` · 005d0360 · legions 00593a50
 
 ### MaterialLayer
-- [ ] `MaterialLayer::BuildVertexShaders` · 005d03d0 · legions 00593ac0
-- [ ] `MaterialLayer::PrepareShaders` · 005d06e0 · legions 00593dd0
+- [~] `MaterialLayer::BuildVertexShaders` · 005d03d0 · legions 00593ac0 — fragment.dll programs ported to object.wgsl for unlit/lit/lit-vertex-diffuse; bump and per-pixel programs not
+- [~] `MaterialLayer::PrepareShaders` · 005d06e0 · legions 00593dd0 — fragment.dll programs ported to object.wgsl for unlit/lit/lit-vertex-diffuse; bump and per-pixel programs not
 
 ## `portal/client/src/render/material/materialmodifier.cpp.c` (0/12)
 
@@ -350,7 +350,7 @@ Legend and workflow: [README](README.md).
 - [ ] `RenderMaterial::RenderMaterial` · 005b96b0 · legions 00583d10
 - [ ] `RenderMaterial::GetDBOType` · 005b9700
 - [ ] `RenderMaterial::GetSubDataIDs` · 005b9710
-- [ ] `RenderMaterial::GetSubObjects` · 005b97c0
+- [~] `RenderMaterial::GetSubObjects` · 005b97c0 — hardware-class layer filter (object::layer_drawn); property field pruning not needed after load_ac2_material
 - [ ] `RenderMaterial::ReleaseSubObjects` · 005b9ad0 · legions 00584130
 - [ ] `RenderMaterial::GetDIDsForFilenames` · 005b9b50
 - [ ] `RenderMaterial::Allocate` · 005b9bf0
