@@ -6,6 +6,7 @@ use ac2_net::protocol::{
     CreateObject, ObjectAction, Position, Qualities, QualityUpdate, ServerPosition,
 };
 
+use crate::appearance::Appearance;
 use crate::qualities::WeenieQualities;
 
 /// One object the server has created and not destroyed.
@@ -29,6 +30,14 @@ pub struct RemoteObject {
     pub mode: Option<u32>,
     /// Holder and location when the object is parented (a held item).
     pub parent: Option<(u64, u32)>,
+    /// `PhysicsDesc::orientation_id` / `RecvEvt_Parent`'s orientation: the placement frame the
+    /// held object takes at the holding location (`CPhysicsObj::SetPlacementFrame`).
+    pub orientation: Option<u32>,
+    /// `CPhysicsObj::RecvEvt_Contain`: the object went into the player's inventory (out of the
+    /// world, not to be destroyed).
+    pub contained: bool,
+    /// `CPhysicsObj::m_local_vdesc`: what the server says the object looks like.
+    pub appearance: Appearance,
     /// `CPhysicsObj::m_update_times`, by `StampID`: position, teleport, force position,
     /// move-to. `CPhysicsObj::set_description` copies them from the `PhysicsDesc`.
     pub update_times: [u16; 4],
@@ -79,6 +88,9 @@ impl RemoteObject {
                 .physics
                 .parent
                 .map(|(holder, location, _)| (holder, location)),
+            orientation: object.physics.orientation_id,
+            contained: false,
+            appearance: Appearance::from_delta(&object.visual),
             update_times: object.physics.timestamps,
             qualities: WeenieQualities::from_weenie_desc(object.weenie.clone()),
         }
@@ -124,6 +136,7 @@ impl ObjectTable {
         });
         object.heading_degrees = Some(update.heading_degrees);
         object.motion = update.motion;
+        object.contained = false;
         Some(PositionApplied { forced, teleported })
     }
 
@@ -162,12 +175,23 @@ impl ObjectTable {
             ObjectAction::SetMode(mode) => object.mode = Some(*mode),
             // `CPhysicsObj::RecvEvt_Parent`: on a newer position stamp.
             ObjectAction::Parent {
-                parent, location, ..
+                parent,
+                location,
+                orientation,
             } => {
                 if Self::newer_then_update(object, STAMP_POSITION, parent.other) {
                     object.parent = Some((parent.id, *location));
+                    object.orientation = Some(*orientation);
                     object.position = None;
+                    object.contained = false;
                 }
+            }
+            // `CWPhysicsObject::RecvEvt_UpdateVisualDesc`: `SetLocalVisualDesc(delta)` replaces
+            // the local description.
+            ObjectAction::UpdateVisualDesc(delta) => {
+                object.appearance = Appearance::from_delta(delta);
+                object.visual = (object.appearance.parent != 0).then_some(object.appearance.parent);
+                object.setup = delta.root_setup();
             }
             // `CPhysicsObj::RecvEvt_LeaveWorld`: an object other than the player, on a newer
             // position stamp, is unparented and leaves the world.
@@ -185,6 +209,23 @@ impl ObjectTable {
             _ => {}
         }
         None
+    }
+
+    /// `CPhysicsObj::RecvEvt_Contain` on the player: the child (at its instance), on a newer
+    /// position stamp, is unparented and leaves the world into the player's inventory.
+    pub(crate) fn apply_contain(&mut self, child: &ac2_net::protocol::InstanceIdWithStamp) -> bool {
+        let Some(object) = self.objects.get_mut(&child.id) else {
+            return false;
+        };
+        if object.instance != child.instance
+            || !Self::newer_then_update(object, STAMP_POSITION, child.other)
+        {
+            return false;
+        }
+        object.parent = None;
+        object.position = None;
+        object.contained = true;
+        true
     }
 
     /// The objects held by `id` (`CPhysicsObj::m_children`).
@@ -253,6 +294,9 @@ mod tests {
             motion: [0.0; 3],
             mode: None,
             parent: None,
+            orientation: None,
+            contained: false,
+            appearance: Default::default(),
             update_times: [10, 0, 0, 0],
             qualities: Default::default(),
         }

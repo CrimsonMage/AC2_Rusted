@@ -418,6 +418,17 @@ impl World {
                     });
                 }
             }
+            // `ECM_Physics::RecvEvt_Contain` -> the player's `CPhysicsObj::RecvEvt_Contain`: the
+            // child leaves the world into the inventory, and is not destroyed for it
+            // (`CBookKeep::RemoveObjectToBeDestroyed`).
+            ServerEvent::Contain(child) => {
+                if !self.get_object_or_queue(child, &blob) {
+                    return;
+                }
+                if self.player.is_some() && self.objects.apply_contain(child) {
+                    self.remove_object_to_be_destroyed(child.id);
+                }
+            }
             // `ECM_Interp::RecvEvt_InterpCEvent_Cell`: through `GetObjectOrQueueEvent`.
             ServerEvent::Interp {
                 object: Some(sender),

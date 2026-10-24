@@ -99,6 +99,9 @@ pub enum SessionEvent {
         object: u64,
         action: ObjectAction,
     },
+    /// `ECM_Physics::RecvEvt_Contain`: the object went into the player's inventory (out of the
+    /// world).
+    ObjectContained(u64),
     /// `CObjectMaint::DestroyObjectInternal`: the object is gone (destroyed by the server, or
     /// out of view for 25 s).
     ObjectRemoved(u64),
@@ -453,6 +456,16 @@ impl OnlineSession {
                         update,
                         teleported: applied.teleported,
                     });
+                }
+            }
+            ServerEvent::Contain(child) => {
+                if self
+                    .world
+                    .objects
+                    .get(child.id)
+                    .is_some_and(|o| o.contained)
+                {
+                    out.push(SessionEvent::ObjectContained(child.id));
                 }
             }
             ServerEvent::Object(event) => out.push(SessionEvent::ObjectAction {

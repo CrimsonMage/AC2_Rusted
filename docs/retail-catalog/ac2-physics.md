@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 165 done, 54 partial, 1843 to do, 62 skipped.
+2124 retail functions: 167 done, 56 partial, 1839 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (1/9)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [ ] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (50/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (52/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2355,7 +2355,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::set_parent` · 004e0ca0
 - [ ] `CPhysicsObj::set_parent` · 004e0cd0 · legions 004d3730
 - [ ] `CPhysicsObj::ApplyPhysObjProfile` · 004e0d10 · legions 004d3770
-- [ ] `CPhysicsObj::ApplyVisualDesc` · 004e0dc0 · legions 004d3820
+- [~] `CPhysicsObj::ApplyVisualDesc` · 004e0dc0 · legions 004d3820 — ac2-weenie: the delta becomes the local description; the part rebuild (CompareAndModify) is the renderer's
 - [ ] `CPhysicsObj::SetDiffuseColor` · 004e0df0
 - [ ] `CPhysicsObj::SetOpacity` · 004e0e00
 - [ ] `CPhysicsObj::GetParticleScale` · 004e0e10 · legions 004d3870
@@ -2507,7 +2507,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::set_heading` · 004e44e0
 - [ ] `CPhysicsObj::SetParent` · 004e4580
 - [ ] `CPhysicsObj::TopParent` · 004e4590
-- [ ] `CPhysicsObj::ApplyVisualDesc` · 004e45b0
+- [~] `CPhysicsObj::ApplyVisualDesc` · 004e45b0 — ac2-weenie: the delta becomes the local description; the part rebuild (CompareAndModify) is the renderer's
 - [~] `CPhysicsObj::GetTotalScale` · 004e4640 — ac2-physics: vdesc scale x placement scale; the body uses the root z scale
 - [ ] `CPhysicsObj::SetScaleInternal` · 004e4730 · legions 004d7180
 - [ ] `CPhysicsObj::clear_transient_states` · 004e47d0 · legions 004d7220
@@ -2559,15 +2559,15 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::HasMissileManager` · 004e6710
 - [ ] `CPhysicsObj::is_newer_then_update` · 004e6720 · legions 004d9170
 - [x] `CPhysicsObj::RecvEvt_LeaveWorld` · 004e6780 — ac2-weenie ObjectTable::apply_action (newer position stamp), then LeaveWorld
-- [~] `CPhysicsObj::RecvEvt_Parent` · 004e67c0 — ac2-weenie: newer position stamp, the parent recorded
+- [~] `CPhysicsObj::RecvEvt_Parent` · 004e67c0 — ac2-weenie: newer position stamp, the holder, location and placement frame
 - [x] `CPhysicsObj::RecvEvt_DeParent` · 004e6810 — ac2-weenie ObjectTable::apply_action
-- [ ] `CPhysicsObj::RecvEvt_Contain` · 004e6890
+- [x] `CPhysicsObj::RecvEvt_Contain` · 004e6890 — ac2-weenie ObjectTable::apply_contain, ac2-client remote.rs
 - [ ] `CPhysicsObj::DoAppearanceFX` · 004e6920 · legions 004d9370
 - [ ] `CPhysicsObj::RemoveAppearanceFX` · 004e6990 · legions 004d93e0
 - [ ] `CPhysicsObj::StartStreak` · 004e6a30
 - [ ] `CPhysicsObj::StopStreak` · 004e6aa0
 - [ ] `CPhysicsObj::InitVisualDesc` · 004e6b10
-- [ ] `CPhysicsObj::SetLocalVisualDesc` · 004e6bd0
+- [x] `CPhysicsObj::SetLocalVisualDesc` · 004e6bd0 — ac2-weenie Appearance::from_delta (the effects description is empty)
 - [ ] `CPhysicsObj::ApplyAdditiveVisualDesc` · 004e6c30
 - [ ] `CPhysicsObj::ApplySubtractiveVisualDesc` · 004e6c40
 - [ ] `CPhysicsObj::DoMode` · 004e6c50 · legions 004d96a0

@@ -4,6 +4,13 @@
 //! checksum against its own ISAAC stream. Pyrealium only speaks the admin 7148 layouts, so this
 //! is the 7160 path's test peer.
 
+mod appearance;
+
+pub use appearance::{
+    contain_bytes, create_object_with_visual, part_group_bytes, quality_bytes,
+    update_visual_desc_bytes, visual_desc_bytes,
+};
+
 use std::cell::RefCell;
 use std::net::SocketAddr;
 use std::rc::Rc;

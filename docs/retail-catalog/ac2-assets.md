@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 32 done, 9 partial, 622 to do, 122 skipped.
+785 retail functions: 39 done, 14 partial, 610 to do, 122 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (13/62)
@@ -855,7 +855,7 @@ Legend and workflow: [README](README.md).
 - [-] `CVertexSetData::FromFileNode` · 004d4e90 — text source format (admin tools)
 - [ ] `CVertexSetData::CVertexSetData` · 004d4f60
 
-## `portal/shared/src/objdesc/appearance/appearanceinfo.cpp.c` (1/13)
+## `portal/shared/src/objdesc/appearance/appearanceinfo.cpp.c` (2/13)
 
 ### AppearanceInfo
 - [x] `AppearanceInfo::StreamPack` · 0064a5b0
@@ -868,7 +868,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AppearanceInfo::~AppearanceInfo` · 0064a7e0 · legions 005f9e80
 - [ ] `AppearanceInfo::AddAppliedAppKey` · 0064a840 · legions 005f9ee0
 - [ ] `AppearanceInfo::RemoveAppearanceKeys` · 0064a870 · legions 005f9f10
-- [ ] `AppearanceInfo::AugmentExistingKeys` · 0064a970 · legions 005fa010
+- [x] `AppearanceInfo::AugmentExistingKeys` · 0064a970 · legions 005fa010 — ac2-weenie appearance.rs
 - [ ] `AppearanceInfo::AppearanceInfo` · 0064aa60 · legions 005fa100
 - [ ] `AppearanceInfo::AppearanceInfo` · 0064aaa0 · legions 005fa140
 
@@ -1085,7 +1085,7 @@ Legend and workflow: [README](README.md).
 ### FXAtom
 - [-] `FXAtom::FromFileNode` · 00643fa0 — text source format (admin tools)
 
-## `portal/shared/src/objdesc/appearance/partgroupdatadesc.cpp.c` (0/32)
+## `portal/shared/src/objdesc/appearance/partgroupdatadesc.cpp.c` (3/32)
 
 ### UIRegion
 - [ ] `UIRegion::SetZLevel_Internal` · 00644090 · legions 005f61b0
@@ -1098,7 +1098,7 @@ Legend and workflow: [README](README.md).
 
 ### PartGroupDataDesc
 - [ ] `PartGroupDataDesc::RemoveChild` · 00644100 · legions 005f6220
-- [ ] `PartGroupDataDesc::IsConnPtEmpty` · 00644160 · legions 005f6280
+- [x] `PartGroupDataDesc::IsConnPtEmpty` · 00644160 · legions 005f6280 — ac2-weenie appearance.rs
 - [ ] `PartGroupDataDesc::FindPGDDWithPartGroupKey` · 006441a0 · legions 005f62c0
 
 ### SmartArray<PartGroupDataDesc_*>
@@ -1120,7 +1120,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PartGroupDataDesc::RemoveAppearanceKey` · 00644bb0 · legions 005f6940
 - [ ] `PartGroupDataDesc::ReadFX` · 00644c40
 - [-] `PartGroupDataDesc::ToFileNode` · 00644fe0 — text source format (admin tools)
-- [ ] `PartGroupDataDesc::AugmentAppearanceInfo` · 00645580 · legions 005f6b20
+- [x] `PartGroupDataDesc::AugmentAppearanceInfo` · 00645580 · legions 005f6b20 — ac2-weenie appearance.rs
 - [ ] `PartGroupDataDesc::ReadAppearanceKeys` · 006455e0
 - [ ] `PartGroupDataDesc::~PartGroupDataDesc` · 00645940 · legions 005f6bf0
 - [-] `PartGroupDataDesc::FromFileNode` · 00645a20 — text source format (admin tools)
@@ -1131,7 +1131,7 @@ Legend and workflow: [README](README.md).
 ### PartGroupDataDesc
 - [ ] `PartGroupDataDesc::PartGroupDataDesc` · 006460f0 · legions 005f6ec0
 - [ ] `PartGroupDataDesc::operator=` · 006462a0 · legions 005f7070
-- [ ] `PartGroupDataDesc::ApplyAdditivePGDDesc` · 00646300 · legions 005f70d0
+- [x] `PartGroupDataDesc::ApplyAdditivePGDDesc` · 00646300 · legions 005f70d0 — ac2-weenie appearance.rs (FX override data kept by id)
 - [ ] `PartGroupDataDesc::PartGroupDataDesc` · 006464f0 · legions 005f72c0
 - [ ] `PartGroupDataDesc::FillFXTable` · 006465d0 · legions 005f73a0
 
@@ -1175,7 +1175,7 @@ Legend and workflow: [README](README.md).
 - [ ] `IconDesc::ApplyAdditiveIconLayer` · 00640360 · legions 005f4090
 - [ ] `IconDesc::IconDesc` · 00640440 · legions 005f4170
 - [-] `IconDesc::FromFileNode` · 00640480 — text source format (admin tools)
-- [ ] `IconDesc::ApplyAdditiveIconDesc` · 00640580 · legions 005f41b0
+- [~] `IconDesc::ApplyAdditiveIconDesc` · 00640580 · legions 005f41b0 — ac2-weenie appearance.rs: a layer id replaces
 
 ## `portal/shared/src/objdesc/icon/iconlayerdesc.cpp.c` (1/7)
 
@@ -1214,7 +1214,7 @@ Legend and workflow: [README](README.md).
 - [x] `PhysicsDesc::StreamPack` · 00641530
 - [ ] `PhysicsDesc::PhysicsDesc` · 00641c70 · legions 005f5470
 
-## `portal/shared/src/objdesc/visualdesc.cpp.c` (0/58)
+## `portal/shared/src/objdesc/visualdesc.cpp.c` (3/58)
 
 ### VisualDesc
 - [ ] `VisualDesc::FillFXTable` · 0063c910 · legions 005f1440
@@ -1241,25 +1241,25 @@ Legend and workflow: [README](README.md).
 ### VisualDesc
 - [-] `VisualDesc::ToFileNode` · 0063ce40 — text source format (admin tools)
 - [ ] `VisualDesc::GetSubDataIDs` · 0063d1c0
-- [ ] `VisualDesc::GetPGDDesc` · 0063d2f0 · legions 005f18e0
+- [x] `VisualDesc::GetPGDDesc` · 0063d2f0 · legions 005f18e0 — ac2-weenie appearance.rs
 - [ ] `VisualDesc::ResetRootPointer` · 0063d310 · legions 005f1900
 - [ ] `VisualDesc::RemovePGDD` · 0063d3e0 · legions 005f19d0
 - [ ] `VisualDesc::ModVDesc_DeleteStragglers` · 0063d450 · legions 005f1a40
 - [ ] `VisualDesc::BuildAtomCollection` · 0063d680 · legions 005f1c70
 - [ ] `VisualDesc::GatherAppearanceKeys` · 0063d740 · legions 005f1d10
 - [~] `VisualDesc::StreamPack` · 0063d7f0 — part-group FX overrides (FXData/FXNode) refused as unsupported
-- [ ] `VisualDesc::AddPGDDesc` · 0063db70 · legions 005f2140
+- [~] `VisualDesc::AddPGDDesc` · 0063db70 · legions 005f2140 — ac2-weenie appearance.rs (root by parent key 0)
 - [ ] `VisualDesc::HasAppliedAppKey` · 0063dcc0 · legions 005f2290
 - [ ] `VisualDesc::InqAppInfoHashForPartGroup` · 0063dd00 · legions 005f22d0
 - [ ] `VisualDesc::RemovePGDDRecursively` · 0063dd40 · legions 005f2310
-- [ ] `VisualDesc::RecursiveAdditivePGDDMerge` · 0063ddb0 · legions 005f2380
-- [ ] `VisualDesc::ApplyAdditiveVDesc` · 0063dea0 · legions 005f2470
+- [x] `VisualDesc::RecursiveAdditivePGDDMerge` · 0063ddb0 · legions 005f2380 — ac2-weenie appearance.rs
+- [~] `VisualDesc::ApplyAdditiveVDesc` · 0063dea0 · legions 005f2470 — ac2-weenie appearance.rs: DIDs, scales, icon layers, global mods, part-group tree; the incoming groups in stream order rather than hash order
 - [ ] `VisualDesc::Clear` · 0063e0d0 · legions 005f26a0
-- [ ] `VisualDesc::AddPGDDesc` · 0063e170 · legions 005f2740
+- [~] `VisualDesc::AddPGDDesc` · 0063e170 · legions 005f2740 — ac2-weenie appearance.rs (root by parent key 0)
 - [ ] `VisualDesc::MakeLocalPGDDFromParent` · 0063e1d0 · legions 005f27ba
 - [ ] `VisualDesc::AddAppearanceKey` · 0063e370 · legions 005f2920
 - [ ] `VisualDesc::AddAppInfoHashToPartGroup` · 0063e3e0 · legions 005f2990
-- [ ] `VisualDesc::ApplyAdditiveVDesc` · 0063e460 · legions 005f2a10
+- [~] `VisualDesc::ApplyAdditiveVDesc` · 0063e460 · legions 005f2a10 — ac2-weenie appearance.rs: DIDs, scales, icon layers, global mods, part-group tree; the incoming groups in stream order rather than hash order
 - [-] `VisualDesc::FromFileNode` · 0063e4c0 — text source format (admin tools)
 - [ ] `VisualDesc::Destroy` · 0063eaf0
 
@@ -1270,7 +1270,7 @@ Legend and workflow: [README](README.md).
 - [ ] `VisualDesc::VisualDesc` · 0063ecd0 · legions 005f2c50
 - [ ] `VisualDesc::GetDBOType` · 0063ed70
 - [ ] `VisualDesc::~VisualDesc` · 0063ed80 · legions 005f2d00
-- [ ] `VisualDesc::operator=` · 0063ee10 · legions 005f2d90
+- [x] `VisualDesc::operator=` · 0063ee10 · legions 005f2d90 — ac2-weenie Appearance::from_delta
 - [ ] `VisualDesc::GetTotalVisualDescInternal` · 0063ee40 · legions 005f2dc0
 - [ ] `VisualDesc::AddAppearanceKey` · 0063eee0 · legions 005f2e30
 - [ ] `VisualDesc::RemoveAppearanceKey` · 0063ef40 · legions 005f2e90

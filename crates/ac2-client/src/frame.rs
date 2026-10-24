@@ -44,8 +44,26 @@ pub struct ObjectFrame {
     /// position (`PositionPack`): what its motion table would play.
     pub mode: Option<u32>,
     pub motion: [f32; 3],
-    /// Holder and location of a held object.
-    pub parent: Option<(u64, u32)>,
+    /// The object holding this one at a holding location (`CPhysicsObj::set_parent`: a wielded
+    /// or carried item), drawn there rather than at `origin`.
+    pub holder: Option<Holder>,
+    /// `gmWeenieDesc::m_containerID` and `m_wielderID` (qualities `0x102`, `0x105`): the weenie
+    /// graph's container and wielder.
+    pub container: Option<u64>,
+    pub wielder: Option<u64>,
+    /// `CPhysicsObj::m_local_vdesc`: the server's appearance on top of `visual`'s DAT chain
+    /// (Setup, part-group, attachment and appearance-table overrides).
+    pub appearance: ac2_weenie::Appearance,
+}
+
+/// Where a held object hangs.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Holder {
+    pub id: u64,
+    /// The holder's holding location (`PhysicsDesc` location / `RecvEvt_Parent`).
+    pub location: u32,
+    /// The placement frame the held object takes there (`SetPlacementFrame`).
+    pub orientation: Option<u32>,
 }
 
 /// Everything a renderer needs from one frame.

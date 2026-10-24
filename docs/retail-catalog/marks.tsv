@@ -128,7 +128,7 @@ key	status	note
 00494cb0	x	
 00494e30	x	
 00494f30	x	
-00494fb0	x	
+00494fb0	x	ac2-weenie World (the player's RecvEvt_Contain on the child)
 00495060	x	
 00495100	x	
 004951f0	x	
@@ -557,6 +557,7 @@ key	status	note
 004e06c0	x	
 004e0a70	x	
 004e0af0	x	
+004e0dc0	~	ac2-weenie: the delta becomes the local description; the part rebuild (CompareAndModify) is the renderer's
 004e0e30	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004e1520	x	
 004e1c90	~	no admin moves or missiles
@@ -579,6 +580,7 @@ key	status	note
 004e43b0	~	HitGround/LeaveGround FX events not ported
 004e4430	~	only the zero velocity of OBJECTINFO::kill_velocity
 004e44e0	x	
+004e45b0	~	ac2-weenie: the delta becomes the local description; the part rebuild (CompareAndModify) is the renderer's
 004e4640	~	ac2-physics: vdesc scale x placement scale; the body uses the root z scale
 004e4b60	~	no adjust_to_outside
 004e4c10	~	ac2-client remote.rs: out of the world, queued for destruction
@@ -588,8 +590,10 @@ key	status	note
 004e5780	~	vertical distance to the terrain polygon instead of CObjCell::LOSCheck
 004e5d10	~	environment response only; object collisions and the collision manager not ported
 004e6780	x	ac2-weenie ObjectTable::apply_action (newer position stamp), then LeaveWorld
-004e67c0	~	ac2-weenie: newer position stamp, the parent recorded
+004e67c0	~	ac2-weenie: newer position stamp, the holder, location and placement frame
 004e6810	x	ac2-weenie ObjectTable::apply_action
+004e6890	x	ac2-weenie ObjectTable::apply_contain, ac2-client remote.rs
+004e6bd0	x	ac2-weenie Appearance::from_delta (the effects description is empty)
 004e6ff0	x	
 004e7580	~	ac2-physics objects.rs: static objects only; Interpermiable/CollisionParameters ethereal filter, missile proximity and temp ignore lists not ported
 004e8f80	x	
@@ -678,6 +682,7 @@ key	status	note
 00528900	x	ac2-world region::sky_objects, ac2-render sky
 0052b1d0	x	ac2-world region::sky_objects, ac2-render sky
 0052e6a0	x	
+00530150	x	ac2-weenie ObjectTable::apply_action
 00530e70	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
 00530f40	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
 00530f70	x	
@@ -949,19 +954,31 @@ key	status	note
 0063c310	x	
 0063c340	x	
 0063c410	x	
+0063d2f0	x	ac2-weenie appearance.rs
 0063d7f0	~	part-group FX overrides (FXData/FXNode) refused as unsupported
+0063db70	~	ac2-weenie appearance.rs (root by parent key 0)
+0063ddb0	x	ac2-weenie appearance.rs
+0063dea0	~	ac2-weenie appearance.rs: DIDs, scales, icon layers, global mods, part-group tree; the incoming groups in stream order rather than hash order
+0063e170	~	ac2-weenie appearance.rs (root by parent key 0)
+0063e460	~	ac2-weenie appearance.rs: DIDs, scales, icon layers, global mods, part-group tree; the incoming groups in stream order rather than hash order
+0063ee10	x	ac2-weenie Appearance::from_delta
 0063f6c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 0063fb80	x	
 00640190	x	
+00640580	~	ac2-weenie appearance.rs: a layer id replaces
 006406a0	x	
 00640f40	x	
 006410e0	x	
 00641530	x	
 00641ea0	x	
 00641fa0	x	
+00644160	x	ac2-weenie appearance.rs
 006443c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+00645580	x	ac2-weenie appearance.rs
 00645f00	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+00646300	x	ac2-weenie appearance.rs (FX override data kept by id)
 0064a5b0	x	
+0064a970	x	ac2-weenie appearance.rs
 0064b540	x	
 0064b620	x	
 0064b660	x	
