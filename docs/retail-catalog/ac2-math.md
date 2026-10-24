@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 16 done, 5 partial, 365 to do, 40 skipped.
+426 retail functions: 18 done, 5 partial, 363 to do, 40 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (0/5)
@@ -182,7 +182,7 @@ Legend and workflow: [README](README.md).
 - [-] `Sphere::FromFileNode` · 00628f40 — text source format (admin tools)
 - [-] `Sphere::ToFileNode` · 00629040 — text source format (admin tools)
 
-## `portal/shared/src/geometry/heading.cpp.c` (0/21)
+## `portal/shared/src/geometry/heading.cpp.c` (2/21)
 
 ### Heading
 - [ ] `Heading::get_degrees_0_centered` · 0061a8f0 · legions 005d6550
@@ -197,8 +197,8 @@ Legend and workflow: [README](README.md).
 - [ ] `operator-` · 0061a9e0 · legions 005d6640
 
 ### Heading
-- [ ] `Heading::set` · 0061aa30 · legions 005d6690
-- [ ] `Heading::set_degrees` · 0061aaa0 · legions 005d6700
+- [x] `Heading::set` · 0061aa30 · legions 005d6690
+- [x] `Heading::set_degrees` · 0061aaa0 · legions 005d6700
 - [~] `Heading::FromUInt8` · 0061aaf0 · legions 005d6750 — wire quantizer in ac2-net protocol::position (ac2-math has no Heading yet)
 - [ ] `Heading::Heading` · 0061ab50 · legions 005d67b0
 - [ ] `Heading::Heading` · 0061ab60 · legions 005d67c0

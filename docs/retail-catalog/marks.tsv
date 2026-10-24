@@ -527,8 +527,9 @@ key	status	note
 00569020	x	
 00569200	x	
 005692e0	x	
+00569440	x	
 005694f0	x	
-00569550	~	only the report tail (ShouldSend*/Send*); the action-key loop and camera heading belong to input/camera, actively_moving comes from the caller
+00569550	x	
 0056b150	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b170	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b1c0	x	
@@ -614,6 +615,8 @@ key	status	note
 0061a910	_	
 0061a940	~	wire quantizer in ac2-net protocol::position (ac2-math has no Heading yet)
 0061a9e0	_	
+0061aa30	x	
+0061aaa0	x	
 0061aaf0	~	wire quantizer in ac2-net protocol::position (ac2-math has no Heading yet)
 0061ab60	_	
 0061ab80	_	in ac2-weenie reporter (ac2-math has no Heading yet)

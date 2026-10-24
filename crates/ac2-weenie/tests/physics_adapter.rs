@@ -99,3 +99,61 @@ fn a_physics_body_feeds_the_reporter() {
     assert_eq!(report.heading_degrees, state.heading_degrees);
     assert!(report.jump_velocity.is_none());
 }
+
+/// The frame's `UseTime` calls as physics input. `PhysicsBody::set_input` folds `DoMotion`,
+/// `TurnTo` and `SetOmegaVelocity` into one call (a `None` heading stops a turn-to, which retail
+/// leaves running), so a latched turn-to keeps its target here.
+fn movement_input(
+    commands: &ac2_weenie::MovementCommands,
+    turning_to: Option<f32>,
+) -> ac2_physics::MovementInput {
+    ac2_physics::MovementInput {
+        motion: commands.do_motion.unwrap_or([0.0; 3]),
+        heading: commands.steer.or(commands.turn_to).or(turning_to),
+        turn: commands.omega.unwrap_or(0.0),
+    }
+}
+
+#[test]
+fn movement_commands_drive_a_physics_body() {
+    use ac2_weenie::{ActiveAction, BodyFacts, CameraState, MovementModule, ACTION_CLASS_MOVEMENT};
+    let frame = Frame::new(
+        Vector::new(10.0, 20.0, 0.0),
+        Quaternion::new(1.0, 0.0, 0.0, 0.0),
+    );
+    let shape = BodyShape {
+        spheres: Vec::new(),
+        height: 1.8,
+        step_up_height: 0.5,
+        step_down_height: 0.5,
+        scale: 1.0,
+        allow_free_heading: false,
+    };
+    let mut body = PhysicsBody::new(Position::new(0x0299_0109, frame), shape, None);
+    let mut module = MovementModule::default();
+    let forward = ActiveAction {
+        class: ACTION_CLASS_MOVEMENT,
+        enum_value: ac2_weenie::ACTION_FORWARD,
+        map_extent: 1.0,
+        extent: 1.0,
+    };
+    let state = body.movement_state();
+    let facts = BodyFacts {
+        heading_degrees: state.heading_degrees,
+        ..BodyFacts::default()
+    };
+    let commands = module.use_time(&facts, &[forward], &CameraState::default());
+    body.set_input(movement_input(&commands, None));
+    let state = body.movement_state();
+    let report = PositionReporter::new(0)
+        .report(
+            1.0,
+            &BodyState {
+                actively_moving: commands.actively_moving,
+                ..body_state(&state, None, commands.actively_moving)
+            },
+            ReportStamps::default(),
+        )
+        .unwrap();
+    assert!(report.cancel_moveto);
+}

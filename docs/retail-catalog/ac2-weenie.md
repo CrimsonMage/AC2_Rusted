@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 109 done, 6 partial, 1783 to do, 6 skipped.
+1904 retail functions: 111 done, 5 partial, 1782 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1262,7 +1262,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ActionMap::UnPack` · 0072f200
 - [ ] `ActionMap::Allocate` · 0072f370
 
-## `portal/client/src/action/movement/playermovementmodule.cpp.c` (5/17)
+## `portal/client/src/action/movement/playermovementmodule.cpp.c` (7/17)
 
 ### PlayerMovementModule
 - [ ] `PlayerMovementModule::Startup` · 00568e20 · legions 00538db0
@@ -1276,12 +1276,12 @@ Legend and workflow: [README](README.md).
 - [ ] `PlayerMovementModule::StopBehavior` · 005693d0 · legions 00539360
 - [ ] `PlayerMovementModule::StartCameraAction` · 00569400 · legions 00539390
 - [ ] `PlayerMovementModule::StopCameraAction` · 00569420 · legions 005393b0
-- [ ] `PlayerMovementModule::LockActions` · 00569440 · legions 005393d0
+- [x] `PlayerMovementModule::LockActions` · 00569440 · legions 005393d0
 - [ ] `PlayerMovementModule::InterruptMoveTo` · 00569450 · legions 005393e0
 - [ ] `PlayerMovementModule::StopAttackingIfAutoMoving` · 00569470 · legions 00539400
 - [ ] `PlayerMovementModule::Shutdown` · 005694a0 · legions 00539430
 - [x] `PlayerMovementModule::SetPlayerID` · 005694f0 · legions 00539480
-- [~] `PlayerMovementModule::UseTime` · 00569550 · legions 005394e0 — only the report tail (ShouldSend*/Send*); the action-key loop and camera heading belong to input/camera, actively_moving comes from the caller
+- [x] `PlayerMovementModule::UseTime` · 00569550 · legions 005394e0
 
 ## `portal/client/src/cfactory/cenginefactory.cpp.c` (0/5)
 
