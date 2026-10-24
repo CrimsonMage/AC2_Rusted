@@ -3,6 +3,9 @@
 `ARCHITECTURE.md` is the ownership map: every crate is named after the Asheron's Call 2 client
 subsystem it reproduces. This file states the working rules.
 
+- `docs/retail-catalog/` lists every retail function by owning crate; it is the work list. Port
+  from the decompile (not from Vitaeum-AC2), then mark the catalog with
+  `scripts/retail_catalog.py mark done|partial|skip …` in the same commit.
 - Behaviour follows the original AC2 client. Cite the class and function a change reproduces
   (`CTransition::step_down`, `FrillRender::RefreshFrillMesh`). Never commit decompiled code,
   game data or data-derived fixtures.

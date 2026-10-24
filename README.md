@@ -4,7 +4,9 @@ A Rust client for **Asheron's Call 2**, built end to end. It reads the game's ow
 speaks the AC2 network protocol. It contains no game data: point it at your own installation with
 `AC2_DAT_DIR` (the directory holding `portal.dat`, `cell_1.dat` and `local_English.dat`).
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for the crate layout and milestones.
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the crate layout and milestones, and
+[docs/retail-catalog](docs/retail-catalog/README.md) for the work list: every function of the
+retail client, by owning crate, with what is done.
 
 ```bash
 export AC2_DAT_DIR=/path/to/AsheronsCall2

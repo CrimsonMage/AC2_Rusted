@@ -1,0 +1,65 @@
+key	status	note
+0047f410	x	
+0047f4b0	x	
+0047f500	x	
+0048eef0	x	
+0048f160	x	
+0048f200	x	
+0048f250	x	
+0048f610	x	
+0048f720	x	
+0048f830	x	
+0048f980	x	
+0048fe10	~	vertex normals and terrain SurfaceInfo; not far colours or water
+004907a0	~	road SurfaceInfo; not physics materials or scene DIDs
+00522380	x	
+00522520	x	
+00522580	x	
+00524290	x	
+00525800	x	
+005258b0	x	
+00525950	x	
+005259e0	x	
+00525cb0	x	
+00525d30	x	
+00525d90	x	
+00525f70	x	
+0056b1c0	x	
+005835c0	x	
+00583890	x	
+00588320	x	
+0058b9e0	~	per-block near mesh; no cloud-shadow UVs or shared near vertex array
+0058c8c0	~	per-block near mesh; no cloud-shadow UVs or shared near vertex array
+0058f1d0	x	
+005901f0	~	day light and fog; no region fog blocks (CalcCombineFog) or water light
+00590c80	x	
+00590cb0	x	
+00590d80	x	
+00590de0	x	
+00590ea0	x	
+00591020	x	
+005911e0	x	
+00591270	x	
+005912d0	~	base and alpha stages; no shadow-map or cloud-shadow stages
+005919d0	x	
+00591a40	x	
+005b75b0	x	
+0061ef30	x	
+00620e20	x	
+006290f0	x	
+006292a0	x	
+006294f0	x	
+00629d60	x	
+006c36d0	x	
+006c3a20	x	
+006c3e50	x	
+006c44d0	x	
+006c45a0	x	
+006c4970	x	
+006c4b30	x	
+006c4bd0	x	
+006c4ed0	x	
+006c5910	x	
+006c59d0	x	
+006c8d90	~	decoded; field order after m_nDirectHeading not re-verified
+DB_TYPE_SURFACE_DESC	x	

@@ -1,0 +1,89 @@
+# Data formats
+
+Every `DBObj` type the client registers (`MasterDBMap::InitDBTypeDef_Internal`), with its
+decoding class, DID ranges, record count in the Legions DATs and unpack function. A format is
+done when its `StreamPack`/`UnPack` decodes every record the DATs hold.
+
+81 formats: 1 done, 0 partial, 80 to do, 0 skipped.
+
+- [ ] `DB_TYPE_CELLMESH` 0x40000004 · CCellMesh · 01000000-01FFFFFE · 6420 records · `portal/shared/src/mesh/cellmesh.cpp.c:343`
+- [ ] `DB_TYPE_SCENE` 0x40000005 · ? · 02000000-02FFFFFE · 4165 records
+- [ ] `DB_TYPE_ANIMMAP` 0x40000006 · AnimMap · 03000000-03FFFFFE · 10335 records · `portal/shared/src/animsys/animmap.cpp.c:5`
+- [ ] `DB_TYPE_SETUP` 0x40000008 · CSetup · 04000000-04FFFFFE · 12564 records
+- [ ] `DB_TYPE_DBANIMATOR` 0x40000009 · DBAnimator · 05000000-05FFFFFE · 8776 records · `portal/shared/src/animsys/dbanimator.cpp.c:225`
+- [ ] `DB_TYPE_MESH` 0x4000000A · CDataMesh · 06000000-06FFFFFE · 13354 records · `portal/shared/src/mesh/datamesh.cpp.c:248`
+- [ ] `DB_TYPE_REGION` 0x4000000B · CRegionDesc · 0F000000-0FFFFFFE · 256 records · `portal/shared/src/region/regiondesc.cpp.c:1461`
+- [ ] `DB_TYPE_SOUND_DESC` 0x4000000C · CSoundDesc · 10000000-10FFFFFE · 268 records
+- [ ] `DB_TYPE_SCENE_DESC` 0x4000000D · CSceneDesc · 11000000-11FFFFFE · 260 records · `portal/shared/src/region/scene/scenedesc.cpp.c:236`
+- [ ] `DB_TYPE_TERRAIN_DESC` 0x4000000E · CTerrainDesc · 12000000-12FFFFFE · 260 records · `portal/shared/src/region/terrain/terraindesc.cpp.c:331`
+- [x] `DB_TYPE_SURFACE_DESC` 0x4000000F · CSurfaceDesc · 13000000-13FFFFFE · 261 records · `portal/shared/src/region/surface/surfacedesc.cpp.c:20`
+- [ ] `DB_TYPE_ENCOUNTER_DESC` 0x40000010 · CEncounterDesc · 14000000-14FFFFFE · 256 records · `portal/shared/src/region/encounter/encounterdesc.cpp.c:16`
+- [ ] `DB_TYPE_SKY_DESC` 0x40000011 · CSkyDesc · 15000000-15FFFFFE · 260 records · `portal/shared/src/region/sky/skydesc.cpp.c:234`
+- [ ] `DB_TYPE_PROPERTY_DESC` 0x40000012 · PropertyDesc · 18000000-18FFFFFE · 256 records
+- [ ] `DB_TYPE_WATER_DESC` 0x40000013 · CWaterDesc · 16000000-16FFFFFE · 258 records · `portal/shared/src/region/water/waterdesc.cpp.c:338`
+- [ ] `DB_TYPE_FOG_DESC` 0x40000014 · CFogDesc · 17000000-17FFFFFE · 256 records · `portal/shared/src/region/fog/fogdesc.cpp.c:289`
+- [ ] `DB_TYPE_BLOCK_MAP` 0x40000015 · BlockMap · 19000000-19FFFFFE · 267 records · `portal/shared/src/region/blockmaps/blockmap.cpp.c:5`
+- [ ] `DB_TYPE_DAY_DESC` 0x40000016 · CDayDesc · 1A000000-1AFFFFFE · 259 records · `portal/shared/src/region/sky/daydesc.cpp.c:184`
+- [ ] `DB_TYPE_WAVE` 0x40000018 · DBWave · 0C000000-0CFFFFFE · 2988 records · `portal/client/src/sound/dbwave.cpp.c:341`
+- [ ] `DB_TYPE_QUALITIES` 0x40000019 · CBaseQualities · 80000000-81FFFFFE · 11977 records · `portal/shared/src/gameplay/qualities/basequalities.cpp.c:3078`
+- [ ] `DB_TYPE_QUALITY_FILTER` 0x4000001D · QualityFilter · 0A000000-0AFFFFFE · 1085 records · `portal/shared/src/gameplay/qualities/qualityfilter.cpp.c:38`
+- [ ] `DB_TYPE_CDB_TABLE` 0x4000001F · ? · 52000000-527FFFFE · 135 records
+- [ ] `DB_TYPE_VISUAL_DESC` 0x40000021 · VisualDesc · 1F000000-1FFFFFFE · 6759 records · `portal/shared/src/objdesc/visualdesc.cpp.c:997`
+- [ ] `DB_TYPE_APPEARANCE` 0x40000022 · AppearanceTable · 20000000-20FFFFFE · 1391 records · `portal/shared/src/objdesc/appearance/appearancetable.cpp.c:52`
+- [ ] `DB_TYPE_UI_LAYOUT` 0x40000025 · LayoutDesc · 22000000-22FFFFFE · 269 records · `portal/client/src/uielement/desc/layoutdesc.cpp.c:376`
+- [ ] `DB_TYPE_STRING_TABLE` 0x40000026 · StringTable · 25000000-26FFFFFE · 11108 records · `portal/shared/src/stringtable/stringtable.cpp.c:1814`
+- [ ] `DB_TYPE_ENUM_MAPPER` 0x40000028 · EnumMapper · 23000000-23FFFFFE · 342 records · `portal/shared/src/enummap/enummapper.cpp.c:2447`
+- [ ] `DB_TYPE_MUSIC` 0x40000029 · DBMusicObj · 24000000-24FFFFFE · 1366 records · `portal/client/src/sound/dbmusicobj.cpp.c:18`
+- [ ] `DB_TYPE_DID_MAPPER` 0x4000002A · EnumIDMap · 28000000-28FFFFFE · 273 records · `portal/shared/src/database/enuidmap.cpp.c:5`
+- [ ] `DB_TYPE_ENVINFO` 0x4000002B · EnvInfo · 29000000-29FFFFFE · 280 records
+- [ ] `DB_TYPE_SOUNDINFO` 0x4000002C · SoundInfo · 2A000000-2AFFFFFE · 2380 records · `portal/shared/src/sound/soundinfo.cpp.c:68`
+- [ ] `DB_TYPE_MUSICINFO` 0x4000002D · MusicInfo · 2C000000-2CFFFFFE · 827 records · `portal/shared/src/sound/musicinfo.cpp.c:74`
+- [ ] `DB_TYPE_RENDERMATERIAL` 0x4000002E · RenderMaterial · 2B000000-2BFFFFFE · 385 records · `portal/client/src/render/material/rendermaterial.cpp.c:517`
+- [ ] `DB_TYPE_WSTATE` 0x4000002F · WState · 6F000000-7FFFFFFE · 46227 records · `portal/shared/src/weenie/interp/wstate.cpp.c:60 portal/shared/src/weenie/interp/wstate.cpp.c:140`
+- [ ] `DB_TYPE_CHARTEMPLATE` 0x40000030 · CharTemplate · 2F000000-2FFFFFFE · 273 records · `portal/shared/src/animsys/chartemplate.cpp.c:73`
+- [ ] `DB_TYPE_MATERIALMODIFIER` 0x40000031 · MaterialModifier · 30000000-30FFFFFE · 4299 records · `portal/client/src/render/material/materialmodifier.cpp.c:185`
+- [ ] `DB_TYPE_MATERIALINSTANCE` 0x40000032 · MaterialInstance · 31000000-31FFFFFE · 2670 records · `portal/client/src/render/material/materialinstance.cpp.c:501`
+- [ ] `DB_TYPE_PHYSICS_MATERIAL` 0x40000033 · PhysicsMaterial · 37000000-37FFFFFE · 329 records · `portal/shared/src/physics/material/physicsmaterial.cpp.c:100`
+- [ ] `DB_TYPE_MOTIONINTERPDESC` 0x40000034 · MotionInterpDesc · 32000000-32FFFFFE · 291 records · `portal/shared/src/physobj/minterp/motioninterpdesc.cpp.c:5`
+- [ ] `DB_TYPE_PATHMAP` 0x40000035 · PathMap ·  · 0 records · `portal/shared/src/path/pathmap.cpp.c:1189`
+- [ ] `DB_TYPE_FILEFORMAT` 0x40000036 · FileFormat · 27000000-27FFFFFE · 255 records
+- [ ] `DB_TYPE_LBO` 0x40000037 · ? ·  · 0 records
+- [ ] `DB_TYPE_SHELL` 0x40000038 · ? ·  · 0 records
+- [ ] `DB_TYPE_VALIDMODES` 0x40000039 · ValidModes · 54000000-54FFFFFE · 269 records · `portal/shared/src/animsys/validmodes.cpp.c:5`
+- [ ] `DB_TYPE_RENDERSURFACE` 0x4000003C · RenderSurface · 41000000-410FFFFE · 39772 records · `portal/client/src/render/core/surface/rendersurface.cpp.c:454`
+- [ ] `DB_TYPE_RENDERTEXTURE` 0x4000003D · RenderTexture · 40000000-400FFFFE · 4410 records · `portal/client/src/render/core/texture/rendertexture.cpp.c:925`
+- [ ] `DB_TYPE_FONT` 0x4000003E · Font · 42000000-42000FFE · 55 records · `portal/client/src/render/core/font/font.cpp.c:338`
+- [ ] `DB_TYPE_UI_SCENE` 0x4000003F · UIScene · 21000000-21FFFFFE · 268 records · `portal/client/src/render/ui/uiscene.cpp.c:322`
+- [ ] `DB_TYPE_BEHAVIORTABLE` 0x40000040 · BehaviorTable · 44000000-44FFFFFE · 284 records · `portal/shared/src/animsys/behaviortable.cpp.c:28`
+- [ ] `DB_TYPE_MASTER_PROPERTY` 0x40000042 · MasterProperty · 34000000-34FFFFFE · 270 records · `portal/shared/src/property/masterproperty.cpp.c:1120`
+- [ ] `DB_TYPE_GAME_TIME` 0x40000043 · GameTime · 35000000-35FFFFFE · 264 records · `portal/shared/src/gametime/gametime.cpp.c:140`
+- [ ] `DB_TYPE_LANDSCAPE_DEFS` 0x40000044 · LandscapeDefs · 36000000-36FFFFFE · 267 records · `portal/shared/src/geometry/landscapedefs.cpp.c:290`
+- [ ] `DB_TYPE_FILE2ID_TABLE` 0x40000046 · DBFile2IDTable ·  · 0 records · `portal/shared/src/filedb/dbfile2idtable.cpp.c:325`
+- [ ] `DB_TYPE_PSDESC` 0x40000047 · PSDesc · 39000000-39FFFFFE · 2006 records · `portal/shared/src/physobj/fx/psdesc.cpp.c:4070`
+- [ ] `DB_TYPE_ENTITYGROUP` 0x40000048 · EntityGroupDesc · 46000000-46FFFFFE · 267 records · `portal/shared/src/entitydesc/entitygroupdesc.cpp.c:5`
+- [ ] `DB_TYPE_ENTITYDESC` 0x40000049 · EntityDesc · 47000000-47FFFFFE · 15294 records · `portal/shared/src/entitydesc/entitydesc.cpp.c:1238`
+- [ ] `DB_TYPE_KEYMAP` 0x4000004A · CKeyMap · 1D000000-1DFFFFFE · 265 records · `portal/client/src/cinputmap/ckeymap.cpp.c:378`
+- [ ] `DB_TYPE_ACTIONMAP` 0x4000004B · ActionMap · 51000000-51FFFFFE · 269 records · `portal/client/src/action/map/actionmap.cpp.c:1936`
+- [ ] `DB_TYPE_FX_TABLE` 0x4000004C · DBFXTable · 1E000000-1EFFFFFE · 567 records · `portal/shared/src/physobj/fx/dbfxtable.cpp.c:123`
+- [ ] `DB_TYPE_TABOO_TABLE` 0x4000004D · TabooTable ·  · 0 records · `portal/shared/src/taboo/tabootable.cpp.c:122`
+- [ ] `DB_TYPE_CAMERA_FX` 0x4000004E · CameraFX · 55000000-55FFFFFE · 276 records · `portal/client/src/smartbox/camera/camerafx.cpp.c:171`
+- [ ] `DB_TYPE_WLIB` 0x4000004F · WLib · 56000000-56FFFFFE · 274 records · `portal/shared/src/weenie/interp/wlib.cpp.c:130`
+- [ ] `DB_TYPE_LANDBLOCKDATA` 0x40000050 · CLandBlockData ·  · 0 records · `portal/shared/src/cell/landblockdata.cpp.c:243`
+- [ ] `DB_TYPE_LANDBLOCKINFO` 0x40000051 · CLandBlockInfo ·  · 0 records · `portal/shared/src/cell/landblockinfo.cpp.c:169`
+- [ ] `DB_TYPE_ENVCELL` 0x40000052 · CEnvCell ·  · 0 records · `portal/shared/src/cell/envcell.cpp.c:3246`
+- [ ] `DB_TYPE_DATFILEDATA` 0x40000053 · DatFileData ·  · 0 records · `portal/shared/src/database/datfiledata.cpp.c:97`
+- [ ] `DB_TYPE_PLACES_TABLE` 0x40000054 · PlacesTable ·  · 0 records · `portal/shared/src/places/placestable.cpp.c:5`
+- [ ] `DB_TYPE_STRING_STATE` 0x40000055 · StringState · 58000000-58FFFFFE · 275 records · `portal/shared/src/stringtable/stringstate.cpp.c:222 portal/shared/src/stringtable/stringstate.cpp.c:337`
+- [ ] `DB_TYPE_FXSCRIPT` 0x40000056 · FxScript · 57000000-57FFFFFE · 301 records · `portal/shared/src/animsys/fxscript.cpp.c:29`
+- [ ] `DB_TYPE_CONVERSATION_TREE` 0x40000057 · ConversationTree · 60000000-60FFFFFE · 261 records · `portal/shared/src/conversation/conversationtree.cpp.c:1305`
+- [ ] `DB_TYPE_LIGHTCACHE` 0x40000058 · ? ·  · 0 records
+- [ ] `DB_TYPE_LIGHTINFO` 0x40000059 · CLightInfo ·  · 0 records · `portal/shared/src/cell/lightinfo.cpp.c:744`
+- [ ] `DB_TYPE_DETAILMAP_DESC` 0x4000005A · CDetailMapDesc · 59000000-59000FFE · 1 records · `portal/client/src/cregion/cdetailmap/cdetailmapdesc.cpp.c:91`
+- [ ] `DB_TYPE_OBSTACLE_DESC` 0x4000005B · ObstacleDesc · 38000000-38FFFFFE · 270 records · `portal/shared/src/path/obstacle/obstacledesc.cpp.c:339`
+- [ ] `DB_TYPE_ENCODED_WAV` 0x4000005C · EncodedWave · 61000000-61FFFFFE · 303 records · `portal/client/src/sound/encodedwave.cpp.c:77`
+- [ ] `DB_TYPE_DBCATEGORIES` 0x4000005D · DBCategories · 62000000-62FFFFFE · 268 records
+- [ ] `DB_TYPE_MAPNOTE_DESC` 0x4000005E · CMapNoteDesc · 5900F000-59FFFFFE · 395 records
+- [ ] `DB_TYPE_PERFORMANCE` 0x4000005F · Performer · 52800000-52FFFFFE · 127 records · `portal/shared/src/perfmon/performer.cpp.c:16`
+- [ ] `DB_TYPE_FONT_LOCAL` 0x40000060 · FontLocal · 42001000-42FFFFFE · 281 records
+- [ ] `DB_TYPE_RENDERSURFACE_LOCAL` 0x40000061 · RenderSurfaceLocal · 41100000-41FFFFFE · 259 records
+- [ ] `DB_TYPE_RENDERTEXTURE_LOCAL` 0x40000062 · RenderTextureLocal · 40100000-40FFFFFE · 391 records

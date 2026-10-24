@@ -1,0 +1,567 @@
+# ac2-audio: Sound
+
+367 retail functions: 0 done, 0 partial, 350 to do, 17 skipped.
+Legend and workflow: [README](README.md).
+
+## `portal/client/src/cregion/csound/cambientsoundinfo.cpp.c` (0/13)
+
+### CAmbientSoundInfo
+- [ ] `CAmbientSoundInfo::Destroy` · 0052a5f0 · legions 00510150
+- [ ] `CAmbientSoundInfo::GetSubDataIDs` · 0052a660 · legions 005101c0
+- [ ] `CAmbientSoundInfo::StreamPack` · 0052a6d0 · legions 00510230
+- [ ] `CAmbientSoundInfo::CAmbientSoundInfo` · 0052a900 · legions 00510460
+- [ ] `CAmbientSoundInfo::~CAmbientSoundInfo` · 0052a940 · legions 005104a0
+
+### SmartArray<CContinSoundInfo>
+- [ ] `SmartArray<CContinSoundInfo>::operator=` · 0052a9b0 · legions 00510510
+
+### PSmartArray<CContinSoundInfo>
+- [ ] `PSmartArray<CContinSoundInfo>::StreamPack` · 0052aa20 · legions 00510580
+
+### SmartArray<CIntermitSoundInfo>
+- [ ] `SmartArray<CIntermitSoundInfo>::operator=` · 0052aac0 · legions 00510620
+
+### PSmartArray<CIntermitSoundInfo>
+- [ ] `PSmartArray<CIntermitSoundInfo>::StreamPack` · 0052ab30 · legions 00510690
+
+### SmartArray<CContinSoundInfo>
+- [ ] `SmartArray<CContinSoundInfo>::AddToEnd` · 0052abd0
+
+### SmartArray<CIntermitSoundInfo>
+- [ ] `SmartArray<CIntermitSoundInfo>::AddToEnd` · 0052ac20
+
+### CAmbientSoundInfo
+- [ ] `CAmbientSoundInfo::operator=` · 0052ac70 · legions 00510730
+- [-] `CAmbientSoundInfo::FromFileNode` · 0052acd0 — text source format (admin tools)
+
+## `portal/client/src/cregion/csound/ccontinsoundinfo.cpp.c` (0/6)
+
+### PFileNode
+- [ ] `PFileNode::MakeSubNodeAsFloat` · 00529500 · legions 0050fdd0
+
+### CContinSoundInfo
+- [ ] `CContinSoundInfo::operator=` · 00529560 · legions 0050fe30
+- [ ] `CContinSoundInfo::CContinSoundInfo` · 005295a0
+- [ ] `CContinSoundInfo::CContinSoundInfo` · 005295d0 · legions 0050fea0
+- [ ] `CContinSoundInfo::StreamPack` · 00529610 · legions 0050fee0
+- [-] `CContinSoundInfo::FromFileNode` · 005296c0 — text source format (admin tools)
+
+## `portal/client/src/cregion/csound/cintermitsoundinfo.cpp.c` (0/5)
+
+### CIntermitSoundInfo
+- [ ] `CIntermitSoundInfo::operator=` · 00529d10 · legions 0050ff90
+- [ ] `CIntermitSoundInfo::CIntermitSoundInfo` · 00529d60
+- [ ] `CIntermitSoundInfo::CIntermitSoundInfo` · 00529d90 · legions 00510010
+- [ ] `CIntermitSoundInfo::StreamPack` · 00529de0 · legions 00510060
+- [-] `CIntermitSoundInfo::FromFileNode` · 00529ed0 — text source format (admin tools)
+
+## `portal/client/src/cregion/csound/csounddesc.cpp.c` (0/11)
+
+### CSoundDesc
+- [ ] `CSoundDesc::Destroy` · 00523550 · legions 0050d560
+- [ ] `CSoundDesc::GetSubDataIDs` · 00523590 · legions 0050d5a0
+- [ ] `CSoundDesc::InqSoundInfo` · 005235d0 · legions 0050d5e0
+- [ ] `CSoundDesc::CSoundDesc` · 00523700 · legions 0050d710
+- [ ] `CSoundDesc::GetDBOType` · 00523730
+- [ ] `CSoundDesc::~CSoundDesc` · 00523740 · legions 0050d750
+
+### PSmartArray<CAmbientSoundInfo>
+- [ ] `PSmartArray<CAmbientSoundInfo>::StreamPack` · 005237c0 · legions 0050d7d0
+
+### CSoundDesc
+- [ ] `CSoundDesc::Allocate` · 00523860
+- [-] `CSoundDesc::CheckDupAdd` · 00523890 — text source format (admin tools)
+- [-] `CSoundDesc::LoadAmbSound` · 00523910 — text source loader, admin build only
+- [-] `CSoundDesc::FromFileNode` · 005239a0 — text source format (admin tools)
+
+## `portal/client/src/sound/ambient/ambientsound.cpp.c` (0/11)
+
+### AmbientSound
+- [ ] `AmbientSound::Init` · 0072aef0
+- [ ] `AmbientSound::AmbientSound` · 0072af00 · legions 006a91c0
+- [ ] `AmbientSound::~AmbientSound` · 0072b000 · legions 006a92c0
+- [ ] `AmbientSound::Clear` · 0072b030 · legions 006a92f0
+- [ ] `AmbientSound::UseTime` · 0072b330 · legions 006a95f0
+- [ ] `AmbientSound::ChangeCellStart` · 0072b4b0 · legions 006a9710
+- [ ] `AmbientSound::FindSoundDesc` · 0072b500 · legions 006a9760
+- [ ] `AmbientSound::ChangeCellEnd` · 0072b540 · legions 006a97a0
+- [ ] `AmbientSound::DoSoundUpdate` · 0072b6c0 · legions 006a98d0
+
+### DBObjGrabber<CSoundDesc>
+- [ ] `DBObjGrabber<CSoundDesc>::DBObjGrabber<CSoundDesc>` · 0072b740 · legions 006a9950
+
+### AmbientSound
+- [ ] `AmbientSound::AddCellSound` · 0072b780 · legions 006a9990
+
+## `portal/client/src/sound/ambient/ambientsounddesc.cpp.c` (0/11)
+
+### AmbientSoundDesc
+- [ ] `AmbientSoundDesc::TimedOut` · 0072ba00 · legions 006a9b30
+- [ ] `AmbientSoundDesc::Destroy` · 0072ba30 · legions 006a9b60
+- [ ] `AmbientSoundDesc::UseTime` · 0072bae0 · legions 006a9c10
+- [ ] `AmbientSoundDesc::Reset` · 0072bb80 · legions 006a9cb0
+- [ ] `AmbientSoundDesc::AddSound` · 0072bbe0 · legions 006a9d10
+- [ ] `AmbientSoundDesc::SetAsDominant` · 0072bd10 · legions 006a9e40
+- [ ] `AmbientSoundDesc::NoLongerDominant` · 0072bd40 · legions 006a9e70
+- [ ] `AmbientSoundDesc::~AmbientSoundDesc` · 0072bd70 · legions 006a9ea0
+- [ ] `AmbientSoundDesc::CalcWeights` · 0072bd90 · legions 006a9ec0
+- [ ] `AmbientSoundDesc::AddIntermitSound` · 0072be50 · legions 006a9f80
+- [ ] `AmbientSoundDesc::AmbientSoundDesc` · 0072bf00 · legions 006aa030
+
+## `portal/client/src/sound/ambient/ambsoundobject.cpp.c` (0/8)
+
+### AmbSoundObject
+- [ ] `AmbSoundObject::~AmbSoundObject` · 0072ca30 · legions 006aab60
+- [ ] `AmbSoundObject::CalcHeight` · 0072ca60 · legions 0056fff0
+- [ ] `AmbSoundObject::AddSoundStart` · 0072ca70 · legions 006aab90
+- [ ] `AmbSoundObject::AddSoundEnd` · 0072caa0 · legions 006aabc0
+- [ ] `AmbSoundObject::GetIntermitLoc` · 0072cae0 · legions 006aac00
+- [ ] `AmbSoundObject::AmbSoundObject` · 0072cbc0 · legions 006aace0
+- [ ] `AmbSoundObject::GetDir` · 0072cc40 · legions 006aad60
+- [ ] `AmbSoundObject::AddSound` · 0072ccf0 · legions 006aae10
+
+## `portal/client/src/sound/ambient/continmusicobject.cpp.c` (0/4)
+
+### ContinMusicObject
+- [ ] `ContinMusicObject::ContinMusicObject` · 0072d440 · legions 006ab530
+
+### ContinSoundObject
+- [ ] `ContinSoundObject::StopAllSounds` · 0072d460 · legions 006ab550
+
+### ContinMusicObject
+- [ ] `ContinMusicObject::PlaySoundA` · 0072d480 · legions 006ab570
+- [ ] `ContinMusicObject::Is3D` · 0072d4f0 · legions 006ab5e0
+
+## `portal/client/src/sound/ambient/continobject.cpp.c` (0/8)
+
+### ContinObject
+- [ ] `ContinObject::ContinObject` · 0072d180 · legions 006ab280
+- [ ] `ContinObject::GetID` · 0072d1d0 · legions 006ab2d0
+- [ ] `ContinObject::GetSoundPosition` · 0072d1f0 · legions 006ab2f0
+- [ ] `ContinObject::get_global_velocity` · 0072d200 · legions 006ab300
+- [ ] `ContinObject::~ContinObject` · 0072d220 · legions 006ab320
+- [ ] `ContinObject::Init` · 0072d230 · legions 006ab330
+- [ ] `ContinObject::ShouldPlay` · 0072d250 · legions 006ab350
+- [ ] `ContinObject::UpdatePos` · 0072d2a0 · legions 006ab3a0
+
+## `portal/client/src/sound/ambient/continsoundmanager.cpp.c` (0/12)
+
+### ContinSoundManager
+- [ ] `ContinSoundManager::SetVolume` · 0072c030 · legions 006aa160
+- [ ] `ContinSoundManager::CalcHeight` · 0072c040
+- [ ] `ContinSoundManager::UpdatePos` · 0072c070 · legions 006aa1a0
+- [ ] `ContinSoundManager::StopAllSounds` · 0072c0b0 · legions 006aa1e0
+- [ ] `ContinSoundManager::PlaySounds` · 0072c100 · legions 006aa230
+- [ ] `ContinSoundManager::CalcAngleSum` · 0072c180 · legions 006aa2b0
+- [ ] `ContinSoundManager::NowDominant` · 0072c200 · legions 006aa330
+- [ ] `ContinSoundManager::NoLongerDominant` · 0072c220 · legions 006aa350
+- [ ] `ContinSoundManager::Is3D` · 0072c240
+- [ ] `ContinSoundManager::~ContinSoundManager` · 0072c260 · legions 006aa390
+- [ ] `ContinSoundManager::ReCalcContinSounds` · 0072c300 · legions 006aa430
+- [ ] `ContinSoundManager::ContinSoundManager` · 0072c5b0 · legions 006aa6e0
+
+## `portal/client/src/sound/ambient/continsoundobject.cpp.c` (0/4)
+
+### ContinSoundObject
+- [ ] `ContinSoundObject::ContinSoundObject` · 0072d2f0 · legions 006ab3f0
+- [ ] `ContinSoundObject::PlaySoundA` · 0072d310 · legions 006ab410
+- [ ] `ContinSoundObject::Is3D` · 0072d380 · legions 006ab480
+- [ ] `ContinSoundObject::StopSound` · 0072d3e0 · legions 006ab4d0
+
+## `portal/client/src/sound/ambient/intermitmusicobject.cpp.c` (0/4)
+
+### IntermitMusicObject
+- [ ] `IntermitMusicObject::IntermitMusicObject` · 0072d000 · legions 006ab110
+- [ ] `IntermitMusicObject::Is3D` · 0072d030
+- [ ] `IntermitMusicObject::Play_Internal` · 0072d090 · legions 006ab190
+- [ ] `IntermitMusicObject::IsPlaying_Internal` · 0072d150 · legions 006ab250
+
+## `portal/client/src/sound/ambient/intermitobject.cpp.c` (0/7)
+
+### IntermitObject
+- [ ] `IntermitObject::~IntermitObject` · 0072c6d0 · legions 006aa800
+- [ ] `IntermitObject::GetSoundPosition` · 0072c710 · legions 006aa840
+- [ ] `IntermitObject::get_global_velocity` · 0072c720 · legions 006aa850
+- [ ] `IntermitObject::CalcHeight` · 0072c750
+- [ ] `IntermitObject::IntermitObject` · 0072c790 · legions 006aa8c0
+- [ ] `IntermitObject::PlayCheck` · 0072c890 · legions 006aa9c0
+- [ ] `IntermitObject::Play` · 0072c970 · legions 006aaaa0
+
+## `portal/client/src/sound/ambient/intermitsoundobject.cpp.c` (0/5)
+
+### IntermitSoundObject
+- [ ] `IntermitSoundObject::IntermitSoundObject` · 0072ce50 · legions 006aaf70
+- [ ] `IntermitSoundObject::Is3D` · 0072ce80
+- [ ] `IntermitSoundObject::Play_Internal` · 0072cee0 · legions 006aaff0
+- [ ] `IntermitSoundObject::IsPlaying_Internal` · 0072cf90 · legions 006ab0a0
+- [ ] `IntermitSoundObject::SetTempo_Internal` · 0072cfd0 · legions 006ab0e0
+
+## `portal/client/src/sound/ambient/sounddirection.cpp.c` (0/6)
+
+### SoundDirection
+- [ ] `SoundDirection::SoundDirection` · 0072d590 · legions 006ab670
+- [ ] `SoundDirection::Reset` · 0072d5b0 · legions 006ab690
+- [ ] `SoundDirection::AddToWeight` · 0072d5d0 · legions 006ab6b0
+- [ ] `SoundDirection::AddToDistance` · 0072d5e0 · legions 006ab6c0
+- [ ] `SoundDirection::CalcWeights` · 0072d620 · legions 006ab700
+- [ ] `SoundDirection::ChooseSoundDistance` · 0072d630 · legions 006ab710
+
+## `portal/client/src/sound/dbmusicobj.cpp.c` (0/5)
+
+### DBMusicObj
+- [ ] `DBMusicObj::GetSubDataIDs` · 005a30e0
+- [ ] `DBMusicObj::StreamPack` · 005a3110
+- [ ] `DBMusicObj::DBMusicObj` · 005a31f0 · legions 0056fd70
+- [ ] `DBMusicObj::GetDBOType` · 005a3220
+- [ ] `DBMusicObj::Allocate` · 005a3230
+
+## `portal/client/src/sound/dbwave.cpp.c` (0/12)
+
+### std::strstream
+- [ ] `std::strstream::`vbase_destructor'` · 005a3580 · legions 00570080
+
+### DBWave
+- [ ] `DBWave::~DBWave` · 005a35a0 · legions 005700a0
+- [ ] `DBWave::GetDBOType` · 005a35b0
+- [ ] `DBWave::Pack` · 005a35c0
+- [ ] `DBWave::GetTime` · 005a3680 · legions 00570180
+- [ ] `DBWave::ZeroInit` · 005a36d0 · legions 005701d0
+- [ ] `DBWave::ReleaseAll` · 005a36f0 · legions 005701f0
+- [ ] `DBWave::Allocator` · 005a3720
+- [ ] `DBWave::CompressAudio` · 005a3740
+- [ ] `DBWave::DBWave` · 005a3a50 · legions 00570240
+- [ ] `DBWave::UnPack` · 005a3ab0
+- [-] `DBWave::LoadFromFile` · 005a3e50 — text source loader, admin build only
+
+## `portal/client/src/sound/directx/directxmusicloader.cpp.c` (0/32)
+
+### DirectXMusicLoader
+- [ ] `DirectXMusicLoader::Initialize` · 005a71e0 · legions 00573870
+- [ ] `DirectXMusicLoader::AddRef` · 005a7260 · legions 005738f0
+- [ ] `DirectXMusicLoader::QueryInterface` · 005a7280 · legions 00573910
+- [ ] `DirectXMusicLoader::LoadFromStream` · 005a72e0 · legions 00573970
+
+### DBObjGrabber<DBMusicObj>
+- [ ] `DBObjGrabber<DBMusicObj>::DBObjGrabber<DBMusicObj>` · 005a7380 · legions 00573a00
+
+### MusicByteStream
+- [ ] `MusicByteStream::MusicByteStream` · 005a74d0 · legions 00573b50
+- [ ] `MusicByteStream::QueryInterface` · 005a7520 · legions 00573ba0
+- [ ] `MusicByteStream::AddRef` · 005a75d0 · legions 00573c50
+- [ ] `MusicByteStream::Read` · 005a75f0 · legions 00573c70
+- [ ] `MusicByteStream::Revert` · 005a7670 · legions 00573cf0
+- [ ] `MusicByteStream::CopyTo` · 005a7680 · legions 00573d00
+- [ ] `MusicByteStream::GetLoader` · 005a7690
+- [ ] `MusicByteStream::QueryInterface` · 005a76c0
+- [-] `MusicByteStream::AddRef` · 005a76d0 — inline copy of 005a75d0
+- [ ] `MusicByteStream::Release` · 005a76e0 · legions 00573d60
+- [ ] `MusicByteStream::~MusicByteStream` · 005a7720 · legions 00573da0
+- [ ] `MusicByteStream::Seek` · 005a7750 · legions 00573dd0
+- [-] `MusicByteStream::Release` · 005a77e0 — inline copy of 005a76e0
+- [ ] `MusicByteStream::Clone` · 005a77f0 · legions 00573e70
+
+### DirectXMusicLoader
+- [ ] `DirectXMusicLoader::LoadFromObject` · 005a7850 · legions 00573ed0
+- [ ] `DirectXMusicLoader::LoadFromObject` · 005a7a30 · legions 00574080
+- [ ] `DirectXMusicLoader::LoadFromObject` · 005a7ad0 · legions 00574100
+- [-] `DirectXMusicLoader::LoadFromSoundInfo` · 005a7b70 — text source loader, admin build only
+- [ ] `DirectXMusicLoader::LoadFromMusicInfo` · 005a7c20 · legions 005741e0
+- [ ] `DirectXMusicLoader::~DirectXMusicLoader` · 005a7e90 · legions 00574420
+
+### MusicByteStream
+- [ ] `MusicByteStream::Write` · 005a7f60 · legions 005744f0
+- [ ] `MusicByteStream::Commit` · 005a7f70 · legions 00574500
+
+### DirectXMusicLoader
+- [ ] `DirectXMusicLoader::LoadObjectFromFile` · 005a7f80 · legions 00574510
+- [ ] `DirectXMusicLoader::SetObject` · 005a7f90 · legions 00574520
+- [ ] `DirectXMusicLoader::GetObjectA` · 005a80e0 · legions 00574670
+- [ ] `DirectXMusicLoader::Release` · 005a84b0 · legions 00574a10
+- [ ] `DirectXMusicLoader::DirectXMusicLoader` · 005a8580 · legions 00574ae0
+
+## `portal/client/src/sound/directx/directxplayingsound.cpp.c` (0/32)
+
+### DirectXPlayingSound
+- [ ] `DirectXPlayingSound::OnSegmentStarted` · 005a6010 · legions 00572750
+- [ ] `DirectXPlayingSound::Update3DInfo` · 005a6030 · legions 00572770
+- [ ] `DirectXPlayingSound::GetIsPlaying` · 005a6170
+- [ ] `DirectXPlayingSound::GetIsActuallyPlaying` · 005a61a0 · legions 005728e0
+- [ ] `DirectXPlayingSound::GetReadyToDie` · 005a61c0
+- [ ] `DirectXPlayingSound::GetVolume` · 005a61d0
+- [ ] `DirectXPlayingSound::SetFrequencyInternal` · 005a61e0 · legions 00572920
+
+### CMotionInterp
+- [ ] `CMotionInterp::GetVelocityScale` · 005a6260
+
+### DirectXPlayingSound
+- [ ] `DirectXPlayingSound::GetIsLooping` · 005a6270
+- [ ] `DirectXPlayingSound::ReleaseAudioPathAndBuffers` · 005a6280 · legions 005729c0
+- [ ] `DirectXPlayingSound::DirectXPlayingSound` · 005a6320 · legions 00572a20
+- [ ] `DirectXPlayingSound::GetIsSelfExclusive` · 005a6400
+- [ ] `DirectXPlayingSound::GetIsAllExclusive` · 005a6420
+- [ ] `DirectXPlayingSound::GetIsBudgeted` · 005a6430
+- [ ] `DirectXPlayingSound::GetEmitter` · 005a6450
+- [ ] `DirectXPlayingSound::GetIsPrimaryTrack` · 005a6460
+- [ ] `DirectXPlayingSound::~DirectXPlayingSound` · 005a6470 · legions 00572b80
+- [ ] `DirectXPlayingSound::DXInitialize` · 005a64d0 · legions 00572be0
+- [ ] `DirectXPlayingSound::OnSegmentEnded` · 005a6600 · legions 00572d10
+- [ ] `DirectXPlayingSound::UpdatePosition` · 005a6640 · legions 00572d50
+- [ ] `DirectXPlayingSound::SetVolumeInternal` · 005a6790 · legions 00572ea0
+- [ ] `DirectXPlayingSound::SetFrequency` · 005a6920
+- [ ] `DirectXPlayingSound::GetAudioPathAndBuffers` · 005a69b0 · legions 00573110
+- [ ] `DirectXPlayingSound::PlayInternal` · 005a6b50 · legions 005731e0
+- [ ] `DirectXPlayingSound::StopInternal` · 005a6d50 · legions 005733e0
+- [ ] `DirectXPlayingSound::SetVolume` · 005a6ee0
+- [ ] `DirectXPlayingSound::RecalculateVolume` · 005a6f00 · legions 00573590
+- [ ] `DirectXPlayingSound::UseTime` · 005a6f20 · legions 005735b0
+- [ ] `DirectXPlayingSound::Play` · 005a70a0
+- [ ] `DirectXPlayingSound::Stop` · 005a70b0
+- [ ] `DirectXPlayingSound::Enable` · 005a70e0 · legions 00573770
+- [ ] `DirectXPlayingSound::OnDeviceStateChanged` · 005a7180 · legions 00573810
+
+## `portal/client/src/sound/directx/directxsounddevice.cpp.c` (0/34)
+
+### DirectXSoundDevice
+- [ ] `DirectXSoundDevice::SetSoundFeatures` · 005a3e70 · legions 00570640
+- [ ] `DirectXSoundDevice::OnSegmentStart` · 005a3eb0
+- [ ] `DirectXSoundDevice::OnSegmentEnded` · 005a3ee0
+- [ ] `DirectXSoundDevice::SetGrooveLevel` · 005a3f10 · legions 005706e0
+
+### DirectXSoundInstance
+- [ ] `DirectXSoundInstance::Initialize` · 005a3f70 · legions 00570740
+- [ ] `DirectXSoundInstance::Initialize` · 005a3ff0 · legions 005707c0
+- [ ] `DirectXSoundInstance::InitDXPSDFromMusicInfo` · 005a4070 · legions 00570840
+- [ ] `DirectXSoundInstance::GetDataID` · 005a4270 · legions 00570a40
+
+### DirectXSoundDevice
+- [ ] `DirectXSoundDevice::SetChannelVolume` · 005a4290 · legions 00570a60
+- [ ] `DirectXSoundDevice::UpdateListener` · 005a4440 · legions 00570c10
+- [ ] `DirectXSoundDevice::UseTime` · 005a45c0 · legions 00570d90
+- [ ] `DirectXSoundDevice::RemovePlayingSound` · 005a4600 · legions 00570dd0
+- [ ] `DirectXSoundDevice::RemoveSoundInstance` · 005a4650 · legions 00570e20
+
+### DirectXSoundInstance
+- [ ] `DirectXSoundInstance::~DirectXSoundInstance` · 005a46a0 · legions 00570e70
+- [ ] `DirectXSoundInstance::OnDeviceStateChanged` · 005a4750 · legions 00570f20
+
+### DirectXSoundDevice
+- [ ] `DirectXSoundDevice::DebugPrintPlayingSounds` · 005a4810 · legions 00570fe0
+
+### DirectXSoundInstance
+- [ ] `DirectXSoundInstance::InitDXPSDFromSoundInfo` · 005a4990 · legions 00571160
+- [ ] `DirectXSoundInstance::CreatePlayingSound` · 005a4ae0 · legions 00571290
+
+### DirectXSoundDevice
+- [ ] `DirectXSoundDevice::AddPlayingSound` · 005a4ba0 · legions 00571350
+
+### DirectXSoundInstance
+- [ ] `DirectXSoundInstance::DirectXSoundInstance` · 005a4bf0 · legions 005713a0
+- [ ] `DirectXSoundInstance::DownloadToAudioPath` · 005a4c60 · legions 00571410
+
+### DirectXSoundDevice
+- [ ] `DirectXSoundDevice::CreateInstance` · 005a4cb0 · legions 00571460
+- [ ] `DirectXSoundDevice::CreateInstance` · 005a4d10 · legions 005714c0
+- [ ] `DirectXSoundDevice::DestroyDevice` · 005a4e10 · legions 005715c0
+- [ ] `DirectXSoundDevice::CreateDevice` · 005a5160 · legions 00571910
+- [ ] `DirectXSoundDevice::Enable` · 005a52a0 · legions 00571a50
+- [ ] `DirectXSoundDevice::Shutdown` · 005a53c0 · legions 00571b70
+- [ ] `DirectXSoundDevice::ReserveAudioPath` · 005a5430 · legions 00571be0
+- [ ] `DirectXSoundDevice::Initialize` · 005a5500 · legions 00571cb0
+- [ ] `DirectXSoundDevice::CreateAudioPaths` · 005a55a0 · legions 00571d50
+- [ ] `DirectXSoundDevice::FreeAudioPath` · 005a5860 · legions 00571fa0
+- [ ] `DirectXSoundDevice::DirectXSoundDevice` · 005a58d0 · legions 00572010
+- [ ] `DirectXSoundDevice::OnDDDComplete` · 005a59f0 · legions 00572130
+
+### SoundDeviceFactory
+- [ ] `SoundDeviceFactory::CreateDevice` · 005a5a80 · legions 005721c0
+
+## `portal/client/src/sound/directx/dxmusicmessagethread.cpp.c` (0/16)
+
+### DXMusicMessageThread::find_if_SegmentState
+- [ ] `DXMusicMessageThread::find_if_SegmentState::find_if_SegmentState` · 005a85b0 · legions 00574b10
+
+### DXMusicMessageThread
+- [ ] `DXMusicMessageThread::ReleaseSegmentInfo` · 005a85d0 · legions 00574b30
+- [ ] `DXMusicMessageThread::PlayInternal` · 005a8600 · legions 00574b60
+- [ ] `DXMusicMessageThread::SetHandler` · 005a87d0 · legions 00574d30
+- [ ] `DXMusicMessageThread::GetAssociatedSoundHandle` · 005a8950 · legions 00574eb0
+- [ ] `DXMusicMessageThread::IsPlaying` · 005a8a10 · legions 00574f70
+- [ ] `DXMusicMessageThread::AssociateSoundHandle` · 005a8ac0 · legions 00574ff0
+- [ ] `DXMusicMessageThread::PlayQueuedPrimarySegment` · 005a8b70 · legions 00575100
+- [ ] `DXMusicMessageThread::OnMusicStopping` · 005a8cb0 · legions 00575240
+- [ ] `DXMusicMessageThread::~DXMusicMessageThread` · 005a8dd0 · legions 00575410
+- [ ] `DXMusicMessageThread::UseTime` · 005a8ef0 · legions 00575530
+- [ ] `DXMusicMessageThread::DXMusicMessageThread` · 005a90c0 · legions 00575700
+- [ ] `DXMusicMessageThread::Startup` · 005a9170
+- [ ] `DXMusicMessageThread::QueuePrimaryInternal` · 005a93b0 · legions 005759f0
+- [ ] `DXMusicMessageThread::Stop` · 005a9540 · legions 00575b80
+- [ ] `DXMusicMessageThread::Play` · 005a96f0 · legions 00575d30
+
+## `portal/client/src/sound/directx/envinfo_win32.cpp.c` (0/61)
+
+### PFileNode
+- [ ] `PFileNode::MakeSubNodeAsInt32` · 005a9780 · legions 00575dc0
+
+### EnvInfo_WIN32
+- [ ] `EnvInfo_WIN32::Init` · 005a97e0 · legions 00575e20
+- [ ] `EnvInfo_WIN32::CopyInto` · 005a9850
+- [ ] `EnvInfo_WIN32::SetProperty` · 005a9950
+- [ ] `EnvInfo_WIN32::InvalidateProperty` · 005a9cc0
+- [ ] `EnvInfo_WIN32::GetProperty` · 005a9ce0
+- [ ] `EnvInfo_WIN32::SetRoom` · 005a9e70
+- [ ] `EnvInfo_WIN32::SetRoomHF` · 005a9e90
+- [ ] `EnvInfo_WIN32::SetRoomLF` · 005a9eb0
+- [ ] `EnvInfo_WIN32::SetRoomRolloffFactor` · 005a9ed0
+- [ ] `EnvInfo_WIN32::SetDecayTime` · 005a9ef0
+- [ ] `EnvInfo_WIN32::SetDecayHFRatio` · 005a9f10
+- [ ] `EnvInfo_WIN32::SetReflections` · 005a9f30
+- [ ] `EnvInfo_WIN32::SetReflectionsDelay` · 005a9f50
+- [ ] `EnvInfo_WIN32::SetReflectionsPan` · 005a9f70
+- [ ] `EnvInfo_WIN32::SetReverb` · 005a9f90
+- [ ] `EnvInfo_WIN32::SetReverbDelay` · 005a9fb0
+- [ ] `EnvInfo_WIN32::SetReverbPan` · 005a9fd0
+- [ ] `EnvInfo_WIN32::SetEchoTime` · 005a9ff0
+- [ ] `EnvInfo_WIN32::SetEchoDepth` · 005aa010
+- [ ] `EnvInfo_WIN32::SetModulationTime` · 005aa030
+- [ ] `EnvInfo_WIN32::SetModulationDepth` · 005aa050
+- [ ] `EnvInfo_WIN32::SetEnvironment` · 005aa070
+- [ ] `EnvInfo_WIN32::SetEnvironmentSize` · 005aa090
+- [ ] `EnvInfo_WIN32::SetEnvironmentDiffusion` · 005aa0b0
+- [ ] `EnvInfo_WIN32::SetAirAbsorptionHF` · 005aa0d0
+- [ ] `EnvInfo_WIN32::SetHFReference` · 005aa0f0
+- [ ] `EnvInfo_WIN32::SetLFReference` · 005aa110
+- [ ] `EnvInfo_WIN32::SetFlags` · 005aa130
+- [ ] `EnvInfo_WIN32::GetRoom` · 005aa150
+- [ ] `EnvInfo_WIN32::GetRoomHF` · 005aa160
+- [ ] `EnvInfo_WIN32::GetRoomLF` · 005aa170
+- [ ] `EnvInfo_WIN32::GetRoomRolloffFactor` · 005aa180
+- [ ] `EnvInfo_WIN32::GetDecayTime` · 005aa190
+- [ ] `EnvInfo_WIN32::GetDecayHFRatio` · 005aa1a0
+- [ ] `EnvInfo_WIN32::GetDecayLFRatio` · 005aa1b0
+- [ ] `EnvInfo_WIN32::GetReflections` · 005aa1c0
+- [ ] `EnvInfo_WIN32::GetReflectionsDelay` · 005aa1d0
+- [ ] `EnvInfo_WIN32::GetReflectionsPan` · 005aa1e0
+- [ ] `EnvInfo_WIN32::GetReverb` · 005aa210
+- [ ] `EnvInfo_WIN32::GetReverbDelay` · 005aa220
+- [ ] `EnvInfo_WIN32::GetReverbPan` · 005aa230
+- [ ] `EnvInfo_WIN32::GetEchoTime` · 005aa260
+- [ ] `EnvInfo_WIN32::GetEchoDepth` · 005aa270
+- [ ] `EnvInfo_WIN32::GetModulationTime` · 005aa280
+- [ ] `EnvInfo_WIN32::GetModulationDepth` · 005aa290
+- [ ] `EnvInfo_WIN32::GetEnvironment` · 005aa2a0
+- [ ] `EnvInfo_WIN32::GetEnvironmentSize` · 005aa2b0
+- [ ] `EnvInfo_WIN32::GetEnvironmentDiffusion` · 005aa2c0
+- [ ] `EnvInfo_WIN32::GetAirAbsorptionHF` · 005aa2d0
+- [ ] `EnvInfo_WIN32::GetHFReference` · 005aa2e0
+- [ ] `EnvInfo_WIN32::GetLFReference` · 005aa2f0
+- [ ] `EnvInfo_WIN32::GetFlags` · 005aa300
+- [ ] `EnvInfo_WIN32::EnvInfo_WIN32` · 005aa310
+- [ ] `EnvInfo_WIN32::Allocate` · 005aa340
+
+### EnvInfo
+- [ ] `EnvInfo::GetDBOType` · 005aa350
+
+### EnvInfo_WIN32
+- [ ] `EnvInfo_WIN32::GetBitMask` · 005aa360
+- [ ] `EnvInfo_WIN32::SetBitMask` · 005aa370
+- [ ] `EnvInfo_WIN32::StreamPack` · 005aa3b0
+- [-] `EnvInfo_WIN32::FromFileNode` · 005aa720 — text source format (admin tools)
+- [-] `EnvInfo_WIN32::ToFileNode` · 005aae80 — text source format (admin tools)
+
+## `portal/client/src/sound/directx/soundfactory_win32.cpp.c` (0/2)
+
+### SoundFactory_WIN32
+- [ ] `SoundFactory_WIN32::MakeEncodedWave` · 005a5ac0
+- [ ] `SoundFactory_WIN32::MakeEnvInfo` · 005a5ae0
+
+## `portal/client/src/sound/directx/wavefile.cpp.c` (0/5)
+
+### std::strstreambuf
+- [ ] `std::strstreambuf::str` · 005a5b30 · legions 00572270
+
+### WaveFile
+- [ ] `WaveFile::WaveFile` · 005a5b50 · legions 00572290
+
+### WaveFileStreamUtilities
+- [ ] `WaveFileStreamUtilities::WriteWaveHeaderChunk` · 005a5b70 · legions 005722b0
+- [ ] `WaveFileStreamUtilities::ReadChunk` · 005a5c40 · legions 00572380
+
+### WaveFile
+- [ ] `WaveFile::Load` · 005a5db0
+
+## `portal/client/src/sound/encodedwave.cpp.c` (0/6)
+
+### EncodedWave
+- [ ] `EncodedWave::Pack` · 005a32b0
+- [ ] `EncodedWave::Allocator` · 005a3330
+- [ ] `EncodedWave::EncodedWave` · 005a3340
+- [ ] `EncodedWave::GetDBOType` · 005a3370
+- [ ] `EncodedWave::UnPack` · 005a3380
+- [-] `EncodedWave::LoadFromFile` · 005a3420 — text source loader, admin build only
+
+## `portal/client/src/sound/envinfo.cpp.c` (0/3)
+
+### EnvInfo
+- [ ] `EnvInfo::EnvInfo` · 005a3500 · legions 00570000
+- [ ] `EnvInfo::~EnvInfo` · 005a3530 · legions 00570030
+- [ ] `EnvInfo::Allocator` · 005a3540
+
+## `portal/client/src/sound/soundmanager.cpp.c` (0/25)
+
+### SoundManager
+- [ ] `SoundManager::Initialize` · 005a1000 · legions 0056dcd0
+- [ ] `SoundManager::OnDDDComplete` · 005a10d0
+
+### PlaySoundData
+- [ ] `PlaySoundData::PlaySoundData` · 005a1160 · legions 0056de30
+
+### SoundManager
+- [ ] `SoundManager::DebugPrintPlayingSounds` · 005a1190
+- [ ] `SoundManager::SetGrooveLevel` · 005a11a0 · legions 0056de60
+- [ ] `SoundManager::TweakGrooveLevel` · 005a11d0
+- [ ] `SoundManager::InitPrefs` · 005a1210 · legions 0056de90
+- [ ] `SoundManager::AllocateSounds` · 005a1720 · legions 0056e3e0
+- [ ] `SoundManager::CheckSoundBudget` · 005a1830 · legions 0056e4d0
+- [ ] `SoundManager::StopSounds` · 005a1a70 · legions 0056e690
+- [ ] `SoundManager::StopSoundsForEmitter` · 005a1ba0 · legions 0056e7c0
+- [ ] `SoundManager::HasSoundFinished` · 005a1ca0
+- [ ] `SoundManager::StopSoundRequest` · 005a1d10
+- [ ] `SoundManager::HandleChangeInternal` · 005a1d90 · legions 0056e9b0
+- [ ] `SoundManager::HandleApply` · 005a1fe0
+- [ ] `SoundManager::HandleChange` · 005a2120
+- [ ] `SoundManager::GetPlayingSoundFromHandle` · 005a2230
+- [ ] `SoundManager::SoundManager` · 005a2680 · legions 0056f370
+- [ ] `SoundManager::FlushSounds` · 005a27d0 · legions 0056f4c0
+- [ ] `SoundManager::AddSoundInstance` · 005a28d0 · legions 0056f5c0
+- [ ] `SoundManager::Shutdown` · 005a29f0 · legions 0056f6e0
+- [ ] `SoundManager::UseTime` · 005a2b00 · legions 0056f7f0
+- [ ] `SoundManager::PlayInternal` · 005a2c50 · legions 0056f8f0
+- [ ] `SoundManager::OnContextFinished` · 005a3050
+- [ ] `SoundManager::Play` · 005a30c0 · legions 0056fc40
+
+## `portal/shared/src/sound/musicinfo.cpp.c` (0/10)
+
+### MusicInfo
+- [ ] `MusicInfo::MusicInfo` · 006b8a70 · legions 0064fa30
+- [ ] `MusicInfo::GetDBOType` · 006b8aa0
+- [ ] `MusicInfo::GetSubDataIDs` · 006b8ab0
+- [ ] `MusicInfo::CopyInto` · 006b8ad0
+- [ ] `MusicInfo::TestBitMask` · 006b8b00 · legions 0064fac0
+- [ ] `MusicInfo::Allocate` · 006b8b10
+- [ ] `MusicInfo::StreamPack` · 006b8b20 · legions 0064fae0
+- [-] `MusicInfo::ToFileNode` · 006b8c00 — text source format (admin tools)
+- [ ] `MusicInfo::ParseFlags` · 006b8fb0
+- [-] `MusicInfo::FromFileNode` · 006b9300 — text source format (admin tools)
+
+## `portal/shared/src/sound/soundinfo.cpp.c` (0/9)
+
+### SoundInfo
+- [ ] `SoundInfo::SoundInfo` · 006b8090 · legions 0064f890
+- [ ] `SoundInfo::GetDBOType` · 006b80d0
+- [ ] `SoundInfo::GetSubDataIDs` · 006b80e0
+- [ ] `SoundInfo::CopyInto` · 006b8100
+- [ ] `SoundInfo::Allocate` · 006b8130
+- [ ] `SoundInfo::StreamPack` · 006b8140 · legions 0064f940
+- [-] `SoundInfo::ToFileNode` · 006b8230 — text source format (admin tools)
+- [ ] `SoundInfo::ParseFlags` · 006b84d0
+- [-] `SoundInfo::FromFileNode` · 006b8670 — text source format (admin tools)
