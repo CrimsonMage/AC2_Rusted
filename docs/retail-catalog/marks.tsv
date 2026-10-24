@@ -320,6 +320,7 @@ key	status	note
 004cee90	x	
 004ceeb0	x	
 004d5720	x	
+004d5a90	x	
 004d7e80	x	
 004d8820	x	
 004d8a40	~	visual-queue release and queued-event replay only; no CPhysicsObj built
@@ -382,6 +383,7 @@ key	status	note
 004dddc0	x	
 004de020	x	
 004de0d0	x	
+004de490	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
 004de5b0	x	
 004de5d0	x	
 004de940	x	
@@ -403,6 +405,7 @@ key	status	note
 004e0af0	x	
 004e1520	x	
 004e1c90	~	no admin moves or missiles
+004e23b0	~	instance stamp kept per object in ac2-weenie ObjectTable
 004e30e0	x	
 004e3aa0	x	
 004e3b90	~	DoElement sets the element directly (ModeTracker element transitions not ported)
@@ -427,8 +430,10 @@ key	status	note
 004eb080	x	
 004eb0d0	x	
 004eb100	x	
+004eb1b0	x	
 004eb370	~	no player-distance range checks, parent or missile paths
 004eb8b0	_	
+004ed470	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
 005083f0	_	
 00509790	x	
 005097b0	x	
@@ -472,6 +477,8 @@ key	status	note
 00569020	x	
 00569200	x	
 005692e0	x	
+005694f0	x	
+00569550	~	only the report tail (ShouldSend*/Send*); the action-key loop and camera heading belong to input/camera, actively_moving comes from the caller
 0056b150	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b170	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b1c0	x	
@@ -561,7 +568,7 @@ key	status	note
 00622900	~	outdoor sun only; dynamic/point lights and shadow direction not yet
 00622cf0	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
 00622f10	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
-006258e0	_	
+006258e0	x	
 00625930	_	
 00628460	x	
 00628580	x	
@@ -652,7 +659,7 @@ key	status	note
 0067cfb0	x	
 0069bd90	_	
 0069be20	_	
-0069bfd0	_	
+0069bfd0	x	
 0069c060	_	
 0069c550	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 0069cc40	x	

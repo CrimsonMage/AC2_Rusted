@@ -93,14 +93,11 @@ fn main() -> Result<(), String> {
                 origin: [origin[0], origin[1] + distance, origin[2]],
             },
             heading_degrees: 0.0,
+            turn_to_heading: None,
             motion: if walking { [0.0, 1.0, 0.0] } else { [0.0; 3] },
             times_jumped: 0,
             velocity: [0.0; 3],
-            actively_moving: false,
-            instance_stamp: entry.instance,
-            teleport_stamp: 0,
-            force_position_stamp: 0,
-            moveto_stamp: 0,
+            actively_moving: walking,
         });
         reports += 1;
         for event in session.poll() {

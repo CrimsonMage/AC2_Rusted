@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 18 done, 3 partial, 239 to do, 2 skipped.
+262 retail functions: 19 done, 3 partial, 238 to do, 2 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (5/22)
@@ -37,7 +37,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CLostCell::RemoveObject` · 004da260 · legions 004cccc0
 - [ ] `CLostCell::AddObject` · 004da2a0 · legions 004ccd00
 
-## `portal/client/src/objects/cobjmaint.cpp.c` (6/65)
+## `portal/client/src/objects/cobjmaint.cpp.c` (7/65)
 
 ### CObjectMaint
 - [ ] `CObjectMaint::CreatePhysicsObj` · 004d4fb0 · legions 004c7930
@@ -73,7 +73,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PriorityHash<InstanceID,double>::bubble_up_or_down` · 004d59a0 · legions 004c8450
 
 ### CPhysicsObj
-- [ ] `CPhysicsObj::is_newer` · 004d5a90 · legions 004c8540
+- [x] `CPhysicsObj::is_newer` · 004d5a90 · legions 004c8540
 
 ### CObjectMaint
 - [ ] `CObjectMaint::ClearCreationTable` · 004d5ae0 · legions 004c8590

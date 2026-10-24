@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 75 done, 2 partial, 1821 to do, 6 skipped.
+1904 retail functions: 76 done, 3 partial, 1819 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1262,7 +1262,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ActionMap::UnPack` · 0072f200
 - [ ] `ActionMap::Allocate` · 0072f370
 
-## `portal/client/src/action/movement/playermovementmodule.cpp.c` (4/17)
+## `portal/client/src/action/movement/playermovementmodule.cpp.c` (5/17)
 
 ### PlayerMovementModule
 - [ ] `PlayerMovementModule::Startup` · 00568e20 · legions 00538db0
@@ -1280,8 +1280,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PlayerMovementModule::InterruptMoveTo` · 00569450 · legions 005393e0
 - [ ] `PlayerMovementModule::StopAttackingIfAutoMoving` · 00569470 · legions 00539400
 - [ ] `PlayerMovementModule::Shutdown` · 005694a0 · legions 00539430
-- [ ] `PlayerMovementModule::SetPlayerID` · 005694f0 · legions 00539480
-- [ ] `PlayerMovementModule::UseTime` · 00569550 · legions 005394e0
+- [x] `PlayerMovementModule::SetPlayerID` · 005694f0 · legions 00539480
+- [~] `PlayerMovementModule::UseTime` · 00569550 · legions 005394e0 — only the report tail (ShouldSend*/Send*); the action-key loop and camera heading belong to input/camera, actively_moving comes from the caller
 
 ## `portal/client/src/cfactory/cenginefactory.cpp.c` (0/5)
 

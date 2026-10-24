@@ -21,7 +21,8 @@ use ac2_net::{
 };
 
 use crate::objects::ObjectTable;
-use crate::reporter::{BodyState, PositionReporter};
+use crate::objects::{STAMP_FORCE_POSITION, STAMP_MOVE_TO, STAMP_TELEPORT};
+use crate::reporter::{BodyState, PositionReporter, ReportStamps};
 use crate::world::{World, WorldEvent, WorldState};
 
 /// Which listed character to enter the world with.
@@ -335,12 +336,25 @@ impl OnlineSession {
     }
 
     /// `PlayerMovementModule::UseTime`: report the player's body when retail would.
+    /// The stamps come from the player's object as the server last set them
+    /// (`CPhysicsObj::get_instance_stamp`, `get_update_time`).
     pub fn report_body(&mut self, body: &BodyState) {
         let cur_time = self.cur_time();
+        let stamps = self
+            .world
+            .player()
+            .and_then(|id| self.world.objects.get(id))
+            .map(|o| ReportStamps {
+                instance: o.instance,
+                teleport: o.update_times[STAMP_TELEPORT],
+                force_position: o.update_times[STAMP_FORCE_POSITION],
+                moveto: o.update_times[STAMP_MOVE_TO],
+            })
+            .unwrap_or_default();
         let Some(report) = self
             .reporter
             .as_mut()
-            .and_then(|r| r.report(cur_time, body))
+            .and_then(|r| r.report(cur_time, body, stamps))
         else {
             return;
         };
