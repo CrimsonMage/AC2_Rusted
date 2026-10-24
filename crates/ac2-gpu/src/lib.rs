@@ -9,11 +9,13 @@ mod frame;
 mod object;
 mod object_state;
 mod pixel_program;
+mod screen_quad;
 mod terrain;
 mod texture;
 
 pub use frame::{render_to, FrameTarget, COLOR_FORMAT, DEPTH_FORMAT};
-pub use object::{GpuObjectModel, ObjectInstance, ObjectRenderer};
+pub use object::{DrawGroup, GpuObjectModel, ObjectInstance, ObjectRenderer};
+pub use screen_quad::ScreenQuad;
 pub use terrain::{TerrainBlock, TerrainRenderer};
 pub use texture::{TextureCache, TextureKey};
 

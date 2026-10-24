@@ -97,11 +97,9 @@ fn snapshot(world: Arc<Ac2WorldSource>, args: &Args, path: &PathBuf) {
     scene.set_daytime();
     scene.update_residency(&gpu, args.block);
     let camera = start_camera(&scene, args.block).camera();
-    let lighting = scene.prepare(&gpu, &camera, width as f32 / height as f32, 0.0);
+    scene.prepare(&gpu, &camera, width as f32 / height as f32, 0.0);
     let target = FrameTarget::new(&gpu.device, width, height);
-    target.render(&gpu.device, &gpu.queue, lighting.fog_color, |pass| {
-        scene.draw(pass)
-    });
+    target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| scene.draw(pass));
     let rgba = target.read_rgba(&gpu.device, &gpu.queue);
     let file = std::fs::File::create(path).expect("snapshot file");
     let mut encoder = png::Encoder::new(std::io::BufWriter::new(file), width, height);

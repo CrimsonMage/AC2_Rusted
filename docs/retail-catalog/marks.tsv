@@ -459,6 +459,7 @@ key	status	note
 00522520	x	
 00522580	x	
 00524290	x	
+005257a0	x	ac2-world region::sky_objects, ac2-render sky
 00525800	x	
 005258b0	x	
 00525950	x	
@@ -467,6 +468,8 @@ key	status	note
 00525d30	x	
 00525d90	x	
 00525f70	x	
+00528900	x	ac2-world region::sky_objects, ac2-render sky
+0052b1d0	x	ac2-world region::sky_objects, ac2-render sky
 0052e6a0	~	qualities surface as SessionEvent::PlayerQualities; no CWRepository or LoginFinished notice
 00568ea0	x	
 00569020	x	
@@ -476,10 +479,17 @@ key	status	note
 0056b170	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b1c0	x	
 0056ef40	~	object::ObjectLights; static/volumetric shadow strengths not used yet
+0056f260	~	untextured colour quad (ac2-gpu ScreenQuad) only
 00572110	~	outdoor sun only; dynamic/point lights and shadow direction not yet
 0057cb50	~	outdoor sun, ambient and fog; indoor and sky environments not yet
 005835c0	x	
 00583890	x	
+005857b0	x	ac2-world region::sky_objects, ac2-render sky
+005857f0	x	ac2-world region::sky_objects, ac2-render sky
+005858b0	x	ac2-world region::sky_objects, ac2-render sky
+00585980	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
+00585ba0	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
+00585cf0	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 00588320	x	
 00588840	~	near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
 0058ad90	~	near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
@@ -723,6 +733,7 @@ key	status	note
 006c4ed0	x	
 006c5910	x	
 006c59d0	x	
+006c82b0	x	ac2-world region::sky_objects, ac2-render sky
 006c8d90	~	decoded; field order after m_nDirectHeading not re-verified
 006d7830	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 006da360	x	

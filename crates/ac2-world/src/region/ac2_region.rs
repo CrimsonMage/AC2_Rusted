@@ -12,6 +12,7 @@ use ac2_db::{
 };
 
 use super::game_time::{GameTime, Season, TimeOfDay};
+use super::sky_objects::{SkyObject, SkyObjectReplace};
 use super::{DayGroup, RegionDesc, SkyDesc, SkyFogDesc, SkyLightingDesc, SkyTimeOfDay};
 use crate::color::set_color32;
 
@@ -23,7 +24,7 @@ const INFO_LIST_COUNT: usize = 11;
 const MAX_ITEMS: usize = 4096;
 
 /// Builds the active region from an AC2 dataset: the first `CRegionDesc` sky entry, its days
-/// in authored order and its `GameTime`. Sky objects (AC2 `CSetup`s) are not published.
+/// in authored order with their sky objects, and its `GameTime`.
 pub(crate) fn load_ac2_region(store: &ResourceStore) -> ResourceResult<Option<RegionDesc>> {
     let Some(region) = load::<Ac2RegionRecord>(store, AC2_REGION_DID)? else {
         return Ok(None);
@@ -47,6 +48,7 @@ pub(crate) fn load_ac2_region(store: &ResourceStore) -> ResourceResult<Option<Re
             day_groups.push(DayGroup {
                 name: Arc::from(format!("{:08X}", did.raw())),
                 lightings: Arc::clone(&day.hours),
+                sky_objects: Arc::clone(&day.objects),
             });
             frequencies.push(*frequency);
         }
@@ -207,6 +209,7 @@ impl ResourcePackedDecode for Ac2SkyRecord {
 #[derive(Debug)]
 struct Ac2DayRecord {
     hours: Arc<[SkyTimeOfDay]>,
+    objects: Arc<[SkyObject]>,
 }
 
 impl ResourcePackedDecode for Ac2DayRecord {
@@ -227,15 +230,35 @@ impl ResourcePackedDecode for Ac2DayRecord {
             .collect::<ResourceResult<Vec<_>>>()?;
         // `SkyObject::StreamPack`: 15 words, then `LensFlareEffect` (fade speed, counted points of
         // axis position, texture and size).
-        let objects = read_count(&mut cursor, qdid, Self::TYPE_NAME, 68)?;
-        for _ in 0..objects {
-            cursor.read_bytes(16 * 4)?;
+        let count = read_count(&mut cursor, qdid, Self::TYPE_NAME, 68)?;
+        let mut objects = Vec::with_capacity(count);
+        for _ in 0..count {
+            objects.push(SkyObject {
+                name: cursor.read_u32()?,
+                default_gfx: cursor.read_u32()?,
+                begin_time: cursor.read_f32()?,
+                end_time: cursor.read_f32()?,
+                begin_pitch: cursor.read_f32()?,
+                end_pitch: cursor.read_f32()?,
+                begin_heading: cursor.read_f32()?,
+                end_heading: cursor.read_f32()?,
+                height_mod: cursor.read_f32()?,
+                after: cursor.read_u32()? != 0,
+                fixed_pos: cursor.read_u32()? != 0,
+                water_effect: cursor.read_u32()?,
+                fixed_x: cursor.read_f32()?,
+                fixed_y: cursor.read_f32()?,
+                west_to_east: cursor.read_u32()? != 0,
+            });
+            // `LensFlareEffect::StreamPack`: fade speed, then counted points (not drawn yet).
+            let _fade_speed = cursor.read_f32()?;
             let points = read_count(&mut cursor, qdid, Self::TYPE_NAME, 12)?;
             cursor.read_bytes(points * 12)?;
         }
         expect_end(qdid, Self::TYPE_NAME, &cursor)?;
         Ok(Self {
             hours: Arc::from(hours),
+            objects: Arc::from(objects),
         })
     }
 
@@ -261,9 +284,18 @@ fn read_time_of_day(
     let ambient_brightness = cursor.read_f32()?;
     let ambient_color = set_color32(cursor.read_u32()?);
     let shadow_color = set_color32(cursor.read_u32()?);
-    // `SkyObjectReplace`: object type, three scalars and a colour.
-    let replacements = read_count(cursor, qdid, "AC2 DayDesc", 20)?;
-    cursor.read_bytes(replacements * 20)?;
+    // `SkyObjectReplace::StreamPack`: object name, graphic, pitch and heading offsets, colour.
+    let count = read_count(cursor, qdid, "AC2 DayDesc", 20)?;
+    let mut replacements = Vec::with_capacity(count);
+    for _ in 0..count {
+        replacements.push(SkyObjectReplace {
+            name: cursor.read_u32()?,
+            replace_gfx: cursor.read_u32()?,
+            pitch_offset: cursor.read_f32()?,
+            heading_offset: cursor.read_f32()?,
+            color: set_color32(cursor.read_u32()?),
+        });
+    }
     let _rain = (cursor.read_f32()?, cursor.read_f32()?, cursor.read_f32()?);
     Ok(SkyTimeOfDay {
         begin,
@@ -282,6 +314,7 @@ fn read_time_of_day(
             sky: fog_sky,
             color: fog_color,
         },
+        replacements: Arc::from(replacements),
     })
 }
 

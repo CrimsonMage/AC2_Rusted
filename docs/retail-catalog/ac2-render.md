@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 21 done, 9 partial, 738 to do, 13 skipped.
+781 retail functions: 24 done, 13 partial, 731 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -854,7 +854,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneTool::DisableSunlight` · 0056eef0 · legions 0053f2d0
 - [~] `SceneTool::SetSunlight` · 0056ef40 · legions 0053f320 — object::ObjectLights; static/volumetric shadow strengths not used yet
 - [ ] `SceneTool::DrawLine` · 0056f230 · legions 0053f610
-- [ ] `SceneTool::DrawScreenQuad` · 0056f260 · legions 0053f640
+- [~] `SceneTool::DrawScreenQuad` · 0056f260 · legions 0053f640 — untextured colour quad (ac2-gpu ScreenQuad) only
 - [ ] `SceneTool::SwitchTextureTargets` · 0056f2e0 · legions 0053f6c0
 - [ ] `SceneTool::Render` · 0056f440 · legions 0053f820
 
@@ -1057,18 +1057,18 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeRender::FillRainVertices` · 00584d70 · legions 00554490
 - [ ] `LScapeRender::UpdateRain` · 005856f0 · legions 00554de0
 
-## `portal/client/src/smartbox/worldrender/lscapesky.cpp.c` (0/9)
+## `portal/client/src/smartbox/worldrender/lscapesky.cpp.c` (3/9)
 
 ### LScapeSky
-- [ ] `LScapeSky::SetSkyFog` · 005857b0 · legions 00554ea0
-- [ ] `LScapeSky::CalcFrame` · 005857f0 · legions 00554ee0
+- [x] `LScapeSky::SetSkyFog` · 005857b0 · legions 00554ea0 — ac2-world region::sky_objects, ac2-render sky
+- [x] `LScapeSky::CalcFrame` · 005857f0 · legions 00554ee0 — ac2-world region::sky_objects, ac2-render sky
 - [ ] `LScapeSky::Clear` · 00585870 · legions 00554f60
-- [ ] `LScapeSky::SetViewerPosition` · 005858b0 · legions 00554fa0
-- [ ] `LScapeSky::Draw` · 00585980 · legions 00555070
+- [x] `LScapeSky::SetViewerPosition` · 005858b0 · legions 00554fa0 — ac2-world region::sky_objects, ac2-render sky
+- [~] `LScapeSky::Draw` · 00585980 · legions 00555070 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 - [ ] `LScapeSky::LScapeSky` · 00585b30 · legions 00555220
 - [ ] `LScapeSky::~LScapeSky` · 00585b50 · legions 00555240
-- [ ] `LScapeSky::CreateDeletePhysicsObjects` · 00585ba0 · legions 00555290
-- [ ] `LScapeSky::UpdateTimeOfDay` · 00585cf0 · legions 005553e0
+- [~] `LScapeSky::CreateDeletePhysicsObjects` · 00585ba0 · legions 00555290 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
+- [~] `LScapeSky::UpdateTimeOfDay` · 00585cf0 · legions 005553e0 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 
 ## `portal/client/src/smartbox/worldrender/lscapeterrainmesh.cpp.c` (3/48)
 

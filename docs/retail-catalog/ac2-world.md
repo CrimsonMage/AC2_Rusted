@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 87 done, 10 partial, 749 to do, 143 skipped.
+989 retail functions: 91 done, 10 partial, 745 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (4/140)
@@ -1226,10 +1226,10 @@ Legend and workflow: [README](README.md).
 - [-] `SceneType::LoadLScapeScene` · 006c2970 — text source loader, admin build only
 - [ ] `SceneType::Load` · 006c29f0
 
-## `portal/shared/src/region/sky/daydesc.cpp.c` (8/38)
+## `portal/shared/src/region/sky/daydesc.cpp.c` (10/38)
 
 ### CelestialPosition
-- [ ] `CelestialPosition::CelestialPosition` · 005257a0 · legions 0050e750
+- [x] `CelestialPosition::CelestialPosition` · 005257a0 · legions 0050e750 — ac2-world region::sky_objects, ac2-render sky
 
 ### CDayDesc
 - [x] `CDayDesc::GetTimeRatio` · 00525800 · legions 0050e7b0
@@ -1293,7 +1293,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CDayDesc::AddMissingEntries` · 00526fb0
 - [-] `CDayDesc::LoadObject` · 00528780 — text source loader, admin build only
 - [-] `CDayDesc::LoadSkyObjects` · 00528820 — text source loader, admin build only
-- [ ] `CDayDesc::GetSky` · 00528900 · legions 0050f8b0
+- [x] `CDayDesc::GetSky` · 00528900 · legions 0050f8b0 — ac2-world region::sky_objects, ac2-render sky
 - [-] `CDayDesc::FromFileNode` · 00528d10 — text source format (admin tools)
 
 ## `portal/shared/src/region/sky/skyday.cpp.c` (0/5)
@@ -1332,19 +1332,19 @@ Legend and workflow: [README](README.md).
 - [-] `CSkyDesc::LoadWeatherInfo` · 005248f0 — text source loader, admin build only
 - [-] `CSkyDesc::FromFileNode` · 005249d0 — text source format (admin tools)
 
-## `portal/shared/src/region/sky/skyobject.cpp.c` (0/8)
+## `portal/shared/src/region/sky/skyobject.cpp.c` (1/8)
 
 ### SkyObject
 - [ ] `SkyObject::Destroy` · 0052b0b0 · legions 00510790
 - [ ] `SkyObject::GetSubDataIDs` · 0052b0f0 · legions 005107d0
 - [ ] `SkyObject::SkyObject` · 0052b120
 - [ ] `SkyObject::~SkyObject` · 0052b170 · legions 00510850
-- [ ] `SkyObject::StreamPack` · 0052b1d0 · legions 005108b0
+- [x] `SkyObject::StreamPack` · 0052b1d0 · legions 005108b0 — ac2-world region::sky_objects, ac2-render sky
 - [-] `SkyObject::ToFileNode` · 0052b350 — text source format (admin tools)
 - [-] `SkyObject::LoadName` · 0052b7b0 — text source loader, admin build only
 - [-] `SkyObject::FromFileNode` · 0052b880 — text source format (admin tools)
 
-## `portal/shared/src/region/sky/skyobjectreplace.cpp.c` (0/9)
+## `portal/shared/src/region/sky/skyobjectreplace.cpp.c` (1/9)
 
 ### CMapNoteRow
 - [ ] `CMapNoteRow::GetSubDataIDs` · 006c81f0 · legions 00509bd0
@@ -1357,7 +1357,7 @@ Legend and workflow: [README](README.md).
 
 ### SkyObjectReplace
 - [ ] `SkyObjectReplace::SkyObjectReplace` · 006c8260
-- [ ] `SkyObjectReplace::StreamPack` · 006c82b0 · legions 00656980
+- [x] `SkyObjectReplace::StreamPack` · 006c82b0 · legions 00656980 — ac2-world region::sky_objects, ac2-render sky
 - [-] `SkyObjectReplace::ToFileNode` · 006c8330 — text source format (admin tools)
 - [-] `SkyObjectReplace::LoadName` · 006c8540 — text source loader, admin build only
 

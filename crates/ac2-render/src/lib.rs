@@ -6,6 +6,7 @@
 
 mod image;
 pub mod object;
+pub mod sky;
 pub mod terrain;
 mod view;
 

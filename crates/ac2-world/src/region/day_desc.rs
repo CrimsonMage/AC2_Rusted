@@ -58,7 +58,7 @@ pub(super) fn sample(keys: &[SkyTimeOfDay], time_of_day: f32) -> SkyEnvironmentS
 
 /// `CDayDesc::GetBeforeTime`: the key whose span `[begin, next.begin]` holds the time, else the
 /// last key.
-fn before_time(keys: &[SkyTimeOfDay], time: f32) -> Option<&SkyTimeOfDay> {
+pub(super) fn before_time(keys: &[SkyTimeOfDay], time: f32) -> Option<&SkyTimeOfDay> {
     let last = keys.last()?;
     Some(
         keys.windows(2)
@@ -68,13 +68,13 @@ fn before_time(keys: &[SkyTimeOfDay], time: f32) -> Option<&SkyTimeOfDay> {
 }
 
 /// `CDayDesc::GetAfterTime`: the first key beginning after the time, else the first key.
-fn after_time(keys: &[SkyTimeOfDay], time: f32) -> Option<&SkyTimeOfDay> {
+pub(super) fn after_time(keys: &[SkyTimeOfDay], time: f32) -> Option<&SkyTimeOfDay> {
     keys.iter().find(|key| time < key.begin).or(keys.first())
 }
 
 /// `CDayDesc::GetTimeRatio`. A forward span outside its keys answers 0.5; a span across midnight
 /// wraps.
-fn time_ratio(before: f32, after: f32, time: f32) -> f32 {
+pub(super) fn time_ratio(before: f32, after: f32, time: f32) -> f32 {
     if before == after {
         return 0.0;
     }
@@ -113,7 +113,7 @@ fn interp_angle_closest(before: f32, after: f32, ratio: f32, wrap: f32) -> f32 {
 }
 
 /// `CDayDesc::InterpColor`: interpolate in HSB, hue the short way round.
-fn interp_color(before: Rgba, after: Rgba, ratio: f32) -> Rgba {
+pub(super) fn interp_color(before: Rgba, after: Rgba, ratio: f32) -> Rgba {
     let (h1, s1, b1) = rgb_to_hsb(before);
     let (h2, s2, b2) = rgb_to_hsb(after);
     hsb_to_rgb(
@@ -152,6 +152,7 @@ mod tests {
                 sky: 0.0,
                 color: WHITE,
             },
+            replacements: std::sync::Arc::from([]),
         }
     }
 

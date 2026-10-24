@@ -16,8 +16,11 @@ pub(crate) use ac2_region::{ac2_region_water_desc, load_ac2_region};
 mod day_desc;
 #[path = "region/game_time.rs"]
 mod game_time;
+#[path = "region/sky_objects.rs"]
+mod sky_objects;
 pub use environment::{SkyEnvironmentCadence, SkyEnvironmentSample, SkyFogDesc};
 use game_time::GameTime;
+pub use sky_objects::CelestialPosition;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RegionDesc {
@@ -107,6 +110,28 @@ impl RegionDesc {
         ))
     }
 
+    /// `CDayDesc::GetSky`: the selected day's sky objects at the calendar time of day.
+    pub fn sky_objects_selected(
+        &self,
+        server_time: f64,
+        name: Option<&str>,
+    ) -> Option<Vec<CelestialPosition>> {
+        let calendar = self.game_time.calendar_at(server_time)?;
+        let sky = self.sky.as_ref()?;
+        let index = self.selected_sky_group(calendar.day_group_seed(), name)?;
+        let group = sky.day_groups.get(index)?;
+        Some(sky_objects::get_sky(
+            &group.sky_objects,
+            &group.lightings,
+            calendar.time_of_day as f32,
+        ))
+    }
+
+    /// [`Self::sky_objects_selected`] for the calendar's own day.
+    pub fn sky_objects(&self, server_time: f64) -> Option<Vec<CelestialPosition>> {
+        self.sky_objects_selected(server_time, None)
+    }
+
     fn selected_sky_group(&self, seed: u32, name: Option<&str>) -> Option<usize> {
         let sky = self.sky.as_ref()?;
         let selected = name.and_then(|name| {
@@ -189,6 +214,7 @@ impl SkyDesc {
 struct DayGroup {
     name: Arc<str>,
     lightings: Arc<[SkyTimeOfDay]>,
+    sky_objects: Arc<[sky_objects::SkyObject]>,
 }
 
 impl DayGroup {
@@ -203,4 +229,5 @@ struct SkyTimeOfDay {
     begin: f32,
     lighting: SkyLightingDesc,
     world_fog: SkyFogDesc,
+    replacements: Arc<[sky_objects::SkyObjectReplace]>,
 }
