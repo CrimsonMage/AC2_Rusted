@@ -1,29 +1,34 @@
-//! Resident terrain for collision: the land cells of loaded landblocks with their terrain
-//! polygons (`CLandBlockMesh::ConstructVertices` + `ConstructPolygons`).
+//! The resident world for collision: the land cells of loaded landblocks with their terrain
+//! polygons (`CLandBlockMesh::ConstructVertices` + `ConstructPolygons`) and the static objects
+//! shadowing them (`CLandBlock::CreateStaticObjects`, `CPhysicsObj::add_shadows_to_cells`).
 
 use std::collections::HashMap;
 
 use ac2_core::CellId;
 use ac2_world::{terrain_polygon_cut, LandBlockDesc};
 
-use crate::cells::{CellSource, LandCell, TerrainPolygon};
+use crate::cells::{outside_cells, CellSource, LandCell, TerrainPolygon};
 use crate::fpu::{ld, st};
 use crate::landdefs::{
     adjust_to_outside, blockid_to_lcoord, lcoord_to_gid, BLOCK_LENGTH, LBLOCK_SIDE,
     POLYS_PER_LANDCELL, SIDE_VERTEX_COUNT, VERTEX_PER_CELL,
 };
+use crate::objects::StaticObject;
 use crate::position::Position;
 use crate::vector::Vector;
 
 /// Terrain polygons per block side.
 const SIDE_POLYGON_COUNT: usize = SIDE_VERTEX_COUNT - 1;
 
-/// The resident landblocks' land cells, keyed by cell id.
+/// The resident landblocks' land cells, keyed by cell id, and their static objects.
 #[derive(Debug, Clone, Default)]
 pub struct Terrain {
     cells: HashMap<u32, LandCell>,
     /// `CLandBlockData::m_waterPlane` heights of the blocks that have water.
     water: HashMap<u32, f32>,
+    /// Static objects by id (a removed object leaves `None`) and the land cells their shadow box
+    /// covers.
+    objects: Vec<Option<(StaticObject, Vec<u32>)>>,
 }
 
 impl Terrain {
@@ -94,16 +99,73 @@ impl Terrain {
                         polygons[slot + 1] = Some(TerrainPolygon::new(triangles[1]));
                     }
                 }
-                self.cells.insert(cell_id, LandCell { cell_id, polygons });
+                let objects = self.shadowing(cell_id);
+                self.cells.insert(
+                    cell_id,
+                    LandCell {
+                        cell_id,
+                        polygons,
+                        objects,
+                    },
+                );
             }
         }
     }
 
-    /// Drops a landblock's cells.
+    /// Drops a landblock's cells and the static objects it placed.
     pub fn remove_block(&mut self, block_cell_id: u32) {
         let block = block_cell_id & 0xFFFF_0000;
         self.cells.retain(|id, _| id & 0xFFFF_0000 != block);
         self.water.remove(&block);
+        for id in 0..self.objects.len() as u32 {
+            let owned = self.objects[id as usize]
+                .as_ref()
+                .is_some_and(|(object, _)| object.position().cell_id & 0xFFFF_0000 == block);
+            if owned {
+                self.remove_object(id);
+            }
+        }
+    }
+
+    /// Adds a static object and enters it in the shadow lists of the resident land cells its
+    /// shadow box covers (`CPhysicsObj::calc_cross_cells` -> `add_shadows_to_cells`); cells made
+    /// resident later pick it up too. Returns its id.
+    pub fn insert_object(&mut self, object: StaticObject) -> u32 {
+        let id = self.objects.len() as u32;
+        let cells = outside_cells(object.position().cell_id, object.shadow_bounds());
+        for cell_id in &cells {
+            if let Some(cell) = self.cells.get_mut(cell_id) {
+                cell.objects.push(id);
+            }
+        }
+        self.objects.push(Some((object, cells)));
+        id
+    }
+
+    /// Removes a static object from the world and its cells' shadow lists.
+    pub fn remove_object(&mut self, id: u32) {
+        let Some(Some((_, cells))) = self.objects.get_mut(id as usize).map(Option::take) else {
+            return;
+        };
+        for cell_id in cells {
+            if let Some(cell) = self.cells.get_mut(&cell_id) {
+                cell.objects.retain(|&other| other != id);
+            }
+        }
+    }
+
+    /// The static objects whose shadow box covers `cell_id`, in insertion order.
+    fn shadowing(&self, cell_id: u32) -> Vec<u32> {
+        self.objects
+            .iter()
+            .enumerate()
+            .filter(|(_, entry)| {
+                entry
+                    .as_ref()
+                    .is_some_and(|(_, cells)| cells.contains(&cell_id))
+            })
+            .map(|(id, _)| id as u32)
+            .collect()
     }
 
     /// Sets a block's water surface height (`CLandBlockData::m_bHasWater`/`m_waterPlane`), or
@@ -150,6 +212,13 @@ impl Terrain {
 impl CellSource for Terrain {
     fn land_cell(&self, cell_id: u32) -> Option<&LandCell> {
         self.cells.get(&cell_id)
+    }
+
+    fn object(&self, id: u32) -> Option<&StaticObject> {
+        self.objects
+            .get(id as usize)?
+            .as_ref()
+            .map(|(object, _)| object)
     }
 }
 

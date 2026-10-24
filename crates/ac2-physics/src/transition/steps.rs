@@ -1,10 +1,11 @@
 //! The `CTransition` responses inside one step: `adjust_offset` (slide the step along the
-//! contact and sliding planes), `step_down`, `check_walkable`, `edge_slide` and `cliff_slide`.
+//! contact and sliding planes), `step_up`, `step_down`, `check_walkable`, `edge_slide` and
+//! `cliff_slide`.
 
 use crate::cells::CellSource;
-use crate::fpu::{ld, st, F_EPSILON};
+use crate::fpu::{ld, st, F_EPSILON, LANDING_Z};
 use crate::landdefs::get_block_offset;
-use crate::transition::collision::{EDGE_SLIDE_OI, ON_WALKABLE_OI};
+use crate::transition::collision::{ObjectInfo, EDGE_SLIDE_OI, ON_WALKABLE_OI};
 use crate::transition::sphere_path::InsertType;
 use crate::transition::{Transition, TransitionState};
 use crate::vector::{Plane, Vector};
@@ -25,7 +26,7 @@ impl Transition {
                 self.collision_info.sliding_normal_valid = false;
             }
         }
-        let c = self.collision_info;
+        let c = self.collision_info.clone();
         if !c.contact_plane_valid {
             if sliding {
                 let s = c.sliding_normal;
@@ -90,10 +91,53 @@ impl Transition {
         Vector::new(x, y, z)
     }
 
-    /// `CTransition::check_walkable`: without a recorded walkable polygon (the terrain records
-    /// none) the position is accepted.
-    pub(crate) fn check_walkable(&mut self, _z_check: f32, _cells: &dyn CellSource) -> bool {
-        self.object_info.state & ON_WALKABLE_OI == 0 || self.sphere_path.check_walkables()
+    /// `CTransition::check_walkable`: a walker whose recorded walkable polygon no longer holds
+    /// it probes once, half a step down (at most a quarter radius for one sphere), for a walkable
+    /// surface at least `z_check` upright; the check position is restored either way.
+    pub(crate) fn check_walkable(&mut self, z_check: f32, cells: &dyn CellSource) -> bool {
+        if self.object_info.state & ON_WALKABLE_OI == 0 || self.sphere_path.check_walkables() {
+            return true;
+        }
+        let path = &mut self.sphere_path;
+        let (cell, backup) = (path.check_cell, path.check_pos);
+        let mut step = ld(self.object_info.step_down_height);
+        path.walkable_allowance = z_check;
+        path.check_walkable = true;
+        let radius = ld(path.global_sphere[0].radius);
+        if path.num_sphere < 2 && step > radius + radius {
+            step = radius * 0.5;
+        }
+        if step > radius + radius {
+            step *= 0.5;
+        }
+        path.add_offset_to_check_pos(Vector::new(0.0, 0.0, st(-step)));
+        let ts = self.transitional_insert(1, cells);
+        self.sphere_path.check_walkable = false;
+        self.sphere_path.set_check_pos(backup, cell);
+        ts != TransitionState::Ok
+    }
+
+    /// `CTransition::step_up`: step up along `normal` by stepping down from the blocked check
+    /// position by the step-up height (0.04 off walkable ground); restored when that fails.
+    pub(crate) fn step_up(&mut self, normal: Vector, cells: &dyn CellSource) -> bool {
+        self.collision_info.clear_contact_plane();
+        let path = &mut self.sphere_path;
+        path.step_up = true;
+        path.step_up_normal = normal;
+        let (height, z) = if self.object_info.state & ON_WALKABLE_OI != 0 {
+            (self.object_info.step_up_height, ObjectInfo::walkable_z())
+        } else {
+            (0.04, LANDING_Z)
+        };
+        path.walkable_allowance = z;
+        path.save_check_pos();
+        let stepped = self.step_down(height, z, cells);
+        self.sphere_path.step_up = false;
+        self.sphere_path.walkable = None;
+        if !stepped {
+            self.sphere_path.restore_check_pos();
+        }
+        stepped
     }
 
     /// `CTransition::step_down`: lower the check position by `height` (unless stepping up) and
@@ -134,8 +178,9 @@ impl Transition {
 
     /// `CTransition::edge_slide`: a walker that cannot step down keeps to the edge. Without
     /// edge sliding it walks off; on a too-steep contact it slides along the cliff
-    /// (`cliff_slide`); with no ground at all it stays where it was. Returns whether the
-    /// insertion is finished and the state it leaves.
+    /// (`cliff_slide`); off a walkable physics-BSP polygon it slides along the crossed edge
+    /// (`SPHEREPATH::precipice_slide`); with no ground at all it stays where it was. Returns
+    /// whether the insertion is finished and the state it leaves.
     pub(crate) fn edge_slide(
         &mut self,
         height: f32,
@@ -144,7 +189,7 @@ impl Transition {
     ) -> (bool, TransitionState) {
         let state = self.object_info.state;
         if state & ON_WALKABLE_OI == 0 || state & EDGE_SLIDE_OI == 0 {
-            self.sphere_path.walkable = false;
+            self.sphere_path.walkable = None;
             let (backup, cell) = (
                 self.sphere_path.backup_check_pos,
                 self.sphere_path.backup_cell,
@@ -156,21 +201,26 @@ impl Transition {
         }
         let contact_valid = self.collision_info.contact_plane_valid;
         if contact_valid && ld(self.collision_info.contact_plane.n.z) < ld(z_val) {
-            self.sphere_path.walkable = false;
+            self.sphere_path.walkable = None;
             self.sphere_path.restore_check_pos();
             let plane = self.collision_info.contact_plane;
             let ts = self.cliff_slide(plane);
             self.collision_info.clear_contact_plane();
             return (false, ts);
         }
+        if self.sphere_path.walkable.is_some() {
+            self.sphere_path.restore_check_pos();
+            self.collision_info.clear_contact_plane();
+            let ts = self.sphere_path.precipice_slide(&mut self.collision_info);
+            return (ts == TransitionState::Collided, ts);
+        }
         if contact_valid {
-            self.sphere_path.walkable = false;
+            self.sphere_path.walkable = None;
             self.sphere_path.restore_check_pos();
             self.sphere_path.cell_array_valid = true;
             self.collision_info.clear_contact_plane();
             return (true, TransitionState::Ok);
         }
-        // `SPHEREPATH::walkable` would select `precipice_slide`; terrain never records one.
         let back = self
             .sphere_path
             .check_pos
@@ -179,9 +229,17 @@ impl Transition {
         self.step_down(height, z_val, cells);
         self.collision_info.clear_contact_plane();
         self.sphere_path.restore_check_pos();
-        self.sphere_path.walkable = false;
-        self.sphere_path.cell_array_valid = true;
-        (true, TransitionState::Collided)
+        if self.sphere_path.walkable.is_none() {
+            self.sphere_path.cell_array_valid = true;
+            return (true, TransitionState::Collided);
+        }
+        self.collision_info.clear_contact_plane();
+        let path = &mut self.sphere_path;
+        let (position, scale) = (path.walkable_pos, path.walkable_scale);
+        path.cache_localspace_sphere(&position, scale);
+        path.walkable_check_pos = path.localspace_sphere[0];
+        let ts = path.precipice_slide(&mut self.collision_info);
+        (ts == TransitionState::Collided, ts)
     }
 
     /// `CTransition::cliff_slide`: slide along the crease between the too-steep contact plane

@@ -68,6 +68,28 @@ pub fn resolve_ac2_visual_setup(
     Ok(None)
 }
 
+/// The `VisualDesc` scale a visual applies to its parts (`PHYSICSOBJREP::GetVdescScale`): the
+/// nearest description in the parent chain that sets one, else one (a bare `CSetup` has none).
+pub fn resolve_ac2_visual_scale(store: &ResourceStore, did: DataId) -> ResourceResult<Vec3> {
+    let mut current = did;
+    for _ in 0..MAX_VISUAL_DESC_DEPTH {
+        if current.raw() & 0xFF00_0000 != VISUAL_DESC_PREFIX {
+            break;
+        }
+        let Some(desc) = load::<Ac2VisualDesc>(store, current)? else {
+            break;
+        };
+        if let Some(scale) = desc.scale {
+            return Ok(scale);
+        }
+        let Some(parent) = desc.parent else {
+            break;
+        };
+        current = parent;
+    }
+    Ok(Vec3::ONE)
+}
+
 /// The Setups a `VisualDesc` (or a bare `CSetup`) draws and each one's root transform. Part
 /// groups attach to their parent group's Setup at the connection point they name: the child root
 /// is the parent's bone in its default pose followed by the connection transform.

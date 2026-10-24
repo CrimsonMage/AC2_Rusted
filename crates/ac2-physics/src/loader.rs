@@ -1,14 +1,28 @@
-//! Loading a body's shape and the resident terrain from the AC2 DATs.
+//! Loading a body's shape, the resident terrain and a landblock's static objects from the AC2
+//! DATs.
 
-use ac2_assets::{resolve_ac2_visual_parts, Ac2SetupPhysics};
+use std::collections::HashMap;
+use std::sync::Arc;
+
+use ac2_assets::{
+    resolve_ac2_visual_meshes, resolve_ac2_visual_parts, resolve_ac2_visual_scale, Ac2PhysicsMesh,
+    Ac2SetupPhysics,
+};
 use ac2_core::{CellId, DataId};
 use ac2_dat::DatFileKind;
 use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
 use ac2_world::Ac2WorldSource;
 
+use crate::bsp::BspTree;
+use crate::fpu::{ld, st};
+use crate::frame::Frame;
+use crate::landdefs::{adjust_to_outside, BLOCK_LENGTH};
+use crate::objects::{ObjectShape, StaticObject};
 use crate::physics_obj::BodyShape;
+use crate::position::Position;
+use crate::shapes::cylsphere::CylSphere;
 use crate::terrain::Terrain;
-use crate::vector::{Sphere, Vector};
+use crate::vector::{Quaternion, Sphere, Vector};
 
 /// The collision shape of the body a `VisualDesc` (or bare `CSetup`) places: its root Setup's
 /// `CSphere`s (`CPartArray::GetSphere`), height and step heights, scaled by the visual's root
@@ -58,4 +72,115 @@ pub fn load_terrain_block(
     let water = world.water_surface_height(block_cell_id)?;
     terrain.set_block_water(block_cell_id.raw(), water);
     Ok(true)
+}
+
+/// The collision shape of a static object's visual: the physics BSP of every mesh it draws
+/// (`CPartArray::FindObjCollisions` collides each part's `CStaticMesh::physics_bsp`) and the
+/// root Setup's cylinders and spheres.
+pub fn load_object_shape(
+    store: &ResourceStore,
+    visual: DataId,
+) -> ResourceResult<Option<ObjectShape>> {
+    let Some((setup, _)) = resolve_ac2_visual_parts(store, visual)?.first().copied() else {
+        return Ok(None);
+    };
+    let mut bsps = Vec::new();
+    for (mesh, _) in resolve_ac2_visual_meshes(store, visual)? {
+        let physics = store.load_cached_packed::<Ac2PhysicsMesh>(TypedResourceRef::new(
+            DatFileKind::Portal,
+            mesh,
+            0,
+        ))?;
+        if let Some(tree) = physics.as_deref().and_then(BspTree::from_mesh) {
+            bsps.push(Arc::new(tree));
+        }
+    }
+    let physics = store.load_cached_packed::<Ac2SetupPhysics>(TypedResourceRef::new(
+        DatFileKind::Portal,
+        setup,
+        0,
+    ))?;
+    let (cylspheres, spheres) = physics
+        .as_deref()
+        .map_or((Vec::new(), Vec::new()), |setup| {
+            (
+                setup
+                    .cylspheres
+                    .iter()
+                    .map(|c| CylSphere {
+                        low: Vector::from(c.low_point),
+                        height: c.height,
+                        radius: c.radius,
+                    })
+                    .collect(),
+                setup
+                    .spheres
+                    .iter()
+                    .map(|s| Sphere::new(Vector::from(s.origin), s.radius))
+                    .collect(),
+            )
+        });
+    if bsps.is_empty() && cylspheres.is_empty() && spheres.is_empty() {
+        return Ok(None);
+    }
+    Ok(Some(ObjectShape::new(bsps, cylspheres, spheres)))
+}
+
+/// `CLandBlock::CreateStaticObjects`: the colliding entities and scenery of one landblock as
+/// static objects in the world (positions from block-relative frames through
+/// `LandDefs::adjust_to_outside`). Returns how many were added.
+pub fn load_block_objects(
+    world: &Ac2WorldSource,
+    terrain: &mut Terrain,
+    block_cell_id: CellId,
+) -> ResourceResult<usize> {
+    let store = world.resource_store();
+    let markers = world.entity_markers(block_cell_id)?;
+    let block = block_cell_id.raw() & 0xFFFF_0000;
+    let base = Vector::new(
+        ((block >> 24) & 0xFF) as f32 * BLOCK_LENGTH,
+        ((block >> 16) & 0xFF) as f32 * BLOCK_LENGTH,
+        0.0,
+    );
+    let mut shapes: HashMap<u32, Option<Arc<ObjectShape>>> = HashMap::new();
+    let mut added = 0;
+    for marker in markers.iter().filter(|marker| marker.collides()) {
+        let visual = marker.visual();
+        let shape = match shapes.get(&visual.raw()) {
+            Some(shape) => shape.clone(),
+            None => {
+                let shape = load_object_shape(store, visual)?.map(Arc::new);
+                shapes.insert(visual.raw(), shape.clone());
+                shape
+            }
+        };
+        let Some(shape) = shape else {
+            continue;
+        };
+        let frame = marker.world_frame();
+        let mut origin = Vector::new(
+            st(ld(frame.origin.x) - ld(base.x)),
+            st(ld(frame.origin.y) - ld(base.y)),
+            frame.origin.z,
+        );
+        let mut cell_id = block | 1;
+        if !adjust_to_outside(&mut cell_id, &mut origin) {
+            continue;
+        }
+        let q = frame.orientation;
+        let position = Position::new(
+            cell_id,
+            Frame::new(origin, Quaternion::new(q.w, q.x, q.y, q.z)),
+        );
+        let vdesc = Vector::from(resolve_ac2_visual_scale(store, visual)?);
+        let s = marker.scale();
+        let scale = Vector::new(
+            st(ld(vdesc.x) * ld(s.x)),
+            st(ld(vdesc.y) * ld(s.y)),
+            st(ld(vdesc.z) * ld(s.z)),
+        );
+        terrain.insert_object(StaticObject::new(position, scale, shape));
+        added += 1;
+    }
+    Ok(added)
 }

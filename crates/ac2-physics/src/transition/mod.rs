@@ -4,6 +4,7 @@
 //! `validate_transition`).
 
 pub(crate) mod collision;
+mod localspace;
 pub(crate) mod sphere_path;
 mod steps;
 
@@ -11,6 +12,7 @@ use crate::cells::{find_cells, find_collisions, CellSource};
 use crate::fpu::{epsilon_squared, ld, st, F_EPSILON, LANDING_Z};
 use crate::landdefs::{adjust_to_outside, is_outside};
 use crate::position::Position;
+use crate::shapes::sphere::slide_sphere;
 use crate::vector::{Plane, Sphere, Vector};
 use collision::{
     CollisionInfo, ObjectInfo, CONTACT_OI, FREE_ROTATE_OI, IS_VIEWER_OI, ON_WALKABLE_OI,
@@ -25,8 +27,6 @@ pub(crate) enum TransitionState {
     Ok,
     Collided,
     Adjusted,
-    /// Produced by physics-BSP sphere slides, which this port does not have yet.
-    #[allow(dead_code)]
     Slid,
 }
 
@@ -57,6 +57,10 @@ pub(crate) struct Transition {
     pub sphere_path: SpherePath,
     pub collision_info: CollisionInfo,
     pub cell_array: CellArray,
+    /// `m_global_physics_timestamp`, advanced every insertion attempt, and the stamp each static
+    /// object was last tested at (`CPhysicsObj::m_physics_timestamp`).
+    pub physics_timestamp: u32,
+    pub object_stamps: std::collections::HashMap<u32, u32>,
 }
 
 /// The object traits `CPhysicsObj::transition` hands `CTransition` (`get_object_info`,
@@ -73,6 +77,8 @@ pub(crate) struct TransitionObject<'a> {
     pub contact: Option<(u32, Plane, bool, bool, bool)>,
     pub sliding_normal: Option<Vector>,
     pub frames_stationary_fall: i32,
+    /// `m_fPhysicsContainmentRadius`.
+    pub containment_radius: f32,
 }
 
 impl Transition {
@@ -94,6 +100,7 @@ impl Transition {
             object.step_down_height,
         );
         transition.object_info.affected_by_gravity = object.affected_by_gravity;
+        transition.object_info.containment_radius = object.containment_radius;
         if let Some((cell_id, plane, is_water, is_landscape, is_environment)) = object.contact {
             transition.init_contact_plane(cell_id, plane, is_water, is_landscape, is_environment);
         }
@@ -134,7 +141,7 @@ impl Transition {
         match self.sphere_path.insert_type {
             InsertType::Transition => self.find_transitional_position(cells),
             // `find_placement_position` is not part of this port.
-            InsertType::Placement => false,
+            InsertType::Placement | InsertType::InitialPlacement => false,
         }
     }
 
@@ -285,12 +292,14 @@ impl Transition {
         }
         let mut result = TransitionState::Invalid;
         for _ in 0..attempts {
+            // `ICPhysicsObj::IncrementGlobalPhysicsTimeStamp`: every object is tested once per pass.
+            self.physics_timestamp += 1;
             let cell = self
                 .sphere_path
                 .check_cell
                 .and_then(|id| cells.land_cell(id));
             let mut ts = match cell {
-                Some(cell) => find_collisions(self, cell),
+                Some(cell) => find_collisions(self, cell, cells),
                 None => TransitionState::Collided,
             };
             match ts {
@@ -323,9 +332,24 @@ impl Transition {
             }
             let path = &self.sphere_path;
             if path.neg_poly_hit && !path.step_down && !path.step_up {
-                // Physics-BSP negative polygon hits (`neg_step_up`, `CSphere::slide_sphere`)
-                // are not produced by terrain.
                 self.sphere_path.neg_poly_hit = false;
+                let mut normal = self.sphere_path.neg_collision_normal;
+                if !self.sphere_path.neg_step_up {
+                    let (sphere, curr) = (
+                        self.sphere_path.global_sphere[0],
+                        self.sphere_path.global_curr_center[0],
+                    );
+                    result = slide_sphere(
+                        sphere,
+                        &mut self.sphere_path,
+                        &mut self.collision_info,
+                        &mut normal,
+                        curr,
+                    );
+                    self.sphere_path.neg_collision_normal = normal;
+                } else if !self.step_up(normal, cells) {
+                    result = self.sphere_path.step_up_slide(&mut self.collision_info);
+                }
                 continue;
             }
             let state = self.object_info.state;
@@ -357,7 +381,7 @@ impl Transition {
             self.sphere_path.insert_type = self.sphere_path.backup;
             blocked = placed != TransitionState::Ok;
         }
-        self.sphere_path.walkable = false;
+        self.sphere_path.walkable = None;
         if !blocked {
             return TransitionState::Ok;
         }
@@ -400,7 +424,7 @@ impl Transition {
             self.step_down(height, z, cells) || self.step_down(height, z, cells)
         };
         if stepped {
-            self.sphere_path.walkable = false;
+            self.sphere_path.walkable = None;
             return Ok(TransitionState::Ok);
         }
         let (finished, ts) = self.edge_slide(height, z, cells);
@@ -548,7 +572,7 @@ impl Transition {
             let Some(cell) = cells.land_cell(cell_id) else {
                 continue;
             };
-            ts = find_collisions(self, cell);
+            ts = find_collisions(self, cell, cells);
             match ts {
                 TransitionState::Collided | TransitionState::Adjusted => return ts,
                 TransitionState::Slid => {

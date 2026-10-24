@@ -124,6 +124,19 @@ impl Frame {
         )
     }
 
+    /// `Frame::globaltolocal` (a point): the offset from the origin is stored as `float` first.
+    pub(crate) fn global_to_local(&self, v: Vector) -> Vector {
+        let m = self.m.map(ld);
+        let dx = ld(st(ld(v.x) - ld(self.origin.x)));
+        let dy = ld(st(ld(v.y) - ld(self.origin.y)));
+        let dz = ld(st(ld(v.z) - ld(self.origin.z)));
+        Vector::new(
+            st((dx * m[0] + dz * m[2]) + dy * m[1]),
+            st((dx * m[3] + dz * m[5]) + dy * m[4]),
+            st((dx * m[6] + dz * m[8]) + dy * m[7]),
+        )
+    }
+
     /// `Frame::get_heading`: the compass heading of the local y axis.
     pub fn heading(&self) -> Heading {
         let angle = ld(self.m[4]).atan2(ld(self.m[3]));

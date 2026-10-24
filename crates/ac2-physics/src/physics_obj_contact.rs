@@ -117,6 +117,7 @@ impl PhysicsObj {
             contact,
             sliding_normal: (self.transient_state & SLIDING_TS != 0).then_some(self.sliding_normal),
             frames_stationary_fall,
+            containment_radius: self.containment_radius(),
         };
         let begin_cell = terrain
             .land_cell(self.position.cell_id)

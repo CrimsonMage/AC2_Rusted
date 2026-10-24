@@ -10,6 +10,7 @@ use crate::motion_interp::{
     MotionContext, MotionInterp, ELEMENT_AIR, ELEMENT_GROUND, ELEMENT_SEA_FLOOR,
     ELEMENT_WALK_ON_AIR, ELEMENT_WATER,
 };
+use crate::objects::ObjectShape;
 use crate::position::Position;
 use crate::terrain::Terrain;
 use crate::vector::{Plane, Quaternion, Sphere, Vector};
@@ -89,6 +90,8 @@ pub(crate) struct PhysicsObj {
     pub element: u32,
     pub motion: MotionInterp,
     pub shape: BodyShape,
+    /// `CSetup::m_physics_containment_radius` of the body's spheres (unscaled).
+    pub setup_containment: f32,
 }
 
 impl PhysicsObj {
@@ -124,8 +127,22 @@ impl PhysicsObj {
             times_jumped: 0,
             element: ELEMENT_GROUND,
             motion,
+            setup_containment: ObjectShape::new(Vec::new(), Vec::new(), shape.spheres.clone())
+                .containment_radius,
             shape,
         }
+    }
+
+    /// `CPhysicsObj::SetPhysicsContainmentRadius`: the Setup's containment radius times the
+    /// length of the total scale.
+    pub(crate) fn containment_radius(&self) -> f32 {
+        let s = ld(self.shape.scale);
+        let (x, y, z) = (
+            ld(st(s * ld(self.scale.x))),
+            ld(st(s * ld(self.scale.y))),
+            ld(st(s * ld(self.scale.z))),
+        );
+        st(ld(st((x * x + y * y) + z * z)).sqrt() * ld(self.setup_containment))
     }
 
     pub(crate) fn has_contact(&self) -> bool {

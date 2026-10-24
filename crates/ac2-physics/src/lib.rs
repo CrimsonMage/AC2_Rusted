@@ -8,6 +8,7 @@
 //! cell's landblock. Arithmetic follows the retail x87 model (see `fpu`).
 
 mod body;
+mod bsp;
 mod cells;
 mod fpu;
 mod frame;
@@ -15,6 +16,11 @@ mod heading;
 mod landdefs;
 mod loader;
 mod motion_interp;
+mod objects;
+#[cfg(test)]
+mod objects_real_data_tests;
+#[cfg(test)]
+mod objects_tests;
 mod physics_obj;
 mod physics_obj_contact;
 #[cfg(test)]
@@ -22,6 +28,7 @@ mod physics_obj_tests;
 mod position;
 #[cfg(test)]
 mod real_data_tests;
+mod shapes;
 mod terrain;
 #[cfg(test)]
 mod test_support;
@@ -29,12 +36,15 @@ mod transition;
 mod vector;
 
 pub use body::{MovementInput, MovementState, PhysicsBody, PhysicsClock, PHYSICS_QUANTUM};
+pub use bsp::{BspTree, Polygon};
 pub use cells::{CellSource, LandCell, TerrainPolygon};
 pub use frame::Frame;
 pub use heading::Heading;
-pub use loader::{load_body_shape, load_terrain_block};
+pub use loader::{load_block_objects, load_body_shape, load_object_shape, load_terrain_block};
 pub use motion_interp::MotionInterp;
+pub use objects::{BBox, ObjectShape, StaticObject};
 pub use physics_obj::BodyShape;
 pub use position::Position;
+pub use shapes::cylsphere::CylSphere;
 pub use terrain::Terrain;
 pub use vector::{Plane, Quaternion, Sphere, Vector};
