@@ -33,6 +33,14 @@ impl LandBlockDesc {
         (self.vertex_side() - 1) / LAND_BLOCK_CELLS_PER_SIDE
     }
 
+    /// Unit normal of vertex (`x`, `y`) (`CLandBlockData::m_vNormals`, AC axes, z up).
+    pub fn normal(&self, x: usize, y: usize) -> Option<[f32; 3]> {
+        let side = self.vertex_side();
+        (x < side && y < side)
+            .then(|| self.samples.normal(x * side + y))
+            .flatten()
+    }
+
     /// Terrain `SurfaceInfo` of vertex (`x`, `y`) (`CLandBlockData::m_vertexSurfaceInfo`).
     pub fn surface_info(&self, x: usize, y: usize) -> Option<&Ac2SurfaceInfo> {
         let side = self.vertex_side();

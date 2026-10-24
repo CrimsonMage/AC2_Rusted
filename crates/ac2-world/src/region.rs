@@ -3,13 +3,17 @@
 
 use std::sync::Arc;
 
-use ac2_core::{ColorArgb, QualifiedDataId};
+use ac2_core::QualifiedDataId;
+
+use crate::color::Rgba;
 
 #[path = "region/ac2_region.rs"]
 mod ac2_region;
 #[path = "region_environment.rs"]
 mod environment;
 pub(crate) use ac2_region::{ac2_region_water_desc, load_ac2_region};
+#[path = "region/day_desc.rs"]
+mod day_desc;
 #[path = "region/game_time.rs"]
 mod game_time;
 pub use environment::{SkyEnvironmentCadence, SkyEnvironmentSample, SkyFogDesc};
@@ -42,12 +46,6 @@ impl RegionDesc {
     pub fn server_time_at_day_fraction(&self, server_time: f64, day_fraction: f64) -> Option<f64> {
         self.game_time
             .server_time_at_day_fraction(server_time, day_fraction)
-    }
-
-    /// Samples the authored day/night schedule as a continuous night-light factor: zero is the
-    /// day state and one the night state.
-    pub fn night_light_factor_at(&self, server_time: f64) -> Option<f32> {
-        self.game_time.night_light_factor_at(server_time)
     }
 
     pub fn sky_lighting(&self) -> Option<&SkyLightingDesc> {
@@ -103,14 +101,10 @@ impl RegionDesc {
         let calendar = self.game_time.calendar_at(server_time)?;
         let sky = self.sky.as_ref()?;
         let index = self.selected_sky_group(calendar.day_group_seed(), name)?;
-        let mut sample = sky
-            .day_groups
-            .get(index)?
-            .sample(calendar.time_of_day as f32)?;
-        if calendar.time_of_day == 0.0 {
-            sample.world_fog = None;
-        }
-        Some(sample)
+        Some(day_desc::sample(
+            &sky.day_groups.get(index)?.lightings,
+            calendar.time_of_day as f32,
+        ))
     }
 
     fn selected_sky_group(&self, seed: u32, name: Option<&str>) -> Option<usize> {
@@ -129,14 +123,16 @@ impl RegionDesc {
     }
 }
 
+/// AC2 `LightInfo`: direct light brightness, heading and pitch (degrees), colours, ambient.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct SkyLightingDesc {
     pub(super) dir_brightness: f32,
     pub(super) dir_heading: f32,
     pub(super) dir_pitch: f32,
-    pub(super) dir_color: ColorArgb,
+    pub(super) dir_color: Rgba,
     pub(super) ambient_brightness: f32,
-    pub(super) ambient_color: ColorArgb,
+    pub(super) ambient_color: Rgba,
+    pub(super) shadow_color: Rgba,
 }
 
 impl SkyLightingDesc {
@@ -152,7 +148,7 @@ impl SkyLightingDesc {
         self.dir_pitch
     }
 
-    pub fn dir_color(&self) -> ColorArgb {
+    pub fn dir_color(&self) -> Rgba {
         self.dir_color
     }
 
@@ -160,19 +156,8 @@ impl SkyLightingDesc {
         self.ambient_brightness
     }
 
-    pub fn ambient_color(&self) -> ColorArgb {
+    pub fn ambient_color(&self) -> Rgba {
         self.ambient_color
-    }
-
-    fn interpolate(&self, after: &Self, ratio: f32) -> Self {
-        Self {
-            dir_brightness: lerp(self.dir_brightness, after.dir_brightness, ratio),
-            dir_heading: lerp(self.dir_heading, after.dir_heading, ratio),
-            dir_pitch: lerp(self.dir_pitch, after.dir_pitch, ratio),
-            dir_color: lerp_color(self.dir_color, after.dir_color, ratio),
-            ambient_brightness: lerp(self.ambient_brightness, after.ambient_brightness, ratio),
-            ambient_color: lerp_color(self.ambient_color, after.ambient_color, ratio),
-        }
     }
 }
 
@@ -210,24 +195,6 @@ impl DayGroup {
     fn default_lighting(&self) -> Option<&SkyLightingDesc> {
         self.lightings.first().map(|key| &key.lighting)
     }
-
-    fn sample(&self, time_of_day: f32) -> Option<SkyEnvironmentSample> {
-        let (before, after, ratio) = time_key_pair(&self.lightings, time_of_day)?;
-        let lighting = before.lighting.interpolate(&after.lighting, ratio);
-        let world_fog = before
-            .world_fog
-            .zip(after.world_fog)
-            .map(|(before, after)| before.interpolate(after, ratio));
-        Some(SkyEnvironmentSample {
-            ambient_brightness: lighting.ambient_brightness,
-            ambient_color: lighting.ambient_color,
-            directional_brightness: lighting.dir_brightness,
-            directional_heading_degrees: lighting.dir_heading,
-            directional_pitch_degrees: lighting.dir_pitch,
-            directional_color: lighting.dir_color,
-            world_fog,
-        })
-    }
 }
 
 /// One `SkyTimeOfDay` key: lighting and linear world fog from `begin` (fraction of the day).
@@ -235,72 +202,5 @@ impl DayGroup {
 struct SkyTimeOfDay {
     begin: f32,
     lighting: SkyLightingDesc,
-    world_fog: Option<SkyFogDesc>,
-}
-
-fn time_key_pair(keys: &[SkyTimeOfDay], time: f32) -> Option<(&SkyTimeOfDay, &SkyTimeOfDay, f32)> {
-    let key_count = keys.len();
-    let _ = keys.first()?;
-    let mut before_index = 0;
-    if key_count != 1 {
-        for candidate in keys.iter().skip(1) {
-            if candidate.begin > time {
-                break;
-            }
-            before_index += 1;
-        }
-    }
-    let before = keys.get(before_index)?;
-    let after = keys.get((before_index + 1) % key_count)?;
-    let span = if before_index + 1 == key_count {
-        1.0 - before.begin
-    } else {
-        after.begin - before.begin
-    };
-    Some((before, after, (time - before.begin) / span))
-}
-
-fn lerp(before: f32, after: f32, ratio: f32) -> f32 {
-    before + (after - before) * ratio
-}
-
-fn lerp_color(before: ColorArgb, after: ColorArgb, ratio: f32) -> ColorArgb {
-    ColorArgb {
-        alpha: lerp(f32::from(before.alpha), f32::from(after.alpha), ratio) as u8,
-        red: lerp(f32::from(before.red), f32::from(after.red), ratio) as u8,
-        green: lerp(f32::from(before.green), f32::from(after.green), ratio) as u8,
-        blue: lerp(f32::from(before.blue), f32::from(after.blue), ratio) as u8,
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn key(begin: f32, brightness: f32) -> SkyTimeOfDay {
-        SkyTimeOfDay {
-            begin,
-            lighting: SkyLightingDesc {
-                dir_brightness: brightness,
-                dir_heading: 0.0,
-                dir_pitch: 0.0,
-                dir_color: ColorArgb::default(),
-                ambient_brightness: brightness,
-                ambient_color: ColorArgb::default(),
-            },
-            world_fog: None,
-        }
-    }
-
-    #[test]
-    fn time_keys_interpolate_and_wrap_to_the_first_key() {
-        let day = DayGroup {
-            name: Arc::from("day"),
-            lightings: Arc::from([key(0.25, 0.0), key(0.75, 1.0)]),
-        };
-        let midday = day.sample(0.5).unwrap();
-        assert!((midday.directional_brightness() - 0.5).abs() < 1e-6);
-        let late = day.sample(0.875).unwrap();
-        assert!((late.directional_brightness() - 0.5).abs() < 1e-6);
-    }
+    world_fog: SkyFogDesc,
 }

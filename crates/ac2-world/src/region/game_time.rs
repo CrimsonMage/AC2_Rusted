@@ -81,41 +81,6 @@ impl GameTime {
         Some(day_index * day_length + day_fraction * day_length - self.zero_time_of_year)
     }
 
-    pub(super) fn night_light_factor_at(&self, server_time: f64) -> Option<f32> {
-        let time = self.calendar_at(server_time)?.time_of_day as f32;
-        let before_index = self
-            .times_of_day
-            .iter()
-            .rposition(|entry| entry.start <= time)
-            .unwrap_or(self.times_of_day.len().checked_sub(1)?);
-        let before = self.times_of_day.get(before_index)?;
-        let after = self
-            .times_of_day
-            .get((before_index + 1) % self.times_of_day.len())?;
-        let span = if before_index + 1 == self.times_of_day.len() {
-            1.0 - before.start + after.start
-        } else {
-            after.start - before.start
-        };
-        let elapsed = if before_index + 1 == self.times_of_day.len() {
-            (time - before.start).rem_euclid(1.0)
-        } else {
-            time - before.start
-        };
-        let ratio = if span > 0.0 {
-            (elapsed / span).clamp(0.0, 1.0)
-        } else {
-            0.0
-        };
-        // TimeOfDay only exposes authored named day/night boundary records. Ease between those
-        // records so consumers can use it as a sunup/sundown envelope without stepping or
-        // changing the separate SkyDesc world-lighting interpolation.
-        let eased_ratio = ratio * ratio * (3.0 - 2.0 * ratio);
-        let before_night = if before.is_night { 1.0 } else { 0.0 };
-        let after_night = if after.is_night { 1.0 } else { 0.0 };
-        Some(before_night + (after_night - before_night) * eased_ratio)
-    }
-
     pub(super) fn calendar_at(&self, server_time: f64) -> Option<GameCalendar> {
         if !server_time.is_finite()
             || !self.zero_time_of_year.is_finite()

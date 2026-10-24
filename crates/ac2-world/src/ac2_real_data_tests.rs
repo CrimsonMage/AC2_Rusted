@@ -85,6 +85,8 @@ fn ac2_landblock_loads_with_metric_heights_and_surface_textures() {
     let mut roads = 0;
     for x in 0..17 {
         for y in 0..17 {
+            let [nx, ny, nz] = block.normal(x, y).expect("vertex in range");
+            assert!(((nx * nx + ny * ny + nz * nz) - 1.0).abs() < 1e-4 && nz > 0.0);
             let info = block.surface_info(x, y).expect("vertex in range");
             let base = info
                 .base_material

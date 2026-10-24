@@ -28,6 +28,8 @@ const AC2_HOLE_TERRAIN: u32 = 0x1E;
 #[derive(Debug, PartialEq)]
 pub struct Ac2TerrainSamples {
     height_bits: Vec<u32>,
+    /// `CLandBlockData::m_vNormals` (`CacheFarValues`).
+    normals: Vec<[f32; 3]>,
     surface: Vec<Ac2SurfaceInfo>,
     road: Vec<Ac2SurfaceInfo>,
     /// Vertices of the landscape-hole terrain type (`0x1E`), where cave and dungeon mouths open.
@@ -47,6 +49,10 @@ impl Ac2TerrainSamples {
 
     pub(crate) fn is_hole(&self, index: usize) -> bool {
         self.holes.get(index).copied().unwrap_or(false)
+    }
+
+    pub(crate) fn normal(&self, index: usize) -> Option<[f32; 3]> {
+        self.normals.get(index).copied()
     }
 
     pub(crate) fn surface(&self, index: usize) -> Option<&Ac2SurfaceInfo> {
@@ -229,22 +235,71 @@ impl Ac2WorldSource {
     }
 
     fn samples(&self, record: &Ac2LandBlockRecord, block_cell_id: CellId) -> Ac2TerrainSamples {
-        let metres = |x: usize, y: usize| {
-            let index =
-                x.min(AC2_SIDE_VERTICES - 1) * AC2_SIDE_VERTICES + y.min(AC2_SIDE_VERTICES - 1);
+        let side = AC2_SIDE_VERTICES as i32;
+        let polygons = side - 1;
+        let block_x = ((block_cell_id.raw() >> 24) & 0xFF) as i32;
+        let block_y = ((block_cell_id.raw() >> 16) & 0xFF) as i32;
+        // The block and its eight neighbours, for edge normals.
+        let mut grid: [Option<CachedResource<Ac2LandBlockRecord>>; 9] = Default::default();
+        for (slot, (dx, dy)) in (-1..=1)
+            .flat_map(|dx| (-1..=1).map(move |dy| (dx, dy)))
+            .enumerate()
+        {
+            if (dx, dy) != (0, 0) {
+                grid[slot] = self.neighbour_record(block_x + dx, block_y + dy);
+            }
+        }
+        let record_at = |dx: i32, dy: i32| -> Option<&Ac2LandBlockRecord> {
+            if (dx, dy) == (0, 0) {
+                return Some(record);
+            }
+            grid[((dx + 1) * 3 + dy + 1) as usize].as_deref()
+        };
+        let metres = |record: &Ac2LandBlockRecord, x: i32, y: i32| {
             self.height_table
-                .get(usize::from(record.heights[index]))
+                .get(usize::from(record.heights[(x * side + y) as usize]))
                 .copied()
                 .unwrap_or(0.0)
         };
+        // `CLandBlockData::GetNeighborHeightValue`: -1 reads the previous block's vertex 15, 17
+        // the next block's vertex 1; a missing block reads 0.
+        let height = |x: i32, y: i32| {
+            let step = |i: i32| match i {
+                i if i < 0 => (-1, side - 2),
+                i if i >= side => (1, 1),
+                i => (0, i),
+            };
+            let ((dx, x), (dy, y)) = (step(x), step(y));
+            record_at(dx, dy).map_or(0.0, |r| metres(r, x, y))
+        };
+        // `CLandBlockData::GetNeighborIsSWtoNECut`: -1 is the previous block's polygon 15, 16 and
+        // 17 the next block's polygons 0 and 1; a missing block is not cut.
+        let cut = |x: i32, y: i32| {
+            let step = |i: i32| match i {
+                i if i < 0 => (-1, polygons - 1),
+                i if i >= polygons => (1, i - polygons),
+                i => (0, i),
+            };
+            let ((dx, x), (dy, y)) = (step(x), step(y));
+            record_at(dx, dy).is_some()
+                && crate::terrain_cut::ac2_sw_to_ne_cut(
+                    (block_x + dx) * polygons + x,
+                    (block_y + dy) * polygons + y,
+                )
+        };
+        let normals = crate::vertex_normals::vertex_normals(
+            AC2_SIDE_VERTICES,
+            self.vertex_spacing,
+            height,
+            cut,
+        );
         let field = |word: u32, (offset, mask): (u32, u32)| (word >> offset) & mask;
         // Global vertex coordinates seed the per-vertex material picks
         // (`CLandBlockData::CacheFarValues`: `(side_vertex_count - 1) * block + i`).
-        let polygons = (AC2_SIDE_VERTICES - 1) as i32;
-        let base_x = ((block_cell_id.raw() >> 24) & 0xFF) as i32 * polygons;
-        let base_y = ((block_cell_id.raw() >> 16) & 0xFF) as i32 * polygons;
+        let (base_x, base_y) = (block_x * polygons, block_y * polygons);
         let mut samples = Ac2TerrainSamples {
             height_bits: vec![0; AC2_SAMPLES],
+            normals,
             surface: vec![Ac2SurfaceInfo::default(); AC2_SAMPLES],
             road: vec![Ac2SurfaceInfo::default(); AC2_SAMPLES],
             holes: vec![false; AC2_SAMPLES],
@@ -252,15 +307,10 @@ impl Ac2WorldSource {
         for x in 0..AC2_SIDE_VERTICES {
             for y in 0..AC2_SIDE_VERTICES {
                 let index = x * AC2_SIDE_VERTICES + y;
-                samples.height_bits[index] = metres(x, y).to_bits();
-                // pitch^2 = normal.x^2 + normal.y^2 of the unit vertex normal.
-                let dx = (metres(x + 1, y) - metres(x.saturating_sub(1), y))
-                    / (self.vertex_spacing
-                        * (1 + usize::from(x > 0 && x + 1 < AC2_SIDE_VERTICES)) as f32);
-                let dy = (metres(x, y + 1) - metres(x, y.saturating_sub(1)))
-                    / (self.vertex_spacing
-                        * (1 + usize::from(y > 0 && y + 1 < AC2_SIDE_VERTICES)) as f32);
-                let pitch_squared = (dx * dx + dy * dy) / (dx * dx + dy * dy + 1.0);
+                samples.height_bits[index] = metres(record, x as i32, y as i32).to_bits();
+                // `pitchSq = normal.x^2 + normal.y^2` of the vertex normal.
+                let [nx, ny, _] = samples.normals[index];
+                let pitch_squared = nx * nx + ny * ny;
                 let word = record.cell_info[index];
                 let terrain = field(word, self.terrain_field);
                 let road = field(word, self.road_field);
@@ -286,6 +336,22 @@ impl Ac2WorldSource {
             }
         }
         samples
+    }
+
+    /// The `CLandBlockData` of block (`x`, `y`), `None` off the map or where none exists.
+    fn neighbour_record(&self, x: i32, y: i32) -> Option<CachedResource<Ac2LandBlockRecord>> {
+        if !(0..=0xFF).contains(&x) || !(0..=0xFF).contains(&y) {
+            return None;
+        }
+        let did = DataId::new(((x as u32) << 24) | ((y as u32) << 16) | 0xFFFF);
+        self.store
+            .load_cached_packed::<Ac2LandBlockRecord>(TypedResourceRef::new(
+                DatFileKind::Cell,
+                did,
+                0,
+            ))
+            .ok()
+            .flatten()
     }
 }
 
@@ -351,6 +417,7 @@ mod hole_tests {
         holes[x * AC2_SIDE_VERTICES + y] = true;
         let samples = Ac2TerrainSamples {
             height_bits: vec![0; AC2_SAMPLES],
+            normals: vec![[0.0, 0.0, 1.0]; AC2_SAMPLES],
             surface: vec![Default::default(); AC2_SAMPLES],
             road: vec![Default::default(); AC2_SAMPLES],
             holes,

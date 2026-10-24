@@ -17,7 +17,7 @@ use crate::{Gpu, DEPTH_FORMAT};
 struct GpuVertex {
     position: [f32; 3],
     normal: [f32; 3],
-    color: [f32; 4],
+    surface_color: [f32; 4],
     grid: [f32; 2],
     corner: u32,
 }
@@ -27,8 +27,8 @@ struct GpuVertex {
 struct FrameUniform {
     view_proj: [[f32; 4]; 4],
     eye: [f32; 4],
-    sun_dir: [f32; 4],
-    sun: [f32; 4],
+    light_dir: [f32; 4],
+    dir_color: [f32; 4],
     ambient: [f32; 4],
     fog_color: [f32; 4],
     fog: [f32; 4],
@@ -197,7 +197,7 @@ impl TerrainRenderer {
             .map(|v| GpuVertex {
                 position: v.position,
                 normal: v.normal,
-                color: v.color,
+                surface_color: v.surface_color,
                 grid: v.grid,
                 corner: v.corner,
             })
@@ -301,19 +301,16 @@ impl TerrainRenderer {
         lighting: &SceneLighting,
         aspect: f32,
     ) {
-        let (fog_start, fog_end, fog_on) = match lighting.fog_range {
-            Some((start, end)) => (start, end, 1.0),
-            None => (0.0, 1.0, 0.0),
-        };
+        let (fog_start, fog_end) = lighting.fog_range;
         let rgb = |c: [f32; 3]| [c[0], c[1], c[2], 1.0];
         let uniform = FrameUniform {
             view_proj: camera.view_projection(aspect).to_cols_array_2d(),
             eye: camera.eye.extend(1.0).to_array(),
-            sun_dir: lighting.sun_direction.extend(0.0).to_array(),
-            sun: rgb(lighting.sun),
+            light_dir: lighting.light_dir.extend(0.0).to_array(),
+            dir_color: rgb(lighting.dir_color),
             ambient: rgb(lighting.ambient),
             fog_color: rgb(lighting.fog_color),
-            fog: [fog_start, fog_end, fog_on, 0.0],
+            fog: [fog_start, fog_end, 0.0, 0.0],
         };
         queue.write_buffer(&self.frame_buffer, 0, bytemuck::bytes_of(&uniform));
     }

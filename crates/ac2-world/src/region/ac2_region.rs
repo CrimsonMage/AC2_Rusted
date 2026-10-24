@@ -3,7 +3,7 @@
 
 use std::sync::Arc;
 
-use ac2_core::{ColorArgb, DataId, QualifiedDataId};
+use ac2_core::{DataId, QualifiedDataId};
 use ac2_dat::ArchiveCursor;
 use ac2_dat::DatFileKind;
 use ac2_db::{
@@ -13,6 +13,7 @@ use ac2_db::{
 
 use super::game_time::{GameTime, Season, TimeOfDay};
 use super::{DayGroup, RegionDesc, SkyDesc, SkyFogDesc, SkyLightingDesc, SkyTimeOfDay};
+use crate::color::set_color32;
 
 const AC2_REGION_DID: DataId = DataId::new(0x0F00_0000);
 /// `CRegionDesc::UnPack` info lists in stream order; the sky list is the seventh.
@@ -243,7 +244,7 @@ impl ResourcePackedDecode for Ac2DayRecord {
     }
 }
 
-/// `SkyTimeOfDay::StreamPack`. Colours are packed ARGB words; fog is always linear world fog.
+/// `SkyTimeOfDay::StreamPack`. Colours are `RGBAColor::StreamPack` ARGB words.
 fn read_time_of_day(
     cursor: &mut ArchiveCursor<'_>,
     qdid: QualifiedDataId,
@@ -251,15 +252,15 @@ fn read_time_of_day(
     let begin = cursor.read_f32()?;
     let fog_min = cursor.read_f32()?;
     let fog_max = cursor.read_f32()?;
-    let _fog_sky = cursor.read_f32()?;
-    let fog_color = argb(cursor.read_u32()?);
+    let fog_sky = cursor.read_f32()?;
+    let fog_color = set_color32(cursor.read_u32()?);
     let dir_brightness = cursor.read_f32()?;
     let dir_heading = cursor.read_f32()?;
     let dir_pitch = cursor.read_f32()?;
-    let dir_color = argb(cursor.read_u32()?);
+    let dir_color = set_color32(cursor.read_u32()?);
     let ambient_brightness = cursor.read_f32()?;
-    let ambient_color = argb(cursor.read_u32()?);
-    let _shadow_color = cursor.read_u32()?;
+    let ambient_color = set_color32(cursor.read_u32()?);
+    let shadow_color = set_color32(cursor.read_u32()?);
     // `SkyObjectReplace`: object type, three scalars and a colour.
     let replacements = read_count(cursor, qdid, "AC2 DayDesc", 20)?;
     cursor.read_bytes(replacements * 20)?;
@@ -273,8 +274,14 @@ fn read_time_of_day(
             dir_color,
             ambient_brightness,
             ambient_color,
+            shadow_color,
         },
-        world_fog: Some(SkyFogDesc::new(fog_min, fog_max, fog_color)),
+        world_fog: SkyFogDesc {
+            min_distance: fog_min,
+            max_distance: fog_max,
+            sky: fog_sky,
+            color: fog_color,
+        },
     })
 }
 
@@ -350,16 +357,6 @@ fn string_id(id: u32) -> String {
     format!("{id:08X}")
 }
 
-fn argb(word: u32) -> ColorArgb {
-    let [blue, green, red, alpha] = word.to_le_bytes();
-    ColorArgb {
-        alpha,
-        red,
-        green,
-        blue,
-    }
-}
-
 fn read_count(
     cursor: &mut ArchiveCursor<'_>,
     qdid: QualifiedDataId,
@@ -407,16 +404,7 @@ fn expect_end(
 
 #[cfg(test)]
 mod tests {
-    use super::{ac2_day_index, argb};
-
-    #[test]
-    fn packed_argb_words_unpack_by_channel() {
-        let color = argb(0xFF46_5BA3);
-        assert_eq!(
-            (color.alpha, color.red, color.green, color.blue),
-            (0xFF, 0x46, 0x5B, 0xA3)
-        );
-    }
+    use super::ac2_day_index;
 
     #[test]
     fn day_choice_follows_authored_frequencies() {

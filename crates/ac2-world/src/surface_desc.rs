@@ -57,11 +57,11 @@ pub(crate) struct SurfaceType {
 }
 
 impl SurfaceType {
-    /// `LScapeSurfaceType::GetVertexInfo`'s band test: `min^2 <= pitchSq < max^2`.
+    /// `LScapeSurfaceType::GetVertexInfo`'s band test: `min^2 <= pitchSq <= max^2`, first match.
     pub(crate) fn group_for_pitch(&self, pitch_squared: f32) -> Option<&MaterialGroup> {
         self.groups.iter().find(|group| {
             group.min_pitch * group.min_pitch <= pitch_squared
-                && pitch_squared < group.max_pitch * group.max_pitch
+                && pitch_squared <= group.max_pitch * group.max_pitch
         })
     }
 }
@@ -149,9 +149,7 @@ fn count(cursor: &mut ArchiveCursor<'_>) -> Decode<usize> {
 
 /// `RGBAColor::StreamPack`: one ARGB word (`RGBAColor::SetColor32`).
 fn color(cursor: &mut ArchiveCursor<'_>) -> Decode<[f32; 4]> {
-    let argb = word(cursor)?;
-    let channel = |shift: u32| ((argb >> shift) & 0xFF) as f32 * 0.003_921_569;
-    Ok([channel(16), channel(8), channel(0), channel(24)])
+    Ok(crate::color::set_color32(word(cursor)?))
 }
 
 /// `CSurfaceDesc::StreamPack`: version, `DBObj` type header (the DID), far-terrain and cloud
@@ -307,7 +305,7 @@ mod tests {
             surface.group_for_pitch(0.64).unwrap().base.0[0].did.raw(),
             0x2B00_0011
         );
-        assert!(surface.group_for_pitch(1.0).is_none());
+        assert!(surface.group_for_pitch(1.01).is_none());
         assert!(desc.road(1).is_none());
     }
 }

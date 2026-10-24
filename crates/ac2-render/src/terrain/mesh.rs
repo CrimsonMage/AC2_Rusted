@@ -14,9 +14,11 @@ use super::layers::{terrain_layers, TerrainLayers};
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct TerrainVertex {
     pub position: [f32; 3],
+    /// `CLandBlockData::m_vNormals`.
     pub normal: [f32; 3],
-    /// `SurfaceInfo::vertex_color` of the corner's terrain surface (linear RGBA).
-    pub color: [f32; 4],
+    /// The corner's terrain `SurfaceInfo::vertex_color`, which `UpdateNearTerrain` stores as the
+    /// vertex specular colour (diffuse is white until `IlluminateVertices` lights it).
+    pub surface_color: [f32; 4],
     /// Block-local vertex coordinates (0..=16); `LScapeMaterialInfo::SetUVs` scales these by each
     /// layer's tiling.
     pub grid: [f32; 2],
@@ -52,15 +54,8 @@ pub fn build_terrain_mesh(
         ((block_cell_id.raw() >> 24) & 0xFF) as f32 * block_size,
         ((block_cell_id.raw() >> 16) & 0xFF) as f32 * block_size,
     ];
-    let height = |x: usize, y: usize| heights[x.min(polygons) * side + y.min(polygons)];
-    let normal = |x: usize, y: usize| {
-        let (x0, x1) = (x.saturating_sub(1), (x + 1).min(polygons));
-        let (y0, y1) = (y.saturating_sub(1), (y + 1).min(polygons));
-        let dx = (height(x1, y) - height(x0, y)) / ((x1 - x0) as f32 * spacing);
-        let dy = (height(x, y1) - height(x, y0)) / ((y1 - y0) as f32 * spacing);
-        let len = (dx * dx + dy * dy + 1.0).sqrt();
-        [-dx / len, -dy / len, 1.0 / len]
-    };
+    let height = |x: usize, y: usize| heights[x * side + y];
+    let normal = |x: usize, y: usize| landblock.normal(x, y).unwrap_or([0.0, 0.0, 1.0]);
     let default = Ac2SurfaceInfo::default();
     let surface = |x: usize, y: usize| landblock.surface_info(x, y).unwrap_or(&default);
     let road = |x: usize, y: usize| landblock.road_info(x, y).unwrap_or(&default);
@@ -88,15 +83,15 @@ pub fn build_terrain_mesh(
                         height(x, y),
                     ],
                     normal: normal(x, y),
-                    color: surface(x, y).vertex_color,
+                    surface_color: surface(x, y).vertex_color,
                     grid: [x as f32, y as f32],
                     corner: corner as u32,
                 });
             }
             let [sw, se, nw, ne] = [first, first + 1, first + 2, first + 3];
-            // Counter-clockwise seen from above.
+            // `m_SWtoNEcut`: split along SW-NE, else along SE-NW; counter-clockwise from above.
             let triangles = if terrain_polygon_cut(block_cell_id, px, py, polygons) {
-                [sw, se, ne, sw, ne, nw]
+                [nw, sw, ne, sw, se, ne]
             } else {
                 [sw, se, nw, se, ne, nw]
             };

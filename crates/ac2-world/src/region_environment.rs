@@ -1,6 +1,5 @@
-use ac2_core::ColorArgb;
-
 use super::SkyLightingDesc;
+use crate::color::Rgba;
 
 /// `CSkyDesc` update deadlines consumed by the SmartBox runtime.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -38,11 +37,13 @@ impl Default for SkyEnvironmentCadence {
     }
 }
 
+/// `FogInfo`: linear world fog distances, sky fog amount and colour.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct SkyFogDesc {
-    min_distance: f32,
-    max_distance: f32,
-    color: ColorArgb,
+    pub(super) min_distance: f32,
+    pub(super) max_distance: f32,
+    pub(super) sky: f32,
+    pub(super) color: Rgba,
 }
 
 impl SkyFogDesc {
@@ -52,66 +53,52 @@ impl SkyFogDesc {
     pub fn max_distance(&self) -> f32 {
         self.max_distance
     }
-    pub fn color(&self) -> ColorArgb {
+    /// `FogInfo::fog_sky`: how far the sky dome is fogged.
+    pub fn sky(&self) -> f32 {
+        self.sky
+    }
+    pub fn color(&self) -> Rgba {
         self.color
-    }
-    pub(super) fn new(min_distance: f32, max_distance: f32, color: ColorArgb) -> Self {
-        Self {
-            min_distance,
-            max_distance,
-            color,
-        }
-    }
-    pub(super) fn interpolate(self, after: Self, ratio: f32) -> Self {
-        Self::new(
-            super::lerp(self.min_distance, after.min_distance, ratio),
-            super::lerp(self.max_distance, after.max_distance, ratio),
-            super::lerp_color(self.color, after.color, ratio),
-        )
     }
 }
 
+/// `CDayDesc::GetLighting` (`LightInfo` and light vector) and `CDayDesc::GetWorldFog` at one time
+/// of day.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct SkyEnvironmentSample {
-    pub(super) ambient_brightness: f32,
-    pub(super) ambient_color: ColorArgb,
-    pub(super) directional_brightness: f32,
-    pub(super) directional_heading_degrees: f32,
-    pub(super) directional_pitch_degrees: f32,
-    pub(super) directional_color: ColorArgb,
-    pub(super) world_fog: Option<SkyFogDesc>,
+    pub(super) light: SkyLightingDesc,
+    pub(super) light_vector: [f32; 3],
+    pub(super) world_fog: SkyFogDesc,
 }
 
 impl SkyEnvironmentSample {
     pub fn ambient_brightness(&self) -> f32 {
-        self.ambient_brightness
+        self.light.ambient_brightness
     }
-    pub fn ambient_color(&self) -> ColorArgb {
-        self.ambient_color
+    pub fn ambient_color(&self) -> Rgba {
+        self.light.ambient_color
     }
     pub fn directional_brightness(&self) -> f32 {
-        self.directional_brightness
+        self.light.dir_brightness
     }
     pub fn directional_heading_degrees(&self) -> f32 {
-        self.directional_heading_degrees
+        self.light.dir_heading
     }
     pub fn directional_pitch_degrees(&self) -> f32 {
-        self.directional_pitch_degrees
+        self.light.dir_pitch
     }
-    pub fn directional_color(&self) -> ColorArgb {
-        self.directional_color
+    pub fn directional_color(&self) -> Rgba {
+        self.light.dir_color
     }
-    pub fn world_fog(&self) -> Option<SkyFogDesc> {
+    pub fn shadow_color(&self) -> Rgba {
+        self.light.shadow_color
+    }
+    /// The direction sunlight travels: `CDayDesc::CalcLightVector(1, heading, pitch)`, or
+    /// `(1, 0, -0.4)` for a day without keys.
+    pub fn light_vector(&self) -> [f32; 3] {
+        self.light_vector
+    }
+    pub fn world_fog(&self) -> SkyFogDesc {
         self.world_fog
-    }
-    pub fn lighting(&self) -> SkyLightingDesc {
-        SkyLightingDesc {
-            dir_brightness: self.directional_brightness,
-            dir_heading: self.directional_heading_degrees.to_radians(),
-            dir_pitch: self.directional_pitch_degrees.to_radians(),
-            dir_color: self.directional_color,
-            ambient_brightness: self.ambient_brightness,
-            ambient_color: self.ambient_color,
-        }
     }
 }
