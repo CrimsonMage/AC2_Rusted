@@ -154,6 +154,7 @@ impl WorldData for Synthetic {
             },
             motion: Some(motion_desc()),
             radius: 0.4,
+            animation: None,
         })
     }
 

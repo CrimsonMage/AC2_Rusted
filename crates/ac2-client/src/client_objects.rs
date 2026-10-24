@@ -51,11 +51,19 @@ impl Client {
                     _ => *object,
                 };
                 remotes.action(target, &mut cx);
+                remotes.motion(*object, action);
             }
             // `CPhysicsObj::RecvEvt_Contain`: out of the world, into the inventory.
             SessionEvent::ObjectContained(id) => remotes.action(*id, &mut cx),
             SessionEvent::ObjectRemoved(id) => remotes.removed(*id),
             _ => {}
+        }
+        // The player's body takes its motion events too.
+        if let SessionEvent::ObjectAction { object, action } = event {
+            let player = self.player.as_mut().filter(|p| p.id == *object);
+            if let Some(body) = player.and_then(|p| p.body.as_mut()) {
+                crate::motion::apply(&mut body.physics, action);
+            }
         }
         self.request_remote_bodies();
     }
@@ -140,6 +148,7 @@ impl Client {
                     container: weenie.and_then(|w| w.container),
                     wielder: weenie.and_then(|w| w.wielder),
                     appearance: o.appearance.clone(),
+                    pose: body.map(crate::motion::pose).unwrap_or_default(),
                 })
             })
             .collect()

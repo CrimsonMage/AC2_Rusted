@@ -73,7 +73,7 @@ fn main() -> Result<(), String> {
     println!(
         "entered: cell {:08X} at {:?}, {} blocks resident, time of day {:?}, notices {:?}",
         frame.cell_id.unwrap_or(0),
-        frame.player.map(|p| p.origin),
+        frame.player.as_ref().map(|p| p.origin),
         frame.blocks.len(),
         frame.time_of_day,
         client.take_notices()
@@ -95,8 +95,18 @@ fn main() -> Result<(), String> {
             next_report += 1.0;
             for o in client.frame().objects {
                 println!(
-                    "object {:#x} in_world {} active {} cell {:08X} at {:?} mode {:?} motion {:?}",
-                    o.id, o.in_world, o.active, o.cell, o.origin, o.mode, o.motion
+                    "object {:#x} in_world {} active {} cell {:08X} at {:?} mode {:?} motion {:?} \
+                     parts {} groups {} holder {:?}",
+                    o.id,
+                    o.in_world,
+                    o.active,
+                    o.cell,
+                    o.origin,
+                    o.mode,
+                    o.motion,
+                    o.pose.len(),
+                    o.appearance.part_groups.len(),
+                    o.holder
                 );
             }
         }
@@ -120,8 +130,8 @@ fn main() -> Result<(), String> {
     println!(
         "after the walk: cell {:08X} at {:?} (contact {:?}), {} remote objects, {} blocks",
         frame.cell_id.unwrap_or(0),
-        frame.player.map(|p| p.origin),
-        frame.player.map(|p| p.contact),
+        frame.player.as_ref().map(|p| p.origin),
+        frame.player.as_ref().map(|p| p.contact),
         frame.objects.len(),
         frame.blocks.len()
     );

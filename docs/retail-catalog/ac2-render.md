@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 31 done, 19 partial, 718 to do, 13 skipped.
+781 retail functions: 31 done, 20 partial, 717 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1231,7 +1231,7 @@ Legend and workflow: [README](README.md).
 - [ ] `WorldRender::ResetWorldState` · 0057db20 · legions 0054d3f0
 - [ ] `WorldRender::DrawWorldObjects` · 0057dba0 · legions 0054d470
 - [ ] `WorldRender::UpdateTimeOfDay` · 0057dcc0 · legions 0054d590
-- [ ] `WorldRender::Update` · 0057e1b0 · legions 0054da80
+- [~] `WorldRender::Update` · 0057e1b0 · legions 0054da80 — ac2-client world_manager_update: WorldManager::Update, UpdateRenderInterpolation, UpdateAnimation; no time of day, rain, ambient sound or scene tools
 - [ ] `WorldRender::RenderReflectionMap` · 0057e270 · legions 0054db40
 - [ ] `WorldRender::UpdateRenderTargets` · 0057e750 · legions 0054e020
 - [ ] `WorldRender::GatherIndoorObjects` · 0057e830 · legions 0054e100

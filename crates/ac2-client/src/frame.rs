@@ -1,7 +1,7 @@
 //! The plain-data snapshot of one client frame, for the renderer.
 
 /// The player's body as physics left it this frame.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct PlayerFrame {
     pub id: u64,
     pub cell: u32,
@@ -13,6 +13,8 @@ pub struct PlayerFrame {
     pub visual: Option<u32>,
     pub velocity: [f32; 3],
     pub contact: bool,
+    /// The Setup's parts as the animation posed them (empty without a Setup).
+    pub pose: Vec<crate::motion::PartPose>,
 }
 
 /// An object other than the player: where its physics object is (in the client's world), or
@@ -54,6 +56,8 @@ pub struct ObjectFrame {
     /// `CPhysicsObj::m_local_vdesc`: the server's appearance on top of `visual`'s DAT chain
     /// (Setup, part-group, attachment and appearance-table overrides).
     pub appearance: ac2_weenie::Appearance,
+    /// The Setup's parts as the animation posed them, when its physics object exists.
+    pub pose: Vec<crate::motion::PartPose>,
 }
 
 /// Where a held object hangs.

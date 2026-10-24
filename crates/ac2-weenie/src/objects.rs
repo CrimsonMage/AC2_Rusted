@@ -28,6 +28,8 @@ pub struct RemoteObject {
     /// The motion interpreter's do-motion values from the latest position update.
     pub motion: [f32; 3],
     pub mode: Option<u32>,
+    /// `PhysicsDesc::m_behaviors`: the behaviours the object starts with.
+    pub behaviors: Vec<ac2_net::protocol::BehaviorParams>,
     /// Holder and location when the object is parented (a held item).
     pub parent: Option<(u64, u32)>,
     /// `PhysicsDesc::orientation_id` / `RecvEvt_Parent`'s orientation: the placement frame the
@@ -84,6 +86,7 @@ impl RemoteObject {
             heading_degrees: None,
             motion: [0.0; 3],
             mode: object.physics.mode,
+            behaviors: object.physics.behaviors.clone(),
             parent: object
                 .physics
                 .parent
@@ -293,6 +296,7 @@ mod tests {
             heading_degrees: None,
             motion: [0.0; 3],
             mode: None,
+            behaviors: Vec::new(),
             parent: None,
             orientation: None,
             contained: false,

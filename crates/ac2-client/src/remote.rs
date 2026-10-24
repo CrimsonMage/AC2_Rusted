@@ -209,7 +209,21 @@ impl Remotes {
             }
         };
         let start = remote.stored.unwrap_or_default();
-        remote.body = Some(PhysicsBody::new(start, data.shape, data.motion));
+        let mut body = PhysicsBody::new(start, data.shape, data.motion);
+        body.set_radius(data.radius);
+        if let Some(animation) = data.animation {
+            body.set_animation(animation);
+        }
+        // `PhysicsDesc` behaviours start with the object (`CPhysicsObj::set_description`).
+        if let Some(object) = cx.session.objects().get(id) {
+            for params in &object.behaviors {
+                crate::motion::apply(
+                    &mut body,
+                    &ac2_net::protocol::ObjectAction::DoBehavior(Box::new(params.clone())),
+                );
+            }
+        }
+        remote.body = Some(body);
         let held = cx
             .session
             .objects()
@@ -358,17 +372,18 @@ impl Remotes {
         // A teleport, or an object out of range or out of the world, snaps there
         // (`StopInterpolating`, `SyncPositionSimple`); otherwise it interpolates there.
         if teleported || out_of_range || !remote.in_world {
+            if let Some(body) = &mut remote.body {
+                body.stop_interpolating();
+            }
             self.sync_position_simple(id, received, cx);
         } else {
             self.interpolate_to(id, update, received, cx);
         }
     }
 
-    /// `CPhysicsObj::InterpolateTo` / `InterpolateAndImpulse` (a jump or impulse in the pack):
-    /// retail queues the position on the object's `InterpolationManager`, which walks the body
-    /// there through its motion interpreter and blips it when it falls behind. ac2-physics has
-    /// no `InterpolationManager` yet, so the object takes the position at once, as
-    /// `InterpolationManager::Blip` does (`SyncPositionSimple`), then any impulse.
+    /// `CPhysicsObj::InterpolateTo`, or `InterpolateAndImpulse` when the pack carries a jump
+    /// (or an impulse): the position queues on the object's `InterpolationManager`, which walks
+    /// the body there through its motion interpreter and blips it when it falls behind.
     fn interpolate_to(
         &mut self,
         id: u64,
@@ -376,12 +391,34 @@ impl Remotes {
         received: Position,
         cx: &mut Context<'_>,
     ) {
-        self.sync_position_simple(id, received, cx);
-        if let (Some(velocity), Some(body)) = (
-            update.velocity,
-            self.objects.get_mut(&id).and_then(|r| r.body.as_mut()),
-        ) {
-            body.set_velocity(velocity);
+        let Some(body) = self.objects.get_mut(&id).and_then(|r| r.body.as_mut()) else {
+            return;
+        };
+        match update.velocity.filter(|_| update.jump || update.impulse) {
+            Some(velocity) => body.interpolate_and_impulse(
+                update.time,
+                received,
+                update.heading_degrees,
+                update.motion,
+                velocity,
+                update.jump,
+            ),
+            None => body.interpolate_to(
+                update.time,
+                received,
+                update.heading_degrees,
+                update.motion,
+                update.contact,
+                cx.terrain,
+            ),
+        }
+    }
+
+    /// The server's motion events (`RecvEvt_DoBehavior`, `RecvEvt_StopBehavior`) for the
+    /// object's body.
+    pub(crate) fn motion(&mut self, id: u64, action: &ac2_net::protocol::ObjectAction) {
+        if let Some(body) = self.objects.get_mut(&id).and_then(|r| r.body.as_mut()) {
+            crate::motion::apply(body, action);
         }
     }
 
@@ -459,13 +496,24 @@ impl Remotes {
 
     /// `CPhysics::UpdateAllPhysics` for the objects: each one in the world and in physics range
     /// runs the quantum.
-    pub(crate) fn step_quantum(&mut self, terrain: &Terrain) {
+    /// `cur_time` is the server clock the positions were stamped on.
+    pub(crate) fn step_quantum(&mut self, terrain: &Terrain, cur_time: f64) {
         for remote in self.objects.values_mut() {
             if !remote.in_world || !remote.active {
                 continue;
             }
             if let Some(body) = &mut remote.body {
+                body.set_time(cur_time);
                 body.step_quantum(terrain);
+            }
+        }
+    }
+
+    /// `CPhysics::UpdateAllAnimation` for the objects.
+    pub(crate) fn update_animation(&mut self, step: f32) {
+        for remote in self.objects.values_mut() {
+            if let Some(body) = &mut remote.body {
+                body.update_animation(step);
             }
         }
     }

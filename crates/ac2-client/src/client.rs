@@ -18,8 +18,8 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use ac2_physics::{
-    Frame, Heading, MovementInput, MovementState, PhysicsBody, PhysicsClock, Position, Quaternion,
-    SetPositionError, Terrain, Vector, PHYSICS_QUANTUM,
+    AnimationClock, Frame, Heading, MovementInput, MovementState, PhysicsBody, PhysicsClock,
+    Position, Quaternion, SetPositionError, Terrain, Vector, PHYSICS_QUANTUM,
 };
 use ac2_weenie::{
     ActiveAction, BodyFacts, BodyState, CellPosition, MovementCommands, MovementModule,
@@ -114,6 +114,8 @@ pub struct Client {
     scene: SceneCamera,
     game_clock: Option<GameClock>,
     physics_clock: PhysicsClock,
+    /// `PhysicsModule::m_tAnimationUpdateTime`.
+    anim_clock: AnimationClock,
     /// `SmartBox::m_bBlockingLoad`.
     blocking_load: bool,
     /// `SmartBox::SetWantNoticeOnNextFrameDrawn`.
@@ -172,6 +174,7 @@ impl Client {
             scene: SceneCamera::default(),
             game_clock,
             physics_clock: PhysicsClock::new(now),
+            anim_clock: AnimationClock::new(now),
             blocking_load: false,
             want_frame_drawn: false,
             camera_update_time: now,
@@ -302,7 +305,11 @@ impl Client {
         let scale = data.shape.scale;
         let height = f64::from(data.shape.height) * f64::from(scale);
         let radius = f64::from(data.radius) * f64::from(scale);
-        let physics = PhysicsBody::new(player.position, data.shape, data.motion);
+        let mut physics = PhysicsBody::new(player.position, data.shape, data.motion);
+        physics.set_radius(data.radius);
+        if let Some(animation) = data.animation {
+            physics.set_animation(animation);
+        }
         player.body = Some(Body {
             physics,
             height,
@@ -430,36 +437,47 @@ impl Client {
         }
     }
 
-    /// `WorldManager::Update`.
+    /// `WorldRender::Update` (the SmartBox's world manager): `WorldManager::Update` (game time,
+    /// then unless blocking for cells `CObjectMaint::UseTime` and `CPhysics::UpdatePhysics`),
+    /// `CPhysics::UpdateRenderInterpolation`, then `CPhysics::UpdateAnimation`.
     fn world_manager_update(&mut self) -> Result<Vec<SessionEvent>, String> {
         if let Some(clock) = &mut self.game_clock {
             clock.use_time(self.session.cur_time());
         }
-        if self.cells.is_blocking() {
-            return Ok(Vec::new());
-        }
-        let events = self.session.object_maint_use_time();
-        for event in &events {
-            self.apply(event)?;
-        }
-        // `CPhysics::UpdatePhysics` on `Timer::local_time`.
         let now = self.session.local_time();
-        let quanta = self.physics_clock.advance(now);
-        for _ in 0..quanta {
-            let player = self
-                .player
-                .as_mut()
-                .filter(|p| p.in_world)
-                .and_then(|p| p.body.as_mut());
-            if let Some(body) = player {
-                body.physics.step_quantum(&self.terrain);
-                // `SmartBox::PlayerPhysicsUpdatedCallback`.
-                if !self.camera.mouse_look {
-                    self.update_camera(PHYSICS_QUANTUM, true);
-                }
+        let mut events = Vec::new();
+        if !self.cells.is_blocking() {
+            events = self.session.object_maint_use_time();
+            for event in &events {
+                self.apply(event)?;
             }
-            // `CPhysics::UpdateAllPhysics`: the other objects.
-            self.remotes.step_quantum(&self.terrain);
+            // `CPhysics::UpdatePhysics` on `Timer::local_time`.
+            let quanta = self.physics_clock.advance(now);
+            let cur_time = self.session.cur_time();
+            for _ in 0..quanta {
+                let player = self
+                    .player
+                    .as_mut()
+                    .filter(|p| p.in_world)
+                    .and_then(|p| p.body.as_mut());
+                if let Some(body) = player {
+                    body.physics.step_quantum(&self.terrain);
+                    // `SmartBox::PlayerPhysicsUpdatedCallback`.
+                    if !self.camera.mouse_look {
+                        self.update_camera(PHYSICS_QUANTUM, true);
+                    }
+                }
+                // `CPhysics::UpdateAllPhysics`: the other objects.
+                self.remotes.step_quantum(&self.terrain, cur_time);
+            }
+        }
+        self.render_interpolation = self.physics_clock.render_interpolation(now);
+        // `PhysicsModule::UpdateAnimation` -> `CPhysics::UpdateAllAnimation`.
+        if let Some(step) = self.anim_clock.advance(now) {
+            if let Some(body) = self.player.as_mut().and_then(|p| p.body.as_mut()) {
+                body.physics.update_animation(step);
+            }
+            self.remotes.update_animation(step);
         }
         Ok(events)
     }
@@ -494,12 +512,10 @@ impl Client {
         }
     }
 
-    /// The render step: `CPhysics::UpdateRenderInterpolation`, and `WorldRender::Render`'s
+    /// The render step: `WorldRender::Render`'s
     /// frame-drawn notice (`gmGamePlayUI::RecvNotice_NextFrameDrawn` sends
     /// `SceneRenderingComplete`).
     fn render(&mut self) {
-        let now = self.session.local_time();
-        self.render_interpolation = self.physics_clock.render_interpolation(now);
         if std::mem::take(&mut self.want_frame_drawn) {
             self.session.scene_ready();
             self.notices.push(Notice::NextFrameDrawn);
@@ -620,13 +636,18 @@ impl Client {
                 visual: p.visual,
                 velocity: state.velocity,
                 contact: state.contact,
+                pose: p
+                    .body
+                    .as_ref()
+                    .map(|b| crate::motion::pose(&b.physics))
+                    .unwrap_or_default(),
             })
         });
         let objects = self.object_frames();
         ClientFrame {
             server_time,
             time_of_day: self.game_clock.as_ref().map(GameClock::present_time_of_day),
-            cell_id: player.map(|p| p.cell),
+            cell_id: player.as_ref().map(|p| p.cell),
             in_world,
             blocking_for_cells: self.cells.is_blocking(),
             player,
