@@ -11,12 +11,12 @@
 
 use std::sync::Arc;
 
-use ac2_dat::ArchiveCursor;
-use ac2_core::{CellId, DataId, QualifiedDataId};
-use ac2_math::{Frame, Quat, Vec3};
 use ac2_assets::{read_ac2_entity_desc, Ac2EntityDesc};
+use ac2_core::{CellId, DataId, QualifiedDataId};
+use ac2_dat::ArchiveCursor;
 use ac2_db::read_ac2_property_collection;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
+use ac2_math::{Frame, Quat, Vec3};
 
 const MAX_ITEMS: usize = 1 << 14;
 

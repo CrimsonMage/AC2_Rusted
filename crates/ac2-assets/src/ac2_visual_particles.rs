@@ -8,16 +8,16 @@
 
 use std::sync::Arc;
 
-use ac2_dat::DatFileKind;
 use ac2_core::DataId;
-use ac2_math::Quat;
+use ac2_dat::DatFileKind;
 use ac2_db::{
     CachedResource, ResourcePackedDecode, ResourceResult, ResourceStore, TypedResourceRef,
 };
+use ac2_math::Quat;
 
 use crate::ac2_fx::{Ac2FxParticleNode, Ac2FxTable};
-use ac2_anim::{Ac2Setup, Ac2Transform};
 use crate::ac2_visual_desc::Ac2VisualDesc;
+use ac2_anim::{Ac2Setup, Ac2Transform};
 
 const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;
 const MAX_VISUAL_DESC_DEPTH: usize = 16;

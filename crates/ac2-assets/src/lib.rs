@@ -7,8 +7,6 @@ mod ac2_appearance;
 mod ac2_cell_surface;
 #[cfg(test)]
 mod ac2_cell_surface_tests;
-#[cfg(test)]
-mod locomotion_tests;
 mod ac2_entity;
 mod ac2_fx;
 mod ac2_material;
@@ -28,6 +26,8 @@ mod ac2_visual_desc;
 mod ac2_visual_particles;
 mod cull;
 mod font;
+#[cfg(test)]
+mod locomotion_tests;
 mod mesh;
 mod static_model;
 mod static_surface;

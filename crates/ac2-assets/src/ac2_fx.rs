@@ -5,10 +5,10 @@
 
 use std::sync::Arc;
 
-use ac2_dat::ArchiveCursor;
 use ac2_core::{DataId, QualifiedDataId};
-use ac2_math::Vec3;
+use ac2_dat::ArchiveCursor;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
+use ac2_math::Vec3;
 
 pub(crate) type Malformed = &'static str;
 const MAX_ITEMS: usize = 4096;

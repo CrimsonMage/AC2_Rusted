@@ -2,8 +2,8 @@
 //! methods (`RenderMaterial`, `MaterialLayer`, `LayerStage`, `LM_*`, `MaterialModifier`,
 //! `MaterialProperty`). Every Legions `0x2B` material decodes to its exact record length.
 
-use ac2_dat::{ArchiveCursor, ArchiveError};
 use ac2_core::{DataId, QualifiedDataId};
+use ac2_dat::{ArchiveCursor, ArchiveError};
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
 
 /// `RenderTexture` (`0x40`) DIDs: what a stage texture or texture property names.

@@ -21,10 +21,10 @@ mod error;
 mod key;
 mod ownership_stats;
 mod packed_decode;
-mod property;
 mod prefetch_sequence;
 mod preparation_executor;
 mod preparation_queue;
+mod property;
 mod resource_runtime;
 mod retail_cache_retention;
 mod store;
@@ -61,6 +61,10 @@ pub use preparation_queue::{
     PreparationError, PreparationReplySequence, PreparationRequestSequence, PreparationStep,
     PreparationTransport, SequencedPreparation, RETAIL_PREPARATION_FAST_QUEUE_CAPACITY,
 };
+pub use property::{
+    install_ac2_property_types, read_ac2_property_collection, skip_ac2_property_collection,
+    skip_property_collection, Ac2PropertyTypes, Ac2PropertyValue,
+};
 pub use resource_runtime::ResourceRuntime;
 pub use resource_runtime::{
     ResourcePriority, ResourceRequestContext, ResourceRequestOutcome, ResourceRequestProgress,
@@ -81,8 +85,4 @@ pub use typed_ref::TypedResourceRef;
 pub use worker_lanes::{
     frame_map, frame_map_on, frame_map_with_threshold, global_worker_lanes,
     install_global_worker_lanes, WorkerLaneWaiter, WorkerLanes, FRAME_PARALLEL_MIN_ITEMS,
-};
-pub use property::{
-    install_ac2_property_types, read_ac2_property_collection, skip_ac2_property_collection,
-    skip_property_collection, Ac2PropertyTypes, Ac2PropertyValue,
 };

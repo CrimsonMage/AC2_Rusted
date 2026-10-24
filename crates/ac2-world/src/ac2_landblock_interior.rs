@@ -6,9 +6,9 @@
 
 use std::sync::Arc;
 
-use ac2_dat::ArchiveCursor;
+use ac2_assets::read_ac2_entity_desc;
 use ac2_core::{CellId, DataId, QualifiedDataId};
-use ac2_assets::{read_ac2_entity_desc, };
+use ac2_dat::ArchiveCursor;
 use ac2_db::read_ac2_property_collection;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
 

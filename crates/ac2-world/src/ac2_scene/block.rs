@@ -1,10 +1,10 @@
 //! Per-landblock inputs of the AC2 scenery generator: the `CLandBlockData` record, the
 //! `CLandBlockInfo` entities that seed the clearance list, and the block's water surface.
 
+use ac2_assets::read_ac2_entity_desc;
+use ac2_core::{CellId, DataId, QualifiedDataId};
 use ac2_dat::ArchiveCursor;
 use ac2_dat::DatFileKind;
-use ac2_core::{CellId, DataId, QualifiedDataId};
-use ac2_assets::{read_ac2_entity_desc, };
 use ac2_db::skip_ac2_property_collection;
 use ac2_db::{
     ResourceError, ResourcePackedDecode, ResourceResult, ResourceStore, ResourceTypeId,

@@ -5,10 +5,10 @@
 
 use std::sync::Arc;
 
-use ac2_dat::ArchiveCursor;
 use ac2_core::{DataId, QualifiedDataId};
-use ac2_math::Vec3;
+use ac2_dat::ArchiveCursor;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
+use ac2_math::Vec3;
 
 use crate::ac2_fx::{count, float, hash_count, read_fx_map, skip, word, Ac2FxEntry, Malformed};
 

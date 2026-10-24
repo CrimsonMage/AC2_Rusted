@@ -3,13 +3,13 @@
 
 use std::sync::Arc;
 
-use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_assets::resolve_ac2_material_texture_chain;
+use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_db::ResourceStore;
 
 use crate::ac2_land_defs::load_ac2_land_defs;
-use crate::ac2_surface_defs::load_ac2_surface_defs;
 use crate::ac2_terrain_desc::load_ac2_terrain_desc;
+use crate::surface_desc::load_ac2_surface_desc;
 
 fn ac2_store() -> Option<ResourceStore> {
     let root = std::env::var_os("AC2_DAT_DIR")?;
@@ -32,17 +32,26 @@ fn ac2_terrain_descriptors_resolve_to_a_texture_chain() {
     let terrain = load_ac2_terrain_desc(&store)
         .expect("terrain desc decodes")
         .expect("terrain desc exists");
-    let surfaces = load_ac2_surface_defs(&store)
-        .expect("surface defs decode")
-        .expect("surface defs exist");
+    let surfaces = load_ac2_surface_desc(&store)
+        .expect("CSurfaceDesc decodes to the last byte")
+        .expect("CSurfaceDesc exists");
+    assert_eq!(surfaces.cloud_texture.raw() & 0xFF00_0000, 0x4000_0000);
 
     // Terrain 19 dominates the sampled AC2 landblocks.
     let surface = terrain
         .surface_type(19)
         .expect("terrain 19 has a surface type");
-    let material = surfaces
-        .material_for_slope(surface as u8, 0.0)
-        .expect("flat ground has a material");
+    let flat = crate::surface_info::vertex_info(
+        surfaces
+            .surface(surface)
+            .expect("surface type is described"),
+        0.0,
+        2032,
+        2032,
+    )
+    .expect("flat ground has a material group");
+    assert!(flat.corner_alpha.is_some() && flat.side_alpha.is_some());
+    let material = flat.base_material.expect("base material");
     let chain = resolve_ac2_material_texture_chain(&store, material)
         .expect("material decodes")
         .expect("material references a texture chain");
@@ -73,12 +82,19 @@ fn ac2_landblock_loads_with_metric_heights_and_surface_textures() {
         heights.iter().any(|h| *h > 100.0),
         "0x7F7F is upland terrain"
     );
-    let corners = block
-        .ac2_surface_textures_for_polygon(0, 0, 1)
-        .expect("every corner resolves an AC2 texture chain");
-    assert!(corners
-        .iter()
-        .all(|did| did.raw() & 0xFF00_0000 == 0x4000_0000));
+    let mut roads = 0;
+    for x in 0..17 {
+        for y in 0..17 {
+            let info = block.surface_info(x, y).expect("vertex in range");
+            let base = info
+                .base_material
+                .expect("every vertex picks a base material");
+            assert_eq!(base.raw() & 0xFF00_0000, 0x2B00_0000);
+            assert_eq!(info.corner_alpha.unwrap().raw() & 0xFF00_0000, 0x4000_0000);
+            roads += usize::from(block.road_info(x, y).unwrap().base_material.is_some());
+        }
+    }
+    assert!(roads < 289, "{roads} road vertices");
 }
 
 #[test]

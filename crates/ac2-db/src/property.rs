@@ -5,13 +5,13 @@
 use std::collections::HashMap;
 use std::sync::{Arc, OnceLock};
 
-use ac2_dat::ArchiveCursor;
-use ac2_dat::DatFileKind;
-use ac2_core::{DataId, QualifiedDataId};
 use crate::{
     ResourceError, ResourcePackedDecode, ResourceResult, ResourceStore, ResourceTypeId,
     TypedResourceRef,
 };
+use ac2_core::{DataId, QualifiedDataId};
+use ac2_dat::ArchiveCursor;
+use ac2_dat::DatFileKind;
 
 const MASTER_PROPERTY_DID: DataId = DataId::new(0x3400_0000);
 const MAX_ITEMS: usize = 1 << 16;

@@ -9,12 +9,10 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use ac2_dat::ArchiveCursor;
 use ac2_core::{DataId, QualifiedDataId};
+use ac2_dat::ArchiveCursor;
+use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceStore, ResourceTypeId};
 use ac2_math::{Quat, Vec3};
-use ac2_db::{
-    ResourceError, ResourcePackedDecode, ResourceResult, ResourceStore, ResourceTypeId,
-};
 
 use crate::animation::{load_portal, Ac2AnimMap, Ac2Animation, Ac2BoneTrack};
 use crate::setup::Ac2Transform;

@@ -1,35 +1,35 @@
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
+use ac2_core::{CellId, DataId, QualifiedDataId};
 use ac2_dat::ArchiveCursor;
 use ac2_dat::DatFileKind;
-use ac2_core::{CellId, DataId, QualifiedDataId};
-use ac2_assets::resolve_ac2_material_texture_chain;
 use ac2_db::{
     CachedResource, ResourceError, ResourcePackedDecode, ResourceResult, ResourceStore,
     ResourceTypeId, TypedResourceRef,
 };
 
 use crate::ac2_land_defs::load_ac2_land_defs;
-use crate::ac2_surface_defs::{load_ac2_surface_defs, Ac2SurfaceDefs};
 use crate::ac2_terrain_desc::{load_ac2_terrain_desc, Ac2TerrainDesc};
+use crate::surface_desc::{load_ac2_surface_desc, Ac2SurfaceDesc};
+use crate::surface_info::{vertex_info, Ac2SurfaceInfo};
 use crate::LandBlockDesc;
 
 /// AC2 `LandDefs::side_vertex_count`: 8 cells per block x 2 pixels per cell + 1.
 const AC2_SIDE_VERTICES: usize = 17;
 const AC2_SAMPLES: usize = AC2_SIDE_VERTICES * AC2_SIDE_VERTICES;
-/// `CLandBlockData` terrain bits (AC2 `LandscapeDefs` terrain_bits = 7 at offset 0).
-const AC2_TERRAIN_MASK: u32 = 0x7F;
+const TERRAIN_FIELD: usize = 0;
+const ROAD_FIELD: usize = 4;
 /// `CLandBlockMesh::ConstructPolygons` and `LScapeTerrainMesh::UpdateNearTerrain` drop every
 /// terrain quad touching a vertex of this terrain type, opening the landscape over cave mouths.
 const AC2_HOLE_TERRAIN: u32 = 0x1E;
 
-/// Per-vertex samples (17 x 17, x-major) of one landblock: metric heights, the slope-selected
-/// surface texture chain and the hole flag of every vertex.
-#[derive(Debug, PartialEq, Eq)]
+/// Per-vertex samples (17 x 17, x-major) of one landblock: metric heights, the terrain and road
+/// `SurfaceInfo` (`CLandBlockData::m_vertexSurfaceInfo`, `m_vertexRoadInfo`) and the hole flag.
+#[derive(Debug, PartialEq)]
 pub struct Ac2TerrainSamples {
     height_bits: Vec<u32>,
-    surface_textures: Vec<u32>,
+    surface: Vec<Ac2SurfaceInfo>,
+    road: Vec<Ac2SurfaceInfo>,
     /// Vertices of the landscape-hole terrain type (`0x1E`), where cave and dungeon mouths open.
     holes: Vec<bool>,
 }
@@ -49,11 +49,12 @@ impl Ac2TerrainSamples {
         self.holes.get(index).copied().unwrap_or(false)
     }
 
-    pub(crate) fn surface_texture(&self, index: usize) -> Option<DataId> {
-        self.surface_textures
-            .get(index)
-            .filter(|did| **did != 0)
-            .map(|did| DataId::new(*did))
+    pub(crate) fn surface(&self, index: usize) -> Option<&Ac2SurfaceInfo> {
+        self.surface.get(index)
+    }
+
+    pub(crate) fn road(&self, index: usize) -> Option<&Ac2SurfaceInfo> {
+        self.road.get(index)
     }
 }
 
@@ -68,10 +69,12 @@ pub struct Ac2WorldSource {
     block_size: f32,
     lattice: crate::LandLattice,
     terrain: CachedResource<Ac2TerrainDesc>,
-    surfaces: CachedResource<Ac2SurfaceDefs>,
+    surfaces: CachedResource<Ac2SurfaceDesc>,
+    /// (offset, mask) of the terrain and road fields of a vertex's cell-info word.
+    terrain_field: (u32, u32),
+    road_field: (u32, u32),
     region: Option<Arc<crate::RegionDesc>>,
     water: Option<crate::ac2_water::Ac2WaterSource>,
-    texture_by_material: Mutex<HashMap<u32, Option<DataId>>>,
 }
 
 impl std::fmt::Debug for Ac2WorldSource {
@@ -91,7 +94,7 @@ impl Ac2WorldSource {
         };
         let (Some(terrain), Some(surfaces)) = (
             load_ac2_terrain_desc(&store)?,
-            load_ac2_surface_defs(&store)?,
+            load_ac2_surface_desc(&store)?,
         ) else {
             return Ok(None);
         };
@@ -112,11 +115,12 @@ impl Ac2WorldSource {
                 land.subdivisions_per_cell(),
             ),
             store,
+            terrain_field: land.cell_info_field(TERRAIN_FIELD),
+            road_field: land.cell_info_field(ROAD_FIELD),
             terrain,
             surfaces,
             region,
             water,
-            texture_by_material: Mutex::new(HashMap::new()),
         })))
     }
 
@@ -196,7 +200,7 @@ impl Ac2WorldSource {
             ))
     }
 
-    /// `CLandBlockData` heights, holes and per-vertex surface textures of one landblock.
+    /// `CLandBlockData` heights, holes and per-vertex terrain and road `SurfaceInfo` of one block.
     pub fn load_landblock(
         &self,
         block_cell_id: CellId,
@@ -212,14 +216,14 @@ impl Ac2WorldSource {
         else {
             return Ok(None);
         };
-        let samples = self.samples(&record)?;
+        let samples = self.samples(&record, block_cell_id);
         Ok(Some(Arc::new(LandBlockDesc::new(
             QualifiedDataId::new(did, 0),
             Arc::new(samples),
         ))))
     }
 
-    fn samples(&self, record: &Ac2LandBlockRecord) -> ResourceResult<Ac2TerrainSamples> {
+    fn samples(&self, record: &Ac2LandBlockRecord, block_cell_id: CellId) -> Ac2TerrainSamples {
         let metres = |x: usize, y: usize| {
             let index =
                 x.min(AC2_SIDE_VERTICES - 1) * AC2_SIDE_VERTICES + y.min(AC2_SIDE_VERTICES - 1);
@@ -228,62 +232,55 @@ impl Ac2WorldSource {
                 .copied()
                 .unwrap_or(0.0)
         };
-        let mut height_bits = vec![0_u32; AC2_SAMPLES];
-        let mut surface_textures = vec![0_u32; AC2_SAMPLES];
-        let mut holes = vec![false; AC2_SAMPLES];
+        let field = |word: u32, (offset, mask): (u32, u32)| (word >> offset) & mask;
+        // Global vertex coordinates seed the per-vertex material picks
+        // (`CLandBlockData::CacheFarValues`: `(side_vertex_count - 1) * block + i`).
+        let polygons = (AC2_SIDE_VERTICES - 1) as i32;
+        let base_x = ((block_cell_id.raw() >> 24) & 0xFF) as i32 * polygons;
+        let base_y = ((block_cell_id.raw() >> 16) & 0xFF) as i32 * polygons;
+        let mut samples = Ac2TerrainSamples {
+            height_bits: vec![0; AC2_SAMPLES],
+            surface: vec![Ac2SurfaceInfo::default(); AC2_SAMPLES],
+            road: vec![Ac2SurfaceInfo::default(); AC2_SAMPLES],
+            holes: vec![false; AC2_SAMPLES],
+        };
         for x in 0..AC2_SIDE_VERTICES {
             for y in 0..AC2_SIDE_VERTICES {
-                let engine_index = x * AC2_SIDE_VERTICES + y;
-                height_bits[engine_index] = metres(x, y).to_bits();
-                // `CLandBlockData::CacheNearValues`: slope^2 = normal.x^2 + normal.y^2 of the unit
-                // vertex normal, computed on AC2's own vertex lattice.
+                let index = x * AC2_SIDE_VERTICES + y;
+                samples.height_bits[index] = metres(x, y).to_bits();
+                // pitch^2 = normal.x^2 + normal.y^2 of the unit vertex normal.
                 let dx = (metres(x + 1, y) - metres(x.saturating_sub(1), y))
                     / (self.vertex_spacing
                         * (1 + usize::from(x > 0 && x + 1 < AC2_SIDE_VERTICES)) as f32);
                 let dy = (metres(x, y + 1) - metres(x, y.saturating_sub(1)))
                     / (self.vertex_spacing
                         * (1 + usize::from(y > 0 && y + 1 < AC2_SIDE_VERTICES)) as f32);
-                let inv_len = 1.0 / (dx * dx + dy * dy + 1.0).sqrt();
-                let slope_squared = (dx * inv_len).powi(2) + (dy * inv_len).powi(2);
-                let terrain = record.cell_info[x * AC2_SIDE_VERTICES + y] & AC2_TERRAIN_MASK;
-                holes[engine_index] = terrain == AC2_HOLE_TERRAIN;
-                surface_textures[engine_index] = self
-                    .surface_texture(terrain, slope_squared)?
-                    .map_or(0, DataId::raw);
+                let pitch_squared = (dx * dx + dy * dy) / (dx * dx + dy * dy + 1.0);
+                let word = record.cell_info[index];
+                let terrain = field(word, self.terrain_field);
+                let road = field(word, self.road_field);
+                samples.holes[index] = terrain == AC2_HOLE_TERRAIN;
+                let (gx, gy) = (base_x + x as i32, base_y + y as i32);
+                // `CSurfaceDesc::GetVertexInfo` for the terrain's surface type, `GetRoadInfo` for
+                // the road bits; a miss keeps `SurfaceInfo::SetToDefault`.
+                if let Some(info) = self
+                    .terrain
+                    .surface_type(terrain)
+                    .and_then(|surface| self.surfaces.surface(surface))
+                    .and_then(|surface| vertex_info(surface, pitch_squared, gx, gy))
+                {
+                    samples.surface[index] = info;
+                }
+                if let Some(info) = self
+                    .surfaces
+                    .road(road)
+                    .and_then(|surface| vertex_info(surface, pitch_squared, gx, gy))
+                {
+                    samples.road[index] = info;
+                }
             }
         }
-        Ok(Ac2TerrainSamples {
-            height_bits,
-            surface_textures,
-            holes,
-        })
-    }
-
-    /// `CTerrainDesc::GetSurfaceType` then the surface's slope band, resolved to a texture chain.
-    fn surface_texture(&self, terrain: u32, slope_squared: f32) -> ResourceResult<Option<DataId>> {
-        let Some(surface) = self.terrain.surface_type(terrain) else {
-            return Ok(None);
-        };
-        let Some(material) = self
-            .surfaces
-            .material_for_slope(surface as u8, slope_squared)
-        else {
-            return Ok(None);
-        };
-        if let Some(cached) = self
-            .texture_by_material
-            .lock()
-            .expect("AC2 material cache lock poisoned")
-            .get(&material.raw())
-        {
-            return Ok(*cached);
-        }
-        let chain = resolve_ac2_material_texture_chain(&self.store, material)?;
-        self.texture_by_material
-            .lock()
-            .expect("AC2 material cache lock poisoned")
-            .insert(material.raw(), chain);
-        Ok(chain)
+        samples
     }
 }
 
@@ -349,7 +346,8 @@ mod hole_tests {
         holes[x * AC2_SIDE_VERTICES + y] = true;
         let samples = Ac2TerrainSamples {
             height_bits: vec![0; AC2_SAMPLES],
-            surface_textures: vec![0; AC2_SAMPLES],
+            surface: vec![Default::default(); AC2_SAMPLES],
+            road: vec![Default::default(); AC2_SAMPLES],
             holes,
         };
         LandBlockDesc::new(

@@ -4,10 +4,10 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use ac2_dat::{DatDataset, DatFileKind, DatOpenOptions};
 use ac2_core::{CellId, DataId};
-use ac2_math::Vec3;
+use ac2_dat::{DatDataset, DatFileKind, DatOpenOptions};
 use ac2_db::ResourceStore;
+use ac2_math::Vec3;
 
 use crate::{Ac2LightKind, Ac2WorldSource};
 
@@ -48,13 +48,11 @@ fn every_ac2_cell_mesh_structure_decodes_exactly() {
         // The render decoder reads the same record's vertices and fragments.
         let mesh = world
             .resource_store()
-            .load_cached_packed::<ac2_assets::Ac2Mesh>(
-                ac2_db::TypedResourceRef::new(
-                    DatFileKind::Portal,
-                    DataId::new(*did),
-                    0,
-                ),
-            )
+            .load_cached_packed::<ac2_assets::Ac2Mesh>(ac2_db::TypedResourceRef::new(
+                DatFileKind::Portal,
+                DataId::new(*did),
+                0,
+            ))
             .expect("cell mesh render data decodes")
             .expect("listed record exists");
         assert_eq!(mesh.vertices.len(), structure.positions.len());

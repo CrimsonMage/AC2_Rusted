@@ -4,11 +4,9 @@
 use std::collections::BTreeSet;
 use std::sync::Arc;
 
-use ac2_dat::{DatDataset, DatFileKind, DatOpenOptions};
 use ac2_core::DataId;
-use ac2_db::{
-    CachedResource, ResourcePackedDecode, ResourceStore, TypedResourceRef,
-};
+use ac2_dat::{DatDataset, DatFileKind, DatOpenOptions};
+use ac2_db::{CachedResource, ResourcePackedDecode, ResourceStore, TypedResourceRef};
 
 use crate::ac2_fx::Ac2FxTable;
 use crate::{resolve_ac2_visual_particles, Ac2ParticleSystemDesc};

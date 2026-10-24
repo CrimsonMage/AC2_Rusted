@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use ac2_dat::DatFileKind;
-use ac2_core::PixelFormatID;
 use ac2_core::DataId;
+use ac2_core::PixelFormatID;
+use ac2_dat::DatFileKind;
 
 use crate::BlockCompressedTexture;
 

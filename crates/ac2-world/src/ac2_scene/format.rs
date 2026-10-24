@@ -2,8 +2,8 @@
 //! of `CTerrainDesc`, `SceneFile` (`0x02xxxxxx`) with its `SceneGroup`s, and the
 //! scenery-relevant fields of `LandscapeDefs`.
 
-use ac2_dat::ArchiveCursor;
 use ac2_core::QualifiedDataId;
+use ac2_dat::ArchiveCursor;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
 
 const MAX_ITEMS: usize = 1 << 14;

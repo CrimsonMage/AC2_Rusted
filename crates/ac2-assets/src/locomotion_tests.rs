@@ -2,7 +2,8 @@
 //! body decodes with.
 
 use ac2_anim::{
-    load_ac2_motion_animator, AC2_SLIDER_FORWARD_SPEED, AC2_SLIDER_SIDESTEP_SPEED, AC2_SLIDER_TURN_RATE,
+    load_ac2_motion_animator, AC2_SLIDER_FORWARD_SPEED, AC2_SLIDER_SIDESTEP_SPEED,
+    AC2_SLIDER_TURN_RATE,
 };
 use ac2_core::DataId;
 
@@ -13,8 +14,8 @@ fn human_locomotion_cube_selects_movement_clips_by_slider() {
     let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
         return;
     };
-    let dataset = ac2_dat::DatDataset::open(ac2_dat::DatOpenOptions::new(root))
-        .expect("AC2 DATs mount");
+    let dataset =
+        ac2_dat::DatDataset::open(ac2_dat::DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let store = ac2_db::ResourceStore::new(dataset);
     assert!(ac2_db::install_ac2_property_types(&store).expect("MasterProperty decodes"));
     let animator = load_ac2_motion_animator(&store, DataId::new(0x0300_0014), 0x8000_0001)

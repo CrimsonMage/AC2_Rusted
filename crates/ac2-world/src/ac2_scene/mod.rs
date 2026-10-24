@@ -22,14 +22,12 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 
-use ac2_dat::DatFileKind;
-use ac2_core::{CellId, DataId};
-use ac2_math::{Quat, Vec3};
 use ac2_assets::Ac2EntityDesc;
+use ac2_core::{CellId, DataId};
+use ac2_dat::DatFileKind;
 use ac2_db::install_ac2_property_types;
-use ac2_db::{
-    CachedResource, ResourceError, ResourceResult, ResourceStore, TypedResourceRef,
-};
+use ac2_db::{CachedResource, ResourceError, ResourceResult, ResourceStore, TypedResourceRef};
+use ac2_math::{Quat, Vec3};
 
 use format::{Ac2SceneDesc, Ac2SceneFile, Ac2SceneLandDefs, Ac2TerrainSceneDesc};
 use geometry::{Ac2SceneTerrain, SIDE};

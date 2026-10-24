@@ -2,8 +2,8 @@
 //! `MaterialInstance` (`0x31`) whose `MaterialModifier`s (`0x30`) are applied to a copy of its
 //! template material, as `MaterialInstance::RefreshMaterial` does.
 
-use ac2_dat::DatFileKind;
 use ac2_core::DataId;
+use ac2_dat::DatFileKind;
 use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
 
 use crate::ac2_material::{

@@ -15,10 +15,10 @@
 
 use std::sync::Arc;
 
-use ac2_dat::ArchiveCursor;
 use ac2_core::QualifiedDataId;
-use ac2_math::{Plane, Sphere, Vec3};
+use ac2_dat::ArchiveCursor;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
+use ac2_math::{Plane, Sphere, Vec3};
 
 const MAX_VERTICES: usize = 1 << 20;
 const MAX_ITEMS: usize = 1 << 16;

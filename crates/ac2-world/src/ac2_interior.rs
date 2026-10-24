@@ -3,12 +3,12 @@
 //! of a cell placed in world space. Decoders live in `ac2_env_cell`, `ac2_cell_struct`,
 //! `ac2_landblock_interior` and `ac2_light_info`.
 
-use ac2_dat::DatFileKind;
 use ac2_core::{CellId, DataId};
-use ac2_math::{Frame, Vec3};
+use ac2_dat::DatFileKind;
 use ac2_db::{
     CachedResource, ResourcePackedDecode, ResourceResult, ResourceStore, TypedResourceRef,
 };
+use ac2_math::{Frame, Vec3};
 
 use crate::ac2_cell_struct::{Ac2CellBspNode, Ac2CellStruct};
 use crate::ac2_env_cell::Ac2EnvCell;

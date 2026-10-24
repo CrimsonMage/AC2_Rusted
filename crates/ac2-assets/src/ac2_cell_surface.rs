@@ -13,8 +13,8 @@
 
 use std::sync::Arc;
 
-use ac2_dat::DatFileKind;
 use ac2_core::DataId;
+use ac2_dat::DatFileKind;
 use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
 
 use crate::ac2_appearance::{load_ac2_material_with_atoms, Ac2MaterialAtom};

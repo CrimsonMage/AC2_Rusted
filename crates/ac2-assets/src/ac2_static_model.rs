@@ -5,16 +5,14 @@
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
-use ac2_dat::DatFileKind;
 use ac2_core::DataId;
-use ac2_math::{BBox, Mat4, Vec3};
+use ac2_dat::DatFileKind;
 use ac2_db::{
     CachedResource, ResourcePackedDecode, ResourceResult, ResourceStore, TypedResourceRef,
 };
+use ac2_math::{BBox, Mat4, Vec3};
 
-use ac2_anim::Ac2Animation;
 use crate::ac2_mesh::Ac2Mesh;
-use ac2_anim::{Ac2Setup, Ac2Transform};
 use crate::ac2_texture::{ac2_texture_has_cutout_alpha, load_ac2_decoded_texture};
 use crate::ac2_visual_desc::Ac2VisualDesc;
 use crate::{
@@ -22,6 +20,8 @@ use crate::{
     DecodedStaticModel, DecodedStaticSurfaceBatch, DecodedStaticSurfaceMaterial,
     DecodedSurfaceBlendMode, DecodedSurfaceCullMode, DecodedTextureAsset,
 };
+use ac2_anim::Ac2Animation;
+use ac2_anim::{Ac2Setup, Ac2Transform};
 
 const SETUP_PREFIX: u32 = 0x0400_0000;
 const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;

@@ -7,10 +7,10 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use ac2_core::{CellId, DataId};
-use ac2_math::{Frame, Vec3};
 use ac2_assets::{resolve_ac2_visual_particles, Ac2VisualParticles};
+use ac2_core::{CellId, DataId};
 use ac2_db::ResourceResult;
+use ac2_math::{Frame, Vec3};
 
 use crate::Ac2WorldSource;
 

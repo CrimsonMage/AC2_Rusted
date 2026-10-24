@@ -1,10 +1,10 @@
 //! Asheron's Call 2 `EntityDesc` (`0x47`, and embedded in `CLandBlockInfo`, `EntityGroupDesc`
 //! and FX lights), decoded in `EntityDesc::StreamPack` order under its pack bitfield.
 
-use ac2_dat::ArchiveCursor;
 use ac2_core::{DataId, QualifiedDataId};
-use ac2_math::{Quat, Vec3};
+use ac2_dat::ArchiveCursor;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
+use ac2_math::{Quat, Vec3};
 
 use ac2_db::skip_property_collection;
 

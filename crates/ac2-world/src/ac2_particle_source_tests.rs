@@ -3,10 +3,10 @@
 
 use std::sync::Arc;
 
-use ac2_dat::{DatDataset, DatFileKind, DatOpenOptions};
 use ac2_core::CellId;
-use ac2_math::Vec3;
+use ac2_dat::{DatDataset, DatFileKind, DatOpenOptions};
 use ac2_db::ResourceStore;
+use ac2_math::Vec3;
 
 use crate::{ac2_block_particle_sources, ac2_blocks_within, Ac2WorldSource};
 

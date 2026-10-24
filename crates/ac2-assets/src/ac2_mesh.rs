@@ -4,10 +4,10 @@
 
 use std::sync::Arc;
 
-use ac2_dat::ArchiveCursor;
 use ac2_core::{DataId, QualifiedDataId};
-use ac2_math::{Vec2, Vec3};
+use ac2_dat::ArchiveCursor;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
+use ac2_math::{Vec2, Vec3};
 
 use crate::DecodedMeshVertex;
 

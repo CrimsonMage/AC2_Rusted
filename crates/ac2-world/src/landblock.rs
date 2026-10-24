@@ -2,12 +2,13 @@
 
 use std::sync::Arc;
 
-use ac2_core::{DataId, QualifiedDataId};
+use ac2_core::QualifiedDataId;
 
 use crate::ac2_world::Ac2TerrainSamples;
+use crate::Ac2SurfaceInfo;
 use crate::LAND_BLOCK_CELLS_PER_SIDE;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct LandBlockDesc {
     qdid: QualifiedDataId,
     samples: Arc<Ac2TerrainSamples>,
@@ -32,27 +33,21 @@ impl LandBlockDesc {
         (self.vertex_side() - 1) / LAND_BLOCK_CELLS_PER_SIDE
     }
 
-    /// Per-vertex surface texture chains for one terrain polygon of `polygon_size` vertex steps
-    /// whose lower corner is vertex (`vertex_x`, `vertex_y`), in tile corner order
-    /// (x0/y0, x1/y0, x0/y1, x1/y1).
-    pub fn ac2_surface_textures_for_polygon(
-        &self,
-        vertex_x: usize,
-        vertex_y: usize,
-        polygon_size: usize,
-    ) -> Option<[DataId; 4]> {
-        let size = polygon_size.max(1);
+    /// Terrain `SurfaceInfo` of vertex (`x`, `y`) (`CLandBlockData::m_vertexSurfaceInfo`).
+    pub fn surface_info(&self, x: usize, y: usize) -> Option<&Ac2SurfaceInfo> {
         let side = self.vertex_side();
-        if vertex_x + size >= side || vertex_y + size >= side {
-            return None;
-        }
-        let at = |x: usize, y: usize| self.samples.surface_texture(x * side + y);
-        Some([
-            at(vertex_x, vertex_y)?,
-            at(vertex_x + size, vertex_y)?,
-            at(vertex_x, vertex_y + size)?,
-            at(vertex_x + size, vertex_y + size)?,
-        ])
+        (x < side && y < side)
+            .then(|| self.samples.surface(x * side + y))
+            .flatten()
+    }
+
+    /// Road `SurfaceInfo` of vertex (`x`, `y`) (`CLandBlockData::m_vertexRoadInfo`); its base
+    /// material is empty where no road runs.
+    pub fn road_info(&self, x: usize, y: usize) -> Option<&Ac2SurfaceInfo> {
+        let side = self.vertex_side();
+        (x < side && y < side)
+            .then(|| self.samples.road(x * side + y))
+            .flatten()
     }
 
     /// Whether the terrain polygon of `polygon_size` vertex steps at vertex (`vertex_x`,
@@ -80,8 +75,7 @@ impl LandBlockDesc {
 
     /// Mean height of a land cell's four corner vertices.
     pub fn average_cell_height(&self, cell_x: usize, cell_y: usize) -> Option<f32> {
-        if cell_x >= LAND_BLOCK_CELLS_PER_SIDE || cell_y >= LAND_BLOCK_CELLS_PER_SIDE
-        {
+        if cell_x >= LAND_BLOCK_CELLS_PER_SIDE || cell_y >= LAND_BLOCK_CELLS_PER_SIDE {
             return None;
         }
         let step = self.vertices_per_cell();

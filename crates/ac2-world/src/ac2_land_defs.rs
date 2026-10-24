@@ -1,6 +1,6 @@
+use ac2_core::{DataId, QualifiedDataId};
 use ac2_dat::ArchiveCursor;
 use ac2_dat::DatFileKind;
-use ac2_core::{DataId, QualifiedDataId};
 use ac2_db::{
     ResourceBodyDecode, ResourceDbObjBody, ResourceDbObjDecodeContext, ResourceError,
     ResourceResult, ResourceStore, ResourceTypeId, TypedResourceRef,
@@ -24,6 +24,9 @@ pub(crate) struct Ac2LandDefs {
     max_object_height: f32,
     sky_height: f32,
     road_width: f32,
+    /// `terrain`, `scene`, `encounter`, `color`, `road`, `replace` bit lengths of a vertex's
+    /// cell-info word, packed low to high in that order (`LandDefs::set_bitlengths`).
+    cell_info_bits: [u32; 6],
     height_table: Vec<f32>,
 }
 
@@ -38,6 +41,20 @@ impl Ac2LandDefs {
 
     pub(crate) fn subdivisions_per_cell(&self) -> u32 {
         self.subdivisions_per_cell
+    }
+
+    /// (offset, mask) of cell-info field `index` (0 terrain .. 5 replace).
+    pub(crate) fn cell_info_field(&self, index: usize) -> (u32, u32) {
+        let offset = self.cell_info_bits[..index].iter().sum::<u32>();
+        let bits = self.cell_info_bits[index];
+        (
+            offset,
+            if bits >= 32 {
+                u32::MAX
+            } else {
+                (1 << bits) - 1
+            },
+        )
     }
 
     pub(crate) fn height_table(&self) -> &[f32] {
@@ -86,10 +103,13 @@ fn decode_ac2_land_defs(qdid: QualifiedDataId, bytes: &[u8]) -> ResourceResult<A
     let max_object_height = cursor.read_f32()?;
     let sky_height = cursor.read_f32()?;
     let road_width = cursor.read_f32()?;
-    // These six authored words are retained by the retail record between the physical limits and
-    // the height table. Their meanings are not needed to establish the terrain lattice.
-    for _ in 0..6 {
-        let _ = cursor.read_u32()?;
+    // `LandscapeDefs::UnPack`: terrain, scene, encounter, color, road and replace bit lengths.
+    let mut cell_info_bits = [0_u32; 6];
+    for bits in &mut cell_info_bits {
+        *bits = cursor.read_u32()?;
+    }
+    if cell_info_bits.iter().sum::<u32>() > 32 {
+        return Err(malformed(qdid, "AC2 LandDefs cell-info bits exceeded 32"));
     }
     if logical_cell_size != 20.0 || block_cells != 8 || subdivisions_per_cell != 2 {
         return Err(malformed(
@@ -127,6 +147,7 @@ fn decode_ac2_land_defs(qdid: QualifiedDataId, bytes: &[u8]) -> ResourceResult<A
         max_object_height,
         sky_height,
         road_width,
+        cell_info_bits,
         height_table,
     })
 }

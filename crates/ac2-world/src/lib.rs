@@ -17,13 +17,12 @@ mod ac2_landblock_info;
 mod ac2_landblock_interior;
 mod ac2_light_info;
 mod ac2_motion_interp;
-mod ac2_particle_sources;
 #[cfg(test)]
 mod ac2_particle_source_tests;
+mod ac2_particle_sources;
 #[cfg(test)]
 mod ac2_real_data_tests;
 mod ac2_scene;
-mod ac2_surface_defs;
 mod ac2_terrain_desc;
 mod ac2_water;
 mod ac2_world;
@@ -33,6 +32,8 @@ mod coordinates;
 mod land_lattice;
 mod landblock;
 mod region;
+mod surface_desc;
+mod surface_info;
 mod terrain_cut;
 
 pub use ac2_env_cell::Ac2EnvCell;
@@ -56,7 +57,10 @@ pub use coordinates::{
     cell_local_render_position_relative_to_landblock, retail_position_offset,
     world_render_position_from_cell_local,
 };
-pub use land_lattice::{land_block_size, land_cell_size, land_lattice, set_land_lattice, LandLattice};
+pub use land_lattice::{
+    land_block_size, land_cell_size, land_lattice, set_land_lattice, LandLattice,
+};
 pub use landblock::LandBlockDesc;
-pub use terrain_cut::terrain_polygon_cut;
 pub use region::{RegionDesc, SkyEnvironmentCadence, SkyEnvironmentSample, SkyLightingDesc};
+pub use surface_info::Ac2SurfaceInfo;
+pub use terrain_cut::terrain_polygon_cut;

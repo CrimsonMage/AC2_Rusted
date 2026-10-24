@@ -3,8 +3,8 @@
 
 use std::sync::Arc;
 
-use ac2_dat::{DatDataset, DatFileKind, DatOpenOptions};
 use ac2_core::DataId;
+use ac2_dat::{DatDataset, DatFileKind, DatOpenOptions};
 use ac2_db::{ResourcePackedDecode, ResourceStore, TypedResourceRef};
 
 use crate::ac2_material::{Ac2MaterialInstance, Ac2MaterialModifier, Ac2RenderMaterial};
@@ -215,9 +215,10 @@ fn human_stance_animation_poses_the_skinned_body() {
     let bind = crate::decode_ac2_static_model(&store, human)
         .unwrap()
         .unwrap();
-    let animation = ac2_anim::load_ac2_motion_animation(&store, DataId::new(0x0300_0014), 0x8000_0012)
-        .unwrap()
-        .expect("stance clip");
+    let animation =
+        ac2_anim::load_ac2_motion_animation(&store, DataId::new(0x0300_0014), 0x8000_0012)
+            .unwrap()
+            .expect("stance clip");
     let posed = crate::decode_ac2_posed_model(
         &store,
         human,

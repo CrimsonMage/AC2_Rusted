@@ -3,10 +3,10 @@
 
 use std::sync::Arc;
 
-use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_core::CellId;
-use ac2_math::Vec3;
+use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_db::ResourceStore;
+use ac2_math::Vec3;
 
 use super::real_data_expected::{
     Expected, FRILLS_CB4D, FRILLS_F18F, FRILL_SUMS_CB4D, FRILL_SUMS_F18F, OBJECTS_CB4D,

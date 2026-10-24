@@ -3,9 +3,9 @@
 
 use std::sync::Arc;
 
+use ac2_core::{ColorArgb, DataId, QualifiedDataId};
 use ac2_dat::ArchiveCursor;
 use ac2_dat::DatFileKind;
-use ac2_core::{ColorArgb, DataId, QualifiedDataId};
 use ac2_db::{
     ResourceError, ResourcePackedDecode, ResourceResult, ResourceStore, ResourceTypeId,
     TypedResourceRef,

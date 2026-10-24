@@ -40,9 +40,8 @@ fn decoded_high_detail_level(texture: &DecodedTextureAsset) -> Option<bool> {
                 .is_some_and(|identity| identity.high_detail_alternative)
         })
         .then(|| {
-            surfaces().any(|surface| {
-                surface.render_surface_file_kind == ac2_dat::DatFileKind::HighRes
-            })
+            surfaces()
+                .any(|surface| surface.render_surface_file_kind == ac2_dat::DatFileKind::HighRes)
         })
 }
 

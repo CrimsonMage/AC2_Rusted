@@ -5,10 +5,10 @@
 
 use std::sync::Arc;
 
-use ac2_dat::ArchiveCursor;
 use ac2_core::{DataId, QualifiedDataId};
-use ac2_math::{Quat, Vec3};
+use ac2_dat::ArchiveCursor;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
+use ac2_math::{Quat, Vec3};
 
 const MAX_ITEMS: usize = 4096;
 const TRANSFORM_BYTES: usize = 40;
@@ -33,11 +33,7 @@ impl Ac2Transform {
     }
 
     pub fn to_mat4(&self) -> ac2_math::Mat4 {
-        ac2_math::Mat4::from_scale_rotation_translation(
-            self.scale,
-            self.rotation,
-            self.offset,
-        )
+        ac2_math::Mat4::from_scale_rotation_translation(self.scale, self.rotation, self.offset)
     }
 
     /// `self` applied after `inner` (`inner` is the child's local transform).

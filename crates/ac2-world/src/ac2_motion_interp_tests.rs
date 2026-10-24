@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_core::{DataId, QualifiedDataId};
+use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_db::{ResourcePackedDecode, ResourceStore};
 
 use super::*;

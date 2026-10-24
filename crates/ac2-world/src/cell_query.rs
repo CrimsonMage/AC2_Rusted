@@ -130,9 +130,7 @@ fn retail_gid_to_lcoord(cell_id: u32) -> Option<(i32, i32)> {
 }
 
 pub(crate) fn retail_lcoord_to_gid(x: i32, y: i32) -> Option<u32> {
-    if !(0..WORLD_CELLS_PER_SIDE).contains(&x)
-        || !(0..WORLD_CELLS_PER_SIDE).contains(&y)
-    {
+    if !(0..WORLD_CELLS_PER_SIDE).contains(&x) || !(0..WORLD_CELLS_PER_SIDE).contains(&y) {
         return None;
     }
 

@@ -10,9 +10,9 @@
 
 use std::collections::HashMap;
 
+use ac2_core::{DataId, QualifiedDataId};
 use ac2_dat::ArchiveCursor;
 use ac2_dat::DatFileKind;
-use ac2_core::{DataId, QualifiedDataId};
 use ac2_db::{
     CachedResource, ResourceError, ResourcePackedDecode, ResourceResult, ResourceStore,
     ResourceTypeId, TypedResourceRef,

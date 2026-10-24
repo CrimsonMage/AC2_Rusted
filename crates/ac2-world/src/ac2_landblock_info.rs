@@ -3,16 +3,16 @@
 
 use std::sync::Arc;
 
+use ac2_assets::{read_ac2_entity_desc, Ac2EntityDesc};
+use ac2_core::{CellId, DataId, QualifiedDataId};
 use ac2_dat::ArchiveCursor;
 use ac2_dat::DatFileKind;
-use ac2_core::{CellId, DataId, QualifiedDataId};
-use ac2_math::{Frame, Vec3};
-use ac2_assets::{read_ac2_entity_desc, Ac2EntityDesc};
 use ac2_db::skip_ac2_property_collection;
 use ac2_db::{
     ResourceError, ResourcePackedDecode, ResourceResult, ResourceStore, ResourceTypeId,
     TypedResourceRef,
 };
+use ac2_math::{Frame, Vec3};
 
 const ENTITY_DESC_PREFIX: u32 = 0x4700_0000;
 const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;

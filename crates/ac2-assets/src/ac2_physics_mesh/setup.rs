@@ -13,10 +13,10 @@
 
 use std::sync::Arc;
 
-use ac2_dat::ArchiveCursor;
 use ac2_core::QualifiedDataId;
-use ac2_math::{Sphere, Vec3};
+use ac2_dat::ArchiveCursor;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
+use ac2_math::{Sphere, Vec3};
 
 const MAX_ITEMS: usize = 4096;
 const TRANSFORM_BYTES: usize = 40;
