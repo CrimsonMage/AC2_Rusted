@@ -65,12 +65,13 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
                 if scene == 0 {
                     continue;
                 }
+                // `GenerateSceneObjectList` stores the vertex offset into a float `Position`.
                 let pose = Pose {
-                    origin: [
+                    origin: store3([
                         ix as f64 * spacing,
                         iy as f64 * spacing,
                         self.terrain.height(ix, iy),
-                    ],
+                    ]),
                     rotation: IDENTITY,
                 };
                 let x = self.terrain.block_x * 16 + ix as u32;
@@ -152,7 +153,8 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
         if !check_freq(g.freq, x, y, seed) {
             return true;
         }
-        let Some(mut scale) = get_scale(g, x, y, parent_scale, seed) else {
+        // `SceneGroup::GetScale` writes the float `Vector new_scale`.
+        let Some(mut scale) = get_scale(g, x, y, parent_scale, seed).map(store3) else {
             return false;
         };
         let mut pose = base;
@@ -259,11 +261,12 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
         } else {
             loc
         };
-        pose.origin = [
+        // `UpdateXYLoc` stores the moved origin back into the float frame.
+        pose.origin = store3([
             pose.origin[0] + offset[0],
             pose.origin[1] + offset[1],
             pose.origin[2] + offset[2],
-        ];
+        ]);
         let radius = clearance_radius(g, *scale);
         let xy_loc = pose.origin;
         let [x0, y0, _] = xy_loc;
@@ -309,6 +312,8 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
                 q_heading(rotation)
             };
         }
+        // `Frame::operator=` stores the new rotation as floats.
+        pose.rotation = pose.rotation.map(store);
         if g.height_relative != 9 {
             let base = match g.height_relative {
                 0 => plane_z(plane, pose.origin[0], pose.origin[1]).unwrap_or(pose.origin[2]),
@@ -324,7 +329,8 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
                 } else {
                     1.0
                 };
-            pose.origin[2] = base + lift;
+            // `UpdateZLoc` then `FinishPlaceAndCheck` store `loc` back into the float frame.
+            pose.origin[2] = store(base + lift);
         }
         match g.scale_type {
             // `SceneGroup::ScaleByWaterDepth`: depth below the water over `scale_depth`, into z for
@@ -340,9 +346,9 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
                 }
                 let factor = depth / g.scale_depth;
                 if g.scale_type == 7 {
-                    *scale = [factor; 3];
+                    *scale = [store(factor); 3];
                 } else {
-                    scale[2] = factor;
+                    scale[2] = store(factor);
                 }
             }
             // `SceneGroup::ScaleByLandSlope`.
@@ -351,10 +357,10 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
                 if !(nx < 0.9998 && ny < 0.9998) {
                     return false;
                 }
-                scale[0] = 1.0 / (1.0 - nx * nx).sqrt();
-                scale[1] = 1.0 / (1.0 - ny * ny).sqrt();
+                scale[0] = store(1.0 / (1.0 - nx * nx).sqrt());
+                scale[1] = store(1.0 / (1.0 - ny * ny).sqrt());
                 if g.scale_type == 9 {
-                    scale[2] = (scale[0] + scale[1]) * 0.5;
+                    scale[2] = store((scale[0] + scale[1]) * 0.5);
                 }
             }
             _ => {}
@@ -521,4 +527,13 @@ fn clearance_radius(g: &Ac2SceneGroup, scale: V3) -> f64 {
         scale[0].max(scale[1])
     };
     factor * g.clearance_radius
+}
+
+/// A value retail stores into a `float`: x87 intermediates are 53-bit, memory is f32.
+fn store(v: f64) -> f64 {
+    v as f32 as f64
+}
+
+fn store3(v: V3) -> V3 {
+    v.map(store)
 }
