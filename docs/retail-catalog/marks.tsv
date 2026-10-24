@@ -534,17 +534,26 @@ key	status	note
 004dde80	x	ac2_physics::Position::lerp_origin (across blocks the z sum is stored first)
 004de020	x	
 004de0d0	x	
-004de490	~	the player only, its move-to stamp; no MoveToEvent
+004de490	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
+004de590	x	ac2-physics moveto (slice 3)
 004de5b0	x	
 004de5d0	x	
+004de7b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004de8d0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004de940	x	
-004dead0	~	ac2-client remote.rs: snaps, then the velocity
-004deb70	~	ac2-client remote.rs: snaps (InterpolationManager::Blip) until ac2-physics has the InterpolationManager
+004de980	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004de990	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004dead0	x	ac2-physics interp (slice 3)
+004deb70	x	ac2-physics interp (slice 3)
+004dec30	x	ac2-physics interp (slice 3)
+004dec50	x	ac2-physics interp (slice 3)
 004df5a0	~	no IsDoingBehavior(jump) check (behaviours not ported)
+004df670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004df6a0	x	
 004df6d0	x	
 004df6e0	x	
 004df700	x	
+004df710	x	ac2-physics interp (slice 3)
 004df750	x	
 004dfa20	x	
 004dfa90	x	
@@ -553,11 +562,14 @@ key	status	note
 004dffe0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004e05a0	x	
 004e05d0	x	
-004e0620	~	HitGround/LeaveGround FX events not ported
+004e05e0	x	ac2-physics interp (slice 3)
+004e0620	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e06c0	x	
+004e0890	x	ac2-physics anim_pose fire_impulse
 004e0a70	x	
 004e0af0	x	
 004e0e30	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+004e12f0	x	ac2-physics interp (slice 3)
 004e1520	x	
 004e1c90	~	no admin moves or missiles
 004e1d70	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
@@ -572,19 +584,20 @@ key	status	note
 004e2980	~	ac2-client: the object steps physics again
 004e30e0	x	
 004e3280	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-004e3aa0	x	
-004e3b90	~	DoElement sets the element directly (ModeTracker element transitions not ported)
+004e3310	x	ac2-physics interp (slice 3)
+004e3aa0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004e3b90	~	elements go through ModeTracker::DoElement; the no-cell DoElement(GROUND) is not ported
 004e3e20	~	no pushers (CCollisionManager::UpdatePusherValues)
 004e4170	~	no admin moves or missiles
-004e43b0	~	HitGround/LeaveGround FX events not ported
-004e4430	~	only the zero velocity of OBJECTINFO::kill_velocity
+004e43b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004e4430	~	the F_EPSILON change test and CullVelocity in anim_pose fire_impulse; kill_velocity and PhysicsBody::set_velocity assign directly
 004e44e0	x	
 004e4640	~	ac2-physics: vdesc scale x placement scale; the body uses the root z scale
 004e4b60	~	no adjust_to_outside
 004e4c10	~	ac2-client remote.rs: out of the world, queued for destruction
 004e4ca0	~	the bookie part only
 004e4d00	x	ac2-client remote.rs
-004e56e0	~	the standing jump behaviour is not ported; jumps at once
+004e56e0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e5780	~	vertical distance to the terrain polygon instead of CObjCell::LOSCheck
 004e5d10	~	environment response only; object collisions and the collision manager not ported
 004e6780	x	ac2-weenie ObjectTable::apply_action (newer position stamp), then LeaveWorld
@@ -594,8 +607,10 @@ key	status	note
 004e7580	~	ac2-physics objects.rs: static objects only; Interpermiable/CollisionParameters ethereal filter, missile proximity and temp ignore lists not ported
 004e8f80	x	
 004e9140	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
+004e9700	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
 004e9d30	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 004e9f50	~	no cell residency, shadow or material updates; LeaveGround FX not ported
+004ea490	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004ea780	~	no path-aligned heading, targeting or missiles
 004ea990	~	ac2-physics: FORCE_SPF sets the position only (no cell entry, shadows or cell material)
 004eaa30	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
@@ -616,25 +631,62 @@ key	status	note
 004ec730	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ec7d0	~	ac2-client remote.rs
 004ed190	~	flags 0x1010 into PhysicsBody::place
-004ed1f0	~	ac2-client remote.rs over PhysicsBody::place
+004ed1f0	~	interp blips use set_position_checked(SLIDE); parent/placement-position bookkeeping not ported
 004ed470	~	the non-player branch (lost cell when not resident, 96 m physics range, teleport/out-of-range/out-of-world snap); InterpolateTo snaps until ac2-physics has the InterpolationManager
 004ee7d0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+004f0a10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f0a80	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+004f0af0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+004f0de0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+004f1190	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f11d0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f12f0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1310	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1350	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1420	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1440	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1460	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1480	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f17b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f17c0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1ad0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+004f1b00	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1b90	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+004f1c40	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+004f1d10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1f40	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f1f90	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+004f2440	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+004f2560	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f2670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f2690	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+004f36a0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+004f4a40	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+004f4aa0	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
 004f5110	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f6090	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 005083f0	_	
 00509790	x	
 005097b0	x	
+005097d0	x	ac2-physics moveto (slice 3)
 005097e0	x	ac2-physics MovementState turning_to / turn_to_degrees
-00509800	x	
+00509800	x	ac2-physics interp (slice 3)
+00509930	x	ac2-physics moveto (slice 3)
+00509950	x	ac2-physics moveto (slice 3)
+00509960	x	ac2-physics moveto (slice 3)
+00509980	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+00509a10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 00509a90	x	
 00509ab0	x	
 00509af0	x	
 00509b40	x	
+00509b70	x	ac2-physics interp (slice 3)
 00509ed0	x	
 00509f20	x	
 0050a1b0	x	
+0050a290	x	ac2-physics interp (slice 3)
+0050a420	x	ac2-physics interp (slice 3)
+0050a480	x	ac2-physics interp (slice 3)
 0050a4f0	~	animation behaviours/FX (run, skid, land, fall, swim) and the Interpolation/MoveTo managers not ported
 0050b470	x	
 0050b540	x	
@@ -644,6 +696,45 @@ key	status	note
 0050b7f0	x	
 0050b800	x	
 0050b820	x	
+0050b990	x	ac2-physics interp (slice 3)
+0050ba70	~	object targets come from update_move_to_target / lose_move_to_target, not a CPhysics lookup
+0050bae0	x	ac2-physics moveto (slice 3)
+0050bbb0	x	ac2-physics moveto (slice 3)
+0050bd60	x	ac2-physics moveto (slice 3)
+0050bde0	x	ac2-physics moveto (slice 3)
+0050bec0	x	ac2-physics moveto (slice 3)
+0050c110	x	ac2-physics moveto (slice 3)
+0050c2a0	x	ac2-physics moveto (slice 3)
+0050c310	x	ac2-physics moveto (slice 3)
+0050c330	x	ac2-physics moveto (slice 3)
+0050c450	x	ac2-physics moveto (slice 3)
+0050c790	x	ac2-physics moveto (slice 3)
+0050c960	x	ac2-physics moveto (slice 3)
+0050cb30	x	ac2-physics interp (slice 3)
+0050cc10	x	ac2-physics interp (slice 3)
+0050cc40	x	ac2-physics interp (slice 3)
+0050cfe0	x	ac2-physics interp (slice 3)
+0050d150	x	ac2-physics interp (slice 3)
+0050d380	x	ac2-physics interp (slice 3)
+0050d3c0	x	ac2-physics interp (slice 3)
+0050d500	x	ac2-physics interp (slice 3)
+0050d660	x	ac2-physics interp (slice 3)
+0050e090	x	ac2-physics interp (slice 3)
+0050e0c0	x	ac2-physics interp (slice 3)
+0050e100	x	ac2-physics interp (slice 3)
+0050e1c0	~	no ConstraintManager (GetConstraintManager is null for these bodies)
+0050e340	x	ac2-physics interp (slice 3)
+0050e8b0	x	ac2-physics interp (slice 3)
+0050f7d0	x	ac2-physics interp (slice 3)
+0050fa00	x	ac2-physics interp (slice 3)
+0050fe00	x	ac2-physics interp (slice 3)
+0050fec0	x	ac2-physics interp (slice 3)
+005103a0	x	ac2-physics interp (slice 3)
+005105a0	x	ac2-physics interp (slice 3)
+005106d0	x	ac2-physics interp (slice 3)
+00510700	x	ac2-physics interp (slice 3)
+00510950	x	ac2-physics interp (slice 3)
+00510b60	x	ac2-physics interp (slice 3)
 00517fd0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 00518250	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 005185a0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
@@ -782,7 +873,7 @@ key	status	note
 00585cf0	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 00588320	x	
 00588610	~	near mesh then far chunks 2.. (far.rs, far_terrain.rs); no per-chunk frustum cull, no N-patches
-00588840	~	near water and far water chunks; bump map, reflection and shore passes not yet
+00588840	~	near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
 00589130	x	indices with RollDice diagonals and LOD crack fill, vertices, far water quads (terrain/far.rs)
 0058ad90	~	near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
 0058b600	x	ac2-render object::load_water_model
@@ -826,6 +917,7 @@ key	status	note
 005d6310	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6470	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6560	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005e75a0	x	ac2-physics moveto (slice 3)
 005fe420	x	
 00601c80	x	
 00601cd0	x	
@@ -855,7 +947,7 @@ key	status	note
 0061a220	x	
 0061a240	x	
 0061a310	x	
-0061a3c0	~	D3DXQuaternionSlerp is CPU-dispatched in retail; reference slerp
+0061a3c0	x	ac2-physics interp (slice 3)
 0061a5b0	x	
 0061a810	x	
 0061a8f0	x	
@@ -866,8 +958,9 @@ key	status	note
 0061aaa0	x	
 0061aaf0	x	
 0061ab60	x	
-0061ab80	~	in ac2-weenie reporter (ac2-math has no Heading yet)
-0061acb0	~	in ac2-weenie reporter (ac2-math has no Heading yet)
+0061ab80	x	ac2-physics moveto (slice 3)
+0061acb0	x	ac2-physics moveto (slice 3)
+0061ad30	x	ac2-physics moveto (slice 3)
 0061ad80	~	in ac2-weenie reporter (ac2-math has no Heading yet)
 0061b390	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0061b3e0	x	ac2-render object::pass / texture_matrix, ac2-gpu object
@@ -886,7 +979,11 @@ key	status	note
 0061ef30	x	
 0061f140	x	
 0061f300	x	
+0061fdb0	x	ac2-physics interp (slice 3)
+0061fdf0	x	ac2-physics interp (slice 3)
+0061fe90	x	ac2-physics interp (slice 3)
 006200b0	x	
+006200f0	x	ac2-physics moveto (slice 3)
 00620e20	x	
 00620e60	~	wire quantizer in ac2-net protocol::position
 00620f70	~	wire quantizer in ac2-net protocol::position
@@ -899,6 +996,8 @@ key	status	note
 00622cf0	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
 00622f10	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
 00623960	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
+00624fb0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00625070	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 006258e0	x	
 00625930	x	
 00628460	x	
@@ -989,12 +1088,107 @@ key	status	note
 006606e0	x	
 00662120	_	
 00679220	x	
+0067a480	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+0067a490	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+0067a4a0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+0067a4b0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+0067a7d0	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+0067ae90	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+0067cfa0	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 0067cfb0	x	
+0067d000	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+0067d140	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+0067ddd0	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+0067de10	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+0067de90	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+0067def0	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+0067df60	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+00684b00	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+00689100	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00689210	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+006893b0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+00689880	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+00689ab0	~	ac2-anim Ac2SliderTracker; slider interpolators not modelled
+00689d60	x	ac2-anim Ac2SliderTracker
+00689da0	x	ac2-anim Ac2SliderTracker
+00689de0	x	ac2-anim Ac2SliderTracker
+0068a1d0	x	ac2-anim Ac2SliderTracker
+0068a400	x	ac2-anim Ac2SliderTracker
+0068a840	x	ac2-anim Ac2SliderTracker
+0068a900	x	ac2-anim Ac2ModeTracker
+0068a9f0	x	ac2-anim Ac2ModeTracker
+0068aac0	x	ac2-anim Ac2ModeTracker
+0068ab10	x	ac2-anim Ac2ModeTracker
+0068ab90	x	ac2-anim Ac2ModeTracker
+0068ac50	x	ac2-anim Ac2ModeTracker
+0068acd0	x	ac2-anim Ac2ModeTracker
+0068ad20	x	ac2-anim Ac2ModeTracker
+0068ad50	x	ac2-anim Ac2ModeTracker
+0068ad70	x	ac2-anim Ac2ModeTracker
+0068adf0	x	ac2-anim Ac2ModeTracker
+0068ae30	x	ac2-anim Ac2ModeTracker
+0068b060	x	ac2-anim Ac2ModeTracker
+0068b0b0	x	ac2-anim Ac2ModeTracker
+0068b1d0	~	ac2-anim Ac2ModeTracker; effect triggers become StartFx/StopFx events, no TriggerUpdate
+0068b400	x	ac2-anim Ac2ModeTracker
+0068b450	x	ac2-anim Ac2ModeTracker
+0068b510	~	ac2-anim Ac2ModeTracker; effect triggers become StartFx/StopFx events, no TriggerUpdate
+0068b730	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+0068b770	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+0068b7a0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+0068b890	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+0068bba0	x	ac2-anim Ac2BehaviorTracker
+0068bbf0	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+0068bd50	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+0068c290	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+0068c400	x	ac2-anim Ac2BehaviorTracker
+0068c4c0	x	ac2-anim Ac2BehaviorTracker
+0068c500	x	ac2-anim Ac2BehaviorTracker
+0068c720	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+0068cbd0	x	ac2-anim Ac2BehaviorTracker
+0068cda0	x	ac2-anim Ac2BehaviorTracker
+0068ce80	x	ac2-anim Ac2BehaviorTracker
+0068d0b0	x	ac2-anim Ac2BehaviorTracker
+0068d340	x	ac2-anim Ac2BehaviorTracker
+0068d520	x	ac2-anim Ac2BehaviorTracker
+0068d800	x	ac2-anim Ac2BehaviorTracker
+0068db80	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+0068dfc0	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+0068e410	x	ac2-anim Ac2BehaviorTracker
+0068eaf0	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+0068eb00	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+0068eb90	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+0068f4c0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+0068f520	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+0068fde0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00690090	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+006900c0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+006934c0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00694000	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00694120	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00694770	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+006947a0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00694880	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00694a80	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00694b50	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00694c00	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+006967e0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00696d80	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00696e10	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00697a20	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+00698920	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00698930	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00698990	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00698ce0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00699400	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+0069ab70	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0069bd90	x	
 0069be20	x	
 0069bfd0	x	
 0069c060	x	
 0069c550	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
+0069c8a0	x	ac2-physics moveto (slice 3)
+0069cb70	x	ac2-physics moveto (slice 3)
 0069cc40	x	
 0069cdd0	x	
 0069dad0	x	
@@ -1009,6 +1203,20 @@ key	status	note
 006a9f80	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006aa5d0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006aaa90	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+006abe20	x	ac2-physics moveto (slice 3)
+006abe50	x	ac2-physics moveto (slice 3)
+006abf00	x	ac2-physics moveto (slice 3)
+006abf90	x	ac2-physics moveto (slice 3)
+006ac010	x	ac2-physics moveto (slice 3)
+006ac040	x	ac2-physics moveto (slice 3)
+006ac050	x	ac2-physics moveto (slice 3)
+006ac110	x	ac2-physics moveto (slice 3)
+006ac140	x	ac2-physics moveto (slice 3)
+006ac1e0	x	ac2-physics moveto (slice 3)
+006ac660	x	ac2-physics moveto (slice 3)
+006ac900	x	ac2-physics moveto (slice 3)
+006ac9b0	x	ac2-physics moveto (slice 3)
+006aca30	x	ac2-physics moveto (slice 3)
 006ad9f0	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 006ae260	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 006ae550	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
@@ -1086,6 +1294,7 @@ key	status	note
 006db7f0	x	
 006ed9c0	x	
 006eda20	x	
+006ff763	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0071f6b0	x	
 0071fa40	x	
 0071fab0	x	
@@ -1111,4 +1320,8 @@ key	status	note
 00732400	~	the player's quantum with PlayerPhysicsUpdatedCallback, then every other object in the world and in range
 007326e0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 00737cf0	x	
+00737dd0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+00739430	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00739460	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+0073ab60	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 DB_TYPE_SURFACE_DESC	x	

@@ -1098,7 +1098,7 @@ Legend and workflow: [README](README.md).
 
 ### LScapeTerrainMesh
 - [~] `LScapeTerrainMesh::DrawTerrain` · 00588610 — near mesh then far chunks 2.. (far.rs, far_terrain.rs); no per-chunk frustum cull, no N-patches
-- [~] `LScapeTerrainMesh::DrawWaterMesh` · 00588840 · legions 00557ee0 — near water and far water chunks; bump map, reflection and shore passes not yet
+- [~] `LScapeTerrainMesh::DrawWaterMesh` · 00588840 · legions 00557ee0 — near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
 - [ ] `LScapeTerrainMesh::ApplyList` · 00588a30 · legions 005580d0
 - [ ] `LScapeTerrainMesh::InqNearBlockIndex` · 00588aa0 · legions 00558140
 

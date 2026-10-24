@@ -6,7 +6,14 @@ use ac2_core::{DataId, QualifiedDataId};
 use ac2_db::ResourcePackedDecode;
 use ac2_world::{Ac2MotionInterpDesc, Ac2MotionValues};
 
-use crate::motion_interp::MODE_DEFAULT;
+use crate::body::PhysicsBody;
+use crate::frame::Frame;
+use crate::landdefs::SIDE_VERTEX_COUNT;
+use crate::motion_interp::{ELEMENT_AIR, ELEMENT_GROUND, MODE_DEFAULT};
+use crate::physics_obj::BodyShape;
+use crate::position::Position;
+use crate::terrain::Terrain;
+use crate::vector::{Quaternion, Sphere, Vector};
 
 /// Synthetic locomotion: 4 m/s forward, 2 m/s back, 3 m/s strafe, 10 m/s^2 accelerations,
 /// 20 m/s^2 brakes, 60/90 deg/s turns with 360 deg/s^2 turn acceleration.
@@ -87,4 +94,173 @@ pub(crate) fn desc(lists: &[(u32, Ac2MotionValues)]) -> Arc<Ac2MotionInterpDesc>
     let bytes: Vec<u8> = words.iter().flat_map(|word| word.to_le_bytes()).collect();
     let qdid = QualifiedDataId::new(DataId::new(DID), 0);
     Arc::new(Ac2MotionInterpDesc::decode_packed(qdid, 0, &bytes).expect("synthetic desc"))
+}
+
+/// A `PHYSICSOBJREP` stand-in recording the behaviour, mode and FX calls of `CMotionInterp`.
+#[derive(Debug, Default)]
+pub(crate) struct RecordingRep {
+    pub doing: Vec<u32>,
+    pub started: Vec<u32>,
+    pub stopped: Vec<u32>,
+    pub fx: Vec<(u32, f32)>,
+    pub mode: u32,
+}
+
+impl crate::motion_interp_behaviors::MotionRep for RecordingRep {
+    fn do_autonomous_behavior(&mut self, behavior: u32) {
+        self.started.push(behavior);
+        if !self.doing.contains(&behavior) {
+            self.doing.push(behavior);
+        }
+    }
+
+    fn is_doing_behavior(&self, behavior: u32) -> bool {
+        self.doing.contains(&behavior)
+    }
+
+    fn stop_behavior(&mut self, behavior: u32) {
+        self.stopped.push(behavior);
+        self.doing.retain(|&b| b != behavior);
+    }
+
+    fn do_mode(&mut self, _context: u32, mode: u32) {
+        self.mode = mode;
+    }
+
+    fn desired_mode(&self) -> u32 {
+        self.mode
+    }
+
+    fn do_fx(&mut self, fx: u32, intensity: f32) {
+        self.fx.push((fx, intensity));
+    }
+}
+
+/// A synthetic behaviour table: ground and air in the default mode, linked both ways with a
+/// 0.3 s transition; idle (anim key 1) and move (anim key 2) in both, each a 1 s clip.
+pub(crate) fn body_animation() -> crate::anim_rep::BodyAnimation {
+    use std::collections::HashMap;
+
+    use ac2_anim::{
+        Ac2AnimAsset, Ac2AssetBone, Ac2BehaviorInfo, Ac2BehaviorTable, Ac2CharTemplate,
+        Ac2ComboInfo, Ac2DbAnimator, Ac2ModeTransition,
+    };
+
+    let (idle, mv) = (0x4000_0002, 0x4000_0001);
+    let mut combos = HashMap::new();
+    for element in [ELEMENT_GROUND, ELEMENT_AIR] {
+        combos.insert(
+            (element, MODE_DEFAULT, idle),
+            Ac2ComboInfo {
+                anim_key: 1,
+                layer: 0,
+            },
+        );
+        combos.insert(
+            (element, MODE_DEFAULT, mv),
+            Ac2ComboInfo {
+                anim_key: 2,
+                layer: 1,
+            },
+        );
+    }
+    let ground = (ELEMENT_GROUND, MODE_DEFAULT);
+    let air = (ELEMENT_AIR, MODE_DEFAULT);
+    let transition = |src: (u32, u32), dst: (u32, u32)| Ac2ModeTransition {
+        src_element: src.0,
+        src_mode: src.1,
+        dst_element: dst.0,
+        dst_mode: dst.1,
+    };
+    let table = Ac2BehaviorTable {
+        ramp_times: HashMap::from([
+            (transition(ground, air), 0.3),
+            (transition(air, ground), 0.3),
+        ]),
+        combos,
+        transitions: HashMap::new(),
+        layers: vec![0, 1],
+        tweak_layers: Vec::new(),
+        mode_transitions: HashMap::from([(ground, vec![air]), (air, vec![ground])]),
+        modes: HashMap::from([(ground, 0), (air, 0)]),
+        behavior_info: HashMap::from([(
+            mv,
+            Ac2BehaviorInfo {
+                ramp_time: 0.2,
+                effect: 0,
+            },
+        )]),
+        init_behaviors: vec![idle],
+        init_mode: MODE_DEFAULT,
+    };
+    let template = Ac2CharTemplate {
+        behaviors: HashMap::from([(idle, 0), (0x4000_0003, 0), (mv, 0)]),
+        default_element: ELEMENT_GROUND,
+        default_mode: MODE_DEFAULT,
+    };
+    let clip = |x: f32| {
+        Arc::new(Ac2DbAnimator::Asset(Arc::new(Ac2AnimAsset {
+            period: 1.0,
+            bones: vec![Ac2AssetBone {
+                scale: vec![([1.0; 3], 0.0)],
+                offset: vec![([x, 0.0, 0.0], 0.0)],
+                rotation: vec![([1.0, 0.0, 0.0, 0.0], 0.0)],
+                weight: vec![(1.0, 0.0)],
+            }],
+            info: None,
+        })))
+    };
+    crate::anim_rep::BodyAnimation {
+        table: Arc::new(table),
+        template: Arc::new(template),
+        animators: HashMap::from([(1, clip(0.25)), (2, clip(0.5))]),
+        setup: None,
+        vdesc_scale: [1.0; 3],
+    }
+}
+
+pub(crate) const BLOCK: u32 = 0x7F7F_FFFF;
+
+/// A block whose vertex heights are `height(x, y)` (vertex steps of 10 m).
+pub(crate) fn terrain(height: impl Fn(usize, usize) -> f32) -> Terrain {
+    let heights: Vec<f32> = (0..SIDE_VERTEX_COUNT)
+        .flat_map(|x| (0..SIDE_VERTEX_COUNT).map(move |y| (x, y)))
+        .map(|(x, y)| height(x, y))
+        .collect();
+    let mut terrain = Terrain::new();
+    terrain.insert_heights(BLOCK, &heights, |_, _| false);
+    terrain
+}
+
+/// Two stacked 0.4 m spheres, 1.8 m tall, 0.5 m steps.
+pub(crate) fn shape() -> BodyShape {
+    BodyShape {
+        spheres: vec![
+            Sphere::new(Vector::new(0.0, 0.0, 0.4), 0.4),
+            Sphere::new(Vector::new(0.0, 0.0, 1.2), 0.4),
+        ],
+        height: 1.8,
+        step_up_height: 0.5,
+        step_down_height: 0.5,
+        scale: 1.0,
+        allow_free_heading: false,
+    }
+}
+
+pub(crate) fn body_at(x: f32, y: f32, z: f32) -> PhysicsBody {
+    let cell =
+        crate::landdefs::lcoord_to_gid(0x7F * 8 + (x / 20.0) as i32, 0x7F * 8 + (y / 20.0) as i32);
+    let mut values_air = walking_values();
+    values_air.forward_acceleration = 0.0;
+    values_air.backward_acceleration = 0.0;
+    values_air.strafe_acceleration = 0.0;
+    let desc = desc(&[
+        (ELEMENT_GROUND, walking_values()),
+        (ELEMENT_AIR, values_air),
+    ]);
+    PhysicsBody::new(
+        Position::new(cell, Frame::new(Vector::new(x, y, z), Quaternion::IDENTITY)),
+        shape(),
+        Some(desc),
+    )
 }

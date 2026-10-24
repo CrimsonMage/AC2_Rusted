@@ -3,7 +3,10 @@
 
 use std::sync::Arc;
 
+use ac2_anim::{Ac2AnimEvent, Ac2BehaviorParams};
 use ac2_world::Ac2MotionInterpDesc;
+
+use crate::anim_rep::BodyAnimation;
 
 use crate::fpu::{ld, st};
 use crate::heading::Heading;
@@ -79,6 +82,45 @@ impl PhysicsClock {
     }
 }
 
+/// `ANIM_QUANTUM`: `1.0f / 30.0f` (static initialiser).
+pub const ANIM_QUANTUM: f32 = 0.033_333_335;
+/// `PhysicsModule::UpdateAnimation` caps a step at this, then steps 0.05 s.
+const MAX_ANIM_STEP: f32 = 0.2;
+const LONG_ANIM_STEP: f32 = 0.05;
+
+/// `PhysicsModule`'s animation clock (`m_tAnimationUpdateTime`).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct AnimationClock {
+    update_time: f64,
+}
+
+impl AnimationClock {
+    pub fn new(now: f64) -> Self {
+        Self { update_time: now }
+    }
+
+    /// `PhysicsModule::UpdateAnimation`: the animation step to run at `now`, once at least
+    /// `ANIM_QUANTUM` has passed (0.05 s after a stall over 0.2 s). A clock running backwards
+    /// resynchronises.
+    pub fn advance(&mut self, now: f64) -> Option<f32> {
+        let elapsed = now - self.update_time;
+        let step = st(elapsed);
+        if elapsed < 0.0 {
+            self.update_time = now;
+            return None;
+        }
+        if !(ld(ANIM_QUANTUM) <= ld(step)) {
+            return None;
+        }
+        self.update_time = now;
+        Some(if ld(step) > ld(MAX_ANIM_STEP) {
+            LONG_ANIM_STEP
+        } else {
+            step
+        })
+    }
+}
+
 /// Movement input as retail physics takes it (`CPhysicsObj::DoMotion`): a do-motion vector
 /// (strafe right, forward, up; each in `[-1, 1]`, normalised when longer than 1) and the
 /// heading to turn to; or a normalised turn rate (`CMotionInterp::SetOmegaVelocity`) for
@@ -107,9 +149,9 @@ pub struct MovementState {
     pub omega: [f32; 3],
     /// `CMotionInterp::mLastDoMotionValues`.
     pub do_motion: [f32; 3],
-    /// The turn input of the last quantum.
+    /// The turn rate applied each quantum (`set_turn_rate`).
     pub turn: f32,
-    /// `ModeStateKey` element and mode.
+    /// The desired element and mode (`ModeTracker::GetDesiredModeState`).
     pub element: u32,
     pub mode: u32,
     /// `CONTACT_TS` and `ON_WALKABLE_TS`.
@@ -131,7 +173,8 @@ pub struct MovementState {
 #[derive(Debug, Clone)]
 pub struct PhysicsBody {
     object: PhysicsObj,
-    input: MovementInput,
+    /// The turn rate `SetOmegaVelocity` gets each quantum.
+    turn: f32,
 }
 
 impl PhysicsBody {
@@ -143,7 +186,7 @@ impl PhysicsBody {
     ) -> Self {
         Self {
             object: PhysicsObj::new(position, shape, MotionInterp::new(motion_desc)),
-            input: MovementInput::default(),
+            turn: 0.0,
         }
     }
 
@@ -165,31 +208,61 @@ impl PhysicsBody {
         self.object.set_position_checked(position, flags, world)
     }
 
-    /// `CPhysicsObj::DoMotion` (and `TurnTo` when a heading is given); the turn rate is applied
-    /// every quantum.
+    /// `CPhysicsObj::DoMotion` with `TurnTo` when a heading is given, and the turn rate. Input
+    /// without a heading leaves a running turn-to alone: only `stop_turn_to` or a new turn
+    /// command ends it.
     pub fn set_input(&mut self, input: MovementInput) {
-        let [x, y, z] = input.motion;
-        self.object.motion.do_motion(Vector::new(x, y, z));
-        match input.heading {
-            Some(degrees) => self.object.motion.turn_to(Heading::from_degrees(degrees)),
-            None => {
-                let current = self.object.position.frame.heading();
-                self.object.motion.stop_turn_to(current);
-            }
+        self.do_motion(input.motion);
+        if let Some(degrees) = input.heading {
+            self.turn_to(degrees);
         }
-        self.input = input;
+        self.set_turn_rate(input.turn);
+    }
+
+    /// `CMotionInterp::DoMotion` (through `CPhysicsObj::DoMotion`): the do-motion vector,
+    /// strafe right, forward, up.
+    pub fn do_motion(&mut self, motion: [f32; 3]) {
+        let [x, y, z] = motion;
+        self.object.motion.do_motion(Vector::new(x, y, z));
+    }
+
+    /// `CMotionInterp::TurnTo`: turn toward compass `degrees` until reached or stopped.
+    pub fn turn_to(&mut self, degrees: f32) {
+        self.object.motion.turn_to(Heading::from_degrees(degrees));
+    }
+
+    /// `CMotionInterp::StopTurnTo`: the turn target becomes the current heading.
+    pub fn stop_turn_to(&mut self) {
+        let current = self.object.position.frame.heading();
+        self.object.motion.stop_turn_to(current);
+    }
+
+    /// The normalised turn rate in `[-1, 1]` (positive counter-clockwise) passed to
+    /// `CMotionInterp::SetOmegaVelocity` every quantum until changed; 0 stops turning.
+    pub fn set_turn_rate(&mut self, normalized: f32) {
+        self.turn = normalized;
+    }
+
+    /// `CPhysicsObj::set_heading`: the heading quantised to `Heading::ToUInt8` steps and set
+    /// on the current frame (`Frame::set_heading`, then `set_frame`).
+    pub fn set_heading(&mut self, degrees: f32) {
+        let heading = Heading::from_u8(Heading::from_degrees(degrees).to_u8());
+        let mut frame = self.object.position.frame;
+        frame.set_heading(heading);
+        self.object.position.frame = frame;
     }
 
     /// One physics quantum (`CPhysicsObj::UpdateMovement(PHYSICS_QUANTUM)`).
     pub fn step_quantum(&mut self, terrain: &Terrain) {
-        if self.input.turn != 0.0 {
-            self.object.motion.set_omega_velocity(self.input.turn);
+        if self.turn != 0.0 {
+            self.object.motion.set_omega_velocity(self.turn);
         }
         self.object.update_movement(PHYSICS_QUANTUM, terrain);
     }
 
     /// Runs the quanta the clock owes at `now`; returns how many ran.
     pub fn update(&mut self, clock: &mut PhysicsClock, now: f64, terrain: &Terrain) -> u32 {
+        self.set_time(now);
         let quanta = clock.advance(now);
         for _ in 0..quanta {
             self.step_quantum(terrain);
@@ -197,14 +270,174 @@ impl PhysicsBody {
         quanta
     }
 
-    /// `CPhysicsObj::JumpLogic` without the jump behaviour: when `can_jump`, `Jump`. Returns
-    /// whether the body jumped.
-    pub fn jump(&mut self) -> bool {
-        if !self.object.can_jump() {
-            return false;
+    /// `Timer::cur_time` for interpolation: the clock server positions are stamped on
+    /// (`update` sets it to its `now`).
+    pub fn set_time(&mut self, now: f64) {
+        self.object.cur_time = now;
+    }
+
+    /// `CPhysicsObj::InterpolateTo`, for a server-driven body: steer toward `position` (its
+    /// heading, the sender's do-motion and contact flag) along the queue of positions, or jump
+    /// there when it is more than 15 m away. `time_sent` orders the positions.
+    pub fn interpolate_to(
+        &mut self,
+        time_sent: f64,
+        position: Position,
+        heading_degrees: f32,
+        motion: [f32; 3],
+        has_contact: bool,
+        terrain: &Terrain,
+    ) {
+        let [x, y, z] = motion;
+        self.object.interpolate_to(
+            time_sent,
+            &position,
+            Vector::new(x, y, z),
+            Heading::from_degrees(heading_degrees),
+            has_contact,
+            terrain,
+        );
+    }
+
+    /// `CPhysicsObj::InterpolateAndImpulse`: a queued position where the sender jumped (or was
+    /// pushed) with `velocity`; the body takes the impulse on reaching it.
+    pub fn interpolate_and_impulse(
+        &mut self,
+        time_sent: f64,
+        position: Position,
+        heading_degrees: f32,
+        motion: [f32; 3],
+        velocity: [f32; 3],
+        jump: bool,
+    ) {
+        let [x, y, z] = motion;
+        let [vx, vy, vz] = velocity;
+        self.object.interpolate_and_impulse(
+            time_sent,
+            &position,
+            Vector::new(x, y, z),
+            Heading::from_degrees(heading_degrees),
+            Vector::new(vx, vy, vz),
+            jump,
+        );
+    }
+
+    /// `CSetup::radius` of the body's Setup (`Ac2SetupPhysics::radius`), unscaled: the size
+    /// move-to distances measure from.
+    pub fn set_radius(&mut self, radius: f32) {
+        self.object.setup_radius = radius;
+    }
+
+    /// `CMotionInterp::MoveToEvent`: walk to the parameters' target (or waypoints) and/or turn
+    /// to its heading. Returns whether it started.
+    pub fn move_to(&mut self, params: crate::moveto::MovementParameters) -> bool {
+        self.object.move_to_event(params)
+    }
+
+    /// `CMotionInterp::UpdateTargetInfo`: where an object target is now, and its size.
+    pub fn update_move_to_target(&mut self, position: Position, radius: f32, height: f32) {
+        if let Some(manager) = self.object.move_to.as_mut() {
+            manager.update_target(position, radius, height);
         }
-        self.object.jump();
-        true
+    }
+
+    /// The object target can no longer be tracked: the move-to ends with 0x37.
+    pub fn lose_move_to_target(&mut self) {
+        if let Some(manager) = self.object.move_to.as_mut() {
+            manager.lose_target();
+        }
+    }
+
+    /// `CMotionInterp::InterruptMoveTo`.
+    pub fn interrupt_move_to(&mut self) {
+        self.object.interrupt_move_to();
+    }
+
+    /// `CMotionInterp::IsMovingTo`.
+    pub fn is_moving_to(&self) -> bool {
+        self.object
+            .move_to
+            .as_ref()
+            .is_some_and(|manager| manager.moving_to)
+    }
+
+    /// The move-tos that ended since the last call (`HandleMoveToCallback`).
+    pub fn take_move_to_results(&mut self) -> Vec<crate::moveto::MoveToResult> {
+        self.object
+            .move_to
+            .as_mut()
+            .map(|manager| manager.take_results())
+            .unwrap_or_default()
+    }
+
+    /// `CPhysicsObj::StopInterpolating`.
+    pub fn stop_interpolating(&mut self) {
+        if let Some(interp) = self.object.interp.as_mut() {
+            interp.stop();
+        }
+    }
+
+    /// `CPhysicsObj::IsInterpolating`.
+    pub fn is_interpolating(&self) -> bool {
+        self.object
+            .interp
+            .as_ref()
+            .is_some_and(|interp| interp.active)
+    }
+
+    /// `CPhysicsObj::JumpLogic`: when `can_jump`, `Jump` (or, standing with a behaviour table,
+    /// the jump behaviour). Returns whether the jump was taken.
+    pub fn jump(&mut self) -> bool {
+        self.object.jump_logic()
+    }
+
+    /// Animate the body with its behaviour table (`PHYSICSOBJREP::SetupModeTracker`): element
+    /// and mode changes then wait for the animation's mode transitions, and `update_movement`
+    /// starts and stops the movement behaviours.
+    pub fn set_animation(&mut self, animation: BodyAnimation) {
+        self.object.set_animation(animation, true);
+    }
+
+    /// One animation step (`CPhysicsObj::UpdateAnimation`), at the steps an
+    /// [`AnimationClock`] gives.
+    pub fn update_animation(&mut self, quantum: f32) {
+        self.object.update_animation(quantum);
+    }
+
+    /// `CPhysicsObj::DoBehavior` (a weenie or server behaviour).
+    pub fn do_behavior(&mut self, params: &Ac2BehaviorParams) -> bool {
+        self.object
+            .anim
+            .with_modes(|modes, source| modes.do_behavior(params, source))
+    }
+
+    /// `CPhysicsObj::StopBehavior`.
+    pub fn stop_behavior(&mut self, behavior: u32) {
+        self.object
+            .anim
+            .with_modes(|modes, source| modes.stop_behavior(behavior, source));
+    }
+
+    /// `PHYSICSOBJREP::GetElement`: the element the animation has reached.
+    pub fn current_element(&self) -> u32 {
+        self.object.current_element()
+    }
+
+    /// `PHYSICSOBJREP::IsDoingBehavior`.
+    pub fn is_doing_behavior(&self, behavior: u32) -> bool {
+        self.object.anim.modes.is_doing_behavior(behavior)
+    }
+
+    /// The body's bones posed by the last animation step, in model space (relative to the
+    /// body's frame, AC axes); the Setup rest pose before the first step, empty without a
+    /// Setup. Part `i` of the Setup is drawn with bone `i`'s transform.
+    pub fn posed_parts(&self) -> Vec<ac2_anim::Ac2Transform> {
+        self.object.posed_parts()
+    }
+
+    /// The behaviour callbacks and FX the animation raised since the last call, in order.
+    pub fn take_animation_events(&mut self) -> Vec<Ac2AnimEvent> {
+        self.object.take_animation_events()
     }
 
     pub fn movement_state(&self) -> MovementState {
@@ -218,8 +451,8 @@ impl PhysicsBody {
             velocity: [o.velocity.x, o.velocity.y, o.velocity.z],
             omega: [o.omega.x, o.omega.y, o.omega.z],
             do_motion: [motion.x, motion.y, motion.z],
-            turn: self.input.turn,
-            element: o.element,
+            turn: self.turn,
+            element: o.desired_element(),
             mode: o.motion.mode(),
             contact: o.has_contact(),
             on_walkable: o.on_walkable(),

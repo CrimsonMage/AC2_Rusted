@@ -110,6 +110,46 @@ impl Position {
         Plane::new(n, st(d))
     }
 
+    /// `Position::distance`: `|GetOffset(other)|`, an x87 result.
+    pub(crate) fn distance(&self, other: &Position) -> f64 {
+        self.distance_squared(other).sqrt()
+    }
+
+    /// `Position::distance_squared`: `(x*x + y*y) + z*z` of the offset.
+    pub(crate) fn distance_squared(&self, other: &Position) -> f64 {
+        let o = self.offset_to(other);
+        let (x, y, z) = (ld(o.x), ld(o.y), ld(o.z));
+        (x * x + y * y) + z * z
+    }
+
+    /// `Position::heading`: the compass heading from `self` toward `other` (0 when nearer
+    /// than `F_EPSILON` horizontally).
+    pub(crate) fn heading_to(&self, other: &Position) -> crate::heading::Heading {
+        let o = self.offset_to(other);
+        let (x, y) = (ld(o.x), ld(o.y));
+        let length = (y * y + x * x).sqrt();
+        if length < ld(crate::fpu::F_EPSILON) {
+            return crate::heading::Heading::from_radians(0.0);
+        }
+        let inverse = 1.0 / length;
+        let nx = ld(st(x * inverse));
+        let ny = y * inverse;
+        crate::heading::Heading::from_radians(st(crate::frame::FIVE_HALVES_PI - ny.atan2(nx)))
+    }
+
+    /// `Position::add_local_offset`: move by `offset` in the frame's local axes.
+    pub(crate) fn add_local_offset(&mut self, offset: Vector) {
+        let m = self.frame.m.map(ld);
+        let (x, y, z) = (ld(offset.x), ld(offset.y), ld(offset.z));
+        let gx = (m[3] * y + m[0] * x) + m[6] * z;
+        let gy = (m[4] * y + m[1] * x) + m[7] * z;
+        let gz = ld(st((m[5] * y + m[2] * x) + m[8] * z));
+        let o = &mut self.frame.origin;
+        o.x = st(gx + ld(o.x));
+        o.y = st(gy + ld(o.y));
+        o.z = st(gz + ld(o.z));
+    }
+
     /// The frame transform `localtoglobal`/`localtolocal` inline: rotate, add the origin, store.
     fn frame_point(&self, p: Vector) -> Vector {
         let m = self.frame.m.map(ld);

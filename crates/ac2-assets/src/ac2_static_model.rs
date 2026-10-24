@@ -93,6 +93,41 @@ pub fn resolve_ac2_visual_motion_interp(
     Ok(None)
 }
 
+/// The behaviour table and root `AnimMap` a visual animates with: each from the nearest
+/// description in the parent chain that names one (the root part group's map first).
+pub fn resolve_ac2_visual_animation(
+    store: &ResourceStore,
+    did: DataId,
+) -> ResourceResult<(Option<DataId>, Option<DataId>)> {
+    let (mut table, mut anim_map) = (None, None);
+    let mut current = did;
+    for _ in 0..MAX_VISUAL_DESC_DEPTH {
+        if current.raw() & 0xFF00_0000 != VISUAL_DESC_PREFIX {
+            break;
+        }
+        let Some(desc) = load::<Ac2VisualDesc>(store, current)? else {
+            break;
+        };
+        table = table.or(desc.behavior_table);
+        anim_map = anim_map.or_else(|| {
+            let groups = &desc.part_groups;
+            groups
+                .iter()
+                .find(|group| group.parent_key == 0 && group.anim_map.is_some())
+                .or_else(|| groups.iter().find(|group| group.anim_map.is_some()))
+                .and_then(|group| group.anim_map)
+        });
+        if table.is_some() && anim_map.is_some() {
+            break;
+        }
+        let Some(parent) = desc.parent else {
+            break;
+        };
+        current = parent;
+    }
+    Ok((table, anim_map))
+}
+
 /// The `VisualDesc` scale a visual applies to its parts (`PHYSICSOBJREP::GetVdescScale`): the
 /// nearest description in the parent chain that sets one, else one (a bare `CSetup` has none).
 pub fn resolve_ac2_visual_scale(store: &ResourceStore, did: DataId) -> ResourceResult<Vec3> {

@@ -1,6 +1,6 @@
 # replaced: Third-party libraries, CRT and container templates replaced by Rust
 
-2058 retail functions: 7 done, 0 partial, 0 to do, 2051 skipped.
+2058 retail functions: 8 done, 0 partial, 0 to do, 2050 skipped.
 Legend and workflow: [README](README.md).
 
 ## `_libraries/ImeUI.lib/ImeUi.obj.c` (0/36)
@@ -687,7 +687,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [-] `_D3DXLoadSurfaceFromSurface@32` · 00700d3d · legions 00680aed — Rust std replaces it
 
-## `_libraries/d3dx8.lib/d3dxmath.obj.c` (0/125)
+## `_libraries/d3dx8.lib/d3dxmath.obj.c` (1/125)
 
 ### (free functions)
 - [-] `WithinEpsilon` · 006fd6c0 · legions 0067d470 — third-party library
@@ -784,7 +784,7 @@ Legend and workflow: [README](README.md).
 - [-] `c_D3DXQuaternionExp` · 006ff69e — third-party library
 - [-] `init_D3DXQuaternionSlerp` · 006ff739 · legions 0067f5a2 — third-party library
 - [-] `_D3DXQuaternionSlerp@16` · 006ff75d · legions 0067f5c6 — Rust std replaces it
-- [-] `c_D3DXQuaternionSlerp` · 006ff763 — third-party library
+- [x] `c_D3DXQuaternionSlerp` · 006ff763 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [-] `init_D3DXQuaternionSquad` · 006ff846 · legions 0067f6af — third-party library
 - [-] `c_D3DXQuaternionSquad` · 006ff870 · legions 0067f6d9 — third-party library
 - [-] `init_D3DXQuaternionSquadSetup` · 006ff8c7 · legions 0067f730 — third-party library
