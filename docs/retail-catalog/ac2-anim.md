@@ -1,6 +1,6 @@
 # ac2-anim: Animation system
 
-532 retail functions: 2 done, 2 partial, 492 to do, 36 skipped.
+532 retail functions: 16 done, 2 partial, 478 to do, 36 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/anim/charactersetup.cpp.c` (0/67)
@@ -542,17 +542,17 @@ Legend and workflow: [README](README.md).
 - [ ] `BehaviorParams::BehaviorParams` · 00679660 · legions 00623a30
 - [ ] `BehaviorParams::BehaviorParams` · 006796a0 · legions 00623a70
 
-## `portal/shared/src/animsys/behaviortable.cpp.c` (1/49)
+## `portal/shared/src/animsys/behaviortable.cpp.c` (10/49)
 
 ### BehaviorTable
-- [ ] `BehaviorTable::GetInitBehaviors` · 0067cfa0 · legions 006253d0
+- [x] `BehaviorTable::GetInitBehaviors` · 0067cfa0 · legions 006253d0 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 
 ### SliderData
 - [x] `SliderData::StreamPack` · 0067cfb0 · legions 005f5840
 
 ### BehaviorTable
-- [ ] `BehaviorTable::StreamPack` · 0067d000 · legions 006253e0
-- [ ] `BehaviorTable::GetLayerNum` · 0067d140 · legions 00625520
+- [x] `BehaviorTable::StreamPack` · 0067d000 · legions 006253e0 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+- [x] `BehaviorTable::GetLayerNum` · 0067d140 · legions 00625520 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 
 ### HashIterator<ModeTransitionKey,float>
 - [ ] `HashIterator<ModeTransitionKey,float>::operator++` · 0067d320 · legions 00625700
@@ -587,11 +587,11 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartArray<PStringBase<char>_>::SetNElements` · 0067dda0
 
 ### BehaviorTable
-- [ ] `BehaviorTable::GetModeTransitionRampTime` · 0067ddd0 · legions 00625b10
-- [ ] `BehaviorTable::GetComboInfo` · 0067de10 · legions 00625b50
-- [ ] `BehaviorTable::GetBehaviorRampTime` · 0067de90 · legions 00625bd0
-- [ ] `BehaviorTable::GetBehaviorInfo` · 0067def0 · legions 00625c30
-- [ ] `BehaviorTable::GetTransitionInfo` · 0067df60 · legions 00625ca0
+- [x] `BehaviorTable::GetModeTransitionRampTime` · 0067ddd0 · legions 00625b10 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+- [x] `BehaviorTable::GetComboInfo` · 0067de10 · legions 00625b50 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+- [x] `BehaviorTable::GetBehaviorRampTime` · 0067de90 · legions 00625bd0 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+- [x] `BehaviorTable::GetBehaviorInfo` · 0067def0 · legions 00625c30 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+- [x] `BehaviorTable::GetTransitionInfo` · 0067df60 · legions 00625ca0 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 
 ### HashTable<ModeTransitionKey,float>
 - [ ] `HashTable<ModeTransitionKey,float>::operator=` · 0067df90 · legions 00625cd0
@@ -654,7 +654,7 @@ Legend and workflow: [README](README.md).
 - [ ] `BehaviorTable::BehaviorTable` · 00684780 · legions 00627d20
 - [ ] `BehaviorTable::GetDBOType` · 00684910
 - [ ] `BehaviorTable::~BehaviorTable` · 00684920 · legions 00627ec0
-- [ ] `BehaviorTable::GetNextTransitionAlongModePath` · 00684b00 · legions 006280a0
+- [x] `BehaviorTable::GetNextTransitionAlongModePath` · 00684b00 · legions 006280a0 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 - [ ] `BehaviorTable::CopyInto` · 006851d0 · legions 00628770
 - [-] `BehaviorTable::FromFileNode` · 00685260 — text source format (admin tools)
 - [ ] `BehaviorTable::Allocate` · 00685560
@@ -737,7 +737,7 @@ Legend and workflow: [README](README.md).
 - [ ] `BehaviorTracker::DoBehavior` · 0068dfc0 · legions 0062efe0
 - [ ] `BehaviorTracker::DoAutonomousBehavior` · 0068e410 · legions 0062f430
 
-## `portal/shared/src/animsys/chartemplate.cpp.c` (0/26)
+## `portal/shared/src/animsys/chartemplate.cpp.c` (2/26)
 
 ### CharTemplate
 - [ ] `CharTemplate::GetCharTemplate` · 0067a6a0
@@ -745,7 +745,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CharTemplate::GetDefaultElement` · 0067a720
 - [ ] `CharTemplate::GetDefaultMode` · 0067a730
 - [ ] `CharTemplate::FillDataGraph` · 0067a740
-- [ ] `CharTemplate::StreamPack` · 0067a7d0 · legions 00624200
+- [x] `CharTemplate::StreamPack` · 0067a7d0 · legions 00624200 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 - [ ] `CharTemplate::SaveToFile` · 0067a9f0
 - [ ] `CharTemplate::Destroy` · 0067ad30 · legions 00624390
 
@@ -753,7 +753,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartArray<ParseHelper<EmpGenParse>::ParseHandler>::AddToEnd` · 0067ae40 · legions 006b6b60
 
 ### CharTemplate
-- [ ] `CharTemplate::GetBehavior` · 0067ae90 · legions 006244a0
+- [x] `CharTemplate::GetBehavior` · 0067ae90 · legions 006244a0 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 - [ ] `CharTemplate::GetSlider` · 0067aed0
 - [ ] `CharTemplate::IsUserControlled` · 0067af10
 
@@ -791,7 +791,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CharTemplate::CharTemplate` · 0067cec0 · legions 006252f0
 - [ ] `CharTemplate::Allocate` · 0067cf90
 
-## `portal/shared/src/animsys/combokey.cpp.c` (0/13)
+## `portal/shared/src/animsys/combokey.cpp.c` (3/13)
 
 ### ComboKey
 - [ ] `ComboKey::operator%` · 0068e9f0 · legions 0062f9d0
@@ -806,8 +806,8 @@ Legend and workflow: [README](README.md).
 - [ ] `ModeStateKey::operator==` · 0068eac0 · legions 0062faa0
 
 ### ComboInfo
-- [ ] `ComboInfo::IsValid` · 0068eaf0 · legions 0062fad0
-- [ ] `ComboInfo::SetInvalid` · 0068eb00 · legions 0062fae0
+- [x] `ComboInfo::IsValid` · 0068eaf0 · legions 0062fad0 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+- [x] `ComboInfo::SetInvalid` · 0068eb00 · legions 0062fae0 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 
 ### ComboKey
 - [ ] `ComboKey::ComboKey` · 0068eb10 · legions 0062faf0
@@ -822,7 +822,7 @@ Legend and workflow: [README](README.md).
 - [ ] `TransitionInfo::TransitionInfo` · 0068eb70
 
 ### ComboKey
-- [ ] `ComboKey::StreamPack` · 0068eb90 · legions 0062fb50
+- [x] `ComboKey::StreamPack` · 0068eb90 · legions 0062fb50 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 
 ## `portal/shared/src/animsys/dbanimator.cpp.c` (0/16)
 
