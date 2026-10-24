@@ -1,0 +1,21 @@
+[package]
+name = "ac2-client"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+# The client program's core: the only crate that joins the online session (ac2-weenie) and the
+# body simulation (ac2-physics). Rendering (ac2-render, ac2-gpu) stays out of this headless core.
+[dependencies]
+ac2-assets = { path = "../ac2-assets" }
+ac2-core = { path = "../ac2-core" }
+ac2-dat = { path = "../ac2-dat" }
+ac2-db = { path = "../ac2-db" }
+ac2-net = { path = "../ac2-net" }
+ac2-physics = { path = "../ac2-physics" }
+ac2-weenie = { path = "../ac2-weenie" }
+ac2-world = { path = "../ac2-world" }
+
+[dev-dependencies]
+legions-server-double = { path = "../../tools/legions-server-double" }

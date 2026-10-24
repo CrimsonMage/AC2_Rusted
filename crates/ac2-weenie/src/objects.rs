@@ -36,6 +36,16 @@ pub struct RemoteObject {
     pub qualities: WeenieQualities,
 }
 
+/// What an accepted position update did to the stamps (`CPhysicsObj::RecvEvt_Position`'s
+/// player branch acts on these).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PositionApplied {
+    /// The force-position stamp was newer.
+    pub forced: bool,
+    /// The teleport stamp was newer.
+    pub teleported: bool,
+}
+
 /// `StampID` indices into [`RemoteObject::update_times`].
 pub const STAMP_POSITION: usize = 0;
 pub const STAMP_TELEPORT: usize = 1;
@@ -93,17 +103,17 @@ impl ObjectTable {
     /// `CPhysicsObj::RecvEvt_Position`'s bookkeeping: only a newer position stamp with a cell
     /// moves the object (its orientation stays; the pack carries a heading). A newer
     /// force-position stamp is kept, then the position and teleport stamps.
-    pub(crate) fn apply_position(&mut self, update: &ServerPosition) -> bool {
-        let Some(object) = self.objects.get_mut(&update.sender.id) else {
-            return false;
-        };
+    pub(crate) fn apply_position(&mut self, update: &ServerPosition) -> Option<PositionApplied> {
+        let object = self.objects.get_mut(&update.sender.id)?;
         let times = &mut object.update_times;
         if !is_newer(times[STAMP_POSITION], update.position_stamp) || update.position.cell == 0 {
-            return false;
+            return None;
         }
-        if is_newer(times[STAMP_FORCE_POSITION], update.force_position_stamp) {
+        let forced = is_newer(times[STAMP_FORCE_POSITION], update.force_position_stamp);
+        if forced {
             times[STAMP_FORCE_POSITION] = update.force_position_stamp;
         }
+        let teleported = is_newer(times[STAMP_TELEPORT], update.teleport_stamp);
         times[STAMP_POSITION] = update.position_stamp;
         times[STAMP_TELEPORT] = update.teleport_stamp;
         let rotation = object.position.map_or([1.0, 0.0, 0.0, 0.0], |p| p.rotation);
@@ -114,7 +124,7 @@ impl ObjectTable {
         });
         object.heading_degrees = Some(update.heading_degrees);
         object.motion = update.motion;
-        true
+        Some(PositionApplied { forced, teleported })
     }
 
     pub(crate) fn apply_action(&mut self, id: u64, action: &ObjectAction) {
@@ -234,12 +244,22 @@ mod tests {
     fn only_newer_positions_with_a_cell_move_the_object_and_set_its_stamps() {
         let mut table = ObjectTable::default();
         table.insert(object());
-        assert!(!table.apply_position(&update(10, 1, 1, 0x0299_0109)));
-        assert!(!table.apply_position(&update(11, 1, 1, 0)));
-        assert!(table.apply_position(&update(11, 4, 2, 0x0299_0109)));
+        assert!(table
+            .apply_position(&update(10, 1, 1, 0x0299_0109))
+            .is_none());
+        assert!(table.apply_position(&update(11, 1, 1, 0)).is_none());
+        assert_eq!(
+            table.apply_position(&update(11, 4, 2, 0x0299_0109)),
+            Some(super::PositionApplied {
+                forced: true,
+                teleported: true
+            })
+        );
         assert_eq!(table.get(9).unwrap().update_times, [11, 2, 4, 0]);
         // An older force stamp is kept out; position and teleport always follow the update.
-        assert!(table.apply_position(&update(12, 3, 1, 0x0299_0109)));
+        assert!(table
+            .apply_position(&update(12, 3, 1, 0x0299_0109))
+            .is_some());
         assert_eq!(table.get(9).unwrap().update_times, [12, 1, 4, 0]);
     }
 }

@@ -73,10 +73,15 @@ pub enum SessionEvent {
     /// The chosen character is entering; its id.
     Entering(u64),
     EnteredWorld(WorldEntry),
-    /// The server moved the player (portal, recall or correction).
+    /// The server moved the player (`CPhysicsObj::RecvEvt_Position`'s player branch: a newer
+    /// force-position or teleport stamp, or an impulse). Place the body there
+    /// (`SyncPositionSimple(pos, 1)`), keeping its own heading unless `teleported`
+    /// (`SmartBox::HandleTeleport` follows a teleport), then apply `impulse`.
     PlayerMoved {
         position: CellPosition,
         heading_degrees: f32,
+        teleported: bool,
+        impulse: Option<[f32; 3]>,
     },
     ObjectAdded(u64),
     ObjectMoved(u64),
@@ -142,6 +147,11 @@ pub struct OnlineSession {
     pending: Vec<SessionEvent>,
     language: u32,
     dat_iterations: Vec<(u64, Vec<i32>)>,
+    /// The world's verdict on the position update about to be dispatched.
+    last_position: Option<(u64, crate::objects::PositionApplied)>,
+    /// Net events received by [`OnlineSession::net_use_time`], for
+    /// [`OnlineSession::dispatch_events`].
+    net_events: Vec<NetEvent>,
 }
 
 impl OnlineSession {
@@ -188,6 +198,8 @@ impl OnlineSession {
             pending: Vec::new(),
             language: config.language,
             dat_iterations: config.dat_iterations,
+            last_position: None,
+            net_events: Vec::new(),
         })
     }
 
@@ -223,12 +235,42 @@ impl OnlineSession {
     }
 
     /// One frame: everything the server sent since the last call.
+    /// [`OnlineSession::net_use_time`] then [`OnlineSession::dispatch_events`].
     pub fn poll(&mut self) -> Vec<SessionEvent> {
+        self.net_use_time();
+        self.dispatch_events()
+    }
+
+    /// `Timer::update_time` and `ClientNet::UseTime`: datagrams in and out; what arrived waits
+    /// for [`OnlineSession::dispatch_events`] (`Client::UseTime` runs the movement module and
+    /// the SmartBox in between).
+    pub fn net_use_time(&mut self) {
+        let events = self.client.poll();
+        self.net_events.extend(events);
+    }
+
+    /// `CEventQueue::UseTime` and the logon and DDD queues: dispatch what the network received.
+    pub fn dispatch_events(&mut self) -> Vec<SessionEvent> {
         let mut out = std::mem::take(&mut self.pending);
-        for event in self.client.poll() {
+        for event in std::mem::take(&mut self.net_events) {
             self.handle(event, &mut out);
         }
         out
+    }
+
+    /// `Timer::local_time` (the physics clock, `CPhysics::GetTickCount`).
+    pub fn local_time(&self) -> f64 {
+        self.client.net().timer().local_time()
+    }
+
+    /// The transport's seconds since start.
+    pub fn elapsed(&mut self) -> f64 {
+        self.client.elapsed()
+    }
+
+    /// Waits on the transport's clock.
+    pub fn sleep(&mut self, duration: Duration) {
+        self.client.sleep(duration);
     }
 
     /// Runs frames until the player is in the world, or fails after `timeout`. The other
@@ -305,6 +347,10 @@ impl OnlineSession {
                 self.send(ClientEvent::ForceCreate { object });
                 return;
             }
+            WorldEvent::PositionApplied { id, applied } => {
+                self.last_position = Some((id, applied));
+                return;
+            }
         };
         match event {
             ServerEvent::CharacterSet(set) => self.choose_character(set, out),
@@ -337,11 +383,25 @@ impl OnlineSession {
                 }
             }
             ServerEvent::UpdatePosition(update) | ServerEvent::PositionCell(update) => {
+                let applied = self
+                    .last_position
+                    .take()
+                    .filter(|(id, _)| *id == update.sender.id)
+                    .map(|(_, applied)| applied);
+                let Some(applied) = applied else {
+                    return;
+                };
                 if Some(update.sender.id) == self.world.player() {
-                    out.push(SessionEvent::PlayerMoved {
-                        position: update.position,
-                        heading_degrees: update.heading_degrees,
-                    });
+                    // `CPhysicsObj::RecvEvt_Position`, the player: only a newer force-position
+                    // or teleport stamp, or an impulse, moves the body the client drives.
+                    if applied.forced || applied.teleported || update.impulse {
+                        out.push(SessionEvent::PlayerMoved {
+                            position: update.position,
+                            heading_degrees: update.heading_degrees,
+                            teleported: applied.teleported,
+                            impulse: update.impulse.then_some(update.velocity).flatten(),
+                        });
+                    }
                 } else {
                     out.push(SessionEvent::ObjectMoved(update.sender.id));
                 }

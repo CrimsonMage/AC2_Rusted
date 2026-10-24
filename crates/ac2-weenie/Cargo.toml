@@ -14,3 +14,4 @@ ac2-net = { path = "../ac2-net" }
 [dev-dependencies]
 ac2-db = { path = "../ac2-db" }
 ac2-physics = { path = "../ac2-physics" }
+legions-server-double = { path = "../../tools/legions-server-double" }

@@ -16,7 +16,7 @@ use ac2_net::protocol::{
 use ac2_net::{is_out_of_world, ORDERING_VISUAL};
 use ac2_net::{ordering_stamp, ordering_type, Blob, ORDERING_ORDERED, ORDERING_UNORDERED};
 
-use crate::objects::{ObjectTable, RemoteObject};
+use crate::objects::{ObjectTable, PositionApplied, RemoteObject};
 use crate::ordering::{TsRecv, TsResult, VisualOrderingQueue};
 
 /// `CEventQueue::m_worldState`.
@@ -34,6 +34,8 @@ pub enum WorldEvent {
     Dispatched(ServerEvent),
     /// A blob that failed to decode: its opcode and the reason.
     Undecoded { opcode: u32, error: String },
+    /// `CPhysicsObj::RecvEvt_Position` accepted an update for `id` (before its `Dispatched`).
+    PositionApplied { id: u64, applied: PositionApplied },
     /// `VisualOrderingQueue::IsHeavilyBlocked`: ask the server to re-create the object
     /// (`ECM_Physics::SendEvt_CForceCreate`).
     ForceCreate(u64),
@@ -304,7 +306,12 @@ impl World {
                 if !self.get_object_or_queue(&update.sender, &blob) {
                     return;
                 }
-                self.objects.apply_position(update);
+                if let Some(applied) = self.objects.apply_position(update) {
+                    self.out.push(WorldEvent::PositionApplied {
+                        id: update.sender.id,
+                        applied,
+                    });
+                }
             }
             // `ECM_Interp::RecvEvt_InterpCEvent_Cell`: through `GetObjectOrQueueEvent`.
             ServerEvent::Interp {

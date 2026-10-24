@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 19 done, 3 partial, 238 to do, 2 skipped.
+262 retail functions: 19 done, 9 partial, 232 to do, 2 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (5/22)
@@ -295,7 +295,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartBox::Show` · 005737f0 · legions 005437f0
 - [ ] `SmartBox::Hide` · 00573800 · legions 00543800
 - [ ] `SmartBox::InitPreferences` · 00573810 · legions 00543810
-- [ ] `SmartBox::UpdatePlayer` · 00573930 · legions 00543930
+- [~] `SmartBox::UpdatePlayer` · 00573930 · legions 00543930 — visible cells only; no camera or PlayerReadyToEnterWorld notice
 - [ ] `SmartBox::UpdateRenderTargets` · 005739f0 · legions 005439f0
 - [ ] `SmartBox::Render` · 00573a10
 - [ ] `SmartBox::ResetWorldState` · 00573a60 · legions 00543a30
@@ -306,7 +306,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartBox::HandleTeleport` · 005742d0 · legions 00544220
 - [ ] `SmartBox::~SmartBox` · 005743e0 · legions 00544330
 - [ ] `SmartBox::Init` · 005744f0 · legions 00544420
-- [ ] `SmartBox::UseTime` · 005746d0 · legions 005445d0
+- [~] `SmartBox::UseTime` · 005746d0 · legions 005445d0 — UpdatePlayer and the physics step; no camera
 
 ## `portal/client/src/smartbox/worldmanager/cellmanager.cpp.c` (0/14)
 
@@ -322,13 +322,13 @@ Legend and workflow: [README](README.md).
 
 ### CellManager
 - [ ] `CellManager::CellManager` · 0057bb10 · legions 0054b3f0
-- [ ] `CellManager::RequestAsyncLoadBlockRadius` · 0057bba0 · legions 0054b480
+- [~] `CellManager::RequestAsyncLoadBlockRadius` · 0057bba0 · legions 0054b480 — the radius block set (synchronous)
 - [ ] `CellManager::RequestAsyncLoadBlockRadiusSceneObjects` · 0057bcd0 · legions 0054b5b0
 - [ ] `CellManager::ResetWorldState` · 0057be70 · legions 0054b750
 - [ ] `CellManager::FinishUpdateVisibleCells` · 0057be90 · legions 0054b770
 - [ ] `CellManager::AsyncGetCells` · 0057bf80 · legions 0054b850
 - [ ] `CellManager::OnTopLevelRequestFinished` · 0057c040 · legions 0054b910
-- [ ] `CellManager::UpdateVisibleCells` · 0057c360 · legions 0054bc30
+- [~] `CellManager::UpdateVisibleCells` · 0057c360 · legions 0054bc30 — block radius 1 loaded at once (no async request)
 
 ## `portal/client/src/smartbox/worldmanager/lscapemanager.cpp.c` (0/21)
 
@@ -361,8 +361,8 @@ Legend and workflow: [README](README.md).
 - [ ] `WorldManager::WorldManager` · 0057c420 · legions 0054bcf0
 - [ ] `WorldManager::Init` · 0057c440 · legions 0054bd10
 - [ ] `WorldManager::IsBlockingForCells` · 0057c500 · legions 0054bdd0
-- [ ] `WorldManager::Update` · 0057c510 · legions 0054bde0
-- [ ] `WorldManager::UpdateVisibleCells` · 0057c540 · legions 0054be10
+- [~] `WorldManager::Update` · 0057c510 · legions 0054bde0 — physics step only; no GameTime or CObjectMaint::UseTime
+- [~] `WorldManager::UpdateVisibleCells` · 0057c540 · legions 0054be10 — blocking 3x3 block load in CellManager
 - [ ] `WorldManager::SetRegion` · 0057c570 · legions 0054be40
 - [ ] `WorldManager::Refresh` · 0057c5e0 · legions 0054beb0
 - [ ] `WorldManager::~WorldManager` · 0057c610 · legions 0054bee0

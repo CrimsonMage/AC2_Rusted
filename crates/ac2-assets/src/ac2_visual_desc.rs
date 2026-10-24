@@ -34,6 +34,8 @@ pub struct Ac2VisualFx {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ac2VisualDesc {
     pub parent: Option<DataId>,
+    /// `m_midesc_did`: the `MotionInterpDesc` the object moves by.
+    pub motion_interp: Option<DataId>,
     pub behavior_table: Option<DataId>,
     pub scale: Option<Vec3>,
     /// `m_particle_scale` (`CPhysicsObj::GetParticleScale`).
@@ -100,7 +102,7 @@ fn decode(
         })
     };
     let parent = did(cursor, 0x2)?;
-    let _motion_interp = did(cursor, 0x4)?;
+    let motion_interp = did(cursor, 0x4)?;
     let behavior_table = did(cursor, 0x8)?;
     let _modes = did(cursor, 0x10)?;
     let scale = if bits & 0x20 != 0 {
@@ -138,6 +140,7 @@ fn decode(
     }
     Ok(Ac2VisualDesc {
         parent,
+        motion_interp,
         behavior_table,
         scale,
         particle_scale,
