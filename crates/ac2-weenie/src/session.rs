@@ -12,8 +12,8 @@ use std::net::SocketAddr;
 use std::time::{Duration, Instant};
 
 use ac2_net::protocol::{
-    interrogation_response, Build, CellPosition, CharacterSet, ClientEvent, DatEvent, ServerEvent,
-    QUEUE_DAT, QUEUE_EVENTS,
+    interrogation_response, Build, CellPosition, CharacterSet, ClientEvent, DatEvent, Qualities,
+    ServerEvent, QUEUE_DAT, QUEUE_EVENTS,
 };
 use ac2_net::{
     Credential, Logon, NetClient, NetClientConfig, NetError, NetEvent, ServerPublicKey,
@@ -72,6 +72,9 @@ pub enum SessionEvent {
     ObjectAdded(u64),
     ObjectMoved(u64),
     ObjectRemoved(u64),
+    /// `ECM_Login::RecvEvt_PlayerDesc`: the player's qualities (`CWRepository::SetQualities`,
+    /// then `SendNotice_LoginFinished`).
+    PlayerQualities(Box<Qualities>),
     /// The character left the world (`CharExitGame`).
     LeftWorld,
     /// The server refused something; the session may continue.
@@ -90,6 +93,8 @@ pub struct OnlineSession {
     entered: bool,
     scene_ready_sent: bool,
     closed: bool,
+    /// Events [`OnlineSession::wait_for_world`] saw, for the next [`OnlineSession::poll`].
+    pending: Vec<SessionEvent>,
 }
 
 impl OnlineSession {
@@ -120,6 +125,7 @@ impl OnlineSession {
             entered: false,
             scene_ready_sent: false,
             closed: false,
+            pending: Vec::new(),
         })
     }
 
@@ -148,24 +154,31 @@ impl OnlineSession {
 
     /// One frame: everything the server sent since the last call.
     pub fn poll(&mut self) -> Vec<SessionEvent> {
-        let mut out = Vec::new();
+        let mut out = std::mem::take(&mut self.pending);
         for event in self.client.poll() {
             self.handle(event, &mut out);
         }
         out
     }
 
-    /// Runs frames until the player is in the world, or fails after `timeout`.
+    /// Runs frames until the player is in the world, or fails after `timeout`. The other
+    /// events it sees come back from the next [`OnlineSession::poll`].
     pub fn wait_for_world(&mut self, timeout: Duration) -> Result<WorldEntry, String> {
         let deadline = Instant::now() + timeout;
+        let mut seen = Vec::new();
         while Instant::now() < deadline {
+            let mut entered = None;
             for event in self.poll() {
                 match event {
-                    SessionEvent::EnteredWorld(entry) => return Ok(entry),
+                    SessionEvent::EnteredWorld(entry) if entered.is_none() => entered = Some(entry),
                     SessionEvent::Disconnected(reason) => return Err(reason),
                     SessionEvent::Rejected(reason) if self.closed => return Err(reason),
-                    _ => {}
+                    other => seen.push(other),
                 }
+            }
+            if let Some(entry) = entered {
+                self.pending = seen;
+                return Ok(entry);
             }
             std::thread::sleep(Duration::from_millis(10));
         }
@@ -256,6 +269,9 @@ impl OnlineSession {
                 }
             }
             ServerEvent::DestroyObject(sender) => out.push(SessionEvent::ObjectRemoved(sender.id)),
+            ServerEvent::PlayerDescription(qualities) => {
+                out.push(SessionEvent::PlayerQualities(qualities.clone()))
+            }
             ServerEvent::CharExitGame => {
                 self.world.leave_world();
                 self.reporter = None;

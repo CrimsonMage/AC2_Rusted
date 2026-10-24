@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 3 done, 0 partial, 487 to do, 9 skipped.
+499 retail functions: 3 done, 7 partial, 480 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
@@ -626,12 +626,12 @@ Legend and workflow: [README](README.md).
 ### PHashTable<unsigned_long,long>
 - [ ] `PHashTable<unsigned_long,long>::PHashTable<unsigned_long,long>` · 00517f10 · legions 005060c0
 - [ ] `PHashTable<unsigned_long,long>::PHashTable<unsigned_long,long>` · 00517f90 · legions 00506140
-- [ ] `PHashTable<unsigned_long,long>::StreamPack` · 00517fd0
+- [~] `PHashTable<unsigned_long,long>::StreamPack` · 00517fd0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 
 ### PHashTable<unsigned_long,__int64>
 - [ ] `PHashTable<unsigned_long,__int64>::PHashTable<unsigned_long,__int64>` · 00518190 · legions 00506340
 - [ ] `PHashTable<unsigned_long,__int64>::PHashTable<unsigned_long,__int64>` · 00518210 · legions 005063c0
-- [ ] `PHashTable<unsigned_long,__int64>::StreamPack` · 00518250
+- [~] `PHashTable<unsigned_long,__int64>::StreamPack` · 00518250 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 
 ### PHashTable<unsigned_long,int>
 - [ ] `PHashTable<unsigned_long,int>::PHashTable<unsigned_long,int>` · 00518440 · legions 005065f0
@@ -643,12 +643,12 @@ Legend and workflow: [README](README.md).
 ### PHashTable<unsigned_long,double>
 - [ ] `PHashTable<unsigned_long,double>::PHashTable<unsigned_long,double>` · 005184e0 · legions 00506690
 - [ ] `PHashTable<unsigned_long,double>::PHashTable<unsigned_long,double>` · 00518560 · legions 00506710
-- [ ] `PHashTable<unsigned_long,double>::StreamPack` · 005185a0
+- [~] `PHashTable<unsigned_long,double>::StreamPack` · 005185a0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 
 ### PHashTable<unsigned_long,PStringBase<char>_>
 - [ ] `PHashTable<unsigned_long,PStringBase<char>_>::PHashTable<unsigned_long,PStringBase<char>_>` · 00518760 · legions 00506910
 - [ ] `PHashTable<unsigned_long,PStringBase<char>_>::PHashTable<unsigned_long,PStringBase<char>_>` · 005187a0 · legions 00506950
-- [ ] `PHashTable<unsigned_long,PStringBase<char>_>::StreamPack` · 005187e0
+- [~] `PHashTable<unsigned_long,PStringBase<char>_>::StreamPack` · 005187e0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 
 ### PHashTable<unsigned_long,unsigned_long>
 - [ ] `PHashTable<unsigned_long,unsigned_long>::PHashTable<unsigned_long,unsigned_long>` · 005189d0 · legions 00506b80
@@ -660,16 +660,16 @@ Legend and workflow: [README](README.md).
 ### PHashTable<unsigned_long,Position>
 - [ ] `PHashTable<unsigned_long,Position>::PHashTable<unsigned_long,Position>` · 00518a70 · legions 00506c20
 - [ ] `PHashTable<unsigned_long,Position>::PHashTable<unsigned_long,Position>` · 00518af0 · legions 00506ca0
-- [ ] `PHashTable<unsigned_long,Position>::StreamPack` · 00518b30
+- [~] `PHashTable<unsigned_long,Position>::StreamPack` · 00518b30 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 
 ### PHashTable<unsigned_long,StringInfo>
 - [ ] `PHashTable<unsigned_long,StringInfo>::PHashTable<unsigned_long,StringInfo>` · 00518d00 · legions 00506eb0
 - [ ] `PHashTable<unsigned_long,StringInfo>::PHashTable<unsigned_long,StringInfo>` · 00518d80 · legions 00506f30
-- [ ] `PHashTable<unsigned_long,StringInfo>::StreamPack` · 00518dc0
+- [~] `PHashTable<unsigned_long,StringInfo>::StreamPack` · 00518dc0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 
 ### CBaseQualities
 - [ ] `CBaseQualities::CopyTables` · 00518fd0 · legions 00507180
-- [ ] `CBaseQualities::UnPack` · 005192f0 · legions 005074a0
+- [~] `CBaseQualities::UnPack` · 005192f0 · legions 005074a0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 - [ ] `CBaseQualities::operator=` · 00519840 · legions 005079f0
 
 ## `portal/shared/src/gameplay/qualities/basequalitiesstats.cpp.c` (0/69)

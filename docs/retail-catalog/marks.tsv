@@ -7,6 +7,7 @@ key	status	note
 00401fc0	x	
 00403030	x	
 004042f0	x	
+00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 00406cb0	_	
 004079b0	_	OnlineSession::scene_ready, called by the client once the scene draws
@@ -16,12 +17,13 @@ key	status	note
 00409a80	x	
 00409ab0	x	
 00409be0	_	
-00409e00	_	
+00409e00	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004233d0	x	
 00423490	x	
 00423550	x	
 00431e20	x	
 00431e90	x	
+004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 0047bb40	~	outdoor land cells only; touching env cells not followed
 0047bd90	~	outdoor land cells only; touching env cells not followed
 0047bed0	x	
@@ -72,6 +74,7 @@ key	status	note
 004933b0	x	
 004933c0	x	
 00493410	x	
+00493460	x	
 00493500	x	
 00493520	x	
 00493b30	x	
@@ -444,6 +447,13 @@ key	status	note
 0050b7f0	x	
 0050b800	x	
 0050b820	x	
+00517fd0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+00518250	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+005185a0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+005187e0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+00518b30	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+00518dc0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+005192f0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 00522380	x	
 00522520	x	
 00522580	x	
@@ -456,6 +466,7 @@ key	status	note
 00525d30	x	
 00525d90	x	
 00525f70	x	
+0052e6a0	~	qualities surface as SessionEvent::PlayerQualities; no CWRepository or LoginFinished notice
 00568ea0	x	
 00569020	x	
 00569200	x	
@@ -706,6 +717,7 @@ key	status	note
 006c5910	x	
 006c59d0	x	
 006c8d90	~	decoded; field order after m_nDirectHeading not re-verified
+006d7830	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 006da360	x	
 006da480	~	layout only; the client sends no DAT iteration lists
 006da500	x	

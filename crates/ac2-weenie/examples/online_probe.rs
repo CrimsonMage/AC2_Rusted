@@ -98,6 +98,19 @@ fn main() -> Result<(), String> {
                         object.and_then(|o| o.position)
                     );
                 }
+                SessionEvent::PlayerQualities(q) => println!(
+                    "player qualities {:#010x}: {} ints, {} floats, {} strings, {} DIDs, weenie {}",
+                    q.did,
+                    q.ints.len(),
+                    q.floats.len(),
+                    q.strings.len(),
+                    q.dids.len(),
+                    q.weenie.is_some()
+                ),
+                SessionEvent::Characters(set) => println!(
+                    "characters: {:?}",
+                    set.characters.iter().map(|c| &c.name).collect::<Vec<_>>()
+                ),
                 other => println!("{other:?}"),
             }
         }

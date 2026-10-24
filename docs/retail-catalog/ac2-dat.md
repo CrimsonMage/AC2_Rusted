@@ -1,6 +1,6 @@
 # ac2-dat: DAT files and the database layer
 
-507 retail functions: 6 done, 2 partial, 494 to do, 5 skipped.
+507 retail functions: 6 done, 3 partial, 493 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/database/asynccache.cpp.c` (0/48)
@@ -236,7 +236,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DBObj::SaveToDisk` · 006d7740 · legions 00661460
 - [ ] `DBObj::GetPackSize` · 006d7780 · legions 006614a0
 - [ ] `DBObj::Pack_Type` · 006d77b0 · legions 006614d0
-- [ ] `DBObj::UnPack_Type` · 006d7830 · legions 00661550
+- [~] `DBObj::UnPack_Type` · 006d7830 · legions 00661550 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 - [ ] `DBObj::Get` · 006d7890 · legions 006615b0
 - [ ] `DBObj::GetDBOCache` · 006d78b0 · legions 006615d0
 

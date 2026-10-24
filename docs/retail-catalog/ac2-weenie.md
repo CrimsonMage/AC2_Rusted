@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 74 done, 1 partial, 1823 to do, 6 skipped.
+1904 retail functions: 75 done, 2 partial, 1821 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1353,13 +1353,13 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Interp::SendEvt_InterpSEvent` · 00498f30 · legions 00491440
 - [ ] `ECM_Interp::SendEvt_InterpSEventEncrypt` · 00498fe0 · legions 004914f0
 
-## `portal/client/src/events/ecm_login.cpp.c` (9/21)
+## `portal/client/src/events/ecm_login.cpp.c` (10/21)
 
 ### ECM_Login
 - [x] `ECM_Login::RecvEvt_CharExitGame` · 004933b0 · legions 0048be00
 - [x] `ECM_Login::RecvEvt_CharacterDeletion` · 004933c0 · legions 0048be10
 - [x] `ECM_Login::RecvEvt_CharacterError` · 00493410 · legions 0048be60
-- [ ] `ECM_Login::RecvEvt_PlayerDesc` · 00493460 · legions 0048beb0
+- [x] `ECM_Login::RecvEvt_PlayerDesc` · 00493460 · legions 0048beb0
 - [x] `ECM_Login::SendEvt_ClientSceneRenderingComplete` · 00493500 · legions 0048bf50
 - [x] `ECM_Login::RecvEvt_CharGenVerification` · 00493520 · legions 0048bf70
 
@@ -2599,7 +2599,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWInterface::IsCreature` · 0052e600 · legions 00512940
 - [ ] `CWInterface::IsThePlayer` · 0052e620 · legions 00512960
 - [ ] `CWInterface::OnStatChanged` · 0052e660 · legions 005129a0
-- [ ] `CWInterface::RecvEvt_PlayerDesc` · 0052e6a0 · legions 005129e0
+- [~] `CWInterface::RecvEvt_PlayerDesc` · 0052e6a0 · legions 005129e0 — qualities surface as SessionEvent::PlayerQualities; no CWRepository or LoginFinished notice
 - [ ] `CWInterface::HandleIntersectionDone` · 0052e6c0 · legions 00512a00
 - [ ] `CWInterface::InqDetectionProfile` · 0052e6e0 · legions 00512a20
 - [ ] `CWInterface::HandleCollision` · 0052e700 · legions 00512a40
