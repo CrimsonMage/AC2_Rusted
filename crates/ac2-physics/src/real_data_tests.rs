@@ -60,7 +60,9 @@ fn scene(x: f32, y: f32) -> Option<Scene> {
         cell,
         Frame::new(Vector::new(x, y, 0.0), Quaternion::IDENTITY),
     );
-    let ground = terrain.height_above_terrain(&start).map(|h| -h)?;
+    let ground = -terrain
+        .height_above_terrain(&start)
+        .expect("block 0x7F7F terrain under the start");
     let start = Position::new(
         cell,
         Frame::new(Vector::new(x, y, ground + 1.0), Quaternion::IDENTITY),
