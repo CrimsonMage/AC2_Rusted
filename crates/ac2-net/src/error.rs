@@ -23,6 +23,8 @@ pub enum NetError {
     Server { string_id: u32, table_id: u32 },
     /// The server did not answer the logon in time.
     Timeout,
+    /// The session key could not be made or exported (`ID_NetError_CantCrypto`).
+    Crypto(&'static str),
     /// A socket operation failed.
     Io(String),
 }

@@ -7,6 +7,8 @@ key	status	note
 00401fc0	x	
 00403030	x	
 004042f0	x	
+00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 00406cb0	_	
 004079b0	_	OnlineSession::scene_ready, called by the client once the scene draws
 00408e90	_	LogOffCharacter only; no UI or game-option upload
@@ -15,12 +17,13 @@ key	status	note
 00409a80	x	
 00409ab0	x	
 00409be0	_	
-00409e00	_	
+00409e00	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004233d0	x	
 00423490	x	
 00423550	x	
 00431e20	x	
 00431e90	x	
+004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 0047bb40	~	outdoor land cells only; touching env cells not followed
 0047bd90	~	outdoor land cells only; touching env cells not followed
 0047bed0	x	
@@ -71,6 +74,7 @@ key	status	note
 004933b0	x	
 004933c0	x	
 00493410	x	
+00493460	x	
 00493500	x	
 00493520	x	
 00493b30	x	
@@ -90,6 +94,8 @@ key	status	note
 00494a70	x	
 00494b00	x	
 00494b10	x	
+00494cb0	x	
+00494e30	x	
 00494f30	x	
 00494fb0	x	
 00495060	x	
@@ -99,7 +105,9 @@ key	status	note
 00495360	x	
 00495420	x	
 004954e0	x	
+00495620	x	
 00495710	x	
+00495850	x	
 00495a00	x	
 00495ac0	x	
 00495b80	x	
@@ -124,14 +132,21 @@ key	status	note
 004969f0	x	
 00496a90	x	
 00496b00	x	
+00496c10	x	
+00496cb0	x	
+00497550	x	
+00497750	x	
+004978c0	x	
 00497a00	x	
 004992f0	_	
 00499940	_	
 0049b540	x	
 0049ce40	x	
 0049e170	_	
-004bfeb0	~	answered with an empty iteration list (no DAT history)
-004c4f10	~	no CryptoAPI session key: auth flag bit 0 never set, crypto blob empty
+004bfb90	x	
+004bfeb0	~	ac2-weenie dat_iterations + session answer; internal.dat (slot 4) not opened; language id is configuration (EnumMapper 0x4000002A lookup not ported)
+004c4ed0	x	
+004c4f10	x	
 004c4f80	x	
 004c4ff0	x	
 004c5170	x	
@@ -164,7 +179,7 @@ key	status	note
 004c65f0	x	
 004c66e0	x	
 004c6900	~	logon outcome as an event; no async state machine
-004c6980	~	no CryptoAPI RSA import or RC4 session key
+004c6980	x	SessionKey::generate + ServerPublicKey: Base-provider 40-bit RC4 with 11-byte zero salt; key-container fallback (InitCliCrypto) not needed
 004c6bd0	x	
 004c6e10	x	
 004c6e60	x	
@@ -191,11 +206,11 @@ key	status	note
 004c8420	x	
 004c8430	~	heartbeat link-status snapshots not kept; 140 s silence reports a timeout instead of re-referring
 004c8a50	x	
-004c9050	~	connection sequence from real time; no address/interface parsing or crypto key export
+004c9050	~	connection sequence from real time and SIMPLEBLOB session-key export; no address/interface parsing
 004c9200	x	
 004c9480	x	
 004c95a0	~	connection sequence from real time; no address/interface parsing or crypto key export
-004c9b70	~	queues 6-8 are not RC4-encrypted (no session key)
+004c9b70	x	
 004c9c10	x	
 004c9c20	x	
 004c9d10	x	
@@ -433,6 +448,13 @@ key	status	note
 0050b7f0	x	
 0050b800	x	
 0050b820	x	
+00517fd0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+00518250	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+005185a0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+005187e0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+00518b30	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+00518dc0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+005192f0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 00522380	x	
 00522520	x	
 00522580	x	
@@ -445,6 +467,7 @@ key	status	note
 00525d30	x	
 00525d90	x	
 00525f70	x	
+0052e6a0	~	qualities surface as SessionEvent::PlayerQualities; no CWRepository or LoginFinished notice
 00568ea0	x	
 00569020	x	
 00569200	x	
@@ -498,6 +521,7 @@ key	status	note
 005d6560	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 006037c0	_	
 006169c0	x	
+00617370	~	unpack only, in ac2-net protocol::fx; property collection (bit 0x80) refused: value types come from the MasterProperty DAT table
 00619f70	_	
 00619fe0	_	
 0061a220	_	
@@ -547,6 +571,7 @@ key	status	note
 00629d60	x	
 0062acf0	_	
 0062ae10	_	
+006388c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 0063a540	x	
 0063a560	x	
 0063a580	x	
@@ -587,17 +612,21 @@ key	status	note
 0063c340	x	
 0063c410	x	
 0063d7f0	_	part-group FX overrides (FXData/FXNode) refused as unsupported
+0063f6c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 0063fb80	_	
 00640190	_	
 006406a0	_	
 00640f40	_	
 006410e0	_	
 00641530	_	
-006443c0	_	m_fx_overrides (FXData/FXNode) refused as unsupported
+006443c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+00645f00	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 0064a5b0	_	
 0064b540	x	
 0064b620	x	
 0064b660	x	
+0064bc00	~	history read via ac2-dat read_packed(0xFFFF0001) + ac2-net read_int_set in ac2-weenie::dat_iterations
+0064c0e0	x	
 0064c170	x	
 00651b20	x	
 00652db0	x	
@@ -625,6 +654,7 @@ key	status	note
 0069be20	_	
 0069bfd0	_	
 0069c060	_	
+0069c550	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 0069cc40	x	
 0069cdd0	x	
 0069dad0	x	
@@ -632,6 +662,16 @@ key	status	note
 0069dba0	x	
 0069df90	x	
 0069fed0	_	
+006a4ce0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006a4e50	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006a6180	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006a9930	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006a9f80	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006aa5d0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006aaa90	~	unpack only, in ac2-net protocol::fx; property collection (bit 0x80) refused: value types come from the MasterProperty DAT table
+006ad9f0	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
+006ae260	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
+006ae550	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 006b2ee0	x	
 006b2ff0	x	
 006b3700	x	
@@ -680,13 +720,16 @@ key	status	note
 006c5910	x	
 006c59d0	x	
 006c8d90	~	decoded; field order after m_nDirectHeading not re-verified
+006d7830	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 006da360	x	
-006da480	~	layout only; the client sends no DAT iteration lists
+006da480	x	
 006da500	x	
 006da550	x	
-006da600	~	layout only; the client sends no DAT iteration lists
+006da5b0	x	
+006da600	x	
 006da680	x	
 006da7b0	x	
+006da8b0	x	
 006db0f0	x	
 006db450	x	
 006db7f0	x	

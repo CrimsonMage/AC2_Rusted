@@ -12,10 +12,13 @@ use std::net::SocketAddr;
 use std::time::{Duration, Instant};
 
 use ac2_net::protocol::{
-    interrogation_response, Build, CellPosition, CharacterSet, ClientEvent, DatEvent, ServerEvent,
-    QUEUE_DAT, QUEUE_EVENTS,
+    interrogation_response, Build, CellPosition, CharacterSet, ClientEvent, DatEvent, Qualities,
+    ServerEvent, QUEUE_DAT, QUEUE_EVENTS,
 };
-use ac2_net::{Credential, Logon, NetClient, NetClientConfig, NetError, NetEvent};
+use ac2_net::{
+    Credential, Logon, NetClient, NetClientConfig, NetError, NetEvent, ServerPublicKey,
+    SessionCrypto,
+};
 
 use crate::objects::ObjectTable;
 use crate::reporter::{BodyState, PositionReporter};
@@ -38,6 +41,14 @@ pub struct OnlineConfig {
     /// client; servers that only accept the admin build take `"7148"`.
     pub version: String,
     pub character: CharacterChoice,
+    /// The RSA key the session key is exported under: the one the client executable carries
+    /// (`ServerPublicKey::find_in_client`). `None` logs on without a session key.
+    pub server_key: Option<ServerPublicKey>,
+    /// `DBCache::GetLocalLanguage`: the language id the local DAT was opened for.
+    pub language: u32,
+    /// The DATs' file ids and iterations (`crate::dat_iterations`) for the interrogation
+    /// response; empty when no DATs are open.
+    pub dat_iterations: Vec<(u64, Vec<i32>)>,
 }
 
 /// Where the player entered the world.
@@ -66,6 +77,9 @@ pub enum SessionEvent {
     ObjectAdded(u64),
     ObjectMoved(u64),
     ObjectRemoved(u64),
+    /// `ECM_Login::RecvEvt_PlayerDesc`: the player's qualities (`CWRepository::SetQualities`,
+    /// then `SendNotice_LoginFinished`).
+    PlayerQualities(Box<Qualities>),
     /// The character left the world (`CharExitGame`).
     LeftWorld,
     /// The server refused something; the session may continue.
@@ -84,12 +98,21 @@ pub struct OnlineSession {
     entered: bool,
     scene_ready_sent: bool,
     closed: bool,
+    /// Events [`OnlineSession::wait_for_world`] saw, for the next [`OnlineSession::poll`].
+    pending: Vec<SessionEvent>,
+    language: u32,
+    dat_iterations: Vec<(u64, Vec<i32>)>,
 }
 
 impl OnlineSession {
     /// Starts the logon; progress arrives from [`OnlineSession::poll`].
     pub fn connect(config: OnlineConfig) -> Result<Self, NetError> {
         let build = Build::from_version(&config.version);
+        let crypto = config
+            .server_key
+            .as_ref()
+            .map(SessionCrypto::new)
+            .transpose()?;
         let client = NetClient::connect(NetClientConfig {
             server: config.server,
             logon: Logon {
@@ -97,6 +120,7 @@ impl OnlineSession {
                 account: config.account.clone(),
                 credential: config.credential,
                 connection_sequence: ac2_net::real_time() as u32,
+                crypto,
             },
         })?;
         Ok(Self {
@@ -108,6 +132,9 @@ impl OnlineSession {
             entered: false,
             scene_ready_sent: false,
             closed: false,
+            pending: Vec::new(),
+            language: config.language,
+            dat_iterations: config.dat_iterations,
         })
     }
 
@@ -136,24 +163,31 @@ impl OnlineSession {
 
     /// One frame: everything the server sent since the last call.
     pub fn poll(&mut self) -> Vec<SessionEvent> {
-        let mut out = Vec::new();
+        let mut out = std::mem::take(&mut self.pending);
         for event in self.client.poll() {
             self.handle(event, &mut out);
         }
         out
     }
 
-    /// Runs frames until the player is in the world, or fails after `timeout`.
+    /// Runs frames until the player is in the world, or fails after `timeout`. The other
+    /// events it sees come back from the next [`OnlineSession::poll`].
     pub fn wait_for_world(&mut self, timeout: Duration) -> Result<WorldEntry, String> {
         let deadline = Instant::now() + timeout;
+        let mut seen = Vec::new();
         while Instant::now() < deadline {
+            let mut entered = None;
             for event in self.poll() {
                 match event {
-                    SessionEvent::EnteredWorld(entry) => return Ok(entry),
+                    SessionEvent::EnteredWorld(entry) if entered.is_none() => entered = Some(entry),
                     SessionEvent::Disconnected(reason) => return Err(reason),
                     SessionEvent::Rejected(reason) if self.closed => return Err(reason),
-                    _ => {}
+                    other => seen.push(other),
                 }
+            }
+            if let Some(entry) = entered {
+                self.pending = seen;
+                return Ok(entry);
             }
             std::thread::sleep(Duration::from_millis(10));
         }
@@ -175,12 +209,12 @@ impl OnlineSession {
                 }
             }
             NetEvent::Blob(blob) if blob.queue == QUEUE_DAT => {
-                // `CLCache::UseTime`: data-download events. This client patches no DATs, so an
-                // interrogation is answered with no iteration lists (retail lists each DAT).
+                // `CLCache::UseTime` -> `CLCache::OnServerInterrogation`: the language and each
+                // open DAT's iterations. This client patches no DATs beyond that answer.
                 if let Ok(ServerEvent::Dat(DatEvent::Interrogation(_))) =
                     ServerEvent::decode(&blob.data, Build::default())
                 {
-                    let response = interrogation_response(0, &[]);
+                    let response = interrogation_response(self.language, &self.dat_iterations);
                     self.client.net_mut().send_dat_event(response);
                 }
             }
@@ -244,6 +278,9 @@ impl OnlineSession {
                 }
             }
             ServerEvent::DestroyObject(sender) => out.push(SessionEvent::ObjectRemoved(sender.id)),
+            ServerEvent::PlayerDescription(qualities) => {
+                out.push(SessionEvent::PlayerQualities(qualities.clone()))
+            }
             ServerEvent::CharExitGame => {
                 self.world.leave_world();
                 self.reporter = None;

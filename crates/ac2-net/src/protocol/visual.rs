@@ -1,6 +1,7 @@
 //! `VisualDesc::StreamPack` and the part-group, icon and appearance structures it carries
 //! (identical in admin 7148 and Legions 7160: Legions 0x005F1DC0).
 
+use crate::protocol::fx::{fx_overrides, FxData};
 use crate::protocol::reader::Reader;
 use crate::protocol::types::{float_table, hash_count};
 use crate::protocol::ProtocolError;
@@ -19,6 +20,8 @@ pub struct PartGroupDesc {
     pub fx_table: u32,
     /// `m_startup_fx`: FX id -> scalar.
     pub startup_fx: Vec<(u32, f32)>,
+    /// `m_fx_overrides`: FX id -> its `FXData` variants.
+    pub fx_overrides: Vec<(u32, Vec<FxData>)>,
 }
 
 impl PartGroupDesc {
@@ -53,10 +56,7 @@ impl PartGroupDesc {
             desc.startup_fx = float_table(reader)?;
         }
         if bitfield & 0x100 != 0 {
-            // `m_fx_overrides` holds `FXData` (an `FXNode` and a terrain table of them).
-            return Err(ProtocolError::Unsupported(
-                "PartGroupDataDesc FX overrides (FXNode)",
-            ));
+            desc.fx_overrides = fx_overrides(reader)?;
         }
         Ok(desc)
     }
@@ -189,5 +189,20 @@ mod tests {
         for end in 0..b.len() {
             assert!(VisualDesc::read(&mut Reader::new(&b[..end])).is_err());
         }
+    }
+
+    #[test]
+    fn fx_overrides_follow_the_startup_fx() {
+        let mut b = Vec::new();
+        for v in [0x180u32, 1, 0x22, 0, 1, 0x22, 1] {
+            b.extend(v.to_le_bytes()); // startup fx 0x22 -> 0.0, then one override, one FXData
+        }
+        b.extend(0x20_0000u64.to_le_bytes());
+        b.extend([1u32, 0].iter().flat_map(|v| v.to_le_bytes())); // unparent, no terrain
+        let mut reader = Reader::new(&b);
+        let group = super::PartGroupDesc::read(&mut reader).unwrap();
+        reader.finish().unwrap();
+        assert_eq!(group.startup_fx, vec![(0x22, 0.0)]);
+        assert_eq!(group.fx_overrides[0].1[0].default.unparent, Some(1));
     }
 }

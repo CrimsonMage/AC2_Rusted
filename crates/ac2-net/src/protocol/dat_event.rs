@@ -44,10 +44,12 @@ pub fn read_int_set(bytes: &[u8]) -> Result<Vec<i32>, ProtocolError> {
     read_int_set_inner(&mut Reader::new(bytes))
 }
 
-/// The packing direction of [`read_int_set`] (ids sorted first, as `Sort` does).
+/// The packing direction of [`read_int_set`]: `CMostlyConsecutiveIntSet::Sort` first sorts the
+/// ids and drops duplicates.
 pub fn write_int_set(writer: &mut Writer, ids: &[i32]) {
     let mut ids = ids.to_vec();
     ids.sort_unstable();
+    ids.dedup();
     writer.u32(ids.len() as u32);
     let mut i = 0;
     while i < ids.len() {
@@ -156,13 +158,13 @@ pub fn end_ddd() -> Vec<u8> {
 
 #[cfg(test)]
 mod tests {
-    use super::{dat_request, end_ddd, read_int_set_inner, write_int_set};
+    use super::{dat_request, end_ddd, interrogation_response, read_int_set_inner, write_int_set};
     use crate::protocol::reader::{Reader, Writer};
 
     #[test]
     fn runs_of_three_or_more_pack_as_negative_lengths() {
         let mut w = Writer { bytes: Vec::new() };
-        write_int_set(&mut w, &[7, 1, 2, 3, 4, 9, 10]);
+        write_int_set(&mut w, &[7, 1, 2, 3, 4, 9, 10, 3]);
         let words: Vec<i32> = w
             .bytes
             .chunks(4)
@@ -179,6 +181,32 @@ mod tests {
         assert_eq!(
             dat_request(0x4000_0021, 0x1F00_0001),
             [0x34, 0, 1, 0, 0x21, 0, 0, 0x40, 1, 0, 0, 0x1F]
+        );
+    }
+
+    #[test]
+    fn the_interrogation_answer_lists_each_dat_file_and_its_set() {
+        let bytes = interrogation_response(1, &[(0x0000_0003_8000_0001, vec![5, -2, 1, 2, 3])]);
+        let words: Vec<u32> = bytes
+            .chunks(4)
+            .map(|c| u32::from_le_bytes(c.try_into().unwrap()))
+            .collect();
+        // Opcode, language, one list: the file id (low word first), five ids: -2 masked to
+        // 31 bits, the run 1..=3, then 5.
+        assert_eq!(
+            words,
+            [
+                0x0001_0038,
+                1,
+                1,
+                0x8000_0001,
+                3,
+                5,
+                0x7FFF_FFFE,
+                (-3i32) as u32,
+                1,
+                5
+            ]
         );
     }
 }

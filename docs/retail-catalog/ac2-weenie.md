@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 65 done, 1 partial, 1832 to do, 6 skipped.
+1904 retail functions: 75 done, 2 partial, 1821 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1353,13 +1353,13 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Interp::SendEvt_InterpSEvent` · 00498f30 · legions 00491440
 - [ ] `ECM_Interp::SendEvt_InterpSEventEncrypt` · 00498fe0 · legions 004914f0
 
-## `portal/client/src/events/ecm_login.cpp.c` (9/21)
+## `portal/client/src/events/ecm_login.cpp.c` (10/21)
 
 ### ECM_Login
 - [x] `ECM_Login::RecvEvt_CharExitGame` · 004933b0 · legions 0048be00
 - [x] `ECM_Login::RecvEvt_CharacterDeletion` · 004933c0 · legions 0048be10
 - [x] `ECM_Login::RecvEvt_CharacterError` · 00493410 · legions 0048be60
-- [ ] `ECM_Login::RecvEvt_PlayerDesc` · 00493460 · legions 0048beb0
+- [x] `ECM_Login::RecvEvt_PlayerDesc` · 00493460 · legions 0048beb0
 - [x] `ECM_Login::SendEvt_ClientSceneRenderingComplete` · 00493500 · legions 0048bf50
 - [x] `ECM_Login::RecvEvt_CharGenVerification` · 00493520 · legions 0048bf70
 
@@ -1390,14 +1390,14 @@ Legend and workflow: [README](README.md).
 ### PSmartArray<PStringBase<unsigned_short>_>
 - [x] `PSmartArray<PStringBase<unsigned_short>_>::StreamPack` · 00493de0
 
-## `portal/client/src/events/ecm_physics.cpp.c` (35/59)
+## `portal/client/src/events/ecm_physics.cpp.c` (44/59)
 
 ### TargetPosition
 - [ ] `TargetPosition::TargetPosition` · 00494c30 · legions 0048d400
 
 ### ECM_Physics
-- [ ] `ECM_Physics::RecvEvt_AddTargetedImpulse` · 00494cb0 · legions 0048d480
-- [ ] `ECM_Physics::RecvEvt_AddTerrainModifier` · 00494e30 · legions 0048d600
+- [x] `ECM_Physics::RecvEvt_AddTargetedImpulse` · 00494cb0 · legions 0048d480
+- [x] `ECM_Physics::RecvEvt_AddTerrainModifier` · 00494e30 · legions 0048d600
 - [x] `ECM_Physics::RecvEvt_ClearTerrainModifiers` · 00494f30 · legions 0048d700
 - [x] `ECM_Physics::RecvEvt_Contain` · 00494fb0 · legions 0048d780
 - [x] `ECM_Physics::RecvEvt_CreatePlayer` · 00495060 · legions 0048d830
@@ -1407,9 +1407,9 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Physics::RecvEvt_DoFXScript` · 00495360 · legions 0048db30
 - [x] `ECM_Physics::RecvEvt_DoMode` · 00495420 · legions 0048dbf0
 - [x] `ECM_Physics::RecvEvt_DoSlider` · 004954e0 · legions 0048dcb0
-- [ ] `ECM_Physics::RecvEvt_DoStory` · 00495620 · legions 0048ddf0
+- [x] `ECM_Physics::RecvEvt_DoStory` · 00495620 · legions 0048ddf0
 - [x] `ECM_Physics::RecvEvt_DoTargettedFX` · 00495710 · legions 0048dee0
-- [ ] `ECM_Physics::RecvEvt_InitializeMissile` · 00495850 · legions 0048e020
+- [x] `ECM_Physics::RecvEvt_InitializeMissile` · 00495850 · legions 0048e020
 - [x] `ECM_Physics::RecvEvt_LeaveWorld` · 00495a00 · legions 0048e1d0
 - [x] `ECM_Physics::RecvEvt_LookAt` · 00495ac0 · legions 0048e290
 - [x] `ECM_Physics::RecvEvt_LookAtDir` · 00495b80 · legions 0048e350
@@ -1436,10 +1436,10 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Physics::RecvEvt_AddImpulse` · 00496b00 · legions 0048f2d0
 
 ### TargetPosition
-- [ ] `TargetPosition::StreamPack` · 00496c10
+- [x] `TargetPosition::StreamPack` · 00496c10
 
 ### ECM_Physics
-- [ ] `ECM_Physics::RecvEvt_DoFX_Private` · 00496cb0 · legions 0048f480
+- [x] `ECM_Physics::RecvEvt_DoFX_Private` · 00496cb0 · legions 0048f480
 - [ ] `ECM_Physics::SendNotice_BeingDeleted` · 00496d60
 - [ ] `ECM_Physics::SendNotice_CreateObject` · 00496de0
 - [ ] `ECM_Physics::SendNotice_CreatePlayerObject` · 00496e70
@@ -1455,14 +1455,14 @@ Legend and workflow: [README](README.md).
 ### PList<Position>
 - [ ] `PList<Position>::Pack` · 004974c0 · legions 0048f9d0
 - [ ] `PList<Position>::GetPackSize` · 00497510
-- [ ] `PList<Position>::UnPack` · 00497550 · legions 0048fa74
+- [x] `PList<Position>::UnPack` · 00497550 · legions 0048fa74
 
 ### ListNode<Position>
 - [ ] `ListNode<Position>::ListNode<Position>` · 004976a0 · legions 0048fbb0
 
 ### ECM_Physics
-- [ ] `ECM_Physics::RecvEvt_MoveTo` · 00497750 · legions 0048fc60
-- [ ] `ECM_Physics::RecvEvt_ReleaseBehavior` · 004978c0 · legions 0048fdd0
+- [x] `ECM_Physics::RecvEvt_MoveTo` · 00497750 · legions 0048fc60
+- [x] `ECM_Physics::RecvEvt_ReleaseBehavior` · 004978c0 · legions 0048fdd0
 - [x] `ECM_Physics::RecvEvt_DoBehavior` · 00497a00 · legions 0048ff10
 
 ## `portal/client/src/events/ecm_qualities.cpp.c` (0/20)
@@ -2599,7 +2599,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWInterface::IsCreature` · 0052e600 · legions 00512940
 - [ ] `CWInterface::IsThePlayer` · 0052e620 · legions 00512960
 - [ ] `CWInterface::OnStatChanged` · 0052e660 · legions 005129a0
-- [ ] `CWInterface::RecvEvt_PlayerDesc` · 0052e6a0 · legions 005129e0
+- [~] `CWInterface::RecvEvt_PlayerDesc` · 0052e6a0 · legions 005129e0 — qualities surface as SessionEvent::PlayerQualities; no CWRepository or LoginFinished notice
 - [ ] `CWInterface::HandleIntersectionDone` · 0052e6c0 · legions 00512a00
 - [ ] `CWInterface::InqDetectionProfile` · 0052e6e0 · legions 00512a20
 - [ ] `CWInterface::HandleCollision` · 0052e700 · legions 00512a40

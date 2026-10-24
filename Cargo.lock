@@ -104,6 +104,7 @@ name = "ac2-net"
 version = "0.1.0"
 dependencies = [
  "ac2-core",
+ "getrandom 0.3.4",
 ]
 
 [[package]]
@@ -135,6 +136,7 @@ dependencies = [
 name = "ac2-weenie"
 version = "0.1.0"
 dependencies = [
+ "ac2-dat",
  "ac2-net",
 ]
 

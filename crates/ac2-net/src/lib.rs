@@ -21,6 +21,7 @@ mod packet;
 mod pqueue;
 pub mod protocol;
 mod receiver;
+mod session_key;
 mod string;
 
 pub use blob::{
@@ -39,4 +40,7 @@ pub use net::{tokenize, ClientNet, NetEvent};
 pub use optional::{Connect, NetErrorId, OptionalHeader, Referral, SockAddrIn};
 pub use packet::{split_packet, Fragment, InboundPacket, FRAGMENT_HEADER_LEN, MAX_PACKET_BODY};
 pub use receiver::ConnectionState;
+pub use session_key::{
+    ServerPublicKey, SessionCrypto, SessionKey, RETAIL_PUBLIC_KEY_LEN, SESSION_KEY_LEN,
+};
 pub use string::{pack_string, pack_wide_string, unpack_string, unpack_wide_string};
