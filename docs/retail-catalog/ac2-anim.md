@@ -1,6 +1,6 @@
 # ac2-anim: Animation system
 
-532 retail functions: 0 done, 0 partial, 496 to do, 36 skipped.
+532 retail functions: 2 done, 0 partial, 494 to do, 36 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/anim/charactersetup.cpp.c` (0/67)
@@ -532,23 +532,23 @@ Legend and workflow: [README](README.md).
 - [ ] `Behavior::Behavior` · 0068f360 · legions 0062fee0
 - [ ] `Behavior::StreamPack` · 0068f380
 
-## `portal/shared/src/animsys/behaviorparams.cpp.c` (0/6)
+## `portal/shared/src/animsys/behaviorparams.cpp.c` (1/6)
 
 ### BehaviorParams
 - [ ] `BehaviorParams::IsValid` · 00678fe0 · legions 006233b0
 - [ ] `BehaviorParams::get_pack_bitfield` · 00679000 · legions 006233d0
-- [ ] `BehaviorParams::StreamPack` · 00679220 · legions 006235f0
+- [x] `BehaviorParams::StreamPack` · 00679220 · legions 006235f0
 - [ ] `BehaviorParams::SetDefaults` · 006795b0 · legions 00623980
 - [ ] `BehaviorParams::BehaviorParams` · 00679660 · legions 00623a30
 - [ ] `BehaviorParams::BehaviorParams` · 006796a0 · legions 00623a70
 
-## `portal/shared/src/animsys/behaviortable.cpp.c` (0/49)
+## `portal/shared/src/animsys/behaviortable.cpp.c` (1/49)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::GetInitBehaviors` · 0067cfa0 · legions 006253d0
 
 ### SliderData
-- [ ] `SliderData::StreamPack` · 0067cfb0 · legions 005f5840
+- [x] `SliderData::StreamPack` · 0067cfb0 · legions 005f5840
 
 ### BehaviorTable
 - [ ] `BehaviorTable::StreamPack` · 0067d000 · legions 006253e0

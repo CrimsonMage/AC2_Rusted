@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 0 done, 0 partial, 1898 to do, 6 skipped.
+1904 retail functions: 65 done, 1 partial, 1832 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -140,10 +140,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Money::SendNotice_GhostMoneyBag` · 00726ec0
 - [ ] `CM_Money::SendNotice_UpdateMoney` · 00726f50
 
-## `ac2/client/src/events/cm_physics.cpp.c` (0/2)
+## `ac2/client/src/events/cm_physics.cpp.c` (1/2)
 
 ### CM_Physics
-- [ ] `CM_Physics::RecvEvt_CreateObject` · 007269d0 · legions 006a55c0
+- [x] `CM_Physics::RecvEvt_CreateObject` · 007269d0 · legions 006a55c0
 - [ ] `CM_Physics::SendNotice_Do3DDamage` · 00726b80
 
 ## `ac2/client/src/events/cm_quest.cpp.c` (0/3)
@@ -219,11 +219,11 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Usage::SendNotice_SetTargetingPointer` · 007261c0
 - [ ] `CM_Usage::SendNotice_UseBook` · 00726250 · legions 006a5160
 
-## `ac2/client/src/events/gmceventqueue.cpp.c` (0/2)
+## `ac2/client/src/events/gmceventqueue.cpp.c` (1/2)
 
 ### gmCEventQueue
 - [ ] `gmCEventQueue::gmCEventQueue` · 00723260
-- [ ] `gmCEventQueue::DispatchEvent` · 00723280 · legions 006a3540
+- [x] `gmCEventQueue::DispatchEvent` · 00723280 · legions 006a3540
 
 ## `ac2/client/src/events/gmglobaleventhandler.cpp.c` (0/2)
 
@@ -1262,15 +1262,15 @@ Legend and workflow: [README](README.md).
 - [ ] `ActionMap::UnPack` · 0072f200
 - [ ] `ActionMap::Allocate` · 0072f370
 
-## `portal/client/src/action/movement/playermovementmodule.cpp.c` (0/17)
+## `portal/client/src/action/movement/playermovementmodule.cpp.c` (4/17)
 
 ### PlayerMovementModule
 - [ ] `PlayerMovementModule::Startup` · 00568e20 · legions 00538db0
 - [ ] `PlayerMovementModule::Get` · 00568e90 · legions 00538e20
-- [ ] `PlayerMovementModule::ShouldSendPositionEvent` · 00568ea0 · legions 00538e30
-- [ ] `PlayerMovementModule::SendPositionEvent` · 00569020 · legions 00538fb0
-- [ ] `PlayerMovementModule::ShouldSendLookAtEvent` · 00569200 · legions 00539190
-- [ ] `PlayerMovementModule::SendLookAtEvent` · 005692e0 · legions 00539270
+- [x] `PlayerMovementModule::ShouldSendPositionEvent` · 00568ea0 · legions 00538e30
+- [x] `PlayerMovementModule::SendPositionEvent` · 00569020 · legions 00538fb0
+- [x] `PlayerMovementModule::ShouldSendLookAtEvent` · 00569200 · legions 00539190
+- [x] `PlayerMovementModule::SendLookAtEvent` · 005692e0 · legions 00539270
 - [ ] `PlayerMovementModule::MouseMove` · 00569380 · legions 00539310
 - [ ] `PlayerMovementModule::DoBehavior` · 005693a0 · legions 00539330
 - [ ] `PlayerMovementModule::StopBehavior` · 005693d0 · legions 00539360
@@ -1307,32 +1307,32 @@ Legend and workflow: [README](README.md).
 - [ ] `CFactory::MakeCEventQueue` · 004991b0 · legions 004916c0
 - [ ] `CFactory::MakeGlobalEventHandler` · 004991d0 · legions 004916e0
 
-## `portal/client/src/events/ceventqueue.cpp.c` (0/15)
+## `portal/client/src/events/ceventqueue.cpp.c` (12/15)
 
 ### CEventQueue
-- [ ] `CEventQueue::CEventQueue` · 00493f60 · legions 0048c730
-- [ ] `CEventQueue::ProcessVisualOrderedEvent` · 00493f80 · legions 0048c750
-- [ ] `CEventQueue::DispatchEvent` · 00494010 · legions 0048c7e0
-- [ ] `CEventQueue::PostEvent` · 004946a0 · legions 0048ce70
+- [x] `CEventQueue::CEventQueue` · 00493f60 · legions 0048c730
+- [x] `CEventQueue::ProcessVisualOrderedEvent` · 00493f80 · legions 0048c750
+- [~] `CEventQueue::DispatchEvent` · 00494010 · legions 0048c7e0 — every opcode routed; quality, interpreter and admin events kept as raw bodies
+- [x] `CEventQueue::PostEvent` · 004946a0 · legions 0048ce70
 
 ### InstanceIDWithStamp
-- [ ] `InstanceIDWithStamp::StreamPack` · 004946d0 · legions 0048cea0
+- [x] `InstanceIDWithStamp::StreamPack` · 004946d0 · legions 0048cea0
 
 ### CEventQueue
-- [ ] `CEventQueue::ProcessOrderedNetBlob` · 00494720 · legions 0048cef0
+- [x] `CEventQueue::ProcessOrderedNetBlob` · 00494720 · legions 0048cef0
 
 ### NIList<NetBlob_*>
 - [ ] `NIList<NetBlob_*>::AddToTail` · 004947c0 · legions 0048cf90
 
 ### CEventQueue
-- [ ] `CEventQueue::QueueEvent` · 00494810 · legions 0048cfe0
-- [ ] `CEventQueue::ConsiderQueueingEvent` · 00494890 · legions 0048d060
-- [ ] `CEventQueue::DestroyEventQueues` · 00494960 · legions 0048d130
+- [x] `CEventQueue::QueueEvent` · 00494810 · legions 0048cfe0
+- [x] `CEventQueue::ConsiderQueueingEvent` · 00494890 · legions 0048d060
+- [x] `CEventQueue::DestroyEventQueues` · 00494960 · legions 0048d130
 - [ ] `CEventQueue::~CEventQueue` · 004949f0 · legions 0048d1c0
-- [ ] `CEventQueue::ProcessNetBlob` · 00494a00 · legions 0048d1d0
-- [ ] `CEventQueue::FlushQueue` · 00494a70 · legions 0048d240
-- [ ] `CEventQueue::FinishEnteringWorld` · 00494b00 · legions 0048d2d0
-- [ ] `CEventQueue::UseTime` · 00494b10 · legions 0048d2e0
+- [x] `CEventQueue::ProcessNetBlob` · 00494a00 · legions 0048d1d0
+- [x] `CEventQueue::FlushQueue` · 00494a70 · legions 0048d240
+- [x] `CEventQueue::FinishEnteringWorld` · 00494b00 · legions 0048d2d0
+- [x] `CEventQueue::UseTime` · 00494b10 · legions 0048d2e0
 
 ## `portal/client/src/events/ecm_admin.cpp.c` (0/5)
 
@@ -1353,15 +1353,15 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Interp::SendEvt_InterpSEvent` · 00498f30 · legions 00491440
 - [ ] `ECM_Interp::SendEvt_InterpSEventEncrypt` · 00498fe0 · legions 004914f0
 
-## `portal/client/src/events/ecm_login.cpp.c` (0/21)
+## `portal/client/src/events/ecm_login.cpp.c` (9/21)
 
 ### ECM_Login
-- [ ] `ECM_Login::RecvEvt_CharExitGame` · 004933b0 · legions 0048be00
-- [ ] `ECM_Login::RecvEvt_CharacterDeletion` · 004933c0 · legions 0048be10
-- [ ] `ECM_Login::RecvEvt_CharacterError` · 00493410 · legions 0048be60
+- [x] `ECM_Login::RecvEvt_CharExitGame` · 004933b0 · legions 0048be00
+- [x] `ECM_Login::RecvEvt_CharacterDeletion` · 004933c0 · legions 0048be10
+- [x] `ECM_Login::RecvEvt_CharacterError` · 00493410 · legions 0048be60
 - [ ] `ECM_Login::RecvEvt_PlayerDesc` · 00493460 · legions 0048beb0
-- [ ] `ECM_Login::SendEvt_ClientSceneRenderingComplete` · 00493500 · legions 0048bf50
-- [ ] `ECM_Login::RecvEvt_CharGenVerification` · 00493520 · legions 0048bf70
+- [x] `ECM_Login::SendEvt_ClientSceneRenderingComplete` · 00493500 · legions 0048bf50
+- [x] `ECM_Login::RecvEvt_CharGenVerification` · 00493520 · legions 0048bf70
 
 ### CharacterSet
 - [ ] `CharacterSet::~CharacterSet` · 00493680 · legions 0048c0d0
@@ -1375,22 +1375,22 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Login::SendNotice_LoginFinished` · 004939b0
 - [ ] `ECM_Login::SendNotice_ServerDied` · 00493a30
 - [ ] `ECM_Login::SendNotice_WorldName` · 00493ab0
-- [ ] `ECM_Login::RecvEvt_CharacterSet` · 00493b30 · legions 0048c380
+- [x] `ECM_Login::RecvEvt_CharacterSet` · 00493b30 · legions 0048c380
 
 ### MinimalCharacterSet
 - [ ] `MinimalCharacterSet::~MinimalCharacterSet` · 00493bd0 · legions 0048c420
-- [ ] `MinimalCharacterSet::StreamPack` · 00493c50 · legions 0048c4a0
+- [x] `MinimalCharacterSet::StreamPack` · 00493c50 · legions 0048c4a0
 
 ### (free functions)
 - [ ] `STREAMPACK` · 00493cb0 · legions 0064e070
 
 ### ECM_Login
-- [ ] `ECM_Login::RecvEvt_MinCharSet` · 00493d30 · legions 0048c500
+- [x] `ECM_Login::RecvEvt_MinCharSet` · 00493d30 · legions 0048c500
 
 ### PSmartArray<PStringBase<unsigned_short>_>
-- [ ] `PSmartArray<PStringBase<unsigned_short>_>::StreamPack` · 00493de0
+- [x] `PSmartArray<PStringBase<unsigned_short>_>::StreamPack` · 00493de0
 
-## `portal/client/src/events/ecm_physics.cpp.c` (0/59)
+## `portal/client/src/events/ecm_physics.cpp.c` (35/59)
 
 ### TargetPosition
 - [ ] `TargetPosition::TargetPosition` · 00494c30 · legions 0048d400
@@ -1398,42 +1398,42 @@ Legend and workflow: [README](README.md).
 ### ECM_Physics
 - [ ] `ECM_Physics::RecvEvt_AddTargetedImpulse` · 00494cb0 · legions 0048d480
 - [ ] `ECM_Physics::RecvEvt_AddTerrainModifier` · 00494e30 · legions 0048d600
-- [ ] `ECM_Physics::RecvEvt_ClearTerrainModifiers` · 00494f30 · legions 0048d700
-- [ ] `ECM_Physics::RecvEvt_Contain` · 00494fb0 · legions 0048d780
-- [ ] `ECM_Physics::RecvEvt_CreatePlayer` · 00495060 · legions 0048d830
-- [ ] `ECM_Physics::RecvEvt_DeParent` · 00495100 · legions 0048d8d0
-- [ ] `ECM_Physics::RecvEvt_DestroyObject` · 004951f0 · legions 0048d9c0
-- [ ] `ECM_Physics::RecvEvt_DoFX` · 00495260 · legions 0048da30
-- [ ] `ECM_Physics::RecvEvt_DoFXScript` · 00495360 · legions 0048db30
-- [ ] `ECM_Physics::RecvEvt_DoMode` · 00495420 · legions 0048dbf0
-- [ ] `ECM_Physics::RecvEvt_DoSlider` · 004954e0 · legions 0048dcb0
+- [x] `ECM_Physics::RecvEvt_ClearTerrainModifiers` · 00494f30 · legions 0048d700
+- [x] `ECM_Physics::RecvEvt_Contain` · 00494fb0 · legions 0048d780
+- [x] `ECM_Physics::RecvEvt_CreatePlayer` · 00495060 · legions 0048d830
+- [x] `ECM_Physics::RecvEvt_DeParent` · 00495100 · legions 0048d8d0
+- [x] `ECM_Physics::RecvEvt_DestroyObject` · 004951f0 · legions 0048d9c0
+- [x] `ECM_Physics::RecvEvt_DoFX` · 00495260 · legions 0048da30
+- [x] `ECM_Physics::RecvEvt_DoFXScript` · 00495360 · legions 0048db30
+- [x] `ECM_Physics::RecvEvt_DoMode` · 00495420 · legions 0048dbf0
+- [x] `ECM_Physics::RecvEvt_DoSlider` · 004954e0 · legions 0048dcb0
 - [ ] `ECM_Physics::RecvEvt_DoStory` · 00495620 · legions 0048ddf0
-- [ ] `ECM_Physics::RecvEvt_DoTargettedFX` · 00495710 · legions 0048dee0
+- [x] `ECM_Physics::RecvEvt_DoTargettedFX` · 00495710 · legions 0048dee0
 - [ ] `ECM_Physics::RecvEvt_InitializeMissile` · 00495850 · legions 0048e020
-- [ ] `ECM_Physics::RecvEvt_LeaveWorld` · 00495a00 · legions 0048e1d0
-- [ ] `ECM_Physics::RecvEvt_LookAt` · 00495ac0 · legions 0048e290
-- [ ] `ECM_Physics::RecvEvt_LookAtDir` · 00495b80 · legions 0048e350
-- [ ] `ECM_Physics::RecvEvt_Parent` · 00495c80 · legions 0048e450
-- [ ] `ECM_Physics::RecvEvt_Position` · 00495da0 · legions 0048e570
-- [ ] `ECM_Physics::RecvEvt_PositionCell` · 00495ea0 · legions 0048e670
-- [ ] `ECM_Physics::RecvEvt_SetAccelerationScale` · 00495fa0 · legions 0048e770
-- [ ] `ECM_Physics::RecvEvt_SetGlobalModifier` · 00496060 · legions 0048e830
-- [ ] `ECM_Physics::RecvEvt_SetHoverHeight` · 00496120 · legions 0048e8f0
-- [ ] `ECM_Physics::RecvEvt_SetJumpScale` · 004961e0 · legions 0048e9b0
-- [ ] `ECM_Physics::RecvEvt_SetMIDESC` · 004962a0 · legions 0048ea70
-- [ ] `ECM_Physics::RecvEvt_SetMode` · 00496360 · legions 0048eb30
-- [ ] `ECM_Physics::RecvEvt_SetVelocityScale` · 00496420 · legions 0048ebf0
-- [ ] `ECM_Physics::RecvEvt_StopAllWeenieBehaviors` · 004964e0 · legions 0048ecb0
-- [ ] `ECM_Physics::RecvEvt_StopBehavior` · 00496560 · legions 0048ed30
-- [ ] `ECM_Physics::RecvEvt_StopFX` · 00496620 · legions 0048edf0
-- [ ] `ECM_Physics::RecvEvt_StopLayer` · 004966e0 · legions 0048eeb0
-- [ ] `ECM_Physics::RecvEvt_StopMoveToCancelsBehaviors` · 004967a0 · legions 0048ef70
-- [ ] `ECM_Physics::RecvEvt_UpdateVisualDesc` · 00496820 · legions 0048eff0
-- [ ] `ECM_Physics::SendEvt_CForceCreate` · 00496910 · legions 0048f0e0
-- [ ] `ECM_Physics::SendEvt_CLookAt` · 00496980 · legions 0048f150
-- [ ] `ECM_Physics::SendEvt_CLookAtDir` · 004969f0 · legions 0048f1c0
-- [ ] `ECM_Physics::SendEvt_CPosition` · 00496a90 · legions 0048f260
-- [ ] `ECM_Physics::RecvEvt_AddImpulse` · 00496b00 · legions 0048f2d0
+- [x] `ECM_Physics::RecvEvt_LeaveWorld` · 00495a00 · legions 0048e1d0
+- [x] `ECM_Physics::RecvEvt_LookAt` · 00495ac0 · legions 0048e290
+- [x] `ECM_Physics::RecvEvt_LookAtDir` · 00495b80 · legions 0048e350
+- [x] `ECM_Physics::RecvEvt_Parent` · 00495c80 · legions 0048e450
+- [x] `ECM_Physics::RecvEvt_Position` · 00495da0 · legions 0048e570
+- [x] `ECM_Physics::RecvEvt_PositionCell` · 00495ea0 · legions 0048e670
+- [x] `ECM_Physics::RecvEvt_SetAccelerationScale` · 00495fa0 · legions 0048e770
+- [x] `ECM_Physics::RecvEvt_SetGlobalModifier` · 00496060 · legions 0048e830
+- [x] `ECM_Physics::RecvEvt_SetHoverHeight` · 00496120 · legions 0048e8f0
+- [x] `ECM_Physics::RecvEvt_SetJumpScale` · 004961e0 · legions 0048e9b0
+- [x] `ECM_Physics::RecvEvt_SetMIDESC` · 004962a0 · legions 0048ea70
+- [x] `ECM_Physics::RecvEvt_SetMode` · 00496360 · legions 0048eb30
+- [x] `ECM_Physics::RecvEvt_SetVelocityScale` · 00496420 · legions 0048ebf0
+- [x] `ECM_Physics::RecvEvt_StopAllWeenieBehaviors` · 004964e0 · legions 0048ecb0
+- [x] `ECM_Physics::RecvEvt_StopBehavior` · 00496560 · legions 0048ed30
+- [x] `ECM_Physics::RecvEvt_StopFX` · 00496620 · legions 0048edf0
+- [x] `ECM_Physics::RecvEvt_StopLayer` · 004966e0 · legions 0048eeb0
+- [x] `ECM_Physics::RecvEvt_StopMoveToCancelsBehaviors` · 004967a0 · legions 0048ef70
+- [x] `ECM_Physics::RecvEvt_UpdateVisualDesc` · 00496820 · legions 0048eff0
+- [x] `ECM_Physics::SendEvt_CForceCreate` · 00496910 · legions 0048f0e0
+- [x] `ECM_Physics::SendEvt_CLookAt` · 00496980 · legions 0048f150
+- [x] `ECM_Physics::SendEvt_CLookAtDir` · 004969f0 · legions 0048f1c0
+- [x] `ECM_Physics::SendEvt_CPosition` · 00496a90 · legions 0048f260
+- [x] `ECM_Physics::RecvEvt_AddImpulse` · 00496b00 · legions 0048f2d0
 
 ### TargetPosition
 - [ ] `TargetPosition::StreamPack` · 00496c10
@@ -1463,7 +1463,7 @@ Legend and workflow: [README](README.md).
 ### ECM_Physics
 - [ ] `ECM_Physics::RecvEvt_MoveTo` · 00497750 · legions 0048fc60
 - [ ] `ECM_Physics::RecvEvt_ReleaseBehavior` · 004978c0 · legions 0048fdd0
-- [ ] `ECM_Physics::RecvEvt_DoBehavior` · 00497a00 · legions 0048ff10
+- [x] `ECM_Physics::RecvEvt_DoBehavior` · 00497a00 · legions 0048ff10
 
 ## `portal/client/src/events/ecm_qualities.cpp.c` (0/20)
 
@@ -1489,7 +1489,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Qualities::RecvEvt_UpdateString_Private` · 00498af0 · legions 00491000
 - [ ] `ECM_Qualities::RecvEvt_UpdateString_Visual` · 00498c00 · legions 00491110
 
-## `portal/client/src/events/globaleventhandler.cpp.c` (0/21)
+## `portal/client/src/events/globaleventhandler.cpp.c` (3/21)
 
 ### GlobalEventHandler
 - [ ] `GlobalEventHandler::GetGlobalEventHandler` · 00492be0 · legions 0048b590
@@ -1499,9 +1499,9 @@ Legend and workflow: [README](README.md).
 - [ ] `GlobalEventHandler::RecvEvt_CharacterDeletion` · 00492c40 · legions 0048b5f0
 - [ ] `GlobalEventHandler::RecvEvt_CharacterError` · 00492c60 · legions 0048b610
 - [ ] `GlobalEventHandler::RecvEvt_CharGenVerification` · 00492c90 · legions 0048b640
-- [ ] `GlobalEventHandler::RecvEvt_CreatePlayer` · 00492cb0 · legions 0048b660
-- [ ] `GlobalEventHandler::RecvEvt_CreateObject` · 00492ce0 · legions 0048b690
-- [ ] `GlobalEventHandler::RecvEvt_DestroyObject` · 00492d20 · legions 0048b6d0
+- [x] `GlobalEventHandler::RecvEvt_CreatePlayer` · 00492cb0 · legions 0048b660
+- [x] `GlobalEventHandler::RecvEvt_CreateObject` · 00492ce0 · legions 0048b690
+- [x] `GlobalEventHandler::RecvEvt_DestroyObject` · 00492d20 · legions 0048b6d0
 - [ ] `GlobalEventHandler::RecvEvt_DisplayStringInfo` · 00492d40 · legions 0048b6f0
 - [ ] `GlobalEventHandler::RecvEvt_WorldName` · 00492d90 · legions 0048b740
 

@@ -3,35 +3,25 @@ use crate::protocol::position::ClientPosition;
 use crate::protocol::reader::Writer;
 use crate::protocol::{QUEUE_CONTROL, QUEUE_ORDERED};
 
-/// An event the client sends, and the queue `Proto_UI` sends it on.
+/// An event the client sends through `Proto_UI::SendBuff`, with the queue its sender uses.
 #[derive(Debug, Clone, PartialEq)]
 pub enum ClientEvent {
-    /// `Proto_UI::SendEnterWorld`: the character id and the account.
-    EnterWorld {
-        character: u64,
-        account: String,
-    },
-    /// The client finished loading the scene around its player.
+    /// `Proto_UI::SendEnterWorld`: the character id and the account, queue 4.
+    EnterWorld { character: u64, account: String },
+    /// `ECM_Login::SendEvt_ClientSceneRenderingComplete`, queue 3.
     SceneRenderingComplete,
+    /// `ECM_Physics::SendEvt_CPosition`, queue 3.
     Position(ClientPosition),
-    /// Head look: yaw and pitch in degrees.
-    Look {
-        yaw: f32,
-        pitch: f32,
-    },
-    /// `ECM_Physics::SendEvt_CLookAt`: the target object, or 0 to clear.
-    LookAt {
-        target: u64,
-    },
-    /// `Proto_UI::LogOffCharacter`.
-    LogOffCharacter {
-        character: u64,
-    },
-    /// `Proto_UI::SendDeleteCharacter`.
-    DeleteCharacter {
-        account: String,
-        character: u64,
-    },
+    /// `ECM_Physics::SendEvt_CLookAtDir`: head direction, queue 3.
+    LookAtDir { x: f32, y: f32 },
+    /// `ECM_Physics::SendEvt_CLookAt`: the target object, queue 3.
+    LookAt { target: u64 },
+    /// `ECM_Physics::SendEvt_CForceCreate`: ask for an object's create, queue 3.
+    ForceCreate { object: u64 },
+    /// `Proto_UI::LogOffCharacter`, queue 4.
+    LogOffCharacter { character: u64 },
+    /// `Proto_UI::SendDeleteCharacter`, queue 4.
+    DeleteCharacter { account: String, character: u64 },
 }
 
 impl ClientEvent {
@@ -44,18 +34,23 @@ impl ClientEvent {
                 (QUEUE_CONTROL, w.bytes)
             }
             Self::SceneRenderingComplete => (
-                QUEUE_CONTROL,
+                QUEUE_ORDERED,
                 Opcode::SCENE_RENDERING_COMPLETE.to_le_bytes().to_vec(),
             ),
             Self::Position(position) => (QUEUE_ORDERED, position.encode()),
-            Self::Look { yaw, pitch } => {
+            Self::LookAtDir { x, y } => {
                 let mut w = Writer::event(Opcode::CLIENT_LOOK);
-                w.f32(*yaw).f32(*pitch);
+                w.f32(*x).align().f32(*y).align();
                 (QUEUE_ORDERED, w.bytes)
             }
             Self::LookAt { target } => {
                 let mut w = Writer::event(Opcode::CLIENT_LOOK_AT);
-                w.u64(*target);
+                w.u64(*target).align();
+                (QUEUE_ORDERED, w.bytes)
+            }
+            Self::ForceCreate { object } => {
+                let mut w = Writer::event(Opcode::CLIENT_FORCE_CREATE);
+                w.u64(*object).align();
                 (QUEUE_ORDERED, w.bytes)
             }
             Self::LogOffCharacter { character } => {
@@ -92,21 +87,36 @@ mod tests {
     }
 
     #[test]
-    fn control_and_movement_events_use_their_queues() {
+    fn senders_use_their_retail_queues_and_layouts() {
         assert_eq!(
             ClientEvent::SceneRenderingComplete.encode(),
-            (4, vec![0xD1, 0, 1, 0])
+            (3, vec![0xD1, 0, 1, 0])
+        );
+        let (queue, bytes) = ClientEvent::LookAtDir { x: 1.0, y: -1.0 }.encode();
+        assert_eq!(queue, 3);
+        assert_eq!(bytes, [0xC8, 0, 1, 0, 0, 0, 0x80, 0x3F, 0, 0, 0x80, 0xBF]);
+        assert_eq!(
+            ClientEvent::LookAt { target: 2 }.encode(),
+            (3, vec![0xC7, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0])
         );
         assert_eq!(
-            ClientEvent::Look {
-                yaw: 0.0,
-                pitch: 0.0
-            }
-            .encode()
-            .0,
-            3
+            ClientEvent::ForceCreate { object: 3 }.encode(),
+            (3, vec![0x8F, 0, 1, 0, 3, 0, 0, 0, 0, 0, 0, 0])
         );
-        let (queue, bytes) = ClientEvent::LogOffCharacter { character: 1 }.encode();
-        assert_eq!((queue, bytes.len()), (4, 12));
+        assert_eq!(
+            ClientEvent::LogOffCharacter { character: 1 }.encode(),
+            (4, vec![0x27, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0])
+        );
+        let (queue, bytes) = ClientEvent::DeleteCharacter {
+            account: "abcd".into(),
+            character: 9,
+        }
+        .encode();
+        assert_eq!(queue, 4);
+        assert_eq!(
+            &bytes[..12],
+            &[0x29, 0, 1, 0, 4, 0, 0x2E, 0xB4, 0xB2, 0xA3, 0, 0]
+        );
+        assert_eq!(&bytes[12..], &9u64.to_le_bytes());
     }
 }

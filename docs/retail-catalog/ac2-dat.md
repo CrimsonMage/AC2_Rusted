@@ -1,6 +1,6 @@
 # ac2-dat: DAT files and the database layer
 
-507 retail functions: 0 done, 0 partial, 502 to do, 5 skipped.
+507 retail functions: 6 done, 2 partial, 494 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/database/asynccache.cpp.c` (0/48)
@@ -91,37 +91,37 @@ Legend and workflow: [README](README.md).
 - [ ] `AsyncCache::HashAndEnqueue` · 006d23a0 · legions 0065c0c0
 - [ ] `AsyncCache::OnGetRequestFinished` · 006d2410 · legions 0065c130
 
-## `portal/shared/src/database/clidatevents.cpp.c` (0/12)
+## `portal/shared/src/database/clidatevents.cpp.c` (5/12)
 
 ### CCliDatEvent
-- [ ] `CCliDatEvent::CCliDatEvent` · 006da360 · legions 006637a0
+- [x] `CCliDatEvent::CCliDatEvent` · 006da360 · legions 006637a0
 
 ### CCliDatDataEvent
 - [ ] `CCliDatDataEvent::CreateCachePack` · 006da3d0
 
 ### CCliDatInterrogationResponseEvent
-- [ ] `CCliDatInterrogationResponseEvent::CreateData` · 006da480
+- [~] `CCliDatInterrogationResponseEvent::CreateData` · 006da480 — layout only; the client sends no DAT iteration lists
 
 ### CCliDatBeginDDDEvent
-- [ ] `CCliDatBeginDDDEvent::GetMissingIterations` · 006da500 · legions 00663940
+- [x] `CCliDatBeginDDDEvent::GetMissingIterations` · 006da500 · legions 00663940
 
 ### CCliDatRequestEvent
-- [ ] `CCliDatRequestEvent::CreateForSend` · 006da550 · legions 00663990
+- [x] `CCliDatRequestEvent::CreateForSend` · 006da550 · legions 00663990
 
 ### CAllIterationList::PTaggedIterationList
 - [ ] `CAllIterationList::PTaggedIterationList::StreamPack` · 006da5b0 · legions 006639f0
 
 ### CCliDatInterrogationResponseEvent
-- [ ] `CCliDatInterrogationResponseEvent::CreateForSend` · 006da600
+- [~] `CCliDatInterrogationResponseEvent::CreateForSend` · 006da600 — layout only; the client sends no DAT iteration lists
 
 ### CCliDatEndDDDEvent
-- [ ] `CCliDatEndDDDEvent::CreateForSend` · 006da680 · legions 00663ac0
+- [x] `CCliDatEndDDDEvent::CreateForSend` · 006da680 · legions 00663ac0
 
 ### (free functions)
 - [ ] `StreamIDs` · 006da6d0 · legions 00663b10
 
 ### CMissingIteration
-- [ ] `CMissingIteration::StreamPack` · 006da7b0
+- [x] `CMissingIteration::StreamPack` · 006da7b0
 
 ### SmartArray<CAllIterationList::PTaggedIterationList>
 - [ ] `SmartArray<CAllIterationList::PTaggedIterationList>::AddToEnd` · 006da840 · legions 00663c80
@@ -545,7 +545,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DiskDev::SyncWrite` · 00650640 · legions 005ff910
 - [ ] `DiskDev::Open_File` · 006506a0 · legions 005ff970
 
-## `portal/shared/src/diskcon/iterationlist.cpp.c` (0/5)
+## `portal/shared/src/diskcon/iterationlist.cpp.c` (1/5)
 
 ### (free functions)
 - [ ] `CompareInts` · 0064c060
@@ -553,7 +553,7 @@ Legend and workflow: [README](README.md).
 ### CMostlyConsecutiveIntSet
 - [ ] `CMostlyConsecutiveIntSet::CMostlyConsecutiveIntSet` · 0064c090 · legions 005fb3c0
 - [ ] `CMostlyConsecutiveIntSet::Sort` · 0064c0e0 · legions 005fb410
-- [ ] `CMostlyConsecutiveIntSet::StreamPack` · 0064c170
+- [x] `CMostlyConsecutiveIntSet::StreamPack` · 0064c170
 - [ ] `CMostlyConsecutiveIntSet::Add` · 0064c370 · legions 005fb6a0
 
 ## `portal/shared/src/diskcon/lookfile.cpp.c` (0/3)

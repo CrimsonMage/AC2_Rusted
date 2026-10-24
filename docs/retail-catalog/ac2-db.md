@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 4 done, 0 partial, 590 to do, 39 skipped.
+633 retail functions: 6 done, 1 partial, 587 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -309,7 +309,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ThreadedCache::~ThreadedCache` · 004bfe10 · legions 004b4250
 
 ### CLCache
-- [ ] `CLCache::OnServerInterrogation` · 004bfeb0
+- [~] `CLCache::OnServerInterrogation` · 004bfeb0 — answered with an empty iteration list (no DAT history)
 - [ ] `CLCache::OnBeginDDD` · 004c0060 · legions 004b44a0
 - [ ] `CLCache::SetLanguageInternal` · 004c00f0 · legions 004b4530
 - [ ] `CLCache::OnEndDDD` · 004c0610 · legions 004b4aa0
@@ -951,7 +951,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StringTableMetaLanguage::UnescapeString` · 006572d0 · legions 00605c20
 - [ ] `StringTableMetaLanguage::ApplyMetaTagsToName` · 006573f0 · legions 00605d40
 
-## `portal/shared/src/stringtable/stringinfo.cpp.c` (0/56)
+## `portal/shared/src/stringtable/stringinfo.cpp.c` (2/56)
 
 ### StringInfoData
 - [ ] `StringInfoData::operator==` · 00650880
@@ -982,7 +982,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StringInfo::GetSubDataIDs` · 00651860 · legions 00600950
 - [ ] `StringInfo::GetSubPrivateIDs` · 006518f0 · legions 006009e0
 - [ ] `StringInfo::GetPackSize` · 006519d0 · legions 00600aa0
-- [ ] `StringInfo::Pack` · 00651b20 · legions 00600bf0
+- [x] `StringInfo::Pack` · 00651b20 · legions 00600bf0
 - [ ] `StringInfo::InqStringInternal` · 00651dd0 · legions 00600ea0
 - [ ] `StringInfo::ClearVars` · 00651fb0 · legions 00601080
 - [ ] `StringInfo::Reset` · 00652070 · legions 00601140
@@ -1014,7 +1014,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StringInfo::AddVariable_StringInfo` · 00652bf0 · legions 00601cc0
 - [ ] `StringInfo::AddVariable_String` · 00652c70 · legions 00601d40
 - [ ] `StringInfo::AsyncGetString` · 00652d10 · legions 00601de0
-- [ ] `StringInfo::UnPack` · 00652db0 · legions 00601e80
+- [x] `StringInfo::UnPack` · 00652db0 · legions 00601e80
 - [ ] `StringInfo::AddVariable_String` · 00653190 · legions 00602260
 
 ## `portal/shared/src/stringtable/stringinfodata.cpp.c` (0/18)

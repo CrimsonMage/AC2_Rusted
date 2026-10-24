@@ -1,13 +1,25 @@
+//! The online session: logon, character choice, world entry, the objects the server reports,
+//! movement reports and logoff, in the order the retail client performs them.
+//!
+//! World entry (`gmCharacterSelectionUI` -> `Proto_UI::SendEnterWorld`): the event queue starts
+//! entering the world, ordered stamps restart, `EnterWorld` goes on queue 4; the server's
+//! `CreatePlayer` finishes entering (`GlobalEventHandler::RecvEvt_CreatePlayer`); the player's
+//! `CreateObject` places it. Once the scene has drawn, `SceneRenderingComplete` goes on queue 3
+//! (`gmGamePlayUI::RecvNotice_NextFrameDrawn`). Leaving: `LogOffCharacter` on queue 4
+//! (`gmGamePlayUI::EndSession`), the server's `CharExitGame`, then the transport logoff.
+
 use std::net::SocketAddr;
 use std::time::{Duration, Instant};
 
 use ac2_net::protocol::{
-    CellPosition, CharacterSet, ClientEvent, CreateObject, ServerEvent, QUEUE_EVENTS,
+    interrogation_response, Build, CellPosition, CharacterSet, ClientEvent, DatEvent, ServerEvent,
+    QUEUE_DAT, QUEUE_EVENTS,
 };
 use ac2_net::{Credential, Logon, NetClient, NetClientConfig, NetError, NetEvent};
 
 use crate::objects::ObjectTable;
-use crate::reporter::PositionReporter;
+use crate::reporter::{BodyState, PositionReporter};
+use crate::world::{World, WorldEvent, WorldState};
 
 /// Which listed character to enter the world with.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -22,10 +34,10 @@ pub struct OnlineConfig {
     pub server: SocketAddr,
     pub account: String,
     pub credential: Credential,
-    /// Data version sent in the logon; servers accept the builds they support (e.g. `7148`).
+    /// Data version sent in the logon: `ac2_net::LEGIONS_VERSION` (`"7160"`) for the DVD
+    /// client; servers that only accept the admin build take `"7148"`.
     pub version: String,
     pub character: CharacterChoice,
-    pub connect_timeout: Duration,
 }
 
 /// Where the player entered the world.
@@ -54,20 +66,12 @@ pub enum SessionEvent {
     ObjectAdded(u64),
     ObjectMoved(u64),
     ObjectRemoved(u64),
+    /// The character left the world (`CharExitGame`).
+    LeftWorld,
     /// The server refused something; the session may continue.
     Rejected(String),
     /// The session ended.
     Disconnected(String),
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Phase {
-    Connecting,
-    Selecting,
-    Entering { character: u64 },
-    Spawning { player: u64 },
-    InWorld { player: u64 },
-    Closed,
 }
 
 /// The client side of one online session.
@@ -75,15 +79,17 @@ pub struct OnlineSession {
     client: NetClient,
     account: String,
     choice: CharacterChoice,
-    phase: Phase,
-    objects: ObjectTable,
+    world: World,
     reporter: Option<PositionReporter>,
+    entered: bool,
     scene_ready_sent: bool,
+    closed: bool,
 }
 
 impl OnlineSession {
     /// Starts the logon; progress arrives from [`OnlineSession::poll`].
     pub fn connect(config: OnlineConfig) -> Result<Self, NetError> {
+        let build = Build::from_version(&config.version);
         let client = NetClient::connect(NetClientConfig {
             server: config.server,
             logon: Logon {
@@ -97,27 +103,30 @@ impl OnlineSession {
             client,
             account: config.account,
             choice: config.character,
-            phase: Phase::Connecting,
-            objects: ObjectTable::default(),
+            world: World::new(build),
             reporter: None,
+            entered: false,
             scene_ready_sent: false,
+            closed: false,
         })
     }
 
     pub fn objects(&self) -> &ObjectTable {
-        &self.objects
+        &self.world.objects
     }
 
-    /// The player's object id once in (or entering) the world.
+    /// The player's object id once entering the world.
     pub fn player(&self) -> Option<u64> {
-        match self.phase {
-            Phase::Spawning { player } | Phase::InWorld { player } => Some(player),
-            _ => None,
-        }
+        self.world.player()
     }
 
     pub fn is_closed(&self) -> bool {
-        self.phase == Phase::Closed
+        self.closed
+    }
+
+    /// The server clock (`Timer::cur_time`).
+    pub fn cur_time(&self) -> f64 {
+        self.client.net().timer().cur_time()
     }
 
     fn send(&mut self, event: ClientEvent) {
@@ -125,7 +134,7 @@ impl OnlineSession {
         self.client.send(queue, bytes);
     }
 
-    /// Processes everything the server sent since the last call.
+    /// One frame: everything the server sent since the last call.
     pub fn poll(&mut self) -> Vec<SessionEvent> {
         let mut out = Vec::new();
         for event in self.client.poll() {
@@ -134,213 +143,215 @@ impl OnlineSession {
         out
     }
 
-    /// Polls until the player is in the world, or fails after `timeout`.
+    /// Runs frames until the player is in the world, or fails after `timeout`.
     pub fn wait_for_world(&mut self, timeout: Duration) -> Result<WorldEntry, String> {
         let deadline = Instant::now() + timeout;
-        loop {
-            let remaining = deadline.saturating_duration_since(Instant::now());
-            if remaining.is_zero() {
-                return Err("timed out waiting for world entry".into());
-            }
-            let Some(event) = self
-                .client
-                .next_event(remaining.min(Duration::from_millis(100)))
-            else {
-                continue;
-            };
-            let mut events = Vec::new();
-            self.handle(event, &mut events);
-            for event in events {
+        while Instant::now() < deadline {
+            for event in self.poll() {
                 match event {
                     SessionEvent::EnteredWorld(entry) => return Ok(entry),
                     SessionEvent::Disconnected(reason) => return Err(reason),
-                    SessionEvent::Rejected(reason) if self.phase == Phase::Closed => {
-                        return Err(reason)
-                    }
+                    SessionEvent::Rejected(reason) if self.closed => return Err(reason),
                     _ => {}
                 }
             }
+            std::thread::sleep(Duration::from_millis(10));
         }
+        Err("timed out waiting for world entry".into())
     }
 
     fn handle(&mut self, event: NetEvent, out: &mut Vec<SessionEvent>) {
         match event {
-            NetEvent::Connected { .. } => {
-                self.phase = Phase::Selecting;
-                out.push(SessionEvent::Connected);
-            }
-            NetEvent::TimeSync(_) | NetEvent::LoggedOn | NetEvent::ServerSwitch { .. } => {}
+            NetEvent::Connected { .. } => out.push(SessionEvent::Connected),
+            NetEvent::LoggedOn | NetEvent::TimeSync(_) | NetEvent::ServerSwitch { .. } => {}
             NetEvent::Disconnected(error) => {
-                self.phase = Phase::Closed;
+                self.closed = true;
                 out.push(SessionEvent::Disconnected(error.to_string()));
             }
-            NetEvent::Blob(blob) => match ServerEvent::decode(&blob.data) {
-                Ok(event) => self.handle_event(event, blob.queue, out),
-                Err(error) => {
-                    let opcode = blob
-                        .data
-                        .get(..4)
-                        .map_or(0, |b| u32::from_le_bytes([b[0], b[1], b[2], b[3]]));
-                    out.push(SessionEvent::Rejected(format!(
-                        "undecoded event {opcode:#010x} on queue {}: {error}",
-                        blob.queue
-                    )));
+            NetEvent::Blob(blob) if blob.queue == QUEUE_EVENTS => {
+                let cur_time = self.cur_time();
+                for event in self.world.receive(blob, cur_time) {
+                    self.handle_world(event, out);
                 }
-            },
+            }
+            NetEvent::Blob(blob) if blob.queue == QUEUE_DAT => {
+                // `CLCache::UseTime`: data-download events. This client patches no DATs, so an
+                // interrogation is answered with no iteration lists (retail lists each DAT).
+                if let Ok(ServerEvent::Dat(DatEvent::Interrogation(_))) =
+                    ServerEvent::decode(&blob.data, Build::default())
+                {
+                    let response = interrogation_response(0, &[]);
+                    self.client.net_mut().send_dat_event(response);
+                }
+            }
+            // Queue 2 is discarded and queue 4 carries chat (`ProcessLogonEventQueue`).
+            NetEvent::Blob(_) => {}
         }
     }
 
-    fn handle_event(&mut self, event: ServerEvent, queue: u16, out: &mut Vec<SessionEvent>) {
-        match event {
-            ServerEvent::CharacterSet(set) if queue == QUEUE_EVENTS => {
-                let chosen = set
-                    .characters
-                    .iter()
-                    .find(|character| match &self.choice {
-                        CharacterChoice::First => true,
-                        CharacterChoice::Name(name) => character.name.eq_ignore_ascii_case(name),
-                        CharacterChoice::Id(id) => character.id == *id,
-                    })
-                    .map(|character| character.id);
-                out.push(SessionEvent::Characters(set));
-                if self.phase != Phase::Selecting {
-                    return;
-                }
-                match chosen {
-                    Some(character) => {
-                        self.send(ClientEvent::EnterWorld {
-                            character,
-                            account: self.account.clone(),
-                        });
-                        self.phase = Phase::Entering { character };
-                        out.push(SessionEvent::Entering(character));
-                    }
-                    None => {
-                        self.phase = Phase::Closed;
-                        out.push(SessionEvent::Rejected(format!(
-                            "no character matching {:?} on this account",
-                            self.choice
-                        )));
-                    }
-                }
+    fn handle_world(&mut self, event: WorldEvent, out: &mut Vec<SessionEvent>) {
+        let event = match event {
+            WorldEvent::Dispatched(event) => event,
+            WorldEvent::Undecoded { opcode, error } => {
+                out.push(SessionEvent::Rejected(format!(
+                    "undecoded event {opcode:#010x}: {error}"
+                )));
+                return;
             }
+            WorldEvent::ForceCreate(object) => {
+                self.send(ClientEvent::ForceCreate { object });
+                return;
+            }
+        };
+        match event {
+            ServerEvent::CharacterSet(set) => self.choose_character(set, out),
             ServerEvent::CharacterError(reason) => {
-                if let Phase::Entering { .. } = self.phase {
-                    self.phase = Phase::Closed;
+                if self.world.state() == WorldState::EnteringWorld {
+                    self.world.leave_world();
                 }
                 out.push(SessionEvent::Rejected(format!("character error {reason}")));
             }
-            ServerEvent::CreatePlayer { id, .. } => {
-                self.objects.clear();
-                self.phase = Phase::Spawning { player: id };
-            }
-            ServerEvent::CreateObject(object) => self.create_object(&object, out),
-            ServerEvent::UpdatePosition(update) => {
-                if Some(update.id) == self.player() {
-                    if let Some(reporter) = self.reporter.as_mut() {
-                        // Adopt the server's forced-position and teleport stamps.
-                        reporter.stamps[2] = update.stamps[1];
-                        reporter.stamps[1] = update.stamps[2];
+            ServerEvent::CreateObject(object) => {
+                if Some(object.id) == self.world.player() {
+                    if !self.entered {
+                        if let Some(position) = object.physics.position {
+                            self.entered = true;
+                            self.reporter = Some(PositionReporter::new(0));
+                            out.push(SessionEvent::EnteredWorld(WorldEntry {
+                                player: object.id,
+                                instance: object.physics.instance_stamp,
+                                position: CellPosition {
+                                    cell: position.cell,
+                                    origin: position.origin,
+                                },
+                                orientation: position.rotation,
+                                visual: object.visual.parent,
+                            }));
+                        }
                     }
+                } else {
+                    out.push(SessionEvent::ObjectAdded(object.id));
+                }
+            }
+            ServerEvent::UpdatePosition(update) | ServerEvent::PositionCell(update) => {
+                if Some(update.sender.id) == self.world.player() {
                     out.push(SessionEvent::PlayerMoved {
                         position: update.position,
                         heading_degrees: update.heading_degrees,
                     });
-                } else if self.objects.update(&update) {
-                    out.push(SessionEvent::ObjectMoved(update.id));
+                } else {
+                    out.push(SessionEvent::ObjectMoved(update.sender.id));
                 }
             }
-            ServerEvent::DestroyObject { id, instance } => {
-                if self.objects.destroy(id, instance) {
-                    out.push(SessionEvent::ObjectRemoved(id));
-                }
-            }
+            ServerEvent::DestroyObject(sender) => out.push(SessionEvent::ObjectRemoved(sender.id)),
             ServerEvent::CharExitGame => {
-                self.objects.clear();
+                self.world.leave_world();
                 self.reporter = None;
+                self.entered = false;
                 self.scene_ready_sent = false;
-                self.phase = Phase::Selecting;
+                out.push(SessionEvent::LeftWorld);
             }
             _ => {}
         }
     }
 
-    fn create_object(&mut self, object: &CreateObject, out: &mut Vec<SessionEvent>) {
-        if let Phase::Spawning { player } = self.phase {
-            if object.id == player {
-                if let Some((position, orientation)) = object.physics.position {
-                    self.reporter = Some(PositionReporter::new(
-                        object.physics.instance_stamp,
-                        Instant::now(),
-                    ));
-                    self.phase = Phase::InWorld { player };
-                    out.push(SessionEvent::EnteredWorld(WorldEntry {
-                        player,
-                        instance: object.physics.instance_stamp,
-                        position,
-                        orientation,
-                        visual: object.visual.parent,
-                    }));
-                }
-                return;
-            }
-        }
-        if Some(object.id) == self.player() {
+    /// `gmCharacterSelectionUI` picking a character, then `Proto_UI::SendEnterWorld`.
+    fn choose_character(&mut self, set: CharacterSet, out: &mut Vec<SessionEvent>) {
+        let chosen = set
+            .characters
+            .iter()
+            .find(|c| match &self.choice {
+                CharacterChoice::First => true,
+                CharacterChoice::Name(name) => c.name.eq_ignore_ascii_case(name),
+                CharacterChoice::Id(id) => c.id == *id,
+            })
+            .map(|c| c.id);
+        out.push(SessionEvent::Characters(set));
+        if self.world.state() != WorldState::NotInWorld {
             return;
         }
-        self.objects.create(object);
-        out.push(SessionEvent::ObjectAdded(object.id));
+        match chosen {
+            Some(character) => {
+                self.world.start_entering_world();
+                self.client.net_mut().enter_world();
+                let account = self.account.clone();
+                self.send(ClientEvent::EnterWorld { character, account });
+                out.push(SessionEvent::Entering(character));
+            }
+            None => {
+                self.closed = true;
+                out.push(SessionEvent::Rejected(format!(
+                    "no character matching {:?} on this account",
+                    self.choice
+                )));
+            }
+        }
     }
 
-    /// Tells the server the scene around the player is loaded, once per world entry. The
-    /// server publishes the player to others only after this.
+    /// `gmGamePlayUI::RecvNotice_NextFrameDrawn`: the scene around the player has drawn; once
+    /// per world entry.
     pub fn scene_ready(&mut self) {
-        if matches!(self.phase, Phase::InWorld { .. }) && !self.scene_ready_sent {
+        if self.entered && !self.scene_ready_sent {
             self.scene_ready_sent = true;
             self.send(ClientEvent::SceneRenderingComplete);
         }
     }
 
-    /// Reports the player's body state; sent only when it changed enough (see
-    /// [`PositionReporter`]).
-    pub fn report_position(
-        &mut self,
-        position: CellPosition,
-        heading_degrees: f32,
-        motion: [f32; 3],
-        jump_velocity: Option<[f32; 3]>,
-    ) {
-        if !self.scene_ready_sent {
-            return;
-        }
-        let Some(reporter) = self.reporter.as_mut() else {
+    /// `PlayerMovementModule::UseTime`: report the player's body when retail would.
+    pub fn report_body(&mut self, body: &BodyState) {
+        let cur_time = self.cur_time();
+        let Some(report) = self
+            .reporter
+            .as_mut()
+            .and_then(|r| r.report(cur_time, body))
+        else {
             return;
         };
-        if let Some(report) = reporter.report(
-            Instant::now(),
-            position,
-            heading_degrees,
-            motion,
-            jump_velocity,
-        ) {
-            self.send(ClientEvent::Position(report));
+        self.send(ClientEvent::Position(report));
+    }
+
+    /// `PlayerMovementModule::SendLookAtEvent`.
+    pub fn report_head(&mut self, looking_at_object: bool, head: (f32, f32)) {
+        let cur_time = self.cur_time();
+        if let Some((x, y)) = self
+            .reporter
+            .as_mut()
+            .and_then(|r| r.look(cur_time, looking_at_object, head))
+        {
+            self.send(ClientEvent::LookAtDir { x, y });
         }
     }
 
-    /// Leaves the world (if in it) and closes the connection.
-    pub fn log_off(&mut self) {
-        if let Some(character) = self.player() {
+    /// `gmGamePlayUI::EndSession` (`LogOffCharacter`), the server's `CharExitGame` for up to
+    /// `wait`, then `ClientNet::LogOffServer`. Returns whether the character left the world.
+    pub fn log_off(&mut self, wait: Duration) -> bool {
+        let mut left = false;
+        if let (Some(character), true) = (self.world.player(), self.entered) {
             self.send(ClientEvent::LogOffCharacter { character });
+            let deadline = Instant::now() + wait;
+            'wait: while Instant::now() < deadline && !self.closed {
+                for event in self.poll() {
+                    left |= event == SessionEvent::LeftWorld;
+                    if matches!(
+                        event,
+                        SessionEvent::LeftWorld | SessionEvent::Disconnected(_)
+                    ) {
+                        break 'wait;
+                    }
+                }
+                std::thread::sleep(Duration::from_millis(10));
+            }
         }
-        self.phase = Phase::Closed;
+        self.closed = true;
         self.client.disconnect();
+        left
     }
 }
 
 impl Drop for OnlineSession {
     fn drop(&mut self) {
-        if self.phase != Phase::Closed {
-            self.log_off();
+        if !self.closed {
+            self.log_off(Duration::from_secs(1));
         }
     }
 }

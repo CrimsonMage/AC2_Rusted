@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 197 done, 14 partial, 345 to do, 0 skipped.
+556 retail functions: 200 done, 14 partial, 342 to do, 0 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -558,16 +558,16 @@ Legend and workflow: [README](README.md).
 - [ ] `RemoveLinkStatusPlugin` · 004ca2b0 · legions 004be890
 - [ ] `AddLinkStatusPlugin` · 004ca2e0 · legions 004be8c0
 
-## `portal/client/src/clinet/pui.cpp.c` (2/8)
+## `portal/client/src/clinet/pui.cpp.c` (5/8)
 
 ### Proto_UI
 - [~] `Proto_UI::SendBlob` · 004c9b70 · legions 004be150 — queues 6-8 are not RC4-encrypted (no session key)
 - [x] `Proto_UI::SetOrderingStamp` · 004c9c10 · legions 004be1f0
 - [x] `Proto_UI::SendBuff` · 004c9c20 · legions 004be200
-- [ ] `Proto_UI::LogOffCharacter` · 004c9d10 · legions 004be2f0
+- [x] `Proto_UI::LogOffCharacter` · 004c9d10 · legions 004be2f0
 - [ ] `Proto_UI::SendCharGenResult` · 004c9d40 · legions 004be320
-- [ ] `Proto_UI::SendDeleteCharacter` · 004c9e00 · legions 004be3e0
-- [ ] `Proto_UI::SendEnterWorld` · 004c9e70 · legions 004be450
+- [x] `Proto_UI::SendDeleteCharacter` · 004c9e00 · legions 004be3e0
+- [x] `Proto_UI::SendEnterWorld` · 004c9e70 · legions 004be450
 - [ ] `Proto_UI::SendAdminRestoreCharacter` · 004c9ef0 · legions 004be4d0
 
 ## `portal/client/src/http/connectioncache.cpp.c` (0/8)

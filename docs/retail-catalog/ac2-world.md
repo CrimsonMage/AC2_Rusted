@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 75 done, 5 partial, 766 to do, 143 skipped.
+989 retail functions: 76 done, 5 partial, 765 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (3/140)
@@ -249,7 +249,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::FlushCellGroups` · 004876a0 · legions 00480ed0
 - [ ] `CEnvCell::flush_cells` · 00487750 · legions 00480f80
 
-## `portal/shared/src/cell/landblock.cpp.c` (10/72)
+## `portal/shared/src/cell/landblock.cpp.c` (11/72)
 
 ### LandDefs
 - [ ] `LandDefs::GetBlockOffset` · 00488140 · legions 00481970
@@ -339,7 +339,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CLandBlock::DoIntersection` · 0048a7e0 · legions 00484090
 
 ### PSmartArray<InstanceID>
-- [ ] `PSmartArray<InstanceID>::StreamPack` · 0048a9c0
+- [x] `PSmartArray<InstanceID>::StreamPack` · 0048a9c0
 
 ### CLandBlock
 - [ ] `CLandBlock::~CLandBlock` · 0048ab10 · legions 004843c0

@@ -8,11 +8,14 @@ key	status	note
 00403030	x	
 004042f0	x	
 00406cb0	x	
+004079b0	~	OnlineSession::scene_ready, called by the client once the scene draws
+00408e90	~	LogOffCharacter only; no UI or game-option upload
 00409960	x	
 00409990	x	
 00409a80	x	
 00409ab0	x	
 00409be0	x	
+00409e00	x	
 0047bed0	x	
 0047cd90	x	
 0047f410	x	
@@ -23,6 +26,7 @@ key	status	note
 00489160	x	
 00489230	~	ported; CLandCell::CheckRadius per-cell test not re-verified
 0048a160	x	
+0048a9c0	x	
 0048abb0	x	
 0048ace0	x	
 0048ad70	x	
@@ -39,7 +43,68 @@ key	status	note
 0048f980	x	
 0048fe10	~	vertex normals and terrain SurfaceInfo; not far colours or water
 004907a0	~	road SurfaceInfo; not physics materials or scene DIDs
+00492cb0	x	
+00492ce0	x	
+00492d20	x	
+004933b0	x	
+004933c0	x	
+00493410	x	
+00493500	x	
+00493520	x	
+00493b30	x	
+00493c50	x	
+00493d30	x	
+00493de0	x	
+00493f60	x	
+00493f80	x	
+00494010	~	every opcode routed; quality, interpreter and admin events kept as raw bodies
+004946a0	x	
+004946d0	x	
+00494720	x	
+00494810	x	
+00494890	x	
+00494960	x	
+00494a00	x	
+00494a70	x	
+00494b00	x	
+00494b10	x	
+00494f30	x	
+00494fb0	x	
+00495060	x	
+00495100	x	
+004951f0	x	
+00495260	x	
+00495360	x	
+00495420	x	
+004954e0	x	
+00495710	x	
+00495a00	x	
+00495ac0	x	
+00495b80	x	
+00495c80	x	
+00495da0	x	
+00495ea0	x	
+00495fa0	x	
+00496060	x	
+00496120	x	
+004961e0	x	
+004962a0	x	
+00496360	x	
+00496420	x	
+004964e0	x	
+00496560	x	
+00496620	x	
+004966e0	x	
+004967a0	x	
+00496820	x	
+00496910	x	
+00496980	x	
+004969f0	x	
+00496a90	x	
+00496b00	x	
+00497a00	x	
 0049ce40	x	
+004bfeb0	~	answered with an empty iteration list (no DAT history)
 004c4f10	~	no CryptoAPI session key: auth flag bit 0 never set, crypto blob empty
 004c4f80	x	
 004c4ff0	x	
@@ -107,6 +172,9 @@ key	status	note
 004c9b70	~	queues 6-8 are not RC4-encrypted (no session key)
 004c9c10	x	
 004c9c20	x	
+004c9d10	x	
+004c9e00	x	
+004c9e70	x	
 004ca310	x	
 004ca320	x	
 004ca340	x	
@@ -210,6 +278,29 @@ key	status	note
 004cee60	x	
 004cee90	x	
 004ceeb0	x	
+004d5720	x	
+004d7e80	x	
+004d8820	x	
+004d8a40	~	visual-queue release and queued-event replay only; no CPhysicsObj built
+004d9150	~	visual-queue release and queued-event replay only; no CPhysicsObj built
+004d98b0	x	
+004d98e0	x	
+004d99c0	~	creation is immediate (no async entity loading); parent/stamp/update rules kept
+004d9b00	x	
+004d9c00	x	
+004d9e90	x	
+004d9f10	x	
+004d9f30	x	
+004da200	x	
+004da2e0	x	
+004da320	x	
+004da550	x	
+004da590	x	
+004da5d0	x	
+004da700	x	
+004da7b0	x	
+004eb8b0	x	
+005083f0	_	
 00522380	x	
 00522520	x	
 00522580	x	
@@ -222,6 +313,10 @@ key	status	note
 00525d30	x	
 00525d90	x	
 00525f70	x	
+00568ea0	x	
+00569020	x	
+00569200	x	
+005692e0	x	
 0056b1c0	x	
 005835c0	x	
 00583890	x	
@@ -242,18 +337,32 @@ key	status	note
 005919d0	x	
 00591a40	x	
 005b75b0	x	
+006037c0	x	
 006169c0	x	
+0061a940	~	wire quantizer in ac2-net protocol::position (ac2-math has no Heading yet)
+0061aaf0	~	wire quantizer in ac2-net protocol::position (ac2-math has no Heading yet)
+0061ab80	~	in ac2-weenie reporter (ac2-math has no Heading yet)
+0061acb0	~	in ac2-weenie reporter (ac2-math has no Heading yet)
+0061ad80	~	in ac2-weenie reporter (ac2-math has no Heading yet)
+0061c710	x	
 0061ef30	x	
+006200b0	x	
 00620e20	x	
+00620e60	~	wire quantizer in ac2-net protocol::position
+00620f70	~	wire quantizer in ac2-net protocol::position
 00621380	x	
 00621390	x	
 00621410	x	
+006258e0	x	
+00625930	x	
 00628460	x	
 00628580	x	
 006290f0	x	
 006292a0	x	
 006294f0	x	
 00629d60	x	
+0062acf0	x	
+0062ae10	x	
 0063a540	x	
 0063a560	x	
 0063a580	x	
@@ -293,13 +402,30 @@ key	status	note
 0063c310	x	
 0063c340	x	
 0063c410	x	
+0063d7f0	~	part-group FX overrides (FXData/FXNode) refused as unsupported
+0063fb80	x	
+00640190	x	
+006406a0	x	
+00640f40	x	
+006410e0	x	
+00641530	x	
+006443c0	~	m_fx_overrides (FXData/FXNode) refused as unsupported
+0064a5b0	x	
 0064b540	x	
 0064b620	x	
 0064b660	x	
+0064c170	x	
+00651b20	x	
+00652db0	x	
 0065a4a0	x	
-0065a510	x	
-0065a580	x	
+0065a510	_	
+0065a580	_	
 0065a5a0	x	
+0065b1e0	x	
+0065b210	x	
+0065b3c0	x	
+0065b480	x	
+0065b5b0	x	
 0065f3d0	x	
 0065fee0	x	
 0065ff80	x	
@@ -308,10 +434,19 @@ key	status	note
 006603e0	x	
 006606a0	x	
 006606e0	x	
+00662120	_	
+00679220	x	
+0067cfb0	x	
+0069bd90	x	
+0069be20	x	
+0069bfd0	x	
+0069c060	x	
+0069fed0	x	
 006b2ee0	x	
 006b2ff0	x	
 006b3700	x	
 006b3770	x	
+006baa40	_	
 006bc900	x	
 006bc940	x	
 006bc960	x	
@@ -355,4 +490,20 @@ key	status	note
 006c5910	x	
 006c59d0	x	
 006c8d90	~	decoded; field order after m_nDirectHeading not re-verified
+006da360	x	
+006da480	~	layout only; the client sends no DAT iteration lists
+006da500	x	
+006da550	x	
+006da600	~	layout only; the client sends no DAT iteration lists
+006da680	x	
+006da7b0	x	
+006db0f0	x	
+006db450	x	
+006db7f0	x	
+0071fa40	x	
+0071fab0	x	
+0071fb10	~	chat (0x100d3) recognised, not handed to a chat client
+0071fc50	~	queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
+00723280	x	
+007269d0	x	
 DB_TYPE_SURFACE_DESC	x	

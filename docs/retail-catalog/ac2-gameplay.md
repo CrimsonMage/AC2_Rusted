@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 0 done, 0 partial, 490 to do, 9 skipped.
+499 retail functions: 3 done, 0 partial, 487 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
@@ -534,7 +534,7 @@ Legend and workflow: [README](README.md).
 ### ConversationTree
 - [-] `ConversationTree::FromFileNode` · 006badd0 — text source format (admin tools)
 
-## `portal/shared/src/gameplay/character/characteridentity.cpp.c` (0/4)
+## `portal/shared/src/gameplay/character/characteridentity.cpp.c` (1/4)
 
 ### Preference
 - [ ] `Preference::SetHelpText` · 006db020 · legions 00664490
@@ -542,9 +542,9 @@ Legend and workflow: [README](README.md).
 ### CharacterIdentity
 - [ ] `CharacterIdentity::CharacterIdentity` · 006db030 · legions 006644a0
 - [ ] `CharacterIdentity::operator=` · 006db080 · legions 006644f0
-- [ ] `CharacterIdentity::StreamPack` · 006db0f0 · legions 00664560
+- [x] `CharacterIdentity::StreamPack` · 006db0f0 · legions 00664560
 
-## `portal/shared/src/gameplay/character/characterset.cpp.c` (0/14)
+## `portal/shared/src/gameplay/character/characterset.cpp.c` (2/14)
 
 ### CharacterSet
 - [ ] `CharacterSet::WhichSlot` · 006db150 · legions 006645c0
@@ -557,7 +557,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CharacterSet::IncludesIdentity` · 006db430 · legions 006648b0
 
 ### PSmartArray<CharacterIdentity>
-- [ ] `PSmartArray<CharacterIdentity>::StreamPack` · 006db450 · legions 006648d0
+- [x] `PSmartArray<CharacterIdentity>::StreamPack` · 006db450 · legions 006648d0
 
 ### SmartArray<CharacterIdentity>
 - [ ] `SmartArray<CharacterIdentity>::AddToEnd` · 006db520 · legions 006649a0
@@ -566,7 +566,7 @@ Legend and workflow: [README](README.md).
 ### CharacterSet
 - [ ] `CharacterSet::operator=` · 006db620 · legions 00664aa0
 - [ ] `CharacterSet::AddIdentity` · 006db7a0 · legions 00664c30
-- [ ] `CharacterSet::StreamPack` · 006db7f0
+- [x] `CharacterSet::StreamPack` · 006db7f0
 
 ## `portal/shared/src/gameplay/qualities/basequalities.cpp.c` (0/66)
 

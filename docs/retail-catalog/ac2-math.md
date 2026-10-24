@@ -1,14 +1,14 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 11 done, 0 partial, 375 to do, 40 skipped.
+426 retail functions: 17 done, 7 partial, 362 to do, 40 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/geometry/aframe.cpp.c` (0/5)
+## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
 
 ### AFrame
 - [ ] `AFrame::Pack` · 0062ac90 · legions 005e4d70
-- [ ] `AFrame::IsValid` · 0062acf0 · legions 005e4dd0
-- [ ] `AFrame::UnPack` · 0062ae10 · legions 005e4ef0
+- [x] `AFrame::IsValid` · 0062acf0 · legions 005e4dd0
+- [x] `AFrame::UnPack` · 0062ae10 · legions 005e4ef0
 - [-] `AFrame::FromFileNode` · 0062ae80 — text source format (admin tools)
 - [-] `AFrame::ToFileNode` · 0062afd0 — text source format (admin tools)
 
@@ -188,7 +188,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Heading::get_degrees_0_centered` · 0061a8f0 · legions 005d6550
 - [ ] `Heading::get_radians` · 0061a910 · legions 005d6570
 - [ ] `Heading::get_radians_0_centered` · 0061a920 · legions 005d6580
-- [ ] `Heading::ToUInt8` · 0061a940 · legions 005d65a0
+- [~] `Heading::ToUInt8` · 0061a940 · legions 005d65a0 — wire quantizer in ac2-net protocol::position (ac2-math has no Heading yet)
 - [ ] `Heading::Heading` · 0061a960 · legions 005d65c0
 - [ ] `Heading::operator=` · 0061a980 · legions 005d65e0
 
@@ -199,14 +199,14 @@ Legend and workflow: [README](README.md).
 ### Heading
 - [ ] `Heading::set` · 0061aa30 · legions 005d6690
 - [ ] `Heading::set_degrees` · 0061aaa0 · legions 005d6700
-- [ ] `Heading::FromUInt8` · 0061aaf0 · legions 005d6750
+- [~] `Heading::FromUInt8` · 0061aaf0 · legions 005d6750 — wire quantizer in ac2-net protocol::position (ac2-math has no Heading yet)
 - [ ] `Heading::Heading` · 0061ab50 · legions 005d67b0
 - [ ] `Heading::Heading` · 0061ab60 · legions 005d67c0
-- [ ] `Heading::abs` · 0061ab80 · legions 005d67e0
+- [~] `Heading::abs` · 0061ab80 · legions 005d67e0 — in ac2-weenie reporter (ac2-math has no Heading yet)
 - [ ] `Heading::lerp` · 0061abf0 · legions 005d6850
-- [ ] `Heading::is_in_range` · 0061acb0 · legions 005d6910
+- [~] `Heading::is_in_range` · 0061acb0 · legions 005d6910 — in ac2-weenie reporter (ac2-math has no Heading yet)
 - [ ] `Heading::is_inside` · 0061ad30 · legions 005d6990
-- [ ] `Heading::equals` · 0061ad80 · legions 005d69e0
+- [~] `Heading::equals` · 0061ad80 · legions 005d69e0 — in ac2-weenie reporter (ac2-math has no Heading yet)
 - [ ] `Heading::is_zero` · 0061add0 · legions 005d6a30
 - [ ] `Heading::ToPString` · 0061ae20 · legions 005d6a80
 - [ ] `Heading::ToWPString` · 0061b2e0 · legions 005d6f40
@@ -378,7 +378,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPortalPoly::StreamPack` · 0072f890 · legions 006ad130
 - [-] `CPortalPoly::FromFileNode` · 0072f930 — text source format (admin tools)
 
-## `portal/shared/src/geometry/position.cpp.c` (0/36)
+## `portal/shared/src/geometry/position.cpp.c` (1/36)
 
 ### Position
 - [ ] `Position::Position` · 0061fd70 · legions 005db6b0
@@ -391,7 +391,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Position::determine_quadrant` · 0061ffa0 · legions 005db8e0
 - [ ] `Position::GetPackSize` · 00620060 · legions 005db9a0
 - [ ] `Position::Pack` · 00620070 · legions 005db9b0
-- [ ] `Position::UnPack` · 006200b0 · legions 005db9f0
+- [x] `Position::UnPack` · 006200b0 · legions 005db9f0
 - [ ] `Position::cylinder_distance` · 006200f0 · legions 005dba30
 - [ ] `Position::cylinder_distance_squared` · 00620190 · legions 005dbad0
 - [ ] `Position::IsValid` · 00620230 · legions 005dbb70
@@ -428,17 +428,17 @@ Legend and workflow: [README](README.md).
 - [-] `Position::FromFileNode` · 00620d20 — text source format (admin tools)
 - [-] `Position::ToFileNode` · 00620db0 — text source format (admin tools)
 
-## `portal/shared/src/geometry/positionoffset.cpp.c` (0/6)
+## `portal/shared/src/geometry/positionoffset.cpp.c` (2/6)
 
 ### PositionOffset
 - [ ] `PositionOffset::ToPosition` · 00625860 · legions 005e0a40
-- [ ] `PositionOffset::FromPosition` · 006258e0 · legions 005e0ac0
+- [x] `PositionOffset::FromPosition` · 006258e0 · legions 005e0ac0
 - [ ] `PositionOffset::PositionOffset` · 00625900 · legions 005e0ae0
-- [ ] `PositionOffset::StreamPack` · 00625930 · legions 005e0b10
+- [x] `PositionOffset::StreamPack` · 00625930 · legions 005e0b10
 - [-] `PositionOffset::FromFileNode` · 00625980 — text source format (admin tools)
 - [-] `PositionOffset::ToFileNode` · 00625b60 — text source format (admin tools)
 
-## `portal/shared/src/geometry/quaternion.cpp.c` (0/11)
+## `portal/shared/src/geometry/quaternion.cpp.c` (1/11)
 
 ### Quaternion
 - [ ] `Quaternion::rotate` · 0061c210 · legions 005d7e70
@@ -449,7 +449,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Quaternion::Pack` · 0061c640 · legions 005d82a0
 - [ ] `Quaternion::SetRotationAxesAndNormalize` · 0061c680 · legions 005d82e0
 - [ ] `Quaternion::SetRotationAxes` · 0061c700 · legions 005d8360
-- [ ] `Quaternion::UnPack` · 0061c710 · legions 005d8370
+- [x] `Quaternion::UnPack` · 0061c710 · legions 005d8370
 - [-] `Quaternion::ToFileNode` · 0061c850 — text source format (admin tools)
 - [-] `Quaternion::FromFileNode` · 0061c8c0 · legions 005d84b0 — text source format (admin tools)
 
@@ -598,9 +598,9 @@ Legend and workflow: [README](README.md).
 
 ### Vector
 - [x] `Vector::FromSpherical` · 00620e20 · legions 005dc5c0
-- [ ] `Vector::UnitVectorFromUInt24` · 00620e60 · legions 005dc600
+- [~] `Vector::UnitVectorFromUInt24` · 00620e60 · legions 005dc600 — wire quantizer in ac2-net protocol::position
 - [-] `Vector::ToFileNode` · 00620ed0 · legions 005dc670 — text source format (admin tools)
-- [ ] `Vector::UnitVectorToUInt24` · 00620f70 · legions 005dc710
+- [~] `Vector::UnitVectorToUInt24` · 00620f70 · legions 005dc710 — wire quantizer in ac2-net protocol::position
 - [-] `Vector::FromFileNode` · 00621090 · legions 005dc830 — text source format (admin tools)
 - [ ] `Vector::GetString` · 00621160 · legions 005dc900
 - [ ] `Vector::GetStringW` · 00621190 · legions 005dc930

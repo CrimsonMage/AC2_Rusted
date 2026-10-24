@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 1 done, 0 partial, 2063 to do, 60 skipped.
+2124 retail functions: 7 done, 0 partial, 2057 to do, 60 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (0/9)
@@ -689,7 +689,7 @@ Legend and workflow: [README](README.md).
 ### CHILDLIST
 - [ ] `CHILDLIST::AddChild` · 004edc80 · legions 004e05f0
 
-## `portal/shared/src/physobj/collision/collideproperty.cpp.c` (0/16)
+## `portal/shared/src/physobj/collision/collideproperty.cpp.c` (1/16)
 
 ### CollideProperty
 - [ ] `CollideProperty::GetPropertyName` · 0069fe80 · legions 0063ccf0
@@ -703,7 +703,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CollideProperty::IsSame` · 0069fec0 · legions 0063cd30
 
 ### CEventQueue
-- [ ] `CEventQueue::StartEnteringWorld` · 0069fed0 · legions 0063cd40
+- [x] `CEventQueue::StartEnteringWorld` · 0069fed0 · legions 0063cd40
 
 ### CollideProperty
 - [ ] `CollideProperty::SetAsChange` · 0069fef0 · legions 0063cd60
@@ -1978,15 +1978,15 @@ Legend and workflow: [README](README.md).
 - [ ] `MissileTargetingParameters::SetAlwaysStartTowardTarget` · 006abc70 · legions 00644b90
 - [ ] `MissileTargetingParameters::CopyInto` · 006abc80 · legions 00644ba0
 
-## `portal/shared/src/physobj/packclasses.cpp.c` (0/4)
+## `portal/shared/src/physobj/packclasses.cpp.c` (4/4)
 
 ### PositionPack
-- [ ] `PositionPack::PositionPack` · 0069bd90 · legions 0063a7b0
-- [ ] `PositionPack::StreamPack` · 0069be20 · legions 0063a840
+- [x] `PositionPack::PositionPack` · 0069bd90 · legions 0063a7b0
+- [x] `PositionPack::StreamPack` · 0069be20 · legions 0063a840
 
 ### CPositionPack
-- [ ] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
-- [ ] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
+- [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
+- [x] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
 ## `portal/shared/src/physobj/partarray.cpp.c` (0/72)
 
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [ ] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (0/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (1/526)
 
 ### Quaternion
 - [ ] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2710,7 +2710,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHashTable<unsigned_long,Trigger>::StreamPack` · 004eb6d0
 
 ### PSmartArray<BehaviorParams>
-- [ ] `PSmartArray<BehaviorParams>::StreamPack` · 004eb8b0 · legions 004de220
+- [x] `PSmartArray<BehaviorParams>::StreamPack` · 004eb8b0 · legions 004de220
 
 ### TriggerUpdate
 - [ ] `TriggerUpdate::TriggerUpdate` · 004eb960 · legions 004de2d0
