@@ -69,5 +69,6 @@ pub use region::{
     CelestialPosition, RegionDesc, SkyEnvironmentCadence, SkyEnvironmentSample, SkyFogDesc,
     SkyLightingDesc,
 };
+pub use surface_desc::Ac2FarTerrain;
 pub use surface_info::Ac2SurfaceInfo;
 pub use terrain_cut::terrain_polygon_cut;

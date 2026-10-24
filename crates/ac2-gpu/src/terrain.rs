@@ -12,6 +12,11 @@ use wgpu::util::DeviceExt;
 use crate::texture::{TextureCache, TextureKey};
 use crate::{Gpu, DEPTH_FORMAT};
 
+#[path = "far_terrain.rs"]
+mod far;
+
+pub use far::GpuFarTerrain;
+
 #[repr(C)]
 #[derive(Clone, Copy, Pod, Zeroable)]
 struct GpuVertex {
@@ -55,6 +60,7 @@ pub struct TerrainRenderer {
     frame_group: wgpu::BindGroup,
     wrap: wgpu::Sampler,
     clamp: wgpu::Sampler,
+    far: far::FarPipeline,
     pub textures: TextureCache,
 }
 
@@ -171,6 +177,7 @@ impl TerrainRenderer {
             })
         };
         Self {
+            far: far::FarPipeline::new(device, &frame_layout, color_format),
             pipeline,
             batch_layout,
             frame_buffer,

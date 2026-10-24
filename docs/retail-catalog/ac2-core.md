@@ -1,6 +1,6 @@
 # ac2-core: Core runtime: ids, strings, timers, errors, serialization helpers
 
-589 retail functions: 11 done, 0 partial, 174 to do, 404 skipped.
+589 retail functions: 14 done, 0 partial, 171 to do, 404 skipped.
 Legend and workflow: [README](README.md).
 
 ## `core/src/debug/crashcleaners.cpp.c` (0/3)
@@ -957,12 +957,12 @@ Legend and workflow: [README](README.md).
 - [-] `PFileParser::~PFileParser` · 0066a920 · legions 00615350 — text source files (admin tools)
 - [-] `PFileParser::SaveToStringW` · 0066a960 · legions 00615390 — text source files (admin tools)
 
-## `portal/shared/src/random/random.cpp.c` (0/5)
+## `portal/shared/src/random/random.cpp.c` (3/5)
 
 ### Random
-- [ ] `Random::rand` · 0060d2d0 · legions 005ce0a0
-- [ ] `Random::RollDice` · 0060d3b0 · legions 005ce180
-- [ ] `Random::RollDice` · 0060d3f0 · legions 005ce1c0
+- [x] `Random::rand` · 0060d2d0 · legions 005ce0a0 — ac2_core::Random
+- [x] `Random::RollDice` · 0060d3b0 · legions 005ce180 — ac2_core::Random
+- [x] `Random::RollDice` · 0060d3f0 · legions 005ce1c0 — ac2_core::Random
 - [ ] `Random::RollGaussianDice` · 0060d450 · legions 005ce220
 - [ ] `Random::RollPercentile` · 0060d520 · legions 005ce2f0
 

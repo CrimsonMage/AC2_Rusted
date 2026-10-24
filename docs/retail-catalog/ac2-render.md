@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 25 done, 18 partial, 725 to do, 13 skipped.
+781 retail functions: 27 done, 19 partial, 722 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1070,7 +1070,7 @@ Legend and workflow: [README](README.md).
 - [~] `LScapeSky::CreateDeletePhysicsObjects` · 00585ba0 · legions 00555290 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 - [~] `LScapeSky::UpdateTimeOfDay` · 00585cf0 · legions 005553e0 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 
-## `portal/client/src/smartbox/worldrender/lscapeterrainmesh.cpp.c` (3/48)
+## `portal/client/src/smartbox/worldrender/lscapeterrainmesh.cpp.c` (5/48)
 
 ### LM_UVTranslate
 - [ ] `LM_UVTranslate::SetVTranslate` · 005880a0 · legions 005577e0
@@ -1097,8 +1097,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CVertexArray::~CVertexArray` · 005885e0 · legions 00557c70
 
 ### LScapeTerrainMesh
-- [ ] `LScapeTerrainMesh::DrawTerrain` · 00588610
-- [~] `LScapeTerrainMesh::DrawWaterMesh` · 00588840 · legions 00557ee0 — near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
+- [~] `LScapeTerrainMesh::DrawTerrain` · 00588610 — near mesh then far chunks 2.. (far.rs, far_terrain.rs); no per-chunk frustum cull, no N-patches
+- [~] `LScapeTerrainMesh::DrawWaterMesh` · 00588840 · legions 00557ee0 — near water and far water chunks; bump map, reflection and shore passes not yet
 - [ ] `LScapeTerrainMesh::ApplyList` · 00588a30 · legions 005580d0
 - [ ] `LScapeTerrainMesh::InqNearBlockIndex` · 00588aa0 · legions 00558140
 
@@ -1116,7 +1116,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeFarChunk::LScapeFarChunk` · 005890f0 · legions 00558840
 
 ### LScapeTerrainMesh
-- [ ] `LScapeTerrainMesh::BuildFarTerrainMesh` · 00589130 · legions 00558880
+- [x] `LScapeTerrainMesh::BuildFarTerrainMesh` · 00589130 · legions 00558880 — indices with RollDice diagonals and LOD crack fill, vertices, far water quads (terrain/far.rs)
 - [ ] `LScapeTerrainMesh::SetVertex` · 00589ec0 · legions 00559610
 - [ ] `LScapeTerrainMesh::GetPixelGeometry` · 0058a000 · legions 00559750
 - [ ] `LScapeTerrainMesh::CleanupShore` · 0058a1f0 · legions 00559940
@@ -1151,7 +1151,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeTerrainMesh::Destroy` · 0058b8a0 · legions 0055af10
 - [~] `LScapeTerrainMesh::BuildNearTerrainMesh` · 0058b9e0 · legions 0055b050 — per-block near mesh; no cloud-shadow UVs or shared near vertex array
 - [ ] `LScapeTerrainMesh::~LScapeTerrainMesh` · 0058bc10 · legions 0055b280
-- [ ] `LScapeTerrainMesh::InitFarMesh` · 0058bce0 · legions 0055b350
+- [x] `LScapeTerrainMesh::InitFarMesh` · 0058bce0 · legions 0055b350 — chunks, LOD steps, block edges, far material (no cloud-shadow stage: LandscapeCloudShadows off)
 - [~] `LScapeTerrainMesh::UpdateNearTerrain` · 0058c8c0 · legions 0055bf30 — per-block near mesh; no cloud-shadow UVs or shared near vertex array
 - [x] `LScapeTerrainMesh::UpdateNearWater` · 0058d700 · legions 0055cd70 — ac2-render object::load_water_model
 - [ ] `LScapeTerrainMesh::GenerateShore` · 0058dcb0 · legions 0055d320

@@ -664,6 +664,7 @@ key	status	note
 00572110	~	outdoor sun only; dynamic/point lights and shadow direction not yet
 00573930	~	visible cells only; no camera or PlayerReadyToEnterWorld notice
 005746d0	~	UpdatePlayer and the physics step; no camera
+0057a590	x	far radius consumed by FarTerrain::new
 0057bba0	~	the radius block set (synchronous)
 0057c360	~	block radius 1 loaded at once (no async request)
 0057c510	~	physics step only; no GameTime or CObjectMaint::UseTime
@@ -682,10 +683,13 @@ key	status	note
 00585ba0	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 00585cf0	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 00588320	x	
-00588840	~	near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
+00588610	~	near mesh then far chunks 2.. (far.rs, far_terrain.rs); no per-chunk frustum cull, no N-patches
+00588840	~	near water and far water chunks; bump map, reflection and shore passes not yet
+00589130	x	indices with RollDice diagonals and LOD crack fill, vertices, far water quads (terrain/far.rs)
 0058ad90	~	near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
 0058b600	x	ac2-render object::load_water_model
 0058b9e0	~	per-block near mesh; no cloud-shadow UVs or shared near vertex array
+0058bce0	x	chunks, LOD steps, block edges, far material (no cloud-shadow stage: LandscapeCloudShadows off)
 0058c8c0	~	per-block near mesh; no cloud-shadow UVs or shared near vertex array
 0058d700	x	ac2-render object::load_water_model
 0058f1d0	x	
@@ -737,6 +741,9 @@ key	status	note
 00603090	x	
 00603470	x	
 006037c0	x	
+0060d2d0	x	ac2_core::Random
+0060d3b0	x	ac2_core::Random
+0060d3f0	x	ac2_core::Random
 0060e3d0	~	ac2-physics ObjectShape::new: physics containment radius and box only
 006169c0	x	
 00617370	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)

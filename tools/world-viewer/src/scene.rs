@@ -1,13 +1,13 @@
 //! What the viewer draws: the near landscape and the placed objects of the blocks around the
-//! camera, lit by the region sky at the viewer's time of day.
+//! camera, the far landscape past them, lit by the region sky at the viewer's time of day.
 
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use ac2_core::{CellId, DataId};
+use ac2_core::{CellId, DataId, Random};
 use ac2_gpu::{
-    DrawGroup, Gpu, GpuObjectModel, ObjectInstance, ObjectRenderer, ScreenQuad, TerrainBlock,
-    TerrainRenderer, TextureKey,
+    DrawGroup, Gpu, GpuFarTerrain, GpuObjectModel, ObjectInstance, ObjectRenderer, ScreenQuad,
+    TerrainBlock, TerrainRenderer, TextureKey,
 };
 use ac2_math::{Mat4, Vec3};
 use ac2_render::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
@@ -15,7 +15,9 @@ use ac2_render::object::{load_object_model, load_water_model, ObjectEnvironment,
 use ac2_render::sky::{sky_frame, SkyFrame, SkyPlacement};
 
 use crate::interiors::{load_block_interiors, BlockInteriors};
-use ac2_render::terrain::build_terrain_mesh;
+use ac2_render::terrain::{
+    build_terrain_mesh, far_radius_for_draw_distance, FarTerrain, FIRST_FAR_CHUNK,
+};
 use ac2_render::{load_material_image, load_texture_image, Camera, SceneLighting};
 use ac2_world::Ac2WorldSource;
 
@@ -42,6 +44,11 @@ pub struct Scene {
     sky: SkyFrame,
     models: HashMap<DataId, Option<GpuObjectModel>>,
     blocks: HashMap<(u8, u8), Block>,
+    /// The far mesh layout (`LScapeTerrainMesh::InitFarMesh`), and its vertices and far water
+    /// around the block they were built for (`BuildFarTerrainMesh`).
+    far_layout: FarTerrain,
+    far: Option<(GpuFarTerrain, Option<GpuObjectModel>)>,
+    far_center: Option<(u8, u8)>,
     /// Blocks whose interiors `prepare` laid out as groups 3 onward.
     frame_interiors: Vec<(u8, u8)>,
     /// The placements `prepare` laid out, in draw order, with a frill's merged normal.
@@ -57,7 +64,19 @@ impl Scene {
         format: wgpu::TextureFormat,
         radius: i32,
     ) -> Self {
+        // The near ring is `radius` blocks here (retail's is 1); the far ring is the default
+        // `LandscapeDrawDistance`.
+        let far_layout = FarTerrain::new(
+            radius,
+            far_radius_for_draw_distance(2),
+            16,
+            world.block_size(),
+            &mut Random::default(),
+        );
         Self {
+            far_layout,
+            far: None,
+            far_center: None,
             world,
             renderer: TerrainRenderer::new(gpu, format),
             objects: ObjectRenderer::new(gpu, format),
@@ -107,6 +126,22 @@ impl Scene {
                 load_texture_image(&store, did).ok().flatten()
             }
         };
+        if self.far_center != Some(center) {
+            let desc = self.world.far_terrain();
+            let at = (i32::from(center.0), i32::from(center.1));
+            let vertices = self.far_layout.vertices(&self.world, at, &desc);
+            let terrain =
+                self.renderer
+                    .upload_far(gpu, &self.far_layout, &vertices, desc.texture, &mut load);
+            let water = self
+                .far_layout
+                .water_model(&store, &desc, &vertices, &settings)
+                .ok()
+                .flatten()
+                .map(|model| self.objects.upload(gpu, &model, &mut load));
+            self.far = Some((terrain, water));
+            self.far_center = Some(center);
+        }
         for dx in -radius..=radius {
             for dy in -radius..=radius {
                 let (x, y) = (i32::from(center.0) + dx, i32::from(center.1) + dy);
@@ -272,7 +307,12 @@ impl Scene {
         if let Some(color) = self.sky.fog_quad {
             self.fog_quad.set_color(&gpu.queue, color);
         }
-        let world = instances(&self.models, &self.frame_placements, &self.blocks);
+        let world = instances(
+            &self.models,
+            &self.frame_placements,
+            &self.blocks,
+            far_water(&self.far),
+        );
         let before = sky_instances(&self.models, &self.sky.before);
         let after = sky_instances(&self.models, &self.sky.after);
         // Groups 0-2: sky before, world, sky after; then each block's visible interiors under its
@@ -338,7 +378,15 @@ impl Scene {
             pass,
             self.blocks.values().filter_map(|b| b.terrain.as_ref()),
         );
-        let instances = instances(&self.models, &self.frame_placements, &self.blocks);
+        if let Some((far, _)) = &self.far {
+            self.renderer.draw_far(pass, far, FIRST_FAR_CHUNK);
+        }
+        let instances = instances(
+            &self.models,
+            &self.frame_placements,
+            &self.blocks,
+            far_water(&self.far),
+        );
         self.objects.draw(pass, 1, &instances);
         for (index, key) in self.frame_interiors.iter().enumerate() {
             if let Some(interiors) = self.blocks.get(key).and_then(|b| b.interiors.as_ref()) {
@@ -350,8 +398,10 @@ impl Scene {
     }
 }
 
-/// The frame's object instances followed by the resident blocks' water. Both `prepare` and
-/// `draw` build it from unchanged state, so the order matches.
+fn far_water(far: &Option<(GpuFarTerrain, Option<GpuObjectModel>)>) -> Option<&GpuObjectModel> {
+    far.as_ref().and_then(|(_, water)| water.as_ref())
+}
+
 fn sky_instances<'a>(
     models: &'a HashMap<DataId, Option<GpuObjectModel>>,
     placements: &[SkyPlacement],
@@ -367,10 +417,14 @@ fn sky_instances<'a>(
         .collect()
 }
 
+/// The frame's object instances followed by the resident blocks' water and the far water
+/// (`DrawWaterMesh`). Both `prepare` and `draw` build it from unchanged state, so the order
+/// matches.
 fn instances<'a>(
     models: &'a HashMap<DataId, Option<GpuObjectModel>>,
     placements: &[(DataId, Mat4, Option<Vec3>)],
     blocks: &'a HashMap<(u8, u8), Block>,
+    far_water: Option<&'a GpuObjectModel>,
 ) -> Vec<ObjectInstance<'a>> {
     placements
         .iter()
@@ -381,9 +435,11 @@ fn instances<'a>(
             })
         })
         .chain(
-            blocks.values().filter_map(|block| {
-                Some(ObjectInstance::new(block.water.as_ref()?, Mat4::IDENTITY))
-            }),
+            blocks
+                .values()
+                .filter_map(|block| block.water.as_ref())
+                .chain(far_water)
+                .map(|water| ObjectInstance::new(water, Mat4::IDENTITY)),
         )
         .collect()
 }
