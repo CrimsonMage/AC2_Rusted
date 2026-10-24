@@ -128,7 +128,7 @@ key	status	note
 00494cb0	x	
 00494e30	x	
 00494f30	x	
-00494fb0	x	
+00494fb0	x	ac2-weenie World (the player's RecvEvt_Contain on the child)
 00495060	x	
 00495100	x	
 004951f0	x	
@@ -534,6 +534,7 @@ key	status	note
 004dde80	x	ac2_physics::Position::lerp_origin (across blocks the z sum is stored first)
 004de020	x	
 004de0d0	x	
+004de320	x	ac2-client motion.rs
 004de490	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
 004de590	x	ac2-physics moveto (slice 3)
 004de5b0	x	
@@ -568,6 +569,7 @@ key	status	note
 004e0890	x	ac2-physics anim_pose fire_impulse
 004e0a70	x	
 004e0af0	x	
+004e0dc0	~	ac2-weenie: the delta becomes the local description; the part rebuild (CompareAndModify) is the renderer's
 004e0e30	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004e12f0	x	ac2-physics interp (slice 3)
 004e1520	x	
@@ -592,6 +594,7 @@ key	status	note
 004e43b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e4430	~	the F_EPSILON change test and CullVelocity in anim_pose fire_impulse; kill_velocity and PhysicsBody::set_velocity assign directly
 004e44e0	x	
+004e45b0	~	ac2-weenie: the delta becomes the local description; the part rebuild (CompareAndModify) is the renderer's
 004e4640	~	ac2-physics: vdesc scale x placement scale; the body uses the root z scale
 004e4b60	~	no adjust_to_outside
 004e4c10	~	ac2-client remote.rs: out of the world, queued for destruction
@@ -601,8 +604,10 @@ key	status	note
 004e5780	~	vertical distance to the terrain polygon instead of CObjCell::LOSCheck
 004e5d10	~	environment response only; object collisions and the collision manager not ported
 004e6780	x	ac2-weenie ObjectTable::apply_action (newer position stamp), then LeaveWorld
-004e67c0	~	ac2-weenie: newer position stamp, the parent recorded
+004e67c0	~	ac2-weenie: newer position stamp, the holder, location and placement frame
 004e6810	x	ac2-weenie ObjectTable::apply_action
+004e6890	x	ac2-weenie ObjectTable::apply_contain, ac2-client remote.rs
+004e6bd0	x	ac2-weenie Appearance::from_delta (the effects description is empty)
 004e6ff0	x	
 004e7580	~	ac2-physics objects.rs: static objects only; Interpermiable/CollisionParameters ethereal filter, missile proximity and temp ignore lists not ported
 004e8f80	x	
@@ -628,11 +633,13 @@ key	status	note
 004eb8b0	x	
 004ec350	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ec400	~	the bookie part only
+004ec680	~	ac2-client motion.rs: DoBehavior with context 1; a weenie emote is not run first
 004ec730	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ec7d0	~	ac2-client remote.rs
+004ec830	~	ac2-client: the PhysicsDesc behaviours start on the remote body; no mode, sliders or FX
 004ed190	~	flags 0x1010 into PhysicsBody::place
 004ed1f0	~	interp blips use set_position_checked(SLIDE); parent/placement-position bookkeeping not ported
-004ed470	~	the non-player branch (lost cell when not resident, 96 m physics range, teleport/out-of-range/out-of-world snap); InterpolateTo snaps until ac2-physics has the InterpolationManager
+004ed470	x	the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 004ee7d0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f0a10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f0a80	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
@@ -769,6 +776,7 @@ key	status	note
 00528900	x	ac2-world region::sky_objects, ac2-render sky
 0052b1d0	x	ac2-world region::sky_objects, ac2-render sky
 0052e6a0	x	
+00530150	x	ac2-weenie ObjectTable::apply_action
 00530e70	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
 00530f40	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
 00530f70	x	
@@ -859,6 +867,7 @@ key	status	note
 0057c510	x	GameTime::UseTime, then unless blocking CObjectMaint::UseTime and the physics step
 0057c540	x	
 0057cb50	~	outdoor sun, ambient and fog; indoor and sky environments not yet
+0057e1b0	~	ac2-client world_manager_update: WorldManager::Update, UpdateRenderInterpolation, UpdateAnimation; no time of day, rain, ambient sound or scene tools
 00581a00	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 005823e0	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 005828e0	~	ac2-render frill::select_frills + per-instance frill normal; shadow colour white (no static shadow map), drawn as instances not one merged mesh
@@ -1048,19 +1057,31 @@ key	status	note
 0063c310	x	
 0063c340	x	
 0063c410	x	
+0063d2f0	x	ac2-weenie appearance.rs
 0063d7f0	~	part-group FX overrides (FXData/FXNode) refused as unsupported
+0063db70	~	ac2-weenie appearance.rs (root by parent key 0)
+0063ddb0	x	ac2-weenie appearance.rs
+0063dea0	~	ac2-weenie appearance.rs: DIDs, scales, icon layers, global mods, part-group tree; the incoming groups in stream order rather than hash order
+0063e170	~	ac2-weenie appearance.rs (root by parent key 0)
+0063e460	~	ac2-weenie appearance.rs: DIDs, scales, icon layers, global mods, part-group tree; the incoming groups in stream order rather than hash order
+0063ee10	x	ac2-weenie Appearance::from_delta
 0063f6c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 0063fb80	x	
 00640190	x	
+00640580	~	ac2-weenie appearance.rs: a layer id replaces
 006406a0	x	
 00640f40	x	
 006410e0	x	
 00641530	x	
 00641ea0	x	
 00641fa0	x	
+00644160	x	ac2-weenie appearance.rs
 006443c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+00645580	x	ac2-weenie appearance.rs
 00645f00	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+00646300	x	ac2-weenie appearance.rs (FX override data kept by id)
 0064a5b0	x	
+0064a970	x	ac2-weenie appearance.rs
 0064b540	x	
 0064b620	x	
 0064b660	x	
@@ -1318,6 +1339,7 @@ key	status	note
 00732240	~	the player body only (CPhysics::UpdateAllPhysics over remote objects not simulated)
 007322c0	x	PhysicsClock::render_interpolation
 00732400	~	the player's quantum with PlayerPhysicsUpdatedCallback, then every other object in the world and in range
+007325a0	x	ac2-client: the player's and every object's body
 007326e0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 00737cf0	x	
 00737dd0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)

@@ -66,12 +66,14 @@ fn the_client_walks_into_a_wall_of_the_start_room() {
         server.borrow_mut().elapsed += STEP;
         track.push(client.frame().player.unwrap());
     }
+    // The human body animates with its behaviour table: its Setup parts are posed.
+    assert!(!client.frame().player.unwrap().pose.is_empty());
     // The camera follows behind the player.
     let camera = client.frame().camera.expect("camera");
     assert!(camera.origin.iter().all(|v| v.is_finite()), "{camera:?}");
-    let first = track[0];
-    let last = *track.last().unwrap();
-    let second_before = track[track.len() - 64];
+    let first = &track[0];
+    let last = track.last().unwrap();
+    let second_before = &track[track.len() - 64];
     // It walked, and the last second it made no headway: a wall holds it (pressing into it,
     // the body only shuffles along the face).
     assert!((last.origin[1] - first.origin[1]).abs() > 1.0, "{last:?}");

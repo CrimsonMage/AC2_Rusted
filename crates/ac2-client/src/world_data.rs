@@ -24,6 +24,9 @@ pub struct BodyData {
     pub motion: Option<Arc<Ac2MotionInterpDesc>>,
     /// `CSetup::radius`, unscaled (`CPhysicsObj::GetRadius` scales it).
     pub radius: f32,
+    /// What its Setup animates with (`PHYSICSOBJREP::SetupModeTracker`), when the visual has a
+    /// behaviour table and an `AnimMap`.
+    pub animation: Option<ac2_physics::BodyAnimation>,
 }
 
 /// The world data the client reads, shared with its loader threads.
@@ -103,10 +106,13 @@ impl WorldData for DatWorld {
         let motion = load_ac2_motion_interp_desc(&self.store, midesc)
             .map_err(|e| e.to_string())?
             .map(|desc| Arc::new((*desc).clone()));
+        let animation =
+            ac2_physics::load_body_animation(&self.store, visual).map_err(|e| e.to_string())?;
         Ok(BodyData {
             shape,
             motion,
             radius,
+            animation,
         })
     }
 

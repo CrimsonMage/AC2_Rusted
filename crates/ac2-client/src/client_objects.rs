@@ -5,7 +5,7 @@ use ac2_weenie::SessionEvent;
 
 use crate::cells::BlockChange;
 use crate::client::Client;
-use crate::frame::ObjectFrame;
+use crate::frame::{Holder, ObjectFrame};
 use crate::loader::Request;
 use crate::remote::Context;
 use crate::world_data::BodyData;
@@ -51,9 +51,19 @@ impl Client {
                     _ => *object,
                 };
                 remotes.action(target, &mut cx);
+                remotes.motion(*object, action);
             }
+            // `CPhysicsObj::RecvEvt_Contain`: out of the world, into the inventory.
+            SessionEvent::ObjectContained(id) => remotes.action(*id, &mut cx),
             SessionEvent::ObjectRemoved(id) => remotes.removed(*id),
             _ => {}
+        }
+        // The player's body takes its motion events too.
+        if let SessionEvent::ObjectAction { object, action } = event {
+            let player = self.player.as_mut().filter(|p| p.id == *object);
+            if let Some(body) = player.and_then(|p| p.body.as_mut()) {
+                crate::motion::apply(&mut body.physics, action);
+            }
         }
         self.request_remote_bodies();
     }
@@ -92,8 +102,19 @@ impl Client {
             .filter_map(|o| {
                 let remote = self.remotes.get(o.id);
                 let body = remote.and_then(|r| r.body());
-                let (cell, origin, rotation, velocity, contact) = match body {
-                    Some(body) => {
+                let held = o.parent.map(|(id, location)| Holder {
+                    id,
+                    location,
+                    orientation: o.orientation,
+                });
+                let in_world = remote.is_some_and(|r| r.in_world());
+                // Contained objects are in an inventory; only placed, held or in-world ones
+                // are listed.
+                if o.position.is_none() && !in_world && held.is_none() {
+                    return None;
+                }
+                let (cell, origin, rotation, velocity, contact) = match (body, o.position) {
+                    (Some(body), _) => {
                         let state = body.movement_state();
                         (
                             state.cell_id,
@@ -103,14 +124,10 @@ impl Client {
                             state.contact,
                         )
                     }
-                    None => {
-                        let p = o.position?;
-                        (p.cell, p.origin, p.rotation, [0.0; 3], false)
-                    }
+                    (None, Some(p)) => (p.cell, p.origin, p.rotation, [0.0; 3], false),
+                    (None, None) => (0, [0.0; 3], [1.0, 0.0, 0.0, 0.0], [0.0; 3], false),
                 };
-                if o.position.is_none() && !remote.is_some_and(|r| r.in_world()) {
-                    return None;
-                }
+                let weenie = o.qualities.weenie.as_ref();
                 Some(ObjectFrame {
                     id: o.id,
                     visual: o.visual,
@@ -120,14 +137,18 @@ impl Client {
                     origin,
                     rotation,
                     heading_degrees: o.heading_degrees,
-                    in_world: remote.is_some_and(|r| r.in_world()),
+                    in_world,
                     lost_cell: remote.and_then(|r| r.lost_cell()),
                     active: remote.is_none_or(|r| r.active()),
                     velocity,
                     contact,
                     mode: o.mode,
                     motion: o.motion,
-                    parent: o.parent,
+                    holder: held,
+                    container: weenie.and_then(|w| w.container),
+                    wielder: weenie.and_then(|w| w.wielder),
+                    appearance: o.appearance.clone(),
+                    pose: body.map(crate::motion::pose).unwrap_or_default(),
                 })
             })
             .collect()

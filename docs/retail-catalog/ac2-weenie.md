@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 118 done, 5 partial, 1775 to do, 6 skipped.
+1904 retail functions: 119 done, 5 partial, 1774 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1399,7 +1399,7 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Physics::RecvEvt_AddTargetedImpulse` · 00494cb0 · legions 0048d480
 - [x] `ECM_Physics::RecvEvt_AddTerrainModifier` · 00494e30 · legions 0048d600
 - [x] `ECM_Physics::RecvEvt_ClearTerrainModifiers` · 00494f30 · legions 0048d700
-- [x] `ECM_Physics::RecvEvt_Contain` · 00494fb0 · legions 0048d780
+- [x] `ECM_Physics::RecvEvt_Contain` · 00494fb0 · legions 0048d780 — ac2-weenie World (the player's RecvEvt_Contain on the child)
 - [x] `ECM_Physics::RecvEvt_CreatePlayer` · 00495060 · legions 0048d830
 - [x] `ECM_Physics::RecvEvt_DeParent` · 00495100 · legions 0048d8d0
 - [x] `ECM_Physics::RecvEvt_DestroyObject` · 004951f0 · legions 0048d9c0
@@ -2844,7 +2844,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWeenieObject::~CWeenieObject` · 0052fd40 · legions 00513e90
 - [ ] `CWeenieObject::UnRegisterAllNoticeHandlers` · 0052fd70 · legions 00513ec0
 
-## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (0/91)
+## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (1/91)
 
 ### CWPhysicsObject
 - [ ] `CWPhysicsObject::CWPhysicsObject` · 0052fe30 · legions 00513f80
@@ -2869,7 +2869,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWPhysicsObject::ApplyAdditiveVisualDesc` · 005300f0 · legions 005141f0
 - [ ] `CWPhysicsObject::ApplySubtractiveVisualDesc` · 00530110 · legions 00514210
 - [ ] `CWPhysicsObject::ApplyVisualDescToPhysicsObj` · 00530130 · legions 00514230
-- [ ] `CWPhysicsObject::RecvEvt_UpdateVisualDesc` · 00530150 · legions 00514250
+- [x] `CWPhysicsObject::RecvEvt_UpdateVisualDesc` · 00530150 · legions 00514250 — ac2-weenie ObjectTable::apply_action
 - [ ] `CWPhysicsObject::ForceVisualDesc` · 00530190 · legions 00514290
 - [ ] `CWPhysicsObject::DoFX` · 005301b0 · legions 005142b0
 - [ ] `CWPhysicsObject::StopFX` · 005301d0 · legions 005142d0

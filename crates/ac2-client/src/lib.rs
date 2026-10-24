@@ -12,6 +12,7 @@ mod client;
 mod client_objects;
 mod frame;
 mod loader;
+mod motion;
 mod remote;
 mod scene;
 mod targeting;
@@ -22,6 +23,7 @@ pub use cells::{block_radius, CellManager, FAR_RADIUS, NEAR_RADIUS};
 pub use client::{
     CameraAction, Client, FrameInput, Notice, ENTER_WORLD_FLAGS, SYNC_POSITION_FLAGS,
 };
-pub use frame::{ClientFrame, ObjectFrame, PlayerFrame};
+pub use frame::{ClientFrame, Holder, ObjectFrame, PlayerFrame};
+pub use motion::PartPose;
 pub use scene::CameraFrame;
 pub use world_data::{BodyData, DatWorld, WorldData, HUMAN_MOTION_INTERP_DESC};

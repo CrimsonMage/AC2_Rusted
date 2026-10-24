@@ -8,6 +8,7 @@ license.workspace = true
 # The client program's core: the only crate that joins the online session (ac2-weenie) and the
 # body simulation (ac2-physics). Rendering (ac2-render, ac2-gpu) stays out of this headless core.
 [dependencies]
+ac2-anim = { path = "../ac2-anim" }
 ac2-assets = { path = "../ac2-assets" }
 ac2-core = { path = "../ac2-core" }
 ac2-dat = { path = "../ac2-dat" }

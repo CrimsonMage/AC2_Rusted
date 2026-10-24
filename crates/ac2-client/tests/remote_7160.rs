@@ -42,12 +42,13 @@ fn npc_spawn(id: u64, origin: [f32; 3]) -> ObjectSpawn {
     }
 }
 
-/// A position for `id` with position stamp `stamp` (teleport and force stamps 1).
-fn position(id: u64, stamp: u16, cell: u32, origin: [f32; 3], heading: f32) -> Vec<u8> {
+/// A position for `id` sent at `time` with position stamp `stamp` (teleport and force stamps
+/// 1).
+fn position(time: f64, id: u64, stamp: u16, cell: u32, origin: [f32; 3], heading: f32) -> Vec<u8> {
     position_bytes(&ObjectPosition {
         id,
         instance: 3,
-        time: 0.0,
+        time,
         cell,
         origin,
         heading_and_motion: u32::from(heading_to_u8(heading)) << 24
@@ -88,9 +89,10 @@ fn an_object_appears_moves_leaves_view_and_is_destroyed() {
     assert!((npc.origin[0] - 90.0).abs() < 1e-3 && (npc.origin[2] - GROUND).abs() < 0.05);
 
     // A newer position moves it there, facing the pack's heading.
+    let now = client.session().cur_time();
     server
         .borrow_mut()
-        .send_event(&position(NPC, 11, CELL, [95.0, 72.0, GROUND], 90.0));
+        .send_event(&position(now, NPC, 11, CELL, [95.0, 72.0, GROUND], 90.0));
     let events = frames(&mut client, &server, 2);
     assert!(
         events.iter().any(|e| matches!(
@@ -103,22 +105,31 @@ fn an_object_appears_moves_leaves_view_and_is_destroyed() {
         )),
         "{events:?}"
     );
+    // In range and in the world it interpolates there (`InterpolateTo`): its motion
+    // interpreter walks it over.
+    let close = |o: &ObjectFrame| (o.origin[0] - 95.0).hypot(o.origin[1] - 72.0) < 0.5;
+    let mut walked = 0;
+    while !close(&object(&client.frame(), NPC).unwrap()) {
+        frames(&mut client, &server, 1);
+        walked += 1;
+        assert!(walked < 400, "{:?}", object(&client.frame(), NPC));
+    }
+    assert!(walked > 10, "it walks rather than snaps ({walked} frames)");
     let npc = object(&client.frame(), NPC).unwrap();
-    assert!(
-        (npc.origin[0] - 95.0).abs() < 1e-3 && (npc.origin[1] - 72.0).abs() < 1e-3,
-        "{npc:?}"
-    );
     // The do-motion values as `UnitVectorFromUInt24` gives them back.
     assert_eq!(
         npc.motion,
         ac2_net::protocol::motion_from_u24(motion_to_u24([0.0, 1.0, 0.0]))
     );
     // An older stamp is ignored.
+    let now = client.session().cur_time();
     server
         .borrow_mut()
-        .send_event(&position(NPC, 9, CELL, [10.0, 10.0, GROUND], 0.0));
-    frames(&mut client, &server, 2);
-    assert!((object(&client.frame(), NPC).unwrap().origin[0] - 95.0).abs() < 1e-3);
+        .send_event(&position(now, NPC, 9, CELL, [10.0, 10.0, GROUND], 0.0));
+    frames(&mut client, &server, 30);
+    // (Its last do-motion is forward, so it keeps walking past the position.)
+    let npc = object(&client.frame(), NPC).unwrap();
+    assert!(npc.origin[0] > 90.0 && npc.origin[1] > 70.0, "{npc:?}");
 
     // `SetMode` reaches the object.
     server
@@ -131,9 +142,15 @@ fn an_object_appears_moves_leaves_view_and_is_destroyed() {
     );
 
     // Out of physics range (more than 96 m from the player) it is inactive.
-    server
-        .borrow_mut()
-        .send_event(&position(NPC, 12, 0x807F_001C, [70.0, 70.0, GROUND], 0.0));
+    let now = client.session().cur_time();
+    server.borrow_mut().send_event(&position(
+        now,
+        NPC,
+        12,
+        0x807F_001C,
+        [70.0, 70.0, GROUND],
+        0.0,
+    ));
     frames(&mut client, &server, 2);
     let npc = object(&client.frame(), NPC).unwrap();
     assert!(npc.in_world && !npc.active, "{npc:?}");
@@ -141,9 +158,10 @@ fn an_object_appears_moves_leaves_view_and_is_destroyed() {
 
     // Into a cell that is not resident: out of the world, waiting in its lost cell, queued for
     // destruction.
+    let now = client.session().cur_time();
     server
         .borrow_mut()
-        .send_event(&position(NPC, 13, FAR_CELL, [70.0, 70.0, GROUND], 0.0));
+        .send_event(&position(now, NPC, 13, FAR_CELL, [70.0, 70.0, GROUND], 0.0));
     frames(&mut client, &server, 2);
     let npc = object(&client.frame(), NPC).unwrap();
     assert!(!npc.in_world, "{npc:?}");
@@ -151,18 +169,20 @@ fn an_object_appears_moves_leaves_view_and_is_destroyed() {
     assert!(client.session().is_to_be_destroyed(NPC));
 
     // Back in a resident cell: in the world again and no longer to be destroyed.
+    let now = client.session().cur_time();
     server
         .borrow_mut()
-        .send_event(&position(NPC, 14, CELL, [80.0, 80.0, GROUND], 0.0));
+        .send_event(&position(now, NPC, 14, CELL, [80.0, 80.0, GROUND], 0.0));
     frames(&mut client, &server, 2);
     let npc = object(&client.frame(), NPC).unwrap();
     assert!(npc.in_world && npc.lost_cell.is_none(), "{npc:?}");
     assert!(!client.session().is_to_be_destroyed(NPC));
 
     // Out of view again, 25 s later it is gone.
+    let now = client.session().cur_time();
     server
         .borrow_mut()
-        .send_event(&position(NPC, 15, FAR_CELL, [70.0, 70.0, GROUND], 0.0));
+        .send_event(&position(now, NPC, 15, FAR_CELL, [70.0, 70.0, GROUND], 0.0));
     frames(&mut client, &server, 2);
     assert!(client.session().is_to_be_destroyed(NPC));
     let mut removed = false;

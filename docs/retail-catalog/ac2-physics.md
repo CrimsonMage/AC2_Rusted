@@ -1,9 +1,9 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 268 done, 59 partial, 1735 to do, 62 skipped.
+2124 retail functions: 273 done, 62 partial, 1727 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/client/src/physics/cphysics.cpp.c` (1/9)
+## `portal/client/src/physics/cphysics.cpp.c` (2/9)
 
 ### CPhysics
 - [ ] `CPhysics::CPhysics` · 007321b0
@@ -14,7 +14,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysics::UpdateRenderInterpolation` · 007322c0 · legions 006ae760 — PhysicsClock::render_interpolation
 - [ ] `CPhysics::GetObjectA` · 00732380 · legions 006ae820
 - [~] `CPhysics::UpdateAllPhysics` · 00732400 — the player's quantum with PlayerPhysicsUpdatedCallback, then every other object in the world and in range
-- [ ] `CPhysics::UpdateAllAnimation` · 007325a0
+- [x] `CPhysics::UpdateAllAnimation` · 007325a0 — ac2-client: the player's and every object's body
 
 ## `portal/shared/src/bsp/bspleaf.cpp.c` (5/13)
 
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (69/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (73/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2196,7 +2196,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::RecvEvt_DoFXScript` · 004de2b0
 - [ ] `CPhysicsObj::RecvEvt_LookAt` · 004de2e0
 - [ ] `CPhysicsObj::RecvEvt_LookAtDir` · 004de300
-- [ ] `CPhysicsObj::RecvEvt_StopBehavior` · 004de320
+- [x] `CPhysicsObj::RecvEvt_StopBehavior` · 004de320 — ac2-client motion.rs
 - [ ] `CPhysicsObj::RecvEvt_StopLayer` · 004de330
 - [ ] `CPhysicsObj::RecvEvt_StopMoveToCancelsBehaviors` · 004de340
 - [ ] `CPhysicsObj::RecvEvt_StopAllWeenieBehaviors` · 004de350
@@ -2355,7 +2355,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::set_parent` · 004e0ca0
 - [ ] `CPhysicsObj::set_parent` · 004e0cd0 · legions 004d3730
 - [ ] `CPhysicsObj::ApplyPhysObjProfile` · 004e0d10 · legions 004d3770
-- [ ] `CPhysicsObj::ApplyVisualDesc` · 004e0dc0 · legions 004d3820
+- [~] `CPhysicsObj::ApplyVisualDesc` · 004e0dc0 · legions 004d3820 — ac2-weenie: the delta becomes the local description; the part rebuild (CompareAndModify) is the renderer's
 - [ ] `CPhysicsObj::SetDiffuseColor` · 004e0df0
 - [ ] `CPhysicsObj::SetOpacity` · 004e0e00
 - [ ] `CPhysicsObj::GetParticleScale` · 004e0e10 · legions 004d3870
@@ -2507,7 +2507,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::set_heading` · 004e44e0
 - [ ] `CPhysicsObj::SetParent` · 004e4580
 - [ ] `CPhysicsObj::TopParent` · 004e4590
-- [ ] `CPhysicsObj::ApplyVisualDesc` · 004e45b0
+- [~] `CPhysicsObj::ApplyVisualDesc` · 004e45b0 — ac2-weenie: the delta becomes the local description; the part rebuild (CompareAndModify) is the renderer's
 - [~] `CPhysicsObj::GetTotalScale` · 004e4640 — ac2-physics: vdesc scale x placement scale; the body uses the root z scale
 - [ ] `CPhysicsObj::SetScaleInternal` · 004e4730 · legions 004d7180
 - [ ] `CPhysicsObj::clear_transient_states` · 004e47d0 · legions 004d7220
@@ -2559,15 +2559,15 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::HasMissileManager` · 004e6710
 - [ ] `CPhysicsObj::is_newer_then_update` · 004e6720 · legions 004d9170
 - [x] `CPhysicsObj::RecvEvt_LeaveWorld` · 004e6780 — ac2-weenie ObjectTable::apply_action (newer position stamp), then LeaveWorld
-- [~] `CPhysicsObj::RecvEvt_Parent` · 004e67c0 — ac2-weenie: newer position stamp, the parent recorded
+- [~] `CPhysicsObj::RecvEvt_Parent` · 004e67c0 — ac2-weenie: newer position stamp, the holder, location and placement frame
 - [x] `CPhysicsObj::RecvEvt_DeParent` · 004e6810 — ac2-weenie ObjectTable::apply_action
-- [ ] `CPhysicsObj::RecvEvt_Contain` · 004e6890
+- [x] `CPhysicsObj::RecvEvt_Contain` · 004e6890 — ac2-weenie ObjectTable::apply_contain, ac2-client remote.rs
 - [ ] `CPhysicsObj::DoAppearanceFX` · 004e6920 · legions 004d9370
 - [ ] `CPhysicsObj::RemoveAppearanceFX` · 004e6990 · legions 004d93e0
 - [ ] `CPhysicsObj::StartStreak` · 004e6a30
 - [ ] `CPhysicsObj::StopStreak` · 004e6aa0
 - [ ] `CPhysicsObj::InitVisualDesc` · 004e6b10
-- [ ] `CPhysicsObj::SetLocalVisualDesc` · 004e6bd0
+- [x] `CPhysicsObj::SetLocalVisualDesc` · 004e6bd0 — ac2-weenie Appearance::from_delta (the effects description is empty)
 - [ ] `CPhysicsObj::ApplyAdditiveVisualDesc` · 004e6c30
 - [ ] `CPhysicsObj::ApplySubtractiveVisualDesc` · 004e6c40
 - [ ] `CPhysicsObj::DoMode` · 004e6c50 · legions 004d96a0
@@ -2731,16 +2731,16 @@ Legend and workflow: [README](README.md).
 ### CPhysicsObj
 - [ ] `CPhysicsObj::TogglePlaceMarkerObjects` · 004ec4f0 · legions 004dee60
 - [ ] `CPhysicsObj::makeObjectInternal` · 004ec520 · legions 004dee90
-- [ ] `CPhysicsObj::RecvEvt_DoBehavior` · 004ec680
+- [~] `CPhysicsObj::RecvEvt_DoBehavior` · 004ec680 — ac2-client motion.rs: DoBehavior with context 1; a weenie emote is not run first
 - [~] `CPhysicsObj::SetPosition` · 004ec730 · legions 004df090 — ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 - [~] `CPhysicsObj::EnterWorld` · 004ec7d0 — ac2-client remote.rs
-- [ ] `CPhysicsObj::set_description` · 004ec830
+- [~] `CPhysicsObj::set_description` · 004ec830 — ac2-client: the PhysicsDesc behaviours start on the remote body; no mode, sliders or FX
 - [ ] `CPhysicsObj::makeObject` · 004ed160 · legions 004dfac0
 - [~] `CPhysicsObj::SetPositionSimple` · 004ed190 · legions 004dfaf0 — flags 0x1010 into PhysicsBody::place
 - [~] `CPhysicsObj::SyncPositionSimple` · 004ed1f0 · legions 004dfb50 — interp blips use set_position_checked(SLIDE); parent/placement-position bookkeeping not ported
 - [ ] `CPhysicsObj::makeObject` · 004ed270 · legions 004dfbd0
 - [ ] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40
-- [~] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch (lost cell when not resident, 96 m physics range, teleport/out-of-range/out-of-world snap); InterpolateTo snaps until ac2-physics has the InterpolationManager
+- [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
 ## `portal/shared/src/physobj/physicsobjrep.cpp.c` (19/171)
 
