@@ -1,0 +1,20 @@
+[package]
+name = "world-viewer"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+# Offline dev harness: draws the AC2 world from the DATs alone. It never links ac2-net and never
+# connects to a server; the online program is the ac2-client crate.
+[dependencies]
+ac2-core = { path = "../../crates/ac2-core" }
+ac2-math = { path = "../../crates/ac2-math" }
+ac2-dat = { path = "../../crates/ac2-dat" }
+ac2-db = { path = "../../crates/ac2-db" }
+ac2-world = { path = "../../crates/ac2-world" }
+ac2-render = { path = "../../crates/ac2-render" }
+ac2-gpu = { path = "../../crates/ac2-gpu" }
+png = "0.18"
+wgpu = { version = "26.0.1", default-features = false }
+winit = "0.30"
