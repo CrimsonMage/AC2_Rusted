@@ -1,0 +1,9 @@
+[package]
+name = "ac2-weenie"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[dependencies]
+ac2-net = { path = "../ac2-net" }

@@ -1,0 +1,133 @@
+//! Real-data checks against an Asheron's Call 2 installation. They run only when
+//! `AC2_DAT_DIR` points at an AC2 DAT directory, so ordinary test runs stay hermetic.
+
+use std::sync::Arc;
+
+use ac2_dat::{DatDataset, DatOpenOptions};
+use ac2_assets::resolve_ac2_material_texture_chain;
+use ac2_db::ResourceStore;
+
+use crate::ac2_land_defs::load_ac2_land_defs;
+use crate::ac2_surface_defs::load_ac2_surface_defs;
+use crate::ac2_terrain_desc::load_ac2_terrain_desc;
+
+fn ac2_store() -> Option<ResourceStore> {
+    let root = std::env::var_os("AC2_DAT_DIR")?;
+    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
+    Some(ResourceStore::new(Arc::clone(&dataset)))
+}
+
+#[test]
+fn ac2_terrain_descriptors_resolve_to_a_texture_chain() {
+    let Some(store) = ac2_store() else {
+        return;
+    };
+    let land = load_ac2_land_defs(&store)
+        .expect("land defs decode")
+        .expect("land defs exist");
+    assert_eq!(land.height_table().len(), 256);
+    assert_eq!(land.logical_cell_size(), 20.0);
+    assert_eq!(land.block_cells(), 8);
+
+    let terrain = load_ac2_terrain_desc(&store)
+        .expect("terrain desc decodes")
+        .expect("terrain desc exists");
+    let surfaces = load_ac2_surface_defs(&store)
+        .expect("surface defs decode")
+        .expect("surface defs exist");
+
+    // Terrain 19 dominates the sampled AC2 landblocks.
+    let surface = terrain
+        .surface_type(19)
+        .expect("terrain 19 has a surface type");
+    let material = surfaces
+        .material_for_slope(surface as u8, 0.0)
+        .expect("flat ground has a material");
+    let chain = resolve_ac2_material_texture_chain(&store, material)
+        .expect("material decodes")
+        .expect("material references a texture chain");
+    assert_eq!(chain.raw() & 0xFF00_0000, 0x4000_0000);
+}
+
+#[test]
+fn ac2_landblock_loads_with_metric_heights_and_surface_textures() {
+    let Some(store) = ac2_store() else {
+        return;
+    };
+    let source = crate::Ac2WorldSource::open(Arc::new(store))
+        .expect("AC2 vocabulary decodes")
+        .expect("AC2 dataset recognised");
+    let block = source
+        .load_landblock(ac2_core::CellId::new(0x7F7F_0001))
+        .expect("AC2 landblock decodes")
+        .expect("AC2 landblock exists");
+    let heights = block.height_grid();
+    assert_eq!(
+        block.vertex_side(),
+        17,
+        "blocks keep their native 17 x 17 grid"
+    );
+    assert_eq!(heights.len(), 289);
+    assert!(heights.iter().all(|h| (0.0..600.0).contains(h)));
+    assert!(
+        heights.iter().any(|h| *h > 100.0),
+        "0x7F7F is upland terrain"
+    );
+    let corners = block
+        .ac2_surface_textures_for_polygon(0, 0, 1)
+        .expect("every corner resolves an AC2 texture chain");
+    assert!(corners
+        .iter()
+        .all(|did| did.raw() & 0xFF00_0000 == 0x4000_0000));
+}
+
+#[test]
+fn ac2_region_publishes_sky_lighting_and_fog() {
+    let Some(store) = ac2_store() else {
+        return;
+    };
+    let source = crate::Ac2WorldSource::open(Arc::new(store))
+        .expect("AC2 vocabulary decodes")
+        .expect("AC2 dataset recognised");
+    let region = source
+        .region()
+        .expect("AC2 region, sky, days and game time decode");
+    assert_eq!(region.region_number(), 1);
+    // `GameTime` 0x35000000: a 7347 s day; sample every hour-ish across one day.
+    let mut pitches = Vec::new();
+    for step in 0..24 {
+        let sample = region
+            .sample_sky_environment(f64::from(step) * 7347.0 / 24.0)
+            .expect("every time of day has a lighting key");
+        assert!(sample.directional_brightness() > 0.0);
+        pitches.push(sample.directional_pitch_degrees());
+    }
+    assert!(pitches.iter().any(|p| *p < 60.0) && pitches.iter().any(|p| *p > 100.0));
+    assert!(region.sky_day_context_at(3600.0).is_some());
+}
+
+#[test]
+fn ac2_town_block_places_entities_with_visuals() {
+    let Some(store) = ac2_store() else {
+        return;
+    };
+    let source = crate::Ac2WorldSource::open(Arc::new(store))
+        .expect("AC2 vocabulary decodes")
+        .expect("AC2 dataset recognised");
+    // 0xCB4D carries the most `CLandBlockInfo` entities in the Legions cell DAT (297).
+    let markers = source
+        .entity_markers(ac2_core::CellId::new(0xCB4D_0001))
+        .expect("CLandBlockInfo decodes");
+    assert!(
+        markers.len() > 250,
+        "{} entities resolve to a VisualDesc",
+        markers.len()
+    );
+    let block_origin = [f32::from(0xCB_u8) * 160.0, f32::from(0x4D_u8) * 160.0];
+    for marker in markers.iter() {
+        assert_eq!(marker.visual().raw() & 0xFF00_0000, 0x1F00_0000);
+        let origin = marker.world_frame().origin;
+        assert!((block_origin[0] - 1.0..block_origin[0] + 161.0).contains(&origin.x));
+        assert!((block_origin[1] - 1.0..block_origin[1] + 161.0).contains(&origin.y));
+    }
+}

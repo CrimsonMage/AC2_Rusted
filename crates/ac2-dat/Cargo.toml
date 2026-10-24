@@ -1,0 +1,15 @@
+[package]
+name = "ac2-dat"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[dependencies]
+ac2-core = { path = "../ac2-core" }
+memmap2 = "0.9.11"
+encoding_rs = "0.8"
+serde = { version = "1.0.228", features = ["derive"] }
+
+[dev-dependencies]
+tempfile = "3.27.0"

@@ -1,0 +1,17 @@
+[package]
+name = "ac2-db"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[dependencies]
+ac2-core = { path = "../ac2-core" }
+ac2-dat = { path = "../ac2-dat" }
+flate2 = "1.1.2"
+log = "0.4"
+concurrent-queue = "2.5"
+rayon = "1.12"
+
+[dev-dependencies]
+tempfile = "3.27.0"
