@@ -161,6 +161,35 @@ fn turning_to_a_heading_arrives_and_stops() {
 }
 
 #[test]
+fn a_turn_to_survives_input_without_a_heading_until_stopped() {
+    let ground = terrain(|_, _| 50.0);
+    let mut body = body_at(70.0, 70.0, 50.0);
+    run(&mut body, &ground, 0.5);
+    body.turn_to(180.0);
+    run(&mut body, &ground, 0.3);
+    body.set_input(MovementInput {
+        motion: [0.0, 0.0, 0.0],
+        ..MovementInput::default()
+    });
+    assert!(body.movement_state().turning_to);
+    run(&mut body, &ground, 0.3);
+    assert!(body.movement_state().turning_to);
+    body.stop_turn_to();
+    let state = body.movement_state();
+    assert!(!state.turning_to);
+    assert_eq!(state.turn_to_degrees, state.heading_degrees);
+}
+
+#[test]
+fn set_heading_snaps_to_the_byte_steps() {
+    let mut body = body_at(70.0, 70.0, 50.0);
+    body.set_heading(100.0);
+    // 100 degrees is 70.8 of 255 steps: step 70 is 98.82 degrees.
+    let heading = body.movement_state().heading_degrees;
+    assert!((heading - 70.0 * 360.0 / 255.0).abs() < 1e-3, "{heading}");
+}
+
+#[test]
 fn a_grounded_body_jumps_with_the_jump_impulse_and_lands_again() {
     let ground = terrain(|_, _| 50.0);
     let mut body = body_at(70.0, 70.0, 50.0);

@@ -83,7 +83,7 @@ pub struct MovementState {
     pub omega: [f32; 3],
     /// `CMotionInterp::mLastDoMotionValues`.
     pub do_motion: [f32; 3],
-    /// The turn input of the last quantum.
+    /// The turn rate applied each quantum (`set_turn_rate`).
     pub turn: f32,
     /// `ModeStateKey` element and mode.
     pub element: u32,
@@ -107,7 +107,8 @@ pub struct MovementState {
 #[derive(Debug, Clone)]
 pub struct PhysicsBody {
     object: PhysicsObj,
-    input: MovementInput,
+    /// The turn rate `SetOmegaVelocity` gets each quantum.
+    turn: f32,
 }
 
 impl PhysicsBody {
@@ -119,7 +120,7 @@ impl PhysicsBody {
     ) -> Self {
         Self {
             object: PhysicsObj::new(position, shape, MotionInterp::new(motion_desc)),
-            input: MovementInput::default(),
+            turn: 0.0,
         }
     }
 
@@ -141,25 +142,54 @@ impl PhysicsBody {
         self.object.set_position_checked(position, flags, world)
     }
 
-    /// `CPhysicsObj::DoMotion` (and `TurnTo` when a heading is given); the turn rate is applied
-    /// every quantum.
+    /// `CPhysicsObj::DoMotion` with `TurnTo` when a heading is given, and the turn rate. Input
+    /// without a heading leaves a running turn-to alone: only `stop_turn_to` or a new turn
+    /// command ends it.
     pub fn set_input(&mut self, input: MovementInput) {
-        let [x, y, z] = input.motion;
-        self.object.motion.do_motion(Vector::new(x, y, z));
-        match input.heading {
-            Some(degrees) => self.object.motion.turn_to(Heading::from_degrees(degrees)),
-            None => {
-                let current = self.object.position.frame.heading();
-                self.object.motion.stop_turn_to(current);
-            }
+        self.do_motion(input.motion);
+        if let Some(degrees) = input.heading {
+            self.turn_to(degrees);
         }
-        self.input = input;
+        self.set_turn_rate(input.turn);
+    }
+
+    /// `CMotionInterp::DoMotion` (through `CPhysicsObj::DoMotion`): the do-motion vector,
+    /// strafe right, forward, up.
+    pub fn do_motion(&mut self, motion: [f32; 3]) {
+        let [x, y, z] = motion;
+        self.object.motion.do_motion(Vector::new(x, y, z));
+    }
+
+    /// `CMotionInterp::TurnTo`: turn toward compass `degrees` until reached or stopped.
+    pub fn turn_to(&mut self, degrees: f32) {
+        self.object.motion.turn_to(Heading::from_degrees(degrees));
+    }
+
+    /// `CMotionInterp::StopTurnTo`: the turn target becomes the current heading.
+    pub fn stop_turn_to(&mut self) {
+        let current = self.object.position.frame.heading();
+        self.object.motion.stop_turn_to(current);
+    }
+
+    /// The normalised turn rate in `[-1, 1]` (positive counter-clockwise) passed to
+    /// `CMotionInterp::SetOmegaVelocity` every quantum until changed; 0 stops turning.
+    pub fn set_turn_rate(&mut self, normalized: f32) {
+        self.turn = normalized;
+    }
+
+    /// `CPhysicsObj::set_heading`: the heading quantised to `Heading::ToUInt8` steps and set
+    /// on the current frame (`Frame::set_heading`, then `set_frame`).
+    pub fn set_heading(&mut self, degrees: f32) {
+        let heading = Heading::from_u8(Heading::from_degrees(degrees).to_u8());
+        let mut frame = self.object.position.frame;
+        frame.set_heading(heading);
+        self.object.position.frame = frame;
     }
 
     /// One physics quantum (`CPhysicsObj::UpdateMovement(PHYSICS_QUANTUM)`).
     pub fn step_quantum(&mut self, terrain: &Terrain) {
-        if self.input.turn != 0.0 {
-            self.object.motion.set_omega_velocity(self.input.turn);
+        if self.turn != 0.0 {
+            self.object.motion.set_omega_velocity(self.turn);
         }
         self.object.update_movement(PHYSICS_QUANTUM, terrain);
     }
@@ -194,7 +224,7 @@ impl PhysicsBody {
             velocity: [o.velocity.x, o.velocity.y, o.velocity.z],
             omega: [o.omega.x, o.omega.y, o.omega.z],
             do_motion: [motion.x, motion.y, motion.z],
-            turn: self.input.turn,
+            turn: self.turn,
             element: o.element,
             mode: o.motion.mode(),
             contact: o.has_contact(),
