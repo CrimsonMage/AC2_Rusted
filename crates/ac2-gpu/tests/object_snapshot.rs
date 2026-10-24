@@ -289,14 +289,17 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
                 DrawGroup {
                     instances: &before,
                     ordered: true,
+                    environment: None,
                 },
                 DrawGroup {
                     instances: &world_instances,
                     ordered: false,
+                    environment: None,
                 },
                 DrawGroup {
                     instances: &after,
                     ordered: true,
+                    environment: None,
                 },
             ],
         );

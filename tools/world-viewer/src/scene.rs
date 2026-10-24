@@ -13,12 +13,16 @@ use ac2_math::{Mat4, Vec3};
 use ac2_render::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
 use ac2_render::object::{load_object_model, load_water_model, ObjectEnvironment, RenderSettings};
 use ac2_render::sky::{sky_frame, SkyFrame, SkyPlacement};
+
+use crate::interiors::{load_block_interiors, BlockInteriors};
 use ac2_render::terrain::build_terrain_mesh;
 use ac2_render::{load_material_image, load_texture_image, Camera, SceneLighting};
 use ac2_world::Ac2WorldSource;
 
 /// `GameTime` day length in seconds for the Legions region.
 pub const DAY_SECONDS: f64 = 7347.0;
+/// `ObjectRenderer` lays out 16 groups; three are the sky and the world.
+const MAX_INTERIOR_GROUPS: usize = 13;
 
 /// One resident block: its near terrain and its placed objects (visual, world matrix, frill).
 struct Block {
@@ -26,6 +30,8 @@ struct Block {
     placements: Vec<(DataId, Mat4, bool)>,
     /// Near water (`LScapeTerrainMesh::UpdateNearWater`), already in world space.
     water: Option<GpuObjectModel>,
+    /// Interior cells visible from outside.
+    interiors: Option<BlockInteriors>,
 }
 
 pub struct Scene {
@@ -36,6 +42,8 @@ pub struct Scene {
     sky: SkyFrame,
     models: HashMap<DataId, Option<GpuObjectModel>>,
     blocks: HashMap<(u8, u8), Block>,
+    /// Blocks whose interiors `prepare` laid out as groups 3 onward.
+    frame_interiors: Vec<(u8, u8)>,
     /// The placements `prepare` laid out, in draw order, with a frill's merged normal.
     frame_placements: Vec<(DataId, Mat4, Option<Vec3>)>,
     pub radius: i32,
@@ -58,6 +66,7 @@ impl Scene {
             models: HashMap::new(),
             blocks: HashMap::new(),
             frame_placements: Vec::new(),
+            frame_interiors: Vec::new(),
             radius,
             time_of_day: 0.0,
         }
@@ -141,12 +150,22 @@ impl Scene {
                         ));
                     }
                 }
+                let interiors = load_block_interiors(
+                    &self.world,
+                    &store,
+                    &mut self.objects,
+                    gpu,
+                    id,
+                    &settings,
+                    &mut load,
+                );
                 self.blocks.insert(
                     (x, y),
                     Block {
                         terrain,
                         placements,
                         water,
+                        interiors,
                     },
                 );
             }
@@ -256,27 +275,56 @@ impl Scene {
         let world = instances(&self.models, &self.frame_placements, &self.blocks);
         let before = sky_instances(&self.models, &self.sky.before);
         let after = sky_instances(&self.models, &self.sky.after);
+        // Groups 0-2: sky before, world, sky after; then each block's visible interiors under its
+        // inside environment.
+        let mut keys: Vec<_> = self
+            .blocks
+            .iter()
+            .filter(|(_, block)| block.interiors.is_some())
+            .map(|(key, _)| *key)
+            .collect();
+        keys.sort_unstable();
+        keys.truncate(MAX_INTERIOR_GROUPS);
+        let interior_instances: Vec<_> = keys
+            .iter()
+            .filter_map(|key| self.blocks[key].interiors.as_ref())
+            .map(|interiors| (interiors.instances(), &interiors.environment))
+            .collect();
+        let mut groups = vec![
+            DrawGroup {
+                instances: &before,
+                ordered: true,
+                environment: None,
+            },
+            DrawGroup {
+                instances: &world,
+                ordered: false,
+                environment: None,
+            },
+            DrawGroup {
+                instances: &after,
+                ordered: true,
+                environment: None,
+            },
+        ];
+        groups.extend(
+            interior_instances
+                .iter()
+                .map(|(instances, environment)| DrawGroup {
+                    instances,
+                    ordered: false,
+                    environment: Some(environment),
+                }),
+        );
         self.objects.prepare(
             gpu,
             camera,
             &ObjectEnvironment::outside(&lighting),
             aspect,
             time,
-            &[
-                DrawGroup {
-                    instances: &before,
-                    ordered: true,
-                },
-                DrawGroup {
-                    instances: &world,
-                    ordered: false,
-                },
-                DrawGroup {
-                    instances: &after,
-                    ordered: true,
-                },
-            ],
+            &groups,
         );
+        self.frame_interiors = keys;
     }
 
     /// Records the frame into a pass cleared to `SceneTool::backgroundColor` (black).
@@ -292,6 +340,11 @@ impl Scene {
         );
         let instances = instances(&self.models, &self.frame_placements, &self.blocks);
         self.objects.draw(pass, 1, &instances);
+        for (index, key) in self.frame_interiors.iter().enumerate() {
+            if let Some(interiors) = self.blocks.get(key).and_then(|b| b.interiors.as_ref()) {
+                self.objects.draw(pass, 3 + index, &interiors.instances());
+            }
+        }
         self.objects
             .draw(pass, 2, &sky_instances(&self.models, &self.sky.after));
     }

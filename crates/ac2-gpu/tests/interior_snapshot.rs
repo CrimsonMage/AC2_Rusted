@@ -170,6 +170,7 @@ fn dungeon_cells_render_with_baked_light() {
             &[DrawGroup {
                 instances: &instances,
                 ordered: false,
+                environment: None,
             }],
         );
         target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| {

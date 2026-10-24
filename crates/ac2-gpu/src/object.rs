@@ -65,6 +65,11 @@ struct DrawUniform {
     points: [[f32; 4]; 16],
 }
 
+/// Byte stride of one draw group's frame uniform (the dynamic-offset alignment).
+const FRAME_STRIDE: u64 = 256;
+/// Draw groups one `prepare` lays out.
+const MAX_GROUPS: usize = 16;
+
 /// One drawn layer of a batch: its state and the bind group of its stage textures.
 struct GpuPass {
     pass: LayerPass,
@@ -145,6 +150,9 @@ impl<'a> ObjectInstance<'a> {
 pub struct DrawGroup<'a> {
     pub instances: &'a [ObjectInstance<'a>],
     pub ordered: bool,
+    /// The environment the group draws in (`WorldRender::SetupEnvironment` before it); `None`
+    /// uses the frame's.
+    pub environment: Option<&'a ObjectEnvironment>,
 }
 
 pub struct ObjectRenderer {
@@ -186,7 +194,7 @@ impl ObjectRenderer {
         };
         let frame_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("ac2 object frame"),
-            entries: &[uniform(0, false)],
+            entries: &[uniform(0, true)],
         });
         let draw_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("ac2 object draw"),
@@ -219,7 +227,7 @@ impl ObjectRenderer {
         });
         let frame_buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("ac2 object frame uniform"),
-            size: std::mem::size_of::<FrameUniform>() as u64,
+            size: FRAME_STRIDE * MAX_GROUPS as u64,
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
@@ -228,7 +236,11 @@ impl ObjectRenderer {
             layout: &frame_layout,
             entries: &[wgpu::BindGroupEntry {
                 binding: 0,
-                resource: frame_buffer.as_entire_binding(),
+                resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                    buffer: &frame_buffer,
+                    offset: 0,
+                    size: wgpu::BufferSize::new(std::mem::size_of::<FrameUniform>() as u64),
+                }),
             }],
         });
         let module = object_module(device, include_str!("object_stages.wgsl"));
@@ -413,7 +425,14 @@ impl ObjectRenderer {
         groups: &[DrawGroup<'_>],
     ) {
         self.time = time;
-        self.write_frame(&gpu.queue, camera, environment, aspect);
+        assert!(
+            groups.len() <= MAX_GROUPS,
+            "at most {MAX_GROUPS} draw groups"
+        );
+        for (index, group) in groups.iter().enumerate() {
+            let environment = group.environment.unwrap_or(environment);
+            self.write_frame(&gpu.queue, index, camera, environment, aspect);
+        }
         let mut entries = Vec::new();
         let mut bounds = Vec::with_capacity(groups.len());
         for group in groups {
@@ -489,6 +508,7 @@ impl ObjectRenderer {
     fn write_frame(
         &self,
         queue: &wgpu::Queue,
+        slot: usize,
         camera: &Camera,
         environment: &ObjectEnvironment,
         aspect: f32,
@@ -521,7 +541,11 @@ impl ObjectRenderer {
             fog_color: rgb(fog_color),
             fog: [start, end, 1.0 / (end - start).max(1e-3), fog_on],
         };
-        queue.write_buffer(&self.frame_buffer, 0, bytemuck::bytes_of(&uniform));
+        queue.write_buffer(
+            &self.frame_buffer,
+            slot as u64 * FRAME_STRIDE,
+            bytemuck::bytes_of(&uniform),
+        );
     }
 
     /// Records group `group` of the draws laid out by the last `prepare`, which must have been
@@ -535,7 +559,11 @@ impl ObjectRenderer {
         let Some(range) = self.groups.get(group) else {
             return;
         };
-        pass.set_bind_group(0, &self.frame_group, &[]);
+        pass.set_bind_group(
+            0,
+            &self.frame_group,
+            &[(group as u64 * FRAME_STRIDE) as u32],
+        );
         let mut current: Option<PipelineKey> = None;
         for draw in &self.queue[range.clone()] {
             let Some(part) = instances
