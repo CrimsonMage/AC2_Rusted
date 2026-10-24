@@ -90,6 +90,11 @@ pub struct MovementState {
     /// `CONTACT_TS` and `ON_WALKABLE_TS`.
     pub contact: bool,
     pub on_walkable: bool,
+    /// `CPhysicsObj::get_heading` (`Frame::get_heading`): compass degrees, `[0, 360)`,
+    /// clockwise from north.
+    pub heading_degrees: f32,
+    /// `CPhysicsObj::m_nTimesJumped`: incremented by every `Jump`.
+    pub times_jumped: u32,
 }
 
 /// One moving body (the player): position, shape, motion interpreter and physics state.
@@ -181,6 +186,8 @@ impl PhysicsBody {
             mode: o.motion.mode(),
             contact: o.has_contact(),
             on_walkable: o.on_walkable(),
+            heading_degrees: frame.heading().degrees(),
+            times_jumped: o.times_jumped,
         }
     }
 
