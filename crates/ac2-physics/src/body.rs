@@ -95,6 +95,11 @@ pub struct MovementState {
     pub heading_degrees: f32,
     /// `CPhysicsObj::m_nTimesJumped`: incremented by every `Jump`.
     pub times_jumped: u32,
+    /// `CMotionInterp::IsTurningTo`: turning toward `turn_to_degrees`.
+    pub turning_to: bool,
+    /// `CMotionInterp::GetTurnToDirection`: the turn target, compass degrees `[0, 360)` (the
+    /// current heading after `StopTurnTo`).
+    pub turn_to_degrees: f32,
 }
 
 /// One moving body (the player): position, shape, motion interpreter and physics state.
@@ -188,6 +193,8 @@ impl PhysicsBody {
             on_walkable: o.on_walkable(),
             heading_degrees: frame.heading().degrees(),
             times_jumped: o.times_jumped,
+            turning_to: o.motion.is_turning_to(),
+            turn_to_degrees: o.motion.turn_to_direction().degrees(),
         }
     }
 

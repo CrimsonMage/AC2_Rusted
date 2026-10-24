@@ -535,6 +535,7 @@ key	status	note
 005083f0	_	
 00509790	x	
 005097b0	x	
+005097e0	x	ac2-physics MovementState turning_to / turn_to_degrees
 00509800	x	
 00509a90	x	
 00509ab0	x	
@@ -548,6 +549,7 @@ key	status	note
 0050b540	x	
 0050b5d0	x	
 0050b660	x	
+0050b7d0	x	ac2-physics MovementState turning_to / turn_to_degrees
 0050b7f0	x	
 0050b800	x	
 0050b820	x	

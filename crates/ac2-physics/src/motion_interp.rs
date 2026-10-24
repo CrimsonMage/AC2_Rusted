@@ -203,6 +203,16 @@ impl MotionInterp {
         self.turn_to = true;
     }
 
+    /// `CMotionInterp::IsTurningTo`.
+    pub(crate) fn is_turning_to(&self) -> bool {
+        self.turn_to
+    }
+
+    /// `CMotionInterp::GetTurnToDirection`.
+    pub(crate) fn turn_to_direction(&self) -> Heading {
+        self.turn_to_dir
+    }
+
     /// `CMotionInterp::StopTurnTo`: the turn target becomes the current heading.
     pub(crate) fn stop_turn_to(&mut self, current: Heading) {
         self.turn_to_dir = current;

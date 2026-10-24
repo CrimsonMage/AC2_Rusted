@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 133 done, 36 partial, 1893 to do, 62 skipped.
+2124 retail functions: 135 done, 36 partial, 1891 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (0/9)
@@ -1565,7 +1565,7 @@ Legend and workflow: [README](README.md).
 ### InterpolationManager::InterpolationPath
 - [ ] `InterpolationManager::InterpolationPath::StreamPack` · 00510cf0 · legions 004fed00
 
-## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (17/62)
+## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (19/62)
 
 ### CMotionInterp
 - [ ] `CMotionInterp::Init` · 00509630 · legions 004f7680
@@ -1577,7 +1577,7 @@ Legend and workflow: [README](README.md).
 - [x] `CMotionInterp::GetSeaFloorMultiplier` · 00509790
 - [x] `CMotionInterp::GetWaterMultiplier` · 005097b0
 - [ ] `CMotionInterp::IsMovingTo` · 005097d0
-- [ ] `CMotionInterp::IsTurningTo` · 005097e0
+- [x] `CMotionInterp::IsTurningTo` · 005097e0 — ac2-physics MovementState turning_to / turn_to_degrees
 - [ ] `CMotionInterp::ReachedPersistentTarget` · 005097f0
 - [x] `CMotionInterp::ConvertDoMotionToLocalDesired` · 00509800
 - [ ] `CMotionInterp::GetDesiredModeState` · 00509910
@@ -1629,7 +1629,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CMotionInterp::~CMotionInterp` · 0050b740 · legions 004f9780
 - [ ] `CMotionInterp::GetTerrainType` · 0050b7b0
 - [ ] `CMotionInterp::GetConstraintManager` · 0050b7c0
-- [ ] `CMotionInterp::GetTurnToDirection` · 0050b7d0 · legions 004f9810
+- [x] `CMotionInterp::GetTurnToDirection` · 0050b7d0 · legions 004f9810 — ac2-physics MovementState turning_to / turn_to_degrees
 - [x] `CMotionInterp::GetAcceleration` · 0050b7f0
 - [x] `CMotionInterp::GetOmegaAcceleration` · 0050b800
 - [ ] `CMotionInterp::GetAccelerationScale` · 0050b810
