@@ -112,3 +112,68 @@ fn interiors_load_connect_and_hold_a_body_on_their_floors() {
         "{settled} of {tried} cells placed"
     );
 }
+
+#[test]
+fn line_of_sight_inside_interiors_stops_at_their_floors_and_walls() {
+    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+        return;
+    };
+    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
+    let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
+    let world = Ac2WorldSource::open(Arc::clone(&store))
+        .expect("world source opens")
+        .expect("AC2 landscape");
+    let mut terrain = Terrain::new();
+    let block = CellId::new(BLOCK | 0xFFFF);
+    load_terrain_block(&world, &mut terrain, block).expect("landblock decodes");
+    let interiors = load_block_interiors(&world, &mut terrain, block).expect("interiors load");
+    let (mut floors, mut walls, mut tried) = (0, 0, 0);
+    for index in 0..interiors as u32 {
+        let cell_id = BLOCK | (0x0100 + index);
+        let Some(cell) = terrain.env_cell(cell_id) else {
+            continue;
+        };
+        let Some(sphere) = cell
+            .structure
+            .physics
+            .as_ref()
+            .and_then(|t| t.bounding_sphere())
+        else {
+            continue;
+        };
+        let start = cell.position.local_to_global(&cell.position, sphere.center);
+        if !cell.point_in_cell(start) {
+            continue;
+        }
+        tried += 1;
+        let position = Position::new(cell_id, Frame::new(start, Quaternion::IDENTITY));
+        let mut down = crate::los::LosParameters::new();
+        down.set_from_position_and_offset(&position, crate::vector::Vector::new(0.0, 0.0, -50.0));
+        assert!(terrain.los_check(&mut down));
+        if down.trace_result() == 1 && down.end_point().z < start.z {
+            floors += 1;
+        }
+        // Level rays a whole block long: something stops at least one of the four.
+        let stopped = [(1.0, 0.0), (-1.0, 0.0), (0.0, 1.0), (0.0, -1.0)]
+            .iter()
+            .any(|&(x, y)| {
+                let mut level = crate::los::LosParameters::new();
+                let offset = crate::vector::Vector::new(x * 160.0, y * 160.0, 0.0);
+                level.set_from_position_and_offset(&position, offset);
+                assert!(terrain.los_check(&mut level));
+                level.trace_result() == 1
+            });
+        if stopped {
+            walls += 1;
+        }
+    }
+    assert!(tried > 0);
+    assert!(
+        floors * 10 >= tried * 9,
+        "{floors} of {tried} cells stop a ray at the floor"
+    );
+    assert!(
+        walls * 10 >= tried * 9,
+        "{walls} of {tried} cells stop a level ray"
+    );
+}

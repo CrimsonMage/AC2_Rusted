@@ -180,10 +180,12 @@ fn rooms() -> Terrain {
         portals: vec![
             CellPortal {
                 other_cell: None,
+                other_portal: None,
                 polygon: doorway(0.0),
             },
             CellPortal {
                 other_cell: Some(ROOM_B),
+                other_portal: Some(0),
                 polygon: doorway(4.0),
             },
         ],
@@ -199,6 +201,7 @@ fn rooms() -> Terrain {
         structure: room(4.0, 8.0, b_walls),
         portals: vec![CellPortal {
             other_cell: Some(ROOM_A),
+            other_portal: Some(1),
             polygon: doorway(4.0),
         }],
         seen_outside: false,

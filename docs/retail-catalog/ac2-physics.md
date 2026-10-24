@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 273 done, 62 partial, 1727 to do, 62 skipped.
+2124 retail functions: 285 done, 64 partial, 1713 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -16,7 +16,7 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysics::UpdateAllPhysics` · 00732400 — the player's quantum with PlayerPhysicsUpdatedCallback, then every other object in the world and in range
 - [x] `CPhysics::UpdateAllAnimation` · 007325a0 — ac2-client: the player's and every object's body
 
-## `portal/shared/src/bsp/bspleaf.cpp.c` (5/13)
+## `portal/shared/src/bsp/bspleaf.cpp.c` (6/13)
 
 ### BSPLEAF
 - [ ] `BSPLEAF::BSPLEAF` · 0049f670 · legions 00496a60
@@ -28,12 +28,12 @@ Legend and workflow: [README](README.md).
 - [x] `BSPLEAF::hits_walkable` · 0049f870 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPLEAF::find_walkable` · 0049f8f0 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPLEAF::sphere_intersects_solid_poly` · 0049f980 · legions 00496d70 — ac2-physics bsp: placement insert (Legions identical)
-- [ ] `BSPLEAF::TraceRay` · 0049fa10
+- [x] `BSPLEAF::TraceRay` · 0049fa10 — ac2-physics los (Terrain::los_check)
 - [ ] `BSPLEAF::UnPack` · 0049fa40
 - [ ] `BSPLEAF::FromFileStream` · 0049fb00
 - [-] `BSPLEAF::FromFileNode` · 0049fc30 — text source format (admin tools)
 
-## `portal/shared/src/bsp/bspnode.cpp.c` (7/26)
+## `portal/shared/src/bsp/bspnode.cpp.c` (8/26)
 
 ### Sphere
 - [x] `Sphere::Intersects` · 0049ce40 · legions 00494860
@@ -58,7 +58,7 @@ Legend and workflow: [README](README.md).
 - [ ] `BSPNODE::UnPack` · 0049d5f0 · legions 00495010
 - [ ] `BSPNODE::ChildFromFileStream` · 0049d690
 - [ ] `BSPNODE::FromFileStream` · 0049d770
-- [ ] `BSPNODE::TraceRay` · 0049d880
+- [x] `BSPNODE::TraceRay` · 0049d880 — ac2-physics los (Terrain::los_check)
 
 ### PFileNode
 - [ ] `PFileNode::GetLeafAsPString` · 0049dcb0
@@ -69,7 +69,7 @@ Legend and workflow: [README](README.md).
 - [-] `BSPNODE::FromFileNode` · 0049df70 — text source format (admin tools)
 - [ ] `BSPNODE::GetPosPlanes` · 0049e140 · legions 00495530
 
-## `portal/shared/src/bsp/bsptree.cpp.c` (16/20)
+## `portal/shared/src/bsp/bsptree.cpp.c` (17/20)
 
 ### Plane
 - [x] `Plane::Scale` · 0049b420 · legions 004932c0 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
@@ -86,7 +86,7 @@ Legend and workflow: [README](README.md).
 ### BSPTREE
 - [x] `BSPTREE::GetBoundingSphere` · 0049b580 · legions 00493420 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [x] `BSPTREE::point_inside_cell_bsp` · 0049b590 · legions 00493430 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
-- [ ] `BSPTREE::TraceRay` · 0049b5a0 · legions 00493440
+- [x] `BSPTREE::TraceRay` · 0049b5a0 · legions 00493440 — ac2-physics los (Terrain::los_check)
 - [x] `BSPTREE::adjust_to_plane` · 0049b5f0 · legions 00493490 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 - [x] `BSPTREE::slide_sphere` · 0049b800 · legions 004936a0 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 - [x] `BSPTREE::step_sphere_up` · 0049b880 · legions 00493720 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
@@ -1144,21 +1144,21 @@ Legend and workflow: [README](README.md).
 - [ ] `EtherealWeenieType::AddToSolidList` · 006a49f0 · legions 00641950
 - [ ] `EtherealWeenieType::Update` · 006a4a30 · legions 00641990
 
-## `portal/shared/src/physobj/ethereal/losparameters.cpp.c` (0/10)
+## `portal/shared/src/physobj/ethereal/losparameters.cpp.c` (4/10)
 
 ### UIPersistantData
 - [ ] `UIPersistantData::SetCurrentCGR` · 006a3cf0 · legions 00640c50
 
 ### LOSParameters
 - [ ] `LOSParameters::SetBlockedByWater` · 006a3d00 · legions 00640c60
-- [ ] `LOSParameters::LOSParameters` · 006a3d20 · legions 00640c80
+- [x] `LOSParameters::LOSParameters` · 006a3d20 · legions 00640c80 — ac2-physics los (Terrain::los_check)
 - [ ] `LOSParameters::~LOSParameters` · 006a3e10 · legions 00640d70
 - [ ] `LOSParameters::SetLOSParams` · 006a3e50 · legions 00640db0
 - [ ] `LOSParameters::StreamPack` · 006a3e80 · legions 00640de0
 - [ ] `LOSParameters::operator=` · 006a4040 · legions 00640fa0
-- [ ] `LOSParameters::SetRay` · 006a41d0 · legions 00641130
-- [ ] `LOSParameters::ResetState` · 006a4210 · legions 00641170
-- [ ] `LOSParameters::CalcFinalRay` · 006a4270 · legions 006411d0
+- [x] `LOSParameters::SetRay` · 006a41d0 · legions 00641130 — ac2-physics los (Terrain::los_check)
+- [x] `LOSParameters::ResetState` · 006a4210 · legions 00641170 — ac2-physics los (Terrain::los_check)
+- [x] `LOSParameters::CalcFinalRay` · 006a4270 · legions 006411d0 — ac2-physics los (Terrain::los_check)
 
 ## `portal/shared/src/physobj/fx/dbfxtable.cpp.c` (0/12)
 
@@ -1988,7 +1988,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [x] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
-## `portal/shared/src/physobj/partarray.cpp.c` (3/72)
+## `portal/shared/src/physobj/partarray.cpp.c` (4/72)
 
 ### CPartArray
 - [ ] `CPartArray::SetOwnerID` · 004edfc0 · legions 004e0930
@@ -2021,7 +2021,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartArray::CacheDefaultRenderBoundingBox` · 004ee760 · legions 004e10c0
 - [ ] `CPartArray::CacheHasPhysicsBSP` · 004ee780 · legions 004e10e0
 - [x] `CPartArray::FindObjCollisions` · 004ee7d0 · legions 004e1130 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-- [ ] `CPartArray::TraceRayThroughPartsPhysics` · 004ee860 · legions 004e11c0
+- [x] `CPartArray::TraceRayThroughPartsPhysics` · 004ee860 · legions 004e11c0 — ac2-physics los (Terrain::los_check)
 - [ ] `CPartArray::RefreshMatrices` · 004ee8f0 · legions 004e1250
 - [ ] `CPartArray::ApplyMeshReplacement` · 004ee970 · legions 004e12d0
 - [ ] `CPartArray::RemoveMeshReplacements` · 004ee9b0 · legions 004e1310
@@ -2074,12 +2074,12 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartArray::~CPartArray` · 004f0d40 · legions 004e3670
 - [~] `CPartArray::DoAnimation` · 004f0de0 · legions 004e3710 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 
-## `portal/shared/src/physobj/partgroup.cpp.c` (2/44)
+## `portal/shared/src/physobj/partgroup.cpp.c` (3/44)
 
 ### CPartGroup
 - [ ] `CPartGroup::InitSetup` · 004f45e0 · legions 004e6e00
 - [ ] `CPartGroup::SetParentOffset` · 004f4610 · legions 004e6e30
-- [ ] `CPartGroup::TraceRayPhysics` · 004f4670 · legions 004e6e90
+- [x] `CPartGroup::TraceRayPhysics` · 004f4670 · legions 004e6e90 — ac2-physics los (Terrain::los_check)
 - [ ] `CPartGroup::GetBoneMatrix` · 004f46d0 · legions 004e6ef0
 - [ ] `CPartGroup::CPartGroup` · 004f46e0 · legions 004e6f00
 - [ ] `CPartGroup::~CPartGroup` · 004f47a0 · legions 004e6fc0
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (73/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (75/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2314,7 +2314,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::AddToTempEtherealList` · 004e0050
 - [ ] `CPhysicsObj::UpdateCollidePhysicsMask` · 004e0080 · legions 004d2ae0
 - [ ] `CPhysicsObj::SetContactInfo` · 004e00a0 · legions 004d2b00
-- [ ] `CPhysicsObj::PerformLOS` · 004e0190
+- [x] `CPhysicsObj::PerformLOS` · 004e0190 — ac2-physics los (Terrain::los_check)
 - [ ] `CPhysicsObj::EasyDraw` · 004e01a0
 - [ ] `CPhysicsObj::TraceRay` · 004e0200 · legions 004d2c60
 - [ ] `CPhysicsObj::get_cell_position` · 004e0380
@@ -2466,7 +2466,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Position::subtract2` · 004e2c20 · legions 004d5670
 
 ### LOSParameters
-- [ ] `LOSParameters::GetEndPoint` · 004e2cb0 · legions 004d5700
+- [x] `LOSParameters::GetEndPoint` · 004e2cb0 · legions 004d5700 — ac2-physics los (Terrain::los_check)
 
 ### BBox
 - [ ] `BBox::BBox` · 004e2d40 · legions 004d5790
@@ -2491,7 +2491,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::CheckIfSolid` · 004e35f0
 - [ ] `CPhysicsObj::GetObjectOffsetPos` · 004e36a0
 - [ ] `CPhysicsObj::CheckTypeMatch` · 004e39b0 · legions 004d6400
-- [ ] `CPhysicsObj::IsLOSBlocking` · 004e3a50
+- [~] `CPhysicsObj::IsLOSBlocking` · 004e3a50 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 - [ ] `CPhysicsObj::GetTargetInfo` · 004e3a70
 - [x] `CPhysicsObj::Jump` · 004e3aa0 · legions 004d64f0 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [~] `CPhysicsObj::CalcElement` · 004e3b90 · legions 004d65e0 — elements go through ModeTracker::DoElement; the no-cell DoElement(GROUND) is not ported
@@ -2552,7 +2552,7 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::GetHeightAboveWalkable` · 004e5780 — vertical distance to the terrain polygon instead of CObjCell::LOSCheck
 - [ ] `CPhysicsObj::UpdateChild` · 004e5980 · legions 004d83d0
 - [~] `CPhysicsObj::handle_all_collisions` · 004e5d10 · legions 004d8760 — environment response only; object collisions and the collision manager not ported
-- [ ] `CPhysicsObj::CheckRayIntersect` · 004e60f0
+- [~] `CPhysicsObj::CheckRayIntersect` · 004e60f0 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 - [ ] `CPhysicsObj::SetVisualDesc` · 004e6650 · legions 004d90a0
 - [ ] `CPhysicsObj::SetScale` · 004e6690
 - [ ] `CPhysicsObj::ApplyPropertyCollection` · 004e66a0
@@ -2939,7 +2939,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::InitDataIDObject` · 004f44c0 · legions 004e6ce0
 - [ ] `PHYSICSOBJREP::CreateDataID` · 004f4510 · legions 004e6d30
 
-## `portal/shared/src/physobj/physicspart.cpp.c` (1/11)
+## `portal/shared/src/physobj/physicspart.cpp.c` (2/11)
 
 ### CPhysicsPart
 - [ ] `CPhysicsPart::CPhysicsPart` · 004f5c30 · legions 004e8420
@@ -2952,7 +2952,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsPart::DrawPart` · 004f6030 · legions 004e8820
 - [x] `CPhysicsPart::FindObjCollisions` · 004f6090 · legions 004e8880 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `CPhysicsPart::makePhysicsPart` · 004f6110 · legions 004e8900
-- [ ] `CPhysicsPart::TraceRayPhysics` · 004f6160 · legions 004e8950
+- [x] `CPhysicsPart::TraceRayPhysics` · 004f6160 · legions 004e8950 — ac2-physics los (Terrain::los_check)
 
 ## `portal/shared/src/physobj/setpositiondefs.cpp.c` (0/12)
 

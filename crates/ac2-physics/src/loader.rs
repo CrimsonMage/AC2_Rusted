@@ -274,6 +274,7 @@ pub fn load_block_interiors(
                 let polygon = usize::try_from(portal.polygon).ok()?;
                 Some(CellPortal {
                     other_cell: portal.other_cell.map(|other| other.raw()),
+                    other_portal: usize::try_from(portal.other_portal).ok(),
                     polygon: structure.portal_polygons.get(polygon)?.clone(),
                 })
             })

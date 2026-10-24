@@ -33,25 +33,36 @@ key	status	note
 0047bbd0	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047bcb0	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047bd90	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+0047be70	x	ac2-physics los (Terrain::los_check)
 0047bed0	x	
 0047c390	~	ac2-client: CellManager's block changes
 0047c440	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047c460	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047c510	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+0047c560	~	ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 0047cb40	~	ac2-client: CellManager's block changes
 0047cb70	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 0047cd90	x	
 0047ce60	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047d920	x	
+0047d990	x	ac2-physics los (Terrain::los_check)
+0047d9c0	x	ac2-physics los (Terrain::los_check)
+0047daa0	x	ac2-physics los (Terrain::los_check)
+0047dae0	x	ac2-physics los (Terrain::los_check)
+0047db20	x	ac2-physics los (Terrain::los_check)
 0047db50	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
 0047db90	x	
 0047dbe0	x	
 0047dce0	x	
 0047dd00	x	
 0047ddc0	x	
+0047df40	x	ac2-physics los (Terrain::los_check)
 0047e160	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+0047e520	x	ac2-physics los (Terrain::los_check)
 0047e570	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047e670	~	unloaded-landblock move restriction not ported
+0047e7d0	x	ac2-physics los (Terrain::los_check)
+0047eed0	x	ac2-physics los (Terrain::los_check)
 0047f1f0	x	
 0047f410	x	
 0047f4b0	x	
@@ -63,14 +74,20 @@ key	status	note
 00480900	~	cell mesh with appearance atoms at the cell frame, point lights cached at 1.5x bbox radius; degrade selection fixed at top
 00480cb0	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 00481030	x	ac2-render object::cell / point_lights
+00482060	x	ac2-physics los (Terrain::los_check)
 00482450	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 00484680	~	ac2-physics load_block_interiors: cell entities as static objects (no ObjectClearance/CollisionParameters)
 00485890	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
+00485930	~	ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
+00486af0	x	ac2-physics los (Terrain::los_check)
 00487750	~	static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
+00488140	x	ac2-physics los (Terrain::los_check)
 004883d0	x	
 00488f10	x	
 00489160	x	
 00489230	~	ported; CLandCell::CheckRadius per-cell test not re-verified
+00489820	x	ac2-physics los (Terrain::los_check)
+00489d70	x	ac2-physics los (Terrain::los_check)
 0048a160	x	
 0048a460	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0048a9c0	x	
@@ -81,6 +98,7 @@ key	status	note
 0048b450	x	
 0048b4c0	x	
 0048b700	x	
+0048bcd0	x	ac2-physics los (Terrain::los_check)
 0048c4d0	x	
 0048ca50	x	
 0048cb40	x	
@@ -200,13 +218,14 @@ key	status	note
 00499800	x	ac2-physics bsp: placement insert (Legions identical)
 00499940	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
 00499b90	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
-00499e60	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+00499e60	x	ac2-physics los (Terrain::los_check)
 00499f30	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
 0049a160	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
 0049a3a0	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
 0049a860	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
 0049a8b0	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
 0049a8d0	x	ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+0049a920	x	ac2-physics los (Terrain::los_check)
 0049a9f0	x	ac2-physics envcell.rs: portal clipping against the cell-search box
 0049acb0	x	ac2-physics envcell.rs: portal clipping against the cell-search box
 0049b420	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
@@ -215,6 +234,7 @@ key	status	note
 0049b540	x	
 0049b580	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 0049b590	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+0049b5a0	x	ac2-physics los (Terrain::los_check)
 0049b5f0	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 0049b800	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 0049b880	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
@@ -234,6 +254,7 @@ key	status	note
 0049d230	x	ac2-physics bsp/node.rs (Legions identical)
 0049d2e0	x	ac2-physics bsp/node.rs (Legions identical)
 0049d3b0	x	ac2-physics bsp: placement insert (Legions identical)
+0049d880	x	ac2-physics los (Terrain::los_check)
 0049e170	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
 0049e190	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 0049e230	x	ac2-physics transition/localspace.rs, sphere_path.rs
@@ -254,6 +275,8 @@ key	status	note
 0049f870	x	ac2-physics bsp/node.rs (Legions identical)
 0049f8f0	x	ac2-physics bsp/node.rs (Legions identical)
 0049f980	x	ac2-physics bsp: placement insert (Legions identical)
+0049fa10	x	ac2-physics los (Terrain::los_check)
+004a6220	x	ac2-physics los (Terrain::los_check)
 004a9b90	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 004a9c30	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 004bfb90	x	
@@ -561,6 +584,7 @@ key	status	note
 004dfd10	x	
 004dffc0	x	
 004dffe0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+004e0190	x	ac2-physics los (Terrain::los_check)
 004e05a0	x	
 004e05d0	x	
 004e05e0	x	ac2-physics interp (slice 3)
@@ -584,9 +608,11 @@ key	status	note
 004e23b0	~	instance stamp kept per object in ac2-weenie ObjectTable
 004e2900	~	ac2-client: the object stops stepping physics
 004e2980	~	ac2-client: the object steps physics again
+004e2cb0	x	ac2-physics los (Terrain::los_check)
 004e30e0	x	
 004e3280	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004e3310	x	ac2-physics interp (slice 3)
+004e3a50	~	ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 004e3aa0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e3b90	~	elements go through ModeTracker::DoElement; the no-cell DoElement(GROUND) is not ported
 004e3e20	~	no pushers (CCollisionManager::UpdatePusherValues)
@@ -603,6 +629,7 @@ key	status	note
 004e56e0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e5780	~	vertical distance to the terrain polygon instead of CObjCell::LOSCheck
 004e5d10	~	environment response only; object collisions and the collision manager not ported
+004e60f0	~	ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 004e6780	x	ac2-weenie ObjectTable::apply_action (newer position stamp), then LeaveWorld
 004e67c0	~	ac2-weenie: newer position stamp, the holder, location and placement frame
 004e6810	x	ac2-weenie ObjectTable::apply_action
@@ -641,6 +668,7 @@ key	status	note
 004ed1f0	~	interp blips use set_position_checked(SLIDE); parent/placement-position bookkeeping not ported
 004ed470	x	the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 004ee7d0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+004ee860	x	ac2-physics los (Terrain::los_check)
 004f0a10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f0a80	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 004f0af0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
@@ -668,10 +696,12 @@ key	status	note
 004f2670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f2690	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
 004f36a0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+004f4670	x	ac2-physics los (Terrain::los_check)
 004f4a40	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 004f4aa0	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
 004f5110	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f6090	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+004f6160	x	ac2-physics los (Terrain::los_check)
 005083f0	_	
 00509790	x	
 005097b0	x	
@@ -790,6 +820,8 @@ key	status	note
 00531bb0	x	
 00531bf0	x	
 00531c30	x	
+00542530	x	ac2-physics los (Terrain::los_check)
+005425b0	x	ac2-physics los (Terrain::los_check)
 00568ea0	x	
 00569020	x	
 00569200	x	
@@ -986,8 +1018,11 @@ key	status	note
 0061d300	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 0061d440	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 0061ef30	x	
+0061f0e0	x	ac2-physics los (Terrain::los_check)
 0061f140	x	
+0061f200	x	ac2-physics los (Terrain::los_check)
 0061f300	x	
+0061f400	x	ac2-physics los (Terrain::los_check)
 0061fdb0	x	ac2-physics interp (slice 3)
 0061fdf0	x	ac2-physics interp (slice 3)
 0061fe90	x	ac2-physics interp (slice 3)
@@ -999,18 +1034,21 @@ key	status	note
 00621380	x	
 00621390	x	
 00621410	x	
+00621510	x	ac2-physics los (Terrain::los_check)
 00621ef0	x	ac2-render object::cell / point_lights
 00622760	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 00622900	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 00622cf0	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
 00622f10	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
 00623960	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
+00623a20	x	ac2-physics los (Terrain::los_check)
 00624fb0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00625070	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 006258e0	x	
 00625930	x	
 00628460	x	
 00628580	x	
+00628590	x	ac2-physics los (Terrain::los_check)
 006290f0	x	
 006292a0	x	
 006294f0	x	
@@ -1217,6 +1255,10 @@ key	status	note
 0069dba0	x	
 0069df90	x	
 0069fed0	x	
+006a3d20	x	ac2-physics los (Terrain::los_check)
+006a41d0	x	ac2-physics los (Terrain::los_check)
+006a4210	x	ac2-physics los (Terrain::los_check)
+006a4270	x	ac2-physics los (Terrain::los_check)
 006a4ce0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006a4e50	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006a6180	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
