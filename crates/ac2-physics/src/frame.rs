@@ -103,7 +103,7 @@ impl Frame {
     }
 
     /// `Frame::localtoglobalvec`.
-    pub(crate) fn local_to_global_vec(&self, v: Vector) -> Vector {
+    pub fn local_to_global_vec(&self, v: Vector) -> Vector {
         let m = self.m.map(ld);
         let (x, y, z) = (ld(v.x), ld(v.y), ld(v.z));
         Vector::new(
@@ -114,7 +114,7 @@ impl Frame {
     }
 
     /// `Frame::globaltolocalvec`.
-    pub(crate) fn global_to_local_vec(&self, v: Vector) -> Vector {
+    pub fn global_to_local_vec(&self, v: Vector) -> Vector {
         let m = self.m.map(ld);
         let (x, y, z) = (ld(v.x), ld(v.y), ld(v.z));
         Vector::new(
@@ -144,7 +144,7 @@ impl Frame {
     }
 
     /// `Frame::get_vector_heading`: the local y axis (forward) in global coordinates.
-    pub(crate) fn vector_heading(&self) -> Vector {
+    pub fn vector_heading(&self) -> Vector {
         Vector::new(self.m[3], self.m[4], self.m[5])
     }
 
@@ -161,7 +161,7 @@ impl Frame {
     /// up as close to +z as it allows (+y when facing straight up), via
     /// `Quaternion::SetRotationAxes`. A degenerate heading leaves the frame unchanged, a zero one
     /// resets the rotation.
-    pub(crate) fn set_vector_heading(&mut self, heading: Vector) {
+    pub fn set_vector_heading(&mut self, heading: Vector) {
         let (hx, hy, hz) = (ld(heading.x), ld(heading.y), ld(heading.z));
         if (hx * hx + hy * hy) + hz * hz < epsilon_squared() {
             self.set_rotate(Quaternion::IDENTITY);
@@ -283,7 +283,7 @@ impl Frame {
     /// `Frame::slerp_rotation`: the rotation `t` of the way from `from` to `to`
     /// (`D3DXQuaternionSlerp`, CPU-dispatched in retail; this is the reference formula), stored
     /// through `set_rotate`.
-    pub(crate) fn slerp_rotation(&mut self, from: &Frame, to: &Frame, t: f32) {
+    pub fn slerp_rotation(&mut self, from: &Frame, to: &Frame, t: f32) {
         let a = [from.q.w, from.q.x, from.q.y, from.q.z].map(ld);
         let mut b = [to.q.w, to.q.x, to.q.y, to.q.z].map(ld);
         let t = ld(t);

@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 112 done, 10 partial, 724 to do, 143 skipped.
+989 retail functions: 116 done, 10 partial, 720 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (12/140)
@@ -721,10 +721,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjCell::InqVoyeurs` · 0047d5a0 · legions 004775d0
 - [ ] `CObjCell::AddVoyeur` · 0047d7b0 · legions 004777e0
 
-## `portal/shared/src/gametime/gametime.cpp.c` (0/29)
+## `portal/shared/src/gametime/gametime.cpp.c` (4/29)
 
 ### GameTime
-- [ ] `GameTime::SetYearLength` · 00618860 · legions 005d50d0
+- [x] `GameTime::SetYearLength` · 00618860 · legions 005d50d0 — GameClock::new: day_length * days_per_year as a double
 
 ### WeekDay
 - [ ] `WeekDay::WeekDay` · 00618880
@@ -743,14 +743,14 @@ Legend and workflow: [README](README.md).
 - [ ] `GameTime::Destroy` · 00618920 · legions 005d5190
 - [ ] `GameTime::StreamPack` · 00618a40 · legions 005d52b0
 - [ ] `GameTime::Init` · 00618b50 · legions 005d53c0
-- [ ] `GameTime::CalcDayBegin` · 00618bd0 · legions 005d5420
-- [ ] `GameTime::CalcTimeOfDay` · 00618c90 · legions 005d54e0
+- [x] `GameTime::CalcDayBegin` · 00618bd0 · legions 005d5420 — ac2_world::GameClock (f64 intermediates; the year and day floors)
+- [x] `GameTime::CalcTimeOfDay` · 00618c90 · legions 005d54e0 — ac2_world::GameClock (the last time of day runs to day_length)
 - [ ] `GameTime::GetDateTimeString` · 00618d40 · legions 005d5590
 - [ ] `GameTime::GetGameTimeFromTimeStamp` · 00618e40 · legions 005d5690
 - [ ] `GameTime::InqGameDateTimeString` · 00618f30 · legions 005d5780
 - [ ] `GameTime::GameTime` · 00618fb0 · legions 005d5800
 - [ ] `GameTime::~GameTime` · 00619090 · legions 005d58e0
-- [ ] `GameTime::UseTime` · 00619130 · legions 005d5980
+- [x] `GameTime::UseTime` · 00619130 · legions 005d5980 — ac2_world::GameClock::use_time
 - [ ] `GameTime::InqCurrentGameDateTimeString` · 00619200 · legions 005d5a50
 - [ ] `GameTime::TemporalDilationInternal` · 00619250 · legions 005d5aa0
 - [ ] `GameTime::AlterTimeOfDayImmediate` · 00619320 · legions 005d5b70

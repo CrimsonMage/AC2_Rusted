@@ -16,9 +16,34 @@ impl Position {
         Self { cell_id, frame }
     }
 
+    /// `Position::lerp_origin`: takes `from`'s cell and the origin `t` of the way from `from`
+    /// to `to` (the rotation is left as it is). Across landblocks `to`'s x and y gain the block
+    /// offset on the x87 stack while its z is stored first.
+    pub fn lerp_origin(&mut self, from: &Position, to: &Position, t: f32) {
+        self.cell_id = from.cell_id;
+        let (a, b, t) = (from.frame.origin, to.frame.origin, ld(t));
+        let same_block = (from.cell_id == 0 && to.cell_id == 0)
+            || (from.cell_id != 0 && to.cell_id != 0 && from.cell_id >> 16 == to.cell_id >> 16);
+        let (x, y, z) = if same_block {
+            (ld(b.x), ld(b.y), ld(b.z))
+        } else {
+            let offset = get_block_offset(from.cell_id, to.cell_id);
+            (
+                ld(offset.x) + ld(b.x),
+                ld(offset.y) + ld(b.y),
+                ld(st(ld(offset.z) + ld(b.z))),
+            )
+        };
+        self.frame.origin = Vector::new(
+            st((x - ld(a.x)) * t + ld(a.x)),
+            st((y - ld(a.y)) * t + ld(a.y)),
+            st((z - ld(a.z)) * t + ld(a.z)),
+        );
+    }
+
     /// `PositionOffset::GetOffset`: the vector from `self` to `other`. The landblock delta and
     /// `other`'s x and y are summed and stored before `self`'s origin is subtracted.
-    pub(crate) fn offset_to(&self, other: &Position) -> Vector {
+    pub fn offset_to(&self, other: &Position) -> Vector {
         let block = get_block_offset(self.cell_id, other.cell_id);
         let x = ld(st(ld(block.x) + ld(other.frame.origin.x)));
         let y = ld(st(ld(block.y) + ld(other.frame.origin.y)));

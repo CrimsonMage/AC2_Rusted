@@ -66,8 +66,8 @@ pub use land_lattice::{
 };
 pub use landblock::LandBlockDesc;
 pub use region::{
-    CelestialPosition, RegionDesc, SkyEnvironmentCadence, SkyEnvironmentSample, SkyFogDesc,
-    SkyLightingDesc,
+    CelestialPosition, GameClock, RegionDesc, SkyEnvironmentCadence, SkyEnvironmentSample,
+    SkyFogDesc, SkyLightingDesc,
 };
 pub use surface_info::Ac2SurfaceInfo;
 pub use terrain_cut::terrain_polygon_cut;

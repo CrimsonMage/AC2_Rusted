@@ -506,6 +506,7 @@ key	status	note
 004ddc20	x	ac2-physics transition/placement.rs (asm float order; Legions identical)
 004ddda0	x	ac2-physics transition/placement.rs (asm float order; Legions identical)
 004dddc0	x	
+004dde80	x	ac2_physics::Position::lerp_origin (across blocks the z sum is stored first)
 004de020	x	
 004de0d0	x	
 004de490	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
@@ -740,6 +741,10 @@ key	status	note
 0060e3d0	~	ac2-physics ObjectShape::new: physics containment radius and box only
 006169c0	x	
 00617370	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+00618860	x	GameClock::new: day_length * days_per_year as a double
+00618bd0	x	ac2_world::GameClock (f64 intermediates; the year and day floors)
+00618c90	x	ac2_world::GameClock (the last time of day runs to day_length)
+00619130	x	ac2_world::GameClock::use_time
 00619f70	x	
 00619fe0	x	
 0061a220	x	
@@ -996,6 +1001,7 @@ key	status	note
 007320f0	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
 00732200	~	Timer::local_time drives the physics clock
 00732240	~	the player body only (CPhysics::UpdateAllPhysics over remote objects not simulated)
+007322c0	x	PhysicsClock::render_interpolation
 007326e0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 00737cf0	x	
 DB_TYPE_SURFACE_DESC	x	

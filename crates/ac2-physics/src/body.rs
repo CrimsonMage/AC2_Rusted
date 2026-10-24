@@ -23,11 +23,32 @@ const MAX_PHYSICS_LAG: f32 = 1.0;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct PhysicsClock {
     update_time: f64,
+    /// `m_tPhysicsUpdateTimePrevious`: the update time before the last quantum.
+    previous_update_time: f64,
 }
 
 impl PhysicsClock {
     pub fn new(now: f64) -> Self {
-        Self { update_time: now }
+        Self {
+            update_time: now,
+            previous_update_time: now,
+        }
+    }
+
+    /// `CPhysics::UpdateRenderInterpolation`: how far `now` is past the last quantum, as a
+    /// fraction of that quantum, clamped to `[0, 1]` (`CPhysics::sRenderInterpolation`).
+    pub fn render_interpolation(&self, now: f64) -> f32 {
+        let span = self.update_time - self.previous_update_time;
+        let t = if span.abs() <= 0.0 {
+            0.0
+        } else {
+            ((now - self.update_time) / span) as f32
+        };
+        if t > 0.0 {
+            t.min(1.0)
+        } else {
+            0.0
+        }
     }
 
     /// `PhysicsModule::UpdatePhysics`: the number of whole quanta to run at `now`. A clock
@@ -36,6 +57,7 @@ impl PhysicsClock {
         let mut elapsed = st(now - self.update_time);
         if ld(elapsed) < 0.0 {
             self.update_time = now;
+            self.previous_update_time = now;
             return 0;
         }
         if ld(elapsed) < ld(PHYSICS_QUANTUM) {
@@ -43,10 +65,12 @@ impl PhysicsClock {
         }
         if ld(elapsed) > ld(MAX_PHYSICS_LAG) {
             self.update_time = now;
+            self.previous_update_time = now;
             return 0;
         }
         let mut quanta = 0;
         while ld(elapsed) >= ld(PHYSICS_QUANTUM) {
+            self.previous_update_time = self.update_time;
             self.update_time = ld(PHYSICS_QUANTUM) + self.update_time;
             elapsed = st(ld(elapsed) - ld(PHYSICS_QUANTUM));
             quanta += 1;
