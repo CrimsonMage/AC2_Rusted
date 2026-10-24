@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 6 done, 4 partial, 653 to do, 122 skipped.
+785 retail functions: 7 done, 4 partial, 652 to do, 122 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (0/62)
@@ -241,7 +241,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MaterialInstance::Allocate` · 005bb7c0
 - [ ] `MaterialInstance::~MaterialInstance` · 005bb7d0 · legions 00584f30
 
-## `portal/client/src/render/material/materiallayer.cpp.c` (1/20)
+## `portal/client/src/render/material/materiallayer.cpp.c` (2/20)
 
 ### MaterialLayer
 - [ ] `MaterialLayer::Begin` · 005cb660 · legions 00592640
@@ -253,13 +253,13 @@ Legend and workflow: [README](README.md).
 ### MaterialLayer
 - [ ] `MaterialLayer::End` · 005cb9b0 · legions 005928e0
 - [ ] `MaterialLayer::Destroy` · 005cbad0 · legions 00592a00
-- [~] `MaterialLayer::GetVertexShader` · 005cbae0 · legions 00592a10 — fragment.dll programs ported to object.wgsl for unlit/lit/lit-vertex-diffuse; bump and per-pixel programs not
+- [~] `MaterialLayer::GetVertexShader` · 005cbae0 · legions 00592a10 — fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
 
 ### MaterialLayer::ShaderInfo
 - [ ] `MaterialLayer::ShaderInfo::ShaderInfo` · 005cbbd0
 
 ### MaterialLayer
-- [ ] `MaterialLayer::BuildPixelShader` · 005cbbe0 · legions 00592b10
+- [x] `MaterialLayer::BuildPixelShader` · 005cbbe0 · legions 00592b10 — object::parse_pixel_shader + ac2-gpu pixel_program (ps.1.1 to WGSL)
 
 ### SmartArray<MaterialLayer::ShaderInfo>
 - [ ] `SmartArray<MaterialLayer::ShaderInfo>::~SmartArray<MaterialLayer::ShaderInfo>` · 005cbcb0 · legions 00592be0
@@ -280,8 +280,8 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartArray<MaterialLayer::ShaderInfo>::AddToEnd` · 005d0360 · legions 00593a50
 
 ### MaterialLayer
-- [~] `MaterialLayer::BuildVertexShaders` · 005d03d0 · legions 00593ac0 — fragment.dll programs ported to object.wgsl for unlit/lit/lit-vertex-diffuse; bump and per-pixel programs not
-- [~] `MaterialLayer::PrepareShaders` · 005d06e0 · legions 00593dd0 — fragment.dll programs ported to object.wgsl for unlit/lit/lit-vertex-diffuse; bump and per-pixel programs not
+- [~] `MaterialLayer::BuildVertexShaders` · 005d03d0 · legions 00593ac0 — fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
+- [~] `MaterialLayer::PrepareShaders` · 005d06e0 · legions 00593dd0 — fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
 
 ## `portal/client/src/render/material/materialmodifier.cpp.c` (0/12)
 
@@ -350,7 +350,7 @@ Legend and workflow: [README](README.md).
 - [ ] `RenderMaterial::RenderMaterial` · 005b96b0 · legions 00583d10
 - [ ] `RenderMaterial::GetDBOType` · 005b9700
 - [ ] `RenderMaterial::GetSubDataIDs` · 005b9710
-- [~] `RenderMaterial::GetSubObjects` · 005b97c0 — hardware-class layer filter (object::layer_drawn); property field pruning not needed after load_ac2_material
+- [~] `RenderMaterial::GetSubObjects` · 005b97c0 — hardware-class layer filter (object::layer_drawn, class 2 default)
 - [ ] `RenderMaterial::ReleaseSubObjects` · 005b9ad0 · legions 00584130
 - [ ] `RenderMaterial::GetDIDsForFilenames` · 005b9b50
 - [ ] `RenderMaterial::Allocate` · 005b9bf0

@@ -5,9 +5,13 @@
 //! state and texture stages. `MaterialLayer::BuildCompilerFlags` picks the vertex program that
 //! `fragment.dll` links for the layer.
 
+use std::sync::Arc;
+
 use ac2_assets::{Ac2LayerModifier, Ac2MaterialLayer};
 use ac2_core::DataId;
 use ac2_math::Mat4;
+
+use super::pixel_shader::PixelProgram;
 
 /// `BlendMode`.
 pub mod blend {
@@ -35,12 +39,11 @@ pub struct RenderSettings {
 }
 
 impl Default for RenderSettings {
-    /// High detail outdoors (linear fog) on a class-1 device. Class 2 adds the layers that carry
-    /// authored pixel shaders, which this renderer does not run yet; class 1 draws the retail
-    /// fixed-function fallback layers instead.
+    /// High detail outdoors (linear fog) on a class-2 device, which every GPU with vertex and
+    /// pixel shaders and four texture stages is (`RenderDeviceD3D` caps check).
     fn default() -> Self {
         Self {
-            hardware_class: 1,
+            hardware_class: 2,
             detail: 2,
             fog_linear: true,
         }
@@ -86,6 +89,13 @@ pub struct ProgramFlags {
     pub diffuse_fog_amount: bool,
     pub alpha_fog: bool,
     pub ignore_directional: bool,
+    pub ignore_point: bool,
+    pub pixel_specular: bool,
+    /// `m_Options & 1`: the per-pixel programs end with `f_OutputColor1_Color1` instead of
+    /// `f_OutputPreModulatedColor1_Color1`.
+    pub unmodulated_color1: bool,
+    /// `m_bUseDynamicLighting`: the device lights (and the pixel shader's light colour) are on.
+    pub dynamic: bool,
 }
 
 /// One texture stage after `SetupState`.
@@ -136,6 +146,8 @@ pub struct LayerPass {
     /// `D3DRS_TEXTUREFACTOR` as the stages read it.
     pub texture_factor: [f32; 4],
     pub stages: Vec<StagePass>,
+    /// The layer's authored pixel shader, which replaces the stage cascade.
+    pub pixel_program: Option<Arc<PixelProgram>>,
 }
 
 /// `RenderDeviceD3D::SetupState` for `layer` at client time `time`, tinted by `tint`.
@@ -208,6 +220,10 @@ pub fn layer_pass(layer: &Ac2MaterialLayer, tint: [f32; 4], time: f64) -> LayerP
             diffuse_fog_amount: lighting.diffuse_fog_amount,
             alpha_fog: lighting.depth_alpha_fog,
             ignore_directional: lighting.ignore_directional,
+            ignore_point: lighting.ignore_point,
+            pixel_specular: lighting.pixel_specular,
+            unmodulated_color1: layer.options & 1 != 0,
+            dynamic: lighting.dynamic,
         },
         ambient: layer.ambient,
         diffuse,
@@ -220,10 +236,11 @@ pub fn layer_pass(layer: &Ac2MaterialLayer, tint: [f32; 4], time: f64) -> LayerP
         depth_test: layer.depth_test,
         cull_mode: layer.cull_mode,
         alpha_test: alpha_test_on.then_some(alpha_ref),
-        specular_enable: specular_on && layer.pixel_shader_bytes == 0,
+        specular_enable: specular_on && layer.pixel_shader.is_empty(),
         fog: lighting.depth_fog && !lighting.diffuse_fog_amount,
         texture_factor: texture_factor(diffuse),
         stages,
+        pixel_program: None,
     }
 }
 

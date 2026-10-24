@@ -16,15 +16,18 @@ pub struct PipelineKey {
     depth_write: bool,
     depth_test: u32,
     cull_mode: u32,
+    /// Shader module index (0 = stage cascade).
+    pub program: u32,
 }
 
-pub fn pipeline_key(pass: &LayerPass) -> PipelineKey {
+pub fn pipeline_key(pass: &LayerPass, program: u32) -> PipelineKey {
     PipelineKey {
         source_blend: pass.source_blend,
         dest_blend: pass.dest_blend,
         depth_write: pass.depth_write,
         depth_test: pass.depth_test,
         cull_mode: pass.cull_mode,
+        program,
     }
 }
 
@@ -43,7 +46,7 @@ impl PipelineKey {
             dst_factor: blend_factor(self.dest_blend),
             operation: wgpu::BlendOperation::Add,
         };
-        let stride = (3 + 3 + 4 + 8) * 4;
+        let stride = (3 + 3 + 4 + 8 + 6) * 4;
         device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("ac2 object"),
             layout: Some(layout),
@@ -56,7 +59,8 @@ impl PipelineKey {
                     step_mode: wgpu::VertexStepMode::Vertex,
                     attributes: &wgpu::vertex_attr_array![
                         0 => Float32x3, 1 => Float32x3, 2 => Float32x4,
-                        3 => Float32x2, 4 => Float32x2, 5 => Float32x2, 6 => Float32x2
+                        3 => Float32x2, 4 => Float32x2, 5 => Float32x2, 6 => Float32x2,
+                        7 => Float32x3, 8 => Float32x3
                     ],
                 }],
             },

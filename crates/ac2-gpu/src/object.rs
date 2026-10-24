@@ -14,6 +14,7 @@ use bytemuck::{Pod, Zeroable};
 use wgpu::util::DeviceExt;
 
 use crate::object_state::{pipeline_key, sampler_key, PipelineKey, SamplerKey, DRAW_STRIDE};
+use crate::pixel_program::shade_function;
 use crate::texture::{TextureCache, TextureKey};
 use crate::Gpu;
 
@@ -24,6 +25,7 @@ struct GpuVertex {
     normal: [f32; 3],
     color: [f32; 4],
     uvs: [[f32; 2]; 4],
+    tangents: [[f32; 3]; 2],
 }
 
 #[repr(C)]
@@ -58,6 +60,8 @@ struct DrawUniform {
 /// One drawn layer of a batch: its state and the bind group of its stage textures.
 struct GpuPass {
     pass: LayerPass,
+    /// Shader module index: 0 for the stage cascade, else the layer's pixel shader.
+    program: u32,
     textures: wgpu::BindGroup,
 }
 
@@ -101,7 +105,10 @@ pub struct ObjectInstance<'a> {
 
 pub struct ObjectRenderer {
     format: wgpu::TextureFormat,
-    module: wgpu::ShaderModule,
+    /// Shader modules by program index: 0 is the stage cascade, then one per distinct
+    /// translated pixel shader.
+    modules: Vec<wgpu::ShaderModule>,
+    program_ids: HashMap<String, u32>,
     layout: wgpu::PipelineLayout,
     pipelines: HashMap<PipelineKey, wgpu::RenderPipeline>,
     frame_buffer: wgpu::Buffer,
@@ -178,10 +185,7 @@ impl ObjectRenderer {
                 resource: frame_buffer.as_entire_binding(),
             }],
         });
-        let module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("ac2 object"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("object.wgsl").into()),
-        });
+        let module = object_module(device, include_str!("object_stages.wgsl"));
         let layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("ac2 object"),
             bind_group_layouts: &[&frame_layout, &draw_layout, &texture_layout],
@@ -190,7 +194,8 @@ impl ObjectRenderer {
         let (draw_buffer, draw_group) = draw_storage(device, &draw_layout, DRAW_STRIDE * 64);
         Self {
             format,
-            module,
+            modules: vec![module],
+            program_ids: HashMap::new(),
             layout,
             pipelines: HashMap::new(),
             frame_buffer,
@@ -226,6 +231,7 @@ impl ObjectRenderer {
                     normal: v.normal,
                     color: v.color,
                     uvs: v.uvs,
+                    tangents: v.tangents,
                 })
                 .collect();
             for v in part.vertices.iter() {
@@ -245,6 +251,7 @@ impl ObjectRenderer {
                     .into_iter()
                     .map(|pass| GpuPass {
                         textures: self.stage_group(gpu, &pass, load),
+                        program: self.program_id(gpu, &pass),
                         pass,
                     })
                     .collect();
@@ -273,6 +280,21 @@ impl ObjectRenderer {
             parts,
             center: if count > 0.0 { sum / count } else { Vec3::ZERO },
         }
+    }
+
+    /// The module index for a pass's pixel shader, translating and compiling it on first use.
+    fn program_id(&mut self, gpu: &Gpu, pass: &LayerPass) -> u32 {
+        let Some(program) = &pass.pixel_program else {
+            return 0;
+        };
+        let source = shade_function(program);
+        if let Some(id) = self.program_ids.get(&source) {
+            return *id;
+        }
+        let id = self.modules.len() as u32;
+        self.modules.push(object_module(&gpu.device, &source));
+        self.program_ids.insert(source, id);
+        id
     }
 
     fn stage_group(
@@ -351,7 +373,7 @@ impl ObjectRenderer {
                     for (pass_index, gpu_pass) in batch.passes.iter().enumerate() {
                         let pass = animated.as_ref().map_or(&gpu_pass.pass, |p| &p[pass_index]);
                         let draw = QueuedDraw {
-                            key: pipeline_key(pass),
+                            key: pipeline_key(pass, gpu_pass.program),
                             offset: 0,
                             instance: instance_index,
                             part: part_index,
@@ -388,7 +410,8 @@ impl ObjectRenderer {
                 .copy_from_slice(bytemuck::bytes_of(&uniform));
             let key = draw.key;
             if !self.pipelines.contains_key(&key) {
-                let pipeline = key.create(&gpu.device, &self.layout, &self.module, self.format);
+                let module = &self.modules[key.program as usize];
+                let pipeline = key.create(&gpu.device, &self.layout, module, self.format);
                 self.pipelines.insert(key, pipeline);
             }
             draw.offset = offset as u32;
@@ -458,6 +481,15 @@ impl ObjectRenderer {
     }
 }
 
+/// The object shader with a `shade` function appended.
+fn object_module(device: &wgpu::Device, shade: &str) -> wgpu::ShaderModule {
+    let source = format!("{}\n{}", include_str!("object.wgsl"), shade);
+    device.create_shader_module(wgpu::ShaderModuleDescriptor {
+        label: Some("ac2 object"),
+        source: wgpu::ShaderSource::Wgsl(source.into()),
+    })
+}
+
 fn draw_storage(
     device: &wgpu::Device,
     layout: &wgpu::BindGroupLayout,
@@ -487,10 +519,10 @@ fn draw_storage(
 fn draw_uniform(model: Mat4, pass: &LayerPass) -> DrawUniform {
     let program = match pass.program {
         VertexProgram::Unlit => 0,
+        VertexProgram::Lit => 1,
+        VertexProgram::PixelLit => 2,
         VertexProgram::LitVertexDiffuse => 3,
-        // The per-pixel programs only occur on hardware-class-2 layers; they light like `Lit`
-        // in the vertex unit here.
-        VertexProgram::Lit | VertexProgram::PixelLit | VertexProgram::PixelLitMultiple => 1,
+        VertexProgram::PixelLitMultiple => 4,
     };
     let f = &pass.flags;
     let bits = [
@@ -504,6 +536,9 @@ fn draw_uniform(model: Mat4, pass: &LayerPass) -> DrawUniform {
         f.ignore_directional,
         pass.specular_enable,
         f.depth_fog,
+        f.pixel_specular,
+        f.unmodulated_color1,
+        f.dynamic,
     ]
     .iter()
     .enumerate()
@@ -543,4 +578,16 @@ fn draw_uniform(model: Mat4, pass: &LayerPass) -> DrawUniform {
         }
     }
     uniform
+}
+
+impl ObjectRenderer {
+    /// Translates and compiles `program`, returning the device's validation error if any.
+    pub fn validate_program(
+        gpu: &Gpu,
+        program: &ac2_render::object::PixelProgram,
+    ) -> Option<String> {
+        gpu.device.push_error_scope(wgpu::ErrorFilter::Validation);
+        let _module = object_module(&gpu.device, &shade_function(program));
+        pollster::block_on(gpu.device.pop_error_scope()).map(|error| error.to_string())
+    }
 }

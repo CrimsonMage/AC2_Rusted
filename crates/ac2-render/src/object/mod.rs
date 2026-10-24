@@ -7,6 +7,7 @@ mod model;
 mod pass;
 #[cfg(test)]
 mod pass_tests;
+mod pixel_shader;
 mod texture_matrix;
 
 pub use lights::{ObjectLights, SunLight};
@@ -16,4 +17,7 @@ pub use model::{
 pub use pass::{
     blend, layer_drawn, layer_pass, texture_matrices, LayerPass, ProgramFlags, RenderSettings,
     StagePass, VertexProgram,
+};
+pub use pixel_shader::{
+    parse_pixel_shader, PixelProgram, PsInstruction, PsOp, PsRegister, PsSource, PsSourceModifier,
 };

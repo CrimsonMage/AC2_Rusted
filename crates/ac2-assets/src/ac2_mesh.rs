@@ -37,6 +37,9 @@ pub struct Ac2Mesh {
     /// Texture coordinate sets after the first (which is `DecodedMeshVertex::uv`), in vertex
     /// format order.
     pub extra_uvs: Arc<[Arc<[Vec2]>]>,
+    /// Bump-mapping tangents S and T (`0x1000_0000`, `0x2000_0000`) per vertex when the format
+    /// has both; the vertex programs read them as `v3` and `v4`.
+    pub tangents: Option<Arc<[[Vec3; 2]]>>,
     /// Up to four (bone, weight) influences per vertex when the vertex format carries matrices.
     pub skin: Option<Arc<[[(u8, f32); 4]]>>,
     pub fragments: Arc<[Ac2MeshFragment]>,
@@ -93,12 +96,23 @@ impl ResourcePackedDecode for Ac2Mesh {
         let mut vertices = Vec::with_capacity(vertex_count);
         let mut skin = format.matrices.then(|| Vec::with_capacity(vertex_count));
         let mut colors = format.diffuse.map(|_| Vec::with_capacity(vertex_count));
+        let mut tangents = format.tangents.map(|_| Vec::with_capacity(vertex_count));
         let mut extra_uvs =
             vec![Vec::with_capacity(vertex_count); format.uv_sets.saturating_sub(1)];
         for texel in raw.chunks_exact(format.size) {
             vertices.push(format.vertex(texel));
             if let (Some(colors), Some(offset)) = (colors.as_mut(), format.diffuse) {
                 colors.push(read_u32(texel, offset));
+            }
+            if let (Some(tangents), Some((s, t))) = (tangents.as_mut(), format.tangents) {
+                let vector = |o: usize| {
+                    Vec3::new(
+                        read_f32(texel, o),
+                        read_f32(texel, o + 4),
+                        read_f32(texel, o + 8),
+                    )
+                };
+                tangents.push([vector(s), vector(t)]);
             }
             for (set, uvs) in extra_uvs.iter_mut().enumerate() {
                 uvs.push(format.uv(texel, set + 1));
@@ -142,6 +156,7 @@ impl ResourcePackedDecode for Ac2Mesh {
             materials,
             vertices: Arc::from(vertices),
             colors: colors.map(Arc::from),
+            tangents: tangents.map(Arc::from),
             extra_uvs: extra_uvs.into_iter().map(Arc::from).collect(),
             skin: skin.map(Arc::from),
             fragments: Arc::from(fragments),
@@ -174,6 +189,7 @@ struct VertexFormat {
     size: usize,
     normal: Option<usize>,
     diffuse: Option<usize>,
+    tangents: Option<(usize, usize)>,
     uv: Option<usize>,
     uv_sets: usize,
     matrices: bool,
@@ -202,9 +218,11 @@ impl VertexFormat {
         for bit in [0x40, 0x80] {
             offset += if format & bit != 0 { 4 } else { 0 };
         }
-        for bit in [0x1000_0000, 0x2000_0000, 0x4000_0000] {
-            offset += if format & bit != 0 { 12 } else { 0 };
-        }
+        let tangent_s = (format & 0x1000_0000 != 0).then_some(offset);
+        offset += if format & 0x1000_0000 != 0 { 12 } else { 0 };
+        let tangent_t = (format & 0x2000_0000 != 0).then_some(offset);
+        offset += if format & 0x2000_0000 != 0 { 12 } else { 0 };
+        offset += if format & 0x4000_0000 != 0 { 12 } else { 0 };
         let uv = (tc_pairs > 0).then_some(offset);
         offset += tc_pairs * 8;
         let matrix_indices = offset;
@@ -218,6 +236,7 @@ impl VertexFormat {
             size: offset.max(1),
             normal,
             diffuse,
+            tangents: tangent_s.zip(tangent_t),
             uv,
             uv_sets: tc_pairs,
             matrices: matrix_count > 0,
@@ -283,6 +302,8 @@ mod tests {
         assert_eq!(VertexFormat::new(0x0000_02D2).size, 48);
         let lit = VertexFormat::new(0x0000_02D2);
         assert_eq!((lit.diffuse, lit.uv, lit.uv_sets), (Some(24), Some(32), 2));
+        let bumped = VertexFormat::new(0x3000_02D2);
+        assert_eq!((bumped.tangents, bumped.uv), (Some((32, 44)), Some(56)));
         assert_eq!(VertexFormat::new(0x3000_02D2).size, 72);
         assert_eq!(VertexFormat::new(0x3004_02D2).size, 92);
         assert_eq!(VertexFormat::new(0x3003_02D2).size, 87);

@@ -2,6 +2,8 @@
 //! methods (`RenderMaterial`, `MaterialLayer`, `LayerStage`, `LM_*`, `MaterialModifier`,
 //! `MaterialProperty`). Every Legions `0x2B` material decodes to its exact record length.
 
+use std::sync::Arc;
+
 use ac2_core::{DataId, QualifiedDataId};
 use ac2_dat::{ArchiveCursor, ArchiveError};
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
@@ -98,9 +100,10 @@ pub struct Ac2MaterialLayer {
     pub specular_power: Ac2Waveform,
     pub options: u64,
     pub vertex_format: u32,
-    /// Authored vertex/pixel shader source sizes (the source itself is not retained).
-    pub vertex_shader_bytes: u32,
-    pub pixel_shader_bytes: u32,
+    /// Authored vertex shader (`m_pVSSource`), empty when the layer has none.
+    pub vertex_shader: Arc<[u8]>,
+    /// Authored pixel shader (`m_pPSSource`), empty when the layer has none.
+    pub pixel_shader: Arc<[u8]>,
 }
 
 /// `MaterialField`: where a material property writes (`RMFieldType`, layer, stage/modifier).
@@ -312,10 +315,10 @@ fn read_layer(cursor: &mut ArchiveCursor<'_>) -> Result<Ac2MaterialLayer, Archiv
     let _reserved_future_use = cursor.read_u32()?;
     let _reserved_do_not_use = cursor.read_u32()?;
     let vertex_format = cursor.read_u32()?;
-    let vertex_shader_bytes = cursor.read_u32()?;
-    cursor.read_bytes(vertex_shader_bytes as usize)?;
-    let pixel_shader_bytes = cursor.read_u32()?;
-    cursor.read_bytes(pixel_shader_bytes as usize)?;
+    let vertex_shader_bytes = cursor.read_u32()? as usize;
+    let vertex_shader = Arc::from(cursor.read_bytes(vertex_shader_bytes)?);
+    let pixel_shader_bytes = cursor.read_u32()? as usize;
+    let pixel_shader = Arc::from(cursor.read_bytes(pixel_shader_bytes)?);
     Ok(Ac2MaterialLayer {
         true_flags,
         false_flags,
@@ -351,8 +354,8 @@ fn read_layer(cursor: &mut ArchiveCursor<'_>) -> Result<Ac2MaterialLayer, Archiv
         specular_power,
         options,
         vertex_format,
-        vertex_shader_bytes,
-        pixel_shader_bytes,
+        vertex_shader,
+        pixel_shader,
     })
 }
 

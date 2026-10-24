@@ -106,7 +106,7 @@ Legend and workflow: [README](README.md).
 - [ ] `RenderDeviceD3D::CreateVertexBuffer` · 005c72e0
 - [ ] `RenderDeviceD3D::ClearLights` · 005c7300
 - [ ] `RenderDeviceD3D::SetupVertexStates` · 005c7320 · legions 0058e390
-- [~] `RenderDeviceD3D::SetupVertexShaderConstants` · 005c7740 · legions 0058e7b0 — sun dir light and c_AmbientColor in ac2-gpu object; point lights and pixel-shader constants not yet
+- [~] `RenderDeviceD3D::SetupVertexShaderConstants` · 005c7740 · legions 0058e7b0 — sun light, c_AmbientColor and pixel constants c0-c5 in ac2-gpu object; point lights not yet
 - [~] `RenderDeviceD3D::SetupState` · 005c88f0 — object::pass::layer_pass; special textures (frame buffer, distortion map) unbound, TEXTUREFACTOR taken as material diffuse while lit
 - [ ] `RenderDeviceD3D::SetDefaultDeviceStates` · 005c91c0 · legions 00590190
 - [ ] `RenderDeviceD3D::DetectDisplayFormats` · 005c9820 · legions 005907f0

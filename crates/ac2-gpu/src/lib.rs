@@ -8,6 +8,7 @@
 mod frame;
 mod object;
 mod object_state;
+mod pixel_program;
 mod terrain;
 mod texture;
 

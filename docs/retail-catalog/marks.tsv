@@ -196,7 +196,7 @@ key	status	note
 00591a40	x	
 005b75b0	x	
 005b7a50	x	ac2-render object::pass / texture_matrix, ac2-gpu object
-005b97c0	~	hardware-class layer filter (object::layer_drawn); property field pruning not needed after load_ac2_material
+005b97c0	~	hardware-class layer filter (object::layer_drawn, class 2 default)
 005c4e90	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005c4f20	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005c4fb0	~	point/linear per stage; anisotropic preference not modelled, mip filter linear
@@ -206,12 +206,13 @@ key	status	note
 005c7190	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005c7200	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005c7270	x	ac2-render object::pass / texture_matrix, ac2-gpu object
-005c7740	~	sun dir light and c_AmbientColor in ac2-gpu object; point lights and pixel-shader constants not yet
+005c7740	~	sun light, c_AmbientColor and pixel constants c0-c5 in ac2-gpu object; point lights not yet
 005c88f0	~	object::pass::layer_pass; special textures (frame buffer, distortion map) unbound, TEXTUREFACTOR taken as material diffuse while lit
 005cb7e0	x	ac2-render object::pass / texture_matrix, ac2-gpu object
-005cbae0	~	fragment.dll programs ported to object.wgsl for unlit/lit/lit-vertex-diffuse; bump and per-pixel programs not
-005d03d0	~	fragment.dll programs ported to object.wgsl for unlit/lit/lit-vertex-diffuse; bump and per-pixel programs not
-005d06e0	~	fragment.dll programs ported to object.wgsl for unlit/lit/lit-vertex-diffuse; bump and per-pixel programs not
+005cbae0	~	fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
+005cbbe0	x	object::parse_pixel_shader + ac2-gpu pixel_program (ps.1.1 to WGSL)
+005d03d0	~	fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
+005d06e0	~	fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
 005d61b0	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6310	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6470	x	ac2-render object::pass / texture_matrix, ac2-gpu object

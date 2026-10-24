@@ -228,8 +228,8 @@ mod tests {
             specular_power: Ac2Waveform::default(),
             options: 0,
             vertex_format: 0,
-            vertex_shader_bytes: 0,
-            pixel_shader_bytes: 0,
+            vertex_shader: Default::default(),
+            pixel_shader: Default::default(),
         }
     }
 

@@ -43,14 +43,17 @@ fn lit_layer() -> Ac2MaterialLayer {
         specular_power: Ac2Waveform::constant(0.0),
         options: 0,
         vertex_format: 0,
-        vertex_shader_bytes: 0,
-        pixel_shader_bytes: 0,
+        vertex_shader: Default::default(),
+        pixel_shader: Default::default(),
     }
 }
 
 #[test]
 fn layers_are_gated_by_hardware_class_detail_and_fog() {
-    let settings = RenderSettings::default();
+    let settings = RenderSettings {
+        hardware_class: 1,
+        ..RenderSettings::default()
+    };
     let layer = lit_layer();
     assert!(layer_drawn(&layer, &settings));
     let class2 = Ac2MaterialLayer {

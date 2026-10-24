@@ -11,6 +11,7 @@ use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
 use ac2_math::Mat4;
 
 use super::pass::{layer_drawn, layer_pass, LayerPass, RenderSettings};
+use super::pixel_shader::{parse_pixel_shader, PixelProgram};
 
 /// One vertex as the vertex programs read it (`v0` position, `v1` normal, `v2` diffuse,
 /// `v6..` texture coordinate sets).
@@ -22,26 +23,47 @@ pub struct ObjectVertex {
     pub color: [f32; 4],
     /// Texture coordinate sets 0-3 (missing sets read zero).
     pub uvs: [[f32; 2]; 4],
+    /// Bump tangents S and T (`v3`, `v4`), zero when the mesh has none.
+    pub tangents: [[f32; 3]; 2],
 }
 
 /// The layers of one material that this device draws.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ObjectMaterial {
     layers: Vec<Ac2MaterialLayer>,
+    /// Each layer's parsed authored pixel shader. A shader that does not parse leaves the layer
+    /// on its texture stages.
+    programs: Vec<Option<Arc<PixelProgram>>>,
     animated: bool,
 }
 
 impl ObjectMaterial {
     fn new(layers: Vec<Ac2MaterialLayer>) -> Self {
         let animated = layers.iter().any(layer_animated);
-        Self { layers, animated }
+        let programs = layers
+            .iter()
+            .map(|layer| {
+                (!layer.pixel_shader.is_empty())
+                    .then(|| parse_pixel_shader(&layer.pixel_shader).ok().map(Arc::new))
+                    .flatten()
+            })
+            .collect();
+        Self {
+            layers,
+            programs,
+            animated,
+        }
     }
 
     /// `SetupState` of every drawn layer, in draw order.
     pub fn passes(&self, tint: [f32; 4], time: f64) -> Vec<LayerPass> {
         self.layers
             .iter()
-            .map(|layer| layer_pass(layer, tint, time))
+            .zip(&self.programs)
+            .map(|(layer, program)| LayerPass {
+                pixel_program: program.clone(),
+                ..layer_pass(layer, tint, time)
+            })
             .collect()
     }
 
@@ -156,6 +178,9 @@ fn object_vertices(mesh: &Ac2Mesh) -> Arc<[ObjectVertex]> {
                     .as_ref()
                     .map_or([1.0; 4], |colors| d3d_color(colors[index])),
                 uvs,
+                tangents: mesh.tangents.as_ref().map_or([[0.0; 3]; 2], |t| {
+                    [t[index][0].to_array(), t[index][1].to_array()]
+                }),
             }
         })
         .collect()

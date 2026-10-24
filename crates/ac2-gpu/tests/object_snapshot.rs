@@ -77,11 +77,19 @@ fn town_block_renders_its_objects() {
     };
     let mut terrain = TerrainRenderer::new(&gpu, COLOR_FORMAT);
     let mut objects = ObjectRenderer::new(&gpu, COLOR_FORMAT);
-    let settings = RenderSettings::default();
+    // `AC2_HARDWARE_CLASS=1` renders the fixed-function fallback layers for comparison.
+    let settings = RenderSettings {
+        hardware_class: std::env::var("AC2_HARDWARE_CLASS")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(2),
+        ..RenderSettings::default()
+    };
     let center = (0xCB_u8, 0x4D_u8);
     let mut blocks = Vec::new();
     let mut models: HashMap<DataId, Option<GpuObjectModel>> = HashMap::new();
     let mut placements = Vec::new();
+    let mut pass_counts = HashMap::<bool, usize>::new();
     for dx in -1..=1_i32 {
         for dy in -1..=1_i32 {
             let (x, y) = (
@@ -97,9 +105,29 @@ fn town_block_renders_its_objects() {
             for marker in world.entity_markers(id).unwrap().iter() {
                 let visual = marker.visual();
                 if !models.contains_key(&visual) {
-                    let model = load_object_model(&store, visual, &settings)
-                        .unwrap()
-                        .map(|model| objects.upload(&gpu, &model, &mut load));
+                    let model = load_object_model(&store, visual, &settings).unwrap();
+                    for batch in model
+                        .iter()
+                        .flat_map(|m| m.parts.iter())
+                        .flat_map(|p| p.batches.iter())
+                    {
+                        for pass in batch.material.passes([1.0; 4], 0.0) {
+                            if pass.pixel_program.is_some()
+                                && std::env::var_os("AC2_DEBUG_PS").is_some()
+                            {
+                                eprintln!(
+                                    "PS pass {visual:?} prog {:?} stages {:?}",
+                                    pass.program,
+                                    pass.stages
+                                        .iter()
+                                        .map(|s| (s.texture, s.tex_coord))
+                                        .collect::<Vec<_>>()
+                                );
+                            }
+                            *pass_counts.entry(pass.pixel_program.is_some()).or_insert(0) += 1;
+                        }
+                    }
+                    let model = model.map(|model| objects.upload(&gpu, &model, &mut load));
                     models.insert(visual, model);
                 }
                 let world_matrix =
@@ -118,6 +146,7 @@ fn town_block_renders_its_objects() {
         })
         .collect();
     let drawn_models = models.values().filter(|m| m.is_some()).count();
+    eprintln!("layer passes by pixel shader: {pass_counts:?}");
     eprintln!(
         "{} placements, {} instances, {} of {} visuals drawable",
         placements.len(),
@@ -150,6 +179,10 @@ fn town_block_renders_its_objects() {
         (
             "objects_cb4d_street.png",
             town + Vec3::new(-60.0, -20.0, 12.0),
+        ),
+        (
+            "objects_cb4d_close.png",
+            town + Vec3::new(-75.0, -12.0, 4.0),
         ),
     ] {
         let camera = Camera {
