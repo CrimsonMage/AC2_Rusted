@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 7 done, 4 partial, 652 to do, 122 skipped.
+785 retail functions: 7 done, 8 partial, 648 to do, 122 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (0/62)
@@ -561,7 +561,7 @@ Legend and workflow: [README](README.md).
 - [-] `EntityDesc::FromFileNode` · 00616bb0 — text source format (admin tools)
 - [-] `EntityDesc::ToFileNode` · 00616fa0 — text source format (admin tools)
 - [ ] `EntityDesc::GetEntityNameFromDataIDW` · 00617320 · legions 005d4770
-- [ ] `EntityDesc::StreamPack` · 00617370 · legions 005d47c0
+- [~] `EntityDesc::StreamPack` · 00617370 · legions 005d47c0 — unpack only, in ac2-net protocol::fx; property collection (bit 0x80) refused: value types come from the MasterProperty DAT table
 - [ ] `EntityDesc::GetDataIDFromEntityNameW` · 006174d0 · legions 005d4920
 - [ ] `EntityDesc::InqEntityDescFromNameW` · 00617520 · legions 005d4970
 
@@ -1110,7 +1110,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PartGroupDataDesc::AddChildPointer` · 006442f0 · legions 005f6410
 - [ ] `PartGroupDataDesc::HasFX` · 00644330 · legions 005f6450
 - [ ] `PartGroupDataDesc::GetPackBitfield` · 00644350 · legions 005f6470
-- [ ] `PartGroupDataDesc::StreamPack` · 006443c0 · legions 005f64e0 — m_fx_overrides (FXData/FXNode) refused as unsupported
+- [~] `PartGroupDataDesc::StreamPack` · 006443c0 · legions 005f64e0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 - [ ] `PartGroupDataDesc::AugmentAtomCollection` · 00644510 · legions 005f6690
 - [ ] `PartGroupDataDesc::WriteAppearanceKeys` · 00644590
 - [ ] `PartGroupDataDesc::GetSubDataIDs` · 00644950 · legions 005f6710
@@ -1126,7 +1126,7 @@ Legend and workflow: [README](README.md).
 - [-] `PartGroupDataDesc::FromFileNode` · 00645a20 — text source format (admin tools)
 
 ### PHashTable<unsigned_long,PSmartArray<FXData>_>
-- [ ] `PHashTable<unsigned_long,PSmartArray<FXData>_>::StreamPack` · 00645f00
+- [~] `PHashTable<unsigned_long,PSmartArray<FXData>_>::StreamPack` · 00645f00 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 
 ### PartGroupDataDesc
 - [ ] `PartGroupDataDesc::PartGroupDataDesc` · 006460f0 · legions 005f6ec0
@@ -1291,7 +1291,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartArray<FXData>::operator=` · 0063f650 · legions 005f3580
 
 ### PSmartArray<FXData>
-- [ ] `PSmartArray<FXData>::StreamPack` · 0063f6c0 · legions 005f35f0
+- [~] `PSmartArray<FXData>::StreamPack` · 0063f6c0 · legions 005f35f0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 
 ### HashTable<unsigned_long,PSmartArray<FXData>_>
 - [ ] `HashTable<unsigned_long,PSmartArray<FXData>_>::operator=` · 0063f770 · legions 005f36a0

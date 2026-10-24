@@ -7,6 +7,7 @@ key	status	note
 00401fc0	x	
 00403030	x	
 004042f0	x	
+004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 00406cb0	_	
 004079b0	_	OnlineSession::scene_ready, called by the client once the scene draws
 00408e90	_	LogOffCharacter only; no UI or game-option upload
@@ -499,6 +500,7 @@ key	status	note
 005d6560	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 006037c0	_	
 006169c0	x	
+00617370	~	unpack only, in ac2-net protocol::fx; property collection (bit 0x80) refused: value types come from the MasterProperty DAT table
 00619f70	_	
 00619fe0	_	
 0061a220	_	
@@ -548,6 +550,7 @@ key	status	note
 00629d60	x	
 0062acf0	_	
 0062ae10	_	
+006388c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 0063a540	x	
 0063a560	x	
 0063a580	x	
@@ -588,13 +591,15 @@ key	status	note
 0063c340	x	
 0063c410	x	
 0063d7f0	_	part-group FX overrides (FXData/FXNode) refused as unsupported
+0063f6c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 0063fb80	_	
 00640190	_	
 006406a0	_	
 00640f40	_	
 006410e0	_	
 00641530	_	
-006443c0	_	m_fx_overrides (FXData/FXNode) refused as unsupported
+006443c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+00645f00	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 0064a5b0	_	
 0064b540	x	
 0064b620	x	
@@ -633,6 +638,13 @@ key	status	note
 0069dba0	x	
 0069df90	x	
 0069fed0	_	
+006a4ce0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006a4e50	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006a6180	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006a9930	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006a9f80	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006aa5d0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006aaa90	~	unpack only, in ac2-net protocol::fx; property collection (bit 0x80) refused: value types come from the MasterProperty DAT table
 006b2ee0	x	
 006b2ff0	x	
 006b3700	x	

@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 7 done, 2 partial, 340 to do, 5 skipped.
+354 retail functions: 7 done, 3 partial, 339 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -215,7 +215,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHashTable<unsigned_long,unsigned_long>::StreamPack` · 00405500
 
 ### PHashTable<unsigned_long,FXNode>
-- [ ] `PHashTable<unsigned_long,FXNode>::StreamPack` · 004058e0 · legions 004055c0
+- [~] `PHashTable<unsigned_long,FXNode>::StreamPack` · 004058e0 · legions 004055c0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 
 ### gmNoticeHandler
 - [ ] `gmNoticeHandler::RecvNotice_ViewCatalog` · 00405b40

@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 92 done, 21 partial, 1949 to do, 62 skipped.
+2124 retail functions: 92 done, 29 partial, 1941 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (0/9)
@@ -385,7 +385,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UndersideInfo::~UndersideInfo` · 00638880 · legions 005eebd0
 
 ### PSmartArray<unsigned_long>
-- [ ] `PSmartArray<unsigned_long>::StreamPack` · 006388c0 · legions 004554e0
+- [~] `PSmartArray<unsigned_long>::StreamPack` · 006388c0 · legions 004554e0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 
 ### UndersideInfo
 - [-] `UndersideInfo::ToFileNode` · 006389b0 — text source format (admin tools)
@@ -1181,7 +1181,7 @@ Legend and workflow: [README](README.md).
 ### DecalFX
 - [ ] `DecalFX::SetDefaults` · 006a9890 · legions 00643910
 - [ ] `DecalFX::DecalFX` · 006a9900 · legions 006439a0
-- [ ] `DecalFX::StreamPack` · 006a9930 · legions 006439d0
+- [~] `DecalFX::StreamPack` · 006a9930 · legions 006439d0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 - [-] `DecalFX::FromFileNode` · 006a99e0 — text source format (admin tools)
 - [-] `DecalFX::ToFileNode` · 006a9d20 — text source format (admin tools)
 
@@ -1191,7 +1191,7 @@ Legend and workflow: [README](README.md).
 - [ ] `FXNode::GetSubDataIDs` · 006a4c10 · legions 00641b70
 
 ### FXData
-- [ ] `FXData::StreamPack` · 006a4ce0 · legions 00641c40
+- [~] `FXData::StreamPack` · 006a4ce0 · legions 00641c40 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 
 ### StreakFX
 - [ ] `StreakFX::operator=` · 006a4d30 · legions 00641c90
@@ -1199,7 +1199,7 @@ Legend and workflow: [README](README.md).
 ### FXNode
 - [ ] `FXNode::GetSoundID` · 006a4db0 · legions 00641d10
 - [ ] `FXNode::GetParticleID` · 006a4e00 · legions 00641d60
-- [ ] `FXNode::get_pack_bitfield` · 006a4e50 · legions 00641db0
+- [~] `FXNode::get_pack_bitfield` · 006a4e50 · legions 00641db0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 
 ### DecalFX
 - [ ] `DecalFX::operator=` · 006a51a0 · legions 00642100
@@ -1208,7 +1208,7 @@ Legend and workflow: [README](README.md).
 - [-] `FXNode::ToFileNode` · 006a52f0 — text source format (admin tools)
 - [ ] `FXNode::ReadColor` · 006a5f00
 - [ ] `FXNode::SetDefaults` · 006a5fc0 · legions 00642250
-- [ ] `FXNode::StreamPack` · 006a6180
+- [~] `FXNode::StreamPack` · 006a6180 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 
 ### FXData
 - [-] `FXData::ToFileNode` · 006a68d0 — text source format (admin tools)
@@ -1350,7 +1350,7 @@ Legend and workflow: [README](README.md).
 
 ### LightSourceFX
 - [ ] `LightSourceFX::LightSourceFX` · 006aaa30 · legions 00643c70
-- [ ] `LightSourceFX::StreamPack` · 006aaa90 · legions 00643cd0
+- [~] `LightSourceFX::StreamPack` · 006aaa90 · legions 00643cd0 — unpack only, in ac2-net protocol::fx; property collection (bit 0x80) refused: value types come from the MasterProperty DAT table
 - [-] `LightSourceFX::FromFileNode` · 006aab00 — text source format (admin tools)
 - [-] `LightSourceFX::ToFileNode` · 006aad00 — text source format (admin tools)
 
@@ -1454,7 +1454,7 @@ Legend and workflow: [README](README.md).
 
 ### RepulsorFX
 - [ ] `RepulsorFX::RepulsorFX` · 006aa5b0 · legions 00643bc0
-- [ ] `RepulsorFX::StreamPack` · 006aa5d0 · legions 00643be0
+- [~] `RepulsorFX::StreamPack` · 006aa5d0 · legions 00643be0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 - [-] `RepulsorFX::FromFileNode` · 006aa660 — text source format (admin tools)
 - [-] `RepulsorFX::ToFileNode` · 006aa8c0 — text source format (admin tools)
 
@@ -1463,7 +1463,7 @@ Legend and workflow: [README](README.md).
 ### StreakFX
 - [ ] `StreakFX::GetSubDataIDs` · 006a9f00 · legions 00643a80
 - [ ] `StreakFX::StreakFX` · 006a9f20 · legions 00643aa0
-- [ ] `StreakFX::StreamPack` · 006a9f80 · legions 00643b00
+- [~] `StreakFX::StreamPack` · 006a9f80 · legions 00643b00 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 - [-] `StreakFX::FromFileNode` · 006aa040 — text source format (admin tools)
 - [-] `StreakFX::ToFileNode` · 006aa3a0 — text source format (admin tools)
 

@@ -9,6 +9,7 @@ mod character;
 mod client_event;
 mod dat_event;
 mod error;
+mod fx;
 mod object;
 mod opcode;
 mod physics;
@@ -27,6 +28,7 @@ pub use dat_event::{
     dat_request, end_ddd, interrogation_response, read_int_set, DatEvent, MissingIteration,
 };
 pub use error::ProtocolError;
+pub use fx::{DecalFx, EntityDesc, FxData, FxNode, LightSourceFx, RepulsorFx, StreakFx, Waveform};
 pub use object::CreateObject;
 pub use opcode::Opcode;
 pub use physics::{BehaviorParams, PhysicsDesc};
