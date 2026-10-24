@@ -411,6 +411,28 @@ fn queues_six_to_eight_leave_rc4_encrypted_with_the_session_key() {
 }
 
 #[test]
+fn chat_goes_out_on_queue_four_with_a_dat_event_id() {
+    let (mut net, _) = logged_on();
+    let id = net.send_chat(&[0xAA, 0xBB, 0xCC]).unwrap();
+    // `CCliDatEvent`: type 0x23, its own stamp (0) and the first non-ephemeral id (0).
+    assert_eq!(id, 0x2300_0000_0000_0000);
+    let (out, _) = net.use_time(1.0, REAL, vec![]);
+    let header = PacketHeader::decode(&out[0].1).unwrap();
+    let mut keys = Isaac::new(IN_SEED);
+    let blob = [0xD3, 0, 1, 0, 3, 0, 0, 0, 0xAA, 0xBB, 0xCC];
+    let expected = datagram(
+        client_header(
+            2,
+            flags::BLOB_FRAGMENTS | flags::ENCRYPTED_CHECKSUM,
+            header.interval,
+        ),
+        &[&fragment_header(id, 1, 16 + 11, 0, 4), &blob],
+        Some(keys.next_key()),
+    );
+    assert_eq!(out[0].1, expected);
+}
+
+#[test]
 fn logoff_goes_alone_to_every_connection_and_silences_the_client() {
     let (mut net, _) = logged_on();
     net.log_off_server();

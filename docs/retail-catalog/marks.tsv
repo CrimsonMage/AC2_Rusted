@@ -71,6 +71,9 @@ key	status	note
 00492cb0	x	
 00492ce0	x	
 00492d20	x	
+00493190	x	
+00493200	x	
+004932b0	x	
 004933b0	x	
 004933c0	x	
 00493410	x	
@@ -159,6 +162,10 @@ key	status	note
 004989e0	x	
 00498af0	x	
 00498c00	x	
+00498d60	x	
+00498e20	x	
+00498f30	x	
+00498fe0	x	
 004992f0	_	
 00499940	_	
 0049b540	x	
@@ -829,9 +836,13 @@ key	status	note
 006db0f0	x	
 006db450	x	
 006db7f0	x	
+006ed9c0	x	
+006eda20	x	
+0071f6b0	x	
 0071fa40	x	
 0071fab0	x	
-0071fb10	~	chat (0x100d3) recognised, not handed to a chat client
+0071fb10	x	
+0071fba0	x	
 0071fc50	~	queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
 00723280	x	
 007269d0	x	

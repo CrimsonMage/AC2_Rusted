@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 7 done, 4 partial, 338 to do, 5 skipped.
+354 retail functions: 10 done, 3 partial, 336 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -292,10 +292,10 @@ Legend and workflow: [README](README.md).
 - [ ] `InitCliCrypto::Delete` · 00568db0 · legions 00538d40
 - [ ] `InitCliCrypto::Init` · 00568dd0 · legions 00538d60
 
-## `portal/client/src/main/client.cpp.c` (2/37)
+## `portal/client/src/main/client.cpp.c` (5/37)
 
 ### CChatEvent
-- [ ] `CChatEvent::CreateForSend` · 0071f6b0 · legions 0069ffb0
+- [x] `CChatEvent::CreateForSend` · 0071f6b0 · legions 0069ffb0
 
 ### Turbine::Client
 - [ ] `Turbine::Client::GetClientPtr` · 0071f730 · legions 006a0030
@@ -316,10 +316,10 @@ Legend and workflow: [README](README.md).
 - [ ] `Turbine::Client::GetLastCryptoError` · 0071fa10 · legions 006a02c0
 - [x] `Turbine::Client::AddNetQueue` · 0071fa40 · legions 006a02f0
 - [x] `Turbine::Client::ProcessControlEventQueue` · 0071fab0 · legions 006a0360
-- [~] `Turbine::Client::ProcessLogonEventQueue` · 0071fb10 · legions 006a03c0 — chat (0x100d3) recognised, not handed to a chat client
+- [x] `Turbine::Client::ProcessLogonEventQueue` · 0071fb10 · legions 006a03c0
 
 ### Turbine::Client::ChatInterfaceProvider
-- [ ] `Turbine::Client::ChatInterfaceProvider::SendData` · 0071fba0 · legions 006a0450
+- [x] `Turbine::Client::ChatInterfaceProvider::SendData` · 0071fba0 · legions 006a0450
 
 ### CharGenData
 - [ ] `CharGenData::SetFileName` · 0071fc00 · legions 006a04b0

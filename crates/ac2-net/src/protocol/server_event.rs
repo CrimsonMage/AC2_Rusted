@@ -10,6 +10,7 @@ use crate::protocol::property::PropertyTypes;
 use crate::protocol::qualities::Qualities;
 use crate::protocol::quality_event::QualityUpdate;
 use crate::protocol::reader::Reader;
+use crate::protocol::string_info::StringInfo;
 use crate::protocol::types::InstanceIdWithStamp;
 use crate::protocol::{Build, ProtocolError};
 
@@ -52,6 +53,27 @@ pub enum ServerEvent {
     /// `ECM_Physics::RecvEvt_DoFX_Private`: FX ids played on the player (no sender;
     /// `PSmartArray<unsigned long>::StreamPack`, a u32 count then the ids).
     PrivateFx(Vec<u32>),
+    /// `ECM_Interp::RecvEvt_InterpCEvent_Broadcast` (`0x10066`, `0x100CA`; for the player) and
+    /// `_Cell` (`0x10067`, `0x100C4`; for `object`): a script function id and its packed
+    /// arguments (`PackBuffer::UnPack`: a u32 size, then the bytes), handed to
+    /// `CWDistributor::RecvEvt_InterpCEvent_Private`.
+    Interp {
+        object: Option<InstanceIdWithStamp>,
+        function: u32,
+        arguments: Vec<u8>,
+    },
+    /// `ECM_Admin::RecvEvt_AccountBooted`: the reason.
+    AccountBooted(Box<StringInfo>),
+    /// `ECM_Admin::RecvEvt_DisplayStringInfo`: the display type and the text.
+    DisplayStringInfo {
+        kind: u32,
+        text: Box<StringInfo>,
+    },
+    /// `ECM_Admin::RecvEvt_WorldName`.
+    WorldName(Box<StringInfo>),
+    /// Queue 4 `0x100D3` (`Turbine::Client::ProcessLogonEventQueue`): the chat client's data
+    /// (`IChatClient` receives the length and the bytes after it).
+    Chat(Vec<u8>),
     /// `ECM_Login::RecvEvt_CharExitGame`.
     CharExitGame,
     /// `ECM_Login::RecvEvt_CharacterDeletion`.
@@ -61,6 +83,21 @@ pub enum ServerEvent {
         opcode: u32,
         body: Vec<u8>,
     },
+}
+
+/// `PackBuffer::UnPack`: with fewer than 4 bytes left the buffer stays empty and nothing is
+/// read (the rest is left as retail leaves it); a size of `0x10000000` or more, or past the
+/// end, fails.
+fn pack_buffer(r: &mut Reader<'_>) -> Result<Vec<u8>, ProtocolError> {
+    if r.remaining() < 4 {
+        r.rest();
+        return Ok(Vec::new());
+    }
+    let size = r.u32()? as usize;
+    if size >= 0x1000_0000 {
+        return Err(ProtocolError::Invalid("PackBuffer size"));
+    }
+    Ok(r.take(size)?.to_vec())
 }
 
 impl ServerEvent {
@@ -126,6 +163,42 @@ impl ServerEvent {
             Opcode::CONTAIN => Self::Contain(InstanceIdWithStamp::read(&mut r)?),
             Opcode::DO_FX_PRIVATE => {
                 Self::PrivateFx((0..r.count()?).map(|_| r.u32()).collect::<Result<_, _>>()?)
+            }
+            Opcode::INTERP_C_EVENT_BROADCAST
+            | Opcode::INTERP_C_EVENT_BROADCAST_2
+            | Opcode::INTERP_C_EVENT_CELL
+            | Opcode::INTERP_C_EVENT_CELL_2 => {
+                let cell = matches!(
+                    opcode,
+                    Opcode::INTERP_C_EVENT_CELL | Opcode::INTERP_C_EVENT_CELL_2
+                );
+                let object = cell
+                    .then(|| InstanceIdWithStamp::read(&mut r))
+                    .transpose()?;
+                let function = r.u32()?;
+                r.align()?;
+                let arguments = pack_buffer(&mut r)?;
+                Self::Interp {
+                    object,
+                    function,
+                    arguments,
+                }
+            }
+            Opcode::ACCOUNT_BOOTED => Self::AccountBooted(Box::new(StringInfo::read(&mut r)?)),
+            Opcode::DISPLAY_STRING_INFO => {
+                let kind = r.u32()?;
+                r.align()?;
+                Self::DisplayStringInfo {
+                    kind,
+                    text: Box::new(StringInfo::read(&mut r)?),
+                }
+            }
+            Opcode::WORLD_NAME => Self::WorldName(Box::new(StringInfo::read(&mut r)?)),
+            Opcode::CHAT => {
+                let len = r.u32()? as usize;
+                let data = r.take(len)?.to_vec();
+                r.rest();
+                Self::Chat(data)
             }
             Opcode::CHAR_EXIT_GAME => Self::CharExitGame,
             Opcode::CHARACTER_DELETION => {
@@ -228,5 +301,76 @@ mod tests {
                 ..
             }
         ));
+    }
+
+    fn words(values: &[u32]) -> Vec<u8> {
+        values.iter().flat_map(|v| v.to_le_bytes()).collect()
+    }
+
+    #[test]
+    fn interp_events_carry_the_function_and_its_pack_buffer() {
+        let mut b = words(&[0x0001_0066, 0x0300_0021, 3]);
+        b.extend([7, 8, 9]);
+        assert_eq!(
+            ServerEvent::decode(&b, Build::Legions7160).unwrap(),
+            ServerEvent::Interp {
+                object: None,
+                function: 0x0300_0021,
+                arguments: vec![7, 8, 9]
+            }
+        );
+        for end in 4..b.len() {
+            // Fewer than four bytes after the function id leave an empty buffer, as
+            // `PackBuffer::UnPack` does; anything shorter than the declared size fails.
+            let decoded = ServerEvent::decode(&b[..end], Build::Legions7160);
+            if end >= 8 && end < 12 {
+                assert!(
+                    matches!(decoded, Ok(ServerEvent::Interp { ref arguments, .. }) if arguments.is_empty())
+                );
+            } else {
+                assert!(decoded.is_err(), "{end}");
+            }
+        }
+        let mut cell = 0x0001_00C4u32.to_le_bytes().to_vec();
+        cell.extend(0x55u64.to_le_bytes());
+        cell.extend([2, 0, 3, 0]);
+        cell.extend(words(&[9, 0]));
+        let ServerEvent::Interp {
+            object,
+            function,
+            arguments,
+        } = ServerEvent::decode(&cell, Build::Legions7160).unwrap()
+        else {
+            panic!("interp");
+        };
+        assert_eq!(
+            (object.map(|o| o.id), function, arguments.len()),
+            (Some(0x55), 9, 0)
+        );
+    }
+
+    #[test]
+    fn admin_messages_and_chat_decode_exactly() {
+        let mut b = words(&[0x0001_00C6, 2]);
+        b.extend(words(&[0x10, 0x2300_0001, 0]));
+        let ServerEvent::DisplayStringInfo { kind, text } =
+            ServerEvent::decode(&b, Build::Legions7160).unwrap()
+        else {
+            panic!("display string");
+        };
+        assert_eq!(
+            (kind, text.string_id, text.table_id),
+            (2, 0x10, 0x2300_0001)
+        );
+        for end in 4..b.len() {
+            assert!(ServerEvent::decode(&b[..end], Build::Legions7160).is_err());
+        }
+        let mut chat = words(&[0x0001_00D3, 2]);
+        chat.extend([0xAA, 0xBB, 0xCC]);
+        assert_eq!(
+            ServerEvent::decode(&chat, Build::Legions7160).unwrap(),
+            ServerEvent::Chat(vec![0xAA, 0xBB])
+        );
+        assert!(ServerEvent::decode(&chat[..9], Build::Legions7160).is_err());
     }
 }

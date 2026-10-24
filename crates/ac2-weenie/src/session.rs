@@ -13,7 +13,7 @@ use std::time::{Duration, Instant};
 
 use ac2_net::protocol::{
     interrogation_response, Build, CellPosition, CharacterSet, ClientEvent, DatEvent, Qualities,
-    ServerEvent, QUEUE_DAT, QUEUE_EVENTS,
+    ServerEvent, StringInfo, QUEUE_DAT, QUEUE_EVENTS,
 };
 use ac2_net::{
     Credential, Logon, NetClient, NetClientConfig, NetError, NetEvent, ServerPublicKey,
@@ -95,6 +95,24 @@ pub enum SessionEvent {
     LeftWorld,
     /// The server refused something; the session may continue.
     Rejected(String),
+    /// Queue 4 chat data for the chat client.
+    Chat(Vec<u8>),
+    /// A script event (`CWDistributor::RecvEvt_InterpCEvent_Private`): the object (the player
+    /// for broadcasts), the function id and its packed arguments.
+    Interp {
+        object: u64,
+        function: u32,
+        arguments: Vec<u8>,
+    },
+    /// `GlobalEventHandler::RecvEvt_DisplayStringInfo`: a display type and its text.
+    SystemMessage {
+        kind: u32,
+        text: StringInfo,
+    },
+    /// `GlobalEventHandler::RecvEvt_WorldName`.
+    WorldName(StringInfo),
+    /// `GlobalEventHandler::RecvEvt_AccountBooted`: the reason.
+    AccountBooted(StringInfo),
     /// The session ended.
     Disconnected(String),
 }
@@ -237,7 +255,15 @@ impl OnlineSession {
                     self.client.net_mut().send_dat_event(response);
                 }
             }
-            // Queue 2 is discarded and queue 4 carries chat (`ProcessLogonEventQueue`).
+            // `Turbine::Client::ProcessLogonEventQueue`: queue 4 hands `0x100D3` to the chat
+            // client and drops everything else; queue 2 is discarded.
+            NetEvent::Blob(blob) if blob.queue == 4 => {
+                if let Ok(ServerEvent::Chat(data)) =
+                    ServerEvent::decode(&blob.data, Build::default())
+                {
+                    out.push(SessionEvent::Chat(data));
+                }
+            }
             NetEvent::Blob(_) => {}
         }
     }
@@ -301,6 +327,24 @@ impl OnlineSession {
                 out.push(SessionEvent::PlayerQualities(qualities.clone()));
                 out.push(SessionEvent::LoginFinished);
             }
+            ServerEvent::Interp {
+                object,
+                function,
+                arguments,
+            } => {
+                if let Some(object) = object.map(|o| o.id).or(self.world.player()) {
+                    out.push(SessionEvent::Interp {
+                        object,
+                        function,
+                        arguments,
+                    });
+                }
+            }
+            ServerEvent::DisplayStringInfo { kind, text } => {
+                out.push(SessionEvent::SystemMessage { kind, text: *text })
+            }
+            ServerEvent::WorldName(text) => out.push(SessionEvent::WorldName(*text)),
+            ServerEvent::AccountBooted(text) => out.push(SessionEvent::AccountBooted(*text)),
             ServerEvent::Quality(update) => {
                 if let Some(object) = update.object.map(|o| o.id).or(self.world.player()) {
                     out.push(SessionEvent::QualityChanged {
@@ -364,6 +408,20 @@ impl OnlineSession {
     }
 
     /// `PlayerMovementModule::UseTime`: report the player's body when retail would.
+    /// `ChatInterfaceProvider::SendData`: chat data out on queue 4.
+    pub fn send_chat(&mut self, data: &[u8]) {
+        self.client.net_mut().send_chat(data);
+    }
+
+    /// A script event to the server (`ECM_Interp::SendEvt_InterpSEvent[Encrypt]`).
+    pub fn send_interp(&mut self, function: u32, arguments: Vec<u8>, encrypted: bool) {
+        self.send(ClientEvent::Interp {
+            function,
+            arguments,
+            encrypted,
+        });
+    }
+
     /// The stamps come from the player's object as the server last set them
     /// (`CPhysicsObj::get_instance_stamp`, `get_update_time`).
     pub fn report_body(&mut self, body: &BodyState) {
