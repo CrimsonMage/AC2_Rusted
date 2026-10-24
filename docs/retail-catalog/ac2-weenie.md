@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 109 done, 4 partial, 1785 to do, 6 skipped.
+1904 retail functions: 109 done, 6 partial, 1783 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1804,10 +1804,10 @@ Legend and workflow: [README](README.md).
 - [ ] `PSmartArray<Season>::StreamPack` · 004a9af0 · legions 004a0a20
 
 ### PSmartArray<PropertyGroup>
-- [ ] `PSmartArray<PropertyGroup>::StreamPack` · 004a9b90 · legions 004a0b60
+- [~] `PSmartArray<PropertyGroup>::StreamPack` · 004a9b90 · legions 004a0b60 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
 ### PSmartArray<BaseProperty>
-- [ ] `PSmartArray<BaseProperty>::StreamPack` · 004a9c30 · legions 004a0c00
+- [~] `PSmartArray<BaseProperty>::StreamPack` · 004a9c30 · legions 004a0c00 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
 ### CNativeFactory
 - [ ] `CNativeFactory::GetReferences` · 004a9cd0 · legions 004a0d40

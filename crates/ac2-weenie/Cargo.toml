@@ -12,4 +12,5 @@ ac2-net = { path = "../ac2-net" }
 # The physics adapter test is where ac2-physics and the movement reports meet; the library
 # itself takes plain data and does not depend on ac2-physics.
 [dev-dependencies]
+ac2-db = { path = "../ac2-db" }
 ac2-physics = { path = "../ac2-physics" }

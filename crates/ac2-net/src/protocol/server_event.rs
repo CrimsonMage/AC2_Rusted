@@ -6,6 +6,7 @@ use crate::protocol::object::CreateObject;
 use crate::protocol::opcode::Opcode;
 use crate::protocol::physics_event::ObjectEvent;
 use crate::protocol::position::ServerPosition;
+use crate::protocol::property::PropertyTypes;
 use crate::protocol::qualities::Qualities;
 use crate::protocol::quality_event::QualityUpdate;
 use crate::protocol::reader::Reader;
@@ -65,7 +66,20 @@ pub enum ServerEvent {
 impl ServerEvent {
     /// Decodes a blob. Login layouts that differ between builds follow `build`.
     pub fn decode(bytes: &[u8], build: Build) -> Result<Self, ProtocolError> {
-        let mut r = Reader::new(bytes);
+        Self::decode_from(Reader::new(bytes), bytes, build)
+    }
+
+    /// [`ServerEvent::decode`] with the `MasterProperty` types, so property collections (in
+    /// light FX) decode too.
+    pub fn decode_with_properties(
+        bytes: &[u8],
+        build: Build,
+        types: &dyn PropertyTypes,
+    ) -> Result<Self, ProtocolError> {
+        Self::decode_from(Reader::with_property_types(bytes, types), bytes, build)
+    }
+
+    fn decode_from(mut r: Reader<'_>, bytes: &[u8], build: Build) -> Result<Self, ProtocolError> {
         let opcode = r.u32()?;
         let event = match opcode {
             Opcode::DAT_DATA

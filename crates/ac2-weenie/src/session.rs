@@ -149,6 +149,14 @@ impl OnlineSession {
         })
     }
 
+    /// [`World::set_property_types`] for this session's world.
+    pub fn set_property_types(
+        &mut self,
+        types: Box<dyn ac2_net::protocol::PropertyTypes + Send + Sync>,
+    ) {
+        self.world.set_property_types(types);
+    }
+
     pub fn objects(&self) -> &ObjectTable {
         &self.world.objects
     }

@@ -561,7 +561,7 @@ Legend and workflow: [README](README.md).
 - [-] `EntityDesc::FromFileNode` · 00616bb0 — text source format (admin tools)
 - [-] `EntityDesc::ToFileNode` · 00616fa0 — text source format (admin tools)
 - [ ] `EntityDesc::GetEntityNameFromDataIDW` · 00617320 · legions 005d4770
-- [~] `EntityDesc::StreamPack` · 00617370 · legions 005d47c0 — unpack only, in ac2-net protocol::fx; property collection (bit 0x80) refused: value types come from the MasterProperty DAT table
+- [~] `EntityDesc::StreamPack` · 00617370 · legions 005d47c0 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 - [ ] `EntityDesc::GetDataIDFromEntityNameW` · 006174d0 · legions 005d4920
 - [ ] `EntityDesc::InqEntityDescFromNameW` · 00617520 · legions 005d4970
 

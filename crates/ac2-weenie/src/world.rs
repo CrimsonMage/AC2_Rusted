@@ -10,7 +10,9 @@
 
 use std::collections::{BTreeMap, VecDeque};
 
-use ac2_net::protocol::{Build, CreateObject, InstanceIdWithStamp, Opcode, ServerEvent};
+use ac2_net::protocol::{
+    Build, CreateObject, InstanceIdWithStamp, Opcode, PropertyTypes, ServerEvent,
+};
 use ac2_net::{is_out_of_world, ORDERING_VISUAL};
 use ac2_net::{ordering_stamp, ordering_type, Blob, ORDERING_ORDERED, ORDERING_UNORDERED};
 
@@ -59,6 +61,17 @@ pub struct World {
     pub objects: ObjectTable,
     out: Vec<WorldEvent>,
     cur_time: f64,
+    /// `MasterProperty` types for property collections, when the client has the DATs.
+    property_types: Option<Resolver>,
+}
+
+/// The installed `MasterProperty` resolver.
+struct Resolver(Box<dyn PropertyTypes + Send + Sync>);
+
+impl std::fmt::Debug for Resolver {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("Resolver(..)")
+    }
 }
 
 impl World {
@@ -73,7 +86,14 @@ impl World {
             objects: ObjectTable::default(),
             out: Vec::new(),
             cur_time: 0.0,
+            property_types: None,
         }
+    }
+
+    /// Lets events carrying property collections (light FX) decode
+    /// (`MasterProperty::InqPropertyType`).
+    pub fn set_property_types(&mut self, types: Box<dyn PropertyTypes + Send + Sync>) {
+        self.property_types = Some(Resolver(types));
     }
 
     pub fn state(&self) -> WorldState {
@@ -232,7 +252,11 @@ impl World {
 
     /// `CEventQueue::PostEvent` -> `DispatchEvent`, and the object bookkeeping each handler does.
     fn dispatch(&mut self, blob: Blob) {
-        let event = match ServerEvent::decode(&blob.data, self.build) {
+        let decoded = match &self.property_types {
+            Some(types) => ServerEvent::decode_with_properties(&blob.data, self.build, &*types.0),
+            None => ServerEvent::decode(&blob.data, self.build),
+        };
+        let event = match decoded {
             Ok(event) => event,
             Err(error) => {
                 self.out.push(WorldEvent::Undecoded {

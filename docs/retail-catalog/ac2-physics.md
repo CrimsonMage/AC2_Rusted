@@ -1350,7 +1350,7 @@ Legend and workflow: [README](README.md).
 
 ### LightSourceFX
 - [ ] `LightSourceFX::LightSourceFX` · 006aaa30 · legions 00643c70
-- [~] `LightSourceFX::StreamPack` · 006aaa90 · legions 00643cd0 — unpack only, in ac2-net protocol::fx; property collection (bit 0x80) refused: value types come from the MasterProperty DAT table
+- [~] `LightSourceFX::StreamPack` · 006aaa90 · legions 00643cd0 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 - [-] `LightSourceFX::FromFileNode` · 006aab00 — text source format (admin tools)
 - [-] `LightSourceFX::ToFileNode` · 006aad00 — text source format (admin tools)
 
