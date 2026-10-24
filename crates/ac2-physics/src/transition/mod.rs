@@ -214,7 +214,7 @@ impl Transition {
             }
             let adjusted = self.adjust_offset(per_step);
             self.sphere_path.global_offset = adjusted;
-            if self.object_info.state & IS_VIEWER_OI == 0 && adjusted.mag2_zyx() < epsilon_squared()
+            if self.object_info.state & IS_VIEWER_OI == 0 && adjusted.mag2_xyz() < epsilon_squared()
             {
                 return step != 0 && ts == TransitionState::Ok;
             }

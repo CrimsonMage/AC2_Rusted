@@ -81,6 +81,9 @@ pub(crate) struct PhysicsObj {
     pub contact_plane_cell_id: u32,
     pub sliding_normal: Vector,
     pub scale: Vector,
+    /// `CPhysicsObj::m_fJumpScale` and `m_nTimesJumped`.
+    pub jump_scale: f32,
+    pub times_jumped: u32,
     /// `ModeTracker::mDesiredElement`; without an animated mode tracker the current element is
     /// the desired one (`ModeTracker::GetElement` with `mCanAnimate` 0).
     pub element: u32,
@@ -117,6 +120,8 @@ impl PhysicsObj {
             contact_plane_cell_id: 0,
             sliding_normal: Vector::ZERO,
             scale: Vector::new(1.0, 1.0, 1.0),
+            jump_scale: 1.0,
+            times_jumped: 0,
             element: ELEMENT_GROUND,
             motion,
             shape,

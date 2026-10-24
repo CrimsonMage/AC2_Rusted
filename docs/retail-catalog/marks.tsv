@@ -97,6 +97,7 @@ key	status	note
 004de5b0	x	
 004de5d0	x	
 004de940	x	
+004df5a0	~	no IsDoingBehavior(jump) check (behaviours not ported)
 004df6a0	x	
 004df6d0	x	
 004df6e0	x	
@@ -115,12 +116,14 @@ key	status	note
 004e1520	x	
 004e1c90	~	no admin moves or missiles
 004e30e0	x	
+004e3aa0	x	
 004e3b90	~	DoElement sets the element directly (ModeTracker element transitions not ported)
 004e3e20	~	no pushers (CCollisionManager::UpdatePusherValues)
 004e4170	~	no admin moves or missiles
 004e43b0	~	HitGround/LeaveGround FX events not ported
 004e4430	~	only the zero velocity of OBJECTINFO::kill_velocity
 004e44e0	x	
+004e56e0	~	the standing jump behaviour is not ported; jumps at once
 004e5780	~	vertical distance to the terrain polygon instead of CObjCell::LOSCheck
 004e5d10	~	environment response only; object collisions and the collision manager not ported
 004e6ff0	x	
@@ -149,6 +152,7 @@ key	status	note
 0050a1b0	x	
 0050a4f0	~	animation behaviours/FX (run, skid, land, fall, swim) and the Interpolation/MoveTo managers not ported
 0050b470	x	
+0050b540	x	
 0050b5d0	x	
 0050b660	x	
 0050b7f0	x	

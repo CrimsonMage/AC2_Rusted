@@ -4,6 +4,7 @@
 
 use crate::cells::CellSource;
 use crate::fpu::{ld, st, F_EPSILON};
+use crate::motion_interp::{ELEMENT_AIR, ELEMENT_GROUND, ELEMENT_SEA_FLOOR};
 use crate::physics_obj::{
     PhysicsObj, CONTACT_TS, EDGE_SLIDE_PS, INELASTIC_PS, LANDSCAPE_CONTACT_TS, ON_WALKABLE_TS,
     SLIDING_TS, STATIONARY_FALL_TS, STATIONARY_STOP_TS, STATIONARY_STUCK_TS, SYNC_TRANSIT_PS,
@@ -24,6 +25,35 @@ const ENVIRONMENT_CONTACT_TS: u32 = 0x800;
 const ELASTICITY: f32 = 0.005;
 
 impl PhysicsObj {
+    /// `CPhysicsObj::can_jump`: in contact for at least half a second, on ground or sea floor.
+    pub(crate) fn can_jump(&self) -> bool {
+        let grounded = |element| element == ELEMENT_GROUND || element == ELEMENT_SEA_FLOOR;
+        self.has_contact() && 0.5 <= self.time_on_ground && grounded(self.element)
+    }
+
+    /// `CPhysicsObj::Jump`: leave the ground with the ground values' jump impulse times the
+    /// jump scale and the body's z scale (at least 0.5), and enter the air element.
+    pub(crate) fn jump(&mut self) {
+        if !self.has_contact() {
+            return;
+        }
+        if self.element != ELEMENT_GROUND && self.element != ELEMENT_SEA_FLOOR {
+            return;
+        }
+        self.transient_state &= !CONTACT_TS;
+        let mut scale = self.scale.z;
+        if ld(scale) < 0.5 {
+            scale = 0.5;
+        }
+        let impulse = self
+            .motion
+            .motion_values_for_element(ELEMENT_GROUND)
+            .jump_impulse;
+        self.velocity.z = st(ld(self.jump_scale) * ld(impulse) * ld(scale));
+        self.element = ELEMENT_AIR;
+        self.times_jumped += 1;
+    }
+
     /// `CPhysicsObj::get_object_info` (no admin move, no missile).
     fn object_info_state(&self) -> u32 {
         let mut state = if self.state & SYNC_TRANSIT_PS != 0 {

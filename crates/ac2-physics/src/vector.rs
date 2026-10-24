@@ -18,13 +18,6 @@ impl Vector {
         Self { x, y, z }
     }
 
-    /// `z*z + y*y + x*x`, the order `CPhysicsObj::UpdateMovementInternal` and most retail
-    /// squared-length tests load the components in.
-    #[inline]
-    pub(crate) fn mag2_zyx(self) -> f64 {
-        ld(self.z) * ld(self.z) + ld(self.y) * ld(self.y) + ld(self.x) * ld(self.x)
-    }
-
     /// `x*x + y*y + z*z`.
     #[inline]
     pub(crate) fn mag2_xyz(self) -> f64 {

@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 90 done, 19 partial, 1953 to do, 62 skipped.
+2124 retail functions: 92 done, 21 partial, 1949 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (0/9)
@@ -1565,7 +1565,7 @@ Legend and workflow: [README](README.md).
 ### InterpolationManager::InterpolationPath
 - [ ] `InterpolationManager::InterpolationPath::StreamPack` · 00510cf0 · legions 004fed00
 
-## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (16/62)
+## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (17/62)
 
 ### CMotionInterp
 - [ ] `CMotionInterp::Init` · 00509630 · legions 004f7680
@@ -1621,7 +1621,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CMotionInterp::GetPackBitfield` · 0050b080 · legions 004f90c0
 - [ ] `CMotionInterp::StreamPack` · 0050b230 · legions 004f9270
 - [x] `CMotionInterp::FindMotionValues` · 0050b470 · legions 004f94b0
-- [ ] `CMotionInterp::GetMotionValuesForElement` · 0050b540
+- [x] `CMotionInterp::GetMotionValuesForElement` · 0050b540
 - [x] `CMotionInterp::GetMotionValues` · 0050b5d0
 - [x] `CMotionInterp::GetDesiredMotionValues` · 0050b660 · legions 004f96a0
 - [ ] `CMotionInterp::ClearTerrainModifiers` · 0050b710
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [ ] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (34/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (35/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2296,7 +2296,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::ReceiveTargetUpdate` · 004df4f0 · legions 004d1f50
 - [ ] `CPhysicsObj::AddVoyeur` · 004df510 · legions 004d1f70
 - [ ] `CPhysicsObj::RemoveVoyeur` · 004df570 · legions 004d1fd0
-- [ ] `CPhysicsObj::can_jump` · 004df5a0 · legions 004d2000
+- [~] `CPhysicsObj::can_jump` · 004df5a0 · legions 004d2000 — no IsDoingBehavior(jump) check (behaviours not ported)
 - [ ] `CPhysicsObj::IsSlidingDown` · 004df670 · legions 004d20d0
 - [x] `CPhysicsObj::ClampHeading` · 004df6a0 · legions 004d2100
 - [x] `CPhysicsObj::UnclampHeading` · 004df6d0 · legions 004d2130
@@ -2493,7 +2493,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::CheckTypeMatch` · 004e39b0 · legions 004d6400
 - [ ] `CPhysicsObj::IsLOSBlocking` · 004e3a50
 - [ ] `CPhysicsObj::GetTargetInfo` · 004e3a70
-- [ ] `CPhysicsObj::Jump` · 004e3aa0 · legions 004d64f0
+- [x] `CPhysicsObj::Jump` · 004e3aa0 · legions 004d64f0
 - [~] `CPhysicsObj::CalcElement` · 004e3b90 · legions 004d65e0 — DoElement sets the element directly (ModeTracker element transitions not ported)
 - [~] `CPhysicsObj::CalcExternalForces` · 004e3e20 · legions 004d6870 — no pushers (CCollisionManager::UpdatePusherValues)
 - [~] `CPhysicsObj::transition` · 004e4170 · legions 004d6bc0 — no admin moves or missiles
@@ -2548,7 +2548,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::AssemblePartGroupObject` · 004e5490 · legions 004d7ee0
 - [ ] `CPhysicsObj::Destroy` · 004e5540 · legions 004d7f90
 - [ ] `CPhysicsObj::GetScaledRenderBoundingBox` · 004e5660
-- [ ] `CPhysicsObj::JumpLogic` · 004e56e0
+- [~] `CPhysicsObj::JumpLogic` · 004e56e0 — the standing jump behaviour is not ported; jumps at once
 - [~] `CPhysicsObj::GetHeightAboveWalkable` · 004e5780 — vertical distance to the terrain polygon instead of CObjCell::LOSCheck
 - [ ] `CPhysicsObj::UpdateChild` · 004e5980 · legions 004d83d0
 - [~] `CPhysicsObj::handle_all_collisions` · 004e5d10 · legions 004d8760 — environment response only; object collisions and the collision manager not ported

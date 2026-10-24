@@ -155,6 +155,16 @@ impl PhysicsBody {
         quanta
     }
 
+    /// `CPhysicsObj::JumpLogic` without the jump behaviour: when `can_jump`, `Jump`. Returns
+    /// whether the body jumped.
+    pub fn jump(&mut self) -> bool {
+        if !self.object.can_jump() {
+            return false;
+        }
+        self.object.jump();
+        true
+    }
+
     pub fn movement_state(&self) -> MovementState {
         let o = &self.object;
         let frame = o.position.frame;

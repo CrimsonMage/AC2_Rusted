@@ -142,6 +142,13 @@ impl MotionInterp {
             .unwrap_or_default()
     }
 
+    /// `CMotionInterp::GetMotionValuesForElement`: `element` in the desired mode, else the
+    /// static default.
+    pub(crate) fn motion_values_for_element(&self, element: u32) -> Ac2MotionValues {
+        self.find_motion_values(element, self.mode)
+            .unwrap_or_default()
+    }
+
     /// `CMotionInterp::GetDesiredMotionValues`: the mode's values, else the element's default
     /// mode, else the static default.
     pub(crate) fn desired_motion_values(&self, element: u32, mode: u32) -> Ac2MotionValues {

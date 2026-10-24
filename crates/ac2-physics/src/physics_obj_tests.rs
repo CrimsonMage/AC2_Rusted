@@ -157,3 +157,28 @@ fn turning_to_a_heading_arrives_and_stops() {
     assert!((heading - 90.0).abs() < 1.5, "{heading}");
     assert!(body.movement_state().omega[2].abs() < 1e-3);
 }
+
+#[test]
+fn a_grounded_body_jumps_with_the_jump_impulse_and_lands_again() {
+    let ground = terrain(|_, _| 50.0);
+    let mut body = body_at(70.0, 70.0, 50.0);
+    run(&mut body, &ground, 0.3);
+    assert!(!body.jump(), "too soon after landing");
+    run(&mut body, &ground, 0.5);
+    assert!(body.jump());
+    let state = body.movement_state();
+    assert_eq!(state.velocity[2], 5.0);
+    assert_eq!(state.element, ELEMENT_AIR);
+    run(&mut body, &ground, 0.3);
+    assert!(
+        body.position().frame.origin.z > 50.8,
+        "{:?}",
+        body.movement_state()
+    );
+    run(&mut body, &ground, 1.5);
+    let state = body.movement_state();
+    assert!(
+        state.contact && (state.origin[2] - 50.0).abs() < 0.01,
+        "{state:?}"
+    );
+}

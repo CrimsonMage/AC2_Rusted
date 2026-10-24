@@ -45,7 +45,7 @@ scripts/retail_catalog.py status
 | [ac2-world](ac2-world.md) | 989 | 87 | 10 | 749 | 143 |
 | [ac2-render](ac2-render.md) | 781 | 16 | 4 | 748 | 13 |
 | [ac2-gpu](ac2-gpu.md) | 95 | 0 | 0 | 95 | 0 |
-| [ac2-physics](ac2-physics.md) | 2124 | 90 | 19 | 1953 | 62 |
+| [ac2-physics](ac2-physics.md) | 2124 | 92 | 21 | 1949 | 62 |
 | [ac2-smartbox](ac2-smartbox.md) | 262 | 0 | 0 | 260 | 2 |
 | [ac2-client](ac2-client.md) | 354 | 0 | 0 | 349 | 5 |
 | [ac2-ui](ac2-ui.md) | 2247 | 5 | 0 | 2225 | 17 |
