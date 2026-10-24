@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 96 done, 9 partial, 282 to do, 39 skipped.
+426 retail functions: 100 done, 7 partial, 280 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -182,7 +182,7 @@ Legend and workflow: [README](README.md).
 - [-] `Sphere::FromFileNode` · 00628f40 — text source format (admin tools)
 - [-] `Sphere::ToFileNode` · 00629040 — text source format (admin tools)
 
-## `portal/shared/src/geometry/heading.cpp.c` (8/21)
+## `portal/shared/src/geometry/heading.cpp.c` (11/21)
 
 ### Heading
 - [x] `Heading::get_degrees_0_centered` · 0061a8f0 · legions 005d6550
@@ -202,10 +202,10 @@ Legend and workflow: [README](README.md).
 - [x] `Heading::FromUInt8` · 0061aaf0 · legions 005d6750
 - [ ] `Heading::Heading` · 0061ab50 · legions 005d67b0
 - [x] `Heading::Heading` · 0061ab60 · legions 005d67c0
-- [~] `Heading::abs` · 0061ab80 · legions 005d67e0 — in ac2-weenie reporter (ac2-math has no Heading yet)
+- [x] `Heading::abs` · 0061ab80 · legions 005d67e0 — ac2-physics moveto (slice 3)
 - [ ] `Heading::lerp` · 0061abf0 · legions 005d6850
-- [~] `Heading::is_in_range` · 0061acb0 · legions 005d6910 — in ac2-weenie reporter (ac2-math has no Heading yet)
-- [ ] `Heading::is_inside` · 0061ad30 · legions 005d6990
+- [x] `Heading::is_in_range` · 0061acb0 · legions 005d6910 — ac2-physics moveto (slice 3)
+- [x] `Heading::is_inside` · 0061ad30 · legions 005d6990 — ac2-physics moveto (slice 3)
 - [~] `Heading::equals` · 0061ad80 · legions 005d69e0 — in ac2-weenie reporter (ac2-math has no Heading yet)
 - [ ] `Heading::is_zero` · 0061add0 · legions 005d6a30
 - [ ] `Heading::ToPString` · 0061ae20 · legions 005d6a80
@@ -378,7 +378,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPortalPoly::StreamPack` · 0072f890 · legions 006ad130
 - [-] `CPortalPoly::FromFileNode` · 0072f930 — text source format (admin tools)
 
-## `portal/shared/src/geometry/position.cpp.c` (4/36)
+## `portal/shared/src/geometry/position.cpp.c` (5/36)
 
 ### Position
 - [ ] `Position::Position` · 0061fd70 · legions 005db6b0
@@ -392,7 +392,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Position::GetPackSize` · 00620060 · legions 005db9a0
 - [ ] `Position::Pack` · 00620070 · legions 005db9b0
 - [x] `Position::UnPack` · 006200b0 · legions 005db9f0
-- [ ] `Position::cylinder_distance` · 006200f0 · legions 005dba30
+- [x] `Position::cylinder_distance` · 006200f0 · legions 005dba30 — ac2-physics moveto (slice 3)
 - [ ] `Position::cylinder_distance_squared` · 00620190 · legions 005dbad0
 - [ ] `Position::IsValid` · 00620230 · legions 005dbb70
 - [ ] `Position::CreateRay` · 00620260 · legions 005dbba0

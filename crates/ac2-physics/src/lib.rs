@@ -29,6 +29,7 @@ mod loader;
 mod loader_anim;
 mod motion_interp;
 mod motion_interp_behaviors;
+mod moveto;
 mod objects;
 #[cfg(test)]
 mod objects_real_data_tests;
@@ -65,6 +66,10 @@ pub use loader::{
 };
 pub use loader_anim::load_body_animation;
 pub use motion_interp::MotionInterp;
+pub use moveto::{
+    MoveToResult, MovementParameters, MOVE_TO_AWAY, MOVE_TO_MOVE, MOVE_TO_OBJECT,
+    MOVE_TO_PERSISTENT, MOVE_TO_TURN, MOVE_TO_USE_CYLINDERS,
+};
 pub use objects::{BBox, ObjectShape, StaticObject};
 pub use physics_obj::BodyShape;
 pub use physics_obj_place::{SetPositionError, FORCE_SPF, SLIDE_SPF};

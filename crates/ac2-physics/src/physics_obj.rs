@@ -93,6 +93,10 @@ pub(crate) struct PhysicsObj {
     pub motion: MotionInterp,
     /// `PHYSICSOBJREP`'s mode and slider trackers.
     pub(crate) anim: AnimRep,
+    /// `CSetup::radius` (unscaled), for move-to distances.
+    pub setup_radius: f32,
+    /// `CMotionInterp::mMoveToManager`.
+    pub(crate) move_to: Option<crate::moveto::MoveToManager>,
     /// `CMotionInterp::mInterpolationManager`, made by the first server position.
     pub(crate) interp: Option<crate::interp::InterpolationManager>,
     /// `Timer::cur_time` as interpolation reads it (seconds, the clock positions are sent on).
@@ -137,6 +141,8 @@ impl PhysicsObj {
             motion,
             anim: AnimRep::unanimated(),
             interp: None,
+            setup_radius: 0.0,
+            move_to: None,
             cur_time: 0.0,
             setup_containment: ObjectShape::new(Vec::new(), Vec::new(), shape.spheres.clone())
                 .containment_radius,
@@ -203,6 +209,11 @@ impl PhysicsObj {
         self.state & MOBILE_PS != 0
     }
 
+    /// `CPhysicsObj::GetRadius`: the Setup radius times the visual and object z scales.
+    pub(crate) fn radius(&self) -> f32 {
+        st(ld(st(ld(self.setup_radius) * ld(self.shape.scale))) * ld(self.scale.z))
+    }
+
     /// `CPhysicsObj::GetHeight`: the Setup height times the object's z scale.
     pub(crate) fn height(&self) -> f32 {
         st(ld(self.shape.height) * ld(self.shape.scale) * ld(self.scale.z))
@@ -266,14 +277,21 @@ impl PhysicsObj {
         }
         self.calc_element(terrain);
         self.sync_mode();
-        // The head of `CMotionInterp::UpdateMovement`: an active interpolation steers.
-        let managed = match self.interp_update(quantum, terrain) {
+        // The head of `CMotionInterp::UpdateMovement`: an active interpolation steers, then the
+        // player's move-to.
+        let mut managed = match self.interp_update(quantum, terrain) {
             Some(steering) => {
                 self.motion.steer(steering.motion, steering.heading);
                 true
             }
             None => false,
         };
+        if self.anim.is_player() {
+            if let Some((motion, heading)) = self.move_to_update(quantum) {
+                self.motion.steer(motion, heading);
+                managed = true;
+            }
+        }
         let context = self.motion_context(terrain);
         let clamp = self
             .motion

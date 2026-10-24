@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 228 done, 47 partial, 1787 to do, 62 skipped.
+2124 retail functions: 261 done, 48 partial, 1753 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (0/9)
@@ -1565,7 +1565,7 @@ Legend and workflow: [README](README.md).
 ### InterpolationManager::InterpolationPath
 - [ ] `InterpolationManager::InterpolationPath::StreamPack` · 00510cf0 · legions 004fed00
 
-## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (25/62)
+## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (29/62)
 
 ### CMotionInterp
 - [ ] `CMotionInterp::Init` · 00509630 · legions 004f7680
@@ -1576,14 +1576,14 @@ Legend and workflow: [README](README.md).
 - [ ] `CMotionInterp::GetPhysObj` · 00509780
 - [x] `CMotionInterp::GetSeaFloorMultiplier` · 00509790
 - [x] `CMotionInterp::GetWaterMultiplier` · 005097b0
-- [ ] `CMotionInterp::IsMovingTo` · 005097d0
+- [x] `CMotionInterp::IsMovingTo` · 005097d0 — ac2-physics moveto (slice 3)
 - [x] `CMotionInterp::IsTurningTo` · 005097e0 — ac2-physics MovementState turning_to / turn_to_degrees
 - [ ] `CMotionInterp::ReachedPersistentTarget` · 005097f0
 - [x] `CMotionInterp::ConvertDoMotionToLocalDesired` · 00509800 — ac2-physics interp (slice 3)
 - [ ] `CMotionInterp::GetDesiredModeState` · 00509910
-- [ ] `CMotionInterp::UpdateTargetInfo` · 00509930
-- [ ] `CMotionInterp::MoveToEvent` · 00509950
-- [ ] `CMotionInterp::InterruptMoveTo` · 00509960
+- [x] `CMotionInterp::UpdateTargetInfo` · 00509930 — ac2-physics moveto (slice 3)
+- [x] `CMotionInterp::MoveToEvent` · 00509950 — ac2-physics moveto (slice 3)
+- [x] `CMotionInterp::InterruptMoveTo` · 00509960 — ac2-physics moveto (slice 3)
 - [ ] `CMotionInterp::HandleMoveToCallback` · 00509970
 - [x] `CMotionInterp::HitGround` · 00509980 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `CMotionInterp::LeaveGround` · 00509a10 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -1617,7 +1617,7 @@ Legend and workflow: [README](README.md).
 - [x] `CMotionInterp::ClampVelocity` · 0050a290 — ac2-physics interp (slice 3)
 - [x] `CMotionInterp::InterpolateTo` · 0050a420 · legions 004f8460 — ac2-physics interp (slice 3)
 - [x] `CMotionInterp::ImpulseAt` · 0050a480 · legions 004f84c0 — ac2-physics interp (slice 3)
-- [~] `CMotionInterp::UpdateMovement` · 0050a4f0 · legions 004f8530 — ac2-physics: behaviours ported (motion_interp_behaviors); InterpolationManager/MoveToManager paths pending
+- [~] `CMotionInterp::UpdateMovement` · 0050a4f0 · legions 004f8530 — ac2-physics: behaviours, InterpolationManager and MoveToManager ported; ConstraintManager not ported
 - [ ] `CMotionInterp::GetPackBitfield` · 0050b080 · legions 004f90c0
 - [ ] `CMotionInterp::StreamPack` · 0050b230 · legions 004f9270
 - [x] `CMotionInterp::FindMotionValues` · 0050b470 · legions 004f94b0
@@ -1746,7 +1746,7 @@ Legend and workflow: [README](README.md).
 - [-] `MotionValues::ToFileNode` · 0069cf10 — text source format (admin tools)
 - [-] `MotionValues::FromFileNode` · 0069d320 — text source format (admin tools)
 
-## `portal/shared/src/physobj/minterp/movementparameters.cpp.c` (0/43)
+## `portal/shared/src/physobj/minterp/movementparameters.cpp.c` (2/43)
 
 ### MovementParameters
 - [ ] `MovementParameters::set_persistent_flag` · 0069c1f0 · legions 0063ac10
@@ -1804,7 +1804,7 @@ Legend and workflow: [README](README.md).
 - [ ] `List<Position>::operator=` · 0069c800 · legions 0063b290
 
 ### MovementParameters
-- [ ] `MovementParameters::MovementParameters` · 0069c8a0 · legions 0063b330
+- [x] `MovementParameters::MovementParameters` · 0069c8a0 · legions 0063b330 — ac2-physics moveto (slice 3)
 - [ ] `MovementParameters::set_position_list` · 0069c9c0 · legions 0063b450
 
 ### MovementReturn
@@ -1818,12 +1818,12 @@ Legend and workflow: [README](README.md).
 - [ ] `MovementReturn::SetMovementParameters` · 0069cb60 · legions 0063b5f0
 
 ### MovementParameters
-- [ ] `MovementParameters::MovementParameters` · 0069cb70 · legions 0063b600
+- [x] `MovementParameters::MovementParameters` · 0069cb70 · legions 0063b600 — ac2-physics moveto (slice 3)
 
 ### MovementReturn
 - [ ] `MovementReturn::MovementReturn` · 0069cbe0 · legions 0063b670
 
-## `portal/shared/src/physobj/minterp/movetomanager.cpp.c` (1/19)
+## `portal/shared/src/physobj/minterp/movetomanager.cpp.c` (13/19)
 
 ### Position
 - [x] `Position::add_local_offset` · 0050b990 · legions 004f99d0 — ac2-physics interp (slice 3)
@@ -1831,22 +1831,22 @@ Legend and workflow: [README](README.md).
 ### MoveToManager
 - [ ] `MoveToManager::Destroy` · 0050ba00 · legions 004f9a40
 - [ ] `MoveToManager::GetID` · 0050ba30 · legions 004f9a70
-- [ ] `MoveToManager::GetTargetObj` · 0050ba70 · legions 004f9ab0
-- [ ] `MoveToManager::UpdateTargetInfo` · 0050bae0
+- [~] `MoveToManager::GetTargetObj` · 0050ba70 · legions 004f9ab0 — object targets come from update_move_to_target / lose_move_to_target, not a CPhysics lookup
+- [x] `MoveToManager::UpdateTargetInfo` · 0050bae0 — ac2-physics moveto (slice 3)
 - [ ] `MoveToManager::SetMotionInterp` · 0050bb30 · legions 004f9ba0
-- [ ] `MoveToManager::StartMoveTo` · 0050bbb0 · legions 004f9c20
-- [ ] `MoveToManager::StartTurnTo` · 0050bd60 · legions 004f9dd0
-- [ ] `MoveToManager::Stop` · 0050bde0 · legions 004f9e50
-- [ ] `MoveToManager::TranslateForHovering` · 0050bec0 · legions 004f9f30
+- [x] `MoveToManager::StartMoveTo` · 0050bbb0 · legions 004f9c20 — ac2-physics moveto (slice 3)
+- [x] `MoveToManager::StartTurnTo` · 0050bd60 · legions 004f9dd0 — ac2-physics moveto (slice 3)
+- [x] `MoveToManager::Stop` · 0050bde0 · legions 004f9e50 — ac2-physics moveto (slice 3)
+- [x] `MoveToManager::TranslateForHovering` · 0050bec0 · legions 004f9f30 — ac2-physics moveto (slice 3)
 - [ ] `MoveToManager::StreamPack` · 0050bf30
-- [ ] `MoveToManager::MoveToManager` · 0050c110 · legions 004fa180
+- [x] `MoveToManager::MoveToManager` · 0050c110 · legions 004fa180 — ac2-physics moveto (slice 3)
 - [ ] `MoveToManager::~MoveToManager` · 0050c1c0 · legions 004fa230
-- [ ] `MoveToManager::Stop` · 0050c2a0 · legions 004fa310
-- [ ] `MoveToManager::Interrupt` · 0050c310
-- [ ] `MoveToManager::MoveToEvent` · 0050c330
-- [ ] `MoveToManager::UpdateMoveTo` · 0050c450 · legions 004fa4c0
-- [ ] `MoveToManager::UpdateTurnTo` · 0050c790 · legions 004fa800
-- [ ] `MoveToManager::Update` · 0050c960 · legions 004fa9d0
+- [x] `MoveToManager::Stop` · 0050c2a0 · legions 004fa310 — ac2-physics moveto (slice 3)
+- [x] `MoveToManager::Interrupt` · 0050c310 — ac2-physics moveto (slice 3)
+- [x] `MoveToManager::MoveToEvent` · 0050c330 — ac2-physics moveto (slice 3)
+- [x] `MoveToManager::UpdateMoveTo` · 0050c450 · legions 004fa4c0 — ac2-physics moveto (slice 3)
+- [x] `MoveToManager::UpdateTurnTo` · 0050c790 · legions 004fa800 — ac2-physics moveto (slice 3)
+- [x] `MoveToManager::Update` · 0050c960 · legions 004fa9d0 — ac2-physics moveto (slice 3)
 
 ## `portal/shared/src/physobj/missile/missilemanager.cpp.c` (0/58)
 
@@ -2122,45 +2122,45 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartGroup::CompareAndModify` · 004f5ac0 · legions 004e82b0
 - [ ] `CPartGroup::CompareAndModifyChildren` · 004f5b80 · legions 004e8370
 
-## `portal/shared/src/physobj/path/progresschecker.cpp.c` (0/8)
+## `portal/shared/src/physobj/path/progresschecker.cpp.c` (4/8)
 
 ### ProgressData
 - [ ] `ProgressData::StreamPack` · 006ac470 · legions 00645420
 
 ### ProgressChecker
-- [ ] `ProgressChecker::reset` · 006ac660 · legions 00645820
+- [x] `ProgressChecker::reset` · 006ac660 · legions 00645820 — ac2-physics moveto (slice 3)
 - [ ] `ProgressChecker::~ProgressChecker` · 006ac720 · legions 00645990
 
 ### (free functions)
 - [ ] `STREAMPACK_STL_VECTOR` · 006ac750 · legions 006459c0
 
 ### ProgressChecker
-- [ ] `ProgressChecker::ProgressChecker` · 006ac900 · legions 00645b70
-- [ ] `ProgressChecker::push` · 006ac9b0 · legions 00645c20
-- [ ] `ProgressChecker::check_progress` · 006aca30 · legions 00645ca0
+- [x] `ProgressChecker::ProgressChecker` · 006ac900 · legions 00645b70 — ac2-physics moveto (slice 3)
+- [x] `ProgressChecker::push` · 006ac9b0 · legions 00645c20 — ac2-physics moveto (slice 3)
+- [x] `ProgressChecker::check_progress` · 006aca30 · legions 00645ca0 — ac2-physics moveto (slice 3)
 - [ ] `ProgressChecker::StreamPack` · 006acf30 · legions 006461a0
 
-## `portal/shared/src/physobj/path/simplepathmodule.cpp.c` (0/8)
+## `portal/shared/src/physobj/path/simplepathmodule.cpp.c` (7/8)
 
 ### SimplePathModule
-- [ ] `SimplePathModule::SimplePathModule` · 006abf90 · legions 00644eb0
-- [ ] `SimplePathModule::set_parameters` · 006ac010 · legions 00644f30
-- [ ] `SimplePathModule::set_always_turn` · 006ac040 · legions 00644f60
-- [ ] `SimplePathModule::set_use_cylinders` · 006ac050 · legions 00644f70
+- [x] `SimplePathModule::SimplePathModule` · 006abf90 · legions 00644eb0 — ac2-physics moveto (slice 3)
+- [x] `SimplePathModule::set_parameters` · 006ac010 · legions 00644f30 — ac2-physics moveto (slice 3)
+- [x] `SimplePathModule::set_always_turn` · 006ac040 · legions 00644f60 — ac2-physics moveto (slice 3)
+- [x] `SimplePathModule::set_use_cylinders` · 006ac050 · legions 00644f70 — ac2-physics moveto (slice 3)
 - [ ] `SimplePathModule::StreamPack` · 006ac060 · legions 00644f80
-- [ ] `SimplePathModule::set_destination` · 006ac110 · legions 00645030
-- [ ] `SimplePathModule::CalculateXYDistanceToDestination` · 006ac140 · legions 00645060
-- [ ] `SimplePathModule::update` · 006ac1e0 · legions 00645100
+- [x] `SimplePathModule::set_destination` · 006ac110 · legions 00645030 — ac2-physics moveto (slice 3)
+- [x] `SimplePathModule::CalculateXYDistanceToDestination` · 006ac140 · legions 00645060 — ac2-physics moveto (slice 3)
+- [x] `SimplePathModule::update` · 006ac1e0 · legions 00645100 — ac2-physics moveto (slice 3)
 
-## `portal/shared/src/physobj/path/turnmodule.cpp.c` (0/4)
+## `portal/shared/src/physobj/path/turnmodule.cpp.c` (3/4)
 
 ### TurnModule
-- [ ] `TurnModule::TurnModule` · 006abe20 · legions 00644d40
-- [ ] `TurnModule::update` · 006abe50 · legions 00644d70
-- [ ] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20
+- [x] `TurnModule::TurnModule` · 006abe20 · legions 00644d40 — ac2-physics moveto (slice 3)
+- [x] `TurnModule::update` · 006abe50 · legions 00644d70 — ac2-physics moveto (slice 3)
+- [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (62/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (63/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2217,7 +2217,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetSphere` · 004de560
 - [ ] `CPhysicsObj::GetNumCylsphere` · 004de570
 - [ ] `CPhysicsObj::GetCylsphere` · 004de580
-- [ ] `CPhysicsObj::GetRadius` · 004de590 · legions 004d0ff0
+- [x] `CPhysicsObj::GetRadius` · 004de590 · legions 004d0ff0 — ac2-physics moveto (slice 3)
 - [x] `CPhysicsObj::GetHeight` · 004de5b0 · legions 004d1010
 - [x] `CPhysicsObj::GetStepUpHeight` · 004de5d0
 - [ ] `CPhysicsObj::SetStepDownHeight` · 004de5f0

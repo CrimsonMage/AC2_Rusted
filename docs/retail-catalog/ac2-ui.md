@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 13 done, 3 partial, 2214 to do, 17 skipped.
+2247 retail functions: 14 done, 3 partial, 2213 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -2874,7 +2874,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::UpdateChild` · 005ed340 · legions 005adf10
 - [ ] `UIElement::SetState` · 005ed450 · legions 005ae020
 
-## `portal/client/src/uielement/system/uielementmanager.cpp.c` (0/69)
+## `portal/client/src/uielement/system/uielementmanager.cpp.c` (1/69)
 
 ### Box2D
 - [ ] `Box2D::Includes` · 005e3490 · legions 005a4250
@@ -2960,7 +2960,7 @@ Legend and workflow: [README](README.md).
 
 ### MoveToManager
 - [ ] `MoveToManager::ReachedPersistentTarget` · 005e7590 · legions 005a8230
-- [ ] `MoveToManager::IsMovingTo` · 005e75a0
+- [x] `MoveToManager::IsMovingTo` · 005e75a0 — ac2-physics moveto (slice 3)
 
 ### UIElementManager
 - [ ] `UIElementManager::UseTime` · 005e75b0 · legions 005a8240

@@ -298,6 +298,54 @@ impl PhysicsBody {
         );
     }
 
+    /// `CSetup::radius` of the body's Setup (`Ac2SetupPhysics::radius`), unscaled: the size
+    /// move-to distances measure from.
+    pub fn set_radius(&mut self, radius: f32) {
+        self.object.setup_radius = radius;
+    }
+
+    /// `CMotionInterp::MoveToEvent`: walk to the parameters' target (or waypoints) and/or turn
+    /// to its heading. Returns whether it started.
+    pub fn move_to(&mut self, params: crate::moveto::MovementParameters) -> bool {
+        self.object.move_to_event(params)
+    }
+
+    /// `CMotionInterp::UpdateTargetInfo`: where an object target is now, and its size.
+    pub fn update_move_to_target(&mut self, position: Position, radius: f32, height: f32) {
+        if let Some(manager) = self.object.move_to.as_mut() {
+            manager.update_target(position, radius, height);
+        }
+    }
+
+    /// The object target can no longer be tracked: the move-to ends with 0x37.
+    pub fn lose_move_to_target(&mut self) {
+        if let Some(manager) = self.object.move_to.as_mut() {
+            manager.lose_target();
+        }
+    }
+
+    /// `CMotionInterp::InterruptMoveTo`.
+    pub fn interrupt_move_to(&mut self) {
+        self.object.interrupt_move_to();
+    }
+
+    /// `CMotionInterp::IsMovingTo`.
+    pub fn is_moving_to(&self) -> bool {
+        self.object
+            .move_to
+            .as_ref()
+            .is_some_and(|manager| manager.moving_to)
+    }
+
+    /// The move-tos that ended since the last call (`HandleMoveToCallback`).
+    pub fn take_move_to_results(&mut self) -> Vec<crate::moveto::MoveToResult> {
+        self.object
+            .move_to
+            .as_mut()
+            .map(|manager| manager.take_results())
+            .unwrap_or_default()
+    }
+
     /// `CPhysicsObj::StopInterpolating`.
     pub fn stop_interpolating(&mut self) {
         if let Some(interp) = self.object.interp.as_mut() {
