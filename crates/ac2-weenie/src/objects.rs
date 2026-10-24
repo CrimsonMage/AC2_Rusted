@@ -2,7 +2,11 @@
 
 use std::collections::BTreeMap;
 
-use ac2_net::protocol::{CreateObject, ObjectAction, Position, ServerPosition};
+use ac2_net::protocol::{
+    CreateObject, ObjectAction, Position, Qualities, QualityUpdate, ServerPosition,
+};
+
+use crate::qualities::WeenieQualities;
 
 /// One object the server has created and not destroyed.
 #[derive(Debug, Clone, PartialEq)]
@@ -28,6 +32,8 @@ pub struct RemoteObject {
     /// `CPhysicsObj::m_update_times`, by `StampID`: position, teleport, force position,
     /// move-to. `CPhysicsObj::set_description` copies them from the `PhysicsDesc`.
     pub update_times: [u16; 4],
+    /// `CWRepository::m_qualities`.
+    pub qualities: WeenieQualities,
 }
 
 /// `StampID` indices into [`RemoteObject::update_times`].
@@ -64,6 +70,7 @@ impl RemoteObject {
                 .parent
                 .map(|(holder, location, _)| (holder, location)),
             update_times: object.physics.timestamps,
+            qualities: WeenieQualities::from_weenie_desc(object.weenie.clone()),
         }
     }
 }
@@ -130,6 +137,24 @@ impl ObjectTable {
         }
     }
 
+    /// `CWRepository::SetQualities`: the player description replaces the object's qualities.
+    pub(crate) fn set_qualities(&mut self, id: u64, qualities: &Qualities) -> bool {
+        let Some(object) = self.objects.get_mut(&id) else {
+            return false;
+        };
+        object.qualities = WeenieQualities::from_unpacked(qualities);
+        true
+    }
+
+    /// `CWRepository::RecvEvt_Update*_Private` on object `id`.
+    pub(crate) fn apply_quality(&mut self, id: u64, update: &QualityUpdate) -> bool {
+        let Some(object) = self.objects.get_mut(&id) else {
+            return false;
+        };
+        object.qualities.set(update.quality, &update.value);
+        true
+    }
+
     pub fn get(&self, id: u64) -> Option<&RemoteObject> {
         self.objects.get(&id)
     }
@@ -170,6 +195,7 @@ mod tests {
             mode: None,
             parent: None,
             update_times: [10, 0, 0, 0],
+            qualities: Default::default(),
         }
     }
 

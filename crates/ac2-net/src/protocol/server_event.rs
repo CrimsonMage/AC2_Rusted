@@ -7,6 +7,7 @@ use crate::protocol::opcode::Opcode;
 use crate::protocol::physics_event::ObjectEvent;
 use crate::protocol::position::ServerPosition;
 use crate::protocol::qualities::Qualities;
+use crate::protocol::quality_event::QualityUpdate;
 use crate::protocol::reader::Reader;
 use crate::protocol::types::InstanceIdWithStamp;
 use crate::protocol::{Build, ProtocolError};
@@ -45,6 +46,8 @@ pub enum ServerEvent {
     Contain(InstanceIdWithStamp),
     /// The other per-object physics events.
     Object(ObjectEvent),
+    /// `ECM_Qualities::RecvEvt_Update*`: one quality of the player or of an object.
+    Quality(QualityUpdate),
     /// `ECM_Physics::RecvEvt_DoFX_Private`: FX ids played on the player (no sender;
     /// `PSmartArray<unsigned long>::StreamPack`, a u32 count then the ids).
     PrivateFx(Vec<u32>),
@@ -116,9 +119,12 @@ impl ServerEvent {
                 r.align()?;
                 Self::CharacterDeleted(id)
             }
-            opcode => match ObjectEvent::read(opcode, &mut r) {
-                Some(event) => Self::Object(event?),
-                None => {
+            opcode => {
+                if let Some(event) = ObjectEvent::read(opcode, &mut r) {
+                    Self::Object(event?)
+                } else if let Some(update) = QualityUpdate::read(opcode, &mut r) {
+                    Self::Quality(update?)
+                } else {
                     let mut r = Reader::new(bytes);
                     r.u32()?;
                     return Ok(Self::Other {
@@ -126,7 +132,7 @@ impl ServerEvent {
                         body: r.rest().to_vec(),
                     });
                 }
-            },
+            }
         };
         r.finish()?;
         Ok(event)

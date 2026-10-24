@@ -288,6 +288,27 @@ impl World {
                 }
                 self.objects.apply_action(object.sender.id, &object.action);
             }
+            // `ECM_Login::RecvEvt_PlayerDesc` -> `CWInterface::RecvEvt_PlayerDesc`.
+            ServerEvent::PlayerDescription(qualities) => {
+                if let Some(player) = self.player {
+                    self.objects.set_qualities(player, qualities);
+                }
+            }
+            // `ECM_Qualities::RecvEvt_Update*`: private updates go to the player, visual ones
+            // through `GetObjectOrQueueEvent` to their object.
+            ServerEvent::Quality(update) => match &update.object {
+                Some(sender) => {
+                    if !self.get_object_or_queue(sender, &blob) {
+                        return;
+                    }
+                    self.objects.apply_quality(sender.id, update);
+                }
+                None => {
+                    if let Some(player) = self.player {
+                        self.objects.apply_quality(player, update);
+                    }
+                }
+            },
             _ => {}
         }
         self.out.push(WorldEvent::Dispatched(event));

@@ -81,6 +81,16 @@ pub enum SessionEvent {
     /// `ECM_Login::RecvEvt_PlayerDesc`: the player's qualities (`CWRepository::SetQualities`,
     /// then `SendNotice_LoginFinished`).
     PlayerQualities(Box<Qualities>),
+    /// `ECM_Login::SendNotice_LoginFinished` (notice `0x10401`), sent by
+    /// `CWInterface::RecvEvt_PlayerDesc` once the player's qualities are stored.
+    LoginFinished,
+    /// `CWRepository::RecvEvt_Update*_Private`'s change notice: the object, the table code
+    /// (`QualityValue::table`) and the quality type id.
+    QualityChanged {
+        object: u64,
+        table: u32,
+        quality: u32,
+    },
     /// The character left the world (`CharExitGame`).
     LeftWorld,
     /// The server refused something; the session may continue.
@@ -280,7 +290,17 @@ impl OnlineSession {
             }
             ServerEvent::DestroyObject(sender) => out.push(SessionEvent::ObjectRemoved(sender.id)),
             ServerEvent::PlayerDescription(qualities) => {
-                out.push(SessionEvent::PlayerQualities(qualities.clone()))
+                out.push(SessionEvent::PlayerQualities(qualities.clone()));
+                out.push(SessionEvent::LoginFinished);
+            }
+            ServerEvent::Quality(update) => {
+                if let Some(object) = update.object.map(|o| o.id).or(self.world.player()) {
+                    out.push(SessionEvent::QualityChanged {
+                        object,
+                        table: update.value.table(),
+                        quality: update.quality,
+                    });
+                }
             }
             ServerEvent::CharExitGame => {
                 self.world.leave_world();

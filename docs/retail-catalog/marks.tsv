@@ -77,6 +77,7 @@ key	status	note
 00493460	x	
 00493500	x	
 00493520	x	
+004939b0	x	
 00493b30	x	
 00493c50	x	
 00493d30	x	
@@ -138,6 +139,26 @@ key	status	note
 00497750	x	
 004978c0	x	
 00497a00	x	
+00497af0	x	
+00497ba0	x	
+00497c90	x	
+00497d40	x	
+00497e30	x	
+00497ef0	x	
+00497ff0	x	
+004980b0	x	
+004981b0	x	
+00498260	x	
+00498350	x	
+00498410	x	
+00498510	x	
+00498600	x	
+00498740	x	
+00498800	x	
+00498910	x	
+004989e0	x	
+00498af0	x	
+00498c00	x	
 004992f0	_	
 00499940	_	
 0049b540	x	
@@ -460,6 +481,17 @@ key	status	note
 00518b30	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 00518dc0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 005192f0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+00519a60	x	
+0051ad30	x	
+0051af80	x	
+0051b270	x	
+0051b2f0	x	
+0051b540	x	
+0051b5c0	x	
+0051b640	x	
+0051b6c0	x	
+0051b740	x	
+0051b7c0	x	
 00522380	x	
 00522520	x	
 00522580	x	
@@ -472,7 +504,20 @@ key	status	note
 00525d30	x	
 00525d90	x	
 00525f70	x	
-0052e6a0	~	qualities surface as SessionEvent::PlayerQualities; no CWRepository or LoginFinished notice
+0052e6a0	x	
+00530e70	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
+00530f40	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
+00530f70	x	
+005319f0	x	
+00531a30	x	
+00531a70	x	
+00531ab0	x	
+00531af0	x	
+00531b30	x	
+00531b70	x	
+00531bb0	x	
+00531bf0	x	
+00531c30	x	
 00568ea0	x	
 00569020	x	
 00569200	x	
@@ -526,6 +571,18 @@ key	status	note
 005d6310	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6470	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6560	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+00601c80	x	
+00601cd0	x	
+00601d00	x	
+00601d20	x	
+00601d40	x	
+00601e70	x	
+006023c0	x	
+00602890	x	
+00602a30	x	
+00602b60	x	
+00603090	x	
+00603470	x	
 006037c0	_	
 006169c0	x	
 00617370	~	unpack only, in ac2-net protocol::fx; property collection (bit 0x80) refused: value types come from the MasterProperty DAT table
@@ -626,6 +683,8 @@ key	status	note
 00640f40	_	
 006410e0	_	
 00641530	_	
+00641ea0	x	
+00641fa0	x	
 006443c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 00645f00	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 0064a5b0	_	

@@ -1,19 +1,19 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 7 done, 8 partial, 648 to do, 122 skipped.
+785 retail functions: 21 done, 8 partial, 634 to do, 122 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (0/62)
+## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (12/62)
 
 ### gmWeenieDesc
 - [ ] `gmWeenieDesc::~gmWeenieDesc` · 00601b00 · legions 005c29e0
 - [ ] `gmWeenieDesc::Reset` · 00601b30 · legions 005c2a10
-- [ ] `gmWeenieDesc::QueryIntStat` · 00601c80
-- [ ] `gmWeenieDesc::QueryBoolStat` · 00601cd0
-- [ ] `gmWeenieDesc::QueryFloatStat` · 00601d00
-- [ ] `gmWeenieDesc::QueryDIDStat` · 00601d20
-- [ ] `gmWeenieDesc::QueryIIDStat` · 00601d40
-- [ ] `gmWeenieDesc::QueryStringInfoStat` · 00601e70
+- [x] `gmWeenieDesc::QueryIntStat` · 00601c80
+- [x] `gmWeenieDesc::QueryBoolStat` · 00601cd0
+- [x] `gmWeenieDesc::QueryFloatStat` · 00601d00
+- [x] `gmWeenieDesc::QueryDIDStat` · 00601d20
+- [x] `gmWeenieDesc::QueryIIDStat` · 00601d40
+- [x] `gmWeenieDesc::QueryStringInfoStat` · 00601e70
 - [ ] `gmWeenieDesc::GetMyPackageID` · 00601e90
 - [ ] `gmWeenieDesc::SetMyPackageID` · 00601ea0
 - [ ] `gmWeenieDesc::GetEntityDID` · 00601ed0
@@ -22,7 +22,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmWeenieDesc::RemoveInt` · 00601f20
 - [ ] `gmWeenieDesc::RemoveInt` · 00601f40
 - [ ] `gmWeenieDesc::InqInt` · 006021b0
-- [ ] `gmWeenieDesc::SetInt` · 006023c0
+- [x] `gmWeenieDesc::SetInt` · 006023c0
 - [ ] `gmWeenieDesc::AdjInt` · 00602590
 - [ ] `gmWeenieDesc::AddLongInt` · 006026b0
 - [ ] `gmWeenieDesc::RemoveLongInt` · 006026d0
@@ -34,12 +34,12 @@ Legend and workflow: [README](README.md).
 - [ ] `gmWeenieDesc::RemoveBool` · 00602700
 - [ ] `gmWeenieDesc::RemoveBool` · 00602720
 - [ ] `gmWeenieDesc::InqBool` · 006027f0
-- [ ] `gmWeenieDesc::SetBool` · 00602890
+- [x] `gmWeenieDesc::SetBool` · 00602890
 - [ ] `gmWeenieDesc::AddFloat` · 00602990
 - [ ] `gmWeenieDesc::RemoveFloat` · 006029a0
 - [ ] `gmWeenieDesc::RemoveFloat` · 006029c0
 - [ ] `gmWeenieDesc::InqFloat` · 00602a00
-- [ ] `gmWeenieDesc::SetFloat` · 00602a30
+- [x] `gmWeenieDesc::SetFloat` · 00602a30
 - [ ] `gmWeenieDesc::AdjFloat` · 00602a60
 - [ ] `gmWeenieDesc::AddTimestamp` · 00602a90
 - [ ] `gmWeenieDesc::RemoveTimestamp` · 00602ab0
@@ -47,12 +47,12 @@ Legend and workflow: [README](README.md).
 - [ ] `gmWeenieDesc::RemoveDataID` · 00602ae0
 - [ ] `gmWeenieDesc::RemoveDataID` · 00602b00
 - [ ] `gmWeenieDesc::InqDataID` · 00602b30
-- [ ] `gmWeenieDesc::SetDataID` · 00602b60
+- [x] `gmWeenieDesc::SetDataID` · 00602b60
 - [ ] `gmWeenieDesc::AddInstanceID` · 00602b90
 - [ ] `gmWeenieDesc::RemoveInstanceID` · 00602bb0
 - [ ] `gmWeenieDesc::RemoveInstanceID` · 00602bd0
 - [ ] `gmWeenieDesc::InqInstanceID` · 00602e40
-- [ ] `gmWeenieDesc::SetInstanceID` · 00603090
+- [x] `gmWeenieDesc::SetInstanceID` · 00603090
 - [ ] `gmWeenieDesc::AddString` · 006032d0
 - [ ] `gmWeenieDesc::AddPosition` · 006032e0
 - [ ] `gmWeenieDesc::RemovePosition` · 006032f0
@@ -60,7 +60,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmWeenieDesc::RemoveStringInfo` · 00603380
 - [ ] `gmWeenieDesc::RemoveStringInfo` · 006033c0
 - [ ] `gmWeenieDesc::InqStringInfo` · 00603420
-- [ ] `gmWeenieDesc::SetStringInfo` · 00603470
+- [x] `gmWeenieDesc::SetStringInfo` · 00603470
 - [ ] `gmWeenieDesc::AddPackageID` · 006034c0
 - [ ] `gmWeenieDesc::RemovePackageID` · 006034d0
 - [ ] `gmWeenieDesc::GetSubDataIDs` · 006034f0 · legions 005c43d0
@@ -1302,8 +1302,8 @@ Legend and workflow: [README](README.md).
 - [ ] `VisualDesc::GetTotalVisualDesc` · 0063f9c0 · legions 005f38f0
 - [ ] `VisualDesc::GetTotalIconDesc` · 0063f9f0 · legions 005f3920
 
-## `portal/shared/src/objdesc/weeniedesc.cpp.c` (0/2)
+## `portal/shared/src/objdesc/weeniedesc.cpp.c` (2/2)
 
 ### WeenieDesc
-- [ ] `WeenieDesc::IsInWeenieDesc` · 00641ea0 · legions 005f56a0
-- [ ] `WeenieDesc::IsInWeenieDesc` · 00641fa0 · legions 005f57a0
+- [x] `WeenieDesc::IsInWeenieDesc` · 00641ea0 · legions 005f56a0
+- [x] `WeenieDesc::IsInWeenieDesc` · 00641fa0 · legions 005f57a0

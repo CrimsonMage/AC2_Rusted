@@ -17,6 +17,7 @@ mod physics;
 mod physics_event;
 mod position;
 mod qualities;
+mod quality_event;
 mod reader;
 mod server_event;
 mod string_info;
@@ -40,6 +41,7 @@ pub use position::{
     heading_from_u8, heading_to_u8, motion_from_u24, motion_to_u24, ClientPosition, ServerPosition,
 };
 pub use qualities::Qualities;
+pub use quality_event::{QualityUpdate, QualityValue};
 pub use server_event::ServerEvent;
 pub use string_info::{StringInfo, StringVariable};
 pub use types::{CellPosition, InstanceIdWithStamp, Position};
