@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 0 done, 0 partial, 2230 to do, 17 skipped.
+2247 retail functions: 5 done, 0 partial, 2225 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (0/53)
@@ -447,16 +447,16 @@ Legend and workflow: [README](README.md).
 - [ ] `gmSecureTradeUI::RecvNotice_Trade_BeClosed` · 00421a90
 - [ ] `gmSecureTradeUI::RecvNotice_Trade_BeReset` · 00421bf0
 
-## `ac2/client/src/ui/gameplay/gmselectionui.cpp.c` (0/24)
+## `ac2/client/src/ui/gameplay/gmselectionui.cpp.c` (3/24)
 
 ### LandDefs
 - [ ] `LandDefs::in_bounds` · 004233a0 · legions 00423170
-- [ ] `LandDefs::blockid_to_lcoord` · 004233d0 · legions 004231a0
+- [x] `LandDefs::blockid_to_lcoord` · 004233d0 · legions 004231a0
 - [ ] `LandDefs::in_same_block` · 00423450 · legions 00423220
-- [ ] `LandDefs::get_block_offset` · 00423490 · legions 00423260
+- [x] `LandDefs::get_block_offset` · 00423490 · legions 00423260
 
 ### Frame
-- [ ] `Frame::globaltolocalvec` · 00423550 · legions 00423320
+- [x] `Frame::globaltolocalvec` · 00423550 · legions 00423320
 - [ ] `Frame::localtoglobal` · 004235b0 · legions 00423380
 - [ ] `Frame::globaltolocal` · 00423610 · legions 004233e0
 
@@ -1038,7 +1038,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmExaminationUI::gmExaminationUI` · 004312e0
 - [ ] `gmExaminationUI::RecvNotice_UpdateExaminationProfile` · 00431410
 
-## `ac2/client/src/ui/gameplay/toolbar/gmnavigationui.cpp.c` (0/37)
+## `ac2/client/src/ui/gameplay/toolbar/gmnavigationui.cpp.c` (2/37)
 
 ### LandDefs
 - [ ] `LandDefs::inbound_valid_cellid` · 004314c0 · legions 00431dc0
@@ -1054,8 +1054,8 @@ Legend and workflow: [README](README.md).
 - [ ] `gmNavigationUI::ReadMarkerInfo` · 00431bd0 · legions 004324d0
 
 ### LandDefs
-- [ ] `LandDefs::lcoord_to_gid` · 00431e20 · legions 004326b0
-- [ ] `LandDefs::gid_to_lcoord` · 00431e90 · legions 00432720
+- [x] `LandDefs::lcoord_to_gid` · 00431e20 · legions 004326b0
+- [x] `LandDefs::gid_to_lcoord` · 00431e90 · legions 00432720
 
 ### Position
 - [ ] `Position::Position` · 00431f60 · legions 004327f0
