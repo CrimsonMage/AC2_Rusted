@@ -15,8 +15,8 @@ use std::time::Duration;
 const FRAME: Duration = Duration::from_millis(10);
 
 use ac2_net::protocol::{
-    interrogation_response, Build, CellPosition, CharacterSet, ClientEvent, DatEvent, Qualities,
-    ServerEvent, StringInfo, QUEUE_DAT, QUEUE_EVENTS,
+    interrogation_response, Build, CellPosition, CharacterSet, ClientEvent, DatEvent, ObjectAction,
+    Qualities, ServerEvent, ServerPosition, StringInfo, QUEUE_DAT, QUEUE_EVENTS,
 };
 use ac2_net::{
     Credential, Logon, NetClient, NetClientConfig, NetError, NetEvent, ServerPublicKey,
@@ -83,8 +83,24 @@ pub enum SessionEvent {
         teleported: bool,
         impulse: Option<[f32; 3]>,
     },
+    /// `CObjectMaint::RecvEvt_CreateObject` for an object other than the player (its data is in
+    /// [`OnlineSession::objects`]).
     ObjectAdded(u64),
-    ObjectMoved(u64),
+    /// `CPhysicsObj::RecvEvt_Position` accepted a newer position for an object other than the
+    /// player: the update, and whether its teleport stamp was newer.
+    ObjectMoved {
+        object: u64,
+        update: ServerPosition,
+        teleported: bool,
+    },
+    /// A per-object physics event reached its object (`CPhysicsObj::RecvEvt_*`), after the
+    /// object table's bookkeeping.
+    ObjectAction {
+        object: u64,
+        action: ObjectAction,
+    },
+    /// `CObjectMaint::DestroyObjectInternal`: the object is gone (destroyed by the server, or
+    /// out of view for 25 s).
     ObjectRemoved(u64),
     /// `ECM_Login::RecvEvt_PlayerDesc`: the player's qualities (`CWRepository::SetQualities`,
     /// then `SendNotice_LoginFinished`).
@@ -267,6 +283,22 @@ impl OnlineSession {
         out
     }
 
+    /// `CBookKeep::AddObjectToBeDestroyed`: the client lost sight of the object (it left the
+    /// world or its cell is not resident); it is destroyed in 25 s unless it comes back.
+    pub fn add_object_to_be_destroyed(&mut self, id: u64) {
+        self.world.add_object_to_be_destroyed(id);
+    }
+
+    /// `CBookKeep::RemoveObjectToBeDestroyed` (`CBookKeep::HandleEnterWorld`).
+    pub fn remove_object_to_be_destroyed(&mut self, id: u64) {
+        self.world.remove_object_to_be_destroyed(id);
+    }
+
+    /// Whether the object waits to be destroyed for being out of view.
+    pub fn is_to_be_destroyed(&self, id: u64) -> bool {
+        self.world.is_to_be_destroyed(id)
+    }
+
     /// `Timer::local_time` (the physics clock, `CPhysics::GetTickCount`).
     pub fn local_time(&self) -> f64 {
         self.client.net().timer().local_time()
@@ -360,6 +392,10 @@ impl OnlineSession {
                 self.last_position = Some((id, applied));
                 return;
             }
+            WorldEvent::Destroyed(id) => {
+                out.push(SessionEvent::ObjectRemoved(id));
+                return;
+            }
         };
         match event {
             ServerEvent::CharacterSet(set) => self.choose_character(set, out),
@@ -412,10 +448,17 @@ impl OnlineSession {
                         });
                     }
                 } else {
-                    out.push(SessionEvent::ObjectMoved(update.sender.id));
+                    out.push(SessionEvent::ObjectMoved {
+                        object: update.sender.id,
+                        update,
+                        teleported: applied.teleported,
+                    });
                 }
             }
-            ServerEvent::DestroyObject(sender) => out.push(SessionEvent::ObjectRemoved(sender.id)),
+            ServerEvent::Object(event) => out.push(SessionEvent::ObjectAction {
+                object: event.sender.id,
+                action: event.action,
+            }),
             ServerEvent::PlayerDescription(qualities) => {
                 out.push(SessionEvent::PlayerQualities(qualities.clone()));
                 out.push(SessionEvent::LoginFinished);

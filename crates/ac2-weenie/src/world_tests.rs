@@ -182,3 +182,89 @@ fn held_events_give_up_after_25_seconds_and_ask_for_their_object() {
     let events = world.receive(blob(0x0300_0003, 3, create_object(npc, 4, 0)), 126.0);
     assert_eq!(opcodes(&events), [0x10058]);
 }
+
+/// A per-object event with one word or stamp argument (`DestroyObject` has none).
+fn object_event(opcode: u32, id: u64, instance: u16, args: &[u8]) -> Vec<u8> {
+    let mut b = opcode.to_le_bytes().to_vec();
+    b.extend(id.to_le_bytes());
+    b.extend(instance.to_le_bytes());
+    b.extend(0u16.to_le_bytes());
+    b.extend(args);
+    while !b.len().is_multiple_of(4) {
+        b.push(0);
+    }
+    b
+}
+
+fn world_with(npc: u64) -> World {
+    let mut world = World::new(Build::Legions7160);
+    world.start_entering_world();
+    world.receive(blob(0x0300_0001, 1, create_player()), 0.0);
+    world.receive(blob(0x0300_0002, 2, create_object(PLAYER, 1, 0)), 0.0);
+    world.receive(blob(0x0300_0003, 3, create_object(npc, 4, 0)), 0.0);
+    world
+}
+
+#[test]
+fn a_destroyed_object_goes_at_the_next_object_maintenance() {
+    let npc = 0x7000_0000_0000_0042;
+    let mut world = world_with(npc);
+    // `RecvEvt_DestroyObject` makes it a pending deletion; it is still there until UseTime.
+    world.receive(
+        blob(0x0300_0004, 4, object_event(0x0001_00C2, npc, 4, &[])),
+        10.0,
+    );
+    assert!(world.objects.get(npc).is_some());
+    assert_eq!(world.use_time(10.0), [WorldEvent::Destroyed(npc)]);
+    assert!(world.objects.get(npc).is_none());
+    // The player is never destroyed this way.
+    world.receive(
+        blob(0x0300_0005, 5, object_event(0x0001_00C2, PLAYER, 1, &[])),
+        11.0,
+    );
+    assert!(world.use_time(11.0).is_empty());
+}
+
+#[test]
+fn an_object_out_of_view_is_destroyed_after_25_seconds_unless_it_comes_back() {
+    let npc = 0x7000_0000_0000_0042;
+    let mut world = world_with(npc);
+    world.use_time(100.0);
+    world.add_object_to_be_destroyed(npc);
+    world.add_object_to_be_destroyed(PLAYER);
+    assert!(world.is_to_be_destroyed(npc) && !world.is_to_be_destroyed(PLAYER));
+    assert!(world.use_time(124.9).is_empty());
+    world.remove_object_to_be_destroyed(npc);
+    assert!(world.use_time(126.0).is_empty());
+    world.add_object_to_be_destroyed(npc);
+    assert_eq!(world.use_time(151.0), [WorldEvent::Destroyed(npc)]);
+}
+
+#[test]
+fn leave_world_on_a_newer_stamp_queues_the_object_for_destruction() {
+    let npc = 0x7000_0000_0000_0042;
+    let mut world = world_with(npc);
+    world.use_time(50.0);
+    // An old position stamp (0) is ignored; stamp 3 takes the object out of the world.
+    world.receive(
+        blob(
+            0x0300_0004,
+            4,
+            object_event(0x0001_00BF, npc, 4, &0u16.to_le_bytes()),
+        ),
+        50.0,
+    );
+    assert!(!world.is_to_be_destroyed(npc));
+    world.receive(
+        blob(
+            0x0300_0005,
+            5,
+            object_event(0x0001_00BF, npc, 4, &3u16.to_le_bytes()),
+        ),
+        50.0,
+    );
+    assert!(world.is_to_be_destroyed(npc));
+    assert_eq!(world.objects.get(npc).unwrap().update_times[0], 3);
+    // `RecvEvt_MoveTo` is the player's only: an object keeps its move-to stamp.
+    assert_eq!(world.objects.get(npc).unwrap().update_times[3], 0);
+}

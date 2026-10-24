@@ -9,8 +9,10 @@
 mod camera;
 mod cells;
 mod client;
+mod client_objects;
 mod frame;
 mod loader;
+mod remote;
 mod scene;
 mod targeting;
 mod world_data;

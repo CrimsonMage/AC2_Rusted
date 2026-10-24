@@ -64,6 +64,14 @@ fn ring(center: u32, radius: i32) -> Vec<u32> {
     blocks
 }
 
+/// A landblock's cells joining or leaving the resident world (`CObjCell::InitDynamicObjects` /
+/// `ReleaseDynamicObjects`, which tell `CObjectMaint` through `InitObjCell` / `ReleaseObjCell`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum BlockChange {
+    Resident(u32),
+    Released(u32),
+}
+
 /// One `AsyncGetCells` request and its ring-by-ring follow-ups (`m_lastAsyncContext`).
 #[derive(Debug)]
 struct Context {
@@ -93,11 +101,17 @@ pub struct CellManager {
     pending: BTreeSet<u32>,
     far_pending: BTreeSet<u32>,
     far_cached: BTreeSet<u32>,
+    changes: Vec<BlockChange>,
 }
 
 impl CellManager {
     pub fn resident(&self) -> impl Iterator<Item = u32> + '_ {
         self.resident.iter().copied()
+    }
+
+    /// The blocks that became resident or were released since the last call, in order.
+    pub(crate) fn take_changes(&mut self) -> Vec<BlockChange> {
+        std::mem::take(&mut self.changes)
     }
 
     /// `CellManager::IsBlockingForCells` (`m_bBlockingForCells`).
@@ -142,6 +156,7 @@ impl CellManager {
     fn release_cells(&mut self, terrain: &mut Terrain) {
         for block in std::mem::take(&mut self.resident) {
             terrain.remove_block(block);
+            self.changes.push(BlockChange::Released(block));
         }
         self.window.clear();
         self.context = None;
@@ -262,6 +277,7 @@ impl CellManager {
                     if let Some(world) = world {
                         terrain.absorb(world);
                         self.resident.insert(block);
+                        self.changes.push(BlockChange::Resident(block));
                     }
                 } else {
                     self.prepared.insert(block, world);
@@ -315,6 +331,7 @@ impl CellManager {
         {
             terrain.remove_block(block);
             self.resident.remove(&block);
+            self.changes.push(BlockChange::Released(block));
         }
         for &block in &window {
             if self.resident.contains(&block) {
@@ -324,6 +341,7 @@ impl CellManager {
                 Some(Some(world)) => {
                     terrain.absorb(world);
                     self.resident.insert(block);
+                    self.changes.push(BlockChange::Resident(block));
                 }
                 Some(None) => {
                     self.prepared.insert(block, None);

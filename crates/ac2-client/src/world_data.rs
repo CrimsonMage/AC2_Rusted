@@ -17,7 +17,8 @@ use ac2_world::{load_ac2_motion_interp_desc, Ac2MotionInterpDesc, Ac2WorldSource
 /// `m_midesc_did` of the human `VisualDesc`s, used when a visual names none.
 pub const HUMAN_MOTION_INTERP_DESC: u32 = 0x3200_0000;
 
-/// The player body physics simulates.
+/// A body physics simulates (the player's, or another object's).
+#[derive(Clone)]
 pub struct BodyData {
     pub shape: BodyShape,
     pub motion: Option<Arc<Ac2MotionInterpDesc>>,

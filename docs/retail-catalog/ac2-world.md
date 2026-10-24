@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 116 done, 10 partial, 720 to do, 143 skipped.
+989 retail functions: 116 done, 12 partial, 718 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (12/140)
@@ -673,7 +673,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjCell::MakeFrillList` · 0047c150 · legions 00476220
 - [ ] `CObjCell::RemoveAllFrillObjects` · 0047c320 · legions 004763f0
 - [ ] `CObjCell::RemoveShadowObject` · 0047c330 · legions 00476400
-- [ ] `CObjCell::InitDynamicObjects` · 0047c390 · legions 00476460
+- [~] `CObjCell::InitDynamicObjects` · 0047c390 · legions 00476460 — ac2-client: CellManager's block changes
 - [ ] `CObjCell::DoIntersection` · 0047c3f0 · legions 004764c0
 - [x] `CObjCell::FindCellsLocal` · 0047c440 · legions 00476510 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CObjCell::FindCellsLocal` · 0047c460 · legions 00476530 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
@@ -694,7 +694,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjCell::GetCellID` · 0047c9d0 · legions 00476ac0
 - [ ] `CObjCell::~CObjCell` · 0047c9e0 · legions 00476ad0
 - [ ] `CObjCell::InvalidateShadowObjects` · 0047ca70 · legions 00476b60
-- [ ] `CObjCell::ReleaseDynamicObjects` · 0047cb40 · legions 00476c30
+- [~] `CObjCell::ReleaseDynamicObjects` · 0047cb40 · legions 00476c30 — ac2-client: CellManager's block changes
 - [x] `CObjCell::find_obj_collisions` · 0047cb70 · legions 00476c60 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 
 ### SmartArray<BBox>

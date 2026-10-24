@@ -113,7 +113,7 @@ fn main() -> Result<(), String> {
                     let object = session.objects().get(id).cloned();
                     println!("object added {id:#x}: {object:?}");
                 }
-                SessionEvent::ObjectMoved(id) => {
+                SessionEvent::ObjectMoved { object: id, .. } => {
                     let object = session.objects().get(id);
                     println!(
                         "object moved {id:#x}: {:?}",

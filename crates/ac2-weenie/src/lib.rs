@@ -8,6 +8,7 @@
 //! server sends them; callers convert to their own frame.
 
 mod ddd;
+mod destruction;
 mod movement_module;
 mod objects;
 mod ordering;

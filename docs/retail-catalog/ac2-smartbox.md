@@ -1,19 +1,19 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 54 done, 26 partial, 180 to do, 2 skipped.
+262 retail functions: 70 done, 31 partial, 159 to do, 2 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/client/src/objects/cbookkeep.cpp.c` (5/22)
+## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
 
 ### CBookKeep
 - [ ] `CBookKeep::CBookKeep` · 004d9b70 · legions 004cc5e0
 - [x] `CBookKeep::HandleOrderedBlob` · 004d9c00 · legions 004cc670
 - [ ] `CBookKeep::ChangeCell` · 004d9c50 · legions 004cc6c0
-- [ ] `CBookKeep::GotoLostCell` · 004d9c80 · legions 004cc6f0
-- [ ] `CBookKeep::RemoveFromLostCell` · 004d9ce0 · legions 004cc750
+- [x] `CBookKeep::GotoLostCell` · 004d9c80 · legions 004cc6f0
+- [x] `CBookKeep::RemoveFromLostCell` · 004d9ce0 · legions 004cc750
 - [ ] `CBookKeep::HandleCreation` · 004d9d10 · legions 004cc780
-- [ ] `CBookKeep::HandleDestruction` · 004d9d50 · legions 004cc7c0
-- [ ] `CBookKeep::ReEnterVisibility` · 004d9d80 · legions 004cc7f0
+- [~] `CBookKeep::HandleDestruction` · 004d9d50 · legions 004cc7c0 — the pending deletion only
+- [x] `CBookKeep::ReEnterVisibility` · 004d9d80 · legions 004cc7f0
 - [ ] `CBookKeep::HasParent` · 004d9da0 · legions 004cc810
 - [ ] `CBookKeep::SyncPointers` · 004d9dc0 · legions 004cc830
 - [ ] `CBookKeep::~CBookKeep` · 004d9e20 · legions 004cc890
@@ -22,22 +22,22 @@ Legend and workflow: [README](README.md).
 - [x] `CBookKeep::FlushOrderedEvents` · 004d9f30 · legions 004cc9a0
 - [ ] `CBookKeep::SetPhysObj` · 004d9f80 · legions 004cc9f0
 - [ ] `CBookKeep::SetWeenieObj` · 004d9f90 · legions 004cca00
-- [ ] `CBookKeep::AddObjectToBeDestroyed` · 004d9fa0 · legions 004cca10
-- [ ] `CBookKeep::RemoveObjectToBeDestroyed` · 004da060 · legions 004ccad0
-- [ ] `CBookKeep::HandleEnterWorld` · 004da0f0 · legions 004ccb60
-- [ ] `CBookKeep::HandleLeaveWorld` · 004da120 · legions 004ccb90
+- [x] `CBookKeep::AddObjectToBeDestroyed` · 004d9fa0 · legions 004cca10 — OnlineSession::add_object_to_be_destroyed (children too)
+- [x] `CBookKeep::RemoveObjectToBeDestroyed` · 004da060 · legions 004ccad0
+- [x] `CBookKeep::HandleEnterWorld` · 004da0f0 · legions 004ccb60
+- [x] `CBookKeep::HandleLeaveWorld` · 004da120 · legions 004ccb90
 - [ ] `CBookKeep::ObjectBeingDestructed` · 004da150 · legions 004ccbc0
 - [x] `CBookKeep::HandleVisualOrderedBlob` · 004da200 · legions 004ccc70
 
-## `portal/client/src/objects/clostcell.cpp.c` (0/4)
+## `portal/client/src/objects/clostcell.cpp.c` (2/4)
 
 ### CLostCell
 - [ ] `CLostCell::CLostCell` · 004da230 · legions 004ccca0
 - [ ] `CLostCell::~CLostCell` · 004da250 · legions 00668630
-- [ ] `CLostCell::RemoveObject` · 004da260 · legions 004cccc0
-- [ ] `CLostCell::AddObject` · 004da2a0 · legions 004ccd00
+- [x] `CLostCell::RemoveObject` · 004da260 · legions 004cccc0
+- [x] `CLostCell::AddObject` · 004da2a0 · legions 004ccd00
 
-## `portal/client/src/objects/cobjmaint.cpp.c` (7/65)
+## `portal/client/src/objects/cobjmaint.cpp.c` (14/65)
 
 ### CObjectMaint
 - [ ] `CObjectMaint::CreatePhysicsObj` · 004d4fb0 · legions 004c7930
@@ -66,7 +66,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PhysicsDesc::get_position` · 004d5770 · legions 004c8220
 
 ### CObjectMaint
-- [ ] `CObjectMaint::UpdateObject` · 004d57b0 · legions 004c8260
+- [~] `CObjectMaint::UpdateObject` · 004d57b0 · legions 004c8260 — SyncPositionSimple(pos, 1) for the same instance
 
 ### PriorityHash<InstanceID,double>
 - [ ] `PriorityHash<InstanceID,double>::remove_min` · 004d5920 · legions 004c83d0
@@ -84,11 +84,11 @@ Legend and workflow: [README](README.md).
 - [ ] `PriorityHash<InstanceID,double>::remove` · 004d5c60 · legions 004c8770
 
 ### CObjectMaint
-- [ ] `CObjectMaint::RemoveObjectToBeDestroyed` · 004d5da0 · legions 004c8860
-- [ ] `CObjectMaint::ReleaseObjCell` · 004d5dd0 · legions 004c8890
+- [x] `CObjectMaint::RemoveObjectToBeDestroyed` · 004d5da0 · legions 004c8860
+- [~] `CObjectMaint::ReleaseObjCell` · 004d5dd0 · legions 004c8890 — for every cell of a released block: objects in the world, unless held, leave visibility
 - [ ] `CObjectMaint::FlushLostCellTable` · 004d5ec0 · legions 004c8980
 - [ ] `CObjectMaint::OnContextFinished` · 004d61d0
-- [ ] `CObjectMaint::InitObjCell` · 004d6210 · legions 004c8cd0
+- [x] `CObjectMaint::InitObjCell` · 004d6210 · legions 004c8cd0 — ac2-client remote.rs, for every cell of a block made resident
 - [ ] `CObjectMaint::DumpToString` · 004d6280 · legions 004c8d40
 
 ### BehaviorParams
@@ -97,8 +97,8 @@ Legend and workflow: [README](README.md).
 ### CObjectMaint
 - [ ] `CObjectMaint::AddObject` · 004d6dc0 · legions 004c9830
 - [ ] `CObjectMaint::GetObjectA` · 004d6df0
-- [ ] `CObjectMaint::GetLostCell` · 004d6e20 · legions 004c9890
-- [ ] `CObjectMaint::RemoveFromLostCell` · 004d6ea0 · legions 004c9910
+- [x] `CObjectMaint::GetLostCell` · 004d6e20 · legions 004c9890 — ac2-client remote.rs
+- [x] `CObjectMaint::RemoveFromLostCell` · 004d6ea0 · legions 004c9910 — ac2-client remote.rs
 - [ ] `CObjectMaint::CreateDummyObject` · 004d6f10 · legions 004c9980
 
 ### PriorityHash<InstanceID,double>
@@ -109,10 +109,10 @@ Legend and workflow: [README](README.md).
 
 ### CObjectMaint
 - [ ] `CObjectMaint::CreateObject` · 004d75a0 · legions 004ca010
-- [ ] `CObjectMaint::AddObjectToBeDestroyed` · 004d76d0 · legions 004ca140
-- [ ] `CObjectMaint::DestroyObject` · 004d7730 · legions 004ca1a0
+- [~] `CObjectMaint::AddObjectToBeDestroyed` · 004d76d0 · legions 004ca140 — 25 s; no temporary ids (0.25 s)
+- [x] `CObjectMaint::DestroyObject` · 004d7730 · legions 004ca1a0
 - [ ] `CObjectMaint::FadeAndDestroyObject` · 004d7770 · legions 004ca1e0
-- [ ] `CObjectMaint::GotoLostCell` · 004d77e0 · legions 004ca250
+- [x] `CObjectMaint::GotoLostCell` · 004d77e0 · legions 004ca250 — ac2-client remote.rs (lost-cell table)
 - [ ] `CObjectMaint::InitializeTemporaryObject` · 004d7840 · legions 004ca2b0
 - [ ] `CObjectMaint::AllocateTemporaryID` · 004d7c10 · legions 004ca680
 
@@ -135,17 +135,17 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjectMaint::CreateTemporaryObject` · 004d8310 · legions 004cad80
 - [ ] `CObjectMaint::DestroyEventQueue` · 004d8400 · legions 004cae70
 - [ ] `CObjectMaint::StartEntityCreation` · 004d84a0 · legions 004caf10
-- [ ] `CObjectMaint::DestroyObjectInternal` · 004d86f0 · legions 004cb160
-- [ ] `CObjectMaint::HandlePendingDeletion` · 004d87b0 · legions 004cb220
+- [~] `CObjectMaint::DestroyObjectInternal` · 004d86f0 · legions 004cb160 — table, both queues and the event queue; no weenie or physics teardown hooks
+- [x] `CObjectMaint::HandlePendingDeletion` · 004d87b0 · legions 004cb220
 - [x] `CObjectMaint::FlushEventQueueForBookie` · 004d8820 · legions 004cb290
 - [ ] `CObjectMaint::FlushObjectTable` · 004d8940 · legions 004cb3b0
 - [ ] `CObjectMaint::DestroyEventQueues` · 004d8a00 · legions 004cb470
-- [~] `CObjectMaint::FinishEntityCreation` · 004d8a40 · legions 004cb4b0 — visual-queue release and queued-event replay only; no CPhysicsObj built
+- [~] `CObjectMaint::FinishEntityCreation` · 004d8a40 · legions 004cb4b0 — ac2-client: the physics object once its Setup loads on a loader thread, then SyncPositionSimple(pos, 1); the table entry is created on receipt
 - [ ] `CObjectMaint::DestroyObjects` · 004d8c00 · legions 004cb670
 - [ ] `CObjectMaint::CObjectMaint` · 004d8de0 · legions 004cb850
 - [ ] `CObjectMaint::~CObjectMaint` · 004d8f30 · legions 004cb9a0
-- [~] `CObjectMaint::FinishEntityCreation` · 004d9150 · legions 004cbbc0 — visual-queue release and queued-event replay only; no CPhysicsObj built
-- [~] `CObjectMaint::UseTime` · 004d9480 · legions 004cbef0 — the event-queue pass: queues held over 25 s ask for their object (SendEvt_CForceCreate) and are dropped unless the player's; no other maintenance
+- [~] `CObjectMaint::FinishEntityCreation` · 004d9150 · legions 004cbbc0 — ac2-client: the physics object once its Setup loads on a loader thread, then SyncPositionSimple(pos, 1); the table entry is created on receipt
+- [~] `CObjectMaint::UseTime` · 004d9480 · legions 004cbef0 — destruction queue to pending deletions, the event-queue timeouts, HandlePendingDeletion; creation is not deferred to it (no temporary objects)
 
 ### _STL::map<InstanceID,ObjectEventQueue,_STL::less<InstanceID>,_STL::allocator<_STL::pair<InstanceID_const_,ObjectEventQueue>_>_>
 - [ ] `_STL::map<InstanceID,ObjectEventQueue,_STL::less<InstanceID>,_STL::allocator<_STL::pair<InstanceID_const_,ObjectEventQueue>_>_>::operator[]` · 004d9770 · legions 004cc1e0
@@ -154,7 +154,7 @@ Legend and workflow: [README](README.md).
 - [x] `CObjectMaint::QueueEventForBookie` · 004d98b0 · legions 004cc320
 - [x] `CObjectMaint::GetObjectOrQueueEvent` · 004d98e0 · legions 004cc350
 - [~] `CObjectMaint::RecvEvt_CreateObject` · 004d99c0 · legions 004cc430 — creation is immediate (no async entity loading); parent/stamp/update rules kept
-- [x] `CObjectMaint::RecvEvt_DestroyObject` · 004d9b00 · legions 004cc570
+- [x] `CObjectMaint::RecvEvt_DestroyObject` · 004d9b00 · legions 004cc570 — ac2-weenie World: a pending deletion at cur_time
 
 ## `portal/client/src/objects/visualorderingqueue.cpp.c` (7/7)
 
