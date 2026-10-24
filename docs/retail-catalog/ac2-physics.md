@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 0 done, 0 partial, 2064 to do, 60 skipped.
+2124 retail functions: 1 done, 0 partial, 2063 to do, 60 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (0/9)
@@ -33,10 +33,10 @@ Legend and workflow: [README](README.md).
 - [ ] `BSPLEAF::FromFileStream` · 0049fb00
 - [-] `BSPLEAF::FromFileNode` · 0049fc30 — text source format (admin tools)
 
-## `portal/shared/src/bsp/bspnode.cpp.c` (0/26)
+## `portal/shared/src/bsp/bspnode.cpp.c` (1/26)
 
 ### Sphere
-- [ ] `Sphere::Intersects` · 0049ce40 · legions 00494860
+- [x] `Sphere::Intersects` · 0049ce40 · legions 00494860
 
 ### BSPNODE
 - [ ] `BSPNODE::BSPNODE` · 0049cea0 · legions 004948c0

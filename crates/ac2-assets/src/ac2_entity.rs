@@ -9,7 +9,7 @@ use ac2_math::{Quat, Vec3};
 use ac2_db::skip_property_collection;
 
 /// The placement and visual facts of an entity description.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Ac2EntityDesc {
     pub entity_type: u32,
     /// `VisualDesc` for a template, or the template `EntityDesc` for a placed instance.
@@ -17,6 +17,9 @@ pub struct Ac2EntityDesc {
     pub origin: Vec3,
     pub rotation: Quat,
     pub scale: Vec3,
+    /// The packed `PropertyCollection`, decoded on demand with `ac2_db::read_ac2_property_groups`
+    /// (it needs the `MasterProperty` table installed).
+    pub properties: Option<std::sync::Arc<[u8]>>,
 }
 
 impl Default for Ac2EntityDesc {
@@ -27,6 +30,7 @@ impl Default for Ac2EntityDesc {
             origin: Vec3::ZERO,
             rotation: Quat::IDENTITY,
             scale: Vec3::ONE,
+            properties: None,
         }
     }
 }
@@ -54,7 +58,7 @@ impl ResourcePackedDecode for Ac2EntityDesc {
     }
 
     fn cache_retained_bytes(&self) -> usize {
-        std::mem::size_of::<Self>()
+        std::mem::size_of::<Self>() + self.properties.as_ref().map_or(0, |p| p.len())
     }
 }
 
@@ -95,7 +99,9 @@ pub fn read_ac2_entity_desc(cursor: &mut ArchiveCursor<'_>) -> Result<Ac2EntityD
         desc.scale = Vec3::new(f(cursor)?, f(cursor)?, f(cursor)?);
     }
     if bits & 0x80 != 0 {
+        let start = cursor.position();
         skip_property_collection(cursor)?;
+        desc.properties = Some(cursor.bytes()[start..cursor.position()].into());
     }
     if bits & 0x40 != 0 {
         word(cursor)?;

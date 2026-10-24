@@ -1,7 +1,20 @@
 key	status	note
+0047bed0	x	
+0047cd90	x	
 0047f410	x	
 0047f4b0	x	
 0047f500	x	
+004883d0	x	
+00488f10	x	
+00489160	x	
+00489230	~	ported; CLandCell::CheckRadius per-cell test not re-verified
+0048a160	x	
+0048abb0	x	
+0048ace0	x	
+0048ad70	x	
+0048b450	x	
+0048b4c0	x	
+0048b700	x	
 0048eef0	x	
 0048f160	x	
 0048f200	x	
@@ -12,6 +25,7 @@ key	status	note
 0048f980	x	
 0048fe10	~	vertex normals and terrain SurfaceInfo; not far colours or water
 004907a0	~	road SurfaceInfo; not physics materials or scene DIDs
+0049ce40	x	
 00522380	x	
 00522520	x	
 00522580	x	
@@ -44,12 +58,53 @@ key	status	note
 005919d0	x	
 00591a40	x	
 005b75b0	x	
+006169c0	x	
 0061ef30	x	
 00620e20	x	
+00621380	x	
+00621390	x	
+00621410	x	
+00628460	x	
+00628580	x	
 006290f0	x	
 006292a0	x	
 006294f0	x	
 00629d60	x	
+006b2ee0	x	
+006b2ff0	x	
+006b3700	x	
+006b3770	x	
+006bc900	x	
+006bc940	x	
+006bc960	x	
+006bca20	x	
+006bca40	x	
+006bca50	x	
+006bca80	x	
+006bcaf0	x	
+006bcb50	x	
+006bccb0	x	
+006bce10	x	
+006bce60	x	
+006bcf20	x	
+006bcfe0	x	
+006bd0c0	x	
+006bd190	x	
+006bd260	x	
+006bd7f0	x	
+006bd870	x	
+006bdc00	x	
+006bdc20	x	
+006bdcb0	x	
+006bdcf0	x	
+006bdda0	x	
+006bde20	x	
+006bde50	x	
+006be200	x	
+006be3c0	~	heading, orient and rot-sub paths; align (Plane::OrientFrameToPlane) not re-verified
+006be680	x	
+006be780	x	
+006bea10	x	
 006c36d0	x	
 006c3a20	x	
 006c3e50	x	

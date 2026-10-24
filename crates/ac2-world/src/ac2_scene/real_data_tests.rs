@@ -8,6 +8,7 @@ use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_db::ResourceStore;
 
 use super::{ac2_scene_object_visual, ac2_scene_placements};
+use ac2_db::install_ac2_property_types;
 
 fn ac2_store() -> Option<ResourceStore> {
     let root = std::env::var_os("AC2_DAT_DIR")?;
@@ -26,10 +27,16 @@ fn scenery_is_deterministic_inside_its_block_and_on_valid_scales() {
         let again = ac2_scene_placements(&store, id).expect("scenery generates");
         assert_eq!(first, again, "{block:04X}: generation is deterministic");
         assert!(first.iter().any(|p| p.frill), "{block:04X}: grass frills");
-        assert!(first.iter().any(|p| !p.frill), "{block:04X}: scenery objects");
+        assert!(
+            first.iter().any(|p| !p.frill),
+            "{block:04X}: scenery objects"
+        );
         for p in &first {
             let [x, y, z] = p.origin.to_array();
-            assert!((-0.01..160.01).contains(&x) && (-0.01..160.01).contains(&y), "{p:?}");
+            assert!(
+                (-0.01..160.01).contains(&x) && (-0.01..160.01).contains(&y),
+                "{p:?}"
+            );
             assert!(z.is_finite() && p.scale.min_element() > 0.0, "{p:?}");
             assert!((p.rotation.length() - 1.0).abs() < 1e-3, "{p:?}");
         }
@@ -61,4 +68,44 @@ fn ac2_scene_objects_resolve_to_visuals() {
         "{resolved} of {} resolve",
         placements.len()
     );
+}
+
+/// Retail tests only a group's location against the clearance list (and not groups that skip the
+/// legal-position check, nor objects a vertex scene places directly), so placements may still sit
+/// inside a clearance; this checks the shapes themselves.
+#[test]
+fn entity_clearance_shapes_decode_across_the_cell_dat() {
+    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+        return;
+    };
+    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
+    let store = ResourceStore::new(Arc::clone(&dataset));
+    install_ac2_property_types(&store).expect("MasterProperty decodes");
+    let (mut blocks, mut boxes, mut cylinders) = (0, 0, 0);
+    let infos = dataset
+        .iter_ids(ac2_dat::DatFileKind::Cell)
+        .filter(|id| id & 0xFFFF == 0xFFFE);
+    for info in infos {
+        let clearances = super::block::load_clearances(&store, info).expect("clearances decode");
+        let mut shaped = false;
+        for c in &clearances {
+            for (min, max) in &c.boxes {
+                // Some authored boxes are inverted; `IntersectsBox` measures them as given.
+                assert!(min.iter().chain(max).all(|v| v.is_finite()), "{info:08X}");
+                boxes += 1;
+                shaped = true;
+            }
+            for cyl in &c.cylinders {
+                assert!(
+                    cyl.radius.is_finite() && cyl.height.is_finite(),
+                    "{info:08X}: {cyl:?}"
+                );
+                cylinders += 1;
+                shaped = true;
+            }
+        }
+        blocks += usize::from(shaped);
+    }
+    eprintln!("{blocks} blocks; {boxes} clearance boxes, {cylinders} cylinders");
+    assert!(blocks > 0 && boxes + cylinders > 0);
 }

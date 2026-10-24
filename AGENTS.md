@@ -9,6 +9,14 @@ subsystem it reproduces. This file states the working rules.
 - Behaviour follows the original AC2 client. Cite the class and function a change reproduces
   (`CTransition::step_down`, `FrillRender::RefreshFrillMesh`). Never commit decompiled code,
   game data or data-derived fixtures.
+- Where admin 7148 and Legions 7160 differ, follow Legions (the DVD client the DATs ship with):
+  read `decompiled-pdb/legions7160/source_tree/` beside the admin tree and note the difference.
+- Numeric fidelity: retail ran x87 at 53-bit precision (`_setdefaultprecision`, and
+  `D3DCREATE_FPU_PRESERVE` on every `CreateDevice`), rounding to f32 only when storing into
+  `float` memory. Evaluate multi-operation expressions in f64 (scalar or f64 SIMD lanes) and round
+  to f32 where retail stores a `float`; f32 SIMD is exact only for a single operation between f32
+  values stored straight back. Keep hot loops SIMD-friendly (struct-of-arrays, no per-element
+  branching) without dropping below that precision.
 - New code goes in the crate that owns that AC2 subsystem. If no crate fits, revise
   `ARCHITECTURE.md` first.
 - The dependency graph is one-way in the order `ARCHITECTURE.md` lists.

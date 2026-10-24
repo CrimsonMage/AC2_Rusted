@@ -257,6 +257,8 @@ pub(super) struct Ac2SceneGroup {
     pub(super) use_3d: bool,
     pub(super) height_relative: u32,
     pub(super) scale_type: u32,
+    /// Water depth that maps to scale 1 (`SceneGroup::ScaleByWaterDepth`).
+    pub(super) scale_depth: f64,
     pub(super) above_dry_type: u32,
     pub(super) above_water_type: u32,
     pub(super) below_water_type: u32,
@@ -283,7 +285,7 @@ fn scene_group(
         max_scale: vector(cursor)?,
         ..Ac2SceneGroup::default()
     };
-    let _scale_depth = float(cursor)?;
+    g.scale_depth = float(cursor)?;
     g.min_slope = float(cursor)?;
     g.max_slope = float(cursor)?;
     g.align = flag(cursor)?;

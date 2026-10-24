@@ -11,13 +11,17 @@ use ac2_db::{
     TypedResourceRef,
 };
 
-use super::geometry::{SIDE, V3};
+use std::sync::Arc;
+
+use ac2_assets::Ac2EntityDesc;
+
+use super::clearance::{clearance_shapes, total_properties, Clearance};
+use super::geometry::{Q, SIDE};
 
 const SAMPLES: usize = SIDE * SIDE;
 const MAX_ENTITIES: usize = 1 << 14;
 /// `CLandBlockInfo` entity types that `CLandBlock::AddEntityToClearList` registers.
 const CLEARANCE_ENTITY_TYPES: [u32; 2] = [0x4000_0001, 0x4000_0007];
-const ENTITY_HAS_FRAME: u32 = 0x10;
 
 /// `CLandBlockData::StreamPack`: DID, landblock-info DID, path-map DID, counted height bytes,
 /// counted cell-info words.
@@ -68,13 +72,22 @@ impl ResourcePackedDecode for Ac2SceneLandBlock {
     }
 }
 
-/// Block-local origins of the `CLandBlockInfo` entities the generator must keep clear of.
-#[derive(Debug)]
-pub(super) struct Ac2SceneClearPoints {
-    pub(super) points: Vec<V3>,
+/// One `CLandBlockInfo` entity of a clearance type: its block-local frame, template and packed
+/// properties.
+#[derive(Debug, Clone)]
+pub(super) struct ClearEntity {
+    origin: [f64; 3],
+    rotation: Q,
+    template: Option<u32>,
+    properties: Option<Arc<[u8]>>,
 }
 
-impl ResourcePackedDecode for Ac2SceneClearPoints {
+#[derive(Debug)]
+pub(super) struct Ac2SceneClearEntities {
+    entities: Vec<ClearEntity>,
+}
+
+impl ResourcePackedDecode for Ac2SceneClearEntities {
     const TYPE_NAME: &'static str = "AC2 LandBlockInfo clearances";
     const RESOURCE_TYPE: ResourceTypeId = ResourceTypeId::Unknown;
 
@@ -83,7 +96,7 @@ impl ResourcePackedDecode for Ac2SceneClearPoints {
         _pack_version: u16,
         bytes: &[u8],
     ) -> ResourceResult<Self> {
-        decode_clear_points(&mut ArchiveCursor::new(bytes), qdid).map_err(|context| {
+        decode_clear_entities(&mut ArchiveCursor::new(bytes), qdid).map_err(|context| {
             ResourceError::MalformedTypedObject {
                 qdid,
                 type_name: Self::TYPE_NAME,
@@ -93,16 +106,25 @@ impl ResourcePackedDecode for Ac2SceneClearPoints {
     }
 
     fn cache_retained_bytes(&self) -> usize {
-        std::mem::size_of::<Self>() + self.points.len() * std::mem::size_of::<V3>()
+        std::mem::size_of::<Self>()
+            + self
+                .entities
+                .iter()
+                .map(|e| {
+                    std::mem::size_of::<ClearEntity>()
+                        + e.properties.as_ref().map_or(0, |p| p.len())
+                })
+                .sum::<usize>()
     }
 }
 
 /// `CLandBlockInfo::StreamPack` up to the `EntityGroupDesc` entities (see `ac2_landblock_info.rs`),
-/// keeping framed entities of the clearance types.
-fn decode_clear_points(
+/// keeping the entities `CLandBlock::GenerateLBIObjectList` hands to `AddEntityToClearList`
+/// (types `0x40000001` and `0x40000007`; weenies are excluded for static objects).
+fn decode_clear_entities(
     cursor: &mut ArchiveCursor<'_>,
     qdid: QualifiedDataId,
-) -> Result<Ac2SceneClearPoints, &'static str> {
+) -> Result<Ac2SceneClearEntities, &'static str> {
     let word = |cursor: &mut ArchiveCursor<'_>| cursor.read_u32().map_err(|_| "record ended early");
     let bits = word(cursor)?;
     if word(cursor)? != qdid.data_id().raw() {
@@ -118,36 +140,63 @@ fn decode_clear_points(
     if count > MAX_ENTITIES {
         return Err("entity count exceeded the record");
     }
-    let mut points = Vec::new();
+    let mut entities = Vec::new();
     for _ in 0..count {
-        let mut peek = *cursor;
-        let entity_bits = word(&mut peek)?;
         let entity = read_ac2_entity_desc(cursor)?;
-        if entity_bits & ENTITY_HAS_FRAME != 0
-            && CLEARANCE_ENTITY_TYPES.contains(&entity.entity_type)
-        {
-            points.push(entity.origin.to_array().map(f64::from));
+        if CLEARANCE_ENTITY_TYPES.contains(&entity.entity_type) {
+            entities.push(ClearEntity {
+                origin: entity.origin.to_array().map(f64::from),
+                rotation: quat(&entity),
+                template: entity.data.map(|did| did.raw()),
+                properties: entity.properties,
+            });
         }
     }
     if word(cursor)? != 0 {
         return Err("EntityLinkDesc lists are not supported");
     }
     skip_ac2_property_collection(cursor)?;
-    Ok(Ac2SceneClearPoints { points })
+    Ok(Ac2SceneClearEntities { entities })
 }
 
-pub(super) fn load_clear_points(
+fn quat(entity: &Ac2EntityDesc) -> Q {
+    let r = entity.rotation;
+    [r.w, r.x, r.y, r.z].map(f64::from)
+}
+
+/// The clearance list `CLandBlock::GenerateLBIObjectList` seeds: one `ObjectClearance` per
+/// clearance-type entity, with the boxes and cylinders of its total properties
+/// (`EntityDesc::GetTotalProperties`, `CLandBlock::InqClearanceInfo`).
+pub(super) fn load_clearances(
     store: &ResourceStore,
     landblock_info: u32,
-) -> ResourceResult<Vec<V3>> {
+) -> ResourceResult<Vec<Clearance>> {
     if landblock_info == 0 {
         return Ok(Vec::new());
     }
     let reference = TypedResourceRef::new(DatFileKind::Cell, DataId::new(landblock_info), 0);
-    Ok(store
-        .load_cached_packed::<Ac2SceneClearPoints>(reference)?
-        .map(|record| record.points.clone())
-        .unwrap_or_default())
+    let Some(record) = store.load_cached_packed::<Ac2SceneClearEntities>(reference)? else {
+        return Ok(Vec::new());
+    };
+    let resolve = |did: u32| {
+        store
+            .load_cached_packed::<Ac2EntityDesc>(TypedResourceRef::new(
+                DatFileKind::Portal,
+                DataId::new(did),
+                0,
+            ))
+            .ok()
+            .flatten()
+            .map(|t| (t.properties.clone(), t.data.map(|d| d.raw())))
+    };
+    Ok(record
+        .entities
+        .iter()
+        .map(|e| {
+            let groups = total_properties(e.properties.as_deref(), e.template, &resolve);
+            Clearance::entity(e.origin, e.rotation, clearance_shapes(&groups))
+        })
+        .collect())
 }
 
 /// The block's water surface (`CLandBlockData::CacheFarValues`), when it has water.

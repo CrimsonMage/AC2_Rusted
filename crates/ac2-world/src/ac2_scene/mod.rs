@@ -9,6 +9,7 @@
 //! `SceneFile`'s client frill group places grass the same way without clearances.
 
 mod block;
+mod clearance;
 mod format;
 mod generate;
 mod geometry;
@@ -129,14 +130,14 @@ pub fn ac2_scene_placements(
     let water = block::block_water_height(store, block_cell_id, &land.heights, min_height)?;
     // `CLandBlockInfo` entity descriptors carry `MasterProperty`-typed property collections.
     install_ac2_property_types(store)?;
-    let clear_points = block::load_clear_points(store, record.landblock_info)?;
+    let clearances = block::load_clearances(store, record.landblock_info)?;
 
     let lookup = StoreLookup {
         store,
         files: RefCell::new(HashMap::new()),
         error: RefCell::new(None),
     };
-    let mut generator = generate::Generator::new(&terrain, &lookup, water, &clear_points);
+    let mut generator = generate::Generator::new(&terrain, &lookup, water, clearances);
     generator.generate(|ix, iy| vertex_scene(&terrain, &scene_desc, &terrain_desc, ix, iy));
     let placements = std::mem::take(&mut generator.placements);
     if let Some(error) = lookup.error.into_inner() {

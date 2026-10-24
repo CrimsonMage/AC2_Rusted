@@ -2,6 +2,7 @@
 //! `CheckGroupPlacement`, `SceneGroup::{GetScale,UpdateXYLoc,FinishPlaceAndCheck}`,
 //! `CheckRadius` and `ObjectCollides` (Legions 7160).
 
+use super::clearance::Clearance;
 use super::format::{Ac2SceneEntity, Ac2SceneGroup};
 use super::geometry::{
     circle_in_triangle, cross, downhill_heading, heading_of, normalize, plane_z, q_from_axes,
@@ -24,15 +25,6 @@ pub(super) struct RawPlacement {
     pub(super) frill: bool,
 }
 
-/// One `ObjectClearance` entry: a point or circle, optionally 3D. Group clearances only count
-/// once their group has finished placing its children.
-struct Clearance {
-    origin: V3,
-    radius: f64,
-    active: bool,
-    is_3d: bool,
-}
-
 #[derive(Clone, Copy)]
 struct Pose {
     origin: V3,
@@ -48,22 +40,13 @@ pub(super) struct Generator<'a, L: Ac2SceneLookup> {
 }
 
 impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
-    /// `clear_points` seeds the clearance list with the block's `CLandBlockInfo` entities.
+    /// `clearances` seeds the clearance list with the block's `CLandBlockInfo` entities.
     pub(super) fn new(
         terrain: &'a Ac2SceneTerrain,
         lookup: &'a L,
         water: Option<f64>,
-        clear_points: &[V3],
+        clearances: Vec<Clearance>,
     ) -> Self {
-        let clearances = clear_points
-            .iter()
-            .map(|origin| Clearance {
-                origin: *origin,
-                radius: 0.0,
-                active: true,
-                is_3d: false,
-            })
-            .collect();
         Self {
             terrain,
             lookup,
@@ -115,7 +98,7 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
         let seed = scene.wrapping_mul(seed).wrapping_mul(SCENE_SEED);
         // `GetCorrectDegrade(0)`: the nearest degrade.
         if let Some(objects) = file.degrades.first() {
-            let start = (!frill).then(|| self.push_group_clearance(pose.origin, 0.0, false));
+            let start = (!frill).then(|| self.push_group_clearance(pose, 0.0, false));
             for (index, entity) in objects.iter().enumerate() {
                 let child_seed = seed.wrapping_add((index as u32).wrapping_mul(ENTITY_SEED_STEP));
                 match entity {
@@ -138,7 +121,7 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
                 }
             }
             if let Some(start) = start {
-                self.clearances[start].active = true;
+                self.clearances[start].group_done = true;
             }
         }
         if let Some(frill_group) = &file.frill {
@@ -176,8 +159,8 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
         if !self.place(x, y, g, &mut pose, parent_scale, &mut scale, seed) {
             return true;
         }
-        let start = (!frill)
-            .then(|| self.push_group_clearance(pose.origin, clearance_radius(g, scale), g.use_3d));
+        let start =
+            (!frill).then(|| self.push_group_clearance(pose, clearance_radius(g, scale), g.use_3d));
         let mut count = 0_u32;
         for (index, entity) in g.subs.iter().enumerate() {
             let child_seed = seed.wrapping_add((index as u32).wrapping_mul(ENTITY_SEED_STEP));
@@ -211,18 +194,15 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
             }
         }
         if let Some(start) = start {
-            self.clearances[start].active = true;
+            self.clearances[start].group_done = true;
         }
         true
     }
 
-    fn push_group_clearance(&mut self, origin: V3, radius: f64, is_3d: bool) -> usize {
-        self.clearances.push(Clearance {
-            origin,
-            radius,
-            active: false,
-            is_3d,
-        });
+    /// `CLandBlock::StartSceneGroup`: an open group clearance, closed by `ObjectClearance::SetEnd`.
+    fn push_group_clearance(&mut self, pose: Pose, radius: f64, is_3d: bool) -> usize {
+        self.clearances
+            .push(Clearance::group(pose.origin, pose.rotation, radius, is_3d));
         self.clearances.len() - 1
     }
 
@@ -234,13 +214,13 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
             scale,
             frill,
         });
+        // `CLandBlock::ProcEntity`: scene objects clear their origin; frills go to `ProcFrill`.
         if !frill {
-            self.clearances.push(Clearance {
-                origin: pose.origin,
-                radius: 0.0,
-                active: true,
-                is_3d: false,
-            });
+            self.clearances.push(Clearance::entity(
+                pose.origin,
+                pose.rotation,
+                (Vec::new(), Vec::new()),
+            ));
         }
     }
 
@@ -347,8 +327,25 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
             pose.origin[2] = base + lift;
         }
         match g.scale_type {
-            // Depth-relative scales are not ported (the reference rejects them too).
-            5..=7 => return false,
+            // `SceneGroup::ScaleByWaterDepth`: depth below the water over `scale_depth`, into z for
+            // the height types and every axis for `DEPTH_SCALE_SIZE`; dry land rejects the group.
+            5..=7 => {
+                let Some(water) = self.water else {
+                    return false;
+                };
+                let land = plane_z(plane, pose.origin[0], pose.origin[1]).unwrap_or(pose.origin[2]);
+                let depth = water - land;
+                if !(depth > EPSILON) {
+                    return false;
+                }
+                let factor = depth / g.scale_depth;
+                if g.scale_type == 7 {
+                    *scale = [factor; 3];
+                } else {
+                    scale[2] = factor;
+                }
+            }
+            // `SceneGroup::ScaleByLandSlope`.
             8 | 9 => {
                 let (nx, ny) = (normal[0].abs(), normal[1].abs());
                 if !(nx < 0.9998 && ny < 0.9998) {
@@ -471,17 +468,9 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
         true
     }
 
-    /// `CLandBlock::ObjectCollides` against finished clearances.
+    /// `CLandBlock::ObjectCollides`.
     fn collides(&self, loc: V3, radius: f64, is_3d: bool) -> bool {
-        self.clearances.iter().filter(|c| c.active).any(|c| {
-            let dz = if is_3d && c.is_3d {
-                loc[2] - c.origin[2]
-            } else {
-                0.0
-            };
-            let (dx, dy) = (loc[0] - c.origin[0], loc[1] - c.origin[1]);
-            dx * dx + dy * dy + dz * dz <= (radius + c.radius).powi(2)
-        })
+        self.clearances.iter().any(|c| c.blocks(loc, radius, is_3d))
     }
 }
 

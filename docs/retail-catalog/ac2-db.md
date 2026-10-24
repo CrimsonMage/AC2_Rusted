@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 0 done, 0 partial, 594 to do, 39 skipped.
+633 retail functions: 4 done, 0 partial, 590 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -779,7 +779,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MasterProperty::MasterProperty` · 006b6670 · legions 0064eb10
 - [ ] `MasterProperty::Allocate` · 006b66d0
 
-## `portal/shared/src/property/propertycollection.cpp.c` (0/26)
+## `portal/shared/src/property/propertycollection.cpp.c` (2/26)
 
 ### PropertyCollection
 - [ ] `PropertyCollection::Destroy` · 006b31b0 · legions 0064c070
@@ -804,8 +804,8 @@ Legend and workflow: [README](README.md).
 
 ### PropertyCollection
 - [ ] `PropertyCollection::AddGroup` · 006b36d0 · legions 0064c590
-- [ ] `PropertyCollection::UpdateGroup` · 006b3700 · legions 0064c5c0
-- [ ] `PropertyCollection::UpdateCollection` · 006b3770 · legions 0064c630
+- [x] `PropertyCollection::UpdateGroup` · 006b3700 · legions 0064c5c0
+- [x] `PropertyCollection::UpdateCollection` · 006b3770 · legions 0064c630
 - [-] `PropertyCollection::ToFileNode` · 006b37c0 — text source format (admin tools)
 - [-] `PropertyCollection::FromFileNode` · 006b3910 — text source format (admin tools)
 - [ ] `PropertyCollection::operator=` · 006b3b10 · legions 0064c680
@@ -813,7 +813,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PropertyCollection::AddOptionalProperty` · 006b3c20 · legions 0064c790
 - [ ] `PropertyCollection::UpdateProperty` · 006b3cf0 · legions 0064c860
 
-## `portal/shared/src/property/propertygroup.cpp.c` (0/25)
+## `portal/shared/src/property/propertygroup.cpp.c` (2/25)
 
 ### PropertyGroup
 - [ ] `PropertyGroup::InqPropertyGroupName` · 006b2890
@@ -841,8 +841,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PropertyGroup::SetOptionalToRequired` · 006b2e40 · legions 0064be20
 - [ ] `PropertyGroup::AddProperty` · 006b2e80 · legions 0064be60
 - [ ] `PropertyGroup::AddOptionalProperty` · 006b2eb0 · legions 0064be90
-- [ ] `PropertyGroup::UpdateProperty` · 006b2ee0 · legions 0064bec0
-- [ ] `PropertyGroup::UpdateGroup` · 006b2ff0 · legions 0064bfd0
+- [x] `PropertyGroup::UpdateProperty` · 006b2ee0 · legions 0064bec0
+- [x] `PropertyGroup::UpdateGroup` · 006b2ff0 · legions 0064bfd0
 - [-] `PropertyGroup::FromFileNode` · 006b3030 — text source format (admin tools)
 - [ ] `PropertyGroup::operator=` · 006b3150 · legions 0064c010
 

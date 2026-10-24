@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 34 done, 3 partial, 809 to do, 143 skipped.
+989 retail functions: 75 done, 5 partial, 766 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (3/140)
@@ -249,7 +249,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::FlushCellGroups` · 004876a0 · legions 00480ed0
 - [ ] `CEnvCell::flush_cells` · 00487750 · legions 00480f80
 
-## `portal/shared/src/cell/landblock.cpp.c` (0/72)
+## `portal/shared/src/cell/landblock.cpp.c` (10/72)
 
 ### LandDefs
 - [ ] `LandDefs::GetBlockOffset` · 00488140 · legions 00481970
@@ -273,7 +273,7 @@ Legend and workflow: [README](README.md).
 ### CLandBlock
 - [ ] `CLandBlock::Init` · 004883b0 · legions 00481bc0
 - [ ] `CLandBlock::SetVertexValue` · 004883c0 · legions 00481bd0
-- [ ] `CLandBlock::OnRoad` · 004883d0 · legions 00481be0
+- [x] `CLandBlock::OnRoad` · 004883d0 · legions 00481be0
 - [ ] `CLandBlock::GrabVisibleCells` · 004886f0 · legions 00481f00
 - [ ] `CLandBlock::ReleaseVisibleCells` · 00488720 · legions 00481f30
 - [ ] `CLandBlock::FindInteriorCell` · 00488750 · legions 00481f60
@@ -293,12 +293,12 @@ Legend and workflow: [README](README.md).
 - [ ] `CLandBlock::GetNearestPixel` · 00488e10 · legions 00482690
 - [ ] `CLandBlock::InitDynamicObjects` · 00488e70 · legions 004826f0
 - [ ] `CLandBlock::ReleaseDynamicObjects` · 00488ec0 · legions 00482740
-- [ ] `CLandBlock::InqClearanceInfo` · 00488f10 · legions 00482790
+- [x] `CLandBlock::InqClearanceInfo` · 00488f10 · legions 00482790
 - [ ] `CLandBlock::InitializeQuadtree` · 00488f70 · legions 004827f0
 - [ ] `CLandBlock::ClearEncounterList` · 00489110 · legions 00482990
-- [ ] `CLandBlock::ObjectCollides` · 00489160 · legions 004829e0
+- [x] `CLandBlock::ObjectCollides` · 00489160 · legions 004829e0
 - [ ] `CLandBlock::ProcFrill` · 004891c0 · legions 00482a40
-- [ ] `CLandBlock::CheckRadius` · 00489230 · legions 00482ab0
+- [~] `CLandBlock::CheckRadius` · 00489230 · legions 00482ab0 — ported; CLandCell::CheckRadius per-cell test not re-verified
 - [ ] `CLandBlock::CullObjects` · 00489520 · legions 00482d70
 - [ ] `CLandBlock::TraceRay` · 00489820 · legions 00483060
 - [ ] `CLandBlock::InqObjects` · 00489a70 · legions 004832b0
@@ -323,7 +323,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CLandBlock::DestroyStaticObjects` · 00489f70 · legions 00483880
 - [ ] `CLandBlock::GetPhysicsMaterial` · 0048a060
 - [ ] `CLandBlock::GetWaterPhysicsMaterial` · 0048a0e0 · legions 004839f0
-- [ ] `CLandBlock::CheckGroupPlacement` · 0048a160 · legions 00483a50
+- [x] `CLandBlock::CheckGroupPlacement` · 0048a160 · legions 00483a50
 - [ ] `CLandBlock::RemoveDynamicObject` · 0048a330 · legions 00483c20
 
 ### SmartArray<AmbientSoundPoint>
@@ -343,9 +343,9 @@ Legend and workflow: [README](README.md).
 
 ### CLandBlock
 - [ ] `CLandBlock::~CLandBlock` · 0048ab10 · legions 004843c0
-- [ ] `CLandBlock::AddEntityToClearList` · 0048abb0 · legions 00484460
-- [ ] `CLandBlock::StartSceneGroup` · 0048ace0 · legions 00484590
-- [ ] `CLandBlock::ProcEntity` · 0048ad70 · legions 00484620
+- [x] `CLandBlock::AddEntityToClearList` · 0048abb0 · legions 00484460
+- [x] `CLandBlock::StartSceneGroup` · 0048ace0 · legions 00484590
+- [x] `CLandBlock::ProcEntity` · 0048ad70 · legions 00484620
 - [ ] `CLandBlock::CreateStaticObjects` · 0048ae10 · legions 004846c0
 - [ ] `CLandBlock::AddDynamicObject` · 0048afe0 · legions 00484890
 - [ ] `CLandBlock::AddToBrushList` · 0048b010 · legions 004848c0
@@ -357,9 +357,9 @@ Legend and workflow: [README](README.md).
 
 ### CLandBlock
 - [ ] `CLandBlock::GetVisible` · 0048b430 · legions 00484ce0
-- [ ] `CLandBlock::GenerateLBIObjectList` · 0048b450 · legions 00484d00
-- [ ] `CLandBlock::ProcScene` · 0048b4c0 · legions 00484d70
-- [ ] `CLandBlock::ProcGroup` · 0048b700 · legions 00484f60
+- [x] `CLandBlock::GenerateLBIObjectList` · 0048b450 · legions 00484d00
+- [x] `CLandBlock::ProcScene` · 0048b4c0 · legions 00484d70
+- [x] `CLandBlock::ProcGroup` · 0048b700 · legions 00484f60
 - [ ] `CLandBlock::RemoveLandCellsFromHash` · 0048b990 · legions 004851f0
 - [ ] `CLandBlock::GatherObjects` · 0048ba30 · legions 00485290
 - [ ] `CLandBlock::TraceRayCrossBlock` · 0048bcd0 · legions 00485500
@@ -636,7 +636,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CLightInfo::Allocator` · 0048ed70
 - [-] `CLightInfo::FromFileNode` · 0048ed90 — text source format (admin tools)
 
-## `portal/shared/src/cell/objcell.cpp.c` (0/53)
+## `portal/shared/src/cell/objcell.cpp.c` (1/53)
 
 ### DBObj
 - [ ] `DBObj::SaveToFile` · 0047b860
@@ -704,7 +704,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartArray<Cylsphere>::operator=` · 0047cc40 · legions 00476d30
 
 ### ObjectClearance
-- [ ] `ObjectClearance::operator=` · 0047cd90 · legions 00476e80
+- [x] `ObjectClearance::operator=` · 0047cd90 · legions 00476e80
 
 ### CObjCell
 - [ ] `CObjCell::AddTouchingCell` · 0047ce60 · legions 00476f50
@@ -1074,26 +1074,26 @@ Legend and workflow: [README](README.md).
 - [-] `LScapeScene::LoadSceneFile` · 006c3400 — text source loader, admin build only
 - [ ] `LScapeScene::Load` · 006c34d0
 
-## `portal/shared/src/region/scene/objectclearance.cpp.c` (0/17)
+## `portal/shared/src/region/scene/objectclearance.cpp.c` (17/17)
 
 ### ObjectClearance
-- [ ] `ObjectClearance::InitAsEntity` · 006bc900 · legions 00651690
-- [ ] `ObjectClearance::InitAsGroup` · 006bc940 · legions 006516d0
-- [ ] `ObjectClearance::IntersectsCyl` · 006bc960 · legions 006516f0
-- [ ] `ObjectClearance::SetEnd` · 006bca20 · legions 006517b0
-- [ ] `ObjectClearance::InSuperGroup` · 006bca40 · legions 006517d0
-- [ ] `ObjectClearance::SetClearance` · 006bca50 · legions 006517e0
-- [ ] `ObjectClearance::ObjectClearance` · 006bca80 · legions 00651810
-- [ ] `ObjectClearance::~ObjectClearance` · 006bcaf0 · legions 00651880
-- [ ] `ObjectClearance::IntersectsBox` · 006bcb50 · legions 006518e0
-- [ ] `ObjectClearance::CheckIntersection` · 006bccb0 · legions 00651a40
-- [ ] `ObjectClearance::InitAsEntity` · 006bce10 · legions 00651ba0
-- [ ] `ObjectClearance::SetClearBBoxMin` · 006bce60 · legions 00651bf0
-- [ ] `ObjectClearance::SetClearBBoxMax` · 006bcf20 · legions 00651cb0
-- [ ] `ObjectClearance::SetClearCylCenter` · 006bcfe0 · legions 00651d70
-- [ ] `ObjectClearance::SetClearCylHeight` · 006bd0c0 · legions 00651e50
-- [ ] `ObjectClearance::SetClearCylRadius` · 006bd190 · legions 00651f20
-- [ ] `ObjectClearance::ApplyClearanceProperty` · 006bd260 · legions 00651ff0
+- [x] `ObjectClearance::InitAsEntity` · 006bc900 · legions 00651690
+- [x] `ObjectClearance::InitAsGroup` · 006bc940 · legions 006516d0
+- [x] `ObjectClearance::IntersectsCyl` · 006bc960 · legions 006516f0
+- [x] `ObjectClearance::SetEnd` · 006bca20 · legions 006517b0
+- [x] `ObjectClearance::InSuperGroup` · 006bca40 · legions 006517d0
+- [x] `ObjectClearance::SetClearance` · 006bca50 · legions 006517e0
+- [x] `ObjectClearance::ObjectClearance` · 006bca80 · legions 00651810
+- [x] `ObjectClearance::~ObjectClearance` · 006bcaf0 · legions 00651880
+- [x] `ObjectClearance::IntersectsBox` · 006bcb50 · legions 006518e0
+- [x] `ObjectClearance::CheckIntersection` · 006bccb0 · legions 00651a40
+- [x] `ObjectClearance::InitAsEntity` · 006bce10 · legions 00651ba0
+- [x] `ObjectClearance::SetClearBBoxMin` · 006bce60 · legions 00651bf0
+- [x] `ObjectClearance::SetClearBBoxMax` · 006bcf20 · legions 00651cb0
+- [x] `ObjectClearance::SetClearCylCenter` · 006bcfe0 · legions 00651d70
+- [x] `ObjectClearance::SetClearCylHeight` · 006bd0c0 · legions 00651e50
+- [x] `ObjectClearance::SetClearCylRadius` · 006bd190 · legions 00651f20
+- [x] `ObjectClearance::ApplyClearanceProperty` · 006bd260 · legions 00651ff0
 
 ## `portal/shared/src/region/scene/scenedegrade.cpp.c` (0/10)
 
@@ -1161,7 +1161,7 @@ Legend and workflow: [README](README.md).
 - [-] `SceneFile::LoadClientFrills` · 006c22d0 — text source loader, admin build only
 - [-] `SceneFile::FromFileNode` · 006c2350 — text source format (admin tools)
 
-## `portal/shared/src/region/scene/scenegroup.cpp.c` (0/45)
+## `portal/shared/src/region/scene/scenegroup.cpp.c` (13/45)
 
 ### SceneGroup
 - [ ] `SceneGroup::SetMinRot` · 006bd400
@@ -1183,24 +1183,24 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneGroup::SetClearanceRadius` · 006bd720
 - [ ] `SceneGroup::SetMaxSlopeRadius` · 006bd750
 - [ ] `SceneGroup::SetMinSlopeRadius` · 006bd7a0
-- [ ] `SceneGroup::CheckFreq` · 006bd7f0 · legions 00652190
-- [ ] `SceneGroup::GetScale` · 006bd870 · legions 00652210
-- [ ] `SceneGroup::HaveMaxObjects` · 006bdc00 · legions 006525a0
-- [ ] `SceneGroup::UpdateZLoc` · 006bdc20 · legions 006525c0
-- [ ] `SceneGroup::GetCheckRadius` · 006bdcb0 · legions 00652640
-- [ ] `SceneGroup::ScaleByLandSlope` · 006bdcf0 · legions 00652680
-- [ ] `SceneGroup::GetClearanceRadius` · 006bdda0 · legions 00652730
-- [ ] `SceneGroup::CheckSlope` · 006bde20 · legions 006527b0
-- [ ] `SceneGroup::GetAlignedLimits` · 006bde50 · legions 006527e0
+- [x] `SceneGroup::CheckFreq` · 006bd7f0 · legions 00652190
+- [x] `SceneGroup::GetScale` · 006bd870 · legions 00652210
+- [x] `SceneGroup::HaveMaxObjects` · 006bdc00 · legions 006525a0
+- [x] `SceneGroup::UpdateZLoc` · 006bdc20 · legions 006525c0
+- [x] `SceneGroup::GetCheckRadius` · 006bdcb0 · legions 00652640
+- [x] `SceneGroup::ScaleByLandSlope` · 006bdcf0 · legions 00652680
+- [x] `SceneGroup::GetClearanceRadius` · 006bdda0 · legions 00652730
+- [x] `SceneGroup::CheckSlope` · 006bde20 · legions 006527b0
+- [x] `SceneGroup::GetAlignedLimits` · 006bde50 · legions 006527e0
 - [ ] `SceneGroup::SceneGroup` · 006bded0 · legions 00652860
 - [ ] `SceneGroup::Destroy` · 006be020 · legions 006529b0
 - [ ] `SceneGroup::GetSubDataIDs` · 006be1b0 · legions 00652b40
-- [ ] `SceneGroup::UpdateXYLoc` · 006be200 · legions 00652b90
-- [ ] `SceneGroup::UpdateFrame` · 006be3c0 · legions 00652d50
-- [ ] `SceneGroup::ScaleByWaterDepth` · 006be680 · legions 00653000
-- [ ] `SceneGroup::CheckFinalHeight` · 006be780 · legions 00653100
+- [x] `SceneGroup::UpdateXYLoc` · 006be200 · legions 00652b90
+- [~] `SceneGroup::UpdateFrame` · 006be3c0 · legions 00652d50 — heading, orient and rot-sub paths; align (Plane::OrientFrameToPlane) not re-verified
+- [x] `SceneGroup::ScaleByWaterDepth` · 006be680 · legions 00653000
+- [x] `SceneGroup::CheckFinalHeight` · 006be780 · legions 00653100
 - [ ] `SceneGroup::~SceneGroup` · 006be9f0 · legions 00653380
-- [ ] `SceneGroup::FinishPlaceAndCheck` · 006bea10 · legions 006533a0
+- [x] `SceneGroup::FinishPlaceAndCheck` · 006bea10 · legions 006533a0
 - [ ] `SceneGroup::CopyInto` · 006beb80 · legions 00653510
 - [ ] `SceneGroup::StreamPack` · 006bee00 · legions 00653790
 - [ ] `SceneGroup::GetCorner` · 006bf350

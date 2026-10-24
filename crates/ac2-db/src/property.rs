@@ -218,18 +218,68 @@ impl Ac2PropertyValue {
             .get(index * 4..index * 4 + 4)
             .map(|b| f32::from_le_bytes([b[0], b[1], b[2], b[3]]))
     }
+
+    /// A float property's value (`BasePropertyValue::GetValue(float&)`); `None` for other types.
+    pub fn float(&self) -> Option<f32> {
+        (self.value_type == TYPE_FLOAT)
+            .then(|| self.float_at(0))
+            .flatten()
+    }
+
+    /// A vector property's value (`BasePropertyValue::GetValue(Vector&)`); `None` for other types.
+    pub fn vector(&self) -> Option<[f32; 3]> {
+        (self.value_type == TYPE_VECTOR)
+            .then(|| Some([self.float_at(0)?, self.float_at(1)?, self.float_at(2)?]))
+            .flatten()
+    }
 }
 
-/// Reads a `PropertyCollection` into its properties, in stream order across groups.
-pub fn read_ac2_property_collection(
+/// One `PropertyGroup`: its group name and properties in stream order.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct Ac2PropertyGroup {
+    pub name: u32,
+    pub properties: Vec<Ac2PropertyValue>,
+}
+
+/// `PropertyCollection::UpdateCollection`: each group of `update` merges into the group of the
+/// same name (`PropertyGroup::UpdateProperty`: a property replaces the one of its name, or is
+/// appended), and a group not yet present is appended whole.
+pub fn update_ac2_property_collection(
+    base: &mut Vec<Ac2PropertyGroup>,
+    update: &[Ac2PropertyGroup],
+) {
+    for group in update {
+        match base.iter_mut().find(|g| g.name == group.name) {
+            Some(existing) => {
+                for property in &group.properties {
+                    match existing
+                        .properties
+                        .iter_mut()
+                        .find(|p| p.name == property.name)
+                    {
+                        Some(slot) => *slot = property.clone(),
+                        None => existing.properties.push(property.clone()),
+                    }
+                }
+            }
+            None => base.push(group.clone()),
+        }
+    }
+}
+
+/// Reads a `PropertyCollection` into its groups.
+pub fn read_ac2_property_groups(
     cursor: &mut ArchiveCursor<'_>,
-) -> Result<Vec<Ac2PropertyValue>, &'static str> {
+) -> Result<Vec<Ac2PropertyGroup>, &'static str> {
     let types = PROPERTY_TYPES
         .get()
         .ok_or("AC2 MasterProperty table is not installed")?;
-    let mut values = Vec::new();
+    let mut groups = Vec::new();
     for _ in 0..count(cursor, 8)? {
-        word(cursor)?;
+        let mut group = Ac2PropertyGroup {
+            name: word(cursor)?,
+            properties: Vec::new(),
+        };
         for _ in 0..count(cursor, 4)? {
             let name = word(cursor)?;
             let value_type = types
@@ -240,12 +290,23 @@ pub fn read_ac2_property_collection(
             let start = cursor.position();
             skip_value(cursor, value_type)?;
             let end = cursor.position();
-            values.push(Ac2PropertyValue {
+            group.properties.push(Ac2PropertyValue {
                 name,
                 value_type,
                 bytes: cursor.bytes()[start..end].into(),
             });
         }
+        groups.push(group);
     }
-    Ok(values)
+    Ok(groups)
+}
+
+/// Reads a `PropertyCollection` into its properties, in stream order across groups.
+pub fn read_ac2_property_collection(
+    cursor: &mut ArchiveCursor<'_>,
+) -> Result<Vec<Ac2PropertyValue>, &'static str> {
+    Ok(read_ac2_property_groups(cursor)?
+        .into_iter()
+        .flat_map(|group| group.properties)
+        .collect())
 }

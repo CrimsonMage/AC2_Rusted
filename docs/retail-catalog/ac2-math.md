@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 6 done, 0 partial, 380 to do, 40 skipped.
+426 retail functions: 11 done, 0 partial, 375 to do, 40 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (0/5)
@@ -155,13 +155,13 @@ Legend and workflow: [README](README.md).
 - [ ] `Frame::set_pitch` · 0061a860 · legions 005d64c0
 - [ ] `Frame::slerp` · 0061a8a0 · legions 005d6500
 
-## `portal/shared/src/geometry/gcylsphere.cpp.c` (0/10)
+## `portal/shared/src/geometry/gcylsphere.cpp.c` (3/10)
 
 ### Cylsphere
 - [ ] `Cylsphere::BuildBoundingBox` · 006211c0 · legions 005dc960
-- [ ] `Cylsphere::Intersects` · 00621380 · legions 005dcb20
-- [ ] `Cylsphere::Intersects` · 00621390 · legions 005dcb30
-- [ ] `Cylsphere::Intersects` · 00621410 · legions 005dcbb0
+- [x] `Cylsphere::Intersects` · 00621380 · legions 005dcb20
+- [x] `Cylsphere::Intersects` · 00621390 · legions 005dcb30
+- [x] `Cylsphere::Intersects` · 00621410 · legions 005dcbb0
 - [ ] `Cylsphere::Within` · 00621420 · legions 005dcbc0
 - [ ] `Cylsphere::StreamPack` · 00621480 · legions 005dcc20
 - [ ] `Cylsphere::Scale` · 006214d0 · legions 005dcc70
@@ -169,14 +169,14 @@ Legend and workflow: [README](README.md).
 - [-] `Cylsphere::ToFileNode` · 006218b0 — text source format (admin tools)
 - [-] `Cylsphere::FromFileNode` · 006219a0 — text source format (admin tools)
 
-## `portal/shared/src/geometry/gsphere.cpp.c` (0/7)
+## `portal/shared/src/geometry/gsphere.cpp.c` (2/7)
 
 ### Plane
 - [ ] `Plane::GetPackSize` · 00628450 · legions 005e33a0
 
 ### Sphere
-- [ ] `Sphere::Intersects` · 00628460 · legions 005e33b0
-- [ ] `Sphere::Intersects` · 00628580 · legions 005e34d0
+- [x] `Sphere::Intersects` · 00628460 · legions 005e33b0
+- [x] `Sphere::Intersects` · 00628580 · legions 005e34d0
 - [ ] `Sphere::TraceRay` · 00628590 · legions 005e34e0
 - [ ] `Sphere::FindCoverRays` · 006286a0 · legions 005e35f0
 - [-] `Sphere::FromFileNode` · 00628f40 — text source format (admin tools)

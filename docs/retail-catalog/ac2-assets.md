@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 0 done, 0 partial, 663 to do, 122 skipped.
+785 retail functions: 1 done, 0 partial, 662 to do, 122 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (0/62)
@@ -508,7 +508,7 @@ Legend and workflow: [README](README.md).
 - [ ] `TGADecoder::readImage` · 00734990
 - [ ] `TGADecoder::Decode` · 007349f0
 
-## `portal/shared/src/entitydesc/entitydesc.cpp.c` (0/41)
+## `portal/shared/src/entitydesc/entitydesc.cpp.c` (1/41)
 
 ### LM_UVScale
 - [ ] `LM_UVScale::GetType` · 00615d90 · legions 005d3ac0
@@ -553,7 +553,7 @@ Legend and workflow: [README](README.md).
 - [ ] `EntityDesc::CopyInto` · 00616800 · legions 005d43e0
 - [ ] `EntityDesc::Destroy` · 00616820
 - [ ] `EntityDesc::GetRootPackageID` · 00616960 · legions 005d4540
-- [ ] `EntityDesc::GetTotalProperties` · 006169c0 · legions 005d45a0
+- [x] `EntityDesc::GetTotalProperties` · 006169c0 · legions 005d45a0
 - [ ] `EntityDesc::GetVisualDescID` · 00616a50 · legions 005d4610
 - [ ] `EntityDesc::InqEntityDescFromDataID` · 00616ac0 · legions 005d4680
 - [ ] `EntityDesc::Allocate` · 00616b20
