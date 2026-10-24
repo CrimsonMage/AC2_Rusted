@@ -64,17 +64,17 @@ Legend and workflow: [README](README.md).
 - [-] `BBox::Pack` · 0061cb30 · legions 005d8720 — inline copy of 00426d40
 - [ ] `BBox::UnPack` · 0061cbb0
 - [ ] `BBox::InitForAdjustment` · 0061cc10 · legions 005d8800
-- [ ] `BBox::GetPlane` · 0061cc30 · legions 005d8820
-- [ ] `BBox::localtoglobal` · 0061cd10 · legions 005d8900
+- [ ] `BBox::GetPlane` · 0061cc30 · legions 005d8820 — ac2-physics envcell.rs: portal clipping against the cell-search box
+- [ ] `BBox::localtoglobal` · 0061cd10 · legions 005d8900 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `BBox::ScaleCentered` · 0061cf40 · legions 005d8b30
 - [ ] `BBox::BuildBoundingBox` · 0061d040 · legions 005d8c30
-- [ ] `BBox::GetCenter` · 0061d070 · legions 005d8c60
+- [ ] `BBox::GetCenter` · 0061d070 · legions 005d8c60 — ac2-physics envcell.rs: portal clipping against the cell-search box
 - [ ] `BBox::Within` · 0061d0b0 · legions 005d8ca0
 - [ ] `BBox::Intersects` · 0061d110 · legions 005d8d00
 - [ ] `BBox::GetPoints` · 0061d1e0 · legions 005d8dd0
 - [ ] `BBox::StreamPack` · 0061d2b0
-- [ ] `BBox::InitFromCylSpheres` · 0061d300 · legions 005d8ef0
-- [ ] `BBox::InitFromSpheres` · 0061d440 · legions 005d9030
+- [ ] `BBox::InitFromCylSpheres` · 0061d300 · legions 005d8ef0 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+- [ ] `BBox::InitFromSpheres` · 0061d440 · legions 005d9030 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `BBox::CalculateRadius` · 0061d580 · legions 005d9170
 - [ ] `BBox::Intersects` · 0061d660 · legions 005d9250
 - [ ] `BBox::FindCoverRays` · 0061d750 · legions 005d9340
@@ -98,8 +98,8 @@ Legend and workflow: [README](README.md).
 ### CCellPortal
 - [ ] `CCellPortal::CCellPortal` · 0049c770
 - [ ] `CCellPortal::~CCellPortal` · 0049c790 · legions 004944f0
-- [ ] `CCellPortal::GetOtherCell` · 0049c7a0 · legions 00494500
-- [-] `CCellPortal::GetOtherCell` · 0049c810 · legions 00494560 — inline copy of 0049c7a0
+- [ ] `CCellPortal::GetOtherCell` · 0049c7a0 · legions 00494500 — ac2-physics envcell.rs: portal clipping against the cell-search box
+- [-] `CCellPortal::GetOtherCell` · 0049c810 · legions 00494560 — ac2-physics envcell.rs: portal clipping against the cell-search box
 - [ ] `CCellPortal::GetPackSize` · 0049c880 · legions 004945c0
 - [ ] `CCellPortal::Pack` · 0049c8b0 · legions 004945f0
 - [ ] `CCellPortal::UnPack` · 0049c980 · legions 004946c0
@@ -114,15 +114,15 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/geometry/cylsphere.cpp.c` (0/9)
 
 ### CCylSphere
-- [ ] `CCylSphere::collides_with_sphere` · 00731160 · legions 006ad6a0
-- [ ] `CCylSphere::normal_of_collision` · 007311c0 · legions 006ad700
-- [ ] `CCylSphere::collide_with_point` · 007312d0 · legions 006ad810
-- [ ] `CCylSphere::slide_sphere` · 00731810 · legions 006add50
-- [ ] `CCylSphere::step_sphere_up` · 007318c0 · legions 006ade00
-- [ ] `CCylSphere::step_sphere_down` · 007319d0 · legions 006adf10
-- [ ] `CCylSphere::land_on_cylinder` · 00731b40 · legions 006ae080
-- [ ] `CCylSphere::intersects_sphere` · 00731bf0 · legions 006ae130
-- [ ] `CCylSphere::intersects_sphere` · 007320f0 · legions 006ae630
+- [ ] `CCylSphere::collides_with_sphere` · 00731160 · legions 006ad6a0 — ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+- [ ] `CCylSphere::normal_of_collision` · 007311c0 · legions 006ad700 — ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+- [ ] `CCylSphere::collide_with_point` · 007312d0 · legions 006ad810 — ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+- [ ] `CCylSphere::slide_sphere` · 00731810 · legions 006add50 — ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+- [ ] `CCylSphere::step_sphere_up` · 007318c0 · legions 006ade00 — ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+- [ ] `CCylSphere::step_sphere_down` · 007319d0 · legions 006adf10 — ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+- [ ] `CCylSphere::land_on_cylinder` · 00731b40 · legions 006ae080 — ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+- [ ] `CCylSphere::intersects_sphere` · 00731bf0 · legions 006ae130 — ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+- [ ] `CCylSphere::intersects_sphere` · 007320f0 · legions 006ae630 — ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
 
 ## `portal/shared/src/geometry/detectionobjray.cpp.c` (0/4)
 
@@ -294,7 +294,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/geometry/plane.cpp.c` (0/16)
 
 ### Plane
-- [ ] `Plane::localtoglobal` · 00623960 · legions 005ded30
+- [ ] `Plane::localtoglobal` · 00623960 · legions 005ded30 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 - [ ] `Plane::intersect_line` · 00623a20 · legions 005dedf0
 - [ ] `Plane::compute_time_of_intersection` · 00623b30 · legions 005def00
 - [ ] `Plane::FindIntercept` · 00623bb0 · legions 005def80
@@ -314,7 +314,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/geometry/polygon.cpp.c` (0/36)
 
 ### SPHEREPATH
-- [ ] `SPHEREPATH::is_walkable_allowable` · 00499290 · legions 004917c0
+- [ ] `SPHEREPATH::is_walkable_allowable` · 00499290 · legions 004917c0 — ac2-physics transition/localspace.rs, sphere_path.rs
 
 ### CPolygon
 - [ ] `CPolygon::CPolygon` · 004992b0
@@ -325,22 +325,22 @@ Legend and workflow: [README](README.md).
 - [ ] `CPolygon::InitEmpty` · 00499570 · legions 00491aa0
 - [ ] `CPolygon::GetPackSize` · 004995c0 · legions 00491af0
 - [ ] `CPolygon::Pack` · 004995e0 · legions 00491b10
-- [ ] `CPolygon::adjust_sphere_to_poly` · 00499670 · legions 00491ba0
-- [ ] `CPolygon::adjust_sphere_to_plane` · 00499700 · legions 00491c30
-- [ ] `CPolygon::adjust_to_placement_poly` · 00499800 · legions 00491d30
+- [ ] `CPolygon::adjust_sphere_to_poly` · 00499670 · legions 00491ba0 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+- [ ] `CPolygon::adjust_sphere_to_plane` · 00499700 · legions 00491c30 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+- [ ] `CPolygon::adjust_to_placement_poly` · 00499800 · legions 00491d30 — ac2-physics bsp: placement insert (Legions identical)
 
 ### PackObj
 - [ ] `PackObj::GetPackSize` · 004998b0
 
 ### CPolygon
 - [ ] `CPolygon::operator=` · 004998f0 · legions 00491de0
-- [ ] `CPolygon::MakePlane` · 00499940 · legions 00491e30
+- [ ] `CPolygon::MakePlane` · 00499940 · legions 00491e30 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
 - [ ] `CPolygon::UnPack` · 00499a90 · legions 00491f80
-- [ ] `CPolygon::polygon_hits_sphere_slow_but_sure` · 00499b90 · legions 00492080
-- [ ] `CPolygon::point_in_polygon` · 00499e60 · legions 00492350
-- [ ] `CPolygon::check_walkable` · 00499f30 · legions 00492420
-- [ ] `CPolygon::check_small_walkable` · 0049a160 · legions 00492650
-- [ ] `CPolygon::find_crossed_edge` · 0049a3a0 · legions 00492890
+- [ ] `CPolygon::polygon_hits_sphere_slow_but_sure` · 00499b90 · legions 00492080 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+- [ ] `CPolygon::point_in_polygon` · 00499e60 · legions 00492350 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+- [ ] `CPolygon::check_walkable` · 00499f30 · legions 00492420 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+- [ ] `CPolygon::check_small_walkable` · 0049a160 · legions 00492650 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+- [ ] `CPolygon::find_crossed_edge` · 0049a3a0 · legions 00492890 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
 
 ### WorkerPolygon
 - [ ] `WorkerPolygon::WorkerPolygon` · 0049a530 · legions 00492a20
@@ -348,22 +348,22 @@ Legend and workflow: [README](README.md).
 - [ ] `WorkerPolygon::CalcArea` · 0049a6a0 · legions 00492b90
 
 ### CPolygon
-- [ ] `CPolygon::pos_hits_sphere` · 0049a860 · legions 00492d50
-- [ ] `CPolygon::hits_sphere` · 0049a8b0 · legions 00492da0
-- [ ] `CPolygon::walkable_hits_sphere` · 0049a8d0 · legions 00492dc0
+- [ ] `CPolygon::pos_hits_sphere` · 0049a860 · legions 00492d50 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+- [ ] `CPolygon::hits_sphere` · 0049a8b0 · legions 00492da0 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+- [ ] `CPolygon::walkable_hits_sphere` · 0049a8d0 · legions 00492dc0 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
 - [ ] `CPolygon::TraceRay` · 0049a920 · legions 00492e10
 
 ### SmartArray<CPolygon>
 - [ ] `SmartArray<CPolygon>::SetNElements` · 0049a9c0
 
 ### WorkerPolygon
-- [ ] `WorkerPolygon::InitFromPolygon` · 0049a9f0 · legions 00492eb0
+- [ ] `WorkerPolygon::InitFromPolygon` · 0049a9f0 · legions 00492eb0 — ac2-physics envcell.rs: portal clipping against the cell-search box
 
 ### CPolygon
 - [-] `CPolygon::FromFileNode` · 0049aad0 — text source format (admin tools)
 
 ### WorkerPolygon
-- [ ] `WorkerPolygon::Clip` · 0049acb0 · legions 00492f90
+- [ ] `WorkerPolygon::Clip` · 0049acb0 · legions 00492f90 — ac2-physics envcell.rs: portal clipping against the cell-search box
 
 ### CPolygon
 - [ ] `CPolygon::FromFileStream` · 0049afe0
@@ -533,27 +533,27 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/geometry/sphere.cpp.c` (0/15)
 
 ### (free functions)
-- [ ] `IsFloatZero` · 0049e170 · legions 00495560
+- [ ] `IsFloatZero` · 0049e170 · legions 00495560 — ac2-physics shapes/sphere.rs (asm float order; Legions identical)
 
 ### Position
-- [ ] `Position::localtoglobal` · 0049e190 · legions 00495580
+- [ ] `Position::localtoglobal` · 0049e190 · legions 00495580 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 
 ### SPHEREPATH
-- [ ] `SPHEREPATH::get_curr_pos_check_pos_block_offset` · 0049e230 · legions 00495620
-- [ ] `SPHEREPATH::add_offset_to_check_pos` · 0049e260 · legions 00495650
+- [ ] `SPHEREPATH::get_curr_pos_check_pos_block_offset` · 0049e230 · legions 00495620 — ac2-physics transition/localspace.rs, sphere_path.rs
+- [ ] `SPHEREPATH::add_offset_to_check_pos` · 0049e260 · legions 00495650 — ac2-physics transition/localspace.rs, sphere_path.rs
 
 ### CSphere
-- [ ] `CSphere::find_time_of_collision` · 0049e2b0 · legions 004956a0
-- [ ] `CSphere::collides_with_sphere` · 0049e3a0 · legions 00495790
-- [ ] `CSphere::step_sphere_down` · 0049e3e0 · legions 004957d0
-- [ ] `CSphere::collide_with_point` · 0049e620 · legions 00495a10
-- [ ] `CSphere::slide_sphere` · 0049e860 · legions 00495c50
-- [ ] `CSphere::slide_sphere` · 0049eb70 · legions 00495f60
-- [ ] `CSphere::step_sphere_up` · 0049eec0 · legions 004962b0
-- [ ] `CSphere::land_on_sphere` · 0049ef60 · legions 00496350
-- [ ] `CSphere::slide_sphere` · 0049f000 · legions 004963f0
-- [ ] `CSphere::intersects_sphere` · 0049f0a0 · legions 00496490
-- [ ] `CSphere::intersects_sphere` · 0049f5f0 · legions 004969e0
+- [ ] `CSphere::find_time_of_collision` · 0049e2b0 · legions 004956a0 — ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+- [ ] `CSphere::collides_with_sphere` · 0049e3a0 · legions 00495790 — ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+- [ ] `CSphere::step_sphere_down` · 0049e3e0 · legions 004957d0 — ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+- [ ] `CSphere::collide_with_point` · 0049e620 · legions 00495a10 — ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+- [ ] `CSphere::slide_sphere` · 0049e860 · legions 00495c50 — ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+- [ ] `CSphere::slide_sphere` · 0049eb70 · legions 00495f60 — ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+- [ ] `CSphere::step_sphere_up` · 0049eec0 · legions 004962b0 — ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+- [ ] `CSphere::land_on_sphere` · 0049ef60 · legions 00496350 — ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+- [ ] `CSphere::slide_sphere` · 0049f000 · legions 004963f0 — ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+- [ ] `CSphere::intersects_sphere` · 0049f0a0 · legions 00496490 — ac2-physics shapes/sphere.rs (asm float order; Legions identical)
+- [ ] `CSphere::intersects_sphere` · 0049f5f0 · legions 004969e0 — ac2-physics shapes/sphere.rs (asm float order; Legions identical)
 
 ## `portal/shared/src/geometry/sphplanecone.cpp.c` (0/9)
 

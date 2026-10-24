@@ -1,12 +1,12 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 5 done, 2 partial, 2223 to do, 17 skipped.
+2247 retail functions: 8 done, 2 partial, 2220 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (0/53)
+## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
 
 ### BBox
-- [ ] `BBox::AdjustBBox` · 00426720 · legions 00426510
+- [x] `BBox::AdjustBBox` · 00426720 · legions 00426510 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 
 ### Box2D
 - [ ] `Box2D::Box2D` · 004267a0 · legions 00426590
@@ -447,7 +447,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmSecureTradeUI::RecvNotice_Trade_BeClosed` · 00421a90
 - [ ] `gmSecureTradeUI::RecvNotice_Trade_BeReset` · 00421bf0
 
-## `ac2/client/src/ui/gameplay/gmselectionui.cpp.c` (3/24)
+## `ac2/client/src/ui/gameplay/gmselectionui.cpp.c` (5/24)
 
 ### LandDefs
 - [ ] `LandDefs::in_bounds` · 004233a0 · legions 00423170
@@ -458,10 +458,10 @@ Legend and workflow: [README](README.md).
 ### Frame
 - [x] `Frame::globaltolocalvec` · 00423550 · legions 00423320
 - [ ] `Frame::localtoglobal` · 004235b0 · legions 00423380
-- [ ] `Frame::globaltolocal` · 00423610 · legions 004233e0
+- [x] `Frame::globaltolocal` · 00423610 · legions 004233e0 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 
 ### Position
-- [ ] `Position::localtolocal` · 00423690 · legions 00423460
+- [x] `Position::localtolocal` · 00423690 · legions 00423460 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 
 ### gmSelectionUI
 - [ ] `gmSelectionUI::RegisterObjectMessages` · 00423750 · legions 00423520

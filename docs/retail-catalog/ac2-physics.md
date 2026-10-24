@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 94 done, 36 partial, 1932 to do, 62 skipped.
+2124 retail functions: 152 done, 37 partial, 1873 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (0/9)
@@ -16,24 +16,24 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysics::UpdateAllPhysics` · 00732400
 - [ ] `CPhysics::UpdateAllAnimation` · 007325a0
 
-## `portal/shared/src/bsp/bspleaf.cpp.c` (0/13)
+## `portal/shared/src/bsp/bspleaf.cpp.c` (5/13)
 
 ### BSPLEAF
 - [ ] `BSPLEAF::BSPLEAF` · 0049f670 · legions 00496a60
 - [ ] `BSPLEAF::GetPackSize` · 0049f690
 - [ ] `BSPLEAF::Pack` · 0049f6e0
-- [ ] `BSPLEAF::sphere_intersects_poly` · 0049f770
-- [ ] `BSPLEAF::sphere_intersects_solid` · 0049f7e0
+- [x] `BSPLEAF::sphere_intersects_poly` · 0049f770 — ac2-physics bsp/node.rs (Legions identical)
+- [x] `BSPLEAF::sphere_intersects_solid` · 0049f7e0 — ac2-physics bsp/node.rs (Legions identical)
 - [ ] `BSPLEAF::point_intersects_solid` · 0049f860
-- [ ] `BSPLEAF::hits_walkable` · 0049f870
-- [ ] `BSPLEAF::find_walkable` · 0049f8f0
-- [ ] `BSPLEAF::sphere_intersects_solid_poly` · 0049f980 · legions 00496d70
+- [x] `BSPLEAF::hits_walkable` · 0049f870 — ac2-physics bsp/node.rs (Legions identical)
+- [x] `BSPLEAF::find_walkable` · 0049f8f0 — ac2-physics bsp/node.rs (Legions identical)
+- [x] `BSPLEAF::sphere_intersects_solid_poly` · 0049f980 · legions 00496d70 — ac2-physics bsp: placement insert (Legions identical)
 - [ ] `BSPLEAF::TraceRay` · 0049fa10
 - [ ] `BSPLEAF::UnPack` · 0049fa40
 - [ ] `BSPLEAF::FromFileStream` · 0049fb00
 - [-] `BSPLEAF::FromFileNode` · 0049fc30 — text source format (admin tools)
 
-## `portal/shared/src/bsp/bspnode.cpp.c` (1/26)
+## `portal/shared/src/bsp/bspnode.cpp.c` (7/26)
 
 ### Sphere
 - [x] `Sphere::Intersects` · 0049ce40 · legions 00494860
@@ -44,13 +44,13 @@ Legend and workflow: [README](README.md).
 - [ ] `BSPNODE::GetPackSizeChild` · 0049cf10 · legions 00494930
 - [ ] `BSPNODE::PackChild` · 0049cf20 · legions 00494940
 - [ ] `BSPNODE::UnPackChild` · 0049cf50 · legions 00494970
-- [ ] `BSPNODE::point_inside_cell_bsp` · 0049cff0 · legions 00494a10
-- [ ] `BSPNODE::sphere_intersects_poly` · 0049d040
-- [ ] `BSPNODE::sphere_intersects_solid` · 0049d100
+- [x] `BSPNODE::point_inside_cell_bsp` · 0049cff0 · legions 00494a10 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+- [x] `BSPNODE::sphere_intersects_poly` · 0049d040 — ac2-physics bsp/node.rs (Legions identical)
+- [x] `BSPNODE::sphere_intersects_solid` · 0049d100 — ac2-physics bsp/node.rs (Legions identical)
 - [ ] `BSPNODE::point_intersects_solid` · 0049d1e0
-- [ ] `BSPNODE::hits_walkable` · 0049d230
-- [ ] `BSPNODE::find_walkable` · 0049d2e0
-- [ ] `BSPNODE::sphere_intersects_solid_poly` · 0049d3b0
+- [x] `BSPNODE::hits_walkable` · 0049d230 — ac2-physics bsp/node.rs (Legions identical)
+- [x] `BSPNODE::find_walkable` · 0049d2e0 — ac2-physics bsp/node.rs (Legions identical)
+- [x] `BSPNODE::sphere_intersects_solid_poly` · 0049d3b0 — ac2-physics bsp: placement insert (Legions identical)
 - [ ] `BSPNODE::ClipToCellBSP` · 0049d4b0 · legions 00494ed0
 - [ ] `BSPNODE::~BSPNODE` · 0049d500 · legions 00494f20
 - [ ] `BSPNODE::GetPackSize` · 0049d540 · legions 00494f60
@@ -69,41 +69,41 @@ Legend and workflow: [README](README.md).
 - [-] `BSPNODE::FromFileNode` · 0049df70 — text source format (admin tools)
 - [ ] `BSPNODE::GetPosPlanes` · 0049e140 · legions 00495530
 
-## `portal/shared/src/bsp/bsptree.cpp.c` (1/20)
+## `portal/shared/src/bsp/bsptree.cpp.c` (16/20)
 
 ### Plane
-- [ ] `Plane::Scale` · 0049b420 · legions 004932c0
+- [x] `Plane::Scale` · 0049b420 · legions 004932c0 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 
 ### Position
-- [ ] `Position::localtoglobalvec` · 0049b490 · legions 00493330
+- [x] `Position::localtoglobalvec` · 0049b490 · legions 00493330 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 
 ### SPHEREPATH
-- [ ] `SPHEREPATH::set_neg_poly_hit` · 0049b4f0 · legions 00493390
+- [x] `SPHEREPATH::set_neg_poly_hit` · 0049b4f0 · legions 00493390 — ac2-physics transition/localspace.rs, sphere_path.rs
 
 ### COLLISIONINFO
 - [x] `COLLISIONINFO::set_contact_plane` · 0049b540 · legions 004933e0
 
 ### BSPTREE
-- [ ] `BSPTREE::GetBoundingSphere` · 0049b580 · legions 00493420
-- [ ] `BSPTREE::point_inside_cell_bsp` · 0049b590 · legions 00493430
+- [x] `BSPTREE::GetBoundingSphere` · 0049b580 · legions 00493420 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+- [x] `BSPTREE::point_inside_cell_bsp` · 0049b590 · legions 00493430 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [ ] `BSPTREE::TraceRay` · 0049b5a0 · legions 00493440
-- [ ] `BSPTREE::adjust_to_plane` · 0049b5f0 · legions 00493490
-- [ ] `BSPTREE::slide_sphere` · 0049b800 · legions 004936a0
-- [ ] `BSPTREE::step_sphere_up` · 0049b880 · legions 00493720
+- [x] `BSPTREE::adjust_to_plane` · 0049b5f0 · legions 00493490 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
+- [x] `BSPTREE::slide_sphere` · 0049b800 · legions 004936a0 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
+- [x] `BSPTREE::step_sphere_up` · 0049b880 · legions 00493720 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 - [ ] `BSPTREE::~BSPTREE` · 0049b920 · legions 004937c0
 - [ ] `BSPTREE::StreamPack` · 0049b940 · legions 004937e0
-- [ ] `BSPTREE::collide_with_pt` · 0049ba20 · legions 004938c0
-- [ ] `BSPTREE::check_walkable` · 0049bba0 · legions 00493a40
+- [x] `BSPTREE::collide_with_pt` · 0049ba20 · legions 004938c0 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
+- [x] `BSPTREE::check_walkable` · 0049bba0 · legions 00493a40 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 
 ### SPHEREPATH
-- [ ] `SPHEREPATH::set_collide` · 0049bbf0 · legions 00493a90
-- [ ] `SPHEREPATH::set_walkable` · 0049bc60 · legions 00493b00
+- [x] `SPHEREPATH::set_collide` · 0049bbf0 · legions 00493a90 — ac2-physics transition/localspace.rs, sphere_path.rs
+- [x] `SPHEREPATH::set_walkable` · 0049bc60 · legions 00493b00 — ac2-physics transition/localspace.rs, sphere_path.rs
 
 ### BSPTREE
-- [ ] `BSPTREE::placement_insert` · 0049bcf0 · legions 00493b90
-- [ ] `BSPTREE::step_sphere_down` · 0049bf70 · legions 00493e10
+- [x] `BSPTREE::placement_insert` · 0049bcf0 · legions 00493b90 — ac2-physics bsp: placement insert (Legions identical)
+- [x] `BSPTREE::step_sphere_down` · 0049bf70 · legions 00493e10 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 - [ ] `BSPTREE::ReadBSPTree` · 0049c180
-- [ ] `BSPTREE::FindObjCollisions` · 0049c2c0 · legions 00494020
+- [x] `BSPTREE::FindObjCollisions` · 0049c2c0 · legions 00494020 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 
 ## `portal/shared/src/path/astar.cpp.c` (0/14)
 
@@ -546,12 +546,12 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/physics/cellarray.cpp.c` (1/1)
 
 ### CELLARRAY
-- [x] `CELLARRAY::add_cell` · 004da7e0 · legions 004cd240
+- [x] `CELLARRAY::add_cell` · 004da7e0 · legions 004cd240 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 
-## `portal/shared/src/physics/collisioninfo.cpp.c` (0/1)
+## `portal/shared/src/physics/collisioninfo.cpp.c` (1/1)
 
 ### COLLISIONINFO
-- [ ] `COLLISIONINFO::AddObject` · 007326e0 · legions 006aeb80
+- [x] `COLLISIONINFO::AddObject` · 007326e0 · legions 006aeb80 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 
 ## `portal/shared/src/physics/material/physicsmaterial.cpp.c` (0/12)
 
@@ -586,7 +586,7 @@ Legend and workflow: [README](README.md).
 - [x] `PhysicsModule::UpdatePhysics` · 00737cf0 · legions 006b38b0
 - [ ] `PhysicsModule::UpdateAnimation` · 00737dd0 · legions 006b3990
 
-## `portal/shared/src/physics/spherepath.cpp.c` (6/13)
+## `portal/shared/src/physics/spherepath.cpp.c` (10/13)
 
 ### Position
 - [ ] `Position::globaltolocalvec` · 004da840 · legions 004cd2a0
@@ -597,15 +597,15 @@ Legend and workflow: [README](README.md).
 - [x] `SPHEREPATH::cache_global_curr_center` · 004da9e0 · legions 004cd440
 - [x] `SPHEREPATH::cache_global_sphere` · 004daaa0 · legions 004cd500
 - [x] `SPHEREPATH::adjust_check_pos` · 004dac40 · legions 004cd6a0
-- [ ] `SPHEREPATH::step_up_slide` · 004dacc0 · legions 004cd720
-- [~] `SPHEREPATH::check_walkables` · 004dad00 · legions 004cd760 — no physics-BSP walkable/negative polygons (neg-poly slide, step_up, precipice_slide)
-- [ ] `SPHEREPATH::precipice_slide` · 004dad40 · legions 004cd7a0
+- [x] `SPHEREPATH::step_up_slide` · 004dacc0 · legions 004cd720 — ac2-physics transition/localspace.rs, sphere_path.rs
+- [x] `SPHEREPATH::check_walkables` · 004dad00 · legions 004cd760 — ac2-physics transition/localspace.rs, sphere_path.rs
+- [x] `SPHEREPATH::precipice_slide` · 004dad40 · legions 004cd7a0 — ac2-physics transition/localspace.rs, sphere_path.rs
 - [ ] `SPHEREPATH::SPHEREPATH` · 004daed0 · legions 004cd930
 - [ ] `SPHEREPATH::~SPHEREPATH` · 004db030 · legions 004cda90
-- [ ] `SPHEREPATH::cache_localspace_sphere` · 004db0b0 · legions 004cdb10
+- [x] `SPHEREPATH::cache_localspace_sphere` · 004db0b0 · legions 004cdb10 — ac2-physics transition/localspace.rs, sphere_path.rs
 - [x] `SPHEREPATH::init_path` · 004db2a0 · legions 004cdd00
 
-## `portal/shared/src/physics/transition.cpp.c` (19/35)
+## `portal/shared/src/physics/transition.cpp.c` (33/35)
 
 ### AFrame
 - [x] `AFrame::operator==` · 004db790 · legions 004ce1f0
@@ -632,20 +632,20 @@ Legend and workflow: [README](README.md).
 ### CTransition
 - [x] `CTransition::init` · 004dbc30 · legions 004ce690
 - [x] `CTransition::adjust_offset` · 004dbcb0 · legions 004ce710
-- [x] `CTransition::build_cell_array` · 004dbff0 · legions 004cea50
+- [x] `CTransition::build_cell_array` · 004dbff0 · legions 004cea50 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CTransition::cliff_slide` · 004dc030 · legions 004cea90
 
 ### SPHEREPATH
 - [x] `SPHEREPATH::save_check_pos` · 004dc230 · legions 004cec90
 - [x] `SPHEREPATH::set_check_pos` · 004dc260 · legions 004cecc0
-- [ ] `SPHEREPATH::set_walkable_check_pos` · 004dc2a0 · legions 004ced00
-- [ ] `SPHEREPATH::get_walkable_pos` · 004dc2d0 · legions 004ced30
+- [x] `SPHEREPATH::set_walkable_check_pos` · 004dc2a0 · legions 004ced00 — ac2-physics transition/localspace.rs, sphere_path.rs
+- [x] `SPHEREPATH::get_walkable_pos` · 004dc2d0 · legions 004ced30 — ac2-physics transition/localspace.rs, sphere_path.rs
 
 ### CTransition
 - [x] `CTransition::validate_transition` · 004dc320 · legions 004ced80
-- [ ] `CTransition::validate_placement_transition` · 004dc690 · legions 004cf0f0
-- [ ] `CTransition::check_other_cells` · 004dc720 · legions 004cf180
-- [~] `CTransition::check_walkable` · 004dc910 · legions 004cf370 — no physics-BSP walkable/negative polygons (neg-poly slide, step_up, precipice_slide)
+- [x] `CTransition::validate_placement_transition` · 004dc690 · legions 004cf0f0 — ac2-physics transition/placement.rs (asm float order; Legions identical)
+- [x] `CTransition::check_other_cells` · 004dc720 · legions 004cf180 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+- [x] `CTransition::check_walkable` · 004dc910 · legions 004cf370 — ac2-physics transition: step_up, check_walkable, neg-poly and precipice branches (Legions identical)
 
 ### SPHEREPATH
 - [x] `SPHEREPATH::restore_check_pos` · 004dca10 · legions 004cf470
@@ -653,16 +653,16 @@ Legend and workflow: [README](README.md).
 ### CTransition
 - [x] `CTransition::CTransition` · 004dca60 · legions 004cf4c0
 - [-] `CTransition::makeTransition` · 004dcb20 · legions 004cf580 — static CTransition pool; one Rust value per transition
-- [ ] `CTransition::placement_insert` · 004dcba0 · legions 004cf600
-- [ ] `CTransition::validate_placement` · 004dcc40 · legions 004cf6a0
+- [x] `CTransition::placement_insert` · 004dcba0 · legions 004cf600 — ac2-physics transition/placement.rs (asm float order; Legions identical)
+- [x] `CTransition::validate_placement` · 004dcc40 · legions 004cf6a0 — ac2-physics transition/placement.rs (asm float order; Legions identical)
 - [x] `CTransition::step_down` · 004dccd0 · legions 004cf730
-- [~] `CTransition::edge_slide` · 004dce00 · legions 004cf860 — no physics-BSP walkable/negative polygons (neg-poly slide, step_up, precipice_slide)
-- [ ] `CTransition::step_up` · 004dd060 · legions 004cfac0
-- [~] `CTransition::transitional_insert` · 004dd150 · legions 004cfbb0 — no physics-BSP walkable/negative polygons (neg-poly slide, step_up, precipice_slide)
-- [ ] `CTransition::find_placement_pos` · 004dd4d0 · legions 004cff30
-- [~] `CTransition::find_transitional_position` · 004dd900 · legions 004d0360 — placement insert (find_placement_position) not ported
-- [ ] `CTransition::find_placement_position` · 004ddc20 · legions 004d0680
-- [~] `CTransition::find_valid_position` · 004ddda0 · legions 004d0800 — placement insert (find_placement_position) not ported
+- [x] `CTransition::edge_slide` · 004dce00 · legions 004cf860 — ac2-physics transition: step_up, check_walkable, neg-poly and precipice branches (Legions identical)
+- [x] `CTransition::step_up` · 004dd060 · legions 004cfac0 — ac2-physics transition: step_up, check_walkable, neg-poly and precipice branches (Legions identical)
+- [x] `CTransition::transitional_insert` · 004dd150 · legions 004cfbb0 — ac2-physics transition: step_up, check_walkable, neg-poly and precipice branches (Legions identical)
+- [x] `CTransition::find_placement_pos` · 004dd4d0 · legions 004cff30 — ac2-physics transition/placement.rs (asm float order; Legions identical)
+- [x] `CTransition::find_transitional_position` · 004dd900 · legions 004d0360 — ac2-physics transition/placement.rs (asm float order; Legions identical)
+- [x] `CTransition::find_placement_position` · 004ddc20 · legions 004d0680 — ac2-physics transition/placement.rs (asm float order; Legions identical)
+- [x] `CTransition::find_valid_position` · 004ddda0 · legions 004d0800 — ac2-physics transition/placement.rs (asm float order; Legions identical)
 
 ## `portal/shared/src/physobj/childlist.cpp.c` (0/9)
 
@@ -1565,7 +1565,7 @@ Legend and workflow: [README](README.md).
 ### InterpolationManager::InterpolationPath
 - [ ] `InterpolationManager::InterpolationPath::StreamPack` · 00510cf0 · legions 004fed00
 
-## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (17/62)
+## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (19/62)
 
 ### CMotionInterp
 - [ ] `CMotionInterp::Init` · 00509630 · legions 004f7680
@@ -1577,7 +1577,7 @@ Legend and workflow: [README](README.md).
 - [x] `CMotionInterp::GetSeaFloorMultiplier` · 00509790
 - [x] `CMotionInterp::GetWaterMultiplier` · 005097b0
 - [ ] `CMotionInterp::IsMovingTo` · 005097d0
-- [ ] `CMotionInterp::IsTurningTo` · 005097e0
+- [x] `CMotionInterp::IsTurningTo` · 005097e0 — ac2-physics MovementState turning_to / turn_to_degrees
 - [ ] `CMotionInterp::ReachedPersistentTarget` · 005097f0
 - [x] `CMotionInterp::ConvertDoMotionToLocalDesired` · 00509800
 - [ ] `CMotionInterp::GetDesiredModeState` · 00509910
@@ -1629,7 +1629,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CMotionInterp::~CMotionInterp` · 0050b740 · legions 004f9780
 - [ ] `CMotionInterp::GetTerrainType` · 0050b7b0
 - [ ] `CMotionInterp::GetConstraintManager` · 0050b7c0
-- [ ] `CMotionInterp::GetTurnToDirection` · 0050b7d0 · legions 004f9810
+- [x] `CMotionInterp::GetTurnToDirection` · 0050b7d0 · legions 004f9810 — ac2-physics MovementState turning_to / turn_to_degrees
 - [x] `CMotionInterp::GetAcceleration` · 0050b7f0
 - [x] `CMotionInterp::GetOmegaAcceleration` · 0050b800
 - [ ] `CMotionInterp::GetAccelerationScale` · 0050b810
@@ -1988,7 +1988,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [ ] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
-## `portal/shared/src/physobj/partarray.cpp.c` (0/72)
+## `portal/shared/src/physobj/partarray.cpp.c` (1/72)
 
 ### CPartArray
 - [ ] `CPartArray::SetOwnerID` · 004edfc0 · legions 004e0930
@@ -2020,7 +2020,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartArray::BuildDefaultRenderBoundingBox` · 004ee720 · legions 004e1080
 - [ ] `CPartArray::CacheDefaultRenderBoundingBox` · 004ee760 · legions 004e10c0
 - [ ] `CPartArray::CacheHasPhysicsBSP` · 004ee780 · legions 004e10e0
-- [ ] `CPartArray::FindObjCollisions` · 004ee7d0 · legions 004e1130
+- [x] `CPartArray::FindObjCollisions` · 004ee7d0 · legions 004e1130 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `CPartArray::TraceRayThroughPartsPhysics` · 004ee860 · legions 004e11c0
 - [ ] `CPartArray::RefreshMatrices` · 004ee8f0 · legions 004e1250
 - [ ] `CPartArray::ApplyMeshReplacement` · 004ee970 · legions 004e12d0
@@ -2074,7 +2074,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartArray::~CPartArray` · 004f0d40 · legions 004e3670
 - [ ] `CPartArray::DoAnimation` · 004f0de0 · legions 004e3710
 
-## `portal/shared/src/physobj/partgroup.cpp.c` (0/44)
+## `portal/shared/src/physobj/partgroup.cpp.c` (1/44)
 
 ### CPartGroup
 - [ ] `CPartGroup::InitSetup` · 004f45e0 · legions 004e6e00
@@ -2102,7 +2102,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartGroup::BuildRenderBoundingBox` · 004f5020 · legions 004e7840
 - [ ] `CPartGroup::BuildDefaultRenderBoundingBox` · 004f5070 · legions 004e7890
 - [ ] `CPartGroup::CacheHasPhysicsBSP` · 004f50c0 · legions 004e78e0
-- [ ] `CPartGroup::FindObjCollisions` · 004f5110 · legions 004e7930
+- [x] `CPartGroup::FindObjCollisions` · 004f5110 · legions 004e7930 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `CPartGroup::HasHoldingLocation` · 004f5180 · legions 004e79a0
 - [ ] `CPartGroup::GetHoldingLocation` · 004f51f0 · legions 004e7a10
 - [ ] `CPartGroup::CacheAnimations` · 004f5270 · legions 004e7a90
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [ ] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (36/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (42/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2310,7 +2310,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::CalcFriction` · 004dfd10 · legions 004d2770
 - [x] `CPhysicsObj::GetCurrentGravity` · 004dffc0
 - [ ] `CPhysicsObj::GetCurrentWind` · 004dffd0
-- [ ] `CPhysicsObj::CanCollide` · 004dffe0 · legions 004d2a40
+- [x] `CPhysicsObj::CanCollide` · 004dffe0 · legions 004d2a40 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `CPhysicsObj::AddToTempEtherealList` · 004e0050
 - [ ] `CPhysicsObj::UpdateCollidePhysicsMask` · 004e0080 · legions 004d2ae0
 - [ ] `CPhysicsObj::SetContactInfo` · 004e00a0 · legions 004d2b00
@@ -2359,7 +2359,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::SetDiffuseColor` · 004e0df0
 - [ ] `CPhysicsObj::SetOpacity` · 004e0e00
 - [ ] `CPhysicsObj::GetParticleScale` · 004e0e10 · legions 004d3870
-- [ ] `CPhysicsObj::SetPhysicsContainmentRadius` · 004e0e30 · legions 004d3890
+- [x] `CPhysicsObj::SetPhysicsContainmentRadius` · 004e0e30 · legions 004d3890 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `CPhysicsObj::movement_can_be_inactive` · 004e0e90 · legions 004d38f0
 - [ ] `CPhysicsObj::animation_can_be_inactive` · 004e1150
 - [ ] `CPhysicsObj::set_movement_active` · 004e1170 · legions 004d3bd0
@@ -2400,8 +2400,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::InqCurrentProperties` · 004e1c30
 - [ ] `CPhysicsObj::InqCurrentProperty` · 004e1c60
 - [~] `CPhysicsObj::get_object_info` · 004e1c90 · legions 004d46f0 — no admin moves or missiles
-- [ ] `CPhysicsObj::AdjustPosition` · 004e1d70 · legions 004d47d0
-- [ ] `CPhysicsObj::CheckPositionInternal` · 004e1eb0 · legions 004d4910
+- [x] `CPhysicsObj::AdjustPosition` · 004e1d70 · legions 004d47d0 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
+- [x] `CPhysicsObj::CheckPositionInternal` · 004e1eb0 · legions 004d4910 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 - [ ] `CPhysicsObj::UpdateGravity` · 004e1f70 · legions 004d49c0
 - [ ] `CPhysicsObj::find_inside_position` · 004e1fb0
 - [ ] `CPhysicsObj::SetPlacementPosition` · 004e2030 · legions 004d4a80
@@ -2482,7 +2482,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetRenderBoundingBox` · 004e3140 · legions 004d5b90
 - [ ] `CPhysicsObj::GetDefaultRenderBoundingBox` · 004e31a0 · legions 004d5bf0
 - [ ] `CPhysicsObj::GetScaledDefaultRenderBoundingBox` · 004e3200
-- [ ] `CPhysicsObj::CalcPhysicsBoundingBox` · 004e3280
+- [x] `CPhysicsObj::CalcPhysicsBoundingBox` · 004e3280 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `CPhysicsObj::ApplyImpulse` · 004e3310 · legions 004d5d60
 - [ ] `CPhysicsObj::AddImpulse` · 004e3350
 - [ ] `CPhysicsObj::AddTargetedImpulse` · 004e33d0
@@ -2508,7 +2508,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::SetParent` · 004e4580
 - [ ] `CPhysicsObj::TopParent` · 004e4590
 - [ ] `CPhysicsObj::ApplyVisualDesc` · 004e45b0
-- [ ] `CPhysicsObj::GetTotalScale` · 004e4640
+- [~] `CPhysicsObj::GetTotalScale` · 004e4640 — ac2-physics: vdesc scale x placement scale; the body uses the root z scale
 - [ ] `CPhysicsObj::SetScaleInternal` · 004e4730 · legions 004d7180
 - [ ] `CPhysicsObj::clear_transient_states` · 004e47d0 · legions 004d7220
 - [ ] `CPhysicsObj::misc_can_be_inactive` · 004e4880 · legions 004d72d0
@@ -2581,7 +2581,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::UpdateAnimationRecursive` · 004e6f30 · legions 004d9980
 - [ ] `CPhysicsObj::UpdateFXRecursive` · 004e6f80 · legions 004d99d0
 - [x] `CPhysicsObj::UpdateMovementInternal` · 004e6ff0 · legions 004d9a40
-- [ ] `CPhysicsObj::FindObjCollisions` · 004e7580
+- [~] `CPhysicsObj::FindObjCollisions` · 004e7580 — ac2-physics objects.rs: static objects only; Interpermiable/CollisionParameters ethereal filter, missile proximity and temp ignore lists not ported
 - [ ] `CPhysicsObj::HandleCollision` · 004e79a0 · legions 004da3f0
 - [ ] `CPhysicsObj::CollisionRemoveObject` · 004e79e0
 - [ ] `CPhysicsObj::AlwaysPrepareObject` · 004e7a60
@@ -2612,7 +2612,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::UpdatePositionInternal` · 004e8f80 · legions 004db960
 - [ ] `CPhysicsObj::ReportCollisions` · 004e9040 · legions 004dba20
 - [ ] `CPhysicsObj::EndAllCollisions` · 004e90c0 · legions 004dbaa0
-- [ ] `CPhysicsObj::add_shadows_to_cells` · 004e9140 · legions 004dbb20
+- [~] `CPhysicsObj::add_shadows_to_cells` · 004e9140 · legions 004dbb20 — ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 - [ ] `CPhysicsObj::AddChild` · 004e9200
 - [ ] `CPhysicsObj::RemoveChild` · 004e92b0
 - [ ] `CPhysicsObj::set_report_collisions` · 004e92e0
@@ -2620,16 +2620,16 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::UpdateAnimation` · 004e9700
 - [ ] `CPhysicsObj::UpdateMisc` · 004e9bb0 · legions 004dc430
 - [ ] `CPhysicsObj::calc_cross_cells_static` · 004e9be0
-- [ ] `CPhysicsObj::calc_cross_cells` · 004e9d30 · legions 004dc5b0
+- [~] `CPhysicsObj::calc_cross_cells` · 004e9d30 · legions 004dc5b0 — ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 - [~] `CPhysicsObj::SetPositionInternal` · 004e9f50 · legions 004dc7d0 — no cell residency, shadow or material updates; LeaveGround FX not ported
 - [ ] `CPhysicsObj::CombineAndApplyVisualDesc` · 004ea290
 - [ ] `CPhysicsObj::DoBehavior` · 004ea490
 - [ ] `CPhysicsObj::DoBehavior` · 004ea500
 - [ ] `CPhysicsObj::AddToTargetList` · 004ea670 · legions 004dcfa0
 - [~] `CPhysicsObj::UpdateMovementInternal` · 004ea780 · legions 004dd0b0 — no path-aligned heading, targeting or missiles
-- [ ] `CPhysicsObj::ForceIntoCell` · 004ea990 · legions 004dd2c0
+- [~] `CPhysicsObj::ForceIntoCell` · 004ea990 · legions 004dd2c0 — ac2-physics: FORCE_SPF sets the position only (no cell entry, shadows or cell material)
 - [ ] `CPhysicsObj::recalc_cross_cells` · 004ea9f0 · legions 004dd320
-- [ ] `CPhysicsObj::SetPositionInternal` · 004eaa30 · legions 004dd360
+- [x] `CPhysicsObj::SetPositionInternal` · 004eaa30 · legions 004dd360 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 - [ ] `CPhysicsObj::~CPhysicsObj` · 004eab90 · legions 004dd4c0
 - [ ] `CPhysicsObj::GetID` · 004ead40 · legions 004dd670
 - [ ] `CPhysicsObj::GetPhysicsCollideMask` · 004ead60
@@ -2722,7 +2722,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::makePartGroupObject` · 004ec230 · legions 004deba0
 - [ ] `CPhysicsObj::RecvEvt_ReleaseBehavior` · 004ec290
 - [ ] `CPhysicsObj::GetTriggerUpdate` · 004ec310 · legions 004dec80
-- [ ] `CPhysicsObj::SetPositionInternal` · 004ec350 · legions 004decc0
+- [~] `CPhysicsObj::SetPositionInternal` · 004ec350 · legions 004decc0 — ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 - [ ] `CPhysicsObj::HandleLeaveWorld` · 004ec400 · legions 004ded70
 
 ### _STL::map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>
@@ -2732,7 +2732,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::TogglePlaceMarkerObjects` · 004ec4f0 · legions 004dee60
 - [ ] `CPhysicsObj::makeObjectInternal` · 004ec520 · legions 004dee90
 - [ ] `CPhysicsObj::RecvEvt_DoBehavior` · 004ec680
-- [ ] `CPhysicsObj::SetPosition` · 004ec730 · legions 004df090
+- [~] `CPhysicsObj::SetPosition` · 004ec730 · legions 004df090 — ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 - [ ] `CPhysicsObj::EnterWorld` · 004ec7d0
 - [ ] `CPhysicsObj::set_description` · 004ec830
 - [ ] `CPhysicsObj::makeObject` · 004ed160 · legions 004dfac0
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40
 - [~] `CPhysicsObj::RecvEvt_Position` · 004ed470 — stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (0/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (2/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0
@@ -2843,10 +2843,10 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::GetPhysicsBoundingBox` · 004f1f10
 - [ ] `PHYSICSOBJREP::GetPhysicsContainmentRadius` · 004f1f20 · legions 004e4820
 - [ ] `PHYSICSOBJREP::CacheHasPhysicsBSP` · 004f1f30 · legions 004e4830
-- [ ] `PHYSICSOBJREP::FindObjCollisions` · 004f1f40 · legions 004e4840
+- [x] `PHYSICSOBJREP::FindObjCollisions` · 004f1f40 · legions 004e4840 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `PHYSICSOBJREP::SetCellID` · 004f1f50
 - [ ] `PHYSICSOBJREP::GetEffectsScale` · 004f1f60
-- [ ] `PHYSICSOBJREP::GetVdescScale` · 004f1f90
+- [x] `PHYSICSOBJREP::GetVdescScale` · 004f1f90 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `PHYSICSOBJREP::SetPlacementFrame` · 004f1fb0 · legions 004e48b0
 - [ ] `PHYSICSOBJREP::Draw` · 004f1fe0 · legions 004e48e0
 - [ ] `PHYSICSOBJREP::StartStreakInternal` · 004f20f0 · legions 004e49f0
@@ -2939,7 +2939,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::InitDataIDObject` · 004f44c0 · legions 004e6ce0
 - [ ] `PHYSICSOBJREP::CreateDataID` · 004f4510 · legions 004e6d30
 
-## `portal/shared/src/physobj/physicspart.cpp.c` (0/11)
+## `portal/shared/src/physobj/physicspart.cpp.c` (1/11)
 
 ### CPhysicsPart
 - [ ] `CPhysicsPart::CPhysicsPart` · 004f5c30 · legions 004e8420
@@ -2950,7 +2950,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsPart::SetMesh` · 004f5ff0 · legions 004e87e0
 - [ ] `CPhysicsPart::RefreshMatrix` · 004f6010 · legions 004e8800
 - [ ] `CPhysicsPart::DrawPart` · 004f6030 · legions 004e8820
-- [ ] `CPhysicsPart::FindObjCollisions` · 004f6090 · legions 004e8880
+- [x] `CPhysicsPart::FindObjCollisions` · 004f6090 · legions 004e8880 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `CPhysicsPart::makePhysicsPart` · 004f6110 · legions 004e8900
 - [ ] `CPhysicsPart::TraceRayPhysics` · 004f6160 · legions 004e8950
 

@@ -39,6 +39,8 @@ fn state() -> MovementState {
         on_walkable: false,
         heading_degrees: 90.0,
         times_jumped: 1,
+        turning_to: false,
+        turn_to_degrees: 90.0,
     }
 }
 

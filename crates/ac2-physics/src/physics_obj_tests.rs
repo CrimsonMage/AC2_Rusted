@@ -153,7 +153,9 @@ fn turning_to_a_heading_arrives_and_stops() {
         ..MovementInput::default()
     });
     run(&mut body, &ground, 4.0);
-    let heading = body.movement_state().heading_degrees;
+    let state = body.movement_state();
+    assert!(!state.turning_to, "the turn finished: {state:?}");
+    let heading = state.heading_degrees;
     assert!((heading - 90.0).abs() < 1.5, "{heading}");
     assert!(body.movement_state().omega[2].abs() < 1e-3);
 }

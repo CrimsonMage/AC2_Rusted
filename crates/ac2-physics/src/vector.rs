@@ -154,6 +154,26 @@ impl Plane {
         let base = -ld(self.d) * inverse;
         offset.z = st(along - base);
     }
+
+    /// `Plane::Plane(Vector&, Vector&)`: the plane with normal `n` through `point`.
+    pub(crate) fn from_point(n: Vector, point: Vector) -> Self {
+        let d = -((ld(n.z) * ld(point.z) + ld(point.y) * ld(n.y)) + ld(point.x) * ld(n.x));
+        Self::new(n, st(d))
+    }
+
+    /// `Plane::Scale`: the plane of a mesh scaled by `1 / inverse`, renormalised.
+    pub(crate) fn scale(self, inverse: Vector) -> Self {
+        let nx = ld(inverse.x) * ld(self.n.x);
+        let ny = ld(inverse.y) * ld(self.n.y);
+        let nz = ld(st(ld(inverse.z) * ld(self.n.z)));
+        let unrounded_z = ld(inverse.z) * ld(self.n.z);
+        let length = (unrounded_z * nz + nx * nx) + ny * ny;
+        let factor = ld(st(1.0 / length.sqrt()));
+        Self::new(
+            Vector::new(st(nx * factor), st(ny * factor), st(nz * factor)),
+            st(factor * ld(self.d)),
+        )
+    }
 }
 
 /// Retail `CSphere` (`center`, `radius`).

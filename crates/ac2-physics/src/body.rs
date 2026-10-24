@@ -9,6 +9,7 @@ use crate::fpu::{ld, st};
 use crate::heading::Heading;
 use crate::motion_interp::MotionInterp;
 use crate::physics_obj::{BodyShape, PhysicsObj};
+use crate::physics_obj_place::SetPositionError;
 use crate::position::Position;
 use crate::terrain::Terrain;
 use crate::vector::Vector;
@@ -95,6 +96,11 @@ pub struct MovementState {
     pub heading_degrees: f32,
     /// `CPhysicsObj::m_nTimesJumped`: incremented by every `Jump`.
     pub times_jumped: u32,
+    /// `CMotionInterp::IsTurningTo`: turning toward `turn_to_degrees`.
+    pub turning_to: bool,
+    /// `CMotionInterp::GetTurnToDirection`: the turn target, compass degrees `[0, 360)` (the
+    /// current heading after `StopTurnTo`).
+    pub turn_to_degrees: f32,
 }
 
 /// One moving body (the player): position, shape, motion interpreter and physics state.
@@ -126,6 +132,13 @@ impl PhysicsBody {
         self.object.position = position;
         self.object.prev_position = position;
         self.object.anim_position = position;
+    }
+
+    /// `CPhysicsObj::SetPosition`: place the body at `position` through a placement check
+    /// (`SLIDE_SPF` lets it move to a free spot nearby, `FORCE_SPF` skips the check). On
+    /// failure the body stays where it was.
+    pub fn place(&mut self, position: Position, flags: u32, world: &Terrain) -> SetPositionError {
+        self.object.set_position_checked(position, flags, world)
     }
 
     /// `CPhysicsObj::DoMotion` (and `TurnTo` when a heading is given); the turn rate is applied
@@ -188,6 +201,8 @@ impl PhysicsBody {
             on_walkable: o.on_walkable(),
             heading_degrees: frame.heading().degrees(),
             times_jumped: o.times_jumped,
+            turning_to: o.motion.is_turning_to(),
+            turn_to_degrees: o.motion.turn_to_direction().degrees(),
         }
     }
 

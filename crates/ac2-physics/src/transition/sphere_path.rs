@@ -1,6 +1,7 @@
 //! `SPHEREPATH`: the moving body's spheres in local, global and check space along one
 //! transition.
 
+use crate::bsp::Polygon;
 use crate::fpu::{ld, st};
 use crate::landdefs::{get_block_offset, is_outside};
 use crate::position::Position;
@@ -12,6 +13,7 @@ pub(crate) enum InsertType {
     #[default]
     Transition,
     Placement,
+    InitialPlacement,
 }
 
 /// A cell the path is in: a resident land cell id, or `None` (`CObjCell *` null).
@@ -25,6 +27,14 @@ pub(crate) struct SpherePath {
     pub global_sphere: [Sphere; 2],
     pub global_low_point: Vector,
     pub global_curr_center: [Vector; 2],
+    /// The spheres in the space of the object or cell being collided with
+    /// (`cache_localspace_sphere`).
+    pub localspace_sphere: [Sphere; 2],
+    pub localspace_low_point: Vector,
+    pub localspace_curr_center: [Vector; 2],
+    pub localspace_pos: Position,
+    /// World up in that space.
+    pub localspace_z: Vector,
     pub begin_cell: CellRef,
     pub begin_pos: Option<Position>,
     pub end_pos: Position,
@@ -41,16 +51,23 @@ pub(crate) struct SpherePath {
     pub backup: InsertType,
     pub backup_cell: CellRef,
     pub backup_check_pos: Position,
+    pub obstruction_ethereal: bool,
     pub hits_interior_cell: bool,
+    pub bldg_check: bool,
     pub walkable_allowance: f32,
     pub walk_interp: f32,
     pub step_down_amt: f32,
-    /// `SPHEREPATH::walkable`: set only by physics-BSP walkable polygons, which the terrain
-    /// collision never produces.
-    pub walkable: bool,
+    /// The walkable physics-BSP polygon last stepped onto (`set_walkable`), with the sphere,
+    /// up vector, position and scale of the space it is in.
+    pub walkable_check_pos: Sphere,
+    pub walkable: Option<Polygon>,
     pub check_walkable: bool,
+    pub walkable_up: Vector,
+    pub walkable_pos: Position,
+    pub walkable_scale: Vector,
     pub cell_array_valid: bool,
     pub neg_step_up: bool,
+    pub neg_collision_normal: Vector,
     pub neg_poly_hit: bool,
     pub placement_allows_sliding: bool,
     pub placement_ethereal: bool,
@@ -69,9 +86,11 @@ impl SpherePath {
         self.step_up = false;
         self.collide = false;
         self.hits_interior_cell = false;
+        self.bldg_check = false;
+        self.obstruction_ethereal = false;
         self.backup_cell = None;
         self.walkable_allowance = 0.0;
-        self.walkable = false;
+        self.walkable = None;
         self.check_walkable = false;
         self.cell_array_valid = false;
         self.neg_step_up = false;
@@ -225,11 +244,6 @@ impl SpherePath {
             origin.z = st(ld(offset.z) + ld(origin.z));
         }
         self.check_pos.cell_id = cell_id;
-    }
-
-    /// `SPHEREPATH::check_walkables`: with no walkable polygon recorded the path is clear.
-    pub(crate) fn check_walkables(&self) -> bool {
-        !self.walkable
     }
 }
 

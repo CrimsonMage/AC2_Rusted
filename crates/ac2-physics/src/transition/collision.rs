@@ -13,6 +13,7 @@ pub(crate) const ON_WALKABLE_OI: u32 = 0x2;
 pub(crate) const IS_VIEWER_OI: u32 = 0x4;
 pub(crate) const PATH_CLIPPED_OI: u32 = 0x8;
 pub(crate) const FREE_ROTATE_OI: u32 = 0x10;
+pub(crate) const PERFECT_CLIP_OI: u32 = 0x40;
 pub(crate) const EDGE_SLIDE_OI: u32 = 0x80;
 pub(crate) const PREDETERMINED_TRANSITION_OI: u32 = 0x200;
 
@@ -28,6 +29,8 @@ pub(crate) struct ObjectInfo {
     pub affected_by_gravity: bool,
     /// Set by `OBJECTINFO::kill_velocity`; the object applies `set_velocity(0)` after the move.
     pub kill_velocity: bool,
+    /// The moving object's `m_fPhysicsContainmentRadius` (`CPhysicsObj::CanCollide`).
+    pub containment_radius: f32,
 }
 
 impl ObjectInfo {
@@ -154,7 +157,7 @@ impl ObjectInfo {
     }
 }
 
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Default)]
 pub(crate) struct CollisionInfo {
     pub last_known_contact_plane_valid: bool,
     pub last_known_contact_plane: Plane,
@@ -172,6 +175,8 @@ pub(crate) struct CollisionInfo {
     pub sliding_normal: Vector,
     pub collision_normal_valid: bool,
     pub collision_normal: Vector,
+    /// `collide_object`: the static objects the transition was stopped by, once each.
+    pub collide_objects: Vec<u32>,
     pub collided_with_environment: bool,
     pub frames_stationary_fall: i32,
 }
@@ -189,6 +194,14 @@ impl CollisionInfo {
         self.contact_plane_is_water = false;
         self.contact_plane_is_landscape = false;
         self.contact_plane_is_environment = false;
+    }
+
+    /// `COLLISIONINFO::AddObject` (static objects are never ethereal, so each is also the last
+    /// collided object).
+    pub(crate) fn add_object(&mut self, id: u32) {
+        if !self.collide_objects.contains(&id) {
+            self.collide_objects.push(id);
+        }
     }
 
     /// `COLLISIONINFO::set_contact_plane`.

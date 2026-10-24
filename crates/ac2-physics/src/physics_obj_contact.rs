@@ -2,7 +2,7 @@
 //! `get_object_info`, `SetPositionInternal(CTransition*)`, `handle_all_collisions`,
 //! `set_on_walkable` and `HandleHitGround`.
 
-use crate::cells::CellSource;
+use crate::cells::ObjCell;
 use crate::fpu::{ld, st, F_EPSILON};
 use crate::motion_interp::{ELEMENT_AIR, ELEMENT_GROUND, ELEMENT_SEA_FLOOR};
 use crate::physics_obj::{
@@ -117,10 +117,10 @@ impl PhysicsObj {
             contact,
             sliding_normal: (self.transient_state & SLIDING_TS != 0).then_some(self.sliding_normal),
             frames_stationary_fall,
+            containment_radius: self.containment_radius(),
         };
-        let begin_cell = terrain
-            .land_cell(self.position.cell_id)
-            .map(|cell| cell.cell_id);
+        let begin_cell =
+            ObjCell::get(terrain, self.position.cell_id).map(|_| self.position.cell_id);
         let mut transition = Transition::new(&object, begin_cell, Some(self.position), end);
         let found = transition.find_valid_position(terrain);
         if transition.object_info.kill_velocity {
@@ -146,7 +146,7 @@ impl PhysicsObj {
     }
 
     /// `CPhysicsObj::SetPositionInternal(CTransition*)`.
-    fn set_position_internal(&mut self, transition: &Transition) {
+    pub(crate) fn set_position_internal(&mut self, transition: &Transition) {
         let prev_on_walkable = self.on_walkable();
         let path = &transition.sphere_path;
         if path.curr_cell.is_none() {
@@ -209,7 +209,11 @@ impl PhysicsObj {
     /// collision manager's sounds and materials are not ported): a body that left or never had
     /// walkable ground reflects its velocity off the collision normal; falling in place stops
     /// it, and the stationary state follows the frame count.
-    fn handle_all_collisions(&mut self, collisions: &CollisionInfo, prev_on_walkable: bool) {
+    pub(crate) fn handle_all_collisions(
+        &mut self,
+        collisions: &CollisionInfo,
+        prev_on_walkable: bool,
+    ) {
         let left_ground = !prev_on_walkable || !self.on_walkable();
         let frames = collisions.frames_stationary_fall;
         if frames < 2 {

@@ -1,6 +1,6 @@
 # ac2-anim: Animation system
 
-532 retail functions: 2 done, 0 partial, 494 to do, 36 skipped.
+532 retail functions: 2 done, 2 partial, 492 to do, 36 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/anim/charactersetup.cpp.c` (0/67)
@@ -71,7 +71,7 @@ Legend and workflow: [README](README.md).
 - [ ] `BoneInfo::operator=` · 0060e380 · legions 005cee60
 
 ### CharacterSetup
-- [ ] `CharacterSetup::InitFileLoad` · 0060e3d0
+- [~] `CharacterSetup::InitFileLoad` · 0060e3d0 — ac2-physics ObjectShape::new: physics containment radius and box only
 
 ### LocationType
 - [-] `LocationType::ToFileNode` · 0060ea80 — text source format (admin tools)
@@ -133,7 +133,7 @@ Legend and workflow: [README](README.md).
 ### CSetup
 - [ ] `CSetup::CSetup` · 0072f380 · legions 006acc40
 - [ ] `CSetup::GetDBOType` · 0072f3a0
-- [ ] `CSetup::CachePhysicsInformation` · 0072f3b0
+- [~] `CSetup::CachePhysicsInformation` · 0072f3b0 — ac2-physics ObjectShape::new: physics containment radius and box only
 - [ ] `CSetup::Allocate` · 0072f4b0
 
 ## `portal/shared/src/animsys/animator.cpp.c` (0/5)

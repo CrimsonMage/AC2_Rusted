@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 21 done, 8 partial, 634 to do, 122 skipped.
+785 retail functions: 24 done, 8 partial, 631 to do, 122 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (12/62)
@@ -711,11 +711,11 @@ Legend and workflow: [README](README.md).
 - [ ] `CBaseMesh::ParseMaterialArrayNode` · 004d2cd0
 - [ ] `CBaseMesh::ParseRenderFileNode` · 004d2e80
 
-## `portal/shared/src/mesh/cellmesh.cpp.c` (0/15)
+## `portal/shared/src/mesh/cellmesh.cpp.c` (1/15)
 
 ### CCellMesh
 - [ ] `CCellMesh::ReleaseMesh` · 004cef30
-- [ ] `CCellMesh::PointInCell` · 004cef40 · legions 004c3510
+- [x] `CCellMesh::PointInCell` · 004cef40 · legions 004c3510 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [ ] `CCellMesh::GetSubDataIDs` · 004cef50
 - [ ] `CCellMesh::GetCellPlanes` · 004cefc0 · legions 004c3590
 - [ ] `CCellMesh::CCellMesh` · 004ceff0 · legions 004c35c0
@@ -830,13 +830,13 @@ Legend and workflow: [README](README.md).
 - [-] `CMorphTargetData::FromFileNode` · 004d4d30 — text source format (admin tools)
 - [ ] `CMorphTargetData::CMorphTargetData` · 004d4da0
 
-## `portal/shared/src/mesh/staticmesh.cpp.c` (0/13)
+## `portal/shared/src/mesh/staticmesh.cpp.c` (2/13)
 
 ### CStaticMesh
 - [ ] `CStaticMesh::BuildRenderBoundingBox` · 004d3190 · legions 004c6830
 - [ ] `CStaticMesh::BuildDefaultRenderBoundingBox` · 004d31a0 · legions 004c6840
-- [ ] `CStaticMesh::BuildPhysicsBoundingBox` · 004d31b0 · legions 004c6850
-- [ ] `CStaticMesh::CalcPhysicsContainmentRadius` · 004d3230 · legions 004c68d0
+- [x] `CStaticMesh::BuildPhysicsBoundingBox` · 004d31b0 · legions 004c6850 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+- [x] `CStaticMesh::CalcPhysicsContainmentRadius` · 004d3230 · legions 004c68d0 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `CStaticMesh::StreamPack` · 004d32d0 · legions 004c6970
 - [ ] `CStaticMesh::GetSubDataIDs` · 004d33b0 · legions 004c6a50
 - [ ] `CStaticMesh::CStaticMesh` · 004d3400 · legions 004c6aa0
