@@ -42,7 +42,7 @@ impl Vector {
 
     /// `D3DXVec3Normalize`. Retail dispatches this through a CPU-specific D3DX table (x87, 3DNow!
     /// or SSE); this is the exact-length x87 form: a zero vector stays zero.
-    pub(crate) fn d3dx_normalize(self) -> Self {
+    pub fn d3dx_normalize(self) -> Self {
         let length = self.mag2_xyz().sqrt();
         if length == 0.0 {
             return Self::ZERO;

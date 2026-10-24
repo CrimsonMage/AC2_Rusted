@@ -38,10 +38,14 @@ fn the_client_walks_into_a_wall_of_the_start_room() {
         dat_iterations: Vec::new(),
     };
     let session = OnlineSession::with_transport(config, Box::new(transport)).unwrap();
-    let mut client = Client::new(session, Box::new(world));
+    let mut client = Client::new(session, Arc::new(world));
+    client.set_load_budget(std::time::Duration::from_secs(30));
     let idle = FrameInput::default();
     let mut frames = 0;
-    while client.frame().player.is_none() {
+    while !client.frame().in_world {
+        client
+            .settle_loads(std::time::Duration::from_secs(30))
+            .unwrap();
         client.use_time(&idle).unwrap();
         server.borrow_mut().elapsed += STEP;
         frames += 1;
@@ -62,6 +66,9 @@ fn the_client_walks_into_a_wall_of_the_start_room() {
         server.borrow_mut().elapsed += STEP;
         track.push(client.frame().player.unwrap());
     }
+    // The camera follows behind the player.
+    let camera = client.frame().camera.expect("camera");
+    assert!(camera.origin.iter().all(|v| v.is_finite()), "{camera:?}");
     let first = track[0];
     let last = *track.last().unwrap();
     let second_before = track[track.len() - 64];

@@ -165,3 +165,20 @@ fn the_player_description_replaces_qualities_and_updates_change_them() {
         .unwrap();
     assert_eq!((w.quantity, w.data_mask & 0x800), (Some(3), 0x800));
 }
+
+#[test]
+fn held_events_give_up_after_25_seconds_and_ask_for_their_object() {
+    let mut world = World::new(Build::Legions7160);
+    world.start_entering_world();
+    world.receive(blob(0x0300_0001, 1, create_player()), 0.0);
+    world.receive(blob(0x0300_0002, 2, create_object(PLAYER, 1, 0)), 0.0);
+    let npc = 0x7000_0000_0000_0042;
+    assert!(world
+        .receive(blob(0x0200_0000, 10, set_mode(npc, 4, 1, 0x11)), 100.0)
+        .is_empty());
+    assert!(world.use_time(125.0).is_empty());
+    assert_eq!(world.use_time(125.5), [WorldEvent::ForceCreate(npc)]);
+    // Dropped: the create no longer replays the event.
+    let events = world.receive(blob(0x0300_0003, 3, create_object(npc, 4, 0)), 126.0);
+    assert_eq!(opcodes(&events), [0x10058]);
+}

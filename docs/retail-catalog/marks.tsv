@@ -11,8 +11,9 @@ key	status	note
 00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 00406cb0	x	
-004079b0	~	OnlineSession::scene_ready, called by the client once the scene draws
+004079b0	x	OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
 00408e90	~	LogOffCharacter only; no UI or game-option upload
+00409270	~	asks for the next-frame-drawn notice (SetWantNoticeOnNextFrameDrawn); no portal scenes
 00409960	x	
 00409990	x	
 00409a80	x	
@@ -438,6 +439,7 @@ key	status	note
 004d8820	x	
 004d8a40	~	visual-queue release and queued-event replay only; no CPhysicsObj built
 004d9150	~	visual-queue release and queued-event replay only; no CPhysicsObj built
+004d9480	~	the event-queue pass: queues held over 25 s ask for their object (SendEvt_CForceCreate) and are dropped unless the player's; no other maintenance
 004d98b0	x	
 004d98e0	x	
 004d99c0	~	creation is immediate (no async entity loading); parent/stamp/update rules kept
@@ -506,6 +508,7 @@ key	status	note
 004ddc20	x	ac2-physics transition/placement.rs (asm float order; Legions identical)
 004ddda0	x	ac2-physics transition/placement.rs (asm float order; Legions identical)
 004dddc0	x	
+004dde80	x	ac2_physics::Position::lerp_origin (across blocks the z sum is stored first)
 004de020	x	
 004de0d0	x	
 004de490	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
@@ -662,13 +665,67 @@ key	status	note
 00571da0	x	ac2-render object::cell / point_lights
 00571ec0	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 00572110	~	outdoor sun only; dynamic/point lights and shadow direction not yet
-00573930	~	visible cells only; no camera or PlayerReadyToEnterWorld notice
-005746d0	~	UpdatePlayer and the physics step; no camera
+00572aa0	x	
+00572ac0	x	
+00572c70	x	
+00572cb0	x	
+005735e0	x	
+00573630	x	
+005736f0	x	
+00573930	x	cells, ReEnterVisibility (EnterWorldSimple flags 0x11), PlayerReadyToEnterWorld, the entry camera
+00573b50	~	SetCameraDefaults once the body's Setup has loaded
+00573bd0	~	the line-of-sight pull-in (CObjCell::LOSCheck) is not ported: the desired position stands
+00574220	~	the body loads on a loader thread; m_bBlockingLoad set
+00574280	x	after every player physics quantum outside mouse look
+005742d0	~	the camera, LeaveWorld, StorePosition and the blocking load; no run-lock reset
+005746d0	~	UpdatePlayer, WorldManager::Update, the mouse-look camera, SceneCamera::slerp; no camera effects
+00574850	x	
+00574980	x	ac2-client camera.rs
+00574b50	~	field of view 65; no camera effects (distortion, blur, flash)
+00574c50	x	
+00574cc0	x	
+00574cf0	x	camera action 0x4000002D
+00574d40	x	camera action 0x400000B2
+00574eb0	~	the player target only
+005750d0	x	CameraManager::global_direction, fed to the movement module
+005751c0	~	the preference defaults (height 0, distance 4.5, tilt 0.25, speeds 1, auto distance, align to slope, third person steers)
+00575ab0	x	no camera effects run, so their distance sum is 0
+00575ad0	x	camera action 0x4000002A
+00575b40	~	the player target only
+00575c00	x	
+005760f0	~	no dynamic first-person head-bone camera, no camera effects
+00576b40	x	
+00576c70	x	camera action 0x400000AE (no map view)
+00576d10	x	
+00576dc0	x	
+00576e30	~	applied once with the preference defaults
+00577100	~	no swing-out, look-at-self, map view, zoom-scale animation or camera effects
+00577360	~	no zoom-scale animation
+005775a0	~	no camera effects manager
+00579180	x	
+005791a0	x	
+00579210	x	
+005794b0	x	
+00579500	~	the physics position stands in for the render-slerped drawing position
+00579670	~	bone 0, the player or no target
+00579780	x	
+00579910	~	a player target without parent or bone (third and first person)
+0057a320	x	
 0057a590	x	far radius consumed by FarTerrain::new
-0057bba0	~	the radius block set (synchronous)
-0057c360	~	block radius 1 loaded at once (no async request)
-0057c510	~	physics step only; no GameTime or CObjectMaint::UseTime
-0057c540	~	blocking 3x3 block load in CellManager
+0057a780	~	near radius 1, far radius 4
+0057b980	~	the near window (radius 1) resident, the rest released
+0057ba10	x	
+0057ba40	x	
+0057bb10	x	
+0057bba0	x	ring requests to the loader threads
+0057bcd0	~	the near blocks' objects come with their sub-data, so nothing is left to request
+0057be90	~	an interior keeps the near window around its block
+0057bf80	x	
+0057c040	~	an interior's visible cells in other blocks are not requested
+0057c360	x	
+0057c500	x	
+0057c510	x	GameTime::UseTime, then unless blocking CObjectMaint::UseTime and the physics step
+0057c540	x	
 0057cb50	~	outdoor sun, ambient and fog; indoor and sky environments not yet
 00581a00	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 005823e0	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
@@ -728,6 +785,7 @@ key	status	note
 005d6310	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6470	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6560	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005fe420	x	
 00601c80	x	
 00601cd0	x	
 00601d00	x	
@@ -747,6 +805,10 @@ key	status	note
 0060e3d0	~	ac2-physics ObjectShape::new: physics containment radius and box only
 006169c0	x	
 00617370	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+00618860	x	GameClock::new: day_length * days_per_year as a double
+00618bd0	x	ac2_world::GameClock (f64 intermediates; the year and day floors)
+00618c90	x	ac2_world::GameClock (the last time of day runs to day_length)
+00619130	x	ac2_world::GameClock::use_time
 00619f70	x	
 00619fe0	x	
 0061a220	x	
@@ -770,6 +832,7 @@ key	status	note
 0061b3e0	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0061b520	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0061b570	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+0061c0c0	~	the forward row CameraManager::UpdateCamera reads (ac2-client camera.rs)
 0061c210	x	
 0061c570	x	
 0061c700	x	
@@ -1003,6 +1066,8 @@ key	status	note
 007320f0	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
 00732200	~	Timer::local_time drives the physics clock
 00732240	~	the player body only (CPhysics::UpdateAllPhysics over remote objects not simulated)
+007322c0	x	PhysicsClock::render_interpolation
+00732400	~	the player's quantum and PlayerPhysicsUpdatedCallback only
 007326e0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 00737cf0	x	
 DB_TYPE_SURFACE_DESC	x	

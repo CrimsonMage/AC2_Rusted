@@ -19,6 +19,7 @@ mod game_time;
 #[path = "region/sky_objects.rs"]
 mod sky_objects;
 pub use environment::{SkyEnvironmentCadence, SkyEnvironmentSample, SkyFogDesc};
+pub use game_time::GameClock;
 use game_time::GameTime;
 pub use sky_objects::CelestialPosition;
 
@@ -37,6 +38,11 @@ impl RegionDesc {
 
     pub fn region_number(&self) -> u32 {
         self.region_number
+    }
+
+    /// The region's `GameTime` as a running clock for `WorldManager::Update`.
+    pub fn game_clock(&self) -> GameClock {
+        GameClock::new(&self.game_time)
     }
 
     /// The calendar date and time-of-day names at `server_time`, as two lines.

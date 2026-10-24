@@ -197,6 +197,36 @@ impl Terrain {
         }
     }
 
+    /// Makes the landblocks of `other` resident, as if they had been loaded into this world: a
+    /// block prepared apart (on a loader thread) joins here. Its land and interior cells pick up
+    /// the resident objects already shadowing them, then its static objects are entered in the
+    /// shadow lists of every cell now resident (`CPhysicsObj::add_shadows_to_cells`), in their
+    /// original order.
+    pub fn absorb(&mut self, other: Terrain) {
+        let Terrain {
+            cells,
+            env_cells,
+            water,
+            objects,
+        } = other;
+        let mut cells: Vec<_> = cells.into_iter().collect();
+        cells.sort_by_key(|(id, _)| *id);
+        for (id, mut cell) in cells {
+            cell.objects = self.shadowing(id);
+            self.cells.insert(id, cell);
+        }
+        let mut env_cells: Vec<_> = env_cells.into_iter().collect();
+        env_cells.sort_by_key(|(id, _)| *id);
+        for (id, mut cell) in env_cells {
+            cell.objects = self.shadowing(id);
+            self.env_cells.insert(id, cell);
+        }
+        self.water.extend(water);
+        for (object, _) in objects.into_iter().flatten() {
+            self.insert_object(object);
+        }
+    }
+
     /// Removes a static object from the world and its cells' shadow lists.
     pub fn remove_object(&mut self, id: u32) {
         let Some(Some((_, cells))) = self.objects.get_mut(id as usize).map(Option::take) else {
@@ -326,6 +356,52 @@ mod tests {
         );
         let height = terrain.height_above_terrain(&position).expect("terrain");
         assert!((height - 2.0).abs() < 1e-5, "{height}");
+    }
+
+    #[test]
+    fn an_absorbed_block_matches_one_loaded_in_place() {
+        use crate::objects::{ObjectShape, StaticObject};
+        use crate::shapes::cylsphere::CylSphere;
+        use std::sync::Arc;
+        let heights = vec![0.0; SIDE_VERTEX_COUNT * SIDE_VERTEX_COUNT];
+        let pillar = Arc::new(ObjectShape::new(
+            Vec::new(),
+            vec![CylSphere {
+                low: Vector::ZERO,
+                height: 4.0,
+                radius: 1.0,
+            }],
+            Vec::new(),
+        ));
+        // A pillar on the east edge of block 7F7F shadows cells of 807F too.
+        let object = || {
+            StaticObject::new(
+                Position::new(
+                    0x7F7F_0039,
+                    Frame::new(Vector::new(159.5, 10.0, 0.0), Quaternion::IDENTITY),
+                ),
+                Vector::new(1.0, 1.0, 1.0),
+                Arc::clone(&pillar),
+            )
+        };
+        let mut in_place = Terrain::new();
+        in_place.insert_heights(0x7F7F_FFFF, &heights, |_, _| false);
+        in_place.insert_object(object());
+        in_place.insert_heights(0x807F_FFFF, &heights, |_, _| false);
+
+        let mut absorbed = Terrain::new();
+        absorbed.insert_heights(0x807F_FFFF, &heights, |_, _| false);
+        let mut prepared = Terrain::new();
+        prepared.insert_heights(0x7F7F_FFFF, &heights, |_, _| false);
+        prepared.insert_object(object());
+        absorbed.absorb(prepared);
+
+        for cell in [0x7F7F_0039, 0x807F_0001] {
+            let a = in_place.land_cell(cell).expect("cell").objects.clone();
+            let b = absorbed.land_cell(cell).expect("cell").objects.clone();
+            assert_eq!(a, b, "cell {cell:08x}");
+            assert_eq!(a, vec![0], "cell {cell:08x}");
+        }
     }
 
     #[test]

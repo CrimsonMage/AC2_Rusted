@@ -54,10 +54,10 @@ fn main() -> Result<(), String> {
         dat_iterations: ac2_weenie::dat_iterations(&dataset)?,
     })
     .map_err(|e| e.to_string())?;
-    let mut client = Client::new(session, Box::new(world));
+    let mut client = Client::new(session, Arc::new(world));
     let idle = FrameInput::default();
     let deadline = Instant::now() + Duration::from_secs(30);
-    while client.frame().player.is_none() {
+    while !client.frame().in_world {
         if Instant::now() > deadline {
             return Err("no world entry".into());
         }
@@ -66,12 +66,14 @@ fn main() -> Result<(), String> {
     }
     let frame = client.frame();
     println!(
-        "entered: cell {:08X} at {:?}, {} blocks resident, time of day {:?}",
+        "entered: cell {:08X} at {:?}, {} blocks resident, time of day {:?}, notices {:?}",
         frame.cell_id.unwrap_or(0),
         frame.player.map(|p| p.origin),
         frame.blocks.len(),
-        frame.time_of_day
+        frame.time_of_day,
+        client.take_notices()
     );
+    println!("camera: {:?}", frame.camera);
     let walk = FrameInput {
         actions: vec![ActiveAction {
             class: ACTION_CLASS_MOVEMENT,
@@ -97,12 +99,14 @@ fn main() -> Result<(), String> {
     }
     let frame = client.frame();
     println!(
-        "after the walk: cell {:08X} at {:?} (contact {:?}), {} remote objects",
+        "after the walk: cell {:08X} at {:?} (contact {:?}), {} remote objects, {} blocks",
         frame.cell_id.unwrap_or(0),
         frame.player.map(|p| p.origin),
         frame.player.map(|p| p.contact),
-        frame.objects.len()
+        frame.objects.len(),
+        frame.blocks.len()
     );
+    println!("camera: {:?}", frame.camera);
     let left = client.session_mut().log_off(Duration::from_secs(3));
     println!("character exit acknowledged: {left}");
     Ok(())

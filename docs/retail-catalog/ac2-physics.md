@@ -1,9 +1,9 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 157 done, 41 partial, 1864 to do, 62 skipped.
+2124 retail functions: 159 done, 42 partial, 1861 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/client/src/physics/cphysics.cpp.c` (0/9)
+## `portal/client/src/physics/cphysics.cpp.c` (1/9)
 
 ### CPhysics
 - [ ] `CPhysics::CPhysics` · 007321b0
@@ -11,9 +11,9 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysics::~CPhysics` · 00732210
 - [~] `CPhysics::UpdatePhysics` · 00732240 — the player body only (CPhysics::UpdateAllPhysics over remote objects not simulated)
 - [ ] `CPhysics::UpdateAnimation` · 00732280
-- [ ] `CPhysics::UpdateRenderInterpolation` · 007322c0 · legions 006ae760
+- [x] `CPhysics::UpdateRenderInterpolation` · 007322c0 · legions 006ae760 — PhysicsClock::render_interpolation
 - [ ] `CPhysics::GetObjectA` · 00732380 · legions 006ae820
-- [ ] `CPhysics::UpdateAllPhysics` · 00732400
+- [~] `CPhysics::UpdateAllPhysics` · 00732400 — the player's quantum and PlayerPhysicsUpdatedCallback only
 - [ ] `CPhysics::UpdateAllAnimation` · 007325a0
 
 ## `portal/shared/src/bsp/bspleaf.cpp.c` (5/13)
@@ -2160,14 +2160,14 @@ Legend and workflow: [README](README.md).
 - [ ] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (43/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (44/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
 
 ### Position
 - [ ] `Position::set_heading` · 004dde50 · legions 004d08b0
-- [ ] `Position::lerp_origin` · 004dde80 · legions 004d08e0
+- [x] `Position::lerp_origin` · 004dde80 · legions 004d08e0 — ac2_physics::Position::lerp_origin (across blocks the z sum is stored first)
 - [ ] `Position::slerp` · 004ddf50 · legions 004d09b0
 
 ### EtherealPhysicsType

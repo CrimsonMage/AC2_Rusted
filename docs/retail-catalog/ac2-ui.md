@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 13 done, 3 partial, 2214 to do, 17 skipped.
+2247 retail functions: 15 done, 3 partial, 2212 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -152,14 +152,14 @@ Legend and workflow: [README](README.md).
 - [ ] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700
 - [ ] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0
 
-## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (4/58)
+## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (5/58)
 
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::Show` · 00407910 · legions 00407620
 - [ ] `gmGamePlayUI::SetErrorMsg` · 00407940 · legions 00407650
 - [ ] `gmGamePlayUI::RecvNotice_EndCharacterSession` · 00407980
 - [ ] `gmGamePlayUI::RecvNotice_Logoff` · 00407990
-- [~] `gmGamePlayUI::RecvNotice_NextFrameDrawn` · 004079b0 — OnlineSession::scene_ready, called by the client once the scene draws
+- [x] `gmGamePlayUI::RecvNotice_NextFrameDrawn` · 004079b0 — OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
 - [ ] `gmGamePlayUI::RecvNotice_BeingDeleted` · 004079c0
 - [ ] `gmGamePlayUI::MakePleaseWaitDialog` · 004079e0 · legions 004076f0
 - [ ] `gmGamePlayUI::MakeResurrectDialog` · 00407a40 · legions 00407750
@@ -217,7 +217,7 @@ Legend and workflow: [README](README.md).
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::~gmGamePlayUI` · 00409110 · legions 00408e50
 - [ ] `gmGamePlayUI::Register` · 00409250 · legions 00408f90
-- [ ] `gmGamePlayUI::RecvNotice_PlayerReadyToEnterWorld` · 00409270
+- [~] `gmGamePlayUI::RecvNotice_PlayerReadyToEnterWorld` · 00409270 — asks for the next-frame-drawn notice (SetWantNoticeOnNextFrameDrawn); no portal scenes
 - [ ] `gmGamePlayUI::RecvNotice_PortalScene` · 00409330
 
 ### PHashTable<unsigned_long,UILocationData>
@@ -2667,7 +2667,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIMainFramework::CreateAndAddRootElementByDataID` · 005fded0 · legions 005bea00
 - [ ] `UIMainFramework::CreateAndAddRootElement` · 005fe0b0 · legions 005bebe0
 
-## `portal/client/src/uielement/framework/uipersistantdata.cpp.c` (0/13)
+## `portal/client/src/uielement/framework/uipersistantdata.cpp.c` (1/13)
 
 ### UIPersistantData
 - [ ] `UIPersistantData::SetCharSet` · 005fe220
@@ -2682,7 +2682,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIPersistantData::InCharGen` · 005fe410
 
 ### CameraManager
-- [ ] `CameraManager::GetFirstPersonState` · 005fe420 · legions 005bef00
+- [x] `CameraManager::GetFirstPersonState` · 005fe420 · legions 005bef00
 
 ### UIPersistantData
 - [ ] `UIPersistantData::SetPlayingSoundContext` · 005fe430

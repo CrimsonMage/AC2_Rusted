@@ -127,3 +127,192 @@ impl GameCalendar {
             .wrapping_add(self.days_per_year.wrapping_mul(self.year as u32))
     }
 }
+
+/// Retail `GameTime` as a running clock (`GameTime::UseTime`, Legions 0x005D5980, identical to
+/// admin): the time of day kept from the day's cached start, recomputed by `CalcDayBegin` only
+/// when the next calendar event passes. Every intermediate is a double (the x87 ran at 53-bit
+/// precision); `present_time_of_day` and `present_time_in_day_unit` are stored as `float`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct GameClock {
+    zero_time_of_year: f64,
+    zero_year: i32,
+    day_length: f32,
+    year_length: f64,
+    /// `TimeOfDay::begin` of each time of day, and `Season::begin` of each season.
+    times_of_day: Vec<f32>,
+    seasons: Vec<u32>,
+    time_dilation: f64,
+    user_offset: f64,
+    clock_offset: f64,
+    time_zero_start_delta: f64,
+    time_of_day_begin: f64,
+    time_of_next_event: f64,
+    present_time_of_day: f32,
+    present_time_in_day_unit: f32,
+    current_year: i32,
+    current_day: i32,
+    current_season: u32,
+    current_time_of_day: u32,
+}
+
+impl GameClock {
+    /// `GameTime::GameTime` then the region's `StreamPack` (`SetYearLength`: the year is
+    /// `day_length * days_per_year` as a double).
+    pub(super) fn new(time: &GameTime) -> Self {
+        Self {
+            zero_time_of_year: time.zero_time_of_year,
+            zero_year: time.zero_year,
+            day_length: time.day_length,
+            year_length: f64::from(time.day_length) * f64::from(time.days_per_year),
+            times_of_day: time.times_of_day.iter().map(|t| t.start).collect(),
+            seasons: time.seasons.iter().map(|s| s.start).collect(),
+            time_dilation: 1.0,
+            user_offset: 0.0,
+            clock_offset: 0.0,
+            time_zero_start_delta: 0.0,
+            time_of_day_begin: -1.0,
+            time_of_next_event: 0.0,
+            present_time_of_day: 0.0,
+            present_time_in_day_unit: 0.0,
+            current_year: 0,
+            current_day: 0,
+            current_season: 0,
+            current_time_of_day: 0,
+        }
+    }
+
+    /// `GameTime::UseTime` at `Timer::cur_time`.
+    pub fn use_time(&mut self, cur_time: f64) {
+        let time = (cur_time + self.clock_offset + self.time_zero_start_delta) * self.time_dilation
+            + self.user_offset;
+        if self.time_of_day_begin < 0.0 {
+            self.calc_day_begin(time);
+        }
+        let day = f64::from(self.day_length);
+        let fraction = (time - self.time_of_day_begin) / day;
+        self.present_time_of_day = fraction as f32;
+        if self.time_of_next_event <= time {
+            if fraction >= 1.0 {
+                self.calc_day_begin(time);
+                self.present_time_of_day = ((time - self.time_of_day_begin) / day) as f32;
+            }
+            self.calc_time_of_day(time);
+        }
+    }
+
+    /// `GameTime::CalcDayBegin`: the year, day and season at `time`, and when the day began.
+    fn calc_day_begin(&mut self, time: f64) {
+        let total = time + self.zero_time_of_year;
+        let years = (total / self.year_length).floor();
+        self.current_year = (years as i32).wrapping_add(self.zero_year);
+        let offset = total - years * self.year_length;
+        let day = (offset / f64::from(self.day_length)).floor() as i32;
+        self.current_day = day;
+        let mut season = 0;
+        if self.seasons.len() > 1 {
+            while (season as usize) < self.seasons.len() - 1
+                && day >= self.seasons[season as usize + 1] as i32
+            {
+                season += 1;
+            }
+        }
+        self.current_season = season;
+        let begin = time - (offset - f64::from(day) * f64::from(self.day_length));
+        self.time_of_day_begin = begin;
+        self.time_of_next_event = begin;
+    }
+
+    /// `GameTime::CalcTimeOfDay`: the time of day `time` falls in, its progress, and when the
+    /// next one starts. The last time of day runs to `day_length` (not to 1).
+    fn calc_time_of_day(&mut self, time: f64) {
+        let day = f64::from(self.day_length);
+        let fraction = (time - self.time_of_day_begin) / day;
+        let count = self.times_of_day.len();
+        if count == 0 {
+            self.time_of_next_event = day;
+            return;
+        }
+        let mut index = 0;
+        while index < count - 1 && fraction >= f64::from(self.times_of_day[index + 1]) {
+            index += 1;
+        }
+        self.current_time_of_day = index as u32;
+        let start = f64::from(self.times_of_day[index]);
+        if index == count - 1 {
+            self.time_of_next_event = day + self.time_of_day_begin;
+            self.present_time_in_day_unit = ((fraction - start) / (day - start)) as f32;
+        } else {
+            let next = f64::from(self.times_of_day[index + 1]);
+            self.time_of_next_event = next * day + self.time_of_day_begin;
+            self.present_time_in_day_unit = ((fraction - start) / (next - start)) as f32;
+        }
+    }
+
+    /// `GameTime::present_time_of_day`: the fraction of the day passed, `[0, 1)`.
+    pub fn present_time_of_day(&self) -> f32 {
+        self.present_time_of_day
+    }
+
+    /// `current_year`, `current_day` (of the year), `current_season` and `current_time_of_day`.
+    pub fn calendar(&self) -> (i32, i32, u32, u32) {
+        (
+            self.current_year,
+            self.current_day,
+            self.current_season,
+            self.current_time_of_day,
+        )
+    }
+
+    /// `present_time_in_day_unit`: progress through the current time of day.
+    pub fn present_time_in_day_unit(&self) -> f32 {
+        self.present_time_in_day_unit
+    }
+}
+
+#[cfg(test)]
+mod clock_tests {
+    use super::*;
+
+    fn time() -> GameTime {
+        let time_of_day = |start: f32| TimeOfDay {
+            start,
+            is_night: false,
+            name: String::new(),
+        };
+        let season = |start: u32| Season {
+            start,
+            name: String::new(),
+        };
+        GameTime {
+            zero_time_of_year: 50.0,
+            zero_year: 10,
+            day_length: 100.0,
+            days_per_year: 4,
+            year_spec: String::new(),
+            times_of_day: vec![time_of_day(0.0), time_of_day(0.25), time_of_day(0.75)],
+            weekdays: Vec::new(),
+            seasons: vec![season(0), season(2)],
+        }
+    }
+
+    #[test]
+    fn the_clock_keeps_the_day_start_until_the_next_event() {
+        let mut clock = GameClock::new(&time());
+        // 1000 + 50 = 1050: year 2 (10 + 2), 250 into it = day 2 (second season), 0.5 of a day.
+        clock.use_time(1000.0);
+        assert_eq!(clock.calendar(), (12, 2, 1, 1));
+        assert_eq!(clock.present_time_of_day(), 0.5);
+        assert_eq!(clock.present_time_in_day_unit(), 0.5);
+        // The last time of day runs to `day_length`, retail's quirk.
+        clock.use_time(1030.0);
+        assert_eq!(clock.calendar().3, 2);
+        assert_eq!(
+            clock.present_time_in_day_unit(),
+            ((0.8 - 0.75) / (100.0 - 0.75)) as f32
+        );
+        // The next day starts at 1050.
+        clock.use_time(1060.0);
+        assert_eq!(clock.calendar(), (12, 3, 1, 0));
+        assert_eq!(clock.present_time_of_day(), 0.1);
+    }
+}

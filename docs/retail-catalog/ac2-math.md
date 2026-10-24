@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 90 done, 10 partial, 287 to do, 39 skipped.
+426 retail functions: 90 done, 11 partial, 286 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -281,7 +281,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Matrix4::Inverse` · 0061bdd0 · legions 005d7a30
 - [ ] `Matrix4::DirectionMatrix` · 0061be40 · legions 005d7aa0
 - [ ] `Matrix4::RotationFromQuaternion` · 0061c080 · legions 005d7ce0
-- [ ] `Matrix4::RotateAngles` · 0061c0c0 · legions 005d7d20
+- [~] `Matrix4::RotateAngles` · 0061c0c0 · legions 005d7d20 — the forward row CameraManager::UpdateCamera reads (ac2-client camera.rs)
 - [ ] `Matrix4::LookAt` · 0061c1a0 · legions 005d7e00
 
 ## `portal/shared/src/geometry/perlinnoise.cpp.c` (0/3)
