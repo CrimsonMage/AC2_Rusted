@@ -2,7 +2,7 @@
 //! (`SPHEREPATH::cache_localspace_sphere`), against a physics BSP for the transition's mode
 //! (`BSPTREE::FindObjCollisions`), and the responses it hands back in world space.
 
-use super::node::PolyHit;
+use super::node::{PolyHit, SolidHit};
 use super::BspTree;
 use crate::cells::CellSource;
 use crate::fpu::{ld, st, LANDING_Z};
@@ -153,6 +153,87 @@ impl BspTree {
             );
         }
         TransitionState::Ok
+    }
+
+    /// `BSPTREE::placement_insert`: push the localspace spheres out of the polygons they touch
+    /// (`CPolygon::adjust_to_placement_poly`), doubling the push radius when only a solid leaf
+    /// holds them, up to 20 times; the check position follows the first sphere.
+    pub(crate) fn placement_insert(&self, transition: &mut Transition) -> TransitionState {
+        if self.nodes.is_empty() {
+            return TransitionState::Ok;
+        }
+        let path = &mut transition.sphere_path;
+        let original = path.localspace_sphere[0];
+        let mut valid = original;
+        let mut valid2 = path.localspace_sphere[1];
+        let mut radius = valid.radius;
+        let center_check = !path.bldg_check || !path.hits_interior_cell;
+        let two = path.num_sphere >= 2;
+        let mut hit = SolidHit::default();
+        for attempt in 0..20 {
+            hit.center_solid = false;
+            let first =
+                self.sphere_intersects_solid_poly(ROOT, &valid, radius, &mut hit, center_check);
+            let struck_first = first;
+            if !first {
+                if !two {
+                    if attempt == 0 {
+                        return TransitionState::Ok;
+                    }
+                    let dx = ld(valid.center.x) - ld(original.center.x);
+                    let dy = ld(valid.center.y) - ld(original.center.y);
+                    let dz = ld(valid.center.z) - ld(original.center.z);
+                    let m = path.localspace_pos.frame.m.map(ld);
+                    let gx = ld(st((dx * m[0] + dy * m[3]) + dz * m[6]));
+                    let gy = ld(st((dx * m[1] + dy * m[4]) + dz * m[7]));
+                    let gz = (dx * m[2] + dy * m[5]) + dz * m[8];
+                    path.cell_array_valid = false;
+                    let origin = &mut path.check_pos.frame.origin;
+                    origin.x = st(gx + ld(origin.x));
+                    origin.y = st(gy + ld(origin.y));
+                    origin.z = st(gz + ld(origin.z));
+                    path.cache_global_sphere(Some(Vector::new(st(gx), st(gy), st(gz))));
+                    return TransitionState::Adjusted;
+                }
+                if !self.sphere_intersects_solid_poly(ROOT, &valid2, radius, &mut hit, center_check)
+                {
+                    if attempt == 0 {
+                        return TransitionState::Ok;
+                    }
+                    let offset = path
+                        .localspace_pos
+                        .local_to_global_vec(sub(valid.center, original.center));
+                    path.add_offset_to_check_pos(offset);
+                    return TransitionState::Adjusted;
+                }
+            }
+            match hit.polygon.take() {
+                None => radius = st(ld(radius) + ld(radius)),
+                Some(index) => {
+                    let polygon = &self.polygons[index];
+                    let (center_solid, check) = (hit.center_solid, center_check);
+                    if struck_first {
+                        polygon.adjust_to_placement_poly(
+                            &mut valid,
+                            &mut valid2,
+                            radius,
+                            center_solid,
+                            check,
+                        );
+                    } else {
+                        polygon.adjust_to_placement_poly(
+                            &mut valid2,
+                            &mut valid,
+                            radius,
+                            center_solid,
+                            check,
+                        );
+                    }
+                    radius = valid.radius;
+                }
+            }
+        }
+        TransitionState::Collided
     }
 
     /// `BSPTREE::check_walkable`: a walkable polygon under the sphere ends the probe

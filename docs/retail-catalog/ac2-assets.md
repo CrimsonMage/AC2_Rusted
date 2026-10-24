@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 23 done, 8 partial, 632 to do, 122 skipped.
+785 retail functions: 24 done, 8 partial, 631 to do, 122 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (12/62)
@@ -711,11 +711,11 @@ Legend and workflow: [README](README.md).
 - [ ] `CBaseMesh::ParseMaterialArrayNode` · 004d2cd0
 - [ ] `CBaseMesh::ParseRenderFileNode` · 004d2e80
 
-## `portal/shared/src/mesh/cellmesh.cpp.c` (0/15)
+## `portal/shared/src/mesh/cellmesh.cpp.c` (1/15)
 
 ### CCellMesh
 - [ ] `CCellMesh::ReleaseMesh` · 004cef30
-- [ ] `CCellMesh::PointInCell` · 004cef40 · legions 004c3510
+- [x] `CCellMesh::PointInCell` · 004cef40 · legions 004c3510 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [ ] `CCellMesh::GetSubDataIDs` · 004cef50
 - [ ] `CCellMesh::GetCellPlanes` · 004cefc0 · legions 004c3590
 - [ ] `CCellMesh::CCellMesh` · 004ceff0 · legions 004c35c0

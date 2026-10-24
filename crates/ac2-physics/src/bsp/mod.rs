@@ -8,6 +8,7 @@ mod tree;
 pub(crate) use tree::ContactKind;
 
 use ac2_assets::{Ac2PhysicsBspNode, Ac2PhysicsMesh};
+use ac2_world::Ac2CellBspNode;
 
 use crate::vector::{Plane, Sphere, Vector};
 pub use polygon::Polygon;
@@ -91,6 +92,53 @@ impl BspTree {
             *n = neg;
         }
         index
+    }
+
+    /// A cell mesh's `PHYSICS_BSP` over its physics polygons (`CCellMesh`).
+    pub(crate) fn from_cell(root: &Ac2CellBspNode, polygons: Vec<Polygon>) -> Self {
+        let mut tree = Self {
+            nodes: Vec::new(),
+            polygons,
+        };
+        tree.push_cell(root);
+        tree
+    }
+
+    fn push_cell(&mut self, node: &Ac2CellBspNode) -> usize {
+        let index = self.nodes.len();
+        let sphere = Sphere::new(Vector::from(node.sphere.origin), node.sphere.radius);
+        if node.leaf {
+            self.nodes.push(Node::Leaf {
+                sphere,
+                solid: node.solid != 0,
+                polygons: node
+                    .polygon_slots
+                    .iter()
+                    .map(|&slot| usize::from(slot))
+                    .collect(),
+            });
+            return index;
+        }
+        self.nodes.push(Node::Internal {
+            sphere,
+            plane: Plane::new(Vector::from(node.plane.normal), node.plane.d),
+            pos: None,
+            neg: None,
+        });
+        let pos = node.pos.as_deref().map(|child| self.push_cell(child));
+        let neg = node.neg.as_deref().map(|child| self.push_cell(child));
+        if let Node::Internal { pos: p, neg: n, .. } = &mut self.nodes[index] {
+            *p = pos;
+            *n = neg;
+        }
+        index
+    }
+
+    /// `BSPTREE::GetBoundingSphere`: the root node's sphere.
+    pub(crate) fn bounding_sphere(&self) -> Option<Sphere> {
+        self.nodes.first().map(|node| match node {
+            Node::Internal { sphere, .. } | Node::Leaf { sphere, .. } => *sphere,
+        })
     }
 
     /// A tree over explicit polygons and nodes.

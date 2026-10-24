@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 135 done, 36 partial, 1891 to do, 62 skipped.
+2124 retail functions: 142 done, 36 partial, 1884 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (0/9)
@@ -16,7 +16,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysics::UpdateAllPhysics` · 00732400
 - [ ] `CPhysics::UpdateAllAnimation` · 007325a0
 
-## `portal/shared/src/bsp/bspleaf.cpp.c` (4/13)
+## `portal/shared/src/bsp/bspleaf.cpp.c` (5/13)
 
 ### BSPLEAF
 - [ ] `BSPLEAF::BSPLEAF` · 0049f670 · legions 00496a60
@@ -27,13 +27,13 @@ Legend and workflow: [README](README.md).
 - [ ] `BSPLEAF::point_intersects_solid` · 0049f860
 - [x] `BSPLEAF::hits_walkable` · 0049f870 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPLEAF::find_walkable` · 0049f8f0 — ac2-physics bsp/node.rs (Legions identical)
-- [ ] `BSPLEAF::sphere_intersects_solid_poly` · 0049f980 · legions 00496d70
+- [x] `BSPLEAF::sphere_intersects_solid_poly` · 0049f980 · legions 00496d70 — ac2-physics bsp: placement insert (Legions identical)
 - [ ] `BSPLEAF::TraceRay` · 0049fa10
 - [ ] `BSPLEAF::UnPack` · 0049fa40
 - [ ] `BSPLEAF::FromFileStream` · 0049fb00
 - [-] `BSPLEAF::FromFileNode` · 0049fc30 — text source format (admin tools)
 
-## `portal/shared/src/bsp/bspnode.cpp.c` (5/26)
+## `portal/shared/src/bsp/bspnode.cpp.c` (7/26)
 
 ### Sphere
 - [x] `Sphere::Intersects` · 0049ce40 · legions 00494860
@@ -44,13 +44,13 @@ Legend and workflow: [README](README.md).
 - [ ] `BSPNODE::GetPackSizeChild` · 0049cf10 · legions 00494930
 - [ ] `BSPNODE::PackChild` · 0049cf20 · legions 00494940
 - [ ] `BSPNODE::UnPackChild` · 0049cf50 · legions 00494970
-- [ ] `BSPNODE::point_inside_cell_bsp` · 0049cff0 · legions 00494a10
+- [x] `BSPNODE::point_inside_cell_bsp` · 0049cff0 · legions 00494a10 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [x] `BSPNODE::sphere_intersects_poly` · 0049d040 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPNODE::sphere_intersects_solid` · 0049d100 — ac2-physics bsp/node.rs (Legions identical)
 - [ ] `BSPNODE::point_intersects_solid` · 0049d1e0
 - [x] `BSPNODE::hits_walkable` · 0049d230 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPNODE::find_walkable` · 0049d2e0 — ac2-physics bsp/node.rs (Legions identical)
-- [ ] `BSPNODE::sphere_intersects_solid_poly` · 0049d3b0
+- [x] `BSPNODE::sphere_intersects_solid_poly` · 0049d3b0 — ac2-physics bsp: placement insert (Legions identical)
 - [ ] `BSPNODE::ClipToCellBSP` · 0049d4b0 · legions 00494ed0
 - [ ] `BSPNODE::~BSPNODE` · 0049d500 · legions 00494f20
 - [ ] `BSPNODE::GetPackSize` · 0049d540 · legions 00494f60
@@ -69,7 +69,7 @@ Legend and workflow: [README](README.md).
 - [-] `BSPNODE::FromFileNode` · 0049df70 — text source format (admin tools)
 - [ ] `BSPNODE::GetPosPlanes` · 0049e140 · legions 00495530
 
-## `portal/shared/src/bsp/bsptree.cpp.c` (13/20)
+## `portal/shared/src/bsp/bsptree.cpp.c` (16/20)
 
 ### Plane
 - [x] `Plane::Scale` · 0049b420 · legions 004932c0 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
@@ -84,8 +84,8 @@ Legend and workflow: [README](README.md).
 - [x] `COLLISIONINFO::set_contact_plane` · 0049b540 · legions 004933e0
 
 ### BSPTREE
-- [ ] `BSPTREE::GetBoundingSphere` · 0049b580 · legions 00493420
-- [ ] `BSPTREE::point_inside_cell_bsp` · 0049b590 · legions 00493430
+- [x] `BSPTREE::GetBoundingSphere` · 0049b580 · legions 00493420 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+- [x] `BSPTREE::point_inside_cell_bsp` · 0049b590 · legions 00493430 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [ ] `BSPTREE::TraceRay` · 0049b5a0 · legions 00493440
 - [x] `BSPTREE::adjust_to_plane` · 0049b5f0 · legions 00493490 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 - [x] `BSPTREE::slide_sphere` · 0049b800 · legions 004936a0 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
@@ -100,7 +100,7 @@ Legend and workflow: [README](README.md).
 - [x] `SPHEREPATH::set_walkable` · 0049bc60 · legions 00493b00 — ac2-physics transition/localspace.rs, sphere_path.rs
 
 ### BSPTREE
-- [ ] `BSPTREE::placement_insert` · 0049bcf0 · legions 00493b90
+- [x] `BSPTREE::placement_insert` · 0049bcf0 · legions 00493b90 — ac2-physics bsp: placement insert (Legions identical)
 - [x] `BSPTREE::step_sphere_down` · 0049bf70 · legions 00493e10 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 - [ ] `BSPTREE::ReadBSPTree` · 0049c180
 - [x] `BSPTREE::FindObjCollisions` · 0049c2c0 · legions 00494020 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
@@ -546,7 +546,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/physics/cellarray.cpp.c` (1/1)
 
 ### CELLARRAY
-- [x] `CELLARRAY::add_cell` · 004da7e0 · legions 004cd240
+- [x] `CELLARRAY::add_cell` · 004da7e0 · legions 004cd240 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 
 ## `portal/shared/src/physics/collisioninfo.cpp.c` (1/1)
 
@@ -605,7 +605,7 @@ Legend and workflow: [README](README.md).
 - [x] `SPHEREPATH::cache_localspace_sphere` · 004db0b0 · legions 004cdb10 — ac2-physics transition/localspace.rs, sphere_path.rs
 - [x] `SPHEREPATH::init_path` · 004db2a0 · legions 004cdd00
 
-## `portal/shared/src/physics/transition.cpp.c` (25/35)
+## `portal/shared/src/physics/transition.cpp.c` (26/35)
 
 ### AFrame
 - [x] `AFrame::operator==` · 004db790 · legions 004ce1f0
@@ -632,7 +632,7 @@ Legend and workflow: [README](README.md).
 ### CTransition
 - [x] `CTransition::init` · 004dbc30 · legions 004ce690
 - [x] `CTransition::adjust_offset` · 004dbcb0 · legions 004ce710
-- [x] `CTransition::build_cell_array` · 004dbff0 · legions 004cea50
+- [x] `CTransition::build_cell_array` · 004dbff0 · legions 004cea50 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CTransition::cliff_slide` · 004dc030 · legions 004cea90
 
 ### SPHEREPATH
@@ -644,7 +644,7 @@ Legend and workflow: [README](README.md).
 ### CTransition
 - [x] `CTransition::validate_transition` · 004dc320 · legions 004ced80
 - [ ] `CTransition::validate_placement_transition` · 004dc690 · legions 004cf0f0
-- [ ] `CTransition::check_other_cells` · 004dc720 · legions 004cf180
+- [x] `CTransition::check_other_cells` · 004dc720 · legions 004cf180 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CTransition::check_walkable` · 004dc910 · legions 004cf370 — ac2-physics transition: step_up, check_walkable, neg-poly and precipice branches (Legions identical)
 
 ### SPHEREPATH
@@ -2612,7 +2612,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::UpdatePositionInternal` · 004e8f80 · legions 004db960
 - [ ] `CPhysicsObj::ReportCollisions` · 004e9040 · legions 004dba20
 - [ ] `CPhysicsObj::EndAllCollisions` · 004e90c0 · legions 004dbaa0
-- [~] `CPhysicsObj::add_shadows_to_cells` · 004e9140 · legions 004dbb20 — ac2-physics Terrain::insert_object: outdoor shadow cells from the shadow box (env cells and load-order residency not ported)
+- [~] `CPhysicsObj::add_shadows_to_cells` · 004e9140 · legions 004dbb20 — ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 - [ ] `CPhysicsObj::AddChild` · 004e9200
 - [ ] `CPhysicsObj::RemoveChild` · 004e92b0
 - [ ] `CPhysicsObj::set_report_collisions` · 004e92e0
@@ -2620,7 +2620,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::UpdateAnimation` · 004e9700
 - [ ] `CPhysicsObj::UpdateMisc` · 004e9bb0 · legions 004dc430
 - [ ] `CPhysicsObj::calc_cross_cells_static` · 004e9be0
-- [~] `CPhysicsObj::calc_cross_cells` · 004e9d30 · legions 004dc5b0 — ac2-physics Terrain::insert_object: outdoor shadow cells from the shadow box (env cells and load-order residency not ported)
+- [~] `CPhysicsObj::calc_cross_cells` · 004e9d30 · legions 004dc5b0 — ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 - [~] `CPhysicsObj::SetPositionInternal` · 004e9f50 · legions 004dc7d0 — no cell residency, shadow or material updates; LeaveGround FX not ported
 - [ ] `CPhysicsObj::CombineAndApplyVisualDesc` · 004ea290
 - [ ] `CPhysicsObj::DoBehavior` · 004ea490

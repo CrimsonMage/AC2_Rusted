@@ -313,7 +313,6 @@ impl Polygon {
         (r - ld(dist)) / dp
     }
 
-    #[allow(dead_code)] // `BSPTREE::placement_insert`
     /// `CPolygon::adjust_to_placement_poly`: push both spheres out of the plane to `radius` from
     /// it (on the side `center_solid`/`solid_check` choose).
     pub(crate) fn adjust_to_placement_poly(

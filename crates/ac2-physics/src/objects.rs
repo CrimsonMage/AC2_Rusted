@@ -180,10 +180,10 @@ impl StaticObject {
         self.position
     }
 
-    /// The world box whose cells hold the object in their shadow lists
+    /// The box, in the object's frame, whose cells hold the object in their shadow lists
     /// (`CPhysicsObj::calc_cross_cells`): the scaled physics box for BSP objects, the unscaled
-    /// cylinders or spheres otherwise, in the object's frame.
-    pub fn shadow_bounds(&self) -> BBox {
+    /// cylinders or spheres otherwise.
+    pub fn shadow_box(&self) -> BBox {
         let shape = &self.shape;
         let local = if self.state & HAS_PHYSICS_BSP_PS != 0 {
             let (b, s) = (shape.bounds, self.scale);
@@ -230,7 +230,7 @@ impl StaticObject {
                 max: Vector::ZERO,
             }
         };
-        local.local_to_global(&self.position)
+        local
     }
 
     fn is_dynamic(&self) -> bool {

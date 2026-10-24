@@ -7,10 +7,12 @@ use std::collections::HashMap;
 use ac2_core::CellId;
 use ac2_world::{terrain_polygon_cut, LandBlockDesc};
 
-use crate::cells::{outside_cells, CellSource, LandCell, TerrainPolygon};
+use crate::cells::{CellSource, LandCell, TerrainPolygon};
+use crate::envcell::EnvCell;
+use crate::find_cells::shadow_cells;
 use crate::fpu::{ld, st};
 use crate::landdefs::{
-    adjust_to_outside, blockid_to_lcoord, lcoord_to_gid, BLOCK_LENGTH, LBLOCK_SIDE,
+    adjust_to_outside, blockid_to_lcoord, is_outside, lcoord_to_gid, BLOCK_LENGTH, LBLOCK_SIDE,
     POLYS_PER_LANDCELL, SIDE_VERTEX_COUNT, VERTEX_PER_CELL,
 };
 use crate::objects::StaticObject;
@@ -20,10 +22,12 @@ use crate::vector::Vector;
 /// Terrain polygons per block side.
 const SIDE_POLYGON_COUNT: usize = SIDE_VERTEX_COUNT - 1;
 
-/// The resident landblocks' land cells, keyed by cell id, and their static objects.
+/// The resident landblocks' land cells and interior cells, keyed by cell id, and their static
+/// objects.
 #[derive(Debug, Clone, Default)]
 pub struct Terrain {
     cells: HashMap<u32, LandCell>,
+    env_cells: HashMap<u32, EnvCell>,
     /// `CLandBlockData::m_waterPlane` heights of the blocks that have water.
     water: HashMap<u32, f32>,
     /// Static objects by id (a removed object leaves `None`) and the land cells their shadow box
@@ -106,16 +110,18 @@ impl Terrain {
                         cell_id,
                         polygons,
                         objects,
+                        touching: Vec::new(),
                     },
                 );
             }
         }
     }
 
-    /// Drops a landblock's cells and the static objects it placed.
+    /// Drops a landblock's cells (land and interior) and the static objects it placed.
     pub fn remove_block(&mut self, block_cell_id: u32) {
         let block = block_cell_id & 0xFFFF_0000;
         self.cells.retain(|id, _| id & 0xFFFF_0000 != block);
+        self.env_cells.retain(|id, _| id & 0xFFFF_0000 != block);
         self.water.remove(&block);
         for id in 0..self.objects.len() as u32 {
             let owned = self.objects[id as usize]
@@ -127,19 +133,68 @@ impl Terrain {
         }
     }
 
-    /// Adds a static object and enters it in the shadow lists of the resident land cells its
-    /// shadow box covers (`CPhysicsObj::calc_cross_cells` -> `add_shadows_to_cells`); cells made
+    /// Adds a static object and enters it in the shadow lists of the resident cells its shadow
+    /// box touches (`CPhysicsObj::calc_cross_cells` -> `add_shadows_to_cells`); cells made
     /// resident later pick it up too. Returns its id.
     pub fn insert_object(&mut self, object: StaticObject) -> u32 {
         let id = self.objects.len() as u32;
-        let cells = outside_cells(object.position().cell_id, object.shadow_bounds());
+        let cells = shadow_cells(&object.position(), object.shadow_box(), self);
         for cell_id in &cells {
             if let Some(cell) = self.cells.get_mut(cell_id) {
+                cell.objects.push(id);
+            }
+            if let Some(cell) = self.env_cells.get_mut(cell_id) {
                 cell.objects.push(id);
             }
         }
         self.objects.push(Some((object, cells)));
         id
+    }
+
+    /// Makes an interior cell resident (objects already shadowing it join its list).
+    pub fn insert_env_cell(&mut self, mut cell: EnvCell) {
+        cell.objects = self.shadowing(cell.cell_id);
+        self.env_cells.insert(cell.cell_id, cell);
+    }
+
+    /// `CLandBlock::InitCellConnections`: every resident interior cell of the block's outside stab
+    /// list that reaches the outside becomes a touching cell of the block's land cells under its
+    /// physics tree's bounding sphere.
+    pub fn connect_block(&mut self, block_cell_id: u32, outside_stab_list: &[u32]) {
+        let block = block_cell_id & 0xFFFF_0000;
+        let mut links = Vec::new();
+        for &cell_id in outside_stab_list {
+            let Some(cell) = self.env_cells.get(&cell_id) else {
+                continue;
+            };
+            let Some(sphere) = cell
+                .structure
+                .physics
+                .as_ref()
+                .and_then(|tree| tree.bounding_sphere())
+            else {
+                continue;
+            };
+            if !cell.seen_outside {
+                continue;
+            }
+            let mut position = cell.position;
+            if !adjust_to_outside(&mut position.cell_id, &mut position.frame.origin) {
+                continue;
+            }
+            let local = crate::find_cells::sphere_bounds(&[sphere]);
+            for land in shadow_cells(&position, local, self) {
+                if is_outside(land) && land & 0xFFFF_0000 == block && self.cells.contains_key(&land)
+                {
+                    links.push((land, cell_id));
+                }
+            }
+        }
+        for (land, cell_id) in links {
+            if let Some(cell) = self.cells.get_mut(&land) {
+                cell.touching.push(cell_id);
+            }
+        }
     }
 
     /// Removes a static object from the world and its cells' shadow lists.
@@ -193,6 +248,11 @@ impl Terrain {
     /// (negative when the origin is below it), as `CPhysicsObj::GetHeightAboveWalkable`'s
     /// downward `LOSCheck` finds it over open terrain. `None` off resident terrain.
     pub(crate) fn height_above_terrain(&self, position: &Position) -> Option<f32> {
+        if !is_outside(position.cell_id) {
+            // Interiors: the downward `LOSCheck` would end on the cell's floor, which is not
+            // ported; an interior body counts as on its floor.
+            return None;
+        }
         let mut cell_id = position.cell_id;
         let mut point = position.frame.origin;
         if !adjust_to_outside(&mut cell_id, &mut point) {
@@ -212,6 +272,10 @@ impl Terrain {
 impl CellSource for Terrain {
     fn land_cell(&self, cell_id: u32) -> Option<&LandCell> {
         self.cells.get(&cell_id)
+    }
+
+    fn env_cell(&self, cell_id: u32) -> Option<&EnvCell> {
+        self.env_cells.get(&cell_id)
     }
 
     fn object(&self, id: u32) -> Option<&StaticObject> {

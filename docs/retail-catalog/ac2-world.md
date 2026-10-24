@@ -1,9 +1,9 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 95 done, 13 partial, 738 to do, 143 skipped.
+989 retail functions: 108 done, 8 partial, 730 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/cell/envcell.cpp.c` (5/140)
+## `portal/shared/src/cell/envcell.cpp.c` (9/140)
 
 ### PackObj
 - [ ] `PackObj::Pack` · 0047f1a0
@@ -52,9 +52,9 @@ Legend and workflow: [README](README.md).
 - [ ] `Frustum::operator=` · 0047f9b0 · legions 00479980
 
 ### CEnvCell
-- [ ] `CEnvCell::point_in_cell` · 0047fa10
-- [x] `CEnvCell::find_collisions` · 0047fa50 — ac2-physics cells.rs: terrain then shadow objects for land cells
-- [ ] `CEnvCell::find_env_collisions` · 0047fa80
+- [x] `CEnvCell::point_in_cell` · 0047fa10 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+- [x] `CEnvCell::find_collisions` · 0047fa50 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
+- [x] `CEnvCell::find_env_collisions` · 0047fa80 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [ ] `CEnvCell::GetSubDataIDs` · 0047fb70 · legions 00479b10
 - [ ] `CEnvCell::SumBumpMapVectors` · 0047fbd0 · legions 00479b70
 - [ ] `CEnvCell::NormalizeBumpMapVectors` · 0047fd00 · legions 00479ca0
@@ -98,7 +98,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::LinkStaticLights` · 00480bc0 · legions 0047aa80
 - [ ] `CEnvCell::LinkDynamicLights` · 00480c00 · legions 0047aac0
 - [ ] `CEnvCell::RenderLightCoronas` · 00480c40 · legions 0047ab00
-- [ ] `CEnvCell::FindTransitCellsInternal` · 00480cb0 · legions 0047ab70
+- [x] `CEnvCell::FindTransitCellsInternal` · 00480cb0 · legions 0047ab70 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [ ] `CEnvCell::ReleaseSubObjects` · 00480f30 · legions 0047adf0
 - [ ] `CEnvCell::CopyDiffuseToVB` · 00480fa0 · legions 0047ae60
 - [ ] `CEnvCell::CacheDiffuseFromVB` · 00480ff0 · legions 0047aeb0
@@ -137,7 +137,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::GetGatherTimestamp` · 004822e0
 - [ ] `CEnvCell::GetDBOType` · 004822f0
 - [ ] `CEnvCell::~CEnvCell` · 00482310 · legions 0047c240
-- [ ] `CEnvCell::FindTransitCells` · 00482450
+- [x] `CEnvCell::FindTransitCells` · 00482450 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [ ] `CEnvCell::GetSubObjects` · 00482460
 - [ ] `CEnvCell::ApplyAtomCollection` · 004825c0 · legions 0047c490
 - [ ] `CEnvCell::UpdateDynamicLights` · 00482710 · legions 0047c5b0
@@ -181,7 +181,7 @@ Legend and workflow: [README](README.md).
 - [-] `CEnvCell::FromFileNode` · 00483a60 — text source format (admin tools)
 - [ ] `CEnvCell::AddStaticLights` · 00484090 · legions 0047d900
 - [ ] `CEnvCell::GetNearbyGeometry` · 00484200 · legions 0047da70
-- [ ] `CEnvCell::InitStaticObjects` · 00484680 · legions 0047def0
+- [~] `CEnvCell::InitStaticObjects` · 00484680 · legions 0047def0 — ac2-physics load_block_interiors: cell entities as static objects (no ObjectClearance/CollisionParameters)
 - [ ] `CEnvCell::InitLightSources` · 00484710 · legions 0047df80
 - [ ] `CEnvCell::GatherInsideObjects` · 00484760 · legions 0047dfd0
 - [ ] `CEnvCell::InitLoad` · 00484800
@@ -249,7 +249,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::FlushCellGroups` · 004876a0 · legions 00480ed0
 - [ ] `CEnvCell::flush_cells` · 00487750 · legions 00480f80
 
-## `portal/shared/src/cell/landblock.cpp.c` (10/72)
+## `portal/shared/src/cell/landblock.cpp.c` (11/72)
 
 ### LandDefs
 - [ ] `LandDefs::GetBlockOffset` · 00488140 · legions 00481970
@@ -334,7 +334,7 @@ Legend and workflow: [README](README.md).
 
 ### CLandBlock
 - [ ] `CLandBlock::Clear` · 0048a420 · legions 00483d10
-- [ ] `CLandBlock::InitCellConnections` · 0048a460 · legions 00483d50
+- [x] `CLandBlock::InitCellConnections` · 0048a460 · legions 00483d50 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [ ] `CLandBlock::CreateAmbientSoundPoints` · 0048a620 · legions 00483f10
 - [ ] `CLandBlock::DoIntersection` · 0048a7e0 · legions 00484090
 
@@ -512,7 +512,7 @@ Legend and workflow: [README](README.md).
 ### CLandBlockQuadTree
 - [ ] `CLandBlockQuadTree::Generate` · 00492b60 · legions 0048b510
 
-## `portal/shared/src/cell/landcell.cpp.c` (8/38)
+## `portal/shared/src/cell/landcell.cpp.c` (9/38)
 
 ### (free functions)
 - [ ] `AreFloatEqual` · 0047d8e0 · legions 00477910
@@ -561,7 +561,7 @@ Legend and workflow: [README](README.md).
 ### CLandCell
 - [ ] `CLandCell::Allocate` · 0047df80
 - [ ] `CLandCell::CheckRadius` · 0047dfe0 · legions 00478000
-- [~] `CLandCell::AddOutsideCell` · 0047e160 · legions 00478180 — outdoor land cells only; touching env cells not followed
+- [x] `CLandCell::AddOutsideCell` · 0047e160 · legions 00478180 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [ ] `CLandCell::handle_move_restriction` · 0047e2c0 · legions 004782e0
 
 ### DBObjGrabber<CLandBlockData>
@@ -571,7 +571,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LOSParameters::SetCurrentRay` · 0047e520 · legions 00478560
 
 ### CLandCell
-- [x] `CLandCell::FindOutsideCells` · 0047e570 · legions 004785b0
+- [x] `CLandCell::FindOutsideCells` · 0047e570 · legions 004785b0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [~] `CLandCell::find_env_collisions` · 0047e670 — unloaded-landblock move restriction not ported
 - [ ] `CLandCell::TraceRay` · 0047e7d0 · legions 00478810
 
@@ -636,7 +636,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CLightInfo::Allocator` · 0048ed70
 - [-] `CLightInfo::FromFileNode` · 0048ed90 — text source format (admin tools)
 
-## `portal/shared/src/cell/objcell.cpp.c` (3/53)
+## `portal/shared/src/cell/objcell.cpp.c` (10/53)
 
 ### DBObj
 - [ ] `DBObj::SaveToFile` · 0047b860
@@ -659,10 +659,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjCell::SendObjectDetection` · 0047ba40 · legions 00475b70
 - [ ] `CObjCell::SetObjectMaintainer` · 0047bb10 · legions 00475c40
 - [ ] `CObjCell::GetViewerDistance` · 0047bb20
-- [~] `CObjCell::FindCells` · 0047bb40 · legions 00475c70 — outdoor land cells only; touching env cells not followed
-- [~] `CObjCell::FindCellsLocal` · 0047bbd0 · legions 00475d00 — ac2-physics Terrain::insert_object: outdoor shadow cells from the shadow box (env cells and load-order residency not ported)
-- [~] `CObjCell::FindCellsLocal` · 0047bcb0 · legions 00475de0 — ac2-physics Terrain::insert_object: outdoor shadow cells from the shadow box (env cells and load-order residency not ported)
-- [~] `CObjCell::FindCells` · 0047bd90 · legions 00475ec0 — outdoor land cells only; touching env cells not followed
+- [x] `CObjCell::FindCells` · 0047bb40 · legions 00475c70 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+- [x] `CObjCell::FindCellsLocal` · 0047bbd0 · legions 00475d00 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+- [x] `CObjCell::FindCellsLocal` · 0047bcb0 · legions 00475de0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+- [x] `CObjCell::FindCells` · 0047bd90 · legions 00475ec0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [ ] `CObjCell::LOSCheck` · 0047be70 · legions 00475fa0
 
 ### _STL::pair<ICPhysicsObj_*,BBox>
@@ -675,8 +675,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjCell::RemoveShadowObject` · 0047c330 · legions 00476400
 - [ ] `CObjCell::InitDynamicObjects` · 0047c390 · legions 00476460
 - [ ] `CObjCell::DoIntersection` · 0047c3f0 · legions 004764c0
-- [ ] `CObjCell::FindCellsLocal` · 0047c440 · legions 00476510
-- [~] `CObjCell::FindCellsLocal` · 0047c460 · legions 00476530 — ac2-physics Terrain::insert_object: outdoor shadow cells from the shadow box (env cells and load-order residency not ported)
+- [x] `CObjCell::FindCellsLocal` · 0047c440 · legions 00476510 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+- [x] `CObjCell::FindCellsLocal` · 0047c460 · legions 00476530 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CObjCell::find_obj_collisions` · 0047c510 · legions 004765e0 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `CObjCell::TraceRayObjects` · 0047c560 · legions 00476630
 
@@ -707,7 +707,7 @@ Legend and workflow: [README](README.md).
 - [x] `ObjectClearance::operator=` · 0047cd90 · legions 00476e80
 
 ### CObjCell
-- [ ] `CObjCell::AddTouchingCell` · 0047ce60 · legions 00476f50
+- [x] `CObjCell::AddTouchingCell` · 0047ce60 · legions 00476f50 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [ ] `CObjCell::AddShadowObject` · 0047cfc0 · legions 00477050
 - [ ] `CObjCell::UpdateAllVoyeur` · 0047d020 · legions 004770b0
 - [ ] `CObjCell::HideObject` · 0047d0c0 · legions 00477150

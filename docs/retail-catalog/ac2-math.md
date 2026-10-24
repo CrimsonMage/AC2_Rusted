@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 56 done, 5 partial, 325 to do, 40 skipped.
+426 retail functions: 63 done, 5 partial, 319 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (0/5)
@@ -53,7 +53,7 @@ Legend and workflow: [README](README.md).
 ### AnimAssetWeightKey
 - [-] `AnimAssetWeightKey::FromFileNode` · 00736a50 · legions 006b2630 — text source format (admin tools)
 
-## `portal/shared/src/geometry/bbox.cpp.c` (3/26)
+## `portal/shared/src/geometry/bbox.cpp.c` (5/26)
 
 ### Plane
 - [ ] `Plane::IsValid` · 0061ca70 · legions 005d8660
@@ -64,11 +64,11 @@ Legend and workflow: [README](README.md).
 - [-] `BBox::Pack` · 0061cb30 · legions 005d8720 — inline copy of 00426d40
 - [ ] `BBox::UnPack` · 0061cbb0
 - [ ] `BBox::InitForAdjustment` · 0061cc10 · legions 005d8800
-- [ ] `BBox::GetPlane` · 0061cc30 · legions 005d8820
+- [x] `BBox::GetPlane` · 0061cc30 · legions 005d8820 — ac2-physics envcell.rs: portal clipping against the cell-search box
 - [x] `BBox::localtoglobal` · 0061cd10 · legions 005d8900 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `BBox::ScaleCentered` · 0061cf40 · legions 005d8b30
 - [ ] `BBox::BuildBoundingBox` · 0061d040 · legions 005d8c30
-- [ ] `BBox::GetCenter` · 0061d070 · legions 005d8c60
+- [x] `BBox::GetCenter` · 0061d070 · legions 005d8c60 — ac2-physics envcell.rs: portal clipping against the cell-search box
 - [ ] `BBox::Within` · 0061d0b0 · legions 005d8ca0
 - [ ] `BBox::Intersects` · 0061d110 · legions 005d8d00
 - [ ] `BBox::GetPoints` · 0061d1e0 · legions 005d8dd0
@@ -90,7 +90,7 @@ Legend and workflow: [README](README.md).
 ### CHILDINFO
 - [ ] `CHILDINFO::StreamPack` · 00737cb0 · legions 006b3870
 
-## `portal/shared/src/geometry/cellportal.cpp.c` (0/11)
+## `portal/shared/src/geometry/cellportal.cpp.c` (2/11)
 
 ### FileNodeName_Int32
 - [ ] `FileNodeName_Int32::Clone` · 0049c740 · legions 004944a0
@@ -98,8 +98,8 @@ Legend and workflow: [README](README.md).
 ### CCellPortal
 - [ ] `CCellPortal::CCellPortal` · 0049c770
 - [ ] `CCellPortal::~CCellPortal` · 0049c790 · legions 004944f0
-- [ ] `CCellPortal::GetOtherCell` · 0049c7a0 · legions 00494500
-- [-] `CCellPortal::GetOtherCell` · 0049c810 · legions 00494560 — inline copy of 0049c7a0
+- [x] `CCellPortal::GetOtherCell` · 0049c7a0 · legions 00494500 — ac2-physics envcell.rs: portal clipping against the cell-search box
+- [x] `CCellPortal::GetOtherCell` · 0049c810 · legions 00494560 — ac2-physics envcell.rs: portal clipping against the cell-search box
 - [ ] `CCellPortal::GetPackSize` · 0049c880 · legions 004945c0
 - [ ] `CCellPortal::Pack` · 0049c8b0 · legions 004945f0
 - [ ] `CCellPortal::UnPack` · 0049c980 · legions 004946c0
@@ -311,7 +311,7 @@ Legend and workflow: [README](README.md).
 - [-] `Plane::ToFileNode` · 00624550 — text source format (admin tools)
 - [ ] `Plane::SplitPolygon` · 006245b0 · legions 005df810
 
-## `portal/shared/src/geometry/polygon.cpp.c` (12/36)
+## `portal/shared/src/geometry/polygon.cpp.c` (15/36)
 
 ### SPHEREPATH
 - [x] `SPHEREPATH::is_walkable_allowable` · 00499290 · legions 004917c0 — ac2-physics transition/localspace.rs, sphere_path.rs
@@ -327,7 +327,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPolygon::Pack` · 004995e0 · legions 00491b10
 - [x] `CPolygon::adjust_sphere_to_poly` · 00499670 · legions 00491ba0 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
 - [x] `CPolygon::adjust_sphere_to_plane` · 00499700 · legions 00491c30 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
-- [ ] `CPolygon::adjust_to_placement_poly` · 00499800 · legions 00491d30
+- [x] `CPolygon::adjust_to_placement_poly` · 00499800 · legions 00491d30 — ac2-physics bsp: placement insert (Legions identical)
 
 ### PackObj
 - [ ] `PackObj::GetPackSize` · 004998b0
@@ -357,13 +357,13 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartArray<CPolygon>::SetNElements` · 0049a9c0
 
 ### WorkerPolygon
-- [ ] `WorkerPolygon::InitFromPolygon` · 0049a9f0 · legions 00492eb0
+- [x] `WorkerPolygon::InitFromPolygon` · 0049a9f0 · legions 00492eb0 — ac2-physics envcell.rs: portal clipping against the cell-search box
 
 ### CPolygon
 - [-] `CPolygon::FromFileNode` · 0049aad0 — text source format (admin tools)
 
 ### WorkerPolygon
-- [ ] `WorkerPolygon::Clip` · 0049acb0 · legions 00492f90
+- [x] `WorkerPolygon::Clip` · 0049acb0 · legions 00492f90 — ac2-physics envcell.rs: portal clipping against the cell-search box
 
 ### CPolygon
 - [ ] `CPolygon::FromFileStream` · 0049afe0

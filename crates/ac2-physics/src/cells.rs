@@ -3,12 +3,10 @@
 //! cell search (`CObjCell::FindCells` -> `CLandCell::FindOutsideCells`) and the terrain contact
 //! (`CLandCell::find_env_collisions`).
 
+use crate::envcell::EnvCell;
 use crate::fpu::{ld, st, F_EPSILON};
-use crate::landdefs::{
-    adjust_to_outside, get_block_offset, gid_to_lcoord, is_outside, lcoord_to_gid, LAND_WIDTH,
-    POLYS_PER_LANDCELL, SQUARE_LENGTH,
-};
-use crate::objects::{BBox, StaticObject};
+use crate::landdefs::{get_block_offset, is_outside, POLYS_PER_LANDCELL, SQUARE_LENGTH};
+use crate::objects::StaticObject;
 use crate::transition::collision::PREDETERMINED_TRANSITION_OI;
 use crate::transition::{Transition, TransitionState};
 use crate::vector::{Plane, Sphere, Vector};
@@ -67,13 +65,15 @@ impl TerrainPolygon {
 }
 
 /// A resident land cell (`CLandCell`): its id, the terrain polygons over it, in slot order
-/// (`(vertex_per_cell * ix + iy) * 2` and `+1`; a slot over a landscape hole is empty), and the
-/// static objects shadowing it (`CObjCell::m_staticShadowList`).
+/// (`(vertex_per_cell * ix + iy) * 2` and `+1`; a slot over a landscape hole is empty), the
+/// static objects shadowing it (`CObjCell::m_staticShadowList`) and the interior cells whose
+/// outside portals it touches (`CObjCell::m_touchingCells`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct LandCell {
     pub cell_id: u32,
     pub polygons: [Option<TerrainPolygon>; POLYS_PER_LANDCELL],
     pub objects: Vec<u32>,
+    pub touching: Vec<u32>,
 }
 
 impl LandCell {
@@ -99,99 +99,60 @@ pub trait CellSource {
     /// The land cell `cell_id` (`0xXXYY00NN`, `NN` in `1..=64`) when its landblock is resident.
     fn land_cell(&self, cell_id: u32) -> Option<&LandCell>;
 
+    /// The interior cell `cell_id` (`0xXXYYNNNN`, `NNNN` from `0x0100`) when resident.
+    fn env_cell(&self, _cell_id: u32) -> Option<&EnvCell> {
+        None
+    }
+
     /// A static object a cell's shadow list names.
     fn object(&self, _id: u32) -> Option<&StaticObject> {
         None
     }
 }
 
-/// `CObjCell::FindCells` for a path in an outdoor cell: the land cells the bounding box of the
-/// global spheres overlaps (`CLandCell::FindOutsideCells`, `AddOutsideCell`), and the resident
-/// one holding the check position. Indoor paths and the cells a land cell touches
-/// (`m_touchingCells`) are not part of this port.
-pub(crate) fn find_cells(transition: &mut Transition, cells: &dyn CellSource) -> Option<u32> {
-    let path = &transition.sphere_path;
-    let origin_cell = path.check_pos.cell_id;
-    if origin_cell == 0 || !is_outside(origin_cell) {
-        return None;
-    }
-    if transition.cell_array.added_outside {
-        return None;
-    }
-    transition.cell_array.added_outside = true;
-    let mut bounds = BBox::EMPTY;
-    for sphere in path.global_sphere.iter().take(path.num_sphere) {
-        let (low, high) = sphere_bounds(sphere);
-        bounds.adjust(low);
-        bounds.adjust(high);
-    }
-    let origin = path.check_pos.frame.origin;
-    let mut current = None;
-    for gid in outside_cells(origin_cell, bounds) {
-        let cell = cells.land_cell(gid);
-        if let Some(cell) = cell {
-            let offset = get_block_offset(origin_cell, gid);
-            let local = Vector::new(
-                st(ld(origin.x) - ld(offset.x)),
-                st(ld(origin.y) - ld(offset.y)),
-                st(ld(origin.z) - ld(offset.z)),
-            );
-            if cell.point_in_cell(local) {
-                current = Some(gid);
-            }
-        }
-        transition.cell_array.add_cell(gid, cell.is_some());
-    }
-    current
+/// A resident `CObjCell`: a land cell or an interior cell.
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum ObjCell<'a> {
+    Land(&'a LandCell),
+    Env(&'a EnvCell),
 }
 
-/// The land cells `CLandCell::FindOutsideCells` visits for a box in `origin_cell`'s landblock
-/// frame: every cell of the block-grid rectangle between its corners, column by column.
-pub(crate) fn outside_cells(origin_cell: u32, bounds: BBox) -> Vec<u32> {
-    let (mut min, mut max) = (bounds.min, bounds.max);
-    let (mut min_cell, mut max_cell) = (origin_cell, origin_cell);
-    if !adjust_to_outside(&mut min_cell, &mut min) || !adjust_to_outside(&mut max_cell, &mut max) {
-        return Vec::new();
-    }
-    let (Some((x0, y0)), Some((x1, y1))) = (gid_to_lcoord(min_cell), gid_to_lcoord(max_cell))
-    else {
-        return Vec::new();
-    };
-    let mut out = Vec::new();
-    for x in x0..=x1 {
-        for y in y0..=y1 {
-            if (0..LAND_WIDTH).contains(&x) && (0..LAND_WIDTH).contains(&y) {
-                out.push(lcoord_to_gid(x, y));
-            }
+impl<'a> ObjCell<'a> {
+    /// `CObjCell::GetVisible`: the resident cell `cell_id`.
+    pub(crate) fn get(cells: &'a dyn CellSource, cell_id: u32) -> Option<Self> {
+        if is_outside(cell_id) {
+            cells.land_cell(cell_id).map(ObjCell::Land)
+        } else {
+            cells.env_cell(cell_id).map(ObjCell::Env)
         }
     }
-    out
+
+    pub(crate) fn objects(&self) -> &'a [u32] {
+        match self {
+            ObjCell::Land(cell) => &cell.objects,
+            ObjCell::Env(cell) => &cell.objects,
+        }
+    }
 }
 
-/// The box `BBox::InitFromSpheres` grows by: centre minus and plus the radius, stored.
-fn sphere_bounds(sphere: &Sphere) -> (Vector, Vector) {
-    let (c, r) = (sphere.center, ld(sphere.radius));
-    (
-        Vector::new(st(ld(c.x) - r), st(ld(c.y) - r), st(ld(c.z) - r)),
-        Vector::new(st(r + ld(c.x)), st(r + ld(c.y)), st(r + ld(c.z))),
-    )
-}
-
-/// `CEnvCell::find_collisions` as a land cell runs it: the terrain (`find_env_collisions`)
-/// unless the transition is predetermined, then the cell's objects
-/// (`CObjCell::find_obj_collisions`).
+/// `CEnvCell::find_collisions` (land cells run it too): the cell's environment -- terrain
+/// (`CLandCell::find_env_collisions`) or cell BSP (`CEnvCell::find_env_collisions`) -- unless
+/// the transition is predetermined, then its shadow objects (`CObjCell::find_obj_collisions`).
 pub(crate) fn find_collisions(
     transition: &mut Transition,
-    cell: &LandCell,
+    cell: ObjCell<'_>,
     cells: &dyn CellSource,
 ) -> TransitionState {
     if transition.object_info.state & PREDETERMINED_TRANSITION_OI == 0 {
-        let ts = find_env_collisions(transition, cell);
+        let ts = match cell {
+            ObjCell::Land(land) => find_env_collisions(transition, land),
+            ObjCell::Env(env) => env.find_env_collisions(transition, cells),
+        };
         if ts != TransitionState::Ok {
             return ts;
         }
     }
-    transition.find_obj_collisions(&cell.objects, cells)
+    transition.find_obj_collisions(cell.objects(), cells)
 }
 
 /// `CLandCell::find_env_collisions`: the terrain polygon under the path's low point, moved into
@@ -272,6 +233,7 @@ mod tests {
             cell_id: 0x7F7F_000A,
             polygons: [None; POLYS_PER_LANDCELL],
             objects: Vec::new(),
+            touching: Vec::new(),
         };
         // Cell 0x0A is (x 1, y 1): 20..40 on both axes.
         assert!(cell.point_in_cell(Vector::new(25.0, 39.9, 0.0)));

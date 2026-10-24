@@ -2,7 +2,7 @@
 //! `get_object_info`, `SetPositionInternal(CTransition*)`, `handle_all_collisions`,
 //! `set_on_walkable` and `HandleHitGround`.
 
-use crate::cells::CellSource;
+use crate::cells::ObjCell;
 use crate::fpu::{ld, st, F_EPSILON};
 use crate::motion_interp::{ELEMENT_AIR, ELEMENT_GROUND, ELEMENT_SEA_FLOOR};
 use crate::physics_obj::{
@@ -119,9 +119,8 @@ impl PhysicsObj {
             frames_stationary_fall,
             containment_radius: self.containment_radius(),
         };
-        let begin_cell = terrain
-            .land_cell(self.position.cell_id)
-            .map(|cell| cell.cell_id);
+        let begin_cell =
+            ObjCell::get(terrain, self.position.cell_id).map(|_| self.position.cell_id);
         let mut transition = Transition::new(&object, begin_cell, Some(self.position), end);
         let found = transition.find_valid_position(terrain);
         if transition.object_info.kill_velocity {

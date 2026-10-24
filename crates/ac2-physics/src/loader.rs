@@ -11,9 +11,10 @@ use ac2_assets::{
 use ac2_core::{CellId, DataId};
 use ac2_dat::DatFileKind;
 use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
-use ac2_world::Ac2WorldSource;
+use ac2_world::{Ac2CellBspNode, Ac2CellStruct, Ac2WorldSource};
 
-use crate::bsp::BspTree;
+use crate::bsp::{BspTree, Polygon};
+use crate::envcell::{CellBsp, CellBspNode, CellPortal, CellStructure, EnvCell};
 use crate::fpu::{ld, st};
 use crate::frame::Frame;
 use crate::landdefs::{adjust_to_outside, BLOCK_LENGTH};
@@ -22,7 +23,7 @@ use crate::physics_obj::BodyShape;
 use crate::position::Position;
 use crate::shapes::cylsphere::CylSphere;
 use crate::terrain::Terrain;
-use crate::vector::{Quaternion, Sphere, Vector};
+use crate::vector::{Plane, Quaternion, Sphere, Vector};
 
 /// The collision shape of the body a `VisualDesc` (or bare `CSetup`) places: its root Setup's
 /// `CSphere`s (`CPartArray::GetSphere`), height and step heights, scaled by the visual's root
@@ -183,4 +184,154 @@ pub fn load_block_objects(
         added += 1;
     }
     Ok(added)
+}
+
+/// The collision structure of a `CCellMesh`: its physics BSP over the physics polygons, its cell
+/// BSP and its portal polygons (`CCellMesh::StreamPack`).
+fn cell_structure(structure: &Ac2CellStruct) -> CellStructure {
+    let polygons: Vec<Polygon> = structure
+        .polygons
+        .iter()
+        .map(|polygon| {
+            Polygon::new(
+                polygon
+                    .vertex_ids
+                    .iter()
+                    .filter_map(|&id| structure.positions.get(usize::from(id)))
+                    .map(|&p| Vector::from(p))
+                    .collect(),
+            )
+        })
+        .collect();
+    let portal_polygons = structure
+        .portal_polygons
+        .iter()
+        .filter_map(|portal| polygons.get(usize::from(portal.polygon)).cloned())
+        .collect();
+    let physics = structure
+        .physics_bsp
+        .as_deref()
+        .map(|root| Arc::new(BspTree::from_cell(root, polygons)));
+    let mut cell_bsp = CellBsp::default();
+    if let Some(root) = structure.cell_bsp.as_deref() {
+        push_cell_node(&mut cell_bsp, root);
+    }
+    CellStructure {
+        physics,
+        cell_bsp,
+        portal_polygons,
+    }
+}
+
+fn push_cell_node(tree: &mut CellBsp, node: &Ac2CellBspNode) -> usize {
+    let index = tree.nodes.len();
+    tree.nodes.push(CellBspNode {
+        plane: Plane::new(Vector::from(node.plane.normal), node.plane.d),
+        pos: None,
+        neg: None,
+    });
+    let pos = node.pos.as_deref().map(|child| push_cell_node(tree, child));
+    let neg = node.neg.as_deref().map(|child| push_cell_node(tree, child));
+    tree.nodes[index].pos = pos;
+    tree.nodes[index].neg = neg;
+    index
+}
+
+/// A landblock's interior cells (`CEnvCell`s `xxyy0100` and up) with their static entities
+/// (`CEnvCell::InitStaticObjects`), then the land cells' touching cells
+/// (`CLandBlock::InitCellConnections`). Load the block's terrain first. Returns how many cells
+/// became resident.
+pub fn load_block_interiors(
+    world: &Ac2WorldSource,
+    terrain: &mut Terrain,
+    block_cell_id: CellId,
+) -> ResourceResult<usize> {
+    let Some(interior) = world.landblock_interior(block_cell_id)? else {
+        return Ok(0);
+    };
+    let store = world.resource_store();
+    let mut structures: HashMap<u32, Arc<CellStructure>> = HashMap::new();
+    let mut cells = Vec::new();
+    for cell_id in interior.cell_ids(block_cell_id) {
+        let Some(cell) = world.env_cell(cell_id)? else {
+            continue;
+        };
+        let structure = match structures.get(&cell.cell_mesh.raw()) {
+            Some(structure) => Arc::clone(structure),
+            None => {
+                let Some(source) = world.cell_struct(cell.cell_mesh)? else {
+                    continue;
+                };
+                let structure = Arc::new(cell_structure(&source));
+                structures.insert(cell.cell_mesh.raw(), Arc::clone(&structure));
+                structure
+            }
+        };
+        let portals = cell
+            .portals
+            .iter()
+            .filter_map(|portal| {
+                let polygon = usize::try_from(portal.polygon).ok()?;
+                Some(CellPortal {
+                    other_cell: portal.other_cell.map(|other| other.raw()),
+                    polygon: structure.portal_polygons.get(polygon)?.clone(),
+                })
+            })
+            .collect();
+        let q = cell.frame.orientation;
+        let position = Position::new(
+            cell_id.raw(),
+            Frame::new(
+                Vector::from(cell.frame.origin),
+                Quaternion::new(q.w, q.x, q.y, q.z),
+            ),
+        );
+        terrain.insert_env_cell(EnvCell {
+            cell_id: cell_id.raw(),
+            position,
+            structure,
+            portals,
+            seen_outside: cell.seen_outside,
+            objects: Vec::new(),
+        });
+        cells.push(cell);
+    }
+    let origin = world.ac2_block_origin(block_cell_id);
+    let mut shapes: HashMap<u32, Option<Arc<ObjectShape>>> = HashMap::new();
+    for cell in &cells {
+        for entity in world.env_cell_entities(cell)? {
+            let shape = match shapes.get(&entity.visual.raw()) {
+                Some(shape) => shape.clone(),
+                None => {
+                    let shape = load_object_shape(store, entity.visual)?.map(Arc::new);
+                    shapes.insert(entity.visual.raw(), shape.clone());
+                    shape
+                }
+            };
+            let Some(shape) = shape else {
+                continue;
+            };
+            let frame = entity.world_frame;
+            let local = frame.origin - origin;
+            let q = frame.orientation;
+            let position = Position::new(
+                cell.cell_id.raw(),
+                Frame::new(Vector::from(local), Quaternion::new(q.w, q.x, q.y, q.z)),
+            );
+            let vdesc = Vector::from(resolve_ac2_visual_scale(store, entity.visual)?);
+            let scale = Vector::new(
+                st(ld(vdesc.x) * ld(entity.scale.x)),
+                st(ld(vdesc.y) * ld(entity.scale.y)),
+                st(ld(vdesc.z) * ld(entity.scale.z)),
+            );
+            terrain.insert_object(StaticObject::new(position, scale, shape));
+        }
+    }
+    let stab: Vec<u32> = interior
+        .outside_stab_cells
+        .iter()
+        .map(|id| id.raw())
+        .collect();
+    terrain.connect_block(block_cell_id.raw(), &stab);
+    Ok(cells.len())
 }

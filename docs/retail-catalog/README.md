@@ -35,17 +35,17 @@ scripts/retail_catalog.py status
 | Crate | Functions | Done | Partial | To do | Skipped |
 |---|---:|---:|---:|---:|---:|
 | [ac2-core](ac2-core.md) | 589 | 11 | 0 | 174 | 404 |
-| [ac2-math](ac2-math.md) | 426 | 56 | 5 | 325 | 40 |
+| [ac2-math](ac2-math.md) | 426 | 63 | 5 | 319 | 39 |
 | [ac2-dat](ac2-dat.md) | 507 | 11 | 2 | 489 | 5 |
 | [ac2-db](ac2-db.md) | 633 | 7 | 11 | 576 | 39 |
 | [ac2-net](ac2-net.md) | 556 | 204 | 11 | 341 | 0 |
 | [ac2-weenie](ac2-weenie.md) | 1904 | 109 | 6 | 1783 | 6 |
 | [ac2-anim](ac2-anim.md) | 532 | 2 | 2 | 492 | 36 |
-| [ac2-assets](ac2-assets.md) | 785 | 23 | 8 | 632 | 122 |
-| [ac2-world](ac2-world.md) | 989 | 95 | 13 | 738 | 143 |
+| [ac2-assets](ac2-assets.md) | 785 | 24 | 8 | 631 | 122 |
+| [ac2-world](ac2-world.md) | 989 | 108 | 8 | 730 | 143 |
 | [ac2-render](ac2-render.md) | 781 | 24 | 13 | 731 | 13 |
 | [ac2-gpu](ac2-gpu.md) | 95 | 8 | 3 | 84 | 0 |
-| [ac2-physics](ac2-physics.md) | 2124 | 135 | 36 | 1891 | 62 |
+| [ac2-physics](ac2-physics.md) | 2124 | 142 | 36 | 1884 | 62 |
 | [ac2-smartbox](ac2-smartbox.md) | 262 | 19 | 3 | 238 | 2 |
 | [ac2-client](ac2-client.md) | 354 | 7 | 4 | 338 | 5 |
 | [ac2-ui](ac2-ui.md) | 2247 | 8 | 2 | 2220 | 17 |

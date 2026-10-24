@@ -8,7 +8,8 @@ mod localspace;
 pub(crate) mod sphere_path;
 mod steps;
 
-use crate::cells::{find_cells, find_collisions, CellSource};
+use crate::cells::{find_collisions, CellSource, ObjCell};
+use crate::find_cells::find_cells;
 use crate::fpu::{epsilon_squared, ld, st, F_EPSILON, LANDING_Z};
 use crate::landdefs::{adjust_to_outside, is_outside};
 use crate::position::Position;
@@ -297,7 +298,7 @@ impl Transition {
             let cell = self
                 .sphere_path
                 .check_cell
-                .and_then(|id| cells.land_cell(id));
+                .and_then(|id| ObjCell::get(cells, id));
             let mut ts = match cell {
                 Some(cell) => find_collisions(self, cell, cells),
                 None => TransitionState::Collided,
@@ -569,7 +570,7 @@ impl Transition {
             if !resident || Some(cell_id) == current {
                 continue;
             }
-            let Some(cell) = cells.land_cell(cell_id) else {
+            let Some(cell) = ObjCell::get(cells, cell_id) else {
                 continue;
             };
             ts = find_collisions(self, cell, cells);

@@ -10,6 +10,12 @@
 mod body;
 mod bsp;
 mod cells;
+mod envcell;
+#[cfg(test)]
+mod envcell_real_data_tests;
+#[cfg(test)]
+mod envcell_tests;
+mod find_cells;
 mod fpu;
 mod frame;
 mod heading;
@@ -38,9 +44,13 @@ mod vector;
 pub use body::{MovementInput, MovementState, PhysicsBody, PhysicsClock, PHYSICS_QUANTUM};
 pub use bsp::{BspTree, Polygon};
 pub use cells::{CellSource, LandCell, TerrainPolygon};
+pub use envcell::{CellBsp, CellBspNode, CellPortal, CellStructure, EnvCell};
 pub use frame::Frame;
 pub use heading::Heading;
-pub use loader::{load_block_objects, load_body_shape, load_object_shape, load_terrain_block};
+pub use loader::{
+    load_block_interiors, load_block_objects, load_body_shape, load_object_shape,
+    load_terrain_block,
+};
 pub use motion_interp::MotionInterp;
 pub use objects::{BBox, ObjectShape, StaticObject};
 pub use physics_obj::BodyShape;

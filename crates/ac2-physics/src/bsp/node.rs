@@ -253,3 +253,85 @@ impl BspTree {
         }
     }
 }
+
+/// The out-parameters of `sphere_intersects_solid_poly`.
+#[derive(Debug, Clone, Copy, Default)]
+pub(crate) struct SolidHit {
+    pub center_solid: bool,
+    pub polygon: Option<usize>,
+}
+
+impl BspTree {
+    /// `BSPNODE::sphere_intersects_solid_poly` / `BSPLEAF::sphere_intersects_solid_poly`: the
+    /// first polygon the sphere touches, or whether its centre is in a solid leaf (checked only
+    /// on the side the centre is on). `radius` (not the sphere's) splits the nodes.
+    pub(crate) fn sphere_intersects_solid_poly(
+        &self,
+        node: usize,
+        sphere: &Sphere,
+        radius: f32,
+        hit: &mut SolidHit,
+        center_check: bool,
+    ) -> bool {
+        match &self.nodes[node] {
+            Node::Leaf {
+                sphere: bounds,
+                solid,
+                polygons,
+            } => {
+                if polygons.is_empty() {
+                    return false;
+                }
+                if center_check && *solid {
+                    hit.center_solid = true;
+                }
+                if sphere_intersects(bounds, sphere.center, sphere.radius) {
+                    if let Some(&index) = polygons
+                        .iter()
+                        .find(|&&index| self.polygons[index].hits_sphere(sphere))
+                    {
+                        hit.polygon = Some(index);
+                        return true;
+                    }
+                }
+                hit.center_solid
+            }
+            Node::Internal {
+                sphere: bounds,
+                plane,
+                pos,
+                neg,
+            } => {
+                if !sphere_intersects(bounds, sphere.center, sphere.radius) {
+                    return false;
+                }
+                let c = sphere.center;
+                let n = plane.n;
+                let dist =
+                    ((ld(n.z) * ld(c.z) + ld(n.y) * ld(c.y)) + ld(c.x) * ld(n.x)) + ld(plane.d);
+                let reach = ld(radius) - ld(F_EPSILON);
+                let go = |child: &Option<usize>, check: bool, hit: &mut SolidHit| {
+                    child.is_some_and(|c| {
+                        self.sphere_intersects_solid_poly(c, sphere, radius, hit, check)
+                    })
+                };
+                if !(dist < reach) {
+                    return go(pos, center_check, hit);
+                }
+                if dist <= -reach {
+                    return go(neg, center_check, hit);
+                }
+                let (first, second) = if !(dist >= 0.0) {
+                    (neg, pos)
+                } else {
+                    (pos, neg)
+                };
+                go(first, center_check, hit);
+                if hit.polygon.is_some() {
+                    return hit.center_solid;
+                }
+                go(second, false, hit)
+            }
+        }
+    }
+}
