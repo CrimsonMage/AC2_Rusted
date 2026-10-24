@@ -10,6 +10,7 @@ mod client_event;
 mod dat_event;
 mod error;
 mod fx;
+mod movement;
 mod object;
 mod opcode;
 mod physics;
@@ -29,6 +30,7 @@ pub use dat_event::{
 };
 pub use error::ProtocolError;
 pub use fx::{DecalFx, EntityDesc, FxData, FxNode, LightSourceFx, RepulsorFx, StreakFx, Waveform};
+pub use movement::{MoveTarget, MovementParameters, PhysicsStory, StoryHook, TargetPosition};
 pub use object::CreateObject;
 pub use opcode::Opcode;
 pub use physics::{BehaviorParams, PhysicsDesc};

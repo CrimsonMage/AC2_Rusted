@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 92 done, 29 partial, 1941 to do, 62 skipped.
+2124 retail functions: 92 done, 33 partial, 1937 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (0/9)
@@ -1787,7 +1787,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UISceneEntity::SetInstanceID` · 0069c530 · legions 00579750
 
 ### MovementParameters
-- [ ] `MovementParameters::StreamPack` · 0069c550 · legions 0063afe0
+- [~] `MovementParameters::StreamPack` · 0069c550 · legions 0063afe0 — unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 - [ ] `MovementParameters::set_target_position` · 0069c6e0 · legions 0063b170
 
 ### GamePlayUI
@@ -3063,7 +3063,7 @@ Legend and workflow: [README](README.md).
 ### StoryHookData
 - [ ] `StoryHookData::GetTargetID` · 006ad970 · legions 00646ae0
 - [ ] `StoryHookData::StoryHookData` · 006ad990 · legions 00646c10
-- [ ] `StoryHookData::StreamPack` · 006ad9f0 · legions 00646c70
+- [~] `StoryHookData::StreamPack` · 006ad9f0 · legions 00646c70 — unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 
 ### PhysicsStory
 - [ ] `PhysicsStory::IsNull` · 006adb60 · legions 00646de0
@@ -3078,12 +3078,12 @@ Legend and workflow: [README](README.md).
 - [ ] `PhysicsStory::AddHook` · 006ae240 · legions 006474d0
 
 ### (free functions)
-- [ ] `STREAMPACK_STL_SET` · 006ae260 · legions 006474f0
+- [~] `STREAMPACK_STL_SET` · 006ae260 · legions 006474f0 — unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 
 ### PhysicsStory
 - [ ] `PhysicsStory::PhysicsStory` · 006ae420 · legions 006476b0
 - [ ] `PhysicsStory::PhysicsStory` · 006ae4d0 · legions 00647760
-- [ ] `PhysicsStory::StreamPack` · 006ae550 · legions 006477e0
+- [~] `PhysicsStory::StreamPack` · 006ae550 · legions 006477e0 — unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 
 ## `portal/shared/src/physobj/story/storymanager.cpp.c` (0/15)
 

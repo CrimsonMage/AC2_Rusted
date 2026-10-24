@@ -44,6 +44,9 @@ pub enum ServerEvent {
     Contain(InstanceIdWithStamp),
     /// The other per-object physics events.
     Object(ObjectEvent),
+    /// `ECM_Physics::RecvEvt_DoFX_Private`: FX ids played on the player (no sender;
+    /// `PSmartArray<unsigned long>::StreamPack`, a u32 count then the ids).
+    PrivateFx(Vec<u32>),
     /// `ECM_Login::RecvEvt_CharExitGame`.
     CharExitGame,
     /// `ECM_Login::RecvEvt_CharacterDeletion`.
@@ -101,6 +104,9 @@ impl ServerEvent {
             Opcode::POSITION_CELL => Self::PositionCell(ServerPosition::read(&mut r)?),
             Opcode::DESTROY_OBJECT => Self::DestroyObject(InstanceIdWithStamp::read(&mut r)?),
             Opcode::CONTAIN => Self::Contain(InstanceIdWithStamp::read(&mut r)?),
+            Opcode::DO_FX_PRIVATE => {
+                Self::PrivateFx((0..r.count()?).map(|_| r.u32()).collect::<Result<_, _>>()?)
+            }
             Opcode::CHAR_EXIT_GAME => Self::CharExitGame,
             Opcode::CHARACTER_DELETION => {
                 let id = r.u64()?;

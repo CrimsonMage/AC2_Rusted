@@ -91,6 +91,8 @@ key	status	note
 00494a70	x	
 00494b00	x	
 00494b10	x	
+00494cb0	x	
+00494e30	x	
 00494f30	x	
 00494fb0	x	
 00495060	x	
@@ -100,7 +102,9 @@ key	status	note
 00495360	x	
 00495420	x	
 004954e0	x	
+00495620	x	
 00495710	x	
+00495850	x	
 00495a00	x	
 00495ac0	x	
 00495b80	x	
@@ -125,6 +129,11 @@ key	status	note
 004969f0	x	
 00496a90	x	
 00496b00	x	
+00496c10	x	
+00496cb0	x	
+00497550	x	
+00497750	x	
+004978c0	x	
 00497a00	x	
 004992f0	_	
 00499940	_	
@@ -631,6 +640,7 @@ key	status	note
 0069be20	_	
 0069bfd0	_	
 0069c060	_	
+0069c550	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 0069cc40	x	
 0069cdd0	x	
 0069dad0	x	
@@ -645,6 +655,9 @@ key	status	note
 006a9f80	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006aa5d0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006aaa90	~	unpack only, in ac2-net protocol::fx; property collection (bit 0x80) refused: value types come from the MasterProperty DAT table
+006ad9f0	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
+006ae260	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
+006ae550	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 006b2ee0	x	
 006b2ff0	x	
 006b3700	x	
