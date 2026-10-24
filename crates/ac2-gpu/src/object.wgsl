@@ -18,7 +18,7 @@ struct Frame {
     // `RenderDeviceD3D::SetAmbient` colour.
     ambient: vec4<f32>,
     fog_color: vec4<f32>,
-    // start, end, 1 / (end - start)
+    // start, end, 1 / (end - start), enabled
     fog: vec4<f32>,
 };
 
@@ -39,6 +39,11 @@ struct Draw {
     matrices: array<vec4<f32>, 8>,
     // A frill's world normal for every vertex when w = 1 (`FrillRender::RefreshFrillMesh`).
     frill: vec4<f32>,
+    // x: point lights on the device (`m_nPtLights`, at most 4).
+    point_count: vec4<u32>,
+    // Per point light: origin (w = range^2), diffuse, specular, attenuation (constant, linear,
+    // squared).
+    points: array<vec4<f32>, 16>,
 };
 
 const FLAG_MATERIAL_DIFFUSE: u32 = 1u;
@@ -54,6 +59,7 @@ const FLAG_DEPTH_FOG: u32 = 512u;
 const FLAG_PIXEL_SPECULAR: u32 = 1024u;
 const FLAG_UNMODULATED_COLOR1: u32 = 2048u;
 const FLAG_DYNAMIC: u32 = 4096u;
+const FLAG_IGNORE_POINT: u32 = 8192u;
 
 @group(0) @binding(0) var<uniform> frame: Frame;
 @group(1) @binding(0) var<uniform> draw: Draw;
@@ -128,7 +134,7 @@ fn to_tangent_space(basis: Basis, v: vec3<f32>) -> vec3<f32> {
 // `f_CopyVertexTex*`, `f_CopyViewNormalReflectionToTex*`, `f_CopyAnisotropicTexCoordToTex*`,
 // `f_CopyClipPosToTex*`, `f_CopyViewPosToTex*`, `f_NormalizeTex*` of the point-to-light vector,
 // `f_CopyTexLightHalfVectorToTex*`, then `f_ApplyTextureMatrixToTex*`.
-fn stage_coord(input: VsIn, stage: u32, basis: Basis, reflection: vec3<f32>, clip: vec4<f32>, view_pos: vec3<f32>) -> vec3<f32> {
+fn stage_coord(input: VsIn, stage: u32, basis: Basis, position: vec3<f32>, reflection: vec3<f32>, clip: vec4<f32>, view_pos: vec3<f32>) -> vec3<f32> {
     let source = draw.alpha_ops[stage].z;
     var t = vec4(0.0, 0.0, 0.0, 1.0);
     if source < 8u {
@@ -143,9 +149,14 @@ fn stage_coord(input: VsIn, stage: u32, basis: Basis, reflection: vec3<f32>, cli
     } else if source == 0x400u {
         t = vec4(view_pos.xy / view_pos.z, 0.0, 1.0);
     } else if source == 0x500u {
-        // No point lights reach the device yet: the zero vector normalises to 0 (D3D's
-        // 0 * inf = 0) and encodes as 0.5.
-        t = vec4(0.5, 0.5, 0.5, 1.0);
+        // `f_CopyPointToLightToTex*` is empty; the lit-vertex-diffuse program adds each point
+        // light (`f_AddPtLightInvDirectionToTex*`), then `f_NormalizeTex*` (0 normalises to 0:
+        // D3D's 0 * inf = 0).
+        var v = vec3(0.0);
+        if draw.program.x == 3u {
+            v = point_to_light(basis, position);
+        }
+        t = vec4(v * inverseSqrt(max(dot(v, v), 1e-30)) * 0.5 + 0.5, 1.0);
     } else if source == 0x600u {
         let half_vector = to_tangent_space(basis, normalize(basis.to_eye + basis.bump_light));
         t = vec4(half_vector * 0.5 + 0.5, 1.0);
@@ -174,6 +185,46 @@ fn has_stage_source(source: u32) -> bool {
     return false;
 }
 
+
+// Point lights the program was linked for: none when the layer ignores point lights.
+fn point_count() -> u32 {
+    return select(min(draw.point_count.x, 4u), 0u, has(FLAG_IGNORE_POINT));
+}
+
+// `f_CalculatePtLight*Intensity`: `dst(d^2, d)` is (1, d^3, d^2, d) dotted with the
+// attenuation constants, then `rcp`.
+fn point_attenuation(i: u32, distance_sq: f32) -> f32 {
+    let k = draw.points[i * 4u + 3u];
+    let d = sqrt(distance_sq);
+    return 1.0 / max(k.x + k.y * distance_sq * d + k.z * distance_sq, 1e-30);
+}
+
+// Point light i at a world position: (diffuse * attenuation, specular * attenuation^2), the
+// specular against `c_PtLight_ViewHalfVector` = view (0, 0, -1), the viewer direction.
+fn point_term(i: u32, position: vec3<f32>, normal: vec3<f32>, power: f32) -> vec2<f32> {
+    let to_light = draw.points[i * 4u].xyz - position;
+    let distance_sq = dot(to_light, to_light);
+    let attenuation = point_attenuation(i, distance_sq);
+    let direction = to_light * inverseSqrt(max(distance_sq, 1e-30));
+    let intensity = lit(dot(normal, direction), dot(normal, frame.to_viewer.xyz), power);
+    return vec2(intensity.x * attenuation, intensity.y * attenuation * attenuation);
+}
+
+// `f_GetPtLightScaledBumpDirection` summed by `f_AddPtLightInvDirectionToTex*`: each point
+// light's tangent-space direction scaled by max(1 - d^2 / range^2, 0).
+fn point_to_light(basis: Basis, position: vec3<f32>) -> vec3<f32> {
+    var sum = vec3(0.0);
+    for (var i = 0u; i < point_count(); i = i + 1u) {
+        let light = draw.points[i * 4u];
+        let to_light = light.xyz - position;
+        let t = vec3(dot(basis.tangent_s, to_light), dot(basis.tangent_t, to_light), dot(basis.normal, to_light));
+        let distance_sq = dot(t, t);
+        let scale = max(distance_sq * -(1.0 / max(light.w, 1e-30)) + 1.0, 0.0);
+        sum = sum + t * inverseSqrt(max(distance_sq, 1e-30)) * scale;
+    }
+    return sum;
+}
+
 @vertex
 fn vs(input: VsIn) -> VsOut {
     var out: VsOut;
@@ -199,7 +250,8 @@ fn vs(input: VsIn) -> VsOut {
     let reflection = normalize(view_normal * -2.0 * dot(-view_to_eye, view_normal) - view_to_eye);
     // `f_CalculateLinearFog`: (end - |view position|) / (end - start), clamped at output.
     let distance = length(view_pos);
-    let fog = clamp((frame.fog.y - distance) * frame.fog.z, 0.0, 1.0);
+    // `FOGMODE_NONE` (frame.fog.w = 0) leaves the colour unfogged.
+    let fog = select(1.0, clamp((frame.fog.y - distance) * frame.fog.z, 0.0, 1.0), frame.fog.w > 0.5);
 
     let program = draw.program.x;
     let power = bitcast<f32>(draw.program.w);
@@ -209,59 +261,101 @@ fn vs(input: VsIn) -> VsOut {
     let intensity = lit(dot(basis.normal, l), dot(basis.normal, h), power);
     // `c_AmbientColor`: (device ambient + light ambient) * material ambient, capped at 1.
     let ambient = min(frame.ambient.rgb * draw.ambient.rgb, vec3(1.0));
+    let points = point_count();
+    let specular = has(FLAG_SPECULAR);
+    // `f_ModulateColor1WithDirLightDiffuseColor` reads light 0 of the device's directional lights.
+    let dir_diffuse = select(vec3(0.0), frame.sun_diffuse.rgb, frame.sun_inv_dir.w > 0.0);
 
     var color0 = vec4(1.0);
     var color1 = vec4(0.0);
-    if program == 1u {
-        color0 = vec4(0.0, 0.0, 0.0, 1.0);
+    if program == 1u || program == 3u {
+        if program == 1u {
+            color0 = vec4(0.0, 0.0, 0.0, 1.0);
+        } else {
+            // Vertex diffuse with dynamic lighting: colour 1 carries the directional light colour.
+            color0 = select(vertex_color, vec4(0.0, 0.0, 0.0, 1.0), has(FLAG_MODULATE));
+        }
+        // Directional light, then point lights (`f_ApplyDiffuse*ToColor0`,
+        // `f_ApplySpecular*ToColor1`).
+        var spec = vec3(0.0);
         if sun_on() {
             color0 = vec4(color0.rgb + intensity.x * frame.sun_diffuse.rgb, color0.a);
-            if has(FLAG_SPECULAR) {
-                color1 = vec4(intensity.y * frame.sun_specular.rgb, 0.0);
+            spec = spec + intensity.y * frame.sun_specular.rgb;
+        }
+        for (var i = 0u; i < points; i = i + 1u) {
+            let term = point_term(i, world.xyz, basis.normal, power);
+            color0 = vec4(color0.rgb + term.x * draw.points[i * 4u + 1u].rgb, color0.a);
+            spec = spec + term.y * draw.points[i * 4u + 2u].rgb;
+        }
+        if program == 1u {
+            if has(FLAG_MATERIAL_DIFFUSE) {
+                color0 = color0 * draw.diffuse;
+            }
+            color0 = vec4(color0.rgb + ambient, color0.a);
+        } else {
+            // Ambient only when a stage takes the point-to-light vector.
+            if has_stage_source(0x500u) {
+                color0 = vec4(color0.rgb + ambient, color0.a);
+            }
+            if has(FLAG_MODULATE) {
+                color0 = color0 * vertex_color;
             }
         }
-        if has(FLAG_MATERIAL_DIFFUSE) {
-            color0 = color0 * draw.diffuse;
-        }
-        color0 = vec4(color0.rgb + ambient, color0.a);
-        if has(FLAG_SPECULAR) {
-            color1 = vec4(color1.rgb * draw.specular.rgb, color1.a);
-        }
-    } else if program == 3u {
-        // Vertex diffuse with dynamic lighting: colour 1 carries the light colour; ambient only
-        // when a stage takes the point-to-light vector.
-        color0 = select(vertex_color, vec4(0.0, 0.0, 0.0, 1.0), has(FLAG_MODULATE));
-        color1 = vec4(frame.sun_diffuse.rgb, 1.0);
-        if sun_on() {
-            color0 = vec4(color0.rgb + intensity.x * frame.sun_diffuse.rgb, color0.a);
-        }
-        if has(FLAG_SPECULAR) {
-            color1 = vec4(select(0.0, intensity.y, sun_on()) * frame.sun_specular.rgb * draw.specular.rgb, 0.0);
-        }
-        if has_stage_source(0x500u) {
-            color0 = vec4(color0.rgb + ambient, color0.a);
-        }
-        if has(FLAG_MODULATE) {
-            color0 = color0 * vertex_color;
+        if specular {
+            color1 = vec4(spec * draw.specular.rgb, 0.0);
+        } else if program == 3u {
+            color1 = vec4(dir_diffuse, 1.0);
         }
     } else if program == 2u || program == 4u {
-        // Per-pixel lighting: colour 0 is the tangent-space light direction with the light's
-        // attenuation (1 for the sun) in alpha (`f_SetColor0ToTexLightDirection`,
-        // `f_SetColor0AlphaToBumpLightAttenuation`).
-        color0 = vec4(to_tangent_space(basis, basis.bump_light) * 0.5 + 0.5, 1.0);
-        let specular_alpha = select(0.0, intensity.y * frame.sun_specular.r, sun_on());
+        // Per-pixel lighting: colour 0 is the tangent-space direction of the first light (point
+        // light 0 when the program has point lights, else the sun) with its attenuation in alpha
+        // (`f_SetColor0ToTexLightDirection`, `f_SetColor0AlphaToBumpLightAttenuation`).
+        var bump_attenuation = 1.0;
+        if points > 0u {
+            let to_light = draw.points[0].xyz - world.xyz;
+            basis.bump_light = to_light;
+            bump_attenuation = point_attenuation(0u, dot(to_light, to_light));
+        }
+        color0 = vec4(to_tangent_space(basis, basis.bump_light) * 0.5 + 0.5, bump_attenuation);
         if program == 4u {
-            // The first light is lit per pixel; its specular goes to colour 1 alpha unless the
-            // pixel shader does specular (then alpha is attenuation * 0.75, `c0.w`).
-            color1 = select(vec4(0.0, 0.0, 0.0, specular_alpha), vec4(0.0, 0.0, 0.0, 0.75), has(FLAG_PIXEL_SPECULAR));
+            // `f_ApplyModulatedAttenuationToColor1Alpha` when the pixel shader does specular.
+            color1 = select(vec4(0.0), vec4(0.0, 0.0, 0.0, bump_attenuation * 0.75), has(FLAG_PIXEL_SPECULAR));
+            // Point lights, then the sun; the first is lit per pixel, the rest add their diffuse
+            // to colour 1, and every light its monochrome specular to colour 1 alpha.
+            var first = true;
+            for (var i = 0u; i < points; i = i + 1u) {
+                let term = point_term(i, world.xyz, basis.normal, power);
+                if !first {
+                    color1 = vec4(color1.rgb + term.x * draw.points[i * 4u + 1u].rgb, color1.a);
+                }
+                if !has(FLAG_PIXEL_SPECULAR) {
+                    color1.a = color1.a + term.y * draw.points[i * 4u + 2u].r;
+                }
+                first = false;
+            }
+            if sun_on() {
+                if !first {
+                    color1 = vec4(color1.rgb + intensity.x * frame.sun_diffuse.rgb, color1.a);
+                }
+                if !has(FLAG_PIXEL_SPECULAR) {
+                    color1.a = color1.a + intensity.y * frame.sun_specular.r;
+                }
+            }
             if !has(FLAG_UNMODULATED_COLOR1) {
                 // `f_OutputPreModulatedColor1_Color1`.
                 color1 = vec4(color1.rgb * draw.diffuse.rgb + ambient, color1.a);
             }
-        } else if has(FLAG_SPECULAR) && !has(FLAG_PIXEL_SPECULAR) {
-            color1 = vec4(select(0.0, intensity.y, sun_on()) * frame.sun_specular.rgb * draw.specular.rgb, 0.0);
-        } else if !has(FLAG_PIXEL_SPECULAR) {
-            color1 = vec4(frame.sun_diffuse.rgb, 1.0);
+        } else if specular && !has(FLAG_PIXEL_SPECULAR) {
+            var spec = select(vec3(0.0), intensity.y * frame.sun_specular.rgb, sun_on());
+            for (var i = 0u; i < points; i = i + 1u) {
+                spec = spec + point_term(i, world.xyz, basis.normal, power).y
+                    * draw.points[i * 4u + 2u].rgb;
+            }
+            color1 = vec4(spec * draw.specular.rgb, 0.0);
+        } else if has(FLAG_PIXEL_SPECULAR) {
+            color1 = vec4(0.0, 0.0, 0.0, bump_attenuation * 0.75);
+        } else {
+            color1 = vec4(dir_diffuse, 1.0);
             if has(FLAG_MATERIAL_DIFFUSE) {
                 color1 = color1 * draw.diffuse;
             }
@@ -279,10 +373,10 @@ fn vs(input: VsIn) -> VsOut {
     }
     out.color0 = clamp(color0, vec4(0.0), vec4(1.0));
     out.color1 = clamp(color1, vec4(0.0), vec4(1.0));
-    out.t0 = stage_coord(input, 0u, basis, reflection, out.clip, view_pos);
-    out.t1 = stage_coord(input, 1u, basis, reflection, out.clip, view_pos);
-    out.t2 = stage_coord(input, 2u, basis, reflection, out.clip, view_pos);
-    out.t3 = stage_coord(input, 3u, basis, reflection, out.clip, view_pos);
+    out.t0 = stage_coord(input, 0u, basis, world.xyz, reflection, out.clip, view_pos);
+    out.t1 = stage_coord(input, 1u, basis, world.xyz, reflection, out.clip, view_pos);
+    out.t2 = stage_coord(input, 2u, basis, world.xyz, reflection, out.clip, view_pos);
+    out.t3 = stage_coord(input, 3u, basis, world.xyz, reflection, out.clip, view_pos);
     out.fog = fog;
     return out;
 }

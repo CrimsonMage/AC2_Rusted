@@ -1,9 +1,9 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 91 done, 10 partial, 745 to do, 143 skipped.
+989 retail functions: 92 done, 12 partial, 742 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/cell/envcell.cpp.c` (4/140)
+## `portal/shared/src/cell/envcell.cpp.c` (5/140)
 
 ### PackObj
 - [ ] `PackObj::Pack` · 0047f1a0
@@ -93,7 +93,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::ClearForFreelist` · 00480800 · legions 0047a6d0
 - [ ] `CEnvCell::GetTouchesOutside` · 00480860 · legions 0047a730
 - [ ] `CEnvCell::DestroyStaticLights` · 00480890 · legions 0047a760
-- [ ] `CEnvCell::DrawCellMesh` · 00480900 · legions 0047a7d0
+- [~] `CEnvCell::DrawCellMesh` · 00480900 · legions 0047a7d0 — cell mesh with appearance atoms at the cell frame, point lights cached at 1.5x bbox radius; degrade selection fixed at top
 - [ ] `CEnvCell::CullObjects` · 00480a80 · legions 0047a940
 - [ ] `CEnvCell::LinkStaticLights` · 00480bc0 · legions 0047aa80
 - [ ] `CEnvCell::LinkDynamicLights` · 00480c00 · legions 0047aac0
@@ -102,7 +102,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::ReleaseSubObjects` · 00480f30 · legions 0047adf0
 - [ ] `CEnvCell::CopyDiffuseToVB` · 00480fa0 · legions 0047ae60
 - [ ] `CEnvCell::CacheDiffuseFromVB` · 00480ff0 · legions 0047aeb0
-- [ ] `CEnvCell::LightIndices` · 00481030 · legions 0047aef0
+- [x] `CEnvCell::LightIndices` · 00481030 · legions 0047aef0 — ac2-render object::cell / point_lights
 - [ ] `CEnvCell::TraceRayAgainstMesh` · 004813a0 · legions 0047b260
 - [ ] `CEnvCell::ApplyPropertyCollection` · 00481580
 - [ ] `CEnvCell::InqVisibleCells` · 00481630 · legions 0047b4f0
@@ -247,7 +247,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::ApplyProperty` · 00487270
 - [ ] `CEnvCell::ComputeCellGroups` · 004873b0 · legions 00480be0
 - [ ] `CEnvCell::FlushCellGroups` · 004876a0 · legions 00480ed0
-- [ ] `CEnvCell::flush_cells` · 00487750 · legions 00480f80
+- [~] `CEnvCell::flush_cells` · 00487750 · legions 00480f80 — static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
 
 ## `portal/shared/src/cell/landblock.cpp.c` (10/72)
 

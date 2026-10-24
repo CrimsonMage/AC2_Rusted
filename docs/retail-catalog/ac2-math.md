@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 16 done, 5 partial, 365 to do, 40 skipped.
+426 retail functions: 17 done, 6 partial, 363 to do, 40 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (0/5)
@@ -246,21 +246,21 @@ Legend and workflow: [README](README.md).
 - [-] `LandscapeDefs::LoadHeightList` · 0062a2f0 — text source loader, admin build only
 - [-] `LandscapeDefs::FromFileNode` · 0062a430 — text source format (admin tools)
 
-## `portal/shared/src/geometry/lightsource.cpp.c` (0/12)
+## `portal/shared/src/geometry/lightsource.cpp.c` (1/12)
 
 ### LightSource
 - [ ] `LightSource::operator=` · 00621cd0 · legions 005dd0b0
 - [ ] `LightSource::GetIsRangeAnimating` · 00621eb0 · legions 005dd290
 - [ ] `LightSource::GetAnimatedRange` · 00621ed0 · legions 005dd2b0
-- [ ] `LightSource::RefreshMaxRange` · 00621ef0 · legions 005dd2d0
+- [x] `LightSource::RefreshMaxRange` · 00621ef0 · legions 005dd2d0 — ac2-render object::cell / point_lights
 - [ ] `LightSource::CalculateAttenuation` · 00621f30 · legions 005dd310
 - [ ] `LightSource::ApplyProperty` · 00621fb0
 - [ ] `LightSource::BuildOptionalProperties` · 00622190
 - [ ] `LightSource::LightSource` · 00622500 · legions 005dd8d0
 - [ ] `LightSource::ApplyPropertyCollection` · 00622650
 - [ ] `LightSource::GetDiffuse` · 00622730 · legions 005ddb00
-- [ ] `LightSource::GetWeight` · 00622760 · legions 005ddb30
-- [~] `LightSource::FillRenderLight` · 00622900 · legions 005ddcd0 — outdoor sun only; dynamic/point lights and shadow direction not yet
+- [~] `LightSource::GetWeight` · 00622760 · legions 005ddb30 — static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
+- [~] `LightSource::FillRenderLight` · 00622900 · legions 005ddcd0 — static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 
 ## `portal/shared/src/geometry/matrix4.cpp.c` (4/18)
 

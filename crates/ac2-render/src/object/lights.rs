@@ -53,6 +53,34 @@ impl ObjectLights {
     }
 }
 
+/// The environment objects are drawn in (`WorldRender::SetupEnvironment`): the device lights
+/// and the linear fog, if any.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ObjectEnvironment {
+    pub lights: ObjectLights,
+    /// Fog colour and (start, end) metres; `None` is `FOGMODE_NONE`.
+    pub fog: Option<([f32; 3], (f32, f32))>,
+}
+
+impl ObjectEnvironment {
+    /// `OutsideEnvironment`: the sun, outdoor ambient and the region's linear fog.
+    pub fn outside(lighting: &SceneLighting) -> Self {
+        Self {
+            lights: ObjectLights::outdoor(lighting),
+            fog: Some((lighting.fog_color, lighting.fog_range)),
+        }
+    }
+
+    /// `InsideEnvironment`: the landblock's interior ambient, no sun (`ApplyLights` adds it only
+    /// in outdoor cells) and the interior fog when it is linear (`0x40000002`).
+    pub fn inside(ambient: [f32; 3], fog: Option<([f32; 3], (f32, f32))>) -> Self {
+        Self {
+            lights: ObjectLights { ambient, sun: None },
+            fog,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::ObjectLights;

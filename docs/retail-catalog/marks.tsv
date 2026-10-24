@@ -42,6 +42,9 @@ key	status	note
 0047f4b0	x	
 0047f500	x	
 0047fa50	~	terrain only; find_obj_collisions not ported
+00480900	~	cell mesh with appearance atoms at the cell frame, point lights cached at 1.5x bbox radius; degrade selection fixed at top
+00481030	x	ac2-render object::cell / point_lights
+00487750	~	static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
 004883d0	x	
 00488f10	x	
 00489160	x	
@@ -534,6 +537,8 @@ key	status	note
 0056b1c0	x	
 0056ef40	~	object::ObjectLights; static/volumetric shadow strengths not used yet
 0056f260	~	untextured colour quad (ac2-gpu ScreenQuad) only
+00571da0	x	ac2-render object::cell / point_lights
+00571ec0	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 00572110	~	outdoor sun only; dynamic/point lights and shadow direction not yet
 0057cb50	~	outdoor sun, ambient and fog; indoor and sky environments not yet
 00581a00	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
@@ -580,7 +585,7 @@ key	status	note
 005c7190	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005c7200	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005c7270	x	ac2-render object::pass / texture_matrix, ac2-gpu object
-005c7740	~	sun light, c_AmbientColor and pixel constants c0-c5 in ac2-gpu object; point lights not yet
+005c7740	~	sun, up to four point lights, c_AmbientColor and pixel constants c0-c5
 005c88f0	~	object::pass::layer_pass; special textures (frame buffer, distortion map) unbound, TEXTUREFACTOR taken as material diffuse while lit
 005cb7e0	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005cbae0	~	fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
@@ -642,7 +647,9 @@ key	status	note
 00621380	x	
 00621390	x	
 00621410	x	
-00622900	~	outdoor sun only; dynamic/point lights and shadow direction not yet
+00621ef0	x	ac2-render object::cell / point_lights
+00622760	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
+00622900	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 00622cf0	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
 00622f10	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
 006258e0	x	

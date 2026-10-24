@@ -3,7 +3,8 @@
 //! (`MaxPixelShaderValue`), `tex tN` reads the stage's texel and `texcoord tN` its clamped
 //! coordinate. The constants are those `RenderDeviceD3D::SetupVertexShaderConstants` sets:
 //! c0 ambient, c1 and c5 light times material diffuse, c2 material specular, c3 light colour,
-//! c4 material diffuse; `def` overrides them.
+//! c4 material diffuse; `def` overrides them. The light is the device's first directional light
+//! when it has more directional than point lights, else point light 0.
 
 use std::fmt::Write;
 
@@ -14,7 +15,9 @@ pub fn shade_function(program: &PixelProgram) -> String {
     let mut out = String::new();
     out.push_str("fn shade(input: VsOut, texels: array<vec4<f32>, 4>) -> vec4<f32> {\n");
     out.push_str(
-        "    let light = select(vec3(0.0), frame.sun_diffuse.rgb, frame.sun_inv_dir.w > 0.0 && has(FLAG_DYNAMIC));\n\
+        "    let dir_lights = select(0u, 1u, frame.sun_inv_dir.w > 0.0);\n\
+         \x20   let first = select(draw.points[1].rgb, frame.sun_diffuse.rgb, point_count() < dir_lights);\n\
+         \x20   let light = select(vec3(0.0), select(vec3(0.0), first, point_count() + dir_lights > 0u), has(FLAG_DYNAMIC));\n\
          \x20   let c0 = vec4(min(frame.ambient.rgb * draw.ambient.rgb, vec3(1.0)), 0.0);\n\
          \x20   let c1 = vec4(min(light * draw.diffuse.rgb, vec3(1.0)), min(draw.diffuse.a, 1.0));\n\
          \x20   let c2 = draw.specular;\n\

@@ -60,7 +60,8 @@ pub(crate) use texture_dxt::BlockCompressedTexture;
 pub use texture_dxt::{decode_block_compressed_texture, BlockCompressedTextureFormat};
 
 pub use ac2_appearance::{
-    ac2_appearance_material_atoms, ac2_dungeon_appearance_table, Ac2MaterialAtom,
+    ac2_appearance_material_atoms, ac2_dungeon_appearance_table, load_ac2_material_with_atoms,
+    Ac2MaterialAtom,
 };
 pub use ac2_cell_surface::decode_ac2_cell_surfaces;
 pub use ac2_entity::{read_ac2_entity_desc, Ac2EntityDesc};

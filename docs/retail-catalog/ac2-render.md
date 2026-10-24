@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 24 done, 17 partial, 727 to do, 13 skipped.
+781 retail functions: 25 done, 18 partial, 725 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -763,7 +763,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneCamera::SetRenderPosition` · 00572c90 · legions 0053a9d0
 - [ ] `SceneCamera::SetCurrentPosition` · 00572cb0 · legions 0053a9f0
 
-## `portal/client/src/scenerender/scenetool.cpp.c` (3/100)
+## `portal/client/src/scenerender/scenetool.cpp.c` (4/100)
 
 ### SceneTool
 - [ ] `SceneTool::UsingSceneMotionBlur` · 0056a5d0 · legions 0053aa10
@@ -890,8 +890,8 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneTool::RequestPixelScan` · 00571860 · legions 00541d10
 - [ ] `SceneTool::ScanRequestedPixels` · 005718c0 · legions 00541d70
 - [ ] `SceneTool::EndFrame` · 00571a40 · legions 00541ef0
-- [ ] `SceneTool::SortLights` · 00571da0 · legions 00542250
-- [ ] `SceneTool::CacheStaticLights` · 00571ec0 · legions 00542370
+- [x] `SceneTool::SortLights` · 00571da0 · legions 00542250 — ac2-render object::cell / point_lights
+- [~] `SceneTool::CacheStaticLights` · 00571ec0 · legions 00542370 — static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 - [~] `SceneTool::ApplyLights` · 00572110 · legions 005425c0 — outdoor sun only; dynamic/point lights and shadow direction not yet
 - [ ] `SceneTool::GetLightsForPosition` · 005726b0 · legions 00542b60
 

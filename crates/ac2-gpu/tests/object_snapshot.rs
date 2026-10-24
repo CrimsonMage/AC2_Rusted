@@ -15,7 +15,7 @@ use ac2_gpu::{
 };
 use ac2_math::{Mat4, Vec3};
 use ac2_render::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
-use ac2_render::object::{load_object_model, load_water_model, RenderSettings};
+use ac2_render::object::{load_object_model, load_water_model, ObjectEnvironment, RenderSettings};
 use ac2_render::sky::sky_frame;
 use ac2_render::terrain::build_terrain_mesh;
 use ac2_render::{load_material_image, load_texture_image, Camera, SceneLighting};
@@ -282,7 +282,7 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
         objects.prepare(
             &gpu,
             &camera,
-            &lighting,
+            &ObjectEnvironment::outside(&lighting),
             aspect,
             0.0,
             &[

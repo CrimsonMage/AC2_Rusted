@@ -6,7 +6,7 @@ use ac2_render::object::{blend, LayerPass, StagePass};
 use crate::DEPTH_FORMAT;
 
 /// Byte stride of one draw's uniform block (the dynamic-offset alignment).
-pub const DRAW_STRIDE: u64 = 512;
+pub const DRAW_STRIDE: u64 = 768;
 
 /// Fixed-function state that selects a pipeline.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

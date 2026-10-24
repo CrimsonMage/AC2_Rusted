@@ -8,8 +8,11 @@ use std::ops::Range;
 use std::sync::Arc;
 
 use ac2_math::{Mat4, Vec3};
-use ac2_render::object::{LayerPass, ObjectLights, ObjectMaterial, ObjectModel, VertexProgram};
-use ac2_render::{Camera, Image, SceneLighting};
+use ac2_render::object::{
+    LayerPass, ObjectEnvironment, ObjectMaterial, ObjectModel, PointLight, VertexProgram,
+    MAX_POINT_LIGHTS,
+};
+use ac2_render::{Camera, Image};
 use bytemuck::{Pod, Zeroable};
 use wgpu::util::DeviceExt;
 
@@ -57,6 +60,9 @@ struct DrawUniform {
     matrices: [[f32; 4]; 8],
     /// A frill's normal for every vertex (xyz) when w is 1 (`RefreshFrillMesh`).
     frill: [f32; 4],
+    point_count: [u32; 4],
+    /// Per point light: origin and range^2, diffuse, specular, attenuation.
+    points: [[f32; 4]; 16],
 }
 
 /// One drawn layer of a batch: its state and the bind group of its stage textures.
@@ -117,6 +123,8 @@ pub struct ObjectInstance<'a> {
     /// A grass frill merged by `FrillRender`: every vertex takes this world normal and the
     /// landscape shadow colour (white until static shadow maps exist) as its diffuse.
     pub frill_normal: Option<Vec3>,
+    /// The device's point lights for this object (`SceneTool::CacheStaticLights`), at most 4.
+    pub point_lights: &'a [PointLight],
 }
 
 impl<'a> ObjectInstance<'a> {
@@ -127,6 +135,7 @@ impl<'a> ObjectInstance<'a> {
             world,
             tint: [1.0; 4],
             frill_normal: None,
+            point_lights: &[],
         }
     }
 }
@@ -398,13 +407,13 @@ impl ObjectRenderer {
         &mut self,
         gpu: &Gpu,
         camera: &Camera,
-        lighting: &SceneLighting,
+        environment: &ObjectEnvironment,
         aspect: f32,
         time: f64,
         groups: &[DrawGroup<'_>],
     ) {
         self.time = time;
-        self.write_frame(&gpu.queue, camera, lighting, aspect);
+        self.write_frame(&gpu.queue, camera, environment, aspect);
         let mut entries = Vec::new();
         let mut bounds = Vec::with_capacity(groups.len());
         for group in groups {
@@ -435,6 +444,7 @@ impl ObjectRenderer {
                             if let Some(normal) = instance.frill_normal {
                                 uniform.frill = normal.extend(1.0).to_array();
                             }
+                            set_point_lights(&mut uniform, instance.point_lights);
                             let entry = (uniform, draw);
                             if group.ordered || pass.depth_write {
                                 opaque.push(entry);
@@ -480,11 +490,14 @@ impl ObjectRenderer {
         &self,
         queue: &wgpu::Queue,
         camera: &Camera,
-        lighting: &SceneLighting,
+        environment: &ObjectEnvironment,
         aspect: f32,
     ) {
-        let lights = ObjectLights::outdoor(lighting);
-        let (start, end) = lighting.fog_range;
+        let lights = environment.lights;
+        let (fog_color, (start, end), fog_on) = match environment.fog {
+            Some((color, range)) => (color, range, 1.0),
+            None => ([1.0; 3], (0.0, 1.0), 0.0),
+        };
         let rgb = |c: [f32; 3]| [c[0], c[1], c[2], 1.0];
         let forward = (camera.target - camera.eye).normalize_or_zero();
         let (inv_dir, diffuse, specular) = match lights.sun {
@@ -505,8 +518,8 @@ impl ObjectRenderer {
             sun_diffuse: diffuse,
             sun_specular: specular,
             ambient: rgb(lights.ambient),
-            fog_color: rgb(lighting.fog_color),
-            fog: [start, end, 1.0 / (end - start).max(1e-3), 0.0],
+            fog_color: rgb(fog_color),
+            fog: [start, end, 1.0 / (end - start).max(1e-3), fog_on],
         };
         queue.write_buffer(&self.frame_buffer, 0, bytemuck::bytes_of(&uniform));
     }
@@ -542,6 +555,20 @@ impl ObjectRenderer {
             pass.set_index_buffer(part.indices.slice(..), wgpu::IndexFormat::Uint32);
             pass.draw_indexed(batch.range.clone(), 0, 0..1);
         }
+    }
+}
+
+/// `VSLightState` constants of up to four point lights.
+fn set_point_lights(uniform: &mut DrawUniform, lights: &[PointLight]) {
+    let lights = &lights[..lights.len().min(MAX_POINT_LIGHTS)];
+    uniform.point_count = [lights.len() as u32, 0, 0, 0];
+    for (index, light) in lights.iter().enumerate() {
+        let rgb = |c: [f32; 3]| [c[0], c[1], c[2], 1.0];
+        uniform.points[index * 4] = light.origin.extend(light.range * light.range).to_array();
+        uniform.points[index * 4 + 1] = rgb(light.diffuse);
+        uniform.points[index * 4 + 2] = rgb(light.specular);
+        let [a, b, c] = light.attenuation;
+        uniform.points[index * 4 + 3] = [a, b, c, 0.0];
     }
 }
 
@@ -603,6 +630,7 @@ fn draw_uniform(model: Mat4, pass: &LayerPass) -> DrawUniform {
         f.pixel_specular,
         f.unmodulated_color1,
         f.dynamic,
+        f.ignore_point,
     ]
     .iter()
     .enumerate()
@@ -623,6 +651,8 @@ fn draw_uniform(model: Mat4, pass: &LayerPass) -> DrawUniform {
         alpha_ops: [[2, 1, 0xFFFF_FFFF, 0]; 4],
         matrices: [[0.0; 4]; 8],
         frill: [0.0; 4],
+        point_count: [0; 4],
+        points: [[0.0; 4]; 16],
     };
     for (index, stage) in pass.stages.iter().enumerate().take(4) {
         uniform.color_ops[index] = [

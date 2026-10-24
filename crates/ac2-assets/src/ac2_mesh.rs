@@ -31,6 +31,8 @@ pub struct Ac2MeshFragment {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ac2Mesh {
     pub materials: Arc<[DataId]>,
+    /// The `CVertexArray` format word (`VertexFormatInfo`).
+    pub vertex_format: u32,
     pub vertices: Arc<[DecodedMeshVertex]>,
     /// `D3DFVF_DIFFUSE` colour per vertex (a `D3DCOLOR`, `0xAARRGGBB`) when the format has one.
     pub colors: Option<Arc<[u32]>>,
@@ -86,7 +88,8 @@ impl ResourcePackedDecode for Ac2Mesh {
             .into_iter()
             .map(DataId::new)
             .collect::<Arc<[_]>>();
-        let format = VertexFormat::new(cursor.read_u32()?);
+        let vertex_format = cursor.read_u32()?;
+        let format = VertexFormat::new(vertex_format);
         let vertex_count = cursor.read_u32_count()?;
         if vertex_count > MAX_VERTICES {
             return Err(malformed("vertex count"));
@@ -154,6 +157,7 @@ impl ResourcePackedDecode for Ac2Mesh {
         }
         Ok(Self {
             materials,
+            vertex_format,
             vertices: Arc::from(vertices),
             colors: colors.map(Arc::from),
             tangents: tangents.map(Arc::from),
