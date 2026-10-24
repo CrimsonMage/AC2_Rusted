@@ -124,6 +124,11 @@ impl Ac2WorldSource {
         })))
     }
 
+    /// `LandscapeDefs` block edge in metres (cells per block x cell size).
+    pub fn block_size(&self) -> f32 {
+        self.block_size
+    }
+
     /// AC2's `LandscapeDefs` lattice (20 m cells, two terrain vertices per cell side). The
     /// composition root installs it with `set_land_lattice` before building world geometry.
     pub fn land_lattice(&self) -> crate::LandLattice {

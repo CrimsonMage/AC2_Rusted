@@ -71,6 +71,18 @@ name = "ac2-net"
 version = "0.1.0"
 
 [[package]]
+name = "ac2-render"
+version = "0.1.0"
+dependencies = [
+ "ac2-assets",
+ "ac2-core",
+ "ac2-dat",
+ "ac2-db",
+ "ac2-math",
+ "ac2-world",
+]
+
+[[package]]
 name = "ac2-weenie"
 version = "0.1.0"
 dependencies = [
