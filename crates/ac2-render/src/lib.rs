@@ -4,6 +4,7 @@
 //! products into meshes, layer sets and images that a GPU backend (`ac2-gpu`) draws. Modelled on
 //! the retail `smartbox/worldrender` pipeline (`LScapeTerrainMesh`, `LScapeMaterialInfo`).
 
+pub mod frill;
 mod image;
 pub mod object;
 pub mod sky;

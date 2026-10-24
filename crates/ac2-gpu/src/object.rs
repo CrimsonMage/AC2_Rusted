@@ -55,6 +55,8 @@ struct DrawUniform {
     color_ops: [[u32; 4]; 4],
     alpha_ops: [[u32; 4]; 4],
     matrices: [[f32; 4]; 8],
+    /// A frill's normal for every vertex (xyz) when w is 1 (`RefreshFrillMesh`).
+    frill: [f32; 4],
 }
 
 /// One drawn layer of a batch: its state and the bind group of its stage textures.
@@ -83,6 +85,15 @@ pub struct GpuObjectModel {
     parts: Vec<GpuPart>,
     /// Model-space centre of the vertices, for back-to-front ordering of translucent layers.
     center: Vec3,
+    /// Index and vertex counts of the first part's first triangle list (`FrillRender` budgets).
+    first_list: (u32, u32),
+}
+
+impl GpuObjectModel {
+    /// Index and vertex counts of the first part's first triangle list.
+    pub fn first_list(&self) -> (u32, u32) {
+        self.first_list
+    }
 }
 
 /// One draw of the frame: pipeline, uniform offset, and instance/part/batch/layer indices.
@@ -103,6 +114,9 @@ pub struct ObjectInstance<'a> {
     pub world: Mat4,
     /// Material tint (`CPhysicsObj` diffuse colour and opacity); white leaves it unchanged.
     pub tint: [f32; 4],
+    /// A grass frill merged by `FrillRender`: every vertex takes this world normal and the
+    /// landscape shadow colour (white until static shadow maps exist) as its diffuse.
+    pub frill_normal: Option<Vec3>,
 }
 
 impl<'a> ObjectInstance<'a> {
@@ -112,6 +126,7 @@ impl<'a> ObjectInstance<'a> {
             model,
             world,
             tint: [1.0; 4],
+            frill_normal: None,
         }
     }
 }
@@ -299,9 +314,14 @@ impl ObjectRenderer {
                 batches,
             });
         }
+        let first_list = model.parts.first().map_or((0, 0), |part| {
+            let indices = part.batches.first().map_or(0, |b| b.indices.len());
+            (indices as u32, part.vertices.len() as u32)
+        });
         GpuObjectModel {
             parts,
             center: if count > 0.0 { sum / count } else { Vec3::ZERO },
+            first_list,
         }
     }
 
@@ -411,7 +431,11 @@ impl ObjectRenderer {
                                 batch: batch_index,
                                 layer: pass_index,
                             };
-                            let entry = (draw_uniform(model, pass), draw);
+                            let mut uniform = draw_uniform(model, pass);
+                            if let Some(normal) = instance.frill_normal {
+                                uniform.frill = normal.extend(1.0).to_array();
+                            }
+                            let entry = (uniform, draw);
                             if group.ordered || pass.depth_write {
                                 opaque.push(entry);
                             } else {
@@ -598,6 +622,7 @@ fn draw_uniform(model: Mat4, pass: &LayerPass) -> DrawUniform {
         color_ops: [[1, 2, 1, 1]; 4],
         alpha_ops: [[2, 1, 0xFFFF_FFFF, 0]; 4],
         matrices: [[0.0; 4]; 8],
+        frill: [0.0; 4],
     };
     for (index, stage) in pass.stages.iter().enumerate().take(4) {
         uniform.color_ops[index] = [

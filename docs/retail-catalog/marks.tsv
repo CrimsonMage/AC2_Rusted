@@ -536,6 +536,10 @@ key	status	note
 0056f260	~	untextured colour quad (ac2-gpu ScreenQuad) only
 00572110	~	outdoor sun only; dynamic/point lights and shadow direction not yet
 0057cb50	~	outdoor sun, ambient and fog; indoor and sky environments not yet
+00581a00	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
+005823e0	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
+005828e0	~	ac2-render frill::select_frills + per-instance frill normal; shadow colour white (no static shadow map), drawn as instances not one merged mesh
+005832a0	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 005835c0	x	
 00583890	x	
 005857b0	x	ac2-world region::sky_objects, ac2-render sky

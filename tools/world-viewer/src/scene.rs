@@ -10,6 +10,7 @@ use ac2_gpu::{
     TerrainRenderer, TextureKey,
 };
 use ac2_math::{Mat4, Vec3};
+use ac2_render::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
 use ac2_render::object::{load_object_model, load_water_model, RenderSettings};
 use ac2_render::sky::{sky_frame, SkyFrame, SkyPlacement};
 use ac2_render::terrain::build_terrain_mesh;
@@ -19,10 +20,10 @@ use ac2_world::Ac2WorldSource;
 /// `GameTime` day length in seconds for the Legions region.
 pub const DAY_SECONDS: f64 = 7347.0;
 
-/// One resident block: its near terrain and its placed objects (visual, world matrix).
+/// One resident block: its near terrain and its placed objects (visual, world matrix, frill).
 struct Block {
     terrain: Option<TerrainBlock>,
-    placements: Vec<(DataId, Mat4)>,
+    placements: Vec<(DataId, Mat4, bool)>,
     /// Near water (`LScapeTerrainMesh::UpdateNearWater`), already in world space.
     water: Option<GpuObjectModel>,
 }
@@ -35,8 +36,8 @@ pub struct Scene {
     sky: SkyFrame,
     models: HashMap<DataId, Option<GpuObjectModel>>,
     blocks: HashMap<(u8, u8), Block>,
-    /// The placements `prepare` laid out, in draw order.
-    frame_placements: Vec<(DataId, Mat4)>,
+    /// The placements `prepare` laid out, in draw order, with a frill's merged normal.
+    frame_placements: Vec<(DataId, Mat4, Option<Vec3>)>,
     pub radius: i32,
     pub time_of_day: f64,
 }
@@ -136,6 +137,7 @@ impl Scene {
                         placements.push((
                             visual,
                             marker.world_frame().to_mat4() * Mat4::from_scale(marker.scale()),
+                            marker.frill(),
                         ));
                     }
                 }
@@ -190,10 +192,34 @@ impl Scene {
         let lighting = self.lighting();
         self.renderer
             .set_frame(&gpu.queue, camera, &lighting, aspect);
-        self.frame_placements = self
-            .blocks
-            .values()
-            .flat_map(|block| block.placements.iter().copied())
+        // Scenery and entities, then the frills `FrillRender::RefreshFrillMesh` keeps.
+        let all = || {
+            self.blocks
+                .values()
+                .flat_map(|block| block.placements.iter())
+        };
+        let frills: Vec<_> = all().filter(|(_, _, frill)| *frill).collect();
+        let candidates: Vec<_> = frills
+            .iter()
+            .map(|(visual, world, _)| {
+                let (indices, vertices) = self.models[visual]
+                    .as_ref()
+                    .map_or((0, 0), GpuObjectModel::first_list);
+                FrillCandidate {
+                    world: *world,
+                    indices,
+                    vertices,
+                }
+            })
+            .collect();
+        let chosen = select_frills(&candidates, camera.eye, &FrillSettings::default());
+        self.frame_placements = all()
+            .filter(|(_, _, frill)| !*frill)
+            .map(|(visual, world, _)| (*visual, *world, None))
+            .chain(chosen.iter().map(|&index| {
+                let (visual, world, _) = frills[index];
+                (*visual, *world, Some(frill_normal(world)))
+            }))
             .collect();
         let sky_objects = self
             .world
@@ -290,13 +316,16 @@ fn sky_instances<'a>(
 
 fn instances<'a>(
     models: &'a HashMap<DataId, Option<GpuObjectModel>>,
-    placements: &[(DataId, Mat4)],
+    placements: &[(DataId, Mat4, Option<Vec3>)],
     blocks: &'a HashMap<(u8, u8), Block>,
 ) -> Vec<ObjectInstance<'a>> {
     placements
         .iter()
-        .filter_map(|(visual, world)| {
-            Some(ObjectInstance::new(models.get(visual)?.as_ref()?, *world))
+        .filter_map(|(visual, world, frill_normal)| {
+            Some(ObjectInstance {
+                frill_normal: *frill_normal,
+                ..ObjectInstance::new(models.get(visual)?.as_ref()?, *world)
+            })
         })
         .chain(
             blocks.values().filter_map(|block| {

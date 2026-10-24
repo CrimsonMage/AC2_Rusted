@@ -14,6 +14,7 @@ use ac2_gpu::{
     TerrainRenderer, TextureKey, COLOR_FORMAT,
 };
 use ac2_math::{Mat4, Vec3};
+use ac2_render::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
 use ac2_render::object::{load_object_model, load_water_model, RenderSettings};
 use ac2_render::sky::sky_frame;
 use ac2_render::terrain::build_terrain_mesh;
@@ -101,6 +102,7 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
     let mut blocks = Vec::new();
     let mut models: HashMap<DataId, Option<GpuObjectModel>> = HashMap::new();
     let mut placements = Vec::new();
+    let mut frills = Vec::new();
     let mut waters = Vec::new();
     for dx in -1..=1_i32 {
         for dy in -1..=1_i32 {
@@ -131,7 +133,11 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
                 }
                 let world_matrix =
                     marker.world_frame().to_mat4() * Mat4::from_scale(marker.scale());
-                placements.push((visual, world_matrix));
+                if marker.frill() {
+                    frills.push((visual, world_matrix));
+                } else {
+                    placements.push((visual, world_matrix));
+                }
             }
         }
     }
@@ -229,6 +235,34 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
                 .collect::<Vec<_>>()
         };
         let (before, after) = (sky_instances(&sky.before), sky_instances(&sky.after));
+        // `FrillRender::RefreshFrillMesh` around the camera.
+        let candidates: Vec<_> = frills
+            .iter()
+            .filter_map(|(visual, world)| {
+                let (indices, vertices) = models.get(visual)?.as_ref()?.first_list();
+                Some(FrillCandidate {
+                    world: *world,
+                    indices,
+                    vertices,
+                })
+            })
+            .collect();
+        let drawable: Vec<_> = frills
+            .iter()
+            .filter(|(visual, _)| matches!(models.get(visual), Some(Some(_))))
+            .collect();
+        let chosen = select_frills(&candidates, camera.eye, &FrillSettings::default());
+        let world_instances: Vec<ObjectInstance<'_>> = instances
+            .iter()
+            .copied()
+            .chain(chosen.iter().map(|&index| {
+                let (visual, world) = drawable[index];
+                ObjectInstance {
+                    frill_normal: Some(frill_normal(world)),
+                    ..ObjectInstance::new(models[visual].as_ref().unwrap(), *world)
+                }
+            }))
+            .collect();
         if std::env::var_os("AC2_DEBUG_SKY").is_some() {
             eprintln!(
                 "time {server_time} fog_sky {} fog {:?} before {:?} after {:?}",
@@ -257,7 +291,7 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
                     ordered: true,
                 },
                 DrawGroup {
-                    instances: &instances,
+                    instances: &world_instances,
                     ordered: false,
                 },
                 DrawGroup {
@@ -276,7 +310,7 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
                 quad.draw(pass);
             }
             terrain.draw(pass, &blocks);
-            objects.draw(pass, 1, &instances);
+            objects.draw(pass, 1, &world_instances);
             objects.draw(pass, 2, &after);
         });
         let rgba = target.read_rgba(&gpu.device, &gpu.queue);

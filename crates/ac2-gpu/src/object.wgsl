@@ -37,6 +37,8 @@ struct Draw {
     alpha_ops: array<vec4<u32>, 4>,
     // Per stage: texture matrix rows 0 and 1.
     matrices: array<vec4<f32>, 8>,
+    // A frill's world normal for every vertex when w = 1 (`FrillRender::RefreshFrillMesh`).
+    frill: vec4<f32>,
 };
 
 const FLAG_MATERIAL_DIFFUSE: u32 = 1u;
@@ -181,6 +183,12 @@ fn vs(input: VsIn) -> VsOut {
     var basis: Basis;
     // `f_TransformModel*ToView*`: the model matrix itself, then normalise.
     basis.normal = normalize((draw.model * vec4(input.normal, 0.0)).xyz);
+    var vertex_color = input.color;
+    if draw.frill.w > 0.5 {
+        // Merged frill vertices: the frill's up axis, and the landscape shadow colour (white).
+        basis.normal = normalize(draw.frill.xyz);
+        vertex_color = vec4(1.0);
+    }
     basis.tangent_s = normalize((draw.model * vec4(input.tangent_s, 0.0)).xyz);
     basis.tangent_t = normalize((draw.model * vec4(input.tangent_t, 0.0)).xyz);
     basis.to_eye = normalize(frame.eye.xyz - world.xyz);
@@ -222,7 +230,7 @@ fn vs(input: VsIn) -> VsOut {
     } else if program == 3u {
         // Vertex diffuse with dynamic lighting: colour 1 carries the light colour; ambient only
         // when a stage takes the point-to-light vector.
-        color0 = select(input.color, vec4(0.0, 0.0, 0.0, 1.0), has(FLAG_MODULATE));
+        color0 = select(vertex_color, vec4(0.0, 0.0, 0.0, 1.0), has(FLAG_MODULATE));
         color1 = vec4(frame.sun_diffuse.rgb, 1.0);
         if sun_on() {
             color0 = vec4(color0.rgb + intensity.x * frame.sun_diffuse.rgb, color0.a);
@@ -234,7 +242,7 @@ fn vs(input: VsIn) -> VsOut {
             color0 = vec4(color0.rgb + ambient, color0.a);
         }
         if has(FLAG_MODULATE) {
-            color0 = color0 * input.color;
+            color0 = color0 * vertex_color;
         }
     } else if program == 2u || program == 4u {
         // Per-pixel lighting: colour 0 is the tangent-space light direction with the light's
@@ -266,7 +274,7 @@ fn vs(input: VsIn) -> VsOut {
             color0 = color0 * draw.diffuse;
         }
         if has(FLAG_VERTEX_DIFFUSE) {
-            color0 = color0 * input.color;
+            color0 = color0 * vertex_color;
         }
     }
     out.color0 = clamp(color0, vec4(0.0), vec4(1.0));

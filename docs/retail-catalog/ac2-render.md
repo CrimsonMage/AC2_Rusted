@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 24 done, 13 partial, 731 to do, 13 skipped.
+781 retail functions: 24 done, 17 partial, 727 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -929,7 +929,7 @@ Legend and workflow: [README](README.md).
 - [ ] `FrillRender::ClearAllRenderLists` · 00581990 · legions 00551150
 
 ### FrillRenderType
-- [ ] `FrillRenderType::AddPos` · 00581a00 · legions 005511c0
+- [~] `FrillRenderType::AddPos` · 00581a00 · legions 005511c0 — frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 
 ### SmartArray<FrillEntry>
 - [ ] `SmartArray<FrillEntry>::AddToEnd` · 00581be0 · legions 005513a0
@@ -944,12 +944,12 @@ Legend and workflow: [README](README.md).
 ### FrillRender
 - [ ] `FrillRender::~FrillRender` · 00582170 · legions 00551930
 - [ ] `FrillRender::EnableFrillObjects` · 00582220 · legions 005519d0
-- [ ] `FrillRender::AddNewFrillObjects` · 005823e0 · legions 00551b90
+- [~] `FrillRender::AddNewFrillObjects` · 005823e0 · legions 00551b90 — frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 - [ ] `FrillRender::FrillRender` · 00582670 · legions 00551e20
 - [ ] `FrillRender::UpdateFrillPosition` · 00582760 · legions 00551f00
 - [ ] `FrillRender::Render` · 00582890 · legions 00552030
-- [ ] `FrillRender::RefreshFrillMesh` · 005828e0 · legions 00552050
-- [ ] `FrillRender::UpdateRenderList` · 005832a0 · legions 00552a10
+- [~] `FrillRender::RefreshFrillMesh` · 005828e0 · legions 00552050 — ac2-render frill::select_frills + per-instance frill normal; shadow colour white (no static shadow map), drawn as instances not one merged mesh
+- [~] `FrillRender::UpdateRenderList` · 005832a0 · legions 00552a10 — frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 
 ## `portal/client/src/smartbox/worldrender/lscapelighting.cpp.c` (1/19)
 
