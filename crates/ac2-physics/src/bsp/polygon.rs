@@ -42,6 +42,26 @@ pub(crate) fn make_plane(vertices: &[Vector]) -> Plane {
     Plane::new(n, st(-(sum / count)))
 }
 
+/// `CPolygon::point_in_polygon`: inside (or on) every edge, each edge's in-plane normal
+/// `edge x N` with its first two terms stored. Edges run from the last vertex to the first.
+pub(crate) fn point_in_polygon(vertices: &[Vector], plane: &Plane, p: Vector) -> bool {
+    let count = vertices.len();
+    let (nx, ny, nz) = (ld(plane.n.x), ld(plane.n.y), ld(plane.n.z));
+    (0..count).all(|i| {
+        let (prev, cur) = (vertices[(i + count - 1) % count], vertices[i]);
+        let ex = ld(cur.x) - ld(prev.x);
+        let ey = ld(cur.y) - ld(prev.y);
+        let ez = ld(cur.z) - ld(prev.z);
+        let a = ld(st(ez * ny - ey * nz));
+        let b = ld(st(ex * nz - ez * nx));
+        let c = ey * nx - ex * ny;
+        let dx = ld(p.x) - ld(prev.x);
+        let dy = ld(p.y) - ld(prev.y);
+        let dz = ld(p.z) - ld(prev.z);
+        (dz * c + dy * b) + a * dx >= 0.0
+    })
+}
+
 impl Polygon {
     pub fn new(vertices: Vec<Vector>) -> Self {
         let plane = make_plane(&vertices);
@@ -83,17 +103,10 @@ impl Polygon {
         (a, b, c)
     }
 
-    /// `CPolygon::point_in_polygon`: inside (or on) every edge (`CPolygon::TraceRay`, which is
-    /// not ported, is its only caller).
+    /// `CPolygon::point_in_polygon`.
     #[cfg(test)]
     pub(crate) fn point_in_polygon(&self, p: Vector) -> bool {
-        self.edges().all(|(prev, cur)| {
-            let (a, b, c) = self.edge_normal_stored(prev, cur);
-            let dx = ld(p.x) - ld(prev.x);
-            let dy = ld(p.y) - ld(prev.y);
-            let dz = ld(p.z) - ld(prev.z);
-            (dz * c + dy * b) + a * dx >= 0.0
-        })
+        point_in_polygon(&self.vertices, &self.plane, p)
     }
 
     /// The edge pass `polygon_hits_sphere_slow_but_sure`, `check_walkable` and

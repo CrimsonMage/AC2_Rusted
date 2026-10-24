@@ -41,18 +41,36 @@ impl Position {
         );
     }
 
+    /// `Position::slerp`: `lerp_origin` then `Frame::slerp_rotation`, `t` of the way from
+    /// `from` to `to` (in `from`'s cell).
+    pub fn slerp(&mut self, from: &Position, to: &Position, t: f32) {
+        self.lerp_origin(from, to, t);
+        self.frame.slerp_rotation(&from.frame, &to.frame, t);
+    }
+
     /// `PositionOffset::GetOffset`: the vector from `self` to `other`. The landblock delta and
     /// `other`'s x and y are summed and stored before `self`'s origin is subtracted.
     pub fn offset_to(&self, other: &Position) -> Vector {
-        let block = get_block_offset(self.cell_id, other.cell_id);
-        let x = ld(st(ld(block.x) + ld(other.frame.origin.x)));
-        let y = ld(st(ld(block.y) + ld(other.frame.origin.y)));
-        Vector::new(
-            st(x - ld(self.frame.origin.x)),
-            st(y - ld(self.frame.origin.y)),
-            st((ld(block.z) + ld(other.frame.origin.z)) - ld(self.frame.origin.z)),
+        offset_between(
+            self.cell_id,
+            self.frame.origin,
+            other.cell_id,
+            other.frame.origin,
         )
     }
+}
+
+/// `PositionOffset::GetOffset` on bare origins: from `from` in cell `from_cell` to `to` in
+/// `to_cell`.
+pub(crate) fn offset_between(from_cell: u32, from: Vector, to_cell: u32, to: Vector) -> Vector {
+    let block = get_block_offset(from_cell, to_cell);
+    let x = ld(st(ld(block.x) + ld(to.x)));
+    let y = ld(st(ld(block.y) + ld(to.y)));
+    Vector::new(
+        st(x - ld(from.x)),
+        st(y - ld(from.y)),
+        st((ld(block.z) + ld(to.z)) - ld(from.z)),
+    )
 }
 
 impl Position {

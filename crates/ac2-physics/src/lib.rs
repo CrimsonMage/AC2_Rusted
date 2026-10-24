@@ -27,6 +27,7 @@ mod interp;
 mod landdefs;
 mod loader;
 mod loader_anim;
+mod los;
 mod motion_interp;
 mod motion_interp_behaviors;
 mod moveto;
@@ -65,6 +66,7 @@ pub use loader::{
     load_terrain_block,
 };
 pub use loader_anim::load_body_animation;
+pub use los::{LosParameters, Ray, RayIntersection};
 pub use motion_interp::MotionInterp;
 pub use moveto::{
     MoveToResult, MovementParameters, MOVE_TO_AWAY, MOVE_TO_MOVE, MOVE_TO_OBJECT,

@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 2 done, 0 partial, 2382 to do, 84 skipped.
+2468 retail functions: 4 done, 0 partial, 2380 to do, 84 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -2236,11 +2236,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gLLMultiMapIter::CallEFun_next` · 0054cdb0
 - [ ] `gLLMultiMapIter::CallEFun_prev` · 0054ce50
 
-## `portal/shared/src/interp/glue/glosparameters.cpp.c` (0/18)
+## `portal/shared/src/interp/glue/glosparameters.cpp.c` (2/18)
 
 ### LOSParameters
-- [ ] `LOSParameters::SetFromPositionAndOffset` · 00542530 · legions 00522ad0
-- [ ] `LOSParameters::SetFromBeginAndEndPosition` · 005425b0 · legions 00522b50
+- [x] `LOSParameters::SetFromPositionAndOffset` · 00542530 · legions 00522ad0 — ac2-physics los (Terrain::los_check)
+- [x] `LOSParameters::SetFromBeginAndEndPosition` · 005425b0 · legions 00522b50 — ac2-physics los (Terrain::los_check)
 
 ### gLOSParameters
 - [ ] `gLOSParameters::CallEFun_AddToEtherealList` · 00542680
