@@ -9,7 +9,10 @@
 //! (`gmGamePlayUI::EndSession`), the server's `CharExitGame`, then the transport logoff.
 
 use std::net::SocketAddr;
-use std::time::{Duration, Instant};
+use std::time::Duration;
+
+/// Pause between frames while waiting.
+const FRAME: Duration = Duration::from_millis(10);
 
 use ac2_net::protocol::{
     interrogation_response, Build, CellPosition, CharacterSet, ClientEvent, DatEvent, Qualities,
@@ -95,6 +98,14 @@ pub enum SessionEvent {
     LeftWorld,
     /// The server refused something; the session may continue.
     Rejected(String),
+    /// `ECM_Login::RecvEvt_CharGenVerification`: the server's answer to a character creation
+    /// (its response, the character, the weenie's result).
+    CharGenVerification {
+        response: u32,
+        character: u64,
+        name: String,
+        result: u32,
+    },
     /// Queue 4 chat data for the chat client.
     Chat(Vec<u8>),
     /// A script event (`CWDistributor::RecvEvt_InterpCEvent_Private`): the object (the player
@@ -136,22 +147,35 @@ pub struct OnlineSession {
 impl OnlineSession {
     /// Starts the logon; progress arrives from [`OnlineSession::poll`].
     pub fn connect(config: OnlineConfig) -> Result<Self, NetError> {
+        let transport = ac2_net::UdpTransport::bind(config.server)?;
+        Self::with_transport(config, Box::new(transport))
+    }
+
+    /// [`OnlineSession::connect`] over `transport` (a scripted server in tests).
+    pub fn with_transport(
+        config: OnlineConfig,
+        mut transport: Box<dyn ac2_net::Transport>,
+    ) -> Result<Self, NetError> {
+        let connection_sequence = transport.clock().1 as u32;
         let build = Build::from_version(&config.version);
         let crypto = config
             .server_key
             .as_ref()
             .map(SessionCrypto::new)
             .transpose()?;
-        let client = NetClient::connect(NetClientConfig {
-            server: config.server,
-            logon: Logon {
-                version: config.version,
-                account: config.account.clone(),
-                credential: config.credential,
-                connection_sequence: ac2_net::real_time() as u32,
-                crypto,
+        let client = NetClient::with_transport(
+            NetClientConfig {
+                server: config.server,
+                logon: Logon {
+                    version: config.version,
+                    account: config.account.clone(),
+                    credential: config.credential,
+                    connection_sequence,
+                    crypto,
+                },
             },
-        })?;
+            transport,
+        );
         Ok(Self {
             client,
             account: config.account,
@@ -210,9 +234,9 @@ impl OnlineSession {
     /// Runs frames until the player is in the world, or fails after `timeout`. The other
     /// events it sees come back from the next [`OnlineSession::poll`].
     pub fn wait_for_world(&mut self, timeout: Duration) -> Result<WorldEntry, String> {
-        let deadline = Instant::now() + timeout;
+        let deadline = self.client.elapsed() + timeout.as_secs_f64();
         let mut seen = Vec::new();
-        while Instant::now() < deadline {
+        while self.client.elapsed() < deadline {
             let mut entered = None;
             for event in self.poll() {
                 match event {
@@ -226,7 +250,7 @@ impl OnlineSession {
                 self.pending = seen;
                 return Ok(entry);
             }
-            std::thread::sleep(Duration::from_millis(10));
+            self.client.sleep(FRAME);
         }
         Err("timed out waiting for world entry".into())
     }
@@ -327,6 +351,16 @@ impl OnlineSession {
                 out.push(SessionEvent::PlayerQualities(qualities.clone()));
                 out.push(SessionEvent::LoginFinished);
             }
+            ServerEvent::CharGenVerification {
+                response,
+                identity,
+                weenie_result,
+            } => out.push(SessionEvent::CharGenVerification {
+                response,
+                character: identity.id,
+                name: identity.name,
+                result: weenie_result,
+            }),
             ServerEvent::Interp {
                 object,
                 function,
@@ -465,8 +499,8 @@ impl OnlineSession {
         let mut left = false;
         if let (Some(character), true) = (self.world.player(), self.entered) {
             self.send(ClientEvent::LogOffCharacter { character });
-            let deadline = Instant::now() + wait;
-            'wait: while Instant::now() < deadline && !self.closed {
+            let deadline = self.client.elapsed() + wait.as_secs_f64();
+            'wait: while self.client.elapsed() < deadline && !self.closed {
                 for event in self.poll() {
                     left |= event == SessionEvent::LeftWorld;
                     if matches!(
@@ -476,7 +510,7 @@ impl OnlineSession {
                         break 'wait;
                     }
                 }
-                std::thread::sleep(Duration::from_millis(10));
+                self.client.sleep(FRAME);
             }
         }
         self.closed = true;
