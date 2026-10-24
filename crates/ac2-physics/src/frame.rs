@@ -150,7 +150,7 @@ impl Frame {
 
     /// `Frame::set_heading`: face the compass heading, keeping the forward axis' z
     /// (`set_vector_heading((sin, cos, m[5]))`).
-    pub(crate) fn set_heading(&mut self, heading: Heading) {
+    pub fn set_heading(&mut self, heading: Heading) {
         let z = self.m[5];
         let x = st(heading.radians().sin());
         let y = st(heading.radians().cos());

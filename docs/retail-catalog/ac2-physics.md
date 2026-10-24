@@ -1,15 +1,15 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 157 done, 37 partial, 1868 to do, 62 skipped.
+2124 retail functions: 157 done, 41 partial, 1864 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (0/9)
 
 ### CPhysics
 - [ ] `CPhysics::CPhysics` · 007321b0
-- [ ] `CPhysics::GetTickCount` · 00732200
+- [~] `CPhysics::GetTickCount` · 00732200 — Timer::local_time drives the physics clock
 - [ ] `CPhysics::~CPhysics` · 00732210
-- [ ] `CPhysics::UpdatePhysics` · 00732240
+- [~] `CPhysics::UpdatePhysics` · 00732240 — the player body only (CPhysics::UpdateAllPhysics over remote objects not simulated)
 - [ ] `CPhysics::UpdateAnimation` · 00732280
 - [ ] `CPhysics::UpdateRenderInterpolation` · 007322c0 · legions 006ae760
 - [ ] `CPhysics::GetObjectA` · 00732380 · legions 006ae820
@@ -2736,8 +2736,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::EnterWorld` · 004ec7d0
 - [ ] `CPhysicsObj::set_description` · 004ec830
 - [ ] `CPhysicsObj::makeObject` · 004ed160 · legions 004dfac0
-- [ ] `CPhysicsObj::SetPositionSimple` · 004ed190 · legions 004dfaf0
-- [ ] `CPhysicsObj::SyncPositionSimple` · 004ed1f0 · legions 004dfb50
+- [~] `CPhysicsObj::SetPositionSimple` · 004ed190 · legions 004dfaf0 — flags 0x1010 into PhysicsBody::place
+- [~] `CPhysicsObj::SyncPositionSimple` · 004ed1f0 · legions 004dfb50 — the player's server placement (SetPositionSimple(pos, 1))
 - [ ] `CPhysicsObj::makeObject` · 004ed270 · legions 004dfbd0
 - [ ] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40
 - [~] `CPhysicsObj::RecvEvt_Position` · 004ed470 — stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics

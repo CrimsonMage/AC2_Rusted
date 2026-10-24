@@ -78,7 +78,7 @@ pub use ac2_physics_mesh::{Ac2PhysicsBspNode, Ac2PhysicsMesh, Ac2PhysicsPolygon,
 pub(crate) use ac2_static_model::resolve_ac2_visual_setup;
 pub use ac2_static_model::{
     decode_ac2_posed_model, decode_ac2_static_model, resolve_ac2_visual_meshes,
-    resolve_ac2_visual_parts, resolve_ac2_visual_scale, Ac2Pose,
+    resolve_ac2_visual_motion_interp, resolve_ac2_visual_parts, resolve_ac2_visual_scale, Ac2Pose,
 };
 pub use ac2_terrain::{ac2_mipmapped_clamped_texture, compose_ac2_vertex_blended_terrain_texture};
 pub use ac2_texture::{load_ac2_texture_asset, resolve_ac2_material_texture_chain};

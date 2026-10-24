@@ -2,6 +2,7 @@ key	status	note
 00401b20	x	
 00401b30	x	
 00401b80	x	
+00401e30	~	no TurbineGun (GUN) step
 00401e70	x	
 00401f90	x	
 00401fc0	x	
@@ -570,6 +571,8 @@ key	status	note
 004eb8b0	x	
 004ec350	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ec730	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
+004ed190	~	flags 0x1010 into PhysicsBody::place
+004ed1f0	~	the player's server placement (SetPositionSimple(pos, 1))
 004ed470	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
 004ee7d0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f1f40	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
@@ -659,6 +662,12 @@ key	status	note
 00571da0	x	ac2-render object::cell / point_lights
 00571ec0	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 00572110	~	outdoor sun only; dynamic/point lights and shadow direction not yet
+00573930	~	visible cells only; no camera or PlayerReadyToEnterWorld notice
+005746d0	~	UpdatePlayer and the physics step; no camera
+0057bba0	~	the radius block set (synchronous)
+0057c360	~	block radius 1 loaded at once (no async request)
+0057c510	~	physics step only; no GameTime or CObjectMaint::UseTime
+0057c540	~	blocking 3x3 block load in CellManager
 0057cb50	~	outdoor sun, ambient and fog; indoor and sky environments not yet
 00581a00	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 005823e0	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
@@ -972,6 +981,7 @@ key	status	note
 0071fb10	x	
 0071fba0	x	
 0071fc50	~	queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
+00722f20	~	headless frame order in ac2-client Client::use_time; no render, sound, UI, triggers or DB cache step
 00723280	x	
 007269d0	x	
 0072f3b0	~	ac2-physics ObjectShape::new: physics containment radius and box only
@@ -984,6 +994,8 @@ key	status	note
 00731b40	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
 00731bf0	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
 007320f0	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
+00732200	~	Timer::local_time drives the physics clock
+00732240	~	the player body only (CPhysics::UpdateAllPhysics over remote objects not simulated)
 007326e0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 00737cf0	x	
 DB_TYPE_SURFACE_DESC	x	

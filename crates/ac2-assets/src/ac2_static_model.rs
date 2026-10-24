@@ -68,6 +68,31 @@ pub fn resolve_ac2_visual_setup(
     Ok(None)
 }
 
+/// The `MotionInterpDesc` a visual moves by: the nearest description in the parent chain that
+/// names one (`m_midesc_did`).
+pub fn resolve_ac2_visual_motion_interp(
+    store: &ResourceStore,
+    did: DataId,
+) -> ResourceResult<Option<DataId>> {
+    let mut current = did;
+    for _ in 0..MAX_VISUAL_DESC_DEPTH {
+        if current.raw() & 0xFF00_0000 != VISUAL_DESC_PREFIX {
+            break;
+        }
+        let Some(desc) = load::<Ac2VisualDesc>(store, current)? else {
+            break;
+        };
+        if desc.motion_interp.is_some() {
+            return Ok(desc.motion_interp);
+        }
+        let Some(parent) = desc.parent else {
+            break;
+        };
+        current = parent;
+    }
+    Ok(None)
+}
+
 /// The `VisualDesc` scale a visual applies to its parts (`PHYSICSOBJREP::GetVdescScale`): the
 /// nearest description in the parent chain that sets one, else one (a bare `CSetup` has none).
 pub fn resolve_ac2_visual_scale(store: &ResourceStore, did: DataId) -> ResourceResult<Vec3> {
