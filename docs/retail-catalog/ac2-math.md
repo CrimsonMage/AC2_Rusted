@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 90 done, 11 partial, 286 to do, 39 skipped.
+426 retail functions: 100 done, 8 partial, 279 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -132,7 +132,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DetectionObjRay::~DetectionObjRay` · 0062ac40 · legions 005e4d20
 - [ ] `DetectionObjRay::AddRay` · 0062ac80 · legions 005e4d60
 
-## `portal/shared/src/geometry/frame.cpp.c` (7/19)
+## `portal/shared/src/geometry/frame.cpp.c` (8/19)
 
 ### Frame
 - [x] `Frame::cache_matrix` · 00619f70 · legions 005d5c10
@@ -147,7 +147,7 @@ Legend and workflow: [README](README.md).
 - [-] `Frame::FromFileNode` · 0061a2d0 — text source format (admin tools)
 - [-] `Frame::ToFileNode` · 0061a300 — text source format (admin tools)
 - [x] `Frame::grotate` · 0061a310 · legions 005d5f70
-- [~] `Frame::slerp_rotation` · 0061a3c0 · legions 005d6020 — D3DXQuaternionSlerp is CPU-dispatched in retail; reference slerp
+- [x] `Frame::slerp_rotation` · 0061a3c0 · legions 005d6020 — ac2-physics interp (slice 3)
 - [ ] `Frame::OrientFrame` · 0061a460 · legions 005d60c0
 - [ ] `Frame::subtract2` · 0061a4e0 · legions 005d6140
 - [x] `Frame::set_vector_heading` · 0061a5b0 · legions 005d6210
@@ -182,7 +182,7 @@ Legend and workflow: [README](README.md).
 - [-] `Sphere::FromFileNode` · 00628f40 — text source format (admin tools)
 - [-] `Sphere::ToFileNode` · 00629040 — text source format (admin tools)
 
-## `portal/shared/src/geometry/heading.cpp.c` (8/21)
+## `portal/shared/src/geometry/heading.cpp.c` (11/21)
 
 ### Heading
 - [x] `Heading::get_degrees_0_centered` · 0061a8f0 · legions 005d6550
@@ -202,10 +202,10 @@ Legend and workflow: [README](README.md).
 - [x] `Heading::FromUInt8` · 0061aaf0 · legions 005d6750
 - [ ] `Heading::Heading` · 0061ab50 · legions 005d67b0
 - [x] `Heading::Heading` · 0061ab60 · legions 005d67c0
-- [~] `Heading::abs` · 0061ab80 · legions 005d67e0 — in ac2-weenie reporter (ac2-math has no Heading yet)
+- [x] `Heading::abs` · 0061ab80 · legions 005d67e0 — ac2-physics moveto (slice 3)
 - [ ] `Heading::lerp` · 0061abf0 · legions 005d6850
-- [~] `Heading::is_in_range` · 0061acb0 · legions 005d6910 — in ac2-weenie reporter (ac2-math has no Heading yet)
-- [ ] `Heading::is_inside` · 0061ad30 · legions 005d6990
+- [x] `Heading::is_in_range` · 0061acb0 · legions 005d6910 — ac2-physics moveto (slice 3)
+- [x] `Heading::is_inside` · 0061ad30 · legions 005d6990 — ac2-physics moveto (slice 3)
 - [~] `Heading::equals` · 0061ad80 · legions 005d69e0 — in ac2-weenie reporter (ac2-math has no Heading yet)
 - [ ] `Heading::is_zero` · 0061add0 · legions 005d6a30
 - [ ] `Heading::ToPString` · 0061ae20 · legions 005d6a80
@@ -378,21 +378,21 @@ Legend and workflow: [README](README.md).
 - [ ] `CPortalPoly::StreamPack` · 0072f890 · legions 006ad130
 - [-] `CPortalPoly::FromFileNode` · 0072f930 — text source format (admin tools)
 
-## `portal/shared/src/geometry/position.cpp.c` (1/36)
+## `portal/shared/src/geometry/position.cpp.c` (5/36)
 
 ### Position
 - [ ] `Position::Position` · 0061fd70 · legions 005db6b0
-- [ ] `Position::distance` · 0061fdb0 · legions 005db6f0
-- [ ] `Position::distance_squared` · 0061fdf0 · legions 005db730
+- [x] `Position::distance` · 0061fdb0 · legions 005db6f0 — ac2-physics interp (slice 3)
+- [x] `Position::distance_squared` · 0061fdf0 · legions 005db730 — ac2-physics interp (slice 3)
 - [ ] `Position::xy_distance` · 0061fe30 · legions 005db770
 - [ ] `Position::xy_distance_squared` · 0061fe60 · legions 005db7a0
-- [ ] `Position::heading` · 0061fe90 · legions 005db7d0
+- [x] `Position::heading` · 0061fe90 · legions 005db7d0 — ac2-physics interp (slice 3)
 - [ ] `Position::pitch` · 0061ff20 · legions 005db860
 - [ ] `Position::determine_quadrant` · 0061ffa0 · legions 005db8e0
 - [ ] `Position::GetPackSize` · 00620060 · legions 005db9a0
 - [ ] `Position::Pack` · 00620070 · legions 005db9b0
 - [x] `Position::UnPack` · 006200b0 · legions 005db9f0
-- [ ] `Position::cylinder_distance` · 006200f0 · legions 005dba30
+- [x] `Position::cylinder_distance` · 006200f0 · legions 005dba30 — ac2-physics moveto (slice 3)
 - [ ] `Position::cylinder_distance_squared` · 00620190 · legions 005dbad0
 - [ ] `Position::IsValid` · 00620230 · legions 005dbb70
 - [ ] `Position::CreateRay` · 00620260 · legions 005dbba0
@@ -568,14 +568,14 @@ Legend and workflow: [README](README.md).
 - [ ] `SphPlaneCone::Intersects` · 007379a0 · legions 006b3560
 - [ ] `SphPlaneCone::StreamPack` · 00737bd0 · legions 006b3790
 
-## `portal/shared/src/geometry/transform.cpp.c` (0/13)
+## `portal/shared/src/geometry/transform.cpp.c` (2/13)
 
 ### TransformBase
 - [ ] `TransformBase::GetPackSize` · 00624ed0 · legions 005e0130
 - [ ] `TransformBase::Pack` · 00624ee0 · legions 005e0140
 - [ ] `TransformBase::SetFrame` · 00624f60 · legions 005e01c0
-- [ ] `TransformBase::AddWeightedTransform` · 00624fb0 · legions 005e0210
-- [ ] `TransformBase::WeightTransform` · 00625070 · legions 005e02d0
+- [x] `TransformBase::AddWeightedTransform` · 00624fb0 · legions 005e0210 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+- [x] `TransformBase::WeightTransform` · 00625070 · legions 005e02d0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `TransformBase::NormalizeEvenInvalid` · 00625110 · legions 005e0370
 - [ ] `TransformBase::FillMatrix` · 00625190 · legions 005e03f0
 

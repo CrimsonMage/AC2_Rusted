@@ -65,6 +65,13 @@ pub struct Ac2Blend {
 }
 
 impl Ac2MotionAnimator {
+    /// A lone `AnimAsset` animator playing `clip`.
+    pub fn from_clip(clip: Ac2Animation) -> Self {
+        Self {
+            root: Node::Clip(Arc::new(clip)),
+        }
+    }
+
     /// The clips the tree plays for `sliders` (`(slider id, value)`; unlisted sliders are zero).
     pub fn blend(&self, sliders: &[(u32, f32)]) -> Ac2Blend {
         let mut blend = Ac2Blend::default();

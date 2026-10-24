@@ -1,5 +1,5 @@
 use super::*;
-use crate::test_support::{desc, walking_values};
+use crate::test_support::{desc, walking_values, RecordingRep};
 
 fn ground_context(local_velocity: Vector) -> MotionContext {
     MotionContext {
@@ -11,6 +11,7 @@ fn ground_context(local_velocity: Vector) -> MotionContext {
         depth: 0.0,
         desired_element: ELEMENT_GROUND,
         element: ELEMENT_GROUND,
+        is_sliding_down: false,
         constraint_factor: 1.0,
         vector_heading: Vector::new(0.0, 1.0, 0.0),
     }
@@ -24,22 +25,47 @@ fn walker() -> MotionInterp {
 fn forward_input_accelerates_then_holds_the_forward_speed() {
     let mut interp = walker();
     interp.do_motion(Vector::new(0.0, 1.0, 0.0));
-    interp.update_movement(0.1, &ground_context(Vector::ZERO));
+    interp.update_movement(
+        0.1,
+        &ground_context(Vector::ZERO),
+        false,
+        &mut RecordingRep::default(),
+    );
     assert_eq!(interp.local_desired_vel, Vector::new(0.0, 4.0, 0.0));
     assert_eq!(interp.acceleration(), Vector::new(0.0, 10.0, 0.0));
     // One quantum short of the target the acceleration lands exactly on it.
-    interp.update_movement(0.1, &ground_context(Vector::new(0.0, 3.5, 0.0)));
+    interp.update_movement(
+        0.1,
+        &ground_context(Vector::new(0.0, 3.5, 0.0)),
+        false,
+        &mut RecordingRep::default(),
+    );
     assert_eq!(interp.acceleration().y, st((4.0 - 3.5) / ld(0.1)));
-    interp.update_movement(0.1, &ground_context(Vector::new(0.0, 4.0, 0.0)));
+    interp.update_movement(
+        0.1,
+        &ground_context(Vector::new(0.0, 4.0, 0.0)),
+        false,
+        &mut RecordingRep::default(),
+    );
     assert_eq!(interp.acceleration(), Vector::ZERO);
 }
 
 #[test]
 fn releasing_input_brakes_with_the_stop_rate() {
     let mut interp = walker();
-    interp.update_movement(0.1, &ground_context(Vector::new(2.5, 3.0, 0.0)));
+    interp.update_movement(
+        0.1,
+        &ground_context(Vector::new(2.5, 3.0, 0.0)),
+        false,
+        &mut RecordingRep::default(),
+    );
     assert_eq!(interp.acceleration(), Vector::new(-20.0, -20.0, 0.0));
-    interp.update_movement(0.1, &ground_context(Vector::new(1.0, 1.0, 0.0)));
+    interp.update_movement(
+        0.1,
+        &ground_context(Vector::new(1.0, 1.0, 0.0)),
+        false,
+        &mut RecordingRep::default(),
+    );
     assert_eq!(interp.acceleration().y, st(-1.0 / ld(0.1)));
 }
 
@@ -47,23 +73,43 @@ fn releasing_input_brakes_with_the_stop_rate() {
 fn backward_and_strafe_use_their_own_limits() {
     let mut interp = walker();
     interp.do_motion(Vector::new(1.0, -1.0, 0.0));
-    interp.update_movement(0.1, &ground_context(Vector::ZERO));
+    interp.update_movement(
+        0.1,
+        &ground_context(Vector::ZERO),
+        false,
+        &mut RecordingRep::default(),
+    );
     // The input is normalised: both axes at 1/sqrt(2).
     let half = std::f32::consts::FRAC_1_SQRT_2;
     assert!((interp.local_desired_vel.y - -2.0 * half).abs() < 1e-6);
     assert!((interp.local_desired_vel.x - 3.0 * half).abs() < 1e-6);
     // Running forward faster than 0.7 strafes at the forward speed.
     interp.do_motion(Vector::new(0.5, 0.8, 0.0));
-    interp.update_movement(0.1, &ground_context(Vector::ZERO));
+    interp.update_movement(
+        0.1,
+        &ground_context(Vector::ZERO),
+        false,
+        &mut RecordingRep::default(),
+    );
     assert_eq!(interp.local_desired_vel.x, st(ld(0.5) * 4.0));
 }
 
 #[test]
 fn turning_ramps_the_turn_rate_by_speed() {
     let mut interp = walker();
-    interp.update_movement(0.1, &ground_context(Vector::ZERO));
+    interp.update_movement(
+        0.1,
+        &ground_context(Vector::ZERO),
+        false,
+        &mut RecordingRep::default(),
+    );
     assert_eq!(interp.max_turn_vel, 60.0);
-    interp.update_movement(0.1, &ground_context(Vector::new(0.0, 2.0, 0.0)));
+    interp.update_movement(
+        0.1,
+        &ground_context(Vector::new(0.0, 2.0, 0.0)),
+        false,
+        &mut RecordingRep::default(),
+    );
     assert_eq!(interp.max_turn_vel, 75.0);
     interp.set_omega_velocity(1.0);
     interp.set_omega_velocity(1.0);
@@ -81,14 +127,24 @@ fn turning_ramps_the_turn_rate_by_speed() {
 #[test]
 fn ground_contact_cancels_vertical_velocity() {
     let mut interp = walker();
-    interp.update_movement(0.1, &ground_context(Vector::new(0.0, 0.0, -2.0)));
+    interp.update_movement(
+        0.1,
+        &ground_context(Vector::new(0.0, 0.0, -2.0)),
+        false,
+        &mut RecordingRep::default(),
+    );
     assert_eq!(interp.acceleration().z, 20.0);
     // Moving across the ground the cancellation is limited to 3 m/s^2.
-    interp.update_movement(0.1, &ground_context(Vector::new(0.0, 1.0, -2.0)));
+    interp.update_movement(
+        0.1,
+        &ground_context(Vector::new(0.0, 1.0, -2.0)),
+        false,
+        &mut RecordingRep::default(),
+    );
     assert_eq!(interp.acceleration().z, 3.0);
     let mut airborne = ground_context(Vector::new(0.0, 0.0, -2.0));
     airborne.height_above_walkable = 1.5;
-    interp.update_movement(0.1, &airborne);
+    interp.update_movement(0.1, &airborne, false, &mut RecordingRep::default());
     assert_eq!(interp.acceleration().z, 0.0);
 }
 
@@ -112,11 +168,11 @@ fn hovering_bodies_brake_onto_their_hover_height() {
     let mut interp = MotionInterp::new(Some(desc(&[(ELEMENT_GROUND, values)])));
     let mut low = ground_context(Vector::ZERO);
     low.height_above_walkable = 1.0;
-    interp.update_movement(0.1, &low);
+    interp.update_movement(0.1, &low, false, &mut RecordingRep::default());
     assert_eq!(interp.acceleration().z, 5.0);
     let mut rising = ground_context(Vector::new(0.0, 0.0, 3.0));
     rising.height_above_walkable = 1.9;
-    interp.update_movement(0.1, &rising);
+    interp.update_movement(0.1, &rising, false, &mut RecordingRep::default());
     // Would overshoot: decelerate at v^2 / 2d, limited to the vertical acceleration.
     assert_eq!(interp.acceleration().z, -5.0);
 }
@@ -125,7 +181,12 @@ fn hovering_bodies_brake_onto_their_hover_height() {
 fn missing_desc_moves_nothing() {
     let mut interp = MotionInterp::new(None);
     interp.do_motion(Vector::new(0.0, 1.0, 0.0));
-    interp.update_movement(0.1, &ground_context(Vector::ZERO));
+    interp.update_movement(
+        0.1,
+        &ground_context(Vector::ZERO),
+        false,
+        &mut RecordingRep::default(),
+    );
     assert_eq!(interp.acceleration(), Vector::ZERO);
     assert!(interp.motion_values(ELEMENT_GROUND).gravity);
 }
@@ -133,7 +194,12 @@ fn missing_desc_moves_nothing() {
 #[test]
 fn turn_to_spins_the_short_way_and_clamps_on_arrival() {
     let mut interp = walker();
-    interp.update_movement(0.1, &ground_context(Vector::ZERO));
+    interp.update_movement(
+        0.1,
+        &ground_context(Vector::ZERO),
+        false,
+        &mut RecordingRep::default(),
+    );
     // Facing north (heading 0); turn to west (270): counter-clockwise, positive yaw rate.
     interp.turn_to(Heading::from_degrees(270.0));
     let clamp = interp.calculate_omega_acceleration(&ground_context(Vector::ZERO));

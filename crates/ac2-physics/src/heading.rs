@@ -69,6 +69,22 @@ impl Heading {
             degrees: normalize(ld(lhs.degrees) - ld(rhs.degrees)),
         }
     }
+
+    /// `Heading::abs`: the size of the turn, `[0, 180]`.
+    pub(crate) fn abs(self) -> Self {
+        let mut v = ld(self.degrees);
+        if v > 180.0 {
+            v -= 360.0;
+        }
+        Self {
+            degrees: normalize(v.abs()),
+        }
+    }
+
+    /// `Heading::is_in_range`: within `range` of `center` either way.
+    pub(crate) fn is_in_range(self, center: Self, range: Self) -> bool {
+        ld(Self::difference(self, center).abs().degrees) < ld(range.degrees)
+    }
 }
 
 /// The wrap `Heading::set`, `FromUInt8` and `operator-` share: `fmod(value, 360)`, stored; a

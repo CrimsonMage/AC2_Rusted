@@ -7,6 +7,10 @@
 //! Positions are retail `Position`s: a cell id and a frame in AC axes (z up) relative to the
 //! cell's landblock. Arithmetic follows the retail x87 model (see `fpu`).
 
+mod anim_pose;
+#[cfg(test)]
+mod anim_real_data_tests;
+mod anim_rep;
 mod body;
 mod bsp;
 mod cells;
@@ -19,9 +23,13 @@ mod find_cells;
 mod fpu;
 mod frame;
 mod heading;
+mod interp;
 mod landdefs;
 mod loader;
+mod loader_anim;
 mod motion_interp;
+mod motion_interp_behaviors;
+mod moveto;
 mod objects;
 #[cfg(test)]
 mod objects_real_data_tests;
@@ -42,7 +50,11 @@ mod test_support;
 mod transition;
 mod vector;
 
-pub use body::{MovementInput, MovementState, PhysicsBody, PhysicsClock, PHYSICS_QUANTUM};
+pub use anim_rep::BodyAnimation;
+pub use body::{
+    AnimationClock, MovementInput, MovementState, PhysicsBody, PhysicsClock, ANIM_QUANTUM,
+    PHYSICS_QUANTUM,
+};
 pub use bsp::{BspTree, Polygon};
 pub use cells::{CellSource, LandCell, TerrainPolygon};
 pub use envcell::{CellBsp, CellBspNode, CellPortal, CellStructure, EnvCell};
@@ -52,7 +64,12 @@ pub use loader::{
     load_block_interiors, load_block_objects, load_body_shape, load_object_shape,
     load_terrain_block,
 };
+pub use loader_anim::load_body_animation;
 pub use motion_interp::MotionInterp;
+pub use moveto::{
+    MoveToResult, MovementParameters, MOVE_TO_AWAY, MOVE_TO_MOVE, MOVE_TO_OBJECT,
+    MOVE_TO_PERSISTENT, MOVE_TO_TURN, MOVE_TO_USE_CYLINDERS,
+};
 pub use objects::{BBox, ObjectShape, StaticObject};
 pub use physics_obj::BodyShape;
 pub use physics_obj_place::{SetPositionError, FORCE_SPF, SLIDE_SPF};
