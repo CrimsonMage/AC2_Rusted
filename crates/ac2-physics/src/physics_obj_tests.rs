@@ -214,3 +214,67 @@ fn a_grounded_body_jumps_with_the_jump_impulse_and_lands_again() {
         "{state:?}"
     );
 }
+
+fn animated_body_at(x: f32, y: f32, z: f32) -> PhysicsBody {
+    let mut body = body_at(x, y, z);
+    body.set_animation(crate::test_support::body_animation());
+    body
+}
+
+/// Physics quanta with an animation step after each, as the client frame runs them.
+fn run_animated(body: &mut PhysicsBody, terrain: &Terrain, seconds: f32) {
+    let quanta = (seconds / PHYSICS_QUANTUM).round() as usize;
+    for _ in 0..quanta {
+        body.step_quantum(terrain);
+        body.update_animation(PHYSICS_QUANTUM);
+    }
+}
+
+#[test]
+fn an_animated_jump_waits_for_the_air_transition() {
+    let ground = terrain(|_, _| 50.0);
+    let mut body = animated_body_at(70.0, 70.0, 50.0);
+    run_animated(&mut body, &ground, 0.8);
+    body.take_animation_events();
+    assert!(body.jump());
+    assert_eq!(body.movement_state().element, ELEMENT_AIR);
+    assert_eq!(body.current_element(), ELEMENT_GROUND, "still animating");
+    body.update_animation(0.2);
+    assert_eq!(body.current_element(), ELEMENT_GROUND);
+    body.update_animation(0.2);
+    assert_eq!(body.current_element(), ELEMENT_AIR);
+    run_animated(&mut body, &ground, 2.0);
+    let state = body.movement_state();
+    assert!(
+        state.contact && state.element == ELEMENT_GROUND,
+        "{state:?}"
+    );
+    let fx: Vec<u32> = body
+        .take_animation_events()
+        .into_iter()
+        .filter_map(|event| match event {
+            ac2_anim::Ac2AnimEvent::StartFx { fx, .. } => Some(fx),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(fx, vec![0x4000_0003, 0x4000_0002], "jump then land FX");
+}
+
+#[test]
+fn walking_plays_the_move_behaviour_and_standing_stops_it() {
+    let ground = terrain(|_, _| 50.0);
+    let mut body = animated_body_at(70.0, 30.0, 50.0);
+    run_animated(&mut body, &ground, 0.8);
+    assert!(body.is_doing_behavior(0x4000_0002), "idle");
+    assert!(!body.is_doing_behavior(0x4000_0001));
+    body.do_motion([0.0, 1.0, 0.0]);
+    run_animated(&mut body, &ground, 0.5);
+    assert!(body.is_doing_behavior(0x4000_0001));
+    body.do_motion([0.0, 0.0, 0.0]);
+    run_animated(&mut body, &ground, 1.5);
+    assert!(
+        !body.is_doing_behavior(0x4000_0001),
+        "{:?}",
+        body.movement_state()
+    );
+}

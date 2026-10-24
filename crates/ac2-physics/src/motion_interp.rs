@@ -2,9 +2,8 @@
 //! acceleration and omega acceleration the physics object integrates, from the `MotionValues`
 //! of the body's `MotionInterpDesc` for its element, mode and terrain.
 //!
-//! The animation behaviours `UpdateMovement` drives through `PHYSICSOBJREP` (run, skid, land,
-//! fall and swim behaviours and their FX) and the `InterpolationManager`/`MoveToManager` paths
-//! (remote objects and autonomous move-to) are not part of this port; the player input path is.
+//! The animation behaviours `UpdateMovement` drives through `PHYSICSOBJREP` are in
+//! `motion_interp_behaviors`.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -13,6 +12,7 @@ use ac2_world::{Ac2MotionInterpDesc, Ac2MotionValues};
 
 use crate::fpu::{ld, st, F_EPSILON};
 use crate::heading::Heading;
+use crate::motion_interp_behaviors::{BehaviorTimers, MotionRep};
 use crate::vector::Vector;
 
 /// `ModeStateKey` element ids.
@@ -43,6 +43,8 @@ pub(crate) struct MotionContext {
     /// `GetDesiredElement` and `GetElement`.
     pub desired_element: u32,
     pub element: u32,
+    /// `IsSlidingDown`: in contact but not on walkable ground.
+    pub is_sliding_down: bool,
     /// `GetConstraintFactor` (1 without a `ConstraintManager`).
     pub constraint_factor: f32,
     /// `GetVectorHeading` (`Frame::get_vector_heading`): the forward axis.
@@ -75,6 +77,7 @@ pub struct MotionInterp {
     terrain_type: u32,
     terrain_mods: HashMap<u32, u32>,
     global_mod: u32,
+    timers: BehaviorTimers,
 }
 
 impl MotionInterp {
@@ -98,11 +101,26 @@ impl MotionInterp {
             terrain_type: TERRAIN_DEFAULT,
             terrain_mods: HashMap::new(),
             global_mod: 0,
+            timers: BehaviorTimers::default(),
         }
     }
 
     pub(crate) fn mode(&self) -> u32 {
         self.mode
+    }
+
+    /// The desired mode the motion values are looked up in.
+    pub(crate) fn set_mode(&mut self, mode: u32) {
+        self.mode = mode;
+    }
+
+    pub(crate) fn timers_mut(&mut self) -> &mut BehaviorTimers {
+        &mut self.timers
+    }
+
+    /// `CMotionInterp::mLocalDesiredVel`.
+    pub(crate) fn local_desired_velocity(&self) -> Vector {
+        self.local_desired_vel
     }
 
     /// `CMotionInterp::mLastDoMotionValues`.
@@ -271,10 +289,16 @@ impl MotionInterp {
         self.local_desired_vel.z = st(ld(values.max_vertical_velocity) * ld(motion.z));
     }
 
-    /// `CMotionInterp::UpdateMovement` without the animation behaviours: the local acceleration
-    /// toward `mLocalDesiredVel` for each axis, the hover/ground vertical acceleration, then
-    /// `CalculateOmegaAcceleration`.
-    pub(crate) fn update_movement(&mut self, quantum: f32, ctx: &MotionContext) -> OmegaClamp {
+    /// `CMotionInterp::UpdateMovement` (without the interpolation and move-to managers): the
+    /// behaviours on `rep`, the local acceleration toward `mLocalDesiredVel` for each axis, the
+    /// hover/ground vertical acceleration, then `CalculateOmegaAcceleration`.
+    pub(crate) fn update_movement(
+        &mut self,
+        quantum: f32,
+        ctx: &MotionContext,
+        rep: &mut dyn MotionRep,
+    ) -> OmegaClamp {
+        self.advance_jump_timers(quantum);
         let motion = &mut self.last_do_motion;
         if motion.mag2_xyz() > 1.0 {
             for component in [&mut motion.x, &mut motion.y, &mut motion.z] {
@@ -291,6 +315,7 @@ impl MotionInterp {
         self.convert_do_motion_to_local_desired(&values, ctx, true);
         self.acl = Vector::ZERO;
         self.omega_acl = Vector::ZERO;
+        self.update_behaviors(quantum, ctx, rep);
         self.update_linear_acceleration(quantum, &values, ctx);
         self.calculate_omega_acceleration(ctx)
     }

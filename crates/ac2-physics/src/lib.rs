@@ -7,6 +7,7 @@
 //! Positions are retail `Position`s: a cell id and a frame in AC axes (z up) relative to the
 //! cell's landblock. Arithmetic follows the retail x87 model (see `fpu`).
 
+mod anim_rep;
 mod body;
 mod bsp;
 mod cells;
@@ -22,6 +23,7 @@ mod heading;
 mod landdefs;
 mod loader;
 mod motion_interp;
+mod motion_interp_behaviors;
 mod objects;
 #[cfg(test)]
 mod objects_real_data_tests;
@@ -42,7 +44,11 @@ mod test_support;
 mod transition;
 mod vector;
 
-pub use body::{MovementInput, MovementState, PhysicsBody, PhysicsClock, PHYSICS_QUANTUM};
+pub use anim_rep::BodyAnimation;
+pub use body::{
+    AnimationClock, MovementInput, MovementState, PhysicsBody, PhysicsClock, ANIM_QUANTUM,
+    PHYSICS_QUANTUM,
+};
 pub use bsp::{BspTree, Polygon};
 pub use cells::{CellSource, LandCell, TerrainPolygon};
 pub use envcell::{CellBsp, CellBspNode, CellPortal, CellStructure, EnvCell};

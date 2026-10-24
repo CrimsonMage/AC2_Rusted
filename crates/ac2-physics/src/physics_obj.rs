@@ -3,6 +3,7 @@
 //! `CalcElement`, the motion interpreter, `CalcAcceleration`, the velocity/omega integration and
 //! `CalcFriction`, then moves the body through a `CTransition`.
 
+use crate::anim_rep::AnimRep;
 use crate::fpu::{ld, st, F_EPSILON};
 use crate::frame::Frame;
 use crate::heading::Heading;
@@ -85,10 +86,13 @@ pub(crate) struct PhysicsObj {
     /// `CPhysicsObj::m_fJumpScale` and `m_nTimesJumped`.
     pub jump_scale: f32,
     pub times_jumped: u32,
-    /// `ModeTracker::mDesiredElement`; without an animated mode tracker the current element is
-    /// the desired one (`ModeTracker::GetElement` with `mCanAnimate` 0).
+    /// The element of a body without a behaviour table. Retail's `ModeTracker` never changes
+    /// element without one; this port takes the element at once instead so tableless bodies
+    /// still swim and fall.
     pub element: u32,
     pub motion: MotionInterp,
+    /// `PHYSICSOBJREP`'s mode and slider trackers.
+    pub(crate) anim: AnimRep,
     pub shape: BodyShape,
     /// `CSetup::m_physics_containment_radius` of the body's spheres (unscaled).
     pub setup_containment: f32,
@@ -127,6 +131,7 @@ impl PhysicsObj {
             times_jumped: 0,
             element: ELEMENT_GROUND,
             motion,
+            anim: AnimRep::unanimated(),
             setup_containment: ObjectShape::new(Vec::new(), Vec::new(), shape.spheres.clone())
                 .containment_radius,
             shape,
@@ -143,6 +148,41 @@ impl PhysicsObj {
             ld(st(s * ld(self.scale.z))),
         );
         st(ld(st((x * x + y * y) + z * z)).sqrt() * ld(self.setup_containment))
+    }
+
+    /// `PHYSICSOBJREP::GetDesiredElement` (`ModeTracker::mDesiredElement`).
+    pub(crate) fn desired_element(&self) -> u32 {
+        if self.anim.can_animate() {
+            self.anim.modes.desired_element()
+        } else {
+            self.element
+        }
+    }
+
+    /// `PHYSICSOBJREP::GetElement`: the element the animation has reached.
+    pub(crate) fn current_element(&self) -> u32 {
+        if self.anim.can_animate() {
+            self.anim.modes.element()
+        } else {
+            self.element
+        }
+    }
+
+    /// `CPhysicsObj::DoElement` (`ModeTracker::DoElement`: a mode transition toward `element`).
+    pub(crate) fn do_element(&mut self, element: u32) {
+        if self.anim.can_animate() {
+            self.anim.do_element(element);
+            self.sync_mode();
+        } else {
+            self.element = element;
+        }
+    }
+
+    /// `CMotionInterp::GetDesiredModeState` reads the mode tracker's desired mode.
+    pub(crate) fn sync_mode(&mut self) {
+        if self.anim.can_animate() {
+            self.motion.set_mode(self.anim.modes.desired_mode());
+        }
     }
 
     pub(crate) fn has_contact(&self) -> bool {
@@ -219,8 +259,12 @@ impl PhysicsObj {
             self.time_on_ground = f64::from(quantum) + self.time_on_ground;
         }
         self.calc_element(terrain);
+        self.sync_mode();
         let context = self.motion_context(terrain);
-        let clamp = self.motion.update_movement(quantum, &context);
+        let clamp = self
+            .motion
+            .update_movement(quantum, &context, &mut self.anim);
+        self.sync_mode();
         self.clamp_heading = clamp.heading;
         self.clamp_omega = Some(clamp.omega_z);
         self.calc_acceleration(terrain);
@@ -302,7 +346,7 @@ impl PhysicsObj {
         let mut x = st(ox + ax);
         let mut y = st(oy + ay);
         let z = st(oz + az);
-        if self.element != ELEMENT_AIR {
+        if self.desired_element() != ELEMENT_AIR {
             if ld(self.distance_cap_2d) >= 0.0 {
                 let travelled = (ld(y) * ld(y) + ld(x) * ld(x)).sqrt();
                 let travelled_stored = st(travelled);
@@ -336,8 +380,9 @@ impl PhysicsObj {
             height_above_walkable: self.height_above_walkable(terrain),
             has_water: self.has_water,
             depth: self.depth,
-            desired_element: self.element,
-            element: self.element,
+            desired_element: self.desired_element(),
+            element: self.current_element(),
+            is_sliding_down: self.has_contact() && !self.on_walkable(),
             constraint_factor: 1.0,
             vector_heading: self.position.frame.vector_heading(),
         }
@@ -346,7 +391,7 @@ impl PhysicsObj {
     /// `CPhysicsObj::GetHeightAboveWalkable`: zero in contact or walking on air, else the drop
     /// to the terrain below (`LOSCheck` against terrain only), negative when below it.
     pub(crate) fn height_above_walkable(&self, terrain: &Terrain) -> f32 {
-        if self.element == ELEMENT_WALK_ON_AIR || self.has_contact() {
+        if self.desired_element() == ELEMENT_WALK_ON_AIR || self.has_contact() {
             return 0.0;
         }
         terrain.height_above_terrain(&self.position).unwrap_or(0.0)
@@ -363,10 +408,10 @@ impl PhysicsObj {
         let sea_height = ld(st(height * ld(self.motion_sea_floor_multiplier())));
         let gravity = self
             .motion
-            .desired_motion_values(self.element, self.motion.mode())
+            .desired_motion_values(self.desired_element(), self.motion.mode())
             .gravity;
         if self.walk_on_air {
-            self.element = ELEMENT_WALK_ON_AIR;
+            self.do_element(ELEMENT_WALK_ON_AIR);
             if !gravity {
                 self.transient_state &= !CONTACT_TS;
             }
@@ -379,9 +424,9 @@ impl PhysicsObj {
                 if !gravity {
                     self.transient_state &= !CONTACT_TS;
                 }
-                self.element = ELEMENT_GROUND;
+                self.do_element(ELEMENT_GROUND);
             } else {
-                self.element = ELEMENT_AIR;
+                self.do_element(ELEMENT_AIR);
             }
             return;
         };
@@ -391,32 +436,32 @@ impl PhysicsObj {
         self.depth = st(below - water_height);
         if below - sea_height > 0.0 && ld(self.depth) < 0.0 {
             if self.has_contact() {
-                self.element = ELEMENT_SEA_FLOOR;
+                self.do_element(ELEMENT_SEA_FLOOR);
             } else if ld(self.velocity.z) > 0.0 && ld(self.depth) < -0.3 {
-                self.element = ELEMENT_AIR;
+                self.do_element(ELEMENT_AIR);
             }
             return;
         }
         if ld(self.depth) <= 0.0 {
             if self.has_contact() {
-                self.element = ELEMENT_GROUND;
+                self.do_element(ELEMENT_GROUND);
                 let mode = self.motion.mode();
                 if !self
                     .motion
-                    .desired_motion_values(self.element, mode)
+                    .desired_motion_values(self.desired_element(), mode)
                     .gravity
                 {
                     self.transient_state &= !CONTACT_TS;
                 }
             } else {
-                self.element = ELEMENT_AIR;
+                self.do_element(ELEMENT_AIR);
             }
             return;
         }
-        if self.element != ELEMENT_WATER {
+        if self.desired_element() != ELEMENT_WATER {
             self.handle_hit_water();
         }
-        self.element = ELEMENT_WATER;
+        self.do_element(ELEMENT_WATER);
         if !gravity {
             self.transient_state &= !CONTACT_TS;
         }

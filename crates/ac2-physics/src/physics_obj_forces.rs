@@ -21,7 +21,7 @@ impl PhysicsObj {
         self.acceleration = Vector::ZERO;
         let values = self
             .motion
-            .desired_motion_values(self.element, self.motion.mode());
+            .desired_motion_values(self.desired_element(), self.motion.mode());
         let affected = self.state & GRAVITY_PS != 0;
         if affected && values.gravity && (!self.has_contact() || !self.on_walkable()) {
             let g = self.local_gravity;
@@ -31,7 +31,7 @@ impl PhysicsObj {
                 st(ld(g.z) + ld(self.acceleration.z)),
             );
         }
-        let desired = self.element;
+        let desired = self.desired_element();
         let lift = |acceleration: &mut Vector, amount: f64| {
             acceleration.z = st(amount + ld(acceleration.z));
         };
@@ -62,7 +62,7 @@ impl PhysicsObj {
                         height = st(above);
                     }
                 }
-                let hover = ld(self.motion.hover_height(self.element));
+                let hover = ld(self.motion.hover_height(self.desired_element()));
                 if (ld(height) - hover).abs() >= 0.100_000_001_490_116_12 {
                     lift(&mut self.acceleration, ld(values.lift));
                 }
@@ -82,7 +82,10 @@ impl PhysicsObj {
 
     /// `CPhysicsObj::CullVelocity`: speeds above the terminal velocity are scaled back to it.
     pub(super) fn cull_velocity(&mut self) {
-        let terminal = self.motion.motion_values(self.element).terminal_velocity;
+        let terminal = self
+            .motion
+            .motion_values(self.desired_element())
+            .terminal_velocity;
         let v = self.velocity;
         let speed2 = st((ld(v.x) * ld(v.x) + ld(v.y) * ld(v.y)) + ld(v.z) * ld(v.z));
         let limit = ld(terminal) * ld(terminal);
@@ -102,7 +105,7 @@ impl PhysicsObj {
     pub(super) fn calc_friction(&mut self, quantum: f32, _velocity_mag2: f32) {
         let values = self
             .motion
-            .desired_motion_values(self.element, self.motion.mode());
+            .desired_motion_values(self.desired_element(), self.motion.mode());
         if ld(values.drag) == 0.0 {
             return;
         }

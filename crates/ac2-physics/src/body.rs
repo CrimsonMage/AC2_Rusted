@@ -3,7 +3,10 @@
 
 use std::sync::Arc;
 
+use ac2_anim::{Ac2AnimEvent, Ac2BehaviorParams};
 use ac2_world::Ac2MotionInterpDesc;
+
+use crate::anim_rep::BodyAnimation;
 
 use crate::fpu::{ld, st};
 use crate::heading::Heading;
@@ -55,6 +58,45 @@ impl PhysicsClock {
     }
 }
 
+/// `ANIM_QUANTUM`: `1.0f / 30.0f` (static initialiser).
+pub const ANIM_QUANTUM: f32 = 0.033_333_335;
+/// `PhysicsModule::UpdateAnimation` caps a step at this, then steps 0.05 s.
+const MAX_ANIM_STEP: f32 = 0.2;
+const LONG_ANIM_STEP: f32 = 0.05;
+
+/// `PhysicsModule`'s animation clock (`m_tAnimationUpdateTime`).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct AnimationClock {
+    update_time: f64,
+}
+
+impl AnimationClock {
+    pub fn new(now: f64) -> Self {
+        Self { update_time: now }
+    }
+
+    /// `PhysicsModule::UpdateAnimation`: the animation step to run at `now`, once at least
+    /// `ANIM_QUANTUM` has passed (0.05 s after a stall over 0.2 s). A clock running backwards
+    /// resynchronises.
+    pub fn advance(&mut self, now: f64) -> Option<f32> {
+        let elapsed = now - self.update_time;
+        let step = st(elapsed);
+        if elapsed < 0.0 {
+            self.update_time = now;
+            return None;
+        }
+        if !(ld(ANIM_QUANTUM) <= ld(step)) {
+            return None;
+        }
+        self.update_time = now;
+        Some(if ld(step) > ld(MAX_ANIM_STEP) {
+            LONG_ANIM_STEP
+        } else {
+            step
+        })
+    }
+}
+
 /// Movement input as retail physics takes it (`CPhysicsObj::DoMotion`): a do-motion vector
 /// (strafe right, forward, up; each in `[-1, 1]`, normalised when longer than 1) and the
 /// heading to turn to; or a normalised turn rate (`CMotionInterp::SetOmegaVelocity`) for
@@ -85,7 +127,7 @@ pub struct MovementState {
     pub do_motion: [f32; 3],
     /// The turn rate applied each quantum (`set_turn_rate`).
     pub turn: f32,
-    /// `ModeStateKey` element and mode.
+    /// The desired element and mode (`ModeTracker::GetDesiredModeState`).
     pub element: u32,
     pub mode: u32,
     /// `CONTACT_TS` and `ON_WALKABLE_TS`.
@@ -203,14 +245,52 @@ impl PhysicsBody {
         quanta
     }
 
-    /// `CPhysicsObj::JumpLogic` without the jump behaviour: when `can_jump`, `Jump`. Returns
-    /// whether the body jumped.
+    /// `CPhysicsObj::JumpLogic`: when `can_jump`, `Jump` (or, standing with a behaviour table,
+    /// the jump behaviour). Returns whether the jump was taken.
     pub fn jump(&mut self) -> bool {
-        if !self.object.can_jump() {
-            return false;
-        }
-        self.object.jump();
-        true
+        self.object.jump_logic()
+    }
+
+    /// Animate the body with its behaviour table (`PHYSICSOBJREP::SetupModeTracker`): element
+    /// and mode changes then wait for the animation's mode transitions, and `update_movement`
+    /// starts and stops the movement behaviours.
+    pub fn set_animation(&mut self, animation: BodyAnimation) {
+        self.object.set_animation(animation, true);
+    }
+
+    /// One animation step (`CPhysicsObj::UpdateAnimation`), at the steps an
+    /// [`AnimationClock`] gives.
+    pub fn update_animation(&mut self, quantum: f32) {
+        self.object.update_animation(quantum);
+    }
+
+    /// `CPhysicsObj::DoBehavior` (a weenie or server behaviour).
+    pub fn do_behavior(&mut self, params: &Ac2BehaviorParams) -> bool {
+        self.object
+            .anim
+            .with_modes(|modes, source| modes.do_behavior(params, source))
+    }
+
+    /// `CPhysicsObj::StopBehavior`.
+    pub fn stop_behavior(&mut self, behavior: u32) {
+        self.object
+            .anim
+            .with_modes(|modes, source| modes.stop_behavior(behavior, source));
+    }
+
+    /// `PHYSICSOBJREP::GetElement`: the element the animation has reached.
+    pub fn current_element(&self) -> u32 {
+        self.object.current_element()
+    }
+
+    /// `PHYSICSOBJREP::IsDoingBehavior`.
+    pub fn is_doing_behavior(&self, behavior: u32) -> bool {
+        self.object.anim.modes.is_doing_behavior(behavior)
+    }
+
+    /// The behaviour callbacks and FX the animation raised since the last call, in order.
+    pub fn take_animation_events(&mut self) -> Vec<Ac2AnimEvent> {
+        self.object.take_animation_events()
     }
 
     pub fn movement_state(&self) -> MovementState {
@@ -225,7 +305,7 @@ impl PhysicsBody {
             omega: [o.omega.x, o.omega.y, o.omega.z],
             do_motion: [motion.x, motion.y, motion.z],
             turn: self.turn,
-            element: o.element,
+            element: o.desired_element(),
             mode: o.motion.mode(),
             contact: o.has_contact(),
             on_walkable: o.on_walkable(),

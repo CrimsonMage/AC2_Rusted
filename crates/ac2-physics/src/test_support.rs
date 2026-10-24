@@ -88,3 +88,120 @@ pub(crate) fn desc(lists: &[(u32, Ac2MotionValues)]) -> Arc<Ac2MotionInterpDesc>
     let qdid = QualifiedDataId::new(DataId::new(DID), 0);
     Arc::new(Ac2MotionInterpDesc::decode_packed(qdid, 0, &bytes).expect("synthetic desc"))
 }
+
+/// A `PHYSICSOBJREP` stand-in recording the behaviour, mode and FX calls of `CMotionInterp`.
+#[derive(Debug, Default)]
+pub(crate) struct RecordingRep {
+    pub doing: Vec<u32>,
+    pub started: Vec<u32>,
+    pub stopped: Vec<u32>,
+    pub fx: Vec<(u32, f32)>,
+    pub mode: u32,
+}
+
+impl crate::motion_interp_behaviors::MotionRep for RecordingRep {
+    fn do_autonomous_behavior(&mut self, behavior: u32) {
+        self.started.push(behavior);
+        if !self.doing.contains(&behavior) {
+            self.doing.push(behavior);
+        }
+    }
+
+    fn is_doing_behavior(&self, behavior: u32) -> bool {
+        self.doing.contains(&behavior)
+    }
+
+    fn stop_behavior(&mut self, behavior: u32) {
+        self.stopped.push(behavior);
+        self.doing.retain(|&b| b != behavior);
+    }
+
+    fn do_mode(&mut self, _context: u32, mode: u32) {
+        self.mode = mode;
+    }
+
+    fn desired_mode(&self) -> u32 {
+        self.mode
+    }
+
+    fn do_fx(&mut self, fx: u32, intensity: f32) {
+        self.fx.push((fx, intensity));
+    }
+}
+
+/// A synthetic behaviour table: ground and air in the default mode, linked both ways with a
+/// 0.3 s transition; idle (anim key 1) and move (anim key 2) in both, each a 1 s clip.
+pub(crate) fn body_animation() -> crate::anim_rep::BodyAnimation {
+    use std::collections::HashMap;
+
+    use ac2_anim::{
+        Ac2Animation, Ac2BehaviorInfo, Ac2BehaviorTable, Ac2CharTemplate, Ac2ComboInfo,
+        Ac2ModeTransition, Ac2MotionAnimator,
+    };
+
+    use crate::motion_interp::{ELEMENT_AIR, ELEMENT_GROUND};
+
+    let (idle, mv) = (0x4000_0002, 0x4000_0001);
+    let mut combos = HashMap::new();
+    for element in [ELEMENT_GROUND, ELEMENT_AIR] {
+        combos.insert(
+            (element, MODE_DEFAULT, idle),
+            Ac2ComboInfo {
+                anim_key: 1,
+                layer: 0,
+            },
+        );
+        combos.insert(
+            (element, MODE_DEFAULT, mv),
+            Ac2ComboInfo {
+                anim_key: 2,
+                layer: 1,
+            },
+        );
+    }
+    let ground = (ELEMENT_GROUND, MODE_DEFAULT);
+    let air = (ELEMENT_AIR, MODE_DEFAULT);
+    let transition = |src: (u32, u32), dst: (u32, u32)| Ac2ModeTransition {
+        src_element: src.0,
+        src_mode: src.1,
+        dst_element: dst.0,
+        dst_mode: dst.1,
+    };
+    let table = Ac2BehaviorTable {
+        ramp_times: HashMap::from([
+            (transition(ground, air), 0.3),
+            (transition(air, ground), 0.3),
+        ]),
+        combos,
+        transitions: HashMap::new(),
+        layers: vec![0, 1],
+        tweak_layers: Vec::new(),
+        mode_transitions: HashMap::from([(ground, vec![air]), (air, vec![ground])]),
+        modes: HashMap::from([(ground, 0), (air, 0)]),
+        behavior_info: HashMap::from([(
+            mv,
+            Ac2BehaviorInfo {
+                ramp_time: 0.2,
+                effect: 0,
+            },
+        )]),
+        init_behaviors: vec![idle],
+        init_mode: MODE_DEFAULT,
+    };
+    let template = Ac2CharTemplate {
+        behaviors: HashMap::from([(idle, 0), (0x4000_0003, 0), (mv, 0)]),
+        default_element: ELEMENT_GROUND,
+        default_mode: MODE_DEFAULT,
+    };
+    let clip = || {
+        Arc::new(Ac2MotionAnimator::from_clip(Ac2Animation {
+            period: 1.0,
+            bones: Arc::from(Vec::new()),
+        }))
+    };
+    crate::anim_rep::BodyAnimation {
+        table: Arc::new(table),
+        template: Arc::new(template),
+        animators: HashMap::from([(1, clip()), (2, clip())]),
+    }
+}

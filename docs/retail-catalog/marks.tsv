@@ -511,8 +511,13 @@ key	status	note
 004de490	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
 004de5b0	x	
 004de5d0	x	
+004de7b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004de8d0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004de940	x	
+004de980	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004de990	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004df5a0	~	no IsDoingBehavior(jump) check (behaviours not ported)
+004df670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004df6a0	x	
 004df6d0	x	
 004df6e0	x	
@@ -525,7 +530,7 @@ key	status	note
 004dffe0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004e05a0	x	
 004e05d0	x	
-004e0620	~	HitGround/LeaveGround FX events not ported
+004e0620	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e06c0	x	
 004e0a70	x	
 004e0af0	x	
@@ -537,23 +542,25 @@ key	status	note
 004e23b0	~	instance stamp kept per object in ac2-weenie ObjectTable
 004e30e0	x	
 004e3280	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-004e3aa0	x	
-004e3b90	~	DoElement sets the element directly (ModeTracker element transitions not ported)
+004e3aa0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004e3b90	~	elements go through ModeTracker::DoElement; the no-cell DoElement(GROUND) is not ported
 004e3e20	~	no pushers (CCollisionManager::UpdatePusherValues)
 004e4170	~	no admin moves or missiles
-004e43b0	~	HitGround/LeaveGround FX events not ported
+004e43b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e4430	~	only the zero velocity of OBJECTINFO::kill_velocity
 004e44e0	x	
 004e4640	~	ac2-physics: vdesc scale x placement scale; the body uses the root z scale
-004e56e0	~	the standing jump behaviour is not ported; jumps at once
+004e56e0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e5780	~	vertical distance to the terrain polygon instead of CObjCell::LOSCheck
 004e5d10	~	environment response only; object collisions and the collision manager not ported
 004e6ff0	x	
 004e7580	~	ac2-physics objects.rs: static objects only; Interpermiable/CollisionParameters ethereal filter, missile proximity and temp ignore lists not ported
 004e8f80	x	
 004e9140	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
+004e9700	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
 004e9d30	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 004e9f50	~	no cell residency, shadow or material updates; LeaveGround FX not ported
+004ea490	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004ea780	~	no path-aligned heading, targeting or missiles
 004ea990	~	ac2-physics: FORCE_SPF sets the position only (no cell entry, shadows or cell material)
 004eaa30	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
@@ -575,8 +582,29 @@ key	status	note
 004ed1f0	~	the player's server placement (SetPositionSimple(pos, 1))
 004ed470	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
 004ee7d0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+004f0a10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1190	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f11d0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f12f0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1310	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1350	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1420	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1440	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1460	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1480	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f17b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f17c0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1b00	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1b90	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+004f1c40	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+004f1d10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1f40	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f1f90	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+004f2440	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+004f2560	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f2670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f2690	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+004f4aa0	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
 004f5110	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f6090	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 005083f0	_	
@@ -584,6 +612,8 @@ key	status	note
 005097b0	x	
 005097e0	x	ac2-physics MovementState turning_to / turn_to_degrees
 00509800	x	
+00509980	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+00509a10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 00509a90	x	
 00509ab0	x	
 00509af0	x	
@@ -591,7 +621,7 @@ key	status	note
 00509ed0	x	
 00509f20	x	
 0050a1b0	x	
-0050a4f0	~	animation behaviours/FX (run, skid, land, fall, swim) and the Interpolation/MoveTo managers not ported
+0050a4f0	~	ac2-physics: behaviours ported (motion_interp_behaviors); InterpolationManager/MoveToManager paths pending
 0050b470	x	
 0050b540	x	
 0050b5d0	x	
@@ -1055,4 +1085,5 @@ key	status	note
 00732240	~	the player body only (CPhysics::UpdateAllPhysics over remote objects not simulated)
 007326e0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 00737cf0	x	
+00737dd0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 DB_TYPE_SURFACE_DESC	x	
