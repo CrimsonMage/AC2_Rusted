@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 259 done, 132 partial, 1838 to do, 18 skipped.
+2247 retail functions: 346 done, 166 partial, 1716 to do, 19 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -1612,17 +1612,17 @@ Legend and workflow: [README](README.md).
 - [ ] `gmSocialUI::ListenToMessage` · 00430650 · legions 00430410
 - [ ] `gmSocialUI::gmSocialUI` · 004306b0 · legions 00430470
 
-## `ac2/client/src/ui/gmuiflow.cpp.c` (3/37)
+## `ac2/client/src/ui/gmuiflow.cpp.c` (9/37)
 
 ### gmUIFlow
-- [ ] `gmUIFlow::~gmUIFlow` · 00405d80 · legions 00405a60
+- [x] `gmUIFlow::~gmUIFlow` · 00405d80 · legions 00405a60 — ac2-ui pregame/flow.rs, pregame/ui.rs
 
 ### UIFlow
 - [ ] `UIFlow::GetSmartBox` · 00405df0 · legions 00405ae0
-- [ ] `UIFlow::GetUIMainFramework` · 00405e00
+- [x] `UIFlow::GetUIMainFramework` · 00405e00 — ac2-ui pregame/flow.rs, pregame/ui.rs
 
 ### gmUIFlow
-- [ ] `gmUIFlow::ListenToMessage` · 00405e10 · legions 00405af0
+- [-] `gmUIFlow::ListenToMessage` · 00405e10 · legions 00405af0 — debug keys (bench mode, debug HUD, screenshot, sound debug)
 
 ### PLineOffsetList
 - [ ] `PLineOffsetList::~PLineOffsetList` · 004060b0 · legions 00405dc0
@@ -1637,12 +1637,12 @@ Legend and workflow: [README](README.md).
 - [ ] `ImportData::~ImportData` · 004061b0 · legions 00405ec0
 
 ### gmUIFlow
-- [ ] `gmUIFlow::RecvNotice_CharacterError` · 00406220
-- [~] `gmUIFlow::RecvNotice_ServerDied` · 00406410 — ac2-client Notice::ConnectionLost (ID_NetErr_ConnectionLost, 0x41000018); no UI modes in the headless client
-- [ ] `gmUIFlow::RecvNotice_GunConnectionLost` · 004064a0
-- [ ] `gmUIFlow::RecvNotice_CharacterError` · 00406af0
-- [-] `gmUIFlow::RecvNotice_ServerDied` · 00406b00 — inline copy of 00406410
-- [ ] `gmUIFlow::gmUIFlow` · 00406b10
+- [x] `gmUIFlow::RecvNotice_CharacterError` · 00406220 — ac2-ui pregame/flow.rs, pregame/ui.rs
+- [x] `gmUIFlow::RecvNotice_ServerDied` · 00406410 — ac2-ui pregame/flow.rs, pregame/ui.rs
+- [-] `gmUIFlow::RecvNotice_GunConnectionLost` · 004064a0 — GUN chat servers are not used (Turbine chat)
+- [x] `gmUIFlow::RecvNotice_CharacterError` · 00406af0 — ac2-ui pregame/flow.rs, pregame/ui.rs
+- [x] `gmUIFlow::RecvNotice_ServerDied` · 00406b00 — ac2-ui pregame/flow.rs, pregame/ui.rs
+- [~] `gmUIFlow::gmUIFlow` · 00406b10 — pregame/ui.rs: character selection and disconnected made; intro, data patch (the client connects), keyboard, credits not ported
 
 ### ImportData
 - [~] `ImportData::StreamPack` · 00406c60 · legions 00406970 — ac2-script: unpack direction only
@@ -1691,7 +1691,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ExportData::~ExportData` · 00407720 · legions 00407430
 - [~] `ExportData::StreamPack` · 00407770 · legions 00407480 — ac2-script: unpack direction only
 
-## `ac2/client/src/ui/pregame/generation/gmavatarmodificationui.cpp.c` (0/27)
+## `ac2/client/src/ui/pregame/generation/gmavatarmodificationui.cpp.c` (10/27)
 
 ### AFrame
 - [ ] `AFrame::AFrame` · 0040a9e0 · legions 0040a8a0
@@ -1704,9 +1704,9 @@ Legend and workflow: [README](README.md).
 - [ ] `UIRegion::IsVisible` · 0040aaa0 · legions 0040a960
 
 ### gmAvatarModificationUI
-- [ ] `gmAvatarModificationUI::GetCamera` · 0040aad0 · legions 0040a990
-- [ ] `gmAvatarModificationUI::MakeCurrentMask` · 0040ab10 · legions 0040a9d0
-- [ ] `gmAvatarModificationUI::MakePleaseWaitDialog` · 0040ab70 · legions 0040aa30
+- [~] `gmAvatarModificationUI::GetCamera` · 0040aad0 · legions 0040a990 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::MakeCurrentMask` · 0040ab10 · legions 0040a9d0 — ac2-ui pregame/avatar_modification.rs
+- [x] `gmAvatarModificationUI::MakePleaseWaitDialog` · 0040ab70 · legions 0040aa30 — ac2-ui pregame/avatar_modification.rs
 
 ### Frame
 - [ ] `Frame::Frame` · 0040ac80 · legions 0040ab40
@@ -1715,18 +1715,18 @@ Legend and workflow: [README](README.md).
 - [ ] `UISceneEntity::GetFrame` · 0040acb0 · legions 0040ab70
 
 ### gmAvatarModificationUI
-- [ ] `gmAvatarModificationUI::UpdateCamera` · 0040ace0 · legions 0040aba0
-- [ ] `gmAvatarModificationUI::InitCamera` · 0040b0b0 · legions 0040af70
+- [~] `gmAvatarModificationUI::UpdateCamera` · 0040ace0 · legions 0040aba0 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [~] `gmAvatarModificationUI::InitCamera` · 0040b0b0 · legions 0040af70 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
 
 ### PStringBase<char>
 - [ ] `PStringBase<char>::operator+` · 0040b300 · legions 0040b200
 
 ### gmAvatarModificationUI
-- [ ] `gmAvatarModificationUI::Init` · 0040b420 · legions 0040b320
-- [ ] `gmAvatarModificationUI::UpdateByMask` · 0040b640 · legions 0040b540
-- [ ] `gmAvatarModificationUI::Temp` · 0040b6e0 · legions 0040b5e0
-- [ ] `gmAvatarModificationUI::InitUIFromData` · 0040b760 · legions 0040b660
-- [ ] `gmAvatarModificationUI::InitElements` · 0040b8c0 · legions 0040b7c0
+- [~] `gmAvatarModificationUI::Init` · 0040b420 · legions 0040b320 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [~] `gmAvatarModificationUI::UpdateByMask` · 0040b640 · legions 0040b540 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::Temp` · 0040b6e0 · legions 0040b5e0 — ac2-ui pregame/avatar_modification.rs
+- [x] `gmAvatarModificationUI::InitUIFromData` · 0040b760 · legions 0040b660 — ac2-ui pregame/avatar_modification.rs
+- [~] `gmAvatarModificationUI::InitElements` · 0040b8c0 · legions 0040b7c0 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
 
 ### PList<unsigned_long>
 - [ ] `PList<unsigned_long>::GetPackSize` · 0040bb40
@@ -1735,16 +1735,16 @@ Legend and workflow: [README](README.md).
 - [ ] `PList<float>::UnPack` · 0040bb60
 
 ### gmAvatarModificationUI
-- [ ] `gmAvatarModificationUI::ListenToMessage` · 0040bc90 · legions 0040bc60
-- [ ] `gmAvatarModificationUI::InitUITables` · 0040c0d0
-- [ ] `gmAvatarModificationUI::ClearDataTable` · 0040c7e0 · legions 0040c800
-- [ ] `gmAvatarModificationUI::GetDataTable` · 0040c880 · legions 0040c8a0
-- [ ] `gmAvatarModificationUI::gmAvatarModificationUI` · 0040cc00
-- [ ] `gmAvatarModificationUI::~gmAvatarModificationUI` · 0040cff0 · legions 0040d010
-- [ ] `gmAvatarModificationUI::Create` · 0040d290
-- [ ] `gmAvatarModificationUI::Register` · 0040d2d0 · legions 0040d2f0
+- [~] `gmAvatarModificationUI::ListenToMessage` · 0040bc90 · legions 0040bc60 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::InitUITables` · 0040c0d0 — ac2-ui pregame/avatar_modification.rs
+- [x] `gmAvatarModificationUI::ClearDataTable` · 0040c7e0 · legions 0040c800 — ac2-ui pregame/avatar_modification.rs
+- [x] `gmAvatarModificationUI::GetDataTable` · 0040c880 · legions 0040c8a0 — ac2-ui pregame/avatar_modification.rs
+- [~] `gmAvatarModificationUI::gmAvatarModificationUI` · 0040cc00 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::~gmAvatarModificationUI` · 0040cff0 · legions 0040d010 — ac2-ui pregame/avatar_modification.rs
+- [x] `gmAvatarModificationUI::Create` · 0040d290 — ac2-ui pregame/avatar_modification.rs
+- [x] `gmAvatarModificationUI::Register` · 0040d2d0 · legions 0040d2f0 — ac2-ui pregame/avatar_modification.rs
 
-## `ac2/client/src/ui/pregame/generation/gmavatarselectionui.cpp.c` (0/25)
+## `ac2/client/src/ui/pregame/generation/gmavatarselectionui.cpp.c` (6/25)
 
 ### _InstanceID
 - [ ] `_InstanceID::operator==` · 0040d2f0 · legions 0040d310
@@ -1755,7 +1755,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ObjectSelection::operator=` · 0040d360 · legions 0040d380
 
 ### gmAvatarSelectionUI
-- [ ] `gmAvatarSelectionUI::MakePleaseWaitDialog` · 0040d390 · legions 0040d3b0
+- [x] `gmAvatarSelectionUI::MakePleaseWaitDialog` · 0040d390 · legions 0040d3b0 — ac2-ui pregame/avatar_selection.rs
 
 ### SmartArray<UISceneEntity_*>
 - [ ] `SmartArray<UISceneEntity_*>::AddToEnd` · 0040d690 · legions 0040ff80
@@ -1768,15 +1768,15 @@ Legend and workflow: [README](README.md).
 - [ ] `BehaviorParams::~BehaviorParams` · 0040daf0 · legions 0040dae0
 
 ### gmAvatarSelectionUI
-- [ ] `gmAvatarSelectionUI::MouseOffObject` · 0040db40 · legions 0040db30
-- [ ] `gmAvatarSelectionUI::MouseOnObject` · 0040dbd0 · legions 0040dbc0
+- [~] `gmAvatarSelectionUI::MouseOffObject` · 0040db40 · legions 0040db30 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+- [~] `gmAvatarSelectionUI::MouseOnObject` · 0040dbd0 · legions 0040dbc0 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
 
 ### BaseList<unsigned_long,11>
 - [ ] `BaseList<unsigned_long,11>::BaseList<unsigned_long,11>` · 0040dca0 · legions 0040dc90
 
 ### gmAvatarSelectionUI
-- [ ] `gmAvatarSelectionUI::ListenToMessage` · 0040de00 · legions 0040dde0
-- [ ] `gmAvatarSelectionUI::ListenToMessage` · 0040dfe0 · legions 0040dfc0
+- [~] `gmAvatarSelectionUI::ListenToMessage` · 0040de00 · legions 0040dde0 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+- [~] `gmAvatarSelectionUI::ListenToMessage` · 0040dfe0 · legions 0040dfc0 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
 
 ### BaseList<unsigned_long,11>
 - [ ] `BaseList<unsigned_long,11>::BaseList<unsigned_long,11>` · 0040e180 · legions 0040e160
@@ -1788,63 +1788,63 @@ Legend and workflow: [README](README.md).
 - [ ] `PHashTable<unsigned_long,unsigned_long>::PHashTable<unsigned_long,unsigned_long>` · 0040e3f0 · legions 0040e3f0
 
 ### gmAvatarSelectionUI
-- [ ] `gmAvatarSelectionUI::InitEntities` · 0040e510 · legions 0040e510
-- [ ] `gmAvatarSelectionUI::InitGenders` · 0040eaa0 · legions 0040ea70
-- [ ] `gmAvatarSelectionUI::InitRaces` · 0040ebf0 · legions 0040ebc0
+- [~] `gmAvatarSelectionUI::InitEntities` · 0040e510 · legions 0040e510 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+- [x] `gmAvatarSelectionUI::InitGenders` · 0040eaa0 · legions 0040ea70 — ac2-ui pregame/avatar_selection.rs
+- [x] `gmAvatarSelectionUI::InitRaces` · 0040ebf0 · legions 0040ebc0 — ac2-ui pregame/avatar_selection.rs
 
 ### PHashTable<unsigned_long,BaseList<unsigned_long,11>_>
 - [ ] `PHashTable<unsigned_long,BaseList<unsigned_long,11>_>::StreamPack` · 0040ecc0 · legions 0040ec90
 
 ### gmAvatarSelectionUI
-- [ ] `gmAvatarSelectionUI::gmAvatarSelectionUI` · 0040f020
-- [ ] `gmAvatarSelectionUI::~gmAvatarSelectionUI` · 0040f270 · legions 0040f240
-- [ ] `gmAvatarSelectionUI::Create` · 0040f500
-- [ ] `gmAvatarSelectionUI::Register` · 0040f540 · legions 0040f510
+- [~] `gmAvatarSelectionUI::gmAvatarSelectionUI` · 0040f020 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+- [x] `gmAvatarSelectionUI::~gmAvatarSelectionUI` · 0040f270 · legions 0040f240 — ac2-ui pregame/avatar_selection.rs
+- [x] `gmAvatarSelectionUI::Create` · 0040f500 — ac2-ui pregame/avatar_selection.rs
+- [x] `gmAvatarSelectionUI::Register` · 0040f540 · legions 0040f510 — ac2-ui pregame/avatar_selection.rs
 
-## `ac2/client/src/ui/pregame/generation/gmgenerationconfirmationui.cpp.c` (0/6)
+## `ac2/client/src/ui/pregame/generation/gmgenerationconfirmationui.cpp.c` (5/6)
 
 ### (free functions)
-- [ ] `NameInputFilter` · 0042cb60
+- [~] `NameInputFilter` · 0042cb60 — pregame/confirmation.rs is_name_character: English letters, ' - and space; other languages' letters not modelled
 
 ### gmGenerationConfirmationUI
-- [ ] `gmGenerationConfirmationUI::gmGenerationConfirmationUI` · 0042cb90 · legions 0042c950
-- [ ] `gmGenerationConfirmationUI::GhostButtons` · 0042cc90 · legions 0042ca50
-- [ ] `gmGenerationConfirmationUI::SetErrorMsg` · 0042cda0 · legions 0042cb60
-- [ ] `gmGenerationConfirmationUI::ListenToMessage` · 0042cde0 · legions 0042cba0
-- [ ] `gmGenerationConfirmationUI::RecvNotice_CharGenVerification` · 0042d080
+- [x] `gmGenerationConfirmationUI::gmGenerationConfirmationUI` · 0042cb90 · legions 0042c950 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+- [x] `gmGenerationConfirmationUI::GhostButtons` · 0042cc90 · legions 0042ca50 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+- [x] `gmGenerationConfirmationUI::SetErrorMsg` · 0042cda0 · legions 0042cb60 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+- [x] `gmGenerationConfirmationUI::ListenToMessage` · 0042cde0 · legions 0042cba0 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+- [x] `gmGenerationConfirmationUI::RecvNotice_CharGenVerification` · 0042d080 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 
-## `ac2/client/src/ui/pregame/gmcharacterselectionui.cpp.c` (0/23)
+## `ac2/client/src/ui/pregame/gmcharacterselectionui.cpp.c` (17/23)
 
 ### CharacterIdentity
-- [ ] `CharacterIdentity::Invalid` · 0040f560 · legions 0040f530
+- [x] `CharacterIdentity::Invalid` · 0040f560 · legions 0040f530 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 
 ### gmCharacterSelectionUI
-- [ ] `gmCharacterSelectionUI::GhostButtons` · 0040f590 · legions 0040f560
-- [ ] `gmCharacterSelectionUI::Start3DSelection` · 0040f6c0 · legions 0040f690
-- [ ] `gmCharacterSelectionUI::DoDelete` · 0040f720 · legions 0040f6f0
-- [ ] `gmCharacterSelectionUI::MakePleaseWaitDialog` · 0040f810 · legions 0040f7e0
+- [x] `gmCharacterSelectionUI::GhostButtons` · 0040f590 · legions 0040f560 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
+- [~] `gmCharacterSelectionUI::Start3DSelection` · 0040f6c0 · legions 0040f690 — character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
+- [x] `gmCharacterSelectionUI::DoDelete` · 0040f720 · legions 0040f6f0 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
+- [x] `gmCharacterSelectionUI::MakePleaseWaitDialog` · 0040f810 · legions 0040f7e0 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 
 ### UIElement_ListBox
-- [ ] `UIElement_ListBox::GetSelectedIndex` · 0040f880 · legions 0040f850
+- [x] `UIElement_ListBox::GetSelectedIndex` · 0040f880 · legions 0040f850 — ac2-ui list_box_select.rs
 
 ### gmCharacterSelectionUI
-- [ ] `gmCharacterSelectionUI::MoveArm` · 0040f8c0 · legions 0040f890
-- [ ] `gmCharacterSelectionUI::UnParentandDeleteArms` · 0040fa40 · legions 0040fa10
-- [ ] `gmCharacterSelectionUI::RecvNotice_CloseConfirmationDialog` · 0040fae0
-- [ ] `gmCharacterSelectionUI::SetErrorMsg` · 0040fba0 · legions 0040fb70
-- [ ] `gmCharacterSelectionUI::MoveArms` · 0040fbe0 · legions 0040fbb0
-- [ ] `gmCharacterSelectionUI::RecvNotice_CharGenVerification` · 0040fca0
-- [ ] `gmCharacterSelectionUI::MakeDeleteDialog` · 0040ff20 · legions 0040fef0
-- [ ] `gmCharacterSelectionUI::ListenToMessage` · 0040ffb0 · legions 0040ffd0
-- [ ] `gmCharacterSelectionUI::InitArms` · 00410510 · legions 00410530
-- [ ] `gmCharacterSelectionUI::~gmCharacterSelectionUI` · 00410750 · legions 00410770
-- [ ] `gmCharacterSelectionUI::AddPhysObjToArm` · 004108e0 · legions 004108e0
-- [ ] `gmCharacterSelectionUI::Finish3DSelection` · 00410a10 · legions 00410a10
-- [ ] `gmCharacterSelectionUI::ListenToMessage` · 00410ad0 · legions 00410ad0
-- [ ] `gmCharacterSelectionUI::Update` · 00410c00 · legions 00410c00
-- [ ] `gmCharacterSelectionUI::gmCharacterSelectionUI` · 00410f00
-- [ ] `gmCharacterSelectionUI::Create` · 00411220
-- [ ] `gmCharacterSelectionUI::Register` · 00411240 · legions 00411220
+- [x] `gmCharacterSelectionUI::MoveArm` · 0040f8c0 · legions 0040f890 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
+- [x] `gmCharacterSelectionUI::UnParentandDeleteArms` · 0040fa40 · legions 0040fa10 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
+- [x] `gmCharacterSelectionUI::RecvNotice_CloseConfirmationDialog` · 0040fae0 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
+- [x] `gmCharacterSelectionUI::SetErrorMsg` · 0040fba0 · legions 0040fb70 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
+- [x] `gmCharacterSelectionUI::MoveArms` · 0040fbe0 · legions 0040fbb0 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
+- [x] `gmCharacterSelectionUI::RecvNotice_CharGenVerification` · 0040fca0 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
+- [x] `gmCharacterSelectionUI::MakeDeleteDialog` · 0040ff20 · legions 0040fef0 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
+- [~] `gmCharacterSelectionUI::ListenToMessage` · 0040ffb0 · legions 0040ffd0 — character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
+- [x] `gmCharacterSelectionUI::InitArms` · 00410510 · legions 00410530 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
+- [x] `gmCharacterSelectionUI::~gmCharacterSelectionUI` · 00410750 · legions 00410770 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
+- [~] `gmCharacterSelectionUI::AddPhysObjToArm` · 004108e0 · legions 004108e0 — character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
+- [~] `gmCharacterSelectionUI::Finish3DSelection` · 00410a10 · legions 00410a10 — character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
+- [~] `gmCharacterSelectionUI::ListenToMessage` · 00410ad0 · legions 00410ad0 — character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
+- [x] `gmCharacterSelectionUI::Update` · 00410c00 · legions 00410c00 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
+- [~] `gmCharacterSelectionUI::gmCharacterSelectionUI` · 00410f00 — character_selection.rs: roots, handlers, Update; background music not played
+- [x] `gmCharacterSelectionUI::Create` · 00411220 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
+- [x] `gmCharacterSelectionUI::Register` · 00411240 · legions 00411220 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 
 ## `ac2/client/src/ui/pregame/gmcreditsui.cpp.c` (0/15)
 
@@ -1889,7 +1889,7 @@ Legend and workflow: [README](README.md).
 
 ### gmDataPatchUI
 - [ ] `gmDataPatchUI::~gmDataPatchUI` · 004119e0 · legions 004119c0
-- [ ] `gmDataPatchUI::Update` · 00411ac0 · legions 00411aa0
+- [~] `gmDataPatchUI::Update` · 00411ac0 · legions 00411aa0 — ac2-ui PregameUi::character_set (first set -> character selection) and bin/ac2 --character (start character enters at once); patching not ported
 - [ ] `gmDataPatchUI::RecvNotice_CharGenVerification` · 00411f10
 - [ ] `gmDataPatchUI::OnDDDEvent` · 00411fd0
 - [ ] `gmDataPatchUI::gmDataPatchUI` · 004121d0 · legions 00412050
@@ -1902,14 +1902,14 @@ Legend and workflow: [README](README.md).
 - [ ] `gmDataPatchUI::Register` · 004123b0 · legions 00412230
 - [ ] `gmDataPatchUI::OnNetStatusChange` · 004123d0
 
-## `ac2/client/src/ui/pregame/gmdisconnectedui.cpp.c` (0/5)
+## `ac2/client/src/ui/pregame/gmdisconnectedui.cpp.c` (5/5)
 
 ### gmDisconnectedUI
-- [ ] `gmDisconnectedUI::gmDisconnectedUI` · 004125c0 · legions 00412440
-- [ ] `gmDisconnectedUI::Create` · 00412630
-- [ ] `gmDisconnectedUI::ListenToMessage` · 00412650 · legions 004124d0
-- [ ] `gmDisconnectedUI::Register` · 004126b0 · legions 00412530
-- [ ] `gmDisconnectedUI::SetErrorMsg` · 004126d0 · legions 00412550
+- [x] `gmDisconnectedUI::gmDisconnectedUI` · 004125c0 · legions 00412440 — ac2-ui pregame/disconnected.rs
+- [x] `gmDisconnectedUI::Create` · 00412630 — ac2-ui pregame/disconnected.rs
+- [x] `gmDisconnectedUI::ListenToMessage` · 00412650 · legions 004124d0 — ac2-ui pregame/disconnected.rs
+- [x] `gmDisconnectedUI::Register` · 004126b0 · legions 00412530 — ac2-ui pregame/disconnected.rs
+- [x] `gmDisconnectedUI::SetErrorMsg` · 004126d0 · legions 00412550 — ac2-ui pregame/disconnected.rs
 
 ## `ac2/client/src/ui/pregame/gmintroui.cpp.c` (0/6)
 
@@ -1948,27 +1948,27 @@ Legend and workflow: [README](README.md).
 - [ ] `gmKeyboardUI::KeyHitHandler` · 00415140 · legions 00414f30
 - [ ] `gmKeyboardUI::Register` · 004151f0 · legions 00414fe0
 
-## `ac2/client/src/ui/util/dialog/confirmationdialog.cpp.c` (0/3)
+## `ac2/client/src/ui/util/dialog/confirmationdialog.cpp.c` (3/3)
 
 ### ConfirmationDialog
-- [ ] `ConfirmationDialog::ListenToMessage` · 0042d7f0 · legions 0042d5c0
-- [ ] `ConfirmationDialog::SetText` · 0042d830 · legions 0042d600
-- [ ] `ConfirmationDialog::ConfirmationDialog` · 0042d850 · legions 0042d620
+- [x] `ConfirmationDialog::ListenToMessage` · 0042d7f0 · legions 0042d5c0 — ac2-ui dialog.rs
+- [x] `ConfirmationDialog::SetText` · 0042d830 · legions 0042d600 — ac2-ui dialog.rs
+- [x] `ConfirmationDialog::ConfirmationDialog` · 0042d850 · legions 0042d620 — ac2-ui dialog.rs
 
-## `ac2/client/src/ui/util/dialog/dialogfactory.cpp.c` (0/4)
+## `ac2/client/src/ui/util/dialog/dialogfactory.cpp.c` (3/4)
 
 ### DialogFactory
-- [ ] `DialogFactory::CreateDialogInternal` · 00415210 · legions 00415000
-- [ ] `DialogFactory::MakeDialog` · 004155b0 · legions 004153a0
-- [ ] `DialogFactory::DialogDone` · 00415740 · legions 00415530
-- [ ] `DialogFactory::CloseDialog` · 00415810 · legions 00415600
+- [~] `DialogFactory::CreateDialogInternal` · 00415210 · legions 00415000 — dialog.rs: confirmation, wait, message; resurrect and timed dialogs not made
+- [x] `DialogFactory::MakeDialog` · 004155b0 · legions 004153a0 — ac2-ui dialog.rs
+- [x] `DialogFactory::DialogDone` · 00415740 · legions 00415530 — ac2-ui dialog.rs
+- [x] `DialogFactory::CloseDialog` · 00415810 · legions 00415600 — ac2-ui dialog.rs
 
-## `ac2/client/src/ui/util/dialog/messagedialog.cpp.c` (0/3)
+## `ac2/client/src/ui/util/dialog/messagedialog.cpp.c` (3/3)
 
 ### MessageDialog
-- [ ] `MessageDialog::ListenToMessage` · 0042d300 · legions 0042d0d0
-- [ ] `MessageDialog::SetText` · 0042d330 · legions 0042d100
-- [ ] `MessageDialog::MessageDialog` · 0042d350 · legions 0042d120
+- [x] `MessageDialog::ListenToMessage` · 0042d300 · legions 0042d0d0 — ac2-ui dialog.rs
+- [x] `MessageDialog::SetText` · 0042d330 · legions 0042d100 — ac2-ui dialog.rs
+- [x] `MessageDialog::MessageDialog` · 0042d350 · legions 0042d120 — ac2-ui dialog.rs
 
 ## `ac2/client/src/ui/util/dialog/resurrectdialog.cpp.c` (0/3)
 
@@ -1986,11 +1986,11 @@ Legend and workflow: [README](README.md).
 - [ ] `TimedDialog::TimedDialog` · 0042d6e0 · legions 0042d4b0
 - [ ] `TimedDialog::SetText` · 0042d7b0 · legions 0042d580
 
-## `ac2/client/src/ui/util/dialog/waitdialog.cpp.c` (0/2)
+## `ac2/client/src/ui/util/dialog/waitdialog.cpp.c` (2/2)
 
 ### WaitDialog
-- [ ] `WaitDialog::SetText` · 0042d4e0 · legions 0042d2b0
-- [ ] `WaitDialog::WaitDialog` · 0042d500 · legions 0042d2d0
+- [x] `WaitDialog::SetText` · 0042d4e0 · legions 0042d2b0 — ac2-ui dialog.rs
+- [x] `WaitDialog::WaitDialog` · 0042d500 · legions 0042d2d0 — ac2-ui dialog.rs
 
 ## `portal/client/src/cimelib/cime.cpp.c` (0/23)
 
@@ -2352,13 +2352,13 @@ Legend and workflow: [README](README.md).
 ### UISceneCameraEntity
 - [ ] `UISceneCameraEntity::SetFrame` · 005d8d90 · legions 0059a500
 
-## `portal/client/src/render/ui/uisceneentity.cpp.c` (0/6)
+## `portal/client/src/render/ui/uisceneentity.cpp.c` (2/6)
 
 ### UISceneEntity
-- [ ] `UISceneEntity::UISceneEntity` · 005d8ff0 · legions 0059a720
+- [~] `UISceneEntity::UISceneEntity` · 005d8ff0 · legions 0059a720 — pregame/arms.rs: frames and slerp; no instance id/scene
 - [ ] `UISceneEntity::~UISceneEntity` · 005d90a0 · legions 0059a7d0
-- [ ] `UISceneEntity::Think` · 005d9120 · legions 0059a850
-- [ ] `UISceneEntity::SLERPTo` · 005d9210 · legions 0059a940
+- [x] `UISceneEntity::Think` · 005d9120 · legions 0059a850 — ac2-ui pregame/arms.rs SceneEntity
+- [x] `UISceneEntity::SLERPTo` · 005d9210 · legions 0059a940 — ac2-ui pregame/arms.rs SceneEntity
 - [ ] `UISceneEntity::InitFromDesc` · 005d92e0 · legions 0059aa10
 - [ ] `UISceneEntity::SetID` · 005d9330 · legions 0059aa60
 
@@ -2627,17 +2627,17 @@ Legend and workflow: [README](README.md).
 - [ ] `UIChildFramework::GetUIFlow` · 005fe1a0 · legions 005beca0
 - [ ] `UIChildFramework::Shown` · 005fe1b0 · legions 005becb0
 
-## `portal/client/src/uielement/framework/uiflow.cpp.c` (0/8)
+## `portal/client/src/uielement/framework/uiflow.cpp.c` (4/8)
 
 ### UIFlow
 - [ ] `UIFlow::GetUIFlowPtr` · 005fd2c0 · legions 005bddf0
 - [ ] `UIFlow::Update` · 005fd2d0
-- [ ] `UIFlow::UIFlow` · 005fd320 · legions 005bde50
+- [~] `UIFlow::UIFlow` · 005fd320 · legions 005bde50 — pregame/ui.rs: character selection and disconnected made; intro, data patch (the client connects), keyboard, credits not ported
 - [ ] `UIFlow::~UIFlow` · 005fd410 · legions 005bdf40
-- [ ] `UIFlow::QueueUIMode` · 005fd4c0 · legions 005bdff0
-- [ ] `UIFlow::RegisterFrameworkClass` · 005fd5d0 · legions 005be100
-- [ ] `UIFlow::UseNewMode` · 005fd620 · legions 005be150
-- [ ] `UIFlow::ListenToMessage` · 005fd720 · legions 005be250
+- [x] `UIFlow::QueueUIMode` · 005fd4c0 · legions 005bdff0 — ac2-ui pregame/flow.rs, pregame/ui.rs
+- [x] `UIFlow::RegisterFrameworkClass` · 005fd5d0 · legions 005be100 — ac2-ui pregame/flow.rs, pregame/ui.rs
+- [x] `UIFlow::UseNewMode` · 005fd620 · legions 005be150 — ac2-ui pregame/flow.rs, pregame/ui.rs
+- [x] `UIFlow::ListenToMessage` · 005fd720 · legions 005be250 — ac2-ui pregame/flow.rs, pregame/ui.rs
 
 ## `portal/client/src/uielement/framework/uiframework.cpp.c` (0/9)
 
@@ -2667,19 +2667,19 @@ Legend and workflow: [README](README.md).
 - [~] `UIMainFramework::CreateAndAddRootElementByDataID` · 005fded0 · legions 005bea00 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [~] `UIMainFramework::CreateAndAddRootElement` · 005fe0b0 · legions 005bebe0 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 
-## `portal/client/src/uielement/framework/uipersistantdata.cpp.c` (1/13)
+## `portal/client/src/uielement/framework/uipersistantdata.cpp.c` (9/13)
 
 ### UIPersistantData
-- [ ] `UIPersistantData::SetCharSet` · 005fe220
-- [ ] `UIPersistantData::InqCurrentCGR` · 005fe250
-- [ ] `UIPersistantData::ClearGenerationResultTable` · 005fe2b0 · legions 005bedb0
-- [ ] `UIPersistantData::~UIPersistantData` · 005fe380 · legions 005bee80
+- [x] `UIPersistantData::SetCharSet` · 005fe220 — ac2-ui pregame/persistent.rs (plain data)
+- [x] `UIPersistantData::InqCurrentCGR` · 005fe250 — ac2-ui pregame/persistent.rs (plain data)
+- [x] `UIPersistantData::ClearGenerationResultTable` · 005fe2b0 · legions 005bedb0 — ac2-ui pregame/persistent.rs (plain data)
+- [x] `UIPersistantData::~UIPersistantData` · 005fe380 · legions 005bee80 — ac2-ui pregame/persistent.rs (plain data)
 
 ### DirectXPlayingSound
 - [ ] `DirectXPlayingSound::GetIsInWorld` · 005fe400
 
 ### UIPersistantData
-- [ ] `UIPersistantData::InCharGen` · 005fe410
+- [x] `UIPersistantData::InCharGen` · 005fe410 — ac2-ui pregame/persistent.rs (plain data)
 
 ### CameraManager
 - [x] `CameraManager::GetFirstPersonState` · 005fe420 · legions 005bef00
@@ -2691,10 +2691,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetScale` · 005fe440
 
 ### UIPersistantData
-- [ ] `UIPersistantData::SetCharGenResult` · 005fe450
-- [ ] `UIPersistantData::InqCharGenResult` · 005fe470 · legions 005bef50
+- [x] `UIPersistantData::SetCharGenResult` · 005fe450 — ac2-ui pregame/persistent.rs (plain data)
+- [x] `UIPersistantData::InqCharGenResult` · 005fe470 · legions 005bef50 — ac2-ui pregame/persistent.rs (plain data)
 - [ ] `UIPersistantData::InqGenerationResultTable` · 005fe4c0
-- [ ] `UIPersistantData::UIPersistantData` · 005fe640 · legions 005bf120
+- [x] `UIPersistantData::UIPersistantData` · 005fe640 · legions 005bf120 — ac2-ui pregame/persistent.rs (plain data)
 
 ## `portal/client/src/uielement/prim/node.cpp.c` (7/7)
 
@@ -3180,7 +3180,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0
 - [ ] `UIElement_Field::Register` · 005fbe20 · legions 005bc950
 
-## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (17/82)
+## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (20/82)
 
 ### UIElement_ListBox
 - [x] `UIElement_ListBox::Home` · 005f1b90 · legions 005b26c0 — ac2-ui list_box.rs
@@ -3194,15 +3194,15 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_ListBox::GetScrollBar` · 005f1db0 · legions 005b28e0
 - [ ] `UIElement_ListBox::UnregisterForScrollbar` · 005f1e50 · legions 005b2980
 - [ ] `UIElement_ListBox::TestBitMask` · 005f1f60 · legions 005b2a90
-- [ ] `UIElement_ListBox::ScrollToShow` · 005f1f80 · legions 005b2ab0
+- [~] `UIElement_ListBox::ScrollToShow` · 005f1f80 · legions 005b2ab0 — list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 - [~] `UIElement_ListBox::SetAttribute_Bool` · 005f1fc0 · legions 005b2af0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
 - [ ] `UIElement_ListBox::DetermineAndSetNewGoal` · 005f2180 · legions 005b2cb0
 - [x] `UIElement_ListBox::UpdateLayout` · 005f21f0 · legions 005b2d20 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::StartAnimation` · 005f23f0 · legions 005b2f20
 - [ ] `UIElement_ListBox::StopAnimation` · 005f2500 · legions 005b3030
 - [x] `UIElement_ListBox::GetItem` · 005f2540 · legions 005b3070 — ac2-ui list_box.rs
-- [ ] `UIElement_ListBox::SetSelectedItem` · 005f2560 · legions 005b3090
-- [ ] `UIElement_ListBox::SetSelectedIndex` · 005f2650 · legions 005b3180
+- [x] `UIElement_ListBox::SetSelectedItem` · 005f2560 · legions 005b3090 — ac2-ui list_box_select.rs
+- [x] `UIElement_ListBox::SetSelectedIndex` · 005f2650 · legions 005b3180 — ac2-ui list_box_select.rs
 - [x] `UIElement_ListBox::GetItemIndexAtPoint` · 005f26b0 · legions 005b31e0 — ac2-ui list_box.rs
 - [~] `UIElement_ListBox::InsertItem` · 005f27c0 · legions 005b32f0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
 - [ ] `UIElement_ListBox::MultiOpAddItem` · 005f2820 · legions 005b3350
@@ -3210,7 +3210,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_ListBox::MultiOpInsertItem` · 005f2850 · legions 005b3380
 - [ ] `UIElement_ListBox::GetCol` · 005f2870 · legions 005b33a0
 - [ ] `UIElement_ListBox::GetRow` · 005f28d0 · legions 005b3400
-- [ ] `UIElement_ListBox::ScrollToShow` · 005f2930 · legions 005b3460
+- [~] `UIElement_ListBox::ScrollToShow` · 005f2930 · legions 005b3460 — list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 - [ ] `UIElement_ListBox::StartDragSelect` · 005f2a50 · legions 005b3580
 - [ ] `UIElement_ListBox::EndDragSelect` · 005f2ac0 · legions 005b35f0
 - [ ] `UIElement_ListBox::StartRollover` · 005f2b10 · legions 005b3640
@@ -3245,11 +3245,11 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_ListBox::Flush` · 005f3db0 · legions 005b48e0 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::Rollover` · 005f3e70 · legions 005b49a0
 - [x] `UIElement_ListBox::ViewChanged` · 005f3f30 · legions 005b4a60 — ac2-ui list_box.rs
-- [ ] `UIElement_ListBox::HandleSelection` · 005f3fd0 · legions 005b4b00
+- [x] `UIElement_ListBox::HandleSelection` · 005f3fd0 · legions 005b4b00 — ac2-ui list_box_select.rs
 - [ ] `UIElement_ListBox::SetState` · 005f4030 · legions 005b4b60
 - [~] `UIElement_ListBox::SetAttribute_Int` · 005f4170 · legions 005b4ca0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
 - [ ] `UIElement_ListBox::SetAttribute_ID` · 005f4270 · legions 005b4da0
-- [ ] `UIElement_ListBox::MouseDown` · 005f4420 · legions 005b4f50
+- [~] `UIElement_ListBox::MouseDown` · 005f4420 · legions 005b4f50 — list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 - [ ] `UIElement_ListBox::Global_MouseMove` · 005f44c0 · legions 005b4ff0
 - [ ] `UIElement_ListBox::StartUpActive` · 005f4500 · legions 005b5030
 - [ ] `UIElement_ListBox::StartDownActive` · 005f4540 · legions 005b5070
@@ -3369,36 +3369,36 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Resizebar::Create` · 005f83c0
 - [ ] `UIElement_Resizebar::Register` · 005f83f0 · legions 005b8f20
 
-## `portal/client/src/uielement/types/uielement_scrollbar.cpp.c` (0/28)
+## `portal/client/src/uielement/types/uielement_scrollbar.cpp.c` (10/28)
 
 ### UIElement_Scrollbar
 - [ ] `UIElement_Scrollbar::SetAttribute_ID` · 005f9a20 · legions 005ba550
-- [ ] `UIElement_Scrollbar::BroadcastMessageOnRoot` · 005f9a80 · legions 005ba5b0
+- [x] `UIElement_Scrollbar::BroadcastMessageOnRoot` · 005f9a80 · legions 005ba5b0 — ac2-ui scrollbar.rs
 - [ ] `UIElement_Scrollbar::HandleHideButton` · 005f9aa0 · legions 005ba5d0
 - [ ] `UIElement_Scrollbar::HandleFillChild` · 005f9ae0 · legions 005ba610
-- [ ] `UIElement_Scrollbar::UpdateLayout` · 005f9b30 · legions 005ba660
+- [~] `UIElement_Scrollbar::UpdateLayout` · 005f9b30 · legions 005ba660 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [ ] `UIElement_Scrollbar::StartAnimation` · 005fa050 · legions 005bab80
 - [ ] `UIElement_Scrollbar::StopAnimation` · 005fa170 · legions 005baca0
-- [ ] `UIElement_Scrollbar::ResizeTo` · 005fa1b0 · legions 005bace0
-- [ ] `UIElement_Scrollbar::RegisterForMouseMove` · 005fa1d0 · legions 005bad00
-- [ ] `UIElement_Scrollbar::HandleMoveTo` · 005fa200 · legions 005bad30
-- [ ] `UIElement_Scrollbar::HandleMouseMove` · 005fa330 · legions 005bae60
-- [ ] `UIElement_Scrollbar::HandleMoveSteps` · 005fa3a0 · legions 005baed0
+- [x] `UIElement_Scrollbar::ResizeTo` · 005fa1b0 · legions 005bace0 — ac2-ui scrollbar.rs
+- [x] `UIElement_Scrollbar::RegisterForMouseMove` · 005fa1d0 · legions 005bad00 — ac2-ui scrollbar.rs
+- [x] `UIElement_Scrollbar::HandleMoveTo` · 005fa200 · legions 005bad30 — ac2-ui scrollbar.rs
+- [x] `UIElement_Scrollbar::HandleMouseMove` · 005fa330 · legions 005bae60 — ac2-ui scrollbar.rs
+- [x] `UIElement_Scrollbar::HandleMoveSteps` · 005fa3a0 · legions 005baed0 — ac2-ui scrollbar.rs
 - [ ] `UIElement_Scrollbar::~UIElement_Scrollbar` · 005fa4a0 · legions 005bafd0
-- [ ] `UIElement_Scrollbar::SetState` · 005fa5b0 · legions 005bb0e0
+- [x] `UIElement_Scrollbar::SetState` · 005fa5b0 · legions 005bb0e0 — ac2-ui scrollbar.rs
 - [ ] `UIElement_Scrollbar::SetAttribute_Bool` · 005fa5d0 · legions 005bb100
-- [ ] `UIElement_Scrollbar::SetAttribute_Float` · 005fa780 · legions 005bb2b0
+- [~] `UIElement_Scrollbar::SetAttribute_Float` · 005fa780 · legions 005bb2b0 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [ ] `UIElement_Scrollbar::SetAttribute_Int` · 005fa820 · legions 005bb350
-- [ ] `UIElement_Scrollbar::MouseUp` · 005fa860 · legions 005bb390
+- [x] `UIElement_Scrollbar::MouseUp` · 005fa860 · legions 005bb390 — ac2-ui scrollbar.rs
 - [ ] `UIElement_Scrollbar::Global_Loop` · 005fa910 · legions 005bb440
-- [ ] `UIElement_Scrollbar::Global_MouseMove` · 005fabe0 · legions 005bb710
-- [ ] `UIElement_Scrollbar::ListenToMessage` · 005facd0 · legions 005bb800
+- [x] `UIElement_Scrollbar::Global_MouseMove` · 005fabe0 · legions 005bb710 — ac2-ui scrollbar.rs
+- [~] `UIElement_Scrollbar::ListenToMessage` · 005facd0 · legions 005bb800 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [ ] `UIElement_Scrollbar::HandleMouseWheel` · 005fad20 · legions 005bb850
-- [ ] `UIElement_Scrollbar::HandleButtonHotclick` · 005fadd0 · legions 005bb900
-- [ ] `UIElement_Scrollbar::UIElement_Scrollbar` · 005fae40 · legions 005bb970
+- [x] `UIElement_Scrollbar::HandleButtonHotclick` · 005fadd0 · legions 005bb900 — ac2-ui scrollbar.rs
+- [~] `UIElement_Scrollbar::UIElement_Scrollbar` · 005fae40 · legions 005bb970 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [ ] `UIElement_Scrollbar::Create` · 005fb0a0
-- [ ] `UIElement_Scrollbar::MouseDown` · 005fb0d0 · legions 005bbc00
-- [ ] `UIElement_Scrollbar::ListenToMessage` · 005fb400 · legions 005bbf30
+- [~] `UIElement_Scrollbar::MouseDown` · 005fb0d0 · legions 005bbc00 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
+- [~] `UIElement_Scrollbar::ListenToMessage` · 005fb400 · legions 005bbf30 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [ ] `UIElement_Scrollbar::Register` · 005fb4c0 · legions 005bbff0
 
 ## `portal/client/src/uielement/types/uielement_tree.cpp.c` (16/39)

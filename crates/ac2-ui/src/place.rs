@@ -185,6 +185,8 @@ impl UiTree {
         for child in self.el(index).children.clone() {
             self.update_size_and_position(child);
         }
+        // `UIElement_Scrollbar::ResizeTo`.
+        self.scrollbar_update_layout(index);
         // `UIElement_Meter::ResizeTo`.
         self.meter_update_layout(index);
     }

@@ -13,7 +13,15 @@ key	status	note
 004042f0	x	
 00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
-00406410	~	ac2-client Notice::ConnectionLost (ID_NetErr_ConnectionLost, 0x41000018); no UI modes in the headless client
+00405d80	x	ac2-ui pregame/flow.rs, pregame/ui.rs
+00405e00	x	ac2-ui pregame/flow.rs, pregame/ui.rs
+00405e10	-	debug keys (bench mode, debug HUD, screenshot, sound debug)
+00406220	x	ac2-ui pregame/flow.rs, pregame/ui.rs
+00406410	x	ac2-ui pregame/flow.rs, pregame/ui.rs
+004064a0	-	GUN chat servers are not used (Turbine chat)
+00406af0	x	ac2-ui pregame/flow.rs, pregame/ui.rs
+00406b00	x	ac2-ui pregame/flow.rs, pregame/ui.rs
+00406b10	~	pregame/ui.rs: character selection and disconnected made; intro, data patch (the client connects), keyboard, credits not ported
 00406c60	~	ac2-script: unpack direction only
 00406cb0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00406f50	x	ac2-script reference/native unpack
@@ -31,6 +39,79 @@ key	status	note
 00409be0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00409e00	x	
 0040a1f0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+0040aad0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040ab10	x	ac2-ui pregame/avatar_modification.rs
+0040ab70	x	ac2-ui pregame/avatar_modification.rs
+0040ace0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040b0b0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040b420	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040b640	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040b6e0	x	ac2-ui pregame/avatar_modification.rs
+0040b760	x	ac2-ui pregame/avatar_modification.rs
+0040b8c0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040bc90	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040c0d0	x	ac2-ui pregame/avatar_modification.rs
+0040c7e0	x	ac2-ui pregame/avatar_modification.rs
+0040c880	x	ac2-ui pregame/avatar_modification.rs
+0040cc00	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040cff0	x	ac2-ui pregame/avatar_modification.rs
+0040d290	x	ac2-ui pregame/avatar_modification.rs
+0040d2b0	x	ac2-ui pregame/avatar_modification.rs
+0040d2d0	x	ac2-ui pregame/avatar_modification.rs
+0040d390	x	ac2-ui pregame/avatar_selection.rs
+0040db40	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040dbd0	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040de00	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040dfe0	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040e510	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040eaa0	x	ac2-ui pregame/avatar_selection.rs
+0040ebf0	x	ac2-ui pregame/avatar_selection.rs
+0040f020	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040f270	x	ac2-ui pregame/avatar_selection.rs
+0040f500	x	ac2-ui pregame/avatar_selection.rs
+0040f520	x	ac2-ui pregame/avatar_selection.rs
+0040f540	x	ac2-ui pregame/avatar_selection.rs
+0040f560	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+0040f590	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+0040f6c0	~	character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
+0040f720	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+0040f810	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+0040f880	x	ac2-ui list_box_select.rs
+0040f8c0	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+0040fa40	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+0040fae0	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+0040fba0	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+0040fbe0	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+0040fca0	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+0040ff20	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+0040ffb0	~	character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
+00410510	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+00410750	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+004108c0	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+004108e0	~	character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
+00410a10	~	character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
+00410ad0	~	character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
+00410c00	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+00410f00	~	character_selection.rs: roots, handlers, Update; background music not played
+00411220	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+00411240	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+00411ac0	~	ac2-ui PregameUi::character_set (first set -> character selection) and bin/ac2 --character (start character enters at once); patching not ported
+004125c0	x	ac2-ui pregame/disconnected.rs
+00412630	x	ac2-ui pregame/disconnected.rs
+00412650	x	ac2-ui pregame/disconnected.rs
+00412670	x	ac2-ui pregame/disconnected.rs
+004126b0	x	ac2-ui pregame/disconnected.rs
+004126d0	x	ac2-ui pregame/disconnected.rs
+00415210	~	dialog.rs: confirmation, wait, message; resurrect and timed dialogs not made
+00415300	-	Rust std replaces it
+00415390	-	Rust std replaces it
+00415440	-	Rust std replaces it
+004154b0	-	Rust std replaces it
+00415520	-	Rust std replaces it
+004155b0	x	ac2-ui dialog.rs
+00415740	x	ac2-ui dialog.rs
+004157e0	-	Rust std replaces it
+00415810	x	ac2-ui dialog.rs
 00422160	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 00422230	x	ac2-ui toolbar.rs
 00422270	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
@@ -61,6 +142,24 @@ key	status	note
 0042bb00	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 0042bbb0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 0042bce0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
+0042cb60	~	pregame/confirmation.rs is_name_character: English letters, ' - and space; other languages' letters not modelled
+0042cb90	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+0042cc90	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+0042cd40	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+0042cda0	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+0042cde0	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+0042d080	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+0042d300	x	ac2-ui dialog.rs
+0042d330	x	ac2-ui dialog.rs
+0042d350	x	ac2-ui dialog.rs
+0042d3c0	x	ac2-ui dialog.rs
+0042d4e0	x	ac2-ui dialog.rs
+0042d500	x	ac2-ui dialog.rs
+0042d560	x	ac2-ui dialog.rs
+0042d7f0	x	ac2-ui dialog.rs
+0042d830	x	ac2-ui dialog.rs
+0042d850	x	ac2-ui dialog.rs
+0042d8e0	x	ac2-ui dialog.rs
 0042dac0	x	ac2-ui list_box.rs
 00430810	x	ac2-ui toolbar.rs
 00430840	x	ac2-ui examination.rs + ac2-client ui_sources
@@ -2875,6 +2974,9 @@ key	status	note
 005d6310	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6470	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6560	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005d8ff0	~	pregame/arms.rs: frames and slerp; no instance id/scene
+005d9120	x	ac2-ui pregame/arms.rs SceneEntity
+005d9210	x	ac2-ui pregame/arms.rs SceneEntity
 005df7a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005df7e0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005df8a0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
@@ -3004,18 +3106,24 @@ key	status	note
 005f1bf0	x	ac2-ui list_box.rs
 005f1c70	x	ac2-ui list_box.rs
 005f1c90	x	ac2-ui list_box.rs
+005f1f80	~	list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 005f1fc0	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
 005f21f0	x	ac2-ui list_box.rs
 005f2540	x	ac2-ui list_box.rs
+005f2560	x	ac2-ui list_box_select.rs
+005f2650	x	ac2-ui list_box_select.rs
 005f26b0	x	ac2-ui list_box.rs
 005f27c0	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
+005f2930	~	list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 005f2bc0	x	ac2-ui list_box.rs
 005f3c20	x	ac2-ui list_box.rs
 005f3c90	x	ac2-ui list_box.rs
 005f3d70	x	ac2-ui list_box.rs
 005f3db0	x	ac2-ui list_box.rs
 005f3f30	x	ac2-ui list_box.rs
+005f3fd0	x	ac2-ui list_box_select.rs
 005f4170	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
+005f4420	~	list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 005f45e0	x	ac2-ui list_box.rs
 005f4680	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
 005f46f0	x	ac2-ui list_box.rs
@@ -3061,6 +3169,22 @@ key	status	note
 005f8910	x	ac2-ui panel.rs
 005f8a70	x	ac2-ui panel.rs
 005f8ae0	x	ac2-ui panel.rs
+005f9a80	x	ac2-ui scrollbar.rs
+005f9b30	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
+005fa1b0	x	ac2-ui scrollbar.rs
+005fa1d0	x	ac2-ui scrollbar.rs
+005fa200	x	ac2-ui scrollbar.rs
+005fa330	x	ac2-ui scrollbar.rs
+005fa3a0	x	ac2-ui scrollbar.rs
+005fa5b0	x	ac2-ui scrollbar.rs
+005fa780	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
+005fa860	x	ac2-ui scrollbar.rs
+005fabe0	x	ac2-ui scrollbar.rs
+005facd0	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
+005fadd0	x	ac2-ui scrollbar.rs
+005fae40	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
+005fb0d0	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
+005fb400	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 005fb4e0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005fb620	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005fb710	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
@@ -3078,10 +3202,23 @@ key	status	note
 005fcd70	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005fce80	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005fceb0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005fd320	~	pregame/ui.rs: character selection and disconnected made; intro, data patch (the client connects), keyboard, credits not ported
+005fd4c0	x	ac2-ui pregame/flow.rs, pregame/ui.rs
+005fd5d0	x	ac2-ui pregame/flow.rs, pregame/ui.rs
+005fd620	x	ac2-ui pregame/flow.rs, pregame/ui.rs
+005fd720	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 005fded0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005fe0b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005fe170	x	ac2-ui hud.rs
+005fe220	x	ac2-ui pregame/persistent.rs (plain data)
+005fe250	x	ac2-ui pregame/persistent.rs (plain data)
+005fe2b0	x	ac2-ui pregame/persistent.rs (plain data)
+005fe380	x	ac2-ui pregame/persistent.rs (plain data)
+005fe410	x	ac2-ui pregame/persistent.rs (plain data)
 005fe420	x	
+005fe450	x	ac2-ui pregame/persistent.rs (plain data)
+005fe470	x	ac2-ui pregame/persistent.rs (plain data)
+005fe640	x	ac2-ui pregame/persistent.rs (plain data)
 005fe700	x	ac2-script glue::options / examination (Legions layout and efun switch)
 005fe710	x	ac2-script glue::options / examination (Legions layout and efun switch)
 005fe720	x	ac2-script glue::options / examination (Legions layout and efun switch)
@@ -3124,6 +3261,7 @@ key	status	note
 00600cb0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600cf0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600d00	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600d60	x	ac2-ui pregame/chargen.rs over CharGenSystem (client: ScriptCharGen on the CharacterGenSystem script)
 00600d90	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600dc0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600e20	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -3201,6 +3339,7 @@ key	status	note
 0060c7a0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060ca40	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060caf0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+0060cb90	~	pregame/confirmation.rs is_name_character: English letters, ' - and space; other languages' letters not modelled
 0060cc80	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0060cd80	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0060ce30	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
@@ -3225,9 +3364,10 @@ key	status	note
 0061a220	x	
 0061a240	x	
 0061a310	x	
-0061a3c0	x	ac2-physics interp (slice 3)
+0061a3c0	~	ac2-physics interp (slice 3)
 0061a5b0	x	
 0061a810	x	
+0061a8a0	~	ac2-ui pregame/arms.rs (D3DXQuaternionSlerp in f64)
 0061a8f0	x	
 0061a910	x	
 0061a940	x	
@@ -3698,6 +3838,7 @@ key	status	note
 0069dba0	x	
 0069df90	x	
 0069fed0	x	
+006a3cf0	x	ac2-ui pregame/persistent.rs (plain data)
 006a3d20	x	ac2-physics los (Terrain::los_check)
 006a41d0	x	ac2-physics los (Terrain::los_check)
 006a4210	x	ac2-physics los (Terrain::los_check)
@@ -3815,7 +3956,11 @@ key	status	note
 006daf80	~	ac2-script native::options (ShortcutInfo keeps its packed datum only; unversioned profiles upgrade before packing; inner UI tables copied as is)
 006dafd0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 006db0f0	x	
+006db1a0	x	ac2-ui pregame/persistent.rs over ac2_net CharacterSet
+006db270	x	ac2-ui pregame/persistent.rs over ac2_net CharacterSet
+006db2b0	x	ac2-ui pregame/persistent.rs over ac2_net CharacterSet
 006db450	x	
+006db7a0	x	ac2-ui pregame/persistent.rs over ac2_net CharacterSet
 006db7f0	x	
 006dbb00	x	ac2-net protocol::pack
 006dbbd0	x	ac2-script reference/native unpack

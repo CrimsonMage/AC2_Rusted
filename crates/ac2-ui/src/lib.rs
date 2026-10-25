@@ -12,6 +12,7 @@ mod chat;
 mod chat_window;
 mod compose;
 mod controls;
+mod dialog;
 mod element;
 mod examination;
 mod hud;
@@ -20,13 +21,16 @@ mod interpreter;
 mod layout;
 mod layout_media;
 mod list_box;
+mod list_box_select;
 mod maps;
 mod media;
 mod meter;
 mod mouse;
 mod panel;
 mod place;
+pub mod pregame;
 mod reticle;
+mod scrollbar;
 mod selection_ui;
 mod shortcut;
 mod skill_tree;
@@ -49,6 +53,10 @@ pub use chat::{
 pub use chat_window::{ChatMessageInfo, CHAT_TEXT_TYPES};
 pub use compose::{UiPixels, UiSurface};
 pub use controls::{ControlFrame, Controls};
+pub use dialog::{
+    DialogFactory, DialogOutcome, DIALOG_CONFIRMATION, DIALOG_MESSAGE, DIALOG_RESURRECT,
+    DIALOG_TIMED, DIALOG_WAIT, LAYOUT_DIALOGS,
+};
 pub use element::{UiBox, UiElement, UiImage, UiPlacement, UiTree};
 pub use examination::{ExaminationCall, ExaminationItem, ExaminationUi};
 pub use hud::{
@@ -67,6 +75,7 @@ pub use layout::{
     load_layout, AttributeDesc, AttributeValue, ElementDesc, LayoutDesc, MediaDesc, Rect,
     StateDesc, TransitionData, TransitionDesc, LAYOUT_FIRST, LAYOUT_LAST,
 };
+pub use list_box_select::{CLICK_SELECT, MSG_NEW_SELECTION};
 pub use maps::{
     load_action_map, load_key_map, ActionMap, ActionMapping, ActionValue, KeyMap, KEYMAP_CONTROL,
     KEYMAP_GROUP, KEYMAP_MAIN, KEYMAP_SHIFT,
@@ -77,6 +86,7 @@ pub use mouse::{
     GLOBAL_MOUSE_MOVE, GLOBAL_MOUSE_UP, UI_POINTER_X, UI_POINTER_Y, UI_WHEEL_IN, UI_WHEEL_OUT,
 };
 pub use reticle::{Reticle, ReticleOutcome, ReticleTarget};
+pub use scrollbar::MSG_NEW_POSITION;
 pub use selection_ui::{SelectionClick, SelectionOutcome, SelectionUi};
 pub use shortcut::{
     Shortcut, ShortcutOptions, ShortcutRequest, ShortcutSource, ShortcutUi, SHORTCUT_ALIAS,
@@ -95,7 +105,11 @@ pub use toolbar::{ToolbarChild, ToolbarUi};
 #[cfg(test)]
 mod chat_tests;
 #[cfg(test)]
+mod dialog_tests;
+#[cfg(test)]
 mod element_tests;
+#[cfg(test)]
+mod list_box_select_tests;
 #[cfg(test)]
 mod list_box_tests;
 #[cfg(test)]
@@ -106,6 +120,8 @@ mod meter_tests;
 mod mouse_tests;
 #[cfg(test)]
 mod real_data_tests;
+#[cfg(test)]
+mod scrollbar_tests;
 #[cfg(test)]
 mod shortcut_tests;
 #[cfg(test)]

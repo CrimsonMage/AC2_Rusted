@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 123 done, 11 partial, 451 to do, 48 skipped.
+633 retail functions: 123 done, 12 partial, 450 to do, 48 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -33,7 +33,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/shared/src/languagespecific/gmcharnames.cpp.c` (0/2)
 
 ### gmCharNameCharacterValidator
-- [ ] `gmCharNameCharacterValidator::IsCharacterValid` · 0060cb90 · legions 005cd990
+- [~] `gmCharNameCharacterValidator::IsCharacterValid` · 0060cb90 · legions 005cd990 — pregame/confirmation.rs is_name_character: English letters, ' - and space; other languages' letters not modelled
 - [ ] `gmCharNameCharacterValidator::IsCharacterValidForTransitions` · 0060cc50 · legions 005cda50
 
 ## `portal/client/src/clcache/clcachemain.cpp.c` (1/132)

@@ -104,6 +104,8 @@ pub struct UiElement {
     pub(crate) text: Option<Box<TextState>>,
     /// `UIElement_ListBox`'s state, once items are added.
     pub(crate) list: Option<Box<crate::list_box::ListBoxState>>,
+    /// `UIElement_Scrollbar`'s drag (`scrollbar.rs`).
+    pub(crate) scrollbar: Option<Box<crate::scrollbar::ScrollbarState>>,
     /// `UIElement_PanelPage::page`: the tab's content.
     pub(crate) page: Option<usize>,
     /// `UIElement_Tree`'s state, once items are added.
@@ -158,6 +160,21 @@ impl UiElement {
 
     pub fn attribute(&self, id: u32) -> Option<&AttributeValue> {
         self.attributes.get(&id)
+    }
+
+    /// `UIRegion::IsVisible` (the element's own flag).
+    pub fn visible(&self) -> bool {
+        self.visible
+    }
+
+    /// `m_mouseOver`.
+    pub fn mouse_over(&self) -> bool {
+        self.mouse_over
+    }
+
+    /// The parent element.
+    pub fn parent_index(&self) -> Option<usize> {
+        self.parent
     }
 
     /// A text element's text (`UIElement_Text::GetText`).
@@ -389,6 +406,7 @@ impl UiTree {
             meter: None,
             page: None,
             list: None,
+            scrollbar: None,
             mouse_over: false,
             mouse_over_top: false,
             mouse_visible: true,
@@ -586,6 +604,8 @@ impl UiTree {
         if self.is_panel_page(index) {
             self.panel_page_state(index, state);
         }
+        // `UIElement_Scrollbar::SetState`.
+        self.scrollbar_update_layout(index);
     }
 
     /// `UIElement::SetImage`: the image and, while unset, `m_alphaValue` from `alpha_value`
