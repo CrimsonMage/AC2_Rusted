@@ -416,10 +416,7 @@ impl Client {
                         Vec::new()
                     }
                 }
-                Command::Skill(request) => {
-                    self.session.request_skill(*request);
-                    Vec::new()
-                }
+                Command::Skill(request) => self.skill_command(*request),
                 Command::Emote(emote) => {
                     self.session.emote(*emote);
                     Vec::new()

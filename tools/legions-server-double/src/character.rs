@@ -1,10 +1,13 @@
 //! The double's character as its server would describe it at login: a race (int 290, the
 //! player description's), the skill repository and the options profile's shortcut bar (the
-//! login message's arguments 5 and 4), so the skill panels and the bar have real data.
+//! login message's arguments 5 and 4), so the skill panels and the bar have real data. The
+//! skill answers (`WM_Skill` 0x13 train, 0x10 raise) spend the player's credits and XP.
+
+use std::collections::BTreeMap;
 
 use ac2_net::protocol::{
-    entry_flags, ntype, GameplayOptionsProfile, HashKey, HeapObject, NativeObject, PackValue,
-    PackedEntry, PackedReference, ScriptHash, ShortcutInfo,
+    GameplayOptionsProfile, PackValue, PackedReference, QualityValue, ShortcutInfo, SkillMessage,
+    SkillRecord, SkillRepository,
 };
 
 /// `Agent` 0x13's race (int 290): Human (enum mapper 0x41000009).
@@ -12,6 +15,17 @@ pub const RACE_HUMAN: u32 = 1;
 /// Skills of the Legions `MasterSkillList`: Melee Auto Attack, Melee Attack.
 pub const MELEE_AUTO_ATTACK: u32 = 6;
 pub const MELEE_ATTACK: u32 = 7;
+
+/// What a skill costs the player: the credits its training takes and the XP a raise spends.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SkillCost {
+    pub credits: u32,
+    pub xp: u64,
+}
+
+/// The cost a skill without a configured one has: a training takes one credit, a raise spends
+/// ten XP.
+pub const DEFAULT_SKILL_COST: SkillCost = SkillCost { credits: 1, xp: 10 };
 
 /// The player's skills (`SkillRepository`, package 0x233) as the double sends them.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -29,6 +43,8 @@ pub struct Character {
     pub money: i32,
     /// The coin stacks the double has made (the coin item's id counts from them).
     pub coins_made: u32,
+    /// The cost of each skill the test configures (see [`DEFAULT_SKILL_COST`]).
+    pub skill_costs: BTreeMap<u32, SkillCost>,
 }
 
 impl Default for Character {
@@ -42,85 +58,42 @@ impl Default for Character {
             level: 1,
             money: 0,
             coins_made: 0,
+            skill_costs: BTreeMap::new(),
         }
     }
-}
-
-fn heap(pkg_id: u32, native: Option<NativeObject>, slots: Vec<u32>, tags: Vec<u8>) -> PackedEntry {
-    PackedEntry::Heap {
-        flags: entry_flags::KIND_HEAP | entry_flags::LOADED | entry_flags::RECURSE,
-        object: HeapObject {
-            pkg_state_id: 0,
-            pkg_id,
-            native,
-            slots,
-            tags,
-        },
-    }
-}
-
-fn hash(native_type: u32, keys: Vec<HashKey>, values: Vec<u64>) -> PackedEntry {
-    let native = NativeObject::Hash(ScriptHash {
-        native_type,
-        bucket_index: 0,
-        keys,
-        values,
-    });
-    heap(u32::MAX, Some(native), Vec::new(), Vec::new())
 }
 
 impl Character {
-    /// The `SkillRepository` graph (`WM_Player` 0x27's argument 5, `WM_Skill` 0xE's), in the
-    /// class default's layout:
-    /// credits, a 64-bit word, hero credits, two `AAHash`es, the skill being untrained (none),
-    /// the `ARHash` of `SkillInfo`s by enum (package 0x231: two doubles at -1, the experience
-    /// in slots 5-6, the flags in 7 (bit 1 trained), the enum in 14).
+    /// The `SkillRepository` graph (`WM_Player` 0x27's argument 5, `WM_Skill` 0xE's), as the
+    /// codec in ac2-net packs it.
     pub fn repository(&self) -> PackedReference {
-        let mut ids = vec![1, 2, 3, 4];
-        let infos: Vec<u32> = (0..self.skills.len() as u32).map(|i| 5 + i).collect();
-        ids.extend(&infos);
-        let mut entries = vec![
-            heap(
-                0x233,
-                None,
-                vec![self.credits, 0, 0, self.hero_credits, 2, 0, 3, 4],
-                vec![2, 0x82, 0xCD, 2, 1, 2, 1, 1],
-            ),
-            hash(ntype::AA_HASH, Vec::new(), Vec::new()),
-            hash(ntype::AA_HASH, Vec::new(), Vec::new()),
-            hash(
-                ntype::AR_HASH,
-                self.skills
-                    .iter()
-                    .map(|s| HashKey::Value(u64::from(s.0)))
-                    .collect(),
-                infos.iter().map(|i| u64::from(*i)).collect(),
-            ),
-        ];
-        for &(skill, trained, xp) in &self.skills {
-            let slots = vec![
-                0,
-                0xBFF0_0000,
-                0,
-                0,
-                0,
-                xp as u32,
-                (xp >> 32) as u32,
-                u32::from(trained),
-                0,
-                0xBFF0_0000,
-                0,
-                0,
-                0,
-                0,
-                skill,
-            ];
-            let tags = vec![
-                0xC3, 0xCD, 2, 0x83, 0xCD, 0x82, 0xCD, 2, 0xC3, 0xCD, 2, 2, 2, 2, 2,
-            ];
-            entries.push(heap(0x231, None, slots, tags));
+        self.to_repository().graph()
+    }
+
+    /// The character's skills as the codec's repository.
+    pub fn to_repository(&self) -> SkillRepository {
+        SkillRepository {
+            credits: self.credits,
+            hero_credits: self.hero_credits,
+            untraining: 0,
+            skills: self
+                .skills
+                .iter()
+                .map(|&(skill, trained, xp)| SkillRecord {
+                    skill,
+                    flags: u32::from(trained),
+                    xp,
+                })
+                .collect(),
         }
-        PackedReference { ids, entries }
+    }
+
+    /// The cost of `skill` (its configured cost, or [`DEFAULT_SKILL_COST`]).
+    pub fn skill_cost(&self, skill: u32) -> SkillCost {
+        self.skill_costs
+            .get(&skill)
+            .copied()
+            .unwrap_or(DEFAULT_SKILL_COST)
     }
 
     /// `WM_Skill` 0xE's arguments.
@@ -179,5 +152,63 @@ impl crate::State {
     pub fn set_level(&mut self, level: i32) {
         self.script_world.character.level = level;
         self.send_private(0x12E, ac2_net::protocol::QualityValue::Int(level));
+    }
+
+    /// Configures what skill `skill` costs (its training's credits, its raise's XP).
+    pub fn set_skill_cost(&mut self, skill: u32, cost: SkillCost) {
+        self.script_world.character.skill_costs.insert(skill, cost);
+    }
+
+    /// The server's answer to a skill request (`WM_Skill` 0x13 `RequestTrainSkill`, 0x10
+    /// `RequestRaiseSkill`); the untrain requests are not answered yet. A request the rules
+    /// refuse (already trained, not trained, not enough credits or XP) gets no answer.
+    ///
+    /// The rules are the double's, not retail's: a training takes the skill's credit cost and
+    /// makes the skill trained at no experience, answered with the repository (0xE, the credits
+    /// and the skills); a raise takes the skill's XP cost from `AvailableXP` (long 301, sent back
+    /// as a quality update) into the skill's experience, answered with the skill (0xD). The costs
+    /// are the test's ([`State::set_skill_cost`]): the double reads no advancement table.
+    pub(crate) fn answer_skill(&mut self, function: u32, arguments: &[PackValue]) {
+        let [PackValue::Int(skill)] = arguments else {
+            return;
+        };
+        let skill = *skill;
+        let cost = self.script_world.character.skill_cost(skill);
+        let c = &mut self.script_world.character;
+        let message = match function {
+            ac2_net::protocol::script_function::SKILL_TRAIN => {
+                let trained = c.skills.iter().any(|(s, t, _)| *s == skill && *t);
+                if trained || c.credits < cost.credits {
+                    return;
+                }
+                c.credits -= cost.credits;
+                match c.skills.iter_mut().find(|(s, _, _)| *s == skill) {
+                    Some(entry) => entry.1 = true,
+                    None => c.skills.push((skill, true, 0)),
+                }
+                SkillMessage::SetRepository(c.to_repository())
+            }
+            ac2_net::protocol::script_function::SKILL_RAISE => {
+                let Some(entry) = c.skills.iter_mut().find(|(s, t, _)| *s == skill && *t) else {
+                    return;
+                };
+                if c.available_xp < cost.xp {
+                    return;
+                }
+                entry.2 += cost.xp;
+                let record = SkillRecord {
+                    skill,
+                    flags: 1,
+                    xp: entry.2,
+                };
+                c.available_xp -= cost.xp;
+                let available = c.available_xp as i64;
+                self.send_private(301, QualityValue::LongInt(available));
+                SkillMessage::UpdateSkill(record)
+            }
+            _ => return,
+        };
+        self.send_script_call(message.function(), &message.arguments());
+        self.skill_answers.push(message);
     }
 }

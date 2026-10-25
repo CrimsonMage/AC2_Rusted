@@ -10,16 +10,14 @@
 //! its experience; `SkillInfo` 0xF, 0x15, 0x1D). A skill's level comes from the
 //! `AdvancementTable` (`SkillSystem` 0x21), which the script VM owns.
 
-use ac2_net::protocol::{
-    HeapObject, NativeObject, PackValue, PackedEntry, PackedReference, ScriptHash, ShortcutInfo,
-};
+use ac2_net::protocol::{NativeObject, PackValue, ShortcutInfo, SkillMessage, SkillRepository};
 
 use crate::notice::GameplayNotice;
 use crate::qualities::WeenieQualities;
 use crate::social::Social;
 
-const SKILL_INFO_PACKAGE: u32 = 0x231;
-const SKILL_REPOSITORY_PACKAGE: u32 = 0x233;
+/// One `SkillInfo` (the codec's record: the enum, the flags, the experience spent).
+pub use ac2_net::protocol::SkillRecord as Skill;
 
 /// The player's experience and level (qualities long 300 `TotalXP`, long 301 `AvailableXP`,
 /// int 0x12E `Level`).
@@ -37,31 +35,6 @@ impl Experience {
             available_xp: q.long_ints.get(&301).copied().unwrap_or(0) as u64,
             level: q.ints.get(&0x12E).copied().unwrap_or(1),
         }
-    }
-}
-
-/// One `SkillInfo`.
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
-pub struct Skill {
-    /// The skill's enum.
-    pub skill: u32,
-    pub flags: u32,
-    pub xp: u64,
-}
-
-impl Skill {
-    /// `SkillInfo` 0x15: flag bit 1.
-    pub fn trained(&self) -> bool {
-        self.flags & 1 != 0
-    }
-
-    fn of(object: &HeapObject) -> Option<Self> {
-        let s = &object.slots;
-        (object.pkg_id == SKILL_INFO_PACKAGE && s.len() == 15).then(|| Self {
-            skill: s[14],
-            flags: s[7],
-            xp: u64::from(s[5]) | u64::from(s[6]) << 32,
-        })
     }
 }
 
@@ -206,39 +179,6 @@ pub struct Progress {
     pub selection: SelectionState,
 }
 
-fn heap(graph: &PackedReference, id: u32) -> Option<&HeapObject> {
-    let at = graph.ids.iter().position(|i| *i == id)?;
-    match graph.entries.get(at)? {
-        PackedEntry::Heap { object, .. } => Some(object),
-        _ => None,
-    }
-}
-
-/// An `ARHash` of skills (`SkillRepository` slot 7): each value names a `SkillInfo` in `graph`.
-fn skill_table(graph: &PackedReference, table: u32) -> Option<Vec<Skill>> {
-    let hash = match &heap(graph, table)?.native {
-        Some(NativeObject::Hash(ScriptHash { values, .. })) => values,
-        _ => return None,
-    };
-    let mut skills: Vec<Skill> = hash
-        .iter()
-        .filter_map(|v| Skill::of(heap(graph, *v as u32)?))
-        .collect();
-    skills.sort_by_key(|s| s.skill);
-    Some(skills)
-}
-
-fn reference(value: &PackValue) -> Option<&PackedReference> {
-    match value {
-        PackValue::Reference(r) => Some(r),
-        _ => None,
-    }
-}
-
-fn root_id(graph: &PackedReference) -> Option<u32> {
-    graph.ids.first().copied()
-}
-
 impl Progress {
     fn panel(&self, q: &WeenieQualities) -> GameplayNotice {
         GameplayNotice::UpdateSkillPanel {
@@ -248,27 +188,27 @@ impl Progress {
         }
     }
 
-    /// A `WM_Skill` call to the player (`function`, its values); `None` for other functions.
+    /// A `WM_Skill` answer to the player (`function`, its packed `arguments`); `None` for other
+    /// functions or values that do not decode.
     pub fn receive_skill(
         &mut self,
         function: u32,
-        values: &[PackValue],
+        arguments: &[u8],
         q: &WeenieQualities,
     ) -> Option<Vec<GameplayNotice>> {
-        match (function, values) {
-            // 0xE -> `CAgent` 0x3 (`Agent` 0x6C): the whole repository, then the panel.
-            (0x8214_000E, [v]) => Some(vec![self.login_skills(v, q)?]),
-            // 0x11 -> `CAgent` 0x2 (`SkillRepository` 0x13): the skill table, then the panel.
-            (0x8214_0011, [v]) => {
-                let graph = reference(v)?;
-                self.skills.skills = skill_table(graph, root_id(graph)?)?;
+        match SkillMessage::decode(function, arguments)?.ok()? {
+            // `CAgent` 0x3 (`Agent` 0x6C): the whole repository, then the panel.
+            SkillMessage::SetRepository(repository) => {
+                Some(vec![self.set_repository(repository, q)])
+            }
+            // `CAgent` 0x2 (`SkillRepository` 0x13): the skill table, then the panel.
+            SkillMessage::SetSkills(skills) => {
+                self.skills.skills = skills;
                 Some(vec![self.panel(q)])
             }
-            // 0xD -> `CAgent` 0x7 (`SkillRepository` 0x9): one skill added or replaced, then
+            // `CAgent` 0x7 (`SkillRepository` 0x9): one skill added or replaced, then
             // `CPlayer` 0x85 (table 0x80) raises its update.
-            (0x8214_000D, [v]) => {
-                let graph = reference(v)?;
-                let skill = Skill::of(heap(graph, root_id(graph)?)?)?;
+            SkillMessage::UpdateSkill(skill) => {
                 let list = &mut self.skills.skills;
                 match list.binary_search_by_key(&skill.skill, |s| s.skill) {
                     Ok(at) => list[at] = skill,
@@ -276,30 +216,35 @@ impl Progress {
                 }
                 Some(vec![GameplayNotice::UpdateSkill(skill.skill)])
             }
-            // 0x14 -> `CAgent` 0x1 (`SkillRepository` 0x14): one skill removed.
-            (0x8214_0014, [PackValue::Int(skill)]) => {
-                self.skills.skills.retain(|s| s.skill != *skill);
-                Some(vec![GameplayNotice::UpdateSkill(*skill)])
+            // `CAgent` 0x1 (`SkillRepository` 0x14): one skill removed.
+            SkillMessage::RemoveSkill(skill) => {
+                self.skills.skills.retain(|s| s.skill != skill);
+                Some(vec![GameplayNotice::UpdateSkill(skill)])
             }
-            _ => None,
         }
+    }
+
+    fn set_repository(
+        &mut self,
+        repository: SkillRepository,
+        q: &WeenieQualities,
+    ) -> GameplayNotice {
+        self.skills = Skills {
+            credits: repository.credits,
+            hero_credits: repository.hero_credits,
+            untraining: repository.untraining,
+            skills: repository.skills,
+        };
+        self.panel(q)
     }
 
     /// `Agent` 0x6C (from `WM_Skill` 0xE, and `CPlayer` 0x65's argument 5 at login): the whole
     /// repository, then the skill panel.
     pub fn login_skills(&mut self, v: &PackValue, q: &WeenieQualities) -> Option<GameplayNotice> {
-        let graph = reference(v)?;
-        let repo = heap(graph, root_id(graph)?)?;
-        if repo.pkg_id != SKILL_REPOSITORY_PACKAGE || repo.slots.len() != 8 {
+        let PackValue::Reference(graph) = v else {
             return None;
-        }
-        self.skills = Skills {
-            credits: repo.slots[0],
-            hero_credits: repo.slots[3],
-            untraining: repo.slots[5],
-            skills: skill_table(graph, repo.slots[7]).unwrap_or_default(),
         };
-        Some(self.panel(q))
+        Some(self.set_repository(SkillRepository::decode(graph)?, q))
     }
 
     /// `CPlayer` 0x85 on long quality 0x12D (`AvailableXP`): the skill panel again.
@@ -341,7 +286,10 @@ impl Progress {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ac2_net::protocol::{entry_flags, ntype, HashKey};
+    use ac2_net::protocol::{
+        entry_flags, ntype, pack_values, HashKey, HeapObject, PackedEntry, PackedReference,
+        ScriptHash,
+    };
 
     fn skill_entry(skill: u32, flags: u32, xp: u64) -> PackedEntry {
         let mut slots = vec![0u32; 15];
@@ -350,7 +298,7 @@ mod tests {
             flags: entry_flags::KIND_HEAP | entry_flags::LOADED,
             object: HeapObject {
                 pkg_state_id: 0,
-                pkg_id: SKILL_INFO_PACKAGE,
+                pkg_id: 0x231,
                 native: None,
                 slots,
                 tags: vec![2; 15],
@@ -372,9 +320,8 @@ mod tests {
             .extend([skill_entry(0x41, 1, 500), skill_entry(0x40, 0, 0)]);
         let q = WeenieQualities::default();
         let mut p = Progress::default();
-        let out = p
-            .receive_skill(0x8214_0011, &[PackValue::Reference(table)], &q)
-            .unwrap();
+        let table_args = pack_values(&[PackValue::Reference(table)]);
+        let out = p.receive_skill(0x8214_0011, &table_args, &q).unwrap();
         assert_eq!(out.len(), 1);
         assert_eq!(
             p.skills.skills.iter().map(|s| s.skill).collect::<Vec<_>>(),
@@ -385,11 +332,12 @@ mod tests {
             ids: vec![7],
             entries: vec![skill_entry(0x42, 1, 1)],
         };
+        let one_args = pack_values(&[PackValue::Reference(one)]);
         assert_eq!(
-            p.receive_skill(0x8214_000D, &[PackValue::Reference(one)], &q),
+            p.receive_skill(0x8214_000D, &one_args, &q),
             Some(vec![GameplayNotice::UpdateSkill(0x42)])
         );
-        p.receive_skill(0x8214_0014, &[PackValue::Int(0x40)], &q);
+        p.receive_skill(0x8214_0014, &pack_values(&[PackValue::Int(0x40)]), &q);
         assert_eq!(
             p.skills.skills.iter().map(|s| s.skill).collect::<Vec<_>>(),
             [0x41, 0x42]

@@ -86,8 +86,9 @@ impl Client {
         Some(result)
     }
 
-    /// A craft request: its IFun's stub sends the request; the events it raised come back.
-    pub(crate) fn craft_request(&mut self, function: u32, args: &[IFunArg]) -> Vec<SessionEvent> {
+    /// A request's IFun on the player's script (a craft or skill request): its stub sends the
+    /// request; the events it raised come back.
+    pub(crate) fn script_request(&mut self, function: u32, args: &[IFunArg]) -> Vec<SessionEvent> {
         let mut out = Vec::new();
         if self.scripts_own(function) {
             if let Err(e) = self.ifun_into(function, args, &mut out) {
@@ -290,14 +291,14 @@ impl Client {
     pub(crate) fn craft_command(&mut self, command: &Command) -> Vec<SessionEvent> {
         match command {
             Command::OpenRecipe(recipe) => {
-                self.craft_request(crate::scripts::IFUN_OPEN_RECIPE, &[IFunArg::Int(*recipe)])
+                self.script_request(crate::scripts::IFUN_OPEN_RECIPE, &[IFunArg::Int(*recipe)])
             }
             Command::AddIngredient {
                 recipe,
                 ordinal,
                 object,
                 spinner,
-            } => self.craft_request(
+            } => self.script_request(
                 crate::scripts::IFUN_REQUEST_ADD_INGREDIENT,
                 &[
                     IFunArg::Int(*recipe),
@@ -310,7 +311,7 @@ impl Client {
                 recipe,
                 spinner,
                 ingredients,
-            } => self.craft_request(
+            } => self.script_request(
                 crate::scripts::IFUN_REQUEST_EXECUTE_CRAFT,
                 &[
                     IFunArg::Int(*recipe),
@@ -318,7 +319,7 @@ impl Client {
                     IFunArg::ingredient_table(ingredients),
                 ],
             ),
-            Command::RaiseCraftSkill(skill) => self.craft_request(
+            Command::RaiseCraftSkill(skill) => self.script_request(
                 crate::scripts::IFUN_REQUEST_RAISE_CRAFT_SKILL,
                 &[IFunArg::Int(*skill)],
             ),

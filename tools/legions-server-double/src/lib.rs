@@ -34,7 +34,10 @@ pub use appearance::{
 };
 pub use assembly::{fragment_header_bytes, Assembler};
 pub use channel::{Channel, ChannelStats, Conditions, Direction, InFlight, SplitMix};
-pub use character::{default_options, Character, MELEE_ATTACK, MELEE_AUTO_ATTACK, RACE_HUMAN};
+pub use character::{
+    default_options, Character, SkillCost, DEFAULT_SKILL_COST, MELEE_ATTACK, MELEE_AUTO_ATTACK,
+    RACE_HUMAN,
+};
 pub use chest::{CHEST, CHEST_CAPACITY, CHEST_GEM, CHEST_SCROLL};
 pub use effects::{effect_registry, EffectGrant, EFFECT_PULSED, EFFECT_TIMED};
 pub use items::{
@@ -289,6 +292,8 @@ pub struct State {
     pub script_requests: Vec<ac2_net::protocol::ScriptRequest>,
     /// Every script request as it arrived: its function id and packed arguments, byte for byte.
     pub script_bytes: Vec<(u32, Vec<u8>)>,
+    /// The skill answers the double sent (`WM_Skill` 0xD, 0xE), in order.
+    pub skill_answers: Vec<ac2_net::protocol::SkillMessage>,
     /// The client's calls in `ac2_net::protocol::SCRIPT_CALLS` (skills, shortcuts,
     /// fellowships, allegiances), decoded, in arrival order.
     pub script_calls: Vec<ac2_net::protocol::ScriptCall>,

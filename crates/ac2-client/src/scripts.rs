@@ -121,6 +121,11 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_REQUEST_SALES,
     IFUN_REQUEST_NEXT_SALES,
     IFUN_REQUEST_PREV_SALES,
+    // The skill requests (`ggmCWInterface::CallIFun_Request*Skill`, see [`crate::skills`]).
+    IFUN_REQUEST_TRAIN_SKILL,
+    IFUN_REQUEST_UNTRAIN_SKILL,
+    IFUN_REQUEST_UNTRAIN_SKILL_CANCEL,
+    IFUN_REQUEST_RAISE_SKILL,
     // The crafting queries and requests (`ggmCWInterface::CallIFun_*`, see [`crate::craft`]).
     IFUN_CAN_CRAFT_SKILL_BE_RAISED,
     IFUN_CHECK_INGREDIENT,
@@ -234,6 +239,14 @@ pub const IFUN_REQUEST_ADD_INGREDIENT: u32 = 0x00B4_009D;
 pub const IFUN_REQUEST_EXECUTE_CRAFT: u32 = 0x00B4_009E;
 /// `gmCWInterface::RequestRaiseCraftSkill` (`CallIFun_RequestRaiseCraftSkill`).
 pub const IFUN_REQUEST_RAISE_CRAFT_SKILL: u32 = 0x00B4_011C;
+
+/// The skill requests (`ggmCWInterface::CallIFun_Request*Skill`, the same ids in Legions 7160):
+/// `RequestTrainSkill` (the skill), `RequestUntrainSkill` (the skill), `RequestUntrainSkillCancel`
+/// (none) and `RequestRaiseSkill` (the skill). Their stubs send `WM_Skill` 0x13, 0x12, 0xF and 0x10.
+pub const IFUN_REQUEST_TRAIN_SKILL: u32 = 0x00B4_002B;
+pub const IFUN_REQUEST_UNTRAIN_SKILL: u32 = 0x00B4_002C;
+pub const IFUN_REQUEST_UNTRAIN_SKILL_CANCEL: u32 = 0x00B4_002D;
+pub const IFUN_REQUEST_RAISE_SKILL: u32 = 0x00B4_002E;
 
 /// `gmCWInterface::SetSelection`'s IFun (`ggmCWInterface::CallIFun_SetSelection`: the
 /// object, then `CPlayer` 0x6A).

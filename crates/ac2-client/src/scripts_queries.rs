@@ -28,6 +28,13 @@ pub mod ifun {
     pub const SET_SHORTCUT: u32 = 0x00B4_006F;
     pub const GET_GAMEPLAY_OPTIONS: u32 = 0x00B4_00DE;
     pub const IS_HERO_SKILL_BY_ENUM: u32 = 0x00B4_012A;
+    pub const GET_SKILL_CREDITS: u32 = 0x00B4_001F;
+    pub const GET_HERO_SKILL_CREDITS: u32 = 0x00B4_0129;
+    pub const GET_SKILL_XP: u32 = 0x00B4_002A;
+    pub const IS_SKILL_TRAINED: u32 = 0x00B4_0021;
+    pub const IS_SKILL_BEING_UNTRAINED: u32 = 0x00B4_0022;
+    pub const IS_SKILL_USABLE_BASED_ON_INVENTORY: u32 = 0x00B4_0031;
+    pub const IS_SKILL_HARMFUL: u32 = 0x00B4_00C5;
 }
 
 /// `InqSkillLevelByEnum`'s answer.
@@ -123,6 +130,47 @@ impl Client {
     /// `gmCWInterface::IsHeroSkillByEnum`.
     pub fn is_hero_skill(&mut self, skill: u32) -> Result<bool, String> {
         Ok(self.query_word(ifun::IS_HERO_SKILL_BY_ENUM, skill)? != 0)
+    }
+
+    /// `gmCWInterface::GetSkillCredits`: the player's skill credits.
+    pub fn skill_credits(&mut self) -> Result<u32, String> {
+        Ok(self
+            .query(ifun::GET_SKILL_CREDITS, &[], IFunReturn::Word)?
+            .retval as u32)
+    }
+
+    /// `gmCWInterface::GetHeroSkillCredits`: the player's hero skill credits.
+    pub fn hero_skill_credits(&mut self) -> Result<u32, String> {
+        Ok(self
+            .query(ifun::GET_HERO_SKILL_CREDITS, &[], IFunReturn::Word)?
+            .retval as u32)
+    }
+
+    /// `gmCWInterface::GetSkillXPByEnum`: the experience spent on `skill` (a `ulong64`).
+    pub fn skill_xp(&mut self, skill: u32) -> Result<u64, String> {
+        Ok(self
+            .query(ifun::GET_SKILL_XP, &[IFunArg::Int(skill)], IFunReturn::Long)?
+            .retval)
+    }
+
+    /// `gmCWInterface::IsSkillTrainedByEnum`.
+    pub fn is_skill_trained(&mut self, skill: u32) -> Result<bool, String> {
+        Ok(self.query_word(ifun::IS_SKILL_TRAINED, skill)? != 0)
+    }
+
+    /// `gmCWInterface::IsSkillBeingUntrainedByEnum`.
+    pub fn is_skill_being_untrained(&mut self, skill: u32) -> Result<bool, String> {
+        Ok(self.query_word(ifun::IS_SKILL_BEING_UNTRAINED, skill)? != 0)
+    }
+
+    /// `gmCWInterface::IsSkillUsableBasedOnInventoryByEnum`.
+    pub fn is_skill_usable_by_inventory(&mut self, skill: u32) -> Result<bool, String> {
+        Ok(self.query_word(ifun::IS_SKILL_USABLE_BASED_ON_INVENTORY, skill)? != 0)
+    }
+
+    /// `gmCWInterface::IsSkillHarmful`.
+    pub fn is_skill_harmful(&mut self, skill: u32) -> Result<bool, String> {
+        Ok(self.query_word(ifun::IS_SKILL_HARMFUL, skill)? != 0)
     }
 
     /// `gmCWInterface::UseShortcut(index)`: the script's result.

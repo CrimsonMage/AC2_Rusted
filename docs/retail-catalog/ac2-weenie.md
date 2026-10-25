@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 214 done, 61 partial, 1622 to do, 7 skipped.
+1904 retail functions: 238 done, 75 partial, 1584 to do, 7 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (51/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (63/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -649,9 +649,9 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_BreakAllegiance` · 00457a20 · legions 00458580
 - [ ] `ggmCWInterface::CallIFun_CanAutoAttackTarget` · 00457af0 · legions 00458650
 - [x] `ggmCWInterface::CallIFun_CanCraftSkillBeRaised` · 00457bd0 · legions 00458730 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-- [ ] `ggmCWInterface::CallIFun_CanSkillBeRaisedByEnum` · 00457c90 · legions 004587f0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-- [ ] `ggmCWInterface::CallIFun_CanSkillBeTrainedByEnum` · 00457d50 · legions 004588b0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-- [ ] `ggmCWInterface::CallIFun_CanSkillBeUntrainedByEnum` · 00457e10 · legions 00458970 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+- [x] `ggmCWInterface::CallIFun_CanSkillBeRaisedByEnum` · 00457c90 · legions 004587f0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [x] `ggmCWInterface::CallIFun_CanSkillBeTrainedByEnum` · 00457d50 · legions 004588b0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [~] `ggmCWInterface::CallIFun_CanSkillBeUntrainedByEnum` · 00457e10 · legions 00458970 — query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
 - [x] `ggmCWInterface::CallIFun_CheckIngredient` · 00457ed0 · legions 00458a30 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [ ] `ggmCWInterface::CallIFun_ClearResurrectionRequest` · 00458090 · legions 00458bf0
 - [~] `ggmCWInterface::CallIFun_CloseTradeNegotiations` · 00458120 · legions 00458c80 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
@@ -693,7 +693,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_GetFXAndBehaviorInformationFromWsl` · 0045a140 · legions 0045ad90
 - [x] `ggmCWInterface::CallIFun_GetFellowXPHash` · 0045a310 · legions 0045af60 — ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 - [ ] `ggmCWInterface::CallIFun_GetGameplayOptions` · 0045a4b0 · legions 0045b100 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-- [ ] `ggmCWInterface::CallIFun_GetHeroSkillCredits` · 0045a620 · legions 0045b270
+- [x] `ggmCWInterface::CallIFun_GetHeroSkillCredits` · 0045a620 · legions 0045b270 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [ ] `ggmCWInterface::CallIFun_GetIconID` · 0045a6c0 · legions 0045b310
 - [ ] `ggmCWInterface::CallIFun_GetLastSelection` · 0045a760 · legions 0045b3b0
 - [ ] `ggmCWInterface::CallIFun_GetLatencyIndicatorGraph` · 0045a820 · legions 0045b470
@@ -718,10 +718,10 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_GetShowPetUI` · 0045b620 · legions 0045c270
 - [ ] `ggmCWInterface::CallIFun_GetShowRadarCoords` · 0045b6c0 · legions 0045c310
 - [ ] `ggmCWInterface::CallIFun_GetShowShortcutNumbers` · 0045b760 · legions 0045c3b0
-- [ ] `ggmCWInterface::CallIFun_GetSkillCostToTrainByEnum` · 0045b800 · legions 0045c450 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-- [ ] `ggmCWInterface::CallIFun_GetSkillCredits` · 0045b8c0 · legions 0045c510
-- [ ] `ggmCWInterface::CallIFun_GetSkillExperienceNeededToLevelByEnum` · 0045b960 · legions 0045c5b0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-- [ ] `ggmCWInterface::CallIFun_GetSkillXPByEnum` · 0045ba40 · legions 0045c690
+- [x] `ggmCWInterface::CallIFun_GetSkillCostToTrainByEnum` · 0045b800 · legions 0045c450 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [x] `ggmCWInterface::CallIFun_GetSkillCredits` · 0045b8c0 · legions 0045c510 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [x] `ggmCWInterface::CallIFun_GetSkillExperienceNeededToLevelByEnum` · 0045b960 · legions 0045c5b0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [x] `ggmCWInterface::CallIFun_GetSkillXPByEnum` · 0045ba40 · legions 0045c690 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [ ] `ggmCWInterface::CallIFun_GetStackable` · 0045bb20 · legions 0045c770
 - [ ] `ggmCWInterface::CallIFun_GetWhichShortcutSet` · 0045bbc0 · legions 0045c810
 - [ ] `ggmCWInterface::CallIFun_HandlePlayScenesDone` · 0045bc60 · legions 0045c8b0
@@ -752,17 +752,17 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_InqShortcutArray` · 0045e2c0 · legions 0045ef10
 - [ ] `ggmCWInterface::CallIFun_InqShortcutInfo` · 0045e450 · legions 0045f0a0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_InqSimpleInvByLocTable` · 0045e660 · legions 0045f2b0
-- [ ] `ggmCWInterface::CallIFun_InqSkillLevelByEnum` · 0045e7f0 · legions 0045f440 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-- [ ] `ggmCWInterface::CallIFun_InqSkillTimeLeft` · 0045e9c0 · legions 0045f610 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+- [~] `ggmCWInterface::CallIFun_InqSkillLevelByEnum` · 0045e7f0 · legions 0045f440 — query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+- [~] `ggmCWInterface::CallIFun_InqSkillTimeLeft` · 0045e9c0 · legions 0045f610 — query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
 - [ ] `ggmCWInterface::CallIFun_InqUISaveLocations` · 0045eb90 · legions 0045f7e0
 - [x] `ggmCWInterface::CallIFun_IsCraftSkillRaiseable` · 0045ed00 · legions 0045f950 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [ ] `ggmCWInterface::CallIFun_IsFellowshipMember` · 0045edc0 · legions 0045fa10
-- [ ] `ggmCWInterface::CallIFun_IsHeroSkillByEnum` · 0045eea0 · legions 0045faf0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+- [~] `ggmCWInterface::CallIFun_IsHeroSkillByEnum` · 0045eea0 · legions 0045faf0 — query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
 - [ ] `ggmCWInterface::CallIFun_IsOnInventory` · 0045ef60 · legions 0045fbb0
-- [ ] `ggmCWInterface::CallIFun_IsSkillBeingUntrainedByEnum` · 0045f040 · legions 0045fc90
-- [ ] `ggmCWInterface::CallIFun_IsSkillHarmful` · 0045f100 · legions 0045fd50
-- [ ] `ggmCWInterface::CallIFun_IsSkillTrainedByEnum` · 0045f1c0 · legions 0045fe10
-- [ ] `ggmCWInterface::CallIFun_IsSkillUsableBasedOnInventoryByEnum` · 0045f280 · legions 0045fed0
+- [x] `ggmCWInterface::CallIFun_IsSkillBeingUntrainedByEnum` · 0045f040 · legions 0045fc90 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [x] `ggmCWInterface::CallIFun_IsSkillHarmful` · 0045f100 · legions 0045fd50 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [x] `ggmCWInterface::CallIFun_IsSkillTrainedByEnum` · 0045f1c0 · legions 0045fe10 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [~] `ggmCWInterface::CallIFun_IsSkillUsableBasedOnInventoryByEnum` · 0045f280 · legions 0045fed0 — query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
 - [ ] `ggmCWInterface::CallIFun_LootAllFromContainer` · 0045f340 · legions 0045ff90
 - [ ] `ggmCWInterface::CallIFun_MoveItem` · 0045f410 · legions 00460060
 - [~] `ggmCWInterface::CallIFun_OfferItemForTrade` · 0045f5e0 · legions 00460230 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
@@ -790,15 +790,15 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_RequestPetReturn` · 004606c0 · legions 00461310
 - [ ] `ggmCWInterface::CallIFun_RequestPrevSales` · 00460750 · legions 004613a0
 - [x] `ggmCWInterface::CallIFun_RequestRaiseCraftSkill` · 004607e0 · legions 00461430 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-- [ ] `ggmCWInterface::CallIFun_RequestRaiseSkill` · 00460890 · legions 004614e0
+- [x] `ggmCWInterface::CallIFun_RequestRaiseSkill` · 00460890 · legions 004614e0 — ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
 - [ ] `ggmCWInterface::CallIFun_RequestRestock` · 00460940 · legions 00461590
 - [ ] `ggmCWInterface::CallIFun_RequestResurrect` · 00460a60 · legions 004616b0
 - [ ] `ggmCWInterface::CallIFun_RequestSales` · 00460af0 · legions 00461740
 - [~] `ggmCWInterface::CallIFun_RequestSell` · 00460ba0 · legions 004617f0 — lead: the VM's sell body needs the storekeeper's shopper with a StoreGroup (set by ViewCatalog, WM_Store 0x52; without one it refuses with message 0xAFD1, consignment_script_7160). With the catalog open it runs on to gCWDistributor::GetEntityDID (bound) and then gCWPhysicsObject::CallEFun_GetLocalVisualDesc (0x800059, unbound: needs the item's VisualDesc native), so the RequestSell stub's bytes are not reached yet.
 - [ ] `ggmCWInterface::CallIFun_RequestSetPetName` · 00460cc0 · legions 00461910
-- [ ] `ggmCWInterface::CallIFun_RequestTrainSkill` · 00460df0 · legions 00461a40
-- [ ] `ggmCWInterface::CallIFun_RequestUntrainSkill` · 00460ea0 · legions 00461af0
-- [ ] `ggmCWInterface::CallIFun_RequestUntrainSkillCancel` · 00460f50 · legions 00461ba0
+- [x] `ggmCWInterface::CallIFun_RequestTrainSkill` · 00460df0 · legions 00461a40 — ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
+- [~] `ggmCWInterface::CallIFun_RequestUntrainSkill` · 00460ea0 · legions 00461af0 — query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+- [~] `ggmCWInterface::CallIFun_RequestUntrainSkillCancel` · 00460f50 · legions 00461ba0 — query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
 - [ ] `ggmCWInterface::CallIFun_ResetReplyHistoryIndex` · 00460fe0 · legions 00461c30
 - [ ] `ggmCWInterface::CallIFun_ResetRetellHistoryIndex` · 00461070 · legions 00461cc0
 - [ ] `ggmCWInterface::CallIFun_Result_CallCreate` · 00461100 · legions 00461d50
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (91/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (103/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -993,26 +993,26 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::GetIconID` · 00450800 · legions 00451940 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [~] `gmCWInterface::GetMaxContainerSize` · 00450830 · legions 00451970 — ItemStats::capacity: int 280 default 12; the EffectSystem pass is not applied
 - [ ] `gmCWInterface::GetAvailableExperience` · 00450860 · legions 004519a0 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
-- [ ] `gmCWInterface::GetSkillCredits` · 004508a0 · legions 004519e0 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
-- [ ] `gmCWInterface::GetHeroSkillCredits` · 004508d0 · legions 00451a10 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
+- [x] `gmCWInterface::GetSkillCredits` · 004508a0 · legions 004519e0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [x] `gmCWInterface::GetHeroSkillCredits` · 004508d0 · legions 00451a10 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [ ] `gmCWInterface::Dismount` · 00450900 · legions 00451a40
 - [ ] `gmCWInterface::InqRootPanelFromRace` · 00450920 · legions 00451a60
-- [ ] `gmCWInterface::IsSkillTrainedByEnum` · 00450960 · legions 00451aa0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
-- [ ] `gmCWInterface::IsSkillBeingUntrainedByEnum` · 004509a0 · legions 00451ae0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
-- [ ] `gmCWInterface::IsHeroSkillByEnum` · 004509e0 · legions 00451b20 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
-- [ ] `gmCWInterface::CanSkillBeTrainedByEnum` · 00450a20 · legions 00451b60 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
-- [ ] `gmCWInterface::CanSkillBeUntrainedByEnum` · 00450a60 · legions 00451ba0 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
-- [ ] `gmCWInterface::CanSkillBeRaisedByEnum` · 00450aa0 · legions 00451be0 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
-- [ ] `gmCWInterface::GetSkillExperienceNeededToLevelByEnum` · 00450ae0 · legions 00451c20
-- [ ] `gmCWInterface::InqSkillLevelByEnum` · 00450b30 · legions 00451c70
-- [ ] `gmCWInterface::GetSkillCostToTrainByEnum` · 00450b70 · legions 00451cb0 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
-- [ ] `gmCWInterface::GetSkillXPByEnum` · 00450bb0 · legions 00451cf0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
-- [ ] `gmCWInterface::RequestTrainSkill` · 00450c00 · legions 00451d40 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
-- [ ] `gmCWInterface::RequestUntrainSkill` · 00450c20 · legions 00451d60 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
-- [ ] `gmCWInterface::RequestRaiseSkill` · 00450c40 · legions 00451d80 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
-- [ ] `gmCWInterface::RequestUntrainSkillCancel` · 00450c60 · legions 00451da0 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
-- [ ] `gmCWInterface::InqSkillTimeLeft` · 00450c80 · legions 00451dc0
-- [ ] `gmCWInterface::IsSkillUsableBasedOnInventoryByEnum` · 00450cc0 · legions 00451e00
+- [x] `gmCWInterface::IsSkillTrainedByEnum` · 00450960 · legions 00451aa0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [x] `gmCWInterface::IsSkillBeingUntrainedByEnum` · 004509a0 · legions 00451ae0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [~] `gmCWInterface::IsHeroSkillByEnum` · 004509e0 · legions 00451b20 — query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+- [x] `gmCWInterface::CanSkillBeTrainedByEnum` · 00450a20 · legions 00451b60 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [~] `gmCWInterface::CanSkillBeUntrainedByEnum` · 00450a60 · legions 00451ba0 — query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+- [x] `gmCWInterface::CanSkillBeRaisedByEnum` · 00450aa0 · legions 00451be0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [x] `gmCWInterface::GetSkillExperienceNeededToLevelByEnum` · 00450ae0 · legions 00451c20 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [~] `gmCWInterface::InqSkillLevelByEnum` · 00450b30 · legions 00451c70 — query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+- [x] `gmCWInterface::GetSkillCostToTrainByEnum` · 00450b70 · legions 00451cb0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [x] `gmCWInterface::GetSkillXPByEnum` · 00450bb0 · legions 00451cf0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+- [x] `gmCWInterface::RequestTrainSkill` · 00450c00 · legions 00451d40 — ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
+- [~] `gmCWInterface::RequestUntrainSkill` · 00450c20 · legions 00451d60 — query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+- [x] `gmCWInterface::RequestRaiseSkill` · 00450c40 · legions 00451d80 — ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
+- [~] `gmCWInterface::RequestUntrainSkillCancel` · 00450c60 · legions 00451da0 — query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+- [~] `gmCWInterface::InqSkillTimeLeft` · 00450c80 · legions 00451dc0 — query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+- [~] `gmCWInterface::IsSkillUsableBasedOnInventoryByEnum` · 00450cc0 · legions 00451e00 — query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
 - [ ] `gmCWInterface::GUNHandleReauthentication` · 00450d00 · legions 00451e40
 - [ ] `gmCWInterface::Result_SendToUser` · 00450d10 · legions 00451e50
 - [ ] `gmCWInterface::Result_SendToRoom` · 00450d40 · legions 00451e80
@@ -1125,7 +1125,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::SpecialAttackEnded` · 00451f70 · legions 004530f0
 - [ ] `gmCWInterface::StopAttackingIfAutoMoving` · 00451f90 · legions 00453110
 - [x] `gmCWInterface::InqRadarLook` · 00451fb0 · legions 00453130 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-- [ ] `gmCWInterface::IsSkillHarmful` · 00451ff0 · legions 00453170
+- [x] `gmCWInterface::IsSkillHarmful` · 00451ff0 · legions 00453170 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [ ] `gmCWInterface::HandleSetWeenieDesc` · 00452030 · legions 004531b0
 
 ### GunChatExtraInfo

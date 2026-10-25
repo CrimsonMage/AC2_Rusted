@@ -226,13 +226,12 @@ impl SkillSource for ClientPlayer<'_> {
     }
 
     fn status(&self, skill: u32) -> SkillStatus {
-        let skills = &self.frame.progress.skills;
         let mut client = self.client.borrow_mut();
         // A query that fails reads 0, as the retail wrappers' return slots start.
         let level = client.skill_level(skill).ok();
         SkillStatus {
-            trained: skills.is_trained(skill),
-            untraining: skills.is_being_untrained(skill),
+            trained: client.is_skill_trained(skill).unwrap_or(false),
+            untraining: client.is_skill_being_untrained(skill).unwrap_or(false),
             hero: client.is_hero_skill(skill).unwrap_or(false),
             can_train: client.can_skill_be_trained(skill).unwrap_or(0),
             can_raise: client.can_skill_be_raised(skill).unwrap_or(0),
@@ -241,16 +240,18 @@ impl SkillSource for ClientPlayer<'_> {
             raw_level: level.map_or(0, |l| l.enchanted),
             cost_to_train: u64::from(client.skill_cost_to_train(skill).unwrap_or(0)),
             xp_to_level: client.skill_experience_to_level(skill).unwrap_or(0),
-            skill_xp: skills.xp(skill),
+            skill_xp: client.skill_xp(skill).unwrap_or(0),
         }
     }
 
+    /// The available experience (the qualities), then the skill credits and hero credits
+    /// (`gmCWInterface::GetSkillCredits` and `GetHeroSkillCredits`).
     fn available(&self) -> (u64, u32, u32) {
-        let progress = &self.frame.progress;
+        let mut client = self.client.borrow_mut();
         (
-            progress.experience.available_xp,
-            progress.skills.credits,
-            progress.skills.hero_credits,
+            self.frame.progress.experience.available_xp,
+            client.skill_credits().unwrap_or(0),
+            client.hero_skill_credits().unwrap_or(0),
         )
     }
 
@@ -323,7 +324,10 @@ impl ShortcutSource for ClientPlayer<'_> {
     }
 
     fn skill_trained(&self, skill: u32) -> bool {
-        self.frame.progress.skills.is_trained(skill)
+        self.client
+            .borrow_mut()
+            .is_skill_trained(skill)
+            .unwrap_or(false)
     }
 
     /// `gmCWInterface::InqSkillTimeLeft`: the skill's total and time left, while it is on reset.

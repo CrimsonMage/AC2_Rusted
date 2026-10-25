@@ -15,6 +15,7 @@ mod craft;
 mod craft_records;
 mod message;
 mod request;
+mod skill;
 mod store;
 mod trade;
 
@@ -24,6 +25,7 @@ pub use consignment::{Consignment, ConsignmentList};
 pub use craft::CraftMessage;
 pub use message::{broadcast, ScriptMessage};
 pub use request::ScriptRequest;
+pub use skill::{SkillMessage, SkillRecord, SkillRepository};
 pub use store::{GameSale, Purchase, StoreMessage, StoreView};
 pub use trade::TradeMessage;
 
@@ -35,6 +37,23 @@ use crate::protocol::ProtocolError;
 /// Script function ids, by the `WM_*` package that sends or receives them (package
 /// 0x212 `WM_Player`, 0x20A `WM_Examination`, 0x205 `WM_Communication`).
 pub mod function {
+    /// S->C, `WM_Skill` 0xD -> `CAgent` 0x7: one `SkillInfo` added or replaced.
+    pub const SKILL_UPDATE: u32 = 0x8214_000D;
+    /// S->C, `WM_Skill` 0xE -> `CAgent` 0x3: the whole `SkillRepository` (the credits too).
+    pub const SKILL_SET_REPOSITORY: u32 = 0x8214_000E;
+    /// S->C, `WM_Skill` 0x11 -> `CAgent` 0x2: the skill table (an `ARHash` of `SkillInfo`s).
+    pub const SKILL_SET_SKILLS: u32 = 0x8214_0011;
+    /// S->C, `WM_Skill` 0x14 -> `CAgent` 0x1: one skill removed (its enum, an int).
+    pub const SKILL_REMOVE: u32 = 0x8214_0014;
+    /// C->S, `WM_Skill` stub 0x13 (`RequestTrainSkill`): the skill, an int.
+    pub const SKILL_TRAIN: u32 = 0x8214_0002;
+    /// C->S, `WM_Skill` stub 0x12 (`RequestUntrainSkill`): the skill, an int.
+    pub const SKILL_UNTRAIN: u32 = 0x8214_0007;
+    /// C->S, `WM_Skill` stub 0x10 (`RequestRaiseSkill`): the skill, an int.
+    pub const SKILL_RAISE: u32 = 0x8214_000C;
+    /// C->S, `WM_Skill` stub 0xF (`RequestUntrainSkillCancel`): no values.
+    pub const SKILL_CANCEL_UNTRAIN: u32 = 0x8214_0001;
+
     /// C->S, `WM_Player` stub 0x28 (from `CPlayer` 0x6A, `SetSelection`): long int.
     pub const SET_TARGET: u32 = 0x8212_0016;
     /// C->S, `WM_Examination` stub 0x8 (`CExaminationSystem`): `ExaminationRequest`.

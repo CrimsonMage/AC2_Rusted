@@ -45,8 +45,8 @@ pub use fx::{DecalFx, EntityDesc, FxData, FxNode, LightSourceFx, RepulsorFx, Str
 pub use gameplay::{
     broadcast as script_broadcast, call_spec, function as script_function, ArgKind, CallSpec,
     Consignment, ConsignmentList, CraftMessage, Direction as CallDirection, GameSale, Purchase,
-    ScriptCall, ScriptMessage, ScriptRequest, StoreCatalog, StoreMessage, StoreView, TradeMessage,
-    CALLS as SCRIPT_CALLS,
+    ScriptCall, ScriptMessage, ScriptRequest, SkillMessage, SkillRecord, SkillRepository,
+    StoreCatalog, StoreMessage, StoreView, TradeMessage, CALLS as SCRIPT_CALLS,
 };
 pub use inventory::{
     id_list, pack_id_list, ContainerContents, Equipment, InvEquipDesc, InvMoveDesc,

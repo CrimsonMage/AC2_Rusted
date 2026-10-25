@@ -911,20 +911,24 @@ key	status	note
 00450800	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 00450830	~	ItemStats::capacity: int 280 default 12; the EffectSystem pass is not applied
 00450860	_	ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
-004508a0	_	ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
-004508d0	_	ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
-00450960	_	ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
-004509a0	_	ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
-004509e0	_	ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
-00450a20	_	ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
-00450a60	_	ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
-00450aa0	_	ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
-00450b70	_	ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
-00450bb0	_	ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
-00450c00	_	ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
-00450c20	_	ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
-00450c40	_	ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
-00450c60	_	ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
+004508a0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+004508d0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+00450960	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+004509a0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+004509e0	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+00450a20	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+00450a60	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+00450aa0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+00450ae0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+00450b30	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+00450b70	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+00450bb0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+00450c00	x	ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
+00450c20	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+00450c40	x	ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
+00450c60	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+00450c80	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+00450cc0	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
 00450d70	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 00450d90	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 00450de0	_	ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
@@ -1001,6 +1005,7 @@ key	status	note
 00451e10	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451e40	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451fb0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
+00451ff0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 004520f0	_	ac2-net GunChatExtraInfo
 004521b0	_	ac2-weenie ChatState::process_text resets the told/heard walks (CPlayer 0x43/0xDF)
 004521e0	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
@@ -1059,9 +1064,9 @@ key	status	note
 004576d0	_	ac2-script vm (VM/ReferenceTable/Resolver)
 00457730	x	ac2-client gameplay.rs Command::AcceptTrade: the IFun on the player's VM script (CPlayer's CWInterface graph packed by stub 0x45 -> 0x35); stand-in only without a VM (empty reference)
 00457bd0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-00457c90	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-00457d50	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-00457e10	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+00457c90	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+00457d50	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+00457e10	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
 00457ed0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00458120	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 004581b0	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
@@ -1077,10 +1082,13 @@ key	status	note
 00459d30	x	ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 0045a310	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 0045a4b0	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045a620	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045aa00	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 0045ae80	x	ac2-weenie ItemStats::preferred_location (Item 0x26: int 282), valid_locations (275), precluded_locations (283)
-0045b800	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-0045b960	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045b800	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+0045b8c0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+0045b960	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+0045ba40	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045c630	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0045c7c0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 0045c950	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
@@ -1094,10 +1102,14 @@ key	status	note
 0045dfc0	x	lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
 0045e180	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045e450	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-0045e7f0	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-0045e9c0	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045e7f0	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+0045e9c0	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
 0045ed00	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-0045eea0	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045eea0	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+0045f040	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+0045f100	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+0045f1c0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+0045f280	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
 0045f5e0	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 0045f6e0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0045f790	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
@@ -1110,7 +1122,11 @@ key	status	note
 00460220	_	net: consignment_script_7160 (the stub packs the storekeeper, one long int, as WM_Store 0x46 enter / 0x45 leave, only with a shopper open; the charge is the script's float out value, 0.0 with no consignment). IFun ids 0xB40136/35/3B match Legions
 004602b0	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 004607e0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
+00460890	x	ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
 00460ba0	~	lead: the VM's sell body needs the storekeeper's shopper with a StoreGroup (set by ViewCatalog, WM_Store 0x52; without one it refuses with message 0xAFD1, consignment_script_7160). With the catalog open it runs on to gCWDistributor::GetEntityDID (bound) and then gCWPhysicsObject::CallEFun_GetLocalVisualDesc (0x800059, unbound: needs the item's VisualDesc native), so the RequestSell stub's bytes are not reached yet.
+00460df0	x	ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
+00460ea0	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+00460f50	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
 004612c0	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 004613d0	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 004614e0	_	not in Legions 7160: the wrapper gmCWInterface::Result_GetFriendsList and its IFun 0xB40042 are absent; the list arrives in GUNEvent_FriendStart

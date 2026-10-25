@@ -106,9 +106,8 @@ impl OnlineSession {
         if function >> 16 != 0x8214 {
             return None;
         }
-        let values = unpack_values(arguments).ok()?;
         let q = player_qualities(&self.world);
-        let notices = self.progress.receive_skill(function, &values, q)?;
+        let notices = self.progress.receive_skill(function, arguments, q)?;
         Some(notices.into_iter().map(SessionEvent::Notice).collect())
     }
 
