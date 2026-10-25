@@ -55,6 +55,7 @@ fn scene() -> Option<(Terrain, PhysicsBody)> {
         Frame::new(Vector::new(80.0, 80.0, ground + 0.5), Quaternion::IDENTITY),
     );
     let mut body = PhysicsBody::new(start, shape, Some(Arc::new((*desc).clone())));
+    body.set_player(true);
     body.set_animation(animation);
     Some((terrain, body))
 }
@@ -62,7 +63,7 @@ fn scene() -> Option<(Terrain, PhysicsBody)> {
 fn run(terrain: &Terrain, body: &mut PhysicsBody, seconds: f32) {
     for _ in 0..(seconds / PHYSICS_QUANTUM).round() as usize {
         body.step_quantum(terrain);
-        body.update_animation(PHYSICS_QUANTUM);
+        crate::test_support::animate(body, PHYSICS_QUANTUM);
     }
 }
 

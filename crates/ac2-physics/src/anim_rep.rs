@@ -39,8 +39,42 @@ pub(crate) struct AnimRep {
     pub(crate) vdesc_scale: [f32; 3],
     /// The bone `TransformBase`s of the last `DoAnimation`.
     pub(crate) bones: Vec<Ac2BoneTransform>,
+    /// `m_animcolor` (r, g, b, a) and `m_animopacity`, from the colour and opacity sliders.
+    pub(crate) anim_color: [f32; 4],
+    pub(crate) anim_opacity: f32,
+    /// `IsThePlayer` (`CPhysicsObj::m_id == ICPhysicsObj::player_id`).
     player: bool,
     events: Vec<Ac2AnimEvent>,
+}
+
+/// The colour sliders (`m_animcolor` r, g, b, a) and the opacity slider.
+const SLIDER_RED: u32 = 0x4000_0016;
+const SLIDER_GREEN: u32 = 0x4000_0017;
+const SLIDER_BLUE: u32 = 0x4000_0018;
+const SLIDER_ALPHA: u32 = 0x4000_001a;
+const SLIDER_OPACITY: u32 = 0x4000_0015;
+
+/// `RGBAColor::CapLow` then `CapHigh`: every channel into `[0, 1]`.
+fn cap_color(color: &mut [f32; 4]) {
+    for channel in color.iter_mut() {
+        if *channel < 0.0 {
+            *channel = 0.0;
+        }
+    }
+    for channel in color.iter_mut() {
+        if 1.0 < *channel {
+            *channel = 1.0;
+        }
+    }
+}
+
+fn cap_opacity(opacity: f32) -> f32 {
+    let low = if opacity < 0.0 { 0.0 } else { opacity };
+    if 1.0 < low {
+        1.0
+    } else {
+        low
+    }
 }
 
 /// `PHYSICSOBJREP` as the trackers' `AnimationObj`: animator periods at the current slider
@@ -109,6 +143,7 @@ impl AnimRep {
     pub(crate) fn unanimated() -> Self {
         let template = Arc::new(Ac2CharTemplate {
             behaviors: HashMap::new(),
+            sliders: HashMap::new(),
             default_element: ELEMENT_GROUND,
             default_mode: MODE_DEFAULT,
         });
@@ -120,7 +155,9 @@ impl AnimRep {
             setup: None,
             vdesc_scale: [1.0; 3],
             bones: Vec::new(),
-            player: true,
+            anim_color: [1.0; 4],
+            anim_opacity: 1.0,
+            player: false,
             events: Vec::new(),
         }
     }
@@ -135,6 +172,8 @@ impl AnimRep {
             setup: animation.setup,
             vdesc_scale: animation.vdesc_scale,
             bones: Vec::new(),
+            anim_color: [1.0; 4],
+            anim_opacity: 1.0,
             player,
             events: Vec::new(),
         };
@@ -145,6 +184,10 @@ impl AnimRep {
 
     pub(crate) fn is_player(&self) -> bool {
         self.player
+    }
+
+    pub(crate) fn set_player(&mut self, player: bool) {
+        self.player = player;
     }
 
     pub(crate) fn can_animate(&self) -> bool {
@@ -171,10 +214,43 @@ impl AnimRep {
         self.with_modes(|modes, source| modes.do_element(element, source))
     }
 
-    /// `PHYSICSOBJREP::UpdateSliderTracker` (the wind slider is not driven).
+    /// `PHYSICSOBJREP::UpdateSliderTracker` (the wind slider is not driven): advance the
+    /// sliders, then read the colour and opacity back from them, capped to `[0, 1]`.
     pub(crate) fn update_sliders(&mut self, quantum: f32) {
         self.sliders.update(quantum);
         self.events.extend(self.sliders.take_events());
+        let value = |slider| self.sliders.value(slider);
+        self.anim_color = [
+            value(SLIDER_RED),
+            value(SLIDER_GREEN),
+            value(SLIDER_BLUE),
+            value(SLIDER_ALPHA),
+        ];
+        cap_color(&mut self.anim_color);
+        self.anim_opacity = cap_opacity(self.sliders.value(SLIDER_OPACITY));
+    }
+
+    /// `PHYSICSOBJREP::DoSlider`: a slider set at once (`time` 0) that is a colour channel or
+    /// the opacity takes effect now (capped to `[0, 1]`); then `SliderTracker::DoSlider`.
+    pub(crate) fn do_slider(&mut self, context: u32, slider: u32, pos: f32, time: f32) -> bool {
+        if time == 0.0 {
+            let channel = match slider {
+                SLIDER_RED => Some(0),
+                SLIDER_GREEN => Some(1),
+                SLIDER_BLUE => Some(2),
+                SLIDER_ALPHA => Some(3),
+                _ => None,
+            };
+            if let Some(channel) = channel {
+                self.anim_color[channel] = pos;
+                cap_color(&mut self.anim_color);
+            } else if slider == SLIDER_OPACITY {
+                self.anim_opacity = cap_opacity(pos);
+            }
+        }
+        let done = self.sliders.do_slider(context, slider, pos, time);
+        self.events.extend(self.sliders.take_events());
+        done
     }
 
     pub(crate) fn push_events(&mut self, events: impl IntoIterator<Item = Ac2AnimEvent>) {

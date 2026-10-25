@@ -3,7 +3,7 @@
 use crate::body::{MovementInput, PhysicsBody, PHYSICS_QUANTUM};
 use crate::motion_interp::{ELEMENT_AIR, ELEMENT_GROUND};
 use crate::terrain::Terrain;
-use crate::test_support::{body_at, terrain};
+use crate::test_support::{animate, body_at, terrain};
 
 fn run(body: &mut PhysicsBody, terrain: &Terrain, seconds: f32) {
     let quanta = (seconds / PHYSICS_QUANTUM).round() as usize;
@@ -175,7 +175,7 @@ fn run_animated(body: &mut PhysicsBody, terrain: &Terrain, seconds: f32) {
     let quanta = (seconds / PHYSICS_QUANTUM).round() as usize;
     for _ in 0..quanta {
         body.step_quantum(terrain);
-        body.update_animation(PHYSICS_QUANTUM);
+        animate(body, PHYSICS_QUANTUM);
     }
 }
 
@@ -188,9 +188,9 @@ fn an_animated_jump_waits_for_the_air_transition() {
     assert!(body.jump());
     assert_eq!(body.movement_state().element, ELEMENT_AIR);
     assert_eq!(body.current_element(), ELEMENT_GROUND, "still animating");
-    body.update_animation(0.2);
+    animate(&mut body, 0.2);
     assert_eq!(body.current_element(), ELEMENT_GROUND);
-    body.update_animation(0.2);
+    animate(&mut body, 0.2);
     assert_eq!(body.current_element(), ELEMENT_AIR);
     run_animated(&mut body, &ground, 2.0);
     let state = body.movement_state();

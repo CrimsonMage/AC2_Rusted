@@ -306,6 +306,8 @@ impl Client {
         let height = f64::from(data.shape.height) * f64::from(scale);
         let radius = f64::from(data.radius) * f64::from(scale);
         let mut physics = PhysicsBody::new(player.position, data.shape, data.motion);
+        // `CPhysicsObj::IsThePlayer`: the player's id is `ICPhysicsObj::player_id`.
+        physics.set_player(true);
         physics.set_radius(data.radius);
         if let Some(animation) = data.animation {
             physics.set_animation(animation);
@@ -475,9 +477,9 @@ impl Client {
         // `PhysicsModule::UpdateAnimation` -> `CPhysics::UpdateAllAnimation`.
         if let Some(step) = self.anim_clock.advance(now) {
             if let Some(body) = self.player.as_mut().and_then(|p| p.body.as_mut()) {
-                body.physics.update_animation(step);
+                body.physics.update_animation(step, now);
             }
-            self.remotes.update_animation(step);
+            self.remotes.update_animation(step, now);
         }
         Ok(events)
     }

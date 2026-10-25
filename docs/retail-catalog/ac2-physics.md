@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 289 done, 66 partial, 1707 to do, 62 skipped.
+2124 retail functions: 313 done, 74 partial, 1675 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -2068,7 +2068,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartArray::Destroy` · 004f0900 · legions 004e3230
 - [x] `CPartArray::GetComboCVel` · 004f0a10 · legions 004e3340 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `CPartArray::GetHoldLocations` · 004f0a80 · legions 004e33b0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-- [~] `CPartArray::AddAnimation` · 004f0af0 · legions 004e3420 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+- [~] `CPartArray::AddAnimation` · 004f0af0 · legions 004e3420 — impulse triggers always, compositor only on refresh frames; effect triggers and weenie hooks not fired; one part group
 - [ ] `CPartArray::CPartArray` · 004f0c10 · legions 004e3540
 - [ ] `CPartArray::SetColor` · 004f0d10 · legions 004e3640
 - [ ] `CPartArray::~CPartArray` · 004f0d40 · legions 004e3670
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (79/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (93/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2197,17 +2197,17 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::RecvEvt_LookAt` · 004de2e0
 - [ ] `CPhysicsObj::RecvEvt_LookAtDir` · 004de300
 - [x] `CPhysicsObj::RecvEvt_StopBehavior` · 004de320 — ac2-client motion.rs
-- [ ] `CPhysicsObj::RecvEvt_StopLayer` · 004de330
-- [ ] `CPhysicsObj::RecvEvt_StopMoveToCancelsBehaviors` · 004de340
-- [ ] `CPhysicsObj::RecvEvt_StopAllWeenieBehaviors` · 004de350
-- [ ] `CPhysicsObj::RecvEvt_DoMode` · 004de360
-- [ ] `CPhysicsObj::RecvEvt_DoSlider` · 004de380 · legions 004d0de0
+- [~] `CPhysicsObj::RecvEvt_StopLayer` · 004de330 — PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
+- [~] `CPhysicsObj::RecvEvt_StopMoveToCancelsBehaviors` · 004de340 — PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
+- [~] `CPhysicsObj::RecvEvt_StopAllWeenieBehaviors` · 004de350 — PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
+- [~] `CPhysicsObj::RecvEvt_DoMode` · 004de360 — PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
+- [x] `CPhysicsObj::RecvEvt_DoSlider` · 004de380 · legions 004d0de0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `CPhysicsObj::RecvEvt_SetMIDESC` · 004de3f0
 - [ ] `CPhysicsObj::RecvEvt_SetAccelerationScale` · 004de410
 - [ ] `CPhysicsObj::RecvEvt_SetVelocityScale` · 004de430
 - [ ] `CPhysicsObj::RecvEvt_SetJumpScale` · 004de450
 - [ ] `CPhysicsObj::RecvEvt_SetHoverHeight` · 004de470
-- [~] `CPhysicsObj::RecvEvt_MoveTo` · 004de490 · legions 004d0ef0 — stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
+- [~] `CPhysicsObj::RecvEvt_MoveTo` · 004de490 · legions 004d0ef0 — ac2-physics PhysicsBody::recv_move_to (player only, StopMoveToCancelsBehaviors, MoveToEvent); stamp bookkeeping in ac2-weenie; the client does not call it yet
 - [ ] `CPhysicsObj::RecvEvt_PositionCell` · 004de4e0
 - [ ] `CPhysicsObj::RecvEvt_DoFX` · 004de4f0
 - [ ] `CPhysicsObj::RecvEvt_DoTargettedFX` · 004de500
@@ -2232,25 +2232,25 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::AddImpulseLocal` · 004de700
 - [ ] `CPhysicsObj::DoFXScript` · 004de780 · legions 004d11e0
 - [x] `CPhysicsObj::DoElement` · 004de7b0 · legions 004d1210 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-- [ ] `CPhysicsObj::SetMode` · 004de800 · legions 004d1260
-- [ ] `CPhysicsObj::DoSlider` · 004de840 · legions 004d12a0
-- [ ] `CPhysicsObj::ReleaseBehavior` · 004de890 · legions 004d12f0
+- [x] `CPhysicsObj::SetMode` · 004de800 · legions 004d1260 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+- [x] `CPhysicsObj::DoSlider` · 004de840 · legions 004d12a0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+- [x] `CPhysicsObj::ReleaseBehavior` · 004de890 · legions 004d12f0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [x] `CPhysicsObj::StopBehavior` · 004de8d0 · legions 004d1330 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-- [ ] `CPhysicsObj::StopMoveToCancelsBehaviors` · 004de900
-- [ ] `CPhysicsObj::StopAllWeenieBehaviors` · 004de910
-- [ ] `CPhysicsObj::StopLayer` · 004de920 · legions 004d1380
+- [x] `CPhysicsObj::StopMoveToCancelsBehaviors` · 004de900 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+- [x] `CPhysicsObj::StopAllWeenieBehaviors` · 004de910 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+- [x] `CPhysicsObj::StopLayer` · 004de920 · legions 004d1380 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [x] `CPhysicsObj::DoMotion` · 004de940 · legions 004d13a0
 - [x] `CPhysicsObj::GetElement` · 004de980 · legions 004d13f0 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `CPhysicsObj::GetDesiredElement` · 004de990 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-- [ ] `CPhysicsObj::GetMode` · 004de9a0
+- [x] `CPhysicsObj::GetMode` · 004de9a0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `CPhysicsObj::GetDesiredMode` · 004de9b0
 - [ ] `CPhysicsObj::IsDoingBehavior` · 004de9c0
-- [ ] `CPhysicsObj::GetSliderCurrentValue` · 004de9d0
-- [ ] `CPhysicsObj::GetSliderDesiredValue` · 004de9e0
+- [x] `CPhysicsObj::GetSliderCurrentValue` · 004de9d0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+- [x] `CPhysicsObj::GetSliderDesiredValue` · 004de9e0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `CPhysicsObj::GetDesiredMotionValues` · 004de9f0
 - [ ] `CPhysicsObj::GetStandardMotionValues` · 004dea00
 - [ ] `CPhysicsObj::IsMovingTo` · 004dea10 · legions 004d1470
-- [ ] `CPhysicsObj::InterruptMoveTo` · 004dea20
+- [x] `CPhysicsObj::InterruptMoveTo` · 004dea20 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `CPhysicsObj::GetLastDoMotionValues` · 004dea30
 - [ ] `CPhysicsObj::GetRemoteDoMotionValues` · 004dea50
 - [ ] `CPhysicsObj::SetMotionInterpreter` · 004dea70 · legions 004d14d0
@@ -2363,7 +2363,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::movement_can_be_inactive` · 004e0e90 · legions 004d38f0
 - [ ] `CPhysicsObj::animation_can_be_inactive` · 004e1150
 - [ ] `CPhysicsObj::set_movement_active` · 004e1170 · legions 004d3bd0
-- [ ] `CPhysicsObj::set_animation_active` · 004e11f0 · legions 004d3c50
+- [x] `CPhysicsObj::set_animation_active` · 004e11f0 · legions 004d3c50 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `CPhysicsObj::set_misc_active` · 004e1250 · legions 004d3cb0
 - [ ] `CPhysicsObj::set_edge_slide` · 004e12b0
 - [x] `CPhysicsObj::set_synchronize_transition` · 004e12f0 · legions 004d3d50 — ac2-physics interp (slice 3)
@@ -2413,7 +2413,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::LeaveVisibility` · 004e21e0 · legions 004d4c30 — ac2-client remote.rs
 - [x] `CPhysicsObj::ReEnterVisibility` · 004e2220 · legions 004d4c70 — ac2-client remote.rs
 - [x] `CPhysicsObj::ReEnterVisibility` · 004e2240 — ac2-client remote.rs
-- [ ] `CPhysicsObj::IsThePlayer` · 004e2260
+- [x] `CPhysicsObj::IsThePlayer` · 004e2260 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `CPhysicsObj::SetHoverHeight` · 004e2290
 - [ ] `CPhysicsObj::ResetHoverHeight` · 004e22a0
 - [ ] `CPhysicsObj::GetHoverHeight` · 004e22b0
@@ -2570,7 +2570,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::SetLocalVisualDesc` · 004e6bd0 — ac2-weenie Appearance::from_delta (the effects description is empty)
 - [ ] `CPhysicsObj::ApplyAdditiveVisualDesc` · 004e6c30
 - [ ] `CPhysicsObj::ApplySubtractiveVisualDesc` · 004e6c40
-- [ ] `CPhysicsObj::DoMode` · 004e6c50 · legions 004d96a0
+- [~] `CPhysicsObj::DoMode` · 004e6c50 · legions 004d96a0 — ac2-physics do_mode: frozen check, set_animation_active, ModeTracker::DoMode; no weenie mode hook or child propagation
 - [ ] `CPhysicsObj::HandleBehaviorDone` · 004e6d00 · legions 004d9750
 - [ ] `CPhysicsObj::MissilePlaceAndFire` · 004e6d20 · legions 004d9770
 - [ ] `CPhysicsObj::MissilePlace` · 004e6d60 · legions 004d97b0
@@ -2585,7 +2585,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::HandleCollision` · 004e79a0 · legions 004da3f0
 - [ ] `CPhysicsObj::CollisionRemoveObject` · 004e79e0
 - [ ] `CPhysicsObj::AlwaysPrepareObject` · 004e7a60
-- [ ] `CPhysicsObj::UpdateViewerDistance` · 004e7af0
+- [~] `CPhysicsObj::UpdateViewerDistance` · 004e7af0 — PhysicsBody::set_view_distance takes the camera distance from the caller; no scene stamp or children
 - [~] `CPhysicsObj::PrepareObjectForDrawing` · 004e7c80 — ac2-physics: the drawn position slerp / previous position only (PhysicsBody::drawing_position)
 - [ ] `CPhysicsObj::Draw` · 004e7db0
 - [ ] `CPhysicsObj::AddChildInternal` · 004e86c0 · legions 004db0a0
@@ -2617,14 +2617,14 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::RemoveChild` · 004e92b0
 - [ ] `CPhysicsObj::set_report_collisions` · 004e92e0
 - [ ] `CPhysicsObj::AddToLOSList` · 004e9510 · legions 004dbd90
-- [~] `CPhysicsObj::UpdateAnimation` · 004e9700 — ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+- [~] `CPhysicsObj::UpdateAnimation` · 004e9700 — ac2-physics anim_pose: distance-degraded update frames (sliders, bone refresh), impulse triggers; no look-at, FX scripts, FX, effect triggers or weenie hooks
 - [ ] `CPhysicsObj::UpdateMisc` · 004e9bb0 · legions 004dc430
 - [ ] `CPhysicsObj::calc_cross_cells_static` · 004e9be0
 - [~] `CPhysicsObj::calc_cross_cells` · 004e9d30 · legions 004dc5b0 — ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 - [~] `CPhysicsObj::SetPositionInternal` · 004e9f50 · legions 004dc7d0 — no cell residency, shadow or material updates; LeaveGround FX not ported
 - [ ] `CPhysicsObj::CombineAndApplyVisualDesc` · 004ea290
 - [x] `CPhysicsObj::DoBehavior` · 004ea490 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-- [ ] `CPhysicsObj::DoBehavior` · 004ea500
+- [~] `CPhysicsObj::DoBehavior` · 004ea500 — ac2-physics do_behavior: frozen check, params mode, ModeTracker::DoBehavior; no story manager, children, FX target or cloned visual
 - [ ] `CPhysicsObj::AddToTargetList` · 004ea670 · legions 004dcfa0
 - [~] `CPhysicsObj::UpdateMovementInternal` · 004ea780 · legions 004dd0b0 — no path-aligned heading, targeting or missiles
 - [~] `CPhysicsObj::ForceIntoCell` · 004ea990 · legions 004dd2c0 — ac2-physics: FORCE_SPF sets the position only (no cell entry, shadows or cell material)
@@ -2683,7 +2683,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::is_undetectable` · 004eb0f0
 - [x] `CPhysicsObj::is_inelastic` · 004eb100
 - [ ] `CPhysicsObj::is_movement_frozen` · 004eb110
-- [ ] `CPhysicsObj::is_animation_frozen` · 004eb120
+- [x] `CPhysicsObj::is_animation_frozen` · 004eb120 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `CPhysicsObj::SetScale` · 004eb130
 - [ ] `CPhysicsObj::get_omega_velocity` · 004eb160
 - [ ] `CPhysicsObj::get_omega_accleration` · 004eb170
@@ -2720,7 +2720,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::CPhysicsObj` · 004ebb50 · legions 004de4c0
 - [ ] `CPhysicsObj::makeObjectInternal` · 004ec1a0 · legions 004deb10
 - [ ] `CPhysicsObj::makePartGroupObject` · 004ec230 · legions 004deba0
-- [ ] `CPhysicsObj::RecvEvt_ReleaseBehavior` · 004ec290
+- [~] `CPhysicsObj::RecvEvt_ReleaseBehavior` · 004ec290 — PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
 - [ ] `CPhysicsObj::GetTriggerUpdate` · 004ec310 · legions 004dec80
 - [~] `CPhysicsObj::SetPositionInternal` · 004ec350 · legions 004decc0 — ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 - [~] `CPhysicsObj::HandleLeaveWorld` · 004ec400 · legions 004ded70 — the bookie part only
@@ -2734,7 +2734,7 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::RecvEvt_DoBehavior` · 004ec680 — ac2-client motion.rs: DoBehavior with context 1; a weenie emote is not run first
 - [~] `CPhysicsObj::SetPosition` · 004ec730 · legions 004df090 — ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 - [~] `CPhysicsObj::EnterWorld` · 004ec7d0 — ac2-client remote.rs
-- [~] `CPhysicsObj::set_description` · 004ec830 — ac2-client: the PhysicsDesc behaviours start on the remote body; no mode, sliders or FX
+- [~] `CPhysicsObj::set_description` · 004ec830 — ac2-physics set_description_animation: mode, network behaviours, sliders; velocity, omega, scales, look-at, FX, missile and stamps not ported
 - [ ] `CPhysicsObj::makeObject` · 004ed160 · legions 004dfac0
 - [~] `CPhysicsObj::SetPositionSimple` · 004ed190 · legions 004dfaf0 — flags 0x1010 into PhysicsBody::place
 - [~] `CPhysicsObj::SyncPositionSimple` · 004ed1f0 · legions 004dfb50 — interp blips use set_position_checked(SLIDE); parent/placement-position bookkeeping not ported
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (19/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (29/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0
@@ -2750,33 +2750,33 @@ Legend and workflow: [README](README.md).
 ### PHYSICSOBJREP
 - [ ] `PHYSICSOBJREP::SetMotionInterpreter` · 004f10e0 · legions 004e3a10
 - [ ] `PHYSICSOBJREP::HandleEnterWorld` · 004f1140 · legions 004e3a70
-- [ ] `PHYSICSOBJREP::SetMode` · 004f1170 · legions 004e3aa0
+- [x] `PHYSICSOBJREP::SetMode` · 004f1170 · legions 004e3aa0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [x] `PHYSICSOBJREP::DoElement` · 004f1190 · legions 004e3ac0 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [ ] `PHYSICSOBJREP::DoFXScript` · 004f11b0 · legions 004e3ae0
 - [x] `PHYSICSOBJREP::DoMode` · 004f11d0 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-- [ ] `PHYSICSOBJREP::DoSlider` · 004f11f0 · legions 004e3b20
+- [x] `PHYSICSOBJREP::DoSlider` · 004f11f0 · legions 004e3b20 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [x] `PHYSICSOBJREP::DoBehavior` · 004f12f0 · legions 004e3c20 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `PHYSICSOBJREP::DoAutonomousBehavior` · 004f1310 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-- [ ] `PHYSICSOBJREP::ReleaseBehavior` · 004f1330 · legions 004e3c60
+- [x] `PHYSICSOBJREP::ReleaseBehavior` · 004f1330 · legions 004e3c60 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [x] `PHYSICSOBJREP::StopBehavior` · 004f1350 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-- [ ] `PHYSICSOBJREP::StopLayer` · 004f1370 · legions 004e3ca0
-- [ ] `PHYSICSOBJREP::StopAllWeenieBehaviors` · 004f1390
-- [ ] `PHYSICSOBJREP::StopMoveToCancelsBehaviors` · 004f13b0 · legions 004e3ce0
+- [x] `PHYSICSOBJREP::StopLayer` · 004f1370 · legions 004e3ca0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+- [x] `PHYSICSOBJREP::StopAllWeenieBehaviors` · 004f1390 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+- [x] `PHYSICSOBJREP::StopMoveToCancelsBehaviors` · 004f13b0 · legions 004e3ce0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `PHYSICSOBJREP::DoMotion` · 004f13d0 · legions 004e3d00
 - [x] `PHYSICSOBJREP::GetElement` · 004f1420 · legions 004e3d50 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `PHYSICSOBJREP::GetDesiredElement` · 004f1440 · legions 004e3d70 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `PHYSICSOBJREP::GetMode` · 004f1460 · legions 004e3d90 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `PHYSICSOBJREP::IsDoingBehavior` · 004f1480 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-- [ ] `PHYSICSOBJREP::GetSliderCurrentValue` · 004f14a0
-- [ ] `PHYSICSOBJREP::GetSliderDesiredValue` · 004f14c0
+- [x] `PHYSICSOBJREP::GetSliderCurrentValue` · 004f14a0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+- [x] `PHYSICSOBJREP::GetSliderDesiredValue` · 004f14c0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `PHYSICSOBJREP::GetMotionInterpreter` · 004f14e0 · legions 004e3e30
 - [ ] `PHYSICSOBJREP::GetModeTracker` · 004f14f0
 - [ ] `PHYSICSOBJREP::GetSliderTracker` · 004f1500
 - [ ] `PHYSICSOBJREP::GetIID` · 004f1510
 - [ ] `PHYSICSOBJREP::GetSeaFloorMultiplier` · 004f1540 · legions 004e3e70
 - [ ] `PHYSICSOBJREP::GetWaterMultiplier` · 004f1560 · legions 004e3e90
-- [ ] `PHYSICSOBJREP::MoveToEvent` · 004f1580 · legions 004e3eb0
-- [ ] `PHYSICSOBJREP::InterruptMoveTo` · 004f15a0 · legions 004e3ed0
+- [x] `PHYSICSOBJREP::MoveToEvent` · 004f1580 · legions 004e3eb0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+- [x] `PHYSICSOBJREP::InterruptMoveTo` · 004f15a0 · legions 004e3ed0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `PHYSICSOBJREP::HandleBehaviorDone` · 004f15c0
 - [ ] `PHYSICSOBJREP::HandleReleaseDone` · 004f15d0
 - [ ] `PHYSICSOBJREP::HandleMoveToCallback` · 004f15e0
@@ -2861,7 +2861,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::CreateParticleSystem` · 004f22c0 · legions 004e4bc0
 - [ ] `PHYSICSOBJREP::DestroyParticleSystem` · 004f2410 · legions 004e4d10
 - [ ] `PHYSICSOBJREP::UpdateMovement` · 004f2420 · legions 004e4d20
-- [~] `PHYSICSOBJREP::UpdateSliderTracker` · 004f2440 · legions 004e4d40 — ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+- [~] `PHYSICSOBJREP::UpdateSliderTracker` · 004f2440 · legions 004e4d40 — ac2-physics anim_rep: sliders then m_animcolor/m_animopacity capped; the wind slider is not driven
 - [ ] `PHYSICSOBJREP::UpdateFXScriptTracker` · 004f2540 · legions 004e4e40
 - [x] `PHYSICSOBJREP::UpdateAnimation` · 004f2560 · legions 004e4e60 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [ ] `PHYSICSOBJREP::GetTerrainType` · 004f2590

@@ -222,6 +222,7 @@ fn a_higher_layer_overrides_a_lower_one_and_unanimated_bones_rest() {
     };
     let template = Ac2CharTemplate {
         behaviors: HashMap::from([(idle, 0), (wave, 0)]),
+        sliders: HashMap::new(),
         default_element: g,
         default_mode: p,
     };

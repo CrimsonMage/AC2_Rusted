@@ -1,6 +1,6 @@
 # ac2-dat: DAT files and the database layer
 
-507 retail functions: 15 done, 2 partial, 485 to do, 5 skipped.
+507 retail functions: 15 done, 3 partial, 484 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/database/asynccache.cpp.c` (0/48)
@@ -26,7 +26,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AsyncCache::SaveData` · 006d0b80 · legions 0065a8d0
 
 ### CPhysicsObj
-- [ ] `CPhysicsObj::RecvEvt_SetMode` · 006d0bc0 · legions 0065a910
+- [~] `CPhysicsObj::RecvEvt_SetMode` · 006d0bc0 · legions 0065a910 — PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
 
 ### CObjCell
 - [ ] `CObjCell::GetCID` · 006d0bd0 · legions 0065a920

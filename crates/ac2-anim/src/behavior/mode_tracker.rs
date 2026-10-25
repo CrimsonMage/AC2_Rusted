@@ -150,6 +150,28 @@ impl Ac2ModeTracker {
         }
     }
 
+    /// The `CharTemplate` the tracker was made with.
+    pub fn template(&self) -> &Ac2CharTemplate {
+        &self.template
+    }
+
+    /// `ModeTracker::GetNetworkBehaviorParams` -> `BehaviorTracker::GetNetworkBehaviorParams`:
+    /// the parameters of the incoming tracker's (else the outgoing one's) tracks that are
+    /// weighted in, not ramping down and sent to the weenie, in retail iteration order.
+    pub fn network_behavior_params(&self) -> Vec<Ac2BehaviorParams> {
+        let Some(tracker) = self.to.as_ref().or(self.from.as_ref()) else {
+            return Vec::new();
+        };
+        tracker
+            .tracks
+            .iter()
+            .filter(|(_, track)| {
+                track.weight > 0.0 && !track.is_ramping_down && track.params.send_event
+            })
+            .map(|(_, track)| track.params.clone())
+            .collect()
+    }
+
     /// `ModeTracker::IsDoingBehavior`: the incoming tracker's behaviours during a transition;
     /// none while a transition with no incoming tracker is still timed.
     pub fn is_doing_behavior(&self, behavior: u32) -> bool {

@@ -31,10 +31,39 @@ pub struct MovementParameters {
     pub desired_distance: f32,
     pub max_success_distance: f32,
     pub min_success_distance: f32,
+    /// `m_target_object_id` (`MOVE_TO_OBJECT`; `None` is `INVALID_IID`). The caller tracks the
+    /// object and reports where it is (`PhysicsBody::update_move_to_target`).
+    pub target_object: Option<u64>,
     pub target_position: Position,
     /// Waypoints taken in order before the target position.
     pub position_list: VecDeque<Position>,
     pub offset: Vector,
+    /// `m_offset_id`.
+    pub offset_id: u32,
+    pub context: u32,
+}
+
+/// `MovementParameters` as `MovementParameters::StreamPack` carries it (a server `MoveTo`):
+/// the fields the flags leave out are `None`.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct PackedMovementParameters {
+    pub flags: u32,
+    /// Flags 1 or 4.
+    pub desired_velocity: Option<f32>,
+    pub fail_distance: Option<f32>,
+    pub desired_distance: Option<f32>,
+    /// Flag 1.
+    pub max_success_distance: Option<f32>,
+    /// Flag 4.
+    pub min_success_distance: Option<f32>,
+    /// Flag `0x20`: the target object; otherwise the target position.
+    pub target_object: Option<u64>,
+    pub target_position: Option<Position>,
+    /// Flag `0x100` (zero without it).
+    pub offset: [f32; 3],
+    /// Flag `0x200` (zero without it).
+    pub offset_id: u32,
+    pub positions: Vec<Position>,
     pub context: u32,
 }
 
@@ -48,15 +77,53 @@ impl Default for MovementParameters {
             desired_distance: 1.0,
             max_success_distance: 1.0,
             min_success_distance: 100.0,
+            target_object: None,
             target_position: Position::default(),
             position_list: VecDeque::new(),
             offset: Vector::ZERO,
+            offset_id: 0,
             context: 0,
         }
     }
 }
 
 impl MovementParameters {
+    /// `MovementParameters::MovementParameters` then `StreamPack` unpacking `packed`: the flags
+    /// as sent (replacing the default `MOVE_TO_USE_CYLINDERS`), the sent distances and target
+    /// over the defaults, the offset, offset id, waypoints and context.
+    pub fn unpack(packed: PackedMovementParameters) -> Self {
+        let mut params = Self {
+            flags: packed.flags,
+            ..Self::default()
+        };
+        let set = |field: &mut f32, value: Option<f32>| {
+            if let Some(value) = value {
+                *field = value;
+            }
+        };
+        set(&mut params.desired_velocity, packed.desired_velocity);
+        set(&mut params.fail_distance, packed.fail_distance);
+        set(&mut params.desired_distance, packed.desired_distance);
+        set(
+            &mut params.max_success_distance,
+            packed.max_success_distance,
+        );
+        set(
+            &mut params.min_success_distance,
+            packed.min_success_distance,
+        );
+        params.target_object = packed.target_object;
+        if let Some(position) = packed.target_position {
+            params.target_position = position;
+        }
+        let [x, y, z] = packed.offset;
+        params.offset = Vector::new(x, y, z);
+        params.offset_id = packed.offset_id;
+        params.position_list = packed.positions.into();
+        params.context = packed.context;
+        params
+    }
+
     pub(crate) fn has(&self, flag: u32) -> bool {
         self.flags & flag != 0
     }

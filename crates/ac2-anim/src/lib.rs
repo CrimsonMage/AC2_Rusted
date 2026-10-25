@@ -25,7 +25,7 @@ pub use behavior::{
 pub use behavior_table::{
     Ac2BehaviorInfo, Ac2BehaviorTable, Ac2CharTemplate, Ac2ComboInfo, Ac2ModeState,
     Ac2ModeTransition, Ac2TransitionInfo, AC2_BEHAVIOR_ACTION, AC2_BEHAVIOR_DYNAMIC_FP_CAMERA,
-    AC2_BEHAVIOR_HOLD,
+    AC2_BEHAVIOR_HOLD, AC2_SLIDER_CLIENT_CONTROLLED, AC2_SLIDER_WEENIE_CONTROLLED,
 };
 pub use dbanimator::{
     load_ac2_db_animator, Ac2AnimAsset, Ac2AnimInfo, Ac2AnimTrigger, Ac2AnimatorContext,
