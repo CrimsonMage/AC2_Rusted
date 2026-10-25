@@ -10,12 +10,14 @@ use std::collections::VecDeque;
 use std::sync::Arc;
 
 use crate::music::band::Band;
-use crate::music::clock::MusicClock;
+use crate::music::clock::{Boundary as ClockBoundary, MusicClock};
 use crate::music::library::LoadedMusic;
 use crate::music::performance::{assign, EventSink, MusicEvent, MusicPerformance, TimedEvent};
 use crate::music::script::{BoundCall, BoundSegment, BoundTrigger};
+use crate::music::segment::TrackData;
 use crate::music::style_performance::{PatternChoice, StylePerformance};
 use crate::music::{MusicObject, WaveSegment};
+use crate::sink::Boundary;
 use crate::synth::PerformanceBand;
 
 /// Hands events to a buffer, moved by the playback's start (the queue's clock) and stamped with
@@ -96,6 +98,11 @@ pub(super) struct Playback {
     /// The pass's length, for a wave that repeats within one playback (a stop ends the pass in
     /// progress at its end, see [`Self::end_pass_after_stop`]).
     pass: f64,
+    /// The segment's clock: the grid, beat and measure of a stop count on it (the default clock
+    /// for a wave).
+    clock: MusicClock,
+    /// The marker track's times in seconds from the start, in time order (the stop at a marker).
+    markers: Vec<f64>,
     /// The cues not yet reached, in time order.
     cues: VecDeque<Cue>,
 }
@@ -158,6 +165,16 @@ impl Playback {
             .style_of(segment)
             .map(|style| StylePerformance::new(segment, style, groove, seed));
         let length = clock.seconds_at(segment.length.max(0));
+        let mut markers: Vec<f64> = segment
+            .tracks
+            .iter()
+            .filter_map(|track| match &track.data {
+                TrackData::Markers(ticks) => Some(ticks.iter().map(|&t| clock.seconds_at(t))),
+                _ => None,
+            })
+            .flatten()
+            .collect();
+        markers.sort_by(f64::total_cmp);
         Some(Self {
             id,
             owner,
@@ -172,6 +189,8 @@ impl Playback {
             style,
             band,
             pass: length,
+            clock,
+            markers,
             cues: VecDeque::new(),
         })
     }
@@ -198,6 +217,8 @@ impl Playback {
             style: None,
             band: None,
             pass: wave.seconds.max(0.0),
+            clock: MusicClock::default(),
+            markers: Vec::new(),
             cues: VecDeque::new(),
         }
     }
@@ -293,16 +314,51 @@ impl Playback {
         (self.cut - self.elapsed).max(0.0)
     }
 
+    /// The end of the pass in progress, in seconds from the start: the segment's length, or for a
+    /// repeating wave the end of the pass it is in.
+    fn pass_end(&self) -> f64 {
+        if self.length.is_finite() || self.pass <= EPS {
+            return self.length;
+        }
+        ((self.elapsed / self.pass).floor() + 1.0) * self.pass
+    }
+
     /// A stop of the current primary (`DXMusicMessageThread::Stop` on `m_pCurrentPrimary`): the
     /// queue clears the loop and nothing else, so the pass plays out to its end whatever the
     /// boundary the stop names. A pass that repeats within one playback (a wave) ends at the end
     /// of the pass it is in; a segment's pass already ends at its length.
     pub(super) fn end_pass_after_stop(&mut self) {
-        if self.length.is_finite() || self.pass <= EPS {
-            return;
-        }
-        let passes = (self.elapsed / self.pass).floor() + 1.0;
-        self.cut = self.cut.min(passes * self.pass);
+        self.cut = self.cut.min(self.pass_end());
+    }
+
+    /// A stop of a secondary segment at `boundary`: `IDirectMusicPerformance::StopEx(state, 0,
+    /// dwStopFlags)`, with the flags `DirectXPlayingSound::StopInternal` takes from the stop
+    /// timing (`DMUS_SEGF_GRID` 0x800, `BEAT` 0x1000, `MEASURE` 0x2000, `MARKER` 0x1000000,
+    /// `SEGMENTEND` 0x800000). The pass ends at the first boundary of that kind at or after now,
+    /// and its notes release there: a grid, beat or measure of the segment's clock, the next marker
+    /// of its marker track (the end of the pass when none is left), or its end. `Immediate` (flags
+    /// 0) is not a boundary: the caller ends the playback now.
+    pub(super) fn stop_at(&mut self, boundary: Boundary) {
+        let at = match boundary {
+            Boundary::Grid => self.next_unit(ClockBoundary::Grid),
+            Boundary::Beat => self.next_unit(ClockBoundary::Beat),
+            Boundary::Measure => self.next_unit(ClockBoundary::Measure),
+            Boundary::Marker => self
+                .markers
+                .iter()
+                .copied()
+                .find(|&m| m >= self.elapsed - EPS)
+                .unwrap_or_else(|| self.pass_end()),
+            Boundary::End => self.pass_end(),
+            Boundary::Immediate => self.elapsed,
+        };
+        self.cut = self.cut.min(at.max(self.elapsed));
+    }
+
+    /// The first `unit` boundary of the segment's clock at or after now, in seconds from the start.
+    fn next_unit(&self, unit: ClockBoundary) -> f64 {
+        let tick = self.clock.tick_at(self.elapsed).ceil() as i32;
+        self.clock.seconds_at(self.clock.next_boundary(tick, unit))
     }
 
     /// Plays `seconds` more, sending the events due to `out`. The sequence's notes come mapped by

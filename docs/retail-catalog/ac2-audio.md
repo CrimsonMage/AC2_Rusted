@@ -1,6 +1,6 @@
 # ac2-audio: Sound
 
-367 retail functions: 123 done, 32 partial, 131 to do, 81 skipped.
+367 retail functions: 122 done, 33 partial, 131 to do, 81 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/cregion/csound/cambientsoundinfo.cpp.c` (1/13)
@@ -279,7 +279,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DirectXMusicLoader::Release` · 005a84b0 · legions 00574a10
 - [ ] `DirectXMusicLoader::DirectXMusicLoader` · 005a8580 · legions 00574ae0
 
-## `portal/client/src/sound/directx/directxplayingsound.cpp.c` (21/32)
+## `portal/client/src/sound/directx/directxplayingsound.cpp.c` (19/32)
 
 ### DirectXPlayingSound
 - [x] `DirectXPlayingSound::OnSegmentStarted` · 005a6010 · legions 00572750 — ac2-audio: sets m_bHasStarted, which the admin decompile never reads: no effect ported (the start callback is a no-op)
@@ -310,10 +310,10 @@ Legend and workflow: [README](README.md).
 - [ ] `DirectXPlayingSound::SetFrequency` · 005a6920
 - [ ] `DirectXPlayingSound::GetAudioPathAndBuffers` · 005a69b0 · legions 00573110
 - [~] `DirectXPlayingSound::PlayInternal` · 005a6b50 · legions 005731e0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
-- [x] `DirectXPlayingSound::StopInternal` · 005a6d50 · legions 005733e0 — ac2-audio manager.rs stop_context: a fade keeps the segment in the queue (the queue stop waits for the fade's end, as this function returns after the ramp); verified by music_wave_tests::a_faded_primary_wave_plays_out_silently_and_the_next_takes_over.
+- [~] `DirectXPlayingSound::StopInternal` · 005a6d50 · legions 005733e0 — ac2-audio: the stop timing's flags are the queue's boundary (sink Boundary: Grid 0x800, Beat 0x1000, Measure 0x2000, Marker 0x1000000, End 0x800000, Immediate 0); a forced stop (manager stop_sounds_for_emitter) is immediate: queue Stop(handle, 0) and the voice cut (playing.rs stop_at, the mixer's StopMusic). Not modelled: the disabled-device and KeepAlive branches (the voice ends at once when disabled), and a segment's play-out with no queue segment.
 - [x] `DirectXPlayingSound::SetVolume` · 005a6ee0 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [x] `DirectXPlayingSound::RecalculateVolume` · 005a6f00 · legions 00573590 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [x] `DirectXPlayingSound::UseTime` · 005a6f20 · legions 005735b0 — ac2-audio manager.rs flush_sounds: a queue segment the queue still holds when its sound goes ready-to-die (the fade end) is stopped with Boundary::End, as Stop(handle, 0) (plays out the current pass, drops a queued one); PlayingSound::use_time length cap is -1 for MusicInfo sounds (no cap).
+- [~] `DirectXPlayingSound::UseTime` · 005a6f20 · legions 005735b0 — ac2-audio manager.rs flush: a queue segment the queue still holds when its sound goes ready-to-die (the fade end) is stopped with Boundary::Immediate, as UseTime's Stop(handle, 0) (flags 0): a current primary's pass plays out (its loop is cleared), a secondary ends now. PlayingSound::use_time length cap is -1 for MusicInfo sounds (no cap). The length-end branch (m_fSoundLength) is not modelled.
 - [x] `DirectXPlayingSound::Play` · 005a70a0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::Stop` · 005a70b0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::Enable` · 005a70e0 · legions 00573770 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
@@ -375,7 +375,7 @@ Legend and workflow: [README](README.md).
 ### SoundDeviceFactory
 - [~] `SoundDeviceFactory::CreateDevice` · 005a5a80 · legions 005721c0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 
-## `portal/client/src/sound/directx/dxmusicmessagethread.cpp.c` (8/16)
+## `portal/client/src/sound/directx/dxmusicmessagethread.cpp.c` (9/16)
 
 ### DXMusicMessageThread::find_if_SegmentState
 - [-] `DXMusicMessageThread::find_if_SegmentState::find_if_SegmentState` · 005a85b0 · legions 00574b10 — COM reference counting and C++ deleting destructor: Arc and Option<SegmentInfo> ownership in music_thread
@@ -394,7 +394,7 @@ Legend and workflow: [README](README.md).
 - [x] `DXMusicMessageThread::DXMusicMessageThread` · 005a90c0 · legions 00575700 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
 - [~] `DXMusicMessageThread::Startup` · 005a9170 — ac2-audio music_thread: Startup's notification loop runs inside MusicThread::use_time (no thread, no 100 ms wait; the WAIT_TIMEOUT watchdog is kept)
 - [x] `DXMusicMessageThread::QueuePrimaryInternal` · 005a93b0 · legions 005759f0 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
-- [~] `DXMusicMessageThread::Stop` · 005a9540 · legions 00575b80 — ac2-audio music_thread/mod.rs stop(): the current primary's stop only clears its loop (m_bLoopPrimary = 0; dwStopFlags unread; Legions 00575b80 the same), so its pass plays out to its end (playback.rs end_pass_after_stop; a looping wave ends at the end of its pass). A forced-immediate stop ends the voice at once: DirectXPlayingSound::StopInternal (005a6d50) calls Stop(handle, 0) then OnSegmentEnded. A secondary segment stops at once: StopEx's boundary flags are not modelled (gap).
+- [x] `DXMusicMessageThread::Stop` · 005a9540 · legions 00575b80 — ac2-audio music_thread/mod.rs stop(): the current primary's stop only clears its loop (m_bLoopPrimary = 0; dwStopFlags unread; Legions 00575b80 the same), so its pass plays out to its end (playback.rs end_pass_after_stop). A secondary's stop is StopEx(state, 0, dwStopFlags): flags 0 ends it now (MusicThread::stop); a boundary flag ends it at the next grid, beat, measure, marker or segment end (playback.rs stop_at, pass_end, next_unit; the clock and marker track of the segment).
 - [~] `DXMusicMessageThread::Play` · 005a96f0 · legions 00575d30 — ac2-audio music_thread: Stop = StopEx at once (stop boundary flags not modelled); Play's audio path check and DMUS start flags not modelled
 
 ## `portal/client/src/sound/directx/envinfo_win32.cpp.c` (0/61)

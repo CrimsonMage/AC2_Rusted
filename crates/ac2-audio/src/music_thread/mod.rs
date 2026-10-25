@@ -14,9 +14,10 @@
 //! - `Stop`, `+0xB8`: `StopEx(state, 0, dwStopFlags)` for a secondary; for the current primary
 //!   retail only clears `m_bLoopPrimary` (`DXMusicMessageThread::Stop`, admin 0x005A9540), so its
 //!   pass plays out to its end whatever the boundary. [`MusicThread::stop`] follows that. A
-//!   secondary segment ends at once (the port's gap: retail's boundary flags are not modelled).
-//!   A forced-immediate stop of the voice is the sound's own (`DirectXPlayingSound::StopInternal`
-//!   calls `Stop(handle, 0)` and then ends the voice), not the queue's.
+//!   secondary segment ends at its boundary: the first grid, beat, measure, marker or segment end
+//!   the flags name ([`Playback::stop_at`]); flags 0 (immediate) ends it now. A forced-immediate
+//!   stop of the voice is the sound's own (`DirectXPlayingSound::StopInternal` calls `Stop(handle,
+//!   0)` and then ends the voice), not the queue's.
 //! - `IsPlaying`, `+0x38`: [`MusicThread::is_playing`].
 //! - `GetNotificationPMsg` / `FreePMsg`, `+0x54` / `+0x44`, read by `Startup`: the notifications a
 //!   playback posts (start, almost end, end, abort) are read by [`MusicThread::pump`]. In the
@@ -51,6 +52,8 @@ mod playback;
 #[cfg(test)]
 mod script_tests;
 mod scripts;
+#[cfg(test)]
+mod secondary_stop_tests;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
@@ -253,10 +256,10 @@ impl MusicThread {
     /// `DXMusicMessageThread::Stop`: stops the segment for `handle`. The current primary is not
     /// stopped: retail clears its loop (`m_bLoopPrimary = 0`) and returns, so its pass plays out
     /// to its end whatever the boundary (the stop's `dwStopFlags` are not read for it). A
-    /// secondary segment is stopped now (`StopEx` with the boundary; the port's gap: retail's
-    /// boundary-timed stop of a secondary is not modelled). A handle that is not playing (a
+    /// secondary segment is stopped with `StopEx(state, 0, dwStopFlags)`: at once for an immediate
+    /// stop, else at its boundary (see [`Playback::stop_at`]). A handle that is not playing (a
     /// primary waiting behind the current one, or none) gets an abort event.
-    pub fn stop(&mut self, handle: u32, _boundary: Boundary) {
+    pub fn stop(&mut self, handle: u32, boundary: Boundary) {
         if !self.attached {
             self.abort(handle);
             return;
@@ -280,6 +283,16 @@ impl MusicThread {
                 playback.end_pass_after_stop();
             }
             return;
+        }
+        if boundary != Boundary::Immediate {
+            if let Some(playback) = self
+                .playbacks
+                .iter_mut()
+                .find(|p| p.id() == state && !p.ended())
+            {
+                playback.stop_at(boundary);
+                return;
+            }
         }
         self.end_playback(state);
     }

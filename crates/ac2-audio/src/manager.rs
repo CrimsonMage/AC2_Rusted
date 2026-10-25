@@ -526,9 +526,11 @@ impl SoundManager {
             }
             if playing.segment_kind().is_some() {
                 // A segment the queue still holds (a fade that ended) leaves it as retail's
-                // `Stop(handle, 0)` does: a queued one is dropped, a playing one plays out its pass.
+                // `DirectXPlayingSound::UseTime` does, `Stop(handle, 0)`: flags 0 is immediate. A
+                // queued one is dropped; a current primary's pass plays out (its loop is cleared);
+                // a secondary ends now.
                 if self.music.holds(playing.handle) {
-                    self.music.stop(playing.handle, Boundary::End);
+                    self.music.stop(playing.handle, Boundary::Immediate);
                 }
                 // The segment's synthesizer releases and goes (its notes end with the queue's).
                 self.sink.send(SinkCommand::MusicEnded {

@@ -3743,10 +3743,10 @@ key	status	note
 005a6640	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 005a6790	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a6b50	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
-005a6d50	x	ac2-audio manager.rs stop_context: a fade keeps the segment in the queue (the queue stop waits for the fade's end, as this function returns after the ramp); verified by music_wave_tests::a_faded_primary_wave_plays_out_silently_and_the_next_takes_over.
+005a6d50	~	ac2-audio: the stop timing's flags are the queue's boundary (sink Boundary: Grid 0x800, Beat 0x1000, Measure 0x2000, Marker 0x1000000, End 0x800000, Immediate 0); a forced stop (manager stop_sounds_for_emitter) is immediate: queue Stop(handle, 0) and the voice cut (playing.rs stop_at, the mixer's StopMusic). Not modelled: the disabled-device and KeepAlive branches (the voice ends at once when disabled), and a segment's play-out with no queue segment.
 005a6ee0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 005a6f00	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
-005a6f20	x	ac2-audio manager.rs flush_sounds: a queue segment the queue still holds when its sound goes ready-to-die (the fade end) is stopped with Boundary::End, as Stop(handle, 0) (plays out the current pass, drops a queued one); PlayingSound::use_time length cap is -1 for MusicInfo sounds (no cap).
+005a6f20	~	ac2-audio manager.rs flush: a queue segment the queue still holds when its sound goes ready-to-die (the fade end) is stopped with Boundary::Immediate, as UseTime's Stop(handle, 0) (flags 0): a current primary's pass plays out (its loop is cleared), a secondary ends now. PlayingSound::use_time length cap is -1 for MusicInfo sounds (no cap). The length-end branch (m_fSoundLength) is not modelled.
 005a70a0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a70b0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a70e0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
@@ -3773,7 +3773,7 @@ key	status	note
 005a9150	-	COM reference counting and C++ deleting destructor: Arc and Option<SegmentInfo> ownership in music_thread
 005a9170	~	ac2-audio music_thread: Startup's notification loop runs inside MusicThread::use_time (no thread, no 100 ms wait; the WAIT_TIMEOUT watchdog is kept)
 005a93b0	x	ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
-005a9540	~	ac2-audio music_thread/mod.rs stop(): the current primary's stop only clears its loop (m_bLoopPrimary = 0; dwStopFlags unread; Legions 00575b80 the same), so its pass plays out to its end (playback.rs end_pass_after_stop; a looping wave ends at the end of its pass). A forced-immediate stop ends the voice at once: DirectXPlayingSound::StopInternal (005a6d50) calls Stop(handle, 0) then OnSegmentEnded. A secondary segment stops at once: StopEx's boundary flags are not modelled (gap).
+005a9540	x	ac2-audio music_thread/mod.rs stop(): the current primary's stop only clears its loop (m_bLoopPrimary = 0; dwStopFlags unread; Legions 00575b80 the same), so its pass plays out to its end (playback.rs end_pass_after_stop). A secondary's stop is StopEx(state, 0, dwStopFlags): flags 0 ends it now (MusicThread::stop); a boundary flag ends it at the next grid, beat, measure, marker or segment end (playback.rs stop_at, pass_end, next_unit; the clock and marker track of the segment).
 005a96f0	~	ac2-audio music_thread: Stop = StopEx at once (stop boundary flags not modelled); Play's audio path check and DMUS start flags not modelled
 005a97e0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
 005a9850	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.

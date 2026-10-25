@@ -13,6 +13,10 @@
 //!   `IDirectMusicPerformance::PlaySegment` page): `DMUS_SEGF_QUEUE` (256) puts a primary segment at
 //!   the end of the primary queue; `DMUS_SEGF_SECONDARY` (128) and `DMUS_SEGF_CONTROL` (512) are
 //!   secondary segments; `DMUS_SEGF_GRID` (1<<11), `BEAT` (1<<12), `MEASURE` (1<<13) are boundaries.
+//!   The stop side is the same set: `DirectXPlayingSound::StopInternal` (admin 0x005A6D50) passes
+//!   `StopEx(state, 0, dwStopFlags)` with `Timing_OnGrid` 0x800, `OnBeat` 0x1000, `OnMeasure` 0x2000,
+//!   `OnMarker` 0x1000000 and `OnEnd` 0x800000 (`DMUS_SEGF_SEGMENTEND`); 0 when forced or immediate.
+//!   The queue applies them to a secondary segment (`music_thread::playback`'s `stop_at`).
 //! - Inference: the constant `AtFinish` is `DMUS_SEGF_QUEUE`, that is "play after the current
 //!   primary". The corpus needs no other value. The AudioVBScript constant table was not reachable
 //!   from the archived docs, so this is the reading that fits the call and the `ChooseGroove`
