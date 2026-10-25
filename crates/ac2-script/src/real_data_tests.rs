@@ -133,6 +133,8 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::GmSceneInfo(_) => "gmSceneInfo",
         NativeObject::SkillUiNode(_) => "SkillUINode",
         NativeObject::ListIter { .. } => "list iterator",
+        NativeObject::HashIter { .. } => "hash iterator",
+        NativeObject::MultiHash(_) => "multi-hash",
         NativeObject::Unbound(_) => "unbound",
     }
 }

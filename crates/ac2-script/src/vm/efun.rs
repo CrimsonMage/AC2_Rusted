@@ -87,6 +87,11 @@ impl Context {
         self.fp.checked_sub(n).map(|i| self.data[i])
     }
 
+    /// The tag of the slot `n` below the frame pointer.
+    pub fn arg_tag(&self, n: usize) -> Option<u8> {
+        self.fp.checked_sub(n).map(|i| self.tags[i])
+    }
+
     /// Writes the slot `n` below the frame pointer.
     pub fn set_arg(&mut self, n: usize, value: u32, tag: u8) -> bool {
         match self.fp.checked_sub(n) {

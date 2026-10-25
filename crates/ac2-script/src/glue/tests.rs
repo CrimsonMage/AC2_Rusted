@@ -191,3 +191,63 @@ fn list_glue_follows_the_node_list_and_smart_array_rules() {
     }
     assert_eq!(seen, vec![7, 9]);
 }
+
+#[test]
+fn hash_glue_keeps_retail_bucket_order_and_hashes_native_keys_by_value() {
+    use crate::native::{ntype, ScriptHash};
+    use crate::vm::refs::{flags, ReferenceTable, Target};
+    let mut vm = vm();
+    let new = |vm: &mut Vm, t: u32| {
+        vm.refs
+            .create_native(t, NativeObject::Hash(ScriptHash::default()))
+    };
+    let aa = new(&mut vm, ntype::AA_HASH);
+    for (k, v) in [(1, 10), (48, 480), (2, 20)] {
+        let (_, r) = call(&mut vm, 0x0001_0001, 1, &[k, v], aa); // add
+        assert_eq!(r[0], (1, tag::BOOL));
+    }
+    let (_, r) = call(&mut vm, 0x0001_0001, 1, &[48, 0], aa);
+    assert_eq!(r[0].0, 0);
+    let (_, r) = call(&mut vm, 0x0001_0008, 1, &[], aa); // num_buckets
+    assert_eq!(r[0].0, 47);
+    // find(48, out) into a heap slot.
+    let holder = vm.refs.add(
+        flags::KIND_HEAP | flags::FILLED,
+        Target::Heap(Box::new(ReferenceTable::new_instance(0, 1))),
+    );
+    let out = vm.refs.add(flags::KIND_VALUE, Target::Ref(holder));
+    let (_, r) = call(&mut vm, 0x0001_0004, 1, &[48, out], aa);
+    assert_eq!(r[0].0, 1);
+    assert_eq!(vm.refs.heap(holder).unwrap().slots[0], 480);
+    // Iteration: bucket 1 holds 48 then 1 (head insertion), then bucket 2.
+    let (_, r) = call(&mut vm, 0x0001_000A, 1, &[], aa); // get_begin
+    let iter = r[0].0;
+    let mut keys = Vec::new();
+    while call(&mut vm, 0x0002_0005, 1, &[], iter).1[0].0 != 0 {
+        keys.push(call(&mut vm, 0x0002_0002, 1, &[], iter).1[0].0); // key
+        call(&mut vm, 0x0002_0001, 0, &[], iter); // next
+    }
+    assert_eq!(keys, vec![48, 1, 2]);
+    assert_eq!(
+        call(&mut vm, 0x0002_0001, 0, &[], iter).0,
+        InterpStatus::Crash
+    );
+    let (_, r) = call(&mut vm, 0x0001_0011, 1, &[12], aa); // resize(12) -> 23
+    assert_eq!(r[0].0, 1);
+    assert_eq!(call(&mut vm, 0x0001_0008, 1, &[], aa).1[0].0, 23);
+    // A 64-bit key takes two slots, high word first.
+    let la = new(&mut vm, ntype::LA_HASH);
+    call(&mut vm, 0x0032_0001, 1, &[7, 5, 99], la); // add(0x7_00000005, 99)
+    let (_, r) = call(&mut vm, 0x0032_0006, 1, &[7, 5], la); // contains
+    assert_eq!(r[0].0, 1);
+    let (_, r) = call(&mut vm, 0x0032_000A, 1, &[], la);
+    let (_, k) = call(&mut vm, 0x0033_0002, 2, &[], r[0].0); // key: low deeper
+    assert_eq!((k[0], k[1].0), ((5, 0x84), 7));
+    // N keys: two equal wpstrings are the same key.
+    let na = new(&mut vm, ntype::NA_HASH);
+    let a = vm.new_wstring(w("sword"));
+    let b = vm.new_wstring(w("sword"));
+    assert_eq!(call(&mut vm, 0x004B_0001, 1, &[a, 1], na).1[0].0, 1);
+    assert_eq!(call(&mut vm, 0x004B_0001, 1, &[b, 2], na).1[0].0, 0);
+    assert_eq!(call(&mut vm, 0x004B_0012, 1, &[b], na).1[0].0, 1); // contains
+}

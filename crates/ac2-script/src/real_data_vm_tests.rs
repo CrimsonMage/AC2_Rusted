@@ -89,8 +89,8 @@ fn every_package_initializer_runs_or_stops_at_an_unbound_efun() {
     eprintln!("references: {}", vm.refs.entries.len());
     // 570 of 9,874 complete with no glue; 5,223 with gVM, gwccinternal, gwpstring,
     // gStringInfo, gEnumMapper, gFileArray and the list/array glue bound; 7,063 with the
-    // gStringInfo text (IsValid over the string tables).
-    assert!(outcomes.get("Terminated").copied().unwrap_or(0) >= 7000);
+    // gStringInfo text (IsValid over the string tables); 7,265 with the hash glue.
+    assert!(outcomes.get("Terminated").copied().unwrap_or(0) >= 7200);
     for bad in ["crash: UnknownOpcode", "crash: BadJump", "crash: Stack"] {
         assert!(!outcomes.contains_key(bad), "{bad}: {odd:#?}");
     }

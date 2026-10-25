@@ -12,7 +12,7 @@ use crate::native::{ntype, NativeObject};
 use crate::vm::{tag, Context, EFuns, Fault, InterpStatus, Vm};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-enum Kind {
+pub(super) enum Kind {
     A,
     L,
     R,
@@ -27,7 +27,7 @@ impl Kind {
         }
     }
 
-    fn out_tag(self) -> u8 {
+    pub(super) fn out_tag(self) -> u8 {
         match self {
             Self::A => tag::BOOL,
             Self::L => tag::BOOL | tag::LONG,
@@ -87,7 +87,7 @@ fn with_list(
 }
 
 /// Writes an out parameter through reference `out`: the slot's tag always, the value if any.
-fn write_out(vm: &mut Vm, ctx: &mut Context, out: u32, value: Option<u64>, kind: Kind) {
+pub(super) fn write_out(vm: &mut Vm, ctx: &mut Context, out: u32, value: Option<u64>, kind: Kind) {
     let (low, high) = value.map_or((None, None), |v| (Some(v as u32), Some((v >> 32) as u32)));
     let current = vm.read_through(ctx, out).unwrap_or(0);
     vm.write_through(ctx, out, low.unwrap_or(current), kind.out_tag());

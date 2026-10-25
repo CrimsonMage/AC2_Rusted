@@ -14,6 +14,7 @@
 mod cparse;
 mod enums;
 mod format;
+mod hashes;
 mod lists;
 mod string_info;
 mod string_text;
@@ -37,6 +38,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     string_text::register(efuns);
     enums::register(efuns);
     lists::register(efuns);
+    hashes::register(efuns);
 }
 
 /// The retail glue function behind efun `id` (`gAAHash::CallEFun_add`).

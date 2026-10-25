@@ -7,13 +7,18 @@
 
 mod containers;
 mod gm;
+mod hash_table;
 mod string_info;
 mod structs;
 
-pub use containers::{RefKey, ScriptHash, ScriptList};
+pub use containers::{RefKey, ScriptList, ScriptMultiHash};
 pub use gm::{
     ExaminationRequest, GameplayOptionsProfile, GmKeyframe, GmRaceSexInfo, GmSceneInfo,
     ShortcutInfo, SkillUiNode,
+};
+pub use hash_table::{
+    bucket_size_index, HashNode, HashPos, NativeKeys, PlainKeys, ScriptHash, BUCKET_SIZES,
+    DEFAULT_BUCKETS,
 };
 pub use string_info::{GetStringError, StringInfo, StringVar, StringVarValue};
 pub use structs::{BehaviorParams, MissileParameters, Position, RandomSelectionTable};
@@ -50,6 +55,24 @@ pub mod ntype {
     pub const VECTOR: u32 = 0x70;
     pub const WPSTRING: u32 = 0x76;
     pub const LA_HASH_SET: u32 = 0x2E0B;
+
+    /// The hash and hash-set types; each one's iterator type is the next id.
+    pub const HASHES: [u32; 10] = [
+        AA_HASH,
+        A_HASH_SET,
+        AL_HASH,
+        AR_HASH,
+        LA_HASH,
+        LL_HASH,
+        LR_HASH,
+        NA_HASH,
+        NR_HASH,
+        LA_HASH_SET,
+    ];
+
+    pub fn is_hash_iter(t: u32) -> bool {
+        HASHES.iter().any(|&h| h + 1 == t)
+    }
     pub const EXAMINATION_REQUEST: u32 = 0x9A;
     pub const GAMEPLAY_OPTIONS_PROFILE: u32 = 0x9B;
     pub const GM_RACE_SEX_INFO: u32 = 0xA2;
@@ -62,8 +85,15 @@ pub mod ntype {
 pub enum NativeObject {
     /// `AList`, `RList`, `AArray`, `RArray` (32-bit elements) and `LList`, `LArray` (64-bit).
     List(ScriptList),
-    /// The `XYHash` family, `AAMultiHash`, and the hash sets.
+    /// The `XYHash` family and the hash sets.
     Hash(ScriptHash),
+    /// `AAMultiHash`.
+    MultiHash(ScriptMultiHash),
+    /// `BaseHashIter` / `BaseHashSetIter`: the hash (`m_ref`) and the position.
+    HashIter {
+        hash: u32,
+        pos: HashPos,
+    },
     StringInfo(StringInfo),
     /// `wpstring` (`PStringBase<unsigned short>`).
     WString(Vec<u16>),
@@ -100,8 +130,8 @@ impl NativeObject {
         match native_type {
             ntype::A_LIST | ntype::R_LIST | ntype::A_ARRAY | ntype::R_ARRAY => list(false),
             ntype::L_LIST | ntype::L_ARRAY => list(true),
+            ntype::AA_MULTI_HASH => NativeObject::MultiHash(ScriptMultiHash::default()),
             ntype::AA_HASH
-            | ntype::AA_MULTI_HASH
             | ntype::A_HASH_SET
             | ntype::AL_HASH
             | ntype::AR_HASH
@@ -114,6 +144,13 @@ impl NativeObject {
             ntype::STRING_INFO => NativeObject::StringInfo(StringInfo::default()),
             ntype::WPSTRING => NativeObject::WString(Vec::new()),
             ntype::VECTOR => NativeObject::Vector([0.0; 3]),
+            t if ntype::is_hash_iter(t) => NativeObject::HashIter {
+                hash: u32::MAX,
+                pos: HashPos {
+                    bucket: 0,
+                    node: None,
+                },
+            },
             ntype::A_LIST_ITER | ntype::L_LIST_ITER | ntype::R_LIST_ITER => {
                 NativeObject::ListIter {
                     list: u32::MAX,
@@ -136,18 +173,18 @@ pub fn unpack(native_type: u32, r: &mut Reader<'_>) -> UnpackResult<NativeObject
         ntype::L_LIST | ntype::L_ARRAY => NativeObject::List(ScriptList::unpack(r, Elem::U64)?),
         ntype::AA_HASH | ntype::AL_HASH | ntype::AR_HASH => {
             let value = value_width(native_type);
-            NativeObject::Hash(ScriptHash::unpack(r, Key::U32, Some(value))?)
+            NativeObject::Hash(containers::unpack_hash(r, Key::U32, Some(value))?)
         }
         ntype::LA_HASH | ntype::LL_HASH | ntype::LR_HASH => {
             let value = value_width(native_type);
-            NativeObject::Hash(ScriptHash::unpack(r, Key::U64, Some(value))?)
+            NativeObject::Hash(containers::unpack_hash(r, Key::U64, Some(value))?)
         }
         ntype::NA_HASH | ntype::NR_HASH => {
-            NativeObject::Hash(ScriptHash::unpack(r, Key::Ref, Some(Elem::U32))?)
+            NativeObject::Hash(containers::unpack_hash(r, Key::Ref, Some(Elem::U32))?)
         }
-        ntype::AA_MULTI_HASH => NativeObject::Hash(ScriptHash::unpack_multi(r)?),
-        ntype::A_HASH_SET => NativeObject::Hash(ScriptHash::unpack(r, Key::U32, None)?),
-        ntype::LA_HASH_SET => NativeObject::Hash(ScriptHash::unpack(r, Key::U64, None)?),
+        ntype::AA_MULTI_HASH => NativeObject::MultiHash(ScriptMultiHash::unpack(r)?),
+        ntype::A_HASH_SET => NativeObject::Hash(containers::unpack_hash(r, Key::U32, None)?),
+        ntype::LA_HASH_SET => NativeObject::Hash(containers::unpack_hash(r, Key::U64, None)?),
         ntype::STRING_INFO => NativeObject::StringInfo(StringInfo::unpack(r)?),
         ntype::WPSTRING => NativeObject::WString(r.wpstring()?),
         ntype::VECTOR => NativeObject::Vector([r.f32()?, r.f32()?, r.f32()?]),
