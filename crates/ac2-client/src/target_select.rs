@@ -1,33 +1,195 @@
 //! `gmSelectionUI::Select` on the frame: a target key (`gmSelectionUI::ListenToMessage`) or the
 //! auto-target notice (`0x41000024`) moves the selection to the object `ac2_ui::select_target`
-//! picks from the radar's blips. The types, selectability and owners come from the session, the
-//! fellowship from the frame's progress. The clear key (`0x4000001E`) clears it.
+//! picks from the radar's blips, and the reselect, last selection, last attacker and clear keys
+//! answer from the selection state (`ac2_ui::direct_key`). The selectability, deletion and
+//! last-attacker notices and `SetTargetingPointer` run their `gmSelectionUI` handlers over the
+//! same state. The types, selectability and owners come from the session, the fellowship from
+//! the frame's progress.
 
-use ac2_ui::Candidate;
+use ac2_ui::{Candidate, SelectionAction, SelectionSnapshot, UiTree};
+use ac2_weenie::{GameplayNotice, SessionEvent};
 
 use crate::client::Client;
 use crate::frame::ClientFrame;
 use crate::gameplay::Command;
 
-/// The clear key (`gmSelectionUI::Select` with `0x4000001E`).
-const CLEAR_KEY: u32 = 0x4000_001E;
-
-/// The command a target key asks for on this frame: the object it picks, or none to clear.
-pub(crate) fn select_command(client: &Client, frame: &ClientFrame, key: u32) -> Option<Command> {
-    if key == CLEAR_KEY {
-        return Some(Command::Select(None));
-    }
+/// The selection a key or notice starts from: the player, the selection, the last selection and
+/// the last attacker. `None` without a player in the world.
+fn snapshot(client: &Client, frame: &ClientFrame) -> Option<SelectionSnapshot> {
     let player = frame.player.as_ref()?.id;
-    let selection = frame.selection.as_ref().map(|s| s.id);
+    Some(SelectionSnapshot {
+        player,
+        selection: frame.selection.as_ref().map(|s| s.id),
+        last_selection: client.session().player_script().last_selection(),
+        last_attacker: client.session().progress().selection.last_attacker,
+    })
+}
+
+/// The commands a target key asks for: `gmSelectionUI::Select` with `key`, from the selection as
+/// it stands. `typing` is the input's text mode (the clear key's `ICIDM` check).
+pub(crate) fn select_commands(
+    client: &mut Client,
+    frame: &ClientFrame,
+    key: u32,
+    typing: bool,
+) -> Vec<Command> {
+    match snapshot(client, frame) {
+        Some(snapshot) => key_commands(client, frame, key, &snapshot, typing),
+        None => Vec::new(),
+    }
+}
+
+/// The commands one `Select` key makes from `snapshot`: the direct keys' selection, or the
+/// cycling keys' pick (nothing when no candidate fits).
+fn key_commands(
+    client: &mut Client,
+    frame: &ClientFrame,
+    key: u32,
+    snapshot: &SelectionSnapshot,
+    typing: bool,
+) -> Vec<Command> {
+    if let Some(actions) = ac2_ui::direct_key(key, snapshot, typing) {
+        return actions
+            .into_iter()
+            .filter_map(|action| match action {
+                SelectionAction::Select(id) => Some(Command::Select(id)),
+                _ => None,
+            })
+            .collect();
+    }
     let range = frame.radar.range;
     let candidates = candidates(client, frame);
-    let picked = ac2_ui::select_target(key, player, range * range, selection, &candidates)?;
-    Some(Command::Select(Some(picked)))
+    ac2_ui::select_target(
+        key,
+        snapshot.player,
+        range * range,
+        snapshot.selection,
+        &candidates,
+    )
+    .map(|picked| Command::Select(Some(picked)))
+    .into_iter()
+    .collect()
+}
+
+/// The frame's selection events, in order: `gmSelectionUI::RecvNotice_Select`, the
+/// selectability, last attacker and targeting pointer notices, and `RecvNotice_BeingDeleted`
+/// for each object the frame removed. `typing` is the input's text mode.
+pub(crate) fn frame_notices(
+    client: &mut Client,
+    frame: &ClientFrame,
+    tree: &mut UiTree,
+    events: &[SessionEvent],
+    typing: bool,
+) -> Vec<Command> {
+    let mut out = Vec::new();
+    for event in events {
+        match event {
+            SessionEvent::ObjectRemoved(object) => {
+                out.extend(object_removed(client, frame, *object, typing));
+            }
+            SessionEvent::Notice(GameplayNotice::Select(key)) => {
+                out.extend(select_commands(client, frame, *key, typing));
+            }
+            SessionEvent::Notice(notice) => {
+                out.extend(selection_notice(client, frame, tree, notice, typing));
+            }
+            _ => {}
+        }
+    }
+    out
+}
+
+/// One selectability, last attacker or targeting pointer notice. Other notices make no commands.
+fn selection_notice(
+    client: &mut Client,
+    frame: &ClientFrame,
+    tree: &mut UiTree,
+    notice: &GameplayNotice,
+    typing: bool,
+) -> Vec<Command> {
+    match notice {
+        GameplayNotice::SetTargetingPointer(on) => {
+            ac2_ui::set_targeting_pointer(tree, *on);
+            Vec::new()
+        }
+        GameplayNotice::UpdateSelectability { object, selectable } => {
+            let Some(snapshot) = snapshot(client, frame) else {
+                return Vec::new();
+            };
+            let auto = client.auto_target();
+            let actions = ac2_ui::selectability_notice(*object, *selectable, &snapshot, auto);
+            run(client, frame, &actions, typing)
+        }
+        GameplayNotice::LastAttacker { attacker, .. } => {
+            let Some(snapshot) = snapshot(client, frame) else {
+                return Vec::new();
+            };
+            let auto = client.auto_target();
+            let has_selection = snapshot.selection.is_some();
+            let actions = ac2_ui::last_attacker_notice(*attacker, auto, has_selection);
+            run(client, frame, &actions, typing)
+        }
+        _ => Vec::new(),
+    }
+}
+
+/// `gmSelectionUI::RecvNotice_BeingDeleted` for an object the frame removed.
+fn object_removed(
+    client: &mut Client,
+    frame: &ClientFrame,
+    object: u64,
+    typing: bool,
+) -> Vec<Command> {
+    let Some(snapshot) = snapshot(client, frame) else {
+        return Vec::new();
+    };
+    let auto = client.auto_target();
+    let actions = ac2_ui::being_deleted(object, &snapshot, auto);
+    run(client, frame, &actions, typing)
+}
+
+/// Carries out a notice's actions in order, the selection as each leaves it. `StopAttacking`
+/// (`gmCWInterface::StopAttacking`, IFun 0xB40104) is not sent yet: the stand-in has no
+/// per-target stop, so the attack is left to the server.
+fn run(
+    client: &mut Client,
+    frame: &ClientFrame,
+    actions: &[SelectionAction],
+    typing: bool,
+) -> Vec<Command> {
+    let Some(mut snapshot) = snapshot(client, frame) else {
+        return Vec::new();
+    };
+    let mut out = Vec::new();
+    for action in actions {
+        match *action {
+            SelectionAction::Select(id) => {
+                out.push(Command::Select(id));
+                snapshot.selection = id;
+            }
+            SelectionAction::StopAttacking(_) => {}
+            SelectionAction::Key(key) => {
+                for command in key_commands(client, frame, key, &snapshot, typing) {
+                    if let Command::Select(id) = command {
+                        snapshot.selection = id;
+                    }
+                    out.push(command);
+                }
+            }
+            SelectionAction::ClearIfSelected(object) => {
+                if snapshot.selection == Some(object) {
+                    out.push(Command::Select(None));
+                    snapshot.selection = None;
+                }
+            }
+        }
+    }
+    out
 }
 
 /// The objects in the radar's range, as `Select` reads them: `CWRepository`'s type (`0x14`),
 /// selectability (`0x270`) and owner (`0x1F9`), and the fellowship.
-fn candidates(client: &Client, frame: &ClientFrame) -> Vec<Candidate> {
+fn candidates(client: &mut Client, frame: &ClientFrame) -> Vec<Candidate> {
     let fellowship = frame.progress.fellowship.as_ref();
     let fellow = |id: u64| fellowship.is_some_and(|f| f.fellows.iter().any(|(m, _)| *m == id));
     let objects = client.session().objects();

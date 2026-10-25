@@ -138,8 +138,12 @@ pub enum GameplayNotice {
     },
     /// `CM_Character::SendNotice_UpdateFactionStatus`.
     UpdateFactionStatus(u32),
-    /// `CM_Character::SendNotice_UpdateSelectability`.
-    UpdateSelectability(bool),
+    /// `CM_Character::SendNotice_UpdateSelectability`: `object` (the weenie the notice is raised
+    /// on) became selectable or not.
+    UpdateSelectability { object: u64, selectable: bool },
+    /// `ECM_Physics::SendNotice_E_LastAttacker` (`0x10412` on the player): the object that last
+    /// attacked the player, from its story hook (`StoryManager::DoStoryHook`).
+    LastAttacker { object: u64, attacker: u64 },
     /// `CM_Character::SendNotice_UpdateResetTime`.
     UpdateResetTime,
     /// `CM_Character::SendNotice_UpdateDeathState`.

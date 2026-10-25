@@ -135,6 +135,8 @@ pub struct UiElement {
     pub(crate) opacity: f32,
     /// `m_cursorDID`, `m_cursorHotX`, `m_cursorHotY`.
     pub(crate) cursor: (u32, i32, i32),
+    /// `m_savedCursorDID`, `m_savedCursorHotX`, `m_savedCursorHotY` (`UIElement::SaveCursor`).
+    pub(crate) saved_cursor: (u32, i32, i32),
     /// `m_TTText`, rendered (`SetTooltip`).
     pub(crate) tooltip: Option<String>,
     latest_update: u32,
@@ -439,6 +441,7 @@ impl UiTree {
             transition_close: false,
             opacity: 1.0,
             cursor: (0, 0, 0),
+            saved_cursor: (0, 0, 0),
             tooltip: None,
             latest_update: self.update_count,
             created_by_layout: false,

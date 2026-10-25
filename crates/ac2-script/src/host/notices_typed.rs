@@ -157,7 +157,10 @@ pub(super) fn typed(
             cost: float(args, 2)?,
         },
         "UpdateFactionStatus" => N::UpdateFactionStatus(int(args, 0)?),
-        "UpdateSelectability" => N::UpdateSelectability(flag(args, 0)?),
+        "UpdateSelectability" => N::UpdateSelectability {
+            object,
+            selectable: flag(args, 0)?,
+        },
         "UpdateResetTime" => N::UpdateResetTime,
         "UpdateDeathState" => N::UpdateDeathState(flag(args, 0)?),
         "ChangeRadarLook" => N::ChangeRadarLook(object),

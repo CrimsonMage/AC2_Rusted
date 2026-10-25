@@ -237,6 +237,12 @@ impl Client {
             .is_ok_and(|p| p.bit_field & 0x10 != 0)
     }
 
+    /// `gmCWInterface::GetAutoTarget`: the options profile's auto-target flag (0x20).
+    pub fn auto_target(&mut self) -> bool {
+        self.gameplay_options()
+            .is_ok_and(|p| p.bit_field & 0x20 != 0)
+    }
+
     pub fn shortcut_settings(&mut self) -> Result<ShortcutSettings, String> {
         let p = self.gameplay_options()?;
         Ok(ShortcutSettings {

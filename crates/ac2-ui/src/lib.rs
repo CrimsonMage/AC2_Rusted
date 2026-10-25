@@ -62,6 +62,9 @@ mod reticle;
 mod scene_viewport;
 mod scrollbar;
 mod secure_trade;
+mod selection_notices;
+#[cfg(test)]
+mod selection_notices_tests;
 mod selection_ui;
 mod shop;
 mod shop_rows;
@@ -152,6 +155,10 @@ pub use reticle::{Reticle, ReticleOutcome, ReticleTarget};
 pub use scene_viewport::{scene_viewports, SceneViewport};
 pub use scrollbar::MSG_NEW_POSITION;
 pub use secure_trade::{SecureTradeRequest, SecureTradeSplit, SecureTradeUi};
+pub use selection_notices::{
+    being_deleted, direct_key, last_attacker_notice, selectability_notice, set_targeting_pointer,
+    SelectionAction, SelectionSnapshot,
+};
 pub use selection_ui::{SelectionClick, SelectionOutcome, SelectionUi};
 pub use shop::{ShopRequest, ShopSource, ShopStackCall, ShopUi};
 pub use shortcut::{

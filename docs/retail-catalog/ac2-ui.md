@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 761 done, 254 partial, 1185 to do, 47 skipped.
+2247 retail functions: 762 done, 257 partial, 1181 to do, 47 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -447,7 +447,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmSecureTradeUI::RecvNotice_Trade_BeClosed` · 00421a90 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 - [x] `gmSecureTradeUI::RecvNotice_Trade_BeReset` · 00421bf0 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 
-## `ac2/client/src/ui/gameplay/gmselectionui.cpp.c` (11/24)
+## `ac2/client/src/ui/gameplay/gmselectionui.cpp.c` (12/24)
 
 ### LandDefs
 - [ ] `LandDefs::in_bounds` · 004233a0 · legions 00423170
@@ -466,20 +466,20 @@ Legend and workflow: [README](README.md).
 ### gmSelectionUI
 - [-] `gmSelectionUI::RegisterObjectMessages` · 00423750 · legions 00423520 — notice handlers are registered per object by the session in Rust (no per-object handler table)
 - [-] `gmSelectionUI::RecvNotice_CreateObject` · 004237a0 — notice handlers are registered per object by the session in Rust (no per-object handler table)
-- [ ] `gmSelectionUI::RecvNotice_E_LastAttacker` · 004237d0 · legions 004235a0
-- [ ] `gmSelectionUI::RecvNotice_SetTargetingPointer` · 00423820
+- [~] `gmSelectionUI::RecvNotice_E_LastAttacker` · 004237d0 · legions 004235a0 — ac2-ui selection_notices.rs last_attacker_notice; ac2-client target_select.rs: the auto-target select with nothing selected. Producer ECM_Physics::SendNotice_E_LastAttacker (from StoryManager::DoStoryHook) not ported, so no notice arrives yet; LookAtSelection not modelled. Legions identical
+- [x] `gmSelectionUI::RecvNotice_SetTargetingPointer` · 00423820 — ac2-ui selection_notices.rs set_targeting_pointer: usage cursor swapped in, saved cursor restored (real-data test); ac2-client target_select.rs routes the notice
 - [x] `gmSelectionUI::Farther` · 004238f0 · legions 004236c0 — ac2-ui target_cycle.rs farther(): the nearer-by-distance-then-id order
 - [x] `gmSelectionUI::TargetTypeVsKey` · 00423970 · legions 00423740 — ac2-ui target_cycle.rs type_vs_key(): the type bits against the key ranges
 - [x] `gmSelectionUI::Start3DSelection` · 00423a50 · legions 00423820 — ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
 - [x] `gmSelectionUI::ListenToMessage` · 00423b20 · legions 004238f0 — ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
 - [~] `gmSelectionUI::Finish3DSelection` · 00423bb0 · legions 00423980 — ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 - [-] `gmSelectionUI::Init` · 00423d20 · legions 00423af0 — notice handlers are registered per object by the session in Rust (no per-object handler table)
-- [~] `gmSelectionUI::Select` · 00423da0 — ac2-ui target_cycle.rs select_target: the cycling keys (next, previous, closest; foe, fellow, pet groups; wrap-around pass). Not: 0x41000018 reselect, 0x41000028 last selection, 0x4100002A last attacker, 0x4000001E clear's typing check; candidates are the radar blips (no objects without a look); CanAutoAttackTarget approximated as creature and not a fellow
+- [~] `gmSelectionUI::Select` · 00423da0 — ac2-ui target_cycle.rs select_target (the cycling keys) and selection_notices.rs direct_key: reselect 0x41000018, last selection 0x41000028, last attacker 0x4100002A, clear 0x4000001E with the ICIDM text-mode check. Not: CanAutoAttackTarget approximated as creature and not a fellow; candidates are the radar blips; LookAtSelection not modelled. Legions FUN_00423b70 has the same key branches
 - [x] `gmSelectionUI::RecvNotice_Select` · 00424500 — ac2-client target_select.rs + hud_player: the notice's key picks through select_target
 - [~] `gmSelectionUI::gmSelectionUI` · 00424510 · legions 004242e0 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [x] `gmSelectionUI::ListenToMessage` · 00424610 · legions 004243e0 — ac2-ui target_cycle.rs select_key_of/is_select_key; ac2-client hud_player routes the global key press
-- [ ] `gmSelectionUI::RecvNotice_UpdateSelectability` · 00424670
-- [ ] `gmSelectionUI::RecvNotice_BeingDeleted` · 00424720
+- [~] `gmSelectionUI::RecvNotice_UpdateSelectability` · 00424670 — ac2-ui selection_notices.rs selectability_notice; ac2-client target_select.rs: clear the selection, auto-target next foe. Not: CWPhysicsObject::LookAtSelection; gmCWInterface::StopAttacking (IFun 0xB40104) not sent
+- [~] `gmSelectionUI::RecvNotice_BeingDeleted` · 00424720 — ac2-ui selection_notices.rs being_deleted; ac2-client target_select.rs via ObjectRemoved: stop attacking (not sent, IFun 0xB40104), auto-target next foe, clear when still selected. Not: LookAtSelection; UnRegisterAllNoticeHandlers is per-object in Rust
 
 ## `ac2/client/src/ui/gameplay/gmshopcatalogui.cpp.c` (0/11)
 

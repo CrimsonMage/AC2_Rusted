@@ -259,6 +259,18 @@ impl HudView {
                 open_examination |= crate::ui_inventory::item_commands(request, &mut commands);
             }
         }
+        {
+            // `gmSelectionUI`: the selection keys, its notices and `RecvNotice_BeingDeleted`.
+            let mut client = player.client.borrow_mut();
+            let typing = tree.text_mode();
+            commands.extend(crate::target_select::frame_notices(
+                &mut client,
+                frame,
+                tree,
+                events,
+                typing,
+            ));
+        }
         for event in events {
             if let Some(dialog) = stack.as_mut() {
                 crate::ui_inventory::stack_event(dialog, tree, event);
@@ -423,11 +435,8 @@ impl HudView {
                         bar.mount_state(tree, *on_mount);
                     }
                 }
-                // `gmSelectionUI::RecvNotice_Select`: the auto-target and the cycling keys.
-                GameplayNotice::Select(key) => {
-                    let client = player.client.borrow();
-                    commands.extend(crate::target_select::select_command(&client, frame, *key));
-                }
+                // `gmSelectionUI::RecvNotice_Select` (`target_select::frame_notices`).
+                GameplayNotice::Select(_) => {}
                 // `gm3DTextUI::RecvNotice_Do3DDamage`.
                 GameplayNotice::Do3DDamage { object, text } => {
                     if let Some(damage) = damage.as_mut() {
@@ -447,8 +456,14 @@ impl HudView {
         for message in &messages {
             // `gmSelectionUI::ListenToMessage`: a target key selects (the cycling keys).
             if let Some(key) = ac2_ui::select_key_of(message) {
-                let client = player.client.borrow();
-                commands.extend(crate::target_select::select_command(&client, frame, key));
+                let mut client = player.client.borrow_mut();
+                let typing = tree.text_mode();
+                commands.extend(crate::target_select::select_commands(
+                    &mut client,
+                    frame,
+                    key,
+                    typing,
+                ));
             }
             if let (Some(page), Some(dialogs)) = (character.as_mut(), dialogs.as_mut()) {
                 page.message(tree, dialogs, message);

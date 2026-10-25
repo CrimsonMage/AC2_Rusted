@@ -173,6 +173,9 @@ pub struct Shortcuts {
 pub struct SelectionState {
     pub id: Option<u64>,
     pub info: Option<ac2_net::protocol::SelectionInfo>,
+    /// `gmSelectionUI::_lastAttackerID`: the object that last attacked the player
+    /// (`RecvNotice_E_LastAttacker`), for the last attacker key.
+    pub last_attacker: Option<u64>,
 }
 
 impl SelectionState {
@@ -185,6 +188,9 @@ impl SelectionState {
             }
             GameplayNotice::UpdateSelectionInfo { info, .. } if self.id.is_some() => {
                 self.info = Some(*info);
+            }
+            GameplayNotice::LastAttacker { attacker, .. } => {
+                self.last_attacker = (*attacker != 0).then_some(*attacker);
             }
             _ => {}
         }
