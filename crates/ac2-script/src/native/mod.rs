@@ -10,6 +10,7 @@ mod containers;
 mod hash_table;
 mod multi;
 mod options;
+mod shortcut;
 pub mod social;
 mod string_info;
 mod structs;
@@ -27,6 +28,7 @@ pub use options::{
     assign_ui_locations, bits as option_bits, word_assign, word_get, word_set, AliasTable,
     GameplayOptions,
 };
+pub use shortcut::Shortcut;
 pub use string_info::{GetStringError, StringInfo, StringVar, StringVarValue};
 pub use structs::{
     behavior_defaults, behavior_pack_bitfield, BehaviorParams, MissileParameters,
@@ -97,6 +99,13 @@ pub mod ntype {
     pub const EXAMINATION_REQUEST: u32 = 0x9A;
     pub const GAMEPLAY_OPTIONS_PROFILE: u32 = 0x9B;
     pub const SHORTCUT_INFO: u32 = 0xAC;
+    pub const RGBA_COLOR: u32 = 0x64;
+    pub const DAMAGE_TEXT_BLOB: u32 = 0x97;
+    pub const CRAFT_SKILL_ADAPTOR: u32 = 0x33A5;
+    pub const UI_SHOP: u32 = 0x380A;
+    pub const UI_SHOP_SALE: u32 = 0x380B;
+    pub const GM_QUEST_INFO: u32 = 0xA0;
+    pub const GM_QUEST_INFO_LIST: u32 = 0xA1;
     pub const ALLEGIANCE_DATA_ADAPTOR: u32 = 0x82;
     pub const ALLEGIANCE_PROFILE_ADAPTOR: u32 = 0x83;
     pub const FELLOW_ADAPTOR: u32 = 0x93;
@@ -166,6 +175,18 @@ pub enum NativeObject {
     AllegianceData(Box<ac2_weenie::AllegianceMember>),
     /// `AllegianceProfileAdaptor`.
     AllegianceProfile(Box<ac2_weenie::AllegianceProfile>),
+    /// `UIShop`.
+    Shop(Box<ac2_weenie::Shop>),
+    /// `UIShopSale`.
+    ShopSale(Box<ac2_weenie::ShopSale>),
+    /// `CraftSkillAdaptor`.
+    CraftSkill(Box<ac2_weenie::CraftSkill>),
+    /// `DamageTextBlob`.
+    DamageText(Box<ac2_weenie::DamageText>),
+    /// `RGBAColor` (r, g, b, a).
+    Color([f32; 4]),
+    /// `ShortcutInfo` (every field).
+    Shortcut(Box<Shortcut>),
     /// `GameplayOptionsProfile` (Legions layout).
     GameplayOptions(Box<GameplayOptions>),
     /// `BaseListIter`: a position in a list (`None` past the end). Retail holds the list node;
@@ -252,6 +273,17 @@ impl NativeObject {
                 )))
             }
             ntype::GAMEPLAY_OPTIONS_PROFILE => NativeObject::GameplayOptions(Box::default()),
+            ntype::UI_SHOP => NativeObject::Shop(Box::default()),
+            ntype::UI_SHOP_SALE => NativeObject::ShopSale(Box::default()),
+            ntype::CRAFT_SKILL_ADAPTOR => NativeObject::CraftSkill(Box::default()),
+            ntype::DAMAGE_TEXT_BLOB => NativeObject::DamageText(Box::default()),
+            ntype::RGBA_COLOR => NativeObject::Color([0.0; 4]),
+            ntype::GM_QUEST_INFO => NativeObject::Wire(Box::new(
+                ac2_net::protocol::NativeObject::GmQuestInfo(Box::default()),
+            )),
+            ntype::GM_QUEST_INFO_LIST => NativeObject::Wire(Box::new(
+                ac2_net::protocol::NativeObject::GmQuestInfoList(Vec::new()),
+            )),
             ntype::FELLOW_ADAPTOR => NativeObject::Fellow(Box::new(social::fellow())),
             ntype::FELLOWSHIP_ADAPTOR => NativeObject::Fellowship(Box::new(social::fellowship())),
             ntype::ALLEGIANCE_DATA_ADAPTOR => {
@@ -267,11 +299,7 @@ impl NativeObject {
             ntype::EXAMINATION_REQUEST => NativeObject::Wire(Box::new(
                 ac2_net::protocol::NativeObject::ExaminationRequest(Default::default()),
             )),
-            ntype::SHORTCUT_INFO => {
-                NativeObject::Wire(Box::new(ac2_net::protocol::NativeObject::ShortcutInfo(
-                    ac2_net::protocol::ShortcutInfo::Empty(0),
-                )))
-            }
+            ntype::SHORTCUT_INFO => NativeObject::Shortcut(Box::default()),
             ntype::UI_SAVE_LOCATIONS => {
                 NativeObject::Wire(Box::new(ac2_net::protocol::NativeObject::UiSaveLocations(
                     GameplayOptions::default().ui_locations,

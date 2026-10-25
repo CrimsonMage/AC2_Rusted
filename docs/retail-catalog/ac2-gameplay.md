@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 104 done, 10 partial, 376 to do, 9 skipped.
+499 retail functions: 121 done, 9 partial, 360 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (2/4)
@@ -143,12 +143,12 @@ Legend and workflow: [README](README.md).
 - [x] `gmRaceSexInfo::gmRaceSexInfo` · 00601810 · legions 005c26f0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmRaceSexInfo::gmRaceSexInfo` · 00601860 · legions 005c2740 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
-## `ac2/shared/src/craft/craftskilladaptor.cpp.c` (0/3)
+## `ac2/shared/src/craft/craftskilladaptor.cpp.c` (2/3)
 
 ### CraftSkillAdaptor
-- [ ] `CraftSkillAdaptor::CraftSkillAdaptor` · 0060c550 · legions 005cd2a0
+- [x] `CraftSkillAdaptor::CraftSkillAdaptor` · 0060c550 · legions 005cd2a0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [ ] `CraftSkillAdaptor::operator=` · 0060c590 · legions 005cd2e0
-- [ ] `CraftSkillAdaptor::CraftSkillAdaptor` · 0060c5f0 · legions 005cd340
+- [x] `CraftSkillAdaptor::CraftSkillAdaptor` · 0060c5f0 · legions 005cd340 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
 ## `ac2/shared/src/craft/craftskillcategoryadaptor.cpp.c` (0/6)
 
@@ -339,13 +339,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gmKeyframe::Verify` · 0060a900 · legions 005cb610
 - [x] `gmKeyframe::StreamPack` · 0060aa40 · legions 005cb750 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
-## `ac2/shared/src/quest/gmquestinfo.cpp.c` (0/15)
+## `ac2/shared/src/quest/gmquestinfo.cpp.c` (5/15)
 
 ### gmQuestInfo
 - [ ] `gmQuestInfo::~gmQuestInfo` · 0060aae0 · legions 005cb7f0
-- [ ] `gmQuestInfo::Init` · 0060ab10 · legions 005cb820
-- [ ] `gmQuestInfo::Clear` · 0060abd0 · legions 005cb8e0
-- [ ] `gmQuestInfo::GetStatus` · 0060ac50 · legions 005cb960
+- [x] `gmQuestInfo::Init` · 0060ab10 · legions 005cb820 — ac2-script glue::quests / ac2-net native::quest
+- [x] `gmQuestInfo::Clear` · 0060abd0 · legions 005cb8e0 — ac2-script glue::quests / ac2-net native::quest
+- [x] `gmQuestInfo::GetStatus` · 0060ac50 · legions 005cb960 — ac2-script glue::quests / ac2-net native::quest
 - [ ] `gmQuestInfo::MaxedOut` · 0060ac60 · legions 005cb970
 - [ ] `gmQuestInfo::GetSecondsRemaining` · 0060ac80 · legions 005cb990
 - [ ] `gmQuestInfo::InqExtraText` · 0060aca0 · legions 005cb9b0
@@ -353,22 +353,22 @@ Legend and workflow: [README](README.md).
 - [ ] `gmQuestInfo::gmQuestInfo` · 0060adb0 · legions 005cbac0
 - [ ] `gmQuestInfo::gmQuestInfo` · 0060ae20 · legions 005cbb30
 - [ ] `gmQuestInfo::operator=` · 0060ae60 · legions 005cbb70
-- [ ] `gmQuestInfo::Update` · 0060aef0 · legions 005cbc00
-- [ ] `gmQuestInfo::StreamPack` · 0060af00 · legions 005cbc10
+- [x] `gmQuestInfo::Update` · 0060aef0 · legions 005cbc00 — ac2-script glue::quests / ac2-net native::quest
+- [x] `gmQuestInfo::StreamPack` · 0060af00 · legions 005cbc10 — ac2-script glue::quests / ac2-net native::quest
 - [ ] `gmQuestInfo::gmQuestInfo` · 0060aff0 · legions 005cbd00
 - [ ] `gmQuestInfo::DumpW` · 0060b030 · legions 005cbd40
 
-## `ac2/shared/src/quest/gmquestinfolist.cpp.c` (0/12)
+## `ac2/shared/src/quest/gmquestinfolist.cpp.c` (5/12)
 
 ### gmQuestInfoList
-- [ ] `gmQuestInfoList::Find` · 0060b240 · legions 005cbf50
-- [ ] `gmQuestInfoList::UpdateQuestInfo` · 0060b3d0 · legions 005cc120
-- [ ] `gmQuestInfoList::Erase` · 0060b4b0 · legions 005cc200
+- [x] `gmQuestInfoList::Find` · 0060b240 · legions 005cbf50 — ac2-script glue::quests / ac2-net native::quest
+- [x] `gmQuestInfoList::UpdateQuestInfo` · 0060b3d0 · legions 005cc120 — ac2-script glue::quests / ac2-net native::quest
+- [x] `gmQuestInfoList::Erase` · 0060b4b0 · legions 005cc200 — ac2-script glue::quests / ac2-net native::quest
 
 ### PList<gmQuestInfo>
-- [ ] `PList<gmQuestInfo>::Pack` · 0060b500 · legions 005cc250
+- [x] `PList<gmQuestInfo>::Pack` · 0060b500 · legions 005cc250 — ac2-script glue::quests / ac2-net native::quest
 - [ ] `PList<gmQuestInfo>::GetPackSize` · 0060b550
-- [ ] `PList<gmQuestInfo>::UnPack` · 0060b590 · legions 005cc2fa
+- [x] `PList<gmQuestInfo>::UnPack` · 0060b590 · legions 005cc2fa — ac2-script glue::quests / ac2-net native::quest
 
 ### gmQuestInfoList
 - [ ] `gmQuestInfoList::gmQuestInfoList` · 0060b6d0
@@ -414,7 +414,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmSceneInfo::Set` · 0060a280 · legions 005caf90
 - [ ] `gmSceneInfo::gmSceneInfo` · 0060a2d0 · legions 005cafe0
 
-## `ac2/shared/src/shop/uishop.cpp.c` (0/5)
+## `ac2/shared/src/shop/uishop.cpp.c` (2/5)
 
 ### UIShop
 - [ ] `UIShop::InqSale` · 0060cdb0 · legions 005cdbb0
@@ -423,27 +423,27 @@ Legend and workflow: [README](README.md).
 - [ ] `List<UIShopSale>::operator=` · 0060cdf0 · legions 005cdbf0
 
 ### UIShop
-- [ ] `UIShop::UIShop` · 0060ce30 · legions 005cdc30
+- [x] `UIShop::UIShop` · 0060ce30 · legions 005cdc30 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [ ] `UIShop::operator=` · 0060ce90 · legions 005cdc90
-- [ ] `UIShop::UIShop` · 0060cf10 · legions 005cdd10
+- [x] `UIShop::UIShop` · 0060cf10 · legions 005cdd10 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
-## `ac2/shared/src/shop/uishopsale.cpp.c` (0/4)
+## `ac2/shared/src/shop/uishopsale.cpp.c` (2/4)
 
 ### UIShopSale
-- [ ] `UIShopSale::UIShopSale` · 0060cc80 · legions 005cda80
+- [x] `UIShopSale::UIShopSale` · 0060cc80 · legions 005cda80 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [ ] `UIShopSale::operator=` · 0060cce0 · legions 005cdae0
 
 ### CraftSkillCategoryAdaptor
 - [ ] `CraftSkillCategoryAdaptor::operator<` · 0060cd70 · legions 005cdb70
 
 ### UIShopSale
-- [ ] `UIShopSale::UIShopSale` · 0060cd80 · legions 005cdb80
+- [x] `UIShopSale::UIShopSale` · 0060cd80 · legions 005cdb80 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
-## `ac2/shared/src/shortcut/shortcutinfo.cpp.c` (4/6)
+## `ac2/shared/src/shortcut/shortcutinfo.cpp.c` (5/6)
 
 ### ShortcutInfo
 - [x] `ShortcutInfo::Clear` · 00607fd0 · legions 005c8e70 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [~] `ShortcutInfo::operator=` · 00608040 · legions 005c8ee0 — ac2-script native::options (ShortcutInfo keeps its packed datum only; unversioned profiles upgrade before packing; inner UI tables copied as is)
+- [x] `ShortcutInfo::operator=` · 00608040 · legions 005c8ee0 — ac2-script glue::shortcut / native::shortcut
 - [x] `ShortcutInfo::ShortcutInfo` · 006080b0 · legions 005c8f50 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [ ] `ShortcutInfo::~ShortcutInfo` · 006080e0 · legions 005c8f80
 - [x] `ShortcutInfo::ShortcutInfo` · 00608120 · legions 005c8fc0 — ac2-script glue::options / examination (Legions layout and efun switch)

@@ -24,6 +24,24 @@ fn int(args: &[NoticeArg], n: usize) -> Option<u32> {
     }
 }
 
+fn flag(args: &[NoticeArg], n: usize) -> Option<bool> {
+    int(args, n).map(|v| v != 0)
+}
+
+fn float(args: &[NoticeArg], n: usize) -> Option<f32> {
+    match args.get(n)? {
+        NoticeArg::Float(v) => Some(*v),
+        _ => None,
+    }
+}
+
+fn text(args: &[NoticeArg], n: usize) -> String {
+    match args.get(n) {
+        Some(NoticeArg::Text(s)) => s.clone(),
+        _ => String::new(),
+    }
+}
+
 fn info(args: &[NoticeArg], n: usize) -> StringInfo {
     match args.get(n) {
         Some(NoticeArg::Native(Wire::StringInfo(s))) => s.clone(),
@@ -119,6 +137,176 @@ pub(super) fn typed(
             patron: long(args, 0)?,
             kind: int(args, 1)?,
         },
+        "UpdateQuests" => match args.get(1)? {
+            NoticeArg::Native(Wire::GmQuestInfo(q)) => N::UpdateQuests {
+                code: int(args, 0)?,
+                quest: q.clone(),
+            },
+            _ => return None,
+        },
+        "UpdateStoryQuests" => N::UpdateStoryQuests {
+            code: int(args, 0)?,
+            act: int(args, 1)?,
+        },
+        "UpdateEffect" => N::UpdateEffect,
+        "UpdateMoney" => N::UpdateMoney(int(args, 0)?),
+        "GhostMoneyBag" => N::GhostMoneyBag(flag(args, 0)?),
+        "UpdateVitae" => N::UpdateVitae {
+            vitae: float(args, 0)?,
+            increment: float(args, 1)?,
+            cost: float(args, 2)?,
+        },
+        "UpdateFactionStatus" => N::UpdateFactionStatus(int(args, 0)?),
+        "UpdateSelectability" => N::UpdateSelectability(flag(args, 0)?),
+        "UpdateResetTime" => N::UpdateResetTime,
+        "UpdateDeathState" => N::UpdateDeathState(flag(args, 0)?),
+        "ChangeRadarLook" => N::ChangeRadarLook,
+        "DisplayMessage" => N::DisplayMessage {
+            text: info(args, 0),
+            topmost: flag(args, 1)?,
+        },
+        "UpdateMountState" => N::UpdateMountState(flag(args, 0)?),
+        "ResurrectionRequestedByOther" => N::ResurrectionRequestedByOther(info(args, 0)),
+        "PulseMissed" => N::PulseMissed(int(args, 0)?),
+        "AddMarker" => N::AddMarker {
+            kind: int(args, 0)?,
+            id: long(args, 1)?,
+            cell: int(args, 2)?,
+            image: int(args, 3)?,
+            message: info(args, 4),
+        },
+        "ClearMarkers" => N::ClearMarkers(int(args, 0)?),
+        "RemoveMarker" => N::RemoveMarker {
+            kind: int(args, 0)?,
+            id: long(args, 1)?,
+        },
+        "AddPet" => N::AddPet {
+            pet: long(args, 0)?,
+            name: info(args, 1),
+            icon: int(args, 2)?,
+            mode: int(args, 3)?,
+        },
+        "RemovePet" => N::RemovePet(long(args, 0)?),
+        "UpdatePetMode" => N::UpdatePetMode {
+            pet: long(args, 0)?,
+            mode: int(args, 1)?,
+        },
+        "UpdatePetName" => N::UpdatePetName {
+            pet: long(args, 0)?,
+            name: info(args, 1),
+        },
+        "PetIsUnderAttack" => N::PetIsUnderAttack(long(args, 0)?),
+        "UpdateAttackState" => N::UpdateAttackState(flag(args, 0)?),
+        "RequestSpecialAttack" => N::RequestSpecialAttack {
+            maneuver: int(args, 0)?,
+            attack: int(args, 1)?,
+        },
+        "StartSpecialAttack" => N::StartSpecialAttack(int(args, 0)?),
+        "EndSpecialAttack" => N::EndSpecialAttack(int(args, 0)?),
+        // `bool _toggled`: the argument's low byte.
+        "ToggleSpecialAttack" => N::ToggleSpecialAttack {
+            maneuver: int(args, 0)?,
+            toggled: int(args, 1)? & 0xFF != 0,
+        },
+        "DoAssistedTell" => N::DoAssistedTell(text(args, 0)),
+        "ReloadChatSettings" => N::ReloadChatSettings,
+        "UpdateCraftPanel" => N::UpdateCraftPanel,
+        "AddIngredient_Done" => N::AddIngredientDone {
+            recipe: int(args, 0)?,
+            ordinal: int(args, 1)?,
+            ingredient: long(args, 2)?,
+            spinner: int(args, 3)?,
+            error: int(args, 4)?,
+        },
+        "ExecuteCraft_Done" => N::ExecuteCraftDone {
+            recipe: int(args, 0)?,
+            error: int(args, 1)?,
+        },
+        "UpdateCost" => N::UpdateCraftCost {
+            recipe: int(args, 0)?,
+            cost: int(args, 1)? as i32,
+            request: int(args, 2)?,
+        },
+        "OpenIngredientPanel" => N::OpenIngredientPanel(int(args, 0)?),
+        "Trade_BeRegistered" => N::TradeRegistered {
+            initiator: long(args, 0)?,
+            partner: long(args, 1)?,
+            partner_name: info(args, 2),
+        },
+        "Trade_BeOpened" => N::TradeOpened,
+        "Trade_BeClosed" => N::TradeClosed {
+            source: long(args, 0)?,
+            kind: int(args, 1)?,
+        },
+        "Trade_BeAccepted" => N::TradeAccepted(long(args, 0)?),
+        "Trade_BeDeclined" => N::TradeDeclined(long(args, 0)?),
+        "Trade_BeReset" => N::TradeReset,
+        "Trade_BeAcceptanceCleared" => N::TradeAcceptanceCleared,
+        "Trade_BeOffered" => N::TradeOffered {
+            source: long(args, 0)?,
+            item: long(args, 1)?,
+            amount: int(args, 2)?,
+        },
+        "Trade_BeRevoked" => N::TradeRevoked {
+            source: long(args, 0)?,
+            item: long(args, 1)?,
+        },
+        "PortalSpace" => N::PortalSpace(flag(args, 0)?),
+        "OpenExaminationPanel" => N::OpenExaminationPanel,
+        "SetTargetingPointer" => N::SetTargetingPointer(flag(args, 0)?),
+        "UseBook" => N::UseBook {
+            show_controls: flag(args, 0)?,
+            mode: int(args, 1)?,
+            title: text(args, 2),
+            text: text(args, 3),
+            image: int(args, 4)?,
+        },
+        "GUNResult_AddFriend" => N::FriendAdded(text(args, 0)),
+        "GUNResult_RemoveFriend" => N::FriendRemoved(text(args, 0)),
+        "LocalStatus" => N::LocalStatus(int(args, 0)?),
+        "UpdateSale" => N::UpdateSale {
+            item: long(args, 0)?,
+            stock: int(args, 1)? as i32,
+        },
+        "LeaveStore" => N::LeaveStore,
+        "ConfirmPurchase" => N::ConfirmPurchase {
+            product: info(args, 0),
+            quantity: int(args, 1)?,
+            trade_name: info(args, 2),
+            cost: int(args, 3)?,
+        },
+        "LeaveCatalog" => N::LeaveCatalog,
+        "LeaveConsignment" => N::LeaveConsignment,
+        "ShowSaleReminder" => N::ShowSaleReminder(int(args, 0)? & 0xFF != 0),
+        "UpdateStore" => N::UpdateStore(Box::new(shop(vm, *raw.first()?)?)),
+        "ViewStore" => N::ViewStore(Box::new(shop(vm, *raw.first()?)?)),
+        "ViewConsignment" => N::ViewConsignment(Box::new(shop(vm, *raw.first()?)?)),
+        "UpdateConsignment" => N::UpdateConsignment(Box::new(shop(vm, *raw.first()?)?)),
+        // `RListToUIShopList`: the script's list of `UIShop`s, in order.
+        "ViewCatalog" => N::ViewCatalog {
+            header: info(args, 0),
+            shops: match vm.native(*raw.get(1)?)? {
+                NativeObject::List(l) => {
+                    l.items.iter().filter_map(|r| shop(vm, *r as u32)).collect()
+                }
+                _ => return None,
+            },
+        },
+        "UpdateCraftSkill" => match vm.native(*raw.first()?)? {
+            NativeObject::CraftSkill(s) => N::UpdateCraftSkill(s.clone()),
+            _ => return None,
+        },
+        "Do3DDamage" => match vm.native(*raw.first()?)? {
+            NativeObject::DamageText(d) => N::Do3DDamage((**d).clone()),
+            _ => return None,
+        },
         _ => return None,
     })
+}
+
+fn shop(vm: &Vm, reference: u32) -> Option<ac2_weenie::Shop> {
+    match vm.native(reference)? {
+        NativeObject::Shop(s) => Some((**s).clone()),
+        _ => None,
+    }
 }

@@ -212,8 +212,8 @@ fn notices_decode_by_signature() {
     let vm = host.vm_mut();
     let obj = vm.new_wstring(Vec::new());
     vm.owners.insert(obj, 0x5000_0001);
-    // CM_Money::SendNotice_UpdateMoney(obj, amount): no ac2-weenie type.
-    run_efun(vm, 0x008C_0002, &[obj, 250], u32::MAX);
+    // CM_Quest::SendNotice_PlaySequence(obj, scenes): no ac2-weenie type (a null list here).
+    run_efun(vm, 0x008E_0003, &[obj, u32::MAX], u32::MAX);
     // CM_Character::SendNotice_UpdateSkillPanel(obj, availableXP, credits, heroCredits).
     run_efun(vm, 0x0085_0005, &[obj, 0x1, 0x2, 3, 4], u32::MAX);
     // CM_Inventory::SendNotice_UpdateInventory(obj, code, itemID, location).
@@ -232,9 +232,9 @@ fn notices_decode_by_signature() {
     assert_eq!(
         host.take_script_notices(),
         vec![ScriptNotice {
-            name: "CM_Money::SendNotice_UpdateMoney",
+            name: "CM_Quest::SendNotice_PlaySequence",
             object: 0x5000_0001,
-            args: vec![NoticeArg::Int(250)],
+            args: vec![NoticeArg::Null],
         }]
     );
     let notices = host.take_notices();
@@ -266,6 +266,120 @@ fn notices_decode_by_signature() {
             value: 30,
             pk: 2
         }
+    );
+}
+
+/// The quest journal's data: `gmQuestInfoList::UpdateQuestInfo` keeps the newest bestowal
+/// first and updates a known quest in place (`bNew` 0), and `CM_Quest::SendNotice_UpdateQuests`
+/// hands the quest on typed.
+#[test]
+fn quests_sort_newest_first_and_notify_typed() {
+    use crate::native::{ntype, NativeObject};
+    use ac2_net::protocol::{GmQuestInfo, NativeObject as W};
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let vm = host.vm_mut();
+    let obj = vm.new_wstring(Vec::new());
+    vm.owners.insert(obj, 0x5000_0001);
+    let new = |vm: &mut Vm, t: u32| vm.refs.create_native(t, NativeObject::new_empty(t));
+    let list = new(vm, ntype::GM_QUEST_INFO_LIST);
+    let quest = |vm: &mut Vm, id: u32, bestowal: f64| {
+        let q = GmQuestInfo {
+            id,
+            bestowal,
+            ..GmQuestInfo::default()
+        };
+        vm.refs.create_native(
+            ntype::GM_QUEST_INFO,
+            NativeObject::Wire(Box::new(W::GmQuestInfo(Box::new(q)))),
+        )
+    };
+    for (id, at) in [(1, 10.0), (2, 30.0), (3, 20.0)] {
+        let q = quest(vm, id, at);
+        assert_eq!(efun_result(vm, 0x00A1_0002, &[q, u32::MAX], list, 4), 1);
+    }
+    let ids: Vec<u32> = match vm.native(list) {
+        Some(NativeObject::Wire(w)) => match &**w {
+            W::GmQuestInfoList(l) => l.iter().map(|q| q.id).collect(),
+            _ => Vec::new(),
+        },
+        _ => Vec::new(),
+    };
+    assert_eq!(ids, [2, 3, 1]);
+    assert_eq!(efun_result(vm, 0x00A1_0006, &[], list, 2), 3);
+    let q = quest(vm, 3, 20.0);
+    assert_eq!(efun_result(vm, 0x00A1_0004, &[q], list, 3), 1); // Erase
+    assert_eq!(efun_result(vm, 0x00A1_0006, &[], list, 2), 2);
+    // CM_Quest::SendNotice_UpdateQuests(obj, code, quest).
+    run_efun(vm, 0x008E_0001, &[obj, 5, q], u32::MAX);
+    assert!(matches!(
+        &host.take_notices()[..],
+        [GameplayNotice::UpdateQuests { code: 5, quest }] if quest.id == 3
+    ));
+}
+
+/// A store page built through `gUIShop` / `gUIShopSale` (sales kept in ordinal order) and a
+/// damage text with its colour (`RGBAColor::SetColor32`) reach the UI typed.
+#[test]
+fn stores_and_damage_text_reach_the_ui_typed() {
+    use crate::native::{ntype, NativeObject};
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let vm = host.vm_mut();
+    let obj = vm.new_wstring(Vec::new());
+    vm.owners.insert(obj, 0x5000_0001);
+    let new = |vm: &mut Vm, t: u32| vm.refs.create_native(t, NativeObject::new_empty(t));
+    let shop = new(vm, ntype::UI_SHOP);
+    run_efun(vm, 0x380A_0009, &[7], shop); // SetID
+    for ordinal in [5, 2, 9] {
+        let sale = new(vm, ntype::UI_SHOP_SALE);
+        run_efun(vm, 0x380B_0009, &[ordinal], sale); // SetOrdinal
+        run_efun(vm, 0x380B_000C, &[], sale); // SetSold
+        run_efun(vm, 0x380A_0004, &[sale], shop); // AddSale
+    }
+    run_efun(vm, 0x3839_0006, &[obj, shop], u32::MAX); // ViewStore
+    let color = new(vm, ntype::RGBA_COLOR);
+    run_efun(vm, 0x0064_0004, &[0xFF00_8000], color); // SetColor32
+    assert_eq!(efun_result(vm, 0x0064_0005, &[], color, 2), 0xFF00_8000);
+    let blob = new(vm, ntype::DAMAGE_TEXT_BLOB);
+    run_efun(vm, 0x0097_0003, &[color], blob); // SetFontColor
+    run_efun(vm, 0x0097_0007, &[1.5f32.to_bits()], blob); // SetScale
+    run_efun(vm, 0x008D_0001, &[obj, blob], u32::MAX); // Do3DDamage
+    let notices = host.take_notices();
+    let GameplayNotice::ViewStore(s) = &notices[0] else {
+        panic!("{notices:?}");
+    };
+    let ordinals: Vec<u32> = s.sales.iter().map(|x| x.ordinal).collect();
+    assert_eq!((s.id, ordinals, s.sales[0].status), (7, vec![2, 5, 9], 3));
+    let GameplayNotice::Do3DDamage(d) = &notices[1] else {
+        panic!("{notices:?}");
+    };
+    assert_eq!(d.scale, 1.5);
+    assert_eq!(d.color[1], (128.0 * f64::from(0.003_921_569_f32)) as f32);
+}
+
+/// `gShortcutInfo` sets every field; the wire form packs the type and the datum it names.
+#[test]
+fn shortcut_infos_keep_their_fields_and_pack_their_datum() {
+    use crate::native::{ntype, NativeObject};
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let vm = host.vm_mut();
+    let s = vm.refs.create_native(
+        ntype::SHORTCUT_INFO,
+        NativeObject::new_empty(ntype::SHORTCUT_INFO),
+    );
+    run_efun(vm, 0x00AC_0005, &[0x4000_0002], s); // SetType
+    run_efun(vm, 0x00AC_0006, &[0x8000_0001, 0x42], s); // SetDataIID (high word first)
+    run_efun(vm, 0x00AC_0007, &[9], s); // SetDataEnum (kept, not packed)
+    assert_eq!(efun_result(vm, 0x00AC_0001, &[], s, 2), 0x4000_0002);
+    assert_eq!(efun_result(vm, 0x00AC_0003, &[], s, 2), 9);
+    let Some(NativeObject::Shortcut(sc)) = vm.native(s) else {
+        panic!();
+    };
+    assert_eq!(
+        sc.to_net(),
+        ac2_net::protocol::ShortcutInfo::Instance(0x8000_0001_0000_0042)
     );
 }
 
@@ -405,8 +519,9 @@ fn init_player_runs_to_its_end() {
         .iter()
         .any(|n| matches!(n, GameplayNotice::UpdateSkillPanel { .. })));
     assert!(notices.contains(&GameplayNotice::ReloadOptions));
-    let raised: Vec<_> = host.take_script_notices().iter().map(|n| n.name).collect();
-    assert!(raised.contains(&"CM_Money::SendNotice_UpdateMoney"));
+    assert!(notices
+        .iter()
+        .any(|n| matches!(n, GameplayNotice::UpdateMoney(_))));
     assert!(host.take_dropped().is_empty());
 }
 

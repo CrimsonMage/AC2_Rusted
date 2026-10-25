@@ -97,6 +97,7 @@ key	status	note
 00435d80	x	ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
 00435fc0	x	ac2-ui shortcut.rs
 004360e0	x	ac2-ui shortcut.rs
+004363e0	x	ac2-script glue::shortcut / native::shortcut
 00436440	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 004364f0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 004367a0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
@@ -427,6 +428,43 @@ key	status	note
 0046d380	x	ac2-script host::skill_panel (ScriptHost::skill_panel)
 0046d510	x	ac2-script host::skill_panel (ScriptHost::skill_panel)
 0046d6f0	x	ac2-script host::skill_panel (ScriptHost::skill_panel)
+0046d900	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046d980	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046d9e0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046da40	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046daa0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046db00	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046db90	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046dc80	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046dce0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046dd40	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046dda0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046de00	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046de60	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046dec0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046df20	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046df80	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046dfe0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e040	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e0a0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e220	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e280	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e320	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e380	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e3e0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e440	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e4a0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e500	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e560	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e5c0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e620	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e690	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e700	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e770	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e7e0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e850	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e8c0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0046e970	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0046ed90	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 0046edf0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 0046ee50	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
@@ -451,6 +489,16 @@ key	status	note
 0046f710	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 0046f7c0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 0046f8e0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f9b0	x	ac2-script glue::shortcut / native::shortcut
+0046fa10	x	ac2-script glue::shortcut / native::shortcut
+0046fa70	x	ac2-script glue::shortcut / native::shortcut
+0046fad0	x	ac2-script glue::shortcut / native::shortcut
+0046fb30	x	ac2-script glue::shortcut / native::shortcut
+0046fba0	x	ac2-script glue::shortcut / native::shortcut
+0046fc10	x	ac2-script glue::shortcut / native::shortcut
+0046fc80	x	ac2-script glue::shortcut / native::shortcut
+0046fcf0	x	ac2-script glue::shortcut / native::shortcut
+0046fd70	x	ac2-script glue::shortcut / native::shortcut
 0046fe40	x	ac2-script glue::options / examination (Legions layout and efun switch)
 0046fea0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 0046ff60	x	ac2-script glue::options / examination (Legions layout and efun switch)
@@ -475,6 +523,23 @@ key	status	note
 004724d0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00472560	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 004725d0	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
+00472650	x	ac2-script glue::quests / ac2-net native::quest
+004726d0	x	ac2-script glue::quests / ac2-net native::quest
+00472750	x	ac2-script glue::quests / ac2-net native::quest
+004727c0	x	ac2-script glue::quests / ac2-net native::quest
+00472820	x	ac2-script glue::quests / ac2-net native::quest
+004728a0	-	ac2-script: debug text dump, not bound
+00472960	x	ac2-script glue::quests / ac2-net native::quest
+00472a00	x	ac2-script glue::quests / ac2-net native::quest
+00472ab0	x	ac2-script glue::quests / ac2-net native::quest
+00472b50	x	ac2-script glue::quests / ac2-net native::quest
+00472c10	x	ac2-script glue::quests / ac2-net native::quest
+00472c80	x	ac2-script glue::quests / ac2-net native::quest
+00472cf0	x	ac2-script glue::quests / ac2-net native::quest
+00472d60	-	ac2-script: debug text dump, not bound
+00472e20	x	ac2-script glue::quests / ac2-net native::quest
+00472ed0	x	ac2-script glue::quests / ac2-net native::quest
+00472f80	x	ac2-script glue::quests / ac2-net native::quest
 00473990	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 004739f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00473a50	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -588,7 +653,15 @@ key	status	note
 00477ee0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00477f50	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00477fd0	x	ac2-script glue::options / examination (Legions layout and efun switch)
+00478bb0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+00478c10	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+00478c80	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 00478ce0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00478d30	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+00478da0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+00478e10	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+00478e70	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+00478f30	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 00479030	_	ac2-ui interpreter.rs
 00479110	_	ac2-ui interpreter.rs
 004791b0	_	ac2-ui interpreter.rs
@@ -1706,6 +1779,11 @@ key	status	note
 00538de0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00538fa0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00539180	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00539c50	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+00539cc0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+00539d30	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+00539d90	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+00539df0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0053a480	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053a4e0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053a550	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
@@ -3075,7 +3153,7 @@ key	status	note
 00607ae0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 00607b10	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 00607fd0	x	ac2-script glue::options / examination (Legions layout and efun switch)
-00608040	~	ac2-script native::options (ShortcutInfo keeps its packed datum only; unversioned profiles upgrade before packing; inner UI tables copied as is)
+00608040	x	ac2-script glue::shortcut / native::shortcut
 006080b0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00608120	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00608150	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
@@ -3088,16 +3166,33 @@ key	status	note
 006097c0	x	ac2-net protocol::native (native objects in script-call PackBuffers)
 00609a80	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 0060aa40	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+0060ab10	x	ac2-script glue::quests / ac2-net native::quest
+0060abd0	x	ac2-script glue::quests / ac2-net native::quest
+0060ac50	x	ac2-script glue::quests / ac2-net native::quest
+0060aef0	x	ac2-script glue::quests / ac2-net native::quest
+0060af00	x	ac2-script glue::quests / ac2-net native::quest
+0060b240	x	ac2-script glue::quests / ac2-net native::quest
+0060b330	x	ac2-script glue::quests / ac2-net native::quest
+0060b3d0	x	ac2-script glue::quests / ac2-net native::quest
+0060b4b0	x	ac2-script glue::quests / ac2-net native::quest
+0060b500	x	ac2-script glue::quests / ac2-net native::quest
+0060b590	x	ac2-script glue::quests / ac2-net native::quest
 0060c010	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060c0f0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060c1a0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060c1f0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060c230	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060c260	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+0060c550	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0060c5f0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0060c6f0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060c7a0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060ca40	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060caf0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+0060cc80	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0060cd80	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0060ce30	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+0060cf10	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0060d2d0	x	ac2-ui media.rs / transition.rs
 0060d3b0	x	ac2-ui media.rs / transition.rs
 0060d3f0	x	ac2-ui media.rs / transition.rs

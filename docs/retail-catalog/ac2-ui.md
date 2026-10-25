@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 258 done, 132 partial, 1839 to do, 18 skipped.
+2247 retail functions: 259 done, 132 partial, 1838 to do, 18 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -1093,7 +1093,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmNavigationUI::UpdatePlayerPos` · 004341b0 · legions 00434980
 - [ ] `gmNavigationUI::ListenToMessage` · 00434280 · legions 00434a50
 
-## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (10/46)
+## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (11/46)
 
 ### gmShortcutUI
 - [ ] `gmShortcutUI::Show` · 00435cd0 · legions 00436520
@@ -1117,7 +1117,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmShortcutUI::RecvNotice_ToggleSpecialAttack` · 00436330
 
 ### ShortcutInfo
-- [ ] `ShortcutInfo::SetDataStr` · 004363e0 · legions 00436c30
+- [x] `ShortcutInfo::SetDataStr` · 004363e0 · legions 00436c30 — ac2-script glue::shortcut / native::shortcut
 
 ### gmShortcutUI
 - [~] `gmShortcutUI::CheckItem` · 00436440 · legions 00436c90 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look

@@ -6,10 +6,10 @@
 //! `Export` / `Import` (0x9B002B / 0x9B002C) write and read a file in the client's folder and
 //! are not bound.
 
-use ac2_net::protocol::{self as net, ShortcutInfo};
-
 use super::{word, Call, INT_RESULT};
-use crate::native::{option_bits as b, word_get, word_set, GameplayOptions, NativeObject};
+use crate::native::{
+    option_bits as b, word_get, word_set, GameplayOptions, NativeObject, Shortcut,
+};
 use crate::vm::{tag, Context, EFunFn, EFuns, InterpStatus, Vm};
 
 /// The bit efuns: (get id, set id, mask, how the set efun reads its flag).
@@ -296,13 +296,10 @@ fn build_alias_list(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
 }
 
 /// The `ShortcutInfo` a reference holds (`ShortcutInfo()` for anything else).
-pub(super) fn shortcut_of(vm: &Vm, reference: u32) -> ShortcutInfo {
+pub(super) fn shortcut_of(vm: &Vm, reference: u32) -> Shortcut {
     match vm.native(reference) {
-        Some(NativeObject::Wire(w)) => match &**w {
-            net::NativeObject::ShortcutInfo(s) => s.clone(),
-            _ => ShortcutInfo::Empty(0),
-        },
-        _ => ShortcutInfo::Empty(0),
+        Some(NativeObject::Shortcut(s)) => (**s).clone(),
+        _ => Shortcut::default(),
     }
 }
 
@@ -328,8 +325,8 @@ fn inq_shortcut(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     with_profile(vm, ctx, |vm, c, p| {
         let found = p.shortcuts.get(index).cloned();
         let target = vm.read_through(c, out).unwrap_or(u32::MAX);
-        if let (Some(s), Some(NativeObject::Wire(w))) = (&found, vm.native_mut(target)) {
-            **w = net::NativeObject::ShortcutInfo(s.clone());
+        if let (Some(s), Some(NativeObject::Shortcut(w))) = (&found, vm.native_mut(target)) {
+            **w = s.clone();
         }
         ret(c, 4, u32::from(found.is_some()));
     })
@@ -339,7 +336,7 @@ fn inq_shortcut(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
 fn init_shortcut_array(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let size = word(ctx, 2) as i32;
     with_profile(vm, ctx, |_, c, p| {
-        p.shortcuts = vec![ShortcutInfo::Empty(0); size.max(0) as usize];
+        p.shortcuts = vec![Shortcut::default(); size.max(0) as usize];
         ret(c, 3, 1);
     })
 }

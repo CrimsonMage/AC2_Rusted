@@ -24,6 +24,7 @@ mod session;
 mod shell;
 mod social;
 mod tables;
+mod ui_data;
 mod usage;
 mod vitals;
 mod world;
@@ -60,6 +61,7 @@ pub use tables::{
     StringTableIds, TABLE_ENUM_CHANNELS, TABLE_ENUM_CHAT_WINDOW, TABLE_ENUM_COMMUNICATION,
     TABLE_ENUM_FELLOWSHIP, TABLE_ENUM_TELL, TABLE_ENUM_USAGE,
 };
+pub use ui_data::{CraftSkill, DamageText, Shop, ShopSale};
 pub use usage::DISPLAY_USAGE;
 pub use vitals::{vital, PlayerVitals, Vital};
 pub use world::{World, WorldEvent, WorldState};
