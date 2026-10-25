@@ -110,18 +110,42 @@ impl FrameTarget {
             .map_async(wgpu::MapMode::Read, move |result| {
                 let _ = sender.send(result);
             });
-        let _ = device.poll(wgpu::PollType::Wait);
+        let _ = device.poll(wgpu::PollType::wait_indefinitely());
         receiver
             .recv()
             .expect("map callback ran")
             .expect("read-back buffer maps");
-        let mapped = buffer.slice(..).get_mapped_range();
+        let mapped = buffer
+            .slice(..)
+            .get_mapped_range()
+            .expect("read-back buffer is mapped");
         let mut rgba = Vec::with_capacity((row * self.height) as usize);
         for y in 0..self.height as usize {
             let start = y * padded as usize;
             rgba.extend_from_slice(&mapped[start..start + row as usize]);
         }
         rgba
+    }
+}
+
+/// The next frame of `surface`, reconfigured with `config` when it is outdated or suboptimal;
+/// `None` when the frame is skipped (occluded, timed out, lost) and the caller tries again.
+pub fn acquire_frame(
+    surface: &wgpu::Surface<'_>,
+    device: &wgpu::Device,
+    config: &wgpu::SurfaceConfiguration,
+) -> Option<wgpu::SurfaceTexture> {
+    match surface.get_current_texture() {
+        wgpu::CurrentSurfaceTexture::Success(frame) => Some(frame),
+        wgpu::CurrentSurfaceTexture::Suboptimal(frame) => {
+            surface.configure(device, config);
+            Some(frame)
+        }
+        wgpu::CurrentSurfaceTexture::Timeout | wgpu::CurrentSurfaceTexture::Occluded => None,
+        _ => {
+            surface.configure(device, config);
+            None
+        }
     }
 }
 
@@ -162,6 +186,7 @@ pub fn render_to(
             }),
             timestamp_writes: None,
             occlusion_query_set: None,
+            multiview_mask: None,
         });
         record(&mut pass);
     }

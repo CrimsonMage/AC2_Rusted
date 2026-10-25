@@ -8,6 +8,9 @@ license.workspace = true
 # The client program's core: the only crate that joins the online session (ac2-weenie) and the
 # body simulation (ac2-physics). Rendering (ac2-render, ac2-gpu) stays out of this headless core:
 # only the `window` feature (on by default) adds the drawn view and the `ac2` window program.
+[lints]
+workspace = true
+
 [features]
 default = ["window"]
 window = ["dep:ac2-render", "dep:ac2-gpu", "dep:winit", "dep:wgpu", "ac2-audio/output"]
@@ -27,6 +30,7 @@ ac2-db = { path = "../ac2-db" }
 ac2-math = { path = "../ac2-math" }
 ac2-net = { path = "../ac2-net" }
 ac2-physics = { path = "../ac2-physics" }
+ac2-smartbox = { path = "../ac2-smartbox" }
 ac2-script = { path = "../ac2-script" }
 ac2-weenie = { path = "../ac2-weenie" }
 ac2-world = { path = "../ac2-world" }
@@ -34,7 +38,7 @@ ac2-ui = { path = "../ac2-ui" }
 ac2-render = { path = "../ac2-render", optional = true }
 ac2-gpu = { path = "../ac2-gpu", optional = true }
 winit = { version = "0.30", optional = true }
-wgpu = { version = "26.0.1", default-features = false, optional = true }
+wgpu = { version = "30.0.1", default-features = false, optional = true }
 
 [dev-dependencies]
 ac2-dat = { path = "../ac2-dat", features = ["test-support"] }

@@ -222,7 +222,7 @@ impl Transition {
             if cannot_stand_on {
                 return TransitionState::Ok;
             }
-            if !collides(disp, rs) && !(two && collides(sub(s1.center, obstacle.center), rs)) {
+            if !(collides(disp, rs) || two && collides(sub(s1.center, obstacle.center), rs)) {
                 return TransitionState::Ok;
             }
             return self.land_on_sphere_walkable(disp, rs);
@@ -367,11 +367,11 @@ fn step_sphere_down(
     let yy = ld(st(ld(disp.y) * ld(disp.y)));
     let xx = ld(st(ld(disp.x) * ld(disp.x)));
     let dz = ld(disp.z);
-    if ld(rs) * ld(rs) < (dz * dz + xx) + yy {
-        if path.num_sphere < 2 || !collides(sub(path.global_sphere[1].center, obstacle.center), rs)
-        {
-            return TransitionState::Ok;
-        }
+    if ld(rs) * ld(rs) < (dz * dz + xx) + yy
+        && (path.num_sphere < 2
+            || !collides(sub(path.global_sphere[1].center, obstacle.center), rs))
+    {
+        return TransitionState::Ok;
     }
     let reach = st(ld(F_EPSILON) + ld(rs));
     let amount = st(ld(path.step_down_amt) * ld(path.walk_interp));

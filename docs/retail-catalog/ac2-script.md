@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1330 done, 80 partial, 978 to do, 80 skipped.
+2468 retail functions: 1332 done, 81 partial, 975 to do, 80 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -1679,7 +1679,7 @@ Legend and workflow: [README](README.md).
 ### gEmailUtils
 - [ ] `gEmailUtils::CallEFun_send_emailW` · 00547c90
 
-## `portal/shared/src/interp/glue/gentitydesc.cpp.c` (1/28)
+## `portal/shared/src/interp/glue/gentitydesc.cpp.c` (3/28)
 
 ### gEntityDesc
 - [ ] `gEntityDesc::CallEFun_GetDataID` · 00546c10
@@ -1700,14 +1700,14 @@ Legend and workflow: [README](README.md).
 - [ ] `gEntityDesc::CallEFun_InqBool` · 00547480
 - [ ] `gEntityDesc::CallEFun_InqDataFilePathW` · 00547530 · legions 00526830
 - [ ] `gEntityDesc::CallEFun_InqDataFileW` · 005475d0 · legions 005268a0
-- [ ] `gEntityDesc::CallEFun_InqDataID` · 00547670
-- [ ] `gEntityDesc::CallEFun_InqEntityDescFromDataID` · 00547720
+- [x] `gEntityDesc::CallEFun_InqDataID` · 00547670 — ac2-script glue/entity_desc.rs: the entity link (NativeObject::EntityDesc) reads the record's properties through ScriptData::entity_properties (worker load, DataRequest::EntityDesc; DB type 0x40000049); InqDataID writes a DataFile property's DID (other types 0). Names and icons of the sale come through it
+- [x] `gEntityDesc::CallEFun_InqEntityDescFromDataID` · 00547720 — ac2-script glue/entity_desc.rs: the entity link (NativeObject::EntityDesc) reads the record's properties through ScriptData::entity_properties (worker load, DataRequest::EntityDesc; DB type 0x40000049); InqDataID writes a DataFile property's DID (other types 0). Names and icons of the sale come through it
 - [ ] `gEntityDesc::CallEFun_InqEntityDescFromNameW` · 00547780
 - [ ] `gEntityDesc::CallEFun_InqEnum` · 005477f0
 - [ ] `gEntityDesc::CallEFun_InqFloat` · 005478a0
 - [ ] `gEntityDesc::CallEFun_InqInteger` · 00547950
 - [ ] `gEntityDesc::CallEFun_InqPackageID` · 00547a00
-- [ ] `gEntityDesc::CallEFun_InqStringInfo` · 00547ab0
+- [~] `gEntityDesc::CallEFun_InqStringInfo` · 00547ab0 — ac2-script glue/entity_desc.rs: the DB type check (DB_TYPE_ENTITYDESC 0x40000049) answers InqEntityDescFromDataID; the entity's properties are not read (InqStringInfo, InqDataID report missing), so names and icons the sale build takes from them stay empty
 - [ ] `gEntityDesc::CallEFun_InqStringW` · 00547b50 · legions 00526d30
 - [ ] `gEntityDesc::CallEFun_InqVector` · 00547bf0
 

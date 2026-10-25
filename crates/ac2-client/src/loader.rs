@@ -143,6 +143,16 @@ impl Loader {
     }
 }
 
+impl ac2_smartbox::BlockLoader for Loader {
+    fn request_block(&mut self, block: u32) {
+        self.request(Request::Block(block));
+    }
+
+    fn request_far_block(&mut self, block: u32) {
+        self.request(Request::FarBlock(block));
+    }
+}
+
 impl Drop for Loader {
     fn drop(&mut self) {
         self.requests = None;

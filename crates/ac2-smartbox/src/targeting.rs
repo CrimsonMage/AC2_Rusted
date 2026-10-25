@@ -15,11 +15,11 @@ const WATER_ELEMENT: u32 = 0x4000_0003;
 
 /// `TargetingModule`, reduced to a player target.
 #[derive(Debug, Clone)]
-pub(crate) struct TargetingModule {
+pub struct TargetingModule {
     /// `mTargetID == mPlayerID` (otherwise `INVALID_IID`), and the same for `mOldTargetID`.
-    pub(crate) target_is_player: bool,
+    pub target_is_player: bool,
     old_target_is_player: bool,
-    pub(crate) has_player: bool,
+    pub has_player: bool,
     is_on: bool,
     time: f32,
     period: f32,
@@ -27,16 +27,16 @@ pub(crate) struct TargetingModule {
     ramp_time: f32,
     weight: f32,
     weight_vel: f32,
-    pub(crate) camera_distance: f32,
-    pub(crate) camera_height: f32,
+    pub camera_distance: f32,
+    pub camera_height: f32,
     time_running: f32,
     time_not_running: f32,
-    pub(crate) fake_trans_time: f32,
+    pub fake_trans_time: f32,
     viewer_offset: Vector,
     old_viewer_offset: Vector,
     /// `mLastTargetPos`; `None` while it holds no valid cell (`Position::IsValid`).
     last_target_pos: Option<Position>,
-    pub(crate) auto_distance: bool,
+    pub auto_distance: bool,
 }
 
 impl Default for TargetingModule {
@@ -74,7 +74,7 @@ fn normalize(v: Vector) -> Vector {
 impl TargetingModule {
     /// `TargetingModule::SetPlayer`: the player becomes the target, the old target and the
     /// player id.
-    pub(crate) fn set_player(&mut self, present: bool) {
+    pub fn set_player(&mut self, present: bool) {
         self.has_player = present;
         self.target_is_player = present;
         self.old_target_is_player = present;
@@ -103,7 +103,7 @@ impl TargetingModule {
 
     /// `TargetingModule::FakeTransition`: forget the old target and blend in from the
     /// camera's current position over `mFakeTransTime`.
-    pub(crate) fn fake_transition(&mut self) {
+    pub fn fake_transition(&mut self) {
         self.old_target_is_player = false;
         self.turn_on(self.fake_trans_time, self.fake_trans_time);
     }
@@ -119,7 +119,7 @@ impl TargetingModule {
     }
 
     /// `TargetingModule::StoreTargetPos` with bone 0.
-    pub(crate) fn store_target_pos(
+    pub fn store_target_pos(
         &mut self,
         subject: Option<&CameraSubject>,
         target_is_player: bool,
@@ -192,7 +192,7 @@ impl TargetingModule {
     /// `TargetingModule::Update`: the camera distance, then the blend clock; a blend that is
     /// done (or has nothing to blend from) turns off, and a timed (not held) target returns to
     /// the player.
-    pub(crate) fn update(&mut self, camera: &CameraManager, subject: &CameraSubject, quantum: f32) {
+    pub fn update(&mut self, camera: &CameraManager, subject: &CameraSubject, quantum: f32) {
         self.calc_camera_distance(camera, subject, quantum);
         if !self.is_on {
             if let Some(position) = self.target_position(Some(subject), self.target_is_player) {
@@ -295,7 +295,7 @@ impl TargetingModule {
     /// `TargetingModule::CalcViewerPos`: the viewer position for `viewer_offset`; during a blend
     /// (`mIsOn`) the old target's and the new one's, origin lerped and rotation slerped by the
     /// blend weight.
-    pub(crate) fn calc_viewer_pos(
+    pub fn calc_viewer_pos(
         &mut self,
         camera: &mut CameraManager,
         subject: Option<&CameraSubject>,
@@ -321,7 +321,7 @@ impl TargetingModule {
     }
 
     /// `GetFirstPersonIsReady`'s test: the player targeted at the first-person distance.
-    pub(crate) fn first_person_ready(&self) -> bool {
+    pub fn first_person_ready(&self) -> bool {
         self.target_is_player && self.camera_distance == 0.01
     }
 }

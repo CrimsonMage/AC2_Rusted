@@ -29,18 +29,28 @@ pub enum Command {
     /// The say command: text to everyone nearby.
     Say(String),
     /// The tell command: text to the named character.
-    Tell { recipient: String, text: String },
+    Tell {
+        recipient: String,
+        text: String,
+    },
     /// `gmCWInterface::DoEmote`, with the emote the emote table named.
     Emote(u32),
     /// `CWInterface::ProcessText`: a line the chat window entered (a `/` command or speech).
     ChatLine(String),
     /// `gmCWInterface::RequestGUN_SendToRoom` (Turbine chat): text to a chat room, with the
     /// script's chat flags.
-    SendToRoom { room: u32, text: String, flags: u32 },
+    SendToRoom {
+        room: u32,
+        text: String,
+        flags: u32,
+    },
     /// Use an object (`CUsageSystem::HandleItemUsage`).
     Use(u64),
     /// Use an object on a target (a multi-item use once its target is chosen).
-    UseWithTarget { item: u64, target: u64 },
+    UseWithTarget {
+        item: u64,
+        target: u64,
+    },
     /// `gmCWInterface::UseSelection`: use the selected object.
     UseSelection,
     /// `gmCWInterface::MoveItem`: move `quantity` of `item` from slot `from_slot` of `from` to
@@ -55,11 +65,20 @@ pub enum Command {
         quantity: i32,
     },
     /// `gmCWInterface::EquipItem`.
-    EquipItem { item: u64, location: u32 },
+    EquipItem {
+        item: u64,
+        location: u32,
+    },
     /// `gmCWInterface::UnEquipItem`: into slot `target_slot` of the player's pack.
-    UnequipItem { item: u64, target_slot: i32 },
+    UnequipItem {
+        item: u64,
+        target_slot: i32,
+    },
     /// `gmCWInterface::UpdateOpen`: open or close a container.
-    SetContainerOpen { container: u64, open: bool },
+    SetContainerOpen {
+        container: u64,
+        open: bool,
+    },
     /// `gmCWInterface::LootAllFromContainer`.
     LootAll(u64),
     /// `gmCWInterface::TransmuteAllFromContainer`.
@@ -73,7 +92,10 @@ pub enum Command {
     /// `gmCWInterface::DeclineTrade`.
     DeclineTrade,
     /// `gmCWInterface::OfferItemForTrade`: `item`, `amount` of it.
-    OfferItemForTrade { item: u64, amount: u32 },
+    OfferItemForTrade {
+        item: u64,
+        amount: u32,
+    },
     /// `gmCWInterface::RevokeItemFromTrade`.
     RevokeItemFromTrade(u64),
     /// `gmCWInterface::RequestEnterStore`: the store's DID. The VM's script sends the request.
@@ -81,9 +103,18 @@ pub enum Command {
     /// `gmCWInterface::RequestLeaveStore`.
     LeaveStore,
     /// `gmCWInterface::PurchaseItem`: `quantity` of `item` from store slot `slot`.
-    PurchaseItem { item: u64, quantity: u32, slot: u32 },
+    PurchaseItem {
+        item: u64,
+        quantity: u32,
+        slot: u32,
+    },
     /// `gmCWInterface::PurchaseConfirmed`: the player's answer to the purchase confirmation.
     PurchaseConfirmed(bool),
+    /// `gmCWInterface::RequestSales(index)`: the store's page of sales from `index`.
+    RequestSales(u32),
+    /// `gmCWInterface::RequestNextSales` / `RequestPrevSales`: the next or previous page.
+    NextSales,
+    PrevSales,
     /// `gmCWInterface::RequestSell`: `quantity` of `item` at `price`.
     RequestSell {
         item: u64,
@@ -108,6 +139,10 @@ pub enum Command {
     SetGameplayOption(ac2_ui::OptionSetting),
     /// `gmCWInterface::UploadGameOptions`: the options profile to the server.
     UploadGameOptions,
+    /// One of the chat options page's setters (`gmCWInterface::SetChatFontSize` and the like).
+    SetChatOption(ac2_ui::ChatOptionSetting),
+    /// `gmCWInterface::UploadChatOptions`: the chat options to the server.
+    UploadChatOptions,
     /// `gmCWInterface::SetShowObjectNames` (`gm3DTextUI::ToggleNames`).
     SetShowObjectNames(bool),
     /// `gmCWInterface::SetShortcut`: the shortcut into slot `index` of the bar.
@@ -343,6 +378,22 @@ impl Client {
                         Vec::new()
                     }
                 }
+                Command::SetChatOption(setting) => {
+                    let (ifun, args) = crate::scripts::chat_option_call(setting);
+                    if self.scripts_own(ifun) {
+                        self.script_ifun(ifun, &args)
+                    } else {
+                        Vec::new()
+                    }
+                }
+                Command::UploadChatOptions => {
+                    let ifun = crate::scripts::IFUN_UPLOAD_CHAT_OPTIONS;
+                    if self.scripts_own(ifun) {
+                        self.script_ifun(ifun, &[])
+                    } else {
+                        Vec::new()
+                    }
+                }
                 Command::Skill(request) => {
                     self.session.request_skill(*request);
                     Vec::new()
@@ -461,6 +512,11 @@ impl Client {
                     crate::scripts::IFUN_PURCHASE_CONFIRMED,
                     &[IFunArg::Int(u32::from(*answer))],
                 ),
+                Command::RequestSales(index) => {
+                    self.store_ifun(crate::scripts::IFUN_REQUEST_SALES, &[IFunArg::Int(*index)])
+                }
+                Command::NextSales => self.store_ifun(crate::scripts::IFUN_REQUEST_NEXT_SALES, &[]),
+                Command::PrevSales => self.store_ifun(crate::scripts::IFUN_REQUEST_PREV_SALES, &[]),
                 Command::RequestSell {
                     item,
                     quantity,

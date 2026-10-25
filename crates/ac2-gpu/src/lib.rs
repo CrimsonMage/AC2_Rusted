@@ -16,7 +16,7 @@ mod terrain;
 mod texture;
 mod ui;
 
-pub use frame::{render_to, FrameTarget, COLOR_FORMAT, DEPTH_FORMAT};
+pub use frame::{acquire_frame, render_to, FrameTarget, COLOR_FORMAT, DEPTH_FORMAT};
 pub use object::{DrawGroup, GpuObjectModel, ObjectInstance, ObjectRenderer};
 pub use scene::{SceneObject, SceneRenderer};
 pub use screen_quad::ScreenQuad;
@@ -61,6 +61,7 @@ impl Gpu {
                     power_preference: wgpu::PowerPreference::HighPerformance,
                     compatible_surface,
                     force_fallback_adapter: false,
+                    apply_limit_buckets: false,
                 })
                 .await
                 .map_err(GpuError::NoAdapter)?;

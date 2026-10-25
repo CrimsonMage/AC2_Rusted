@@ -52,7 +52,7 @@ impl UiTree {
     /// one, the previous one deactivating.
     pub fn activate(&mut self, index: usize) -> bool {
         let el = self.el(index);
-        let shown = el.parent.map_or(true, |parent| self.region_visible(parent));
+        let shown = el.parent.is_none_or(|parent| self.region_visible(parent));
         if !(el.visible && shown) {
             return false;
         }
@@ -73,7 +73,7 @@ impl UiTree {
     /// `UIRegion::IsVisible`: the region and every parent visible.
     fn region_visible(&self, index: usize) -> bool {
         let el = self.el(index);
-        el.visible && el.parent.map_or(true, |parent| self.region_visible(parent))
+        el.visible && el.parent.is_none_or(|parent| self.region_visible(parent))
     }
 
     /// `UIElement::Deactivate` (and `UIElement_Text::Deactivate`).
@@ -244,7 +244,7 @@ impl UiTree {
                     self.delete_at(index, cursor - 1);
                 }
                 10 | 13 if !one_line => self.insert(index, &[10]),
-                c if c >= 0x20 && c != 0x7F && filter.map_or(true, |f| f(c)) => {
+                c if c >= 0x20 && c != 0x7F && filter.is_none_or(|f| f(c)) => {
                     self.insert(index, &[c])
                 }
                 _ => {}

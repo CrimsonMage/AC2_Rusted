@@ -288,6 +288,6 @@ pub enum GameplayNotice {
     UpdateConsignment(Box<Shop>),
     /// `CM_Craft::SendNotice_UpdateCraftSkill`.
     UpdateCraftSkill(Box<CraftSkill>),
-    /// `CM_Physics::SendNotice_Do3DDamage`: a floating damage text.
-    Do3DDamage(DamageText),
+    /// `CM_Physics::SendNotice_Do3DDamage`: a floating damage text over `object`.
+    Do3DDamage { object: u64, text: DamageText },
 }

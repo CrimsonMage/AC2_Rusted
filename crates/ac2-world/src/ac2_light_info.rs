@@ -218,7 +218,7 @@ fn read_cells(cursor: &mut ArchiveCursor<'_>, block: u32) -> Read<Vec<(CellId, B
             continue;
         }
         let bytes = word(cursor)? as usize;
-        if bytes % 2 != 0 || bytes > cursor.remaining() {
+        if !bytes.is_multiple_of(2) || bytes > cursor.remaining() {
             return Err("RLE byte count exceeded the record");
         }
         let words = cursor

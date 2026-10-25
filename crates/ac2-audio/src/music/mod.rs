@@ -29,10 +29,21 @@ use style::Style;
 
 pub use library::{MusicLibrary, MusicSource};
 
+/// A wave played as a segment's only track (`DirectXMusicLoader::LoadFromObject` on an
+/// `EncodedWave`: the file loads as a DirectMusic segment with a wave track). `seconds` is the
+/// wave's time (`DBWave::GetTime`); `looping` is the segment's repeat, which runs until stopped.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct WaveSegment {
+    pub seconds: f64,
+    pub looping: bool,
+}
+
 /// One DirectMusic object.
 #[derive(Debug, Clone, PartialEq)]
 pub enum MusicObject {
     Segment(Arc<Segment>),
+    /// A segment whose track is a wave (see [`WaveSegment`]).
+    Wave(WaveSegment),
     Style(Arc<Style>),
     Band(Arc<Band>),
     Collection(Arc<Collection>),
@@ -47,6 +58,7 @@ impl MusicObject {
     pub fn guid(&self) -> Option<Guid> {
         match self {
             MusicObject::Segment(s) => s.guid,
+            MusicObject::Wave(_) => None,
             MusicObject::Style(s) => s.guid,
             MusicObject::Band(b) => b.guid,
             MusicObject::Collection(c) => Some(c.guid),

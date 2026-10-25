@@ -69,6 +69,11 @@ pub trait ShortcutSource {
     fn options(&self) -> ShortcutOptions;
     /// `IsSkillTrainedByEnum`.
     fn skill_trained(&self, skill: u32) -> bool;
+    /// `gmCWInterface::InqSkillTimeLeft`: the skill's reset total and time left, when it is on
+    /// reset (none by default).
+    fn skill_reset(&self, _skill: u32) -> Option<(f64, f64)> {
+        None
+    }
     /// `DoIHaveItem`.
     fn has_item(&self, item: u64) -> bool;
 }
@@ -96,11 +101,17 @@ fn id(name: &str) -> u32 {
 #[derive(Debug, Clone)]
 pub struct ShortcutUi {
     layout: Arc<LayoutDesc>,
-    field: Option<usize>,
-    list: Option<usize>,
+    pub(crate) field: Option<usize>,
+    pub(crate) list: Option<usize>,
     start_attack: Option<usize>,
     stop_attack: Option<usize>,
-    shortcuts: Vec<Shortcut>,
+    pub(crate) shortcuts: Vec<Shortcut>,
+    /// `m_specialAttacks`: attack id to maneuver, while the attack lasts.
+    pub(crate) specials: Vec<(u32, u32)>,
+    /// `_timeLeftArray`: the skills on reset.
+    pub(crate) timers: Vec<crate::shortcut_states::TimeLeft>,
+    /// The clock (`Timer::cur_time`) at the last `update_time_left`.
+    pub(crate) now: f64,
     /// `_offset`: the first slot of the set shown.
     offset: usize,
     show_numbers: bool,
@@ -120,6 +131,9 @@ impl ShortcutUi {
             start_attack: tree.child_recursive(toolbar_field, id("StartAttackButton")),
             stop_attack: tree.child_recursive(toolbar_field, id("StopAttackButton")),
             shortcuts: Vec::new(),
+            specials: Vec::new(),
+            timers: Vec::new(),
+            now: 0.0,
             offset: 0,
             show_numbers: false,
             attacking: false,
@@ -127,6 +141,13 @@ impl ShortcutUi {
         };
         ui.check_attack_buttons(tree);
         ui
+    }
+
+    /// `gmShortcutUI::Show`: the bar's field shows or hides.
+    pub fn show(&self, tree: &mut UiTree, shown: bool) {
+        if let Some(field) = self.field {
+            tree.set_visible(field, shown);
+        }
     }
 
     pub fn take_requests(&mut self) -> Vec<ShortcutRequest> {
@@ -341,6 +362,11 @@ impl ShortcutUi {
         index: usize,
         shortcut: &Shortcut,
     ) {
+        if shortcut.kind == SHORTCUT_SKILL {
+            if let Some((total, left)) = source.skill_reset(shortcut.skill) {
+                self.reset_timer(tree, index, shortcut.skill, total, left);
+            }
+        }
         let remove = match shortcut.kind {
             SHORTCUT_SKILL => !source.skill_trained(shortcut.skill),
             SHORTCUT_ITEM => !source.has_item(shortcut.item),

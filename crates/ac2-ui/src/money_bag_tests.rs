@@ -321,7 +321,7 @@ fn shift_or_the_bypass_option_melts_without_the_confirmation() {
         &bag_drop(bag_element, sword),
         true,
     );
-    assert_eq!(request, Some(melt.clone()));
+    assert_eq!(request, Some(melt));
     // The bypass option.
     let bypass = Purse {
         bypass: true,

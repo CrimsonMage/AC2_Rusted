@@ -1,7 +1,6 @@
 //! A free-flying debug camera in world AC axes (x east, y north, z up).
 
 use ac2_math::Vec3;
-use ac2_render::Camera;
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct FlyInput {
@@ -47,15 +46,5 @@ impl FlyCamera {
         let right = Vec3::new(self.yaw.cos(), -self.yaw.sin(), 0.0);
         self.position +=
             (forward * input.forward + right * input.right + Vec3::Z * input.up) * speed;
-    }
-
-    pub fn camera(&self) -> Camera {
-        Camera {
-            eye: self.position,
-            target: self.position + self.forward(),
-            fov_y: 60_f32.to_radians(),
-            near: 0.5,
-            far: 4000.0,
-        }
     }
 }

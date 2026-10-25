@@ -31,7 +31,7 @@ use crate::camera::{CameraManager, CameraSubject};
 use crate::cells::CellManager;
 use crate::loader::{Loaded, Loader, Request};
 use crate::remote::Remotes;
-use crate::scene::{frame_is_valid, SceneCamera};
+use crate::scene::SceneCamera;
 use crate::world_data::{BodyData, WorldData};
 
 /// `SetPositionSimple(p, sliding = 1)`'s flags (`SyncPositionSimple(pos, 1)`): `0x1000` and
@@ -352,9 +352,16 @@ impl Client {
             Loaded::ScriptState(id, pid, did) => self.script_state_loaded(id, pid, did),
             Loaded::ScriptData => self.script_data_loaded(),
             Loaded::Ambient(loaded) => self.ambient_loaded(loaded),
-            other => {
+            Loaded::Block(block, result) => {
+                let loaded = ac2_smartbox::BlockLoaded::Block(block, result);
                 self.cells
-                    .loaded(other, &mut self.terrain, &mut self.loader)?;
+                    .loaded(loaded, &mut self.terrain, &mut self.loader)?;
+                self.object_cells();
+            }
+            Loaded::FarBlock(block, result) => {
+                let loaded = ac2_smartbox::BlockLoaded::FarBlock(block, result);
+                self.cells
+                    .loaded(loaded, &mut self.terrain, &mut self.loader)?;
                 self.object_cells();
             }
         }
@@ -414,7 +421,7 @@ impl Client {
 
     /// `PlayerMovementModule::UseTime`.
     fn movement(&mut self, input: &FrameInput) {
-        let camera = self.camera.movement_state();
+        let camera = camera_state(&self.camera);
         let Some(player) = self.player.as_mut().filter(|p| p.in_world) else {
             return;
         };
@@ -561,28 +568,13 @@ impl Client {
         let Some(subject) = self.camera_subject(true) else {
             return;
         };
-        let current = self.scene.current;
-        let desired = self.camera.update_camera(quantum, Some(&subject), &current);
-        self.scene.fov = self.camera.fov();
-        self.scene.previous = self.scene.current;
-        if !self.camera.no_ray_trace() {
-            // The camera's line-of-sight pull-in (`CObjCell::LOSCheck` from the player's head
-            // to the desired position) is not ported: the desired position stands.
-            self.set_camera_position(desired, !interpolate);
-        } else if frame_is_valid(&desired.frame) {
-            self.scene.current = desired;
-        }
+        self.scene
+            .update(&mut self.camera, &subject, quantum, interpolate);
     }
 
     /// `SmartBox::SetCameraPosition`.
     fn set_camera_position(&mut self, position: Position, set_desired: bool) {
-        if !frame_is_valid(&position.frame) {
-            return;
-        }
-        self.scene.current = position;
-        if set_desired {
-            self.scene.previous = position;
-        }
+        self.scene.set_position(position, set_desired);
     }
 
     /// The render step: `WorldRender::Render`'s
@@ -721,4 +713,14 @@ fn apply_commands(
         heading: *turn_to,
         turn: commands.omega.unwrap_or(0.0),
     });
+}
+
+/// The `CameraState` `PlayerMovementModule::UseTime` reads.
+pub fn camera_state(camera: &CameraManager) -> ac2_weenie::CameraState {
+    ac2_weenie::CameraState {
+        mouse_look: camera.mouse_look,
+        first_person: camera.first_person,
+        third_person_steers: camera.third_person_steers,
+        direction: camera.global_direction(),
+    }
 }

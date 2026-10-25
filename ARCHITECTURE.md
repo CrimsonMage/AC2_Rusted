@@ -6,8 +6,12 @@ obvious home crate. Nothing is inherited from the Asheron's Call 1 port; working
 brought over from Vitaeum-AC2 (commit `b2963be`) into the crate that owns it.
 
 - `crates/` is the client: libraries plus the `ac2-client` program.
-- `tools/` is test tooling only. `world-viewer` is an offline harness that drives the same crates
-  without a server and never connects.
+- `tools/` is test tooling only. `world-viewer` is an offline harness that drives the client's own
+  view (`ac2_client::view::ClientView`) with a synthetic `ClientFrame` built from the DATs, so it
+  draws what the client draws (terrain, frills, water, sky, objects, the HUD) without a session:
+  it walks the world under the player camera (`ac2-smartbox`, `ac2-physics`) with an egui panel,
+  never opens a socket, and changes no client crate. `race-table` runs the `CharacterGenSystem`
+  script once and writes the playable race and sex models the viewer reads.
 
 ## Crates
 

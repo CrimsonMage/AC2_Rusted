@@ -45,6 +45,7 @@ fn manager(sounds: Vec<LoadedSound>) -> (SoundManager, RecordingSink) {
         .map(|s| match &s {
             LoadedSound::Sound { info, .. } => (info.did, s),
             LoadedSound::Music { info, .. } => (info.did, s),
+            LoadedSound::MusicWave { info, .. } => (info.did, s),
         })
         .collect();
     let sink = RecordingSink::new();

@@ -336,6 +336,7 @@ impl NavigationUi {
 
     /// `SizeMap`'s detail branch: each tile with a row takes its image's size and its position
     /// (`tile_position`). Repeated only when the window, the parent or an image changes.
+    #[allow(clippy::needless_range_loop)] // `tile` indexes four parallel arrays and the position
     pub(crate) fn size_tiles(&mut self, tree: &mut UiTree, images: &HashMap<u32, UiPixels>) {
         let Some(parent) = self.map_parent else {
             return;

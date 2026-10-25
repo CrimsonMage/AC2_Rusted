@@ -125,12 +125,11 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
             }
             for marker in world.entity_markers(id).unwrap().iter() {
                 let visual = marker.visual();
-                if !models.contains_key(&visual) {
-                    let model = load_object_model(&store, visual, &settings)
+                models.entry(visual).or_insert_with(|| {
+                    load_object_model(&store, visual, &settings)
                         .unwrap()
-                        .map(|model| objects.upload(&gpu, &model, &mut load));
-                    models.insert(visual, model);
-                }
+                        .map(|model| objects.upload(&gpu, &model, &mut load))
+                });
                 let world_matrix =
                     marker.world_frame().to_mat4() * Mat4::from_scale(marker.scale());
                 if marker.frill() {
@@ -184,12 +183,11 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
         .unwrap_or_default();
     for object in &sky_objects {
         if let Some(gfx) = object.gfx {
-            if !models.contains_key(&gfx) {
-                let model = load_object_model(&store, gfx, &settings)
+            models.entry(gfx).or_insert_with(|| {
+                load_object_model(&store, gfx, &settings)
                     .unwrap()
-                    .map(|model| objects.upload(&gpu, &model, &mut load));
-                models.insert(gfx, model);
-            }
+                    .map(|model| objects.upload(&gpu, &model, &mut load))
+            });
         }
     }
     let instances: Vec<ObjectInstance<'_>> = placements

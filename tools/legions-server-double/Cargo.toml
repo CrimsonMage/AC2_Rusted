@@ -6,5 +6,8 @@ publish.workspace = true
 license.workspace = true
 
 # Test tooling: an in-process Legions 7160 server for the client's tests. Never shipped.
+[lints]
+workspace = true
+
 [dependencies]
 ac2-net = { path = "../../crates/ac2-net" }

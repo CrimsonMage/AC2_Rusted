@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 use ac2_math::{Mat4, Vec3};
 use ac2_render::object::{
-    LayerPass, ObjectEnvironment, ObjectMaterial, ObjectModel, ObjectPose, PointLight,
+    LayerPass, ObjectEnvironment, ObjectMaterial, ObjectModel, ObjectPose, ObjectVertex, PointLight,
 };
 use ac2_render::{Camera, Image};
 use bytemuck::{Pod, Zeroable};
@@ -256,8 +256,13 @@ impl ObjectRenderer {
         let module = object_module(device, include_str!("object_stages.wgsl"));
         let layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("ac2 object"),
-            bind_group_layouts: &[&frame_layout, &draw_layout, &texture_layout, &bone_layout],
-            push_constant_ranges: &[],
+            bind_group_layouts: &[
+                Some(&frame_layout),
+                Some(&draw_layout),
+                Some(&texture_layout),
+                Some(&bone_layout),
+            ],
+            immediate_size: 0,
         });
         let (draw_buffer, draw_group) = draw_storage(device, &draw_layout, DRAW_STRIDE * 64);
         let (bone_buffer, bone_group) = bone_storage(device, &bone_layout, BONE_BYTES * 64);
@@ -371,6 +376,50 @@ impl ObjectRenderer {
             center: if count > 0.0 { sum / count } else { Vec3::ZERO },
             first_list,
         }
+    }
+
+    /// Replaces the geometry of `model`'s first part and batch: a particle material's model,
+    /// whose triangles are laid out again every frame (`ParticleSystem::FillVertexBuffer`).
+    pub fn set_geometry(
+        gpu: &Gpu,
+        model: &mut GpuObjectModel,
+        vertices: &[ObjectVertex],
+        indices: &[u32],
+    ) {
+        let Some(part) = model.parts.first_mut() else {
+            return;
+        };
+        let gpu_vertices: Vec<GpuVertex> = vertices
+            .iter()
+            .map(|v| GpuVertex {
+                position: v.position,
+                normal: v.normal,
+                color: v.color,
+                uvs: v.uvs,
+                tangents: v.tangents,
+                bones: [0; 4],
+                weights: [0.0; 4],
+            })
+            .collect();
+        part.vertices = gpu
+            .device
+            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                label: Some("ac2 particle vertices"),
+                contents: bytemuck::cast_slice(&gpu_vertices),
+                usage: wgpu::BufferUsages::VERTEX,
+            });
+        part.indices = gpu
+            .device
+            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                label: Some("ac2 particle indices"),
+                contents: bytemuck::cast_slice(indices),
+                usage: wgpu::BufferUsages::INDEX,
+            });
+        if let Some(batch) = part.batches.first_mut() {
+            batch.range = 0..indices.len() as u32;
+        }
+        let sum: Vec3 = vertices.iter().map(|v| Vec3::from_array(v.position)).sum();
+        model.center = sum / vertices.len().max(1) as f32;
     }
 
     /// The module index for a pass's pixel shader, translating and compiling it on first use.
@@ -662,8 +711,8 @@ impl ObjectRenderer {
         gpu: &Gpu,
         program: &ac2_render::object::PixelProgram,
     ) -> Option<String> {
-        gpu.device.push_error_scope(wgpu::ErrorFilter::Validation);
+        let scope = gpu.device.push_error_scope(wgpu::ErrorFilter::Validation);
         let _module = object_module(&gpu.device, &shade_function(program));
-        pollster::block_on(gpu.device.pop_error_scope()).map(|error| error.to_string())
+        pollster::block_on(scope.pop()).map(|error| error.to_string())
     }
 }

@@ -41,6 +41,10 @@ pub struct ScriptWorld {
     pub options: Option<ac2_net::protocol::GameplayOptionsProfile>,
     /// The skills the login message carries.
     pub character: crate::Character,
+    /// The store the server opened (`open_store`): the sales a purchase is priced from.
+    pub open_store: Option<ac2_net::protocol::StoreView>,
+    /// Purchases made so far: the item each one gives the player is counted from them.
+    pub purchases: u64,
 }
 
 impl State {
@@ -199,8 +203,8 @@ impl State {
             | ScriptRequest::OfferItem { .. }
             | ScriptRequest::RevokeItem(_) => self.answer_trade(request),
             ScriptRequest::LeaveStore(_) => self.answer_leave_store(request),
-            // The purchase's answer is not modelled yet: the requests are recorded only.
-            ScriptRequest::EnterStore { .. } | ScriptRequest::Purchase(_) => {}
+            ScriptRequest::Purchase(blob) => self.answer_purchase(blob),
+            ScriptRequest::EnterStore { .. } => {}
             ScriptRequest::Use(desc) => {
                 let mut desc = desc.clone();
                 desc.error = self.script_world.usage_error;

@@ -180,7 +180,7 @@ impl DialogFactory {
         let Some(root) = shown.root else {
             return;
         };
-        if !message.element.is_some_and(|e| tree.root_of(e) == root) {
+        if message.element.is_none_or(|e| tree.root_of(e) != root) {
             return;
         }
         let context = shown.info.context;

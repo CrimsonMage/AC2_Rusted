@@ -254,7 +254,7 @@ impl App {
                 return;
             }
         }
-        state.sync_mouse_look(self.client.camera().movement_state().mouse_look);
+        state.sync_mouse_look(self.client.camera().mouse_look);
         let frame = self.client.frame();
         // The HUD frameworks that ask the player: skills panel, shortcut bar, chat options.
         let script_notices = self.client.take_script_notices();
@@ -280,8 +280,8 @@ impl App {
             ac2_client::play_ui_sounds(audio, &view.take_ui_sounds());
         }
         let (_, time) = state.now();
-        let Ok(output) = state.surface.get_current_texture() else {
-            state.surface.configure(&state.gpu.device, &state.config);
+        let Some(output) = ac2_gpu::acquire_frame(&state.surface, &state.gpu.device, &state.config)
+        else {
             return;
         };
         let target = output.texture.create_view(&Default::default());
@@ -303,7 +303,7 @@ impl App {
                 |_| {},
             );
         }
-        output.present();
+        state.gpu.queue.present(output);
     }
 }
 
@@ -338,6 +338,7 @@ impl ApplicationHandler for App {
             desired_maximum_frame_latency: 2,
             alpha_mode: caps.alpha_modes[0],
             view_formats: vec![],
+            color_space: Default::default(),
         };
         surface.configure(&gpu.device, &config);
         let depth = depth_view(&gpu.device, &config);

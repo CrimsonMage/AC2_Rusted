@@ -49,6 +49,8 @@ mod dat_tests;
 mod playback;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod wave_tests;
 
 use playback::Playback;
 
@@ -279,6 +281,17 @@ impl MusicThread {
             kind: MusicEventKind::SegmentAbort,
             handle,
         });
+    }
+
+    /// Whether the queue holds `handle`: its segment is in the playing list, or waits behind the
+    /// current primary.
+    pub fn holds(&self, handle: u32) -> bool {
+        self.attached
+            && (self.playing.iter().any(|e| e.handle == handle)
+                || self
+                    .next_info
+                    .as_ref()
+                    .is_some_and(|next| next.handle == handle))
     }
 
     /// `DXMusicMessageThread::IsPlaying`: the segment for `handle` is playing (not ended).

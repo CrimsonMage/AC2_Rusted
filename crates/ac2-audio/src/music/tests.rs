@@ -54,6 +54,7 @@ fn every_music_record_reads() {
                 "style"
             }
             MusicObject::Band(_) => "band",
+            MusicObject::Wave(_) => "wave",
             MusicObject::Collection(c) => {
                 assert!(!c.instruments.is_empty());
                 for i in &c.instruments {

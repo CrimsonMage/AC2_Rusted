@@ -5,19 +5,22 @@ version.workspace = true
 publish.workspace = true
 license.workspace = true
 
+[lints]
+workspace = true
+
 [dependencies]
 ac2-core = { path = "../ac2-core" }
 ac2-math = { path = "../ac2-math" }
 ac2-render = { path = "../ac2-render" }
 bytemuck = { version = "1.16", features = ["derive"] }
 pollster = "0.4"
-wgpu = { version = "26.0.1", default-features = false, features = ["std", "parking_lot", "wgsl"] }
+wgpu = { version = "30.0.1", default-features = false, features = ["std", "parking_lot", "wgsl"] }
 
 [target.'cfg(any(target_os = "windows", target_os = "linux"))'.dependencies]
-wgpu = { version = "26.0.1", default-features = false, features = ["vulkan", "gles"] }
+wgpu = { version = "30.0.1", default-features = false, features = ["vulkan", "gles"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-wgpu = { version = "26.0.1", default-features = false, features = ["metal"] }
+wgpu = { version = "30.0.1", default-features = false, features = ["metal"] }
 
 [dev-dependencies]
 ac2-anim = { path = "../ac2-anim" }

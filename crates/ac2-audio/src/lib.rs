@@ -31,6 +31,8 @@ mod ambient_tests;
 #[cfg(test)]
 mod music_output_tests;
 #[cfg(test)]
+mod music_wave_tests;
+#[cfg(test)]
 mod tests;
 
 pub use ambient::{AmbientSound, AMBIENT_EMITTERS};

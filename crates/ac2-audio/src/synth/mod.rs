@@ -14,7 +14,8 @@
 //! band's bound collections are the channels' sources ([`segment_sources`]).
 //!
 //! Retail's DirectMusic synthesizer is not reproduced, so this is the port's own engine. Modelled:
-//! the DLS volume envelope (EG1, dB-shaped), the pitch envelope (EG2), the LFO (triangle, with its
+//! the DLS volume envelope (EG1, dB-shaped), the pitch envelope (EG2), each with its DLS2 delay and
+//! hold (the connection blocks' `0x020B`/`0x020C` and `0x030F`/`0x0310`), the LFO (triangle, with its
 //! frequency and start delay), the DLS2 vibrato LFO (`CONN_SRC_VIBRATO`, with its own frequency and
 //! delay), the connection blocks' pitch, attenuation, pan and filter destinations (static, from key
 //! and velocity, or moving with the LFO, vibrato and EG2; the units and the constants are in
@@ -69,6 +70,8 @@ mod voice;
 mod control_tests;
 #[cfg(test)]
 mod dat_tests;
+#[cfg(test)]
+mod envelope_tests;
 #[cfg(test)]
 mod filter_dat_tests;
 #[cfg(test)]

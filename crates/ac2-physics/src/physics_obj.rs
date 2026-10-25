@@ -285,7 +285,7 @@ impl PhysicsObj {
     fn update_movement_offset(&mut self, quantum: f32, offset: &mut Frame, terrain: &Terrain) {
         let q = ld(quantum);
         if self.has_contact() {
-            self.time_on_ground = f64::from(quantum) + self.time_on_ground;
+            self.time_on_ground += f64::from(quantum);
         }
         self.calc_element(terrain);
         self.sync_mode();

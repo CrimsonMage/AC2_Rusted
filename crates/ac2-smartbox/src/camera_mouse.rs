@@ -20,7 +20,7 @@ const ZOOM_PER_UNIT: f32 = 0.066_666_67;
 
 impl CameraManager {
     /// `CameraManager::MouseMove(dx, dy)`.
-    pub(crate) fn mouse_move(&mut self, dx: i32, dy: i32) {
+    pub fn mouse_move(&mut self, dx: i32, dy: i32) {
         self.mouse_filter.push_front((dx, dy));
         self.mouse_filter.truncate(FILTER_LENGTH);
         let (mut sum_x, mut sum_y, mut total, mut weight) = (0.0_f32, 0.0_f32, 0.0_f32, 1.0_f32);

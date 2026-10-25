@@ -129,7 +129,10 @@ mod tests {
             let heading = (450.0 - f64::from(f.y).atan2(f64::from(f.x)).to_degrees()) % 360.0;
             let want = f64::from(rotation) * 360.0 % 360.0;
             let diff = (heading - want).rem_euclid(360.0);
-            assert!(diff < 1e-3 || diff > 360.0 - 1e-3, "{rotation}: {heading}");
+            assert!(
+                !(1e-3..=360.0 - 1e-3).contains(&diff),
+                "{rotation}: {heading}"
+            );
             let height = 2.0 * 0.95;
             assert!((camera.eye.z - (height * 0.85) as f32).abs() < 1e-5);
             assert!((camera.target.z - (height * 0.6) as f32).abs() < 1e-5);

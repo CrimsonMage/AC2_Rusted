@@ -351,10 +351,10 @@ fn stores_and_damage_text_reach_the_ui_typed() {
     };
     let ordinals: Vec<u32> = s.sales.iter().map(|x| x.ordinal).collect();
     assert_eq!((s.id, ordinals, s.sales[0].status), (7, vec![2, 5, 9], 3));
-    let GameplayNotice::Do3DDamage(d) = &notices[1] else {
+    let GameplayNotice::Do3DDamage { object, text: d } = &notices[1] else {
         panic!("{notices:?}");
     };
-    assert_eq!(d.scale, 1.5);
+    assert_eq!((*object, d.scale), (0x5000_0001, 1.5));
     assert_eq!(d.color[1], (128.0 * f64::from(0.003_921_569_f32)) as f32);
 }
 

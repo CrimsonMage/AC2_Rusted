@@ -50,10 +50,11 @@ impl ChatState {
     ) -> Vec<GameplayNotice> {
         let first = call.arguments.first();
         match call.function {
-            ALLEGIANCE_ROOM => match first {
-                Some(PackValue::Int(room)) => return self.set_allegiance_room(*room, tables),
-                _ => {}
-            },
+            ALLEGIANCE_ROOM => {
+                if let Some(PackValue::Int(room)) = first {
+                    return self.set_allegiance_room(*room, tables);
+                }
+            }
             // `CPlayer` 0x147 keeps the table (its joined/left lines through
             // `ChatChannelControl` are not mirrored).
             CHANNEL_TABLE => {

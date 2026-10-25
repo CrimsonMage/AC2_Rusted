@@ -20,8 +20,8 @@
 use std::sync::Arc;
 
 use crate::character_options::{
-    choice_name, read, string_id, template_name, write, Kind, OptionDesc, OptionSetting,
-    OptionsSettings, Setter, SETUP,
+    choice_name, is_changed_of, read, string_id, sync_control_of, template_name, write, Kind,
+    OptionDesc, OptionSetting, OptionsSettings, Setter, SETUP,
 };
 use crate::dialog::{DialogFactory, DialogOutcome, DIALOG_CONFIRMATION};
 use crate::element::UiTree;
@@ -115,14 +115,14 @@ pub struct CharacterUi {
 /// The UI string table's strings, as text: its data and the table's DID (`StoreTextData` keys
 /// its tables by DID).
 #[derive(Clone, Copy)]
-struct Labels<'a> {
-    text: &'a dyn UiTextData,
-    table: u32,
+pub(crate) struct Labels<'a> {
+    pub(crate) text: &'a dyn UiTextData,
+    pub(crate) table: u32,
 }
 
 impl Labels<'_> {
     /// The string `name` of the table, as text (empty when the table has no such string).
-    fn get(&self, name: &str) -> String {
+    pub(crate) fn get(&self, name: &str) -> String {
         self.text
             .string(self.table, string_id(name))
             .map(|units| String::from_utf16_lossy(&units))
@@ -135,7 +135,13 @@ fn id(name: &str) -> u32 {
 }
 
 /// `OptionBase::Describe`: the label (`OptionText`) and, with a help string, the tooltip.
-fn describe(tree: &mut UiTree, labels: Labels, element: usize, name: &str, help: Option<&str>) {
+pub(crate) fn describe(
+    tree: &mut UiTree,
+    labels: Labels,
+    element: usize,
+    name: &str,
+    help: Option<&str>,
+) {
     if let Some(label) = tree.child_recursive(element, id("OptionText")) {
         tree.set_text(label, &labels.get(name));
     }
@@ -319,10 +325,8 @@ impl CharacterUi {
     /// `gmCharacterUI::UpdateButtons`: Apply and Recall ghost while nothing has changed.
     pub fn update_buttons(&mut self, tree: &mut UiTree) {
         let changed = self.changed();
-        for button in [self.apply, self.recall] {
-            if let Some(button) = button {
-                tree.set_bool(button, BUTTON_GHOSTED, !changed);
-            }
+        for button in [self.apply, self.recall].into_iter().flatten() {
+            tree.set_bool(button, BUTTON_GHOSTED, !changed);
         }
     }
 
@@ -744,37 +748,17 @@ impl CharacterUi {
 }
 
 fn is_changed(entry: &OptionEntry) -> bool {
-    match entry.desc.kind {
-        Kind::Value { .. } => {
-            let d = entry.current - entry.saved;
-            d * d >= 0.0001
-        }
-        Kind::Flag | Kind::Choice { .. } => entry.current != entry.saved,
-    }
+    is_changed_of(entry.desc.kind, entry.current, entry.saved)
 }
 
 /// Shows an option's value on its control: the checkbox's highlight, the slider's position, the
 /// drop-down's label.
 fn sync_control(tree: &mut UiTree, entry: &OptionEntry) {
-    let Some(control) = entry.control else {
-        return;
-    };
-    match entry.desc.kind {
-        Kind::Flag => tree.set_bool(control, BUTTON_HIGHLIGHTED, entry.current != 0.0),
-        Kind::Value { lower, upper } => {
-            let span = upper - lower;
-            let position = if span == 0.0 {
-                0.0
-            } else {
-                (entry.current - lower) / span
-            };
-            tree.scrollbar_set_position(control, position as f32);
-        }
-        Kind::Choice { .. } => {
-            let choice = (entry.current as usize).checked_sub(1);
-            if let Some(label) = choice.and_then(|c| entry.labels.get(c)) {
-                tree.set_text(control, label);
-            }
-        }
-    }
+    sync_control_of(
+        tree,
+        entry.control,
+        entry.desc.kind,
+        entry.current,
+        &entry.labels,
+    );
 }

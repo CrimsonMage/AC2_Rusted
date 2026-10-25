@@ -22,7 +22,9 @@ use ac2_db::{ResourceResult, ResourceStore};
 use crate::allegiance::AllegianceUi;
 use crate::character::CharacterUi;
 use crate::chat::{ChatStrings, ChatUi, CHAT_STRING_TABLE, REPLY_STRING_TABLE, STRING_TABLE_GROUP};
+use crate::chat_options::ChatOptionsUi;
 use crate::compose::UiPixels;
+use crate::damage_text::DamageTexts;
 use crate::dialog::DialogFactory;
 use crate::effects::EffectsUi;
 use crate::element::UiTree;
@@ -36,6 +38,7 @@ use crate::overview_map::OverviewMapUi;
 use crate::radar::RadarUi;
 use crate::reticle::Reticle;
 use crate::secure_trade::SecureTradeUi;
+use crate::shop::ShopUi;
 use crate::shortcut::ShortcutUi;
 use crate::skill_tree::SkillTreeUi;
 use crate::stack::StackUi;
@@ -81,6 +84,8 @@ pub struct GameplayHud {
     /// `gm3DTextUI`'s targeting reticle and name plates.
     pub reticle: Option<Reticle>,
     pub names: Option<NamePlates>,
+    /// `gm3DTextUI`'s floating damage numbers.
+    pub damage: Option<DamageTexts>,
     /// `gmShortcutUI`.
     pub shortcuts: Option<ShortcutUi>,
     /// `gmChatUI`.
@@ -112,10 +117,14 @@ pub struct GameplayHud {
     pub secure_trade: Option<SecureTradeUi>,
     /// `gmCharacterUI`, the character options page (`CharacterPage`).
     pub character: Option<CharacterUi>,
+    /// `gmChatOptionsUI`, the chat options page (`ChatPage`).
+    pub chat_options: Option<ChatOptionsUi>,
     /// `gmNavigationUI`, the navigation panel's macro map.
     pub navigation: Option<NavigationUi>,
     /// `gmOverviewMapUI`, hidden until a map is shown.
     pub overview: Option<OverviewMapUi>,
+    /// `gmShopUI`, the vendor's panel (its managed elements are made when a store opens).
+    pub shop: Option<ShopUi>,
 }
 
 /// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
@@ -140,10 +149,22 @@ pub fn build_gameplay_hud(
         }
         _ => None,
     };
+    let damage = match (&gameplay, &reticle) {
+        (Some(layout), Some(reticle)) => {
+            let (frames, attempts) = reticle.name_tuning();
+            Some(DamageTexts::create(
+                layout,
+                frames,
+                attempts,
+                reticle.floaty_travel(),
+            ))
+        }
+        _ => None,
+    };
     layouts.insert(LAYOUT_GAMEPLAY, gameplay);
     for (layout_enum, name) in GAMEPLAY_ROOTS {
-        if !layouts.contains_key(&layout_enum) {
-            layouts.insert(layout_enum, load_layout_by_enum(store, layout_enum)?);
+        if let std::collections::hash_map::Entry::Vacant(e) = layouts.entry(layout_enum) {
+            e.insert(load_layout_by_enum(store, layout_enum)?);
         }
         let Some(layout) = &layouts[&layout_enum] else {
             continue;
@@ -216,12 +237,19 @@ pub fn build_gameplay_hud(
         }
         _ => None,
     };
+    let chat_options = match (&layouts[&LAYOUT_TOOLBAR], ui_table) {
+        (Some(toolbar), Some(table)) => {
+            ChatOptionsUi::create(&mut tree, toolbar, &*text_data, table.raw())
+        }
+        _ => None,
+    };
     let navigation = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .and_then(|toolbar| NavigationUi::create(&mut tree, toolbar));
     let overview = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()
         .and_then(|gameplay| OverviewMapUi::create(&mut tree, gameplay));
+    let shop = layouts[&LAYOUT_GAMEPLAY].as_ref().map(ShopUi::create);
     for layout in layouts.values().flatten() {
         crate::tooltip::prefetch_tooltip_strings(&*text_data, layout);
     }
@@ -230,6 +258,7 @@ pub fn build_gameplay_hud(
         tree,
         reticle,
         names,
+        damage,
         shortcuts,
         chat,
         toolbar,
@@ -246,8 +275,10 @@ pub fn build_gameplay_hud(
         radar,
         secure_trade,
         character,
+        chat_options,
         navigation,
         overview,
+        shop,
     })
 }
 

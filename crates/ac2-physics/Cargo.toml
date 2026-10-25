@@ -5,6 +5,9 @@ version.workspace = true
 publish.workspace = true
 license.workspace = true
 
+[lints]
+workspace = true
+
 [dependencies]
 ac2-core = { path = "../ac2-core" }
 ac2-math = { path = "../ac2-math" }

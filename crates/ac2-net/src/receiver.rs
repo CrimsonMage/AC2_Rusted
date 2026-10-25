@@ -161,7 +161,7 @@ impl Receiver {
     pub fn acknowledgement(&mut self, cur_time: f64) -> Option<OptionalHeader> {
         let since = cur_time - self.time_stamp;
         let header = if self.naked.is_empty() {
-            (ACK_SECONDS <= since).then(|| OptionalHeader::Ack(self.highest_received))
+            (ACK_SECONDS <= since).then_some(OptionalHeader::Ack(self.highest_received))
         } else {
             (NAK_SECONDS < since).then(|| OptionalHeader::Nak(self.naks()))
         }?;

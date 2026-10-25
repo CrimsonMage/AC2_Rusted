@@ -11,12 +11,18 @@ use std::time::Duration;
 use crate::data::{flags, sound_db_type, LoadedSound, SoundSource};
 use crate::loader::SoundLoader;
 use crate::music::dls::Collection;
-use crate::music::performance::{EventSink, TimedEvent};
-use crate::music_thread::{MusicHandler, MusicThread, SegmentInfo};
+use crate::music::library::LoadedMusic;
+use crate::music::performance::EventSink;
+use crate::music::{MusicObject, WaveSegment};
+use crate::music_thread::{MusicThread, SegmentInfo};
+
+mod callbacks;
+
 use crate::play_data::{Channel, PlaySoundData, SoundType};
 use crate::playing::{DeviceState, Emitter, PlayingSound};
-use crate::sink::{SinkCommand, SoundSink};
+use crate::sink::{Boundary, SinkCommand, SoundSink};
 use crate::synth::{ChannelSources, GmLoad, GmLoadError, PerformanceBand};
+use callbacks::{MusicCallbacks, NoteRouter};
 
 /// `ID_Sound_NumPlayingSounds`' default (`SoundManager::SoundManager`).
 const MAX_SECONDARY_SOUNDS: u32 = 32;
@@ -199,6 +205,9 @@ impl SoundManager {
                 *length,
                 self.device.now,
             ),
+            LoadedSound::MusicWave { info, pcm, .. } => {
+                PlayingSound::from_wave(handle, data, info, Arc::clone(pcm), self.device.now)
+            }
             LoadedSound::Music {
                 info,
                 sources,
@@ -231,6 +240,24 @@ impl SoundManager {
                 handle,
                 segment: Arc::clone(segment),
                 bands: Arc::clone(bands),
+            });
+        }
+        // An `EncodedWave` is a segment with a wave track: the queue plays it as any segment.
+        if let (Some(kind), LoadedSound::MusicWave { length, .. }) = (playing.segment_kind(), sound)
+        {
+            let wave = WaveSegment {
+                seconds: f64::from(*length),
+                looping: playing.looping,
+            };
+            self.music.play(SegmentInfo {
+                kind,
+                handle,
+                segment: Arc::new(LoadedMusic {
+                    segment: MusicObject::Wave(wave),
+                    objects: HashMap::new(),
+                    missing: 0,
+                }),
+                bands: Arc::from(Vec::new()),
             });
         }
         if playing.is_self_exclusive() {
@@ -377,14 +404,16 @@ impl SoundManager {
         self.device.now = now;
         self.take_loads();
         self.flush_sounds(true);
+        let device = self.device;
         // `DirectXSoundDevice::UseTime`: the music queue runs before the voices.
         self.music.use_time(
             now,
             Some(&mut MusicCallbacks {
                 playing: &mut self.playing,
+                sink: &mut *self.sink,
+                device: &device,
             }),
         );
-        let device = self.device;
         for playing in &mut self.playing {
             let muted = playing
                 .emitter
@@ -491,6 +520,11 @@ impl SoundManager {
                 playing.stop(&mut *self.sink, &device, 0.0, true);
             }
             if playing.segment_kind().is_some() {
+                // A segment the queue still holds (a fade that ended) leaves it as retail's
+                // `Stop(handle, 0)` does: a queued one is dropped, a playing one plays out its pass.
+                if self.music.holds(playing.handle) {
+                    self.music.stop(playing.handle, Boundary::End);
+                }
                 // The segment's synthesizer releases and goes (its notes end with the queue's).
                 self.sink.send(SinkCommand::MusicEnded {
                     voice: playing.handle,
@@ -518,7 +552,9 @@ impl SoundManager {
                         bits & 4 != 0
                     }
                 }
-                LoadedSound::Music { info, .. } if bits & 3 != 0 => {
+                LoadedSound::Music { info, .. } | LoadedSound::MusicWave { info, .. }
+                    if bits & 3 != 0 =>
+                {
                     if info.test(0x10) {
                         bits & 2 != 0
                     } else {
@@ -578,7 +614,9 @@ impl SoundManager {
         match self.playing.iter_mut().find(|p| p.handle == handle) {
             Some(playing) => {
                 playing.stop(&mut *self.sink, &device, fade, false);
-                if playing.segment_kind().is_some() {
+                // A fade keeps the segment in the queue: its end stops it at once
+                // (`DirectXPlayingSound::UseTime`, `DXMusicMessageThread::Stop(handle, 0)`).
+                if fade <= 0.0 && playing.segment_kind().is_some() {
                     self.music.stop(handle, playing.stop_timing(false));
                 }
             }
@@ -715,6 +753,16 @@ impl SoundManager {
         self.playing.iter().map(|p| p.handle).collect()
     }
 
+    /// The handles of the sounds still alive: those playing, and the music waiting in the queue,
+    /// but not one ended or aborted that `FlushSounds` has yet to remove.
+    pub fn live(&self) -> Vec<u32> {
+        self.playing
+            .iter()
+            .filter(|p| !p.ready_to_die())
+            .map(|p| p.handle)
+            .collect()
+    }
+
     /// `SoundManager::Shutdown`: every sound stopped, the resident sounds and loads dropped.
     pub fn shutdown(&mut self) {
         self.flush_sounds(false);
@@ -722,48 +770,5 @@ impl SoundManager {
         self.loaded.clear();
         self.lru.clear();
         self.requests.clear();
-    }
-}
-
-/// Sends the music queue's events to the sink as notes, the queue's clock first.
-struct NoteRouter<'a> {
-    sink: &'a mut dyn SoundSink,
-    now: f64,
-    clock_sent: bool,
-}
-
-impl EventSink for NoteRouter<'_> {
-    fn event(&mut self, event: &TimedEvent) {
-        if !self.clock_sent {
-            self.sink
-                .send(SinkCommand::MusicClock { seconds: self.now });
-            self.clock_sent = true;
-        }
-        self.sink.send(SinkCommand::Note(*event));
-    }
-}
-
-/// `DXMusicMessageHandler` for the sound manager (`DirectXSoundDevice::OnSegmentStart` and
-/// `OnSegmentEnded`): a music voice hears its segment end. The start has no effect here
-/// (`DirectXPlayingSound::OnSegmentStarted` sets a flag the admin decompile never reads).
-struct MusicCallbacks<'a> {
-    playing: &'a mut [PlayingSound],
-}
-
-impl MusicHandler for MusicCallbacks<'_> {
-    fn on_segment_start(&mut self, _handle: u32) {}
-
-    fn on_segment_ended(&mut self, handle: u32) {
-        // `DirectXSoundDevice::OnSegmentEnded`: a handle of 0 names no sound.
-        if handle == 0 {
-            return;
-        }
-        if let Some(playing) = self
-            .playing
-            .iter_mut()
-            .find(|p| p.handle == handle && p.segment_kind().is_some())
-        {
-            playing.on_segment_ended();
-        }
     }
 }

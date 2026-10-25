@@ -2,32 +2,52 @@
 //! without a server. It never connects anywhere.
 //!
 //! ```text
-//! world-viewer [--dat-dir DIR] [--block 7F7F] [--radius 2] [--snapshot out.png]
+//! world-viewer [--dat-dir DIR] [--block 7F7F] [--radius 2] [--fly]
+//! world-viewer ... --snapshot out.png [--model N] [--walk SECONDS] [--speed N] [--warm-up SECONDS] [--at X,Y] [--fly]
 //! ```
-//! Window controls: drag with the left button to look, WASD to move, Space/C up and down, Shift
-//! fast, `[` and `]` step the time of day.
+//! `--snapshot` renders one headless frame: the player model N of the race table walks forward
+//! for SECONDS (default 4) and is seen from the player camera (`--fly`: the terrain alone).
+//! The player walks the world with collision (`ac2-physics`) under the player camera
+//! (`ac2-smartbox`); an egui panel swaps the race and sex, teleports and speeds the player up.
+//! Walk: W/S, A/D turn, Q/E strafe, Space jump, hold the right button to look, wheel to zoom,
+//! V first person, Home resets the camera. Fly (Tab): drag with the left button to look, WASD,
+//! Space/C up and down, Shift fast. `[` and `]` step the time of day, F1 hides the panel.
 
 mod fly;
-mod scene;
+mod frame;
+mod gui;
+mod panel;
+mod races;
+mod walk;
 mod window;
 
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use ac2_client::view::ClientView;
+use ac2_core::CellId;
 use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_db::ResourceStore;
 use ac2_gpu::{FrameTarget, Gpu, COLOR_FORMAT};
 use ac2_math::Vec3;
+use ac2_render::scene::DAY_SECONDS;
+use ac2_render::SceneLighting;
 use ac2_world::Ac2WorldSource;
 
 use fly::FlyCamera;
-use scene::Scene;
 
 struct Args {
     dat_dir: PathBuf,
     block: (u8, u8),
     radius: i32,
     snapshot: Option<PathBuf>,
+    fly: bool,
+    model: usize,
+    walk_seconds: f32,
+    speed: u32,
+    warm_up: u32,
+    /// The start position within the block (default: its centre).
+    at: Option<(f32, f32)>,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -38,6 +58,12 @@ fn parse_args() -> Result<Args, String> {
         block: (0x7F, 0x7F),
         radius: 2,
         snapshot: None,
+        fly: false,
+        model: 0,
+        walk_seconds: 4.0,
+        speed: 1,
+        warm_up: 3,
+        at: None,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -51,6 +77,23 @@ fn parse_args() -> Result<Args, String> {
             }
             "--radius" => args.radius = value()?.parse().map_err(|e| format!("--radius: {e}"))?,
             "--snapshot" => args.snapshot = Some(value()?.into()),
+            "--fly" => args.fly = true,
+            "--model" => args.model = value()?.parse().map_err(|e| format!("--model: {e}"))?,
+            "--walk" => {
+                args.walk_seconds = value()?.parse().map_err(|e| format!("--walk: {e}"))?;
+            }
+            "--speed" => args.speed = value()?.parse().map_err(|e| format!("--speed: {e}"))?,
+            "--at" => {
+                let text = value()?;
+                let (x, y) = text.split_once(',').ok_or("--at: x,y")?;
+                args.at = Some((
+                    x.parse().map_err(|e| format!("--at: {e}"))?,
+                    y.parse().map_err(|e| format!("--at: {e}"))?,
+                ));
+            }
+            "--warm-up" => {
+                args.warm_up = value()?.parse().map_err(|e| format!("--warm-up: {e}"))?;
+            }
             other => return Err(format!("unknown argument {other}")),
         }
     }
@@ -69,19 +112,53 @@ fn main() {
         }
     };
     let dataset = DatDataset::open(DatOpenOptions::new(&args.dat_dir)).expect("AC2 DATs mount");
-    let world = Ac2WorldSource::open(Arc::new(ResourceStore::new(dataset)))
+    let store = Arc::new(ResourceStore::new(dataset));
+    let world = Ac2WorldSource::open(Arc::clone(&store))
         .expect("AC2 landscape vocabulary decodes")
         .expect("the DAT directory holds an AC2 dataset");
+    let (models, models_error) = match races::load(&store, &args.dat_dir) {
+        Ok(models) => (models, None),
+        Err(error) => (Vec::new(), Some(error)),
+    };
     match &args.snapshot {
-        Some(path) => snapshot(world, &args, path),
-        None => window::run(world, args.block, args.radius),
+        Some(path) => snapshot(world, store, &models, &args, path),
+        None => {
+            let (x, y) = args.at.unwrap_or_else(|| {
+                let half = world.block_size() / 2.0;
+                (half, half)
+            });
+            let fly = start_camera(&world, args.block);
+            let time_of_day = daytime(&world);
+            window::run(window::Setup {
+                world,
+                store,
+                models,
+                models_error,
+                landing: walk::Landing {
+                    block: args.block,
+                    x,
+                    y,
+                },
+                radius: args.radius,
+                fly_first: args.fly,
+                fly,
+                time_of_day,
+            });
+        }
     }
 }
 
 /// The opening view of a block: from its south-west, above its highest vertex.
-fn start_camera(scene: &Scene, block: (u8, u8)) -> FlyCamera {
-    let size = scene.world.block_size();
-    let top = scene.block_top(block);
+fn start_camera(world: &Ac2WorldSource, block: (u8, u8)) -> FlyCamera {
+    let size = world.block_size();
+    let id = CellId::new((u32::from(block.0) << 24) | (u32::from(block.1) << 16) | 1);
+    let top = world
+        .load_landblock(id)
+        .ok()
+        .flatten()
+        .map_or(0.0, |landblock| {
+            landblock.height_grid().into_iter().fold(0.0, f32::max)
+        });
     let centre = Vec3::new(
         (f32::from(block.0) + 0.5) * size,
         (f32::from(block.1) + 0.5) * size,
@@ -90,17 +167,118 @@ fn start_camera(scene: &Scene, block: (u8, u8)) -> FlyCamera {
     FlyCamera::looking_at(centre + Vec3::new(-260.0, -260.0, 160.0), centre)
 }
 
-fn snapshot(world: Arc<Ac2WorldSource>, args: &Args, path: &PathBuf) {
+/// The brightest daylight of the region's day (`WorldScene::set_daytime`).
+fn daytime(world: &Ac2WorldSource) -> f64 {
+    let Some(region) = world.region() else {
+        return 0.0;
+    };
+    let brightness = |time: f64| {
+        region
+            .sample_sky_environment(time)
+            .map(|sample| {
+                SceneLighting::from_sky(&sample)
+                    .fog_color
+                    .iter()
+                    .sum::<f32>()
+            })
+            .unwrap_or(0.0)
+    };
+    (0..48)
+        .map(|step| f64::from(step) * DAY_SECONDS / 48.0)
+        .max_by(|a, b| brightness(*a).total_cmp(&brightness(*b)))
+        .unwrap_or(0.0)
+}
+
+fn snapshot(
+    world: Arc<Ac2WorldSource>,
+    store: Arc<ResourceStore>,
+    models: &[races::PlayerModel],
+    args: &Args,
+    path: &PathBuf,
+) {
     let (width, height) = (1280, 720);
     let gpu = Gpu::headless().expect("GPU adapter");
-    let mut scene = Scene::new(world, &gpu, COLOR_FORMAT, args.radius);
-    scene.set_daytime();
-    scene.update_residency(&gpu, args.block);
-    let camera = start_camera(&scene, args.block).camera();
-    scene.settle(&gpu, &camera);
-    scene.prepare(&gpu, &camera, width as f32 / height as f32, 0.0);
+    let mut view = ClientView::new(
+        Arc::clone(&world),
+        &gpu,
+        COLOR_FORMAT,
+        args.radius,
+        (width, height),
+    );
+    let model = models.get(args.model).filter(|_| !args.fly);
+    let fly = start_camera(&world, args.block);
+    let time_of_day = daytime(&world);
+    let mut walk = walk::Walk::new(&world, store, 0.0);
+    let mode = if model.is_some() {
+        panel::Mode::Walk
+    } else {
+        panel::Mode::Fly
+    };
+    let (x, y) = args.at.unwrap_or_else(|| {
+        let half = world.block_size() / 2.0;
+        (half, half)
+    });
+    if let Some(model) = model {
+        println!("player: {}", model.label());
+        walk.set_model(model.visual);
+        walk.teleport(walk::Landing {
+            block: args.block,
+            x,
+            y,
+        });
+        walk.speed = args.speed;
+        walk_for(&mut view, &mut walk, &gpu, args.walk_seconds, model.visual);
+        if let Some(message) = &walk.message {
+            println!("walk: {message}");
+        }
+        if let Some(status) = walk.status() {
+            println!("walk: {status:?}");
+        }
+    }
+    let frame = frame::client_frame(mode, &walk, &fly, model.map(|m| m.visual), time_of_day);
+    view.update(&gpu, &frame, std::time::Duration::from_millis(4));
+    view.settle(&gpu, &frame, width as f32 / height as f32);
+    // The scene's particle systems run on the wall clock: let them emit before the frame is
+    // taken.
+    for step in 0..args.warm_up * 20 {
+        view.prepare(
+            &gpu,
+            &frame,
+            width as f32 / height as f32,
+            f64::from(step) * 0.05,
+        );
+        std::thread::sleep(std::time::Duration::from_millis(50));
+    }
+    view.prepare(&gpu, &frame, width as f32 / height as f32, 0.0);
     let target = FrameTarget::new(&gpu.device, width, height);
-    target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| scene.draw(pass));
+    target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
+    // The control panel over it, as the window draws it.
+    let mut gui = gui::Gui::headless(&gpu, COLOR_FORMAT);
+    let mut panel = panel::Panel::new(
+        models.to_vec(),
+        mode,
+        walk::Landing {
+            block: args.block,
+            x,
+            y,
+        },
+    );
+    panel.model = args.model.min(models.len().saturating_sub(1));
+    panel.speed = args.speed;
+    let mut day = time_of_day;
+    let status = walk.status();
+    gui.headless_frame(&gpu, &target.color_view, [width, height], |ui| {
+        panel.show(
+            ui,
+            panel::PanelView {
+                status,
+                message: walk.message.as_deref(),
+                fps: 60.0,
+                time_of_day: &mut day,
+                particle_count: 0,
+            },
+        );
+    });
     let rgba = target.read_rgba(&gpu.device, &gpu.queue);
     let file = std::fs::File::create(path).expect("snapshot file");
     let mut encoder = png::Encoder::new(std::io::BufWriter::new(file), width, height);
@@ -111,4 +289,41 @@ fn snapshot(world: Arc<Ac2WorldSource>, args: &Args, path: &PathBuf) {
         .and_then(|mut writer| writer.write_image_data(&rgba))
         .expect("snapshot PNG writes");
     println!("wrote {}", path.display());
+}
+
+/// Runs the player in simulated 60 Hz time: until it is in the world (the cells load on their
+/// own threads), then `seconds` of walking forward.
+fn walk_for(
+    view: &mut ClientView,
+    walk: &mut walk::Walk,
+    gpu: &Gpu,
+    seconds: f32,
+    visual: ac2_core::DataId,
+) {
+    const STEP: f32 = 1.0 / 60.0;
+    let started = std::time::Instant::now();
+    let mut now = 0.0_f64;
+    let mut walked = 0.0;
+    let fly = FlyCamera::looking_at(Vec3::ZERO, Vec3::Y);
+    while walked < seconds {
+        now += f64::from(STEP);
+        let input = walk::WalkInput {
+            forward: if walk.in_world() { 1.0 } else { 0.0 },
+            ..Default::default()
+        };
+        walk.update(STEP, now, input);
+        let frame = frame::client_frame(panel::Mode::Walk, walk, &fly, Some(visual), 0.0);
+        if frame.player.is_some() {
+            view.update(gpu, &frame, std::time::Duration::from_millis(4));
+        }
+        if walk.in_world() {
+            walked += STEP;
+        } else {
+            if started.elapsed() > std::time::Duration::from_secs(120) || walk.message.is_some() {
+                println!("walk: the player never entered the world");
+                return;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(5));
+        }
+    }
 }

@@ -54,6 +54,8 @@ pub struct Reticle {
     max_selection_distance: i32,
     /// `m_maxNamePlacementAttempts` (the name plates').
     max_name_attempts: i32,
+    /// `m_floatyTextTravel` (`FloatyTextTravel` on the reticle): the damage text's rise.
+    floaty_travel: i32,
     boxes: VecDeque<[f32; 6]>,
     current: Option<u64>,
     selection_rect: Option<[i32; 4]>,
@@ -148,6 +150,7 @@ impl Reticle {
                 .unwrap_or(i32::MAX / 2),
             max_name_attempts: int_attribute(tree, corners[0], "MaxNamePlacementAttempts")
                 .unwrap_or(0),
+            floaty_travel: int_attribute(tree, corners[0], "FloatyTextTravel").unwrap_or(0),
             corners,
             off_screen,
             name,
@@ -237,6 +240,28 @@ impl Reticle {
     /// `m_averageBBoxFrames` and `m_maxNamePlacementAttempts`, which the name plates share.
     pub fn name_tuning(&self) -> (usize, i32) {
         (self.average_frames, self.max_name_attempts)
+    }
+
+    /// `m_floatyTextTravel`: the pixels a damage text rises per unit of its height and progress.
+    pub fn floaty_travel(&self) -> i32 {
+        self.floaty_travel
+    }
+
+    /// The pixels a selected object's damage text is raised by, beyond its travel, so it clears
+    /// the reticle, its name (with a pixel's gap) and its meters (`gm3DTextUI::UpdateDamage`).
+    pub fn selection_offset(&self, tree: &UiTree) -> i32 {
+        let height = |index: usize| tree.get(index).map_or(0, |e| e.rect.height());
+        let name = if self.has_name {
+            height(self.name) + 1
+        } else {
+            0
+        };
+        let meters = if self.has_info {
+            height(self.stuff) + 2
+        } else {
+            1
+        };
+        name + height(self.corners[0]) + meters
     }
 
     /// The screen box the reticle and its name last took (`m_lastSelectionRect`), which the

@@ -5,16 +5,30 @@ version.workspace = true
 publish.workspace = true
 license.workspace = true
 
-# Offline dev harness: draws the AC2 world from the DATs alone. It never links ac2-net and never
-# connects to a server; the online program is the ac2-client crate.
+[lints]
+workspace = true
+
+# Offline dev harness: drives the client's own view (`ac2_client::view::ClientView`) with a
+# synthetic `ClientFrame` built from the DATs alone, so it draws what the client draws (terrain,
+# frills, water, sky, interiors, objects, the HUD) without a session. It links the client's
+# libraries, never opens a socket and takes no server flag; it changes no client crate.
 [dependencies]
+ac2-client = { path = "../../crates/ac2-client" }
 ac2-core = { path = "../../crates/ac2-core" }
 ac2-math = { path = "../../crates/ac2-math" }
 ac2-dat = { path = "../../crates/ac2-dat" }
 ac2-db = { path = "../../crates/ac2-db" }
+ac2-assets = { path = "../../crates/ac2-assets" }
+ac2-physics = { path = "../../crates/ac2-physics" }
+ac2-smartbox = { path = "../../crates/ac2-smartbox" }
+ac2-ui = { path = "../../crates/ac2-ui" }
+ac2-weenie = { path = "../../crates/ac2-weenie" }
 ac2-world = { path = "../../crates/ac2-world" }
 ac2-render = { path = "../../crates/ac2-render" }
 ac2-gpu = { path = "../../crates/ac2-gpu" }
 png = "0.18"
-wgpu = { version = "26.0.1", default-features = false }
+wgpu = { version = "30.0.1", default-features = false }
 winit = "0.30"
+egui = { version = "0.37", features = ["default_fonts"] }
+egui-wgpu = { version = "0.37", default-features = false, features = ["wayland", "x11"] }
+egui-winit = { version = "0.37", default-features = false, features = ["clipboard", "links", "wayland", "x11"] }

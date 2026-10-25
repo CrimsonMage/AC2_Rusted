@@ -538,7 +538,7 @@ fn append_fragments(
         let (Some(chain), Some(layer)) = (material.base_texture(), material.layers.first()) else {
             continue;
         };
-        if !textures.contains_key(&chain) {
+        if let std::collections::btree_map::Entry::Vacant(e) = textures.entry(chain) {
             let texture = match load_ac2_decoded_texture(store, chain)? {
                 Some(texture) => Some((
                     Arc::new(texture),
@@ -546,7 +546,7 @@ fn append_fragments(
                 )),
                 None => None,
             };
-            textures.insert(chain, texture);
+            e.insert(texture);
         }
         let Some((texture, cutout_alpha)) = textures.get(&chain).cloned().flatten() else {
             continue;

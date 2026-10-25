@@ -186,10 +186,12 @@ fn digit_loop(
         if si == 0 {
             return None;
         }
-        if grouping && place > 0 && state.grouping_size != 0 {
-            if place % i32::from(state.grouping_size) == 0 {
-                write_backwards(&mut buffer, &mut si, &state.grouping_separator)?;
-            }
+        if grouping
+            && place > 0
+            && state.grouping_size != 0
+            && place % i32::from(state.grouping_size) == 0
+        {
+            write_backwards(&mut buffer, &mut si, &state.grouping_separator)?;
         }
         if place == 0 {
             write_backwards(&mut buffer, &mut si, &state.decimal_separator)?;
@@ -285,6 +287,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::approx_constant)]
     fn floats_round_at_the_precision_and_keep_one_integer_digit() {
         let (t, s) = (table(), english());
         assert_eq!(text(t.float_to_string(Some(&s), 3.14159, 2, 1, -1)), "3.14");

@@ -157,7 +157,7 @@ impl UiTree {
         }
         self.mouse_top = top;
         // Over nothing with a cursor: the default cursor.
-        if !top.is_some_and(|t| self.el(t).cursor.0 != 0) {
+        if top.is_none_or(|t| self.el(t).cursor.0 == 0) {
             self.use_default_pointer_cursor();
         }
         let owner = self.new_tooltip_owner.take();

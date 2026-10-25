@@ -185,7 +185,8 @@ impl StaticObject {
     /// cylinders or spheres otherwise.
     pub fn shadow_box(&self) -> BBox {
         let shape = &self.shape;
-        let local = if self.state & HAS_PHYSICS_BSP_PS != 0 {
+
+        if self.state & HAS_PHYSICS_BSP_PS != 0 {
             let (b, s) = (shape.bounds, self.scale);
             BBox {
                 min: Vector::new(
@@ -229,8 +230,7 @@ impl StaticObject {
                 min: Vector::ZERO,
                 max: Vector::ZERO,
             }
-        };
-        local
+        }
     }
 
     fn is_dynamic(&self) -> bool {

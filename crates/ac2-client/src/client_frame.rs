@@ -62,25 +62,6 @@ impl Client {
     /// ahead along its view axis (the player's head in third person).
     fn camera_frame(&self) -> Option<CameraFrame> {
         let subject = self.camera_subject(true)?;
-        let render = self.scene.render;
-        let forward = render.frame.vector_heading();
-        let distance =
-            f64::from(self.camera.targeting.camera_distance) * f64::from(subject.scale_z);
-        let o = render.frame.origin;
-        let ahead =
-            |origin: f32, axis: f32| (f64::from(origin) + f64::from(axis) * distance) as f32;
-        let q = render.frame.q;
-        Some(CameraFrame {
-            cell: render.cell_id,
-            origin: [o.x, o.y, o.z],
-            rotation: [q.w, q.x, q.y, q.z],
-            target: [
-                ahead(o.x, forward.x),
-                ahead(o.y, forward.y),
-                ahead(o.z, forward.z),
-            ],
-            fov: self.scene.fov,
-            first_person: self.camera.first_person,
-        })
+        Some(self.scene.frame(&self.camera, subject.scale_z))
     }
 }

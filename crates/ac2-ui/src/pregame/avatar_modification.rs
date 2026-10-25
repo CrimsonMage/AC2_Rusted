@@ -20,7 +20,7 @@ use crate::mouse::UiMessage;
 use crate::pregame::chargen::{phys_type as pt, phys_type_value, set_phys_type_value, RACE_NAMES};
 use crate::pregame::confirmation::ConfirmationUi;
 use crate::pregame::flow::MODE_AVATAR_SELECTION;
-use crate::pregame::{Ctx, LAYOUT_AVATAR_MODIFICATION};
+use crate::pregame::{screen_music, Ctx, PregameRequest, LAYOUT_AVATAR_MODIFICATION};
 use crate::scrollbar::MSG_NEW_POSITION;
 use crate::token::{tokenize, BUTTON_GHOSTED, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_MOVE_TOP};
 
@@ -150,6 +150,10 @@ impl AvatarModificationUi {
         let viewport = format!("{}Viewport", name.to_lowercase());
         if let Some(layout) = ctx.assets.layout(LAYOUT_AVATAR_MODIFICATION) {
             self.viewport = ctx.tree.create_root(layout.clone(), tokenize(&viewport));
+        }
+        // The race viewport's music (`gmAvatarModificationUI::gmAvatarModificationUI`).
+        if let Some(did) = screen_music(ctx.tree, self.viewport) {
+            ctx.requests.push(PregameRequest::Music(did));
         }
     }
 

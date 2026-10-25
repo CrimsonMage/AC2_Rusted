@@ -111,8 +111,8 @@ fn repeating_sample(
         let row = (source_y + dy) % height * width;
         for dx in 0..footprint_x {
             let offset = (row + (source_x + dx) % width) * 4;
-            for channel in 0..4 {
-                sum[channel] += u32::from(surface.rgba[offset + channel]);
+            for (total, &texel) in sum.iter_mut().zip(&surface.rgba[offset..offset + 4]) {
+                *total += u32::from(texel);
             }
         }
     }

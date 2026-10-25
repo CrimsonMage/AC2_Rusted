@@ -252,7 +252,7 @@ impl FileBtreeRuntime {
         let start = files.partition_point(|entry| entry.id < first);
         let skip_start_child = files.get(start).is_some_and(|entry| entry.id == first);
         for index in start..=files.len() {
-            if !node.is_leaf() && !(index == start && skip_start_child) {
+            if !(node.is_leaf() || index == start && skip_start_child) {
                 let branch = node.branches[index];
                 if branch <= 0 {
                     return self

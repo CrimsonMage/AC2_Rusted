@@ -12,18 +12,18 @@ use crate::targeting::TargetingModule;
 
 /// Loads a `float` onto the x87 stack.
 #[inline(always)]
-pub(crate) fn ld(value: f32) -> f64 {
+pub fn ld(value: f32) -> f64 {
     f64::from(value)
 }
 
 /// Stores an x87 value into `float` memory.
 #[inline(always)]
-pub(crate) fn st(value: f64) -> f32 {
+pub fn st(value: f64) -> f32 {
     value as f32
 }
 
 /// `F_EPSILON` (`0x3951B717`).
-pub(crate) const F_EPSILON: f32 = 0.0002;
+pub const F_EPSILON: f32 = 0.0002;
 /// The pitch limit (`0x3FAFEDDF`, about 78.75 degrees).
 const MAX_PITCH: f32 = 1.374_446_7;
 /// The farthest camera distance.
@@ -35,7 +35,7 @@ const DEGREES_TO_RADIANS: f32 = 0.017_453_292;
 /// The `float` degrees-per-radian factor of the heading animation (`0x42652EE1`).
 const RADIANS_TO_DEGREES: f32 = 57.295_78;
 /// The first-person camera distance.
-pub(crate) const FIRST_PERSON_DISTANCE: f32 = 0.01;
+pub const FIRST_PERSON_DISTANCE: f32 = 0.01;
 
 /// Camera actions (`CameraManager::StartAction`/`StopAction`), `ActionInterpreter` ids.
 pub mod action {
@@ -56,7 +56,7 @@ pub mod action {
 
 /// What the camera reads from the player's physics object.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) struct CameraSubject {
+pub struct CameraSubject {
     /// `GetPosition`.
     pub position: Position,
     /// `GetHeight` and `GetRadius` (x87 results, not stored).
@@ -115,20 +115,20 @@ fn rotate_angles_forward(angles: Vector) -> Vector {
 /// `CameraManager`, with the preference values `SetupPrefs` blesses applied.
 #[derive(Debug, Clone)]
 pub struct CameraManager {
-    pub(crate) fov: f32,
+    pub fov: f32,
     anim_fov: f32,
     /// `m_targetOffset`: the look-at offset above the player (`SetCameraDefaults`).
-    pub(crate) target_offset: Vector,
-    pub(crate) viewer_offset: Vector,
+    pub target_offset: Vector,
+    pub viewer_offset: Vector,
     anim_pitch: f32,
     anim_heading: f32,
-    pub(crate) mouse_look: bool,
-    pub(crate) first_person: bool,
-    pub(crate) mapview: bool,
-    pub(crate) camera_distance: f32,
+    pub mouse_look: bool,
+    pub first_person: bool,
+    pub mapview: bool,
+    pub camera_distance: f32,
     prefs_distance: f32,
     prefs_pitch: f32,
-    pub(crate) third_person_steers: bool,
+    pub third_person_steers: bool,
     anim_scale: f32,
     rotate_scale: f32,
     align_to_slope: bool,
@@ -139,13 +139,13 @@ pub struct CameraManager {
     pitch_from_slope: f32,
     z_velocity: f32,
     last_z: f32,
-    pub(crate) targeting: TargetingModule,
+    pub targeting: TargetingModule,
     /// `m_mouseSensitivity`, `m_invertY` and `m_zoomMode` (constructor defaults: 1, off, off).
-    pub(crate) mouse_sensitivity: f32,
-    pub(crate) invert_y: bool,
-    pub(crate) zoom_mode: bool,
+    pub mouse_sensitivity: f32,
+    pub invert_y: bool,
+    pub zoom_mode: bool,
     /// `MouseMove`'s static `mouseFilterDeque`: the last ten mouse-look deltas, newest first.
-    pub(crate) mouse_filter: std::collections::VecDeque<(i32, i32)>,
+    pub mouse_filter: std::collections::VecDeque<(i32, i32)>,
 }
 
 impl Default for CameraManager {
@@ -193,7 +193,7 @@ impl CameraManager {
 
     /// `SmartBox::SetCameraDefaults` for a new player: `SetTargetObject(player, 1, 1)`, the
     /// look-at offset `height * mInitialCameraHeight` above it, then `SetDefaults`.
-    pub(crate) fn set_player(&mut self, subject: &CameraSubject, initial_camera_height: f32) {
+    pub fn set_player(&mut self, subject: &CameraSubject, initial_camera_height: f32) {
         let height = st(subject.height * ld(initial_camera_height));
         // `SetTargetObject`: `StoreTargetPos` from no target finds no old position to blend
         // from; the first target becomes the player.
@@ -206,12 +206,12 @@ impl CameraManager {
     }
 
     /// `CameraManager::ResetCamera` (the player left).
-    pub(crate) fn reset(&mut self) {
+    pub fn reset(&mut self) {
         self.targeting.set_player(false);
     }
 
     /// `CameraManager::GetCameraDistance` (no camera effects run, so their distance sum is 0).
-    pub(crate) fn get_camera_distance(&self) -> f32 {
+    pub fn get_camera_distance(&self) -> f32 {
         self.camera_distance
     }
 
@@ -244,12 +244,7 @@ impl CameraManager {
     }
 
     /// `CameraManager::StartAction`.
-    pub(crate) fn start_action(
-        &mut self,
-        action: u32,
-        extent: f32,
-        subject: Option<&CameraSubject>,
-    ) {
+    pub fn start_action(&mut self, action: u32, extent: f32, subject: Option<&CameraSubject>) {
         match action {
             action::FAKE_TRANSITION => self.targeting.fake_transition(),
             action::SHOULDER_VIEW => self.shoulder_view(),
@@ -294,7 +289,7 @@ impl CameraManager {
     }
 
     /// `CameraManager::StopAction`.
-    pub(crate) fn stop_action(&mut self, action: u32, subject: Option<&CameraSubject>) {
+    pub fn stop_action(&mut self, action: u32, subject: Option<&CameraSubject>) {
         match action {
             action::MOUSE_LOOK_HOLD => self.set_mouse_look(false, subject),
             action::ROTATE_LEFT | action::ROTATE_RIGHT if !self.first_person => {
@@ -340,7 +335,7 @@ impl CameraManager {
 
     /// `CameraManager::SetMouseLookState`: the viewer offset turns between the player's frame
     /// (orbiting with it) and the world's (mouse look).
-    pub(crate) fn set_mouse_look(&mut self, state: bool, subject: Option<&CameraSubject>) {
+    pub fn set_mouse_look(&mut self, state: bool, subject: Option<&CameraSubject>) {
         if self.mouse_look == state {
             return;
         }
@@ -356,7 +351,7 @@ impl CameraManager {
     }
 
     /// `CameraManager::SetFirstPersonState`.
-    pub(crate) fn set_first_person(&mut self, state: bool) {
+    pub fn set_first_person(&mut self, state: bool) {
         if self.first_person == state {
             return;
         }
@@ -417,7 +412,7 @@ impl CameraManager {
     /// `CameraManager::CalcShoulderOffset`: a sideways offset of up to 70% of the player's
     /// radius that grows as the camera closes in under 2.9 m (to the side the camera orbits
     /// on), eased over a second when it jumps; `distance` 0 asks without easing.
-    pub(crate) fn calc_shoulder_offset(
+    pub fn calc_shoulder_offset(
         &mut self,
         subject: Option<&CameraSubject>,
         distance: f32,
@@ -478,7 +473,7 @@ impl CameraManager {
     /// and the shoulder easing by `quantum`, then the viewer position for the player
     /// (`TargetingModule::CalcViewerPos`). `current` is where the camera is now (a blend from
     /// no target starts there).
-    pub(crate) fn update_camera(
+    pub fn update_camera(
         &mut self,
         quantum: f32,
         subject: Option<&CameraSubject>,
@@ -563,18 +558,8 @@ impl CameraManager {
     }
 
     /// `CameraManager::NoRayTrace`: first person, or a target other than the player.
-    pub(crate) fn no_ray_trace(&self) -> bool {
+    pub fn no_ray_trace(&self) -> bool {
         self.first_person || !self.targeting.target_is_player
-    }
-
-    /// The `CameraState` `PlayerMovementModule::UseTime` reads.
-    pub fn movement_state(&self) -> ac2_weenie::CameraState {
-        ac2_weenie::CameraState {
-            mouse_look: self.mouse_look,
-            first_person: self.first_person,
-            third_person_steers: self.third_person_steers,
-            direction: self.global_direction(),
-        }
     }
 
     /// `GetFirstPersonIsReady`.

@@ -9,6 +9,9 @@ license.workspace = true
 # software mixer. Only the `output` feature (on by default) adds the speaker backend (cpal:
 # WASAPI on Windows, ALSA on Linux, CoreAudio on macOS); without it the manager drives a null or
 # recording sink.
+[lints]
+workspace = true
+
 [features]
 default = ["output"]
 output = ["dep:cpal"]

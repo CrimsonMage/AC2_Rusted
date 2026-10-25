@@ -49,7 +49,18 @@ use std::sync::Arc;
 
 use crate::dialog::DialogFactory;
 use crate::element::UiTree;
-use crate::layout::LayoutDesc;
+use crate::layout::{AttributeValue, LayoutDesc};
+use crate::token::tokenize;
+
+/// `UIElement::GetAttribute_DataID(element, token_music)`: the music a screen's element names,
+/// which the screen's constructor plays on `Channel_Main` (`gmIntroUI`, `gmCharacterSelectionUI`
+/// and `gmAvatarModificationUI`).
+pub(crate) fn screen_music(tree: &UiTree, element: Option<usize>) -> Option<u32> {
+    match tree.get(element?)?.attribute(tokenize("music")) {
+        Some(AttributeValue::DataId(did)) => Some(*did),
+        _ => None,
+    }
+}
 
 /// `gmDisconnectedUI`'s layout.
 pub const LAYOUT_DISCONNECTED: u32 = 0x4100_0005;

@@ -341,7 +341,7 @@ impl NavigationUi {
     /// when it belongs to the view and its cell is on the map; else hidden.
     pub(crate) fn place_note(&self, tree: &mut UiTree, placed: &PlacedNote) {
         let element = placed.element;
-        let shown = !(self.map.macro_map && !placed.note.macro_map);
+        let shown = !self.map.macro_map || placed.note.macro_map;
         let placed_at = shown
             .then_some(placed.note.land)
             .flatten()

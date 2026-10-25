@@ -10,7 +10,7 @@ use super::{tag, Context, Fault, InterpStatus, Vm};
 
 /// `_ftol2`: truncation toward zero; out-of-range values give the "integer indefinite" pattern.
 fn ftol(value: f64) -> i32 {
-    if value.is_nan() || value >= 2_147_483_648.0 || value < -2_147_483_648.0 {
+    if value.is_nan() || !(-2_147_483_648.0..2_147_483_648.0).contains(&value) {
         i32::MIN
     } else {
         value as i32
@@ -19,7 +19,7 @@ fn ftol(value: f64) -> i32 {
 
 /// `_ftol2` with a 64-bit result (edx:eax).
 fn ftol64(value: f64) -> i64 {
-    if value.is_nan() || value >= 9.223_372_036_854_776e18 || value < -9.223_372_036_854_776e18 {
+    if value.is_nan() || !(-9.223_372_036_854_776e18..9.223_372_036_854_776e18).contains(&value) {
         i64::MIN
     } else {
         value as i64
@@ -238,7 +238,7 @@ impl Vm {
     fn float_unary(&mut self, code: u32, ctx: &mut Context) -> Result<(), Fault> {
         let v = f64::from(f32::from_bits(ctx.pop()?));
         match code {
-            0x19 => ctx.push_float((v * -1.0) as f32)?,
+            0x19 => ctx.push_float(-v as f32)?,
             0x1A => ctx.push_float((v + 1.0) as f32)?,
             0x1B => ctx.push_float((v - 1.0) as f32)?,
             0x1D => ctx.push_int(ftol(v))?,
@@ -253,7 +253,7 @@ impl Vm {
     fn double_unary(&mut self, code: u32, ctx: &mut Context) -> Result<(), Fault> {
         let v = f64::from_bits(ctx.pop64()?);
         match code {
-            0x19 => ctx.push_double(v * -1.0)?,
+            0x19 => ctx.push_double(-v)?,
             0x1A => ctx.push_double(v + 1.0)?,
             0x1B => ctx.push_double(v - 1.0)?,
             0x1D => ctx.push_long(ftol64(v))?,

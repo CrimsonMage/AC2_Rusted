@@ -173,7 +173,7 @@ impl Accumulator {
                 .rotation
                 .get_or_insert((Quat::from_xyzw(0.0, 0.0, 0.0, 0.0), 0.0));
             let aligned = if sum.dot(value) < 0.0 { -value } else { value };
-            *sum = *sum + aligned * weight;
+            *sum += aligned * weight;
             *total += weight;
         }
     }

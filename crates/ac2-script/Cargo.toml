@@ -7,9 +7,13 @@ license.workspace = true
 
 # The WSL interpreter: compiled script library (WLib), saved script states (WState), the VM and
 # its native glue. Plain data in, plain data out; DAT reads go through ac2-db on worker threads.
+[lints]
+workspace = true
+
 [dependencies]
 ac2-core = { path = "../ac2-core" }
 ac2-dat = { path = "../ac2-dat" }
+ac2-assets = { path = "../ac2-assets" }
 ac2-db = { path = "../ac2-db" }
 ac2-net = { path = "../ac2-net" }
 ac2-physics = { path = "../ac2-physics" }

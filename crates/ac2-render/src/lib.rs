@@ -8,6 +8,7 @@ pub mod frill;
 pub mod frustum;
 mod image;
 pub mod object;
+pub mod particles;
 pub mod scene;
 pub mod selection;
 #[cfg(test)]

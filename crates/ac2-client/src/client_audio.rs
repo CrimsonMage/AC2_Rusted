@@ -173,6 +173,8 @@ pub(crate) struct ClientAudio {
     pub(crate) manager: SoundManager,
     objects: HashMap<u64, FxSounds>,
     pub(crate) ambient: crate::client_ambient::ClientAmbient,
+    /// The screen music's playing sound (`PlayingSoundContext` of the pregame screens).
+    pregame_music: Option<u32>,
 }
 
 /// `DirectXPlayingSound::UpdatePosition`'s view of an object from the listener:
@@ -213,7 +215,27 @@ impl Client {
             manager,
             objects: HashMap::new(),
             ambient: Default::default(),
+            pregame_music: None,
         });
+    }
+
+    /// A pregame screen's music (`gmIntroUI`, `gmCharacterSelectionUI` and
+    /// `gmAvatarModificationUI` constructors): the previous screen's music fades out over two
+    /// seconds (`PlayingSoundContext::Stop(ctx, 2.0)`), then the screen's plays on `Channel_Main`
+    /// at full volume, its handle kept for the next screen.
+    pub fn play_pregame_music(&mut self, did: u32) {
+        let Some(audio) = self.audio.as_mut() else {
+            return;
+        };
+        if let Some(handle) = audio.pregame_music.take() {
+            audio.manager.stop_context(handle, 2.0);
+        }
+        audio.pregame_music = audio.manager.play(&PlaySoundData::new(did));
+    }
+
+    /// The screen music's playing sound, if one plays (its handle).
+    pub fn pregame_music_handle(&self) -> Option<u32> {
+        self.audio.as_ref()?.pregame_music
     }
 
     /// The attached sound manager (the UI plays its sounds through it).

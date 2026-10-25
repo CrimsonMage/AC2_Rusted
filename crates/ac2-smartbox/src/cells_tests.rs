@@ -3,10 +3,9 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use ac2_physics::Terrain;
-use ac2_world::GameClock;
 
 use super::*;
-use crate::world_data::{BodyData, WorldData};
+use crate::blocks::{BlockPool, BlockSource};
 
 /// Flat blocks everywhere; counts the near and far loads.
 #[derive(Default)]
@@ -15,7 +14,7 @@ struct Counting {
     far: AtomicUsize,
 }
 
-impl WorldData for Counting {
+impl BlockSource for Counting {
     fn load_block(&self, terrain: &mut Terrain, block: u32) -> Result<bool, String> {
         self.near.fetch_add(1, Ordering::SeqCst);
         terrain.insert_heights(block, &[0.0; 17 * 17], |_, _| false);
@@ -26,18 +25,10 @@ impl WorldData for Counting {
         self.far.fetch_add(1, Ordering::SeqCst);
         Ok(())
     }
-
-    fn body(&self, _visual: Option<u32>) -> Result<BodyData, String> {
-        Err("no body".into())
-    }
-
-    fn game_clock(&self) -> Option<GameClock> {
-        None
-    }
 }
 
 /// Takes every load in as it finishes.
-fn settle(cells: &mut CellManager, terrain: &mut Terrain, loader: &mut Loader) {
+fn settle(cells: &mut CellManager, terrain: &mut Terrain, loader: &mut BlockPool) {
     while loader.busy() {
         let loaded = loader.wait(Duration::from_secs(5)).expect("load");
         cells.loaded(loaded, terrain, loader).unwrap();
@@ -47,7 +38,7 @@ fn settle(cells: &mut CellManager, terrain: &mut Terrain, loader: &mut Loader) {
 #[test]
 fn rings_load_out_to_the_far_radius_before_the_wait_ends() {
     let data = Arc::new(Counting::default());
-    let mut loader = Loader::new(data.clone(), 2);
+    let mut loader = BlockPool::new(data.clone(), 2);
     let mut terrain = Terrain::new();
     let mut cells = CellManager::default();
     let cell = 0x7F7F_001C;
@@ -86,7 +77,7 @@ fn rings_load_out_to_the_far_radius_before_the_wait_ends() {
 #[test]
 fn releasing_the_cells_empties_the_world() {
     let data = Arc::new(Counting::default());
-    let mut loader = Loader::new(data, 1);
+    let mut loader = BlockPool::new(data, 1);
     let mut terrain = Terrain::new();
     let mut cells = CellManager::default();
     cells.update_visible_cells(0x7F7F_001C, true, &mut terrain, &mut loader);

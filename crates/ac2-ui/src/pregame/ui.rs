@@ -53,6 +53,9 @@ pub enum PregameRequest {
     RestoreCharacter { character: u64, name: String },
     /// `Proto_UI::SendCharGenResult`.
     CreateCharacter(CharGenResult),
+    /// `SoundManager::Play` of a screen's music on `Channel_Main` (the screen's constructor):
+    /// the previous screen's music fades out over two seconds first (`PlayingSoundContext::Stop`).
+    Music(u32),
     /// `Device::Done`: close the client.
     Quit,
 }

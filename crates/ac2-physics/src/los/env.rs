@@ -48,9 +48,7 @@ pub(super) fn trace_polygon(vertices: &[Vector], plane: &Plane, ray: &Ray) -> Op
 impl BspTree {
     /// `BSPTREE::TraceRay`: through the root's bounding sphere first.
     pub(crate) fn trace_ray(&self, ray: &Ray, normal: &mut Vector) -> Option<f32> {
-        let Some(sphere) = self.bounding_sphere() else {
-            return None;
-        };
+        let sphere = self.bounding_sphere()?;
         trace_ray_sphere(&sphere, ray)?;
         self.trace_ray_node(0, ray, normal)
     }

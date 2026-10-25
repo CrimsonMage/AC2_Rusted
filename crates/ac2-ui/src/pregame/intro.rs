@@ -3,11 +3,12 @@
 //! press or a mouse button let go (`UIMESSAGE_GLOBAL_KEYPRESS`, `UIMESSAGE_GLOBAL_MOUSEUP`)
 //! close it into the data patch (connecting) screen (`Close`).
 //!
-//! Not modelled yet: the field's `music`.
+//! The field's `music` plays when it opens (`gmIntroUI::gmIntroUI`, `Channel_Main`, the previous
+//! screen's music fading over two seconds: [`PregameRequest::Music`]).
 
 use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS, GLOBAL_MOUSE_UP};
 use crate::pregame::flow::MODE_DATA_PATCH;
-use crate::pregame::{Ctx, LAYOUT_INTRO};
+use crate::pregame::{screen_music, Ctx, PregameRequest, LAYOUT_INTRO};
 use crate::token::tokenize;
 
 /// `gmIntroUI`'s state.
@@ -23,6 +24,9 @@ impl IntroUi {
             .assets
             .layout(LAYOUT_INTRO)
             .and_then(|layout| ctx.tree.create_root(layout.clone(), tokenize("IntroField")));
+        if let Some(did) = screen_music(ctx.tree, field) {
+            ctx.requests.push(PregameRequest::Music(did));
+        }
         Self { field }
     }
 

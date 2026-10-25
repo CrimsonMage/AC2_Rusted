@@ -95,7 +95,12 @@ pub enum DataRequest {
     StringTable(u32),
     /// The `PlacesTable` (resolved through the enum tables).
     PlacesTable,
+    /// An entity description's property collection (`EntityDesc`, DB type 0x40000049).
+    EntityDesc(u32),
 }
+
+/// An entity description's properties in stream order (`PropertyCollection` flattened).
+pub type EntityProperties = std::sync::Arc<Vec<ac2_db::Ac2PropertyValue>>;
 
 pub trait ScriptData {
     /// Saved script states by WState DID (`DBObj::Get` in `FillPackage` and
@@ -112,6 +117,13 @@ pub trait ScriptData {
     /// The reads lookups missed since the last call, for a worker thread.
     fn take_requests(&self) -> Vec<DataRequest> {
         Vec::new()
+    }
+
+    /// `DBObj::Get` of the entity description at `did`, its properties decoded (`EntityDesc`'s
+    /// `m_properties`). `None` when it is not held or not read yet (a cache-only host records a
+    /// [`DataRequest::EntityDesc`] and the efun runs again once loaded).
+    fn entity_properties(&self, _did: u32) -> Option<EntityProperties> {
+        None
     }
 
     /// `FileArray::GetDID(name, db_type)`: a data file's DID by name (the `DBFile2IDTable`).

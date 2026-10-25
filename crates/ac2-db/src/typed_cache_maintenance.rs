@@ -15,6 +15,7 @@ const FREE_RETAINED_BYTES_LOW_WATER: usize = 24 * 1024 * 1024;
 
 /// Result of one low-priority retail free-entry aging attempt.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[allow(clippy::large_enum_variant)]
 pub enum ResourceCacheMaintenanceOutcome {
     /// The family directory itself was changing, so no maintenance work ran.
     Busy,
@@ -344,7 +345,7 @@ impl TypedResourceCache {
             lifecycle.finish_release_token(&self.state);
             lifecycle_events = lifecycle_events.saturating_add(1);
         }
-        if self.state.release_events.len() != 0 {
+        if !self.state.release_events.is_empty() {
             more_work = true;
         }
 

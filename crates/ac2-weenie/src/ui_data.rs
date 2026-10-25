@@ -84,11 +84,23 @@ impl Default for CraftSkill {
 }
 
 /// `DamageTextBlob`: a floating damage number.
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct DamageText {
     pub text: String,
     /// `_fontColor` (r, g, b, a).
     pub color: [f32; 4],
     pub duration: f32,
     pub scale: f32,
+}
+
+impl Default for DamageText {
+    /// `DamageTextBlob::Clear`: no duration (-1) and no scale until the script sets them.
+    fn default() -> Self {
+        Self {
+            text: String::new(),
+            color: [0.0; 4],
+            duration: -1.0,
+            scale: 0.0,
+        }
+    }
 }

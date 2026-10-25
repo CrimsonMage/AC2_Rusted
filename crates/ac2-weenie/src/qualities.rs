@@ -276,7 +276,7 @@ mod tests {
         assert_eq!(q.inq_bool(0x2BE), Some(1));
         assert_eq!(q.inq_bool(10), None);
         assert_eq!(q.inq_data_id(0x101), Some(0x0600_1001));
-        assert!(q.ints.get(&0x106).is_none());
+        assert!(!q.ints.contains_key(&0x106));
     }
 
     #[test]

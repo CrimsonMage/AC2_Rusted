@@ -135,9 +135,9 @@ impl ScriptHost {
     /// [`ScriptHost::take_data_requests`]; load it and call again).
     pub fn create_weenie(&mut self, id: u64, pid: u32, did: u32) -> bool {
         let state_did = if did == 0 {
-            Some(WSTATE_BASE_DID + 0x0100_0000 | pid & 0xFFFF)
+            Some((WSTATE_BASE_DID + 0x0100_0000) | pid & 0xFFFF)
         } else if self.vm.data().db_type(did) == Some(0x4000_0049) {
-            Some(WSTATE_BASE_DID + 0x0200_0000 | did & 0x00FF_FFFF)
+            Some((WSTATE_BASE_DID + 0x0200_0000) | did & 0x00FF_FFFF)
         } else {
             None
         };

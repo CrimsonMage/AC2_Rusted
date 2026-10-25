@@ -154,6 +154,33 @@ fn to_selection(ui: &mut PregameUi, set: CharacterSet) {
 /// A keyboard action (any action that is not the pointer's).
 const KEY: u32 = 0x4000_0100;
 
+/// The requests the screens make of the client, without the screens' music (see
+/// [`the_screens_ask_for_their_music_as_they_open`]).
+fn actions(ui: &mut PregameUi) -> Vec<PregameRequest> {
+    ui.take_requests()
+        .into_iter()
+        .filter(|request| !matches!(request, PregameRequest::Music(_)))
+        .collect()
+}
+
+/// The intro's and the character selection's music (`gmIntroUI` and
+/// `gmCharacterSelectionUI` constructors) are requested as their screens open, in that order.
+#[test]
+fn the_screens_ask_for_their_music_as_they_open() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    ui.use_time(0.0);
+    assert_eq!(ui.mode(), MODE_INTRO);
+    assert_eq!(ui.take_requests(), vec![PregameRequest::Music(0x2C00_039B)]);
+    ui.input(&[(KEY, 1.0, true), (KEY, 1.0, false)]);
+    ui.use_time(0.0);
+    ui.character_set(set());
+    ui.use_time(0.0);
+    assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
+    assert_eq!(ui.take_requests(), vec![PregameRequest::Music(0x2C00_039A)]);
+}
+
 #[test]
 fn character_selection_lists_the_set_and_enters_with_the_selection() {
     let Some(mut ui) = real_ui() else {
@@ -193,7 +220,7 @@ fn character_selection_lists_the_set_and_enters_with_the_selection() {
     let enter = find(&ui, "EnterButton");
     click(&mut ui, enter);
     assert_eq!(
-        ui.take_requests(),
+        actions(&mut ui),
         vec![PregameRequest::EnterWorld(0x5000_0001)]
     );
     assert_eq!(
@@ -235,13 +262,13 @@ fn deleting_asks_first_and_create_opens_avatar_selection() {
     assert!(context > 0 && ghosted(&ui, "CreateButton"));
     // No: nothing sent, the buttons back.
     click_named(&mut ui, "NoButton");
-    assert!(ui.take_requests().is_empty());
+    assert!(actions(&mut ui).is_empty());
     assert!(ui.dialogs().shown().is_none() && !ghosted(&ui, "CreateButton"));
     // Yes: the delete request.
     click_named(&mut ui, "DeleteButton");
     click_named(&mut ui, "YesButton");
     assert_eq!(
-        ui.take_requests(),
+        actions(&mut ui),
         vec![PregameRequest::DeleteCharacter(0x5000_0001)]
     );
     // Create: please wait, then avatar selection.
@@ -384,13 +411,13 @@ fn naming_checks_the_expansion_and_sends_the_result() {
     let typed: Vec<(u16, u32)> = "Ab1c".encode_utf16().map(|c| (c, 0)).collect();
     ui.text_input(&[], &typed, false);
     click_named(&mut ui, "EnterButton");
-    assert!(ui.take_requests().is_empty());
+    assert!(actions(&mut ui).is_empty());
     // With the expansion it goes out, named.
     let mut with = set();
     with.legions = Some([1, 1]);
     ui.character_set(with);
     click_named(&mut ui, "EnterButton");
-    match ui.take_requests().as_slice() {
+    match actions(&mut ui).as_slice() {
         [PregameRequest::CreateCharacter(cgr)] => {
             assert_eq!(cgr.name, "Abc");
             assert_eq!(

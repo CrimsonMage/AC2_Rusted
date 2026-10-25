@@ -314,7 +314,7 @@ fn children(object: &MusicObject) -> Vec<Child> {
             }
         }
         MusicObject::Container(container) => container_children(container, &mut out),
-        MusicObject::Collection(_) | MusicObject::Other(_) => {}
+        MusicObject::Collection(_) | MusicObject::Other(_) | MusicObject::Wave(_) => {}
     }
     out
 }

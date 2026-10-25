@@ -16,7 +16,7 @@ fn pack_units(out: &mut Vec<u8>, base: usize, units: usize, data: &[u8]) {
     let mut encoded = data.to_vec();
     ac2_core::pstring::munge(&mut encoded);
     out.extend(encoded);
-    while (out.len() - base) % 4 != 0 {
+    while !(out.len() - base).is_multiple_of(4) {
         out.push(0);
     }
 }

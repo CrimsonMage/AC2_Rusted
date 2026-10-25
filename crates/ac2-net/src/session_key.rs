@@ -46,7 +46,7 @@ impl ServerPublicKey {
         let bits = word(12) as usize;
         let exponent = word(16);
         let len = bits / 8;
-        if bits % 32 != 0 || len < 16 || blob.len() != 20 + len || exponent == 0 {
+        if !bits.is_multiple_of(32) || len < 16 || blob.len() != 20 + len || exponent == 0 {
             return Err(NetError::Crypto("PUBLICKEYBLOB size"));
         }
         let modulus: Vec<u32> = blob[20..]

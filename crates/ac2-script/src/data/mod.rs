@@ -18,6 +18,7 @@
 //! `DBFile2IDTable` records, so names never resolve, as in retail.
 
 mod db_types;
+pub mod entity;
 mod enum_map;
 mod places;
 mod render;
@@ -32,14 +33,15 @@ use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
+use ac2_assets::Ac2EntityDesc;
 use ac2_core::DataId;
-use ac2_dat::{DatDataset, DatFileKind};
+use ac2_dat::{ArchiveCursor, DatDataset, DatFileKind};
 use ac2_db::{
-    load_string_table, CachedResource, ResourcePackedDecode, ResourceStore, StringTable,
-    TypedResourceRef,
+    install_ac2_property_types, load_string_table, read_ac2_property_collection, CachedResource,
+    ResourcePackedDecode, ResourceStore, StringTable, TypedResourceRef,
 };
 
-use crate::vm::{DataRequest, ScriptData, StateRef};
+use crate::vm::{DataRequest, EntityProperties, ScriptData, StateRef};
 use crate::wstate::{load_wstate, WState, WSTATE_BASE_DID};
 
 /// The portal.dat header's master map (`DBCache::m_MasterMapID`): the `EnumIDMap` of enum
@@ -64,6 +66,7 @@ struct Resident {
     id_maps: HashMap<u32, CachedResource<EnumIdMap>>,
     places: Option<CachedResource<PlacesTable>>,
     string_state: Option<CachedResource<ac2_db::StringState>>,
+    entities: HashMap<u32, EntityProperties>,
     absent: HashSet<DataRequest>,
 }
 
@@ -161,10 +164,36 @@ impl DatScriptData {
                 .flatten()
                 .is_some(),
             DataRequest::PlacesTable => self.load_places(),
+            DataRequest::EntityDesc(did) => match self.read_entity(did) {
+                Some(properties) => {
+                    self.resident().entities.insert(did, properties);
+                    true
+                }
+                None => false,
+            },
         };
         if !found {
             self.resident().absent.insert(request);
         }
+    }
+
+    /// `DBObj::Get` of an entity description and its `PropertyCollection` (the MasterProperty
+    /// table is installed from the same store first: the record's property collections are
+    /// typed by it). A record without properties has none.
+    fn read_entity(&self, did: u32) -> Option<EntityProperties> {
+        // Installing is idempotent; without the table the record cannot be decoded.
+        let _ = install_ac2_property_types(&self.store);
+        let desc = self
+            .store
+            .load_cached_packed::<Ac2EntityDesc>(portal(did))
+            .ok()
+            .flatten()?;
+        let Some(bytes) = desc.properties.as_ref() else {
+            return Some(EntityProperties::default());
+        };
+        let mut cursor = ArchiveCursor::new(bytes);
+        let properties = read_ac2_property_collection(&mut cursor).ok()?;
+        Some(std::sync::Arc::new(properties))
     }
 
     fn read<T: ResourcePackedDecode>(&self, did: u32) -> Option<CachedResource<T>> {
@@ -309,6 +338,19 @@ impl ScriptData for DatScriptData {
 
     fn take_missed(&self) -> bool {
         self.shared.missed.swap(false, Ordering::Relaxed)
+    }
+
+    fn entity_properties(&self, did: u32) -> Option<EntityProperties> {
+        if let Some(properties) = self.resident().entities.get(&did).cloned() {
+            return Some(properties);
+        }
+        if !self.cache_only() {
+            let properties = self.read_entity(did)?;
+            self.resident().entities.insert(did, properties.clone());
+            return Some(properties);
+        }
+        self.miss(DataRequest::EntityDesc(did));
+        None
     }
 
     fn take_requests(&self) -> Vec<DataRequest> {

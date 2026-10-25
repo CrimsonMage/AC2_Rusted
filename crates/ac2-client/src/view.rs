@@ -222,6 +222,7 @@ impl ClientView {
         self.hud.update_navigation(frame);
         self.update_reticle(frame, &camera, aspect);
         self.update_names(frame, &camera, aspect);
+        self.update_damage(frame, &camera, aspect);
         self.hud.finish_frame(gpu);
         self.hud.prepare(&gpu.queue);
         self.doll.prepare(gpu, time);
@@ -404,6 +405,50 @@ impl ClientView {
             .collect();
         let selection = frame.selection.as_ref().map_or(0, |s| s.id);
         self.hud.update_names(&places, selection, frame.radar.range);
+    }
+
+    /// `gm3DTextUI::UpdateDamage`: each floating damage text's object box and projection.
+    fn update_damage(&mut self, frame: &ClientFrame, camera: &Camera, aspect: f32) {
+        let objects = self.hud.damage_objects();
+        if objects.is_empty() {
+            return;
+        }
+        let view_projection = camera.view_projection(aspect);
+        let drawn = drawn_objects(frame);
+        let mut boxes = Vec::new();
+        for id in objects {
+            let Some(d) = drawn.iter().find(|d| d.id == id) else {
+                continue;
+            };
+            let Some((key, world, _)) = self.placed(d) else {
+                continue;
+            };
+            let Some(mesh) = self.scene.object_pick(key) else {
+                continue;
+            };
+            boxes.push((id, world, mesh.min.to_array(), mesh.max.to_array()));
+        }
+        let projectors: Vec<_> = boxes
+            .iter()
+            .map(|&(_, world, ..)| {
+                move |p: [f32; 3]| {
+                    let clip = view_projection * world * Vec3::from_array(p).extend(1.0);
+                    let w = if clip.w.abs() < 1e-6 { 1e-6 } else { clip.w };
+                    ([clip.x / w, clip.y / w], clip.w > 0.0)
+                }
+            })
+            .collect();
+        let places: Vec<_> = boxes
+            .iter()
+            .zip(&projectors)
+            .map(|(&(id, _, min, max), project)| ac2_ui::DamagePlace {
+                id,
+                bounds: (min, max),
+                project,
+            })
+            .collect();
+        let selection = frame.selection.as_ref().map_or(0, |s| s.id);
+        self.hud.update_damage(&places, selection);
     }
 
     /// Whether the reticle cleared the selection since the last call (send

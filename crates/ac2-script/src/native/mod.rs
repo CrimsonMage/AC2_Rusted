@@ -153,6 +153,9 @@ pub enum NativeObject {
         pos: HashPos,
     },
     StringInfo(StringInfo),
+    /// `gEntityDesc`'s `EntityDesc` link: the entity description's DID (its properties are read
+    /// through the data source when an inquiry asks for them).
+    EntityDesc(u32),
     /// `wpstring` (`PStringBase<unsigned short>`).
     WString(Vec<u16>),
     /// `gmCharGenResult`.

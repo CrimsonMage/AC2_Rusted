@@ -182,6 +182,17 @@ impl SceneRenderer {
     ) {
         self.frame = frame;
         self.frame_objects = objects;
+        // The particles of the frame go into their materials' models.
+        for batch in &self.frame.particles {
+            if let Some(model) = self.models.get_mut(&batch.material) {
+                ObjectRenderer::set_geometry(
+                    gpu,
+                    model,
+                    &batch.geometry.vertices,
+                    &batch.geometry.indices,
+                );
+            }
+        }
         let lighting = self.frame.lighting;
         self.terrain
             .set_frame(&gpu.queue, camera, &lighting, aspect);
@@ -302,6 +313,12 @@ fn world_instances<'a>(
                 point_lights: &o.point_lights,
                 ..ObjectInstance::new(world_objects.get(&o.key)?, o.world)
             })
+        }))
+        .chain(frame.particles.iter().filter_map(|batch| {
+            Some(ObjectInstance::new(
+                models.get(&batch.material)?,
+                Mat4::IDENTITY,
+            ))
         }))
         .chain(
             frame

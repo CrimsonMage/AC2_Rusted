@@ -14,7 +14,8 @@
 //!
 //! Not modelled yet: the 3D scene itself (the client renders [`CharacterSelectionUi::occupants`]
 //! on [`CharacterSelectionUi::arms`] and answers the pick), the name's ellipsis
-//! (`TruncateText`), the background music and the portal and torch viewports' scenes.
+//! (`TruncateText`), and the portal and torch viewports' scenes. The background's music plays
+//! when the screen opens ([`PregameRequest::Music`]).
 
 use ac2_net::protocol::CharacterIdentity;
 
@@ -27,7 +28,7 @@ use crate::pregame::arms::CharacterArms;
 use crate::pregame::flow::{MODE_AVATAR_SELECTION, MODE_CREDITS, MODE_GAMEPLAY, MODE_KEYBOARD};
 use crate::pregame::persistent::{greyed_out_for, identity, set_greyed_out_for};
 use crate::pregame::strings::{int_var, text_var};
-use crate::pregame::{Ctx, PregameRequest, LAYOUT_CHARACTER_SELECTION};
+use crate::pregame::{screen_music, Ctx, PregameRequest, LAYOUT_CHARACTER_SELECTION};
 use crate::token::{tokenize, BUTTON_GHOSTED, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS_TOP};
 
 const LEFT: u32 = 0x4000_0004;
@@ -88,6 +89,10 @@ impl CharacterSelectionUi {
         // generation starts over.
         ctx.data.clear_generation();
         ui.update(ctx);
+        // The background's music (`gmCharacterSelectionUI::gmCharacterSelectionUI`).
+        if let Some(did) = screen_music(ctx.tree, ui.background) {
+            ctx.requests.push(PregameRequest::Music(did));
+        }
         ui
     }
 

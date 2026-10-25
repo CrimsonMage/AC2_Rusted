@@ -1,0 +1,18 @@
+[package]
+name = "race-table"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+# Test tooling: runs the `CharacterGenSystem` script once to list the playable race and sex
+# player models, for `world-viewer`. The viewer itself never links the script or network crates,
+# so it reads this tool's output file instead.
+[dependencies]
+ac2-core = { path = "../../crates/ac2-core" }
+ac2-dat = { path = "../../crates/ac2-dat" }
+ac2-db = { path = "../../crates/ac2-db" }
+ac2-script = { path = "../../crates/ac2-script" }

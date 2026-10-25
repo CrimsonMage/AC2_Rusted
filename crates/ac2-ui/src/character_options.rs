@@ -8,7 +8,8 @@
 //! slider shows, the saved one the last apply or refresh committed (`mPrevious`), and the default
 //! `SetDefault` gave it. The page reads the profile through [`OptionsSettings`].
 
-use crate::token::tokenize;
+use crate::element::UiTree;
+use crate::token::{tokenize, BUTTON_HIGHLIGHTED};
 
 /// The options profile's bit field (`GameplayOptionsProfile::m_bitField`, read by the `Get*`
 /// accessors of `gmCWInterface`; the bit values are the profile's own).
@@ -354,6 +355,50 @@ pub fn write(setter: Setter, target: Target, value: f64) -> OptionSetting {
             setter,
             value: u32::from(value != 0.0),
         },
+    }
+}
+
+/// `OptionBase::IsChanged`: a flag or a choice differs from its saved value; a slider's
+/// difference is over a hundredth.
+pub(crate) fn is_changed_of(kind: Kind, current: f64, saved: f64) -> bool {
+    match kind {
+        Kind::Value { .. } => {
+            let d = current - saved;
+            d * d >= 0.0001
+        }
+        Kind::Flag | Kind::Choice { .. } => current != saved,
+    }
+}
+
+/// Shows a value on a control: the checkbox's highlight, the slider's position, the drop-down's
+/// label (choice `n` is `labels[n - 1]`).
+pub(crate) fn sync_control_of(
+    tree: &mut UiTree,
+    control: Option<usize>,
+    kind: Kind,
+    current: f64,
+    labels: &[String],
+) {
+    let Some(control) = control else {
+        return;
+    };
+    match kind {
+        Kind::Flag => tree.set_bool(control, BUTTON_HIGHLIGHTED, current != 0.0),
+        Kind::Value { lower, upper } => {
+            let span = upper - lower;
+            let position = if span == 0.0 {
+                0.0
+            } else {
+                (current - lower) / span
+            };
+            tree.scrollbar_set_position(control, position as f32);
+        }
+        Kind::Choice { .. } => {
+            let choice = (current as usize).checked_sub(1);
+            if let Some(label) = choice.and_then(|c| labels.get(c)) {
+                tree.set_text(control, label);
+            }
+        }
     }
 }
 

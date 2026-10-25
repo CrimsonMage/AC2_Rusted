@@ -297,7 +297,10 @@ pub(super) fn typed(
             _ => return None,
         },
         "Do3DDamage" => match vm.native(*raw.first()?)? {
-            NativeObject::DamageText(d) => N::Do3DDamage((**d).clone()),
+            NativeObject::DamageText(d) => N::Do3DDamage {
+                object,
+                text: (**d).clone(),
+            },
             _ => return None,
         },
         _ => return None,

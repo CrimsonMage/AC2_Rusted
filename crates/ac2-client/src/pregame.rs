@@ -12,10 +12,12 @@ use ac2_weenie::{OnlineSession, SessionEvent};
 use crate::client::Notice;
 
 /// What carrying out the UI's requests asks of the program.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct PregameOutcome {
     /// `Device::Done`: close the client.
     pub quit: bool,
+    /// The screens' music, in the order the screens opened it (`Client::play_pregame_music`).
+    pub music: Vec<u32>,
 }
 
 /// One session event into the UI.
@@ -58,6 +60,7 @@ pub fn pregame_requests(ui: &mut PregameUi, session: &mut OnlineSession) -> Preg
             PregameRequest::RestoreCharacter { character, .. } => {
                 eprintln!("ac2: restoring {character:#x} is an admin request; not sent");
             }
+            PregameRequest::Music(did) => outcome.music.push(did),
             PregameRequest::Quit => outcome.quit = true,
         }
     }

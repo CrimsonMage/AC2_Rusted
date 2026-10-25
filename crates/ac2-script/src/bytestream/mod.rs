@@ -171,7 +171,7 @@ mod tests {
         push(out, kind);
         push(out, body.len() as u32);
         out.extend(body);
-        while out.len() % 4 != 0 {
+        while !out.len().is_multiple_of(4) {
             out.push(0);
         }
     }

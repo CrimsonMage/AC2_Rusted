@@ -156,7 +156,7 @@ mod tests {
     fn terrain(bytes: &mut Vec<u8>, name: &[u8], surface: u32, index: u32, scenes: u32) {
         bytes.extend_from_slice(&(name.len() as u16).to_le_bytes());
         bytes.extend_from_slice(name);
-        while bytes.len() % 4 != 0 {
+        while !bytes.len().is_multiple_of(4) {
             bytes.push(0);
         }
         for word in [surface, index, 0x3F35_04F3, 1, 0x8000_006C, 0, scenes] {

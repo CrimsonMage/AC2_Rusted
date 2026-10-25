@@ -36,8 +36,10 @@
 //! -2400 cents is the velocity to cutoff; the Q blocks are 30 and 128 centibels; the vibrato depth is
 //! 50 cents (`3276800`, one block 25 cents); the vibrato delays are timecents (`-11960` is 1 ms); the
 //! vibrato rates are absolute cents (`2790` is 8.18 Hz). The DLS2 EG delay and hold destinations
-//! (0x020B, 0x020C, 0x030F, 0x0310) are in the header but not modelled (see the module docs of
-//! `synth`).
+//! (`CONN_DST_EG1_DELAYTIME` 0x020B, `CONN_DST_EG1_HOLDTIME` 0x020C, `CONN_DST_EG2_DELAYTIME` 0x030F,
+//! `CONN_DST_EG2_HOLDTIME` 0x0310; `third_party/directx8/include/dls2.h`) are timecents, each EG's
+//! delay before its attack and hold at full scale after it (see `envelope`); no corpus block sets
+//! them, so they are checked by the synthetic tests only.
 
 use super::envelope::{EnvelopeParams, Shape};
 use super::filter::resonance_q;
@@ -77,14 +79,28 @@ const DST_LFO_DELAY: u16 = 0x0105;
 const DST_VIB_FREQUENCY: u16 = 0x0114;
 /// `CONN_DST_VIB_STARTDELAY` (DLS Level 2).
 const DST_VIB_DELAY: u16 = 0x0115;
+/// `CONN_DST_EG1_DELAYTIME` (DLS Level 2).
+const DST_EG1_DELAY: u16 = 0x020B;
+/// `CONN_DST_EG1_HOLDTIME` (DLS Level 2).
+const DST_EG1_HOLD: u16 = 0x020C;
 const DST_EG1_ATTACK: u16 = 0x0206;
 const DST_EG1_DECAY: u16 = 0x0207;
 const DST_EG1_RELEASE: u16 = 0x0209;
 const DST_EG1_SUSTAIN: u16 = 0x020A;
+/// `CONN_DST_EG2_DELAYTIME` (DLS Level 2).
+const DST_EG2_DELAY: u16 = 0x030F;
 const DST_EG2_ATTACK: u16 = 0x030A;
 const DST_EG2_DECAY: u16 = 0x030B;
+/// `CONN_DST_EG2_HOLDTIME` (DLS Level 2).
+const DST_EG2_HOLD: u16 = 0x0310;
 const DST_EG2_RELEASE: u16 = 0x030D;
 const DST_EG2_SUSTAIN: u16 = 0x030E;
+/// The index of each EG time in a `[delay, attack, hold, decay, release]` array.
+const TIME_DELAY: usize = 0;
+const TIME_ATTACK: usize = 1;
+const TIME_HOLD: usize = 2;
+const TIME_DECAY: usize = 3;
+const TIME_RELEASE: usize = 4;
 /// `CONN_DST_FILTER_CUTOFF` (DLS Level 2, absolute-pitch cents).
 const DST_FILTER_CUTOFF: u16 = 0x0500;
 /// `CONN_DST_FILTER_Q` (DLS Level 2, centibels).
@@ -212,11 +228,15 @@ pub fn seconds_from_timecents(tc: f64) -> f64 {
 /// The values the blocks set for one note, before they are shaped into the note's parameters.
 #[derive(Default)]
 struct Setting {
+    eg1_delay: Option<f64>,
     eg1_attack: Option<f64>,
+    eg1_hold: Option<f64>,
     eg1_decay: Option<f64>,
     eg1_release: Option<f64>,
     eg1_sustain: Option<f64>,
+    eg2_delay: Option<f64>,
     eg2_attack: Option<f64>,
+    eg2_hold: Option<f64>,
     eg2_decay: Option<f64>,
     eg2_release: Option<f64>,
     eg2_sustain: Option<f64>,
@@ -235,9 +255,9 @@ struct Setting {
     vib_routed: bool,
     /// Whether a block routes the filter cutoff (the cutoff then exists even with no fixed value).
     cutoff_routed: bool,
-    /// The timecent deltas from key and velocity routes, per EG time.
-    eg1_time_delta: [f64; 3],
-    eg2_time_delta: [f64; 3],
+    /// The timecent deltas from key and velocity routes, per EG time (`TIME_*`).
+    eg1_time_delta: [f64; 5],
+    eg2_time_delta: [f64; 5],
     eg1_sustain_delta: f64,
     eg2_sustain_delta: f64,
     static_pitch: f64,
@@ -278,11 +298,15 @@ impl Setting {
     /// unit, see the module docs).
     fn fixed(&mut self, destination: u16, value: f64) {
         match destination {
+            DST_EG1_DELAY => set_first(&mut self.eg1_delay, value),
             DST_EG1_ATTACK => set_first(&mut self.eg1_attack, value),
+            DST_EG1_HOLD => set_first(&mut self.eg1_hold, value),
             DST_EG1_DECAY => set_first(&mut self.eg1_decay, value),
             DST_EG1_RELEASE => set_first(&mut self.eg1_release, value),
             DST_EG1_SUSTAIN => set_first(&mut self.eg1_sustain, value),
+            DST_EG2_DELAY => set_first(&mut self.eg2_delay, value),
             DST_EG2_ATTACK => set_first(&mut self.eg2_attack, value),
+            DST_EG2_HOLD => set_first(&mut self.eg2_hold, value),
             DST_EG2_DECAY => set_first(&mut self.eg2_decay, value),
             DST_EG2_RELEASE => set_first(&mut self.eg2_release, value),
             DST_EG2_SUSTAIN => set_first(&mut self.eg2_sustain, value),
@@ -350,13 +374,17 @@ impl Setting {
             DST_PAN => self.static_pan += value,
             DST_FILTER_CUTOFF => self.static_cutoff += value,
             DST_FILTER_Q => self.static_resonance += value,
-            DST_EG1_ATTACK => self.eg1_time_delta[0] += value,
-            DST_EG1_DECAY => self.eg1_time_delta[1] += value,
-            DST_EG1_RELEASE => self.eg1_time_delta[2] += value,
+            DST_EG1_DELAY => self.eg1_time_delta[TIME_DELAY] += value,
+            DST_EG1_ATTACK => self.eg1_time_delta[TIME_ATTACK] += value,
+            DST_EG1_HOLD => self.eg1_time_delta[TIME_HOLD] += value,
+            DST_EG1_DECAY => self.eg1_time_delta[TIME_DECAY] += value,
+            DST_EG1_RELEASE => self.eg1_time_delta[TIME_RELEASE] += value,
             DST_EG1_SUSTAIN => self.eg1_sustain_delta += value,
-            DST_EG2_ATTACK => self.eg2_time_delta[0] += value,
-            DST_EG2_DECAY => self.eg2_time_delta[1] += value,
-            DST_EG2_RELEASE => self.eg2_time_delta[2] += value,
+            DST_EG2_DELAY => self.eg2_time_delta[TIME_DELAY] += value,
+            DST_EG2_ATTACK => self.eg2_time_delta[TIME_ATTACK] += value,
+            DST_EG2_HOLD => self.eg2_time_delta[TIME_HOLD] += value,
+            DST_EG2_DECAY => self.eg2_time_delta[TIME_DECAY] += value,
+            DST_EG2_RELEASE => self.eg2_time_delta[TIME_RELEASE] += value,
             DST_EG2_SUSTAIN => self.eg2_sustain_delta += value,
             _ => {}
         }
@@ -394,28 +422,58 @@ impl Setting {
     }
 
     fn eg1(&self) -> EnvelopeParams {
-        EnvelopeParams {
-            attack: Self::time(self.eg1_attack, self.eg1_time_delta[0]),
-            decay: Self::time(self.eg1_decay, self.eg1_time_delta[1]),
-            sustain: match self.eg1_sustain {
-                None if self.eg1_sustain_delta == 0.0 => 1.0,
-                base => Self::sustain(base, self.eg1_sustain_delta),
-            },
-            release: Self::time(self.eg1_release, self.eg1_time_delta[2]),
-            shape: Shape::Db,
-        }
+        self.envelope(
+            [
+                self.eg1_delay,
+                self.eg1_attack,
+                self.eg1_hold,
+                self.eg1_decay,
+                self.eg1_release,
+            ],
+            &self.eg1_time_delta,
+            self.eg1_sustain,
+            self.eg1_sustain_delta,
+            Shape::Db,
+        )
     }
 
     fn eg2(&self) -> EnvelopeParams {
+        self.envelope(
+            [
+                self.eg2_delay,
+                self.eg2_attack,
+                self.eg2_hold,
+                self.eg2_decay,
+                self.eg2_release,
+            ],
+            &self.eg2_time_delta,
+            self.eg2_sustain,
+            self.eg2_sustain_delta,
+            Shape::Linear,
+        )
+    }
+
+    /// One envelope: its times (`[delay, attack, hold, decay, release]`, the fixed value and the
+    /// key and velocity delta of each), and its sustain.
+    fn envelope(
+        &self,
+        bases: [Option<f64>; 5],
+        deltas: &[f64; 5],
+        sustain: Option<f64>,
+        sustain_delta: f64,
+        shape: Shape,
+    ) -> EnvelopeParams {
         EnvelopeParams {
-            attack: Self::time(self.eg2_attack, self.eg2_time_delta[0]),
-            decay: Self::time(self.eg2_decay, self.eg2_time_delta[1]),
-            sustain: match self.eg2_sustain {
-                None if self.eg2_sustain_delta == 0.0 => 1.0,
-                base => Self::sustain(base, self.eg2_sustain_delta),
+            delay: Self::time(bases[TIME_DELAY], deltas[TIME_DELAY]),
+            attack: Self::time(bases[TIME_ATTACK], deltas[TIME_ATTACK]),
+            hold: Self::time(bases[TIME_HOLD], deltas[TIME_HOLD]),
+            decay: Self::time(bases[TIME_DECAY], deltas[TIME_DECAY]),
+            sustain: match sustain {
+                None if sustain_delta == 0.0 => 1.0,
+                base => Self::sustain(base, sustain_delta),
             },
-            release: Self::time(self.eg2_release, self.eg2_time_delta[2]),
-            shape: Shape::Linear,
+            release: Self::time(bases[TIME_RELEASE], deltas[TIME_RELEASE]),
+            shape,
         }
     }
 

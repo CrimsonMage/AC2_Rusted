@@ -326,6 +326,12 @@ impl ShortcutSource for ClientPlayer<'_> {
         self.frame.progress.skills.is_trained(skill)
     }
 
+    /// `gmCWInterface::InqSkillTimeLeft`: the skill's total and time left, while it is on reset.
+    fn skill_reset(&self, skill: u32) -> Option<(f64, f64)> {
+        let time = self.client.borrow_mut().skill_time_left(skill).ok()?;
+        (time.ok && time.left > 0.0).then_some((f64::from(time.total), f64::from(time.left)))
+    }
+
     /// `gmCWInterface::DoIHaveItem`: in a pack the player lists or equipped.
     fn has_item(&self, item: u64) -> bool {
         let inventory = &self.frame.inventory;

@@ -47,6 +47,8 @@ pub struct ChatSettings {
     pub font_sizes: HashMap<u32, u32>,
     pub font_colors: HashMap<u32, u32>,
     pub popups: HashMap<u32, bool>,
+    /// The text type each window shows (Legions' version-6 table, `FUN_005bfd50`).
+    pub window_text_types: HashMap<u32, u32>,
 }
 
 impl Default for ChatSettings {
@@ -58,6 +60,7 @@ impl Default for ChatSettings {
             font_sizes: CHAT_TEXT_TYPES.iter().map(|&(t, _)| (t, 0)).collect(),
             font_colors: CHAT_TEXT_TYPES.iter().copied().collect(),
             popups: HashMap::from([(crate::chat_window::TEXT_TYPE_BROADCAST, true)]),
+            window_text_types: HashMap::new(),
         }
     }
 }
@@ -66,6 +69,14 @@ impl ChatSettings {
     /// `GameplayOptionsProfile::GetFilter` (0 when unset).
     pub fn filter(&self, window: u32) -> u32 {
         self.filters.get(&window).copied().unwrap_or(0)
+    }
+
+    /// `FUN_005bfd50`: the text type window `window` shows (0x10 when unset).
+    pub fn window_text_type(&self, window: u32) -> u32 {
+        self.window_text_types
+            .get(&window)
+            .copied()
+            .unwrap_or(crate::chat_options_table::DEFAULT_WINDOW_TEXT_TYPE)
     }
 
     pub(crate) fn message_info(&self, text_type: u32) -> ChatMessageInfo {

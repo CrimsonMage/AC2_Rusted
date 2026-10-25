@@ -8,7 +8,7 @@ const DEGREES_TO_RADIANS: f32 = 0.017_453_292;
 const RADIANS_TO_DEGREES: f32 = 57.295_78;
 /// `1 / 360` and `1 / 255` as the `float` constants `ToUInt8`/`FromUInt8` load.
 const INVERSE_360: f32 = 0.002_777_777_8;
-const INVERSE_255: f32 = 0.003_921_568_9;
+const INVERSE_255: f32 = 0.003_921_569;
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct Heading {

@@ -11,13 +11,14 @@
 //! - `FinishUpdateVisibleCells` / `LScapeManager::UpdateVisibleCells`: the blocks within the
 //!   near radius of the player's cell become resident and the rest are released.
 //!
-//! A near block is built into its own `Terrain` on a loader thread and absorbed here whole.
+//! A near block is built into its own `Terrain` on a loader thread (`blocks.rs`) and absorbed here
+//! whole.
 
 use std::collections::{BTreeSet, HashMap};
 
 use ac2_physics::{CellSource, Terrain};
 
-use crate::loader::{Loaded, Loader, Request};
+use crate::blocks::{BlockLoaded, BlockLoader};
 
 /// `LandDefs::first_envcell_id`.
 const FIRST_ENV_CELL: u32 = 0x100;
@@ -67,7 +68,7 @@ fn ring(center: u32, radius: i32) -> Vec<u32> {
 /// A landblock's cells joining or leaving the resident world (`CObjCell::InitDynamicObjects` /
 /// `ReleaseDynamicObjects`, which tell `CObjectMaint` through `InitObjCell` / `ReleaseObjCell`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum BlockChange {
+pub enum BlockChange {
     Resident(u32),
     Released(u32),
 }
@@ -110,7 +111,7 @@ impl CellManager {
     }
 
     /// The blocks that became resident or were released since the last call, in order.
-    pub(crate) fn take_changes(&mut self) -> Vec<BlockChange> {
+    pub fn take_changes(&mut self) -> Vec<BlockChange> {
         std::mem::take(&mut self.changes)
     }
 
@@ -125,12 +126,12 @@ impl CellManager {
     }
 
     /// `CellManager::UpdateVisibleCells(pos, _bBlocking)`.
-    pub(crate) fn update_visible_cells(
+    pub fn update_visible_cells(
         &mut self,
         cell: u32,
         blocking: bool,
         terrain: &mut Terrain,
-        loader: &mut Loader,
+        loader: &mut dyn BlockLoader,
     ) {
         if cell == 0 {
             self.release_cells(terrain);
@@ -168,7 +169,7 @@ impl CellManager {
     }
 
     /// `CellManager::AsyncGetCells`: the cell's block (an interior's with it) as ring 0.
-    fn async_get_cells(&mut self, cell: u32, terrain: &mut Terrain, loader: &mut Loader) {
+    fn async_get_cells(&mut self, cell: u32, terrain: &mut Terrain, loader: &mut dyn BlockLoader) {
         self.waiting = true;
         self.context = Some(Context {
             cell,
@@ -189,7 +190,7 @@ impl CellManager {
         center: u32,
         radius: i32,
         sub_data: bool,
-        loader: &mut Loader,
+        loader: &mut dyn BlockLoader,
     ) -> bool {
         let blocks = ring(center, radius);
         let Some(context) = &mut self.context else {
@@ -201,7 +202,7 @@ impl CellManager {
                     continue;
                 }
                 if self.pending.insert(block) {
-                    loader.request(Request::Block(block));
+                    loader.request_block(block);
                 }
             } else {
                 let near = self.resident.contains(&block) || self.prepared.contains_key(&block);
@@ -209,7 +210,7 @@ impl CellManager {
                     continue;
                 }
                 if self.far_pending.insert(block) {
-                    loader.request(Request::FarBlock(block));
+                    loader.request_far_block(block);
                 }
             }
             context.outstanding.insert(block);
@@ -218,7 +219,7 @@ impl CellManager {
     }
 
     /// Runs `OnTopLevelRequestFinished` for every ring that has nothing left to load.
-    fn advance(&mut self, terrain: &Terrain, loader: &mut Loader) {
+    fn advance(&mut self, terrain: &Terrain, loader: &mut dyn BlockLoader) {
         loop {
             let Some(context) = &mut self.context else {
                 return;
@@ -263,14 +264,14 @@ impl CellManager {
 
     /// A loader result: a near block joins the resident window it belongs to (or waits in the
     /// cache), and the current ring moves on once it is complete.
-    pub(crate) fn loaded(
+    pub fn loaded(
         &mut self,
-        loaded: Loaded,
+        loaded: BlockLoaded,
         terrain: &mut Terrain,
-        loader: &mut Loader,
+        loader: &mut dyn BlockLoader,
     ) -> Result<(), String> {
         let block = match loaded {
-            Loaded::Block(block, result) => {
+            BlockLoaded::Block(block, result) => {
                 self.pending.remove(&block);
                 let world = result?;
                 if self.window.contains(&block) && !self.resident.contains(&block) {
@@ -284,16 +285,12 @@ impl CellManager {
                 }
                 block
             }
-            Loaded::FarBlock(block, result) => {
+            BlockLoaded::FarBlock(block, result) => {
                 self.far_pending.remove(&block);
                 result?;
                 self.far_cached.insert(block);
                 block
             }
-            Loaded::Body(..)
-            | Loaded::ScriptState(..)
-            | Loaded::ScriptData
-            | Loaded::Ambient(..) => return Ok(()),
         };
         if let Some(context) = &mut self.context {
             if context.outstanding.remove(&block) {
@@ -309,7 +306,7 @@ impl CellManager {
         &mut self,
         cell: u32,
         terrain: &mut Terrain,
-        loader: &mut Loader,
+        loader: &mut dyn BlockLoader,
     ) {
         if self.load_cell != cell || !self.current_cell {
             self.update_window(cell, terrain, loader);
@@ -324,7 +321,7 @@ impl CellManager {
 
     /// `LScapeManager::UpdateVisibleCells`: the blocks within the near radius become resident
     /// (from the cache, or when their load finishes); the others are released.
-    fn update_window(&mut self, cell: u32, terrain: &mut Terrain, loader: &mut Loader) {
+    fn update_window(&mut self, cell: u32, terrain: &mut Terrain, loader: &mut dyn BlockLoader) {
         let window: BTreeSet<u32> = block_radius(cell, NEAR_RADIUS).into_iter().collect();
         for block in self
             .resident
@@ -351,7 +348,7 @@ impl CellManager {
                 }
                 None => {
                     if self.pending.insert(block) {
-                        loader.request(Request::Block(block));
+                        loader.request_block(block);
                     }
                 }
             }

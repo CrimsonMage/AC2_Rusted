@@ -280,6 +280,13 @@ impl Terrain {
         crate::los::los_check(self, params)
     }
 
+    /// The terrain's height under `position` over open terrain: where a body dropped at
+    /// `position` first meets the ground. `None` off resident terrain and inside interiors.
+    pub fn terrain_height(&self, position: &Position) -> Option<f32> {
+        self.height_above_terrain(position)
+            .map(|above| position.frame.origin.z - above)
+    }
+
     /// The vertical distance from `position`'s origin down to the terrain polygon under it
     /// (negative when the origin is below it), as `CPhysicsObj::GetHeightAboveWalkable`'s
     /// downward `LOSCheck` finds it over open terrain. `None` off resident terrain.

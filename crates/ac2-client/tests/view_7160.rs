@@ -168,7 +168,7 @@ fn the_client_walks_with_w_and_draws_its_character() {
         now + 0.05,
     );
     client.use_time(&frame_input(controls.frame())).unwrap();
-    let state = client.camera().movement_state();
+    let state = ac2_client::camera_state(client.camera());
     assert!(state.mouse_look, "the middle button turns mouse look on");
     controls.input.set_mouse_look(true);
     let before = state.direction;
@@ -182,7 +182,7 @@ fn the_client_walks_with_w_and_draws_its_character() {
         server.borrow_mut().elapsed += STEP;
         now += STEP;
     }
-    let after = client.camera().movement_state().direction;
+    let after = ac2_client::camera_state(client.camera()).direction;
     let turned = (before[0] * after[1] - before[1] * after[0])
         .atan2(before[0] * after[0] + before[1] * after[1])
         .to_degrees();
@@ -200,13 +200,11 @@ fn the_client_walks_with_w_and_draws_its_character() {
     for _ in 0..96 {
         client.use_time(&frame_input(controls.frame())).unwrap();
         server.borrow_mut().elapsed += STEP;
-        now += STEP;
     }
     let facing = client.frame().player.unwrap();
     for _ in 0..32 {
         client.use_time(&frame_input(controls.frame())).unwrap();
         server.borrow_mut().elapsed += STEP;
-        now += STEP;
     }
     let steered = client.frame().player.unwrap();
     let heading =

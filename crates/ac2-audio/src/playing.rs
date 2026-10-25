@@ -10,6 +10,10 @@ use crate::play_data::{Channel, LoopingMode, PlaySoundData, SoundType, Track};
 use crate::sink::{millibels, Boundary, SinkCommand, SoundSink, Spatial};
 use crate::synth::ChannelSources;
 
+mod queued_wave;
+
+use queued_wave::QueuedWave;
+
 /// `DirectXPlayingSound::LifetimeState`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Lifetime {
@@ -99,6 +103,44 @@ fn stop_boundary(info: &MusicInfo) -> Boundary {
     }
 }
 
+/// What a `MusicInfo` sets for its voice (`DirectXSoundInstance::InitDXPSDFromMusicInfo`): the
+/// looping, the sound type, the track (a primary segment or a secondary one) and 3D placement.
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct MusicTerms {
+    kind: SoundType,
+    looping: bool,
+    track: Track,
+    three_d: bool,
+}
+
+impl MusicTerms {
+    fn new(data: &PlaySoundData, info: &MusicInfo) -> Self {
+        let exclusive = info.test(flags::EXCLUSIVE);
+        let looping = match data.looping {
+            LoopingMode::Inherit => !exclusive && info.test(flags::LOOP),
+            LoopingMode::ForceOn => true,
+            LoopingMode::ForceOff => false,
+        };
+        let kind = match data.kind {
+            SoundType::Inherit if exclusive => SoundType::ForceNonExclusive,
+            SoundType::Inherit if info.test(flags::THREE_D) => SoundType::ForceSelfExclusive,
+            SoundType::Inherit => SoundType::ForceNonExclusive,
+            kind => kind,
+        };
+        let track = match data.track {
+            Track::Inherit if exclusive => Track::ForcePrimary,
+            Track::Inherit => Track::ForceSecondary,
+            track => track,
+        };
+        Self {
+            kind,
+            looping,
+            track,
+            three_d: info.test(flags::NO_VIRTUAL),
+        }
+    }
+}
+
 /// `DirectXPlayingSound`.
 #[derive(Debug, Clone)]
 pub(crate) struct PlayingSound {
@@ -135,6 +177,8 @@ pub(crate) struct PlayingSound {
     in_world: bool,
     /// The `SoundInfo`'s `3D` flag: `Update3DInfo` places the buffer (else `DS3DMODE_DISABLE`).
     three_d: bool,
+    /// Set for a wave played as a queue segment (`from_wave`).
+    queued_wave: Option<QueuedWave>,
     /// `m_fMinDistance`.
     min_distance: f32,
     /// `m_vLocalOffset` / `m_vLocalVelocity`, DirectSound axes.
@@ -190,6 +234,7 @@ impl PlayingSound {
             muted: false,
             in_world: true,
             three_d: info.test(flags::THREE_D),
+            queued_wave: None,
             min_distance: info.min_distance,
             offset: [0.0; 3],
             velocity: [0.0; 3],
@@ -207,23 +252,7 @@ impl PlayingSound {
         band: ChannelSources,
         now: f64,
     ) -> Self {
-        let exclusive = info.test(flags::EXCLUSIVE);
-        let looping = match data.looping {
-            LoopingMode::Inherit => !exclusive && info.test(flags::LOOP),
-            LoopingMode::ForceOn => true,
-            LoopingMode::ForceOff => false,
-        };
-        let kind = match data.kind {
-            SoundType::Inherit if exclusive => SoundType::ForceNonExclusive,
-            SoundType::Inherit if info.test(flags::THREE_D) => SoundType::ForceSelfExclusive,
-            SoundType::Inherit => SoundType::ForceNonExclusive,
-            kind => kind,
-        };
-        let track = match data.track {
-            Track::Inherit if exclusive => Track::ForcePrimary,
-            Track::Inherit => Track::ForceSecondary,
-            track => track,
-        };
+        let terms = MusicTerms::new(data, info);
         let mut sound = Self::new(
             handle,
             data,
@@ -244,18 +273,58 @@ impl PlayingSound {
             -1.0,
             now,
         );
-        sound.kind = kind;
-        sound.looping = looping;
-        sound.three_d = info.test(flags::NO_VIRTUAL);
+        sound.kind = terms.kind;
+        sound.looping = terms.looping;
+        sound.three_d = terms.three_d;
         sound.source = VoiceSource::Music {
             info: *info,
             start: start_boundary(info),
             stop: stop_boundary(info),
-            primary: track == Track::ForcePrimary,
-            control: track == Track::ForceSecondary && info.test(0x400),
+            primary: terms.track == Track::ForcePrimary,
+            control: terms.track == Track::ForceSecondary && info.test(0x400),
             sources,
             band,
         };
+        sound
+    }
+
+    /// `DirectXSoundInstance::CreatePlayingSound` for a `MusicInfo` whose object is an
+    /// `EncodedWave` (`DirectXMusicLoader::LoadFromObject(EncodedWave)`): the wave plays with the
+    /// `MusicInfo`'s terms (looping, type, 3D) on the music channel, its length the wave's time.
+    pub fn from_wave(
+        handle: u32,
+        data: &PlaySoundData,
+        info: &MusicInfo,
+        pcm: Arc<Pcm>,
+        now: f64,
+    ) -> Self {
+        let terms = MusicTerms::new(data, info);
+        // `InitDXPSDFromMusicInfo` leaves the length at -1 (no length): the segment is the queue's,
+        // so the sound lives until its pass ends and it is stopped.
+        let mut sound = Self::new(
+            handle,
+            data,
+            &SoundInfo {
+                did: info.did,
+                bit_field: 0,
+                rand_freq_top: -1.0,
+                rand_freq_bot: -1.0,
+                priority: info.priority,
+                min_distance: info.min_distance,
+                wave: info.segment,
+            },
+            pcm,
+            -1.0,
+            now,
+        );
+        sound.kind = terms.kind;
+        sound.looping = terms.looping;
+        sound.three_d = terms.three_d;
+        sound.queued_wave = Some(QueuedWave {
+            primary: terms.track == Track::ForcePrimary,
+            stop: stop_boundary(info),
+            started: false,
+        });
         sound
     }
 
@@ -371,6 +440,15 @@ impl PlayingSound {
         }
         let volume = self.volume.clamp(0.0, 1.0);
         self.volume = volume;
+        if self.is_queued_wave() {
+            // The queue starts the wave's pass (`on_segment_started`): a restart here only if it
+            // has started already.
+            self.lifetime = Lifetime::Playing;
+            if self.queued_wave.is_some_and(|q| q.started) {
+                self.send_queued_wave(sink, device);
+            }
+            return true;
+        }
         let millibels = millibels(device.channel_volume(self.channel), volume);
         match &self.source {
             VoiceSource::Wave(pcm) => {
@@ -424,19 +502,30 @@ impl PlayingSound {
     /// `DXMusicMessageThread::Stop` at `boundary` (a music segment's stop timing), then
     /// `OnSegmentEnded`.
     fn stop_at(&mut self, sink: &mut dyn SoundSink, boundary: Boundary) {
+        if self.is_queued_wave() {
+            // A queued wave's voice ends with the queue's end (at the boundary, or now for an
+            // immediate stop, which the queue ends at once too).
+            if boundary == Boundary::Immediate {
+                self.on_segment_ended(sink);
+            }
+            return;
+        }
         self.send_stop(sink, boundary);
         // A music segment stopped at a boundary plays out: its end comes from the queue (its
         // `SegmentEnd`), so the voice stays until then.
         if boundary == Boundary::Immediate || !matches!(self.source, VoiceSource::Music { .. }) {
-            self.on_segment_ended();
+            self.on_segment_ended(sink);
         }
     }
 
     /// The boundary the music queue stops this voice's segment at: its `MusicInfo`'s stop timing,
-    /// or immediately for an immediate stop (and for a wave, which has no queue segment).
+    /// or immediately for an immediate stop (and for a wave with no queue segment).
     pub fn stop_timing(&self, immediate: bool) -> Boundary {
         match (&self.source, immediate) {
             (VoiceSource::Music { stop, .. }, false) => *stop,
+            (VoiceSource::Wave(_), false) => {
+                self.queued_wave.map_or(Boundary::Immediate, |q| q.stop)
+            }
             _ => Boundary::Immediate,
         }
     }
@@ -457,12 +546,25 @@ impl PlayingSound {
         match &self.source {
             VoiceSource::Music { primary: true, .. } => Some(SegmentKind::Primary),
             VoiceSource::Music { .. } => Some(SegmentKind::Secondary),
-            VoiceSource::Wave(_) => None,
+            VoiceSource::Wave(_) => self.queued_wave.map(|q| {
+                if q.primary {
+                    SegmentKind::Primary
+                } else {
+                    SegmentKind::Secondary
+                }
+            }),
         }
     }
 
-    /// `OnSegmentEnded`, as the music queue calls it back for this voice's segment.
-    pub(crate) fn on_segment_ended(&mut self) {
+    /// `OnSegmentEnded`, as the music queue calls it back for this voice's segment. A queued wave's
+    /// voice ends here too.
+    pub(crate) fn on_segment_ended(&mut self, sink: &mut dyn SoundSink) {
+        if let Some(queued) = self.queued_wave.as_mut() {
+            queued.started = false;
+        }
+        if self.has_voice && self.is_queued_wave() {
+            sink.send(SinkCommand::Stop { voice: self.handle });
+        }
         self.has_voice = false;
         if (self.looping && self.lifetime == Lifetime::WaitingForEnd)
             || (!self.looping && self.lifetime != Lifetime::KeepAlive)

@@ -55,7 +55,7 @@ key	status	note
 0040c0d0	x	ac2-ui pregame/avatar_modification.rs
 0040c7e0	x	ac2-ui pregame/avatar_modification.rs
 0040c880	x	ac2-ui pregame/avatar_modification.rs
-0040cc00	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040cc00	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; the race viewport's music is requested when it is created (PregameRequest::Music) and played on Channel_Main by Client::play_pregame_music (2 s fade of the previous screen's); tooltips and the avatar's scene and camera are the client's / not modelled
 0040cff0	x	ac2-ui pregame/avatar_modification.rs
 0040d290	x	ac2-ui pregame/avatar_modification.rs
 0040d2b0	x	ac2-ui pregame/avatar_modification.rs
@@ -94,7 +94,7 @@ key	status	note
 00410a10	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 00410ad0	~	character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
 00410c00	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
-00410f00	~	character_selection.rs: roots, handlers, Update; background music not played
+00410f00	~	character_selection.rs: roots, handlers, Update; the background's music is requested when the screen opens (PregameRequest::Music, Channel_Main, the previous screen's fading over 2 s); the 3D scene itself is the client's
 00411220	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 00411240	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 00411260	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
@@ -112,7 +112,7 @@ key	status	note
 00412670	x	ac2-ui pregame/disconnected.rs
 004126b0	x	ac2-ui pregame/disconnected.rs
 004126d0	x	ac2-ui pregame/disconnected.rs
-00412710	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412710	x	ac2-ui pregame/intro.rs: IntroField's music is requested when the screen opens (PregameRequest::Music)
 00412870	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 004128c0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 004128e0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
@@ -141,6 +141,29 @@ key	status	note
 00415740	x	ac2-ui dialog.rs
 004157e0	-	Rust std replaces it
 00415810	x	ac2-ui dialog.rs
+0041b250	~	ac2-ui shop.rs recv_leave_store: closes via show(false); the vtable call in the decompile is untraced
+0041d3d0	x	ac2-ui shop.rs create_managed: the Shop root and its page buttons (Legions 7160)
+0041d4a0	~	ac2-ui shop_rows.rs update_position: page ghosting; the untraced one-argument branch is read as enabled without a pending page
+0041d590	x	ac2-ui shop.rs show: stack and confirmation closed, root hidden for the dormant wait
+0041d630	x	ac2-ui shop.rs recv_confirm_purchase: singular or plural question on DIALOG_CONFIRMATION
+0041d700	x	ac2-ui shop.rs recv_close_confirmation_dialog: PurchaseConfirmed(answer) for the open context
+0041d740	x	ac2-ui shop.rs select: selected state, purchase ghost, Select(item)
+0041d800	x	ac2-ui shop.rs finish_drag_from_shop: Purchase(item, quantity, slot)
+0041d850	x	ac2-ui shop.rs recv_stack_ui_done: the stack's amount buys
+0041d880	x	ac2-ui shop.rs recv_update_position: the page's position and size while shown
+0041d8b0	x	ac2-ui shop.rs recv_selection_changed: clears a selection elsewhere
+0041d960	x	ac2-ui shop.rs destroy_managed: root and sales removed
+0041d9b0	x	ac2-ui shop_rows.rs recv_update_sale: stock text, sold out is unavailable
+0041dac0	x	ac2-ui shop.rs tick: dormant destroy after 120 s, sort text page request, page buttons released
+0041dc40	x	ac2-ui shop.rs purchase: refusals to chat, stack for more than one, else one purchase
+0041de50	~	no Drop: RequestLeaveStore is not sent when the panel is destroyed
+0041df30	~	ac2-ui shop.rs recv_handle_drag_from: purchase into the slot; the drag notice has no GameplayNotice yet
+0041df90	x	ac2-ui shop_rows.rs post_sale: icon, descriptions, cost, stock; drag context on the icon
+0041e2c0	~	ac2-ui shop.rs message: close, sort, pages, purchase, select and examine; help page not modelled
+0041e540	x	ac2-ui shop_rows.rs update_sales: page position, list rebuilt in sale order, selection kept
+0041e6a0	x	ac2-ui shop.rs create: hidden, drag context; notices are routed by the frames
+0041e8d0	x	ac2-ui shop.rs recv_update_store: rebuilds the list while shown
+0041e940	~	ac2-ui shop.rs recv_view_store: name, description, portrait, sort text, sales; the first vtable call is untraced
 00420400	-	teardown: the HUD tree is dropped whole
 00420460	x	ac2-ui external_container.rs
 00420520	x	ac2-ui: the panel hears every object's notices (no per-object registration)
@@ -180,11 +203,17 @@ key	status	note
 00421a70	-	C++ destructors: the Rust state drops
 00421a90	x	ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 00421bf0	x	ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
+00421ed0	-	KeyStone help and the plug-in manager are external windows (MSXML4); not opened, so the missing-XML4 message is not sent
+00421f60	-	KeyStone help and the plug-in manager are external windows (MSXML4); not opened, so the missing-XML4 message is not sent
+00421fe0	x	ac2-ui toolbar.rs sale_reminder: the consignments button in its state; the sale sound is not played
+00422080	x	ac2-ui toolbar.rs mount_state: the dismount button in its dismount state; ac2-client hud_player routes UpdateMountState
+004220d0	~	ac2-ui toolbar.rs show_bar: the toolbar field shows and the bottom preclude is its precludeheight (0 hidden), applied at arrival (hud_view show_toolbar). Not: the keystone help state and the shortcut bar's Show (gmShortcutUI::Show is a separate entry)
 00422160	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 00422230	x	ac2-ui toolbar.rs
 00422270	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 00422300	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 00422550	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+00422f00	~	ac2-ui toolbar.rs cleanup_children: the child fields hide; the child frameworks are not made so none is deleted
 00422f80	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 004232f0	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 004233d0	x	
@@ -192,10 +221,18 @@ key	status	note
 00423550	x	
 00423610	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 00423690	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
+00423750	-	notice handlers are registered per object by the session in Rust (no per-object handler table)
+004237a0	-	notice handlers are registered per object by the session in Rust (no per-object handler table)
+004238f0	x	ac2-ui target_cycle.rs farther(): the nearer-by-distance-then-id order
+00423970	x	ac2-ui target_cycle.rs type_vs_key(): the type bits against the key ranges
 00423a50	x	ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
 00423b20	x	ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
 00423bb0	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
+00423d20	-	notice handlers are registered per object by the session in Rust (no per-object handler table)
+00423da0	~	ac2-ui target_cycle.rs select_target: the cycling keys (next, previous, closest; foe, fellow, pet groups; wrap-around pass). Not: 0x41000018 reselect, 0x41000028 last selection, 0x4100002A last attacker, 0x4000001E clear's typing check; candidates are the radar blips (no objects without a look); CanAutoAttackTarget approximated as creature and not a fellow
+00424500	x	ac2-client target_select.rs + hud_player: the notice's key picks through select_target
 00424510	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
+00424610	x	ac2-ui target_cycle.rs select_key_of/is_select_key; ac2-client hud_player routes the global key press
 004247f0	x	ac2-ui stack.rs
 00424810	x	ac2-ui stack.rs
 004248f0	x	ac2-ui stack.rs
@@ -256,18 +293,24 @@ key	status	note
 00426ee0	x	ac2-ui reticle.rs
 00426f60	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 00428e00	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
+00428e30	x	ac2-ui damage_text.rs Damage entry (Vec; element, object, start, duration, boxes)
 00428e60	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 004291a0	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 00429320	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 00429ab0	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 00429e20	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 0042a1d0	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
+0042a290	x	ac2-ui damage_text.rs Damage entry (Vec; element, object, start, duration, boxes)
+0042a560	x	ac2-ui damage_text.rs update: progress, rise by height*FloatyTextTravel*progress (selection offset), fade 1-progress, CalcScreenPosition, placement via placement.rs place_box
 0042a980	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 0042aa40	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 0042ab30	~	ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
+0042ad00	x	ac2-ui DamageTexts::clear (destroys every damage text); not yet called on a world reset
 0042adf0	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 0042ae40	~	ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 0042b0c0	~	ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
+0042b150	x	ac2-ui damage_text.rs (DamageTextTemplate, blob colour and scale, object and start time); ac2-client hud_player routes CM_Physics::SendNotice_Do3DDamage. Legions keeps UpdateDamage and the array, and its WLib calls efun 0x8D0001; handler body from admin (no Legions match)
+0042b3a0	~	ac2-ui toolbar.rs show_bar via ac2-client show_toolbar sets reticle.precluded_bottom; the update runs on the next frame, not inside the notice
 0042b610	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 0042b6a0	~	ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 0042b730	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
@@ -404,6 +447,7 @@ key	status	note
 004357d0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 004357f0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 00435bc0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+00435cd0	x	ac2-ui shortcut.rs show: the bar's field shows or hides; ac2-client show_toolbar calls it from the toolbar's Show
 00435ce0	x	ac2-ui shortcut.rs
 00435d30	x	ac2-ui shortcut.rs
 00435d80	x	ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
@@ -411,6 +455,9 @@ key	status	note
 00435e70	~	the locked-bar check (GetShortcutLocked + shift) is not asked
 00435fc0	x	ac2-ui shortcut.rs
 004360e0	x	ac2-ui shortcut.rs
+00436120	x	ac2-ui shortcut_states.rs time_left_position: the entry for (skill, slot)
+00436180	x	ac2-ui shortcut_states.rs update_time_left: the meter fills by 1 - (end - now)/total clamped; the entry goes when full or its slot no longer holds the skill; ac2-client HudView::update runs it per frame
+00436330	x	ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 004363e0	x	ac2-script glue::shortcut / native::shortcut
 00436440	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 004364f0	x	ac2-ui drag.rs; shortcut.rs drop
@@ -421,8 +468,16 @@ key	status	note
 00436ca0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 00436da0	x	ac2-ui shortcut.rs
 00436e20	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+00436ea0	~	routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
+00436f00	~	routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
+00436f40	~	routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
+00436f60	~	routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
+00437290	-	notice handlers are registered per object by the session in Rust (no per-object handler table)
 00437320	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 00437620	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+004376c0	x	ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
+00437770	x	ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
+00437820	x	ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 004379a0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 00437d90	x	ac2-ui shortcut.rs
 00437e50	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
@@ -430,6 +485,7 @@ key	status	note
 00438270	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 004386c0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 004387f0	x	ac2-ui shortcut.rs
+00438830	~	ac2-ui shortcut.rs reload: the bar's rows and set; ac2-client reloads on ReloadOptions (no separate option refresh)
 00438a20	x	ac2-ui effects.rs
 00438b80	x	ac2-ui effects.rs
 00438c30	x	ac2-ui effects.rs
@@ -548,6 +604,24 @@ key	status	note
 00443400	~	frame's equipment list; a list the worn items are not in takes them off (double answers an unequip with 0x40000001 alone; retail only adds)
 004434d0	~	viewport root, slots, the avatar and the worn list; notices come from the frame, not registered handlers
 00443670	x	step 1: request begun or failed marks the worn item pending
+00443d20	x	chat_options.rs confirm_apply / confirm_recall / confirm_default ask their confirmation (ID_Option_ApplyText, RecallText, DefaultText); answers via dialog_outcomes; chat_options_tests.rs on the real layout
+00443d80	x	chat_options.rs confirm_apply / confirm_recall / confirm_default ask their confirmation (ID_Option_ApplyText, RecallText, DefaultText); answers via dialog_outcomes; chat_options_tests.rs on the real layout
+00443de0	x	chat_options.rs confirm_apply / confirm_recall / confirm_default ask their confirmation (ID_Option_ApplyText, RecallText, DefaultText); answers via dialog_outcomes; chat_options_tests.rs on the real layout
+00443e40	~	chat_options_setup.rs specs: the labels (ID_Option_ChatSmallerFont..LargeFont, 3 on the entry line; ID_Option_ChatColor1..10), the defaults; the choice object is the shared widget, its drop-down menu is not modelled
+00443ee0	~	chat_options_setup.rs specs: the labels (ID_Option_ChatSmallerFont..LargeFont, 3 on the entry line; ID_Option_ChatColor1..10), the defaults; the choice object is the shared widget, its drop-down menu is not modelled
+00443f60	x	chat_options_setup.rs specs: Legions 7160's order (font size, colour, the four window flags, popup; the entry line has the first two; the window section has each window's text type). Admin 7148 has no window flags; Legions followed
+00444100	-	C++ destructor and scalar deleter: the page's widgets are owned by the tree and dropped with it
+004442a0	x	chat_options.rs changed / update_buttons: Apply and Recall ghost while nothing differs; Default never ghosts (retail)
+00444340	x	chat_options.rs changed / update_buttons: Apply and Recall ghost while nothing differs; Default never ghosts (retail)
+00444450	x	chat_options.rs recall: every option back to its saved value, no requests (chat_options_tests.rs, after the confirmation)
+004444f0	x	chat_options.rs message: the ChatTab opened and closed, checkbox highlights, expander headers, and the buttons' confirmations while the tab is open (routed from hud_player.rs)
+00444640	x	chat_options.rs setup: one expander per visible row of chat_options_table::ROWS (ID_Option_ChatAdminMessages hidden), in table order, from Legions' initialiser (0x70CBD0, 0x70CE80)
+00444770	x	chat_options.rs apply: each option's setter in table order, each window's filter (the page's bits over the kept 0x84 of the last read), the reload notice, the upload. Retail sends every option, not only the changed ones
+004449b0	x	chat_options.rs default: every option to its default, then apply (retail sends every setter; the font size default is the size as the choice index, the first choice, as retail's SetDefault reads it)
+00444a50	x	chat_options.rs recv_close_confirmation_dialog: a yes runs the question's action (apply, recall or default); the open questions close. Legions 7160 has no matched function of this name; the admin flow is followed
+00444af0	x	chat_options.rs refresh: each control reads ChatSettings (font size by its size, colour, window flags, popup, window text types) and is saved; run at login and on CM_Character::SendNotice_ReloadOptions (hud_player.rs). Legions' Refresh is FUN_004455b0 (unnamed)
+00444cb0	x	hud_player.rs refreshes the chat page on CM_Character::SendNotice_ReloadOptions (the page's refresh); Legions 7160 has no matched handler of this name
+00444cc0	x	ChatOptionsUi::create over the ChatPage (hud.rs): the expanders, the refresh at login (hud_player.rs). Legions registers the same notices; the tooltips are not set
 00444e00	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
 00444e60	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
 00444ec0	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
@@ -705,7 +779,7 @@ key	status	note
 00450200	~	Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced; the requests need an open shopper (a server ViewStore), so no store request is byte-verified end to end yet (store_script_7160). RequestSell's three ints are not decoded.
 00450240	~	Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced; the requests need an open shopper (a server ViewStore), so no store request is byte-verified end to end yet (store_script_7160). RequestSell's three ints are not decoded.
 004502c0	~	Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
-004502e0	~	Command runs IFun 0xB40138 on the player's script (VM only, no session stand-in). The sell body (client library 0x11642C) checks the shopper first (CPlayer 0x1EC) and returns with none open, so no request goes out without a ViewStore (blocked, see store_script_7160). Stub 0x4E packs (local 0 int, price int, quantity int, item long, local 3 long); local 0 and local 3 are not traced.
+004502e0	~	Consignment only: raised by gmShopNewSaleUI::RecvNotice_CloseConfirmationDialog (admin 0x41A7B0), not the vendor shop. The VM's sell body refuses a vendor store at its first check, the shopper context's buy list (slot 0, a StoreGroup), set only by the server's 0xB83A0052 flow (CPlayer 0x1F3, body 0x117748). The double does not model the consignment sell (no RequestSell from a vendor store, as retail)
 00450490	_	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 004504f0	_	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 00450530	_	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
@@ -915,15 +989,15 @@ key	status	note
 00463df0	_	ac2-script glue: id table + pure-glue registry; engine glue unbound
 004661d0	_	ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 00467160	_	ac2-script native::unpack: the native types Legions WStates hold
-00467a50	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+00467a50	x	ac2-script store round trip (store_script_7160): ViewStore with a StoreView's sales, UpdateStore after it, the ConfirmPurchase notice of PurchaseItem, LeaveStore in the shop body's prologue
 00467ac0	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
 00467b00	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
-00467b40	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+00467b40	x	ac2-script store round trip (store_script_7160): ViewStore with a StoreView's sales, UpdateStore after it, the ConfirmPurchase notice of PurchaseItem, LeaveStore in the shop body's prologue
 00467b80	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
 00467bd0	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
-00467c20	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+00467c20	x	ac2-script store round trip (store_script_7160): ViewStore with a StoreView's sales, UpdateStore after it, the ConfirmPurchase notice of PurchaseItem, LeaveStore in the shop body's prologue
 00467c80	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
-00467ce0	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+00467ce0	x	ac2-script store round trip (store_script_7160): ViewStore with a StoreView's sales, UpdateStore after it, the ConfirmPurchase notice of PurchaseItem, LeaveStore in the shop body's prologue
 00467d40	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
 00467ec0	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
 00467f60	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -2588,6 +2662,9 @@ key	status	note
 00546b30	x	ac2-script data/glue::enums
 00546bb0	x	ac2-script data/glue::enums
 00546c80	x	ac2-script glue::enums (FileArray::GetDID: no name data on the DVD)
+00547670	x	ac2-script glue/entity_desc.rs: the entity link (NativeObject::EntityDesc) reads the record's properties through ScriptData::entity_properties (worker load, DataRequest::EntityDesc; DB type 0x40000049); InqDataID writes a DataFile property's DID (other types 0). Names and icons of the sale come through it
+00547720	x	ac2-script glue/entity_desc.rs: the entity link (NativeObject::EntityDesc) reads the record's properties through ScriptData::entity_properties (worker load, DataRequest::EntityDesc; DB type 0x40000049); InqDataID writes a DataFile property's DID (other types 0). Names and icons of the sale come through it
+00547ab0	~	ac2-script glue/entity_desc.rs: the DB type check (DB_TYPE_ENTITYDESC 0x40000049) answers InqEntityDescFromDataID; the entity's properties are not read (InqStringInfo, InqDataID report missing), so names and icons the sale build takes from them stay empty
 0054a800	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0054a860	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0054a8c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
@@ -3550,6 +3627,10 @@ key	status	note
 005a2c50	~	ac2-audio: the music queue runs before the voices in UseTime; a music voice's PlayInternal starts its segment in the queue; no listener/3D or emitter muting
 005a3050	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a30c0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a3500	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a3530	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a3540	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a3550	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
 005a35b0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a3680	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a3a50	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
@@ -3569,6 +3650,7 @@ key	status	note
 005a52a0	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 005a5500	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 005a5a80	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a5ae0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
 005a6010	x	ac2-audio: sets m_bHasStarted, which the admin decompile never reads: no effect ported (the start callback is a no-op)
 005a6030	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 005a6170	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
@@ -3585,14 +3667,16 @@ key	status	note
 005a6640	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 005a6790	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a6b50	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
-005a6d50	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6d50	x	ac2-audio manager.rs stop_context: a fade keeps the segment in the queue (the queue stop waits for the fade's end, as this function returns after the ramp); verified by music_wave_tests::a_faded_primary_wave_plays_out_silently_and_the_next_takes_over.
 005a6ee0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 005a6f00	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
-005a6f20	x	ac2-audio/ac2-client: 3D emitters and FX sounds
+005a6f20	x	ac2-audio manager.rs flush_sounds: a queue segment the queue still holds when its sound goes ready-to-die (the fade end) is stopped with Boundary::End, as Stop(handle, 0) (plays out the current pass, drops a queued one); PlayingSound::use_time length cap is -1 for MusicInfo sounds (no cap).
 005a70a0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a70b0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a70e0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a7180	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a7ad0	~	ac2-audio music/mod.rs (MusicObject::Wave), music_thread/playback.rs (Playback::wave), manager.rs: an EncodedWave is a DirectMusic segment with a wave track; it plays as a queue segment (primary by Track_ForcePrimary, stop at the MusicInfo's stop boundary on the default 120 bpm 4/4 clock, looping until stopped). Start timing flags not modelled; the file is decoded as RIFF WAVE (encoded.rs).
+005a7c20	~	ac2-audio playing.rs from_wave: an EncodedWave MusicInfo is a queue segment (QueuedWave), its length -1 (InitDXPSDFromMusicInfo: no length cap); terms as InitDXPSDFromMusicInfo; the wave voice starts on the queue's SegmentStart and ends on SegmentEnd (on_segment_started / on_segment_ended).
 005a85b0	-	COM reference counting and C++ deleting destructor: Arc and Option<SegmentInfo> ownership in music_thread
 005a85d0	-	COM reference counting and C++ deleting destructor: Arc and Option<SegmentInfo> ownership in music_thread
 005a8600	~	ac2-audio music_thread: PlayInternal = PlaySegmentEx(segment, pAfter); the timing flags and audio path are not modelled (a secondary starts at once)
@@ -3613,8 +3697,69 @@ key	status	note
 005a9150	-	COM reference counting and C++ deleting destructor: Arc and Option<SegmentInfo> ownership in music_thread
 005a9170	~	ac2-audio music_thread: Startup's notification loop runs inside MusicThread::use_time (no thread, no 100 ms wait; the WAIT_TIMEOUT watchdog is kept)
 005a93b0	x	ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
-005a9540	~	ac2-audio music_thread: Stop = StopEx at once (stop boundary flags not modelled); an immediate stop ends the segment's synthesizer (its notes release, Synth::stop); a boundary stop is played out by the queue; Play's audio path check and DMUS start flags not modelled
+005a9540	~	ac2-audio music_thread/mod.rs stop(): a stop of the current primary cuts it at once (immediate) or at its boundary (play_out_to). Retail's Stop (0x5A9540) for the current primary only sets m_bLoopPrimary = 0 and ignores dwStopFlags: the pass plays out to its end. Not changed here (ambient and wave tests pin the boundary behaviour); see the close-out.
 005a96f0	~	ac2-audio music_thread: Stop = StopEx at once (stop boundary flags not modelled); Play's audio path check and DMUS start flags not modelled
+005a97e0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9850	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9950	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9cc0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9ce0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9e70	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9e90	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9eb0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9ed0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9ef0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9f10	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9f30	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9f50	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9f70	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9f90	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9fb0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9fd0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005a9ff0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa010	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa030	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa050	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa070	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa090	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa0b0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa0d0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa0f0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa110	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa130	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa150	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa160	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa170	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa180	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa190	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa1a0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa1b0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa1c0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa1d0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa1e0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa210	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa220	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa230	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa260	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa270	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa280	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa290	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa2a0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa2b0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa2c0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa2d0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa2e0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa2f0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa300	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa310	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa340	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa350	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa360	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa370	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa390	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa3b0	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aa720	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+005aae80	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
 005acd10	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005acea0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005acee0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
@@ -3647,6 +3792,14 @@ key	status	note
 005b8bc0	x	ac2-assets font.rs: all 55 portal fonts decode
 005b8e10	x	ac2-assets font.rs: all 55 portal fonts decode
 005b97c0	~	hardware-class layer filter (object::layer_drawn, class 2 default)
+005c22c0	x	ac2-render particles
+005c2700	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005c2770	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005c2bf0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005c2e80	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005c3250	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005c34e0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005c3600	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
 005c4e90	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005c4f20	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005c4fb0	~	point/linear per stage; anisotropic preference not modelled, mip filter linear
@@ -3663,6 +3816,40 @@ key	status	note
 005cbbe0	x	object::parse_pixel_shader + ac2-gpu pixel_program (ps.1.1 to WGSL)
 005d03d0	~	fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
 005d06e0	~	fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
+005d07a0	x	ac2-render particles
+005d07b0	x	ac2-render particles
+005d07f0	x	ac2-render particles
+005d0840	x	ac2-render particles
+005d0880	x	ac2-render particles
+005d0940	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005d0f50	x	ac2-render particles
+005d1250	x	ac2-render particles
+005d1540	x	ac2-render particles
+005d1580	x	ac2-render particles
+005d1850	x	ac2-render particles
+005d1980	x	ac2-render particles
+005d1a20	x	ac2-render particles
+005d1cb0	-	placed systems never move; repulsors are not modelled
+005d2150	x	ac2-render particles
+005d2290	x	ac2-render particles
+005d2550	x	ac2-render particles
+005d2570	x	ac2-render particles
+005d2600	x	ac2-render particles
+005d2620	x	ac2-render particles
+005d2640	x	ac2-render particles
+005d26d0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005d28a0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005d3850	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005d3d10	x	ac2-render particles
+005d3de0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005d40a0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005d42a0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005d4bb0	x	ac2-render particles
+005d4e30	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005d4ed0	x	ac2-render particles
+005d4f00	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005d5280	-	placed systems never move; repulsors are not modelled
+005d58a0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
 005d61b0	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6310	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6470	x	ac2-render object::pass / texture_matrix, ac2-gpu object
@@ -5069,7 +5256,7 @@ key	status	note
 0072b330	x	ac2-audio/ac2-client: ambient environments, groove
 0072b4b0	x	ac2-audio/ac2-client: ambient environments, groove
 0072b500	x	ac2-audio/ac2-client: ambient environments, groove
-0072b540	x	ac2-audio/ac2-client: ambient environments, groove
+0072b540	x	ac2-audio ambient.rs change_cell_end: the dominant environment's hand-off (SoundManager->GetReferences, 0x739420) is a folded 'return 1' stub in admin and Legions alike (mov eax,1; ret 4): retail applies no EnvInfo reverb; ac2-audio records the environment only.
 0072b6c0	x	ac2-audio/ac2-client: ambient environments, groove
 0072b780	x	ac2-audio/ac2-client: ambient environments, groove
 0072ba00	x	ac2-audio/ac2-client: ambient environments, groove
@@ -5086,7 +5273,7 @@ key	status	note
 0072c100	x	ac2-audio/ac2-client: ambient environments, groove
 0072c200	x	ac2-audio/ac2-client: ambient environments, groove
 0072c220	x	ac2-audio/ac2-client: ambient environments, groove
-0072c300	~	ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
+0072c300	~	ac2-audio ambient.rs/ambient_objects.rs: a dominant-only music re-requested on each weighing; the queue holds one playing copy and one waiting copy (replaced by the newest, as QueuePrimaryInternal aborts it). ac2-client tests/ambient_music_7160 keeps one copy sounding and at most one waiting. The 4-copy spread (0x10) is still unused by Legions sounds.
 0072c5b0	x	ac2-audio/ac2-client: ambient environments, groove
 0072c750	~	ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
 0072c790	x	ac2-audio/ac2-client: ambient environments, groove

@@ -474,8 +474,8 @@ fn position_method(m: &str) -> Option<EFunFn> {
                 return vm.bad_this(word(c, 2));
             };
             edit(vm, c, |p, _| {
-                for i in 0..3 {
-                    p.origin[i] += v[i];
+                for (axis, offset) in p.origin.iter_mut().zip(v) {
+                    *axis += offset;
                 }
             })
         },

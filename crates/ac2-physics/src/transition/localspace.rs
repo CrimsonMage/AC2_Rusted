@@ -127,7 +127,7 @@ impl SpherePath {
         let mz = ld(block.z) + c;
         let dot = (ld(g.z) * mz + my * ld(g.y)) + mx * ld(g.x);
         let mut normal = if dot > 0.0 {
-            Vector::new(st(ld(g.x) * -1.0), st(ld(g.y) * -1.0), st(ld(g.z) * -1.0))
+            Vector::new(st(-ld(g.x)), st(-ld(g.y)), st(-ld(g.z)))
         } else {
             g
         };

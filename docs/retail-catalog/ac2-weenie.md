@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 149 done, 59 partial, 1689 to do, 7 skipped.
+1904 retail functions: 153 done, 55 partial, 1689 to do, 7 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -392,18 +392,18 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Shortcut::CallEFun_SendNotice_ReloadShortcuts` · 00468d20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Shortcut::CallEFun_SendNotice_RemoveRecipe` · 00468d60
 
-## `ac2/client/src/weenie/interp/glue/gcm_store.cpp.c` (0/12)
+## `ac2/client/src/weenie/interp/glue/gcm_store.cpp.c` (4/12)
 
 ### gCM_Store
-- [~] `gCM_Store::CallEFun_SendNotice_ConfirmPurchase` · 00467a50 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+- [x] `gCM_Store::CallEFun_SendNotice_ConfirmPurchase` · 00467a50 — ac2-script store round trip (store_script_7160): ViewStore with a StoreView's sales, UpdateStore after it, the ConfirmPurchase notice of PurchaseItem, LeaveStore in the shop body's prologue
 - [~] `gCM_Store::CallEFun_SendNotice_LeaveCatalog` · 00467ac0 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
 - [~] `gCM_Store::CallEFun_SendNotice_LeaveConsignment` · 00467b00 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
-- [~] `gCM_Store::CallEFun_SendNotice_LeaveStore` · 00467b40 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+- [x] `gCM_Store::CallEFun_SendNotice_LeaveStore` · 00467b40 — ac2-script store round trip (store_script_7160): ViewStore with a StoreView's sales, UpdateStore after it, the ConfirmPurchase notice of PurchaseItem, LeaveStore in the shop body's prologue
 - [~] `gCM_Store::CallEFun_SendNotice_ShowSaleReminder` · 00467b80 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
 - [~] `gCM_Store::CallEFun_SendNotice_UpdateSale` · 00467bd0 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
-- [~] `gCM_Store::CallEFun_SendNotice_UpdateStore` · 00467c20 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+- [x] `gCM_Store::CallEFun_SendNotice_UpdateStore` · 00467c20 — ac2-script store round trip (store_script_7160): ViewStore with a StoreView's sales, UpdateStore after it, the ConfirmPurchase notice of PurchaseItem, LeaveStore in the shop body's prologue
 - [~] `gCM_Store::CallEFun_SendNotice_ViewConsignment` · 00467c80 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
-- [~] `gCM_Store::CallEFun_SendNotice_ViewStore` · 00467ce0 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+- [x] `gCM_Store::CallEFun_SendNotice_ViewStore` · 00467ce0 — ac2-script store round trip (store_script_7160): ViewStore with a StoreView's sales, UpdateStore after it, the ConfirmPurchase notice of PurchaseItem, LeaveStore in the shop body's prologue
 - [~] `gCM_Store::CallEFun_SendNotice_UpdateConsignment` · 00467d40 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
 - [ ] `gCM_Store::RListToUIShopList` · 00467e20 · legions 00468ad0
 - [~] `gCM_Store::CallEFun_SendNotice_ViewCatalog` · 00467ec0 · legions 00468b70 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
@@ -962,7 +962,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::RequestLeaveConsignment` · 00450280 · legions 004513c0
 - [ ] `gmCWInterface::RequestEnterConsignment` · 004502a0 · legions 004513e0
 - [~] `gmCWInterface::RequestEnterStore` · 004502c0 · legions 00451400 — Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
-- [~] `gmCWInterface::RequestSell` · 004502e0 · legions 00451420 — Command runs IFun 0xB40138 on the player's script (VM only, no session stand-in). The sell body (client library 0x11642C) checks the shopper first (CPlayer 0x1EC) and returns with none open, so no request goes out without a ViewStore (blocked, see store_script_7160). Stub 0x4E packs (local 0 int, price int, quantity int, item long, local 3 long); local 0 and local 3 are not traced.
+- [~] `gmCWInterface::RequestSell` · 004502e0 · legions 00451420 — Consignment only: raised by gmShopNewSaleUI::RecvNotice_CloseConfirmationDialog (admin 0x41A7B0), not the vendor shop. The VM's sell body refuses a vendor store at its first check, the shopper context's buy list (slot 0, a StoreGroup), set only by the server's 0xB83A0052 flow (CPlayer 0x1F3, body 0x117748). The double does not model the consignment sell (no RequestSell from a vendor store, as retail)
 - [ ] `gmCWInterface::RequestRestock` · 00450310 · legions 00451450
 - [ ] `gmCWInterface::RequestCollect` · 00450340 · legions 00451480
 - [ ] `gmCWInterface::GetConsignmentCharge` · 00450360 · legions 004514a0

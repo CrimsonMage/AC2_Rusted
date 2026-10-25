@@ -612,8 +612,8 @@ impl TypedResourceCache {
             .expect("typed resource cache family poisoned");
         let typed_keys = family
             .entries
-            .iter()
-            .filter_map(|(typed_key, _)| (typed_key.key == key).then_some(*typed_key))
+            .keys()
+            .filter_map(|typed_key| (typed_key.key == key).then_some(*typed_key))
             .collect::<Vec<_>>();
         let pins = typed_keys
             .iter()

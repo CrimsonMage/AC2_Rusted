@@ -6,16 +6,11 @@
 use std::sync::Arc;
 
 use ac2_core::{CellId, DataId};
-use ac2_dat::DatFileKind;
-use ac2_db::{ResourceStore, TypedResourceRef};
-use ac2_physics::{
-    load_block_interiors, load_block_objects, load_body_shape, load_terrain_block, BodyShape,
-    Terrain,
-};
-use ac2_world::{load_ac2_motion_interp_desc, Ac2MotionInterpDesc, Ac2WorldSource, GameClock};
+use ac2_db::ResourceStore;
+use ac2_physics::{BodyShape, Terrain};
+use ac2_world::{Ac2MotionInterpDesc, Ac2WorldSource, GameClock};
 
-/// `m_midesc_did` of the human `VisualDesc`s, used when a visual names none.
-pub const HUMAN_MOTION_INTERP_DESC: u32 = 0x3200_0000;
+pub use ac2_smartbox::HUMAN_MOTION_INTERP_DESC;
 
 /// A body physics simulates (the player's, or another object's).
 #[derive(Clone)]
@@ -126,20 +121,11 @@ impl WorldData for DatWorld {
     }
 
     fn load_block(&self, terrain: &mut Terrain, block: u32) -> Result<bool, String> {
-        let id = CellId::new(block | 0xFFFF);
-        if !load_terrain_block(&self.world, terrain, id).map_err(|e| e.to_string())? {
-            return Ok(false);
-        }
-        load_block_objects(&self.world, terrain, id).map_err(|e| e.to_string())?;
-        load_block_interiors(&self.world, terrain, id).map_err(|e| e.to_string())?;
-        Ok(true)
+        ac2_smartbox::load_dat_block(&self.world, terrain, block)
     }
 
     fn prefetch_far_block(&self, block: u32) -> Result<(), String> {
-        self.world
-            .load_landblock(CellId::new(block | 0xFFFF))
-            .map(|_| ())
-            .map_err(|e| e.to_string())
+        ac2_smartbox::prefetch_dat_far_block(&self.world, block)
     }
 
     fn body(&self, visual: Option<u32>) -> Result<BodyData, String> {
@@ -153,40 +139,17 @@ impl WorldData for DatWorld {
 }
 
 /// A body's collision shape, motion description, radius and animation for `visual` (its
-/// `VisualDesc` or `Setup`), read on a loader thread.
+/// `VisualDesc` or `Setup`), and its FX sounds, read on a loader thread.
 pub(crate) fn load_body_data(
     store: &Arc<ResourceStore>,
     visual: DataId,
 ) -> Result<BodyData, String> {
-    let shape = load_body_shape(store, visual)
-        .map_err(|e| e.to_string())?
-        .ok_or("the player's visual has no Setup")?;
-    let radius = match ac2_assets::resolve_ac2_visual_parts(store, visual)
-        .map_err(|e| e.to_string())?
-        .first()
-    {
-        Some((setup, _)) => store
-            .load_cached_packed::<ac2_assets::Ac2SetupPhysics>(TypedResourceRef::new(
-                DatFileKind::Portal,
-                *setup,
-                0,
-            ))
-            .map_err(|e| e.to_string())?
-            .map_or(0.0, |physics| physics.radius),
-        None => 0.0,
-    };
-    let midesc = ac2_assets::resolve_ac2_visual_motion_interp(store, visual)
-        .map_err(|e| e.to_string())?
-        .unwrap_or(DataId::new(HUMAN_MOTION_INTERP_DESC));
-    let motion = load_ac2_motion_interp_desc(store, midesc)
-        .map_err(|e| e.to_string())?
-        .map(|desc| Arc::new((*desc).clone()));
-    let animation = ac2_physics::load_body_animation(store, visual).map_err(|e| e.to_string())?;
+    let body = ac2_smartbox::load_body_data(store, visual)?;
     Ok(BodyData {
-        shape,
-        motion,
-        radius,
-        animation,
+        shape: body.shape,
+        motion: body.motion,
+        radius: body.radius,
+        animation: body.animation,
         fx_sounds: load_fx_sounds(store, visual)?,
     })
 }

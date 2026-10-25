@@ -147,6 +147,7 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::List(_) => "list",
         NativeObject::Hash(_) => "hash",
         NativeObject::StringInfo(_) => "StringInfo",
+        NativeObject::EntityDesc(_) => "EntityDesc",
         NativeObject::WString(_) => "wpstring",
         NativeObject::Vector(_) => "Vector",
         NativeObject::Heading(_) => "Heading",

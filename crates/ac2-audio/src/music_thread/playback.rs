@@ -13,7 +13,7 @@ use crate::music::clock::{Boundary, MusicClock};
 use crate::music::library::LoadedMusic;
 use crate::music::performance::{EventSink, MusicPerformance, TimedEvent};
 use crate::music::style_performance::{PatternChoice, StylePerformance};
-use crate::music::MusicObject;
+use crate::music::{MusicObject, WaveSegment};
 use crate::synth::PerformanceBand;
 
 /// Hands events to a buffer, moved by the playback's start (the queue's clock) and stamped with
@@ -61,7 +61,8 @@ pub(super) struct Playback {
     elapsed: f64,
     /// Whether it has reached its end or been stopped.
     ended: bool,
-    sequence: MusicPerformance,
+    /// The sequence's performance (none for a wave segment, which has no notes).
+    sequence: Option<MusicPerformance>,
     style: Option<StylePerformance>,
 }
 
@@ -70,8 +71,9 @@ impl Playback {
     /// `bands` are the segment's band track's items as (seconds from its start, band), in the
     /// order the track gives them (empty for a segment with no band track). The first starts the
     /// notes' band; the rest are the schedule. Without a band track the notes play on
-    /// `performance`. `seed` seeds the style's pattern choice. `None` when the object is not a
-    /// segment.
+    /// `performance`. `seed` seeds the style's pattern choice. A wave segment plays its wave for
+    /// its time on the performance's default clock (120 quarter notes a minute, 4/4). `None` when
+    /// the object is neither a segment nor a wave.
     pub(super) fn new(
         id: u32,
         owner: u32,
@@ -82,8 +84,10 @@ impl Playback {
         bands: &[(f64, Arc<PerformanceBand>)],
         performance: Option<&Arc<PerformanceBand>>,
     ) -> Option<Self> {
-        let MusicObject::Segment(segment) = &music.segment else {
-            return None;
+        let segment = match &music.segment {
+            MusicObject::Segment(segment) => segment,
+            MusicObject::Wave(wave) => return Some(Self::wave(id, owner, start, *wave)),
+            _ => return None,
         };
         let clock = MusicClock::from_segment(segment);
         let mut schedule: Vec<(f64, Arc<PerformanceBand>)> = bands.to_vec();
@@ -94,7 +98,11 @@ impl Playback {
             .map(|(_, band)| Arc::clone(band))
             .or_else(|| performance.map(Arc::clone));
         let schedule: VecDeque<_> = schedule.into_iter().skip(1).collect();
-        let sequence = MusicPerformance::new(segment, first.map(|p| Arc::clone(&p.band)), false);
+        let sequence = Some(MusicPerformance::new(
+            segment,
+            first.map(|p| Arc::clone(&p.band)),
+            false,
+        ));
         let style = music
             .style_of(segment)
             .map(|style| StylePerformance::new(segment, style, groove, seed));
@@ -112,6 +120,30 @@ impl Playback {
             sequence,
             style,
         })
+    }
+
+    /// The playback of a wave segment: no notes, its pass is the wave's time (forever when it
+    /// loops), on the default clock (no tempo or meter track).
+    fn wave(id: u32, owner: u32, start: f64, wave: WaveSegment) -> Self {
+        let length = if wave.looping {
+            f64::INFINITY
+        } else {
+            wave.seconds.max(0.0)
+        };
+        Self {
+            id,
+            owner,
+            own_band: false,
+            schedule: VecDeque::new(),
+            start,
+            length,
+            clock: MusicClock::default(),
+            cut: length,
+            elapsed: 0.0,
+            ended: false,
+            sequence: None,
+            style: None,
+        }
     }
 
     /// Whether the segment has a band track (see [`Self::new`]).
@@ -145,7 +177,9 @@ impl Playback {
     /// The notes from now on are mapped by `band` (a performance band change, or the segment's
     /// own band item).
     pub(super) fn set_band(&mut self, band: Option<&Arc<crate::music::band::Band>>) {
-        self.sequence.set_band(band.map(Arc::clone));
+        if let Some(sequence) = self.sequence.as_mut() {
+            sequence.set_band(band.map(Arc::clone));
+        }
     }
 
     pub(super) fn id(&self) -> u32 {
@@ -190,7 +224,9 @@ impl Playback {
             owner: self.owner,
             out,
         };
-        self.sequence.advance(seconds, &mut stamp);
+        if let Some(sequence) = self.sequence.as_mut() {
+            sequence.advance(seconds, &mut stamp);
+        }
         if let Some(style) = self.style.as_mut() {
             style.advance(seconds, &mut stamp);
         }
@@ -215,7 +251,9 @@ impl Playback {
             owner: self.owner,
             out,
         };
-        self.sequence.stop(&mut stamp);
+        if let Some(sequence) = self.sequence.as_mut() {
+            sequence.stop(&mut stamp);
+        }
         if let Some(style) = self.style.as_mut() {
             style.stop(&mut stamp);
         }

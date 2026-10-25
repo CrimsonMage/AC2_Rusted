@@ -270,8 +270,7 @@ pub enum LoadedSound {
         length: f32,
     },
     /// A `MusicInfo` and the DirectMusic segment it plays (`DirectXMusicLoader::LoadFromMusicInfo`
-    /// with its closure). `None` when the record is an `EncodedWave` (played as a wave, which
-    /// the queue does not take) or the segment is missing. `sources` are the channel sources of
+    /// with its closure). `None` when the segment is missing. `sources` are the channel sources of
     /// the segment's style (the bands its style's notes take instruments from), and `bands` the
     /// items of its band track (the bands its own notes play on, and the performance's band they
     /// make), all resolved here on the loader thread.
@@ -280,6 +279,14 @@ pub enum LoadedSound {
         segment: Option<Arc<LoadedMusic>>,
         sources: ChannelSources,
         bands: Arc<[(f64, Arc<PerformanceBand>)]>,
+    },
+    /// A `MusicInfo` whose object is an `EncodedWave` (`LoadFromObject(EncodedWave)`): the wave
+    /// is played as the segment's wave track, with the `MusicInfo`'s terms, on the music channel.
+    /// `length` is the wave's time (`DBWave::GetTime`).
+    MusicWave {
+        info: MusicInfo,
+        pcm: Arc<Pcm>,
+        length: f32,
     },
 }
 
@@ -341,7 +348,12 @@ impl SoundSource for DatSounds {
             }
             _ => {
                 let info = self.get(did, |m: &MusicInfo| *m)?;
-                let segment = match self.music.load_music(&info) {
+                let source = self.music.load_music(&info);
+                if let Some(MusicSource::Wave(pcm)) = source {
+                    let length = (pcm.frames() as f64 / f64::from(pcm.rate.max(1))) as f32;
+                    return Some(LoadedSound::MusicWave { info, pcm, length });
+                }
+                let segment = match source {
                     Some(MusicSource::DirectMusic(music)) => Some(music),
                     _ => None,
                 };

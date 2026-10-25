@@ -14,25 +14,19 @@ use ac2_weenie::{GameplayNotice, SessionEvent};
 use crate::client::Client;
 use crate::frame::ClientFrame;
 use crate::gameplay::Command;
+use crate::hud_chat_options::{chat_options_commands, ui_chat_settings};
 use crate::hud_view::HudView;
 use crate::ui_sources::{shortcut_to_info, ClientPlayer};
 
 /// The player's race (int 290, `UpdatePaperDollPosition`).
 const RACE: u32 = 0x122;
 
-/// The player's chat options as the chat windows take them.
+/// The player's chat options as the chat windows and the chat options page take them.
+/// The text type of the store's purchase messages (`TEXT_TYPE_ERROR`).
+const SHOP_MESSAGE_TEXT_TYPE: u32 = 0x1;
+
 fn chat_settings(client: &mut Client) -> Option<ChatSettings> {
-    let settings = client.chat_settings().ok()?;
-    Some(ChatSettings {
-        filters: settings.filters,
-        font_sizes: settings.font_sizes,
-        font_colors: settings.font_colors,
-        popups: settings
-            .popups
-            .into_iter()
-            .map(|(kind, popup)| (kind, popup != 0))
-            .collect(),
-    })
+    Some(ui_chat_settings(&client.chat_settings().ok()?))
 }
 
 /// The options profile as the options page reads it (`gmCWInterface::Get*`).
@@ -107,7 +101,9 @@ impl HudView {
             stack,
             external_container,
             secure_trade,
+            shop,
             character,
+            chat_options,
             money,
             shift_held,
             backpack,
@@ -120,12 +116,19 @@ impl HudView {
             navigation_time,
             radar,
             names,
+            damage,
+            now,
+            toolbar,
             ..
         } = self;
         let Some((tree, _)) = hud else {
             return commands;
         };
-        let reload_chat = !*player_loaded
+        // `gmChatOptionsUI`'s Apply sent the reload notice; its values refresh on the options'
+        // reload (`RecvNotice_ReloadOptions`), as the page's Refresh does.
+        let applied = chat_options.as_mut().is_some_and(|page| page.take_reload());
+        let reload_chat = applied
+            || !*player_loaded
             || script_notices.iter().any(|n| {
                 matches!(
                     n.name,
@@ -134,8 +137,17 @@ impl HudView {
                 )
             });
         if reload_chat {
-            if let (Some(chat), Some(settings)) = (chat.as_mut(), chat_settings(client)) {
-                chat.reload_chat_settings(tree, &settings);
+            if let Some(settings) = chat_settings(client) {
+                if let Some(chat) = chat.as_mut() {
+                    chat.reload_chat_settings(tree, &settings);
+                }
+                let reload_page = !*player_loaded
+                    || script_notices
+                        .iter()
+                        .any(|n| n.name == "CM_Character::SendNotice_ReloadOptions");
+                if let (true, Some(page)) = (reload_page, chat_options.as_mut()) {
+                    page.refresh(tree, &settings);
+                }
             }
         }
         // `gmRadarUI::ReloadOptions` (at login, `Init`, and on `RecvNotice_ReloadOptions`).
@@ -274,6 +286,16 @@ impl HudView {
                     notice,
                 );
             }
+            if let (Some(panel), Some(dialogs)) = (shop.as_mut(), dialogs.as_mut()) {
+                crate::hud_shop::shop_notice(
+                    panel,
+                    tree,
+                    dialogs,
+                    &player,
+                    frame.server_time,
+                    notice,
+                );
+            }
             if let (Some(panel), Some(dialogs)) = (fellowship.as_mut(), dialogs.as_mut()) {
                 crate::ui_social::fellowship_notice(panel, tree, dialogs, &player, notice);
             }
@@ -361,9 +383,55 @@ impl HudView {
                 GameplayNotice::UpdateInventory { .. } | GameplayNotice::UpdateContainer { .. } => {
                     check_shortcuts = true;
                 }
+                // `gmShortcutUI::RecvNotice_UpdateResetTime`: CheckAllSkills.
+                GameplayNotice::UpdateResetTime => check_shortcuts = true,
+                // `gmShortcutUI::RecvNotice_ToggleSpecialAttack`, `RequestSpecialAttack`,
+                // `StartSpecialAttack` and `EndSpecialAttack`.
+                GameplayNotice::ToggleSpecialAttack { maneuver, toggled } => {
+                    if let Some(bar) = shortcuts.as_mut() {
+                        bar.toggle_special_attack(tree, *maneuver, *toggled);
+                    }
+                }
+                GameplayNotice::RequestSpecialAttack { maneuver, attack } => {
+                    if let Some(bar) = shortcuts.as_mut() {
+                        bar.request_special_attack(tree, *attack, *maneuver);
+                    }
+                }
+                GameplayNotice::StartSpecialAttack(attack) => {
+                    if let Some(bar) = shortcuts.as_mut() {
+                        bar.start_special_attack(tree, *attack);
+                    }
+                }
+                GameplayNotice::EndSpecialAttack(attack) => {
+                    if let Some(bar) = shortcuts.as_mut() {
+                        bar.end_special_attack(tree, *attack);
+                    }
+                }
                 GameplayNotice::UpdateMoney(amount) => {
                     if let Some(bag) = money.as_mut() {
                         bag.set_money(tree, &player, *amount);
+                    }
+                }
+                // `gmToolbarUI::RecvNotice_ShowSaleReminder` and `RecvNotice_UpdateMountState`.
+                GameplayNotice::ShowSaleReminder(show) => {
+                    if let Some(bar) = toolbar.as_ref() {
+                        bar.sale_reminder(tree, *show);
+                    }
+                }
+                GameplayNotice::UpdateMountState(on_mount) => {
+                    if let Some(bar) = toolbar.as_ref() {
+                        bar.mount_state(tree, *on_mount);
+                    }
+                }
+                // `gmSelectionUI::RecvNotice_Select`: the auto-target and the cycling keys.
+                GameplayNotice::Select(key) => {
+                    let client = player.client.borrow();
+                    commands.extend(crate::target_select::select_command(&client, frame, *key));
+                }
+                // `gm3DTextUI::RecvNotice_Do3DDamage`.
+                GameplayNotice::Do3DDamage { object, text } => {
+                    if let Some(damage) = damage.as_mut() {
+                        damage.add(tree, *object, text, *now);
                     }
                 }
                 _ => {}
@@ -377,9 +445,18 @@ impl HudView {
             }
         }
         for message in &messages {
+            // `gmSelectionUI::ListenToMessage`: a target key selects (the cycling keys).
+            if let Some(key) = ac2_ui::select_key_of(message) {
+                let client = player.client.borrow();
+                commands.extend(crate::target_select::select_command(&client, frame, key));
+            }
             if let (Some(page), Some(dialogs)) = (character.as_mut(), dialogs.as_mut()) {
                 page.message(tree, dialogs, message);
                 character_commands(page, &mut commands);
+            }
+            if let (Some(page), Some(dialogs)) = (chat_options.as_mut(), dialogs.as_mut()) {
+                page.message(tree, dialogs, message);
+                chat_options_commands(page, &mut commands);
             }
             if let Some(skills) = skills.as_mut() {
                 skills.message(tree, &player, message);
@@ -498,6 +575,9 @@ impl HudView {
                 if let Some(panel) = secure_trade.as_mut() {
                     panel.recv_stack_ui_done(context, amount);
                 }
+                if let Some(panel) = shop.as_mut() {
+                    panel.recv_stack_ui_done(context, amount);
+                }
             }
             if let Some(request) = paper_doll
                 .as_mut()
@@ -510,6 +590,24 @@ impl HudView {
             }
             if let Some(panel) = secure_trade.as_mut() {
                 panel.message(tree, &player, message);
+            }
+            // `gmShopUI::ListenToMessage`; a purchase asks the player how many it may buy.
+            if let (Some(panel), Some(dialogs)) = (shop.as_mut(), dialogs.as_mut()) {
+                let mut most = |item| {
+                    player
+                        .client
+                        .borrow_mut()
+                        .max_purchase_quantity(item)
+                        .unwrap_or(0)
+                };
+                panel.message(
+                    tree,
+                    &player,
+                    dialogs,
+                    message,
+                    frame.server_time,
+                    &mut most,
+                );
             }
             if let Some(dialogs) = dialogs.as_mut() {
                 dialogs.message(tree, message);
@@ -538,10 +636,19 @@ impl HudView {
             if let Some(panel) = secure_trade.as_mut() {
                 panel.dialog_outcomes(tree, &outcomes);
             }
+            // The purchase's confirmation (`gmShopUI::RecvNotice_CloseConfirmationDialog`).
+            if let Some(panel) = shop.as_mut() {
+                panel.dialog_outcomes(&outcomes);
+            }
             // The recall's and default's confirmations (`gmCharacterUI::RecvNotice_CloseConfirmationDialog`).
             if let Some(page) = character.as_mut() {
                 page.dialog_outcomes(tree, dialogs, &outcomes);
                 character_commands(page, &mut commands);
+            }
+            // The chat options' confirmations (`gmChatOptionsUI::RecvNotice_CloseConfirmationDialog`).
+            if let Some(page) = chat_options.as_mut() {
+                page.dialog_outcomes(tree, dialogs, &outcomes);
+                chat_options_commands(page, &mut commands);
             }
         }
         // `gmSecureTradeUI`'s calls on the player (`gmCWInterface::*Trade*`).
@@ -559,6 +666,20 @@ impl HudView {
                     R::Decline => Command::DeclineTrade,
                     R::Close => Command::CloseTrade,
                 });
+            }
+        }
+        // `gmShopUI`'s global loop, its stack dialog's calls, its calls on the player and the
+        // purchase messages for the chat (`CM_Character::SendNotice_DisplayMessage`).
+        if let Some(panel) = shop.as_mut() {
+            panel.tick(tree, frame.server_time);
+            let requests = panel.take_requests();
+            open_examination |= requests.contains(&ac2_ui::ShopRequest::OpenExamination);
+            commands.extend(crate::hud_shop::shop_commands(requests));
+            crate::hud_shop::shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
+            if let Some(chat) = chat.as_mut() {
+                for text in panel.take_messages() {
+                    chat.display(SHOP_MESSAGE_TEXT_TYPE, &text);
+                }
             }
         }
         if let Some(page) = allegiance.as_mut() {

@@ -8,6 +8,15 @@ version = "0.1.0"
 publish = false
 license = "AGPL-3.0-only"
 
+# Retail comparisons are written `!(a < b)` and `t < 0.0 || t > 1.0` on purpose: they differ from
+# `a >= b` and `!(0.0..=1.0).contains(&t)` for NaN. Retail function signatures carry their many
+# parameters and tuple types as they are.
+[workspace.lints.clippy]
+neg_cmp_op_on_partial_ord = "allow"
+manual_range_contains = "allow"
+too_many_arguments = "allow"
+type_complexity = "allow"
+
 [profile.dev]
 opt-level = 1
 

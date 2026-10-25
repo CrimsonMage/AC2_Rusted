@@ -6,11 +6,11 @@
 //! The tree's messages go to the chat (`gmChatUI`) before they are returned.
 
 use std::collections::HashMap;
-use std::sync::mpsc::{self, Receiver, TryRecvError};
+use std::sync::mpsc::{Receiver, TryRecvError};
 use std::sync::Arc;
 
-use ac2_db::{ResourceResult, ResourceStore};
-use ac2_gpu::{Gpu, UiLayer, UiOverlay};
+use ac2_db::ResourceResult;
+use ac2_gpu::{Gpu, UiOverlay};
 use ac2_ui::{
     ChatRequest, ChatSettings, ChatUi, GameplayHud, Modifiers, Reticle, ReticleOutcome,
     ReticleTarget, ShortcutUi, SkillTreeUi, ToolbarChild, ToolbarUi, UiMessage, UiPixels, UiTree,
@@ -18,14 +18,22 @@ use ac2_ui::{
 
 type Built = ResourceResult<(GameplayHud, HashMap<u32, UiPixels>)>;
 
+mod accessors;
+mod build;
+mod compose;
+
 pub(crate) struct HudView {
     pending: Option<Receiver<Built>>,
     pub(crate) hud: Option<(UiTree, HashMap<u32, UiPixels>)>,
     reticle: Option<Reticle>,
     /// `gm3DTextUI`'s name plates.
     pub(crate) names: Option<ac2_ui::NamePlates>,
+    /// `gm3DTextUI`'s floating damage numbers.
+    pub(crate) damage: Option<ac2_ui::DamageTexts>,
+    /// The HUD's clock (`Timer::cur_time`) at the last frame: a damage text starts at it.
+    pub(crate) now: f64,
     pub(crate) chat: Option<ChatUi>,
-    toolbar: Option<ToolbarUi>,
+    pub(crate) toolbar: Option<ToolbarUi>,
     pub(crate) shortcuts: Option<ShortcutUi>,
     pub(crate) skills: Option<SkillTreeUi>,
     pub(crate) examination: Option<ac2_ui::ExaminationUi>,
@@ -53,6 +61,10 @@ pub(crate) struct HudView {
     pub(crate) secure_trade: Option<ac2_ui::SecureTradeUi>,
     /// `gmCharacterUI`, the character options page (its requests wait in the page).
     pub(crate) character: Option<ac2_ui::CharacterUi>,
+    /// `gmChatOptionsUI`, the chat options page (its requests wait in the page).
+    pub(crate) chat_options: Option<ac2_ui::ChatOptionsUi>,
+    /// `gmShopUI`, the vendor's panel (its requests wait in the panel).
+    pub(crate) shop: Option<ac2_ui::ShopUi>,
     /// `gmRadarUI`'s blips, painted over the radar field each compose.
     pub(crate) radar: Option<ac2_ui::RadarUi>,
     /// The player's cell and its map coordinates as the radar shows them (rendered by the
@@ -94,104 +106,6 @@ pub(crate) struct HudView {
 }
 
 impl HudView {
-    pub(crate) fn new(
-        store: Arc<ResourceStore>,
-        gpu: &Gpu,
-        format: wgpu::TextureFormat,
-        size: (u32, u32),
-    ) -> Self {
-        let chat_text = crate::chat_text::ChatText::new((*store).clone());
-        let images = crate::ui_images::UiImageLoader::new(Arc::clone(&store));
-        let (send_strings, pending_strings) = mpsc::channel();
-        let strings_store = Arc::clone(&store);
-        std::thread::Builder::new()
-            .name("ac2 ui strings".into())
-            .spawn(move || {
-                let tables = ac2_db::PreloadedStringTables::load_all(&strings_store, 0x5800_0000);
-                let _ = send_strings.send(crate::ui_sources::UiStringTables::new(
-                    &strings_store,
-                    tables,
-                ));
-            })
-            .expect("spawn the UI strings loader");
-        let (send, receive) = mpsc::channel();
-        let (width, height) = (size.0 as i32, size.1 as i32);
-        std::thread::Builder::new()
-            .name("ac2 hud".into())
-            .spawn(move || {
-                let built =
-                    ac2_ui::build_gameplay_hud(&store, width, height).and_then(|mut hud| {
-                        // `CRegionDesc::GetGameMap`: the map image the navigation panel shows.
-                        if let (Some(nav), Some(map)) = (
-                            hud.navigation.as_mut(),
-                            ac2_world::ac2_region_game_map(&store)?,
-                        ) {
-                            nav.set_game_map(&mut hud.tree, map.raw());
-                        }
-                        // `CRegionDesc::GetCurrentDetailMapTable` and its `CDetailMapDesc`: the
-                        // detail view's tiles and their map notes, read on this worker.
-                        if let Some(table) = ac2_world::ac2_region_detail_map_table(&store)? {
-                            if let (Some(nav), Some(map)) = (
-                                hud.navigation.as_mut(),
-                                ac2_world::ac2_detail_map(&store, table)?,
-                            ) {
-                                nav.set_detail_map(std::sync::Arc::new(map));
-                            }
-                        }
-                        let images = ac2_ui::load_ui_images(&store, &hud.tree)?;
-                        Ok((hud, images))
-                    });
-                let _ = send.send(built);
-            })
-            .expect("spawn the HUD loader");
-        Self {
-            pending: Some(receive),
-            hud: None,
-            reticle: None,
-            names: None,
-            chat: None,
-            toolbar: None,
-            shortcuts: None,
-            skills: None,
-            examination: None,
-            allegiance: None,
-            fellowship: None,
-            vitals: None,
-            effects: None,
-            backpack: None,
-            paper_doll: None,
-            player_race: None,
-            toolbar_layout: None,
-            item_selection: 0,
-            reticle_info: None,
-            dialogs: None,
-            stack: None,
-            external_container: None,
-            secure_trade: None,
-            character: None,
-            radar: None,
-            radar_cell: None,
-            radar_coordinates: None,
-            navigation_time: None,
-            navigation: None,
-            overview: None,
-            money: None,
-            shift_held: false,
-            player_messages: Vec::new(),
-            strings: None,
-            pending_strings: Some(pending_strings),
-            player_loaded: false,
-            early_lines: Vec::new(),
-            chat_text,
-            images,
-            overlay: UiOverlay::new(gpu, format),
-            layer_roots: Vec::new(),
-            size,
-            dirty: false,
-            sounds: Vec::new(),
-        }
-    }
-
     /// The render device's new size: every root placed again (`UIElement::UpdateSizeAndPosition`).
     pub(crate) fn resize(&mut self, width: u32, height: u32) {
         self.size = (width.max(1), height.max(1));
@@ -300,137 +214,19 @@ impl HudView {
         }
     }
 
-    /// The skills panel's panel and selected skill.
-    pub(crate) fn skills_current(&self) -> Option<(u32, u32)> {
-        self.skills.as_ref().map(ac2_ui::SkillTreeUi::current)
-    }
-
-    /// The examination panel's texts, in order.
-    /// The text of the first element with id `name` (`IUIManager` lookup).
-    pub(crate) fn element_text(&self, name: &str) -> Option<String> {
-        let (tree, _) = self.hud.as_ref()?;
-        let id = ac2_ui::tokenize(name);
-        let element = tree
-            .roots()
-            .iter()
-            .find_map(|&r| tree.child_recursive(r, id))?;
-        tree.get(element)?.text()
-    }
-
-    /// The radar's `CoordinatesText` (the HUD has another element of that name).
-    pub(crate) fn radar_coordinates(&self) -> Option<String> {
-        let (tree, _) = self.hud.as_ref()?;
-        let field = self.radar.as_ref()?.field()?;
-        let text = tree.child_recursive(field, ac2_ui::tokenize("CoordinatesText"))?;
-        tree.get(text)?.text()
-    }
-
-    /// The backpack's first page: each item and its slot's tooltip.
-    pub(crate) fn backpack_items(&self) -> Vec<(u64, String)> {
-        let (Some((tree, _)), Some(pack)) = (&self.hud, &self.backpack) else {
-            return Vec::new();
-        };
-        pack.packs.first().map_or(Vec::new(), |page| {
-            page.items
-                .iter()
-                .map(|d| (d.item, tree.tooltip_text(d.icon).unwrap_or_default()))
-                .collect()
-        })
-    }
-
-    /// The external container panel's container and items, while it shows one.
-    pub(crate) fn external_container_items(&self) -> Option<(u64, Vec<u64>)> {
-        let display = self.external_container.as_ref()?.display()?;
-        Some((
-            display.container,
-            display.items.iter().map(|d| d.item).collect(),
-        ))
-    }
-
-    pub(crate) fn allegiance_texts(&self) -> Vec<String> {
-        let (Some((tree, _)), Some(page)) = (&self.hud, &self.allegiance) else {
-            return Vec::new();
-        };
-        fn walk(tree: &UiTree, index: usize, out: &mut Vec<String>) {
-            if let Some(text) = tree.get(index).and_then(|e| e.text()) {
-                if !text.is_empty() {
-                    out.push(text);
-                }
-            }
-            for &child in tree.children(index) {
-                walk(tree, child, out);
-            }
+    /// `gmToolbarUI::Show`: the toolbar field shows or hides, and its height is the bottom
+    /// preclude the reticle and the name plates keep (`CM_UI::SendNotice_PrecludeFromBottom`,
+    /// which the next frame's update applies).
+    pub(crate) fn show_toolbar(&mut self, shown: bool) {
+        if let (Some((tree, _)), Some(toolbar), Some(reticle)) =
+            (&mut self.hud, &self.toolbar, &mut self.reticle)
+        {
+            reticle.precluded_bottom = toolbar.show_bar(tree, shown);
+            self.dirty = true;
         }
-        let mut out = Vec::new();
-        for row in page.rows(tree) {
-            walk(tree, row, &mut out);
-        }
-        out
-    }
-
-    pub(crate) fn fellowship_rows(&self) -> Vec<(u64, String)> {
-        let (Some((tree, _)), Some(panel)) = (&self.hud, &self.fellowship) else {
-            return Vec::new();
-        };
-        let name = ac2_ui::tokenize("FellowTemplateNameText");
-        panel
-            .rows(tree)
-            .into_iter()
-            .map(|(id, row)| {
-                let text = tree
-                    .child_recursive(row, name)
-                    .and_then(|t| tree.get(t))
-                    .and_then(|e| e.text());
-                (id, text.unwrap_or_default())
-            })
-            .collect()
-    }
-
-    pub(crate) fn examination_texts(&self) -> Vec<String> {
-        let (Some((tree, _)), Some(panel)) = (&self.hud, &self.examination) else {
-            return Vec::new();
-        };
-        fn walk(tree: &UiTree, index: usize, out: &mut Vec<String>) {
-            if let Some(text) = tree.get(index).and_then(|e| e.text()) {
-                if !text.is_empty() {
-                    out.push(text);
-                }
-            }
-            for &child in tree.children(index) {
-                walk(tree, child, out);
-            }
-        }
-        let mut out = Vec::new();
-        if let Some(list) = panel.list() {
-            for &row in tree.list_items(list) {
-                walk(tree, row, &mut out);
-            }
-        }
-        out
-    }
-
-    /// The shortcut bar's slots.
-    pub(crate) fn shortcut_slots(&self) -> usize {
-        let (Some((tree, _)), Some(bar)) = (&self.hud, &self.shortcuts) else {
-            return 0;
-        };
-        bar.elements()
-            .1
-            .map_or(0, |list| tree.list_items(list).len())
-    }
-
-    /// The first chat window's log text.
-    pub(crate) fn chat_log(&self) -> Option<String> {
-        let (tree, _) = self.hud.as_ref()?;
-        let log = self.chat.as_ref()?.logs().first().copied().flatten()?;
-        tree.get(log)?.text()
-    }
-
-    /// Whether a toolbar panel is shown.
-    pub(crate) fn panel_shown(&self, child: ToolbarChild) -> bool {
-        match (&self.hud, &self.toolbar) {
-            (Some((tree, _)), Some(toolbar)) => toolbar.shown(tree, child),
-            _ => false,
+        // `gmShortcutUI::Show` from `gmToolbarUI::Show`.
+        if let (Some((tree, _)), Some(bar)) = (&mut self.hud, &self.shortcuts) {
+            bar.show(tree, shown);
         }
     }
 
@@ -459,78 +255,9 @@ impl HudView {
         }
     }
 
-    /// Whether an editable text element is active (the input manager's text mode).
-    pub(crate) fn text_mode(&self) -> bool {
-        self.hud.as_ref().is_some_and(|(tree, _)| tree.text_mode())
-    }
-
-    fn arrived(&mut self, built: Built) {
-        match built {
-            Ok((
-                GameplayHud {
-                    mut tree,
-                    reticle,
-                    names,
-                    mut chat,
-                    toolbar,
-                    shortcuts,
-                    skills,
-                    examination,
-                    allegiance,
-                    fellowship,
-                    vitals,
-                    effects,
-                    toolbar_layout,
-                    dialogs,
-                    stack,
-                    external_container,
-                    radar,
-                    secure_trade,
-                    character,
-                    navigation,
-                    overview,
-                },
-                images,
-            )) => {
-                tree.set_display(self.size.0 as i32, self.size.1 as i32);
-                if let Some(chat) = &mut chat {
-                    // The player's options are not read yet: the chat starts on
-                    // `GameplayOptionsProfile::Clear`'s (no filters, default fonts).
-                    chat.reload_chat_settings(&mut tree, &ChatSettings::default());
-                    for (kind, text) in self.early_lines.drain(..) {
-                        chat.display(kind, &text);
-                    }
-                }
-                self.hud = Some((tree, images));
-                self.reticle = reticle;
-                self.names = names;
-                self.chat = chat;
-                self.toolbar = Some(toolbar);
-                self.shortcuts = shortcuts;
-                self.skills = skills;
-                self.examination = examination;
-                self.allegiance = allegiance;
-                self.fellowship = fellowship;
-                self.vitals = Some(vitals);
-                self.effects = effects;
-                self.toolbar_layout = toolbar_layout;
-                self.dialogs = Some(dialogs);
-                self.stack = stack;
-                self.external_container = external_container;
-                self.secure_trade = secure_trade;
-                self.character = character;
-                self.radar = Some(radar);
-                self.navigation = navigation;
-                self.overview = overview;
-                self.dirty = true;
-            }
-            Err(error) => eprintln!("ac2: the HUD did not load: {error}"),
-        }
-    }
-
-    /// Takes a finished build, then recomposes if anything changed.
     /// One frame of the HUD at `Timer::cur_time` `now` (seconds).
     pub(crate) fn update(&mut self, gpu: &Gpu, now: f64) {
+        self.now = now;
         if let Some(pending) = &self.pending_strings {
             if let Ok(tables) = pending.try_recv() {
                 self.strings = Some(Arc::new(tables));
@@ -561,6 +288,10 @@ impl HudView {
             if let Some(doll) = &self.paper_doll {
                 doll.follow_panel(tree);
             }
+            // `gmShortcutUI::UpdateTimeLeft`: the skills on reset fill their slots' meters.
+            if let Some(bar) = &mut self.shortcuts {
+                bar.update_time_left(tree, now);
+            }
             self.sounds.extend(tree.take_sounds());
             if let Some(chat) = &mut self.chat {
                 chat.global_loop(tree);
@@ -580,6 +311,33 @@ impl HudView {
             }
         }
         self.compose(gpu);
+    }
+
+    /// `gm3DTextUI::UpdateDamage`: the damage texts over `places` at the HUD's clock, rising
+    /// above the selection's reticle and name when `selection` is the object they are over.
+    pub(crate) fn update_damage(&mut self, places: &[ac2_ui::DamagePlace<'_>], selection: u64) {
+        let (Some((tree, _)), Some(damage)) = (&mut self.hud, &mut self.damage) else {
+            return;
+        };
+        let offset = self
+            .reticle
+            .as_ref()
+            .map_or(0, |r| r.selection_offset(tree));
+        let precluded = self
+            .reticle
+            .as_ref()
+            .map_or((0, 0), |r| (r.precluded_top, r.precluded_bottom));
+        damage.update(
+            tree,
+            places,
+            (selection, offset),
+            precluded,
+            self.now,
+            false,
+        );
+        if tree.take_changed() {
+            self.dirty = true;
+        }
     }
 
     /// `gm3DTextUI::UpdateNames` after the reticle: the plates over `places`, clear of the
@@ -609,16 +367,6 @@ impl HudView {
         );
     }
 
-    /// The objects with a name plate.
-    pub(crate) fn named(&self) -> Vec<u64> {
-        self.names.as_ref().map_or(Vec::new(), |n| n.named())
-    }
-
-    /// The container `gmExternalContainerUI` waits to be placed over.
-    pub(crate) fn external_container_position(&self) -> Option<u64> {
-        self.external_container.as_ref()?.wants_position()
-    }
-
     /// `gmExternalContainerUI::PositionWindow` with the container's projected centre.
     pub(crate) fn position_external_container(&mut self, clip: Option<[f32; 2]>) {
         if let (Some((tree, _)), Some(panel)) = (&mut self.hud, &mut self.external_container) {
@@ -646,19 +394,9 @@ impl HudView {
         // `RecvNotice_UpdateSelectionInfo`, once per new info.
         if let Some(info) = info.filter(|i| self.reticle_info.as_ref() != Some(i)) {
             reticle.selection_info(tree, info);
-            self.reticle_info = Some(info.clone());
+            self.reticle_info = Some(*info);
         }
         reticle.update(tree, target, false)
-    }
-
-    /// The frame's HUD composed again, or its surfaces moved, after `gm3DTextUI::Update`.
-    pub(crate) fn finish_frame(&mut self, gpu: &Gpu) {
-        if let Some((tree, _)) = &mut self.hud {
-            if tree.take_changed() {
-                self.dirty = true;
-            }
-        }
-        self.compose(gpu);
     }
 
     /// `gmRadarUI::Update` for this frame; the next compose paints it.
@@ -667,95 +405,6 @@ impl HudView {
         if let (Some((tree, _)), Some(radar)) = (&mut self.hud, &mut self.radar) {
             radar.update(tree, &view);
         }
-    }
-
-    fn compose(&mut self, gpu: &Gpu) {
-        let Some((tree, images)) = &mut self.hud else {
-            return;
-        };
-        if !self.dirty {
-            if tree.take_moved() {
-                let placements = tree.placements();
-                self.overlay.set_placements(
-                    placements
-                        .into_iter()
-                        .map(|p| (p.x, p.y, p.rotation, p.shown, p.opacity)),
-                );
-            }
-            // `gmRadarUI::ListenToMessage`'s `ForceDraw`: the radar field alone, each frame.
-            let field = self.radar.as_ref().and_then(|r| r.field());
-            let layer = field.and_then(|f| self.layer_roots.iter().position(|&r| r == f));
-            if let (Some(field), Some(layer), Some(radar)) = (field, layer, &self.radar) {
-                let mut surface = tree.compose_root(field, images);
-                radar.draw(&mut surface);
-                self.overlay.replace_pixels(gpu, layer, &surface.rgba);
-            }
-            return;
-        }
-        tree.take_moved();
-        self.dirty = false;
-        self.images.request_missing(tree, images);
-        tree.take_changed();
-        let mut surfaces = tree.compose(images);
-        if let Some(radar) = &self.radar {
-            if let Some(surface) = surfaces.iter_mut().find(|s| Some(s.root) == radar.field()) {
-                radar.draw(surface);
-            }
-        }
-        self.layer_roots = surfaces.iter().map(|surface| surface.root).collect();
-        self.overlay.set_layers(
-            gpu,
-            surfaces.iter().map(|surface| UiLayer {
-                x: surface.x,
-                y: surface.y,
-                width: surface.width,
-                height: surface.height,
-                rotation: surface.rotation,
-                shown: surface.shown,
-                opacity: surface.opacity,
-                rgba: &surface.rgba,
-            }),
-        );
-    }
-
-    /// The pointer as the UI last saw it.
-    pub(crate) fn pointer(&self) -> (i32, i32) {
-        self.hud.as_ref().map_or((0, 0), |(tree, _)| tree.pointer())
-    }
-
-    pub(crate) fn shown_layers(&self) -> usize {
-        self.overlay.shown_layers()
-    }
-
-    pub(crate) fn layers(&self) -> usize {
-        self.overlay.layers()
-    }
-
-    pub(crate) fn prepare(&self, queue: &wgpu::Queue) {
-        self.overlay.prepare(queue, self.size.0, self.size.1);
-    }
-
-    pub(crate) fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
-        self.overlay.draw(pass);
-    }
-
-    /// The drawn layers and their roots, in drawing order.
-    pub(crate) fn layers_for_scenes(&self) -> (&UiOverlay, &[usize]) {
-        (&self.overlay, &self.layer_roots)
-    }
-
-    /// The paper doll's viewport while it shows.
-    pub(crate) fn doll_viewport(&self) -> Option<ac2_ui::SceneViewport> {
-        let (tree, _) = self.hud.as_ref()?;
-        let root = self.paper_doll.as_ref()?.viewport()?;
-        ac2_ui::scene_viewports(tree)
-            .into_iter()
-            .find(|v| v.root == root)
-    }
-
-    /// Where the paper doll waits for a pick, if it does.
-    pub(crate) fn doll_wants_pick(&self) -> Option<(i32, i32)> {
-        self.paper_doll.as_ref()?.wants_pick()
     }
 }
 

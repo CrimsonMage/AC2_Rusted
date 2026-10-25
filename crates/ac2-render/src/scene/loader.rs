@@ -3,14 +3,15 @@
 //! `CLandBlock`). One thread serves the requests in order, so an image it sends once arrives
 //! before every later load that samples it.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::Arc;
 use std::thread::JoinHandle;
 
+use ac2_assets::Ac2ParticleSystemDesc;
 use ac2_core::{CellId, DataId};
 use ac2_math::Mat4;
-use ac2_world::Ac2WorldSource;
+use ac2_world::{ac2_block_particle_sources, Ac2ParticleSource, Ac2WorldSource};
 
 use super::interiors::{load_block_interiors, BlockInteriors};
 use crate::object::{load_object_model, load_water_model, ObjectModel, RenderSettings};
@@ -33,6 +34,13 @@ pub struct Placement {
     pub frill: bool,
 }
 
+/// A startup particle system of a landblock's entities, with its description decoded.
+#[derive(Debug, Clone)]
+pub struct ParticleSource {
+    pub source: Ac2ParticleSource,
+    pub desc: Arc<Ac2ParticleSystemDesc>,
+}
+
 /// A loaded near landblock.
 #[derive(Debug, Clone)]
 pub struct LoadedBlock {
@@ -48,6 +56,9 @@ pub struct LoadedBlock {
     pub models: Vec<(DataId, Option<ObjectModel>)>,
     /// Interior cells visible from outside.
     pub interiors: Option<BlockInteriors>,
+    /// The entities' startup particle systems. Their materials arrive in `models`, keyed by the
+    /// material's DID, as a model of one empty triangle the renderer fills each frame.
+    pub particles: Vec<ParticleSource>,
     pub images: Images,
 }
 
@@ -114,6 +125,8 @@ struct Worker {
     /// Visuals whose model draws.
     drawable: HashSet<DataId>,
     images: HashSet<TextureKey>,
+    /// Particle descriptions already read (`None` for one that draws nothing).
+    particle_descs: HashMap<DataId, Option<Arc<Ac2ParticleSystemDesc>>>,
 }
 
 impl Worker {
@@ -130,6 +143,45 @@ impl Worker {
         load_object_model(&store, visual, &self.settings)
             .ok()
             .flatten()
+    }
+
+    /// A particle system's description, and the empty model its material draws through (sent
+    /// once, with the materials' layers this device draws); `None` for one with no material.
+    fn particle(
+        &mut self,
+        source: Ac2ParticleSource,
+        models: &mut Vec<(DataId, Option<ObjectModel>)>,
+    ) -> Option<ParticleSource> {
+        let did = source.particle_desc;
+        let store = self.world.resource_store().clone();
+        let desc = match self.particle_descs.get(&did) {
+            Some(desc) => desc.clone(),
+            None => {
+                let desc = store
+                    .load_cached_packed::<Ac2ParticleSystemDesc>(ac2_db::TypedResourceRef::new(
+                        ac2_dat::DatFileKind::Portal,
+                        did,
+                        0,
+                    ))
+                    .ok()
+                    .flatten()
+                    .map(|desc| Arc::new((*desc).clone()))
+                    .filter(|desc| desc.material.is_some() && !desc.emitters.is_empty());
+                self.particle_descs.insert(did, desc.clone());
+                desc
+            }
+        }?;
+        let material = desc.material?;
+        if self.models.insert(material) {
+            let model = particle_model(&store, material, &self.settings);
+            if model.is_some() {
+                self.drawable.insert(material);
+            }
+            models.push((material, model));
+        }
+        self.drawable
+            .contains(&material)
+            .then_some(ParticleSource { source, desc })
     }
 
     fn block(&mut self, key: BlockKey) -> LoadedBlock {
@@ -168,6 +220,11 @@ impl Worker {
                 frill: marker.frill(),
             });
         }
+        let sources = ac2_block_particle_sources(&world, id).unwrap_or_default();
+        let particles: Vec<ParticleSource> = sources
+            .iter()
+            .filter_map(|source| self.particle(*source, &mut models))
+            .collect();
         let mut interiors = load_block_interiors(&world, &store, id, &self.settings);
         if let Some(interiors) = interiors.as_mut() {
             for (visual, _, _) in &interiors.objects {
@@ -208,6 +265,7 @@ impl Worker {
             placements,
             models,
             interiors,
+            particles,
             images,
         }
     }
@@ -297,6 +355,7 @@ impl SceneLoader {
             models: HashSet::new(),
             drawable: HashSet::new(),
             images: HashSet::new(),
+            particle_descs: HashMap::new(),
         };
         let worker = std::thread::Builder::new()
             .name("ac2-scene-loader".into())
@@ -330,4 +389,48 @@ impl Drop for SceneLoader {
             let _ = worker.join();
         }
     }
+}
+
+/// The model a particle material draws through: one empty triangle with the material's drawn
+/// layers, which the renderer replaces by the frame's particles. `None` when the material has
+/// no drawn layer.
+fn particle_model(
+    store: &ac2_db::ResourceStore,
+    material: DataId,
+    settings: &RenderSettings,
+) -> Option<ObjectModel> {
+    use crate::object::{layer_drawn, ObjectBatch, ObjectMaterial, ObjectPart, ObjectVertex};
+    let layers: Vec<_> = ac2_assets::load_ac2_material(store, material)
+        .ok()
+        .flatten()?
+        .layers
+        .into_iter()
+        .filter(|layer| layer_drawn(layer, settings))
+        .collect();
+    if layers.is_empty() {
+        return None;
+    }
+    let vertex = ObjectVertex {
+        position: [0.0; 3],
+        normal: [0.0, 0.0, 1.0],
+        color: [1.0; 4],
+        uvs: [[0.0; 2]; 4],
+        tangents: [[0.0; 3]; 2],
+    };
+    Some(ObjectModel {
+        visual: material,
+        parts: vec![ObjectPart {
+            mesh: material,
+            transform: Mat4::IDENTITY,
+            vertices: Arc::from(vec![vertex; 3]),
+            batches: vec![ObjectBatch {
+                indices: Arc::from(vec![0, 1, 2]),
+                material: Arc::new(ObjectMaterial::new(layers)),
+            }],
+            slot: (0, 0),
+            skin: None,
+            mesh_type: 0,
+        }],
+        skeleton: None,
+    })
 }

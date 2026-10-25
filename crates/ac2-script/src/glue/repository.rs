@@ -352,7 +352,7 @@ fn method(m: &str) -> Option<EFunFn> {
         ("Does", rest)
     } else {
         let (k, op) = K::of(m)?;
-        return Some(dispatch(op, k)?);
+        return dispatch(op, k);
     };
     let (k, _) = K::of(k)?;
     dispatch(op, k)
@@ -361,9 +361,9 @@ fn method(m: &str) -> Option<EFunFn> {
 /// One glue function per (operation, kind): the kind comes from [`Vm::current_efun`]'s name.
 fn dispatch(op: &str, _k: K) -> Option<EFunFn> {
     Some(match op {
-        "Inq" => |vm, c| with_kind(vm, c, |vm, c, k| inq(vm, c, k)),
-        "Get" | "GetRaw" => |vm, c| with_kind(vm, c, |vm, c, k| get(vm, c, k)),
-        "Set" => |vm, c| with_kind(vm, c, |vm, c, k| set(vm, c, k)),
+        "Inq" => |vm, c| with_kind(vm, c, inq),
+        "Get" | "GetRaw" => |vm, c| with_kind(vm, c, get),
+        "Set" => |vm, c| with_kind(vm, c, set),
         "Remove" => |vm, c| with_kind(vm, c, |vm, c, k| remove_or_exists(vm, c, k, true)),
         "Does" => |vm, c| with_kind(vm, c, |vm, c, k| remove_or_exists(vm, c, k, false)),
         "Adj" => |vm, c| with_kind(vm, c, |vm, c, k| adjust(vm, c, k, false)),

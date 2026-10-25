@@ -14,7 +14,7 @@ use crate::wire::string_info_to_net;
 
 pub(super) fn register(efuns: &mut EFuns) {
     // gFellowAdaptor: one member.
-    efuns.register(0x0093_0001, |vm, c| fellow_name(vm, c));
+    efuns.register(0x0093_0001, fellow_name);
     for (id, _) in FELLOW_WORDS {
         efuns.register(0x0093_0000 | id, |vm, c| {
             let id = vm.current_efun() & 0xFF;

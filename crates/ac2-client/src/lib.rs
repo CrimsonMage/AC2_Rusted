@@ -8,15 +8,13 @@
 
 mod appearance;
 mod audio;
-mod camera;
-mod camera_mouse;
-mod cells;
 mod chargen;
 mod chat_commands;
 pub mod chat_text;
 mod client;
 mod client_ambient;
 mod client_audio;
+use ac2_smartbox::{camera, cells, scene};
 mod client_frame;
 mod client_objects;
 mod client_radar;
@@ -26,9 +24,11 @@ mod frame;
 mod gameplay;
 #[cfg(feature = "window")]
 mod hud_character;
+mod hud_chat_options;
 mod hud_navigation;
 #[cfg(feature = "window")]
 mod hud_player;
+mod hud_shop;
 mod hud_view;
 mod item_queries;
 mod loader;
@@ -41,13 +41,12 @@ pub mod pregame_scene;
 #[cfg(feature = "window")]
 pub mod pregame_view;
 mod remote;
-mod scene;
 mod scripts;
 mod scripts_io;
 mod scripts_queries;
 mod social_queries;
 mod tables;
-mod targeting;
+mod target_select;
 #[cfg(feature = "window")]
 mod ui_images;
 #[cfg(feature = "window")]
@@ -71,7 +70,7 @@ pub use cells::{block_radius, CellManager, FAR_RADIUS, NEAR_RADIUS};
 pub use chargen::ScriptCharGen;
 pub use chat_commands::chat_commands;
 pub use client::{
-    CameraAction, Client, FrameInput, Notice, ENTER_WORLD_FLAGS, SYNC_POSITION_FLAGS,
+    camera_state, CameraAction, Client, FrameInput, Notice, ENTER_WORLD_FLAGS, SYNC_POSITION_FLAGS,
 };
 pub use client_audio::FxSoundData;
 pub use controls::frame_input;
@@ -79,6 +78,8 @@ pub use frame::{ClientFrame, Holder, MapMarker, ObjectFrame, PlayerFrame, RadarB
 pub use gameplay::{
     Command, ContainerFrame, InventoryFrame, ItemFrame, ProgressFrame, SelectionFrame,
 };
+pub use hud_chat_options::{chat_option_commands, ui_chat_settings};
+pub use hud_shop::{shop_commands, shop_notice, shop_stack_calls};
 pub use item_queries::ItemDisplay;
 pub use motion::PartPose;
 pub use pregame::{pregame_event, pregame_notice, pregame_requests, PregameOutcome};

@@ -15,9 +15,15 @@ mod character_options;
 #[cfg(test)]
 mod character_tests;
 mod chat;
+mod chat_options;
+mod chat_options_setup;
+mod chat_options_table;
+#[cfg(test)]
+mod chat_options_tests;
 mod chat_window;
 mod compose;
 mod controls;
+mod damage_text;
 mod dialog;
 mod drag;
 mod effects;
@@ -49,6 +55,7 @@ mod overview_map;
 mod panel;
 mod paper_doll;
 mod place;
+mod placement;
 pub mod pregame;
 mod radar;
 mod reticle;
@@ -56,9 +63,15 @@ mod scene_viewport;
 mod scrollbar;
 mod secure_trade;
 mod selection_ui;
+mod shop;
+mod shop_rows;
+#[cfg(test)]
+mod shop_tests;
 mod shortcut;
+mod shortcut_states;
 mod skill_tree;
 mod stack;
+mod target_cycle;
 #[cfg(test)]
 mod tests;
 mod text;
@@ -82,9 +95,11 @@ pub use chat::{
     ChatHistory, ChatRequest, ChatSettings, ChatStrings, ChatUi, Modifiers, CHAT_STRING_TABLE,
     REPLY_STRING_TABLE, STRING_TABLE_GROUP,
 };
+pub use chat_options::{ChatOptionRequest, ChatOptionSetting, ChatOptionsUi};
 pub use chat_window::{ChatMessageInfo, CHAT_TEXT_TYPES};
 pub use compose::{UiPixels, UiSurface};
 pub use controls::{ControlFrame, Controls};
+pub use damage_text::{DamagePlace, DamageTexts};
 pub use dialog::{
     DialogFactory, DialogOutcome, DIALOG_CONFIRMATION, DIALOG_MESSAGE, DIALOG_RESURRECT,
     DIALOG_TIMED, DIALOG_WAIT, LAYOUT_DIALOGS,
@@ -138,6 +153,7 @@ pub use scene_viewport::{scene_viewports, SceneViewport};
 pub use scrollbar::MSG_NEW_POSITION;
 pub use secure_trade::{SecureTradeRequest, SecureTradeSplit, SecureTradeUi};
 pub use selection_ui::{SelectionClick, SelectionOutcome, SelectionUi};
+pub use shop::{ShopRequest, ShopSource, ShopStackCall, ShopUi};
 pub use shortcut::{
     Shortcut, ShortcutOptions, ShortcutRequest, ShortcutSource, ShortcutUi, SHORTCUT_ALIAS,
     SHORTCUT_EMPTY, SHORTCUT_ITEM, SHORTCUT_RECIPE, SHORTCUT_SKILL,
@@ -148,9 +164,10 @@ pub use skill_tree::{
     ROOT_MISSILE_PANEL, ROOT_NONCOMBAT_PANEL,
 };
 pub use stack::{StackUi, StackUiDone};
+pub use target_cycle::{is_select_key, select_key_of, select_target, Candidate};
 pub use text::UiTextData;
 pub use text_data::{StoreTextData, DEFAULT_FONT, FONT_GROUP};
-pub use token::{tokenize, REFERENCE, REFERENT, STATELESS};
+pub use token::{tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS, REFERENCE, REFERENT, STATELESS};
 pub use toolbar::{ToolbarChild, ToolbarUi};
 pub use ui_string::{UiString, UiStrings, UI_TABLE};
 pub use vitals::{
@@ -164,6 +181,8 @@ mod allegiance_tests;
 mod backpack_tests;
 #[cfg(test)]
 mod chat_tests;
+#[cfg(test)]
+mod damage_text_tests;
 #[cfg(test)]
 mod dialog_tests;
 #[cfg(test)]
@@ -185,6 +204,7 @@ mod meter_tests;
 #[cfg(test)]
 mod money_bag_tests;
 #[cfg(test)]
+#[cfg(test)]
 mod mouse_tests;
 #[cfg(test)]
 mod name_plates_tests;
@@ -201,13 +221,19 @@ mod scrollbar_tests;
 #[cfg(test)]
 mod secure_trade_tests;
 #[cfg(test)]
+mod shortcut_states_tests;
+#[cfg(test)]
 mod shortcut_tests;
 #[cfg(test)]
 mod skill_tree_tests;
 #[cfg(test)]
 mod stack_tests;
 #[cfg(test)]
+mod target_cycle_tests;
+#[cfg(test)]
 mod text_tests;
+#[cfg(test)]
+mod toolbar_tests;
 #[cfg(test)]
 mod tooltip_tests;
 #[cfg(test)]

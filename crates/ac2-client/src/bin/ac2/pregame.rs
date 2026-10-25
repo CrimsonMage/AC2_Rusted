@@ -52,7 +52,11 @@ impl App {
                 for notice in notices {
                     pregame.notice(notice);
                 }
-                if pregame.requests(self.client.session_mut()).quit {
+                let outcome = pregame.requests(self.client.session_mut());
+                for did in outcome.music {
+                    self.client.play_pregame_music(did);
+                }
+                if outcome.quit {
                     self.client.session_mut().log_off(Duration::from_secs(3));
                     event_loop.exit();
                     return;
@@ -78,8 +82,8 @@ impl App {
             state.pregame = None;
             return;
         }
-        let Ok(output) = state.surface.get_current_texture() else {
-            state.surface.configure(&state.gpu.device, &state.config);
+        let Some(output) = ac2_gpu::acquire_frame(&state.surface, &state.gpu.device, &state.config)
+        else {
             return;
         };
         let target = output.texture.create_view(&Default::default());
@@ -97,6 +101,6 @@ impl App {
                 |_| {},
             ),
         }
-        output.present();
+        state.gpu.queue.present(output);
     }
 }

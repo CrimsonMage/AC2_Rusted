@@ -11,6 +11,7 @@
 //! (`KeyStone::OpenHelp`), the buttons' show/hide tooltips, the key stone and plug-in keys.
 
 use crate::element::UiTree;
+use crate::layout::AttributeValue;
 use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS};
 use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_RELEASE};
 
@@ -76,10 +77,15 @@ struct Child {
     close: u32,
 }
 
-/// `gmToolbarUI`'s children.
+/// `gmToolbarUI`'s children, and the mount and sale buttons on its field.
 #[derive(Debug, Clone)]
 pub struct ToolbarUi {
     children: Vec<Child>,
+    /// `ToolbarField` (the toolbar's root) and its `PrecludeHeight`.
+    field: Option<usize>,
+    /// `DismountButton` and `ConsignmentsButton`: hidden until a mount or a sale needs them.
+    dismount: Option<usize>,
+    consignments: Option<usize>,
 }
 
 impl ToolbarUi {
@@ -103,7 +109,17 @@ impl ToolbarUi {
                 }
             })
             .collect();
-        let toolbar = Self { children };
+        let field = tree.roots().iter().copied().find(|&r| {
+            tree.get(r)
+                .is_some_and(|e| e.id() == tokenize("ToolbarField"))
+        });
+        let button = |name: &str| field.and_then(|f| tree.child_recursive(f, tokenize(name)));
+        let toolbar = Self {
+            children,
+            field,
+            dismount: button("DismountButton"),
+            consignments: button("ConsignmentsButton"),
+        };
         for child in ToolbarChild::ALL {
             toolbar.set_field(tree, child, false);
         }
@@ -146,6 +162,42 @@ impl ToolbarUi {
         }
     }
 
+    /// `gmToolbarUI::RecvNotice_ShowSaleReminder`: the consignments button shows in its
+    /// consignments state, or hides in the stateless one.
+    pub fn sale_reminder(&self, tree: &mut UiTree, show: bool) {
+        button_state(tree, self.consignments, "consignments", show);
+    }
+
+    /// `gmToolbarUI::RecvNotice_UpdateMountState`: the dismount button shows in its dismount
+    /// state while the player is on a mount.
+    pub fn mount_state(&self, tree: &mut UiTree, on_mount: bool) {
+        button_state(tree, self.dismount, "dismount", on_mount);
+    }
+
+    /// `gmToolbarUI::Show`'s part: the toolbar field shows or hides, and the bottom preclude the
+    /// reticle keeps is its `PrecludeHeight` when it shows (0 when it hides).
+    pub fn show_bar(&self, tree: &mut UiTree, shown: bool) -> i32 {
+        let Some(field) = self.field else {
+            return 0;
+        };
+        tree.set_visible(field, shown);
+        match tree
+            .get(field)
+            .and_then(|e| e.attribute(tokenize("precludeheight")))
+        {
+            Some(AttributeValue::Int(height)) if shown => *height,
+            _ => 0,
+        }
+    }
+
+    /// `gmToolbarUI::CleanupChildren`'s part here: the children's fields hide (their frameworks
+    /// are not made, so there is nothing to delete).
+    pub fn cleanup_children(&self, tree: &mut UiTree) {
+        for child in ToolbarChild::ALL {
+            self.set_field(tree, child, false);
+        }
+    }
+
     fn toggle(&self, tree: &mut UiTree, child: ToolbarChild) {
         let shown = self.shown(tree, child);
         self.show(tree, child, !shown);
@@ -179,5 +231,20 @@ impl ToolbarUi {
                 self.show(tree, c.child, false);
             }
         }
+    }
+}
+
+/// A mount or sale button: shown in its `state` (the button is shown first), or hidden in the
+/// stateless one (the state first), as `gmToolbarUI`'s two notices do.
+fn button_state(tree: &mut UiTree, button: Option<usize>, state: &str, shown: bool) {
+    let Some(button) = button else {
+        return;
+    };
+    if shown {
+        tree.set_visible(button, true);
+        tree.set_state(button, tokenize(state));
+    } else {
+        tree.set_state(button, tokenize("stateless"));
+        tree.set_visible(button, false);
     }
 }

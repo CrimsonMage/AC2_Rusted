@@ -1,6 +1,6 @@
 # ac2-audio: Sound
 
-367 retail functions: 124 done, 29 partial, 195 to do, 19 skipped.
+367 retail functions: 124 done, 31 partial, 131 to do, 81 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/cregion/csound/cambientsoundinfo.cpp.c` (1/13)
@@ -84,7 +84,7 @@ Legend and workflow: [README](README.md).
 - [x] `AmbientSound::UseTime` · 0072b330 · legions 006a95f0 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `AmbientSound::ChangeCellStart` · 0072b4b0 · legions 006a9710 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `AmbientSound::FindSoundDesc` · 0072b500 · legions 006a9760 — ac2-audio/ac2-client: ambient environments, groove
-- [x] `AmbientSound::ChangeCellEnd` · 0072b540 · legions 006a97a0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbientSound::ChangeCellEnd` · 0072b540 · legions 006a97a0 — ac2-audio ambient.rs change_cell_end: the dominant environment's hand-off (SoundManager->GetReferences, 0x739420) is a folded 'return 1' stub in admin and Legions alike (mov eax,1; ret 4): retail applies no EnvInfo reverb; ac2-audio records the environment only.
 - [x] `AmbientSound::DoSoundUpdate` · 0072b6c0 · legions 006a98d0 — ac2-audio/ac2-client: ambient environments, groove
 
 ### DBObjGrabber<CSoundDesc>
@@ -157,7 +157,7 @@ Legend and workflow: [README](README.md).
 - [x] `ContinSoundManager::NoLongerDominant` · 0072c220 · legions 006aa350 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `ContinSoundManager::Is3D` · 0072c240
 - [ ] `ContinSoundManager::~ContinSoundManager` · 0072c260 · legions 006aa390
-- [~] `ContinSoundManager::ReCalcContinSounds` · 0072c300 · legions 006aa430 — ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
+- [~] `ContinSoundManager::ReCalcContinSounds` · 0072c300 · legions 006aa430 — ac2-audio ambient.rs/ambient_objects.rs: a dominant-only music re-requested on each weighing; the queue holds one playing copy and one waiting copy (replaced by the newest, as QueuePrimaryInternal aborts it). ac2-client tests/ambient_music_7160 keeps one copy sounding and at most one waiting. The 4-copy spread (0x10) is still unused by Legions sounds.
 - [x] `ContinSoundManager::ContinSoundManager` · 0072c5b0 · legions 006aa6e0 — ac2-audio/ac2-client: ambient environments, groove
 
 ## `portal/client/src/sound/ambient/continsoundobject.cpp.c` (4/4)
@@ -263,9 +263,9 @@ Legend and workflow: [README](README.md).
 ### DirectXMusicLoader
 - [ ] `DirectXMusicLoader::LoadFromObject` · 005a7850 · legions 00573ed0
 - [ ] `DirectXMusicLoader::LoadFromObject` · 005a7a30 · legions 00574080
-- [ ] `DirectXMusicLoader::LoadFromObject` · 005a7ad0 · legions 00574100
+- [~] `DirectXMusicLoader::LoadFromObject` · 005a7ad0 · legions 00574100 — ac2-audio music/mod.rs (MusicObject::Wave), music_thread/playback.rs (Playback::wave), manager.rs: an EncodedWave is a DirectMusic segment with a wave track; it plays as a queue segment (primary by Track_ForcePrimary, stop at the MusicInfo's stop boundary on the default 120 bpm 4/4 clock, looping until stopped). Start timing flags not modelled; the file is decoded as RIFF WAVE (encoded.rs).
 - [-] `DirectXMusicLoader::LoadFromSoundInfo` · 005a7b70 — text source loader, admin build only
-- [ ] `DirectXMusicLoader::LoadFromMusicInfo` · 005a7c20 · legions 005741e0
+- [~] `DirectXMusicLoader::LoadFromMusicInfo` · 005a7c20 · legions 005741e0 — ac2-audio playing.rs from_wave: an EncodedWave MusicInfo is a queue segment (QueuedWave), its length -1 (InitDXPSDFromMusicInfo: no length cap); terms as InitDXPSDFromMusicInfo; the wave voice starts on the queue's SegmentStart and ends on SegmentEnd (on_segment_started / on_segment_ended).
 - [ ] `DirectXMusicLoader::~DirectXMusicLoader` · 005a7e90 · legions 00574420
 
 ### MusicByteStream
@@ -310,10 +310,10 @@ Legend and workflow: [README](README.md).
 - [ ] `DirectXPlayingSound::SetFrequency` · 005a6920
 - [ ] `DirectXPlayingSound::GetAudioPathAndBuffers` · 005a69b0 · legions 00573110
 - [~] `DirectXPlayingSound::PlayInternal` · 005a6b50 · legions 005731e0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
-- [x] `DirectXPlayingSound::StopInternal` · 005a6d50 · legions 005733e0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `DirectXPlayingSound::StopInternal` · 005a6d50 · legions 005733e0 — ac2-audio manager.rs stop_context: a fade keeps the segment in the queue (the queue stop waits for the fade's end, as this function returns after the ramp); verified by music_wave_tests::a_faded_primary_wave_plays_out_silently_and_the_next_takes_over.
 - [x] `DirectXPlayingSound::SetVolume` · 005a6ee0 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [x] `DirectXPlayingSound::RecalculateVolume` · 005a6f00 · legions 00573590 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [x] `DirectXPlayingSound::UseTime` · 005a6f20 · legions 005735b0 — ac2-audio/ac2-client: 3D emitters and FX sounds
+- [x] `DirectXPlayingSound::UseTime` · 005a6f20 · legions 005735b0 — ac2-audio manager.rs flush_sounds: a queue segment the queue still holds when its sound goes ready-to-die (the fade end) is stopped with Boundary::End, as Stop(handle, 0) (plays out the current pass, drops a queued one); PlayingSound::use_time length cap is -1 for MusicInfo sounds (no cap).
 - [x] `DirectXPlayingSound::Play` · 005a70a0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::Stop` · 005a70b0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::Enable` · 005a70e0 · legions 00573770 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
@@ -394,7 +394,7 @@ Legend and workflow: [README](README.md).
 - [x] `DXMusicMessageThread::DXMusicMessageThread` · 005a90c0 · legions 00575700 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
 - [~] `DXMusicMessageThread::Startup` · 005a9170 — ac2-audio music_thread: Startup's notification loop runs inside MusicThread::use_time (no thread, no 100 ms wait; the WAIT_TIMEOUT watchdog is kept)
 - [x] `DXMusicMessageThread::QueuePrimaryInternal` · 005a93b0 · legions 005759f0 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
-- [~] `DXMusicMessageThread::Stop` · 005a9540 · legions 00575b80 — ac2-audio music_thread: Stop = StopEx at once (stop boundary flags not modelled); an immediate stop ends the segment's synthesizer (its notes release, Synth::stop); a boundary stop is played out by the queue; Play's audio path check and DMUS start flags not modelled
+- [~] `DXMusicMessageThread::Stop` · 005a9540 · legions 00575b80 — ac2-audio music_thread/mod.rs stop(): a stop of the current primary cuts it at once (immediate) or at its boundary (play_out_to). Retail's Stop (0x5A9540) for the current primary only sets m_bLoopPrimary = 0 and ignores dwStopFlags: the pass plays out to its end. Not changed here (ambient and wave tests pin the boundary behaviour); see the close-out.
 - [~] `DXMusicMessageThread::Play` · 005a96f0 · legions 00575d30 — ac2-audio music_thread: Stop = StopEx at once (stop boundary flags not modelled); Play's audio path check and DMUS start flags not modelled
 
 ## `portal/client/src/sound/directx/envinfo_win32.cpp.c` (0/61)
@@ -403,76 +403,76 @@ Legend and workflow: [README](README.md).
 - [ ] `PFileNode::MakeSubNodeAsInt32` · 005a9780 · legions 00575dc0
 
 ### EnvInfo_WIN32
-- [ ] `EnvInfo_WIN32::Init` · 005a97e0 · legions 00575e20
-- [ ] `EnvInfo_WIN32::CopyInto` · 005a9850
-- [ ] `EnvInfo_WIN32::SetProperty` · 005a9950
-- [ ] `EnvInfo_WIN32::InvalidateProperty` · 005a9cc0
-- [ ] `EnvInfo_WIN32::GetProperty` · 005a9ce0
-- [ ] `EnvInfo_WIN32::SetRoom` · 005a9e70
-- [ ] `EnvInfo_WIN32::SetRoomHF` · 005a9e90
-- [ ] `EnvInfo_WIN32::SetRoomLF` · 005a9eb0
-- [ ] `EnvInfo_WIN32::SetRoomRolloffFactor` · 005a9ed0
-- [ ] `EnvInfo_WIN32::SetDecayTime` · 005a9ef0
-- [ ] `EnvInfo_WIN32::SetDecayHFRatio` · 005a9f10
-- [ ] `EnvInfo_WIN32::SetReflections` · 005a9f30
-- [ ] `EnvInfo_WIN32::SetReflectionsDelay` · 005a9f50
-- [ ] `EnvInfo_WIN32::SetReflectionsPan` · 005a9f70
-- [ ] `EnvInfo_WIN32::SetReverb` · 005a9f90
-- [ ] `EnvInfo_WIN32::SetReverbDelay` · 005a9fb0
-- [ ] `EnvInfo_WIN32::SetReverbPan` · 005a9fd0
-- [ ] `EnvInfo_WIN32::SetEchoTime` · 005a9ff0
-- [ ] `EnvInfo_WIN32::SetEchoDepth` · 005aa010
-- [ ] `EnvInfo_WIN32::SetModulationTime` · 005aa030
-- [ ] `EnvInfo_WIN32::SetModulationDepth` · 005aa050
-- [ ] `EnvInfo_WIN32::SetEnvironment` · 005aa070
-- [ ] `EnvInfo_WIN32::SetEnvironmentSize` · 005aa090
-- [ ] `EnvInfo_WIN32::SetEnvironmentDiffusion` · 005aa0b0
-- [ ] `EnvInfo_WIN32::SetAirAbsorptionHF` · 005aa0d0
-- [ ] `EnvInfo_WIN32::SetHFReference` · 005aa0f0
-- [ ] `EnvInfo_WIN32::SetLFReference` · 005aa110
-- [ ] `EnvInfo_WIN32::SetFlags` · 005aa130
-- [ ] `EnvInfo_WIN32::GetRoom` · 005aa150
-- [ ] `EnvInfo_WIN32::GetRoomHF` · 005aa160
-- [ ] `EnvInfo_WIN32::GetRoomLF` · 005aa170
-- [ ] `EnvInfo_WIN32::GetRoomRolloffFactor` · 005aa180
-- [ ] `EnvInfo_WIN32::GetDecayTime` · 005aa190
-- [ ] `EnvInfo_WIN32::GetDecayHFRatio` · 005aa1a0
-- [ ] `EnvInfo_WIN32::GetDecayLFRatio` · 005aa1b0
-- [ ] `EnvInfo_WIN32::GetReflections` · 005aa1c0
-- [ ] `EnvInfo_WIN32::GetReflectionsDelay` · 005aa1d0
-- [ ] `EnvInfo_WIN32::GetReflectionsPan` · 005aa1e0
-- [ ] `EnvInfo_WIN32::GetReverb` · 005aa210
-- [ ] `EnvInfo_WIN32::GetReverbDelay` · 005aa220
-- [ ] `EnvInfo_WIN32::GetReverbPan` · 005aa230
-- [ ] `EnvInfo_WIN32::GetEchoTime` · 005aa260
-- [ ] `EnvInfo_WIN32::GetEchoDepth` · 005aa270
-- [ ] `EnvInfo_WIN32::GetModulationTime` · 005aa280
-- [ ] `EnvInfo_WIN32::GetModulationDepth` · 005aa290
-- [ ] `EnvInfo_WIN32::GetEnvironment` · 005aa2a0
-- [ ] `EnvInfo_WIN32::GetEnvironmentSize` · 005aa2b0
-- [ ] `EnvInfo_WIN32::GetEnvironmentDiffusion` · 005aa2c0
-- [ ] `EnvInfo_WIN32::GetAirAbsorptionHF` · 005aa2d0
-- [ ] `EnvInfo_WIN32::GetHFReference` · 005aa2e0
-- [ ] `EnvInfo_WIN32::GetLFReference` · 005aa2f0
-- [ ] `EnvInfo_WIN32::GetFlags` · 005aa300
-- [ ] `EnvInfo_WIN32::EnvInfo_WIN32` · 005aa310
-- [ ] `EnvInfo_WIN32::Allocate` · 005aa340
+- [-] `EnvInfo_WIN32::Init` · 005a97e0 · legions 00575e20 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::CopyInto` · 005a9850 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetProperty` · 005a9950 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::InvalidateProperty` · 005a9cc0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetProperty` · 005a9ce0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetRoom` · 005a9e70 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetRoomHF` · 005a9e90 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetRoomLF` · 005a9eb0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetRoomRolloffFactor` · 005a9ed0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetDecayTime` · 005a9ef0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetDecayHFRatio` · 005a9f10 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetReflections` · 005a9f30 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetReflectionsDelay` · 005a9f50 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetReflectionsPan` · 005a9f70 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetReverb` · 005a9f90 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetReverbDelay` · 005a9fb0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetReverbPan` · 005a9fd0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetEchoTime` · 005a9ff0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetEchoDepth` · 005aa010 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetModulationTime` · 005aa030 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetModulationDepth` · 005aa050 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetEnvironment` · 005aa070 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetEnvironmentSize` · 005aa090 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetEnvironmentDiffusion` · 005aa0b0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetAirAbsorptionHF` · 005aa0d0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetHFReference` · 005aa0f0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetLFReference` · 005aa110 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetFlags` · 005aa130 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetRoom` · 005aa150 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetRoomHF` · 005aa160 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetRoomLF` · 005aa170 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetRoomRolloffFactor` · 005aa180 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetDecayTime` · 005aa190 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetDecayHFRatio` · 005aa1a0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetDecayLFRatio` · 005aa1b0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetReflections` · 005aa1c0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetReflectionsDelay` · 005aa1d0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetReflectionsPan` · 005aa1e0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetReverb` · 005aa210 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetReverbDelay` · 005aa220 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetReverbPan` · 005aa230 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetEchoTime` · 005aa260 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetEchoDepth` · 005aa270 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetModulationTime` · 005aa280 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetModulationDepth` · 005aa290 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetEnvironment` · 005aa2a0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetEnvironmentSize` · 005aa2b0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetEnvironmentDiffusion` · 005aa2c0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetAirAbsorptionHF` · 005aa2d0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetHFReference` · 005aa2e0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetLFReference` · 005aa2f0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::GetFlags` · 005aa300 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::EnvInfo_WIN32` · 005aa310 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::Allocate` · 005aa340 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
 
 ### EnvInfo
-- [ ] `EnvInfo::GetDBOType` · 005aa350
+- [-] `EnvInfo::GetDBOType` · 005aa350 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
 
 ### EnvInfo_WIN32
-- [ ] `EnvInfo_WIN32::GetBitMask` · 005aa360
-- [ ] `EnvInfo_WIN32::SetBitMask` · 005aa370
-- [ ] `EnvInfo_WIN32::StreamPack` · 005aa3b0
-- [-] `EnvInfo_WIN32::FromFileNode` · 005aa720 — text source format (admin tools)
-- [-] `EnvInfo_WIN32::ToFileNode` · 005aae80 — text source format (admin tools)
+- [-] `EnvInfo_WIN32::GetBitMask` · 005aa360 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::SetBitMask` · 005aa370 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::StreamPack` · 005aa3b0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::FromFileNode` · 005aa720 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo_WIN32::ToFileNode` · 005aae80 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
 
 ## `portal/client/src/sound/directx/soundfactory_win32.cpp.c` (0/2)
 
 ### SoundFactory_WIN32
 - [ ] `SoundFactory_WIN32::MakeEncodedWave` · 005a5ac0
-- [ ] `SoundFactory_WIN32::MakeEnvInfo` · 005a5ae0
+- [-] `SoundFactory_WIN32::MakeEnvInfo` · 005a5ae0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
 
 ## `portal/client/src/sound/directx/wavefile.cpp.c` (0/5)
 
@@ -502,9 +502,9 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/sound/envinfo.cpp.c` (0/3)
 
 ### EnvInfo
-- [ ] `EnvInfo::EnvInfo` · 005a3500 · legions 00570000
-- [ ] `EnvInfo::~EnvInfo` · 005a3530 · legions 00570030
-- [ ] `EnvInfo::Allocator` · 005a3540
+- [-] `EnvInfo::EnvInfo` · 005a3500 · legions 00570000 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo::~EnvInfo` · 005a3530 · legions 00570030 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
+- [-] `EnvInfo::Allocator` · 005a3540 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
 
 ## `portal/client/src/sound/soundmanager.cpp.c` (15/25)
 

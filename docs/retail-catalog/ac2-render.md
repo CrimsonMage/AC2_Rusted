@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 46 done, 28 partial, 694 to do, 13 skipped.
+781 retail functions: 69 done, 45 partial, 652 to do, 15 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -564,18 +564,18 @@ Legend and workflow: [README](README.md).
 - [ ] `ParticleWrapper::GetPointSpeed` · 005dcf90 · legions 0059dc80
 - [ ] `ParticleWrapper::SetPointSpeed` · 005dcfa0 · legions 0059dc90
 
-## `portal/client/src/render/particle/particleemitter.cpp.c` (0/40)
+## `portal/client/src/render/particle/particleemitter.cpp.c` (22/40)
 
 ### ParticleEmitter
-- [ ] `ParticleEmitter::SetLastDischargeTime` · 005d07a0 · legions 00593e90
+- [x] `ParticleEmitter::SetLastDischargeTime` · 005d07a0 · legions 00593e90 — ac2-render particles
 
 ### FillVerts
-- [ ] `FillVerts::GetNullRotationMatrix` · 005d07b0
-- [ ] `FillVerts::GetWorldRotationMatrix` · 005d07f0
-- [ ] `FillVerts::GetRotationMatrix` · 005d0840
-- [ ] `FillVerts::GetVertexPositions` · 005d0880 · legions 00593f70
-- [ ] `FillVerts::GetStreakedVertexPositions` · 005d0940
-- [ ] `FillVerts::RotateVertex` · 005d0f50
+- [x] `FillVerts::GetNullRotationMatrix` · 005d07b0 — ac2-render particles
+- [x] `FillVerts::GetWorldRotationMatrix` · 005d07f0 — ac2-render particles
+- [x] `FillVerts::GetRotationMatrix` · 005d0840 — ac2-render particles
+- [x] `FillVerts::GetVertexPositions` · 005d0880 · legions 00593f70 — ac2-render particles
+- [~] `FillVerts::GetStreakedVertexPositions` · 005d0940 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [x] `FillVerts::RotateVertex` · 005d0f50 — ac2-render particles
 
 ### ParticleBuffer
 - [ ] `ParticleBuffer::Allocate` · 005d1000 · legions 005946f0
@@ -585,38 +585,38 @@ Legend and workflow: [README](README.md).
 - [ ] `ParticleEmitter::~ParticleEmitter` · 005d1150 · legions 00594840
 - [ ] `ParticleEmitter::GetDesc` · 005d11b0 · legions 005948a0
 - [ ] `ParticleEmitter::GetReadyToDie` · 005d11d0 · legions 005948c0
-- [ ] `ParticleEmitter::DetermineDataFlags` · 005d1250 · legions 00594940
-- [ ] `ParticleEmitter::GetParticleNumVerts` · 005d1540 · legions 00594c30
-- [ ] `ParticleEmitter::CalculateInitialOrigin` · 005d1580 · legions 00594c70
-- [ ] `ParticleEmitter::DoWaveform` · 005d1850 · legions 00594f40
-- [ ] `ParticleEmitter::GetMass` · 005d1980 · legions 00595070
-- [ ] `ParticleEmitter::DoPhysics` · 005d1a20 · legions 00595110
-- [ ] `ParticleEmitter::DoRepulse` · 005d1cb0 · legions 005953a0
-- [ ] `ParticleEmitter::DoPointFile` · 005d2150 · legions 00595840
-- [ ] `ParticleEmitter::DoPointFileLerp` · 005d2290 · legions 00595980
+- [x] `ParticleEmitter::DetermineDataFlags` · 005d1250 · legions 00594940 — ac2-render particles
+- [x] `ParticleEmitter::GetParticleNumVerts` · 005d1540 · legions 00594c30 — ac2-render particles
+- [x] `ParticleEmitter::CalculateInitialOrigin` · 005d1580 · legions 00594c70 — ac2-render particles
+- [x] `ParticleEmitter::DoWaveform` · 005d1850 · legions 00594f40 — ac2-render particles
+- [x] `ParticleEmitter::GetMass` · 005d1980 · legions 00595070 — ac2-render particles
+- [x] `ParticleEmitter::DoPhysics` · 005d1a20 · legions 00595110 — ac2-render particles
+- [-] `ParticleEmitter::DoRepulse` · 005d1cb0 · legions 005953a0 — placed systems never move; repulsors are not modelled
+- [x] `ParticleEmitter::DoPointFile` · 005d2150 · legions 00595840 — ac2-render particles
+- [x] `ParticleEmitter::DoPointFileLerp` · 005d2290 · legions 00595980 — ac2-render particles
 
 ### FillVerts
-- [ ] `FillVerts::GetOrigin` · 005d2550 · legions 00595c40
-- [ ] `FillVerts::GetBlendedOrigin` · 005d2570
-- [ ] `FillVerts::GetNullStreakOrigin` · 005d2600
-- [ ] `FillVerts::GetStreakOrigin` · 005d2620
-- [ ] `FillVerts::GetBlendedStreakOrigin` · 005d2640
-- [ ] `FillVerts::GetLighting` · 005d26d0
+- [x] `FillVerts::GetOrigin` · 005d2550 · legions 00595c40 — ac2-render particles
+- [x] `FillVerts::GetBlendedOrigin` · 005d2570 — ac2-render particles
+- [x] `FillVerts::GetNullStreakOrigin` · 005d2600 — ac2-render particles
+- [x] `FillVerts::GetStreakOrigin` · 005d2620 — ac2-render particles
+- [x] `FillVerts::GetBlendedStreakOrigin` · 005d2640 — ac2-render particles
+- [~] `FillVerts::GetLighting` · 005d26d0 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
 
 ### ParticleEmitter
-- [ ] `ParticleEmitter::FillVertexBuffer` · 005d28a0 · legions 00595f90
+- [~] `ParticleEmitter::FillVertexBuffer` · 005d28a0 · legions 00595f90 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
 - [ ] `ParticleEmitter::SetPosition` · 005d3690 · legions 00596d80
-- [ ] `ParticleEmitter::ApplyKeyframe` · 005d3850 · legions 00596f40
-- [ ] `ParticleEmitter::ApplyKeyframes` · 005d3d10 · legions 00597400
-- [ ] `ParticleEmitter::ParticleThink` · 005d3de0 · legions 005974d0
-- [ ] `ParticleEmitter::Think` · 005d40a0 · legions 00597790
-- [ ] `ParticleEmitter::DischargeParticle` · 005d42a0 · legions 00597990
-- [ ] `ParticleEmitter::SetupKeyframes` · 005d4bb0 · legions 005982a0
-- [ ] `ParticleEmitter::Initialize` · 005d4e30 · legions 00598520
-- [ ] `ParticleEmitter::Reset` · 005d4ed0 · legions 005985c0
-- [ ] `ParticleEmitter::EmitTimedParticles` · 005d4f00 · legions 005985f0
-- [ ] `ParticleEmitter::EmitDistanceParticles` · 005d5280 · legions 00598970
-- [ ] `ParticleEmitter::EmitParticles` · 005d58a0 · legions 00598f90
+- [~] `ParticleEmitter::ApplyKeyframe` · 005d3850 · legions 00596f40 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [x] `ParticleEmitter::ApplyKeyframes` · 005d3d10 · legions 00597400 — ac2-render particles
+- [~] `ParticleEmitter::ParticleThink` · 005d3de0 · legions 005974d0 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleEmitter::Think` · 005d40a0 · legions 00597790 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleEmitter::DischargeParticle` · 005d42a0 · legions 00597990 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [x] `ParticleEmitter::SetupKeyframes` · 005d4bb0 · legions 005982a0 — ac2-render particles
+- [~] `ParticleEmitter::Initialize` · 005d4e30 · legions 00598520 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [x] `ParticleEmitter::Reset` · 005d4ed0 · legions 005985c0 — ac2-render particles
+- [~] `ParticleEmitter::EmitTimedParticles` · 005d4f00 · legions 005985f0 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [-] `ParticleEmitter::EmitDistanceParticles` · 005d5280 · legions 00598970 — placed systems never move; repulsors are not modelled
+- [~] `ParticleEmitter::EmitParticles` · 005d58a0 · legions 00598f90 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
 
 ## `portal/client/src/render/particle/particlerepulsor.cpp.c` (0/4)
 
@@ -626,12 +626,12 @@ Legend and workflow: [README](README.md).
 - [ ] `ParticleRepulsor::GetIsActive` · 005c3820 · legions 0058a930
 - [ ] `ParticleRepulsor::SetPosition` · 005c3870 · legions 0058a980
 
-## `portal/client/src/render/particle/particlesystem.cpp.c` (0/22)
+## `portal/client/src/render/particle/particlesystem.cpp.c` (1/22)
 
 ### ParticleSystem
 - [ ] `ParticleSystem::AddRef` · 005c22a0 · legions 005894e0
 - [ ] `ParticleSystem::SetCanBeShared` · 005c22b0 · legions 005894f0
-- [ ] `ParticleSystem::GetForceDraw` · 005c22c0 · legions 00589500
+- [x] `ParticleSystem::GetForceDraw` · 005c22c0 · legions 00589500 — ac2-render particles
 - [ ] `ParticleSystem::Begin` · 005c22e0 · legions 00589520
 - [ ] `ParticleSystem::GetExternalForces` · 005c2350 · legions 00589590
 
@@ -642,8 +642,8 @@ Legend and workflow: [README](README.md).
 - [ ] `ParticleSystem::CanBeShared` · 005c25b0 · legions 005897b0
 - [ ] `ParticleSystem::GetReadyToDie` · 005c25f0 · legions 005897f0
 - [ ] `ParticleSystem::Destroy` · 005c2680 · legions 00589880
-- [ ] `ParticleSystem::Start` · 005c2700 · legions 00589900
-- [ ] `ParticleSystem::Think` · 005c2770 · legions 00589970
+- [~] `ParticleSystem::Start` · 005c2700 · legions 00589900 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleSystem::Think` · 005c2770 · legions 00589970 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
 - [ ] `ParticleSystem::GetLightingOrigin` · 005c28b0 · legions 00589a80
 
 ### ParticleSystem::ParticleRenderPos
@@ -653,16 +653,16 @@ Legend and workflow: [README](README.md).
 - [ ] `ParticleSystem::ParticleSystem` · 005c2a40 · legions 00589c10
 - [ ] `ParticleSystem::~ParticleSystem` · 005c2ad0 · legions 00589ca0
 - [ ] `ParticleSystem::Release` · 005c2b30 · legions 00589d00
-- [ ] `ParticleSystem::FillVertexBuffer` · 005c2bf0 · legions 00589dc0
-- [ ] `ParticleSystem::RenderAtPosition` · 005c2e80 · legions 0058a050
-- [ ] `ParticleSystem::Render` · 005c3250 · legions 0058a420
+- [~] `ParticleSystem::FillVertexBuffer` · 005c2bf0 · legions 00589dc0 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleSystem::RenderAtPosition` · 005c2e80 · legions 0058a050 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleSystem::Render` · 005c3250 · legions 0058a420 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
 
 ### SmartArray<ParticleSystem::ParticleRenderPos>
 - [ ] `SmartArray<ParticleSystem::ParticleRenderPos>::AddToEnd` · 005c3450 · legions 0058a560
 
 ### ParticleSystem
-- [ ] `ParticleSystem::Create` · 005c34e0 · legions 0058a5f0
-- [ ] `ParticleSystem::Queue` · 005c3600 · legions 0058a710
+- [~] `ParticleSystem::Create` · 005c34e0 · legions 0058a5f0 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleSystem::Queue` · 005c3600 · legions 0058a710 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
 
 ## `portal/client/src/render/particle/psmanager.cpp.c` (0/15)
 

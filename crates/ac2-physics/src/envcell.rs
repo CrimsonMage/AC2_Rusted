@@ -167,12 +167,8 @@ impl EnvCell {
         (0..6).all(|i| {
             let plane = bbox_plane(bounds, i);
             let flipped = Plane::new(
-                Vector::new(
-                    st(ld(plane.n.x) * -1.0),
-                    st(ld(plane.n.y) * -1.0),
-                    st(ld(plane.n.z) * -1.0),
-                ),
-                st(ld(plane.d) * -1.0),
+                Vector::new(st(-ld(plane.n.x)), st(-ld(plane.n.y)), st(-ld(plane.n.z))),
+                st(-ld(plane.d)),
             );
             clip(&mut clipper, &flipped, 0.01) != Side::Negative
         })

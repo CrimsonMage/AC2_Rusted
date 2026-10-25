@@ -259,7 +259,7 @@ impl AmbientSound {
     ) -> bool {
         let [x, y, z] = offset.map(f64::from);
         let distance_sq = (x * x + y * y + z * z) as f32;
-        let muffled = outdoor_point == !player_outside;
+        let muffled = outdoor_point != player_outside;
         let max = f64::from(self.max_distance);
         if f64::from(distance_sq) > max * max {
             return false;

@@ -90,7 +90,7 @@ pub(super) fn decode(
     }
 
     let mut rgba = vec![0_u8; width.checked_mul(height)?.checked_mul(4)?];
-    if format == PixelFormatID::PFID_DXT1 && width % 4 == 0 && height % 4 == 0 {
+    if format == PixelFormatID::PFID_DXT1 && width.is_multiple_of(4) && height.is_multiple_of(4) {
         for block_y in 0..blocks_high {
             for block_x in 0..blocks_wide {
                 let offset = (block_y * blocks_wide + block_x) * 8;

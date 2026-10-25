@@ -200,7 +200,7 @@ pub struct Progress {
     pub selection: SelectionState,
 }
 
-fn heap<'a>(graph: &'a PackedReference, id: u32) -> Option<&'a HeapObject> {
+fn heap(graph: &PackedReference, id: u32) -> Option<&HeapObject> {
     let at = graph.ids.iter().position(|i| *i == id)?;
     match graph.entries.get(at)? {
         PackedEntry::Heap { object, .. } => Some(object),

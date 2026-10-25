@@ -54,7 +54,7 @@ impl PipelineKey {
                 module,
                 entry_point: Some("vs"),
                 compilation_options: Default::default(),
-                buffers: &[wgpu::VertexBufferLayout {
+                buffers: &[Some(wgpu::VertexBufferLayout {
                     array_stride: stride,
                     step_mode: wgpu::VertexStepMode::Vertex,
                     attributes: &wgpu::vertex_attr_array![
@@ -62,7 +62,7 @@ impl PipelineKey {
                         3 => Float32x2, 4 => Float32x2, 5 => Float32x2, 6 => Float32x2,
                         7 => Float32x3, 8 => Float32x3, 9 => Uint8x4, 10 => Float32x4
                     ],
-                }],
+                })],
             },
             fragment: Some(wgpu::FragmentState {
                 module,
@@ -90,13 +90,13 @@ impl PipelineKey {
             },
             depth_stencil: Some(wgpu::DepthStencilState {
                 format: DEPTH_FORMAT,
-                depth_write_enabled: self.depth_write,
-                depth_compare: depth_compare(self.depth_test),
+                depth_write_enabled: Some(self.depth_write),
+                depth_compare: Some(depth_compare(self.depth_test)),
                 stencil: Default::default(),
                 bias: Default::default(),
             }),
             multisample: Default::default(),
-            multiview: None,
+            multiview_mask: None,
             cache: None,
         })
     }
@@ -181,7 +181,7 @@ impl SamplerKey {
             address_mode_v: address(self.address_v),
             mag_filter: filter(self.mag_filter),
             min_filter: filter(self.min_filter),
-            mipmap_filter: wgpu::FilterMode::Linear,
+            mipmap_filter: wgpu::MipmapFilterMode::Linear,
             ..Default::default()
         })
     }

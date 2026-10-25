@@ -323,7 +323,7 @@ mod tests {
             // Fewer than four bytes after the function id leave an empty buffer, as
             // `PackBuffer::UnPack` does; anything shorter than the declared size fails.
             let decoded = ServerEvent::decode(&b[..end], Build::Legions7160);
-            if end >= 8 && end < 12 {
+            if (8..12).contains(&end) {
                 assert!(
                     matches!(decoded, Ok(ServerEvent::Interp { ref arguments, .. }) if arguments.is_empty())
                 );

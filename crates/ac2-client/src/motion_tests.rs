@@ -160,7 +160,7 @@ fn only_the_player_moves_to() {
         origin: [59.0, 244.0, -44.5],
         rotation: [1.0, 0.0, 0.0, 0.0],
     });
-    assert!(!apply(&mut remote, &move_to(target.clone())));
+    assert!(!apply(&mut remote, &move_to(target)));
     assert!(!remote.is_moving_to());
     assert!(apply(&mut player, &move_to(target)));
     assert!(player.is_moving_to());

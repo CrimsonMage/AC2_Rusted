@@ -178,7 +178,7 @@ impl PacketController {
             // the disconnect reply moves to `cs_DisconnectSent`, and times it on the receiver's
             // (`ReceiverData::GetConnectionStateDuration`).
             let disconnect_received = (recipient.state == ConnectionState::DisconnectReceived)
-                .then(|| clock.local_time - receiver.state_changed);
+                .then_some(clock.local_time - receiver.state_changed);
             let mut ctx = FlushContext {
                 local_time: clock.local_time,
                 server_time: clock.server_time,

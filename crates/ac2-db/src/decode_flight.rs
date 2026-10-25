@@ -354,12 +354,16 @@ fn log_telemetry_report(totals: Option<DecodeFlightTotals>) {
     if !totals.is_anomalous() {
         return;
     }
-    let loader_average = (totals.loaders != 0)
-        .then(|| totals.loader_elapsed_total / (totals.loaders.min(u64::from(u32::MAX)) as u32))
-        .unwrap_or_default();
-    let wait_average = (totals.waits != 0)
-        .then(|| totals.wait_elapsed_total / (totals.waits.min(u64::from(u32::MAX)) as u32))
-        .unwrap_or_default();
+    let loader_average = if totals.loaders != 0 {
+        totals.loader_elapsed_total / (totals.loaders.min(u64::from(u32::MAX)) as u32)
+    } else {
+        Default::default()
+    };
+    let wait_average = if totals.waits != 0 {
+        totals.wait_elapsed_total / (totals.waits.min(u64::from(u32::MAX)) as u32)
+    } else {
+        Default::default()
+    };
     log::debug!(target: "ac2_db::decode_flight",
         "decode_flight_timing: loaders={} failed_loaders={} loader_avg_ms={:.2} loader_max_ms={:.2} waits={} slow_waits={} wait_avg_ms={:.2} wait_max_ms={:.2}",
         totals.loaders,

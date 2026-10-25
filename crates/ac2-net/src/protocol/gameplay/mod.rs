@@ -17,7 +17,7 @@ mod trade;
 pub use calls::{call_spec, ArgKind, CallSpec, Direction, ScriptCall, CALLS};
 pub use message::{broadcast, ScriptMessage};
 pub use request::ScriptRequest;
-pub use store::StoreMessage;
+pub use store::{GameSale, Purchase, StoreMessage, StoreView};
 pub use trade::TradeMessage;
 
 use crate::protocol::native::NativeObject;
@@ -181,11 +181,12 @@ pub mod function {
     /// item (long int), a long int (the body's local 3). Not decoded yet (no shopper opens).
     pub const STORE_SELL: u32 = 0xB83A_0043;
     /// S->C, `WM_Store` forwarder 0x13 (`CPlayer` 0x1DE -> `CStoreSystem` 0x6 -> `ViewStore`): the
-    /// store (a package reference to the StoreTemplate, its singleton DID), the storekeeper (long
-    /// int). The forwarder reads the store as a one-slot reference, so an int store crashes.
+    /// store (a package reference to a `StoreView`, see [`StoreView`]), the storekeeper (long int).
+    /// The forwarder reads the store as a one-slot reference, so an int store crashes.
     pub const STORE_VIEW: u32 = 0xB83A_0013;
     /// S->C, `WM_Store` forwarder 0x2A (`CPlayer` 0x1E2 -> `CStoreSystem` 0x8 -> `UpdateStore`):
-    /// the store (int), the storekeeper (long int).
+    /// the store (a package reference to a `StoreView`, as `ViewStore`), the storekeeper (long
+    /// int). The body needs an open shopper (`CPlayer` 0x1EC) or it logs and returns.
     pub const STORE_UPDATE: u32 = 0xB83A_002A;
     /// S->C, `WM_Store` forwarder 0x10 (`CPlayer` 0x1DD -> `CStoreSystem` 0x14 -> `LeaveStore`):
     /// the storekeeper (long int).

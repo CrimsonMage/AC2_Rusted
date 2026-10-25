@@ -133,9 +133,9 @@ impl Ac2TriggerUpdate {
         track.looped = false;
     }
 
-    /// The rolls of `AddEffectsTrigger`, in add order: the probability (`Random::RollDice(0,
-    /// 1) <= probability`, no roll at exactly 1) and the intensity `(roll - 0.5) * var * 2 +
-    /// intensity`.
+    /// The rolls of `AddEffectsTrigger`, in add order: the probability
+    /// (`Random::RollDice(0, 1) <= probability`, no roll at exactly 1) and the intensity
+    /// `(roll - 0.5) * var * 2 + intensity`.
     fn roll(&mut self, random: &mut Random) {
         for roll in std::mem::take(&mut self.rolls) {
             let play =

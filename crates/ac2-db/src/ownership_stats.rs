@@ -215,7 +215,11 @@ impl ResourceScopeOverlapStats {
             entry.scoped_retained_bytes = entry.scoped_retained_bytes.saturating_add(scoped_bytes);
             entry.distinct_scoped_retained_bytes = entry
                 .distinct_scoped_retained_bytes
-                .saturating_add((!shared_value).then_some(scoped_bytes).unwrap_or_default());
+                .saturating_add(if !shared_value {
+                    scoped_bytes
+                } else {
+                    Default::default()
+                });
         }
         let by_resource_type = grouped.into_values().collect::<Vec<_>>();
         Self {

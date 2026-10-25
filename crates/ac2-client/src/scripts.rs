@@ -57,6 +57,13 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_SET_DAMAGE_TEXT_RANGE_OTHER,
     IFUN_SET_SHORTCUT_HEIGHT,
     IFUN_UPLOAD_GAME_OPTIONS,
+    // The chat options page's setters and the upload (`gmChatOptionsUI::Apply`).
+    IFUN_SET_CHAT_WINDOW_FILTER,
+    IFUN_SET_CHAT_FONT_SIZE,
+    IFUN_SET_CHAT_FONT_COLOR,
+    IFUN_SET_CHAT_POPUP_FLAG,
+    IFUN_SET_CHAT_WINDOW_TEXT_TYPE,
+    IFUN_UPLOAD_CHAT_OPTIONS,
     // `CWInterface::OnStatChanged` (a quality update: vitals, the XP bar, the skill panel).
     ac2_weenie::IFUN_ON_STAT_CHANGED,
     // `WM_Combat` 0x1B -> `CPlayer` 0x2 (`SendNotice_UpdateAttackState`).
@@ -86,6 +93,9 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_PURCHASE_CONFIRMED,
     IFUN_REQUEST_SELL,
     IFUN_GET_MAX_PURCHASE_QUANTITY,
+    IFUN_REQUEST_SALES,
+    IFUN_REQUEST_NEXT_SALES,
+    IFUN_REQUEST_PREV_SALES,
     // The fellowship and allegiance actions (`ac2_weenie::SocialRequest::ifun`).
     0x00B4_00A0,
     0x00B4_00A1,
@@ -132,6 +142,12 @@ pub const IFUN_REQUEST_SELL: u32 = 0x00B4_0138;
 /// `gmCWInterface::GetMaxPurchaseQuantity` (`CallIFun_GetMaxPurchaseQuantity`: the item, and an
 /// out quantity).
 pub const IFUN_GET_MAX_PURCHASE_QUANTITY: u32 = 0x00B4_012D;
+/// `gmCWInterface::RequestSales(index)` (`ggmCWInterface::CallIFun_RequestSales`: the page, an int).
+pub const IFUN_REQUEST_SALES: u32 = 0x00B4_013E;
+/// `gmCWInterface::RequestNextSales` (`CallIFun_RequestNextSales`, no arguments).
+pub const IFUN_REQUEST_NEXT_SALES: u32 = 0x00B4_0132;
+/// `gmCWInterface::RequestPrevSales` (`CallIFun_RequestPrevSales`, no arguments).
+pub const IFUN_REQUEST_PREV_SALES: u32 = 0x00B4_0133;
 
 /// `gmCWInterface::SetSelection`'s IFun (`ggmCWInterface::CallIFun_SetSelection`: the
 /// object, then `CPlayer` 0x6A).
@@ -158,6 +174,21 @@ pub const IFUN_SET_SHORTCUT_HEIGHT: u32 = 0x00B4_0142;
 /// `gmCWInterface::UploadGameOptions` (`ggmCWInterface::CallIFun_UploadGameOptions`: the script
 /// sends the profile, `WM_Player` 0x1D).
 pub const IFUN_UPLOAD_GAME_OPTIONS: u32 = 0x00B4_0093;
+
+// The chat options page's setters (`ggmCWInterface::CallIFun_SetChat*`, Legions 7160): the text
+// type or window first, then the value.
+/// `CallIFun_SetChatWindowFilter(window, bitfield)`.
+pub const IFUN_SET_CHAT_WINDOW_FILTER: u32 = 0x00B4_0083;
+/// `CallIFun_SetChatFontSize(textType, fontSize)`.
+pub const IFUN_SET_CHAT_FONT_SIZE: u32 = 0x00B4_00D3;
+/// `CallIFun_SetChatFontColor(textType, fontColor)`.
+pub const IFUN_SET_CHAT_FONT_COLOR: u32 = 0x00B4_00D4;
+/// `CallIFun_UploadChatOptions` (no arguments; the profile to the server).
+pub const IFUN_UPLOAD_CHAT_OPTIONS: u32 = 0x00B4_00D5;
+/// `CallIFun_SetChatPopupFlag(textType, flag)`.
+pub const IFUN_SET_CHAT_POPUP_FLAG: u32 = 0x00B4_00DD;
+/// The window's text type (`FUN_00458e50`'s IFun in Legions 7160): the window, then the type.
+pub const IFUN_SET_CHAT_WINDOW_TEXT_TYPE: u32 = 0x00B4_0143;
 
 /// The IFun and argument of an options page setting (`ggmCWInterface::CallIFun_Set*`).
 pub fn option_call(setting: &ac2_ui::OptionSetting) -> (u32, ac2_net::protocol::PackValue) {
@@ -191,6 +222,33 @@ pub fn option_call(setting: &ac2_ui::OptionSetting) -> (u32, ac2_net::protocol::
         OptionSetting::Float { value, .. } => PackValue::Float(*value),
     };
     (ifun, arg)
+}
+
+/// The IFun and arguments of a chat options setting (`ggmCWInterface::CallIFun_SetChat*`).
+pub fn chat_option_call(setting: &ac2_ui::ChatOptionSetting) -> (u32, Vec<PackValue>) {
+    use ac2_ui::ChatOptionSetting as S;
+    match *setting {
+        S::FontSize { text_type, size } => (
+            IFUN_SET_CHAT_FONT_SIZE,
+            vec![PackValue::Int(text_type), PackValue::Int(size)],
+        ),
+        S::FontColor { text_type, color } => (
+            IFUN_SET_CHAT_FONT_COLOR,
+            vec![PackValue::Int(text_type), PackValue::Int(color)],
+        ),
+        S::PopupFlag { text_type, flag } => (
+            IFUN_SET_CHAT_POPUP_FLAG,
+            vec![PackValue::Int(text_type), PackValue::Int(flag)],
+        ),
+        S::WindowFilter { window, filter } => (
+            IFUN_SET_CHAT_WINDOW_FILTER,
+            vec![PackValue::Int(window), PackValue::Int(filter)],
+        ),
+        S::WindowTextType { window, text_type } => (
+            IFUN_SET_CHAT_WINDOW_TEXT_TYPE,
+            vec![PackValue::Int(window), PackValue::Int(text_type)],
+        ),
+    }
 }
 
 /// The script VM and the objects waiting for their process.

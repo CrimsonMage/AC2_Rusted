@@ -1,0 +1,23 @@
+[package]
+name = "ac2-smartbox"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+# `SmartBox` and cell residency (INDEX pack 08 `smartbox`): the player camera, the landblocks
+# resident around the player and their loader threads. Plain data in and out; no session, no
+# network, so the offline world viewer shares it with the client.
+[dependencies]
+ac2-assets = { path = "../ac2-assets" }
+ac2-core = { path = "../ac2-core" }
+ac2-dat = { path = "../ac2-dat" }
+ac2-db = { path = "../ac2-db" }
+ac2-physics = { path = "../ac2-physics" }
+ac2-world = { path = "../ac2-world" }
+
+[dev-dependencies]
+ac2-dat = { path = "../ac2-dat", features = ["test-support"] }

@@ -71,7 +71,7 @@ impl PhysicsClock {
         let mut quanta = 0;
         while ld(elapsed) >= ld(PHYSICS_QUANTUM) {
             self.previous_update_time = self.update_time;
-            self.update_time = ld(PHYSICS_QUANTUM) + self.update_time;
+            self.update_time += ld(PHYSICS_QUANTUM);
             elapsed = st(ld(elapsed) - ld(PHYSICS_QUANTUM));
             quanta += 1;
         }

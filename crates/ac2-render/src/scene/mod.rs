@@ -6,6 +6,7 @@
 
 mod interiors;
 mod loader;
+mod particles;
 #[cfg(test)]
 mod tests;
 
@@ -18,7 +19,10 @@ use ac2_math::{Mat4, Vec3};
 use ac2_world::Ac2WorldSource;
 
 pub use interiors::{load_block_interiors, BlockInteriors};
-pub use loader::{BlockKey, Images, Loaded, LoadedBlock, LoadedFar, LoadedObject, Placement};
+pub use loader::{
+    BlockKey, Images, Loaded, LoadedBlock, LoadedFar, LoadedObject, ParticleSource, Placement,
+};
+pub use particles::ParticleBatch;
 
 use crate::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
 use crate::frustum::{Frustum, Relation};
@@ -27,6 +31,7 @@ use crate::sky::{sky_frame, SkyFrame};
 use crate::terrain::{far_radius_for_draw_distance, FarTerrain, FIRST_FAR_CHUNK};
 use crate::{Camera, SceneLighting};
 use loader::{Request, SceneLoader};
+use particles::SceneParticles;
 
 /// `GameTime` day length in seconds for the Legions region.
 pub const DAY_SECONDS: f64 = 7347.0;
@@ -58,6 +63,8 @@ pub struct SceneFrame {
     /// Far mesh chunks past the near ring whose box the frustum does not exclude
     /// (`LScapeTerrainMesh::DrawTerrain`).
     pub far_chunks: Vec<usize>,
+    /// The entities' particles, merged per material (`PSManager::RenderParticleSystems`).
+    pub particles: Vec<ParticleBatch>,
 }
 
 /// What changed since the last drain: loads to upload and blocks that left the ring.
@@ -97,6 +104,7 @@ pub struct WorldScene {
     requested_objects: HashSet<u64>,
     object_rigs: HashMap<u64, (crate::object::PoseRig, Vec3)>,
     object_picks: HashMap<u64, Arc<crate::selection::PickMesh>>,
+    particles: SceneParticles,
 }
 
 fn near(center: BlockKey, block: BlockKey, radius: i32) -> bool {
@@ -134,6 +142,7 @@ impl WorldScene {
             requested_objects: HashSet::new(),
             object_rigs: HashMap::new(),
             object_picks: HashMap::new(),
+            particles: SceneParticles::new(),
         }
     }
 
@@ -158,6 +167,7 @@ impl WorldScene {
             .collect();
         for block in leaving {
             self.blocks.remove(&block);
+            self.particles.remove_block(&block);
             self.evicted.push(block);
         }
         self.center = Some(center);
@@ -241,6 +251,7 @@ impl WorldScene {
                     update.evicted.push(block.key);
                     return;
                 }
+                self.particles.add_block(block.key, &block.particles);
                 self.blocks.insert(
                     block.key,
                     BlockInfo {
@@ -406,6 +417,7 @@ impl WorldScene {
             .filter(|k| self.blocks[k].interiors)
             .collect();
         interiors.truncate(MAX_INTERIOR_BLOCKS);
+        let particles = self.particles.frame(camera);
         SceneFrame {
             lighting,
             sky,
@@ -414,6 +426,12 @@ impl WorldScene {
             water,
             interiors,
             far_chunks,
+            particles,
         }
+    }
+
+    /// The particles alive in the systems the last frame drew.
+    pub fn particles_alive(&self) -> usize {
+        self.particles.alive()
     }
 }
