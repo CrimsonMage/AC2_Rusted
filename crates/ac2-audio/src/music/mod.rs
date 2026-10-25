@@ -13,6 +13,7 @@ pub mod library;
 pub mod music_value;
 pub mod performance;
 pub mod riff;
+pub mod script;
 pub mod segment;
 pub mod style;
 pub mod style_performance;
