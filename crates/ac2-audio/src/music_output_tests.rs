@@ -377,6 +377,7 @@ fn band_sound(band_segment: u32, store: &Arc<ResourceStore>) -> Option<LoadedSou
         },
         sources: style_sources(&music).into(),
         bands: bands.into(),
+        cues: Arc::default(),
         segment: Some(music),
     })
 }

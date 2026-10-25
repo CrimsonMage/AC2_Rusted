@@ -17,6 +17,7 @@ use crate::music::{MusicObject, WaveSegment};
 use crate::music_thread::{MusicThread, SegmentInfo};
 
 mod callbacks;
+mod scripted;
 
 use crate::play_data::{Channel, PlaySoundData, SoundType};
 use crate::playing::{DeviceState, Emitter, PlayingSound};
@@ -231,6 +232,7 @@ impl SoundManager {
             LoadedSound::Music {
                 segment: Some(segment),
                 bands,
+                cues,
                 ..
             },
         ) = (playing.segment_kind(), sound)
@@ -240,6 +242,7 @@ impl SoundManager {
                 handle,
                 segment: Arc::clone(segment),
                 bands: Arc::clone(bands),
+                cues: Arc::clone(cues),
             });
         }
         // An `EncodedWave` is a segment with a wave track: the queue plays it as any segment.
@@ -258,6 +261,7 @@ impl SoundManager {
                     missing: 0,
                 }),
                 bands: Arc::from(Vec::new()),
+                cues: Arc::default(),
             });
         }
         if playing.is_self_exclusive() {
@@ -414,6 +418,7 @@ impl SoundManager {
                 device: &device,
             }),
         );
+        self.start_scripted(now);
         for playing in &mut self.playing {
             let muted = playing
                 .emitter

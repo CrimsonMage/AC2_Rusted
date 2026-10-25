@@ -83,6 +83,7 @@ fn a_band_segment_starting_reaches_a_band_less_segment_already_playing() {
         handle: 2,
         segment: band_segment,
         bands: items(&[(0.0, band(40, 0))]),
+        cues: Arc::default(),
     }));
     let after = run(&mut thread, 2.0, &mut calls);
     // The first segment's later notes take the band's patch.
@@ -126,6 +127,7 @@ fn a_band_track_item_reaches_the_segments_playing_at_its_instant() {
         handle: 2,
         segment: banded,
         bands: items(&[(0.0, band(40, 0)), (0.5, band(41, 0))]),
+        cues: Arc::default(),
     }));
     let events = run(&mut thread, 3.0, &mut calls);
     // The band segment's own notes (36, 38, 40): 40 until its band track's item, 41 from it.
@@ -185,6 +187,7 @@ fn a_segment_with_its_own_band_keeps_it_when_another_band_starts() {
         handle: 1,
         segment: own,
         bands: items(&[(0.0, band(40, 0))]),
+        cues: Arc::default(),
     }));
     let _ = run(&mut thread, 0.5, &mut calls);
     // Another band starts at 0.5 s: patch 50 becomes the performance's, not this segment's.
@@ -193,6 +196,7 @@ fn a_segment_with_its_own_band_keeps_it_when_another_band_starts() {
         handle: 2,
         segment: sequence(QUARTER, Vec::new()),
         bands: items(&[(0.0, band(50, 0))]),
+        cues: Arc::default(),
     }));
     let events = run(&mut thread, 2.0, &mut calls);
     assert_eq!(note_ons(&events), vec![(1.0, Some(40), 62)]);

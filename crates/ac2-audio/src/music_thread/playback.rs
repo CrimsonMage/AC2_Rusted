@@ -9,9 +9,11 @@
 use std::collections::VecDeque;
 use std::sync::Arc;
 
-use crate::music::clock::{Boundary, MusicClock};
+use crate::music::band::Band;
+use crate::music::clock::MusicClock;
 use crate::music::library::LoadedMusic;
-use crate::music::performance::{EventSink, MusicPerformance, TimedEvent};
+use crate::music::performance::{assign, EventSink, MusicEvent, MusicPerformance, TimedEvent};
+use crate::music::script::{BoundCall, BoundSegment, BoundTrigger};
 use crate::music::style_performance::{PatternChoice, StylePerformance};
 use crate::music::{MusicObject, WaveSegment};
 use crate::synth::PerformanceBand;
@@ -22,13 +24,37 @@ struct Stamp<'a> {
     base: f64,
     owner: u32,
     out: &'a mut Vec<TimedEvent>,
+    /// The band a note with no instrument of its own takes its instrument from (the segment's
+    /// band, or the performance's). `None` keeps the events as they come.
+    band: Option<&'a Band>,
 }
 
 impl EventSink for Stamp<'_> {
-    fn event(&mut self, event: &TimedEvent) {
+    fn event(&mut self, timed: &TimedEvent) {
+        let mut event = timed.event;
+        if let (
+            Some(band),
+            MusicEvent::NoteOn {
+                channel,
+                instrument: None,
+                note,
+                velocity,
+            },
+        ) = (self.band, event)
+        {
+            // A style note on a channel its style's band does not assign takes the performance's
+            // instrument for the channel (`assign`), as the channel's band sets it.
+            let (instrument, note) = assign(Some(band), channel, note);
+            event = MusicEvent::NoteOn {
+                channel,
+                instrument,
+                note,
+                velocity,
+            };
+        }
         self.out.push(TimedEvent {
-            seconds: self.base + event.seconds,
-            event: event.event,
+            seconds: self.base + timed.seconds,
+            event,
             segment: self.owner,
         });
     }
@@ -37,6 +63,9 @@ impl EventSink for Stamp<'_> {
 /// How far short of a band item a span stops (seconds): the item applies before the notes at its
 /// instant, which the span before it does not send.
 const BAND_LEAD: f64 = 1e-7;
+
+/// A seconds tolerance (the queue's `EPS`).
+const EPS: f64 = 1e-9;
 
 /// A running segment (`IDirectMusicSegmentState`): its performances and where it is in time.
 pub(super) struct Playback {
@@ -52,10 +81,8 @@ pub(super) struct Playback {
     start: f64,
     /// The segment's length in seconds.
     length: f64,
-    /// The music clock (its boundaries are the play-out boundaries of a stop).
-    clock: MusicClock,
-    /// Where the pass ends, in seconds from its start: its length, or earlier when a stop at a
-    /// boundary cut it short ([`Self::play_out_to`]).
+    /// Where the pass ends, in seconds from its start: its length, or the end of the pass in
+    /// progress when a stop cleared the loop of a repeating wave ([`Self::end_pass_after_stop`]).
     cut: f64,
     /// Seconds played so far.
     elapsed: f64,
@@ -63,7 +90,30 @@ pub(super) struct Playback {
     ended: bool,
     /// The sequence's performance (none for a wave segment, which has no notes).
     sequence: Option<MusicPerformance>,
+    /// The band the notes play on: the segment's own, or the performance's (see [`Stamp`]).
+    band: Option<Arc<Band>>,
     style: Option<StylePerformance>,
+    /// The pass's length, for a wave that repeats within one playback (a stop ends the pass in
+    /// progress at its end, see [`Self::end_pass_after_stop`]).
+    pass: f64,
+    /// The cues not yet reached, in time order.
+    cues: VecDeque<Cue>,
+}
+
+/// A cue a playback reaches: a script call, or a segment trigger that starts a secondary.
+#[derive(Debug, Clone)]
+pub(super) enum Cue {
+    Call(BoundCall),
+    Trigger(BoundTrigger),
+}
+
+impl Cue {
+    fn seconds(&self) -> f64 {
+        match self {
+            Cue::Call(call) => call.seconds,
+            Cue::Trigger(trigger) => trigger.seconds,
+        }
+    }
 }
 
 impl Playback {
@@ -98,6 +148,7 @@ impl Playback {
             .map(|(_, band)| Arc::clone(band))
             .or_else(|| performance.map(Arc::clone));
         let schedule: VecDeque<_> = schedule.into_iter().skip(1).collect();
+        let band = first.as_ref().map(|p| Arc::clone(&p.band));
         let sequence = Some(MusicPerformance::new(
             segment,
             first.map(|p| Arc::clone(&p.band)),
@@ -106,19 +157,22 @@ impl Playback {
         let style = music
             .style_of(segment)
             .map(|style| StylePerformance::new(segment, style, groove, seed));
+        let length = clock.seconds_at(segment.length.max(0));
         Some(Self {
             id,
             owner,
             own_band,
             schedule,
             start,
-            length: clock.seconds_at(segment.length.max(0)),
-            cut: clock.seconds_at(segment.length.max(0)),
-            clock,
+            length,
+            cut: length,
             elapsed: 0.0,
             ended: false,
             sequence,
             style,
+            band,
+            pass: length,
+            cues: VecDeque::new(),
         })
     }
 
@@ -137,13 +191,47 @@ impl Playback {
             schedule: VecDeque::new(),
             start,
             length,
-            clock: MusicClock::default(),
             cut: length,
             elapsed: 0.0,
             ended: false,
             sequence: None,
             style: None,
+            band: None,
+            pass: wave.seconds.max(0.0),
+            cues: VecDeque::new(),
         }
+    }
+
+    /// Schedules the segment's cues: its script calls (`DMUS_IO_SCRIPTTRACK`) and its triggers,
+    /// each at its time.
+    pub(super) fn schedule_cues(&mut self, cues: &BoundSegment) {
+        let mut all: Vec<Cue> = cues.calls.iter().cloned().map(Cue::Call).collect();
+        all.extend(cues.triggers.iter().cloned().map(Cue::Trigger));
+        all.sort_by(|a, b| a.seconds().total_cmp(&b.seconds()));
+        self.cues = all.into();
+    }
+
+    /// The seconds until the next cue (infinite with none left), stopping [`BAND_LEAD`] short of it
+    /// as the band items do.
+    pub(super) fn next_cue_in(&self) -> f64 {
+        self.cues.front().map_or(f64::INFINITY, |cue| {
+            (cue.seconds() - self.elapsed - BAND_LEAD).max(0.0)
+        })
+    }
+
+    /// The cues reached by now, in order, removed from the schedule.
+    pub(super) fn take_due_cues(&mut self) -> Vec<Cue> {
+        let mut due = Vec::new();
+        while self
+            .cues
+            .front()
+            .is_some_and(|cue| cue.seconds() <= self.elapsed + 2.0 * BAND_LEAD)
+        {
+            if let Some(cue) = self.cues.pop_front() {
+                due.push(cue);
+            }
+        }
+        due
     }
 
     /// Whether the segment has a band track (see [`Self::new`]).
@@ -176,7 +264,8 @@ impl Playback {
 
     /// The notes from now on are mapped by `band` (a performance band change, or the segment's
     /// own band item).
-    pub(super) fn set_band(&mut self, band: Option<&Arc<crate::music::band::Band>>) {
+    pub(super) fn set_band(&mut self, band: Option<&Arc<Band>>) {
+        self.band = band.map(Arc::clone);
         if let Some(sequence) = self.sequence.as_mut() {
             sequence.set_band(band.map(Arc::clone));
         }
@@ -204,30 +293,37 @@ impl Playback {
         (self.cut - self.elapsed).max(0.0)
     }
 
-    /// A stop at `unit` (a grid, beat or measure of the segment's clock) plays the pass out to
-    /// the next such boundary: its pass ends there, and its notes release there. `None` (an end
-    /// or marker stop) plays the pass to its end.
-    pub(super) fn play_out_to(&mut self, unit: Option<Boundary>) {
-        let Some(unit) = unit else {
+    /// A stop of the current primary (`DXMusicMessageThread::Stop` on `m_pCurrentPrimary`): the
+    /// queue clears the loop and nothing else, so the pass plays out to its end whatever the
+    /// boundary the stop names. A pass that repeats within one playback (a wave) ends at the end
+    /// of the pass it is in; a segment's pass already ends at its length.
+    pub(super) fn end_pass_after_stop(&mut self) {
+        if self.length.is_finite() || self.pass <= EPS {
             return;
-        };
-        let tick = self.clock.tick_at(self.elapsed).ceil() as i32;
-        let next = self.clock.next_boundary(tick, unit);
-        let at = self.clock.seconds_at(next);
-        self.cut = self.cut.min(at.max(self.elapsed));
+        }
+        let passes = (self.elapsed / self.pass).floor() + 1.0;
+        self.cut = self.cut.min(passes * self.pass);
     }
 
-    /// Plays `seconds` more, sending the events due to `out`.
+    /// Plays `seconds` more, sending the events due to `out`. The sequence's notes come mapped by
+    /// its band already; a style's notes take their instrument from the playback's band.
     pub(super) fn advance(&mut self, seconds: f64, out: &mut Vec<TimedEvent>) {
-        let mut stamp = Stamp {
-            base: self.start,
-            owner: self.owner,
-            out,
-        };
         if let Some(sequence) = self.sequence.as_mut() {
+            let mut stamp = Stamp {
+                base: self.start,
+                owner: self.owner,
+                out: &mut *out,
+                band: None,
+            };
             sequence.advance(seconds, &mut stamp);
         }
         if let Some(style) = self.style.as_mut() {
+            let mut stamp = Stamp {
+                base: self.start,
+                owner: self.owner,
+                out,
+                band: self.band.as_deref(),
+            };
             style.advance(seconds, &mut stamp);
         }
         self.elapsed += seconds;
@@ -250,6 +346,7 @@ impl Playback {
             base: self.start,
             owner: self.owner,
             out,
+            band: None,
         };
         if let Some(sequence) = self.sequence.as_mut() {
             sequence.stop(&mut stamp);

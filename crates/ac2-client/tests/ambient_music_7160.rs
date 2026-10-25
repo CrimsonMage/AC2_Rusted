@@ -4,7 +4,14 @@
 //! Standing outdoors in the town block the land points' environment dominates and its music is
 //! queued; teleported into an interior cell, the interior environment dominates
 //! (`AmbientSound::ChangeCellEnd`: the densest one), its music starts, and the town's music stops
-//! (`NoLongerDominant` -> `StopAllSounds`).
+//! once its pass has played out (`NoLongerDominant` -> `StopAllSounds`; a primary's stop plays its
+//! pass out, `DXMusicMessageThread::Stop`).
+//!
+//! The town's music is script-driven: its Cue (no notes) has a script that queues a segment behind
+//! it at its end, and that segment's triggers start the notes' segments. So the first notes come at
+//! the Cue's pass end (12 s). The groove level is the sum of the nearby groove objects; the empty
+//! test world has none, so the harness sets [`GROOVE`] (a level the town's active patterns cover;
+//! at 0 the first pattern is a rest).
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -24,6 +31,10 @@ const INTERIOR_SEGMENT: u32 = 0x2400_0470;
 /// An interior cell of the landblock 0299 (the double's default spawn).
 const INTERIOR_CELL: u32 = 0x0299_0109;
 const INTERIOR_ORIGIN: [f32; 3] = [59.0, 240.0, -44.5];
+/// The groove level of the test world (see the module doc).
+const GROOVE: i32 = 30;
+/// The town's Cue plays silently for its pass (12 s); its notes start after it.
+const FIRST_NOTES_WITHIN: f64 = 16.0;
 /// A frame of the double's clock (`Client::use_time` runs 64 of them a second).
 const FRAME: f64 = 1.0 / 64.0;
 const FRAME_FRAMES: usize = 44_100 / 64;
@@ -96,6 +107,10 @@ impl Harness {
         };
         client.attach_audio(ac2_client::sound_manager(store, Box::new(tee)));
         client.set_load_budget(LOAD_TIMEOUT);
+        client
+            .audio_mut()
+            .expect("the client has audio")
+            .set_groove_level(GROOVE);
         Some(Self {
             client,
             server,
@@ -135,20 +150,50 @@ impl Harness {
             .collect()
     }
 
-    /// The voices stopped so far.
-    fn music_stops(&self) -> Vec<u32> {
+    fn command_count(&self) -> usize {
+        self.recorded.commands().len()
+    }
+
+    /// The `Note` commands recorded so far.
+    fn note_count(&self) -> usize {
         self.recorded
             .commands()
-            .into_iter()
+            .iter()
+            .filter(|c| matches!(c, SinkCommand::Note(_)))
+            .count()
+    }
+
+    /// The `StartMusic` commands since command `index`, as (voice, `MusicInfo`, segment).
+    fn started_since(&self, index: usize) -> Vec<(u32, u32, u32)> {
+        self.recorded.commands()[index..]
+            .iter()
             .filter_map(|c| match c {
-                SinkCommand::StopMusic { voice, .. } => Some(voice),
+                SinkCommand::StartMusic {
+                    voice,
+                    music,
+                    segment,
+                    ..
+                } => Some((*voice, *music, *segment)),
                 _ => None,
             })
             .collect()
     }
 
-    fn command_count(&self) -> usize {
-        self.recorded.commands().len()
+    /// The voices of the town's music: its copies (`TOWN_MUSIC`) and the segments its script and
+    /// triggers started (a `StartMusic` with no `MusicInfo`, music 0).
+    fn town_voices(&self) -> Vec<u32> {
+        self.music_starts()
+            .iter()
+            .filter(|&&(_, music, _)| music == TOWN_MUSIC || music == 0)
+            .map(|&(v, _, _)| v)
+            .collect()
+    }
+
+    /// Whether any of the town's voices is playing on the queue.
+    fn town_playing(&mut self) -> bool {
+        let town = self.town_voices();
+        let audio = self.client.audio_mut().expect("the client has audio");
+        town.iter().any(|&v| audio.music().is_playing(v))
     }
 }
 
@@ -158,40 +203,53 @@ fn finite_peak(samples: &[f32]) -> f32 {
 }
 
 #[test]
-fn entering_the_town_queues_its_music_and_the_mix_is_audible() {
+fn entering_the_town_plays_its_script_segment_and_the_mix_is_audible() {
     let Some(spawn) = town_spawn() else {
         return;
     };
     let Some(mut harness) = Harness::enter(spawn) else {
         return;
     };
-    let mut peak = 0.0f32;
     let mut frames = 0;
     while !harness.client.frame().in_world {
         harness.frame();
         frames += 1;
         assert!(frames < 600, "the player enters the world");
     }
-    // Two seconds of frames: the environment is weighed, its music starts, the notes sound.
-    for _ in 0..128 {
-        peak = peak.max(finite_peak(&harness.frame()));
+    let mut first_note: Option<f64> = None;
+    let mut peak = 0.0f32;
+    let limit = (FIRST_NOTES_WITHIN * 64.0) as usize;
+    for frame in 1..=limit {
+        let samples = harness.frame();
+        if first_note.is_none() && harness.note_count() > 0 {
+            first_note = Some(frame as f64 * FRAME);
+        }
+        if first_note.is_some() {
+            peak = peak.max(finite_peak(&samples));
+        }
     }
     assert_eq!(harness.client.ambient_environment(), Some(TOWN_ENV));
     let starts = harness.music_starts();
-    assert!(!starts.is_empty(), "the town's music is queued");
     assert!(
-        starts.iter().all(|&(_, music, _)| music == TOWN_MUSIC),
-        "only the town's music: {starts:08X?}"
+        starts.iter().any(|&(_, music, _)| music == TOWN_MUSIC),
+        "the town's music is queued"
     );
     assert!(
         starts
             .iter()
-            .all(|&(_, _, segment)| segment == TOWN_SEGMENT),
-        "the town's DirectMusic segment: {starts:08X?}"
+            .all(|&(_, music, segment)| music == 0
+                || (music == TOWN_MUSIC && segment == TOWN_SEGMENT)),
+        "only the town's music and the segments its script starts: {starts:08X?}"
     );
-    // The town's segment is script-driven (no notes; see the close-out), so the peak is the
-    // environment's own sounds, not the music.
-    assert!(peak > 0.001, "the mix is audible (peak {peak})");
+    assert!(
+        starts.iter().any(|&(_, music, _)| music == 0),
+        "the town's script starts its segment"
+    );
+    let first = first_note.unwrap_or_else(|| panic!("no note within {FIRST_NOTES_WITHIN} s"));
+    assert!(
+        peak > 0.001,
+        "the mix is audible after the first note at {first:.2} s (peak {peak})"
+    );
 }
 
 /// A long stay in the dominant environment: the player steps 5 m every second (more than
@@ -269,12 +327,11 @@ fn a_long_dominant_environment_keeps_one_music_voice() {
     assert!(max_queued <= 1, "at most one copy waits: {max_queued}");
 }
 
-/// The dominant music keeps playing past its first pass (about 12 s) with no gap: a copy
-/// requested while the first plays takes over at its end (`DXMusicMessageThread::
-/// OnMusicStopping`, the almost-end starts the queued copy or the repeat). Standing still, from
-/// the first frame that plays, no frame has the town's music stopped.
+/// The town's music keeps playing past its first pass with no gap: the Cue's pass hands over to
+/// the segment its script queued, which hands over to the next copy (`OnMusicStopping`). Standing
+/// still, from the first frame that plays, no frame has the town's music stopped.
 #[test]
-fn the_dominant_music_keeps_playing_past_its_first_pass() {
+fn the_town_music_keeps_playing_past_its_first_pass() {
     let Some(spawn) = town_spawn() else {
         return;
     };
@@ -286,16 +343,10 @@ fn the_dominant_music_keeps_playing_past_its_first_pass() {
     }
     let mut started = false;
     let mut gap_frames = 0;
+    // Forty seconds: the Cue (12 s), its script's segment and the next copy.
     for _ in 0..40 * 64 {
         harness.frame();
-        let town: Vec<u32> = harness
-            .music_starts()
-            .iter()
-            .filter(|&&(_, music, _)| music == TOWN_MUSIC)
-            .map(|&(v, _, _)| v)
-            .collect();
-        let audio = harness.client.audio_mut().expect("the client has audio");
-        if town.iter().any(|&v| audio.music().is_playing(v)) {
+        if harness.town_playing() {
             started = true;
         } else if started {
             gap_frames += 1;
@@ -320,8 +371,7 @@ fn walking_into_an_interior_cell_switches_the_dominant_environment_and_music() {
         harness.frame();
     }
     assert_eq!(harness.client.ambient_environment(), Some(TOWN_ENV));
-    let town_voices: Vec<u32> = harness.music_starts().iter().map(|&(v, _, _)| v).collect();
-    assert!(!town_voices.is_empty());
+    assert!(!harness.town_voices().is_empty());
     let before = harness.command_count();
 
     // The double teleports the player into the interior cell (`RecvEvt_Position`'s teleport).
@@ -331,47 +381,63 @@ fn walking_into_an_interior_cell_switches_the_dominant_environment_and_music() {
         INTERIOR_ORIGIN,
         [100, 101, 102],
     );
+    let mut town_copy_stopped: Option<f64> = None;
+    let mut interior_playing: Option<f64> = None;
     let mut peak = 0.0f32;
-    for _ in 0..192 {
-        peak = peak.max(finite_peak(&harness.frame()));
+    // Sixty seconds: the town's pass (its Cue, then the segment its script queued) plays out first.
+    for frame in 1..=60 * 64 {
+        let samples = harness.frame();
+        let seconds = frame as f64 * FRAME;
+        let town_copies: Vec<u32> = harness
+            .music_starts()
+            .iter()
+            .filter(|&&(_, music, _)| music == TOWN_MUSIC)
+            .map(|&(v, _, _)| v)
+            .collect();
+        let copy_playing = {
+            let audio = harness.client.audio_mut().expect("the client has audio");
+            town_copies.iter().any(|&v| audio.music().is_playing(v))
+        };
+        if town_copy_stopped.is_none() && frame > 128 && !copy_playing {
+            town_copy_stopped = Some(seconds);
+        }
+        // The interior's copies: the last request replaces an earlier one still waiting.
+        let interior: Vec<u32> = harness
+            .started_since(before)
+            .iter()
+            .filter(|&&(_, music, _)| music == INTERIOR_MUSIC)
+            .map(|&(v, _, _)| v)
+            .collect();
+        let interior_copy_playing = {
+            let audio = harness.client.audio_mut().expect("the client has audio");
+            interior.iter().any(|&v| audio.music().is_playing(v))
+        };
+        if interior_playing.is_none() && interior_copy_playing {
+            interior_playing = Some(seconds);
+        }
+        peak = peak.max(finite_peak(&samples));
     }
     assert_eq!(
         harness.client.ambient_environment(),
         Some(INTERIOR_ENV),
         "the interior environment dominates once the cells are weighed"
     );
-    let interior: Vec<u32> = harness
-        .music_starts()
-        .iter()
-        .filter(|&&(_, music, _)| music == INTERIOR_MUSIC)
-        .map(|&(v, _, _)| v)
-        .collect();
-    assert!(!interior.is_empty(), "the interior's music starts");
+    let started = harness.started_since(before);
     assert!(
-        harness
-            .music_starts()
+        started
             .iter()
-            .filter(|&&(_, music, _)| music == INTERIOR_MUSIC)
-            .all(|&(_, _, segment)| segment == INTERIOR_SEGMENT),
-        "the interior's DirectMusic segment"
+            .any(|&(_, music, segment)| music == INTERIOR_MUSIC && segment == INTERIOR_SEGMENT),
+        "the interior's music is requested: {started:08X?}"
     );
-    let stopped = harness.music_stops();
+    let stopped_at =
+        town_copy_stopped.expect("the town's music stops once its pass has played out");
+    let playing_at = interior_playing.expect("the interior's music plays");
     assert!(
-        town_voices.iter().any(|v| stopped.contains(v)),
-        "the town's music stops when it is no longer dominant: stopped {stopped:08X?}"
+        stopped_at <= playing_at,
+        "the interior waits for the town's pass to end (the town stops at {stopped_at:.2} s, \
+         the interior plays at {playing_at:.2} s)"
     );
-    // A town voice that ended on its own (a one-shot segment) needs no stop; none sounds now.
-    for voice in &town_voices {
-        let sounding = harness
-            .mixer
-            .with_mixer(|m| m.music_sounding(*voice))
-            .flatten()
-            .unwrap_or(0);
-        assert_eq!(sounding, 0, "town voice {voice} still sounds");
-    }
-    assert!(harness.command_count() > before);
-    assert!(
-        peak > 0.0,
-        "the interior mix is finite and sounding ({peak})"
-    );
+    // The interior's music is its band only: its script's segment triggers a band segment and no
+    // styled segment (no notes in the DAT's tree), so the mix's peak is the environment's sounds.
+    assert!(peak > 0.0, "the interior mix is not silent (peak {peak})");
 }

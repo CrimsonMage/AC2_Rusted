@@ -28,6 +28,7 @@ impl SoundSource for Musics {
             segment: None,
             sources: Arc::from(Vec::new()),
             bands: Arc::from(Vec::new()),
+            cues: Arc::default(),
         })
     }
 }

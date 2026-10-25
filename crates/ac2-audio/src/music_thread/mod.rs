@@ -11,11 +11,12 @@
 //! - `PlayInternal`, `+0xB4`: `PlaySegmentEx(segment, NULL, NULL, dwFlags, 0, &state, pAfter,
 //!   audioPath)`. [`MusicThread::play`] starts the segment in the queue's time; the timing flags
 //!   and the audio path are not modelled (a secondary segment starts at once).
-//! - `Stop`, `+0xB8`: `StopEx(state, 0, dwStopFlags)`. [`MusicThread::stop`] takes the stop's
-//!   boundary (the `MusicInfo`'s stop timing). An immediate stop ends the segment now. A primary
-//!   stops looping and plays out to its boundary: the next grid, beat or measure of its clock, or
-//!   its end (also for a marker, which is not modelled). A secondary segment ends at once for any
-//!   boundary (the port's gap: retail plays it out too).
+//! - `Stop`, `+0xB8`: `StopEx(state, 0, dwStopFlags)` for a secondary; for the current primary
+//!   retail only clears `m_bLoopPrimary` (`DXMusicMessageThread::Stop`, admin 0x005A9540), so its
+//!   pass plays out to its end whatever the boundary. [`MusicThread::stop`] follows that. A
+//!   secondary segment ends at once (the port's gap: retail's boundary flags are not modelled).
+//!   A forced-immediate stop of the voice is the sound's own (`DirectXPlayingSound::StopInternal`
+//!   calls `Stop(handle, 0)` and then ends the voice), not the queue's.
 //! - `IsPlaying`, `+0x38`: [`MusicThread::is_playing`].
 //! - `GetNotificationPMsg` / `FreePMsg`, `+0x54` / `+0x44`, read by `Startup`: the notifications a
 //!   playback posts (start, almost end, end, abort) are read by [`MusicThread::pump`]. In the
@@ -30,12 +31,12 @@
 //! So are band changes: the performance band is the last band segment started or band item
 //! reached, and a band-less segment's notes map by it from that instant ([`BandChange`]).
 
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 
-use crate::music::clock::Boundary as ClockBoundary;
 use crate::music::library::LoadedMusic;
 use crate::music::performance::{EventSink, TimedEvent};
+use crate::music::script::{BoundSegment, Instance};
 use crate::music::style_performance::PatternChoice;
 use crate::sink::Boundary;
 use crate::synth::{ChannelSources, PerformanceBand};
@@ -48,11 +49,15 @@ mod boundary_tests;
 mod dat_tests;
 mod playback;
 #[cfg(test)]
+mod script_tests;
+mod scripts;
+#[cfg(test)]
 mod tests;
 #[cfg(test)]
 mod wave_tests;
 
 use playback::Playback;
+pub use scripts::SCRIPTED_HANDLE_BASE;
 
 /// A seconds tolerance: a segment within it of its end has ended.
 const EPS: f64 = 1e-9;
@@ -75,6 +80,20 @@ pub struct SegmentInfo {
     pub handle: u32,
     pub segment: Arc<LoadedMusic>,
     pub bands: Arc<[(f64, Arc<PerformanceBand>)]>,
+    /// Its cues: the script calls of its script track and its segment triggers (none for a wave,
+    /// or a segment with neither).
+    pub cues: Arc<BoundSegment>,
+}
+
+/// A segment a script call or a segment trigger started: the sound manager gives it a voice, as it
+/// does a music sound's, with the segment's channel sources and band.
+#[derive(Debug, Clone)]
+pub struct ScriptedPlay {
+    pub kind: SegmentKind,
+    pub handle: u32,
+    pub sources: ChannelSources,
+    pub bands: Arc<[(f64, Arc<PerformanceBand>)]>,
+    pub segment: Arc<LoadedMusic>,
 }
 
 /// A voice's channel sources changing with the band its notes play on: a band-less segment when
@@ -149,6 +168,10 @@ pub struct MusicThread {
     loop_primary: bool,
     /// `m_segInfoNextPrimary`: a primary queued behind the current one (`m_bNextPrimaryQueued`).
     next_info: Option<SegmentInfo>,
+    /// The primaries scripts queued behind the current one (`Segment.play` with `AtFinish`). They
+    /// are the performance's own queue in retail, so they play in order before `next_info` and
+    /// a request for a copy of the music never aborts them.
+    scripted_primaries: VecDeque<SegmentInfo>,
     /// The notifications not yet read by `Startup` (the performance's queue).
     notices: VecDeque<(u32, Notice)>,
     /// `m_aEvents`: the events for UseTime to hand the handler.
@@ -160,6 +183,12 @@ pub struct MusicThread {
     performance: Option<Arc<PerformanceBand>>,
     /// The band changes not yet taken (see [`BandChange`]).
     changes: Vec<BandChange>,
+    /// Each script's module variables, by the script's address (see `scripts`).
+    instances: HashMap<usize, Instance>,
+    /// The segments scripts started, not yet taken by the sound manager.
+    scripted: Vec<ScriptedPlay>,
+    /// The next handle for a scripted segment.
+    next_scripted: u32,
 }
 
 impl Default for MusicThread {
@@ -185,11 +214,15 @@ impl MusicThread {
             primary_started: false,
             loop_primary: true,
             next_info: None,
+            scripted_primaries: VecDeque::new(),
             notices: VecDeque::new(),
             events: VecDeque::new(),
             out: Vec::new(),
             performance: None,
             changes: Vec::new(),
+            instances: HashMap::new(),
+            scripted: Vec::new(),
+            next_scripted: SCRIPTED_HANDLE_BASE,
         }
     }
 
@@ -217,13 +250,13 @@ impl MusicThread {
         }
     }
 
-    /// `DXMusicMessageThread::Stop`: stops the segment for `handle` at `boundary` (the stop timing
-    /// of its `MusicInfo`, `DMUS_SEGF_*`). An immediate stop ends it now. The current primary
-    /// plays out instead: it stops looping, and ends at the next grid, beat or measure of its clock
-    /// for those boundaries, or at its end otherwise (a primary's notes release where its pass
-    /// ends). A secondary segment ends now whatever the boundary. A handle that is not playing (a
+    /// `DXMusicMessageThread::Stop`: stops the segment for `handle`. The current primary is not
+    /// stopped: retail clears its loop (`m_bLoopPrimary = 0`) and returns, so its pass plays out
+    /// to its end whatever the boundary (the stop's `dwStopFlags` are not read for it). A
+    /// secondary segment is stopped now (`StopEx` with the boundary; the port's gap: retail's
+    /// boundary-timed stop of a secondary is not modelled). A handle that is not playing (a
     /// primary waiting behind the current one, or none) gets an abort event.
-    pub fn stop(&mut self, handle: u32, boundary: Boundary) {
+    pub fn stop(&mut self, handle: u32, _boundary: Boundary) {
         if !self.attached {
             self.abort(handle);
             return;
@@ -236,24 +269,15 @@ impl MusicThread {
             {
                 self.next_info = None;
             }
+            self.scripted_primaries.retain(|next| next.handle != handle);
             self.abort(handle);
             return;
         };
         let state = self.playing[index].state;
         if self.current == Some(state) {
             self.loop_primary = false;
-            let unit = match boundary {
-                Boundary::Immediate => {
-                    self.end_playback(state);
-                    return;
-                }
-                Boundary::Grid => Some(ClockBoundary::Grid),
-                Boundary::Beat => Some(ClockBoundary::Beat),
-                Boundary::Measure => Some(ClockBoundary::Measure),
-                Boundary::End | Boundary::Marker => None,
-            };
             if let Some(playback) = self.playbacks.iter_mut().find(|p| p.id() == state) {
-                playback.play_out_to(unit);
+                playback.end_pass_after_stop();
             }
             return;
         }
@@ -291,7 +315,11 @@ impl MusicThread {
                 || self
                     .next_info
                     .as_ref()
-                    .is_some_and(|next| next.handle == handle))
+                    .is_some_and(|next| next.handle == handle)
+                || self
+                    .scripted_primaries
+                    .iter()
+                    .any(|next| next.handle == handle))
     }
 
     /// `DXMusicMessageThread::IsPlaying`: the segment for `handle` is playing (not ended).
@@ -341,11 +369,12 @@ impl MusicThread {
         self.pump();
         loop {
             self.apply_due_bands();
+            self.run_due_cues();
             let to_end = self
                 .playbacks
                 .iter()
                 .filter(|p| !p.ended())
-                .map(|p| p.remaining().min(p.next_band_in()))
+                .map(|p| p.remaining().min(p.next_band_in()).min(p.next_cue_in()))
                 .fold(f64::INFINITY, f64::min);
             let step = remaining.min(to_end);
             for playback in self.playbacks.iter_mut().filter(|p| !p.ended()) {
@@ -401,6 +430,7 @@ impl MusicThread {
         self.current = None;
         self.current_info = None;
         self.next_info = None;
+        self.scripted_primaries.clear();
         self.primary_started = false;
         self.loop_primary = true;
         self.notices.clear();
@@ -408,6 +438,13 @@ impl MusicThread {
         self.out.clear();
         self.performance = None;
         self.changes.clear();
+        self.instances.clear();
+        self.scripted.clear();
+    }
+
+    /// The segments scripts started since the last call (see [`ScriptedPlay`]).
+    pub fn take_scripted(&mut self) -> Vec<ScriptedPlay> {
+        std::mem::take(&mut self.scripted)
     }
 
     /// `DXMusicMessageThread::PlayInternal`: starts `info`'s segment now as a new playback and
@@ -419,7 +456,7 @@ impl MusicThread {
         }
         let id = self.next_state;
         self.next_state = self.next_state.wrapping_add(1).max(1);
-        let playback = Playback::new(
+        let mut playback = Playback::new(
             id,
             info.handle,
             self.clock,
@@ -429,6 +466,7 @@ impl MusicThread {
             &info.bands,
             self.performance.as_ref(),
         )?;
+        playback.schedule_cues(&info.cues);
         let own = playback.own_band();
         self.playbacks.push(playback);
         if own {
@@ -515,6 +553,10 @@ impl MusicThread {
     /// queued primary takes over; otherwise a looping primary plays again and a finished one
     /// is released.
     fn on_music_stopping(&mut self) {
+        if let Some(next) = self.scripted_primaries.pop_front() {
+            self.start_queued_primary(next);
+            return;
+        }
         if self.next_info.is_some() {
             self.play_queued_primary();
             return;
@@ -548,6 +590,11 @@ impl MusicThread {
         let Some(next) = self.next_info.take() else {
             return;
         };
+        self.start_queued_primary(next);
+    }
+
+    /// Starts `next` as the current primary (it was queued behind the one that just ended).
+    fn start_queued_primary(&mut self, next: SegmentInfo) {
         let handle = next.handle;
         let state = self.play_internal(&next);
         self.current = state;
@@ -557,6 +604,19 @@ impl MusicThread {
         if let Some(state) = state {
             self.associate(state, handle);
         }
+    }
+
+    /// A primary a script started (`Segment.play` with `AtFinish`): it starts now when no primary
+    /// plays, else it waits in the performance's queue behind the current one.
+    pub(super) fn queue_scripted_primary(&mut self, info: SegmentInfo) -> bool {
+        if !self.attached || info.handle == 0 {
+            return false;
+        }
+        if self.current.is_none() {
+            return self.play(info);
+        }
+        self.scripted_primaries.push_back(info);
+        true
     }
 
     /// `DXMusicMessageThread::AssociateSoundHandle`: `handle` plays `state`. A state replacing

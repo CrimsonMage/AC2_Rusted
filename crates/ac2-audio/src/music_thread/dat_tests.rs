@@ -140,6 +140,7 @@ fn a_dat_segment_queued_plays_its_notes_and_the_next_measure_follows_the_groove(
             handle,
             segment: Arc::clone(&music),
             bands: Arc::from(Vec::new()),
+            cues: Arc::default(),
         }));
     }
     // Measure 0 of each copy chooses its pattern at level A.
@@ -355,6 +356,7 @@ fn a_dat_band_segment_starting_reaches_a_note_segment_already_playing() {
         handle: 1,
         segment: Arc::clone(&note_music),
         bands: Arc::from(Vec::new()),
+        cues: Arc::default(),
     }));
     let mut quiet = Quiet;
     thread.use_time(0.5, Some(&mut quiet));
@@ -366,6 +368,7 @@ fn a_dat_band_segment_starting_reaches_a_note_segment_already_playing() {
         handle: 2,
         segment: Arc::clone(&band_music),
         bands: band_items.clone().into(),
+        cues: Arc::default(),
     }));
     let changes = thread.take_band_changes();
     let expected = band_items[0].1.sources.to_vec();

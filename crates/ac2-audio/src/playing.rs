@@ -522,6 +522,10 @@ impl PlayingSound {
     /// or immediately for an immediate stop (and for a wave with no queue segment).
     pub fn stop_timing(&self, immediate: bool) -> Boundary {
         match (&self.source, immediate) {
+            // A primary's pass plays out whatever its stop names: retail's `Stop` on the current
+            // primary only clears its loop (`DXMusicMessageThread::Stop`), so the voice is cut by
+            // the queue's end, not by the stop.
+            (VoiceSource::Music { primary: true, .. }, false) => Boundary::End,
             (VoiceSource::Music { stop, .. }, false) => *stop,
             (VoiceSource::Wave(_), false) => {
                 self.queued_wave.map_or(Boundary::Immediate, |q| q.stop)

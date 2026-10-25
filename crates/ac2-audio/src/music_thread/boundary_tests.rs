@@ -1,7 +1,7 @@
-//! A stop at a boundary on synthetic segments and through the sound manager (no game data): an
-//! immediate stop cuts a primary at once; a stop at a measure plays the primary out to the next
-//! measure, releasing its notes there, and the sound is cut only then (the manager's flush waits
-//! for the queue's end).
+//! A stop of a primary on synthetic segments and through the sound manager (no game data). Retail's
+//! `DXMusicMessageThread::Stop` on the current primary only clears its loop, so the pass plays out
+//! to its end whatever boundary the stop names; the sound is cut only when the queue ends it (the
+//! manager's flush waits for that end). A stop of a secondary is still immediate here.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -32,7 +32,7 @@ fn note_ons(events: &[(f64, MusicEvent)]) -> Vec<f64> {
 }
 
 #[test]
-fn an_immediate_stop_cuts_a_primary_now_and_releases_its_note() {
+fn an_immediate_stop_of_a_primary_plays_its_pass_out() {
     let mut thread = MusicThread::new();
     let mut calls = Calls::default();
     thread.use_time(0.0, Some(&mut calls));
@@ -40,46 +40,48 @@ fn an_immediate_stop_cuts_a_primary_now_and_releases_its_note() {
     let before = run(&mut thread, 0.5, &mut calls);
     assert_eq!(note_ons(&before), vec![0.0, 0.5]);
     thread.stop(1, Boundary::Immediate);
-    let after = run(&mut thread, 2.0, &mut calls);
+    assert!(thread.is_playing(1), "the stop only clears the loop");
+    let after = run(&mut thread, 5.0, &mut calls);
+    assert_eq!(note_ons(&after), vec![1.0, 1.5, 2.0, 2.5, 3.0, 3.5]);
     assert!(
-        after.iter().all(|(t, _)| *t <= 0.5 + 1e-9),
-        "nothing sounds after the stop: {after:?}"
+        after.iter().any(|(t, e)| *t == 4.0
+            && matches!(
+                e,
+                MusicEvent::NoteOff {
+                    channel: 0,
+                    note: 67
+                }
+            )),
+        "the last note releases where the pass ends: {after:?}"
     );
-    assert!(after.iter().any(|(t, e)| *t == 0.5
-        && matches!(
-            e,
-            MusicEvent::NoteOff {
-                channel: 0,
-                note: 61
-            }
-        )));
     assert!(!thread.is_playing(1));
+    assert!(calls.0.contains(&("ended", 1)));
 }
 
 #[test]
-fn a_primary_stopped_at_a_measure_plays_out_to_the_measure() {
+fn a_primary_stopped_at_a_measure_plays_its_pass_out_to_the_end() {
     let mut thread = MusicThread::new();
     let mut calls = Calls::default();
     thread.use_time(0.0, Some(&mut calls));
     assert!(thread.play(info(SegmentKind::Primary, 1, &two_measures())));
     let _ = run(&mut thread, 0.5, &mut calls);
-    // Half a second in (one quarter), the next measure is at two seconds (four quarters).
+    // Half a second in, the next measure is at two seconds; retail's stop does not stop there.
     thread.stop(1, Boundary::Measure);
     assert!(thread.is_playing(1), "it plays out, it is not cut");
-    let played = run(&mut thread, 1.9, &mut calls);
-    assert_eq!(note_ons(&played), vec![1.0, 1.5]);
-    assert!(thread.is_playing(1));
-    let end = run(&mut thread, 2.5, &mut calls);
+    let played = run(&mut thread, 2.5, &mut calls);
+    assert_eq!(note_ons(&played), vec![1.0, 1.5, 2.0, 2.5]);
+    assert!(thread.is_playing(1), "still playing past the measure");
+    let end = run(&mut thread, 4.5, &mut calls);
     assert!(
-        end.iter().all(|(t, _)| *t <= 2.0 + 1e-9),
-        "nothing after the measure: {end:?}"
+        end.iter().all(|(t, _)| *t <= 4.0 + 1e-9),
+        "nothing after the pass: {end:?}"
     );
-    assert!(end.iter().any(|(t, e)| *t == 2.0
+    assert!(end.iter().any(|(t, e)| *t == 4.0
         && matches!(
             e,
             MusicEvent::NoteOff {
                 channel: 0,
-                note: 63
+                note: 67
             }
         )));
     assert!(!thread.is_playing(1));
@@ -87,12 +89,12 @@ fn a_primary_stopped_at_a_measure_plays_out_to_the_measure() {
 }
 
 #[test]
-fn a_flushed_primary_plays_out_to_its_measure_before_the_sound_is_cut() {
+fn a_flushed_primary_plays_out_to_its_end_before_the_sound_is_cut() {
     let did = 0x2C00_0043;
     let music = LoadedSound::Music {
         info: MusicInfo {
             did,
-            // The stop timing bit for a measure (`m_stopTiming`).
+            // The stop timing bit for a measure (`m_stopTiming`): the queue ignores it for a primary.
             bit_field: 0x4000,
             priority: 1.0,
             min_distance: 1.0,
@@ -102,6 +104,7 @@ fn a_flushed_primary_plays_out_to_its_measure_before_the_sound_is_cut() {
         segment: Some(two_measures()),
         sources: Arc::from(Vec::new()),
         bands: Arc::from(Vec::new()),
+        cues: Arc::default(),
     };
     let sink = RecordingSink::new();
     let source = Musics(HashMap::from([(did, music)]));
@@ -118,31 +121,31 @@ fn a_flushed_primary_plays_out_to_its_measure_before_the_sound_is_cut() {
     assert!(
         sink.commands().iter().any(|c| matches!(
             c,
-            SinkCommand::StopMusic { voice, boundary: Boundary::Measure } if *voice == handle
+            SinkCommand::StopMusic { voice, boundary: Boundary::End } if *voice == handle
         )),
-        "the stop goes to the voice at the measure"
+        "the stop goes to the voice as a play-out, not a cut"
     );
-    manager.use_time(1.0);
+    manager.use_time(3.5);
     assert!(
         !sink
             .commands()
             .iter()
             .any(|c| matches!(c, SinkCommand::MusicEnded { .. })),
-        "the sound is not cut before its measure"
+        "the sound is not cut before the pass ends"
     );
     // The queue reports the end in this frame; the sound is flushed at the next frame's start.
-    manager.use_time(2.5);
-    manager.use_time(2.6);
+    manager.use_time(4.5);
+    manager.use_time(4.6);
     assert!(
         sink.commands()
             .iter()
             .any(|c| matches!(c, SinkCommand::MusicEnded { voice } if *voice == handle)),
-        "the sound is cut once the measure has played out"
+        "the sound is cut once the pass has played out"
     );
     let late = sink
         .commands()
         .iter()
-        .filter(|c| matches!(c, SinkCommand::Note(e) if e.seconds > 2.0 + 1e-9))
+        .filter(|c| matches!(c, SinkCommand::Note(e) if e.seconds > 4.0 + 1e-9))
         .count();
-    assert_eq!(late, 0, "no note after the measure");
+    assert_eq!(late, 0, "no note after the pass");
 }

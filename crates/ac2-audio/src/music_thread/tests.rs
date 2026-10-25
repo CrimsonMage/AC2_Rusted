@@ -96,6 +96,7 @@ pub(super) fn info(kind: SegmentKind, handle: u32, music: &Arc<LoadedMusic>) -> 
         handle,
         segment: Arc::clone(music),
         bands: Arc::from(Vec::new()),
+        cues: Arc::default(),
     }
 }
 
@@ -371,6 +372,7 @@ fn the_sound_manager_forwards_the_groove_and_its_tweaks_to_a_playing_style() {
         segment: Some(styled(two, 2)),
         sources: Arc::from(Vec::new()),
         bands: Arc::from(Vec::new()),
+        cues: Arc::default(),
     };
     let source = Musics(HashMap::from([(did, music)]));
     let mut manager = SoundManager::new(Box::new(RecordingSink::new()), Arc::new(source));

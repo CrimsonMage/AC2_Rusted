@@ -207,10 +207,12 @@ fn the_town_outdoors_picks_its_ambient_environment_and_music() {
         .ambient_environment()
         .expect("an environment dominates");
     assert_eq!(environment >> 24, 0x29, "an EnvInfo");
+    // A segment a script or a segment trigger starts has no `MusicInfo` (music 0, segment 0).
     let music: Vec<u32> = sink
         .commands()
         .into_iter()
         .filter_map(|c| match c {
+            SinkCommand::StartMusic { music: 0, .. } => None,
             SinkCommand::StartMusic { music, segment, .. } => {
                 assert_eq!(segment >> 24, 0x24, "a DirectMusic segment");
                 Some(music)

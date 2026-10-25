@@ -55,8 +55,11 @@ fn a_repeated_wave_pass_keeps_its_handle_until_it_is_stopped() {
     assert_eq!(count(&calls, "ended", 7), 0, "the sound keeps the handle");
     assert!(thread.is_playing(7), "the repeat plays");
     assert!(thread.holds(7));
+    // Retail's stop only clears the loop: the pass in progress ends at its end (2 s).
     thread.stop(7, Boundary::Immediate);
     run(&mut thread, 1.6, &mut calls);
+    assert!(thread.is_playing(7), "the pass in progress plays out");
+    run(&mut thread, 2.1, &mut calls);
     assert!(!thread.is_playing(7));
     assert_eq!(count(&calls, "ended", 7), 1, "the stop ends it once");
     assert!(!thread.holds(7));
@@ -88,24 +91,25 @@ fn a_queued_wave_replaces_the_copy_waiting_behind_the_current_primary() {
 }
 
 #[test]
-fn a_wave_stopped_at_a_measure_plays_out_to_it() {
-    // Looping, ten seconds; stopped at 0.3 s, the pass runs to the next measure (2 s).
+fn a_looping_wave_stopped_at_a_measure_plays_its_pass_out() {
+    // Looping, ten seconds; stopped at 0.3 s, the pass in progress runs to its end (10 s), not to
+    // the measure: retail's stop does not read the boundary of a primary.
     let mut thread = MusicThread::new();
     let mut calls = Calls::default();
     thread.play(info(SegmentKind::Primary, 7, &wave(10.0, true)));
     run(&mut thread, 0.0, &mut calls);
     run(&mut thread, 0.3, &mut calls);
     thread.stop(7, Boundary::Measure);
-    run(&mut thread, 1.9, &mut calls);
-    assert!(thread.is_playing(7), "it plays out to the measure");
+    run(&mut thread, 9.9, &mut calls);
+    assert!(thread.is_playing(7), "it plays out to the end of the pass");
     assert_eq!(count(&calls, "ended", 7), 0);
-    run(&mut thread, 2.1, &mut calls);
-    assert!(!thread.is_playing(7), "it ends at the measure");
+    run(&mut thread, 10.1, &mut calls);
+    assert!(!thread.is_playing(7), "it ends at the end of the pass");
     assert_eq!(count(&calls, "ended", 7), 1);
 }
 
 #[test]
-fn a_wave_stopped_immediately_ends_now() {
+fn a_looping_wave_stopped_immediately_plays_its_pass_out() {
     let mut thread = MusicThread::new();
     let mut calls = Calls::default();
     thread.play(info(SegmentKind::Primary, 7, &wave(10.0, true)));
@@ -113,6 +117,11 @@ fn a_wave_stopped_immediately_ends_now() {
     run(&mut thread, 0.3, &mut calls);
     thread.stop(7, Boundary::Immediate);
     run(&mut thread, 0.35, &mut calls);
+    assert!(
+        thread.is_playing(7),
+        "an immediate stop of a primary is not a cut"
+    );
+    run(&mut thread, 10.1, &mut calls);
     assert!(!thread.is_playing(7));
     assert_eq!(count(&calls, "ended", 7), 1);
 }

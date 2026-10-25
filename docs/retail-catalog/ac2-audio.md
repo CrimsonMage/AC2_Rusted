@@ -1,6 +1,6 @@
 # ac2-audio: Sound
 
-367 retail functions: 124 done, 31 partial, 131 to do, 81 skipped.
+367 retail functions: 123 done, 32 partial, 131 to do, 81 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/cregion/csound/cambientsoundinfo.cpp.c` (1/13)
@@ -375,7 +375,7 @@ Legend and workflow: [README](README.md).
 ### SoundDeviceFactory
 - [~] `SoundDeviceFactory::CreateDevice` · 005a5a80 · legions 005721c0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 
-## `portal/client/src/sound/directx/dxmusicmessagethread.cpp.c` (9/16)
+## `portal/client/src/sound/directx/dxmusicmessagethread.cpp.c` (8/16)
 
 ### DXMusicMessageThread::find_if_SegmentState
 - [-] `DXMusicMessageThread::find_if_SegmentState::find_if_SegmentState` · 005a85b0 · legions 00574b10 — COM reference counting and C++ deleting destructor: Arc and Option<SegmentInfo> ownership in music_thread
@@ -388,13 +388,13 @@ Legend and workflow: [README](README.md).
 - [x] `DXMusicMessageThread::IsPlaying` · 005a8a10 · legions 00574f70 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
 - [x] `DXMusicMessageThread::AssociateSoundHandle` · 005a8ac0 · legions 00574ff0 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
 - [x] `DXMusicMessageThread::PlayQueuedPrimarySegment` · 005a8b70 · legions 00575100 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
-- [x] `DXMusicMessageThread::OnMusicStopping` · 005a8cb0 · legions 00575240 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
+- [~] `DXMusicMessageThread::OnMusicStopping` · 005a8cb0 · legions 00575240 — ac2-audio music_thread/mod.rs on_music_stopping: retail's queue (next_info, replace, abort) as in retail. Port addition: a primary a script started (Segment.play with AtFinish, DMUS_SEGF_QUEUE) waits in the performance's own queue ahead of next_info (scripted_primaries); DirectMusic keeps it there, not in the AC2 decompile.
 - [x] `DXMusicMessageThread::~DXMusicMessageThread` · 005a8dd0 · legions 00575410 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
 - [x] `DXMusicMessageThread::UseTime` · 005a8ef0 · legions 00575530 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
 - [x] `DXMusicMessageThread::DXMusicMessageThread` · 005a90c0 · legions 00575700 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
 - [~] `DXMusicMessageThread::Startup` · 005a9170 — ac2-audio music_thread: Startup's notification loop runs inside MusicThread::use_time (no thread, no 100 ms wait; the WAIT_TIMEOUT watchdog is kept)
 - [x] `DXMusicMessageThread::QueuePrimaryInternal` · 005a93b0 · legions 005759f0 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
-- [~] `DXMusicMessageThread::Stop` · 005a9540 · legions 00575b80 — ac2-audio music_thread/mod.rs stop(): a stop of the current primary cuts it at once (immediate) or at its boundary (play_out_to). Retail's Stop (0x5A9540) for the current primary only sets m_bLoopPrimary = 0 and ignores dwStopFlags: the pass plays out to its end. Not changed here (ambient and wave tests pin the boundary behaviour); see the close-out.
+- [~] `DXMusicMessageThread::Stop` · 005a9540 · legions 00575b80 — ac2-audio music_thread/mod.rs stop(): the current primary's stop only clears its loop (m_bLoopPrimary = 0; dwStopFlags unread; Legions 00575b80 the same), so its pass plays out to its end (playback.rs end_pass_after_stop; a looping wave ends at the end of its pass). A forced-immediate stop ends the voice at once: DirectXPlayingSound::StopInternal (005a6d50) calls Stop(handle, 0) then OnSegmentEnded. A secondary segment stops at once: StopEx's boundary flags are not modelled (gap).
 - [~] `DXMusicMessageThread::Play` · 005a96f0 · legions 00575d30 — ac2-audio music_thread: Stop = StopEx at once (stop boundary flags not modelled); Play's audio path check and DMUS start flags not modelled
 
 ## `portal/client/src/sound/directx/envinfo_win32.cpp.c` (0/61)

@@ -13,6 +13,7 @@ use ac2_db::{
 };
 
 use crate::music::library::{LoadedMusic, MusicLibrary, MusicSource};
+use crate::music::script::{bind_segment, BoundSegment};
 use crate::synth::{performance_bands, style_sources, ChannelSources, PerformanceBand};
 
 /// `SoundInfo::GetDBOType`.
@@ -279,6 +280,9 @@ pub enum LoadedSound {
         segment: Option<Arc<LoadedMusic>>,
         sources: ChannelSources,
         bands: Arc<[(f64, Arc<PerformanceBand>)]>,
+        /// The segment's cues (script calls and segment triggers), bound (see
+        /// `music::script::bind_segment`).
+        cues: Arc<BoundSegment>,
     },
     /// A `MusicInfo` whose object is an `EncodedWave` (`LoadFromObject(EncodedWave)`): the wave
     /// is played as the segment's wave track, with the `MusicInfo`'s terms, on the music channel.
@@ -365,11 +369,16 @@ impl SoundSource for DatSounds {
                     Some(music) => performance_bands(music).into(),
                     None => Arc::from(Vec::new()),
                 };
+                let cues = match &segment {
+                    Some(music) => bind_segment(music),
+                    None => Arc::default(),
+                };
                 Some(LoadedSound::Music {
                     info,
                     segment,
                     sources,
                     bands,
+                    cues,
                 })
             }
         }
