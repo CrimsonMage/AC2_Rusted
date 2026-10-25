@@ -172,7 +172,7 @@ impl State {
                     flags: u32::from(*social == 0) | (1 << (looting & 0xF)),
                     leader: PLAYER,
                     fellows: vec![
-                        self.member(FELLOW, "Birch", 7),
+                        self.member(FELLOW, "Birch", 4),
                         self.member(PLAYER, "Explorer", 1),
                     ],
                 };
@@ -210,7 +210,7 @@ impl State {
             }
             (0x8204_0008, [_]) => self.send_script_call(0x8204_001B, &[PackValue::Int(1)]),
             (0x8204_0010, []) => self.send_script_call(0x8204_001B, &[PackValue::Int(0)]),
-            _ => {}
+            (function, args) => self.answer_allegiance(function, args),
         }
     }
 }

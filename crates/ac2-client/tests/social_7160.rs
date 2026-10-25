@@ -24,7 +24,7 @@ fn requests() -> Vec<SocialRequest> {
     vec![
         SocialRequest::FellowshipCreate {
             name: "Wanderers".into(),
-            social: 1,
+            social: 0,
             looting: 2,
         },
         SocialRequest::FellowshipRecruit(TARGET),
@@ -43,7 +43,14 @@ fn requests() -> Vec<SocialRequest> {
 
 /// The login, then every action and the attack buttons, one per frame: the notices and the
 /// calls the double received.
-fn run(owned: &[u32]) -> Option<(Vec<Vec<GameplayNotice>>, Vec<ScriptCall>)> {
+/// The notices of each action, the calls the double received, the XP shares after creating.
+type Run = (
+    Vec<Vec<GameplayNotice>>,
+    Vec<ScriptCall>,
+    Option<Vec<(u64, f32)>>,
+);
+
+fn run(owned: &[u32]) -> Option<Run> {
     let dataset = ac2_dat::test_support::env_dataset()?;
     let store = ac2_db::ResourceStore::new(dataset.clone());
     let wlib = load_wlib(&store, DataId::new(LEGIONS_WLIB_DID)).ok()??;
@@ -65,6 +72,7 @@ fn run(owned: &[u32]) -> Option<(Vec<Vec<GameplayNotice>>, Vec<ScriptCall>)> {
     let mut commands: Vec<Command> = requests().into_iter().map(Command::Social).collect();
     commands.extend([Command::SetAttacking(true), Command::SetAttacking(false)]);
     let mut notices = Vec::new();
+    let mut shares = None;
     for command in commands {
         let input = FrameInput {
             commands: vec![command],
@@ -73,6 +81,10 @@ fn run(owned: &[u32]) -> Option<(Vec<Vec<GameplayNotice>>, Vec<ScriptCall>)> {
         let mut events = step(&mut client, &server, &input);
         for _ in 0..6 {
             events.extend(step(&mut client, &server, &idle));
+        }
+        // Right after the create: the XP shares of the (sharing) fellowship.
+        if notices.is_empty() {
+            shares = client.fellow_xp_hash().ok();
         }
         notices.push(
             events
@@ -90,7 +102,7 @@ fn run(owned: &[u32]) -> Option<(Vec<Vec<GameplayNotice>>, Vec<ScriptCall>)> {
         client.take_script_problems()
     );
     let calls = server.borrow().script_calls.clone();
-    Some((notices, calls))
+    Some((notices, calls, shares))
 }
 
 #[test]
@@ -105,10 +117,10 @@ fn social_actions_go_out_and_the_fellowship_comes_back() {
         .copied()
         .filter(|f| *f >> 8 != social.ifun() >> 8)
         .collect();
-    let Some((before, before_calls)) = run(&stood_in) else {
+    let Some((before, before_calls, _)) = run(&stood_in) else {
         return;
     };
-    let (after, after_calls) = run(ac2_client::SCRIPT_VM_FUNCTIONS).unwrap();
+    let (after, after_calls, shares) = run(ac2_client::SCRIPT_VM_FUNCTIONS).unwrap();
 
     // The VM sends what the stand-in sends. The name's reference differs only where the
     // stand-in cannot follow: its id is the VM's reference-table index, and the VM leaves out
@@ -122,7 +134,7 @@ fn social_actions_go_out_and_the_fellowship_comes_back() {
     assert_eq!(after_calls[0].function, 0x820C_001B);
     assert_eq!(
         after_calls[0].arguments[..2],
-        [PackValue::Int(2), PackValue::Int(1)]
+        [PackValue::Int(2), PackValue::Int(0)]
     );
     assert_eq!(
         after_calls[0].arguments[2].as_native(),
@@ -140,7 +152,7 @@ fn social_actions_go_out_and_the_fellowship_comes_back() {
         1,
         2,
         1,
-        1,
+        0,
         5,
         1,
         1,
@@ -180,15 +192,35 @@ fn social_actions_go_out_and_the_fellowship_comes_back() {
             birch.max_vigor,
             birch.cell
         ),
-        (7, 40, 50, 20, 30, CELL)
+        (4, 40, 50, 20, 30, CELL)
     );
     assert!(after[1]
         .iter()
         .any(|n| matches!(n, GameplayNotice::UpdateFellow { fellow, .. } if *fellow == TARGET)));
     assert!(after[2].contains(&GameplayNotice::ClearFellow(TARGET)));
     assert!(after[5].contains(&GameplayNotice::ClearFellowship));
-    // The attack buttons: the server's state, on and off.
-    assert!(after[12].contains(&GameplayNotice::UpdateAttackState(true)));
-    assert!(after[13].contains(&GameplayNotice::UpdateAttackState(false)));
-    assert!(before[12].contains(&GameplayNotice::UpdateAttackState(true)));
+    // The XP shares (`GetFellowXPHash` -> `FellowshipSystem` 0x41): a non-social fellowship
+    // of two within five levels gives each member 0.6 (`FellowshipControl` 0x1).
+    let mut shares = shares.unwrap();
+    shares.sort_by_key(|s| s.0);
+    assert_eq!(shares, [(PLAYER, 0.6), (FELLOW, 0.6)]);
+    // The attack buttons: the server's state, on and off, once each (the VM's `CPlayer` 0x2).
+    let attack_states = |n: &[GameplayNotice]| {
+        n.iter()
+            .filter(|n| matches!(n, GameplayNotice::UpdateAttackState(_)))
+            .cloned()
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(
+        attack_states(&after[12]),
+        [GameplayNotice::UpdateAttackState(true)]
+    );
+    assert_eq!(
+        attack_states(&after[13]),
+        [GameplayNotice::UpdateAttackState(false)]
+    );
+    assert_eq!(
+        attack_states(&before[12]),
+        [GameplayNotice::UpdateAttackState(true)]
+    );
 }

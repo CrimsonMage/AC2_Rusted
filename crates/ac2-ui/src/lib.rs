@@ -6,6 +6,7 @@
 //! consumes (`ActionInterpreter`); and the UI: layouts (`LayoutDesc`), the element tree built
 //! from them (`UIElementManager`, `UIElement`) and its software compositor (`UIRegion::DrawHere`).
 
+mod allegiance;
 mod button;
 mod camera_ui;
 mod chat;
@@ -15,6 +16,8 @@ mod controls;
 mod dialog;
 mod element;
 mod examination;
+mod fellow_info;
+mod fellowship;
 mod hud;
 mod input;
 mod interpreter;
@@ -42,9 +45,13 @@ mod text_data;
 mod text_edit;
 mod token;
 mod toolbar;
+mod tooltip;
 mod transition;
 mod tree_view;
+mod ui_string;
+mod vitals;
 
+pub use allegiance::{AllegianceRequest, AllegianceSource, AllegianceUi};
 pub use camera_ui::{CameraUi, CameraUiEffect};
 pub use chat::{
     ChatHistory, ChatRequest, ChatSettings, ChatStrings, ChatUi, Modifiers, CHAT_STRING_TABLE,
@@ -59,6 +66,8 @@ pub use dialog::{
 };
 pub use element::{UiBox, UiElement, UiImage, UiPlacement, UiTree};
 pub use examination::{ExaminationCall, ExaminationItem, ExaminationUi};
+pub use fellow_info::{vital_text, Fellow, FellowStrings};
+pub use fellowship::{FellowshipData, FellowshipRequest, FellowshipSource, FellowshipUi};
 pub use hud::{
     build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
     LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,
@@ -101,13 +110,22 @@ pub use text::UiTextData;
 pub use text_data::{StoreTextData, DEFAULT_FONT, FONT_GROUP};
 pub use token::{tokenize, REFERENCE, REFERENT, STATELESS};
 pub use toolbar::{ToolbarChild, ToolbarUi};
+pub use ui_string::{UiString, UiStrings, UI_TABLE};
+pub use vitals::{
+    VitalsUi, VITAL_EXPERIENCE, VITAL_FOCUS, VITAL_HEALTH, VITAL_PK_DAMAGE, VITAL_PK_VIGOR_LOSS,
+    VITAL_VIGOR,
+};
 
+#[cfg(test)]
+mod allegiance_tests;
 #[cfg(test)]
 mod chat_tests;
 #[cfg(test)]
 mod dialog_tests;
 #[cfg(test)]
 mod element_tests;
+#[cfg(test)]
+mod fellowship_tests;
 #[cfg(test)]
 mod list_box_select_tests;
 #[cfg(test)]
@@ -129,4 +147,8 @@ mod skill_tree_tests;
 #[cfg(test)]
 mod text_tests;
 #[cfg(test)]
+mod tooltip_tests;
+#[cfg(test)]
 mod tree_tests;
+#[cfg(test)]
+mod vitals_tests;

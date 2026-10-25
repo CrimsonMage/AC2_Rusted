@@ -288,9 +288,12 @@ impl ClientView {
             }),
             _ => None,
         };
-        let outcome = self
-            .hud
-            .reticle(gpu, selection.map(|s| (s.id, s.name.as_deref())), target);
+        let outcome = self.hud.reticle(
+            gpu,
+            selection.map(|s| (s.id, s.name.as_deref())),
+            selection.and_then(|s| s.info.as_ref()),
+            target,
+        );
         self.deselect |= outcome.deselect;
     }
 
@@ -310,6 +313,12 @@ impl ClientView {
                     .is_some()
             })
             .count()
+    }
+
+    /// The sounds the HUD's media played since the last call (`MD_Data_Sound`), for
+    /// [`crate::play_ui_sounds`].
+    pub fn take_ui_sounds(&mut self) -> Vec<u32> {
+        std::mem::take(&mut self.hud.sounds)
     }
 
     /// The frame's UI actions for the HUD ([`ac2_ui::Controls::take_ui_input`]); returns the
@@ -373,6 +382,21 @@ impl ClientView {
     /// The skills panel's panel and selected skill.
     pub fn skills_current(&self) -> Option<(u32, u32)> {
         self.hud.skills_current()
+    }
+
+    /// The HUD's text element `name` (`IUIManager` lookup by element id).
+    pub fn element_text(&self, name: &str) -> Option<String> {
+        self.hud.element_text(name)
+    }
+
+    /// The allegiance page's member list texts, in order.
+    pub fn allegiance_texts(&self) -> Vec<String> {
+        self.hud.allegiance_texts()
+    }
+
+    /// The fellowship page's rows, top first: each member's id and name.
+    pub fn fellowship_rows(&self) -> Vec<(u64, String)> {
+        self.hud.fellowship_rows()
     }
 
     /// The examination panel's texts, in order.

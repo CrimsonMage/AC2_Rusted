@@ -125,6 +125,7 @@ impl UiTree {
 
     /// `UIElementManager::MouseMoveEvent`; the manager's next `UseTime` runs `UpdateMouse`.
     fn mouse_move_event(&mut self) {
+        self.tooltip.last_mouse_move = self.time;
         self.broadcast_global(GLOBAL_MOUSE_MOVE, 0);
         self.scrollbar_mouse_move();
         self.update_mouse();
@@ -134,15 +135,26 @@ impl UiTree {
     pub fn update_mouse(&mut self) {
         let mut top = None;
         let mut processed = false;
+        self.new_tooltip_owner = None;
         for root in self.roots.clone() {
             if processed {
                 break;
+            }
+            // The tooltip itself is not under the pointer.
+            if Some(root) == self.tooltip.element {
+                continue;
             }
             let (ox, oy) = self.el(root).object.unwrap_or((0, 0));
             let (x, y) = (self.pointer.0 - ox, self.pointer.1 - oy);
             self.notify_mouse_move(root, x, y, true, &mut top, &mut processed);
         }
         self.mouse_top = top;
+        // Over nothing with a cursor: the default cursor.
+        if !top.is_some_and(|t| self.el(t).cursor.0 != 0) {
+            self.use_default_pointer_cursor();
+        }
+        let owner = self.new_tooltip_owner.take();
+        self.set_tooltip_owner(owner);
     }
 
     /// `UIRegion::NotifyMouseMove`, (`x`, `y`) in the parent's coordinates.
@@ -166,6 +178,9 @@ impl UiTree {
                 break;
             }
             self.notify_mouse_move(child, x - rect.x0, y - rect.y0, over, top, processed);
+        }
+        if self.new_tooltip_owner.is_none() && over && self.is_tooltip_on(index) {
+            self.new_tooltip_owner = Some(index);
         }
         over &= self.el(index).mouse_visible;
         let mut is_top = false;

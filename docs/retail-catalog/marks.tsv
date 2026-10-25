@@ -133,7 +133,9 @@ key	status	note
 00426720	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 00426930	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 00426970	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+00426ae0	x	ac2-ui reticle.rs
 00426d90	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+00426ee0	x	ac2-ui reticle.rs
 00428e60	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 004291a0	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 00429320	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
@@ -162,6 +164,26 @@ key	status	note
 0042d850	x	ac2-ui dialog.rs
 0042d8e0	x	ac2-ui dialog.rs
 0042dac0	x	ac2-ui list_box.rs
+0042f0f0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042f1a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042f300	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042f5f0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042f6e0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042f7a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042f7c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042fca0	~	GetFellowXPHash needs the host to return the script-filled LAHash
+0042fdc0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042fdd0	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+0042feb0	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+0042ff90	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+00430060	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+00430080	_	
+00430180	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+00430210	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+00430390	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+00430430	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+004304a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+00430600	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 00430810	x	ac2-ui toolbar.rs
 00430840	x	ac2-ui examination.rs + ac2-client ui_sources
 004309a0	x	ac2-ui examination.rs + ac2-client ui_sources
@@ -216,6 +238,66 @@ key	status	note
 00438270	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 004386c0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 004387f0	x	ac2-ui shortcut.rs
+004397d0	-	
+004398c0	x	ac2-ui vitals.rs
+00439930	~	tooltips not modelled
+004399a0	x	ac2-ui vitals.rs
+00439d10	-	
+00439d30	~	tooltips not modelled
+00439e00	~	tooltips not modelled
+00439ea0	-	
+00439f30	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+00439f40	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+00439fa0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a030	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a060	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a090	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a0d0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a110	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a150	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a190	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a1d0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a1f0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a200	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a4b0	-	
+0043a4d0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043bde0	~	UIElement_Menu not modelled: Create sends the default looting method 1
+0043bea0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043bef0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043bf40	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043bfd0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c050	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c0a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c0c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c0e0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c130	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c1d0	~	UIElement_Menu not modelled: Create sends the default looting method 1
+0043c280	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c3c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c4c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c4e0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c570	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c5c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c630	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c7c0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043ca20	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043cbc0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043cce0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043ce50	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043cfe0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d000	~	follows the tab and field each frame instead of their opened/closed/set_show_state messages
+0043d080	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d100	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d180	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d290	-	
+0043d350	~	follows the tab and field each frame instead of their opened/closed/set_show_state messages
+0043d440	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d4a0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d4b0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d4e0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d770	-	
+0043d790	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043dcb0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 00447550	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 004475b0	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
@@ -313,6 +395,7 @@ key	status	note
 00451bb0	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 00451bd0	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 00451bf0	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
+00451c50	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 00451cf0	x	ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 00451d10	x	ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 00451d30	x	ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
@@ -356,9 +439,11 @@ key	status	note
 00455740	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004557b0	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004558a0	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
-00456190	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+004559c0	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
+00456190	x	ac2-script vm::refs (reserved bit on every new entry)
 00456270	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
-00456550	_	ac2-script vm (VM/ReferenceTable/Resolver)
+00456330	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
+00456550	x	ac2-script vm::refs (reserved bit on every new entry)
 004565c0	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004567b0	_	ac2-script reference/native unpack
 00456ae0	_	ac2-script glue::options / examination (Legions layout and efun switch)
@@ -370,6 +455,7 @@ key	status	note
 00457c90	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 00457d50	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 00457e10	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045a310	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 0045a4b0	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045b800	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045b960	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
@@ -1749,6 +1835,7 @@ key	status	note
 0052e150	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 0052e5b0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 0052e620	_	ac2-script host::interface
+0052e660	x	ac2-client stat_changed: OnStatChanged (IFun 0x7F0044: table, quality) on the object's process once the VM has it (CPlayer 0x85: vitals, XP bar, vitae, skill panel); the session's stand-ins otherwise
 0052e6a0	_	
 0052e7b0	_	ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)
 0052e7c0	_	ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)
@@ -2939,6 +3026,64 @@ key	status	note
 005a0ac0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
 005a0da0	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
 005a0f80	x	ac2-ui input.rs
+005a1000	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a10f0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1130	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1160	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1210	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a1720	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1830	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1a70	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1ba0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1ca0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1d10	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1d90	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a1fe0	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a2120	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a2680	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a27d0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a28d0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a29f0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a2b00	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a2c50	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a3050	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a30c0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a35b0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a3680	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a3a50	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a3ab0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a3f70	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a3ff0	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a4290	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a4440	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a45c0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a4990	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a4ae0	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a5160	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a52a0	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a5500	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a5a80	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a6170	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a61c0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a61e0	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a6270	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6280	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6320	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6400	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6420	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6430	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a64d0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6600	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6640	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a6790	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6b50	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a6d50	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6f00	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6f20	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a70a0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a70b0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a70e0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a7180	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005acd10	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005acea0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005acee0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
@@ -3018,7 +3163,7 @@ key	status	note
 005e1d20	x	ac2-ui media.rs / transition.rs
 005e1dc0	x	ac2-ui media.rs / transition.rs
 005e1e40	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
-005e1ec0	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
+005e1ec0	x	ac2-ui media queue -> ac2-audio SoundManager::Play
 005e1fc0	x	ac2-ui media.rs / transition.rs
 005e2020	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 005e20d0	x	ac2-ui media.rs / transition.rs
@@ -3037,17 +3182,21 @@ key	status	note
 005e3310	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e35f0	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
 005e3690	x	ac2-ui media.rs / transition.rs
+005e3740	x	ac2-ui tooltip.rs
 005e38b0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005e3af0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e3b70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e3cc0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+005e3e90	~	no right-button check; 32x32 cursor size assumed
 005e4b60	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4c70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005e4d20	x	ac2-ui tooltip.rs
 005e4e50	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4fc0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e59b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e5a80	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e75a0	x	ac2-physics moveto (slice 3)
+005e75b0	~	tooltip owner/timing and default cursor ported; drag, resize and object regions not
 005e8ba0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e8c60	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e8c90	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
@@ -3059,6 +3208,7 @@ key	status	note
 005e9040	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e9060	x	ac2-ui media.rs / transition.rs
 005e90b0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e9300	x	ac2-ui tooltip.rs
 005e9340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9470	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 005e94c0	x	ac2-ui input.rs / text_edit.rs: typing into text elements
@@ -3067,6 +3217,7 @@ key	status	note
 005e9720	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9790	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e97c0	x	ac2-ui media.rs / transition.rs
+005e9810	x	ac2-ui tooltip.rs
 005e9940	~	m_delOnTransStop (delete after the exit transition) not modelled
 005e99e0	x	ac2-ui media.rs / transition.rs
 005e9b80	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
@@ -3074,6 +3225,7 @@ key	status	note
 005ea2c0	x	ac2-ui media.rs / transition.rs
 005ea430	x	ac2-ui compose.rs / element.rs set_image
 005ea510	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005eac90	x	ac2-ui tooltip.rs
 005eacf0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005eae20	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005eafc0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
@@ -3366,6 +3518,8 @@ key	status	note
 0060c5f0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0060c6f0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060c7a0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+0060c7d0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0060c8f0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
 0060ca40	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060caf0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060cb90	~	pregame/confirmation.rs is_name_character: English letters, ' - and space; other languages' letters not modelled
@@ -3857,6 +4011,7 @@ key	status	note
 0069be20	x	
 0069bfd0	x	
 0069c060	x	
+0069c4b0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0069c550	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 0069c8a0	x	ac2-physics moveto (slice 3)
 0069cb70	x	ac2-physics moveto (slice 3)
@@ -3915,7 +4070,16 @@ key	status	note
 006b78f0	_	ac2-script WLib/WState/ByteStream decode
 006b79f0	_	ac2-script wstate DID formulas / ByteStream::package_id
 006b7aa0	_	ac2-script WLib/WState/ByteStream decode
+006b8090	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+006b80d0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+006b8140	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+006b8a70	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+006b8aa0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+006b8b00	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+006b8b20	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 006baa40	_	
+006bc380	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+006bc410	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
 006bc600	x	ac2-db string_meta_text / string_state (CRT C locale classes)
 006bc900	x	
 006bc940	x	
@@ -4022,6 +4186,7 @@ key	status	note
 006de1e0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006e08d0	~	ac2-script: handler table is a match in exec.rs
 006e08f0	x	ac2-script vm::exec / Program::walk
+006e0a50	x	ac2-script vm::refs (reserved bit on every new entry)
 006e0b40	x	ac2-net protocol::pack
 006e0c20	x	ac2-script reference/native unpack
 006e0d30	x	ac2-script glue

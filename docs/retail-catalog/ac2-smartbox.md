@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 71 done, 31 partial, 158 to do, 2 skipped.
+262 retail functions: 73 done, 31 partial, 156 to do, 2 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -368,13 +368,13 @@ Legend and workflow: [README](README.md).
 - [ ] `WorldManager::~WorldManager` · 0057c610 · legions 0054bee0
 - [ ] `WorldManager::ResetWorldState` · 0057c6b0 · legions 0054bf80
 
-## `portal/shared/src/objects/iidutils.cpp.c` (0/13)
+## `portal/shared/src/objects/iidutils.cpp.c` (2/13)
 
 ### IIDUtils
 - [ ] `IIDUtils::CreateUI` · 006bc300 · legions 006512a0
 - [ ] `IIDUtils::CreateTemporary` · 006bc340 · legions 006512e0
-- [ ] `IIDUtils::GetType` · 006bc380 · legions 00651320
-- [ ] `IIDUtils::VerifyPlayer` · 006bc410 · legions 006513b0
+- [x] `IIDUtils::GetType` · 006bc380 · legions 00651320 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `IIDUtils::VerifyPlayer` · 006bc410 · legions 006513b0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 - [ ] `IIDUtils::VerifyUI` · 006bc430 · legions 006513d0
 - [ ] `IIDUtils::VerifyCamera` · 006bc450 · legions 006513f0
 - [ ] `IIDUtils::VerifyTemporary` · 006bc470 · legions 00651410

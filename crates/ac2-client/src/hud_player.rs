@@ -59,7 +59,7 @@ impl HudView {
     ) -> Vec<Command> {
         let messages = std::mem::take(&mut self.player_messages);
         let mut commands = Vec::new();
-        let Some((strings, ui_table)) = self.strings.clone() else {
+        let Some(strings) = self.strings.clone() else {
             return commands;
         };
         if !frame.in_world {
@@ -73,6 +73,10 @@ impl HudView {
             chat,
             player_loaded,
             dirty,
+            fellowship,
+            allegiance,
+            vitals,
+            dialogs,
             ..
         } = self;
         let Some((tree, _)) = hud else {
@@ -94,8 +98,9 @@ impl HudView {
         let player = ClientPlayer {
             client: RefCell::new(client),
             frame,
-            strings: &strings,
-            ui_table,
+            strings: &strings.tables,
+            ui_table: strings.ui_table,
+            enums: &strings.enums,
         };
         let mut reload_shortcuts = !*player_loaded
             || script_notices
@@ -107,11 +112,40 @@ impl HudView {
             if let Some(skills) = skills.as_mut() {
                 skills.update_skill_panel(tree, &player);
             }
+            if let Some(page) = allegiance.as_mut() {
+                page.set_player(tree, ac2_ui::FellowshipSource::player(&player));
+            }
+            if let Some(bar) = vitals.as_mut() {
+                let text = |cur, max| ac2_ui::vital_text(&player, cur, max);
+                bar.apply_snapshot(tree, &frame.player_vitals, &text);
+            }
         }
         for event in events {
             let SessionEvent::Notice(notice) = event else {
                 continue;
             };
+            if let (Some(panel), Some(dialogs)) = (fellowship.as_mut(), dialogs.as_mut()) {
+                crate::ui_social::fellowship_notice(panel, tree, dialogs, &player, notice);
+            }
+            if let (Some(page), Some(dialogs)) = (allegiance.as_mut(), dialogs.as_mut()) {
+                crate::ui_social::allegiance_notice(page, tree, dialogs, &player, notice);
+            }
+            if let Some(bar) = vitals.as_mut() {
+                let text = |cur, max| ac2_ui::vital_text(&player, cur, max);
+                match *notice {
+                    GameplayNotice::UpdateVital {
+                        vital,
+                        current,
+                        max,
+                    } => {
+                        bar.update_vital(tree, vital, current, max, &text);
+                    }
+                    GameplayNotice::UpdateHeroStatus { hero, current, max } => {
+                        bar.update_hero_status(tree, hero, current, max, &text);
+                    }
+                    _ => {}
+                }
+            }
             match notice {
                 GameplayNotice::UpdateExaminationProfile(profile) => {
                     if let Some(panel) = examination.as_mut() {
@@ -166,6 +200,40 @@ impl HudView {
             if let Some(bar) = shortcuts.as_mut() {
                 bar.message(tree, &player, message);
             }
+            if let Some(panel) = fellowship.as_mut() {
+                panel.message(tree, message);
+            }
+            if let Some(bar) = vitals.as_mut() {
+                bar.message(tree, message);
+            }
+            if let (Some(page), Some(dialogs)) = (allegiance.as_mut(), dialogs.as_mut()) {
+                page.message(tree, dialogs, &player, message);
+            }
+            if let Some(dialogs) = dialogs.as_mut() {
+                dialogs.message(tree, message);
+            }
+        }
+        if let Some(dialogs) = dialogs.as_mut() {
+            let outcomes = dialogs.take_outcomes();
+            crate::ui_social::dialog_outcomes(
+                tree,
+                fellowship.as_mut(),
+                allegiance.as_mut(),
+                &outcomes,
+            );
+        }
+        if let Some(page) = allegiance.as_mut() {
+            page.follow_show_state(tree);
+            crate::ui_social::allegiance_commands(page.take_requests(), &mut commands);
+        }
+        let mut tells = Vec::new();
+        if let Some(panel) = fellowship.as_mut() {
+            let selection = frame.selection.as_ref().map(|s| s.id);
+            tells = crate::ui_social::fellowship_commands(
+                panel.take_requests(),
+                selection,
+                &mut commands,
+            );
         }
         // `gmExaminationUI::Show`: the panel follows its field; opening holds the request open.
         // Legions passes the panel's filter word (+0xB8; its filter tabs are not modelled).
@@ -227,6 +295,10 @@ impl HudView {
         }
         if open_examination {
             self.open_examination();
+        }
+        // `FellowshipHelper::ListenToMessage`: a member's name into the chat line.
+        for name in tells {
+            self.assisted_tell(&name);
         }
         commands
     }

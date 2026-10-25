@@ -1,20 +1,20 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 126 done, 9 partial, 355 to do, 9 skipped.
+499 retail functions: 128 done, 9 partial, 353 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (2/4)
+## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
 
 ### AllegianceDataAdaptor
 - [x] `AllegianceDataAdaptor::AllegianceDataAdaptor` · 0060c6f0 · legions 005cd440 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 - [ ] `AllegianceDataAdaptor::operator=` · 0060c740 · legions 005cd490
 - [x] `AllegianceDataAdaptor::AllegianceDataAdaptor` · 0060c7a0 · legions 005cd4f0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
-- [ ] `AllegianceDataAdaptor::GetSpeciesGenderString` · 0060c7d0 · legions 005cd520
+- [x] `AllegianceDataAdaptor::GetSpeciesGenderString` · 0060c7d0 · legions 005cd520 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 
-## `ac2/shared/src/allegiance/allegianceprofileadaptor.cpp.c` (2/5)
+## `ac2/shared/src/allegiance/allegianceprofileadaptor.cpp.c` (3/5)
 
 ### AllegianceProfileAdaptor
-- [ ] `AllegianceProfileAdaptor::InqRealMonarch` · 0060c8f0 · legions 005cd6f0
+- [x] `AllegianceProfileAdaptor::InqRealMonarch` · 0060c8f0 · legions 005cd6f0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 
 ### List<AllegianceDataAdaptor>
 - [ ] `List<AllegianceDataAdaptor>::operator=` · 0060c950 · legions 005cd750

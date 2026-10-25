@@ -15,8 +15,9 @@ use std::time::Duration;
 const FRAME: Duration = Duration::from_millis(10);
 
 use ac2_net::protocol::{
-    interrogation_response, Build, CellPosition, CharacterSet, ClientEvent, DatEvent, ObjectAction,
-    Qualities, ServerEvent, ServerPosition, StringInfo, QUEUE_DAT, QUEUE_EVENTS,
+    interrogation_response, Build, CellPosition, CharacterIdentity, CharacterSet, ClientEvent,
+    DatEvent, ObjectAction, Qualities, ServerEvent, ServerPosition, StringInfo, QUEUE_DAT,
+    QUEUE_EVENTS,
 };
 use ac2_net::{
     Credential, Logon, NetClient, NetClientConfig, NetError, NetEvent, ServerPublicKey,
@@ -75,6 +76,12 @@ pub struct WorldEntry {
     pub orientation: [f32; 4],
     pub visual: Option<u32>,
 }
+
+/// `CWInterface::OnStatChanged`'s IFun (`gCWInterface::CallIFun_OnStatChanged`: the table
+/// code, the quality; `CPlayer` 0x85, `CItem` 0x3): once handed to the script VM
+/// (`set_script_functions`), a quality update's stand-ins (vitals, item updates, the skill
+/// panel) stay quiet and the caller runs it on the object's process.
+pub const IFUN_ON_STAT_CHANGED: u32 = 0x007F_0044;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SessionEvent {
@@ -135,13 +142,15 @@ pub enum SessionEvent {
     /// `ECM_Login::RecvEvt_CharacterDeletion`: the server deleted the character.
     CharacterDeleted(u64),
     /// `ECM_Login::RecvEvt_CharGenVerification`: the server's answer to a character creation
-    /// (its response, the character, the weenie's result).
+    /// (its response, the character's identity as packed, the weenie's result).
     CharGenVerification {
         response: u32,
-        character: u64,
-        name: String,
+        identity: Box<CharacterIdentity>,
         result: u32,
     },
+    /// `ECM_Login::RecvEvt_CharacterError` (`RecvNotice_CharacterError`): the server refused a
+    /// character request with this error.
+    CharacterError(u32),
     /// Queue 4 chat data the chat client could not read (`IChatClientImpl::OnNetworkData`
     /// refused it).
     Chat(Vec<u8>),
@@ -468,7 +477,7 @@ impl OnlineSession {
                 if self.world.state() == WorldState::EnteringWorld {
                     self.world.leave_world();
                 }
-                out.push(SessionEvent::Rejected(format!("character error {reason}")));
+                out.push(SessionEvent::CharacterError(reason));
             }
             ServerEvent::CreateObject(object) => {
                 if Some(object.id) == self.world.player() {
@@ -544,8 +553,7 @@ impl OnlineSession {
                 weenie_result,
             } => out.push(SessionEvent::CharGenVerification {
                 response,
-                character: identity.id,
-                name: identity.name,
+                identity,
                 result: weenie_result,
             }),
             ServerEvent::Interp {
@@ -616,12 +624,16 @@ impl OnlineSession {
                         table,
                         quality: update.quality,
                     });
-                    if Some(object) == self.world.player() {
-                        out.extend(self.player_quality_changed(table, update.quality));
-                    }
-                    out.extend(self.item_quality_changed(object, table, update.quality));
-                    if Some(object) == self.world.player() {
-                        out.extend(self.progress_quality_changed(table, update.quality));
+                    // `CWInterface::OnStatChanged`'s stand-ins, unless the script VM runs it.
+                    if !self.script_functions.contains(&IFUN_ON_STAT_CHANGED) {
+                        let player = Some(object) == self.world.player();
+                        if player {
+                            out.extend(self.player_quality_changed(table, update.quality));
+                        }
+                        out.extend(self.item_quality_changed(object, table, update.quality));
+                        if player {
+                            out.extend(self.progress_quality_changed(table, update.quality));
+                        }
                     }
                 }
             }

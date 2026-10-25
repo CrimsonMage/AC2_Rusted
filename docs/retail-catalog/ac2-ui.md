@@ -1,9 +1,9 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 378 done, 164 partial, 1686 to do, 19 skipped.
+2247 retail functions: 445 done, 177 partial, 1603 to do, 22 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
+## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (7/53)
 
 ### BBox
 - [x] `BBox::AdjustBBox` · 00426720 · legions 00426510 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
@@ -18,7 +18,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gm3DTextUI::RecvNotice_ItemUpdate` · 00426920
 - [x] `gm3DTextUI::ShowReticle` · 00426930 · legions 004266f0 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 - [~] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
-- [ ] `gm3DTextUI::DoStuffMeter` · 00426ae0 · legions 004268a0
+- [x] `gm3DTextUI::DoStuffMeter` · 00426ae0 · legions 004268a0 — ac2-ui reticle.rs
 - [ ] `gm3DTextUI::MakeNewData` · 00426b70 · legions 00426930
 
 ### BBox
@@ -30,7 +30,7 @@ Legend and workflow: [README](README.md).
 
 ### gm3DTextUI
 - [~] `gm3DTextUI::InitReticle` · 00426d90 · legions 00426b50 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
-- [ ] `gm3DTextUI::RecvNotice_UpdateSelectionInfo` · 00426ee0 · legions 00426ca0
+- [x] `gm3DTextUI::RecvNotice_UpdateSelectionInfo` · 00426ee0 · legions 00426ca0 — ac2-ui reticle.rs
 - [ ] `gm3DTextUI::PlaceHere` · 00426f60 · legions 00426d20
 
 ### _STL::_Deque_iterator<BBox,_STL::_Nonconst_traits<BBox>_>
@@ -724,50 +724,50 @@ Legend and workflow: [README](README.md).
 - [ ] `ContainerDisplay::Init` · 0042e650 · legions 0042e4e0
 - [ ] `ContainerDisplay::RecvNotice_UpdateContainer` · 0042e7b0
 
-## `ac2/client/src/ui/gameplay/helper/fellowinfo.cpp.c` (0/15)
+## `ac2/client/src/ui/gameplay/helper/fellowinfo.cpp.c` (14/15)
 
 ### FellowInfo
-- [ ] `FellowInfo::~FellowInfo` · 00439ea0 · legions 0043a6f0
-- [ ] `FellowInfo::UpdateCellID` · 00439f30 · legions 0043a780
-- [ ] `FellowInfo::UpdateLevel` · 00439f40 · legions 0043a790
-- [ ] `FellowInfo::UpdatePercentage` · 00439fa0 · legions 0043a7f0
-- [ ] `FellowInfo::ToggleTextState` · 0043a030 · legions 0043a880
-- [ ] `FellowInfo::SetLeader` · 0043a060 · legions 0043a8b0
-- [ ] `FellowInfo::ShowSelectionHighlight` · 0043a090 · legions 0043a8e0
-- [ ] `FellowInfo::RecvNotice_UpdateFellowHealth` · 0043a0d0 · legions 0043a920
-- [ ] `FellowInfo::RecvNotice_UpdateFellowMaxHealth` · 0043a110
-- [ ] `FellowInfo::RecvNotice_UpdateFellowVigor` · 0043a150 · legions 0043a9a0
-- [ ] `FellowInfo::RecvNotice_UpdateFellowMaxVigor` · 0043a190
-- [ ] `FellowInfo::RecvNotice_UpdateFellowLevel` · 0043a1d0
-- [ ] `FellowInfo::RecvNotice_BeingDeleted` · 0043a1f0 · legions 0043aa40
-- [ ] `FellowInfo::FellowInfo` · 0043a200 · legions 0043aa50
-- [ ] `FellowInfo::UpdateInfo` · 0043a4d0 · legions 0043ad20
+- [-] `FellowInfo::~FellowInfo` · 00439ea0 · legions 0043a6f0
+- [x] `FellowInfo::UpdateCellID` · 00439f30 · legions 0043a780 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::UpdateLevel` · 00439f40 · legions 0043a790 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::UpdatePercentage` · 00439fa0 · legions 0043a7f0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::ToggleTextState` · 0043a030 · legions 0043a880 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::SetLeader` · 0043a060 · legions 0043a8b0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::ShowSelectionHighlight` · 0043a090 · legions 0043a8e0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::RecvNotice_UpdateFellowHealth` · 0043a0d0 · legions 0043a920 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::RecvNotice_UpdateFellowMaxHealth` · 0043a110 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::RecvNotice_UpdateFellowVigor` · 0043a150 · legions 0043a9a0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::RecvNotice_UpdateFellowMaxVigor` · 0043a190 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::RecvNotice_UpdateFellowLevel` · 0043a1d0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::RecvNotice_BeingDeleted` · 0043a1f0 · legions 0043aa40 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::FellowInfo` · 0043a200 · legions 0043aa50 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::UpdateInfo` · 0043a4d0 · legions 0043ad20 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/helper/fellowshiphelper.cpp.c` (0/24)
+## `ac2/client/src/ui/gameplay/helper/fellowshiphelper.cpp.c` (13/24)
 
 ### FellowshipHelper
-- [ ] `FellowshipHelper::SelectFellowByIdx` · 0042f0f0 · legions 0042eff0
+- [x] `FellowshipHelper::SelectFellowByIdx` · 0042f0f0 · legions 0042eff0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ### ItemDisplay
 - [ ] `ItemDisplay::RecvNotice_BeingDeleted` · 0042f180
 
 ### FellowshipHelper
-- [ ] `FellowshipHelper::ListenToMessage` · 0042f1a0 · legions 0042f080
+- [x] `FellowshipHelper::ListenToMessage` · 0042f1a0 · legions 0042f080 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ### HashIterator<InstanceID,float>
 - [ ] `HashIterator<InstanceID,float>::operator++` · 0042f2c0 · legions 0042f1a0
 
 ### FellowshipHelper
-- [ ] `FellowshipHelper::ToggleTextState` · 0042f300 · legions 0042f220
+- [x] `FellowshipHelper::ToggleTextState` · 0042f300 · legions 0042f220 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ### PHashTable<InstanceID,float>
 - [ ] `PHashTable<InstanceID,float>::~PHashTable<InstanceID,float>` · 0042f4a0 · legions 0042f360
 
 ### FellowshipHelper
-- [ ] `FellowshipHelper::ListenToMessage` · 0042f5f0 · legions 0042f4b0
-- [ ] `FellowshipHelper::SetLeader` · 0042f6e0 · legions 0042f5a0
-- [ ] `FellowshipHelper::RecvNotice_UpdateLeader` · 0042f7a0
-- [ ] `FellowshipHelper::RecvNotice_SelectionChanged` · 0042f7c0
+- [x] `FellowshipHelper::ListenToMessage` · 0042f5f0 · legions 0042f4b0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowshipHelper::SetLeader` · 0042f6e0 · legions 0042f5a0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowshipHelper::RecvNotice_UpdateLeader` · 0042f7a0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowshipHelper::RecvNotice_SelectionChanged` · 0042f7c0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ### PHashTable<InstanceID,float>
 - [ ] `PHashTable<InstanceID,float>::StreamPack` · 0042f8e0
@@ -776,18 +776,18 @@ Legend and workflow: [README](README.md).
 - [ ] `STREAMPACK` · 0042fb10 · legions 0042f9d0
 
 ### FellowshipHelper
-- [ ] `FellowshipHelper::UpdateXP` · 0042fca0 · legions 0042fa60
-- [ ] `FellowshipHelper::RecvNotice_UpdateFellowLevel` · 0042fdc0
-- [ ] `FellowshipHelper::RemoveFellow` · 0042fdd0 · legions 0042fb90
-- [ ] `FellowshipHelper::RemoveAllFellows` · 0042feb0 · legions 0042fc70
-- [ ] `FellowshipHelper::RecvNotice_UpdateFellowCellID` · 0042ff90
-- [ ] `FellowshipHelper::RecvNotice_ClearFellow` · 00430060
+- [~] `FellowshipHelper::UpdateXP` · 0042fca0 · legions 0042fa60 — GetFellowXPHash needs the host to return the script-filled LAHash
+- [x] `FellowshipHelper::RecvNotice_UpdateFellowLevel` · 0042fdc0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [~] `FellowshipHelper::RemoveFellow` · 0042fdd0 · legions 0042fb90 — map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+- [~] `FellowshipHelper::RemoveAllFellows` · 0042feb0 · legions 0042fc70 — map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+- [~] `FellowshipHelper::RecvNotice_UpdateFellowCellID` · 0042ff90 — map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+- [x] `FellowshipHelper::RecvNotice_ClearFellow` · 00430060 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [ ] `FellowshipHelper::RecvNotice_ReloadGameplayOptions` · 00430080
-- [ ] `FellowshipHelper::~FellowshipHelper` · 00430180 · legions 0042ff40
-- [ ] `FellowshipHelper::AddFellow` · 00430210 · legions 0042ffd0
-- [ ] `FellowshipHelper::AddAllFellows` · 00430390 · legions 00430150
-- [ ] `FellowshipHelper::RecvNotice_UpdateFellow` · 00430430
-- [ ] `FellowshipHelper::FellowshipHelper` · 004304a0 · legions 00430260
+- [x] `FellowshipHelper::~FellowshipHelper` · 00430180 · legions 0042ff40 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [~] `FellowshipHelper::AddFellow` · 00430210 · legions 0042ffd0 — map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+- [x] `FellowshipHelper::AddAllFellows` · 00430390 · legions 00430150 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowshipHelper::RecvNotice_UpdateFellow` · 00430430 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowshipHelper::FellowshipHelper` · 004304a0 · legions 00430260 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ## `ac2/client/src/ui/gameplay/helper/itemdisplay.cpp.c` (0/15)
 
@@ -937,15 +937,15 @@ Legend and workflow: [README](README.md).
 - [ ] `gmStatusbarUI::SetupChildren` · 00423210 · legions 00422fe0
 - [~] `gmStatusbarUI::gmStatusbarUI` · 004232f0 · legions 004230c0 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 
-## `ac2/client/src/ui/gameplay/statusbar/gmvitalsui.cpp.c` (0/6)
+## `ac2/client/src/ui/gameplay/statusbar/gmvitalsui.cpp.c` (2/6)
 
 ### gmVitalsUI
-- [ ] `gmVitalsUI::~gmVitalsUI` · 004397d0 · legions 0043a020
-- [ ] `gmVitalsUI::RecvNotice_UpdateVital` · 004398c0
-- [ ] `gmVitalsUI::SetTooltip` · 00439930 · legions 0043a180
-- [ ] `gmVitalsUI::gmVitalsUI` · 004399a0 · legions 0043a1f0
-- [ ] `gmVitalsUI::ListenToMessage` · 00439d30 · legions 0043a580
-- [ ] `gmVitalsUI::RecvNotice_UpdateHeroStatus` · 00439e00 · legions 0043a650
+- [-] `gmVitalsUI::~gmVitalsUI` · 004397d0 · legions 0043a020
+- [x] `gmVitalsUI::RecvNotice_UpdateVital` · 004398c0 — ac2-ui vitals.rs
+- [~] `gmVitalsUI::SetTooltip` · 00439930 · legions 0043a180 — tooltips not modelled
+- [x] `gmVitalsUI::gmVitalsUI` · 004399a0 · legions 0043a1f0 — ac2-ui vitals.rs
+- [~] `gmVitalsUI::ListenToMessage` · 00439d30 · legions 0043a580 — tooltips not modelled
+- [~] `gmVitalsUI::RecvNotice_UpdateHeroStatus` · 00439e00 · legions 0043a650 — tooltips not modelled
 
 ## `ac2/client/src/ui/gameplay/statusbar/indicators/gmindicatorsui.cpp.c` (0/4)
 
@@ -1520,56 +1520,56 @@ Legend and workflow: [README](README.md).
 - [~] `gmSkillUI::ListenToMessage` · 00435030 · legions 00435800 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 - [~] `gmSkillUI::gmSkillUI` · 00435090 · legions 00435860 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 
-## `ac2/client/src/ui/gameplay/toolbar/social/gmallegianceui.cpp.c` (0/20)
+## `ac2/client/src/ui/gameplay/toolbar/social/gmallegianceui.cpp.c` (15/20)
 
 ### AllegianceDataAdaptor
 - [ ] `AllegianceDataAdaptor::~AllegianceDataAdaptor` · 0043c7a0 · legions 0043cff0
 
 ### gmAllegianceUI
-- [ ] `gmAllegianceUI::MakeCurrent` · 0043c7c0 · legions 0043d010
-- [ ] `gmAllegianceUI::MakeVassal` · 0043ca20 · legions 0043d270
-- [ ] `gmAllegianceUI::SendRequest` · 0043cbc0 · legions 0043d410
-- [ ] `gmAllegianceUI::UpdateButtons` · 0043cce0 · legions 0043d530
-- [ ] `gmAllegianceUI::FocusTree` · 0043ce50 · legions 0043d6a0
+- [x] `gmAllegianceUI::MakeCurrent` · 0043c7c0 · legions 0043d010 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::MakeVassal` · 0043ca20 · legions 0043d270 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::SendRequest` · 0043cbc0 · legions 0043d410 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::UpdateButtons` · 0043cce0 · legions 0043d530 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::FocusTree` · 0043ce50 · legions 0043d6a0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 
 ### HashSet<InstanceID>
 - [ ] `HashSet<InstanceID>::operator=` · 0043ce80 · legions 0043d6d0
 
 ### gmAllegianceUI
-- [ ] `gmAllegianceUI::RecvNotice_SelectionChanged` · 0043cfe0
-- [ ] `gmAllegianceUI::UpdateShowState` · 0043d000 · legions 0043d850
-- [ ] `gmAllegianceUI::MakeAcceptSwearDialog` · 0043d080 · legions 0043d8d0
-- [ ] `gmAllegianceUI::MakeBreakDialog` · 0043d100 · legions 0043d950
-- [ ] `gmAllegianceUI::DoBreak` · 0043d180 · legions 0043d9d0
-- [ ] `gmAllegianceUI::~gmAllegianceUI` · 0043d290 · legions 0043dae0
-- [ ] `gmAllegianceUI::ListenToMessage` · 0043d350 · legions 0043dba0
-- [ ] `gmAllegianceUI::RecvNotice_CloseConfirmationDialog` · 0043d440 · legions 0043dc90
-- [ ] `gmAllegianceUI::RecvNotice_RequestVassal` · 0043d4a0
-- [ ] `gmAllegianceUI::RecvNotice_Patron_SwearDone` · 0043d4b0
-- [ ] `gmAllegianceUI::gmAllegianceUI` · 0043d4e0 · legions 0043dd30
-- [ ] `gmAllegianceUI::Update` · 0043d790 · legions 0043dfe0
-- [ ] `gmAllegianceUI::RecvNotice_UpdateAllegianceProfile` · 0043dcb0
+- [x] `gmAllegianceUI::RecvNotice_SelectionChanged` · 0043cfe0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [~] `gmAllegianceUI::UpdateShowState` · 0043d000 · legions 0043d850 — follows the tab and field each frame instead of their opened/closed/set_show_state messages
+- [x] `gmAllegianceUI::MakeAcceptSwearDialog` · 0043d080 · legions 0043d8d0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::MakeBreakDialog` · 0043d100 · legions 0043d950 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::DoBreak` · 0043d180 · legions 0043d9d0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [-] `gmAllegianceUI::~gmAllegianceUI` · 0043d290 · legions 0043dae0
+- [~] `gmAllegianceUI::ListenToMessage` · 0043d350 · legions 0043dba0 — follows the tab and field each frame instead of their opened/closed/set_show_state messages
+- [x] `gmAllegianceUI::RecvNotice_CloseConfirmationDialog` · 0043d440 · legions 0043dc90 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::RecvNotice_RequestVassal` · 0043d4a0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::RecvNotice_Patron_SwearDone` · 0043d4b0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::gmAllegianceUI` · 0043d4e0 · legions 0043dd30 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::Update` · 0043d790 · legions 0043dfe0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::RecvNotice_UpdateAllegianceProfile` · 0043dcb0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/toolbar/social/gmfellowshipui.cpp.c` (0/17)
+## `ac2/client/src/ui/gameplay/toolbar/social/gmfellowshipui.cpp.c` (15/17)
 
 ### gmFellowshipUI
-- [ ] `gmFellowshipUI::InitLootingMenu` · 0043bde0 · legions 0043c630
-- [ ] `gmFellowshipUI::HandleRecruitButton` · 0043bea0 · legions 0043c6f0
-- [ ] `gmFellowshipUI::HandleDismissButton` · 0043bef0 · legions 0043c740
-- [ ] `gmFellowshipUI::SetLeaderState` · 0043bf40 · legions 0043c790
-- [ ] `gmFellowshipUI::MakeRecruitDialog` · 0043bfd0 · legions 0043c820
-- [ ] `gmFellowshipUI::RecvNotice_CloseConfirmationDialog` · 0043c050 · legions 0043c8a0
-- [ ] `gmFellowshipUI::RecvNotice_RequestRecruitment` · 0043c0a0
-- [ ] `gmFellowshipUI::RecvNotice_ExpireRecruitment` · 0043c0c0 · legions 0043c910
-- [ ] `gmFellowshipUI::RecvNotice_UpdateLeader` · 0043c0e0
-- [ ] `gmFellowshipUI::~gmFellowshipUI` · 0043c130 · legions 0043c980
-- [ ] `gmFellowshipUI::HandleCreateButton` · 0043c1d0 · legions 0043ca20
-- [ ] `gmFellowshipUI::SetFellowshipState` · 0043c280 · legions 0043cad0
-- [ ] `gmFellowshipUI::RecvNotice_UpdateFellowship` · 0043c3c0
-- [ ] `gmFellowshipUI::ListenToMessage` · 0043c4e0 · legions 0043cd30
-- [ ] `gmFellowshipUI::SetNoFellowshipState` · 0043c570 · legions 0043cdc0
-- [ ] `gmFellowshipUI::RecvNotice_ClearFellowship` · 0043c5c0 · legions 0043ce10
-- [ ] `gmFellowshipUI::gmFellowshipUI` · 0043c630 · legions 0043ce80
+- [~] `gmFellowshipUI::InitLootingMenu` · 0043bde0 · legions 0043c630 — UIElement_Menu not modelled: Create sends the default looting method 1
+- [x] `gmFellowshipUI::HandleRecruitButton` · 0043bea0 · legions 0043c6f0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::HandleDismissButton` · 0043bef0 · legions 0043c740 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::SetLeaderState` · 0043bf40 · legions 0043c790 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::MakeRecruitDialog` · 0043bfd0 · legions 0043c820 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::RecvNotice_CloseConfirmationDialog` · 0043c050 · legions 0043c8a0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::RecvNotice_RequestRecruitment` · 0043c0a0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::RecvNotice_ExpireRecruitment` · 0043c0c0 · legions 0043c910 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::RecvNotice_UpdateLeader` · 0043c0e0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::~gmFellowshipUI` · 0043c130 · legions 0043c980 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [~] `gmFellowshipUI::HandleCreateButton` · 0043c1d0 · legions 0043ca20 — UIElement_Menu not modelled: Create sends the default looting method 1
+- [x] `gmFellowshipUI::SetFellowshipState` · 0043c280 · legions 0043cad0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::RecvNotice_UpdateFellowship` · 0043c3c0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::ListenToMessage` · 0043c4e0 · legions 0043cd30 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::SetNoFellowshipState` · 0043c570 · legions 0043cdc0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::RecvNotice_ClearFellowship` · 0043c5c0 · legions 0043ce10 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::gmFellowshipUI` · 0043c630 · legions 0043ce80 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ## `ac2/client/src/ui/gameplay/toolbar/social/gmfriendsui.cpp.c` (0/20)
 
@@ -2564,11 +2564,11 @@ Legend and workflow: [README](README.md).
 - [x] `MD_Data_Pause::Update` · 005e20f0 — ac2-ui media.rs / transition.rs
 - [ ] `MD_Data_Pause::Copy` · 005e2160 · legions 005a2f50
 
-## `portal/client/src/uielement/desc/media/md_data_sound.cpp.c` (0/3)
+## `portal/client/src/uielement/desc/media/md_data_sound.cpp.c` (1/3)
 
 ### MD_Data_Sound
 - [ ] `MD_Data_Sound::MD_Data_Sound` · 005e1ea0 · legions 005a2cc0
-- [~] `MD_Data_Sound::Update` · 005e1ec0 — fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
+- [x] `MD_Data_Sound::Update` · 005e1ec0 — ac2-ui media queue -> ac2-audio SoundManager::Play
 - [ ] `MD_Data_Sound::Copy` · 005e1f30 · legions 005a2d50
 
 ## `portal/client/src/uielement/desc/media/md_data_state.cpp.c` (2/4)
@@ -2746,7 +2746,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [ ] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180
 
-## `portal/client/src/uielement/system/uielement.cpp.c` (32/104)
+## `portal/client/src/uielement/system/uielement.cpp.c` (35/104)
 
 ### UIRectangleObject
 - [ ] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790
@@ -2790,7 +2790,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::DragAndDropComplete` · 005e9250 · legions 005a9eb0
 - [ ] `UIElement::SetDefaultLocation` · 005e92b0 · legions 005a9f10
 - [ ] `UIElement::InqImageSize` · 005e92c0 · legions 005a9f20
-- [ ] `UIElement::SetTooltip` · 005e9300 · legions 005a9f60
+- [x] `UIElement::SetTooltip` · 005e9300 · legions 005a9f60 — ac2-ui tooltip.rs
 - [x] `UIElement::GetParentCurrentPosition` · 005e9340 · legions 005a9fa0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::UpdateActivatable` · 005e93e0 · legions 005aa040
 - [ ] `UIElement::UpdateActivateOrder` · 005e9420 · legions 005aa080
@@ -2807,7 +2807,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::SetParent` · 005e9720 · legions 005aa380 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [~] `UIElement::BroadcastMessage` · 005e9790 · legions 005aa3f0 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [x] `UIElement::UpdateMedia` · 005e97c0 · legions 005aa420 — ac2-ui media.rs / transition.rs
-- [ ] `UIElement::ClearTooltip` · 005e9810 · legions 005aa470
+- [x] `UIElement::ClearTooltip` · 005e9810 · legions 005aa470 — ac2-ui tooltip.rs
 
 ### IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,PStringBase<char>_*>_*>
 - [ ] `IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,PStringBase<char>_*>_*>::~IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,PStringBase<char>_*>_*>` · 005e9860 · legions 005aa4c0
@@ -2835,7 +2835,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::MatchAttributes` · 005ea5c0 · legions 005ab190
 - [ ] `UIElement::DragItem` · 005eab10 · legions 005ab6e0
 - [ ] `UIElement::CatchDroppedItem` · 005eabd0 · legions 005ab7a0
-- [ ] `UIElement::IsTooltipOn` · 005eac90 · legions 005ab860
+- [x] `UIElement::IsTooltipOn` · 005eac90 · legions 005ab860 — ac2-ui tooltip.rs
 - [ ] `UIElement::IsActivatable` · 005eacb0 · legions 005ab880
 - [ ] `UIElement::GetActivateOrder` · 005eacd0 · legions 005ab8a0
 - [~] `UIElement::MoveTo` · 005eacf0 · legions 005ab8c0 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
@@ -2874,7 +2874,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::UpdateChild` · 005ed340 · legions 005adf10 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [~] `UIElement::SetState` · 005ed450 · legions 005ae020 — m_delOnTransStop (delete after the exit transition) not modelled
 
-## `portal/client/src/uielement/system/uielementmanager.cpp.c` (2/69)
+## `portal/client/src/uielement/system/uielementmanager.cpp.c` (4/69)
 
 ### Box2D
 - [ ] `Box2D::Includes` · 005e3490 · legions 005a4250
@@ -2885,7 +2885,7 @@ Legend and workflow: [README](README.md).
 - [~] `UIElementManager::SetCursor` · 005e35f0 — fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
 - [x] `UIElementManager::UseDefaultCursor` · 005e3690 · legions 005a4420 — ac2-ui media.rs / transition.rs
 - [ ] `UIElementManager::KeyReleaseEvent` · 005e36b0
-- [ ] `UIElementManager::ClearTooltip` · 005e3740 · legions 005a4570
+- [x] `UIElementManager::ClearTooltip` · 005e3740 · legions 005a4570 — ac2-ui tooltip.rs
 - [ ] `UIElementManager::CheckDragandDrop` · 005e37c0 · legions 005a45f0
 - [ ] `UIElementManager::ClearDragandDrop` · 005e3820 · legions 005a4650
 - [~] `UIElementManager::ActivationAlert` · 005e38b0 · legions 005a46e0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
@@ -2900,7 +2900,7 @@ Legend and workflow: [README](README.md).
 - [~] `UIElementManager::UpdateMouse` · 005e3b70 · legions 005a49a0 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [~] `UIElementManager::MouseDownEvent` · 005e3cc0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 - [ ] `UIElementManager::CleanDeleteQueue` · 005e3de0 · legions 005a4c10
-- [ ] `UIElementManager::StartTooltip` · 005e3e90 · legions 005a4cc0
+- [~] `UIElementManager::StartTooltip` · 005e3e90 · legions 005a4cc0 — no right-button check; 32x32 cursor size assumed
 - [ ] `UIElementManager::StartDragandDrop` · 005e42e0
 - [ ] `UIElementManager::StopDragandDrop` · 005e46d0 · legions 005a5500
 - [ ] `UIElementManager::UnregisterActivatable` · 005e4720 · legions 005a5550
@@ -2909,7 +2909,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElementManager::GetObjectRegionInfo` · 005e4b10
 - [~] `UIElementManager::MouseUpEvent` · 005e4b60 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [~] `UIElementManager::KeyPressEvent` · 005e4c70 · legions 005a4440 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-- [ ] `UIElementManager::ResetTooltip` · 005e4d20 · legions 005a5bb0
+- [x] `UIElementManager::ResetTooltip` · 005e4d20 · legions 005a5bb0 — ac2-ui tooltip.rs
 - [ ] `UIElementManager::AddtoListCleanQue` · 005e4d30 · legions 005a5bc0
 - [ ] `UIElementManager::HandleApply` · 005e4d70 · legions 005a5c00
 - [~] `UIElementManager::StartInput` · 005e4e50 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
@@ -2963,7 +2963,7 @@ Legend and workflow: [README](README.md).
 - [x] `MoveToManager::IsMovingTo` · 005e75a0 — ac2-physics moveto (slice 3)
 
 ### UIElementManager
-- [ ] `UIElementManager::UseTime` · 005e75b0 · legions 005a8240
+- [~] `UIElementManager::UseTime` · 005e75b0 · legions 005a8240 — tooltip owner/timing and default cursor ported; drag, resize and object regions not
 - [ ] `UIElementManager::Cleanup` · 005e7780 · legions 005a83e0
 - [ ] `UIElementManager::RegisterForMessage` · 005e7b30
 - [ ] `UIElementManager::~UIElementManager` · 005e7cd0 · legions 005a8930

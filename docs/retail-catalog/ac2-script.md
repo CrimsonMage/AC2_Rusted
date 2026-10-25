@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1312 done, 80 partial, 996 to do, 80 skipped.
+2468 retail functions: 1313 done, 80 partial, 995 to do, 80 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -3599,7 +3599,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ReferenceTable::QueryReferenceTree_Recursive` · 006e1cd0
 - [ ] `ReferenceTable::QueryReferenceTree` · 006e2040
 
-## `portal/shared/src/interp/reservedreftable.cpp.c` (0/4)
+## `portal/shared/src/interp/reservedreftable.cpp.c` (1/4)
 
 ### ReservedRefTable
 - [ ] `ReservedRefTable::StartMarking` · 006e09e0 · legions 006678b0
@@ -3609,7 +3609,7 @@ Legend and workflow: [README](README.md).
 
 ### ReservedRefTable
 - [ ] `ReservedRefTable::StopMarking` · 006e0a00 · legions 006678d0
-- [ ] `ReservedRefTable::AddReference` · 006e0a50 · legions 00667920
+- [x] `ReservedRefTable::AddReference` · 006e0a50 · legions 00667920 — ac2-script vm::refs (reserved bit on every new entry)
 
 ## `portal/shared/src/interp/runtimebytestream.cpp.c` (0/3)
 

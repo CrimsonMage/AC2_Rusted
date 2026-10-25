@@ -11,8 +11,11 @@
 //! is centred above the top and the meters between the name and the top. Without a name, the
 //! reticle hides (`UpdateReticle`).
 //!
-//! Not modelled yet: the off-screen indicator (hidden), the radar-look colour of the name, the
-//! meters (`DoStuffMeter`), damage text and the name plates over other objects.
+//! A creature's selection info fills the meters under the name (`RecvNotice_UpdateSelectionInfo`,
+//! `DoStuffMeter`): health with PK damage, vigor with PK vigor loss.
+//!
+//! Not modelled yet: the off-screen indicator (hidden), the radar-look colour of the name, damage
+//! text and the name plates over other objects.
 
 use std::collections::VecDeque;
 use std::sync::Arc;
@@ -136,6 +139,46 @@ impl Reticle {
 
     pub fn current(&self) -> Option<u64> {
         self.current
+    }
+
+    /// `gm3DTextUI::RecvNotice_UpdateSelectionInfo`: a creature's health and vigor with their PK
+    /// losses on the meters; the meters then show under the name.
+    pub fn selection_info(&mut self, tree: &mut UiTree, info: &ac2_net::protocol::SelectionInfo) {
+        if info.kind != ac2_net::protocol::SelectionInfo::CREATURE {
+            return;
+        }
+        self.has_info = true;
+        let meters = [
+            ("SelectionHealthMeter", info.cur_health, info.max_health),
+            ("SelectionPKDamageMeter", info.pk_damage, info.max_health),
+            ("SelectionVigorMeter", info.cur_vigor, info.max_vigor),
+            (
+                "SelectionPKVigorlossMeter",
+                info.pk_vigor_loss,
+                info.max_vigor,
+            ),
+        ];
+        for (name, value, max) in meters {
+            self.do_stuff_meter(tree, tokenize(name), value, max);
+        }
+    }
+
+    /// `gm3DTextUI::DoStuffMeter`: the value (clamped, signed, to the maximum) over the maximum
+    /// as the meter's goal; a meter filling from the right shows what is missing.
+    fn do_stuff_meter(&self, tree: &mut UiTree, meter: u32, value: u32, max: u32) {
+        let Some(meter) = tree.child_recursive(self.stuff, meter) else {
+            return;
+        };
+        let (value, max) = ((value as i32).min(max as i32), max as i32);
+        let mut fraction = 0.0f32;
+        if max != 0 {
+            // `fild` of the value as unsigned, `fidiv` by the signed maximum.
+            fraction = (f64::from(value as u32) / f64::from(max)) as f32;
+        }
+        if tree.child(meter, tokenize("right_fill")).is_some() {
+            fraction = 1.0 - fraction;
+        }
+        tree.set_float(meter, tokenize("goal_position"), fraction);
     }
 
     /// `gm3DTextUI::AverageBoundingBox`.

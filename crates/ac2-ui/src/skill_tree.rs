@@ -85,12 +85,21 @@ pub struct SkillStatus {
     pub skill_xp: u64,
 }
 
-/// A string variable for [`SkillSource::render`].
-#[derive(Debug, Clone, PartialEq, Eq)]
+/// A string variable for [`SkillSource::render`] (`StringInfo::AddVariable_*`).
+#[derive(Debug, Clone, PartialEq)]
 pub enum SkillVar {
     UInt(u64),
     Int(i64),
     Text(String),
+    /// `AddVariable_Float(value, precision)`.
+    Float {
+        value: f64,
+        precision: u32,
+    },
+    /// `AddVariable_StringInfo` of the UI's own string.
+    Info(Box<crate::ui_string::UiString>),
+    /// `AddVariable_StringInfo` of a string the server sent.
+    Wire(ac2_net::protocol::StringInfo),
 }
 
 /// What the skills panel asks of the player and the string tables.

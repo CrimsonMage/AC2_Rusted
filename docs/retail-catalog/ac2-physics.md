@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 355 done, 76 partial, 1631 to do, 62 skipped.
+2124 retail functions: 356 done, 76 partial, 1630 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -1746,7 +1746,7 @@ Legend and workflow: [README](README.md).
 - [-] `MotionValues::ToFileNode` · 0069cf10 — text source format (admin tools)
 - [-] `MotionValues::FromFileNode` · 0069d320 — text source format (admin tools)
 
-## `portal/shared/src/physobj/minterp/movementparameters.cpp.c` (2/43)
+## `portal/shared/src/physobj/minterp/movementparameters.cpp.c` (3/43)
 
 ### MovementParameters
 - [ ] `MovementParameters::set_persistent_flag` · 0069c1f0 · legions 0063ac10
@@ -1772,7 +1772,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MovementParameters::get_target_object_id` · 0069c490 · legions 0063aeb0
 
 ### FellowInfo
-- [ ] `FellowInfo::GetName` · 0069c4b0 · legions 0063aed0
+- [x] `FellowInfo::GetName` · 0069c4b0 · legions 0063aed0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ### MovementParameters
 - [ ] `MovementParameters::get_target_heading` · 0069c4c0 · legions 0063aee0

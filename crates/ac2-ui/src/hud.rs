@@ -16,10 +16,13 @@ use std::sync::Arc;
 use ac2_core::DataId;
 use ac2_db::{ResourceResult, ResourceStore};
 
+use crate::allegiance::AllegianceUi;
 use crate::chat::{ChatStrings, ChatUi, CHAT_STRING_TABLE, REPLY_STRING_TABLE, STRING_TABLE_GROUP};
 use crate::compose::UiPixels;
+use crate::dialog::DialogFactory;
 use crate::element::UiTree;
 use crate::examination::ExaminationUi;
+use crate::fellowship::FellowshipUi;
 use crate::layout::{load_layout, LayoutDesc};
 use crate::reticle::Reticle;
 use crate::shortcut::ShortcutUi;
@@ -27,6 +30,7 @@ use crate::skill_tree::SkillTreeUi;
 use crate::text_data::StoreTextData;
 use crate::token::tokenize;
 use crate::toolbar::ToolbarUi;
+use crate::vitals::VitalsUi;
 
 /// `UILAYOUT_GROUP_ENUM` (`UIMainFramework::CreateAndAddRootElement`'s
 /// `FileArray::GetDIDFromEnum(layoutEnum, 0x40000003)`).
@@ -73,6 +77,13 @@ pub struct GameplayHud {
     pub skills: Option<SkillTreeUi>,
     /// `gmExaminationUI`.
     pub examination: Option<ExaminationUi>,
+    /// `gmSocialUI`'s `gmAllegianceUI` (its player set once in the world) and `gmFellowshipUI`.
+    pub allegiance: Option<AllegianceUi>,
+    pub fellowship: Option<FellowshipUi>,
+    /// `gmStatusbarUI`'s `gmVitalsUI`.
+    pub vitals: VitalsUi,
+    /// `DialogFactory` over the gameplay layout.
+    pub dialogs: DialogFactory,
 }
 
 /// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
@@ -134,7 +145,18 @@ pub fn build_gameplay_hud(
     let examination = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .map(|toolbar| ExaminationUi::create(&mut tree, toolbar));
+    let allegiance = layouts[&LAYOUT_TOOLBAR]
+        .as_ref()
+        .map(|toolbar| AllegianceUi::create(&tree, toolbar, 0));
+    let fellowship = layouts[&LAYOUT_TOOLBAR]
+        .as_ref()
+        .map(|toolbar| FellowshipUi::create(&mut tree, toolbar));
+    let vitals = VitalsUi::create(&mut tree);
+    let dialogs = DialogFactory::new(layouts[&LAYOUT_GAMEPLAY].clone());
     let toolbar = ToolbarUi::create(&mut tree);
+    for layout in layouts.values().flatten() {
+        crate::tooltip::prefetch_tooltip_strings(&*text_data, layout);
+    }
     text_data.freeze();
     Ok(GameplayHud {
         tree,
@@ -144,6 +166,10 @@ pub fn build_gameplay_hud(
         toolbar,
         skills,
         examination,
+        allegiance,
+        fellowship,
+        vitals,
+        dialogs,
     })
 }
 
