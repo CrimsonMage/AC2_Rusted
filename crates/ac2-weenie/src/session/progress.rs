@@ -68,6 +68,13 @@ impl OnlineSession {
         true
     }
 
+    /// `gmCWInterface::SetWhichShortcutSet` (`CPlayer` 0x5 ->
+    /// `GameplayOptionsProfile::SetWhichShortcutSet`): the bar shows set `set`; a profile
+    /// write only, nothing goes to the server.
+    pub fn set_shortcut_set(&mut self, set: u32) {
+        self.progress.shortcuts.set = set;
+    }
+
     /// A skill panel request (`gmCWInterface::RequestTrainSkill` and kin): its `WM_Skill`
     /// call, as the stub packs it.
     pub fn request_skill(&mut self, request: SkillRequest) {
