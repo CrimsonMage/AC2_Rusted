@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 232 done, 31 partial, 2127 to do, 78 skipped.
+2468 retail functions: 232 done, 35 partial, 2123 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -3504,7 +3504,7 @@ Legend and workflow: [README](README.md).
 - [x] `PackBuffer::Pack` · 006ed9c0 · legions 006727d0
 - [x] `PackBuffer::UnPack` · 006eda20 · legions 00672830
 - [ ] `PackBuffer::PackRaw` · 006edaa0
-- [ ] `PackBuffer::PackPackage` · 006edb40
+- [~] `PackBuffer::PackPackage` · 006edb40 — ac2-net UsageDesc::to_reference / PackValue::Reference: packed graphs the client builds (root, then reference slots in slot order); no walk over live VM state yet
 - [ ] `PackBuffer::UnPackBuffer_Int` · 006edc00 · legions 00672920
 - [ ] `PackBuffer::UnPackBuffer_LongInt` · 006edc50 · legions 00672970
 - [ ] `PackBuffer::UnPackBuffer_Float` · 006edcc0 · legions 006729e0
@@ -3680,7 +3680,7 @@ Legend and workflow: [README](README.md).
 
 ### ReferenceTable
 - [ ] `ReferenceTable::GetDependentReferences_Native` · 006dc860 · legions 00665ce0
-- [ ] `ReferenceTable::GetDependentReferences_Package` · 006dc910 · legions 00665d90
+- [~] `ReferenceTable::GetDependentReferences_Package` · 006dc910 · legions 00665d90 — ac2-net UsageDesc::to_reference / PackValue::Reference: packed graphs the client builds (root, then reference slots in slot order); no walk over live VM state yet
 
 ### VM
 - [ ] `VM::QueryPerf` · 006dc9e0
@@ -3708,7 +3708,7 @@ Legend and workflow: [README](README.md).
 
 ### ReferenceTable
 - [ ] `ReferenceTable::ReferenceTable` · 006dd0a0 · legions 006664a0
-- [ ] `ReferenceTable::GetDependentReferences` · 006dd160 · legions 00666560
+- [~] `ReferenceTable::GetDependentReferences` · 006dd160 · legions 00666560 — ac2-net UsageDesc::to_reference / PackValue::Reference: packed graphs the client builds (root, then reference slots in slot order); no walk over live VM state yet
 
 ### VM
 - [ ] `VM::VM` · 006dd220 · legions 00666620
@@ -3716,7 +3716,7 @@ Legend and workflow: [README](README.md).
 
 ### ReferenceTable
 - [ ] `ReferenceTable::GetReferencePackSize` · 006dd310 · legions 00666710
-- [ ] `ReferenceTable::PackReference` · 006dd3f0 · legions 006667f0
+- [~] `ReferenceTable::PackReference` · 006dd3f0 · legions 006667f0 — ac2-net UsageDesc::to_reference / PackValue::Reference: packed graphs the client builds (root, then reference slots in slot order); no walk over live VM state yet
 
 ### VM
 - [ ] `VM::GetReferencePackSize` · 006dd4e0 · legions 006668e0

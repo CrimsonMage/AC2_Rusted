@@ -28,6 +28,7 @@ mod server_event;
 mod string_info;
 mod turbine_chat;
 mod types;
+mod usage;
 mod visual;
 mod weenie_desc;
 
@@ -68,6 +69,7 @@ pub use turbine_chat::{
     METHOD_SEND_TO_ROOM_BY_NAME,
 };
 pub use types::{CellPosition, InstanceIdWithStamp, Position};
+pub use usage::{UsageDesc, USAGE_DESC_PACKAGE, USAGE_FLAG_SILENT};
 pub use visual::{IconLayer, PartGroupDesc, VisualDesc};
 pub use weenie_desc::WeenieDesc;
 

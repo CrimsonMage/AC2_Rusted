@@ -16,6 +16,7 @@ use ac2_net::protocol::{
 
 use crate::chat;
 use crate::qualities::WeenieQualities;
+use crate::usage;
 use crate::vitals::{self, PlayerVitals};
 
 /// "Nothing selected": `Player::GetSelection` returns 0 (`CPlayer::SetSelection` compares
@@ -48,6 +49,9 @@ pub enum GameplayNotice {
     /// `CCliSendToRoomResult::HandleSendToRoomResult` (`gmCWInterface::Result_SendToRoom`):
     /// the chat server's answer to the room message with this context id.
     SendToRoomResult { context: u32, result: u32 },
+    /// `CUsageSystem` 0x2: a use failed with `error` (the message it looks up by error code
+    /// is not mirrored).
+    UsageError { error: u32, item: u64, target: u64 },
     /// `CM_Character::SendNotice_UpdateVital`: one of the player's vitals
     /// ([`crate::vital`]), as `gmVitalsUI::RecvNotice_UpdateVital` takes it.
     UpdateVital { vital: u32, current: u64, max: u64 },
@@ -318,6 +322,18 @@ impl PlayerScript {
                 out.notices
                     .push(GameplayNotice::UpdateSelectionInfo { id, info });
             }
+            // `CPlayer` 0x7D -> `CUsageSystem` 0xA.
+            ScriptMessage::UsageDone(desc) => out.notices.extend(usage::usage_done(desc)),
+            // `CPlayer` 0x67 -> `CUsageSystem` 0x2.
+            ScriptMessage::UsageError {
+                error,
+                target,
+                item,
+            } => out.notices.push(GameplayNotice::UsageError {
+                error,
+                item,
+                target,
+            }),
             // `CExaminationSystem` 0x2: kept on the examined object's weenie, then shown.
             ScriptMessage::ExaminationProfile(profile) => {
                 if matches!(

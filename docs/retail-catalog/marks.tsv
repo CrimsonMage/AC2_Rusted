@@ -47,6 +47,7 @@ key	status	note
 0044faa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 0044fac0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 0044fb20	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+0044fbb0	x	ac2-weenie OnlineSession::use_selection (CPlayer 0x79 -> CUsageSystem 0x9 stand-in)
 00450130	~	ac2-weenie OnlineSession::emote(id): the WM_Communication emote call; the emote-table name lookup (CPlayer 0x15B) is not ported
 00450f30	~	ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
 00450f80	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
@@ -1820,11 +1821,14 @@ key	status	note
 006dc170	x	ac2-script vm (VM/ReferenceTable/Resolver)
 006dc190	x	ac2-script vm (VM/ReferenceTable/Resolver)
 006dc210	-	script debugger
+006dc910	~	ac2-net UsageDesc::to_reference / PackValue::Reference: packed graphs the client builds (root, then reference slots in slot order); no walk over live VM state yet
 006dcce0	~	ac2-script wstate DID formulas / ByteStream::package_id
 006dcf50	~	ac2-script wstate DID formulas / ByteStream::package_id
 006dcf90	x	ac2-script vm (VM/ReferenceTable/Resolver)
 006dcfb0	x	ac2-script glue
 006dd040	-	script debugger
+006dd160	~	ac2-net UsageDesc::to_reference / PackValue::Reference: packed graphs the client builds (root, then reference slots in slot order); no walk over live VM state yet
+006dd3f0	~	ac2-net UsageDesc::to_reference / PackValue::Reference: packed graphs the client builds (root, then reference slots in slot order); no walk over live VM state yet
 006dd520	x	ac2-script vm (VM/ReferenceTable/Resolver)
 006dd690	x	ac2-script glue
 006ddd50	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
@@ -1996,6 +2000,7 @@ key	status	note
 006ecdb0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006ed9c0	x	
 006eda20	x	
+006edb40	~	ac2-net UsageDesc::to_reference / PackValue::Reference: packed graphs the client builds (root, then reference slots in slot order); no walk over live VM state yet
 006edde0	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 006ff763	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0071f6b0	x	

@@ -5,6 +5,7 @@ use crate::protocol::client_event::ClientEvent;
 use crate::protocol::native::{ExaminationRequest, NativeObject};
 use crate::protocol::pack::{pack_values, PackValue};
 use crate::protocol::string_info::StringInfo;
+use crate::protocol::usage::UsageDesc;
 use crate::protocol::ProtocolError;
 
 /// A message the client's scripts send to the server.
@@ -24,6 +25,8 @@ pub enum ScriptRequest {
     },
     /// [`function::EMOTE`].
     Emote(u32),
+    /// [`function::USE`].
+    Use(UsageDesc),
 }
 
 impl ScriptRequest {
@@ -34,6 +37,7 @@ impl ScriptRequest {
             Self::Say { .. } => function::SAY,
             Self::Tell { .. } => function::TELL,
             Self::Emote(_) => function::EMOTE,
+            Self::Use(_) => function::USE,
         }
     }
 
@@ -53,6 +57,7 @@ impl ScriptRequest {
                 recipient,
             } => vec![PackValue::Int(*mode), literal(text), literal(recipient)],
             Self::Emote(emote) => vec![PackValue::Int(*emote)],
+            Self::Use(desc) => vec![PackValue::Reference(desc.to_reference())],
         }
     }
 
@@ -94,6 +99,7 @@ impl ScriptRequest {
                 })
             }),
             function::EMOTE => decode(|a| Ok(Self::Emote(a.int()?))),
+            function::USE => decode(|a| Ok(Self::Use(UsageDesc::from_reference(&a.reference()?)?))),
             _ => return None,
         })
     }
@@ -185,5 +191,13 @@ mod tests {
         extra.extend(words(&[1, 0]));
         assert!(ScriptRequest::decode(0x8205_0002, &extra).unwrap().is_err());
         round_trip(ScriptRequest::Emote(0x1D), words(&[1, 0x1D]));
+    }
+
+    #[test]
+    fn use_packs_the_usage_desc_graph() {
+        let desc = UsageDesc::new(0x5000_0000_0000_0001, 0x42, 0x43);
+        let args = pack_values(&[PackValue::Reference(desc.to_reference())]);
+        assert_eq!(&args[..20], &words(&[5, 2, 1, 2, 0x4400_0100]));
+        round_trip(ScriptRequest::Use(desc), args);
     }
 }

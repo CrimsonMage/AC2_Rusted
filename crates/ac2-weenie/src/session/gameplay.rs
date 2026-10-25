@@ -62,6 +62,35 @@ impl OnlineSession {
         }
     }
 
+    /// `CUsageSystem` 0x9 (`HandleItemUsage`): use `item` (`WM_Usage` 0x22 with a
+    /// `UsageDesc`); the outcome comes back as notices.
+    pub fn use_object(&mut self, item: u64) {
+        self.use_with_target(item, 0);
+    }
+
+    /// `CUsageSystem` 0x3 (`TryToAddToUsageList`) once the item's target is chosen: use `item`
+    /// on `target`.
+    pub fn use_with_target(&mut self, item: u64, target: u64) {
+        let Some(player) = self.world.player() else {
+            return;
+        };
+        if let Some(request) = crate::usage::use_item(player, item, target) {
+            self.send(request.to_event());
+        }
+    }
+
+    /// `gmCWInterface::UseSelection` (`CPlayer` 0x79): use the selected object, or say that
+    /// nothing is selected.
+    pub fn use_selection(&mut self) -> Vec<SessionEvent> {
+        match self.script.selection() {
+            Some(item) => {
+                self.use_object(item);
+                Vec::new()
+            }
+            None => vec![SessionEvent::Notice(crate::usage::nothing_selected())],
+        }
+    }
+
     /// `gmCWInterface::DoEmote` once the emote table named the emote (`CPlayer` 0x15B ->
     /// `CCommunicationSystem` 0x8): play emote `emote`.
     pub fn emote(&mut self, emote: u32) {

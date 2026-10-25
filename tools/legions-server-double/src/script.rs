@@ -22,6 +22,10 @@ pub struct ScriptWorld {
     pub selection_infos: HashMap<u64, SelectionInfo>,
     /// The examination profile sent back (`WM_Examination` 0x9) for an object request.
     pub profiles: HashMap<u64, ExaminationProfile>,
+    /// The error a use comes back with (`WM_Usage` 0x21), 0 for success.
+    pub usage_error: u32,
+    /// The message a use comes back with, in place of the client's.
+    pub usage_message: Option<StringInfo>,
 }
 
 impl State {
@@ -101,6 +105,15 @@ impl State {
                 }
             }
             ScriptRequest::Emote(_) => {}
+            // `WM_Usage` 0x22: the desc comes back with the outcome the test configured.
+            ScriptRequest::Use(desc) => {
+                let mut desc = desc.clone();
+                desc.error = self.script_world.usage_error;
+                if let Some(message) = &self.script_world.usage_message {
+                    desc.message = message.clone();
+                }
+                self.send_script(&ScriptMessage::UsageDone(desc));
+            }
         }
     }
 

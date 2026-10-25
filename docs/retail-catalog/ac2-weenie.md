@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 169 done, 29 partial, 1700 to do, 6 skipped.
+1904 retail functions: 170 done, 29 partial, 1699 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (2/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (3/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -927,7 +927,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmCWInterface::GetSelection` · 0044fac0 · legions 00450c00 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [~] `gmCWInterface::GetLastSelection` · 0044fb20 · legions 00450c60 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [ ] `gmCWInterface::ShouldAutoTarget` · 0044fb80 · legions 00450cc0
-- [ ] `gmCWInterface::UseSelection` · 0044fbb0 · legions 00450cf0
+- [x] `gmCWInterface::UseSelection` · 0044fbb0 · legions 00450cf0 — ac2-weenie OnlineSession::use_selection (CPlayer 0x79 -> CUsageSystem 0x9 stand-in)
 - [ ] `gmCWInterface::UseShortcut` · 0044fbe0 · legions 00450d20
 - [ ] `gmCWInterface::StopAttacking` · 0044fc20 · legions 00450d60
 - [ ] `gmCWInterface::RequestAttackStateChange` · 0044fc60 · legions 00450da0

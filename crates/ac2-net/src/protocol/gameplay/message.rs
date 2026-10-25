@@ -4,6 +4,7 @@ use super::{function, literal, Args};
 use crate::protocol::native::{ExaminationProfile, NativeObject, SelectionInfo};
 use crate::protocol::pack::{pack_values, PackValue};
 use crate::protocol::string_info::StringInfo;
+use crate::protocol::usage::UsageDesc;
 use crate::protocol::ProtocolError;
 
 /// The server's side of any script call to the player: the `InterpCEvent_Broadcast`
@@ -49,6 +50,10 @@ pub enum ScriptMessage {
         teller_name: StringInfo,
         teller: u64,
     },
+    /// [`function::USAGE_DONE`].
+    UsageDone(UsageDesc),
+    /// [`function::USAGE_ERROR`].
+    UsageError { error: u32, target: u64, item: u64 },
 }
 
 impl ScriptMessage {
@@ -60,6 +65,8 @@ impl ScriptMessage {
             Self::DisplayStringInfo { function, .. } => *function,
             Self::DisplayText { .. } => function::DISPLAY_TEXT,
             Self::HearTell { .. } => function::HEAR_TELL,
+            Self::UsageDone(_) => function::USAGE_DONE,
+            Self::UsageError { .. } => function::USAGE_ERROR,
         }
     }
 
@@ -98,6 +105,16 @@ impl ScriptMessage {
             Self::DisplayText { text, kind } => vec![
                 PackValue::native(NativeObject::WString(text.clone())),
                 PackValue::Int(*kind),
+            ],
+            Self::UsageDone(desc) => vec![PackValue::Reference(desc.to_reference())],
+            Self::UsageError {
+                error,
+                target,
+                item,
+            } => vec![
+                PackValue::Int(*error),
+                PackValue::LongInt(*target),
+                PackValue::LongInt(*item),
             ],
         }
     }
@@ -158,6 +175,16 @@ impl ScriptMessage {
                     kind: a.int()?,
                 }),
                 _ => Err(ProtocolError::Invalid("display text")),
+            }),
+            function::USAGE_DONE => {
+                decode(&|a| Ok(Self::UsageDone(UsageDesc::from_reference(&a.reference()?)?)))
+            }
+            function::USAGE_ERROR => decode(&|a| {
+                Ok(Self::UsageError {
+                    error: a.int()?,
+                    target: a.long()?,
+                    item: a.long()?,
+                })
             }),
             _ => return None,
         })
@@ -246,5 +273,23 @@ mod tests {
             &words(&[5, 1, 1, 0x4400_0100, 0, 0xFFFF_0076])
         );
         assert!(ScriptMessage::decode(0x8205_0099, &[]).is_none());
+    }
+
+    #[test]
+    fn usage_outcomes_carry_the_desc_or_the_error() {
+        let mut desc = UsageDesc::new(1, 2, 3);
+        desc.error = 0x2711;
+        let args = round_trip(ScriptMessage::UsageDone(desc));
+        assert_eq!(&args[..8], &words(&[5, 2]));
+        let args = round_trip(ScriptMessage::UsageError {
+            error: 0x2711,
+            target: 3,
+            item: 2,
+        });
+        let mut expected = words(&[1, 0x2711, 2]);
+        expected.extend(3u64.to_le_bytes());
+        expected.extend(words(&[2]));
+        expected.extend(2u64.to_le_bytes());
+        assert_eq!(args, expected);
     }
 }
