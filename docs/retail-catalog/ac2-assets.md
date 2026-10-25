@@ -1156,7 +1156,7 @@ Legend and workflow: [README](README.md).
 - [ ] `IconLayerDesc::HasColor` · 0063fb60
 
 ### IconDesc
-- [x] `IconDesc::StreamPack` · 0063fb80
+- [x] `IconDesc::StreamPack` · 0063fb80 — ac2-net protocol::native (native objects in script-call PackBuffers)
 - [ ] `IconDesc::operator==` · 0063fc00 · legions 005f3b10
 - [ ] `IconDesc::IsValid` · 0063fc80 · legions 005f3b90
 - [ ] `IconDesc::GetSubDataIDs` · 0063fcd0 · legions 005f3be0

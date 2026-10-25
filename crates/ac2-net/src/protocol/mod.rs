@@ -10,9 +10,12 @@ mod client_event;
 mod dat_event;
 mod error;
 mod fx;
+mod gameplay;
 mod movement;
+mod native;
 mod object;
 mod opcode;
+mod pack;
 mod physics;
 mod physics_event;
 mod position;
@@ -33,9 +36,17 @@ pub use dat_event::{
 };
 pub use error::ProtocolError;
 pub use fx::{DecalFx, EntityDesc, FxData, FxNode, LightSourceFx, RepulsorFx, StreakFx, Waveform};
+pub use gameplay::{function as script_function, ScriptMessage, ScriptRequest};
 pub use movement::{MoveTarget, MovementParameters, PhysicsStory, StoryHook, TargetPosition};
+pub use native::{
+    ntype, ExaminationDataNode, ExaminationProfile, ExaminationRequest, ExaminationValue,
+    NativeObject, SelectionInfo,
+};
 pub use object::CreateObject;
 pub use opcode::Opcode;
+pub use pack::{
+    entry_flags, pack_values, unpack_values, HeapObject, PackValue, PackedEntry, PackedReference,
+};
 pub use physics::{BehaviorParams, PhysicsDesc};
 pub use physics_event::{ObjectAction, ObjectEvent};
 pub use position::{

@@ -14,6 +14,7 @@ mod client;
 mod client_objects;
 mod controls;
 mod frame;
+mod gameplay;
 #[cfg(feature = "window")]
 mod hud_view;
 mod loader;
@@ -33,6 +34,7 @@ pub use client::{
 };
 pub use controls::frame_input;
 pub use frame::{ClientFrame, Holder, ObjectFrame, PlayerFrame};
+pub use gameplay::{Command, SelectionFrame};
 pub use motion::PartPose;
 pub use scene::CameraFrame;
 pub use world_data::{BodyData, DatWorld, WorldData, HUMAN_MOTION_INTERP_DESC};

@@ -39,6 +39,13 @@ key	status	note
 00431e20	x	
 00431e90	x	
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+0044faa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+0044fac0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+0044fb20	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+00450f30	~	ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
+00450f80	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+00450fa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+00457120	~	ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
 00479030	x	ac2-ui interpreter.rs
 00479110	x	ac2-ui interpreter.rs
 004791b0	x	ac2-ui interpreter.rs
@@ -931,6 +938,11 @@ key	status	note
 00531bb0	x	
 00531bf0	x	
 00531c30	x	
+0053f690	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+0053f710	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+0053f790	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+0053f830	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+0053f8b0	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 00542530	x	ac2-physics los (Terrain::los_check)
 005425b0	x	ac2-physics los (Terrain::los_check)
 00568050	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -1178,6 +1190,10 @@ key	status	note
 00603090	x	
 00603470	x	
 006037c0	x	
+00608380	x	ac2-net protocol::native (native objects in script-call PackBuffers)
+00608490	x	ac2-net protocol::native (native objects in script-call PackBuffers)
+00609660	x	ac2-net ExaminationRequest: Legions 0x005C9210 layout (+3 words, type 0x4000000D)
+006097c0	x	ac2-net protocol::native (native objects in script-call PackBuffers)
 0060d2d0	x	ac2_core::Random
 0060d3b0	x	ac2_core::Random
 0060d3f0	x	ac2_core::Random
@@ -1322,7 +1338,7 @@ key	status	note
 0063f880	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 0063f930	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 0063f9c0	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
-0063fb80	x	
+0063fb80	x	ac2-net protocol::native (native objects in script-call PackBuffers)
 00640190	x	
 00640580	~	ac2-weenie appearance.rs: a layer id replaces
 006406a0	x	
@@ -1616,8 +1632,14 @@ key	status	note
 006db0f0	x	
 006db450	x	
 006db7f0	x	
+006dbb00	x	ac2-net protocol::pack
+006dbbd0	~	ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
+006dc040	~	ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
+006e0b40	x	ac2-net protocol::pack
+006e0c20	~	ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
 006ed9c0	x	
 006eda20	x	
+006edde0	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 006ff763	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0071f6b0	x	
 0071fa40	x	
@@ -1627,7 +1649,11 @@ key	status	note
 0071fc50	~	queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
 00722f20	~	headless frame order in ac2-client Client::use_time; no render, sound, UI, triggers or DB cache step
 00723280	x	
+00725100	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+00725780	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 007269d0	x	
+007277e0	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+00727870	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 0072da60	x	ac2-ui maps.rs
 0072da90	x	ac2-ui maps.rs
 0072f200	x	ac2-ui maps.rs

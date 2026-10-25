@@ -13,6 +13,7 @@ mod destruction;
 mod movement_module;
 mod objects;
 mod ordering;
+mod player_script;
 mod qualities;
 mod reporter;
 mod session;
@@ -31,6 +32,7 @@ pub use movement_module::{
 pub use objects::{
     ObjectTable, RemoteObject, STAMP_FORCE_POSITION, STAMP_MOVE_TO, STAMP_POSITION, STAMP_TELEPORT,
 };
+pub use player_script::{GameplayNotice, PlayerScript, ScriptOutput, NO_SELECTION};
 pub use qualities::WeenieQualities;
 pub use reporter::{heading_equals, BodyState, PositionReporter, ReportStamps};
 pub use session::{CharacterChoice, OnlineConfig, OnlineSession, SessionEvent, WorldEntry};

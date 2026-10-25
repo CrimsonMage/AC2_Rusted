@@ -122,6 +122,10 @@ pub(crate) struct Writer {
 }
 
 impl Writer {
+    /// A writer for a structure packed on its own (alignment counts from its start).
+    pub(crate) fn new() -> Self {
+        Self { bytes: Vec::new() }
+    }
     pub(crate) fn event(opcode: u32) -> Self {
         Self {
             bytes: opcode.to_le_bytes().to_vec(),
@@ -151,7 +155,6 @@ impl Writer {
         pack_string(&mut self.bytes, 0, value);
         self
     }
-    #[cfg(test)]
     pub(crate) fn wide_string(&mut self, value: &str) -> &mut Self {
         crate::pack_wide_string(&mut self.bytes, 0, value);
         self

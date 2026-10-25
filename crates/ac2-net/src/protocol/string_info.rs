@@ -6,7 +6,6 @@
 //! type's value, alignment; then a final alignment.
 
 use crate::protocol::reader::Reader;
-#[cfg(test)]
 use crate::protocol::reader::Writer;
 use crate::protocol::ProtocolError;
 
@@ -122,7 +121,6 @@ impl StringInfo {
     }
 
     /// `StringInfo::Pack`.
-    #[cfg(test)]
     pub(crate) fn write(&self, writer: &mut Writer) {
         writer
             .u32(self.string_id)

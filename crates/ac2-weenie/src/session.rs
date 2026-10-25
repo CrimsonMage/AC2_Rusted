@@ -25,8 +25,11 @@ use ac2_net::{
 
 use crate::objects::ObjectTable;
 use crate::objects::{STAMP_FORCE_POSITION, STAMP_MOVE_TO, STAMP_TELEPORT};
+use crate::player_script::{GameplayNotice, PlayerScript};
 use crate::reporter::{BodyState, PositionReporter, ReportStamps};
 use crate::world::{World, WorldEvent, WorldState};
+
+mod gameplay;
 
 /// Which listed character to enter the world with.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -158,6 +161,8 @@ pub enum SessionEvent {
     ServerDied,
     /// The session ended.
     Disconnected(String),
+    /// A notice the player's scripts raised (`CM_*::SendNotice_*`) for the UI.
+    Notice(GameplayNotice),
 }
 
 /// The client side of one online session.
@@ -178,6 +183,8 @@ pub struct OnlineSession {
     /// Net events received by [`OnlineSession::net_use_time`], for
     /// [`OnlineSession::dispatch_events`].
     net_events: Vec<NetEvent>,
+    /// The player's weenie scripts (`CPlayer`), natively until the script VM runs them.
+    script: PlayerScript,
 }
 
 impl OnlineSession {
@@ -225,6 +232,7 @@ impl OnlineSession {
             dat_iterations: config.dat_iterations,
             last_position: None,
             net_events: Vec::new(),
+            script: PlayerScript::default(),
         })
     }
 
@@ -414,6 +422,7 @@ impl OnlineSession {
                 return;
             }
             WorldEvent::Destroyed(id) => {
+                self.script.forget_object(id);
                 out.push(SessionEvent::ObjectRemoved(id));
                 return;
             }
@@ -509,7 +518,14 @@ impl OnlineSession {
                 function,
                 arguments,
             } => {
-                if let Some(object) = object.map(|o| o.id).or(self.world.player()) {
+                let target = object.map(|o| o.id).or(self.world.player());
+                if target.is_some() && target == self.world.player() {
+                    if let Some(events) = self.receive_script(function, &arguments) {
+                        out.extend(events);
+                        return;
+                    }
+                }
+                if let Some(object) = target {
                     out.push(SessionEvent::Interp {
                         object,
                         function,

@@ -9,6 +9,7 @@ mod assembly;
 mod channel;
 mod lossy;
 mod reliable;
+mod script;
 
 pub use appearance::{
     contain_bytes, create_object_with_visual, part_group_bytes, quality_bytes,
@@ -18,6 +19,7 @@ pub use assembly::{fragment_header_bytes, Assembler};
 pub use channel::{Channel, ChannelStats, Conditions, Direction, InFlight, SplitMix};
 pub use lossy::LossyTransport;
 pub use reliable::{newer, ClientTracker, SentStore, Stored, Verdict, MAX_IDS};
+pub use script::ScriptWorld;
 
 use std::cell::RefCell;
 use std::net::SocketAddr;
@@ -292,6 +294,14 @@ pub struct State {
     character_set_sent: bool,
     pub logged_off: bool,
     next_object_blob: u16,
+    /// What the double answers script calls with.
+    pub script_world: ScriptWorld,
+    /// The client's script calls, decoded, in arrival order.
+    pub script_requests: Vec<ac2_net::protocol::ScriptRequest>,
+    /// Script calls with a function id the double does not know: id and packed arguments.
+    pub script_unknown: Vec<(u32, Vec<u8>)>,
+    /// Script calls that did not decode.
+    pub script_errors: Vec<String>,
 }
 
 impl State {
@@ -608,6 +618,11 @@ impl State {
                     let object = create_object(&self.spawn);
                     self.reliable_blob(0x0300_0004_0000_0003, 1, &object);
                     self.reliable_blob(0x0300_0005_0000_0004, 1, &player_description());
+                }
+                // `ECM_Interp::SendEvt_InterpSEvent` / `SendEvt_InterpSEventEncrypt`.
+                0x0001_0053 | 0x0001_00D0 => {
+                    let data = self.blobs.last().unwrap().2.clone();
+                    self.script_event(&data);
                 }
                 // `Proto_UI::LogOffCharacter`.
                 0x0001_0027 => {
