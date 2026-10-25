@@ -16,8 +16,11 @@ use ac2_script::data::DatScriptData;
 use ac2_script::host::ScriptHost;
 use ac2_script::vm::Program;
 use ac2_script::{load_wlib, LEGIONS_WLIB_DID};
+use ac2_weenie::GameplayNotice;
 use common::*;
-use legions_server_double::{Spawn, State, PACK, PLAYER, POTIONS, SWORD};
+use legions_server_double::{
+    Spawn, State, PACK, PLAYER, POTIONS, PRIMARY_HAND, RATIONS, SECONDARY_HAND, SWORD,
+};
 
 /// Gives the starter items and opens the pack.
 fn open_the_pack(client: &mut Client, server: &Rc<RefCell<State>>) {
@@ -60,18 +63,20 @@ fn the_frame_carries_what_the_panels_show() {
     let inventory = &frame.inventory;
     assert_eq!(inventory.pack.id, PLAYER);
     assert_eq!(inventory.pack.packs, [PACK]);
+    assert_eq!(
+        (inventory.pack.items.as_slice(), inventory.pack.capacity),
+        (&[POTIONS, SWORD][..], 24)
+    );
     let pack = inventory
         .containers
         .iter()
         .find(|c| c.id == PACK)
         .unwrap_or_else(|| panic!("{inventory:?}"));
-    assert_eq!(
-        (pack.items.as_slice(), pack.capacity),
-        (&[POTIONS, SWORD][..], 24)
-    );
+    assert_eq!((pack.items.as_slice(), pack.capacity), (&[RATIONS][..], 24));
     assert!(inventory.open.contains(&PACK));
     let ids: Vec<u64> = inventory.items.iter().map(|i| i.id).collect();
-    assert_eq!(ids, [PACK, POTIONS, SWORD]);
+    assert_eq!(ids, [PACK, POTIONS, SWORD, RATIONS]);
+    assert_eq!(inventory.money, 250);
 
     // A stack of five potions, stackable to ten: "5 <plural>" (the count and the plural).
     let potions = &inventory.items[1];
@@ -99,6 +104,12 @@ fn the_frame_carries_what_the_panels_show() {
         (Some((40, 50)), 50)
     );
     assert_eq!(sword.name.literal.as_deref(), Some("Practice Sword"));
+    // The sword goes in either hand, the primary when dropped on the doll's figure.
+    assert_eq!(
+        (sword.stats.valid_locations, sword.stats.preferred_location),
+        (PRIMARY_HAND | SECONDARY_HAND, PRIMARY_HAND)
+    );
+    assert!(ac2_weenie::EQUIP_LOCATIONS.contains(&PRIMARY_HAND));
 }
 
 #[test]
@@ -142,9 +153,158 @@ fn the_items_processes_answer_from_their_tables() {
         (0x8615_ECB3, StringVariable::Nested(n)) if n.literal.as_deref() == Some("Healing Potions")
     ));
     assert_eq!(sword.name.literal.as_deref(), Some("Practice Sword"));
+    // The backpack's pages: `Container` 0x3D / 0x3F over the player's items and its one
+    // segment (the double's listing: 24 slots, two items).
+    assert_eq!(client.contents_info(0), Ok((vec![POTIONS, SWORD], 0, 2)));
+    assert_eq!(client.contents_info(1), Ok((vec![POTIONS, SWORD], 2, 0)));
+    assert_eq!(client.container_segment_info(0), Ok((0, 2)));
     assert!(
         client.take_script_problems().is_empty(),
         "{:?}",
         client.take_script_problems()
     );
+}
+
+/// One command, then frames until the double's answers are in; the frame's inventory and the
+/// notices on the way.
+fn run(
+    client: &mut Client,
+    server: &Rc<RefCell<State>>,
+    command: Command,
+) -> (ac2_client::InventoryFrame, Vec<GameplayNotice>) {
+    let input = FrameInput {
+        commands: vec![command],
+        ..FrameInput::default()
+    };
+    let mut events = step(client, server, &input);
+    for _ in 0..6 {
+        events.extend(step(client, server, &FrameInput::default()));
+    }
+    let notices = events
+        .into_iter()
+        .filter_map(|e| match e {
+            ac2_weenie::SessionEvent::Notice(n) => Some(n),
+            _ => None,
+        })
+        .collect();
+    (client.frame().inventory, notices)
+}
+
+#[test]
+fn drags_and_drops_refresh_the_frame() {
+    let (mut client, server) = entered(spawn());
+    open_the_pack(&mut client, &server);
+    let container = |inv: &ac2_client::InventoryFrame, id| {
+        let c = std::iter::once(&inv.pack)
+            .chain(&inv.containers)
+            .find(|c| c.id == id)
+            .unwrap_or_else(|| panic!("{inv:?}"));
+        c.items.clone()
+    };
+    let refreshed = |notices: &[GameplayNotice], id| {
+        notices.iter().any(
+            |n| matches!(n, GameplayNotice::UpdateContainer { container, .. } if *container == id),
+        )
+    };
+    // Within the pack: the sword to the first slot (a reorganization).
+    let (inv, notices) = run(
+        &mut client,
+        &server,
+        Command::MoveItem {
+            item: SWORD,
+            from: PLAYER,
+            from_slot: 1,
+            target: PLAYER,
+            target_slot: 0,
+            quantity: 1,
+        },
+    );
+    assert_eq!(container(&inv, PLAYER), [SWORD, POTIONS]);
+    assert!(refreshed(&notices, PLAYER), "{notices:?}");
+    // Pack to side pack: the potions after the rations.
+    let (inv, notices) = run(
+        &mut client,
+        &server,
+        Command::MoveItem {
+            item: POTIONS,
+            from: PLAYER,
+            from_slot: 1,
+            target: PACK,
+            target_slot: -1,
+            quantity: 5,
+        },
+    );
+    assert_eq!(container(&inv, PLAYER), [SWORD]);
+    assert_eq!(container(&inv, PACK), [RATIONS, POTIONS]);
+    assert!(refreshed(&notices, PACK), "{notices:?}");
+    // Pack to the primary hand, and back.
+    let (inv, notices) = run(
+        &mut client,
+        &server,
+        Command::EquipItem {
+            item: SWORD,
+            location: PRIMARY_HAND,
+        },
+    );
+    assert_eq!(inv.equipped, [(PRIMARY_HAND, SWORD)]);
+    assert!(container(&inv, PLAYER).is_empty());
+    assert!(notices
+        .iter()
+        .any(|n| matches!(n, GameplayNotice::UpdateInventory { .. })));
+    let (inv, _) = run(
+        &mut client,
+        &server,
+        Command::UnequipItem {
+            item: SWORD,
+            target_slot: 0,
+        },
+    );
+    assert!(inv.equipped.is_empty());
+    assert_eq!(container(&inv, PLAYER), [SWORD]);
+    // The money bag: 50 out (no coin item made), then the rations in.
+    assert_eq!(inv.money, 250);
+    let (inv, notices) = run(
+        &mut client,
+        &server,
+        Command::DragFromMoneyBag {
+            quantity: 50,
+            to_slot: -1,
+            to_container: PLAYER,
+        },
+    );
+    assert_eq!(inv.money, 200);
+    assert!(
+        notices.contains(&GameplayNotice::UpdateMoney(200)),
+        "{notices:?}"
+    );
+    assert!(notices.contains(&GameplayNotice::GhostMoneyBag(false)));
+    let (inv, _) = run(
+        &mut client,
+        &server,
+        Command::DragToMoneyBag {
+            item: RATIONS,
+            quantity: 3,
+            from_slot: 0,
+            from_container: PACK,
+        },
+    );
+    assert_eq!(inv.money, 203);
+    assert_eq!(container(&inv, PACK), [POTIONS]);
+    // More than the player has is refused before sending.
+    let (_, _) = run(
+        &mut client,
+        &server,
+        Command::DragFromMoneyBag {
+            quantity: 1000,
+            to_slot: -1,
+            to_container: PLAYER,
+        },
+    );
+    let calls: Vec<u32> = server
+        .borrow()
+        .script_calls
+        .iter()
+        .map(|c| c.function)
+        .collect();
+    assert_eq!(calls, [0x820F_0001, 0x820F_0002]);
 }

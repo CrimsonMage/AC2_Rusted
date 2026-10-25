@@ -1,7 +1,8 @@
 //! The frames before the world: the session runs with no movement input, its login events go to
 //! the pregame screens (`PregameView`), whose UI takes the UI actions and text input, and whose
-//! requests (enter, create, delete, quit) go out through the session. Once the player is in the
-//! world the screens give way to the world view and its HUD (`UIFlow`'s gameplay mode).
+//! requests (enter, create, delete, quit) go out through the session; their viewports' 3D
+//! scenes draw among the UI's surfaces. Once the player is in the world the screens give way to
+//! the world view and its HUD (`UIFlow`'s gameplay mode).
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -82,22 +83,20 @@ impl App {
             return;
         };
         let target = output.texture.create_view(&Default::default());
-        if let Some(pregame) = &state.pregame {
-            pregame.prepare(&state.gpu.queue);
+        match &mut state.pregame {
+            Some(pregame) => {
+                pregame.prepare(&state.gpu, now);
+                pregame.render(&state.gpu, &target, &state.depth);
+            }
+            None => render_to(
+                &state.gpu.device,
+                &state.gpu.queue,
+                &target,
+                &state.depth,
+                [0.0; 3],
+                |_| {},
+            ),
         }
-        let pregame = &state.pregame;
-        render_to(
-            &state.gpu.device,
-            &state.gpu.queue,
-            &target,
-            &state.depth,
-            [0.0; 3],
-            |pass| {
-                if let Some(pregame) = pregame {
-                    pregame.draw(pass);
-                }
-            },
-        );
         output.present();
     }
 }

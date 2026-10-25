@@ -223,6 +223,8 @@ pub struct UiTree {
     /// `UIElementManager`'s tooltip, and the owner the current mouse pass found.
     pub(crate) tooltip: crate::tooltip::TooltipState,
     pub(crate) new_tooltip_owner: Option<usize>,
+    /// `UIElementManager`'s drag and drop.
+    pub(crate) drag: crate::drag::DragState,
 }
 
 /// The index of `desc`'s state `id`.
@@ -277,6 +279,7 @@ impl UiTree {
             default_cursor: None,
             tooltip: crate::tooltip::TooltipState::default(),
             new_tooltip_owner: None,
+            drag: crate::drag::DragState::default(),
         }
     }
 

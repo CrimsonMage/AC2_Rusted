@@ -64,6 +64,7 @@ fn the_status_bar_shows_health_and_experience() {
         element: Some(field),
         message: MSG_MOUSE_PRESS_TOP,
         data: 0x4000_0004,
+        item: None,
     };
     let shown = tree.get(health_text).unwrap().visible;
     hud.vitals.message(tree, &click);

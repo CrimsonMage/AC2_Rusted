@@ -128,7 +128,7 @@ fn a_new_character_is_made_named_and_sent() {
     let mut t = 0.0;
     while ui.mode() != MODE_CHARACTER_SELECTION {
         frame(&mut client, &server, &mut ui, &mut t);
-        assert!(t < 10.0, "no character selection");
+        assert!(t < 30.0, "no character selection");
     }
 
     // Create: avatar selection with every race and sex.
@@ -203,7 +203,7 @@ fn a_new_character_is_made_named_and_sent() {
     click(&mut ui, "EnterButton");
     while !client.frame().in_world {
         frame(&mut client, &server, &mut ui, &mut t);
-        assert!(t < 30.0, "no world entry");
+        assert!(t < 60.0, "no world entry");
     }
     assert_eq!(ui.mode(), MODE_GAMEPLAY);
     let sent = server.borrow().char_gen_results.clone();

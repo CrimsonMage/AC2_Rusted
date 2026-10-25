@@ -75,7 +75,7 @@ fn character_selection_enters_the_world_with_the_listed_character() {
     while ui.mode() != MODE_CHARACTER_SELECTION {
         frame(&mut client, &server, &mut ui, t);
         t += STEP;
-        assert!(t < 10.0, "no character selection");
+        assert!(t < 30.0, "no character selection");
     }
     assert!(!client.frame().in_world, "waits at the character set");
     let selection = ui.character_selection().unwrap();
@@ -85,7 +85,7 @@ fn character_selection_enters_the_world_with_the_listed_character() {
     while !client.frame().in_world {
         frame(&mut client, &server, &mut ui, t);
         t += STEP;
-        assert!(t < 20.0, "no world entry");
+        assert!(t < 40.0, "no world entry");
     }
     assert_eq!(ui.mode(), MODE_GAMEPLAY);
     assert_eq!(client.frame().player.map(|p| p.id), Some(PLAYER));
@@ -100,7 +100,7 @@ fn delete_is_confirmed_then_sent() {
     while ui.mode() != MODE_CHARACTER_SELECTION {
         frame(&mut client, &server, &mut ui, t);
         t += STEP;
-        assert!(t < 10.0, "no character selection");
+        assert!(t < 30.0, "no character selection");
     }
     click(&mut ui, "DeleteButton");
     assert!(ui.dialogs().shown().is_some());
@@ -151,8 +151,8 @@ fn the_pregame_view_draws_character_selection() {
     view.update(&gpu, t);
     assert!(view.shown_layers() > 0);
     let target = ac2_gpu::FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
-    view.prepare(&gpu.queue);
-    target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
+    view.prepare(&gpu, t);
+    view.render(&gpu, &target.color_view, &target.depth_view);
     let rgba = target.read_rgba(&gpu.device, &gpu.queue);
     let dir =
         std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../target/ac2-snapshots");

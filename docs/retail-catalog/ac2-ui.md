@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 432 done, 184 partial, 1609 to do, 22 skipped.
+2247 retail functions: 500 done, 188 partial, 1534 to do, 25 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (7/53)
@@ -690,13 +690,13 @@ Legend and workflow: [README](README.md).
 - [ ] `ChatWindow::RecvNotice_ReloadOptions` · 0044cb10
 - [~] `ChatWindow::RecvNotice_ReloadChatSettings` · 0044cbc0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
-## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (9/22)
+## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (12/22)
 
 ### ContainerDisplay
-- [ ] `ContainerDisplay::FinishListBoxDrop` · 0042d910 · legions 0042d6e0
+- [~] `ContainerDisplay::FinishListBoxDrop` · 0042d910 · legions 0042d6e0 — the stack dialog (gmStackUI) for part of a stack is not modelled: the whole stack moves
 
 ### (free functions)
-- [ ] `ContainerDisplay_DDCB` · 0042da30
+- [x] `ContainerDisplay_DDCB` · 0042da30 — ac2-ui item_display.rs
 
 ### ContainerDisplay
 - [ ] `ContainerDisplay::Show` · 0042da90 · legions 0042d860
@@ -707,11 +707,11 @@ Legend and workflow: [README](README.md).
 
 ### ContainerDisplay
 - [ ] `ContainerDisplay::RecvNotice_StackUIDone` · 0042daf0 · legions 0042d8c0
-- [ ] `ContainerDisplay::GetNewIndex` · 0042db40 · legions 0042d910
+- [x] `ContainerDisplay::GetNewIndex` · 0042db40 · legions 0042d910 — ac2-ui item_display.rs
 - [ ] `ContainerDisplay::HandleDragFrom` · 0042dbc0 · legions 0042d990
-- [ ] `ContainerDisplay::HandleListBoxDrop` · 0042dc20 · legions 0042d9f0
+- [~] `ContainerDisplay::HandleListBoxDrop` · 0042dc20 · legions 0042d9f0 — the stack dialog (gmStackUI) for part of a stack is not modelled: the whole stack moves
 - [ ] `ContainerDisplay::HandleDragFromMoneyBag` · 0042de90 · legions 0042dc60
-- [ ] `ContainerDisplay::ListenToMessage` · 0042dfb0 · legions 0042de40
+- [x] `ContainerDisplay::ListenToMessage` · 0042dfb0 · legions 0042de40 — ac2-ui item_display.rs
 - [x] `ContainerDisplay::AddItem` · 0042e070 · legions 0042df00 — ac2-ui item_display.rs / backpack.rs
 - [x] `ContainerDisplay::FindItem` · 0042e150 · legions 0042dfe0 — ac2-ui item_display.rs / backpack.rs
 - [x] `ContainerDisplay::RemoveItem` · 0042e1e0 · legions 0042e070 — ac2-ui item_display.rs / backpack.rs
@@ -1093,7 +1093,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmNavigationUI::UpdatePlayerPos` · 004341b0 · legions 00434980
 - [ ] `gmNavigationUI::ListenToMessage` · 00434280 · legions 00434a50
 
-## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (11/46)
+## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (13/46)
 
 ### gmShortcutUI
 - [ ] `gmShortcutUI::Show` · 00435cd0 · legions 00436520
@@ -1102,8 +1102,8 @@ Legend and workflow: [README](README.md).
 - [x] `gmShortcutUI::RequestAttackStateChange` · 00435d80 · legions 004365d0 — ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
 
 ### (free functions)
-- [ ] `gmShortcutUI_DDCB` · 00435e10 · legions 00436660
-- [ ] `gmShortcutUI_DOCB` · 00435e70
+- [x] `gmShortcutUI_DDCB` · 00435e10 · legions 00436660 — ac2-ui drag.rs; shortcut.rs drop
+- [~] `gmShortcutUI_DOCB` · 00435e70 — the locked-bar check (GetShortcutLocked + shift) is not asked
 
 ### SmartArray<TimeLeftInfo>
 - [ ] `SmartArray<TimeLeftInfo>::RemoveOrderedByIndex` · 00435ec0 · legions 00436710
@@ -1121,7 +1121,7 @@ Legend and workflow: [README](README.md).
 
 ### gmShortcutUI
 - [~] `gmShortcutUI::CheckItem` · 00436440 · legions 00436c90 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-- [~] `gmShortcutUI::FromElement` · 004364f0 · legions 00436d40 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [x] `gmShortcutUI::FromElement` · 004364f0 · legions 00436d40 — ac2-ui drag.rs; shortcut.rs drop
 
 ### SmartArray<TimeLeftInfo>
 - [ ] `SmartArray<TimeLeftInfo>::AddToEnd` · 00436660 · legions 00436eb0
@@ -1612,7 +1612,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmSocialUI::ListenToMessage` · 00430650 · legions 00430410
 - [ ] `gmSocialUI::gmSocialUI` · 004306b0 · legions 00430470
 
-## `ac2/client/src/ui/gmuiflow.cpp.c` (9/37)
+## `ac2/client/src/ui/gmuiflow.cpp.c` (10/37)
 
 ### gmUIFlow
 - [x] `gmUIFlow::~gmUIFlow` · 00405d80 · legions 00405a60 — ac2-ui pregame/flow.rs, pregame/ui.rs
@@ -1642,7 +1642,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmUIFlow::RecvNotice_GunConnectionLost` · 004064a0 — GUN chat servers are not used (Turbine chat)
 - [x] `gmUIFlow::RecvNotice_CharacterError` · 00406af0 — ac2-ui pregame/flow.rs, pregame/ui.rs
 - [x] `gmUIFlow::RecvNotice_ServerDied` · 00406b00 — ac2-ui pregame/flow.rs, pregame/ui.rs
-- [~] `gmUIFlow::gmUIFlow` · 00406b10 — pregame/ui.rs: character selection and disconnected made; intro, data patch (the client connects), keyboard, credits not ported
+- [x] `gmUIFlow::gmUIFlow` · 00406b10 — ac2-ui pregame/ui.rs PregameUi::new (every framework, the intro queued); gameplay is the client's view
 
 ### ImportData
 - [~] `ImportData::StreamPack` · 00406c60 · legions 00406970 — ac2-script: unpack direction only
@@ -1691,7 +1691,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ExportData::~ExportData` · 00407720 · legions 00407430
 - [~] `ExportData::StreamPack` · 00407770 · legions 00407480 — ac2-script: unpack direction only
 
-## `ac2/client/src/ui/pregame/generation/gmavatarmodificationui.cpp.c` (10/27)
+## `ac2/client/src/ui/pregame/generation/gmavatarmodificationui.cpp.c` (14/27)
 
 ### AFrame
 - [ ] `AFrame::AFrame` · 0040a9e0 · legions 0040a8a0
@@ -1704,7 +1704,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIRegion::IsVisible` · 0040aaa0 · legions 0040a960
 
 ### gmAvatarModificationUI
-- [~] `gmAvatarModificationUI::GetCamera` · 0040aad0 · legions 0040a990 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::GetCamera` · 0040aad0 · legions 0040a990 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [x] `gmAvatarModificationUI::MakeCurrentMask` · 0040ab10 · legions 0040a9d0 — ac2-ui pregame/avatar_modification.rs
 - [x] `gmAvatarModificationUI::MakePleaseWaitDialog` · 0040ab70 · legions 0040aa30 — ac2-ui pregame/avatar_modification.rs
 
@@ -1712,11 +1712,11 @@ Legend and workflow: [README](README.md).
 - [ ] `Frame::Frame` · 0040ac80 · legions 0040ab40
 
 ### UISceneEntity
-- [ ] `UISceneEntity::GetFrame` · 0040acb0 · legions 0040ab70
+- [x] `UISceneEntity::GetFrame` · 0040acb0 · legions 0040ab70 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
 ### gmAvatarModificationUI
-- [~] `gmAvatarModificationUI::UpdateCamera` · 0040ace0 · legions 0040aba0 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
-- [~] `gmAvatarModificationUI::InitCamera` · 0040b0b0 · legions 0040af70 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::UpdateCamera` · 0040ace0 · legions 0040aba0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `gmAvatarModificationUI::InitCamera` · 0040b0b0 · legions 0040af70 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
 ### PStringBase<char>
 - [ ] `PStringBase<char>::operator+` · 0040b300 · legions 0040b200
@@ -1813,14 +1813,14 @@ Legend and workflow: [README](README.md).
 - [x] `gmGenerationConfirmationUI::ListenToMessage` · 0042cde0 · legions 0042cba0 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 - [x] `gmGenerationConfirmationUI::RecvNotice_CharGenVerification` · 0042d080 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 
-## `ac2/client/src/ui/pregame/gmcharacterselectionui.cpp.c` (17/23)
+## `ac2/client/src/ui/pregame/gmcharacterselectionui.cpp.c` (20/23)
 
 ### CharacterIdentity
 - [x] `CharacterIdentity::Invalid` · 0040f560 · legions 0040f530 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 
 ### gmCharacterSelectionUI
 - [x] `gmCharacterSelectionUI::GhostButtons` · 0040f590 · legions 0040f560 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
-- [~] `gmCharacterSelectionUI::Start3DSelection` · 0040f6c0 · legions 0040f690 — character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
+- [x] `gmCharacterSelectionUI::Start3DSelection` · 0040f6c0 · legions 0040f690 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [x] `gmCharacterSelectionUI::DoDelete` · 0040f720 · legions 0040f6f0 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [x] `gmCharacterSelectionUI::MakePleaseWaitDialog` · 0040f810 · legions 0040f7e0 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 
@@ -1838,39 +1838,39 @@ Legend and workflow: [README](README.md).
 - [~] `gmCharacterSelectionUI::ListenToMessage` · 0040ffb0 · legions 0040ffd0 — character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
 - [x] `gmCharacterSelectionUI::InitArms` · 00410510 · legions 00410530 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [x] `gmCharacterSelectionUI::~gmCharacterSelectionUI` · 00410750 · legions 00410770 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
-- [~] `gmCharacterSelectionUI::AddPhysObjToArm` · 004108e0 · legions 004108e0 — character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
-- [~] `gmCharacterSelectionUI::Finish3DSelection` · 00410a10 · legions 00410a10 — character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
+- [x] `gmCharacterSelectionUI::AddPhysObjToArm` · 004108e0 · legions 004108e0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `gmCharacterSelectionUI::Finish3DSelection` · 00410a10 · legions 00410a10 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [~] `gmCharacterSelectionUI::ListenToMessage` · 00410ad0 · legions 00410ad0 — character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
 - [x] `gmCharacterSelectionUI::Update` · 00410c00 · legions 00410c00 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [~] `gmCharacterSelectionUI::gmCharacterSelectionUI` · 00410f00 — character_selection.rs: roots, handlers, Update; background music not played
 - [x] `gmCharacterSelectionUI::Create` · 00411220 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [x] `gmCharacterSelectionUI::Register` · 00411240 · legions 00411220 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 
-## `ac2/client/src/ui/pregame/gmcreditsui.cpp.c` (0/15)
+## `ac2/client/src/ui/pregame/gmcreditsui.cpp.c` (8/15)
 
 ### gmCreditsUI
-- [ ] `gmCreditsUI::MakePleaseWaitDialog` · 00412900 · legions 00412780
+- [x] `gmCreditsUI::MakePleaseWaitDialog` · 00412900 · legions 00412780 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [ ] `gmCreditsUI::~gmCreditsUI` · 00412950 · legions 004127d0
-- [ ] `gmCreditsUI::GetX` · 004129c0 · legions 00412840
-- [ ] `gmCreditsUI::GetY` · 004129f0 · legions 00412870
-- [ ] `gmCreditsUI::UpdatePicture` · 00412a20 · legions 004128a0
-- [ ] `gmCreditsUI::Close` · 00412b10 · legions 00412990
+- [x] `gmCreditsUI::GetX` · 004129c0 · legions 00412840 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmCreditsUI::GetY` · 004129f0 · legions 00412870 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmCreditsUI::UpdatePicture` · 00412a20 · legions 004128a0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmCreditsUI::Close` · 00412b10 · legions 00412990 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [ ] `gmCreditsUI::GetSoundID` · 00412b90 · legions 00412a10
 - [ ] `gmCreditsUI::UpdateSound` · 00412c50 · legions 00412ad0
-- [ ] `gmCreditsUI::UpdateText` · 00412d00 · legions 00412b80
-- [ ] `gmCreditsUI::ListenToMessage` · 00412e30 · legions 00412cb0
-- [ ] `gmCreditsUI::Update` · 00412e60 · legions 00412ce0
-- [ ] `gmCreditsUI::Initialize` · 00412e80 · legions 00412d00
-- [ ] `gmCreditsUI::gmCreditsUI` · 00413360
+- [x] `gmCreditsUI::UpdateText` · 00412d00 · legions 00412b80 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmCreditsUI::ListenToMessage` · 00412e30 · legions 00412cb0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmCreditsUI::Update` · 00412e60 · legions 00412ce0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [~] `gmCreditsUI::Initialize` · 00412e80 · legions 00412d00 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
+- [~] `gmCreditsUI::gmCreditsUI` · 00413360 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 - [ ] `gmCreditsUI::Create` · 004134b0
 - [ ] `gmCreditsUI::Register` · 004134d0 · legions 00413350
 
-## `ac2/client/src/ui/pregame/gmdatapatchui.cpp.c` (0/19)
+## `ac2/client/src/ui/pregame/gmdatapatchui.cpp.c` (4/19)
 
 ### gmDataPatchUI
-- [ ] `gmDataPatchUI::ListenToMessage` · 00411260 · legions 00411240
-- [ ] `gmDataPatchUI::Refresh` · 004112a0 · legions 00411280
-- [ ] `gmDataPatchUI::OnHeartbeat` · 004113b0
+- [x] `gmDataPatchUI::ListenToMessage` · 00411260 · legions 00411240 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [-] `gmDataPatchUI::Refresh` · 004112a0 · legions 00411280 — no DAT patching in this client (DDD patch events never come)
+- [-] `gmDataPatchUI::OnHeartbeat` · 004113b0 — no DAT patching in this client (DDD patch events never come)
 
 ### CPluginManager
 - [ ] `CPluginManager::RemovePluginPrototype` · 00411500 · legions 004114e0
@@ -1880,9 +1880,9 @@ Legend and workflow: [README](README.md).
 - [ ] `gmClient::SetCreateChar` · 004115a0 · legions 00411580
 
 ### gmDataPatchUI
-- [ ] `gmDataPatchUI::SetErrorMsg` · 004115f0 · legions 004115d0
+- [x] `gmDataPatchUI::SetErrorMsg` · 004115f0 · legions 004115d0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [ ] `gmDataPatchUI::OnConnectFailed` · 00411630 · legions 00411610
-- [ ] `gmDataPatchUI::Connect` · 00411890 · legions 00411870
+- [x] `gmDataPatchUI::Connect` · 00411890 · legions 00411870 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 
 ### (free functions)
 - [ ] `operator+` · 00411950 · legions 00411930
@@ -1891,8 +1891,8 @@ Legend and workflow: [README](README.md).
 - [ ] `gmDataPatchUI::~gmDataPatchUI` · 004119e0 · legions 004119c0
 - [~] `gmDataPatchUI::Update` · 00411ac0 · legions 00411aa0 — ac2-ui PregameUi::character_set (first set -> character selection) and bin/ac2 --character (start character enters at once); patching not ported
 - [ ] `gmDataPatchUI::RecvNotice_CharGenVerification` · 00411f10
-- [ ] `gmDataPatchUI::OnDDDEvent` · 00411fd0
-- [ ] `gmDataPatchUI::gmDataPatchUI` · 004121d0 · legions 00412050
+- [-] `gmDataPatchUI::OnDDDEvent` · 00411fd0 — no DAT patching in this client (DDD patch events never come)
+- [x] `gmDataPatchUI::gmDataPatchUI` · 004121d0 · legions 00412050 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [ ] `gmDataPatchUI::Create` · 00412330
 
 ### CPluginManager
@@ -1900,7 +1900,7 @@ Legend and workflow: [README](README.md).
 
 ### gmDataPatchUI
 - [ ] `gmDataPatchUI::Register` · 004123b0 · legions 00412230
-- [ ] `gmDataPatchUI::OnNetStatusChange` · 004123d0
+- [~] `gmDataPatchUI::OnNetStatusChange` · 004123d0 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 
 ## `ac2/client/src/ui/pregame/gmdisconnectedui.cpp.c` (5/5)
 
@@ -1911,21 +1911,21 @@ Legend and workflow: [README](README.md).
 - [x] `gmDisconnectedUI::Register` · 004126b0 · legions 00412530 — ac2-ui pregame/disconnected.rs
 - [x] `gmDisconnectedUI::SetErrorMsg` · 004126d0 · legions 00412550 — ac2-ui pregame/disconnected.rs
 
-## `ac2/client/src/ui/pregame/gmintroui.cpp.c` (0/6)
+## `ac2/client/src/ui/pregame/gmintroui.cpp.c` (4/6)
 
 ### gmIntroUI
-- [ ] `gmIntroUI::gmIntroUI` · 00412710
+- [x] `gmIntroUI::gmIntroUI` · 00412710 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [ ] `gmIntroUI::Create` · 00412830
 - [ ] `gmIntroUI::Register` · 00412850 · legions 004126d0
-- [ ] `gmIntroUI::Close` · 00412870 · legions 004126f0
-- [ ] `gmIntroUI::ListenToMessage` · 004128c0 · legions 00412740
-- [ ] `gmIntroUI::ListenToMessage` · 004128e0 · legions 00412760
+- [x] `gmIntroUI::Close` · 00412870 · legions 004126f0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmIntroUI::ListenToMessage` · 004128c0 · legions 00412740 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmIntroUI::ListenToMessage` · 004128e0 · legions 00412760 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 
-## `ac2/client/src/ui/pregame/gmkeyboardui.cpp.c` (0/19)
+## `ac2/client/src/ui/pregame/gmkeyboardui.cpp.c` (3/19)
 
 ### gmKeyboardUI
-- [ ] `gmKeyboardUI::ConfirmationBoxesOpen` · 004134f0 · legions 00413370
-- [ ] `gmKeyboardUI::UpdateButtons` · 00413530 · legions 004133b0
+- [x] `gmKeyboardUI::ConfirmationBoxesOpen` · 004134f0 · legions 00413370 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmKeyboardUI::UpdateButtons` · 00413530 · legions 004133b0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [ ] `gmKeyboardUI::DoClearAll` · 004135c0 · legions 00413440
 - [ ] `gmKeyboardUI::CloseAllDialogs` · 004136a0 · legions 00413520
 - [ ] `gmKeyboardUI::~gmKeyboardUI` · 00413720 · legions 004135a0
@@ -1936,15 +1936,15 @@ Legend and workflow: [README](README.md).
 - [ ] `IntrusiveSmartPointer<PFileNode>::create` · 00413960 · legions 004137e0
 
 ### gmKeyboardUI
-- [ ] `gmKeyboardUI::Close` · 004139d0 · legions 00413850
+- [x] `gmKeyboardUI::Close` · 004139d0 · legions 00413850 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [ ] `gmKeyboardUI::FinishSet` · 00413a70 · legions 004138f0
 - [ ] `gmKeyboardUI::StartSet` · 00413d10 · legions 00413b50
 - [ ] `gmKeyboardUI::InitializeKeyboardList` · 00414140 · legions 00413f80
 - [ ] `gmKeyboardUI::SaveKeyboardList` · 00414510 · legions 00414350
 - [ ] `gmKeyboardUI::RecvNotice_CloseConfirmationDialog` · 004149f0
-- [ ] `gmKeyboardUI::gmKeyboardUI` · 00414bb0 · legions 004149f0
+- [~] `gmKeyboardUI::gmKeyboardUI` · 00414bb0 · legions 004149f0 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 - [ ] `gmKeyboardUI::Create` · 00414e50
-- [ ] `gmKeyboardUI::ListenToMessage` · 00414e70 · legions 00414c60
+- [~] `gmKeyboardUI::ListenToMessage` · 00414e70 · legions 00414c60 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 - [ ] `gmKeyboardUI::KeyHitHandler` · 00415140 · legions 00414f30
 - [ ] `gmKeyboardUI::Register` · 004151f0 · legions 00414fe0
 
@@ -2304,21 +2304,21 @@ Legend and workflow: [README](README.md).
 ### UIRectangleObject
 - [ ] `UIRectangleObject::Render` · 00735390 · legions 006b1060
 
-## `portal/client/src/render/ui/uiscene.cpp.c` (0/23)
+## `portal/client/src/render/ui/uiscene.cpp.c` (5/23)
 
 ### (free functions)
 - [ ] `STREAMPACK_PACKOBJ` · 005acbc0 · legions 00578b20
 
 ### UIScene
-- [ ] `UIScene::GetEntity` · 005acd10 · legions 00578c70
+- [x] `UIScene::GetEntity` · 005acd10 · legions 00578c70 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIScene::RemoveEntity` · 005acd50 · legions 00578cb0
 - [ ] `UIScene::DeleteEntity` · 005acdd0 · legions 00578d30
 - [ ] `UIScene::DeleteAllEntities` · 005ace50 · legions 00578db0
-- [ ] `UIScene::StartSelection` · 005acea0 · legions 00578e00
-- [ ] `UIScene::Think` · 005acee0 · legions 00578e40
+- [x] `UIScene::StartSelection` · 005acea0 · legions 00578e00 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [~] `UIScene::Think` · 005acee0 · legions 00578e40 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 - [ ] `UIScene::Destroy` · 005acf10 · legions 00578e70
 - [ ] `UIScene::Cleanup` · 005acf50
-- [ ] `UIScene::StreamPack` · 005acf60 · legions 00578ec0
+- [x] `UIScene::StreamPack` · 005acf60 · legions 00578ec0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIScene::GetSubDataIDs` · 005ad010 · legions 00578f70
 
 ### PSmartArray<EntityDesc>
@@ -2334,14 +2334,14 @@ Legend and workflow: [README](README.md).
 
 ### UIScene
 - [ ] `UIScene::Allocate` · 005ad2c0
-- [ ] `UIScene::AddEntity` · 005ad2f0 · legions 00579200
-- [ ] `UIScene::AddEntity` · 005ad330 · legions 00579240
+- [x] `UIScene::AddEntity` · 005ad2f0 · legions 00579200 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIScene::AddEntity` · 005ad330 · legions 00579240 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIScene::Init` · 005ad410 · legions 00579320
 - [-] `UIScene::FromFileNode` · 005ad450 — text source format (admin tools)
 - [-] `UIScene::ToFileNode` · 005ad820 — text source format (admin tools)
-- [ ] `UIScene::Render` · 005ad8e0
+- [~] `UIScene::Render` · 005ad8e0 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 
-## `portal/client/src/render/ui/uiscenecameraentity.cpp.c` (0/3)
+## `portal/client/src/render/ui/uiscenecameraentity.cpp.c` (1/3)
 
 ### UISceneCameraEntity
 - [ ] `UISceneCameraEntity::UISceneCameraEntity` · 005d8d30 · legions 0059a460
@@ -2350,56 +2350,56 @@ Legend and workflow: [README](README.md).
 - [ ] `UIScenePhysObjEntity::GetPhysObj` · 005d8d80 · legions 0059a4b0
 
 ### UISceneCameraEntity
-- [ ] `UISceneCameraEntity::SetFrame` · 005d8d90 · legions 0059a500
+- [x] `UISceneCameraEntity::SetFrame` · 005d8d90 · legions 0059a500 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
-## `portal/client/src/render/ui/uisceneentity.cpp.c` (2/6)
+## `portal/client/src/render/ui/uisceneentity.cpp.c` (4/6)
 
 ### UISceneEntity
 - [~] `UISceneEntity::UISceneEntity` · 005d8ff0 · legions 0059a720 — pregame/arms.rs: frames and slerp; no instance id/scene
 - [ ] `UISceneEntity::~UISceneEntity` · 005d90a0 · legions 0059a7d0
 - [x] `UISceneEntity::Think` · 005d9120 · legions 0059a850 — ac2-ui pregame/arms.rs SceneEntity
 - [x] `UISceneEntity::SLERPTo` · 005d9210 · legions 0059a940 — ac2-ui pregame/arms.rs SceneEntity
-- [ ] `UISceneEntity::InitFromDesc` · 005d92e0 · legions 0059aa10
-- [ ] `UISceneEntity::SetID` · 005d9330 · legions 0059aa60
+- [x] `UISceneEntity::InitFromDesc` · 005d92e0 · legions 0059aa10 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UISceneEntity::SetID` · 005d9330 · legions 0059aa60 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
-## `portal/client/src/render/ui/uiscenelightentity.cpp.c` (0/3)
+## `portal/client/src/render/ui/uiscenelightentity.cpp.c` (2/3)
 
 ### UISceneLightEntity
 - [ ] `UISceneLightEntity::UISceneLightEntity` · 005d8ed0 · legions 0059a640
-- [ ] `UISceneLightEntity::InitFromDesc` · 005d8f10 · legions 0059a4c0
-- [ ] `UISceneLightEntity::SetFrame` · 005d8f50 · legions 0059a680
+- [x] `UISceneLightEntity::InitFromDesc` · 005d8f10 · legions 0059a4c0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UISceneLightEntity::SetFrame` · 005d8f50 · legions 0059a680 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
 ## `portal/client/src/render/ui/uiscenemanager.cpp.c` (0/7)
 
 ### UISceneManager
-- [ ] `UISceneManager::UseTime` · 005ae180 · legions 00579c20
+- [~] `UISceneManager::UseTime` · 005ae180 · legions 00579c20 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 - [ ] `UISceneManager::ReleaseUIScene` · 005ae1b0 · legions 00579c50
 - [ ] `UISceneManager::Cleanup` · 005ae240 · legions 00579ce0
 - [ ] `UISceneManager::FreeID` · 005ae290 · legions 00579d30
 - [ ] `UISceneManager::Init` · 005ae2c0 · legions 00579d60
-- [ ] `UISceneManager::GetUIScene` · 005ae370 · legions 00579e10
+- [~] `UISceneManager::GetUIScene` · 005ae370 · legions 00579e10 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 - [ ] `UISceneManager::GetFreeID` · 005ae420 · legions 00579ec0
 
-## `portal/client/src/render/ui/uiscenephysobjentity.cpp.c` (0/13)
+## `portal/client/src/render/ui/uiscenephysobjentity.cpp.c` (6/13)
 
 ### UIScenePhysObjEntity
-- [ ] `UIScenePhysObjEntity::InitFromDID` · 005adcd0 · legions 00579770
+- [x] `UIScenePhysObjEntity::InitFromDID` · 005adcd0 · legions 00579770 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIScenePhysObjEntity::InitFromVDesc` · 005add20 · legions 005797c0
-- [ ] `UIScenePhysObjEntity::InitFromDesc` · 005add60 · legions 00579800
-- [ ] `UIScenePhysObjEntity::Think` · 005addb0 · legions 00579850
+- [x] `UIScenePhysObjEntity::InitFromDesc` · 005add60 · legions 00579800 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIScenePhysObjEntity::Think` · 005addb0 · legions 00579850 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIScenePhysObjEntity::SetInstanceID` · 005ade20 · legions 005798c0
 - [ ] `UIScenePhysObjEntity::ApplyVisualDesc` · 005ade60 · legions 00579900
 - [ ] `UIScenePhysObjEntity::ApplyAdditiveVisualDesc` · 005ade80 · legions 00579920
 - [ ] `UIScenePhysObjEntity::UIScenePhysObjEntity` · 005adec0 · legions 00579960
 
 ### UISceneEntity
-- [ ] `UISceneEntity::SetFrame` · 005adf30 · legions 005799d0
+- [x] `UISceneEntity::SetFrame` · 005adf30 · legions 005799d0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
 ### UIScenePhysObjEntity
 - [ ] `UIScenePhysObjEntity::Animate` · 005adf40 · legions 005799e0
 - [ ] `UIScenePhysObjEntity::~UIScenePhysObjEntity` · 005adf50 · legions 005799f0
-- [ ] `UIScenePhysObjEntity::Render` · 005ae030 · legions 00579ad0
-- [ ] `UIScenePhysObjEntity::AddChild` · 005ae130 · legions 00579bd0
+- [x] `UIScenePhysObjEntity::Render` · 005ae030 · legions 00579ad0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIScenePhysObjEntity::AddChild` · 005ae130 · legions 00579bd0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
 ## `portal/client/src/render/ui/uisurface.cpp.c` (0/9)
 
@@ -2450,12 +2450,12 @@ Legend and workflow: [README](README.md).
 - [~] `UISurfaceObject::GenerateMaterial` · 005b2ea0 · legions 00583360 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [ ] `UISurfaceObject::SetMaterial` · 005b3000 · legions 005834c0
 
-## `portal/client/src/render/ui/uiviewportobject.cpp.c` (0/3)
+## `portal/client/src/render/ui/uiviewportobject.cpp.c` (2/3)
 
 ### UIViewportObject
 - [ ] `UIViewportObject::UIViewportObject` · 00735550 · legions 006b1220
-- [ ] `UIViewportObject::SetSceneID` · 00735590 · legions 006b1290
-- [ ] `UIViewportObject::Render` · 007355a0 · legions 006b12a0
+- [x] `UIViewportObject::SetSceneID` · 00735590 · legions 006b1290 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIViewportObject::Render` · 007355a0 · legions 006b12a0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
 ## `portal/client/src/uielement/desc/attributedesc.cpp.c` (1/6)
 
@@ -2746,7 +2746,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [ ] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180
 
-## `portal/client/src/uielement/system/uielement.cpp.c` (35/104)
+## `portal/client/src/uielement/system/uielement.cpp.c` (41/104)
 
 ### UIRectangleObject
 - [ ] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790
@@ -2785,9 +2785,9 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::MouseOver` · 005e9040 · legions 005a9ca0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [x] `UIElement::MouseOverTop` · 005e9060 · legions 005a9cc0 — ac2-ui media.rs / transition.rs
 - [x] `UIElement::SetAttributeFromDesc` · 005e90b0 · legions 005a9d10 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [ ] `UIElement::CopyElem` · 005e9180 · legions 005a9de0
-- [ ] `UIElement::MatchGraphics` · 005e91b0 · legions 005a9e10
-- [ ] `UIElement::DragAndDropComplete` · 005e9250 · legions 005a9eb0
+- [x] `UIElement::CopyElem` · 005e9180 · legions 005a9de0 — ac2-ui drag.rs; shortcut.rs drop
+- [x] `UIElement::MatchGraphics` · 005e91b0 · legions 005a9e10 — ac2-ui drag.rs; shortcut.rs drop
+- [x] `UIElement::DragAndDropComplete` · 005e9250 · legions 005a9eb0 — ac2-ui drag.rs; shortcut.rs drop
 - [ ] `UIElement::SetDefaultLocation` · 005e92b0 · legions 005a9f10
 - [ ] `UIElement::InqImageSize` · 005e92c0 · legions 005a9f20
 - [x] `UIElement::SetTooltip` · 005e9300 · legions 005a9f60 — ac2-ui tooltip.rs
@@ -2832,9 +2832,9 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::ResetMedia` · 005ea2c0 · legions 005aae90 — ac2-ui media.rs / transition.rs
 - [x] `UIElement::SetImage` · 005ea430 · legions 005ab000 — ac2-ui compose.rs / element.rs set_image
 - [x] `UIElement::AddAttributesFromDesc` · 005ea510 · legions 005ab0e0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [ ] `UIElement::MatchAttributes` · 005ea5c0 · legions 005ab190
-- [ ] `UIElement::DragItem` · 005eab10 · legions 005ab6e0
-- [ ] `UIElement::CatchDroppedItem` · 005eabd0 · legions 005ab7a0
+- [x] `UIElement::MatchAttributes` · 005ea5c0 · legions 005ab190 — ac2-ui drag.rs; shortcut.rs drop
+- [x] `UIElement::DragItem` · 005eab10 · legions 005ab6e0 — ac2-ui drag.rs; shortcut.rs drop
+- [x] `UIElement::CatchDroppedItem` · 005eabd0 · legions 005ab7a0 — ac2-ui drag.rs; shortcut.rs drop
 - [x] `UIElement::IsTooltipOn` · 005eac90 · legions 005ab860 — ac2-ui tooltip.rs
 - [ ] `UIElement::IsActivatable` · 005eacb0 · legions 005ab880
 - [ ] `UIElement::GetActivateOrder` · 005eacd0 · legions 005ab8a0
@@ -2874,7 +2874,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::UpdateChild` · 005ed340 · legions 005adf10 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [~] `UIElement::SetState` · 005ed450 · legions 005ae020 — m_delOnTransStop (delete after the exit transition) not modelled
 
-## `portal/client/src/uielement/system/uielementmanager.cpp.c` (4/69)
+## `portal/client/src/uielement/system/uielementmanager.cpp.c` (8/69)
 
 ### Box2D
 - [ ] `Box2D::Includes` · 005e3490 · legions 005a4250
@@ -2886,8 +2886,8 @@ Legend and workflow: [README](README.md).
 - [x] `UIElementManager::UseDefaultCursor` · 005e3690 · legions 005a4420 — ac2-ui media.rs / transition.rs
 - [ ] `UIElementManager::KeyReleaseEvent` · 005e36b0
 - [x] `UIElementManager::ClearTooltip` · 005e3740 · legions 005a4570 — ac2-ui tooltip.rs
-- [ ] `UIElementManager::CheckDragandDrop` · 005e37c0 · legions 005a45f0
-- [ ] `UIElementManager::ClearDragandDrop` · 005e3820 · legions 005a4650
+- [x] `UIElementManager::CheckDragandDrop` · 005e37c0 · legions 005a45f0 — ac2-ui drag.rs; shortcut.rs drop
+- [x] `UIElementManager::ClearDragandDrop` · 005e3820 · legions 005a4650 — ac2-ui drag.rs; shortcut.rs drop
 - [~] `UIElementManager::ActivationAlert` · 005e38b0 · legions 005a46e0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 
 ### SmartArray<CPartGroup_*>
@@ -2901,8 +2901,8 @@ Legend and workflow: [README](README.md).
 - [~] `UIElementManager::MouseDownEvent` · 005e3cc0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 - [ ] `UIElementManager::CleanDeleteQueue` · 005e3de0 · legions 005a4c10
 - [~] `UIElementManager::StartTooltip` · 005e3e90 · legions 005a4cc0 — no right-button check; 32x32 cursor size assumed
-- [ ] `UIElementManager::StartDragandDrop` · 005e42e0
-- [ ] `UIElementManager::StopDragandDrop` · 005e46d0 · legions 005a5500
+- [x] `UIElementManager::StartDragandDrop` · 005e42e0 — ac2-ui drag.rs; shortcut.rs drop
+- [x] `UIElementManager::StopDragandDrop` · 005e46d0 · legions 005a5500 — ac2-ui drag.rs; shortcut.rs drop
 - [ ] `UIElementManager::UnregisterActivatable` · 005e4720 · legions 005a5550
 - [ ] `UIElementManager::ActivateNext` · 005e4740
 - [ ] `UIElementManager::DrawDirtyRegions` · 005e4970
@@ -3172,12 +3172,12 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Dragbar::Create` · 005f8e20
 - [ ] `UIElement_Dragbar::Register` · 005f8e50 · legions 005b9980
 
-## `portal/client/src/uielement/types/uielement_field.cpp.c` (0/4)
+## `portal/client/src/uielement/types/uielement_field.cpp.c` (1/4)
 
 ### UIElement_Field
 - [ ] `UIElement_Field::Create` · 005fbc70
 - [ ] `UIElement_Field::MouseOverTop` · 005fbcb0 · legions 005bc7e0
-- [ ] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0
+- [x] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0 — ac2-ui drag.rs; shortcut.rs drop
 - [ ] `UIElement_Field::Register` · 005fbe20 · legions 005bc950
 
 ## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (20/82)
@@ -3444,16 +3444,16 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Tree::Create` · 005f8000
 - [ ] `UIElement_Tree::Register` · 005f8030 · legions 005b8b60
 
-## `portal/client/src/uielement/types/uielement_viewport.cpp.c` (0/10)
+## `portal/client/src/uielement/types/uielement_viewport.cpp.c` (7/10)
 
 ### UIElement_Viewport
-- [ ] `UIElement_Viewport::GetUISceneID` · 005f8410 · legions 005b8f40
+- [x] `UIElement_Viewport::GetUISceneID` · 005f8410 · legions 005b8f40 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIElement_Viewport::Create` · 005f8420
-- [ ] `UIElement_Viewport::SetCameraID` · 005f8480 · legions 005b8fb0
-- [ ] `UIElement_Viewport::GetCameraID` · 005f84d0 · legions 005b9000
-- [ ] `UIElement_Viewport::GetUIScene` · 005f84f0 · legions 005b9020
+- [x] `UIElement_Viewport::SetCameraID` · 005f8480 · legions 005b8fb0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIElement_Viewport::GetCameraID` · 005f84d0 · legions 005b9000 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIElement_Viewport::GetUIScene` · 005f84f0 · legions 005b9020 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIElement_Viewport::ReleaseUIScene` · 005f8510 · legions 005b9040
 - [ ] `UIElement_Viewport::Register` · 005f8560 · legions 005b9090
-- [ ] `UIElement_Viewport::SetAttribute_DataID` · 005f8580 · legions 005b90b0
-- [ ] `UIElement_Viewport::SetAttribute_ASCII` · 005f85e0 · legions 005b9110
-- [ ] `UIElement_Viewport::SetObject` · 005f8620 · legions 005b9150
+- [x] `UIElement_Viewport::SetAttribute_DataID` · 005f8580 · legions 005b90b0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIElement_Viewport::SetAttribute_ASCII` · 005f85e0 · legions 005b9110 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIElement_Viewport::SetObject` · 005f8620 · legions 005b9150 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs

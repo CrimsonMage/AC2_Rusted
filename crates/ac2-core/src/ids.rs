@@ -129,15 +129,6 @@ impl ObjectId {
     pub const fn is_null(self) -> bool {
         self.is_invalid()
     }
-
-    pub const fn is_player(self) -> bool {
-        (self.raw() & 0xF000_0000) == 0x5000_0000
-    }
-
-    pub const fn is_item(self) -> bool {
-        let raw = self.raw();
-        raw > 0 && raw < 0x5000_0000
-    }
 }
 
 impl CellId {
@@ -213,7 +204,7 @@ impl fmt::Debug for QualifiedDataId {
 
 #[cfg(test)]
 mod tests {
-    use super::{CellId, DataId, InstanceId, ObjectId, QualifiedDataId, VersionHandle};
+    use super::{CellId, DataId, InstanceId, QualifiedDataId, VersionHandle};
 
     #[test]
     fn ids_round_trip_and_format_as_hex() {
@@ -233,17 +224,6 @@ mod tests {
         assert_eq!(cell.raw(), 0x0000_FFFF);
         assert!(cell.is_invalid());
         assert!(!cell.is_valid());
-    }
-
-    #[test]
-    fn object_id_helpers_preserve_retail_ranges() {
-        let player = ObjectId::new(0x5000_1234);
-        let item = ObjectId::new(0x0000_1234);
-
-        assert!(player.is_player());
-        assert!(!player.is_item());
-        assert!(item.is_item());
-        assert!(!item.is_player());
     }
 
     #[test]

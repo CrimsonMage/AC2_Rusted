@@ -25,6 +25,8 @@ pub struct Character {
     pub total_xp: u64,
     pub available_xp: u64,
     pub level: i32,
+    /// Int 3100, the money bag's money, as the double last sent it.
+    pub money: i32,
 }
 
 impl Default for Character {
@@ -36,6 +38,7 @@ impl Default for Character {
             total_xp: 0,
             available_xp: 0,
             level: 1,
+            money: 0,
         }
     }
 }
@@ -144,7 +147,7 @@ pub fn default_options() -> GameplayOptionsProfile {
 }
 
 impl crate::State {
-    fn send_private(&mut self, quality: u32, value: ac2_net::protocol::QualityValue) {
+    pub(crate) fn send_private(&mut self, quality: u32, value: ac2_net::protocol::QualityValue) {
         self.send_quality(&ac2_net::protocol::QualityUpdate {
             object: None,
             quality,

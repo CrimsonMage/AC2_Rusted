@@ -33,13 +33,15 @@ struct GpuInteriors {
 }
 
 /// A world object to draw this frame (a character or item placed by the client): its loaded
-/// model's key (`WorldScene::request_object`), world matrix, pose and tint.
+/// model's key (`WorldScene::request_object`), world matrix, pose, tint and the point lights it
+/// is lit by (`SceneTool::ApplyLights`; none outdoors in the world).
 #[derive(Debug, Clone, PartialEq)]
 pub struct SceneObject {
     pub key: u64,
     pub world: Mat4,
     pub pose: Option<ObjectPose>,
     pub tint: [f32; 4],
+    pub point_lights: Vec<PointLight>,
 }
 
 /// The scene's GPU resources.
@@ -297,6 +299,7 @@ fn world_instances<'a>(
             Some(ObjectInstance {
                 tint: o.tint,
                 pose: o.pose.as_ref(),
+                point_lights: &o.point_lights,
                 ..ObjectInstance::new(world_objects.get(&o.key)?, o.world)
             })
         }))

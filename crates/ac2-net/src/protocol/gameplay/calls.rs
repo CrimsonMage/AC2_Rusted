@@ -99,6 +99,12 @@ pub const CALLS: &[CallSpec] = &[
     call(0x8204_0008, ToServer, "WM_Combat 0x16", "CCombatSystem 0x3 (RequestAttackStateChange: start, the selection)", &[LongInt]),
     call(0x8204_0010, ToServer, "WM_Combat 0x14", "CCombatSystem 0x10 (RequestAttackStateChange: stop)", &[]),
     call(0x8204_001B, ToClient, "WM_Combat 0x1B", "CPlayer 0x2 (SendNotice_UpdateAttackState)", &[Int]),
+    // The money bag (`WM_Money`, package 0x20F). `DragToMoneyBag`: the item's container, its
+    // slot, the quantity, the item; `DragFromMoneyBag`: the target container, slot, quantity.
+    call(0x820F_0002, ToServer, "WM_Money 0x7", "CMoneySystem 0x4 (DragToMoneyBag)", &[LongInt, Int, Int, LongInt]),
+    call(0x820F_0001, ToServer, "WM_Money 0x8", "CMoneySystem 0x5 (DragFromMoneyBag)", &[LongInt, Int, Int]),
+    call(0x820F_0006, ToClient, "WM_Money 0x6", "CPlayer 0x12F -> CMoneySystem 0x7 (the bag unghosts)", &[LongInt]),
+    call(0x820F_0009, ToClient, "WM_Money 0x9", "CPlayer 0x38 -> CMoneySystem 0x3 (the new item at its slot)", &[LongInt, Int, LongInt]),
     // Chat channels (`WM_Communication`, package 0x205; speech and tells are typed).
     call(0x8205_001B, ToClient, "WM_Communication 0x1B", "CPlayer 0x147 (the chat channel table)", &[Word]),
     // Fellowships (`WM_Fellowship`, package 0x20C).
@@ -273,6 +279,35 @@ mod tests {
         assert_eq!(
             bytes,
             words(&[0x0001_0053, 0x8204_0008, 12, 2, 0x42, 0x7000_0000])
+        );
+        // `WM_Money` 0x7: from container, slot, quantity, item.
+        let into_bag = ScriptCall::new(
+            0x820F_0002,
+            vec![
+                PackValue::LongInt(0x2000_0000_0000_0001),
+                PackValue::Int(1),
+                PackValue::Int(5),
+                PackValue::LongInt(0x8000_0000_0000_0102),
+            ],
+        )
+        .unwrap();
+        assert_eq!(
+            into_bag.to_event().encode().1,
+            words(&[
+                0x0001_0053,
+                0x820F_0002,
+                40,
+                2,
+                1,
+                0x2000_0000,
+                1,
+                1,
+                1,
+                5,
+                2,
+                0x102,
+                0x8000_0000
+            ])
         );
         let stop = ScriptCall::new(0x8204_0010, vec![]).unwrap();
         assert_eq!(

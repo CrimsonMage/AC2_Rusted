@@ -30,6 +30,8 @@ mod loader;
 mod motion;
 mod pregame;
 #[cfg(feature = "window")]
+pub mod pregame_scene;
+#[cfg(feature = "window")]
 pub mod pregame_view;
 mod remote;
 mod scene;
@@ -51,6 +53,8 @@ mod ui_sources;
 pub mod view;
 mod world_data;
 
+/// `EffectUINode`: one effect as the status bar's strip shows it ([`Client::effect_list`]).
+pub use ac2_net::protocol::EffectUiNode as EffectNode;
 pub use appearance::local_visual_desc;
 pub use audio::{play_ui_sounds, sound_manager};
 pub use camera::{action as camera_action, CameraManager};

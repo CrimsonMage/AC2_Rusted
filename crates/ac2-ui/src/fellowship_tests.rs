@@ -135,6 +135,7 @@ fn the_fellowship_page_lists_the_members_leader_first() {
             element: Some(leave),
             message: MSG_BUTTON_RELEASE_ON,
             data: 0,
+            item: None,
         },
     );
     assert_eq!(panel.take_requests(), vec![FellowshipRequest::Leave]);

@@ -15,6 +15,7 @@ mod chat_window;
 mod compose;
 mod controls;
 mod dialog;
+mod drag;
 mod element;
 mod examination;
 mod fellow_info;
@@ -128,6 +129,8 @@ mod backpack_tests;
 mod chat_tests;
 #[cfg(test)]
 mod dialog_tests;
+#[cfg(test)]
+mod drag_tests;
 #[cfg(test)]
 mod element_tests;
 #[cfg(test)]

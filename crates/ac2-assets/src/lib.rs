@@ -23,6 +23,7 @@ mod ac2_surface_pixels;
 mod ac2_terrain;
 mod ac2_texture;
 mod ac2_total_visual;
+mod ac2_ui_scene;
 mod ac2_visual_desc;
 mod ac2_visual_fx_sounds;
 mod ac2_visual_particles;
@@ -40,6 +41,10 @@ mod texture_asset;
 mod texture_attribution;
 mod texture_dxt;
 
+pub use ac2_ui_scene::{
+    load_ac2_entity_desc, load_ac2_ui_scene, Ac2UiScene, UI_SCENE_CAMERA, UI_SCENE_LIGHT,
+    UI_SCENE_PHYS_OBJ, UI_SCENE_PHYS_OBJ_ALT,
+};
 pub use cull::DecodedSurfaceCullMode;
 pub use font::{load_ac2_font, Ac2Font, Ac2FontChar};
 pub use mesh::DecodedMeshVertex;

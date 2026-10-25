@@ -24,7 +24,21 @@ pub mod item_quality {
     pub const DURABILITY: u32 = 619;
     /// Bool.
     pub const STACKABLE: u32 = 700;
+    /// Ints: the locations it may take (`Item` 0x2A; `Item` 0x27, `IsEquippable`, is it being
+    /// non-zero), the one a drop on the doll's figure picks (`Item` 0x26, behind
+    /// `gmCWInterface::GetPreferredInventoryLocation`) and the ones it precludes (`Item` 0x31).
+    pub const VALID_LOCATIONS: u32 = 275;
+    pub const PREFERRED_LOCATION: u32 = 282;
+    pub const PRECLUDED_LOCATIONS: u32 = 283;
+    /// Int: the player's money (`MoneySystem` 0x4).
+    pub const MONEY: u32 = 3100;
 }
+
+/// The paper doll's equip locations (`gmPaperDollUI::InitSlots`, the `*_InvLoc` bits): head,
+/// torso, back, legs, feet, hands, primary hand, secondary hand, the two rings, necklace.
+pub const EQUIP_LOCATIONS: [u32; 11] = [
+    0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80, 0x100, 0x200, 0x400,
+];
 
 /// `gmEntity` 0xAD's literal when the name is missing.
 pub const MISSING_NAME: &str = "Error! Name_StringInfoStat missing";
@@ -62,6 +76,12 @@ pub struct ItemStats {
     pub value: i32,
     /// `gmEntity` 0xC: int 280, default 12 (retail passes it through the effect system).
     pub capacity: i32,
+    /// The equip location bits it may take (int 275); 0: not equippable.
+    pub valid_locations: u32,
+    /// Where a drop on the doll's figure equips it (int 282).
+    pub preferred_location: u32,
+    /// The locations it covers or blocks besides its own (int 283).
+    pub precluded_locations: u32,
 }
 
 impl ItemStats {
@@ -90,6 +110,9 @@ impl ItemStats {
             durability: (max_durability > 0).then(|| (int(DURABILITY, 0), max_durability)),
             value: int(VALUE, 0),
             capacity: int(MAX_CONTAINER_SIZE, DEFAULT_CONTAINER_SIZE),
+            valid_locations: int(VALID_LOCATIONS, 0) as u32,
+            preferred_location: int(PREFERRED_LOCATION, 0) as u32,
+            precluded_locations: int(PRECLUDED_LOCATIONS, 0) as u32,
         }
     }
 
@@ -141,6 +164,14 @@ mod tests {
             (PLURAL_STRING, 0)
         );
         assert_eq!((stats.quantity, stats.icon, stats.capacity), (1, 0, 12));
+        assert_eq!(
+            (
+                stats.valid_locations,
+                stats.preferred_location,
+                stats.precluded_locations
+            ),
+            (0, 0, 0)
+        );
         assert_eq!(
             (stats.stackable, stats.max_stack, stats.durability),
             (false, None, None)

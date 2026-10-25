@@ -51,6 +51,8 @@ pub enum AttributeValue {
     DataId(u32),
     /// Any other type: no value, ignored by `SetAttributeFromDesc`.
     None(u8),
+    /// `SetAttribute_InstanceID`: set at run time only (no layout carries one).
+    InstanceId(u64),
 }
 
 /// One `AttributeDesc`.

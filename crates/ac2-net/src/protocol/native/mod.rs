@@ -20,7 +20,7 @@ pub use containers::{HashKey, ScriptHash, ScriptList};
 pub use examination::{
     ExaminationDataNode, ExaminationProfile, ExaminationRequest, ExaminationValue, SelectionInfo,
 };
-pub use gm::{GmKeyframe, GmRaceSexInfo, GmSceneInfo, SkillUiNode};
+pub use gm::{EffectUiNode, GmKeyframe, GmRaceSexInfo, GmSceneInfo, SkillUiNode};
 pub use options::{GameplayOptionsProfile, ShortcutInfo, UiLocation, UiSaveLocations, WordTable};
 pub use quest::GmQuestInfo;
 pub use structs::{MissileParameters, RandomSelectionTable, SelectionElement};
@@ -73,6 +73,7 @@ pub mod ntype {
     pub const SELECTION_INFO: u32 = 0xAB;
     pub const SHORTCUT_INFO: u32 = 0xAC;
     pub const SKILL_UI_NODE: u32 = 0xAE;
+    pub const EFFECT_UI_NODE: u32 = 0x98;
 }
 
 /// One native object.
@@ -101,6 +102,7 @@ pub enum NativeObject {
     GmSceneInfo(Box<GmSceneInfo>),
     ShortcutInfo(ShortcutInfo),
     SkillUiNode(Box<SkillUiNode>),
+    EffectUiNode(Box<EffectUiNode>),
     /// `gmQuestInfo`.
     GmQuestInfo(Box<GmQuestInfo>),
     /// `gmQuestInfoList` (`PList<gmQuestInfo>`), in list order.
@@ -131,6 +133,7 @@ impl NativeObject {
             Self::GmSceneInfo(_) => ntype::GM_SCENE_INFO,
             Self::ShortcutInfo(_) => ntype::SHORTCUT_INFO,
             Self::SkillUiNode(_) => ntype::SKILL_UI_NODE,
+            Self::EffectUiNode(_) => ntype::EFFECT_UI_NODE,
             Self::GmQuestInfo(_) => ntype::GM_QUEST_INFO,
             Self::GmQuestInfoList(_) => ntype::GM_QUEST_INFO_LIST,
             Self::Empty(native_type) => *native_type,
@@ -163,6 +166,7 @@ impl NativeObject {
             ntype::GM_SCENE_INFO => Self::GmSceneInfo(Box::new(GmSceneInfo::read(r)?)),
             ntype::SHORTCUT_INFO => Self::ShortcutInfo(ShortcutInfo::read(r)?),
             ntype::SKILL_UI_NODE => Self::SkillUiNode(Box::new(SkillUiNode::read(r)?)),
+            ntype::EFFECT_UI_NODE => Self::EffectUiNode(Box::new(EffectUiNode::read(r)?)),
             ntype::GM_QUEST_INFO => Self::GmQuestInfo(Box::new(GmQuestInfo::read(r)?)),
             ntype::GM_QUEST_INFO_LIST => Self::GmQuestInfoList(GmQuestInfo::read_list(r)?),
             ntype::ALLEGIANCE_DATA_ADAPTOR
@@ -198,6 +202,7 @@ impl NativeObject {
             Self::GmSceneInfo(info) => info.write(w),
             Self::ShortcutInfo(shortcut) => shortcut.write(w),
             Self::SkillUiNode(node) => node.write(w),
+            Self::EffectUiNode(node) => node.write(w),
             Self::GmQuestInfo(quest) => quest.write(w),
             Self::GmQuestInfoList(list) => GmQuestInfo::write_list(list, w),
             Self::Empty(_) => {}

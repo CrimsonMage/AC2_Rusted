@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 62 done, 3 partial, 1833 to do, 6 skipped.
+1904 retail functions: 68 done, 9 partial, 1821 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (5/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (8/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -671,8 +671,8 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_DoIHaveItem` · 00458b10 · legions 00459760
 - [ ] `ggmCWInterface::CallIFun_DoUIDamage` · 00458bf0 · legions 00459840
 - [ ] `ggmCWInterface::CallIFun_DoesIngredientAutoPopulate` · 00458dd0 · legions 00459a20
-- [ ] `ggmCWInterface::CallIFun_DragFromMoneyBag` · 00458ec0 · legions 00459b10
-- [ ] `ggmCWInterface::CallIFun_DragToMoneyBag` · 00458fe0 · legions 00459c30
+- [~] `ggmCWInterface::CallIFun_DragFromMoneyBag` · 00458ec0 · legions 00459b10 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
+- [~] `ggmCWInterface::CallIFun_DragToMoneyBag` · 00458fe0 · legions 00459c30 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [ ] `ggmCWInterface::CallIFun_EquipItem` · 00459140 · legions 00459d90
 - [ ] `ggmCWInterface::CallIFun_GUNEvent_FriendStart` · 00459240 · legions 00459e90
 - [ ] `ggmCWInterface::CallIFun_GUNEvent_FriendStatus` · 00459340 · legions 00459f90
@@ -686,8 +686,8 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_GetAvailableExperience` · 00459970 · legions 0045a5c0
 - [ ] `ggmCWInterface::CallIFun_GetBypassGoldMeltingConfirmationDlg` · 00459a30 · legions 0045a680
 - [ ] `ggmCWInterface::CallIFun_GetConsignmentCharge` · 00459ad0 · legions 0045a720
-- [ ] `ggmCWInterface::CallIFun_GetContainerSegmentInfo` · 00459b70 · legions 0045a7c0
-- [ ] `ggmCWInterface::CallIFun_GetContentsInfo` · 00459d30 · legions 0045a980
+- [x] `ggmCWInterface::CallIFun_GetContainerSegmentInfo` · 00459b70 · legions 0045a7c0 — ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
+- [x] `ggmCWInterface::CallIFun_GetContentsInfo` · 00459d30 · legions 0045a980 — ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 - [ ] `ggmCWInterface::CallIFun_GetDamageTextRangeOther` · 0045a000 · legions 0045ac50
 - [ ] `ggmCWInterface::CallIFun_GetDurabilityLevel` · 0045a0a0 · legions 0045acf0
 - [ ] `ggmCWInterface::CallIFun_GetFXAndBehaviorInformationFromWsl` · 0045a140 · legions 0045ad90
@@ -703,7 +703,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_GetMaxStackSize` · 0045aae0 · legions 0045b730
 - [ ] `ggmCWInterface::CallIFun_GetMissileInformationFromWSL` · 0045ab80 · legions 0045b7d0
 - [ ] `ggmCWInterface::CallIFun_GetPotentiallyPluralizedName` · 0045adb0 · legions 0045ba00
-- [ ] `ggmCWInterface::CallIFun_GetPreferredInventoryLocation` · 0045ae80 · legions 0045bad0
+- [x] `ggmCWInterface::CallIFun_GetPreferredInventoryLocation` · 0045ae80 · legions 0045bad0 — ac2-weenie ItemStats::preferred_location (Item 0x26: int 282), valid_locations (275), precluded_locations (283)
 - [ ] `ggmCWInterface::CallIFun_GetQuantity` · 0045af20 · legions 0045bb70
 - [ ] `ggmCWInterface::CallIFun_GetRadarMask` · 0045afc0 · legions 0045bc10
 - [ ] `ggmCWInterface::CallIFun_GetSelection` · 0045b060 · legions 0045bcb0
@@ -736,7 +736,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_InqCraftSkillCategoryName` · 0045c7c0 · legions 0045d410
 - [ ] `ggmCWInterface::CallIFun_InqCraftSkillLevel` · 0045c950 · legions 0045d5a0
 - [ ] `ggmCWInterface::CallIFun_InqCraftSkillList` · 0045cb20 · legions 0045d770
-- [ ] `ggmCWInterface::CallIFun_InqEffectList` · 0045ccc0 · legions 0045d910
+- [~] `ggmCWInterface::CallIFun_InqEffectList` · 0045ccc0 · legions 0045d910 — ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
 - [ ] `ggmCWInterface::CallIFun_InqNextReplyHistoryItem` · 0045ce60 · legions 0045dab0
 - [ ] `ggmCWInterface::CallIFun_InqNextRetellHistoryItem` · 0045d000 · legions 0045dc50
 - [ ] `ggmCWInterface::CallIFun_InqPrevReplyHistoryItem` · 0045d1a0 · legions 0045ddf0
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (22/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (25/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -976,15 +976,15 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::MoveItem` · 00450490 · legions 004515d0 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 - [ ] `gmCWInterface::EquipItem` · 004504f0 · legions 00451630 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 - [ ] `gmCWInterface::UnEquipItem` · 00450530 · legions 00451670 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
-- [ ] `gmCWInterface::GetContentsInfo` · 00450570 · legions 004516b0
-- [ ] `gmCWInterface::GetContainerSegmentInfo` · 004505a0 · legions 004516e0
-- [ ] `gmCWInterface::GetPreferredInventoryLocation` · 004505d0 · legions 00451710
+- [x] `gmCWInterface::GetContentsInfo` · 00450570 · legions 004516b0 — ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
+- [x] `gmCWInterface::GetContainerSegmentInfo` · 004505a0 · legions 004516e0 — ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
+- [x] `gmCWInterface::GetPreferredInventoryLocation` · 004505d0 · legions 00451710 — ac2-weenie ItemStats::preferred_location (Item 0x26: int 282), valid_locations (275), precluded_locations (283)
 - [ ] `gmCWInterface::InqSimpleInvByLocTable` · 00450600 · legions 00451740
 - [ ] `gmCWInterface::InqAllInventoryIIDList` · 00450620 · legions 00451760
 - [ ] `gmCWInterface::DoIHaveItem` · 00450640 · legions 00451780
 - [ ] `gmCWInterface::IsOnInventory` · 00450680 · legions 004517c0
-- [ ] `gmCWInterface::DragToMoneyBag` · 004506c0 · legions 00451800
-- [ ] `gmCWInterface::DragFromMoneyBag` · 00450700 · legions 00451840
+- [~] `gmCWInterface::DragToMoneyBag` · 004506c0 · legions 00451800 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
+- [~] `gmCWInterface::DragFromMoneyBag` · 00450700 · legions 00451840 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [ ] `gmCWInterface::LootAllFromContainer` · 00450730 · legions 00451870 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
 - [ ] `gmCWInterface::TransmuteAllFromContainer` · 00450750 · legions 00451890 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
 - [x] `gmCWInterface::HasDurability` · 00450770 · legions 004518b0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
@@ -1022,7 +1022,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::Result_IgnoredAdd` · 00450de0 · legions 00451f20 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 - [ ] `gmCWInterface::Result_IgnoredDelete` · 00450e00 · legions 00451f40 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 - [ ] `gmCWInterface::Result_CallCreate` · 00450e20 · legions 00451f60
-- [ ] `gmCWInterface::InqEffectList` · 00450e60 · legions 00451fa0
+- [~] `gmCWInterface::InqEffectList` · 00450e60 · legions 00451fa0 — ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
 - [x] `gmCWInterface::GetStackable` · 00450ea0 · legions 00451fe0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [x] `gmCWInterface::GetQuantity` · 00450ed0 · legions 00452010 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [~] `gmCWInterface::GetMaxStackSize` · 00450f00 · legions 00452040 — ItemStats::max_stack: int 261; InventoryGlobals slot-5 default only through the VM
