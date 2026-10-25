@@ -6,6 +6,7 @@
 //! consumes (`ActionInterpreter`); and the UI: layouts (`LayoutDesc`), the element tree built
 //! from them (`UIElementManager`, `UIElement`) and its software compositor (`UIRegion::DrawHere`).
 
+mod allegiance;
 mod button;
 mod camera_ui;
 mod chat;
@@ -46,7 +47,9 @@ mod token;
 mod toolbar;
 mod transition;
 mod tree_view;
+mod ui_string;
 
+pub use allegiance::{AllegianceRequest, AllegianceSource, AllegianceUi};
 pub use camera_ui::{CameraUi, CameraUiEffect};
 pub use chat::{
     ChatHistory, ChatRequest, ChatSettings, ChatStrings, ChatUi, Modifiers, CHAT_STRING_TABLE,
@@ -105,7 +108,10 @@ pub use text::UiTextData;
 pub use text_data::{StoreTextData, DEFAULT_FONT, FONT_GROUP};
 pub use token::{tokenize, REFERENCE, REFERENT, STATELESS};
 pub use toolbar::{ToolbarChild, ToolbarUi};
+pub use ui_string::{UiString, UiStrings, UI_TABLE};
 
+#[cfg(test)]
+mod allegiance_tests;
 #[cfg(test)]
 mod chat_tests;
 #[cfg(test)]

@@ -96,6 +96,10 @@ pub enum SkillVar {
         value: f64,
         precision: u32,
     },
+    /// `AddVariable_StringInfo` of the UI's own string.
+    Info(Box<crate::ui_string::UiString>),
+    /// `AddVariable_StringInfo` of a string the server sent.
+    Wire(ac2_net::protocol::StringInfo),
 }
 
 /// What the skills panel asks of the player and the string tables.

@@ -25,6 +25,7 @@ impl FellowStrings for Player {
                 SkillVar::Int(n) => n.to_string(),
                 SkillVar::Text(t) => t.clone(),
                 SkillVar::Float { value, .. } => format!("{value}"),
+                other => format!("{other:?}"),
             })
             .collect();
         let text = format!("{string_id:08x}[{}]", vars.join(","));

@@ -367,7 +367,15 @@ fn the_client_walks_with_w_and_draws_its_character() {
         view.update(&gpu, &frame, Duration::ZERO);
         let notices = client.take_script_notices();
         let commands = view.frameworks(&mut client, &frame, &[], &notices);
-        assert!(commands.is_empty(), "{commands:?}");
+        // Only the hidden allegiance page's request for nobody's profile
+        // (`gmAllegianceUI::UpdateShowState`).
+        assert!(
+            commands.iter().all(|c| matches!(
+                c,
+                ac2_client::Command::Social(ac2_weenie::SocialRequest::QueryAllegianceProfile(0))
+            )),
+            "{commands:?}"
+        );
         if view.shortcut_slots() > 0 {
             ready = true;
             break;
@@ -489,6 +497,34 @@ fn the_client_walks_with_w_and_draws_its_character() {
         "{rows:?}"
     );
     assert_eq!(rows[1].1, "Birch");
+    // Swearing to Birch (`gmAllegianceUI`'s Swear on the selection): the double answers with a
+    // profile naming Birch as patron; the page lists the player under that patron.
+    let swear = FrameInput {
+        commands: vec![
+            ac2_client::Command::Select(Some(legions_server_double::FELLOW)),
+            ac2_client::Command::Social(ac2_weenie::SocialRequest::SwearAllegiance),
+        ],
+        ..FrameInput::default()
+    };
+    let mut events = client.use_time(&swear).unwrap();
+    let mut texts = Vec::new();
+    for _ in 0..20 {
+        let notices = client.take_script_notices();
+        let commands = view.frameworks(&mut client, &frame, &events, &notices);
+        let input = FrameInput {
+            commands,
+            ..FrameInput::default()
+        };
+        server.borrow_mut().elapsed += STEP;
+        events = client.use_time(&input).unwrap();
+        texts = view.allegiance_texts();
+        if texts.iter().any(|t| t.contains("Birch")) {
+            break;
+        }
+    }
+    eprintln!("allegiance: {texts:?}");
+    assert!(texts.iter().any(|t| t.contains("Explorer")), "{texts:?}");
+    assert!(texts.iter().any(|t| t.contains("Birch")), "{texts:?}");
     // A displayed line reaches the log on the next update; the window shows it.
     view.chat_display(0x4_0000, "Explorer says, \"well met\"\n");
     // Images set since the build (icons) load on a worker; give them a moment.

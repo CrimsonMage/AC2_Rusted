@@ -16,6 +16,7 @@ use std::sync::Arc;
 use ac2_core::DataId;
 use ac2_db::{ResourceResult, ResourceStore};
 
+use crate::allegiance::AllegianceUi;
 use crate::chat::{ChatStrings, ChatUi, CHAT_STRING_TABLE, REPLY_STRING_TABLE, STRING_TABLE_GROUP};
 use crate::compose::UiPixels;
 use crate::dialog::DialogFactory;
@@ -75,7 +76,8 @@ pub struct GameplayHud {
     pub skills: Option<SkillTreeUi>,
     /// `gmExaminationUI`.
     pub examination: Option<ExaminationUi>,
-    /// `gmSocialUI`'s `gmFellowshipUI`.
+    /// `gmSocialUI`'s `gmAllegianceUI` (its player set once in the world) and `gmFellowshipUI`.
+    pub allegiance: Option<AllegianceUi>,
     pub fellowship: Option<FellowshipUi>,
     /// `DialogFactory` over the gameplay layout.
     pub dialogs: DialogFactory,
@@ -140,6 +142,9 @@ pub fn build_gameplay_hud(
     let examination = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .map(|toolbar| ExaminationUi::create(&mut tree, toolbar));
+    let allegiance = layouts[&LAYOUT_TOOLBAR]
+        .as_ref()
+        .map(|toolbar| AllegianceUi::create(&tree, toolbar, 0));
     let fellowship = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .map(|toolbar| FellowshipUi::create(&mut tree, toolbar));
@@ -154,6 +159,7 @@ pub fn build_gameplay_hud(
         toolbar,
         skills,
         examination,
+        allegiance,
         fellowship,
         dialogs,
     })

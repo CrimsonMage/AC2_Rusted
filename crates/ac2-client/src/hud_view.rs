@@ -27,14 +27,15 @@ pub(crate) struct HudView {
     pub(crate) shortcuts: Option<ShortcutUi>,
     pub(crate) skills: Option<SkillTreeUi>,
     pub(crate) examination: Option<ac2_ui::ExaminationUi>,
+    pub(crate) allegiance: Option<ac2_ui::AllegianceUi>,
     pub(crate) fellowship: Option<ac2_ui::FellowshipUi>,
     pub(crate) dialogs: Option<ac2_ui::DialogFactory>,
     /// The tree's messages for the frameworks that ask the player
     /// ([`HudView::frameworks`](crate::hud_player)).
     pub(crate) player_messages: Vec<UiMessage>,
     /// Every string table, loaded on a worker, and the UI table's DID (enum `0x41000018`).
-    pub(crate) strings: Option<(Arc<ac2_db::PreloadedStringTables>, u32)>,
-    pending_strings: Option<Receiver<(ac2_db::PreloadedStringTables, u32)>>,
+    pub(crate) strings: Option<Arc<crate::ui_sources::UiStringTables>>,
+    pending_strings: Option<Receiver<crate::ui_sources::UiStringTables>>,
     /// The frameworks that ask the player have been loaded from it.
     pub(crate) player_loaded: bool,
     /// Lines displayed before the HUD arrived (`RecvNotice_DisplayStringInfo`).
@@ -65,11 +66,10 @@ impl HudView {
             .name("ac2 ui strings".into())
             .spawn(move || {
                 let tables = ac2_db::PreloadedStringTables::load_all(&strings_store, 0x5800_0000);
-                let ui_table = ac2_assets::ac2_enum_did(&strings_store, 0x4000_0004, 0x4100_0018)
-                    .ok()
-                    .flatten()
-                    .map_or(0, |did| did.raw());
-                let _ = send_strings.send((tables, ui_table));
+                let _ = send_strings.send(crate::ui_sources::UiStringTables::new(
+                    &strings_store,
+                    tables,
+                ));
             })
             .expect("spawn the UI strings loader");
         let (send, receive) = mpsc::channel();
@@ -93,6 +93,7 @@ impl HudView {
             shortcuts: None,
             skills: None,
             examination: None,
+            allegiance: None,
             fellowship: None,
             dialogs: None,
             player_messages: Vec::new(),
@@ -222,6 +223,27 @@ impl HudView {
     }
 
     /// The examination panel's texts, in order.
+    pub(crate) fn allegiance_texts(&self) -> Vec<String> {
+        let (Some((tree, _)), Some(page)) = (&self.hud, &self.allegiance) else {
+            return Vec::new();
+        };
+        fn walk(tree: &UiTree, index: usize, out: &mut Vec<String>) {
+            if let Some(text) = tree.get(index).and_then(|e| e.text()) {
+                if !text.is_empty() {
+                    out.push(text);
+                }
+            }
+            for &child in tree.children(index) {
+                walk(tree, child, out);
+            }
+        }
+        let mut out = Vec::new();
+        for row in page.rows(tree) {
+            walk(tree, row, &mut out);
+        }
+        out
+    }
+
     pub(crate) fn fellowship_rows(&self) -> Vec<(u64, String)> {
         let (Some((tree, _)), Some(panel)) = (&self.hud, &self.fellowship) else {
             return Vec::new();
@@ -318,6 +340,7 @@ impl HudView {
                     shortcuts,
                     skills,
                     examination,
+                    allegiance,
                     fellowship,
                     dialogs,
                 },
@@ -339,6 +362,7 @@ impl HudView {
                 self.shortcuts = shortcuts;
                 self.skills = skills;
                 self.examination = examination;
+                self.allegiance = allegiance;
                 self.fellowship = fellowship;
                 self.dialogs = Some(dialogs);
                 self.dirty = true;
@@ -351,8 +375,8 @@ impl HudView {
     /// One frame of the HUD at `Timer::cur_time` `now` (seconds).
     pub(crate) fn update(&mut self, gpu: &Gpu, now: f64) {
         if let Some(pending) = &self.pending_strings {
-            if let Ok((tables, ui_table)) = pending.try_recv() {
-                self.strings = Some((Arc::new(tables), ui_table));
+            if let Ok(tables) = pending.try_recv() {
+                self.strings = Some(Arc::new(tables));
                 self.pending_strings = None;
             }
         }

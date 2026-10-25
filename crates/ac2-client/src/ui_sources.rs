@@ -7,6 +7,7 @@ use std::cell::RefCell;
 
 use ac2_db::{PreloadedStringTables, RenderInfo, RenderVar};
 use ac2_net::protocol::ShortcutInfo;
+use ac2_ui::UiStrings as _;
 use ac2_ui::{
     Shortcut, ShortcutOptions, ShortcutSource, SkillNode, SkillPanel, SkillSource, SkillStatus,
     SkillVar,
@@ -59,6 +60,39 @@ pub fn shortcut_to_info(shortcut: &Shortcut) -> ShortcutInfo {
     }
 }
 
+/// The string tables the UI renders from, all loaded on a worker: every table, and the DIDs of
+/// the tables the UI names by enum (`StringInfo::SetTableEnum`, group `0x40000004`).
+pub(crate) struct UiStringTables {
+    pub tables: PreloadedStringTables,
+    /// Enum `0x41000018`.
+    pub ui_table: u32,
+    pub enums: std::collections::HashMap<u32, u32>,
+}
+
+/// The table enums the UI frameworks render from: the UI's, the chat's, race and sex names
+/// (`AllegianceDataAdaptor::GetSpeciesGenderString`), and the MotD's.
+const UI_TABLE_ENUMS: [u32; 4] = [0x4100_0018, 0x4100_0004, 0x4100_000B, 0x4100_0001];
+
+impl UiStringTables {
+    /// On a worker: the enums resolved through the DAT's enum mapper.
+    pub(crate) fn new(store: &ac2_db::ResourceStore, tables: PreloadedStringTables) -> Self {
+        let enums: std::collections::HashMap<u32, u32> = UI_TABLE_ENUMS
+            .iter()
+            .filter_map(|&e| {
+                let did = ac2_assets::ac2_enum_did(store, 0x4000_0004, e)
+                    .ok()
+                    .flatten()?;
+                Some((e, did.raw()))
+            })
+            .collect();
+        Self {
+            tables,
+            ui_table: enums.get(&0x4100_0018).copied().unwrap_or(0),
+            enums,
+        }
+    }
+}
+
 /// The player as the UI frameworks see it for one frame.
 pub(crate) struct ClientPlayer<'a> {
     pub client: RefCell<&'a mut Client>,
@@ -66,6 +100,8 @@ pub(crate) struct ClientPlayer<'a> {
     pub strings: &'a PreloadedStringTables,
     /// The UI string table's DID (enum `0x41000018`).
     pub ui_table: u32,
+    /// The DIDs of the tables the UI names by enum.
+    pub enums: &'a std::collections::HashMap<u32, u32>,
 }
 
 impl ClientPlayer<'_> {
@@ -144,27 +180,36 @@ impl SkillSource for ClientPlayer<'_> {
     }
 
     fn render(&self, string_id: u32, vars: &[(u32, SkillVar)]) -> String {
-        let variables = vars
-            .iter()
-            .map(|(id, var)| {
-                let var = match var {
-                    SkillVar::UInt(v) => RenderVar::ULInt(*v),
-                    SkillVar::Int(v) => RenderVar::LInt(*v),
-                    SkillVar::Text(t) => RenderVar::String(t.encode_utf16().collect()),
-                    SkillVar::Float { value, precision } => RenderVar::Float {
-                        value: *value,
-                        precision: *precision as _,
-                    },
-                };
-                (*id, var)
-            })
-            .collect();
-        let info = RenderInfo {
-            string_id,
-            table_id: self.ui_table,
-            literal: None,
-            variables,
+        self.render_string(&ac2_ui::UiString::ui(string_id, vars.to_vec()))
+    }
+}
+
+impl ClientPlayer<'_> {
+    /// A UI string as the renderer's `RenderInfo` (its table enum resolved to the table).
+    fn ui_info(&self, string: &ac2_ui::UiString) -> RenderInfo {
+        let var = |var: &SkillVar| match var {
+            SkillVar::UInt(v) => RenderVar::ULInt(*v),
+            SkillVar::Int(v) => RenderVar::LInt(*v),
+            SkillVar::Text(t) => RenderVar::String(t.encode_utf16().collect()),
+            SkillVar::Float { value, precision } => RenderVar::Float {
+                value: *value,
+                precision: *precision as _,
+            },
+            SkillVar::Info(inner) => RenderVar::Info(Box::new(self.ui_info(inner))),
+            SkillVar::Wire(info) => RenderVar::Info(Box::new(crate::chat_text::render_info(info))),
         };
+        RenderInfo {
+            string_id: string.string_id,
+            table_id: self.enums.get(&string.table_enum).copied().unwrap_or(0),
+            literal: string.literal.as_ref().map(|t| t.encode_utf16().collect()),
+            variables: string.vars.iter().map(|(id, v)| (*id, var(v))).collect(),
+        }
+    }
+}
+
+impl ac2_ui::UiStrings for ClientPlayer<'_> {
+    fn render_string(&self, string: &ac2_ui::UiString) -> String {
+        let info = self.ui_info(string);
         String::from_utf16_lossy(&ac2_db::get_string(self.strings, &info, false))
     }
 }

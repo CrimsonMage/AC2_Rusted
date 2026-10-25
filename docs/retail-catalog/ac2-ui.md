@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 388 done, 173 partial, 1666 to do, 20 skipped.
+2247 retail functions: 403 done, 175 partial, 1648 to do, 21 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -1520,35 +1520,35 @@ Legend and workflow: [README](README.md).
 - [~] `gmSkillUI::ListenToMessage` · 00435030 · legions 00435800 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 - [~] `gmSkillUI::gmSkillUI` · 00435090 · legions 00435860 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 
-## `ac2/client/src/ui/gameplay/toolbar/social/gmallegianceui.cpp.c` (0/20)
+## `ac2/client/src/ui/gameplay/toolbar/social/gmallegianceui.cpp.c` (15/20)
 
 ### AllegianceDataAdaptor
 - [ ] `AllegianceDataAdaptor::~AllegianceDataAdaptor` · 0043c7a0 · legions 0043cff0
 
 ### gmAllegianceUI
-- [ ] `gmAllegianceUI::MakeCurrent` · 0043c7c0 · legions 0043d010
-- [ ] `gmAllegianceUI::MakeVassal` · 0043ca20 · legions 0043d270
-- [ ] `gmAllegianceUI::SendRequest` · 0043cbc0 · legions 0043d410
-- [ ] `gmAllegianceUI::UpdateButtons` · 0043cce0 · legions 0043d530
-- [ ] `gmAllegianceUI::FocusTree` · 0043ce50 · legions 0043d6a0
+- [x] `gmAllegianceUI::MakeCurrent` · 0043c7c0 · legions 0043d010 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::MakeVassal` · 0043ca20 · legions 0043d270 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::SendRequest` · 0043cbc0 · legions 0043d410 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::UpdateButtons` · 0043cce0 · legions 0043d530 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::FocusTree` · 0043ce50 · legions 0043d6a0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 
 ### HashSet<InstanceID>
 - [ ] `HashSet<InstanceID>::operator=` · 0043ce80 · legions 0043d6d0
 
 ### gmAllegianceUI
-- [ ] `gmAllegianceUI::RecvNotice_SelectionChanged` · 0043cfe0
-- [ ] `gmAllegianceUI::UpdateShowState` · 0043d000 · legions 0043d850
-- [ ] `gmAllegianceUI::MakeAcceptSwearDialog` · 0043d080 · legions 0043d8d0
-- [ ] `gmAllegianceUI::MakeBreakDialog` · 0043d100 · legions 0043d950
-- [ ] `gmAllegianceUI::DoBreak` · 0043d180 · legions 0043d9d0
-- [ ] `gmAllegianceUI::~gmAllegianceUI` · 0043d290 · legions 0043dae0
-- [ ] `gmAllegianceUI::ListenToMessage` · 0043d350 · legions 0043dba0
-- [ ] `gmAllegianceUI::RecvNotice_CloseConfirmationDialog` · 0043d440 · legions 0043dc90
-- [ ] `gmAllegianceUI::RecvNotice_RequestVassal` · 0043d4a0
-- [ ] `gmAllegianceUI::RecvNotice_Patron_SwearDone` · 0043d4b0
-- [ ] `gmAllegianceUI::gmAllegianceUI` · 0043d4e0 · legions 0043dd30
-- [ ] `gmAllegianceUI::Update` · 0043d790 · legions 0043dfe0
-- [ ] `gmAllegianceUI::RecvNotice_UpdateAllegianceProfile` · 0043dcb0
+- [x] `gmAllegianceUI::RecvNotice_SelectionChanged` · 0043cfe0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [~] `gmAllegianceUI::UpdateShowState` · 0043d000 · legions 0043d850 — follows the tab and field each frame instead of their opened/closed/set_show_state messages
+- [x] `gmAllegianceUI::MakeAcceptSwearDialog` · 0043d080 · legions 0043d8d0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::MakeBreakDialog` · 0043d100 · legions 0043d950 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::DoBreak` · 0043d180 · legions 0043d9d0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [-] `gmAllegianceUI::~gmAllegianceUI` · 0043d290 · legions 0043dae0
+- [~] `gmAllegianceUI::ListenToMessage` · 0043d350 · legions 0043dba0 — follows the tab and field each frame instead of their opened/closed/set_show_state messages
+- [x] `gmAllegianceUI::RecvNotice_CloseConfirmationDialog` · 0043d440 · legions 0043dc90 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::RecvNotice_RequestVassal` · 0043d4a0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::RecvNotice_Patron_SwearDone` · 0043d4b0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::gmAllegianceUI` · 0043d4e0 · legions 0043dd30 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::Update` · 0043d790 · legions 0043dfe0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
+- [x] `gmAllegianceUI::RecvNotice_UpdateAllegianceProfile` · 0043dcb0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 
 ## `ac2/client/src/ui/gameplay/toolbar/social/gmfellowshipui.cpp.c` (15/17)
 

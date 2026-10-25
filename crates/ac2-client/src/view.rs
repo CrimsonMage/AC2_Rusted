@@ -374,6 +374,11 @@ impl ClientView {
         self.hud.skills_current()
     }
 
+    /// The allegiance page's member list texts, in order.
+    pub fn allegiance_texts(&self) -> Vec<String> {
+        self.hud.allegiance_texts()
+    }
+
     /// The fellowship page's rows, top first: each member's id and name.
     pub fn fellowship_rows(&self) -> Vec<(u64, String)> {
         self.hud.fellowship_rows()

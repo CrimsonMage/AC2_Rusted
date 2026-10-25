@@ -269,6 +269,25 @@ key	status	note
 0043c570	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043c5c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043c630	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c7c0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043ca20	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043cbc0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043cce0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043ce50	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043cfe0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d000	~	follows the tab and field each frame instead of their opened/closed/set_show_state messages
+0043d080	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d100	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d180	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d290	-	
+0043d350	~	follows the tab and field each frame instead of their opened/closed/set_show_state messages
+0043d440	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d4a0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d4b0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d4e0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043d770	-	
+0043d790	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043dcb0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 00447550	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 004475b0	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
@@ -3392,6 +3411,8 @@ key	status	note
 0060c5f0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0060c6f0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060c7a0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+0060c7d0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0060c8f0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
 0060ca40	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060caf0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060cb90	~	pregame/confirmation.rs is_name_character: English letters, ' - and space; other languages' letters not modelled
@@ -3942,6 +3963,8 @@ key	status	note
 006b79f0	_	ac2-script wstate DID formulas / ByteStream::package_id
 006b7aa0	_	ac2-script WLib/WState/ByteStream decode
 006baa40	_	
+006bc380	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+006bc410	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
 006bc600	x	ac2-db string_meta_text / string_state (CRT C locale classes)
 006bc900	x	
 006bc940	x	

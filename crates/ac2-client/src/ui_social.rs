@@ -3,6 +3,7 @@
 //! gameplay commands (`gmCWInterface::DoFellowship*`, `SetSelection`), and the invitation is a
 //! dialog whose answer comes back to it.
 
+use ac2_ui::{AllegianceRequest, AllegianceSource, AllegianceUi};
 use ac2_ui::{
     DialogFactory, DialogOutcome, Fellow, FellowshipData, FellowshipRequest, FellowshipUi,
 };
@@ -27,6 +28,47 @@ impl FellowshipSource for ClientPlayer<'_> {
     /// filled by the script yet, so the shares stay unanswered (retail's failed call).
     fn fellow_xp(&self) -> Option<Vec<(u64, f32)>> {
         None
+    }
+}
+
+impl AllegianceSource for ClientPlayer<'_> {
+    fn player(&self) -> u64 {
+        FellowshipSource::player(self)
+    }
+
+    fn render_wire(&self, info: &ac2_net::protocol::StringInfo) -> String {
+        self.render_info(info)
+    }
+}
+
+/// One notice for the allegiance page (`gmAllegianceUI`'s `RecvNotice_*`).
+pub(crate) fn allegiance_notice(
+    page: &mut AllegianceUi,
+    tree: &mut UiTree,
+    dialogs: &mut DialogFactory,
+    player: &ClientPlayer<'_>,
+    notice: &GameplayNotice,
+) {
+    use GameplayNotice as N;
+    match notice {
+        N::UpdateAllegianceProfile(profile) => page.update_profile(tree, player, profile),
+        N::RequestVassal { name, .. } => page.request_vassal(tree, dialogs, player, name),
+        N::PatronSwearDone { .. } => page.patron_swear_done(tree, dialogs),
+        N::SelectionChanged(selection) => page.selection_changed(tree, *selection),
+        _ => {}
+    }
+}
+
+/// The allegiance page's requests as commands.
+pub(crate) fn allegiance_commands(requests: Vec<AllegianceRequest>, commands: &mut Vec<Command>) {
+    for request in requests {
+        commands.push(Command::Social(match request {
+            AllegianceRequest::Query(target) => SocialRequest::QueryAllegianceProfile(target),
+            AllegianceRequest::Swear => SocialRequest::SwearAllegiance,
+            AllegianceRequest::Break(target) => SocialRequest::BreakAllegiance(target),
+            AllegianceRequest::AcceptVassal => SocialRequest::AcceptVassal,
+            AllegianceRequest::DeclineVassal => SocialRequest::DeclineVassal(0x1585),
+        }));
     }
 }
 
@@ -115,11 +157,22 @@ pub(crate) fn fellowship_notice(
     }
 }
 
-/// The dialogs' answers the fellowship page waits for.
-pub(crate) fn dialog_outcomes(panel: &mut FellowshipUi, outcomes: &[DialogOutcome]) {
+/// The dialogs' answers the social pages wait for.
+pub(crate) fn dialog_outcomes(
+    tree: &mut UiTree,
+    fellowship: Option<&mut FellowshipUi>,
+    allegiance: Option<&mut AllegianceUi>,
+    outcomes: &[DialogOutcome],
+) {
+    let (mut fellowship, mut allegiance) = (fellowship, allegiance);
     for outcome in outcomes {
         if let DialogOutcome::Confirmation { context, yes } = outcome {
-            panel.close_confirmation(*context, *yes);
+            if let Some(panel) = fellowship.as_deref_mut() {
+                panel.close_confirmation(*context, *yes);
+            }
+            if let Some(page) = allegiance.as_deref_mut() {
+                page.close_confirmation(tree, *context, *yes);
+            }
         }
     }
 }

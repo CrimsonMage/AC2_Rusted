@@ -59,7 +59,7 @@ impl HudView {
     ) -> Vec<Command> {
         let messages = std::mem::take(&mut self.player_messages);
         let mut commands = Vec::new();
-        let Some((strings, ui_table)) = self.strings.clone() else {
+        let Some(strings) = self.strings.clone() else {
             return commands;
         };
         if !frame.in_world {
@@ -74,6 +74,7 @@ impl HudView {
             player_loaded,
             dirty,
             fellowship,
+            allegiance,
             dialogs,
             ..
         } = self;
@@ -96,8 +97,9 @@ impl HudView {
         let player = ClientPlayer {
             client: RefCell::new(client),
             frame,
-            strings: &strings,
-            ui_table,
+            strings: &strings.tables,
+            ui_table: strings.ui_table,
+            enums: &strings.enums,
         };
         let mut reload_shortcuts = !*player_loaded
             || script_notices
@@ -109,6 +111,9 @@ impl HudView {
             if let Some(skills) = skills.as_mut() {
                 skills.update_skill_panel(tree, &player);
             }
+            if let Some(page) = allegiance.as_mut() {
+                page.set_player(tree, ac2_ui::FellowshipSource::player(&player));
+            }
         }
         for event in events {
             let SessionEvent::Notice(notice) = event else {
@@ -116,6 +121,9 @@ impl HudView {
             };
             if let (Some(panel), Some(dialogs)) = (fellowship.as_mut(), dialogs.as_mut()) {
                 crate::ui_social::fellowship_notice(panel, tree, dialogs, &player, notice);
+            }
+            if let (Some(page), Some(dialogs)) = (allegiance.as_mut(), dialogs.as_mut()) {
+                crate::ui_social::allegiance_notice(page, tree, dialogs, &player, notice);
             }
             match notice {
                 GameplayNotice::UpdateExaminationProfile(profile) => {
@@ -174,15 +182,28 @@ impl HudView {
             if let Some(panel) = fellowship.as_mut() {
                 panel.message(tree, message);
             }
+            if let (Some(page), Some(dialogs)) = (allegiance.as_mut(), dialogs.as_mut()) {
+                page.message(tree, dialogs, &player, message);
+            }
             if let Some(dialogs) = dialogs.as_mut() {
                 dialogs.message(tree, message);
             }
         }
+        if let Some(dialogs) = dialogs.as_mut() {
+            let outcomes = dialogs.take_outcomes();
+            crate::ui_social::dialog_outcomes(
+                tree,
+                fellowship.as_mut(),
+                allegiance.as_mut(),
+                &outcomes,
+            );
+        }
+        if let Some(page) = allegiance.as_mut() {
+            page.follow_show_state(tree);
+            crate::ui_social::allegiance_commands(page.take_requests(), &mut commands);
+        }
         let mut tells = Vec::new();
         if let Some(panel) = fellowship.as_mut() {
-            if let Some(dialogs) = dialogs.as_mut() {
-                crate::ui_social::dialog_outcomes(panel, &dialogs.take_outcomes());
-            }
             let selection = frame.selection.as_ref().map(|s| s.id);
             tells = crate::ui_social::fellowship_commands(
                 panel.take_requests(),
