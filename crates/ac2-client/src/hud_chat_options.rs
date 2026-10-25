@@ -3,7 +3,9 @@
 //! ([`chat_option_commands`]). An Apply sends the reload notice, so the chat windows take the new
 //! settings on the next frame ([`ac2_ui::ChatOptionsUi::take_reload`]).
 
-use ac2_ui::{ChatOptionRequest, ChatOptionsUi};
+use ac2_ui::ChatOptionRequest;
+#[cfg(feature = "window")]
+use ac2_ui::ChatOptionsUi;
 
 use crate::gameplay::Command;
 
@@ -36,6 +38,7 @@ pub fn chat_option_commands(requests: Vec<ChatOptionRequest>) -> Vec<Command> {
 }
 
 /// The chat options page's requests since the last frame, as commands onto `commands`.
+#[cfg(feature = "window")]
 pub(crate) fn chat_options_commands(page: &mut ChatOptionsUi, commands: &mut Vec<Command>) {
     commands.extend(chat_option_commands(page.take_requests()));
 }

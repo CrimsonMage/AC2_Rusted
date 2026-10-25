@@ -7,11 +7,13 @@ use ac2_ui::{DialogFactory, ShopRequest, ShopSource, ShopStackCall, ShopUi, Stac
 use ac2_weenie::GameplayNotice;
 
 use crate::gameplay::Command;
+#[cfg(feature = "window")]
 use crate::ui_sources::ClientPlayer;
 
 /// `INVALID_IID`: a stack's from and target when it splits a store's sale.
 const INVALID: u64 = 0;
 
+#[cfg(feature = "window")]
 impl ShopSource for ClientPlayer<'_> {
     fn render_wire(&self, info: &ac2_net::protocol::StringInfo) -> String {
         self.render_info(info)

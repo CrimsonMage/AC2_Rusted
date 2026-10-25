@@ -4,6 +4,8 @@
 //! modification's avatar; and the screens without scenes (intro, data patch, credits, controls). Writes
 //! `target/ac2-snapshots/pregame_scene_*.png` and `pregame_{intro,data_patch,credits,keyboard}.png`.
 
+#![cfg(feature = "window")]
+
 mod common;
 
 use std::sync::Arc;

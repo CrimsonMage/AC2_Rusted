@@ -33,12 +33,16 @@ mod gameplay;
 #[cfg(feature = "window")]
 mod hud_character;
 mod hud_chat_options;
+#[cfg(feature = "window")]
 mod hud_craft;
+#[cfg(feature = "window")]
 mod hud_ingredient;
+#[cfg(feature = "window")]
 mod hud_navigation;
 #[cfg(feature = "window")]
 mod hud_player;
 mod hud_shop;
+#[cfg(feature = "window")]
 mod hud_view;
 mod item_queries;
 mod loader;
@@ -56,6 +60,7 @@ mod scripts_io;
 mod scripts_queries;
 mod social_queries;
 mod tables;
+#[cfg(feature = "window")]
 mod target_select;
 #[cfg(feature = "window")]
 mod ui_images;

@@ -2,6 +2,8 @@
 //! the session waits at the character set, character selection lists it, and the UI's buttons
 //! enter the world or delete the character through the session.
 
+#![cfg(feature = "window")]
+
 mod common;
 
 use std::sync::Arc;

@@ -4,6 +4,8 @@
 //! posed under its appearance. Writes `target/ac2-snapshots/client_cb4d_*.png`; skipped without
 //! a GPU adapter.
 
+#![cfg(feature = "window")]
+
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;

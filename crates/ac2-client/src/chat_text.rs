@@ -3,12 +3,16 @@
 //! worker thread reads the tables on demand and renders; the frame takes the finished lines in
 //! the order they were asked for.
 
+#[cfg(feature = "window")]
 use std::sync::mpsc::{self, Receiver, Sender};
 
-use ac2_db::{RenderInfo, RenderVar, ResourceStore, StoreStringTables};
+use ac2_db::{RenderInfo, RenderVar};
+#[cfg(feature = "window")]
+use ac2_db::{ResourceStore, StoreStringTables};
 use ac2_net::protocol::{StringInfo, StringVariable};
 
 /// `StringState`'s DID (enum 0x40000001 of group 0x40000004).
+#[cfg(feature = "window")]
 const STRING_STATE: u32 = 0x5800_0000;
 
 /// A wire `StringInfo` as the renderer's input (`StringInfo::UnPack`'s variables by stream type).
@@ -72,11 +76,13 @@ pub fn render_info(info: &StringInfo) -> RenderInfo {
 }
 
 /// The rendering worker.
+#[cfg(feature = "window")]
 pub(crate) struct ChatText {
     send: Sender<(u32, RenderInfo)>,
     receive: Receiver<(u32, String)>,
 }
 
+#[cfg(feature = "window")]
 impl ChatText {
     pub(crate) fn new(store: ResourceStore) -> Self {
         let (send, requests) = mpsc::channel::<(u32, RenderInfo)>();

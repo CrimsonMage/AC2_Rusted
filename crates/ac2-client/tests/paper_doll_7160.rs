@@ -4,6 +4,8 @@
 //! emptying when the sword comes off. Writes `target/ac2-snapshots/client_paper_doll.png`.
 //! Skipped without a GPU adapter (the HUD's frameworks need the view).
 
+#![cfg(feature = "window")]
+
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;

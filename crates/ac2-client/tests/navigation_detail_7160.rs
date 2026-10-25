@@ -6,6 +6,8 @@
 //! the detail frame's pixel (`ConvertLandscapeToPixel`, scale 250 over the 128 cells) and the
 //! marker's centre (`CenterMarker`). Skipped without a GPU adapter.
 
+#![cfg(feature = "window")]
+
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
