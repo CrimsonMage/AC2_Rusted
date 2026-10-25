@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 398 done, 193 partial, 1307 to do, 6 skipped.
+1904 retail functions: 411 done, 193 partial, 1294 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (26/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (39/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -649,9 +649,9 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_BreakAllegiance` · 00457a20 · legions 00458580
 - [ ] `ggmCWInterface::CallIFun_CanAutoAttackTarget` · 00457af0 · legions 00458650
 - [ ] `ggmCWInterface::CallIFun_CanCraftSkillBeRaised` · 00457bd0 · legions 00458730
-- [ ] `ggmCWInterface::CallIFun_CanSkillBeRaisedByEnum` · 00457c90 · legions 004587f0
-- [ ] `ggmCWInterface::CallIFun_CanSkillBeTrainedByEnum` · 00457d50 · legions 004588b0
-- [ ] `ggmCWInterface::CallIFun_CanSkillBeUntrainedByEnum` · 00457e10 · legions 00458970
+- [x] `ggmCWInterface::CallIFun_CanSkillBeRaisedByEnum` · 00457c90 · legions 004587f0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+- [x] `ggmCWInterface::CallIFun_CanSkillBeTrainedByEnum` · 00457d50 · legions 004588b0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+- [x] `ggmCWInterface::CallIFun_CanSkillBeUntrainedByEnum` · 00457e10 · legions 00458970 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_CheckIngredient` · 00457ed0 · legions 00458a30
 - [ ] `ggmCWInterface::CallIFun_ClearResurrectionRequest` · 00458090 · legions 00458bf0
 - [ ] `ggmCWInterface::CallIFun_CloseTradeNegotiations` · 00458120 · legions 00458c80
@@ -692,7 +692,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_GetDurabilityLevel` · 0045a0a0 · legions 0045acf0
 - [ ] `ggmCWInterface::CallIFun_GetFXAndBehaviorInformationFromWsl` · 0045a140 · legions 0045ad90
 - [ ] `ggmCWInterface::CallIFun_GetFellowXPHash` · 0045a310 · legions 0045af60
-- [ ] `ggmCWInterface::CallIFun_GetGameplayOptions` · 0045a4b0 · legions 0045b100
+- [x] `ggmCWInterface::CallIFun_GetGameplayOptions` · 0045a4b0 · legions 0045b100 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_GetHeroSkillCredits` · 0045a620 · legions 0045b270
 - [ ] `ggmCWInterface::CallIFun_GetIconID` · 0045a6c0 · legions 0045b310
 - [ ] `ggmCWInterface::CallIFun_GetLastSelection` · 0045a760 · legions 0045b3b0
@@ -718,9 +718,9 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_GetShowPetUI` · 0045b620 · legions 0045c270
 - [ ] `ggmCWInterface::CallIFun_GetShowRadarCoords` · 0045b6c0 · legions 0045c310
 - [ ] `ggmCWInterface::CallIFun_GetShowShortcutNumbers` · 0045b760 · legions 0045c3b0
-- [ ] `ggmCWInterface::CallIFun_GetSkillCostToTrainByEnum` · 0045b800 · legions 0045c450
+- [x] `ggmCWInterface::CallIFun_GetSkillCostToTrainByEnum` · 0045b800 · legions 0045c450 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_GetSkillCredits` · 0045b8c0 · legions 0045c510
-- [ ] `ggmCWInterface::CallIFun_GetSkillExperienceNeededToLevelByEnum` · 0045b960 · legions 0045c5b0
+- [x] `ggmCWInterface::CallIFun_GetSkillExperienceNeededToLevelByEnum` · 0045b960 · legions 0045c5b0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_GetSkillXPByEnum` · 0045ba40 · legions 0045c690
 - [ ] `ggmCWInterface::CallIFun_GetStackable` · 0045bb20 · legions 0045c770
 - [ ] `ggmCWInterface::CallIFun_GetWhichShortcutSet` · 0045bbc0 · legions 0045c810
@@ -748,16 +748,16 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_InqRecipeDifficulty` · 0045db70 · legions 0045e7c0
 - [ ] `ggmCWInterface::CallIFun_InqRecipeIngredients` · 0045dd60 · legions 0045e9b0
 - [ ] `ggmCWInterface::CallIFun_InqRecipeList` · 0045dfc0 · legions 0045ec10
-- [ ] `ggmCWInterface::CallIFun_InqRootPanelFromRace` · 0045e180 · legions 0045edd0
+- [x] `ggmCWInterface::CallIFun_InqRootPanelFromRace` · 0045e180 · legions 0045edd0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_InqShortcutArray` · 0045e2c0 · legions 0045ef10
-- [ ] `ggmCWInterface::CallIFun_InqShortcutInfo` · 0045e450 · legions 0045f0a0
+- [x] `ggmCWInterface::CallIFun_InqShortcutInfo` · 0045e450 · legions 0045f0a0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_InqSimpleInvByLocTable` · 0045e660 · legions 0045f2b0
-- [ ] `ggmCWInterface::CallIFun_InqSkillLevelByEnum` · 0045e7f0 · legions 0045f440
-- [ ] `ggmCWInterface::CallIFun_InqSkillTimeLeft` · 0045e9c0 · legions 0045f610
+- [x] `ggmCWInterface::CallIFun_InqSkillLevelByEnum` · 0045e7f0 · legions 0045f440 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+- [x] `ggmCWInterface::CallIFun_InqSkillTimeLeft` · 0045e9c0 · legions 0045f610 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_InqUISaveLocations` · 0045eb90 · legions 0045f7e0
 - [ ] `ggmCWInterface::CallIFun_IsCraftSkillRaiseable` · 0045ed00 · legions 0045f950
 - [ ] `ggmCWInterface::CallIFun_IsFellowshipMember` · 0045edc0 · legions 0045fa10
-- [ ] `ggmCWInterface::CallIFun_IsHeroSkillByEnum` · 0045eea0 · legions 0045faf0
+- [x] `ggmCWInterface::CallIFun_IsHeroSkillByEnum` · 0045eea0 · legions 0045faf0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_IsOnInventory` · 0045ef60 · legions 0045fbb0
 - [ ] `ggmCWInterface::CallIFun_IsSkillBeingUntrainedByEnum` · 0045f040 · legions 0045fc90
 - [ ] `ggmCWInterface::CallIFun_IsSkillHarmful` · 0045f100 · legions 0045fd50
@@ -825,7 +825,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_SetLatencyIndicatorGraph` · 004625a0 · legions 004631f0
 - [ ] `ggmCWInterface::CallIFun_SetRadarMask` · 00462650 · legions 004632a0
 - [ ] `ggmCWInterface::CallIFun_SetSelection` · 00462700 · legions 00463350
-- [ ] `ggmCWInterface::CallIFun_SetShortcut` · 004627d0 · legions 00463420
+- [x] `ggmCWInterface::CallIFun_SetShortcut` · 004627d0 · legions 00463420 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_SetShortcutHeight` · 004628e0 · legions 00463530
 - [ ] `ggmCWInterface::CallIFun_SetShortcutInstaScroll` · 00462990 · legions 004635e0
 - [ ] `ggmCWInterface::CallIFun_SetShortcutLocked` · 00462a40 · legions 00463690
@@ -855,7 +855,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_UploadGameOptions` · 00463b70 · legions 004647e0
 - [ ] `ggmCWInterface::CallIFun_UploadUISettings` · 00463c00 · legions 00464870
 - [ ] `ggmCWInterface::CallIFun_UseSelection` · 00463c90 · legions 00464900
-- [ ] `ggmCWInterface::CallIFun_UseShortcut` · 00463d30 · legions 004649a0
+- [x] `ggmCWInterface::CallIFun_UseShortcut` · 00463d30 · legions 004649a0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 
 ## `ac2/client/src/weenie/interp/glue/gmcefundispatcher.cpp.c` (0/1)
 

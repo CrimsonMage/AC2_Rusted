@@ -1,15 +1,22 @@
 //! UI-initiated calls into a weenie's script (`ggmCWInterface::CallIFun_*`, e.g. selecting,
-//! using, setting a shortcut): a new context on the object's process with a 0 return slot
-//! (tag 2), the arguments, the process instance, then `VM::CallIFun(instance package, fid)`;
-//! the return slot is read back.
+//! using, setting a shortcut, the skill panel's questions): a new context on the object's
+//! process, then `VM::CallIFun(instance package, fid)`, and the values read back.
+//!
+//! The wrappers' frame, bottom up: each out parameter's current value in reverse parameter
+//! order (a word tagged 4, or a new native, tagged 1), the return slot (one 0 word tagged 2,
+//! or two words tagged 0x82 for a `ulong64`), then the parameters in reverse order (so word 2
+//! is the first) - an out parameter as the stack address of its value (`KIND_VALUE | slot <<
+//! 10`) - and the instance. After the call the return slot and the out values are read (a
+//! native out takes the object the slot then names).
 
 use ac2_net::protocol as net;
 
 use super::{DispatchOutcome, HostError, ScriptHost};
+use crate::vm::refs::{flags, Target};
 use crate::vm::{tag, Context, FunctionId};
 use crate::wire;
 
-/// One value a `CallIFun_*` wrapper pushes.
+/// One parameter of a `CallIFun_*` wrapper.
 #[derive(Debug, Clone, PartialEq)]
 pub enum IFunArg {
     /// `ulong` / `int` / `bool`: one slot, tag 4.
@@ -20,25 +27,78 @@ pub enum IFunArg {
     Text(String),
     /// Another native (`StringInfo`, `ShortcutInfo`, ...), created as a new native object.
     Native(net::NativeObject),
+    /// An out parameter (`ulong *`, `float *`, `StringInfo *`, ...) with its current value.
+    Out(OutValue),
 }
 
-/// How a UI call ended, with its return slot (the `retval` the wrapper reads back).
-#[derive(Debug, Clone, PartialEq, Eq)]
+/// An out parameter's value.
+#[derive(Debug, Clone, PartialEq)]
+pub enum OutValue {
+    /// A word (`ulong`, `int`, a `float`'s bits).
+    Word(u32),
+    /// A native (`StringInfo`, ...).
+    Native(net::NativeObject),
+}
+
+/// The shape of a wrapper's return slot.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum IFunReturn {
+    /// `int *retval`: one word.
+    Word,
+    /// `ulong64 *retval`: two words, low word deeper.
+    Long,
+}
+
+/// How a UI call ended: its return value and its out parameters' values, in parameter order
+/// (`None` for a native out whose slot no longer names a native the wire can carry).
+#[derive(Debug, Clone, PartialEq)]
 pub struct IFunResult {
     pub outcome: DispatchOutcome,
-    pub retval: u32,
+    pub retval: u64,
+    pub outs: Vec<Option<OutValue>>,
+}
+
+impl IFunResult {
+    /// Out parameter `n` as a word (0 when it is not one).
+    pub fn out_word(&self, n: usize) -> u32 {
+        match self.outs.get(n) {
+            Some(Some(OutValue::Word(v))) => *v,
+            _ => 0,
+        }
+    }
+
+    /// Out parameter `n` as a native.
+    pub fn out_native(&self, n: usize) -> Option<&net::NativeObject> {
+        match self.outs.get(n) {
+            Some(Some(OutValue::Native(v))) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 impl ScriptHost {
-    /// `ggmCWInterface::CallIFun_*`: calls `function` on `id`'s process. Retail deletes the
-    /// context when the call returns; a context that stops for data here waits like a
-    /// dispatched one ([`ScriptHost::resume_data_waits`]) and its `retval` is not read.
+    /// `ggmCWInterface::CallIFun_*` with an `int *retval`; see [`ScriptHost::query`].
     pub fn call_ifun(
         &mut self,
         id: u64,
         function: u32,
         args: &[IFunArg],
     ) -> Result<IFunResult, HostError> {
+        self.query(id, function, args, IFunReturn::Word)
+    }
+
+    /// `ggmCWInterface::CallIFun_*`: calls `function` on `id`'s process with `args` and
+    /// reads back the return slot and the out parameters. Retail deletes the context when the
+    /// call returns; a context that stops for data here waits like a dispatched one
+    /// ([`ScriptHost::resume_data_waits`]) and its values are not read.
+    pub fn query(
+        &mut self,
+        id: u64,
+        function: u32,
+        args: &[IFunArg],
+        ret: IFunReturn,
+    ) -> Result<IFunResult, HostError> {
+        let bad = |_| HostError::BadArguments;
         let instance = self
             .processes
             .get(&id)
@@ -48,10 +108,30 @@ impl ScriptHost {
         self.next_context += 1;
         let mut ctx = Context::new(cid, Some(instance));
         ctx.can_yield = true;
+        // The out values, last parameter deepest.
+        let mut out_slots = vec![None; args.len()];
+        for (i, arg) in args.iter().enumerate().rev() {
+            if let IFunArg::Out(value) = arg {
+                out_slots[i] = Some(ctx.sp);
+                match value {
+                    OutValue::Word(v) => ctx.push(*v, tag::BOOL).map_err(bad)?,
+                    OutValue::Native(n) => {
+                        let r = self.native(n);
+                        ctx.push(r, tag::REF).map_err(bad)?;
+                    }
+                }
+            }
+        }
         let ret_slot = ctx.sp;
-        ctx.push(0, tag::INT).map_err(|_| HostError::BadArguments)?;
-        for arg in args {
-            let pushed = match arg {
+        match ret {
+            IFunReturn::Word => ctx.push(0, tag::INT).map_err(bad)?,
+            IFunReturn::Long => {
+                ctx.push(0, tag::LONG_INT).map_err(bad)?;
+                ctx.push(0, tag::LONG_INT).map_err(bad)?;
+            }
+        }
+        for (i, arg) in args.iter().enumerate().rev() {
+            match arg {
                 IFunArg::Int(v) => ctx.push(*v, tag::BOOL),
                 IFunArg::Long(v) => ctx.push64(*v, tag::BOOL | tag::LONG),
                 IFunArg::Text(text) => {
@@ -59,20 +139,53 @@ impl ScriptHost {
                     ctx.push(r, tag::REF)
                 }
                 IFunArg::Native(native) => {
-                    let object = wire::native_from_net(native);
-                    let r = self.vm.refs.create_native(native.native_type(), object);
+                    let r = self.native(native);
                     ctx.push(r, tag::REF)
                 }
-            };
-            pushed.map_err(|_| HostError::BadArguments)?;
+                IFunArg::Out(_) => {
+                    let slot = out_slots[i].unwrap_or(0) as u32;
+                    let blob = flags::KIND_VALUE | ((slot & 0xFFFF) << flags::OFFSET_SHIFT);
+                    let address = self.vm.refs.add(blob, Target::Ref(u32::MAX));
+                    ctx.push(address, tag::REF)
+                }
+            }
+            .map_err(bad)?;
         }
-        ctx.push(instance, tag::REF)
-            .map_err(|_| HostError::BadArguments)?;
+        ctx.push(instance, tag::REF).map_err(bad)?;
         self.vm.last_fault = None;
         let pkg = self.vm.package_id(instance).unwrap_or(u32::MAX);
         let status = self.vm.call_ifun(&mut ctx, pkg, FunctionId(function));
-        let retval = ctx.slot(ret_slot).map_or(0, |(v, _)| v);
+        let word = |n: usize| ctx.slot(n).map_or(0, |(v, _)| v);
+        let retval = match ret {
+            IFunReturn::Word => u64::from(word(ret_slot)),
+            IFunReturn::Long => u64::from(word(ret_slot)) | u64::from(word(ret_slot + 1)) << 32,
+        };
+        let outs = args
+            .iter()
+            .zip(&out_slots)
+            .filter_map(|(arg, slot)| match (arg, slot) {
+                (IFunArg::Out(OutValue::Word(_)), Some(s)) => Some(Some(OutValue::Word(word(*s)))),
+                (IFunArg::Out(OutValue::Native(_)), Some(s)) => {
+                    let r = word(*s);
+                    let native = self.vm.refs.heap(r).ok().and_then(|o| {
+                        let n = o.native.as_ref()?;
+                        wire::native_to_net(o.native_type, n).ok()
+                    });
+                    Some(native.map(OutValue::Native))
+                }
+                _ => None,
+            })
+            .collect();
         let outcome = self.finish(id, ctx, status);
-        Ok(IFunResult { outcome, retval })
+        Ok(IFunResult {
+            outcome,
+            retval,
+            outs,
+        })
+    }
+
+    fn native(&mut self, native: &net::NativeObject) -> u32 {
+        let object = wire::native_from_net(native);
+        self.vm.refs.create_native(native.native_type(), object)
     }
 }

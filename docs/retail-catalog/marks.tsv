@@ -206,6 +206,19 @@ key	status	note
 00457540	x	ac2-script vm (VM/ReferenceTable/Resolver)
 00457610	x	ac2-script vm (VM/ReferenceTable/Resolver)
 004576d0	x	ac2-script vm (VM/ReferenceTable/Resolver)
+00457c90	x	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+00457d50	x	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+00457e10	x	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045a4b0	x	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045b800	x	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045b960	x	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045e180	x	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045e450	x	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045e7f0	x	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045e9c0	x	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045eea0	x	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+004627d0	x	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+00463d30	x	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 00463df0	~	ac2-script glue: id table + pure-glue registry; engine glue unbound
 004661d0	~	ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 00467160	~	ac2-script native::unpack: the native types Legions WStates hold

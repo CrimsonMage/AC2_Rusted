@@ -30,7 +30,7 @@ use crate::wstate::WSTATE_BASE_DID;
 
 pub use crate::vm::DataRequest;
 pub use gun::{ChatRequest, ChatServices};
-pub use ifun::{IFunArg, IFunResult};
+pub use ifun::{IFunArg, IFunResult, IFunReturn, OutValue};
 pub use notices::{notice_names, NoticeArg, ScriptNotice};
 pub use skill_panel::SkillPanelData;
 
