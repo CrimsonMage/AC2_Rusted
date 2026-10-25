@@ -28,7 +28,17 @@ mod property;
 mod resource_runtime;
 mod retail_cache_retention;
 mod store;
+mod string_info;
+#[cfg(test)]
+mod string_info_tests;
+mod string_meta_lex;
+mod string_meta_parse;
+mod string_meta_render;
+mod string_meta_text;
+mod string_number;
+mod string_state;
 mod string_table;
+mod string_tables;
 #[cfg(test)]
 mod test_support;
 mod thread_executor;
@@ -77,10 +87,27 @@ pub use retail_cache_retention::{
 };
 pub use store::ResourceResidencyLease;
 pub use store::ResourceStore;
+pub use string_info::{
+    get_log_string, get_string, get_string_with_meta_tags, inq_string, inq_string_internal,
+    render_with_table, GetStringError, GetStringFailure, RenderInfo, RenderVar, StringStateRef,
+    StringTableRef, StringTables, StringVarTable,
+};
+pub use string_meta_parse::{RenderErr, RenderErrorCode};
+pub use string_meta_render::{get_match_score, render_string};
+pub use string_meta_text::{
+    apply_meta_tags_to_name, capitalize_first_letter, escape_string, is_escape_char,
+    retrieve_meta_letters, strip_meta_letters, trim_excess_spaces, unescape_string,
+};
+pub use string_state::{
+    female_meta_letters, is_number_singular, load_string_state, male_meta_letters,
+    treasure_meta_letters, StringState, STRING_STATE_ENUM, STRING_STATE_ENUM_GROUP,
+    STRING_STATE_FIRST, STRING_STATE_LAST,
+};
 pub use string_table::{
     load_string_table, read_wide_pstring, StringTable, StringTableString, STRING_TABLE_FIRST,
     STRING_TABLE_LAST,
 };
+pub use string_tables::{PreloadedStringTables, StoreStringTables};
 pub use thread_executor::ThreadPreparationExecutor;
 pub use typed_cache::{CachedResource, ResourceCacheStats, ResourceDecodeScope};
 pub use typed_cache::{

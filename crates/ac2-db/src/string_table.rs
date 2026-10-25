@@ -1,9 +1,10 @@
 //! `StringTable` (`DB_TYPE_STRING_TABLE` 0x40000026, DIDs 0x25000000..=0x26FFFFFE in the local
 //! DAT): the client's localised text, keyed by string id.
 //!
-//! `StringTable::UnPack`: the `DBObj` DID, four header fields (u32, u16, u32, u16; the number
-//! formatting settings `m_base`, `m_numDecimalDigits` and `m_leadingZero` plus a version), 4-byte
-//! alignment, the string count, then each (u32 key, `StringTableString`).
+//! `StringTable::UnPack`: the `DBObj` DID, four header fields (`currentStateID` u32, `m_base`
+//! u16, `m_leadingZero` u32, `m_numDecimalDigits` u16; negative number settings defer to the
+//! `StringState`), 4-byte alignment, the string count, then each (u32 key,
+//! `StringTableString`).
 //! `StringTableString::UnPack`: the table DID, a u16 whose low 15 bits count the pieces and whose
 //! top bit says variable names follow; each piece is an i16 flag, alignment, and (flag non-zero)
 //! a `PStringBase<unsigned short>`; alignment; a u16 count of variable ids (u32 each); alignment;
@@ -49,7 +50,8 @@ impl StringTableString {
 /// A `StringTable`.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct StringTable {
-    /// The four header words in pack order.
+    /// The four header words in pack order: `currentStateID`, `m_base`, `m_leadingZero`,
+    /// `m_numDecimalDigits` (see [`StringTable::number_base`] and its siblings).
     pub header: (u32, u16, u32, u16),
     pub strings: HashMap<u32, StringTableString>,
 }
