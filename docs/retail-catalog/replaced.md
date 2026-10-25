@@ -1,6 +1,6 @@
 # replaced: Third-party libraries, CRT and container templates replaced by Rust
 
-2058 retail functions: 30 done, 0 partial, 0 to do, 2028 skipped.
+2058 retail functions: 32 done, 0 partial, 0 to do, 2026 skipped.
 Legend and workflow: [README](README.md).
 
 ## `_libraries/ImeUI.lib/ImeUi.obj.c` (0/36)
@@ -2742,11 +2742,11 @@ Legend and workflow: [README](README.md).
 ### _STL::deque<DXMusicMessageThread::MusicEvent,_STL::allocator<DXMusicMessageThread::MusicEvent>_>
 - [-] `_STL::deque<DXMusicMessageThread::MusicEvent,_STL::allocator<DXMusicMessageThread::MusicEvent>_>::_M_push_back_aux_v` · 005a8d60 · legions 005753a0 — Rust std replaces it
 
-## `portal/client/src/sound/soundmanager.cpp.c` (0/16)
+## `portal/client/src/sound/soundmanager.cpp.c` (2/16)
 
 ### (free functions)
-- [-] `_PlayingSoundSorter` · 005a10f0 — Rust std replaces it
-- [-] `_SoundInstanceLRU` · 005a1130 — Rust std replaces it
+- [x] `_PlayingSoundSorter` · 005a10f0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `_SoundInstanceLRU` · 005a1130 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 
 ### _STL
 - [-] `_STL::__unguarded_linear_insert` · 005a1680 · legions 00611370 — Rust std replaces it

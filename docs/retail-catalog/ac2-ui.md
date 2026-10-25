@@ -1,9 +1,9 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 403 done, 175 partial, 1648 to do, 21 skipped.
+2247 retail functions: 413 done, 179 partial, 1633 to do, 22 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
+## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (7/53)
 
 ### BBox
 - [x] `BBox::AdjustBBox` · 00426720 · legions 00426510 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
@@ -18,7 +18,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gm3DTextUI::RecvNotice_ItemUpdate` · 00426920
 - [x] `gm3DTextUI::ShowReticle` · 00426930 · legions 004266f0 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 - [~] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
-- [ ] `gm3DTextUI::DoStuffMeter` · 00426ae0 · legions 004268a0
+- [x] `gm3DTextUI::DoStuffMeter` · 00426ae0 · legions 004268a0 — ac2-ui reticle.rs
 - [ ] `gm3DTextUI::MakeNewData` · 00426b70 · legions 00426930
 
 ### BBox
@@ -30,7 +30,7 @@ Legend and workflow: [README](README.md).
 
 ### gm3DTextUI
 - [~] `gm3DTextUI::InitReticle` · 00426d90 · legions 00426b50 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
-- [ ] `gm3DTextUI::RecvNotice_UpdateSelectionInfo` · 00426ee0 · legions 00426ca0
+- [x] `gm3DTextUI::RecvNotice_UpdateSelectionInfo` · 00426ee0 · legions 00426ca0 — ac2-ui reticle.rs
 - [ ] `gm3DTextUI::PlaceHere` · 00426f60 · legions 00426d20
 
 ### _STL::_Deque_iterator<BBox,_STL::_Nonconst_traits<BBox>_>
@@ -937,15 +937,15 @@ Legend and workflow: [README](README.md).
 - [ ] `gmStatusbarUI::SetupChildren` · 00423210 · legions 00422fe0
 - [~] `gmStatusbarUI::gmStatusbarUI` · 004232f0 · legions 004230c0 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 
-## `ac2/client/src/ui/gameplay/statusbar/gmvitalsui.cpp.c` (0/6)
+## `ac2/client/src/ui/gameplay/statusbar/gmvitalsui.cpp.c` (2/6)
 
 ### gmVitalsUI
-- [ ] `gmVitalsUI::~gmVitalsUI` · 004397d0 · legions 0043a020
-- [ ] `gmVitalsUI::RecvNotice_UpdateVital` · 004398c0
-- [ ] `gmVitalsUI::SetTooltip` · 00439930 · legions 0043a180
-- [ ] `gmVitalsUI::gmVitalsUI` · 004399a0 · legions 0043a1f0
-- [ ] `gmVitalsUI::ListenToMessage` · 00439d30 · legions 0043a580
-- [ ] `gmVitalsUI::RecvNotice_UpdateHeroStatus` · 00439e00 · legions 0043a650
+- [-] `gmVitalsUI::~gmVitalsUI` · 004397d0 · legions 0043a020
+- [x] `gmVitalsUI::RecvNotice_UpdateVital` · 004398c0 — ac2-ui vitals.rs
+- [~] `gmVitalsUI::SetTooltip` · 00439930 · legions 0043a180 — tooltips not modelled
+- [x] `gmVitalsUI::gmVitalsUI` · 004399a0 · legions 0043a1f0 — ac2-ui vitals.rs
+- [~] `gmVitalsUI::ListenToMessage` · 00439d30 · legions 0043a580 — tooltips not modelled
+- [~] `gmVitalsUI::RecvNotice_UpdateHeroStatus` · 00439e00 · legions 0043a650 — tooltips not modelled
 
 ## `ac2/client/src/ui/gameplay/statusbar/indicators/gmindicatorsui.cpp.c` (0/4)
 
@@ -2564,11 +2564,11 @@ Legend and workflow: [README](README.md).
 - [x] `MD_Data_Pause::Update` · 005e20f0 — ac2-ui media.rs / transition.rs
 - [ ] `MD_Data_Pause::Copy` · 005e2160 · legions 005a2f50
 
-## `portal/client/src/uielement/desc/media/md_data_sound.cpp.c` (0/3)
+## `portal/client/src/uielement/desc/media/md_data_sound.cpp.c` (1/3)
 
 ### MD_Data_Sound
 - [ ] `MD_Data_Sound::MD_Data_Sound` · 005e1ea0 · legions 005a2cc0
-- [~] `MD_Data_Sound::Update` · 005e1ec0 — fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
+- [x] `MD_Data_Sound::Update` · 005e1ec0 — ac2-ui media queue -> ac2-audio SoundManager::Play
 - [ ] `MD_Data_Sound::Copy` · 005e1f30 · legions 005a2d50
 
 ## `portal/client/src/uielement/desc/media/md_data_state.cpp.c` (2/4)
@@ -2746,7 +2746,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [ ] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180
 
-## `portal/client/src/uielement/system/uielement.cpp.c` (32/104)
+## `portal/client/src/uielement/system/uielement.cpp.c` (35/104)
 
 ### UIRectangleObject
 - [ ] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790
@@ -2790,7 +2790,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::DragAndDropComplete` · 005e9250 · legions 005a9eb0
 - [ ] `UIElement::SetDefaultLocation` · 005e92b0 · legions 005a9f10
 - [ ] `UIElement::InqImageSize` · 005e92c0 · legions 005a9f20
-- [ ] `UIElement::SetTooltip` · 005e9300 · legions 005a9f60
+- [x] `UIElement::SetTooltip` · 005e9300 · legions 005a9f60 — ac2-ui tooltip.rs
 - [x] `UIElement::GetParentCurrentPosition` · 005e9340 · legions 005a9fa0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::UpdateActivatable` · 005e93e0 · legions 005aa040
 - [ ] `UIElement::UpdateActivateOrder` · 005e9420 · legions 005aa080
@@ -2807,7 +2807,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::SetParent` · 005e9720 · legions 005aa380 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [~] `UIElement::BroadcastMessage` · 005e9790 · legions 005aa3f0 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [x] `UIElement::UpdateMedia` · 005e97c0 · legions 005aa420 — ac2-ui media.rs / transition.rs
-- [ ] `UIElement::ClearTooltip` · 005e9810 · legions 005aa470
+- [x] `UIElement::ClearTooltip` · 005e9810 · legions 005aa470 — ac2-ui tooltip.rs
 
 ### IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,PStringBase<char>_*>_*>
 - [ ] `IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,PStringBase<char>_*>_*>::~IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,PStringBase<char>_*>_*>` · 005e9860 · legions 005aa4c0
@@ -2835,7 +2835,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::MatchAttributes` · 005ea5c0 · legions 005ab190
 - [ ] `UIElement::DragItem` · 005eab10 · legions 005ab6e0
 - [ ] `UIElement::CatchDroppedItem` · 005eabd0 · legions 005ab7a0
-- [ ] `UIElement::IsTooltipOn` · 005eac90 · legions 005ab860
+- [x] `UIElement::IsTooltipOn` · 005eac90 · legions 005ab860 — ac2-ui tooltip.rs
 - [ ] `UIElement::IsActivatable` · 005eacb0 · legions 005ab880
 - [ ] `UIElement::GetActivateOrder` · 005eacd0 · legions 005ab8a0
 - [~] `UIElement::MoveTo` · 005eacf0 · legions 005ab8c0 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
@@ -2874,7 +2874,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::UpdateChild` · 005ed340 · legions 005adf10 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [~] `UIElement::SetState` · 005ed450 · legions 005ae020 — m_delOnTransStop (delete after the exit transition) not modelled
 
-## `portal/client/src/uielement/system/uielementmanager.cpp.c` (2/69)
+## `portal/client/src/uielement/system/uielementmanager.cpp.c` (4/69)
 
 ### Box2D
 - [ ] `Box2D::Includes` · 005e3490 · legions 005a4250
@@ -2885,7 +2885,7 @@ Legend and workflow: [README](README.md).
 - [~] `UIElementManager::SetCursor` · 005e35f0 — fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
 - [x] `UIElementManager::UseDefaultCursor` · 005e3690 · legions 005a4420 — ac2-ui media.rs / transition.rs
 - [ ] `UIElementManager::KeyReleaseEvent` · 005e36b0
-- [ ] `UIElementManager::ClearTooltip` · 005e3740 · legions 005a4570
+- [x] `UIElementManager::ClearTooltip` · 005e3740 · legions 005a4570 — ac2-ui tooltip.rs
 - [ ] `UIElementManager::CheckDragandDrop` · 005e37c0 · legions 005a45f0
 - [ ] `UIElementManager::ClearDragandDrop` · 005e3820 · legions 005a4650
 - [~] `UIElementManager::ActivationAlert` · 005e38b0 · legions 005a46e0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
@@ -2900,7 +2900,7 @@ Legend and workflow: [README](README.md).
 - [~] `UIElementManager::UpdateMouse` · 005e3b70 · legions 005a49a0 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [~] `UIElementManager::MouseDownEvent` · 005e3cc0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 - [ ] `UIElementManager::CleanDeleteQueue` · 005e3de0 · legions 005a4c10
-- [ ] `UIElementManager::StartTooltip` · 005e3e90 · legions 005a4cc0
+- [~] `UIElementManager::StartTooltip` · 005e3e90 · legions 005a4cc0 — no right-button check; 32x32 cursor size assumed
 - [ ] `UIElementManager::StartDragandDrop` · 005e42e0
 - [ ] `UIElementManager::StopDragandDrop` · 005e46d0 · legions 005a5500
 - [ ] `UIElementManager::UnregisterActivatable` · 005e4720 · legions 005a5550
@@ -2909,7 +2909,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElementManager::GetObjectRegionInfo` · 005e4b10
 - [~] `UIElementManager::MouseUpEvent` · 005e4b60 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [~] `UIElementManager::KeyPressEvent` · 005e4c70 · legions 005a4440 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-- [ ] `UIElementManager::ResetTooltip` · 005e4d20 · legions 005a5bb0
+- [x] `UIElementManager::ResetTooltip` · 005e4d20 · legions 005a5bb0 — ac2-ui tooltip.rs
 - [ ] `UIElementManager::AddtoListCleanQue` · 005e4d30 · legions 005a5bc0
 - [ ] `UIElementManager::HandleApply` · 005e4d70 · legions 005a5c00
 - [~] `UIElementManager::StartInput` · 005e4e50 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
@@ -2963,7 +2963,7 @@ Legend and workflow: [README](README.md).
 - [x] `MoveToManager::IsMovingTo` · 005e75a0 — ac2-physics moveto (slice 3)
 
 ### UIElementManager
-- [ ] `UIElementManager::UseTime` · 005e75b0 · legions 005a8240
+- [~] `UIElementManager::UseTime` · 005e75b0 · legions 005a8240 — tooltip owner/timing and default cursor ported; drag, resize and object regions not
 - [ ] `UIElementManager::Cleanup` · 005e7780 · legions 005a83e0
 - [ ] `UIElementManager::RegisterForMessage` · 005e7b30
 - [ ] `UIElementManager::~UIElementManager` · 005e7cd0 · legions 005a8930

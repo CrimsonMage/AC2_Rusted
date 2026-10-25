@@ -33,7 +33,7 @@ fn id(name: &str) -> u32 {
 }
 
 /// `ID_Vital_DisplayText` with `current` and `max`.
-pub(crate) fn vital_text(strings: &dyn FellowStrings, cur: u64, max: u64) -> String {
+pub fn vital_text(strings: &dyn FellowStrings, cur: u64, max: u64) -> String {
     strings.render(
         id("ID_Vital_DisplayText"),
         &[

@@ -45,9 +45,11 @@ mod text_data;
 mod text_edit;
 mod token;
 mod toolbar;
+mod tooltip;
 mod transition;
 mod tree_view;
 mod ui_string;
+mod vitals;
 
 pub use allegiance::{AllegianceRequest, AllegianceSource, AllegianceUi};
 pub use camera_ui::{CameraUi, CameraUiEffect};
@@ -64,7 +66,7 @@ pub use dialog::{
 };
 pub use element::{UiBox, UiElement, UiImage, UiPlacement, UiTree};
 pub use examination::{ExaminationCall, ExaminationItem, ExaminationUi};
-pub use fellow_info::{Fellow, FellowStrings};
+pub use fellow_info::{vital_text, Fellow, FellowStrings};
 pub use fellowship::{FellowshipData, FellowshipRequest, FellowshipSource, FellowshipUi};
 pub use hud::{
     build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
@@ -109,6 +111,10 @@ pub use text_data::{StoreTextData, DEFAULT_FONT, FONT_GROUP};
 pub use token::{tokenize, REFERENCE, REFERENT, STATELESS};
 pub use toolbar::{ToolbarChild, ToolbarUi};
 pub use ui_string::{UiString, UiStrings, UI_TABLE};
+pub use vitals::{
+    VitalsUi, VITAL_EXPERIENCE, VITAL_FOCUS, VITAL_HEALTH, VITAL_PK_DAMAGE, VITAL_PK_VIGOR_LOSS,
+    VITAL_VIGOR,
+};
 
 #[cfg(test)]
 mod allegiance_tests;
@@ -141,4 +147,8 @@ mod skill_tree_tests;
 #[cfg(test)]
 mod text_tests;
 #[cfg(test)]
+mod tooltip_tests;
+#[cfg(test)]
 mod tree_tests;
+#[cfg(test)]
+mod vitals_tests;

@@ -132,7 +132,9 @@ key	status	note
 00426720	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 00426930	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 00426970	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+00426ae0	x	ac2-ui reticle.rs
 00426d90	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+00426ee0	x	ac2-ui reticle.rs
 00428e60	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 004291a0	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 00429320	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
@@ -235,6 +237,13 @@ key	status	note
 00438270	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 004386c0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 004387f0	x	ac2-ui shortcut.rs
+004397d0	-	
+004398c0	x	ac2-ui vitals.rs
+00439930	~	tooltips not modelled
+004399a0	x	ac2-ui vitals.rs
+00439d10	-	
+00439d30	~	tooltips not modelled
+00439e00	~	tooltips not modelled
 00439ea0	-	
 00439f30	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 00439f40	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -439,10 +448,10 @@ key	status	note
 004557b0	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004558a0	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 004559c0	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
-00456190	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+00456190	x	ac2-script vm::refs (reserved bit on every new entry)
 00456270	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 00456330	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
-00456550	_	ac2-script vm (VM/ReferenceTable/Resolver)
+00456550	x	ac2-script vm::refs (reserved bit on every new entry)
 004565c0	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004567b0	_	ac2-script reference/native unpack
 00456ae0	_	ac2-script glue::options / examination (Legions layout and efun switch)
@@ -3030,6 +3039,64 @@ key	status	note
 005a0ac0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
 005a0da0	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
 005a0f80	x	ac2-ui input.rs
+005a1000	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a10f0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1130	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1160	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1210	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a1720	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1830	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1a70	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1ba0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1ca0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1d10	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a1d90	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a1fe0	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a2120	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a2680	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a27d0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a28d0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a29f0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a2b00	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a2c50	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a3050	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a30c0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a35b0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a3680	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a3a50	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a3ab0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a3f70	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a3ff0	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a4290	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a4440	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a45c0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a4990	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a4ae0	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a5160	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a52a0	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a5500	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a5a80	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a6170	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a61c0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a61e0	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a6270	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6280	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6320	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6400	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6420	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6430	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a64d0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6600	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6640	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a6790	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6b50	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a6d50	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6f00	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6f20	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a70a0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a70b0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a70e0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a7180	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005ae960	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
 005af390	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005af9c0	~	A8R8G8B8 only; colour key and format conversion not modelled
@@ -3089,7 +3156,7 @@ key	status	note
 005e1d20	x	ac2-ui media.rs / transition.rs
 005e1dc0	x	ac2-ui media.rs / transition.rs
 005e1e40	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
-005e1ec0	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
+005e1ec0	x	ac2-ui media queue -> ac2-audio SoundManager::Play
 005e1fc0	x	ac2-ui media.rs / transition.rs
 005e2020	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 005e20d0	x	ac2-ui media.rs / transition.rs
@@ -3108,17 +3175,21 @@ key	status	note
 005e3310	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e35f0	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
 005e3690	x	ac2-ui media.rs / transition.rs
+005e3740	x	ac2-ui tooltip.rs
 005e38b0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005e3af0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e3b70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e3cc0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+005e3e90	~	no right-button check; 32x32 cursor size assumed
 005e4b60	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4c70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005e4d20	x	ac2-ui tooltip.rs
 005e4e50	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4fc0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e59b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e5a80	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e75a0	x	ac2-physics moveto (slice 3)
+005e75b0	~	tooltip owner/timing and default cursor ported; drag, resize and object regions not
 005e8ba0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e8c60	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e8c90	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
@@ -3130,6 +3201,7 @@ key	status	note
 005e9040	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e9060	x	ac2-ui media.rs / transition.rs
 005e90b0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e9300	x	ac2-ui tooltip.rs
 005e9340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9470	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 005e94c0	x	ac2-ui input.rs / text_edit.rs: typing into text elements
@@ -3138,6 +3210,7 @@ key	status	note
 005e9720	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9790	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e97c0	x	ac2-ui media.rs / transition.rs
+005e9810	x	ac2-ui tooltip.rs
 005e9940	~	m_delOnTransStop (delete after the exit transition) not modelled
 005e99e0	x	ac2-ui media.rs / transition.rs
 005e9b80	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
@@ -3145,6 +3218,7 @@ key	status	note
 005ea2c0	x	ac2-ui media.rs / transition.rs
 005ea430	x	ac2-ui compose.rs / element.rs set_image
 005ea510	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005eac90	x	ac2-ui tooltip.rs
 005eacf0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005eae20	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005eafc0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
@@ -3981,6 +4055,13 @@ key	status	note
 006b78f0	_	ac2-script WLib/WState/ByteStream decode
 006b79f0	_	ac2-script wstate DID formulas / ByteStream::package_id
 006b7aa0	_	ac2-script WLib/WState/ByteStream decode
+006b8090	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+006b80d0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+006b8140	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+006b8a70	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+006b8aa0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+006b8b00	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+006b8b20	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 006baa40	_	
 006bc380	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
 006bc410	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
@@ -4096,6 +4177,7 @@ key	status	note
 006de1e0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006e08d0	~	ac2-script: handler table is a match in exec.rs
 006e08f0	x	ac2-script vm::exec / Program::walk
+006e0a50	x	ac2-script vm::refs (reserved bit on every new entry)
 006e0b40	x	ac2-net protocol::pack
 006e0c20	x	ac2-script reference/native unpack
 006e0d30	x	ac2-script glue

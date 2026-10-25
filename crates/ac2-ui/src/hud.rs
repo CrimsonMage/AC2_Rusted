@@ -30,6 +30,7 @@ use crate::skill_tree::SkillTreeUi;
 use crate::text_data::StoreTextData;
 use crate::token::tokenize;
 use crate::toolbar::ToolbarUi;
+use crate::vitals::VitalsUi;
 
 /// `UILAYOUT_GROUP_ENUM` (`UIMainFramework::CreateAndAddRootElement`'s
 /// `FileArray::GetDIDFromEnum(layoutEnum, 0x40000003)`).
@@ -79,6 +80,8 @@ pub struct GameplayHud {
     /// `gmSocialUI`'s `gmAllegianceUI` (its player set once in the world) and `gmFellowshipUI`.
     pub allegiance: Option<AllegianceUi>,
     pub fellowship: Option<FellowshipUi>,
+    /// `gmStatusbarUI`'s `gmVitalsUI`.
+    pub vitals: VitalsUi,
     /// `DialogFactory` over the gameplay layout.
     pub dialogs: DialogFactory,
 }
@@ -148,8 +151,12 @@ pub fn build_gameplay_hud(
     let fellowship = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .map(|toolbar| FellowshipUi::create(&mut tree, toolbar));
+    let vitals = VitalsUi::create(&mut tree);
     let dialogs = DialogFactory::new(layouts[&LAYOUT_GAMEPLAY].clone());
     let toolbar = ToolbarUi::create(&mut tree);
+    for layout in layouts.values().flatten() {
+        crate::tooltip::prefetch_tooltip_strings(&*text_data, layout);
+    }
     text_data.freeze();
     Ok(GameplayHud {
         tree,
@@ -161,6 +168,7 @@ pub fn build_gameplay_hud(
         examination,
         allegiance,
         fellowship,
+        vitals,
         dialogs,
     })
 }

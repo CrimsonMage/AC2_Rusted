@@ -29,6 +29,9 @@ pub(crate) struct HudView {
     pub(crate) examination: Option<ac2_ui::ExaminationUi>,
     pub(crate) allegiance: Option<ac2_ui::AllegianceUi>,
     pub(crate) fellowship: Option<ac2_ui::FellowshipUi>,
+    pub(crate) vitals: Option<ac2_ui::VitalsUi>,
+    /// The selection info the reticle's meters last took.
+    reticle_info: Option<ac2_net::protocol::SelectionInfo>,
     pub(crate) dialogs: Option<ac2_ui::DialogFactory>,
     /// The tree's messages for the frameworks that ask the player
     /// ([`HudView::frameworks`](crate::hud_player)).
@@ -47,7 +50,7 @@ pub(crate) struct HudView {
     overlay: UiOverlay,
     size: (u32, u32),
     pub(crate) dirty: bool,
-    /// The sounds the UI's media played this frame (`MD_Data_Sound`), for an audio sink.
+    /// The sounds the UI's media played (`MD_Data_Sound`) until the audio sink takes them.
     pub(crate) sounds: Vec<u32>,
 }
 
@@ -95,6 +98,8 @@ impl HudView {
             examination: None,
             allegiance: None,
             fellowship: None,
+            vitals: None,
+            reticle_info: None,
             dialogs: None,
             player_messages: Vec::new(),
             strings: None,
@@ -223,6 +228,17 @@ impl HudView {
     }
 
     /// The examination panel's texts, in order.
+    /// The text of the first element with id `name` (`IUIManager` lookup).
+    pub(crate) fn element_text(&self, name: &str) -> Option<String> {
+        let (tree, _) = self.hud.as_ref()?;
+        let id = ac2_ui::tokenize(name);
+        let element = tree
+            .roots()
+            .iter()
+            .find_map(|&r| tree.child_recursive(r, id))?;
+        tree.get(element)?.text()
+    }
+
     pub(crate) fn allegiance_texts(&self) -> Vec<String> {
         let (Some((tree, _)), Some(page)) = (&self.hud, &self.allegiance) else {
             return Vec::new();
@@ -342,6 +358,7 @@ impl HudView {
                     examination,
                     allegiance,
                     fellowship,
+                    vitals,
                     dialogs,
                 },
                 images,
@@ -364,6 +381,7 @@ impl HudView {
                 self.examination = examination;
                 self.allegiance = allegiance;
                 self.fellowship = fellowship;
+                self.vitals = Some(vitals);
                 self.dialogs = Some(dialogs);
                 self.dirty = true;
             }
@@ -401,7 +419,7 @@ impl HudView {
         // `UIMESSAGE_GLOBAL_LOOP`: the meters move and the chat windows write what arrived.
         if let Some((tree, _)) = &mut self.hud {
             tree.global_loop(now);
-            self.sounds = tree.take_sounds();
+            self.sounds.extend(tree.take_sounds());
             if let Some(chat) = &mut self.chat {
                 chat.global_loop(tree);
             }
@@ -428,6 +446,7 @@ impl HudView {
         &mut self,
         gpu: &Gpu,
         selection: Option<(u64, Option<&str>)>,
+        info: Option<&ac2_net::protocol::SelectionInfo>,
         target: Option<ReticleTarget<'_>>,
     ) -> ReticleOutcome {
         let (Some((tree, _)), Some(reticle)) = (&mut self.hud, &mut self.reticle) else {
@@ -436,6 +455,12 @@ impl HudView {
         let id = selection.map(|(id, _)| id);
         if reticle.current() != id {
             reticle.selection_changed(tree, id, selection.and_then(|(_, name)| name));
+            self.reticle_info = None;
+        }
+        // `RecvNotice_UpdateSelectionInfo`, once per new info.
+        if let Some(info) = info.filter(|i| self.reticle_info.as_ref() != Some(i)) {
+            reticle.selection_info(tree, info);
+            self.reticle_info = Some(info.clone());
         }
         let outcome = reticle.update(tree, target, false);
         if tree.take_changed() {

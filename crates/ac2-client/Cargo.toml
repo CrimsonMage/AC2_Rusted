@@ -10,7 +10,7 @@ license.workspace = true
 # only the `window` feature (on by default) adds the drawn view and the `ac2` window program.
 [features]
 default = ["window"]
-window = ["dep:ac2-render", "dep:ac2-gpu", "dep:winit", "dep:wgpu"]
+window = ["dep:ac2-render", "dep:ac2-gpu", "dep:winit", "dep:wgpu", "ac2-audio/output"]
 
 [[bin]]
 name = "ac2"
@@ -20,6 +20,7 @@ required-features = ["window"]
 [dependencies]
 ac2-anim = { path = "../ac2-anim" }
 ac2-assets = { path = "../ac2-assets" }
+ac2-audio = { path = "../ac2-audio", default-features = false }
 ac2-core = { path = "../ac2-core" }
 ac2-dat = { path = "../ac2-dat" }
 ac2-db = { path = "../ac2-db" }

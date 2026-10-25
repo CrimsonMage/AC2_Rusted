@@ -434,6 +434,23 @@ fn repository_efuns_write_the_weenie_qualities() {
     assert_eq!(q.ints.get(&0x14), Some(&12));
 }
 
+/// A new native packs the reserved-reference bit retail's `ReservedRefTable::AddReference`
+/// sets (0x04000000 on `CreateNativeObject`'s 0x40000100): exact bytes of a packed wpstring.
+#[test]
+fn new_natives_pack_the_reserved_bit() {
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let vm = host.vm_mut();
+    let r = vm.new_wstring("hi".encode_utf16().collect());
+    let bytes = crate::wire::to_net(&vm.refs.pack(r)).unwrap().to_bytes();
+    let words: Vec<u32> = bytes[..20]
+        .chunks_exact(4)
+        .map(|w| u32::from_le_bytes([w[0], w[1], w[2], w[3]]))
+        .collect();
+    // count, id, flags, m_pkgStateID, m_pkgid << 16 | m_ntype.
+    assert_eq!(words, [1, r, 0x4400_0100, 0, 0xFFFF_0076]);
+}
+
 /// The `CharacterGenSystem` singleton answers the creation screens' questions from its WState.
 #[test]
 fn the_character_gen_system_answers_from_its_state() {

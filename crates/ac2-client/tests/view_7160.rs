@@ -525,6 +525,31 @@ fn the_client_walks_with_w_and_draws_its_character() {
     eprintln!("allegiance: {texts:?}");
     assert!(texts.iter().any(|t| t.contains("Explorer")), "{texts:?}");
     assert!(texts.iter().any(|t| t.contains("Birch")), "{texts:?}");
+    // Levelling: the double grants 1000 experience; the status bar's experience bar follows
+    // (`gmVitalsUI::RecvNotice_UpdateVital`).
+    server.borrow_mut().grant_xp(1000);
+    let mut events = Vec::new();
+    let mut experience = None;
+    for _ in 0..20 {
+        let notices = client.take_script_notices();
+        let commands = view.frameworks(&mut client, &frame, &events, &notices);
+        let input = FrameInput {
+            commands,
+            ..FrameInput::default()
+        };
+        server.borrow_mut().elapsed += STEP;
+        events = client.use_time(&input).unwrap();
+        experience = view.element_text("ExperienceText");
+        if experience.as_deref().is_some_and(|t| t.contains("1,000")) {
+            break;
+        }
+    }
+    eprintln!(
+        "experience: {experience:?}, health: {:?}",
+        view.element_text("HealthText")
+    );
+    // The UI table groups digits.
+    assert!(experience.is_some_and(|t| t.starts_with("1,000 /")));
     // A displayed line reaches the log on the next update; the window shows it.
     view.chat_display(0x4_0000, "Explorer says, \"well met\"\n");
     // Images set since the build (icons) load on a worker; give them a moment.
