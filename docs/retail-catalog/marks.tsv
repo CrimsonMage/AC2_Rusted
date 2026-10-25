@@ -129,6 +129,8 @@ key	status	note
 00423b20	x	ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
 00423bb0	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 00424510	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
+00425740	x	ac2-audio/ac2-client: ambient environments, groove
+00426190	~	ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
 00426450	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 00426720	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 00426930	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
@@ -652,6 +654,7 @@ key	status	note
 0046c980	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 0046cac0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 0046cca0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046ce60	x	ac2-audio/ac2-client: ambient environments, groove
 0046d270	x	ac2-script host::skill_panel (ScriptHost::skill_panel)
 0046d380	x	ac2-script host::skill_panel (ScriptHost::skill_panel)
 0046d510	x	ac2-script host::skill_panel (ScriptHost::skill_panel)
@@ -966,6 +969,7 @@ key	status	note
 00489d70	x	ac2-physics los (Terrain::los_check)
 0048a160	x	
 0048a460	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
+0048a620	x	ac2-audio/ac2-client: ambient environments, groove
 0048a9c0	x	
 0048abb0	x	
 0048ace0	x	
@@ -1855,9 +1859,13 @@ key	status	note
 0051b6c0	x	
 0051b740	x	
 0051b7c0	x	
+0051de10	x	ac2-audio/ac2-client: ambient environments, groove
+00521ed0	x	ac2-audio/ac2-client: ambient environments, groove
 00522380	x	
 00522520	x	
 00522580	x	
+005235d0	x	ac2-audio/ac2-client: ambient environments, groove
+00523d70	x	ac2-audio/ac2-client: ambient environments, groove
 00524290	x	
 005257a0	x	ac2-world region::sky_objects, ac2-render sky
 00525800	x	
@@ -1869,6 +1877,13 @@ key	status	note
 00525d90	x	
 00525f70	x	
 00528900	x	ac2-world region::sky_objects, ac2-render sky
+005295a0	x	ac2-audio/ac2-client: ambient environments, groove
+005295d0	x	ac2-audio/ac2-client: ambient environments, groove
+00529610	x	ac2-audio/ac2-client: ambient environments, groove
+00529d60	x	ac2-audio/ac2-client: ambient environments, groove
+00529d90	x	ac2-audio/ac2-client: ambient environments, groove
+00529de0	x	ac2-audio/ac2-client: ambient environments, groove
+0052a6d0	x	ac2-audio/ac2-client: ambient environments, groove
 0052b1d0	x	ac2-world region::sky_objects, ac2-render sky
 0052dbb0	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 0052ddb0	_	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
@@ -3011,6 +3026,7 @@ key	status	note
 0057c500	x	
 0057c510	x	GameTime::UseTime, then unless blocking CObjectMaint::UseTime and the physics step
 0057c540	x	
+0057cb00	x	ac2-audio/ac2-client: ambient environments, groove
 0057cb50	~	outdoor sun, ambient and fog; indoor and sky environments not yet
 0057d680	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 0057e1b0	~	ac2-client world_manager_update: WorldManager::Update, UpdateRenderInterpolation, UpdateAnimation; no time of day, rain, ambient sound or scene tools
@@ -3018,8 +3034,10 @@ key	status	note
 005823e0	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 005828e0	~	ac2-render frill::select_frills + per-instance frill normal; shadow colour white (no static shadow map), drawn as instances not one merged mesh
 005832a0	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
+005834d0	~	ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
 005835c0	x	
 00583890	x	
+00583d40	x	ac2-audio/ac2-client: ambient environments, groove
 005857b0	x	ac2-world region::sky_objects, ac2-render sky
 005857f0	x	ac2-world region::sky_objects, ac2-render sky
 005858b0	x	ac2-world region::sky_objects, ac2-render sky
@@ -3077,6 +3095,8 @@ key	status	note
 005a10f0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a1130	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a1160	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a11a0	x	ac2-audio/ac2-client: ambient environments, groove
+005a11d0	x	ac2-audio/ac2-client: ambient environments, groove
 005a1210	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 005a1720	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a1830	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
@@ -3101,6 +3121,7 @@ key	status	note
 005a3ab0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a3f70	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 005a3ff0	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a4070	x	ac2-audio/ac2-client: ambient environments, groove
 005a4290	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a4440	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 005a45c0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
@@ -4505,6 +4526,65 @@ key	status	note
 00728150	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 007281f0	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 007291f0	~	ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
+0072aef0	x	ac2-audio/ac2-client: ambient environments, groove
+0072af00	x	ac2-audio/ac2-client: ambient environments, groove
+0072b030	~	ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
+0072b330	x	ac2-audio/ac2-client: ambient environments, groove
+0072b4b0	x	ac2-audio/ac2-client: ambient environments, groove
+0072b500	x	ac2-audio/ac2-client: ambient environments, groove
+0072b540	x	ac2-audio/ac2-client: ambient environments, groove
+0072b6c0	x	ac2-audio/ac2-client: ambient environments, groove
+0072b780	x	ac2-audio/ac2-client: ambient environments, groove
+0072ba00	x	ac2-audio/ac2-client: ambient environments, groove
+0072bae0	x	ac2-audio/ac2-client: ambient environments, groove
+0072bb80	x	ac2-audio/ac2-client: ambient environments, groove
+0072bbe0	x	ac2-audio/ac2-client: ambient environments, groove
+0072bd10	x	ac2-audio/ac2-client: ambient environments, groove
+0072bd40	x	ac2-audio/ac2-client: ambient environments, groove
+0072bd90	x	ac2-audio/ac2-client: ambient environments, groove
+0072be50	x	ac2-audio/ac2-client: ambient environments, groove
+0072bf00	x	ac2-audio/ac2-client: ambient environments, groove
+0072c030	x	ac2-audio/ac2-client: ambient environments, groove
+0072c0b0	x	ac2-audio/ac2-client: ambient environments, groove
+0072c100	x	ac2-audio/ac2-client: ambient environments, groove
+0072c200	x	ac2-audio/ac2-client: ambient environments, groove
+0072c220	x	ac2-audio/ac2-client: ambient environments, groove
+0072c300	~	ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
+0072c5b0	x	ac2-audio/ac2-client: ambient environments, groove
+0072c750	~	ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
+0072c790	x	ac2-audio/ac2-client: ambient environments, groove
+0072c890	x	ac2-audio/ac2-client: ambient environments, groove
+0072c970	~	ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
+0072ca70	x	ac2-audio/ac2-client: ambient environments, groove
+0072caa0	x	ac2-audio/ac2-client: ambient environments, groove
+0072cae0	x	ac2-audio/ac2-client: ambient environments, groove
+0072cbc0	x	ac2-audio/ac2-client: ambient environments, groove
+0072cc40	x	ac2-audio/ac2-client: ambient environments, groove
+0072ccf0	x	ac2-audio/ac2-client: ambient environments, groove
+0072ce80	x	ac2-audio/ac2-client: ambient environments, groove
+0072cee0	x	ac2-audio/ac2-client: ambient environments, groove
+0072cf90	x	ac2-audio/ac2-client: ambient environments, groove
+0072d030	x	ac2-audio/ac2-client: ambient environments, groove
+0072d090	x	ac2-audio/ac2-client: ambient environments, groove
+0072d150	x	ac2-audio/ac2-client: ambient environments, groove
+0072d180	x	ac2-audio/ac2-client: ambient environments, groove
+0072d230	x	ac2-audio/ac2-client: ambient environments, groove
+0072d250	x	ac2-audio/ac2-client: ambient environments, groove
+0072d2a0	x	ac2-audio/ac2-client: ambient environments, groove
+0072d2f0	x	ac2-audio/ac2-client: ambient environments, groove
+0072d310	x	ac2-audio/ac2-client: ambient environments, groove
+0072d380	x	ac2-audio/ac2-client: ambient environments, groove
+0072d3e0	x	ac2-audio/ac2-client: ambient environments, groove
+0072d440	x	ac2-audio/ac2-client: ambient environments, groove
+0072d460	x	ac2-audio/ac2-client: ambient environments, groove
+0072d480	x	ac2-audio/ac2-client: ambient environments, groove
+0072d4f0	x	ac2-audio/ac2-client: ambient environments, groove
+0072d590	x	ac2-audio/ac2-client: ambient environments, groove
+0072d5b0	x	ac2-audio/ac2-client: ambient environments, groove
+0072d5d0	x	ac2-audio/ac2-client: ambient environments, groove
+0072d5e0	x	ac2-audio/ac2-client: ambient environments, groove
+0072d620	x	ac2-audio/ac2-client: ambient environments, groove
+0072d630	x	ac2-audio/ac2-client: ambient environments, groove
 0072da60	_	ac2-ui maps.rs
 0072da90	_	ac2-ui maps.rs
 0072f200	_	ac2-ui maps.rs

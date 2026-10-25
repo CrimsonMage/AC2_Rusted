@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1317 done, 80 partial, 991 to do, 80 skipped.
+2468 retail functions: 1318 done, 80 partial, 990 to do, 80 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -383,10 +383,10 @@ Legend and workflow: [README](README.md).
 ### gInventoryGlobals
 - [ ] `gInventoryGlobals::CallIFun_GetCoinMaxStackSize` · 0046d050 · legions 0046d7b0
 
-## `ac2/shared/src/interp/glue/gradarcontrol.cpp.c` (0/1)
+## `ac2/shared/src/interp/glue/gradarcontrol.cpp.c` (1/1)
 
 ### gRadarControl
-- [ ] `gRadarControl::CallIFun_InqRadarRanges` · 0046ce60 · legions 0046d5c0
+- [x] `gRadarControl::CallIFun_InqRadarRanges` · 0046ce60 · legions 0046d5c0 — ac2-audio/ac2-client: ambient environments, groove
 
 ## `ac2/shared/src/interp/glue/grecipeadaptor.cpp.c` (0/34)
 

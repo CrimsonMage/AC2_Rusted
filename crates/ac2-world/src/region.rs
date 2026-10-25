@@ -11,6 +11,7 @@ use crate::color::Rgba;
 mod ac2_region;
 #[path = "region_environment.rs"]
 mod environment;
+pub use ac2_region::ac2_region_sound_desc;
 pub(crate) use ac2_region::{ac2_region_water_desc, load_ac2_region};
 #[path = "region/day_desc.rs"]
 mod day_desc;

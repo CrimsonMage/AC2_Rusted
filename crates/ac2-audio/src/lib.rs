@@ -5,6 +5,9 @@
 //! The frame thread never reads or decodes a file: a sound not yet resident is loaded on the
 //! loader thread and plays from a later [`SoundManager::use_time`].
 
+mod ambient;
+mod ambient_data;
+mod ambient_objects;
 mod data;
 mod loader;
 mod manager;
@@ -16,8 +19,14 @@ mod playing;
 mod sink;
 
 #[cfg(test)]
+mod ambient_tests;
+#[cfg(test)]
 mod tests;
 
+pub use ambient::{AmbientSound, AMBIENT_EMITTERS};
+pub use ambient_data::{
+    AmbientData, AmbientSoundInfo, ContinSoundInfo, IntermitSoundInfo, SoundDesc,
+};
 pub use data::{
     flags, sound_db_type, DatSounds, LoadedSound, MusicInfo, Pcm, SoundInfo, SoundSource, Wave,
     DB_TYPE_MUSIC_INFO, DB_TYPE_SOUND_INFO, DB_TYPE_WAVE,
@@ -29,5 +38,6 @@ pub use output::SpeakerSink;
 pub use play_data::{Channel, LoopingMode, PlaySoundData, SoundType, Track};
 pub use playing::Emitter;
 pub use sink::{
-    amplitude, millibels, NullSink, RecordingSink, SinkCommand, SoundSink, Spatial, SILENT,
+    amplitude, millibels, Boundary, NullSink, RecordingSink, SinkCommand, SoundSink, Spatial,
+    SILENT,
 };

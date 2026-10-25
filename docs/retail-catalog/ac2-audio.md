@@ -1,14 +1,14 @@
 # ac2-audio: Sound
 
-367 retail functions: 47 done, 18 partial, 285 to do, 17 skipped.
+367 retail functions: 113 done, 22 partial, 215 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/client/src/cregion/csound/cambientsoundinfo.cpp.c` (0/13)
+## `portal/client/src/cregion/csound/cambientsoundinfo.cpp.c` (1/13)
 
 ### CAmbientSoundInfo
 - [ ] `CAmbientSoundInfo::Destroy` · 0052a5f0 · legions 00510150
 - [ ] `CAmbientSoundInfo::GetSubDataIDs` · 0052a660 · legions 005101c0
-- [ ] `CAmbientSoundInfo::StreamPack` · 0052a6d0 · legions 00510230
+- [x] `CAmbientSoundInfo::StreamPack` · 0052a6d0 · legions 00510230 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `CAmbientSoundInfo::CAmbientSoundInfo` · 0052a900 · legions 00510460
 - [ ] `CAmbientSoundInfo::~CAmbientSoundInfo` · 0052a940 · legions 005104a0
 
@@ -34,33 +34,33 @@ Legend and workflow: [README](README.md).
 - [ ] `CAmbientSoundInfo::operator=` · 0052ac70 · legions 00510730
 - [-] `CAmbientSoundInfo::FromFileNode` · 0052acd0 — text source format (admin tools)
 
-## `portal/client/src/cregion/csound/ccontinsoundinfo.cpp.c` (0/6)
+## `portal/client/src/cregion/csound/ccontinsoundinfo.cpp.c` (3/6)
 
 ### PFileNode
 - [ ] `PFileNode::MakeSubNodeAsFloat` · 00529500 · legions 0050fdd0
 
 ### CContinSoundInfo
 - [ ] `CContinSoundInfo::operator=` · 00529560 · legions 0050fe30
-- [ ] `CContinSoundInfo::CContinSoundInfo` · 005295a0
-- [ ] `CContinSoundInfo::CContinSoundInfo` · 005295d0 · legions 0050fea0
-- [ ] `CContinSoundInfo::StreamPack` · 00529610 · legions 0050fee0
+- [x] `CContinSoundInfo::CContinSoundInfo` · 005295a0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `CContinSoundInfo::CContinSoundInfo` · 005295d0 · legions 0050fea0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `CContinSoundInfo::StreamPack` · 00529610 · legions 0050fee0 — ac2-audio/ac2-client: ambient environments, groove
 - [-] `CContinSoundInfo::FromFileNode` · 005296c0 — text source format (admin tools)
 
-## `portal/client/src/cregion/csound/cintermitsoundinfo.cpp.c` (0/5)
+## `portal/client/src/cregion/csound/cintermitsoundinfo.cpp.c` (3/5)
 
 ### CIntermitSoundInfo
 - [ ] `CIntermitSoundInfo::operator=` · 00529d10 · legions 0050ff90
-- [ ] `CIntermitSoundInfo::CIntermitSoundInfo` · 00529d60
-- [ ] `CIntermitSoundInfo::CIntermitSoundInfo` · 00529d90 · legions 00510010
-- [ ] `CIntermitSoundInfo::StreamPack` · 00529de0 · legions 00510060
+- [x] `CIntermitSoundInfo::CIntermitSoundInfo` · 00529d60 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `CIntermitSoundInfo::CIntermitSoundInfo` · 00529d90 · legions 00510010 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `CIntermitSoundInfo::StreamPack` · 00529de0 · legions 00510060 — ac2-audio/ac2-client: ambient environments, groove
 - [-] `CIntermitSoundInfo::FromFileNode` · 00529ed0 — text source format (admin tools)
 
-## `portal/client/src/cregion/csound/csounddesc.cpp.c` (0/11)
+## `portal/client/src/cregion/csound/csounddesc.cpp.c` (1/11)
 
 ### CSoundDesc
 - [ ] `CSoundDesc::Destroy` · 00523550 · legions 0050d560
 - [ ] `CSoundDesc::GetSubDataIDs` · 00523590 · legions 0050d5a0
-- [ ] `CSoundDesc::InqSoundInfo` · 005235d0 · legions 0050d5e0
+- [x] `CSoundDesc::InqSoundInfo` · 005235d0 · legions 0050d5e0 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `CSoundDesc::CSoundDesc` · 00523700 · legions 0050d710
 - [ ] `CSoundDesc::GetDBOType` · 00523730
 - [ ] `CSoundDesc::~CSoundDesc` · 00523740 · legions 0050d750
@@ -74,137 +74,137 @@ Legend and workflow: [README](README.md).
 - [-] `CSoundDesc::LoadAmbSound` · 00523910 — text source loader, admin build only
 - [-] `CSoundDesc::FromFileNode` · 005239a0 — text source format (admin tools)
 
-## `portal/client/src/sound/ambient/ambientsound.cpp.c` (0/11)
+## `portal/client/src/sound/ambient/ambientsound.cpp.c` (8/11)
 
 ### AmbientSound
-- [ ] `AmbientSound::Init` · 0072aef0
-- [ ] `AmbientSound::AmbientSound` · 0072af00 · legions 006a91c0
+- [x] `AmbientSound::Init` · 0072aef0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbientSound::AmbientSound` · 0072af00 · legions 006a91c0 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `AmbientSound::~AmbientSound` · 0072b000 · legions 006a92c0
-- [ ] `AmbientSound::Clear` · 0072b030 · legions 006a92f0
-- [ ] `AmbientSound::UseTime` · 0072b330 · legions 006a95f0
-- [ ] `AmbientSound::ChangeCellStart` · 0072b4b0 · legions 006a9710
-- [ ] `AmbientSound::FindSoundDesc` · 0072b500 · legions 006a9760
-- [ ] `AmbientSound::ChangeCellEnd` · 0072b540 · legions 006a97a0
-- [ ] `AmbientSound::DoSoundUpdate` · 0072b6c0 · legions 006a98d0
+- [~] `AmbientSound::Clear` · 0072b030 · legions 006a92f0 — ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
+- [x] `AmbientSound::UseTime` · 0072b330 · legions 006a95f0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbientSound::ChangeCellStart` · 0072b4b0 · legions 006a9710 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbientSound::FindSoundDesc` · 0072b500 · legions 006a9760 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbientSound::ChangeCellEnd` · 0072b540 · legions 006a97a0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbientSound::DoSoundUpdate` · 0072b6c0 · legions 006a98d0 — ac2-audio/ac2-client: ambient environments, groove
 
 ### DBObjGrabber<CSoundDesc>
 - [ ] `DBObjGrabber<CSoundDesc>::DBObjGrabber<CSoundDesc>` · 0072b740 · legions 006a9950
 
 ### AmbientSound
-- [ ] `AmbientSound::AddCellSound` · 0072b780 · legions 006a9990
+- [x] `AmbientSound::AddCellSound` · 0072b780 · legions 006a9990 — ac2-audio/ac2-client: ambient environments, groove
 
-## `portal/client/src/sound/ambient/ambientsounddesc.cpp.c` (0/11)
+## `portal/client/src/sound/ambient/ambientsounddesc.cpp.c` (9/11)
 
 ### AmbientSoundDesc
-- [ ] `AmbientSoundDesc::TimedOut` · 0072ba00 · legions 006a9b30
+- [x] `AmbientSoundDesc::TimedOut` · 0072ba00 · legions 006a9b30 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `AmbientSoundDesc::Destroy` · 0072ba30 · legions 006a9b60
-- [ ] `AmbientSoundDesc::UseTime` · 0072bae0 · legions 006a9c10
-- [ ] `AmbientSoundDesc::Reset` · 0072bb80 · legions 006a9cb0
-- [ ] `AmbientSoundDesc::AddSound` · 0072bbe0 · legions 006a9d10
-- [ ] `AmbientSoundDesc::SetAsDominant` · 0072bd10 · legions 006a9e40
-- [ ] `AmbientSoundDesc::NoLongerDominant` · 0072bd40 · legions 006a9e70
+- [x] `AmbientSoundDesc::UseTime` · 0072bae0 · legions 006a9c10 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbientSoundDesc::Reset` · 0072bb80 · legions 006a9cb0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbientSoundDesc::AddSound` · 0072bbe0 · legions 006a9d10 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbientSoundDesc::SetAsDominant` · 0072bd10 · legions 006a9e40 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbientSoundDesc::NoLongerDominant` · 0072bd40 · legions 006a9e70 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `AmbientSoundDesc::~AmbientSoundDesc` · 0072bd70 · legions 006a9ea0
-- [ ] `AmbientSoundDesc::CalcWeights` · 0072bd90 · legions 006a9ec0
-- [ ] `AmbientSoundDesc::AddIntermitSound` · 0072be50 · legions 006a9f80
-- [ ] `AmbientSoundDesc::AmbientSoundDesc` · 0072bf00 · legions 006aa030
+- [x] `AmbientSoundDesc::CalcWeights` · 0072bd90 · legions 006a9ec0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbientSoundDesc::AddIntermitSound` · 0072be50 · legions 006a9f80 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbientSoundDesc::AmbientSoundDesc` · 0072bf00 · legions 006aa030 — ac2-audio/ac2-client: ambient environments, groove
 
-## `portal/client/src/sound/ambient/ambsoundobject.cpp.c` (0/8)
+## `portal/client/src/sound/ambient/ambsoundobject.cpp.c` (6/8)
 
 ### AmbSoundObject
 - [ ] `AmbSoundObject::~AmbSoundObject` · 0072ca30 · legions 006aab60
 - [ ] `AmbSoundObject::CalcHeight` · 0072ca60 · legions 0056fff0
-- [ ] `AmbSoundObject::AddSoundStart` · 0072ca70 · legions 006aab90
-- [ ] `AmbSoundObject::AddSoundEnd` · 0072caa0 · legions 006aabc0
-- [ ] `AmbSoundObject::GetIntermitLoc` · 0072cae0 · legions 006aac00
-- [ ] `AmbSoundObject::AmbSoundObject` · 0072cbc0 · legions 006aace0
-- [ ] `AmbSoundObject::GetDir` · 0072cc40 · legions 006aad60
-- [ ] `AmbSoundObject::AddSound` · 0072ccf0 · legions 006aae10
+- [x] `AmbSoundObject::AddSoundStart` · 0072ca70 · legions 006aab90 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbSoundObject::AddSoundEnd` · 0072caa0 · legions 006aabc0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbSoundObject::GetIntermitLoc` · 0072cae0 · legions 006aac00 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbSoundObject::AmbSoundObject` · 0072cbc0 · legions 006aace0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbSoundObject::GetDir` · 0072cc40 · legions 006aad60 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `AmbSoundObject::AddSound` · 0072ccf0 · legions 006aae10 — ac2-audio/ac2-client: ambient environments, groove
 
-## `portal/client/src/sound/ambient/continmusicobject.cpp.c` (0/4)
+## `portal/client/src/sound/ambient/continmusicobject.cpp.c` (4/4)
 
 ### ContinMusicObject
-- [ ] `ContinMusicObject::ContinMusicObject` · 0072d440 · legions 006ab530
+- [x] `ContinMusicObject::ContinMusicObject` · 0072d440 · legions 006ab530 — ac2-audio/ac2-client: ambient environments, groove
 
 ### ContinSoundObject
-- [ ] `ContinSoundObject::StopAllSounds` · 0072d460 · legions 006ab550
+- [x] `ContinSoundObject::StopAllSounds` · 0072d460 · legions 006ab550 — ac2-audio/ac2-client: ambient environments, groove
 
 ### ContinMusicObject
-- [ ] `ContinMusicObject::PlaySoundA` · 0072d480 · legions 006ab570
-- [ ] `ContinMusicObject::Is3D` · 0072d4f0 · legions 006ab5e0
+- [x] `ContinMusicObject::PlaySoundA` · 0072d480 · legions 006ab570 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `ContinMusicObject::Is3D` · 0072d4f0 · legions 006ab5e0 — ac2-audio/ac2-client: ambient environments, groove
 
-## `portal/client/src/sound/ambient/continobject.cpp.c` (0/8)
+## `portal/client/src/sound/ambient/continobject.cpp.c` (4/8)
 
 ### ContinObject
-- [ ] `ContinObject::ContinObject` · 0072d180 · legions 006ab280
+- [x] `ContinObject::ContinObject` · 0072d180 · legions 006ab280 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `ContinObject::GetID` · 0072d1d0 · legions 006ab2d0
 - [ ] `ContinObject::GetSoundPosition` · 0072d1f0 · legions 006ab2f0
 - [ ] `ContinObject::get_global_velocity` · 0072d200 · legions 006ab300
 - [ ] `ContinObject::~ContinObject` · 0072d220 · legions 006ab320
-- [ ] `ContinObject::Init` · 0072d230 · legions 006ab330
-- [ ] `ContinObject::ShouldPlay` · 0072d250 · legions 006ab350
-- [ ] `ContinObject::UpdatePos` · 0072d2a0 · legions 006ab3a0
+- [x] `ContinObject::Init` · 0072d230 · legions 006ab330 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `ContinObject::ShouldPlay` · 0072d250 · legions 006ab350 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `ContinObject::UpdatePos` · 0072d2a0 · legions 006ab3a0 — ac2-audio/ac2-client: ambient environments, groove
 
-## `portal/client/src/sound/ambient/continsoundmanager.cpp.c` (0/12)
+## `portal/client/src/sound/ambient/continsoundmanager.cpp.c` (6/12)
 
 ### ContinSoundManager
-- [ ] `ContinSoundManager::SetVolume` · 0072c030 · legions 006aa160
+- [x] `ContinSoundManager::SetVolume` · 0072c030 · legions 006aa160 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `ContinSoundManager::CalcHeight` · 0072c040
 - [ ] `ContinSoundManager::UpdatePos` · 0072c070 · legions 006aa1a0
-- [ ] `ContinSoundManager::StopAllSounds` · 0072c0b0 · legions 006aa1e0
-- [ ] `ContinSoundManager::PlaySounds` · 0072c100 · legions 006aa230
+- [x] `ContinSoundManager::StopAllSounds` · 0072c0b0 · legions 006aa1e0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `ContinSoundManager::PlaySounds` · 0072c100 · legions 006aa230 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `ContinSoundManager::CalcAngleSum` · 0072c180 · legions 006aa2b0
-- [ ] `ContinSoundManager::NowDominant` · 0072c200 · legions 006aa330
-- [ ] `ContinSoundManager::NoLongerDominant` · 0072c220 · legions 006aa350
+- [x] `ContinSoundManager::NowDominant` · 0072c200 · legions 006aa330 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `ContinSoundManager::NoLongerDominant` · 0072c220 · legions 006aa350 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `ContinSoundManager::Is3D` · 0072c240
 - [ ] `ContinSoundManager::~ContinSoundManager` · 0072c260 · legions 006aa390
-- [ ] `ContinSoundManager::ReCalcContinSounds` · 0072c300 · legions 006aa430
-- [ ] `ContinSoundManager::ContinSoundManager` · 0072c5b0 · legions 006aa6e0
+- [~] `ContinSoundManager::ReCalcContinSounds` · 0072c300 · legions 006aa430 — ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
+- [x] `ContinSoundManager::ContinSoundManager` · 0072c5b0 · legions 006aa6e0 — ac2-audio/ac2-client: ambient environments, groove
 
-## `portal/client/src/sound/ambient/continsoundobject.cpp.c` (0/4)
+## `portal/client/src/sound/ambient/continsoundobject.cpp.c` (4/4)
 
 ### ContinSoundObject
-- [ ] `ContinSoundObject::ContinSoundObject` · 0072d2f0 · legions 006ab3f0
-- [ ] `ContinSoundObject::PlaySoundA` · 0072d310 · legions 006ab410
-- [ ] `ContinSoundObject::Is3D` · 0072d380 · legions 006ab480
-- [ ] `ContinSoundObject::StopSound` · 0072d3e0 · legions 006ab4d0
+- [x] `ContinSoundObject::ContinSoundObject` · 0072d2f0 · legions 006ab3f0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `ContinSoundObject::PlaySoundA` · 0072d310 · legions 006ab410 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `ContinSoundObject::Is3D` · 0072d380 · legions 006ab480 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `ContinSoundObject::StopSound` · 0072d3e0 · legions 006ab4d0 — ac2-audio/ac2-client: ambient environments, groove
 
-## `portal/client/src/sound/ambient/intermitmusicobject.cpp.c` (0/4)
+## `portal/client/src/sound/ambient/intermitmusicobject.cpp.c` (3/4)
 
 ### IntermitMusicObject
 - [ ] `IntermitMusicObject::IntermitMusicObject` · 0072d000 · legions 006ab110
-- [ ] `IntermitMusicObject::Is3D` · 0072d030
-- [ ] `IntermitMusicObject::Play_Internal` · 0072d090 · legions 006ab190
-- [ ] `IntermitMusicObject::IsPlaying_Internal` · 0072d150 · legions 006ab250
+- [x] `IntermitMusicObject::Is3D` · 0072d030 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `IntermitMusicObject::Play_Internal` · 0072d090 · legions 006ab190 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `IntermitMusicObject::IsPlaying_Internal` · 0072d150 · legions 006ab250 — ac2-audio/ac2-client: ambient environments, groove
 
-## `portal/client/src/sound/ambient/intermitobject.cpp.c` (0/7)
+## `portal/client/src/sound/ambient/intermitobject.cpp.c` (2/7)
 
 ### IntermitObject
 - [ ] `IntermitObject::~IntermitObject` · 0072c6d0 · legions 006aa800
 - [ ] `IntermitObject::GetSoundPosition` · 0072c710 · legions 006aa840
 - [ ] `IntermitObject::get_global_velocity` · 0072c720 · legions 006aa850
-- [ ] `IntermitObject::CalcHeight` · 0072c750
-- [ ] `IntermitObject::IntermitObject` · 0072c790 · legions 006aa8c0
-- [ ] `IntermitObject::PlayCheck` · 0072c890 · legions 006aa9c0
-- [ ] `IntermitObject::Play` · 0072c970 · legions 006aaaa0
+- [~] `IntermitObject::CalcHeight` · 0072c750 — ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
+- [x] `IntermitObject::IntermitObject` · 0072c790 · legions 006aa8c0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `IntermitObject::PlayCheck` · 0072c890 · legions 006aa9c0 — ac2-audio/ac2-client: ambient environments, groove
+- [~] `IntermitObject::Play` · 0072c970 · legions 006aaaa0 — ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
 
-## `portal/client/src/sound/ambient/intermitsoundobject.cpp.c` (0/5)
+## `portal/client/src/sound/ambient/intermitsoundobject.cpp.c` (3/5)
 
 ### IntermitSoundObject
 - [ ] `IntermitSoundObject::IntermitSoundObject` · 0072ce50 · legions 006aaf70
-- [ ] `IntermitSoundObject::Is3D` · 0072ce80
-- [ ] `IntermitSoundObject::Play_Internal` · 0072cee0 · legions 006aaff0
-- [ ] `IntermitSoundObject::IsPlaying_Internal` · 0072cf90 · legions 006ab0a0
+- [x] `IntermitSoundObject::Is3D` · 0072ce80 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `IntermitSoundObject::Play_Internal` · 0072cee0 · legions 006aaff0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `IntermitSoundObject::IsPlaying_Internal` · 0072cf90 · legions 006ab0a0 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `IntermitSoundObject::SetTempo_Internal` · 0072cfd0 · legions 006ab0e0
 
-## `portal/client/src/sound/ambient/sounddirection.cpp.c` (0/6)
+## `portal/client/src/sound/ambient/sounddirection.cpp.c` (6/6)
 
 ### SoundDirection
-- [ ] `SoundDirection::SoundDirection` · 0072d590 · legions 006ab670
-- [ ] `SoundDirection::Reset` · 0072d5b0 · legions 006ab690
-- [ ] `SoundDirection::AddToWeight` · 0072d5d0 · legions 006ab6b0
-- [ ] `SoundDirection::AddToDistance` · 0072d5e0 · legions 006ab6c0
-- [ ] `SoundDirection::CalcWeights` · 0072d620 · legions 006ab700
-- [ ] `SoundDirection::ChooseSoundDistance` · 0072d630 · legions 006ab710
+- [x] `SoundDirection::SoundDirection` · 0072d590 · legions 006ab670 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `SoundDirection::Reset` · 0072d5b0 · legions 006ab690 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `SoundDirection::AddToWeight` · 0072d5d0 · legions 006ab6b0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `SoundDirection::AddToDistance` · 0072d5e0 · legions 006ab6c0 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `SoundDirection::CalcWeights` · 0072d620 · legions 006ab700 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `SoundDirection::ChooseSoundDistance` · 0072d630 · legions 006ab710 — ac2-audio/ac2-client: ambient environments, groove
 
 ## `portal/client/src/sound/dbmusicobj.cpp.c` (0/5)
 
@@ -319,7 +319,7 @@ Legend and workflow: [README](README.md).
 - [x] `DirectXPlayingSound::Enable` · 005a70e0 · legions 00573770 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::OnDeviceStateChanged` · 005a7180 · legions 00573810 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 
-## `portal/client/src/sound/directx/directxsounddevice.cpp.c` (3/34)
+## `portal/client/src/sound/directx/directxsounddevice.cpp.c` (4/34)
 
 ### DirectXSoundDevice
 - [ ] `DirectXSoundDevice::SetSoundFeatures` · 005a3e70 · legions 00570640
@@ -330,7 +330,7 @@ Legend and workflow: [README](README.md).
 ### DirectXSoundInstance
 - [~] `DirectXSoundInstance::Initialize` · 005a3f70 · legions 00570740 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [~] `DirectXSoundInstance::Initialize` · 005a3ff0 · legions 005707c0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
-- [ ] `DirectXSoundInstance::InitDXPSDFromMusicInfo` · 005a4070 · legions 00570840
+- [x] `DirectXSoundInstance::InitDXPSDFromMusicInfo` · 005a4070 · legions 00570840 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `DirectXSoundInstance::GetDataID` · 005a4270 · legions 00570a40
 
 ### DirectXSoundDevice
@@ -506,7 +506,7 @@ Legend and workflow: [README](README.md).
 - [ ] `EnvInfo::~EnvInfo` · 005a3530 · legions 00570030
 - [ ] `EnvInfo::Allocator` · 005a3540
 
-## `portal/client/src/sound/soundmanager.cpp.c` (13/25)
+## `portal/client/src/sound/soundmanager.cpp.c` (15/25)
 
 ### SoundManager
 - [~] `SoundManager::Initialize` · 005a1000 · legions 0056dcd0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
@@ -517,8 +517,8 @@ Legend and workflow: [README](README.md).
 
 ### SoundManager
 - [ ] `SoundManager::DebugPrintPlayingSounds` · 005a1190
-- [ ] `SoundManager::SetGrooveLevel` · 005a11a0 · legions 0056de60
-- [ ] `SoundManager::TweakGrooveLevel` · 005a11d0
+- [x] `SoundManager::SetGrooveLevel` · 005a11a0 · legions 0056de60 — ac2-audio/ac2-client: ambient environments, groove
+- [x] `SoundManager::TweakGrooveLevel` · 005a11d0 — ac2-audio/ac2-client: ambient environments, groove
 - [~] `SoundManager::InitPrefs` · 005a1210 · legions 0056de90 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [x] `SoundManager::AllocateSounds` · 005a1720 · legions 0056e3e0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundManager::CheckSoundBudget` · 005a1830 · legions 0056e4d0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records

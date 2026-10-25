@@ -47,7 +47,9 @@ pub use ac2_motion_interp::{
     Ac2MotionValues, AC2_MODE_DEFAULT, AC2_TERRAIN_DEFAULT,
 };
 pub use ac2_particle_sources::{ac2_block_particle_sources, ac2_blocks_within, Ac2ParticleSource};
-pub use ac2_scene::{ac2_scene_object_visual, ac2_scene_placements};
+pub use ac2_scene::{
+    ac2_ambient_sound_points, ac2_scene_object_visual, ac2_scene_placements, Ac2AmbientSoundPoint,
+};
 pub use ac2_water::Ac2BlockWater;
 pub use ac2_world::Ac2WorldSource;
 pub use cell::{
@@ -66,8 +68,8 @@ pub use land_lattice::{
 };
 pub use landblock::LandBlockDesc;
 pub use region::{
-    CelestialPosition, GameClock, RegionDesc, SkyEnvironmentCadence, SkyEnvironmentSample,
-    SkyFogDesc, SkyLightingDesc,
+    ac2_region_sound_desc, CelestialPosition, GameClock, RegionDesc, SkyEnvironmentCadence,
+    SkyEnvironmentSample, SkyFogDesc, SkyLightingDesc,
 };
 pub use surface_desc::Ac2FarTerrain;
 pub use surface_info::Ac2SurfaceInfo;

@@ -172,6 +172,7 @@ impl FxSounds {
 pub(crate) struct ClientAudio {
     pub(crate) manager: SoundManager,
     objects: HashMap<u64, FxSounds>,
+    pub(crate) ambient: crate::client_ambient::ClientAmbient,
 }
 
 /// `DirectXPlayingSound::UpdatePosition`'s view of an object from the listener:
@@ -211,6 +212,7 @@ impl Client {
         self.audio = Some(ClientAudio {
             manager,
             objects: HashMap::new(),
+            ambient: Default::default(),
         });
     }
 
@@ -277,6 +279,8 @@ impl Client {
     /// `SoundManager::UseTime` from the render camera: objects that left stop their sounds
     /// (`StopSoundsForEmitter`), and every emitter is placed relative to the camera.
     pub(crate) fn audio_use_time(&mut self, now: f64) {
+        self.ambient_use_time(now);
+        let ambient = self.ambient_emitters(&self.scene.current);
         let Some(audio) = self.audio.as_mut() else {
             return;
         };
@@ -288,6 +292,7 @@ impl Client {
             .keys()
             .copied()
             .filter(|id| Some(*id) != player_id && remotes.get(*id).is_none())
+            .filter(|id| *id & 0xFF00_0000_0000_0000 != ac2_audio::AMBIENT_EMITTERS)
             .collect();
         for id in gone {
             audio.objects.remove(&id);
@@ -295,6 +300,9 @@ impl Client {
         }
         let listener = self.scene.current;
         let lookup = |id: u64| -> Option<Emitter> {
+            if let Some(emitter) = ambient.get(&id) {
+                return Some(*emitter);
+            }
             if Some(id) == player_id {
                 let body = player?.body.as_ref()?;
                 return Some(body_emitter(&listener, &body.physics, true));

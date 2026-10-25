@@ -15,6 +15,7 @@ mod chargen;
 mod chat_commands;
 pub mod chat_text;
 mod client;
+mod client_ambient;
 mod client_audio;
 mod client_objects;
 mod controls;

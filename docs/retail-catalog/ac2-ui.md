@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 431 done, 183 partial, 1611 to do, 22 skipped.
+2247 retail functions: 432 done, 184 partial, 1609 to do, 22 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (7/53)
@@ -359,7 +359,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmPetUI::gmPetUI` · 0041a040 · legions 00419e80
 - [ ] `gmPetUI::RecvNotice_UpdatePetName` · 0041a3a0
 
-## `ac2/client/src/ui/gameplay/gmradarui.cpp.c` (0/35)
+## `ac2/client/src/ui/gameplay/gmradarui.cpp.c` (1/35)
 
 ### Position
 - [ ] `Position::get_heading` · 00424fe0 · legions 00424dd0
@@ -388,7 +388,7 @@ Legend and workflow: [README](README.md).
 
 ### gmRadarUI
 - [ ] `gmRadarUI::~gmRadarUI` · 004256b0 · legions 004254a0
-- [ ] `gmRadarUI::UpdateGroove` · 00425740 · legions 00425530
+- [x] `gmRadarUI::UpdateGroove` · 00425740 · legions 00425530 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `gmRadarUI::RemoveObject` · 00425850 · legions 00425640
 - [ ] `gmRadarUI::RecvNotice_BeingDeleted` · 004258d0 · legions 004256c0
 - [ ] `gmRadarUI::DrawCross` · 00425900 · legions 004256f0
@@ -404,7 +404,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmRadarUI::DrawBlip` · 00425af0 · legions 004258e0
 - [ ] `gmRadarUI::Update` · 00425c00 · legions 004259f0
 - [ ] `gmRadarUI::ListenToMessage` · 00426060 · legions 00425e50
-- [ ] `gmRadarUI::AddObject` · 00426190 · legions 00425f80
+- [~] `gmRadarUI::AddObject` · 00426190 · legions 00425f80 — ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
 - [ ] `gmRadarUI::RecvNotice_CreateObject` · 00426270
 - [ ] `gmRadarUI::Init` · 004262a0 · legions 00426090
 - [ ] `gmRadarUI::RecvNotice_ChangeRadarLook` · 004263a0

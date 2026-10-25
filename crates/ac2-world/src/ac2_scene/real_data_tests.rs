@@ -106,3 +106,26 @@ fn entity_clearance_shapes_decode_across_the_cell_dat() {
     eprintln!("{blocks} blocks; {boxes} clearance boxes, {cylinders} cylinders");
     assert!(blocks > 0 && boxes + cylinders > 0);
 }
+
+#[test]
+fn landblocks_carry_ambient_sound_points_of_the_region_sound_desc() {
+    let Some(store) = ac2_store() else {
+        return;
+    };
+    assert_eq!(
+        crate::ac2_region_sound_desc(&store).unwrap(),
+        Some(ac2_core::DataId::new(0x1000_0000)),
+        "the region's sound desc"
+    );
+    for block in [0xCB4D_u32, 0xF18F, 0x7F7F] {
+        let points = super::ac2_ambient_sound_points(&store, CellId::new(block << 16 | 1))
+            .expect("points decode");
+        assert!(!points.is_empty(), "{block:04X}: the land sounds");
+        for p in &points {
+            assert!(p.sound_type != 0);
+            // `block_length / side_vertex_count` spacing: the last vertex short of the edge.
+            assert!((0.0..160.0).contains(&p.origin[0]) && (0.0..160.0).contains(&p.origin[1]));
+            assert!(p.origin[2].is_finite());
+        }
+    }
+}

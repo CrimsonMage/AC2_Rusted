@@ -120,6 +120,10 @@ impl Mixer {
                 }
             }
             SinkCommand::Stop { voice } => self.voices.retain(|v| v.id != voice),
+            // Music segments are played by the music engine.
+            SinkCommand::StartMusic { .. }
+            | SinkCommand::StopMusic { .. }
+            | SinkCommand::Groove { .. } => {}
         }
     }
 

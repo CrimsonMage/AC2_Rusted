@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 138 done, 14 partial, 694 to do, 143 skipped.
+989 retail functions: 142 done, 14 partial, 690 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (16/140)
@@ -249,7 +249,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::FlushCellGroups` · 004876a0 · legions 00480ed0
 - [~] `CEnvCell::flush_cells` · 00487750 · legions 00480f80 — static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
 
-## `portal/shared/src/cell/landblock.cpp.c` (16/72)
+## `portal/shared/src/cell/landblock.cpp.c` (17/72)
 
 ### LandDefs
 - [x] `LandDefs::GetBlockOffset` · 00488140 · legions 00481970 — ac2-physics los (Terrain::los_check)
@@ -335,7 +335,7 @@ Legend and workflow: [README](README.md).
 ### CLandBlock
 - [ ] `CLandBlock::Clear` · 0048a420 · legions 00483d10
 - [x] `CLandBlock::InitCellConnections` · 0048a460 · legions 00483d50 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-- [ ] `CLandBlock::CreateAmbientSoundPoints` · 0048a620 · legions 00483f10
+- [x] `CLandBlock::CreateAmbientSoundPoints` · 0048a620 · legions 00483f10 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `CLandBlock::DoIntersection` · 0048a7e0 · legions 00484090
 
 ### PSmartArray<InstanceID>
@@ -993,7 +993,7 @@ Legend and workflow: [README](README.md).
 - [-] `PropertyDesc::LoadProperty` · 006cefb0 — text source loader, admin build only
 - [-] `PropertyDesc::FromFileNode` · 006cf040 — text source format (admin tools)
 
-## `portal/shared/src/region/regiondesc.cpp.c` (0/47)
+## `portal/shared/src/region/regiondesc.cpp.c` (1/47)
 
 ### PackObj
 - [ ] `PackObj::ALIGN_PTR` · 0051d6e0 · legions 0050a0e0
@@ -1006,7 +1006,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CRegionDesc::Destroy` · 0051d920 · legions 0050a2d0
 - [ ] `CRegionDesc::PackInfoList` · 0051db20 · legions 0050a4d0
 - [ ] `CRegionDesc::GetSubDataIDs` · 0051dbd0 · legions 0050a580
-- [ ] `CRegionDesc::GetCurrentSoundInfo` · 0051de10 · legions 0050a7c0
+- [x] `CRegionDesc::GetCurrentSoundInfo` · 0051de10 · legions 0050a7c0 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `CRegionDesc::GetCurrentSceneInfo` · 0051de40 · legions 0050a7e0
 - [ ] `CRegionDesc::GetCurrentTerrainInfo` · 0051de70 · legions 0050a810
 - [ ] `CRegionDesc::GetCurrentSurfaceInfo` · 0051deb0 · legions 0050a840
@@ -1109,7 +1109,7 @@ Legend and workflow: [README](README.md).
 - [-] `SceneDegrade::LoadEntity` · 006c2ff0 — text source loader, admin build only
 - [-] `SceneDegrade::FromFileNode` · 006c3070 — text source format (admin tools)
 
-## `portal/shared/src/region/scene/scenedesc.cpp.c` (0/14)
+## `portal/shared/src/region/scene/scenedesc.cpp.c` (1/14)
 
 ### CSceneDesc
 - [ ] `CSceneDesc::CSceneDesc` · 00523b20 · legions 0050d8a0
@@ -1120,7 +1120,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CSceneDesc::GetSubDataIDs` · 00523cb0 · legions 0050da30
 - [ ] `CSceneDesc::FindSceneType` · 00523cf0 · legions 0050da70
 - [ ] `CSceneDesc::GetSceneID` · 00523d30 · legions 0050dab0
-- [ ] `CSceneDesc::GetSoundType` · 00523d70 · legions 0050dad0
+- [x] `CSceneDesc::GetSoundType` · 00523d70 · legions 0050dad0 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `CSceneDesc::Allocate` · 00523dc0
 - [ ] `CSceneDesc::UnPack` · 00523e10
 - [-] `CSceneDesc::CheckDupAdd` · 00523ef0 — text source format (admin tools)
@@ -1536,7 +1536,7 @@ Legend and workflow: [README](README.md).
 - [-] `CSurfaceDesc::LoadRoad` · 00523190 — text source loader, admin build only
 - [-] `CSurfaceDesc::FromFileNode` · 005231f0 — text source format (admin tools)
 
-## `portal/shared/src/region/terrain/terraindesc.cpp.c` (0/15)
+## `portal/shared/src/region/terrain/terraindesc.cpp.c` (1/15)
 
 ### CTerrainDesc
 - [ ] `CTerrainDesc::CTerrainDesc` · 00521ad0 · legions 0050c260
@@ -1549,7 +1549,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CTerrainDesc::Allocate` · 00521cc0
 - [ ] `CTerrainDesc::Pack` · 00521cd0
 - [ ] `CTerrainDesc::GetScene` · 00521de0
-- [ ] `CTerrainDesc::GetSoundType` · 00521ed0
+- [x] `CTerrainDesc::GetSoundType` · 00521ed0 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `CTerrainDesc::UnPack` · 00522000
 - [-] `CTerrainDesc::CheckDupAdd` · 00522140 — text source format (admin tools)
 - [-] `CTerrainDesc::LoadTerrainType` · 005221b0 — text source loader, admin build only

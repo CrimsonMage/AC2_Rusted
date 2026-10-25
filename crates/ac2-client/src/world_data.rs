@@ -53,6 +53,14 @@ pub trait WorldData: Send + Sync {
     fn preload_script_state(&self, _pid: u32, _did: u32) {}
     /// Makes a read the script VM stopped for (cache-only script data) resident.
     fn load_script_data(&self, _read: ac2_script::vm::DataRequest) {}
+    /// The region's ambient sound data, if it has any.
+    fn ambient_data(&self) -> Option<Arc<ac2_audio::AmbientData>> {
+        None
+    }
+    /// Landblock `block`'s ambient sound points.
+    fn ambient_points(&self, _block: u32) -> Vec<ac2_world::Ac2AmbientSoundPoint> {
+        Vec::new()
+    }
 }
 
 /// The AC2 DATs, through `ac2-world` and `ac2-physics`' loaders.
@@ -109,6 +117,16 @@ impl DatWorld {
 }
 
 impl WorldData for DatWorld {
+    fn ambient_data(&self) -> Option<Arc<ac2_audio::AmbientData>> {
+        let did = ac2_world::ac2_region_sound_desc(&self.store).ok()??;
+        ac2_audio::AmbientData::load(&self.store, did.raw()).ok()?
+    }
+
+    fn ambient_points(&self, block: u32) -> Vec<ac2_world::Ac2AmbientSoundPoint> {
+        ac2_world::ac2_ambient_sound_points(&self.store, CellId::new(block | 0xFFFF))
+            .unwrap_or_default()
+    }
+
     fn load_script_data(&self, read: ac2_script::vm::DataRequest) {
         if let Some(data) = &self.script_data {
             data.load(read);

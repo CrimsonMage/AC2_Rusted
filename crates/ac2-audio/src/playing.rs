@@ -4,9 +4,9 @@
 
 use std::sync::Arc;
 
-use crate::data::{flags, Pcm, SoundInfo};
-use crate::play_data::{Channel, LoopingMode, PlaySoundData, SoundType};
-use crate::sink::{millibels, SinkCommand, SoundSink, Spatial};
+use crate::data::{flags, MusicInfo, Pcm, SoundInfo};
+use crate::play_data::{Channel, LoopingMode, PlaySoundData, SoundType, Track};
+use crate::sink::{millibels, Boundary, SinkCommand, SoundSink, Spatial};
 
 /// `DirectXPlayingSound::LifetimeState`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -45,6 +45,54 @@ impl DeviceState {
     }
 }
 
+/// What a voice plays: a wave's samples, or a `MusicInfo`'s DirectMusic segment with its
+/// start and stop boundaries, whether it is the primary segment and whether it controls.
+#[derive(Debug, Clone)]
+pub(crate) enum VoiceSource {
+    Wave(Arc<Pcm>),
+    Music {
+        info: MusicInfo,
+        start: Boundary,
+        stop: Boundary,
+        primary: bool,
+        control: bool,
+    },
+}
+
+/// `DirectXSoundInstance::InitDXPSDFromMusicInfo`'s start boundary from the `MusicInfo` bits.
+fn start_boundary(info: &MusicInfo) -> Boundary {
+    if info.test(0x20) {
+        Boundary::End
+    } else if info.test(0x80) {
+        Boundary::Grid
+    } else if info.test(0x40) {
+        Boundary::Beat
+    } else if info.test(0x200) {
+        Boundary::Marker
+    } else if info.test(0x100) {
+        Boundary::Immediate
+    } else {
+        Boundary::Measure
+    }
+}
+
+/// The stop boundary (`m_stopTiming`).
+fn stop_boundary(info: &MusicInfo) -> Boundary {
+    if info.test(0x800) {
+        Boundary::End
+    } else if info.test(0x2000) {
+        Boundary::Grid
+    } else if info.test(0x1000) {
+        Boundary::Beat
+    } else if info.test(0x8000) {
+        Boundary::Marker
+    } else if info.test(0x4000) {
+        Boundary::Measure
+    } else {
+        Boundary::Immediate
+    }
+}
+
 /// `DirectXPlayingSound`.
 #[derive(Debug, Clone)]
 pub(crate) struct PlayingSound {
@@ -56,7 +104,7 @@ pub(crate) struct PlayingSound {
     pub kind: SoundType,
     pub channel: Channel,
     pub looping: bool,
-    pcm: Arc<Pcm>,
+    source: VoiceSource,
     /// `m_fCurrentVolume`.
     pub volume: f32,
     /// `m_fFrequencyModulate`.
@@ -118,7 +166,7 @@ impl PlayingSound {
             kind,
             channel: data.channel,
             looping,
-            pcm,
+            source: VoiceSource::Wave(pcm),
             volume: data.volume,
             frequency: data.frequency,
             base_frequency: -1.0,
@@ -140,6 +188,60 @@ impl PlayingSound {
             offset: [0.0; 3],
             velocity: [0.0; 3],
         }
+    }
+
+    /// `DirectXSoundInstance::CreatePlayingSound` for a `MusicInfo`
+    /// (`InitDXPSDFromMusicInfo`, then `DXInitialize`): no length (it plays until stopped),
+    /// placed in 3D when its `0x10` bit asks (`AudioPath_3DMusic`).
+    pub fn from_music(handle: u32, data: &PlaySoundData, info: &MusicInfo, now: f64) -> Self {
+        let exclusive = info.test(flags::EXCLUSIVE);
+        let looping = match data.looping {
+            LoopingMode::Inherit => !exclusive && info.test(flags::LOOP),
+            LoopingMode::ForceOn => true,
+            LoopingMode::ForceOff => false,
+        };
+        let kind = match data.kind {
+            SoundType::Inherit if exclusive => SoundType::ForceNonExclusive,
+            SoundType::Inherit if info.test(flags::THREE_D) => SoundType::ForceSelfExclusive,
+            SoundType::Inherit => SoundType::ForceNonExclusive,
+            kind => kind,
+        };
+        let track = match data.track {
+            Track::Inherit if exclusive => Track::ForcePrimary,
+            Track::Inherit => Track::ForceSecondary,
+            track => track,
+        };
+        let mut sound = Self::new(
+            handle,
+            data,
+            &SoundInfo {
+                did: info.did,
+                bit_field: 0,
+                rand_freq_top: -1.0,
+                rand_freq_bot: -1.0,
+                priority: info.priority,
+                min_distance: info.min_distance,
+                wave: info.segment,
+            },
+            Arc::new(Pcm {
+                rate: 0,
+                channels: 1,
+                samples: Arc::from([]),
+            }),
+            -1.0,
+            now,
+        );
+        sound.kind = kind;
+        sound.looping = looping;
+        sound.three_d = info.test(flags::NO_VIRTUAL);
+        sound.source = VoiceSource::Music {
+            info: *info,
+            start: start_boundary(info),
+            stop: stop_boundary(info),
+            primary: track == Track::ForcePrimary,
+            control: track == Track::ForceSecondary && info.test(0x400),
+        };
+        sound
     }
 
     /// `Update3DInfo`'s buffer parameters.
@@ -252,21 +354,43 @@ impl PlayingSound {
         if self.muted || self.disabled {
             return true;
         }
-        // `GetAudioPathAndBuffers` on the first play: the buffer's own rate is the base.
-        if !self.has_voice {
-            self.base_frequency = self.pcm.rate as f32;
-        }
-        self.has_voice = true;
         let volume = self.volume.clamp(0.0, 1.0);
         self.volume = volume;
-        sink.send(SinkCommand::Start {
-            voice: self.handle,
-            pcm: Arc::clone(&self.pcm),
-            looping: self.looping,
-            millibels: millibels(device.channel_volume(self.channel), volume),
-            frequency: if self.frequency < 0.0 { 0 } else { self.rate() },
-            spatial: self.spatial(),
-        });
+        let millibels = millibels(device.channel_volume(self.channel), volume);
+        match &self.source {
+            VoiceSource::Wave(pcm) => {
+                // `GetAudioPathAndBuffers` on the first play: the buffer's own rate is the base.
+                if !self.has_voice {
+                    self.base_frequency = pcm.rate as f32;
+                }
+                sink.send(SinkCommand::Start {
+                    voice: self.handle,
+                    pcm: Arc::clone(pcm),
+                    looping: self.looping,
+                    millibels,
+                    frequency: if self.frequency < 0.0 { 0 } else { self.rate() },
+                    spatial: self.spatial(),
+                });
+            }
+            VoiceSource::Music {
+                info,
+                start,
+                primary,
+                control,
+                ..
+            } => sink.send(SinkCommand::StartMusic {
+                voice: self.handle,
+                music: info.did,
+                segment: info.segment,
+                looping: self.looping,
+                millibels,
+                boundary: *start,
+                primary: *primary,
+                control: *control,
+                spatial: self.spatial(),
+            }),
+        }
+        self.has_voice = true;
         self.lifetime = Lifetime::Playing;
         true
     }
@@ -275,8 +399,24 @@ impl PlayingSound {
     /// voice is released: a looping sound waiting for its end, or a one-shot no longer kept
     /// alive, is ready to die.
     fn stop_voice(&mut self, sink: &mut dyn SoundSink) {
-        sink.send(SinkCommand::Stop { voice: self.handle });
+        self.stop_at(sink, Boundary::Immediate);
+    }
+
+    /// `DXMusicMessageThread::Stop` at `boundary` (a music segment's stop timing), then
+    /// `OnSegmentEnded`.
+    fn stop_at(&mut self, sink: &mut dyn SoundSink, boundary: Boundary) {
+        self.send_stop(sink, boundary);
         self.on_segment_ended();
+    }
+
+    fn send_stop(&self, sink: &mut dyn SoundSink, boundary: Boundary) {
+        match self.source {
+            VoiceSource::Wave(_) => sink.send(SinkCommand::Stop { voice: self.handle }),
+            VoiceSource::Music { .. } => sink.send(SinkCommand::StopMusic {
+                voice: self.handle,
+                boundary,
+            }),
+        }
     }
 
     /// `OnSegmentEnded`.
@@ -291,7 +431,7 @@ impl PlayingSound {
 
     fn release(&mut self, sink: &mut dyn SoundSink) {
         if self.has_voice {
-            sink.send(SinkCommand::Stop { voice: self.handle });
+            self.send_stop(sink, Boundary::Immediate);
             self.has_voice = false;
         }
     }
@@ -326,7 +466,11 @@ impl PlayingSound {
         } else {
             Lifetime::WaitingForEnd
         };
-        self.stop_voice(sink);
+        let boundary = match (&self.source, immediate) {
+            (VoiceSource::Music { stop, .. }, false) => *stop,
+            _ => Boundary::Immediate,
+        };
+        self.stop_at(sink, boundary);
     }
 
     /// `Enable`: a disabled sound stops but is kept alive to play again.

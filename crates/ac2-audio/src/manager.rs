@@ -11,7 +11,7 @@ use crate::data::{flags, sound_db_type, LoadedSound, SoundSource};
 use crate::loader::SoundLoader;
 use crate::play_data::{Channel, PlaySoundData, SoundType};
 use crate::playing::{DeviceState, Emitter, PlayingSound};
-use crate::sink::SoundSink;
+use crate::sink::{SinkCommand, SoundSink};
 
 /// `ID_Sound_NumPlayingSounds`' default (`SoundManager::SoundManager`).
 const MAX_SECONDARY_SOUNDS: u32 = 32;
@@ -74,6 +74,8 @@ pub struct SoundManager {
     next_handle: u32,
     /// `m_fLastMusicVolume`.
     last_music_volume: f32,
+    /// `m_nGrooveLevel` / `m_nGrooveOffset`.
+    groove: (i32, i32),
     /// The device's channel volumes and state, and `Timer::local_time`.
     device: DeviceState,
 }
@@ -98,6 +100,7 @@ impl SoundManager {
             max_secondary: MAX_SECONDARY_SOUNDS,
             next_handle: 1,
             last_music_volume: 1.0,
+            groove: (0, 0),
             device: DeviceState {
                 enabled: true,
                 volumes: [1.0; 4],
@@ -158,11 +161,6 @@ impl SoundManager {
                 if !self.check_budget(data.kind, &sound) {
                     return None;
                 }
-                // `ISoundDevice::CreateInstance` for a `MusicInfo` needs DirectMusic
-                // segments, which are not played yet.
-                if matches!(sound, LoadedSound::Music(_)) {
-                    return None;
-                }
                 self.add_sound_instance(data.sound, sound.clone());
                 return self.start_playing(data, handle, &sound);
             }
@@ -181,17 +179,19 @@ impl SoundManager {
         handle: u32,
         sound: &LoadedSound,
     ) -> Option<u32> {
-        let LoadedSound::Sound { info, pcm, length } = sound else {
-            return None;
+        let playing = match sound {
+            LoadedSound::Sound { info, pcm, length } => PlayingSound::new(
+                handle,
+                data,
+                info,
+                Arc::clone(pcm),
+                *length,
+                self.device.now,
+            ),
+            LoadedSound::Music(info) => {
+                PlayingSound::from_music(handle, data, info, self.device.now)
+            }
         };
-        let playing = PlayingSound::new(
-            handle,
-            data,
-            info,
-            Arc::clone(pcm),
-            *length,
-            self.device.now,
-        );
         if playing.is_self_exclusive() {
             self.self_exclusive.insert(playing.sound);
         }
@@ -480,6 +480,28 @@ impl SoundManager {
             playing.recalculate_volume(&mut *self.sink, &device);
         }
         true
+    }
+
+    /// `SoundManager::SetGrooveLevel`: the music's intensity (`gmRadarUI::UpdateGroove`); the
+    /// device gets level plus offset.
+    pub fn set_groove_level(&mut self, level: i32) {
+        self.groove.0 = level;
+        self.sink.send(SinkCommand::Groove {
+            level: self.groove.0.wrapping_add(self.groove.1),
+        });
+    }
+
+    /// `SoundManager::TweakGrooveLevel`.
+    pub fn tweak_groove_level(&mut self, offset: i32) {
+        self.groove.1 = self.groove.1.wrapping_add(offset);
+        self.sink.send(SinkCommand::Groove {
+            level: self.groove.0.wrapping_add(self.groove.1),
+        });
+    }
+
+    /// The level and offset.
+    pub fn groove_level(&self) -> (i32, i32) {
+        self.groove
     }
 
     /// A channel's volume.

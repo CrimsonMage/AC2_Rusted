@@ -18,6 +18,7 @@ use crate::color::set_color32;
 
 const AC2_REGION_DID: DataId = DataId::new(0x0F00_0000);
 /// `CRegionDesc::UnPack` info lists in stream order; the sky list is the seventh.
+const SOUND_INFO_LIST: usize = 0;
 const SKY_INFO_LIST: usize = 6;
 const WATER_INFO_LIST: usize = 7;
 const INFO_LIST_COUNT: usize = 11;
@@ -66,6 +67,12 @@ pub(crate) fn load_ac2_region(store: &ResourceStore) -> ResourceResult<Option<Re
     }))
 }
 
+/// `CRegionDesc::GetCurrentSoundInfo`: the region's first `CSoundDesc` (`0x10`).
+pub fn ac2_region_sound_desc(store: &ResourceStore) -> ResourceResult<Option<DataId>> {
+    Ok(load::<Ac2RegionRecord>(store, AC2_REGION_DID)?
+        .and_then(|region| region.sound_info.first().copied()))
+}
+
 /// `CRegionDesc::GetCurrentWaterInfo`: the region's first `CWaterDesc`.
 pub(crate) fn ac2_region_water_desc(store: &ResourceStore) -> ResourceResult<Option<DataId>> {
     Ok(load::<Ac2RegionRecord>(store, AC2_REGION_DID)?
@@ -106,6 +113,7 @@ fn load<T: ResourcePackedDecode + Send + Sync + 'static>(
 #[derive(Debug)]
 struct Ac2RegionRecord {
     region_number: u32,
+    sound_info: Vec<DataId>,
     sky_info: Vec<DataId>,
     water_info: Vec<DataId>,
 }
@@ -133,6 +141,7 @@ impl ResourcePackedDecode for Ac2RegionRecord {
         cursor.align_to(4)?;
         // game_map, game_map_scale, autotest_map, autotest_map_size, land_defs_id, block length/width.
         cursor.read_bytes(7 * 4)?;
+        let mut sound_info = Vec::new();
         let mut sky_info = Vec::new();
         let mut water_info = Vec::new();
         for list in 0..INFO_LIST_COUNT {
@@ -142,6 +151,7 @@ impl ResourcePackedDecode for Ac2RegionRecord {
             cursor.align_to(4)?;
             let dids = dids.into_iter().filter(|did| *did != 0).map(DataId::new);
             match list {
+                SOUND_INFO_LIST => sound_info = dids.collect(),
                 SKY_INFO_LIST => sky_info = dids.collect(),
                 WATER_INFO_LIST => water_info = dids.collect(),
                 _ => {}
@@ -150,13 +160,15 @@ impl ResourcePackedDecode for Ac2RegionRecord {
         expect_end(qdid, Self::TYPE_NAME, &cursor)?;
         Ok(Self {
             region_number,
+            sound_info,
             sky_info,
             water_info,
         })
     }
 
     fn cache_retained_bytes(&self) -> usize {
-        std::mem::size_of::<Self>() + (self.sky_info.len() + self.water_info.len()) * 4
+        std::mem::size_of::<Self>()
+            + (self.sound_info.len() + self.sky_info.len() + self.water_info.len()) * 4
     }
 }
 

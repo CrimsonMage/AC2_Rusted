@@ -48,6 +48,8 @@ fn vector(cursor: &mut ArchiveCursor<'_>) -> Result<[f64; 3], &'static str> {
 #[derive(Debug)]
 pub(super) struct Ac2SceneType {
     pub(super) scene_index: u32,
+    /// `SceneType::sound`: the ambient sound type of the scene (zero for none).
+    pub(super) sound: u32,
     pub(super) scenes: Vec<(u32, f64)>,
     pub(super) freq_count: f64,
 }
@@ -76,7 +78,7 @@ impl ResourcePackedDecode for Ac2SceneDesc {
             let mut types = Vec::new();
             for _ in 0..count(cursor)? {
                 let scene_index = word(cursor)?;
-                let _sound = word(cursor)?;
+                let sound = word(cursor)?;
                 let mut scenes = Vec::new();
                 for _ in 0..count(cursor)? {
                     let did = word(cursor)?;
@@ -87,6 +89,7 @@ impl ResourcePackedDecode for Ac2SceneDesc {
                 let freq_count = scenes.iter().map(|(_, freq)| freq).sum();
                 types.push(Ac2SceneType {
                     scene_index,
+                    sound,
                     scenes,
                     freq_count,
                 });

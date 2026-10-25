@@ -21,6 +21,19 @@ pub struct Spatial {
     pub min_distance: f32,
 }
 
+/// `DirectXPlaySoundData::Timing`: the musical boundary a segment starts or stops on
+/// (`DMUS_SEGF_*`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Boundary {
+    /// At the end of the playing primary segment.
+    End = 0,
+    Grid = 1,
+    Beat = 2,
+    Marker = 3,
+    Measure = 4,
+    Immediate = 5,
+}
+
 /// One call on a voice (a playing sound's buffer).
 #[derive(Debug, Clone, PartialEq)]
 pub enum SinkCommand {
@@ -36,6 +49,25 @@ pub enum SinkCommand {
         /// The 3D buffer's parameters, or `None` for a sound heard as is (`DS3DMODE_DISABLE`).
         spatial: Option<Spatial>,
     },
+    /// `DXMusicMessageThread::Play` of a `MusicInfo`'s segment (`DBMusicObj`) on its audio path.
+    StartMusic {
+        voice: u32,
+        music: u32,
+        segment: u32,
+        looping: bool,
+        millibels: i32,
+        /// When it starts (`DMUS_SEGF_*` of `m_startTiming`).
+        boundary: Boundary,
+        /// The primary segment (`Track_ForcePrimary`), else a secondary one.
+        primary: bool,
+        /// A secondary control segment (`DMUS_SEGF_CONTROL`).
+        control: bool,
+        spatial: Option<Spatial>,
+    },
+    /// `DXMusicMessageThread::Stop` of a segment at `boundary`.
+    StopMusic { voice: u32, boundary: Boundary },
+    /// `IDirectMusicPerformance` master groove level (`DirectXSoundDevice::SetGrooveLevel`).
+    Groove { level: i32 },
     /// `IDirectSound3DBuffer::SetAllParameters`: the emitter moved.
     Spatial { voice: u32, spatial: Spatial },
     /// `IDirectMusicAudioPath::SetVolume`: the attenuation, reached over `ramp_ms`.

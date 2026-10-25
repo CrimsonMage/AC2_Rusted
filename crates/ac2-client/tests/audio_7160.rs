@@ -148,3 +148,80 @@ fn walking_plays_step_sounds_from_the_player() {
         "heard from the camera behind the player ({spatial:?})"
     );
 }
+
+/// Standing outdoors in the town block CB4D: the land points around weigh the region's
+/// environments, the dominant one's reverb is chosen and its music is asked for.
+#[test]
+fn the_town_outdoors_picks_its_ambient_environment_and_music() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ac2_db::ResourceStore::new(dataset));
+    let world = ac2_client::DatWorld::new(Arc::clone(&store)).unwrap();
+    let top = world
+        .world()
+        .load_landblock(ac2_core::CellId::new(0xCB4D_0001))
+        .unwrap()
+        .unwrap()
+        .height_grid()
+        .into_iter()
+        .fold(0.0, f32::max);
+    let spawn = legions_server_double::Spawn {
+        cell: 0xCB4D_0025,
+        origin: [96.0, 96.0, top + 2.0],
+        rotation: [1.0, 0.0, 0.0, 0.0],
+    };
+    let (transport, server) = legions_server_double::double(spawn);
+    let config = ac2_weenie::OnlineConfig {
+        server: legions_server_double::addr(legions_server_double::SERVER),
+        account: "local".into(),
+        credential: ac2_net::Credential::Account,
+        version: ac2_net::LEGIONS_VERSION.into(),
+        character: ac2_weenie::CharacterChoice::First,
+        server_key: None,
+        language: 0,
+        dat_iterations: Vec::new(),
+    };
+    let session = ac2_weenie::OnlineSession::with_transport(config, Box::new(transport)).unwrap();
+    let mut client = ac2_client::Client::new(session, Arc::new(world));
+    let sink = RecordingSink::new();
+    client.attach_audio(ac2_client::sound_manager(
+        Arc::clone(&store),
+        Box::new(sink.clone()),
+    ));
+    client.set_load_budget(Duration::from_secs(30));
+    let idle = ac2_client::FrameInput::default();
+    for frame in 0..400 {
+        client.settle_loads(Duration::from_secs(30)).unwrap();
+        client.use_time(&idle).unwrap();
+        client
+            .audio_mut()
+            .unwrap()
+            .wait_for_loads(Duration::from_secs(30));
+        server.borrow_mut().elapsed += 1.0 / 64.0;
+        if frame > 200 && client.ambient_environment().is_some() {
+            break;
+        }
+    }
+    let environment = client
+        .ambient_environment()
+        .expect("an environment dominates");
+    assert_eq!(environment >> 24, 0x29, "an EnvInfo");
+    let music: Vec<u32> = sink
+        .commands()
+        .into_iter()
+        .filter_map(|c| match c {
+            SinkCommand::StartMusic { music, segment, .. } => {
+                assert_eq!(segment >> 24, 0x24, "a DirectMusic segment");
+                Some(music)
+            }
+            _ => None,
+        })
+        .collect();
+    eprintln!("environment {environment:08X}, music {music:08X?}");
+    assert!(
+        !music.is_empty(),
+        "the dominant environment's music is asked for"
+    );
+    assert!(music.iter().all(|m| m >> 24 == 0x2C));
+}

@@ -16,6 +16,7 @@ mod geometry;
 mod hash;
 #[cfg(test)]
 mod real_data_tests;
+mod sound;
 
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -30,6 +31,7 @@ use ac2_math::{Quat, Vec3};
 
 use format::{Ac2SceneDesc, Ac2SceneFile, Ac2SceneLandDefs, Ac2TerrainSceneDesc};
 use geometry::{Ac2SceneTerrain, SIDE};
+pub use sound::{ac2_ambient_sound_points, Ac2AmbientSoundPoint};
 
 const SCENE_DESC_DID: u32 = 0x1100_0000;
 const TERRAIN_DESC_DID: u32 = 0x1200_0000;

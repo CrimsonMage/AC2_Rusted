@@ -25,6 +25,10 @@ pub(crate) enum Request {
     ScriptState(u64, u32, u32),
     /// A read a script call stopped for (cache-only script data).
     ScriptData(ac2_script::vm::DataRequest),
+    /// The region's ambient sound data (`CRegionDesc::GetCurrentSoundInfo`'s `CSoundDesc`).
+    AmbientData,
+    /// A landblock's ambient sound points (`CLandBlock::CreateAmbientSoundPoints`).
+    AmbientPoints(u32),
 }
 
 /// Finished work.
@@ -37,6 +41,8 @@ pub(crate) enum Loaded {
     ScriptState(u64, u32, u32),
     /// The script data read is done (or the DATs lack it).
     ScriptData,
+    /// The ambient sound's reads.
+    Ambient(crate::client_ambient::AmbientLoaded),
 }
 
 /// A pool of loader threads over one `WorldData`.
@@ -67,6 +73,12 @@ fn load(data: &dyn WorldData, request: Request) -> Loaded {
             data.load_script_data(read);
             Loaded::ScriptData
         }
+        Request::AmbientData => Loaded::Ambient(crate::client_ambient::AmbientLoaded::Data(
+            data.ambient_data(),
+        )),
+        Request::AmbientPoints(block) => Loaded::Ambient(
+            crate::client_ambient::AmbientLoaded::Points(block, data.ambient_points(block)),
+        ),
     }
 }
 

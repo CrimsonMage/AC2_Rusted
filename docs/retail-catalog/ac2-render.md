@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 43 done, 27 partial, 698 to do, 13 skipped.
+781 retail functions: 45 done, 28 partial, 695 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -899,7 +899,7 @@ Legend and workflow: [README](README.md).
 
 ### CellRender
 - [ ] `CellRender::CellRender` · 00583480 · legions 00552bf0
-- [ ] `CellRender::AddCellSounds` · 005834d0 · legions 00552c40
+- [~] `CellRender::AddCellSounds` · 005834d0 · legions 00552c40 — ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
 
 ## `portal/client/src/smartbox/worldrender/frillrender.cpp.c` (0/24)
 
@@ -1004,7 +1004,7 @@ Legend and workflow: [README](README.md).
 - [x] `LScapeMaterialInfo::MultiCombine` · 005919d0 · legions 00561000
 - [x] `LScapeMaterialInfo::Create` · 00591a40 · legions 00561070
 
-## `portal/client/src/smartbox/worldrender/lscaperender.cpp.c` (2/39)
+## `portal/client/src/smartbox/worldrender/lscaperender.cpp.c` (3/39)
 
 ### LScapeLighting
 - [x] `LScapeLighting::GetAmbientLight` · 005835c0 · legions 00552d30
@@ -1041,7 +1041,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeRender::~LScapeRender` · 00583c20 · legions 00553390
 - [ ] `LScapeRender::NotifyChangeRegion` · 00583d00 · legions 00553470
 - [ ] `LScapeRender::ReleaseCells` · 00583d20 · legions 00553490
-- [ ] `LScapeRender::AddCellSounds` · 00583d40 · legions 005534b0
+- [x] `LScapeRender::AddCellSounds` · 00583d40 · legions 005534b0 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `LScapeRender::CullLandBlocks` · 00583e70 · legions 005535e0
 - [ ] `LScapeRender::FindReflectionPlane` · 00583f40 · legions 00553680
 - [ ] `LScapeRender::GatherVisibleOutsideObjects` · 00584040 · legions 00553780
@@ -1182,7 +1182,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PortalSpace::Effect::Initialize` · 00587db0 · legions 005574a0
 - [ ] `PortalSpace::Effect::Stop` · 00588050
 
-## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (0/36)
+## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (1/36)
 
 ### GameTime
 - [ ] `GameTime::GetTimeTilTomorrow` · 0057c720 · legions 0054bff0
@@ -1207,7 +1207,7 @@ Legend and workflow: [README](README.md).
 - [ ] `WorldRender::ExitPortalSpace` · 0057cab0
 - [ ] `WorldRender::InPortalSpace` · 0057cad0 · legions 0054c3a0
 - [ ] `WorldRender::ForceShadowRefresh` · 0057caf0 · legions 0054c3c0
-- [ ] `WorldRender::UpdateAmbientSounds` · 0057cb00 · legions 0054c3d0
+- [x] `WorldRender::UpdateAmbientSounds` · 0057cb00 · legions 0054c3d0 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `WorldRender::InitAmbientSounds` · 0057cb40
 - [~] `WorldRender::SetupEnvironment` · 0057cb50 · legions 0054c420 — outdoor sun, ambient and fog; indoor and sky environments not yet
 - [ ] `WorldRender::UpdateRainSounds` · 0057cf80 · legions 0054c850

@@ -13,6 +13,7 @@ mod ifun;
 mod interface;
 mod notices;
 mod notices_typed;
+pub mod radar;
 mod skill_panel;
 
 use std::collections::HashMap;
