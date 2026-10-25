@@ -537,7 +537,7 @@ Legend and workflow: [README](README.md).
 ### BehaviorParams
 - [ ] `BehaviorParams::IsValid` · 00678fe0 · legions 006233b0
 - [ ] `BehaviorParams::get_pack_bitfield` · 00679000 · legions 006233d0
-- [x] `BehaviorParams::StreamPack` · 00679220 · legions 006235f0
+- [x] `BehaviorParams::StreamPack` · 00679220 · legions 006235f0 — ac2-anim; ac2-script native::BehaviorParams also unpacks it
 - [ ] `BehaviorParams::SetDefaults` · 006795b0 · legions 00623980
 - [ ] `BehaviorParams::BehaviorParams` · 00679660 · legions 00623a30
 - [ ] `BehaviorParams::BehaviorParams` · 006796a0 · legions 00623a70

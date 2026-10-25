@@ -4,24 +4,28 @@ key	status	note
 00401b80	x	
 00401e30	~	no TurbineGun (GUN) step
 00401e70	x	
-00401f90	x	
-00401fc0	x	
+00401f90	x	ac2-script pstring::unmunge
+00401fc0	x	ac2-script pstring::unmunge
 00403030	x	
 00403d30	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
 004042f0	x	
 00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 00406410	~	ac2-client Notice::ConnectionLost (ID_NetErr_ConnectionLost, 0x41000018); no UI modes in the headless client
-00406cb0	x	
+00406c60	~	ac2-script: unpack direction only
+00406cb0	x	ac2-script unpack::Reader::pstring/wpstring
+00406f50	x	ac2-script reference/native unpack
+00407050	x	ac2-script reference/native unpack
+00407770	~	ac2-script: unpack direction only
 004079b0	x	OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
 004080c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 00408e90	~	LogOffCharacter only; no UI or game-option upload
 00409270	~	asks for the next-frame-drawn notice (SetWantNoticeOnNextFrameDrawn); no portal scenes
 00409960	x	
 00409990	x	
-00409a80	x	
-00409ab0	x	
-00409be0	x	
+00409a80	x	ac2-script pstring::unmunge
+00409ab0	x	ac2-script pstring::unmunge
+00409be0	x	ac2-script unpack::Reader::pstring/wpstring
 00409e00	x	
 00422f80	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 004232f0	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
@@ -39,6 +43,28 @@ key	status	note
 00431e20	x	
 00431e90	x	
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+00454080	x	ac2-script vm (VM/ReferenceTable/Resolver)
+00454300	x	ac2-script vm (VM/ReferenceTable/Resolver)
+00454440	x	ac2-script vm (VM/ReferenceTable/Resolver)
+00455060	x	ac2-script vm (VM/ReferenceTable/Resolver)
+004553f0	x	ac2-script vm (VM/ReferenceTable/Resolver)
+00455460	x	ac2-script vm (VM/ReferenceTable/Resolver)
+00455740	x	ac2-script vm (VM/ReferenceTable/Resolver)
+004557b0	x	ac2-script vm (VM/ReferenceTable/Resolver)
+004558a0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+00456190	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+00456270	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+00456550	x	ac2-script vm (VM/ReferenceTable/Resolver)
+004565c0	x	ac2-script vm (VM/ReferenceTable/Resolver)
+004567b0	x	ac2-script reference/native unpack
+00457120	~	ac2-script PackedReference::unpack: decode only, no reference table insert yet
+00457330	~	ac2-script PackedReference::unpack: decode only, no reference table insert yet
+00457540	x	ac2-script vm (VM/ReferenceTable/Resolver)
+00457610	x	ac2-script vm (VM/ReferenceTable/Resolver)
+004576d0	x	ac2-script vm (VM/ReferenceTable/Resolver)
+00463df0	~	ac2-script glue: id table + pure-glue registry; engine glue unbound
+00467160	~	ac2-script native::unpack: the native types Legions WStates hold
+00474780	~	ac2-script native: unpack direction only
 00479030	x	ac2-ui interpreter.rs
 00479110	x	ac2-ui interpreter.rs
 004791b0	x	ac2-ui interpreter.rs
@@ -301,9 +327,14 @@ key	status	note
 0049f8f0	x	ac2-physics bsp/node.rs (Legions identical)
 0049f980	x	ac2-physics bsp: placement insert (Legions identical)
 0049fa10	x	ac2-physics los (Terrain::los_check)
+0049fec0	~	ac2-script glue: id table + pure-glue registry; engine glue unbound
 004a6220	x	ac2-physics los (Terrain::los_check)
+004a9640	~	ac2-script native: unpack direction only
+004a9760	~	ac2-script native: unpack direction only
 004a9b90	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 004a9c30	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+004b1da0	x	ac2-script reference/native unpack
+004b4720	~	ac2-script native::unpack: the native types Legions WStates hold
 004bfb90	x	
 004bfeb0	~	ac2-weenie dat_iterations + session answer; internal.dat (slot 4) not opened; language id is configuration (EnumMapper 0x4000002A lookup not ported)
 004c4ed0	x	
@@ -916,6 +947,7 @@ key	status	note
 00525f70	x	
 00528900	x	ac2-world region::sky_objects, ac2-render sky
 0052b1d0	x	ac2-world region::sky_objects, ac2-render sky
+0052dbb0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 0052e6a0	x	
 00530150	x	ac2-weenie ObjectTable::apply_action
 00530e70	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
@@ -931,8 +963,90 @@ key	status	note
 00531bb0	x	
 00531bf0	x	
 00531c30	x	
+00538010	x	ac2-script glue::string_info (lookups via ScriptData)
+00538080	x	ac2-script glue::string_info (lookups via ScriptData)
+005380f0	x	ac2-script glue::string_info (lookups via ScriptData)
+005381d0	x	ac2-script glue::string_info (lookups via ScriptData)
+005382b0	x	ac2-script glue::string_info (lookups via ScriptData)
+00538370	x	ac2-script glue::string_info (lookups via ScriptData)
+005383d0	x	ac2-script glue::string_info (lookups via ScriptData)
+00538440	x	ac2-script glue::string_info (lookups via ScriptData)
+00538560	x	ac2-script glue::string_info (lookups via ScriptData)
+005385c0	x	ac2-script glue::string_info (lookups via ScriptData)
+00538620	x	ac2-script glue::string_info (lookups via ScriptData)
+00538680	x	ac2-script glue::string_info (lookups via ScriptData)
+005386e0	x	ac2-script glue::string_info (lookups via ScriptData)
+00538740	x	ac2-script glue::string_info (lookups via ScriptData)
+00538810	x	ac2-script glue::string_info (lookups via ScriptData)
+00538870	x	ac2-script glue::string_info (lookups via ScriptData)
+005388f0	x	ac2-script glue::string_info (lookups via ScriptData)
+00538960	x	ac2-script glue::string_info (lookups via ScriptData)
+005389d0	x	ac2-script glue::string_info (lookups via ScriptData)
+00538a40	x	ac2-script glue::string_info (lookups via ScriptData)
+00538ad0	x	ac2-script glue::string_info (lookups via ScriptData)
+00538b40	x	ac2-script glue::string_info (lookups via ScriptData)
 00542530	x	ac2-physics los (Terrain::los_check)
 005425b0	x	ac2-physics los (Terrain::los_check)
+00552130	x	ac2-script glue
+005521c0	x	ac2-script glue
+00552270	x	ac2-script glue
+005522e0	x	ac2-script glue
+00552370	x	ac2-script glue
+00552410	x	ac2-script glue
+005524a0	x	ac2-script glue
+00552530	x	ac2-script glue
+005525b0	x	ac2-script glue
+00552640	x	ac2-script glue
+005526b0	x	ac2-script glue
+00552740	x	ac2-script glue
+005527d0	x	ac2-script glue
+00552860	x	ac2-script glue
+005528f0	x	ac2-script glue
+00552980	x	ac2-script glue
+00552a10	x	ac2-script glue
+00552aa0	x	ac2-script glue
+00552b30	x	ac2-script glue
+00552b90	x	ac2-script glue
+00552bf0	x	ac2-script glue
+00552c60	x	ac2-script glue
+00552d50	x	ac2-script glue
+00552db0	x	ac2-script glue
+00552e10	x	ac2-script glue
+00552e70	x	ac2-script glue
+00552ed0	x	ac2-script glue
+00552f30	x	ac2-script glue
+00552fb0	x	ac2-script glue
+00553010	x	ac2-script glue
+00553070	x	ac2-script glue
+005530f0	x	ac2-script glue
+00553150	x	ac2-script glue
+00553220	x	ac2-script glue
+005532b0	x	ac2-script glue
+00553330	x	ac2-script glue
+005533b0	x	ac2-script glue
+00553430	x	ac2-script glue
+005534c0	x	ac2-script glue
+00553550	x	ac2-script glue
+005535f0	x	ac2-script glue
+00553680	x	ac2-script glue
+00553720	x	ac2-script glue
+005537b0	x	ac2-script glue
+00553840	~	ac2-script glue: no collector/debugger
+00553850	~	ac2-script glue: no collector/debugger
+00553870	~	ac2-script glue: no collector/debugger
+005538d0	~	ac2-script glue: no collector/debugger
+00553900	x	ac2-script glue
+00553930	x	ac2-script glue
+00553990	x	ac2-script glue
+005539d0	x	ac2-script glue
+00553a10	x	ac2-script glue
+00553a50	x	ac2-script glue
+00553aa0	x	ac2-script glue
+00553ae0	x	ac2-script glue
+00553b20	x	ac2-script glue
+00553b50	x	ac2-script glue
+00553bd0	~	ac2-script glue: no collector/debugger
+00553c50	x	ac2-script glue
 00568050	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 00568220	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005682d0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -1165,6 +1279,8 @@ key	status	note
 005fe0b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005fe170	x	ac2-ui hud.rs
 005fe420	x	
+006000b0	~	ac2-script: Legions unpack layout (v6 table); version upgrades and UISaveLocations not ported
+006015b0	~	ac2-script native: unpack direction only
 00601c80	x	
 00601cd0	x	
 00601d00	x	
@@ -1178,6 +1294,11 @@ key	status	note
 00603090	x	
 00603470	x	
 006037c0	x	
+006079d0	~	ac2-script native: unpack direction only
+00608150	~	ac2-script native: unpack direction only
+00609660	~	ac2-script native: unpack direction only
+00609a80	~	ac2-script native: unpack direction only
+0060aa40	~	ac2-script native: unpack direction only
 0060d2d0	x	ac2_core::Random
 0060d3b0	x	ac2_core::Random
 0060d3f0	x	ac2_core::Random
@@ -1367,8 +1488,16 @@ key	status	note
 0064e380	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 0064e640	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 0064e660	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
+00650a90	x	ac2-script glue::string_info (lookups via ScriptData)
+00650ad0	x	ac2-script glue::string_info (lookups via ScriptData)
+00650b90	x	ac2-script glue::string_info (lookups via ScriptData)
+00650c50	x	ac2-script glue::string_info (lookups via ScriptData)
+00650e30	x	ac2-script glue::string_info (lookups via ScriptData)
 00651b20	x	
-00652db0	x	
+00652070	x	ac2-script glue::string_info (lookups via ScriptData)
+006521d0	x	ac2-script glue::string_info (lookups via ScriptData)
+00652db0	x	ac2-script reference/native unpack
+006571c0	x	ac2-script glue
 0065a4a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 0065a510	_	
 0065a580	_	
@@ -1387,7 +1516,7 @@ key	status	note
 006606a0	x	
 006606e0	x	
 00662120	_	
-00679220	x	
+00679220	x	ac2-anim; ac2-script native::BehaviorParams also unpacks it
 0067a480	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0067a490	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0067a4a0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
@@ -1526,6 +1655,7 @@ key	status	note
 006a9f80	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006aa5d0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006aaa90	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+006ab140	~	ac2-script native: unpack direction only
 006abe20	x	ac2-physics moveto (slice 3)
 006abe50	x	ac2-physics moveto (slice 3)
 006abf00	x	ac2-physics moveto (slice 3)
@@ -1557,6 +1687,9 @@ key	status	note
 006b5160	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 006b54c0	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 006b5950	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+006b78f0	x	ac2-script WLib/WState/ByteStream decode
+006b79f0	~	ac2-script wstate DID formulas / ByteStream::package_id
+006b7aa0	x	ac2-script WLib/WState/ByteStream decode
 006baa40	_	
 006bc900	x	
 006bc940	x	
@@ -1616,6 +1749,184 @@ key	status	note
 006db0f0	x	
 006db450	x	
 006db7f0	x	
+006dbbd0	x	ac2-script reference/native unpack
+006dbe00	_	
+006dc170	x	ac2-script vm (VM/ReferenceTable/Resolver)
+006dc190	x	ac2-script vm (VM/ReferenceTable/Resolver)
+006dc210	-	script debugger
+006dcce0	~	ac2-script wstate DID formulas / ByteStream::package_id
+006dcf50	~	ac2-script wstate DID formulas / ByteStream::package_id
+006dcf90	x	ac2-script vm (VM/ReferenceTable/Resolver)
+006dcfb0	x	ac2-script glue
+006dd040	-	script debugger
+006dd520	x	ac2-script vm (VM/ReferenceTable/Resolver)
+006dd690	x	ac2-script glue
+006ddd50	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+006dde60	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+006de120	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+006de1e0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+006e08d0	~	ac2-script: handler table is a match in exec.rs
+006e08f0	x	ac2-script vm::exec / Program::walk
+006e0c20	x	ac2-script reference/native unpack
+006e0d30	x	ac2-script glue
+006e0d80	x	ac2-script glue
+006e0f00	x	ac2-script glue
+006e0fc0	x	ac2-script glue
+006e1080	x	ac2-script glue
+006e1140	x	ac2-script glue
+006e1210	x	ac2-script glue
+006e12e0	x	ac2-script glue
+006e13b0	x	ac2-script glue
+006e1410	x	ac2-script glue
+006e1470	x	ac2-script glue
+006e1700	x	ac2-script WLib/WState/ByteStream decode
+006e1830	_	
+006e20c0	x	ac2-script vm::exec / Program::walk
+006e20e0	x	ac2-script vm::exec / Program::walk
+006e2100	x	ac2-script vm::exec / Program::walk
+006e2120	x	ac2-script vm::exec / Program::walk
+006e2140	x	ac2-script vm::exec / Program::walk
+006e2160	x	ac2-script vm::exec / Program::walk
+006e2180	x	ac2-script vm::exec / Program::walk
+006e2220	x	ac2-script vm::exec / Program::walk
+006e2280	x	ac2-script vm::arith / Context
+006e22d0	x	ac2-script vm::arith
+006e2310	x	ac2-script vm::arith
+006e2350	x	ac2-script vm::arith
+006e2390	x	ac2-script vm::arith
+006e23d0	x	ac2-script vm::arith
+006e2410	x	ac2-script vm::arith
+006e2450	x	ac2-script vm::arith
+006e2490	x	ac2-script vm::arith
+006e24d0	x	ac2-script vm::arith
+006e2510	x	ac2-script vm::arith
+006e2550	x	ac2-script vm::arith
+006e2590	x	ac2-script vm::arith
+006e25d0	x	ac2-script vm::arith
+006e2610	x	ac2-script vm::arith
+006e2650	x	ac2-script vm::arith
+006e2690	x	ac2-script vm::arith
+006e26d0	x	ac2-script vm::arith
+006e2710	x	ac2-script vm::arith
+006e2750	x	ac2-script vm::arith
+006e2790	x	ac2-script vm::arith
+006e27d0	x	ac2-script vm::arith
+006e2810	x	ac2-script vm::arith
+006e2850	x	ac2-script vm::arith
+006e2890	x	ac2-script vm::arith
+006e28f0	x	ac2-script vm::arith
+006e2950	x	ac2-script vm::arith
+006e29b0	x	ac2-script vm::arith
+006e2a10	x	ac2-script vm::arith
+006e2a70	x	ac2-script vm::arith
+006e2ad0	x	ac2-script vm::arith
+006e2b30	x	ac2-script vm::arith
+006e2b90	x	ac2-script vm::arith
+006e2c00	x	ac2-script vm::arith
+006e2c80	x	ac2-script vm::arith
+006e2cf0	x	ac2-script vm::arith
+006e2d50	x	ac2-script vm::arith
+006e2db0	x	ac2-script vm::arith
+006e2e10	x	ac2-script vm::arith
+006e2e70	x	ac2-script vm::arith
+006e2ed0	x	ac2-script vm::arith
+006e2f30	x	ac2-script vm::arith
+006e2f90	x	ac2-script vm::arith
+006e2ff0	x	ac2-script vm::arith
+006e3050	x	ac2-script vm::arith
+006e30b0	x	ac2-script vm::arith
+006e3110	x	ac2-script vm::arith
+006e3170	x	ac2-script vm::arith
+006e31c0	x	ac2-script vm::arith
+006e3210	x	ac2-script vm::arith
+006e3260	x	ac2-script vm::arith
+006e32b0	x	ac2-script vm::arith
+006e3330	x	ac2-script vm::arith
+006e33b0	x	ac2-script vm::arith
+006e3420	x	ac2-script vm::arith
+006e3490	x	ac2-script vm::arith
+006e3500	x	ac2-script vm::arith
+006e3570	x	ac2-script vm::arith
+006e35e0	x	ac2-script vm::arith
+006e3650	x	ac2-script vm::arith
+006e36d0	x	ac2-script vm::arith
+006e3750	x	ac2-script vm::arith
+006e37d0	x	ac2-script vm::arith
+006e3850	x	ac2-script vm::arith
+006e38d0	x	ac2-script vm::arith
+006e3950	x	ac2-script vm::arith
+006e39c0	x	ac2-script vm::arith
+006e3a30	x	ac2-script vm::arith
+006e3aa0	x	ac2-script vm::arith
+006e3b10	x	ac2-script vm::arith
+006e3b80	x	ac2-script vm::arith
+006e3c00	x	ac2-script vm::exec
+006e3c10	x	ac2-script vm::exec
+006e3c30	x	ac2-script vm::exec
+006e3c70	x	ac2-script vm::exec
+006e3d40	x	ac2-script vm::exec
+006e3d60	x	ac2-script vm::exec
+006e3d90	x	ac2-script vm::exec
+006e3e00	x	ac2-script vm::exec
+006e3e30	x	ac2-script vm::exec
+006e3e80	x	ac2-script vm::exec
+006e3ed0	x	ac2-script vm::exec
+006e3f10	x	ac2-script vm::exec
+006e3f80	x	ac2-script vm::exec
+006e3fb0	x	ac2-script vm::exec
+006e3ff0	x	ac2-script vm::exec
+006e4040	x	ac2-script vm::exec
+006e4090	x	ac2-script vm::exec
+006e40b0	x	ac2-script vm::exec
+006e4120	x	ac2-script vm::exec
+006e4190	x	ac2-script vm::exec
+006e41f0	x	ac2-script vm::exec
+006e4240	x	ac2-script vm::exec
+006e42f0	x	ac2-script vm::exec
+006e43b0	x	ac2-script vm::exec
+006e4410	x	ac2-script vm::exec
+006e4490	x	ac2-script vm::exec
+006e44f0	x	ac2-script vm::exec
+006e4560	x	ac2-script vm::exec
+006e45a0	x	ac2-script vm::arith / Context
+006e45f0	x	ac2-script vm::arith / Context
+006e4620	x	ac2-script vm::arith / Context
+006e4650	x	ac2-script vm::arith / Context
+006e4680	x	ac2-script vm::arith / Context
+006e46b0	x	ac2-script vm::arith / Context
+006e46e0	x	ac2-script vm::arith / Context
+006e4710	x	ac2-script vm::arith / Context
+006e4750	x	ac2-script vm::arith / Context
+006e47a0	x	ac2-script vm::arith / Context
+006e47f0	x	ac2-script vm::arith / Context
+006e49c0	x	ac2-script vm::arith / Context
+006e4b30	x	ac2-script vm::arith / Context
+006e4dc0	x	ac2-script WLib/WState/ByteStream decode
+006e4e50	x	ac2-script WLib/WState/ByteStream decode
+006e4ee0	x	ac2-script WLib/WState/ByteStream decode
+006e4f70	x	ac2-script WLib/WState/ByteStream decode
+006e5000	x	ac2-script WLib/WState/ByteStream decode
+006e5090	x	ac2-script WLib/WState/ByteStream decode
+006e5140	~	ac2-script: unpack direction only
+006e5790	x	ac2-script glue
+006e58e0	~	ac2-script: unpack direction only
+006e5960	x	ac2-script glue
+006e5aa0	x	ac2-script WLib/WState/ByteStream decode
+006e5c40	x	ac2-script glue
+006e5ec0	~	ac2-script: unpack direction only
+006e5f00	x	ac2-script glue
+006e6c60	x	ac2-script WLib/WState/ByteStream decode
+006e6f40	x	ac2-script WLib/WState/ByteStream decode
+006e74f0	x	ac2-script WLib/WState/ByteStream decode
+006e7ad0	~	ac2-script: unpack direction only
+006e81f0	~	ac2-script: unpack direction only
+006e89d0	~	ac2-script: unpack direction only
+006e92a0	~	ac2-script: unpack direction only
+006e9440	~	ac2-script: unpack direction only
+006ec490	x	ac2-script vm::exec / Program::walk
+006ecb60	~	ac2-script ByteStream::validate_versions: wcc check; InterpVersionCheck env path not ported
+006ecd30	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+006ecdb0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006ed9c0	x	
 006eda20	x	
 006ff763	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)

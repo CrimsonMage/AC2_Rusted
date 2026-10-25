@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 142 done, 6 partial, 1750 to do, 6 skipped.
+1904 retail functions: 159 done, 19 partial, 1720 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,13 +468,13 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (0/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (14/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
 
 ### HeapObject
-- [ ] `HeapObject::InitializeData` · 00454080 · legions 00455100
+- [x] `HeapObject::InitializeData` · 00454080 · legions 00455100 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### VMMon
 - [ ] `VMMon::iBegin` · 004540e0
@@ -489,13 +489,13 @@ Legend and workflow: [README](README.md).
 - [ ] `HeapObject::HeapObject` · 004542d0 · legions 004551e0
 
 ### WDataMapper
-- [ ] `WDataMapper::WStateIDToPackageID` · 00454300 · legions 00455210
+- [x] `WDataMapper::WStateIDToPackageID` · 00454300 · legions 00455210 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ReferenceTable
 - [ ] `ReferenceTable::MarkReference` · 00454350 · legions 00455260
 
 ### ContextState
-- [ ] `ContextState::Init` · 00454440 · legions 00455320
+- [x] `ContextState::Init` · 00454440 · legions 00455320 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ggmCWInterface
 - [ ] `ggmCWInterface::CallEFun_PopupYesNoDialog` · 004544b0
@@ -526,7 +526,7 @@ Legend and workflow: [README](README.md).
 - [ ] `VM::DeleteContext` · 00455000 · legions 00455c70
 
 ### Resolver
-- [ ] `Resolver::GetVirtualFunctionOffset` · 00455060 · legions 00455cd0
+- [x] `Resolver::GetVirtualFunctionOffset` · 00455060 · legions 00455cd0 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ReferenceTable
 - [ ] `ReferenceTable::Grow` · 004550b0 · legions 00455d20
@@ -540,21 +540,21 @@ Legend and workflow: [README](README.md).
 - [ ] `ContextState::ResumeTimers` · 00455340 · legions 00455fa0
 
 ### VM
-- [ ] `VM::Execute` · 004553f0 · legions 00456050
+- [x] `VM::Execute` · 004553f0 · legions 00456050 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### Resolver
-- [ ] `Resolver::GetFunctionOffset` · 00455460 · legions 004560c0
+- [x] `Resolver::GetFunctionOffset` · 00455460 · legions 004560c0 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ReferenceTable
 - [ ] `ReferenceTable::FinishGarbageCollection` · 004554d0 · legions 00456130
 - [ ] `ReferenceTable::ScanProcesses` · 00455600 · legions 00456210
 
 ### VM
-- [ ] `VM::CallIFun` · 00455740 · legions 00456350
+- [x] `VM::CallIFun` · 00455740 · legions 00456350 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ReferenceTable
-- [ ] `ReferenceTable::CallPackageInitializer` · 004557b0 · legions 004563c0
-- [ ] `ReferenceTable::UpdateRelativeReferences` · 004558a0 · legions 004564b0
+- [x] `ReferenceTable::CallPackageInitializer` · 004557b0 · legions 004563c0 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [~] `ReferenceTable::UpdateRelativeReferences` · 004558a0 · legions 004564b0 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 - [ ] `ReferenceTable::StartGarbageCollection` · 004558f0 · legions 00456500
 
 ### ggmCWInterface
@@ -575,8 +575,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PList<unsigned___int64>::UnPack` · 00456020 · legions 00456bd0
 
 ### ReferenceTable
-- [ ] `ReferenceTable::AddReference` · 00456190 · legions 00456d40
-- [ ] `ReferenceTable::UpdateReferences` · 00456270 · legions 00456e20
+- [~] `ReferenceTable::AddReference` · 00456190 · legions 00456d40 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+- [~] `ReferenceTable::UpdateReferences` · 00456270 · legions 00456e20 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 
 ### ggmCWInterface
 - [ ] `ggmCWInterface::XPHashToLAHash` · 00456330 · legions 00456ee0
@@ -595,8 +595,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PList<gmActInfo>::PList<gmActInfo>` · 00456520 · legions 00457120
 
 ### ReferenceTable
-- [ ] `ReferenceTable::CreateNativeObject` · 00456550 · legions 00457150
-- [ ] `ReferenceTable::GetSingleton` · 004565c0 · legions 004571c0
+- [x] `ReferenceTable::CreateNativeObject` · 00456550 · legions 00457150 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [x] `ReferenceTable::GetSingleton` · 004565c0 · legions 004571c0 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### RList
 - [ ] `RList::RList` · 00456690 · legions 00457290
@@ -605,7 +605,7 @@ Legend and workflow: [README](README.md).
 
 ### LList
 - [ ] `LList::LList` · 00456770 · legions 00457370
-- [ ] `LList::UnPack` · 004567b0
+- [x] `LList::UnPack` · 004567b0 — ac2-script reference/native unpack
 
 ### ggmCWInterface
 - [ ] `ggmCWInterface::CraftSkillAdaptorListToRList` · 004567c0 · legions 004573c0
@@ -626,8 +626,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PHashTable<unsigned_long,unsigned___int64>::StreamPack` · 00456f30 · legions 00457a90
 
 ### ReferenceTable
-- [ ] `ReferenceTable::UnPackReferenceArray` · 00457120 · legions 00457c80
-- [ ] `ReferenceTable::UnPackReference` · 00457330 · legions 00457e90
+- [~] `ReferenceTable::UnPackReferenceArray` · 00457120 · legions 00457c80 — ac2-script PackedReference::unpack: decode only, no reference table insert yet
+- [~] `ReferenceTable::UnPackReference` · 00457330 · legions 00457e90 — ac2-script PackedReference::unpack: decode only, no reference table insert yet
 
 ### LAHash
 - [ ] `LAHash::LAHash` · 00457460 · legions 00457fc0
@@ -638,9 +638,9 @@ Legend and workflow: [README](README.md).
 - [ ] `ALHash::StreamPack` · 00457510
 
 ### ReferenceTable
-- [ ] `ReferenceTable::FillPackage` · 00457540 · legions 004580a0
-- [ ] `ReferenceTable::GetReferencePtr` · 00457610 · legions 00458170
-- [ ] `ReferenceTable::GetPackageID` · 004576d0 · legions 00458230
+- [x] `ReferenceTable::FillPackage` · 00457540 · legions 004580a0 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [x] `ReferenceTable::GetReferencePtr` · 00457610 · legions 00458170 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [x] `ReferenceTable::GetPackageID` · 004576d0 · legions 00458230 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ggmCWInterface
 - [ ] `ggmCWInterface::CallIFun_AcceptTrade` · 00457730 · legions 00458290
@@ -860,7 +860,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/weenie/interp/glue/gmcefundispatcher.cpp.c` (0/1)
 
 ### gmCEFunDispatcher
-- [ ] `gmCEFunDispatcher::GetEFunAddress` · 00463df0 · legions 00464a60
+- [~] `gmCEFunDispatcher::GetEFunAddress` · 00463df0 · legions 00464a60 — ac2-script glue: id table + pure-glue registry; engine glue unbound
 
 ## `ac2/client/src/weenie/interp/glue/gmcnativefactory.cpp.c` (0/18)
 
@@ -894,7 +894,7 @@ Legend and workflow: [README](README.md).
 - [ ] `FellowshipAdaptor::~FellowshipAdaptor` · 00467100 · legions 00467db0
 
 ### gmCNativeFactory
-- [ ] `gmCNativeFactory::UnPackNativeObject` · 00467160 · legions 00467e10
+- [~] `gmCNativeFactory::UnPackNativeObject` · 00467160 · legions 00467e10 — ac2-script native::unpack: the native types Legions WStates hold
 - [ ] `gmCNativeFactory::CopyNativeObject` · 00467370 · legions 00468020
 - [ ] `gmCNativeFactory::DeleteNativeObject` · 004677e0 · legions 00468490
 
@@ -1532,9 +1532,9 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/weenie/interp/glue/cefundispatcher.cpp.c` (0/1)
 
 ### CEFunDispatcher
-- [ ] `CEFunDispatcher::GetEFunAddress` · 0049fec0 · legions 00496f40
+- [~] `CEFunDispatcher::GetEFunAddress` · 0049fec0 · legions 00496f40 — ac2-script glue: id table + pure-glue registry; engine glue unbound
 
-## `portal/client/src/weenie/interp/glue/cnativefactory.cpp.c` (1/268)
+## `portal/client/src/weenie/interp/glue/cnativefactory.cpp.c` (2/268)
 
 ### PFileParser
 - [ ] `PFileParser::PFileParser` · 004a5eb0 · legions 0049cf30
@@ -1777,10 +1777,10 @@ Legend and workflow: [README](README.md).
 - [ ] `BaseListIter<unsigned_long,11>::Pack` · 004a95f0 · legions 004a0470
 
 ### RandomSelectionTable<unsigned_long>
-- [ ] `RandomSelectionTable<unsigned_long>::StreamPack` · 004a9640 · legions 004a0640
+- [~] `RandomSelectionTable<unsigned_long>::StreamPack` · 004a9640 · legions 004a0640 — ac2-script native: unpack direction only
 
 ### RandomSelectionTable<unsigned_long>::ElementStruct
-- [ ] `RandomSelectionTable<unsigned_long>::ElementStruct::StreamPack` · 004a9760 · legions 004a0760
+- [~] `RandomSelectionTable<unsigned_long>::ElementStruct::StreamPack` · 004a9760 · legions 004a0760 — ac2-script native: unpack direction only
 
 ### BaseHashSetIter<unsigned_long,7>
 - [ ] `BaseHashSetIter<unsigned_long,7>::Sync` · 004a97c0 · legions 004a07c0
@@ -2192,7 +2192,7 @@ Legend and workflow: [README](README.md).
 - [ ] `BaseMultiHash<unsigned_long,unsigned_long,20>::Pack` · 004b1ce0 · legions 004a8460
 
 ### BaseMultiHash<unsigned_long,unsigned_long,4>
-- [ ] `BaseMultiHash<unsigned_long,unsigned_long,4>::UnPack` · 004b1da0 · legions 004a8f90
+- [x] `BaseMultiHash<unsigned_long,unsigned_long,4>::UnPack` · 004b1da0 · legions 004a8f90 — ac2-script reference/native unpack
 
 ### CNativeFactory
 - [ ] `CNativeFactory::DeleteNativeObject` · 004b1e80 · legions 004a9070
@@ -2242,7 +2242,7 @@ Legend and workflow: [README](README.md).
 ### CNativeFactory
 - [ ] `CNativeFactory::CopyNativeObject` · 004b28f0 · legions 004a9ae0
 - [ ] `CNativeFactory::NewNativeObject` · 004b3980 · legions 004aab70
-- [ ] `CNativeFactory::UnPackNativeObject` · 004b4720 · legions 004ab910
+- [~] `CNativeFactory::UnPackNativeObject` · 004b4720 · legions 004ab910 — ac2-script native::unpack: the native types Legions WStates hold
 
 ## `portal/client/src/weenie/interp/glue/gcwallocator.cpp.c` (0/1)
 
@@ -2546,7 +2546,7 @@ Legend and workflow: [README](README.md).
 - [ ] `FrameDebugInfo::StreamPack` · 0052db50 · legions 00511ff0
 
 ### Resolver
-- [ ] `Resolver::ProcessByteStream` · 0052dbb0 · legions 00512050
+- [~] `Resolver::ProcessByteStream` · 0052dbb0 · legions 00512050 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 - [ ] `Resolver::BuildReverseMap` · 0052dc80 · legions 00512120
 
 ### IntrusiveHashIterator<PStringBase<char>,HashTableData<PStringBase<char>,unsigned_long>_*>
@@ -2663,7 +2663,7 @@ Legend and workflow: [README](README.md).
 ### WInterpAsserts
 - [ ] `WInterpAsserts::GetContextObject` · 006b8070
 
-## `portal/shared/src/weenie/interp/wlib.cpp.c` (0/8)
+## `portal/shared/src/weenie/interp/wlib.cpp.c` (1/8)
 
 ### WLib
 - [ ] `WLib::WLib` · 006b7790 · legions 0064efb0
@@ -2673,16 +2673,16 @@ Legend and workflow: [README](README.md).
 - [ ] `WLib::Allocate` · 006b7840
 - [ ] `WLib::ReleaseRefs` · 006b7850 · legions 0064f070
 - [ ] `WLib::Clear` · 006b78a0 · legions 0064f0c0
-- [ ] `WLib::UnPack` · 006b78f0
+- [x] `WLib::UnPack` · 006b78f0 — ac2-script WLib/WState/ByteStream decode
 
-## `portal/shared/src/weenie/interp/wstate.cpp.c` (0/16)
+## `portal/shared/src/weenie/interp/wstate.cpp.c` (1/16)
 
 ### WState
 - [ ] `WState::Destroy` · 006b79e0
-- [ ] `WState::GetStateByType` · 006b79f0 · legions 0064f210
+- [~] `WState::GetStateByType` · 006b79f0 · legions 0064f210 — ac2-script wstate DID formulas / ByteStream::package_id
 - [ ] `WState::GetPackSize` · 006b7a30 · legions 0064f250
 - [ ] `WState::Pack` · 006b7a50 · legions 0064f270
-- [ ] `WState::UnPack` · 006b7aa0 · legions 0064f2c0
+- [x] `WState::UnPack` · 006b7aa0 · legions 0064f2c0 — ac2-script WLib/WState/ByteStream decode
 - [ ] `WState::WState` · 006b7b00 · legions 0064f320
 - [ ] `WState::GetDBOType` · 006b7b50
 - [-] `WState::GetPackSize` · 006b7b70 — inline copy of 006b7a30

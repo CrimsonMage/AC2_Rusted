@@ -27,7 +27,7 @@ brought over from Vitaeum-AC2 (commit `b2963be`) into the crate that owns it.
 | `ac2-render` | Render pipeline (13 `render`, `scenerender`) | scene assembly: landscape, objects, frills, water, interiors, particles, sky; backend-neutral draw lists | rebuilt; brings the AC2 terrain blend, frill, water, interior, particle and body visuals |
 | `ac2-gpu` | Render device (13 `device`) | the `wgpu` backend: device, pipelines, buffers, textures, shaders | render-wgpu core (no "Enhanced" effects) |
 | `ac2-ui` | UI framework and modules (14, 15) | input maps, UI elements, `LayoutDesc`, game panels | later |
-| `ac2-script` | WSL interpreter (10) | script VM and native glue (AC2 UI and much gameplay run on it) | later |
+| `ac2-script` | WSL interpreter (10) | `WLib`/`ByteStream` and `WState` decode, the script VM and native glue (AC2 UI and much gameplay run on it) | rebuilt from the decompile |
 | `ac2-gameplay` | Gameplay (11) | characters, quests, fellowships, crafting, examination | later |
 | `ac2-audio` | Audio (16) | sound tables and playback | later |
 | `ac2-client` | Client entry (09 `main`) | the program: window, input, login screen, world loop | new |
