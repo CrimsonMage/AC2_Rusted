@@ -106,6 +106,9 @@ pub(crate) struct TextState {
     pub lines: Vec<GlyphLine>,
     pub max_characters: usize,
     pub dirty: bool,
+    /// `m_bitField & 1`: the text takes typing; `m_nCursorPos`.
+    pub editable: bool,
+    pub cursor: usize,
 }
 
 impl TextState {
@@ -126,6 +129,8 @@ impl TextState {
             lines: Vec::new(),
             max_characters: 0xFFFF,
             dirty: true,
+            editable: false,
+            cursor: 0,
         }
     }
 
@@ -142,7 +147,38 @@ impl TextState {
     /// `UIElement_Text::ClearAllText`.
     pub(crate) fn clear(&mut self) {
         self.glyphs.clear();
+        self.cursor = 0;
         self.dirty = true;
+    }
+
+    /// `GlyphList::AddText` at the cursor, which moves past the new glyphs.
+    pub(crate) fn insert_at_cursor(&mut self, text: &[u16]) {
+        if self.font.is_none() {
+            return;
+        }
+        for &ch in text {
+            if self.glyphs.len() >= self.max_characters {
+                break;
+            }
+            let glyph = Glyph::new(ch, self.color, self.font.clone(), self.outline);
+            self.glyphs
+                .insert(self.cursor.min(self.glyphs.len()), glyph);
+            self.cursor += 1;
+        }
+        self.dirty = true;
+    }
+
+    /// `UIElement_Text::DeterminePositionFromXY` along the first line: the glyph boundary
+    /// nearest `x` (element pixels).
+    pub(crate) fn position_at(&self, x: i32) -> usize {
+        let mut left = self.margins[2] - self.view.0;
+        for (i, glyph) in self.glyphs.iter().enumerate() {
+            if glyph.ch == 10 || x < left + glyph.width / 2 {
+                return i;
+            }
+            left += glyph.width;
+        }
+        self.glyphs.len()
     }
 
     /// `UIElement_Text::AddText_Internal` / `GlyphList::AddText` at the end, in the current
@@ -367,7 +403,7 @@ impl UiSurface {
 
     /// `UIElement_Text::PostBlit` for an element whose box is `me` and dirty part `dirty`
     /// (surface coordinates).
-    pub(crate) fn draw_text(&mut self, text: &TextState, me: UiBox, dirty: UiBox) {
+    pub(crate) fn draw_text(&mut self, text: &TextState, me: UiBox, dirty: UiBox, active: bool) {
         let [up, down, left, right] = text.margins;
         let width = me.width();
         let drawable = text.paper.0 - right - left;
@@ -382,7 +418,11 @@ impl UiSurface {
         let mut x = justify(drawable, text.lines[0].width, text.justification) + origin_x;
         let mut line_height = text.lines[0].height;
         let mut next_line = 1;
+        let mut cursor_at = None;
         for (index, glyph) in text.glyphs.iter().enumerate() {
+            if index == text.cursor {
+                cursor_at = Some((x, y));
+            }
             let Some(font) = &glyph.font else {
                 continue;
             };
@@ -414,6 +454,26 @@ impl UiSurface {
                 }
             }
             x += self.draw_character(window, x, y, font, glyph.ch, glyph.color, true);
+        }
+        // `PostBlit`'s cursor: one pixel wide and a font high in the font colour, while the
+        // editable element is active.
+        if active && text.editable {
+            let (cx, cy) = cursor_at.unwrap_or((x, y));
+            let height = text.font.as_ref().map_or(0, |f| f.max_char_height as i32);
+            let color = color_bytes(text.color);
+            for row in 0..height {
+                let (px, py) = (window.x0 + cx, window.y0 + cy + row);
+                if window.intersection(&UiBox::new(px, py, px, py)).is_none()
+                    || px < 0
+                    || py < 0
+                    || px >= self.width as i32
+                    || py >= self.height as i32
+                {
+                    continue;
+                }
+                let at = (py as usize * self.width as usize + px as usize) * 4;
+                self.rgba[at..at + 4].copy_from_slice(&color);
+            }
         }
     }
 }

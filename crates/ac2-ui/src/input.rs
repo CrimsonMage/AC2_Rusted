@@ -77,6 +77,9 @@ pub enum InputEvent {
     Motion { dx: i32, dy: i32 },
     /// The cursor's client-area position (the non-exclusive mouse).
     Cursor { x: i32, y: i32 },
+    /// A typed character (`WM_CHAR`, `CInputManager_WIN32::UpdateCharacter`); only text mode
+    /// takes it.
+    Text { ch: u16 },
 }
 
 /// One action for the handlers (`CallActionHandler`'s arguments).
@@ -110,6 +113,34 @@ pub struct InputManager {
     /// `GetSystemMetrics(SM_CXDOUBLECLK / SM_CYDOUBLECLK)` and `GetDoubleClickTime`.
     pub double_click_size: (i32, i32),
     pub double_click_time: u32,
+    /// `m_textMode`: the keyboard types into the active text element.
+    text_mode: bool,
+    /// The characters for the character handlers (`CallCharacterHandler`): (character, the
+    /// key's virtual-key code when the key typed no character).
+    characters: Vec<(u16, u32)>,
+}
+
+/// `CInputManager_WIN32::IsUIAction`: the editing and navigation actions keys still raise in text
+/// mode.
+pub fn is_ui_action(action: u32) -> bool {
+    matches!(action, 0x4000_000D..=0x4000_001C | 0x4000_001E)
+}
+
+/// The Windows virtual-key code of a DirectInput scan code, for the keys the text handlers tell
+/// apart (`CInputManager_WIN32::OurMapVirtualKey` the other way round); any other key is non-zero.
+fn virtual_key(scan: u32) -> u32 {
+    match scan {
+        0xC9 => 0x21,
+        0xD1 => 0x22,
+        0xCF => 0x23,
+        0xC7 => 0x24,
+        0xCB => 0x25,
+        0xC8 => 0x26,
+        0xCD => 0x27,
+        0xD0 => 0x28,
+        0xD3 => 0x2E,
+        other => 0x1_0000 | other,
+    }
 }
 
 impl InputManager {
@@ -200,6 +231,10 @@ impl InputManager {
         timestamp: u32,
         out: &mut Vec<RawAction>,
     ) {
+        if self.text_mode && device == DEVICE_KEYBOARD {
+            self.text_key(key, pressed, timestamp, out);
+            return;
+        }
         let before = self.meta_mode;
         let meta = if pressed {
             // `SetKey`.
@@ -239,6 +274,74 @@ impl InputManager {
             },
             out,
         );
+    }
+
+    /// `CInputManager_WIN32::UpdateVirtualKey`: in text mode a key keeps the meta mode and its
+    /// UI actions; any other press goes to the character handlers as its virtual key.
+    fn text_key(&mut self, key: u32, pressed: bool, timestamp: u32, out: &mut Vec<RawAction>) {
+        let meta = self.meta_mode;
+        if pressed {
+            if is_meta_key(key) {
+                self.meta_mode |= meta_bit(key);
+            } else {
+                self.key_hits.entry(key).or_insert(meta);
+            }
+        } else if is_meta_key(key) {
+            self.meta_mode &= !meta_bit(key);
+        } else if self.key_hits.remove(&key).is_none() {
+            return;
+        }
+        let action = self.action_from_key(key, meta);
+        if let Some(action) = action.filter(|&a| is_ui_action(a)) {
+            out.push(RawAction {
+                action,
+                extent: if pressed { 1.0 } else { 0.0 },
+                timestamp,
+                key,
+                device: DEVICE_KEYBOARD,
+            });
+            return;
+        }
+        if pressed {
+            self.characters.push((0, virtual_key(key & 0xFF)));
+        }
+    }
+
+    /// `CInputManager::SetTextMode` / `CInputManager_WIN32::SwitchTextMode`: entering text mode
+    /// releases the held keys' actions.
+    pub fn set_text_mode(&mut self, on: bool, timestamp: u32, out: &mut Vec<RawAction>) {
+        if on == self.text_mode {
+            return;
+        }
+        if on {
+            let held: Vec<(u32, u32)> = self.key_hits.drain().collect();
+            for (key, meta) in held {
+                if let Some(action) = self.action_from_key(key, meta) {
+                    out.push(RawAction {
+                        action,
+                        extent: 0.0,
+                        timestamp,
+                        key,
+                        device: DEVICE_KEYBOARD,
+                    });
+                }
+            }
+        }
+        self.text_mode = on;
+    }
+
+    pub fn text_mode(&self) -> bool {
+        self.text_mode
+    }
+
+    /// `ActionInterpreter::CtrlKeyDown`: a control key is held (meta modes 4 and 8).
+    pub fn ctrl_down(&self) -> bool {
+        self.meta_mode & 0xC != 0
+    }
+
+    /// The characters typed since the last call.
+    pub fn take_characters(&mut self) -> Vec<(u16, u32)> {
+        std::mem::take(&mut self.characters)
     }
 
     /// `CInputManager::CallActionHandler`: the pointer actions do not reach the handlers in
@@ -306,6 +409,11 @@ impl InputManager {
                         .is_some()
                 {
                     self.mouse_rel.1 = dy;
+                }
+            }
+            InputEvent::Text { ch } => {
+                if self.text_mode {
+                    self.characters.push((ch, 0));
                 }
             }
             InputEvent::Cursor { x, y } => {

@@ -170,7 +170,7 @@ impl UiTree {
             }
         }
         if let Some(text) = &el.text {
-            surface.draw_text(text, me, clip);
+            surface.draw_text(text, me, clip, self.active == Some(index));
         }
         for &child in el.children.iter().rev() {
             self.draw_here(child, (me.x0, me.y0), clip, images, surface);

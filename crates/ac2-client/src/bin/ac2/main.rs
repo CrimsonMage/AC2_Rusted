@@ -155,8 +155,13 @@ impl App {
         };
         // The UI tree takes the UI actions first; its messages reach the camera UI.
         let ui_input = state.controls.take_ui_input();
-        let messages = state.view.ui_input(&ui_input);
-        let (_, now) = state.now();
+        let mut messages = state.view.ui_input(&ui_input);
+        let (actions, characters, ctrl) = state.controls.take_text_input();
+        messages.extend(state.view.text_input(&actions, &characters, ctrl));
+        let (stamp, now) = state.now();
+        state
+            .controls
+            .set_text_mode(state.view.text_mode(), stamp, now);
         state.controls.ui_messages(&messages, now);
         for message in &messages {
             state.selection.message(message);
@@ -303,15 +308,23 @@ impl ApplicationHandler for App {
                 state.controls.focus(focused, now);
             }
             WindowEvent::KeyboardInput { event, .. } => {
-                if event.repeat {
+                // Outside text mode a held key is one press (DirectInput); in text mode key
+                // repeats move the cursor and type again (`WM_KEYDOWN` / `WM_CHAR`).
+                let text_mode = state.controls.input.text_mode();
+                if event.repeat && !text_mode {
                     return;
                 }
+                let pressed = event.state == ElementState::Pressed;
                 if let PhysicalKey::Code(code) = event.physical_key {
                     if let Some(scan) = keys::dik(code) {
-                        state.input(InputEvent::Key {
-                            scan,
-                            pressed: event.state == ElementState::Pressed,
-                        });
+                        state.input(InputEvent::Key { scan, pressed });
+                    }
+                }
+                if pressed {
+                    if let Some(text) = &event.text {
+                        for ch in text.encode_utf16() {
+                            state.input(InputEvent::Text { ch });
+                        }
                     }
                 }
             }

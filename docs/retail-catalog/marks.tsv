@@ -2169,17 +2169,23 @@ key	status	note
 005912d0	~	base and alpha stages; no shadow-map or cloud-shadow stages
 005919d0	x	
 00591a40	x	
+00599b50	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 00599b90	x	ac2-ui input.rs
 00599c00	x	ac2-ui input.rs
 00599ce0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
+00599d40	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 00599d60	x	ac2-ui maps.rs
 0059a1c0	x	ac2-ui maps.rs
 0059a2b0	x	ac2-ui maps.rs
 0059e260	x	ac2-ui input.rs
 0059e320	x	ac2-ui input.rs
+0059e470	x	ac2-ui input.rs / text_edit.rs: typing into text elements
+0059e500	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 0059f5d0	x	ac2-ui input.rs
 0059f690	x	ac2-ui input.rs
+0059f750	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 0059f980	x	ac2-ui input.rs
+0059fa30	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 0059ff00	x	ac2-ui input.rs
 005a04a0	x	ac2-ui input.rs
 005a05e0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
@@ -2252,9 +2258,10 @@ key	status	note
 005e2f50	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e3220	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e3310	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+005e38b0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005e3af0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e3b70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-005e3cc0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005e3cc0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005e4b60	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4c70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4e50	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
@@ -2272,6 +2279,8 @@ key	status	note
 005e9060	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e90b0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e9470	x	ac2-ui input.rs / text_edit.rs: typing into text elements
+005e94c0	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 005e9530	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e9720	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9790	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
@@ -2295,9 +2304,13 @@ key	status	note
 005ed340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ed450	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005ed8b0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005ed9a0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+005eda10	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+005edaf0	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 005edb30	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005ee340	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005ee6a0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005ee850	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005eea40	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005eec20	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005eed40	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
@@ -2307,8 +2320,13 @@ key	status	note
 005efc10	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005eff20	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005f00a0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005f01d0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+005f0200	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+005f0940	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005f0ba0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+005f0d50	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 005f0e90	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+005f0ff0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005f16e0	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 005f1750	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 005f17c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces

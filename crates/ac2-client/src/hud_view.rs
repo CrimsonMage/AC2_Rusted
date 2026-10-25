@@ -80,6 +80,34 @@ impl HudView {
         tree.take_messages()
     }
 
+    /// The active text element's actions and characters (`UIElement_Text::ActionHandler` /
+    /// `CharacterHandler`); returns the messages they broadcast.
+    pub(crate) fn text_input(
+        &mut self,
+        actions: &[(u32, f32)],
+        characters: &[(u16, u32)],
+        ctrl: bool,
+    ) -> Vec<UiMessage> {
+        let Some((tree, _)) = &mut self.hud else {
+            return Vec::new();
+        };
+        for &(action, extent) in actions {
+            tree.text_action(action, extent, ctrl);
+        }
+        for &(ch, key) in characters {
+            tree.character(ch, key, ctrl);
+        }
+        if tree.take_changed() {
+            self.dirty = true;
+        }
+        tree.take_messages()
+    }
+
+    /// Whether an editable text element is active (the input manager's text mode).
+    pub(crate) fn text_mode(&self) -> bool {
+        self.hud.as_ref().is_some_and(|(tree, _)| tree.text_mode())
+    }
+
     fn arrived(&mut self, built: Built) {
         match built {
             Ok((GameplayHud { mut tree, reticle }, images)) => {

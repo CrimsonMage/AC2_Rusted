@@ -157,6 +157,8 @@ pub struct UiTree {
     pub(crate) changed: bool,
     /// A root's surface object moved, turned or showed since the last [`UiTree::take_moved`].
     pub(crate) moved: bool,
+    /// `m_activeElement`.
+    pub(crate) active: Option<usize>,
 }
 
 /// The index of `desc`'s state `id`.
@@ -202,6 +204,7 @@ impl UiTree {
             mouse_top: None,
             changed: true,
             moved: true,
+            active: None,
         }
     }
 
@@ -293,6 +296,9 @@ impl UiTree {
         let children = std::mem::take(&mut self.el_mut(index).children);
         for child in children {
             self.delete(child);
+        }
+        if self.active == Some(index) {
+            self.active = None;
         }
         self.slots[index] = None;
         self.free.push(index);

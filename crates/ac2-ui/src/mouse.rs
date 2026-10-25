@@ -195,6 +195,12 @@ impl UiTree {
     /// `UIElementManager::MouseDownEvent`.
     fn mouse_down_event(&mut self, action: u32) {
         self.broadcast_global(GLOBAL_MOUSE_DOWN, action);
+        // A press away from the active element deactivates it.
+        if let Some(active) = self.active {
+            if !self.el(active).mouse_over {
+                self.deactivate(active);
+            }
+        }
         let mut processed = false;
         for root in self.roots.clone() {
             self.notify_mouse_down(root, action, &mut processed);
@@ -275,6 +281,7 @@ impl UiTree {
             *processed = true;
         }
         self.button_mouse_down(index, action, processed);
+        self.text_mouse_down(index, action);
     }
 
     /// `UIElement::MouseUp` (and `UIElement_Button::MouseUp`).

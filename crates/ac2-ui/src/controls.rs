@@ -52,6 +52,10 @@ pub struct Controls {
     /// camera UI handles them directly.
     pub ui_attached: bool,
     ui_input: Vec<(u32, f32, bool)>,
+    /// In text mode the active text element is an action and character handler too
+    /// (`CInputManager::CallActionHandler` / `CallCharacterHandler`).
+    text_actions: Vec<(u32, f32)>,
+    characters: Vec<(u16, u32)>,
     pending: ControlFrame,
 }
 
@@ -85,6 +89,8 @@ impl Controls {
             camera_ui: CameraUi::default(),
             ui_attached: false,
             ui_input: Vec::new(),
+            text_actions: Vec::new(),
+            characters: Vec::new(),
             pending: ControlFrame::default(),
         }
     }
@@ -93,7 +99,11 @@ impl Controls {
     pub fn event(&mut self, event: InputEvent, timestamp: u32, now: f64) {
         let mut actions: Vec<RawAction> = Vec::new();
         self.input.process(event, timestamp, &mut actions);
+        self.characters.extend(self.input.take_characters());
         for action in actions {
+            if self.input.text_mode() {
+                self.text_actions.push((action.action, action.extent));
+            }
             self.action(action.action, action.extent, action.key, action.device, now);
         }
     }
@@ -141,6 +151,26 @@ impl Controls {
                     start,
                 } => self.camera_ui_action(ui, value, start, now),
             }
+        }
+    }
+
+    /// The text element's input since the last call: its actions (action, extent) and the
+    /// characters (character, virtual key); and whether a control key is held.
+    pub fn take_text_input(&mut self) -> (Vec<(u32, f32)>, Vec<(u16, u32)>, bool) {
+        (
+            std::mem::take(&mut self.text_actions),
+            std::mem::take(&mut self.characters),
+            self.input.ctrl_down(),
+        )
+    }
+
+    /// `CInputManager::SetTextMode`, following the UI's active text element; entering it
+    /// releases the held keys' actions.
+    pub fn set_text_mode(&mut self, on: bool, timestamp: u32, now: f64) {
+        let mut releases = Vec::new();
+        self.input.set_text_mode(on, timestamp, &mut releases);
+        for action in releases {
+            self.action(action.action, action.extent, action.key, action.device, now);
         }
     }
 
