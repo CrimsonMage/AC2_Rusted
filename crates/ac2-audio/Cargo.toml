@@ -20,6 +20,7 @@ output = ["dep:cpal"]
 ac2-core = { path = "../ac2-core" }
 ac2-dat = { path = "../ac2-dat" }
 ac2-db = { path = "../ac2-db" }
+ac2-prefs = { path = "../ac2-prefs" }
 log = "0.4"
 cpal = { version = "0.17", optional = true }
 symphonia = { version = "0.5", default-features = false, features = ["mp3"] }

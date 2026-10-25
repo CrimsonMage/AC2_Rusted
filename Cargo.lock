@@ -50,6 +50,7 @@ dependencies = [
  "ac2-core",
  "ac2-dat",
  "ac2-db",
+ "ac2-prefs",
  "cpal",
  "log",
  "symphonia",
@@ -69,6 +70,7 @@ dependencies = [
  "ac2-math",
  "ac2-net",
  "ac2-physics",
+ "ac2-prefs",
  "ac2-render",
  "ac2-script",
  "ac2-smartbox",
@@ -159,6 +161,10 @@ dependencies = [
  "ac2-math",
  "ac2-world",
 ]
+
+[[package]]
+name = "ac2-prefs"
+version = "0.1.0"
 
 [[package]]
 name = "ac2-render"

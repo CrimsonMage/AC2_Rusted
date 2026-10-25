@@ -23,6 +23,7 @@ mod music_voice;
 mod output;
 mod play_data;
 mod playing;
+pub mod prefs;
 mod sink;
 pub mod synth;
 

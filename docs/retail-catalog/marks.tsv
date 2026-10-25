@@ -3905,6 +3905,8 @@ key	status	note
 005b2c80	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 005b2e10	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 005b2ea0	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
+005b33b0	~	the level is stored in the session cache and written by ac2-client ClientPrefs::save_overall_graphics_quality (Preferences::SetUInt32 then SaveOverallGraphicsQuality); the render does not apply the level yet
+005b5710	~	ac2-client ClientPrefs::save_overall_graphics_quality: [Graphics] OverallGraphicsQuality written at once to the preferences file (retail: cwd Preferences.ini, else the device path; the port: the user configuration directory); tests: ac2-client prefs_7160 the_graphics_quality_is_written_at_once_and_reads_back_through_the_dat_names
 005b7260	~	BlendLitVertices on the GPU (ac2-gpu object.wgsl); no bounds update, ModelDetail<2 path not reproduced
 005b75b0	x	
 005b7a50	x	ac2-render object::pass / texture_matrix, ac2-gpu object
@@ -4760,6 +4762,10 @@ key	status	note
 00662490	x	ac2-script data/glue::enums
 00662590	x	ac2-script data/glue::enums
 00662970	x	ac2-script data/glue::enums
+00662cc0	-	launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
+00662dc0	-	launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
+00662ed0	-	launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
+00662f50	-	launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
 00669c30	x	reproduced by the gEffectUINode glue (ac2-script glue/effect_node.rs); body from admin 7148 and Legions layout
 00679000	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 00679220	x	ac2-anim; ac2-script native::BehaviorParams also unpacks it
@@ -4925,25 +4931,149 @@ key	status	note
 006ad9f0	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 006ae260	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 006ae550	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
-006b0bb0	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b0bd0	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b0be0	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b12c0	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b1450	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b1800	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b1820	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b1840	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b1860	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b1870	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b1880	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b1ca0	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b1cd0	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b1cf0	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b1d10	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b1d30	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b1d50	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b1d60	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-006b1d70	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006ae650	x	ac2-prefs paths::resolve (PSUtils::full_path, relative to the working directory); --prefs names the file; ClientPrefs::load reads it before the frame loop
+006ae6f0	x	ac2-prefs store.rs and ini.rs: GetPrivateProfileString semantics (trimmed value, first match, comments skipped); section and key names come from the DAT (ac2-client DatNames)
+006ae8c0	x	ac2-prefs store.rs and ini.rs: GetPrivateProfileString semantics (trimmed value, first match, comments skipped); section and key names come from the DAT (ac2-client DatNames)
+006ae9d0	x	ac2-prefs store.rs and ini.rs: GetPrivateProfileString semantics (trimmed value, first match, comments skipped); section and key names come from the DAT (ac2-client DatNames)
+006aebf0	x	ac2-prefs store.rs and ini.rs: GetPrivateProfileString semantics (trimmed value, first match, comments skipped); section and key names come from the DAT (ac2-client DatNames)
+006aecd0	x	ac2-prefs store.rs and ini.rs: GetPrivateProfileString semantics (trimmed value, first match, comments skipped); section and key names come from the DAT (ac2-client DatNames)
+006aedc0	x	ac2-prefs store.rs: the session cache of (section, key) text; SetBool and SetUInt32 are session-only, as retail (nothing is written to the file)
+006aeee0	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006aef40	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006aeff0	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006af060	x	ac2-prefs store.rs: the session cache of (section, key) text; SetBool and SetUInt32 are session-only, as retail (nothing is written to the file)
+006af0f0	x	ac2-prefs store.rs: the session cache of (section, key) text; SetBool and SetUInt32 are session-only, as retail (nothing is written to the file)
+006af180	x	ac2-prefs paths::resolve (PSUtils::full_path, relative to the working directory); --prefs names the file; ClientPrefs::load reads it before the frame loop
+006af1d0	x	ac2-prefs Pref::copy_from (value, default, range, choices, map)
+006af230	~	source and target copies are not modelled: the bank holds one value per key
+006af270	~	source and target copies are not modelled: the bank holds one value per key
+006af2c0	x	ac2-prefs Pref::changed, apply, recall, reset (float, string)
+006af2d0	x	ac2-prefs Pref::changed, apply, recall, reset (float, string)
+006af2e0	-	not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
+006af2f0	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006af360	-	derived Clone or PartialEq (the Rust types derive them), not a separate port
+006af410	x	ac2-prefs Pref::set_text for a string: the text as it is
+006af470	x	ac2-prefs Pref::set_default_text for a string: the default and the value
+006af4f0	x	ac2-prefs Pref::value_text for a string: the value as it is
+006af550	x	ac2-prefs Pref::default_text for a string
+006af5a0	x	ac2-prefs Pref::changed, apply, recall, reset (float, string)
+006af5c0	x	ac2-prefs Pref::changed, apply, recall, reset (float, string)
+006af600	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006af620	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006af6b0	-	derived Clone or PartialEq (the Rust types derive them), not a separate port
+006af6e0	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006af700	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006af710	-	derived Clone or PartialEq (the Rust types derive them), not a separate port
+006af770	x	ac2-prefs Pref::copy_from (value, default, range, choices, map)
+006af7a0	~	display string ids are UI state (the option pages own their labels); ac2-prefs keeps none
+006af7c0	~	display string ids are UI state (the option pages own their labels); ac2-prefs keeps none
+006af7e0	-	not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
+006af830	-	not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
+006af840	x	ac2-prefs PreferenceBank::register: loaded from the file on first registration (Preference::Load), copied when the key exists
+006af890	x	ac2-prefs PreferenceBank::register: loaded from the file on first registration (Preference::Load), copied when the key exists
+006af8d0	x	ac2-prefs Pref: the section and key are fields (Pref::section, Pref::key)
+006af8f0	x	ac2-prefs Pref: the section and key are fields (Pref::section, Pref::key)
+006af940	x	ac2-prefs PreferenceBank::save: WritePrivateProfileString of each preference in list order (ini.rs set)
+006afa50	x	ac2-prefs bank load_into: the text of the file (or the default text) cut to 99 bytes, SetValue, then apply (the loaded value is the saved one)
+006afba0	-	no global bank in the port: ClientPrefs owns the bank (retail keeps the mBank singleton)
+006afbb0	x	ac2-prefs paths::resolve (PSUtils::full_path, relative to the working directory); --prefs names the file; ClientPrefs::load reads it before the frame loop
+006afc10	x	ac2-prefs PreferenceBank::save: WritePrivateProfileString of each preference in list order (ini.rs set)
+006afc50	x	ac2-prefs PreferenceBank::find
+006afcb0	~	applies every preference of the section (+0x58); the port apply(section) applies the changed ones, and nothing needs the unconditional form yet
+006afd00	~	source and target copies are not modelled: the bank holds one value per key
+006afd50	~	source and target copies are not modelled: the bank holds one value per key
+006afda0	x	ac2-prefs PreferenceBank::list
+006afe20	~	handlers are not objects in the port: submit, apply, recall and reload return the keys and the caller dispatches them
+006aff40	~	handlers are not objects in the port: submit, apply, recall and reload return the keys and the caller dispatches them
+006aff70	~	handlers are not objects in the port: submit, apply, recall and reload return the keys and the caller dispatches them
+006affa0	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b0070	x	ac2-prefs PreferenceBank::link: records the owner subsystem of a key (SoundManager registers its keys)
+006b00e0	~	changes notify the key handler and the section monitor; the port returns the keys (submit, apply, recall, reload) instead
+006b0190	x	ac2-prefs PreferenceBank::submit (keys whose value changed)
+006b0300	x	ac2-prefs PreferenceBank::recall (every preference of the section back to its applied value)
+006b0490	x	ac2-prefs PreferenceBank::reload (the keys of the section)
+006b0530	x	ac2-prefs PreferenceBank::apply (section: the changed ones; key: one)
+006b0600	x	ac2-prefs PreferenceBank::apply (section: the changed ones; key: one)
+006b0800	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b0830	x	ac2-prefs PreferenceBank::register: loaded from the file on first registration (Preference::Load), copied when the key exists
+006b08e0	~	no removal and no section monitors in the port: the bank keeps every preference registered this session
+006b0990	~	no removal and no section monitors in the port: the bank keeps every preference registered this session
+006b0a00	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b0ae0	x	ac2-prefs paths::resolve (PSUtils::full_path, relative to the working directory); --prefs names the file; ClientPrefs::load reads it before the frame loop
+006b0b10	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b0b60	~	source and target copies are not modelled: the bank holds one value per key
+006b0ba0	x	ac2-prefs enum: Pref::enumeration takes the map (EnumMapper of the names)
+006b0bb0	x	ac2-prefs Pref::changed, apply, reset for an enum
+006b0bd0	x	ac2-prefs Pref::changed, apply, reset for an enum
+006b0be0	x	ac2-prefs Pref::changed, apply, reset for an enum
+006b0bf0	-	not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
+006b0c00	~	reads its own value; the source copy is not modelled
+006b0c20	-	not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
+006b0c30	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b0c70	x	ac2-prefs Pref::parse for an enum name: its label, then the choice of that label (FindValue; no choice gives the default, through the not-found vtable call)
+006b0ce0	-	Rust std replaces it
+006b0d30	~	choices are given to Pref::enumeration; there is no separate AssignChoice call
+006b0d50	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b0e40	-	Rust std replaces it
+006b0ed0	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b0f20	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b0fb0	x	ac2-prefs Pref::copy_from (value, default, range, choices, map)
+006b1040	x	ac2-prefs Pref::set_text for an enum: an integer (is_int32, base 0) or a mapped name, that must be a choice
+006b1140	x	ac2-prefs Pref::set_choice (SetValue(long): a choice only)
+006b11c0	x	ac2-prefs Pref::set_default_text for an enum (a choice only)
+006b12c0	x	ac2-prefs Pref::set_default (SetDefault(long): a choice only)
+006b1340	x	ac2-prefs Pref::value_text for an enum: the label name, else the integer in %d
+006b13c0	x	ac2-prefs Pref::default_text for an enum
+006b1430	~	choices are given to Pref::enumeration; there is no separate AssignChoice call
+006b1450	~	choices are given to Pref::enumeration; there is no separate AssignChoice call
+006b14a0	x	ac2-prefs Pref::label_of and Pref::choices (ExamineChoice and ListChoices)
+006b14c0	x	ac2-prefs Pref::label_of and Pref::choices (ExamineChoice and ListChoices)
+006b1530	x	ac2-prefs Pref::label_of and Pref::choices (ExamineChoice and ListChoices)
+006b1540	-	Rust std replaces it
+006b15d0	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b15f0	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b1650	-	derived Clone or PartialEq (the Rust types derive them), not a separate port
+006b1680	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b16b0	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b16c0	-	derived Clone or PartialEq (the Rust types derive them), not a separate port
+006b1710	-	derived Clone or PartialEq (the Rust types derive them), not a separate port
+006b1760	x	ac2-prefs Pref::copy_from (value, default, range, choices, map)
+006b17c0	~	source and target copies are not modelled: the bank holds one value per key
+006b1800	x	ac2-prefs Pref::set_bool, set_default, changed, apply, recall, reset (the bool value and default)
+006b1820	x	ac2-prefs Pref::set_bool, set_default, changed, apply, recall, reset (the bool value and default)
+006b1840	x	ac2-prefs Pref::set_bool, set_default, changed, apply, recall, reset (the bool value and default)
+006b1860	x	ac2-prefs Pref::set_bool, set_default, changed, apply, recall, reset (the bool value and default)
+006b1870	x	ac2-prefs Pref::set_bool, set_default, changed, apply, recall, reset (the bool value and default)
+006b1880	x	ac2-prefs Pref::set_bool, set_default, changed, apply, recall, reset (the bool value and default)
+006b1890	-	not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
+006b18a0	~	reads its own value; the source copy is not modelled
+006b18c0	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b18f0	x	ac2-prefs Pref::set_text for a bool: 0 or 1 in any case, other text keeps the value (SetValue(PString))
+006b19b0	x	ac2-prefs Pref::set_default_text: a bool resets to its default even when the text names none
+006b1a60	x	ac2-prefs Pref::value_text for a bool: 1 or 0
+006b1aa0	x	ac2-prefs Pref::default_text for a bool: 1 or 0
+006b1ad0	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b1b10	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b1b20	-	derived Clone or PartialEq (the Rust types derive them), not a separate port
+006b1b80	-	derived Clone or PartialEq (the Rust types derive them), not a separate port
+006b1bf0	x	ac2-prefs Pref::copy_from (value, default, range, choices, map)
+006b1c60	~	source and target copies are not modelled: the bank holds one value per key
+006b1ca0	x	ac2-prefs Pref::set_range: refused when max is below min (no clamp elsewhere)
+006b1cd0	x	ac2-prefs Pref::set_float: stores what it is given (no clamp)
+006b1cf0	x	ac2-prefs Pref::set_default (float default and value)
+006b1d10	x	ac2-prefs Pref::set_range: refused when max is below min (no clamp elsewhere)
+006b1d30	x	ac2-prefs Pref::changed, apply, recall, reset (float, string)
+006b1d50	x	ac2-prefs Pref::changed, apply, recall, reset (float, string)
+006b1d60	x	ac2-prefs Pref::changed, apply, recall, reset (float, string)
+006b1d70	x	ac2-prefs Pref::changed, apply, recall, reset (float, string)
+006b1d80	-	not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
+006b1d90	~	reads its own value; the source copy is not modelled
+006b1db0	-	not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
+006b1dc0	-	C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+006b1df0	x	ac2-prefs Pref::set_text for a float: is_double then strtod, cast to f32
+006b1e60	x	ac2-prefs Pref::set_default_text for a float (is_double first)
+006b1ec0	x	ac2-prefs Pref::value_text for a float: %f (six decimals)
+006b1f20	x	ac2-prefs Pref::default_text for a float: %f
 006b2180	~	value type via PropertyTypes (MasterProperty::InqPropertyType); group lookup and defaults not modelled
 006b2250	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 006b2960	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)

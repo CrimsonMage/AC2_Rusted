@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 23 done, 25 partial, 301 to do, 5 skipped.
+354 retail functions: 100 done, 28 partial, 186 to do, 40 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -383,203 +383,203 @@ Legend and workflow: [README](README.md).
 - [ ] `CPlayerShellCmdTable::~CPlayerShellCmdTable` · 00732750 · legions 006aebf0
 - [ ] `CPlayerShellCmdTable::CPlayerShellCmdTable` · 00732760 · legions 006aec00
 
-## `portal/shared/src/prefs/preference.cpp.c` (0/14)
+## `portal/shared/src/prefs/preference.cpp.c` (7/14)
 
 ### Preference
-- [ ] `Preference::Preference` · 006af6e0 · legions 00648930
-- [ ] `Preference::~Preference` · 006af700 · legions 00648950
-- [ ] `Preference::Compare` · 006af710 · legions 00648960
-- [ ] `Preference::Copy` · 006af770 · legions 006489c0
-- [ ] `Preference::Describe` · 006af7a0 · legions 006489f0
-- [ ] `Preference::Describe` · 006af7c0 · legions 00648a10
-- [ ] `Preference::GetString` · 006af7e0 · legions 0044a270
+- [-] `Preference::Preference` · 006af6e0 · legions 00648930 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [-] `Preference::~Preference` · 006af700 · legions 00648950 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [-] `Preference::Compare` · 006af710 · legions 00648960 — derived Clone or PartialEq (the Rust types derive them), not a separate port
+- [x] `Preference::Copy` · 006af770 · legions 006489c0 — ac2-prefs Pref::copy_from (value, default, range, choices, map)
+- [~] `Preference::Describe` · 006af7a0 · legions 006489f0 — display string ids are UI state (the option pages own their labels); ac2-prefs keeps none
+- [~] `Preference::Describe` · 006af7c0 · legions 00648a10 — display string ids are UI state (the option pages own their labels); ac2-prefs keeps none
+- [-] `Preference::GetString` · 006af7e0 · legions 0044a270 — not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
 
 ### DiskConBase
-- [ ] `DiskConBase::GetSubset` · 006af830 · legions 00648a80
+- [-] `DiskConBase::GetSubset` · 006af830 · legions 00648a80 — not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
 
 ### Preference
-- [ ] `Preference::Create` · 006af840 · legions 00648a90
-- [ ] `Preference::Bless` · 006af890 · legions 00648ae0
-- [ ] `Preference::Identify` · 006af8d0
-- [ ] `Preference::Identify` · 006af8f0
-- [ ] `Preference::Save` · 006af940 · legions 00648b90
-- [ ] `Preference::Load` · 006afa50 · legions 00648ca0
+- [x] `Preference::Create` · 006af840 · legions 00648a90 — ac2-prefs PreferenceBank::register: loaded from the file on first registration (Preference::Load), copied when the key exists
+- [x] `Preference::Bless` · 006af890 · legions 00648ae0 — ac2-prefs PreferenceBank::register: loaded from the file on first registration (Preference::Load), copied when the key exists
+- [x] `Preference::Identify` · 006af8d0 — ac2-prefs Pref: the section and key are fields (Pref::section, Pref::key)
+- [x] `Preference::Identify` · 006af8f0 — ac2-prefs Pref: the section and key are fields (Pref::section, Pref::key)
+- [x] `Preference::Save` · 006af940 · legions 00648b90 — ac2-prefs PreferenceBank::save: WritePrivateProfileString of each preference in list order (ini.rs set)
+- [x] `Preference::Load` · 006afa50 · legions 00648ca0 — ac2-prefs bank load_into: the text of the file (or the default text) cut to 99 bytes, SetValue, then apply (the loaded value is the saved one)
 
-## `portal/shared/src/prefs/preferencebank.cpp.c` (0/25)
+## `portal/shared/src/prefs/preferencebank.cpp.c` (12/25)
 
 ### PreferenceBank
-- [ ] `PreferenceBank::GetInstance` · 006afba0 · legions 00648df0
-- [ ] `PreferenceBank::ChooseFile` · 006afbb0 · legions 00648e00
-- [ ] `PreferenceBank::Save` · 006afc10 · legions 00648e60
-- [ ] `PreferenceBank::Find` · 006afc50 · legions 00648ea0
-- [ ] `PreferenceBank::Synchronize` · 006afcb0 · legions 00648f00
-- [ ] `PreferenceBank::ConnectSource` · 006afd00 · legions 00648f50
-- [ ] `PreferenceBank::ConnectTarget` · 006afd50 · legions 00648fa0
-- [ ] `PreferenceBank::List` · 006afda0 · legions 00648ff0
-- [ ] `PreferenceBank::ListHandlers` · 006afe20 · legions 00649070
-- [ ] `PreferenceBank::Unlink` · 006aff40 · legions 00649190
-- [ ] `PreferenceBank::Detach` · 006aff70 · legions 006491c0
-- [ ] `PreferenceBank::~PreferenceBank` · 006affa0 · legions 006491f0
-- [ ] `PreferenceBank::Link` · 006b0070 · legions 006492c0
-- [ ] `PreferenceBank::Change` · 006b00e0 · legions 00649330
-- [ ] `PreferenceBank::Submit` · 006b0190 · legions 006493e0
-- [ ] `PreferenceBank::Recall` · 006b0300 · legions 00649550
-- [ ] `PreferenceBank::Reload` · 006b0490 · legions 006496e0
-- [ ] `PreferenceBank::Apply` · 006b0530 · legions 00649780
-- [ ] `PreferenceBank::Apply` · 006b0600 · legions 00649850
-- [ ] `PreferenceBank::Shutdown` · 006b0800 · legions 00649a50
-- [ ] `PreferenceBank::Set` · 006b0830 · legions 00649a80
-- [ ] `PreferenceBank::Destroy` · 006b08e0 · legions 00649b30
-- [ ] `PreferenceBank::Attach` · 006b0990 · legions 00649be0
-- [ ] `PreferenceBank::PreferenceBank` · 006b0a00 · legions 00649c50
-- [ ] `PreferenceBank::Startup` · 006b0ae0 · legions 00649d30
+- [-] `PreferenceBank::GetInstance` · 006afba0 · legions 00648df0 — no global bank in the port: ClientPrefs owns the bank (retail keeps the mBank singleton)
+- [x] `PreferenceBank::ChooseFile` · 006afbb0 · legions 00648e00 — ac2-prefs paths::resolve (PSUtils::full_path, relative to the working directory); --prefs names the file; ClientPrefs::load reads it before the frame loop
+- [x] `PreferenceBank::Save` · 006afc10 · legions 00648e60 — ac2-prefs PreferenceBank::save: WritePrivateProfileString of each preference in list order (ini.rs set)
+- [x] `PreferenceBank::Find` · 006afc50 · legions 00648ea0 — ac2-prefs PreferenceBank::find
+- [~] `PreferenceBank::Synchronize` · 006afcb0 · legions 00648f00 — applies every preference of the section (+0x58); the port apply(section) applies the changed ones, and nothing needs the unconditional form yet
+- [~] `PreferenceBank::ConnectSource` · 006afd00 · legions 00648f50 — source and target copies are not modelled: the bank holds one value per key
+- [~] `PreferenceBank::ConnectTarget` · 006afd50 · legions 00648fa0 — source and target copies are not modelled: the bank holds one value per key
+- [x] `PreferenceBank::List` · 006afda0 · legions 00648ff0 — ac2-prefs PreferenceBank::list
+- [~] `PreferenceBank::ListHandlers` · 006afe20 · legions 00649070 — handlers are not objects in the port: submit, apply, recall and reload return the keys and the caller dispatches them
+- [~] `PreferenceBank::Unlink` · 006aff40 · legions 00649190 — handlers are not objects in the port: submit, apply, recall and reload return the keys and the caller dispatches them
+- [~] `PreferenceBank::Detach` · 006aff70 · legions 006491c0 — handlers are not objects in the port: submit, apply, recall and reload return the keys and the caller dispatches them
+- [-] `PreferenceBank::~PreferenceBank` · 006affa0 · legions 006491f0 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [x] `PreferenceBank::Link` · 006b0070 · legions 006492c0 — ac2-prefs PreferenceBank::link: records the owner subsystem of a key (SoundManager registers its keys)
+- [~] `PreferenceBank::Change` · 006b00e0 · legions 00649330 — changes notify the key handler and the section monitor; the port returns the keys (submit, apply, recall, reload) instead
+- [x] `PreferenceBank::Submit` · 006b0190 · legions 006493e0 — ac2-prefs PreferenceBank::submit (keys whose value changed)
+- [x] `PreferenceBank::Recall` · 006b0300 · legions 00649550 — ac2-prefs PreferenceBank::recall (every preference of the section back to its applied value)
+- [x] `PreferenceBank::Reload` · 006b0490 · legions 006496e0 — ac2-prefs PreferenceBank::reload (the keys of the section)
+- [x] `PreferenceBank::Apply` · 006b0530 · legions 00649780 — ac2-prefs PreferenceBank::apply (section: the changed ones; key: one)
+- [x] `PreferenceBank::Apply` · 006b0600 · legions 00649850 — ac2-prefs PreferenceBank::apply (section: the changed ones; key: one)
+- [-] `PreferenceBank::Shutdown` · 006b0800 · legions 00649a50 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [x] `PreferenceBank::Set` · 006b0830 · legions 00649a80 — ac2-prefs PreferenceBank::register: loaded from the file on first registration (Preference::Load), copied when the key exists
+- [~] `PreferenceBank::Destroy` · 006b08e0 · legions 00649b30 — no removal and no section monitors in the port: the bank keeps every preference registered this session
+- [~] `PreferenceBank::Attach` · 006b0990 · legions 00649be0 — no removal and no section monitors in the port: the bank keeps every preference registered this session
+- [-] `PreferenceBank::PreferenceBank` · 006b0a00 · legions 00649c50 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [x] `PreferenceBank::Startup` · 006b0ae0 · legions 00649d30 — ac2-prefs paths::resolve (PSUtils::full_path, relative to the working directory); --prefs names the file; ClientPrefs::load reads it before the frame loop
 
-## `portal/shared/src/prefs/preferencebool.cpp.c` (0/18)
+## `portal/shared/src/prefs/preferencebool.cpp.c` (11/18)
 
 ### PreferenceBool
-- [ ] `PreferenceBool::PreferenceBool` · 006b1680 · legions 0064a8d0
-- [ ] `PreferenceBool::~PreferenceBool` · 006b16b0 · legions 0064a900
-- [ ] `PreferenceBool::Clone` · 006b16c0 · legions 0064a910
-- [ ] `PreferenceBool::Compare` · 006b1710
-- [ ] `PreferenceBool::Copy` · 006b1760 · legions 0064a9b0
-- [ ] `PreferenceBool::ConnectTarget` · 006b17c0 · legions 0064aa10
-- [~] `PreferenceBool::SetValue` · 006b1800 · legions 0064aa50 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [~] `PreferenceBool::SetDefault` · 006b1820 · legions 0064aa70 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [~] `PreferenceBool::Changed` · 006b1840 · legions 0064aa90 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [~] `PreferenceBool::Apply` · 006b1860 · legions 0064aab0 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [~] `PreferenceBool::Recall` · 006b1870 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [~] `PreferenceBool::Reset` · 006b1880 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [-] `PreferenceBool::PreferenceBool` · 006b1680 · legions 0064a8d0 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [-] `PreferenceBool::~PreferenceBool` · 006b16b0 · legions 0064a900 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [-] `PreferenceBool::Clone` · 006b16c0 · legions 0064a910 — derived Clone or PartialEq (the Rust types derive them), not a separate port
+- [-] `PreferenceBool::Compare` · 006b1710 — derived Clone or PartialEq (the Rust types derive them), not a separate port
+- [x] `PreferenceBool::Copy` · 006b1760 · legions 0064a9b0 — ac2-prefs Pref::copy_from (value, default, range, choices, map)
+- [~] `PreferenceBool::ConnectTarget` · 006b17c0 · legions 0064aa10 — source and target copies are not modelled: the bank holds one value per key
+- [x] `PreferenceBool::SetValue` · 006b1800 · legions 0064aa50 — ac2-prefs Pref::set_bool, set_default, changed, apply, recall, reset (the bool value and default)
+- [x] `PreferenceBool::SetDefault` · 006b1820 · legions 0064aa70 — ac2-prefs Pref::set_bool, set_default, changed, apply, recall, reset (the bool value and default)
+- [x] `PreferenceBool::Changed` · 006b1840 · legions 0064aa90 — ac2-prefs Pref::set_bool, set_default, changed, apply, recall, reset (the bool value and default)
+- [x] `PreferenceBool::Apply` · 006b1860 · legions 0064aab0 — ac2-prefs Pref::set_bool, set_default, changed, apply, recall, reset (the bool value and default)
+- [x] `PreferenceBool::Recall` · 006b1870 — ac2-prefs Pref::set_bool, set_default, changed, apply, recall, reset (the bool value and default)
+- [x] `PreferenceBool::Reset` · 006b1880 — ac2-prefs Pref::set_bool, set_default, changed, apply, recall, reset (the bool value and default)
 
 ### AMHuman
-- [ ] `AMHuman::GetType` · 006b1890
+- [-] `AMHuman::GetType` · 006b1890 — not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
 
 ### PreferenceBool
-- [ ] `PreferenceBool::GetBool` · 006b18a0 · legions 0064aaf0
-- [ ] `PreferenceBool::SetValue` · 006b18f0
-- [ ] `PreferenceBool::SetDefault` · 006b19b0
-- [ ] `PreferenceBool::InqValue` · 006b1a60
-- [ ] `PreferenceBool::InqDefault` · 006b1aa0
+- [~] `PreferenceBool::GetBool` · 006b18a0 · legions 0064aaf0 — reads its own value; the source copy is not modelled
+- [x] `PreferenceBool::SetValue` · 006b18f0 — ac2-prefs Pref::set_text for a bool: 0 or 1 in any case, other text keeps the value (SetValue(PString))
+- [x] `PreferenceBool::SetDefault` · 006b19b0 — ac2-prefs Pref::set_default_text: a bool resets to its default even when the text names none
+- [x] `PreferenceBool::InqValue` · 006b1a60 — ac2-prefs Pref::value_text for a bool: 1 or 0
+- [x] `PreferenceBool::InqDefault` · 006b1aa0 — ac2-prefs Pref::default_text for a bool: 1 or 0
 
-## `portal/shared/src/prefs/preferenceenum.cpp.c` (0/27)
+## `portal/shared/src/prefs/preferenceenum.cpp.c` (15/27)
 
 ### PreferenceEnum
-- [ ] `PreferenceEnum::Compare` · 006b0b10
-- [ ] `PreferenceEnum::ConnectTarget` · 006b0b60 · legions 00649db0
-- [ ] `PreferenceEnum::Map` · 006b0ba0 · legions 00649df0
-- [~] `PreferenceEnum::Changed` · 006b0bb0 · legions 00649e00 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [~] `PreferenceEnum::Apply` · 006b0bd0 · legions 00649e20 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [~] `PreferenceEnum::Reset` · 006b0be0 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [-] `PreferenceEnum::Compare` · 006b0b10 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [~] `PreferenceEnum::ConnectTarget` · 006b0b60 · legions 00649db0 — source and target copies are not modelled: the bank holds one value per key
+- [x] `PreferenceEnum::Map` · 006b0ba0 · legions 00649df0 — ac2-prefs enum: Pref::enumeration takes the map (EnumMapper of the names)
+- [x] `PreferenceEnum::Changed` · 006b0bb0 · legions 00649e00 — ac2-prefs Pref::changed, apply, reset for an enum
+- [x] `PreferenceEnum::Apply` · 006b0bd0 · legions 00649e20 — ac2-prefs Pref::changed, apply, reset for an enum
+- [x] `PreferenceEnum::Reset` · 006b0be0 — ac2-prefs Pref::changed, apply, reset for an enum
 
 ### AnimAsset
-- [ ] `AnimAsset::GetType` · 006b0bf0
+- [-] `AnimAsset::GetType` · 006b0bf0 — not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
 
 ### PreferenceEnum
-- [ ] `PreferenceEnum::GetInt` · 006b0c00 · legions 00649e50
+- [~] `PreferenceEnum::GetInt` · 006b0c00 · legions 00649e50 — reads its own value; the source copy is not modelled
 
 ### StoryHookData
-- [ ] `StoryHookData::GetTargetPKDamageChange` · 006b0c20 · legions 00649e70
+- [-] `StoryHookData::GetTargetPKDamageChange` · 006b0c20 · legions 00649e70 — not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
 
 ### PreferenceEnum
-- [ ] `PreferenceEnum::FindValue` · 006b0c70 · legions 00649ec0
-- [ ] `PreferenceEnum::ClearChoices` · 006b0d30 · legions 00649f80
+- [x] `PreferenceEnum::FindValue` · 006b0c70 · legions 00649ec0 — ac2-prefs Pref::parse for an enum name: its label, then the choice of that label (FindValue; no choice gives the default, through the not-found vtable call)
+- [~] `PreferenceEnum::ClearChoices` · 006b0d30 · legions 00649f80 — choices are given to Pref::enumeration; there is no separate AssignChoice call
 
 ### HashTable<unsigned_long,StringInfo>
-- [ ] `HashTable<unsigned_long,StringInfo>::operator=` · 006b0d50 · legions 00649fa0
+- [-] `HashTable<unsigned_long,StringInfo>::operator=` · 006b0d50 · legions 00649fa0 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
 
 ### PreferenceEnum
-- [ ] `PreferenceEnum::~PreferenceEnum` · 006b0f20 · legions 0064a170
-- [ ] `PreferenceEnum::Copy` · 006b0fb0 · legions 0064a200
-- [ ] `PreferenceEnum::SetValue` · 006b1040
-- [ ] `PreferenceEnum::SetValue` · 006b1140 · legions 0064a390
-- [ ] `PreferenceEnum::SetDefault` · 006b11c0
-- [~] `PreferenceEnum::SetDefault` · 006b12c0 · legions 0064a510 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [ ] `PreferenceEnum::InqValue` · 006b1340 · legions 0064a590
-- [ ] `PreferenceEnum::InqDefault` · 006b13c0
-- [ ] `PreferenceEnum::AssignChoice` · 006b1430
-- [~] `PreferenceEnum::AssignChoice` · 006b1450 · legions 0064a6a0 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [ ] `PreferenceEnum::ExamineChoice` · 006b14a0
-- [ ] `PreferenceEnum::ExamineChoice` · 006b14c0 · legions 0064a710
-- [ ] `PreferenceEnum::ListChoices` · 006b1530
-- [ ] `PreferenceEnum::PreferenceEnum` · 006b15f0 · legions 0064a840
-- [ ] `PreferenceEnum::Clone` · 006b1650
+- [-] `PreferenceEnum::~PreferenceEnum` · 006b0f20 · legions 0064a170 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [x] `PreferenceEnum::Copy` · 006b0fb0 · legions 0064a200 — ac2-prefs Pref::copy_from (value, default, range, choices, map)
+- [x] `PreferenceEnum::SetValue` · 006b1040 — ac2-prefs Pref::set_text for an enum: an integer (is_int32, base 0) or a mapped name, that must be a choice
+- [x] `PreferenceEnum::SetValue` · 006b1140 · legions 0064a390 — ac2-prefs Pref::set_choice (SetValue(long): a choice only)
+- [x] `PreferenceEnum::SetDefault` · 006b11c0 — ac2-prefs Pref::set_default_text for an enum (a choice only)
+- [x] `PreferenceEnum::SetDefault` · 006b12c0 · legions 0064a510 — ac2-prefs Pref::set_default (SetDefault(long): a choice only)
+- [x] `PreferenceEnum::InqValue` · 006b1340 · legions 0064a590 — ac2-prefs Pref::value_text for an enum: the label name, else the integer in %d
+- [x] `PreferenceEnum::InqDefault` · 006b13c0 — ac2-prefs Pref::default_text for an enum
+- [~] `PreferenceEnum::AssignChoice` · 006b1430 — choices are given to Pref::enumeration; there is no separate AssignChoice call
+- [~] `PreferenceEnum::AssignChoice` · 006b1450 · legions 0064a6a0 — choices are given to Pref::enumeration; there is no separate AssignChoice call
+- [x] `PreferenceEnum::ExamineChoice` · 006b14a0 — ac2-prefs Pref::label_of and Pref::choices (ExamineChoice and ListChoices)
+- [x] `PreferenceEnum::ExamineChoice` · 006b14c0 · legions 0064a710 — ac2-prefs Pref::label_of and Pref::choices (ExamineChoice and ListChoices)
+- [x] `PreferenceEnum::ListChoices` · 006b1530 — ac2-prefs Pref::label_of and Pref::choices (ExamineChoice and ListChoices)
+- [-] `PreferenceEnum::PreferenceEnum` · 006b15f0 · legions 0064a840 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [-] `PreferenceEnum::Clone` · 006b1650 — derived Clone or PartialEq (the Rust types derive them), not a separate port
 
-## `portal/shared/src/prefs/preferencefloat.cpp.c` (0/21)
+## `portal/shared/src/prefs/preferencefloat.cpp.c` (13/21)
 
 ### PreferenceFloat
-- [ ] `PreferenceFloat::PreferenceFloat` · 006b1ad0 · legions 0064ad20
-- [ ] `PreferenceFloat::~PreferenceFloat` · 006b1b10 · legions 0064ad60
-- [ ] `PreferenceFloat::Clone` · 006b1b20
-- [ ] `PreferenceFloat::Compare` · 006b1b80
-- [ ] `PreferenceFloat::Copy` · 006b1bf0 · legions 0064ae40
-- [ ] `PreferenceFloat::ConnectTarget` · 006b1c60 · legions 0064aef0
-- [~] `PreferenceFloat::SetRange` · 006b1ca0 · legions 0064af30 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [~] `PreferenceFloat::SetValue` · 006b1cd0 · legions 0064af60 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [~] `PreferenceFloat::SetDefault` · 006b1cf0 · legions 0064af80 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [~] `PreferenceFloat::InqRange` · 006b1d10 · legions 0064afa0 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [~] `PreferenceFloat::Changed` · 006b1d30 · legions 0064afc0 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [~] `PreferenceFloat::Apply` · 006b1d50 · legions 0064afe0 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [~] `PreferenceFloat::Recall` · 006b1d60 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
-- [~] `PreferenceFloat::Reset` · 006b1d70 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [-] `PreferenceFloat::PreferenceFloat` · 006b1ad0 · legions 0064ad20 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [-] `PreferenceFloat::~PreferenceFloat` · 006b1b10 · legions 0064ad60 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [-] `PreferenceFloat::Clone` · 006b1b20 — derived Clone or PartialEq (the Rust types derive them), not a separate port
+- [-] `PreferenceFloat::Compare` · 006b1b80 — derived Clone or PartialEq (the Rust types derive them), not a separate port
+- [x] `PreferenceFloat::Copy` · 006b1bf0 · legions 0064ae40 — ac2-prefs Pref::copy_from (value, default, range, choices, map)
+- [~] `PreferenceFloat::ConnectTarget` · 006b1c60 · legions 0064aef0 — source and target copies are not modelled: the bank holds one value per key
+- [x] `PreferenceFloat::SetRange` · 006b1ca0 · legions 0064af30 — ac2-prefs Pref::set_range: refused when max is below min (no clamp elsewhere)
+- [x] `PreferenceFloat::SetValue` · 006b1cd0 · legions 0064af60 — ac2-prefs Pref::set_float: stores what it is given (no clamp)
+- [x] `PreferenceFloat::SetDefault` · 006b1cf0 · legions 0064af80 — ac2-prefs Pref::set_default (float default and value)
+- [x] `PreferenceFloat::InqRange` · 006b1d10 · legions 0064afa0 — ac2-prefs Pref::set_range: refused when max is below min (no clamp elsewhere)
+- [x] `PreferenceFloat::Changed` · 006b1d30 · legions 0064afc0 — ac2-prefs Pref::changed, apply, recall, reset (float, string)
+- [x] `PreferenceFloat::Apply` · 006b1d50 · legions 0064afe0 — ac2-prefs Pref::changed, apply, recall, reset (float, string)
+- [x] `PreferenceFloat::Recall` · 006b1d60 — ac2-prefs Pref::changed, apply, recall, reset (float, string)
+- [x] `PreferenceFloat::Reset` · 006b1d70 — ac2-prefs Pref::changed, apply, recall, reset (float, string)
 
 ### AnimCube
-- [ ] `AnimCube::GetType` · 006b1d80
+- [-] `AnimCube::GetType` · 006b1d80 — not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
 
 ### PreferenceFloat
-- [ ] `PreferenceFloat::GetFloat` · 006b1d90 · legions 0064b020
+- [~] `PreferenceFloat::GetFloat` · 006b1d90 · legions 0064b020 — reads its own value; the source copy is not modelled
 
 ### MotionValues
-- [ ] `MotionValues::GetRunningTurnVel` · 006b1db0 · legions 0064b040
+- [-] `MotionValues::GetRunningTurnVel` · 006b1db0 · legions 0064b040 — not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
 
 ### PreferenceFloat
-- [ ] `PreferenceFloat::SetValue` · 006b1df0 · legions 0064b080
-- [ ] `PreferenceFloat::SetDefault` · 006b1e60 · legions 0064b0f0
-- [ ] `PreferenceFloat::InqValue` · 006b1ec0
-- [ ] `PreferenceFloat::InqDefault` · 006b1f20
+- [x] `PreferenceFloat::SetValue` · 006b1df0 · legions 0064b080 — ac2-prefs Pref::set_text for a float: is_double then strtod, cast to f32
+- [x] `PreferenceFloat::SetDefault` · 006b1e60 · legions 0064b0f0 — ac2-prefs Pref::set_default_text for a float (is_double first)
+- [x] `PreferenceFloat::InqValue` · 006b1ec0 — ac2-prefs Pref::value_text for a float: %f (six decimals)
+- [x] `PreferenceFloat::InqDefault` · 006b1f20 — ac2-prefs Pref::default_text for a float: %f
 
-## `portal/shared/src/prefs/preferences.cpp.c` (0/13)
+## `portal/shared/src/prefs/preferences.cpp.c` (10/13)
 
 ### Preferences
-- [ ] `Preferences::SetPreferencesFile` · 006ae650 · legions 006478e0
-- [ ] `Preferences::LoadValue_Internal` · 006ae6f0 · legions 00647980
-- [ ] `Preferences::LoadValue_Internal` · 006ae8c0 · legions 00647b50
-- [ ] `Preferences::LookupInHash_Internal` · 006ae9d0 · legions 00647c60
-- [ ] `Preferences::InqBool` · 006aebf0 · legions 00647e80
-- [ ] `Preferences::InqString` · 006aecd0 · legions 00647f60
-- [ ] `Preferences::StoreInHash_Internal` · 006aedc0 · legions 00648050
-- [ ] `Preferences::Preferences` · 006aeee0 · legions 00648170
-- [ ] `Preferences::~Preferences` · 006aef40 · legions 006481d0
-- [ ] `Preferences::Shutdown` · 006aeff0 · legions 00648280
-- [ ] `Preferences::SetBool` · 006af060 · legions 006482f0
-- [ ] `Preferences::SetUInt32` · 006af0f0 · legions 00648380
-- [ ] `Preferences::Startup` · 006af180 · legions 00648410
+- [x] `Preferences::SetPreferencesFile` · 006ae650 · legions 006478e0 — ac2-prefs paths::resolve (PSUtils::full_path, relative to the working directory); --prefs names the file; ClientPrefs::load reads it before the frame loop
+- [x] `Preferences::LoadValue_Internal` · 006ae6f0 · legions 00647980 — ac2-prefs store.rs and ini.rs: GetPrivateProfileString semantics (trimmed value, first match, comments skipped); section and key names come from the DAT (ac2-client DatNames)
+- [x] `Preferences::LoadValue_Internal` · 006ae8c0 · legions 00647b50 — ac2-prefs store.rs and ini.rs: GetPrivateProfileString semantics (trimmed value, first match, comments skipped); section and key names come from the DAT (ac2-client DatNames)
+- [x] `Preferences::LookupInHash_Internal` · 006ae9d0 · legions 00647c60 — ac2-prefs store.rs and ini.rs: GetPrivateProfileString semantics (trimmed value, first match, comments skipped); section and key names come from the DAT (ac2-client DatNames)
+- [x] `Preferences::InqBool` · 006aebf0 · legions 00647e80 — ac2-prefs store.rs and ini.rs: GetPrivateProfileString semantics (trimmed value, first match, comments skipped); section and key names come from the DAT (ac2-client DatNames)
+- [x] `Preferences::InqString` · 006aecd0 · legions 00647f60 — ac2-prefs store.rs and ini.rs: GetPrivateProfileString semantics (trimmed value, first match, comments skipped); section and key names come from the DAT (ac2-client DatNames)
+- [x] `Preferences::StoreInHash_Internal` · 006aedc0 · legions 00648050 — ac2-prefs store.rs: the session cache of (section, key) text; SetBool and SetUInt32 are session-only, as retail (nothing is written to the file)
+- [-] `Preferences::Preferences` · 006aeee0 · legions 00648170 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [-] `Preferences::~Preferences` · 006aef40 · legions 006481d0 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [-] `Preferences::Shutdown` · 006aeff0 · legions 00648280 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [x] `Preferences::SetBool` · 006af060 · legions 006482f0 — ac2-prefs store.rs: the session cache of (section, key) text; SetBool and SetUInt32 are session-only, as retail (nothing is written to the file)
+- [x] `Preferences::SetUInt32` · 006af0f0 · legions 00648380 — ac2-prefs store.rs: the session cache of (section, key) text; SetBool and SetUInt32 are session-only, as retail (nothing is written to the file)
+- [x] `Preferences::Startup` · 006af180 · legions 00648410 — ac2-prefs paths::resolve (PSUtils::full_path, relative to the working directory); --prefs names the file; ClientPrefs::load reads it before the frame loop
 
-## `portal/shared/src/prefs/preferencestring.cpp.c` (0/16)
+## `portal/shared/src/prefs/preferencestring.cpp.c` (9/16)
 
 ### PreferenceString
-- [ ] `PreferenceString::Copy` · 006af1d0 · legions 00648460
+- [x] `PreferenceString::Copy` · 006af1d0 · legions 00648460 — ac2-prefs Pref::copy_from (value, default, range, choices, map)
 
 ### PreferenceBool
-- [ ] `PreferenceBool::ConnectSource` · 006af230
+- [~] `PreferenceBool::ConnectSource` · 006af230 — source and target copies are not modelled: the bank holds one value per key
 
 ### PreferenceString
-- [ ] `PreferenceString::ConnectTarget` · 006af270 · legions 006484c0
-- [ ] `PreferenceString::Recall` · 006af2c0
-- [ ] `PreferenceString::Reset` · 006af2d0
+- [~] `PreferenceString::ConnectTarget` · 006af270 · legions 006484c0 — source and target copies are not modelled: the bank holds one value per key
+- [x] `PreferenceString::Recall` · 006af2c0 — ac2-prefs Pref::changed, apply, recall, reset (float, string)
+- [x] `PreferenceString::Reset` · 006af2d0 — ac2-prefs Pref::changed, apply, recall, reset (float, string)
 
 ### CCellMesh
-- [ ] `CCellMesh::GetDBOType` · 006af2e0
+- [-] `CCellMesh::GetDBOType` · 006af2e0 — not a preference function (misattributed by the decompile: craft-skill text, a DiskConBase subset, or another class getter)
 
 ### PreferenceString
-- [ ] `PreferenceString::~PreferenceString` · 006af2f0 · legions 00648540
-- [ ] `PreferenceString::Compare` · 006af360
-- [ ] `PreferenceString::SetValue` · 006af410 · legions 00648660
-- [ ] `PreferenceString::SetDefault` · 006af470 · legions 006486c0
-- [ ] `PreferenceString::InqValue` · 006af4f0 · legions 00648740
-- [ ] `PreferenceString::InqDefault` · 006af550 · legions 006487a0
-- [ ] `PreferenceString::Changed` · 006af5a0
-- [ ] `PreferenceString::Apply` · 006af5c0 · legions 00648810
-- [ ] `PreferenceString::PreferenceString` · 006af620 · legions 00648870
-- [ ] `PreferenceString::Clone` · 006af6b0
+- [-] `PreferenceString::~PreferenceString` · 006af2f0 · legions 00648540 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [-] `PreferenceString::Compare` · 006af360 — derived Clone or PartialEq (the Rust types derive them), not a separate port
+- [x] `PreferenceString::SetValue` · 006af410 · legions 00648660 — ac2-prefs Pref::set_text for a string: the text as it is
+- [x] `PreferenceString::SetDefault` · 006af470 · legions 006486c0 — ac2-prefs Pref::set_default_text for a string: the default and the value
+- [x] `PreferenceString::InqValue` · 006af4f0 · legions 00648740 — ac2-prefs Pref::value_text for a string: the value as it is
+- [x] `PreferenceString::InqDefault` · 006af550 · legions 006487a0 — ac2-prefs Pref::default_text for a string
+- [x] `PreferenceString::Changed` · 006af5a0 — ac2-prefs Pref::changed, apply, recall, reset (float, string)
+- [x] `PreferenceString::Apply` · 006af5c0 · legions 00648810 — ac2-prefs Pref::changed, apply, recall, reset (float, string)
+- [-] `PreferenceString::PreferenceString` · 006af620 · legions 00648870 — C++ constructor, destructor or singleton teardown: Rust ownership (the store and ClientPrefs drop; no global)
+- [-] `PreferenceString::Clone` · 006af6b0 — derived Clone or PartialEq (the Rust types derive them), not a separate port
 
 ## `portal/shared/src/shell/shell.cpp.c` (6/8)
 

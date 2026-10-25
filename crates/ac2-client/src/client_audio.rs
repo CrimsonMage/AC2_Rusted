@@ -210,6 +210,15 @@ fn body_emitter(listener: &Position, body: &PhysicsBody, in_world: bool) -> Emit
 impl Client {
     /// Gives the client its sound manager (`SoundManager::s_pSoundMgr`): the objects'
     /// animation effects play through it, and it runs every frame.
+    /// Gives the sound manager the sound preferences the bank holds (`SoundManager::HandleApply`).
+    pub fn apply_sound_preferences(&mut self, bank: &ac2_prefs::PreferenceBank) {
+        if let Some(audio) = self.audio.as_mut() {
+            for setting in ac2_audio::prefs::settings(bank) {
+                audio.manager.set_preference(setting);
+            }
+        }
+    }
+
     pub fn attach_audio(&mut self, manager: SoundManager) {
         self.audio = Some(ClientAudio {
             manager,

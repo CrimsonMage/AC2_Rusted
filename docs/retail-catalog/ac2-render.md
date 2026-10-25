@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 69 done, 45 partial, 652 to do, 15 skipped.
+781 retail functions: 69 done, 47 partial, 650 to do, 15 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -151,7 +151,7 @@ Legend and workflow: [README](README.md).
 ### Render
 - [ ] `Render::StartupDevice` · 005b3300 · legions 0057dca0
 - [ ] `Render::ShutdownDevice` · 005b3380 · legions 0057dd20
-- [ ] `Render::SetOverallGraphicsQuality` · 005b33b0 · legions 0057dd50
+- [~] `Render::SetOverallGraphicsQuality` · 005b33b0 · legions 0057dd50 — the level is stored in the session cache and written by ac2-client ClientPrefs::save_overall_graphics_quality (Preferences::SetUInt32 then SaveOverallGraphicsQuality); the render does not apply the level yet
 - [ ] `Render::ShutdownRenderingSystem` · 005b3c40 · legions 0057e5e0
 - [ ] `Render::RestartDevice` · 005b3ca0 · legions 0057e640
 - [ ] `Render::CreateIndexBuffer` · 005b3d90 · legions 0057e730
@@ -175,7 +175,7 @@ Legend and workflow: [README](README.md).
 
 ### Render
 - [ ] `Render::StartupRenderingSystem` · 005b5670 · legions 00580010
-- [ ] `Render::SaveOverallGraphicsQuality` · 005b5710 · legions 005800b0
+- [~] `Render::SaveOverallGraphicsQuality` · 005b5710 · legions 005800b0 — ac2-client ClientPrefs::save_overall_graphics_quality: [Graphics] OverallGraphicsQuality written at once to the preferences file (retail: cwd Preferences.ini, else the device path; the port: the user configuration directory); tests: ac2-client prefs_7160 the_graphics_quality_is_written_at_once_and_reads_back_through_the_dat_names
 - [ ] `Render::UpdateOverallGraphicsQuality` · 005b5860
 - [ ] `Render::LinkRGRCallback` · 005b5e70 · legions 00580810
 - [ ] `Render::HandleApply` · 005b5ee0 · legions 00580880

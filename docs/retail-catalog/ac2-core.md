@@ -971,12 +971,12 @@ Legend and workflow: [README](README.md).
 ### RegEdit
 - [-] `RegEdit::CreateKey` · 00662ba0 — registry editing (admin tools)
 - [-] `RegEdit::SetStrValue` · 00662c30 — registry editing (admin tools)
-- [-] `RegEdit::QueryStrValue` · 00662cc0 · legions 00610f50 — registry editing (admin tools)
+- [-] `RegEdit::QueryStrValue` · 00662cc0 · legions 00610f50 — launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
 - [-] `RegEdit::SetIntValue` · 00662d40 — registry editing (admin tools)
-- [-] `RegEdit::QueryIntValue` · 00662dc0 · legions 00610fd0 — registry editing (admin tools)
+- [-] `RegEdit::QueryIntValue` · 00662dc0 · legions 00610fd0 — launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
 - [-] `RegEdit::SetBinValue` · 00662e50 — registry editing (admin tools)
-- [-] `RegEdit::QueryBinValue` · 00662ed0 · legions 00611060 — registry editing (admin tools)
-- [-] `RegEdit::DeleteValue` · 00662f50 · legions 006110e0 — registry editing (admin tools)
+- [-] `RegEdit::QueryBinValue` · 00662ed0 · legions 00611060 — launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
+- [-] `RegEdit::DeleteValue` · 00662f50 · legions 006110e0 — launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
 
 ## `portal/shared/src/setproject/projectsettings.cpp.c` (0/7)
 

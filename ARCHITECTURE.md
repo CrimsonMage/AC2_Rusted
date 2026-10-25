@@ -18,6 +18,7 @@ brought over from Vitaeum-AC2 (commit `b2963be`) into the crate that owns it.
 | Crate | AC2 subsystem (index pack) | Owns | Brought from Vitaeum-AC2 |
 |---|---|---|---|
 | `ac2-core` | Core runtime (03), shared types (00) | ids (`DataId`, `CellId`, `InstanceID`), scalars, shared enums and flags, timers | foundation, enums |
+| `ac2-prefs` | Preferences (portal shared `prefs`, pack 06) | `Preferences.ini` (the Win32 INI calls, byte-exact), `PreferenceBank` (sections, keys, bool, float, enum and string preferences with defaults, ranges and choices, load and save, section apply and recall), the session `Preferences` cache; names come from the DAT through a trait | rebuilt from the decompile |
 | `ac2-math` | Math and geometry (04) | `Vector`, `Frame`, `Plane`, bounds, `Heading`, cell `Position` and its offset rules | math, world `coordinates` |
 | `ac2-dat` | Database access (06) | DAT mounting, B-tree lookup, record reads, the binary unpack cursor | dat, archive cursor |
 | `ac2-db` | Database objects (06) | typed `DBObj` decode cache, `MasterProperty`/`PropertyCollection`, `EnumIDMap` | resources (cache core only), render-codec `ac2_property`, `EnumIdMap` |
@@ -41,12 +42,13 @@ brought over from Vitaeum-AC2 (commit `b2963be`) into the crate that owns it.
 Each crate may depend only on crates earlier in this list:
 
 ```
-ac2-core → ac2-math → ac2-dat → ac2-db → ac2-net
+ac2-core → ac2-prefs → ac2-math → ac2-dat → ac2-db → ac2-net
                                 ac2-db → ac2-anim → ac2-assets → ac2-world → ac2-physics
          → ac2-smartbox → ac2-weenie → ac2-render → ac2-gpu → ac2-ui → ac2-client
 ```
 
-`ac2-net` depends only on `ac2-core`. `ac2-script`, `ac2-gameplay` and `ac2-audio` slot in when
+`ac2-net` depends only on `ac2-core`. `ac2-prefs` has no crate dependencies (the names are passed in,
+so it needs no DAT access). `ac2-script`, `ac2-gameplay` and `ac2-audio` slot in when
 they are built: script after `ac2-weenie`, gameplay after script, audio after `ac2-world`
 (it needs only `ac2-db` so far; `ac2-client` drives it).
 

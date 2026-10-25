@@ -44,6 +44,8 @@ struct Args {
     character: Option<String>,
     client_exe: Option<String>,
     radius: i32,
+    /// `Preferences.ini` (`-prefs` in retail): the default is in the user's configuration directory.
+    prefs: Option<String>,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -55,6 +57,7 @@ fn parse_args() -> Result<Args, String> {
         character: None,
         client_exe: None,
         radius: 1,
+        prefs: None,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -66,6 +69,7 @@ fn parse_args() -> Result<Args, String> {
             "--version" => args.version = value,
             "--character" => args.character = Some(value),
             "--client-exe" => args.client_exe = Some(value),
+            "--prefs" => args.prefs = Some(value),
             "--radius" => args.radius = value.parse().map_err(|e| format!("--radius: {e}"))?,
             other => return Err(format!("unknown option {other}")),
         }
@@ -486,6 +490,13 @@ fn run(args: Args) -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     let store = Arc::new(ac2_db::ResourceStore::new(Arc::clone(&dataset)));
     ac2_db::install_ac2_property_types(&store).map_err(|e| e.to_string())?;
+    // The preferences are read here, before the frame loop; the frame thread never reads the file.
+    let prefs_path = match &args.prefs {
+        Some(name) => ac2_prefs::paths::resolve(name),
+        None => ac2_prefs::paths::default_file(),
+    };
+    let prefs = ac2_client::ClientPrefs::load(prefs_path, Arc::clone(&store))
+        .map_err(|e| format!("preferences: {e}"))?;
     let dat_world = DatWorld::new(Arc::clone(&store))?;
     let world = Arc::clone(dat_world.world());
     let controls = Controls::load(&store)
@@ -544,6 +555,7 @@ fn run(args: Args) -> Result<(), String> {
     client.attach_scripts(host, ac2_client::SCRIPT_VM_FUNCTIONS);
     // `SoundManager`: the speakers, or silence without an output device.
     client.attach_audio(ac2_client::sound_manager(Arc::clone(&store), speakers()));
+    client.apply_sound_preferences(prefs.bank());
     let event_loop = EventLoop::new().map_err(|e| e.to_string())?;
     let mut app = App {
         client,
