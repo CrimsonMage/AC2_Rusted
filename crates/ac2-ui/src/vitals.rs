@@ -1,6 +1,6 @@
 //! `gmVitalsUI`: the status bar's vitals, each a [`VitalDisplay`]: health with the PK damage
 //! under it, vigor with the PK vigor loss under it, focus (a hero's; `hero` / `not_hero` on its
-//! meter, its text only for a hero) and the experience bar. A right click (`mouse_press_top` with
+//! meter, its text only for a hero) and the experience bar. A left click (`mouse_press_top` with
 //! button `0x40000004`) on the health, vigor or focus field shows or hides its numbers.
 //!
 //! Not modelled yet: the fields' tooltips (`SetTooltip`, `ID_Vital_TT_*`).
@@ -22,8 +22,8 @@ pub const VITAL_FOCUS: u32 = 0x4000_0004;
 pub const VITAL_PK_DAMAGE: u32 = 0x4000_0005;
 pub const VITAL_PK_VIGOR_LOSS: u32 = 0x4000_0006;
 
-/// The right mouse button (`StartInput`'s `0x40000004`).
-const RIGHT_BUTTON: i32 = 0x4000_0004;
+/// The left mouse button (`StartInput`'s `0x40000004`).
+const LEFT_BUTTON: i32 = 0x4000_0004;
 
 /// `gmVitalsUI`'s state.
 #[derive(Debug, Clone)]
@@ -155,10 +155,10 @@ impl VitalsUi {
         }
     }
 
-    /// `gmVitalsUI::ListenToMessage`: a right click on a field shows or hides its numbers (focus
+    /// `gmVitalsUI::ListenToMessage`: a left click on a field shows or hides its numbers (focus
     /// only for a hero).
     pub fn message(&mut self, tree: &mut UiTree, message: &UiMessage) {
-        if message.message != MSG_MOUSE_PRESS_TOP || message.data != RIGHT_BUTTON {
+        if message.message != MSG_MOUSE_PRESS_TOP || message.data != LEFT_BUTTON {
             return;
         }
         let pressed = message.element;

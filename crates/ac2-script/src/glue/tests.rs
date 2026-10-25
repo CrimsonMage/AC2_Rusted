@@ -104,6 +104,21 @@ fn wpstring_keeps_the_retail_quirks() {
 }
 
 #[test]
+fn tokenize_hashes_the_wide_string_below_its_argument() {
+    let mut vm = vm();
+    // `Tokenize` of ASCII names gives the layouts' token values.
+    let name = vm.new_wstring(w("reference"));
+    let (status, rets) = call(&mut vm, 0x006D_0001, 1, &[name], u32::MAX);
+    assert_eq!(status, InterpStatus::Success);
+    assert_eq!(rets[0], (0xBCE0_5594, INT_RESULT));
+    let empty = vm.new_wstring(Vec::new());
+    let (_, rets) = call(&mut vm, 0x006D_0001, 1, &[empty], u32::MAX);
+    assert_eq!(rets[0].0, 0);
+    // Only a wide character's low seven bits survive `(ushort)c << 25`.
+    assert_eq!(wpstring::tokenize_wide(&[0x0141]), 0x0141 << 25);
+}
+
+#[test]
 fn string_info_glue_builds_the_native() {
     let mut vm = vm();
     let info = vm.refs.create_native(
@@ -459,4 +474,23 @@ fn skill_ui_node_glue_edits_the_wire_node() {
     assert!(matches!(vm.native(r[0].0), Some(NativeObject::List(l)) if l.items == vec![9]));
     call(&mut vm, 0x00AE_0017, 0, &[], n); // Clear
     assert_eq!(call(&mut vm, 0x00AE_000D, 1, &[], n).1[0].0, u32::MAX); // GetX -1
+}
+
+#[test]
+fn reserved_ids_read_the_type_byte() {
+    let mut vm = vm();
+    // The 64-bit id: high word first, its low word deeper.
+    let check = |vm: &mut Vm, efun: u32, id: u64| {
+        let (status, rets) = call(vm, efun, 1, &[(id >> 32) as u32, id as u32], u32::MAX);
+        assert_eq!(status, InterpStatus::Success);
+        rets[0]
+    };
+    let player = 0x2000_0001_0000_0042;
+    let dynamic = 0x8000_0000_0000_1234;
+    let static_id = 0x40CB_4D00_0000_0001;
+    assert_eq!(check(&mut vm, 0x0063_0001, player), (1, INT_RESULT));
+    assert_eq!(check(&mut vm, 0x0063_0001, dynamic).0, 0);
+    assert_eq!(check(&mut vm, 0x0063_0006, dynamic).0, 1);
+    assert_eq!(check(&mut vm, 0x0063_0005, static_id).0, 1);
+    assert_eq!(check(&mut vm, 0x0063_0005, player).0, 0);
 }

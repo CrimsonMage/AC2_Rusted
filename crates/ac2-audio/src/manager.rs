@@ -10,7 +10,7 @@ use std::time::Duration;
 use crate::data::{flags, sound_db_type, LoadedSound, SoundSource};
 use crate::loader::SoundLoader;
 use crate::play_data::{Channel, PlaySoundData, SoundType};
-use crate::playing::{DeviceState, PlayingSound};
+use crate::playing::{DeviceState, Emitter, PlayingSound};
 use crate::sink::SoundSink;
 
 /// `ID_Sound_NumPlayingSounds`' default (`SoundManager::SoundManager`).
@@ -272,15 +272,28 @@ impl SoundManager {
     /// all-exclusive sound silences the rest; otherwise the budget is applied
     /// (`AllocateSounds`).
     pub fn use_time(&mut self, now: f64) {
+        self.use_time_with(now, &|_| None);
+    }
+
+    /// [`SoundManager::use_time`] with the listener's view of the emitters
+    /// (`DirectXSoundDevice::UpdateListener`): `emitters` gives each emitter's offset and
+    /// velocity in the listener's frame and whether it is muted; one it does not know keeps
+    /// its last place.
+    pub fn use_time_with(&mut self, now: f64, emitters: &dyn Fn(u64) -> Option<Emitter>) {
         self.device.now = now;
         self.take_loads();
         self.flush_sounds(true);
         let device = self.device;
         for playing in &mut self.playing {
-            playing.use_time(&mut *self.sink, &device);
+            let muted = playing
+                .emitter
+                .and_then(emitters)
+                .is_some_and(|emitter| emitter.muted);
+            playing.use_time(&mut *self.sink, &device, muted);
         }
         for playing in &mut self.playing {
-            playing.update_priority();
+            let emitter = playing.emitter.and_then(emitters);
+            playing.update_position(&mut *self.sink, emitter.as_ref());
         }
         if self.playing.is_empty() {
             return;
@@ -420,6 +433,27 @@ impl SoundManager {
     pub fn stop_sound_request(&mut self, handle: u32) {
         if let Some(request) = self.requests.iter_mut().find(|r| r.handle == handle) {
             request.cancel = true;
+        }
+    }
+
+    /// `PlayingSoundContext::Stop`: the playing sound `handle` stops (fading over `fade`
+    /// seconds), or its load is cancelled.
+    pub fn stop_context(&mut self, handle: u32, fade: f32) {
+        if handle == 0 {
+            return;
+        }
+        let device = self.device;
+        match self.playing.iter_mut().find(|p| p.handle == handle) {
+            Some(playing) => playing.stop(&mut *self.sink, &device, fade, false),
+            None => self.stop_sound_request(handle),
+        }
+    }
+
+    /// `PlayingSoundContext::SetVolume`.
+    pub fn set_context_volume(&mut self, handle: u32, volume: f32) {
+        let device = self.device;
+        if let Some(playing) = self.playing.iter_mut().find(|p| p.handle == handle) {
+            playing.set_volume(&mut *self.sink, &device, volume);
         }
     }
 

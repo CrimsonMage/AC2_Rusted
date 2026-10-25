@@ -14,6 +14,7 @@ mod error;
 mod flow;
 mod handshake;
 mod header;
+pub mod iid;
 mod isaac;
 mod net;
 mod optional;

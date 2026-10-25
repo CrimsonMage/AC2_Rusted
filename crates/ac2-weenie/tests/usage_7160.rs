@@ -125,7 +125,7 @@ fn uses_go_out_as_usage_descs_and_their_outcomes_come_back() {
             u32::MAX,
             0,
             1,
-            0x5000_0000,
+            0x2000_0000,
             0xBF80_0000,
             0x43,
             0x8000_0002,

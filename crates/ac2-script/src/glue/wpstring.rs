@@ -52,6 +52,33 @@ pub(super) fn register(efuns: &mut EFuns) {
     for (n, f) in table {
         efuns.register(0x0076_0000 | n, f);
     }
+    efuns.register(0x006D_0001, tokenize);
+}
+
+/// `Tokenize(wchar_t *)`: each character up to the first NUL, shifted to the top seven bits,
+/// rotated right by a shift that advances 7 bits per character, xor-folded.
+pub(crate) fn tokenize_wide(s: &[u16]) -> u32 {
+    let mut hash = 0u32;
+    let mut shift = 0u32;
+    for &c in s.iter().take_while(|&&c| c != 0) {
+        let value = u32::from(c) << 25;
+        hash ^= value >> shift;
+        if shift > 25 {
+            hash ^= value << ((32 - shift) & 31);
+        }
+        shift = (shift + 7) & 31;
+    }
+    hash
+}
+
+/// `gTokenize::CallEFun_Tokenize`: the token of the string argument, below it.
+fn tokenize(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let reference = Call::new(ctx).word(2);
+    let Some(token) = vm.wstring(reference).map(tokenize_wide) else {
+        return vm.bad_this(reference);
+    };
+    Call::new(ctx).ret(3, token, INT_RESULT);
+    InterpStatus::Success
 }
 
 /// Runs `f` on `this`'s characters, crashing on a null or non-string `this`.

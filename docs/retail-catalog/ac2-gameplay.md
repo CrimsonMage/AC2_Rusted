@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 128 done, 9 partial, 353 to do, 9 skipped.
+499 retail functions: 128 done, 15 partial, 347 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -685,24 +685,24 @@ Legend and workflow: [README](README.md).
 - [ ] `CBaseQualities::SetWeenieDesc` · 00519ac0 · legions 00507c70
 - [ ] `CBaseQualities::DumpWeenieDesc` · 00519af0 · legions 00507ca0
 - [ ] `CBaseQualities::RemoveInt` · 00519ba0 · legions 00507d50
-- [ ] `CBaseQualities::InqInt` · 00519c10 · legions 00507dc0
+- [~] `CBaseQualities::InqInt` · 00519c10 · legions 00507dc0 — WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
 - [ ] `CBaseQualities::RemoveLongInt` · 00519c70 · legions 00507e20
 - [ ] `CBaseQualities::InqLongInt` · 00519ce0 · legions 00507e90
 - [ ] `CBaseQualities::RemoveBool` · 00519d50 · legions 00507f00
-- [ ] `CBaseQualities::InqBool` · 00519dc0 · legions 00507f70
+- [~] `CBaseQualities::InqBool` · 00519dc0 · legions 00507f70 — WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
 - [ ] `CBaseQualities::RemoveFloat` · 00519e20 · legions 00507fd0
-- [ ] `CBaseQualities::InqFloat` · 00519e90 · legions 00508040
+- [~] `CBaseQualities::InqFloat` · 00519e90 · legions 00508040 — WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
 - [ ] `CBaseQualities::RemoveTimestamp` · 00519ef0 · legions 005080a0
 - [ ] `CBaseQualities::InqTimestamp` · 00519f70 · legions 00508120
 - [ ] `CBaseQualities::RemoveDataID` · 00519fe0 · legions 00508190
-- [ ] `CBaseQualities::InqDataID` · 0051a050 · legions 00508200
+- [~] `CBaseQualities::InqDataID` · 0051a050 · legions 00508200 — WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
 - [ ] `CBaseQualities::RemoveInstanceID` · 0051a0b0 · legions 00508260
-- [ ] `CBaseQualities::InqInstanceID` · 0051a130 · legions 005082e0
+- [~] `CBaseQualities::InqInstanceID` · 0051a130 · legions 005082e0 — WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
 - [ ] `CBaseQualities::InqString` · 0051a1a0 · legions 00508350
 - [ ] `CBaseQualities::InqStringW` · 0051a210 · legions 005083c0
 - [ ] `CBaseQualities::InqPosition` · 0051a2d0 · legions 00508480
 - [ ] `CBaseQualities::RemoveStringInfo` · 0051a340 · legions 005084f0
-- [ ] `CBaseQualities::InqStringInfo` · 0051a3c0 · legions 00508570
+- [~] `CBaseQualities::InqStringInfo` · 0051a3c0 · legions 00508570 — WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
 - [ ] `CBaseQualities::RemovePackageID` · 0051a430 · legions 005085e0
 - [ ] `CBaseQualities::InqPackageID` · 0051a4a0 · legions 00508650
 - [ ] `CBaseQualities::RemoveInt` · 0051a650 · legions 005087a0

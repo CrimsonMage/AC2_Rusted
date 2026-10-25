@@ -82,8 +82,20 @@ fn every_legions_fx_table_decodes_to_its_exact_length() {
     let ids = portal_ids(&dataset, 0x1E00_0000);
     assert_eq!(ids.len(), 312);
     let mut particle_nodes = 0;
+    let mut sound_refs = 0;
     for did in &ids {
         let table = load::<Ac2FxTable>(&store, *did);
+        for (_, nodes) in table.sounds.iter() {
+            for node in nodes.iter() {
+                sound_refs += node.sounds.len();
+                assert!(
+                    node.sounds.iter().all(|s| matches!(s >> 24, 0x2A | 0x2C)),
+                    "{did:08X} sound list {:08X?}",
+                    node.sounds
+                );
+                assert!(node.ramp_time >= 0.0 && node.ramp_time.is_finite());
+            }
+        }
         particle_nodes += table
             .entries
             .iter()
@@ -94,6 +106,31 @@ fn every_legions_fx_table_decodes_to_its_exact_length() {
         }
     }
     assert!(particle_nodes > 500, "{particle_nodes} particle FX nodes");
+    assert!(sound_refs > 10_000, "{sound_refs} FX sound references");
+}
+
+#[test]
+fn the_human_visual_resolves_its_footstep_sounds() {
+    let Some((_, store)) = ac2_dataset() else {
+        return;
+    };
+    // The human male (`0x1F000023`, table `0x1E000013`): walking raises FX 0x40000002 and
+    // 0x40000003, each a node picking one of its step sounds.
+    let sounds = crate::resolve_ac2_visual_fx_sounds(&store, DataId::new(0x1F00_0023))
+        .unwrap()
+        .expect("the human visual has FX");
+    assert!(sounds.has_sounds());
+    for fx in [0x4000_0002, 0x4000_0003] {
+        let nodes = sounds
+            .get(fx)
+            .expect("the step FX resolves through the table");
+        let step = &nodes[0];
+        assert!(step.sounds.len() > 1, "{fx:08X} picks among several sounds");
+        assert!(step.sounds.iter().all(|did| did >> 24 == 0x2A));
+        assert!(!step.fire_and_forget && step.day_time && step.night_time);
+    }
+    // Its startup FX's sound is the player's only.
+    assert!(sounds.get(0x8100_01C0).unwrap()[0].player_only);
 }
 
 #[test]

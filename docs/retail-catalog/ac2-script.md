@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1313 done, 80 partial, 995 to do, 80 skipped.
+2468 retail functions: 1317 done, 80 partial, 991 to do, 80 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -2932,13 +2932,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gRay::CallEFun_GetEndPoint` · 0053a300
 - [ ] `gRay::CallEFun_GetStartPoint` · 0053a3d0
 
-## `portal/shared/src/interp/glue/greservedids.cpp.c` (0/6)
+## `portal/shared/src/interp/glue/greservedids.cpp.c` (3/6)
 
 ### gReservedIDs
 - [ ] `gReservedIDs::CallEFun_IsCameraID` · 00539e60
-- [ ] `gReservedIDs::CallEFun_IsDynamicID` · 00539ea0
-- [ ] `gReservedIDs::CallEFun_IsPlayerID` · 00539ee0
-- [ ] `gReservedIDs::CallEFun_IsStaticID` · 00539f20
+- [x] `gReservedIDs::CallEFun_IsDynamicID` · 00539ea0 — ac2-script: gReservedIDs over ac2-net iid
+- [x] `gReservedIDs::CallEFun_IsPlayerID` · 00539ee0 — ac2-script: gReservedIDs over ac2-net iid
+- [x] `gReservedIDs::CallEFun_IsStaticID` · 00539f20 — ac2-script: gReservedIDs over ac2-net iid
 - [ ] `gReservedIDs::CallEFun_IsTemporaryID` · 00539f60
 - [ ] `gReservedIDs::CallEFun_IsUIID` · 00539fa0
 
@@ -3126,10 +3126,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gTimer::CallEFun_get_real_time` · 00554050
 - [ ] `gTimer::CallEFun_get_time` · 00554080
 
-## `portal/shared/src/interp/glue/gtokenize.cpp.c` (0/1)
+## `portal/shared/src/interp/glue/gtokenize.cpp.c` (1/1)
 
 ### gTokenize
-- [ ] `gTokenize::CallEFun_Tokenize` · 00537e90
+- [x] `gTokenize::CallEFun_Tokenize` · 00537e90 — ac2-script: gTokenize (Tokenize(wchar_t*))
 
 ## `portal/shared/src/interp/glue/gtypeinfo.cpp.c` (0/3)
 

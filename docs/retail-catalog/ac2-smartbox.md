@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 73 done, 31 partial, 156 to do, 2 skipped.
+262 retail functions: 79 done, 31 partial, 150 to do, 2 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -368,19 +368,19 @@ Legend and workflow: [README](README.md).
 - [ ] `WorldManager::~WorldManager` · 0057c610 · legions 0054bee0
 - [ ] `WorldManager::ResetWorldState` · 0057c6b0 · legions 0054bf80
 
-## `portal/shared/src/objects/iidutils.cpp.c` (2/13)
+## `portal/shared/src/objects/iidutils.cpp.c` (8/13)
 
 ### IIDUtils
 - [ ] `IIDUtils::CreateUI` · 006bc300 · legions 006512a0
 - [ ] `IIDUtils::CreateTemporary` · 006bc340 · legions 006512e0
 - [x] `IIDUtils::GetType` · 006bc380 · legions 00651320 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 - [x] `IIDUtils::VerifyPlayer` · 006bc410 · legions 006513b0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
-- [ ] `IIDUtils::VerifyUI` · 006bc430 · legions 006513d0
-- [ ] `IIDUtils::VerifyCamera` · 006bc450 · legions 006513f0
-- [ ] `IIDUtils::VerifyTemporary` · 006bc470 · legions 00651410
-- [ ] `IIDUtils::VerifyStatic` · 006bc490 · legions 00651430
-- [ ] `IIDUtils::VerifyDynamic` · 006bc4c0 · legions 00651460
-- [ ] `IIDUtils::ReadBlock` · 006bc4e0 · legions 00651480
+- [x] `IIDUtils::VerifyUI` · 006bc430 · legions 006513d0 — ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
+- [x] `IIDUtils::VerifyCamera` · 006bc450 · legions 006513f0 — ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
+- [x] `IIDUtils::VerifyTemporary` · 006bc470 · legions 00651410 — ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
+- [x] `IIDUtils::VerifyStatic` · 006bc490 · legions 00651430 — ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
+- [x] `IIDUtils::VerifyDynamic` · 006bc4c0 · legions 00651460 — ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
+- [x] `IIDUtils::ReadBlock` · 006bc4e0 · legions 00651480 — ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
 - [ ] `IIDUtils::GetCameraParent` · 006bc4f0 · legions 00651490
 - [ ] `IIDUtils::GetCameraTarget` · 006bc510 · legions 006514b0
 - [ ] `IIDUtils::CreateStatic` · 006bc530 · legions 006514d0

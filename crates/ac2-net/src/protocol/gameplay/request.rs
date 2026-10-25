@@ -286,7 +286,7 @@ mod tests {
 
     #[test]
     fn use_packs_the_usage_desc_graph() {
-        let desc = UsageDesc::new(0x5000_0000_0000_0001, 0x42, 0x43);
+        let desc = UsageDesc::new(0x2000_0000_0000_0001, 0x42, 0x43);
         let args = pack_values(&[PackValue::Reference(desc.to_reference())]);
         assert_eq!(&args[..20], &words(&[5, 2, 1, 2, 0x4400_0100]));
         round_trip(ScriptRequest::Use(desc), args);

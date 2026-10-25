@@ -1,12 +1,14 @@
 //! The software mixer behind the speaker output: what DirectSound did with the buffers retail
 //! filled. Each voice plays its PCM at its own rate (`SetFrequency`, linear interpolation to
 //! the output rate), attenuated (`SetVolume`, ramped over the audio path's duration), once or
-//! looping, summed into the output frames.
+//! looping, placed in 3D when the sound is (`IDirectSound3DBuffer`: inverse-distance rolloff past
+//! the minimum distance, a constant-power pan by the direction; DirectSound's own software pan
+//! curve and doppler are not reproduced), summed into the output frames.
 
 use std::sync::Arc;
 
 use crate::data::Pcm;
-use crate::sink::{amplitude, SinkCommand};
+use crate::sink::{amplitude, SinkCommand, Spatial};
 
 struct Voice {
     id: u32,
@@ -20,6 +22,25 @@ struct Voice {
     target: f32,
     /// The gain's change per output frame while a ramp runs, and the frames left.
     ramp: (f32, u32),
+    /// The left and right gains of a 3D voice, which is heard as mono.
+    spatial: Option<[f32; 2]>,
+}
+
+/// A head-relative 3D buffer's left and right gains (rolloff factor 1, maximum distance far
+/// beyond any world distance).
+pub fn spatial_gains(spatial: &Spatial) -> [f32; 2] {
+    let [x, y, z] = spatial.position.map(f64::from);
+    let distance = (x * x + y * y + z * z).sqrt();
+    let min = f64::from(spatial.min_distance).max(1e-3);
+    let rolloff = if distance <= min { 1.0 } else { min / distance };
+    let pan = if distance > 1e-6 {
+        (x / distance).clamp(-1.0, 1.0)
+    } else {
+        0.0
+    };
+    let angle = (pan + 1.0) * std::f64::consts::FRAC_PI_4;
+    let side = rolloff * std::f64::consts::SQRT_2;
+    [(side * angle.cos()) as f32, (side * angle.sin()) as f32]
 }
 
 /// Mixes the voices into interleaved output frames.
@@ -54,6 +75,7 @@ impl Mixer {
                 looping,
                 millibels,
                 frequency,
+                spatial,
             } => {
                 self.voices.retain(|v| v.id != voice);
                 let gain = amplitude(millibels);
@@ -67,6 +89,7 @@ impl Mixer {
                     gain,
                     target: gain,
                     ramp: (0.0, 0),
+                    spatial: spatial.as_ref().map(spatial_gains),
                 });
             }
             SinkCommand::Volume {
@@ -89,6 +112,11 @@ impl Mixer {
                 let step = self.step(frequency);
                 if let Some(v) = self.voices.iter_mut().find(|v| v.id == voice) {
                     v.step = step;
+                }
+            }
+            SinkCommand::Spatial { voice, spatial } => {
+                if let Some(v) = self.voices.iter_mut().find(|v| v.id == voice) {
+                    v.spatial = Some(spatial_gains(&spatial));
                 }
             }
             SinkCommand::Stop { voice } => self.voices.retain(|v| v.id != voice),
@@ -129,8 +157,12 @@ impl Mixer {
                 };
                 let t = voice.position - at;
                 let gain = f64::from(voice.gain);
-                let left = (sample(index, 0) * (1.0 - t) + sample(next, 0) * t) * gain;
-                let right = (sample(index, 1) * (1.0 - t) + sample(next, 1) * t) * gain;
+                let mut left = (sample(index, 0) * (1.0 - t) + sample(next, 0) * t) * gain;
+                let mut right = (sample(index, 1) * (1.0 - t) + sample(next, 1) * t) * gain;
+                if let Some([l, r]) = voice.spatial {
+                    let mono = (left + right) * 0.5;
+                    (left, right) = (mono * f64::from(l), mono * f64::from(r));
+                }
                 if channels == 1 {
                     frame[0] += ((left + right) * 0.5) as f32;
                 } else {

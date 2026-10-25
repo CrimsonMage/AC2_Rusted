@@ -15,6 +15,7 @@ mod chargen;
 mod chat_commands;
 pub mod chat_text;
 mod client;
+mod client_audio;
 mod client_objects;
 mod controls;
 mod frame;
@@ -23,6 +24,7 @@ mod gameplay;
 mod hud_player;
 #[cfg(feature = "window")]
 mod hud_view;
+mod item_queries;
 mod loader;
 mod motion;
 mod pregame;
@@ -41,6 +43,8 @@ mod targeting;
 #[cfg(feature = "window")]
 mod ui_images;
 #[cfg(feature = "window")]
+mod ui_inventory;
+#[cfg(feature = "window")]
 mod ui_social;
 #[cfg(feature = "window")]
 mod ui_sources;
@@ -57,9 +61,13 @@ pub use chat_commands::chat_commands;
 pub use client::{
     CameraAction, Client, FrameInput, Notice, ENTER_WORLD_FLAGS, SYNC_POSITION_FLAGS,
 };
+pub use client_audio::FxSoundData;
 pub use controls::frame_input;
 pub use frame::{ClientFrame, Holder, ObjectFrame, PlayerFrame};
-pub use gameplay::{Command, ContainerFrame, InventoryFrame, ProgressFrame, SelectionFrame};
+pub use gameplay::{
+    Command, ContainerFrame, InventoryFrame, ItemFrame, ProgressFrame, SelectionFrame,
+};
+pub use item_queries::ItemDisplay;
 pub use motion::PartPose;
 pub use pregame::{pregame_event, pregame_notice, pregame_requests, PregameOutcome};
 pub use scene::CameraFrame;

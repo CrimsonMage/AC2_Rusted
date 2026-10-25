@@ -9,6 +9,7 @@ mod appearance;
 mod assembly;
 mod channel;
 mod character;
+mod items;
 mod lossy;
 mod reliable;
 mod script;
@@ -22,6 +23,7 @@ pub use appearance::{
 pub use assembly::{fragment_header_bytes, Assembler};
 pub use channel::{Channel, ChannelStats, Conditions, Direction, InFlight, SplitMix};
 pub use character::{default_options, Character, MELEE_ATTACK, MELEE_AUTO_ATTACK, RACE_HUMAN};
+pub use items::{item_object_bytes, starter_items, ItemSpawn, PACK, POTIONS, SWORD};
 pub use lossy::LossyTransport;
 pub use reliable::{newer, ClientTracker, SentStore, Stored, Verdict, MAX_IDS};
 pub use script::ScriptWorld;
@@ -44,9 +46,12 @@ pub const NET_ID: u32 = 0x2A;
 pub const SERVER_SEED: u32 = 0x1357_9BDF;
 pub const CLIENT_SEED: u32 = 0x2468_ACE0;
 pub const REAL: i64 = 1_700_000_000;
-pub const PLAYER: u64 = 0x5000_0000_0000_0001;
+/// The player's instance id: type byte 0x20, a player (`IIDUtils::GetType`); the double's
+/// other characters (`CREATED`, Birch, the vassals) are players too, its creatures and items
+/// dynamic (0x80).
+pub const PLAYER: u64 = 0x2000_0000_0000_0001;
 /// The id the double gives a character the client creates.
-pub const CREATED: u64 = 0x5000_0000_0000_0002;
+pub const CREATED: u64 = 0x2000_0000_0000_0002;
 pub const CELL: u32 = 0x0299_0109;
 
 pub fn addr(text: &str) -> SocketAddr {

@@ -57,7 +57,7 @@ fn the_status_bar_shows_health_and_experience() {
         tree.get(experience).unwrap().text().unwrap(),
         "UInt(500)/UInt(1000)"
     );
-    // A right click on the health field hides its numbers; another shows them.
+    // A click on the health field hides its numbers; another shows them.
     let field = find(tree, "HealthField");
     let click = UiMessage {
         element_id: tokenize("HealthField"),

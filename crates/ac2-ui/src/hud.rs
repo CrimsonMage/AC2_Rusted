@@ -80,6 +80,9 @@ pub struct GameplayHud {
     /// `gmSocialUI`'s `gmAllegianceUI` (its player set once in the world) and `gmFellowshipUI`.
     pub allegiance: Option<AllegianceUi>,
     pub fellowship: Option<FellowshipUi>,
+    /// The toolbar layout, for the frameworks made once the player is in the world
+    /// (`gmInventoryUI`'s backpack).
+    pub toolbar_layout: Option<Arc<LayoutDesc>>,
     /// `gmStatusbarUI`'s `gmVitalsUI`.
     pub vitals: VitalsUi,
     /// `DialogFactory` over the gameplay layout.
@@ -169,6 +172,7 @@ pub fn build_gameplay_hud(
         allegiance,
         fellowship,
         vitals,
+        toolbar_layout: layouts[&LAYOUT_TOOLBAR].clone(),
         dialogs,
     })
 }

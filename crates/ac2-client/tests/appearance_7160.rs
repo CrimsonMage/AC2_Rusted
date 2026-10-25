@@ -13,8 +13,8 @@ use legions_server_double::{
     update_visual_desc_bytes, ObjectSpawn, Spawn, PLAYER,
 };
 
-const NPC: u64 = 0x7000_0000_0000_0042;
-const SWORD: u64 = 0x7000_0000_0000_0050;
+const NPC: u64 = 0x8000_0000_0000_0042;
+const SWORD: u64 = 0x8000_0000_0000_0050;
 
 fn spawn() -> Spawn {
     Spawn {

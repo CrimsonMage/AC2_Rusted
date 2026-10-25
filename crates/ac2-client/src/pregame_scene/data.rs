@@ -339,7 +339,7 @@ fn load_scene(store: &ResourceStore, did: u32) -> Option<SceneData> {
 }
 
 /// `ICPhysicsObj::makeObject`'s reads: the template chain, the root Setup and the body.
-fn load_object(store: &ResourceStore, did: u32) -> Option<ObjectData> {
+fn load_object(store: &Arc<ResourceStore>, did: u32) -> Option<ObjectData> {
     let mut current = DataId::new(did);
     let mut scale = Vec3::ONE;
     for _ in 0..MAX_TEMPLATES {

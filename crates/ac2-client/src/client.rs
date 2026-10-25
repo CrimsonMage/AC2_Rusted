@@ -98,7 +98,7 @@ pub(crate) struct Body {
 /// The player object (`CreateObject` of the player).
 pub(crate) struct Player {
     pub(crate) id: u64,
-    visual: Option<u32>,
+    pub(crate) visual: Option<u32>,
     /// `get_position` until the body exists.
     position: Position,
     pub(crate) body: Option<Body>,
@@ -127,13 +127,13 @@ pub struct Client {
     pub(crate) player: Option<Player>,
     module: MovementModule,
     camera: CameraManager,
-    scene: SceneCamera,
+    pub(crate) scene: SceneCamera,
     game_clock: Option<GameClock>,
     physics_clock: PhysicsClock,
     /// `PhysicsModule::m_tAnimationUpdateTime`.
     anim_clock: AnimationClock,
     /// `Random`, the client's shared generator (animation effect triggers roll on it).
-    random: ac2_core::Random,
+    pub(crate) random: ac2_core::Random,
     /// `SmartBox::m_bBlockingLoad`.
     blocking_load: bool,
     /// `SmartBox::SetWantNoticeOnNextFrameDrawn`.
@@ -148,6 +148,7 @@ pub struct Client {
     pub(crate) remotes: Remotes,
     /// The weenies' script processes, when a script VM is attached.
     pub(crate) scripts: Option<crate::scripts::Scripts>,
+    pub(crate) audio: Option<crate::client_audio::ClientAudio>,
 }
 
 fn physics_position(cell: u32, origin: [f32; 3], rotation: [f32; 4]) -> Position {
@@ -204,6 +205,7 @@ impl Client {
             notices: Vec::new(),
             remotes: Remotes::default(),
             scripts: None,
+            audio: None,
         }
     }
 
@@ -542,7 +544,9 @@ impl Client {
                 body.physics.update_animation(step, now, &mut self.random);
             }
             self.remotes.update_animation(step, now, &mut self.random);
+            self.animation_sounds(step, now);
         }
+        self.audio_use_time(now);
         Ok(events)
     }
 

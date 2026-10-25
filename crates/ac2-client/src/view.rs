@@ -389,6 +389,11 @@ impl ClientView {
         self.hud.element_text(name)
     }
 
+    /// The backpack's first page: each item and its slot's tooltip.
+    pub fn backpack_items(&self) -> Vec<(u64, String)> {
+        self.hud.backpack_items()
+    }
+
     /// The allegiance page's member list texts, in order.
     pub fn allegiance_texts(&self) -> Vec<String> {
         self.hud.allegiance_texts()

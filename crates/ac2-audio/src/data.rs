@@ -299,6 +299,18 @@ impl DatSounds {
     }
 }
 
+impl DatSounds {
+    /// `FXManager::SoundIsLooping`: the `SoundInfo` or `MusicInfo` has its `loop` flag.
+    pub fn is_looping(&self, did: u32) -> bool {
+        match sound_db_type(did) {
+            Some(DB_TYPE_SOUND_INFO) => self.get(did, |info: &SoundInfo| info.test(flags::LOOP)),
+            Some(_) => self.get(did, |music: &MusicInfo| music.test(flags::LOOP)),
+            None => None,
+        }
+        .unwrap_or(false)
+    }
+}
+
 impl SoundSource for DatSounds {
     /// `DBCache::Get` of the `SoundInfo` / `MusicInfo`, then (`DirectXSoundInstance::Initialize`
     /// / `InitDXPSDFromSoundInfo`) its `DBWave`.

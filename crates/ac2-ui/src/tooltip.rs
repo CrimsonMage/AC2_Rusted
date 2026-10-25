@@ -98,6 +98,11 @@ impl UiTree {
         }
     }
 
+    /// The element's tooltip text (`m_TTText`).
+    pub fn tooltip_text(&self, index: usize) -> Option<String> {
+        self.get(index)?.tooltip.clone()
+    }
+
     /// The tooltip root shown now, if any.
     pub fn tooltip_element(&self) -> Option<usize> {
         self.tooltip.element
