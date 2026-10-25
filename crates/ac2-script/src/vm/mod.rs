@@ -21,7 +21,9 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use crate::data::{EnumIdMap, EnumMapper};
-use crate::native::{ntype, NativeObject};
+use ac2_db::StringTable;
+
+use crate::native::{ntype, GetStringError, NativeObject, StringInfo};
 use crate::wstate::{singleton_did, WState, WSTATE_BASE_DID};
 
 /// Slot tags (`ContextState::m_tags`, `HeapObject::m_tags`): the low nibble says what the slot
@@ -117,6 +119,48 @@ pub trait ScriptData {
     fn enum_id_map(&self, _did: u32) -> Option<Box<dyn Deref<Target = EnumIdMap>>> {
         None
     }
+
+    /// A `StringTable` (`DB_TYPE_STRING_TABLE`, local DAT).
+    fn string_table(&self, _did: u32) -> Option<Box<dyn Deref<Target = StringTable>>> {
+        None
+    }
+
+    /// The text hook: `StringTable::GetString` (vtable +0x80) of `info`'s string with its
+    /// variables, rendered by `StringTableMetaLanguage::RenderString`, meta letters kept (the
+    /// glue strips them). The default renders only strings without variables or meta syntax
+    /// and reports `gsGenericError` for the rest; a host with the meta-language renderer
+    /// overrides it.
+    fn render_string(
+        &self,
+        table: &StringTable,
+        info: &StringInfo,
+    ) -> Result<Vec<u16>, GetStringError> {
+        plain_string(table, info)
+    }
+}
+
+/// [`ScriptData::render_string`]'s default: a string with no variables and none of the
+/// meta-language's block characters is its pieces joined.
+pub fn plain_string(table: &StringTable, info: &StringInfo) -> Result<Vec<u16>, GetStringError> {
+    const BLOCK: [u16; 6] = [
+        b'{' as u16,
+        b'}' as u16,
+        b'|' as u16,
+        b'^' as u16,
+        b'!' as u16,
+        b'#' as u16,
+    ];
+    let entry = table
+        .get(info.string_id)
+        .ok_or(GetStringError::MissingString)?;
+    if !entry.variables.is_empty() {
+        return Err(GetStringError::GenericError);
+    }
+    let text: Vec<u16> = entry.pieces.iter().flatten().flatten().copied().collect();
+    if text.iter().any(|c| BLOCK.contains(c)) {
+        return Err(GetStringError::GenericError);
+    }
+    Ok(text)
 }
 
 /// No DAT data: every package starts from its initializer, no names resolve.

@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 413 done, 51 partial, 1926 to do, 78 skipped.
+2468 retail functions: 420 done, 52 partial, 1918 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -3059,7 +3059,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gStoryHookData::CallEFun_SetTypeToFireMissile` · 005395e0
 - [ ] `gStoryHookData::CallEFun_SetWeaponID` · 00539640
 
-## `portal/shared/src/interp/glue/gstringinfo.cpp.c` (22/38)
+## `portal/shared/src/interp/glue/gstringinfo.cpp.c` (29/38)
 
 ### gStringInfo
 - [x] `gStringInfo::CallEFun_AddVariable_Float` · 00538010 — ac2-script glue::string_info (lookups via ScriptData)
@@ -3081,7 +3081,7 @@ Legend and workflow: [README](README.md).
 - [x] `gStringInfo::CallEFun_SetStringIDandTableEnum` · 00538680 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_SetStringIDandTableID` · 005386e0 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_SetStringIDandTableName` · 00538740 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `gStringInfo::CallEFun_SetTableEnum` · 005387b0
+- [x] `gStringInfo::CallEFun_SetTableEnum` · 005387b0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [x] `gStringInfo::CallEFun_SetTableName` · 00538810 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_AddVariable_String` · 00538870 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_GetStringID` · 005388f0 — ac2-script glue::string_info (lookups via ScriptData)
@@ -3090,16 +3090,16 @@ Legend and workflow: [README](README.md).
 - [x] `gStringInfo::CallEFun_HasStringIDandTableID` · 00538a40 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_HasTableID` · 00538ad0 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_IsLiteralValue` · 00538b40 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `gStringInfo::CallEFun_IsValid` · 00538bb0
-- [ ] `gStringInfo::CallEFun_eq` · 00538c20
-- [ ] `gStringInfo::CallEFun_ne` · 00538ca0
-- [ ] `gStringInfo::CallEFun_GetLogString` · 00538d20
-- [ ] `gStringInfo::CallEFun_GetString` · 00538de0
+- [x] `gStringInfo::CallEFun_IsValid` · 00538bb0 — ac2-script glue::string_text (tables via ScriptData::string_table)
+- [x] `gStringInfo::CallEFun_eq` · 00538c20 — ac2-script glue::string_text (tables via ScriptData::string_table)
+- [x] `gStringInfo::CallEFun_ne` · 00538ca0 — ac2-script glue::string_text (tables via ScriptData::string_table)
+- [~] `gStringInfo::CallEFun_GetLogString` · 00538d20 — ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
+- [x] `gStringInfo::CallEFun_GetString` · 00538de0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `gStringInfo::CallEFun_GetStringCaseInsensitive` · 00538ea0
-- [ ] `gStringInfo::CallEFun_GetStringWithMetaTags` · 00538fa0 · legions 0051c0d0
+- [x] `gStringInfo::CallEFun_GetStringWithMetaTags` · 00538fa0 · legions 0051c0d0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `gStringInfo::CallEFun_FromFileNode` · 00539060 · legions 0051c160
 - [ ] `gStringInfo::CallEFun_GetSubDataIDs` · 00539100 · legions 0051c1d0
-- [ ] `gStringInfo::CallEFun_InqString` · 00539180
+- [x] `gStringInfo::CallEFun_InqString` · 00539180 — ac2-script glue::string_text (tables via ScriptData::string_table)
 
 ## `portal/shared/src/interp/glue/gstringutils.cpp.c` (0/3)
 

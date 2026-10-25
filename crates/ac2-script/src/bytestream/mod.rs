@@ -188,7 +188,7 @@ mod tests {
         section(&mut stream, section::OPCODES, &body);
         // One string literal "Hi!" used at opcode offset 8.
         let mut chars: Vec<u8> = "Hi!".encode_utf16().flat_map(u16::to_le_bytes).collect();
-        crate::pstring::munge(&mut chars);
+        ac2_core::pstring::munge(&mut chars);
         let mut body = Vec::new();
         push(&mut body, 1);
         body.extend(3u16.to_le_bytes());

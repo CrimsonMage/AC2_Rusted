@@ -977,6 +977,7 @@ key	status	note
 00538680	x	ac2-script glue::string_info (lookups via ScriptData)
 005386e0	x	ac2-script glue::string_info (lookups via ScriptData)
 00538740	x	ac2-script glue::string_info (lookups via ScriptData)
+005387b0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00538810	x	ac2-script glue::string_info (lookups via ScriptData)
 00538870	x	ac2-script glue::string_info (lookups via ScriptData)
 005388f0	x	ac2-script glue::string_info (lookups via ScriptData)
@@ -985,6 +986,13 @@ key	status	note
 00538a40	x	ac2-script glue::string_info (lookups via ScriptData)
 00538ad0	x	ac2-script glue::string_info (lookups via ScriptData)
 00538b40	x	ac2-script glue::string_info (lookups via ScriptData)
+00538bb0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00538c20	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00538ca0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00538d20	~	ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
+00538de0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00538fa0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00539180	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00542530	x	ac2-physics los (Terrain::los_check)
 005425b0	x	ac2-physics los (Terrain::los_check)
 00545420	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
@@ -1705,19 +1713,30 @@ key	status	note
 0064e380	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 0064e640	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 0064e660	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
+006508d0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00650a50	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00650a90	x	ac2-script glue::string_info (lookups via ScriptData)
 00650ad0	x	ac2-script glue::string_info (lookups via ScriptData)
 00650b90	x	ac2-script glue::string_info (lookups via ScriptData)
 00650c50	x	ac2-script glue::string_info (lookups via ScriptData)
+00650c70	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00650ce0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00650d00	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00650e30	x	ac2-script glue::string_info (lookups via ScriptData)
+00651220	~	ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
+00651730	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00651b20	x	
+00651dd0	~	ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
 00652070	x	ac2-script glue::string_info (lookups via ScriptData)
+00652080	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 006521d0	x	ac2-script glue::string_info (lookups via ScriptData)
 00652db0	x	ac2-script reference/native unpack
 00654cb0	x	ac2-db string_table.rs: all 10,598 Legions tables decode
 00654f10	x	ac2-db string_table.rs: all 10,598 Legions tables decode
 00655de0	x	ac2-db string_table.rs: all 10,598 Legions tables decode
+006570f0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 006571c0	x	ac2-script glue
+006572d0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 0065a4a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 0065a510	_	
 0065a580	_	

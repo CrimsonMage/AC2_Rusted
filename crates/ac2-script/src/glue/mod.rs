@@ -16,6 +16,7 @@ mod enums;
 mod format;
 mod lists;
 mod string_info;
+mod string_text;
 mod vm_glue;
 mod wcc;
 mod wpstring;
@@ -33,6 +34,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     wcc::register(efuns);
     wpstring::register(efuns);
     string_info::register(efuns);
+    string_text::register(efuns);
     enums::register(efuns);
     lists::register(efuns);
 }

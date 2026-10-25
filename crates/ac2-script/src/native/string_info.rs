@@ -75,6 +75,20 @@ pub struct StringInfo {
     pub literal: Option<Vec<u16>>,
 }
 
+/// `GetStringErrorCode` (`gsSuccess` is the `Ok` side).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u32)]
+pub enum GetStringError {
+    Uninitialized = 1,
+    MissingString = 2,
+    MissingTable = 3,
+    MissingPrivateString = 4,
+    MissingPrivateTable = 5,
+    MissingVariable = 6,
+    MetaLanguageError = 7,
+    GenericError = 8,
+}
+
 /// Nested `SID_StringInfo` deeper than this is treated as corrupt.
 const MAX_DEPTH: usize = 32;
 

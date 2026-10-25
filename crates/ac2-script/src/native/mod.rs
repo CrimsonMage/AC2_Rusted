@@ -15,7 +15,7 @@ pub use gm::{
     ExaminationRequest, GameplayOptionsProfile, GmKeyframe, GmRaceSexInfo, GmSceneInfo,
     ShortcutInfo, SkillUiNode,
 };
-pub use string_info::{StringInfo, StringVar, StringVarValue};
+pub use string_info::{GetStringError, StringInfo, StringVar, StringVarValue};
 pub use structs::{BehaviorParams, MissileParameters, Position, RandomSelectionTable};
 
 use crate::unpack::{Reader, UnpackResult};

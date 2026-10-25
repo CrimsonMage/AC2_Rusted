@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 37 done, 11 partial, 546 to do, 39 skipped.
+633 retail functions: 46 done, 13 partial, 535 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -927,7 +927,7 @@ Legend and workflow: [README](README.md).
 ### StringTableMetaLanguage
 - [ ] `StringTableMetaLanguage::LoadTokenizer` · 0065a310 · legions 00608c80
 
-## `portal/shared/src/stringtable/metalanguage/metalanguage_utils.cpp.c` (1/14)
+## `portal/shared/src/stringtable/metalanguage/metalanguage_utils.cpp.c` (3/14)
 
 ### StringTableMetaLanguage
 - [ ] `StringTableMetaLanguage::IsEscapeChar` · 00656b20 · legions 00605470
@@ -946,47 +946,47 @@ Legend and workflow: [README](README.md).
 - [ ] `StringTableMetaLanguage::TrimExcessSpaces` · 00656ea0 · legions 006057f0
 - [ ] `StringTableMetaLanguage::CapitalizeFirstLetter` · 00656ee0 · legions 00605830
 - [ ] `StringTableMetaLanguage::RetrieveMetaLetters` · 00656fd0 · legions 00605920
-- [ ] `StringTableMetaLanguage::StripMetaLetters` · 006570f0 · legions 00605a40
+- [x] `StringTableMetaLanguage::StripMetaLetters` · 006570f0 · legions 00605a40 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [x] `StringTableMetaLanguage::EscapeString` · 006571c0 · legions 00605b10 — ac2-script glue
-- [ ] `StringTableMetaLanguage::UnescapeString` · 006572d0 · legions 00605c20
+- [x] `StringTableMetaLanguage::UnescapeString` · 006572d0 · legions 00605c20 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `StringTableMetaLanguage::ApplyMetaTagsToName` · 006573f0 · legions 00605d40
 
-## `portal/shared/src/stringtable/stringinfo.cpp.c` (9/56)
+## `portal/shared/src/stringtable/stringinfo.cpp.c` (16/56)
 
 ### StringInfoData
 - [ ] `StringInfoData::operator==` · 00650880
 - [ ] `StringInfoData::operator!=` · 006508b0
 
 ### StringInfo
-- [ ] `StringInfo::SetTableID` · 006508d0 · legions 005ffba0
+- [x] `StringInfo::SetTableID` · 006508d0 · legions 005ffba0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `StringInfo::ApplyMetasToPlayerName` · 00650900 · legions 005ffbd0
 - [ ] `StringInfo::ReportError` · 00650920
-- [ ] `StringInfo::SetTableEnum` · 00650a50 · legions 005ffc10
+- [x] `StringInfo::SetTableEnum` · 00650a50 · legions 005ffc10 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [x] `StringInfo::SetStringIDandTableEnum` · 00650a90 · legions 005ffc50 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `StringInfo::SetStringIDandTableID` · 00650ad0 · legions 005ffc90 — ac2-script glue::string_info (lookups via ScriptData)
 - [ ] `StringInfo::operator%` · 00650b40 · legions 005ffd00
 - [x] `StringInfo::SetTableName` · 00650b90 · legions 005ffd50 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `StringInfo::SetStringIDandTableName` · 00650c50 · legions 005ffdf0 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `StringInfo::GetString` · 00650c70 · legions 005ffe10
-- [ ] `StringInfo::GetStringWithMetaTags` · 00650ce0 · legions 005ffe80
-- [ ] `StringInfo::InqString` · 00650d00 · legions 005ffea0
+- [x] `StringInfo::GetString` · 00650c70 · legions 005ffe10 — ac2-script glue::string_text (tables via ScriptData::string_table)
+- [x] `StringInfo::GetStringWithMetaTags` · 00650ce0 · legions 005ffe80 — ac2-script glue::string_text (tables via ScriptData::string_table)
+- [x] `StringInfo::InqString` · 00650d00 · legions 005ffea0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `StringInfo::InqStringTableFile` · 00650da0
 - [x] `StringInfo::SetLiteralValue` · 00650e30 · legions 005fffd0 — ac2-script glue::string_info (lookups via ScriptData)
 - [ ] `StringInfo::GetLiteralValue` · 00650ef0 · legions 00600090
 - [ ] `StringInfo::SetVarInTable` · 00651000 · legions 006001a0
-- [ ] `StringInfo::GetLogString` · 00651220 · legions 00600410
+- [~] `StringInfo::GetLogString` · 00651220 · legions 00600410 — ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
 - [-] `StringInfo::FromFileNode` · 00651390 · legions 00600580 — text source format (admin tools)
 - [-] `StringInfo::FromFileNode` · 006515c0 · legions 006007b0 — text source format (admin tools)
 - [-] `StringInfo::ToFileNode` · 00651620 — text source format (admin tools)
-- [ ] `StringInfo::IsValid` · 00651730 · legions 00600840
+- [x] `StringInfo::IsValid` · 00651730 · legions 00600840 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `StringInfo::GetSubDataIDs` · 00651860 · legions 00600950
 - [ ] `StringInfo::GetSubPrivateIDs` · 006518f0 · legions 006009e0
 - [ ] `StringInfo::GetPackSize` · 006519d0 · legions 00600aa0
 - [x] `StringInfo::Pack` · 00651b20 · legions 00600bf0
-- [ ] `StringInfo::InqStringInternal` · 00651dd0 · legions 00600ea0
+- [~] `StringInfo::InqStringInternal` · 00651dd0 · legions 00600ea0 — ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
 - [ ] `StringInfo::ClearVars` · 00651fb0 · legions 00601080
 - [x] `StringInfo::Reset` · 00652070 · legions 00601140 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `StringInfo::operator==` · 00652080 · legions 00601150
+- [x] `StringInfo::operator==` · 00652080 · legions 00601150 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `StringInfo::IsReady` · 00652140 · legions 00601210
 - [ ] `StringInfo::~StringInfo` · 00652150 · legions 00601220
 - [x] `StringInfo::AddVar` · 006521d0 · legions 006012a0 — ac2-script glue::string_info (lookups via ScriptData)

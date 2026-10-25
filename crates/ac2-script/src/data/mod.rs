@@ -21,7 +21,9 @@ use std::sync::Arc;
 
 use ac2_core::DataId;
 use ac2_dat::{DatDataset, DatFileKind};
-use ac2_db::{ResourcePackedDecode, ResourceStore, TypedResourceRef};
+use ac2_db::{
+    load_string_table, ResourcePackedDecode, ResourceStore, StringTable, TypedResourceRef,
+};
 
 use crate::vm::{ScriptData, StateRef};
 use crate::wstate::load_wstate;
@@ -106,5 +108,13 @@ impl ScriptData for DatScriptData {
 
     fn enum_id_map(&self, did: u32) -> Option<Box<dyn Deref<Target = EnumIdMap>>> {
         self.load::<EnumIdMap>(did)
+    }
+
+    /// `DBObj::Get(QualifiedDataID(did, DB_TYPE_STRING_TABLE))` through ac2-db's decoder.
+    fn string_table(&self, did: u32) -> Option<Box<dyn Deref<Target = StringTable>>> {
+        load_string_table(&self.store, DataId::new(did))
+            .ok()
+            .flatten()
+            .map(|t| Box::new(t) as Box<dyn Deref<Target = StringTable>>)
     }
 }

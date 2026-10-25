@@ -1,8 +1,7 @@
 //! `gStringInfo`: building and querying `StringInfo` natives
 //! (`portal/shared/src/interp/glue/gStringInfo.cpp`, `StringInfo` in `stringtable/StringInfo.cpp`).
 //!
-//! Resolving the text (`GetString`, `InqString`, `GetStringWithMetaTags`, `GetLogString`,
-//! `ApplyMetasToPlayerName`) needs the string tables and stays with the host's text stack.
+//! The text (`GetString`, `InqString`, `IsValid`, ...) is in [`super::string_text`].
 //! Table names and enums resolve through [`crate::vm::ScriptData`]; a table that is not a
 //! string table (`DB_TYPE_STRING_TABLE`, 0x40000026) leaves the id 0, as retail does.
 
@@ -16,7 +15,7 @@ const STRING_TABLE: u32 = 0x4000_0026;
 const STRING_TABLE_ENUM: u32 = 0x4000_0004;
 
 pub(super) fn register(efuns: &mut EFuns) {
-    let table: [(u32, crate::vm::EFunFn); 22] = [
+    let table: [(u32, crate::vm::EFunFn); 23] = [
         (0x01, add_string_id_and_table_enum),
         (0x02, add_string),
         (0x03, add_int),
@@ -27,6 +26,7 @@ pub(super) fn register(efuns: &mut EFuns) {
         (0x08, add_formatted_float),
         (0x09, add_string_info),
         (0x0A, set_string_id),
+        (0x0B, set_table_enum),
         (0x0C, set_string_id_and_table_enum),
         (0x0D, set_table_name),
         (0x0E, set_string_id_and_table_name),
@@ -233,6 +233,17 @@ fn add_string_id_and_table_enum(vm: &mut Vm, ctx: &mut Context) -> InterpStatus 
 fn set_string_id(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let id = Call::new(ctx).word(2);
     with_this(vm, ctx, |info, _| info.string_id = id)
+}
+
+/// `StringInfo::SetTableEnum`.
+fn set_table_enum(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let table_enum = Call::new(ctx).word(2);
+    let did = vm
+        .data()
+        .enum_did(table_enum, STRING_TABLE_ENUM)
+        .unwrap_or(0);
+    let table = table_id(vm, did);
+    with_this(vm, ctx, |info, _| info.table_id = table)
 }
 
 /// `StringInfo::SetStringIDandTableEnum`.
