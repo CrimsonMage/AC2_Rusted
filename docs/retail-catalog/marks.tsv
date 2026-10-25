@@ -561,15 +561,30 @@ key	status	note
 004de020	x	
 004de0d0	x	
 004de320	x	ac2-client motion.rs
-004de490	~	stamp bookkeeping only (m_update_times, in ac2-weenie ObjectTable); interpolation is physics
+004de330	~	PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
+004de340	~	PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
+004de350	~	PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
+004de360	~	PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
+004de380	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004de490	~	ac2-physics PhysicsBody::recv_move_to (player only, StopMoveToCancelsBehaviors, MoveToEvent); stamp bookkeeping in ac2-weenie; the client does not call it yet
 004de590	x	ac2-physics moveto (slice 3)
 004de5b0	x	
 004de5d0	x	
 004de7b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004de800	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004de840	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004de890	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004de8d0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004de900	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004de910	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004de920	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004de940	x	
 004de980	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004de990	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004de9a0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004de9d0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004de9e0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004dea20	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004dead0	x	ac2-physics interp (slice 3)
 004deb70	x	ac2-physics interp (slice 3)
 004dec30	x	ac2-physics interp (slice 3)
@@ -598,6 +613,7 @@ key	status	note
 004e0af0	x	
 004e0dc0	~	ac2-weenie: the delta becomes the local description; the part rebuild (CompareAndModify) is the renderer's
 004e0e30	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+004e11f0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004e12f0	x	ac2-physics interp (slice 3)
 004e1480	x	ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 004e1520	x	
@@ -610,6 +626,7 @@ key	status	note
 004e21e0	x	ac2-client remote.rs
 004e2220	x	ac2-client remote.rs
 004e2240	x	ac2-client remote.rs
+004e2260	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004e23b0	~	instance stamp kept per object in ac2-weenie ObjectTable
 004e2900	~	ac2-client: the object stops stepping physics
 004e2980	~	ac2-client: the object steps physics again
@@ -640,15 +657,18 @@ key	status	note
 004e6810	x	ac2-weenie ObjectTable::apply_action
 004e6890	x	ac2-weenie ObjectTable::apply_contain, ac2-client remote.rs
 004e6bd0	x	ac2-weenie Appearance::from_delta (the effects description is empty)
+004e6c50	~	ac2-physics do_mode: frozen check, set_animation_active, ModeTracker::DoMode; no weenie mode hook or child propagation
 004e6ff0	x	
 004e7580	~	ac2-physics objects.rs: static objects only; Interpermiable/CollisionParameters ethereal filter, missile proximity and temp ignore lists not ported
+004e7af0	~	PhysicsBody::set_view_distance takes the camera distance from the caller; no scene stamp or children
 004e7c80	~	ac2-physics: the drawn position slerp / previous position only (PhysicsBody::drawing_position)
 004e8f80	x	
 004e9140	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
-004e9700	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+004e9700	~	ac2-physics anim_pose: distance-degraded update frames (sliders, bone refresh), impulse triggers; no look-at, FX scripts, FX, effect triggers or weenie hooks
 004e9d30	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 004e9f50	~	no cell residency, shadow or material updates; LeaveGround FX not ported
 004ea490	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004ea500	~	ac2-physics do_behavior: frozen check, params mode, ModeTracker::DoBehavior; no story manager, children, FX target or cloned visual
 004ea780	~	no path-aligned heading, targeting or missiles
 004ea990	~	ac2-physics: FORCE_SPF sets the position only (no cell entry, shadows or cell material)
 004eaa30	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
@@ -662,16 +682,18 @@ key	status	note
 004eb080	x	
 004eb0d0	x	
 004eb100	x	
+004eb120	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004eb1b0	x	
 004eb1e0	x	ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 004eb370	~	no player-distance range checks, parent or missile paths
 004eb8b0	x	
+004ec290	~	PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
 004ec350	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ec400	~	the bookie part only
 004ec680	~	ac2-client motion.rs: DoBehavior with context 1; a weenie emote is not run first
 004ec730	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ec7d0	~	ac2-client remote.rs
-004ec830	~	ac2-client: the PhysicsDesc behaviours start on the remote body; no mode, sliders or FX
+004ec830	~	ac2-physics set_description_animation: mode, network behaviours, sliders; velocity, omega, scales, look-at, FX, missile and stamps not ported
 004ed190	~	flags 0x1010 into PhysicsBody::place
 004ed1f0	~	interp blips use set_position_checked(SLIDE); parent/placement-position bookkeeping not ported
 004ed470	x	the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
@@ -686,17 +708,27 @@ key	status	note
 004ee9f0	x	ac2-render object/model.rs load_object_model_with
 004f0a10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f0a80	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-004f0af0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+004f0af0	~	impulse triggers always, compositor only on refresh frames; effect triggers and weenie hooks not fired; one part group
 004f0de0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+004f1170	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f1190	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f11d0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f11f0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f12f0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1310	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1330	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f1350	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1370	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004f1390	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004f13b0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f1420	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1440	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1460	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1480	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f14a0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004f14c0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004f1580	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004f15a0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f17b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f17c0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1ad0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
@@ -706,7 +738,7 @@ key	status	note
 004f1d10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1f40	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f1f90	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-004f2440	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+004f2440	~	ac2-physics anim_rep: sliders then m_animcolor/m_animopacity capped; the wind slider is not driven
 004f2560	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f2670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f2690	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
@@ -1216,8 +1248,10 @@ key	status	note
 0067a490	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0067a4a0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0067a4b0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-0067a7d0	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+0067a7d0	~	ac2-anim decode: behaviours, slider controllers, defaults; modes and userControlledSliders skipped
 0067ae90	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+0067aed0	x	ac2-anim: network behaviours and sliders, CharTemplate slider controllers (slice 4)
+0067af10	x	ac2-anim: network behaviours and sliders, CharTemplate slider controllers (slice 4)
 0067cfa0	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 0067cfb0	x	
 0067d000	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
@@ -1233,6 +1267,7 @@ key	status	note
 006893b0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 00689880	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 00689ab0	~	ac2-anim Ac2SliderTracker; slider interpolators not modelled
+00689c20	x	ac2-anim: network behaviours and sliders, CharTemplate slider controllers (slice 4)
 00689d60	x	ac2-anim Ac2SliderTracker
 00689da0	x	ac2-anim Ac2SliderTracker
 00689de0	x	ac2-anim Ac2SliderTracker
@@ -1249,6 +1284,7 @@ key	status	note
 0068ad20	x	ac2-anim Ac2ModeTracker
 0068ad50	x	ac2-anim Ac2ModeTracker
 0068ad70	x	ac2-anim Ac2ModeTracker
+0068add0	x	ac2-anim: network behaviours and sliders, CharTemplate slider controllers (slice 4)
 0068adf0	x	ac2-anim Ac2ModeTracker
 0068ae30	x	ac2-anim Ac2ModeTracker
 0068b060	x	ac2-anim Ac2ModeTracker
@@ -1275,6 +1311,7 @@ key	status	note
 0068d0b0	x	ac2-anim Ac2BehaviorTracker
 0068d340	x	ac2-anim Ac2BehaviorTracker
 0068d520	x	ac2-anim Ac2BehaviorTracker
+0068d690	x	ac2-anim: network behaviours and sliders, CharTemplate slider controllers (slice 4)
 0068d800	x	ac2-anim Ac2BehaviorTracker
 0068db80	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
 0068dfc0	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
@@ -1407,6 +1444,7 @@ key	status	note
 006c59d0	x	
 006c82b0	x	ac2-world region::sky_objects, ac2-render sky
 006c8d90	~	decoded; field order after m_nDirectHeading not re-verified
+006d0bc0	~	PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
 006d7830	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 006da360	x	
 006da480	x	

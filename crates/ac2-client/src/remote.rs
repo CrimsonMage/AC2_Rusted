@@ -510,10 +510,10 @@ impl Remotes {
     }
 
     /// `CPhysics::UpdateAllAnimation` for the objects.
-    pub(crate) fn update_animation(&mut self, step: f32) {
+    pub(crate) fn update_animation(&mut self, step: f32, local_time: f64) {
         for remote in self.objects.values_mut() {
             if let Some(body) = &mut remote.body {
-                body.update_animation(step);
+                body.update_animation(step, local_time);
             }
         }
     }

@@ -1,6 +1,6 @@
 # ac2-anim: Animation system
 
-532 retail functions: 85 done, 17 partial, 394 to do, 36 skipped.
+532 retail functions: 89 done, 18 partial, 389 to do, 36 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/anim/charactersetup.cpp.c` (2/67)
@@ -671,7 +671,7 @@ Legend and workflow: [README](README.md).
 ### BehaviorTrack
 - [ ] `BehaviorTrack::StreamPack` · 0068fb60 · legions 006306e0
 
-## `portal/shared/src/animsys/behaviortracker.cpp.c` (12/34)
+## `portal/shared/src/animsys/behaviortracker.cpp.c` (13/34)
 
 ### BehaviorTracker
 - [x] `BehaviorTracker::SendAndClearCallback` · 0068bba0 · legions 0062cbd0 — ac2-anim Ac2BehaviorTracker
@@ -723,7 +723,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AnimTrack::AnimTrack` · 0068d5e0 · legions 0062e600
 
 ### BehaviorTracker
-- [ ] `BehaviorTracker::GetNetworkBehaviorParams` · 0068d690 · legions 0062e6b0
+- [x] `BehaviorTracker::GetNetworkBehaviorParams` · 0068d690 · legions 0062e6b0 — ac2-anim: network behaviours and sliders, CharTemplate slider controllers (slice 4)
 
 ### BehaviorTrack
 - [ ] `BehaviorTrack::operator=` · 0068d710 · legions 0062e730
@@ -737,7 +737,7 @@ Legend and workflow: [README](README.md).
 - [~] `BehaviorTracker::DoBehavior` · 0068dfc0 · legions 0062efe0 — ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
 - [x] `BehaviorTracker::DoAutonomousBehavior` · 0068e410 · legions 0062f430 — ac2-anim Ac2BehaviorTracker
 
-## `portal/shared/src/animsys/chartemplate.cpp.c` (2/26)
+## `portal/shared/src/animsys/chartemplate.cpp.c` (3/26)
 
 ### CharTemplate
 - [ ] `CharTemplate::GetCharTemplate` · 0067a6a0
@@ -745,7 +745,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CharTemplate::GetDefaultElement` · 0067a720
 - [ ] `CharTemplate::GetDefaultMode` · 0067a730
 - [ ] `CharTemplate::FillDataGraph` · 0067a740
-- [x] `CharTemplate::StreamPack` · 0067a7d0 · legions 00624200 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+- [~] `CharTemplate::StreamPack` · 0067a7d0 · legions 00624200 — ac2-anim decode: behaviours, slider controllers, defaults; modes and userControlledSliders skipped
 - [ ] `CharTemplate::SaveToFile` · 0067a9f0
 - [ ] `CharTemplate::Destroy` · 0067ad30 · legions 00624390
 
@@ -754,8 +754,8 @@ Legend and workflow: [README](README.md).
 
 ### CharTemplate
 - [x] `CharTemplate::GetBehavior` · 0067ae90 · legions 006244a0 — ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
-- [ ] `CharTemplate::GetSlider` · 0067aed0
-- [ ] `CharTemplate::IsUserControlled` · 0067af10
+- [x] `CharTemplate::GetSlider` · 0067aed0 — ac2-anim: network behaviours and sliders, CharTemplate slider controllers (slice 4)
+- [x] `CharTemplate::IsUserControlled` · 0067af10 — ac2-anim: network behaviours and sliders, CharTemplate slider controllers (slice 4)
 
 ### HashTable<unsigned_long,Behavior>
 - [ ] `HashTable<unsigned_long,Behavior>::operator=` · 0067af70 · legions 006245a0
@@ -930,7 +930,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Mode::Mode` · 0068f400 · legions 0062ff80
 - [ ] `Mode::StreamPack` · 0068f410
 
-## `portal/shared/src/animsys/modetracker.cpp.c` (16/23)
+## `portal/shared/src/animsys/modetracker.cpp.c` (17/23)
 
 ### ModeTracker
 - [ ] `ModeTracker::GetTriggerUpdate` · 0068a8b0 · legions 0062b8f0
@@ -946,7 +946,7 @@ Legend and workflow: [README](README.md).
 - [x] `ModeTracker::GetElement` · 0068ad50 · legions 0062bd80 — ac2-anim Ac2ModeTracker
 - [x] `ModeTracker::IsDoingBehavior` · 0068ad70 · legions 0062bda0 — ac2-anim Ac2ModeTracker
 - [ ] `ModeTracker::CheckForDynamicFPCamera` · 0068adb0 · legions 0062bde0
-- [ ] `ModeTracker::GetNetworkBehaviorParams` · 0068add0 · legions 0062be00
+- [x] `ModeTracker::GetNetworkBehaviorParams` · 0068add0 · legions 0062be00 — ac2-anim: network behaviours and sliders, CharTemplate slider controllers (slice 4)
 - [x] `ModeTracker::ModeTracker` · 0068adf0 · legions 0062be20 — ac2-anim Ac2ModeTracker
 - [x] `ModeTracker::GetDesiredModeState` · 0068ae30 · legions 0062be60 — ac2-anim Ac2ModeTracker
 - [ ] `ModeTracker::StreamPack` · 0068ae60 · legions 0062be90
@@ -963,7 +963,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Slider::Slider` · 0068f3b0 · legions 0062ff30
 - [ ] `Slider::StreamPack` · 0068f3c0 · legions 0062ff40
 
-## `portal/shared/src/animsys/slidertracker.cpp.c` (6/16)
+## `portal/shared/src/animsys/slidertracker.cpp.c` (7/16)
 
 ### SliderInterpolator
 - [ ] `SliderInterpolator::Activate` · 006898e0 · legions 0062a900
@@ -979,7 +979,7 @@ Legend and workflow: [README](README.md).
 
 ### SliderTracker
 - [~] `SliderTracker::Update` · 00689ab0 · legions 0062aab0 — ac2-anim Ac2SliderTracker; slider interpolators not modelled
-- [ ] `SliderTracker::GetNetworkSliders` · 00689c20 · legions 0062ac20
+- [x] `SliderTracker::GetNetworkSliders` · 00689c20 · legions 0062ac20 — ac2-anim: network behaviours and sliders, CharTemplate slider controllers (slice 4)
 - [x] `SliderTracker::GetSliderCurrentValue` · 00689d60 · legions 0062ada0 — ac2-anim Ac2SliderTracker
 - [x] `SliderTracker::GetSliderDesiredValue` · 00689da0 · legions 0062ade0 — ac2-anim Ac2SliderTracker
 - [x] `SliderTracker::GetSliderVelocity` · 00689de0 · legions 0062ae20 — ac2-anim Ac2SliderTracker

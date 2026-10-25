@@ -51,12 +51,46 @@ fn array(v: Vector) -> [f32; 3] {
 }
 
 impl PhysicsObj {
-    /// `CPhysicsObj::UpdateAnimation` for an object updated every animation tick (the player;
-    /// the distance-degraded step, look-at, FX scripts and triggers are not modelled): the
-    /// slider tracker, the half-step of local acceleration added to the animation velocity, then
-    /// `ModeTracker::Update` and the pose when the body has a behaviour table.
-    pub(crate) fn update_animation(&mut self, quantum: f32) {
-        self.anim.update_sliders(quantum);
+    /// The animation update step of `CPhysicsObj::UpdateAnimation`: 0 (every call) for the
+    /// player and for bodies nearer than a quarter of the minimum visible distance, rising
+    /// linearly to 0.25 s at it.
+    fn animation_update_step(&self) -> f32 {
+        let (view, min_visible) = (ld(self.view_distance), ld(self.min_visible_distance));
+        let quarter = st(min_visible * ld(0.25_f32));
+        let mut step = 0.0;
+        if ld(quarter) < view {
+            step = if min_visible <= view {
+                0.25
+            } else {
+                st((view - ld(quarter)) * ld(0.25_f32) / (min_visible - ld(quarter)))
+            };
+        }
+        if self.anim.is_player() {
+            step = 0.0;
+        }
+        step
+    }
+
+    /// `CPhysicsObj::UpdateAnimation` (look-at, FX scripts, FX and the effect and weenie-hook
+    /// triggers are not modelled). Unless animation is frozen: an update frame comes once the
+    /// update step has passed since the last one while the body is within its minimum visible
+    /// distance (always the first call); it advances the sliders by the time since the last
+    /// update frame and refreshes the bones. Every call adds the half-step of local acceleration
+    /// to the animation velocity and runs `ModeTracker::Update`, whose `DoAnimation` collects
+    /// the impulse triggers; the triggers fire.
+    pub(crate) fn update_animation(&mut self, quantum: f32, local_time: f64) {
+        if self.is_animation_frozen() {
+            return;
+        }
+        let step = self.animation_update_step();
+        let elapsed = st(local_time - self.last_animation_update_time);
+        let refresh = (ld(self.view_distance) <= ld(self.min_visible_distance)
+            && ld(step) <= ld(elapsed))
+            || self.last_animation_update_time == 0.0;
+        if refresh {
+            self.last_animation_update_time = local_time;
+            self.anim.update_sliders(elapsed);
+        }
         let a = self.position.frame.global_to_local_vec(self.acceleration);
         let q = ld(quantum);
         let half = ld(0.5_f32);
@@ -72,7 +106,7 @@ impl PhysicsObj {
         if self.anim.can_animate() {
             self.anim
                 .with_modes(|modes, source| modes.update(quantum, source));
-            let impulses = self.do_animation();
+            let impulses = self.do_animation(refresh);
             self.sync_mode();
             for impulse in impulses {
                 self.fire_impulse(&impulse);
@@ -101,10 +135,11 @@ impl PhysicsObj {
         self.anim_velocity = v;
     }
 
-    /// `PHYSICSOBJREP::DoAnimation(refreshBones)`, then the impulse triggers the tracks reached
-    /// (`DBAnimator::GetTriggers` in `CPartArray::AddAnimation`, `BehaviorTracker::AddTriggers`):
-    /// the ones not fired yet, now marked fired.
-    fn do_animation(&mut self) -> Vec<Ac2ImpulseTrigger> {
+    /// `PHYSICSOBJREP::DoAnimation(refreshBones)`: the bones are posed only when refreshing
+    /// (`CPartArray::AddAnimation` adds to the compositor only then); the impulse triggers the
+    /// tracks reached are collected either way (`DBAnimator::GetTriggers`,
+    /// `BehaviorTracker::AddTriggers`): the ones not fired yet, now marked fired.
+    fn do_animation(&mut self, refresh: bool) -> Vec<Ac2ImpulseTrigger> {
         let terrain = self.motion.terrain_type();
         let (anim_velocity, effects_scale, omega) = (
             array(self.anim_velocity),
@@ -124,22 +159,6 @@ impl PhysicsObj {
         let (Some(setup), Some(table)) = (setup.as_ref(), table.as_ref()) else {
             return Vec::new();
         };
-        let rest: Vec<Ac2BoneTransform> = setup
-            .rest_locals()
-            .iter()
-            .map(Ac2BoneTransform::from_transform)
-            .collect();
-        let roots: Vec<bool> = setup
-            .bones
-            .iter()
-            .map(|bone| bone.parent.is_none())
-            .collect();
-        let input = Ac2PoseInput {
-            layers: table.layer_count(),
-            tweak_layers: &table.tweak_layers,
-            roots: &roots,
-            rest: &rest,
-        };
         let mut ctx = PoseContext {
             sliders,
             anim_velocity,
@@ -148,12 +167,30 @@ impl PhysicsObj {
             omega,
             terrain,
         };
-        *bones = Ac2Compositor::pose(
-            modes,
-            |key| animators.get(&key).map(|animator| &**animator),
-            &mut ctx,
-            &input,
-        );
+        if refresh {
+            let rest: Vec<Ac2BoneTransform> = setup
+                .rest_locals()
+                .iter()
+                .map(Ac2BoneTransform::from_transform)
+                .collect();
+            let roots: Vec<bool> = setup
+                .bones
+                .iter()
+                .map(|bone| bone.parent.is_none())
+                .collect();
+            let input = Ac2PoseInput {
+                layers: table.layer_count(),
+                tweak_layers: &table.tweak_layers,
+                roots: &roots,
+                rest: &rest,
+            };
+            *bones = Ac2Compositor::pose(
+                modes,
+                |key| animators.get(&key).map(|animator| &**animator),
+                &mut ctx,
+                &input,
+            );
+        }
         let mut pending = Vec::new();
         modes.visit_tracks_mut(|state, track| {
             let Some(animator) = animators.get(&track.anim_key) else {
@@ -212,9 +249,10 @@ impl PhysicsObj {
             .collect()
     }
 
-    /// Installs the body's behaviour table (`PHYSICSOBJREP::SetupModeTracker`).
-    pub(crate) fn set_animation(&mut self, animation: BodyAnimation, player: bool) {
-        self.anim = AnimRep::new(animation, player);
+    /// Installs the body's behaviour table (`PHYSICSOBJREP::SetupModeTracker`); the body stays
+    /// the player or not.
+    pub(crate) fn set_animation(&mut self, animation: BodyAnimation) {
+        self.anim = AnimRep::new(animation, self.anim.is_player());
         self.sync_mode();
     }
 

@@ -116,6 +116,7 @@ fn template() -> Arc<Ac2CharTemplate> {
             (MOVE, 0),
             (WAVE, AC2_BEHAVIOR_ACTION),
         ]),
+        sliders: HashMap::new(),
         default_element: GROUND,
         default_mode: PEACE,
     })

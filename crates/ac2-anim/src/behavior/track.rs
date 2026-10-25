@@ -7,6 +7,9 @@
 pub struct Ac2BehaviorParams {
     pub behavior: u32,
     pub time_scale: f32,
+    /// `mModeID`: a mode `CPhysicsObj::DoBehavior` and `ReleaseBehavior` switch to first (0 for
+    /// none).
+    pub mode: u32,
     pub hold_cycles: u32,
     /// `mFxID`: an FX started with the behaviour and stopped as it ramps down.
     pub fx: u32,
@@ -25,6 +28,7 @@ impl Ac2BehaviorParams {
         Self {
             behavior,
             time_scale: 1.0,
+            mode: 0,
             hold_cycles: 1,
             fx: 0,
             early_callback: false,

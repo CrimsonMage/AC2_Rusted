@@ -122,6 +122,16 @@ impl Ac2SliderTracker {
         self.sliders.get(slider).map_or(0.0, |info| info.vel)
     }
 
+    /// `SliderTracker::GetNetworkSliders`: the tracked sliders `template` marks weenie
+    /// controlled, in retail iteration order.
+    pub fn network_sliders(&self, template: &crate::Ac2CharTemplate) -> Vec<u32> {
+        self.sliders
+            .iter()
+            .map(|(slider, _)| slider)
+            .filter(|&slider| template.is_network_slider(slider))
+            .collect()
+    }
+
     /// Every slider and its current value, in retail iteration order.
     pub fn values(&self) -> Vec<(u32, f32)> {
         self.sliders

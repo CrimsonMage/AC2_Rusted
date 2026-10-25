@@ -12,6 +12,8 @@ mod anim_pose;
 mod anim_real_data_tests;
 mod anim_rep;
 mod body;
+#[cfg(test)]
+mod body_anim_tests;
 mod bsp;
 mod cells;
 mod envcell;
@@ -69,11 +71,11 @@ pub use loader_anim::load_body_animation;
 pub use los::{LosParameters, Ray, RayIntersection};
 pub use motion_interp::MotionInterp;
 pub use moveto::{
-    MoveToResult, MovementParameters, MOVE_TO_AWAY, MOVE_TO_MOVE, MOVE_TO_OBJECT,
-    MOVE_TO_PERSISTENT, MOVE_TO_TURN, MOVE_TO_USE_CYLINDERS,
+    MoveToResult, MovementParameters, PackedMovementParameters, MOVE_TO_AWAY, MOVE_TO_MOVE,
+    MOVE_TO_OBJECT, MOVE_TO_PERSISTENT, MOVE_TO_TURN, MOVE_TO_USE_CYLINDERS,
 };
 pub use objects::{BBox, ObjectShape, StaticObject};
-pub use physics_obj::BodyShape;
+pub use physics_obj::{BodyShape, DescSlider};
 pub use physics_obj_place::{SetPositionError, FORCE_SPF, SLIDE_SPF};
 pub use position::Position;
 pub use shapes::cylsphere::CylSphere;

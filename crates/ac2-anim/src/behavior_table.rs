@@ -298,12 +298,19 @@ pub const AC2_BEHAVIOR_ACTION: u64 = 0x1;
 pub const AC2_BEHAVIOR_HOLD: u64 = 0x2;
 pub const AC2_BEHAVIOR_DYNAMIC_FP_CAMERA: u64 = 0x4;
 
-/// `CharTemplate` (`CharacterTemplate_AnimSysID`): every behaviour's flags, and the default element
-/// and mode. `CharTemplate::StreamPack`: identity, `behaviors` (`PHashTable<ulong, Behavior>`,
-/// 64-bit flags), `sliders` and `modes`, the defaults, `userControlledSliders`.
+/// `Slider::Controller`: who moves a slider.
+pub const AC2_SLIDER_CLIENT_CONTROLLED: u32 = 0;
+pub const AC2_SLIDER_WEENIE_CONTROLLED: u32 = 1;
+
+/// `CharTemplate` (`CharacterTemplate_AnimSysID`): every behaviour's flags, every slider's
+/// controller, and the default element and mode. `CharTemplate::StreamPack`: identity,
+/// `behaviors` (`PHashTable<ulong, Behavior>`, 64-bit flags), `sliders` (`PHashTable<ulong,
+/// Slider>`) and `modes`, the defaults, `userControlledSliders`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ac2CharTemplate {
     pub behaviors: HashMap<u32, u64>,
+    /// `Slider::controller` by slider id.
+    pub sliders: HashMap<u32, u32>,
     pub default_element: u32,
     pub default_mode: u32,
 }
@@ -312,6 +319,16 @@ impl Ac2CharTemplate {
     /// `CharTemplate::GetBehavior`: the behaviour's flags, when it is defined.
     pub fn behavior(&self, id: u32) -> Option<u64> {
         self.behaviors.get(&id).copied()
+    }
+
+    /// `CharTemplate::IsUserControlled`: the slider is defined and client controlled.
+    pub fn is_user_controlled(&self, slider: u32) -> bool {
+        self.sliders.get(&slider) == Some(&AC2_SLIDER_CLIENT_CONTROLLED)
+    }
+
+    /// The test `SliderTracker::GetNetworkSliders` makes: the slider is weenie controlled.
+    pub fn is_network_slider(&self, slider: u32) -> bool {
+        self.sliders.get(&slider) == Some(&AC2_SLIDER_WEENIE_CONTROLLED)
     }
 }
 
@@ -326,12 +343,15 @@ fn decode_template(cursor: &mut ArchiveCursor<'_>, did: u32) -> Result<Ac2CharTe
         let high = u64::from(word(cursor)?);
         behaviors.insert(key, low | high << 32);
     }
-    // `Slider` (controller enum, 4 bytes) and `Mode` (`isCombat`, 4 bytes).
-    for _ in 0..2 {
-        for _ in 0..count(cursor, 0xFFFF, 8)? {
-            word(cursor)?;
-            word(cursor)?;
-        }
+    // `Slider` (controller enum, 4 bytes), then `Mode` (`isCombat`, 4 bytes).
+    let mut sliders = HashMap::new();
+    for _ in 0..count(cursor, 0xFFFF, 8)? {
+        let key = word(cursor)?;
+        sliders.insert(key, word(cursor)?);
+    }
+    for _ in 0..count(cursor, 0xFFFF, 8)? {
+        word(cursor)?;
+        word(cursor)?;
     }
     let default_element = word(cursor)?;
     let default_mode = word(cursor)?;
@@ -343,6 +363,7 @@ fn decode_template(cursor: &mut ArchiveCursor<'_>, did: u32) -> Result<Ac2CharTe
     }
     Ok(Ac2CharTemplate {
         behaviors,
+        sliders,
         default_element,
         default_mode,
     })
@@ -367,7 +388,7 @@ impl ResourcePackedDecode for Ac2CharTemplate {
     }
 
     fn cache_retained_bytes(&self) -> usize {
-        std::mem::size_of::<Self>() + self.behaviors.len() * 12
+        std::mem::size_of::<Self>() + self.behaviors.len() * 12 + self.sliders.len() * 8
     }
 }
 

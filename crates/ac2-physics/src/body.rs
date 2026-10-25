@@ -3,10 +3,7 @@
 
 use std::sync::Arc;
 
-use ac2_anim::{Ac2AnimEvent, Ac2BehaviorParams};
 use ac2_world::Ac2MotionInterpDesc;
-
-use crate::anim_rep::BodyAnimation;
 
 use crate::fpu::{ld, st};
 use crate::heading::Heading;
@@ -169,7 +166,8 @@ pub struct MovementState {
     pub turn_to_degrees: f32,
 }
 
-/// One moving body (the player): position, shape, motion interpreter and physics state.
+/// One moving body (the player or another object): position, shape, motion interpreter,
+/// animation and physics state.
 #[derive(Debug, Clone)]
 pub struct PhysicsBody {
     object: PhysicsObj,
@@ -387,8 +385,10 @@ impl PhysicsBody {
         }
     }
 
-    /// `CMotionInterp::InterruptMoveTo`.
+    /// `CPhysicsObj::InterruptMoveTo` -> `PHYSICSOBJREP::InterruptMoveTo`: the behaviours a
+    /// move-to cancels stop, then `CMotionInterp::InterruptMoveTo`.
     pub fn interrupt_move_to(&mut self) {
+        self.object.stop_move_to_cancels_behaviors();
         self.object.interrupt_move_to();
     }
 
@@ -430,62 +430,6 @@ impl PhysicsBody {
         self.object.jump_logic()
     }
 
-    /// Animate the body with its behaviour table (`PHYSICSOBJREP::SetupModeTracker`): element
-    /// and mode changes then wait for the animation's mode transitions, and `update_movement`
-    /// starts and stops the movement behaviours.
-    pub fn set_animation(&mut self, animation: BodyAnimation) {
-        self.object.set_animation(animation, true);
-    }
-
-    /// One animation step (`CPhysicsObj::UpdateAnimation`), at the steps an
-    /// [`AnimationClock`] gives.
-    pub fn update_animation(&mut self, quantum: f32) {
-        self.object.update_animation(quantum);
-    }
-
-    /// `CPhysicsObj::DoBehavior` (a weenie or server behaviour).
-    pub fn do_behavior(&mut self, params: &Ac2BehaviorParams) -> bool {
-        self.object
-            .anim
-            .with_modes(|modes, source| modes.do_behavior(params, source))
-    }
-
-    /// `CPhysicsObj::StopBehavior`.
-    pub fn stop_behavior(&mut self, behavior: u32) {
-        self.object
-            .anim
-            .with_modes(|modes, source| modes.stop_behavior(behavior, source));
-    }
-
-    /// `PHYSICSOBJREP::GetElement`: the element the animation has reached.
-    pub fn current_element(&self) -> u32 {
-        self.object.current_element()
-    }
-
-    /// `PHYSICSOBJREP::IsDoingBehavior`.
-    pub fn is_doing_behavior(&self, behavior: u32) -> bool {
-        self.object.anim.modes.is_doing_behavior(behavior)
-    }
-
-    /// The body's bones posed by the last animation step, in model space (relative to the
-    /// body's frame, AC axes); the Setup rest pose before the first step, empty without a
-    /// Setup. Part `i` of the Setup is drawn with bone `i`'s transform.
-    pub fn posed_parts(&self) -> Vec<ac2_anim::Ac2Transform> {
-        self.object.posed_parts()
-    }
-
-    /// The body's bones relative to their parents (`CPartArray::m_boneTransforms`), what the
-    /// renderer builds the bone and deform matrices from (`CPartArray::UpdateBones`); empty
-    /// without a Setup.
-    pub fn bone_transforms(&self) -> Vec<ac2_anim::Ac2Transform> {
-        self.object.bone_transforms()
-    }
-
-    /// The behaviour callbacks and FX the animation raised since the last call, in order.
-    pub fn take_animation_events(&mut self) -> Vec<Ac2AnimEvent> {
-        self.object.take_animation_events()
-    }
-
     pub fn movement_state(&self) -> MovementState {
         let o = &self.object;
         let frame = o.position.frame;
@@ -519,6 +463,9 @@ impl PhysicsBody {
         self.object.velocity = Vector::new(velocity[0], velocity[1], velocity[2]);
     }
 }
+
+#[path = "body_anim.rs"]
+mod anim;
 
 #[cfg(test)]
 mod tests {

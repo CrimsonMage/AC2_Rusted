@@ -104,6 +104,12 @@ pub(crate) struct PhysicsObj {
     pub shape: BodyShape,
     /// `CSetup::m_physics_containment_radius` of the body's spheres (unscaled).
     pub setup_containment: f32,
+    /// `m_fViewDistance` (`UpdateViewerDistance`: the camera's distance to the body) and
+    /// `m_fMinVisibleDistance` (written by the draw), which degrade the animation update rate.
+    pub view_distance: f32,
+    pub min_visible_distance: f32,
+    /// `m_dLastAnimationUpdateTime`: `Timer::local_time` of the last animation update frame.
+    pub last_animation_update_time: f64,
 }
 
 impl PhysicsObj {
@@ -147,6 +153,9 @@ impl PhysicsObj {
             setup_containment: ObjectShape::new(Vec::new(), Vec::new(), shape.spheres.clone())
                 .containment_radius,
             shape,
+            view_distance: 1.0,
+            min_visible_distance: f32::MAX,
+            last_animation_update_time: 0.0,
         }
     }
 
@@ -526,3 +535,8 @@ impl PhysicsObj {
 
 #[path = "physics_obj_forces.rs"]
 mod forces;
+
+#[path = "physics_obj_anim.rs"]
+mod anim;
+
+pub use anim::DescSlider;

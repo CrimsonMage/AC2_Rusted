@@ -195,6 +195,7 @@ pub(crate) fn body_animation() -> crate::anim_rep::BodyAnimation {
     };
     let template = Ac2CharTemplate {
         behaviors: HashMap::from([(idle, 0), (0x4000_0003, 0), (mv, 0)]),
+        sliders: HashMap::new(),
         default_element: ELEMENT_GROUND,
         default_mode: MODE_DEFAULT,
     };
@@ -258,9 +259,25 @@ pub(crate) fn body_at(x: f32, y: f32, z: f32) -> PhysicsBody {
         (ELEMENT_GROUND, walking_values()),
         (ELEMENT_AIR, values_air),
     ]);
-    PhysicsBody::new(
+    let mut body = PhysicsBody::new(
         Position::new(cell, Frame::new(Vector::new(x, y, z), Quaternion::IDENTITY)),
         shape(),
         Some(desc),
-    )
+    );
+    body.set_player(true);
+    body
+}
+
+thread_local! {
+    /// The test thread's `Timer::local_time`, advanced by [`animate`].
+    static LOCAL_TIME: std::cell::Cell<f64> = const { std::cell::Cell::new(1.0) };
+}
+
+/// One animation step of `quantum` seconds on the test thread's local clock.
+pub(crate) fn animate(body: &mut PhysicsBody, quantum: f32) {
+    let now = LOCAL_TIME.with(|time| {
+        time.set(time.get() + f64::from(quantum));
+        time.get()
+    });
+    body.update_animation(quantum, now);
 }
