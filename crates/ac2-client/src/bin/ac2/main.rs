@@ -382,7 +382,7 @@ fn run(args: Args) -> Result<(), String> {
         }
         None => None,
     };
-    let session = OnlineSession::connect(OnlineConfig {
+    let mut session = OnlineSession::connect(OnlineConfig {
         server: args.server.parse().map_err(|e| format!("--server: {e}"))?,
         account: args.account,
         credential: Credential::Account,
@@ -393,6 +393,12 @@ fn run(args: Args) -> Result<(), String> {
         dat_iterations: ac2_weenie::dat_iterations(&dataset)?,
     })
     .map_err(|e| e.to_string())?;
+    // The string tables chat and usage lines name (`StringInfo::SetTableEnum`), by DID.
+    let script_data = ac2_script::data::DatScriptData::new(
+        Arc::clone(&dataset),
+        ac2_db::ResourceStore::new(Arc::clone(&dataset)),
+    );
+    session.set_string_tables(ac2_client::string_table_ids(&script_data));
     let mut client = Client::new(session, Arc::new(dat_world));
     // Enter the world before opening the window.
     let deadline = Instant::now() + Duration::from_secs(60);

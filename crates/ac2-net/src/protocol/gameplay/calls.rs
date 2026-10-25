@@ -143,6 +143,17 @@ pub const CALLS: &[CallSpec] = &[
     call(0x8203_0030, ToClient, "WM_Allegiance 0x30", "CPlayer 0x134", &[Word]),
     call(0x8203_0033, ToClient, "WM_Allegiance 0x33", "CPlayer 0x24 -> AllegianceSystem 0x4E", &[Word, Word, LongInt]),
     call(0x8203_0053, ToClient, "WM_Allegiance 0x53", "CPlayer 0x186", &[Word, Word]),
+    // Inventory (`WM_Inventory`, package 0x20E; the moves, equips, contents and equipment
+    // are typed `ScriptRequest`s / `ScriptMessage`s).
+    call(0x820E_0068, ToServer, "WM_Inventory 0x69", "LootAllFromContainer (CInventorySystem 0x1C: an InvTakeAllDesc)", &[Reference]),
+    call(0x820E_006C, ToServer, "WM_Inventory 0x6E", "TransmuteAllFromContainer (CInventorySystem 0x21)", &[Reference]),
+    call(0x820E_0058, ToClient, "WM_Inventory 0x58", "CContainer 0x2 (RecvCEvt_DiscreteDestroyContainedItem)", &[LongInt]),
+    call(0x820E_005C, ToClient, "WM_Inventory 0x5C", "CContainer 0xA (RecvCEvt_DestroyContainedItem)", &[LongInt, LongInt]),
+    call(0x820E_005D, ToClient, "WM_Inventory 0x5D", "CPlayer 0x8C -> CInventorySystem 0xF", &[Word, Word, Word, LongInt]),
+    call(0x820E_0060, ToClient, "WM_Inventory 0x60", "CPlayer 0x21 -> CInventorySystem 0x1B (CloseContainer_Done)", &[Word, LongInt]),
+    call(0x820E_006A, ToClient, "WM_Inventory 0x6A", "CPlayer 0x14F -> CInventorySystem 0x1D", &[Word]),
+    call(0x820E_006D, ToClient, "WM_Inventory 0x6D", "CPlayer 0x159 -> CInventorySystem 0x20", &[Word]),
+    call(0x820E_0070, ToClient, "WM_Inventory 0x70", "CPlayer 0x20D", &[]),
 ];
 
 /// The layout of `function`, if it is one of [`CALLS`].

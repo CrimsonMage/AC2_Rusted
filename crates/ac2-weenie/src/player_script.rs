@@ -16,6 +16,7 @@ use ac2_net::protocol::{
 
 use crate::chat;
 use crate::qualities::WeenieQualities;
+use crate::tables::StringTableIds;
 use crate::usage;
 use crate::vitals::{self, PlayerVitals};
 
@@ -49,6 +50,16 @@ pub enum GameplayNotice {
     /// `CCliSendToRoomResult::HandleSendToRoomResult` (`gmCWInterface::Result_SendToRoom`):
     /// the chat server's answer to the room message with this context id.
     SendToRoomResult { context: u32, result: u32 },
+    /// `CM_Inventory::SendNotice_UpdateContainer`: `container`'s contents changed (`code`
+    /// 0x40000001 refreshes all of them).
+    UpdateContainer {
+        container: u64,
+        code: u32,
+        item: u64,
+        slot: i32,
+    },
+    /// `CM_Inventory::SendNotice_UpdateInventory`: the equipment changed (0x40000001: all).
+    UpdateInventory { code: u32, item: u64, location: u32 },
     /// `CUsageSystem` 0x2: a use failed with `error` (the message it looks up by error code
     /// is not mirrored).
     UsageError { error: u32, item: u64, target: u64 },
@@ -87,6 +98,8 @@ pub struct PlayerScript {
     show_pk_damage: bool,
     /// The vitals the script last raised (what `gmVitalsUI` shows).
     vitals: PlayerVitals,
+    /// The string tables its lines name.
+    tables: StringTableIds,
 }
 
 impl Default for PlayerScript {
@@ -100,6 +113,7 @@ impl Default for PlayerScript {
             profiles: HashMap::new(),
             show_pk_damage: false,
             vitals: PlayerVitals::default(),
+            tables: StringTableIds::default(),
         }
     }
 }
@@ -127,6 +141,15 @@ impl PlayerScript {
 
     pub fn is_examining(&self) -> bool {
         self.examining
+    }
+
+    /// The string tables the lines the script builds name (`SetStringIDandTableEnum`).
+    pub fn set_string_tables(&mut self, tables: StringTableIds) {
+        self.tables = tables;
+    }
+
+    pub fn string_tables(&self) -> &StringTableIds {
+        &self.tables
     }
 
     /// The vitals the script last raised.
@@ -285,17 +308,25 @@ impl PlayerScript {
                 speaker_name,
                 speaker,
                 ..
-            } => out
-                .notices
-                .push(chat::hear_speech(text, speaker_name, speaker, player)),
+            } => out.notices.push(chat::hear_speech(
+                text,
+                speaker_name,
+                speaker,
+                player,
+                &self.tables,
+            )),
             ScriptMessage::HearTell {
                 kind,
                 text,
                 teller_name,
                 teller,
-            } => out
-                .notices
-                .push(chat::hear_tell(kind, text, teller_name, teller)),
+            } => out.notices.push(chat::hear_tell(
+                kind,
+                text,
+                teller_name,
+                teller,
+                &self.tables,
+            )),
             ScriptMessage::DisplayStringInfo { text, kind, .. } => out
                 .notices
                 .push(GameplayNotice::DisplayStringInfo { kind, text }),
@@ -334,6 +365,13 @@ impl PlayerScript {
                 item,
                 target,
             }),
+            // The inventory's messages go to the session's `InventoryState`.
+            ScriptMessage::ContainerContents(_)
+            | ScriptMessage::Equipment(_)
+            | ScriptMessage::MoveItemDone(_)
+            | ScriptMessage::ReorganizeContentsDone(_)
+            | ScriptMessage::EquipItemDone(_)
+            | ScriptMessage::UnequipItemDone(_) => {}
             // `CExaminationSystem` 0x2: kept on the examined object's weenie, then shown.
             ScriptMessage::ExaminationProfile(profile) => {
                 if matches!(

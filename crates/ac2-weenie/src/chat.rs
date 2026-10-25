@@ -6,11 +6,8 @@
 use ac2_net::protocol::{ScriptRequest, StringInfo, StringVariable};
 
 use crate::player_script::GameplayNotice;
+use crate::tables::{StringTableIds, TABLE_ENUM_COMMUNICATION, TABLE_ENUM_TELL};
 
-/// String table `0x41000004` (the communication strings).
-const TABLE_COMMUNICATION: u32 = 0x4100_0004;
-/// String table `0x41000001`.
-const TABLE_TELL: u32 = 0x4100_0001;
 /// "You say ..." (`CCommunicationSystem` 0x6, the speaker is the player).
 const STRING_YOU_SAY: u32 = 0xD85E_9379;
 /// "... says ..." (another speaker).
@@ -60,9 +57,10 @@ pub fn hear_speech(
     speaker_name: StringInfo,
     speaker: u64,
     player: u64,
+    tables: &StringTableIds,
 ) -> GameplayNotice {
     let mut line = StringInfo {
-        table_id: TABLE_COMMUNICATION,
+        table_id: tables.did(TABLE_ENUM_COMMUNICATION),
         ..StringInfo::default()
     };
     line.variables.push(nested(VAR_TEXT, text));
@@ -88,14 +86,19 @@ pub fn hear_tell(
     text: StringInfo,
     teller_name: StringInfo,
     teller: u64,
+    tables: &StringTableIds,
 ) -> GameplayNotice {
     let (table_id, string_id, display) = match kind {
         0x4000_0001..=0x4000_0003 => (
-            TABLE_TELL,
+            tables.did(TABLE_ENUM_TELL),
             STRING_TELLS[(kind - 0x4000_0001) as usize],
             DISPLAY_TELL | DISPLAY_TELL_KIND,
         ),
-        _ => (TABLE_COMMUNICATION, STRING_TELL_OTHER, DISPLAY_TELL),
+        _ => (
+            tables.did(TABLE_ENUM_COMMUNICATION),
+            STRING_TELL_OTHER,
+            DISPLAY_TELL,
+        ),
     };
     let line = StringInfo {
         string_id,
@@ -140,6 +143,13 @@ mod tests {
         literal(s.into())
     }
 
+    fn tables() -> StringTableIds {
+        let mut t = StringTableIds::default();
+        t.insert(TABLE_ENUM_TELL, 0x2500_0001);
+        t.insert(TABLE_ENUM_COMMUNICATION, 0x2500_0004);
+        t
+    }
+
     #[test]
     fn iids_format_as_four_hex_words() {
         assert_eq!(to_iid(0x8000_0002_0000_0042), "8000:0002:0000:0042");
@@ -148,16 +158,16 @@ mod tests {
     #[test]
     fn speech_names_the_speaker_unless_it_is_the_player() {
         let GameplayNotice::DisplayStringInfo { kind, text: line } =
-            hear_speech(text("hi"), text("Birch"), 9, 1)
+            hear_speech(text("hi"), text("Birch"), 9, 1, &tables())
         else {
             panic!();
         };
         assert_eq!(kind, DISPLAY_SPEECH);
-        assert_eq!((line.table_id, line.string_id), (0x4100_0004, 0xCF6B_AF4F));
+        assert_eq!((line.table_id, line.string_id), (0x2500_0004, 0xCF6B_AF4F));
         let ids: Vec<u32> = line.variables.iter().map(|(id, _)| *id).collect();
         assert_eq!(ids, [VAR_TEXT, VAR_IID, VAR_NAME]);
         let GameplayNotice::DisplayStringInfo { text: own, .. } =
-            hear_speech(text("hi"), text("Explorer"), 1, 1)
+            hear_speech(text("hi"), text("Explorer"), 1, 1, &tables())
         else {
             panic!();
         };
@@ -168,18 +178,22 @@ mod tests {
     #[test]
     fn tells_pick_their_string_by_kind() {
         let GameplayNotice::DisplayStringInfo { kind, text: line } =
-            hear_tell(0x4000_0002, text("psst"), text("Birch"), 9)
+            hear_tell(0x4000_0002, text("psst"), text("Birch"), 9, &tables())
         else {
             panic!();
         };
         assert_eq!(kind, 32 | 0x2_0000);
-        assert_eq!((line.table_id, line.string_id), (0x4100_0001, 0xF520_6FA9));
-        let GameplayNotice::DisplayStringInfo { kind, text: line } =
-            hear_tell(0, text("psst"), text("Birch"), 9)
-        else {
+        assert_eq!((line.table_id, line.string_id), (0x2500_0001, 0xF520_6FA9));
+        let GameplayNotice::DisplayStringInfo { kind, text: line } = hear_tell(
+            0,
+            text("psst"),
+            text("Birch"),
+            9,
+            &StringTableIds::default(),
+        ) else {
             panic!();
         };
-        assert_eq!((kind, line.string_id), (32, 0x980B_A847));
+        assert_eq!((kind, line.string_id, line.table_id), (32, 0x980B_A847, 0));
         assert_eq!(say(""), None);
         assert_eq!(tell("Someone@Elsewhere", "hi"), None);
     }

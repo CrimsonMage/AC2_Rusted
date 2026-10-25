@@ -5,9 +5,10 @@
 use std::collections::HashMap;
 
 use ac2_net::protocol::{
-    script_broadcast, script_function, ChatMessage, ChatPacket, ChatRequest, ChatResponse,
-    ExaminationProfile, ExaminationRequest, PackValue, QualityUpdate, RoomChat, ScriptCall,
-    ScriptMessage, ScriptRequest, SelectionInfo, StringInfo,
+    pack_id_list, script_broadcast, script_function, ChatMessage, ChatPacket, ChatRequest,
+    ChatResponse, ContainerContents, Equipment, ExaminationProfile, ExaminationRequest,
+    InstanceIdWithStamp, PackValue, QualityUpdate, RoomChat, ScriptCall, ScriptMessage,
+    ScriptRequest, SelectionInfo, StringInfo,
 };
 
 use crate::{State, PLAYER};
@@ -26,6 +27,10 @@ pub struct ScriptWorld {
     pub usage_error: u32,
     /// The message a use comes back with, in place of the client's.
     pub usage_message: Option<StringInfo>,
+    /// Containers' contents: packs and items (`WM_Inventory` 0x53).
+    pub contents: std::collections::BTreeMap<u64, (Vec<u64>, Vec<u64>)>,
+    /// The player's equipment by location (`WM_Inventory` 0x5F).
+    pub equipped: Vec<(u32, u64)>,
 }
 
 impl State {
@@ -111,6 +116,39 @@ impl State {
                 }
             }
             ScriptRequest::Emote(_) => {}
+            ScriptRequest::MoveItem(desc) | ScriptRequest::ReorganizeContents(desc) => {
+                let mut desc = desc.clone();
+                let slot = self.inventory_move(desc.item(), desc.target(), desc.target_slot());
+                desc.set_status(0);
+                desc.set_actual_target_slot(slot);
+                let done = match request {
+                    ScriptRequest::MoveItem(_) => ScriptMessage::MoveItemDone(desc),
+                    _ => ScriptMessage::ReorganizeContentsDone(desc),
+                };
+                self.send_script(&done);
+            }
+            ScriptRequest::EquipItem(desc) => {
+                self.inventory_move(desc.item(), 0, -1);
+                let world = &mut self.script_world;
+                world
+                    .equipped
+                    .retain(|(l, i)| *l != desc.location() && *i != desc.item());
+                world.equipped.push((desc.location(), desc.item()));
+                self.send_script(&ScriptMessage::EquipItemDone(desc.clone()));
+            }
+            ScriptRequest::UnequipItem(desc) => {
+                self.script_world
+                    .equipped
+                    .retain(|(_, i)| *i != desc.item());
+                self.inventory_move(desc.item(), desc.container(), desc.slot());
+                self.send_script(&ScriptMessage::UnequipItemDone(desc.clone()));
+            }
+            ScriptRequest::OpenContainer(id) => {
+                if self.script_world.contents.contains_key(id) {
+                    self.send_contents(*id);
+                }
+            }
+            ScriptRequest::CloseContainer(_) => {}
             // `WM_Usage` 0x22: the desc comes back with the outcome the test configured.
             ScriptRequest::Use(desc) => {
                 let mut desc = desc.clone();
@@ -185,6 +223,56 @@ impl State {
     /// Queues a script call the client's codecs have no message for, from its packed values.
     pub fn send_script_call(&mut self, function: u32, arguments: &[PackValue]) {
         self.send_event(&script_broadcast(function, arguments));
+    }
+
+    /// Moves `item` out of whichever container holds it and, when `target` is a known
+    /// container, into it at `slot` (-1 or past the end: last); returns the slot it took.
+    fn inventory_move(&mut self, item: u64, target: u64, slot: i32) -> i32 {
+        let world = &mut self.script_world;
+        let mut is_pack = false;
+        for (packs, items) in world.contents.values_mut() {
+            is_pack |= packs.contains(&item);
+            packs.retain(|i| *i != item);
+            items.retain(|i| *i != item);
+        }
+        let Some((packs, items)) = world.contents.get_mut(&target) else {
+            return -1;
+        };
+        let list = if is_pack { packs } else { items };
+        let at = usize::try_from(slot).map_or(list.len(), |s| s.min(list.len()));
+        list.insert(at, item);
+        at as i32
+    }
+
+    /// Queues `container`'s contents (`WM_Inventory` 0x53): to the player as a broadcast, to
+    /// another container as a cell event for that object.
+    pub fn send_contents(&mut self, container: u64) {
+        let (packs, items) = self
+            .script_world
+            .contents
+            .get(&container)
+            .cloned()
+            .unwrap_or_default();
+        let message = ScriptMessage::ContainerContents(ContainerContents {
+            segments: pack_id_list(&[]),
+            packs,
+            items,
+        });
+        if container == PLAYER {
+            self.send_script(&message);
+        } else {
+            self.send_event(&message.to_cell(InstanceIdWithStamp {
+                id: container,
+                instance: 1,
+                other: 0,
+            }));
+        }
+    }
+
+    /// Queues the player's equipment (`WM_Inventory` 0x5F).
+    pub fn send_equipment(&mut self) {
+        let equipment = Equipment::from_locations(&self.script_world.equipped);
+        self.send_script(&ScriptMessage::Equipment(equipment));
     }
 
     /// Queues a quality update (`ECM_Qualities::SendEvt_Update*_Private` / `_Visual`).

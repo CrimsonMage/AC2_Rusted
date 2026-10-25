@@ -50,6 +50,40 @@ pub mod function {
     /// S->C, `WM_Usage` 0x23 -> `CPlayer` 0x67 -> `CUsageSystem` 0x2: a use failed (the error,
     /// the target, the item).
     pub const USAGE_ERROR: u32 = 0x8216_0023;
+    /// C->S, `WM_Inventory` stub 0x57 (`CInventorySystem` 0x12, `DirectiveMoveItem`): an
+    /// `InvMoveDesc`.
+    pub const MOVE_ITEM: u32 = 0x820E_0036;
+    /// C->S, `WM_Inventory` stub 0x5A (`CInventorySystem` 0x19, a move within the player's own
+    /// pack): an `InvMoveDesc`.
+    pub const REORGANIZE_CONTENTS: u32 = 0x820E_0049;
+    /// C->S, `WM_Inventory` stub 0x59 (`CInventorySystem` 0x16, `DirectiveEquipItem`): an
+    /// `InvEquipDesc`.
+    pub const EQUIP_ITEM: u32 = 0x820E_004F;
+    /// C->S, `WM_Inventory` stub 0x5B (`CInventorySystem` 0xA, `DirectiveUnEquipItem`): an
+    /// `InvEquipDesc`.
+    pub const UNEQUIP_ITEM: u32 = 0x820E_0015;
+    /// C->S, `WM_Inventory` stub 0x52 (`CInventorySystem` 0x11, from `CContainer` 0x9): open a
+    /// container (long int).
+    pub const OPEN_CONTAINER: u32 = 0x820E_000C;
+    /// C->S, `WM_Inventory` stub 0x54 (`CInventorySystem` 0x18, from `CContainer` 0x3): close a
+    /// container (long int).
+    pub const CLOSE_CONTAINER: u32 = 0x820E_0047;
+    /// S->C, `WM_Inventory` 0x53 -> `CPlayer` 0x37 -> `CInventorySystem` 0x1A: a container's
+    /// contents (segments, packs, items).
+    pub const CONTAINER_CONTENTS: u32 = 0x820E_0053;
+    /// S->C, `WM_Inventory` 0x5F -> `CPlayer` 0x6F -> `CInventorySystem` 0x6: the equipment.
+    pub const EQUIPMENT: u32 = 0x820E_005F;
+    /// S->C, `WM_Inventory` 0x5E -> `CPlayer` 0xE5 -> `CInventorySystem` 0x2
+    /// (`MoveItem_Done`): the move's `InvMoveDesc` back.
+    pub const MOVE_ITEM_DONE: u32 = 0x820E_005E;
+    /// S->C, `WM_Inventory` 0x55 -> `CPlayer` 0x11E -> `CInventorySystem` 0xE
+    /// (`ReorganizeContents_Done`).
+    pub const REORGANIZE_CONTENTS_DONE: u32 = 0x820E_0055;
+    /// S->C, `WM_Inventory` 0x51 -> `CPlayer` 0xC8 -> `CInventorySystem` 0xC (`EquipItem_Done`).
+    pub const EQUIP_ITEM_DONE: u32 = 0x820E_0051;
+    /// S->C, `WM_Inventory` 0x56 -> `CPlayer` 0x7B -> `CInventorySystem` 0x14
+    /// (`UnEquipItem_Done`).
+    pub const UNEQUIP_ITEM_DONE: u32 = 0x820E_0056;
     /// S->C, `WM_Player` 0x2C -> `CPlayer` 0x34: `SelectionInfo`, then the object (long int).
     pub const UPDATE_SELECTION_INFO: u32 = 0x8212_002C;
     /// S->C, `WM_Examination` 0x9 -> `CPlayer` 0xDA -> `CExaminationSystem` 0x2:
@@ -100,6 +134,14 @@ impl Args {
         match self.next()? {
             PackValue::LongInt(v) => Ok(v),
             _ => Err(ProtocolError::Invalid("script argument: long int")),
+        }
+    }
+
+    /// A 32-bit value: an int or a reference.
+    pub(crate) fn word(&mut self) -> Result<PackValue, ProtocolError> {
+        match self.next()? {
+            v @ (PackValue::Int(_) | PackValue::Reference(_)) => Ok(v),
+            _ => Err(ProtocolError::Invalid("script argument: word")),
         }
     }
 

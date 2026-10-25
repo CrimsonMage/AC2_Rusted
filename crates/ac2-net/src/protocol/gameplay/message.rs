@@ -1,6 +1,9 @@
 //! Server -> client script calls (`InterpCEvent`).
 
 use super::{function, literal, Args};
+use crate::protocol::inventory::{
+    id_list, pack_id_list, ContainerContents, Equipment, InvEquipDesc, InvMoveDesc,
+};
 use crate::protocol::native::{ExaminationProfile, NativeObject, SelectionInfo};
 use crate::protocol::pack::{pack_values, PackValue};
 use crate::protocol::string_info::StringInfo;
@@ -54,6 +57,18 @@ pub enum ScriptMessage {
     UsageDone(UsageDesc),
     /// [`function::USAGE_ERROR`].
     UsageError { error: u32, target: u64, item: u64 },
+    /// [`function::CONTAINER_CONTENTS`], to the container whose contents they are.
+    ContainerContents(ContainerContents),
+    /// [`function::EQUIPMENT`].
+    Equipment(Equipment),
+    /// [`function::MOVE_ITEM_DONE`].
+    MoveItemDone(InvMoveDesc),
+    /// [`function::REORGANIZE_CONTENTS_DONE`].
+    ReorganizeContentsDone(InvMoveDesc),
+    /// [`function::EQUIP_ITEM_DONE`].
+    EquipItemDone(InvEquipDesc),
+    /// [`function::UNEQUIP_ITEM_DONE`].
+    UnequipItemDone(InvEquipDesc),
 }
 
 impl ScriptMessage {
@@ -67,6 +82,12 @@ impl ScriptMessage {
             Self::HearTell { .. } => function::HEAR_TELL,
             Self::UsageDone(_) => function::USAGE_DONE,
             Self::UsageError { .. } => function::USAGE_ERROR,
+            Self::ContainerContents(_) => function::CONTAINER_CONTENTS,
+            Self::Equipment(_) => function::EQUIPMENT,
+            Self::MoveItemDone(_) => function::MOVE_ITEM_DONE,
+            Self::ReorganizeContentsDone(_) => function::REORGANIZE_CONTENTS_DONE,
+            Self::EquipItemDone(_) => function::EQUIP_ITEM_DONE,
+            Self::UnequipItemDone(_) => function::UNEQUIP_ITEM_DONE,
         }
     }
 
@@ -116,6 +137,22 @@ impl ScriptMessage {
                 PackValue::LongInt(*target),
                 PackValue::LongInt(*item),
             ],
+            Self::ContainerContents(c) => vec![
+                PackValue::Reference(c.segments.clone()),
+                PackValue::Reference(pack_id_list(&c.packs)),
+                PackValue::Reference(pack_id_list(&c.items)),
+            ],
+            Self::Equipment(e) => vec![
+                e.first.clone(),
+                PackValue::Reference(e.by_location.clone()),
+                PackValue::Reference(e.by_item.clone()),
+            ],
+            Self::MoveItemDone(d) | Self::ReorganizeContentsDone(d) => {
+                vec![PackValue::Reference(d.to_reference())]
+            }
+            Self::EquipItemDone(d) | Self::UnequipItemDone(d) => {
+                vec![PackValue::Reference(d.to_reference())]
+            }
         }
     }
 
@@ -123,6 +160,18 @@ impl ScriptMessage {
     /// `PackBuffer` (its size, then the data).
     pub fn to_broadcast(&self) -> Vec<u8> {
         broadcast(self.function(), &self.arguments())
+    }
+
+    /// The `InterpCEvent_Cell` (0x10067) body for `object`: the object, the function id, then
+    /// the `PackBuffer`.
+    pub fn to_cell(&self, object: crate::protocol::InstanceIdWithStamp) -> Vec<u8> {
+        let arguments = pack_values(&self.arguments());
+        let mut w =
+            crate::protocol::reader::Writer::event(crate::protocol::Opcode::INTERP_C_EVENT_CELL);
+        object.write(&mut w);
+        w.u32(self.function()).align().u32(arguments.len() as u32);
+        w.bytes.extend(arguments);
+        w.bytes
     }
 
     /// A known message from an `InterpCEvent`, or `None` for another function id. The client's
@@ -185,6 +234,43 @@ impl ScriptMessage {
                     target: a.long()?,
                     item: a.long()?,
                 })
+            }),
+            function::CONTAINER_CONTENTS => decode(&|a| {
+                let segments = a.reference()?;
+                let packs = id_list(&a.reference()?)?;
+                let items = id_list(&a.reference()?)?;
+                Ok(Self::ContainerContents(ContainerContents {
+                    segments,
+                    packs,
+                    items,
+                }))
+            }),
+            function::EQUIPMENT => decode(&|a| {
+                Ok(Self::Equipment(Equipment {
+                    first: a.word()?,
+                    by_location: a.reference()?,
+                    by_item: a.reference()?,
+                }))
+            }),
+            function::MOVE_ITEM_DONE => decode(&|a| {
+                Ok(Self::MoveItemDone(InvMoveDesc::from_reference(
+                    &a.reference()?,
+                )?))
+            }),
+            function::REORGANIZE_CONTENTS_DONE => decode(&|a| {
+                Ok(Self::ReorganizeContentsDone(InvMoveDesc::from_reference(
+                    &a.reference()?,
+                )?))
+            }),
+            function::EQUIP_ITEM_DONE => decode(&|a| {
+                Ok(Self::EquipItemDone(InvEquipDesc::from_reference(
+                    &a.reference()?,
+                )?))
+            }),
+            function::UNEQUIP_ITEM_DONE => decode(&|a| {
+                Ok(Self::UnequipItemDone(InvEquipDesc::from_reference(
+                    &a.reference()?,
+                )?))
             }),
             _ => return None,
         })

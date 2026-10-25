@@ -54,6 +54,10 @@ fn literal_arg(text: &str) -> Vec<u8> {
 fn say_tell_and_emote_round_trip_through_the_double() {
     let (transport, state) = double(Spawn::default());
     let mut session = OnlineSession::with_transport(config(), Box::new(transport)).unwrap();
+    // The session names its tables by DID, as the caller resolved them (a test DID here).
+    let mut tables = ac2_weenie::StringTableIds::default();
+    tables.insert(ac2_weenie::TABLE_ENUM_COMMUNICATION, 0x2500_7004);
+    session.set_string_tables(tables);
     let entry = session.wait_for_world(Duration::from_secs(10)).unwrap();
     session.poll();
     session.say("Hello there");
@@ -70,7 +74,7 @@ fn say_tell_and_emote_round_trip_through_the_double() {
     assert_eq!(lines[0].0, DISPLAY_SPEECH);
     assert_eq!(
         (lines[0].1.table_id, lines[0].1.string_id),
-        (0x4100_0004, 0xD85E_9379)
+        (0x2500_7004, 0xD85E_9379)
     );
     let StringVariable::Nested(said) = &lines[0].1.variables[0].1 else {
         panic!("{:?}", lines[0].1);

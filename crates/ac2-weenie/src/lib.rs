@@ -11,6 +11,7 @@ mod appearance;
 mod chat;
 mod ddd;
 mod destruction;
+mod inventory;
 mod movement_module;
 mod objects;
 mod ordering;
@@ -18,6 +19,7 @@ mod player_script;
 mod qualities;
 mod reporter;
 mod session;
+mod tables;
 mod usage;
 mod vitals;
 mod world;
@@ -27,6 +29,7 @@ pub use ac2_net::Credential;
 pub use appearance::{Appearance, PartGroupAppearance, GLOBAL_PART_GROUP};
 pub use chat::{to_iid, DISPLAY_SPEECH, DISPLAY_TELL};
 pub use ddd::{dat_file_id, dat_iterations};
+pub use inventory::{Contents, InventoryState, INVENTORY_REFRESH};
 pub use movement_module::{
     ActiveAction, BodyFacts, CameraState, MovementCommands, MovementModule, ACTION_ABOUT_FACE,
     ACTION_CLASS_MOVEMENT, ACTION_FORWARD, ACTION_JUMP, ACTION_STRAFE_NEGATIVE,
@@ -40,6 +43,7 @@ pub use player_script::{GameplayNotice, PlayerScript, ScriptOutput, NO_SELECTION
 pub use qualities::WeenieQualities;
 pub use reporter::{heading_equals, BodyState, PositionReporter, ReportStamps};
 pub use session::{CharacterChoice, OnlineConfig, OnlineSession, SessionEvent, WorldEntry};
+pub use tables::{StringTableIds, TABLE_ENUM_COMMUNICATION, TABLE_ENUM_TELL, TABLE_ENUM_USAGE};
 pub use usage::DISPLAY_USAGE;
 pub use vitals::{vital, PlayerVitals, Vital};
 pub use world::{World, WorldEvent, WorldState};

@@ -2,6 +2,7 @@
 
 use super::{function, literal, Args};
 use crate::protocol::client_event::ClientEvent;
+use crate::protocol::inventory::{InvEquipDesc, InvMoveDesc};
 use crate::protocol::native::{ExaminationRequest, NativeObject};
 use crate::protocol::pack::{pack_values, PackValue};
 use crate::protocol::string_info::StringInfo;
@@ -27,6 +28,18 @@ pub enum ScriptRequest {
     Emote(u32),
     /// [`function::USE`].
     Use(UsageDesc),
+    /// [`function::MOVE_ITEM`].
+    MoveItem(InvMoveDesc),
+    /// [`function::REORGANIZE_CONTENTS`].
+    ReorganizeContents(InvMoveDesc),
+    /// [`function::EQUIP_ITEM`].
+    EquipItem(InvEquipDesc),
+    /// [`function::UNEQUIP_ITEM`].
+    UnequipItem(InvEquipDesc),
+    /// [`function::OPEN_CONTAINER`].
+    OpenContainer(u64),
+    /// [`function::CLOSE_CONTAINER`].
+    CloseContainer(u64),
 }
 
 impl ScriptRequest {
@@ -38,6 +51,12 @@ impl ScriptRequest {
             Self::Tell { .. } => function::TELL,
             Self::Emote(_) => function::EMOTE,
             Self::Use(_) => function::USE,
+            Self::MoveItem(_) => function::MOVE_ITEM,
+            Self::ReorganizeContents(_) => function::REORGANIZE_CONTENTS,
+            Self::EquipItem(_) => function::EQUIP_ITEM,
+            Self::UnequipItem(_) => function::UNEQUIP_ITEM,
+            Self::OpenContainer(_) => function::OPEN_CONTAINER,
+            Self::CloseContainer(_) => function::CLOSE_CONTAINER,
         }
     }
 
@@ -58,6 +77,13 @@ impl ScriptRequest {
             } => vec![PackValue::Int(*mode), literal(text), literal(recipient)],
             Self::Emote(emote) => vec![PackValue::Int(*emote)],
             Self::Use(desc) => vec![PackValue::Reference(desc.to_reference())],
+            Self::MoveItem(desc) | Self::ReorganizeContents(desc) => {
+                vec![PackValue::Reference(desc.to_reference())]
+            }
+            Self::EquipItem(desc) | Self::UnequipItem(desc) => {
+                vec![PackValue::Reference(desc.to_reference())]
+            }
+            Self::OpenContainer(id) | Self::CloseContainer(id) => vec![PackValue::LongInt(*id)],
         }
     }
 
@@ -100,6 +126,28 @@ impl ScriptRequest {
             }),
             function::EMOTE => decode(|a| Ok(Self::Emote(a.int()?))),
             function::USE => decode(|a| Ok(Self::Use(UsageDesc::from_reference(&a.reference()?)?))),
+            function::MOVE_ITEM => decode(|a| {
+                Ok(Self::MoveItem(InvMoveDesc::from_reference(
+                    &a.reference()?,
+                )?))
+            }),
+            function::REORGANIZE_CONTENTS => decode(|a| {
+                Ok(Self::ReorganizeContents(InvMoveDesc::from_reference(
+                    &a.reference()?,
+                )?))
+            }),
+            function::EQUIP_ITEM => decode(|a| {
+                Ok(Self::EquipItem(InvEquipDesc::from_reference(
+                    &a.reference()?,
+                )?))
+            }),
+            function::UNEQUIP_ITEM => decode(|a| {
+                Ok(Self::UnequipItem(InvEquipDesc::from_reference(
+                    &a.reference()?,
+                )?))
+            }),
+            function::OPEN_CONTAINER => decode(|a| Ok(Self::OpenContainer(a.long()?))),
+            function::CLOSE_CONTAINER => decode(|a| Ok(Self::CloseContainer(a.long()?))),
             _ => return None,
         })
     }
