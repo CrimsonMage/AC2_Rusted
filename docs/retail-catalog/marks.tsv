@@ -92,6 +92,23 @@ key	status	note
 00469f60	x	ac2-script host notices -> ac2_weenie::GameplayNotice
 0046a160	x	ac2-script host notices -> ac2_weenie::GameplayNotice
 0046a2d0	x	ac2-script host notices -> ac2_weenie::GameplayNotice
+0046ae10	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+0046af20	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+0046b090	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+0046b3f0	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+0046b480	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046b6d0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046b800	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046bb90	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046bdb0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046bf10	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046c100	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046c2f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046c500	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046c750	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046c980	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046cac0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046cca0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 0046ed90	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 0046edf0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 0046ee50	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
@@ -116,7 +133,37 @@ key	status	note
 0046f710	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 0046f7c0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 0046f8e0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+00472260	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004722c0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00472320	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00472380	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004723f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00472460	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004724d0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00472560	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473990	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004739f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473a50	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473ab0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473b10	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473b70	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473bd0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473c40	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473cb0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473d30	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473da0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473e10	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473e80	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473ef0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473f60	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473fe0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00474060	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004740e0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00474180	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004741f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004742c0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00474780	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00478ce0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00479030	x	ac2-ui interpreter.rs
 00479110	x	ac2-ui interpreter.rs
 004791b0	x	ac2-ui interpreter.rs
@@ -1221,6 +1268,8 @@ key	status	note
 0054b120	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0054b190	~	ac2-script glue: f32 spill points unchecked against x87 / copy order of PHashTable operator= unverified
 0054b280	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054c960	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+0054c9d0	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 0054cc40	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 0054ccb0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 0054cd40	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
@@ -2234,9 +2283,31 @@ key	status	note
 005fe170	x	ac2-ui hud.rs
 005fe420	x	
 006000b0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+00600cb0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600cf0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600d00	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600d90	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600dc0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600e20	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600e40	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600e70	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600f10	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600f90	x	ac2-net CharGenResult::write/read
+00601020	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601090	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 006010d0	x	ac2-net CharGenResult::write/read
+00601170	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+006011f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601210	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601390	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+006013d0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601470	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601500	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 006015b0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+006016a0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601720	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601810	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601860	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00601c80	x	
 00601cd0	x	
 00601d00	x	
@@ -2264,6 +2335,7 @@ key	status	note
 0060d2d0	x	ac2_core::Random
 0060d3b0	x	ac2_core::Random
 0060d3f0	x	ac2_core::Random
+0060dbd0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 0060e3d0	~	ac2-physics ObjectShape::new: physics containment radius and box only
 006124f0	x	ac2-render object/skeleton.rs rest_matrices
 00612670	x	ac2-render object/skeleton.rs rest_matrices

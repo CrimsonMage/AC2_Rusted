@@ -1,9 +1,9 @@
 # ac2-anim: Animation system
 
-532 retail functions: 106 done, 16 partial, 374 to do, 36 skipped.
+532 retail functions: 107 done, 16 partial, 373 to do, 36 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/anim/charactersetup.cpp.c` (2/67)
+## `portal/shared/src/anim/charactersetup.cpp.c` (3/67)
 
 ### PlacementFrame
 - [ ] `PlacementFrame::Pack` · 0060d540 · legions 005ce310
@@ -23,7 +23,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CharacterSetup::SetNumCylsphere` · 0060db70
 
 ### gmCharGenResult
-- [ ] `gmCharGenResult::SetImplement` · 0060dbd0 · legions 005ce810
+- [x] `gmCharGenResult::SetImplement` · 0060dbd0 · legions 005ce810 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
 ### CharacterSetup
 - [ ] `CharacterSetup::IsBoneType` · 0060dbe0

@@ -6,6 +6,7 @@
 //! The session owns the network; it feeds [`ScriptHost::dispatch`] and sends what
 //! [`ScriptHost::take_server_calls`] returns. Arguments use ac2-net's [`PackValue`].
 
+pub mod chargen;
 mod glue;
 
 use std::collections::HashMap;

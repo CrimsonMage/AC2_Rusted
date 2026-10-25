@@ -12,6 +12,7 @@
 //! value below the last argument. Int and bool results are tagged `BOOL` (4), references `REF`.
 
 mod behavior;
+mod chargen;
 mod cparse;
 mod enums;
 mod format;
@@ -55,8 +56,10 @@ pub fn register_pure(efuns: &mut EFuns) {
     multi::register(efuns);
     position::register(efuns);
     skill_node::register(efuns);
+    chargen::register(efuns);
 }
 
+pub(crate) use chargen::empty_race_sex_info;
 pub(crate) use skill_node::empty_node as empty_skill_node;
 
 /// The retail glue function behind efun `id` (`gAAHash::CallEFun_add`).

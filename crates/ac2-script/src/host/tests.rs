@@ -124,3 +124,65 @@ fn pack_buffer_and_send_server_evt_reach_the_outbox() {
         Some(&ac2_net::protocol::NativeObject::WString("hi".into()))
     );
 }
+
+/// The `CharacterGenSystem` singleton answers the creation screens' questions from its WState.
+#[test]
+fn the_character_gen_system_answers_from_its_state() {
+    use crate::host::chargen;
+    use crate::native::CharGenResult;
+    let Some(mut host) = legions_host() else {
+        return;
+    };
+    let vm = host.vm_mut();
+    let (ret, races) = chargen::race_sex_data(vm).expect("race/sex data");
+    eprintln!("race/sex data {ret}: {races:x?} fault {:?}", vm.last_fault);
+    let (ret, infos) = chargen::race_sex_info_data(vm).expect("race/sex info");
+    eprintln!(
+        "race/sex info {ret}: {} entries, first {:x?}",
+        infos.len(),
+        infos.first()
+    );
+    let player = chargen::avatar_entity_did(vm, false);
+    let admin = chargen::avatar_entity_did(vm, true);
+    eprintln!("avatar entity DIDs: player {player:x?} admin {admin:x?}");
+    let Some((race, sexes)) = races.first().cloned() else {
+        panic!("no races");
+    };
+    let sex = sexes.first().copied().unwrap_or(0);
+    let mut cgr = CharGenResult {
+        race,
+        sex,
+        ..CharGenResult::default()
+    };
+    let r = chargen::set_defaults(vm, &mut cgr);
+    eprintln!(
+        "defaults {r:?}: {:x?} fault {:?}",
+        (
+            cgr.race,
+            cgr.sex,
+            cgr.class,
+            cgr.entity_did,
+            cgr.phys_type_values()
+        ),
+        vm.last_fault
+    );
+    let areas = chargen::valid_starting_areas(vm, cgr.race, cgr.class);
+    eprintln!("starting areas {areas:x?}");
+    if let Some((_, areas)) = &areas {
+        if let Some(area) = areas.first() {
+            eprintln!(
+                "starting position {:?}",
+                chargen::starting_position(vm, *area)
+            );
+        }
+    }
+    let phys = chargen::phys_obj(vm, race, sex);
+    eprintln!("phys obj {phys:x?}");
+    assert!(!races.is_empty());
+    let pairs: usize = races.iter().map(|(_, s)| s.len()).sum();
+    assert_eq!(infos.len(), pairs);
+    assert!(player.is_some_and(|d| d != 0) && admin.is_some_and(|d| d != 0));
+    assert_eq!(r, Some(1));
+    assert!(!cgr.phys_type_values().is_empty());
+    assert!(phys.is_some_and(|d| d != 0));
+}

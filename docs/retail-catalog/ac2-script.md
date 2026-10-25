@@ -1,9 +1,9 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1080 done, 74 partial, 1236 to do, 78 skipped.
+2468 retail functions: 1123 done, 80 partial, 1187 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
+## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
 
 ### Position
 - [ ] `Position::operator=` · 0046ad40 · legions 0046b420
@@ -12,9 +12,9 @@ Legend and workflow: [README](README.md).
 - [ ] `PHashTable<unsigned_long,unsigned_long>::~PHashTable<unsigned_long,unsigned_long>` · 0046adc0 · legions 0046b440
 
 ### gCharacterGenSystem
-- [ ] `gCharacterGenSystem::ARHashToRaceSexInfoHash` · 0046ae10 · legions 0046b570
-- [ ] `gCharacterGenSystem::RaceSexInfoHashToARHash` · 0046af20 · legions 0046b680
-- [ ] `gCharacterGenSystem::RaceSexListHashToARHash` · 0046b090 · legions 0046b7f0
+- [~] `gCharacterGenSystem::ARHashToRaceSexInfoHash` · 0046ae10 · legions 0046b570 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+- [~] `gCharacterGenSystem::RaceSexInfoHashToARHash` · 0046af20 · legions 0046b680 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+- [~] `gCharacterGenSystem::RaceSexListHashToARHash` · 0046b090 · legions 0046b7f0 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 
 ### ARHash
 - [ ] `ARHash::ARHash` · 0046b250 · legions 0046b9b0
@@ -30,21 +30,21 @@ Legend and workflow: [README](README.md).
 - [ ] `BaseHash<unsigned_long,unsigned_long,18>::UpdateData` · 0046b330
 
 ### gCharacterGenSystem
-- [ ] `gCharacterGenSystem::ARHashToRaceSexListHash` · 0046b3f0 · legions 0046bb50
-- [ ] `gCharacterGenSystem::CallIFun_FormatNameString` · 0046b480 · legions 0046bbe0
-- [ ] `gCharacterGenSystem::CallIFun_GetPhysObj` · 0046b6d0 · legions 0046be30
-- [ ] `gCharacterGenSystem::CallIFun_InqAdminAvatarEntityDID` · 0046b800 · legions 0046bf60
+- [~] `gCharacterGenSystem::ARHashToRaceSexListHash` · 0046b3f0 · legions 0046bb50 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+- [x] `gCharacterGenSystem::CallIFun_FormatNameString` · 0046b480 · legions 0046bbe0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_GetPhysObj` · 0046b6d0 · legions 0046be30 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_InqAdminAvatarEntityDID` · 0046b800 · legions 0046bf60 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [ ] `gCharacterGenSystem::CallIFun_InqAppliedAppearanceVDesc` · 0046b960 · legions 0046c0c0
-- [ ] `gCharacterGenSystem::CallIFun_InqPhysTypeLabel` · 0046bb90 · legions 0046c2f0
-- [ ] `gCharacterGenSystem::CallIFun_InqPlayerAvatarEntityDID` · 0046bdb0 · legions 0046c510
-- [ ] `gCharacterGenSystem::CallIFun_InqRaceSexData` · 0046bf10 · legions 0046c670
-- [ ] `gCharacterGenSystem::CallIFun_InqRaceSexInfoData` · 0046c100 · legions 0046c860
-- [ ] `gCharacterGenSystem::CallIFun_InqStartingPosition` · 0046c2f0 · legions 0046ca50
-- [ ] `gCharacterGenSystem::CallIFun_InqValidPhysTypeValues` · 0046c500 · legions 0046cc60
-- [ ] `gCharacterGenSystem::CallIFun_InqValidStartingAreas` · 0046c750 · legions 0046ceb0
-- [ ] `gCharacterGenSystem::CallIFun_IsValid` · 0046c980 · legions 0046d0e0
-- [ ] `gCharacterGenSystem::CallIFun_RandomizeCGR` · 0046cac0 · legions 0046d220
-- [ ] `gCharacterGenSystem::CallIFun_SetCGRDefaults` · 0046cca0 · legions 0046d400
+- [x] `gCharacterGenSystem::CallIFun_InqPhysTypeLabel` · 0046bb90 · legions 0046c2f0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_InqPlayerAvatarEntityDID` · 0046bdb0 · legions 0046c510 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_InqRaceSexData` · 0046bf10 · legions 0046c670 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_InqRaceSexInfoData` · 0046c100 · legions 0046c860 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_InqStartingPosition` · 0046c2f0 · legions 0046ca50 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_InqValidPhysTypeValues` · 0046c500 · legions 0046cc60 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_InqValidStartingAreas` · 0046c750 · legions 0046ceb0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_IsValid` · 0046c980 · legions 0046d0e0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_RandomizeCGR` · 0046cac0 · legions 0046d220 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_SetCGRDefaults` · 0046cca0 · legions 0046d400 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
 ## `ac2/shared/src/interp/glue/gcraftskilladaptor.cpp.c` (0/16)
 
@@ -66,7 +66,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCraftSkillAdaptor::CallEFun_GetDescription` · 0046e8c0
 - [ ] `gCraftSkillAdaptor::CallEFun_GetName` · 0046e970
 
-## `ac2/shared/src/interp/glue/gdamagetextblob.cpp.c` (0/9)
+## `ac2/shared/src/interp/glue/gdamagetextblob.cpp.c` (1/9)
 
 ### gDamageTextBlob
 - [ ] `gDamageTextBlob::CallEFun_SetDuration` · 00478bb0
@@ -74,7 +74,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gDamageTextBlob::CallEFun_SetScale` · 00478c80
 
 ### gmCharGenResult
-- [ ] `gmCharGenResult::SetName` · 00478ce0 · legions 005c2260
+- [x] `gmCharGenResult::SetName` · 00478ce0 · legions 005c2260 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
 ### gDamageTextBlob
 - [ ] `gDamageTextBlob::CallEFun_GetDuration` · 00478d30
@@ -248,30 +248,30 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmActInfoList::CallEFun_pop_front` · 004743f0
 - [ ] `ggmActInfoList::CallEFun_insert_sort` · 004744b0
 
-## `ac2/shared/src/interp/glue/ggmchargenresult.cpp.c` (0/21)
+## `ac2/shared/src/interp/glue/ggmchargenresult.cpp.c` (21/21)
 
 ### ggmCharGenResult
-- [ ] `ggmCharGenResult::CallEFun_Clear` · 00473990
-- [ ] `ggmCharGenResult::CallEFun_SetAdmin` · 004739f0
-- [ ] `ggmCharGenResult::CallEFun_SetName` · 00473a50
-- [ ] `ggmCharGenResult::CallEFun_SetRace` · 00473ab0
-- [ ] `ggmCharGenResult::CallEFun_SetSex` · 00473b10
-- [ ] `ggmCharGenResult::CallEFun_SetStartArea` · 00473b70
-- [ ] `ggmCharGenResult::CallEFun_GetClassType` · 00473bd0
-- [ ] `ggmCharGenResult::CallEFun_GetImplement` · 00473c40
-- [ ] `ggmCharGenResult::CallEFun_GetPhysTypeValue` · 00473cb0
-- [ ] `ggmCharGenResult::CallEFun_GetRace` · 00473d30
-- [ ] `ggmCharGenResult::CallEFun_GetSex` · 00473da0
-- [ ] `ggmCharGenResult::CallEFun_GetStartArea` · 00473e10
-- [ ] `ggmCharGenResult::CallEFun_IsAdmin` · 00473e80
-- [ ] `ggmCharGenResult::CallEFun_SanityCheck` · 00473ef0
-- [ ] `ggmCharGenResult::CallEFun_SetClassType` · 00473f60
-- [ ] `ggmCharGenResult::CallEFun_SetImplement` · 00473fe0
-- [ ] `ggmCharGenResult::CallEFun_SetPhysTypeValue` · 00474060
-- [ ] `ggmCharGenResult::CallEFun_SetStartingPosition` · 004740e0
-- [ ] `ggmCharGenResult::CallEFun_VerifyCharGenResult` · 00474180
-- [ ] `ggmCharGenResult::CallEFun_GetName` · 004741f0
-- [ ] `ggmCharGenResult::CallEFun_GetStartingPosition` · 004742c0
+- [x] `ggmCharGenResult::CallEFun_Clear` · 00473990 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetAdmin` · 004739f0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetName` · 00473a50 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetRace` · 00473ab0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetSex` · 00473b10 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetStartArea` · 00473b70 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetClassType` · 00473bd0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetImplement` · 00473c40 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetPhysTypeValue` · 00473cb0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetRace` · 00473d30 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetSex` · 00473da0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetStartArea` · 00473e10 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_IsAdmin` · 00473e80 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SanityCheck` · 00473ef0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetClassType` · 00473f60 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetImplement` · 00473fe0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetPhysTypeValue` · 00474060 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetStartingPosition` · 004740e0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_VerifyCharGenResult` · 00474180 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetName` · 004741f0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetStartingPosition` · 004742c0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
 ## `ac2/shared/src/interp/glue/ggmkeyframe.cpp.c` (0/21)
 
@@ -321,17 +321,17 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmQuestInfoList::CallEFun_UpdateQuestInfo` · 00472a00 · legions 004706c0
 - [ ] `ggmQuestInfoList::CallEFun_pop_head` · 00472ab0
 
-## `ac2/shared/src/interp/glue/ggmracesexinfo.cpp.c` (0/9)
+## `ac2/shared/src/interp/glue/ggmracesexinfo.cpp.c` (8/9)
 
 ### ggmRaceSexInfo
-- [ ] `ggmRaceSexInfo::CallEFun_SetMusic` · 00472260
-- [ ] `ggmRaceSexInfo::CallEFun_SetPhysObj` · 004722c0
-- [ ] `ggmRaceSexInfo::CallEFun_SetPileAppearance` · 00472320
-- [ ] `ggmRaceSexInfo::CallEFun_GetMusic` · 00472380
-- [ ] `ggmRaceSexInfo::CallEFun_GetPhysObj` · 004723f0
-- [ ] `ggmRaceSexInfo::CallEFun_GetPileAppearance` · 00472460
-- [ ] `ggmRaceSexInfo::CallEFun_PutObjInLoc` · 004724d0
-- [ ] `ggmRaceSexInfo::CallEFun_Verify` · 00472560
+- [x] `ggmRaceSexInfo::CallEFun_SetMusic` · 00472260 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmRaceSexInfo::CallEFun_SetPhysObj` · 004722c0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmRaceSexInfo::CallEFun_SetPileAppearance` · 00472320 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmRaceSexInfo::CallEFun_GetMusic` · 00472380 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmRaceSexInfo::CallEFun_GetPhysObj` · 004723f0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmRaceSexInfo::CallEFun_GetPileAppearance` · 00472460 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmRaceSexInfo::CallEFun_PutObjInLoc` · 004724d0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmRaceSexInfo::CallEFun_Verify` · 00472560 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [ ] `ggmRaceSexInfo::CallEFun_GetSubDataIDs` · 004725d0 · legions 004703b0
 
 ## `ac2/shared/src/interp/glue/ggmsceneinfo.cpp.c` (0/20)
@@ -1323,8 +1323,8 @@ Legend and workflow: [README](README.md).
 - [ ] `gAppearanceTableAdaptor::CallEFun_HasAppearanceKey` · 0054c920
 
 ### gCharacterGenSystem
-- [ ] `gCharacterGenSystem::ValueListToAList` · 0054c960 · legions 0046b490
-- [ ] `gCharacterGenSystem::AListToValueList` · 0054c9d0 · legions 0046b500
+- [~] `gCharacterGenSystem::ValueListToAList` · 0054c960 · legions 0046b490 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+- [~] `gCharacterGenSystem::AListToValueList` · 0054c9d0 · legions 0046b500 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 
 ### gAppearanceTableAdaptor
 - [ ] `gAppearanceTableAdaptor::CallEFun_InqAppearanceKeyModList` · 0054ca40

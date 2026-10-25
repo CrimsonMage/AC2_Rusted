@@ -5,6 +5,7 @@
 //! (`CNativeFactory::UnPackNativeObject` / `PackNativeObject`) are ac2-net's; [`crate::wire`]
 //! converts, and natives no glue edits yet stay in their wire form ([`NativeObject::Wire`]).
 
+mod chargen;
 mod containers;
 mod hash_table;
 mod multi;
@@ -13,6 +14,7 @@ mod structs;
 
 /// `Position` (cell id, origin, rotation w x y z).
 pub use ac2_net::protocol::Position;
+pub use chargen::CharGenResult;
 pub use containers::{RefKey, ScriptList};
 pub use hash_table::{
     bucket_size_index, HashNode, HashPos, NativeKeys, PlainKeys, ScriptHash, BUCKET_SIZES,
@@ -47,6 +49,7 @@ pub mod ntype {
     pub const NA_HASH: u32 = 0x4B;
     pub const NR_HASH: u32 = 0x4D;
     pub const HEADING: u32 = 0x2D;
+    pub const CHAR_GEN_RESULT: u32 = 0x9E;
     pub const PACK_BUFFER: u32 = 0x50;
     pub const POSITION: u32 = 0x5A;
     pub const RANDOM_SELECTION_TABLE_INT: u32 = 0x60;
@@ -128,6 +131,8 @@ pub enum NativeObject {
     StringInfo(StringInfo),
     /// `wpstring` (`PStringBase<unsigned short>`).
     WString(Vec<u16>),
+    /// `gmCharGenResult`.
+    CharGenResult(Box<CharGenResult>),
     /// `Heading` (degrees in [0, 360)).
     Heading(ac2_physics::Heading),
     /// `Vector` (x, y, z).
@@ -210,6 +215,10 @@ impl NativeObject {
             ntype::BEHAVIOR_PARAMS => NativeObject::BehaviorParams(Box::new(behavior_defaults())),
             ntype::PACK_BUFFER => NativeObject::PackBuffer(Default::default()),
             ntype::HEADING => NativeObject::Heading(ac2_physics::Heading::ZERO),
+            ntype::CHAR_GEN_RESULT => NativeObject::CharGenResult(Box::default()),
+            ntype::GM_RACE_SEX_INFO => NativeObject::Wire(Box::new(
+                ac2_net::protocol::NativeObject::GmRaceSexInfo(crate::glue::empty_race_sex_info()),
+            )),
             ntype::SKILL_UI_NODE => {
                 NativeObject::Wire(Box::new(ac2_net::protocol::NativeObject::SkillUiNode(
                     Box::new(crate::glue::empty_skill_node()),
