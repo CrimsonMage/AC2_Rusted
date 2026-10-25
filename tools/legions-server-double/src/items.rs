@@ -229,7 +229,7 @@ impl State {
     /// `WM_Money` 0x8 (`DragFromMoneyBag`: container, slot, quantity) takes the money and
     /// answers `WM_Money` 0x9 with no item made (the double has no coins to make); 0x7
     /// (`DragToMoneyBag`: container, slot, quantity, item) adds the quantity, takes the item
-    /// out of its container, and answers `WM_Money` 0x6.
+    /// out of its container, answers `WM_Money` 0x6 and lists the container again.
     pub(crate) fn answer_money(&mut self, function: u32, args: &[PackValue]) {
         match (function, args) {
             (
@@ -246,12 +246,16 @@ impl State {
                     ],
                 );
             }
-            (0x820F_0002, [_, _, PackValue::Int(quantity), PackValue::LongInt(item)]) => {
+            (
+                0x820F_0002,
+                [PackValue::LongInt(container), _, PackValue::Int(quantity), PackValue::LongInt(item)],
+            ) => {
                 for (_, items) in self.script_world.contents.values_mut() {
                     items.retain(|i| i != item);
                 }
                 self.give_money(*quantity as i32);
                 self.send_script_call(0x820F_0006, &[PackValue::LongInt(*item)]);
+                self.send_contents(*container);
             }
             _ => {}
         }
