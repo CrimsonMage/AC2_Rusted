@@ -176,7 +176,8 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
     );
     let mut tree = tree;
     let surfaces = tree.compose(&images);
-    assert_eq!(surfaces.len(), GAMEPLAY_ROOTS.len() + 7);
+    // The hidden roots are not drawn: of the chat windows only the first shows.
+    assert_eq!(surfaces.len(), GAMEPLAY_ROOTS.len() + 7 + 1);
     let drawn = surfaces
         .iter()
         .filter(|s| s.rgba.chunks_exact(4).any(|p| p[3] != 0))
@@ -303,4 +304,91 @@ fn the_reticle_frames_the_selection_with_its_name_above() {
         .placements()
         .iter()
         .all(|p| !corners.contains(&p.0) || !p.4));
+}
+
+#[test]
+fn the_toolbar_panels_start_hidden_and_toggle_by_side() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let GameplayHud {
+        mut tree, toolbar, ..
+    } = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let shown = |tree: &UiTree| -> Vec<ToolbarChild> {
+        ToolbarChild::ALL
+            .into_iter()
+            .filter(|&c| toolbar.shown(tree, c))
+            .collect()
+    };
+    assert!(shown(&tree).is_empty());
+    let key = |tree: &mut UiTree, action: u32| {
+        tree.start_input(action, 1.0);
+        tree.stop_input(action);
+        for message in tree.take_messages() {
+            toolbar.message(tree, &message);
+        }
+    };
+    key(&mut tree, ToolbarChild::Skill.key());
+    assert_eq!(shown(&tree), vec![ToolbarChild::Skill]);
+    // Inventory shares the right panel: skills hide. Examination is on the left.
+    key(&mut tree, ToolbarChild::Inventory.key());
+    key(&mut tree, ToolbarChild::Examination.key());
+    assert_eq!(
+        shown(&tree),
+        vec![ToolbarChild::Examination, ToolbarChild::Inventory]
+    );
+    key(&mut tree, ToolbarChild::Inventory.key());
+    assert_eq!(shown(&tree), vec![ToolbarChild::Examination]);
+}
+
+#[test]
+fn the_skill_panel_tabs_make_their_pages_and_open_one_at_a_time() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut tree = build_gameplay_hud(&store, 1024, 768).unwrap().tree;
+    let find = |tree: &UiTree, name: &str| {
+        tree.roots()
+            .iter()
+            .find_map(|&r| tree.child_recursive(r, tokenize(name)))
+    };
+    let skill_tree = find(&tree, "SkillTree").expect("the combat tab's page holds the skill tree");
+    let craft = find(&tree, "CraftTab").expect("craft tab");
+    let open = tokenize("open");
+    let tabs: Vec<usize> = tree
+        .children(tree.get(craft).unwrap().parent.unwrap())
+        .iter()
+        .copied()
+        .filter(|&c| tree.is_panel_page(c))
+        .collect();
+    assert_eq!(tabs.len(), 2);
+    let open_tabs = |tree: &UiTree| -> Vec<usize> {
+        tabs.iter()
+            .copied()
+            .filter(|&t| tree.get(t).unwrap().state() == open)
+            .collect()
+    };
+    let combat = *tabs.iter().find(|&&t| t != craft).unwrap();
+    eprintln!(
+        "open at start: {:?} (combat {combat}, craft {craft})",
+        open_tabs(&tree)
+    );
+    // The skill tree's page shows exactly when its tab is open.
+    let page_of = |tree: &UiTree, tab: usize| tree.get(tab).unwrap().page.unwrap();
+    let combat_page = page_of(&tree, combat);
+    assert_eq!(
+        tree.get(combat_page).unwrap().visible,
+        tree.get(combat).unwrap().state() == open
+    );
+    assert_eq!(tree.root_of(skill_tree), tree.root_of(combat_page));
+    // Opening the craft tab closes the combat tab and swaps the pages.
+    tree.set_state(craft, open);
+    assert_eq!(open_tabs(&tree), vec![craft]);
+    assert!(tree.get(page_of(&tree, craft)).unwrap().visible);
+    assert!(!tree.get(combat_page).unwrap().visible);
+    tree.set_state(combat, open);
+    assert_eq!(open_tabs(&tree), vec![combat]);
+    assert!(tree.get(combat_page).unwrap().visible);
 }

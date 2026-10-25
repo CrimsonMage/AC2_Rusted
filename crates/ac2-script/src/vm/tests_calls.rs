@@ -247,3 +247,65 @@ fn loading_rewrites_virtual_calls_to_static_ones() {
     assert_eq!(&program.code[5..7], &[0, 1]);
     assert_eq!(&program.code[7..9], &[op::CALL, 0x8000_0000]);
 }
+
+/// Data that is "loading" until the test says it is resident.
+struct Loading(std::rc::Rc<std::cell::Cell<bool>>, std::cell::Cell<bool>);
+
+impl ScriptData for Loading {
+    fn wstate(&self, _did: u32) -> Option<StateRef> {
+        None
+    }
+    fn enum_did(&self, _value: u32, _group: u32) -> Option<u32> {
+        if self.0.get() {
+            return Some(5);
+        }
+        self.1.set(true);
+        None
+    }
+    fn take_missed(&self) -> bool {
+        self.1.replace(false)
+    }
+}
+
+fn read_enum(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let did = vm.data().enum_did(1, 2).unwrap_or(0);
+    ctx.set_arg(2, did, tag::INT);
+    InterpStatus::Success
+}
+
+/// An efun that read data a cache-only host is still loading stops the context in its frame
+/// (`m_efun`); resuming calls it again, then the code goes on. Contexts that may not stop read
+/// through.
+#[test]
+fn an_efun_waits_for_data_and_runs_again_on_resume() {
+    let code = vec![
+        w(op::PUSHV, 2, 0),
+        w(op::PUSHV, 2, 0),
+        op::CALL_EFUN,
+        0x0065_0002,
+        w(op::POPN, 0, 1),
+        T,
+    ];
+    let loaded = std::rc::Rc::new(std::cell::Cell::new(false));
+    let data = Loading(loaded.clone(), std::cell::Cell::new(false));
+    let program = Program::from_parts(code, Vec::new(), Vec::new());
+    let mut efuns = EFuns::new();
+    efuns.register(0x0065_0002, read_enum);
+    let mut vm = Vm::new(Arc::new(program), Box::new(data), efuns);
+
+    let mut ctx = Context::new(1, None);
+    ctx.enter(0).unwrap();
+    assert_eq!(vm.execute(&mut ctx), InterpStatus::Terminated);
+    assert_eq!(ctx.data[0], 0);
+
+    let mut ctx = Context::new(2, None);
+    ctx.can_yield = true;
+    ctx.enter(0).unwrap();
+    assert_eq!(vm.execute(&mut ctx), InterpStatus::Interrupted);
+    assert!(ctx.data_wait);
+    assert_eq!(ctx.efun, 0x0065_0002);
+    assert_eq!(vm.execute(&mut ctx), InterpStatus::Interrupted);
+    loaded.set(true);
+    assert_eq!(vm.execute(&mut ctx), InterpStatus::Terminated);
+    assert_eq!((ctx.sp, ctx.data[0], ctx.efun), (1, 5, 0));
+}

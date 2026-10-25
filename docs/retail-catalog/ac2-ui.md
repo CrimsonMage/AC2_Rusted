@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 141 done, 93 partial, 1996 to do, 17 skipped.
+2247 retail functions: 186 done, 113 partial, 1932 to do, 16 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -1016,10 +1016,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmChatUI::Show` · 00435b80 · legions 00436410
 - [~] `gmChatUI::ListenToMessage` · 00435bc0 · legions 00436450 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
-## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (0/14)
+## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (1/14)
 
 ### gmExaminationUI
-- [ ] `gmExaminationUI::RecvNotice_OpenExaminationPanel` · 00430810
+- [x] `gmExaminationUI::RecvNotice_OpenExaminationPanel` · 00430810 — ac2-ui toolbar.rs
 
 ### gmMiniFellowUI
 - [ ] `gmMiniFellowUI::RecvNotice_BeingDeleted` · 00430820
@@ -1031,7 +1031,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmExaminationUI::ProcessEffectIDNode` · 00430a50 · legions 004308e0
 - [ ] `gmExaminationUI::~gmExaminationUI` · 00430ad0 · legions 004317b0
 - [ ] `gmExaminationUI::Update` · 00430b60 · legions 004312c0
-- [ ] `gmExaminationUI::Show` · 00430c00 · legions 00431880
+- [~] `gmExaminationUI::Show` · 00430c00 · legions 00431880 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 - [ ] `gmExaminationUI::ListenToMessage` · 00430c80
 - [ ] `gmExaminationUI::RecvNotice_ExaminationRequestChanged` · 00430d80
 - [ ] `gmExaminationUI::ProcessNode` · 00430db0 · legions 00430ae0
@@ -1161,7 +1161,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmShortcutUI::RecvNotice_ReloadShortcuts` · 004387f0
 - [ ] `gmShortcutUI::RecvNotice_ReloadOptions` · 00438830 · legions 00439080
 
-## `ac2/client/src/ui/gameplay/toolbar/gmtoolbarui.cpp.c` (0/16)
+## `ac2/client/src/ui/gameplay/toolbar/gmtoolbarui.cpp.c` (1/16)
 
 ### PlayingSoundContext
 - [ ] `PlayingSoundContext::PlayingSoundContext` · 00421ec0 · legions 006b07e0
@@ -1172,10 +1172,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmToolbarUI::RecvNotice_ShowSaleReminder` · 00421fe0
 - [ ] `gmToolbarUI::RecvNotice_UpdateMountState` · 00422080 · legions 00421ec0
 - [ ] `gmToolbarUI::Show` · 004220d0 · legions 00421f10
-- [ ] `gmToolbarUI::ManageChildren` · 00422160 · legions 00421fa0
-- [ ] `gmToolbarUI::ChildKeyPress` · 00422230 · legions 00422070
-- [ ] `gmToolbarUI::ListenToMessage` · 00422270 · legions 004220b0
-- [ ] `gmToolbarUI::ListenToMessage` · 00422300 · legions 00422140
+- [~] `gmToolbarUI::ManageChildren` · 00422160 · legions 00421fa0 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [x] `gmToolbarUI::ChildKeyPress` · 00422230 · legions 00422070 — ac2-ui toolbar.rs
+- [~] `gmToolbarUI::ListenToMessage` · 00422270 · legions 004220b0 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [~] `gmToolbarUI::ListenToMessage` · 00422300 · legions 00422140 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 
 ### List<unsigned_long>
 - [ ] `List<unsigned_long>::operator=` · 00422360 · legions 0040d980
@@ -1184,7 +1184,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ListNode<ToolbarChildInfo>::ListNode<ToolbarChildInfo>` · 00422400 · legions 004221d0
 
 ### gmToolbarUI
-- [ ] `gmToolbarUI::SetupChildren` · 00422550 · legions 00422320
+- [~] `gmToolbarUI::SetupChildren` · 00422550 · legions 00422320 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 - [ ] `gmToolbarUI::CleanupChildren` · 00422f00 · legions 00422cd0
 - [~] `gmToolbarUI::gmToolbarUI` · 00422f80 · legions 00422d50 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [ ] `gmToolbarUI::~gmToolbarUI` · 00423120 · legions 00422ef0
@@ -1418,13 +1418,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gmJournalQuestsUI::~gmJournalQuestsUI` · 0043f130 · legions 0043f9e0
 - [ ] `gmJournalQuestsUI::RecvNotice_UpdateQuests` · 0043f1e0
 
-## `ac2/client/src/ui/gameplay/toolbar/quest/gmquestsui.cpp.c` (0/4)
+## `ac2/client/src/ui/gameplay/toolbar/quest/gmquestsui.cpp.c` (1/4)
 
 ### gmQuestsUI
-- [ ] `gmQuestsUI::Show` · 004342d0 · legions 00434aa0
-- [ ] `gmQuestsUI::ListenToMessage` · 00434330 · legions 00434b00
+- [~] `gmQuestsUI::Show` · 004342d0 · legions 00434aa0 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [x] `gmQuestsUI::ListenToMessage` · 00434330 · legions 00434b00 — ac2-ui toolbar.rs
 - [ ] `gmQuestsUI::SetActivePanel` · 00434390 · legions 00434b60
-- [ ] `gmQuestsUI::gmQuestsUI` · 004343c0 · legions 00434b90
+- [~] `gmQuestsUI::gmQuestsUI` · 004343c0 · legions 00434b90 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 
 ## `ac2/client/src/ui/gameplay/toolbar/quest/gmstoryquestsui.cpp.c` (0/11)
 
@@ -1471,54 +1471,54 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCraftUI::RecvNotice_UpdateCraftPanel` · 0044ab60
 - [ ] `gmCraftUI::ListenToMessage` · 0044ab70 · legions 0044b7d0
 
-## `ac2/client/src/ui/gameplay/toolbar/skill/gmskilltreeui.cpp.c` (0/26)
+## `ac2/client/src/ui/gameplay/toolbar/skill/gmskilltreeui.cpp.c` (11/26)
 
 ### gmSkillTreeUI
-- [ ] `gmSkillTreeUI::MakeUntrainCancelDialog` · 00447550 · legions 00448090
-- [ ] `gmSkillTreeUI::MakeTrainDialog` · 004475b0 · legions 004480f0
-- [ ] `gmSkillTreeUI::MakeLevelText` · 00447610 · legions 00448150
-- [ ] `gmSkillTreeUI::SelectNode` · 00447700 · legions 00448240
+- [~] `gmSkillTreeUI::MakeUntrainCancelDialog` · 00447550 · legions 00448090 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [~] `gmSkillTreeUI::MakeTrainDialog` · 004475b0 · legions 004480f0 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::MakeLevelText` · 00447610 · legions 00448150 — ac2-ui skill_tree.rs
+- [x] `gmSkillTreeUI::SelectNode` · 00447700 · legions 00448240 — ac2-ui skill_tree.rs
 - [ ] `gmSkillTreeUI::Show` · 00447760 · legions 004482a0
 - [ ] `gmSkillTreeUI::RecvNotice_CloseConfirmationDialog` · 004477c0 · legions 00448300
-- [ ] `gmSkillTreeUI::SetStringAndTruncate` · 00447890 · legions 004483d0
+- [~] `gmSkillTreeUI::SetStringAndTruncate` · 00447890 · legions 004483d0 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 
 ### HashIterator<unsigned_long,BaseList<unsigned_long,11>_>
 - [ ] `HashIterator<unsigned_long,BaseList<unsigned_long,11>_>::operator++` · 004478f0 · legions 0062aa70
 
 ### gmSkillTreeUI
-- [ ] `gmSkillTreeUI::UpdateSelectedSkillDisplay` · 00447930 · legions 00448450
-- [ ] `gmSkillTreeUI::RefreshSkillNode` · 00447d50 · legions 00448870
-- [ ] `gmSkillTreeUI::FastRefreshSkillNode` · 00448040 · legions 00448bd0
-- [ ] `gmSkillTreeUI::HandleElement` · 00448110 · legions 00448ca0
-- [ ] `gmSkillTreeUI::RecvNotice_UpdateSkillPanel` · 00448250
-- [ ] `gmSkillTreeUI::SelectSkill` · 00448310 · legions 00448eb0
-- [ ] `gmSkillTreeUI::MakeUntrainDialog` · 00448430 · legions 00448fd0
-- [ ] `gmSkillTreeUI::ClearSelectedInfo` · 004484c0 · legions 00449060
-- [ ] `gmSkillTreeUI::ListenToMessage` · 00448630 · legions 00449230
-- [ ] `gmSkillTreeUI::InitElements` · 00448810 · legions 004496b0
+- [~] `gmSkillTreeUI::UpdateSelectedSkillDisplay` · 00447930 · legions 00448450 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [~] `gmSkillTreeUI::RefreshSkillNode` · 00447d50 · legions 00448870 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::FastRefreshSkillNode` · 00448040 · legions 00448bd0 — ac2-ui skill_tree.rs
+- [x] `gmSkillTreeUI::HandleElement` · 00448110 · legions 00448ca0 — ac2-ui skill_tree.rs
+- [x] `gmSkillTreeUI::RecvNotice_UpdateSkillPanel` · 00448250 — ac2-ui skill_tree.rs
+- [x] `gmSkillTreeUI::SelectSkill` · 00448310 · legions 00448eb0 — ac2-ui skill_tree.rs
+- [~] `gmSkillTreeUI::MakeUntrainDialog` · 00448430 · legions 00448fd0 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::ClearSelectedInfo` · 004484c0 · legions 00449060 — ac2-ui skill_tree.rs
+- [~] `gmSkillTreeUI::ListenToMessage` · 00448630 · legions 00449230 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::InitElements` · 00448810 · legions 004496b0 — ac2-ui skill_tree.rs
 
 ### SkillUINode
 - [ ] `SkillUINode::~SkillUINode` · 00448860 · legions 00449140
 
 ### gmSkillTreeUI
-- [ ] `gmSkillTreeUI::RecvNotice_UpdateSkill` · 004488c0
-- [ ] `gmSkillTreeUI::AddNode` · 004489c0 · legions 00449550
-- [-] `gmSkillTreeUI::LoadPanel` · 00448c70 — text source loader, admin build only
-- [ ] `gmSkillTreeUI::RecvNotice_ExaminationRequestChanged` · 00448e50
+- [x] `gmSkillTreeUI::RecvNotice_UpdateSkill` · 004488c0 — ac2-ui skill_tree.rs
+- [x] `gmSkillTreeUI::AddNode` · 004489c0 · legions 00449550 — ac2-ui skill_tree.rs
+- [~] `gmSkillTreeUI::LoadPanel` · 00448c70 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::RecvNotice_ExaminationRequestChanged` · 00448e50 — ac2-ui skill_tree.rs
 
 ### PHashTable<unsigned_long,SkillUINode>
 - [ ] `PHashTable<unsigned_long,SkillUINode>::StreamPack` · 00448eb0 · legions 00449ae0
 
 ### gmSkillTreeUI
-- [ ] `gmSkillTreeUI::gmSkillTreeUI` · 00449110 · legions 00449d40
+- [~] `gmSkillTreeUI::gmSkillTreeUI` · 00449110 · legions 00449d40 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 - [ ] `gmSkillTreeUI::~gmSkillTreeUI` · 00449370 · legions 00449fc0
 
 ## `ac2/client/src/ui/gameplay/toolbar/skill/gmskillui.cpp.c` (0/3)
 
 ### gmSkillUI
-- [ ] `gmSkillUI::Show` · 00435000 · legions 004357d0
-- [ ] `gmSkillUI::ListenToMessage` · 00435030 · legions 00435800
-- [ ] `gmSkillUI::gmSkillUI` · 00435090 · legions 00435860
+- [~] `gmSkillUI::Show` · 00435000 · legions 004357d0 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [~] `gmSkillUI::ListenToMessage` · 00435030 · legions 00435800 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [~] `gmSkillUI::gmSkillUI` · 00435090 · legions 00435860 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 
 ## `ac2/client/src/ui/gameplay/toolbar/social/gmallegianceui.cpp.c` (0/20)
 
@@ -2696,16 +2696,16 @@ Legend and workflow: [README](README.md).
 - [ ] `UIPersistantData::InqGenerationResultTable` · 005fe4c0
 - [ ] `UIPersistantData::UIPersistantData` · 005fe640 · legions 005bf120
 
-## `portal/client/src/uielement/prim/node.cpp.c` (0/7)
+## `portal/client/src/uielement/prim/node.cpp.c` (7/7)
 
 ### UIElement_Node
-- [ ] `UIElement_Node::GetToken` · 00735760 · legions 006b1460
-- [ ] `UIElement_Node::GetConnection` · 00735770 · legions 006b1470
-- [ ] `UIElement_Node::GetChildLines` · 007358c0 · legions 006b1560
-- [ ] `UIElement_Node::UIElement_Node` · 00735a60 · legions 006b1700
-- [ ] `UIElement_Node::~UIElement_Node` · 00735a90 · legions 006b1730
-- [ ] `UIElement_Node::AddParent` · 00735c00 · legions 006b18a0
-- [ ] `UIElement_Node::AddChild` · 00735c30 · legions 006b18d0
+- [x] `UIElement_Node::GetToken` · 00735760 · legions 006b1460 — ac2-ui tree_view.rs
+- [x] `UIElement_Node::GetConnection` · 00735770 · legions 006b1470 — ac2-ui tree_view.rs
+- [x] `UIElement_Node::GetChildLines` · 007358c0 · legions 006b1560 — ac2-ui tree_view.rs
+- [x] `UIElement_Node::UIElement_Node` · 00735a60 · legions 006b1700 — ac2-ui tree_view.rs
+- [x] `UIElement_Node::~UIElement_Node` · 00735a90 · legions 006b1730 — ac2-ui tree_view.rs
+- [x] `UIElement_Node::AddParent` · 00735c00 · legions 006b18a0 — ac2-ui tree_view.rs
+- [x] `UIElement_Node::AddChild` · 00735c30 · legions 006b18d0 — ac2-ui tree_view.rs
 
 ## `portal/client/src/uielement/prim/uiregion.cpp.c` (5/31)
 
@@ -2738,7 +2738,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIRegion::ClearImage` · 005e2d30 · legions 005a3af0
 - [x] `UIRegion::MoveTo` · 005e2da0 · legions 005a3b60 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [x] `UIRegion::ResizeTo` · 005e2e70 · legions 005a3c30 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [~] `UIRegion::DrawHere` · 005e2f50 · legions 005a3d10 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [~] `UIRegion::DrawHere` · 005e2f50 · legions 005a3d10 — A8R8G8B8 only; colour key and format conversion not modelled
 - [ ] `UIRegion::~UIRegion` · 005e3140 · legions 005a3f00
 - [ ] `UIRegion::MouseOver` · 005e31e0 · legions 005a3fa0
 - [ ] `UIRegion::MouseOverTop` · 005e31f0 · legions 005a3fb0
@@ -2746,7 +2746,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [ ] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180
 
-## `portal/client/src/uielement/system/uielement.cpp.c` (23/104)
+## `portal/client/src/uielement/system/uielement.cpp.c` (24/104)
 
 ### UIRectangleObject
 - [ ] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790
@@ -2830,7 +2830,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::GetAttribute_Unicode` · 005ea180 · legions 005aad50
 - [x] `UIElement::MouseDown` · 005ea220 · legions 005aadf0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [x] `UIElement::ResetMedia` · 005ea2c0 · legions 005aae90 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [~] `UIElement::SetImage` · 005ea430 · legions 005ab000 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [x] `UIElement::SetImage` · 005ea430 · legions 005ab000 — ac2-ui compose.rs / element.rs set_image
 - [x] `UIElement::AddAttributesFromDesc` · 005ea510 · legions 005ab0e0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::MatchAttributes` · 005ea5c0 · legions 005ab190
 - [ ] `UIElement::DragItem` · 005eab10 · legions 005ab6e0
@@ -3334,27 +3334,27 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Meter::Create` · 005f53d0
 - [ ] `UIElement_Meter::Register` · 005f5400 · legions 005b5f30
 
-## `portal/client/src/uielement/types/uielement_panel.cpp.c` (0/6)
+## `portal/client/src/uielement/types/uielement_panel.cpp.c` (2/6)
 
 ### UIElement_Panel
 - [ ] `UIElement_Panel::~UIElement_Panel` · 005f89a0 · legions 005b94d0
 - [ ] `UIElement_Panel::Create` · 005f8a30
 - [ ] `UIElement_Panel::SetAttribute_Bool` · 005f8a60 · legions 005b9590
-- [ ] `UIElement_Panel::Initialized` · 005f8a70 · legions 005b95a0
-- [ ] `UIElement_Panel::ListenToMessage` · 005f8ae0 · legions 005b9610
+- [x] `UIElement_Panel::Initialized` · 005f8a70 · legions 005b95a0 — ac2-ui panel.rs
+- [x] `UIElement_Panel::ListenToMessage` · 005f8ae0 · legions 005b9610 — ac2-ui panel.rs
 - [ ] `UIElement_Panel::Register` · 005f8b60 · legions 005b9690
 
-## `portal/client/src/uielement/types/uielement_panelpage.cpp.c` (0/9)
+## `portal/client/src/uielement/types/uielement_panelpage.cpp.c` (5/9)
 
 ### UIElement_PanelPage
 - [ ] `UIElement_PanelPage::Create` · 005f8660
-- [ ] `UIElement_PanelPage::Initialized` · 005f86a0 · legions 005b91d0
-- [ ] `UIElement_PanelPage::SetState` · 005f8760 · legions 005b9290
-- [ ] `UIElement_PanelPage::MouseDown` · 005f87e0 · legions 005b9310
-- [ ] `UIElement_PanelPage::MouseOverTop` · 005f8830 · legions 005b9360
+- [x] `UIElement_PanelPage::Initialized` · 005f86a0 · legions 005b91d0 — ac2-ui panel.rs
+- [x] `UIElement_PanelPage::SetState` · 005f8760 · legions 005b9290 — ac2-ui panel.rs
+- [x] `UIElement_PanelPage::MouseDown` · 005f87e0 · legions 005b9310 — ac2-ui panel.rs
+- [x] `UIElement_PanelPage::MouseOverTop` · 005f8830 · legions 005b9360 — ac2-ui panel.rs
 - [ ] `UIElement_PanelPage::Activate` · 005f8890 · legions 005b93c0
 - [ ] `UIElement_PanelPage::Deactivate` · 005f88d0 · legions 005b9400
-- [ ] `UIElement_PanelPage::StartUseActive` · 005f8910 · legions 005b9440
+- [x] `UIElement_PanelPage::StartUseActive` · 005f8910 · legions 005b9440 — ac2-ui panel.rs
 - [ ] `UIElement_PanelPage::Register` · 005f8980 · legions 005b94b0
 
 ## `portal/client/src/uielement/types/uielement_resizebar.cpp.c` (0/8)
@@ -3401,11 +3401,11 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Scrollbar::ListenToMessage` · 005fb400 · legions 005bbf30
 - [ ] `UIElement_Scrollbar::Register` · 005fb4c0 · legions 005bbff0
 
-## `portal/client/src/uielement/types/uielement_tree.cpp.c` (0/39)
+## `portal/client/src/uielement/types/uielement_tree.cpp.c` (16/39)
 
 ### UIElement_Tree
-- [ ] `UIElement_Tree::CalculatePaperDimen` · 005f5d90 · legions 005b68c0
-- [ ] `UIElement_Tree::MultiOpStart` · 005f5e20 · legions 005b6950
+- [x] `UIElement_Tree::CalculatePaperDimen` · 005f5d90 · legions 005b68c0 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::MultiOpStart` · 005f5e20 · legions 005b6950 — ac2-ui tree_view.rs
 - [ ] `UIElement_Tree::DrawMeBotToTop` · 005f5e30 · legions 005b6960
 - [ ] `UIElement_Tree::GetPercentageV` · 005f5e50 · legions 005b6980
 - [ ] `UIElement_Tree::GetPercentageH` · 005f5ee0 · legions 005b6a10
@@ -3417,27 +3417,27 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Tree::VerticalLineIncrement` · 005f6100 · legions 005b6c30
 - [ ] `UIElement_Tree::HorizontalLineDecrement` · 005f6150 · legions 005b6c80
 - [ ] `UIElement_Tree::HorizontalLineIncrement` · 005f6190 · legions 005b6cc0
-- [ ] `UIElement_Tree::End` · 005f61e0 · legions 005b6d10
-- [ ] `UIElement_Tree::DrawLine` · 005f6270 · legions 005b6da0
-- [ ] `UIElement_Tree::GetNodeInGrid` · 005f6410 · legions 005b6f40
-- [ ] `UIElement_Tree::StaticLayoutUpdate` · 005f6450 · legions 005b6f80
-- [ ] `UIElement_Tree::GridLayoutUpdate` · 005f6500 · legions 005b7030
+- [x] `UIElement_Tree::End` · 005f61e0 · legions 005b6d10 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::DrawLine` · 005f6270 · legions 005b6da0 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::GetNodeInGrid` · 005f6410 · legions 005b6f40 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::StaticLayoutUpdate` · 005f6450 · legions 005b6f80 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::GridLayoutUpdate` · 005f6500 · legions 005b7030 — ac2-ui tree_view.rs
 - [ ] `UIElement_Tree::UpdateControls` · 005f65f0 · legions 005b7120
 - [ ] `UIElement_Tree::ListenToMessage` · 005f6a50 · legions 005b7580
-- [ ] `UIElement_Tree::DrawDone` · 005f6d10 · legions 005b7840
-- [ ] `UIElement_Tree::GetItem` · 005f6f50 · legions 005b7a80
+- [x] `UIElement_Tree::DrawDone` · 005f6d10 · legions 005b7840 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::GetItem` · 005f6f50 · legions 005b7a80 — ac2-ui tree_view.rs
 - [ ] `UIElement_Tree::SetAttribute_ID` · 005f6f70 · legions 005b7aa0
-- [ ] `UIElement_Tree::AddGridNode` · 005f70d0 · legions 005b7c00
-- [ ] `UIElement_Tree::IsOccupied` · 005f71f0 · legions 005b7d20
-- [ ] `UIElement_Tree::UpdateLayout` · 005f7220 · legions 005b7d50
+- [x] `UIElement_Tree::AddGridNode` · 005f70d0 · legions 005b7c00 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::IsOccupied` · 005f71f0 · legions 005b7d20 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::UpdateLayout` · 005f7220 · legions 005b7d50 — ac2-ui tree_view.rs
 - [ ] `UIElement_Tree::SetSelectedItem` · 005f73e0 · legions 005b7f10
-- [ ] `UIElement_Tree::SetItemsParent` · 005f74f0 · legions 005b8020
-- [ ] `UIElement_Tree::MultiOpComplete` · 005f7590 · legions 005b80c0
-- [ ] `UIElement_Tree::AddItem` · 005f75c0 · legions 005b80f0
-- [ ] `UIElement_Tree::FlushTree` · 005f76e0 · legions 005b8210
+- [x] `UIElement_Tree::SetItemsParent` · 005f74f0 · legions 005b8020 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::MultiOpComplete` · 005f7590 · legions 005b80c0 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::AddItem` · 005f75c0 · legions 005b80f0 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::FlushTree` · 005f76e0 · legions 005b8210 — ac2-ui tree_view.rs
 - [ ] `UIElement_Tree::~UIElement_Tree` · 005f7830 · legions 005b8360
-- [ ] `UIElement_Tree::SetAttribute_Bool` · 005f7b40 · legions 005b8670
-- [ ] `UIElement_Tree::SetAttribute_Int` · 005f7b90 · legions 005b86c0
+- [~] `UIElement_Tree::SetAttribute_Bool` · 005f7b40 · legions 005b8670 — ac2-ui tree_view.rs: view via tree_end/flush only
+- [~] `UIElement_Tree::SetAttribute_Int` · 005f7b90 · legions 005b86c0 — ac2-ui tree_view.rs: view via tree_end/flush only
 - [ ] `UIElement_Tree::MouseDown` · 005f7c50 · legions 005b8780
 - [ ] `UIElement_Tree::SetState` · 005f7dd0 · legions 005b8900
 - [ ] `UIElement_Tree::UIElement_Tree` · 005f7f30 · legions 005b8a60

@@ -215,8 +215,8 @@ fn the_client_walks_with_w_and_draws_its_character() {
     );
     assert_eq!(
         view.hud_layers(),
-        14,
-        "every HUD root (and the reticle's objects) is drawn"
+        15,
+        "every HUD root (and the reticle's objects and the first chat window) is drawn"
     );
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
@@ -273,6 +273,43 @@ fn the_client_walks_with_w_and_draws_its_character() {
     target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
     write_png(
         "client_cb4d_selected.png",
+        &target.read_rgba(&gpu.device, &gpu.queue),
+    );
+
+    // Enter opens the first chat window's entry line, typing fills it and Enter sends it
+    // (`ChatWindow::HandleEnterKey` / `ProcessCommand`).
+    let enter = |view: &mut ClientView| {
+        let modifiers = ac2_ui::Modifiers::default();
+        view.ui_input(
+            &[(0x4000_0018, 1.0, true), (0x4000_0018, 0.0, false)],
+            modifiers,
+        );
+    };
+    assert!(!view.text_mode());
+    enter(&mut view);
+    assert!(view.text_mode(), "the entry line takes typing");
+    let typed: Vec<(u16, u32)> = "well met".encode_utf16().map(|c| (c, 0)).collect();
+    view.text_input(&[], &typed, ac2_ui::Modifiers::default());
+    enter(&mut view);
+    assert!(!view.text_mode());
+    assert_eq!(
+        view.take_chat_requests(),
+        vec![ac2_ui::ChatRequest::Line("well met".into())]
+    );
+    // The toolbar panels start hidden; the skills key shows its panel.
+    assert!(!view.panel_shown(ac2_ui::ToolbarChild::Skill));
+    view.ui_input(
+        &[(0x4100_0006, 1.0, true), (0x4100_0006, 0.0, false)],
+        ac2_ui::Modifiers::default(),
+    );
+    assert!(view.panel_shown(ac2_ui::ToolbarChild::Skill));
+    // A displayed line reaches the log on the next update; the window shows it.
+    view.chat_display(0x4_0000, "Explorer says, \"well met\"\n");
+    view.update(&gpu, &frame, Duration::ZERO);
+    assert!(view.prepare(&gpu, &frame, aspect, 0.0));
+    target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
+    write_png(
+        "client_cb4d_chat.png",
         &target.read_rgba(&gpu.device, &gpu.queue),
     );
 }

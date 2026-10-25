@@ -10,6 +10,7 @@ use crate::native::{ntype, NativeObject, ScriptList};
 use crate::vm::{tag, Context, EFuns, InterpStatus, ScriptData, Vm};
 
 pub(super) fn register(efuns: &mut EFuns) {
+    efuns.register(0x005E_0001, wsl_add_to_end);
     efuns.register(0x0023_0001, inq_string);
     efuns.register(0x0023_0002, get_string_w);
     efuns.register(0x0023_0003, inq_enum);
@@ -268,5 +269,29 @@ fn get_data_id_from_entity_name_w(vm: &mut Vm, ctx: &mut Context) -> InterpStatu
         .unwrap_or_default();
     let did = vm.data().file_did(&name, 0x4000_0049).unwrap_or(0);
     Call::new(ctx).ret(3, did, INT_RESULT);
+    InterpStatus::Success
+}
+
+/// `QualifiedDataIDArray::AddToEnd(did, 0)`: a non-zero DID joins the set with its
+/// `MasterDBMap::DivineType`; whether it was new.
+pub(super) fn add_data_id(vm: &mut Vm, set: u32, did: u32) -> bool {
+    if did == 0 {
+        return false;
+    }
+    let kind = vm.data().db_type(did).unwrap_or(0);
+    match vm.native_mut(set) {
+        Some(NativeObject::DataIds(ids)) => ids.insert((kind, did)),
+        _ => false,
+    }
+}
+
+/// `gQualifiedDataIDArray::CallEFun_WslAddToEnd(did)`.
+fn wsl_add_to_end(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let this = Call::new(ctx).this();
+    if !matches!(vm.native(this), Some(NativeObject::DataIds(_))) {
+        return vm.bad_this(this);
+    }
+    let added = add_data_id(vm, this, super::word(ctx, 2));
+    Call::new(ctx).ret(3, u32::from(added), INT_RESULT);
     InterpStatus::Success
 }

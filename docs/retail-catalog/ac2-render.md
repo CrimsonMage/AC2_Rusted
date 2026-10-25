@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 42 done, 27 partial, 699 to do, 13 skipped.
+781 retail functions: 43 done, 27 partial, 698 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -291,7 +291,7 @@ Legend and workflow: [README](README.md).
 - [-] `RenderSurface::LoadFromFile` · 005b2170 — text source loader, admin build only
 - [ ] `RenderSurface::Unlock` · 005b2370 · legions 0057d9f0
 
-## `portal/client/src/render/core/surface/surfacewindow.cpp.c` (0/25)
+## `portal/client/src/render/core/surface/surfacewindow.cpp.c` (1/25)
 
 ### SurfaceWindow
 - [ ] `SurfaceWindow::End` · 005aed30 · legions 0057a7b0
@@ -319,12 +319,12 @@ Legend and workflow: [README](README.md).
 
 ### SurfaceWindow
 - [ ] `SurfaceWindow::Unlock` · 005af950 · legions 0057b490
-- [~] `SurfaceWindow::Blit` · 005af9c0 · legions 0057b500 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [~] `SurfaceWindow::Blit` · 005af9c0 · legions 0057b500 — A8R8G8B8 only; colour key and format conversion not modelled
 - [ ] `SurfaceWindow::Multiply` · 005b00a0 · legions 0057bbd0
 - [ ] `SurfaceWindow::Fill` · 005b0350 · legions 0057be70
 - [ ] `SurfaceWindow::FillArea` · 005b0530 · legions 0057c050
 - [ ] `SurfaceWindow::FillArea` · 005b05e0 · legions 0057c100
-- [ ] `SurfaceWindow::DrawLine` · 005b0620 · legions 0057c140
+- [x] `SurfaceWindow::DrawLine` · 005b0620 · legions 0057c140 — ac2-ui tree_view.rs
 - [ ] `SurfaceWindow::DrawBox` · 005b0910
 - [ ] `SurfaceWindow::DrawTextA` · 005b09a0 · legions 0057c430
 - [ ] `SurfaceWindow::NotColorBits` · 005b0b40 · legions 0057c5c0

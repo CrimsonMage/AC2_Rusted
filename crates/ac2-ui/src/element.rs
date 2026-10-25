@@ -85,9 +85,15 @@ pub struct UiElement {
     pub(crate) visible: bool,
     pub(crate) image: Option<UiImage>,
     pub(crate) alpha_image: Option<u32>,
+    /// `m_alphaValue` (-1 until `SetImage` sets it): the constant alpha of value-alpha images.
+    pub(crate) alpha_value: f32,
     pub(crate) attributes: HashMap<u32, AttributeValue>,
     /// `UIElement_Text`'s state, for text elements.
     pub(crate) text: Option<Box<TextState>>,
+    /// `UIElement_PanelPage::page`: the tab's content.
+    pub(crate) page: Option<usize>,
+    /// `UIElement_Tree`'s state, once items are added.
+    pub(crate) tree: Option<Box<crate::tree_view::TreeState>>,
     /// `m_mouseOver`, `m_mouseOverTop`, `m_mouseVisible` and the buttons pressed on the element
     /// (`m_mouseDownTable`).
     pub(crate) mouse_over: bool,
@@ -272,6 +278,7 @@ impl UiTree {
     pub fn create_root(&mut self, layout: Arc<LayoutDesc>, element_id: u32) -> Option<usize> {
         let reference = Arc::clone(layout.element(element_id)?);
         let index = self.create_element(layout, reference, true)?;
+        self.initialize_panel_pages(index);
         self.set_bool(index, ROOT_MOVER, true);
         self.update_size_and_position(index);
         self.add_root(index);
@@ -292,7 +299,7 @@ impl UiTree {
     }
 
     /// Frees an element and its descendants (`AddElementToDeleteQueue`).
-    fn delete(&mut self, index: usize) {
+    pub(crate) fn delete(&mut self, index: usize) {
         let children = std::mem::take(&mut self.el_mut(index).children);
         for child in children {
             self.delete(child);
@@ -332,8 +339,11 @@ impl UiTree {
             visible: false,
             image: None,
             alpha_image: None,
+            alpha_value: -1.0,
             attributes: HashMap::new(),
             text,
+            tree: None,
+            page: None,
             mouse_over: false,
             mouse_over_top: false,
             mouse_visible: true,
@@ -505,6 +515,9 @@ impl UiTree {
                 }
             }
         }
+        if self.is_panel_page(index) {
+            self.panel_page_state(index, state);
+        }
     }
 
     /// `UIElement::ResetMedia`: the media of the current state, else the stateless state's, else
@@ -537,6 +550,21 @@ impl UiTree {
     }
 
     /// `UIElement::UpdateMedia` at the run's start: media in order until one waits.
+    /// `UIElement::SetImage`: the image and, while unset, `m_alphaValue` from `alpha_value`
+    /// (retail reads the attribute into the draw mode's own slot, so without the attribute the
+    /// value becomes the draw mode's bits as a float: no alpha).
+    pub(crate) fn set_image(&mut self, index: usize, file: u32, draw_mode: u32) {
+        let alpha = match self.el(index).attributes.get(&crate::token::ALPHA_VALUE) {
+            Some(AttributeValue::Float(value)) => *value,
+            _ => f32::from_bits(draw_mode),
+        };
+        let el = self.el_mut(index);
+        if el.alpha_value == -1.0 && alpha != el.alpha_value {
+            el.alpha_value = alpha;
+        }
+        el.image = Some(UiImage { file, draw_mode });
+    }
+
     fn update_media(&mut self, index: usize) {
         loop {
             let el = self.el(index);
@@ -550,19 +578,15 @@ impl UiTree {
                 MediaDesc::Image {
                     file, draw_mode, ..
                 } => {
-                    self.el_mut(index).image = Some(UiImage {
-                        file: *file,
-                        draw_mode: *draw_mode,
-                    });
+                    let (file, draw_mode) = (*file, *draw_mode);
+                    self.set_image(index, file, draw_mode);
                 }
                 MediaDesc::Anim {
                     draw_mode, frames, ..
                 } => {
                     if let Some(&file) = frames.first() {
-                        self.el_mut(index).image = Some(UiImage {
-                            file,
-                            draw_mode: *draw_mode,
-                        });
+                        let draw_mode = *draw_mode;
+                        self.set_image(index, file, draw_mode);
                     }
                     if frames.len() > 1 {
                         return;

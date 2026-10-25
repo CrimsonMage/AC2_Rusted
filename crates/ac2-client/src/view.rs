@@ -313,8 +313,12 @@ impl ClientView {
 
     /// The frame's UI actions for the HUD ([`ac2_ui::Controls::take_ui_input`]); returns the
     /// messages they broadcast, for [`ac2_ui::Controls::ui_messages`].
-    pub fn ui_input(&mut self, actions: &[(u32, f32, bool)]) -> Vec<ac2_ui::UiMessage> {
-        self.hud.input(actions)
+    pub fn ui_input(
+        &mut self,
+        actions: &[(u32, f32, bool)],
+        modifiers: ac2_ui::Modifiers,
+    ) -> Vec<ac2_ui::UiMessage> {
+        self.hud.input(actions, modifiers)
     }
 
     /// The typing for the HUD's active text element ([`ac2_ui::Controls::take_text_input`]);
@@ -323,9 +327,29 @@ impl ClientView {
         &mut self,
         actions: &[(u32, f32)],
         characters: &[(u16, u32)],
-        ctrl: bool,
+        modifiers: ac2_ui::Modifiers,
     ) -> Vec<ac2_ui::UiMessage> {
-        self.hud.text_input(actions, characters, ctrl)
+        self.hud.text_input(actions, characters, modifiers)
+    }
+
+    /// What the HUD's chat asked since the last call ([`ac2_ui::ChatRequest`]).
+    pub fn take_chat_requests(&mut self) -> Vec<ac2_ui::ChatRequest> {
+        self.hud.take_chat_requests()
+    }
+
+    /// `CM_UI::SendNotice_OpenExaminationPanel`: the examination panel shows.
+    pub fn open_examination(&mut self) {
+        self.hud.open_examination();
+    }
+
+    /// Whether a toolbar panel is shown.
+    pub fn panel_shown(&self, child: ac2_ui::ToolbarChild) -> bool {
+        self.hud.panel_shown(child)
+    }
+
+    /// A line for the chat windows, with its display type (`RecvNotice_DisplayStringInfo`).
+    pub fn chat_display(&mut self, kind: u32, text: &str) {
+        self.hud.chat_display(kind, text);
     }
 
     /// Whether the HUD takes typing (`CInputManager::SetTextMode`).

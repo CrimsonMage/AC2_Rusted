@@ -92,7 +92,7 @@ Legend and workflow: [README](README.md).
 ### Graphic
 - [~] `Graphic::Graphic` · 00568380 · legions 00538310 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [ ] `Graphic::Graphic` · 00568430 · legions 005383c0
-- [x] `Graphic::Draw` · 00568470 · legions 00538400 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+- [x] `Graphic::Draw` · 00568470 · legions 00538400 — ac2-ui compose.rs / element.rs set_image
 - [ ] `Graphic::InitFromIconLayerDesc` · 00568920 · legions 005388b0
 
 ## `portal/client/src/render/material/layermodifier.cpp.c` (4/46)

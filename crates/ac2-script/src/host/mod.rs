@@ -8,6 +8,11 @@
 
 pub mod chargen;
 mod glue;
+mod gun;
+mod ifun;
+mod interface;
+mod notices;
+mod skill_panel;
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -23,6 +28,12 @@ use crate::vm::{
 use crate::wire;
 use crate::wstate::WSTATE_BASE_DID;
 
+pub use crate::vm::DataRequest;
+pub use gun::{ChatRequest, ChatServices};
+pub use ifun::{IFunArg, IFunResult};
+pub use notices::{notice_names, NoticeArg, ScriptNotice};
+pub use skill_panel::SkillPanelData;
+
 /// A script call for the server (`ECM_Interp::SendEvt_InterpSEvent[Encrypt]`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct ServerCall {
@@ -36,6 +47,10 @@ pub struct ServerCall {
 pub struct Outbox {
     pub server_calls: Vec<ServerCall>,
     pub notices: Vec<GameplayNotice>,
+    /// Notices ac2-weenie has no type for, in the order raised.
+    pub script_notices: Vec<ScriptNotice>,
+    /// Chat-service requests (`gmCWInterface::RequestGUN_*`).
+    pub chat_requests: Vec<ChatRequest>,
     /// Calls and notices the boundary could not convert (a native the wire cannot carry yet).
     pub dropped: Vec<String>,
 }
@@ -64,6 +79,19 @@ pub enum HostError {
     UnknownObject(u64),
     /// `PackBuffer::UnPackBuffer` refused the arguments (a reference that does not unpack).
     BadArguments,
+    /// A host query's script call ended other than `Terminated` (and why, when it crashed).
+    Stopped(InterpStatus, Option<Fault>),
+}
+
+/// The pure glue and the host glue.
+fn host_efuns() -> EFuns {
+    let mut efuns = EFuns::new();
+    crate::glue::register_pure(&mut efuns);
+    glue::register(&mut efuns);
+    notices::register(&mut efuns);
+    gun::register(&mut efuns);
+    interface::register(&mut efuns);
+    efuns
 }
 
 /// The VM with every weenie object's script process.
@@ -76,9 +104,7 @@ pub struct ScriptHost {
 impl ScriptHost {
     /// A VM over `program` with the pure glue and the host glue bound.
     pub fn new(program: Arc<Program>, data: Box<dyn ScriptData>) -> Self {
-        let mut efuns = EFuns::new();
-        crate::glue::register_pure(&mut efuns);
-        glue::register(&mut efuns);
+        let efuns = host_efuns();
         Self {
             vm: Vm::new(program, data, efuns),
             processes: HashMap::new(),
@@ -102,7 +128,8 @@ impl ScriptHost {
     /// `CWDistributor::Construct`: the object's process from its WState (`did == 0`: the class
     /// default `0x70000000 | pid & 0xFFFF`; a `0x40000049`-type did: `0x71000000 | did &
     /// 0xFFFFFF`), else a fresh instance of `pid` with its initializer run. False when neither
-    /// exists.
+    /// exists, or when cache-only data does not hold the state yet (it is then among
+    /// [`ScriptHost::take_data_requests`]; load it and call again).
     pub fn create_weenie(&mut self, id: u64, pid: u32, did: u32) -> bool {
         let state_did = if did == 0 {
             Some(WSTATE_BASE_DID + 0x0100_0000 | pid & 0xFFFF)
@@ -114,6 +141,9 @@ impl ScriptHost {
         // A state whose references do not unpack leaves no process, as in retail, and the
         // fresh instance follows.
         let state = state_did.and_then(|d| self.vm.data().wstate(d));
+        if self.vm.data().take_missed() {
+            return false;
+        }
         let from_state = state.and_then(|s| self.vm.allocate_from_state(&s, true));
         let instance =
             from_state.or_else(|| self.vm.allocate_package(pid, InitState::NoWState, true));
@@ -139,11 +169,29 @@ impl ScriptHost {
         self.vm.player = id;
     }
 
+    /// `CWRepository::SetQualities` / `SetWeenieDesc`: the object's qualities (from the player
+    /// description or `WeenieQualities::from_weenie_desc`), which the scripts read and change
+    /// through `gCWRepository`.
+    pub fn set_qualities(&mut self, id: u64, qualities: ac2_weenie::WeenieQualities) {
+        self.vm.repositories.insert(id, qualities);
+    }
+
+    /// The object's qualities as the scripts left them; quality updates from the server go
+    /// through [`ac2_weenie::WeenieQualities::set`] on this.
+    pub fn qualities_mut(&mut self, id: u64) -> Option<&mut ac2_weenie::WeenieQualities> {
+        self.vm.repositories.get_mut(&id)
+    }
+
+    pub fn qualities(&self, id: u64) -> Option<&ac2_weenie::WeenieQualities> {
+        self.vm.repositories.get(&id)
+    }
+
     /// The object went away (`VM::DeleteProcess`).
     pub fn remove_weenie(&mut self, id: u64) {
         if let Some(p) = self.processes.remove(&id) {
             self.vm.owners.remove(&p.instance);
         }
+        self.vm.repositories.remove(&id);
     }
 
     /// The object's script instance (`CWDistributor::GetInstanceReference`).
@@ -169,6 +217,7 @@ impl ScriptHost {
         let cid = self.next_context;
         self.next_context += 1;
         let mut ctx = Context::new(cid, Some(instance));
+        ctx.can_yield = true;
         let pushed = ctx.push(0, tag::INT).is_ok() && self.unpack_buffer(&mut ctx, args);
         if !pushed {
             return Err(HostError::BadArguments);
@@ -190,6 +239,31 @@ impl ScriptHost {
         self.vm.last_fault = None;
         let status = self.vm.execute(&mut ctx);
         Some(self.finish(id, ctx, status))
+    }
+
+    /// The DAT reads the scripts waited on since the last call (cache-only data): run each
+    /// through `DatScriptData::load` on a worker, then [`ScriptHost::resume_data_waits`].
+    pub fn take_data_requests(&mut self) -> Vec<DataRequest> {
+        self.vm.data().take_requests()
+    }
+
+    /// Runs on every context that stopped for data (each stops again if what it needs is
+    /// still missing): the object, and how the context ended this time.
+    pub fn resume_data_waits(&mut self) -> Vec<(u64, DispatchOutcome)> {
+        let waiting: Vec<(u64, u32)> = self
+            .processes
+            .iter()
+            .flat_map(|(&id, p)| {
+                p.waiting
+                    .iter()
+                    .filter(|c| c.data_wait)
+                    .map(move |c| (id, c.cid))
+            })
+            .collect();
+        waiting
+            .into_iter()
+            .filter_map(|(id, cid)| Some((id, self.resume(id, cid)?)))
+            .collect()
     }
 
     fn finish(&mut self, id: u64, ctx: Context, status: InterpStatus) -> DispatchOutcome {
@@ -243,6 +317,21 @@ impl ScriptHost {
     }
 
     /// What the boundary had to drop since the last take.
+    /// The `CM_*` notices without a [`GameplayNotice`] type since the last call.
+    pub fn take_script_notices(&mut self) -> Vec<ScriptNotice> {
+        std::mem::take(&mut self.vm.outbox.script_notices)
+    }
+
+    /// The chat-service requests scripts made since the last call.
+    pub fn take_chat_requests(&mut self) -> Vec<ChatRequest> {
+        std::mem::take(&mut self.vm.outbox.chat_requests)
+    }
+
+    /// Which chat services requests can go to (none until the host says).
+    pub fn set_chat_services(&mut self, services: ChatServices) {
+        self.vm.chat = services;
+    }
+
     pub fn take_dropped(&mut self) -> Vec<String> {
         std::mem::take(&mut self.vm.outbox.dropped)
     }

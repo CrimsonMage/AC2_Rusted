@@ -18,7 +18,7 @@ use ac2_client::{frame_input, Client, Command, DatWorld, FrameInput};
 use ac2_gpu::{render_to, Gpu, DEPTH_FORMAT};
 use ac2_net::Credential;
 use ac2_ui::{Controls, InputEvent, SelectionUi};
-use ac2_weenie::{CharacterChoice, OnlineConfig, OnlineSession};
+use ac2_weenie::{CharacterChoice, GameplayNotice, OnlineConfig, OnlineSession, SessionEvent};
 use winit::application::ApplicationHandler;
 use winit::event::{
     DeviceEvent, DeviceId, ElementState, MouseButton, MouseScrollDelta, WindowEvent,
@@ -155,9 +155,13 @@ impl App {
         };
         // The UI tree takes the UI actions first; its messages reach the camera UI.
         let ui_input = state.controls.take_ui_input();
-        let mut messages = state.view.ui_input(&ui_input);
-        let (actions, characters, ctrl) = state.controls.take_text_input();
-        messages.extend(state.view.text_input(&actions, &characters, ctrl));
+        let modifiers = state.controls.modifiers();
+        let mut messages = state.view.ui_input(&ui_input, modifiers);
+        let (actions, characters, _) = state.controls.take_text_input();
+        messages.extend(state.view.text_input(&actions, &characters, modifiers));
+        for request in state.view.take_chat_requests() {
+            state.commands.extend(chat_command(request));
+        }
         let (stamp, now) = state.now();
         state
             .controls
@@ -168,10 +172,28 @@ impl App {
         }
         let mut input = frame_input(state.controls.frame());
         input.commands.append(&mut state.commands);
-        if let Err(error) = self.client.use_time(&input) {
-            eprintln!("ac2: {error}");
-            event_loop.exit();
-            return;
+        let events = match self.client.use_time(&input) {
+            Ok(events) => events,
+            Err(error) => {
+                eprintln!("ac2: {error}");
+                event_loop.exit();
+                return;
+            }
+        };
+        for event in &events {
+            match event {
+                SessionEvent::Notice(GameplayNotice::DisplayStringInfo { kind, text }) => {
+                    // Only literal strings render yet; table strings wait for
+                    // `StringInfo::GetString`.
+                    if let Some(literal) = &text.literal {
+                        state.view.chat_display(*kind, literal);
+                    }
+                }
+                SessionEvent::ShellCommand { text, .. } => {
+                    eprintln!("ac2: chat command not ported: {text}");
+                }
+                _ => {}
+            }
         }
         for notice in self.client.take_notices() {
             if notice == ac2_client::Notice::ConnectionLost {
@@ -191,6 +213,9 @@ impl App {
             state.commands.push(Command::Select(outcome.select));
             if outcome.use_selection {
                 state.commands.push(Command::UseSelection);
+            }
+            if outcome.open_examination {
+                state.view.open_examination();
             }
         }
         state.view.update(&state.gpu, &frame, LOAD_BUDGET);
@@ -413,6 +438,8 @@ fn run(args: Args) -> Result<(), String> {
     // through the client's own store so the script host's reads share its cache.
     let script_data = ac2_script::data::DatScriptData::new(Arc::clone(&dataset), (*store).clone());
     session.set_string_tables(ac2_client::string_table_ids(&script_data));
+    // `CWInterface`'s registered chat commands, emote names and usage texts.
+    session.set_chat_commands(ac2_client::chat_commands(&script_data));
     let mut client = Client::new(session, Arc::new(dat_world));
     // The weenies' scripts on the VM (`CWDistributor`), over the script library.
     let wlib = ac2_script::load_wlib(&store, ac2_core::DataId::new(ac2_script::LEGIONS_WLIB_DID))
@@ -447,5 +474,17 @@ fn main() {
     if let Err(message) = result {
         eprintln!("ac2: {message}");
         std::process::exit(1);
+    }
+}
+
+/// `ChatWindow::ProcessCommand`'s line for `gmCWInterface::ProcessText`; the history keys are
+/// not handled yet.
+fn chat_command(request: ac2_ui::ChatRequest) -> Option<Command> {
+    match request {
+        ac2_ui::ChatRequest::Line(line) => Some(Command::ChatLine(line)),
+        other => {
+            eprintln!("ac2: chat {other:?} is not handled yet");
+            None
+        }
     }
 }

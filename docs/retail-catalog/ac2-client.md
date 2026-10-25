@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 11 done, 6 partial, 332 to do, 5 skipped.
+354 retail functions: 17 done, 6 partial, 326 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -358,13 +358,13 @@ Legend and workflow: [README](README.md).
 - [ ] `RealClient::~RealClient` · 00723110 · legions 006a33d0
 - [ ] `RealClient::KeepUIAlive` · 00723160 · legions 006a3420
 
-## `portal/client/src/shell/cplayershell.cpp.c` (0/9)
+## `portal/client/src/shell/cplayershell.cpp.c` (4/9)
 
 ### PStringBaseIter_Common<unsigned_short>
 - [ ] `PStringBaseIter_Common<unsigned_short>::FindSubStringIter` · 00732780 · legions 006aec20
 
 ### CPlayerShell
-- [ ] `CPlayerShell::ProcessCommand` · 007327d0
+- [x] `CPlayerShell::ProcessCommand` · 007327d0 — ac2-weenie shell::process_text: the / prefix, ID_DefaultCommand speech, ExpandableText
 
 ### PStringBaseIter_Common<unsigned_short>
 - [ ] `PStringBaseIter_Common<unsigned_short>::FindSubString` · 00732810 · legions 006aecb0
@@ -372,10 +372,10 @@ Legend and workflow: [README](README.md).
 ### CPlayerShell
 - [ ] `CPlayerShell::CPlayerShell` · 00732940 · legions 006aede0
 - [ ] `CPlayerShell::GetHelpText` · 007329d0
-- [ ] `CPlayerShell::ExpandableText` · 00732a90
-- [ ] `CPlayerShell::ProcessSpeech` · 00732c60 · legions 006af100
+- [x] `CPlayerShell::ExpandableText` · 00732a90 — ac2-weenie shell::process_text: the / prefix, ID_DefaultCommand speech, ExpandableText
+- [x] `CPlayerShell::ProcessSpeech` · 00732c60 · legions 006af100 — ac2-weenie shell::process_text: the / prefix, ID_DefaultCommand speech, ExpandableText
 - [ ] `CPlayerShell::StreamPack` · 00732d50 · legions 006af1f0
-- [ ] `CPlayerShell::ProcessText` · 00732da0
+- [x] `CPlayerShell::ProcessText` · 00732da0 — ac2-weenie shell::process_text: the / prefix, ID_DefaultCommand speech, ExpandableText
 
 ## `portal/client/src/shell/cplayershellcmdtable.cpp.c` (0/2)
 
@@ -593,7 +593,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CShell::AddCmdToHistory` · 00733190 · legions 006af630
 - [ ] `CShell::CShell` · 00733230 · legions 006af6d0
 
-## `portal/shared/src/shell/shellcmdtable.cpp.c` (0/16)
+## `portal/shared/src/shell/shellcmdtable.cpp.c` (2/16)
 
 ### AVL<unsigned_long,unsigned_long>
 - [ ] `AVL<unsigned_long,unsigned_long>::LeftRotate` · 00612a10 · legions 005d0ad0
@@ -610,9 +610,9 @@ Legend and workflow: [README](README.md).
 
 ### ShellCmdTable
 - [ ] `ShellCmdTable::GetAllCmdHelpText` · 00613010 · legions 005d1080
-- [ ] `ShellCmdTable::ProcessCommand` · 006132f0 · legions 005d1360
+- [x] `ShellCmdTable::ProcessCommand` · 006132f0 · legions 005d1360 — ac2-weenie shell::process_command: quoted tokens, set-trim of the command, lowercased lookup; ExpandableCommand
 - [ ] `ShellCmdTable::GetCmdHelpText` · 00613710 · legions 005d1780
-- [ ] `ShellCmdTable::ExpandableCommand` · 00613880 · legions 005d18f0
+- [x] `ShellCmdTable::ExpandableCommand` · 00613880 · legions 005d18f0 — ac2-weenie shell::process_command: quoted tokens, set-trim of the command, lowercased lookup; ExpandableCommand
 - [ ] `ShellCmdTable::~ShellCmdTable` · 00613c40 · legions 005d1cb0
 - [ ] `ShellCmdTable::AddCmdHandler` · 00613cc0 · legions 005d1d30
 - [ ] `ShellCmdTable::AddHelpHandler` · 00613e00 · legions 005d1e70

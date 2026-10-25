@@ -9,6 +9,7 @@ mod chargen;
 mod containers;
 mod hash_table;
 mod multi;
+mod options;
 mod string_info;
 mod structs;
 
@@ -21,6 +22,10 @@ pub use hash_table::{
     DEFAULT_BUCKETS,
 };
 pub use multi::{MultiNode, ScriptMultiHash, ScriptMultiMap, STL_PRIMES};
+pub use options::{
+    assign_ui_locations, bits as option_bits, word_assign, word_get, word_set, AliasTable,
+    GameplayOptions,
+};
 pub use string_info::{GetStringError, StringInfo, StringVar, StringVarValue};
 pub use structs::{
     behavior_defaults, behavior_pack_bitfield, BehaviorParams, MissileParameters,
@@ -90,6 +95,10 @@ pub mod ntype {
     }
     pub const EXAMINATION_REQUEST: u32 = 0x9A;
     pub const GAMEPLAY_OPTIONS_PROFILE: u32 = 0x9B;
+    pub const SHORTCUT_INFO: u32 = 0xAC;
+    pub const QUALIFIED_DATA_ID_ARRAY: u32 = 0x5E;
+    pub const SELECTION_INFO: u32 = 0xAB;
+    pub const UI_SAVE_LOCATIONS: u32 = 0x6F;
     pub const GM_RACE_SEX_INFO: u32 = 0xA2;
     pub const GM_SCENE_INFO: u32 = 0xA3;
     pub const SKILL_UI_NODE: u32 = 0xAE;
@@ -141,6 +150,11 @@ pub enum NativeObject {
     MissileParameters(MissileParameters),
     BehaviorParams(Box<BehaviorParams>),
     RandomSelectionTable(RandomSelectionTable),
+    /// `QualifiedDataIDArray`: the set of (DB type, DID) pairs (`std::set<QualifiedDataID>`;
+    /// scripts only add to it).
+    DataIds(std::collections::BTreeSet<(u32, u32)>),
+    /// `GameplayOptionsProfile` (Legions layout).
+    GameplayOptions(Box<GameplayOptions>),
     /// `BaseListIter`: a position in a list (`None` past the end). Retail holds the list node;
     /// the port holds its index, which agrees for everything done through the iterator.
     ListIter {
@@ -222,6 +236,24 @@ impl NativeObject {
             ntype::SKILL_UI_NODE => {
                 NativeObject::Wire(Box::new(ac2_net::protocol::NativeObject::SkillUiNode(
                     Box::new(crate::glue::empty_skill_node()),
+                )))
+            }
+            ntype::GAMEPLAY_OPTIONS_PROFILE => NativeObject::GameplayOptions(Box::default()),
+            ntype::QUALIFIED_DATA_ID_ARRAY => NativeObject::DataIds(Default::default()),
+            ntype::SELECTION_INFO => NativeObject::Wire(Box::new(
+                ac2_net::protocol::NativeObject::SelectionInfo(Default::default()),
+            )),
+            ntype::EXAMINATION_REQUEST => NativeObject::Wire(Box::new(
+                ac2_net::protocol::NativeObject::ExaminationRequest(Default::default()),
+            )),
+            ntype::SHORTCUT_INFO => {
+                NativeObject::Wire(Box::new(ac2_net::protocol::NativeObject::ShortcutInfo(
+                    ac2_net::protocol::ShortcutInfo::Empty(0),
+                )))
+            }
+            ntype::UI_SAVE_LOCATIONS => {
+                NativeObject::Wire(Box::new(ac2_net::protocol::NativeObject::UiSaveLocations(
+                    GameplayOptions::default().ui_locations,
                 )))
             }
             ntype::MISSILE_PARAMETERS => {

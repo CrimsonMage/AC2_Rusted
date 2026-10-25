@@ -1,6 +1,6 @@
 # replaced: Third-party libraries, CRT and container templates replaced by Rust
 
-2058 retail functions: 22 done, 0 partial, 0 to do, 2036 skipped.
+2058 retail functions: 25 done, 0 partial, 0 to do, 2033 skipped.
 Legend and workflow: [README](README.md).
 
 ## `_libraries/ImeUI.lib/ImeUi.obj.c` (0/36)
@@ -1911,12 +1911,12 @@ Legend and workflow: [README](README.md).
 ### List<AllegianceDataAdaptor>
 - [-] `List<AllegianceDataAdaptor>::flush` · 00466ad0 · legions 00467780 — Rust std replaces it
 
-## `ac2/shared/src/character/gameplayoptionsprofile.cpp.c` (0/3)
+## `ac2/shared/src/character/gameplayoptionsprofile.cpp.c` (3/3)
 
 ### HashTable<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>
-- [-] `HashTable<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>::erase` · 005ff550 · legions 005c00d0 — Rust std replaces it
-- [-] `HashTable<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>::find` · 005ff5c0 · legions 005c0140 — Rust std replaces it
-- [-] `HashTable<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>::set` · 005ffb90 · legions 005c09c0 — Rust std replaces it
+- [x] `HashTable<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>::erase` · 005ff550 · legions 005c00d0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `HashTable<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>::find` · 005ff5c0 · legions 005c0140 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `HashTable<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>::set` · 005ffb90 · legions 005c09c0 — ac2-script glue::options / examination (Legions layout and efun switch)
 
 ## `ac2/shared/src/database/gmmasterdbmap.cpp.c` (0/1)
 

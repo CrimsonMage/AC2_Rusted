@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 134 done, 14 partial, 698 to do, 143 skipped.
+989 retail functions: 138 done, 14 partial, 694 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (16/140)
@@ -21,7 +21,7 @@ Legend and workflow: [README](README.md).
 - [ ] `BBox::DoesOverlap` · 0047f280 · legions 00479290
 
 ### RGBAColor
-- [x] `RGBAColor::GetColor32` · 0047f3c0 · legions 004793d0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+- [x] `RGBAColor::GetColor32` · 0047f3c0 · legions 004793d0 — ac2-ui tree_view.rs
 - [x] `RGBAColor::SetColor32` · 0047f410 · legions 00479420
 - [x] `RGBAColor::CapLow` · 0047f4b0 · legions 004794c0
 - [x] `RGBAColor::CapHigh` · 0047f500 · legions 00479510
@@ -776,10 +776,10 @@ Legend and workflow: [README](README.md).
 - [-] `GameTime::LoadHour` · 006199f0 — text source loader, admin build only
 - [-] `GameTime::FromFileNode` · 00619a40 — text source format (admin tools)
 
-## `portal/shared/src/places/placestable.cpp.c` (0/11)
+## `portal/shared/src/places/placestable.cpp.c` (4/11)
 
 ### PlacesTable
-- [ ] `PlacesTable::StreamPack` · 00638ee0 · legions 005eec60
+- [x] `PlacesTable::StreamPack` · 00638ee0 · legions 005eec60 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 
 ### _STL::less<PStringBase<unsigned_short>_>
 - [ ] `_STL::less<PStringBase<unsigned_short>_>::operator()` · 00638f40 · legions 005eecc0
@@ -787,11 +787,11 @@ Legend and workflow: [README](README.md).
 ### PlacesTable
 - [ ] `PlacesTable::Dump` · 006395a0 · legions 005eecf0
 - [ ] `PlacesTable::WslDump` · 00639690 · legions 005eede0
-- [ ] `PlacesTable::GetPlace` · 00639850 · legions 005eee60
-- [ ] `PlacesTable::InqPlace` · 006398d0 · legions 005eeee0
+- [x] `PlacesTable::GetPlace` · 00639850 · legions 005eee60 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
+- [x] `PlacesTable::InqPlace` · 006398d0 · legions 005eeee0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 - [ ] `PlacesTable::InqPlaceStr` · 00639960 · legions 005eef40
 - [ ] `PlacesTable::AddPlace` · 00639bb0
-- [ ] `PlacesTable::InqPlacesHash` · 00639c40 · legions 005ef000
+- [x] `PlacesTable::InqPlacesHash` · 00639c40 · legions 005ef000 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 - [-] `PlacesTable::FromFileNode` · 00639cb0 — text source format (admin tools)
 - [-] `PlacesTable::ToFileNode` · 00639f70 — text source format (admin tools)
 

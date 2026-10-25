@@ -191,6 +191,9 @@ impl OnlineSession {
     ) -> Option<Vec<SessionEvent>> {
         match ScriptMessage::decode(function, arguments)? {
             Ok(message) => {
+                if self.chat_drops(&message) {
+                    return Some(Vec::new());
+                }
                 let player = self.world.player().unwrap_or_default();
                 let out = self.script.receive(message, player);
                 Some(self.apply_script(out))

@@ -10,6 +10,7 @@ mod appearance;
 mod camera;
 mod camera_mouse;
 mod cells;
+mod chat_commands;
 mod client;
 mod client_objects;
 mod controls;
@@ -31,6 +32,7 @@ mod world_data;
 pub use appearance::local_visual_desc;
 pub use camera::{action as camera_action, CameraManager};
 pub use cells::{block_radius, CellManager, FAR_RADIUS, NEAR_RADIUS};
+pub use chat_commands::chat_commands;
 pub use client::{
     CameraAction, Client, FrameInput, Notice, ENTER_WORLD_FLAGS, SYNC_POSITION_FLAGS,
 };

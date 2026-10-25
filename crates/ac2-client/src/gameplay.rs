@@ -28,6 +28,8 @@ pub enum Command {
     Tell { recipient: String, text: String },
     /// `gmCWInterface::DoEmote`, with the emote the emote table named.
     Emote(u32),
+    /// `CWInterface::ProcessText`: a line the chat window entered (a `/` command or speech).
+    ChatLine(String),
     /// `gmCWInterface::RequestGUN_SendToRoom` (Turbine chat): text to a chat room, with the
     /// script's chat flags.
     SendToRoom { room: u32, text: String, flags: u32 },
@@ -136,6 +138,7 @@ impl Client {
                     self.session.tell(recipient, text);
                     Vec::new()
                 }
+                Command::ChatLine(line) => self.session.process_text(line),
                 Command::Emote(emote) => {
                     self.session.emote(*emote);
                     Vec::new()

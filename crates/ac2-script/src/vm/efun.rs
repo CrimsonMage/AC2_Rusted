@@ -80,11 +80,36 @@ impl Vm {
         ctx.frames.push(super::Frame { ip: 0, fp: ctx.sp });
         ctx.ip = 0;
         ctx.fp = ctx.sp;
+        self.finish_efun(efun, ctx)
+    }
+
+    /// Calls `efun` in its open frame and closes the frame unless the context stops there:
+    /// the efun returned `Interrupted`, or it read data a cache-only host is still loading
+    /// (then the context waits with `data_wait` and the efun runs again on resume).
+    fn finish_efun(&mut self, efun: u32, ctx: &mut Context) -> InterpStatus {
         let status = self.call_efun(efun, ctx);
-        if status != InterpStatus::Interrupted && ctx.leave().is_err() {
+        let missed = self.states.take_missed();
+        let waits = missed && ctx.can_yield && status != InterpStatus::Crash;
+        if status == InterpStatus::Interrupted || waits {
+            ctx.efun = efun;
+            ctx.data_wait = waits && status != InterpStatus::Interrupted;
+            return InterpStatus::Interrupted;
+        }
+        if ctx.leave().is_err() {
             return self.fault(Fault::Stack);
         }
         status
+    }
+
+    /// Resuming a context stopped in an efun: the efun runs again; `Success` lets the code
+    /// continue after the call.
+    pub(crate) fn resume_efun(&mut self, ctx: &mut Context) -> InterpStatus {
+        let efun = std::mem::take(&mut ctx.efun);
+        ctx.data_wait = false;
+        if efun == 0 {
+            return InterpStatus::Success;
+        }
+        self.finish_efun(efun, ctx)
     }
 }
 
