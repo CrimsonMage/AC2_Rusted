@@ -26,6 +26,8 @@ pub(crate) struct HudView {
     toolbar: Option<ToolbarUi>,
     /// Lines displayed before the HUD arrived (`RecvNotice_DisplayStringInfo`).
     early_lines: Vec<(u32, String)>,
+    /// The chat lines being rendered (`StringDownload`).
+    chat_text: crate::chat_text::ChatText,
     overlay: UiOverlay,
     size: (u32, u32),
     dirty: bool,
@@ -38,6 +40,7 @@ impl HudView {
         format: wgpu::TextureFormat,
         size: (u32, u32),
     ) -> Self {
+        let chat_text = crate::chat_text::ChatText::new((*store).clone());
         let (send, receive) = mpsc::channel();
         let (width, height) = (size.0 as i32, size.1 as i32);
         std::thread::Builder::new()
@@ -57,6 +60,7 @@ impl HudView {
             chat: None,
             toolbar: None,
             early_lines: Vec::new(),
+            chat_text,
             overlay: UiOverlay::new(gpu, format),
             size,
             dirty: false,
@@ -138,12 +142,55 @@ impl HudView {
         }
     }
 
+    /// `ChatWindow::RecvNotice_ReloadChatSettings` with the player's chat options.
+    pub(crate) fn reload_chat_settings(&mut self, settings: &ChatSettings) {
+        if let (Some((tree, _)), Some(chat)) = (&mut self.hud, &mut self.chat) {
+            chat.reload_chat_settings(tree, settings);
+            if tree.take_changed() {
+                self.dirty = true;
+            }
+        }
+    }
+
+    /// `ChatWindow::DisplayCmdHistory`'s answer: the entry line shows `text`.
+    pub(crate) fn set_chat_entry(&mut self, text: &str) {
+        if let (Some((tree, _)), Some(chat)) = (&mut self.hud, &mut self.chat) {
+            chat.set_entry_text(tree, text);
+            if tree.take_changed() {
+                self.dirty = true;
+            }
+        }
+    }
+
+    /// `ChatWindow::DoAssistedTell`: the entry line becomes a tell to `target`.
+    pub(crate) fn assisted_tell(&mut self, target: &str) {
+        if let (Some((tree, _)), Some(chat)) = (&mut self.hud, &mut self.chat) {
+            chat.assisted_tell(tree, target);
+            if tree.take_changed() {
+                self.dirty = true;
+            }
+        }
+    }
+
+    /// The first chat window's log text.
+    pub(crate) fn chat_log(&self) -> Option<String> {
+        let (tree, _) = self.hud.as_ref()?;
+        let log = self.chat.as_ref()?.logs().first().copied().flatten()?;
+        tree.get(log)?.text()
+    }
+
     /// Whether a toolbar panel is shown.
     pub(crate) fn panel_shown(&self, child: ToolbarChild) -> bool {
         match (&self.hud, &self.toolbar) {
             (Some((tree, _)), Some(toolbar)) => toolbar.shown(tree, child),
             _ => false,
         }
+    }
+
+    /// `CM_Communication::SendNotice_DisplayStringInfo`: the line is rendered on a worker and
+    /// reaches the chat windows when it is done.
+    pub(crate) fn chat_display_info(&mut self, kind: u32, info: &ac2_net::protocol::StringInfo) {
+        self.chat_text.render(kind, info);
     }
 
     /// `CM_Communication::SendNotice_DisplayStringInfo`'s text for the chat windows.
@@ -200,6 +247,9 @@ impl HudView {
                 Err(TryRecvError::Disconnected) => self.pending = None,
                 Err(TryRecvError::Empty) => {}
             }
+        }
+        for (kind, text) in self.chat_text.take() {
+            self.chat_display(kind, &text);
         }
         // `UIMESSAGE_GLOBAL_LOOP`: the chat windows write what arrived.
         if let (Some((tree, _)), Some(chat)) = (&mut self.hud, &mut self.chat) {

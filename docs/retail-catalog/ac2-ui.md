@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 204 done, 118 partial, 1909 to do, 16 skipped.
+2247 retail functions: 207 done, 115 partial, 1909 to do, 16 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -632,7 +632,7 @@ Legend and workflow: [README](README.md).
 ### gmStoryUI
 - [ ] `gmStoryUI::gmStoryUI` · 0042c7f0 · legions 0042c5b0
 
-## `ac2/client/src/ui/gameplay/helper/chatwindow.cpp.c` (11/32)
+## `ac2/client/src/ui/gameplay/helper/chatwindow.cpp.c` (14/32)
 
 ### ChatWindow
 - [x] `ChatWindow::IsActiveRoot` · 0044afd0 · legions 0044bc30 — ac2-ui chat.rs / chat_window.rs
@@ -679,10 +679,10 @@ Legend and workflow: [README](README.md).
 ### ChatWindow
 - [ ] `ChatWindow::~ChatWindow` · 0044beb0 · legions 0044cbc0
 - [x] `ChatWindow::HandleCommandOrAliasKey` · 0044bf80 · legions 0044cc90 — ac2-ui chat.rs / chat_window.rs
-- [x] `ChatWindow::AllTextToLog` · 0044c020 · legions 0044cd30 — ac2-ui chat.rs / chat_window.rs
-- [~] `ChatWindow::DisplayCmdHistory` · 0044c110 · legions 0044ce30 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
-- [~] `ChatWindow::DisplayRetellHistory` · 0044c1f0 · legions 0044cf10 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
-- [~] `ChatWindow::DisplayReplyHistory` · 0044c2a0 · legions 0044cfc0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [x] `ChatWindow::AllTextToLog` · 0044c020 · legions 0044cd30 — ac2-ui chat + ac2-client chat_text
+- [x] `ChatWindow::DisplayCmdHistory` · 0044c110 · legions 0044ce30 — ac2-ui chat + ac2-client chat_text
+- [x] `ChatWindow::DisplayRetellHistory` · 0044c1f0 · legions 0044cf10 — ac2-ui chat + ac2-client chat_text
+- [x] `ChatWindow::DisplayReplyHistory` · 0044c2a0 · legions 0044cfc0 — ac2-ui chat + ac2-client chat_text
 - [x] `ChatWindow::HandleReplyKey` · 0044c400 · legions 0044d120 — ac2-ui chat.rs / chat_window.rs
 - [~] `ChatWindow::ListenToMessage` · 0044c5b0 · legions 0044d2d0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 - [~] `ChatWindow::KeyPress` · 0044c5f0 · legions 0044d310 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection

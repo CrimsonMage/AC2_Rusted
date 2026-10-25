@@ -118,10 +118,10 @@ key	status	note
 0044ba70	x	ac2-ui chat.rs / chat_window.rs
 0044bad0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 0044bf80	x	ac2-ui chat.rs / chat_window.rs
-0044c020	x	ac2-ui chat.rs / chat_window.rs
-0044c110	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
-0044c1f0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
-0044c2a0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+0044c020	x	ac2-ui chat + ac2-client chat_text
+0044c110	x	ac2-ui chat + ac2-client chat_text
+0044c1f0	x	ac2-ui chat + ac2-client chat_text
+0044c2a0	x	ac2-ui chat + ac2-client chat_text
 0044c400	x	ac2-ui chat.rs / chat_window.rs
 0044c5b0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 0044c5f0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection

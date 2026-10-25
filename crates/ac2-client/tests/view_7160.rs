@@ -41,6 +41,7 @@ fn the_client_walks_with_w_and_draws_its_character() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
+    let tables_dataset = Arc::clone(&dataset);
     let Ok(gpu) = Gpu::headless() else {
         eprintln!("no GPU adapter; skipping");
         return;
@@ -74,7 +75,11 @@ fn the_client_walks_with_w_and_draws_its_character() {
         language: 0,
         dat_iterations: Vec::new(),
     };
-    let session = OnlineSession::with_transport(config, Box::new(transport)).unwrap();
+    let mut session = OnlineSession::with_transport(config, Box::new(transport)).unwrap();
+    // As the binary does: the string tables and the chat command line.
+    let script_data = ac2_script::data::DatScriptData::new(tables_dataset, (*store).clone());
+    session.set_string_tables(ac2_client::string_table_ids(&script_data));
+    session.set_chat_commands(ac2_client::chat_commands(&script_data));
     let mut client = Client::new(session, Arc::new(dat_world));
     client.set_load_budget(Duration::from_secs(30));
     let idle = FrameInput::default();
@@ -303,6 +308,41 @@ fn the_client_walks_with_w_and_draws_its_character() {
         ac2_ui::Modifiers::default(),
     );
     assert!(view.panel_shown(ac2_ui::ToolbarChild::Skill));
+    // A line said through the server comes back as a string-table line, rendered off the frame
+    // thread, and reaches the log of a window whose filter shows every text type.
+    let mut settings = ac2_ui::ChatSettings::default();
+    settings.filters.insert(1, u32::MAX);
+    view.reload_chat_settings(&settings);
+    let say = FrameInput {
+        commands: vec![ac2_client::Command::ChatLine("Well met".into())],
+        ..FrameInput::default()
+    };
+    let mut events = client.use_time(&say).unwrap();
+    for _ in 0..4 {
+        server.borrow_mut().elapsed += STEP;
+        events.extend(client.use_time(&FrameInput::default()).unwrap());
+    }
+    for event in &events {
+        if let ac2_weenie::SessionEvent::Notice(ac2_weenie::GameplayNotice::DisplayStringInfo {
+            kind,
+            text,
+        }) = event
+        {
+            view.chat_display_info(*kind, text);
+        }
+    }
+    let frame = client.frame();
+    let mut log = String::new();
+    for _ in 0..200 {
+        view.update(&gpu, &frame, Duration::ZERO);
+        log = view.chat_log().unwrap_or_default();
+        if log.contains("Well met") {
+            break;
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    eprintln!("chat log: {log:?}");
+    assert!(log.contains("You say, \"Well met\""), "{log:?}");
     // A displayed line reaches the log on the next update; the window shows it.
     view.chat_display(0x4_0000, "Explorer says, \"well met\"\n");
     view.update(&gpu, &frame, Duration::ZERO);

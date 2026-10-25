@@ -160,7 +160,26 @@ impl App {
         let (actions, characters, _) = state.controls.take_text_input();
         messages.extend(state.view.text_input(&actions, &characters, modifiers));
         for request in state.view.take_chat_requests() {
-            state.commands.extend(chat_command(request));
+            match request {
+                ac2_ui::ChatRequest::Line(line) => state.commands.push(Command::ChatLine(line)),
+                // `ChatWindow::DisplayCmdHistory` / `DisplayRetellHistory` /
+                // `DisplayReplyHistory`.
+                ac2_ui::ChatRequest::History { history, prev } => {
+                    let kind = match history {
+                        ac2_ui::ChatHistory::Command => ac2_weenie::ChatHistory::Command,
+                        ac2_ui::ChatHistory::Retell => ac2_weenie::ChatHistory::Retell,
+                        ac2_ui::ChatHistory::Reply => ac2_weenie::ChatHistory::Reply,
+                    };
+                    let Some(item) = self.client.session_mut().chat_history(kind, prev) else {
+                        continue;
+                    };
+                    if history == ac2_ui::ChatHistory::Command {
+                        state.view.set_chat_entry(&item);
+                    } else {
+                        state.view.assisted_tell(&item);
+                    }
+                }
+            }
         }
         let (stamp, now) = state.now();
         state
@@ -183,11 +202,7 @@ impl App {
         for event in &events {
             match event {
                 SessionEvent::Notice(GameplayNotice::DisplayStringInfo { kind, text }) => {
-                    // Only literal strings render yet; table strings wait for
-                    // `StringInfo::GetString`.
-                    if let Some(literal) = &text.literal {
-                        state.view.chat_display(*kind, literal);
-                    }
+                    state.view.chat_display_info(*kind, text);
                 }
                 SessionEvent::ShellCommand { text, .. } => {
                     eprintln!("ac2: chat command not ported: {text}");
@@ -480,17 +495,5 @@ fn main() {
     if let Err(message) = result {
         eprintln!("ac2: {message}");
         std::process::exit(1);
-    }
-}
-
-/// `ChatWindow::ProcessCommand`'s line for `gmCWInterface::ProcessText`; the history keys are
-/// not handled yet.
-fn chat_command(request: ac2_ui::ChatRequest) -> Option<Command> {
-    match request {
-        ac2_ui::ChatRequest::Line(line) => Some(Command::ChatLine(line)),
-        other => {
-            eprintln!("ac2: chat {other:?} is not handled yet");
-            None
-        }
     }
 }

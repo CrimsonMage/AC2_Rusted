@@ -342,9 +342,35 @@ impl ClientView {
         self.hud.open_examination();
     }
 
+    /// `RecvNotice_ReloadChatSettings`: the player's chat options (filters, fonts, popups).
+    pub fn reload_chat_settings(&mut self, settings: &ac2_ui::ChatSettings) {
+        self.hud.reload_chat_settings(settings);
+    }
+
+    /// The chat's command history answer: the entry line shows `text`.
+    pub fn set_chat_entry(&mut self, text: &str) {
+        self.hud.set_chat_entry(text);
+    }
+
+    /// The chat's retell / reply history answer (`ChatWindow::DoAssistedTell`).
+    pub fn assisted_tell(&mut self, target: &str) {
+        self.hud.assisted_tell(target);
+    }
+
+    /// The first chat window's log text.
+    pub fn chat_log(&self) -> Option<String> {
+        self.hud.chat_log()
+    }
+
     /// Whether a toolbar panel is shown.
     pub fn panel_shown(&self, child: ac2_ui::ToolbarChild) -> bool {
         self.hud.panel_shown(child)
+    }
+
+    /// `RecvNotice_DisplayStringInfo`: a `StringInfo` line for the chat windows, rendered off the
+    /// frame thread.
+    pub fn chat_display_info(&mut self, kind: u32, info: &ac2_net::protocol::StringInfo) {
+        self.hud.chat_display_info(kind, info);
     }
 
     /// A line for the chat windows, with its display type (`RecvNotice_DisplayStringInfo`).

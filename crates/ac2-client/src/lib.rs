@@ -11,6 +11,7 @@ mod camera;
 mod camera_mouse;
 mod cells;
 mod chat_commands;
+pub mod chat_text;
 mod client;
 mod client_objects;
 mod controls;
