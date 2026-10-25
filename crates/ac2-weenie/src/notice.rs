@@ -2,7 +2,8 @@
 //! whoever raises them: the native stand-ins, or the script VM's glue.
 
 use ac2_net::protocol::{
-    ExaminationProfile, ExaminationRequest, GunChatExtraInfo, SelectionInfo, StringInfo,
+    ExaminationProfile, ExaminationRequest, GmQuestInfo, GunChatExtraInfo, SelectionInfo,
+    StringInfo,
 };
 
 use crate::social::{AllegianceProfile, FellowInfo, FellowshipInfo};
@@ -110,4 +111,159 @@ pub enum GameplayNotice {
     PatronSwearDone { vassal: u64, kind: u32 },
     /// `CM_Allegiance::SendNotice_Vassal_SwearDone`.
     VassalSwearDone { patron: u64, kind: u32 },
+    // --- Raised by the script VM (ac2-script `host::notices_typed`). ---
+    /// `CM_Quest::SendNotice_UpdateQuests`: one quest changed (`code` says how).
+    UpdateQuests { code: u32, quest: Box<GmQuestInfo> },
+    /// `CM_Quest::SendNotice_UpdateStoryQuests`.
+    UpdateStoryQuests { code: u32, act: u32 },
+    /// `CM_Character::SendNotice_UpdateEffect`: the effects changed (the strip asks again).
+    UpdateEffect,
+    /// `CM_Money::SendNotice_UpdateMoney`.
+    UpdateMoney(u32),
+    /// `CM_Money::SendNotice_GhostMoneyBag`: the money bag locked or unlocked.
+    GhostMoneyBag(bool),
+    /// `CM_Character::SendNotice_UpdateVitae`.
+    UpdateVitae {
+        vitae: f32,
+        increment: f32,
+        cost: f32,
+    },
+    /// `CM_Character::SendNotice_UpdateFactionStatus`.
+    UpdateFactionStatus(u32),
+    /// `CM_Character::SendNotice_UpdateSelectability`.
+    UpdateSelectability(bool),
+    /// `CM_Character::SendNotice_UpdateResetTime`.
+    UpdateResetTime,
+    /// `CM_Character::SendNotice_UpdateDeathState`.
+    UpdateDeathState(bool),
+    /// `CM_Character::SendNotice_ChangeRadarLook`.
+    ChangeRadarLook,
+    /// `CM_Character::SendNotice_DisplayMessage`: a message box.
+    DisplayMessage { text: StringInfo, topmost: bool },
+    /// `CM_Character::SendNotice_UpdateMountState`.
+    UpdateMountState(bool),
+    /// `CM_Character::SendNotice_ResurrectionRequestedByOther`: who offers it.
+    ResurrectionRequestedByOther(StringInfo),
+    /// `CM_Character::SendNotice_PulseMissed`: the effect id.
+    PulseMissed(u32),
+    /// `CM_Character::SendNotice_AddMarker`: a radar/map marker.
+    AddMarker {
+        kind: u32,
+        id: u64,
+        cell: u32,
+        image: u32,
+        message: StringInfo,
+    },
+    /// `CM_Character::SendNotice_ClearMarkers`.
+    ClearMarkers(u32),
+    /// `CM_Character::SendNotice_RemoveMarker`.
+    RemoveMarker { kind: u32, id: u64 },
+    /// `CM_Character::SendNotice_AddPet`.
+    AddPet {
+        pet: u64,
+        name: StringInfo,
+        icon: u32,
+        mode: u32,
+    },
+    /// `CM_Character::SendNotice_RemovePet`.
+    RemovePet(u64),
+    /// `CM_Character::SendNotice_UpdatePetMode`.
+    UpdatePetMode { pet: u64, mode: u32 },
+    /// `CM_Character::SendNotice_UpdatePetName`.
+    UpdatePetName { pet: u64, name: StringInfo },
+    /// `CM_Character::SendNotice_PetIsUnderAttack`.
+    PetIsUnderAttack(u64),
+    /// `CM_Combat::SendNotice_UpdateAttackState`.
+    UpdateAttackState(bool),
+    /// `CM_Combat::SendNotice_RequestSpecialAttack`.
+    RequestSpecialAttack { maneuver: u32, attack: u32 },
+    /// `CM_Combat::SendNotice_StartSpecialAttack`.
+    StartSpecialAttack(u32),
+    /// `CM_Combat::SendNotice_EndSpecialAttack`.
+    EndSpecialAttack(u32),
+    /// `CM_Combat::SendNotice_ToggleSpecialAttack`.
+    ToggleSpecialAttack { maneuver: u32, toggled: bool },
+    /// `CM_Communication::SendNotice_DoAssistedTell`: start a tell to `target`.
+    DoAssistedTell(String),
+    /// `CM_Communication::SendNotice_ReloadChatSettings`.
+    ReloadChatSettings,
+    /// `CM_Craft::SendNotice_UpdateCraftPanel`.
+    UpdateCraftPanel,
+    /// `CM_Craft::SendNotice_AddIngredient_Done`.
+    AddIngredientDone {
+        recipe: u32,
+        ordinal: u32,
+        ingredient: u64,
+        spinner: u32,
+        error: u32,
+    },
+    /// `CM_Craft::SendNotice_ExecuteCraft_Done`.
+    ExecuteCraftDone { recipe: u32, error: u32 },
+    /// `CM_Craft::SendNotice_UpdateCost`.
+    UpdateCraftCost {
+        recipe: u32,
+        cost: i32,
+        request: u32,
+    },
+    /// `CM_Craft::SendNotice_OpenIngredientPanel`.
+    OpenIngredientPanel(u32),
+    /// `CM_Trade::SendNotice_Trade_BeRegistered`.
+    TradeRegistered {
+        initiator: u64,
+        partner: u64,
+        partner_name: StringInfo,
+    },
+    /// `CM_Trade::SendNotice_Trade_BeOpened`.
+    TradeOpened,
+    /// `CM_Trade::SendNotice_Trade_BeClosed`.
+    TradeClosed { source: u64, kind: u32 },
+    /// `CM_Trade::SendNotice_Trade_BeAccepted`.
+    TradeAccepted(u64),
+    /// `CM_Trade::SendNotice_Trade_BeDeclined`.
+    TradeDeclined(u64),
+    /// `CM_Trade::SendNotice_Trade_BeReset`.
+    TradeReset,
+    /// `CM_Trade::SendNotice_Trade_BeAcceptanceCleared`.
+    TradeAcceptanceCleared,
+    /// `CM_Trade::SendNotice_Trade_BeOffered`.
+    TradeOffered { source: u64, item: u64, amount: u32 },
+    /// `CM_Trade::SendNotice_Trade_BeRevoked`.
+    TradeRevoked { source: u64, item: u64 },
+    /// `CM_UI::SendNotice_PortalSpace`.
+    PortalSpace(bool),
+    /// `CM_UI::SendNotice_OpenExaminationPanel`.
+    OpenExaminationPanel,
+    /// `CM_Usage::SendNotice_SetTargetingPointer`.
+    SetTargetingPointer(bool),
+    /// `CM_Usage::SendNotice_UseBook`.
+    UseBook {
+        show_controls: bool,
+        mode: u32,
+        title: String,
+        text: String,
+        image: u32,
+    },
+    /// `CM_Friends::SendNotice_GUNResult_AddFriend`.
+    FriendAdded(String),
+    /// `CM_Friends::SendNotice_GUNResult_RemoveFriend`.
+    FriendRemoved(String),
+    /// `CM_Friends::SendNotice_LocalStatus`.
+    LocalStatus(u32),
+    /// `CM_Store::SendNotice_UpdateSale`.
+    UpdateSale { item: u64, stock: i32 },
+    /// `CM_Store::SendNotice_LeaveStore`.
+    LeaveStore,
+    /// `CM_Store::SendNotice_ConfirmPurchase`.
+    ConfirmPurchase {
+        product: StringInfo,
+        quantity: u32,
+        trade_name: StringInfo,
+        cost: u32,
+    },
+    /// `CM_Store::SendNotice_LeaveCatalog`.
+    LeaveCatalog,
+    /// `CM_Store::SendNotice_LeaveConsignment`.
+    LeaveConsignment,
+    /// `CM_Store::SendNotice_ShowSaleReminder`.
+    ShowSaleReminder(bool),
 }

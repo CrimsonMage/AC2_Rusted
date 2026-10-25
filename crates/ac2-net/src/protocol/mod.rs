@@ -57,9 +57,10 @@ pub use inventory_bulk::{
 pub use movement::{MoveTarget, MovementParameters, PhysicsStory, StoryHook, TargetPosition};
 pub use native::{
     ntype, ExaminationDataNode, ExaminationProfile, ExaminationRequest, ExaminationValue,
-    GameplayOptionsProfile, GmKeyframe, GmRaceSexInfo, GmSceneInfo, HashKey, MissileParameters,
-    NativeObject, RandomSelectionTable, ScriptHash, ScriptList, SelectionElement, SelectionInfo,
-    ShortcutInfo, SkillUiNode, UiLocation, UiSaveLocations, WordTable,
+    GameplayOptionsProfile, GmKeyframe, GmQuestInfo, GmRaceSexInfo, GmSceneInfo, HashKey,
+    MissileParameters, NativeObject, RandomSelectionTable, ScriptHash, ScriptList,
+    SelectionElement, SelectionInfo, ShortcutInfo, SkillUiNode, UiLocation, UiSaveLocations,
+    WordTable,
 };
 pub use object::CreateObject;
 pub use opcode::Opcode;

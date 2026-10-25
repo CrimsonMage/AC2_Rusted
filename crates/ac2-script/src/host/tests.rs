@@ -212,8 +212,8 @@ fn notices_decode_by_signature() {
     let vm = host.vm_mut();
     let obj = vm.new_wstring(Vec::new());
     vm.owners.insert(obj, 0x5000_0001);
-    // CM_Money::SendNotice_UpdateMoney(obj, amount): no ac2-weenie type.
-    run_efun(vm, 0x008C_0002, &[obj, 250], u32::MAX);
+    // CM_Physics::SendNotice_Do3DDamage(obj, blob): no ac2-weenie type (a null blob here).
+    run_efun(vm, 0x008D_0001, &[obj, u32::MAX], u32::MAX);
     // CM_Character::SendNotice_UpdateSkillPanel(obj, availableXP, credits, heroCredits).
     run_efun(vm, 0x0085_0005, &[obj, 0x1, 0x2, 3, 4], u32::MAX);
     // CM_Inventory::SendNotice_UpdateInventory(obj, code, itemID, location).
@@ -232,9 +232,9 @@ fn notices_decode_by_signature() {
     assert_eq!(
         host.take_script_notices(),
         vec![ScriptNotice {
-            name: "CM_Money::SendNotice_UpdateMoney",
+            name: "CM_Physics::SendNotice_Do3DDamage",
             object: 0x5000_0001,
-            args: vec![NoticeArg::Int(250)],
+            args: vec![NoticeArg::Null],
         }]
     );
     let notices = host.take_notices();
@@ -267,6 +267,55 @@ fn notices_decode_by_signature() {
             pk: 2
         }
     );
+}
+
+/// The quest journal's data: `gmQuestInfoList::UpdateQuestInfo` keeps the newest bestowal
+/// first and updates a known quest in place (`bNew` 0), and `CM_Quest::SendNotice_UpdateQuests`
+/// hands the quest on typed.
+#[test]
+fn quests_sort_newest_first_and_notify_typed() {
+    use crate::native::{ntype, NativeObject};
+    use ac2_net::protocol::{GmQuestInfo, NativeObject as W};
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let vm = host.vm_mut();
+    let obj = vm.new_wstring(Vec::new());
+    vm.owners.insert(obj, 0x5000_0001);
+    let new = |vm: &mut Vm, t: u32| vm.refs.create_native(t, NativeObject::new_empty(t));
+    let list = new(vm, ntype::GM_QUEST_INFO_LIST);
+    let quest = |vm: &mut Vm, id: u32, bestowal: f64| {
+        let q = GmQuestInfo {
+            id,
+            bestowal,
+            ..GmQuestInfo::default()
+        };
+        vm.refs.create_native(
+            ntype::GM_QUEST_INFO,
+            NativeObject::Wire(Box::new(W::GmQuestInfo(Box::new(q)))),
+        )
+    };
+    for (id, at) in [(1, 10.0), (2, 30.0), (3, 20.0)] {
+        let q = quest(vm, id, at);
+        assert_eq!(efun_result(vm, 0x00A1_0002, &[q, u32::MAX], list, 4), 1);
+    }
+    let ids: Vec<u32> = match vm.native(list) {
+        Some(NativeObject::Wire(w)) => match &**w {
+            W::GmQuestInfoList(l) => l.iter().map(|q| q.id).collect(),
+            _ => Vec::new(),
+        },
+        _ => Vec::new(),
+    };
+    assert_eq!(ids, [2, 3, 1]);
+    assert_eq!(efun_result(vm, 0x00A1_0006, &[], list, 2), 3);
+    let q = quest(vm, 3, 20.0);
+    assert_eq!(efun_result(vm, 0x00A1_0004, &[q], list, 3), 1); // Erase
+    assert_eq!(efun_result(vm, 0x00A1_0006, &[], list, 2), 2);
+    // CM_Quest::SendNotice_UpdateQuests(obj, code, quest).
+    run_efun(vm, 0x008E_0001, &[obj, 5, q], u32::MAX);
+    assert!(matches!(
+        &host.take_notices()[..],
+        [GameplayNotice::UpdateQuests { code: 5, quest }] if quest.id == 3
+    ));
 }
 
 /// `RequestGUN_SendToRoom` goes out only through a chat service; with none, retail returns the
@@ -405,8 +454,9 @@ fn init_player_runs_to_its_end() {
         .iter()
         .any(|n| matches!(n, GameplayNotice::UpdateSkillPanel { .. })));
     assert!(notices.contains(&GameplayNotice::ReloadOptions));
-    let raised: Vec<_> = host.take_script_notices().iter().map(|n| n.name).collect();
-    assert!(raised.contains(&"CM_Money::SendNotice_UpdateMoney"));
+    assert!(notices
+        .iter()
+        .any(|n| matches!(n, GameplayNotice::UpdateMoney(_))));
     assert!(host.take_dropped().is_empty());
 }
 

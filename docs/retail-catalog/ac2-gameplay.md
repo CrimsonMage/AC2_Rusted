@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 104 done, 10 partial, 376 to do, 9 skipped.
+499 retail functions: 114 done, 10 partial, 366 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (2/4)
@@ -339,13 +339,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gmKeyframe::Verify` · 0060a900 · legions 005cb610
 - [x] `gmKeyframe::StreamPack` · 0060aa40 · legions 005cb750 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
-## `ac2/shared/src/quest/gmquestinfo.cpp.c` (0/15)
+## `ac2/shared/src/quest/gmquestinfo.cpp.c` (5/15)
 
 ### gmQuestInfo
 - [ ] `gmQuestInfo::~gmQuestInfo` · 0060aae0 · legions 005cb7f0
-- [ ] `gmQuestInfo::Init` · 0060ab10 · legions 005cb820
-- [ ] `gmQuestInfo::Clear` · 0060abd0 · legions 005cb8e0
-- [ ] `gmQuestInfo::GetStatus` · 0060ac50 · legions 005cb960
+- [x] `gmQuestInfo::Init` · 0060ab10 · legions 005cb820 — ac2-script glue::quests / ac2-net native::quest
+- [x] `gmQuestInfo::Clear` · 0060abd0 · legions 005cb8e0 — ac2-script glue::quests / ac2-net native::quest
+- [x] `gmQuestInfo::GetStatus` · 0060ac50 · legions 005cb960 — ac2-script glue::quests / ac2-net native::quest
 - [ ] `gmQuestInfo::MaxedOut` · 0060ac60 · legions 005cb970
 - [ ] `gmQuestInfo::GetSecondsRemaining` · 0060ac80 · legions 005cb990
 - [ ] `gmQuestInfo::InqExtraText` · 0060aca0 · legions 005cb9b0
@@ -353,22 +353,22 @@ Legend and workflow: [README](README.md).
 - [ ] `gmQuestInfo::gmQuestInfo` · 0060adb0 · legions 005cbac0
 - [ ] `gmQuestInfo::gmQuestInfo` · 0060ae20 · legions 005cbb30
 - [ ] `gmQuestInfo::operator=` · 0060ae60 · legions 005cbb70
-- [ ] `gmQuestInfo::Update` · 0060aef0 · legions 005cbc00
-- [ ] `gmQuestInfo::StreamPack` · 0060af00 · legions 005cbc10
+- [x] `gmQuestInfo::Update` · 0060aef0 · legions 005cbc00 — ac2-script glue::quests / ac2-net native::quest
+- [x] `gmQuestInfo::StreamPack` · 0060af00 · legions 005cbc10 — ac2-script glue::quests / ac2-net native::quest
 - [ ] `gmQuestInfo::gmQuestInfo` · 0060aff0 · legions 005cbd00
 - [ ] `gmQuestInfo::DumpW` · 0060b030 · legions 005cbd40
 
-## `ac2/shared/src/quest/gmquestinfolist.cpp.c` (0/12)
+## `ac2/shared/src/quest/gmquestinfolist.cpp.c` (5/12)
 
 ### gmQuestInfoList
-- [ ] `gmQuestInfoList::Find` · 0060b240 · legions 005cbf50
-- [ ] `gmQuestInfoList::UpdateQuestInfo` · 0060b3d0 · legions 005cc120
-- [ ] `gmQuestInfoList::Erase` · 0060b4b0 · legions 005cc200
+- [x] `gmQuestInfoList::Find` · 0060b240 · legions 005cbf50 — ac2-script glue::quests / ac2-net native::quest
+- [x] `gmQuestInfoList::UpdateQuestInfo` · 0060b3d0 · legions 005cc120 — ac2-script glue::quests / ac2-net native::quest
+- [x] `gmQuestInfoList::Erase` · 0060b4b0 · legions 005cc200 — ac2-script glue::quests / ac2-net native::quest
 
 ### PList<gmQuestInfo>
-- [ ] `PList<gmQuestInfo>::Pack` · 0060b500 · legions 005cc250
+- [x] `PList<gmQuestInfo>::Pack` · 0060b500 · legions 005cc250 — ac2-script glue::quests / ac2-net native::quest
 - [ ] `PList<gmQuestInfo>::GetPackSize` · 0060b550
-- [ ] `PList<gmQuestInfo>::UnPack` · 0060b590 · legions 005cc2fa
+- [x] `PList<gmQuestInfo>::UnPack` · 0060b590 · legions 005cc2fa — ac2-script glue::quests / ac2-net native::quest
 
 ### gmQuestInfoList
 - [ ] `gmQuestInfoList::gmQuestInfoList` · 0060b6d0

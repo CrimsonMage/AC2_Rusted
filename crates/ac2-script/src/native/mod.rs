@@ -97,6 +97,8 @@ pub mod ntype {
     pub const EXAMINATION_REQUEST: u32 = 0x9A;
     pub const GAMEPLAY_OPTIONS_PROFILE: u32 = 0x9B;
     pub const SHORTCUT_INFO: u32 = 0xAC;
+    pub const GM_QUEST_INFO: u32 = 0xA0;
+    pub const GM_QUEST_INFO_LIST: u32 = 0xA1;
     pub const ALLEGIANCE_DATA_ADAPTOR: u32 = 0x82;
     pub const ALLEGIANCE_PROFILE_ADAPTOR: u32 = 0x83;
     pub const FELLOW_ADAPTOR: u32 = 0x93;
@@ -252,6 +254,12 @@ impl NativeObject {
                 )))
             }
             ntype::GAMEPLAY_OPTIONS_PROFILE => NativeObject::GameplayOptions(Box::default()),
+            ntype::GM_QUEST_INFO => NativeObject::Wire(Box::new(
+                ac2_net::protocol::NativeObject::GmQuestInfo(Box::default()),
+            )),
+            ntype::GM_QUEST_INFO_LIST => NativeObject::Wire(Box::new(
+                ac2_net::protocol::NativeObject::GmQuestInfoList(Vec::new()),
+            )),
             ntype::FELLOW_ADAPTOR => NativeObject::Fellow(Box::new(social::fellow())),
             ntype::FELLOWSHIP_ADAPTOR => NativeObject::Fellowship(Box::new(social::fellowship())),
             ntype::ALLEGIANCE_DATA_ADAPTOR => {

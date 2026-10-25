@@ -26,6 +26,7 @@ mod options;
 mod options_tables;
 mod places;
 mod position;
+mod quests;
 mod random;
 mod repository;
 mod skill_node;
@@ -70,6 +71,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     examination::register(efuns);
     places::register(efuns);
     social::register(efuns);
+    quests::register(efuns);
 }
 
 pub(crate) use chargen::empty_race_sex_info;

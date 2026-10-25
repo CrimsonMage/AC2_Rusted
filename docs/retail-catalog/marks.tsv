@@ -464,6 +464,23 @@ key	status	note
 004724d0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00472560	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 004725d0	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
+00472650	x	ac2-script glue::quests / ac2-net native::quest
+004726d0	x	ac2-script glue::quests / ac2-net native::quest
+00472750	x	ac2-script glue::quests / ac2-net native::quest
+004727c0	x	ac2-script glue::quests / ac2-net native::quest
+00472820	x	ac2-script glue::quests / ac2-net native::quest
+004728a0	-	ac2-script: debug text dump, not bound
+00472960	x	ac2-script glue::quests / ac2-net native::quest
+00472a00	x	ac2-script glue::quests / ac2-net native::quest
+00472ab0	x	ac2-script glue::quests / ac2-net native::quest
+00472b50	x	ac2-script glue::quests / ac2-net native::quest
+00472c10	x	ac2-script glue::quests / ac2-net native::quest
+00472c80	x	ac2-script glue::quests / ac2-net native::quest
+00472cf0	x	ac2-script glue::quests / ac2-net native::quest
+00472d60	-	ac2-script: debug text dump, not bound
+00472e20	x	ac2-script glue::quests / ac2-net native::quest
+00472ed0	x	ac2-script glue::quests / ac2-net native::quest
+00472f80	x	ac2-script glue::quests / ac2-net native::quest
 00473990	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 004739f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00473a50	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -3045,6 +3062,17 @@ key	status	note
 006097c0	x	ac2-net protocol::native (native objects in script-call PackBuffers)
 00609a80	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 0060aa40	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+0060ab10	x	ac2-script glue::quests / ac2-net native::quest
+0060abd0	x	ac2-script glue::quests / ac2-net native::quest
+0060ac50	x	ac2-script glue::quests / ac2-net native::quest
+0060aef0	x	ac2-script glue::quests / ac2-net native::quest
+0060af00	x	ac2-script glue::quests / ac2-net native::quest
+0060b240	x	ac2-script glue::quests / ac2-net native::quest
+0060b330	x	ac2-script glue::quests / ac2-net native::quest
+0060b3d0	x	ac2-script glue::quests / ac2-net native::quest
+0060b4b0	x	ac2-script glue::quests / ac2-net native::quest
+0060b500	x	ac2-script glue::quests / ac2-net native::quest
+0060b590	x	ac2-script glue::quests / ac2-net native::quest
 0060c010	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060c0f0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060c1a0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)

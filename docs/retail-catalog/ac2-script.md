@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1240 done, 80 partial, 1070 to do, 78 skipped.
+2468 retail functions: 1253 done, 80 partial, 1055 to do, 80 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -298,28 +298,28 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmKeyframe::CallEFun_GetMovieTrack` · 00473810
 - [ ] `ggmKeyframe::CallEFun_GetSubtitle` · 004738e0
 
-## `ac2/shared/src/interp/glue/ggmquestinfo.cpp.c` (0/8)
+## `ac2/shared/src/interp/glue/ggmquestinfo.cpp.c` (7/8)
 
 ### ggmQuestInfo
-- [ ] `ggmQuestInfo::CallEFun_Init` · 00472b50
-- [ ] `ggmQuestInfo::CallEFun_GetQuestID` · 00472c10
-- [ ] `ggmQuestInfo::CallEFun_GetStatus` · 00472c80
-- [ ] `ggmQuestInfo::CallEFun_PlaysFXOnUpdate` · 00472cf0
-- [ ] `ggmQuestInfo::CallEFun_DumpW` · 00472d60
-- [ ] `ggmQuestInfo::CallEFun_GetCurrentJournalEntry` · 00472e20
-- [ ] `ggmQuestInfo::CallEFun_GetQuestDescription` · 00472ed0
-- [ ] `ggmQuestInfo::CallEFun_GetQuestName` · 00472f80
+- [x] `ggmQuestInfo::CallEFun_Init` · 00472b50 — ac2-script glue::quests / ac2-net native::quest
+- [x] `ggmQuestInfo::CallEFun_GetQuestID` · 00472c10 — ac2-script glue::quests / ac2-net native::quest
+- [x] `ggmQuestInfo::CallEFun_GetStatus` · 00472c80 — ac2-script glue::quests / ac2-net native::quest
+- [x] `ggmQuestInfo::CallEFun_PlaysFXOnUpdate` · 00472cf0 — ac2-script glue::quests / ac2-net native::quest
+- [-] `ggmQuestInfo::CallEFun_DumpW` · 00472d60 — ac2-script: debug text dump, not bound
+- [x] `ggmQuestInfo::CallEFun_GetCurrentJournalEntry` · 00472e20 — ac2-script glue::quests / ac2-net native::quest
+- [x] `ggmQuestInfo::CallEFun_GetQuestDescription` · 00472ed0 — ac2-script glue::quests / ac2-net native::quest
+- [x] `ggmQuestInfo::CallEFun_GetQuestName` · 00472f80 — ac2-script glue::quests / ac2-net native::quest
 
-## `ac2/shared/src/interp/glue/ggmquestinfolist.cpp.c` (0/7)
+## `ac2/shared/src/interp/glue/ggmquestinfolist.cpp.c` (6/7)
 
 ### ggmQuestInfoList
-- [ ] `ggmQuestInfoList::CallEFun_Erase` · 004726d0
-- [ ] `ggmQuestInfoList::CallEFun_num_elements` · 00472750
-- [ ] `ggmQuestInfoList::CallEFun_push_tail` · 00472820
-- [ ] `ggmQuestInfoList::CallEFun_DumpW` · 004728a0
-- [ ] `ggmQuestInfoList::CallEFun_Find` · 00472960 · legions 00470640
-- [ ] `ggmQuestInfoList::CallEFun_UpdateQuestInfo` · 00472a00 · legions 004706c0
-- [ ] `ggmQuestInfoList::CallEFun_pop_head` · 00472ab0
+- [x] `ggmQuestInfoList::CallEFun_Erase` · 004726d0 — ac2-script glue::quests / ac2-net native::quest
+- [x] `ggmQuestInfoList::CallEFun_num_elements` · 00472750 — ac2-script glue::quests / ac2-net native::quest
+- [x] `ggmQuestInfoList::CallEFun_push_tail` · 00472820 — ac2-script glue::quests / ac2-net native::quest
+- [-] `ggmQuestInfoList::CallEFun_DumpW` · 004728a0 — ac2-script: debug text dump, not bound
+- [x] `ggmQuestInfoList::CallEFun_Find` · 00472960 · legions 00470640 — ac2-script glue::quests / ac2-net native::quest
+- [x] `ggmQuestInfoList::CallEFun_UpdateQuestInfo` · 00472a00 · legions 004706c0 — ac2-script glue::quests / ac2-net native::quest
+- [x] `ggmQuestInfoList::CallEFun_pop_head` · 00472ab0 — ac2-script glue::quests / ac2-net native::quest
 
 ## `ac2/shared/src/interp/glue/ggmracesexinfo.cpp.c` (9/9)
 

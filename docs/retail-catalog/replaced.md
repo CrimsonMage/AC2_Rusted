@@ -1,6 +1,6 @@
 # replaced: Third-party libraries, CRT and container templates replaced by Rust
 
-2058 retail functions: 26 done, 0 partial, 0 to do, 2032 skipped.
+2058 retail functions: 29 done, 0 partial, 0 to do, 2029 skipped.
 Legend and workflow: [README](README.md).
 
 ## `_libraries/ImeUI.lib/ImeUi.obj.c` (0/36)
@@ -1988,11 +1988,11 @@ Legend and workflow: [README](README.md).
 - [-] `List<gmActInfo>::insert` · 00474360 · legions 00471590 — Rust std replaces it
 - [-] `List<gmActInfo>::insert_sort` · 00474470 · legions 00471680 — Rust std replaces it
 
-## `ac2/shared/src/interp/glue/ggmquestinfolist.cpp.c` (0/2)
+## `ac2/shared/src/interp/glue/ggmquestinfolist.cpp.c` (2/2)
 
 ### List<gmQuestInfo>
-- [-] `List<gmQuestInfo>::push_back` · 00472650 · legions 00470410 — Rust std replaces it
-- [-] `List<gmQuestInfo>::pop_front` · 004727c0 · legions 004704f0 — Rust std replaces it
+- [x] `List<gmQuestInfo>::push_back` · 00472650 · legions 00470410 — ac2-script glue::quests / ac2-net native::quest
+- [x] `List<gmQuestInfo>::pop_front` · 004727c0 · legions 004704f0 — ac2-script glue::quests / ac2-net native::quest
 
 ## `ac2/shared/src/interp/glue/ggmsceneinfolist.cpp.c` (0/2)
 
@@ -2007,12 +2007,12 @@ Legend and workflow: [README](README.md).
 - [-] `List<UIShopSale>::insert` · 0046e180 · legions 0046e4d0 — Rust std replaces it
 - [-] `List<UIShopSale>::insert_sort` · 0046e220 · legions 0046e570 — Rust std replaces it
 
-## `ac2/shared/src/quest/gmquestinfolist.cpp.c` (0/5)
+## `ac2/shared/src/quest/gmquestinfolist.cpp.c` (1/5)
 
 ### List<gmQuestInfo>
 - [-] `List<gmQuestInfo>::insert` · 0060b1a0 · legions 005cbeb0 — Rust std replaces it
 - [-] `List<gmQuestInfo>::remove` · 0060b2a0 · legions 005cbfb0 — Rust std replaces it
-- [-] `List<gmQuestInfo>::insert_sort` · 0060b330 · legions 005cc040 — Rust std replaces it
+- [x] `List<gmQuestInfo>::insert_sort` · 0060b330 · legions 005cc040 — ac2-script glue::quests / ac2-net native::quest
 - [-] `List<gmQuestInfo>::remove` · 0060b380 · legions 005cc0d0 — Rust std replaces it
 - [-] `List<gmQuestInfo>::flush` · 0060b430 · legions 005cc180 — Rust std replaces it
 
