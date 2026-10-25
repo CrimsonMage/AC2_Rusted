@@ -251,20 +251,7 @@ impl Progress {
     ) -> Option<Vec<GameplayNotice>> {
         match (function, values) {
             // 0xE -> `CAgent` 0x3 (`Agent` 0x6C): the whole repository, then the panel.
-            (0x8214_000E, [v]) => {
-                let graph = reference(v)?;
-                let repo = heap(graph, root_id(graph)?)?;
-                if repo.pkg_id != SKILL_REPOSITORY_PACKAGE || repo.slots.len() != 8 {
-                    return None;
-                }
-                self.skills = Skills {
-                    credits: repo.slots[0],
-                    hero_credits: repo.slots[3],
-                    untraining: repo.slots[5],
-                    skills: skill_table(graph, repo.slots[7]).unwrap_or_default(),
-                };
-                Some(vec![self.panel(q)])
-            }
+            (0x8214_000E, [v]) => Some(vec![self.login_skills(v, q)?]),
             // 0x11 -> `CAgent` 0x2 (`SkillRepository` 0x13): the skill table, then the panel.
             (0x8214_0011, [v]) => {
                 let graph = reference(v)?;
@@ -290,6 +277,23 @@ impl Progress {
             }
             _ => None,
         }
+    }
+
+    /// `Agent` 0x6C (from `WM_Skill` 0xE, and `CPlayer` 0x65's argument 5 at login): the whole
+    /// repository, then the skill panel.
+    pub fn login_skills(&mut self, v: &PackValue, q: &WeenieQualities) -> Option<GameplayNotice> {
+        let graph = reference(v)?;
+        let repo = heap(graph, root_id(graph)?)?;
+        if repo.pkg_id != SKILL_REPOSITORY_PACKAGE || repo.slots.len() != 8 {
+            return None;
+        }
+        self.skills = Skills {
+            credits: repo.slots[0],
+            hero_credits: repo.slots[3],
+            untraining: repo.slots[5],
+            skills: skill_table(graph, repo.slots[7]).unwrap_or_default(),
+        };
+        Some(self.panel(q))
     }
 
     /// `CPlayer` 0x85 on long quality 0x12D (`AvailableXP`): the skill panel again.

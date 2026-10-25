@@ -213,6 +213,12 @@ fn the_cache_only_vm_runs_the_login_and_answers_the_ui() {
     let idle = FrameInput::default();
     step(&mut client, &server, &idle);
     assert!(client.script_host().unwrap().instance(PLAYER).is_some());
+    // A character without skills or shortcuts (the double's own are `character_7160`'s).
+    {
+        let mut s = server.borrow_mut();
+        s.script_world.character.skills.clear();
+        s.script_world.options = Some(Default::default());
+    }
     server.borrow_mut().send_init_player();
     for _ in 0..8 {
         step(&mut client, &server, &idle);

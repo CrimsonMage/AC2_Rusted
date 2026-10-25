@@ -68,6 +68,13 @@ impl OnlineSession {
         true
     }
 
+    /// `gmCWInterface::SetWhichShortcutSet` (`CPlayer` 0x5 ->
+    /// `GameplayOptionsProfile::SetWhichShortcutSet`): the bar shows set `set`; a profile
+    /// write only, nothing goes to the server.
+    pub fn set_shortcut_set(&mut self, set: u32) {
+        self.progress.shortcuts.set = set;
+    }
+
     /// A skill panel request (`gmCWInterface::RequestTrainSkill` and kin): its `WM_Skill`
     /// call, as the stub packs it.
     pub fn request_skill(&mut self, request: SkillRequest) {
@@ -87,6 +94,21 @@ impl OnlineSession {
         let q = player_qualities(&self.world);
         let notices = self.progress.receive_skill(function, &values, q)?;
         Some(notices.into_iter().map(SessionEvent::Notice).collect())
+    }
+
+    /// `CPlayer` 0x65's skill repository (`WM_Player` 0x27 argument 5, `Agent` 0x6C) and its
+    /// `UpdateSkillPanel`.
+    pub(super) fn init_player_skills(&mut self, arguments: &[u8]) -> Vec<SessionEvent> {
+        let Ok(values) = unpack_values(arguments) else {
+            return Vec::new();
+        };
+        let q = player_qualities(&self.world);
+        values
+            .get(4)
+            .and_then(|repository| self.progress.login_skills(repository, q))
+            .map(SessionEvent::Notice)
+            .into_iter()
+            .collect()
     }
 
     /// `CPlayer` 0x65's options (`WM_Player` 0x27 argument 4).

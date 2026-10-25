@@ -7,6 +7,7 @@
 mod appearance;
 mod assembly;
 mod channel;
+mod character;
 mod lossy;
 mod reliable;
 mod script;
@@ -17,6 +18,7 @@ pub use appearance::{
 };
 pub use assembly::{fragment_header_bytes, Assembler};
 pub use channel::{Channel, ChannelStats, Conditions, Direction, InFlight, SplitMix};
+pub use character::{default_options, Character, MELEE_ATTACK, MELEE_AUTO_ATTACK, RACE_HUMAN};
 pub use lossy::LossyTransport;
 pub use reliable::{newer, ClientTracker, SentStore, Stored, Verdict, MAX_IDS};
 pub use script::ScriptWorld;
@@ -266,10 +268,24 @@ fn create_object(spawn: &Spawn) -> Vec<u8> {
 }
 
 /// The player's qualities: int 20 (the weenie type, 31: a player for
-/// `EngineWeenieTypeSystem` 0xC) and int 0x19.
+/// `EngineWeenieTypeSystem` 0xC), int 0x19 and int 290 (the race, Human).
 fn player_description() -> Vec<u8> {
     let mut b = Vec::new();
-    words(&mut b, &[0x0001_0068, 2, 0x8100_110F, 2, 20, 31, 0x19, 7]);
+    words(
+        &mut b,
+        &[
+            0x0001_0068,
+            2,
+            0x8100_110F,
+            3,
+            20,
+            31,
+            0x19,
+            7,
+            290,
+            RACE_HUMAN,
+        ],
+    );
     b
 }
 

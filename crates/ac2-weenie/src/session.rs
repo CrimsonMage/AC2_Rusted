@@ -565,8 +565,9 @@ impl OnlineSession {
                 }
                 let player = target.is_some() && target == self.world.player();
                 if player && function == ac2_net::protocol::script_function::INIT_PLAYER {
-                    // The session's inventory, shortcut and chat mirrors follow the login
-                    // whoever answers it; the notices are the stand-in's only.
+                    // The session's skill, inventory, shortcut and chat mirrors follow the
+                    // login whoever answers it; the notices are the stand-in's only.
+                    let skills = self.init_player_skills(&arguments);
                     let vitals = if stand_in {
                         self.init_player()
                     } else {
@@ -574,8 +575,11 @@ impl OnlineSession {
                     };
                     let inventory = self.init_player_inventory(&arguments);
                     let options = self.init_player_options(&arguments);
+                    // `CPlayer` 0x65's order: the skill panel, the contents and equipment, the
+                    // options, then the hero status and vitals.
                     if stand_in {
-                        out.extend(vitals.into_iter().chain(inventory).chain(options));
+                        out.extend(skills.into_iter().chain(inventory).chain(options));
+                        out.extend(vitals);
                     }
                 }
                 if stand_in && player {
