@@ -32,6 +32,7 @@ use crate::world::{World, WorldEvent, WorldState};
 
 mod gameplay;
 mod inventory;
+mod money;
 mod progress;
 mod select;
 mod shell;
@@ -598,6 +599,11 @@ impl OnlineSession {
                     }
                     out.extend(self.receive_chat_call(function, &arguments));
                     out.extend(self.receive_combat(function, &arguments));
+                    out.extend(
+                        self.receive_money(function, &arguments)
+                            .into_iter()
+                            .flatten(),
+                    );
                     if let Some(events) = self.receive_script(function, &arguments) {
                         out.extend(events);
                         return;
@@ -633,6 +639,7 @@ impl OnlineSession {
                         out.extend(self.item_quality_changed(object, table, update.quality));
                         if player {
                             out.extend(self.progress_quality_changed(table, update.quality));
+                            out.extend(self.money_changed(table, update.quality));
                         }
                     }
                 }

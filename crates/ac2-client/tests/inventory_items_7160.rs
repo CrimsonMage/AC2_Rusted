@@ -17,7 +17,9 @@ use ac2_script::host::ScriptHost;
 use ac2_script::vm::Program;
 use ac2_script::{load_wlib, LEGIONS_WLIB_DID};
 use common::*;
-use legions_server_double::{Spawn, State, PACK, PLAYER, POTIONS, SWORD};
+use legions_server_double::{
+    Spawn, State, PACK, PLAYER, POTIONS, PRIMARY_HAND, RATIONS, SECONDARY_HAND, SWORD,
+};
 
 /// Gives the starter items and opens the pack.
 fn open_the_pack(client: &mut Client, server: &Rc<RefCell<State>>) {
@@ -60,18 +62,20 @@ fn the_frame_carries_what_the_panels_show() {
     let inventory = &frame.inventory;
     assert_eq!(inventory.pack.id, PLAYER);
     assert_eq!(inventory.pack.packs, [PACK]);
+    assert_eq!(
+        (inventory.pack.items.as_slice(), inventory.pack.capacity),
+        (&[POTIONS, SWORD][..], 24)
+    );
     let pack = inventory
         .containers
         .iter()
         .find(|c| c.id == PACK)
         .unwrap_or_else(|| panic!("{inventory:?}"));
-    assert_eq!(
-        (pack.items.as_slice(), pack.capacity),
-        (&[POTIONS, SWORD][..], 24)
-    );
+    assert_eq!((pack.items.as_slice(), pack.capacity), (&[RATIONS][..], 24));
     assert!(inventory.open.contains(&PACK));
     let ids: Vec<u64> = inventory.items.iter().map(|i| i.id).collect();
-    assert_eq!(ids, [PACK, POTIONS, SWORD]);
+    assert_eq!(ids, [PACK, POTIONS, SWORD, RATIONS]);
+    assert_eq!(inventory.money, 250);
 
     // A stack of five potions, stackable to ten: "5 <plural>" (the count and the plural).
     let potions = &inventory.items[1];
@@ -99,6 +103,12 @@ fn the_frame_carries_what_the_panels_show() {
         (Some((40, 50)), 50)
     );
     assert_eq!(sword.name.literal.as_deref(), Some("Practice Sword"));
+    // The sword goes in either hand, the primary when dropped on the doll's figure.
+    assert_eq!(
+        (sword.stats.valid_locations, sword.stats.preferred_location),
+        (PRIMARY_HAND | SECONDARY_HAND, PRIMARY_HAND)
+    );
+    assert!(ac2_weenie::EQUIP_LOCATIONS.contains(&PRIMARY_HAND));
 }
 
 #[test]
@@ -142,6 +152,11 @@ fn the_items_processes_answer_from_their_tables() {
         (0x8615_ECB3, StringVariable::Nested(n)) if n.literal.as_deref() == Some("Healing Potions")
     ));
     assert_eq!(sword.name.literal.as_deref(), Some("Practice Sword"));
+    // The backpack's pages: `Container` 0x3D / 0x3F over the player's items and its one
+    // segment (the double's listing: 24 slots, two items).
+    assert_eq!(client.contents_info(0), Ok((vec![POTIONS, SWORD], 0, 2)));
+    assert_eq!(client.contents_info(1), Ok((vec![POTIONS, SWORD], 2, 0)));
+    assert_eq!(client.container_segment_info(0), Ok((0, 2)));
     assert!(
         client.take_script_problems().is_empty(),
         "{:?}",

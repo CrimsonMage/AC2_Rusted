@@ -1,16 +1,31 @@
-//! The double's starter inventory: a pack (`CContainer`, package 0x1AA6) in the player's
-//! contents holding a stack of potions (`CItem` 0x1AA9, stackable) and a sword (`CWeapon`
-//! 0x1AAB, with durability), each a server-made (dynamic) object whose `WeenieDesc` carries
-//! what the inventory panels read and whose other qualities follow as updates.
+//! The double's starter inventory and money: the player's pack holds a stack of potions
+//! (`CItem` 0x1AA9, stackable) and a sword (`CWeapon` 0x1AAB, with durability, wielded in a
+//! hand) beside a side pack (`CContainer` 0x1AA6) with rations in it; each a server-made
+//! (dynamic) object whose `WeenieDesc` carries what the inventory panels read and whose other
+//! qualities follow as updates. The money bag's requests (`WM_Money` 0x7 / 0x8) move money.
 
-use ac2_net::protocol::{InstanceIdWithStamp, QualityUpdate, QualityValue, StringInfo, WeenieDesc};
+use ac2_net::protocol::{
+    entry_flags, ntype, HeapObject, InstanceIdWithStamp, NativeObject, PackValue, PackedEntry,
+    PackedReference, QualityUpdate, QualityValue, ScriptList, StringInfo, WeenieDesc,
+};
 
 use crate::{words, State, PLAYER};
 
-/// The pack, the potions, the sword.
+/// The side pack, the potions, the sword, the rations.
 pub const PACK: u64 = 0x8000_0000_0000_0101;
 pub const POTIONS: u64 = 0x8000_0000_0000_0102;
 pub const SWORD: u64 = 0x8000_0000_0000_0103;
+pub const RATIONS: u64 = 0x8000_0000_0000_0104;
+/// The player's own pack's slots (int 280 on the player).
+pub const MAIN_PACK_CAPACITY: i32 = 24;
+/// The money the starter inventory comes with.
+pub const STARTER_MONEY: i32 = 250;
+/// `PrimaryHand_InvLoc` / `SecondaryHand_InvLoc`.
+pub const PRIMARY_HAND: u32 = 0x40;
+pub const SECONDARY_HAND: u32 = 0x80;
+
+/// `ContainerSegmentDescriptor`: slot 0 the segment's slots, slot 1 the items in it.
+const SEGMENT_PACKAGE: u32 = 0x24A7;
 
 /// One item as the double makes it.
 #[derive(Debug, Clone, PartialEq)]
@@ -27,10 +42,32 @@ pub struct ItemSpawn {
     pub container: u64,
     /// Durability current and max (ints 619 / 618).
     pub durability: Option<(i32, i32)>,
-    /// Further qualities: stackable (bool 700), maximum stack (int 261), capacity (int 280).
+    /// Further qualities: stackable (bool 700), maximum stack (int 261), capacity (int 280),
+    /// valid and preferred equip locations (ints 275, 282).
     pub stackable: bool,
     pub max_stack: Option<i32>,
     pub capacity: Option<i32>,
+    pub locations: Option<(u32, u32)>,
+}
+
+impl ItemSpawn {
+    fn new(id: u64, package: u32, name: &'static str, container: u64) -> Self {
+        Self {
+            id,
+            package,
+            name,
+            plural: None,
+            icon: 0,
+            quantity: None,
+            value: 0,
+            container,
+            durability: None,
+            stackable: false,
+            max_stack: None,
+            capacity: None,
+            locations: None,
+        }
+    }
 }
 
 /// `CreateObject` for a contained item: no `VisualDesc` parts, a `PhysicsDesc` without a
@@ -64,53 +101,76 @@ pub fn item_object_bytes(item: &ItemSpawn) -> Vec<u8> {
 pub fn starter_items() -> Vec<ItemSpawn> {
     vec![
         ItemSpawn {
-            id: PACK,
-            package: 0x1AA6,
-            name: "Pack",
-            plural: None,
             icon: 0x0600_1000,
-            quantity: None,
             value: 10,
-            container: PLAYER,
-            durability: None,
-            stackable: false,
-            max_stack: None,
             capacity: Some(24),
+            ..ItemSpawn::new(PACK, 0x1AA6, "Pack", PLAYER)
         },
         ItemSpawn {
-            id: POTIONS,
-            package: 0x1AA9,
-            name: "Healing Potion",
             plural: Some("Healing Potions"),
             icon: 0x0600_1001,
             quantity: Some(5),
             value: 20,
-            container: PACK,
-            durability: None,
             stackable: true,
             max_stack: Some(10),
-            capacity: None,
+            ..ItemSpawn::new(POTIONS, 0x1AA9, "Healing Potion", PLAYER)
         },
         ItemSpawn {
-            id: SWORD,
-            package: 0x1AAB,
-            name: "Practice Sword",
-            plural: None,
             icon: 0x0600_1002,
-            quantity: None,
             value: 50,
-            container: PACK,
             durability: Some((40, 50)),
-            stackable: false,
-            max_stack: None,
-            capacity: None,
+            locations: Some((PRIMARY_HAND | SECONDARY_HAND, PRIMARY_HAND)),
+            ..ItemSpawn::new(SWORD, 0x1AAB, "Practice Sword", PLAYER)
+        },
+        ItemSpawn {
+            plural: Some("Rations"),
+            icon: 0x0600_1003,
+            quantity: Some(3),
+            value: 2,
+            stackable: true,
+            max_stack: Some(20),
+            ..ItemSpawn::new(RATIONS, 0x1AA9, "Ration", PACK)
         },
     ]
 }
 
+/// The segments `WM_Inventory` 0x53 (and `WM_Player` 0x27's argument 10) carry for a
+/// container (`Container` slot 18, read by `Container` 0x3F `GetContainerSegmentInfo`): an
+/// `RList` of `ContainerSegmentDescriptor`s. The double gives each container one segment, all
+/// its slots and items.
+pub fn segments(capacity: u32, items: usize) -> PackedReference {
+    let heap = |pkg_id, native, slots: Vec<u32>, tags| PackedEntry::Heap {
+        flags: entry_flags::KIND_HEAP | entry_flags::LOADED | entry_flags::RECURSE,
+        object: HeapObject {
+            pkg_state_id: 0,
+            pkg_id,
+            native,
+            slots,
+            tags,
+        },
+    };
+    let list = NativeObject::List(ScriptList {
+        native_type: ntype::R_LIST,
+        items: vec![2],
+    });
+    PackedReference {
+        ids: vec![1, 2],
+        entries: vec![
+            heap(u32::MAX, Some(list), Vec::new(), Vec::new()),
+            heap(
+                SEGMENT_PACKAGE,
+                None,
+                vec![capacity, items as u32],
+                vec![2, 2],
+            ),
+        ],
+    }
+}
+
 impl State {
-    /// Gives the player [`starter_items`]: each object, its further qualities (visual
-    /// updates), and the contents the login message and the pack's opening list.
+    /// Gives the player [`starter_items`] and [`STARTER_MONEY`]: each object, its further
+    /// qualities (visual updates), the player's pack size, and the contents the login message
+    /// and the side pack's opening list carry.
     pub fn give_starter_items(&mut self) {
         let items = starter_items();
         for item in &items {
@@ -130,6 +190,10 @@ impl State {
             if let Some(capacity) = item.capacity {
                 qualities.push((280, QualityValue::Int(capacity)));
             }
+            if let Some((valid, preferred)) = item.locations {
+                qualities.push((275, QualityValue::Int(valid as i32)));
+                qualities.push((282, QualityValue::Int(preferred as i32)));
+            }
             for (quality, value) in qualities {
                 self.send_quality(&QualityUpdate {
                     object,
@@ -138,10 +202,58 @@ impl State {
                 });
             }
         }
+        self.send_private(280, QualityValue::Int(MAIN_PACK_CAPACITY));
         let world = &mut self.script_world;
-        world.contents.insert(PLAYER, (vec![PACK], Vec::new()));
+        for item in &items {
+            if let Some(capacity) = item.capacity {
+                world.capacities.insert(item.id, capacity as u32);
+            }
+        }
+        world.capacities.insert(PLAYER, MAIN_PACK_CAPACITY as u32);
         world
             .contents
-            .insert(PACK, (Vec::new(), vec![POTIONS, SWORD]));
+            .insert(PLAYER, (vec![PACK], vec![POTIONS, SWORD]));
+        world.contents.insert(PACK, (Vec::new(), vec![RATIONS]));
+        self.give_money(STARTER_MONEY);
+    }
+
+    /// The server adds `amount` to the player's money (int 3100, `CPlayer` 0x85 -> 0x71:
+    /// `SendNotice_UpdateMoney`).
+    pub fn give_money(&mut self, amount: i32) {
+        let c = &mut self.script_world.character;
+        c.money += amount;
+        let money = c.money;
+        self.send_private(3100, QualityValue::Int(money));
+    }
+
+    /// `WM_Money` 0x8 (`DragFromMoneyBag`: container, slot, quantity) takes the money and
+    /// answers `WM_Money` 0x9 with no item made (the double has no coins to make); 0x7
+    /// (`DragToMoneyBag`: container, slot, quantity, item) adds the quantity, takes the item
+    /// out of its container, and answers `WM_Money` 0x6.
+    pub(crate) fn answer_money(&mut self, function: u32, args: &[PackValue]) {
+        match (function, args) {
+            (
+                0x820F_0001,
+                [PackValue::LongInt(container), PackValue::Int(slot), PackValue::Int(quantity)],
+            ) => {
+                self.give_money(-(*quantity as i32));
+                self.send_script_call(
+                    0x820F_0009,
+                    &[
+                        PackValue::LongInt(*container),
+                        PackValue::Int(*slot),
+                        PackValue::LongInt(0),
+                    ],
+                );
+            }
+            (0x820F_0002, [_, _, PackValue::Int(quantity), PackValue::LongInt(item)]) => {
+                for (_, items) in self.script_world.contents.values_mut() {
+                    items.retain(|i| i != item);
+                }
+                self.give_money(*quantity as i32);
+                self.send_script_call(0x820F_0006, &[PackValue::LongInt(*item)]);
+            }
+            _ => {}
+        }
     }
 }

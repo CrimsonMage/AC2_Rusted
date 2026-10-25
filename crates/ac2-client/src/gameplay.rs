@@ -80,6 +80,21 @@ pub enum Command {
         index: u32,
         shortcut: ac2_net::protocol::ShortcutInfo,
     },
+    /// `gmCWInterface::DragToMoneyBag`: `quantity` of `item` from slot `from_slot` of
+    /// `from_container` into the money bag (`gmMoneyBagUI::HandleMoneyBagDrop`).
+    DragToMoneyBag {
+        item: u64,
+        quantity: u32,
+        from_slot: i32,
+        from_container: u64,
+    },
+    /// `gmCWInterface::DragFromMoneyBag`: `quantity` of money out to slot `to_slot` of
+    /// `to_container`.
+    DragFromMoneyBag {
+        quantity: u32,
+        to_slot: i32,
+        to_container: u64,
+    },
 }
 
 /// What the advancement, shortcut, fellowship and allegiance panels read.
@@ -128,6 +143,8 @@ pub struct InventoryFrame {
     pub open: Vec<u64>,
     /// Every listed or equipped item the session knows, in listing order.
     pub items: Vec<ItemFrame>,
+    /// The player's money (`gmMoneyBagUI`; `SendNotice_UpdateMoney` says when it changes).
+    pub money: i32,
 }
 
 /// The selected object, as `gmSelectionUI` shows it.
@@ -310,6 +327,25 @@ impl Client {
                     self.session.transmute_all(*container);
                     Vec::new()
                 }
+                Command::DragToMoneyBag {
+                    item,
+                    quantity,
+                    from_slot,
+                    from_container,
+                } => money(self.session.drag_to_money_bag(
+                    *item,
+                    *quantity,
+                    *from_slot,
+                    *from_container,
+                )),
+                Command::DragFromMoneyBag {
+                    quantity,
+                    to_slot,
+                    to_container,
+                } => money(
+                    self.session
+                        .drag_from_money_bag(*quantity, *to_slot, *to_container),
+                ),
                 Command::SetShortcut { index, shortcut } => refused(
                     self.session
                         .set_shortcut(*index, shortcut.clone())
@@ -376,6 +412,7 @@ impl Client {
             equipped,
             open: inv.open_containers().to_vec(),
             items,
+            money: self.session.money(),
         }
     }
 
@@ -420,6 +457,11 @@ impl Client {
             .collect();
         self.session.apply_notices(&notices);
     }
+}
+
+/// A money bag request's notices, or its `gmWErrorType` as a rejection.
+fn money(result: Result<Vec<SessionEvent>, u32>) -> Vec<SessionEvent> {
+    result.unwrap_or_else(|error| vec![SessionEvent::Rejected(format!("money bag error {error}"))])
 }
 
 /// A command the scripts refuse before sending (retail logs it): a rejection event.

@@ -6,7 +6,8 @@
 //! local `VisualDesc`'s icon layers and the value its `WeenieDesc` carries.
 
 use ac2_net::protocol::StringInfo;
-use ac2_script::host::{native_for_wire, IFunArg, IFunResult, IFunReturn};
+use ac2_net::protocol::{ntype, NativeObject, ScriptList};
+use ac2_script::host::{native_for_wire, IFunArg, IFunResult, IFunReturn, OutValue};
 use ac2_script::vm::InterpStatus;
 
 use crate::client::Client;
@@ -21,6 +22,8 @@ const GET_POTENTIALLY_PLURALIZED_NAME: u32 = 0x00B4_00C7;
 const HAS_DURABILITY: u32 = 0x00B4_00FF;
 const GET_MAX_DURABILITY_LEVEL: u32 = 0x00B4_0102;
 const GET_DURABILITY_LEVEL: u32 = 0x00B4_0103;
+const GET_CONTENTS_INFO: u32 = 0x00B4_00ED;
+const GET_CONTAINER_SEGMENT_INFO: u32 = 0x00B4_00EE;
 
 /// One item as `ItemDisplay` shows it.
 #[derive(Debug, Clone, PartialEq)]
@@ -120,6 +123,49 @@ impl Client {
     /// how many items container `id` holds.
     pub fn container_capacity(&mut self, id: u64) -> Result<u32, String> {
         self.object_word(id, GET_MAX_CONTAINER_SIZE, &[])
+    }
+
+    /// `gmCWInterface::GetContentsInfo` on the player (`ggmCWInterface::CallIFun_GetContentsInfo`:
+    /// an empty `LList` and the two words as out parameters; `Container` 0x3D hands back its
+    /// item list, slot 15, and `Container` 0x3F the segment's place in it): the player's items,
+    /// then where `segment` starts in them and how many it holds.
+    pub fn contents_info(&mut self, segment: u32) -> Result<(Vec<u64>, u32, u32), String> {
+        let empty = NativeObject::List(ScriptList {
+            native_type: ntype::L_LIST,
+            items: Vec::new(),
+        });
+        let result = self.query(
+            GET_CONTENTS_INFO,
+            &[
+                IFunArg::Int(segment),
+                IFunArg::Out(OutValue::Native(empty)),
+                IFunArg::Out(OutValue::Word(0)),
+                IFunArg::Out(OutValue::Word(0)),
+            ],
+            IFunReturn::Word,
+        )?;
+        let items = match result.out_native(0) {
+            Some(NativeObject::List(list)) => list.items.clone(),
+            other => return Err(format!("GetContentsInfo left {other:?}")),
+        };
+        Ok((items, result.out_word(1), result.out_word(2)))
+    }
+
+    /// `gmCWInterface::GetContainerSegmentInfo` on the player (`Container` 0x3F): where
+    /// `segment` starts in the player's items and how many it holds. With segments
+    /// (`Container` slot 18, `ContainerSegmentDescriptor`s) the start is the item counts
+    /// (descriptor slot 1) of the segments before it; without, every segment is all of them.
+    pub fn container_segment_info(&mut self, segment: u32) -> Result<(u32, u32), String> {
+        let result = self.query(
+            GET_CONTAINER_SEGMENT_INFO,
+            &[
+                IFunArg::Int(segment),
+                IFunArg::Out(OutValue::Word(0)),
+                IFunArg::Out(OutValue::Word(0)),
+            ],
+            IFunReturn::Word,
+        )?;
+        Ok((result.out_word(0), result.out_word(1)))
     }
 
     /// The `StringInfo` a script returned by reference.

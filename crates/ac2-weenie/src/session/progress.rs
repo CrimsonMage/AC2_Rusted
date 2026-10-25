@@ -26,6 +26,7 @@ impl OnlineSession {
             && (function == ac2_net::protocol::script_function::INIT_PLAYER
                 || function >> 16 == 0x8214
                 || function == super::gameplay::UPDATE_ATTACK_STATE
+                || super::money::is_money_call(function)
                 || ac2_net::protocol::ScriptMessage::decode(function, &[]).is_some())
     }
 

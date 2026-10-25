@@ -31,6 +31,9 @@ pub struct ScriptWorld {
     pub contents: std::collections::BTreeMap<u64, (Vec<u64>, Vec<u64>)>,
     /// The player's equipment by location (`WM_Inventory` 0x5F).
     pub equipped: Vec<(u32, u64)>,
+    /// Containers' slots, for the segment each listing carries (12, `gmEntity` 0xC's
+    /// default, for one not here).
+    pub capacities: std::collections::BTreeMap<u64, u32>,
     /// The options profile `WM_Player` 0x27 carries (argument 4: shortcuts and the rest);
     /// `None`: [`crate::default_options`].
     pub options: Option<ac2_net::protocol::GameplayOptionsProfile>,
@@ -297,7 +300,7 @@ impl State {
             .cloned()
             .unwrap_or_default();
         let message = ScriptMessage::ContainerContents(ContainerContents {
-            segments: pack_id_list(&[]),
+            segments: self.segments_of(container, items.len()),
             packs,
             items,
         });
@@ -310,6 +313,12 @@ impl State {
                 other: 0,
             }));
         }
+    }
+
+    /// `container`'s one segment: its slots and `items` items.
+    fn segments_of(&self, container: u64, items: usize) -> ac2_net::protocol::PackedReference {
+        let capacity = self.script_world.capacities.get(&container).copied();
+        crate::items::segments(capacity.unwrap_or(12), items)
     }
 
     /// Queues the player's equipment (`WM_Inventory` 0x5F).
@@ -353,7 +362,7 @@ impl State {
             .get(&PLAYER)
             .cloned()
             .unwrap_or_default();
-        args[9] = PackValue::Reference(pack_id_list(&[]));
+        args[9] = PackValue::Reference(self.segments_of(PLAYER, items.len()));
         args[10] = PackValue::Reference(pack_id_list(&packs));
         args[11] = PackValue::Reference(pack_id_list(&items));
         self.send_script_call(script_function::INIT_PLAYER, &args);

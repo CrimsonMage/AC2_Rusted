@@ -22,17 +22,23 @@ impl InventorySource for ClientPlayer<'_> {
         })
     }
 
-    /// The player's own contents as one segment (the first page); retail's script answers the
-    /// side pages' segments, which are not asked for yet.
+    /// `gmCWInterface::GetContentsInfo`: the player's script answers for the player
+    /// ([`Client::contents_info`](crate::Client::contents_info)); without the VM, or for another
+    /// container, its contents from the frame as one segment (the first page).
     fn contents_info(&self, container: u64, segment: u32) -> (Vec<u64>, u32, u32) {
         let inventory = &self.frame.inventory;
-        let found = if inventory.pack.id == container
+        let is_player = inventory.pack.id == container
             || self
                 .frame
                 .player
                 .as_ref()
-                .is_some_and(|p| p.id == container)
-        {
+                .is_some_and(|p| p.id == container);
+        if is_player {
+            if let Ok(info) = self.client.borrow_mut().contents_info(segment) {
+                return info;
+            }
+        }
+        let found = if is_player {
             Some(&inventory.pack)
         } else {
             inventory.containers.iter().find(|c| c.id == container)
