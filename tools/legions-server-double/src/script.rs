@@ -1,11 +1,12 @@
-//! The double's gameplay side: the script calls the client sends (`InterpSEvent`), decoded
-//! with the client's own codec and answered as a server's `WM_*` handlers would, from data a
-//! test configures.
+//! The double's gameplay side: the script calls the client sends (`InterpSEvent`) and its chat
+//! client's data (`0x100D3`), decoded with the client's own codecs and answered as a server's
+//! `WM_*` handlers and chat server would, from data a test configures.
 
 use std::collections::HashMap;
 
 use ac2_net::protocol::{
-    ExaminationProfile, ExaminationRequest, ScriptMessage, ScriptRequest, SelectionInfo, StringInfo,
+    ChatMessage, ChatPacket, ChatRequest, ChatResponse, ExaminationProfile, ExaminationRequest,
+    RoomChat, ScriptMessage, ScriptRequest, SelectionInfo, StringInfo,
 };
 
 use crate::{State, PLAYER};
@@ -100,6 +101,60 @@ impl State {
             }
             ScriptRequest::Emote(_) => {}
         }
+    }
+
+    /// Chat data from the client's chat client (`CChatEvent`, 0x100D3 on queue 4): record the
+    /// request, answer it (result 0) and, as the chat server does for a room's members, send
+    /// the message back to the player.
+    pub(crate) fn chat_event(&mut self, data: &[u8]) {
+        let Some(size) = data
+            .get(4..8)
+            .map(|b| u32::from_le_bytes(b.try_into().unwrap()))
+        else {
+            self.script_errors.push("short chat event".into());
+            return;
+        };
+        let request =
+            ChatPacket::decode(&data[8..]).and_then(|packet| ChatRequest::from_packet(&packet));
+        let request = match request {
+            Ok(request) if size as usize == data.len() - 8 => request,
+            other => {
+                self.script_errors.push(format!("chat data: {other:?}"));
+                return;
+            }
+        };
+        if let ChatRequest::SendToRoomById {
+            context,
+            room,
+            text,
+            extra,
+        } = &request
+        {
+            self.send_chat(&ChatMessage::Response(ChatResponse {
+                context: *context,
+                response_id: 0,
+                method: ac2_net::protocol::METHOD_SEND_TO_ROOM_BY_ID,
+                result: 0,
+            }));
+            self.send_chat(&ChatMessage::RoomChat(RoomChat {
+                room: *room,
+                speaker: PLAYER_NAME.into(),
+                text: text.clone(),
+                extra: extra.clone(),
+            }));
+        }
+        self.chat_requests.push(request);
+    }
+
+    /// Queues chat-server data for the player (`0x100D3` on queue 4).
+    pub fn send_chat(&mut self, message: &ChatMessage) {
+        let packet = message.to_packet().encode();
+        let mut data = 0x0001_00D3u32.to_le_bytes().to_vec();
+        data.extend((packet.len() as u32).to_le_bytes());
+        data.extend(packet);
+        self.next_object_blob += 1;
+        let id = 0x2300_0000_0000_0000 | u64::from(self.next_object_blob) << 32 | 0x10;
+        self.reliable_blob(id, 4, &data);
     }
 
     /// Queues a script call to the player (`InterpCEvent_Broadcast`, 0x10066).

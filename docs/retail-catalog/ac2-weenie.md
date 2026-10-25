@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 147 done, 14 partial, 1737 to do, 6 skipped.
+1904 retail functions: 150 done, 17 partial, 1731 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (0/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (2/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -1129,7 +1129,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::HandleSetWeenieDesc` · 00452030 · legions 004531b0
 
 ### GunChatExtraInfo
-- [ ] `GunChatExtraInfo::PackIntoBlob` · 004520f0 · legions 00453230
+- [x] `GunChatExtraInfo::PackIntoBlob` · 004520f0 · legions 00453230 — ac2-net GunChatExtraInfo
 
 ### gmCWInterface
 - [ ] `gmCWInterface::ProcessText_Done` · 004521b0 · legions 004532f0
@@ -1142,12 +1142,12 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::RequestGUN_CallCreate` · 00452480 · legions 004535d2
 
 ### GunChatExtraInfo
-- [ ] `GunChatExtraInfo::GunChatExtraInfo` · 00452580 · legions 00453690
+- [~] `GunChatExtraInfo::GunChatExtraInfo` · 00452580 · legions 00453690 — ac2-net GunChatExtraInfo::new: version 1, flags; the meta letters (RetrieveMetaLetters) are left empty
 - [ ] `GunChatExtraInfo::~GunChatExtraInfo` · 00452660 · legions 00453770
 
 ### gmCWInterface
 - [ ] `gmCWInterface::RequestGUN_SendToUser` · 00452710 · legions 00453820
-- [ ] `gmCWInterface::RequestGUN_SendToRoom` · 004527c0 · legions 004538d0
+- [~] `gmCWInterface::RequestGUN_SendToRoom` · 004527c0 · legions 004538d0 — ac2-weenie OnlineSession::send_to_room: the Turbine chat path (CSendToTurbineRoomByID); the GUN path is dead in Legions
 
 ### CCliFlagsResult
 - [ ] `CCliFlagsResult::CCliFlagsResult` · 004528d0 · legions 004539e0
@@ -1174,10 +1174,10 @@ Legend and workflow: [README](README.md).
 
 ### gmCWInterface
 - [ ] `gmCWInterface::HearTell` · 004530f0 · legions 00454200
-- [ ] `gmCWInterface::GUNEvent_HearFromRoom` · 00453320 · legions 00454430
+- [~] `gmCWInterface::GUNEvent_HearFromRoom` · 00453320 · legions 00454430 — ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
 
 ### GunChatExtraInfo
-- [ ] `GunChatExtraInfo::StreamPack` · 004534e0 · legions 004545f0
+- [x] `GunChatExtraInfo::StreamPack` · 004534e0 · legions 004545f0 — ac2-net GunChatExtraInfo
 
 ### (free functions)
 - [ ] `STREAMPACK` · 00453560 · legions 005e6f90
@@ -2818,11 +2818,11 @@ Legend and workflow: [README](README.md).
 - [ ] `WLogSystem::GetFileLog` · 007333c0 · legions 006af870
 - [ ] `WLogSystem::GetPrintLog` · 007333d0 · legions 006af880
 
-## `portal/shared/src/weenie/wbookie/wbookkeeper.cpp.c` (0/5)
+## `portal/shared/src/weenie/wbookie/wbookkeeper.cpp.c` (1/5)
 
 ### CWBookKeeper
 - [ ] `CWBookKeeper::CWBookKeeper` · 0052dd90 · legions 00512230
-- [ ] `CWBookKeeper::CSendToTurbineRoomByID` · 0052ddb0 · legions 00512250
+- [x] `CWBookKeeper::CSendToTurbineRoomByID` · 0052ddb0 · legions 00512250 — ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 - [ ] `CWBookKeeper::AddObjectToBeDestroyed` · 0052ddf0 · legions 00512290
 - [ ] `CWBookKeeper::RemoveObjectToBeDestroyed` · 0052de00 · legions 005122a0
 - [ ] `CWBookKeeper::~CWBookKeeper` · 0052de10 · legions 005122b0

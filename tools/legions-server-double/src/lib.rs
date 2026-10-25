@@ -302,6 +302,8 @@ pub struct State {
     pub script_unknown: Vec<(u32, Vec<u8>)>,
     /// Script calls that did not decode.
     pub script_errors: Vec<String>,
+    /// The client's chat-client requests, decoded.
+    pub chat_requests: Vec<ac2_net::protocol::ChatRequest>,
 }
 
 impl State {
@@ -623,6 +625,11 @@ impl State {
                 0x0001_0053 | 0x0001_00D0 => {
                     let data = self.blobs.last().unwrap().2.clone();
                     self.script_event(&data);
+                }
+                // `CChatEvent::CreateForSend`: the chat client's data.
+                0x0001_00D3 => {
+                    let data = self.blobs.last().unwrap().2.clone();
+                    self.chat_event(&data);
                 }
                 // `Proto_UI::LogOffCharacter`.
                 0x0001_0027 => {

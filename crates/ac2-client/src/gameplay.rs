@@ -28,6 +28,9 @@ pub enum Command {
     Tell { recipient: String, text: String },
     /// `gmCWInterface::DoEmote`, with the emote the emote table named.
     Emote(u32),
+    /// `gmCWInterface::RequestGUN_SendToRoom` (Turbine chat): text to a chat room, with the
+    /// script's chat flags.
+    SendToRoom { room: u32, text: String, flags: u32 },
 }
 
 /// The selected object, as `gmSelectionUI` shows it.
@@ -60,6 +63,10 @@ impl Client {
                 }
                 Command::Emote(emote) => {
                     self.session.emote(*emote);
+                    Vec::new()
+                }
+                Command::SendToRoom { room, text, flags } => {
+                    self.session.send_to_room(*room, text, *flags);
                     Vec::new()
                 }
             });

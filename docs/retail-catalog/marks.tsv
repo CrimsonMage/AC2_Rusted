@@ -8,6 +8,7 @@ key	status	note
 00401fc0	x	
 00403030	x	
 00403d30	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
+00404100	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 004042f0	x	
 00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
@@ -46,6 +47,11 @@ key	status	note
 00450f30	~	ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
 00450f80	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 00450fa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+004520f0	x	ac2-net GunChatExtraInfo
+00452580	~	ac2-net GunChatExtraInfo::new: version 1, flags; the meta letters (RetrieveMetaLetters) are left empty
+004527c0	~	ac2-weenie OnlineSession::send_to_room: the Turbine chat path (CSendToTurbineRoomByID); the GUN path is dead in Legions
+00453320	~	ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
+004534e0	x	ac2-net GunChatExtraInfo
 00457120	~	ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
 00479030	x	ac2-ui interpreter.rs
 00479110	x	ac2-ui interpreter.rs
@@ -924,6 +930,7 @@ key	status	note
 00525f70	x	
 00528900	x	ac2-world region::sky_objects, ac2-render sky
 0052b1d0	x	ac2-world region::sky_objects, ac2-render sky
+0052ddb0	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 0052e6a0	x	
 00530150	x	ac2-weenie ObjectTable::apply_action
 00530e70	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
@@ -1657,6 +1664,8 @@ key	status	note
 007269d0	x	
 007277e0	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 00727870	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+007281f0	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
+007291f0	~	ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
 0072da60	x	ac2-ui maps.rs
 0072da90	x	ac2-ui maps.rs
 0072f200	x	ac2-ui maps.rs

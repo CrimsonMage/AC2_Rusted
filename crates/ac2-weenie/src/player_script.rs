@@ -10,7 +10,8 @@
 use std::collections::HashMap;
 
 use ac2_net::protocol::{
-    ExaminationProfile, ExaminationRequest, ScriptMessage, ScriptRequest, SelectionInfo, StringInfo,
+    ExaminationProfile, ExaminationRequest, GunChatExtraInfo, ScriptMessage, ScriptRequest,
+    SelectionInfo, StringInfo,
 };
 
 use crate::chat;
@@ -33,6 +34,18 @@ pub enum GameplayNotice {
     /// `CM_Communication::SendNotice_DisplayStringInfo`: a line for the chat windows, with its
     /// display type (`ChatWindow::RecvNotice_DisplayStringInfo` filters by it).
     DisplayStringInfo { kind: u32, text: StringInfo },
+    /// `gmCWInterface::GUNEvent_HearFromRoom`: room chat from the chat server, before the
+    /// player's script (`CPlayer` 0x9B) formats it for its channel.
+    HearFromRoom {
+        room: u32,
+        speaker: String,
+        text: String,
+        /// The sender's `GunChatExtraInfo`, when it decodes.
+        extra: Option<GunChatExtraInfo>,
+    },
+    /// `CCliSendToRoomResult::HandleSendToRoomResult` (`gmCWInterface::Result_SendToRoom`):
+    /// the chat server's answer to the room message with this context id.
+    SendToRoomResult { context: u32, result: u32 },
 }
 
 /// What one script call did: messages for the server, notices for the UI.

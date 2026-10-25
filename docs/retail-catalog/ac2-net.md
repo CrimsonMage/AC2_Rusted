@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 210 done, 12 partial, 334 to do, 0 skipped.
+556 retail functions: 211 done, 13 partial, 332 to do, 0 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -9,10 +9,10 @@ Legend and workflow: [README](README.md).
 - [ ] `ClientGunInterface::ClientGunInterface` · 00728240 · legions 006a6520
 - [ ] `ClientGunInterface::GetPlayerInterface` · 00728290 · legions 006a6570
 
-## `ac2/client/src/gun/event/cclichatevent.cpp.c` (0/2)
+## `ac2/client/src/gun/event/cclichatevent.cpp.c` (1/2)
 
 ### CCliChatEvent
-- [ ] `CCliChatEvent::HearRoom` · 007281f0 · legions 006a64d0
+- [x] `CCliChatEvent::HearRoom` · 007281f0 · legions 006a64d0 — ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 - [ ] `CCliChatEvent::HearUser` · 00728220 · legions 006a6500
 
 ## `ac2/client/src/gun/event/ccliconnectevent.cpp.c` (0/1)
@@ -80,7 +80,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/gun/result/cclisendtoroomresult.cpp.c` (0/3)
 
 ### CCliSendToRoomResult
-- [ ] `CCliSendToRoomResult::HandleSendToRoomResult` · 007291f0 · legions 006a74c0
+- [~] `CCliSendToRoomResult::HandleSendToRoomResult` · 007291f0 · legions 006a74c0 — ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
 - [ ] `CCliSendToRoomResult::CCliSendToRoomResult` · 00729240 · legions 006a7500
 - [ ] `CCliSendToRoomResult::`vbase_destructor'` · 00729320 · legions 006a75e0
 

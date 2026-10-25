@@ -133,7 +133,8 @@ pub enum SessionEvent {
         name: String,
         result: u32,
     },
-    /// Queue 4 chat data for the chat client.
+    /// Queue 4 chat data the chat client could not read (`IChatClientImpl::OnNetworkData`
+    /// refused it).
     Chat(Vec<u8>),
     /// A script event (`CWDistributor::RecvEvt_InterpCEvent_Private`): the object (the player
     /// for broadcasts), the function id and its packed arguments.
@@ -185,6 +186,8 @@ pub struct OnlineSession {
     net_events: Vec<NetEvent>,
     /// The player's weenie scripts (`CPlayer`), natively until the script VM runs them.
     script: PlayerScript,
+    /// `IChatClientImpl`'s last context id (`AddPendingMethod` numbers requests from 1).
+    chat_context: u32,
 }
 
 impl OnlineSession {
@@ -233,6 +236,7 @@ impl OnlineSession {
             last_position: None,
             net_events: Vec::new(),
             script: PlayerScript::default(),
+            chat_context: 0,
         })
     }
 
@@ -397,7 +401,8 @@ impl OnlineSession {
                 if let Ok(ServerEvent::Chat(data)) =
                     ServerEvent::decode(&blob.data, Build::default())
                 {
-                    out.push(SessionEvent::Chat(data));
+                    let events = self.receive_chat(data);
+                    out.extend(events);
                 }
             }
             NetEvent::Blob(_) => {}

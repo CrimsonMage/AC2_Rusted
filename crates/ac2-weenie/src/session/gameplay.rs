@@ -2,10 +2,12 @@
 //! (`gmCWInterface::SetSelection`, `StartExamination`, ...), run by the
 //! [`PlayerScript`] stand-in, whose messages go out as `InterpSEvent`s.
 
-use ac2_net::protocol::{ExaminationRequest, ScriptMessage};
+use ac2_net::protocol::{
+    ChatMessage, ChatRequest, ExaminationRequest, GunChatExtraInfo, ScriptMessage,
+};
 
 use super::{OnlineSession, SessionEvent};
-use crate::player_script::{PlayerScript, ScriptOutput};
+use crate::player_script::{GameplayNotice, PlayerScript, ScriptOutput};
 
 /// `CWInterface::IsCreature`: the weenie type (int quality 0x14) has all of 0x4F.
 const CREATURE_TYPE: i32 = 0x4F;
@@ -62,6 +64,45 @@ impl OnlineSession {
     /// `CCommunicationSystem` 0x8): play emote `emote`.
     pub fn emote(&mut self, emote: u32) {
         self.send(ac2_net::protocol::ScriptRequest::Emote(emote).to_event());
+    }
+
+    /// `gmCWInterface::RequestGUN_SendToRoom` on the Turbine chat path
+    /// (`CWBookKeeper::CSendToTurbineRoomByID` -> `IChatClientImpl::SendToRoomByID` ->
+    /// `Invoke` -> `ChatInterfaceProvider::SendData`): `text` to chat room `room`, with the
+    /// script's chat flags in the `GunChatExtraInfo`. Returns the request's context id, or
+    /// `None` for empty text or room 0 (retail sends nothing). The sender's meta letters
+    /// (`StringTableMetaLanguage::RetrieveMetaLetters` of its name) are left empty.
+    pub fn send_to_room(&mut self, room: u32, text: &str, weenie_flags: u32) -> Option<u32> {
+        if text.is_empty() || room == 0 {
+            return None;
+        }
+        self.chat_context = self.chat_context.wrapping_add(1);
+        let request = ChatRequest::SendToRoomById {
+            context: self.chat_context,
+            room,
+            text: text.to_owned(),
+            extra: GunChatExtraInfo::new(weenie_flags, String::new()).encode(),
+        };
+        self.send_chat(&request.to_packet().encode());
+        Some(self.chat_context)
+    }
+
+    /// `IChatClientImpl::OnNetworkData` for queue-4 chat data.
+    pub(super) fn receive_chat(&mut self, data: Vec<u8>) -> Vec<SessionEvent> {
+        let notice = match ChatMessage::decode(&data) {
+            Ok(ChatMessage::RoomChat(chat)) => GameplayNotice::HearFromRoom {
+                room: chat.room,
+                speaker: chat.speaker,
+                text: chat.text,
+                extra: GunChatExtraInfo::decode(&chat.extra).ok(),
+            },
+            Ok(ChatMessage::Response(response)) => GameplayNotice::SendToRoomResult {
+                context: response.context,
+                result: response.result,
+            },
+            Err(_) => return vec![SessionEvent::Chat(data)],
+        };
+        vec![SessionEvent::Notice(notice)]
     }
 
     /// `CCombatSystem` 0x1 as far as the client knows it: another object whose weenie is a

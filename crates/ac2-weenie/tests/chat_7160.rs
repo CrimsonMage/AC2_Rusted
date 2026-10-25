@@ -122,3 +122,67 @@ fn say_tell_and_emote_round_trip_through_the_double() {
     words(&mut emote, &[1, 0x1D]);
     assert_eq!(sent(0x8205_000B), event(0x8205_000B, emote));
 }
+
+#[test]
+fn room_chat_goes_through_the_chat_client_and_comes_back() {
+    use ac2_net::protocol::GunChatExtraInfo;
+    let (transport, state) = double(Spawn::default());
+    let mut session = OnlineSession::with_transport(config(), Box::new(transport)).unwrap();
+    session.wait_for_world(Duration::from_secs(10)).unwrap();
+    session.poll();
+    assert_eq!(session.send_to_room(0x10, "", 0), None);
+    assert_eq!(session.send_to_room(0, "Hi all", 0), None);
+    assert_eq!(session.send_to_room(0x10, "Hi all", 4), Some(1));
+    let mut events = Vec::new();
+    for _ in 0..8 {
+        events.extend(session.poll());
+        state.borrow_mut().elapsed += 0.05;
+    }
+    let notices: Vec<&GameplayNotice> = events
+        .iter()
+        .filter_map(|e| match e {
+            SessionEvent::Notice(n) => Some(n),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(
+        notices,
+        [
+            &GameplayNotice::SendToRoomResult {
+                context: 1,
+                result: 0
+            },
+            &GameplayNotice::HearFromRoom {
+                room: 0x10,
+                speaker: "Explorer".into(),
+                text: "Hi all".into(),
+                extra: Some(GunChatExtraInfo::new(4, String::new())),
+            },
+        ]
+    );
+    // Byte for byte: `CChatEvent` around `IChatClientImpl::SendNetPacket`'s packet: the
+    // header (binary request, method 2, target type 1), then the payload: context 1, method 2
+    // twice, the room, the text (compressed length, UTF-16), the `GunChatExtraInfo` blob.
+    let s = state.borrow();
+    assert!(s.script_errors.is_empty(), "{:?}", s.script_errors);
+    let (_, queue, data) = s
+        .blobs
+        .iter()
+        .find(|(_, _, data)| data[..4] == [0xD3, 0, 1, 0])
+        .unwrap();
+    assert_eq!(*queue, 4);
+    let mut payload = Vec::new();
+    words(&mut payload, &[1, 2, 2, 0x10]);
+    payload.push(6);
+    for unit in "Hi all".encode_utf16() {
+        payload.extend(unit.to_le_bytes());
+    }
+    words(&mut payload, &[16, 1, 0, 4, 0]);
+    let mut packet = Vec::new();
+    words(&mut packet, &[3, 2, 1, 0, 0, 0, 0, payload.len() as u32]);
+    packet.extend(payload);
+    let mut expected = Vec::new();
+    words(&mut expected, &[0x0001_00D3, packet.len() as u32]);
+    expected.extend(packet);
+    assert_eq!(data, &expected);
+}

@@ -25,6 +25,7 @@ mod quality_event;
 mod reader;
 mod server_event;
 mod string_info;
+mod turbine_chat;
 mod types;
 mod visual;
 mod weenie_desc;
@@ -57,6 +58,11 @@ pub use qualities::Qualities;
 pub use quality_event::{QualityUpdate, QualityValue};
 pub use server_event::ServerEvent;
 pub use string_info::{StringInfo, StringVariable};
+pub use turbine_chat::{
+    blob_type as chat_blob_type, ChatHeader, ChatMessage, ChatPacket, ChatRequest, ChatResponse,
+    GunChatExtraInfo, RoomChat, EVENT_SEND_TO_ROOM, METHOD_SEND_TO_ROOM_BY_ID,
+    METHOD_SEND_TO_ROOM_BY_NAME,
+};
 pub use types::{CellPosition, InstanceIdWithStamp, Position};
 pub use visual::{IconLayer, PartGroupDesc, VisualDesc};
 pub use weenie_desc::WeenieDesc;
