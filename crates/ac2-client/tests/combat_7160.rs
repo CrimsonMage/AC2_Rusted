@@ -1,8 +1,11 @@
-//! Combat with the player's script on the VM (`AC2_DAT_DIR`): a skill used from the shortcut bar
+//! Combat with the player's script on the VM (`AC2_DAT_DIR`). A skill used from the shortcut bar
 //! against the selected creature sends the special attack request as the VM packs it, and the
-//! double's answers (the attack state, the attack's end, a maneuver's toggle) reach the bar's
-//! notices. The start of a special attack has no server forwarder, so the bar never sees one
-//! here (see `ac2_net::protocol::CombatMessage`); damage and death are not answered yet.
+//! double's answers reach the bar's notices. An attack exchanges blows on the timer: the player's
+//! hit and the creature's blow back, each a physics story whose damage hook runs
+//! `gmCWInterface::DoUIDamage` (IFun 0xB400C0) on the VM, which raises the chat line and the
+//! floating damage text. Vitals and the selection panel's health follow the blows, and a creature
+//! at zero health leaves the world. A special attack's start has no server forwarder, so the bar
+//! never sees one here (see `ac2_net::protocol::CombatMessage`).
 
 mod common;
 
@@ -10,7 +13,7 @@ use std::sync::Arc;
 
 use ac2_client::{Command, FrameInput};
 use ac2_core::DataId;
-use ac2_net::protocol::{CombatMessage, ScriptCall, SpecialAttackRequest};
+use ac2_net::protocol::{CombatMessage, ScriptRequest, SpecialAttackRequest};
 use ac2_script::data::DatScriptData;
 use ac2_script::host::ScriptHost;
 use ac2_script::vm::Program;
@@ -29,8 +32,20 @@ fn spawn() -> Spawn {
 
 type Shared = std::rc::Rc<std::cell::RefCell<legions_server_double::State>>;
 
-/// The script with the player attached and the double's shortcut bar on the VM (slot 0 holds
-/// Melee Auto Attack, a skill).
+/// Seconds between a fight's exchanges (`legions_server_double::combat::HIT_INTERVAL`).
+const HIT_INTERVAL: f64 = 2.0;
+/// The creature's and the player's health the double starts them at.
+const CREATURE_HEALTH: u32 = 30;
+const PLAYER_HEALTH: u32 = 40;
+/// The blows: the player's and the creature's.
+const PLAYER_DAMAGE: u32 = 10;
+const CREATURE_DAMAGE: u32 = 3;
+/// `Health` (the vital's code in `GameplayNotice::UpdateVital`).
+const HEALTH_VITAL: u32 = 0x4000_0001;
+
+/// The script with the player attached, the double's shortcut bar on the VM (slot 0 holds Melee
+/// Auto Attack, a skill; slot 1 "/e waves"), the double's two creatures spawned with their
+/// scripts, and the fight started at full health.
 fn with_script() -> Option<(ac2_client::Client, Shared)> {
     let dataset = ac2_dat::test_support::env_dataset()?;
     let store = ac2_db::ResourceStore::new(dataset.clone());
@@ -38,9 +53,17 @@ fn with_script() -> Option<(ac2_client::Client, Shared)> {
         .unwrap()
         .unwrap();
     let program = Arc::new(Program::from_stream(&wlib.stream));
-    let data = DatScriptData::new(dataset, store);
+    let data = DatScriptData::new(dataset.clone(), store.clone());
     data.preload_tables();
+    // As the binary does: the string tables and the chat command line.
+    let names = DatScriptData::new(dataset, store);
     let (mut client, server) = entered(spawn());
+    client
+        .session_mut()
+        .set_string_tables(ac2_client::string_table_ids(&names));
+    client
+        .session_mut()
+        .set_chat_commands(ac2_client::chat_commands(&names));
     {
         let mut state = server.borrow_mut();
         state.give_starter_items();
@@ -53,8 +76,31 @@ fn with_script() -> Option<(ac2_client::Client, Shared)> {
     let idle = FrameInput::default();
     step(&mut client, &server, &idle);
     server.borrow_mut().send_init_player();
-    run(&mut client, &server, Vec::new());
+    server.borrow_mut().spawn_radar_objects();
+    server.borrow_mut().start_fight();
+    // The creatures' scripts start on their loads; the fight's messages go out on the way.
+    advance(&mut client, &server, 1.0);
     Some((client, server))
+}
+
+/// Runs `secs` seconds of frames, the commands on the first; every event the frames raised.
+fn events_for(
+    client: &mut ac2_client::Client,
+    server: &Shared,
+    commands: Vec<Command>,
+    frames: usize,
+) -> Vec<SessionEvent> {
+    let idle = FrameInput::default();
+    let input = FrameInput {
+        commands,
+        ..FrameInput::default()
+    };
+    let mut events = Vec::new();
+    for i in 0..frames {
+        let frame = if i == 0 { &input } else { &idle };
+        events.extend(step(client, server, frame));
+    }
+    events
 }
 
 /// Runs the commands for ten frames; the notices the frames raised, in order.
@@ -63,26 +109,74 @@ fn run(
     server: &Shared,
     commands: Vec<Command>,
 ) -> Vec<GameplayNotice> {
-    let idle = FrameInput::default();
-    let input = FrameInput {
-        commands,
-        ..FrameInput::default()
-    };
-    let mut notices = Vec::new();
-    for i in 0..10 {
-        let frame = if i == 0 { &input } else { &idle };
-        for event in step(client, server, frame) {
-            if let SessionEvent::Notice(notice) = event {
-                notices.push(notice);
-            }
-        }
-    }
-    notices
+    notices(events_for(client, server, commands, 10))
+}
+
+/// The frames of `secs` seconds (the double's clock moves a step a frame).
+fn advance(client: &mut ac2_client::Client, server: &Shared, secs: f64) -> Vec<SessionEvent> {
+    let frames = (secs * 64.0).round() as usize;
+    events_for(client, server, Vec::new(), frames)
+}
+
+fn notices(events: Vec<SessionEvent>) -> Vec<GameplayNotice> {
+    events
+        .into_iter()
+        .filter_map(|e| match e {
+            SessionEvent::Notice(n) => Some(n),
+            _ => None,
+        })
+        .collect()
 }
 
 /// The player selects the creature (the target of a special attack).
 fn select_creature(client: &mut ac2_client::Client, server: &Shared) {
     run(client, server, vec![Command::Select(Some(CREATURE_ONE))]);
+}
+
+/// The combat notices (the bar's requests, the attack state, the ends and the toggles).
+fn combat_notices(notices: &[GameplayNotice]) -> Vec<GameplayNotice> {
+    notices
+        .iter()
+        .filter(|n| {
+            matches!(
+                n,
+                GameplayNotice::RequestSpecialAttack { .. }
+                    | GameplayNotice::UpdateAttackState(_)
+                    | GameplayNotice::EndSpecialAttack(_)
+                    | GameplayNotice::ToggleSpecialAttack { .. }
+            )
+        })
+        .cloned()
+        .collect()
+}
+
+/// The damage text's objects, in order (`Do3DDamage`).
+fn damage_texts(events: &[SessionEvent]) -> Vec<u64> {
+    events
+        .iter()
+        .filter_map(|e| match e {
+            SessionEvent::Notice(GameplayNotice::Do3DDamage { object, .. }) => Some(*object),
+            _ => None,
+        })
+        .collect()
+}
+
+/// The `UpdateVital` health currents, in order.
+fn health_currents(events: &[SessionEvent]) -> Vec<u64> {
+    let mut currents: Vec<u64> = events
+        .iter()
+        .filter_map(|e| match e {
+            SessionEvent::Notice(GameplayNotice::UpdateVital { vital, current, .. })
+                if *vital == HEALTH_VITAL =>
+            {
+                Some(*current)
+            }
+            _ => None,
+        })
+        .collect();
+    // The current and the max each raise a notice on a change of health; one value per blow.
+    currents.dedup();
+    currents
 }
 
 #[test]
@@ -126,7 +220,7 @@ fn a_skill_from_the_shortcut_bar_requests_a_special_attack_with_its_bytes() {
     // The bar's maneuver goes pending at the request; the double's answers follow: the attack
     // state up, then the attack ends.
     assert_eq!(
-        notices,
+        combat_notices(&notices),
         vec![
             GameplayNotice::RequestSpecialAttack {
                 maneuver: MELEE_AUTO_ATTACK,
@@ -159,7 +253,7 @@ fn a_skill_without_a_selection_requests_no_target_and_is_not_answered() {
         .find_map(SpecialAttackRequest::from_call);
     assert_eq!(request.map(|r| r.target), Some(0));
     assert_eq!(
-        notices,
+        combat_notices(&notices),
         vec![GameplayNotice::RequestSpecialAttack {
             maneuver: MELEE_AUTO_ATTACK,
             attack: 1,
@@ -204,15 +298,127 @@ fn a_maneuver_toggle_reaches_the_bar() {
     assert!(client.take_script_problems().is_empty());
 }
 
-/// The ScriptCall form of the request is the one the client's codec builds too.
+/// A text shortcut (`/e waves`, slot 1) runs its line through the chat shell, which asks the
+/// server for the emote (efun 0x7F0052 `ProcessText` -> the shell's `DoEmote`).
 #[test]
-fn the_request_is_the_codecs_call() {
-    let request = SpecialAttackRequest {
-        attack: 1,
-        maneuver: MELEE_AUTO_ATTACK,
-        target: CREATURE_ONE,
+fn a_text_shortcut_runs_its_line_through_the_chat_shell() {
+    let Some((mut client, server)) = with_script() else {
+        return;
     };
-    let call: ScriptCall = request.to_call();
-    assert_eq!(call.function, 0x8204_000B);
-    assert_eq!(SpecialAttackRequest::from_call(&call), Some(request));
+    let before = server.borrow().script_requests.len();
+    assert!(client.use_shortcut(1).is_ok());
+    run(&mut client, &server, Vec::new());
+    let requests: Vec<ScriptRequest> = server.borrow().script_requests[before..].to_vec();
+    assert!(
+        requests
+            .iter()
+            .any(|r| matches!(r, ScriptRequest::EmoteText(text) if text == "waves")),
+        "{requests:?}"
+    );
+    assert!(client.take_script_problems().is_empty());
+}
+
+/// The attack on the creature: the first exchange (after the interval) is the player's blow and
+/// the creature's blow back. Each blow is raised both ways: the chat line and the floating damage
+/// text over the damaged object, the player's own (the creature) and the creature's (the player).
+#[test]
+fn damage_is_noticed_both_ways() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    select_creature(&mut client, &server);
+    let started = events_for(&mut client, &server, vec![Command::SetAttacking(true)], 1);
+    assert!(combat_notices(&notices(started)).is_empty());
+    let events = advance(&mut client, &server, HIT_INTERVAL + 0.5);
+    // The player's blow damages the creature (its text over the creature), the creature's blow
+    // back damages the player (its text over the player).
+    assert_eq!(
+        damage_texts(&events),
+        vec![CREATURE_ONE, PLAYER],
+        "{events:?}"
+    );
+    let lines = notices(events)
+        .iter()
+        .filter(|n| matches!(n, GameplayNotice::DisplayStringInfo { .. }))
+        .count();
+    assert!(lines >= 2, "the chat line for each blow: {lines}");
+    assert!(client.take_script_problems().is_empty());
+}
+
+/// The player's blows bring the creature's health down on the selection panel, and the creature's
+/// blows bring the player's health down through the vitals (`CPlayer` 0x85, `UpdateVital`).
+#[test]
+fn vitals_and_the_selection_health_drop_with_the_blows() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    select_creature(&mut client, &server);
+    events_for(&mut client, &server, vec![Command::SetAttacking(true)], 1);
+    let events = advance(&mut client, &server, HIT_INTERVAL + 0.5);
+    assert_eq!(
+        health_currents(&events),
+        vec![u64::from(PLAYER_HEALTH - CREATURE_DAMAGE)],
+        "{events:?}"
+    );
+    let creature = client
+        .frame()
+        .selection
+        .as_ref()
+        .and_then(|s| s.info.as_ref())
+        .map(|info| (info.cur_health, info.max_health));
+    assert_eq!(
+        creature,
+        Some((CREATURE_HEALTH - PLAYER_DAMAGE, CREATURE_HEALTH))
+    );
+    assert!(client.take_script_problems().is_empty());
+}
+
+/// Three exchanges kill the creature (30 health, 10 a blow): it leaves the world, the attack
+/// ends, and the creature's last blow is not made. It is destroyed after its out-of-view lifetime
+/// (`OUT_OF_VIEW_LIFETIME`, 25 s), as an object that leaves the world is.
+#[test]
+fn the_creature_dies_at_zero_health() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    select_creature(&mut client, &server);
+    events_for(&mut client, &server, vec![Command::SetAttacking(true)], 1);
+    let fight = advance(&mut client, &server, 3.0 * HIT_INTERVAL + 0.5);
+    assert!(!fight
+        .iter()
+        .any(|e| matches!(e, SessionEvent::ObjectRemoved(_))));
+    let all = notices(fight.clone());
+    assert!(combat_notices(&all).ends_with(&[GameplayNotice::UpdateAttackState(false)]));
+    // The creatures' blows: two made (the third exchange kills before the creature strikes).
+    assert_eq!(
+        health_currents(&fight),
+        vec![
+            u64::from(PLAYER_HEALTH - CREATURE_DAMAGE),
+            u64::from(PLAYER_HEALTH - 2 * CREATURE_DAMAGE),
+        ]
+    );
+    assert!(server.borrow().fight.dead.contains(&CREATURE_ONE));
+    // The creature is out of the world now; the object goes once its lifetime runs out.
+    let later = advance(&mut client, &server, 26.0);
+    assert!(later
+        .iter()
+        .any(|e| matches!(e, SessionEvent::ObjectRemoved(id) if *id == CREATURE_ONE)));
+    assert!(client.frame().objects.iter().all(|o| o.id != CREATURE_ONE));
+    assert!(client.take_script_problems().is_empty());
+}
+
+/// The first blow's text, over the creature, in the blow's own notice: the damage text's object is
+/// the creature the player hit.
+#[test]
+fn a_special_attack_hit_puts_its_text_over_the_creature() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    select_creature(&mut client, &server);
+    let events = events_for(&mut client, &server, Vec::new(), 1);
+    assert!(damage_texts(&events).is_empty());
+    assert_eq!(client.use_shortcut(0), Ok(1));
+    let events = events_for(&mut client, &server, Vec::new(), 10);
+    assert_eq!(damage_texts(&events), vec![CREATURE_ONE], "{events:?}");
+    assert!(client.take_script_problems().is_empty());
 }

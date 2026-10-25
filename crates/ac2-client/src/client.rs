@@ -280,6 +280,7 @@ impl Client {
         for event in &dispatched {
             self.apply(event)?;
         }
+        self.apply_stories(&dispatched);
         self.run_scripts(&mut dispatched);
         events.extend(dispatched);
         let produced = self.radar_use_time(&events);

@@ -114,9 +114,10 @@ pub fn default_options() -> GameplayOptionsProfile {
     };
     shortcuts[1] = ShortcutInfo::Text("/e waves".into());
     GameplayOptionsProfile {
-        // The bit field (0x80): allegiance and fellowship requests accepted (0x40, 0x80).
+        // The bit field (0x80): allegiance and fellowship requests accepted (0x40, 0x80), and the
+        // damage text shown for the player's own hits and for others' (0x4, 0x8).
         pack_bitfield: 0x2 | 0x4 | 0x20 | 0x80 | 0x1000,
-        bit_field: 0x40 | 0x80,
+        bit_field: 0x4 | 0x8 | 0x40 | 0x80,
         radar_mask: 0x3F,
         shortcuts,
         which_shortcut_set: 0,

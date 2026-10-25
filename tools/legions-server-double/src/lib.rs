@@ -14,6 +14,7 @@ mod characters;
 mod chest;
 mod combat;
 mod corpse;
+pub use combat::{Fight, CREATURE_HEALTH, HEALTH, HEALTH_MAX, PLAYER_HEALTH, PLAYER_HEALTH_MAX};
 mod craft;
 pub use craft::{CRAFT_SKILL, KNOWN_RECIPE};
 mod effects;
@@ -288,6 +289,8 @@ pub struct State {
     next_object_blob: u16,
     /// What the double answers script calls with.
     pub script_world: ScriptWorld,
+    /// The fight against the double's creatures (`combat.rs`).
+    pub fight: Fight,
     /// The fellowship the double made for the player (`WM_Fellowship` 0x22), if any.
     pub fellowship: Option<Fellowship>,
     /// The player's allegiance.

@@ -144,7 +144,7 @@ Legend and workflow: [README](README.md).
 
 ### CM_Physics
 - [ ] `CM_Physics::RecvEvt_CreateObject` · 007269d0 · legions 006a55c0
-- [ ] `CM_Physics::SendNotice_Do3DDamage` · 00726b80 — IFun 0xB400C0 runs on the VM with the eight damage values; the Do3DDamage text is not raised yet (UIDamageControl 0x05 gate open); DoStory is not wired to the IFun
+- [ ] `CM_Physics::SendNotice_Do3DDamage` · 00726b80 — IFun 0xB400C0 run by client_story.rs for each DoStory damage hook; Do3DDamage raised on the VM with HIT 0x40000008 (combat_7160)
 
 ## `ac2/client/src/events/cm_quest.cpp.c` (0/3)
 
@@ -377,7 +377,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/weenie/interp/glue/gcm_physics.cpp.c` (0/1)
 
 ### gCM_Physics
-- [ ] `gCM_Physics::CallEFun_SendNotice_Do3DDamage` · 00468ec0 — IFun 0xB400C0 runs on the VM with the eight damage values; the Do3DDamage text is not raised yet (UIDamageControl 0x05 gate open); DoStory is not wired to the IFun
+- [ ] `gCM_Physics::CallEFun_SendNotice_Do3DDamage` · 00468ec0 — IFun 0xB400C0 run by client_story.rs for each DoStory damage hook; Do3DDamage raised on the VM with HIT 0x40000008 (combat_7160)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_quest.cpp.c` (0/3)
 
@@ -669,7 +669,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipRecruitAccept` · 004589d0 · legions 00459620
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipRecruitDecline` · 00458a60 · legions 004596b0
 - [ ] `ggmCWInterface::CallIFun_DoIHaveItem` · 00458b10 · legions 00459760
-- [ ] `ggmCWInterface::CallIFun_DoUIDamage` · 00458bf0 · legions 00459840 — IFun 0xB400C0 runs on the VM with the eight damage values; the Do3DDamage text is not raised yet (UIDamageControl 0x05 gate open); DoStory is not wired to the IFun
+- [ ] `ggmCWInterface::CallIFun_DoUIDamage` · 00458bf0 · legions 00459840 — IFun 0xB400C0 run by client_story.rs for each DoStory damage hook; Do3DDamage raised on the VM with HIT 0x40000008 (combat_7160)
 - [x] `ggmCWInterface::CallIFun_DoesIngredientAutoPopulate` · 00458dd0 · legions 00459a20 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [~] `ggmCWInterface::CallIFun_DragFromMoneyBag` · 00458ec0 · legions 00459b10 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [~] `ggmCWInterface::CallIFun_DragToMoneyBag` · 00458fe0 · legions 00459c30 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
@@ -855,7 +855,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_UploadGameOptions` · 00463b70 · legions 004647e0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [ ] `ggmCWInterface::CallIFun_UploadUISettings` · 00463c00 · legions 00464870
 - [ ] `ggmCWInterface::CallIFun_UseSelection` · 00463c90 · legions 00464900
-- [ ] `ggmCWInterface::CallIFun_UseShortcut` · 00463d30 · legions 004649a0 — skill shortcut sends WM_Combat 0x17 (combat_7160); text shortcuts (/e waves) hit unbound efun 0x7F0052 and are not run
+- [ ] `ggmCWInterface::CallIFun_UseShortcut` · 00463d30 · legions 004649a0 — skill and text shortcuts run on the VM: WM_Combat 0x17 request (combat_7160); /e waves through efun 0x7F0052 into the chat shell
 
 ## `ac2/client/src/weenie/interp/glue/gmcefundispatcher.cpp.c` (0/1)
 
@@ -928,7 +928,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::GetLastSelection` · 0044fb20 · legions 00450c60 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [x] `gmCWInterface::ShouldAutoTarget` · 0044fb80 · legions 00450cc0 — ac2-client: the ShouldAutoTarget IFun on the VM before attacking
 - [ ] `gmCWInterface::UseSelection` · 0044fbb0 · legions 00450cf0 — ac2-weenie OnlineSession::use_selection (CPlayer 0x79 -> CUsageSystem 0x9 stand-in)
-- [ ] `gmCWInterface::UseShortcut` · 0044fbe0 · legions 00450d20 — skill shortcut sends WM_Combat 0x17 (combat_7160); text shortcuts (/e waves) hit unbound efun 0x7F0052 and are not run
+- [ ] `gmCWInterface::UseShortcut` · 0044fbe0 · legions 00450d20 — skill and text shortcuts run on the VM: WM_Combat 0x17 request (combat_7160); /e waves through efun 0x7F0052 into the chat shell
 - [ ] `gmCWInterface::StopAttacking` · 0044fc20 · legions 00450d60
 - [x] `gmCWInterface::RequestAttackStateChange` · 0044fc60 · legions 00450da0 — ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
 - [ ] `gmCWInterface::CanAutoAttackTarget` · 0044fca0 · legions 00450de0
@@ -1120,7 +1120,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::RevokeItemFromTrade` · 00451e40 · legions 00452fc0 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 - [ ] `gmCWInterface::GetMissileInformationFromWSL` · 00451e60 · legions 00452fe0
 - [ ] `gmCWInterface::GetFXAndBehaviorInformationFromWsl` · 00451eb0 · legions 00453030
-- [ ] `gmCWInterface::DoUIDamage` · 00451ef0 · legions 00453070 — IFun 0xB400C0 runs on the VM with the eight damage values; the Do3DDamage text is not raised yet (UIDamageControl 0x05 gate open); DoStory is not wired to the IFun
+- [ ] `gmCWInterface::DoUIDamage` · 00451ef0 · legions 00453070 — the native StoryManager::DoStoryHook body is not run; client_story.rs makes the call the DoStory hook makes
 - [ ] `gmCWInterface::SpecialAttackStarted` · 00451f50 · legions 004530d0 — start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
 - [ ] `gmCWInterface::SpecialAttackEnded` · 00451f70 · legions 004530f0 — start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
 - [ ] `gmCWInterface::StopAttackingIfAutoMoving` · 00451f90 · legions 00453110
@@ -2276,7 +2276,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWInterface::CallEFun_GetInternalWeenieObject` · 004bb600 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCWInterface::CallEFun_InqStringInfoValue` · 004bb680
 - [ ] `gCWInterface::CallEFun_IsThePlayer` · 004bb7a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWInterface::CallEFun_ProcessText` · 004bb810
+- [ ] `gCWInterface::CallEFun_ProcessText` · 004bb810 — efun 0x7F0052: the line goes to the chat shell (ac2-script host/interface.rs, Vm::shell_lines; ac2-client scripts_io.rs runs it)
 - [ ] `gCWInterface::CallEFun_SendServerEvt` · 004bb890 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `gCWInterface::CallEFun_SendServerEvtEncrypt` · 004bb910 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `gCWInterface::CallEFun_GetMyPosition` · 004bb990

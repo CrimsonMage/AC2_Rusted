@@ -16,6 +16,9 @@ use crate::client::Client;
 /// The `ggmCWInterface::CallIFun_*` function ids these queries call.
 pub mod ifun {
     pub const USE_SHORTCUT: u32 = 0x00B4_0007;
+    /// `ggmCWInterface::CallIFun_DoUIDamage` (`gmCWInterface::DoUIDamage`): attacker, target, skill,
+    /// attack result, target and attacker health change, target and attacker PK change.
+    pub const DO_UI_DAMAGE: u32 = 0x00B4_00C0;
     pub const INQ_ROOT_PANEL_FROM_RACE: u32 = 0x00B4_0020;
     pub const CAN_SKILL_BE_TRAINED_BY_ENUM: u32 = 0x00B4_0023;
     pub const CAN_SKILL_BE_UNTRAINED_BY_ENUM: u32 = 0x00B4_0024;

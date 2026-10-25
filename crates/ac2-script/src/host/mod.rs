@@ -190,6 +190,11 @@ impl ScriptHost {
         self.vm.repositories.get(&id)
     }
 
+    /// The lines the scripts entered for the chat shell since the last call, in order.
+    pub fn take_shell_lines(&mut self) -> Vec<String> {
+        std::mem::take(&mut self.vm.shell_lines)
+    }
+
     /// The object went away (`VM::DeleteProcess`).
     pub fn remove_weenie(&mut self, id: u64) {
         if let Some(p) = self.processes.remove(&id) {

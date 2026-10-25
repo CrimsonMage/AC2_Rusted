@@ -22,6 +22,7 @@ mod client_frame;
 mod client_objects;
 mod client_radar;
 mod client_teleport;
+mod client_story;
 pub use client_options::{ApplyOutcome, Close, OptionsWindow};
 pub use client_prefs::{ClientPrefs, DatNames};
 pub use client_radar::add_map_note;

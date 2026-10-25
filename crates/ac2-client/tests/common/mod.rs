@@ -189,6 +189,7 @@ pub fn step(
         .unwrap();
     let events = client.use_time(input).unwrap();
     server.borrow_mut().elapsed += STEP;
+    server.borrow_mut().combat_tick();
     events
 }
 

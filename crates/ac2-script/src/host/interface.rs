@@ -11,6 +11,23 @@ pub(super) fn register(efuns: &mut EFuns) {
     // Legions binds 0x7F000A and 0x7F000B to one function (0x004B0680).
     efuns.register(0x007F_000B, get_internal_weenie_object);
     efuns.register(0x007F_0040, is_the_player);
+    efuns.register(0x007F_0052, process_text);
+}
+
+/// `CWInterface::ProcessText(text)` (`gCWInterface::CallEFun_ProcessText`, the text a `wpstring`
+/// in argument 2, the status in argument 3): the line goes to the chat shell, which the client
+/// runs (see `Vm::shell_lines`). The status the shell gives is not traced here, so it returns 0.
+fn process_text(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    if let Err(status) = this_weenie(vm, ctx) {
+        return status;
+    }
+    let reference = Call::new(ctx).word(2);
+    let Some(text) = vm.wstring(reference).map(String::from_utf16_lossy) else {
+        return vm.bad_this(reference);
+    };
+    vm.shell_lines.push(text);
+    Call::new(ctx).ret(3, 0, tag::INT);
+    InterpStatus::Success
 }
 
 /// The weenie `this` is the interface of, or `None` (after crashing) for an undefined `this`.

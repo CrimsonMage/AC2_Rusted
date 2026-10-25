@@ -41,6 +41,7 @@ impl Client {
             }
             Ok(_) => {}
         }
+        let lines = scripts.host.take_shell_lines();
         let calls = scripts.host.take_server_calls();
         let notices = scripts.host.take_notices();
         let script_notices = scripts.host.take_script_notices();
@@ -54,6 +55,10 @@ impl Client {
         }
         if !owned {
             return;
+        }
+        // The lines the scripts entered for the chat shell (`CWInterface::ProcessText`), in order.
+        for line in lines {
+            out.extend(self.session.process_text(&line));
         }
         for call in calls {
             self.session
