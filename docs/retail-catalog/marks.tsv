@@ -908,7 +908,7 @@ key	status	note
 004505d0	x	ac2-weenie ItemStats::preferred_location (Item 0x26: int 282), valid_locations (275), precluded_locations (283)
 004506c0	~	ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 00450700	~	ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
-00450730	_	ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
+00450730	~	The take-all descriptor goes out on the session path (corpse_script_7160: bytes asserted, every item moved, the skin included); the IFun route (0xB400E8) is not used: the wlib's loot check (CInventorySystem 0x1E: EngineWeenieTypeSystem 0x5 on the container's int 20, then Container 0x2B's list count on the container object) is refused, as no traced message fills the container object's lists (WM_Inventory 0x53 and 0x5D forward to CPlayer). CorpsePermissionBlob (0x1BDF) and CorpseUsagePermission (0x26A) are untraced: their message is not found, so none is sent
 00450750	_	ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
 00450770	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 004507a0	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
@@ -1119,6 +1119,7 @@ key	status	note
 0045f100	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045f1c0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045f280	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
+0045f340	~	The take-all descriptor goes out on the session path (corpse_script_7160: bytes asserted, every item moved, the skin included); the IFun route (0xB400E8) is not used: the wlib's loot check (CInventorySystem 0x1E: EngineWeenieTypeSystem 0x5 on the container's int 20, then Container 0x2B's list count on the container object) is refused, as no traced message fills the container object's lists (WM_Inventory 0x53 and 0x5D forward to CPlayer). CorpsePermissionBlob (0x1BDF) and CorpseUsagePermission (0x26A) are untraced: their message is not found, so none is sent
 0045f5e0	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 0045f6e0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0045f790	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs

@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 238 done, 75 partial, 1584 to do, 7 skipped.
+1904 retail functions: 238 done, 77 partial, 1582 to do, 7 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -763,7 +763,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_IsSkillHarmful` · 0045f100 · legions 0045fd50 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `ggmCWInterface::CallIFun_IsSkillTrainedByEnum` · 0045f1c0 · legions 0045fe10 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [~] `ggmCWInterface::CallIFun_IsSkillUsableBasedOnInventoryByEnum` · 0045f280 · legions 0045fed0 — query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
-- [ ] `ggmCWInterface::CallIFun_LootAllFromContainer` · 0045f340 · legions 0045ff90
+- [~] `ggmCWInterface::CallIFun_LootAllFromContainer` · 0045f340 · legions 0045ff90 — The take-all descriptor goes out on the session path (corpse_script_7160: bytes asserted, every item moved, the skin included); the IFun route (0xB400E8) is not used: the wlib's loot check (CInventorySystem 0x1E: EngineWeenieTypeSystem 0x5 on the container's int 20, then Container 0x2B's list count on the container object) is refused, as no traced message fills the container object's lists (WM_Inventory 0x53 and 0x5D forward to CPlayer). CorpsePermissionBlob (0x1BDF) and CorpseUsagePermission (0x26A) are untraced: their message is not found, so none is sent
 - [ ] `ggmCWInterface::CallIFun_MoveItem` · 0045f410 · legions 00460060
 - [~] `ggmCWInterface::CallIFun_OfferItemForTrade` · 0045f5e0 · legions 00460230 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [x] `ggmCWInterface::CallIFun_OpenRecipe` · 0045f6e0 · legions 00460330 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
@@ -985,7 +985,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::IsOnInventory` · 00450680 · legions 004517c0
 - [~] `gmCWInterface::DragToMoneyBag` · 004506c0 · legions 00451800 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [~] `gmCWInterface::DragFromMoneyBag` · 00450700 · legions 00451840 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
-- [ ] `gmCWInterface::LootAllFromContainer` · 00450730 · legions 00451870 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
+- [~] `gmCWInterface::LootAllFromContainer` · 00450730 · legions 00451870 — The take-all descriptor goes out on the session path (corpse_script_7160: bytes asserted, every item moved, the skin included); the IFun route (0xB400E8) is not used: the wlib's loot check (CInventorySystem 0x1E: EngineWeenieTypeSystem 0x5 on the container's int 20, then Container 0x2B's list count on the container object) is refused, as no traced message fills the container object's lists (WM_Inventory 0x53 and 0x5D forward to CPlayer). CorpsePermissionBlob (0x1BDF) and CorpseUsagePermission (0x26A) are untraced: their message is not found, so none is sent
 - [ ] `gmCWInterface::TransmuteAllFromContainer` · 00450750 · legions 00451890 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
 - [x] `gmCWInterface::HasDurability` · 00450770 · legions 004518b0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [x] `gmCWInterface::GetDurabilityLevel` · 004507a0 · legions 004518e0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display

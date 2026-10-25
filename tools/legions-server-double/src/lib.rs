@@ -13,6 +13,7 @@ pub use characters::{CharGenRules, CharacterStore, StoredCharacter};
 mod characters;
 mod chest;
 mod combat;
+mod corpse;
 mod craft;
 pub use craft::{CRAFT_SKILL, KNOWN_RECIPE};
 mod effects;
@@ -42,6 +43,7 @@ pub use character::{
     RACE_HUMAN,
 };
 pub use chest::{CHEST, CHEST_CAPACITY, CHEST_GEM, CHEST_SCROLL};
+pub use corpse::{CORPSE, CORPSE_ITEM, CORPSE_SKIN, CORPSE_WEENIE_TYPE, TROPHY_MIMBU_SKIN_PACKAGE};
 pub use effects::{effect_registry, EffectGrant, EFFECT_PULSED, EFFECT_TIMED};
 pub use items::{
     item_object_bytes, segments, starter_items, ItemSpawn, MAIN_PACK_CAPACITY, PACK, POTIONS,
