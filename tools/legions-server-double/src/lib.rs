@@ -10,6 +10,7 @@ mod assembly;
 mod channel;
 mod character;
 mod chest;
+mod craft;
 mod effects;
 mod items;
 mod lossy;

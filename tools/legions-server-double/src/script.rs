@@ -45,6 +45,8 @@ pub struct ScriptWorld {
     pub open_store: Option<ac2_net::protocol::StoreView>,
     /// Purchases made so far: the item each one gives the player is counted from them.
     pub purchases: u64,
+    /// Crafts executed so far: the crafted item each one gives the player is counted from them.
+    pub crafts: u64,
 }
 
 impl State {
@@ -204,6 +206,10 @@ impl State {
             | ScriptRequest::RevokeItem(_) => self.answer_trade(request),
             ScriptRequest::LeaveStore(_) => self.answer_leave_store(request),
             ScriptRequest::Purchase(blob) => self.answer_purchase(blob),
+            ScriptRequest::CraftAddIngredient { .. } | ScriptRequest::CraftExecute { .. } => {
+                self.answer_craft(request)
+            }
+            ScriptRequest::CraftRaiseSkill(_) => {}
             ScriptRequest::EnterStore { .. } => {}
             ScriptRequest::Use(desc) => {
                 let mut desc = desc.clone();

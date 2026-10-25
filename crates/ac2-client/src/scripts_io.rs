@@ -6,7 +6,7 @@
 
 use ac2_net::protocol::pack_values;
 use ac2_script::host::{
-    ChatRequest, DispatchOutcome, IFunArg, IFunResult, ScriptNotice, SkillPanelData,
+    ChatRequest, DispatchOutcome, IFunArg, IFunResult, IFunReturn, ScriptNotice, SkillPanelData,
 };
 use ac2_script::vm::InterpStatus;
 use ac2_weenie::SessionEvent;
@@ -86,11 +86,22 @@ impl Client {
         args: &[IFunArg],
         out: &mut Vec<SessionEvent>,
     ) -> Result<IFunResult, String> {
+        self.ifun_return_into(function, args, IFunReturn::Word, out)
+    }
+
+    /// [`Client::ifun_into`] with the return slot's shape (`ulong64 *retval` takes two words).
+    pub(crate) fn ifun_return_into(
+        &mut self,
+        function: u32,
+        args: &[IFunArg],
+        ret: IFunReturn,
+        out: &mut Vec<SessionEvent>,
+    ) -> Result<IFunResult, String> {
         let player = self.session.player().ok_or("no player")?;
         let scripts = self.scripts.as_mut().ok_or("no script VM")?;
         let result = scripts
             .host
-            .call_ifun(player, function, args)
+            .query(player, function, args, ret)
             .map_err(|e| format!("{e:?}"));
         let outcome = result
             .as_ref()

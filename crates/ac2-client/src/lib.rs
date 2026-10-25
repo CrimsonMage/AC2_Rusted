@@ -20,6 +20,7 @@ mod client_objects;
 mod client_radar;
 pub use client_radar::add_map_note;
 mod controls;
+mod craft;
 mod frame;
 mod gameplay;
 #[cfg(feature = "window")]

@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 136 done, 15 partial, 339 to do, 9 skipped.
+499 retail functions: 138 done, 15 partial, 337 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -168,10 +168,10 @@ Legend and workflow: [README](README.md).
 - [ ] `IngredientAdaptor::operator=` · 0060c2e0 · legions 005cd030
 - [ ] `IngredientAdaptor::IngredientAdaptor` · 0060c310 · legions 005cd060
 
-## `ac2/shared/src/craft/recipeadaptor.cpp.c` (0/5)
+## `ac2/shared/src/craft/recipeadaptor.cpp.c` (2/5)
 
 ### RecipeAdaptor
-- [ ] `RecipeAdaptor::RecipeAdaptor` · 0060c350 · legions 005cd0a0
+- [x] `RecipeAdaptor::RecipeAdaptor` · 0060c350 · legions 005cd0a0 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 
 ### CraftSkillAdaptor
 - [ ] `CraftSkillAdaptor::~CraftSkillAdaptor` · 0060c3e0 · legions 005cd130
@@ -179,7 +179,7 @@ Legend and workflow: [README](README.md).
 ### RecipeAdaptor
 - [ ] `RecipeAdaptor::operator=` · 0060c400 · legions 005cd150
 - [ ] `RecipeAdaptor::SetDifficultyMinusSkillCutoff` · 0060c500 · legions 005cd250
-- [ ] `RecipeAdaptor::RecipeAdaptor` · 0060c520 · legions 005cd270
+- [x] `RecipeAdaptor::RecipeAdaptor` · 0060c520 · legions 005cd270 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 
 ## `ac2/shared/src/damagetext/damagetextblob.cpp.c` (0/5)
 

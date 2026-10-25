@@ -86,6 +86,9 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     ac2_net::protocol::script_function::STORE_UPDATE,
     ac2_net::protocol::script_function::STORE_LEFT,
     ac2_net::protocol::script_function::STORE_UPDATE_SALE,
+    // The craft answers (`WM_Craft` 0x16 -> `CPlayer` 0x30, 0x1C -> `CPlayer` 0xF7).
+    ac2_net::protocol::script_function::CRAFT_ADD_INGREDIENT_DONE,
+    ac2_net::protocol::script_function::CRAFT_EXECUTE_DONE,
     // `gmCWInterface`'s store calls (their IFuns on the player's script).
     IFUN_REQUEST_ENTER_STORE,
     IFUN_REQUEST_LEAVE_STORE,
@@ -96,6 +99,25 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_REQUEST_SALES,
     IFUN_REQUEST_NEXT_SALES,
     IFUN_REQUEST_PREV_SALES,
+    // The crafting queries and requests (`ggmCWInterface::CallIFun_*`, see [`crate::craft`]).
+    IFUN_CAN_CRAFT_SKILL_BE_RAISED,
+    IFUN_CHECK_INGREDIENT,
+    IFUN_DOES_INGREDIENT_AUTO_POPULATE,
+    IFUN_GET_AVAILABLE_CRAFT_EXPERIENCE,
+    IFUN_INQ_CRAFT_SKILL_ADAPTOR,
+    IFUN_INQ_CRAFT_SKILL_CATEGORY_NAME,
+    IFUN_INQ_CRAFT_SKILL_LEVEL,
+    IFUN_INQ_CRAFT_SKILL_LIST,
+    IFUN_INQ_RECIPE_ADAPTOR,
+    IFUN_INQ_RECIPE_COST,
+    IFUN_INQ_RECIPE_DIFFICULTY,
+    IFUN_INQ_RECIPE_INGREDIENTS,
+    IFUN_INQ_RECIPE_LIST,
+    IFUN_IS_CRAFT_SKILL_RAISEABLE,
+    IFUN_OPEN_RECIPE,
+    IFUN_REQUEST_ADD_INGREDIENT,
+    IFUN_REQUEST_EXECUTE_CRAFT,
+    IFUN_REQUEST_RAISE_CRAFT_SKILL,
     // The fellowship and allegiance actions (`ac2_weenie::SocialRequest::ifun`).
     0x00B4_00A0,
     0x00B4_00A1,
@@ -148,6 +170,31 @@ pub const IFUN_REQUEST_SALES: u32 = 0x00B4_013E;
 pub const IFUN_REQUEST_NEXT_SALES: u32 = 0x00B4_0132;
 /// `gmCWInterface::RequestPrevSales` (`CallIFun_RequestPrevSales`, no arguments).
 pub const IFUN_REQUEST_PREV_SALES: u32 = 0x00B4_0133;
+
+/// The crafting IFuns (`ggmCWInterface::CallIFun_*`, the same ids in Legions 7160). The
+/// queries' parameters are in the order the glue declares them, the out values after them.
+pub const IFUN_CAN_CRAFT_SKILL_BE_RAISED: u32 = 0x00B4_011B;
+pub const IFUN_CHECK_INGREDIENT: u32 = 0x00B4_00F4;
+pub const IFUN_DOES_INGREDIENT_AUTO_POPULATE: u32 = 0x00B4_0119;
+pub const IFUN_GET_AVAILABLE_CRAFT_EXPERIENCE: u32 = 0x00B4_0112;
+pub const IFUN_INQ_CRAFT_SKILL_ADAPTOR: u32 = 0x00B4_00F9;
+pub const IFUN_INQ_CRAFT_SKILL_CATEGORY_NAME: u32 = 0x00B4_0110;
+pub const IFUN_INQ_CRAFT_SKILL_LEVEL: u32 = 0x00B4_0121;
+pub const IFUN_INQ_CRAFT_SKILL_LIST: u32 = 0x00B4_00FA;
+pub const IFUN_INQ_RECIPE_ADAPTOR: u32 = 0x00B4_009A;
+pub const IFUN_INQ_RECIPE_COST: u32 = 0x00B4_0106;
+pub const IFUN_INQ_RECIPE_DIFFICULTY: u32 = 0x00B4_011D;
+pub const IFUN_INQ_RECIPE_INGREDIENTS: u32 = 0x00B4_0108;
+pub const IFUN_INQ_RECIPE_LIST: u32 = 0x00B4_009B;
+pub const IFUN_IS_CRAFT_SKILL_RAISEABLE: u32 = 0x00B4_0128;
+/// `gmCWInterface::OpenRecipe` (`CPlayer` 0x1B7: raises `OpenIngredientPanel`, no request).
+pub const IFUN_OPEN_RECIPE: u32 = 0x00B4_0118;
+/// `gmCWInterface::RequestAddIngredient` (the stub sends `WM_Craft` 0x06).
+pub const IFUN_REQUEST_ADD_INGREDIENT: u32 = 0x00B4_009D;
+/// `gmCWInterface::RequestExecuteCraft` (the stub sends `WM_Craft` 0x12).
+pub const IFUN_REQUEST_EXECUTE_CRAFT: u32 = 0x00B4_009E;
+/// `gmCWInterface::RequestRaiseCraftSkill` (`CallIFun_RequestRaiseCraftSkill`).
+pub const IFUN_REQUEST_RAISE_CRAFT_SKILL: u32 = 0x00B4_011C;
 
 /// `gmCWInterface::SetSelection`'s IFun (`ggmCWInterface::CallIFun_SetSelection`: the
 /// object, then `CPlayer` 0x6A).

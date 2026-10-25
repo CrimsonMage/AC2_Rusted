@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1332 done, 81 partial, 975 to do, 80 skipped.
+2468 retail functions: 1343 done, 106 partial, 939 to do, 80 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -370,12 +370,12 @@ Legend and workflow: [README](README.md).
 
 ### gIngredientAdaptor
 - [ ] `gIngredientAdaptor::CallEFun_SetAutoPopulate` · 00471310
-- [ ] `gIngredientAdaptor::CallEFun_SetDescription` · 00471370
+- [~] `gIngredientAdaptor::CallEFun_SetDescription` · 00471370 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 - [ ] `gIngredientAdaptor::CallEFun_SetID` · 004713d0
-- [ ] `gIngredientAdaptor::CallEFun_SetRecipeDID` · 00471430
-- [ ] `gIngredientAdaptor::CallEFun_GetAutoPopulate` · 00471490
+- [~] `gIngredientAdaptor::CallEFun_SetRecipeDID` · 00471430 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+- [~] `gIngredientAdaptor::CallEFun_GetAutoPopulate` · 00471490 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 - [ ] `gIngredientAdaptor::CallEFun_GetID` · 00471500
-- [ ] `gIngredientAdaptor::CallEFun_GetRecipeDID` · 00471570
+- [~] `gIngredientAdaptor::CallEFun_GetRecipeDID` · 00471570 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 - [ ] `gIngredientAdaptor::CallEFun_GetDescription` · 004715e0
 
 ## `ac2/shared/src/interp/glue/ginventoryglobals.cpp.c` (1/1)
@@ -388,43 +388,43 @@ Legend and workflow: [README](README.md).
 ### gRadarControl
 - [x] `gRadarControl::CallIFun_InqRadarRanges` · 0046ce60 · legions 0046d5c0 — ac2-audio/ac2-client: ambient environments, groove
 
-## `ac2/shared/src/interp/glue/grecipeadaptor.cpp.c` (0/34)
+## `ac2/shared/src/interp/glue/grecipeadaptor.cpp.c` (11/34)
 
 ### gRecipeAdaptor
-- [ ] `gRecipeAdaptor::CallEFun_SetCharges` · 004704f0
-- [ ] `gRecipeAdaptor::CallEFun_SetCost` · 00470550
-- [ ] `gRecipeAdaptor::CallEFun_SetCraftSkillCategory` · 004705b0
-- [ ] `gRecipeAdaptor::CallEFun_SetCraftSkillDID` · 00470610
-- [ ] `gRecipeAdaptor::CallEFun_SetDID` · 00470670
-- [ ] `gRecipeAdaptor::CallEFun_SetDescription` · 004706d0
-- [ ] `gRecipeAdaptor::CallEFun_SetDifficulty` · 00470730
-- [ ] `gRecipeAdaptor::CallEFun_SetDifficultyMinusSkillCutoff` · 00470790
-- [ ] `gRecipeAdaptor::CallEFun_SetDynamicCost` · 004707f0
-- [ ] `gRecipeAdaptor::CallEFun_SetDynamicDifficulty` · 00470850
-- [ ] `gRecipeAdaptor::CallEFun_SetHasAutoPopulatingIngredients` · 004708b0
-- [ ] `gRecipeAdaptor::CallEFun_SetHasNameColoringTable` · 00470910
-- [ ] `gRecipeAdaptor::CallEFun_SetIconDID` · 00470970
-- [ ] `gRecipeAdaptor::CallEFun_SetLastSpinnerValue` · 004709d0
-- [ ] `gRecipeAdaptor::CallEFun_SetMaxSpinnerValue` · 00470a30
-- [ ] `gRecipeAdaptor::CallEFun_SetMaximumNumberOfIngredients` · 00470a90
-- [ ] `gRecipeAdaptor::CallEFun_SetMinSpinnerValue` · 00470af0
-- [ ] `gRecipeAdaptor::CallEFun_SetName` · 00470b50
-- [ ] `gRecipeAdaptor::CallEFun_SetNameColor` · 00470bb0
-- [ ] `gRecipeAdaptor::CallEFun_SetReadOnlySpinner` · 00470c10
-- [ ] `gRecipeAdaptor::CallEFun_SetShown` · 00470c70
-- [ ] `gRecipeAdaptor::CallEFun_SetTimeUseAgain` · 00470cd0
-- [ ] `gRecipeAdaptor::CallEFun_GetCharges` · 00470d30
+- [~] `gRecipeAdaptor::CallEFun_SetCharges` · 004704f0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [x] `gRecipeAdaptor::CallEFun_SetCost` · 00470550 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
+- [~] `gRecipeAdaptor::CallEFun_SetCraftSkillCategory` · 004705b0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [x] `gRecipeAdaptor::CallEFun_SetCraftSkillDID` · 00470610 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
+- [x] `gRecipeAdaptor::CallEFun_SetDID` · 00470670 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
+- [~] `gRecipeAdaptor::CallEFun_SetDescription` · 004706d0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetDifficulty` · 00470730 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetDifficultyMinusSkillCutoff` · 00470790 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetDynamicCost` · 004707f0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetDynamicDifficulty` · 00470850 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetHasAutoPopulatingIngredients` · 004708b0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetHasNameColoringTable` · 00470910 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetIconDID` · 00470970 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetLastSpinnerValue` · 004709d0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetMaxSpinnerValue` · 00470a30 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetMaximumNumberOfIngredients` · 00470a90 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetMinSpinnerValue` · 00470af0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetName` · 00470b50 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetNameColor` · 00470bb0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetReadOnlySpinner` · 00470c10 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetShown` · 00470c70 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [~] `gRecipeAdaptor::CallEFun_SetTimeUseAgain` · 00470cd0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [x] `gRecipeAdaptor::CallEFun_GetCharges` · 00470d30 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 - [ ] `gRecipeAdaptor::CallEFun_GetCost` · 00470da0
-- [ ] `gRecipeAdaptor::CallEFun_GetCraftSkillCategory` · 00470e10
-- [ ] `gRecipeAdaptor::CallEFun_GetCraftSkillDID` · 00470e80
-- [ ] `gRecipeAdaptor::CallEFun_GetDID` · 00470ef0
-- [ ] `gRecipeAdaptor::CallEFun_GetDynamicCost` · 00470f60
-- [ ] `gRecipeAdaptor::CallEFun_GetIconDID` · 00470fd0
-- [ ] `gRecipeAdaptor::CallEFun_GetShown` · 00471040
-- [ ] `gRecipeAdaptor::CallEFun_GetTimeUseAgain` · 004710b0
+- [x] `gRecipeAdaptor::CallEFun_GetCraftSkillCategory` · 00470e10 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
+- [x] `gRecipeAdaptor::CallEFun_GetCraftSkillDID` · 00470e80 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
+- [x] `gRecipeAdaptor::CallEFun_GetDID` · 00470ef0 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
+- [x] `gRecipeAdaptor::CallEFun_GetDynamicCost` · 00470f60 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
+- [x] `gRecipeAdaptor::CallEFun_GetIconDID` · 00470fd0 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
+- [x] `gRecipeAdaptor::CallEFun_GetShown` · 00471040 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
+- [x] `gRecipeAdaptor::CallEFun_GetTimeUseAgain` · 004710b0 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 - [ ] `gRecipeAdaptor::CallEFun_HasReadOnlySpinner` · 00471130
-- [ ] `gRecipeAdaptor::CallEFun_GetDescription` · 004711b0
-- [ ] `gRecipeAdaptor::CallEFun_GetName` · 00471260
+- [~] `gRecipeAdaptor::CallEFun_GetDescription` · 004711b0 — net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
+- [~] `gRecipeAdaptor::CallEFun_GetName` · 00471260 — net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
 
 ## `ac2/shared/src/interp/glue/gselectioninfo.cpp.c` (15/16)
 

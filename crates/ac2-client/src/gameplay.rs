@@ -121,6 +121,25 @@ pub enum Command {
         quantity: u32,
         price: u32,
     },
+    /// `gmCWInterface::OpenRecipe`: the craft panel opens recipe `recipe` (its ingredient panel;
+    /// no request goes out).
+    OpenRecipe(u32),
+    /// `gmCWInterface::RequestAddIngredient`: `object` goes into slot `ordinal` of `recipe`.
+    AddIngredient {
+        recipe: u32,
+        ordinal: u32,
+        object: u64,
+        spinner: u32,
+    },
+    /// `gmCWInterface::RequestRaiseCraftSkill`: raise craft skill `skill`.
+    RaiseCraftSkill(u32),
+    /// `gmCWInterface::RequestExecuteCraft`: craft `recipe` from `ingredients` (slot ordinal,
+    /// object), at `spinner`.
+    ExecuteCraft {
+        recipe: u32,
+        spinner: u32,
+        ingredients: Vec<(u32, u64)>,
+    },
     /// `gmCWInterface::RequestTrainSkill` / `RequestUntrainSkill` / `RequestRaiseSkill` /
     /// `RequestUntrainSkillCancel` (the skill panel and its confirmation dialogs).
     Skill(ac2_weenie::SkillRequest),
@@ -528,6 +547,39 @@ impl Client {
                         IFunArg::Int(*quantity),
                         IFunArg::Int(*price),
                     ],
+                ),
+                Command::OpenRecipe(recipe) => {
+                    self.craft_request(crate::scripts::IFUN_OPEN_RECIPE, &[IFunArg::Int(*recipe)])
+                }
+                Command::AddIngredient {
+                    recipe,
+                    ordinal,
+                    object,
+                    spinner,
+                } => self.craft_request(
+                    crate::scripts::IFUN_REQUEST_ADD_INGREDIENT,
+                    &[
+                        IFunArg::Int(*recipe),
+                        IFunArg::Int(*ordinal),
+                        IFunArg::Long(*object),
+                        IFunArg::Int(*spinner),
+                    ],
+                ),
+                Command::ExecuteCraft {
+                    recipe,
+                    spinner,
+                    ingredients,
+                } => self.craft_request(
+                    crate::scripts::IFUN_REQUEST_EXECUTE_CRAFT,
+                    &[
+                        IFunArg::Int(*recipe),
+                        IFunArg::Int(*spinner),
+                        IFunArg::ingredient_table(ingredients),
+                    ],
+                ),
+                Command::RaiseCraftSkill(skill) => self.craft_request(
+                    crate::scripts::IFUN_REQUEST_RAISE_CRAFT_SKILL,
+                    &[IFunArg::Int(*skill)],
                 ),
                 Command::DragToMoneyBag {
                     item,

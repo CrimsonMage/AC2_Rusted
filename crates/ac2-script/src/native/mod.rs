@@ -102,6 +102,8 @@ pub mod ntype {
     pub const RGBA_COLOR: u32 = 0x64;
     pub const DAMAGE_TEXT_BLOB: u32 = 0x97;
     pub const CRAFT_SKILL_ADAPTOR: u32 = 0x33A5;
+    pub const RECIPE_ADAPTOR: u32 = 0xAA;
+    pub const INGREDIENT_ADAPTOR: u32 = 0xA5;
     pub const UI_SHOP: u32 = 0x380A;
     pub const UI_SHOP_SALE: u32 = 0x380B;
     pub const GM_QUEST_INFO: u32 = 0xA0;
@@ -185,6 +187,10 @@ pub enum NativeObject {
     ShopSale(Box<ac2_weenie::ShopSale>),
     /// `CraftSkillAdaptor`.
     CraftSkill(Box<ac2_weenie::CraftSkill>),
+    /// `RecipeAdaptor`.
+    Recipe(Box<ac2_weenie::Recipe>),
+    /// `IngredientAdaptor`.
+    Ingredient(Box<ac2_weenie::Ingredient>),
     /// `DamageTextBlob`.
     DamageText(Box<ac2_weenie::DamageText>),
     /// `RGBAColor` (r, g, b, a).
@@ -283,6 +289,8 @@ impl NativeObject {
             ntype::UI_SHOP => NativeObject::Shop(Box::default()),
             ntype::UI_SHOP_SALE => NativeObject::ShopSale(Box::default()),
             ntype::CRAFT_SKILL_ADAPTOR => NativeObject::CraftSkill(Box::default()),
+            ntype::RECIPE_ADAPTOR => NativeObject::Recipe(Box::default()),
+            ntype::INGREDIENT_ADAPTOR => NativeObject::Ingredient(Box::default()),
             ntype::DAMAGE_TEXT_BLOB => NativeObject::DamageText(Box::default()),
             ntype::RGBA_COLOR => NativeObject::Color([0.0; 4]),
             ntype::GM_QUEST_INFO => NativeObject::Wire(Box::new(

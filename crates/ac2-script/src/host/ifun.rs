@@ -12,6 +12,7 @@
 use ac2_net::protocol as net;
 
 use super::{DispatchOutcome, HostError, ScriptHost};
+use crate::native::{ntype, NativeObject, PlainKeys, RefKey, ScriptHash};
 use crate::vm::refs::{flags, Target};
 use crate::vm::{tag, Context, FunctionId};
 use crate::wire;
@@ -29,6 +30,13 @@ pub enum IFunArg {
     Native(net::NativeObject),
     /// An out parameter (`ulong *`, `float *`, `StringInfo *`, ...) with its current value.
     Out(OutValue),
+    /// A VM native passed by value, as the wrapper's own native of type `.0` (a table the script
+    /// reads).
+    Vm(u32, NativeObject),
+    /// An out parameter that is a new empty native of this type (a list the script fills, an
+    /// adaptor): the native is the out value, its address the parameter, and it is read back
+    /// after the call ([`OutValue::Items`] for a list, [`OutValue::Vm`] otherwise).
+    Filled(u32),
 }
 
 /// An out parameter's value.
@@ -38,6 +46,23 @@ pub enum OutValue {
     Word(u32),
     /// A native (`StringInfo`, ...).
     Native(net::NativeObject),
+    /// A VM native the call filled (an adaptor the script wrote into).
+    Vm(NativeObject),
+    /// A list the call filled: the natives its items name, in order (items that are not natives
+    /// are left out).
+    Items(Vec<NativeObject>),
+}
+
+impl IFunArg {
+    /// The `HashTable<unsigned long, InstanceID>` a craft's ingredients are passed as
+    /// (`IngredientOrdinalHashToALHash`: an `ALHash`, native 8): one entry per slot ordinal.
+    pub fn ingredient_table(entries: &[(u32, u64)]) -> Self {
+        let mut hash = ScriptHash::default();
+        for (ordinal, object) in entries {
+            hash.set(RefKey::Value(u64::from(*ordinal)), *object, &PlainKeys);
+        }
+        IFunArg::Vm(ntype::AL_HASH, NativeObject::Hash(hash))
+    }
 }
 
 /// The shape of a wrapper's return slot.
@@ -111,6 +136,14 @@ impl ScriptHost {
         // The out values, last parameter deepest.
         let mut out_slots = vec![None; args.len()];
         for (i, arg) in args.iter().enumerate().rev() {
+            if let IFunArg::Filled(native_type) = arg {
+                out_slots[i] = Some(ctx.sp);
+                let r = self
+                    .vm
+                    .refs
+                    .create_native(*native_type, NativeObject::new_empty(*native_type));
+                ctx.push(r, tag::REF).map_err(bad)?;
+            }
             if let IFunArg::Out(value) = arg {
                 out_slots[i] = Some(ctx.sp);
                 match value {
@@ -119,6 +152,8 @@ impl ScriptHost {
                         let r = self.native(n);
                         ctx.push(r, tag::REF).map_err(bad)?;
                     }
+                    // Results only: an input is a [`IFunArg::Filled`] or [`IFunArg::Vm`] native.
+                    OutValue::Vm(_) | OutValue::Items(_) => return Err(HostError::BadArguments),
                 }
             }
         }
@@ -142,7 +177,11 @@ impl ScriptHost {
                     let r = self.native(native);
                     ctx.push(r, tag::REF)
                 }
-                IFunArg::Out(_) => {
+                IFunArg::Vm(native_type, native) => {
+                    let r = self.vm.refs.create_native(*native_type, native.clone());
+                    ctx.push(r, tag::REF)
+                }
+                IFunArg::Out(_) | IFunArg::Filled(_) => {
                     let slot = out_slots[i].unwrap_or(0) as u32;
                     let blob = flags::KIND_VALUE | ((slot & 0xFFFF) << flags::OFFSET_SHIFT);
                     let address = self.vm.refs.add(blob, Target::Ref(u32::MAX));
@@ -162,17 +201,20 @@ impl ScriptHost {
         };
         let outs = args
             .iter()
-            .zip(&out_slots)
-            .filter_map(|(arg, slot)| match (arg, slot) {
-                (IFunArg::Out(OutValue::Word(_)), Some(s)) => Some(Some(OutValue::Word(word(*s)))),
-                (IFunArg::Out(OutValue::Native(_)), Some(s)) => {
-                    let r = word(*s);
+            .enumerate()
+            .filter_map(|(i, arg)| match arg {
+                IFunArg::Out(OutValue::Word(_)) => {
+                    out_slots[i].map(|s| Some(OutValue::Word(word(s))))
+                }
+                IFunArg::Out(OutValue::Native(_)) => {
+                    let r = word(out_slots[i]?);
                     let native = self.vm.refs.heap(r).ok().and_then(|o| {
                         let n = o.native.as_ref()?;
                         wire::native_to_net(o.native_type, n).ok()
                     });
                     Some(native.map(OutValue::Native))
                 }
+                IFunArg::Filled(_) => out_slots[i].map(|s| self.read_filled(word(s))),
                 _ => None,
             })
             .collect();
@@ -181,6 +223,20 @@ impl ScriptHost {
             outcome,
             retval,
             outs,
+        })
+    }
+
+    /// A filled native's value after the call: a list's items, or the native itself.
+    fn read_filled(&self, r: u32) -> Option<OutValue> {
+        let native = self.vm.refs.heap(r).ok()?.native.clone()?;
+        Some(match native {
+            NativeObject::List(list) => OutValue::Items(
+                list.items
+                    .iter()
+                    .filter_map(|item| self.vm.refs.heap(*item as u32).ok()?.native.clone())
+                    .collect(),
+            ),
+            other => OutValue::Vm(other),
         })
     }
 

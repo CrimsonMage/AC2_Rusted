@@ -9,6 +9,7 @@
 
 mod appearance;
 mod chat;
+mod craft;
 mod ddd;
 mod destruction;
 mod inventory;
@@ -34,6 +35,7 @@ pub use ac2_net::protocol::{CellPosition, CharacterIdentity, CharacterSet};
 pub use ac2_net::Credential;
 pub use appearance::{Appearance, PartGroupAppearance, GLOBAL_PART_GROUP};
 pub use chat::{to_iid, DISPLAY_SPEECH, DISPLAY_TELL};
+pub use craft::{Ingredient, Recipe};
 pub use ddd::{dat_file_id, dat_iterations};
 pub use inventory::{Contents, InventoryState, INVENTORY_REFRESH};
 pub use items::{item_quality, ItemStats, EQUIP_LOCATIONS, MISSING_NAME};

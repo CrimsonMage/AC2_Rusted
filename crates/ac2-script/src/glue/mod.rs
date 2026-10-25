@@ -14,6 +14,7 @@
 mod behavior;
 mod chargen;
 mod cparse;
+mod craft_natives;
 mod effect_node;
 mod entity_desc;
 mod enums;
@@ -79,6 +80,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     social::register(efuns);
     quests::register(efuns);
     ui_natives::register(efuns);
+    craft_natives::register(efuns);
     entity_desc::register(efuns);
     shortcut::register(efuns);
     reserved_ids::register(efuns);

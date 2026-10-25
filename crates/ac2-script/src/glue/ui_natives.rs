@@ -212,7 +212,7 @@ pub fn to_color32(rgba: [f32; 4]) -> u32 {
 }
 
 /// A native the script holds, by Rust type.
-trait Native: Sized {
+pub(super) trait Native: Sized {
     fn of(n: &NativeObject) -> Option<&Self>;
     fn of_mut(n: &mut NativeObject) -> Option<&mut Self>;
 }
@@ -241,11 +241,11 @@ native_kind!(ShopSale, ShopSale);
 native_kind!(CraftSkill, CraftSkill);
 native_kind!(DamageText, DamageText);
 
-fn native<T: Native>(vm: &Vm, r: u32) -> Option<&T> {
+pub(super) fn native<T: Native>(vm: &Vm, r: u32) -> Option<&T> {
     T::of(vm.native(r)?)
 }
 
-fn with<T: Native>(
+pub(super) fn with<T: Native>(
     vm: &mut Vm,
     ctx: &mut Context,
     f: impl FnOnce(&mut T, &mut Context),
@@ -271,12 +271,12 @@ fn with_color(vm: &mut Vm, ctx: &mut Context, f: impl FnOnce(&mut [f32; 4])) -> 
     }
 }
 
-fn set<T: Native>(vm: &mut Vm, ctx: &mut Context, f: fn(&mut T, u32)) -> InterpStatus {
+pub(super) fn set<T: Native>(vm: &mut Vm, ctx: &mut Context, f: fn(&mut T, u32)) -> InterpStatus {
     let v = word(ctx, 2);
     with::<T>(vm, ctx, |t, _| f(t, v))
 }
 
-fn get<T: Native>(vm: &mut Vm, ctx: &mut Context, f: fn(&T) -> u32) -> InterpStatus {
+pub(super) fn get<T: Native>(vm: &mut Vm, ctx: &mut Context, f: fn(&T) -> u32) -> InterpStatus {
     let this = Call::new(ctx).this();
     let Some(v) = native::<T>(vm, this).map(f) else {
         return vm.bad_this(this);
@@ -286,7 +286,7 @@ fn get<T: Native>(vm: &mut Vm, ctx: &mut Context, f: fn(&T) -> u32) -> InterpSta
 }
 
 /// The `StringInfo` setters (`StringInfo::operator=`).
-fn text_into<T: Native>(
+pub(super) fn text_into<T: Native>(
     vm: &mut Vm,
     ctx: &mut Context,
     f: fn(&mut T) -> &mut StringInfo,
@@ -299,7 +299,11 @@ fn text_into<T: Native>(
 }
 
 /// The `StringInfo` getters: a copy as a new native.
-fn text_out<T: Native>(vm: &mut Vm, ctx: &mut Context, f: fn(&T) -> &StringInfo) -> InterpStatus {
+pub(super) fn text_out<T: Native>(
+    vm: &mut Vm,
+    ctx: &mut Context,
+    f: fn(&T) -> &StringInfo,
+) -> InterpStatus {
     let this = Call::new(ctx).this();
     let Some(text) = native::<T>(vm, this).map(|t| string_info_from_net(f(t))) else {
         return vm.bad_this(this);

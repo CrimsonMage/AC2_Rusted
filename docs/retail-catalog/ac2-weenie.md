@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 153 done, 55 partial, 1689 to do, 7 skipped.
+1904 retail functions: 176 done, 84 partial, 1637 to do, 7 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -84,15 +84,15 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Communication::SendNotice_DoAssistedTell` · 00725d50 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_Communication::SendNotice_ReloadChatSettings` · 00725de0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 
-## `ac2/client/src/events/cm_craft.cpp.c` (0/6)
+## `ac2/client/src/events/cm_craft.cpp.c` (3/6)
 
 ### CM_Craft
-- [ ] `CM_Craft::SendNotice_AddIngredient_Done` · 00727900 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Craft::SendNotice_ExecuteCraft_Done` · 007279d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Craft::SendNotice_OpenIngredientPanel` · 00727a60 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Craft::SendNotice_UpdateCost` · 00727af0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Craft::SendNotice_UpdateCraftPanel` · 00727b90 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Craft::SendNotice_UpdateCraftSkill` · 00727c20 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CM_Craft::SendNotice_AddIngredient_Done` · 00727900 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
+- [x] `CM_Craft::SendNotice_ExecuteCraft_Done` · 007279d0 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
+- [x] `CM_Craft::SendNotice_OpenIngredientPanel` · 00727a60 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
+- [~] `CM_Craft::SendNotice_UpdateCost` · 00727af0 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+- [~] `CM_Craft::SendNotice_UpdateCraftPanel` · 00727b90 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+- [~] `CM_Craft::SendNotice_UpdateCraftSkill` · 00727c20 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 
 ## `ac2/client/src/events/cm_examination.cpp.c` (0/2)
 
@@ -317,15 +317,15 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Communication::CallEFun_SendNotice_DoAssistedTell` · 00469870 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Communication::CallEFun_SendNotice_ReloadChatSettings` · 004698c0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_craft.cpp.c` (0/6)
+## `ac2/client/src/weenie/interp/glue/gcm_craft.cpp.c` (3/6)
 
 ### gCM_Craft
-- [ ] `gCM_Craft::CallEFun_SendNotice_AddIngredient_Done` · 00469620 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Craft::CallEFun_SendNotice_ExecuteCraft_Done` · 004696a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Craft::CallEFun_SendNotice_OpenIngredientPanel` · 004696f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Craft::CallEFun_SendNotice_UpdateCost` · 00469740 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Craft::CallEFun_SendNotice_UpdateCraftPanel` · 00469790 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Craft::CallEFun_SendNotice_UpdateCraftSkill` · 004697d0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [x] `gCM_Craft::CallEFun_SendNotice_AddIngredient_Done` · 00469620 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
+- [x] `gCM_Craft::CallEFun_SendNotice_ExecuteCraft_Done` · 004696a0 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
+- [x] `gCM_Craft::CallEFun_SendNotice_OpenIngredientPanel` · 004696f0 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
+- [~] `gCM_Craft::CallEFun_SendNotice_UpdateCost` · 00469740 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+- [~] `gCM_Craft::CallEFun_SendNotice_UpdateCraftPanel` · 00469790 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+- [~] `gCM_Craft::CallEFun_SendNotice_UpdateCraftSkill` · 004697d0 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_examination.cpp.c` (0/2)
 
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (27/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (36/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -559,11 +559,11 @@ Legend and workflow: [README](README.md).
 
 ### ggmCWInterface
 - [x] `ggmCWInterface::LAHashToXPHash` · 004559c0 · legions 00456590 — ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
-- [ ] `ggmCWInterface::RListToCraftSkillAdaptorList` · 00455ae0 · legions 004566b0
-- [ ] `ggmCWInterface::RListToIngredientAdaptorList` · 00455b30 · legions 00456700
-- [ ] `ggmCWInterface::RListToRecipeAdaptorList` · 00455b80 · legions 00456750
+- [~] `ggmCWInterface::RListToCraftSkillAdaptorList` · 00455ae0 · legions 004566b0 — net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
+- [~] `ggmCWInterface::RListToIngredientAdaptorList` · 00455b30 · legions 00456700 — net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
+- [~] `ggmCWInterface::RListToRecipeAdaptorList` · 00455b80 · legions 00456750 — net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
 - [ ] `ggmCWInterface::ItemListToLList` · 00455bd0 · legions 004567a0
-- [ ] `ggmCWInterface::IngredientOrdinalHashToALHash` · 00455c40 · legions 00456810
+- [x] `ggmCWInterface::IngredientOrdinalHashToALHash` · 00455c40 · legions 00456810 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 
 ### PList<unsigned___int64>
 - [ ] `PList<unsigned___int64>::Pack` · 00455fb0 · legions 00456b80
@@ -648,11 +648,11 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_AddEffectDataToProfileByEID` · 00457850 · legions 004583b0
 - [ ] `ggmCWInterface::CallIFun_BreakAllegiance` · 00457a20 · legions 00458580
 - [ ] `ggmCWInterface::CallIFun_CanAutoAttackTarget` · 00457af0 · legions 00458650
-- [ ] `ggmCWInterface::CallIFun_CanCraftSkillBeRaised` · 00457bd0 · legions 00458730
+- [~] `ggmCWInterface::CallIFun_CanCraftSkillBeRaised` · 00457bd0 · legions 00458730 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 - [ ] `ggmCWInterface::CallIFun_CanSkillBeRaisedByEnum` · 00457c90 · legions 004587f0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_CanSkillBeTrainedByEnum` · 00457d50 · legions 004588b0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_CanSkillBeUntrainedByEnum` · 00457e10 · legions 00458970 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-- [ ] `ggmCWInterface::CallIFun_CheckIngredient` · 00457ed0 · legions 00458a30
+- [~] `ggmCWInterface::CallIFun_CheckIngredient` · 00457ed0 · legions 00458a30 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 - [ ] `ggmCWInterface::CallIFun_ClearResurrectionRequest` · 00458090 · legions 00458bf0
 - [~] `ggmCWInterface::CallIFun_CloseTradeNegotiations` · 00458120 · legions 00458c80 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [~] `ggmCWInterface::CallIFun_DeclineTrade` · 004581b0 · legions 00458d10 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
@@ -670,7 +670,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipRecruitDecline` · 00458a60 · legions 004596b0
 - [ ] `ggmCWInterface::CallIFun_DoIHaveItem` · 00458b10 · legions 00459760
 - [ ] `ggmCWInterface::CallIFun_DoUIDamage` · 00458bf0 · legions 00459840
-- [ ] `ggmCWInterface::CallIFun_DoesIngredientAutoPopulate` · 00458dd0 · legions 00459a20
+- [~] `ggmCWInterface::CallIFun_DoesIngredientAutoPopulate` · 00458dd0 · legions 00459a20 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 - [~] `ggmCWInterface::CallIFun_DragFromMoneyBag` · 00458ec0 · legions 00459b10 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [~] `ggmCWInterface::CallIFun_DragToMoneyBag` · 00458fe0 · legions 00459c30 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [ ] `ggmCWInterface::CallIFun_EquipItem` · 00459140 · legions 00459d90
@@ -682,7 +682,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_GetAcceptFellowshipRequest` · 004596d0 · legions 0045a320
 - [ ] `ggmCWInterface::CallIFun_GetAcceptTradeRequest` · 00459770 · legions 0045a3c0
 - [ ] `ggmCWInterface::CallIFun_GetAutoTarget` · 00459810 · legions 0045a460
-- [ ] `ggmCWInterface::CallIFun_GetAvailableCraftExperience` · 004598b0 · legions 0045a500
+- [~] `ggmCWInterface::CallIFun_GetAvailableCraftExperience` · 004598b0 · legions 0045a500 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 - [ ] `ggmCWInterface::CallIFun_GetAvailableExperience` · 00459970 · legions 0045a5c0
 - [ ] `ggmCWInterface::CallIFun_GetBypassGoldMeltingConfirmationDlg` · 00459a30 · legions 0045a680
 - [ ] `ggmCWInterface::CallIFun_GetConsignmentCharge` · 00459ad0 · legions 0045a720
@@ -732,10 +732,10 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_InqActInfoList` · 0045c0f0 · legions 0045cd40
 - [ ] `ggmCWInterface::CallIFun_InqAlias` · 0045c2a0 · legions 0045cef0
 - [ ] `ggmCWInterface::CallIFun_InqAllInventoryIIDList` · 0045c4a0 · legions 0045d0f0
-- [ ] `ggmCWInterface::CallIFun_InqCraftSkillAdaptor` · 0045c630 · legions 0045d280
-- [ ] `ggmCWInterface::CallIFun_InqCraftSkillCategoryName` · 0045c7c0 · legions 0045d410
-- [ ] `ggmCWInterface::CallIFun_InqCraftSkillLevel` · 0045c950 · legions 0045d5a0
-- [ ] `ggmCWInterface::CallIFun_InqCraftSkillList` · 0045cb20 · legions 0045d770
+- [x] `ggmCWInterface::CallIFun_InqCraftSkillAdaptor` · 0045c630 · legions 0045d280 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
+- [x] `ggmCWInterface::CallIFun_InqCraftSkillCategoryName` · 0045c7c0 · legions 0045d410 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
+- [x] `ggmCWInterface::CallIFun_InqCraftSkillLevel` · 0045c950 · legions 0045d5a0 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
+- [~] `ggmCWInterface::CallIFun_InqCraftSkillList` · 0045cb20 · legions 0045d770 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 - [~] `ggmCWInterface::CallIFun_InqEffectList` · 0045ccc0 · legions 0045d910 — ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
 - [ ] `ggmCWInterface::CallIFun_InqNextReplyHistoryItem` · 0045ce60 · legions 0045dab0
 - [ ] `ggmCWInterface::CallIFun_InqNextRetellHistoryItem` · 0045d000 · legions 0045dc50
@@ -743,11 +743,11 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_InqPrevRetellHistoryItem` · 0045d340 · legions 0045df90
 - [ ] `ggmCWInterface::CallIFun_InqQuestInfoList` · 0045d4e0 · legions 0045e130
 - [~] `ggmCWInterface::CallIFun_InqRadarLook` · 0045d660 · legions 0045e2b0 — ac2-client client_radar.rs + ac2-script radar.rs: looks asked on each object's script, the ranges from RadarControl; the creature, NPC and player scripts answer no look in the double (no reads, retval 0); no drawing (pixel mapping, tooltip) in ac2-ui
-- [ ] `ggmCWInterface::CallIFun_InqRecipeAdaptor` · 0045d870 · legions 0045e4c0
-- [ ] `ggmCWInterface::CallIFun_InqRecipeCost` · 0045da10 · legions 0045e660
-- [ ] `ggmCWInterface::CallIFun_InqRecipeDifficulty` · 0045db70 · legions 0045e7c0
-- [ ] `ggmCWInterface::CallIFun_InqRecipeIngredients` · 0045dd60 · legions 0045e9b0
-- [ ] `ggmCWInterface::CallIFun_InqRecipeList` · 0045dfc0 · legions 0045ec10
+- [x] `ggmCWInterface::CallIFun_InqRecipeAdaptor` · 0045d870 · legions 0045e4c0 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
+- [x] `ggmCWInterface::CallIFun_InqRecipeCost` · 0045da10 · legions 0045e660 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
+- [~] `ggmCWInterface::CallIFun_InqRecipeDifficulty` · 0045db70 · legions 0045e7c0 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+- [~] `ggmCWInterface::CallIFun_InqRecipeIngredients` · 0045dd60 · legions 0045e9b0 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+- [~] `ggmCWInterface::CallIFun_InqRecipeList` · 0045dfc0 · legions 0045ec10 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 - [ ] `ggmCWInterface::CallIFun_InqRootPanelFromRace` · 0045e180 · legions 0045edd0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_InqShortcutArray` · 0045e2c0 · legions 0045ef10
 - [ ] `ggmCWInterface::CallIFun_InqShortcutInfo` · 0045e450 · legions 0045f0a0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
@@ -755,7 +755,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_InqSkillLevelByEnum` · 0045e7f0 · legions 0045f440 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_InqSkillTimeLeft` · 0045e9c0 · legions 0045f610 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_InqUISaveLocations` · 0045eb90 · legions 0045f7e0
-- [ ] `ggmCWInterface::CallIFun_IsCraftSkillRaiseable` · 0045ed00 · legions 0045f950
+- [~] `ggmCWInterface::CallIFun_IsCraftSkillRaiseable` · 0045ed00 · legions 0045f950 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 - [ ] `ggmCWInterface::CallIFun_IsFellowshipMember` · 0045edc0 · legions 0045fa10
 - [ ] `ggmCWInterface::CallIFun_IsHeroSkillByEnum` · 0045eea0 · legions 0045faf0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_IsOnInventory` · 0045ef60 · legions 0045fbb0
@@ -766,19 +766,19 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_LootAllFromContainer` · 0045f340 · legions 0045ff90
 - [ ] `ggmCWInterface::CallIFun_MoveItem` · 0045f410 · legions 00460060
 - [~] `ggmCWInterface::CallIFun_OfferItemForTrade` · 0045f5e0 · legions 00460230 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
-- [ ] `ggmCWInterface::CallIFun_OpenRecipe` · 0045f6e0 · legions 00460330
+- [x] `ggmCWInterface::CallIFun_OpenRecipe` · 0045f6e0 · legions 00460330 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 - [~] `ggmCWInterface::CallIFun_OpenTradeNegotiations` · 0045f790 · legions 004603e0 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [ ] `ggmCWInterface::Resume_PopupYesNoDialog` · 0045f860 · legions 004604b0
 - [~] `ggmCWInterface::CallIFun_PurchaseConfirmed` · 0045f8f0 · legions 00460540 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 - [~] `ggmCWInterface::CallIFun_PurchaseItem` · 0045f9a0 · legions 004605f0 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 - [ ] `ggmCWInterface::CallIFun_QueryAllegianceProfile` · 0045fac0 · legions 00460710
 - [ ] `ggmCWInterface::CallIFun_RegisterCommands` · 0045fb90 · legions 004607e0
-- [ ] `ggmCWInterface::CallIFun_RequestAddIngredient` · 0045fc20 · legions 00460870
+- [x] `ggmCWInterface::CallIFun_RequestAddIngredient` · 0045fc20 · legions 00460870 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 - [ ] `ggmCWInterface::CallIFun_RequestAttackStateChange` · 0045fd60 · legions 004609b0
 - [ ] `ggmCWInterface::CallIFun_RequestCollect` · 0045fe20 · legions 00460a70
 - [ ] `ggmCWInterface::CallIFun_RequestEnterConsignment` · 0045ff00 · legions 00460b50
 - [~] `ggmCWInterface::CallIFun_RequestEnterStore` · 0045ff90 · legions 00460be0 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
-- [ ] `ggmCWInterface::CallIFun_RequestExecuteCraft` · 00460040 · legions 00460c90
+- [x] `ggmCWInterface::CallIFun_RequestExecuteCraft` · 00460040 · legions 00460c90 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 - [ ] `ggmCWInterface::CallIFun_RequestLeaveCatalog` · 00460190 · legions 00460de0
 - [ ] `ggmCWInterface::CallIFun_RequestLeaveConsignment` · 00460220 · legions 00460e70
 - [~] `ggmCWInterface::CallIFun_RequestLeaveStore` · 004602b0 · legions 00460f00 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
@@ -789,7 +789,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_RequestPetMode` · 004605c0 · legions 00461210
 - [ ] `ggmCWInterface::CallIFun_RequestPetReturn` · 004606c0 · legions 00461310
 - [ ] `ggmCWInterface::CallIFun_RequestPrevSales` · 00460750 · legions 004613a0
-- [ ] `ggmCWInterface::CallIFun_RequestRaiseCraftSkill` · 004607e0 · legions 00461430
+- [~] `ggmCWInterface::CallIFun_RequestRaiseCraftSkill` · 004607e0 · legions 00461430 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 - [ ] `ggmCWInterface::CallIFun_RequestRaiseSkill` · 00460890 · legions 004614e0
 - [ ] `ggmCWInterface::CallIFun_RequestRestock` · 00460940 · legions 00461590
 - [ ] `ggmCWInterface::CallIFun_RequestResurrect` · 00460a60 · legions 004616b0
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (71/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (79/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -932,24 +932,24 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::StopAttacking` · 0044fc20 · legions 00450d60
 - [x] `gmCWInterface::RequestAttackStateChange` · 0044fc60 · legions 00450da0 — ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
 - [ ] `gmCWInterface::CanAutoAttackTarget` · 0044fca0 · legions 00450de0
-- [ ] `gmCWInterface::InqCraftSkillAdaptor` · 0044fce0 · legions 00450e20
-- [ ] `gmCWInterface::InqCraftSkillList` · 0044fd20 · legions 00450e60
-- [ ] `gmCWInterface::InqCraftSkillLevel` · 0044fd60 · legions 00450ea0
-- [ ] `gmCWInterface::InqRecipeAdaptor` · 0044fda0 · legions 00450ee0
-- [ ] `gmCWInterface::InqRecipeList` · 0044fde0 · legions 00450f20
-- [ ] `gmCWInterface::InqRecipeIngredients` · 0044fe20 · legions 00450f60
-- [ ] `gmCWInterface::InqRecipeDifficulty` · 0044fe70 · legions 00450fb0
-- [ ] `gmCWInterface::DoesIngredientAutoPopulate` · 0044fec0 · legions 00451000
-- [ ] `gmCWInterface::RequestAddIngredient` · 0044ff00 · legions 00451040
-- [ ] `gmCWInterface::OpenRecipe` · 0044ff30 · legions 00451070
-- [ ] `gmCWInterface::CheckIngredient` · 0044ff50 · legions 00451090
-- [ ] `gmCWInterface::CanCraftSkillBeRaised` · 0044ffa0 · legions 004510e0
-- [ ] `gmCWInterface::IsCraftSkillRaiseable` · 0044ffe0 · legions 00451120
-- [ ] `gmCWInterface::RequestRaiseCraftSkill` · 00450020 · legions 00451160
-- [ ] `gmCWInterface::InqCraftSkillCategoryName` · 00450040 · legions 00451180
-- [ ] `gmCWInterface::RequestExecuteCraft` · 00450080 · legions 004511c0
-- [ ] `gmCWInterface::InqRecipeCost` · 004500b0 · legions 004511f0
-- [ ] `gmCWInterface::GetAvailableCraftExperience` · 004500f0 · legions 00451230
+- [x] `gmCWInterface::InqCraftSkillAdaptor` · 0044fce0 · legions 00450e20 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
+- [~] `gmCWInterface::InqCraftSkillList` · 0044fd20 · legions 00450e60 — net: bound over the script VM; not driven end to end (membership untraced or no VM test)
+- [x] `gmCWInterface::InqCraftSkillLevel` · 0044fd60 · legions 00450ea0 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
+- [x] `gmCWInterface::InqRecipeAdaptor` · 0044fda0 · legions 00450ee0 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
+- [~] `gmCWInterface::InqRecipeList` · 0044fde0 · legions 00450f20 — net: bound over the script VM; not driven end to end (membership untraced or no VM test)
+- [~] `gmCWInterface::InqRecipeIngredients` · 0044fe20 · legions 00450f60 — net: bound over the script VM; not driven end to end (membership untraced or no VM test)
+- [~] `gmCWInterface::InqRecipeDifficulty` · 0044fe70 · legions 00450fb0 — net: bound over the script VM; not driven end to end (membership untraced or no VM test)
+- [~] `gmCWInterface::DoesIngredientAutoPopulate` · 0044fec0 · legions 00451000 — net: bound over the script VM; not driven end to end (membership untraced or no VM test)
+- [x] `gmCWInterface::RequestAddIngredient` · 0044ff00 · legions 00451040 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
+- [x] `gmCWInterface::OpenRecipe` · 0044ff30 · legions 00451070 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
+- [~] `gmCWInterface::CheckIngredient` · 0044ff50 · legions 00451090 — net: bound over the script VM; not driven end to end (membership untraced or no VM test)
+- [~] `gmCWInterface::CanCraftSkillBeRaised` · 0044ffa0 · legions 004510e0 — net: bound over the script VM; not driven end to end (membership untraced or no VM test)
+- [~] `gmCWInterface::IsCraftSkillRaiseable` · 0044ffe0 · legions 00451120 — net: bound over the script VM; not driven end to end (membership untraced or no VM test)
+- [~] `gmCWInterface::RequestRaiseCraftSkill` · 00450020 · legions 00451160 — net: bound over the script VM; not driven end to end (membership untraced or no VM test)
+- [x] `gmCWInterface::InqCraftSkillCategoryName` · 00450040 · legions 00451180 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
+- [x] `gmCWInterface::RequestExecuteCraft` · 00450080 · legions 004511c0 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
+- [x] `gmCWInterface::InqRecipeCost` · 004500b0 · legions 004511f0 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
+- [~] `gmCWInterface::GetAvailableCraftExperience` · 004500f0 · legions 00451230 — net: bound over the script VM; not driven end to end (membership untraced or no VM test)
 - [ ] `gmCWInterface::DoEmote` · 00450130 · legions 00451270 — ac2-weenie OnlineSession::emote(id): the WM_Communication emote call; the emote-table name lookup (CPlayer 0x15B) is not ported
 - [~] `gmCWInterface::PurchaseItem` · 00450150 · legions 00451290 — Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
 - [ ] `gmCWInterface::RequestNextSales` · 00450180 · legions 004512c0

@@ -9,12 +9,14 @@
 //! handlers; a handler takes the values in `PackBuffer` order.
 
 mod calls;
+mod craft;
 mod message;
 mod request;
 mod store;
 mod trade;
 
 pub use calls::{call_spec, ArgKind, CallSpec, Direction, ScriptCall, CALLS};
+pub use craft::CraftMessage;
 pub use message::{broadcast, ScriptMessage};
 pub use request::ScriptRequest;
 pub use store::{GameSale, Purchase, StoreMessage, StoreView};
@@ -194,6 +196,19 @@ pub mod function {
     /// S->C, `WM_Store` forwarder 0x29 (`CPlayer` 0x1E3 -> `CStoreSystem` 0x9 -> `UpdateSale`):
     /// the stock (int), the item (long int), the storekeeper (long int).
     pub const STORE_UPDATE_SALE: u32 = 0xB83A_0029;
+    /// C->S, `WM_Craft` stub 0x06 (`RequestAddIngredient`, IFun 0xB4009D): the spinner (int), the
+    /// object (long int), the slot's ordinal (int), the recipe (int), in stub order.
+    pub const CRAFT_ADD_INGREDIENT: u32 = 0x8206_0006;
+    /// C->S, `WM_Craft` stub 0x12 (`RequestExecuteCraft`, IFun 0xB4009E): a long int (the stub's
+    /// `PackageIDTable` helper), the ingredient table (`ALHash`), the spinner (int), the recipe
+    /// (int), in stub order.
+    pub const CRAFT_EXECUTE: u32 = 0x8206_0012;
+    /// C->S, `WM_Craft` stub 0x2E (`RequestRaiseCraftSkill`, IFun 0xB4011C): the craft skill (int).
+    pub const CRAFT_RAISE_SKILL: u32 = 0x8206_002E;
+    /// S->C, `WM_Craft` forwarder 0x16 (`CPlayer` 0x30 -> `CM_Craft::SendNotice_AddIngredient_Done`).
+    pub const CRAFT_ADD_INGREDIENT_DONE: u32 = 0x8206_0016;
+    /// S->C, `WM_Craft` forwarder 0x1C (`CPlayer` 0xF7 -> `CM_Craft::SendNotice_ExecuteCraft_Done`).
+    pub const CRAFT_EXECUTE_DONE: u32 = 0x8206_001C;
 }
 
 /// The values a handler takes, in order, each of the type the stub packed.

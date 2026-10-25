@@ -1,6 +1,6 @@
 //! Client -> server script calls (`InterpSEvent`).
 
-use super::{function, literal, Args};
+use super::{craft, function, literal, Args};
 use crate::protocol::client_event::ClientEvent;
 use crate::protocol::inventory::{InvEquipDesc, InvMoveDesc};
 use crate::protocol::inventory_bulk::{InvTakeAllDesc, InvTransmuteAllDesc};
@@ -65,6 +65,23 @@ pub enum ScriptRequest {
     LeaveStore(u64),
     /// [`function::STORE_PURCHASE`]: the purchase's `TransactionBlob` (a package reference).
     Purchase(PackedReference),
+    /// [`function::CRAFT_ADD_INGREDIENT`]: `object` into slot `ordinal` of `recipe`, at `spinner`.
+    CraftAddIngredient {
+        recipe: u32,
+        ordinal: u32,
+        object: u64,
+        spinner: u32,
+    },
+    /// [`function::CRAFT_EXECUTE`]: craft `recipe` from `ingredients` (slot ordinal, object) at
+    /// `spinner`; `helper` is the stub's leading long int (its `PackageIDTable` helper).
+    CraftExecute {
+        helper: u64,
+        recipe: u32,
+        spinner: u32,
+        ingredients: Vec<(u32, u64)>,
+    },
+    /// [`function::CRAFT_RAISE_SKILL`]: raise craft skill `skill`.
+    CraftRaiseSkill(u32),
 }
 
 impl ScriptRequest {
@@ -94,6 +111,9 @@ impl ScriptRequest {
             Self::EnterStore { .. } => function::STORE_ENTER,
             Self::LeaveStore(_) => function::STORE_LEAVE,
             Self::Purchase(_) => function::STORE_PURCHASE,
+            Self::CraftAddIngredient { .. } => function::CRAFT_ADD_INGREDIENT,
+            Self::CraftExecute { .. } => function::CRAFT_EXECUTE,
+            Self::CraftRaiseSkill(_) => function::CRAFT_RAISE_SKILL,
         }
     }
 
@@ -135,6 +155,29 @@ impl ScriptRequest {
             }
             Self::LeaveStore(vendor) => vec![PackValue::LongInt(*vendor)],
             Self::Purchase(reference) => vec![PackValue::Reference(reference.clone())],
+            Self::CraftAddIngredient {
+                recipe,
+                ordinal,
+                object,
+                spinner,
+            } => vec![
+                PackValue::Int(*spinner),
+                PackValue::LongInt(*object),
+                PackValue::Int(*ordinal),
+                PackValue::Int(*recipe),
+            ],
+            Self::CraftExecute {
+                helper,
+                recipe,
+                spinner,
+                ingredients,
+            } => vec![
+                PackValue::LongInt(*helper),
+                craft::ingredient_table(ingredients),
+                PackValue::Int(*spinner),
+                PackValue::Int(*recipe),
+            ],
+            Self::CraftRaiseSkill(skill) => vec![PackValue::Int(*skill)],
         }
     }
 
@@ -233,6 +276,31 @@ impl ScriptRequest {
             }),
             function::STORE_LEAVE => decode(|a| Ok(Self::LeaveStore(a.long()?))),
             function::STORE_PURCHASE => decode(|a| Ok(Self::Purchase(a.reference()?))),
+            function::CRAFT_ADD_INGREDIENT => decode(|a| {
+                let spinner = a.int()?;
+                let object = a.long()?;
+                let ordinal = a.int()?;
+                Ok(Self::CraftAddIngredient {
+                    recipe: a.int()?,
+                    ordinal,
+                    object,
+                    spinner,
+                })
+            }),
+            function::CRAFT_EXECUTE => decode(|a| {
+                let helper = a.long()?;
+                let table = a.reference()?;
+                let ingredients = craft::ingredient_entries(&table)
+                    .ok_or(ProtocolError::Invalid("craft ingredients"))?;
+                let spinner = a.int()?;
+                Ok(Self::CraftExecute {
+                    helper,
+                    recipe: a.int()?,
+                    spinner,
+                    ingredients,
+                })
+            }),
+            function::CRAFT_RAISE_SKILL => decode(|a| Ok(Self::CraftRaiseSkill(a.int()?))),
             _ => return None,
         })
     }
