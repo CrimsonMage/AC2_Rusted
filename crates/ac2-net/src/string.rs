@@ -1,36 +1,10 @@
 //! `PStringBase<char>::Pack` and `PStringBase<unsigned short>::Pack`: a u16 unit count (`0xFFFF`
-//! then a u32 for long strings), the character bytes with each byte's nibbles swapped and every
-//! complete 32-bit word XORed with a repeating 16-word table, then zero padding to a 4-byte
-//! boundary. Alignment is measured from the start of the containing message (`base`).
+//! then a u32 for long strings), the character bytes scrambled as the DAT strings are
+//! (`ac2_core::pstring::munge`: each byte's nibbles swapped, every complete 32-bit word XORed
+//! with a repeating 16-word table), then zero padding to a 4-byte boundary. Alignment is
+//! measured from the start of the containing message (`base`).
 
 use crate::NetError;
-
-const MUNGE: [u32; 16] = [
-    0xE584_9238,
-    0xEB2D_767D,
-    0xFC0F_DD03,
-    0xCB45_A6A6,
-    0x7F21_E6BB,
-    0xF5A6_CDC8,
-    0x22D9_AD12,
-    0xB2A3_D4DE,
-    0x3B83_4DB7,
-    0xC406_C91C,
-    0x8392_305E,
-    0x0A9F_0099,
-    0x0943_B90C,
-    0xA66D_953C,
-    0x0D92_9E1F,
-    0x0E2E_9AD4,
-];
-
-fn xor_words(bytes: &mut [u8]) {
-    for (index, word) in bytes.chunks_exact_mut(4).enumerate() {
-        for (byte, key) in word.iter_mut().zip(MUNGE[index & 15].to_le_bytes()) {
-            *byte ^= key;
-        }
-    }
-}
 
 fn pack_units(out: &mut Vec<u8>, base: usize, units: usize, data: &[u8]) {
     if units >= 0xFFFF {
@@ -39,8 +13,8 @@ fn pack_units(out: &mut Vec<u8>, base: usize, units: usize, data: &[u8]) {
     } else {
         out.extend((units as u16).to_le_bytes());
     }
-    let mut encoded: Vec<u8> = data.iter().map(|b| b.rotate_left(4)).collect();
-    xor_words(&mut encoded);
+    let mut encoded = data.to_vec();
+    ac2_core::pstring::munge(&mut encoded);
     out.extend(encoded);
     while (out.len() - base) % 4 != 0 {
         out.push(0);
@@ -82,8 +56,7 @@ fn unpack_units(
         return Err(NetError::Capacity);
     }
     let mut data = take(pos, len)?.to_vec();
-    xor_words(&mut data);
-    data.iter_mut().for_each(|b| *b = b.rotate_left(4));
+    ac2_core::pstring::unmunge(&mut data);
     take(pos, (4 - *pos % 4) % 4)?;
     Ok(data)
 }
