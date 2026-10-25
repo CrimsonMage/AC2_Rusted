@@ -110,7 +110,12 @@ impl HudView {
 
     fn arrived(&mut self, built: Built) {
         match built {
-            Ok((GameplayHud { mut tree, reticle }, images)) => {
+            Ok((
+                GameplayHud {
+                    mut tree, reticle, ..
+                },
+                images,
+            )) => {
                 tree.set_display(self.size.0 as i32, self.size.1 as i32);
                 self.hud = Some((tree, images));
                 self.reticle = reticle;

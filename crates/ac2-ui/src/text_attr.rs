@@ -189,3 +189,63 @@ impl UiTree {
         }
     }
 }
+
+/// The text calls the chat makes on its log and entry line.
+impl UiTree {
+    /// `UIElement_Text::ClearAllText`.
+    pub(crate) fn clear_text(&mut self, index: usize) {
+        if let Some(text) = self.el_mut(index).text.as_mut() {
+            text.clear();
+            self.changed = true;
+        }
+    }
+
+    /// `UIElement_Text::AddStringInfowFont` once its string arrived (`StringDownload`):
+    /// `SetFontNumAndColor(font_num, color_num)`, then the text at the end.
+    pub(crate) fn add_text_with_font(
+        &mut self,
+        index: usize,
+        units: &[u16],
+        font_num: u32,
+        color_num: u32,
+    ) {
+        if self.el(index).text.is_none() {
+            return;
+        }
+        self.set_font_num_and_color(index, font_num, color_num);
+        if let Some(text) = self.el_mut(index).text.as_mut() {
+            text.cursor = text.glyphs.len();
+            text.insert_at_cursor(units);
+            self.changed = true;
+        }
+    }
+
+    /// `UIElement_Text::ScrollToEnd` (the view is kept in bounds when the text is laid out).
+    pub(crate) fn scroll_to_end(&mut self, index: usize) {
+        if let Some(text) = self.el_mut(index).text.as_mut() {
+            text.view.1 = i32::MAX / 2;
+            text.dirty = true;
+            self.changed = true;
+        }
+    }
+
+    /// `UIElement_Text::ScrollToHome`.
+    pub(crate) fn scroll_to_home(&mut self, index: usize) {
+        if let Some(text) = self.el_mut(index).text.as_mut() {
+            text.view = (0, 0);
+            text.dirty = true;
+            self.changed = true;
+        }
+    }
+
+    /// `UIElement_Text::VerticalPageDecrement` / `VerticalPageIncrement`: the view one element
+    /// height up or down.
+    pub(crate) fn page_text(&mut self, index: usize, down: bool) {
+        let height = self.el(index).rect.height();
+        if let Some(text) = self.el_mut(index).text.as_mut() {
+            text.view.1 += if down { height } else { -height };
+            text.dirty = true;
+            self.changed = true;
+        }
+    }
+}

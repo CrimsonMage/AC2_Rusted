@@ -164,6 +164,16 @@ impl Controls {
         )
     }
 
+    /// The modifier keys held (`ActionInterpreter::CtrlKeyDown` / `ShiftKeyDown`; Alt is not a
+    /// meta key of the input manager, so it never reads as held).
+    pub fn modifiers(&self) -> crate::chat::Modifiers {
+        crate::chat::Modifiers {
+            ctrl: self.input.ctrl_down(),
+            shift: self.input.shift_down(),
+            alt: false,
+        }
+    }
+
     /// `CInputManager::SetTextMode`, following the UI's active text element; entering it
     /// releases the held keys' actions.
     pub fn set_text_mode(&mut self, on: bool, timestamp: u32, now: f64) {

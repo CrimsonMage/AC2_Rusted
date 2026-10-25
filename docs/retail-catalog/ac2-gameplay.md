@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 52 done, 7 partial, 431 to do, 9 skipped.
+499 retail functions: 57 done, 8 partial, 425 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
@@ -24,7 +24,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060ca40 · legions 005cd840
 - [ ] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060caf0 · legions 005cd8f0
 
-## `ac2/shared/src/character/gameplayoptionsprofile.cpp.c` (2/57)
+## `ac2/shared/src/character/gameplayoptionsprofile.cpp.c` (7/57)
 
 ### PFileNode
 - [ ] `PFileNode::MakeSubNodeAsBool` · 005fe6a0 · legions 005bf180
@@ -62,10 +62,10 @@ Legend and workflow: [README](README.md).
 - [ ] `GameplayOptionsProfile::AliasesToFileNode` · 005feef0 · legions 005bf9c0
 - [ ] `GameplayOptionsProfile::BuildAliasList` · 005ff090 · legions 005bfbc0
 - [ ] `GameplayOptionsProfile::InitShortcutArray` · 005ff140 · legions 005bfc70
-- [ ] `GameplayOptionsProfile::GetFilter` · 005ff1e0 · legions 005bfd10
-- [ ] `GameplayOptionsProfile::GetChatFontSize` · 005ff220 · legions 005bfda0
-- [ ] `GameplayOptionsProfile::GetChatFontColor` · 005ff270
-- [ ] `GameplayOptionsProfile::GetChatPopupFlag` · 005ff2c0 · legions 005bfdf0
+- [x] `GameplayOptionsProfile::GetFilter` · 005ff1e0 · legions 005bfd10 — ac2-ui chat.rs / chat_window.rs
+- [x] `GameplayOptionsProfile::GetChatFontSize` · 005ff220 · legions 005bfda0 — ac2-ui chat.rs / chat_window.rs
+- [x] `GameplayOptionsProfile::GetChatFontColor` · 005ff270 — ac2-ui chat.rs / chat_window.rs
+- [x] `GameplayOptionsProfile::GetChatPopupFlag` · 005ff2c0 · legions 005bfdf0 — ac2-ui chat.rs / chat_window.rs
 - [ ] `GameplayOptionsProfile::InqWindowOpacity` · 005ff310 · legions 005bfe90
 - [-] `GameplayOptionsProfile::ToFileNode` · 005ff330 · legions 005bfeb0 — text source format (admin tools)
 - [ ] `GameplayOptionsProfile::Export` · 005ff400 · legions 005bff80
@@ -76,7 +76,7 @@ Legend and workflow: [README](README.md).
 - [ ] `GameplayOptionsProfile::SetFilter` · 005ff770 · legions 005c02f0
 - [ ] `GameplayOptionsProfile::SetChatFontSize` · 005ff790 · legions 005c04b0
 - [ ] `GameplayOptionsProfile::SetChatFontColor` · 005ff7b0 · legions 005c04d0
-- [ ] `GameplayOptionsProfile::FlushChatFontOptions` · 005ff7d0 · legions 005c04f0
+- [x] `GameplayOptionsProfile::FlushChatFontOptions` · 005ff7d0 · legions 005c04f0 — ac2-ui chat.rs / chat_window.rs
 - [ ] `GameplayOptionsProfile::SetChatPopupFlag` · 005ffa20 · legions 005c07e0
 - [ ] `GameplayOptionsProfile::SetWindowOpacity` · 005ffa40 · legions 005c0870
 
@@ -84,7 +84,7 @@ Legend and workflow: [README](README.md).
 - [ ] `HashTable<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>::operator=` · 005ffa60 · legions 005c0890
 
 ### GameplayOptionsProfile
-- [ ] `GameplayOptionsProfile::Clear` · 005ffc60 · legions 005c0a90
+- [~] `GameplayOptionsProfile::Clear` · 005ffc60 · legions 005c0a90 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 - [ ] `GameplayOptionsProfile::SetAlias` · 005ffce0 · legions 005c0af0
 - [ ] `GameplayOptionsProfile::SetAliasTable` · 005ffd00 · legions 005c0b10
 - [ ] `GameplayOptionsProfile::InqAliasTable` · 005ffd10 · legions 005c0b20

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 121 done, 77 partial, 2032 to do, 17 skipped.
+2247 retail functions: 141 done, 93 partial, 1996 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -632,63 +632,63 @@ Legend and workflow: [README](README.md).
 ### gmStoryUI
 - [ ] `gmStoryUI::gmStoryUI` · 0042c7f0 · legions 0042c5b0
 
-## `ac2/client/src/ui/gameplay/helper/chatwindow.cpp.c` (0/32)
+## `ac2/client/src/ui/gameplay/helper/chatwindow.cpp.c` (11/32)
 
 ### ChatWindow
-- [ ] `ChatWindow::IsActiveRoot` · 0044afd0 · legions 0044bc30
-- [ ] `ChatWindow::IsActive` · 0044b000 · legions 0044bc60
-- [ ] `ChatWindow::HandleActivation` · 0044b030 · legions 0044bcd0
-- [ ] `ChatWindow::Show` · 0044b090 · legions 0044bd30
+- [x] `ChatWindow::IsActiveRoot` · 0044afd0 · legions 0044bc30 — ac2-ui chat.rs / chat_window.rs
+- [x] `ChatWindow::IsActive` · 0044b000 · legions 0044bc60 — ac2-ui chat.rs / chat_window.rs
+- [x] `ChatWindow::HandleActivation` · 0044b030 · legions 0044bcd0 — ac2-ui chat.rs / chat_window.rs
+- [~] `ChatWindow::Show` · 0044b090 · legions 0044bd30 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 - [ ] `ChatWindow::LocationApplied` · 0044b120 · legions 0044bdc0
-- [ ] `ChatWindow::SetZLevel` · 0044b140 · legions 0044bde0
+- [x] `ChatWindow::SetZLevel` · 0044b140 · legions 0044bde0 — ac2-ui chat.rs / chat_window.rs
 
 ### gmChatUI
 - [ ] `gmChatUI::RecvNotice_CreateObject` · 0044b150
 
 ### ChatWindow::ChatInfo
-- [ ] `ChatWindow::ChatInfo::ChatInfo` · 0044b1a0 · legions 0044bdf0
+- [x] `ChatWindow::ChatInfo::ChatInfo` · 0044b1a0 · legions 0044bdf0 — ac2-ui chat.rs / chat_window.rs
 
 ### ChatWindow
 - [ ] `ChatWindow::SetOpacity` · 0044b1b0 · legions 0044be20
-- [ ] `ChatWindow::SetActiveWindow` · 0044b1f0 · legions 0044be60
-- [ ] `ChatWindow::ListenToMessage` · 0044b220 · legions 0044c570
+- [~] `ChatWindow::SetActiveWindow` · 0044b1f0 · legions 0044be60 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [~] `ChatWindow::ListenToMessage` · 0044b220 · legions 0044c570 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
 ### PStringBaseIter_Common<unsigned_short>
 - [ ] `PStringBaseIter_Common<unsigned_short>::FindChar` · 0044b5b0 · legions 0044c090
 
 ### ChatWindow
-- [ ] `ChatWindow::ProcessCommand` · 0044b650 · legions 0044da90
+- [~] `ChatWindow::ProcessCommand` · 0044b650 · legions 0044da90 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
 ### PStringBaseIter_Common<unsigned_short>
 - [ ] `PStringBaseIter_Common<unsigned_short>::FindChar` · 0044b730 · legions 0044c130
 
 ### ChatWindow
-- [ ] `ChatWindow::HandleEnterKey` · 0044b810 · legions 0044db60
+- [x] `ChatWindow::HandleEnterKey` · 0044b810 · legions 0044db60 — ac2-ui chat.rs / chat_window.rs
 
 ### SmartArray<ChatWindow::ChatInfo>
 - [ ] `SmartArray<ChatWindow::ChatInfo>::AddToEnd` · 0044b880 · legions 0044c210
 
 ### ChatWindow
-- [ ] `ChatWindow::RecvNotice_DisplayStringInfo` · 0044b8e0
-- [ ] `ChatWindow::GetChatMessageInfo` · 0044ba70 · legions 0044c790
-- [ ] `ChatWindow::DoAssistedTell` · 0044bad0 · legions 0044c7f0
+- [x] `ChatWindow::RecvNotice_DisplayStringInfo` · 0044b8e0 — ac2-ui chat.rs / chat_window.rs
+- [x] `ChatWindow::GetChatMessageInfo` · 0044ba70 · legions 0044c790 — ac2-ui chat.rs / chat_window.rs
+- [~] `ChatWindow::DoAssistedTell` · 0044bad0 · legions 0044c7f0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
 ### PSUtils
 - [ ] `PSUtils::FindAllWords` · 0044bc80 · legions 0044c990
 
 ### ChatWindow
 - [ ] `ChatWindow::~ChatWindow` · 0044beb0 · legions 0044cbc0
-- [ ] `ChatWindow::HandleCommandOrAliasKey` · 0044bf80 · legions 0044cc90
-- [ ] `ChatWindow::AllTextToLog` · 0044c020 · legions 0044cd30
-- [ ] `ChatWindow::DisplayCmdHistory` · 0044c110 · legions 0044ce30
-- [ ] `ChatWindow::DisplayRetellHistory` · 0044c1f0 · legions 0044cf10
-- [ ] `ChatWindow::DisplayReplyHistory` · 0044c2a0 · legions 0044cfc0
-- [ ] `ChatWindow::HandleReplyKey` · 0044c400 · legions 0044d120
-- [ ] `ChatWindow::ListenToMessage` · 0044c5b0 · legions 0044d2d0
-- [ ] `ChatWindow::KeyPress` · 0044c5f0 · legions 0044d310
-- [ ] `ChatWindow::ChatWindow` · 0044c7d0 · legions 0044d700
+- [x] `ChatWindow::HandleCommandOrAliasKey` · 0044bf80 · legions 0044cc90 — ac2-ui chat.rs / chat_window.rs
+- [x] `ChatWindow::AllTextToLog` · 0044c020 · legions 0044cd30 — ac2-ui chat.rs / chat_window.rs
+- [~] `ChatWindow::DisplayCmdHistory` · 0044c110 · legions 0044ce30 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [~] `ChatWindow::DisplayRetellHistory` · 0044c1f0 · legions 0044cf10 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [~] `ChatWindow::DisplayReplyHistory` · 0044c2a0 · legions 0044cfc0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [x] `ChatWindow::HandleReplyKey` · 0044c400 · legions 0044d120 — ac2-ui chat.rs / chat_window.rs
+- [~] `ChatWindow::ListenToMessage` · 0044c5b0 · legions 0044d2d0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [~] `ChatWindow::KeyPress` · 0044c5f0 · legions 0044d310 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [~] `ChatWindow::ChatWindow` · 0044c7d0 · legions 0044d700 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 - [ ] `ChatWindow::RecvNotice_ReloadOptions` · 0044cb10
-- [ ] `ChatWindow::RecvNotice_ReloadChatSettings` · 0044cbc0
+- [~] `ChatWindow::RecvNotice_ReloadChatSettings` · 0044cbc0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
 ## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (0/22)
 
@@ -994,27 +994,27 @@ Legend and workflow: [README](README.md).
 - [ ] `gmVitaeStatusUI::RecvNotice_UpdateVitae` · 0044ce90
 - [ ] `gmVitaeStatusUI::ListenToMessage` · 0044cfc0
 
-## `ac2/client/src/ui/gameplay/toolbar/gmchatui.cpp.c` (0/14)
+## `ac2/client/src/ui/gameplay/toolbar/gmchatui.cpp.c` (6/14)
 
 ### gmChatUI
-- [ ] `gmChatUI::SetLastFocus` · 004351c0 · legions 00435990
+- [x] `gmChatUI::SetLastFocus` · 004351c0 · legions 00435990 — ac2-ui chat.rs / chat_window.rs
 - [ ] `gmChatUI::~gmChatUI` · 004351d0 · legions 004359f0
-- [ ] `gmChatUI::DetermineTargetWindow` · 00435280 · legions 00435aa0
-- [ ] `gmChatUI::UpdateZLevels` · 00435320 · legions 00435b40
-- [ ] `gmChatUI::SetActiveWindow` · 00435370 · legions 00435b90
-- [ ] `gmChatUI::RecvNotice_DoAssistedTell` · 004353c0
-- [ ] `gmChatUI::DispatchKeypressToWindow` · 00435550 · legions 00435d70
+- [x] `gmChatUI::DetermineTargetWindow` · 00435280 · legions 00435aa0 — ac2-ui chat.rs / chat_window.rs
+- [x] `gmChatUI::UpdateZLevels` · 00435320 · legions 00435b40 — ac2-ui chat.rs / chat_window.rs
+- [x] `gmChatUI::SetActiveWindow` · 00435370 · legions 00435b90 — ac2-ui chat.rs / chat_window.rs
+- [x] `gmChatUI::RecvNotice_DoAssistedTell` · 004353c0 — ac2-ui chat.rs / chat_window.rs
+- [x] `gmChatUI::DispatchKeypressToWindow` · 00435550 · legions 00435d70 — ac2-ui chat.rs / chat_window.rs
 
 ### SmartArray<StringInfo>
 - [ ] `SmartArray<StringInfo>::AddToEnd` · 004355d0 · legions 00435e70
 
 ### gmChatUI
-- [ ] `gmChatUI::Init` · 00435620 · legions 00435ec0
-- [ ] `gmChatUI::RecvNotice_DisplayStringInfo` · 004357d0
-- [ ] `gmChatUI::gmChatUI` · 004357f0 · legions 00436080
+- [~] `gmChatUI::Init` · 00435620 · legions 00435ec0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [~] `gmChatUI::RecvNotice_DisplayStringInfo` · 004357d0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [~] `gmChatUI::gmChatUI` · 004357f0 · legions 00436080 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 - [ ] `gmChatUI::Update` · 004358d0 · legions 00436160
 - [ ] `gmChatUI::Show` · 00435b80 · legions 00436410
-- [ ] `gmChatUI::ListenToMessage` · 00435bc0 · legions 00436450
+- [~] `gmChatUI::ListenToMessage` · 00435bc0 · legions 00436450 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
 ## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (0/14)
 
@@ -3034,7 +3034,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StringDownload::OnTopLevelRequestFinished` · 005fd150
 - [ ] `StringDownload::StringDownload` · 005fd210 · legions 005bdd40
 
-## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (10/92)
+## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (13/92)
 
 ### (free functions)
 - [ ] `NumberInputFilter` · 005ed7c0
@@ -3110,7 +3110,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::VerticalPageDecrement` · 005f0730 · legions 005b1260
 - [ ] `UIElement_Text::VerticalPageIncrement` · 005f0740 · legions 005b1270
 - [ ] `UIElement_Text::ScrollToHome` · 005f0750 · legions 005b1280
-- [ ] `UIElement_Text::ScrollToEnd` · 005f0770 · legions 005b12a0
+- [x] `UIElement_Text::ScrollToEnd` · 005f0770 · legions 005b12a0 — ac2-ui chat.rs / chat_window.rs
 - [ ] `UIElement_Text::HandleScrollBarMessage` · 005f0790 · legions 005b12c0
 - [~] `UIElement_Text::MoveCursor` · 005f0940 · legions 005b1470 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 - [ ] `UIElement_Text::MoveCursorToEnd` · 005f0ad0 · legions 005b1600
@@ -3123,8 +3123,8 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::Paste` · 005f0f70
 - [~] `UIElement_Text::CharacterHandler` · 005f0ff0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 - [ ] `UIElement_Text::Global_Loop` · 005f12a0 · legions 005b1dd0
-- [ ] `UIElement_Text::AddStringInfowFont` · 005f1350 · legions 005b1e80
-- [ ] `UIElement_Text::AddStringInfowFont` · 005f13e0 · legions 005b1f10
+- [x] `UIElement_Text::AddStringInfowFont` · 005f1350 · legions 005b1e80 — ac2-ui chat.rs / chat_window.rs
+- [x] `UIElement_Text::AddStringInfowFont` · 005f13e0 · legions 005b1f10 — ac2-ui chat.rs / chat_window.rs
 - [ ] `UIElement_Text::ListenToMessage` · 005f1470 · legions 005b1fa0
 - [ ] `UIElement_Text::AddStringInfo` · 005f14b0 · legions 005b1fe0
 - [ ] `UIElement_Text::SetStringInfo` · 005f14c0 · legions 005b1ff0

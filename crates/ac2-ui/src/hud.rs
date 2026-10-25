@@ -5,8 +5,9 @@
 //! `gmSelectionUI` makes `ItemSelectionField` from it, `gmStatusbarUI` makes `StatusbarField`
 //! from the status bar layout (`0x4100000F`) and `gmToolbarUI` makes `ToolbarField`,
 //! `LeftSidePanel` and `RightSidePanel` from the toolbar layout (`0x41000003`), in that order.
-//! The other children (stack, trade, shop, book, pet, ...) open dialogs on demand and are left out,
-//! as are the toolbar's own children (`gmToolbarUI::SetupChildren`: chat, inventory, ...).
+//! The other children (stack, trade, shop, book, pet, ...) open dialogs on demand and are left out.
+//! Of the toolbar's own children (`gmToolbarUI::SetupChildren`) only the chat (`gmChatUI`) is
+//! made; inventory, skills and the rest are not yet.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -14,6 +15,7 @@ use std::sync::Arc;
 use ac2_core::DataId;
 use ac2_db::{ResourceResult, ResourceStore};
 
+use crate::chat::{ChatStrings, ChatUi, CHAT_STRING_TABLE, REPLY_STRING_TABLE, STRING_TABLE_GROUP};
 use crate::compose::UiPixels;
 use crate::element::UiTree;
 use crate::layout::{load_layout, LayoutDesc};
@@ -56,6 +58,8 @@ pub struct GameplayHud {
     pub tree: UiTree,
     /// `gm3DTextUI`'s targeting reticle.
     pub reticle: Option<Reticle>,
+    /// `gmChatUI`.
+    pub chat: Option<ChatUi>,
 }
 
 /// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
@@ -92,8 +96,43 @@ pub fn build_gameplay_hud(
             }
         }
     }
+    let chat = match &layouts[&LAYOUT_TOOLBAR] {
+        Some(toolbar) => Some(ChatUi::create(&mut tree, toolbar, chat_strings(store)?)),
+        None => None,
+    };
     text_data.freeze();
-    Ok(GameplayHud { tree, reticle })
+    Ok(GameplayHud {
+        tree,
+        reticle,
+        chat,
+    })
+}
+
+/// The chat's strings (`StringInfo::SetTableEnum` of the chat and reply tables).
+fn chat_strings(store: &ResourceStore) -> ResourceResult<ChatStrings> {
+    let table = |table_enum: u32| -> ResourceResult<Option<ac2_db::StringTable>> {
+        let Some(did) = ac2_assets::ac2_enum_did(store, STRING_TABLE_GROUP, table_enum)? else {
+            return Ok(None);
+        };
+        Ok(ac2_db::load_string_table(store, did)?.map(|t| (*t).clone()))
+    };
+    let chat = table(CHAT_STRING_TABLE)?;
+    let reply = table(REPLY_STRING_TABLE)?;
+    let entry = |t: &Option<ac2_db::StringTable>, name: &str| {
+        t.as_ref().and_then(|t| t.get(tokenize(name))).cloned()
+    };
+    let text = |t: &Option<ac2_db::StringTable>, name: &str| {
+        entry(t, name).map(|s| s.text().encode_utf16().collect())
+    };
+    Ok(ChatStrings {
+        command_prefix: text(&chat, "ID_Chat_CommandPrefix"),
+        alias_prefix: text(&chat, "ID_Chat_AliasPrefix"),
+        unknown_command: text(&chat, "ID_Chat_UnknownCommand"),
+        usage_message: text(&chat, "ID_Chat_UsageMessage"),
+        chat_entry: text(&chat, "ID_Chat_ChatEntry"),
+        reply: text(&reply, "ID_Reply"),
+        assisted_tell: entry(&chat, "ID_Chat_AssistedTell"),
+    })
 }
 
 /// Every image the tree shows (`Graphic::Graphic`); a missing image draws nothing.

@@ -339,6 +339,11 @@ impl InputManager {
         self.meta_mode & 0xC != 0
     }
 
+    /// `ActionInterpreter::ShiftKeyDown`: a shift key is held (meta modes 1 and 2).
+    pub fn shift_down(&self) -> bool {
+        self.meta_mode & 0x3 != 0
+    }
+
     /// The characters typed since the last call.
     pub fn take_characters(&mut self) -> Vec<(u16, u32)> {
         std::mem::take(&mut self.characters)

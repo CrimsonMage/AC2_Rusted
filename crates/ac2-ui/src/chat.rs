@@ -1,0 +1,428 @@
+//! `gmChatUI`: the toolbar's chat, four [`ChatWindow`](crate::chat_window)s of which the first
+//! starts shown and focused. `ListenToMessage` takes the global key presses: the window keys
+//! (`0x41000041`..`44`) show and hide a window, the rest go to the target window
+//! (`DispatchKeypressToWindow` / `DetermineTargetWindow`): Enter opens or sends its entry line,
+//! the command and alias keys start a line with their prefix, the reply key starts a reply, and
+//! the history, paging and Escape keys go to `ChatWindow::KeyPress`.
+//!
+//! A sent line leaves as [`ChatRequest::Line`] for `gmCWInterface::ProcessText`; the history keys
+//! leave as [`ChatRequest::History`] for the history the interface keeps, which answers through
+//! [`ChatUi::set_entry_text`] or [`ChatUi::assisted_tell`].
+//!
+//! Not modelled yet: the spew box (`SpewBox`, error-type strings floating over the world),
+//! the window opacity, and `AltKeyDown` (Alt is not a meta key of the input manager).
+
+use std::collections::HashMap;
+use std::sync::Arc;
+
+use crate::chat_window::{ChatMessageInfo, ChatWindow, CHAT_TEXT_TYPES, TEXT_TYPE_ERROR};
+use crate::element::UiTree;
+use crate::layout::LayoutDesc;
+use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS};
+use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS, MSG_MOUSE_RELEASE};
+
+/// `StringInfo::SetTableEnum`'s group and the chat's string tables.
+pub const STRING_TABLE_GROUP: u32 = 0x4000_0004;
+pub const CHAT_STRING_TABLE: u32 = 0x4100_0018;
+pub const REPLY_STRING_TABLE: u32 = 0x4100_0007;
+
+const ENTER: u32 = 0x4000_0018;
+const ESCAPE: u32 = 0x4000_001E;
+const UP: u32 = 0x4000_0015;
+const DOWN: u32 = 0x4000_0016;
+const PAGE_UP: u32 = 0x4000_0019;
+const PAGE_DOWN: u32 = 0x4000_001A;
+const HOME: u32 = 0x4000_001B;
+const END: u32 = 0x4000_001C;
+const COMMAND_KEY: u32 = 0x4100_0010;
+const ALIAS_KEY: u32 = 0x4100_0011;
+const REPLY_KEY: u32 = 0x4100_0049;
+const WINDOW_KEYS: [u32; 4] = [0x4100_0041, 0x4100_0042, 0x4100_0043, 0x4100_0044];
+
+/// The chat part of `GameplayOptionsProfile`: per-window filters (keyed 1 to 4) and the font
+/// size, font colour and popup flag of each text type. The default is `Clear`'s.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ChatSettings {
+    pub filters: HashMap<u32, u32>,
+    pub font_sizes: HashMap<u32, u32>,
+    pub font_colors: HashMap<u32, u32>,
+    pub popups: HashMap<u32, bool>,
+}
+
+impl Default for ChatSettings {
+    /// `GameplayOptionsProfile::Clear`: no filters, `FlushChatFontOptions`' sizes and colours,
+    /// broadcasts pop up.
+    fn default() -> Self {
+        Self {
+            filters: HashMap::new(),
+            font_sizes: CHAT_TEXT_TYPES.iter().map(|&(t, _)| (t, 0)).collect(),
+            font_colors: CHAT_TEXT_TYPES.iter().copied().collect(),
+            popups: HashMap::from([(crate::chat_window::TEXT_TYPE_BROADCAST, true)]),
+        }
+    }
+}
+
+impl ChatSettings {
+    /// `GameplayOptionsProfile::GetFilter` (0 when unset).
+    pub fn filter(&self, window: u32) -> u32 {
+        self.filters.get(&window).copied().unwrap_or(0)
+    }
+
+    pub(crate) fn message_info(&self, text_type: u32) -> ChatMessageInfo {
+        ChatMessageInfo {
+            size: self.font_sizes.get(&text_type).copied().unwrap_or(0),
+            color: self.font_colors.get(&text_type).copied().unwrap_or(0),
+            popup: self.popups.get(&text_type).copied().unwrap_or(false),
+        }
+    }
+}
+
+/// The chat's strings, read with the HUD (`ID_Chat_*` of the chat table, `ID_Reply`).
+#[derive(Debug, Clone, Default)]
+pub struct ChatStrings {
+    pub command_prefix: Option<Vec<u16>>,
+    pub alias_prefix: Option<Vec<u16>>,
+    pub unknown_command: Option<Vec<u16>>,
+    pub usage_message: Option<Vec<u16>>,
+    pub chat_entry: Option<Vec<u16>>,
+    pub reply: Option<Vec<u16>>,
+    /// `ID_Chat_AssistedTell`, with its `prefix` and `target` variables.
+    pub assisted_tell: Option<ac2_db::StringTableString>,
+}
+
+/// Which history a history key steps through.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ChatHistory {
+    /// `InqPrevCmdHistoryItem` / `InqNextCmdHistoryItem`: the lines sent.
+    Command,
+    /// `InqPrevRetellHistoryItem`: the players told.
+    Retell,
+    /// `InqPrevReplyHistoryItem`: the players who told.
+    Reply,
+}
+
+/// What the chat asks of the client.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ChatRequest {
+    /// A line entered (`gmCWInterface::ProcessText`).
+    Line(String),
+    /// A history key: the previous (`prev`) or next item, for [`ChatUi::set_entry_text`]
+    /// (commands) or [`ChatUi::assisted_tell`] (retell and reply).
+    History { history: ChatHistory, prev: bool },
+}
+
+/// The modifier keys as `ActionInterpreter` reports them.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct Modifiers {
+    pub ctrl: bool,
+    pub shift: bool,
+    pub alt: bool,
+}
+
+/// `gmChatUI`'s state.
+#[derive(Debug, Clone)]
+pub struct ChatUi {
+    windows: Vec<ChatWindow>,
+    last_focus: Option<usize>,
+    strings: ChatStrings,
+    requests: Vec<ChatRequest>,
+}
+
+impl ChatUi {
+    /// `gmChatUI::gmChatUI` / `Init`: the four windows from the toolbar layout; the first is
+    /// shown and active.
+    pub fn create(tree: &mut UiTree, toolbar: &Arc<LayoutDesc>, strings: ChatStrings) -> Self {
+        let windows: Vec<_> = (1..=4)
+            .filter_map(|n| ChatWindow::create(tree, toolbar, n))
+            .collect();
+        let mut chat = Self {
+            windows,
+            last_focus: None,
+            strings,
+            requests: Vec::new(),
+        };
+        if !chat.windows.is_empty() {
+            chat.windows[0].show(tree, true);
+            chat.set_active_window(0);
+        }
+        chat
+    }
+
+    /// The windows' roots, first to fourth.
+    pub fn roots(&self) -> Vec<usize> {
+        self.windows.iter().map(|w| w.root).collect()
+    }
+
+    /// The window entry lines, first to fourth.
+    pub fn entries(&self) -> Vec<Option<usize>> {
+        self.windows.iter().map(|w| w.entry).collect()
+    }
+
+    /// The window logs, first to fourth.
+    pub fn logs(&self) -> Vec<Option<usize>> {
+        self.windows.iter().map(|w| w.log).collect()
+    }
+
+    /// What the chat asked since the last call.
+    pub fn take_requests(&mut self) -> Vec<ChatRequest> {
+        std::mem::take(&mut self.requests)
+    }
+
+    /// `gmChatUI::SetActiveWindow`.
+    fn set_active_window(&mut self, window: usize) {
+        self.last_focus = Some(window);
+    }
+
+    /// `gmChatUI::UpdateZLevels`: the active window at `top`, the others behind it in order.
+    fn update_z_levels(&self, tree: &mut UiTree, top: i32) {
+        for (i, window) in self.windows.iter().enumerate() {
+            let z = if window.is_active(tree) {
+                top
+            } else {
+                i as i32 + 1 + top
+            };
+            window.set_z_level(tree, z);
+        }
+    }
+
+    /// `gmChatUI::DetermineTargetWindow`: the window holding the active element, else the last
+    /// focused one if shown, else the first shown one; with `activate`, the last focused one is
+    /// shown when none is.
+    fn determine_target_window(&mut self, tree: &mut UiTree, activate: bool) -> Option<usize> {
+        if let Some(i) = self
+            .windows
+            .iter()
+            .position(|w| w.is_active_root(tree) && w.shown(tree))
+        {
+            return Some(i);
+        }
+        let last = self.last_focus?;
+        if !self.windows[last].shown(tree) {
+            if let Some(i) = self.windows.iter().position(|w| w.shown(tree)) {
+                return Some(i);
+            }
+            if !activate {
+                return None;
+            }
+            self.windows[last].show(tree, true);
+        }
+        Some(last)
+    }
+
+    /// One UI message (`gmChatUI::ListenToMessage` and each `ChatWindow::ListenToMessage`).
+    pub fn message(&mut self, tree: &mut UiTree, message: &UiMessage, modifiers: Modifiers) {
+        if message.element.is_none() {
+            if message.message == GLOBAL_KEY_PRESS {
+                self.key_press(tree, message.data as u32, modifiers);
+            }
+            return;
+        }
+        for i in 0..self.windows.len() {
+            self.window_message(tree, i, message);
+        }
+    }
+
+    /// `ChatWindow::ListenToMessage` for element messages.
+    fn window_message(&mut self, tree: &mut UiTree, i: usize, message: &UiMessage) {
+        let window = &self.windows[i];
+        if window.is_active_root(tree) {
+            self.last_focus = Some(i);
+        }
+        let window = &mut self.windows[i];
+        if message.element_id == window.toggle_button && message.message == MSG_MOUSE_RELEASE {
+            let shown = window.shown(tree);
+            window.show(tree, !shown);
+            return;
+        }
+        if message.element.is_some()
+            && message.element == window.move_bar
+            && message.message == MSG_MOUSE_PRESS
+        {
+            self.set_active_window(i);
+            return;
+        }
+        if message.element.is_some() && message.element == window.options_button {
+            if message.message == MSG_BUTTON_RELEASE_ON {
+                if let Some(field) = window.options_field {
+                    let visible = tree.get(field).is_some_and(|e| e.visible);
+                    tree.set_visible(field, !visible);
+                }
+            }
+        } else if message.element.is_some()
+            && message.element == window.entry
+            && message.message == tokenize("activated")
+        {
+            window.handle_activation(tree);
+            let top = window.zlevel_front;
+            self.update_z_levels(tree, top);
+            self.set_active_window(i);
+        }
+    }
+
+    /// `gmChatUI::ListenToMessage`'s key presses.
+    fn key_press(&mut self, tree: &mut UiTree, key: u32, modifiers: Modifiers) {
+        if let Some(n) = WINDOW_KEYS.iter().position(|&k| k == key) {
+            if let Some(window) = self.windows.get_mut(n) {
+                let shown = window.shown(tree);
+                window.show(tree, !shown);
+            }
+            return;
+        }
+        // `DispatchKeypressToWindow`.
+        let activate = matches!(key, ENTER | COMMAND_KEY | ALIAS_KEY | REPLY_KEY);
+        let Some(i) = self.determine_target_window(tree, activate) else {
+            return;
+        };
+        match key {
+            COMMAND_KEY | ALIAS_KEY => {
+                // `HandleCommandOrAliasKey`.
+                let prefix = if key == COMMAND_KEY {
+                    &self.strings.command_prefix
+                } else {
+                    &self.strings.alias_prefix
+                };
+                let prefix = prefix.clone().unwrap_or_default();
+                self.windows[i].prefill_entry(tree, &prefix);
+            }
+            ENTER => {
+                if let Some(line) = self.windows[i].handle_enter_key(tree) {
+                    self.requests.push(ChatRequest::Line(line));
+                }
+            }
+            REPLY_KEY => self.handle_reply_key(tree, i),
+            _ => self.window_key_press(tree, i, key, modifiers),
+        }
+    }
+
+    /// `ChatWindow::HandleReplyKey`: the entry line starts with the reply command, `/` and the
+    /// first word of `ID_Reply`.
+    fn handle_reply_key(&mut self, tree: &mut UiTree, i: usize) {
+        let reply = self.strings.reply.clone().unwrap_or_default();
+        let word: Vec<u16> = reply
+            .split(|c| matches!(c, 0x3B | 0x3A | 0x2C))
+            .find(|w| !w.is_empty())
+            .map(<[u16]>::to_vec)
+            .unwrap_or_default();
+        if word.is_empty() {
+            return;
+        }
+        let mut line = vec![u16::from(b'/')];
+        line.extend(word);
+        line.push(u16::from(b' '));
+        self.windows[i].prefill_entry(tree, &line);
+    }
+
+    /// `ChatWindow::KeyPress`.
+    fn window_key_press(&mut self, tree: &mut UiTree, i: usize, key: u32, m: Modifiers) {
+        let window = &mut self.windows[i];
+        let history = |history, prev| ChatRequest::History { history, prev };
+        if m.ctrl && !m.alt && !m.shift {
+            match key {
+                UP | DOWN => {
+                    let request = history(ChatHistory::Retell, key == UP);
+                    self.requests.push(request);
+                    return;
+                }
+                HOME | END => return window.scroll_log(tree, key == END),
+                _ => {}
+            }
+        }
+        if m.shift && !m.ctrl && !m.alt && matches!(key, UP | DOWN) {
+            self.requests.push(history(ChatHistory::Reply, key == UP));
+            return;
+        }
+        if !m.alt && !m.ctrl && !m.shift {
+            match key {
+                UP | DOWN => self.requests.push(history(ChatHistory::Command, key == UP)),
+                PAGE_UP | PAGE_DOWN => window.page(tree, key == PAGE_DOWN),
+                ESCAPE => window.deactivate_pending = true,
+                _ => {}
+            }
+        }
+    }
+
+    /// `ChatWindow::DisplayCmdHistory`'s answer: the target window's active entry line shows
+    /// `text`.
+    pub fn set_entry_text(&mut self, tree: &mut UiTree, text: &str) {
+        let Some(i) = self.determine_target_window(tree, false) else {
+            return;
+        };
+        if !self.windows[i].is_active(tree) {
+            return;
+        }
+        let units: Vec<u16> = text.encode_utf16().collect();
+        self.windows[i].prefill_entry(tree, &units);
+    }
+
+    /// `gmChatUI::RecvNotice_DoAssistedTell` / `ChatWindow::DoAssistedTell`: the entry line
+    /// becomes a tell to `target` (`ID_Chat_AssistedTell` with `prefix` and `target`).
+    pub fn assisted_tell(&mut self, tree: &mut UiTree, target: &str) {
+        let Some(i) = self.determine_target_window(tree, false) else {
+            return;
+        };
+        let Some(template) = &self.strings.assisted_tell else {
+            return;
+        };
+        let prefix = self.strings.command_prefix.clone().unwrap_or_default();
+        let line = fill_variables(
+            template,
+            &[
+                (tokenize("prefix"), &prefix),
+                (tokenize("target"), &utf16(target)),
+            ],
+        );
+        self.windows[i].prefill_entry(tree, &line);
+    }
+
+    /// `RecvNotice_DisplayStringInfo` to every window (and the spew box, not modelled).
+    pub fn display(&mut self, text_type: u32, text: &str) {
+        let units = utf16(text);
+        for window in &mut self.windows {
+            window.display(text_type, &units);
+        }
+    }
+
+    /// `ID_Chat_UnknownCommand` as an error (`ChatWindow::ProcessCommand` when
+    /// `ProcessText` does not know the command).
+    pub fn unknown_command(&mut self) {
+        if let Some(text) = self.strings.unknown_command.clone() {
+            for window in &mut self.windows {
+                window.display(TEXT_TYPE_ERROR, &text);
+            }
+        }
+    }
+
+    /// `RecvNotice_ReloadChatSettings` to every window.
+    pub fn reload_chat_settings(&mut self, tree: &mut UiTree, settings: &ChatSettings) {
+        for window in &mut self.windows {
+            window.reload_chat_settings(tree, settings, &self.strings);
+        }
+    }
+
+    /// `UIMESSAGE_GLOBAL_LOOP`: each window writes its pending strings and drops a pending
+    /// deactivation.
+    pub fn global_loop(&mut self, tree: &mut UiTree) {
+        for window in &mut self.windows {
+            window.global_loop(tree);
+        }
+    }
+}
+
+fn utf16(text: &str) -> Vec<u16> {
+    text.encode_utf16().collect()
+}
+
+/// `StringInfo::GetString` with string variables: each piece followed by the value of the
+/// variable after it (a variable without a value adds nothing).
+fn fill_variables(string: &ac2_db::StringTableString, variables: &[(u32, &[u16])]) -> Vec<u16> {
+    let mut out = Vec::new();
+    for (i, piece) in string.pieces.iter().enumerate() {
+        out.extend(piece.iter().flatten().copied());
+        if let Some(id) = string.variables.get(i) {
+            if let Some((_, value)) = variables.iter().find(|(v, _)| v == id) {
+                out.extend_from_slice(value);
+            }
+        }
+    }
+    out
+}

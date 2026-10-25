@@ -59,7 +59,40 @@ key	status	note
 004314c0	x	ac2-script glue::position (ported beside the gPosition glue)
 00431e20	x	
 00431e90	x	
+004351c0	x	ac2-ui chat.rs / chat_window.rs
+00435280	x	ac2-ui chat.rs / chat_window.rs
+00435320	x	ac2-ui chat.rs / chat_window.rs
+00435370	x	ac2-ui chat.rs / chat_window.rs
+004353c0	x	ac2-ui chat.rs / chat_window.rs
+00435550	x	ac2-ui chat.rs / chat_window.rs
+00435620	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+004357d0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+004357f0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+00435bc0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+0044afd0	x	ac2-ui chat.rs / chat_window.rs
+0044b000	x	ac2-ui chat.rs / chat_window.rs
+0044b030	x	ac2-ui chat.rs / chat_window.rs
+0044b090	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+0044b140	x	ac2-ui chat.rs / chat_window.rs
+0044b1a0	x	ac2-ui chat.rs / chat_window.rs
+0044b1f0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+0044b220	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+0044b650	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+0044b810	x	ac2-ui chat.rs / chat_window.rs
+0044b8e0	x	ac2-ui chat.rs / chat_window.rs
+0044ba70	x	ac2-ui chat.rs / chat_window.rs
+0044bad0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+0044bf80	x	ac2-ui chat.rs / chat_window.rs
+0044c020	x	ac2-ui chat.rs / chat_window.rs
+0044c110	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+0044c1f0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+0044c2a0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+0044c400	x	ac2-ui chat.rs / chat_window.rs
+0044c5b0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+0044c5f0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+0044c7d0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+0044cbc0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 0044faa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 0044fac0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 0044fb20	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
@@ -2322,11 +2355,14 @@ key	status	note
 005f00a0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005f01d0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005f0200	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+005f0770	x	ac2-ui chat.rs / chat_window.rs
 005f0940	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005f0ba0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005f0d50	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 005f0e90	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005f0ff0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+005f1350	x	ac2-ui chat.rs / chat_window.rs
+005f13e0	x	ac2-ui chat.rs / chat_window.rs
 005f16e0	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 005f1750	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 005f17c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
@@ -2355,6 +2391,12 @@ key	status	note
 005fe170	x	ac2-ui hud.rs
 005fe420	x	
 005fe7a0	x	ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
+005ff1e0	x	ac2-ui chat.rs / chat_window.rs
+005ff220	x	ac2-ui chat.rs / chat_window.rs
+005ff270	x	ac2-ui chat.rs / chat_window.rs
+005ff2c0	x	ac2-ui chat.rs / chat_window.rs
+005ff7d0	x	ac2-ui chat.rs / chat_window.rs
+005ffc60	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 006000b0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00600cb0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600cf0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)

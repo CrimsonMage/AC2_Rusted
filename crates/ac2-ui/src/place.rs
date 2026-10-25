@@ -226,4 +226,12 @@ impl UiTree {
             self.update_size_and_position(root);
         }
     }
+
+    /// `UIElement::GetRootElement`.
+    pub fn root_of(&self, mut index: usize) -> usize {
+        while let Some(parent) = self.el(index).parent {
+            index = parent;
+        }
+        index
+    }
 }

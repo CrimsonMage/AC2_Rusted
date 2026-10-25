@@ -8,6 +8,8 @@
 
 mod button;
 mod camera_ui;
+mod chat;
+mod chat_window;
 mod compose;
 mod controls;
 mod element;
@@ -30,6 +32,11 @@ mod text_edit;
 mod token;
 
 pub use camera_ui::{CameraUi, CameraUiEffect};
+pub use chat::{
+    ChatHistory, ChatRequest, ChatSettings, ChatStrings, ChatUi, Modifiers, CHAT_STRING_TABLE,
+    REPLY_STRING_TABLE, STRING_TABLE_GROUP,
+};
+pub use chat_window::{ChatMessageInfo, CHAT_TEXT_TYPES};
 pub use compose::{UiPixels, UiSurface};
 pub use controls::{ControlFrame, Controls};
 pub use element::{UiBox, UiElement, UiImage, UiTree};
@@ -63,6 +70,8 @@ pub use text::UiTextData;
 pub use text_data::{StoreTextData, DEFAULT_FONT, FONT_GROUP};
 pub use token::{tokenize, REFERENCE, REFERENT, STATELESS};
 
+#[cfg(test)]
+mod chat_tests;
 #[cfg(test)]
 mod element_tests;
 #[cfg(test)]

@@ -153,8 +153,8 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
             .unwrap_or_else(|| panic!("{name}"))
     };
     let tree = build_gameplay_hud(&store_arc, 1024, 768).unwrap().tree;
-    // The HUD roots and gm3DTextUI's seven reticle objects.
-    assert_eq!(tree.roots().len(), GAMEPLAY_ROOTS.len() + 7);
+    // The HUD roots, gm3DTextUI's seven reticle objects and gmChatUI's four windows.
+    assert_eq!(tree.roots().len(), GAMEPLAY_ROOTS.len() + 7 + 4);
     // The radar sits where the layout authored it; the toolbar is centred on the bottom edge.
     let radar = root(&tree, "RadarField");
     assert_eq!(tree.screen_box(radar), UiBox::new(875, 60, 1017, 236));
@@ -238,7 +238,9 @@ fn the_reticle_frames_the_selection_with_its_name_above() {
         return;
     };
     let store = std::sync::Arc::new(ResourceStore::new(dataset));
-    let GameplayHud { mut tree, reticle } = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let GameplayHud {
+        mut tree, reticle, ..
+    } = build_gameplay_hud(&store, 1024, 768).unwrap();
     let mut reticle = reticle.expect("the gameplay layout has the reticle");
     reticle.selection_changed(&mut tree, Some(7), Some("Gnome"));
     // A box spanning -0.1..0.1 of the screen around its centre.
