@@ -91,12 +91,12 @@ fn login_and_select(
         let skill = 0x41;
         assert_eq!(
             client.can_skill_be_raised(skill),
-            Some(ac2_weenie::skill_error::NOT_TRAINED)
+            Ok(ac2_weenie::skill_error::NOT_TRAINED)
         );
-        assert!(client.can_skill_be_trained(skill).is_some());
-        assert!(client.can_skill_be_untrained(skill).is_some());
-        assert!(client.skill_cost_to_train(skill).is_some());
-        assert!(client.is_hero_skill(skill).is_some());
+        assert!(client.can_skill_be_trained(skill).is_ok());
+        assert!(client.can_skill_be_untrained(skill).is_ok());
+        assert!(client.skill_cost_to_train(skill).is_ok());
+        assert!(client.is_hero_skill(skill).is_ok());
     }
     let notices = events
         .into_iter()

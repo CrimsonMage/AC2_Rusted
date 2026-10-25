@@ -25,7 +25,7 @@ mod remote;
 mod scene;
 mod scripts;
 mod scripts_io;
-mod skill_queries;
+mod scripts_queries;
 mod tables;
 mod targeting;
 #[cfg(feature = "window")]
@@ -45,5 +45,6 @@ pub use gameplay::{Command, ContainerFrame, InventoryFrame, ProgressFrame, Selec
 pub use motion::PartPose;
 pub use scene::CameraFrame;
 pub use scripts::SCRIPT_VM_FUNCTIONS;
+pub use scripts_queries::{ifun, ShortcutDisplay, ShortcutSettings, SkillLevel, SkillTime};
 pub use tables::string_table_ids;
 pub use world_data::{BodyData, DatWorld, WorldData, HUMAN_MOTION_INTERP_DESC};

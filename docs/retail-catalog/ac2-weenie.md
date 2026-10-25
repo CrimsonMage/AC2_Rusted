@@ -1,9 +1,9 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 403 done, 193 partial, 1302 to do, 6 skipped.
+1904 retail functions: 0 done, 0 partial, 1898 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
+## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
 
 ### gmCEngineFactory
 - [ ] `gmCEngineFactory::Init` · 004017e0 · legions 00401750
@@ -18,7 +18,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ArgumentParser::FinishOutputText` · 00401870 · legions 006af780
 
 ### NoticeHandler
-- [x] `NoticeHandler::RecvNotice_CharacterSet` · 00401880 · legions 00401ba0 — ac2-weenie SessionEvent::Characters / OnlineSession::characters (the latest set; CharacterChoice::Wait stops there for the selection screen)
+- [ ] `NoticeHandler::RecvNotice_CharacterSet` · 00401880 · legions 00401ba0 — ac2-weenie SessionEvent::Characters / OnlineSession::characters (the latest set; CharacterChoice::Wait stops there for the selection screen)
 
 ### gmCEngineFactory
 - [ ] `gmCEngineFactory::MakeClient_Internal` · 00401890
@@ -29,164 +29,164 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/events/cm_allegiance.cpp.c` (0/4)
 
 ### CM_Allegiance
-- [~] `CM_Allegiance::SendNotice_Patron_SwearDone` · 00727f80 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Allegiance::SendNotice_RequestVassal` · 00728020 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Allegiance::SendNotice_UpdateAllegianceProfile` · 007280c0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Allegiance::SendNotice_Vassal_SwearDone` · 00728150 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Allegiance::SendNotice_Patron_SwearDone` · 00727f80 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Allegiance::SendNotice_RequestVassal` · 00728020 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Allegiance::SendNotice_UpdateAllegianceProfile` · 007280c0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Allegiance::SendNotice_Vassal_SwearDone` · 00728150 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 
-## `ac2/client/src/events/cm_character.cpp.c` (7/30)
+## `ac2/client/src/events/cm_character.cpp.c` (0/30)
 
 ### CM_Character
-- [~] `CM_Character::SendNotice_AddMarker` · 007248b0 · legions 006a4270 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Character::SendNotice_AddPet` · 00724970 · legions 006a42e0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Character::SendNotice_ChangeRadarLook` · 00724a30 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_AddMarker` · 007248b0 · legions 006a4270 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_AddPet` · 00724970 · legions 006a42e0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_ChangeRadarLook` · 00724a30 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_Character::SendNotice_ChangeRadarShowCoordsPreference` · 00724ac0
-- [~] `CM_Character::SendNotice_ClearMarkers` · 00724b50 · legions 006a43e0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Character::SendNotice_DisplayMessage` · 00724be0 · legions 006a4430 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Character::SendNotice_PetIsUnderAttack` · 00724c70 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Character::SendNotice_PulseMissed` · 00724d00 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_ClearMarkers` · 00724b50 · legions 006a43e0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_DisplayMessage` · 00724be0 · legions 006a4430 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_PetIsUnderAttack` · 00724c70 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_PulseMissed` · 00724d00 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_Character::SendNotice_ReloadGameplayOptions` · 00724d90
-- [x] `CM_Character::SendNotice_ReloadOptions` · 00724e20 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
-- [~] `CM_Character::SendNotice_RemoveMarker` · 00724eb0 · legions 006a45e0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Character::SendNotice_RemovePet` · 00724f50 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Character::SendNotice_ResurrectionRequestedByOther` · 00724fe0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_ReloadOptions` · 00724e20 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
+- [ ] `CM_Character::SendNotice_RemoveMarker` · 00724eb0 · legions 006a45e0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_RemovePet` · 00724f50 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_ResurrectionRequestedByOther` · 00724fe0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_Character::SendNotice_Select` · 00725070
-- [x] `CM_Character::SendNotice_SelectionChanged` · 00725100 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+- [ ] `CM_Character::SendNotice_SelectionChanged` · 00725100 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 - [ ] `CM_Character::SendNotice_SetShortcutHeight` · 00725190
-- [~] `CM_Character::SendNotice_UpdateDeathState` · 00725220 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Character::SendNotice_UpdateEffect` · 007252b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Character::SendNotice_UpdateFactionStatus` · 00725340 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [x] `CM_Character::SendNotice_UpdateHeroStatus` · 007253d0 — ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
-- [~] `CM_Character::SendNotice_UpdateMountState` · 00725490 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Character::SendNotice_UpdatePetMode` · 00725520 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Character::SendNotice_UpdatePetName` · 007255c0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Character::SendNotice_UpdateResetTime` · 00725660 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Character::SendNotice_UpdateSelectability` · 007256f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [x] `CM_Character::SendNotice_UpdateSelectionInfo` · 00725780 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
-- [x] `CM_Character::SendNotice_UpdateSkill` · 00725810 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
-- [x] `CM_Character::SendNotice_UpdateSkillPanel` · 007258a0 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
-- [~] `CM_Character::SendNotice_UpdateVitae` · 00725950 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [x] `CM_Character::SendNotice_UpdateVital` · 007259f0 — ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
+- [ ] `CM_Character::SendNotice_UpdateDeathState` · 00725220 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_UpdateEffect` · 007252b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_UpdateFactionStatus` · 00725340 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_UpdateHeroStatus` · 007253d0 — ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
+- [ ] `CM_Character::SendNotice_UpdateMountState` · 00725490 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_UpdatePetMode` · 00725520 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_UpdatePetName` · 007255c0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_UpdateResetTime` · 00725660 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_UpdateSelectability` · 007256f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_UpdateSelectionInfo` · 00725780 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+- [ ] `CM_Character::SendNotice_UpdateSkill` · 00725810 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
+- [ ] `CM_Character::SendNotice_UpdateSkillPanel` · 007258a0 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
+- [ ] `CM_Character::SendNotice_UpdateVitae` · 00725950 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Character::SendNotice_UpdateVital` · 007259f0 — ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
 
 ## `ac2/client/src/events/cm_combat.cpp.c` (0/5)
 
 ### CM_Combat
-- [~] `CM_Combat::SendNotice_EndSpecialAttack` · 00727cb0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Combat::SendNotice_RequestSpecialAttack` · 00727d40 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Combat::SendNotice_StartSpecialAttack` · 00727dd0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Combat::SendNotice_ToggleSpecialAttack` · 00727e60 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Combat::SendNotice_UpdateAttackState` · 00727ef0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Combat::SendNotice_EndSpecialAttack` · 00727cb0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Combat::SendNotice_RequestSpecialAttack` · 00727d40 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Combat::SendNotice_StartSpecialAttack` · 00727dd0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Combat::SendNotice_ToggleSpecialAttack` · 00727e60 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Combat::SendNotice_UpdateAttackState` · 00727ef0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 
-## `ac2/client/src/events/cm_communication.cpp.c` (1/3)
+## `ac2/client/src/events/cm_communication.cpp.c` (0/3)
 
 ### CM_Communication
-- [x] `CM_Communication::SendNotice_DisplayStringInfo` · 00725cc0 — ac2-weenie GameplayNotice::DisplayStringInfo (chat lines from the CCommunicationSystem stand-in)
-- [~] `CM_Communication::SendNotice_DoAssistedTell` · 00725d50 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Communication::SendNotice_ReloadChatSettings` · 00725de0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Communication::SendNotice_DisplayStringInfo` · 00725cc0 — ac2-weenie GameplayNotice::DisplayStringInfo (chat lines from the CCommunicationSystem stand-in)
+- [ ] `CM_Communication::SendNotice_DoAssistedTell` · 00725d50 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Communication::SendNotice_ReloadChatSettings` · 00725de0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 
 ## `ac2/client/src/events/cm_craft.cpp.c` (0/6)
 
 ### CM_Craft
-- [~] `CM_Craft::SendNotice_AddIngredient_Done` · 00727900 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Craft::SendNotice_ExecuteCraft_Done` · 007279d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Craft::SendNotice_OpenIngredientPanel` · 00727a60 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Craft::SendNotice_UpdateCost` · 00727af0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Craft::SendNotice_UpdateCraftPanel` · 00727b90 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Craft::SendNotice_UpdateCraftSkill` · 00727c20 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Craft::SendNotice_AddIngredient_Done` · 00727900 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Craft::SendNotice_ExecuteCraft_Done` · 007279d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Craft::SendNotice_OpenIngredientPanel` · 00727a60 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Craft::SendNotice_UpdateCost` · 00727af0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Craft::SendNotice_UpdateCraftPanel` · 00727b90 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Craft::SendNotice_UpdateCraftSkill` · 00727c20 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 
-## `ac2/client/src/events/cm_examination.cpp.c` (2/2)
+## `ac2/client/src/events/cm_examination.cpp.c` (0/2)
 
 ### CM_Examination
-- [x] `CM_Examination::SendNotice_ExaminationRequestChanged` · 007277e0 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
-- [x] `CM_Examination::SendNotice_UpdateExaminationProfile` · 00727870 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+- [ ] `CM_Examination::SendNotice_ExaminationRequestChanged` · 007277e0 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+- [ ] `CM_Examination::SendNotice_UpdateExaminationProfile` · 00727870 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 
 ## `ac2/client/src/events/cm_fellowship.cpp.c` (0/13)
 
 ### CM_Fellowship
-- [~] `CM_Fellowship::SendNotice_ClearFellow` · 00726fe0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_ClearFellowship` · 00727070 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_ExpireRecruitment` · 00727100 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_RequestRecruitment` · 00727190 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellow` · 00727240 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellowCellID` · 007272e0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellowHealth` · 00727380 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellowLevel` · 00727430 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellowMaxHealth` · 007274d0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellowMaxVigor` · 00727570 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellowVigor` · 00727610 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellowship` · 007276c0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateLeader` · 00727750 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_ClearFellow` · 00726fe0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_ClearFellowship` · 00727070 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_ExpireRecruitment` · 00727100 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_RequestRecruitment` · 00727190 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellow` · 00727240 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellowCellID` · 007272e0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellowHealth` · 00727380 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellowLevel` · 00727430 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellowMaxHealth` · 007274d0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellowMaxVigor` · 00727570 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellowVigor` · 00727610 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellowship` · 007276c0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateLeader` · 00727750 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 
 ## `ac2/client/src/events/cm_friends.cpp.c` (0/5)
 
 ### CM_Friends
-- [~] `CM_Friends::SendNotice_GUNResult_AddFriend` · 00725e70 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Friends::SendNotice_GUNResult_FriendStatus` · 00725f00 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Friends::SendNotice_GUNResult_RemoveFriend` · 00725fb0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Friends::SendNotice_LocalStatus` · 00726040 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Friends::SendNotice_GUNResult_GetFriendsList` · 007260d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Friends::SendNotice_GUNResult_AddFriend` · 00725e70 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Friends::SendNotice_GUNResult_FriendStatus` · 00725f00 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Friends::SendNotice_GUNResult_RemoveFriend` · 00725fb0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Friends::SendNotice_LocalStatus` · 00726040 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Friends::SendNotice_GUNResult_GetFriendsList` · 007260d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 
-## `ac2/client/src/events/cm_inventory.cpp.c` (4/4)
+## `ac2/client/src/events/cm_inventory.cpp.c` (0/4)
 
 ### CM_Inventory
-- [x] `CM_Inventory::SendNotice_ContainerStateUpdate` · 00726c10 — ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
-- [x] `CM_Inventory::SendNotice_ItemUpdate` · 00726cb0 — ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
-- [x] `CM_Inventory::SendNotice_UpdateContainer` · 00726d40 — ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
-- [x] `CM_Inventory::SendNotice_UpdateInventory` · 00726e10 — ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
+- [ ] `CM_Inventory::SendNotice_ContainerStateUpdate` · 00726c10 — ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
+- [ ] `CM_Inventory::SendNotice_ItemUpdate` · 00726cb0 — ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
+- [ ] `CM_Inventory::SendNotice_UpdateContainer` · 00726d40 — ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
+- [ ] `CM_Inventory::SendNotice_UpdateInventory` · 00726e10 — ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
 
 ## `ac2/client/src/events/cm_money.cpp.c` (0/2)
 
 ### CM_Money
-- [~] `CM_Money::SendNotice_GhostMoneyBag` · 00726ec0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Money::SendNotice_UpdateMoney` · 00726f50 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Money::SendNotice_GhostMoneyBag` · 00726ec0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Money::SendNotice_UpdateMoney` · 00726f50 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 
-## `ac2/client/src/events/cm_physics.cpp.c` (1/2)
+## `ac2/client/src/events/cm_physics.cpp.c` (0/2)
 
 ### CM_Physics
-- [x] `CM_Physics::RecvEvt_CreateObject` · 007269d0 · legions 006a55c0
-- [~] `CM_Physics::SendNotice_Do3DDamage` · 00726b80 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Physics::RecvEvt_CreateObject` · 007269d0 · legions 006a55c0
+- [ ] `CM_Physics::SendNotice_Do3DDamage` · 00726b80 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 
 ## `ac2/client/src/events/cm_quest.cpp.c` (0/3)
 
 ### CM_Quest
-- [~] `CM_Quest::SendNotice_UpdateQuests` · 00725ab0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Quest::SendNotice_UpdateStoryQuests` · 00725b40 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Quest::SendNotice_PlaySequence` · 00725bd0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Quest::SendNotice_UpdateQuests` · 00725ab0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Quest::SendNotice_UpdateStoryQuests` · 00725b40 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Quest::SendNotice_PlaySequence` · 00725bd0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 
 ## `ac2/client/src/events/cm_shortcut.cpp.c` (0/2)
 
 ### CM_Shortcut
-- [~] `CM_Shortcut::SendNotice_ReloadShortcuts` · 007268b0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Shortcut::SendNotice_ReloadShortcuts` · 007268b0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 - [ ] `CM_Shortcut::SendNotice_RemoveRecipe` · 00726940
 
 ## `ac2/client/src/events/cm_store.cpp.c` (0/12)
 
 ### CM_Store
-- [~] `CM_Store::SendNotice_ConfirmPurchase` · 00724000 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Store::SendNotice_ConfirmPurchase` · 00724000 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_Store::SendNotice_InitNewSale` · 007240b0
-- [~] `CM_Store::SendNotice_LeaveCatalog` · 00724150 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Store::SendNotice_LeaveConsignment` · 007241e0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Store::SendNotice_LeaveStore` · 00724270 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Store::SendNotice_ShowSaleReminder` · 00724300 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Store::SendNotice_UpdateSale` · 00724390 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Store::SendNotice_UpdateConsignment` · 00724430 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Store::SendNotice_UpdateStore` · 00724520 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Store::SendNotice_ViewConsignment` · 00724610 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Store::SendNotice_ViewStore` · 00724700 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Store::SendNotice_ViewCatalog` · 007247f0 · legions 006a41f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Store::SendNotice_LeaveCatalog` · 00724150 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Store::SendNotice_LeaveConsignment` · 007241e0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Store::SendNotice_LeaveStore` · 00724270 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Store::SendNotice_ShowSaleReminder` · 00724300 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Store::SendNotice_UpdateSale` · 00724390 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Store::SendNotice_UpdateConsignment` · 00724430 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Store::SendNotice_UpdateStore` · 00724520 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Store::SendNotice_ViewConsignment` · 00724610 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Store::SendNotice_ViewStore` · 00724700 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Store::SendNotice_ViewCatalog` · 007247f0 · legions 006a41f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 
 ## `ac2/client/src/events/cm_trade.cpp.c` (0/9)
 
 ### CM_Trade
-- [~] `CM_Trade::SendNotice_Trade_BeAcceptanceCleared` · 00726310 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Trade::SendNotice_Trade_BeAccepted` · 007263a0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Trade::SendNotice_Trade_BeClosed` · 00726430 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Trade::SendNotice_Trade_BeDeclined` · 007264d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Trade::SendNotice_Trade_BeOffered` · 00726560 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Trade::SendNotice_Trade_BeOpened` · 00726620 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Trade::SendNotice_Trade_BeRegistered` · 007266b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Trade::SendNotice_Trade_BeReset` · 00726770 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Trade::SendNotice_Trade_BeRevoked` · 00726800 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Trade::SendNotice_Trade_BeAcceptanceCleared` · 00726310 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Trade::SendNotice_Trade_BeAccepted` · 007263a0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Trade::SendNotice_Trade_BeClosed` · 00726430 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Trade::SendNotice_Trade_BeDeclined` · 007264d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Trade::SendNotice_Trade_BeOffered` · 00726560 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Trade::SendNotice_Trade_BeOpened` · 00726620 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Trade::SendNotice_Trade_BeRegistered` · 007266b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Trade::SendNotice_Trade_BeReset` · 00726770 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Trade::SendNotice_Trade_BeRevoked` · 00726800 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 
 ## `ac2/client/src/events/cm_ui.cpp.c` (0/21)
 
@@ -203,27 +203,27 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_UI::SendNotice_HandleDragFrom` · 00723800 · legions 006a3880
 - [ ] `CM_UI::SendNotice_InitStackUI` · 007238a0 · legions 006a38e0
 - [ ] `CM_UI::SendNotice_Logoff` · 00723980
-- [~] `CM_UI::SendNotice_OpenExaminationPanel` · 00723a10 · legions 006a39b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_UI::SendNotice_PortalSpace` · 00723aa0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_UI::SendNotice_OpenExaminationPanel` · 00723a10 · legions 006a39b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_UI::SendNotice_PortalSpace` · 00723aa0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_UI::SendNotice_PrecludeFromBottom` · 00723b30
 - [ ] `CM_UI::SendNotice_PrecludeFromTop` · 00723bc0
 - [ ] `CM_UI::SendNotice_SaveLocationsChanged` · 00723c50 · legions 006a3af0
 - [ ] `CM_UI::SendNotice_StackUIDone` · 00723ce0 · legions 006a3b40
 - [ ] `CM_UI::SendNotice_UpdateCanMouseLook` · 00723d80 · legions 006a3ba0
 - [ ] `CM_UI::SendNotice_FinishPlaySequence` · 00723e10
-- [~] `CM_UI::SendNotice_PortalScene` · 00723f00 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_UI::SendNotice_PortalScene` · 00723f00 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 
 ## `ac2/client/src/events/cm_usage.cpp.c` (0/2)
 
 ### CM_Usage
-- [~] `CM_Usage::SendNotice_SetTargetingPointer` · 007261c0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CM_Usage::SendNotice_UseBook` · 00726250 · legions 006a5160 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Usage::SendNotice_SetTargetingPointer` · 007261c0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Usage::SendNotice_UseBook` · 00726250 · legions 006a5160 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 
-## `ac2/client/src/events/gmceventqueue.cpp.c` (1/2)
+## `ac2/client/src/events/gmceventqueue.cpp.c` (0/2)
 
 ### gmCEventQueue
 - [ ] `gmCEventQueue::gmCEventQueue` · 00723260
-- [x] `gmCEventQueue::DispatchEvent` · 00723280 · legions 006a3540
+- [ ] `gmCEventQueue::DispatchEvent` · 00723280 · legions 006a3540
 
 ## `ac2/client/src/events/gmglobaleventhandler.cpp.c` (0/2)
 
@@ -263,176 +263,176 @@ Legend and workflow: [README](README.md).
 ### gAllegianceProfileAdaptor
 - [ ] `gAllegianceProfileAdaptor::CallEFun_AddOfficer` · 0046a900
 
-## `ac2/client/src/weenie/interp/glue/gcm_allegiance.cpp.c` (4/4)
+## `ac2/client/src/weenie/interp/glue/gcm_allegiance.cpp.c` (0/4)
 
 ### gCM_Allegiance
-- [x] `gCM_Allegiance::CallEFun_SendNotice_Patron_SwearDone` · 0046a340 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Allegiance::CallEFun_SendNotice_RequestVassal` · 0046a390 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Allegiance::CallEFun_SendNotice_UpdateAllegianceProfile` · 0046a3f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Allegiance::CallEFun_SendNotice_Vassal_SwearDone` · 0046a440 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Allegiance::CallEFun_SendNotice_Patron_SwearDone` · 0046a340 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Allegiance::CallEFun_SendNotice_RequestVassal` · 0046a390 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Allegiance::CallEFun_SendNotice_UpdateAllegianceProfile` · 0046a3f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Allegiance::CallEFun_SendNotice_Vassal_SwearDone` · 0046a440 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_character.cpp.c` (26/26)
+## `ac2/client/src/weenie/interp/glue/gcm_character.cpp.c` (0/26)
 
 ### gCM_Character
-- [x] `gCM_Character::CallEFun_SendNotice_AddMarker` · 00469a90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_AddPet` · 00469b10 · legions 0046a500 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_ChangeRadarLook` · 00469b80 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_ClearMarkers` · 00469bc0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_DisplayMessage` · 00469c10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_PetIsUnderAttack` · 00469c60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_PulseMissed` · 00469cb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_ReloadOptions` · 00469d00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_RemoveMarker` · 00469d40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_RemovePet` · 00469d90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_ResurrectionRequestedByOther` · 00469de0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_SelectionChanged` · 00469e30 — ac2-script host notices -> ac2_weenie::GameplayNotice
-- [x] `gCM_Character::CallEFun_SendNotice_UpdateDeathState` · 00469e80 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_UpdateEffect` · 00469ed0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_UpdateFactionStatus` · 00469f10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_UpdateHeroStatus` · 00469f60 — ac2-script host notices -> ac2_weenie::GameplayNotice
-- [x] `gCM_Character::CallEFun_SendNotice_UpdateMountState` · 00469fd0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_UpdatePetMode` · 0046a020 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_UpdatePetName` · 0046a070 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_UpdateResetTime` · 0046a0d0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_UpdateSelectability` · 0046a110 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_UpdateSelectionInfo` · 0046a160 — ac2-script host notices -> ac2_weenie::GameplayNotice
-- [x] `gCM_Character::CallEFun_SendNotice_UpdateSkill` · 0046a1b0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_UpdateSkillPanel` · 0046a200 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_UpdateVitae` · 0046a260 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Character::CallEFun_SendNotice_UpdateVital` · 0046a2d0 — ac2-script host notices -> ac2_weenie::GameplayNotice
+- [ ] `gCM_Character::CallEFun_SendNotice_AddMarker` · 00469a90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_AddPet` · 00469b10 · legions 0046a500 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_ChangeRadarLook` · 00469b80 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_ClearMarkers` · 00469bc0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_DisplayMessage` · 00469c10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_PetIsUnderAttack` · 00469c60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_PulseMissed` · 00469cb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_ReloadOptions` · 00469d00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_RemoveMarker` · 00469d40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_RemovePet` · 00469d90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_ResurrectionRequestedByOther` · 00469de0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_SelectionChanged` · 00469e30 — ac2-script host notices -> ac2_weenie::GameplayNotice
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdateDeathState` · 00469e80 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdateEffect` · 00469ed0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdateFactionStatus` · 00469f10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdateHeroStatus` · 00469f60 — ac2-script host notices -> ac2_weenie::GameplayNotice
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdateMountState` · 00469fd0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdatePetMode` · 0046a020 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdatePetName` · 0046a070 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdateResetTime` · 0046a0d0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdateSelectability` · 0046a110 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdateSelectionInfo` · 0046a160 — ac2-script host notices -> ac2_weenie::GameplayNotice
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdateSkill` · 0046a1b0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdateSkillPanel` · 0046a200 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdateVitae` · 0046a260 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdateVital` · 0046a2d0 — ac2-script host notices -> ac2_weenie::GameplayNotice
 
-## `ac2/client/src/weenie/interp/glue/gcm_combat.cpp.c` (5/5)
+## `ac2/client/src/weenie/interp/glue/gcm_combat.cpp.c` (0/5)
 
 ### gCM_Combat
-- [x] `gCM_Combat::CallEFun_SendNotice_EndSpecialAttack` · 00469900 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Combat::CallEFun_SendNotice_RequestSpecialAttack` · 00469950 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Combat::CallEFun_SendNotice_StartSpecialAttack` · 004699a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Combat::CallEFun_SendNotice_ToggleSpecialAttack` · 004699f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Combat::CallEFun_SendNotice_UpdateAttackState` · 00469a40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Combat::CallEFun_SendNotice_EndSpecialAttack` · 00469900 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Combat::CallEFun_SendNotice_RequestSpecialAttack` · 00469950 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Combat::CallEFun_SendNotice_StartSpecialAttack` · 004699a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Combat::CallEFun_SendNotice_ToggleSpecialAttack` · 004699f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Combat::CallEFun_SendNotice_UpdateAttackState` · 00469a40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_communication.cpp.c` (3/3)
+## `ac2/client/src/weenie/interp/glue/gcm_communication.cpp.c` (0/3)
 
 ### gCM_Communication
-- [x] `gCM_Communication::CallEFun_SendNotice_DisplayStringInfo` · 00469820 — ac2-script host notices -> ac2_weenie::GameplayNotice
-- [x] `gCM_Communication::CallEFun_SendNotice_DoAssistedTell` · 00469870 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Communication::CallEFun_SendNotice_ReloadChatSettings` · 004698c0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Communication::CallEFun_SendNotice_DisplayStringInfo` · 00469820 — ac2-script host notices -> ac2_weenie::GameplayNotice
+- [ ] `gCM_Communication::CallEFun_SendNotice_DoAssistedTell` · 00469870 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Communication::CallEFun_SendNotice_ReloadChatSettings` · 004698c0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_craft.cpp.c` (6/6)
+## `ac2/client/src/weenie/interp/glue/gcm_craft.cpp.c` (0/6)
 
 ### gCM_Craft
-- [x] `gCM_Craft::CallEFun_SendNotice_AddIngredient_Done` · 00469620 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Craft::CallEFun_SendNotice_ExecuteCraft_Done` · 004696a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Craft::CallEFun_SendNotice_OpenIngredientPanel` · 004696f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Craft::CallEFun_SendNotice_UpdateCost` · 00469740 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Craft::CallEFun_SendNotice_UpdateCraftPanel` · 00469790 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Craft::CallEFun_SendNotice_UpdateCraftSkill` · 004697d0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Craft::CallEFun_SendNotice_AddIngredient_Done` · 00469620 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Craft::CallEFun_SendNotice_ExecuteCraft_Done` · 004696a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Craft::CallEFun_SendNotice_OpenIngredientPanel` · 004696f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Craft::CallEFun_SendNotice_UpdateCost` · 00469740 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Craft::CallEFun_SendNotice_UpdateCraftPanel` · 00469790 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Craft::CallEFun_SendNotice_UpdateCraftSkill` · 004697d0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_examination.cpp.c` (2/2)
+## `ac2/client/src/weenie/interp/glue/gcm_examination.cpp.c` (0/2)
 
 ### gCM_Examination
-- [x] `gCM_Examination::CallEFun_SendNotice_ExaminationRequestChanged` · 00469580 — ac2-script host notices -> ac2_weenie::GameplayNotice
-- [x] `gCM_Examination::CallEFun_SendNotice_UpdateExaminationProfile` · 004695d0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [ ] `gCM_Examination::CallEFun_SendNotice_ExaminationRequestChanged` · 00469580 — ac2-script host notices -> ac2_weenie::GameplayNotice
+- [ ] `gCM_Examination::CallEFun_SendNotice_UpdateExaminationProfile` · 004695d0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 
-## `ac2/client/src/weenie/interp/glue/gcm_fellowship.cpp.c` (13/13)
+## `ac2/client/src/weenie/interp/glue/gcm_fellowship.cpp.c` (0/13)
 
 ### gCM_Fellowship
-- [x] `gCM_Fellowship::CallEFun_SendNotice_ClearFellow` · 00469130 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Fellowship::CallEFun_SendNotice_ClearFellowship` · 00469180 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Fellowship::CallEFun_SendNotice_ExpireRecruitment` · 004691c0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Fellowship::CallEFun_SendNotice_RequestRecruitment` · 00469210 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellow` · 00469280 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowCellID` · 004692e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowHealth` · 00469330 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowLevel` · 00469390 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowMaxHealth` · 004693e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowMaxVigor` · 00469430 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowVigor` · 00469480 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowship` · 004694e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateLeader` · 00469530 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_ClearFellow` · 00469130 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_ClearFellowship` · 00469180 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_ExpireRecruitment` · 004691c0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_RequestRecruitment` · 00469210 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellow` · 00469280 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowCellID` · 004692e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowHealth` · 00469330 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowLevel` · 00469390 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowMaxHealth` · 004693e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowMaxVigor` · 00469430 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowVigor` · 00469480 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowship` · 004694e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateLeader` · 00469530 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_friends.cpp.c` (5/6)
+## `ac2/client/src/weenie/interp/glue/gcm_friends.cpp.c` (0/6)
 
 ### gCM_Friends
-- [x] `gCM_Friends::CallEFun_SendNotice_GUNResult_AddFriend` · 00467f60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Friends::CallEFun_SendNotice_GUNResult_FriendStatus` · 00467fb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Friends::CallEFun_SendNotice_GUNResult_RemoveFriend` · 00468010 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Friends::CallEFun_SendNotice_LocalStatus` · 00468060 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_AddFriend` · 00467f60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_FriendStatus` · 00467fb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_RemoveFriend` · 00468010 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Friends::CallEFun_SendNotice_LocalStatus` · 00468060 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Friends::RListToGUNUserStatusList` · 004680b0 · legions 00468d60
-- [x] `gCM_Friends::CallEFun_SendNotice_GUNResult_GetFriendsList` · 00468150 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_GetFriendsList` · 00468150 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_inventory.cpp.c` (4/4)
+## `ac2/client/src/weenie/interp/glue/gcm_inventory.cpp.c` (0/4)
 
 ### gCM_Inventory
-- [x] `gCM_Inventory::CallEFun_SendNotice_ContainerStateUpdate` · 00468f10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Inventory::CallEFun_SendNotice_ItemUpdate` · 00468f70 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Inventory::CallEFun_SendNotice_UpdateContainer` · 00468fb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Inventory::CallEFun_SendNotice_UpdateInventory` · 00469030 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Inventory::CallEFun_SendNotice_ContainerStateUpdate` · 00468f10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Inventory::CallEFun_SendNotice_ItemUpdate` · 00468f70 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Inventory::CallEFun_SendNotice_UpdateContainer` · 00468fb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Inventory::CallEFun_SendNotice_UpdateInventory` · 00469030 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_money.cpp.c` (2/2)
+## `ac2/client/src/weenie/interp/glue/gcm_money.cpp.c` (0/2)
 
 ### gCM_Money
-- [x] `gCM_Money::CallEFun_SendNotice_GhostMoneyBag` · 00469090 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Money::CallEFun_SendNotice_UpdateMoney` · 004690e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Money::CallEFun_SendNotice_GhostMoneyBag` · 00469090 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Money::CallEFun_SendNotice_UpdateMoney` · 004690e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_physics.cpp.c` (1/1)
+## `ac2/client/src/weenie/interp/glue/gcm_physics.cpp.c` (0/1)
 
 ### gCM_Physics
-- [x] `gCM_Physics::CallEFun_SendNotice_Do3DDamage` · 00468ec0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Physics::CallEFun_SendNotice_Do3DDamage` · 00468ec0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_quest.cpp.c` (3/3)
+## `ac2/client/src/weenie/interp/glue/gcm_quest.cpp.c` (0/3)
 
 ### gCM_Quest
-- [x] `gCM_Quest::CallEFun_SendNotice_UpdateQuests` · 00468db0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Quest::CallEFun_SendNotice_UpdateStoryQuests` · 00468e00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Quest::CallEFun_SendNotice_PlaySequence` · 00468e50 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Quest::CallEFun_SendNotice_UpdateQuests` · 00468db0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Quest::CallEFun_SendNotice_UpdateStoryQuests` · 00468e00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Quest::CallEFun_SendNotice_PlaySequence` · 00468e50 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_shortcut.cpp.c` (1/2)
+## `ac2/client/src/weenie/interp/glue/gcm_shortcut.cpp.c` (0/2)
 
 ### gCM_Shortcut
-- [x] `gCM_Shortcut::CallEFun_SendNotice_ReloadShortcuts` · 00468d20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Shortcut::CallEFun_SendNotice_ReloadShortcuts` · 00468d20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Shortcut::CallEFun_SendNotice_RemoveRecipe` · 00468d60
 
-## `ac2/client/src/weenie/interp/glue/gcm_store.cpp.c` (11/12)
+## `ac2/client/src/weenie/interp/glue/gcm_store.cpp.c` (0/12)
 
 ### gCM_Store
-- [x] `gCM_Store::CallEFun_SendNotice_ConfirmPurchase` · 00467a50 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Store::CallEFun_SendNotice_LeaveCatalog` · 00467ac0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Store::CallEFun_SendNotice_LeaveConsignment` · 00467b00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Store::CallEFun_SendNotice_LeaveStore` · 00467b40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Store::CallEFun_SendNotice_ShowSaleReminder` · 00467b80 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Store::CallEFun_SendNotice_UpdateSale` · 00467bd0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Store::CallEFun_SendNotice_UpdateStore` · 00467c20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Store::CallEFun_SendNotice_ViewConsignment` · 00467c80 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Store::CallEFun_SendNotice_ViewStore` · 00467ce0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Store::CallEFun_SendNotice_UpdateConsignment` · 00467d40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Store::CallEFun_SendNotice_ConfirmPurchase` · 00467a50 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Store::CallEFun_SendNotice_LeaveCatalog` · 00467ac0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Store::CallEFun_SendNotice_LeaveConsignment` · 00467b00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Store::CallEFun_SendNotice_LeaveStore` · 00467b40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Store::CallEFun_SendNotice_ShowSaleReminder` · 00467b80 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Store::CallEFun_SendNotice_UpdateSale` · 00467bd0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Store::CallEFun_SendNotice_UpdateStore` · 00467c20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Store::CallEFun_SendNotice_ViewConsignment` · 00467c80 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Store::CallEFun_SendNotice_ViewStore` · 00467ce0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Store::CallEFun_SendNotice_UpdateConsignment` · 00467d40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Store::RListToUIShopList` · 00467e20 · legions 00468ad0
-- [x] `gCM_Store::CallEFun_SendNotice_ViewCatalog` · 00467ec0 · legions 00468b70 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Store::CallEFun_SendNotice_ViewCatalog` · 00467ec0 · legions 00468b70 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_trade.cpp.c` (9/9)
+## `ac2/client/src/weenie/interp/glue/gcm_trade.cpp.c` (0/9)
 
 ### gCM_Trade
-- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeAcceptanceCleared` · 00468a10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeAccepted` · 00468a50 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeClosed` · 00468aa0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeDeclined` · 00468af0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeOffered` · 00468b40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeOpened` · 00468bb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeRegistered` · 00468bf0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeReset` · 00468c70 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeRevoked` · 00468cb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeAcceptanceCleared` · 00468a10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeAccepted` · 00468a50 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeClosed` · 00468aa0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeDeclined` · 00468af0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeOffered` · 00468b40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeOpened` · 00468bb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeRegistered` · 00468bf0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeReset` · 00468c70 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeRevoked` · 00468cb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_ui.cpp.c` (3/3)
+## `ac2/client/src/weenie/interp/glue/gcm_ui.cpp.c` (0/3)
 
 ### gCM_UI
-- [x] `gCM_UI::CallEFun_SendNotice_OpenExaminationPanel` · 00468940 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_UI::CallEFun_SendNotice_PortalSpace` · 00468970 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_UI::CallEFun_SendNotice_PortalScene` · 004689a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_UI::CallEFun_SendNotice_OpenExaminationPanel` · 00468940 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_UI::CallEFun_SendNotice_PortalSpace` · 00468970 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_UI::CallEFun_SendNotice_PortalScene` · 004689a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_usage.cpp.c` (2/2)
+## `ac2/client/src/weenie/interp/glue/gcm_usage.cpp.c` (0/2)
 
 ### gCM_Usage
-- [x] `gCM_Usage::CallEFun_SendNotice_SetTargetingPointer` · 00468870 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCM_Usage::CallEFun_SendNotice_UseBook` · 004688c0 · legions 00469340 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Usage::CallEFun_SendNotice_SetTargetingPointer` · 00468870 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Usage::CallEFun_SendNotice_UseBook` · 004688c0 · legions 00469340 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
 ## `ac2/client/src/weenie/interp/glue/gfellowadaptor.cpp.c` (0/9)
 
@@ -461,20 +461,20 @@ Legend and workflow: [README](README.md).
 - [ ] `gFellowshipAdaptor::CallEFun_AddFellow` · 00468430
 - [ ] `gFellowshipAdaptor::CallEFun_SetName` · 004684b0
 
-## `ac2/client/src/weenie/interp/glue/ggmcobjmaint.cpp.c` (2/3)
+## `ac2/client/src/weenie/interp/glue/ggmcobjmaint.cpp.c` (0/3)
 
 ### ggmCObjMaint
-- [x] `ggmCObjMaint::CallEFun_GetPlayerID` · 00468210 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
-- [x] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [ ] `ggmCObjMaint::CallEFun_GetPlayerID` · 00468210 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (26/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (0/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
 
 ### HeapObject
-- [x] `HeapObject::InitializeData` · 00454080 · legions 00455100 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [ ] `HeapObject::InitializeData` · 00454080 · legions 00455100 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### VMMon
 - [ ] `VMMon::iBegin` · 004540e0
@@ -489,13 +489,13 @@ Legend and workflow: [README](README.md).
 - [ ] `HeapObject::HeapObject` · 004542d0 · legions 004551e0
 
 ### WDataMapper
-- [x] `WDataMapper::WStateIDToPackageID` · 00454300 · legions 00455210 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [ ] `WDataMapper::WStateIDToPackageID` · 00454300 · legions 00455210 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ReferenceTable
 - [ ] `ReferenceTable::MarkReference` · 00454350 · legions 00455260
 
 ### ContextState
-- [x] `ContextState::Init` · 00454440 · legions 00455320 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [ ] `ContextState::Init` · 00454440 · legions 00455320 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ggmCWInterface
 - [ ] `ggmCWInterface::CallEFun_PopupYesNoDialog` · 004544b0
@@ -510,23 +510,23 @@ Legend and workflow: [README](README.md).
 - [ ] `ReferenceTable::DeleteAllUnUsedReferences` · 00454960 · legions 004557c0
 
 ### ggmCWInterface
-- [x] `ggmCWInterface::CallEFun_RequestGUN_CallCreate` · 004549f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `ggmCWInterface::CallEFun_RequestGUN_FriendAdd` · 00454a90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `ggmCWInterface::CallEFun_RequestGUN_FriendDelete` · 00454b10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `ggmCWInterface::CallEFun_RequestGUN_GetFriendsList` · 00454b90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `ggmCWInterface::CallEFun_RequestGUN_GetIgnoredList` · 00454c10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `ggmCWInterface::CallEFun_RequestGUN_IgnoredAdd` · 00454c90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `ggmCWInterface::CallEFun_RequestGUN_IgnoredDelete` · 00454d10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `ggmCWInterface::CallEFun_RequestGUN_SendToRoom` · 00454d90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `ggmCWInterface::CallEFun_RequestGUN_SendToUser` · 00454e20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `ggmCWInterface::CallEFun_RequestGUN_SetLocation` · 00454eb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `ggmCWInterface::CallEFun_RequestGUN_SetStateFlags` · 00454f30 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `ggmCWInterface::CallEFun_RequestGUN_CallCreate` · 004549f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `ggmCWInterface::CallEFun_RequestGUN_FriendAdd` · 00454a90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `ggmCWInterface::CallEFun_RequestGUN_FriendDelete` · 00454b10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `ggmCWInterface::CallEFun_RequestGUN_GetFriendsList` · 00454b90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `ggmCWInterface::CallEFun_RequestGUN_GetIgnoredList` · 00454c10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `ggmCWInterface::CallEFun_RequestGUN_IgnoredAdd` · 00454c90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `ggmCWInterface::CallEFun_RequestGUN_IgnoredDelete` · 00454d10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `ggmCWInterface::CallEFun_RequestGUN_SendToRoom` · 00454d90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `ggmCWInterface::CallEFun_RequestGUN_SendToUser` · 00454e20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `ggmCWInterface::CallEFun_RequestGUN_SetLocation` · 00454eb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `ggmCWInterface::CallEFun_RequestGUN_SetStateFlags` · 00454f30 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
 ### VM
 - [ ] `VM::DeleteContext` · 00455000 · legions 00455c70
 
 ### Resolver
-- [x] `Resolver::GetVirtualFunctionOffset` · 00455060 · legions 00455cd0 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [ ] `Resolver::GetVirtualFunctionOffset` · 00455060 · legions 00455cd0 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ReferenceTable
 - [ ] `ReferenceTable::Grow` · 004550b0 · legions 00455d20
@@ -540,21 +540,21 @@ Legend and workflow: [README](README.md).
 - [ ] `ContextState::ResumeTimers` · 00455340 · legions 00455fa0
 
 ### VM
-- [x] `VM::Execute` · 004553f0 · legions 00456050 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [ ] `VM::Execute` · 004553f0 · legions 00456050 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### Resolver
-- [x] `Resolver::GetFunctionOffset` · 00455460 · legions 004560c0 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [ ] `Resolver::GetFunctionOffset` · 00455460 · legions 004560c0 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ReferenceTable
 - [ ] `ReferenceTable::FinishGarbageCollection` · 004554d0 · legions 00456130
 - [ ] `ReferenceTable::ScanProcesses` · 00455600 · legions 00456210
 
 ### VM
-- [x] `VM::CallIFun` · 00455740 · legions 00456350 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [ ] `VM::CallIFun` · 00455740 · legions 00456350 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ReferenceTable
-- [x] `ReferenceTable::CallPackageInitializer` · 004557b0 · legions 004563c0 — ac2-script vm (VM/ReferenceTable/Resolver)
-- [~] `ReferenceTable::UpdateRelativeReferences` · 004558a0 · legions 004564b0 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+- [ ] `ReferenceTable::CallPackageInitializer` · 004557b0 · legions 004563c0 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [ ] `ReferenceTable::UpdateRelativeReferences` · 004558a0 · legions 004564b0 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 - [ ] `ReferenceTable::StartGarbageCollection` · 004558f0 · legions 00456500
 
 ### ggmCWInterface
@@ -575,8 +575,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PList<unsigned___int64>::UnPack` · 00456020 · legions 00456bd0
 
 ### ReferenceTable
-- [~] `ReferenceTable::AddReference` · 00456190 · legions 00456d40 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
-- [~] `ReferenceTable::UpdateReferences` · 00456270 · legions 00456e20 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+- [ ] `ReferenceTable::AddReference` · 00456190 · legions 00456d40 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+- [ ] `ReferenceTable::UpdateReferences` · 00456270 · legions 00456e20 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 
 ### ggmCWInterface
 - [ ] `ggmCWInterface::XPHashToLAHash` · 00456330 · legions 00456ee0
@@ -595,8 +595,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PList<gmActInfo>::PList<gmActInfo>` · 00456520 · legions 00457120
 
 ### ReferenceTable
-- [x] `ReferenceTable::CreateNativeObject` · 00456550 · legions 00457150 — ac2-script vm (VM/ReferenceTable/Resolver)
-- [x] `ReferenceTable::GetSingleton` · 004565c0 · legions 004571c0 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [ ] `ReferenceTable::CreateNativeObject` · 00456550 · legions 00457150 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [ ] `ReferenceTable::GetSingleton` · 004565c0 · legions 004571c0 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### RList
 - [ ] `RList::RList` · 00456690 · legions 00457290
@@ -605,7 +605,7 @@ Legend and workflow: [README](README.md).
 
 ### LList
 - [ ] `LList::LList` · 00456770 · legions 00457370
-- [x] `LList::UnPack` · 004567b0 — ac2-script reference/native unpack
+- [ ] `LList::UnPack` · 004567b0 — ac2-script reference/native unpack
 
 ### ggmCWInterface
 - [ ] `ggmCWInterface::CraftSkillAdaptorListToRList` · 004567c0 · legions 004573c0
@@ -613,7 +613,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::RecipeAdaptorListToRList` · 00456900 · legions 00457500
 - [ ] `ggmCWInterface::IgnoredListToRList` · 004569a0 · legions 00525e50
 - [ ] `ggmCWInterface::EffectUINodeListToRList` · 00456a40 · legions 004575a0
-- [x] `ggmCWInterface::ShortcutInfoArrayToRArray` · 00456ae0 · legions 00457640 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [ ] `ggmCWInterface::ShortcutInfoArrayToRArray` · 00456ae0 · legions 00457640 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [ ] `ggmCWInterface::GUNUserStatusListToRList` · 00456b80 · legions 004576e0
 
 ### PHashTable<unsigned___int64,unsigned_long>
@@ -626,8 +626,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PHashTable<unsigned_long,unsigned___int64>::StreamPack` · 00456f30 · legions 00457a90
 
 ### ReferenceTable
-- [~] `ReferenceTable::UnPackReferenceArray` · 00457120 · legions 00457c80 — ac2-script PackedReference::unpack: decode only, no reference table insert yet
-- [~] `ReferenceTable::UnPackReference` · 00457330 · legions 00457e90 — ac2-script PackedReference::unpack: decode only, no reference table insert yet
+- [ ] `ReferenceTable::UnPackReferenceArray` · 00457120 · legions 00457c80 — ac2-script PackedReference::unpack: decode only, no reference table insert yet
+- [ ] `ReferenceTable::UnPackReference` · 00457330 · legions 00457e90 — ac2-script PackedReference::unpack: decode only, no reference table insert yet
 
 ### LAHash
 - [ ] `LAHash::LAHash` · 00457460 · legions 00457fc0
@@ -638,9 +638,9 @@ Legend and workflow: [README](README.md).
 - [ ] `ALHash::StreamPack` · 00457510
 
 ### ReferenceTable
-- [x] `ReferenceTable::FillPackage` · 00457540 · legions 004580a0 — ac2-script vm (VM/ReferenceTable/Resolver)
-- [x] `ReferenceTable::GetReferencePtr` · 00457610 · legions 00458170 — ac2-script vm (VM/ReferenceTable/Resolver)
-- [x] `ReferenceTable::GetPackageID` · 004576d0 · legions 00458230 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [ ] `ReferenceTable::FillPackage` · 00457540 · legions 004580a0 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [ ] `ReferenceTable::GetReferencePtr` · 00457610 · legions 00458170 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [ ] `ReferenceTable::GetPackageID` · 004576d0 · legions 00458230 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ggmCWInterface
 - [ ] `ggmCWInterface::CallIFun_AcceptTrade` · 00457730 · legions 00458290
@@ -649,9 +649,9 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_BreakAllegiance` · 00457a20 · legions 00458580
 - [ ] `ggmCWInterface::CallIFun_CanAutoAttackTarget` · 00457af0 · legions 00458650
 - [ ] `ggmCWInterface::CallIFun_CanCraftSkillBeRaised` · 00457bd0 · legions 00458730
-- [ ] `ggmCWInterface::CallIFun_CanSkillBeRaisedByEnum` · 00457c90 · legions 004587f0
-- [ ] `ggmCWInterface::CallIFun_CanSkillBeTrainedByEnum` · 00457d50 · legions 004588b0
-- [ ] `ggmCWInterface::CallIFun_CanSkillBeUntrainedByEnum` · 00457e10 · legions 00458970
+- [ ] `ggmCWInterface::CallIFun_CanSkillBeRaisedByEnum` · 00457c90 · legions 004587f0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+- [ ] `ggmCWInterface::CallIFun_CanSkillBeTrainedByEnum` · 00457d50 · legions 004588b0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+- [ ] `ggmCWInterface::CallIFun_CanSkillBeUntrainedByEnum` · 00457e10 · legions 00458970 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_CheckIngredient` · 00457ed0 · legions 00458a30
 - [ ] `ggmCWInterface::CallIFun_ClearResurrectionRequest` · 00458090 · legions 00458bf0
 - [ ] `ggmCWInterface::CallIFun_CloseTradeNegotiations` · 00458120 · legions 00458c80
@@ -692,7 +692,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_GetDurabilityLevel` · 0045a0a0 · legions 0045acf0
 - [ ] `ggmCWInterface::CallIFun_GetFXAndBehaviorInformationFromWsl` · 0045a140 · legions 0045ad90
 - [ ] `ggmCWInterface::CallIFun_GetFellowXPHash` · 0045a310 · legions 0045af60
-- [ ] `ggmCWInterface::CallIFun_GetGameplayOptions` · 0045a4b0 · legions 0045b100
+- [ ] `ggmCWInterface::CallIFun_GetGameplayOptions` · 0045a4b0 · legions 0045b100 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_GetHeroSkillCredits` · 0045a620 · legions 0045b270
 - [ ] `ggmCWInterface::CallIFun_GetIconID` · 0045a6c0 · legions 0045b310
 - [ ] `ggmCWInterface::CallIFun_GetLastSelection` · 0045a760 · legions 0045b3b0
@@ -718,9 +718,9 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_GetShowPetUI` · 0045b620 · legions 0045c270
 - [ ] `ggmCWInterface::CallIFun_GetShowRadarCoords` · 0045b6c0 · legions 0045c310
 - [ ] `ggmCWInterface::CallIFun_GetShowShortcutNumbers` · 0045b760 · legions 0045c3b0
-- [ ] `ggmCWInterface::CallIFun_GetSkillCostToTrainByEnum` · 0045b800 · legions 0045c450
+- [ ] `ggmCWInterface::CallIFun_GetSkillCostToTrainByEnum` · 0045b800 · legions 0045c450 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_GetSkillCredits` · 0045b8c0 · legions 0045c510
-- [ ] `ggmCWInterface::CallIFun_GetSkillExperienceNeededToLevelByEnum` · 0045b960 · legions 0045c5b0
+- [ ] `ggmCWInterface::CallIFun_GetSkillExperienceNeededToLevelByEnum` · 0045b960 · legions 0045c5b0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_GetSkillXPByEnum` · 0045ba40 · legions 0045c690
 - [ ] `ggmCWInterface::CallIFun_GetStackable` · 0045bb20 · legions 0045c770
 - [ ] `ggmCWInterface::CallIFun_GetWhichShortcutSet` · 0045bbc0 · legions 0045c810
@@ -748,16 +748,16 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_InqRecipeDifficulty` · 0045db70 · legions 0045e7c0
 - [ ] `ggmCWInterface::CallIFun_InqRecipeIngredients` · 0045dd60 · legions 0045e9b0
 - [ ] `ggmCWInterface::CallIFun_InqRecipeList` · 0045dfc0 · legions 0045ec10
-- [ ] `ggmCWInterface::CallIFun_InqRootPanelFromRace` · 0045e180 · legions 0045edd0
+- [ ] `ggmCWInterface::CallIFun_InqRootPanelFromRace` · 0045e180 · legions 0045edd0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_InqShortcutArray` · 0045e2c0 · legions 0045ef10
-- [ ] `ggmCWInterface::CallIFun_InqShortcutInfo` · 0045e450 · legions 0045f0a0
+- [ ] `ggmCWInterface::CallIFun_InqShortcutInfo` · 0045e450 · legions 0045f0a0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_InqSimpleInvByLocTable` · 0045e660 · legions 0045f2b0
-- [ ] `ggmCWInterface::CallIFun_InqSkillLevelByEnum` · 0045e7f0 · legions 0045f440
-- [ ] `ggmCWInterface::CallIFun_InqSkillTimeLeft` · 0045e9c0 · legions 0045f610
+- [ ] `ggmCWInterface::CallIFun_InqSkillLevelByEnum` · 0045e7f0 · legions 0045f440 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+- [ ] `ggmCWInterface::CallIFun_InqSkillTimeLeft` · 0045e9c0 · legions 0045f610 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_InqUISaveLocations` · 0045eb90 · legions 0045f7e0
 - [ ] `ggmCWInterface::CallIFun_IsCraftSkillRaiseable` · 0045ed00 · legions 0045f950
 - [ ] `ggmCWInterface::CallIFun_IsFellowshipMember` · 0045edc0 · legions 0045fa10
-- [ ] `ggmCWInterface::CallIFun_IsHeroSkillByEnum` · 0045eea0 · legions 0045faf0
+- [ ] `ggmCWInterface::CallIFun_IsHeroSkillByEnum` · 0045eea0 · legions 0045faf0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_IsOnInventory` · 0045ef60 · legions 0045fbb0
 - [ ] `ggmCWInterface::CallIFun_IsSkillBeingUntrainedByEnum` · 0045f040 · legions 0045fc90
 - [ ] `ggmCWInterface::CallIFun_IsSkillHarmful` · 0045f100 · legions 0045fd50
@@ -825,7 +825,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_SetLatencyIndicatorGraph` · 004625a0 · legions 004631f0
 - [ ] `ggmCWInterface::CallIFun_SetRadarMask` · 00462650 · legions 004632a0
 - [ ] `ggmCWInterface::CallIFun_SetSelection` · 00462700 · legions 00463350
-- [ ] `ggmCWInterface::CallIFun_SetShortcut` · 004627d0 · legions 00463420
+- [ ] `ggmCWInterface::CallIFun_SetShortcut` · 004627d0 · legions 00463420 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_SetShortcutHeight` · 004628e0 · legions 00463530
 - [ ] `ggmCWInterface::CallIFun_SetShortcutInstaScroll` · 00462990 · legions 004635e0
 - [ ] `ggmCWInterface::CallIFun_SetShortcutLocked` · 00462a40 · legions 00463690
@@ -855,12 +855,12 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_UploadGameOptions` · 00463b70 · legions 004647e0
 - [ ] `ggmCWInterface::CallIFun_UploadUISettings` · 00463c00 · legions 00464870
 - [ ] `ggmCWInterface::CallIFun_UseSelection` · 00463c90 · legions 00464900
-- [ ] `ggmCWInterface::CallIFun_UseShortcut` · 00463d30 · legions 004649a0
+- [ ] `ggmCWInterface::CallIFun_UseShortcut` · 00463d30 · legions 004649a0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 
 ## `ac2/client/src/weenie/interp/glue/gmcefundispatcher.cpp.c` (0/1)
 
 ### gmCEFunDispatcher
-- [~] `gmCEFunDispatcher::GetEFunAddress` · 00463df0 · legions 00464a60 — ac2-script glue: id table + pure-glue registry; engine glue unbound
+- [ ] `gmCEFunDispatcher::GetEFunAddress` · 00463df0 · legions 00464a60 — ac2-script glue: id table + pure-glue registry; engine glue unbound
 
 ## `ac2/client/src/weenie/interp/glue/gmcnativefactory.cpp.c` (0/18)
 
@@ -870,7 +870,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCNativeFactory::GetReferences` · 00465fc0 · legions 00466c70
 - [ ] `gmCNativeFactory::UpdateReferences` · 00465fe0 · legions 00466c90
 - [ ] `gmCNativeFactory::GetNativePackSize` · 00466000 · legions 00466cb0
-- [~] `gmCNativeFactory::PackNativeObject` · 004661d0 · legions 00466e80 — ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
+- [ ] `gmCNativeFactory::PackNativeObject` · 004661d0 · legions 00466e80 — ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 - [ ] `gmCNativeFactory::GetCheckSums` · 004663b0 · legions 00467060
 - [ ] `gmCNativeFactory::ValidateCheckSums` · 004663d0 · legions 00467080
 
@@ -894,7 +894,7 @@ Legend and workflow: [README](README.md).
 - [ ] `FellowshipAdaptor::~FellowshipAdaptor` · 00467100 · legions 00467db0
 
 ### gmCNativeFactory
-- [~] `gmCNativeFactory::UnPackNativeObject` · 00467160 · legions 00467e10 — ac2-script native::unpack: the native types Legions WStates hold
+- [ ] `gmCNativeFactory::UnPackNativeObject` · 00467160 · legions 00467e10 — ac2-script native::unpack: the native types Legions WStates hold
 - [ ] `gmCNativeFactory::CopyNativeObject` · 00467370 · legions 00468020
 - [ ] `gmCNativeFactory::DeleteNativeObject` · 004677e0 · legions 00468490
 
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (24/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (0/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -923,11 +923,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::InqName` · 0044f9e0 · legions 00450b20
 - [ ] `gmCWInterface::GetPotentiallyPluralizedName` · 0044fa00 · legions 00450b40
 - [ ] `gmCWInterface::GetPhysObjID` · 0044fa70 · legions 00450bb0
-- [~] `gmCWInterface::SetSelection` · 0044faa0 · legions 00450be0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
-- [~] `gmCWInterface::GetSelection` · 0044fac0 · legions 00450c00 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
-- [~] `gmCWInterface::GetLastSelection` · 0044fb20 · legions 00450c60 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+- [ ] `gmCWInterface::SetSelection` · 0044faa0 · legions 00450be0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+- [ ] `gmCWInterface::GetSelection` · 0044fac0 · legions 00450c00 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+- [ ] `gmCWInterface::GetLastSelection` · 0044fb20 · legions 00450c60 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [ ] `gmCWInterface::ShouldAutoTarget` · 0044fb80 · legions 00450cc0
-- [x] `gmCWInterface::UseSelection` · 0044fbb0 · legions 00450cf0 — ac2-weenie OnlineSession::use_selection (CPlayer 0x79 -> CUsageSystem 0x9 stand-in)
+- [ ] `gmCWInterface::UseSelection` · 0044fbb0 · legions 00450cf0 — ac2-weenie OnlineSession::use_selection (CPlayer 0x79 -> CUsageSystem 0x9 stand-in)
 - [ ] `gmCWInterface::UseShortcut` · 0044fbe0 · legions 00450d20
 - [ ] `gmCWInterface::StopAttacking` · 0044fc20 · legions 00450d60
 - [ ] `gmCWInterface::RequestAttackStateChange` · 0044fc60 · legions 00450da0
@@ -950,7 +950,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::RequestExecuteCraft` · 00450080 · legions 004511c0
 - [ ] `gmCWInterface::InqRecipeCost` · 004500b0 · legions 004511f0
 - [ ] `gmCWInterface::GetAvailableCraftExperience` · 004500f0 · legions 00451230
-- [~] `gmCWInterface::DoEmote` · 00450130 · legions 00451270 — ac2-weenie OnlineSession::emote(id): the WM_Communication emote call; the emote-table name lookup (CPlayer 0x15B) is not ported
+- [ ] `gmCWInterface::DoEmote` · 00450130 · legions 00451270 — ac2-weenie OnlineSession::emote(id): the WM_Communication emote call; the emote-table name lookup (CPlayer 0x15B) is not ported
 - [ ] `gmCWInterface::PurchaseItem` · 00450150 · legions 00451290
 - [ ] `gmCWInterface::RequestNextSales` · 00450180 · legions 004512c0
 - [ ] `gmCWInterface::RequestPrevSales` · 004501a0 · legions 004512e0
@@ -973,9 +973,9 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::RequestPetReturn` · 00450410 · legions 00451550
 - [ ] `gmCWInterface::RequestPetMode` · 00450430 · legions 00451570
 - [ ] `gmCWInterface::RequestSetPetName` · 00450460 · legions 004515a0
-- [~] `gmCWInterface::MoveItem` · 00450490 · legions 004515d0 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
-- [~] `gmCWInterface::EquipItem` · 004504f0 · legions 00451630 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
-- [~] `gmCWInterface::UnEquipItem` · 00450530 · legions 00451670 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
+- [ ] `gmCWInterface::MoveItem` · 00450490 · legions 004515d0 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
+- [ ] `gmCWInterface::EquipItem` · 004504f0 · legions 00451630 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
+- [ ] `gmCWInterface::UnEquipItem` · 00450530 · legions 00451670 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 - [ ] `gmCWInterface::GetContentsInfo` · 00450570 · legions 004516b0
 - [ ] `gmCWInterface::GetContainerSegmentInfo` · 004505a0 · legions 004516e0
 - [ ] `gmCWInterface::GetPreferredInventoryLocation` · 004505d0 · legions 00451710
@@ -985,32 +985,32 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::IsOnInventory` · 00450680 · legions 004517c0
 - [ ] `gmCWInterface::DragToMoneyBag` · 004506c0 · legions 00451800
 - [ ] `gmCWInterface::DragFromMoneyBag` · 00450700 · legions 00451840
-- [~] `gmCWInterface::LootAllFromContainer` · 00450730 · legions 00451870 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
-- [~] `gmCWInterface::TransmuteAllFromContainer` · 00450750 · legions 00451890 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
+- [ ] `gmCWInterface::LootAllFromContainer` · 00450730 · legions 00451870 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
+- [ ] `gmCWInterface::TransmuteAllFromContainer` · 00450750 · legions 00451890 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
 - [ ] `gmCWInterface::HasDurability` · 00450770 · legions 004518b0
 - [ ] `gmCWInterface::GetDurabilityLevel` · 004507a0 · legions 004518e0
 - [ ] `gmCWInterface::GetMaxDurabilityLevel` · 004507d0 · legions 00451910
 - [ ] `gmCWInterface::GetIconID` · 00450800 · legions 00451940
 - [ ] `gmCWInterface::GetMaxContainerSize` · 00450830 · legions 00451970
-- [x] `gmCWInterface::GetAvailableExperience` · 00450860 · legions 004519a0 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
-- [x] `gmCWInterface::GetSkillCredits` · 004508a0 · legions 004519e0 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
-- [x] `gmCWInterface::GetHeroSkillCredits` · 004508d0 · legions 00451a10 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
+- [ ] `gmCWInterface::GetAvailableExperience` · 00450860 · legions 004519a0 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
+- [ ] `gmCWInterface::GetSkillCredits` · 004508a0 · legions 004519e0 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
+- [ ] `gmCWInterface::GetHeroSkillCredits` · 004508d0 · legions 00451a10 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
 - [ ] `gmCWInterface::Dismount` · 00450900 · legions 00451a40
 - [ ] `gmCWInterface::InqRootPanelFromRace` · 00450920 · legions 00451a60
-- [x] `gmCWInterface::IsSkillTrainedByEnum` · 00450960 · legions 00451aa0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
-- [x] `gmCWInterface::IsSkillBeingUntrainedByEnum` · 004509a0 · legions 00451ae0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
-- [x] `gmCWInterface::IsHeroSkillByEnum` · 004509e0 · legions 00451b20 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
-- [x] `gmCWInterface::CanSkillBeTrainedByEnum` · 00450a20 · legions 00451b60 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
-- [x] `gmCWInterface::CanSkillBeUntrainedByEnum` · 00450a60 · legions 00451ba0 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
-- [x] `gmCWInterface::CanSkillBeRaisedByEnum` · 00450aa0 · legions 00451be0 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
+- [ ] `gmCWInterface::IsSkillTrainedByEnum` · 00450960 · legions 00451aa0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
+- [ ] `gmCWInterface::IsSkillBeingUntrainedByEnum` · 004509a0 · legions 00451ae0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
+- [ ] `gmCWInterface::IsHeroSkillByEnum` · 004509e0 · legions 00451b20 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
+- [ ] `gmCWInterface::CanSkillBeTrainedByEnum` · 00450a20 · legions 00451b60 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
+- [ ] `gmCWInterface::CanSkillBeUntrainedByEnum` · 00450a60 · legions 00451ba0 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
+- [ ] `gmCWInterface::CanSkillBeRaisedByEnum` · 00450aa0 · legions 00451be0 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
 - [ ] `gmCWInterface::GetSkillExperienceNeededToLevelByEnum` · 00450ae0 · legions 00451c20
 - [ ] `gmCWInterface::InqSkillLevelByEnum` · 00450b30 · legions 00451c70
-- [x] `gmCWInterface::GetSkillCostToTrainByEnum` · 00450b70 · legions 00451cb0 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
-- [x] `gmCWInterface::GetSkillXPByEnum` · 00450bb0 · legions 00451cf0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
-- [x] `gmCWInterface::RequestTrainSkill` · 00450c00 · legions 00451d40 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
-- [x] `gmCWInterface::RequestUntrainSkill` · 00450c20 · legions 00451d60 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
-- [x] `gmCWInterface::RequestRaiseSkill` · 00450c40 · legions 00451d80 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
-- [x] `gmCWInterface::RequestUntrainSkillCancel` · 00450c60 · legions 00451da0 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
+- [ ] `gmCWInterface::GetSkillCostToTrainByEnum` · 00450b70 · legions 00451cb0 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
+- [ ] `gmCWInterface::GetSkillXPByEnum` · 00450bb0 · legions 00451cf0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
+- [ ] `gmCWInterface::RequestTrainSkill` · 00450c00 · legions 00451d40 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
+- [ ] `gmCWInterface::RequestUntrainSkill` · 00450c20 · legions 00451d60 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
+- [ ] `gmCWInterface::RequestRaiseSkill` · 00450c40 · legions 00451d80 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
+- [ ] `gmCWInterface::RequestUntrainSkillCancel` · 00450c60 · legions 00451da0 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
 - [ ] `gmCWInterface::InqSkillTimeLeft` · 00450c80 · legions 00451dc0
 - [ ] `gmCWInterface::IsSkillUsableBasedOnInventoryByEnum` · 00450cc0 · legions 00451e00
 - [ ] `gmCWInterface::GUNHandleReauthentication` · 00450d00 · legions 00451e40
@@ -1019,22 +1019,22 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::Result_FriendAdd` · 00450d70 · legions 00451eb0
 - [ ] `gmCWInterface::Result_FriendDelete` · 00450d90 · legions 00451ed0
 - [ ] `gmCWInterface::GUNEvent_FriendStatus` · 00450db0 · legions 00451ef0
-- [~] `gmCWInterface::Result_IgnoredAdd` · 00450de0 · legions 00451f20 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
-- [~] `gmCWInterface::Result_IgnoredDelete` · 00450e00 · legions 00451f40 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
+- [ ] `gmCWInterface::Result_IgnoredAdd` · 00450de0 · legions 00451f20 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
+- [ ] `gmCWInterface::Result_IgnoredDelete` · 00450e00 · legions 00451f40 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 - [ ] `gmCWInterface::Result_CallCreate` · 00450e20 · legions 00451f60
 - [ ] `gmCWInterface::InqEffectList` · 00450e60 · legions 00451fa0
 - [ ] `gmCWInterface::GetStackable` · 00450ea0 · legions 00451fe0
 - [ ] `gmCWInterface::GetQuantity` · 00450ed0 · legions 00452010
 - [ ] `gmCWInterface::GetMaxStackSize` · 00450f00 · legions 00452040
-- [~] `gmCWInterface::SetExaminationRequest` · 00450f30 · legions 00452070 — ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
+- [ ] `gmCWInterface::SetExaminationRequest` · 00450f30 · legions 00452070 — ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
 - [ ] `gmCWInterface::AddEffectDataToProfileByEID` · 00450f50 · legions 00452090
-- [~] `gmCWInterface::StartExamination` · 00450f80 · legions 004520c0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
-- [~] `gmCWInterface::StopExamination` · 00450fa0 · legions 004520e0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+- [ ] `gmCWInterface::StartExamination` · 00450f80 · legions 004520c0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+- [ ] `gmCWInterface::StopExamination` · 00450fa0 · legions 004520e0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [ ] `gmCWInterface::HasSomethingSelected` · 00450fc0 · legions 00452100
 - [ ] `gmCWInterface::RegisterCommands` · 00450ff0 · legions 00452130
 - [ ] `gmCWInterface::RequestResurrect` · 00451010 · legions 00452150
 - [ ] `gmCWInterface::ClearResurrectionRequest` · 00451030 · legions 00452170
-- [~] `gmCWInterface::UpdateOpen` · 00451050 · legions 00452190 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
+- [ ] `gmCWInterface::UpdateOpen` · 00451050 · legions 00452190 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 - [ ] `gmCWInterface::InqShortcutInfo` · 00451090 · legions 004521d0
 - [ ] `gmCWInterface::SetShortcut` · 004510d0 · legions 00452210
 - [ ] `gmCWInterface::InqShortcutArray` · 00451110 · legions 00452250
@@ -1086,10 +1086,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::GetAcceptFellowshipRequest` · 004518e0 · legions 00452a60
 - [ ] `gmCWInterface::SetAcceptTradeRequest` · 00451910 · legions 00452a90
 - [ ] `gmCWInterface::GetAcceptTradeRequest` · 00451930 · legions 00452ab0
-- [x] `gmCWInterface::InqNextRetellHistoryItem` · 00451960 · legions 00452ae0 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
-- [x] `gmCWInterface::InqPrevRetellHistoryItem` · 00451990 · legions 00452b10 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
-- [x] `gmCWInterface::InqNextReplyHistoryItem` · 004519c0 · legions 00452b40 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
-- [x] `gmCWInterface::InqPrevReplyHistoryItem` · 004519f0 · legions 00452b70 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
+- [ ] `gmCWInterface::InqNextRetellHistoryItem` · 00451960 · legions 00452ae0 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
+- [ ] `gmCWInterface::InqPrevRetellHistoryItem` · 00451990 · legions 00452b10 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
+- [ ] `gmCWInterface::InqNextReplyHistoryItem` · 004519c0 · legions 00452b40 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
+- [ ] `gmCWInterface::InqPrevReplyHistoryItem` · 004519f0 · legions 00452b70 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
 - [ ] `gmCWInterface::InqQuestList` · 00451a20 · legions 00452ba0
 - [ ] `gmCWInterface::InqActInfoList` · 00451a60 · legions 00452be0
 - [ ] `gmCWInterface::HandlePlayScenesDone` · 00451aa0 · legions 00452c20
@@ -1129,25 +1129,25 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::HandleSetWeenieDesc` · 00452030 · legions 004531b0
 
 ### GunChatExtraInfo
-- [x] `GunChatExtraInfo::PackIntoBlob` · 004520f0 · legions 00453230 — ac2-net GunChatExtraInfo
+- [ ] `GunChatExtraInfo::PackIntoBlob` · 004520f0 · legions 00453230 — ac2-net GunChatExtraInfo
 
 ### gmCWInterface
-- [x] `gmCWInterface::ProcessText_Done` · 004521b0 · legions 004532f0 — ac2-weenie ChatState::process_text resets the told/heard walks (CPlayer 0x43/0xDF)
+- [ ] `gmCWInterface::ProcessText_Done` · 004521b0 · legions 004532f0 — ac2-weenie ChatState::process_text resets the told/heard walks (CPlayer 0x43/0xDF)
 - [ ] `gmCWInterface::RequestGUN_FriendAdd` · 004521e0 · legions 00453320 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `gmCWInterface::RequestGUN_FriendDelete` · 00452250 · legions 00453390 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `gmCWInterface::RequestGUN_GetFriendsList` · 004522c0 · legions 00453400 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `gmCWInterface::RequestGUN_IgnoredAdd` · 00452330 · legions 00453470 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
-- [~] `gmCWInterface::RequestGUN_IgnoredDelete` · 004523a0 · legions 004534e0 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
-- [~] `gmCWInterface::RequestGUN_GetIgnoredList` · 00452410 · legions 00453550 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
-- [~] `gmCWInterface::RequestGUN_CallCreate` · 00452480 · legions 004535d2 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `gmCWInterface::RequestGUN_IgnoredAdd` · 00452330 · legions 00453470 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
+- [ ] `gmCWInterface::RequestGUN_IgnoredDelete` · 004523a0 · legions 004534e0 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
+- [ ] `gmCWInterface::RequestGUN_GetIgnoredList` · 00452410 · legions 00453550 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
+- [ ] `gmCWInterface::RequestGUN_CallCreate` · 00452480 · legions 004535d2 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 
 ### GunChatExtraInfo
-- [~] `GunChatExtraInfo::GunChatExtraInfo` · 00452580 · legions 00453690 — ac2-net GunChatExtraInfo::new: version 1, flags; the meta letters (RetrieveMetaLetters) are left empty
+- [ ] `GunChatExtraInfo::GunChatExtraInfo` · 00452580 · legions 00453690 — ac2-net GunChatExtraInfo::new: version 1, flags; the meta letters (RetrieveMetaLetters) are left empty
 - [ ] `GunChatExtraInfo::~GunChatExtraInfo` · 00452660 · legions 00453770
 
 ### gmCWInterface
-- [~] `gmCWInterface::RequestGUN_SendToUser` · 00452710 · legions 00453820 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `gmCWInterface::RequestGUN_SendToRoom` · 004527c0 · legions 004538d0 — ac2-weenie OnlineSession::send_to_room: the Turbine chat path (CSendToTurbineRoomByID); the GUN path is dead in Legions
+- [ ] `gmCWInterface::RequestGUN_SendToUser` · 00452710 · legions 00453820 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `gmCWInterface::RequestGUN_SendToRoom` · 004527c0 · legions 004538d0 — ac2-weenie OnlineSession::send_to_room: the Turbine chat path (CSendToTurbineRoomByID); the GUN path is dead in Legions
 
 ### CCliFlagsResult
 - [ ] `CCliFlagsResult::CCliFlagsResult` · 004528d0 · legions 004539e0
@@ -1166,25 +1166,25 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::DumpWeenieDesc` · 00452bf0 · legions 00453d00
 - [ ] `gmCWInterface::GetName` · 00452cd0 · legions 00453de0
 - [ ] `gmCWInterface::GetPluralName` · 00452d50 · legions 00453e60
-- [~] `gmCWInterface::RequestGUN_SetStateFlags` · 00452dd0 · legions 00453ee0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `gmCWInterface::RequestGUN_SetLocation` · 00452e40 · legions 00453f50 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `gmCWInterface::RequestGUN_SetStateFlags` · 00452dd0 · legions 00453ee0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `gmCWInterface::RequestGUN_SetLocation` · 00452e40 · legions 00453f50 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 
 ### PStringBaseIter_Common<unsigned_short>
 - [ ] `PStringBaseIter_Common<unsigned_short>::GetSubString` · 00452f50 · legions 00454060
 
 ### gmCWInterface
 - [ ] `gmCWInterface::HearTell` · 004530f0 · legions 00454200
-- [~] `gmCWInterface::GUNEvent_HearFromRoom` · 00453320 · legions 00454430 — ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
+- [ ] `gmCWInterface::GUNEvent_HearFromRoom` · 00453320 · legions 00454430 — ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
 
 ### GunChatExtraInfo
-- [x] `GunChatExtraInfo::StreamPack` · 004534e0 · legions 004545f0 — ac2-net GunChatExtraInfo
+- [ ] `GunChatExtraInfo::StreamPack` · 004534e0 · legions 004545f0 — ac2-net GunChatExtraInfo
 
 ### (free functions)
 - [ ] `STREAMPACK` · 00453560 · legions 005e6f90
 - [ ] `STREAMPACK_PACKOBJ` · 004535f0 · legions 00454670
 
 ### gmCWInterface
-- [x] `gmCWInterface::HandleAlias` · 00453670 · legions 004546f0 — ac2-weenie shell::expand_aliases over the options profile's m_aliasTable (ChatState::login_options)
+- [ ] `gmCWInterface::HandleAlias` · 00453670 · legions 004546f0 — ac2-weenie shell::expand_aliases over the options profile's m_aliasTable (ChatState::login_options)
 
 ### PList<PStringBase<unsigned_short>_>
 - [ ] `PList<PStringBase<unsigned_short>_>::Pack` · 004537f0 · legions 00454870
@@ -1195,7 +1195,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::ExpandText` · 004539e0 · legions 00454a60
 - [ ] `gmCWInterface::Result_GetFriendsList` · 00453b90
 - [ ] `gmCWInterface::GUNEvent_FriendStart` · 00453bd0 · legions 00454c50
-- [~] `gmCWInterface::Result_GetIgnoredList` · 00453c10 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
+- [ ] `gmCWInterface::Result_GetIgnoredList` · 00453c10 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 
 ### `anonymous-namespace'::YesNoDialogAwakener
 - [ ] ``anonymous-namespace'::YesNoDialogAwakener::OnTrigger` · 00453de0 · legions 00454e60
@@ -1203,34 +1203,34 @@ Legend and workflow: [README](README.md).
 ### gmCWInterface
 - [ ] `gmCWInterface::PopupYesNoDialog` · 00453e30 · legions 00454eb0
 
-## `portal/client/src/action/interp/actioninterp.cpp.c` (12/23)
+## `portal/client/src/action/interp/actioninterp.cpp.c` (0/23)
 
 ### ActionInterpreter
 - [ ] `ActionInterpreter::Shutdown` · 00478fe0 · legions 00474e20
 - [ ] `ActionInterpreter::Get` · 00479010 · legions 00474e50
 - [ ] `ActionInterpreter::OnDDDComplete` · 00479020
-- [x] `ActionInterpreter::StopAction` · 00479030 · legions 00474e70 — ac2-ui interpreter.rs
+- [ ] `ActionInterpreter::StopAction` · 00479030 · legions 00474e70 — ac2-ui interpreter.rs
 - [ ] `ActionInterpreter::GetDescripValues` · 004790b0 · legions 00474ef0
 - [ ] `ActionInterpreter::SetPlayerID` · 004790d0 · legions 00474f10
 - [ ] `ActionInterpreter::MouseLookHandler` · 004790f0 · legions 00474f30
-- [x] `ActionInterpreter::HandleDoubleTap` · 00479110 · legions 00474f50 — ac2-ui interpreter.rs
-- [x] `ActionInterpreter::FindAction` · 004791b0 · legions 00474ff0 — ac2-ui interpreter.rs
-- [x] `ActionInterpreter::ActionDown` · 004791e0 · legions 00475020 — ac2-ui interpreter.rs
-- [x] `ActionInterpreter::GetModifierBitfield` · 00479210 · legions 00475050 — ac2-ui interpreter.rs
+- [ ] `ActionInterpreter::HandleDoubleTap` · 00479110 · legions 00474f50 — ac2-ui interpreter.rs
+- [ ] `ActionInterpreter::FindAction` · 004791b0 · legions 00474ff0 — ac2-ui interpreter.rs
+- [ ] `ActionInterpreter::ActionDown` · 004791e0 · legions 00475020 — ac2-ui interpreter.rs
+- [ ] `ActionInterpreter::GetModifierBitfield` · 00479210 · legions 00475050 — ac2-ui interpreter.rs
 - [ ] `ActionInterpreter::CtrlKeyDown` · 004792d0 · legions 00475110
 - [ ] `ActionInterpreter::ShiftKeyDown` · 004792e0 · legions 00475120
 - [ ] `ActionInterpreter::AltKeyDown` · 00479300 · legions 00475140
-- [x] `ActionInterpreter::GetActionValues` · 00479310 · legions 00475150 — ac2-ui interpreter.rs
-- [x] `ActionInterpreter::StartAction` · 004793d0 · legions 00475210 — ac2-ui interpreter.rs
-- [x] `ActionInterpreter::PurgeSetActions` · 004794c0 · legions 00475300 — ac2-ui interpreter.rs
-- [x] `ActionInterpreter::UseTime` · 00479530 · legions 00475370 — ac2-ui interpreter.rs
-- [x] `ActionInterpreter::TurnOffRunLock` · 00479540 · legions 00475380 — ac2-ui interpreter.rs
+- [ ] `ActionInterpreter::GetActionValues` · 00479310 · legions 00475150 — ac2-ui interpreter.rs
+- [ ] `ActionInterpreter::StartAction` · 004793d0 · legions 00475210 — ac2-ui interpreter.rs
+- [ ] `ActionInterpreter::PurgeSetActions` · 004794c0 · legions 00475300 — ac2-ui interpreter.rs
+- [ ] `ActionInterpreter::UseTime` · 00479530 · legions 00475370 — ac2-ui interpreter.rs
+- [ ] `ActionInterpreter::TurnOffRunLock` · 00479540 · legions 00475380 — ac2-ui interpreter.rs
 - [ ] `ActionInterpreter::~ActionInterpreter` · 00479790 · legions 004755d0
-- [~] `ActionInterpreter::Startup` · 004797f0 · legions 00475630 — ac2-ui controls.rs (no ICIDM handler registration)
-- [x] `ActionInterpreter::FocusSwitchHandler` · 00479890 · legions 004756d0 — ac2-ui interpreter.rs
-- [x] `ActionInterpreter::ActionHandler` · 004799c0 · legions 00475800 — ac2-ui interpreter.rs
+- [ ] `ActionInterpreter::Startup` · 004797f0 · legions 00475630 — ac2-ui controls.rs (no ICIDM handler registration)
+- [ ] `ActionInterpreter::FocusSwitchHandler` · 00479890 · legions 004756d0 — ac2-ui interpreter.rs
+- [ ] `ActionInterpreter::ActionHandler` · 004799c0 · legions 00475800 — ac2-ui interpreter.rs
 
-## `portal/client/src/action/map/actionmap.cpp.c` (3/16)
+## `portal/client/src/action/map/actionmap.cpp.c` (0/16)
 
 ### ActionMap
 - [ ] `ActionMap::GetMapper` · 0072d640 · legions 00613a40
@@ -1240,8 +1240,8 @@ Legend and workflow: [README](README.md).
 
 ### ActionMap
 - [ ] `ActionMap::Pack` · 0072d770
-- [x] `ActionMap::GetToggleType` · 0072da60 · legions 006abae0 — ac2-ui maps.rs
-- [x] `ActionMap::GetActionValues` · 0072da90 · legions 006abb10 — ac2-ui maps.rs
+- [ ] `ActionMap::GetToggleType` · 0072da60 · legions 006abae0 — ac2-ui maps.rs
+- [ ] `ActionMap::GetActionValues` · 0072da90 · legions 006abb10 — ac2-ui maps.rs
 - [ ] `ActionMap::GetDescripValues` · 0072daf0 · legions 006abb70
 - [ ] `ActionMap::~ActionMap` · 0072e690 · legions 006ac710
 - [ ] `ActionMap::GetDBOType` · 0072e760
@@ -1259,29 +1259,29 @@ Legend and workflow: [README](README.md).
 ### ActionMap
 - [ ] `ActionMap::ActionMap` · 0072e980 · legions 006aca00
 - [-] `ActionMap::FromFileNode` · 0072ea40 — text source format (admin tools)
-- [x] `ActionMap::UnPack` · 0072f200 — ac2-ui maps.rs
+- [ ] `ActionMap::UnPack` · 0072f200 — ac2-ui maps.rs
 - [ ] `ActionMap::Allocate` · 0072f370
 
-## `portal/client/src/action/movement/playermovementmodule.cpp.c` (13/17)
+## `portal/client/src/action/movement/playermovementmodule.cpp.c` (0/17)
 
 ### PlayerMovementModule
 - [ ] `PlayerMovementModule::Startup` · 00568e20 · legions 00538db0
 - [ ] `PlayerMovementModule::Get` · 00568e90 · legions 00538e20
-- [x] `PlayerMovementModule::ShouldSendPositionEvent` · 00568ea0 · legions 00538e30
-- [x] `PlayerMovementModule::SendPositionEvent` · 00569020 · legions 00538fb0
-- [x] `PlayerMovementModule::ShouldSendLookAtEvent` · 00569200 · legions 00539190
-- [x] `PlayerMovementModule::SendLookAtEvent` · 005692e0 · legions 00539270
-- [x] `PlayerMovementModule::MouseMove` · 00569380 · legions 00539310 — ac2-client camera_mouse.rs / input_handlers
-- [x] `PlayerMovementModule::DoBehavior` · 005693a0 · legions 00539330 — ac2-client camera_mouse.rs / input_handlers
-- [x] `PlayerMovementModule::StopBehavior` · 005693d0 · legions 00539360 — ac2-client camera_mouse.rs / input_handlers
-- [x] `PlayerMovementModule::StartCameraAction` · 00569400 · legions 00539390 — ac2-client camera_mouse.rs / input_handlers
-- [x] `PlayerMovementModule::StopCameraAction` · 00569420 · legions 005393b0 — ac2-client camera_mouse.rs / input_handlers
-- [x] `PlayerMovementModule::LockActions` · 00569440 · legions 005393d0
-- [x] `PlayerMovementModule::InterruptMoveTo` · 00569450 · legions 005393e0 — ac2-client camera_mouse.rs / input_handlers
+- [ ] `PlayerMovementModule::ShouldSendPositionEvent` · 00568ea0 · legions 00538e30
+- [ ] `PlayerMovementModule::SendPositionEvent` · 00569020 · legions 00538fb0
+- [ ] `PlayerMovementModule::ShouldSendLookAtEvent` · 00569200 · legions 00539190
+- [ ] `PlayerMovementModule::SendLookAtEvent` · 005692e0 · legions 00539270
+- [ ] `PlayerMovementModule::MouseMove` · 00569380 · legions 00539310 — ac2-client camera_mouse.rs / input_handlers
+- [ ] `PlayerMovementModule::DoBehavior` · 005693a0 · legions 00539330 — ac2-client camera_mouse.rs / input_handlers
+- [ ] `PlayerMovementModule::StopBehavior` · 005693d0 · legions 00539360 — ac2-client camera_mouse.rs / input_handlers
+- [ ] `PlayerMovementModule::StartCameraAction` · 00569400 · legions 00539390 — ac2-client camera_mouse.rs / input_handlers
+- [ ] `PlayerMovementModule::StopCameraAction` · 00569420 · legions 005393b0 — ac2-client camera_mouse.rs / input_handlers
+- [ ] `PlayerMovementModule::LockActions` · 00569440 · legions 005393d0
+- [ ] `PlayerMovementModule::InterruptMoveTo` · 00569450 · legions 005393e0 — ac2-client camera_mouse.rs / input_handlers
 - [ ] `PlayerMovementModule::StopAttackingIfAutoMoving` · 00569470 · legions 00539400
 - [ ] `PlayerMovementModule::Shutdown` · 005694a0 · legions 00539430
-- [x] `PlayerMovementModule::SetPlayerID` · 005694f0 · legions 00539480
-- [x] `PlayerMovementModule::UseTime` · 00569550 · legions 005394e0
+- [ ] `PlayerMovementModule::SetPlayerID` · 005694f0 · legions 00539480
+- [ ] `PlayerMovementModule::UseTime` · 00569550 · legions 005394e0
 
 ## `portal/client/src/cfactory/cenginefactory.cpp.c` (0/5)
 
@@ -1307,61 +1307,61 @@ Legend and workflow: [README](README.md).
 - [ ] `CFactory::MakeCEventQueue` · 004991b0 · legions 004916c0
 - [ ] `CFactory::MakeGlobalEventHandler` · 004991d0 · legions 004916e0
 
-## `portal/client/src/events/ceventqueue.cpp.c` (12/15)
+## `portal/client/src/events/ceventqueue.cpp.c` (0/15)
 
 ### CEventQueue
-- [x] `CEventQueue::CEventQueue` · 00493f60 · legions 0048c730
-- [x] `CEventQueue::ProcessVisualOrderedEvent` · 00493f80 · legions 0048c750
-- [~] `CEventQueue::DispatchEvent` · 00494010 · legions 0048c7e0 — every opcode routed; quality, interpreter and admin events kept as raw bodies
-- [x] `CEventQueue::PostEvent` · 004946a0 · legions 0048ce70
+- [ ] `CEventQueue::CEventQueue` · 00493f60 · legions 0048c730
+- [ ] `CEventQueue::ProcessVisualOrderedEvent` · 00493f80 · legions 0048c750
+- [ ] `CEventQueue::DispatchEvent` · 00494010 · legions 0048c7e0 — every opcode routed; quality, interpreter and admin events kept as raw bodies
+- [ ] `CEventQueue::PostEvent` · 004946a0 · legions 0048ce70
 
 ### InstanceIDWithStamp
-- [x] `InstanceIDWithStamp::StreamPack` · 004946d0 · legions 0048cea0
+- [ ] `InstanceIDWithStamp::StreamPack` · 004946d0 · legions 0048cea0
 
 ### CEventQueue
-- [x] `CEventQueue::ProcessOrderedNetBlob` · 00494720 · legions 0048cef0
+- [ ] `CEventQueue::ProcessOrderedNetBlob` · 00494720 · legions 0048cef0
 
 ### NIList<NetBlob_*>
 - [ ] `NIList<NetBlob_*>::AddToTail` · 004947c0 · legions 0048cf90
 
 ### CEventQueue
-- [x] `CEventQueue::QueueEvent` · 00494810 · legions 0048cfe0
-- [x] `CEventQueue::ConsiderQueueingEvent` · 00494890 · legions 0048d060
-- [x] `CEventQueue::DestroyEventQueues` · 00494960 · legions 0048d130
+- [ ] `CEventQueue::QueueEvent` · 00494810 · legions 0048cfe0
+- [ ] `CEventQueue::ConsiderQueueingEvent` · 00494890 · legions 0048d060
+- [ ] `CEventQueue::DestroyEventQueues` · 00494960 · legions 0048d130
 - [ ] `CEventQueue::~CEventQueue` · 004949f0 · legions 0048d1c0
-- [x] `CEventQueue::ProcessNetBlob` · 00494a00 · legions 0048d1d0
-- [x] `CEventQueue::FlushQueue` · 00494a70 · legions 0048d240
-- [x] `CEventQueue::FinishEnteringWorld` · 00494b00 · legions 0048d2d0
-- [x] `CEventQueue::UseTime` · 00494b10 · legions 0048d2e0
+- [ ] `CEventQueue::ProcessNetBlob` · 00494a00 · legions 0048d1d0
+- [ ] `CEventQueue::FlushQueue` · 00494a70 · legions 0048d240
+- [ ] `CEventQueue::FinishEnteringWorld` · 00494b00 · legions 0048d2d0
+- [ ] `CEventQueue::UseTime` · 00494b10 · legions 0048d2e0
 
-## `portal/client/src/events/ecm_admin.cpp.c` (3/5)
+## `portal/client/src/events/ecm_admin.cpp.c` (0/5)
 
 ### benchScope
 - [ ] `benchScope::benchScope` · 00493150
 
 ### ECM_Admin
-- [x] `ECM_Admin::RecvEvt_AccountBooted` · 00493190 · legions 0048bc20
-- [x] `ECM_Admin::RecvEvt_DisplayStringInfo` · 00493200 · legions 0048bc90
-- [x] `ECM_Admin::RecvEvt_WorldName` · 004932b0 · legions 0048bd40
+- [ ] `ECM_Admin::RecvEvt_AccountBooted` · 00493190 · legions 0048bc20
+- [ ] `ECM_Admin::RecvEvt_DisplayStringInfo` · 00493200 · legions 0048bc90
+- [ ] `ECM_Admin::RecvEvt_WorldName` · 004932b0 · legions 0048bd40
 - [ ] `ECM_Admin::SendNotice_DisplayAdminStringInfo` · 00493320
 
-## `portal/client/src/events/ecm_interp.cpp.c` (4/4)
+## `portal/client/src/events/ecm_interp.cpp.c` (0/4)
 
 ### ECM_Interp
-- [x] `ECM_Interp::RecvEvt_InterpCEvent_Broadcast` · 00498d60 · legions 00491380
-- [x] `ECM_Interp::RecvEvt_InterpCEvent_Cell` · 00498e20 · legions 00491270
-- [x] `ECM_Interp::SendEvt_InterpSEvent` · 00498f30 · legions 00491440
-- [x] `ECM_Interp::SendEvt_InterpSEventEncrypt` · 00498fe0 · legions 004914f0
+- [ ] `ECM_Interp::RecvEvt_InterpCEvent_Broadcast` · 00498d60 · legions 00491380
+- [ ] `ECM_Interp::RecvEvt_InterpCEvent_Cell` · 00498e20 · legions 00491270
+- [ ] `ECM_Interp::SendEvt_InterpSEvent` · 00498f30 · legions 00491440
+- [ ] `ECM_Interp::SendEvt_InterpSEventEncrypt` · 00498fe0 · legions 004914f0
 
-## `portal/client/src/events/ecm_login.cpp.c` (12/21)
+## `portal/client/src/events/ecm_login.cpp.c` (0/21)
 
 ### ECM_Login
-- [x] `ECM_Login::RecvEvt_CharExitGame` · 004933b0 · legions 0048be00
-- [x] `ECM_Login::RecvEvt_CharacterDeletion` · 004933c0 · legions 0048be10
-- [x] `ECM_Login::RecvEvt_CharacterError` · 00493410 · legions 0048be60
-- [x] `ECM_Login::RecvEvt_PlayerDesc` · 00493460 · legions 0048beb0
-- [x] `ECM_Login::SendEvt_ClientSceneRenderingComplete` · 00493500 · legions 0048bf50
-- [x] `ECM_Login::RecvEvt_CharGenVerification` · 00493520 · legions 0048bf70
+- [ ] `ECM_Login::RecvEvt_CharExitGame` · 004933b0 · legions 0048be00
+- [ ] `ECM_Login::RecvEvt_CharacterDeletion` · 004933c0 · legions 0048be10
+- [ ] `ECM_Login::RecvEvt_CharacterError` · 00493410 · legions 0048be60
+- [ ] `ECM_Login::RecvEvt_PlayerDesc` · 00493460 · legions 0048beb0
+- [ ] `ECM_Login::SendEvt_ClientSceneRenderingComplete` · 00493500 · legions 0048bf50
+- [ ] `ECM_Login::RecvEvt_CharGenVerification` · 00493520 · legions 0048bf70
 
 ### CharacterSet
 - [ ] `CharacterSet::~CharacterSet` · 00493680 · legions 0048c0d0
@@ -1372,74 +1372,74 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Login::SendNotice_CharacterDeletion` · 00493810
 - [ ] `ECM_Login::SendNotice_CharacterError` · 004938a0 · legions 0048c230
 - [ ] `ECM_Login::SendNotice_CharacterSet` · 00493930
-- [x] `ECM_Login::SendNotice_LoginFinished` · 004939b0
-- [x] `ECM_Login::SendNotice_ServerDied` · 00493a30 — SessionEvent::ServerDied, before Disconnected
+- [ ] `ECM_Login::SendNotice_LoginFinished` · 004939b0
+- [ ] `ECM_Login::SendNotice_ServerDied` · 00493a30 — SessionEvent::ServerDied, before Disconnected
 - [ ] `ECM_Login::SendNotice_WorldName` · 00493ab0
-- [x] `ECM_Login::RecvEvt_CharacterSet` · 00493b30 · legions 0048c380
+- [ ] `ECM_Login::RecvEvt_CharacterSet` · 00493b30 · legions 0048c380
 
 ### MinimalCharacterSet
 - [ ] `MinimalCharacterSet::~MinimalCharacterSet` · 00493bd0 · legions 0048c420
-- [x] `MinimalCharacterSet::StreamPack` · 00493c50 · legions 0048c4a0
+- [ ] `MinimalCharacterSet::StreamPack` · 00493c50 · legions 0048c4a0
 
 ### (free functions)
 - [ ] `STREAMPACK` · 00493cb0 · legions 0064e070
 
 ### ECM_Login
-- [x] `ECM_Login::RecvEvt_MinCharSet` · 00493d30 · legions 0048c500
+- [ ] `ECM_Login::RecvEvt_MinCharSet` · 00493d30 · legions 0048c500
 
 ### PSmartArray<PStringBase<unsigned_short>_>
-- [x] `PSmartArray<PStringBase<unsigned_short>_>::StreamPack` · 00493de0
+- [ ] `PSmartArray<PStringBase<unsigned_short>_>::StreamPack` · 00493de0
 
-## `portal/client/src/events/ecm_physics.cpp.c` (44/59)
+## `portal/client/src/events/ecm_physics.cpp.c` (0/59)
 
 ### TargetPosition
 - [ ] `TargetPosition::TargetPosition` · 00494c30 · legions 0048d400
 
 ### ECM_Physics
-- [x] `ECM_Physics::RecvEvt_AddTargetedImpulse` · 00494cb0 · legions 0048d480
-- [x] `ECM_Physics::RecvEvt_AddTerrainModifier` · 00494e30 · legions 0048d600
-- [x] `ECM_Physics::RecvEvt_ClearTerrainModifiers` · 00494f30 · legions 0048d700
-- [x] `ECM_Physics::RecvEvt_Contain` · 00494fb0 · legions 0048d780 — ac2-weenie World (the player's RecvEvt_Contain on the child)
-- [x] `ECM_Physics::RecvEvt_CreatePlayer` · 00495060 · legions 0048d830
-- [x] `ECM_Physics::RecvEvt_DeParent` · 00495100 · legions 0048d8d0
-- [x] `ECM_Physics::RecvEvt_DestroyObject` · 004951f0 · legions 0048d9c0
-- [x] `ECM_Physics::RecvEvt_DoFX` · 00495260 · legions 0048da30
-- [x] `ECM_Physics::RecvEvt_DoFXScript` · 00495360 · legions 0048db30
-- [x] `ECM_Physics::RecvEvt_DoMode` · 00495420 · legions 0048dbf0
-- [x] `ECM_Physics::RecvEvt_DoSlider` · 004954e0 · legions 0048dcb0
-- [x] `ECM_Physics::RecvEvt_DoStory` · 00495620 · legions 0048ddf0
-- [x] `ECM_Physics::RecvEvt_DoTargettedFX` · 00495710 · legions 0048dee0
-- [x] `ECM_Physics::RecvEvt_InitializeMissile` · 00495850 · legions 0048e020
-- [x] `ECM_Physics::RecvEvt_LeaveWorld` · 00495a00 · legions 0048e1d0
-- [x] `ECM_Physics::RecvEvt_LookAt` · 00495ac0 · legions 0048e290
-- [x] `ECM_Physics::RecvEvt_LookAtDir` · 00495b80 · legions 0048e350
-- [x] `ECM_Physics::RecvEvt_Parent` · 00495c80 · legions 0048e450
-- [x] `ECM_Physics::RecvEvt_Position` · 00495da0 · legions 0048e570
-- [x] `ECM_Physics::RecvEvt_PositionCell` · 00495ea0 · legions 0048e670
-- [x] `ECM_Physics::RecvEvt_SetAccelerationScale` · 00495fa0 · legions 0048e770
-- [x] `ECM_Physics::RecvEvt_SetGlobalModifier` · 00496060 · legions 0048e830
-- [x] `ECM_Physics::RecvEvt_SetHoverHeight` · 00496120 · legions 0048e8f0
-- [x] `ECM_Physics::RecvEvt_SetJumpScale` · 004961e0 · legions 0048e9b0
-- [x] `ECM_Physics::RecvEvt_SetMIDESC` · 004962a0 · legions 0048ea70
-- [x] `ECM_Physics::RecvEvt_SetMode` · 00496360 · legions 0048eb30
-- [x] `ECM_Physics::RecvEvt_SetVelocityScale` · 00496420 · legions 0048ebf0
-- [x] `ECM_Physics::RecvEvt_StopAllWeenieBehaviors` · 004964e0 · legions 0048ecb0
-- [x] `ECM_Physics::RecvEvt_StopBehavior` · 00496560 · legions 0048ed30
-- [x] `ECM_Physics::RecvEvt_StopFX` · 00496620 · legions 0048edf0
-- [x] `ECM_Physics::RecvEvt_StopLayer` · 004966e0 · legions 0048eeb0
-- [x] `ECM_Physics::RecvEvt_StopMoveToCancelsBehaviors` · 004967a0 · legions 0048ef70
-- [x] `ECM_Physics::RecvEvt_UpdateVisualDesc` · 00496820 · legions 0048eff0
-- [x] `ECM_Physics::SendEvt_CForceCreate` · 00496910 · legions 0048f0e0
-- [x] `ECM_Physics::SendEvt_CLookAt` · 00496980 · legions 0048f150
-- [x] `ECM_Physics::SendEvt_CLookAtDir` · 004969f0 · legions 0048f1c0
-- [x] `ECM_Physics::SendEvt_CPosition` · 00496a90 · legions 0048f260
-- [x] `ECM_Physics::RecvEvt_AddImpulse` · 00496b00 · legions 0048f2d0
+- [ ] `ECM_Physics::RecvEvt_AddTargetedImpulse` · 00494cb0 · legions 0048d480
+- [ ] `ECM_Physics::RecvEvt_AddTerrainModifier` · 00494e30 · legions 0048d600
+- [ ] `ECM_Physics::RecvEvt_ClearTerrainModifiers` · 00494f30 · legions 0048d700
+- [ ] `ECM_Physics::RecvEvt_Contain` · 00494fb0 · legions 0048d780 — ac2-weenie World (the player's RecvEvt_Contain on the child)
+- [ ] `ECM_Physics::RecvEvt_CreatePlayer` · 00495060 · legions 0048d830
+- [ ] `ECM_Physics::RecvEvt_DeParent` · 00495100 · legions 0048d8d0
+- [ ] `ECM_Physics::RecvEvt_DestroyObject` · 004951f0 · legions 0048d9c0
+- [ ] `ECM_Physics::RecvEvt_DoFX` · 00495260 · legions 0048da30
+- [ ] `ECM_Physics::RecvEvt_DoFXScript` · 00495360 · legions 0048db30
+- [ ] `ECM_Physics::RecvEvt_DoMode` · 00495420 · legions 0048dbf0
+- [ ] `ECM_Physics::RecvEvt_DoSlider` · 004954e0 · legions 0048dcb0
+- [ ] `ECM_Physics::RecvEvt_DoStory` · 00495620 · legions 0048ddf0
+- [ ] `ECM_Physics::RecvEvt_DoTargettedFX` · 00495710 · legions 0048dee0
+- [ ] `ECM_Physics::RecvEvt_InitializeMissile` · 00495850 · legions 0048e020
+- [ ] `ECM_Physics::RecvEvt_LeaveWorld` · 00495a00 · legions 0048e1d0
+- [ ] `ECM_Physics::RecvEvt_LookAt` · 00495ac0 · legions 0048e290
+- [ ] `ECM_Physics::RecvEvt_LookAtDir` · 00495b80 · legions 0048e350
+- [ ] `ECM_Physics::RecvEvt_Parent` · 00495c80 · legions 0048e450
+- [ ] `ECM_Physics::RecvEvt_Position` · 00495da0 · legions 0048e570
+- [ ] `ECM_Physics::RecvEvt_PositionCell` · 00495ea0 · legions 0048e670
+- [ ] `ECM_Physics::RecvEvt_SetAccelerationScale` · 00495fa0 · legions 0048e770
+- [ ] `ECM_Physics::RecvEvt_SetGlobalModifier` · 00496060 · legions 0048e830
+- [ ] `ECM_Physics::RecvEvt_SetHoverHeight` · 00496120 · legions 0048e8f0
+- [ ] `ECM_Physics::RecvEvt_SetJumpScale` · 004961e0 · legions 0048e9b0
+- [ ] `ECM_Physics::RecvEvt_SetMIDESC` · 004962a0 · legions 0048ea70
+- [ ] `ECM_Physics::RecvEvt_SetMode` · 00496360 · legions 0048eb30
+- [ ] `ECM_Physics::RecvEvt_SetVelocityScale` · 00496420 · legions 0048ebf0
+- [ ] `ECM_Physics::RecvEvt_StopAllWeenieBehaviors` · 004964e0 · legions 0048ecb0
+- [ ] `ECM_Physics::RecvEvt_StopBehavior` · 00496560 · legions 0048ed30
+- [ ] `ECM_Physics::RecvEvt_StopFX` · 00496620 · legions 0048edf0
+- [ ] `ECM_Physics::RecvEvt_StopLayer` · 004966e0 · legions 0048eeb0
+- [ ] `ECM_Physics::RecvEvt_StopMoveToCancelsBehaviors` · 004967a0 · legions 0048ef70
+- [ ] `ECM_Physics::RecvEvt_UpdateVisualDesc` · 00496820 · legions 0048eff0
+- [ ] `ECM_Physics::SendEvt_CForceCreate` · 00496910 · legions 0048f0e0
+- [ ] `ECM_Physics::SendEvt_CLookAt` · 00496980 · legions 0048f150
+- [ ] `ECM_Physics::SendEvt_CLookAtDir` · 004969f0 · legions 0048f1c0
+- [ ] `ECM_Physics::SendEvt_CPosition` · 00496a90 · legions 0048f260
+- [ ] `ECM_Physics::RecvEvt_AddImpulse` · 00496b00 · legions 0048f2d0
 
 ### TargetPosition
-- [x] `TargetPosition::StreamPack` · 00496c10
+- [ ] `TargetPosition::StreamPack` · 00496c10
 
 ### ECM_Physics
-- [x] `ECM_Physics::RecvEvt_DoFX_Private` · 00496cb0 · legions 0048f480
+- [ ] `ECM_Physics::RecvEvt_DoFX_Private` · 00496cb0 · legions 0048f480
 - [ ] `ECM_Physics::SendNotice_BeingDeleted` · 00496d60
 - [ ] `ECM_Physics::SendNotice_CreateObject` · 00496de0
 - [ ] `ECM_Physics::SendNotice_CreatePlayerObject` · 00496e70
@@ -1455,41 +1455,41 @@ Legend and workflow: [README](README.md).
 ### PList<Position>
 - [ ] `PList<Position>::Pack` · 004974c0 · legions 0048f9d0
 - [ ] `PList<Position>::GetPackSize` · 00497510
-- [x] `PList<Position>::UnPack` · 00497550 · legions 0048fa74
+- [ ] `PList<Position>::UnPack` · 00497550 · legions 0048fa74
 
 ### ListNode<Position>
 - [ ] `ListNode<Position>::ListNode<Position>` · 004976a0 · legions 0048fbb0
 
 ### ECM_Physics
-- [x] `ECM_Physics::RecvEvt_MoveTo` · 00497750 · legions 0048fc60
-- [x] `ECM_Physics::RecvEvt_ReleaseBehavior` · 004978c0 · legions 0048fdd0
-- [x] `ECM_Physics::RecvEvt_DoBehavior` · 00497a00 · legions 0048ff10
+- [ ] `ECM_Physics::RecvEvt_MoveTo` · 00497750 · legions 0048fc60
+- [ ] `ECM_Physics::RecvEvt_ReleaseBehavior` · 004978c0 · legions 0048fdd0
+- [ ] `ECM_Physics::RecvEvt_DoBehavior` · 00497a00 · legions 0048ff10
 
-## `portal/client/src/events/ecm_qualities.cpp.c` (20/20)
+## `portal/client/src/events/ecm_qualities.cpp.c` (0/20)
 
 ### ECM_Qualities
-- [x] `ECM_Qualities::RecvEvt_UpdateBool_Private` · 00497af0 · legions 00490000
-- [x] `ECM_Qualities::RecvEvt_UpdateBool_Visual` · 00497ba0 · legions 004900b0
-- [x] `ECM_Qualities::RecvEvt_UpdateDataID_Private` · 00497c90 · legions 004901a0
-- [x] `ECM_Qualities::RecvEvt_UpdateDataID_Visual` · 00497d40 · legions 00490250
-- [x] `ECM_Qualities::RecvEvt_UpdateFloat_Private` · 00497e30 · legions 00490340
-- [x] `ECM_Qualities::RecvEvt_UpdateFloat_Visual` · 00497ef0 · legions 00490400
-- [x] `ECM_Qualities::RecvEvt_UpdateInstanceID_Private` · 00497ff0 · legions 00490500
-- [x] `ECM_Qualities::RecvEvt_UpdateInstanceID_Visual` · 004980b0 · legions 004905c0
-- [x] `ECM_Qualities::RecvEvt_UpdateInt_Private` · 004981b0 · legions 004906c0
-- [x] `ECM_Qualities::RecvEvt_UpdateInt_Visual` · 00498260 · legions 00490770
-- [x] `ECM_Qualities::RecvEvt_UpdateLongInt_Private` · 00498350 · legions 00490860
-- [x] `ECM_Qualities::RecvEvt_UpdateLongInt_Visual` · 00498410 · legions 00490920
-- [x] `ECM_Qualities::RecvEvt_UpdatePosition_Private` · 00498510 · legions 00490a20
-- [x] `ECM_Qualities::RecvEvt_UpdatePosition_Visual` · 00498600 · legions 00490b10
-- [x] `ECM_Qualities::RecvEvt_UpdateStringInfo_Private` · 00498740 · legions 00490c50
-- [x] `ECM_Qualities::RecvEvt_UpdateStringInfo_Visual` · 00498800 · legions 00490d10
-- [x] `ECM_Qualities::RecvEvt_UpdateTimestamp_Private` · 00498910 · legions 00490e20
-- [x] `ECM_Qualities::RecvEvt_UpdateTimestamp_Visual` · 004989e0 · legions 00490ef0
-- [x] `ECM_Qualities::RecvEvt_UpdateString_Private` · 00498af0 · legions 00491000
-- [x] `ECM_Qualities::RecvEvt_UpdateString_Visual` · 00498c00 · legions 00491110
+- [ ] `ECM_Qualities::RecvEvt_UpdateBool_Private` · 00497af0 · legions 00490000
+- [ ] `ECM_Qualities::RecvEvt_UpdateBool_Visual` · 00497ba0 · legions 004900b0
+- [ ] `ECM_Qualities::RecvEvt_UpdateDataID_Private` · 00497c90 · legions 004901a0
+- [ ] `ECM_Qualities::RecvEvt_UpdateDataID_Visual` · 00497d40 · legions 00490250
+- [ ] `ECM_Qualities::RecvEvt_UpdateFloat_Private` · 00497e30 · legions 00490340
+- [ ] `ECM_Qualities::RecvEvt_UpdateFloat_Visual` · 00497ef0 · legions 00490400
+- [ ] `ECM_Qualities::RecvEvt_UpdateInstanceID_Private` · 00497ff0 · legions 00490500
+- [ ] `ECM_Qualities::RecvEvt_UpdateInstanceID_Visual` · 004980b0 · legions 004905c0
+- [ ] `ECM_Qualities::RecvEvt_UpdateInt_Private` · 004981b0 · legions 004906c0
+- [ ] `ECM_Qualities::RecvEvt_UpdateInt_Visual` · 00498260 · legions 00490770
+- [ ] `ECM_Qualities::RecvEvt_UpdateLongInt_Private` · 00498350 · legions 00490860
+- [ ] `ECM_Qualities::RecvEvt_UpdateLongInt_Visual` · 00498410 · legions 00490920
+- [ ] `ECM_Qualities::RecvEvt_UpdatePosition_Private` · 00498510 · legions 00490a20
+- [ ] `ECM_Qualities::RecvEvt_UpdatePosition_Visual` · 00498600 · legions 00490b10
+- [ ] `ECM_Qualities::RecvEvt_UpdateStringInfo_Private` · 00498740 · legions 00490c50
+- [ ] `ECM_Qualities::RecvEvt_UpdateStringInfo_Visual` · 00498800 · legions 00490d10
+- [ ] `ECM_Qualities::RecvEvt_UpdateTimestamp_Private` · 00498910 · legions 00490e20
+- [ ] `ECM_Qualities::RecvEvt_UpdateTimestamp_Visual` · 004989e0 · legions 00490ef0
+- [ ] `ECM_Qualities::RecvEvt_UpdateString_Private` · 00498af0 · legions 00491000
+- [ ] `ECM_Qualities::RecvEvt_UpdateString_Visual` · 00498c00 · legions 00491110
 
-## `portal/client/src/events/globaleventhandler.cpp.c` (3/21)
+## `portal/client/src/events/globaleventhandler.cpp.c` (0/21)
 
 ### GlobalEventHandler
 - [ ] `GlobalEventHandler::GetGlobalEventHandler` · 00492be0 · legions 0048b590
@@ -1499,9 +1499,9 @@ Legend and workflow: [README](README.md).
 - [ ] `GlobalEventHandler::RecvEvt_CharacterDeletion` · 00492c40 · legions 0048b5f0
 - [ ] `GlobalEventHandler::RecvEvt_CharacterError` · 00492c60 · legions 0048b610
 - [ ] `GlobalEventHandler::RecvEvt_CharGenVerification` · 00492c90 · legions 0048b640
-- [x] `GlobalEventHandler::RecvEvt_CreatePlayer` · 00492cb0 · legions 0048b660
-- [x] `GlobalEventHandler::RecvEvt_CreateObject` · 00492ce0 · legions 0048b690
-- [x] `GlobalEventHandler::RecvEvt_DestroyObject` · 00492d20 · legions 0048b6d0
+- [ ] `GlobalEventHandler::RecvEvt_CreatePlayer` · 00492cb0 · legions 0048b660
+- [ ] `GlobalEventHandler::RecvEvt_CreateObject` · 00492ce0 · legions 0048b690
+- [ ] `GlobalEventHandler::RecvEvt_DestroyObject` · 00492d20 · legions 0048b6d0
 - [ ] `GlobalEventHandler::RecvEvt_DisplayStringInfo` · 00492d40 · legions 0048b6f0
 - [ ] `GlobalEventHandler::RecvEvt_WorldName` · 00492d90 · legions 0048b740
 
@@ -1532,9 +1532,9 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/weenie/interp/glue/cefundispatcher.cpp.c` (0/1)
 
 ### CEFunDispatcher
-- [~] `CEFunDispatcher::GetEFunAddress` · 0049fec0 · legions 00496f40 — ac2-script glue: id table + pure-glue registry; engine glue unbound
+- [ ] `CEFunDispatcher::GetEFunAddress` · 0049fec0 · legions 00496f40 — ac2-script glue: id table + pure-glue registry; engine glue unbound
 
-## `portal/client/src/weenie/interp/glue/cnativefactory.cpp.c` (4/268)
+## `portal/client/src/weenie/interp/glue/cnativefactory.cpp.c` (0/268)
 
 ### PFileParser
 - [ ] `PFileParser::PFileParser` · 004a5eb0 · legions 0049cf30
@@ -1567,7 +1567,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DetectionProfile::DetectionProfile` · 004a61a0 · legions 0049d220
 
 ### LOSParameters
-- [x] `LOSParameters::LOSParameters` · 004a6220 · legions 0049d2a0 — ac2-physics los (Terrain::los_check)
+- [ ] `LOSParameters::LOSParameters` · 004a6220 · legions 0049d2a0 — ac2-physics los (Terrain::los_check)
 
 ### BaseMultiMapIter<unsigned_long,unsigned_long,13970>
 - [ ] `BaseMultiMapIter<unsigned_long,unsigned_long,13970>::BaseMultiMapIter<unsigned_long,unsigned_long,13970>` · 004a62f0 · legions 0049d370
@@ -1777,10 +1777,10 @@ Legend and workflow: [README](README.md).
 - [ ] `BaseListIter<unsigned_long,11>::Pack` · 004a95f0 · legions 004a0470
 
 ### RandomSelectionTable<unsigned_long>
-- [x] `RandomSelectionTable<unsigned_long>::StreamPack` · 004a9640 · legions 004a0640 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+- [ ] `RandomSelectionTable<unsigned_long>::StreamPack` · 004a9640 · legions 004a0640 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
 ### RandomSelectionTable<unsigned_long>::ElementStruct
-- [x] `RandomSelectionTable<unsigned_long>::ElementStruct::StreamPack` · 004a9760 · legions 004a0760 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+- [ ] `RandomSelectionTable<unsigned_long>::ElementStruct::StreamPack` · 004a9760 · legions 004a0760 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
 ### BaseHashSetIter<unsigned_long,7>
 - [ ] `BaseHashSetIter<unsigned_long,7>::Sync` · 004a97c0 · legions 004a07c0
@@ -1804,10 +1804,10 @@ Legend and workflow: [README](README.md).
 - [ ] `PSmartArray<Season>::StreamPack` · 004a9af0 · legions 004a0a20
 
 ### PSmartArray<PropertyGroup>
-- [~] `PSmartArray<PropertyGroup>::StreamPack` · 004a9b90 · legions 004a0b60 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+- [ ] `PSmartArray<PropertyGroup>::StreamPack` · 004a9b90 · legions 004a0b60 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
 ### PSmartArray<BaseProperty>
-- [~] `PSmartArray<BaseProperty>::StreamPack` · 004a9c30 · legions 004a0c00 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+- [ ] `PSmartArray<BaseProperty>::StreamPack` · 004a9c30 · legions 004a0c00 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
 ### CNativeFactory
 - [ ] `CNativeFactory::GetReferences` · 004a9cd0 · legions 004a0d40
@@ -1969,7 +1969,7 @@ Legend and workflow: [README](README.md).
 
 ### CNativeFactory
 - [ ] `CNativeFactory::UpdateReferences` · 004acef0 · legions 004a4040
-- [~] `CNativeFactory::PackNativeObject` · 004ad1d0 · legions 004a4320 — ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
+- [ ] `CNativeFactory::PackNativeObject` · 004ad1d0 · legions 004a4320 — ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 
 ### PHashTable<unsigned_long,float>
 - [ ] `PHashTable<unsigned_long,float>::PHashTable<unsigned_long,float>` · 004ad780 · legions 004a48d0
@@ -2192,7 +2192,7 @@ Legend and workflow: [README](README.md).
 - [ ] `BaseMultiHash<unsigned_long,unsigned_long,20>::Pack` · 004b1ce0 · legions 004a8460
 
 ### BaseMultiHash<unsigned_long,unsigned_long,4>
-- [x] `BaseMultiHash<unsigned_long,unsigned_long,4>::UnPack` · 004b1da0 · legions 004a8f90 — ac2-script reference/native unpack
+- [ ] `BaseMultiHash<unsigned_long,unsigned_long,4>::UnPack` · 004b1da0 · legions 004a8f90 — ac2-script reference/native unpack
 
 ### CNativeFactory
 - [ ] `CNativeFactory::DeleteNativeObject` · 004b1e80 · legions 004a9070
@@ -2242,7 +2242,7 @@ Legend and workflow: [README](README.md).
 ### CNativeFactory
 - [ ] `CNativeFactory::CopyNativeObject` · 004b28f0 · legions 004a9ae0
 - [ ] `CNativeFactory::NewNativeObject` · 004b3980 · legions 004aab70
-- [~] `CNativeFactory::UnPackNativeObject` · 004b4720 · legions 004ab910 — ac2-script native::unpack: the native types Legions WStates hold
+- [ ] `CNativeFactory::UnPackNativeObject` · 004b4720 · legions 004ab910 — ac2-script native::unpack: the native types Legions WStates hold
 
 ## `portal/client/src/weenie/interp/glue/gcwallocator.cpp.c` (0/1)
 
@@ -2262,7 +2262,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWDistributor::CallEFun_GetMyPackageID` · 004bc700
 - [ ] `gCWDistributor::CallEFun_GetProcessID` · 004bc770
 
-## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (5/32)
+## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (0/32)
 
 ### gCWInterface
 - [ ] `gCWInterface::Resume_Sleep` · 004bb120 · legions 004b0340
@@ -2272,13 +2272,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWInterface::CallEFun_AddShellCmdByStringID` · 004bb3f0
 - [ ] `gCWInterface::CallEFun_AddShellHelp` · 004bb480
 - [ ] `gCWInterface::CallEFun_AddShellHelpByStringID` · 004bb500
-- [x] `gCWInterface::CallEFun_GetExternalWeenieObject` · 004bb580 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [x] `gCWInterface::CallEFun_GetInternalWeenieObject` · 004bb600 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWInterface::CallEFun_GetExternalWeenieObject` · 004bb580 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [ ] `gCWInterface::CallEFun_GetInternalWeenieObject` · 004bb600 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCWInterface::CallEFun_InqStringInfoValue` · 004bb680
-- [x] `gCWInterface::CallEFun_IsThePlayer` · 004bb7a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWInterface::CallEFun_IsThePlayer` · 004bb7a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCWInterface::CallEFun_ProcessText` · 004bb810
-- [x] `gCWInterface::CallEFun_SendServerEvt` · 004bb890 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
-- [x] `gCWInterface::CallEFun_SendServerEvtEncrypt` · 004bb910 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [ ] `gCWInterface::CallEFun_SendServerEvt` · 004bb890 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [ ] `gCWInterface::CallEFun_SendServerEvtEncrypt` · 004bb910 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `gCWInterface::CallEFun_GetMyPosition` · 004bb990
 - [ ] `gCWInterface::CallIFun_ApplyProperties` · 004bba90 · legions 004b09b0
 - [ ] `gCWInterface::CallIFun_DisplayStringInfo` · 004bbb80 · legions 004b0aa0
@@ -2387,70 +2387,70 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWPhysicsObject::CallEFun_PerformLOS` · 004baff0
 - [ ] `gCWPhysicsObject::Resume_ReleaseBehavior` · 004bb090 · legions 004b02b0
 
-## `portal/client/src/weenie/interp/glue/gcwrepository.cpp.c` (72/90)
+## `portal/client/src/weenie/interp/glue/gcwrepository.cpp.c` (0/90)
 
 ### gCWRepository
-- [x] `gCWRepository::CallEFun_AdjAndTruncateFloat` · 004b4ba0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_AdjAndTruncateInt` · 004b4c50 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_AdjAndTruncateLongInt` · 004b4cf0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_AdjFloat` · 004b4dd0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_AdjInt` · 004b4e60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_AdjLongInt` · 004b4ee0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_DoesBoolExist` · 004b4f90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_DoesDataIDExist` · 004b5010 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_DoesFloatExist` · 004b5090 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_DoesInstanceIDExist` · 004b5110 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_DoesIntExist` · 004b5190 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_DoesLongIntExist` · 004b5210 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_DoesPackageIDExist` · 004b5290 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_DoesPositionExist` · 004b5310 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_DoesStringExist` · 004b5390 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_DoesStringInfoExist` · 004b5410 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_DoesTimestampExist` · 004b5490 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_AdjAndTruncateFloat` · 004b4ba0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_AdjAndTruncateInt` · 004b4c50 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_AdjAndTruncateLongInt` · 004b4cf0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_AdjFloat` · 004b4dd0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_AdjInt` · 004b4e60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_AdjLongInt` · 004b4ee0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_DoesBoolExist` · 004b4f90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_DoesDataIDExist` · 004b5010 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_DoesFloatExist` · 004b5090 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_DoesInstanceIDExist` · 004b5110 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_DoesIntExist` · 004b5190 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_DoesLongIntExist` · 004b5210 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_DoesPackageIDExist` · 004b5290 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_DoesPositionExist` · 004b5310 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_DoesStringExist` · 004b5390 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_DoesStringInfoExist` · 004b5410 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_DoesTimestampExist` · 004b5490 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCWRepository::CallEFun_EdgeSlides` · 004b5510
-- [x] `gCWRepository::CallEFun_GetBool` · 004b5580 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetDataID` · 004b5600 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetFloat` · 004b5680 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetID` · 004b5700 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetInstanceID` · 004b5770 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetInt` · 004b5810 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetLongInt` · 004b5890 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetPackageID` · 004b5920 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetRawBool` · 004b59a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetRawDataID` · 004b5a20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetRawFloat` · 004b5aa0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetRawInstanceID` · 004b5b20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetRawInt` · 004b5bc0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetRawLongInt` · 004b5c40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetRawPackageID` · 004b5cd0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetBool` · 004b5580 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetDataID` · 004b5600 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetFloat` · 004b5680 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetID` · 004b5700 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetInstanceID` · 004b5770 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetInt` · 004b5810 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetLongInt` · 004b5890 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetPackageID` · 004b5920 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetRawBool` · 004b59a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetRawDataID` · 004b5a20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetRawFloat` · 004b5aa0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetRawInstanceID` · 004b5b20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetRawInt` · 004b5bc0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetRawLongInt` · 004b5c40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetRawPackageID` · 004b5cd0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCWRepository::CallEFun_GetScale` · 004b5d50
-- [x] `gCWRepository::CallEFun_GetTimestamp` · 004b5dc0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetTimestamp` · 004b5dc0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCWRepository::CallEFun_LoadDataIDW` · 004b5e60
-- [x] `gCWRepository::CallEFun_RemoveBool` · 004b5ee0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_RemoveDataID` · 004b5f60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_RemoveFloat` · 004b5fe0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_RemoveInstanceID` · 004b6060 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_RemoveInt` · 004b60e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_RemoveLongInt` · 004b6160 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_RemovePackageID` · 004b61e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_RemovePosition` · 004b6260 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_RemoveString` · 004b62e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_RemoveStringInfo` · 004b6360 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_RemoveTimestamp` · 004b63e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_SetBool` · 004b6460 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_SetDataID` · 004b64e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_RemoveBool` · 004b5ee0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_RemoveDataID` · 004b5f60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_RemoveFloat` · 004b5fe0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_RemoveInstanceID` · 004b6060 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_RemoveInt` · 004b60e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_RemoveLongInt` · 004b6160 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_RemovePackageID` · 004b61e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_RemovePosition` · 004b6260 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_RemoveString` · 004b62e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_RemoveStringInfo` · 004b6360 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_RemoveTimestamp` · 004b63e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_SetBool` · 004b6460 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_SetDataID` · 004b64e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCWRepository::CallEFun_SetEdgeSlides` · 004b6560
 - [ ] `gCWRepository::CallEFun_SetEtherealType` · 004b65e0
-- [x] `gCWRepository::CallEFun_SetFloat` · 004b6670 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_SetInstanceID` · 004b66f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_SetInt` · 004b6770 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_SetLongInt` · 004b67f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_SetPackageID` · 004b6870 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_SetPosition` · 004b68f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_SetFloat` · 004b6670 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_SetInstanceID` · 004b66f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_SetInt` · 004b6770 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_SetLongInt` · 004b67f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_SetPackageID` · 004b6870 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_SetPosition` · 004b68f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCWRepository::CallEFun_SetScale` · 004b6970
-- [x] `gCWRepository::CallEFun_SetStringInfo` · 004b69f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_SetStringW` · 004b6a70 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_SetTimestamp` · 004b6af0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_SetStringInfo` · 004b69f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_SetStringW` · 004b6a70 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_SetTimestamp` · 004b6af0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCWRepository::CallEFun_DumpBoolsToString` · 004b6b90
 - [ ] `gCWRepository::CallEFun_DumpDIDsToString` · 004b6c50
 - [ ] `gCWRepository::CallEFun_DumpFloatsToString` · 004b6d10
@@ -2462,24 +2462,24 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWRepository::CallEFun_DumpStringsToString` · 004b7190
 - [ ] `gCWRepository::CallEFun_DumpTSsToString` · 004b7250
 - [ ] `gCWRepository::CallEFun_DumpWeenieDescW` · 004b7310
-- [x] `gCWRepository::CallEFun_GetPosition` · 004b73d0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetRawPosition` · 004b7480 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetRawStringInfo` · 004b7530 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetRawStringW` · 004b75f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetStringInfo` · 004b76c0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_GetStringW` · 004b7780 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_InqBool` · 004b7850 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_InqDataID` · 004b7900 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetPosition` · 004b73d0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetRawPosition` · 004b7480 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetRawStringInfo` · 004b7530 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetRawStringW` · 004b75f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetStringInfo` · 004b76c0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_GetStringW` · 004b7780 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_InqBool` · 004b7850 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_InqDataID` · 004b7900 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCWRepository::CallEFun_InqEtherealType` · 004b79b0 · legions 004adb10
-- [x] `gCWRepository::CallEFun_InqFloat` · 004b7a50 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_InqInstanceID` · 004b7b00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_InqInt` · 004b7bb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_InqLongInt` · 004b7c60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_InqPackageID` · 004b7d10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_InqPosition` · 004b7dc0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_InqStringInfo` · 004b7e60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_InqStringW` · 004b7f00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [x] `gCWRepository::CallEFun_InqTimestamp` · 004b7fa0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_InqFloat` · 004b7a50 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_InqInstanceID` · 004b7b00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_InqInt` · 004b7bb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_InqLongInt` · 004b7c60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_InqPackageID` · 004b7d10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_InqPosition` · 004b7dc0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_InqStringInfo` · 004b7e60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_InqStringW` · 004b7f00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWRepository::CallEFun_InqTimestamp` · 004b7fa0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
 ## `portal/shared/src/weenie/allocator/wallocator.cpp.c` (0/38)
 
@@ -2546,7 +2546,7 @@ Legend and workflow: [README](README.md).
 - [ ] `FrameDebugInfo::StreamPack` · 0052db50 · legions 00511ff0
 
 ### Resolver
-- [~] `Resolver::ProcessByteStream` · 0052dbb0 · legions 00512050 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+- [ ] `Resolver::ProcessByteStream` · 0052dbb0 · legions 00512050 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 - [ ] `Resolver::BuildReverseMap` · 0052dc80 · legions 00512120
 
 ### IntrusiveHashIterator<PStringBase<char>,HashTableData<PStringBase<char>,unsigned_long>_*>
@@ -2555,14 +2555,14 @@ Legend and workflow: [README](README.md).
 ### CWAllocator
 - [ ] `CWAllocator::Init` · 0052dd70 · legions 00512210
 
-## `portal/shared/src/weenie/distributor/wdistributor.cpp.c` (5/13)
+## `portal/shared/src/weenie/distributor/wdistributor.cpp.c` (0/13)
 
 ### CWDistributor
-- [x] `CWDistributor::Construct` · 0052de20 · legions 005122c0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [ ] `CWDistributor::Construct` · 0052de20 · legions 005122c0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `CWDistributor::~CWDistributor` · 0052dee0 · legions 00512380
 - [ ] `CWDistributor::GetContextState` · 0052df00 · legions 005123a0
 - [ ] `CWDistributor::HandleCrash` · 0052df20
-- [x] `CWDistributor::GetInstanceReference` · 0052df80 · legions 005123c0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [ ] `CWDistributor::GetInstanceReference` · 0052df80 · legions 005123c0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `CWDistributor::GetMyPackageID` · 0052df90 · legions 005123d0
 - [ ] `CWDistributor::GetProcessID` · 0052dfa0 · legions 005123e0
 
@@ -2571,12 +2571,12 @@ Legend and workflow: [README](README.md).
 
 ### CWDistributor
 - [ ] `CWDistributor::CWDistributor` · 0052e010 · legions 005123f0
-- [x] `CWDistributor::ResumeContext` · 0052e080 · legions 00512460 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
-- [x] `CWDistributor::ResumeContext` · 0052e130 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
-- [x] `CWDistributor::DispatchInterpMsg` · 0052e150 · legions 005124d0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [ ] `CWDistributor::ResumeContext` · 0052e080 · legions 00512460 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [ ] `CWDistributor::ResumeContext` · 0052e130 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [ ] `CWDistributor::DispatchInterpMsg` · 0052e150 · legions 005124d0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `CWDistributor::RecvEvt_InterpCEvent_Private` · 0052e250 · legions 00512590
 
-## `portal/shared/src/weenie/interface/winterface.cpp.c` (7/52)
+## `portal/shared/src/weenie/interface/winterface.cpp.c` (0/52)
 
 ### CWInterface
 - [ ] `CWInterface::CWInterface` · 0052e280 · legions 005125c0
@@ -2594,12 +2594,12 @@ Legend and workflow: [README](README.md).
 - [ ] `CWInterface::ApplyProperties` · 0052e530 · legions 00512870
 - [ ] `CWInterface::SendServerEvt` · 0052e570 · legions 005128b0
 - [ ] `CWInterface::SendServerEvtEncrypt` · 0052e590 · legions 005128d0
-- [~] `CWInterface::GetInternalWeenieObject` · 0052e5b0 · legions 005128f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWInterface::GetInternalWeenieObject` · 0052e5b0 · legions 005128f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CWInterface::IsPlayer` · 0052e5e0 · legions 00512920
 - [ ] `CWInterface::IsCreature` · 0052e600 · legions 00512940
-- [x] `CWInterface::IsThePlayer` · 0052e620 · legions 00512960 — ac2-script host::interface
+- [ ] `CWInterface::IsThePlayer` · 0052e620 · legions 00512960 — ac2-script host::interface
 - [ ] `CWInterface::OnStatChanged` · 0052e660 · legions 005129a0
-- [x] `CWInterface::RecvEvt_PlayerDesc` · 0052e6a0 · legions 005129e0
+- [ ] `CWInterface::RecvEvt_PlayerDesc` · 0052e6a0 · legions 005129e0
 - [ ] `CWInterface::HandleIntersectionDone` · 0052e6c0 · legions 00512a00
 - [ ] `CWInterface::InqDetectionProfile` · 0052e6e0 · legions 00512a20
 - [ ] `CWInterface::HandleCollision` · 0052e700 · legions 00512a40
@@ -2607,8 +2607,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CWInterface::HandleReleaseDone` · 0052e750 · legions 00512a90
 - [ ] `CWInterface::HandleSliderDone` · 0052e770 · legions 00512ab0
 - [ ] `CWInterface::HandleModeDone` · 0052e790 · legions 00512ad0
-- [x] `CWInterface::InqPrevHistoryItem` · 0052e7b0 · legions 00512af0 — ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)
-- [x] `CWInterface::InqNextHistoryItem` · 0052e7c0 · legions 00512b00 — ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)
+- [ ] `CWInterface::InqPrevHistoryItem` · 0052e7b0 · legions 00512af0 — ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)
+- [ ] `CWInterface::InqNextHistoryItem` · 0052e7c0 · legions 00512b00 — ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)
 - [ ] `CWInterface::DisplayText` · 0052e7d0 · legions 00512b10
 - [ ] `CWInterface::DisplayStringInfo` · 0052e7f0 · legions 00512b30
 - [ ] `CWInterface::PreloadWSLSingletons` · 0052e810 · legions 00512b50
@@ -2635,15 +2635,15 @@ Legend and workflow: [README](README.md).
 - [ ] `HashTable<PStringBase<unsigned_short>,FunctionID>::~HashTable<PStringBase<unsigned_short>,FunctionID>` · 0052ed30 · legions 00512f40
 
 ### CWInterface
-- [x] `CWInterface::ProcessText` · 0052ee50 · legions 00513060 — ac2-weenie ChatState::process_text: command history, aliases, the shell, ProcessText_Done; CPlayer 0xDB/0x131/0x112/0xC5/0x5E/0xCF/0x94/0x103/0xE4/0x14C natively, other commands as SessionEvent::ShellCommand
+- [ ] `CWInterface::ProcessText` · 0052ee50 · legions 00513060 — ac2-weenie ChatState::process_text: command history, aliases, the shell, ProcessText_Done; CPlayer 0xDB/0x131/0x112/0xC5/0x5E/0xCF/0x94/0x103/0xE4/0x14C natively, other commands as SessionEvent::ShellCommand
 - [ ] `CWInterface::HandleCmdArgs` · 0052ef20 · legions 00513130
 - [ ] `CWInterface::ResumeCallback` · 0052f070 · legions 00513280
 - [ ] `CWInterface::Sleep` · 0052f100
 - [ ] `CWInterface::DoCmdInterp` · 0052f1f0
 - [ ] `CWInterface::DoHelpInterp` · 0052f300
-- [x] `CWInterface::AddShellCmd` · 0052f430 · legions 005135f0 — ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
+- [ ] `CWInterface::AddShellCmd` · 0052f430 · legions 005135f0 — ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
 - [ ] `CWInterface::AddShellHelp` · 0052f6e0 · legions 005138a0
-- [x] `CWInterface::AddShellCmdByStringID` · 0052f990 · legions 00513b50 — ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
+- [ ] `CWInterface::AddShellCmdByStringID` · 0052f990 · legions 00513b50 — ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
 - [ ] `CWInterface::AddShellHelpByStringID` · 0052fa10 · legions 00513bd0
 
 ## `portal/shared/src/weenie/interp/dbresolver.cpp.c` (0/4)
@@ -2663,7 +2663,7 @@ Legend and workflow: [README](README.md).
 ### WInterpAsserts
 - [ ] `WInterpAsserts::GetContextObject` · 006b8070
 
-## `portal/shared/src/weenie/interp/wlib.cpp.c` (1/8)
+## `portal/shared/src/weenie/interp/wlib.cpp.c` (0/8)
 
 ### WLib
 - [ ] `WLib::WLib` · 006b7790 · legions 0064efb0
@@ -2673,16 +2673,16 @@ Legend and workflow: [README](README.md).
 - [ ] `WLib::Allocate` · 006b7840
 - [ ] `WLib::ReleaseRefs` · 006b7850 · legions 0064f070
 - [ ] `WLib::Clear` · 006b78a0 · legions 0064f0c0
-- [x] `WLib::UnPack` · 006b78f0 — ac2-script WLib/WState/ByteStream decode
+- [ ] `WLib::UnPack` · 006b78f0 — ac2-script WLib/WState/ByteStream decode
 
-## `portal/shared/src/weenie/interp/wstate.cpp.c` (1/16)
+## `portal/shared/src/weenie/interp/wstate.cpp.c` (0/16)
 
 ### WState
 - [ ] `WState::Destroy` · 006b79e0
-- [~] `WState::GetStateByType` · 006b79f0 · legions 0064f210 — ac2-script wstate DID formulas / ByteStream::package_id
+- [ ] `WState::GetStateByType` · 006b79f0 · legions 0064f210 — ac2-script wstate DID formulas / ByteStream::package_id
 - [ ] `WState::GetPackSize` · 006b7a30 · legions 0064f250
 - [ ] `WState::Pack` · 006b7a50 · legions 0064f270
-- [x] `WState::UnPack` · 006b7aa0 · legions 0064f2c0 — ac2-script WLib/WState/ByteStream decode
+- [ ] `WState::UnPack` · 006b7aa0 · legions 0064f2c0 — ac2-script WLib/WState/ByteStream decode
 - [ ] `WState::WState` · 006b7b00 · legions 0064f320
 - [ ] `WState::GetDBOType` · 006b7b50
 - [-] `WState::GetPackSize` · 006b7b70 — inline copy of 006b7a30
@@ -2699,83 +2699,83 @@ Legend and workflow: [README](README.md).
 - [ ] `WState::SaveStateByID` · 006b7da0 · legions 0064f5c0
 - [ ] `WState::SaveStateByType` · 006b7ea0 · legions 0064f6c0
 
-## `portal/shared/src/weenie/repository/wrepository.cpp.c` (11/101)
+## `portal/shared/src/weenie/repository/wrepository.cpp.c` (0/101)
 
 ### CWRepository
-- [~] `CWRepository::Construct` · 00530e70 · legions 00514e10 — qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
+- [ ] `CWRepository::Construct` · 00530e70 · legions 00514e10 — qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
 - [ ] `CWRepository::~CWRepository` · 00530f10 · legions 00514eb0
-- [~] `CWRepository::SetWeenieDesc` · 00530f40 · legions 00514ee0 — qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
-- [x] `CWRepository::SetQualities` · 00530f70 · legions 00514f10
+- [ ] `CWRepository::SetWeenieDesc` · 00530f40 · legions 00514ee0 — qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
+- [ ] `CWRepository::SetQualities` · 00530f70 · legions 00514f10
 - [ ] `CWRepository::HandleEnterWorld` · 00530f90 · legions 00514f30
 - [ ] `CWRepository::HandleLeaveWorld` · 00530fa0 · legions 00514f40
 - [ ] `CWRepository::InqWeenieDescription` · 00530fb0
-- [~] `CWRepository::InqInt` · 00530fd0 · legions 00514f70 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::InqLongInt` · 00530ff0 · legions 00514f90 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::InqBool` · 00531010 · legions 00514fb0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::InqFloat` · 00531030 · legions 00514fd0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::InqStringW` · 00531050 · legions 00514ff0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::InqDataID` · 00531070 · legions 00515010 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::InqInstanceID` · 00531090 · legions 00515030 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::InqPosition` · 005310b0 · legions 00515050 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::InqTimestamp` · 005310d0 · legions 00515070 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::InqPackageID` · 005310f0 · legions 00515090 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::InqStringInfo` · 00531110 · legions 005150b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::GetInt` · 00531130 · legions 005150d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::GetBool` · 00531160 · legions 00515100 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::GetFloat` · 00531190 · legions 00515130 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::GetDataID` · 005311c0 · legions 00515160 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::GetInstanceID` · 005311f0 · legions 00515190 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::GetTimestamp` · 00531250 · legions 005151f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::GetStringInfo` · 00531280 · legions 00515290 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::GetPackageID` · 005312f0 · legions 00515220 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::GetLongInt` · 00531320 · legions 00515250 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::DoesIntExist` · 00531360 · legions 00515300 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::DoesLongIntExist` · 00531380 · legions 00515320 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::DoesBoolExist` · 005313a0 · legions 00515340 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::DoesFloatExist` · 005313c0 · legions 00515360 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::DoesDataIDExist` · 005313e0 · legions 00515380 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::DoesInstanceIDExist` · 00531400 · legions 005153a0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::DoesPositionExist` · 00531420 · legions 005153c0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::DoesTimestampExist` · 00531490 · legions 00515430 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::DoesStringInfoExist` · 005314b0 · legions 00515450 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::DoesPackageIDExist` · 005314f0 · legions 00515490 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::SetInt` · 00531510 · legions 005154b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::SetLongInt` · 00531540 · legions 005154e0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::SetBool` · 00531570 · legions 00515510 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::SetFloat` · 005315a0 · legions 00515540 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::SetDataID` · 005315d0 · legions 00515570 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::SetInstanceID` · 00531600 · legions 005155a0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::SetPosition` · 00531630 · legions 005155d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::SetTimestamp` · 00531660 · legions 00515600 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::SetPackageID` · 00531690 · legions 00515630 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::SetStringInfo` · 005316c0 · legions 00515660 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::RemoveInt` · 005316f0 · legions 00515690 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::RemoveLongInt` · 00531710 · legions 005156b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::RemoveBool` · 00531730 · legions 005156d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::RemoveFloat` · 00531750 · legions 005156f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::RemoveString` · 00531770 · legions 00515710 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::RemoveDataID` · 00531790 · legions 00515730 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::RemoveInstanceID` · 005317b0 · legions 00515750 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::RemovePosition` · 005317d0 · legions 00515770 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::RemoveTimestamp` · 005317f0 · legions 00515790 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::RemoveStringInfo` · 00531810 · legions 005157b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::RemovePackageID` · 00531830 · legions 005157d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::AdjInt` · 00531850 · legions 005157f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::AdjAndTruncateInt` · 00531880 · legions 00515820 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::AdjLongInt` · 005318c0 · legions 00515860 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::AdjAndTruncateLongInt` · 00531910 · legions 005158b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::AdjFloat` · 00531970 · legions 00515910 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::AdjAndTruncateFloat` · 005319b0 · legions 00515950 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [x] `CWRepository::RecvEvt_UpdateInt_Private` · 005319f0 · legions 00515990
-- [x] `CWRepository::RecvEvt_UpdateLongInt_Private` · 00531a30 · legions 005159d0
-- [x] `CWRepository::RecvEvt_UpdateBool_Private` · 00531a70 · legions 00515a10
-- [x] `CWRepository::RecvEvt_UpdateFloat_Private` · 00531ab0 · legions 00515a50
-- [x] `CWRepository::RecvEvt_UpdateTimestamp_Private` · 00531af0 · legions 00515a90
-- [x] `CWRepository::RecvEvt_UpdateString_Private` · 00531b30 · legions 00515ad0
-- [x] `CWRepository::RecvEvt_UpdateDataID_Private` · 00531b70 · legions 00515b10
-- [x] `CWRepository::RecvEvt_UpdateInstanceID_Private` · 00531bb0 · legions 00515b50
-- [x] `CWRepository::RecvEvt_UpdatePosition_Private` · 00531bf0 · legions 00515b90
-- [x] `CWRepository::RecvEvt_UpdateStringInfo_Private` · 00531c30 · legions 00515bd0
+- [ ] `CWRepository::InqInt` · 00530fd0 · legions 00514f70 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::InqLongInt` · 00530ff0 · legions 00514f90 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::InqBool` · 00531010 · legions 00514fb0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::InqFloat` · 00531030 · legions 00514fd0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::InqStringW` · 00531050 · legions 00514ff0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::InqDataID` · 00531070 · legions 00515010 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::InqInstanceID` · 00531090 · legions 00515030 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::InqPosition` · 005310b0 · legions 00515050 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::InqTimestamp` · 005310d0 · legions 00515070 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::InqPackageID` · 005310f0 · legions 00515090 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::InqStringInfo` · 00531110 · legions 005150b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::GetInt` · 00531130 · legions 005150d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::GetBool` · 00531160 · legions 00515100 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::GetFloat` · 00531190 · legions 00515130 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::GetDataID` · 005311c0 · legions 00515160 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::GetInstanceID` · 005311f0 · legions 00515190 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::GetTimestamp` · 00531250 · legions 005151f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::GetStringInfo` · 00531280 · legions 00515290 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::GetPackageID` · 005312f0 · legions 00515220 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::GetLongInt` · 00531320 · legions 00515250 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::DoesIntExist` · 00531360 · legions 00515300 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::DoesLongIntExist` · 00531380 · legions 00515320 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::DoesBoolExist` · 005313a0 · legions 00515340 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::DoesFloatExist` · 005313c0 · legions 00515360 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::DoesDataIDExist` · 005313e0 · legions 00515380 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::DoesInstanceIDExist` · 00531400 · legions 005153a0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::DoesPositionExist` · 00531420 · legions 005153c0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::DoesTimestampExist` · 00531490 · legions 00515430 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::DoesStringInfoExist` · 005314b0 · legions 00515450 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::DoesPackageIDExist` · 005314f0 · legions 00515490 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::SetInt` · 00531510 · legions 005154b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::SetLongInt` · 00531540 · legions 005154e0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::SetBool` · 00531570 · legions 00515510 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::SetFloat` · 005315a0 · legions 00515540 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::SetDataID` · 005315d0 · legions 00515570 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::SetInstanceID` · 00531600 · legions 005155a0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::SetPosition` · 00531630 · legions 005155d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::SetTimestamp` · 00531660 · legions 00515600 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::SetPackageID` · 00531690 · legions 00515630 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::SetStringInfo` · 005316c0 · legions 00515660 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::RemoveInt` · 005316f0 · legions 00515690 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::RemoveLongInt` · 00531710 · legions 005156b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::RemoveBool` · 00531730 · legions 005156d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::RemoveFloat` · 00531750 · legions 005156f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::RemoveString` · 00531770 · legions 00515710 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::RemoveDataID` · 00531790 · legions 00515730 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::RemoveInstanceID` · 005317b0 · legions 00515750 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::RemovePosition` · 005317d0 · legions 00515770 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::RemoveTimestamp` · 005317f0 · legions 00515790 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::RemoveStringInfo` · 00531810 · legions 005157b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::RemovePackageID` · 00531830 · legions 005157d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::AdjInt` · 00531850 · legions 005157f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::AdjAndTruncateInt` · 00531880 · legions 00515820 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::AdjLongInt` · 005318c0 · legions 00515860 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::AdjAndTruncateLongInt` · 00531910 · legions 005158b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::AdjFloat` · 00531970 · legions 00515910 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::AdjAndTruncateFloat` · 005319b0 · legions 00515950 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::RecvEvt_UpdateInt_Private` · 005319f0 · legions 00515990
+- [ ] `CWRepository::RecvEvt_UpdateLongInt_Private` · 00531a30 · legions 005159d0
+- [ ] `CWRepository::RecvEvt_UpdateBool_Private` · 00531a70 · legions 00515a10
+- [ ] `CWRepository::RecvEvt_UpdateFloat_Private` · 00531ab0 · legions 00515a50
+- [ ] `CWRepository::RecvEvt_UpdateTimestamp_Private` · 00531af0 · legions 00515a90
+- [ ] `CWRepository::RecvEvt_UpdateString_Private` · 00531b30 · legions 00515ad0
+- [ ] `CWRepository::RecvEvt_UpdateDataID_Private` · 00531b70 · legions 00515b10
+- [ ] `CWRepository::RecvEvt_UpdateInstanceID_Private` · 00531bb0 · legions 00515b50
+- [ ] `CWRepository::RecvEvt_UpdatePosition_Private` · 00531bf0 · legions 00515b90
+- [ ] `CWRepository::RecvEvt_UpdateStringInfo_Private` · 00531c30 · legions 00515bd0
 - [ ] `CWRepository::CWRepository` · 00531c70 · legions 00515c10
 - [ ] `CWRepository::GetPhysObjID` · 00531ce0 · legions 00515c80
 - [ ] `CWRepository::GetScale` · 00531d10 · legions 00515cb0
@@ -2785,10 +2785,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CWRepository::SetEdgeSlides` · 00531e30 · legions 00515dd0
 - [ ] `CWRepository::SetEtherealType` · 00531e60 · legions 00515e00
 - [ ] `CWRepository::GatherPhysicsState` · 00531ed0 · legions 00515e70
-- [~] `CWRepository::GetStringW` · 00531fc0 · legions 00516020 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::GetRawPosition` · 00532050 · legions 00515f60 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::DoesStringExist` · 00532110 · legions 005160b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `CWRepository::SetStringW` · 00532170 · legions 00516110 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::GetStringW` · 00531fc0 · legions 00516020 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::GetRawPosition` · 00532050 · legions 00515f60 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::DoesStringExist` · 00532110 · legions 005160b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CWRepository::SetStringW` · 00532170 · legions 00516110 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CWRepository::LoadDataIDW` · 00532200 · legions 005161a0
 - [ ] `CWRepository::BuildPhysObjProfile` · 00532290 · legions 00516230
 - [ ] `CWRepository::DumpWeenieDesc` · 00532380 · legions 00516320
@@ -2818,11 +2818,11 @@ Legend and workflow: [README](README.md).
 - [ ] `WLogSystem::GetFileLog` · 007333c0 · legions 006af870
 - [ ] `WLogSystem::GetPrintLog` · 007333d0 · legions 006af880
 
-## `portal/shared/src/weenie/wbookie/wbookkeeper.cpp.c` (1/5)
+## `portal/shared/src/weenie/wbookie/wbookkeeper.cpp.c` (0/5)
 
 ### CWBookKeeper
 - [ ] `CWBookKeeper::CWBookKeeper` · 0052dd90 · legions 00512230
-- [x] `CWBookKeeper::CSendToTurbineRoomByID` · 0052ddb0 · legions 00512250 — ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
+- [ ] `CWBookKeeper::CSendToTurbineRoomByID` · 0052ddb0 · legions 00512250 — ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 - [ ] `CWBookKeeper::AddObjectToBeDestroyed` · 0052ddf0 · legions 00512290
 - [ ] `CWBookKeeper::RemoveObjectToBeDestroyed` · 0052de00 · legions 005122a0
 - [ ] `CWBookKeeper::~CWBookKeeper` · 0052de10 · legions 005122b0
@@ -2844,7 +2844,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWeenieObject::~CWeenieObject` · 0052fd40 · legions 00513e90
 - [ ] `CWeenieObject::UnRegisterAllNoticeHandlers` · 0052fd70 · legions 00513ec0
 
-## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (1/91)
+## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (0/91)
 
 ### CWPhysicsObject
 - [ ] `CWPhysicsObject::CWPhysicsObject` · 0052fe30 · legions 00513f80
@@ -2869,7 +2869,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWPhysicsObject::ApplyAdditiveVisualDesc` · 005300f0 · legions 005141f0
 - [ ] `CWPhysicsObject::ApplySubtractiveVisualDesc` · 00530110 · legions 00514210
 - [ ] `CWPhysicsObject::ApplyVisualDescToPhysicsObj` · 00530130 · legions 00514230
-- [x] `CWPhysicsObject::RecvEvt_UpdateVisualDesc` · 00530150 · legions 00514250 — ac2-weenie ObjectTable::apply_action
+- [ ] `CWPhysicsObject::RecvEvt_UpdateVisualDesc` · 00530150 · legions 00514250 — ac2-weenie ObjectTable::apply_action
 - [ ] `CWPhysicsObject::ForceVisualDesc` · 00530190 · legions 00514290
 - [ ] `CWPhysicsObject::DoFX` · 005301b0 · legions 005142b0
 - [ ] `CWPhysicsObject::StopFX` · 005301d0 · legions 005142d0

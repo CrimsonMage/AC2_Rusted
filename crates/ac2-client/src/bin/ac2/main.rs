@@ -467,6 +467,7 @@ fn run(args: Args) -> Result<(), String> {
     // and from then on the VM only reads what is resident.
     script_data.preload_tables();
     script_data.preload_states();
+    script_data.preload_skill_states(&program);
     script_data.set_cache_only(true);
     let host = ac2_script::host::ScriptHost::new(program, Box::new(script_data));
     client.attach_scripts(host, ac2_client::SCRIPT_VM_FUNCTIONS);
