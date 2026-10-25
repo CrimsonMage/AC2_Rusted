@@ -25,6 +25,8 @@ mod consignment;
 mod controls;
 mod craft;
 mod frame;
+mod friends;
+pub use friends::FriendResult;
 mod gameplay;
 #[cfg(feature = "window")]
 mod hud_character;

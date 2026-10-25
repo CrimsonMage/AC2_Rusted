@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 202 done, 58 partial, 1637 to do, 7 skipped.
+1904 retail functions: 211 done, 63 partial, 1623 to do, 7 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -117,12 +117,12 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Fellowship::SendNotice_UpdateFellowship` · 007276c0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 - [ ] `CM_Fellowship::SendNotice_UpdateLeader` · 00727750 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 
-## `ac2/client/src/events/cm_friends.cpp.c` (0/5)
+## `ac2/client/src/events/cm_friends.cpp.c` (2/5)
 
 ### CM_Friends
-- [ ] `CM_Friends::SendNotice_GUNResult_AddFriend` · 00725e70 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CM_Friends::SendNotice_GUNResult_AddFriend` · 00725e70 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 - [ ] `CM_Friends::SendNotice_GUNResult_FriendStatus` · 00725f00 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Friends::SendNotice_GUNResult_RemoveFriend` · 00725fb0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CM_Friends::SendNotice_GUNResult_RemoveFriend` · 00725fb0 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 - [ ] `CM_Friends::SendNotice_LocalStatus` · 00726040 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_Friends::SendNotice_GUNResult_GetFriendsList` · 007260d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 
@@ -350,12 +350,12 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowship` · 004694e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateLeader` · 00469530 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_friends.cpp.c` (0/6)
+## `ac2/client/src/weenie/interp/glue/gcm_friends.cpp.c` (2/6)
 
 ### gCM_Friends
-- [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_AddFriend` · 00467f60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [x] `gCM_Friends::CallEFun_SendNotice_GUNResult_AddFriend` · 00467f60 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 - [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_FriendStatus` · 00467fb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_RemoveFriend` · 00468010 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [x] `gCM_Friends::CallEFun_SendNotice_GUNResult_RemoveFriend` · 00468010 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 - [ ] `gCM_Friends::CallEFun_SendNotice_LocalStatus` · 00468060 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Friends::RListToGUNUserStatusList` · 004680b0 · legions 00468d60
 - [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_GetFriendsList` · 00468150 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (48/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (51/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -511,9 +511,9 @@ Legend and workflow: [README](README.md).
 
 ### ggmCWInterface
 - [ ] `ggmCWInterface::CallEFun_RequestGUN_CallCreate` · 004549f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `ggmCWInterface::CallEFun_RequestGUN_FriendAdd` · 00454a90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `ggmCWInterface::CallEFun_RequestGUN_FriendDelete` · 00454b10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `ggmCWInterface::CallEFun_RequestGUN_GetFriendsList` · 00454b90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [~] `ggmCWInterface::CallEFun_RequestGUN_FriendAdd` · 00454a90 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
+- [~] `ggmCWInterface::CallEFun_RequestGUN_FriendDelete` · 00454b10 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
+- [x] `ggmCWInterface::CallEFun_RequestGUN_GetFriendsList` · 00454b90 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 - [ ] `ggmCWInterface::CallEFun_RequestGUN_GetIgnoredList` · 00454c10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `ggmCWInterface::CallEFun_RequestGUN_IgnoredAdd` · 00454c90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `ggmCWInterface::CallEFun_RequestGUN_IgnoredDelete` · 00454d10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -802,8 +802,8 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_ResetReplyHistoryIndex` · 00460fe0 · legions 00461c30
 - [ ] `ggmCWInterface::CallIFun_ResetRetellHistoryIndex` · 00461070 · legions 00461cc0
 - [ ] `ggmCWInterface::CallIFun_Result_CallCreate` · 00461100 · legions 00461d50
-- [ ] `ggmCWInterface::CallIFun_Result_FriendAdd` · 004612c0 · legions 00461f10
-- [ ] `ggmCWInterface::CallIFun_Result_FriendDelete` · 004613d0 · legions 00462020
+- [x] `ggmCWInterface::CallIFun_Result_FriendAdd` · 004612c0 · legions 00461f10 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
+- [x] `ggmCWInterface::CallIFun_Result_FriendDelete` · 004613d0 · legions 00462020 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 - [ ] `ggmCWInterface::CallIFun_Result_GetFriendsList` · 004614e0
 - [ ] `ggmCWInterface::CallIFun_Result_GetIgnoredList` · 00461620
 - [ ] `ggmCWInterface::CallIFun_Result_IgnoredAdd` · 00461760 · legions 004623b0
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (89/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (91/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -1016,8 +1016,8 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::GUNHandleReauthentication` · 00450d00 · legions 00451e40
 - [ ] `gmCWInterface::Result_SendToUser` · 00450d10 · legions 00451e50
 - [ ] `gmCWInterface::Result_SendToRoom` · 00450d40 · legions 00451e80
-- [ ] `gmCWInterface::Result_FriendAdd` · 00450d70 · legions 00451eb0
-- [ ] `gmCWInterface::Result_FriendDelete` · 00450d90 · legions 00451ed0
+- [x] `gmCWInterface::Result_FriendAdd` · 00450d70 · legions 00451eb0 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
+- [x] `gmCWInterface::Result_FriendDelete` · 00450d90 · legions 00451ed0 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 - [ ] `gmCWInterface::GUNEvent_FriendStatus` · 00450db0 · legions 00451ef0
 - [ ] `gmCWInterface::Result_IgnoredAdd` · 00450de0 · legions 00451f20 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 - [ ] `gmCWInterface::Result_IgnoredDelete` · 00450e00 · legions 00451f40 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
@@ -1133,9 +1133,9 @@ Legend and workflow: [README](README.md).
 
 ### gmCWInterface
 - [ ] `gmCWInterface::ProcessText_Done` · 004521b0 · legions 004532f0 — ac2-weenie ChatState::process_text resets the told/heard walks (CPlayer 0x43/0xDF)
-- [ ] `gmCWInterface::RequestGUN_FriendAdd` · 004521e0 · legions 00453320 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `gmCWInterface::RequestGUN_FriendDelete` · 00452250 · legions 00453390 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `gmCWInterface::RequestGUN_GetFriendsList` · 004522c0 · legions 00453400 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [~] `gmCWInterface::RequestGUN_FriendAdd` · 004521e0 · legions 00453320 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
+- [~] `gmCWInterface::RequestGUN_FriendDelete` · 00452250 · legions 00453390 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
+- [~] `gmCWInterface::RequestGUN_GetFriendsList` · 004522c0 · legions 00453400 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 - [ ] `gmCWInterface::RequestGUN_IgnoredAdd` · 00452330 · legions 00453470 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
 - [ ] `gmCWInterface::RequestGUN_IgnoredDelete` · 004523a0 · legions 004534e0 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
 - [ ] `gmCWInterface::RequestGUN_GetIgnoredList` · 00452410 · legions 00453550 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line

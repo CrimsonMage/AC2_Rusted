@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 212 done, 13 partial, 331 to do, 0 skipped.
+556 retail functions: 212 done, 15 partial, 329 to do, 0 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -41,7 +41,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/gun/result/cclifriendaddresult.cpp.c` (0/2)
 
 ### CCliFriendAddResult
-- [ ] `CCliFriendAddResult::HandleFriendAddResult` · 00728690
+- [~] `CCliFriendAddResult::HandleFriendAddResult` · 00728690 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 - [ ] `CCliFriendAddResult::CCliFriendAddResult` · 007286d0 · legions 006a69d0
 
 ## `ac2/client/src/gun/result/cclifrienddeleteresult.cpp.c` (0/2)
@@ -103,7 +103,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/shared/src/gun/ctbullet.cpp.c` (0/1)
 
 ### CTBullet
-- [ ] `CTBullet::ConvertToWeenieResult` · 00735c60 · legions 006b1900
+- [~] `CTBullet::ConvertToWeenieResult` · 00735c60 · legions 006b1900 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 
 ## `ac2/shared/src/gun/helper/turbineuserstatus.cpp.c` (0/10)
 

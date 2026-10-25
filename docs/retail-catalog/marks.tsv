@@ -848,6 +848,8 @@ key	status	note
 00450c20	_	ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
 00450c40	_	ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
 00450c60	_	ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
+00450d70	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
+00450d90	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 00450de0	_	ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 00450e00	_	ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 00450e60	~	ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
@@ -924,9 +926,9 @@ key	status	note
 00451fb0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 004520f0	_	ac2-net GunChatExtraInfo
 004521b0	_	ac2-weenie ChatState::process_text resets the told/heard walks (CPlayer 0x43/0xDF)
-004521e0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00452250	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-004522c0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+004521e0	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
+00452250	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
+004522c0	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 00452330	_	ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
 004523a0	_	ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
 00452410	_	ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
@@ -944,9 +946,9 @@ key	status	note
 00454300	_	ac2-script vm (VM/ReferenceTable/Resolver)
 00454440	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004549f0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00454a90	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00454b10	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00454b90	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00454a90	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
+00454b10	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
+00454b90	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 00454c10	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00454c90	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00454d10	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -1029,6 +1031,8 @@ key	status	note
 004602b0	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 004607e0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00460ba0	~	net: the VM's sell body refuses outside a consignment (one message, no stub sent: consignment_script_7160). The stub's values (an int, the price, the quantity, the item, a long) and the consignment-open case are not traced: opening it needs the ViewConsignment answer, which the VM does not run yet (see CM_Store::SendNotice_ViewConsignment)
+004612c0	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
+004613d0	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 00461c10	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 00461ce0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00461d90	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
@@ -1064,9 +1068,9 @@ key	status	note
 00467ce0	x	ac2-script store round trip (store_script_7160): ViewStore with a StoreView's sales, UpdateStore after it, the ConfirmPurchase notice of PurchaseItem, LeaveStore in the shop body's prologue
 00467d40	~	net: forwarders WM_Store 0x53 (CPlayer 0x1F1 -> CStoreSystem 0x17) and 0x57 (CPlayer 0x1F6 -> CStoreSystem 0x16), arguments (a reference, the storekeeper) by the arity trace. The VM rejects a StoreView reference (BadReference): the consignment body reads its members 4, 5 and 7 through package Consignment 0x3898 / CShopperContext 0x3879, not traced. Not encoded, not sent
 00467ec0	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
-00467f60	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00467f60	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 00467fb0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468010	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468010	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 00468060	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468150	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468210	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
@@ -5447,9 +5451,9 @@ key	status	note
 00725cc0	_	ac2-weenie GameplayNotice::DisplayStringInfo (chat lines from the CCommunicationSystem stand-in)
 00725d50	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00725de0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00725e70	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725e70	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 00725f00	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00725fb0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725fb0	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 00726040	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 007260d0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 007261c0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
@@ -5503,6 +5507,7 @@ key	status	note
 007280c0	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 00728150	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 007281f0	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
+00728690	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 007291f0	~	ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
 0072aef0	x	ac2-audio/ac2-client: ambient environments, groove
 0072af00	x	ac2-audio/ac2-client: ambient environments, groove
@@ -5622,6 +5627,7 @@ key	status	note
 00735a90	x	ac2-ui tree_view.rs
 00735c00	x	ac2-ui tree_view.rs
 00735c30	x	ac2-ui tree_view.rs
+00735c60	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 00737cf0	x	
 00737dd0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 00739430	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)

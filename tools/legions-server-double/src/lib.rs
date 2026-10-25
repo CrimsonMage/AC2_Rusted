@@ -13,6 +13,8 @@ mod chest;
 mod craft;
 pub use craft::{CRAFT_SKILL, KNOWN_RECIPE};
 mod effects;
+mod friends;
+pub use friends::FriendsBook;
 mod items;
 mod lossy;
 mod objects;

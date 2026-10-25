@@ -106,6 +106,9 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     ac2_net::protocol::script_function::STORE_VIEW_CONSIGNMENT,
     ac2_net::protocol::script_function::STORE_UPDATE_CONSIGNMENT,
     IFUN_REQUEST_ENTER_CONSIGNMENT,
+    // The friends' GUN results (`ggmCWInterface::CallIFun_Result_Friend*`, see [`crate::friends`]).
+    IFUN_RESULT_FRIEND_ADD,
+    IFUN_RESULT_FRIEND_DELETE,
     IFUN_REQUEST_LEAVE_CONSIGNMENT,
     IFUN_GET_CONSIGNMENT_CHARGE,
     IFUN_PURCHASE_ITEM,
@@ -168,6 +171,11 @@ pub const IFUN_ACCEPT_TRADE: u32 = 0x00B4_00BA;
 
 /// `gmCWInterface::RequestEnterStore` (`ggmCWInterface::CallIFun_RequestEnterStore`: the store).
 pub const IFUN_REQUEST_ENTER_STORE: u32 = 0x00B4_0137;
+/// `gmCWInterface::Result_FriendAdd` (`CallIFun_Result_FriendAdd`: the weenie result, the name).
+/// The same id in admin 7148 and Legions 7160.
+pub const IFUN_RESULT_FRIEND_ADD: u32 = 0x00B4_0040;
+/// `gmCWInterface::Result_FriendDelete` (`CallIFun_Result_FriendDelete`: the result, the name).
+pub const IFUN_RESULT_FRIEND_DELETE: u32 = 0x00B4_0041;
 /// `gmCWInterface::RequestEnterConsignment` (`CallIFun_RequestEnterConsignment`: no arguments).
 pub const IFUN_REQUEST_ENTER_CONSIGNMENT: u32 = 0x00B4_0136;
 /// `gmCWInterface::RequestLeaveConsignment` (`CallIFun_RequestLeaveConsignment`: no arguments).
