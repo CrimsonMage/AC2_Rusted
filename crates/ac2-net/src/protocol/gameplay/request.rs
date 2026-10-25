@@ -27,6 +27,8 @@ pub enum ScriptRequest {
     },
     /// [`function::EMOTE`].
     Emote(u32),
+    /// [`function::EMOTE_TEXT`].
+    EmoteText(String),
     /// [`function::USE`].
     Use(UsageDesc),
     /// [`function::MOVE_ITEM`].
@@ -55,6 +57,7 @@ impl ScriptRequest {
             Self::Say { .. } => function::SAY,
             Self::Tell { .. } => function::TELL,
             Self::Emote(_) => function::EMOTE,
+            Self::EmoteText(_) => function::EMOTE_TEXT,
             Self::Use(_) => function::USE,
             Self::MoveItem(_) => function::MOVE_ITEM,
             Self::ReorganizeContents(_) => function::REORGANIZE_CONTENTS,
@@ -83,6 +86,7 @@ impl ScriptRequest {
                 recipient,
             } => vec![PackValue::Int(*mode), literal(text), literal(recipient)],
             Self::Emote(emote) => vec![PackValue::Int(*emote)],
+            Self::EmoteText(text) => vec![PackValue::native(NativeObject::WString(text.clone()))],
             Self::Use(desc) => vec![PackValue::Reference(desc.to_reference())],
             Self::MoveItem(desc) | Self::ReorganizeContents(desc) => {
                 vec![PackValue::Reference(desc.to_reference())]
@@ -134,6 +138,10 @@ impl ScriptRequest {
                 })
             }),
             function::EMOTE => decode(|a| Ok(Self::Emote(a.int()?))),
+            function::EMOTE_TEXT => decode(|a| match a.native()? {
+                NativeObject::WString(text) => Ok(Self::EmoteText(text)),
+                _ => Err(ProtocolError::Invalid("emote text")),
+            }),
             function::USE => decode(|a| Ok(Self::Use(UsageDesc::from_reference(&a.reference()?)?))),
             function::MOVE_ITEM => decode(|a| {
                 Ok(Self::MoveItem(InvMoveDesc::from_reference(
@@ -258,6 +266,22 @@ mod tests {
         extra.extend(words(&[1, 0]));
         assert!(ScriptRequest::decode(0x8205_0002, &extra).unwrap().is_err());
         round_trip(ScriptRequest::Emote(0x1D), words(&[1, 0x1D]));
+        // The emote command's text is a bare `wpstring` (native type 0x76):
+        // `PStringBase::Pack`'s unit count, the four units scrambled
+        // (`crypto_uint32_munge`), padded to a word.
+        let args = words(&[
+            5,
+            1,
+            1,
+            0x4400_0100,
+            0,
+            0xFFFF_0076,
+            0x924F_0004,
+            0x761A_E592,
+            0x0000_EB7B,
+            0,
+        ]);
+        round_trip(ScriptRequest::EmoteText("wave".into()), args);
     }
 
     #[test]

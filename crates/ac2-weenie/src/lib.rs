@@ -21,6 +21,7 @@ mod progress;
 mod qualities;
 mod reporter;
 mod session;
+mod shell;
 mod social;
 mod tables;
 mod usage;
@@ -47,8 +48,15 @@ pub use progress::{Experience, Progress, SelectionState, Shortcuts, Skill, Skill
 pub use qualities::WeenieQualities;
 pub use reporter::{heading_equals, BodyState, PositionReporter, ReportStamps};
 pub use session::{CharacterChoice, OnlineConfig, OnlineSession, SessionEvent, WorldEntry};
+pub use shell::{
+    handler as chat_handler, ChatCommands, ChatState, ShellAction, Speaker, COMMAND_TABLE_ENUM,
+    DEFAULT_COMMAND, EMOTE_TABLE_PACKAGE, HELP_STRINGS, REGISTERED_COMMANDS, SQUELCH_WORDS,
+};
 pub use social::{AllegianceMember, AllegianceProfile, FellowInfo, FellowshipInfo, Social};
-pub use tables::{StringTableIds, TABLE_ENUM_COMMUNICATION, TABLE_ENUM_TELL, TABLE_ENUM_USAGE};
+pub use tables::{
+    StringTableIds, TABLE_ENUM_CHANNELS, TABLE_ENUM_CHAT_WINDOW, TABLE_ENUM_COMMUNICATION,
+    TABLE_ENUM_FELLOWSHIP, TABLE_ENUM_TELL, TABLE_ENUM_USAGE,
+};
 pub use usage::DISPLAY_USAGE;
 pub use vitals::{vital, PlayerVitals, Vital};
 pub use world::{World, WorldEvent, WorldState};

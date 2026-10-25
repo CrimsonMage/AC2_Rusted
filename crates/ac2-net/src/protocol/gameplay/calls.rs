@@ -95,6 +95,8 @@ pub const CALLS: &[CallSpec] = &[
     call(0x8212_000C, ToServer, "WM_Player 0x1D", "UploadGameOptions", &[Int, Int, Int, Float]),
     call(0x8212_002D, ToServer, "WM_Player 0x2E", "UploadChatOptions", &[Reference, Reference, Reference, Reference, Reference]),
     call(0x8212_0031, ToServer, "WM_Player 0x32", "UploadUISettings", &[Reference, Reference]),
+    // Chat channels (`WM_Communication`, package 0x205; speech and tells are typed).
+    call(0x8205_001B, ToClient, "WM_Communication 0x1B", "CPlayer 0x147 (the chat channel table)", &[Word]),
     // Fellowships (`WM_Fellowship`, package 0x20C).
     call(0x820C_001B, ToServer, "WM_Fellowship 0x22", "DoFellowshipCreate", &[Int, Int, Reference]),
     call(0x820C_000E, ToServer, "WM_Fellowship 0x23", "DoFellowshipDismiss", &[LongInt]),

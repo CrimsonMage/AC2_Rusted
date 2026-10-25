@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 196 done, 53 partial, 1649 to do, 6 skipped.
+1904 retail functions: 199 done, 60 partial, 1639 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (3/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (4/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -1019,8 +1019,8 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::Result_FriendAdd` · 00450d70 · legions 00451eb0
 - [ ] `gmCWInterface::Result_FriendDelete` · 00450d90 · legions 00451ed0
 - [ ] `gmCWInterface::GUNEvent_FriendStatus` · 00450db0 · legions 00451ef0
-- [ ] `gmCWInterface::Result_IgnoredAdd` · 00450de0 · legions 00451f20
-- [ ] `gmCWInterface::Result_IgnoredDelete` · 00450e00 · legions 00451f40
+- [~] `gmCWInterface::Result_IgnoredAdd` · 00450de0 · legions 00451f20 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
+- [~] `gmCWInterface::Result_IgnoredDelete` · 00450e00 · legions 00451f40 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 - [ ] `gmCWInterface::Result_CallCreate` · 00450e20 · legions 00451f60
 - [ ] `gmCWInterface::InqEffectList` · 00450e60 · legions 00451fa0
 - [ ] `gmCWInterface::GetStackable` · 00450ea0 · legions 00451fe0
@@ -1136,9 +1136,9 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::RequestGUN_FriendAdd` · 004521e0 · legions 00453320
 - [ ] `gmCWInterface::RequestGUN_FriendDelete` · 00452250 · legions 00453390
 - [ ] `gmCWInterface::RequestGUN_GetFriendsList` · 004522c0 · legions 00453400
-- [ ] `gmCWInterface::RequestGUN_IgnoredAdd` · 00452330 · legions 00453470
-- [ ] `gmCWInterface::RequestGUN_IgnoredDelete` · 004523a0 · legions 004534e0
-- [ ] `gmCWInterface::RequestGUN_GetIgnoredList` · 00452410 · legions 00453550
+- [~] `gmCWInterface::RequestGUN_IgnoredAdd` · 00452330 · legions 00453470 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
+- [~] `gmCWInterface::RequestGUN_IgnoredDelete` · 004523a0 · legions 004534e0 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
+- [~] `gmCWInterface::RequestGUN_GetIgnoredList` · 00452410 · legions 00453550 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
 - [ ] `gmCWInterface::RequestGUN_CallCreate` · 00452480 · legions 004535d2
 
 ### GunChatExtraInfo
@@ -1184,7 +1184,7 @@ Legend and workflow: [README](README.md).
 - [ ] `STREAMPACK_PACKOBJ` · 004535f0 · legions 00454670
 
 ### gmCWInterface
-- [ ] `gmCWInterface::HandleAlias` · 00453670 · legions 004546f0
+- [x] `gmCWInterface::HandleAlias` · 00453670 · legions 004546f0 — ac2-weenie shell::expand_aliases over the options profile's m_aliasTable (ChatState::login_options)
 
 ### PList<PStringBase<unsigned_short>_>
 - [ ] `PList<PStringBase<unsigned_short>_>::Pack` · 004537f0 · legions 00454870
@@ -1195,7 +1195,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::ExpandText` · 004539e0 · legions 00454a60
 - [ ] `gmCWInterface::Result_GetFriendsList` · 00453b90
 - [ ] `gmCWInterface::GUNEvent_FriendStart` · 00453bd0 · legions 00454c50
-- [ ] `gmCWInterface::Result_GetIgnoredList` · 00453c10
+- [~] `gmCWInterface::Result_GetIgnoredList` · 00453c10 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 
 ### `anonymous-namespace'::YesNoDialogAwakener
 - [ ] ``anonymous-namespace'::YesNoDialogAwakener::OnTrigger` · 00453de0 · legions 00454e60
@@ -2576,7 +2576,7 @@ Legend and workflow: [README](README.md).
 - [x] `CWDistributor::DispatchInterpMsg` · 0052e150 · legions 005124d0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `CWDistributor::RecvEvt_InterpCEvent_Private` · 0052e250 · legions 00512590
 
-## `portal/shared/src/weenie/interface/winterface.cpp.c` (1/52)
+## `portal/shared/src/weenie/interface/winterface.cpp.c` (3/52)
 
 ### CWInterface
 - [ ] `CWInterface::CWInterface` · 0052e280 · legions 005125c0
@@ -2635,15 +2635,15 @@ Legend and workflow: [README](README.md).
 - [ ] `HashTable<PStringBase<unsigned_short>,FunctionID>::~HashTable<PStringBase<unsigned_short>,FunctionID>` · 0052ed30 · legions 00512f40
 
 ### CWInterface
-- [ ] `CWInterface::ProcessText` · 0052ee50 · legions 00513060
+- [~] `CWInterface::ProcessText` · 0052ee50 · legions 00513060 — ac2-weenie ChatState::process_text (CPlayer 0xDB/0x131/0x112/0xC5/0x5E/0xCF/0x94/0x103/0xE4/0x14C natively, other commands as SessionEvent::ShellCommand); the command history (AddCmdToHistory) is not kept
 - [ ] `CWInterface::HandleCmdArgs` · 0052ef20 · legions 00513130
 - [ ] `CWInterface::ResumeCallback` · 0052f070 · legions 00513280
 - [ ] `CWInterface::Sleep` · 0052f100
 - [ ] `CWInterface::DoCmdInterp` · 0052f1f0
 - [ ] `CWInterface::DoHelpInterp` · 0052f300
-- [ ] `CWInterface::AddShellCmd` · 0052f430 · legions 005135f0
+- [x] `CWInterface::AddShellCmd` · 0052f430 · legions 005135f0 — ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
 - [ ] `CWInterface::AddShellHelp` · 0052f6e0 · legions 005138a0
-- [ ] `CWInterface::AddShellCmdByStringID` · 0052f990 · legions 00513b50
+- [x] `CWInterface::AddShellCmdByStringID` · 0052f990 · legions 00513b50 — ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
 - [ ] `CWInterface::AddShellHelpByStringID` · 0052fa10 · legions 00513bd0
 
 ## `portal/shared/src/weenie/interp/dbresolver.cpp.c` (0/4)

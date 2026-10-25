@@ -18,10 +18,23 @@ pub const TABLE_ENUM_TELL: u32 = 0x4100_0001;
 pub const TABLE_ENUM_COMMUNICATION: u32 = 0x4100_0004;
 /// String table enum 0x41000019 (the usage strings).
 pub const TABLE_ENUM_USAGE: u32 = 0x4100_0019;
+/// String table enum 0x4100000D (the fellowship strings).
+pub const TABLE_ENUM_FELLOWSHIP: u32 = 0x4100_000D;
+/// String table enum 0x4100001B (chat channels, emotes, the chat server).
+pub const TABLE_ENUM_CHANNELS: u32 = 0x4100_001B;
+/// String table enum 0x41000018 (the chat window's strings).
+pub const TABLE_ENUM_CHAT_WINDOW: u32 = 0x4100_0018;
 
 impl StringTableIds {
     /// The enums the stand-in uses.
-    pub const ENUMS: [u32; 3] = [TABLE_ENUM_TELL, TABLE_ENUM_COMMUNICATION, TABLE_ENUM_USAGE];
+    pub const ENUMS: [u32; 6] = [
+        TABLE_ENUM_TELL,
+        TABLE_ENUM_COMMUNICATION,
+        TABLE_ENUM_USAGE,
+        TABLE_ENUM_FELLOWSHIP,
+        TABLE_ENUM_CHANNELS,
+        TABLE_ENUM_CHAT_WINDOW,
+    ];
 
     pub fn insert(&mut self, table_enum: u32, did: u32) {
         self.ids.insert(table_enum, did);

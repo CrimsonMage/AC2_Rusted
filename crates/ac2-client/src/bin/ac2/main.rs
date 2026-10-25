@@ -181,11 +181,18 @@ impl App {
             }
         };
         for event in &events {
-            if let SessionEvent::Notice(GameplayNotice::DisplayStringInfo { kind, text }) = event {
-                // Only literal strings render yet; table strings wait for `StringInfo::GetString`.
-                if let Some(literal) = &text.literal {
-                    state.view.chat_display(*kind, literal);
+            match event {
+                SessionEvent::Notice(GameplayNotice::DisplayStringInfo { kind, text }) => {
+                    // Only literal strings render yet; table strings wait for
+                    // `StringInfo::GetString`.
+                    if let Some(literal) = &text.literal {
+                        state.view.chat_display(*kind, literal);
+                    }
                 }
+                SessionEvent::ShellCommand { text, .. } => {
+                    eprintln!("ac2: chat command not ported: {text}");
+                }
+                _ => {}
             }
         }
         for notice in self.client.take_notices() {
@@ -431,6 +438,8 @@ fn run(args: Args) -> Result<(), String> {
     // through the client's own store so the script host's reads share its cache.
     let script_data = ac2_script::data::DatScriptData::new(Arc::clone(&dataset), (*store).clone());
     session.set_string_tables(ac2_client::string_table_ids(&script_data));
+    // `CWInterface`'s registered chat commands, emote names and usage texts.
+    session.set_chat_commands(ac2_client::chat_commands(&script_data));
     let mut client = Client::new(session, Arc::new(dat_world));
     // The weenies' scripts on the VM (`CWDistributor`), over the script library.
     let wlib = ac2_script::load_wlib(&store, ac2_core::DataId::new(ac2_script::LEGIONS_WLIB_DID))
@@ -468,12 +477,11 @@ fn main() {
     }
 }
 
-/// `ChatWindow::ProcessCommand`'s line for `gmCWInterface::ProcessText`. Until the command
-/// parser lands a line without the command prefix is said; commands and the history are not
-/// handled yet.
+/// `ChatWindow::ProcessCommand`'s line for `gmCWInterface::ProcessText`; the history keys are
+/// not handled yet.
 fn chat_command(request: ac2_ui::ChatRequest) -> Option<Command> {
     match request {
-        ac2_ui::ChatRequest::Line(line) if !line.starts_with('/') => Some(Command::Say(line)),
+        ac2_ui::ChatRequest::Line(line) => Some(Command::ChatLine(line)),
         other => {
             eprintln!("ac2: chat {other:?} is not handled yet");
             None

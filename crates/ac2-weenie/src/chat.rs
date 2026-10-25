@@ -51,7 +51,7 @@ fn nested(id: u32, value: StringInfo) -> (u32, StringVariable) {
 }
 
 /// `CCommunicationSystem` 0x6: what someone said nearby (`WM_Communication` 0x10). The
-/// squelch check (`CPlayer` 0x11A) is not mirrored: nothing is squelched.
+/// session drops squelched speakers first (`CPlayer` 0x11A, `ChatState::has_squelched`).
 pub fn hear_speech(
     text: StringInfo,
     speaker_name: StringInfo,
@@ -79,8 +79,8 @@ pub fn hear_speech(
 }
 
 /// `CCommunicationSystem` 0x1: a tell to the player (`WM_Communication` 0x17), shown through
-/// `CPlayer` 0x2B. The squelch check and the reply history (`CPlayer` 0x11A, 0xD1, 0x10B) are
-/// not mirrored.
+/// `CPlayer` 0x2B. The session runs the squelch check and keeps the /reply name first
+/// (`CPlayer` 0x11A, 0xD1); the tell history list (`CPlayer` 0x10B) is not mirrored.
 pub fn hear_tell(
     kind: u32,
     text: StringInfo,
