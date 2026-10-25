@@ -23,10 +23,9 @@ impl FellowshipSource for ClientPlayer<'_> {
         self.frame.player.as_ref().map_or(0, |p| p.id)
     }
 
-    /// `GetFellowXPHash` hands the script an `LAHash` to fill; the host does not return natives
-    /// filled by the script yet, so the shares stay unanswered (retail's failed call).
+    /// `gmCWInterface::GetFellowXPHash`: the shares the player's script fills in.
     fn fellow_xp(&self) -> Option<Vec<(u64, f32)>> {
-        None
+        self.client.borrow_mut().fellow_xp_hash().ok()
     }
 }
 

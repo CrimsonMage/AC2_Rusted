@@ -172,7 +172,7 @@ impl State {
                     flags: u32::from(*social == 0) | (1 << (looting & 0xF)),
                     leader: PLAYER,
                     fellows: vec![
-                        self.member(FELLOW, "Birch", 7),
+                        self.member(FELLOW, "Birch", 4),
                         self.member(PLAYER, "Explorer", 1),
                     ],
                 };

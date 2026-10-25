@@ -32,6 +32,7 @@ mod scene;
 mod scripts;
 mod scripts_io;
 mod scripts_queries;
+mod social_queries;
 mod tables;
 mod targeting;
 #[cfg(feature = "window")]

@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 50 done, 0 partial, 1848 to do, 6 skipped.
+1904 retail functions: 54 done, 0 partial, 1844 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (0/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (3/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -558,7 +558,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ReferenceTable::StartGarbageCollection` · 004558f0 · legions 00456500
 
 ### ggmCWInterface
-- [ ] `ggmCWInterface::LAHashToXPHash` · 004559c0 · legions 00456590
+- [x] `ggmCWInterface::LAHashToXPHash` · 004559c0 · legions 00456590 — ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 - [ ] `ggmCWInterface::RListToCraftSkillAdaptorList` · 00455ae0 · legions 004566b0
 - [ ] `ggmCWInterface::RListToIngredientAdaptorList` · 00455b30 · legions 00456700
 - [ ] `ggmCWInterface::RListToRecipeAdaptorList` · 00455b80 · legions 00456750
@@ -579,7 +579,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ReferenceTable::UpdateReferences` · 00456270 · legions 00456e20 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 
 ### ggmCWInterface
-- [ ] `ggmCWInterface::XPHashToLAHash` · 00456330 · legions 00456ee0
+- [x] `ggmCWInterface::XPHashToLAHash` · 00456330 · legions 00456ee0 — ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 - [ ] `ggmCWInterface::RListToEffectUINodeList` · 00456440 · legions 00456ff0
 
 ### BaseList<unsigned___int64,60>
@@ -691,7 +691,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_GetDamageTextRangeOther` · 0045a000 · legions 0045ac50
 - [ ] `ggmCWInterface::CallIFun_GetDurabilityLevel` · 0045a0a0 · legions 0045acf0
 - [ ] `ggmCWInterface::CallIFun_GetFXAndBehaviorInformationFromWsl` · 0045a140 · legions 0045ad90
-- [ ] `ggmCWInterface::CallIFun_GetFellowXPHash` · 0045a310 · legions 0045af60
+- [x] `ggmCWInterface::CallIFun_GetFellowXPHash` · 0045a310 · legions 0045af60 — ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 - [ ] `ggmCWInterface::CallIFun_GetGameplayOptions` · 0045a4b0 · legions 0045b100 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_GetHeroSkillCredits` · 0045a620 · legions 0045b270
 - [ ] `ggmCWInterface::CallIFun_GetIconID` · 0045a6c0 · legions 0045b310
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (15/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (16/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -1104,7 +1104,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::DoFellowshipRecruitAccept` · 00451bd0 · legions 00452d50 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 - [x] `gmCWInterface::DoFellowshipRecruitDecline` · 00451bf0 · legions 00452d70 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 - [ ] `gmCWInterface::IsFellowshipMember` · 00451c10 · legions 00452d90
-- [ ] `gmCWInterface::GetFellowXPHash` · 00451c50 · legions 00452dd0
+- [x] `gmCWInterface::GetFellowXPHash` · 00451c50 · legions 00452dd0 — ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 - [ ] `gmCWInterface::DoAssistedTell` · 00451c90 · legions 00452e10
 - [ ] `gmCWInterface::HandleWeenieEmote` · 00451cb0 · legions 00452e30
 - [x] `gmCWInterface::QueryAllegianceProfile` · 00451cf0 · legions 00452e70 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
