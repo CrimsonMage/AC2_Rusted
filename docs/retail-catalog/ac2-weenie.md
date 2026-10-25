@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 380 done, 197 partial, 1321 to do, 6 skipped.
+1904 retail functions: 398 done, 193 partial, 1307 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (4/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (19/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -992,13 +992,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::GetMaxDurabilityLevel` · 004507d0 · legions 00451910
 - [ ] `gmCWInterface::GetIconID` · 00450800 · legions 00451940
 - [ ] `gmCWInterface::GetMaxContainerSize` · 00450830 · legions 00451970
-- [ ] `gmCWInterface::GetAvailableExperience` · 00450860 · legions 004519a0
-- [ ] `gmCWInterface::GetSkillCredits` · 004508a0 · legions 004519e0
-- [ ] `gmCWInterface::GetHeroSkillCredits` · 004508d0 · legions 00451a10
+- [x] `gmCWInterface::GetAvailableExperience` · 00450860 · legions 004519a0 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
+- [x] `gmCWInterface::GetSkillCredits` · 004508a0 · legions 004519e0 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
+- [x] `gmCWInterface::GetHeroSkillCredits` · 004508d0 · legions 00451a10 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
 - [ ] `gmCWInterface::Dismount` · 00450900 · legions 00451a40
 - [ ] `gmCWInterface::InqRootPanelFromRace` · 00450920 · legions 00451a60
-- [ ] `gmCWInterface::IsSkillTrainedByEnum` · 00450960 · legions 00451aa0
-- [ ] `gmCWInterface::IsSkillBeingUntrainedByEnum` · 004509a0 · legions 00451ae0
+- [x] `gmCWInterface::IsSkillTrainedByEnum` · 00450960 · legions 00451aa0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
+- [x] `gmCWInterface::IsSkillBeingUntrainedByEnum` · 004509a0 · legions 00451ae0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
 - [ ] `gmCWInterface::IsHeroSkillByEnum` · 004509e0 · legions 00451b20
 - [ ] `gmCWInterface::CanSkillBeTrainedByEnum` · 00450a20 · legions 00451b60
 - [ ] `gmCWInterface::CanSkillBeUntrainedByEnum` · 00450a60 · legions 00451ba0
@@ -1006,11 +1006,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::GetSkillExperienceNeededToLevelByEnum` · 00450ae0 · legions 00451c20
 - [ ] `gmCWInterface::InqSkillLevelByEnum` · 00450b30 · legions 00451c70
 - [ ] `gmCWInterface::GetSkillCostToTrainByEnum` · 00450b70 · legions 00451cb0
-- [ ] `gmCWInterface::GetSkillXPByEnum` · 00450bb0 · legions 00451cf0
-- [ ] `gmCWInterface::RequestTrainSkill` · 00450c00 · legions 00451d40
-- [ ] `gmCWInterface::RequestUntrainSkill` · 00450c20 · legions 00451d60
-- [ ] `gmCWInterface::RequestRaiseSkill` · 00450c40 · legions 00451d80
-- [ ] `gmCWInterface::RequestUntrainSkillCancel` · 00450c60 · legions 00451da0
+- [x] `gmCWInterface::GetSkillXPByEnum` · 00450bb0 · legions 00451cf0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
+- [x] `gmCWInterface::RequestTrainSkill` · 00450c00 · legions 00451d40 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
+- [x] `gmCWInterface::RequestUntrainSkill` · 00450c20 · legions 00451d60 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
+- [x] `gmCWInterface::RequestRaiseSkill` · 00450c40 · legions 00451d80 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
+- [x] `gmCWInterface::RequestUntrainSkillCancel` · 00450c60 · legions 00451da0 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
 - [ ] `gmCWInterface::InqSkillTimeLeft` · 00450c80 · legions 00451dc0
 - [ ] `gmCWInterface::IsSkillUsableBasedOnInventoryByEnum` · 00450cc0 · legions 00451e00
 - [ ] `gmCWInterface::GUNHandleReauthentication` · 00450d00 · legions 00451e40
@@ -1086,10 +1086,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::GetAcceptFellowshipRequest` · 004518e0 · legions 00452a60
 - [ ] `gmCWInterface::SetAcceptTradeRequest` · 00451910 · legions 00452a90
 - [ ] `gmCWInterface::GetAcceptTradeRequest` · 00451930 · legions 00452ab0
-- [ ] `gmCWInterface::InqNextRetellHistoryItem` · 00451960 · legions 00452ae0
-- [ ] `gmCWInterface::InqPrevRetellHistoryItem` · 00451990 · legions 00452b10
-- [ ] `gmCWInterface::InqNextReplyHistoryItem` · 004519c0 · legions 00452b40
-- [ ] `gmCWInterface::InqPrevReplyHistoryItem` · 004519f0 · legions 00452b70
+- [x] `gmCWInterface::InqNextRetellHistoryItem` · 00451960 · legions 00452ae0 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
+- [x] `gmCWInterface::InqPrevRetellHistoryItem` · 00451990 · legions 00452b10 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
+- [x] `gmCWInterface::InqNextReplyHistoryItem` · 004519c0 · legions 00452b40 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
+- [x] `gmCWInterface::InqPrevReplyHistoryItem` · 004519f0 · legions 00452b70 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
 - [ ] `gmCWInterface::InqQuestList` · 00451a20 · legions 00452ba0
 - [ ] `gmCWInterface::InqActInfoList` · 00451a60 · legions 00452be0
 - [ ] `gmCWInterface::HandlePlayScenesDone` · 00451aa0 · legions 00452c20
@@ -1132,10 +1132,10 @@ Legend and workflow: [README](README.md).
 - [x] `GunChatExtraInfo::PackIntoBlob` · 004520f0 · legions 00453230 — ac2-net GunChatExtraInfo
 
 ### gmCWInterface
-- [ ] `gmCWInterface::ProcessText_Done` · 004521b0 · legions 004532f0
-- [~] `gmCWInterface::RequestGUN_FriendAdd` · 004521e0 · legions 00453320 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `gmCWInterface::RequestGUN_FriendDelete` · 00452250 · legions 00453390 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [~] `gmCWInterface::RequestGUN_GetFriendsList` · 004522c0 · legions 00453400 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `gmCWInterface::ProcessText_Done` · 004521b0 · legions 004532f0 — ac2-weenie ChatState::process_text resets the told/heard walks (CPlayer 0x43/0xDF)
+- [ ] `gmCWInterface::RequestGUN_FriendAdd` · 004521e0 · legions 00453320 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `gmCWInterface::RequestGUN_FriendDelete` · 00452250 · legions 00453390 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `gmCWInterface::RequestGUN_GetFriendsList` · 004522c0 · legions 00453400 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [~] `gmCWInterface::RequestGUN_IgnoredAdd` · 00452330 · legions 00453470 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
 - [~] `gmCWInterface::RequestGUN_IgnoredDelete` · 004523a0 · legions 004534e0 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
 - [~] `gmCWInterface::RequestGUN_GetIgnoredList` · 00452410 · legions 00453550 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
@@ -2576,7 +2576,7 @@ Legend and workflow: [README](README.md).
 - [x] `CWDistributor::DispatchInterpMsg` · 0052e150 · legions 005124d0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `CWDistributor::RecvEvt_InterpCEvent_Private` · 0052e250 · legions 00512590
 
-## `portal/shared/src/weenie/interface/winterface.cpp.c` (4/52)
+## `portal/shared/src/weenie/interface/winterface.cpp.c` (7/52)
 
 ### CWInterface
 - [ ] `CWInterface::CWInterface` · 0052e280 · legions 005125c0
@@ -2607,8 +2607,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CWInterface::HandleReleaseDone` · 0052e750 · legions 00512a90
 - [ ] `CWInterface::HandleSliderDone` · 0052e770 · legions 00512ab0
 - [ ] `CWInterface::HandleModeDone` · 0052e790 · legions 00512ad0
-- [ ] `CWInterface::InqPrevHistoryItem` · 0052e7b0 · legions 00512af0
-- [ ] `CWInterface::InqNextHistoryItem` · 0052e7c0 · legions 00512b00
+- [x] `CWInterface::InqPrevHistoryItem` · 0052e7b0 · legions 00512af0 — ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)
+- [x] `CWInterface::InqNextHistoryItem` · 0052e7c0 · legions 00512b00 — ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)
 - [ ] `CWInterface::DisplayText` · 0052e7d0 · legions 00512b10
 - [ ] `CWInterface::DisplayStringInfo` · 0052e7f0 · legions 00512b30
 - [ ] `CWInterface::PreloadWSLSingletons` · 0052e810 · legions 00512b50
@@ -2635,7 +2635,7 @@ Legend and workflow: [README](README.md).
 - [ ] `HashTable<PStringBase<unsigned_short>,FunctionID>::~HashTable<PStringBase<unsigned_short>,FunctionID>` · 0052ed30 · legions 00512f40
 
 ### CWInterface
-- [~] `CWInterface::ProcessText` · 0052ee50 · legions 00513060 — ac2-weenie ChatState::process_text (CPlayer 0xDB/0x131/0x112/0xC5/0x5E/0xCF/0x94/0x103/0xE4/0x14C natively, other commands as SessionEvent::ShellCommand); the command history (AddCmdToHistory) is not kept
+- [x] `CWInterface::ProcessText` · 0052ee50 · legions 00513060 — ac2-weenie ChatState::process_text: command history, aliases, the shell, ProcessText_Done; CPlayer 0xDB/0x131/0x112/0xC5/0x5E/0xCF/0x94/0x103/0xE4/0x14C natively, other commands as SessionEvent::ShellCommand
 - [ ] `CWInterface::HandleCmdArgs` · 0052ef20 · legions 00513130
 - [ ] `CWInterface::ResumeCallback` · 0052f070 · legions 00513280
 - [ ] `CWInterface::Sleep` · 0052f100

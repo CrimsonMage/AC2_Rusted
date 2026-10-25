@@ -137,16 +137,31 @@ key	status	note
 00450530	~	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 00450730	~	ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
 00450750	~	ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
+00450860	x	ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
+004508a0	x	ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
+004508d0	x	ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
+00450960	x	ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
+004509a0	x	ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
+00450bb0	x	ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
+00450c00	x	ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
+00450c20	x	ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
+00450c40	x	ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
+00450c60	x	ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
 00450de0	~	ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 00450e00	~	ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 00450f30	~	ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
 00450f80	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 00450fa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 00451050	~	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
+00451960	x	ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
+00451990	x	ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
+004519c0	x	ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
+004519f0	x	ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
 004520f0	x	ac2-net GunChatExtraInfo
-004521e0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00452250	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-004522c0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+004521b0	x	ac2-weenie ChatState::process_text resets the told/heard walks (CPlayer 0x43/0xDF)
+004521e0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00452250	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+004522c0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00452330	~	ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
 004523a0	~	ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
 00452410	~	ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
@@ -1455,7 +1470,9 @@ key	status	note
 0052e5b0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 0052e620	x	ac2-script host::interface
 0052e6a0	x	
-0052ee50	~	ac2-weenie ChatState::process_text (CPlayer 0xDB/0x131/0x112/0xC5/0x5E/0xCF/0x94/0x103/0xE4/0x14C natively, other commands as SessionEvent::ShellCommand); the command history (AddCmdToHistory) is not kept
+0052e7b0	x	ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)
+0052e7c0	x	ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)
+0052ee50	x	ac2-weenie ChatState::process_text: command history, aliases, the shell, ProcessText_Done; CPlayer 0xDB/0x131/0x112/0xC5/0x5E/0xCF/0x94/0x103/0xE4/0x14C natively, other commands as SessionEvent::ShellCommand
 0052f430	x	ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
 0052f990	x	ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
 00530150	x	ac2-weenie ObjectTable::apply_action
@@ -3808,6 +3825,12 @@ key	status	note
 00732a90	x	ac2-weenie shell::process_text: the / prefix, ID_DefaultCommand speech, ExpandableText
 00732c60	x	ac2-weenie shell::process_text: the / prefix, ID_DefaultCommand speech, ExpandableText
 00732da0	x	ac2-weenie shell::process_text: the / prefix, ID_DefaultCommand speech, ExpandableText
+00732fc0	x	ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
+007330d0	x	ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
+007330e0	x	ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
+007330f0	x	ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
+00733190	x	ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
+00733230	x	ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
 00735760	x	ac2-ui tree_view.rs
 00735770	x	ac2-ui tree_view.rs
 007358c0	x	ac2-ui tree_view.rs

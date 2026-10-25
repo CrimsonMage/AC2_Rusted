@@ -44,13 +44,16 @@ pub use objects::{
     ObjectTable, RemoteObject, STAMP_FORCE_POSITION, STAMP_MOVE_TO, STAMP_POSITION, STAMP_TELEPORT,
 };
 pub use player_script::{GameplayNotice, PlayerScript, ScriptOutput, NO_SELECTION};
-pub use progress::{Experience, Progress, SelectionState, Shortcuts, Skill, Skills};
+pub use progress::{
+    skill_error, Experience, Progress, SelectionState, Shortcuts, Skill, SkillRequest, Skills,
+};
 pub use qualities::WeenieQualities;
 pub use reporter::{heading_equals, BodyState, PositionReporter, ReportStamps};
 pub use session::{CharacterChoice, OnlineConfig, OnlineSession, SessionEvent, WorldEntry};
 pub use shell::{
-    handler as chat_handler, ChatCommands, ChatState, ShellAction, Speaker, COMMAND_TABLE_ENUM,
-    DEFAULT_COMMAND, EMOTE_TABLE_PACKAGE, HELP_STRINGS, REGISTERED_COMMANDS, SQUELCH_WORDS,
+    handler as chat_handler, ChatCommands, ChatHistory, ChatState, ShellAction, Speaker,
+    COMMAND_TABLE_ENUM, DEFAULT_COMMAND, EMOTE_TABLE_PACKAGE, HELP_STRINGS, REGISTERED_COMMANDS,
+    SQUELCH_WORDS,
 };
 pub use social::{AllegianceMember, AllegianceProfile, FellowInfo, FellowshipInfo, Social};
 pub use tables::{

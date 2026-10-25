@@ -34,9 +34,11 @@ impl ChatState {
 
     /// `CPlayer` 0xD1 (`CCommunicationSystem` 0x1, a tell heard): a literal teller name
     /// becomes the /reply name (`CPlayer` 0x3B).
+    /// Its name also joins the heard history (`CPlayer` 0x10B).
     pub fn heard_tell(&mut self, teller: &StringInfo) {
         if let Some(name) = &teller.literal {
             self.reply = Some(name.clone());
+            self.heard.add(name);
         }
     }
 

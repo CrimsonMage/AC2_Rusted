@@ -4,7 +4,8 @@
 //! the fellowship and allegiance ([`Social`]).
 //!
 //! Script objects read here: `SkillRepository` (package 0x233: slot 0 skill credits, slot 3
-//! hero skill credits, slot 7 the `ARHash` of skills by enum, `SkillRepository` 0x8/0x18/0x11)
+//! hero skill credits, slot 5 the skill being untrained, slot 7 the `ARHash` of skills by enum,
+//! `SkillRepository` 0x8/0x18/0xE/0x11)
 //! and `SkillInfo` (0x231: slot 14 the skill's enum, slot 7 its flags, bit 1 trained, slots 5-6
 //! its experience; `SkillInfo` 0xF, 0x15, 0x1D). A skill's level comes from the
 //! `AdvancementTable` (`SkillSystem` 0x21), which the script VM owns.
@@ -67,10 +68,94 @@ impl Skill {
 /// The skill repository: credits and the skills by enum.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct Skills {
+    /// `gmCWInterface::GetSkillCredits` (`Agent` 0x2C).
     pub credits: u32,
+    /// `gmCWInterface::GetHeroSkillCredits` (`Agent` 0xBE).
     pub hero_credits: u32,
+    /// The skill being untrained (0 for none; `SkillRepository` 0xE).
+    pub untraining: u32,
     /// In enum order.
     pub skills: Vec<Skill>,
+}
+
+impl Skills {
+    /// `SkillRepository` 0x6: the player's `SkillInfo` for a skill enum.
+    pub fn get(&self, skill: u32) -> Option<&Skill> {
+        self.skills
+            .binary_search_by_key(&skill, |s| s.skill)
+            .ok()
+            .map(|at| &self.skills[at])
+    }
+
+    /// `gmCWInterface::IsSkillTrainedByEnum` (`CPlayer` 0x1B -> `SkillSystem` 0x14): a skill
+    /// the player has, with its trained flag.
+    pub fn is_trained(&self, skill: u32) -> bool {
+        self.get(skill).is_some_and(Skill::trained)
+    }
+
+    /// `gmCWInterface::IsSkillBeingUntrainedByEnum` (`CPlayer` 0xF -> `SkillSystem` 0x15 /
+    /// 0x18).
+    pub fn is_being_untrained(&self, skill: u32) -> bool {
+        self.untraining != 0 && self.untraining == skill
+    }
+
+    /// `gmCWInterface::GetSkillXPByEnum` (`CPlayer` 0xB3 -> `SkillSystem` 0x1F): 0 for a skill
+    /// the player does not have.
+    pub fn xp(&self, skill: u32) -> u64 {
+        self.get(skill).map_or(0, |s| s.xp)
+    }
+}
+
+/// The `gmWErrorType` codes (enum mapper `gmwerrortype.emp`) the skill checks return
+/// (`SkillSystem` 0x1A `CanSkillBeTrained`, 0x1 `CanSkillBeRaised`, 0xB `CanSkillBeUntrained`;
+/// 0 allows). `gmSkillTreeUI::UpdateSelectedSkillDisplay` treats
+/// [`skill_error::NOT_TRAINABLE_BY_PLAYER`] apart.
+pub mod skill_error {
+    pub const ALREADY_TRAINED: u32 = 30000;
+    pub const MISSING_PARENTS: u32 = 30003;
+    pub const MISSING_PREREQ_SKILLS: u32 = 30004;
+    pub const HAS_BARRING_SKILLS: u32 = 30005;
+    pub const NOT_ENOUGH_CREDITS: u32 = 30006;
+    pub const NOT_UNTRAINABLE: u32 = 30007;
+    pub const STARTING_SKILL: u32 = 30008;
+    pub const NOT_TRAINED: u32 = 30009;
+    pub const BEING_UNTRAINED: u32 = 30010;
+    pub const AT_ADVANCEMENT_CAP: u32 = 30011;
+    pub const NOT_ENOUGH_EXPERIENCE: u32 = 30012;
+    pub const TIME_NOT_RESET: u32 = 30030;
+    pub const UNTRAINING_IN_PROGRESS: u32 = 30031;
+    pub const CHILDREN_TRAINED: u32 = 30033;
+    pub const UNTRAIN_TOO_RECENT: u32 = 30035;
+    pub const PARENT_BEING_UNTRAINED: u32 = 30036;
+    pub const CANNOT_RAISE: u32 = 30037;
+    pub const NOT_TRAINABLE_BY_PLAYER: u32 = 30040;
+    pub const ALREADY_HAVE_SKILL_FOR_CATEGORY: u32 = 30048;
+    pub const DEPENDENTS_TRAINED: u32 = 30049;
+    pub const PACK_FULL: u32 = 30050;
+}
+
+/// The skill requests the skill panel makes (`gmCWInterface::RequestTrainSkill`,
+/// `RequestUntrainSkill`, `RequestRaiseSkill`, `RequestUntrainSkillCancel` -> `CPlayer` 0x53,
+/// 0xF3, 0x124, 0xB1 -> the `WM_Skill` stubs).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SkillRequest {
+    Train(u32),
+    Untrain(u32),
+    Raise(u32),
+    CancelUntrain,
+}
+
+impl SkillRequest {
+    /// The `WM_Skill` stub's call: 0x13, 0x12, 0x10 pack the skill enum; 0xF nothing.
+    pub fn call(self) -> ac2_net::protocol::ScriptCall {
+        let (function, args) = match self {
+            Self::Train(skill) => (0x8214_0002, vec![PackValue::Int(skill)]),
+            Self::Untrain(skill) => (0x8214_0007, vec![PackValue::Int(skill)]),
+            Self::Raise(skill) => (0x8214_000C, vec![PackValue::Int(skill)]),
+            Self::CancelUntrain => (0x8214_0001, Vec::new()),
+        };
+        ac2_net::protocol::ScriptCall::new(function, args).expect("WM_Skill's layouts")
+    }
 }
 
 /// The shortcut bar (`GameplayOptionsProfile`'s shortcut array, set and height).
@@ -175,6 +260,7 @@ impl Progress {
                 self.skills = Skills {
                     credits: repo.slots[0],
                     hero_credits: repo.slots[3],
+                    untraining: repo.slots[5],
                     skills: skill_table(graph, repo.slots[7]).unwrap_or_default(),
                 };
                 Some(vec![self.panel(q)])

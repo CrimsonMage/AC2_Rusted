@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 17 done, 6 partial, 326 to do, 5 skipped.
+354 retail functions: 23 done, 6 partial, 320 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -581,17 +581,17 @@ Legend and workflow: [README](README.md).
 - [ ] `PreferenceString::PreferenceString` · 006af620 · legions 00648870
 - [ ] `PreferenceString::Clone` · 006af6b0
 
-## `portal/shared/src/shell/shell.cpp.c` (0/8)
+## `portal/shared/src/shell/shell.cpp.c` (6/8)
 
 ### CShell
 - [ ] `CShell::StreamPack` · 00732ec0 · legions 006af360
-- [ ] `CShell::InqHistoryItem` · 00732fc0 · legions 006af460
-- [ ] `CShell::InqNextHistoryItem` · 007330d0 · legions 006af570
-- [ ] `CShell::InqPrevHistoryItem` · 007330e0 · legions 006af580
-- [ ] `CShell::ResizeCmdHistory` · 007330f0 · legions 006af590
+- [x] `CShell::InqHistoryItem` · 00732fc0 · legions 006af460 — ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
+- [x] `CShell::InqNextHistoryItem` · 007330d0 · legions 006af570 — ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
+- [x] `CShell::InqPrevHistoryItem` · 007330e0 · legions 006af580 — ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
+- [x] `CShell::ResizeCmdHistory` · 007330f0 · legions 006af590 — ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
 - [ ] `CShell::~CShell` · 00733160 · legions 006af600
-- [ ] `CShell::AddCmdToHistory` · 00733190 · legions 006af630
-- [ ] `CShell::CShell` · 00733230 · legions 006af6d0
+- [x] `CShell::AddCmdToHistory` · 00733190 · legions 006af630 — ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
+- [x] `CShell::CShell` · 00733230 · legions 006af6d0 — ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
 
 ## `portal/shared/src/shell/shellcmdtable.cpp.c` (2/16)
 

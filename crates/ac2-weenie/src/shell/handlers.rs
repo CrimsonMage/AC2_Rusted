@@ -6,6 +6,7 @@ use ac2_net::protocol::{
     GameplayOptionsProfile, HeapObject, PackValue, PackedEntry, PackedReference, ScriptRequest,
 };
 
+use super::history::{ChatHistory, CommandHistory, HistoryList};
 use super::lines::*;
 use super::{expand_aliases, handler, process_text, ChatCommands, Parsed};
 use crate::notice::GameplayNotice;
@@ -59,6 +60,12 @@ pub struct ChatState {
     fellowship_room: Option<u32>,
     /// `CPlayer` slot 54: the squelch list the GUN service last returned.
     squelched: Vec<String>,
+    /// `CShell`'s command history.
+    commands_entered: CommandHistory,
+    /// `CPlayer` slot 55: the names told (`CCommunicationSystem` 0xB -> `CPlayer` 0x108).
+    told: HistoryList,
+    /// `CPlayer` slot 47: the names heard from (`CPlayer` 0x10B).
+    heard: HistoryList,
 }
 
 /// The `Fellowship` and `ChannelData` packages.
@@ -98,8 +105,33 @@ impl ChatState {
     }
 
     /// `CWInterface::ProcessText` for a line the chat window entered, with
-    /// `ChatWindow::ProcessCommand`'s line for an unknown command.
+    /// `ChatWindow::ProcessCommand`'s line for an unknown command: the line joins the command
+    /// history, and afterwards (`gmCWInterface::ProcessText_Done`) the told and heard walks
+    /// restart.
     pub fn process_text(
+        &mut self,
+        line: &str,
+        speaker: Speaker<'_>,
+        tables: &StringTableIds,
+    ) -> Vec<ShellAction> {
+        self.commands_entered.add(line);
+        let out = self.process_line(line, speaker, tables);
+        self.told.reset();
+        self.heard.reset();
+        out
+    }
+
+    /// One step through a history (`ChatWindow::DisplayCmdHistory` / `DisplayRetellHistory` /
+    /// `DisplayReplyHistory`): `prev` walks to older entries.
+    pub fn history(&mut self, history: ChatHistory, prev: bool) -> Option<String> {
+        match history {
+            ChatHistory::Command => self.commands_entered.step(prev),
+            ChatHistory::Retell => self.told.step(prev),
+            ChatHistory::Reply => self.heard.step(prev),
+        }
+    }
+
+    fn process_line(
         &mut self,
         line: &str,
         speaker: Speaker<'_>,
@@ -151,7 +183,7 @@ impl ChatState {
                     handler::RETELL => (&self.retell, NO_RETELL),
                     _ => (&self.reply, NO_REPLY),
                 };
-                match target.as_deref() {
+                match target.clone().as_deref() {
                     None => {}
                     Some("") => out.push(show_line(
                         tables,
@@ -159,7 +191,7 @@ impl ChatState {
                         missing,
                         KIND_TELL_ERROR,
                     )),
-                    Some(name) => tell_to(name, &text, id == handler::RETELL, &mut out),
+                    Some(name) => self.tell_to(name, &text, &mut out),
                 }
             }
             // `CPlayer` 0x5E (the mount check, `Player` 0x7A, is not mirrored).
@@ -267,7 +299,7 @@ impl ChatState {
             out.push(self.help(handler::TELL));
             return;
         }
-        tell_to(&name, &message, true, out);
+        self.tell_to(&name, &message, out);
         self.retell = Some(name);
     }
 
@@ -343,18 +375,21 @@ impl ChatState {
     }
 }
 
-/// `gmCEntity` 0x11 (`CCommunicationSystem` 0xB): a tell, mode 0. A name with `@` goes to
-/// the GUN service instead (`gmCEntity` 0x24), which the client does not have; /reply never
-/// checks.
-fn tell_to(name: &str, text: &str, gun: bool, out: &mut Vec<ShellAction>) {
-    if gun && name.contains('@') {
-        return;
+impl ChatState {
+    /// `gmCEntity` 0x11 -> `CCommunicationSystem` 0xB: a tell, mode 0, whose recipient joins
+    /// the told history (`CPlayer` 0x108). A name with `@` goes to the GUN service instead
+    /// (`CCommunicationSystem` 0x10), which the client does not have.
+    fn tell_to(&mut self, name: &str, text: &str, out: &mut Vec<ShellAction>) {
+        if name.contains('@') {
+            return;
+        }
+        self.told.add(name);
+        out.push(ShellAction::Send(ScriptRequest::Tell {
+            mode: 0,
+            text: literal(text),
+            recipient: literal(name),
+        }));
     }
-    out.push(ShellAction::Send(ScriptRequest::Tell {
-        mode: 0,
-        text: literal(text),
-        recipient: literal(name),
-    }));
 }
 
 fn room_message(room: u32, text: String, flags: u32) -> ShellAction {

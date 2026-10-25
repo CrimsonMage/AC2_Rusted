@@ -6,12 +6,19 @@ use ac2_net::protocol::{GameplayOptionsProfile, ScriptCall, ScriptMessage};
 
 use super::gameplay::player_qualities;
 use super::{OnlineSession, SessionEvent};
-use crate::shell::{room_refused, ChatCommands, ChatState, ShellAction, Speaker};
+use crate::shell::{room_refused, ChatCommands, ChatHistory, ChatState, ShellAction, Speaker};
 
 impl OnlineSession {
     /// The registered chat commands, resolved from the DATs on the loader side.
     pub fn set_chat_commands(&mut self, commands: ChatCommands) {
         self.chat.set_commands(commands);
+    }
+
+    /// One step through a chat history for the chat window's keys
+    /// (`ChatWindow::DisplayCmdHistory` / `DisplayRetellHistory` / `DisplayReplyHistory`):
+    /// `prev` walks to older entries; `None` past either end.
+    pub fn chat_history(&mut self, history: ChatHistory, prev: bool) -> Option<String> {
+        self.chat.history(history, prev)
     }
 
     /// The chat state (squelch list, rooms).

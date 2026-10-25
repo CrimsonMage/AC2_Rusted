@@ -362,3 +362,25 @@ fn squelch_reports_the_missing_service_and_keeps_the_gun_list() {
     assert_eq!(shown_list.len(), 2);
     assert!(s.squelched().is_empty());
 }
+
+#[test]
+fn histories_follow_the_lines_tells_and_teller_names() {
+    use super::ChatHistory::{Command, Reply, Retell};
+    let mut s = state();
+    run(&mut s, "/t Birch hi");
+    run(&mut s, "/t Oak, yo");
+    run(&mut s, "/t a@b hi");
+    run(&mut s, "hello");
+    assert_eq!(s.history(Command, true).as_deref(), Some("hello"));
+    assert_eq!(s.history(Command, true).as_deref(), Some("/t a@b hi"));
+    assert_eq!(s.history(Command, false).as_deref(), Some("hello"));
+    // GUN names never reach the told history.
+    assert_eq!(s.history(Retell, true).as_deref(), Some("Oak"));
+    assert_eq!(s.history(Retell, true).as_deref(), Some("Birch"));
+    s.heard_tell(&lines::literal("Ash"));
+    assert_eq!(s.history(Reply, true).as_deref(), Some("Ash"));
+    // A processed line restarts the told and heard walks (`ProcessText_Done`).
+    run(&mut s, "/rt again");
+    assert_eq!(s.history(Retell, true).as_deref(), Some("Oak"));
+    assert_eq!(s.history(Reply, false), None);
+}
