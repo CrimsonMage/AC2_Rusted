@@ -218,3 +218,35 @@ fn every_enum_table_decodes_and_the_master_map_names_the_mapper_group() {
         );
     }
 }
+
+/// Cache-only data never reads: preloaded tables answer, a string table that is not resident is
+/// requested (and the efun told to wait), and after a worker's `load` it answers.
+#[test]
+fn cache_only_data_requests_what_is_not_resident() {
+    use crate::data::{DatScriptData, MASTER_MAP_DID};
+    use crate::vm::{DataRequest, ScriptData};
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ResourceStore::new(dataset.clone());
+    let data = DatScriptData::new(dataset, store);
+    data.preload_tables();
+    data.set_cache_only(true);
+    let worker = data.clone();
+    assert!(data.enum_id_map(MASTER_MAP_DID).is_some());
+    assert!(!data.take_missed());
+    let table = 0x2500_0002;
+    assert!(data.string_table(table).is_none());
+    assert!(data.take_missed());
+    let requests = data.take_requests();
+    assert_eq!(requests, vec![DataRequest::StringTable(table)]);
+    for request in requests {
+        worker.load(request);
+    }
+    assert!(data.string_table(table).is_some());
+    assert!(!data.take_missed());
+    // A record the DATs lack is noted absent and not requested again.
+    worker.load(DataRequest::StringTable(0x2500_FFFF));
+    assert!(data.string_table(0x2500_FFFF).is_none());
+    assert!(!data.take_missed());
+}

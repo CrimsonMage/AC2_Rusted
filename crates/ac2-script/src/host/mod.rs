@@ -9,6 +9,7 @@
 pub mod chargen;
 mod glue;
 mod gun;
+mod ifun;
 mod interface;
 mod notices;
 
@@ -26,7 +27,9 @@ use crate::vm::{
 use crate::wire;
 use crate::wstate::WSTATE_BASE_DID;
 
+pub use crate::vm::DataRequest;
 pub use gun::{ChatRequest, ChatServices};
+pub use ifun::{IFunArg, IFunResult};
 pub use notices::{notice_names, NoticeArg, ScriptNotice};
 
 /// A script call for the server (`ECM_Interp::SendEvt_InterpSEvent[Encrypt]`).
@@ -121,7 +124,8 @@ impl ScriptHost {
     /// `CWDistributor::Construct`: the object's process from its WState (`did == 0`: the class
     /// default `0x70000000 | pid & 0xFFFF`; a `0x40000049`-type did: `0x71000000 | did &
     /// 0xFFFFFF`), else a fresh instance of `pid` with its initializer run. False when neither
-    /// exists.
+    /// exists, or when cache-only data does not hold the state yet (it is then among
+    /// [`ScriptHost::take_data_requests`]; load it and call again).
     pub fn create_weenie(&mut self, id: u64, pid: u32, did: u32) -> bool {
         let state_did = if did == 0 {
             Some(WSTATE_BASE_DID + 0x0100_0000 | pid & 0xFFFF)
@@ -133,6 +137,9 @@ impl ScriptHost {
         // A state whose references do not unpack leaves no process, as in retail, and the
         // fresh instance follows.
         let state = state_did.and_then(|d| self.vm.data().wstate(d));
+        if self.vm.data().take_missed() {
+            return false;
+        }
         let from_state = state.and_then(|s| self.vm.allocate_from_state(&s, true));
         let instance =
             from_state.or_else(|| self.vm.allocate_package(pid, InitState::NoWState, true));
@@ -206,6 +213,7 @@ impl ScriptHost {
         let cid = self.next_context;
         self.next_context += 1;
         let mut ctx = Context::new(cid, Some(instance));
+        ctx.can_yield = true;
         let pushed = ctx.push(0, tag::INT).is_ok() && self.unpack_buffer(&mut ctx, args);
         if !pushed {
             return Err(HostError::BadArguments);
@@ -227,6 +235,31 @@ impl ScriptHost {
         self.vm.last_fault = None;
         let status = self.vm.execute(&mut ctx);
         Some(self.finish(id, ctx, status))
+    }
+
+    /// The DAT reads the scripts waited on since the last call (cache-only data): run each
+    /// through `DatScriptData::load` on a worker, then [`ScriptHost::resume_data_waits`].
+    pub fn take_data_requests(&mut self) -> Vec<DataRequest> {
+        self.vm.data().take_requests()
+    }
+
+    /// Runs on every context that stopped for data (each stops again if what it needs is
+    /// still missing): the object, and how the context ended this time.
+    pub fn resume_data_waits(&mut self) -> Vec<(u64, DispatchOutcome)> {
+        let waiting: Vec<(u64, u32)> = self
+            .processes
+            .iter()
+            .flat_map(|(&id, p)| {
+                p.waiting
+                    .iter()
+                    .filter(|c| c.data_wait)
+                    .map(move |c| (id, c.cid))
+            })
+            .collect();
+        waiting
+            .into_iter()
+            .filter_map(|(id, cid)| Some((id, self.resume(id, cid)?)))
+            .collect()
     }
 
     fn finish(&mut self, id: u64, ctx: Context, status: InterpStatus) -> DispatchOutcome {

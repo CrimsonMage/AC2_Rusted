@@ -348,3 +348,33 @@ fn list_bound_efuns() {
         }
     }
 }
+
+/// A UI call (`ggmCWInterface::CallIFun_*`) runs on the object's process and reads back its
+/// return slot: here the method returns its int argument.
+#[test]
+fn ui_ifun_calls_read_back_the_return_slot() {
+    use crate::vm::op;
+    let w = |code: u32, t: u8, imm: i32| code | u32::from(t) << 8 | (imm as u32) << 16;
+    let code = vec![
+        // 0: initializer
+        w(op::PUSH_FRAME, 0, 0),
+        op::POP_FRAME,
+        // 2: method 1 (this, arg): ret = arg
+        w(op::PUSH_FRAME, 0, 0),
+        w(op::LOAD, 0, -2),
+        w(op::PUSHV, 2, -3),
+        op::STORE,
+        op::POP,
+        op::POP_FRAME,
+    ];
+    let mut program = Program::from_parts(code, vec![vec![0, 1]], vec![vec![0, 8]]);
+    program.package_sizes = vec![1];
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    assert!(host.create_weenie(9, 0, 0));
+    let result = host
+        .call_ifun(9, FunctionId::new(0, 1, false).0, &[IFunArg::Int(41)])
+        .unwrap();
+    assert_eq!(result.outcome.status, InterpStatus::Terminated);
+    assert_eq!(result.retval, 41);
+    assert_eq!(host.call_ifun(8, 0, &[]), Err(HostError::UnknownObject(8)));
+}

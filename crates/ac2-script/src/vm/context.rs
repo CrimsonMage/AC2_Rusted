@@ -38,6 +38,14 @@ pub struct Context {
     pub cid: u32,
     /// The owning process's instance state reference, if any.
     pub instance: Option<u32>,
+    /// `m_efun`: the efun an interrupted context stopped in (its frame still open); resuming
+    /// calls it again before the code continues.
+    pub efun: u32,
+    /// Whether an efun may stop this context to wait for data the host is loading (contexts
+    /// the host resumes; nested initializer and system-call contexts read through).
+    pub can_yield: bool,
+    /// The context stopped in `efun` waiting for data.
+    pub data_wait: bool,
 }
 
 /// A stack access outside `m_data` or the call stack: retail corrupts memory, the port stops.
@@ -58,6 +66,9 @@ impl Context {
             frames: vec![Frame::default()],
             cid,
             instance,
+            efun: 0,
+            can_yield: false,
+            data_wait: false,
         }
     }
 

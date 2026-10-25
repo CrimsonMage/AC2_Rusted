@@ -3277,6 +3277,7 @@ key	status	note
 006e3c10	x	ac2-script vm::exec
 006e3c30	x	ac2-script vm::exec
 006e3c70	x	ac2-script vm::exec
+006e3cc0	x	ac2-script vm::efun (frame kept on Interrupted; m_efun runs again on resume)
 006e3d40	x	ac2-script vm::exec
 006e3d60	x	ac2-script vm::exec
 006e3d90	x	ac2-script vm::exec

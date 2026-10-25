@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1123 done, 80 partial, 1187 to do, 78 skipped.
+2468 retail functions: 1124 done, 80 partial, 1186 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -3386,7 +3386,7 @@ Legend and workflow: [README](README.md).
 - [x] `Interp::HandleFBinLogicalOp_Long_O_L_FLTE` · 006e3b10 — ac2-script vm::arith
 - [x] `Interp::HandleFBinLogicalOp_Long_O_L_FGTE` · 006e3b80 — ac2-script vm::arith
 
-## `portal/shared/src/interp/interp_core.cpp.c` (28/31)
+## `portal/shared/src/interp/interp_core.cpp.c` (29/31)
 
 ### FileNodeName_Int32
 - [ ] `FileNodeName_Int32::GetType` · 006e3bf0 · legions 0066a360
@@ -3396,7 +3396,7 @@ Legend and workflow: [README](README.md).
 - [x] `Interp::HandlePopN` · 006e3c10 · legions 0066a380 — ac2-script vm::exec
 - [x] `Interp::HandlePopFrame` · 006e3c30 — ac2-script vm::exec
 - [x] `Interp::HandleCallStatic` · 006e3c70 — ac2-script vm::exec
-- [ ] `Interp::HandleCallEFun` · 006e3cc0
+- [x] `Interp::HandleCallEFun` · 006e3cc0 — ac2-script vm::efun (frame kept on Interrupted; m_efun runs again on resume)
 - [x] `Interp::HandleRJmp` · 006e3d40 — ac2-script vm::exec
 
 ### FileNodeName_Bool

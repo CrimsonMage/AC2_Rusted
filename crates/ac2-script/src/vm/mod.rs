@@ -86,10 +86,31 @@ pub type StateRef = Box<dyn Deref<Target = WState>>;
 
 /// What the VM and its glue read from the DATs, served by the host from the ac2-db cache
 /// (decoded on worker threads; the VM never reads files).
+/// A DAT read a cache-only [`ScriptData`] could not make on the calling thread.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum DataRequest {
+    WState(u32),
+    EnumMapper(u32),
+    EnumIdMap(u32),
+    StringTable(u32),
+}
+
 pub trait ScriptData {
     /// Saved script states by WState DID (`DBObj::Get` in `FillPackage` and
     /// `AllocatePackage`).
     fn wstate(&self, did: u32) -> Option<StateRef>;
+
+    /// Whether a lookup missed since the last call (the data was not resident and is now
+    /// requested); clears the flag. The efun that missed waits and runs again once the host
+    /// loaded what [`ScriptData::take_requests`] listed.
+    fn take_missed(&self) -> bool {
+        false
+    }
+
+    /// The reads lookups missed since the last call, for a worker thread.
+    fn take_requests(&self) -> Vec<DataRequest> {
+        Vec::new()
+    }
 
     /// `FileArray::GetDID(name, db_type)`: a data file's DID by name (the `DBFile2IDTable`).
     fn file_did(&self, _name: &[u8], _db_type: u32) -> Option<u32> {
@@ -251,6 +272,12 @@ impl Vm {
 
     /// `VM::Execute` (no debugger, no timers): runs `ctx` until it stops.
     pub fn execute(&mut self, ctx: &mut Context) -> InterpStatus {
+        if ctx.efun != 0 {
+            match self.resume_efun(ctx) {
+                InterpStatus::Success => {}
+                status => return status,
+            }
+        }
         self.exec(ctx)
     }
 
