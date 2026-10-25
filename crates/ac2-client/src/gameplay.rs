@@ -31,6 +31,12 @@ pub enum Command {
     /// `gmCWInterface::RequestGUN_SendToRoom` (Turbine chat): text to a chat room, with the
     /// script's chat flags.
     SendToRoom { room: u32, text: String, flags: u32 },
+    /// Use an object (`CUsageSystem::HandleItemUsage`).
+    Use(u64),
+    /// Use an object on a target (a multi-item use once its target is chosen).
+    UseWithTarget { item: u64, target: u64 },
+    /// `gmCWInterface::UseSelection`: use the selected object.
+    UseSelection,
 }
 
 /// The selected object, as `gmSelectionUI` shows it.
@@ -69,6 +75,15 @@ impl Client {
                     self.session.send_to_room(*room, text, *flags);
                     Vec::new()
                 }
+                Command::Use(item) => {
+                    self.session.use_object(*item);
+                    Vec::new()
+                }
+                Command::UseWithTarget { item, target } => {
+                    self.session.use_with_target(*item, *target);
+                    Vec::new()
+                }
+                Command::UseSelection => self.session.use_selection(),
             });
         }
         events

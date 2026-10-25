@@ -5,8 +5,9 @@
 use std::collections::HashMap;
 
 use ac2_net::protocol::{
-    ChatMessage, ChatPacket, ChatRequest, ChatResponse, ExaminationProfile, ExaminationRequest,
-    RoomChat, ScriptMessage, ScriptRequest, SelectionInfo, StringInfo,
+    script_broadcast, script_function, ChatMessage, ChatPacket, ChatRequest, ChatResponse,
+    ExaminationProfile, ExaminationRequest, PackValue, QualityUpdate, RoomChat, ScriptCall,
+    ScriptMessage, ScriptRequest, SelectionInfo, StringInfo,
 };
 
 use crate::{State, PLAYER};
@@ -21,6 +22,10 @@ pub struct ScriptWorld {
     pub selection_infos: HashMap<u64, SelectionInfo>,
     /// The examination profile sent back (`WM_Examination` 0x9) for an object request.
     pub profiles: HashMap<u64, ExaminationProfile>,
+    /// The error a use comes back with (`WM_Usage` 0x21), 0 for success.
+    pub usage_error: u32,
+    /// The message a use comes back with, in place of the client's.
+    pub usage_message: Option<StringInfo>,
 }
 
 impl State {
@@ -52,7 +57,13 @@ impl State {
             Some(Err(error)) => self
                 .script_errors
                 .push(format!("function {function:#010x}: {error}")),
-            None => self.script_unknown.push((function, arguments.to_vec())),
+            None => match ScriptCall::decode(function, arguments) {
+                Some(Ok(call)) => self.script_calls.push(call),
+                Some(Err(error)) => self
+                    .script_errors
+                    .push(format!("function {function:#010x}: {error}")),
+                None => self.script_unknown.push((function, arguments.to_vec())),
+            },
         }
     }
 
@@ -100,6 +111,15 @@ impl State {
                 }
             }
             ScriptRequest::Emote(_) => {}
+            // `WM_Usage` 0x22: the desc comes back with the outcome the test configured.
+            ScriptRequest::Use(desc) => {
+                let mut desc = desc.clone();
+                desc.error = self.script_world.usage_error;
+                if let Some(message) = &self.script_world.usage_message {
+                    desc.message = message.clone();
+                }
+                self.send_script(&ScriptMessage::UsageDone(desc));
+            }
         }
     }
 
@@ -160,6 +180,22 @@ impl State {
     /// Queues a script call to the player (`InterpCEvent_Broadcast`, 0x10066).
     pub fn send_script(&mut self, message: &ScriptMessage) {
         self.send_event(&message.to_broadcast());
+    }
+
+    /// Queues a script call the client's codecs have no message for, from its packed values.
+    pub fn send_script_call(&mut self, function: u32, arguments: &[PackValue]) {
+        self.send_event(&script_broadcast(function, arguments));
+    }
+
+    /// Queues a quality update (`ECM_Qualities::SendEvt_Update*_Private` / `_Visual`).
+    pub fn send_quality(&mut self, update: &QualityUpdate) {
+        self.send_event(&update.encode());
+    }
+
+    /// Queues `WM_Player` 0x27 (the player's login state, `CPlayer` 0x65). The double has no
+    /// player systems to pack, so its fourteen arguments are zero ints.
+    pub fn send_init_player(&mut self) {
+        self.send_script_call(script_function::INIT_PLAYER, &vec![PackValue::Int(0); 14]);
     }
 }
 

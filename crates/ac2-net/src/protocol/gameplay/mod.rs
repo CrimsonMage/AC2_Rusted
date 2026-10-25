@@ -8,14 +8,16 @@
 //! `C*System` script. Function ids, argument order and pack types are read from those stubs and
 //! handlers; a handler takes the values in `PackBuffer` order.
 
+mod calls;
 mod message;
 mod request;
 
-pub use message::ScriptMessage;
+pub use calls::{call_spec, ArgKind, CallSpec, Direction, ScriptCall, CALLS};
+pub use message::{broadcast, ScriptMessage};
 pub use request::ScriptRequest;
 
 use crate::protocol::native::NativeObject;
-use crate::protocol::pack::{unpack_values, PackValue};
+use crate::protocol::pack::{unpack_values, PackValue, PackedReference};
 use crate::protocol::string_info::StringInfo;
 use crate::protocol::ProtocolError;
 
@@ -35,6 +37,19 @@ pub mod function {
     /// C->S, `WM_Communication` stub 0xE (`CCommunicationSystem` 0x8, from `CPlayer` 0x15B,
     /// IFun `DoEmote`): the emote, one int.
     pub const EMOTE: u32 = 0x8205_000B;
+    /// S->C, `WM_Player` 0x27 -> `CPlayer` 0x65: the player's login state (fourteen 32-bit
+    /// arguments: money, the options profile, the faction, inventory and effect systems'
+    /// data...), after which `CPlayer` raises the hero status and the vitals.
+    pub const INIT_PLAYER: u32 = 0x8212_0027;
+    /// C->S, `WM_Usage` stub 0x22 (`CUsageSystem` 0x6, from `HandleItemUsage` 0x9 or
+    /// `TryToAddToUsageList` 0x3): a `UsageDesc` reference.
+    pub const USE: u32 = 0x8216_0016;
+    /// S->C, `WM_Usage` 0x21 -> `CPlayer` 0x7D -> `CUsageSystem` 0xA: the `UsageDesc` back,
+    /// with its outcome.
+    pub const USAGE_DONE: u32 = 0x8216_0021;
+    /// S->C, `WM_Usage` 0x23 -> `CPlayer` 0x67 -> `CUsageSystem` 0x2: a use failed (the error,
+    /// the target, the item).
+    pub const USAGE_ERROR: u32 = 0x8216_0023;
     /// S->C, `WM_Player` 0x2C -> `CPlayer` 0x34: `SelectionInfo`, then the object (long int).
     pub const UPDATE_SELECTION_INFO: u32 = 0x8212_002C;
     /// S->C, `WM_Examination` 0x9 -> `CPlayer` 0xDA -> `CExaminationSystem` 0x2:
@@ -88,6 +103,14 @@ impl Args {
         }
     }
 
+    /// A reference (a packed reference graph).
+    pub(crate) fn reference(&mut self) -> Result<PackedReference, ProtocolError> {
+        match self.next()? {
+            PackValue::Reference(r) => Ok(r),
+            _ => Err(ProtocolError::Invalid("script argument: reference")),
+        }
+    }
+
     /// A reference whose root holds a native object.
     pub(crate) fn native(&mut self) -> Result<NativeObject, ProtocolError> {
         match self.next()? {
@@ -104,6 +127,11 @@ impl Args {
             NativeObject::StringInfo(info) => Ok(info),
             _ => Err(ProtocolError::Invalid("script argument: StringInfo")),
         }
+    }
+
+    /// The values not yet taken.
+    pub(crate) fn into_values(self) -> Vec<PackValue> {
+        self.values.collect()
     }
 
     pub(crate) fn finish(mut self) -> Result<(), ProtocolError> {

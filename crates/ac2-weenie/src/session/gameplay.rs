@@ -3,11 +3,14 @@
 //! [`PlayerScript`] stand-in, whose messages go out as `InterpSEvent`s.
 
 use ac2_net::protocol::{
-    ChatMessage, ChatRequest, ExaminationRequest, GunChatExtraInfo, ScriptMessage,
+    CallDirection, ChatMessage, ChatRequest, ExaminationRequest, GunChatExtraInfo, ScriptCall,
+    ScriptMessage,
 };
 
 use super::{OnlineSession, SessionEvent};
 use crate::player_script::{GameplayNotice, PlayerScript, ScriptOutput};
+use crate::qualities::WeenieQualities;
+use crate::world::World;
 
 /// `CWInterface::IsCreature`: the weenie type (int quality 0x14) has all of 0x4F.
 const CREATURE_TYPE: i32 = 0x4F;
@@ -58,6 +61,45 @@ impl OnlineSession {
         if let Some(request) = crate::chat::tell(recipient, text) {
             self.send(request.to_event());
         }
+    }
+
+    /// `CUsageSystem` 0x9 (`HandleItemUsage`): use `item` (`WM_Usage` 0x22 with a
+    /// `UsageDesc`); the outcome comes back as notices.
+    pub fn use_object(&mut self, item: u64) {
+        self.use_with_target(item, 0);
+    }
+
+    /// `CUsageSystem` 0x3 (`TryToAddToUsageList`) once the item's target is chosen: use `item`
+    /// on `target`.
+    pub fn use_with_target(&mut self, item: u64, target: u64) {
+        let Some(player) = self.world.player() else {
+            return;
+        };
+        if let Some(request) = crate::usage::use_item(player, item, target) {
+            self.send(request.to_event());
+        }
+    }
+
+    /// `gmCWInterface::UseSelection` (`CPlayer` 0x79): use the selected object, or say that
+    /// nothing is selected.
+    pub fn use_selection(&mut self) -> Vec<SessionEvent> {
+        match self.script.selection() {
+            Some(item) => {
+                self.use_object(item);
+                Vec::new()
+            }
+            None => vec![SessionEvent::Notice(crate::usage::nothing_selected())],
+        }
+    }
+
+    /// A client call from `ac2_net::protocol::SCRIPT_CALLS` (skills, shortcuts, fellowships,
+    /// allegiances), as its `WM_*` stub's `SendServerEvt` sends it; refused for a server call.
+    pub fn send_script_call(&mut self, call: &ScriptCall) -> Result<(), String> {
+        if call.spec().direction != CallDirection::ToServer {
+            return Err(format!("{:#010x} is a server call", call.function));
+        }
+        self.send(call.to_event());
+        Ok(())
     }
 
     /// `gmCWInterface::DoEmote` once the emote table named the emote (`CPlayer` 0x15B ->
@@ -152,10 +194,44 @@ impl OnlineSession {
         }
     }
 
+    /// `GameplayOptionsProfile::SetShowPKDamage` through `CPlayer` 0x1A7: show PK damage and
+    /// vigor loss over the vitals (health and vigor are raised again).
+    pub fn set_show_pk_damage(&mut self, show: bool) -> Vec<SessionEvent> {
+        let out = self
+            .script
+            .set_show_pk_damage(show, player_qualities(&self.world));
+        self.apply_script(out)
+    }
+
+    /// `WM_Player` 0x27 -> `CPlayer` 0x65, the vitals part (the rest of its arguments reach the
+    /// caller as the raw script event).
+    pub(super) fn init_player(&mut self) -> Vec<SessionEvent> {
+        let out = self.script.init_player(player_qualities(&self.world));
+        self.apply_script(out)
+    }
+
+    /// `CWRepository`'s quality-change call into `CPlayer` 0x85 for the player.
+    pub(super) fn player_quality_changed(&mut self, table: u32, quality: u32) -> Vec<SessionEvent> {
+        let out = self
+            .script
+            .quality_changed(player_qualities(&self.world), table, quality);
+        self.apply_script(out)
+    }
+
     fn apply_script(&mut self, out: ScriptOutput) -> Vec<SessionEvent> {
         for request in out.requests {
             self.send(request.to_event());
         }
         out.notices.into_iter().map(SessionEvent::Notice).collect()
     }
+}
+
+/// The player's `CWRepository::m_qualities` (empty before its object exists).
+fn player_qualities(world: &World) -> &WeenieQualities {
+    static EMPTY: std::sync::OnceLock<WeenieQualities> = std::sync::OnceLock::new();
+    world
+        .player()
+        .and_then(|id| world.objects.get(id))
+        .map(|o| &o.qualities)
+        .unwrap_or_else(|| EMPTY.get_or_init(WeenieQualities::default))
 }

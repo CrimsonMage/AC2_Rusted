@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 113 done, 8 partial, 266 to do, 39 skipped.
+426 retail functions: 114 done, 8 partial, 265 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -378,7 +378,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPortalPoly::StreamPack` · 0072f890 · legions 006ad130
 - [-] `CPortalPoly::FromFileNode` · 0072f930 — text source format (admin tools)
 
-## `portal/shared/src/geometry/position.cpp.c` (5/36)
+## `portal/shared/src/geometry/position.cpp.c` (6/36)
 
 ### Position
 - [ ] `Position::Position` · 0061fd70 · legions 005db6b0
@@ -390,7 +390,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Position::pitch` · 0061ff20 · legions 005db860
 - [ ] `Position::determine_quadrant` · 0061ffa0 · legions 005db8e0
 - [ ] `Position::GetPackSize` · 00620060 · legions 005db9a0
-- [ ] `Position::Pack` · 00620070 · legions 005db9b0
+- [x] `Position::Pack` · 00620070 · legions 005db9b0 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 - [x] `Position::UnPack` · 006200b0 · legions 005db9f0
 - [x] `Position::cylinder_distance` · 006200f0 · legions 005dba30 — ac2-physics moveto (slice 3)
 - [ ] `Position::cylinder_distance_squared` · 00620190 · legions 005dbad0

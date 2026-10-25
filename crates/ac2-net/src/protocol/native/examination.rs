@@ -1,71 +1,10 @@
-//! Native objects a script heap object carries across the wire, by native type id
-//! (`CNativeFactory::GetNativeTypeName` 0x01-0x76, `gmCNativeFactory::GetNativeTypeName`
-//! 0x82-0xAF): `VM::PackNativeObject` / `VM::UnPackNativeObject` call the type's own
-//! `StreamPack`, with no size or type prefix (the heap object holds the type).
+//! The examination natives (`gmCNativeFactory`): `SelectionInfo` (0xAB), `ExaminationRequest`
+//! (0x9A, Legions layout) and `ExaminationProfile` (0x99) with its `ExaminationDataNode`s.
 
 use crate::protocol::reader::{Reader, Writer};
 use crate::protocol::string_info::StringInfo;
 use crate::protocol::visual::IconLayer;
 use crate::protocol::ProtocolError;
-
-/// Native type ids.
-pub mod ntype {
-    pub const STRING_INFO: u32 = 0x6A;
-    pub const EXAMINATION_PROFILE: u32 = 0x99;
-    pub const EXAMINATION_REQUEST: u32 = 0x9A;
-    pub const SELECTION_INFO: u32 = 0xAB;
-    /// `wpstring` (`PStringBase<unsigned short>`).
-    pub const WPSTRING: u32 = 0x76;
-}
-
-/// One native object.
-#[derive(Debug, Clone, PartialEq)]
-pub enum NativeObject {
-    StringInfo(StringInfo),
-    SelectionInfo(SelectionInfo),
-    ExaminationRequest(ExaminationRequest),
-    ExaminationProfile(ExaminationProfile),
-    /// `wpstring`: `PStringBase<unsigned short>::Pack`.
-    WString(String),
-}
-
-impl NativeObject {
-    /// The native type id the heap object names.
-    pub fn native_type(&self) -> u32 {
-        match self {
-            Self::StringInfo(_) => ntype::STRING_INFO,
-            Self::SelectionInfo(_) => ntype::SELECTION_INFO,
-            Self::ExaminationRequest(_) => ntype::EXAMINATION_REQUEST,
-            Self::ExaminationProfile(_) => ntype::EXAMINATION_PROFILE,
-            Self::WString(_) => ntype::WPSTRING,
-        }
-    }
-
-    /// `VM::UnPackNativeObject`.
-    pub(crate) fn read(native_type: u32, r: &mut Reader<'_>) -> Result<Self, ProtocolError> {
-        Ok(match native_type {
-            ntype::STRING_INFO => Self::StringInfo(StringInfo::read(r)?),
-            ntype::SELECTION_INFO => Self::SelectionInfo(SelectionInfo::read(r)?),
-            ntype::EXAMINATION_REQUEST => Self::ExaminationRequest(ExaminationRequest::read(r)?),
-            ntype::EXAMINATION_PROFILE => Self::ExaminationProfile(ExaminationProfile::read(r)?),
-            ntype::WPSTRING => Self::WString(r.wide_string()?),
-            _ => return Err(ProtocolError::Unsupported("native type")),
-        })
-    }
-
-    /// `VM::PackNativeObject`.
-    pub(crate) fn write(&self, w: &mut Writer) {
-        match self {
-            Self::StringInfo(info) => info.write(w),
-            Self::SelectionInfo(info) => info.write(w),
-            Self::ExaminationRequest(request) => request.write(w),
-            Self::ExaminationProfile(profile) => profile.write(w),
-            Self::WString(text) => {
-                w.wide_string(text);
-            }
-        }
-    }
-}
 
 /// `SelectionInfo::StreamPack` (identical in Legions, 0x005CA4D0): the type, then, for a
 /// creature (`0x40000001`), its health and vigor as the selection panel shows them.
@@ -84,7 +23,7 @@ impl SelectionInfo {
     /// The type whose health and vigor are packed.
     pub const CREATURE: u32 = 0x4000_0001;
 
-    fn read(r: &mut Reader<'_>) -> Result<Self, ProtocolError> {
+    pub(super) fn read(r: &mut Reader<'_>) -> Result<Self, ProtocolError> {
         let kind = r.u32()?;
         let mut info = Self {
             kind,
@@ -101,7 +40,7 @@ impl SelectionInfo {
         Ok(info)
     }
 
-    fn write(&self, w: &mut Writer) {
+    pub(super) fn write(&self, w: &mut Writer) {
         w.u32(self.kind);
         if self.kind == Self::CREATURE {
             w.u32(self.cur_health)
@@ -161,7 +100,7 @@ impl ExaminationRequest {
         }
     }
 
-    fn read(r: &mut Reader<'_>) -> Result<Self, ProtocolError> {
+    pub(super) fn read(r: &mut Reader<'_>) -> Result<Self, ProtocolError> {
         let mut request = Self {
             kind: r.u32()?,
             admin: r.u32()?,
@@ -183,7 +122,7 @@ impl ExaminationRequest {
         Ok(request)
     }
 
-    fn write(&self, w: &mut Writer) {
+    pub(super) fn write(&self, w: &mut Writer) {
         w.u32(self.kind).u32(self.admin);
         match self.kind {
             0x4000_0001 | 0x4000_0003..=0x4000_0006 => {
@@ -263,7 +202,7 @@ impl ExaminationDataNode {
         }
     }
 
-    fn read(r: &mut Reader<'_>) -> Result<Self, ProtocolError> {
+    pub(super) fn read(r: &mut Reader<'_>) -> Result<Self, ProtocolError> {
         let kind = r.u32()?;
         let order = r.u32()?;
         let mut appearance = 0;
@@ -325,7 +264,7 @@ impl ExaminationDataNode {
         })
     }
 
-    fn write(&self, w: &mut Writer) {
+    pub(super) fn write(&self, w: &mut Writer) {
         w.u32(self.kind()).u32(self.order);
         match &self.value {
             ExaminationValue::Int(v) => {
@@ -373,7 +312,7 @@ pub struct ExaminationProfile {
 }
 
 impl ExaminationProfile {
-    fn read(r: &mut Reader<'_>) -> Result<Self, ProtocolError> {
+    pub(super) fn read(r: &mut Reader<'_>) -> Result<Self, ProtocolError> {
         let request = ExaminationRequest::read(r)?;
         let nodes = (0..r.count()?)
             .map(|_| ExaminationDataNode::read(r))
@@ -381,7 +320,7 @@ impl ExaminationProfile {
         Ok(Self { request, nodes })
     }
 
-    fn write(&self, w: &mut Writer) {
+    pub(super) fn write(&self, w: &mut Writer) {
         self.request.write(w);
         w.u32(self.nodes.len() as u32);
         for node in &self.nodes {
@@ -392,6 +331,7 @@ impl ExaminationProfile {
 
 #[cfg(test)]
 mod tests {
+    use super::super::NativeObject;
     use super::*;
 
     fn round_trip(object: NativeObject) -> Vec<u8> {

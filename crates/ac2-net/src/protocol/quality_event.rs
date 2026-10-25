@@ -4,7 +4,7 @@
 //! `STREAMPACK_ALIGN` (positions, strings and string infos unpack through their own `UnPack`).
 
 use crate::protocol::opcode::Opcode;
-use crate::protocol::reader::Reader;
+use crate::protocol::reader::{Reader, Writer};
 use crate::protocol::string_info::StringInfo;
 use crate::protocol::types::{InstanceIdWithStamp, Position};
 use crate::protocol::ProtocolError;
@@ -135,6 +135,46 @@ impl QualityUpdate {
         };
         Some(decode(r))
     }
+
+    /// The server's side (`ECM_Qualities::SendEvt_Update*`): the event as
+    /// [`QualityUpdate::read`] takes it, its opcode first.
+    pub fn encode(&self) -> Vec<u8> {
+        let kind = match &self.value {
+            QualityValue::Int(_) => b'i',
+            QualityValue::Bool(_) => b'b',
+            QualityValue::Float(_) => b'f',
+            QualityValue::String(_) => b's',
+            QualityValue::DataId(_) => b'd',
+            QualityValue::InstanceId(_) => b'o',
+            QualityValue::Position(_) => b'p',
+            QualityValue::Timestamp(_) => b't',
+            QualityValue::StringInfo(_) => b'n',
+            QualityValue::LongInt(_) => b'l',
+        };
+        let (private, visual, _) = KINDS.iter().find(|k| k.2 == kind).copied().unwrap();
+        let mut w = Writer::event(if self.object.is_some() {
+            visual
+        } else {
+            private
+        });
+        if let Some(object) = &self.object {
+            object.write(&mut w);
+        }
+        w.u32(self.quality).align();
+        match &self.value {
+            QualityValue::Int(v) | QualityValue::Bool(v) => _ = w.u32(*v as u32),
+            QualityValue::Float(v) => _ = w.f32(*v),
+            QualityValue::String(v) => _ = w.string(v),
+            QualityValue::DataId(v) => _ = w.u32(*v),
+            QualityValue::InstanceId(v) => _ = w.u64(*v),
+            QualityValue::Position(v) => v.write(&mut w),
+            QualityValue::Timestamp(v) => _ = w.f64(*v),
+            QualityValue::StringInfo(v) => v.write(&mut w),
+            QualityValue::LongInt(v) => _ = w.u64(*v as u64),
+        }
+        w.align();
+        w.bytes
+    }
 }
 
 #[cfg(test)]
@@ -190,5 +230,60 @@ mod tests {
                 .is_err());
         }
         assert!(QualityUpdate::read(0x1234, &mut Reader::new(&b)).is_none());
+    }
+
+    #[test]
+    fn encoded_updates_are_the_bytes_read_takes() {
+        let private = QualityUpdate {
+            object: None,
+            quality: 0x102,
+            value: QualityValue::Int(-3),
+        };
+        let mut expected = Opcode::UPDATE_INT_PRIVATE.to_le_bytes().to_vec();
+        expected.extend(0x102u32.to_le_bytes());
+        expected.extend((-3i32).to_le_bytes());
+        assert_eq!(private.encode(), expected);
+        let visual = QualityUpdate {
+            object: Some(crate::protocol::InstanceIdWithStamp {
+                id: 0x55,
+                instance: 2,
+                other: 3,
+            }),
+            quality: 0x11E,
+            value: QualityValue::Float(95.0),
+        };
+        let mut expected = Opcode::UPDATE_FLOAT_VISUAL.to_le_bytes().to_vec();
+        expected.extend(0x55u64.to_le_bytes());
+        expected.extend([2, 0, 3, 0]);
+        expected.extend(0x11Eu32.to_le_bytes());
+        expected.extend(95.0f32.to_le_bytes());
+        assert_eq!(visual.encode(), expected);
+        let values = [
+            QualityValue::Bool(1),
+            QualityValue::String(b"abcde".to_vec()),
+            QualityValue::DataId(7),
+            QualityValue::InstanceId(9),
+            QualityValue::Timestamp(2.5),
+            QualityValue::LongInt(-9),
+            QualityValue::StringInfo(Box::default()),
+            QualityValue::Position(crate::protocol::Position {
+                cell: 5,
+                origin: [1.0, 2.0, 3.0],
+                rotation: [1.0, 0.0, 0.0, 0.0],
+            }),
+        ];
+        for value in values {
+            for object in [None, visual.object] {
+                let update = QualityUpdate {
+                    object,
+                    quality: 4,
+                    value: value.clone(),
+                };
+                let bytes = update.encode();
+                assert_eq!(bytes.len() % 4, 0);
+                let opcode = u32::from_le_bytes(bytes[..4].try_into().unwrap());
+                assert_eq!(decode(opcode, &bytes[4..]), update);
+            }
+        }
     }
 }

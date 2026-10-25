@@ -1,9 +1,9 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 167 done, 29 partial, 1702 to do, 6 skipped.
+1904 retail functions: 173 done, 29 partial, 1696 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
+## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
 
 ### gmCEngineFactory
 - [ ] `gmCEngineFactory::Init` · 004017e0 · legions 00401750
@@ -18,7 +18,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ArgumentParser::FinishOutputText` · 00401870 · legions 006af780
 
 ### NoticeHandler
-- [ ] `NoticeHandler::RecvNotice_CharacterSet` · 00401880 · legions 00401ba0
+- [x] `NoticeHandler::RecvNotice_CharacterSet` · 00401880 · legions 00401ba0 — ac2-weenie SessionEvent::Characters / OnlineSession::characters (the latest set; CharacterChoice::Wait stops there for the selection screen)
 
 ### gmCEngineFactory
 - [ ] `gmCEngineFactory::MakeClient_Internal` · 00401890
@@ -34,7 +34,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Allegiance::SendNotice_UpdateAllegianceProfile` · 007280c0
 - [ ] `CM_Allegiance::SendNotice_Vassal_SwearDone` · 00728150
 
-## `ac2/client/src/events/cm_character.cpp.c` (2/30)
+## `ac2/client/src/events/cm_character.cpp.c` (4/30)
 
 ### CM_Character
 - [ ] `CM_Character::SendNotice_AddMarker` · 007248b0 · legions 006a4270
@@ -56,7 +56,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Character::SendNotice_UpdateDeathState` · 00725220
 - [ ] `CM_Character::SendNotice_UpdateEffect` · 007252b0
 - [ ] `CM_Character::SendNotice_UpdateFactionStatus` · 00725340
-- [ ] `CM_Character::SendNotice_UpdateHeroStatus` · 007253d0
+- [x] `CM_Character::SendNotice_UpdateHeroStatus` · 007253d0 — ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
 - [ ] `CM_Character::SendNotice_UpdateMountState` · 00725490
 - [ ] `CM_Character::SendNotice_UpdatePetMode` · 00725520
 - [ ] `CM_Character::SendNotice_UpdatePetName` · 007255c0
@@ -66,7 +66,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Character::SendNotice_UpdateSkill` · 00725810
 - [ ] `CM_Character::SendNotice_UpdateSkillPanel` · 007258a0
 - [ ] `CM_Character::SendNotice_UpdateVitae` · 00725950
-- [ ] `CM_Character::SendNotice_UpdateVital` · 007259f0
+- [x] `CM_Character::SendNotice_UpdateVital` · 007259f0 — ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
 
 ## `ac2/client/src/events/cm_combat.cpp.c` (0/5)
 
@@ -870,7 +870,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCNativeFactory::GetReferences` · 00465fc0 · legions 00466c70
 - [ ] `gmCNativeFactory::UpdateReferences` · 00465fe0 · legions 00466c90
 - [ ] `gmCNativeFactory::GetNativePackSize` · 00466000 · legions 00466cb0
-- [ ] `gmCNativeFactory::PackNativeObject` · 004661d0 · legions 00466e80
+- [~] `gmCNativeFactory::PackNativeObject` · 004661d0 · legions 00466e80 — ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 - [ ] `gmCNativeFactory::GetCheckSums` · 004663b0 · legions 00467060
 - [ ] `gmCNativeFactory::ValidateCheckSums` · 004663d0 · legions 00467080
 
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (2/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (3/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -927,7 +927,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmCWInterface::GetSelection` · 0044fac0 · legions 00450c00 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [~] `gmCWInterface::GetLastSelection` · 0044fb20 · legions 00450c60 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [ ] `gmCWInterface::ShouldAutoTarget` · 0044fb80 · legions 00450cc0
-- [ ] `gmCWInterface::UseSelection` · 0044fbb0 · legions 00450cf0
+- [x] `gmCWInterface::UseSelection` · 0044fbb0 · legions 00450cf0 — ac2-weenie OnlineSession::use_selection (CPlayer 0x79 -> CUsageSystem 0x9 stand-in)
 - [ ] `gmCWInterface::UseShortcut` · 0044fbe0 · legions 00450d20
 - [ ] `gmCWInterface::StopAttacking` · 0044fc20 · legions 00450d60
 - [ ] `gmCWInterface::RequestAttackStateChange` · 0044fc60 · legions 00450da0
@@ -1534,7 +1534,7 @@ Legend and workflow: [README](README.md).
 ### CEFunDispatcher
 - [~] `CEFunDispatcher::GetEFunAddress` · 0049fec0 · legions 00496f40 — ac2-script glue: id table + pure-glue registry; engine glue unbound
 
-## `portal/client/src/weenie/interp/glue/cnativefactory.cpp.c` (2/268)
+## `portal/client/src/weenie/interp/glue/cnativefactory.cpp.c` (4/268)
 
 ### PFileParser
 - [ ] `PFileParser::PFileParser` · 004a5eb0 · legions 0049cf30
@@ -1777,10 +1777,10 @@ Legend and workflow: [README](README.md).
 - [ ] `BaseListIter<unsigned_long,11>::Pack` · 004a95f0 · legions 004a0470
 
 ### RandomSelectionTable<unsigned_long>
-- [~] `RandomSelectionTable<unsigned_long>::StreamPack` · 004a9640 · legions 004a0640 — ac2-script native: unpack direction only
+- [x] `RandomSelectionTable<unsigned_long>::StreamPack` · 004a9640 · legions 004a0640 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
 ### RandomSelectionTable<unsigned_long>::ElementStruct
-- [~] `RandomSelectionTable<unsigned_long>::ElementStruct::StreamPack` · 004a9760 · legions 004a0760 — ac2-script native: unpack direction only
+- [x] `RandomSelectionTable<unsigned_long>::ElementStruct::StreamPack` · 004a9760 · legions 004a0760 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
 ### BaseHashSetIter<unsigned_long,7>
 - [ ] `BaseHashSetIter<unsigned_long,7>::Sync` · 004a97c0 · legions 004a07c0
@@ -1969,7 +1969,7 @@ Legend and workflow: [README](README.md).
 
 ### CNativeFactory
 - [ ] `CNativeFactory::UpdateReferences` · 004acef0 · legions 004a4040
-- [ ] `CNativeFactory::PackNativeObject` · 004ad1d0 · legions 004a4320
+- [~] `CNativeFactory::PackNativeObject` · 004ad1d0 · legions 004a4320 — ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 
 ### PHashTable<unsigned_long,float>
 - [ ] `PHashTable<unsigned_long,float>::PHashTable<unsigned_long,float>` · 004ad780 · legions 004a48d0

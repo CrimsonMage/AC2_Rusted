@@ -300,6 +300,9 @@ pub struct State {
     pub script_world: ScriptWorld,
     /// The client's script calls, decoded, in arrival order.
     pub script_requests: Vec<ac2_net::protocol::ScriptRequest>,
+    /// The client's calls in `ac2_net::protocol::SCRIPT_CALLS` (skills, shortcuts,
+    /// fellowships, allegiances), decoded, in arrival order.
+    pub script_calls: Vec<ac2_net::protocol::ScriptCall>,
     /// Script calls with a function id the double does not know: id and packed arguments.
     pub script_unknown: Vec<(u32, Vec<u8>)>,
     /// Script calls that did not decode.

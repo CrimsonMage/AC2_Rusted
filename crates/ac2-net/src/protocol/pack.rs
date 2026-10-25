@@ -160,6 +160,22 @@ impl PackedReference {
         }
     }
 
+    /// `ReferenceTable::UnPackReference` over a whole buffer (a `WState`'s package state): the
+    /// graph must end exactly at the buffer's end. Alignment counts from the buffer's start.
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, ProtocolError> {
+        let mut r = Reader::new(bytes);
+        let reference = Self::read(&mut r)?;
+        r.finish()?;
+        Ok(reference)
+    }
+
+    /// `ReferenceTable::PackReference`'s bytes for this graph.
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut w = Writer::new();
+        self.write(&mut w);
+        w.bytes
+    }
+
     /// The root's native object.
     pub fn root_native(&self) -> Option<&NativeObject> {
         match self.entries.first()? {

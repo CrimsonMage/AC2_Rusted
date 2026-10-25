@@ -30,6 +30,7 @@ use crate::reporter::{BodyState, PositionReporter, ReportStamps};
 use crate::world::{World, WorldEvent, WorldState};
 
 mod gameplay;
+mod select;
 
 /// Which listed character to enter the world with.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -37,6 +38,9 @@ pub enum CharacterChoice {
     First,
     Name(String),
     Id(u64),
+    /// Stop at the character set (the character selection screen) until
+    /// [`OnlineSession::enter_world`].
+    Wait,
 }
 
 #[derive(Debug, Clone)]
@@ -190,6 +194,8 @@ pub struct OnlineSession {
     script: PlayerScript,
     /// `IChatClientImpl`'s last context id (`AddPendingMethod` numbers requests from 1).
     chat_context: u32,
+    /// The latest character set the server sent.
+    characters: Option<CharacterSet>,
 }
 
 impl OnlineSession {
@@ -239,6 +245,7 @@ impl OnlineSession {
             net_events: Vec::new(),
             script: PlayerScript::default(),
             chat_context: 0,
+            characters: None,
         })
     }
 
@@ -527,6 +534,9 @@ impl OnlineSession {
             } => {
                 let target = object.map(|o| o.id).or(self.world.player());
                 if target.is_some() && target == self.world.player() {
+                    if function == ac2_net::protocol::script_function::INIT_PLAYER {
+                        out.extend(self.init_player());
+                    }
                     if let Some(events) = self.receive_script(function, &arguments) {
                         out.extend(events);
                         return;
@@ -547,11 +557,15 @@ impl OnlineSession {
             ServerEvent::AccountBooted(text) => out.push(SessionEvent::AccountBooted(*text)),
             ServerEvent::Quality(update) => {
                 if let Some(object) = update.object.map(|o| o.id).or(self.world.player()) {
+                    let table = update.value.table();
                     out.push(SessionEvent::QualityChanged {
                         object,
-                        table: update.value.table(),
+                        table,
                         quality: update.quality,
                     });
+                    if Some(object) == self.world.player() {
+                        out.extend(self.player_quality_changed(table, update.quality));
+                    }
                 }
             }
             ServerEvent::CharacterDeleted(id) => out.push(SessionEvent::CharacterDeleted(id)),
@@ -562,39 +576,6 @@ impl OnlineSession {
                 out.push(SessionEvent::LeftWorld);
             }
             _ => {}
-        }
-    }
-
-    /// `gmCharacterSelectionUI` picking a character, then `Proto_UI::SendEnterWorld`.
-    fn choose_character(&mut self, set: CharacterSet, out: &mut Vec<SessionEvent>) {
-        let chosen = set
-            .characters
-            .iter()
-            .find(|c| match &self.choice {
-                CharacterChoice::First => true,
-                CharacterChoice::Name(name) => c.name.eq_ignore_ascii_case(name),
-                CharacterChoice::Id(id) => c.id == *id,
-            })
-            .map(|c| c.id);
-        out.push(SessionEvent::Characters(set));
-        if self.world.state() != WorldState::NotInWorld {
-            return;
-        }
-        match chosen {
-            Some(character) => {
-                self.world.start_entering_world();
-                self.client.net_mut().enter_world();
-                let account = self.account.clone();
-                self.send(ClientEvent::EnterWorld { character, account });
-                out.push(SessionEvent::Entering(character));
-            }
-            None => {
-                self.closed = true;
-                out.push(SessionEvent::Rejected(format!(
-                    "no character matching {:?} on this account",
-                    self.choice
-                )));
-            }
         }
     }
 
