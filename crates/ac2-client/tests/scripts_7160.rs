@@ -112,4 +112,52 @@ fn a_call_handed_to_the_vm_comes_back_as_its_notice() {
         "{:?}",
         client.take_script_problems()
     );
+
+    // Selecting (the stand-in's until the VM runs `CPlayer` 0x6A and 0x34 through), once.
+    let npc = 0x7000_0000_0000_0042u64;
+    let info = ac2_net::protocol::SelectionInfo {
+        kind: ac2_net::protocol::SelectionInfo::CREATURE,
+        cur_health: 7,
+        max_health: 9,
+        ..Default::default()
+    };
+    server
+        .borrow_mut()
+        .script_world
+        .selection_infos
+        .insert(npc, info);
+    server
+        .borrow_mut()
+        .send_event(&legions_server_double::create_object_bytes(
+            &legions_server_double::ObjectSpawn {
+                id: npc,
+                instance: 3,
+                visual: 0x1F00_0023,
+                cell: CELL,
+                origin: [80.0, 70.0, GROUND],
+                rotation: [1.0, 0.0, 0.0, 0.0],
+                stamps: [10, 1, 1, 0],
+                name: "Birch",
+            },
+        ));
+    for _ in 0..4 {
+        step(&mut client, &server, &idle);
+    }
+    let select = FrameInput {
+        commands: vec![ac2_client::Command::Select(Some(npc))],
+        ..FrameInput::default()
+    };
+    let mut events = step(&mut client, &server, &select);
+    for _ in 0..8 {
+        events.extend(step(&mut client, &server, &idle));
+    }
+    // The panel shows the latest `UpdateSelectionInfo` for the current selection (retail's
+    // notice names no object), whoever raised it.
+    assert!(events.contains(&SessionEvent::Notice(GameplayNotice::SelectionChanged(npc))));
+    let selection = client.frame().selection.unwrap();
+    assert_eq!((selection.id, selection.info), (npc, Some(info)));
+    assert_eq!(
+        server.borrow().script_requests,
+        [ac2_net::protocol::ScriptRequest::SetTarget(npc)]
+    );
 }

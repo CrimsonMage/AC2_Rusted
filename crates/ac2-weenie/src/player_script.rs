@@ -179,6 +179,15 @@ impl PlayerScript {
         out
     }
 
+    /// The selection as `CPlayer` 0x6A leaves it, without its messages or notices (the script
+    /// VM sent them).
+    pub fn mirror_selection(&mut self, id: u64) {
+        if self.selection != id {
+            self.last_selection = self.selection;
+            self.selection = id;
+        }
+    }
+
     /// `CPlayer` 0xE6 (`SetExaminationRequest`, IFun `SetExaminationRequest`).
     pub fn examine(&mut self, request: ExaminationRequest) -> ScriptOutput {
         let mut out = ScriptOutput::default();

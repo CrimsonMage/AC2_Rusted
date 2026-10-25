@@ -32,12 +32,20 @@ impl OnlineSession {
         &self.progress
     }
 
-    /// Notices raised outside the session (the script VM's): the fellowship and allegiance
-    /// ones are kept in [`Progress`].
+    /// The UI's view of the notices (the session's and the script VM's): the selection,
+    /// fellowship and allegiance are kept in [`Progress`]. The client applies each frame's
+    /// notices once.
     pub fn apply_notices(&mut self, notices: &[GameplayNotice]) {
         for notice in notices {
             self.progress.social.apply(notice);
+            self.progress.selection.apply(notice);
         }
+    }
+
+    /// `CPlayer` 0x6A's state without its output: when the script VM runs `SetSelection`, the
+    /// stand-ins that still read the selection (use, combat checks) follow it.
+    pub fn mirror_selection(&mut self, id: u64) {
+        self.script.mirror_selection(id);
     }
 
     /// `gmCWInterface::SetShortcut` -> `CPlayer` 0x87: the shortcut into slot `index` of the
