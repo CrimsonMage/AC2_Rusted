@@ -1,9 +1,9 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 406 done, 177 partial, 1642 to do, 22 skipped.
+2247 retail functions: 408 done, 177 partial, 1640 to do, 22 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
+## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (7/53)
 
 ### BBox
 - [x] `BBox::AdjustBBox` · 00426720 · legions 00426510 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
@@ -18,7 +18,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gm3DTextUI::RecvNotice_ItemUpdate` · 00426920
 - [x] `gm3DTextUI::ShowReticle` · 00426930 · legions 004266f0 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 - [~] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
-- [ ] `gm3DTextUI::DoStuffMeter` · 00426ae0 · legions 004268a0
+- [x] `gm3DTextUI::DoStuffMeter` · 00426ae0 · legions 004268a0 — ac2-ui reticle.rs
 - [ ] `gm3DTextUI::MakeNewData` · 00426b70 · legions 00426930
 
 ### BBox
@@ -30,7 +30,7 @@ Legend and workflow: [README](README.md).
 
 ### gm3DTextUI
 - [~] `gm3DTextUI::InitReticle` · 00426d90 · legions 00426b50 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
-- [ ] `gm3DTextUI::RecvNotice_UpdateSelectionInfo` · 00426ee0 · legions 00426ca0
+- [x] `gm3DTextUI::RecvNotice_UpdateSelectionInfo` · 00426ee0 · legions 00426ca0 — ac2-ui reticle.rs
 - [ ] `gm3DTextUI::PlaceHere` · 00426f60 · legions 00426d20
 
 ### _STL::_Deque_iterator<BBox,_STL::_Nonconst_traits<BBox>_>

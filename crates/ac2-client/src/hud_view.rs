@@ -30,6 +30,8 @@ pub(crate) struct HudView {
     pub(crate) allegiance: Option<ac2_ui::AllegianceUi>,
     pub(crate) fellowship: Option<ac2_ui::FellowshipUi>,
     pub(crate) vitals: Option<ac2_ui::VitalsUi>,
+    /// The selection info the reticle's meters last took.
+    reticle_info: Option<ac2_net::protocol::SelectionInfo>,
     pub(crate) dialogs: Option<ac2_ui::DialogFactory>,
     /// The tree's messages for the frameworks that ask the player
     /// ([`HudView::frameworks`](crate::hud_player)).
@@ -97,6 +99,7 @@ impl HudView {
             allegiance: None,
             fellowship: None,
             vitals: None,
+            reticle_info: None,
             dialogs: None,
             player_messages: Vec::new(),
             strings: None,
@@ -443,6 +446,7 @@ impl HudView {
         &mut self,
         gpu: &Gpu,
         selection: Option<(u64, Option<&str>)>,
+        info: Option<&ac2_net::protocol::SelectionInfo>,
         target: Option<ReticleTarget<'_>>,
     ) -> ReticleOutcome {
         let (Some((tree, _)), Some(reticle)) = (&mut self.hud, &mut self.reticle) else {
@@ -451,6 +455,12 @@ impl HudView {
         let id = selection.map(|(id, _)| id);
         if reticle.current() != id {
             reticle.selection_changed(tree, id, selection.and_then(|(_, name)| name));
+            self.reticle_info = None;
+        }
+        // `RecvNotice_UpdateSelectionInfo`, once per new info.
+        if let Some(info) = info.filter(|i| self.reticle_info.as_ref() != Some(i)) {
+            reticle.selection_info(tree, info);
+            self.reticle_info = Some(info.clone());
         }
         let outcome = reticle.update(tree, target, false);
         if tree.take_changed() {

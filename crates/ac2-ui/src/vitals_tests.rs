@@ -69,3 +69,28 @@ fn the_status_bar_shows_health_and_experience() {
     hud.vitals.message(tree, &click);
     assert_eq!(tree.get(health_text).unwrap().visible, !shown);
 }
+
+#[test]
+fn the_reticle_meters_show_the_selected_creatures_health() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let tree = &mut hud.tree;
+    let reticle = hud.reticle.as_mut().expect("the reticle");
+    reticle.selection_changed(tree, Some(7), Some("Birch"));
+    let info = ac2_net::protocol::SelectionInfo {
+        kind: ac2_net::protocol::SelectionInfo::CREATURE,
+        cur_health: 30,
+        max_health: 120,
+        cur_vigor: 50,
+        max_vigor: 50,
+        ..Default::default()
+    };
+    reticle.selection_info(tree, &info);
+    let health = goal(tree, find(tree, "SelectionHealthMeter")).unwrap();
+    assert!(health == 0.25 || health == 0.75, "{health}");
+    let vigor = goal(tree, find(tree, "SelectionVigorMeter")).unwrap();
+    assert!(vigor == 1.0 || vigor == 0.0, "{vigor}");
+}

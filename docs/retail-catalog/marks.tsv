@@ -132,7 +132,9 @@ key	status	note
 00426720	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 00426930	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 00426970	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+00426ae0	x	ac2-ui reticle.rs
 00426d90	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+00426ee0	x	ac2-ui reticle.rs
 00428e60	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 004291a0	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 00429320	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
