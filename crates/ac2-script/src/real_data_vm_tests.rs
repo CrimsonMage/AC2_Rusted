@@ -7,20 +7,27 @@ use ac2_core::DataId;
 use ac2_db::ResourceStore;
 
 use crate::vm::{
-    tag, Context, EFuns, Fault, FunctionId, InitState, InterpStatus, Program, StateRef,
-    StateSource, Vm,
+    tag, Context, EFuns, Fault, FunctionId, InitState, InterpStatus, Program, ScriptData, StateRef,
+    Vm,
 };
 use crate::{load_wlib, load_wstate, LEGIONS_WLIB_DID};
 
 /// WStates from the DAT cache (the store decodes them on first use).
 struct StoreStates(ResourceStore);
 
-impl StateSource for StoreStates {
+impl ScriptData for StoreStates {
     fn wstate(&self, did: u32) -> Option<StateRef> {
         load_wstate(&self.0, DataId::new(did))
             .ok()
             .flatten()
             .map(|state| Box::new(state) as StateRef)
+    }
+
+    fn db_type(&self, did: u32) -> Option<u32> {
+        // `DB_TYPE_STRING_TABLE` 0x25000000-0x26FFFFFE (only the type the glue asks about).
+        (0x2500_0000..=0x26FF_FFFE)
+            .contains(&did)
+            .then_some(0x4000_0026)
     }
 }
 
@@ -31,14 +38,16 @@ fn library_vm() -> Option<Vm> {
         .unwrap()
         .expect("the library");
     let program = Program::from_stream(&wlib.stream);
+    let mut efuns = EFuns::new();
+    crate::glue::register_pure(&mut efuns);
     Some(Vm::new(
         Arc::new(program),
         Box::new(StoreStates(store)),
-        EFuns::new(),
+        efuns,
     ))
 }
 
-/// Every package's initializer, on a fresh instance, with no efun bound: the interpreter must
+/// Every package's initializer, on a fresh instance, with the pure glue bound: the VM must
 /// never meet an opcode, jump or stack state it cannot handle; initializers that reach an
 /// efun stop there (`UnboundEFun`), the rest run to completion.
 #[test]
@@ -86,15 +95,22 @@ fn every_package_initializer_runs_or_stops_at_an_unbound_efun() {
     let mut top: Vec<_> = efuns.iter().collect();
     top.sort_by(|a, b| b.1.cmp(a.1));
     eprintln!("{} packages: {outcomes:?}", packages.len());
-    eprintln!(
-        "most-needed efuns: {:x?}",
-        top.iter().take(15).collect::<Vec<_>>()
-    );
+    let named: Vec<String> = top
+        .iter()
+        .take(15)
+        .map(|(id, n)| {
+            format!(
+                "{id:08x} {} x{n}",
+                crate::glue::efun_name(**id).unwrap_or("?")
+            )
+        })
+        .collect();
+    eprintln!("most-needed efuns: {named:#?}");
     eprintln!("other crashes: {odd:#?}");
     eprintln!("references: {}", vm.refs.entries.len());
-    // With no glue bound, only the initializers that never call an efun complete (570 of
-    // 9,874 in Legions); binding the pure glue raises this.
-    assert!(outcomes.get("Terminated").copied().unwrap_or(0) >= 500);
+    // 570 of 9,874 complete with no glue; with the pure glue bound so far, 1,622 (most of the
+    // rest next need gEnumMapper, gFileArray and the containers).
+    assert!(outcomes.get("Terminated").copied().unwrap_or(0) >= 1600);
     for bad in ["crash: UnknownOpcode", "crash: BadJump", "crash: Stack"] {
         assert!(!outcomes.contains_key(bad), "{bad}: {odd:#?}");
     }

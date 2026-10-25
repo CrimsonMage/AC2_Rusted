@@ -62,6 +62,7 @@ key	status	note
 00457540	x	ac2-script vm (VM/ReferenceTable/Resolver)
 00457610	x	ac2-script vm (VM/ReferenceTable/Resolver)
 004576d0	x	ac2-script vm (VM/ReferenceTable/Resolver)
+00463df0	~	ac2-script glue: id table + pure-glue registry; engine glue unbound
 00467160	~	ac2-script native::unpack: the native types Legions WStates hold
 00474780	~	ac2-script native: unpack direction only
 00479030	x	ac2-ui interpreter.rs
@@ -326,6 +327,7 @@ key	status	note
 0049f8f0	x	ac2-physics bsp/node.rs (Legions identical)
 0049f980	x	ac2-physics bsp: placement insert (Legions identical)
 0049fa10	x	ac2-physics los (Terrain::los_check)
+0049fec0	~	ac2-script glue: id table + pure-glue registry; engine glue unbound
 004a6220	x	ac2-physics los (Terrain::los_check)
 004a9640	~	ac2-script native: unpack direction only
 004a9760	~	ac2-script native: unpack direction only
@@ -961,8 +963,90 @@ key	status	note
 00531bb0	x	
 00531bf0	x	
 00531c30	x	
+00538010	x	ac2-script glue::string_info (lookups via ScriptData)
+00538080	x	ac2-script glue::string_info (lookups via ScriptData)
+005380f0	x	ac2-script glue::string_info (lookups via ScriptData)
+005381d0	x	ac2-script glue::string_info (lookups via ScriptData)
+005382b0	x	ac2-script glue::string_info (lookups via ScriptData)
+00538370	x	ac2-script glue::string_info (lookups via ScriptData)
+005383d0	x	ac2-script glue::string_info (lookups via ScriptData)
+00538440	x	ac2-script glue::string_info (lookups via ScriptData)
+00538560	x	ac2-script glue::string_info (lookups via ScriptData)
+005385c0	x	ac2-script glue::string_info (lookups via ScriptData)
+00538620	x	ac2-script glue::string_info (lookups via ScriptData)
+00538680	x	ac2-script glue::string_info (lookups via ScriptData)
+005386e0	x	ac2-script glue::string_info (lookups via ScriptData)
+00538740	x	ac2-script glue::string_info (lookups via ScriptData)
+00538810	x	ac2-script glue::string_info (lookups via ScriptData)
+00538870	x	ac2-script glue::string_info (lookups via ScriptData)
+005388f0	x	ac2-script glue::string_info (lookups via ScriptData)
+00538960	x	ac2-script glue::string_info (lookups via ScriptData)
+005389d0	x	ac2-script glue::string_info (lookups via ScriptData)
+00538a40	x	ac2-script glue::string_info (lookups via ScriptData)
+00538ad0	x	ac2-script glue::string_info (lookups via ScriptData)
+00538b40	x	ac2-script glue::string_info (lookups via ScriptData)
 00542530	x	ac2-physics los (Terrain::los_check)
 005425b0	x	ac2-physics los (Terrain::los_check)
+00552130	x	ac2-script glue
+005521c0	x	ac2-script glue
+00552270	x	ac2-script glue
+005522e0	x	ac2-script glue
+00552370	x	ac2-script glue
+00552410	x	ac2-script glue
+005524a0	x	ac2-script glue
+00552530	x	ac2-script glue
+005525b0	x	ac2-script glue
+00552640	x	ac2-script glue
+005526b0	x	ac2-script glue
+00552740	x	ac2-script glue
+005527d0	x	ac2-script glue
+00552860	x	ac2-script glue
+005528f0	x	ac2-script glue
+00552980	x	ac2-script glue
+00552a10	x	ac2-script glue
+00552aa0	x	ac2-script glue
+00552b30	x	ac2-script glue
+00552b90	x	ac2-script glue
+00552bf0	x	ac2-script glue
+00552c60	x	ac2-script glue
+00552d50	x	ac2-script glue
+00552db0	x	ac2-script glue
+00552e10	x	ac2-script glue
+00552e70	x	ac2-script glue
+00552ed0	x	ac2-script glue
+00552f30	x	ac2-script glue
+00552fb0	x	ac2-script glue
+00553010	x	ac2-script glue
+00553070	x	ac2-script glue
+005530f0	x	ac2-script glue
+00553150	x	ac2-script glue
+00553220	x	ac2-script glue
+005532b0	x	ac2-script glue
+00553330	x	ac2-script glue
+005533b0	x	ac2-script glue
+00553430	x	ac2-script glue
+005534c0	x	ac2-script glue
+00553550	x	ac2-script glue
+005535f0	x	ac2-script glue
+00553680	x	ac2-script glue
+00553720	x	ac2-script glue
+005537b0	x	ac2-script glue
+00553840	~	ac2-script glue: no collector/debugger
+00553850	~	ac2-script glue: no collector/debugger
+00553870	~	ac2-script glue: no collector/debugger
+005538d0	~	ac2-script glue: no collector/debugger
+00553900	x	ac2-script glue
+00553930	x	ac2-script glue
+00553990	x	ac2-script glue
+005539d0	x	ac2-script glue
+00553a10	x	ac2-script glue
+00553a50	x	ac2-script glue
+00553aa0	x	ac2-script glue
+00553ae0	x	ac2-script glue
+00553b20	x	ac2-script glue
+00553b50	x	ac2-script glue
+00553bd0	~	ac2-script glue: no collector/debugger
+00553c50	x	ac2-script glue
 00568050	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 00568220	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005682d0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -1404,8 +1488,16 @@ key	status	note
 0064e380	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 0064e640	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 0064e660	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
+00650a90	x	ac2-script glue::string_info (lookups via ScriptData)
+00650ad0	x	ac2-script glue::string_info (lookups via ScriptData)
+00650b90	x	ac2-script glue::string_info (lookups via ScriptData)
+00650c50	x	ac2-script glue::string_info (lookups via ScriptData)
+00650e30	x	ac2-script glue::string_info (lookups via ScriptData)
 00651b20	x	
+00652070	x	ac2-script glue::string_info (lookups via ScriptData)
+006521d0	x	ac2-script glue::string_info (lookups via ScriptData)
 00652db0	x	ac2-script reference/native unpack
+006571c0	x	ac2-script glue
 0065a4a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 0065a510	_	
 0065a580	_	
@@ -1665,8 +1757,10 @@ key	status	note
 006dcce0	~	ac2-script wstate DID formulas / ByteStream::package_id
 006dcf50	~	ac2-script wstate DID formulas / ByteStream::package_id
 006dcf90	x	ac2-script vm (VM/ReferenceTable/Resolver)
+006dcfb0	x	ac2-script glue
 006dd040	-	script debugger
 006dd520	x	ac2-script vm (VM/ReferenceTable/Resolver)
+006dd690	x	ac2-script glue
 006ddd50	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006dde60	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006de120	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
@@ -1674,6 +1768,17 @@ key	status	note
 006e08d0	~	ac2-script: handler table is a match in exec.rs
 006e08f0	x	ac2-script vm::exec / Program::walk
 006e0c20	x	ac2-script reference/native unpack
+006e0d30	x	ac2-script glue
+006e0d80	x	ac2-script glue
+006e0f00	x	ac2-script glue
+006e0fc0	x	ac2-script glue
+006e1080	x	ac2-script glue
+006e1140	x	ac2-script glue
+006e1210	x	ac2-script glue
+006e12e0	x	ac2-script glue
+006e13b0	x	ac2-script glue
+006e1410	x	ac2-script glue
+006e1470	x	ac2-script glue
 006e1700	x	ac2-script WLib/WState/ByteStream decode
 006e1830	_	
 006e20c0	x	ac2-script vm::exec / Program::walk
@@ -1803,9 +1908,13 @@ key	status	note
 006e5000	x	ac2-script WLib/WState/ByteStream decode
 006e5090	x	ac2-script WLib/WState/ByteStream decode
 006e5140	~	ac2-script: unpack direction only
+006e5790	x	ac2-script glue
 006e58e0	~	ac2-script: unpack direction only
+006e5960	x	ac2-script glue
 006e5aa0	x	ac2-script WLib/WState/ByteStream decode
+006e5c40	x	ac2-script glue
 006e5ec0	~	ac2-script: unpack direction only
+006e5f00	x	ac2-script glue
 006e6c60	x	ac2-script WLib/WState/ByteStream decode
 006e6f40	x	ac2-script WLib/WState/ByteStream decode
 006e74f0	x	ac2-script WLib/WState/ByteStream decode

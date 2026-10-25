@@ -145,6 +145,9 @@ pub struct Program {
     pub string_literals: Vec<Vec<u16>>,
     /// `m_pkgIdStrMap`.
     pub package_names: Vec<(Vec<u8>, u32)>,
+    /// Per export (vtable index): the package's id and its parent's export index
+    /// (`ExportPackageArgs::m_pkg_id`, `m_parent_index`).
+    pub exports: Vec<(u32, u32)>,
 }
 
 impl Program {
@@ -167,6 +170,11 @@ impl Program {
             package_vtable: stream.vtables.package_id_map.clone(),
             string_literals: stream.string_literals.clone(),
             package_names: stream.vtables.package_names.clone(),
+            exports: stream
+                .exports
+                .iter()
+                .map(|e| (e.args.pkg_id, e.args.parent_index))
+                .collect(),
         };
         program.resolve_virtual_calls();
         program
@@ -247,6 +255,24 @@ impl Program {
     /// `PackageInfo::size` of package `pkg` (0 when out of range).
     pub fn package_size(&self, pkg: u32) -> u32 {
         self.package_sizes.get(pkg as usize).copied().unwrap_or(0)
+    }
+
+    /// `ByteStream::IsDerivedFrom(pkg, base)`: `pkg` is `base` or has it among its parents.
+    pub fn is_derived_from(&self, pkg: u32, base: u32) -> bool {
+        let Some(&index) = self.package_vtable.get(pkg as usize) else {
+            return false;
+        };
+        let mut index = index;
+        for _ in 0..=self.exports.len() {
+            let Some(&(pkg_id, parent)) = self.exports.get(index as usize) else {
+                return false;
+            };
+            if pkg_id == base {
+                return true;
+            }
+            index = parent;
+        }
+        false
     }
 
     /// `VM::GetPackageID(name)`.

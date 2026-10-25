@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 159 done, 17 partial, 1722 to do, 6 skipped.
+1904 retail functions: 159 done, 19 partial, 1720 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -860,7 +860,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/weenie/interp/glue/gmcefundispatcher.cpp.c` (0/1)
 
 ### gmCEFunDispatcher
-- [ ] `gmCEFunDispatcher::GetEFunAddress` · 00463df0 · legions 00464a60
+- [~] `gmCEFunDispatcher::GetEFunAddress` · 00463df0 · legions 00464a60 — ac2-script glue: id table + pure-glue registry; engine glue unbound
 
 ## `ac2/client/src/weenie/interp/glue/gmcnativefactory.cpp.c` (0/18)
 
@@ -1532,7 +1532,7 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/weenie/interp/glue/cefundispatcher.cpp.c` (0/1)
 
 ### CEFunDispatcher
-- [ ] `CEFunDispatcher::GetEFunAddress` · 0049fec0 · legions 00496f40
+- [~] `CEFunDispatcher::GetEFunAddress` · 0049fec0 · legions 00496f40 — ac2-script glue: id table + pure-glue registry; engine glue unbound
 
 ## `portal/client/src/weenie/interp/glue/cnativefactory.cpp.c` (2/268)
 

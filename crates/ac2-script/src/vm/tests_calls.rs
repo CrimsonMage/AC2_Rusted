@@ -19,7 +19,7 @@ fn package_vm(code: Vec<u32>, init_at: u32, method_at: u32, size: u32) -> Vm {
     );
     program.package_sizes = vec![size];
     program.string_literals = vec!["hi".encode_utf16().collect()];
-    Vm::new(Arc::new(program), Box::new(NoStates), EFuns::new())
+    Vm::new(Arc::new(program), Box::new(NoData), EFuns::new())
 }
 
 #[test]
@@ -171,7 +171,7 @@ fn addresses_reach_locals_and_heap_slots_and_strings_are_native() {
 
 struct OneState(Arc<WState>);
 
-impl StateSource for OneState {
+impl ScriptData for OneState {
     fn wstate(&self, did: u32) -> Option<StateRef> {
         (did == self.0.did).then(|| Box::new(self.0.clone()) as StateRef)
     }

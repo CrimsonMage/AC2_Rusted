@@ -1,6 +1,6 @@
 # replaced: Third-party libraries, CRT and container templates replaced by Rust
 
-2058 retail functions: 10 done, 0 partial, 0 to do, 2048 skipped.
+2058 retail functions: 17 done, 0 partial, 0 to do, 2041 skipped.
 Legend and workflow: [README](README.md).
 
 ## `_libraries/ImeUI.lib/ImeUi.obj.c` (0/36)
@@ -4192,22 +4192,22 @@ Legend and workflow: [README](README.md).
 ### IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,BreakpointInfo>_*>
 - [-] `IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,BreakpointInfo>_*>::IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,BreakpointInfo>_*>` · 006dcd90 · legions 00666190 — Rust std replaces it
 
-## `portal/shared/src/interp/wccefuns.cpp.c` (0/9)
+## `portal/shared/src/interp/wccefuns.cpp.c` (7/9)
 
 ### (free functions)
-- [-] `_WCC_strcat_str` · 006e0d30 — Rust std replaces it
+- [x] `_WCC_strcat_str` · 006e0d30 — ac2-script glue
 
 ### PStringBase<unsigned_short>
 - [-] `PStringBase<unsigned_short>::append_uint64` · 006e0e00 · legions 00667c70 — Rust std replaces it
 - [-] `PStringBase<unsigned_short>::append_uint64_hex` · 006e0e80 · legions 00667cf0 — Rust std replaces it
 
 ### (free functions)
-- [-] `_WCC_strcat_int` · 006e0f00 · legions 00667d70 — Rust std replaces it
-- [-] `_WCC_strcat_uint` · 006e0fc0 · legions 00667e30 — Rust std replaces it
-- [-] `_WCC_strcat_float` · 006e1080 · legions 00667ef0 — Rust std replaces it
-- [-] `_WCC_strcat_lint` · 006e1140 · legions 00667fb0 — Rust std replaces it
-- [-] `_WCC_strcat_ulint` · 006e1210 · legions 00668080 — Rust std replaces it
-- [-] `_WCC_strcat_lfloat` · 006e12e0 · legions 00668150 — Rust std replaces it
+- [x] `_WCC_strcat_int` · 006e0f00 · legions 00667d70 — ac2-script glue
+- [x] `_WCC_strcat_uint` · 006e0fc0 · legions 00667e30 — ac2-script glue
+- [x] `_WCC_strcat_float` · 006e1080 · legions 00667ef0 — ac2-script glue
+- [x] `_WCC_strcat_lint` · 006e1140 · legions 00667fb0 — ac2-script glue
+- [x] `_WCC_strcat_ulint` · 006e1210 · legions 00668080 — ac2-script glue
+- [x] `_WCC_strcat_lfloat` · 006e12e0 · legions 00668150 — ac2-script glue
 
 ## `portal/shared/src/mesh/basemesh.cpp.c` (0/7)
 

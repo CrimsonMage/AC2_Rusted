@@ -2,7 +2,7 @@
 //!
 //! A [`Vm`] owns the resolved [`Program`], the [`ReferenceTable`] and the efun table; script
 //! threads are [`Context`]s the caller keeps. Package singletons and saved states come from a
-//! [`StateSource`] the host fills from the DAT cache (decoded on worker threads); the VM never
+//! [`ScriptData`] the host fills from the DAT cache (decoded on worker threads); the VM never
 //! reads files.
 
 mod arith;
@@ -80,15 +80,33 @@ pub enum Fault {
 /// A held WState (an `Arc`, or an ac2-db `CachedResource`).
 pub type StateRef = Box<dyn Deref<Target = WState>>;
 
-/// Saved script states by WState DID (`DBObj::Get` in `FillPackage` and `AllocatePackage`).
-pub trait StateSource {
+/// What the VM and its glue read from the DATs, served by the host from the ac2-db cache
+/// (decoded on worker threads; the VM never reads files).
+pub trait ScriptData {
+    /// Saved script states by WState DID (`DBObj::Get` in `FillPackage` and
+    /// `AllocatePackage`).
     fn wstate(&self, did: u32) -> Option<StateRef>;
+
+    /// `FileArray::GetDID(name, db_type)`: a data file's DID by name (the `DBFile2IDTable`).
+    fn file_did(&self, _name: &[u8], _db_type: u32) -> Option<u32> {
+        None
+    }
+
+    /// `FileArray::GetDIDFromEnum(value, db_type)`.
+    fn enum_did(&self, _value: u32, _db_type: u32) -> Option<u32> {
+        None
+    }
+
+    /// `MasterDBMap::DivineType`: the DB type a DID belongs to.
+    fn db_type(&self, _did: u32) -> Option<u32> {
+        None
+    }
 }
 
-/// No saved states: every package starts from its initializer.
-pub struct NoStates;
+/// No DAT data: every package starts from its initializer, no names resolve.
+pub struct NoData;
 
-impl StateSource for NoStates {
+impl ScriptData for NoData {
     fn wstate(&self, _did: u32) -> Option<StateRef> {
         None
     }
@@ -101,7 +119,7 @@ pub struct Vm {
     /// `RuntimeByteStream`'s literal references, by literal index.
     pub string_literals: Vec<u32>,
     pub efuns: EFuns,
-    states: Box<dyn StateSource>,
+    states: Box<dyn ScriptData>,
     /// The fault behind the most recent [`InterpStatus::Crash`].
     pub last_fault: Option<Fault>,
 }
@@ -109,7 +127,7 @@ pub struct Vm {
 impl Vm {
     /// `VM::VM` + `RuntimeByteStream::LoadStringLitTableSection`: each string literal becomes
     /// a `wpstring` native object (`ReferenceTable::CreateStringLiteral`).
-    pub fn new(program: Arc<Program>, states: Box<dyn StateSource>, efuns: EFuns) -> Self {
+    pub fn new(program: Arc<Program>, states: Box<dyn ScriptData>, efuns: EFuns) -> Self {
         let mut refs = ReferenceTable::new();
         let string_literals = program
             .string_literals
@@ -277,6 +295,16 @@ impl Vm {
     /// `VM::GetSingletonPackageByID`.
     pub fn singleton_package(&mut self, pid: u32) -> u32 {
         self.refs.singleton(singleton_did(pid))
+    }
+
+    /// The package id a WState was saved from (`WState::m_pid`).
+    pub fn state_package(&self, did: u32) -> Option<u32> {
+        self.states.wstate(did).and_then(|state| state.pid)
+    }
+
+    /// The host's DAT services.
+    pub fn data(&self) -> &dyn ScriptData {
+        self.states.as_ref()
     }
 
     /// `VM::GetStringLiteral`.

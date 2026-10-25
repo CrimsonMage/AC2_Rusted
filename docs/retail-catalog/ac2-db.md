@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 7 done, 11 partial, 576 to do, 39 skipped.
+633 retail functions: 15 done, 11 partial, 568 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -927,7 +927,7 @@ Legend and workflow: [README](README.md).
 ### StringTableMetaLanguage
 - [ ] `StringTableMetaLanguage::LoadTokenizer` · 0065a310 · legions 00608c80
 
-## `portal/shared/src/stringtable/metalanguage/metalanguage_utils.cpp.c` (0/14)
+## `portal/shared/src/stringtable/metalanguage/metalanguage_utils.cpp.c` (1/14)
 
 ### StringTableMetaLanguage
 - [ ] `StringTableMetaLanguage::IsEscapeChar` · 00656b20 · legions 00605470
@@ -947,11 +947,11 @@ Legend and workflow: [README](README.md).
 - [ ] `StringTableMetaLanguage::CapitalizeFirstLetter` · 00656ee0 · legions 00605830
 - [ ] `StringTableMetaLanguage::RetrieveMetaLetters` · 00656fd0 · legions 00605920
 - [ ] `StringTableMetaLanguage::StripMetaLetters` · 006570f0 · legions 00605a40
-- [ ] `StringTableMetaLanguage::EscapeString` · 006571c0 · legions 00605b10
+- [x] `StringTableMetaLanguage::EscapeString` · 006571c0 · legions 00605b10 — ac2-script glue
 - [ ] `StringTableMetaLanguage::UnescapeString` · 006572d0 · legions 00605c20
 - [ ] `StringTableMetaLanguage::ApplyMetaTagsToName` · 006573f0 · legions 00605d40
 
-## `portal/shared/src/stringtable/stringinfo.cpp.c` (2/56)
+## `portal/shared/src/stringtable/stringinfo.cpp.c` (9/56)
 
 ### StringInfoData
 - [ ] `StringInfoData::operator==` · 00650880
@@ -962,16 +962,16 @@ Legend and workflow: [README](README.md).
 - [ ] `StringInfo::ApplyMetasToPlayerName` · 00650900 · legions 005ffbd0
 - [ ] `StringInfo::ReportError` · 00650920
 - [ ] `StringInfo::SetTableEnum` · 00650a50 · legions 005ffc10
-- [ ] `StringInfo::SetStringIDandTableEnum` · 00650a90 · legions 005ffc50
-- [ ] `StringInfo::SetStringIDandTableID` · 00650ad0 · legions 005ffc90
+- [x] `StringInfo::SetStringIDandTableEnum` · 00650a90 · legions 005ffc50 — ac2-script glue::string_info (lookups via ScriptData)
+- [x] `StringInfo::SetStringIDandTableID` · 00650ad0 · legions 005ffc90 — ac2-script glue::string_info (lookups via ScriptData)
 - [ ] `StringInfo::operator%` · 00650b40 · legions 005ffd00
-- [ ] `StringInfo::SetTableName` · 00650b90 · legions 005ffd50
-- [ ] `StringInfo::SetStringIDandTableName` · 00650c50 · legions 005ffdf0
+- [x] `StringInfo::SetTableName` · 00650b90 · legions 005ffd50 — ac2-script glue::string_info (lookups via ScriptData)
+- [x] `StringInfo::SetStringIDandTableName` · 00650c50 · legions 005ffdf0 — ac2-script glue::string_info (lookups via ScriptData)
 - [ ] `StringInfo::GetString` · 00650c70 · legions 005ffe10
 - [ ] `StringInfo::GetStringWithMetaTags` · 00650ce0 · legions 005ffe80
 - [ ] `StringInfo::InqString` · 00650d00 · legions 005ffea0
 - [ ] `StringInfo::InqStringTableFile` · 00650da0
-- [ ] `StringInfo::SetLiteralValue` · 00650e30 · legions 005fffd0
+- [x] `StringInfo::SetLiteralValue` · 00650e30 · legions 005fffd0 — ac2-script glue::string_info (lookups via ScriptData)
 - [ ] `StringInfo::GetLiteralValue` · 00650ef0 · legions 00600090
 - [ ] `StringInfo::SetVarInTable` · 00651000 · legions 006001a0
 - [ ] `StringInfo::GetLogString` · 00651220 · legions 00600410
@@ -985,11 +985,11 @@ Legend and workflow: [README](README.md).
 - [x] `StringInfo::Pack` · 00651b20 · legions 00600bf0
 - [ ] `StringInfo::InqStringInternal` · 00651dd0 · legions 00600ea0
 - [ ] `StringInfo::ClearVars` · 00651fb0 · legions 00601080
-- [ ] `StringInfo::Reset` · 00652070 · legions 00601140
+- [x] `StringInfo::Reset` · 00652070 · legions 00601140 — ac2-script glue::string_info (lookups via ScriptData)
 - [ ] `StringInfo::operator==` · 00652080 · legions 00601150
 - [ ] `StringInfo::IsReady` · 00652140 · legions 00601210
 - [ ] `StringInfo::~StringInfo` · 00652150 · legions 00601220
-- [ ] `StringInfo::AddVar` · 006521d0 · legions 006012a0
+- [x] `StringInfo::AddVar` · 006521d0 · legions 006012a0 — ac2-script glue::string_info (lookups via ScriptData)
 - [ ] `StringInfo::AddVariable_Int` · 006522b0 · legions 00601380
 - [ ] `StringInfo::AddVariable_FormattedInt` · 00652330 · legions 00601400
 - [ ] `StringInfo::AddVariable_UInt` · 006523c0 · legions 00601490

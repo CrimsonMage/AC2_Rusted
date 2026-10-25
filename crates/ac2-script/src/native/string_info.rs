@@ -15,6 +15,8 @@ pub struct StringVar {
 /// A variable's value by `StringInfoData::type` (the `SID_*` classes).
 #[derive(Debug, Clone, PartialEq)]
 pub enum StringVarValue {
+    /// 1, `SID_String` (made by script glue; `StringInfo::UnPack` reads no such variable).
+    String(Vec<u16>),
     /// 2, `SID_Int`.
     Int(i32),
     /// 3, `SID_FormattedInt`.

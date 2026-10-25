@@ -11,7 +11,7 @@ pub(super) fn w(code: u32, tag: u8, imm: i32) -> u32 {
 
 pub(super) fn vm_with(code: Vec<u32>, func_ids: Vec<Vec<u32>>, vtables: Vec<Vec<u32>>) -> Vm {
     let program = Program::from_parts(code, func_ids, vtables);
-    Vm::new(Arc::new(program), Box::new(NoStates), EFuns::new())
+    Vm::new(Arc::new(program), Box::new(NoData), EFuns::new())
 }
 
 /// Runs `code` from word 0 in a fresh context entered as a function.
