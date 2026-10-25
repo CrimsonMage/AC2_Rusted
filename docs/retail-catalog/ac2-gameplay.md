@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 51 done, 7 partial, 432 to do, 9 skipped.
+499 retail functions: 52 done, 7 partial, 431 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
@@ -24,7 +24,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060ca40 · legions 005cd840
 - [ ] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060caf0 · legions 005cd8f0
 
-## `ac2/shared/src/character/gameplayoptionsprofile.cpp.c` (1/57)
+## `ac2/shared/src/character/gameplayoptionsprofile.cpp.c` (2/57)
 
 ### PFileNode
 - [ ] `PFileNode::MakeSubNodeAsBool` · 005fe6a0 · legions 005bf180
@@ -36,7 +36,7 @@ Legend and workflow: [README](README.md).
 - [ ] `GameplayOptionsProfile::InqUISaveLocations` · 005fe730 · legions 005bf210
 - [ ] `GameplayOptionsProfile::TestBitMask` · 005fe750 · legions 005bf230
 - [ ] `GameplayOptionsProfile::SetBitMask` · 005fe760 · legions 005bf240
-- [ ] `GameplayOptionsProfile::SetShortcut` · 005fe7a0 · legions 005bf280
+- [x] `GameplayOptionsProfile::SetShortcut` · 005fe7a0 · legions 005bf280 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
 
 ### SmartArray<ShortcutInfo>
 - [ ] `SmartArray<ShortcutInfo>::operator=` · 005fe7d0 · legions 005bf2b0

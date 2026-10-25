@@ -6,8 +6,9 @@ use crate::protocol::types::{float_table, Position};
 use crate::protocol::ProtocolError;
 
 /// `BehaviorParams::StreamPack`: a pack bitfield, then the fields it names, in stream order.
-/// Boolean fields travel as 32-bit integers.
-#[derive(Debug, Clone, Default, PartialEq)]
+/// Boolean fields travel as 32-bit integers; the fields not packed keep their
+/// `BehaviorParams::SetDefaults` values ([`Default`]).
+#[derive(Debug, Clone, PartialEq)]
 pub struct BehaviorParams {
     pub bitfield: u32,
     pub behavior: u32,
@@ -39,6 +40,44 @@ pub struct BehaviorParams {
     pub destroy_on_completion: u32,
     pub weenie_emote: u32,
     pub context: u32,
+}
+
+impl Default for BehaviorParams {
+    /// `BehaviorParams::SetDefaults`: time scale 1, one hold cycle, send event set, the rest
+    /// zero (`INVALID_IID` targets).
+    fn default() -> Self {
+        Self {
+            bitfield: 0,
+            behavior: 0,
+            time_scale: 1.0,
+            mode: 0,
+            hold_cycles: 1,
+            fx_script: 0,
+            fx: 0,
+            target: 0,
+            camera_target: 0,
+            camera_behavior: 0,
+            vdesc_to_clone: 0,
+            cloned_apr: 0,
+            cloned_app_apr: Vec::new(),
+            cloned_app_apr_buckets: 0,
+            impulse: [0.0; 3],
+            early_callback: 0,
+            moveto_cancels: 0,
+            camera_parent: 0,
+            camera_target_flag: 0,
+            camera_hold: 0,
+            camera_restore: 0,
+            fade_children: 0,
+            propagate: 0,
+            lock_actions: 0,
+            send_event: 1,
+            leave_idle_alone: 0,
+            destroy_on_completion: 0,
+            weenie_emote: 0,
+            context: 0,
+        }
+    }
 }
 
 impl BehaviorParams {

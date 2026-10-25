@@ -117,6 +117,18 @@ fn vitals_follow_the_login_message_and_quality_updates() {
             update(vital::VIGOR, 90, 114),
             update(vital::PK_VIGOR_LOSS, 0, 114),
             update(vital::FOCUS, 0, 100),
+            // Then its inventory arguments: the player's contents, the equipment.
+            GameplayNotice::UpdateContainer {
+                container: legions_server_double::PLAYER,
+                code: ac2_weenie::INVENTORY_REFRESH,
+                item: 0,
+                slot: 0
+            },
+            GameplayNotice::UpdateInventory {
+                code: ac2_weenie::INVENTORY_REFRESH,
+                item: 0,
+                location: 0
+            },
         ]
     );
     // Its other arguments are left to the caller as the raw script event.

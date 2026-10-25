@@ -13,6 +13,7 @@ mod error;
 mod fx;
 mod gameplay;
 mod inventory;
+mod inventory_bulk;
 mod movement;
 mod native;
 mod object;
@@ -49,6 +50,9 @@ pub use inventory::{
     id_list, pack_id_list, ContainerContents, Equipment, InvEquipDesc, InvMoveDesc,
     EQUIP_ITEM_PROFILE_PACKAGE, INVENT_PROFILE_PACKAGE, INV_EQUIP_DESC_PACKAGE,
     INV_MOVE_DESC_PACKAGE,
+};
+pub use inventory_bulk::{
+    InvTakeAllDesc, InvTransmuteAllDesc, INV_TAKE_ALL_DESC_PACKAGE, INV_TRANSMUTE_ALL_DESC_PACKAGE,
 };
 pub use movement::{MoveTarget, MovementParameters, PhysicsStory, StoryHook, TargetPosition};
 pub use native::{

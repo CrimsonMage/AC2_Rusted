@@ -81,8 +81,8 @@ fn contents_moves_and_equipment_round_trip_through_the_double() {
     session.poll();
     {
         let mut s = state.borrow_mut();
-        s.send_contents(PLAYER);
-        s.send_equipment();
+        // The login message carries the player's contents and equipment (`CPlayer` 0x65).
+        s.send_init_player();
         // The side pack exists as an object before its contents come to it.
         s.send_event(&create_object_bytes(&ObjectSpawn {
             id: PACK,
@@ -92,6 +92,7 @@ fn contents_moves_and_equipment_round_trip_through_the_double() {
             origin: [60.0, 240.0, -44.5],
             rotation: [1.0, 0.0, 0.0, 0.0],
             stamps: [1, 1, 1, 1],
+            name: "Side Pack",
         }));
         s.send_contents(PACK);
     }
@@ -142,10 +143,49 @@ fn contents_moves_and_equipment_round_trip_through_the_double() {
     assert!(session.equip_item(0x99, 0x20).is_err());
     assert!(session.unequip_item(0x99, 0).is_err());
 
-    // Opening the side pack lists it again.
+    // Opening the side pack lists it again and marks it open; closing drops it.
     session.set_container_open(PACK, true);
     let events = settle(&mut session, &state);
-    assert!(notices(&events).contains(&refresh(PACK)));
+    assert_eq!(
+        notices(&events),
+        [
+            GameplayNotice::ContainerStateUpdate {
+                container: PACK,
+                open: true
+            },
+            refresh(PACK)
+        ]
+    );
+    assert_eq!(session.inventory().open_containers(), [PACK]);
+    // Everything in it into the player's pack.
+    session.loot_all(PACK);
+    settle(&mut session, &state);
+    assert_eq!(items(&session, PLAYER), [E, B, D]);
+    assert!(items(&session, PACK).is_empty());
+    session.set_container_open(PACK, false);
+    let events = settle(&mut session, &state);
+    assert!(
+        notices(&events).contains(&GameplayNotice::ContainerStateUpdate {
+            container: PACK,
+            open: false
+        })
+    );
+    assert!(session.inventory().open_containers().is_empty());
+    assert!(session.inventory().contents(PACK).is_none());
+    // An item's quantity changing raises its item update (`CItem` 0x3).
+    state
+        .borrow_mut()
+        .send_quality(&ac2_net::protocol::QualityUpdate {
+            object: Some(ac2_net::protocol::InstanceIdWithStamp {
+                id: PACK,
+                instance: 1,
+                other: 0,
+            }),
+            quality: 0x106,
+            value: ac2_net::protocol::QualityValue::Int(3),
+        });
+    let events = settle(&mut session, &state);
+    assert!(notices(&events).contains(&GameplayNotice::ItemUpdate(PACK)));
 
     let s = state.borrow();
     assert!(s.script_errors.is_empty(), "{:?}", s.script_errors);
@@ -158,6 +198,8 @@ fn contents_moves_and_equipment_round_trip_through_the_double() {
             ScriptRequest::EquipItem(InvEquipDesc::equip(A, PLAYER, 0x20, PLAYER, 0)),
             ScriptRequest::UnequipItem(InvEquipDesc::unequip(E, PLAYER, 0x10, 0)),
             ScriptRequest::OpenContainer(PACK),
+            ScriptRequest::LootAll(ac2_net::protocol::InvTakeAllDesc::new(PACK, PLAYER)),
+            ScriptRequest::CloseContainer(PACK),
         ]
     );
     // Byte for byte: the first move's `InvMoveDesc` (one loaded package instance, 51 slots).

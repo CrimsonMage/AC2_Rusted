@@ -146,6 +146,8 @@ pub struct Client {
     notices: Vec<Notice>,
     /// The physics objects of everything but the player.
     pub(crate) remotes: Remotes,
+    /// The weenies' script processes, when a script VM is attached.
+    pub(crate) scripts: Option<crate::scripts::Scripts>,
 }
 
 fn physics_position(cell: u32, origin: [f32; 3], rotation: [f32; 4]) -> Position {
@@ -201,6 +203,7 @@ impl Client {
             load_budget: Duration::from_millis(4),
             notices: Vec::new(),
             remotes: Remotes::default(),
+            scripts: None,
         }
     }
 
@@ -254,10 +257,11 @@ impl Client {
         self.movement(input);
         let mut events = self.smart_box()?;
         events.extend(commanded);
-        let dispatched = self.session.dispatch_events();
+        let mut dispatched = self.session.dispatch_events();
         for event in &dispatched {
             self.apply(event)?;
         }
+        self.run_scripts(&mut dispatched);
         events.extend(dispatched);
         self.camera_actions(input);
         self.render();
@@ -338,6 +342,7 @@ impl Client {
                     self.body_loaded(visual, body?);
                 }
             }
+            Loaded::ScriptState(id, pid, did) => self.script_state_loaded(id, pid, did),
             other => {
                 self.cells
                     .loaded(other, &mut self.terrain, &mut self.loader)?;
@@ -723,6 +728,7 @@ impl Client {
             selection: self.selection_frame(),
             player_vitals: *self.session.player_script().vitals(),
             inventory: self.inventory_frame(),
+            progress: self.progress_frame(),
         }
     }
 

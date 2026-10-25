@@ -19,6 +19,9 @@ pub struct RemoteObject {
     /// The root part group's Setup.
     pub setup: Option<u32>,
     pub entity: Option<u32>,
+    /// `gmWeenieDesc::m_packageID` as created: the script package `CWDistributor::Construct`
+    /// starts the object's process from (a later player description may drop the description).
+    pub script_package: Option<u32>,
     /// The display name, when the weenie description carries a literal.
     pub name: Option<String>,
     /// Cell position and orientation; absent for contained or held objects.
@@ -83,6 +86,7 @@ impl RemoteObject {
             visual: object.visual.parent,
             setup: object.visual.root_setup(),
             entity: object.entity_did(),
+            script_package: object.weenie.package_id,
             name: object.weenie.name.as_ref().and_then(|n| n.literal.clone()),
             position: object.physics.position,
             heading_degrees: None,
@@ -294,6 +298,7 @@ mod tests {
             visual: None,
             setup: None,
             entity: None,
+            script_package: None,
             name: None,
             position: None,
             heading_degrees: None,

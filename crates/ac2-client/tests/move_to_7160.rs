@@ -53,6 +53,7 @@ fn npc(origin: [f32; 3]) -> Vec<u8> {
         origin,
         rotation: [1.0, 0.0, 0.0, 0.0],
         stamps: [10, 1, 1, 0],
+        name: "Birch",
     })
 }
 

@@ -290,7 +290,7 @@ impl CellManager {
                 self.far_cached.insert(block);
                 block
             }
-            Loaded::Body(..) => return Ok(()),
+            Loaded::Body(..) | Loaded::ScriptState(..) => return Ok(()),
         };
         if let Some(context) = &mut self.context {
             if context.outstanding.remove(&block) {

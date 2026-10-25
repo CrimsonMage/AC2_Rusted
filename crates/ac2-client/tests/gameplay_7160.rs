@@ -41,6 +41,7 @@ fn selecting_an_object_fills_the_frame_selection() {
             origin: [80.0, 70.0, GROUND],
             rotation: [1.0, 0.0, 0.0, 0.0],
             stamps: [10, 1, 1, 0],
+            name: "Birch",
         }));
     let idle = FrameInput::default();
     for _ in 0..4 {

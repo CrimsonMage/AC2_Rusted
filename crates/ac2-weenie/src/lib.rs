@@ -13,12 +13,15 @@ mod ddd;
 mod destruction;
 mod inventory;
 mod movement_module;
+mod notice;
 mod objects;
 mod ordering;
 mod player_script;
+mod progress;
 mod qualities;
 mod reporter;
 mod session;
+mod social;
 mod tables;
 mod usage;
 mod vitals;
@@ -40,9 +43,11 @@ pub use objects::{
     ObjectTable, RemoteObject, STAMP_FORCE_POSITION, STAMP_MOVE_TO, STAMP_POSITION, STAMP_TELEPORT,
 };
 pub use player_script::{GameplayNotice, PlayerScript, ScriptOutput, NO_SELECTION};
+pub use progress::{Experience, Progress, Shortcuts, Skill, Skills};
 pub use qualities::WeenieQualities;
 pub use reporter::{heading_equals, BodyState, PositionReporter, ReportStamps};
 pub use session::{CharacterChoice, OnlineConfig, OnlineSession, SessionEvent, WorldEntry};
+pub use social::{AllegianceMember, AllegianceProfile, FellowInfo, FellowshipInfo, Social};
 pub use tables::{StringTableIds, TABLE_ENUM_COMMUNICATION, TABLE_ENUM_TELL, TABLE_ENUM_USAGE};
 pub use usage::DISPLAY_USAGE;
 pub use vitals::{vital, PlayerVitals, Vital};
