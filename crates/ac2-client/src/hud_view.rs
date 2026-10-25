@@ -3,6 +3,7 @@
 //! thread, then composed (`UIRegion::DrawHere`, software, as retail) whenever it arrives or the
 //! window changes size, and drawn as one layer per root surface. The frame's UI actions go to
 //! the tree (`UIElementManager::StartInput`), and it is composed again when they change it.
+//! The tree's messages go to the chat (`gmChatUI`) before they are returned.
 
 use std::collections::HashMap;
 use std::sync::mpsc::{self, Receiver, TryRecvError};
@@ -10,7 +11,10 @@ use std::sync::Arc;
 
 use ac2_db::{ResourceResult, ResourceStore};
 use ac2_gpu::{Gpu, UiLayer, UiOverlay};
-use ac2_ui::{GameplayHud, Reticle, ReticleOutcome, ReticleTarget, UiMessage, UiPixels, UiTree};
+use ac2_ui::{
+    ChatRequest, ChatSettings, ChatUi, GameplayHud, Modifiers, Reticle, ReticleOutcome,
+    ReticleTarget, UiMessage, UiPixels, UiTree,
+};
 
 type Built = ResourceResult<(GameplayHud, HashMap<u32, UiPixels>)>;
 
@@ -18,6 +22,9 @@ pub(crate) struct HudView {
     pending: Option<Receiver<Built>>,
     hud: Option<(UiTree, HashMap<u32, UiPixels>)>,
     reticle: Option<Reticle>,
+    chat: Option<ChatUi>,
+    /// Lines displayed before the HUD arrived (`RecvNotice_DisplayStringInfo`).
+    early_lines: Vec<(u32, String)>,
     overlay: UiOverlay,
     size: (u32, u32),
     dirty: bool,
@@ -46,6 +53,8 @@ impl HudView {
             pending: Some(receive),
             hud: None,
             reticle: None,
+            chat: None,
+            early_lines: Vec::new(),
             overlay: UiOverlay::new(gpu, format),
             size,
             dirty: false,
@@ -63,7 +72,11 @@ impl HudView {
 
     /// The frame's UI actions (`IUIManager` start / stop: `UIElementManager::StartInput` /
     /// `StopInput`); returns the messages they broadcast.
-    pub(crate) fn input(&mut self, actions: &[(u32, f32, bool)]) -> Vec<UiMessage> {
+    pub(crate) fn input(
+        &mut self,
+        actions: &[(u32, f32, bool)],
+        modifiers: Modifiers,
+    ) -> Vec<UiMessage> {
         let Some((tree, _)) = &mut self.hud else {
             return Vec::new();
         };
@@ -74,10 +87,11 @@ impl HudView {
                 tree.stop_input(action);
             }
         }
+        let messages = pump(tree, &mut self.chat, modifiers);
         if tree.take_changed() {
             self.dirty = true;
         }
-        tree.take_messages()
+        messages
     }
 
     /// The active text element's actions and characters (`UIElement_Text::ActionHandler` /
@@ -86,8 +100,9 @@ impl HudView {
         &mut self,
         actions: &[(u32, f32)],
         characters: &[(u16, u32)],
-        ctrl: bool,
+        modifiers: Modifiers,
     ) -> Vec<UiMessage> {
+        let ctrl = modifiers.ctrl;
         let Some((tree, _)) = &mut self.hud else {
             return Vec::new();
         };
@@ -97,10 +112,26 @@ impl HudView {
         for &(ch, key) in characters {
             tree.character(ch, key, ctrl);
         }
+        let messages = pump(tree, &mut self.chat, modifiers);
         if tree.take_changed() {
             self.dirty = true;
         }
-        tree.take_messages()
+        messages
+    }
+
+    /// What the chat asked since the last call (lines to send, history steps).
+    pub(crate) fn take_chat_requests(&mut self) -> Vec<ChatRequest> {
+        self.chat
+            .as_mut()
+            .map_or_else(Vec::new, ChatUi::take_requests)
+    }
+
+    /// `CM_Communication::SendNotice_DisplayStringInfo`'s text for the chat windows.
+    pub(crate) fn chat_display(&mut self, kind: u32, text: &str) {
+        match &mut self.chat {
+            Some(chat) => chat.display(kind, text),
+            None => self.early_lines.push((kind, text.to_owned())),
+        }
     }
 
     /// Whether an editable text element is active (the input manager's text mode).
@@ -112,13 +143,24 @@ impl HudView {
         match built {
             Ok((
                 GameplayHud {
-                    mut tree, reticle, ..
+                    mut tree,
+                    reticle,
+                    mut chat,
                 },
                 images,
             )) => {
                 tree.set_display(self.size.0 as i32, self.size.1 as i32);
+                if let Some(chat) = &mut chat {
+                    // The player's options are not read yet: the chat starts on
+                    // `GameplayOptionsProfile::Clear`'s (no filters, default fonts).
+                    chat.reload_chat_settings(&mut tree, &ChatSettings::default());
+                    for (kind, text) in self.early_lines.drain(..) {
+                        chat.display(kind, &text);
+                    }
+                }
                 self.hud = Some((tree, images));
                 self.reticle = reticle;
+                self.chat = chat;
                 self.dirty = true;
             }
             Err(error) => eprintln!("ac2: the HUD did not load: {error}"),
@@ -135,6 +177,13 @@ impl HudView {
                 }
                 Err(TryRecvError::Disconnected) => self.pending = None,
                 Err(TryRecvError::Empty) => {}
+            }
+        }
+        // `UIMESSAGE_GLOBAL_LOOP`: the chat windows write what arrived.
+        if let (Some((tree, _)), Some(chat)) = (&mut self.hud, &mut self.chat) {
+            chat.global_loop(tree);
+            if tree.take_changed() {
+                self.dirty = true;
             }
         }
         self.compose(gpu);
@@ -222,5 +271,23 @@ impl HudView {
 
     pub(crate) fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
         self.overlay.draw(pass);
+    }
+}
+
+/// The tree's messages to the chat until it broadcasts no more (activating an entry line
+/// broadcasts `activated`, which the chat answers); all of them, in order.
+fn pump(tree: &mut UiTree, chat: &mut Option<ChatUi>, modifiers: Modifiers) -> Vec<UiMessage> {
+    let mut all = Vec::new();
+    loop {
+        let messages = tree.take_messages();
+        if messages.is_empty() {
+            return all;
+        }
+        if let Some(chat) = chat.as_mut() {
+            for message in &messages {
+                chat.message(tree, message, modifiers);
+            }
+        }
+        all.extend(messages);
     }
 }
