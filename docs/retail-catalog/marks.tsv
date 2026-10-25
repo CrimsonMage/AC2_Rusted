@@ -14,6 +14,7 @@ key	status	note
 00406410	~	ac2-client Notice::ConnectionLost (ID_NetErr_ConnectionLost, 0x41000018); no UI modes in the headless client
 00406cb0	x	
 004079b0	x	OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
+004080c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 00408e90	~	LogOffCharacter only; no UI or game-option upload
 00409270	~	asks for the next-frame-drawn notice (SetWantNoticeOnNextFrameDrawn); no portal scenes
 00409960	x	
@@ -928,6 +929,11 @@ key	status	note
 00531c30	x	
 00542530	x	ac2-physics los (Terrain::los_check)
 005425b0	x	ac2-physics los (Terrain::los_check)
+00568050	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+00568220	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005682d0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+00568380	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+00568470	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 00568ea0	x	
 00569020	x	
 00569200	x	
@@ -1070,6 +1076,7 @@ key	status	note
 005a0da0	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
 005a0f80	x	ac2-ui input.rs
 005ae960	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
+005af9c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005b7260	~	BlendLitVertices on the GPU (ac2-gpu object.wgsl); no bounds update, ModelDetail<2 path not reproduced
 005b75b0	x	
 005b7a50	x	ac2-render object::pass / texture_matrix, ac2-gpu object
@@ -1094,7 +1101,10 @@ key	status	note
 005d6310	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6470	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6560	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005df7a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005df7e0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005df8a0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005dfaf0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005dff30	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 005e0950	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 005e1390	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
@@ -1102,12 +1112,51 @@ key	status	note
 005e1700	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 005e1850	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 005e1bd0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e1c60	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e1cb0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e1dc0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e1e40	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e1fc0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e2020	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e20f0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005e21b0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e2230	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e2300	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e23b0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e2a30	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e2da0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e2e70	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e2f50	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005e59b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005e5a80	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e75a0	x	ac2-physics moveto (slice 3)
+005e8ba0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e8e30	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e8e90	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e90b0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e9340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e9530	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005e9720	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e97c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005ea2c0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005ea430	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005ea510	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005eacf0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005eae20	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005eafc0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005ebaf0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005ebe50	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005ec570	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005ec870	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005ec8a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005eca20	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005ecd60	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005ed150	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005ed2c0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005ed340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005ed450	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005fded0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005fe0b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005fe420	x	
 00601c80	x	
 00601cd0	x	
@@ -1313,7 +1362,7 @@ key	status	note
 0064e660	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 00651b20	x	
 00652db0	x	
-0065a4a0	x	
+0065a4a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 0065a510	_	
 0065a580	_	
 0065a5a0	x	

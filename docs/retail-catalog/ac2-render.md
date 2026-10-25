@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 35 done, 21 partial, 712 to do, 13 skipped.
+781 retail functions: 35 done, 22 partial, 711 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -319,7 +319,7 @@ Legend and workflow: [README](README.md).
 
 ### SurfaceWindow
 - [ ] `SurfaceWindow::Unlock` · 005af950 · legions 0057b490
-- [ ] `SurfaceWindow::Blit` · 005af9c0 · legions 0057b500
+- [~] `SurfaceWindow::Blit` · 005af9c0 · legions 0057b500 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [ ] `SurfaceWindow::Multiply` · 005b00a0 · legions 0057bbd0
 - [ ] `SurfaceWindow::Fill` · 005b0350 · legions 0057be70
 - [ ] `SurfaceWindow::FillArea` · 005b0530 · legions 0057c050

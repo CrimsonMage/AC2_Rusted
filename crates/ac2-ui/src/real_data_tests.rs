@@ -131,3 +131,49 @@ fn every_ui_layout_decodes_to_its_last_byte() {
         ids.len()
     );
 }
+
+#[test]
+fn the_gameplay_hud_builds_and_places_its_roots() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ResourceStore::new(dataset);
+    let root = |tree: &UiTree, name: &str| {
+        *tree
+            .roots()
+            .iter()
+            .find(|&&r| tree.get(r).unwrap().id() == tokenize(name))
+            .unwrap_or_else(|| panic!("{name}"))
+    };
+    let tree = build_gameplay_hud(&store, 1024, 768).unwrap();
+    assert_eq!(tree.roots().len(), GAMEPLAY_ROOTS.len());
+    // The radar sits where the layout authored it; the toolbar is centred on the bottom edge.
+    let radar = root(&tree, "RadarField");
+    assert_eq!(tree.screen_box(radar), UiBox::new(875, 60, 1017, 236));
+    let toolbar = tree.screen_box(root(&tree, "ToolbarField"));
+    assert_eq!((toolbar.y1, toolbar.width()), (767, 798));
+
+    let images = load_ui_images(&store, &tree).unwrap();
+    assert_eq!(
+        images.len(),
+        tree.image_files().len(),
+        "every HUD image loads"
+    );
+    let surfaces = tree.compose(&images);
+    assert_eq!(surfaces.len(), GAMEPLAY_ROOTS.len());
+    let drawn = surfaces
+        .iter()
+        .filter(|s| s.rgba.chunks_exact(4).any(|p| p[3] != 0))
+        .count();
+    assert!(drawn >= 5, "{drawn} surfaces have pixels");
+
+    // A larger display keeps the toolbar centred on the bottom edge and the side panels on the
+    // bottom corners; a smaller one keeps the radar on the screen (`UIElement::MoveTo`).
+    let tree = build_gameplay_hud(&store, 1280, 1024).unwrap();
+    let toolbar = tree.screen_box(root(&tree, "ToolbarField"));
+    assert_eq!((toolbar.x0, toolbar.y1), ((1280 - 798) / 2, 1023));
+    let right = tree.screen_box(root(&tree, "RightSidePanel"));
+    assert_eq!((right.x1, right.y1), (1279, 1023));
+    let tree = build_gameplay_hud(&store, 800, 600).unwrap();
+    assert_eq!(tree.screen_box(root(&tree, "RadarField")).x1, 799);
+}

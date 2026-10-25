@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 69 done, 10 partial, 584 to do, 122 skipped.
+785 retail functions: 73 done, 11 partial, 579 to do, 122 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (13/62)
@@ -73,10 +73,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmWeenieDesc::RemoveString` · 00603c00
 - [ ] `gmWeenieDesc::Dump` · 00603c60 · legions 005c4b40
 
-## `portal/client/src/image/graphic.cpp.c` (0/12)
+## `portal/client/src/image/graphic.cpp.c` (4/12)
 
 ### RenderSurfaceLocal
-- [ ] `RenderSurfaceLocal::GetGlobalOrLocal` · 00568050 · legions 00537fe0
+- [x] `RenderSurfaceLocal::GetGlobalOrLocal` · 00568050 · legions 00537fe0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 
 ### Graphic
 - [ ] `Graphic::Graphic` · 005680a0 · legions 00538030
@@ -84,15 +84,15 @@ Legend and workflow: [README](README.md).
 - [ ] `Graphic::SetToDefaultGraphic` · 005680f0 · legions 00538080
 - [ ] `Graphic::GetWidth` · 005681e0 · legions 00538170
 - [ ] `Graphic::GetHeight` · 00568200 · legions 00538190
-- [ ] `Graphic::PutImage` · 00568220 · legions 005381b0
+- [x] `Graphic::PutImage` · 00568220 · legions 005381b0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 
 ### Box2D
-- [ ] `Box2D::Intersection` · 005682d0 · legions 00538260
+- [x] `Box2D::Intersection` · 005682d0 · legions 00538260 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 
 ### Graphic
-- [ ] `Graphic::Graphic` · 00568380 · legions 00538310
+- [~] `Graphic::Graphic` · 00568380 · legions 00538310 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [ ] `Graphic::Graphic` · 00568430 · legions 005383c0
-- [ ] `Graphic::Draw` · 00568470 · legions 00538400
+- [x] `Graphic::Draw` · 00568470 · legions 00538400 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `Graphic::InitFromIconLayerDesc` · 00568920 · legions 005388b0
 
 ## `portal/client/src/render/material/layermodifier.cpp.c` (4/46)

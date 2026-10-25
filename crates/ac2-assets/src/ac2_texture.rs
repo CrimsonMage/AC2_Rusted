@@ -268,6 +268,53 @@ fn mip_chain(levels: &[(DatFileKind, Ac2TextureLevel)]) -> Vec<(DatFileKind, Ac2
         .collect()
 }
 
+/// A UI image (`Graphic::Graphic`): a `RenderSurface` decoded to RGBA8, rows top-down.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Ac2UiSurface {
+    pub width: u32,
+    pub height: u32,
+    pub rgba: Arc<[u8]>,
+}
+
+/// `RenderSurfaceLocal::GetGlobalOrLocal`: a `0x41000000..=0x410FFFFE` DID is a portal
+/// `RenderSurface` (HighRes preferred, as for texture levels), a `0x41100000..=0x41FFFFFE` DID a
+/// local-DAT `RenderSurfaceLocal`; any other DID has no image.
+pub fn load_ac2_ui_surface(
+    store: &ResourceStore,
+    did: DataId,
+) -> ResourceResult<Option<Ac2UiSurface>> {
+    let level = match did.raw() {
+        0x4100_0000..=0x410F_FFFE => match load_level(store, DatFileKind::HighRes, did) {
+            Ok(Some(level)) => Some(level),
+            Ok(None) | Err(_) => load_level(store, DatFileKind::Portal, did)?,
+        },
+        0x4110_0000..=0x41FF_FFFE => load_level(store, DatFileKind::Local, did)?,
+        _ => None,
+    };
+    let Some(level) = level else {
+        return Ok(None);
+    };
+    let rgba: Arc<[u8]> = match &level.pixels {
+        Ac2SurfacePixels::Rgba(rgba) => Arc::clone(rgba),
+        Ac2SurfacePixels::BlockCompressed(format, blocks) => {
+            match crate::decode_block_compressed_texture(
+                *format,
+                level.width as usize,
+                level.height as usize,
+                blocks,
+            ) {
+                Some(rgba) => Arc::from(rgba),
+                None => return Ok(None),
+            }
+        }
+    };
+    Ok(Some(Ac2UiSurface {
+        width: level.width,
+        height: level.height,
+        rgba,
+    }))
+}
+
 fn load_ac2_texture_chain(
     store: &ResourceStore,
     chain_did: DataId,

@@ -3,20 +3,32 @@
 //! Asheron's Call 2 input and UI: the key maps and action map from the DATs, the input manager
 //! that turns key and mouse events into actions (`CInputManager_WIN32`), and the action
 //! interpreter that turns actions into the movement, behaviour and camera input the client core
-//! consumes (`ActionInterpreter`); and the UI layouts (`LayoutDesc`).
+//! consumes (`ActionInterpreter`); and the UI: layouts (`LayoutDesc`), the element tree built
+//! from them (`UIElementManager`, `UIElement`) and its software compositor (`UIRegion::DrawHere`).
 
 mod camera_ui;
+mod compose;
 mod controls;
+mod element;
+mod hud;
 mod input;
 mod interpreter;
 mod layout;
 mod layout_media;
 mod maps;
+mod place;
 #[cfg(test)]
 mod tests;
+mod token;
 
 pub use camera_ui::{CameraUi, CameraUiEffect};
+pub use compose::{UiPixels, UiSurface};
 pub use controls::{ControlFrame, Controls};
+pub use element::{UiBox, UiElement, UiImage, UiTree};
+pub use hud::{
+    build_gameplay_hud, load_layout_by_enum, load_ui_images, GAMEPLAY_ROOTS, LAYOUT_GAMEPLAY,
+    LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,
+};
 pub use input::{
     meta_mode_from_key, InputEvent, InputManager, RawAction, ACTION_POINTER_X, ACTION_POINTER_Y,
     DEVICE_KEYBOARD, DEVICE_MOUSE,
@@ -33,6 +45,9 @@ pub use maps::{
     load_action_map, load_key_map, ActionMap, ActionMapping, ActionValue, KeyMap, KEYMAP_CONTROL,
     KEYMAP_GROUP, KEYMAP_MAIN, KEYMAP_SHIFT,
 };
+pub use token::{tokenize, REFERENCE, REFERENT, STATELESS};
 
+#[cfg(test)]
+mod element_tests;
 #[cfg(test)]
 mod real_data_tests;

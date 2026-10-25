@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 46 done, 8 partial, 2176 to do, 17 skipped.
+2247 retail functions: 71 done, 26 partial, 2133 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -177,7 +177,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmGamePlayUI::ChildKeyPress` · 00407f70 · legions 00407ca0
 - [ ] `gmGamePlayUI::Update` · 00408020 · legions 00407ce0
 - [ ] `gmGamePlayUI::RecvNotice_DisplayMessage` · 00408080
-- [ ] `gmGamePlayUI::SetupChildren` · 004080c0 · legions 00407d80
+- [~] `gmGamePlayUI::SetupChildren` · 004080c0 · legions 00407d80 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [ ] `gmGamePlayUI::DoPleaseWaitCancel` · 004084a0 · legions 00408160
 - [ ] `gmGamePlayUI::Init` · 00408500 · legions 004081c0
 - [ ] `gmGamePlayUI::RecvNotice_CloseWaitDialog` · 00408640
@@ -2467,10 +2467,10 @@ Legend and workflow: [README](README.md).
 - [ ] `AttributeDesc::Pack` · 005e1280
 - [x] `AttributeDesc::UnPack` · 005e1390 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 
-## `portal/client/src/uielement/desc/elementdesc.cpp.c` (1/8)
+## `portal/client/src/uielement/desc/elementdesc.cpp.c` (2/8)
 
 ### ElementDesc
-- [ ] `ElementDesc::GetReferentType` · 005dfaf0 · legions 005a0880
+- [x] `ElementDesc::GetReferentType` · 005dfaf0 · legions 005a0880 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `ElementDesc::GetPackSize` · 005dfb50 · legions 005a08e0
 - [ ] `ElementDesc::Pack` · 005dfbd0 · legions 005a0960
 - [ ] `ElementDesc::GetSubDataIDs` · 005dfd30 · legions 005a0ac0
@@ -2479,7 +2479,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ElementDesc::Copy` · 005e0110 · legions 005a0ea0
 - [ ] `ElementDesc::ElementDesc` · 005e0310 · legions 005a10a0
 
-## `portal/client/src/uielement/desc/layoutdesc.cpp.c` (1/10)
+## `portal/client/src/uielement/desc/layoutdesc.cpp.c` (3/10)
 
 ### LayoutDesc
 - [ ] `LayoutDesc::GetPackSize` · 005df410
@@ -2487,17 +2487,17 @@ Legend and workflow: [README](README.md).
 - [ ] `LayoutDesc::GetSubDataIDs` · 005df590
 - [ ] `LayoutDesc::~LayoutDesc` · 005df660 · legions 005a03f0
 - [ ] `LayoutDesc::GetDBOType` · 005df770
-- [ ] `LayoutDesc::GetRootElementDesc` · 005df7a0 · legions 005a0530
-- [ ] `LayoutDesc::DereferenceElementDesc` · 005df7e0 · legions 005a0570
+- [x] `LayoutDesc::GetRootElementDesc` · 005df7a0 · legions 005a0530 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+- [x] `LayoutDesc::DereferenceElementDesc` · 005df7e0 · legions 005a0570 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [x] `LayoutDesc::UnPack` · 005df8a0 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 - [ ] `LayoutDesc::LayoutDesc` · 005dfa80 · legions 005a0810
 - [ ] `LayoutDesc::Allocate` · 005dfae0
 
-## `portal/client/src/uielement/desc/media/md_data_alpha.cpp.c` (1/4)
+## `portal/client/src/uielement/desc/media/md_data_alpha.cpp.c` (2/4)
 
 ### MD_Data_Alpha
 - [ ] `MD_Data_Alpha::MD_Data_Alpha` · 005e2190 · legions 005a2f80
-- [ ] `MD_Data_Alpha::Update` · 005e21b0
+- [x] `MD_Data_Alpha::Update` · 005e21b0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `MD_Data_Alpha::Copy` · 005e21d0 · legions 005a2ff0
 - [x] `MD_Data_Alpha::StreamPack` · 005e2230 · legions 005a2770 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 
@@ -2506,7 +2506,7 @@ Legend and workflow: [README](README.md).
 ### MD_Data_Anim
 - [ ] `MD_Data_Anim::Reset` · 005e22a0
 - [ ] `MD_Data_Anim::GetSubDataIDs` · 005e22c0
-- [ ] `MD_Data_Anim::Update` · 005e2300
+- [~] `MD_Data_Anim::Update` · 005e2300 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [x] `MD_Data_Anim::StreamPack` · 005e23b0 · legions 005a3140 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 - [ ] `MD_Data_Anim::MD_Data_Anim` · 005e2440 · legions 005a31d0
 - [ ] `MD_Data_Anim::Copy` · 005e24d0 · legions 005a3260
@@ -2528,7 +2528,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MD_Data_Cursor::Update` · 005e1950
 - [ ] `MD_Data_Cursor::Copy` · 005e1980 · legions 005a2710
 
-## `portal/client/src/uielement/desc/media/md_data_image.cpp.c` (1/5)
+## `portal/client/src/uielement/desc/media/md_data_image.cpp.c` (2/5)
 
 ### MD_Data_Image
 - [ ] `MD_Data_Image::MD_Data_Image` · 005e1f60 · legions 005a2d80
@@ -2537,7 +2537,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MD_Data_Alpha::GetSubDataIDs` · 005e1f90
 
 ### MD_Data_Image
-- [ ] `MD_Data_Image::Update` · 005e1fc0
+- [x] `MD_Data_Image::Update` · 005e1fc0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `MD_Data_Image::Copy` · 005e1fe0 · legions 005a2dd0
 - [x] `MD_Data_Image::StreamPack` · 005e2020 · legions 005a2e10 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 
@@ -2545,7 +2545,7 @@ Legend and workflow: [README](README.md).
 
 ### MD_Data_Jump
 - [ ] `MD_Data_Jump::MD_Data_Jump` · 005e1da0 · legions 005a2c20
-- [ ] `MD_Data_Jump::Update` · 005e1dc0
+- [~] `MD_Data_Jump::Update` · 005e1dc0 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [ ] `MD_Data_Jump::Copy` · 005e1e10 · legions 005a2c90
 - [x] `MD_Data_Jump::StreamPack` · 005e1e40 · legions 005a2bc0 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 
@@ -2561,7 +2561,7 @@ Legend and workflow: [README](README.md).
 ### MD_Data_Pause
 - [ ] `MD_Data_Pause::MD_Data_Pause` · 005e20a0 · legions 005a2e90
 - [ ] `MD_Data_Pause::Reset` · 005e20d0
-- [ ] `MD_Data_Pause::Update` · 005e20f0
+- [~] `MD_Data_Pause::Update` · 005e20f0 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [ ] `MD_Data_Pause::Copy` · 005e2160 · legions 005a2f50
 
 ## `portal/client/src/uielement/desc/media/md_data_sound.cpp.c` (0/3)
@@ -2571,11 +2571,11 @@ Legend and workflow: [README](README.md).
 - [ ] `MD_Data_Sound::Update` · 005e1ec0
 - [ ] `MD_Data_Sound::Copy` · 005e1f30 · legions 005a2d50
 
-## `portal/client/src/uielement/desc/media/md_data_state.cpp.c` (1/4)
+## `portal/client/src/uielement/desc/media/md_data_state.cpp.c` (2/4)
 
 ### MD_Data_State
 - [ ] `MD_Data_State::MD_Data_State` · 005e1c40 · legions 005a2a60
-- [ ] `MD_Data_State::Update` · 005e1c60
+- [x] `MD_Data_State::Update` · 005e1c60 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `MD_Data_State::Copy` · 005e1c80 · legions 005a2aa0
 
 ### MD_Data_Sound
@@ -2664,8 +2664,8 @@ Legend and workflow: [README](README.md).
 - [ ] `UIMainFramework::RemoveRootElement` · 005fddc0 · legions 005be8f0
 - [ ] `UIMainFramework::UIMainFramework` · 005fde50 · legions 005be980
 - [ ] `UIMainFramework::~UIMainFramework` · 005fde90 · legions 005be9c0
-- [ ] `UIMainFramework::CreateAndAddRootElementByDataID` · 005fded0 · legions 005bea00
-- [ ] `UIMainFramework::CreateAndAddRootElement` · 005fe0b0 · legions 005bebe0
+- [~] `UIMainFramework::CreateAndAddRootElementByDataID` · 005fded0 · legions 005bea00 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [~] `UIMainFramework::CreateAndAddRootElement` · 005fe0b0 · legions 005bebe0 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 
 ## `portal/client/src/uielement/framework/uipersistantdata.cpp.c` (1/13)
 
@@ -2707,7 +2707,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Node::AddParent` · 00735c00 · legions 006b18a0
 - [ ] `UIElement_Node::AddChild` · 00735c30 · legions 006b18d0
 
-## `portal/client/src/uielement/prim/uiregion.cpp.c` (0/31)
+## `portal/client/src/uielement/prim/uiregion.cpp.c` (3/31)
 
 ### UIRegion
 - [ ] `UIRegion::SetObject` · 005e2540 · legions 005a32d0
@@ -2731,14 +2731,14 @@ Legend and workflow: [README](README.md).
 - [ ] `UIRegion::MakeRootDirtyHere` · 005e28f0 · legions 005a36b0
 - [ ] `UIRegion::ForceDraw` · 005e2930 · legions 005a36f0
 - [ ] `UIRegion::SetParent_Internal` · 005e2980 · legions 005a3740
-- [ ] `UIRegion::GetClipBox` · 005e2a30 · legions 005a37f0
+- [x] `UIRegion::GetClipBox` · 005e2a30 · legions 005a37f0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIRegion::GetScreenClipBox` · 005e2b50 · legions 005a3910
 - [ ] `UIRegion::SetVisible` · 005e2c30 · legions 005a39f0
 - [ ] `UIRegion::SetImage` · 005e2cc0 · legions 005a3a80
 - [ ] `UIRegion::ClearImage` · 005e2d30 · legions 005a3af0
-- [ ] `UIRegion::MoveTo` · 005e2da0 · legions 005a3b60
-- [ ] `UIRegion::ResizeTo` · 005e2e70 · legions 005a3c30
-- [ ] `UIRegion::DrawHere` · 005e2f50 · legions 005a3d10
+- [x] `UIRegion::MoveTo` · 005e2da0 · legions 005a3b60 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+- [x] `UIRegion::ResizeTo` · 005e2e70 · legions 005a3c30 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+- [~] `UIRegion::DrawHere` · 005e2f50 · legions 005a3d10 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [ ] `UIRegion::~UIRegion` · 005e3140 · legions 005a3f00
 - [ ] `UIRegion::MouseOver` · 005e31e0 · legions 005a3fa0
 - [ ] `UIRegion::MouseOverTop` · 005e31f0 · legions 005a3fb0
@@ -2746,7 +2746,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0
 - [ ] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180
 
-## `portal/client/src/uielement/system/uielement.cpp.c` (0/104)
+## `portal/client/src/uielement/system/uielement.cpp.c` (16/104)
 
 ### UIRectangleObject
 - [ ] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790
@@ -2760,7 +2760,7 @@ Legend and workflow: [README](README.md).
 ### UIElement
 - [ ] `UIElement::GetParent` · 005e8b80 · legions 005a97e0
 - [ ] `UIElement::GetID` · 005e8b90 · legions 005a97f0
-- [ ] `UIElement::SetZLevel` · 005e8ba0 · legions 005a9800
+- [x] `UIElement::SetZLevel` · 005e8ba0 · legions 005a9800 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 
 ### UISurfaceObject
 - [ ] `UISurfaceObject::GetObjectViewWidth` · 005e8c20 · legions 005a9880
@@ -2774,24 +2774,24 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::StopMovement` · 005e8d40 · legions 005a99a0
 - [ ] `UIElement::MouseMoveElement` · 005e8d60 · legions 005a99c0
 - [ ] `UIElement::GetChild` · 005e8e00 · legions 005a9a60
-- [ ] `UIElement::GetChildRecursive` · 005e8e30 · legions 005a9a90
+- [x] `UIElement::GetChildRecursive` · 005e8e30 · legions 005a9a90 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::GetStringTableID` · 005e8e70 · legions 005a9ad0
 - [ ] `UIElement::SetMediaIndex` · 005e8e80 · legions 005a9ae0
-- [ ] `UIElement::AddChild` · 005e8e90 · legions 005a9af0
+- [x] `UIElement::AddChild` · 005e8e90 · legions 005a9af0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::SetAlphaImage` · 005e8f30 · legions 005a9b90
 - [ ] `UIElement::SetCursor` · 005e8f70 · legions 005a9bd0
 - [ ] `UIElement::RestoreSavedCursor` · 005e8fd0 · legions 005a9c30
 - [ ] `UIElement::SaveCursor` · 005e9010 · legions 005a9c70
 - [ ] `UIElement::MouseOver` · 005e9040 · legions 005a9ca0
 - [ ] `UIElement::MouseOverTop` · 005e9060 · legions 005a9cc0
-- [ ] `UIElement::SetAttributeFromDesc` · 005e90b0 · legions 005a9d10
+- [x] `UIElement::SetAttributeFromDesc` · 005e90b0 · legions 005a9d10 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::CopyElem` · 005e9180 · legions 005a9de0
 - [ ] `UIElement::MatchGraphics` · 005e91b0 · legions 005a9e10
 - [ ] `UIElement::DragAndDropComplete` · 005e9250 · legions 005a9eb0
 - [ ] `UIElement::SetDefaultLocation` · 005e92b0 · legions 005a9f10
 - [ ] `UIElement::InqImageSize` · 005e92c0 · legions 005a9f20
 - [ ] `UIElement::SetTooltip` · 005e9300 · legions 005a9f60
-- [ ] `UIElement::GetParentCurrentPosition` · 005e9340 · legions 005a9fa0
+- [x] `UIElement::GetParentCurrentPosition` · 005e9340 · legions 005a9fa0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::UpdateActivatable` · 005e93e0 · legions 005aa040
 - [ ] `UIElement::UpdateActivateOrder` · 005e9420 · legions 005aa080
 - [ ] `UIElement::Activate` · 005e9470 · legions 005aa0d0
@@ -2802,11 +2802,11 @@ Legend and workflow: [README](README.md).
 - [ ] `UIRegion::GetScreenY1` · 005e9510 · legions 005aa170
 
 ### UIElement
-- [ ] `UIElement::UIElement` · 005e9530 · legions 005aa190
+- [~] `UIElement::UIElement` · 005e9530 · legions 005aa190 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [ ] `UIElement::HasCursor` · 005e9710 · legions 005aa370
-- [ ] `UIElement::SetParent` · 005e9720 · legions 005aa380
+- [x] `UIElement::SetParent` · 005e9720 · legions 005aa380 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::BroadcastMessage` · 005e9790 · legions 005aa3f0
-- [ ] `UIElement::UpdateMedia` · 005e97c0 · legions 005aa420
+- [~] `UIElement::UpdateMedia` · 005e97c0 · legions 005aa420 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [ ] `UIElement::ClearTooltip` · 005e9810 · legions 005aa470
 
 ### IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,PStringBase<char>_*>_*>
@@ -2829,50 +2829,50 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::GetAttribute_DataID` · 005ea120 · legions 005aacf0
 - [ ] `UIElement::GetAttribute_Unicode` · 005ea180 · legions 005aad50
 - [ ] `UIElement::MouseDown` · 005ea220 · legions 005aadf0
-- [ ] `UIElement::ResetMedia` · 005ea2c0 · legions 005aae90
-- [ ] `UIElement::SetImage` · 005ea430 · legions 005ab000
-- [ ] `UIElement::AddAttributesFromDesc` · 005ea510 · legions 005ab0e0
+- [x] `UIElement::ResetMedia` · 005ea2c0 · legions 005aae90 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+- [~] `UIElement::SetImage` · 005ea430 · legions 005ab000 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [x] `UIElement::AddAttributesFromDesc` · 005ea510 · legions 005ab0e0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::MatchAttributes` · 005ea5c0 · legions 005ab190
 - [ ] `UIElement::DragItem` · 005eab10 · legions 005ab6e0
 - [ ] `UIElement::CatchDroppedItem` · 005eabd0 · legions 005ab7a0
 - [ ] `UIElement::IsTooltipOn` · 005eac90 · legions 005ab860
 - [ ] `UIElement::IsActivatable` · 005eacb0 · legions 005ab880
 - [ ] `UIElement::GetActivateOrder` · 005eacd0 · legions 005ab8a0
-- [ ] `UIElement::MoveTo` · 005eacf0 · legions 005ab8c0
-- [ ] `UIElement::GetPositionFromState` · 005eae20 · legions 005ab9f0
-- [ ] `UIElement::SetVisible` · 005eafc0 · legions 005abb90
+- [~] `UIElement::MoveTo` · 005eacf0 · legions 005ab8c0 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [x] `UIElement::GetPositionFromState` · 005eae20 · legions 005ab9f0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+- [~] `UIElement::SetVisible` · 005eafc0 · legions 005abb90 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [ ] `UIElement::StartTransition` · 005eb100 · legions 005abcd0
 - [ ] `UIElement::StartResizing` · 005eb1f0 · legions 005abdc0
 - [ ] `UIElement::StopResizing` · 005eb370 · legions 005abf40
 - [ ] `UIElement::MouseResizeElement` · 005eb430 · legions 005ac000
 - [ ] `UIElement::AddImageToState` · 005eb9c0 · legions 005ac590
-- [ ] `UIElement::AddAttributesForState` · 005ebaf0 · legions 005ac6c0
+- [x] `UIElement::AddAttributesForState` · 005ebaf0 · legions 005ac6c0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::InqLocation` · 005ebb80 · legions 005ac750
 - [ ] `UIElement::CheckLocation` · 005ebc80 · legions 005ac850
 - [ ] `UIElement::ApplyLocation` · 005ebcb0 · legions 005ac880
 - [ ] `UIElement::DrawStart` · 005ebdd0 · legions 005ac9a0
 - [ ] `UIElement::DrawDone` · 005ebe10 · legions 005ac9e0
-- [ ] `UIElement::GetPositionFromDesc` · 005ebe50 · legions 005aca20
+- [x] `UIElement::GetPositionFromDesc` · 005ebe50 · legions 005aca20 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::~UIElement` · 005ec020 · legions 005acbf0
 - [ ] `UIElement::SetAttribute_ID` · 005ec240 · legions 005ace10
 - [ ] `UIElement::SetAttribute_InstanceID` · 005ec2e0 · legions 005aceb0
 - [ ] `UIElement::SetAttribute_StringID` · 005ec380 · legions 005acf50
 - [ ] `UIElement::SetAttribute_Int` · 005ec420 · legions 005acff0
 - [ ] `UIElement::SetAttribute_Float` · 005ec4d0 · legions 005ad0a0
-- [ ] `UIElement::SetAttribute_Bool` · 005ec570 · legions 005ad140
+- [~] `UIElement::SetAttribute_Bool` · 005ec570 · legions 005ad140 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [ ] `UIElement::SetAttribute_DataID` · 005ec660 · legions 005ad230
 - [ ] `UIElement::SetAttribute_ASCII` · 005ec700 · legions 005ad2d0
 - [ ] `UIElement::SetAttribute_Unicode` · 005ec7a0 · legions 005ad370
-- [ ] `UIElement::GetOriginalPosition` · 005ec870 · legions 005ad440
-- [ ] `UIElement::GetParentOriginalPosition` · 005ec8a0 · legions 005ad470
+- [x] `UIElement::GetOriginalPosition` · 005ec870 · legions 005ad440 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+- [x] `UIElement::GetParentOriginalPosition` · 005ec8a0 · legions 005ad470 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::ListenToMessage` · 005ec9d0 · legions 005ad5a0
-- [ ] `UIElement::UpdateSizeAndPosition` · 005eca20 · legions 005ad5f0
-- [ ] `UIElement::Update_Internal` · 005ecd60 · legions 005ad930
-- [ ] `UIElement::ResizeTo` · 005ed150 · legions 005add20
-- [ ] `UIElement::SwitchDescription` · 005ed2c0 · legions 005ade90
+- [x] `UIElement::UpdateSizeAndPosition` · 005eca20 · legions 005ad5f0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+- [~] `UIElement::Update_Internal` · 005ecd60 · legions 005ad930 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [~] `UIElement::ResizeTo` · 005ed150 · legions 005add20 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [x] `UIElement::SwitchDescription` · 005ed2c0 · legions 005ade90 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::Update` · 005ed330 · legions 005adf00
-- [ ] `UIElement::UpdateChild` · 005ed340 · legions 005adf10
-- [ ] `UIElement::SetState` · 005ed450 · legions 005ae020
+- [x] `UIElement::UpdateChild` · 005ed340 · legions 005adf10 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+- [~] `UIElement::SetState` · 005ed450 · legions 005ae020 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 
 ## `portal/client/src/uielement/system/uielementmanager.cpp.c` (1/69)
 
@@ -2930,8 +2930,8 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElementManager::ReleaseLayoutDesc` · 005e5830 · legions 005a6580
 - [ ] `UIElementManager::RefreshEvent` · 005e5870 · legions 005a65c0
 - [ ] `UIElementManager::AddElementToDeleteQueue` · 005e5950 · legions 005a66a0
-- [ ] `UIElementManager::CreateRootElementByDataID` · 005e59b0
-- [ ] `UIElementManager::CreateElement` · 005e5a80
+- [~] `UIElementManager::CreateRootElementByDataID` · 005e59b0 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [~] `UIElementManager::CreateElement` · 005e5a80 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [ ] `UIElementManager::RemoveAndDeleteRootElement` · 005e5bf0 · legions 005a6930
 - [ ] `UIElementManager::UnregisterForMessage` · 005e5c30 · legions 005a6970
 - [ ] `UIElementManager::CleanElementListCleanQue` · 005e5cb0 · legions 005a69f0

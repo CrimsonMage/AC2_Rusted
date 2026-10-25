@@ -165,6 +165,7 @@ dependencies = [
  "ac2-dat",
  "ac2-db",
  "ac2-weenie",
+ "png",
 ]
 
 [[package]]

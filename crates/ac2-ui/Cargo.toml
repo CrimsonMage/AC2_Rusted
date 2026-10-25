@@ -16,3 +16,4 @@ ac2-weenie = { path = "../ac2-weenie" }
 
 [dev-dependencies]
 ac2-dat = { path = "../ac2-dat", features = ["test-support"] }
+png = "0.18"

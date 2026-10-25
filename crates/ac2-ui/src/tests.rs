@@ -146,3 +146,12 @@ fn the_wheel_zooms_for_one_frame_and_taps_double() {
     key(&mut c, W, true, 5.1);
     assert!(c.interpreter.is_double_tap());
 }
+
+#[test]
+fn tokenize_matches_the_retail_token_values() {
+    // `Tokenize("reference")`, `("stateless")`, `("referent")` as the layouts store them.
+    assert_eq!(crate::tokenize("reference"), 0xBCE0_5594);
+    assert_eq!(crate::tokenize("stateless"), 0x5CE1_FCAA);
+    assert_eq!(crate::tokenize("referent"), 0xBCE0_425E);
+    assert_eq!(crate::tokenize(""), 0);
+}

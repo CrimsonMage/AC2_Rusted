@@ -12,6 +12,8 @@
 //! attributes (`AttributeDesc::UnPack`), media (type, then `MediaDesc::CreateMediaType`'s
 //! `StreamPack`), transitions (`TransitionDesc::StreamPack`) and child elements, alignment.
 
+use std::sync::Arc;
+
 use ac2_core::{DataId, QualifiedDataId};
 use ac2_dat::{ArchiveCursor, ArchiveError, DatFileKind};
 use ac2_db::{
@@ -77,7 +79,7 @@ pub struct StateDesc {
     pub attributes: Vec<AttributeDesc>,
     pub media: Vec<MediaDesc>,
     pub transitions: Vec<TransitionDesc>,
-    pub children: Vec<ElementDesc>,
+    pub children: Vec<Arc<ElementDesc>>,
 }
 
 /// One `ElementDesc`.
@@ -110,12 +112,12 @@ pub struct LayoutDesc {
     pub height: u16,
     /// The top-level elements in DAT order. Retail hashes them by id and keeps the first of a
     /// repeated id.
-    pub elements: Vec<ElementDesc>,
+    pub elements: Vec<Arc<ElementDesc>>,
 }
 
 impl LayoutDesc {
-    /// `LayoutDesc::GetRootElementDesc`-style lookup of a top-level element.
-    pub fn element(&self, id: u32) -> Option<&ElementDesc> {
+    /// `LayoutDesc::GetRootElementDesc`: the top-level element `id` (the first, when repeated).
+    pub fn element(&self, id: u32) -> Option<&Arc<ElementDesc>> {
         self.elements.iter().find(|element| element.id == id)
     }
 }
@@ -199,7 +201,7 @@ impl Reader<'_, '_> {
             .collect::<Result<_, _>>()?;
         let n = self.count(28, "child element count")?;
         let children = (0..n)
-            .map(|_| self.element(depth + 1))
+            .map(|_| self.element(depth + 1).map(Arc::new))
             .collect::<ReadResult<_>>()?;
         self.cursor.align_to(4)?;
         Ok(StateDesc {
@@ -269,7 +271,7 @@ impl ResourcePackedDecode for LayoutDesc {
         let n = usize::from(reader.cursor.read_u16()?);
         reader.cursor.align_to(4)?;
         let elements = (0..n)
-            .map(|_| reader.element(0))
+            .map(|_| reader.element(0).map(Arc::new))
             .collect::<ReadResult<_>>()?;
         if reader.cursor.remaining() != 0 {
             return Err(reader.bad("trailing bytes after LayoutDesc"));
@@ -294,13 +296,21 @@ impl ResourcePackedDecode for LayoutDesc {
                             + state.attributes.len() * std::mem::size_of::<AttributeDesc>()
                             + state.media.len() * std::mem::size_of::<MediaDesc>()
                             + state.transitions.len() * std::mem::size_of::<TransitionDesc>()
-                            + state.children.iter().map(element_bytes).sum::<usize>()
+                            + state
+                                .children
+                                .iter()
+                                .map(|c| element_bytes(c))
+                                .sum::<usize>()
                     })
                     .sum::<usize>()
         }
         std::mem::size_of::<Self>()
             + self.sub_ids.len() * 4
-            + self.elements.iter().map(element_bytes).sum::<usize>()
+            + self
+                .elements
+                .iter()
+                .map(|e| element_bytes(e))
+                .sum::<usize>()
     }
 }
 
