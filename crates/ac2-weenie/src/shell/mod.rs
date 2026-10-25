@@ -9,11 +9,13 @@
 //! resolves [`ChatCommands`] on the loader side and hands them to the session.
 
 mod handlers;
+mod history;
 mod lines;
 
 use std::collections::HashMap;
 
 pub use handlers::{ChatState, ShellAction, Speaker};
+pub use history::ChatHistory;
 pub(crate) use lines::room_refused;
 pub use lines::SQUELCH_WORDS;
 
