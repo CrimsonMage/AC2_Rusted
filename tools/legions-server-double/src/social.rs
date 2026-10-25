@@ -210,7 +210,7 @@ impl State {
             }
             (0x8204_0008, [_]) => self.send_script_call(0x8204_001B, &[PackValue::Int(1)]),
             (0x8204_0010, []) => self.send_script_call(0x8204_001B, &[PackValue::Int(0)]),
-            _ => {}
+            (function, args) => self.answer_allegiance(function, args),
         }
     }
 }

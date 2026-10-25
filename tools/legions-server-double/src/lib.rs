@@ -4,6 +4,7 @@
 //! checksum against its own ISAAC stream. Pyrealium only speaks the admin 7148 layouts, so this
 //! is the 7160 path's test peer.
 
+mod allegiance;
 mod appearance;
 mod assembly;
 mod channel;
@@ -13,6 +14,7 @@ mod reliable;
 mod script;
 mod social;
 
+pub use allegiance::{Allegiance, Liege};
 pub use appearance::{
     contain_bytes, create_object_with_visual, part_group_bytes, quality_bytes,
     update_visual_desc_bytes, visual_desc_bytes,
@@ -353,6 +355,12 @@ pub struct State {
     pub script_world: ScriptWorld,
     /// The fellowship the double made for the player (`WM_Fellowship` 0x22), if any.
     pub fellowship: Option<Fellowship>,
+    /// The player's allegiance.
+    pub allegiance: Allegiance,
+    /// Who last asked to swear to the player (`ask_to_swear`).
+    pub asking_vassal: Option<Liege>,
+    /// Who last invited the player into a fellowship: id, name, the fellowship's name.
+    pub recruiter: Option<(u64, String, String)>,
     /// The client's script calls, decoded, in arrival order.
     pub script_requests: Vec<ac2_net::protocol::ScriptRequest>,
     /// The client's calls in `ac2_net::protocol::SCRIPT_CALLS` (skills, shortcuts,

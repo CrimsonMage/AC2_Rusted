@@ -36,6 +36,8 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_SET_SELECTION,
     IFUN_REQUEST_ATTACK_STATE_CHANGE,
     IFUN_SET_WHICH_SHORTCUT_SET,
+    // `WM_Combat` 0x1B -> `CPlayer` 0x2 (`SendNotice_UpdateAttackState`).
+    0x8204_001B,
     // The fellowship and allegiance actions (`ac2_weenie::SocialRequest::ifun`).
     0x00B4_00A0,
     0x00B4_00A1,

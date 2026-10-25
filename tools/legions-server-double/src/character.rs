@@ -116,7 +116,7 @@ impl Character {
 }
 
 /// The options profile the double's character logs in with: a shortcut bar of ten (set 0,
-/// one row) holding Melee Auto Attack, a chat line, then nothing.
+/// one row) holding Melee Auto Attack, a chat line, then nothing; requests accepted.
 pub fn default_options() -> GameplayOptionsProfile {
     let mut shortcuts = vec![ShortcutInfo::Empty(0); 10];
     shortcuts[0] = ShortcutInfo::Enum {
@@ -125,7 +125,9 @@ pub fn default_options() -> GameplayOptionsProfile {
     };
     shortcuts[1] = ShortcutInfo::Text("/e waves".into());
     GameplayOptionsProfile {
-        pack_bitfield: 0x2 | 0x4 | 0x1000,
+        // The bit field (0x80): allegiance and fellowship requests accepted (0x40, 0x80).
+        pack_bitfield: 0x2 | 0x4 | 0x80 | 0x1000,
+        bit_field: 0x40 | 0x80,
         shortcuts,
         which_shortcut_set: 0,
         shortcut_height: 1,
