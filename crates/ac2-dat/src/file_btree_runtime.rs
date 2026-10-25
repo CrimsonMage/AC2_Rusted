@@ -16,7 +16,7 @@ const REPLACEABLE_NODE_CACHE_LIMIT: usize = 100;
 /// B-tree-node cache. It deliberately owns neither decoded objects nor raw record-byte caching.
 #[derive(Debug)]
 pub(crate) struct FileBtreeRuntime {
-    file: Arc<File>,
+    file: File,
     path: PathBuf,
     header: DatHeader,
     file_len: usize,
@@ -42,7 +42,7 @@ enum ReadClass {
 }
 
 impl FileBtreeRuntime {
-    pub(crate) fn open(path: impl AsRef<Path>) -> DatResult<Arc<Self>> {
+    pub(crate) fn open(path: impl AsRef<Path>) -> DatResult<Self> {
         let path = path.as_ref().to_path_buf();
         let file = File::open(&path)?;
         let file_len = usize::try_from(file.metadata()?.len())
@@ -76,8 +76,8 @@ impl FileBtreeRuntime {
         } else {
             None
         };
-        Ok(Arc::new(Self {
-            file: Arc::new(file),
+        Ok(Self {
+            file,
             path,
             header,
             file_len,
@@ -85,7 +85,7 @@ impl FileBtreeRuntime {
             read_path: Mutex::new(()),
             nodes: Mutex::new(NodeLru::default()),
             profile,
-        }))
+        })
     }
 
     pub(crate) fn header(&self) -> DatHeader {
@@ -168,12 +168,19 @@ impl FileBtreeRuntime {
         self.profile.snapshot(entries, REPLACEABLE_NODE_CACHE_LIMIT)
     }
 
-    pub(crate) fn collect_file_entries(&self) -> DatResult<Vec<DatRawFileEntry>> {
-        if self.header.root_block <= 0 {
-            return Ok(Vec::new());
-        }
+    /// `BTree::Get_Id_List_Range` / `BTree::Build_Id_List(MinID, MaxID)`: visits only the subtrees
+    /// that can hold `first..=last`, through the pinned root and the same 100-node cache as a
+    /// lookup, and stops at the first entry past `last`. Retail appends a node's entry before
+    /// descending into the child left of it; this walk descends first so DIDs come out ascending.
+    pub(crate) fn collect_entries_in_range(
+        &self,
+        first: u32,
+        last: u32,
+    ) -> DatResult<Vec<DatRawFileEntry>> {
         let mut out = Vec::new();
-        self.walk_node(self.header.root_block as usize, &mut out)?;
+        if self.header.root_block > 0 && first <= last {
+            self.walk_range(self.header.root_block as usize, first, last, &mut out)?;
+        }
         Ok(out)
     }
 
@@ -230,25 +237,40 @@ impl FileBtreeRuntime {
         Ok(prefix[offset..].to_vec())
     }
 
-    fn walk_node(&self, offset: usize, out: &mut Vec<DatRawFileEntry>) -> DatResult<()> {
+    /// Returns `false` once an entry past `last` is reached, which ends the whole walk.
+    fn walk_range(
+        &self,
+        offset: usize,
+        first: u32,
+        last: u32,
+        out: &mut Vec<DatRawFileEntry>,
+    ) -> DatResult<bool> {
         let node = self.node(offset)?;
-        if node.is_leaf() {
-            out.extend(node.files.iter().copied().take(node.file_count));
-            return Ok(());
-        }
-        for index in 0..node.file_count {
-            let branch = node.branches[index];
-            if branch <= 0 {
-                return self.invalid_node(offset, "non-leaf node contains invalid child branch");
+        let files = &node.files[..node.file_count];
+        // `HasEntry` positions the walk at the first entry not below `first`; the children left
+        // of it hold only smaller DIDs, as does the child left of an entry equal to `first`.
+        let start = files.partition_point(|entry| entry.id < first);
+        let skip_start_child = files.get(start).is_some_and(|entry| entry.id == first);
+        for index in start..=files.len() {
+            if !node.is_leaf() && !(index == start && skip_start_child) {
+                let branch = node.branches[index];
+                if branch <= 0 {
+                    return self
+                        .invalid_node(offset, "non-leaf node contains invalid child branch");
+                }
+                if !self.walk_range(branch as usize, first, last, out)? {
+                    return Ok(false);
+                }
             }
-            self.walk_node(branch as usize, out)?;
-            out.push(node.files[index]);
+            let Some(entry) = files.get(index) else {
+                break;
+            };
+            if entry.id > last {
+                return Ok(false);
+            }
+            out.push(*entry);
         }
-        let branch = node.branches[node.file_count];
-        if branch <= 0 {
-            return self.invalid_node(offset, "non-leaf node is missing its final branch");
-        }
-        self.walk_node(branch as usize, out)
+        Ok(true)
     }
 
     fn find_in_node(&self, offset: usize, did: u32) -> DatResult<Option<DatRawFileEntry>> {

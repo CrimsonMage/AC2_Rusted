@@ -15,4 +15,5 @@ jpeg-decoder = "0.3"
 sha2 = "0.10"
 
 [dev-dependencies]
+ac2-dat = { path = "../ac2-dat", features = ["test-support"] }
 tempfile = "3.27.0"

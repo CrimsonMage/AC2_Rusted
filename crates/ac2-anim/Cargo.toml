@@ -12,4 +12,5 @@ ac2-dat = { path = "../ac2-dat" }
 ac2-db = { path = "../ac2-db" }
 
 [dev-dependencies]
+ac2-dat = { path = "../ac2-dat", features = ["test-support"] }
 tempfile = "3.27.0"

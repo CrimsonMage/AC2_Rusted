@@ -19,4 +19,5 @@ ac2-weenie = { path = "../ac2-weenie" }
 ac2-world = { path = "../ac2-world" }
 
 [dev-dependencies]
+ac2-dat = { path = "../ac2-dat", features = ["test-support"] }
 legions-server-double = { path = "../../tools/legions-server-double" }

@@ -7,7 +7,6 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use ac2_core::{CellId, DataId, Random};
-use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_db::ResourceStore;
 use ac2_gpu::{
     DrawGroup, FrameTarget, Gpu, GpuObjectModel, ObjectInstance, ObjectRenderer, ScreenQuad,
@@ -75,12 +74,11 @@ struct AreaStats {
 /// water, sky) and the far landscape past them from each `(name, eye offset, target offset)`
 /// around the centre block's highest vertex.
 fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaStats> {
-    let root = std::env::var_os("AC2_DAT_DIR")?;
+    let dataset = ac2_dat::test_support::env_dataset()?;
     let Ok(gpu) = Gpu::headless() else {
         eprintln!("no GPU adapter; skipping");
         return None;
     };
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let world = Ac2WorldSource::open(Arc::new(ResourceStore::new(dataset)))
         .unwrap()
         .unwrap();

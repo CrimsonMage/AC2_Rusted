@@ -72,7 +72,6 @@ version = "0.1.0"
 dependencies = [
  "ac2-core",
  "encoding_rs",
- "memmap2",
  "serde",
  "tempfile",
 ]

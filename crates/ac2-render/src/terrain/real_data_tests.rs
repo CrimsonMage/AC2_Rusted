@@ -4,7 +4,6 @@ use std::collections::BTreeSet;
 use std::sync::Arc;
 
 use ac2_core::{CellId, DataId};
-use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_db::ResourceStore;
 use ac2_world::Ac2WorldSource;
 
@@ -12,8 +11,7 @@ use super::build_terrain_mesh;
 use crate::{load_material_image, load_texture_image};
 
 fn world() -> Option<Arc<Ac2WorldSource>> {
-    let root = std::env::var_os("AC2_DAT_DIR")?;
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
+    let dataset = ac2_dat::test_support::env_dataset()?;
     Ac2WorldSource::open(Arc::new(ResourceStore::new(dataset))).expect("AC2 vocabulary decodes")
 }
 

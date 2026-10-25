@@ -5,15 +5,14 @@ use std::collections::BTreeSet;
 use std::sync::Arc;
 
 use ac2_core::DataId;
-use ac2_dat::{DatDataset, DatFileKind, DatOpenOptions};
+use ac2_dat::{DatDataset, DatFileKind};
 use ac2_db::{CachedResource, ResourcePackedDecode, ResourceStore, TypedResourceRef};
 
 use crate::ac2_fx::Ac2FxTable;
 use crate::{resolve_ac2_visual_particles, Ac2ParticleSystemDesc};
 
 fn ac2_dataset() -> Option<(Arc<DatDataset>, ResourceStore)> {
-    let root = std::env::var_os("AC2_DAT_DIR")?;
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
+    let dataset = ac2_dat::test_support::env_dataset()?;
     let store = ResourceStore::new(Arc::clone(&dataset));
     assert!(ac2_db::install_ac2_property_types(&store).expect("MasterProperty decodes"));
     Some((dataset, store))

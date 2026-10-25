@@ -30,7 +30,7 @@ fn file_btree_profile_counts_multi_block_root_as_one_logical_node_load() {
     assert_eq!(before.parsed_node_cache_entries, 0);
 
     let record = dataset
-        .read_record_owned(
+        .read_record(
             DatFileKind::Portal,
             FILE_ID,
             DatReadAttribution::ActiveWorldScoped,
@@ -122,7 +122,7 @@ fn concurrent_file_btree_reads_match_serial_bytes() {
                 for read in 0..READS {
                     if (thread + read) % 2 == 0 {
                         let record = dataset
-                            .read_record_owned(
+                            .read_record(
                                 DatFileKind::Portal,
                                 FILE_ID,
                                 DatReadAttribution::ActiveWorldScoped,

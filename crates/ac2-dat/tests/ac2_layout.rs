@@ -1,8 +1,6 @@
 use std::path::Path;
 
-use ac2_dat::{
-    is_dat_mount_root, DatDataset, DatFileKind, DatOpenOptions, DatReadAttribution, DatStorageMode,
-};
+use ac2_dat::{is_dat_mount_root, DatDataset, DatFileKind, DatOpenOptions, DatReadAttribution};
 use tempfile::TempDir;
 
 const HEADER_BASE: usize = 300;
@@ -15,7 +13,7 @@ const PAYLOAD_BLOCK: usize = BLOCK_SIZE * 3;
 const TEST_DID: u32 = 0x4100_0042;
 
 #[test]
-fn ac2_header_node_entry_and_native_filenames_work_in_both_storage_modes() {
+fn ac2_header_node_entry_and_native_filenames_resolve() {
     let root = TempDir::new().expect("AC2 fixture root");
     for (kind, raw_type) in [
         (DatFileKind::Portal, 1),
@@ -26,37 +24,35 @@ fn ac2_header_node_entry_and_native_filenames_work_in_both_storage_modes() {
     }
     assert!(is_dat_mount_root(root.path()));
 
-    for storage_mode in [
-        DatStorageMode::FileBtreeRuntime,
-        DatStorageMode::LegacyMmapFlatIndex,
-    ] {
-        let mut options = DatOpenOptions::new(root.path());
-        options.storage_mode = storage_mode;
-        assert_eq!(
-            options.path_for(DatFileKind::Portal),
-            root.path().join(DatFileKind::Portal.default_file_name())
-        );
+    let options = DatOpenOptions::new(root.path());
+    assert_eq!(
+        options.path_for(DatFileKind::Portal),
+        root.path().join(DatFileKind::Portal.default_file_name())
+    );
 
-        let dataset = DatDataset::open(options).expect("AC2 dataset should mount");
-        let entry = dataset
-            .entry(DatFileKind::Portal, TEST_DID)
-            .expect("AC2 16-byte B-tree entry should resolve");
-        assert_eq!(entry.packed_len, 12);
-        assert_eq!(entry.flags, 0);
-        assert_eq!(entry.version, 0);
-        assert_eq!(entry.iteration, 0);
-        assert_eq!(entry.date_stamp, 0x4238_B78C);
+    let dataset = DatDataset::open(options).expect("AC2 dataset should mount");
+    let entry = dataset
+        .entry(DatFileKind::Portal, TEST_DID)
+        .expect("AC2 16-byte B-tree entry should resolve");
+    assert_eq!(entry.packed_len, 12);
+    assert_eq!(entry.flags, 0);
+    assert_eq!(entry.version, 0);
+    assert_eq!(entry.iteration, 0);
+    assert_eq!(entry.date_stamp, 0x4238_B78C);
+    assert_eq!(
+        dataset.iter_ids(DatFileKind::Portal).collect::<Vec<_>>(),
+        vec![TEST_DID]
+    );
 
-        let record = dataset
-            .read_record_owned(
-                DatFileKind::Portal,
-                TEST_DID,
-                DatReadAttribution::EphemeralWorldTooling,
-            )
-            .expect("AC2 payload read should succeed")
-            .expect("AC2 payload should exist");
-        assert_eq!(record.packed_bytes, b"ac2-payload!");
-    }
+    let record = dataset
+        .read_record(
+            DatFileKind::Portal,
+            TEST_DID,
+            DatReadAttribution::EphemeralWorldTooling,
+        )
+        .expect("AC2 payload read should succeed")
+        .expect("AC2 payload should exist");
+    assert_eq!(record.packed_bytes, b"ac2-payload!");
 }
 
 fn write_ac2_dat(path: &Path, raw_type: u32) {
@@ -109,7 +105,7 @@ fn ac2_installation_landblock_reads_when_available() {
     };
     let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 installation mounts");
     let record = dataset
-        .read_record_owned(
+        .read_record(
             DatFileKind::Cell,
             0x7F7F_FFFF,
             DatReadAttribution::EphemeralWorldTooling,

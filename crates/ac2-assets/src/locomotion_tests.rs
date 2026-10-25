@@ -11,11 +11,9 @@ use ac2_core::DataId;
 /// `AMHuman` cube whose sliders pick the measured walk, run, backward, sidestep and turn clips.
 #[test]
 fn human_locomotion_cube_selects_movement_clips_by_slider() {
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
-    let dataset =
-        ac2_dat::DatDataset::open(ac2_dat::DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let store = ac2_db::ResourceStore::new(dataset);
     assert!(ac2_db::install_ac2_property_types(&store).expect("MasterProperty decodes"));
     let animator = load_ac2_motion_animator(&store, DataId::new(0x0300_0014), 0x8000_0001)

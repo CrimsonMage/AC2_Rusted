@@ -7,9 +7,12 @@ license.workspace = true
 
 [dependencies]
 ac2-core = { path = "../ac2-core" }
-memmap2 = "0.9.11"
 encoding_rs = "0.8"
 serde = { version = "1.0.228", features = ["derive"] }
+
+[features]
+# One shared `AC2_DAT_DIR` mount per test process; enabled from dev-dependencies only.
+test-support = []
 
 [dev-dependencies]
 tempfile = "3.27.0"

@@ -1132,6 +1132,10 @@ key	status	note
 0064bc00	~	history read via ac2-dat read_packed(0xFFFF0001) + ac2-net read_int_set in ac2-weenie::dat_iterations
 0064c0e0	x	
 0064c170	x	
+0064e280	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
+0064e380	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
+0064e640	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
+0064e660	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 00651b20	x	
 00652db0	x	
 0065a4a0	x	

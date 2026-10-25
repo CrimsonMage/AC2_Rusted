@@ -4,7 +4,6 @@
 use std::sync::Arc;
 
 use ac2_core::{CellId, DataId};
-use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_db::ResourceStore;
 use ac2_world::{load_ac2_motion_interp_desc, Ac2WorldSource};
 
@@ -27,10 +26,9 @@ const BLOCK: u32 = 0x7097_0000;
 
 #[test]
 fn interiors_load_connect_and_hold_a_body_on_their_floors() {
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
     let world = Ac2WorldSource::open(Arc::clone(&store))
         .expect("world source opens")
@@ -115,10 +113,9 @@ fn interiors_load_connect_and_hold_a_body_on_their_floors() {
 
 #[test]
 fn line_of_sight_inside_interiors_stops_at_their_floors_and_walls() {
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
     let world = Ac2WorldSource::open(Arc::clone(&store))
         .expect("world source opens")

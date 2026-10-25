@@ -21,7 +21,7 @@ wgpu = { version = "26.0.1", default-features = false, features = ["metal"] }
 
 [dev-dependencies]
 ac2-assets = { path = "../ac2-assets" }
-ac2-dat = { path = "../ac2-dat" }
+ac2-dat = { path = "../ac2-dat", features = ["test-support"] }
 ac2-db = { path = "../ac2-db" }
 ac2-world = { path = "../ac2-world" }
 png = "0.18"

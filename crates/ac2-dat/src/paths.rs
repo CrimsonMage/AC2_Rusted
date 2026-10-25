@@ -10,18 +10,6 @@ pub fn is_dat_mount_root(path: &Path) -> bool {
         .all(|kind| path.join(kind.default_file_name()).is_file())
 }
 
-/// Storage implementation selected when mounting DAT files.
-///
-/// `FileBtreeRuntime` is the default retail-shaped path: one shared read-only handle, positioned
-/// reads, and no eagerly built flat DID index. `LegacyMmapFlatIndex` remains an explicit
-/// comparison/tooling mode only.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum DatStorageMode {
-    LegacyMmapFlatIndex,
-    #[default]
-    FileBtreeRuntime,
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DatOpenOptions {
     pub dat_directory: PathBuf,
@@ -30,7 +18,6 @@ pub struct DatOpenOptions {
     pub local_dat_file_name: String,
     pub high_res_dat_file_name: String,
     pub high_res_enabled: bool,
-    pub storage_mode: DatStorageMode,
 }
 
 impl DatOpenOptions {
@@ -43,7 +30,6 @@ impl DatOpenOptions {
             local_dat_file_name: DatFileKind::Local.default_file_name().to_string(),
             high_res_dat_file_name: DatFileKind::HighRes.default_file_name().to_string(),
             high_res_enabled: false,
-            storage_mode: DatStorageMode::default(),
         }
     }
 
