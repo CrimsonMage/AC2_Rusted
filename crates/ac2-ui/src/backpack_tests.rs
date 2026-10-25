@@ -4,7 +4,7 @@ use ac2_db::ResourceStore;
 
 use crate::mouse::UiMessage;
 use crate::token::{tokenize, MSG_MOUSE_PRESS_TOP};
-use crate::{build_gameplay_hud, BackpackUi, InventorySource, ItemRequest, ItemSlot};
+use crate::{build_gameplay_hud, BackpackUi, InventorySource, ItemRequest, ItemSlot, UiTree};
 
 const PLAYER: u64 = 0x2000_0000_0000_0001;
 const POTIONS: u64 = 0x8000_0000_0000_0010;
@@ -23,6 +23,8 @@ impl InventorySource for Player {
             icon,
             icon_layers: Vec::new(),
             name: name.into(),
+            quantity: 1,
+            ..ItemSlot::default()
         })
     }
 
@@ -76,7 +78,61 @@ fn the_backpack_shows_the_players_items_in_their_slots() {
         item: None,
     };
     assert_eq!(
-        backpack.message(tree, &press),
+        backpack.message(tree, &Player, &press),
         Some(ItemRequest::Use(POTIONS))
+    );
+}
+
+#[test]
+fn an_item_dragged_to_another_slot_asks_to_move_there() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let layout = hud.toolbar_layout.clone().unwrap();
+    let tree = &mut hud.tree;
+    let backpack = BackpackUi::create(tree, &layout, &Player, PLAYER);
+    // The inventory panel shown (its field and every parent).
+    let potions = backpack.packs[0].items[0].icon;
+    let mut at = Some(potions);
+    while let Some(e) = at {
+        tree.set_visible(e, true);
+        at = tree.get(e).unwrap().parent;
+    }
+    let slot = |tree: &UiTree, i: usize| {
+        let list = tree
+            .get(potions)
+            .unwrap()
+            .parent
+            .and_then(|b| tree.get(b).unwrap().parent)
+            .unwrap();
+        let b = tree.screen_box(tree.list_items(list)[i]);
+        ((b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2)
+    };
+    let (x, y) = slot(tree, 0);
+    let (tx, ty) = slot(tree, 5);
+    tree.start_input(crate::UI_POINTER_X, x as f32);
+    tree.start_input(crate::UI_POINTER_Y, y as f32);
+    tree.start_input(0x4000_0004, 1.0);
+    tree.start_input(crate::UI_POINTER_X, tx as f32);
+    tree.start_input(crate::UI_POINTER_Y, ty as f32);
+    assert!(tree.dragged().is_some(), "the potions are dragged");
+    tree.stop_input(0x4000_0004);
+    let requests: Vec<ItemRequest> = tree
+        .take_messages()
+        .iter()
+        .filter_map(|m| backpack.message(tree, &Player, m))
+        .collect();
+    assert!(
+        requests.contains(&ItemRequest::Move {
+            item: POTIONS,
+            from: PLAYER,
+            from_slot: 0,
+            target: PLAYER,
+            target_slot: 5,
+            quantity: 1,
+        }),
+        "{requests:?}"
     );
 }

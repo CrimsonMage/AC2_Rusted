@@ -32,6 +32,10 @@ pub struct ItemSlot {
     pub icon_layers: Vec<u32>,
     /// `GetPotentiallyPluralizedName` at the shown quantity, rendered.
     pub name: String,
+    /// `GetQuantity`, `GetStackable`, `GetMaxStackSize`.
+    pub quantity: u32,
+    pub stackable: bool,
+    pub max_stack: u32,
 }
 
 /// What the inventory panels read from the player.
@@ -56,6 +60,17 @@ pub enum ItemRequest {
     Use(u64),
     /// `SetSelection`, then `CM_UI::SendNotice_OpenExaminationPanel`.
     Examine(u64),
+    /// `gmCWInterface::MoveItem` (`ContainerDisplay::FinishListBoxDrop`).
+    Move {
+        item: u64,
+        from: u64,
+        from_slot: i32,
+        target: u64,
+        target_slot: i32,
+        quantity: u32,
+    },
+    /// `gmCWInterface::UnEquipItem` into a slot of the player's pack.
+    Unequip { item: u64, target_slot: i32 },
 }
 
 /// `ItemDisplay`'s state.
@@ -77,8 +92,16 @@ impl ItemDisplay {
         background: usize,
         child: u32,
         item: u64,
+        from: u64,
+        equipped: bool,
     ) -> Option<Self> {
         let icon = tree.child(background, child)?;
+        // `FromID`: the container it is in; `Equipped`.
+        tree.el_mut(icon).attributes.insert(
+            id("FromID"),
+            crate::layout::AttributeValue::InstanceId(from),
+        );
+        tree.set_bool(icon, id("Equipped"), equipped);
         // The icon carries the item as a shortcut (`Token_ShortcutType` 0x40000002,
         // `Token_ShortcutData`).
         tree.el_mut(icon).attributes.insert(
@@ -267,7 +290,9 @@ impl ContainerDisplay {
         };
         let location = (location as usize).min(tree.list_items(list).len());
         tree.list_insert_item(list, slot, location);
-        if let Some(display) = ItemDisplay::init(tree, s, slot, id("ItemIcon"), item) {
+        if let Some(display) =
+            ItemDisplay::init(tree, s, slot, id("ItemIcon"), item, self.container, false)
+        {
             tree.set_int(
                 display.icon,
                 id("Token_OldIndex"),
@@ -376,8 +401,96 @@ impl ContainerDisplay {
         }
     }
 
-    /// A press on one of the slots' icons.
-    pub fn message(&self, message: &UiMessage) -> Option<ItemRequest> {
+    /// `ContainerDisplay::GetNewIndex`: the slot under the pointer (at most the segment's size),
+    /// numbered from the display's first slot.
+    fn new_index(&self, tree: &UiTree, s: &dyn InventorySource) -> u32 {
+        let Some(list) = self.list else {
+            return 0;
+        };
+        let mut index = 0;
+        if let Some(item) = tree.list_item_under_mouse(list) {
+            let (_, _, size) = s.contents_info(self.container, self.segment);
+            let at = tree.list_what_num(list, item).map_or(-1, |i| i as i64);
+            index = at.min(i64::from(size)).max(0) as u32;
+        }
+        self.first_slot + index
+    }
+
+    /// `ContainerDisplay::HandleListBoxDrop` and `FinishListBoxDrop`: an item from a container
+    /// moves to the slot under the pointer (one dropped past the segment's end from this
+    /// container lands on the last slot); an equipped item is taken off into it. The stack
+    /// dialog for part of a stack (`gmStackUI`) is not modelled: the whole stack moves.
+    fn list_box_drop(
+        &self,
+        tree: &UiTree,
+        s: &dyn InventorySource,
+        copy: usize,
+    ) -> Option<ItemRequest> {
+        let el = tree.get(copy)?;
+        let instance = |name: &str| match el.attribute(id(name)) {
+            Some(crate::layout::AttributeValue::InstanceId(v)) => *v,
+            _ => 0,
+        };
+        let item = instance("Token_ShortcutData");
+        let from = instance("FromID");
+        let equipped = tree.bool_attribute(copy, id("Equipped"));
+        let mut new_index = self.new_index(tree, s);
+        let slot = s.item(item)?;
+        if equipped {
+            return Some(ItemRequest::Unequip {
+                item,
+                target_slot: new_index as i32,
+            });
+        }
+        let old_index = match el.attribute(id("Token_OldIndex")) {
+            Some(crate::layout::AttributeValue::Int(i)) => *i as u32,
+            _ => 0,
+        };
+        let quantity = slot.quantity;
+        if from == self.container && old_index == new_index {
+            return None;
+        }
+        let stack_size = if slot.max_stack != 0 {
+            quantity.min(slot.max_stack)
+        } else {
+            quantity
+        };
+        if from == self.container {
+            let (_, _, size) = s.contents_info(self.container, self.segment);
+            if size <= new_index - self.first_slot && stack_size == quantity && new_index > 0 {
+                new_index -= 1;
+            }
+        }
+        Some(ItemRequest::Move {
+            item,
+            from,
+            from_slot: old_index as i32,
+            target: self.container,
+            target_slot: new_index as i32,
+            quantity,
+        })
+    }
+
+    /// `ContainerDisplay::ListenToMessage` (a drop on its list) and the slots' presses.
+    pub fn message(
+        &self,
+        tree: &UiTree,
+        s: &dyn InventorySource,
+        message: &UiMessage,
+    ) -> Option<ItemRequest> {
+        if message.message == crate::drag::MSG_STOP_DRAG_ITEM
+            && message.element.is_some()
+            && message.element == self.list
+            && message.data != 0
+        {
+            // `ContainerDisplay_DDCB`: only items.
+            let copy = message.item?;
+            let kind = tree.get(copy)?.attribute(id("Token_ShortcutType")).cloned();
+            if kind != Some(crate::layout::AttributeValue::Id(0x4000_0002)) {
+                return None;
+            }
+            return self.list_box_drop(tree, s, copy);
+        }
         self.items.iter().find_map(|d| d.message(message))
     }
 }

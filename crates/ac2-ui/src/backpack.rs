@@ -100,7 +100,12 @@ impl BackpackUi {
     }
 
     /// `gmBackpackUI::ListenToMessage` (a page's button) and the slots' presses.
-    pub fn message(&self, tree: &mut UiTree, message: &UiMessage) -> Option<ItemRequest> {
+    pub fn message(
+        &self,
+        tree: &mut UiTree,
+        s: &dyn InventorySource,
+        message: &UiMessage,
+    ) -> Option<ItemRequest> {
         if message.message == MSG_BUTTON_RELEASE_ON {
             if let Some(pack) = PACKS
                 .iter()
@@ -110,7 +115,7 @@ impl BackpackUi {
                 return None;
             }
         }
-        self.packs.iter().find_map(|p| p.message(message))
+        self.packs.iter().find_map(|p| p.message(tree, s, message))
     }
 
     /// `ContainerDisplay::RecvNotice_UpdateContainer` for the pages over `container`.

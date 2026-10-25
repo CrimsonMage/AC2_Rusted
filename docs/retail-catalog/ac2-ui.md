@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 496 done, 185 partial, 1541 to do, 25 skipped.
+2247 retail functions: 499 done, 187 partial, 1536 to do, 25 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (7/53)
@@ -690,13 +690,13 @@ Legend and workflow: [README](README.md).
 - [ ] `ChatWindow::RecvNotice_ReloadOptions` · 0044cb10
 - [~] `ChatWindow::RecvNotice_ReloadChatSettings` · 0044cbc0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
-## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (9/22)
+## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (12/22)
 
 ### ContainerDisplay
-- [ ] `ContainerDisplay::FinishListBoxDrop` · 0042d910 · legions 0042d6e0
+- [~] `ContainerDisplay::FinishListBoxDrop` · 0042d910 · legions 0042d6e0 — the stack dialog (gmStackUI) for part of a stack is not modelled: the whole stack moves
 
 ### (free functions)
-- [ ] `ContainerDisplay_DDCB` · 0042da30
+- [x] `ContainerDisplay_DDCB` · 0042da30 — ac2-ui item_display.rs
 
 ### ContainerDisplay
 - [ ] `ContainerDisplay::Show` · 0042da90 · legions 0042d860
@@ -707,11 +707,11 @@ Legend and workflow: [README](README.md).
 
 ### ContainerDisplay
 - [ ] `ContainerDisplay::RecvNotice_StackUIDone` · 0042daf0 · legions 0042d8c0
-- [ ] `ContainerDisplay::GetNewIndex` · 0042db40 · legions 0042d910
+- [x] `ContainerDisplay::GetNewIndex` · 0042db40 · legions 0042d910 — ac2-ui item_display.rs
 - [ ] `ContainerDisplay::HandleDragFrom` · 0042dbc0 · legions 0042d990
-- [ ] `ContainerDisplay::HandleListBoxDrop` · 0042dc20 · legions 0042d9f0
+- [~] `ContainerDisplay::HandleListBoxDrop` · 0042dc20 · legions 0042d9f0 — the stack dialog (gmStackUI) for part of a stack is not modelled: the whole stack moves
 - [ ] `ContainerDisplay::HandleDragFromMoneyBag` · 0042de90 · legions 0042dc60
-- [ ] `ContainerDisplay::ListenToMessage` · 0042dfb0 · legions 0042de40
+- [x] `ContainerDisplay::ListenToMessage` · 0042dfb0 · legions 0042de40 — ac2-ui item_display.rs
 - [x] `ContainerDisplay::AddItem` · 0042e070 · legions 0042df00 — ac2-ui item_display.rs / backpack.rs
 - [x] `ContainerDisplay::FindItem` · 0042e150 · legions 0042dfe0 — ac2-ui item_display.rs / backpack.rs
 - [x] `ContainerDisplay::RemoveItem` · 0042e1e0 · legions 0042e070 — ac2-ui item_display.rs / backpack.rs

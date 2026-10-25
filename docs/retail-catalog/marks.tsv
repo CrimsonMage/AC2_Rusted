@@ -191,7 +191,12 @@ key	status	note
 0042d830	x	ac2-ui dialog.rs
 0042d850	x	ac2-ui dialog.rs
 0042d8e0	x	ac2-ui dialog.rs
+0042d910	~	the stack dialog (gmStackUI) for part of a stack is not modelled: the whole stack moves
+0042da30	x	ac2-ui item_display.rs
 0042dac0	x	ac2-ui list_box.rs
+0042db40	x	ac2-ui item_display.rs
+0042dc20	~	the stack dialog (gmStackUI) for part of a stack is not modelled: the whole stack moves
+0042dfb0	x	ac2-ui item_display.rs
 0042e070	x	ac2-ui item_display.rs / backpack.rs
 0042e150	x	ac2-ui item_display.rs / backpack.rs
 0042e1e0	x	ac2-ui item_display.rs / backpack.rs

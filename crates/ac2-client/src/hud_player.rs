@@ -220,7 +220,10 @@ impl HudView {
             if let Some(bar) = vitals.as_mut() {
                 bar.message(tree, message);
             }
-            if let Some(request) = backpack.as_ref().and_then(|p| p.message(tree, message)) {
+            if let Some(request) = backpack
+                .as_ref()
+                .and_then(|p| p.message(tree, &player, message))
+            {
                 open_examination |= crate::ui_inventory::item_commands(request, &mut commands);
             }
             if let (Some(page), Some(dialogs)) = (allegiance.as_mut(), dialogs.as_mut()) {
