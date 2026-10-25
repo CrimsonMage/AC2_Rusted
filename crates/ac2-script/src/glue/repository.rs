@@ -91,16 +91,18 @@ fn owner_qualities(vm: &mut Vm, this: u32) -> Option<&mut WeenieQualities> {
     vm.repositories.get_mut(&id)
 }
 
+/// `CBaseQualities::Inq*`: the weenie description's fields first (`gmWeenieDesc::Query*Stat`),
+/// then the quality tables.
 fn get_value(q: &WeenieQualities, k: K, id: u32) -> Option<V> {
     let w = |v: Option<u64>| v.map(V::Word);
     match k {
-        K::Int => w(q.ints.get(&id).map(|v| u64::from(*v as u32))),
-        K::Bool => w(q.bools.get(&id).map(|v| u64::from(*v as u32))),
-        K::Float => w(q.floats.get(&id).map(|v| u64::from(v.to_bits()))),
-        K::DataId => w(q.dids.get(&id).map(|v| u64::from(*v))),
+        K::Int => w(q.inq_int(id).map(|v| u64::from(v as u32))),
+        K::Bool => w(q.inq_bool(id).map(|v| u64::from(v as u32))),
+        K::Float => w(q.inq_float(id).map(|v| u64::from(v.to_bits()))),
+        K::DataId => w(q.inq_data_id(id).map(u64::from)),
         K::PackageId => w(q.package_ids.get(&id).map(|v| u64::from(*v))),
         K::LongInt => w(q.long_ints.get(&id).map(|v| *v as u64)),
-        K::InstanceId => w(q.iids.get(&id).copied()),
+        K::InstanceId => w(q.inq_instance_id(id)),
         K::Timestamp => w(q.timestamps.get(&id).map(|v| v.to_bits())),
         K::String => q.strings.get(&id).map(|s| {
             V::Native(NativeObject::WString(
@@ -112,9 +114,8 @@ fn get_value(q: &WeenieQualities, k: K, id: u32) -> Option<V> {
             .get(&id)
             .map(|p| V::Native(NativeObject::Position(*p))),
         K::StringInfo => q
-            .string_infos
-            .get(&id)
-            .map(|s| V::Native(NativeObject::StringInfo(string_info_from_net(s)))),
+            .inq_string_info(id)
+            .map(|s| V::Native(NativeObject::StringInfo(string_info_from_net(&s)))),
     }
 }
 

@@ -2007,6 +2007,9 @@ key	status	note
 00539d30	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 00539d90	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 00539df0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+00539ea0	x	ac2-script: gReservedIDs over ac2-net iid
+00539ee0	x	ac2-script: gReservedIDs over ac2-net iid
+00539f20	x	ac2-script: gReservedIDs over ac2-net iid
 0053a480	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053a4e0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053a550	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)

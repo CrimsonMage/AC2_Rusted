@@ -119,15 +119,29 @@ fn the_items_processes_answer_from_their_tables() {
         ac2_client::SCRIPT_VM_FUNCTIONS,
     );
     open_the_pack(&mut client, &server);
-    // The qualities the description does not carry: the pack's capacity, the stack's limit.
-    // (Quantity, icon, name and durability are `gmWeenieDesc` fields, which the VM's
-    // repository does not read yet: see the coord file.)
+    // The tables' qualities (the pack's capacity, the stack's limit) and the `gmWeenieDesc`
+    // fields the repository reads first (`CBaseQualities::Inq*`: quantity, icon, name,
+    // durability).
     assert_eq!(client.container_capacity(PACK), Ok(24));
     let potions = client.item_display(POTIONS).unwrap();
     assert_eq!((potions.stackable, potions.max_stack), (true, 10));
     assert_eq!(potions.value, Some(20));
+    assert_eq!((potions.quantity, potions.icon), (5, 0x0600_1001));
+    assert_eq!(potions.durability, None);
     let sword = client.item_display(SWORD).unwrap();
     assert!(!sword.stackable);
+    assert_eq!((sword.quantity, sword.durability), (1, Some((40, 50))));
+    // The names: "5 <plural>" for the stack (its count and plural), the sword's as sent.
+    assert_eq!(potions.name.string_id, 0xFE4D_81DA);
+    assert_eq!(
+        potions.name.variables[0],
+        (0x9D56_6800, StringVariable::Word { kind: 2, value: 5 })
+    );
+    assert!(matches!(
+        &potions.name.variables[1],
+        (0x8615_ECB3, StringVariable::Nested(n)) if n.literal.as_deref() == Some("Healing Potions")
+    ));
+    assert_eq!(sword.name.literal.as_deref(), Some("Practice Sword"));
     assert!(
         client.take_script_problems().is_empty(),
         "{:?}",
