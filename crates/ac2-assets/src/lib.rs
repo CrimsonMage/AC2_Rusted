@@ -28,6 +28,8 @@ mod ac2_visual_particles;
 mod cull;
 mod font;
 #[cfg(test)]
+mod font_tests;
+#[cfg(test)]
 mod locomotion_tests;
 mod mesh;
 mod static_model;
@@ -38,7 +40,7 @@ mod texture_attribution;
 mod texture_dxt;
 
 pub use cull::DecodedSurfaceCullMode;
-pub use font::{BitmapFontAsset, BitmapFontGlyph};
+pub use font::{load_ac2_font, Ac2Font, Ac2FontChar};
 pub use mesh::DecodedMeshVertex;
 
 pub use static_model::DecodedStaticModel;

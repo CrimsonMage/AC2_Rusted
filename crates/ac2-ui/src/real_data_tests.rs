@@ -18,7 +18,13 @@ fn the_default_key_maps_and_action_map_decode() {
         let map = load_key_map(&store, enum_value)
             .unwrap()
             .unwrap_or_else(|| panic!("{label} key map"));
-        eprintln!("{label}: {} mappings", map.mappings.len());
+        eprintln!("{label} ({}): {} mappings", map.name, map.mappings.len());
+        // Descrambled names read as text.
+        assert!(
+            map.name.chars().all(|c| c.is_ascii_graphic() || c == ' '),
+            "{:?}",
+            map.name
+        );
         assert!(!map.mappings.is_empty());
     }
     let actions = load_action_map(&store).unwrap().expect("action map");

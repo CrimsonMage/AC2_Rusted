@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 34 done, 11 partial, 549 to do, 39 skipped.
+633 retail functions: 37 done, 11 partial, 546 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -1107,7 +1107,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StringState::Allocate` · 00653a90
 - [ ] `StringState::StreamPack` · 00653ac0 · legions 00602b90
 
-## `portal/shared/src/stringtable/stringtable.cpp.c` (0/28)
+## `portal/shared/src/stringtable/stringtable.cpp.c` (3/28)
 
 ### StringTableString
 - [ ] `StringTableString::Destroy` · 00653d60 · legions 00602e30
@@ -1139,10 +1139,10 @@ Legend and workflow: [README](README.md).
 ### StringTableString
 - [ ] `StringTableString::GetPackSize` · 00654a30
 - [ ] `StringTableString::Pack` · 00654b00
-- [ ] `StringTableString::UnPack` · 00654cb0
+- [x] `StringTableString::UnPack` · 00654cb0 — ac2-db string_table.rs: all 10,598 Legions tables decode
 
 ### StringTable
-- [ ] `StringTable::GetStringTableString` · 00654f10 · legions 00603fe0
+- [x] `StringTable::GetStringTableString` · 00654f10 · legions 00603fe0 — ac2-db string_table.rs: all 10,598 Legions tables decode
 
 ### StringTableString
 - [ ] `StringTableString::CopyInto` · 00654f50 · legions 00604020
@@ -1153,7 +1153,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StringTable::GetString` · 00655420
 - [ ] `StringTable::SaveToFile` · 006557b0
 - [ ] `StringTable::StringTable` · 00655d70 · legions 006046c0
-- [ ] `StringTable::UnPack` · 00655de0
+- [x] `StringTable::UnPack` · 00655de0 — ac2-db string_table.rs: all 10,598 Legions tables decode
 - [ ] `StringTable::CopyInto` · 00655f90
 - [ ] `StringTable::Allocate` · 00656170
 

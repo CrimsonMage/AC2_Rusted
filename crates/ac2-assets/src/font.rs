@@ -1,144 +1,173 @@
-use std::sync::Arc;
+//! `Font` (`DB_TYPE_FONT` 0x4000003E, DIDs 0x42000000..=0x42000FFE in the portal DAT;
+//! `FontLocal` 0x42001000.. in the local DAT): a strip of glyphs side by side, `totalWidth`
+//! pixels wide and `maxCharHeight` tall, 8-bit coverage when anti-aliased, else 1 bit per pixel.
+//!
+//! `Font::StreamPack`: the `DBObj` DID, `maxCharHeight`, `maxCharWidth`, `numCharacters`,
+//! `avgCharWidth`, `totalWidth`, `m_nIsAntialiased` (u32 each), the `FontCharDesc`s (12 bytes:
+//! width u32, unicode u16, padding, offset u32 into the strip), then the strip.
+//! `Font::GenerateCharacterMap` indexes the glyphs by code point between the lowest and highest.
 
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct BitmapTextMetrics {
-    pub width: f32,
-    pub line_height: f32,
-    pub line_count: u32,
-}
+use ac2_core::{DataId, QualifiedDataId};
+use ac2_dat::{ArchiveCursor, DatFileKind};
+use ac2_db::{
+    CachedResource, ResourceError, ResourcePackedDecode, ResourceResult, ResourceStore,
+    ResourceTypeId, TypedResourceRef,
+};
 
+/// `FontCharDesc`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct BitmapFontGlyph {
+pub struct Ac2FontChar {
+    pub width: u32,
     pub unicode: u16,
-    pub atlas_x: u16,
-    pub atlas_y: u16,
-    pub width: u8,
-    pub height: u8,
-    pub horizontal_offset_before: i8,
-    pub horizontal_offset_after: i8,
-    pub vertical_offset_before: i8,
+    /// The glyph's first column in the strip.
+    pub offset: u32,
 }
 
+/// A `Font`.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct BitmapFontAsset {
-    pub font_id: u32,
+pub struct Ac2Font {
     pub max_char_height: u32,
     pub max_char_width: u32,
-    pub baseline_offset: i32,
-    pub atlas_width: u32,
-    pub atlas_height: u32,
-    pub atlas_rgba: Arc<[u8]>,
-    pub min_unicode_char: u16,
-    pub max_unicode_char: u16,
-    pub character_map: Vec<u16>,
-    pub glyphs: Vec<BitmapFontGlyph>,
+    pub avg_char_width: u32,
+    pub total_width: u32,
+    pub antialiased: bool,
+    pub chars: Vec<Ac2FontChar>,
+    /// The strip, row by row: `total_width` bytes a row when anti-aliased, else
+    /// `total_width / 8` bytes of bits, most significant first.
+    pub data: Vec<u8>,
+    min_unicode: u16,
+    /// `characterMap`: code point - `min_unicode` -> glyph index, -1 where none.
+    character_map: Vec<i32>,
 }
 
-impl BitmapFontAsset {
-    pub fn glyph(&self, chr: u16) -> Option<&BitmapFontGlyph> {
-        let mut candidate = chr;
-        loop {
-            if !self.character_map.is_empty()
-                && candidate >= self.min_unicode_char
-                && candidate <= self.max_unicode_char
-            {
-                let index =
-                    usize::from(self.character_map[usize::from(candidate - self.min_unicode_char)]);
-                if index < self.glyphs.len() {
-                    return self.glyphs.get(index);
-                }
-                return None;
-            }
+impl Ac2Font {
+    /// `Font::GetCharDesc`: the glyph for `chr`, else for `?`.
+    pub fn char_desc(&self, chr: u16) -> Option<&Ac2FontChar> {
+        self.lookup(chr).or_else(|| self.lookup(u16::from(b'?')))
+    }
 
-            if let Some(index) = self
-                .glyphs
-                .iter()
-                .position(|glyph| glyph.unicode == candidate)
-            {
-                return self.glyphs.get(index);
-            }
+    fn lookup(&self, chr: u16) -> Option<&Ac2FontChar> {
+        let index = usize::from(chr.checked_sub(self.min_unicode)?);
+        let glyph = *self.character_map.get(index)?;
+        usize::try_from(glyph).ok().and_then(|i| self.chars.get(i))
+    }
 
-            if candidate == b'?' as u16 {
-                return None;
+    /// `Font::GetStringWidthInternal`: the widest line, lines split at `\n`.
+    pub fn string_width(&self, text: &[u16]) -> u32 {
+        let (mut widest, mut line) = (0, 0);
+        for &unit in text {
+            if unit == u16::from(b'\n') {
+                widest = widest.max(line);
+                line = 0;
+            } else {
+                line += self.char_desc(unit).map_or(0, |c| c.width);
             }
-            candidate = b'?' as u16;
         }
+        widest.max(line)
     }
 
-    pub fn glyph_advance(&self, chr: u16) -> u8 {
-        let Some(glyph) = self.glyph(chr) else {
-            return 0;
-        };
-
-        glyph
-            .width
-            .wrapping_add(glyph.horizontal_offset_before as u8)
-            .wrapping_add(glyph.horizontal_offset_after as u8)
-    }
-
-    pub fn line_height(&self) -> f32 {
-        let glyph_bottom = self
-            .glyphs
-            .iter()
-            .map(|glyph| glyph.vertical_offset_before as f32 + glyph.height as f32)
-            .fold(0.0_f32, f32::max);
-        glyph_bottom
-            .max(self.baseline_offset.max(1) as f32)
-            .max(self.max_char_height.max(1) as f32)
-    }
-
-    pub fn fallback_advance(&self) -> f32 {
-        self.max_char_width.max(1) as f32
-    }
-
-    pub fn glyph_advance_or_fallback(&self, chr: u16) -> f32 {
-        let advance = self.glyph_advance(chr);
-        if advance == 0 {
-            self.fallback_advance()
+    /// The coverage (0..=255) of strip pixel (`column`, `row`).
+    pub fn coverage(&self, column: u32, row: u32) -> u8 {
+        if self.antialiased {
+            let at = row as usize * self.total_width as usize + column as usize;
+            self.data.get(at).copied().unwrap_or(0)
         } else {
-            advance as f32
-        }
-    }
-
-    pub fn measure_text(&self, text: &str) -> BitmapTextMetrics {
-        let mut width = 0.0_f32;
-        let mut widest = 0.0_f32;
-        let mut line_count = 1_u32;
-        for ch in text.chars() {
-            if ch == '\n' {
-                widest = widest.max(width);
-                width = 0.0;
-                line_count += 1;
-                continue;
+            let at = row as usize * (self.total_width as usize >> 3) + (column as usize >> 3);
+            let bit = self
+                .data
+                .get(at)
+                .map_or(0, |byte| byte >> (7 - (column & 7)) & 1);
+            if bit != 0 {
+                255
+            } else {
+                0
             }
-            let advance = u16::try_from(ch as u32)
-                .ok()
-                .map(|code| self.glyph_advance_or_fallback(code))
-                .unwrap_or_else(|| self.fallback_advance());
-            width += advance;
-        }
-
-        BitmapTextMetrics {
-            width: widest.max(width),
-            line_height: self.line_height(),
-            line_count,
         }
     }
+}
 
-    pub fn fitted_text_scale(
-        &self,
-        metrics: BitmapTextMetrics,
-        target_width: f32,
-        target_height: f32,
-    ) -> f32 {
-        let total_line_height = metrics.line_height.max(1.0) * metrics.line_count.max(1) as f32;
-        let height_scale = target_height.max(1.0) / total_line_height;
-        let width_scale = if metrics.width > 0.0 {
-            target_width.max(1.0) / metrics.width
-        } else {
-            height_scale
-        };
-
-        height_scale.min(width_scale).max(0.01)
+fn bad(qdid: QualifiedDataId, context: &'static str) -> ResourceError {
+    ResourceError::MalformedTypedObject {
+        qdid,
+        type_name: Ac2Font::TYPE_NAME,
+        context,
     }
+}
+
+impl ResourcePackedDecode for Ac2Font {
+    const TYPE_NAME: &'static str = "AC2 Font";
+    const RESOURCE_TYPE: ResourceTypeId = ResourceTypeId::Unknown;
+
+    fn decode_packed(qdid: QualifiedDataId, _version: u16, bytes: &[u8]) -> ResourceResult<Self> {
+        let mut cursor = ArchiveCursor::new(bytes);
+        if cursor.read_u32()? != qdid.data_id().raw() {
+            return Err(bad(qdid, "embedded DID did not match DAT identity"));
+        }
+        let max_char_height = cursor.read_u32()?;
+        let max_char_width = cursor.read_u32()?;
+        let count = cursor.read_u32()? as usize;
+        let avg_char_width = cursor.read_u32()?;
+        let total_width = cursor.read_u32()?;
+        let antialiased = cursor.read_u32()? != 0;
+        if count * 12 > cursor.remaining() {
+            return Err(bad(qdid, "character count"));
+        }
+        let mut chars = Vec::with_capacity(count);
+        for _ in 0..count {
+            let width = cursor.read_u32()?;
+            let unicode = cursor.read_u16()?;
+            let _padding = cursor.read_u16()?;
+            chars.push(Ac2FontChar {
+                width,
+                unicode,
+                offset: cursor.read_u32()?,
+            });
+        }
+        let mut size = total_width as usize * max_char_height as usize;
+        if !antialiased {
+            size >>= 3;
+        }
+        let data = cursor.read_bytes(size)?.to_vec();
+        if cursor.remaining() != 0 {
+            return Err(bad(qdid, "trailing bytes after Font"));
+        }
+        // `Font::GenerateCharacterMap`.
+        let min_unicode = chars.iter().map(|c| c.unicode).min().unwrap_or(0);
+        let max_unicode = chars.iter().map(|c| c.unicode).max().unwrap_or(0);
+        let mut character_map = vec![-1; usize::from(max_unicode - min_unicode) + 1];
+        for (index, c) in chars.iter().enumerate() {
+            character_map[usize::from(c.unicode - min_unicode)] = index as i32;
+        }
+        Ok(Self {
+            max_char_height,
+            max_char_width,
+            avg_char_width,
+            total_width,
+            antialiased,
+            chars,
+            data,
+            min_unicode,
+            character_map,
+        })
+    }
+
+    fn cache_retained_bytes(&self) -> usize {
+        std::mem::size_of::<Self>()
+            + self.chars.len() * 12
+            + self.data.len()
+            + self.character_map.len() * 4
+    }
+}
+
+/// The font `did`: portal `Font` below 0x42001000, local `FontLocal` above.
+pub fn load_ac2_font(
+    store: &ResourceStore,
+    did: DataId,
+) -> ResourceResult<Option<CachedResource<Ac2Font>>> {
+    let kind = if did.raw() < 0x4200_1000 {
+        DatFileKind::Portal
+    } else {
+        DatFileKind::Local
+    };
+    store.load_cached_packed::<Ac2Font>(TypedResourceRef::new(kind, did, 0))
 }

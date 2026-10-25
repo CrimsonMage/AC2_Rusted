@@ -235,7 +235,7 @@ Legend and workflow: [README](README.md).
 ### PStringBase<unsigned_short>
 - [x] `PStringBase<unsigned_short>::GetPackSize` · 00409960 · legions 004096d0
 - [x] `PStringBase<unsigned_short>::Pack` · 00409990 · legions 00409700
-- [x] `PStringBase<unsigned_short>::UnPack` · 00409be0 · legions 00409950 — ac2-script unpack::Reader::pstring/wpstring
+- [x] `PStringBase<unsigned_short>::UnPack` · 00409be0 · legions 00409950 — ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 
 ### PHashTable<unsigned_long,float>
 - [x] `PHashTable<unsigned_long,float>::StreamPack` · 00409e00
@@ -1648,7 +1648,7 @@ Legend and workflow: [README](README.md).
 - [~] `ImportData::StreamPack` · 00406c60 · legions 00406970 — ac2-script: unpack direction only
 
 ### PStringBase<char>
-- [x] `PStringBase<char>::UnPack` · 00406cb0 · legions 004069c0 — ac2-script unpack::Reader::pstring/wpstring
+- [x] `PStringBase<char>::UnPack` · 00406cb0 · legions 004069c0 — ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 
 ### DualHash<PStringBase<char>,CheckpointExportData>
 - [ ] `DualHash<PStringBase<char>,CheckpointExportData>::clear` · 00406d90 · legions 00406aa0

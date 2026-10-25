@@ -28,6 +28,7 @@ mod property;
 mod resource_runtime;
 mod retail_cache_retention;
 mod store;
+mod string_table;
 #[cfg(test)]
 mod test_support;
 mod thread_executor;
@@ -76,6 +77,10 @@ pub use retail_cache_retention::{
 };
 pub use store::ResourceResidencyLease;
 pub use store::ResourceStore;
+pub use string_table::{
+    load_string_table, read_wide_pstring, StringTable, StringTableString, STRING_TABLE_FIRST,
+    STRING_TABLE_LAST,
+};
 pub use thread_executor::ThreadPreparationExecutor;
 pub use typed_cache::{CachedResource, ResourceCacheStats, ResourceDecodeScope};
 pub use typed_cache::{

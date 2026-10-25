@@ -15,31 +15,31 @@ fn mapping(action: u32, scan: u32) -> ActionMapping {
     ActionMapping {
         action,
         semantic: 0x8100_0400 | scan,
-        name: Vec::new(),
+        name: String::new(),
     }
 }
 
 fn controls() -> Controls {
     let mut input = InputManager::new();
     let preproc = KeyMap {
-        name: Vec::new(),
+        name: String::new(),
         guid: [0; 16],
         mappings: vec![
             mapping(SHIFT_ACTION, SHIFT),
             ActionMapping {
                 action: ZOOM_IN,
                 semantic: 0xFF00_4704,
-                name: Vec::new(),
+                name: String::new(),
             },
         ],
     };
     let main = KeyMap {
-        name: Vec::new(),
+        name: String::new(),
         guid: [0; 16],
         mappings: vec![mapping(FORWARD, W), mapping(RUN_LOCK, R)],
     };
     let shift = KeyMap {
-        name: Vec::new(),
+        name: String::new(),
         guid: [0; 16],
         mappings: vec![mapping(WAVE, W)],
     };
