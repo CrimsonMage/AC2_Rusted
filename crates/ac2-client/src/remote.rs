@@ -214,14 +214,11 @@ impl Remotes {
         if let Some(animation) = data.animation {
             body.set_animation(animation);
         }
-        // `PhysicsDesc` behaviours start with the object (`CPhysicsObj::set_description`).
+        // The `PhysicsDesc`'s mode, behaviours and sliders (`CPhysicsObj::set_description`);
+        // the mode is the latest `SetMode` when one came before the body.
         if let Some(object) = cx.session.objects().get(id) {
-            for params in &object.behaviors {
-                crate::motion::apply(
-                    &mut body,
-                    &ac2_net::protocol::ObjectAction::DoBehavior(Box::new(params.clone())),
-                );
-            }
+            let mode = object.mode.unwrap_or(0);
+            crate::motion::describe(&mut body, mode, &object.behaviors, &object.sliders);
         }
         remote.body = Some(body);
         let held = cx
@@ -414,12 +411,24 @@ impl Remotes {
         }
     }
 
-    /// The server's motion events (`RecvEvt_DoBehavior`, `RecvEvt_StopBehavior`) for the
-    /// object's body.
+    /// The server's motion events (`RecvEvt_DoMode`, `RecvEvt_SetMode`, the behaviour, layer
+    /// and slider events) for the object's body.
     pub(crate) fn motion(&mut self, id: u64, action: &ac2_net::protocol::ObjectAction) {
         if let Some(body) = self.objects.get_mut(&id).and_then(|r| r.body.as_mut()) {
             crate::motion::apply(body, action);
         }
+    }
+
+    /// A move-to target as `TargetManager` reports it: an object in the world with a body, its
+    /// position, `GetRadius` and `GetHeight` (the Setup's, scaled).
+    pub(crate) fn target_info(&self, id: u64) -> Option<(Position, f32, f32)> {
+        let remote = self.objects.get(&id).filter(|r| r.in_world)?;
+        let body = remote.body.as_ref()?;
+        let data = self.bodies.get(&remote.visual)?.as_ref().ok()?;
+        let scale = f64::from(data.shape.scale);
+        let radius = (f64::from(data.radius) * scale) as f32;
+        let height = (f64::from(data.shape.height) * scale) as f32;
+        Some((body.position(), radius, height))
     }
 
     /// The table's bookkeeping took the object out of the world (`RecvEvt_LeaveWorld`,

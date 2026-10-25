@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 328 done, 77 partial, 1657 to do, 62 skipped.
+2124 retail functions: 334 done, 74 partial, 1654 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (93/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (99/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2197,17 +2197,17 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::RecvEvt_LookAt` · 004de2e0
 - [ ] `CPhysicsObj::RecvEvt_LookAtDir` · 004de300
 - [x] `CPhysicsObj::RecvEvt_StopBehavior` · 004de320 — ac2-client motion.rs
-- [~] `CPhysicsObj::RecvEvt_StopLayer` · 004de330 — PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
-- [~] `CPhysicsObj::RecvEvt_StopMoveToCancelsBehaviors` · 004de340 — PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
-- [~] `CPhysicsObj::RecvEvt_StopAllWeenieBehaviors` · 004de350 — PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
-- [~] `CPhysicsObj::RecvEvt_DoMode` · 004de360 — PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
+- [x] `CPhysicsObj::RecvEvt_StopLayer` · 004de330 — ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
+- [x] `CPhysicsObj::RecvEvt_StopMoveToCancelsBehaviors` · 004de340 — ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
+- [x] `CPhysicsObj::RecvEvt_StopAllWeenieBehaviors` · 004de350 — ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
+- [x] `CPhysicsObj::RecvEvt_DoMode` · 004de360 — ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
 - [x] `CPhysicsObj::RecvEvt_DoSlider` · 004de380 · legions 004d0de0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `CPhysicsObj::RecvEvt_SetMIDESC` · 004de3f0
 - [ ] `CPhysicsObj::RecvEvt_SetAccelerationScale` · 004de410
 - [ ] `CPhysicsObj::RecvEvt_SetVelocityScale` · 004de430
 - [ ] `CPhysicsObj::RecvEvt_SetJumpScale` · 004de450
 - [ ] `CPhysicsObj::RecvEvt_SetHoverHeight` · 004de470
-- [~] `CPhysicsObj::RecvEvt_MoveTo` · 004de490 · legions 004d0ef0 — ac2-physics PhysicsBody::recv_move_to (player only, StopMoveToCancelsBehaviors, MoveToEvent); stamp bookkeeping in ac2-weenie; the client does not call it yet
+- [x] `CPhysicsObj::RecvEvt_MoveTo` · 004de490 · legions 004d0ef0 — ac2-client motion.rs -> PhysicsBody::recv_move_to (player only); stamp in ac2-weenie; no path planner (retail passes none)
 - [ ] `CPhysicsObj::RecvEvt_PositionCell` · 004de4e0
 - [ ] `CPhysicsObj::RecvEvt_DoFX` · 004de4f0
 - [ ] `CPhysicsObj::RecvEvt_DoTargettedFX` · 004de500
@@ -2720,7 +2720,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::CPhysicsObj` · 004ebb50 · legions 004de4c0
 - [ ] `CPhysicsObj::makeObjectInternal` · 004ec1a0 · legions 004deb10
 - [ ] `CPhysicsObj::makePartGroupObject` · 004ec230 · legions 004deba0
-- [~] `CPhysicsObj::RecvEvt_ReleaseBehavior` · 004ec290 — PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
+- [x] `CPhysicsObj::RecvEvt_ReleaseBehavior` · 004ec290 — ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
 - [ ] `CPhysicsObj::GetTriggerUpdate` · 004ec310 · legions 004dec80
 - [~] `CPhysicsObj::SetPositionInternal` · 004ec350 · legions 004decc0 — ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 - [~] `CPhysicsObj::HandleLeaveWorld` · 004ec400 · legions 004ded70 — the bookie part only
@@ -3130,7 +3130,7 @@ Legend and workflow: [README](README.md).
 ### TargetManager
 - [ ] `TargetManager::ClearTarget` · 00515ab0 · legions 00503ac0
 - [ ] `TargetManager::SetTargetQuantum` · 00515b00 · legions 00503b10
-- [ ] `TargetManager::ReceiveUpdate` · 00515b60 · legions 00503b70
+- [~] `TargetManager::ReceiveUpdate` · 00515b60 · legions 00503b70 — ac2-client track_move_to_target: the player's move-to object target's position, radius and height each physics quantum; lost when it leaves the world; no voyeur update thresholds or interpolation
 - [ ] `TargetManager::SendVoyeurUpdate` · 00515d50 · legions 00503d60
 - [ ] `TargetManager::CheckAndUpdateVoyeur` · 00515e90 · legions 00503ea0
 - [ ] `TargetManager::SetTarget` · 00515f70 · legions 00503f80
@@ -3139,9 +3139,9 @@ Legend and workflow: [README](README.md).
 - [ ] `TargetVoyeur::TargetVoyeur` · 005160e0 · legions 005040f0
 
 ### TargetManager
-- [ ] `TargetManager::HandleTargetting` · 005161e0 · legions 005041f0
+- [~] `TargetManager::HandleTargetting` · 005161e0 · legions 005041f0 — ac2-client track_move_to_target: the player's move-to object target's position, radius and height each physics quantum; lost when it leaves the world; no voyeur update thresholds or interpolation
 - [ ] `TargetManager::NotifyVoyeurOfEvent` · 005162b0 · legions 005042c0
-- [ ] `TargetManager::HandleLeaveWorld` · 00516330 · legions 00504340
+- [~] `TargetManager::HandleLeaveWorld` · 00516330 · legions 00504340 — ac2-client track_move_to_target: the player's move-to object target's position, radius and height each physics quantum; lost when it leaves the world; no voyeur update thresholds or interpolation
 - [ ] `TargetManager::RemoveVoyeur` · 005163d0 · legions 005043e0
 - [ ] `TargetManager::~TargetManager` · 00516580 · legions 00504590
 - [ ] `TargetManager::AddVoyeur` · 005165e0 · legions 005045f0

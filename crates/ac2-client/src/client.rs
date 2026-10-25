@@ -95,6 +95,8 @@ pub(crate) struct Player {
     pub(crate) in_world: bool,
     /// The heading the motion interpreter turns to, held across frames as `TurnTo` holds it.
     turn_to: Option<f32>,
+    /// The object the server's move-to heads for (`RecvEvt_MoveTo` with an object target).
+    pub(crate) move_to_target: Option<u64>,
 }
 
 impl Player {
@@ -460,6 +462,7 @@ impl Client {
             let quanta = self.physics_clock.advance(now);
             let cur_time = self.session.cur_time();
             for _ in 0..quanta {
+                self.track_move_to_target();
                 let player = self
                     .player
                     .as_mut()
@@ -622,6 +625,7 @@ impl Client {
             body: None,
             in_world: false,
             turn_to: None,
+            move_to_target: None,
         });
         self.loader.request(Request::Body(entry.visual));
         self.blocking_load = true;

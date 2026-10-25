@@ -1,6 +1,7 @@
 //! The client's glue for the objects other than the player: the session's object events and
 //! the resident landblocks drive [`Remotes`], and each frame lists them for the renderer.
 
+use ac2_net::protocol::{MoveTarget, ObjectAction};
 use ac2_weenie::SessionEvent;
 
 use crate::cells::BlockChange;
@@ -58,14 +59,52 @@ impl Client {
             SessionEvent::ObjectRemoved(id) => remotes.removed(*id),
             _ => {}
         }
-        // The player's body takes its motion events too.
+        // The player's body takes its motion events too, and only it moves to (`RecvEvt_MoveTo`;
+        // the session keeps the move-to stamp).
         if let SessionEvent::ObjectAction { object, action } = event {
-            let player = self.player.as_mut().filter(|p| p.id == *object);
-            if let Some(body) = player.and_then(|p| p.body.as_mut()) {
-                crate::motion::apply(&mut body.physics, action);
+            if let Some(player) = self.player.as_mut().filter(|p| p.id == *object) {
+                let started = player
+                    .body
+                    .as_mut()
+                    .is_some_and(|body| crate::motion::apply(&mut body.physics, action));
+                if let (true, ObjectAction::MoveTo { params, .. }) = (started, action) {
+                    player.move_to_target = match params.target {
+                        MoveTarget::Object(id) => Some(id),
+                        MoveTarget::Position(_) => None,
+                    };
+                }
             }
         }
         self.request_remote_bodies();
+    }
+
+    /// `TargetManager` for the player's move-to an object: each physics quantum the target's
+    /// position and size (`MoveToManager::HandleUpdateTarget`); a target no longer in the world
+    /// is lost. Ended move-tos are let go: the weenie's move-to callback is not modelled.
+    pub(crate) fn track_move_to_target(&mut self) {
+        let Some(player) = self.player.as_mut() else {
+            return;
+        };
+        let Some(body) = player.body.as_mut() else {
+            return;
+        };
+        body.physics.take_move_to_results();
+        let Some(id) = player.move_to_target else {
+            return;
+        };
+        if !body.physics.is_moving_to() {
+            player.move_to_target = None;
+            return;
+        }
+        match self.remotes.target_info(id) {
+            Some((position, radius, height)) => {
+                body.physics.update_move_to_target(position, radius, height)
+            }
+            None => {
+                body.physics.lose_move_to_target();
+                player.move_to_target = None;
+            }
+        }
     }
 
     /// A Setup for other objects arrived.
