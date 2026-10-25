@@ -37,6 +37,9 @@ pub mod function {
     /// C->S, `WM_Communication` stub 0xE (`CCommunicationSystem` 0x8, from `CPlayer` 0x15B,
     /// IFun `DoEmote`): the emote, one int.
     pub const EMOTE: u32 = 0x8205_000B;
+    /// C->S, `WM_Communication` stub 0x15 (`CCommunicationSystem` 0x5, from `CPlayer` 0x5E,
+    /// the emote command): the text, a `wpstring`.
+    pub const EMOTE_TEXT: u32 = 0x8205_0004;
     /// S->C, `WM_Player` 0x27 -> `CPlayer` 0x65: the player's login state (fourteen 32-bit
     /// arguments: money, the options profile, the faction, inventory and effect systems'
     /// data...), after which `CPlayer` raises the hero status and the vitals.

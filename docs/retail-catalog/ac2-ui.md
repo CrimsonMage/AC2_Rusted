@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 121 done, 77 partial, 2032 to do, 17 skipped.
+2247 retail functions: 121 done, 78 partial, 2031 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -657,7 +657,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PStringBaseIter_Common<unsigned_short>::FindChar` · 0044b5b0 · legions 0044c090
 
 ### ChatWindow
-- [ ] `ChatWindow::ProcessCommand` · 0044b650 · legions 0044da90
+- [~] `ChatWindow::ProcessCommand` · 0044b650 · legions 0044da90 — ac2-weenie ChatState::process_text raises ID_Chat_UnknownCommand (0x41000018) for UnknownCmd; the entry box is the lead's
 
 ### PStringBaseIter_Common<unsigned_short>
 - [ ] `PStringBaseIter_Common<unsigned_short>::FindChar` · 0044b730 · legions 0044c130

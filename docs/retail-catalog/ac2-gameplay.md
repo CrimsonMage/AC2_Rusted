@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 52 done, 7 partial, 431 to do, 9 skipped.
+499 retail functions: 53 done, 7 partial, 430 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
@@ -24,7 +24,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060ca40 · legions 005cd840
 - [ ] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060caf0 · legions 005cd8f0
 
-## `ac2/shared/src/character/gameplayoptionsprofile.cpp.c` (2/57)
+## `ac2/shared/src/character/gameplayoptionsprofile.cpp.c` (3/57)
 
 ### PFileNode
 - [ ] `PFileNode::MakeSubNodeAsBool` · 005fe6a0 · legions 005bf180
@@ -69,7 +69,7 @@ Legend and workflow: [README](README.md).
 - [ ] `GameplayOptionsProfile::InqWindowOpacity` · 005ff310 · legions 005bfe90
 - [-] `GameplayOptionsProfile::ToFileNode` · 005ff330 · legions 005bfeb0 — text source format (admin tools)
 - [ ] `GameplayOptionsProfile::Export` · 005ff400 · legions 005bff80
-- [ ] `GameplayOptionsProfile::InqAlias` · 005ff630 · legions 005c01b0
+- [x] `GameplayOptionsProfile::InqAlias` · 005ff630 · legions 005c01b0 — ac2-weenie shell::expand_aliases over the options profile's m_aliasTable (ChatState::login_options)
 - [ ] `GameplayOptionsProfile::FlushAliasTable` · 005ff6e0 · legions 005c0260
 - [ ] `GameplayOptionsProfile::RemoveAlias` · 005ff6f0 · legions 005c0270
 - [ ] `GameplayOptionsProfile::RemoveFilter` · 005ff710 · legions 005c0290

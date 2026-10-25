@@ -87,6 +87,11 @@ impl OnlineSession {
         let Ok(values) = unpack_values(arguments) else {
             return Vec::new();
         };
+        if let Some(NativeObject::GameplayOptionsProfile(profile)) =
+            values.get(3).and_then(|options| options.as_native())
+        {
+            self.chat_options(profile);
+        }
         values
             .get(3)
             .and_then(|options| self.progress.login_options(options))

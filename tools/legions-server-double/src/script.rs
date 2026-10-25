@@ -117,7 +117,8 @@ impl State {
                     });
                 }
             }
-            ScriptRequest::Emote(_) => {}
+            // Emotes play on the server; the double has no one to show them to.
+            ScriptRequest::Emote(_) | ScriptRequest::EmoteText(_) => {}
             ScriptRequest::MoveItem(desc) | ScriptRequest::ReorganizeContents(desc) => {
                 let mut desc = desc.clone();
                 let slot = self.inventory_move(desc.item(), desc.target(), desc.target_slot());

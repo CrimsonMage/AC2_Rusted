@@ -33,6 +33,7 @@ mod gameplay;
 mod inventory;
 mod progress;
 mod select;
+mod shell;
 
 /// Which listed character to enter the world with.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -172,6 +173,12 @@ pub enum SessionEvent {
     Disconnected(String),
     /// A notice the player's scripts raised (`CM_*::SendNotice_*`) for the UI.
     Notice(GameplayNotice),
+    /// A chat command the port does not run natively ([`crate::ShellAction::Command`]).
+    ShellCommand {
+        handler: u32,
+        text: String,
+        args: Vec<String>,
+    },
 }
 
 /// The client side of one online session.
@@ -204,6 +211,8 @@ pub struct OnlineSession {
     progress: crate::progress::Progress,
     /// Script functions the script VM handles instead of the stand-ins.
     script_functions: std::collections::BTreeSet<u32>,
+    /// The chat command line's state (`CPlayer`'s chat slots).
+    chat: crate::shell::ChatState,
 }
 
 impl OnlineSession {
@@ -257,6 +266,7 @@ impl OnlineSession {
             inventory: Default::default(),
             progress: Default::default(),
             script_functions: Default::default(),
+            chat: Default::default(),
         })
     }
 
@@ -564,6 +574,7 @@ impl OnlineSession {
                     if let Some(events) = self.receive_skill(function, &arguments) {
                         out.extend(events);
                     }
+                    out.extend(self.receive_chat_call(function, &arguments));
                     if let Some(events) = self.receive_script(function, &arguments) {
                         out.extend(events);
                         return;

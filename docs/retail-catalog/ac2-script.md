@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1123 done, 80 partial, 1187 to do, 78 skipped.
+2468 retail functions: 1124 done, 80 partial, 1186 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -3101,13 +3101,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gStringInfo::CallEFun_GetSubDataIDs` · 00539100 · legions 0051c1d0
 - [x] `gStringInfo::CallEFun_InqString` · 00539180 — ac2-script glue::string_text (tables via ScriptData::string_table)
 
-## `portal/shared/src/interp/glue/gstringutils.cpp.c` (0/3)
+## `portal/shared/src/interp/glue/gstringutils.cpp.c` (1/3)
 
 ### gStringUtils
 - [ ] `gStringUtils::CallEFun_ConvertWPStringToCIWPstring` · 00551ee0
 
 ### (free functions)
-- [ ] `IsWordInString` · 00551fa0 · legions 0052d1d0
+- [x] `IsWordInString` · 00551fa0 · legions 0052d1d0 — ac2-weenie shell::is_word_in (emote names, squelch sub-commands)
 
 ### gStringUtils
 - [ ] `gStringUtils::CallEFun_IsWordInString` · 005520c0

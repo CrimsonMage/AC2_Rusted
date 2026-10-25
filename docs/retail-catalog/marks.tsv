@@ -60,6 +60,7 @@ key	status	note
 00431e20	x	
 00431e90	x	
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+0044b650	~	ac2-weenie ChatState::process_text raises ID_Chat_UnknownCommand (0x41000018) for UnknownCmd; the entry box is the lead's
 0044faa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 0044fac0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 0044fb20	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
@@ -70,15 +71,22 @@ key	status	note
 00450530	~	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 00450730	~	ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
 00450750	~	ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
+00450de0	~	ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
+00450e00	~	ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 00450f30	~	ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
 00450f80	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 00450fa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 00451050	~	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 004520f0	x	ac2-net GunChatExtraInfo
+00452330	~	ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
+004523a0	~	ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
+00452410	~	ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
 00452580	~	ac2-net GunChatExtraInfo::new: version 1, flags; the meta letters (RetrieveMetaLetters) are left empty
 004527c0	~	ac2-weenie OnlineSession::send_to_room: the Turbine chat path (CSendToTurbineRoomByID); the GUN path is dead in Legions
 00453320	~	ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
 004534e0	x	ac2-net GunChatExtraInfo
+00453670	x	ac2-weenie shell::expand_aliases over the options profile's m_aliasTable (ChatState::login_options)
+00453c10	~	ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 00454080	x	ac2-script vm (VM/ReferenceTable/Resolver)
 00454300	x	ac2-script vm (VM/ReferenceTable/Resolver)
 00454440	x	ac2-script vm (VM/ReferenceTable/Resolver)
@@ -1081,6 +1089,9 @@ key	status	note
 0052e130	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 0052e150	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 0052e6a0	x	
+0052ee50	~	ac2-weenie ChatState::process_text (CPlayer 0xDB/0x131/0x112/0xC5/0x5E/0xCF/0x94/0x103/0xE4/0x14C natively, other commands as SessionEvent::ShellCommand); the command history (AddCmdToHistory) is not kept
+0052f430	x	ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
+0052f990	x	ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
 00530150	x	ac2-weenie ObjectTable::apply_action
 00530e70	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
 00530f40	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
@@ -1406,6 +1417,7 @@ key	status	note
 00551d70	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00551e00	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00551e60	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551fa0	x	ac2-weenie shell::is_word_in (emote names, squelch sub-commands)
 00552130	x	ac2-script glue
 005521c0	x	ac2-script glue
 00552270	x	ac2-script glue
@@ -2355,6 +2367,7 @@ key	status	note
 005fe170	x	ac2-ui hud.rs
 005fe420	x	
 005fe7a0	x	ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
+005ff630	x	ac2-weenie shell::expand_aliases over the options profile's m_aliasTable (ChatState::login_options)
 006000b0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00600cb0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600cf0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -2412,6 +2425,8 @@ key	status	note
 0060e3d0	~	ac2-physics ObjectShape::new: physics containment radius and box only
 006124f0	x	ac2-render object/skeleton.rs rest_matrices
 00612670	x	ac2-render object/skeleton.rs rest_matrices
+006132f0	x	ac2-weenie shell::process_command: quoted tokens, set-trim of the command, lowercased lookup; ExpandableCommand
+00613880	x	ac2-weenie shell::process_command: quoted tokens, set-trim of the command, lowercased lookup; ExpandableCommand
 006169c0	x	
 00617370	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 00618860	x	GameClock::new: day_length * days_per_year as a double
@@ -3184,6 +3199,10 @@ key	status	note
 00732400	~	the player's quantum with PlayerPhysicsUpdatedCallback, then every other object in the world and in range
 007325a0	x	ac2-client: the player's and every object's body
 007326e0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+007327d0	x	ac2-weenie shell::process_text: the / prefix, ID_DefaultCommand speech, ExpandableText
+00732a90	x	ac2-weenie shell::process_text: the / prefix, ID_DefaultCommand speech, ExpandableText
+00732c60	x	ac2-weenie shell::process_text: the / prefix, ID_DefaultCommand speech, ExpandableText
+00732da0	x	ac2-weenie shell::process_text: the / prefix, ID_DefaultCommand speech, ExpandableText
 00737cf0	x	
 00737dd0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 00739430	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
