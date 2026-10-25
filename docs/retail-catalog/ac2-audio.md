@@ -1,6 +1,6 @@
 # ac2-audio: Sound
 
-367 retail functions: 0 done, 0 partial, 350 to do, 17 skipped.
+367 retail functions: 44 done, 19 partial, 287 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/cregion/csound/cambientsoundinfo.cpp.c` (0/13)
@@ -215,22 +215,22 @@ Legend and workflow: [README](README.md).
 - [ ] `DBMusicObj::GetDBOType` · 005a3220
 - [ ] `DBMusicObj::Allocate` · 005a3230
 
-## `portal/client/src/sound/dbwave.cpp.c` (0/12)
+## `portal/client/src/sound/dbwave.cpp.c` (4/12)
 
 ### std::strstream
 - [ ] `std::strstream::`vbase_destructor'` · 005a3580 · legions 00570080
 
 ### DBWave
 - [ ] `DBWave::~DBWave` · 005a35a0 · legions 005700a0
-- [ ] `DBWave::GetDBOType` · 005a35b0
+- [x] `DBWave::GetDBOType` · 005a35b0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [ ] `DBWave::Pack` · 005a35c0
-- [ ] `DBWave::GetTime` · 005a3680 · legions 00570180
+- [x] `DBWave::GetTime` · 005a3680 · legions 00570180 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [ ] `DBWave::ZeroInit` · 005a36d0 · legions 005701d0
 - [ ] `DBWave::ReleaseAll` · 005a36f0 · legions 005701f0
 - [ ] `DBWave::Allocator` · 005a3720
 - [ ] `DBWave::CompressAudio` · 005a3740
-- [ ] `DBWave::DBWave` · 005a3a50 · legions 00570240
-- [ ] `DBWave::UnPack` · 005a3ab0
+- [x] `DBWave::DBWave` · 005a3a50 · legions 00570240 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `DBWave::UnPack` · 005a3ab0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [-] `DBWave::LoadFromFile` · 005a3e50 — text source loader, admin build only
 
 ## `portal/client/src/sound/directx/directxmusicloader.cpp.c` (0/32)
@@ -279,47 +279,47 @@ Legend and workflow: [README](README.md).
 - [ ] `DirectXMusicLoader::Release` · 005a84b0 · legions 00574a10
 - [ ] `DirectXMusicLoader::DirectXMusicLoader` · 005a8580 · legions 00574ae0
 
-## `portal/client/src/sound/directx/directxplayingsound.cpp.c` (0/32)
+## `portal/client/src/sound/directx/directxplayingsound.cpp.c` (17/32)
 
 ### DirectXPlayingSound
 - [ ] `DirectXPlayingSound::OnSegmentStarted` · 005a6010 · legions 00572750
 - [ ] `DirectXPlayingSound::Update3DInfo` · 005a6030 · legions 00572770
-- [ ] `DirectXPlayingSound::GetIsPlaying` · 005a6170
+- [x] `DirectXPlayingSound::GetIsPlaying` · 005a6170 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [ ] `DirectXPlayingSound::GetIsActuallyPlaying` · 005a61a0 · legions 005728e0
-- [ ] `DirectXPlayingSound::GetReadyToDie` · 005a61c0
+- [x] `DirectXPlayingSound::GetReadyToDie` · 005a61c0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [ ] `DirectXPlayingSound::GetVolume` · 005a61d0
-- [ ] `DirectXPlayingSound::SetFrequencyInternal` · 005a61e0 · legions 00572920
+- [~] `DirectXPlayingSound::SetFrequencyInternal` · 005a61e0 · legions 00572920 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 
 ### CMotionInterp
 - [ ] `CMotionInterp::GetVelocityScale` · 005a6260
 
 ### DirectXPlayingSound
-- [ ] `DirectXPlayingSound::GetIsLooping` · 005a6270
-- [ ] `DirectXPlayingSound::ReleaseAudioPathAndBuffers` · 005a6280 · legions 005729c0
-- [ ] `DirectXPlayingSound::DirectXPlayingSound` · 005a6320 · legions 00572a20
-- [ ] `DirectXPlayingSound::GetIsSelfExclusive` · 005a6400
-- [ ] `DirectXPlayingSound::GetIsAllExclusive` · 005a6420
-- [ ] `DirectXPlayingSound::GetIsBudgeted` · 005a6430
+- [x] `DirectXPlayingSound::GetIsLooping` · 005a6270 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `DirectXPlayingSound::ReleaseAudioPathAndBuffers` · 005a6280 · legions 005729c0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `DirectXPlayingSound::DirectXPlayingSound` · 005a6320 · legions 00572a20 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `DirectXPlayingSound::GetIsSelfExclusive` · 005a6400 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `DirectXPlayingSound::GetIsAllExclusive` · 005a6420 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `DirectXPlayingSound::GetIsBudgeted` · 005a6430 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [ ] `DirectXPlayingSound::GetEmitter` · 005a6450
 - [ ] `DirectXPlayingSound::GetIsPrimaryTrack` · 005a6460
 - [ ] `DirectXPlayingSound::~DirectXPlayingSound` · 005a6470 · legions 00572b80
-- [ ] `DirectXPlayingSound::DXInitialize` · 005a64d0 · legions 00572be0
-- [ ] `DirectXPlayingSound::OnSegmentEnded` · 005a6600 · legions 00572d10
-- [ ] `DirectXPlayingSound::UpdatePosition` · 005a6640 · legions 00572d50
-- [ ] `DirectXPlayingSound::SetVolumeInternal` · 005a6790 · legions 00572ea0
+- [x] `DirectXPlayingSound::DXInitialize` · 005a64d0 · legions 00572be0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `DirectXPlayingSound::OnSegmentEnded` · 005a6600 · legions 00572d10 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [~] `DirectXPlayingSound::UpdatePosition` · 005a6640 · legions 00572d50 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [x] `DirectXPlayingSound::SetVolumeInternal` · 005a6790 · legions 00572ea0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [ ] `DirectXPlayingSound::SetFrequency` · 005a6920
 - [ ] `DirectXPlayingSound::GetAudioPathAndBuffers` · 005a69b0 · legions 00573110
-- [ ] `DirectXPlayingSound::PlayInternal` · 005a6b50 · legions 005731e0
-- [ ] `DirectXPlayingSound::StopInternal` · 005a6d50 · legions 005733e0
+- [~] `DirectXPlayingSound::PlayInternal` · 005a6b50 · legions 005731e0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [x] `DirectXPlayingSound::StopInternal` · 005a6d50 · legions 005733e0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [ ] `DirectXPlayingSound::SetVolume` · 005a6ee0
-- [ ] `DirectXPlayingSound::RecalculateVolume` · 005a6f00 · legions 00573590
-- [ ] `DirectXPlayingSound::UseTime` · 005a6f20 · legions 005735b0
-- [ ] `DirectXPlayingSound::Play` · 005a70a0
-- [ ] `DirectXPlayingSound::Stop` · 005a70b0
-- [ ] `DirectXPlayingSound::Enable` · 005a70e0 · legions 00573770
-- [ ] `DirectXPlayingSound::OnDeviceStateChanged` · 005a7180 · legions 00573810
+- [x] `DirectXPlayingSound::RecalculateVolume` · 005a6f00 · legions 00573590 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [~] `DirectXPlayingSound::UseTime` · 005a6f20 · legions 005735b0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [x] `DirectXPlayingSound::Play` · 005a70a0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `DirectXPlayingSound::Stop` · 005a70b0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `DirectXPlayingSound::Enable` · 005a70e0 · legions 00573770 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `DirectXPlayingSound::OnDeviceStateChanged` · 005a7180 · legions 00573810 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 
-## `portal/client/src/sound/directx/directxsounddevice.cpp.c` (0/34)
+## `portal/client/src/sound/directx/directxsounddevice.cpp.c` (3/34)
 
 ### DirectXSoundDevice
 - [ ] `DirectXSoundDevice::SetSoundFeatures` · 005a3e70 · legions 00570640
@@ -328,15 +328,15 @@ Legend and workflow: [README](README.md).
 - [ ] `DirectXSoundDevice::SetGrooveLevel` · 005a3f10 · legions 005706e0
 
 ### DirectXSoundInstance
-- [ ] `DirectXSoundInstance::Initialize` · 005a3f70 · legions 00570740
-- [ ] `DirectXSoundInstance::Initialize` · 005a3ff0 · legions 005707c0
+- [~] `DirectXSoundInstance::Initialize` · 005a3f70 · legions 00570740 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [~] `DirectXSoundInstance::Initialize` · 005a3ff0 · legions 005707c0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [ ] `DirectXSoundInstance::InitDXPSDFromMusicInfo` · 005a4070 · legions 00570840
 - [ ] `DirectXSoundInstance::GetDataID` · 005a4270 · legions 00570a40
 
 ### DirectXSoundDevice
-- [ ] `DirectXSoundDevice::SetChannelVolume` · 005a4290 · legions 00570a60
-- [ ] `DirectXSoundDevice::UpdateListener` · 005a4440 · legions 00570c10
-- [ ] `DirectXSoundDevice::UseTime` · 005a45c0 · legions 00570d90
+- [x] `DirectXSoundDevice::SetChannelVolume` · 005a4290 · legions 00570a60 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [~] `DirectXSoundDevice::UpdateListener` · 005a4440 · legions 00570c10 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [x] `DirectXSoundDevice::UseTime` · 005a45c0 · legions 00570d90 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [ ] `DirectXSoundDevice::RemovePlayingSound` · 005a4600 · legions 00570dd0
 - [ ] `DirectXSoundDevice::RemoveSoundInstance` · 005a4650 · legions 00570e20
 
@@ -348,8 +348,8 @@ Legend and workflow: [README](README.md).
 - [ ] `DirectXSoundDevice::DebugPrintPlayingSounds` · 005a4810 · legions 00570fe0
 
 ### DirectXSoundInstance
-- [ ] `DirectXSoundInstance::InitDXPSDFromSoundInfo` · 005a4990 · legions 00571160
-- [ ] `DirectXSoundInstance::CreatePlayingSound` · 005a4ae0 · legions 00571290
+- [x] `DirectXSoundInstance::InitDXPSDFromSoundInfo` · 005a4990 · legions 00571160 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [~] `DirectXSoundInstance::CreatePlayingSound` · 005a4ae0 · legions 00571290 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 
 ### DirectXSoundDevice
 - [ ] `DirectXSoundDevice::AddPlayingSound` · 005a4ba0 · legions 00571350
@@ -362,18 +362,18 @@ Legend and workflow: [README](README.md).
 - [ ] `DirectXSoundDevice::CreateInstance` · 005a4cb0 · legions 00571460
 - [ ] `DirectXSoundDevice::CreateInstance` · 005a4d10 · legions 005714c0
 - [ ] `DirectXSoundDevice::DestroyDevice` · 005a4e10 · legions 005715c0
-- [ ] `DirectXSoundDevice::CreateDevice` · 005a5160 · legions 00571910
-- [ ] `DirectXSoundDevice::Enable` · 005a52a0 · legions 00571a50
+- [~] `DirectXSoundDevice::CreateDevice` · 005a5160 · legions 00571910 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [~] `DirectXSoundDevice::Enable` · 005a52a0 · legions 00571a50 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [ ] `DirectXSoundDevice::Shutdown` · 005a53c0 · legions 00571b70
 - [ ] `DirectXSoundDevice::ReserveAudioPath` · 005a5430 · legions 00571be0
-- [ ] `DirectXSoundDevice::Initialize` · 005a5500 · legions 00571cb0
+- [~] `DirectXSoundDevice::Initialize` · 005a5500 · legions 00571cb0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [ ] `DirectXSoundDevice::CreateAudioPaths` · 005a55a0 · legions 00571d50
 - [ ] `DirectXSoundDevice::FreeAudioPath` · 005a5860 · legions 00571fa0
 - [ ] `DirectXSoundDevice::DirectXSoundDevice` · 005a58d0 · legions 00572010
 - [ ] `DirectXSoundDevice::OnDDDComplete` · 005a59f0 · legions 00572130
 
 ### SoundDeviceFactory
-- [ ] `SoundDeviceFactory::CreateDevice` · 005a5a80 · legions 005721c0
+- [~] `SoundDeviceFactory::CreateDevice` · 005a5a80 · legions 005721c0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 
 ## `portal/client/src/sound/directx/dxmusicmessagethread.cpp.c` (0/16)
 
@@ -506,62 +506,62 @@ Legend and workflow: [README](README.md).
 - [ ] `EnvInfo::~EnvInfo` · 005a3530 · legions 00570030
 - [ ] `EnvInfo::Allocator` · 005a3540
 
-## `portal/client/src/sound/soundmanager.cpp.c` (0/25)
+## `portal/client/src/sound/soundmanager.cpp.c` (13/25)
 
 ### SoundManager
-- [ ] `SoundManager::Initialize` · 005a1000 · legions 0056dcd0
+- [~] `SoundManager::Initialize` · 005a1000 · legions 0056dcd0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [ ] `SoundManager::OnDDDComplete` · 005a10d0
 
 ### PlaySoundData
-- [ ] `PlaySoundData::PlaySoundData` · 005a1160 · legions 0056de30
+- [x] `PlaySoundData::PlaySoundData` · 005a1160 · legions 0056de30 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 
 ### SoundManager
 - [ ] `SoundManager::DebugPrintPlayingSounds` · 005a1190
 - [ ] `SoundManager::SetGrooveLevel` · 005a11a0 · legions 0056de60
 - [ ] `SoundManager::TweakGrooveLevel` · 005a11d0
-- [ ] `SoundManager::InitPrefs` · 005a1210 · legions 0056de90
-- [ ] `SoundManager::AllocateSounds` · 005a1720 · legions 0056e3e0
-- [ ] `SoundManager::CheckSoundBudget` · 005a1830 · legions 0056e4d0
-- [ ] `SoundManager::StopSounds` · 005a1a70 · legions 0056e690
-- [ ] `SoundManager::StopSoundsForEmitter` · 005a1ba0 · legions 0056e7c0
-- [ ] `SoundManager::HasSoundFinished` · 005a1ca0
-- [ ] `SoundManager::StopSoundRequest` · 005a1d10
-- [ ] `SoundManager::HandleChangeInternal` · 005a1d90 · legions 0056e9b0
-- [ ] `SoundManager::HandleApply` · 005a1fe0
-- [ ] `SoundManager::HandleChange` · 005a2120
+- [~] `SoundManager::InitPrefs` · 005a1210 · legions 0056de90 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [x] `SoundManager::AllocateSounds` · 005a1720 · legions 0056e3e0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `SoundManager::CheckSoundBudget` · 005a1830 · legions 0056e4d0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `SoundManager::StopSounds` · 005a1a70 · legions 0056e690 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `SoundManager::StopSoundsForEmitter` · 005a1ba0 · legions 0056e7c0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `SoundManager::HasSoundFinished` · 005a1ca0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `SoundManager::StopSoundRequest` · 005a1d10 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [~] `SoundManager::HandleChangeInternal` · 005a1d90 · legions 0056e9b0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [~] `SoundManager::HandleApply` · 005a1fe0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [~] `SoundManager::HandleChange` · 005a2120 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [ ] `SoundManager::GetPlayingSoundFromHandle` · 005a2230
-- [ ] `SoundManager::SoundManager` · 005a2680 · legions 0056f370
-- [ ] `SoundManager::FlushSounds` · 005a27d0 · legions 0056f4c0
-- [ ] `SoundManager::AddSoundInstance` · 005a28d0 · legions 0056f5c0
-- [ ] `SoundManager::Shutdown` · 005a29f0 · legions 0056f6e0
-- [ ] `SoundManager::UseTime` · 005a2b00 · legions 0056f7f0
-- [ ] `SoundManager::PlayInternal` · 005a2c50 · legions 0056f8f0
-- [ ] `SoundManager::OnContextFinished` · 005a3050
-- [ ] `SoundManager::Play` · 005a30c0 · legions 0056fc40
+- [x] `SoundManager::SoundManager` · 005a2680 · legions 0056f370 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `SoundManager::FlushSounds` · 005a27d0 · legions 0056f4c0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `SoundManager::AddSoundInstance` · 005a28d0 · legions 0056f5c0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `SoundManager::Shutdown` · 005a29f0 · legions 0056f6e0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [~] `SoundManager::UseTime` · 005a2b00 · legions 0056f7f0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [~] `SoundManager::PlayInternal` · 005a2c50 · legions 0056f8f0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [x] `SoundManager::OnContextFinished` · 005a3050 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `SoundManager::Play` · 005a30c0 · legions 0056fc40 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 
-## `portal/shared/src/sound/musicinfo.cpp.c` (0/10)
+## `portal/shared/src/sound/musicinfo.cpp.c` (4/10)
 
 ### MusicInfo
-- [ ] `MusicInfo::MusicInfo` · 006b8a70 · legions 0064fa30
-- [ ] `MusicInfo::GetDBOType` · 006b8aa0
+- [x] `MusicInfo::MusicInfo` · 006b8a70 · legions 0064fa30 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `MusicInfo::GetDBOType` · 006b8aa0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [ ] `MusicInfo::GetSubDataIDs` · 006b8ab0
 - [ ] `MusicInfo::CopyInto` · 006b8ad0
-- [ ] `MusicInfo::TestBitMask` · 006b8b00 · legions 0064fac0
+- [x] `MusicInfo::TestBitMask` · 006b8b00 · legions 0064fac0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [ ] `MusicInfo::Allocate` · 006b8b10
-- [ ] `MusicInfo::StreamPack` · 006b8b20 · legions 0064fae0
+- [x] `MusicInfo::StreamPack` · 006b8b20 · legions 0064fae0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [-] `MusicInfo::ToFileNode` · 006b8c00 — text source format (admin tools)
 - [ ] `MusicInfo::ParseFlags` · 006b8fb0
 - [-] `MusicInfo::FromFileNode` · 006b9300 — text source format (admin tools)
 
-## `portal/shared/src/sound/soundinfo.cpp.c` (0/9)
+## `portal/shared/src/sound/soundinfo.cpp.c` (3/9)
 
 ### SoundInfo
-- [ ] `SoundInfo::SoundInfo` · 006b8090 · legions 0064f890
-- [ ] `SoundInfo::GetDBOType` · 006b80d0
+- [x] `SoundInfo::SoundInfo` · 006b8090 · legions 0064f890 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [x] `SoundInfo::GetDBOType` · 006b80d0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [ ] `SoundInfo::GetSubDataIDs` · 006b80e0
 - [ ] `SoundInfo::CopyInto` · 006b8100
 - [ ] `SoundInfo::Allocate` · 006b8130
-- [ ] `SoundInfo::StreamPack` · 006b8140 · legions 0064f940
+- [x] `SoundInfo::StreamPack` · 006b8140 · legions 0064f940 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [-] `SoundInfo::ToFileNode` · 006b8230 — text source format (admin tools)
 - [ ] `SoundInfo::ParseFlags` · 006b84d0
 - [-] `SoundInfo::FromFileNode` · 006b8670 — text source format (admin tools)

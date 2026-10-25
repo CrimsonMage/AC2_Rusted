@@ -51,7 +51,7 @@ scripts/retail_catalog.py status
 | [ac2-ui](ac2-ui.md) | 2247 | 259 | 132 | 1838 | 18 |
 | [ac2-script](ac2-script.md) | 2468 | 1313 | 80 | 995 | 80 |
 | [ac2-gameplay](ac2-gameplay.md) | 499 | 121 | 9 | 360 | 9 |
-| [ac2-audio](ac2-audio.md) | 367 | 0 | 0 | 350 | 17 |
-| [replaced](replaced.md) | 2058 | 30 | 0 | 0 | 2028 |
+| [ac2-audio](ac2-audio.md) | 367 | 44 | 19 | 287 | 17 |
+| [replaced](replaced.md) | 2058 | 32 | 0 | 0 | 2026 |
 
 Data formats ([data-formats.md](data-formats.md)): 81 `DBObj` types, 1 done, 0 partial, 80 to do.

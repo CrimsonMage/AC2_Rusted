@@ -7,6 +7,7 @@
 //! frame for a renderer.
 
 mod appearance;
+mod audio;
 mod camera;
 mod camera_mouse;
 mod cells;
@@ -39,6 +40,7 @@ pub mod view;
 mod world_data;
 
 pub use appearance::local_visual_desc;
+pub use audio::{play_ui_sounds, sound_manager};
 pub use camera::{action as camera_action, CameraManager};
 pub use cells::{block_radius, CellManager, FAR_RADIUS, NEAR_RADIUS};
 pub use chat_commands::chat_commands;

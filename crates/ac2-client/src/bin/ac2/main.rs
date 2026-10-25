@@ -84,6 +84,8 @@ struct State {
     /// `gmSelectionUI` and the commands its finished selections send next frame.
     selection: SelectionUi,
     commands: Vec<Command>,
+    /// `SoundManager`: the UI's sounds, played through the speakers.
+    audio: ac2_audio::SoundManager,
     /// Client time origin (`Timer::cur_time` for the interpreter, materials and input stamps).
     started: Instant,
     grabbed: bool,
@@ -124,6 +126,17 @@ impl State {
                 self.window.set_cursor_visible(!mouse_look);
                 self.grabbed = mouse_look;
             }
+        }
+    }
+}
+
+/// The speakers, or silence when there is no output device.
+fn speakers() -> Box<dyn ac2_audio::SoundSink> {
+    match ac2_audio::SpeakerSink::open() {
+        Ok(sink) => Box::new(sink),
+        Err(error) => {
+            eprintln!("no sound: {error}");
+            Box::new(ac2_audio::NullSink)
         }
     }
 }
@@ -240,13 +253,15 @@ impl App {
             }
         }
         state.view.update(&state.gpu, &frame, LOAD_BUDGET);
+        ac2_client::play_ui_sounds(&mut state.audio, &state.view.take_ui_sounds());
+        let (_, time) = state.now();
+        state.audio.use_time(time);
         let Ok(output) = state.surface.get_current_texture() else {
             state.surface.configure(&state.gpu.device, &state.config);
             return;
         };
         let target = output.texture.create_view(&Default::default());
         let aspect = state.config.width as f32 / state.config.height as f32;
-        let (_, time) = state.now();
         let drawn = state.view.prepare(&state.gpu, &frame, aspect, time);
         if state.view.take_deselect() {
             state.commands.push(Command::Select(None));
@@ -324,6 +339,7 @@ impl ApplicationHandler for App {
                 controls.ui_attached = true;
                 controls
             },
+            audio: ac2_client::sound_manager(Arc::clone(self.world.resource_store()), speakers()),
             started: Instant::now(),
             grabbed: false,
         });
