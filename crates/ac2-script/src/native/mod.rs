@@ -46,6 +46,7 @@ pub mod ntype {
     pub const MISSILE_PARAMETERS: u32 = 0x46;
     pub const NA_HASH: u32 = 0x4B;
     pub const NR_HASH: u32 = 0x4D;
+    pub const HEADING: u32 = 0x2D;
     pub const PACK_BUFFER: u32 = 0x50;
     pub const POSITION: u32 = 0x5A;
     pub const RANDOM_SELECTION_TABLE_INT: u32 = 0x60;
@@ -127,6 +128,8 @@ pub enum NativeObject {
     StringInfo(StringInfo),
     /// `wpstring` (`PStringBase<unsigned short>`).
     WString(Vec<u16>),
+    /// `Heading` (degrees in [0, 360)).
+    Heading(ac2_physics::Heading),
     /// `Vector` (x, y, z).
     Vector([f32; 3]),
     Position(Position),
@@ -206,6 +209,7 @@ impl NativeObject {
             }
             ntype::BEHAVIOR_PARAMS => NativeObject::BehaviorParams(Box::new(behavior_defaults())),
             ntype::PACK_BUFFER => NativeObject::PackBuffer(Default::default()),
+            ntype::HEADING => NativeObject::Heading(ac2_physics::Heading::ZERO),
             ntype::MISSILE_PARAMETERS => {
                 NativeObject::MissileParameters(MissileParameters::default())
             }

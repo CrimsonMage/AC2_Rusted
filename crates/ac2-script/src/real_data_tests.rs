@@ -149,6 +149,7 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::StringInfo(_) => "StringInfo",
         NativeObject::WString(_) => "wpstring",
         NativeObject::Vector(_) => "Vector",
+        NativeObject::Heading(_) => "Heading",
         NativeObject::Position(_) => "Position",
         NativeObject::MissileParameters(_) => "MissileParameters",
         NativeObject::BehaviorParams(_) => "BehaviorParams",

@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 351 done, 75 partial, 1636 to do, 62 skipped.
+2124 retail functions: 352 done, 75 partial, 1635 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -1848,7 +1848,7 @@ Legend and workflow: [README](README.md).
 - [x] `MoveToManager::UpdateTurnTo` · 0050c790 · legions 004fa800 — ac2-physics moveto (slice 3)
 - [x] `MoveToManager::Update` · 0050c960 · legions 004fa9d0 — ac2-physics moveto (slice 3)
 
-## `portal/shared/src/physobj/missile/missilemanager.cpp.c` (0/58)
+## `portal/shared/src/physobj/missile/missilemanager.cpp.c` (1/58)
 
 ### Random
 - [ ] `Random::Check` · 00510ef0 · legions 004fef00
@@ -1871,7 +1871,7 @@ Legend and workflow: [README](README.md).
 
 ### Position
 - [ ] `Position::ForwardVector` · 00511560 · legions 004ff570
-- [ ] `Position::GetLocalHeading` · 005115a0 · legions 004ff5b0
+- [x] `Position::GetLocalHeading` · 005115a0 · legions 004ff5b0 — ac2-script glue::position (ported beside the gPosition glue)
 
 ### CMissileManager
 - [ ] `CMissileManager::CMissileManager` · 00511670 · legions 004ff680

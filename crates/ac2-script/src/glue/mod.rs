@@ -20,6 +20,7 @@ pub(crate) mod lists;
 mod math;
 mod missile;
 mod multi;
+mod position;
 mod random;
 mod string_info;
 mod string_text;
@@ -51,6 +52,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     missile::register(efuns);
     math::register(efuns);
     multi::register(efuns);
+    position::register(efuns);
 }
 
 /// The retail glue function behind efun `id` (`gAAHash::CallEFun_add`).

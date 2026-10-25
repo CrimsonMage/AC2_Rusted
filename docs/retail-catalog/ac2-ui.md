@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 94 done, 45 partial, 2091 to do, 17 skipped.
+2247 retail functions: 95 done, 45 partial, 2090 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -1038,10 +1038,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmExaminationUI::gmExaminationUI` · 004312e0
 - [ ] `gmExaminationUI::RecvNotice_UpdateExaminationProfile` · 00431410
 
-## `ac2/client/src/ui/gameplay/toolbar/gmnavigationui.cpp.c` (2/37)
+## `ac2/client/src/ui/gameplay/toolbar/gmnavigationui.cpp.c` (3/37)
 
 ### LandDefs
-- [ ] `LandDefs::inbound_valid_cellid` · 004314c0 · legions 00431dc0
+- [x] `LandDefs::inbound_valid_cellid` · 004314c0 · legions 00431dc0 — ac2-script glue::position (ported beside the gPosition glue)
 
 ### gmNavigationUI
 - [ ] `gmNavigationUI::AutoShowScrollButtons` · 00431550 · legions 00431e50

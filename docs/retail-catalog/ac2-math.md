@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 114 done, 8 partial, 265 to do, 39 skipped.
+426 retail functions: 131 done, 8 partial, 248 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -378,29 +378,29 @@ Legend and workflow: [README](README.md).
 - [ ] `CPortalPoly::StreamPack` · 0072f890 · legions 006ad130
 - [-] `CPortalPoly::FromFileNode` · 0072f930 — text source format (admin tools)
 
-## `portal/shared/src/geometry/position.cpp.c` (6/36)
+## `portal/shared/src/geometry/position.cpp.c` (23/36)
 
 ### Position
 - [ ] `Position::Position` · 0061fd70 · legions 005db6b0
 - [x] `Position::distance` · 0061fdb0 · legions 005db6f0 — ac2-physics interp (slice 3)
 - [x] `Position::distance_squared` · 0061fdf0 · legions 005db730 — ac2-physics interp (slice 3)
-- [ ] `Position::xy_distance` · 0061fe30 · legions 005db770
-- [ ] `Position::xy_distance_squared` · 0061fe60 · legions 005db7a0
+- [x] `Position::xy_distance` · 0061fe30 · legions 005db770 — ac2-script glue::position (ported beside the gPosition glue)
+- [x] `Position::xy_distance_squared` · 0061fe60 · legions 005db7a0 — ac2-script glue::position (ported beside the gPosition glue)
 - [x] `Position::heading` · 0061fe90 · legions 005db7d0 — ac2-physics interp (slice 3)
-- [ ] `Position::pitch` · 0061ff20 · legions 005db860
-- [ ] `Position::determine_quadrant` · 0061ffa0 · legions 005db8e0
+- [x] `Position::pitch` · 0061ff20 · legions 005db860 — ac2-script glue::position (ported beside the gPosition glue)
+- [x] `Position::determine_quadrant` · 0061ffa0 · legions 005db8e0 — ac2-script glue::position (ported beside the gPosition glue)
 - [ ] `Position::GetPackSize` · 00620060 · legions 005db9a0
 - [x] `Position::Pack` · 00620070 · legions 005db9b0 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 - [x] `Position::UnPack` · 006200b0 · legions 005db9f0
 - [x] `Position::cylinder_distance` · 006200f0 · legions 005dba30 — ac2-physics moveto (slice 3)
 - [ ] `Position::cylinder_distance_squared` · 00620190 · legions 005dbad0
-- [ ] `Position::IsValid` · 00620230 · legions 005dbb70
+- [x] `Position::IsValid` · 00620230 · legions 005dbb70 — ac2-script glue::position (ported beside the gPosition glue)
 - [ ] `Position::CreateRay` · 00620260 · legions 005dbba0
 
 ### LandDefs
-- [ ] `LandDefs::gid_to_game_map_coords` · 006202c0 · legions 005dbc00
-- [ ] `LandDefs::game_map_coords_to_gid` · 00620350 · legions 005dbc90
-- [ ] `LandDefs::GetCellDistanceSquared` · 006203e0 · legions 005dbd20
+- [x] `LandDefs::gid_to_game_map_coords` · 006202c0 · legions 005dbc00 — ac2-script glue::position (ported beside the gPosition glue)
+- [x] `LandDefs::game_map_coords_to_gid` · 00620350 · legions 005dbc90 — ac2-script glue::position (ported beside the gPosition glue)
+- [x] `LandDefs::GetCellDistanceSquared` · 006203e0 · legions 005dbd20 — ac2-script glue::position (ported beside the gPosition glue)
 
 ### LM_UVRotate
 - [ ] `LM_UVRotate::GetType` · 00620480 · legions 00599340
@@ -412,19 +412,19 @@ Legend and workflow: [README](README.md).
 - [ ] `PFileNode::MakeSubNodeAsCellID` · 006204c0
 
 ### Position
-- [ ] `Position::GetCellDistanceSquared` · 00620520
+- [x] `Position::GetCellDistanceSquared` · 00620520 — ac2-script glue::position (ported beside the gPosition glue)
 - [ ] `Position::FromWPString` · 00620530 · legions 005dbdd0
-- [ ] `Position::GetCellX` · 006205f0 · legions 005dbe90
-- [ ] `Position::GetCellY` · 00620620 · legions 005dbec0
-- [ ] `Position::FromCellCoords` · 00620650 · legions 005dbef0
+- [x] `Position::GetCellX` · 006205f0 · legions 005dbe90 — ac2-script glue::position (ported beside the gPosition glue)
+- [x] `Position::GetCellY` · 00620620 · legions 005dbec0 — ac2-script glue::position (ported beside the gPosition glue)
+- [x] `Position::FromCellCoords` · 00620650 · legions 005dbef0 — ac2-script glue::position (ported beside the gPosition glue)
 - [ ] `Position::ToRealMapCoords_Info` · 006206d0 · legions 005dbf70
 - [ ] `Position::FromGameMapCoords` · 00620830 · legions 005dc0d0
 - [ ] `Position::FromRealMapCoords` · 006208b0 · legions 005dc150
-- [ ] `Position::GetCellDistance` · 00620a40 · legions 005dc2e0
-- [ ] `Position::FromCellCoordsString` · 00620a60 · legions 005dc300
-- [ ] `Position::ToWPString` · 00620ab0 · legions 005dc350
-- [ ] `Position::ToCellCoordsString` · 00620b50 · legions 005dc3f0
-- [ ] `Position::ToRealMapCoords` · 00620bf0 · legions 005dc490
+- [x] `Position::GetCellDistance` · 00620a40 · legions 005dc2e0 — ac2-script glue::position (ported beside the gPosition glue)
+- [x] `Position::FromCellCoordsString` · 00620a60 · legions 005dc300 — ac2-script glue::position (ported beside the gPosition glue)
+- [x] `Position::ToWPString` · 00620ab0 · legions 005dc350 — ac2-script glue::position (ported beside the gPosition glue)
+- [x] `Position::ToCellCoordsString` · 00620b50 · legions 005dc3f0 — ac2-script glue::position (ported beside the gPosition glue)
+- [x] `Position::ToRealMapCoords` · 00620bf0 · legions 005dc490 — ac2-script glue::position (ported beside the gPosition glue)
 - [-] `Position::FromFileNode` · 00620d20 — text source format (admin tools)
 - [-] `Position::ToFileNode` · 00620db0 — text source format (admin tools)
 

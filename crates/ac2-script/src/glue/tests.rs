@@ -391,3 +391,52 @@ fn multi_hash_and_multi_map_glue_walk_in_retail_order() {
     assert_eq!(call(&mut vm, 0x3692_0003, 1, &[], it).1[0].0, 3); // key
     assert_eq!(call(&mut vm, 0x3691_0004, 1, &[7], mm).1[0].0, 2); // count
 }
+
+#[test]
+fn position_glue_addresses_cells_and_formats_coordinates() {
+    use crate::native::ntype;
+    let mut vm = vm();
+    let new_pos = |vm: &mut Vm| {
+        vm.refs
+            .create_native(ntype::POSITION, NativeObject::new_empty(ntype::POSITION))
+    };
+    let a = new_pos(&mut vm);
+    // FromCellCoords(1019, 1021): the middle of that land cell.
+    assert_eq!(call(&mut vm, 0x005A_0029, 1, &[1019, 1021], a).1[0].0, 1);
+    let (_, r) = call(&mut vm, 0x005A_0025, 1, &[], a); // ToCellCoordsString
+    assert_eq!(vm.wstring(r[0].0), Some(w("1019 1021").as_slice()));
+    let (_, r) = call(&mut vm, 0x005A_0003, 1, &[], a); // GetCellID
+    assert_eq!(r[0].0, 0x7F7F_001E);
+    let Some(NativeObject::Position(p)) = vm.native(a) else {
+        panic!()
+    };
+    assert_eq!(p.origin[..2], [70.0, 110.0]);
+    let (_, r) = call(&mut vm, 0x005A_0013, 1, &[], a); // ToRealMapCoords
+    assert_eq!(vm.wstring(r[0].0), Some(w("0.1N, 0.1W").as_slice()));
+    // ToWPString / FromWPString round trip.
+    let (_, r) = call(&mut vm, 0x005A_0010, 1, &[], a);
+    let text = vm.wstring(r[0].0).unwrap().to_vec();
+    assert_eq!(
+        String::from_utf16_lossy(&text),
+        "0x7F7F001E [70.000000 110.000000 0.000000] 1.000000 0.000000 0.000000 0.000000"
+    );
+    let b = new_pos(&mut vm);
+    let s = vm.new_wstring(text);
+    assert_eq!(call(&mut vm, 0x005A_000F, 1, &[s], b).1[0].0, 1); // FromWPString
+    assert_eq!(call(&mut vm, 0x005A_0017, 1, &[a], b).1[0].0, 1); // equals
+    assert_eq!(call(&mut vm, 0x005A_0005, 1, &[a], b).1[0].0, 1); // in_same_block
+    assert_eq!(call(&mut vm, 0x005A_0021, 1, &[], b).1[0].0, 1); // IsValid
+
+    // Twenty metres east, one cell over: distance 20.
+    call(&mut vm, 0x005A_0029, 1, &[1020, 1021], b);
+    let (_, r) = call(&mut vm, 0x005A_000A, 1, &[b], a); // distance
+    assert_eq!(f32::from_bits(r[0].0), 20.0);
+    let (_, r) = call(
+        &mut vm,
+        0x005A_0023,
+        1,
+        &[0x7F7F_001E, 0x7F7F_0026],
+        u32::MAX,
+    );
+    assert_eq!(f32::from_bits(r[0].0), 20.0); // GetCellDistance
+}

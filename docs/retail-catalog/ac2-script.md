@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1014 done, 71 partial, 1305 to do, 78 skipped.
+2468 retail functions: 1056 done, 74 partial, 1260 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -1822,13 +1822,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gGameTime::CallEFun_IsNight` · 00543960
 - [ ] `gGameTime::CallEFun_TemporalDilation` · 005439b0
 
-## `portal/shared/src/interp/glue/gheading.cpp.c` (0/5)
+## `portal/shared/src/interp/glue/gheading.cpp.c` (4/5)
 
 ### gHeading
-- [ ] `gHeading::CallEFun_set_degrees` · 005433d0
-- [ ] `gHeading::CallEFun_get_degrees` · 00543430
-- [ ] `gHeading::CallEFun_get_degrees_0_centered` · 005434a0
-- [ ] `gHeading::CallEFun_is_in_range` · 00543510
+- [x] `gHeading::CallEFun_set_degrees` · 005433d0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gHeading::CallEFun_get_degrees` · 00543430 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gHeading::CallEFun_get_degrees_0_centered` · 005434a0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gHeading::CallEFun_is_in_range` · 00543510 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 - [ ] `gHeading::CallEFun_ToWPString` · 005435b0 · legions 005233a0
 
 ## `portal/shared/src/interp/glue/gicondesc.cpp.c` (0/2)
@@ -2760,50 +2760,50 @@ Legend and workflow: [README](README.md).
 - [ ] `gPlane::CallEFun_GetStringW` · 0053d510 · legions 0051f330
 - [ ] `gPlane::CallEFun_snap_to_plane` · 0053d590 · legions 0051f390
 
-## `portal/shared/src/interp/glue/gposition.cpp.c` (0/41)
+## `portal/shared/src/interp/glue/gposition.cpp.c` (38/41)
 
 ### gPosition
-- [ ] `gPosition::CallEFun_Set` · 0053be40
-- [ ] `gPosition::CallEFun_SetCellID` · 0053beb0
-- [ ] `gPosition::CallEFun_add_global_offset` · 0053bf10
-- [ ] `gPosition::CallEFun_add_local_offset` · 0053bf90
-- [ ] `gPosition::CallEFun_adjust_to_outside` · 0053bff0
-- [ ] `gPosition::CallEFun_set_cell_id` · 0053c050
-- [ ] `gPosition::CallEFun_set_height` · 0053c0b0
-- [ ] `gPosition::CallEFun_set_origin` · 0053c110
-- [ ] `gPosition::CallEFun_FromCellCoords` · 0053c180
-- [ ] `gPosition::CallEFun_FromCellCoordsString` · 0053c200
-- [ ] `gPosition::CallEFun_FromRealMapCoords` · 0053c280
-- [ ] `gPosition::CallEFun_FromWPString` · 0053c300
-- [ ] `gPosition::CallEFun_GetBlockID` · 0053c380
-- [ ] `gPosition::CallEFun_GetCellDistance` · 0053c400
-- [ ] `gPosition::CallEFun_GetCellDistanceSquared` · 0053c440
-- [ ] `gPosition::CallEFun_GetCellID` · 0053c480
-- [ ] `gPosition::CallEFun_GetCellX` · 0053c4f0
-- [ ] `gPosition::CallEFun_GetCellY` · 0053c560
-- [ ] `gPosition::CallEFun_IsValid` · 0053c5d0
-- [ ] `gPosition::CallEFun_NotInWorld` · 0053c640
-- [ ] `gPosition::CallEFun_cylinder_distance` · 0053c6b0
-- [ ] `gPosition::CallEFun_determine_quadrant` · 0053c770
-- [ ] `gPosition::CallEFun_distance` · 0053c800
-- [ ] `gPosition::CallEFun_distance_squared` · 0053c880
-- [ ] `gPosition::CallEFun_equals` · 0053c900
-- [ ] `gPosition::CallEFun_get_height` · 0053c9a0
-- [ ] `gPosition::CallEFun_in_same_block` · 0053ca10
-- [ ] `gPosition::CallEFun_outside` · 0053cac0
-- [ ] `gPosition::CallEFun_pitch` · 0053cb40
-- [ ] `gPosition::CallEFun_xy_distance` · 0053cbc0
-- [ ] `gPosition::CallEFun_xy_distance_squared` · 0053cc40
-- [ ] `gPosition::CallEFun_GetLocalHeading` · 0053ccc0
-- [ ] `gPosition::CallEFun_GetNullPosition` · 0053cd80
-- [ ] `gPosition::CallEFun_ToCellCoordsString` · 0053ce30
-- [ ] `gPosition::CallEFun_ToRealMapCoords` · 0053cef0
-- [ ] `gPosition::CallEFun_ToRealMapCoords_Info` · 0053cfb0
-- [ ] `gPosition::CallEFun_ToWPString` · 0053d060
-- [ ] `gPosition::CallEFun_get_block_offset` · 0053d120
-- [ ] `gPosition::CallEFun_get_offset` · 0053d1d0
-- [ ] `gPosition::CallEFun_get_origin` · 0053d280
-- [ ] `gPosition::CallEFun_heading` · 0053d330
+- [x] `gPosition::CallEFun_Set` · 0053be40 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_SetCellID` · 0053beb0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_add_global_offset` · 0053bf10 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_add_local_offset` · 0053bf90 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_adjust_to_outside` · 0053bff0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_set_cell_id` · 0053c050 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_set_height` · 0053c0b0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_set_origin` · 0053c110 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_FromCellCoords` · 0053c180 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_FromCellCoordsString` · 0053c200 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [~] `gPosition::CallEFun_FromRealMapCoords` · 0053c280 — ac2-script glue::position: swscanf parsing approximated / StringInfo variable layout inferred
+- [~] `gPosition::CallEFun_FromWPString` · 0053c300 — ac2-script glue::position: swscanf parsing approximated / StringInfo variable layout inferred
+- [x] `gPosition::CallEFun_GetBlockID` · 0053c380 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_GetCellDistance` · 0053c400 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_GetCellDistanceSquared` · 0053c440 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_GetCellID` · 0053c480 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_GetCellX` · 0053c4f0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_GetCellY` · 0053c560 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_IsValid` · 0053c5d0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_NotInWorld` · 0053c640 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_cylinder_distance` · 0053c6b0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_determine_quadrant` · 0053c770 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_distance` · 0053c800 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_distance_squared` · 0053c880 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_equals` · 0053c900 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_get_height` · 0053c9a0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_in_same_block` · 0053ca10 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_outside` · 0053cac0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_pitch` · 0053cb40 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_xy_distance` · 0053cbc0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_xy_distance_squared` · 0053cc40 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_GetLocalHeading` · 0053ccc0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_GetNullPosition` · 0053cd80 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_ToCellCoordsString` · 0053ce30 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_ToRealMapCoords` · 0053cef0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [~] `gPosition::CallEFun_ToRealMapCoords_Info` · 0053cfb0 — ac2-script glue::position: swscanf parsing approximated / StringInfo variable layout inferred
+- [x] `gPosition::CallEFun_ToWPString` · 0053d060 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_get_block_offset` · 0053d120 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_get_offset` · 0053d1d0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_get_origin` · 0053d280 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_heading` · 0053d330 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 
 ## `portal/shared/src/interp/glue/gpropertycollection.cpp.c` (0/12)
 
