@@ -7,6 +7,7 @@
 mod appearance;
 mod assembly;
 mod channel;
+mod lossy;
 mod reliable;
 
 pub use appearance::{
@@ -15,6 +16,7 @@ pub use appearance::{
 };
 pub use assembly::{fragment_header_bytes, Assembler};
 pub use channel::{Channel, ChannelStats, Conditions, Direction, InFlight, SplitMix};
+pub use lossy::LossyTransport;
 pub use reliable::{newer, ClientTracker, SentStore, Stored, Verdict, MAX_IDS};
 
 use std::cell::RefCell;
