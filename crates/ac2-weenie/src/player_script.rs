@@ -50,6 +50,16 @@ pub enum GameplayNotice {
     /// `CCliSendToRoomResult::HandleSendToRoomResult` (`gmCWInterface::Result_SendToRoom`):
     /// the chat server's answer to the room message with this context id.
     SendToRoomResult { context: u32, result: u32 },
+    /// `CM_Inventory::SendNotice_UpdateContainer`: `container`'s contents changed (`code`
+    /// 0x40000001 refreshes all of them).
+    UpdateContainer {
+        container: u64,
+        code: u32,
+        item: u64,
+        slot: i32,
+    },
+    /// `CM_Inventory::SendNotice_UpdateInventory`: the equipment changed (0x40000001: all).
+    UpdateInventory { code: u32, item: u64, location: u32 },
     /// `CUsageSystem` 0x2: a use failed with `error` (the message it looks up by error code
     /// is not mirrored).
     UsageError { error: u32, item: u64, target: u64 },
@@ -355,6 +365,13 @@ impl PlayerScript {
                 item,
                 target,
             }),
+            // The inventory's messages go to the session's `InventoryState`.
+            ScriptMessage::ContainerContents(_)
+            | ScriptMessage::Equipment(_)
+            | ScriptMessage::MoveItemDone(_)
+            | ScriptMessage::ReorganizeContentsDone(_)
+            | ScriptMessage::EquipItemDone(_)
+            | ScriptMessage::UnequipItemDone(_) => {}
             // `CExaminationSystem` 0x2: kept on the examined object's weenie, then shown.
             ScriptMessage::ExaminationProfile(profile) => {
                 if matches!(

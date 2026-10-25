@@ -37,6 +37,43 @@ pub enum Command {
     UseWithTarget { item: u64, target: u64 },
     /// `gmCWInterface::UseSelection`: use the selected object.
     UseSelection,
+    /// `gmCWInterface::MoveItem`: move `quantity` of `item` from slot `from_slot` of `from` to
+    /// slot `target_slot` (-1: anywhere) of `target`; a drop targets the world, a give another
+    /// creature, a split less than the whole stack.
+    MoveItem {
+        item: u64,
+        from: u64,
+        from_slot: i32,
+        target: u64,
+        target_slot: i32,
+        quantity: i32,
+    },
+    /// `gmCWInterface::EquipItem`.
+    EquipItem { item: u64, location: u32 },
+    /// `gmCWInterface::UnEquipItem`: into slot `target_slot` of the player's pack.
+    UnequipItem { item: u64, target_slot: i32 },
+    /// `gmCWInterface::UpdateOpen`: open or close a container.
+    SetContainerOpen { container: u64, open: bool },
+}
+
+/// One container's contents, as the inventory panels show them (ids; names, icons and
+/// quantities come from the frame's objects).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ContainerFrame {
+    pub id: u64,
+    pub packs: Vec<u64>,
+    pub items: Vec<u64>,
+}
+
+/// The player's inventory and the containers it has open.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct InventoryFrame {
+    /// The player's own pack (the player is its container).
+    pub pack: ContainerFrame,
+    /// Other listed containers: the side packs and opened containers.
+    pub containers: Vec<ContainerFrame>,
+    /// Equipment location and item.
+    pub equipped: Vec<(u32, u64)>,
 }
 
 /// The selected object, as `gmSelectionUI` shows it.
@@ -84,9 +121,63 @@ impl Client {
                     Vec::new()
                 }
                 Command::UseSelection => self.session.use_selection(),
+                Command::MoveItem {
+                    item,
+                    from,
+                    from_slot,
+                    target,
+                    target_slot,
+                    quantity,
+                } => {
+                    self.session.move_item(
+                        *item,
+                        *from,
+                        *from_slot,
+                        *target,
+                        *target_slot,
+                        *quantity,
+                    );
+                    Vec::new()
+                }
+                Command::EquipItem { item, location } => {
+                    refused(self.session.equip_item(*item, *location))
+                }
+                Command::UnequipItem { item, target_slot } => {
+                    refused(self.session.unequip_item(*item, *target_slot))
+                }
+                Command::SetContainerOpen { container, open } => {
+                    self.session.set_container_open(*container, *open);
+                    Vec::new()
+                }
             });
         }
         events
+    }
+
+    /// The inventory for [`crate::ClientFrame::inventory`].
+    pub(crate) fn inventory_frame(&self) -> InventoryFrame {
+        let player = self.session.player().unwrap_or_default();
+        let inv = self.session.inventory();
+        let frame = |(id, c): (u64, &ac2_weenie::Contents)| ContainerFrame {
+            id,
+            packs: c.packs.clone(),
+            items: c.items.clone(),
+        };
+        InventoryFrame {
+            pack: inv
+                .contents(player)
+                .map(|c| frame((player, c)))
+                .unwrap_or(ContainerFrame {
+                    id: player,
+                    ..ContainerFrame::default()
+                }),
+            containers: inv
+                .containers()
+                .filter(|(id, _)| *id != player)
+                .map(frame)
+                .collect(),
+            equipped: inv.equipped().to_vec(),
+        }
     }
 
     /// The selection for [`crate::ClientFrame::selection`].
@@ -102,4 +193,13 @@ impl Client {
                 .map(|(_, info)| info),
         })
     }
+}
+
+/// A command the scripts refuse before sending (retail logs it): a rejection event.
+fn refused(result: Result<(), String>) -> Vec<SessionEvent> {
+    result
+        .err()
+        .map(SessionEvent::Rejected)
+        .into_iter()
+        .collect()
 }

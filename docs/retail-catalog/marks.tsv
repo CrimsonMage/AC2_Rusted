@@ -52,9 +52,13 @@ key	status	note
 0044fb20	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 0044fbb0	x	ac2-weenie OnlineSession::use_selection (CPlayer 0x79 -> CUsageSystem 0x9 stand-in)
 00450130	~	ac2-weenie OnlineSession::emote(id): the WM_Communication emote call; the emote-table name lookup (CPlayer 0x15B) is not ported
+00450490	~	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
+004504f0	~	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
+00450530	~	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 00450f30	~	ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
 00450f80	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 00450fa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+00451050	~	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 004520f0	x	ac2-net GunChatExtraInfo
 00452580	~	ac2-net GunChatExtraInfo::new: version 1, flags; the meta letters (RetrieveMetaLetters) are left empty
 004527c0	~	ac2-weenie OnlineSession::send_to_room: the Turbine chat path (CSendToTurbineRoomByID); the GUN path is dead in Legions
@@ -2868,6 +2872,8 @@ key	status	note
 007259f0	x	ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
 00725cc0	x	ac2-weenie GameplayNotice::DisplayStringInfo (chat lines from the CCommunicationSystem stand-in)
 007269d0	x	
+00726d40	x	ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
+00726e10	x	ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
 007277e0	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 00727870	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 007281f0	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)

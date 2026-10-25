@@ -30,6 +30,7 @@ use crate::reporter::{BodyState, PositionReporter, ReportStamps};
 use crate::world::{World, WorldEvent, WorldState};
 
 mod gameplay;
+mod inventory;
 mod select;
 
 /// Which listed character to enter the world with.
@@ -196,6 +197,8 @@ pub struct OnlineSession {
     chat_context: u32,
     /// The latest character set the server sent.
     characters: Option<CharacterSet>,
+    /// The inventory the player's scripts keep, natively until the script VM runs them.
+    inventory: crate::inventory::InventoryState,
 }
 
 impl OnlineSession {
@@ -246,6 +249,7 @@ impl OnlineSession {
             script: PlayerScript::default(),
             chat_context: 0,
             characters: None,
+            inventory: Default::default(),
         })
     }
 
@@ -533,6 +537,12 @@ impl OnlineSession {
                 arguments,
             } => {
                 let target = object.map(|o| o.id).or(self.world.player());
+                if let Some(events) =
+                    target.and_then(|t| self.receive_inventory(t, function, &arguments))
+                {
+                    out.extend(events);
+                    return;
+                }
                 if target.is_some() && target == self.world.player() {
                     if function == ac2_net::protocol::script_function::INIT_PLAYER {
                         out.extend(self.init_player());

@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 173 done, 29 partial, 1696 to do, 6 skipped.
+1904 retail functions: 175 done, 33 partial, 1690 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -126,13 +126,13 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Friends::SendNotice_LocalStatus` · 00726040
 - [ ] `CM_Friends::SendNotice_GUNResult_GetFriendsList` · 007260d0
 
-## `ac2/client/src/events/cm_inventory.cpp.c` (0/4)
+## `ac2/client/src/events/cm_inventory.cpp.c` (2/4)
 
 ### CM_Inventory
 - [ ] `CM_Inventory::SendNotice_ContainerStateUpdate` · 00726c10
 - [ ] `CM_Inventory::SendNotice_ItemUpdate` · 00726cb0
-- [ ] `CM_Inventory::SendNotice_UpdateContainer` · 00726d40
-- [ ] `CM_Inventory::SendNotice_UpdateInventory` · 00726e10
+- [x] `CM_Inventory::SendNotice_UpdateContainer` · 00726d40 — ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
+- [x] `CM_Inventory::SendNotice_UpdateInventory` · 00726e10 — ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
 
 ## `ac2/client/src/events/cm_money.cpp.c` (0/2)
 
@@ -973,9 +973,9 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::RequestPetReturn` · 00450410 · legions 00451550
 - [ ] `gmCWInterface::RequestPetMode` · 00450430 · legions 00451570
 - [ ] `gmCWInterface::RequestSetPetName` · 00450460 · legions 004515a0
-- [ ] `gmCWInterface::MoveItem` · 00450490 · legions 004515d0
-- [ ] `gmCWInterface::EquipItem` · 004504f0 · legions 00451630
-- [ ] `gmCWInterface::UnEquipItem` · 00450530 · legions 00451670
+- [~] `gmCWInterface::MoveItem` · 00450490 · legions 004515d0 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
+- [~] `gmCWInterface::EquipItem` · 004504f0 · legions 00451630 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
+- [~] `gmCWInterface::UnEquipItem` · 00450530 · legions 00451670 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 - [ ] `gmCWInterface::GetContentsInfo` · 00450570 · legions 004516b0
 - [ ] `gmCWInterface::GetContainerSegmentInfo` · 004505a0 · legions 004516e0
 - [ ] `gmCWInterface::GetPreferredInventoryLocation` · 004505d0 · legions 00451710
@@ -1034,7 +1034,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::RegisterCommands` · 00450ff0 · legions 00452130
 - [ ] `gmCWInterface::RequestResurrect` · 00451010 · legions 00452150
 - [ ] `gmCWInterface::ClearResurrectionRequest` · 00451030 · legions 00452170
-- [ ] `gmCWInterface::UpdateOpen` · 00451050 · legions 00452190
+- [~] `gmCWInterface::UpdateOpen` · 00451050 · legions 00452190 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 - [ ] `gmCWInterface::InqShortcutInfo` · 00451090 · legions 004521d0
 - [ ] `gmCWInterface::SetShortcut` · 004510d0 · legions 00452210
 - [ ] `gmCWInterface::InqShortcutArray` · 00451110 · legions 00452250

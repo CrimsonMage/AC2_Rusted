@@ -12,6 +12,7 @@ mod dat_event;
 mod error;
 mod fx;
 mod gameplay;
+mod inventory;
 mod movement;
 mod native;
 mod object;
@@ -43,6 +44,11 @@ pub use fx::{DecalFx, EntityDesc, FxData, FxNode, LightSourceFx, RepulsorFx, Str
 pub use gameplay::{
     broadcast as script_broadcast, call_spec, function as script_function, ArgKind, CallSpec,
     Direction as CallDirection, ScriptCall, ScriptMessage, ScriptRequest, CALLS as SCRIPT_CALLS,
+};
+pub use inventory::{
+    id_list, pack_id_list, ContainerContents, Equipment, InvEquipDesc, InvMoveDesc,
+    EQUIP_ITEM_PROFILE_PACKAGE, INVENT_PROFILE_PACKAGE, INV_EQUIP_DESC_PACKAGE,
+    INV_MOVE_DESC_PACKAGE,
 };
 pub use movement::{MoveTarget, MovementParameters, PhysicsStory, StoryHook, TargetPosition};
 pub use native::{

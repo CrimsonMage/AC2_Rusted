@@ -98,4 +98,7 @@ pub struct ClientFrame {
     pub selection: Option<crate::gameplay::SelectionFrame>,
     /// The player's vitals as the status bar shows them (`gmVitalsUI`).
     pub player_vitals: ac2_weenie::PlayerVitals,
+    /// The player's inventory and open containers (`gmInventoryUI`, `gmPaperDollUI`,
+    /// `gmExternalContainerUI`).
+    pub inventory: crate::gameplay::InventoryFrame,
 }
