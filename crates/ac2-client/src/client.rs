@@ -70,6 +70,8 @@ pub struct FrameInput {
     /// actions, and `InterruptMoveTo` from a movement action starting.
     pub behaviors: Vec<(u32, bool)>,
     pub interrupt_move_to: bool,
+    /// The UI's gameplay commands (selection, examination).
+    pub commands: Vec<crate::gameplay::Command>,
 }
 
 /// Client-side notices of the frame.
@@ -248,8 +250,10 @@ impl Client {
         self.session.net_use_time();
         self.db_cache()?;
         self.input_handlers(input);
+        let commanded = self.commands(&input.commands);
         self.movement(input);
         let mut events = self.smart_box()?;
+        events.extend(commanded);
         let dispatched = self.session.dispatch_events();
         for event in &dispatched {
             self.apply(event)?;
@@ -716,6 +720,7 @@ impl Client {
             camera: self.camera_frame(),
             objects,
             blocks: self.cells.resident().collect(),
+            selection: self.selection_frame(),
         }
     }
 

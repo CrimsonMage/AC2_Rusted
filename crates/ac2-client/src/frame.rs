@@ -94,4 +94,6 @@ pub struct ClientFrame {
     pub objects: Vec<ObjectFrame>,
     /// The resident landblocks (`xxyy0000`).
     pub blocks: Vec<u32>,
+    /// The selected object (`gmSelectionUI`).
+    pub selection: Option<crate::gameplay::SelectionFrame>,
 }

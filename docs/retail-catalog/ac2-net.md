@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 210 done, 12 partial, 334 to do, 0 skipped.
+556 retail functions: 212 done, 13 partial, 331 to do, 0 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -9,10 +9,10 @@ Legend and workflow: [README](README.md).
 - [ ] `ClientGunInterface::ClientGunInterface` · 00728240 · legions 006a6520
 - [ ] `ClientGunInterface::GetPlayerInterface` · 00728290 · legions 006a6570
 
-## `ac2/client/src/gun/event/cclichatevent.cpp.c` (0/2)
+## `ac2/client/src/gun/event/cclichatevent.cpp.c` (1/2)
 
 ### CCliChatEvent
-- [ ] `CCliChatEvent::HearRoom` · 007281f0 · legions 006a64d0
+- [x] `CCliChatEvent::HearRoom` · 007281f0 · legions 006a64d0 — ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 - [ ] `CCliChatEvent::HearUser` · 00728220 · legions 006a6500
 
 ## `ac2/client/src/gun/event/ccliconnectevent.cpp.c` (0/1)
@@ -80,7 +80,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/gun/result/cclisendtoroomresult.cpp.c` (0/3)
 
 ### CCliSendToRoomResult
-- [ ] `CCliSendToRoomResult::HandleSendToRoomResult` · 007291f0 · legions 006a74c0
+- [~] `CCliSendToRoomResult::HandleSendToRoomResult` · 007291f0 · legions 006a74c0 — ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
 - [ ] `CCliSendToRoomResult::CCliSendToRoomResult` · 00729240 · legions 006a7500
 - [ ] `CCliSendToRoomResult::`vbase_destructor'` · 00729320 · legions 006a75e0
 
@@ -558,14 +558,14 @@ Legend and workflow: [README](README.md).
 - [ ] `RemoveLinkStatusPlugin` · 004ca2b0 · legions 004be890
 - [ ] `AddLinkStatusPlugin` · 004ca2e0 · legions 004be8c0
 
-## `portal/client/src/clinet/pui.cpp.c` (6/8)
+## `portal/client/src/clinet/pui.cpp.c` (7/8)
 
 ### Proto_UI
 - [x] `Proto_UI::SendBlob` · 004c9b70 · legions 004be150
 - [x] `Proto_UI::SetOrderingStamp` · 004c9c10 · legions 004be1f0
 - [x] `Proto_UI::SendBuff` · 004c9c20 · legions 004be200
 - [x] `Proto_UI::LogOffCharacter` · 004c9d10 · legions 004be2f0
-- [ ] `Proto_UI::SendCharGenResult` · 004c9d40 · legions 004be320
+- [x] `Proto_UI::SendCharGenResult` · 004c9d40 · legions 004be320 — ac2-net ClientEvent::CharGenResult (queue 8) / ac2-weenie OnlineSession::create_character; the CharGenData::Save dev copy is not kept
 - [x] `Proto_UI::SendDeleteCharacter` · 004c9e00 · legions 004be3e0
 - [x] `Proto_UI::SendEnterWorld` · 004c9e70 · legions 004be450
 - [ ] `Proto_UI::SendAdminRestoreCharacter` · 004c9ef0 · legions 004be4d0

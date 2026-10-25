@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 420 done, 52 partial, 1918 to do, 78 skipped.
+2468 retail functions: 422 done, 59 partial, 1909 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -2566,11 +2566,11 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gpackbuffer.cpp.c` (0/10)
 
 ### gPackBuffer
-- [ ] `gPackBuffer::CallEFun_PackFloat` · 0053f690
-- [ ] `gPackBuffer::CallEFun_PackInt` · 0053f710
-- [ ] `gPackBuffer::CallEFun_PackLFloat` · 0053f790
-- [ ] `gPackBuffer::CallEFun_PackLInt` · 0053f830
-- [ ] `gPackBuffer::CallEFun_PackPackage` · 0053f8b0
+- [~] `gPackBuffer::CallEFun_PackFloat` · 0053f690 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+- [~] `gPackBuffer::CallEFun_PackInt` · 0053f710 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+- [~] `gPackBuffer::CallEFun_PackLFloat` · 0053f790 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+- [~] `gPackBuffer::CallEFun_PackLInt` · 0053f830 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+- [~] `gPackBuffer::CallEFun_PackPackage` · 0053f8b0 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 - [ ] `gPackBuffer::CallEFun_UnPackFloat` · 0053f910 · legions 00520d70
 - [ ] `gPackBuffer::CallEFun_UnPackInt` · 0053f9b0 · legions 00520df0
 - [ ] `gPackBuffer::CallEFun_UnPackLFloat` · 0053fa50 · legions 00520e70
@@ -3299,12 +3299,12 @@ Legend and workflow: [README](README.md).
 - [ ] `NativeFactory::NativeFactory` · 0054cbd0 · legions 0052a380
 - [ ] `NativeFactory::~NativeFactory` · 0054cbf0 · legions 0052a3a0
 
-## `portal/shared/src/interp/heapobject.cpp.c` (1/6)
+## `portal/shared/src/interp/heapobject.cpp.c` (2/6)
 
 ### HeapObject
 - [ ] `HeapObject::Clear` · 006dba60 · legions 00664f10
 - [ ] `HeapObject::GetPackSize` · 006dbab0 · legions 00664f60
-- [ ] `HeapObject::Pack` · 006dbb00 · legions 00664fb0
+- [x] `HeapObject::Pack` · 006dbb00 · legions 00664fb0 — ac2-net protocol::pack
 - [x] `HeapObject::UnPack` · 006dbbd0 · legions 00665080 — ac2-script reference/native unpack
 - [ ] `HeapObject::UpdatePackageReferences` · 006dbd50 · legions 00665200
 - [ ] `HeapObject::UpdateReferences` · 006dbdd0 · legions 00665280
@@ -3510,7 +3510,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PackBuffer::UnPackBuffer_Float` · 006edcc0 · legions 006729e0
 - [ ] `PackBuffer::UnPackBuffer_LongFloat` · 006edd10 · legions 00672a30
 - [ ] `PackBuffer::UnPackBuffer_Package` · 006edd90 · legions 00672ab0
-- [ ] `PackBuffer::UnPackBuffer` · 006edde0 · legions 00672b00
+- [~] `PackBuffer::UnPackBuffer` · 006edde0 · legions 00672b00 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 
 ## `portal/shared/src/interp/packing/vmdata.cpp.c` (0/13)
 
@@ -3584,12 +3584,12 @@ Legend and workflow: [README](README.md).
 - [ ] `ProcessTable::QueryProcessTable` · 006e1920 · legions 00668730
 - [ ] `ProcessTable::QueryProcesses` · 006e1960 · legions 00668770
 
-## `portal/shared/src/interp/referenceentry.cpp.c` (1/4)
+## `portal/shared/src/interp/referenceentry.cpp.c` (2/4)
 
 ### ReferenceEntry
 - [ ] `ReferenceEntry::GetPackSize` · 006e0ac0 · legions 00667990
 - [ ] `ReferenceEntry::GetResidentSizeEstimate` · 006e0b10
-- [ ] `ReferenceEntry::Pack` · 006e0b40 · legions 006679e0
+- [x] `ReferenceEntry::Pack` · 006e0b40 · legions 006679e0 — ac2-net protocol::pack
 - [x] `ReferenceEntry::UnPack` · 006e0c20 · legions 00667ac0 — ac2-script reference/native unpack
 
 ## `portal/shared/src/interp/referencetable.cpp.c` (0/3)
@@ -3651,7 +3651,7 @@ Legend and workflow: [README](README.md).
 
 ### ReferenceTable
 - [ ] `ReferenceTable::GetReferencePackSize` · 006dbff0 · legions 006654a0
-- [ ] `ReferenceTable::PackReferenceArray` · 006dc040 · legions 006654f0
+- [~] `ReferenceTable::PackReferenceArray` · 006dc040 · legions 006654f0 — ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
 - [ ] `ReferenceTable::GetDependentReferences_Relative` · 006dc0b0 · legions 00665560
 
 ### VM

@@ -1,0 +1,171 @@
+//! The double's gameplay side: the script calls the client sends (`InterpSEvent`) and its chat
+//! client's data (`0x100D3`), decoded with the client's own codecs and answered as a server's
+//! `WM_*` handlers and chat server would, from data a test configures.
+
+use std::collections::HashMap;
+
+use ac2_net::protocol::{
+    ChatMessage, ChatPacket, ChatRequest, ChatResponse, ExaminationProfile, ExaminationRequest,
+    RoomChat, ScriptMessage, ScriptRequest, SelectionInfo, StringInfo,
+};
+
+use crate::{State, PLAYER};
+
+/// The player's name in the double's character set.
+const PLAYER_NAME: &str = "Explorer";
+
+/// What the double answers script calls with.
+#[derive(Debug, Clone, Default)]
+pub struct ScriptWorld {
+    /// `SelectionInfo` sent back (`WM_Player` 0x2C) when the client targets the object.
+    pub selection_infos: HashMap<u64, SelectionInfo>,
+    /// The examination profile sent back (`WM_Examination` 0x9) for an object request.
+    pub profiles: HashMap<u64, ExaminationProfile>,
+}
+
+impl State {
+    /// An `InterpSEvent` (0x10053) or its encrypted twin (0x100D0) arrived: decode it, record
+    /// it, answer it.
+    pub(crate) fn script_event(&mut self, data: &[u8]) {
+        let word = |at: usize| {
+            data.get(at..at + 4)
+                .map(|b| u32::from_le_bytes(b.try_into().unwrap()))
+        };
+        let (Some(function), Some(size)) = (word(4), word(8)) else {
+            self.script_errors
+                .push(format!("short script event {data:02x?}"));
+            return;
+        };
+        let arguments = &data[12..];
+        if arguments.len() != size as usize {
+            self.script_errors.push(format!(
+                "PackBuffer size {size} for {} bytes",
+                arguments.len()
+            ));
+            return;
+        }
+        match ScriptRequest::decode(function, arguments) {
+            Some(Ok(request)) => {
+                self.answer_script(&request);
+                self.script_requests.push(request);
+            }
+            Some(Err(error)) => self
+                .script_errors
+                .push(format!("function {function:#010x}: {error}")),
+            None => self.script_unknown.push((function, arguments.to_vec())),
+        }
+    }
+
+    fn answer_script(&mut self, request: &ScriptRequest) {
+        match request {
+            ScriptRequest::SetTarget(id) => {
+                if let Some(info) = self.script_world.selection_infos.get(id).copied() {
+                    self.send_script(&ScriptMessage::UpdateSelectionInfo { info, id: *id });
+                }
+            }
+            ScriptRequest::Examine(request) => {
+                let object = matches!(
+                    request.kind,
+                    ExaminationRequest::OBJECT | ExaminationRequest::OBJECT_EXTENDED
+                );
+                if let Some(profile) = object
+                    .then(|| self.script_world.profiles.get(&request.iid).cloned())
+                    .flatten()
+                {
+                    let profile = ExaminationProfile {
+                        request: *request,
+                        ..profile
+                    };
+                    self.send_script(&ScriptMessage::ExaminationProfile(profile));
+                }
+            }
+            // A server repeats speech to everyone in range, the speaker included.
+            ScriptRequest::Say { text, .. } => self.send_script(&ScriptMessage::HearSpeech {
+                kind: 0,
+                text: text.clone(),
+                speaker_name: name(PLAYER_NAME),
+                speaker: PLAYER,
+            }),
+            // The only character the double knows is the player: a tell to it comes back.
+            ScriptRequest::Tell {
+                text, recipient, ..
+            } => {
+                if recipient.literal.as_deref() == Some(PLAYER_NAME) {
+                    self.send_script(&ScriptMessage::HearTell {
+                        kind: 0,
+                        text: text.clone(),
+                        teller_name: name(PLAYER_NAME),
+                        teller: PLAYER,
+                    });
+                }
+            }
+            ScriptRequest::Emote(_) => {}
+        }
+    }
+
+    /// Chat data from the client's chat client (`CChatEvent`, 0x100D3 on queue 4): record the
+    /// request, answer it (result 0) and, as the chat server does for a room's members, send
+    /// the message back to the player.
+    pub(crate) fn chat_event(&mut self, data: &[u8]) {
+        let Some(size) = data
+            .get(4..8)
+            .map(|b| u32::from_le_bytes(b.try_into().unwrap()))
+        else {
+            self.script_errors.push("short chat event".into());
+            return;
+        };
+        let request =
+            ChatPacket::decode(&data[8..]).and_then(|packet| ChatRequest::from_packet(&packet));
+        let request = match request {
+            Ok(request) if size as usize == data.len() - 8 => request,
+            other => {
+                self.script_errors.push(format!("chat data: {other:?}"));
+                return;
+            }
+        };
+        if let ChatRequest::SendToRoomById {
+            context,
+            room,
+            text,
+            extra,
+        } = &request
+        {
+            self.send_chat(&ChatMessage::Response(ChatResponse {
+                context: *context,
+                response_id: 0,
+                method: ac2_net::protocol::METHOD_SEND_TO_ROOM_BY_ID,
+                result: 0,
+            }));
+            self.send_chat(&ChatMessage::RoomChat(RoomChat {
+                room: *room,
+                speaker: PLAYER_NAME.into(),
+                text: text.clone(),
+                extra: extra.clone(),
+            }));
+        }
+        self.chat_requests.push(request);
+    }
+
+    /// Queues chat-server data for the player (`0x100D3` on queue 4).
+    pub fn send_chat(&mut self, message: &ChatMessage) {
+        let packet = message.to_packet().encode();
+        let mut data = 0x0001_00D3u32.to_le_bytes().to_vec();
+        data.extend((packet.len() as u32).to_le_bytes());
+        data.extend(packet);
+        self.next_object_blob += 1;
+        let id = 0x2300_0000_0000_0000 | u64::from(self.next_object_blob) << 32 | 0x10;
+        self.reliable_blob(id, 4, &data);
+    }
+
+    /// Queues a script call to the player (`InterpCEvent_Broadcast`, 0x10066).
+    pub fn send_script(&mut self, message: &ScriptMessage) {
+        self.send_event(&message.to_broadcast());
+    }
+}
+
+fn name(text: &str) -> StringInfo {
+    StringInfo {
+        literal: Some(text.into()),
+        ..StringInfo::default()
+    }
+}

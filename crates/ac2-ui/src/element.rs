@@ -18,7 +18,8 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 use std::sync::Arc;
 
 use crate::layout::{AttributeDesc, AttributeValue, ElementDesc, LayoutDesc, MediaDesc, StateDesc};
-use crate::token::{HIDE, REFERENCE, REFERENT, ROOT_MOVER, STATELESS};
+use crate::text::{TextState, UiTextData};
+use crate::token::{HIDE, REFERENCE, REFERENT, ROOT_MOVER, STATELESS, TEXT};
 
 /// A `Box2D`: inclusive pixel bounds.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -84,6 +85,8 @@ pub struct UiElement {
     pub(crate) image: Option<UiImage>,
     pub(crate) alpha_image: Option<u32>,
     pub(crate) attributes: HashMap<u32, AttributeValue>,
+    /// `UIElement_Text`'s state, for text elements.
+    pub(crate) text: Option<Box<TextState>>,
     media_state: Option<(Arc<ElementDesc>, usize)>,
     media_index: usize,
     latest_update: u32,
@@ -112,6 +115,13 @@ impl UiElement {
     pub fn attribute(&self, id: u32) -> Option<&AttributeValue> {
         self.attributes.get(&id)
     }
+
+    /// A text element's text (`UIElement_Text::GetText`).
+    pub fn text(&self) -> Option<String> {
+        self.text
+            .as_ref()
+            .map(|text| String::from_utf16_lossy(&text.text()))
+    }
 }
 
 /// The element tree (`UIElementManager`'s elements and root list).
@@ -124,6 +134,8 @@ pub struct UiTree {
     update_count: u32,
     /// The render device's display size.
     pub(crate) display: (i32, i32),
+    /// Fonts and strings for text elements.
+    pub(crate) text_data: Option<Arc<dyn UiTextData>>,
 }
 
 /// The index of `desc`'s state `id`.
@@ -163,7 +175,18 @@ impl UiTree {
             roots: Vec::new(),
             update_count: 0,
             display: (width, height),
+            text_data: None,
         }
+    }
+
+    /// The fonts and strings text elements made from now on draw from.
+    pub fn set_text_data(&mut self, data: Arc<dyn UiTextData>) {
+        self.text_data = Some(data);
+    }
+
+    /// One past the highest element index.
+    pub fn slots_len(&self) -> usize {
+        self.slots.len()
     }
 
     pub fn get(&self, index: usize) -> Option<&UiElement> {
@@ -258,6 +281,11 @@ impl UiTree {
     ) -> Option<usize> {
         let desc = dereference(&layout, &reference)?;
         let default_state = reference.default_state;
+        // `UIElement_Text::UIElement_Text`: the default font, no text.
+        let text = (desc.kind == TEXT).then(|| {
+            let font = self.text_data.as_ref().and_then(|data| data.default_font());
+            Box::new(TextState::new(font))
+        });
         let index = self.alloc(UiElement {
             layout,
             reference,
@@ -273,6 +301,7 @@ impl UiTree {
             image: None,
             alpha_image: None,
             attributes: HashMap::new(),
+            text,
             media_state: None,
             media_index: 0,
             latest_update: self.update_count,
@@ -296,9 +325,11 @@ impl UiTree {
             .el_mut(index)
             .attributes
             .insert(id, AttributeValue::Bool(value));
-        if previous != Some(AttributeValue::Bool(value)) && id == HIDE {
+        let changed = previous != Some(AttributeValue::Bool(value));
+        if changed && id == HIDE {
             self.set_visible(index, !value);
         }
+        self.text_attribute(index, id, &AttributeValue::Bool(value), changed);
     }
 
     /// `UIElement::SetAttributeFromDesc`.
@@ -307,9 +338,12 @@ impl UiTree {
             AttributeValue::Bool(value) => self.set_bool(index, attribute.id, value),
             AttributeValue::None(_) => {}
             ref value => {
-                self.el_mut(index)
+                let previous = self
+                    .el_mut(index)
                     .attributes
                     .insert(attribute.id, value.clone());
+                let changed = previous.as_ref() != Some(value);
+                self.text_attribute(index, attribute.id, value, changed);
             }
         }
     }

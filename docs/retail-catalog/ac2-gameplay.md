@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 14 done, 14 partial, 462 to do, 9 skipped.
+499 retail functions: 20 done, 13 partial, 457 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
@@ -97,7 +97,7 @@ Legend and workflow: [README](README.md).
 - [ ] `GameplayOptionsProfile::GameplayOptionsProfile` · 006009e0 · legions 005c1860
 - [ ] `GameplayOptionsProfile::GameplayOptionsProfile` · 00600b40 · legions 005c19e0
 
-## `ac2/shared/src/character/gmchargenresult.cpp.c` (0/26)
+## `ac2/shared/src/character/gmchargenresult.cpp.c` (2/26)
 
 ### gmCharGenResult
 - [ ] `gmCharGenResult::InqValidPhysTypeValues` · 00600cb0 · legions 005c1b70
@@ -112,10 +112,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCharGenResult::FormatName` · 00600e70 · legions 005c1d00
 - [ ] `gmCharGenResult::SanityCheck` · 00600f10 · legions 005c1da0
 - [ ] `gmCharGenResult::GetPackSize` · 00600f50 · legions 005c1de0
-- [ ] `gmCharGenResult::Pack` · 00600f90 · legions 005c1e20
+- [x] `gmCharGenResult::Pack` · 00600f90 · legions 005c1e20 — ac2-net CharGenResult::write/read
 - [ ] `gmCharGenResult::Clear` · 00601020 · legions 005c1eb0
 - [ ] `gmCharGenResult::GetPhysTypeValue` · 00601090 · legions 005c1f20
-- [ ] `gmCharGenResult::UnPack` · 006010d0 · legions 005c1f60
+- [x] `gmCharGenResult::UnPack` · 006010d0 · legions 005c1f60 — ac2-net CharGenResult::write/read
 - [ ] `gmCharGenResult::operator=` · 00601170 · legions 005c2000
 - [ ] `gmCharGenResult::SetPhysTypeValue` · 006011f0 · legions 005c2080
 - [ ] `gmCharGenResult::GetStartingPosition` · 00601210 · legions 005c20a0
@@ -204,7 +204,7 @@ Legend and workflow: [README](README.md).
 - [ ] `EffectUINode::EffectUINode` · 00607f00 · legions 005c8da0
 - [ ] `EffectUINode::StreamPack` · 00607f50 · legions 005c8df0
 
-## `ac2/shared/src/examination/examinationprofile.cpp.c` (0/35)
+## `ac2/shared/src/examination/examinationprofile.cpp.c` (2/35)
 
 ### ExaminationDataNode
 - [ ] `ExaminationDataNode::operator==` · 006081f0 · legions 005c9310
@@ -218,12 +218,12 @@ Legend and workflow: [README](README.md).
 - [ ] `ExaminationDataNode::GetIconDescValue` · 00608370 · legions 005c9490
 
 ### ExaminationProfile
-- [ ] `ExaminationProfile::StreamPack` · 00608380 · legions 005c94a0
+- [x] `ExaminationProfile::StreamPack` · 00608380 · legions 005c94a0 — ac2-net protocol::native (native objects in script-call PackBuffers)
 
 ### ExaminationDataNode
 - [ ] `ExaminationDataNode::ExaminationDataNode` · 006083d0 · legions 005c9500
 - [ ] `ExaminationDataNode::~ExaminationDataNode` · 00608430 · legions 005c9560
-- [ ] `ExaminationDataNode::StreamPack` · 00608490 · legions 005c95c0
+- [x] `ExaminationDataNode::StreamPack` · 00608490 · legions 005c95c0 — ac2-net protocol::native (native objects in script-call PackBuffers)
 
 ### ExaminationProfile
 - [ ] `ExaminationProfile::operator==` · 00608640 · legions 005c9770
@@ -257,7 +257,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ExaminationProfile::operator=` · 006094a0 · legions 005ca360
 - [ ] `ExaminationProfile::ExaminationProfile` · 006094d0 · legions 005ca3a0
 
-## `ac2/shared/src/examination/examinationrequest.cpp.c` (0/6)
+## `ac2/shared/src/examination/examinationrequest.cpp.c` (1/6)
 
 ### ExaminationRequest
 - [ ] `ExaminationRequest::Clear` · 00609530 · legions 005c9090
@@ -265,15 +265,15 @@ Legend and workflow: [README](README.md).
 - [ ] `ExaminationRequest::operator=` · 006095b0 · legions 005c9130
 - [ ] `ExaminationRequest::ExaminationRequest` · 006095f0 · legions 005c9180
 - [ ] `ExaminationRequest::ExaminationRequest` · 00609620 · legions 005c91c0
-- [~] `ExaminationRequest::StreamPack` · 00609660 — ac2-script native: unpack direction only
+- [x] `ExaminationRequest::StreamPack` · 00609660 — ac2-net ExaminationRequest: Legions 0x005C9210 layout (+3 words, type 0x4000000D)
 
-## `ac2/shared/src/examination/selectioninfo.cpp.c` (0/4)
+## `ac2/shared/src/examination/selectioninfo.cpp.c` (1/4)
 
 ### SelectionInfo
 - [ ] `SelectionInfo::operator==` · 00609700 · legions 005ca410
 - [ ] `SelectionInfo::SelectionInfo` · 00609760 · legions 005ca470
 - [ ] `SelectionInfo::SelectionInfo` · 00609780 · legions 005ca490
-- [ ] `SelectionInfo::StreamPack` · 006097c0 · legions 005ca4d0
+- [x] `SelectionInfo::StreamPack` · 006097c0 · legions 005ca4d0 — ac2-net protocol::native (native objects in script-call PackBuffers)
 
 ## `ac2/shared/src/fellowship/fellowadaptor.cpp.c` (0/2)
 

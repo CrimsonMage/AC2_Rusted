@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 74 done, 34 partial, 2122 to do, 17 skipped.
+2247 retail functions: 92 done, 45 partial, 2093 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -2746,7 +2746,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0
 - [ ] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180
 
-## `portal/client/src/uielement/system/uielement.cpp.c` (16/104)
+## `portal/client/src/uielement/system/uielement.cpp.c` (17/104)
 
 ### UIRectangleObject
 - [ ] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790
@@ -2775,7 +2775,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::MouseMoveElement` · 005e8d60 · legions 005a99c0
 - [ ] `UIElement::GetChild` · 005e8e00 · legions 005a9a60
 - [x] `UIElement::GetChildRecursive` · 005e8e30 · legions 005a9a90 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [ ] `UIElement::GetStringTableID` · 005e8e70 · legions 005a9ad0
+- [x] `UIElement::GetStringTableID` · 005e8e70 · legions 005a9ad0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement::SetMediaIndex` · 005e8e80 · legions 005a9ae0
 - [x] `UIElement::AddChild` · 005e8e90 · legions 005a9af0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::SetAlphaImage` · 005e8f30 · legions 005a9b90
@@ -2985,25 +2985,25 @@ Legend and workflow: [README](README.md).
 - [ ] `UIListener::RegisterForMessage` · 005e8a60 · legions 005a96c0
 - [ ] `UIListener::RegisterForGlobalMessage` · 005e8ae0 · legions 005a9740
 
-## `portal/client/src/uielement/types/text/glyph.cpp.c` (0/7)
+## `portal/client/src/uielement/types/text/glyph.cpp.c` (3/7)
 
 ### Glyph
 - [ ] `Glyph::Glyph` · 005fcd50 · legions 005bd880
-- [ ] `Glyph::Glyph` · 005fcd70 · legions 005bd8a0
+- [x] `Glyph::Glyph` · 005fcd70 · legions 005bd8a0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `Glyph::~Glyph` · 005fcdf0 · legions 005bd920
 - [ ] `Glyph::operator=` · 005fce10 · legions 005bd940
-- [ ] `Glyph::IsWhiteSpace` · 005fce80 · legions 005bd9b0
-- [ ] `Glyph::IsNewLine` · 005fceb0 · legions 005bd9e0
+- [x] `Glyph::IsWhiteSpace` · 005fce80 · legions 005bd9b0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+- [x] `Glyph::IsNewLine` · 005fceb0 · legions 005bd9e0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `Glyph::Glyph` · 005fcec0 · legions 005bd9f0
 
-## `portal/client/src/uielement/types/text/glyphlist.cpp.c` (0/24)
+## `portal/client/src/uielement/types/text/glyphlist.cpp.c` (6/24)
 
 ### LinebreakUtils
-- [ ] `LinebreakUtils::IsWhiteSpace` · 005fbe40 · legions 005bc970
-- [ ] `LinebreakUtils::IsNonBeginningChar` · 005fbe60 · legions 005bc990
-- [ ] `LinebreakUtils::IsNonEndingChar` · 005fbed0 · legions 005bca00
-- [ ] `LinebreakUtils::IsEastAsianChar` · 005fbef0 · legions 005bca20
-- [ ] `LinebreakUtils::CanBreakLineAt` · 005fbf30 · legions 005bca60
+- [x] `LinebreakUtils::IsWhiteSpace` · 005fbe40 · legions 005bc970 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+- [x] `LinebreakUtils::IsNonBeginningChar` · 005fbe60 · legions 005bc990 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+- [x] `LinebreakUtils::IsNonEndingChar` · 005fbed0 · legions 005bca00 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+- [x] `LinebreakUtils::IsEastAsianChar` · 005fbef0 · legions 005bca20 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+- [x] `LinebreakUtils::CanBreakLineAt` · 005fbf30 · legions 005bca60 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 
 ### GlyphList
 - [ ] `GlyphList::FindCurrentLine` · 005fbfb0 · legions 005bcae0
@@ -3019,11 +3019,11 @@ Legend and workflow: [README](README.md).
 - [ ] `GlyphList::FindXYFromPosition` · 005fc5f0 · legions 005bd120
 - [ ] `GlyphList::Flush` · 005fc6d0 · legions 005bd200
 - [ ] `GlyphList::Delete` · 005fc710 · legions 005bd240
-- [ ] `GlyphList::AddText` · 005fc7e0 · legions 005bd310
+- [~] `GlyphList::AddText` · 005fc7e0 · legions 005bd310 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [ ] `GlyphList::GlyphList` · 005fc930 · legions 005bd460
 - [ ] `GlyphList::~GlyphList` · 005fc960 · legions 005bd490
 - [ ] `GlyphList::InqText` · 005fc9f0 · legions 005bd520
-- [ ] `GlyphList::Recalculate` · 005fcaf0 · legions 005bd620
+- [x] `GlyphList::Recalculate` · 005fcaf0 · legions 005bd620 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `GlyphList::InqText` · 005fcd20 · legions 005bd850
 
 ## `portal/client/src/uielement/types/text/stringdownload.cpp.c` (0/4)
@@ -3034,7 +3034,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StringDownload::OnTopLevelRequestFinished` · 005fd150
 - [ ] `StringDownload::StringDownload` · 005fd210 · legions 005bdd40
 
-## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (0/92)
+## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (8/92)
 
 ### (free functions)
 - [ ] `NumberInputFilter` · 005ed7c0
@@ -3042,13 +3042,13 @@ Legend and workflow: [README](README.md).
 ### UIElement_Text
 - [ ] `UIElement_Text::GetScrollbar` · 005ed7d0 · legions 005ae3a0
 - [ ] `UIElement_Text::HandleMouseWheel` · 005ed840 · legions 005ae410
-- [ ] `UIElement_Text::CalcJustification` · 005ed8b0 · legions 005ae480
+- [x] `UIElement_Text::CalcJustification` · 005ed8b0 · legions 005ae480 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::IMETurnOn` · 005ed950 · legions 005ae540
 - [ ] `UIElement_Text::Activate` · 005ed9a0 · legions 005ae590
 - [ ] `UIElement_Text::Deactivate` · 005eda10 · legions 005ae600
 - [ ] `UIElement_Text::CleanupStringDownloads` · 005eda80 · legions 005ae670
 - [ ] `UIElement_Text::SetAtrb_Editable` · 005edaf0 · legions 005ae6e0
-- [ ] `UIElement_Text::DetermineMarginValues` · 005edb30 · legions 005ae720
+- [x] `UIElement_Text::DetermineMarginValues` · 005edb30 · legions 005ae720 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::SetAtrb_OneLine` · 005edbf0 · legions 005ae7e0
 - [ ] `UIElement_Text::GetPercentageV` · 005edc40 · legions 005ae830
 - [ ] `UIElement_Text::GetPercentageH` · 005edcc0 · legions 005ae8b0
@@ -3066,17 +3066,17 @@ Legend and workflow: [README](README.md).
 
 ### UIElement_Text
 - [ ] `UIElement_Text::~UIElement_Text` · 005ee160 · legions 005aed50
-- [ ] `UIElement_Text::ClearAllText` · 005ee340 · legions 005aef30
+- [x] `UIElement_Text::ClearAllText` · 005ee340 · legions 005aef30 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::SelectAll` · 005ee3a0 · legions 005aef90
 - [ ] `UIElement_Text::Deselect` · 005ee400 · legions 005aeff0
 - [ ] `UIElement_Text::GetText` · 005ee420 · legions 005af010
 - [ ] `UIElement_Text::GetSelectedText` · 005ee490
 - [ ] `UIElement_Text::UpdateScrollbar` · 005ee550 · legions 005af140
-- [ ] `UIElement_Text::ResizeTo` · 005ee6a0 · legions 005af290
+- [x] `UIElement_Text::ResizeTo` · 005ee6a0 · legions 005af290 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::DetermineFont` · 005ee6f0 · legions 005af2e0
 - [ ] `UIElement_Text::SetCursorPosition` · 005ee850 · legions 005af3e0
-- [ ] `UIElement_Text::UIElement_Text` · 005eea40 · legions 005af5d0
-- [ ] `UIElement_Text::SetAttribute_Int` · 005eec20 · legions 005af780
+- [~] `UIElement_Text::UIElement_Text` · 005eea40 · legions 005af5d0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+- [~] `UIElement_Text::SetAttribute_Int` · 005eec20 · legions 005af780 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [ ] `UIElement_Text::Create` · 005eed10
 - [ ] `UIElement_Text::InqSizewMargins` · 005eed40 · legions 005af8a0
 - [ ] `UIElement_Text::UpdateScrollbars` · 005eef10 · legions 005afa70
@@ -3089,14 +3089,14 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::Register` · 005ef100 · legions 005afc60
 - [ ] `UIElement_Text::Initialized` · 005ef120 · legions 005afc80
 - [ ] `UIElement_Text::Copy` · 005ef170
-- [ ] `UIElement_Text::KeepInBounds` · 005ef1c0 · legions 005afd20
-- [ ] `UIElement_Text::PostBlit` · 005ef2f0 · legions 005afe50
+- [~] `UIElement_Text::KeepInBounds` · 005ef1c0 · legions 005afd20 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+- [~] `UIElement_Text::PostBlit` · 005ef2f0 · legions 005afe50 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [ ] `UIElement_Text::SetAtrb_CenterVertically` · 005ef8d0 · legions 005b0430
-- [ ] `UIElement_Text::SetFontNum` · 005ef940 · legions 005b04a0
-- [ ] `UIElement_Text::SetFontNumAndColor` · 005efc10 · legions 005b0750
-- [ ] `UIElement_Text::RecalculateGlyphList` · 005eff20 · legions 005b0a50
+- [~] `UIElement_Text::SetFontNum` · 005ef940 · legions 005b04a0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+- [x] `UIElement_Text::SetFontNumAndColor` · 005efc10 · legions 005b0750 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+- [~] `UIElement_Text::RecalculateGlyphList` · 005eff20 · legions 005b0a50 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [ ] `UIElement_Text::SetViewY` · 005f0080 · legions 005b0bb0
-- [ ] `UIElement_Text::DrawStart` · 005f00a0 · legions 005b0bd0
+- [x] `UIElement_Text::DrawStart` · 005f00a0 · legions 005b0bd0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::DeterminePositionFromXY` · 005f00b0 · legions 005b0be0
 - [ ] `UIElement_Text::SetCursorPosition` · 005f01d0 · legions 005b0d00
 - [ ] `UIElement_Text::MouseDown` · 005f0200 · legions 005b0d30
@@ -3116,10 +3116,10 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::MoveCursorToEnd` · 005f0ad0 · legions 005b1600
 - [ ] `UIElement_Text::DeleteChar` · 005f0b10 · legions 005b1640
 - [ ] `UIElement_Text::DeleteSelection` · 005f0b30 · legions 005b1660
-- [ ] `UIElement_Text::AddText_Internal` · 005f0ba0 · legions 005b16d0
+- [~] `UIElement_Text::AddText_Internal` · 005f0ba0 · legions 005b16d0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [ ] `UIElement_Text::Cut` · 005f0cf0
 - [ ] `UIElement_Text::ActionHandler` · 005f0d50
-- [ ] `UIElement_Text::CheckStringDownloads` · 005f0e90 · legions 005b19c0
+- [~] `UIElement_Text::CheckStringDownloads` · 005f0e90 · legions 005b19c0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [ ] `UIElement_Text::Paste` · 005f0f70
 - [ ] `UIElement_Text::CharacterHandler` · 005f0ff0
 - [ ] `UIElement_Text::Global_Loop` · 005f12a0 · legions 005b1dd0
@@ -3133,11 +3133,11 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::TruncateText` · 005f1570 · legions 005b20a0
 - [ ] `UIElement_Text::SetText` · 005f16e0 · legions 005b2210
 - [ ] `UIElement_Text::SetText` · 005f1750 · legions 005b2280
-- [ ] `UIElement_Text::SetString` · 005f17c0 · legions 005b22f0
+- [~] `UIElement_Text::SetString` · 005f17c0 · legions 005b22f0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [ ] `UIElement_Text::MatchAttributes` · 005f1810 · legions 005b2340
-- [ ] `UIElement_Text::SetAttribute_Bool` · 005f18c0 · legions 005b23f0
-- [ ] `UIElement_Text::SetAttribute_StringID` · 005f1a10 · legions 005b2540
-- [ ] `UIElement_Text::SetAttribute_DataID` · 005f1a50 · legions 005b2580
+- [~] `UIElement_Text::SetAttribute_Bool` · 005f18c0 · legions 005b23f0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+- [x] `UIElement_Text::SetAttribute_StringID` · 005f1a10 · legions 005b2540 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+- [x] `UIElement_Text::SetAttribute_DataID` · 005f1a50 · legions 005b2580 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::ListenToMessage` · 005f1aa0 · legions 005b25d0
 
 ## `portal/client/src/uielement/types/uielement_button.cpp.c` (0/16)

@@ -5,14 +5,18 @@
 //! the start of the blob. Positions are cell-local: a cell id and AC-axis (z-up) coordinates
 //! relative to the landblock the cell names.
 
+mod char_gen;
 mod character;
 mod client_event;
 mod dat_event;
 mod error;
 mod fx;
+mod gameplay;
 mod movement;
+mod native;
 mod object;
 mod opcode;
+mod pack;
 mod physics;
 mod physics_event;
 mod position;
@@ -22,10 +26,12 @@ mod quality_event;
 mod reader;
 mod server_event;
 mod string_info;
+mod turbine_chat;
 mod types;
 mod visual;
 mod weenie_desc;
 
+pub use char_gen::{decode_char_gen_result, CharGenResult};
 pub use character::{CharacterIdentity, CharacterSet, MinimalCharacterSet};
 pub use client_event::ClientEvent;
 pub use dat_event::{
@@ -33,9 +39,17 @@ pub use dat_event::{
 };
 pub use error::ProtocolError;
 pub use fx::{DecalFx, EntityDesc, FxData, FxNode, LightSourceFx, RepulsorFx, StreakFx, Waveform};
+pub use gameplay::{function as script_function, ScriptMessage, ScriptRequest};
 pub use movement::{MoveTarget, MovementParameters, PhysicsStory, StoryHook, TargetPosition};
+pub use native::{
+    ntype, ExaminationDataNode, ExaminationProfile, ExaminationRequest, ExaminationValue,
+    NativeObject, SelectionInfo,
+};
 pub use object::CreateObject;
 pub use opcode::Opcode;
+pub use pack::{
+    entry_flags, pack_values, unpack_values, HeapObject, PackValue, PackedEntry, PackedReference,
+};
 pub use physics::{BehaviorParams, PhysicsDesc};
 pub use physics_event::{ObjectAction, ObjectEvent};
 pub use position::{
@@ -46,6 +60,11 @@ pub use qualities::Qualities;
 pub use quality_event::{QualityUpdate, QualityValue};
 pub use server_event::ServerEvent;
 pub use string_info::{StringInfo, StringVariable};
+pub use turbine_chat::{
+    blob_type as chat_blob_type, ChatHeader, ChatMessage, ChatPacket, ChatRequest, ChatResponse,
+    GunChatExtraInfo, RoomChat, EVENT_SEND_TO_ROOM, METHOD_SEND_TO_ROOM_BY_ID,
+    METHOD_SEND_TO_ROOM_BY_NAME,
+};
 pub use types::{CellPosition, InstanceIdWithStamp, Position};
 pub use visual::{IconLayer, PartGroupDesc, VisualDesc};
 pub use weenie_desc::WeenieDesc;

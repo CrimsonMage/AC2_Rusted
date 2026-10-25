@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 159 done, 19 partial, 1720 to do, 6 skipped.
+1904 retail functions: 167 done, 29 partial, 1702 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -34,7 +34,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Allegiance::SendNotice_UpdateAllegianceProfile` · 007280c0
 - [ ] `CM_Allegiance::SendNotice_Vassal_SwearDone` · 00728150
 
-## `ac2/client/src/events/cm_character.cpp.c` (0/30)
+## `ac2/client/src/events/cm_character.cpp.c` (2/30)
 
 ### CM_Character
 - [ ] `CM_Character::SendNotice_AddMarker` · 007248b0 · legions 006a4270
@@ -51,7 +51,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Character::SendNotice_RemovePet` · 00724f50
 - [ ] `CM_Character::SendNotice_ResurrectionRequestedByOther` · 00724fe0
 - [ ] `CM_Character::SendNotice_Select` · 00725070
-- [ ] `CM_Character::SendNotice_SelectionChanged` · 00725100
+- [x] `CM_Character::SendNotice_SelectionChanged` · 00725100 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 - [ ] `CM_Character::SendNotice_SetShortcutHeight` · 00725190
 - [ ] `CM_Character::SendNotice_UpdateDeathState` · 00725220
 - [ ] `CM_Character::SendNotice_UpdateEffect` · 007252b0
@@ -62,7 +62,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Character::SendNotice_UpdatePetName` · 007255c0
 - [ ] `CM_Character::SendNotice_UpdateResetTime` · 00725660
 - [ ] `CM_Character::SendNotice_UpdateSelectability` · 007256f0
-- [ ] `CM_Character::SendNotice_UpdateSelectionInfo` · 00725780
+- [x] `CM_Character::SendNotice_UpdateSelectionInfo` · 00725780 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 - [ ] `CM_Character::SendNotice_UpdateSkill` · 00725810
 - [ ] `CM_Character::SendNotice_UpdateSkillPanel` · 007258a0
 - [ ] `CM_Character::SendNotice_UpdateVitae` · 00725950
@@ -77,10 +77,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Combat::SendNotice_ToggleSpecialAttack` · 00727e60
 - [ ] `CM_Combat::SendNotice_UpdateAttackState` · 00727ef0
 
-## `ac2/client/src/events/cm_communication.cpp.c` (0/3)
+## `ac2/client/src/events/cm_communication.cpp.c` (1/3)
 
 ### CM_Communication
-- [ ] `CM_Communication::SendNotice_DisplayStringInfo` · 00725cc0
+- [x] `CM_Communication::SendNotice_DisplayStringInfo` · 00725cc0 — ac2-weenie GameplayNotice::DisplayStringInfo (chat lines from the CCommunicationSystem stand-in)
 - [ ] `CM_Communication::SendNotice_DoAssistedTell` · 00725d50
 - [ ] `CM_Communication::SendNotice_ReloadChatSettings` · 00725de0
 
@@ -94,11 +94,11 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Craft::SendNotice_UpdateCraftPanel` · 00727b90
 - [ ] `CM_Craft::SendNotice_UpdateCraftSkill` · 00727c20
 
-## `ac2/client/src/events/cm_examination.cpp.c` (0/2)
+## `ac2/client/src/events/cm_examination.cpp.c` (2/2)
 
 ### CM_Examination
-- [ ] `CM_Examination::SendNotice_ExaminationRequestChanged` · 007277e0
-- [ ] `CM_Examination::SendNotice_UpdateExaminationProfile` · 00727870
+- [x] `CM_Examination::SendNotice_ExaminationRequestChanged` · 007277e0 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+- [x] `CM_Examination::SendNotice_UpdateExaminationProfile` · 00727870 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 
 ## `ac2/client/src/events/cm_fellowship.cpp.c` (0/13)
 
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (0/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (2/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -923,9 +923,9 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::InqName` · 0044f9e0 · legions 00450b20
 - [ ] `gmCWInterface::GetPotentiallyPluralizedName` · 0044fa00 · legions 00450b40
 - [ ] `gmCWInterface::GetPhysObjID` · 0044fa70 · legions 00450bb0
-- [ ] `gmCWInterface::SetSelection` · 0044faa0 · legions 00450be0
-- [ ] `gmCWInterface::GetSelection` · 0044fac0 · legions 00450c00
-- [ ] `gmCWInterface::GetLastSelection` · 0044fb20 · legions 00450c60
+- [~] `gmCWInterface::SetSelection` · 0044faa0 · legions 00450be0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+- [~] `gmCWInterface::GetSelection` · 0044fac0 · legions 00450c00 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+- [~] `gmCWInterface::GetLastSelection` · 0044fb20 · legions 00450c60 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [ ] `gmCWInterface::ShouldAutoTarget` · 0044fb80 · legions 00450cc0
 - [ ] `gmCWInterface::UseSelection` · 0044fbb0 · legions 00450cf0
 - [ ] `gmCWInterface::UseShortcut` · 0044fbe0 · legions 00450d20
@@ -950,7 +950,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::RequestExecuteCraft` · 00450080 · legions 004511c0
 - [ ] `gmCWInterface::InqRecipeCost` · 004500b0 · legions 004511f0
 - [ ] `gmCWInterface::GetAvailableCraftExperience` · 004500f0 · legions 00451230
-- [ ] `gmCWInterface::DoEmote` · 00450130 · legions 00451270
+- [~] `gmCWInterface::DoEmote` · 00450130 · legions 00451270 — ac2-weenie OnlineSession::emote(id): the WM_Communication emote call; the emote-table name lookup (CPlayer 0x15B) is not ported
 - [ ] `gmCWInterface::PurchaseItem` · 00450150 · legions 00451290
 - [ ] `gmCWInterface::RequestNextSales` · 00450180 · legions 004512c0
 - [ ] `gmCWInterface::RequestPrevSales` · 004501a0 · legions 004512e0
@@ -1026,10 +1026,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::GetStackable` · 00450ea0 · legions 00451fe0
 - [ ] `gmCWInterface::GetQuantity` · 00450ed0 · legions 00452010
 - [ ] `gmCWInterface::GetMaxStackSize` · 00450f00 · legions 00452040
-- [ ] `gmCWInterface::SetExaminationRequest` · 00450f30 · legions 00452070
+- [~] `gmCWInterface::SetExaminationRequest` · 00450f30 · legions 00452070 — ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
 - [ ] `gmCWInterface::AddEffectDataToProfileByEID` · 00450f50 · legions 00452090
-- [ ] `gmCWInterface::StartExamination` · 00450f80 · legions 004520c0
-- [ ] `gmCWInterface::StopExamination` · 00450fa0 · legions 004520e0
+- [~] `gmCWInterface::StartExamination` · 00450f80 · legions 004520c0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+- [~] `gmCWInterface::StopExamination` · 00450fa0 · legions 004520e0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [ ] `gmCWInterface::HasSomethingSelected` · 00450fc0 · legions 00452100
 - [ ] `gmCWInterface::RegisterCommands` · 00450ff0 · legions 00452130
 - [ ] `gmCWInterface::RequestResurrect` · 00451010 · legions 00452150
@@ -1129,7 +1129,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::HandleSetWeenieDesc` · 00452030 · legions 004531b0
 
 ### GunChatExtraInfo
-- [ ] `GunChatExtraInfo::PackIntoBlob` · 004520f0 · legions 00453230
+- [x] `GunChatExtraInfo::PackIntoBlob` · 004520f0 · legions 00453230 — ac2-net GunChatExtraInfo
 
 ### gmCWInterface
 - [ ] `gmCWInterface::ProcessText_Done` · 004521b0 · legions 004532f0
@@ -1142,12 +1142,12 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::RequestGUN_CallCreate` · 00452480 · legions 004535d2
 
 ### GunChatExtraInfo
-- [ ] `GunChatExtraInfo::GunChatExtraInfo` · 00452580 · legions 00453690
+- [~] `GunChatExtraInfo::GunChatExtraInfo` · 00452580 · legions 00453690 — ac2-net GunChatExtraInfo::new: version 1, flags; the meta letters (RetrieveMetaLetters) are left empty
 - [ ] `GunChatExtraInfo::~GunChatExtraInfo` · 00452660 · legions 00453770
 
 ### gmCWInterface
 - [ ] `gmCWInterface::RequestGUN_SendToUser` · 00452710 · legions 00453820
-- [ ] `gmCWInterface::RequestGUN_SendToRoom` · 004527c0 · legions 004538d0
+- [~] `gmCWInterface::RequestGUN_SendToRoom` · 004527c0 · legions 004538d0 — ac2-weenie OnlineSession::send_to_room: the Turbine chat path (CSendToTurbineRoomByID); the GUN path is dead in Legions
 
 ### CCliFlagsResult
 - [ ] `CCliFlagsResult::CCliFlagsResult` · 004528d0 · legions 004539e0
@@ -1174,10 +1174,10 @@ Legend and workflow: [README](README.md).
 
 ### gmCWInterface
 - [ ] `gmCWInterface::HearTell` · 004530f0 · legions 00454200
-- [ ] `gmCWInterface::GUNEvent_HearFromRoom` · 00453320 · legions 00454430
+- [~] `gmCWInterface::GUNEvent_HearFromRoom` · 00453320 · legions 00454430 — ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
 
 ### GunChatExtraInfo
-- [ ] `GunChatExtraInfo::StreamPack` · 004534e0 · legions 004545f0
+- [x] `GunChatExtraInfo::StreamPack` · 004534e0 · legions 004545f0 — ac2-net GunChatExtraInfo
 
 ### (free functions)
 - [ ] `STREAMPACK` · 00453560 · legions 005e6f90
@@ -2818,11 +2818,11 @@ Legend and workflow: [README](README.md).
 - [ ] `WLogSystem::GetFileLog` · 007333c0 · legions 006af870
 - [ ] `WLogSystem::GetPrintLog` · 007333d0 · legions 006af880
 
-## `portal/shared/src/weenie/wbookie/wbookkeeper.cpp.c` (0/5)
+## `portal/shared/src/weenie/wbookie/wbookkeeper.cpp.c` (1/5)
 
 ### CWBookKeeper
 - [ ] `CWBookKeeper::CWBookKeeper` · 0052dd90 · legions 00512230
-- [ ] `CWBookKeeper::CSendToTurbineRoomByID` · 0052ddb0 · legions 00512250
+- [x] `CWBookKeeper::CSendToTurbineRoomByID` · 0052ddb0 · legions 00512250 — ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 - [ ] `CWBookKeeper::AddObjectToBeDestroyed` · 0052ddf0 · legions 00512290
 - [ ] `CWBookKeeper::RemoveObjectToBeDestroyed` · 0052de00 · legions 005122a0
 - [ ] `CWBookKeeper::~CWBookKeeper` · 0052de10 · legions 005122b0

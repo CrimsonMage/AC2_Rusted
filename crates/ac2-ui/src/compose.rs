@@ -1,7 +1,8 @@
 //! Drawing the element tree the way retail does, in software: every root element owns a
 //! `UISurface` (A8R8G8B8, starting clear) that `UIRegion::DrawHere` paints, element by element,
 //! clipped to each ancestor, children from the last (highest z) to the first; the surfaces are
-//! then drawn over the scene (`UISurfaceObject`, point sampled, blended by their alpha).
+//! then drawn over the scene (`UISurfaceObject`, point sampled, blended by their alpha). A text
+//! element's text goes over its image (`UIElement_Text::PostBlit`, in `text.rs`).
 //!
 //! `Graphic::Draw` puts an element's image 1:1 when the sizes match, centred at its own size for
 //! draw modes 2 and 3, stretched for mode 1 and tiled from the element's corner for mode 0.
@@ -165,6 +166,9 @@ impl UiTree {
                 surface.draw_graphic(image, mode, me, clip);
             }
         }
+        if let Some(text) = &el.text {
+            surface.draw_text(text, me, clip);
+        }
         for &child in el.children.iter().rev() {
             self.draw_here(child, (me.x0, me.y0), clip, images, surface);
         }
@@ -172,7 +176,14 @@ impl UiTree {
 
     /// Every visible root drawn into its own surface, in the order they go over the scene
     /// (highest z first).
-    pub fn compose(&self, images: &HashMap<u32, UiPixels>) -> Vec<UiSurface> {
+    pub fn compose(&mut self, images: &HashMap<u32, UiPixels>) -> Vec<UiSurface> {
+        // `UIElement_Text::DrawStart`: lay out text that changed.
+        for el in self.slots.iter_mut().flatten() {
+            let (width, height) = (el.rect.width(), el.rect.height());
+            if let Some(text) = el.text.as_mut() {
+                text.recalculate(width, height);
+            }
+        }
         self.roots
             .iter()
             .rev()
