@@ -8,6 +8,7 @@
 //! `BaseMultiHash<unsigned long,unsigned long,4>::UnPack` is a plain u32 count and the pairs.
 
 use super::hash_table::ScriptHash;
+use super::multi::ScriptMultiHash;
 use crate::unpack::{Reader, UnpackResult};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -101,19 +102,14 @@ pub(super) fn unpack_hash(
     Ok(ScriptHash::from_packed(bucket_index, items))
 }
 
-/// `BaseMultiHash<unsigned long,unsigned long,4>` (`AAMultiHash`): its pairs in packed order.
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct ScriptMultiHash {
-    pub pairs: Vec<(u32, u32)>,
-}
-
-impl ScriptMultiHash {
-    /// `BaseMultiHash<unsigned long,unsigned long,4>::UnPack`: a u32 count and the pairs.
-    pub(super) fn unpack(r: &mut Reader<'_>) -> UnpackResult<Self> {
-        let n = r.count(8, "multi-hash count")?;
-        let pairs = (0..n)
-            .map(|_| Ok((r.u32()?, r.u32()?)))
-            .collect::<UnpackResult<_>>()?;
-        Ok(Self { pairs })
+/// `BaseMultiHash<unsigned long,unsigned long,4>::UnPack`: a u32 count and the pairs, each added
+/// as `add` does (`resize(size + 1)`, `insert_equal_noresize`).
+pub(super) fn unpack_multi_hash(r: &mut Reader<'_>) -> UnpackResult<ScriptMultiHash> {
+    let n = r.count(8, "multi-hash count")?;
+    let mut hash = ScriptMultiHash::default();
+    for _ in 0..n {
+        let (k, v) = (r.u32()?, r.u32()?);
+        hash.add(u64::from(k), u64::from(v));
     }
+    Ok(hash)
 }

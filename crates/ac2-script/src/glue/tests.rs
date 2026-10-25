@@ -355,3 +355,39 @@ fn math_vector_and_missile_glue_use_retail_slots() {
     assert_eq!(p.field("sticks_upon_collide"), Some(1));
     assert_eq!(p.field("height_above_ground"), Some(f(1.5)));
 }
+
+#[test]
+fn multi_hash_and_multi_map_glue_walk_in_retail_order() {
+    use crate::native::{ScriptMultiHash, ScriptMultiMap};
+    let mut vm = vm();
+    let mh = vm
+        .refs
+        .create_native(0x03, NativeObject::MultiHash(ScriptMultiHash::default()));
+    for (k, v) in [(5, 1), (198, 2), (5, 3)] {
+        call(&mut vm, 0x0003_0001, 0, &[k, v], mh); // add
+    }
+    assert_eq!(call(&mut vm, 0x0003_0005, 1, &[5], mh).1[0].0, 2); // count
+    let iter = call(&mut vm, 0x0003_0009, 1, &[], mh).1[0].0; // get_begin
+    let end = call(&mut vm, 0x0003_000A, 1, &[], mh).1[0].0; // get_end
+    let mut keys = Vec::new();
+    while call(&mut vm, 0x0004_0004, 1, &[end], iter).1[0].0 == 0 {
+        keys.push(call(&mut vm, 0x0004_0002, 1, &[], iter).1[0].0); // key
+        call(&mut vm, 0x0004_0001, 0, &[], iter); // next
+    }
+    assert_eq!(keys, vec![198, 5, 5]);
+    assert_eq!(call(&mut vm, 0x0003_0002, 1, &[5], mh).1[0].0, 2); // remove
+    let mm = vm
+        .refs
+        .create_native(0x3691, NativeObject::MultiMap(ScriptMultiMap::default()));
+    for (k, v) in [(7, 1), (3, 2), (7, 3)] {
+        call(&mut vm, 0x3691_0001, 0, &[k, v], mm); // insert
+    }
+    let it = call(&mut vm, 0x3691_000C, 1, &[3], mm).1[0].0; // upper_bound(3)
+    assert_eq!(call(&mut vm, 0x3692_0004, 1, &[], it).1[0].0, 1); // data
+    call(&mut vm, 0x3692_0002, 0, &[], it); // next
+    assert_eq!(call(&mut vm, 0x3692_0004, 1, &[], it).1[0].0, 3);
+    call(&mut vm, 0x3692_0001, 0, &[], it); // prev
+    call(&mut vm, 0x3692_0001, 0, &[], it); // prev
+    assert_eq!(call(&mut vm, 0x3692_0003, 1, &[], it).1[0].0, 3); // key
+    assert_eq!(call(&mut vm, 0x3691_0004, 1, &[7], mm).1[0].0, 2); // count
+}

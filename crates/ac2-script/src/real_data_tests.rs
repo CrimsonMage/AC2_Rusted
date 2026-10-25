@@ -135,6 +135,8 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::ListIter { .. } => "list iterator",
         NativeObject::HashIter { .. } => "hash iterator",
         NativeObject::MultiHash(_) => "multi-hash",
+        NativeObject::MultiMap(_) => "multi-map",
+        NativeObject::MultiIter { .. } => "multi iterator",
         NativeObject::Unbound(_) => "unbound",
     }
 }

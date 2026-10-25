@@ -8,10 +8,11 @@
 mod containers;
 mod gm;
 mod hash_table;
+mod multi;
 mod string_info;
 mod structs;
 
-pub use containers::{RefKey, ScriptList, ScriptMultiHash};
+pub use containers::{RefKey, ScriptList};
 pub use gm::{
     ExaminationRequest, GameplayOptionsProfile, GmKeyframe, GmRaceSexInfo, GmSceneInfo,
     ShortcutInfo, SkillUiNode,
@@ -20,6 +21,7 @@ pub use hash_table::{
     bucket_size_index, HashNode, HashPos, NativeKeys, PlainKeys, ScriptHash, BUCKET_SIZES,
     DEFAULT_BUCKETS,
 };
+pub use multi::{MultiNode, ScriptMultiHash, ScriptMultiMap, STL_PRIMES};
 pub use string_info::{GetStringError, StringInfo, StringVar, StringVarValue};
 pub use structs::{BehaviorParams, MissileParameters, Position, RandomSelectionTable};
 
@@ -73,6 +75,16 @@ pub mod ntype {
     pub fn is_hash_iter(t: u32) -> bool {
         HASHES.iter().any(|&h| h + 1 == t)
     }
+
+    /// `AAMultiHash`, `ALMultiHash`, `ARMultiHash`, `LAMultiHash`, `LLMultiHash`,
+    /// `LRMultiHash`; each one's iterator type is the next id.
+    pub const MULTI_HASHES: [u32; 6] = [0x03, 0x0C, 0x13, 0x34, 0x3D, 0x42];
+    /// `AAMultiMap`, `ALMultiMap`, `LAMultiMap`, `LLMultiMap`; iterators are the next id.
+    pub const MULTI_MAPS: [u32; 4] = [0x3691, 0x3693, 0x3695, 0x3697];
+
+    pub fn is_multi_iter(t: u32) -> bool {
+        MULTI_HASHES.iter().chain(&MULTI_MAPS).any(|&h| h + 1 == t)
+    }
     pub const EXAMINATION_REQUEST: u32 = 0x9A;
     pub const GAMEPLAY_OPTIONS_PROFILE: u32 = 0x9B;
     pub const GM_RACE_SEX_INFO: u32 = 0xA2;
@@ -87,8 +99,16 @@ pub enum NativeObject {
     List(ScriptList),
     /// The `XYHash` family and the hash sets.
     Hash(ScriptHash),
-    /// `AAMultiHash`.
+    /// The `XYMultiHash` family.
     MultiHash(ScriptMultiHash),
+    /// The `XYMultiMap` family.
+    MultiMap(ScriptMultiMap),
+    /// `BaseMultiHashIter` / `BaseMultiMapIter`: the container and the element (`None` at the
+    /// end).
+    MultiIter {
+        container: u32,
+        node: Option<u32>,
+    },
     /// `BaseHashIter` / `BaseHashSetIter`: the hash (`m_ref`) and the position.
     HashIter {
         hash: u32,
@@ -130,7 +150,16 @@ impl NativeObject {
         match native_type {
             ntype::A_LIST | ntype::R_LIST | ntype::A_ARRAY | ntype::R_ARRAY => list(false),
             ntype::L_LIST | ntype::L_ARRAY => list(true),
-            ntype::AA_MULTI_HASH => NativeObject::MultiHash(ScriptMultiHash::default()),
+            t if ntype::MULTI_HASHES.contains(&t) => {
+                NativeObject::MultiHash(ScriptMultiHash::default())
+            }
+            t if ntype::MULTI_MAPS.contains(&t) => {
+                NativeObject::MultiMap(ScriptMultiMap::default())
+            }
+            t if ntype::is_multi_iter(t) => NativeObject::MultiIter {
+                container: u32::MAX,
+                node: None,
+            },
             ntype::AA_HASH
             | ntype::A_HASH_SET
             | ntype::AL_HASH
@@ -189,7 +218,7 @@ pub fn unpack(native_type: u32, r: &mut Reader<'_>) -> UnpackResult<NativeObject
         ntype::NA_HASH | ntype::NR_HASH => {
             NativeObject::Hash(containers::unpack_hash(r, Key::Ref, Some(Elem::U32))?)
         }
-        ntype::AA_MULTI_HASH => NativeObject::MultiHash(ScriptMultiHash::unpack(r)?),
+        ntype::AA_MULTI_HASH => NativeObject::MultiHash(containers::unpack_multi_hash(r)?),
         ntype::A_HASH_SET => NativeObject::Hash(containers::unpack_hash(r, Key::U32, None)?),
         ntype::LA_HASH_SET => NativeObject::Hash(containers::unpack_hash(r, Key::U64, None)?),
         ntype::STRING_INFO => NativeObject::StringInfo(StringInfo::unpack(r)?),

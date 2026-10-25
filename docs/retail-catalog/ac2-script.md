@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 793 done, 77 partial, 1520 to do, 78 skipped.
+2468 retail functions: 991 done, 77 partial, 1322 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -1002,74 +1002,74 @@ Legend and workflow: [README](README.md).
 - [x] `gAAHashIter::CallEFun_notdone` · 00567270 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 - [x] `gAAHashIter::CallEFun_remove` · 005672e0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/gaamultihash.cpp.c` (0/13)
+## `portal/shared/src/interp/glue/gaamultihash.cpp.c` (13/13)
 
 ### gAAMultiHash
-- [ ] `gAAMultiHash::CallEFun_size` · 00566a20
-- [ ] `gAAMultiHash::CallEFun_count` · 00566a90
+- [x] `gAAMultiHash::CallEFun_size` · 00566a20 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_count` · 00566a90 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiHash<unsigned_long,unsigned_long,4>
-- [ ] `BaseMultiHash<unsigned_long,unsigned_long,4>::find` · 00566b30 · legions 00537490
-- [ ] `BaseMultiHash<unsigned_long,unsigned_long,4>::find_last` · 00566bb0 · legions 00537510
-- [ ] `BaseMultiHash<unsigned_long,unsigned_long,4>::get_begin` · 00566c10 · legions 00537570
+- [x] `BaseMultiHash<unsigned_long,unsigned_long,4>::find` · 00566b30 · legions 00537490 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned_long,unsigned_long,4>::find_last` · 00566bb0 · legions 00537510 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned_long,unsigned_long,4>::get_begin` · 00566c10 · legions 00537570 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gAAMultiHash
-- [ ] `gAAMultiHash::CallEFun_clear` · 00566c70
-- [ ] `gAAMultiHash::CallEFun_erase` · 00566cd0
-- [ ] `gAAMultiHash::CallEFun_find` · 00566d50
-- [ ] `gAAMultiHash::CallEFun_find_last` · 00566dd0
-- [ ] `gAAMultiHash::CallEFun_get_begin` · 00566e50
-- [ ] `gAAMultiHash::CallEFun_get_end` · 00566ed0
-- [ ] `gAAMultiHash::CallEFun_remove` · 00566f90
-- [ ] `gAAMultiHash::CallEFun_add` · 00567010
+- [x] `gAAMultiHash::CallEFun_clear` · 00566c70 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_erase` · 00566cd0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_find` · 00566d50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_find_last` · 00566dd0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_get_begin` · 00566e50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_get_end` · 00566ed0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_remove` · 00566f90 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_add` · 00567010 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gaamultihashiter.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/gaamultihashiter.cpp.c` (4/4)
 
 ### gAAMultiHashIter
-- [ ] `gAAMultiHashIter::CallEFun_data` · 00566850
-- [ ] `gAAMultiHashIter::CallEFun_equals` · 005668c0
-- [ ] `gAAMultiHashIter::CallEFun_key` · 00566940
-- [ ] `gAAMultiHashIter::CallEFun_next` · 005669b0
+- [x] `gAAMultiHashIter::CallEFun_data` · 00566850 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHashIter::CallEFun_equals` · 005668c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHashIter::CallEFun_key` · 00566940 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHashIter::CallEFun_next` · 005669b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gaamultimap.cpp.c` (0/19)
+## `portal/shared/src/interp/glue/gaamultimap.cpp.c` (19/19)
 
 ### gAAMultiMap
-- [ ] `gAAMultiMap::CallEFun_empty` · 0054f510
-- [ ] `gAAMultiMap::CallEFun_count` · 0054f5e0
+- [x] `gAAMultiMap::CallEFun_empty` · 0054f510 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_count` · 0054f5e0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiMap<unsigned_long,unsigned_long,13970>
-- [ ] `BaseMultiMap<unsigned_long,unsigned_long,13970>::find` · 0054f7d0 · legions 0052bf80
-- [ ] `BaseMultiMap<unsigned_long,unsigned_long,13970>::find_last` · 0054f840 · legions 0052bff0
-- [ ] `BaseMultiMap<unsigned_long,unsigned_long,13970>::get_begin` · 0054f8a0 · legions 0052c050
-- [ ] `BaseMultiMap<unsigned_long,unsigned_long,13970>::get_end` · 0054f8f0 · legions 0052c0a0
-- [ ] `BaseMultiMap<unsigned_long,unsigned_long,13970>::lower_bound` · 0054f940 · legions 0052c0f0
-- [ ] `BaseMultiMap<unsigned_long,unsigned_long,13970>::upper_bound` · 0054f9b0 · legions 0052c160
+- [x] `BaseMultiMap<unsigned_long,unsigned_long,13970>::find` · 0054f7d0 · legions 0052bf80 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned_long,13970>::find_last` · 0054f840 · legions 0052bff0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned_long,13970>::get_begin` · 0054f8a0 · legions 0052c050 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned_long,13970>::get_end` · 0054f8f0 · legions 0052c0a0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned_long,13970>::lower_bound` · 0054f940 · legions 0052c0f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned_long,13970>::upper_bound` · 0054f9b0 · legions 0052c160 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gAAMultiMap
-- [ ] `gAAMultiMap::CallEFun_clear` · 0054fa20
-- [ ] `gAAMultiMap::CallEFun_erase` · 0054faa0
-- [ ] `gAAMultiMap::CallEFun_find` · 0054fb30
-- [ ] `gAAMultiMap::CallEFun_find_last` · 0054fbb0
-- [ ] `gAAMultiMap::CallEFun_get_begin` · 0054fc30
-- [ ] `gAAMultiMap::CallEFun_get_end` · 0054fcb0
-- [ ] `gAAMultiMap::CallEFun_lower_bound` · 0054fd30
-- [ ] `gAAMultiMap::CallEFun_upper_bound` · 0054fdb0
+- [x] `gAAMultiMap::CallEFun_clear` · 0054fa20 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_erase` · 0054faa0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_find` · 0054fb30 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_find_last` · 0054fbb0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_get_begin` · 0054fc30 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_get_end` · 0054fcb0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_lower_bound` · 0054fd30 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_upper_bound` · 0054fdb0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiMap<unsigned_long,unsigned_long,13970>
-- [ ] `BaseMultiMap<unsigned_long,unsigned_long,13970>::insert` · 0054fe30 · legions 0052c4c0
+- [x] `BaseMultiMap<unsigned_long,unsigned_long,13970>::insert` · 0054fe30 · legions 0052c4c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gAAMultiMap
-- [ ] `gAAMultiMap::CallEFun_insert` · 0054fe80
-- [ ] `gAAMultiMap::CallEFun_remove` · 0054fee0
+- [x] `gAAMultiMap::CallEFun_insert` · 0054fe80 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_remove` · 0054fee0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gaamultimapiter.cpp.c` (0/5)
+## `portal/shared/src/interp/glue/gaamultimapiter.cpp.c` (5/5)
 
 ### gAAMultiMapIter
-- [ ] `gAAMultiMapIter::CallEFun_data` · 0054f2a0
-- [ ] `gAAMultiMapIter::CallEFun_equals` · 0054f310
-- [ ] `gAAMultiMapIter::CallEFun_key` · 0054f3a0
-- [ ] `gAAMultiMapIter::CallEFun_next` · 0054f410
-- [ ] `gAAMultiMapIter::CallEFun_prev` · 0054f4b0
+- [x] `gAAMultiMapIter::CallEFun_data` · 0054f2a0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMapIter::CallEFun_equals` · 0054f310 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMapIter::CallEFun_key` · 0054f3a0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMapIter::CallEFun_next` · 0054f410 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMapIter::CallEFun_prev` · 0054f4b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ## `portal/shared/src/interp/glue/gaarray.cpp.c` (12/12)
 
@@ -1248,74 +1248,74 @@ Legend and workflow: [README](README.md).
 - [~] `gAListIter::CallEFun_insert` · 00562740 — ac2-script glue::lists: iterators hold an index, not a node
 - [~] `gAListIter::CallEFun_remove` · 005627f0 — ac2-script glue::lists: iterators hold an index, not a node
 
-## `portal/shared/src/interp/glue/galmultihash.cpp.c` (0/13)
+## `portal/shared/src/interp/glue/galmultihash.cpp.c` (13/13)
 
 ### gALMultiHash
-- [ ] `gALMultiHash::CallEFun_size` · 00561d30
-- [ ] `gALMultiHash::CallEFun_count` · 00561e50
+- [x] `gALMultiHash::CallEFun_size` · 00561d30 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_count` · 00561e50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiHash<unsigned_long,unsigned___int64,13>
-- [ ] `BaseMultiHash<unsigned_long,unsigned___int64,13>::find` · 00561fb0 · legions 00535690
-- [ ] `BaseMultiHash<unsigned_long,unsigned___int64,13>::find_last` · 00562030 · legions 00535710
-- [ ] `BaseMultiHash<unsigned_long,unsigned___int64,13>::get_begin` · 00562090 · legions 00535770
+- [x] `BaseMultiHash<unsigned_long,unsigned___int64,13>::find` · 00561fb0 · legions 00535690 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned_long,unsigned___int64,13>::find_last` · 00562030 · legions 00535710 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned_long,unsigned___int64,13>::get_begin` · 00562090 · legions 00535770 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gALMultiHash
-- [ ] `gALMultiHash::CallEFun_clear` · 005620f0
-- [ ] `gALMultiHash::CallEFun_erase` · 00562150
-- [ ] `gALMultiHash::CallEFun_find` · 005621d0
-- [ ] `gALMultiHash::CallEFun_find_last` · 00562250
-- [ ] `gALMultiHash::CallEFun_get_begin` · 005622d0
-- [ ] `gALMultiHash::CallEFun_get_end` · 00562350
-- [ ] `gALMultiHash::CallEFun_remove` · 00562410
-- [ ] `gALMultiHash::CallEFun_add` · 00562490
+- [x] `gALMultiHash::CallEFun_clear` · 005620f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_erase` · 00562150 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_find` · 005621d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_find_last` · 00562250 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_get_begin` · 005622d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_get_end` · 00562350 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_remove` · 00562410 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_add` · 00562490 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/galmultihashiter.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/galmultihashiter.cpp.c` (4/4)
 
 ### gALMultiHashIter
-- [ ] `gALMultiHashIter::CallEFun_data` · 00561b60
-- [ ] `gALMultiHashIter::CallEFun_equals` · 00561bd0
-- [ ] `gALMultiHashIter::CallEFun_key` · 00561c50
-- [ ] `gALMultiHashIter::CallEFun_next` · 00561cc0
+- [x] `gALMultiHashIter::CallEFun_data` · 00561b60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHashIter::CallEFun_equals` · 00561bd0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHashIter::CallEFun_key` · 00561c50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHashIter::CallEFun_next` · 00561cc0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/galmultimap.cpp.c` (0/19)
+## `portal/shared/src/interp/glue/galmultimap.cpp.c` (19/19)
 
 ### gALMultiMap
-- [ ] `gALMultiMap::CallEFun_empty` · 0054e8b0
-- [ ] `gALMultiMap::CallEFun_count` · 0054e920
+- [x] `gALMultiMap::CallEFun_empty` · 0054e8b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_count` · 0054e920 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiMap<unsigned_long,unsigned___int64,13972>
-- [ ] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::find` · 0054eb10 · legions 0052b6a0
-- [ ] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::find_last` · 0054eb80 · legions 0052b710
-- [ ] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::get_begin` · 0054ebe0 · legions 0052b770
-- [ ] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::get_end` · 0054ec30 · legions 0052b7c0
-- [ ] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::lower_bound` · 0054ec80 · legions 0052b810
-- [ ] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::upper_bound` · 0054ecf0 · legions 0052b880
+- [x] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::find` · 0054eb10 · legions 0052b6a0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::find_last` · 0054eb80 · legions 0052b710 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::get_begin` · 0054ebe0 · legions 0052b770 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::get_end` · 0054ec30 · legions 0052b7c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::lower_bound` · 0054ec80 · legions 0052b810 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::upper_bound` · 0054ecf0 · legions 0052b880 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gALMultiMap
-- [ ] `gALMultiMap::CallEFun_clear` · 0054ed60
-- [ ] `gALMultiMap::CallEFun_erase` · 0054ede0
-- [ ] `gALMultiMap::CallEFun_find` · 0054ee70
-- [ ] `gALMultiMap::CallEFun_find_last` · 0054eef0
-- [ ] `gALMultiMap::CallEFun_get_begin` · 0054ef70
-- [ ] `gALMultiMap::CallEFun_get_end` · 0054eff0
-- [ ] `gALMultiMap::CallEFun_lower_bound` · 0054f070
-- [ ] `gALMultiMap::CallEFun_upper_bound` · 0054f0f0
+- [x] `gALMultiMap::CallEFun_clear` · 0054ed60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_erase` · 0054ede0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_find` · 0054ee70 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_find_last` · 0054eef0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_get_begin` · 0054ef70 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_get_end` · 0054eff0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_lower_bound` · 0054f070 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_upper_bound` · 0054f0f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiMap<unsigned_long,unsigned___int64,13972>
-- [ ] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::insert` · 0054f170 · legions 0052bbe0
+- [x] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::insert` · 0054f170 · legions 0052bbe0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gALMultiMap
-- [ ] `gALMultiMap::CallEFun_insert` · 0054f1d0
-- [ ] `gALMultiMap::CallEFun_remove` · 0054f230
+- [x] `gALMultiMap::CallEFun_insert` · 0054f1d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_remove` · 0054f230 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/galmultimapiter.cpp.c` (0/5)
+## `portal/shared/src/interp/glue/galmultimapiter.cpp.c` (5/5)
 
 ### gALMultiMapIter
-- [ ] `gALMultiMapIter::CallEFun_data` · 0054e640
-- [ ] `gALMultiMapIter::CallEFun_equals` · 0054e6b0
-- [ ] `gALMultiMapIter::CallEFun_key` · 0054e740
-- [ ] `gALMultiMapIter::CallEFun_next` · 0054e7b0
-- [ ] `gALMultiMapIter::CallEFun_prev` · 0054e850
+- [x] `gALMultiMapIter::CallEFun_data` · 0054e640 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMapIter::CallEFun_equals` · 0054e6b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMapIter::CallEFun_key` · 0054e740 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMapIter::CallEFun_next` · 0054e7b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMapIter::CallEFun_prev` · 0054e850 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ## `portal/shared/src/interp/glue/gappearancetableadaptor.cpp.c` (0/5)
 
@@ -1382,35 +1382,35 @@ Legend and workflow: [README](README.md).
 - [x] `gARHashIter::CallEFun_notdone` · 00560f70 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 - [x] `gARHashIter::CallEFun_remove` · 00560fe0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/garmultihash.cpp.c` (0/14)
+## `portal/shared/src/interp/glue/garmultihash.cpp.c` (14/14)
 
 ### gARMultiHash
-- [ ] `gARMultiHash::CallEFun_empty` · 005604c0
-- [ ] `gARMultiHash::CallEFun_size` · 00560530
-- [ ] `gARMultiHash::CallEFun_count` · 00560650
+- [x] `gARMultiHash::CallEFun_empty` · 005604c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_size` · 00560530 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_count` · 00560650 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiHash<unsigned_long,unsigned_long,20>
-- [ ] `BaseMultiHash<unsigned_long,unsigned_long,20>::find` · 00560830 · legions 00534a80
-- [ ] `BaseMultiHash<unsigned_long,unsigned_long,20>::find_last` · 005608b0 · legions 00534b00
-- [ ] `BaseMultiHash<unsigned_long,unsigned_long,20>::get_begin` · 00560910 · legions 00534b60
+- [x] `BaseMultiHash<unsigned_long,unsigned_long,20>::find` · 00560830 · legions 00534a80 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned_long,unsigned_long,20>::find_last` · 005608b0 · legions 00534b00 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned_long,unsigned_long,20>::get_begin` · 00560910 · legions 00534b60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gARMultiHash
-- [ ] `gARMultiHash::CallEFun_clear` · 00560970
-- [ ] `gARMultiHash::CallEFun_erase` · 005609d0
-- [ ] `gARMultiHash::CallEFun_find` · 00560a50
-- [ ] `gARMultiHash::CallEFun_find_last` · 00560ad0
-- [ ] `gARMultiHash::CallEFun_get_begin` · 00560b50
-- [ ] `gARMultiHash::CallEFun_get_end` · 00560bd0
-- [ ] `gARMultiHash::CallEFun_remove` · 00560c90
-- [ ] `gARMultiHash::CallEFun_add` · 00560d10
+- [x] `gARMultiHash::CallEFun_clear` · 00560970 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_erase` · 005609d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_find` · 00560a50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_find_last` · 00560ad0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_get_begin` · 00560b50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_get_end` · 00560bd0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_remove` · 00560c90 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_add` · 00560d10 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/garmultihashiter.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/garmultihashiter.cpp.c` (4/4)
 
 ### gARMultiHashIter
-- [ ] `gARMultiHashIter::CallEFun_data` · 005602f0
-- [ ] `gARMultiHashIter::CallEFun_equals` · 00560360
-- [ ] `gARMultiHashIter::CallEFun_key` · 005603e0
-- [ ] `gARMultiHashIter::CallEFun_next` · 00560450
+- [x] `gARMultiHashIter::CallEFun_data` · 005602f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHashIter::CallEFun_equals` · 00560360 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHashIter::CallEFun_key` · 005603e0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHashIter::CallEFun_next` · 00560450 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ## `portal/shared/src/interp/glue/gbaseproperty.cpp.c` (0/33)
 
@@ -1937,72 +1937,72 @@ Legend and workflow: [README](README.md).
 - [x] `gLAHashSetIter::CallEFun_next` · 00551460 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 - [x] `gLAHashSetIter::CallEFun_remove` · 005514c0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/glamultihash.cpp.c` (0/13)
+## `portal/shared/src/interp/glue/glamultihash.cpp.c` (13/13)
 
 ### gLAMultiHash
-- [ ] `gLAMultiHash::CallEFun_size` · 0055ebb0
-- [ ] `gLAMultiHash::CallEFun_count` · 0055ec20
+- [x] `gLAMultiHash::CallEFun_size` · 0055ebb0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_count` · 0055ec20 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiHash<unsigned___int64,unsigned_long,53>
-- [ ] `BaseMultiHash<unsigned___int64,unsigned_long,53>::find` · 0055ecb0 · legions 00533a70
-- [ ] `BaseMultiHash<unsigned___int64,unsigned_long,53>::find_last` · 0055ed40 · legions 00533b00
-- [ ] `BaseMultiHash<unsigned___int64,unsigned_long,53>::get_begin` · 0055eda0 · legions 00533b60
+- [x] `BaseMultiHash<unsigned___int64,unsigned_long,53>::find` · 0055ecb0 · legions 00533a70 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned___int64,unsigned_long,53>::find_last` · 0055ed40 · legions 00533b00 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned___int64,unsigned_long,53>::get_begin` · 0055eda0 · legions 00533b60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gLAMultiHash
-- [ ] `gLAMultiHash::CallEFun_clear` · 0055ee00
-- [ ] `gLAMultiHash::CallEFun_erase` · 0055ee60
-- [ ] `gLAMultiHash::CallEFun_find` · 0055eee0
-- [ ] `gLAMultiHash::CallEFun_find_last` · 0055ef60
-- [ ] `gLAMultiHash::CallEFun_get_begin` · 0055efe0
-- [ ] `gLAMultiHash::CallEFun_get_end` · 0055f060
-- [ ] `gLAMultiHash::CallEFun_remove` · 0055f120
-- [ ] `gLAMultiHash::CallEFun_add` · 0055f1b0
+- [x] `gLAMultiHash::CallEFun_clear` · 0055ee00 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_erase` · 0055ee60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_find` · 0055eee0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_find_last` · 0055ef60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_get_begin` · 0055efe0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_get_end` · 0055f060 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_remove` · 0055f120 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_add` · 0055f1b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/glamultihashiter.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/glamultihashiter.cpp.c` (4/4)
 
 ### gLAMultiHashIter
-- [ ] `gLAMultiHashIter::CallEFun_data` · 0055e9e0
-- [ ] `gLAMultiHashIter::CallEFun_equals` · 0055ea50
-- [ ] `gLAMultiHashIter::CallEFun_key` · 0055ead0
-- [ ] `gLAMultiHashIter::CallEFun_next` · 0055eb40
+- [x] `gLAMultiHashIter::CallEFun_data` · 0055e9e0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHashIter::CallEFun_equals` · 0055ea50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHashIter::CallEFun_key` · 0055ead0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHashIter::CallEFun_next` · 0055eb40 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/glamultimap.cpp.c` (0/18)
+## `portal/shared/src/interp/glue/glamultimap.cpp.c` (18/18)
 
 ### gLAMultiMap
-- [ ] `gLAMultiMap::CallEFun_empty` · 0054dbf0
-- [ ] `gLAMultiMap::CallEFun_count` · 0054dcf0
+- [x] `gLAMultiMap::CallEFun_empty` · 0054dbf0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_count` · 0054dcf0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiMap<unsigned___int64,unsigned_long,13974>
-- [ ] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::find` · 0054def0 · legions 0052af90
-- [ ] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::find_last` · 0054df50 · legions 0052aff0
-- [ ] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::get_begin` · 0054dfb0 · legions 0052b050
-- [ ] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::get_end` · 0054e000 · legions 0052b0a0
-- [ ] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::lower_bound` · 0054e050 · legions 0052b0f0
-- [ ] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::upper_bound` · 0054e0b0 · legions 0052b150
+- [x] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::find` · 0054def0 · legions 0052af90 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::find_last` · 0054df50 · legions 0052aff0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::get_begin` · 0054dfb0 · legions 0052b050 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::get_end` · 0054e000 · legions 0052b0a0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::lower_bound` · 0054e050 · legions 0052b0f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::upper_bound` · 0054e0b0 · legions 0052b150 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gLAMultiMap
-- [ ] `gLAMultiMap::CallEFun_clear` · 0054e130
-- [ ] `gLAMultiMap::CallEFun_erase` · 0054e1b0
-- [ ] `gLAMultiMap::CallEFun_find` · 0054e240
-- [ ] `gLAMultiMap::CallEFun_find_last` · 0054e2c0
-- [ ] `gLAMultiMap::CallEFun_get_begin` · 0054e340
-- [ ] `gLAMultiMap::CallEFun_get_end` · 0054e3c0
-- [ ] `gLAMultiMap::CallEFun_lower_bound` · 0054e440
-- [ ] `gLAMultiMap::CallEFun_upper_bound` · 0054e4c0
-- [ ] `gLAMultiMap::CallEFun_insert` · 0054e540
-- [ ] `gLAMultiMap::CallEFun_remove` · 0054e5c0
+- [x] `gLAMultiMap::CallEFun_clear` · 0054e130 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_erase` · 0054e1b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_find` · 0054e240 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_find_last` · 0054e2c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_get_begin` · 0054e340 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_get_end` · 0054e3c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_lower_bound` · 0054e440 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_upper_bound` · 0054e4c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_insert` · 0054e540 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_remove` · 0054e5c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/glamultimapiter.cpp.c` (0/6)
+## `portal/shared/src/interp/glue/glamultimapiter.cpp.c` (5/6)
 
 ### _STL::_Rb_tree_iterator<_STL::pair<ActionWithModifiers_const_,ActionMapValue>,_STL::_Nonconst_traits<_STL::pair<ActionWithModifiers_const_,ActionMapValue>_>_>
 - [ ] `_STL::_Rb_tree_iterator<_STL::pair<ActionWithModifiers_const_,ActionMapValue>,_STL::_Nonconst_traits<_STL::pair<ActionWithModifiers_const_,ActionMapValue>_>_>::operator--` · 0054d8e0 · legions 0060f180
 
 ### gLAMultiMapIter
-- [ ] `gLAMultiMapIter::CallEFun_data` · 0054d930
-- [ ] `gLAMultiMapIter::CallEFun_equals` · 0054d9a0
-- [ ] `gLAMultiMapIter::CallEFun_key` · 0054da30
-- [ ] `gLAMultiMapIter::CallEFun_next` · 0054daa0
-- [ ] `gLAMultiMapIter::CallEFun_prev` · 0054db40
+- [x] `gLAMultiMapIter::CallEFun_data` · 0054d930 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMapIter::CallEFun_equals` · 0054d9a0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMapIter::CallEFun_key` · 0054da30 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMapIter::CallEFun_next` · 0054daa0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMapIter::CallEFun_prev` · 0054db40 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ## `portal/shared/src/interp/glue/glanddefs.cpp.c` (0/3)
 
@@ -2167,74 +2167,74 @@ Legend and workflow: [README](README.md).
 - [~] `gLListIter::CallEFun_insert` · 0055b2d0 — ac2-script glue::lists: iterators hold an index, not a node
 - [~] `gLListIter::CallEFun_remove` · 0055b390 — ac2-script glue::lists: iterators hold an index, not a node
 
-## `portal/shared/src/interp/glue/gllmultihash.cpp.c` (0/14)
+## `portal/shared/src/interp/glue/gllmultihash.cpp.c` (14/14)
 
 ### gLLMultiHash
-- [ ] `gLLMultiHash::CallEFun_size` · 0055a8d0
-- [ ] `gLLMultiHash::CallEFun_count` · 0055aa60
+- [x] `gLLMultiHash::CallEFun_size` · 0055a8d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHash::CallEFun_count` · 0055aa60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiHash<unsigned___int64,unsigned___int64,62>
-- [ ] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::find` · 0055aaf0 · legions 00531ac0
-- [ ] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::find_last` · 0055ab80 · legions 00531b50
-- [ ] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::get_begin` · 0055abe0 · legions 00531bb0
+- [x] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::find` · 0055aaf0 · legions 00531ac0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::find_last` · 0055ab80 · legions 00531b50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::get_begin` · 0055abe0 · legions 00531bb0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gLLMultiHash
-- [ ] `gLLMultiHash::CallEFun_clear` · 0055ac40
-- [ ] `gLLMultiHash::CallEFun_erase` · 0055aca0
-- [ ] `gLLMultiHash::CallEFun_find` · 0055ad20
-- [ ] `gLLMultiHash::CallEFun_find_last` · 0055ada0
-- [ ] `gLLMultiHash::CallEFun_get_begin` · 0055ae20
-- [ ] `gLLMultiHash::CallEFun_get_end` · 0055aea0
-- [ ] `gLLMultiHash::CallEFun_remove` · 0055af60
+- [x] `gLLMultiHash::CallEFun_clear` · 0055ac40 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHash::CallEFun_erase` · 0055aca0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHash::CallEFun_find` · 0055ad20 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHash::CallEFun_find_last` · 0055ada0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHash::CallEFun_get_begin` · 0055ae20 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHash::CallEFun_get_end` · 0055aea0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHash::CallEFun_remove` · 0055af60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiHash<unsigned___int64,unsigned___int64,62>
-- [ ] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::add` · 0055aff0 · legions 00531db0
+- [x] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::add` · 0055aff0 · legions 00531db0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gLLMultiHash
-- [ ] `gLLMultiHash::CallEFun_add` · 0055b040
+- [x] `gLLMultiHash::CallEFun_add` · 0055b040 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gllmultihashiter.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/gllmultihashiter.cpp.c` (4/4)
 
 ### gLLMultiHashIter
-- [ ] `gLLMultiHashIter::CallEFun_data` · 0055a700
-- [ ] `gLLMultiHashIter::CallEFun_equals` · 0055a770
-- [ ] `gLLMultiHashIter::CallEFun_key` · 0055a7f0
-- [ ] `gLLMultiHashIter::CallEFun_next` · 0055a860
+- [x] `gLLMultiHashIter::CallEFun_data` · 0055a700 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHashIter::CallEFun_equals` · 0055a770 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHashIter::CallEFun_key` · 0055a7f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHashIter::CallEFun_next` · 0055a860 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gllmultimap.cpp.c` (0/18)
+## `portal/shared/src/interp/glue/gllmultimap.cpp.c` (18/18)
 
 ### gLLMultiMap
-- [ ] `gLLMultiMap::CallEFun_empty` · 0054cf10
-- [ ] `gLLMultiMap::CallEFun_count` · 0054cf80
+- [x] `gLLMultiMap::CallEFun_empty` · 0054cf10 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_count` · 0054cf80 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiMap<unsigned___int64,unsigned___int64,13976>
-- [ ] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::find` · 0054d180 · legions 0052a680
-- [ ] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::find_last` · 0054d1e0 · legions 0052a6e0
-- [ ] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::get_begin` · 0054d240 · legions 0052a740
-- [ ] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::get_end` · 0054d290 · legions 0052a790
-- [ ] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::lower_bound` · 0054d2e0 · legions 0052a7e0
-- [ ] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::upper_bound` · 0054d340 · legions 0052a840
+- [x] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::find` · 0054d180 · legions 0052a680 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::find_last` · 0054d1e0 · legions 0052a6e0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::get_begin` · 0054d240 · legions 0052a740 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::get_end` · 0054d290 · legions 0052a790 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::lower_bound` · 0054d2e0 · legions 0052a7e0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::upper_bound` · 0054d340 · legions 0052a840 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gLLMultiMap
-- [ ] `gLLMultiMap::CallEFun_clear` · 0054d3c0
-- [ ] `gLLMultiMap::CallEFun_erase` · 0054d440
-- [ ] `gLLMultiMap::CallEFun_find` · 0054d4d0
-- [ ] `gLLMultiMap::CallEFun_find_last` · 0054d550
-- [ ] `gLLMultiMap::CallEFun_get_begin` · 0054d5d0
-- [ ] `gLLMultiMap::CallEFun_get_end` · 0054d650
-- [ ] `gLLMultiMap::CallEFun_lower_bound` · 0054d6d0
-- [ ] `gLLMultiMap::CallEFun_upper_bound` · 0054d750
-- [ ] `gLLMultiMap::CallEFun_insert` · 0054d7d0
-- [ ] `gLLMultiMap::CallEFun_remove` · 0054d860
+- [x] `gLLMultiMap::CallEFun_clear` · 0054d3c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_erase` · 0054d440 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_find` · 0054d4d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_find_last` · 0054d550 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_get_begin` · 0054d5d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_get_end` · 0054d650 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_lower_bound` · 0054d6d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_upper_bound` · 0054d750 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_insert` · 0054d7d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_remove` · 0054d860 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gllmultimapiter.cpp.c` (0/5)
+## `portal/shared/src/interp/glue/gllmultimapiter.cpp.c` (5/5)
 
 ### gLLMultiMapIter
-- [ ] `gLLMultiMapIter::CallEFun_data` · 0054cc40
-- [ ] `gLLMultiMapIter::CallEFun_equals` · 0054ccb0
-- [ ] `gLLMultiMapIter::CallEFun_key` · 0054cd40
-- [ ] `gLLMultiMapIter::CallEFun_next` · 0054cdb0
-- [ ] `gLLMultiMapIter::CallEFun_prev` · 0054ce50
+- [x] `gLLMultiMapIter::CallEFun_data` · 0054cc40 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMapIter::CallEFun_equals` · 0054ccb0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMapIter::CallEFun_key` · 0054cd40 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMapIter::CallEFun_next` · 0054cdb0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMapIter::CallEFun_prev` · 0054ce50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ## `portal/shared/src/interp/glue/glosparameters.cpp.c` (2/18)
 
@@ -2298,34 +2298,34 @@ Legend and workflow: [README](README.md).
 - [x] `gLRHashIter::CallEFun_next` · 005599b0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 - [x] `gLRHashIter::CallEFun_remove` · 00559a10 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/glrmultihash.cpp.c` (0/13)
+## `portal/shared/src/interp/glue/glrmultihash.cpp.c` (13/13)
 
 ### gLRMultiHash
-- [ ] `gLRMultiHash::CallEFun_size` · 00558fe0
-- [ ] `gLRMultiHash::CallEFun_count` · 00559050
+- [x] `gLRMultiHash::CallEFun_size` · 00558fe0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_count` · 00559050 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiHash<unsigned___int64,unsigned_long,67>
-- [ ] `BaseMultiHash<unsigned___int64,unsigned_long,67>::find` · 00559240 · legions 00530fc0
-- [ ] `BaseMultiHash<unsigned___int64,unsigned_long,67>::find_last` · 005592d0 · legions 00531050
-- [ ] `BaseMultiHash<unsigned___int64,unsigned_long,67>::get_begin` · 00559330 · legions 005310b0
+- [x] `BaseMultiHash<unsigned___int64,unsigned_long,67>::find` · 00559240 · legions 00530fc0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned___int64,unsigned_long,67>::find_last` · 005592d0 · legions 00531050 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned___int64,unsigned_long,67>::get_begin` · 00559330 · legions 005310b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gLRMultiHash
-- [ ] `gLRMultiHash::CallEFun_clear` · 00559390
-- [ ] `gLRMultiHash::CallEFun_erase` · 005593f0
-- [ ] `gLRMultiHash::CallEFun_find` · 00559470
-- [ ] `gLRMultiHash::CallEFun_find_last` · 005594f0
-- [ ] `gLRMultiHash::CallEFun_get_begin` · 00559570
-- [ ] `gLRMultiHash::CallEFun_get_end` · 005595f0
-- [ ] `gLRMultiHash::CallEFun_remove` · 005596b0
-- [ ] `gLRMultiHash::CallEFun_add` · 00559740
+- [x] `gLRMultiHash::CallEFun_clear` · 00559390 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_erase` · 005593f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_find` · 00559470 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_find_last` · 005594f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_get_begin` · 00559570 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_get_end` · 005595f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_remove` · 005596b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_add` · 00559740 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/glrmultihashiter.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/glrmultihashiter.cpp.c` (4/4)
 
 ### gLRMultiHashIter
-- [ ] `gLRMultiHashIter::CallEFun_data` · 00558e10
-- [ ] `gLRMultiHashIter::CallEFun_equals` · 00558e80
-- [ ] `gLRMultiHashIter::CallEFun_key` · 00558f00
-- [ ] `gLRMultiHashIter::CallEFun_next` · 00558f70
+- [x] `gLRMultiHashIter::CallEFun_data` · 00558e10 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHashIter::CallEFun_equals` · 00558e80 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHashIter::CallEFun_key` · 00558f00 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHashIter::CallEFun_next` · 00558f70 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ## `portal/shared/src/interp/glue/gmath.cpp.c` (16/28)
 

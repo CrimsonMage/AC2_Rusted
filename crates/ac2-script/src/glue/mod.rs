@@ -19,6 +19,7 @@ mod hashes;
 mod lists;
 mod math;
 mod missile;
+mod multi;
 mod random;
 mod string_info;
 mod string_text;
@@ -49,6 +50,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     behavior::register(efuns);
     missile::register(efuns);
     math::register(efuns);
+    multi::register(efuns);
 }
 
 /// The retail glue function behind efun `id` (`gAAHash::CallEFun_add`).

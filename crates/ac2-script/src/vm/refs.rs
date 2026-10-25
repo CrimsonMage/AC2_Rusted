@@ -355,6 +355,14 @@ pub fn native_references(
             }
         }
         NativeObject::HashIter { hash, .. } => visit(hash),
+        NativeObject::MultiIter { container, .. } => visit(container),
+        NativeObject::MultiHash(hash) if matches!(native_type, 0x13 | 0x42) => {
+            for node in hash.nodes_mut() {
+                let mut r = node.value as u32;
+                visit(&mut r);
+                node.value = u64::from(r);
+            }
+        }
         NativeObject::ListIter { list, .. } => visit(list),
         _ => {}
     }
