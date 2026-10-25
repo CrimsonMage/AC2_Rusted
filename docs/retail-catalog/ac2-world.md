@@ -21,7 +21,7 @@ Legend and workflow: [README](README.md).
 - [ ] `BBox::DoesOverlap` · 0047f280 · legions 00479290
 
 ### RGBAColor
-- [x] `RGBAColor::GetColor32` · 0047f3c0 · legions 004793d0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+- [x] `RGBAColor::GetColor32` · 0047f3c0 · legions 004793d0 — ac2-ui tree_view.rs
 - [x] `RGBAColor::SetColor32` · 0047f410 · legions 00479420
 - [x] `RGBAColor::CapLow` · 0047f4b0 · legions 004794c0
 - [x] `RGBAColor::CapHigh` · 0047f500 · legions 00479510

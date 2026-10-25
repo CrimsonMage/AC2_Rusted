@@ -31,6 +31,7 @@ mod text_data;
 mod text_edit;
 mod token;
 mod toolbar;
+mod tree_view;
 
 pub use camera_ui::{CameraUi, CameraUiEffect};
 pub use chat::{
@@ -82,3 +83,5 @@ mod mouse_tests;
 mod real_data_tests;
 #[cfg(test)]
 mod text_tests;
+#[cfg(test)]
+mod tree_tests;

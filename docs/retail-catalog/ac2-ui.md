@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 145 done, 102 partial, 1983 to do, 17 skipped.
+2247 retail functions: 168 done, 104 partial, 1958 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -2696,16 +2696,16 @@ Legend and workflow: [README](README.md).
 - [ ] `UIPersistantData::InqGenerationResultTable` · 005fe4c0
 - [ ] `UIPersistantData::UIPersistantData` · 005fe640 · legions 005bf120
 
-## `portal/client/src/uielement/prim/node.cpp.c` (0/7)
+## `portal/client/src/uielement/prim/node.cpp.c` (7/7)
 
 ### UIElement_Node
-- [ ] `UIElement_Node::GetToken` · 00735760 · legions 006b1460
-- [ ] `UIElement_Node::GetConnection` · 00735770 · legions 006b1470
-- [ ] `UIElement_Node::GetChildLines` · 007358c0 · legions 006b1560
-- [ ] `UIElement_Node::UIElement_Node` · 00735a60 · legions 006b1700
-- [ ] `UIElement_Node::~UIElement_Node` · 00735a90 · legions 006b1730
-- [ ] `UIElement_Node::AddParent` · 00735c00 · legions 006b18a0
-- [ ] `UIElement_Node::AddChild` · 00735c30 · legions 006b18d0
+- [x] `UIElement_Node::GetToken` · 00735760 · legions 006b1460 — ac2-ui tree_view.rs
+- [x] `UIElement_Node::GetConnection` · 00735770 · legions 006b1470 — ac2-ui tree_view.rs
+- [x] `UIElement_Node::GetChildLines` · 007358c0 · legions 006b1560 — ac2-ui tree_view.rs
+- [x] `UIElement_Node::UIElement_Node` · 00735a60 · legions 006b1700 — ac2-ui tree_view.rs
+- [x] `UIElement_Node::~UIElement_Node` · 00735a90 · legions 006b1730 — ac2-ui tree_view.rs
+- [x] `UIElement_Node::AddParent` · 00735c00 · legions 006b18a0 — ac2-ui tree_view.rs
+- [x] `UIElement_Node::AddChild` · 00735c30 · legions 006b18d0 — ac2-ui tree_view.rs
 
 ## `portal/client/src/uielement/prim/uiregion.cpp.c` (5/31)
 
@@ -3401,11 +3401,11 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Scrollbar::ListenToMessage` · 005fb400 · legions 005bbf30
 - [ ] `UIElement_Scrollbar::Register` · 005fb4c0 · legions 005bbff0
 
-## `portal/client/src/uielement/types/uielement_tree.cpp.c` (0/39)
+## `portal/client/src/uielement/types/uielement_tree.cpp.c` (16/39)
 
 ### UIElement_Tree
-- [ ] `UIElement_Tree::CalculatePaperDimen` · 005f5d90 · legions 005b68c0
-- [ ] `UIElement_Tree::MultiOpStart` · 005f5e20 · legions 005b6950
+- [x] `UIElement_Tree::CalculatePaperDimen` · 005f5d90 · legions 005b68c0 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::MultiOpStart` · 005f5e20 · legions 005b6950 — ac2-ui tree_view.rs
 - [ ] `UIElement_Tree::DrawMeBotToTop` · 005f5e30 · legions 005b6960
 - [ ] `UIElement_Tree::GetPercentageV` · 005f5e50 · legions 005b6980
 - [ ] `UIElement_Tree::GetPercentageH` · 005f5ee0 · legions 005b6a10
@@ -3417,27 +3417,27 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Tree::VerticalLineIncrement` · 005f6100 · legions 005b6c30
 - [ ] `UIElement_Tree::HorizontalLineDecrement` · 005f6150 · legions 005b6c80
 - [ ] `UIElement_Tree::HorizontalLineIncrement` · 005f6190 · legions 005b6cc0
-- [ ] `UIElement_Tree::End` · 005f61e0 · legions 005b6d10
-- [ ] `UIElement_Tree::DrawLine` · 005f6270 · legions 005b6da0
-- [ ] `UIElement_Tree::GetNodeInGrid` · 005f6410 · legions 005b6f40
-- [ ] `UIElement_Tree::StaticLayoutUpdate` · 005f6450 · legions 005b6f80
-- [ ] `UIElement_Tree::GridLayoutUpdate` · 005f6500 · legions 005b7030
+- [x] `UIElement_Tree::End` · 005f61e0 · legions 005b6d10 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::DrawLine` · 005f6270 · legions 005b6da0 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::GetNodeInGrid` · 005f6410 · legions 005b6f40 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::StaticLayoutUpdate` · 005f6450 · legions 005b6f80 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::GridLayoutUpdate` · 005f6500 · legions 005b7030 — ac2-ui tree_view.rs
 - [ ] `UIElement_Tree::UpdateControls` · 005f65f0 · legions 005b7120
 - [ ] `UIElement_Tree::ListenToMessage` · 005f6a50 · legions 005b7580
-- [ ] `UIElement_Tree::DrawDone` · 005f6d10 · legions 005b7840
-- [ ] `UIElement_Tree::GetItem` · 005f6f50 · legions 005b7a80
+- [x] `UIElement_Tree::DrawDone` · 005f6d10 · legions 005b7840 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::GetItem` · 005f6f50 · legions 005b7a80 — ac2-ui tree_view.rs
 - [ ] `UIElement_Tree::SetAttribute_ID` · 005f6f70 · legions 005b7aa0
-- [ ] `UIElement_Tree::AddGridNode` · 005f70d0 · legions 005b7c00
-- [ ] `UIElement_Tree::IsOccupied` · 005f71f0 · legions 005b7d20
-- [ ] `UIElement_Tree::UpdateLayout` · 005f7220 · legions 005b7d50
+- [x] `UIElement_Tree::AddGridNode` · 005f70d0 · legions 005b7c00 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::IsOccupied` · 005f71f0 · legions 005b7d20 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::UpdateLayout` · 005f7220 · legions 005b7d50 — ac2-ui tree_view.rs
 - [ ] `UIElement_Tree::SetSelectedItem` · 005f73e0 · legions 005b7f10
-- [ ] `UIElement_Tree::SetItemsParent` · 005f74f0 · legions 005b8020
-- [ ] `UIElement_Tree::MultiOpComplete` · 005f7590 · legions 005b80c0
-- [ ] `UIElement_Tree::AddItem` · 005f75c0 · legions 005b80f0
-- [ ] `UIElement_Tree::FlushTree` · 005f76e0 · legions 005b8210
+- [x] `UIElement_Tree::SetItemsParent` · 005f74f0 · legions 005b8020 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::MultiOpComplete` · 005f7590 · legions 005b80c0 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::AddItem` · 005f75c0 · legions 005b80f0 — ac2-ui tree_view.rs
+- [x] `UIElement_Tree::FlushTree` · 005f76e0 · legions 005b8210 — ac2-ui tree_view.rs
 - [ ] `UIElement_Tree::~UIElement_Tree` · 005f7830 · legions 005b8360
-- [ ] `UIElement_Tree::SetAttribute_Bool` · 005f7b40 · legions 005b8670
-- [ ] `UIElement_Tree::SetAttribute_Int` · 005f7b90 · legions 005b86c0
+- [~] `UIElement_Tree::SetAttribute_Bool` · 005f7b40 · legions 005b8670 — ac2-ui tree_view.rs: view via tree_end/flush only
+- [~] `UIElement_Tree::SetAttribute_Int` · 005f7b90 · legions 005b86c0 — ac2-ui tree_view.rs: view via tree_end/flush only
 - [ ] `UIElement_Tree::MouseDown` · 005f7c50 · legions 005b8780
 - [ ] `UIElement_Tree::SetState` · 005f7dd0 · legions 005b8900
 - [ ] `UIElement_Tree::UIElement_Tree` · 005f7f30 · legions 005b8a60

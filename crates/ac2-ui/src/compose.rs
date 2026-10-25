@@ -199,6 +199,22 @@ impl UiTree {
         for &child in el.children.iter().rev() {
             self.draw_here(child, (me.x0, me.y0), clip, images, surface);
         }
+        // `UIElement_Tree::DrawDone`: the connections over the items.
+        if el.tree.is_some() {
+            let (segments, color) = self.tree_segments(index);
+            for (from, to) in segments {
+                let at = |p: (i32, i32)| (p.0 + me.x0, p.1 + me.y0);
+                let width = surface.width as usize;
+                crate::tree_view::draw_line(
+                    &mut surface.rgba,
+                    width,
+                    clip,
+                    at(from),
+                    at(to),
+                    color,
+                );
+            }
+        }
     }
 
     /// Every visible root drawn into its own surface, in the order they go over the scene

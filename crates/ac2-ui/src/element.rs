@@ -90,6 +90,8 @@ pub struct UiElement {
     pub(crate) attributes: HashMap<u32, AttributeValue>,
     /// `UIElement_Text`'s state, for text elements.
     pub(crate) text: Option<Box<TextState>>,
+    /// `UIElement_Tree`'s state, once items are added.
+    pub(crate) tree: Option<Box<crate::tree_view::TreeState>>,
     /// `m_mouseOver`, `m_mouseOverTop`, `m_mouseVisible` and the buttons pressed on the element
     /// (`m_mouseDownTable`).
     pub(crate) mouse_over: bool,
@@ -294,7 +296,7 @@ impl UiTree {
     }
 
     /// Frees an element and its descendants (`AddElementToDeleteQueue`).
-    fn delete(&mut self, index: usize) {
+    pub(crate) fn delete(&mut self, index: usize) {
         let children = std::mem::take(&mut self.el_mut(index).children);
         for child in children {
             self.delete(child);
@@ -337,6 +339,7 @@ impl UiTree {
             alpha_value: -1.0,
             attributes: HashMap::new(),
             text,
+            tree: None,
             mouse_over: false,
             mouse_over_top: false,
             mouse_visible: true,
