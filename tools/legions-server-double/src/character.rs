@@ -20,6 +20,11 @@ pub struct Character {
     pub hero_credits: u32,
     /// Skill enum, trained, experience spent.
     pub skills: Vec<(u32, bool, u64)>,
+    /// Long qualities 300 (`TotalXP`) and 301 (`AvailableXP`), int 0x12E (`Level`), as the
+    /// double last sent them.
+    pub total_xp: u64,
+    pub available_xp: u64,
+    pub level: i32,
 }
 
 impl Default for Character {
@@ -28,6 +33,9 @@ impl Default for Character {
             credits: 2,
             hero_credits: 0,
             skills: vec![(MELEE_AUTO_ATTACK, true, 0), (MELEE_ATTACK, true, 0)],
+            total_xp: 0,
+            available_xp: 0,
+            level: 1,
         }
     }
 }
@@ -132,5 +140,35 @@ pub fn default_options() -> GameplayOptionsProfile {
         which_shortcut_set: 0,
         shortcut_height: 1,
         ..GameplayOptionsProfile::default()
+    }
+}
+
+impl crate::State {
+    fn send_private(&mut self, quality: u32, value: ac2_net::protocol::QualityValue) {
+        self.send_quality(&ac2_net::protocol::QualityUpdate {
+            object: None,
+            quality,
+            value,
+        });
+    }
+
+    /// The server grants experience: `TotalXP` (long 300) and `AvailableXP` (long 301) go up
+    /// by `amount`, each a private quality update (`CPlayer` 0x85 hears both: the XP bar, the
+    /// skill panel).
+    pub fn grant_xp(&mut self, amount: u64) {
+        use ac2_net::protocol::QualityValue::LongInt;
+        let c = &mut self.script_world.character;
+        c.total_xp += amount;
+        c.available_xp += amount;
+        let (total, available) = (c.total_xp as i64, c.available_xp as i64);
+        self.send_private(300, LongInt(total));
+        self.send_private(301, LongInt(available));
+    }
+
+    /// The server raises the player's level (int 0x12E, `CPlayer` 0x85: the XP bar against
+    /// the new level's range).
+    pub fn set_level(&mut self, level: i32) {
+        self.script_world.character.level = level;
+        self.send_private(0x12E, ac2_net::protocol::QualityValue::Int(level));
     }
 }

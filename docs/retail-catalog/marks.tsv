@@ -1649,6 +1649,7 @@ key	status	note
 0052e150	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 0052e5b0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 0052e620	_	ac2-script host::interface
+0052e660	x	ac2-client stat_changed: OnStatChanged (IFun 0x7F0044: table, quality) on the object's process once the VM has it (CPlayer 0x85: vitals, XP bar, vitae, skill panel); the session's stand-ins otherwise
 0052e6a0	_	
 0052e7b0	_	ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)
 0052e7c0	_	ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)

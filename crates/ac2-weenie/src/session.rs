@@ -76,6 +76,12 @@ pub struct WorldEntry {
     pub visual: Option<u32>,
 }
 
+/// `CWInterface::OnStatChanged`'s IFun (`gCWInterface::CallIFun_OnStatChanged`: the table
+/// code, the quality; `CPlayer` 0x85, `CItem` 0x3): once handed to the script VM
+/// (`set_script_functions`), a quality update's stand-ins (vitals, item updates, the skill
+/// panel) stay quiet and the caller runs it on the object's process.
+pub const IFUN_ON_STAT_CHANGED: u32 = 0x007F_0044;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum SessionEvent {
     Connected,
@@ -616,12 +622,16 @@ impl OnlineSession {
                         table,
                         quality: update.quality,
                     });
-                    if Some(object) == self.world.player() {
-                        out.extend(self.player_quality_changed(table, update.quality));
-                    }
-                    out.extend(self.item_quality_changed(object, table, update.quality));
-                    if Some(object) == self.world.player() {
-                        out.extend(self.progress_quality_changed(table, update.quality));
+                    // `CWInterface::OnStatChanged`'s stand-ins, unless the script VM runs it.
+                    if !self.script_functions.contains(&IFUN_ON_STAT_CHANGED) {
+                        let player = Some(object) == self.world.player();
+                        if player {
+                            out.extend(self.player_quality_changed(table, update.quality));
+                        }
+                        out.extend(self.item_quality_changed(object, table, update.quality));
+                        if player {
+                            out.extend(self.progress_quality_changed(table, update.quality));
+                        }
                     }
                 }
             }

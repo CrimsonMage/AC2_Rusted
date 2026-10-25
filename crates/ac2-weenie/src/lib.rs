@@ -50,7 +50,9 @@ pub use progress::{
 };
 pub use qualities::WeenieQualities;
 pub use reporter::{heading_equals, BodyState, PositionReporter, ReportStamps};
-pub use session::{CharacterChoice, OnlineConfig, OnlineSession, SessionEvent, WorldEntry};
+pub use session::{
+    CharacterChoice, OnlineConfig, OnlineSession, SessionEvent, WorldEntry, IFUN_ON_STAT_CHANGED,
+};
 pub use shell::{
     handler as chat_handler, ChatCommands, ChatHistory, ChatState, ShellAction, Speaker,
     COMMAND_TABLE_ENUM, DEFAULT_COMMAND, EMOTE_TABLE_PACKAGE, HELP_STRINGS, REGISTERED_COMMANDS,

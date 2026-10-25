@@ -36,6 +36,8 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_SET_SELECTION,
     IFUN_REQUEST_ATTACK_STATE_CHANGE,
     IFUN_SET_WHICH_SHORTCUT_SET,
+    // `CWInterface::OnStatChanged` (a quality update: vitals, the XP bar, the skill panel).
+    ac2_weenie::IFUN_ON_STAT_CHANGED,
     // `WM_Combat` 0x1B -> `CPlayer` 0x2 (`SendNotice_UpdateAttackState`).
     0x8204_001B,
     // The fellowship and allegiance actions (`ac2_weenie::SocialRequest::ifun`).
@@ -228,7 +230,14 @@ impl Client {
         for event in events.iter() {
             match event {
                 SessionEvent::ObjectAdded(id) => self.request_script(*id),
-                SessionEvent::QualityChanged { object, .. } => self.share_qualities(*object),
+                SessionEvent::QualityChanged {
+                    object,
+                    table,
+                    quality,
+                } => {
+                    self.share_qualities(*object);
+                    self.stat_changed(*object, *table, *quality, &mut produced);
+                }
                 SessionEvent::PlayerQualities(_) => {
                     if let Some(player) = self.session.player() {
                         self.share_qualities(player);
@@ -273,6 +282,26 @@ impl Client {
         if let Some(object) = self.session.objects().get(id) {
             scripts.host.set_qualities(id, object.qualities.clone());
         }
+    }
+
+    /// `CWRepository::RecvEvt_Update*_Private` -> `CWInterface::OnStatChanged`: once the VM
+    /// has the call, the object's script hears which quality changed (`CPlayer` 0x85: the
+    /// vitals, the XP bar, the skill panel; `CItem` 0x3: the item update).
+    fn stat_changed(&mut self, id: u64, table: u32, quality: u32, out: &mut Vec<SessionEvent>) {
+        let function = ac2_weenie::IFUN_ON_STAT_CHANGED;
+        let Some(scripts) = self.scripts.as_mut() else {
+            return;
+        };
+        if !scripts.owned.contains(&function) || !scripts.running.contains(&id) {
+            return;
+        }
+        let args = [IFunArg::Int(table), IFunArg::Int(quality)];
+        let result = scripts
+            .host
+            .call_ifun(id, function, &args)
+            .map(|r| r.outcome)
+            .map_err(|e| format!("{e:?}"));
+        self.script_outcome(id, None, result, out);
     }
 
     /// Whether the UI's IFun (or server call) `function` is the script VM's.
