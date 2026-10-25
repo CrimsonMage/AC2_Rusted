@@ -446,6 +446,7 @@ key	status	note
 00450c60	_	ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
 00450de0	_	ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 00450e00	_	ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
+00450e60	~	ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
 00450ea0	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 00450ed0	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 00450f00	~	ItemStats::max_stack: int 261; InventoryGlobals slot-5 default only through the VM
@@ -534,6 +535,7 @@ key	status	note
 0045ae80	x	ac2-weenie ItemStats::preferred_location (Item 0x26: int 282), valid_locations (275), precluded_locations (283)
 0045b800	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045b960	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045ccc0	~	ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
 0045e180	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045e450	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045e7f0	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
@@ -3589,6 +3591,9 @@ key	status	note
 00607a90	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 00607ae0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 00607b10	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+00607d20	x	ac2-net EffectUiNode (StreamPack field order, is_pulsed, Default = Clear's -1 times)
+00607de0	x	ac2-net EffectUiNode (StreamPack field order, is_pulsed, Default = Clear's -1 times)
+00607f50	x	ac2-net EffectUiNode (StreamPack field order, is_pulsed, Default = Clear's -1 times)
 00607fd0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00608040	x	ac2-script glue::shortcut / native::shortcut
 006080b0	x	ac2-script glue::options / examination (Legions layout and efun switch)

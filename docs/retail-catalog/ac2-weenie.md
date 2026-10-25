@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 68 done, 7 partial, 1823 to do, 6 skipped.
+1904 retail functions: 68 done, 9 partial, 1821 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -736,7 +736,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_InqCraftSkillCategoryName` · 0045c7c0 · legions 0045d410
 - [ ] `ggmCWInterface::CallIFun_InqCraftSkillLevel` · 0045c950 · legions 0045d5a0
 - [ ] `ggmCWInterface::CallIFun_InqCraftSkillList` · 0045cb20 · legions 0045d770
-- [ ] `ggmCWInterface::CallIFun_InqEffectList` · 0045ccc0 · legions 0045d910
+- [~] `ggmCWInterface::CallIFun_InqEffectList` · 0045ccc0 · legions 0045d910 — ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
 - [ ] `ggmCWInterface::CallIFun_InqNextReplyHistoryItem` · 0045ce60 · legions 0045dab0
 - [ ] `ggmCWInterface::CallIFun_InqNextRetellHistoryItem` · 0045d000 · legions 0045dc50
 - [ ] `ggmCWInterface::CallIFun_InqPrevReplyHistoryItem` · 0045d1a0 · legions 0045ddf0
@@ -1022,7 +1022,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::Result_IgnoredAdd` · 00450de0 · legions 00451f20 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 - [ ] `gmCWInterface::Result_IgnoredDelete` · 00450e00 · legions 00451f40 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 - [ ] `gmCWInterface::Result_CallCreate` · 00450e20 · legions 00451f60
-- [ ] `gmCWInterface::InqEffectList` · 00450e60 · legions 00451fa0
+- [~] `gmCWInterface::InqEffectList` · 00450e60 · legions 00451fa0 — ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
 - [x] `gmCWInterface::GetStackable` · 00450ea0 · legions 00451fe0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [x] `gmCWInterface::GetQuantity` · 00450ed0 · legions 00452010 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [~] `gmCWInterface::GetMaxStackSize` · 00450f00 · legions 00452040 — ItemStats::max_stack: int 261; InventoryGlobals slot-5 default only through the VM

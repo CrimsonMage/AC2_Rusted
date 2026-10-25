@@ -24,6 +24,7 @@ const GET_MAX_DURABILITY_LEVEL: u32 = 0x00B4_0102;
 const GET_DURABILITY_LEVEL: u32 = 0x00B4_0103;
 const GET_CONTENTS_INFO: u32 = 0x00B4_00ED;
 const GET_CONTAINER_SEGMENT_INFO: u32 = 0x00B4_00EE;
+const INQ_EFFECT_LIST: u32 = 0x00B4_0062;
 
 /// One item as `ItemDisplay` shows it.
 #[derive(Debug, Clone, PartialEq)]
@@ -166,6 +167,40 @@ impl Client {
             IFunReturn::Word,
         )?;
         Ok((result.out_word(0), result.out_word(1)))
+    }
+
+    /// `gmCWInterface::InqEffectList` (`ggmCWInterface::CallIFun_InqEffectList`: an empty
+    /// `RList` out parameter; `CPlayer` 0x52 -> `CEffectSystem` 0x7 builds an `EffectUINode`
+    /// for each top-level effect in the player's `EffectRegistry`): the status bar's effects,
+    /// in the registry's order.
+    pub fn effect_list(&mut self) -> Result<Vec<crate::EffectNode>, String> {
+        let empty = NativeObject::List(ScriptList {
+            native_type: ntype::R_LIST,
+            items: Vec::new(),
+        });
+        let result = self.query(
+            INQ_EFFECT_LIST,
+            &[IFunArg::Out(OutValue::Native(empty))],
+            IFunReturn::Word,
+        )?;
+        let refs = match result.out_native(0) {
+            Some(NativeObject::List(list)) => list.items.clone(),
+            other => return Err(format!("InqEffectList left {other:?}")),
+        };
+        let host = self.scripts.as_ref().ok_or("no script VM")?.host.vm();
+        refs.iter()
+            .map(|r| {
+                let object = host.refs.heap(*r as u32).map_err(|e| format!("{e:?}"))?;
+                let native = object
+                    .native
+                    .as_ref()
+                    .ok_or("an effect node with no native")?;
+                match native_for_wire(object.native_type, native) {
+                    Some(NativeObject::EffectUiNode(node)) => Ok(*node),
+                    other => Err(format!("effect list entry {other:?}")),
+                }
+            })
+            .collect()
     }
 
     /// The `StringInfo` a script returned by reference.

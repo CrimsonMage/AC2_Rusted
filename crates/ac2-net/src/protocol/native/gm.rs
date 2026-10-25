@@ -197,6 +197,60 @@ impl SkillUiNode {
     }
 }
 
+/// `EffectUINode::StreamPack` (admin 0x00607F50): the effect's id, its flags (1 enabled, 2
+/// toggled, 4 pulsed: `EffectUINode::IsPulsed`), name and description (`wpstring`s), icon, then
+/// the duration and the time it was cast (doubles; `EffectUINode::Clear` leaves both -1).
+#[derive(Debug, Clone, PartialEq)]
+pub struct EffectUiNode {
+    pub eid: u32,
+    pub flags: u32,
+    pub name: String,
+    pub desc: String,
+    pub icon: u32,
+    pub duration: f64,
+    pub time_cast: f64,
+}
+
+impl Default for EffectUiNode {
+    /// `EffectUINode::Clear`.
+    fn default() -> Self {
+        Self {
+            eid: 0,
+            flags: 0,
+            name: String::new(),
+            desc: String::new(),
+            icon: 0,
+            duration: -1.0,
+            time_cast: -1.0,
+        }
+    }
+}
+
+impl EffectUiNode {
+    /// `EffectUINode::IsPulsed`.
+    pub fn is_pulsed(&self) -> bool {
+        self.flags & 4 != 0
+    }
+
+    pub(super) fn read(r: &mut Reader<'_>) -> Result<Self, ProtocolError> {
+        Ok(Self {
+            eid: r.u32()?,
+            flags: r.u32()?,
+            name: r.wide_string()?,
+            desc: r.wide_string()?,
+            icon: r.u32()?,
+            duration: r.f64()?,
+            time_cast: r.f64()?,
+        })
+    }
+
+    pub(super) fn write(&self, w: &mut Writer) {
+        w.u32(self.eid).u32(self.flags);
+        w.wide_string(&self.name).wide_string(&self.desc);
+        w.u32(self.icon).f64(self.duration).f64(self.time_cast);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::super::NativeObject;
@@ -270,5 +324,28 @@ mod tests {
             }],
         };
         round_trip(NativeObject::GmSceneInfo(Box::new(scene)));
+    }
+
+    #[test]
+    fn effect_nodes_pack_eid_flags_texts_icon_and_times() {
+        let node = EffectUiNode {
+            eid: 7,
+            flags: 5,
+            icon: 0x0600_0002,
+            duration: 30.0,
+            ..EffectUiNode::default()
+        };
+        assert!(node.is_pulsed());
+        let mut expected = words(&[7, 5]);
+        let mut w = Writer::new();
+        w.wide_string("").wide_string("");
+        expected.extend(w.bytes);
+        expected.extend(words(&[0x0600_0002]));
+        expected.extend(30.0f64.to_le_bytes());
+        expected.extend((-1.0f64).to_le_bytes());
+        assert_eq!(
+            round_trip(NativeObject::EffectUiNode(Box::new(node))),
+            expected
+        );
     }
 }

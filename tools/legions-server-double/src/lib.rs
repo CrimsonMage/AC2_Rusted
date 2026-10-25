@@ -9,6 +9,7 @@ mod appearance;
 mod assembly;
 mod channel;
 mod character;
+mod effects;
 mod items;
 mod lossy;
 mod objects;
@@ -24,6 +25,7 @@ pub use appearance::{
 pub use assembly::{fragment_header_bytes, Assembler};
 pub use channel::{Channel, ChannelStats, Conditions, Direction, InFlight, SplitMix};
 pub use character::{default_options, Character, MELEE_ATTACK, MELEE_AUTO_ATTACK, RACE_HUMAN};
+pub use effects::{effect_registry, EffectGrant, EFFECT_PULSED, EFFECT_TIMED};
 pub use items::{
     item_object_bytes, segments, starter_items, ItemSpawn, MAIN_PACK_CAPACITY, PACK, POTIONS,
     PRIMARY_HAND, RATIONS, SECONDARY_HAND, STARTER_MONEY, SWORD,

@@ -34,6 +34,8 @@ pub struct ScriptWorld {
     /// Containers' slots, for the segment each listing carries (12, `gmEntity` 0xC's
     /// default, for one not here).
     pub capacities: std::collections::BTreeMap<u64, u32>,
+    /// The effects on the player, carried by the login message (`WM_Player` 0x27 argument 6).
+    pub effects: Vec<crate::EffectGrant>,
     /// The options profile `WM_Player` 0x27 carries (argument 4: shortcuts and the rest);
     /// `None`: [`crate::default_options`].
     pub options: Option<ac2_net::protocol::GameplayOptionsProfile>,
@@ -350,6 +352,9 @@ impl State {
         args[3] = PackValue::native(ac2_net::protocol::NativeObject::GameplayOptionsProfile(
             Box::new(options),
         ));
+        // Argument 6: the effect registry (`CEffectSystem` 0x2; `gmEntity` 0x12B makes one only
+        // for a null slot, so it always comes).
+        args[5] = PackValue::Reference(crate::effect_registry(&self.script_world.effects));
         // Arguments 7-9: the equipment (`CInventorySystem` 0x6); 10-12: the player's contents
         // (`CInventorySystem` 0x1A).
         let equipment = Equipment::from_locations(&self.script_world.equipped);
