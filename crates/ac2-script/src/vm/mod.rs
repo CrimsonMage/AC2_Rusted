@@ -86,10 +86,33 @@ pub type StateRef = Box<dyn Deref<Target = WState>>;
 
 /// What the VM and its glue read from the DATs, served by the host from the ac2-db cache
 /// (decoded on worker threads; the VM never reads files).
+/// A DAT read a cache-only [`ScriptData`] could not make on the calling thread.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum DataRequest {
+    WState(u32),
+    EnumMapper(u32),
+    EnumIdMap(u32),
+    StringTable(u32),
+    /// The `PlacesTable` (resolved through the enum tables).
+    PlacesTable,
+}
+
 pub trait ScriptData {
     /// Saved script states by WState DID (`DBObj::Get` in `FillPackage` and
     /// `AllocatePackage`).
     fn wstate(&self, did: u32) -> Option<StateRef>;
+
+    /// Whether a lookup missed since the last call (the data was not resident and is now
+    /// requested); clears the flag. The efun that missed waits and runs again once the host
+    /// loaded what [`ScriptData::take_requests`] listed.
+    fn take_missed(&self) -> bool {
+        false
+    }
+
+    /// The reads lookups missed since the last call, for a worker thread.
+    fn take_requests(&self) -> Vec<DataRequest> {
+        Vec::new()
+    }
 
     /// `FileArray::GetDID(name, db_type)`: a data file's DID by name (the `DBFile2IDTable`).
     fn file_did(&self, _name: &[u8], _db_type: u32) -> Option<u32> {
@@ -118,6 +141,11 @@ pub trait ScriptData {
 
     /// An `EnumIDMap` (`DB_TYPE_DID_MAPPER`).
     fn enum_id_map(&self, _did: u32) -> Option<Box<dyn Deref<Target = EnumIdMap>>> {
+        None
+    }
+
+    /// The `PlacesTable` (`DBObj::GetByEnum(PlacesTable_UniqueDBID, UNIQUEDB_GROUP_ENUM)`).
+    fn places_table(&self) -> Option<Box<dyn Deref<Target = crate::data::PlacesTable>>> {
         None
     }
 
@@ -192,6 +220,10 @@ pub struct Vm {
     pub owners: std::collections::HashMap<u32, u64>,
     /// `CObjectMaint::GetPlayerID` (0 before the player exists).
     pub player: u64,
+    /// Each weenie's qualities (`CWRepository::m_qualities`), by object id.
+    pub repositories: std::collections::HashMap<u64, ac2_weenie::WeenieQualities>,
+    /// The chat services `gmCWInterface::RequestGUN_*` can reach.
+    pub chat: crate::host::ChatServices,
     /// `Random`: retail has one generator for the whole client; a host that runs other
     /// consumers of it on the same stream shares its state through this field.
     pub random: ac2_core::Random,
@@ -235,6 +267,8 @@ impl Vm {
             outbox: Default::default(),
             owners: Default::default(),
             player: 0,
+            repositories: Default::default(),
+            chat: Default::default(),
         }
     }
 
@@ -245,6 +279,12 @@ impl Vm {
 
     /// `VM::Execute` (no debugger, no timers): runs `ctx` until it stops.
     pub fn execute(&mut self, ctx: &mut Context) -> InterpStatus {
+        if ctx.efun != 0 {
+            match self.resume_efun(ctx) {
+                InterpStatus::Success => {}
+                status => return status,
+            }
+        }
         self.exec(ctx)
     }
 

@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 58 done, 8 partial, 424 to do, 9 skipped.
+499 retail functions: 95 done, 10 partial, 385 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
@@ -24,18 +24,18 @@ Legend and workflow: [README](README.md).
 - [ ] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060ca40 · legions 005cd840
 - [ ] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060caf0 · legions 005cd8f0
 
-## `ac2/shared/src/character/gameplayoptionsprofile.cpp.c` (8/57)
+## `ac2/shared/src/character/gameplayoptionsprofile.cpp.c` (35/57)
 
 ### PFileNode
 - [ ] `PFileNode::MakeSubNodeAsBool` · 005fe6a0 · legions 005bf180
 
 ### GameplayOptionsProfile
-- [ ] `GameplayOptionsProfile::SetShortcutHeight` · 005fe700 · legions 005bf1e0
-- [ ] `GameplayOptionsProfile::GetShortcutHeight` · 005fe710 · legions 005bf1f0
-- [ ] `GameplayOptionsProfile::SetUISaveLocations` · 005fe720 · legions 005bf200
-- [ ] `GameplayOptionsProfile::InqUISaveLocations` · 005fe730 · legions 005bf210
-- [ ] `GameplayOptionsProfile::TestBitMask` · 005fe750 · legions 005bf230
-- [ ] `GameplayOptionsProfile::SetBitMask` · 005fe760 · legions 005bf240
+- [x] `GameplayOptionsProfile::SetShortcutHeight` · 005fe700 · legions 005bf1e0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::GetShortcutHeight` · 005fe710 · legions 005bf1f0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::SetUISaveLocations` · 005fe720 · legions 005bf200 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::InqUISaveLocations` · 005fe730 · legions 005bf210 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::TestBitMask` · 005fe750 · legions 005bf230 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::SetBitMask` · 005fe760 · legions 005bf240 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `GameplayOptionsProfile::SetShortcut` · 005fe7a0 · legions 005bf280 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
 
 ### SmartArray<ShortcutInfo>
@@ -45,8 +45,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PFileNode::MakeSubNode` · 005fe840
 
 ### GameplayOptionsProfile
-- [ ] `GameplayOptionsProfile::SetShortcutArray` · 005fe860 · legions 005bf320
-- [ ] `GameplayOptionsProfile::InqShortcutArray` · 005fe890 · legions 005bf350
+- [x] `GameplayOptionsProfile::SetShortcutArray` · 005fe860 · legions 005bf320 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::InqShortcutArray` · 005fe890 · legions 005bf350 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [ ] `GameplayOptionsProfile::ShortcutsFromFileNode` · 005fe8c0 · legions 005bf380
 - [ ] `GameplayOptionsProfile::DamageTextToFileNode` · 005fe920 · legions 005bf3e0
 - [ ] `GameplayOptionsProfile::DamageTextFromFileNode` · 005fe9e0 · legions 005bf4a0
@@ -57,45 +57,45 @@ Legend and workflow: [README](README.md).
 - [ ] `GameplayOptionsProfile::AutoTargetToFileNode` · 005fed10 · legions 005bf7d0
 - [ ] `GameplayOptionsProfile::AutoTargetFromFileNode` · 005fed30 · legions 005bf7f0
 - [ ] `GameplayOptionsProfile::ConfirmationSettingsFromFileNode` · 005fed90 · legions 005bf850
-- [ ] `GameplayOptionsProfile::GetPackBitfield` · 005fedf0 · legions 005bf8b0
-- [ ] `GameplayOptionsProfile::InqShortcut` · 005feec0 · legions 005bf990
+- [x] `GameplayOptionsProfile::GetPackBitfield` · 005fedf0 · legions 005bf8b0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::InqShortcut` · 005feec0 · legions 005bf990 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [ ] `GameplayOptionsProfile::AliasesToFileNode` · 005feef0 · legions 005bf9c0
-- [ ] `GameplayOptionsProfile::BuildAliasList` · 005ff090 · legions 005bfbc0
-- [ ] `GameplayOptionsProfile::InitShortcutArray` · 005ff140 · legions 005bfc70
+- [x] `GameplayOptionsProfile::BuildAliasList` · 005ff090 · legions 005bfbc0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::InitShortcutArray` · 005ff140 · legions 005bfc70 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `GameplayOptionsProfile::GetFilter` · 005ff1e0 · legions 005bfd10 — ac2-ui chat.rs / chat_window.rs
 - [x] `GameplayOptionsProfile::GetChatFontSize` · 005ff220 · legions 005bfda0 — ac2-ui chat.rs / chat_window.rs
 - [x] `GameplayOptionsProfile::GetChatFontColor` · 005ff270 — ac2-ui chat.rs / chat_window.rs
 - [x] `GameplayOptionsProfile::GetChatPopupFlag` · 005ff2c0 · legions 005bfdf0 — ac2-ui chat.rs / chat_window.rs
-- [ ] `GameplayOptionsProfile::InqWindowOpacity` · 005ff310 · legions 005bfe90
+- [~] `GameplayOptionsProfile::InqWindowOpacity` · 005ff310 · legions 005bfe90 — ac2-script native::options (ShortcutInfo keeps its packed datum only; unversioned profiles upgrade before packing; inner UI tables copied as is)
 - [-] `GameplayOptionsProfile::ToFileNode` · 005ff330 · legions 005bfeb0 — text source format (admin tools)
 - [ ] `GameplayOptionsProfile::Export` · 005ff400 · legions 005bff80
 - [x] `GameplayOptionsProfile::InqAlias` · 005ff630 · legions 005c01b0 — ac2-weenie shell::expand_aliases over the options profile's m_aliasTable (ChatState::login_options)
-- [ ] `GameplayOptionsProfile::FlushAliasTable` · 005ff6e0 · legions 005c0260
-- [ ] `GameplayOptionsProfile::RemoveAlias` · 005ff6f0 · legions 005c0270
-- [ ] `GameplayOptionsProfile::RemoveFilter` · 005ff710 · legions 005c0290
-- [ ] `GameplayOptionsProfile::SetFilter` · 005ff770 · legions 005c02f0
-- [ ] `GameplayOptionsProfile::SetChatFontSize` · 005ff790 · legions 005c04b0
-- [ ] `GameplayOptionsProfile::SetChatFontColor` · 005ff7b0 · legions 005c04d0
+- [x] `GameplayOptionsProfile::FlushAliasTable` · 005ff6e0 · legions 005c0260 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::RemoveAlias` · 005ff6f0 · legions 005c0270 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::RemoveFilter` · 005ff710 · legions 005c0290 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::SetFilter` · 005ff770 · legions 005c02f0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::SetChatFontSize` · 005ff790 · legions 005c04b0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::SetChatFontColor` · 005ff7b0 · legions 005c04d0 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `GameplayOptionsProfile::FlushChatFontOptions` · 005ff7d0 · legions 005c04f0 — ac2-ui chat.rs / chat_window.rs
-- [ ] `GameplayOptionsProfile::SetChatPopupFlag` · 005ffa20 · legions 005c07e0
-- [ ] `GameplayOptionsProfile::SetWindowOpacity` · 005ffa40 · legions 005c0870
+- [x] `GameplayOptionsProfile::SetChatPopupFlag` · 005ffa20 · legions 005c07e0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::SetWindowOpacity` · 005ffa40 · legions 005c0870 — ac2-script glue::options / examination (Legions layout and efun switch)
 
 ### HashTable<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>
 - [ ] `HashTable<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>::operator=` · 005ffa60 · legions 005c0890
 
 ### GameplayOptionsProfile
-- [~] `GameplayOptionsProfile::Clear` · 005ffc60 · legions 005c0a90 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
-- [ ] `GameplayOptionsProfile::SetAlias` · 005ffce0 · legions 005c0af0
-- [ ] `GameplayOptionsProfile::SetAliasTable` · 005ffd00 · legions 005c0b10
-- [ ] `GameplayOptionsProfile::InqAliasTable` · 005ffd10 · legions 005c0b20
-- [ ] `GameplayOptionsProfile::AddFilter` · 005ffd30 · legions 005c0b40
+- [x] `GameplayOptionsProfile::Clear` · 005ffc60 · legions 005c0a90 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::SetAlias` · 005ffce0 · legions 005c0af0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::SetAliasTable` · 005ffd00 · legions 005c0b10 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::InqAliasTable` · 005ffd10 · legions 005c0b20 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::AddFilter` · 005ffd30 · legions 005c0b40 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [ ] `GameplayOptionsProfile::AliasesFromFileNode` · 005ffd90 · legions 005c0ba0
 - [x] `GameplayOptionsProfile::StreamPack` · 006000b0 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 - [ ] `GameplayOptionsProfile::operator=` · 006004f0 · legions 005c1360
 - [-] `GameplayOptionsProfile::FromFileNode` · 006005c0 · legions 005c1440 — text source format (admin tools)
 - [ ] `GameplayOptionsProfile::Import` · 00600870 · legions 005c16f0
-- [ ] `GameplayOptionsProfile::GameplayOptionsProfile` · 006009e0 · legions 005c1860
-- [ ] `GameplayOptionsProfile::GameplayOptionsProfile` · 00600b40 · legions 005c19e0
+- [x] `GameplayOptionsProfile::GameplayOptionsProfile` · 006009e0 · legions 005c1860 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `GameplayOptionsProfile::GameplayOptionsProfile` · 00600b40 · legions 005c19e0 — ac2-script glue::options / examination (Legions layout and efun switch)
 
 ## `ac2/shared/src/character/gmchargenresult.cpp.c` (20/26)
 
@@ -131,11 +131,11 @@ Legend and workflow: [README](README.md).
 - [x] `gmCharGenResult::gmCharGenResult` · 00601470 · legions 005c2350 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmCharGenResult::gmCharGenResult` · 00601500 · legions 005c23e0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
-## `ac2/shared/src/character/gmracesexinfo.cpp.c` (5/8)
+## `ac2/shared/src/character/gmracesexinfo.cpp.c` (6/8)
 
 ### gmRaceSexInfo
 - [x] `gmRaceSexInfo::StreamPack` · 006015b0 · legions 005c2490 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
-- [ ] `gmRaceSexInfo::GetSubDataIDs` · 00601610 · legions 005c24f0
+- [x] `gmRaceSexInfo::GetSubDataIDs` · 00601610 · legions 005c24f0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 - [x] `gmRaceSexInfo::Verify` · 006016a0 · legions 005c2580 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmRaceSexInfo::PutObjInLoc` · 00601720 · legions 005c2600 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [ ] `gmRaceSexInfo::~gmRaceSexInfo` · 00601740 · legions 005c2620
@@ -267,12 +267,12 @@ Legend and workflow: [README](README.md).
 - [ ] `ExaminationRequest::ExaminationRequest` · 00609620 · legions 005c91c0
 - [x] `ExaminationRequest::StreamPack` · 00609660 — ac2-net ExaminationRequest: Legions 0x005C9210 layout (+3 words, type 0x4000000D)
 
-## `ac2/shared/src/examination/selectioninfo.cpp.c` (1/4)
+## `ac2/shared/src/examination/selectioninfo.cpp.c` (4/4)
 
 ### SelectionInfo
-- [ ] `SelectionInfo::operator==` · 00609700 · legions 005ca410
-- [ ] `SelectionInfo::SelectionInfo` · 00609760 · legions 005ca470
-- [ ] `SelectionInfo::SelectionInfo` · 00609780 · legions 005ca490
+- [x] `SelectionInfo::operator==` · 00609700 · legions 005ca410 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `SelectionInfo::SelectionInfo` · 00609760 · legions 005ca470 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `SelectionInfo::SelectionInfo` · 00609780 · legions 005ca490 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `SelectionInfo::StreamPack` · 006097c0 · legions 005ca4d0 — ac2-net protocol::native (native objects in script-call PackBuffers)
 
 ## `ac2/shared/src/fellowship/fellowadaptor.cpp.c` (0/2)
@@ -439,14 +439,14 @@ Legend and workflow: [README](README.md).
 ### UIShopSale
 - [ ] `UIShopSale::UIShopSale` · 0060cd80 · legions 005cdb80
 
-## `ac2/shared/src/shortcut/shortcutinfo.cpp.c` (1/6)
+## `ac2/shared/src/shortcut/shortcutinfo.cpp.c` (4/6)
 
 ### ShortcutInfo
-- [ ] `ShortcutInfo::Clear` · 00607fd0 · legions 005c8e70
-- [ ] `ShortcutInfo::operator=` · 00608040 · legions 005c8ee0
-- [ ] `ShortcutInfo::ShortcutInfo` · 006080b0 · legions 005c8f50
+- [x] `ShortcutInfo::Clear` · 00607fd0 · legions 005c8e70 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [~] `ShortcutInfo::operator=` · 00608040 · legions 005c8ee0 — ac2-script native::options (ShortcutInfo keeps its packed datum only; unversioned profiles upgrade before packing; inner UI tables copied as is)
+- [x] `ShortcutInfo::ShortcutInfo` · 006080b0 · legions 005c8f50 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [ ] `ShortcutInfo::~ShortcutInfo` · 006080e0 · legions 005c8f80
-- [ ] `ShortcutInfo::ShortcutInfo` · 00608120 · legions 005c8fc0
+- [x] `ShortcutInfo::ShortcutInfo` · 00608120 · legions 005c8fc0 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `ShortcutInfo::StreamPack` · 00608150 · legions 005c8ff0 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
 ## `ac2/shared/src/skilldisplay/skilluinode.cpp.c` (4/7)
@@ -768,20 +768,20 @@ Legend and workflow: [README](README.md).
 - [ ] `UILocationData::UILocationData` · 006da940 · legions 00663d80
 - [ ] `UILocationData::UILocationData` · 006da970 · legions 00663db0
 
-## `portal/shared/src/gameplay/uisavelocations.cpp.c` (0/8)
+## `portal/shared/src/gameplay/uisavelocations.cpp.c` (3/8)
 
 ### HashTable<unsigned_long,UILocationData>
 - [ ] `HashTable<unsigned_long,UILocationData>::operator=` · 006daa70 · legions 00663ee0
 
 ### UISaveLocations
 - [ ] `UISaveLocations::InqUILocationData` · 006dab60 · legions 00663fd0
-- [ ] `UISaveLocations::Clear` · 006dad20 · legions 00664190
+- [x] `UISaveLocations::Clear` · 006dad20 · legions 00664190 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [ ] `UISaveLocations::AddLocation` · 006dad30 · legions 006641a0
 
 ### HashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>
 - [ ] `HashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>::operator=` · 006dae20 · legions 00664290
 
 ### UISaveLocations
-- [ ] `UISaveLocations::UISaveLocations` · 006daf40 · legions 006643b0
-- [ ] `UISaveLocations::operator=` · 006daf80 · legions 006643f0
-- [ ] `UISaveLocations::UISaveLocations` · 006dafd0 · legions 00664440
+- [x] `UISaveLocations::UISaveLocations` · 006daf40 · legions 006643b0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [~] `UISaveLocations::operator=` · 006daf80 · legions 006643f0 — ac2-script native::options (ShortcutInfo keeps its packed datum only; unversioned profiles upgrade before packing; inner UI tables copied as is)
+- [x] `UISaveLocations::UISaveLocations` · 006dafd0 · legions 00664440 — ac2-script glue::options / examination (Legions layout and efun switch)

@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1124 done, 80 partial, 1186 to do, 78 skipped.
+2468 retail functions: 1240 done, 80 partial, 1070 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -123,23 +123,23 @@ Legend and workflow: [README](README.md).
 - [ ] `gExaminationProfile::CallEFun_ne` · 00478670
 - [ ] `gExaminationProfile::CallEFun_GetExaminationRequest` · 004786f0
 
-## `ac2/shared/src/interp/glue/gexaminationrequest.cpp.c` (0/12)
+## `ac2/shared/src/interp/glue/gexaminationrequest.cpp.c` (12/12)
 
 ### gExaminationRequest
-- [ ] `gExaminationRequest::CallEFun_SetAdmin` · 00477b40
-- [ ] `gExaminationRequest::CallEFun_SetDataEnum` · 00477ba0
-- [ ] `gExaminationRequest::CallEFun_SetDataID` · 00477c00
-- [ ] `gExaminationRequest::CallEFun_SetDataIID` · 00477c60
-- [ ] `gExaminationRequest::CallEFun_SetType` · 00477cc0
-- [ ] `gExaminationRequest::CallEFun_GetDataEnum` · 00477d20
-- [ ] `gExaminationRequest::CallEFun_GetDataID` · 00477d90
-- [ ] `gExaminationRequest::CallEFun_GetDataIID` · 00477e00
-- [ ] `gExaminationRequest::CallEFun_GetType` · 00477e70
-- [ ] `gExaminationRequest::CallEFun_IsAdmin` · 00477ee0
-- [ ] `gExaminationRequest::CallEFun_eq` · 00477f50
-- [ ] `gExaminationRequest::CallEFun_ne` · 00477fd0
+- [x] `gExaminationRequest::CallEFun_SetAdmin` · 00477b40 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gExaminationRequest::CallEFun_SetDataEnum` · 00477ba0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gExaminationRequest::CallEFun_SetDataID` · 00477c00 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gExaminationRequest::CallEFun_SetDataIID` · 00477c60 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gExaminationRequest::CallEFun_SetType` · 00477cc0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gExaminationRequest::CallEFun_GetDataEnum` · 00477d20 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gExaminationRequest::CallEFun_GetDataID` · 00477d90 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gExaminationRequest::CallEFun_GetDataIID` · 00477e00 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gExaminationRequest::CallEFun_GetType` · 00477e70 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gExaminationRequest::CallEFun_IsAdmin` · 00477ee0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gExaminationRequest::CallEFun_eq` · 00477f50 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gExaminationRequest::CallEFun_ne` · 00477fd0 — ac2-script glue::options / examination (Legions layout and efun switch)
 
-## `ac2/shared/src/interp/glue/ggameplayoptionsprofile.cpp.c` (1/83)
+## `ac2/shared/src/interp/glue/ggameplayoptionsprofile.cpp.c` (80/83)
 
 ### GameplayOptionsProfile
 - [ ] `GameplayOptionsProfile::SetShowDamageTextOther` · 00474770 · legions 00471870
@@ -148,91 +148,91 @@ Legend and workflow: [README](README.md).
 - [x] `ReferenceIDWrapper::StreamPack` · 00474780 · legions 00471880 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### gGameplayOptionsProfile
-- [ ] `gGameplayOptionsProfile::CallEFun_AddRadarMask` · 004747f0
-- [ ] `gGameplayOptionsProfile::CallEFun_FlushAliasTable` · 00474850
-- [ ] `gGameplayOptionsProfile::CallEFun_RemoveRadarMask` · 004748b0
-- [ ] `gGameplayOptionsProfile::CallEFun_SetAcceptAllegianceRequest` · 00474910
-- [ ] `gGameplayOptionsProfile::CallEFun_SetAcceptFellowshipRequest` · 00474970
-- [ ] `gGameplayOptionsProfile::CallEFun_SetAcceptTradeRequest` · 004749d0
-- [ ] `gGameplayOptionsProfile::CallEFun_SetAutoTarget` · 00474a30
-- [ ] `gGameplayOptionsProfile::CallEFun_SetBitfield` · 00474a90
-- [ ] `gGameplayOptionsProfile::CallEFun_SetBypassGoldMeltingConfirmationDlg` · 00474af0
-- [ ] `gGameplayOptionsProfile::CallEFun_SetDamageTextRangeOther` · 00474b50
-- [ ] `gGameplayOptionsProfile::CallEFun_SetLatencyIndicatorGraph` · 00474bb0
-- [ ] `gGameplayOptionsProfile::CallEFun_SetRadarMask` · 00474c10
-- [ ] `gGameplayOptionsProfile::CallEFun_SetShortcutHeight` · 00474c70
-- [ ] `gGameplayOptionsProfile::CallEFun_SetShortcutInstaScroll` · 00474cd0
-- [ ] `gGameplayOptionsProfile::CallEFun_SetShortcutLocked` · 00474d30
-- [ ] `gGameplayOptionsProfile::CallEFun_SetShowDamageText` · 00474d90
-- [ ] `gGameplayOptionsProfile::CallEFun_SetShowDamageTextOther` · 00474df0
-- [ ] `gGameplayOptionsProfile::CallEFun_SetShowFellowsOnMap` · 00474e50
-- [ ] `gGameplayOptionsProfile::CallEFun_SetShowObjectNames` · 00474ec0
-- [ ] `gGameplayOptionsProfile::CallEFun_SetShowPKDamage` · 00474f20
-- [ ] `gGameplayOptionsProfile::CallEFun_SetShowPetUI` · 00474f80
-- [ ] `gGameplayOptionsProfile::CallEFun_SetShowRadarCoords` · 00474ff0
-- [ ] `gGameplayOptionsProfile::CallEFun_SetShowShortcutNumbers` · 00475050
-- [ ] `gGameplayOptionsProfile::CallEFun_SetUISaveLocations` · 004750b0
-- [ ] `gGameplayOptionsProfile::CallEFun_SetWhichShortcutSet` · 00475110
-- [ ] `gGameplayOptionsProfile::CallEFun_AddFilter` · 00475220
+- [x] `gGameplayOptionsProfile::CallEFun_AddRadarMask` · 004747f0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_FlushAliasTable` · 00474850 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_RemoveRadarMask` · 004748b0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetAcceptAllegianceRequest` · 00474910 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetAcceptFellowshipRequest` · 00474970 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetAcceptTradeRequest` · 004749d0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetAutoTarget` · 00474a30 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetBitfield` · 00474a90 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetBypassGoldMeltingConfirmationDlg` · 00474af0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetDamageTextRangeOther` · 00474b50 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetLatencyIndicatorGraph` · 00474bb0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetRadarMask` · 00474c10 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetShortcutHeight` · 00474c70 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetShortcutInstaScroll` · 00474cd0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetShortcutLocked` · 00474d30 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetShowDamageText` · 00474d90 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetShowDamageTextOther` · 00474df0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetShowFellowsOnMap` · 00474e50 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetShowObjectNames` · 00474ec0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetShowPKDamage` · 00474f20 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetShowPetUI` · 00474f80 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetShowRadarCoords` · 00474ff0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetShowShortcutNumbers` · 00475050 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetUISaveLocations` · 004750b0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetWhichShortcutSet` · 00475110 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_AddFilter` · 00475220 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [ ] `gGameplayOptionsProfile::CallEFun_Export` · 004752a0
-- [ ] `gGameplayOptionsProfile::CallEFun_GetAcceptAllegianceRequest` · 00475320
-- [ ] `gGameplayOptionsProfile::CallEFun_GetAcceptFellowshipRequest` · 00475390
-- [ ] `gGameplayOptionsProfile::CallEFun_GetAcceptTradeRequest` · 00475410
-- [ ] `gGameplayOptionsProfile::CallEFun_GetAutoTarget` · 00475490
-- [ ] `gGameplayOptionsProfile::CallEFun_GetBitfield` · 00475500
-- [ ] `gGameplayOptionsProfile::CallEFun_GetBypassGoldMeltingConfirmationDlg` · 00475570
-- [ ] `gGameplayOptionsProfile::CallEFun_GetChatFontColor` · 004755f0
-- [ ] `gGameplayOptionsProfile::CallEFun_GetChatFontSize` · 00475670
-- [ ] `gGameplayOptionsProfile::CallEFun_GetChatPopupFlag` · 004756f0
-- [ ] `gGameplayOptionsProfile::CallEFun_GetDamageTextRangeOther` · 00475770
-- [ ] `gGameplayOptionsProfile::CallEFun_GetFilter` · 004757e0
-- [ ] `gGameplayOptionsProfile::CallEFun_GetLatencyIndicatorGraph` · 00475860
-- [ ] `gGameplayOptionsProfile::CallEFun_GetRadarMask` · 004758e0
-- [ ] `gGameplayOptionsProfile::CallEFun_GetShortcutHeight` · 00475950
-- [ ] `gGameplayOptionsProfile::CallEFun_GetShortcutInstaScroll` · 004759c0
-- [ ] `gGameplayOptionsProfile::CallEFun_GetShortcutLocked` · 00475a40
-- [ ] `gGameplayOptionsProfile::CallEFun_GetShowDamageText` · 00475ac0
-- [ ] `gGameplayOptionsProfile::CallEFun_GetShowDamageTextOther` · 00475b30
-- [ ] `gGameplayOptionsProfile::CallEFun_GetShowFellowsOnMap` · 00475ba0
-- [ ] `gGameplayOptionsProfile::CallEFun_GetShowObjectNames` · 00475c20
-- [ ] `gGameplayOptionsProfile::CallEFun_GetShowPKDamage` · 00475ca0
-- [ ] `gGameplayOptionsProfile::CallEFun_GetShowPetUI` · 00475d20
-- [ ] `gGameplayOptionsProfile::CallEFun_GetShowRadarCoords` · 00475da0
-- [ ] `gGameplayOptionsProfile::CallEFun_GetShowShortcutNumbers` · 00475e10
-- [ ] `gGameplayOptionsProfile::CallEFun_GetWhichShortcutSet` · 00475e80
+- [x] `gGameplayOptionsProfile::CallEFun_GetAcceptAllegianceRequest` · 00475320 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetAcceptFellowshipRequest` · 00475390 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetAcceptTradeRequest` · 00475410 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetAutoTarget` · 00475490 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetBitfield` · 00475500 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetBypassGoldMeltingConfirmationDlg` · 00475570 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetChatFontColor` · 004755f0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetChatFontSize` · 00475670 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetChatPopupFlag` · 004756f0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetDamageTextRangeOther` · 00475770 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetFilter` · 004757e0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetLatencyIndicatorGraph` · 00475860 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetRadarMask` · 004758e0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetShortcutHeight` · 00475950 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetShortcutInstaScroll` · 004759c0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetShortcutLocked` · 00475a40 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetShowDamageText` · 00475ac0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetShowDamageTextOther` · 00475b30 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetShowFellowsOnMap` · 00475ba0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetShowObjectNames` · 00475c20 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetShowPKDamage` · 00475ca0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetShowPetUI` · 00475d20 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetShowRadarCoords` · 00475da0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetShowShortcutNumbers` · 00475e10 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetWhichShortcutSet` · 00475e80 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [ ] `gGameplayOptionsProfile::CallEFun_Import` · 00475ef0
-- [ ] `gGameplayOptionsProfile::CallEFun_InitShortcutArray` · 00475f70
-- [ ] `gGameplayOptionsProfile::CallEFun_RemoveAlias` · 00475ff0
-- [ ] `gGameplayOptionsProfile::CallEFun_RemoveFilter` · 00476070
-- [ ] `gGameplayOptionsProfile::CallEFun_SetAlias` · 004760f0
-- [ ] `gGameplayOptionsProfile::CallEFun_SetChatFontColor` · 00476180
-- [ ] `gGameplayOptionsProfile::CallEFun_SetChatFontSize` · 00476210
-- [ ] `gGameplayOptionsProfile::CallEFun_SetChatPopupFlag` · 004762a0
-- [ ] `gGameplayOptionsProfile::CallEFun_SetFilter` · 00476330
-- [ ] `gGameplayOptionsProfile::CallEFun_SetShortcut` · 004763b0
-- [ ] `gGameplayOptionsProfile::CallEFun_SetWindowOpacity` · 00476430
+- [x] `gGameplayOptionsProfile::CallEFun_InitShortcutArray` · 00475f70 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_RemoveAlias` · 00475ff0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_RemoveFilter` · 00476070 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetAlias` · 004760f0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetChatFontColor` · 00476180 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetChatFontSize` · 00476210 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetChatPopupFlag` · 004762a0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetFilter` · 00476330 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetShortcut` · 004763b0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetWindowOpacity` · 00476430 — ac2-script glue::options / examination (Legions layout and efun switch)
 
 ### ggmCWInterface
-- [ ] `ggmCWInterface::RArrayToShortcutInfoArray` · 004766c0 · legions 00472db0
+- [x] `ggmCWInterface::RArrayToShortcutInfoArray` · 004766c0 · legions 00472db0 — ac2-script glue::options / examination (Legions layout and efun switch)
 
 ### gGameplayOptionsProfile
-- [ ] `gGameplayOptionsProfile::CallEFun_SetShortcutArray` · 00476920
-- [ ] `gGameplayOptionsProfile::AAHashToChatPopupFlags` · 00476a00 · legions 004730d0
-- [ ] `gGameplayOptionsProfile::NRHashToStrStrHash` · 00476af0 · legions 004731c0
-- [ ] `gGameplayOptionsProfile::ChatPopupFlagsToAAHash` · 00476b80 · legions 00473250
-- [ ] `gGameplayOptionsProfile::CallEFun_BuildAliasList` · 00476c70 · legions 00473340
-- [ ] `gGameplayOptionsProfile::StrStrHashToNRHash` · 00476d30 · legions 004733d0
-- [ ] `gGameplayOptionsProfile::CallEFun_SetAliasTable` · 00476e40
-- [ ] `gGameplayOptionsProfile::CallEFun_SetWindowOpacities` · 00476f20
-- [ ] `gGameplayOptionsProfile::CallEFun_SetChatOptions` · 00477000
-- [ ] `gGameplayOptionsProfile::CallEFun_GetChatOptions` · 00477280
-- [ ] `gGameplayOptionsProfile::CallEFun_GetUISaveLocations` · 004775b0
-- [ ] `gGameplayOptionsProfile::CallEFun_GetWindowOpacities` · 00477630
-- [ ] `gGameplayOptionsProfile::CallEFun_InqAlias` · 00477730 · legions 00473ea0
-- [ ] `gGameplayOptionsProfile::CallEFun_InqAliasTable` · 004777d0
-- [ ] `gGameplayOptionsProfile::CallEFun_InqShortcut` · 004778f0 · legions 00474010
-- [ ] `gGameplayOptionsProfile::CallEFun_InqShortcutArray` · 00477990
-- [ ] `gGameplayOptionsProfile::CallEFun_InqUISaveLocations` · 00477aa0
+- [x] `gGameplayOptionsProfile::CallEFun_SetShortcutArray` · 00476920 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::AAHashToChatPopupFlags` · 00476a00 · legions 004730d0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::NRHashToStrStrHash` · 00476af0 · legions 004731c0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::ChatPopupFlagsToAAHash` · 00476b80 · legions 00473250 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_BuildAliasList` · 00476c70 · legions 00473340 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::StrStrHashToNRHash` · 00476d30 · legions 004733d0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetAliasTable` · 00476e40 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetWindowOpacities` · 00476f20 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_SetChatOptions` · 00477000 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetChatOptions` · 00477280 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetUISaveLocations` · 004775b0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_GetWindowOpacities` · 00477630 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_InqAlias` · 00477730 · legions 00473ea0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_InqAliasTable` · 004777d0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_InqShortcut` · 004778f0 · legions 00474010 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_InqShortcutArray` · 00477990 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gGameplayOptionsProfile::CallEFun_InqUISaveLocations` · 00477aa0 — ac2-script glue::options / examination (Legions layout and efun switch)
 
 ## `ac2/shared/src/interp/glue/ggmactinfo.cpp.c` (0/4)
 
@@ -321,7 +321,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmQuestInfoList::CallEFun_UpdateQuestInfo` · 00472a00 · legions 004706c0
 - [ ] `ggmQuestInfoList::CallEFun_pop_head` · 00472ab0
 
-## `ac2/shared/src/interp/glue/ggmracesexinfo.cpp.c` (8/9)
+## `ac2/shared/src/interp/glue/ggmracesexinfo.cpp.c` (9/9)
 
 ### ggmRaceSexInfo
 - [x] `ggmRaceSexInfo::CallEFun_SetMusic` · 00472260 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -332,7 +332,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmRaceSexInfo::CallEFun_GetPileAppearance` · 00472460 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `ggmRaceSexInfo::CallEFun_PutObjInLoc` · 004724d0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `ggmRaceSexInfo::CallEFun_Verify` · 00472560 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-- [ ] `ggmRaceSexInfo::CallEFun_GetSubDataIDs` · 004725d0 · legions 004703b0
+- [x] `ggmRaceSexInfo::CallEFun_GetSubDataIDs` · 004725d0 · legions 004703b0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 
 ## `ac2/shared/src/interp/glue/ggmsceneinfo.cpp.c` (0/20)
 
@@ -426,25 +426,25 @@ Legend and workflow: [README](README.md).
 - [ ] `gRecipeAdaptor::CallEFun_GetDescription` · 004711b0
 - [ ] `gRecipeAdaptor::CallEFun_GetName` · 00471260
 
-## `ac2/shared/src/interp/glue/gselectioninfo.cpp.c` (0/16)
+## `ac2/shared/src/interp/glue/gselectioninfo.cpp.c` (15/16)
 
 ### gSelectionInfo
-- [ ] `gSelectionInfo::CallEFun_SetCurHealth` · 0046fe40
-- [ ] `gSelectionInfo::CallEFun_SetCurVigor` · 0046fea0
+- [x] `gSelectionInfo::CallEFun_SetCurHealth` · 0046fe40 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gSelectionInfo::CallEFun_SetCurVigor` · 0046fea0 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [ ] `gSelectionInfo::CallEFun_SetMaxHealth` · 0046ff00
-- [ ] `gSelectionInfo::CallEFun_SetMaxVigor` · 0046ff60
-- [ ] `gSelectionInfo::CallEFun_SetPKDamage` · 0046ffc0
-- [ ] `gSelectionInfo::CallEFun_SetPKVigorloss` · 00470020
-- [ ] `gSelectionInfo::CallEFun_SetType` · 00470080
-- [ ] `gSelectionInfo::CallEFun_GetCurHealth` · 004700e0
-- [ ] `gSelectionInfo::CallEFun_GetCurVigor` · 00470150
-- [ ] `gSelectionInfo::CallEFun_GetMaxHealth` · 004701c0
-- [ ] `gSelectionInfo::CallEFun_GetMaxVigor` · 00470230
-- [ ] `gSelectionInfo::CallEFun_GetPKDamage` · 004702a0
-- [ ] `gSelectionInfo::CallEFun_GetPKVigorloss` · 00470310
-- [ ] `gSelectionInfo::CallEFun_GetType` · 00470380
-- [ ] `gSelectionInfo::CallEFun_eq` · 004703f0
-- [ ] `gSelectionInfo::CallEFun_ne` · 00470470
+- [x] `gSelectionInfo::CallEFun_SetMaxVigor` · 0046ff60 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gSelectionInfo::CallEFun_SetPKDamage` · 0046ffc0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gSelectionInfo::CallEFun_SetPKVigorloss` · 00470020 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gSelectionInfo::CallEFun_SetType` · 00470080 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gSelectionInfo::CallEFun_GetCurHealth` · 004700e0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gSelectionInfo::CallEFun_GetCurVigor` · 00470150 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gSelectionInfo::CallEFun_GetMaxHealth` · 004701c0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gSelectionInfo::CallEFun_GetMaxVigor` · 00470230 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gSelectionInfo::CallEFun_GetPKDamage` · 004702a0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gSelectionInfo::CallEFun_GetPKVigorloss` · 00470310 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gSelectionInfo::CallEFun_GetType` · 00470380 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gSelectionInfo::CallEFun_eq` · 004703f0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `gSelectionInfo::CallEFun_ne` · 00470470 — ac2-script glue::options / examination (Legions layout and efun switch)
 
 ## `ac2/shared/src/interp/glue/gshortcutinfo.cpp.c` (0/10)
 
@@ -460,14 +460,14 @@ Legend and workflow: [README](README.md).
 - [ ] `gShortcutInfo::CallEFun_SetDataStr` · 0046fcf0
 - [ ] `gShortcutInfo::CallEFun_GetDataStr` · 0046fd70
 
-## `ac2/shared/src/interp/glue/gskillpanelmanager.cpp.c` (0/5)
+## `ac2/shared/src/interp/glue/gskillpanelmanager.cpp.c` (4/5)
 
 ### gSkillPanelManager
 - [ ] `gSkillPanelManager::SkillUINodeHashToARHash` · 0046d140 · legions 0046d8a0
-- [ ] `gSkillPanelManager::ARHashToSkillUINodeHash` · 0046d270 · legions 0046d9d0
-- [ ] `gSkillPanelManager::CallIFun_InqIcon` · 0046d380 · legions 0046dae0
-- [ ] `gSkillPanelManager::CallIFun_InqName` · 0046d510 · legions 0046dc70
-- [ ] `gSkillPanelManager::CallIFun_InqNodeHash` · 0046d6f0 · legions 0046de50
+- [x] `gSkillPanelManager::ARHashToSkillUINodeHash` · 0046d270 · legions 0046d9d0 — ac2-script host::skill_panel (ScriptHost::skill_panel)
+- [x] `gSkillPanelManager::CallIFun_InqIcon` · 0046d380 · legions 0046dae0 — ac2-script host::skill_panel (ScriptHost::skill_panel)
+- [x] `gSkillPanelManager::CallIFun_InqName` · 0046d510 · legions 0046dc70 — ac2-script host::skill_panel (ScriptHost::skill_panel)
+- [x] `gSkillPanelManager::CallIFun_InqNodeHash` · 0046d6f0 · legions 0046de50 — ac2-script host::skill_panel (ScriptHost::skill_panel)
 
 ## `ac2/shared/src/interp/glue/gskilluinode.cpp.c` (24/24)
 
@@ -2742,15 +2742,15 @@ Legend and workflow: [README](README.md).
 - [ ] `gPhysicsStory::CallEFun_SetSkillID` · 0053dc80
 - [ ] `gPhysicsStory::CallEFun_GetOverallAttackResult` · 0053dce0
 
-## `portal/shared/src/interp/glue/gplacestable.cpp.c` (0/6)
+## `portal/shared/src/interp/glue/gplacestable.cpp.c` (3/6)
 
 ### gPlacesTable
 - [ ] `gPlacesTable::NRHashToPlacesHash` · 0053d6a0 · legions 0051f480
 - [ ] `gPlacesTable::CallEFun_WslDump` · 0053d730
-- [ ] `gPlacesTable::PlacesHashToNRHash` · 0053d7b0 · legions 0051f590
-- [ ] `gPlacesTable::CallEFun_InqPlace` · 0053d8f0
+- [x] `gPlacesTable::PlacesHashToNRHash` · 0053d7b0 · legions 0051f590 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
+- [x] `gPlacesTable::CallEFun_InqPlace` · 0053d8f0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 - [ ] `gPlacesTable::CallEFun_InqPlaceStr` · 0053d960
-- [ ] `gPlacesTable::CallEFun_InqPlacesHash` · 0053d9d0
+- [x] `gPlacesTable::CallEFun_InqPlacesHash` · 0053d9d0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 
 ## `portal/shared/src/interp/glue/gplane.cpp.c` (0/4)
 
@@ -2858,10 +2858,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gPSUtils::CallEFun_remove_extensionW` · 0053af50
 - [ ] `gPSUtils::CallEFun_strip_directoryW` · 0053afb0
 
-## `portal/shared/src/interp/glue/gqualifieddataidarray.cpp.c` (0/1)
+## `portal/shared/src/interp/glue/gqualifieddataidarray.cpp.c` (1/1)
 
 ### gQualifiedDataIDArray
-- [ ] `gQualifiedDataIDArray::CallEFun_WslAddToEnd` · 0053aac0
+- [x] `gQualifiedDataIDArray::CallEFun_WslAddToEnd` · 0053aac0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 
 ## `portal/shared/src/interp/glue/grandom.cpp.c` (6/7)
 
@@ -3386,7 +3386,7 @@ Legend and workflow: [README](README.md).
 - [x] `Interp::HandleFBinLogicalOp_Long_O_L_FLTE` · 006e3b10 — ac2-script vm::arith
 - [x] `Interp::HandleFBinLogicalOp_Long_O_L_FGTE` · 006e3b80 — ac2-script vm::arith
 
-## `portal/shared/src/interp/interp_core.cpp.c` (28/31)
+## `portal/shared/src/interp/interp_core.cpp.c` (29/31)
 
 ### FileNodeName_Int32
 - [ ] `FileNodeName_Int32::GetType` · 006e3bf0 · legions 0066a360
@@ -3396,7 +3396,7 @@ Legend and workflow: [README](README.md).
 - [x] `Interp::HandlePopN` · 006e3c10 · legions 0066a380 — ac2-script vm::exec
 - [x] `Interp::HandlePopFrame` · 006e3c30 — ac2-script vm::exec
 - [x] `Interp::HandleCallStatic` · 006e3c70 — ac2-script vm::exec
-- [ ] `Interp::HandleCallEFun` · 006e3cc0
+- [x] `Interp::HandleCallEFun` · 006e3cc0 — ac2-script vm::efun (frame kept on Interrupted; m_efun runs again on resume)
 - [x] `Interp::HandleRJmp` · 006e3d40 — ac2-script vm::exec
 
 ### FileNodeName_Bool

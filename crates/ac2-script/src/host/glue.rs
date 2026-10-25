@@ -1,10 +1,9 @@
-//! Host glue: `gPackBuffer` (`PackBuffer`), `gCWInterface::SendServerEvt[Encrypt]` and the
-//! `gCM_*::SendNotice_*` notices the UI listens to.
+//! Host glue: `gPackBuffer` (`PackBuffer`), `gCWInterface::SendServerEvt[Encrypt]` and
+//! `ggmCObjMaint`'s player lookups.
 
 use std::collections::VecDeque;
 
-use ac2_net::protocol::{self as net, PackValue};
-use ac2_weenie::GameplayNotice;
+use ac2_net::protocol::PackValue;
 
 use super::ServerCall;
 use crate::glue::lists::{write_out, Kind};
@@ -38,13 +37,6 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x007F_0037, |vm, c| send_server_evt(vm, c, true));
     efuns.register(0x0095_0001, get_player_id);
     efuns.register(0x0095_0002, get_player_weenie_object_reference);
-    efuns.register(0x0085_0001, update_vital);
-    efuns.register(0x0085_0003, selection_changed);
-    efuns.register(0x0085_000B, update_selection_info);
-    efuns.register(0x0085_0012, update_hero_status);
-    efuns.register(0x0087_0001, display_string_info);
-    efuns.register(0x0089_0001, |vm, c| examination(vm, c, false));
-    efuns.register(0x0089_0002, |vm, c| examination(vm, c, true));
 }
 
 fn with_buffer<R>(
@@ -163,105 +155,6 @@ fn send_server_evt(vm: &mut Vm, ctx: &mut Context, encrypt: bool) -> InterpStatu
     }
     Call::new(ctx).ret(4, 1, INT_RESULT);
     InterpStatus::Success
-}
-
-/// The weenie object a notice is raised on (`obj`, a script instance its process owns).
-fn owner(vm: &Vm, reference: u32) -> u64 {
-    vm.owners.get(&reference).copied().unwrap_or(0)
-}
-
-fn wire_native(vm: &Vm, reference: u32) -> Option<net::NativeObject> {
-    let object = vm.refs.heap(reference).ok()?;
-    wire::native_to_net(object.native_type, object.native.as_ref()?).ok()
-}
-
-fn notice(
-    vm: &mut Vm,
-    ctx: &mut Context,
-    ret: usize,
-    n: Option<GameplayNotice>,
-    what: &str,
-) -> InterpStatus {
-    match n {
-        Some(n) => vm.outbox.notices.push(n),
-        None => vm
-            .outbox
-            .dropped
-            .push(format!("{what}: the native has no wire form")),
-    }
-    Call::new(ctx).ret(ret, 1, INT_RESULT);
-    InterpStatus::Success
-}
-
-/// `CM_Character::SendNotice_SelectionChanged(obj, newSelection)`.
-fn selection_changed(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
-    let id = word64(ctx, 4);
-    notice(
-        vm,
-        ctx,
-        5,
-        Some(GameplayNotice::SelectionChanged(id)),
-        "SelectionChanged",
-    )
-}
-
-/// `CM_Character::SendNotice_UpdateSelectionInfo(obj, info)`: `id` is the weenie the notice
-/// is raised on.
-fn update_selection_info(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
-    let (obj, info) = (word(ctx, 2), word(ctx, 3));
-    let n = match wire_native(vm, info) {
-        Some(net::NativeObject::SelectionInfo(info)) => Some(GameplayNotice::UpdateSelectionInfo {
-            id: owner(vm, obj),
-            info,
-        }),
-        _ => None,
-    };
-    notice(vm, ctx, 4, n, "UpdateSelectionInfo")
-}
-
-/// `CM_Communication::SendNotice_DisplayStringInfo(obj, type, msg)`.
-fn display_string_info(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
-    let (kind, msg) = (word(ctx, 3), word(ctx, 4));
-    let n = match wire_native(vm, msg) {
-        Some(net::NativeObject::StringInfo(text)) => {
-            Some(GameplayNotice::DisplayStringInfo { kind, text })
-        }
-        _ => None,
-    };
-    notice(vm, ctx, 5, n, "DisplayStringInfo")
-}
-
-/// `CM_Examination::SendNotice_ExaminationRequestChanged` / `UpdateExaminationProfile`.
-fn examination(vm: &mut Vm, ctx: &mut Context, request: bool) -> InterpStatus {
-    let n = match (wire_native(vm, word(ctx, 3)), request) {
-        (Some(net::NativeObject::ExaminationRequest(r)), true) => {
-            Some(GameplayNotice::ExaminationRequestChanged(r))
-        }
-        (Some(net::NativeObject::ExaminationProfile(p)), false) => {
-            Some(GameplayNotice::UpdateExaminationProfile(p))
-        }
-        _ => None,
-    };
-    notice(vm, ctx, 4, n, "examination notice")
-}
-
-/// `CM_Character::SendNotice_UpdateVital(obj, vital, current, max)` (64-bit values high word
-/// first).
-fn update_vital(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
-    let (vital, current, max) = (word(ctx, 3), word64(ctx, 5), word64(ctx, 7));
-    let n = GameplayNotice::UpdateVital {
-        vital,
-        current,
-        max,
-    };
-    notice(vm, ctx, 8, Some(n), "UpdateVital")
-}
-
-/// `CM_Character::SendNotice_UpdateHeroStatus(obj, isHero, curFocus, maxFocus)`.
-fn update_hero_status(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
-    let (hero, current, max) = (word(ctx, 3) != 0, word64(ctx, 5), word64(ctx, 7));
-    let n = GameplayNotice::UpdateHeroStatus { hero, current, max };
-    notice(vm, ctx, 8, Some(n), "UpdateHeroStatus")
 }
 
 /// `CObjectMaint::GetPlayerID`: 64-bit, low word in slot 3 (tag 0x84).

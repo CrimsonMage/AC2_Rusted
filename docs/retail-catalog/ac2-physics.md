@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 353 done, 76 partial, 1633 to do, 62 skipped.
+2124 retail functions: 354 done, 76 partial, 1632 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -1703,7 +1703,7 @@ Legend and workflow: [README](README.md).
 ### CMotionInterpFactory
 - [ ] `CMotionInterpFactory::Create` · 00509610 · legions 004f7660
 
-## `portal/shared/src/physobj/minterp/motionvalues.cpp.c` (2/23)
+## `portal/shared/src/physobj/minterp/motionvalues.cpp.c` (3/23)
 
 ### MotionValues
 - [x] `MotionValues::MotionValues` · 0069cc40 · legions 0063b6d0
@@ -1724,7 +1724,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MotionValues::GetStrafeAcl` · 0069cd40 · legions 0063b7d0
 
 ### GameplayOptionsProfile
-- [ ] `GameplayOptionsProfile::GetDamageTextRangeOther` · 0069cd50 · legions 0063b7e0
+- [x] `GameplayOptionsProfile::GetDamageTextRangeOther` · 0069cd50 · legions 0063b7e0 — ac2-script glue::options / examination (Legions layout and efun switch)
 
 ### MotionValues
 - [ ] `MotionValues::GetVertAcl` · 0069cd60 · legions 0063b7f0

@@ -15,14 +15,19 @@ mod behavior;
 mod chargen;
 mod cparse;
 mod enums;
+mod examination;
 mod format;
 mod hashes;
 pub(crate) mod lists;
 mod math;
 mod missile;
 mod multi;
+mod options;
+mod options_tables;
+mod places;
 mod position;
 mod random;
+mod repository;
 mod skill_node;
 mod string_info;
 mod string_text;
@@ -30,6 +35,8 @@ mod vm_glue;
 mod wcc;
 mod wlog;
 mod wpstring;
+
+pub(crate) use wpstring::compute_hash;
 
 use std::sync::OnceLock;
 
@@ -57,6 +64,10 @@ pub fn register_pure(efuns: &mut EFuns) {
     position::register(efuns);
     skill_node::register(efuns);
     chargen::register(efuns);
+    repository::register(efuns);
+    options::register(efuns);
+    examination::register(efuns);
+    places::register(efuns);
 }
 
 pub(crate) use chargen::empty_race_sex_info;

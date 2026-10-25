@@ -268,6 +268,23 @@ fn race_sex_method(m: &str) -> Option<EFunFn> {
                 Some((4, u32::from(put_obj_in_loc(i, word(c, 2), word(c, 3)))))
             })
         },
+        // `gmRaceSexInfo::GetSubDataIDs(type, out ids)`: the physics object, the location
+        // table's DIDs in table order, the pile appearance and the music.
+        "GetSubDataIDs" => |vm, c| {
+            let this = Call::new(c).this();
+            let Some(info) = race_sex_mut(vm, this).cloned() else {
+                return vm.bad_this(this);
+            };
+            let out = word(c, 3);
+            let set = vm.read_through(c, out).unwrap_or(u32::MAX);
+            let dids = std::iter::once(info.phys_obj_did)
+                .chain(info.obj_in_loc.iter().map(|(_, v)| *v))
+                .chain([info.apr_file_did, info.music_file_did]);
+            for did in dids {
+                super::enums::add_data_id(vm, set, did);
+            }
+            InterpStatus::Success
+        },
         // `gmRaceSexInfo::Verify`: every DID set and no zero in the location table.
         "Verify" => |vm, c| {
             race_sex(vm, c, |i, _| {
