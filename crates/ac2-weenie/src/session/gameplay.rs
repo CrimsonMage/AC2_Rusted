@@ -8,6 +8,10 @@ use ac2_net::protocol::{
 };
 
 use super::{OnlineSession, SessionEvent};
+
+/// `WM_Combat` 0x16 (start attacking a target) and 0x14 (stop).
+const ATTACK: u32 = 0x8204_0008;
+const STOP_ATTACKING: u32 = 0x8204_0010;
 use crate::player_script::{GameplayNotice, PlayerScript, ScriptOutput};
 use crate::qualities::WeenieQualities;
 use crate::world::World;
@@ -83,6 +87,20 @@ impl OnlineSession {
         if let Some(request) = crate::usage::use_item(player, item, target) {
             self.send(request.to_event());
         }
+    }
+
+    /// `gmCWInterface::RequestAttackStateChange` (`CPlayer` 0x4F): start attacking the
+    /// selection (`CCombatSystem` 0x3 -> `WM_Combat` 0x16, the selection's id) or stop
+    /// (`CCombatSystem` 0x10 -> `WM_Combat` 0x14). The stand-in leaves out the mounted refusal
+    /// (`Player` 0x7A) and the combat stance behaviour (`CPlayer` 0xA8).
+    pub fn request_attack_state(&mut self, attacking: bool) {
+        let call = if attacking {
+            let target = self.script.selection().unwrap_or(0);
+            ScriptCall::new(ATTACK, vec![ac2_net::protocol::PackValue::LongInt(target)])
+        } else {
+            ScriptCall::new(STOP_ATTACKING, Vec::new())
+        };
+        self.send(call.expect("WM_Combat's layouts").to_event());
     }
 
     /// `gmCWInterface::UseSelection` (`CPlayer` 0x79): use the selected object, or say that

@@ -24,7 +24,8 @@ use crate::loader::Request;
 /// them, `scripts_7160`), and so takes over: `WM_Communication` 0x11, 0x23
 /// (`DisplayStringInfo`) and 0x12 (`DisplayText`); `WM_Player` 0x27 (the login, `CPlayer`
 /// 0x65: vitals, inventory refresh; the session's mirrors still follow it) and 0x2C
-/// (`UpdateSelectionInfo`, `CPlayer` 0x34); `SetSelection` (`CPlayer` 0x6A).
+/// (`UpdateSelectionInfo`, `CPlayer` 0x34); `SetSelection` (`CPlayer` 0x6A),
+/// `RequestAttackStateChange` (`CPlayer` 0x4F) and `SetWhichShortcutSet` (`CPlayer` 0x5).
 pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     ac2_net::protocol::script_function::DISPLAY_STRING_INFO,
     ac2_net::protocol::script_function::DISPLAY_STRING_INFO_2,
@@ -32,7 +33,18 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     ac2_net::protocol::script_function::INIT_PLAYER,
     ac2_net::protocol::script_function::UPDATE_SELECTION_INFO,
     IFUN_SET_SELECTION,
+    IFUN_REQUEST_ATTACK_STATE_CHANGE,
+    IFUN_SET_WHICH_SHORTCUT_SET,
 ];
+
+/// `gmCWInterface::RequestAttackStateChange` (`CPlayer` 0x4F: start attacking the selection,
+/// or stop).
+pub const IFUN_REQUEST_ATTACK_STATE_CHANGE: u32 = 0x00B4_0008;
+/// `gmCWInterface::ShouldAutoTarget` (`CPlayer` 0x7A: the auto-target option, and the
+/// selection not attackable).
+pub const IFUN_SHOULD_AUTO_TARGET: u32 = 0x00B4_0005;
+/// `gmCWInterface::SetWhichShortcutSet` (`CPlayer` 0x5).
+pub const IFUN_SET_WHICH_SHORTCUT_SET: u32 = 0x00B4_0071;
 
 /// `gmCWInterface::SetSelection`'s IFun (`ggmCWInterface::CallIFun_SetSelection`: the
 /// object, then `CPlayer` 0x6A).

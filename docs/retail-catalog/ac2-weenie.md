@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 34 done, 0 partial, 1864 to do, 6 skipped.
+1904 retail functions: 37 done, 0 partial, 1861 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (0/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (3/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -926,11 +926,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::SetSelection` · 0044faa0 · legions 00450be0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [ ] `gmCWInterface::GetSelection` · 0044fac0 · legions 00450c00 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [ ] `gmCWInterface::GetLastSelection` · 0044fb20 · legions 00450c60 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
-- [ ] `gmCWInterface::ShouldAutoTarget` · 0044fb80 · legions 00450cc0
+- [x] `gmCWInterface::ShouldAutoTarget` · 0044fb80 · legions 00450cc0 — ac2-client: the ShouldAutoTarget IFun on the VM before attacking
 - [ ] `gmCWInterface::UseSelection` · 0044fbb0 · legions 00450cf0 — ac2-weenie OnlineSession::use_selection (CPlayer 0x79 -> CUsageSystem 0x9 stand-in)
 - [ ] `gmCWInterface::UseShortcut` · 0044fbe0 · legions 00450d20
 - [ ] `gmCWInterface::StopAttacking` · 0044fc20 · legions 00450d60
-- [ ] `gmCWInterface::RequestAttackStateChange` · 0044fc60 · legions 00450da0
+- [x] `gmCWInterface::RequestAttackStateChange` · 0044fc60 · legions 00450da0 — ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
 - [ ] `gmCWInterface::CanAutoAttackTarget` · 0044fca0 · legions 00450de0
 - [ ] `gmCWInterface::InqCraftSkillAdaptor` · 0044fce0 · legions 00450e20
 - [ ] `gmCWInterface::InqCraftSkillList` · 0044fd20 · legions 00450e60
@@ -1038,7 +1038,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::InqShortcutInfo` · 00451090 · legions 004521d0
 - [ ] `gmCWInterface::SetShortcut` · 004510d0 · legions 00452210
 - [ ] `gmCWInterface::InqShortcutArray` · 00451110 · legions 00452250
-- [ ] `gmCWInterface::SetWhichShortcutSet` · 00451150
+- [x] `gmCWInterface::SetWhichShortcutSet` · 00451150 — ac2-client Command::SetShortcutSet: the IFun on the VM, the session's shortcut mirror (a profile write, nothing to the server)
 - [ ] `gmCWInterface::GetWhichShortcutSet` · 00451170 · legions 004522b0
 - [ ] `gmCWInterface::SetShowShortcutNumbers` · 004511a0 · legions 004522e0
 - [ ] `gmCWInterface::GetShowShortcutNumbers` · 004511c0 · legions 00452300

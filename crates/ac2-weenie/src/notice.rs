@@ -14,6 +14,10 @@ use crate::ui_data::{CraftSkill, DamageText, Shop};
 pub enum GameplayNotice {
     /// `CM_Character::SendNotice_SelectionChanged`: the new selection (0 for none).
     SelectionChanged(u64),
+    /// `CM_Character::SendNotice_Select`: the UI runs a selection action
+    /// (`gmShortcutUI::RequestAttackStateChange` raises 0x41000024 when the player should
+    /// auto-target before attacking).
+    Select(u32),
     /// `CM_Character::SendNotice_UpdateSelectionInfo`: the selected object's health and vigor.
     UpdateSelectionInfo { id: u64, info: SelectionInfo },
     /// `CM_Examination::SendNotice_ExaminationRequestChanged`.

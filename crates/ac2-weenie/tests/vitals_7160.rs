@@ -101,23 +101,23 @@ fn vitals_follow_the_login_message_and_quality_updates() {
         ]
     );
 
-    // `WM_Player` 0x27: the hero status and every vital again.
+    // `WM_Player` 0x27 (`CPlayer` 0x65): the skill repository's panel, the inventory
+    // arguments (the player's contents, the equipment), the options profile (the double always
+    // sends one), then the hero status and every vital again.
     state.borrow_mut().send_init_player();
     let events = settle(&mut session, &state);
+    let panel = match notices(&events).first() {
+        Some(
+            n @ GameplayNotice::UpdateSkillPanel {
+                skill_credits: 2, ..
+            },
+        ) => n.clone(),
+        other => panic!("{other:?}"),
+    };
     assert_eq!(
         notices(&events),
         vec![
-            GameplayNotice::UpdateHeroStatus {
-                hero: false,
-                current: 0,
-                max: 100
-            },
-            update(vital::HEALTH, 200, 237),
-            update(vital::PK_DAMAGE, 0, 237),
-            update(vital::VIGOR, 90, 114),
-            update(vital::PK_VIGOR_LOSS, 0, 114),
-            update(vital::FOCUS, 0, 100),
-            // Then its inventory arguments: the player's contents, the equipment.
+            panel,
             GameplayNotice::UpdateContainer {
                 container: legions_server_double::PLAYER,
                 code: ac2_weenie::INVENTORY_REFRESH,
@@ -129,8 +129,17 @@ fn vitals_follow_the_login_message_and_quality_updates() {
                 item: 0,
                 location: 0
             },
-            // And its options profile (the double always sends one).
             GameplayNotice::ReloadOptions,
+            GameplayNotice::UpdateHeroStatus {
+                hero: false,
+                current: 0,
+                max: 100
+            },
+            update(vital::HEALTH, 200, 237),
+            update(vital::PK_DAMAGE, 0, 237),
+            update(vital::VIGOR, 90, 114),
+            update(vital::PK_VIGOR_LOSS, 0, 114),
+            update(vital::FOCUS, 0, 100),
         ]
     );
     // Its other arguments are left to the caller as the raw script event.
