@@ -9,6 +9,7 @@ mod arith;
 pub mod context;
 pub mod efun;
 mod exec;
+mod pack;
 pub mod program;
 pub mod refs;
 
@@ -20,7 +21,10 @@ pub use refs::{ReferenceTable, Slot, Target};
 use std::ops::Deref;
 use std::sync::Arc;
 
-use crate::native::{ntype, NativeObject};
+use crate::data::{EnumIdMap, EnumMapper};
+use ac2_db::StringTable;
+
+use crate::native::{ntype, GetStringError, NativeObject, StringInfo};
 use crate::wstate::{singleton_did, WState, WSTATE_BASE_DID};
 
 /// Slot tags (`ContextState::m_tags`, `HeapObject::m_tags`): the low nibble says what the slot
@@ -101,6 +105,63 @@ pub trait ScriptData {
     fn db_type(&self, _did: u32) -> Option<u32> {
         None
     }
+
+    /// `FileArray::GetFileName`: a DID's data file name.
+    fn file_name(&self, _did: u32) -> Option<Vec<u8>> {
+        None
+    }
+
+    /// An `EnumMapper` (`DB_TYPE_ENUM_MAPPER`).
+    fn enum_mapper(&self, _did: u32) -> Option<Box<dyn Deref<Target = EnumMapper>>> {
+        None
+    }
+
+    /// An `EnumIDMap` (`DB_TYPE_DID_MAPPER`).
+    fn enum_id_map(&self, _did: u32) -> Option<Box<dyn Deref<Target = EnumIdMap>>> {
+        None
+    }
+
+    /// A `StringTable` (`DB_TYPE_STRING_TABLE`, local DAT).
+    fn string_table(&self, _did: u32) -> Option<Box<dyn Deref<Target = StringTable>>> {
+        None
+    }
+
+    /// The text hook: `StringTable::GetString` (vtable +0x80) of `info`'s string with its
+    /// variables, rendered by `StringTableMetaLanguage::RenderString`, meta letters kept (the
+    /// glue strips them). The default renders only strings without variables or meta syntax
+    /// and reports `gsGenericError` for the rest; a host with the meta-language renderer
+    /// overrides it.
+    fn render_string(
+        &self,
+        table: &StringTable,
+        info: &StringInfo,
+    ) -> Result<Vec<u16>, GetStringError> {
+        plain_string(table, info)
+    }
+}
+
+/// [`ScriptData::render_string`]'s default: a string with no variables and none of the
+/// meta-language's block characters is its pieces joined.
+pub fn plain_string(table: &StringTable, info: &StringInfo) -> Result<Vec<u16>, GetStringError> {
+    const BLOCK: [u16; 6] = [
+        b'{' as u16,
+        b'}' as u16,
+        b'|' as u16,
+        b'^' as u16,
+        b'!' as u16,
+        b'#' as u16,
+    ];
+    let entry = table
+        .get(info.string_id)
+        .ok_or(GetStringError::MissingString)?;
+    if !entry.variables.is_empty() {
+        return Err(GetStringError::GenericError);
+    }
+    let text: Vec<u16> = entry.pieces.iter().flatten().flatten().copied().collect();
+    if text.iter().any(|c| BLOCK.contains(c)) {
+        return Err(GetStringError::GenericError);
+    }
+    Ok(text)
 }
 
 /// No DAT data: every package starts from its initializer, no names resolve.
@@ -122,6 +183,27 @@ pub struct Vm {
     states: Box<dyn ScriptData>,
     /// The fault behind the most recent [`InterpStatus::Crash`].
     pub last_fault: Option<Fault>,
+    /// `WLogSystem`'s log-type masks.
+    pub log_types: LogTypes,
+    /// `Random`: retail has one generator for the whole client; a host that runs other
+    /// consumers of it on the same stream shares its state through this field.
+    pub random: ac2_core::Random,
+}
+
+/// `WLogSystem::m_logTypeFile` / `m_logTypePrint` (Legions starts them at 0x1A4 and 0).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LogTypes {
+    pub file: u32,
+    pub print: u32,
+}
+
+impl Default for LogTypes {
+    fn default() -> Self {
+        Self {
+            file: 0x1A4,
+            print: 0,
+        }
+    }
 }
 
 impl Vm {
@@ -141,6 +223,8 @@ impl Vm {
             efuns,
             states,
             last_fault: None,
+            log_types: LogTypes::default(),
+            random: ac2_core::Random::default(),
         }
     }
 
@@ -300,6 +384,37 @@ impl Vm {
     /// The package id a WState was saved from (`WState::m_pid`).
     pub fn state_package(&self, did: u32) -> Option<u32> {
         self.states.wstate(did).and_then(|state| state.pid)
+    }
+
+    /// Writes the slot a reference points at (`GetReferencePtr`/`GetReferenceTagPtr` out
+    /// parameters).
+    pub fn write_through(
+        &mut self,
+        ctx: &mut Context,
+        reference: u32,
+        value: u32,
+        tag: u8,
+    ) -> bool {
+        match self.refs.locate(reference, 0) {
+            Ok(Some(slot)) => self.refs.write(ctx, slot, value, tag).is_ok(),
+            Ok(None) => {
+                self.fill_package(reference);
+                match self.refs.locate(reference, 0) {
+                    Ok(Some(slot)) => self.refs.write(ctx, slot, value, tag).is_ok(),
+                    _ => false,
+                }
+            }
+            Err(_) => false,
+        }
+    }
+
+    /// Reads the slot a reference points at.
+    pub fn read_through(&mut self, ctx: &Context, reference: u32) -> Option<u32> {
+        if let Ok(None) = self.refs.locate(reference, 0) {
+            self.fill_package(reference);
+        }
+        let slot = self.refs.locate(reference, 0).ok()??;
+        self.refs.read(ctx, slot).ok().map(|(v, _)| v)
     }
 
     /// The host's DAT services.

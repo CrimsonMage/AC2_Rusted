@@ -77,7 +77,7 @@ key	status	note
 004576d0	x	ac2-script vm (VM/ReferenceTable/Resolver)
 00463df0	~	ac2-script glue: id table + pure-glue registry; engine glue unbound
 00467160	~	ac2-script native::unpack: the native types Legions WStates hold
-00474780	~	ac2-script native: unpack direction only
+00474780	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00479030	x	ac2-ui interpreter.rs
 00479110	x	ac2-ui interpreter.rs
 004791b0	x	ac2-ui interpreter.rs
@@ -979,6 +979,37 @@ key	status	note
 00531bb0	x	
 00531bf0	x	
 00531c30	x	
+00536af0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536b30	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536b60	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536b90	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536c30	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536c50	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536c70	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536c90	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536cb0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536cd0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536cf0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536d50	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536d80	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536db0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536de0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536e10	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+005376c0	x	ac2-script glue::math / glue::missile
+00537730	x	ac2-script glue::math / glue::missile
+005377a0	x	ac2-script glue::math / glue::missile
+005377e0	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00537840	x	ac2-script glue::math / glue::missile
+005378b0	x	ac2-script glue::math / glue::missile
+00537920	x	ac2-script glue::math / glue::missile
+00537990	x	ac2-script glue::math / glue::missile
+00537a20	x	ac2-script glue::math / glue::missile
+00537af0	x	ac2-script glue::math / glue::missile
+00537b60	x	ac2-script glue::math / glue::missile
+00537bd0	x	ac2-script glue::math / glue::missile
+00537c40	x	ac2-script glue::math / glue::missile
+00537cd0	x	ac2-script glue::math / glue::missile
+00537db0	x	ac2-script glue::math / glue::missile
 00538010	x	ac2-script glue::string_info (lookups via ScriptData)
 00538080	x	ac2-script glue::string_info (lookups via ScriptData)
 005380f0	x	ac2-script glue::string_info (lookups via ScriptData)
@@ -993,6 +1024,7 @@ key	status	note
 00538680	x	ac2-script glue::string_info (lookups via ScriptData)
 005386e0	x	ac2-script glue::string_info (lookups via ScriptData)
 00538740	x	ac2-script glue::string_info (lookups via ScriptData)
+005387b0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00538810	x	ac2-script glue::string_info (lookups via ScriptData)
 00538870	x	ac2-script glue::string_info (lookups via ScriptData)
 005388f0	x	ac2-script glue::string_info (lookups via ScriptData)
@@ -1001,13 +1033,211 @@ key	status	note
 00538a40	x	ac2-script glue::string_info (lookups via ScriptData)
 00538ad0	x	ac2-script glue::string_info (lookups via ScriptData)
 00538b40	x	ac2-script glue::string_info (lookups via ScriptData)
+00538bb0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00538c20	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00538ca0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00538d20	~	ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
+00538de0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00538fa0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00539180	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+0053a480	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a4e0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a550	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a5b0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a670	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a6c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a7a0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a840	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a8c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a940	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a9c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053aa20	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053f690	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 0053f710	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 0053f790	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 0053f830	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 0053f8b0	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+00541990	x	ac2-script glue::math / glue::missile
+005419f0	x	ac2-script glue::math / glue::missile
+00541a50	x	ac2-script glue::math / glue::missile
+00541ab0	x	ac2-script glue::math / glue::missile
+00541b20	x	ac2-script glue::math / glue::missile
+00541b80	x	ac2-script glue::math / glue::missile
+00541bf0	x	ac2-script glue::math / glue::missile
+00541c50	x	ac2-script glue::math / glue::missile
+00541cb0	x	ac2-script glue::math / glue::missile
+00541d10	x	ac2-script glue::math / glue::missile
+00541d70	x	ac2-script glue::math / glue::missile
+00541df0	x	ac2-script glue::math / glue::missile
+00541e50	x	ac2-script glue::math / glue::missile
+00541eb0	x	ac2-script glue::math / glue::missile
+00541f20	x	ac2-script glue::math / glue::missile
+00541f80	x	ac2-script glue::math / glue::missile
+00541ff0	x	ac2-script glue::math / glue::missile
+00542050	x	ac2-script glue::math / glue::missile
+005420b0	x	ac2-script glue::math / glue::missile
+00542110	x	ac2-script glue::math / glue::missile
+00542170	x	ac2-script glue::math / glue::missile
+005421d0	x	ac2-script glue::math / glue::missile
+00542230	x	ac2-script glue::math / glue::missile
 00542530	x	ac2-physics los (Terrain::los_check)
 005425b0	x	ac2-physics los (Terrain::los_check)
+00545420	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+00545460	x	ac2-script data/glue::enums
+005454a0	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+005454f0	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+00546820	x	ac2-script data/glue::enums
+00546850	x	ac2-script data/glue::enums
+00546900	x	ac2-script data/glue::enums
+00546980	x	ac2-script data/glue::enums
+00546a00	x	ac2-script data/glue::enums
+00546ab0	x	ac2-script data/glue::enums
+00546b30	x	ac2-script data/glue::enums
+00546bb0	x	ac2-script data/glue::enums
+00546c80	x	ac2-script glue::enums (FileArray::GetDID: no name data on the DVD)
+0054a800	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054a860	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054a8c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054a920	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054a980	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054a9e0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054aa40	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054aaa0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ab00	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ab60	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054abc0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ac20	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ac80	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ace0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ad40	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ada0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ae00	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ae60	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054aec0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054af20	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054af80	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054b000	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054b060	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054b0c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054b120	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054b190	~	ac2-script glue: f32 spill points unchecked against x87 / copy order of PHashTable operator= unverified
+0054b280	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054cc40	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054ccb0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054cd40	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054cdb0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054ce50	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054cf10	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054cf80	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d180	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d1e0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d240	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d290	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d2e0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d340	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d3c0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d440	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d4d0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d550	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d5d0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d650	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d6d0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d750	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d7d0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d860	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d930	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054d9a0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054da30	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054daa0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054db40	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054dbf0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054dcf0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054def0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054df50	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054dfb0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e000	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e050	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e0b0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e130	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e1b0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e240	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e2c0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e340	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e3c0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e440	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e4c0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e540	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e5c0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e640	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e6b0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e740	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e7b0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e850	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e8b0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054e920	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054eb10	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054eb80	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054ebe0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054ec30	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054ec80	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054ecf0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054ed60	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054ede0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054ee70	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054eef0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054ef70	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054eff0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f070	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f0f0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f170	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f1d0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f230	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f2a0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f310	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f3a0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f410	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f4b0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f510	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f5e0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f7d0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f840	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f8a0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f8f0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f940	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054f9b0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054fa20	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054faa0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054fb30	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054fbb0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054fc30	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054fcb0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054fd30	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054fdb0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054fe30	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054fe80	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0054fee0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005512f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551380	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005513f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551460	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005514c0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551530	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005515a0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551610	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551680	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551700	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551780	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005517e0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551880	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005519a0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551b30	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551bb0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551c10	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551c90	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551d10	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551d70	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551e00	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00551e60	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00552130	x	ac2-script glue
 005521c0	x	ac2-script glue
 00552270	x	ac2-script glue
@@ -1055,6 +1285,7 @@ key	status	note
 00553840	~	ac2-script glue: no collector/debugger
 00553850	~	ac2-script glue: no collector/debugger
 00553870	~	ac2-script glue: no collector/debugger
+00553890	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
 005538d0	~	ac2-script glue: no collector/debugger
 00553900	x	ac2-script glue
 00553930	x	ac2-script glue
@@ -1068,6 +1299,573 @@ key	status	note
 00553b50	x	ac2-script glue
 00553bd0	~	ac2-script glue: no collector/debugger
 00553c50	x	ac2-script glue
+005540c0	~	ac2-script glue::lists: iterators hold an index, not a node
+00554120	~	ac2-script glue::lists: iterators hold an index, not a node
+00554180	~	ac2-script glue::lists: iterators hold an index, not a node
+005541f0	~	ac2-script glue::lists: iterators hold an index, not a node
+00554270	~	ac2-script glue::lists: iterators hold an index, not a node
+005542e0	~	ac2-script glue::lists: iterators hold an index, not a node
+00554390	~	ac2-script glue::lists: iterators hold an index, not a node
+00554420	x	ac2-script glue::lists
+00554490	x	ac2-script glue::lists
+00554500	x	ac2-script glue::lists
+00554580	x	ac2-script glue::lists
+00554600	x	ac2-script glue::lists
+005546c0	x	ac2-script glue::lists
+00554740	x	ac2-script glue::lists
+005547c0	x	ac2-script glue::lists
+00554840	x	ac2-script glue::lists
+005548c0	x	ac2-script glue::lists
+00554940	x	ac2-script glue::lists
+005549c0	x	ac2-script glue::lists
+00554a40	x	ac2-script glue::lists
+00554ae0	x	ac2-script glue::lists
+00554b30	x	ac2-script glue::lists
+00554b70	x	ac2-script glue::lists
+00554c00	x	ac2-script glue::lists
+00554cb0	x	ac2-script glue::lists
+00554d60	x	ac2-script glue::lists
+00554e10	x	ac2-script glue::lists
+00554ec0	x	ac2-script glue::lists
+00554f20	x	ac2-script glue::lists
+00554fa0	x	ac2-script glue::lists
+00555040	x	ac2-script glue::lists
+005550e0	x	ac2-script glue::lists
+00555180	x	ac2-script glue::lists
+00555220	x	ac2-script glue::lists
+005552c0	x	ac2-script glue::lists
+00555360	x	ac2-script glue::lists
+00555400	x	ac2-script glue::lists
+00555590	x	ac2-script glue::lists
+00555610	x	ac2-script glue::lists
+00555690	x	ac2-script glue::lists
+00555710	x	ac2-script glue::lists
+005557b0	x	ac2-script glue::lists
+00555850	x	ac2-script glue::lists
+00555900	x	ac2-script glue::lists
+005559b0	x	ac2-script glue::lists
+00555a60	x	ac2-script glue::lists
+00555b10	x	ac2-script glue::lists
+00555bb0	x	ac2-script glue::lists
+00555c90	x	ac2-script glue::lists
+00555d70	x	ac2-script glue::lists
+00555e10	x	ac2-script glue::lists
+00555eb0	x	ac2-script glue::lists
+00555f90	x	ac2-script glue::lists
+00556070	x	ac2-script glue::lists
+00556110	x	ac2-script glue::lists
+005561c0	x	ac2-script glue::lists
+00556230	x	ac2-script glue::lists
+005562a0	x	ac2-script glue::lists
+00556320	x	ac2-script glue::lists
+00556390	x	ac2-script glue::lists
+00556420	x	ac2-script glue::lists
+005564c0	x	ac2-script glue::lists
+00556570	x	ac2-script glue::lists
+00556620	x	ac2-script glue::lists
+005566d0	~	ac2-script glue: f32 spill points unchecked against x87 / copy order of PHashTable operator= unverified
+00556740	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00556790	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+005567d0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00556820	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00556850	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+005568b0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00556910	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00556980	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005569f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00556a80	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00556b30	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00556b90	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00556c00	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00556c70	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00556ce0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00556d60	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00556e40	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00556ef0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00556fb0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005570a0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557150	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557300	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557380	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005573e0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557460	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005574e0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557550	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557600	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557670	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005576f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005577e0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005578d0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557940	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005579b0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557a40	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557ab0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557b10	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557b80	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557bf0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557c60	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557ce0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557d60	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557e10	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557ed0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557f30	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00557fe0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00558090	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00558110	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00558170	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005581f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00558270	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005582e0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00558390	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00558400	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00558480	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00558580	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00558690	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558700	x	ac2-script glue::math / glue::missile
+00558750	x	ac2-script glue::math / glue::missile
+005587a0	x	ac2-script glue::math / glue::missile
+005587d0	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558820	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558870	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+005588a0	x	ac2-script glue::math / glue::missile
+005588f0	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558920	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558960	x	ac2-script glue::math / glue::missile
+00558990	x	ac2-script glue::math / glue::missile
+005589d0	x	ac2-script glue::math / glue::missile
+00558a10	x	ac2-script glue::math / glue::missile
+00558a50	x	ac2-script glue::math / glue::missile
+00558aa0	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558b00	x	ac2-script glue::math / glue::missile
+00558b40	x	ac2-script glue::math / glue::missile
+00558b80	x	ac2-script glue::math / glue::missile
+00558bd0	x	ac2-script glue::math / glue::missile
+00558c20	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558c50	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558c80	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558ce0	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558d10	x	ac2-script glue::math / glue::missile
+00558d40	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558d70	x	ac2-script glue::math / glue::missile
+00558dc0	x	ac2-script glue::math / glue::missile
+00558e10	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00558e80	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00558f00	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00558f70	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00558fe0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00559050	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00559240	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005592d0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00559330	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00559390	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005593f0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00559470	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005594f0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00559570	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005595f0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005596b0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00559740	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005597d0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00559840	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005598b0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00559940	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005599b0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00559a10	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00559a80	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00559af0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00559b60	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00559bd0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00559c50	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00559d30	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00559d90	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00559e30	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00559f70	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055a010	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055a150	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055a1d0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055a230	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055a2b0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055a330	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055a3a0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055a450	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055a4c0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055a540	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055a620	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055a700	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055a770	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055a7f0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055a860	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055a8d0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055aa60	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055aaf0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055ab80	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055abe0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055ac40	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055aca0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055ad20	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055ada0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055ae20	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055aea0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055af60	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055aff0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055b040	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055b0b0	~	ac2-script glue::lists: iterators hold an index, not a node
+0055b110	~	ac2-script glue::lists: iterators hold an index, not a node
+0055b170	~	ac2-script glue::lists: iterators hold an index, not a node
+0055b1e0	~	ac2-script glue::lists: iterators hold an index, not a node
+0055b260	~	ac2-script glue::lists: iterators hold an index, not a node
+0055b2d0	~	ac2-script glue::lists: iterators hold an index, not a node
+0055b390	~	ac2-script glue::lists: iterators hold an index, not a node
+0055b450	x	ac2-script glue::lists
+0055b4c0	x	ac2-script glue::lists
+0055b560	x	ac2-script glue::lists
+0055b5d0	x	ac2-script glue::lists
+0055b660	x	ac2-script glue::lists
+0055b860	x	ac2-script glue::lists
+0055b8f0	x	ac2-script glue::lists
+0055b980	x	ac2-script glue::lists
+0055ba10	x	ac2-script glue::lists
+0055baa0	x	ac2-script glue::lists
+0055bb30	x	ac2-script glue::lists
+0055bbc0	x	ac2-script glue::lists
+0055bc50	x	ac2-script glue::lists
+0055bce0	x	ac2-script glue::lists
+0055be60	x	ac2-script glue::lists
+0055bf00	x	ac2-script glue::lists
+0055bfb0	x	ac2-script glue::lists
+0055c060	x	ac2-script glue::lists
+0055c110	x	ac2-script glue::lists
+0055c1c0	x	ac2-script glue::lists
+0055c220	x	ac2-script glue::lists
+0055c340	x	ac2-script glue::lists
+0055c3d0	x	ac2-script glue::lists
+0055c460	x	ac2-script glue::lists
+0055c4f0	x	ac2-script glue::lists
+0055c580	x	ac2-script glue::lists
+0055c610	x	ac2-script glue::lists
+0055c6a0	x	ac2-script glue::lists
+0055c730	x	ac2-script glue::lists
+0055c8b0	x	ac2-script glue::lists
+0055c930	x	ac2-script glue::lists
+0055c9b0	x	ac2-script glue::lists
+0055ca30	x	ac2-script glue::lists
+0055cad0	x	ac2-script glue::lists
+0055cb80	x	ac2-script glue::lists
+0055cc40	x	ac2-script glue::lists
+0055cd00	x	ac2-script glue::lists
+0055cdc0	x	ac2-script glue::lists
+0055ce80	x	ac2-script glue::lists
+0055cf20	x	ac2-script glue::lists
+0055cfc0	x	ac2-script glue::lists
+0055d060	x	ac2-script glue::lists
+0055d100	x	ac2-script glue::lists
+0055d1a0	x	ac2-script glue::lists
+0055d240	x	ac2-script glue::lists
+0055d2e0	x	ac2-script glue::lists
+0055d380	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055d3f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055d4c0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055d550	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055d5c0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055d620	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055d690	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055d700	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055d770	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055d7e0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055d860	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055d8e0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055d940	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055d9e0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055db00	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055dba0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055dc40	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055dcc0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055dd20	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055dda0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055de20	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055de90	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055df40	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055dfb0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055e030	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055e130	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055e270	x	ac2-script glue::lists
+0055e300	x	ac2-script glue::lists
+0055e370	x	ac2-script glue::lists
+0055e3d0	x	ac2-script glue::lists
+0055e440	x	ac2-script glue::lists
+0055e4e0	x	ac2-script glue::lists
+0055e570	x	ac2-script glue::lists
+0055e610	x	ac2-script glue::lists
+0055e6e0	x	ac2-script glue::lists
+0055e770	x	ac2-script glue::lists
+0055e840	x	ac2-script glue::lists
+0055e910	x	ac2-script glue::lists
+0055e9e0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055ea50	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055ead0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055eb40	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055ebb0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055ec20	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055ecb0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055ed40	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055eda0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055ee00	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055ee60	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055eee0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055ef60	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055efe0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055f060	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055f120	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055f1b0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+0055f240	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055f2b0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055f320	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055f3b0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055f420	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055f480	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055f4f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055f560	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055f5d0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055f640	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055f6c0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055f740	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055f7a0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055f840	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055f8f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055f990	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055fa30	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055fab0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055fb10	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055fb90	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055fc10	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055fc80	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055fd30	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055fda0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055fe20	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+0055ff10	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005602f0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00560360	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005603e0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00560450	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005604c0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00560530	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00560650	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00560830	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005608b0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00560910	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00560970	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005609d0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00560a50	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00560ad0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00560b50	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00560bd0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00560c90	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00560d10	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00560da0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00560e10	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00560e80	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00560f10	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00560f70	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00560fe0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00561050	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005610c0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00561130	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005611a0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00561220	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005612a0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00561300	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00561390	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00561430	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005614c0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005615f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00561670	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005616d0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00561750	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005617d0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00561840	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005618f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00561960	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005619e0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00561a90	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00561b60	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00561bd0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00561c50	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00561cc0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00561d30	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00561e50	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00561fb0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00562030	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00562090	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005620f0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00562150	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005621d0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00562250	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005622d0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00562350	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00562410	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00562490	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00562520	~	ac2-script glue::lists: iterators hold an index, not a node
+00562580	~	ac2-script glue::lists: iterators hold an index, not a node
+005625e0	~	ac2-script glue::lists: iterators hold an index, not a node
+00562650	~	ac2-script glue::lists: iterators hold an index, not a node
+005626d0	~	ac2-script glue::lists: iterators hold an index, not a node
+00562740	~	ac2-script glue::lists: iterators hold an index, not a node
+005627f0	~	ac2-script glue::lists: iterators hold an index, not a node
+00562880	x	ac2-script glue::lists
+005628f0	x	ac2-script glue::lists
+00562960	x	ac2-script glue::lists
+005629e0	x	ac2-script glue::lists
+00562a60	x	ac2-script glue::lists
+00562b00	x	ac2-script glue::lists
+00562b90	x	ac2-script glue::lists
+00562c20	x	ac2-script glue::lists
+00562ca0	x	ac2-script glue::lists
+00562d20	x	ac2-script glue::lists
+00562da0	x	ac2-script glue::lists
+00562e20	x	ac2-script glue::lists
+00562ea0	x	ac2-script glue::lists
+00562f20	x	ac2-script glue::lists
+00562fa0	x	ac2-script glue::lists
+00563020	x	ac2-script glue::lists
+005630a0	x	ac2-script glue::lists
+00563140	x	ac2-script glue::lists
+005631d0	x	ac2-script glue::lists
+00563280	x	ac2-script glue::lists
+00563330	x	ac2-script glue::lists
+005633e0	x	ac2-script glue::lists
+00563490	x	ac2-script glue::lists
+005634f0	x	ac2-script glue::lists
+00563570	x	ac2-script glue::lists
+00563610	x	ac2-script glue::lists
+005636b0	x	ac2-script glue::lists
+00563750	x	ac2-script glue::lists
+005637f0	x	ac2-script glue::lists
+00563890	x	ac2-script glue::lists
+00563930	x	ac2-script glue::lists
+005639d0	x	ac2-script glue::lists
+00563a70	~	ac2-script glue::lists: iterators hold an index, not a node
+00563ac0	~	ac2-script glue::lists: iterators hold an index, not a node
+00563b10	~	ac2-script glue::lists: iterators hold an index, not a node
+00563b60	x	ac2-script glue::lists
+00563be0	x	ac2-script glue::lists
+00563c60	x	ac2-script glue::lists
+00563ce0	x	ac2-script glue::lists
+00563d80	x	ac2-script glue::lists
+00563e30	x	ac2-script glue::lists
+00563ee0	x	ac2-script glue::lists
+00563f90	x	ac2-script glue::lists
+00564040	x	ac2-script glue::lists
+005640f0	x	ac2-script glue::lists
+00564190	x	ac2-script glue::lists
+00564270	x	ac2-script glue::lists
+00564350	x	ac2-script glue::lists
+005643f0	x	ac2-script glue::lists
+00564490	x	ac2-script glue::lists
+00564570	x	ac2-script glue::lists
+00564650	x	ac2-script glue::lists
+005646f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00564760	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005647d0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00564860	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005648d0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00564930	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005649a0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00564a10	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00564a80	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00564af0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00564b70	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00564bf0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00564ca0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00564d30	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00564e60	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00564f00	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565050	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005650d0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565130	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005651b0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565230	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005652a0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565350	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005653c0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565440	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005654f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005655d0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005656a0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565730	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005657a0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565800	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565870	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005658e0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565950	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005659c0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565a40	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565ac0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565b20	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565bb0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565cc0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565de0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565e60	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565ec0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565f40	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00565fc0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00566020	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005660b0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00566110	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00566190	x	ac2-script glue::lists
+005661f0	x	ac2-script glue::lists
+00566280	x	ac2-script glue::lists
+00566310	x	ac2-script glue::lists
+00566380	x	ac2-script glue::lists
+00566400	x	ac2-script glue::lists
+00566470	x	ac2-script glue::lists
+00566500	x	ac2-script glue::lists
+005665a0	x	ac2-script glue::lists
+00566650	x	ac2-script glue::lists
+005666d0	x	ac2-script glue::lists
+00566790	x	ac2-script glue::lists
+00566850	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005668c0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00566940	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005669b0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00566a20	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00566a90	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00566b30	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00566bb0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00566c10	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00566c70	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00566cd0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00566d50	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00566dd0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00566e50	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00566ed0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00566f90	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+00567010	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+005670a0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567110	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567180	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567210	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567270	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005672e0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567350	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005673c0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567430	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005674a0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567520	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005675a0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567600	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567690	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567730	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005677c0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567850	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005678d0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567930	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+005679b0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567a30	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567aa0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567b50	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567bc0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567c40	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00567cf0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00568050	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 00568220	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005682d0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -1145,6 +1943,7 @@ key	status	note
 00579910	~	a player target without parent or bone (third and first person)
 0057a320	x	
 0057a590	x	far radius consumed by FarTerrain::new
+0057a700	x	ac2-script glue::lists
 0057a780	~	near radius 1, far radius 4
 0057b980	~	the near window (radius 1) resident, the rest released
 0057ba10	x	
@@ -1549,19 +2348,30 @@ key	status	note
 0064e380	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 0064e640	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 0064e660	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
+006508d0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00650a50	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00650a90	x	ac2-script glue::string_info (lookups via ScriptData)
 00650ad0	x	ac2-script glue::string_info (lookups via ScriptData)
 00650b90	x	ac2-script glue::string_info (lookups via ScriptData)
 00650c50	x	ac2-script glue::string_info (lookups via ScriptData)
+00650c70	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00650ce0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00650d00	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00650e30	x	ac2-script glue::string_info (lookups via ScriptData)
+00651220	~	ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
+00651730	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00651b20	x	
+00651dd0	~	ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
 00652070	x	ac2-script glue::string_info (lookups via ScriptData)
+00652080	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 006521d0	x	ac2-script glue::string_info (lookups via ScriptData)
 00652db0	x	ac2-script reference/native unpack
 00654cb0	x	ac2-db string_table.rs: all 10,598 Legions tables decode
 00654f10	x	ac2-db string_table.rs: all 10,598 Legions tables decode
 00655de0	x	ac2-db string_table.rs: all 10,598 Legions tables decode
+006570f0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 006571c0	x	ac2-script glue
+006572d0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 0065a4a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 0065a510	_	
 0065a580	_	
@@ -1579,7 +2389,26 @@ key	status	note
 006603e0	x	
 006606a0	x	
 006606e0	x	
+006608e0	x	ac2-script data/glue::enums
+00660a30	x	ac2-script data/glue::enums
+00660b90	x	ac2-script data/glue::enums
+00660bd0	x	ac2-script data/glue::enums
+00660c50	x	ac2-script data/glue::enums
+00660d10	x	ac2-script data/glue::enums
+00660dd0	x	ac2-script data/glue::enums
+00660f10	x	ac2-script data/glue::enums
+00661020	x	ac2-script data/glue::enums
+00661060	x	ac2-script data/glue::enums
+006610b0	x	ac2-script data/glue::enums
+00661170	x	ac2-script data/glue::enums
+006611c0	x	ac2-script data/glue::enums
+00661290	x	ac2-script data/glue::enums
+00661f30	x	ac2-script data/glue::enums
+00662040	x	ac2-script data/glue::enums
 00662120	_	
+00662490	x	ac2-script data/glue::enums
+00662590	x	ac2-script data/glue::enums
+00662970	x	ac2-script data/glue::enums
 00679220	x	ac2-anim; ac2-script native::BehaviorParams also unpacks it
 0067a480	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0067a490	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
@@ -1799,8 +2628,16 @@ key	status	note
 006c59d0	x	
 006c82b0	x	ac2-world region::sky_objects, ac2-render sky
 006c8d90	~	decoded; field order after m_nDirectHeading not re-verified
+006cfa80	x	ac2-script data/glue::enums
 006d0bc0	x	ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
+006d7020	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+006d7040	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
 006d7830	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+006d78c0	x	ac2-script data/glue::enums
+006d80b0	x	ac2-script data/glue::enums
+006d8150	x	ac2-script data/glue::enums
+006d83f0	x	ac2-script data/glue::enums
+006d8450	x	ac2-script data/glue::enums
 006da360	x	
 006da480	x	
 006da500	x	
@@ -1817,16 +2654,26 @@ key	status	note
 006dbbd0	x	ac2-script reference/native unpack
 006dbe00	_	
 006dc040	~	ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
+006dc0b0	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
+006dc110	~	ac2-script glue::hashes NativeKeys: StringInfo and wpstring; CaseInsensitiveWPString (0x353F) not yet
+006dc140	~	ac2-script glue::hashes NativeKeys: StringInfo and wpstring; CaseInsensitiveWPString (0x353F) not yet
 006dc170	x	ac2-script vm (VM/ReferenceTable/Resolver)
 006dc190	x	ac2-script vm (VM/ReferenceTable/Resolver)
 006dc210	-	script debugger
+006dc860	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
+006dc910	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
+006dcbe0	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
 006dcce0	~	ac2-script wstate DID formulas / ByteStream::package_id
 006dcf50	~	ac2-script wstate DID formulas / ByteStream::package_id
 006dcf90	x	ac2-script vm (VM/ReferenceTable/Resolver)
 006dcfb0	x	ac2-script glue
 006dd040	-	script debugger
+006dd160	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
+006dd3f0	~	ac2-script vm::pack: builds the PackedReference structure; the byte stream (native StreamPack) is the wire codec's
+006dd500	~	ac2-script vm::pack: builds the PackedReference structure; the byte stream (native StreamPack) is the wire codec's
 006dd520	x	ac2-script vm (VM/ReferenceTable/Resolver)
 006dd690	x	ac2-script glue
+006dd6c0	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
 006ddd50	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006dde60	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006de120	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call

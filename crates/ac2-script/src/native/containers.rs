@@ -7,6 +7,8 @@
 //! and hash sets are a `PHashTable` header (count | bucket index << 24) and the pairs or keys;
 //! `BaseMultiHash<unsigned long,unsigned long,4>::UnPack` is a plain u32 count and the pairs.
 
+use super::hash_table::ScriptHash;
+use super::multi::ScriptMultiHash;
 use crate::unpack::{Reader, UnpackResult};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -67,54 +69,47 @@ impl ScriptList {
     }
 }
 
-/// A hash, multi-hash or hash set (`values` is empty for a set), in packed order.
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct ScriptHash {
-    /// `g_bucketSizes` index from the `PHashTable` header (0 for a multi-hash).
-    pub bucket_index: u8,
-    pub keys: Vec<RefKey>,
-    pub values: Vec<u64>,
+/// `PHashTable::UnPack` of a hash or hash set (`value` is `None` for a set) into the run-time
+/// table.
+pub(super) fn unpack_hash(
+    r: &mut Reader<'_>,
+    key: Key,
+    value: Option<Elem>,
+) -> UnpackResult<ScriptHash> {
+    let item = match key {
+        Key::U32 => 4,
+        Key::U64 => 8,
+        Key::Ref => 12,
+    } + value.map_or(0, Elem::width);
+    let (n, bucket_index) = r.hash_header(item, "hash count")?;
+    let mut items = Vec::with_capacity(n);
+    for _ in 0..n {
+        let k = match key {
+            Key::U32 => RefKey::Value(u64::from(r.u32()?)),
+            Key::U64 => RefKey::Value(r.u64()?),
+            Key::Ref => RefKey::Ref {
+                id: r.u32()?,
+                cached_hash: r.u32()?,
+                use_cache: r.u32()?,
+            },
+        };
+        let v = match value {
+            Some(value) => value.read(r)?,
+            None => 0,
+        };
+        items.push((k, v));
+    }
+    Ok(ScriptHash::from_packed(bucket_index, items))
 }
 
-impl ScriptHash {
-    pub(super) fn unpack(r: &mut Reader<'_>, key: Key, value: Option<Elem>) -> UnpackResult<Self> {
-        let item = match key {
-            Key::U32 => 4,
-            Key::U64 => 8,
-            Key::Ref => 12,
-        } + value.map_or(0, Elem::width);
-        let (n, bucket_index) = r.hash_header(item, "hash count")?;
-        let mut keys = Vec::with_capacity(n);
-        let mut values = Vec::with_capacity(if value.is_some() { n } else { 0 });
-        for _ in 0..n {
-            keys.push(match key {
-                Key::U32 => RefKey::Value(u64::from(r.u32()?)),
-                Key::U64 => RefKey::Value(r.u64()?),
-                Key::Ref => RefKey::Ref {
-                    id: r.u32()?,
-                    cached_hash: r.u32()?,
-                    use_cache: r.u32()?,
-                },
-            });
-            if let Some(value) = value {
-                values.push(value.read(r)?);
-            }
-        }
-        Ok(Self {
-            bucket_index,
-            keys,
-            values,
-        })
+/// `BaseMultiHash<unsigned long,unsigned long,4>::UnPack`: a u32 count and the pairs, each added
+/// as `add` does (`resize(size + 1)`, `insert_equal_noresize`).
+pub(super) fn unpack_multi_hash(r: &mut Reader<'_>) -> UnpackResult<ScriptMultiHash> {
+    let n = r.count(8, "multi-hash count")?;
+    let mut hash = ScriptMultiHash::default();
+    for _ in 0..n {
+        let (k, v) = (r.u32()?, r.u32()?);
+        hash.add(u64::from(k), u64::from(v));
     }
-
-    /// `BaseMultiHash<unsigned long,unsigned long,4>::UnPack` (`AAMultiHash`).
-    pub(super) fn unpack_multi(r: &mut Reader<'_>) -> UnpackResult<Self> {
-        let n = r.count(8, "multi-hash count")?;
-        let mut hash = Self::default();
-        for _ in 0..n {
-            hash.keys.push(RefKey::Value(u64::from(r.u32()?)));
-            hash.values.push(u64::from(r.u32()?));
-        }
-        Ok(hash)
-    }
+    Ok(hash)
 }

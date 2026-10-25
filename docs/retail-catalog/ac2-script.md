@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 232 done, 31 partial, 2127 to do, 78 skipped.
+2468 retail functions: 992 done, 77 partial, 1321 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -139,13 +139,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gExaminationRequest::CallEFun_eq` · 00477f50
 - [ ] `gExaminationRequest::CallEFun_ne` · 00477fd0
 
-## `ac2/shared/src/interp/glue/ggameplayoptionsprofile.cpp.c` (0/83)
+## `ac2/shared/src/interp/glue/ggameplayoptionsprofile.cpp.c` (1/83)
 
 ### GameplayOptionsProfile
 - [ ] `GameplayOptionsProfile::SetShowDamageTextOther` · 00474770 · legions 00471870
 
 ### ReferenceIDWrapper
-- [~] `ReferenceIDWrapper::StreamPack` · 00474780 · legions 00471880 — ac2-script native: unpack direction only
+- [x] `ReferenceIDWrapper::StreamPack` · 00474780 · legions 00471880 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### gGameplayOptionsProfile
 - [ ] `gGameplayOptionsProfile::CallEFun_AddRadarMask` · 004747f0
@@ -964,358 +964,358 @@ Legend and workflow: [README](README.md).
 - [-] `FrameMemberDebugInfo::Pack` · 006f0eb0 — script debugger (admin tools)
 - [-] `FrameMemberDebugInfo::UnPack` · 006f0f50 — script debugger (admin tools)
 
-## `portal/shared/src/interp/glue/gaahash.cpp.c` (0/20)
+## `portal/shared/src/interp/glue/gaahash.cpp.c` (20/20)
 
 ### gAAHash
-- [ ] `gAAHash::CallEFun_empty` · 00567350
-- [ ] `gAAHash::CallEFun_num_buckets` · 005673c0
-- [ ] `gAAHash::CallEFun_num_elements` · 00567430
-- [ ] `gAAHash::CallEFun_too_big` · 005674a0
-- [ ] `gAAHash::CallEFun_too_small` · 00567520
-- [ ] `gAAHash::CallEFun_flush` · 005675a0
-- [ ] `gAAHash::CallEFun_contains` · 00567600
-- [ ] `gAAHash::CallEFun_erase` · 00567690
-- [ ] `gAAHash::CallEFun_add` · 00567730
-- [ ] `gAAHash::CallEFun_set` · 005677c0
+- [x] `gAAHash::CallEFun_empty` · 00567350 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_num_buckets` · 005673c0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_num_elements` · 00567430 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_too_big` · 005674a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_too_small` · 00567520 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_flush` · 005675a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_contains` · 00567600 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_erase` · 00567690 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_add` · 00567730 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_set` · 005677c0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### BaseHash<unsigned_long,unsigned_long,2>
-- [ ] `BaseHash<unsigned_long,unsigned_long,2>::get_begin` · 00567850 · legions 00537a90
-- [ ] `BaseHash<unsigned_long,unsigned_long,2>::get_end` · 005678d0 · legions 00537b10
+- [x] `BaseHash<unsigned_long,unsigned_long,2>::get_begin` · 00567850 · legions 00537a90 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `BaseHash<unsigned_long,unsigned_long,2>::get_end` · 005678d0 · legions 00537b10 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### gAAHash
-- [ ] `gAAHash::CallEFun_get_begin` · 00567930
-- [ ] `gAAHash::CallEFun_get_end` · 005679b0
-- [ ] `gAAHash::CallEFun_grow` · 00567a30
-- [ ] `gAAHash::CallEFun_resize` · 00567aa0
-- [ ] `gAAHash::CallEFun_shrink` · 00567b50
-- [ ] `gAAHash::CallEFun_optimize_size` · 00567bc0
-- [ ] `gAAHash::CallEFun_find` · 00567c40
-- [ ] `gAAHash::CallEFun_remove` · 00567cf0
+- [x] `gAAHash::CallEFun_get_begin` · 00567930 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_get_end` · 005679b0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_grow` · 00567a30 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_resize` · 00567aa0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_shrink` · 00567b50 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_optimize_size` · 00567bc0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_find` · 00567c40 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHash::CallEFun_remove` · 00567cf0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/gaahashiter.cpp.c` (0/6)
+## `portal/shared/src/interp/glue/gaahashiter.cpp.c` (6/6)
 
 ### gAAHashIter
-- [ ] `gAAHashIter::CallEFun_data` · 005670a0
-- [ ] `gAAHashIter::CallEFun_key` · 00567110
-- [ ] `gAAHashIter::CallEFun_equals` · 00567180
-- [ ] `gAAHashIter::CallEFun_next` · 00567210
-- [ ] `gAAHashIter::CallEFun_notdone` · 00567270
-- [ ] `gAAHashIter::CallEFun_remove` · 005672e0
+- [x] `gAAHashIter::CallEFun_data` · 005670a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHashIter::CallEFun_key` · 00567110 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHashIter::CallEFun_equals` · 00567180 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHashIter::CallEFun_next` · 00567210 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHashIter::CallEFun_notdone` · 00567270 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAAHashIter::CallEFun_remove` · 005672e0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/gaamultihash.cpp.c` (0/13)
+## `portal/shared/src/interp/glue/gaamultihash.cpp.c` (13/13)
 
 ### gAAMultiHash
-- [ ] `gAAMultiHash::CallEFun_size` · 00566a20
-- [ ] `gAAMultiHash::CallEFun_count` · 00566a90
+- [x] `gAAMultiHash::CallEFun_size` · 00566a20 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_count` · 00566a90 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiHash<unsigned_long,unsigned_long,4>
-- [ ] `BaseMultiHash<unsigned_long,unsigned_long,4>::find` · 00566b30 · legions 00537490
-- [ ] `BaseMultiHash<unsigned_long,unsigned_long,4>::find_last` · 00566bb0 · legions 00537510
-- [ ] `BaseMultiHash<unsigned_long,unsigned_long,4>::get_begin` · 00566c10 · legions 00537570
+- [x] `BaseMultiHash<unsigned_long,unsigned_long,4>::find` · 00566b30 · legions 00537490 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned_long,unsigned_long,4>::find_last` · 00566bb0 · legions 00537510 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned_long,unsigned_long,4>::get_begin` · 00566c10 · legions 00537570 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gAAMultiHash
-- [ ] `gAAMultiHash::CallEFun_clear` · 00566c70
-- [ ] `gAAMultiHash::CallEFun_erase` · 00566cd0
-- [ ] `gAAMultiHash::CallEFun_find` · 00566d50
-- [ ] `gAAMultiHash::CallEFun_find_last` · 00566dd0
-- [ ] `gAAMultiHash::CallEFun_get_begin` · 00566e50
-- [ ] `gAAMultiHash::CallEFun_get_end` · 00566ed0
-- [ ] `gAAMultiHash::CallEFun_remove` · 00566f90
-- [ ] `gAAMultiHash::CallEFun_add` · 00567010
+- [x] `gAAMultiHash::CallEFun_clear` · 00566c70 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_erase` · 00566cd0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_find` · 00566d50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_find_last` · 00566dd0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_get_begin` · 00566e50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_get_end` · 00566ed0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_remove` · 00566f90 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHash::CallEFun_add` · 00567010 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gaamultihashiter.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/gaamultihashiter.cpp.c` (4/4)
 
 ### gAAMultiHashIter
-- [ ] `gAAMultiHashIter::CallEFun_data` · 00566850
-- [ ] `gAAMultiHashIter::CallEFun_equals` · 005668c0
-- [ ] `gAAMultiHashIter::CallEFun_key` · 00566940
-- [ ] `gAAMultiHashIter::CallEFun_next` · 005669b0
+- [x] `gAAMultiHashIter::CallEFun_data` · 00566850 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHashIter::CallEFun_equals` · 005668c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHashIter::CallEFun_key` · 00566940 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiHashIter::CallEFun_next` · 005669b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gaamultimap.cpp.c` (0/19)
+## `portal/shared/src/interp/glue/gaamultimap.cpp.c` (19/19)
 
 ### gAAMultiMap
-- [ ] `gAAMultiMap::CallEFun_empty` · 0054f510
-- [ ] `gAAMultiMap::CallEFun_count` · 0054f5e0
+- [x] `gAAMultiMap::CallEFun_empty` · 0054f510 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_count` · 0054f5e0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiMap<unsigned_long,unsigned_long,13970>
-- [ ] `BaseMultiMap<unsigned_long,unsigned_long,13970>::find` · 0054f7d0 · legions 0052bf80
-- [ ] `BaseMultiMap<unsigned_long,unsigned_long,13970>::find_last` · 0054f840 · legions 0052bff0
-- [ ] `BaseMultiMap<unsigned_long,unsigned_long,13970>::get_begin` · 0054f8a0 · legions 0052c050
-- [ ] `BaseMultiMap<unsigned_long,unsigned_long,13970>::get_end` · 0054f8f0 · legions 0052c0a0
-- [ ] `BaseMultiMap<unsigned_long,unsigned_long,13970>::lower_bound` · 0054f940 · legions 0052c0f0
-- [ ] `BaseMultiMap<unsigned_long,unsigned_long,13970>::upper_bound` · 0054f9b0 · legions 0052c160
+- [x] `BaseMultiMap<unsigned_long,unsigned_long,13970>::find` · 0054f7d0 · legions 0052bf80 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned_long,13970>::find_last` · 0054f840 · legions 0052bff0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned_long,13970>::get_begin` · 0054f8a0 · legions 0052c050 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned_long,13970>::get_end` · 0054f8f0 · legions 0052c0a0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned_long,13970>::lower_bound` · 0054f940 · legions 0052c0f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned_long,13970>::upper_bound` · 0054f9b0 · legions 0052c160 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gAAMultiMap
-- [ ] `gAAMultiMap::CallEFun_clear` · 0054fa20
-- [ ] `gAAMultiMap::CallEFun_erase` · 0054faa0
-- [ ] `gAAMultiMap::CallEFun_find` · 0054fb30
-- [ ] `gAAMultiMap::CallEFun_find_last` · 0054fbb0
-- [ ] `gAAMultiMap::CallEFun_get_begin` · 0054fc30
-- [ ] `gAAMultiMap::CallEFun_get_end` · 0054fcb0
-- [ ] `gAAMultiMap::CallEFun_lower_bound` · 0054fd30
-- [ ] `gAAMultiMap::CallEFun_upper_bound` · 0054fdb0
+- [x] `gAAMultiMap::CallEFun_clear` · 0054fa20 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_erase` · 0054faa0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_find` · 0054fb30 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_find_last` · 0054fbb0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_get_begin` · 0054fc30 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_get_end` · 0054fcb0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_lower_bound` · 0054fd30 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_upper_bound` · 0054fdb0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiMap<unsigned_long,unsigned_long,13970>
-- [ ] `BaseMultiMap<unsigned_long,unsigned_long,13970>::insert` · 0054fe30 · legions 0052c4c0
+- [x] `BaseMultiMap<unsigned_long,unsigned_long,13970>::insert` · 0054fe30 · legions 0052c4c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gAAMultiMap
-- [ ] `gAAMultiMap::CallEFun_insert` · 0054fe80
-- [ ] `gAAMultiMap::CallEFun_remove` · 0054fee0
+- [x] `gAAMultiMap::CallEFun_insert` · 0054fe80 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMap::CallEFun_remove` · 0054fee0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gaamultimapiter.cpp.c` (0/5)
+## `portal/shared/src/interp/glue/gaamultimapiter.cpp.c` (5/5)
 
 ### gAAMultiMapIter
-- [ ] `gAAMultiMapIter::CallEFun_data` · 0054f2a0
-- [ ] `gAAMultiMapIter::CallEFun_equals` · 0054f310
-- [ ] `gAAMultiMapIter::CallEFun_key` · 0054f3a0
-- [ ] `gAAMultiMapIter::CallEFun_next` · 0054f410
-- [ ] `gAAMultiMapIter::CallEFun_prev` · 0054f4b0
+- [x] `gAAMultiMapIter::CallEFun_data` · 0054f2a0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMapIter::CallEFun_equals` · 0054f310 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMapIter::CallEFun_key` · 0054f3a0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMapIter::CallEFun_next` · 0054f410 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gAAMultiMapIter::CallEFun_prev` · 0054f4b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gaarray.cpp.c` (0/12)
+## `portal/shared/src/interp/glue/gaarray.cpp.c` (12/12)
 
 ### gAArray
-- [ ] `gAArray::CallEFun_flush` · 00566190
-- [ ] `gAArray::CallEFun_SetNElements` · 005661f0
-- [ ] `gAArray::CallEFun_contains` · 00566280
-- [ ] `gAArray::CallEFun_empty` · 00566310
-- [ ] `gAArray::CallEFun_get` · 00566380
-- [ ] `gAArray::CallEFun_num_elements` · 00566400
-- [ ] `gAArray::CallEFun_set` · 00566470
-- [ ] `gAArray::CallEFun_erase` · 00566500
-- [ ] `gAArray::CallEFun_push` · 005665a0
-- [ ] `gAArray::CallEFun_push_unique` · 00566650
-- [ ] `gAArray::CallEFun_pop` · 005666d0
-- [ ] `gAArray::CallEFun_query` · 00566790
+- [x] `gAArray::CallEFun_flush` · 00566190 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_SetNElements` · 005661f0 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_contains` · 00566280 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_empty` · 00566310 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_get` · 00566380 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_num_elements` · 00566400 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_set` · 00566470 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_erase` · 00566500 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_push` · 005665a0 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_push_unique` · 00566650 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_pop` · 005666d0 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_query` · 00566790 — ac2-script glue::lists
 
-## `portal/shared/src/interp/glue/gahashset.cpp.c` (0/20)
+## `portal/shared/src/interp/glue/gahashset.cpp.c` (17/20)
 
 ### gAHashSet
-- [ ] `gAHashSet::CallEFun_empty` · 00565870
-- [ ] `gAHashSet::CallEFun_num_buckets` · 005658e0
-- [ ] `gAHashSet::CallEFun_num_elements` · 00565950
-- [ ] `gAHashSet::CallEFun_too_big` · 005659c0
-- [ ] `gAHashSet::CallEFun_too_small` · 00565a40
-- [ ] `gAHashSet::CallEFun_flush` · 00565ac0
-- [ ] `gAHashSet::CallEFun_contains` · 00565b20
-- [ ] `gAHashSet::CallEFun_erase` · 00565bb0
+- [x] `gAHashSet::CallEFun_empty` · 00565870 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAHashSet::CallEFun_num_buckets` · 005658e0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAHashSet::CallEFun_num_elements` · 00565950 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAHashSet::CallEFun_too_big` · 005659c0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAHashSet::CallEFun_too_small` · 00565a40 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAHashSet::CallEFun_flush` · 00565ac0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAHashSet::CallEFun_contains` · 00565b20 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAHashSet::CallEFun_erase` · 00565bb0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### HashSet<unsigned_long>
 - [ ] `HashSet<unsigned_long>::add` · 00565c50 · legions 00536d30
 
 ### gAHashSet
-- [ ] `gAHashSet::CallEFun_add` · 00565cc0
+- [x] `gAHashSet::CallEFun_add` · 00565cc0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### HashSet<unsigned_long>
 - [ ] `HashSet<unsigned_long>::grow` · 00565d40 · legions 00536e00
 - [ ] `HashSet<unsigned_long>::shrink` · 00565d90 · legions 00536e50
 
 ### BaseHashSet<unsigned_long,7>
-- [ ] `BaseHashSet<unsigned_long,7>::get_begin` · 00565de0 · legions 00536f00
-- [ ] `BaseHashSet<unsigned_long,7>::get_end` · 00565e60 · legions 00536f80
+- [x] `BaseHashSet<unsigned_long,7>::get_begin` · 00565de0 · legions 00536f00 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `BaseHashSet<unsigned_long,7>::get_end` · 00565e60 · legions 00536f80 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### gAHashSet
-- [ ] `gAHashSet::CallEFun_get_begin` · 00565ec0
-- [ ] `gAHashSet::CallEFun_get_end` · 00565f40
-- [ ] `gAHashSet::CallEFun_grow` · 00565fc0
-- [ ] `gAHashSet::CallEFun_resize` · 00566020
-- [ ] `gAHashSet::CallEFun_shrink` · 005660b0
-- [ ] `gAHashSet::CallEFun_optimize_size` · 00566110
+- [x] `gAHashSet::CallEFun_get_begin` · 00565ec0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAHashSet::CallEFun_get_end` · 00565f40 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAHashSet::CallEFun_grow` · 00565fc0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAHashSet::CallEFun_resize` · 00566020 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAHashSet::CallEFun_shrink` · 005660b0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAHashSet::CallEFun_optimize_size` · 00566110 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/gahashsetiter.cpp.c` (0/6)
+## `portal/shared/src/interp/glue/gahashsetiter.cpp.c` (5/6)
 
 ### gAHashSetIter
-- [ ] `gAHashSetIter::CallEFun_key` · 005655d0
+- [x] `gAHashSetIter::CallEFun_key` · 005655d0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### IntrusiveHashIterator<unsigned_long,HashSetData<unsigned_long>_*>
 - [ ] `IntrusiveHashIterator<unsigned_long,HashSetData<unsigned_long>_*>::remove` · 00565640
 
 ### gAHashSetIter
-- [ ] `gAHashSetIter::CallEFun_equals` · 005656a0
-- [ ] `gAHashSetIter::CallEFun_notdone` · 00565730
-- [ ] `gAHashSetIter::CallEFun_next` · 005657a0
-- [ ] `gAHashSetIter::CallEFun_remove` · 00565800
+- [x] `gAHashSetIter::CallEFun_equals` · 005656a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAHashSetIter::CallEFun_notdone` · 00565730 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAHashSetIter::CallEFun_next` · 005657a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gAHashSetIter::CallEFun_remove` · 00565800 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/galhash.cpp.c` (0/20)
+## `portal/shared/src/interp/glue/galhash.cpp.c` (20/20)
 
 ### gALHash
-- [ ] `gALHash::CallEFun_empty` · 005649a0
-- [ ] `gALHash::CallEFun_num_buckets` · 00564a10
-- [ ] `gALHash::CallEFun_num_elements` · 00564a80
-- [ ] `gALHash::CallEFun_too_big` · 00564af0
-- [ ] `gALHash::CallEFun_too_small` · 00564b70
-- [ ] `gALHash::CallEFun_flush` · 00564bf0
-- [ ] `gALHash::CallEFun_contains` · 00564ca0
-- [ ] `gALHash::CallEFun_erase` · 00564d30
-- [ ] `gALHash::CallEFun_add` · 00564e60
-- [ ] `gALHash::CallEFun_set` · 00564f00
+- [x] `gALHash::CallEFun_empty` · 005649a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_num_buckets` · 00564a10 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_num_elements` · 00564a80 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_too_big` · 00564af0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_too_small` · 00564b70 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_flush` · 00564bf0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_contains` · 00564ca0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_erase` · 00564d30 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_add` · 00564e60 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_set` · 00564f00 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### BaseHash<unsigned_long,unsigned___int64,9>
-- [ ] `BaseHash<unsigned_long,unsigned___int64,9>::get_begin` · 00565050 · legions 00536890
-- [ ] `BaseHash<unsigned_long,unsigned___int64,9>::get_end` · 005650d0 · legions 00536910
+- [x] `BaseHash<unsigned_long,unsigned___int64,9>::get_begin` · 00565050 · legions 00536890 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `BaseHash<unsigned_long,unsigned___int64,9>::get_end` · 005650d0 · legions 00536910 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### gALHash
-- [ ] `gALHash::CallEFun_get_begin` · 00565130
-- [ ] `gALHash::CallEFun_get_end` · 005651b0
-- [ ] `gALHash::CallEFun_grow` · 00565230
-- [ ] `gALHash::CallEFun_resize` · 005652a0
-- [ ] `gALHash::CallEFun_shrink` · 00565350
-- [ ] `gALHash::CallEFun_optimize_size` · 005653c0
-- [ ] `gALHash::CallEFun_find` · 00565440 · legions 00536b90
-- [ ] `gALHash::CallEFun_remove` · 005654f0
+- [x] `gALHash::CallEFun_get_begin` · 00565130 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_get_end` · 005651b0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_grow` · 00565230 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_resize` · 005652a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_shrink` · 00565350 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_optimize_size` · 005653c0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_find` · 00565440 · legions 00536b90 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHash::CallEFun_remove` · 005654f0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/galhashiter.cpp.c` (0/6)
+## `portal/shared/src/interp/glue/galhashiter.cpp.c` (6/6)
 
 ### gALHashIter
-- [ ] `gALHashIter::CallEFun_data` · 005646f0
-- [ ] `gALHashIter::CallEFun_key` · 00564760
-- [ ] `gALHashIter::CallEFun_equals` · 005647d0
-- [ ] `gALHashIter::CallEFun_notdone` · 00564860
-- [ ] `gALHashIter::CallEFun_next` · 005648d0
-- [ ] `gALHashIter::CallEFun_remove` · 00564930
+- [x] `gALHashIter::CallEFun_data` · 005646f0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHashIter::CallEFun_key` · 00564760 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHashIter::CallEFun_equals` · 005647d0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHashIter::CallEFun_notdone` · 00564860 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHashIter::CallEFun_next` · 005648d0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gALHashIter::CallEFun_remove` · 00564930 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/galist.cpp.c` (0/52)
+## `portal/shared/src/interp/glue/galist.cpp.c` (49/52)
 
 ### gAList
-- [ ] `gAList::CallEFun_empty` · 00562880
-- [ ] `gAList::CallEFun_num_elements` · 005628f0
-- [ ] `gAList::CallEFun_push_back` · 00562960
-- [ ] `gAList::CallEFun_push_front` · 005629e0
+- [x] `gAList::CallEFun_empty` · 00562880 — ac2-script glue::lists
+- [x] `gAList::CallEFun_num_elements` · 005628f0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_back` · 00562960 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_front` · 005629e0 — ac2-script glue::lists
 
 ### BaseList<unsigned_long,11>
-- [ ] `BaseList<unsigned_long,11>::insert_sort_float` · 00562a60 · legions 00535ce0
-- [ ] `BaseList<unsigned_long,11>::insert_sort_int` · 00562b00 · legions 00535d80
+- [x] `BaseList<unsigned_long,11>::insert_sort_float` · 00562a60 · legions 00535ce0 — ac2-script glue::lists
+- [x] `BaseList<unsigned_long,11>::insert_sort_int` · 00562b00 · legions 00535d80 — ac2-script glue::lists
 
 ### gAList
-- [ ] `gAList::CallEFun_get_position` · 00562b90
-- [ ] `gAList::CallEFun_insert_back` · 00562c20
-- [ ] `gAList::CallEFun_insert_front` · 00562ca0
-- [ ] `gAList::CallEFun_insert_head` · 00562d20
-- [ ] `gAList::CallEFun_insert_sort_float` · 00562da0
-- [ ] `gAList::CallEFun_insert_sort_int` · 00562e20
-- [ ] `gAList::CallEFun_insert_tail` · 00562ea0
-- [ ] `gAList::CallEFun_push` · 00562f20
-- [ ] `gAList::CallEFun_push_head` · 00562fa0
-- [ ] `gAList::CallEFun_push_tail` · 00563020
-- [ ] `gAList::CallEFun_remove` · 005630a0
-- [ ] `gAList::CallEFun_contains` · 00563140
-- [ ] `gAList::CallEFun_erase_back` · 005631d0
-- [ ] `gAList::CallEFun_erase_front` · 00563280
-- [ ] `gAList::CallEFun_erase_head` · 00563330
-- [ ] `gAList::CallEFun_erase_tail` · 005633e0
-- [ ] `gAList::CallEFun_flush` · 00563490
-- [ ] `gAList::CallEFun_insert` · 005634f0
-- [ ] `gAList::CallEFun_push_unique_back` · 00563570
-- [ ] `gAList::CallEFun_push_unique_front` · 00563610
-- [ ] `gAList::CallEFun_insert_unique_back` · 005636b0
-- [ ] `gAList::CallEFun_insert_unique_front` · 00563750
-- [ ] `gAList::CallEFun_insert_unique_head` · 005637f0
-- [ ] `gAList::CallEFun_insert_unique_tail` · 00563890
-- [ ] `gAList::CallEFun_push_unique_head` · 00563930
-- [ ] `gAList::CallEFun_push_unique_tail` · 005639d0
+- [x] `gAList::CallEFun_get_position` · 00562b90 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_back` · 00562c20 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_front` · 00562ca0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_head` · 00562d20 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_sort_float` · 00562da0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_sort_int` · 00562e20 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_tail` · 00562ea0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push` · 00562f20 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_head` · 00562fa0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_tail` · 00563020 — ac2-script glue::lists
+- [x] `gAList::CallEFun_remove` · 005630a0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_contains` · 00563140 — ac2-script glue::lists
+- [x] `gAList::CallEFun_erase_back` · 005631d0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_erase_front` · 00563280 — ac2-script glue::lists
+- [x] `gAList::CallEFun_erase_head` · 00563330 — ac2-script glue::lists
+- [x] `gAList::CallEFun_erase_tail` · 005633e0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_flush` · 00563490 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert` · 005634f0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_unique_back` · 00563570 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_unique_front` · 00563610 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_unique_back` · 005636b0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_unique_front` · 00563750 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_unique_head` · 005637f0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_unique_tail` · 00563890 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_unique_head` · 00563930 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_unique_tail` · 005639d0 — ac2-script glue::lists
 
 ### BaseList<unsigned_long,11>
-- [ ] `BaseList<unsigned_long,11>::get_begin` · 00563a70 · legions 00536090
-- [ ] `BaseList<unsigned_long,11>::get_reverse` · 00563ac0 · legions 005360e0
-- [ ] `BaseList<unsigned_long,11>::get_end` · 00563b10 · legions 00536130
+- [~] `BaseList<unsigned_long,11>::get_begin` · 00563a70 · legions 00536090 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `BaseList<unsigned_long,11>::get_reverse` · 00563ac0 · legions 005360e0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `BaseList<unsigned_long,11>::get_end` · 00563b10 · legions 00536130 — ac2-script glue::lists: iterators hold an index, not a node
 
 ### gAList
-- [ ] `gAList::CallEFun_get_begin` · 00563b60
-- [ ] `gAList::CallEFun_get_end` · 00563be0
-- [ ] `gAList::CallEFun_get_reverse` · 00563c60
-- [ ] `gAList::CallEFun_clone` · 00563ce0
-- [ ] `gAList::CallEFun_inq_data` · 00563d80
-- [ ] `gAList::CallEFun_peek_back` · 00563e30
-- [ ] `gAList::CallEFun_peek_front` · 00563ee0
-- [ ] `gAList::CallEFun_peek_head` · 00563f90
-- [ ] `gAList::CallEFun_peek_tail` · 00564040
-- [ ] `gAList::CallEFun_pop_back` · 005640f0
-- [ ] `gAList::CallEFun_pop_front` · 00564190
-- [ ] `gAList::CallEFun_pop_head` · 00564270
-- [ ] `gAList::CallEFun_pop_tail` · 00564350
-- [ ] `gAList::CallEFun_remove_back` · 005643f0
-- [ ] `gAList::CallEFun_remove_front` · 00564490
-- [ ] `gAList::CallEFun_remove_head` · 00564570
-- [ ] `gAList::CallEFun_remove_tail` · 00564650
+- [x] `gAList::CallEFun_get_begin` · 00563b60 — ac2-script glue::lists
+- [x] `gAList::CallEFun_get_end` · 00563be0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_get_reverse` · 00563c60 — ac2-script glue::lists
+- [x] `gAList::CallEFun_clone` · 00563ce0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_inq_data` · 00563d80 — ac2-script glue::lists
+- [x] `gAList::CallEFun_peek_back` · 00563e30 — ac2-script glue::lists
+- [x] `gAList::CallEFun_peek_front` · 00563ee0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_peek_head` · 00563f90 — ac2-script glue::lists
+- [x] `gAList::CallEFun_peek_tail` · 00564040 — ac2-script glue::lists
+- [x] `gAList::CallEFun_pop_back` · 005640f0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_pop_front` · 00564190 — ac2-script glue::lists
+- [x] `gAList::CallEFun_pop_head` · 00564270 — ac2-script glue::lists
+- [x] `gAList::CallEFun_pop_tail` · 00564350 — ac2-script glue::lists
+- [x] `gAList::CallEFun_remove_back` · 005643f0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_remove_front` · 00564490 — ac2-script glue::lists
+- [x] `gAList::CallEFun_remove_head` · 00564570 — ac2-script glue::lists
+- [x] `gAList::CallEFun_remove_tail` · 00564650 — ac2-script glue::lists
 
 ## `portal/shared/src/interp/glue/galistiter.cpp.c` (0/7)
 
 ### gAListIter
-- [ ] `gAListIter::CallEFun_next` · 00562520
-- [ ] `gAListIter::CallEFun_prev` · 00562580
-- [ ] `gAListIter::CallEFun_data` · 005625e0
-- [ ] `gAListIter::CallEFun_equals` · 00562650
-- [ ] `gAListIter::CallEFun_notdone` · 005626d0
-- [ ] `gAListIter::CallEFun_insert` · 00562740
-- [ ] `gAListIter::CallEFun_remove` · 005627f0
+- [~] `gAListIter::CallEFun_next` · 00562520 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gAListIter::CallEFun_prev` · 00562580 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gAListIter::CallEFun_data` · 005625e0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gAListIter::CallEFun_equals` · 00562650 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gAListIter::CallEFun_notdone` · 005626d0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gAListIter::CallEFun_insert` · 00562740 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gAListIter::CallEFun_remove` · 005627f0 — ac2-script glue::lists: iterators hold an index, not a node
 
-## `portal/shared/src/interp/glue/galmultihash.cpp.c` (0/13)
+## `portal/shared/src/interp/glue/galmultihash.cpp.c` (13/13)
 
 ### gALMultiHash
-- [ ] `gALMultiHash::CallEFun_size` · 00561d30
-- [ ] `gALMultiHash::CallEFun_count` · 00561e50
+- [x] `gALMultiHash::CallEFun_size` · 00561d30 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_count` · 00561e50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiHash<unsigned_long,unsigned___int64,13>
-- [ ] `BaseMultiHash<unsigned_long,unsigned___int64,13>::find` · 00561fb0 · legions 00535690
-- [ ] `BaseMultiHash<unsigned_long,unsigned___int64,13>::find_last` · 00562030 · legions 00535710
-- [ ] `BaseMultiHash<unsigned_long,unsigned___int64,13>::get_begin` · 00562090 · legions 00535770
+- [x] `BaseMultiHash<unsigned_long,unsigned___int64,13>::find` · 00561fb0 · legions 00535690 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned_long,unsigned___int64,13>::find_last` · 00562030 · legions 00535710 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned_long,unsigned___int64,13>::get_begin` · 00562090 · legions 00535770 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gALMultiHash
-- [ ] `gALMultiHash::CallEFun_clear` · 005620f0
-- [ ] `gALMultiHash::CallEFun_erase` · 00562150
-- [ ] `gALMultiHash::CallEFun_find` · 005621d0
-- [ ] `gALMultiHash::CallEFun_find_last` · 00562250
-- [ ] `gALMultiHash::CallEFun_get_begin` · 005622d0
-- [ ] `gALMultiHash::CallEFun_get_end` · 00562350
-- [ ] `gALMultiHash::CallEFun_remove` · 00562410
-- [ ] `gALMultiHash::CallEFun_add` · 00562490
+- [x] `gALMultiHash::CallEFun_clear` · 005620f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_erase` · 00562150 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_find` · 005621d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_find_last` · 00562250 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_get_begin` · 005622d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_get_end` · 00562350 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_remove` · 00562410 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHash::CallEFun_add` · 00562490 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/galmultihashiter.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/galmultihashiter.cpp.c` (4/4)
 
 ### gALMultiHashIter
-- [ ] `gALMultiHashIter::CallEFun_data` · 00561b60
-- [ ] `gALMultiHashIter::CallEFun_equals` · 00561bd0
-- [ ] `gALMultiHashIter::CallEFun_key` · 00561c50
-- [ ] `gALMultiHashIter::CallEFun_next` · 00561cc0
+- [x] `gALMultiHashIter::CallEFun_data` · 00561b60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHashIter::CallEFun_equals` · 00561bd0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHashIter::CallEFun_key` · 00561c50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiHashIter::CallEFun_next` · 00561cc0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/galmultimap.cpp.c` (0/19)
+## `portal/shared/src/interp/glue/galmultimap.cpp.c` (19/19)
 
 ### gALMultiMap
-- [ ] `gALMultiMap::CallEFun_empty` · 0054e8b0
-- [ ] `gALMultiMap::CallEFun_count` · 0054e920
+- [x] `gALMultiMap::CallEFun_empty` · 0054e8b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_count` · 0054e920 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiMap<unsigned_long,unsigned___int64,13972>
-- [ ] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::find` · 0054eb10 · legions 0052b6a0
-- [ ] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::find_last` · 0054eb80 · legions 0052b710
-- [ ] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::get_begin` · 0054ebe0 · legions 0052b770
-- [ ] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::get_end` · 0054ec30 · legions 0052b7c0
-- [ ] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::lower_bound` · 0054ec80 · legions 0052b810
-- [ ] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::upper_bound` · 0054ecf0 · legions 0052b880
+- [x] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::find` · 0054eb10 · legions 0052b6a0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::find_last` · 0054eb80 · legions 0052b710 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::get_begin` · 0054ebe0 · legions 0052b770 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::get_end` · 0054ec30 · legions 0052b7c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::lower_bound` · 0054ec80 · legions 0052b810 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::upper_bound` · 0054ecf0 · legions 0052b880 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gALMultiMap
-- [ ] `gALMultiMap::CallEFun_clear` · 0054ed60
-- [ ] `gALMultiMap::CallEFun_erase` · 0054ede0
-- [ ] `gALMultiMap::CallEFun_find` · 0054ee70
-- [ ] `gALMultiMap::CallEFun_find_last` · 0054eef0
-- [ ] `gALMultiMap::CallEFun_get_begin` · 0054ef70
-- [ ] `gALMultiMap::CallEFun_get_end` · 0054eff0
-- [ ] `gALMultiMap::CallEFun_lower_bound` · 0054f070
-- [ ] `gALMultiMap::CallEFun_upper_bound` · 0054f0f0
+- [x] `gALMultiMap::CallEFun_clear` · 0054ed60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_erase` · 0054ede0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_find` · 0054ee70 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_find_last` · 0054eef0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_get_begin` · 0054ef70 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_get_end` · 0054eff0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_lower_bound` · 0054f070 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_upper_bound` · 0054f0f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiMap<unsigned_long,unsigned___int64,13972>
-- [ ] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::insert` · 0054f170 · legions 0052bbe0
+- [x] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::insert` · 0054f170 · legions 0052bbe0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gALMultiMap
-- [ ] `gALMultiMap::CallEFun_insert` · 0054f1d0
-- [ ] `gALMultiMap::CallEFun_remove` · 0054f230
+- [x] `gALMultiMap::CallEFun_insert` · 0054f1d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMap::CallEFun_remove` · 0054f230 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/galmultimapiter.cpp.c` (0/5)
+## `portal/shared/src/interp/glue/galmultimapiter.cpp.c` (5/5)
 
 ### gALMultiMapIter
-- [ ] `gALMultiMapIter::CallEFun_data` · 0054e640
-- [ ] `gALMultiMapIter::CallEFun_equals` · 0054e6b0
-- [ ] `gALMultiMapIter::CallEFun_key` · 0054e740
-- [ ] `gALMultiMapIter::CallEFun_next` · 0054e7b0
-- [ ] `gALMultiMapIter::CallEFun_prev` · 0054e850
+- [x] `gALMultiMapIter::CallEFun_data` · 0054e640 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMapIter::CallEFun_equals` · 0054e6b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMapIter::CallEFun_key` · 0054e740 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMapIter::CallEFun_next` · 0054e7b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gALMultiMapIter::CallEFun_prev` · 0054e850 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ## `portal/shared/src/interp/glue/gappearancetableadaptor.cpp.c` (0/5)
 
@@ -1344,73 +1344,73 @@ Legend and workflow: [README](README.md).
 - [ ] `gAppliedAppearanceKey::CallEFun_GetAppKey` · 0054c840
 - [ ] `gAppliedAppearanceKey::CallEFun_GetMod` · 0054c8b0
 
-## `portal/shared/src/interp/glue/garhash.cpp.c` (0/20)
+## `portal/shared/src/interp/glue/garhash.cpp.c` (20/20)
 
 ### gARHash
-- [ ] `gARHash::CallEFun_empty` · 00561050
-- [ ] `gARHash::CallEFun_num_buckets` · 005610c0
-- [ ] `gARHash::CallEFun_num_elements` · 00561130
-- [ ] `gARHash::CallEFun_too_big` · 005611a0
-- [ ] `gARHash::CallEFun_too_small` · 00561220
-- [ ] `gARHash::CallEFun_flush` · 005612a0
-- [ ] `gARHash::CallEFun_contains` · 00561300
-- [ ] `gARHash::CallEFun_erase` · 00561390
-- [ ] `gARHash::CallEFun_add` · 00561430
-- [ ] `gARHash::CallEFun_set` · 005614c0
+- [x] `gARHash::CallEFun_empty` · 00561050 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_num_buckets` · 005610c0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_num_elements` · 00561130 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_too_big` · 005611a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_too_small` · 00561220 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_flush` · 005612a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_contains` · 00561300 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_erase` · 00561390 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_add` · 00561430 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_set` · 005614c0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### BaseHash<unsigned_long,unsigned_long,18>
-- [ ] `BaseHash<unsigned_long,unsigned_long,18>::get_begin` · 005615f0 · legions 00534f80
-- [ ] `BaseHash<unsigned_long,unsigned_long,18>::get_end` · 00561670 · legions 00535000
+- [x] `BaseHash<unsigned_long,unsigned_long,18>::get_begin` · 005615f0 · legions 00534f80 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `BaseHash<unsigned_long,unsigned_long,18>::get_end` · 00561670 · legions 00535000 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### gARHash
-- [ ] `gARHash::CallEFun_get_begin` · 005616d0
-- [ ] `gARHash::CallEFun_get_end` · 00561750
-- [ ] `gARHash::CallEFun_grow` · 005617d0
-- [ ] `gARHash::CallEFun_resize` · 00561840
-- [ ] `gARHash::CallEFun_shrink` · 005618f0
-- [ ] `gARHash::CallEFun_optimize_size` · 00561960
-- [ ] `gARHash::CallEFun_find` · 005619e0
-- [ ] `gARHash::CallEFun_remove` · 00561a90
+- [x] `gARHash::CallEFun_get_begin` · 005616d0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_get_end` · 00561750 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_grow` · 005617d0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_resize` · 00561840 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_shrink` · 005618f0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_optimize_size` · 00561960 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_find` · 005619e0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHash::CallEFun_remove` · 00561a90 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/garhashiter.cpp.c` (0/6)
+## `portal/shared/src/interp/glue/garhashiter.cpp.c` (6/6)
 
 ### gARHashIter
-- [ ] `gARHashIter::CallEFun_data` · 00560da0
-- [ ] `gARHashIter::CallEFun_key` · 00560e10
-- [ ] `gARHashIter::CallEFun_equals` · 00560e80
-- [ ] `gARHashIter::CallEFun_next` · 00560f10
-- [ ] `gARHashIter::CallEFun_notdone` · 00560f70
-- [ ] `gARHashIter::CallEFun_remove` · 00560fe0
+- [x] `gARHashIter::CallEFun_data` · 00560da0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHashIter::CallEFun_key` · 00560e10 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHashIter::CallEFun_equals` · 00560e80 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHashIter::CallEFun_next` · 00560f10 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHashIter::CallEFun_notdone` · 00560f70 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gARHashIter::CallEFun_remove` · 00560fe0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/garmultihash.cpp.c` (0/14)
+## `portal/shared/src/interp/glue/garmultihash.cpp.c` (14/14)
 
 ### gARMultiHash
-- [ ] `gARMultiHash::CallEFun_empty` · 005604c0
-- [ ] `gARMultiHash::CallEFun_size` · 00560530
-- [ ] `gARMultiHash::CallEFun_count` · 00560650
+- [x] `gARMultiHash::CallEFun_empty` · 005604c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_size` · 00560530 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_count` · 00560650 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiHash<unsigned_long,unsigned_long,20>
-- [ ] `BaseMultiHash<unsigned_long,unsigned_long,20>::find` · 00560830 · legions 00534a80
-- [ ] `BaseMultiHash<unsigned_long,unsigned_long,20>::find_last` · 005608b0 · legions 00534b00
-- [ ] `BaseMultiHash<unsigned_long,unsigned_long,20>::get_begin` · 00560910 · legions 00534b60
+- [x] `BaseMultiHash<unsigned_long,unsigned_long,20>::find` · 00560830 · legions 00534a80 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned_long,unsigned_long,20>::find_last` · 005608b0 · legions 00534b00 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned_long,unsigned_long,20>::get_begin` · 00560910 · legions 00534b60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gARMultiHash
-- [ ] `gARMultiHash::CallEFun_clear` · 00560970
-- [ ] `gARMultiHash::CallEFun_erase` · 005609d0
-- [ ] `gARMultiHash::CallEFun_find` · 00560a50
-- [ ] `gARMultiHash::CallEFun_find_last` · 00560ad0
-- [ ] `gARMultiHash::CallEFun_get_begin` · 00560b50
-- [ ] `gARMultiHash::CallEFun_get_end` · 00560bd0
-- [ ] `gARMultiHash::CallEFun_remove` · 00560c90
-- [ ] `gARMultiHash::CallEFun_add` · 00560d10
+- [x] `gARMultiHash::CallEFun_clear` · 00560970 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_erase` · 005609d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_find` · 00560a50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_find_last` · 00560ad0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_get_begin` · 00560b50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_get_end` · 00560bd0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_remove` · 00560c90 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHash::CallEFun_add` · 00560d10 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/garmultihashiter.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/garmultihashiter.cpp.c` (4/4)
 
 ### gARMultiHashIter
-- [ ] `gARMultiHashIter::CallEFun_data` · 005602f0
-- [ ] `gARMultiHashIter::CallEFun_equals` · 00560360
-- [ ] `gARMultiHashIter::CallEFun_key` · 005603e0
-- [ ] `gARMultiHashIter::CallEFun_next` · 00560450
+- [x] `gARMultiHashIter::CallEFun_data` · 005602f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHashIter::CallEFun_equals` · 00560360 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHashIter::CallEFun_key` · 005603e0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gARMultiHashIter::CallEFun_next` · 00560450 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ## `portal/shared/src/interp/glue/gbaseproperty.cpp.c` (0/33)
 
@@ -1451,40 +1451,40 @@ Legend and workflow: [README](README.md).
 - [ ] `gBaseProperty::CallEFun_InqStringW` · 0054c5b0 · legions 0052a0a0
 - [ ] `gBaseProperty::CallEFun_InqVector` · 0054c650
 
-## `portal/shared/src/interp/glue/gbehaviorparams.cpp.c` (0/27)
+## `portal/shared/src/interp/glue/gbehaviorparams.cpp.c` (26/27)
 
 ### gBehaviorParams
-- [ ] `gBehaviorParams::CallEFun_SendEarlyCallBack` · 0054a800
-- [ ] `gBehaviorParams::CallEFun_SetBehaviorID` · 0054a860
-- [ ] `gBehaviorParams::CallEFun_SetCameraBehavior` · 0054a8c0
-- [ ] `gBehaviorParams::CallEFun_SetClonedAppearanceID` · 0054a920
-- [ ] `gBehaviorParams::CallEFun_SetFXScript` · 0054a980
-- [ ] `gBehaviorParams::CallEFun_SetFXToStartAndStop` · 0054a9e0
-- [ ] `gBehaviorParams::CallEFun_SetFadeChildren` · 0054aa40
-- [ ] `gBehaviorParams::CallEFun_SetHoldCamera` · 0054aaa0
-- [ ] `gBehaviorParams::CallEFun_SetLeaveIdleAlone` · 0054ab00
-- [ ] `gBehaviorParams::CallEFun_SetLockActions` · 0054ab60
-- [ ] `gBehaviorParams::CallEFun_SetModeID` · 0054abc0
-- [ ] `gBehaviorParams::CallEFun_SetMoveToCancels` · 0054ac20
-- [ ] `gBehaviorParams::CallEFun_SetNewCameraOwnerID` · 0054ac80
-- [ ] `gBehaviorParams::CallEFun_SetNumberOfHoldCycles` · 0054ace0
-- [ ] `gBehaviorParams::CallEFun_SetParentedCamera` · 0054ad40
-- [ ] `gBehaviorParams::CallEFun_SetPropagate` · 0054ada0
-- [ ] `gBehaviorParams::CallEFun_SetRestoreCamera` · 0054ae00
-- [ ] `gBehaviorParams::CallEFun_SetSendEvent` · 0054ae60
-- [ ] `gBehaviorParams::CallEFun_SetTargetID` · 0054aec0
-- [ ] `gBehaviorParams::CallEFun_SetTargetedCamera` · 0054af20
-- [ ] `gBehaviorParams::CallEFun_SetTargetedImpulse` · 0054af80
-- [ ] `gBehaviorParams::CallEFun_SetTimeScale` · 0054b000
-- [ ] `gBehaviorParams::CallEFun_SetVDescIDToClone` · 0054b060
-- [ ] `gBehaviorParams::CallEFun_SetWeenieEmoteID` · 0054b0c0
-- [ ] `gBehaviorParams::CallEFun_GetBehaviorID` · 0054b120
+- [x] `gBehaviorParams::CallEFun_SendEarlyCallBack` · 0054a800 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetBehaviorID` · 0054a860 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetCameraBehavior` · 0054a8c0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetClonedAppearanceID` · 0054a920 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetFXScript` · 0054a980 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetFXToStartAndStop` · 0054a9e0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetFadeChildren` · 0054aa40 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetHoldCamera` · 0054aaa0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetLeaveIdleAlone` · 0054ab00 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetLockActions` · 0054ab60 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetModeID` · 0054abc0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetMoveToCancels` · 0054ac20 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetNewCameraOwnerID` · 0054ac80 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetNumberOfHoldCycles` · 0054ace0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetParentedCamera` · 0054ad40 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetPropagate` · 0054ada0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetRestoreCamera` · 0054ae00 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetSendEvent` · 0054ae60 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetTargetID` · 0054aec0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetTargetedCamera` · 0054af20 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetTargetedImpulse` · 0054af80 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetTimeScale` · 0054b000 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetVDescIDToClone` · 0054b060 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetWeenieEmoteID` · 0054b0c0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_GetBehaviorID` · 0054b120 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ### gGameplayOptionsProfile
-- [ ] `gGameplayOptionsProfile::AAHashToUIElementOpacities` · 0054b190 · legions 00529120
+- [~] `gGameplayOptionsProfile::AAHashToUIElementOpacities` · 0054b190 · legions 00529120 — ac2-script glue: f32 spill points unchecked against x87 / copy order of PHashTable operator= unverified
 
 ### gBehaviorParams
-- [ ] `gBehaviorParams::CallEFun_SetClonedAppKeyHash` · 0054b280
+- [x] `gBehaviorParams::CallEFun_SetClonedAppKeyHash` · 0054b280 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ## `portal/shared/src/interp/glue/gcaseinsensitivewpstring.cpp.c` (0/33)
 
@@ -1605,13 +1605,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gCollisionProfile::CallEFun_HasCollided` · 00549080 · legions 00527ca0
 - [ ] `gCollisionProfile::CallEFun_HasContact` · 00549150 · legions 00527d50
 
-## `portal/shared/src/interp/glue/gdbcache.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/gdbcache.cpp.c` (4/4)
 
 ### gDBCache
-- [ ] `gDBCache::CallEFun_GetDIDFromEnumStatic` · 00536af0
-- [ ] `gDBCache::CallEFun_IsClient` · 00536b30
-- [ ] `gDBCache::CallEFun_IsRunTime` · 00536b60
-- [ ] `gDBCache::CallEFun_IsServer` · 00536b90
+- [x] `gDBCache::CallEFun_GetDIDFromEnumStatic` · 00536af0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gDBCache::CallEFun_IsClient` · 00536b30 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gDBCache::CallEFun_IsRunTime` · 00536b60 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gDBCache::CallEFun_IsServer` · 00536b90 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ## `portal/shared/src/interp/glue/gdebug.cpp.c` (0/11)
 
@@ -1679,11 +1679,11 @@ Legend and workflow: [README](README.md).
 ### gEmailUtils
 - [ ] `gEmailUtils::CallEFun_send_emailW` · 00547c90
 
-## `portal/shared/src/interp/glue/gentitydesc.cpp.c` (0/28)
+## `portal/shared/src/interp/glue/gentitydesc.cpp.c` (1/28)
 
 ### gEntityDesc
 - [ ] `gEntityDesc::CallEFun_GetDataID` · 00546c10
-- [ ] `gEntityDesc::CallEFun_GetDataIDFromEntityNameW` · 00546c80
+- [x] `gEntityDesc::CallEFun_GetDataIDFromEntityNameW` · 00546c80 — ac2-script glue::enums (FileArray::GetDID: no name data on the DVD)
 - [ ] `gEntityDesc::CallEFun_GetRootPackageID` · 00546cc0
 - [ ] `gEntityDesc::CallEFun_GetRuntimeID` · 00546d30
 - [ ] `gEntityDesc::CallEFun_GetType` · 00546da0
@@ -1722,17 +1722,17 @@ Legend and workflow: [README](README.md).
 - [ ] `gEntityLinkDesc::CallEFun_GetWBName_ForWsl` · 00536990
 - [ ] `gEntityLinkDesc::CallEFun_InqStringPropertyW` · 00536a50 · legions 0051a7e0
 
-## `portal/shared/src/interp/glue/genummapper.cpp.c` (0/8)
+## `portal/shared/src/interp/glue/genummapper.cpp.c` (8/8)
 
 ### gEnumMapper
-- [ ] `gEnumMapper::CallEFun_GetNumMappings` · 00546820
-- [ ] `gEnumMapper::CallEFun_GetAllEnumVals` · 00546850
-- [ ] `gEnumMapper::CallEFun_GetLogStringW` · 00546900 · legions 00525d50
-- [ ] `gEnumMapper::CallEFun_GetStringW` · 00546980 · legions 00525dd0
-- [ ] `gEnumMapper::CallEFun_GetAllEnumNames` · 00546a00
-- [ ] `gEnumMapper::CallEFun_GetEnumByDIDW` · 00546ab0
-- [ ] `gEnumMapper::CallEFun_InqEnum` · 00546b30
-- [ ] `gEnumMapper::CallEFun_InqString` · 00546bb0
+- [x] `gEnumMapper::CallEFun_GetNumMappings` · 00546820 — ac2-script data/glue::enums
+- [x] `gEnumMapper::CallEFun_GetAllEnumVals` · 00546850 — ac2-script data/glue::enums
+- [x] `gEnumMapper::CallEFun_GetLogStringW` · 00546900 · legions 00525d50 — ac2-script data/glue::enums
+- [x] `gEnumMapper::CallEFun_GetStringW` · 00546980 · legions 00525dd0 — ac2-script data/glue::enums
+- [x] `gEnumMapper::CallEFun_GetAllEnumNames` · 00546a00 — ac2-script data/glue::enums
+- [x] `gEnumMapper::CallEFun_GetEnumByDIDW` · 00546ab0 — ac2-script data/glue::enums
+- [x] `gEnumMapper::CallEFun_InqEnum` · 00546b30 — ac2-script data/glue::enums
+- [x] `gEnumMapper::CallEFun_InqString` · 00546bb0 — ac2-script data/glue::enums
 
 ## `portal/shared/src/interp/glue/getherealphysicstype.cpp.c` (0/7)
 
@@ -1786,13 +1786,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gFile::CallEFun_WSLWriteToFileTimestamped` · 00546230
 - [ ] `gFile::CallEFun_WSLReadFromFile` · 005462a0
 
-## `portal/shared/src/interp/glue/gfilearray.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/gfilearray.cpp.c` (1/4)
 
 ### gFileArray
-- [ ] `gFileArray::CallEFun_GetDIDForDummiesW` · 00545420
-- [ ] `gFileArray::CallEFun_GetDIDFromEnum` · 00545460
-- [ ] `gFileArray::CallEFun_GetDIDW` · 005454a0
-- [ ] `gFileArray::CallEFun_GetFileNameForDummiesW` · 005454f0 · legions 00524b00
+- [~] `gFileArray::CallEFun_GetDIDForDummiesW` · 00545420 — ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+- [x] `gFileArray::CallEFun_GetDIDFromEnum` · 00545460 — ac2-script data/glue::enums
+- [~] `gFileArray::CallEFun_GetDIDW` · 005454a0 — ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+- [~] `gFileArray::CallEFun_GetFileNameForDummiesW` · 005454f0 · legions 00524b00 — ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
 
 ## `portal/shared/src/interp/glue/gframe.cpp.c` (0/1)
 
@@ -1856,153 +1856,153 @@ Legend and workflow: [README](README.md).
 ### gIPreproc
 - [ ] `gIPreproc::CallIFun_GetSubDataIDs` · 00733870 · legions 006afd20
 
-## `portal/shared/src/interp/glue/glahash.cpp.c` (0/20)
+## `portal/shared/src/interp/glue/glahash.cpp.c` (20/20)
 
 ### gLAHash
-- [ ] `gLAHash::CallEFun_empty` · 0055f4f0
-- [ ] `gLAHash::CallEFun_num_buckets` · 0055f560
-- [ ] `gLAHash::CallEFun_num_elements` · 0055f5d0
-- [ ] `gLAHash::CallEFun_too_big` · 0055f640
-- [ ] `gLAHash::CallEFun_too_small` · 0055f6c0
-- [ ] `gLAHash::CallEFun_flush` · 0055f740
-- [ ] `gLAHash::CallEFun_contains` · 0055f7a0
-- [ ] `gLAHash::CallEFun_erase` · 0055f840
-- [ ] `gLAHash::CallEFun_add` · 0055f8f0
-- [ ] `gLAHash::CallEFun_set` · 0055f990
+- [x] `gLAHash::CallEFun_empty` · 0055f4f0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_num_buckets` · 0055f560 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_num_elements` · 0055f5d0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_too_big` · 0055f640 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_too_small` · 0055f6c0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_flush` · 0055f740 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_contains` · 0055f7a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_erase` · 0055f840 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_add` · 0055f8f0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_set` · 0055f990 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### BaseHash<unsigned___int64,unsigned_long,51>
-- [ ] `BaseHash<unsigned___int64,unsigned_long,51>::get_begin` · 0055fa30 · legions 00534080
-- [ ] `BaseHash<unsigned___int64,unsigned_long,51>::get_end` · 0055fab0 · legions 00534100
+- [x] `BaseHash<unsigned___int64,unsigned_long,51>::get_begin` · 0055fa30 · legions 00534080 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `BaseHash<unsigned___int64,unsigned_long,51>::get_end` · 0055fab0 · legions 00534100 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### gLAHash
-- [ ] `gLAHash::CallEFun_get_begin` · 0055fb10
-- [ ] `gLAHash::CallEFun_get_end` · 0055fb90
-- [ ] `gLAHash::CallEFun_grow` · 0055fc10
-- [ ] `gLAHash::CallEFun_resize` · 0055fc80
-- [ ] `gLAHash::CallEFun_shrink` · 0055fd30
-- [ ] `gLAHash::CallEFun_optimize_size` · 0055fda0
-- [ ] `gLAHash::CallEFun_find` · 0055fe20
-- [ ] `gLAHash::CallEFun_remove` · 0055ff10
+- [x] `gLAHash::CallEFun_get_begin` · 0055fb10 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_get_end` · 0055fb90 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_grow` · 0055fc10 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_resize` · 0055fc80 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_shrink` · 0055fd30 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_optimize_size` · 0055fda0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_find` · 0055fe20 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHash::CallEFun_remove` · 0055ff10 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/glahashiter.cpp.c` (0/6)
+## `portal/shared/src/interp/glue/glahashiter.cpp.c` (6/6)
 
 ### gLAHashIter
-- [ ] `gLAHashIter::CallEFun_data` · 0055f240
-- [ ] `gLAHashIter::CallEFun_key` · 0055f2b0
-- [ ] `gLAHashIter::CallEFun_equals` · 0055f320
-- [ ] `gLAHashIter::CallEFun_notdone` · 0055f3b0
-- [ ] `gLAHashIter::CallEFun_next` · 0055f420
-- [ ] `gLAHashIter::CallEFun_remove` · 0055f480
+- [x] `gLAHashIter::CallEFun_data` · 0055f240 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashIter::CallEFun_key` · 0055f2b0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashIter::CallEFun_equals` · 0055f320 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashIter::CallEFun_notdone` · 0055f3b0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashIter::CallEFun_next` · 0055f420 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashIter::CallEFun_remove` · 0055f480 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/glahashset.cpp.c` (0/20)
+## `portal/shared/src/interp/glue/glahashset.cpp.c` (17/20)
 
 ### gLAHashSet
-- [ ] `gLAHashSet::CallEFun_empty` · 00551530
-- [ ] `gLAHashSet::CallEFun_num_buckets` · 005515a0
-- [ ] `gLAHashSet::CallEFun_num_elements` · 00551610
-- [ ] `gLAHashSet::CallEFun_too_big` · 00551680
-- [ ] `gLAHashSet::CallEFun_too_small` · 00551700
-- [ ] `gLAHashSet::CallEFun_flush` · 00551780
-- [ ] `gLAHashSet::CallEFun_contains` · 005517e0
-- [ ] `gLAHashSet::CallEFun_erase` · 00551880
+- [x] `gLAHashSet::CallEFun_empty` · 00551530 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSet::CallEFun_num_buckets` · 005515a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSet::CallEFun_num_elements` · 00551610 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSet::CallEFun_too_big` · 00551680 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSet::CallEFun_too_small` · 00551700 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSet::CallEFun_flush` · 00551780 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSet::CallEFun_contains` · 005517e0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSet::CallEFun_erase` · 00551880 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### HashSet<unsigned___int64>
 - [ ] `HashSet<unsigned___int64>::add` · 00551930 · legions 0052ccf0
 
 ### gLAHashSet
-- [ ] `gLAHashSet::CallEFun_add` · 005519a0
+- [x] `gLAHashSet::CallEFun_add` · 005519a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### HashSet<unsigned___int64>
 - [ ] `HashSet<unsigned___int64>::grow` · 00551a30 · legions 0052cdd0
 - [ ] `HashSet<unsigned___int64>::shrink` · 00551a80 · legions 0052ce20
 
 ### BaseHashSet<unsigned___int64,11788>
-- [ ] `BaseHashSet<unsigned___int64,11788>::get_begin` · 00551b30 · legions 0052ce70
-- [ ] `BaseHashSet<unsigned___int64,11788>::get_end` · 00551bb0 · legions 0052cef0
+- [x] `BaseHashSet<unsigned___int64,11788>::get_begin` · 00551b30 · legions 0052ce70 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `BaseHashSet<unsigned___int64,11788>::get_end` · 00551bb0 · legions 0052cef0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### gLAHashSet
-- [ ] `gLAHashSet::CallEFun_get_begin` · 00551c10
-- [ ] `gLAHashSet::CallEFun_get_end` · 00551c90
-- [ ] `gLAHashSet::CallEFun_grow` · 00551d10
-- [ ] `gLAHashSet::CallEFun_resize` · 00551d70
-- [ ] `gLAHashSet::CallEFun_shrink` · 00551e00
-- [ ] `gLAHashSet::CallEFun_optimize_size` · 00551e60
+- [x] `gLAHashSet::CallEFun_get_begin` · 00551c10 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSet::CallEFun_get_end` · 00551c90 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSet::CallEFun_grow` · 00551d10 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSet::CallEFun_resize` · 00551d70 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSet::CallEFun_shrink` · 00551e00 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSet::CallEFun_optimize_size` · 00551e60 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/glahashsetiter.cpp.c` (0/5)
+## `portal/shared/src/interp/glue/glahashsetiter.cpp.c` (5/5)
 
 ### gLAHashSetIter
-- [ ] `gLAHashSetIter::CallEFun_equals` · 005512f0
-- [ ] `gLAHashSetIter::CallEFun_key` · 00551380
-- [ ] `gLAHashSetIter::CallEFun_notdone` · 005513f0
-- [ ] `gLAHashSetIter::CallEFun_next` · 00551460
-- [ ] `gLAHashSetIter::CallEFun_remove` · 005514c0
+- [x] `gLAHashSetIter::CallEFun_equals` · 005512f0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSetIter::CallEFun_key` · 00551380 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSetIter::CallEFun_notdone` · 005513f0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSetIter::CallEFun_next` · 00551460 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLAHashSetIter::CallEFun_remove` · 005514c0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/glamultihash.cpp.c` (0/13)
+## `portal/shared/src/interp/glue/glamultihash.cpp.c` (13/13)
 
 ### gLAMultiHash
-- [ ] `gLAMultiHash::CallEFun_size` · 0055ebb0
-- [ ] `gLAMultiHash::CallEFun_count` · 0055ec20
+- [x] `gLAMultiHash::CallEFun_size` · 0055ebb0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_count` · 0055ec20 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiHash<unsigned___int64,unsigned_long,53>
-- [ ] `BaseMultiHash<unsigned___int64,unsigned_long,53>::find` · 0055ecb0 · legions 00533a70
-- [ ] `BaseMultiHash<unsigned___int64,unsigned_long,53>::find_last` · 0055ed40 · legions 00533b00
-- [ ] `BaseMultiHash<unsigned___int64,unsigned_long,53>::get_begin` · 0055eda0 · legions 00533b60
+- [x] `BaseMultiHash<unsigned___int64,unsigned_long,53>::find` · 0055ecb0 · legions 00533a70 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned___int64,unsigned_long,53>::find_last` · 0055ed40 · legions 00533b00 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned___int64,unsigned_long,53>::get_begin` · 0055eda0 · legions 00533b60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gLAMultiHash
-- [ ] `gLAMultiHash::CallEFun_clear` · 0055ee00
-- [ ] `gLAMultiHash::CallEFun_erase` · 0055ee60
-- [ ] `gLAMultiHash::CallEFun_find` · 0055eee0
-- [ ] `gLAMultiHash::CallEFun_find_last` · 0055ef60
-- [ ] `gLAMultiHash::CallEFun_get_begin` · 0055efe0
-- [ ] `gLAMultiHash::CallEFun_get_end` · 0055f060
-- [ ] `gLAMultiHash::CallEFun_remove` · 0055f120
-- [ ] `gLAMultiHash::CallEFun_add` · 0055f1b0
+- [x] `gLAMultiHash::CallEFun_clear` · 0055ee00 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_erase` · 0055ee60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_find` · 0055eee0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_find_last` · 0055ef60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_get_begin` · 0055efe0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_get_end` · 0055f060 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_remove` · 0055f120 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHash::CallEFun_add` · 0055f1b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/glamultihashiter.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/glamultihashiter.cpp.c` (4/4)
 
 ### gLAMultiHashIter
-- [ ] `gLAMultiHashIter::CallEFun_data` · 0055e9e0
-- [ ] `gLAMultiHashIter::CallEFun_equals` · 0055ea50
-- [ ] `gLAMultiHashIter::CallEFun_key` · 0055ead0
-- [ ] `gLAMultiHashIter::CallEFun_next` · 0055eb40
+- [x] `gLAMultiHashIter::CallEFun_data` · 0055e9e0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHashIter::CallEFun_equals` · 0055ea50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHashIter::CallEFun_key` · 0055ead0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiHashIter::CallEFun_next` · 0055eb40 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/glamultimap.cpp.c` (0/18)
+## `portal/shared/src/interp/glue/glamultimap.cpp.c` (18/18)
 
 ### gLAMultiMap
-- [ ] `gLAMultiMap::CallEFun_empty` · 0054dbf0
-- [ ] `gLAMultiMap::CallEFun_count` · 0054dcf0
+- [x] `gLAMultiMap::CallEFun_empty` · 0054dbf0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_count` · 0054dcf0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiMap<unsigned___int64,unsigned_long,13974>
-- [ ] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::find` · 0054def0 · legions 0052af90
-- [ ] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::find_last` · 0054df50 · legions 0052aff0
-- [ ] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::get_begin` · 0054dfb0 · legions 0052b050
-- [ ] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::get_end` · 0054e000 · legions 0052b0a0
-- [ ] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::lower_bound` · 0054e050 · legions 0052b0f0
-- [ ] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::upper_bound` · 0054e0b0 · legions 0052b150
+- [x] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::find` · 0054def0 · legions 0052af90 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::find_last` · 0054df50 · legions 0052aff0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::get_begin` · 0054dfb0 · legions 0052b050 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::get_end` · 0054e000 · legions 0052b0a0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::lower_bound` · 0054e050 · legions 0052b0f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned_long,13974>::upper_bound` · 0054e0b0 · legions 0052b150 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gLAMultiMap
-- [ ] `gLAMultiMap::CallEFun_clear` · 0054e130
-- [ ] `gLAMultiMap::CallEFun_erase` · 0054e1b0
-- [ ] `gLAMultiMap::CallEFun_find` · 0054e240
-- [ ] `gLAMultiMap::CallEFun_find_last` · 0054e2c0
-- [ ] `gLAMultiMap::CallEFun_get_begin` · 0054e340
-- [ ] `gLAMultiMap::CallEFun_get_end` · 0054e3c0
-- [ ] `gLAMultiMap::CallEFun_lower_bound` · 0054e440
-- [ ] `gLAMultiMap::CallEFun_upper_bound` · 0054e4c0
-- [ ] `gLAMultiMap::CallEFun_insert` · 0054e540
-- [ ] `gLAMultiMap::CallEFun_remove` · 0054e5c0
+- [x] `gLAMultiMap::CallEFun_clear` · 0054e130 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_erase` · 0054e1b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_find` · 0054e240 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_find_last` · 0054e2c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_get_begin` · 0054e340 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_get_end` · 0054e3c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_lower_bound` · 0054e440 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_upper_bound` · 0054e4c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_insert` · 0054e540 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMap::CallEFun_remove` · 0054e5c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/glamultimapiter.cpp.c` (0/6)
+## `portal/shared/src/interp/glue/glamultimapiter.cpp.c` (5/6)
 
 ### _STL::_Rb_tree_iterator<_STL::pair<ActionWithModifiers_const_,ActionMapValue>,_STL::_Nonconst_traits<_STL::pair<ActionWithModifiers_const_,ActionMapValue>_>_>
 - [ ] `_STL::_Rb_tree_iterator<_STL::pair<ActionWithModifiers_const_,ActionMapValue>,_STL::_Nonconst_traits<_STL::pair<ActionWithModifiers_const_,ActionMapValue>_>_>::operator--` · 0054d8e0 · legions 0060f180
 
 ### gLAMultiMapIter
-- [ ] `gLAMultiMapIter::CallEFun_data` · 0054d930
-- [ ] `gLAMultiMapIter::CallEFun_equals` · 0054d9a0
-- [ ] `gLAMultiMapIter::CallEFun_key` · 0054da30
-- [ ] `gLAMultiMapIter::CallEFun_next` · 0054daa0
-- [ ] `gLAMultiMapIter::CallEFun_prev` · 0054db40
+- [x] `gLAMultiMapIter::CallEFun_data` · 0054d930 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMapIter::CallEFun_equals` · 0054d9a0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMapIter::CallEFun_key` · 0054da30 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMapIter::CallEFun_next` · 0054daa0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLAMultiMapIter::CallEFun_prev` · 0054db40 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ## `portal/shared/src/interp/glue/glanddefs.cpp.c` (0/3)
 
@@ -2011,26 +2011,26 @@ Legend and workflow: [README](README.md).
 - [ ] `gLandDefs::CallEFun_get_land_width` · 00543250
 - [ ] `gLandDefs::CallEFun_InqLandblockIIDFromStaticObjectIID` · 00543280
 
-## `portal/shared/src/interp/glue/glarray.cpp.c` (0/13)
+## `portal/shared/src/interp/glue/glarray.cpp.c` (12/13)
 
 ### gLArray
-- [ ] `gLArray::CallEFun_contains` · 0055e270
-- [ ] `gLArray::CallEFun_empty` · 0055e300
-- [ ] `gLArray::CallEFun_flush` · 0055e370
-- [ ] `gLArray::CallEFun_num_elements` · 0055e3d0
-- [ ] `gLArray::CallEFun_set` · 0055e440
-- [ ] `gLArray::CallEFun_SetNElements` · 0055e4e0
-- [ ] `gLArray::CallEFun_erase` · 0055e570
-- [ ] `gLArray::CallEFun_get` · 0055e610
+- [x] `gLArray::CallEFun_contains` · 0055e270 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_empty` · 0055e300 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_flush` · 0055e370 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_num_elements` · 0055e3d0 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_set` · 0055e440 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_SetNElements` · 0055e4e0 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_erase` · 0055e570 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_get` · 0055e610 — ac2-script glue::lists
 
 ### SmartArray<CLandBlock::DynamicObjectInfo>
 - [ ] `SmartArray<CLandBlock::DynamicObjectInfo>::AddToEnd` · 0055e690 · legions 00533650
 
 ### gLArray
-- [ ] `gLArray::CallEFun_push` · 0055e6e0
-- [ ] `gLArray::CallEFun_push_unique` · 0055e770
-- [ ] `gLArray::CallEFun_pop` · 0055e840
-- [ ] `gLArray::CallEFun_query` · 0055e910
+- [x] `gLArray::CallEFun_push` · 0055e6e0 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_push_unique` · 0055e770 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_pop` · 0055e840 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_query` · 0055e910 — ac2-script glue::lists
 
 ## `portal/shared/src/interp/glue/glinkrequirements.cpp.c` (0/10)
 
@@ -2046,91 +2046,91 @@ Legend and workflow: [README](README.md).
 - [ ] `gLinkRequirements::CallEFun_IsInputLink` · 00543140
 - [ ] `gLinkRequirements::CallEFun_IsRequired` · 005431b0
 
-## `portal/shared/src/interp/glue/gllhash.cpp.c` (0/20)
+## `portal/shared/src/interp/glue/gllhash.cpp.c` (20/20)
 
 ### gLLHash
-- [ ] `gLLHash::CallEFun_empty` · 0055d690
-- [ ] `gLLHash::CallEFun_num_buckets` · 0055d700
-- [ ] `gLLHash::CallEFun_num_elements` · 0055d770
-- [ ] `gLLHash::CallEFun_too_big` · 0055d7e0
-- [ ] `gLLHash::CallEFun_too_small` · 0055d860
-- [ ] `gLLHash::CallEFun_flush` · 0055d8e0
-- [ ] `gLLHash::CallEFun_contains` · 0055d940
-- [ ] `gLLHash::CallEFun_erase` · 0055d9e0
-- [ ] `gLLHash::CallEFun_add` · 0055db00
-- [ ] `gLLHash::CallEFun_set` · 0055dba0
+- [x] `gLLHash::CallEFun_empty` · 0055d690 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_num_buckets` · 0055d700 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_num_elements` · 0055d770 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_too_big` · 0055d7e0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_too_small` · 0055d860 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_flush` · 0055d8e0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_contains` · 0055d940 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_erase` · 0055d9e0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_add` · 0055db00 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_set` · 0055dba0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### BaseHash<unsigned___int64,unsigned___int64,58>
-- [ ] `BaseHash<unsigned___int64,unsigned___int64,58>::get_begin` · 0055dc40 · legions 00533010
-- [ ] `BaseHash<unsigned___int64,unsigned___int64,58>::get_end` · 0055dcc0 · legions 00533090
+- [x] `BaseHash<unsigned___int64,unsigned___int64,58>::get_begin` · 0055dc40 · legions 00533010 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `BaseHash<unsigned___int64,unsigned___int64,58>::get_end` · 0055dcc0 · legions 00533090 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### gLLHash
-- [ ] `gLLHash::CallEFun_get_begin` · 0055dd20
-- [ ] `gLLHash::CallEFun_get_end` · 0055dda0
-- [ ] `gLLHash::CallEFun_grow` · 0055de20
-- [ ] `gLLHash::CallEFun_resize` · 0055de90
-- [ ] `gLLHash::CallEFun_shrink` · 0055df40
-- [ ] `gLLHash::CallEFun_optimize_size` · 0055dfb0
-- [ ] `gLLHash::CallEFun_find` · 0055e030
-- [ ] `gLLHash::CallEFun_remove` · 0055e130
+- [x] `gLLHash::CallEFun_get_begin` · 0055dd20 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_get_end` · 0055dda0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_grow` · 0055de20 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_resize` · 0055de90 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_shrink` · 0055df40 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_optimize_size` · 0055dfb0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_find` · 0055e030 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHash::CallEFun_remove` · 0055e130 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/gllhashiter.cpp.c` (0/7)
+## `portal/shared/src/interp/glue/gllhashiter.cpp.c` (6/7)
 
 ### gLLHashIter
-- [ ] `gLLHashIter::CallEFun_data` · 0055d380
-- [ ] `gLLHashIter::CallEFun_key` · 0055d3f0
+- [x] `gLLHashIter::CallEFun_data` · 0055d380 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHashIter::CallEFun_key` · 0055d3f0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### IntrusiveHashIterator<unsigned___int64,HashSetData<unsigned___int64>_*>
 - [ ] `IntrusiveHashIterator<unsigned___int64,HashSetData<unsigned___int64>_*>::remove` · 0055d460 · legions 00531370
 
 ### gLLHashIter
-- [ ] `gLLHashIter::CallEFun_equals` · 0055d4c0
-- [ ] `gLLHashIter::CallEFun_notdone` · 0055d550
-- [ ] `gLLHashIter::CallEFun_next` · 0055d5c0
-- [ ] `gLLHashIter::CallEFun_remove` · 0055d620
+- [x] `gLLHashIter::CallEFun_equals` · 0055d4c0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHashIter::CallEFun_notdone` · 0055d550 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHashIter::CallEFun_next` · 0055d5c0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLLHashIter::CallEFun_remove` · 0055d620 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/gllist.cpp.c` (0/51)
+## `portal/shared/src/interp/glue/gllist.cpp.c` (46/51)
 
 ### gLList
-- [ ] `gLList::CallEFun_empty` · 0055b450
-- [ ] `gLList::CallEFun_get_position` · 0055b4c0
-- [ ] `gLList::CallEFun_num_elements` · 0055b560
-- [ ] `gLList::CallEFun_push_back` · 0055b5d0
-- [ ] `gLList::CallEFun_push_front` · 0055b660
+- [x] `gLList::CallEFun_empty` · 0055b450 — ac2-script glue::lists
+- [x] `gLList::CallEFun_get_position` · 0055b4c0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_num_elements` · 0055b560 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_back` · 0055b5d0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_front` · 0055b660 — ac2-script glue::lists
 
 ### BaseList<unsigned___int64,60>
 - [ ] `BaseList<unsigned___int64,60>::insert_sort_ulint` · 0055b810 · legions 00532260
 
 ### gLList
-- [ ] `gLList::CallEFun_insert_back` · 0055b860
-- [ ] `gLList::CallEFun_insert_front` · 0055b8f0
-- [ ] `gLList::CallEFun_insert_head` · 0055b980
-- [ ] `gLList::CallEFun_insert_sort_ulint` · 0055ba10
-- [ ] `gLList::CallEFun_insert_tail` · 0055baa0
-- [ ] `gLList::CallEFun_push` · 0055bb30
-- [ ] `gLList::CallEFun_push_head` · 0055bbc0
-- [ ] `gLList::CallEFun_push_tail` · 0055bc50
-- [ ] `gLList::CallEFun_remove` · 0055bce0
+- [x] `gLList::CallEFun_insert_back` · 0055b860 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_front` · 0055b8f0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_head` · 0055b980 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_sort_ulint` · 0055ba10 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_tail` · 0055baa0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push` · 0055bb30 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_head` · 0055bbc0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_tail` · 0055bc50 — ac2-script glue::lists
+- [x] `gLList::CallEFun_remove` · 0055bce0 — ac2-script glue::lists
 
 ### BaseList<unsigned___int64,60>
 - [ ] `BaseList<unsigned___int64,60>::inq_data` · 0055be10 · legions 00532510
 
 ### gLList
-- [ ] `gLList::CallEFun_contains` · 0055be60
-- [ ] `gLList::CallEFun_erase_back` · 0055bf00
-- [ ] `gLList::CallEFun_erase_front` · 0055bfb0
-- [ ] `gLList::CallEFun_erase_head` · 0055c060
-- [ ] `gLList::CallEFun_erase_tail` · 0055c110
-- [ ] `gLList::CallEFun_flush` · 0055c1c0
-- [ ] `gLList::CallEFun_insert` · 0055c220
-- [ ] `gLList::CallEFun_push_unique_back` · 0055c340
-- [ ] `gLList::CallEFun_push_unique_front` · 0055c3d0
-- [ ] `gLList::CallEFun_insert_unique_back` · 0055c460
-- [ ] `gLList::CallEFun_insert_unique_front` · 0055c4f0
-- [ ] `gLList::CallEFun_insert_unique_head` · 0055c580
-- [ ] `gLList::CallEFun_insert_unique_tail` · 0055c610
-- [ ] `gLList::CallEFun_push_unique_head` · 0055c6a0
-- [ ] `gLList::CallEFun_push_unique_tail` · 0055c730
+- [x] `gLList::CallEFun_contains` · 0055be60 — ac2-script glue::lists
+- [x] `gLList::CallEFun_erase_back` · 0055bf00 — ac2-script glue::lists
+- [x] `gLList::CallEFun_erase_front` · 0055bfb0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_erase_head` · 0055c060 — ac2-script glue::lists
+- [x] `gLList::CallEFun_erase_tail` · 0055c110 — ac2-script glue::lists
+- [x] `gLList::CallEFun_flush` · 0055c1c0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert` · 0055c220 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_unique_back` · 0055c340 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_unique_front` · 0055c3d0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_unique_back` · 0055c460 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_unique_front` · 0055c4f0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_unique_head` · 0055c580 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_unique_tail` · 0055c610 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_unique_head` · 0055c6a0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_unique_tail` · 0055c730 — ac2-script glue::lists
 
 ### BaseList<unsigned___int64,60>
 - [ ] `BaseList<unsigned___int64,60>::get_begin` · 0055c7c0 · legions 005328f0
@@ -2138,103 +2138,103 @@ Legend and workflow: [README](README.md).
 - [ ] `BaseList<unsigned___int64,60>::get_end` · 0055c860 · legions 00532990
 
 ### gLList
-- [ ] `gLList::CallEFun_get_begin` · 0055c8b0
-- [ ] `gLList::CallEFun_get_end` · 0055c930
-- [ ] `gLList::CallEFun_get_reverse` · 0055c9b0
-- [ ] `gLList::CallEFun_clone` · 0055ca30 · legions 00532ad0
-- [ ] `gLList::CallEFun_inq_data` · 0055cad0 · legions 00532b40
-- [ ] `gLList::CallEFun_peek_back` · 0055cb80
-- [ ] `gLList::CallEFun_peek_front` · 0055cc40
-- [ ] `gLList::CallEFun_peek_head` · 0055cd00
-- [ ] `gLList::CallEFun_peek_tail` · 0055cdc0
-- [ ] `gLList::CallEFun_pop_back` · 0055ce80
-- [ ] `gLList::CallEFun_pop_front` · 0055cf20
-- [ ] `gLList::CallEFun_pop_head` · 0055cfc0
-- [ ] `gLList::CallEFun_pop_tail` · 0055d060
-- [ ] `gLList::CallEFun_remove_back` · 0055d100
-- [ ] `gLList::CallEFun_remove_front` · 0055d1a0
-- [ ] `gLList::CallEFun_remove_head` · 0055d240
-- [ ] `gLList::CallEFun_remove_tail` · 0055d2e0
+- [x] `gLList::CallEFun_get_begin` · 0055c8b0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_get_end` · 0055c930 — ac2-script glue::lists
+- [x] `gLList::CallEFun_get_reverse` · 0055c9b0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_clone` · 0055ca30 · legions 00532ad0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_inq_data` · 0055cad0 · legions 00532b40 — ac2-script glue::lists
+- [x] `gLList::CallEFun_peek_back` · 0055cb80 — ac2-script glue::lists
+- [x] `gLList::CallEFun_peek_front` · 0055cc40 — ac2-script glue::lists
+- [x] `gLList::CallEFun_peek_head` · 0055cd00 — ac2-script glue::lists
+- [x] `gLList::CallEFun_peek_tail` · 0055cdc0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_pop_back` · 0055ce80 — ac2-script glue::lists
+- [x] `gLList::CallEFun_pop_front` · 0055cf20 — ac2-script glue::lists
+- [x] `gLList::CallEFun_pop_head` · 0055cfc0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_pop_tail` · 0055d060 — ac2-script glue::lists
+- [x] `gLList::CallEFun_remove_back` · 0055d100 — ac2-script glue::lists
+- [x] `gLList::CallEFun_remove_front` · 0055d1a0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_remove_head` · 0055d240 — ac2-script glue::lists
+- [x] `gLList::CallEFun_remove_tail` · 0055d2e0 — ac2-script glue::lists
 
 ## `portal/shared/src/interp/glue/gllistiter.cpp.c` (0/7)
 
 ### gLListIter
-- [ ] `gLListIter::CallEFun_next` · 0055b0b0
-- [ ] `gLListIter::CallEFun_prev` · 0055b110
-- [ ] `gLListIter::CallEFun_data` · 0055b170
-- [ ] `gLListIter::CallEFun_equals` · 0055b1e0
-- [ ] `gLListIter::CallEFun_notdone` · 0055b260
-- [ ] `gLListIter::CallEFun_insert` · 0055b2d0
-- [ ] `gLListIter::CallEFun_remove` · 0055b390
+- [~] `gLListIter::CallEFun_next` · 0055b0b0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gLListIter::CallEFun_prev` · 0055b110 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gLListIter::CallEFun_data` · 0055b170 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gLListIter::CallEFun_equals` · 0055b1e0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gLListIter::CallEFun_notdone` · 0055b260 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gLListIter::CallEFun_insert` · 0055b2d0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gLListIter::CallEFun_remove` · 0055b390 — ac2-script glue::lists: iterators hold an index, not a node
 
-## `portal/shared/src/interp/glue/gllmultihash.cpp.c` (0/14)
+## `portal/shared/src/interp/glue/gllmultihash.cpp.c` (14/14)
 
 ### gLLMultiHash
-- [ ] `gLLMultiHash::CallEFun_size` · 0055a8d0
-- [ ] `gLLMultiHash::CallEFun_count` · 0055aa60
+- [x] `gLLMultiHash::CallEFun_size` · 0055a8d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHash::CallEFun_count` · 0055aa60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiHash<unsigned___int64,unsigned___int64,62>
-- [ ] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::find` · 0055aaf0 · legions 00531ac0
-- [ ] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::find_last` · 0055ab80 · legions 00531b50
-- [ ] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::get_begin` · 0055abe0 · legions 00531bb0
+- [x] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::find` · 0055aaf0 · legions 00531ac0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::find_last` · 0055ab80 · legions 00531b50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::get_begin` · 0055abe0 · legions 00531bb0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gLLMultiHash
-- [ ] `gLLMultiHash::CallEFun_clear` · 0055ac40
-- [ ] `gLLMultiHash::CallEFun_erase` · 0055aca0
-- [ ] `gLLMultiHash::CallEFun_find` · 0055ad20
-- [ ] `gLLMultiHash::CallEFun_find_last` · 0055ada0
-- [ ] `gLLMultiHash::CallEFun_get_begin` · 0055ae20
-- [ ] `gLLMultiHash::CallEFun_get_end` · 0055aea0
-- [ ] `gLLMultiHash::CallEFun_remove` · 0055af60
+- [x] `gLLMultiHash::CallEFun_clear` · 0055ac40 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHash::CallEFun_erase` · 0055aca0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHash::CallEFun_find` · 0055ad20 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHash::CallEFun_find_last` · 0055ada0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHash::CallEFun_get_begin` · 0055ae20 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHash::CallEFun_get_end` · 0055aea0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHash::CallEFun_remove` · 0055af60 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiHash<unsigned___int64,unsigned___int64,62>
-- [ ] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::add` · 0055aff0 · legions 00531db0
+- [x] `BaseMultiHash<unsigned___int64,unsigned___int64,62>::add` · 0055aff0 · legions 00531db0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gLLMultiHash
-- [ ] `gLLMultiHash::CallEFun_add` · 0055b040
+- [x] `gLLMultiHash::CallEFun_add` · 0055b040 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gllmultihashiter.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/gllmultihashiter.cpp.c` (4/4)
 
 ### gLLMultiHashIter
-- [ ] `gLLMultiHashIter::CallEFun_data` · 0055a700
-- [ ] `gLLMultiHashIter::CallEFun_equals` · 0055a770
-- [ ] `gLLMultiHashIter::CallEFun_key` · 0055a7f0
-- [ ] `gLLMultiHashIter::CallEFun_next` · 0055a860
+- [x] `gLLMultiHashIter::CallEFun_data` · 0055a700 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHashIter::CallEFun_equals` · 0055a770 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHashIter::CallEFun_key` · 0055a7f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiHashIter::CallEFun_next` · 0055a860 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gllmultimap.cpp.c` (0/18)
+## `portal/shared/src/interp/glue/gllmultimap.cpp.c` (18/18)
 
 ### gLLMultiMap
-- [ ] `gLLMultiMap::CallEFun_empty` · 0054cf10
-- [ ] `gLLMultiMap::CallEFun_count` · 0054cf80
+- [x] `gLLMultiMap::CallEFun_empty` · 0054cf10 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_count` · 0054cf80 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiMap<unsigned___int64,unsigned___int64,13976>
-- [ ] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::find` · 0054d180 · legions 0052a680
-- [ ] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::find_last` · 0054d1e0 · legions 0052a6e0
-- [ ] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::get_begin` · 0054d240 · legions 0052a740
-- [ ] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::get_end` · 0054d290 · legions 0052a790
-- [ ] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::lower_bound` · 0054d2e0 · legions 0052a7e0
-- [ ] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::upper_bound` · 0054d340 · legions 0052a840
+- [x] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::find` · 0054d180 · legions 0052a680 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::find_last` · 0054d1e0 · legions 0052a6e0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::get_begin` · 0054d240 · legions 0052a740 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::get_end` · 0054d290 · legions 0052a790 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::lower_bound` · 0054d2e0 · legions 0052a7e0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiMap<unsigned___int64,unsigned___int64,13976>::upper_bound` · 0054d340 · legions 0052a840 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gLLMultiMap
-- [ ] `gLLMultiMap::CallEFun_clear` · 0054d3c0
-- [ ] `gLLMultiMap::CallEFun_erase` · 0054d440
-- [ ] `gLLMultiMap::CallEFun_find` · 0054d4d0
-- [ ] `gLLMultiMap::CallEFun_find_last` · 0054d550
-- [ ] `gLLMultiMap::CallEFun_get_begin` · 0054d5d0
-- [ ] `gLLMultiMap::CallEFun_get_end` · 0054d650
-- [ ] `gLLMultiMap::CallEFun_lower_bound` · 0054d6d0
-- [ ] `gLLMultiMap::CallEFun_upper_bound` · 0054d750
-- [ ] `gLLMultiMap::CallEFun_insert` · 0054d7d0
-- [ ] `gLLMultiMap::CallEFun_remove` · 0054d860
+- [x] `gLLMultiMap::CallEFun_clear` · 0054d3c0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_erase` · 0054d440 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_find` · 0054d4d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_find_last` · 0054d550 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_get_begin` · 0054d5d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_get_end` · 0054d650 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_lower_bound` · 0054d6d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_upper_bound` · 0054d750 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_insert` · 0054d7d0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMap::CallEFun_remove` · 0054d860 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gllmultimapiter.cpp.c` (0/5)
+## `portal/shared/src/interp/glue/gllmultimapiter.cpp.c` (5/5)
 
 ### gLLMultiMapIter
-- [ ] `gLLMultiMapIter::CallEFun_data` · 0054cc40
-- [ ] `gLLMultiMapIter::CallEFun_equals` · 0054ccb0
-- [ ] `gLLMultiMapIter::CallEFun_key` · 0054cd40
-- [ ] `gLLMultiMapIter::CallEFun_next` · 0054cdb0
-- [ ] `gLLMultiMapIter::CallEFun_prev` · 0054ce50
+- [x] `gLLMultiMapIter::CallEFun_data` · 0054cc40 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMapIter::CallEFun_equals` · 0054ccb0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMapIter::CallEFun_key` · 0054cd40 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMapIter::CallEFun_next` · 0054cdb0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLLMultiMapIter::CallEFun_prev` · 0054ce50 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ## `portal/shared/src/interp/glue/glosparameters.cpp.c` (2/18)
 
@@ -2260,104 +2260,104 @@ Legend and workflow: [README](README.md).
 - [ ] `gLOSParameters::CallEFun_GetEndPoint` · 00542c90
 - [ ] `gLOSParameters::CallEFun_GetFinalRay` · 00542d30
 
-## `portal/shared/src/interp/glue/glrhash.cpp.c` (0/20)
+## `portal/shared/src/interp/glue/glrhash.cpp.c` (20/20)
 
 ### gLRHash
-- [ ] `gLRHash::CallEFun_empty` · 00559a80
-- [ ] `gLRHash::CallEFun_num_buckets` · 00559af0
-- [ ] `gLRHash::CallEFun_num_elements` · 00559b60
-- [ ] `gLRHash::CallEFun_too_big` · 00559bd0
-- [ ] `gLRHash::CallEFun_too_small` · 00559c50
-- [ ] `gLRHash::CallEFun_flush` · 00559d30
-- [ ] `gLRHash::CallEFun_contains` · 00559d90
-- [ ] `gLRHash::CallEFun_erase` · 00559e30
-- [ ] `gLRHash::CallEFun_add` · 00559f70
-- [ ] `gLRHash::CallEFun_set` · 0055a010
+- [x] `gLRHash::CallEFun_empty` · 00559a80 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_num_buckets` · 00559af0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_num_elements` · 00559b60 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_too_big` · 00559bd0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_too_small` · 00559c50 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_flush` · 00559d30 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_contains` · 00559d90 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_erase` · 00559e30 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_add` · 00559f70 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_set` · 0055a010 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### BaseHash<unsigned___int64,unsigned_long,65>
-- [ ] `BaseHash<unsigned___int64,unsigned_long,65>::get_begin` · 0055a150 · legions 00531600
-- [ ] `BaseHash<unsigned___int64,unsigned_long,65>::get_end` · 0055a1d0 · legions 00531680
+- [x] `BaseHash<unsigned___int64,unsigned_long,65>::get_begin` · 0055a150 · legions 00531600 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `BaseHash<unsigned___int64,unsigned_long,65>::get_end` · 0055a1d0 · legions 00531680 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### gLRHash
-- [ ] `gLRHash::CallEFun_get_begin` · 0055a230
-- [ ] `gLRHash::CallEFun_get_end` · 0055a2b0
-- [ ] `gLRHash::CallEFun_grow` · 0055a330
-- [ ] `gLRHash::CallEFun_resize` · 0055a3a0
-- [ ] `gLRHash::CallEFun_shrink` · 0055a450
-- [ ] `gLRHash::CallEFun_optimize_size` · 0055a4c0
-- [ ] `gLRHash::CallEFun_find` · 0055a540
-- [ ] `gLRHash::CallEFun_remove` · 0055a620
+- [x] `gLRHash::CallEFun_get_begin` · 0055a230 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_get_end` · 0055a2b0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_grow` · 0055a330 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_resize` · 0055a3a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_shrink` · 0055a450 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_optimize_size` · 0055a4c0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_find` · 0055a540 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHash::CallEFun_remove` · 0055a620 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/glrhashiter.cpp.c` (0/6)
+## `portal/shared/src/interp/glue/glrhashiter.cpp.c` (6/6)
 
 ### gLRHashIter
-- [ ] `gLRHashIter::CallEFun_data` · 005597d0
-- [ ] `gLRHashIter::CallEFun_key` · 00559840
-- [ ] `gLRHashIter::CallEFun_equals` · 005598b0
-- [ ] `gLRHashIter::CallEFun_notdone` · 00559940
-- [ ] `gLRHashIter::CallEFun_next` · 005599b0
-- [ ] `gLRHashIter::CallEFun_remove` · 00559a10
+- [x] `gLRHashIter::CallEFun_data` · 005597d0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHashIter::CallEFun_key` · 00559840 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHashIter::CallEFun_equals` · 005598b0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHashIter::CallEFun_notdone` · 00559940 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHashIter::CallEFun_next` · 005599b0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gLRHashIter::CallEFun_remove` · 00559a10 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/glrmultihash.cpp.c` (0/13)
+## `portal/shared/src/interp/glue/glrmultihash.cpp.c` (13/13)
 
 ### gLRMultiHash
-- [ ] `gLRMultiHash::CallEFun_size` · 00558fe0
-- [ ] `gLRMultiHash::CallEFun_count` · 00559050
+- [x] `gLRMultiHash::CallEFun_size` · 00558fe0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_count` · 00559050 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### BaseMultiHash<unsigned___int64,unsigned_long,67>
-- [ ] `BaseMultiHash<unsigned___int64,unsigned_long,67>::find` · 00559240 · legions 00530fc0
-- [ ] `BaseMultiHash<unsigned___int64,unsigned_long,67>::find_last` · 005592d0 · legions 00531050
-- [ ] `BaseMultiHash<unsigned___int64,unsigned_long,67>::get_begin` · 00559330 · legions 005310b0
+- [x] `BaseMultiHash<unsigned___int64,unsigned_long,67>::find` · 00559240 · legions 00530fc0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned___int64,unsigned_long,67>::find_last` · 005592d0 · legions 00531050 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `BaseMultiHash<unsigned___int64,unsigned_long,67>::get_begin` · 00559330 · legions 005310b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
 ### gLRMultiHash
-- [ ] `gLRMultiHash::CallEFun_clear` · 00559390
-- [ ] `gLRMultiHash::CallEFun_erase` · 005593f0
-- [ ] `gLRMultiHash::CallEFun_find` · 00559470
-- [ ] `gLRMultiHash::CallEFun_find_last` · 005594f0
-- [ ] `gLRMultiHash::CallEFun_get_begin` · 00559570
-- [ ] `gLRMultiHash::CallEFun_get_end` · 005595f0
-- [ ] `gLRMultiHash::CallEFun_remove` · 005596b0
-- [ ] `gLRMultiHash::CallEFun_add` · 00559740
+- [x] `gLRMultiHash::CallEFun_clear` · 00559390 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_erase` · 005593f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_find` · 00559470 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_find_last` · 005594f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_get_begin` · 00559570 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_get_end` · 005595f0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_remove` · 005596b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHash::CallEFun_add` · 00559740 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/glrmultihashiter.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/glrmultihashiter.cpp.c` (4/4)
 
 ### gLRMultiHashIter
-- [ ] `gLRMultiHashIter::CallEFun_data` · 00558e10
-- [ ] `gLRMultiHashIter::CallEFun_equals` · 00558e80
-- [ ] `gLRMultiHashIter::CallEFun_key` · 00558f00
-- [ ] `gLRMultiHashIter::CallEFun_next` · 00558f70
+- [x] `gLRMultiHashIter::CallEFun_data` · 00558e10 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHashIter::CallEFun_equals` · 00558e80 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHashIter::CallEFun_key` · 00558f00 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
+- [x] `gLRMultiHashIter::CallEFun_next` · 00558f70 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gmath.cpp.c` (0/28)
+## `portal/shared/src/interp/glue/gmath.cpp.c` (16/28)
 
 ### gMath
-- [ ] `gMath::CallEFun_MapToUnitInterval` · 00558690
-- [ ] `gMath::CallEFun___max` · 00558700
-- [ ] `gMath::CallEFun___min` · 00558750
-- [ ] `gMath::CallEFun_abs` · 005587a0
-- [ ] `gMath::CallEFun_acos` · 005587d0
-- [ ] `gMath::CallEFun_asin` · 00558820
-- [ ] `gMath::CallEFun_atan` · 00558870
-- [ ] `gMath::CallEFun_ceil` · 005588a0
-- [ ] `gMath::CallEFun_cos` · 005588f0
-- [ ] `gMath::CallEFun_exp` · 00558920
-- [ ] `gMath::CallEFun_fabs` · 00558960
-- [ ] `gMath::CallEFun_fake_abs64` · 00558990 · legions 00530920
-- [ ] `gMath::CallEFun_floatMax` · 005589d0
-- [ ] `gMath::CallEFun_floatMin` · 00558a10
-- [ ] `gMath::CallEFun_floor` · 00558a50
-- [ ] `gMath::CallEFun_fmod` · 00558aa0
-- [ ] `gMath::CallEFun_intMax` · 00558b00
-- [ ] `gMath::CallEFun_intMin` · 00558b40
-- [ ] `gMath::CallEFun_lintMax` · 00558b80
-- [ ] `gMath::CallEFun_lintMin` · 00558bd0
-- [ ] `gMath::CallEFun_log` · 00558c20
-- [ ] `gMath::CallEFun_log10` · 00558c50
-- [ ] `gMath::CallEFun_pow` · 00558c80
-- [ ] `gMath::CallEFun_sin` · 00558ce0
-- [ ] `gMath::CallEFun_sqrt` · 00558d10
-- [ ] `gMath::CallEFun_tan` · 00558d40
-- [ ] `gMath::CallEFun_ulintMax` · 00558d70
-- [ ] `gMath::CallEFun_ulintMin` · 00558dc0
+- [~] `gMath::CallEFun_MapToUnitInterval` · 00558690 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun___max` · 00558700 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun___min` · 00558750 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_abs` · 005587a0 — ac2-script glue::math / glue::missile
+- [~] `gMath::CallEFun_acos` · 005587d0 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [~] `gMath::CallEFun_asin` · 00558820 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [~] `gMath::CallEFun_atan` · 00558870 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_ceil` · 005588a0 — ac2-script glue::math / glue::missile
+- [~] `gMath::CallEFun_cos` · 005588f0 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [~] `gMath::CallEFun_exp` · 00558920 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_fabs` · 00558960 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_fake_abs64` · 00558990 · legions 00530920 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_floatMax` · 005589d0 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_floatMin` · 00558a10 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_floor` · 00558a50 — ac2-script glue::math / glue::missile
+- [~] `gMath::CallEFun_fmod` · 00558aa0 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_intMax` · 00558b00 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_intMin` · 00558b40 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_lintMax` · 00558b80 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_lintMin` · 00558bd0 — ac2-script glue::math / glue::missile
+- [~] `gMath::CallEFun_log` · 00558c20 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [~] `gMath::CallEFun_log10` · 00558c50 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [~] `gMath::CallEFun_pow` · 00558c80 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [~] `gMath::CallEFun_sin` · 00558ce0 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_sqrt` · 00558d10 — ac2-script glue::math / glue::missile
+- [~] `gMath::CallEFun_tan` · 00558d40 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_ulintMax` · 00558d70 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_ulintMin` · 00558dc0 — ac2-script glue::math / glue::missile
 
 ## `portal/shared/src/interp/glue/gmissileinfo.cpp.c` (0/7)
 
@@ -2370,32 +2370,32 @@ Legend and workflow: [README](README.md).
 - [ ] `gMissileInfo::CallEFun_SetTargetingParameters` · 00542470
 - [ ] `gMissileInfo::CallEFun_SetThrown` · 005424d0
 
-## `portal/shared/src/interp/glue/gmissileparameters.cpp.c` (0/23)
+## `portal/shared/src/interp/glue/gmissileparameters.cpp.c` (23/23)
 
 ### gMissileParameters
-- [ ] `gMissileParameters::CallEFun_SetAffectedByGravity` · 00541990
-- [ ] `gMissileParameters::CallEFun_SetAlignToPath` · 005419f0
-- [ ] `gMissileParameters::CallEFun_SetCanLand` · 00541a50
-- [ ] `gMissileParameters::CallEFun_SetConserveFuel` · 00541ab0
-- [ ] `gMissileParameters::CallEFun_SetDetonatesOnMiss` · 00541b20
-- [ ] `gMissileParameters::CallEFun_SetDetonationProximity` · 00541b80
-- [ ] `gMissileParameters::CallEFun_SetDragFactor` · 00541bf0
-- [ ] `gMissileParameters::CallEFun_SetFollowGroundType` · 00541c50
-- [ ] `gMissileParameters::CallEFun_SetHasNoLifespan` · 00541cb0
-- [ ] `gMissileParameters::CallEFun_SetMaintainDistance` · 00541d10
-- [ ] `gMissileParameters::CallEFun_SetMaxAcceleration` · 00541d70
-- [ ] `gMissileParameters::CallEFun_SetMaxAccelerationUniform` · 00541df0
-- [ ] `gMissileParameters::CallEFun_SetMissileAsHoming` · 00541e50
-- [ ] `gMissileParameters::CallEFun_SetMissileReaction` · 00541eb0
-- [ ] `gMissileParameters::CallEFun_SetMissileSticky` · 00541f20
-- [ ] `gMissileParameters::CallEFun_SetSpeedLimits` · 00541f80
-- [ ] `gMissileParameters::CallEFun_SetSpinRate` · 00541ff0
-- [ ] `gMissileParameters::CallEFun_SetToNoAlign` · 00542050
-- [ ] `gMissileParameters::CallEFun_SetTotalFuel` · 005420b0
-- [ ] `gMissileParameters::CallEFun_SetTotalLifespan` · 00542110
-- [ ] `gMissileParameters::CallEFun_SetTurnMethod` · 00542170
-- [ ] `gMissileParameters::CallEFun_SetUseNoFuel` · 005421d0
-- [ ] `gMissileParameters::CallEFun_UseEnvironmentalMaximumVelocities` · 00542230
+- [x] `gMissileParameters::CallEFun_SetAffectedByGravity` · 00541990 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetAlignToPath` · 005419f0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetCanLand` · 00541a50 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetConserveFuel` · 00541ab0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetDetonatesOnMiss` · 00541b20 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetDetonationProximity` · 00541b80 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetDragFactor` · 00541bf0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetFollowGroundType` · 00541c50 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetHasNoLifespan` · 00541cb0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetMaintainDistance` · 00541d10 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetMaxAcceleration` · 00541d70 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetMaxAccelerationUniform` · 00541df0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetMissileAsHoming` · 00541e50 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetMissileReaction` · 00541eb0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetMissileSticky` · 00541f20 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetSpeedLimits` · 00541f80 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetSpinRate` · 00541ff0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetToNoAlign` · 00542050 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetTotalFuel` · 005420b0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetTotalLifespan` · 00542110 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetTurnMethod` · 00542170 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetUseNoFuel` · 005421d0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_UseEnvironmentalMaximumVelocities` · 00542230 — ac2-script glue::math / glue::missile
 
 ## `portal/shared/src/interp/glue/gmissiletargetingparameters.cpp.c` (0/12)
 
@@ -2476,84 +2476,84 @@ Legend and workflow: [README](README.md).
 - [ ] `gMovementReturn::CallEFun_GetMovementParameters` · 005400d0
 - [ ] `gMovementReturn::CallEFun_GetPosition` · 005401a0
 
-## `portal/shared/src/interp/glue/gnahash.cpp.c` (0/20)
+## `portal/shared/src/interp/glue/gnahash.cpp.c` (20/20)
 
 ### gNAHash
-- [ ] `gNAHash::CallEFun_empty` · 00557b10
-- [ ] `gNAHash::CallEFun_num_buckets` · 00557b80
-- [ ] `gNAHash::CallEFun_num_elements` · 00557bf0
-- [ ] `gNAHash::CallEFun_too_big` · 00557c60
-- [ ] `gNAHash::CallEFun_too_small` · 00557ce0
-- [ ] `gNAHash::CallEFun_contains` · 00557d60
-- [ ] `gNAHash::CallEFun_erase` · 00557e10
-- [ ] `gNAHash::CallEFun_flush` · 00557ed0
-- [ ] `gNAHash::CallEFun_add` · 00557f30
-- [ ] `gNAHash::CallEFun_set` · 00557fe0
+- [x] `gNAHash::CallEFun_empty` · 00557b10 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_num_buckets` · 00557b80 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_num_elements` · 00557bf0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_too_big` · 00557c60 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_too_small` · 00557ce0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_contains` · 00557d60 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_erase` · 00557e10 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_flush` · 00557ed0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_add` · 00557f30 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_set` · 00557fe0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### BaseHash<ReferenceIDWrapper,unsigned_long,76>
-- [ ] `BaseHash<ReferenceIDWrapper,unsigned_long,76>::get_begin` · 00558090 · legions 005302e0
-- [ ] `BaseHash<ReferenceIDWrapper,unsigned_long,76>::get_end` · 00558110 · legions 00530360
+- [x] `BaseHash<ReferenceIDWrapper,unsigned_long,76>::get_begin` · 00558090 · legions 005302e0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `BaseHash<ReferenceIDWrapper,unsigned_long,76>::get_end` · 00558110 · legions 00530360 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### gNAHash
-- [ ] `gNAHash::CallEFun_get_begin` · 00558170
-- [ ] `gNAHash::CallEFun_get_end` · 005581f0
-- [ ] `gNAHash::CallEFun_grow` · 00558270
-- [ ] `gNAHash::CallEFun_resize` · 005582e0
-- [ ] `gNAHash::CallEFun_shrink` · 00558390
-- [ ] `gNAHash::CallEFun_optimize_size` · 00558400
-- [ ] `gNAHash::CallEFun_find` · 00558480
-- [ ] `gNAHash::CallEFun_remove` · 00558580
+- [x] `gNAHash::CallEFun_get_begin` · 00558170 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_get_end` · 005581f0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_grow` · 00558270 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_resize` · 005582e0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_shrink` · 00558390 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_optimize_size` · 00558400 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_find` · 00558480 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHash::CallEFun_remove` · 00558580 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/gnahashiter.cpp.c` (0/5)
+## `portal/shared/src/interp/glue/gnahashiter.cpp.c` (5/5)
 
 ### gNAHashIter
-- [ ] `gNAHashIter::CallEFun_data` · 005578d0
-- [ ] `gNAHashIter::CallEFun_key` · 00557940
-- [ ] `gNAHashIter::CallEFun_equals` · 005579b0
-- [ ] `gNAHashIter::CallEFun_notdone` · 00557a40
-- [ ] `gNAHashIter::CallEFun_next` · 00557ab0
+- [x] `gNAHashIter::CallEFun_data` · 005578d0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHashIter::CallEFun_key` · 00557940 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHashIter::CallEFun_equals` · 005579b0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHashIter::CallEFun_notdone` · 00557a40 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNAHashIter::CallEFun_next` · 00557ab0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/gnrhash.cpp.c` (0/20)
+## `portal/shared/src/interp/glue/gnrhash.cpp.c` (20/20)
 
 ### gNRHash
-- [ ] `gNRHash::CallEFun_empty` · 00556b90
-- [ ] `gNRHash::CallEFun_num_buckets` · 00556c00
-- [ ] `gNRHash::CallEFun_num_elements` · 00556c70
-- [ ] `gNRHash::CallEFun_too_big` · 00556ce0
-- [ ] `gNRHash::CallEFun_too_small` · 00556d60
-- [ ] `gNRHash::CallEFun_contains` · 00556e40
-- [ ] `gNRHash::CallEFun_erase` · 00556ef0
-- [ ] `gNRHash::CallEFun_flush` · 00556fb0
-- [ ] `gNRHash::CallEFun_add` · 005570a0
-- [ ] `gNRHash::CallEFun_set` · 00557150
+- [x] `gNRHash::CallEFun_empty` · 00556b90 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_num_buckets` · 00556c00 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_num_elements` · 00556c70 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_too_big` · 00556ce0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_too_small` · 00556d60 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_contains` · 00556e40 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_erase` · 00556ef0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_flush` · 00556fb0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_add` · 005570a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_set` · 00557150 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### BaseHash<ReferenceIDWrapper,unsigned_long,78>
-- [ ] `BaseHash<ReferenceIDWrapper,unsigned_long,78>::get_begin` · 00557300 · legions 0052fca0
-- [ ] `BaseHash<ReferenceIDWrapper,unsigned_long,78>::get_end` · 00557380 · legions 0052fd20
+- [x] `BaseHash<ReferenceIDWrapper,unsigned_long,78>::get_begin` · 00557300 · legions 0052fca0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `BaseHash<ReferenceIDWrapper,unsigned_long,78>::get_end` · 00557380 · legions 0052fd20 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### gNRHash
-- [ ] `gNRHash::CallEFun_get_begin` · 005573e0
-- [ ] `gNRHash::CallEFun_get_end` · 00557460
-- [ ] `gNRHash::CallEFun_grow` · 005574e0
-- [ ] `gNRHash::CallEFun_resize` · 00557550
-- [ ] `gNRHash::CallEFun_shrink` · 00557600
-- [ ] `gNRHash::CallEFun_optimize_size` · 00557670
-- [ ] `gNRHash::CallEFun_find` · 005576f0
-- [ ] `gNRHash::CallEFun_remove` · 005577e0
+- [x] `gNRHash::CallEFun_get_begin` · 005573e0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_get_end` · 00557460 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_grow` · 005574e0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_resize` · 00557550 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_shrink` · 00557600 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_optimize_size` · 00557670 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_find` · 005576f0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHash::CallEFun_remove` · 005577e0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
-## `portal/shared/src/interp/glue/gnrhashiter.cpp.c` (0/6)
+## `portal/shared/src/interp/glue/gnrhashiter.cpp.c` (5/6)
 
 ### gNRHashIter
-- [ ] `gNRHashIter::CallEFun_data` · 00556910
-- [ ] `gNRHashIter::CallEFun_key` · 00556980
-- [ ] `gNRHashIter::CallEFun_equals` · 005569f0
-- [ ] `gNRHashIter::CallEFun_notdone` · 00556a80
+- [x] `gNRHashIter::CallEFun_data` · 00556910 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHashIter::CallEFun_key` · 00556980 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHashIter::CallEFun_equals` · 005569f0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+- [x] `gNRHashIter::CallEFun_notdone` · 00556a80 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### HashIterator<ReferenceIDWrapper,unsigned_long>
 - [ ] `HashIterator<ReferenceIDWrapper,unsigned_long>::next` · 00556af0 · legions 0052f8e0
 
 ### gNRHashIter
-- [ ] `gNRHashIter::CallEFun_next` · 00556b30
+- [x] `gNRHashIter::CallEFun_next` · 00556b30 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ## `portal/shared/src/interp/glue/gobjcollisionprofile.cpp.c` (0/4)
 
@@ -2863,62 +2863,62 @@ Legend and workflow: [README](README.md).
 ### gQualifiedDataIDArray
 - [ ] `gQualifiedDataIDArray::CallEFun_WslAddToEnd` · 0053aac0
 
-## `portal/shared/src/interp/glue/grandom.cpp.c` (0/7)
+## `portal/shared/src/interp/glue/grandom.cpp.c` (6/7)
 
 ### (free functions)
-- [ ] `RollSkewedNumberEx` · 005566d0 · legions 0052f650
+- [~] `RollSkewedNumberEx` · 005566d0 · legions 0052f650 — ac2-script glue: f32 spill points unchecked against x87 / copy order of PHashTable operator= unverified
 
 ### gRandom
-- [ ] `gRandom::CallEFun_RollDice` · 00556740 · legions 0052f6c0
-- [ ] `gRandom::CallEFun_RollDiceInt` · 00556790
-- [ ] `gRandom::CallEFun_RollGaussianDice` · 005567d0 · legions 0052f750
-- [ ] `gRandom::CallEFun_RollPercentile` · 00556820
-- [ ] `gRandom::CallEFun_RollSkewedNumber` · 00556850
-- [ ] `gRandom::CallEFun_RollSkewedNumberEx` · 005568b0
+- [x] `gRandom::CallEFun_RollDice` · 00556740 · legions 0052f6c0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandom::CallEFun_RollDiceInt` · 00556790 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandom::CallEFun_RollGaussianDice` · 005567d0 · legions 0052f750 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandom::CallEFun_RollPercentile` · 00556820 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandom::CallEFun_RollSkewedNumber` · 00556850 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandom::CallEFun_RollSkewedNumberEx` · 005568b0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
-## `portal/shared/src/interp/glue/grandomselectiontable_int.cpp.c` (0/13)
+## `portal/shared/src/interp/glue/grandomselectiontable_int.cpp.c` (12/13)
 
 ### RandomSelectionTable<unsigned_long>
-- [ ] `RandomSelectionTable<unsigned_long>::InitializeWeights_Internal` · 0053a480 · legions 0051cf10
+- [x] `RandomSelectionTable<unsigned_long>::InitializeWeights_Internal` · 0053a480 · legions 0051cf10 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ### gRandomSelectionTable_Int
-- [ ] `gRandomSelectionTable_Int::CallEFun_Done` · 0053a4e0
-- [ ] `gRandomSelectionTable_Int::CallEFun_Clear` · 0053a550
-- [ ] `gRandomSelectionTable_Int::CallEFun_InitializeWeights` · 0053a5b0
+- [x] `gRandomSelectionTable_Int::CallEFun_Done` · 0053a4e0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandomSelectionTable_Int::CallEFun_Clear` · 0053a550 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandomSelectionTable_Int::CallEFun_InitializeWeights` · 0053a5b0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ### SmartArray<RandomSelectionTable<unsigned_long>::ElementStruct>
 - [ ] `SmartArray<RandomSelectionTable<unsigned_long>::ElementStruct>::AddToEnd` · 0053a610 · legions 0051d040
 
 ### RandomSelectionTable<unsigned_long>
-- [ ] `RandomSelectionTable<unsigned_long>::AddEntry_Internal` · 0053a670 · legions 0051d0a0
-- [ ] `RandomSelectionTable<unsigned_long>::MoveToUsedList` · 0053a6c0 · legions 0051d0f0
-- [ ] `RandomSelectionTable<unsigned_long>::StartOver` · 0053a7a0 · legions 0051d1d0
-- [ ] `RandomSelectionTable<unsigned_long>::Choose` · 0053a840 · legions 0051d270
+- [x] `RandomSelectionTable<unsigned_long>::AddEntry_Internal` · 0053a670 · legions 0051d0a0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `RandomSelectionTable<unsigned_long>::MoveToUsedList` · 0053a6c0 · legions 0051d0f0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `RandomSelectionTable<unsigned_long>::StartOver` · 0053a7a0 · legions 0051d1d0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `RandomSelectionTable<unsigned_long>::Choose` · 0053a840 · legions 0051d270 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ### gRandomSelectionTable_Int
-- [ ] `gRandomSelectionTable_Int::CallEFun_AddEntry` · 0053a8c0
-- [ ] `gRandomSelectionTable_Int::CallEFun_FastAddEntry` · 0053a940
-- [ ] `gRandomSelectionTable_Int::CallEFun_StartOver` · 0053a9c0
-- [ ] `gRandomSelectionTable_Int::CallEFun_Choose` · 0053aa20 · legions 0051d3e0
+- [x] `gRandomSelectionTable_Int::CallEFun_AddEntry` · 0053a8c0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandomSelectionTable_Int::CallEFun_FastAddEntry` · 0053a940 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandomSelectionTable_Int::CallEFun_StartOver` · 0053a9c0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandomSelectionTable_Int::CallEFun_Choose` · 0053aa20 · legions 0051d3e0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
-## `portal/shared/src/interp/glue/grarray.cpp.c` (0/11)
+## `portal/shared/src/interp/glue/grarray.cpp.c` (10/11)
 
 ### gRArray
-- [ ] `gRArray::CallEFun_flush` · 00556110
+- [x] `gRArray::CallEFun_flush` · 00556110 — ac2-script glue::lists
 
 ### RArray
 - [ ] `RArray::SetNElements` · 00556170 · legions 0052f2d0
 
 ### gRArray
-- [ ] `gRArray::CallEFun_SetNElements` · 005561c0
-- [ ] `gRArray::CallEFun_empty` · 00556230
-- [ ] `gRArray::CallEFun_get` · 005562a0
-- [ ] `gRArray::CallEFun_num_elements` · 00556320
-- [ ] `gRArray::CallEFun_set` · 00556390
-- [ ] `gRArray::CallEFun_erase` · 00556420
-- [ ] `gRArray::CallEFun_push` · 005564c0
-- [ ] `gRArray::CallEFun_pop` · 00556570
-- [ ] `gRArray::CallEFun_query` · 00556620
+- [x] `gRArray::CallEFun_SetNElements` · 005561c0 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_empty` · 00556230 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_get` · 005562a0 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_num_elements` · 00556320 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_set` · 00556390 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_erase` · 00556420 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_push` · 005564c0 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_pop` · 00556570 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_query` · 00556620 — ac2-script glue::lists
 
 ## `portal/shared/src/interp/glue/gray.cpp.c` (0/8)
 
@@ -2951,41 +2951,41 @@ Legend and workflow: [README](README.md).
 - [ ] `gRGBAColor::CallEFun_SetColor32` · 00539d90
 - [ ] `gRGBAColor::CallEFun_GetColor32` · 00539df0
 
-## `portal/shared/src/interp/glue/grlist.cpp.c` (0/48)
+## `portal/shared/src/interp/glue/grlist.cpp.c` (45/48)
 
 ### gRList
-- [ ] `gRList::CallEFun_empty` · 00554420
-- [ ] `gRList::CallEFun_num_elements` · 00554490
-- [ ] `gRList::CallEFun_push_back` · 00554500
-- [ ] `gRList::CallEFun_push_front` · 00554580
-- [ ] `gRList::CallEFun_insert_back` · 005546c0
-- [ ] `gRList::CallEFun_insert_front` · 00554740
-- [ ] `gRList::CallEFun_insert_head` · 005547c0
-- [ ] `gRList::CallEFun_insert_tail` · 00554840
-- [ ] `gRList::CallEFun_push` · 005548c0
-- [ ] `gRList::CallEFun_push_head` · 00554940
-- [ ] `gRList::CallEFun_push_tail` · 005549c0
-- [ ] `gRList::CallEFun_remove` · 00554a40
+- [x] `gRList::CallEFun_empty` · 00554420 — ac2-script glue::lists
+- [x] `gRList::CallEFun_num_elements` · 00554490 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_back` · 00554500 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_front` · 00554580 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_back` · 005546c0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_front` · 00554740 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_head` · 005547c0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_tail` · 00554840 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push` · 005548c0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_head` · 00554940 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_tail` · 005549c0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_remove` · 00554a40 — ac2-script glue::lists
 
 ### BaseList<unsigned_long,11>
-- [ ] `BaseList<unsigned_long,11>::inq_data` · 00554b30 · legions 00535ff0
+- [x] `BaseList<unsigned_long,11>::inq_data` · 00554b30 · legions 00535ff0 — ac2-script glue::lists
 
 ### gRList
-- [ ] `gRList::CallEFun_contains` · 00554b70
-- [ ] `gRList::CallEFun_erase_back` · 00554c00
-- [ ] `gRList::CallEFun_erase_front` · 00554cb0
-- [ ] `gRList::CallEFun_erase_head` · 00554d60
-- [ ] `gRList::CallEFun_erase_tail` · 00554e10
-- [ ] `gRList::CallEFun_flush` · 00554ec0
-- [ ] `gRList::CallEFun_insert` · 00554f20
-- [ ] `gRList::CallEFun_push_unique_back` · 00554fa0
-- [ ] `gRList::CallEFun_push_unique_front` · 00555040
-- [ ] `gRList::CallEFun_insert_unique_back` · 005550e0
-- [ ] `gRList::CallEFun_insert_unique_front` · 00555180
-- [ ] `gRList::CallEFun_insert_unique_head` · 00555220
-- [ ] `gRList::CallEFun_insert_unique_tail` · 005552c0
-- [ ] `gRList::CallEFun_push_unique_head` · 00555360
-- [ ] `gRList::CallEFun_push_unique_tail` · 00555400
+- [x] `gRList::CallEFun_contains` · 00554b70 — ac2-script glue::lists
+- [x] `gRList::CallEFun_erase_back` · 00554c00 — ac2-script glue::lists
+- [x] `gRList::CallEFun_erase_front` · 00554cb0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_erase_head` · 00554d60 — ac2-script glue::lists
+- [x] `gRList::CallEFun_erase_tail` · 00554e10 — ac2-script glue::lists
+- [x] `gRList::CallEFun_flush` · 00554ec0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert` · 00554f20 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_unique_back` · 00554fa0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_unique_front` · 00555040 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_unique_back` · 005550e0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_unique_front` · 00555180 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_unique_head` · 00555220 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_unique_tail` · 005552c0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_unique_head` · 00555360 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_unique_tail` · 00555400 — ac2-script glue::lists
 
 ### BaseList<unsigned_long,102>
 - [ ] `BaseList<unsigned_long,102>::get_begin` · 005554a0 · legions 0052ee40
@@ -2993,34 +2993,34 @@ Legend and workflow: [README](README.md).
 - [ ] `BaseList<unsigned_long,102>::get_end` · 00555540 · legions 0052eee0
 
 ### gRList
-- [ ] `gRList::CallEFun_get_begin` · 00555590
-- [ ] `gRList::CallEFun_get_end` · 00555610
-- [ ] `gRList::CallEFun_get_reverse` · 00555690
-- [ ] `gRList::CallEFun_clone` · 00555710
-- [ ] `gRList::CallEFun_inq_data` · 005557b0
-- [ ] `gRList::CallEFun_peek_back` · 00555850
-- [ ] `gRList::CallEFun_peek_front` · 00555900
-- [ ] `gRList::CallEFun_peek_head` · 005559b0
-- [ ] `gRList::CallEFun_peek_tail` · 00555a60
-- [ ] `gRList::CallEFun_pop_back` · 00555b10
-- [ ] `gRList::CallEFun_pop_front` · 00555bb0
-- [ ] `gRList::CallEFun_pop_head` · 00555c90
-- [ ] `gRList::CallEFun_pop_tail` · 00555d70
-- [ ] `gRList::CallEFun_remove_back` · 00555e10
-- [ ] `gRList::CallEFun_remove_front` · 00555eb0
-- [ ] `gRList::CallEFun_remove_head` · 00555f90
-- [ ] `gRList::CallEFun_remove_tail` · 00556070
+- [x] `gRList::CallEFun_get_begin` · 00555590 — ac2-script glue::lists
+- [x] `gRList::CallEFun_get_end` · 00555610 — ac2-script glue::lists
+- [x] `gRList::CallEFun_get_reverse` · 00555690 — ac2-script glue::lists
+- [x] `gRList::CallEFun_clone` · 00555710 — ac2-script glue::lists
+- [x] `gRList::CallEFun_inq_data` · 005557b0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_peek_back` · 00555850 — ac2-script glue::lists
+- [x] `gRList::CallEFun_peek_front` · 00555900 — ac2-script glue::lists
+- [x] `gRList::CallEFun_peek_head` · 005559b0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_peek_tail` · 00555a60 — ac2-script glue::lists
+- [x] `gRList::CallEFun_pop_back` · 00555b10 — ac2-script glue::lists
+- [x] `gRList::CallEFun_pop_front` · 00555bb0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_pop_head` · 00555c90 — ac2-script glue::lists
+- [x] `gRList::CallEFun_pop_tail` · 00555d70 — ac2-script glue::lists
+- [x] `gRList::CallEFun_remove_back` · 00555e10 — ac2-script glue::lists
+- [x] `gRList::CallEFun_remove_front` · 00555eb0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_remove_head` · 00555f90 — ac2-script glue::lists
+- [x] `gRList::CallEFun_remove_tail` · 00556070 — ac2-script glue::lists
 
 ## `portal/shared/src/interp/glue/grlistiter.cpp.c` (0/7)
 
 ### gRListIter
-- [ ] `gRListIter::CallEFun_next` · 005540c0
-- [ ] `gRListIter::CallEFun_prev` · 00554120
-- [ ] `gRListIter::CallEFun_data` · 00554180
-- [ ] `gRListIter::CallEFun_equals` · 005541f0
-- [ ] `gRListIter::CallEFun_notdone` · 00554270
-- [ ] `gRListIter::CallEFun_insert` · 005542e0
-- [ ] `gRListIter::CallEFun_remove` · 00554390
+- [~] `gRListIter::CallEFun_next` · 005540c0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gRListIter::CallEFun_prev` · 00554120 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gRListIter::CallEFun_data` · 00554180 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gRListIter::CallEFun_equals` · 005541f0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gRListIter::CallEFun_notdone` · 00554270 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gRListIter::CallEFun_insert` · 005542e0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gRListIter::CallEFun_remove` · 00554390 — ac2-script glue::lists: iterators hold an index, not a node
 
 ## `portal/shared/src/interp/glue/gsetpositionstruct.cpp.c` (0/10)
 
@@ -3059,7 +3059,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gStoryHookData::CallEFun_SetTypeToFireMissile` · 005395e0
 - [ ] `gStoryHookData::CallEFun_SetWeaponID` · 00539640
 
-## `portal/shared/src/interp/glue/gstringinfo.cpp.c` (22/38)
+## `portal/shared/src/interp/glue/gstringinfo.cpp.c` (29/38)
 
 ### gStringInfo
 - [x] `gStringInfo::CallEFun_AddVariable_Float` · 00538010 — ac2-script glue::string_info (lookups via ScriptData)
@@ -3081,7 +3081,7 @@ Legend and workflow: [README](README.md).
 - [x] `gStringInfo::CallEFun_SetStringIDandTableEnum` · 00538680 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_SetStringIDandTableID` · 005386e0 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_SetStringIDandTableName` · 00538740 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `gStringInfo::CallEFun_SetTableEnum` · 005387b0
+- [x] `gStringInfo::CallEFun_SetTableEnum` · 005387b0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [x] `gStringInfo::CallEFun_SetTableName` · 00538810 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_AddVariable_String` · 00538870 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_GetStringID` · 005388f0 — ac2-script glue::string_info (lookups via ScriptData)
@@ -3090,16 +3090,16 @@ Legend and workflow: [README](README.md).
 - [x] `gStringInfo::CallEFun_HasStringIDandTableID` · 00538a40 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_HasTableID` · 00538ad0 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_IsLiteralValue` · 00538b40 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `gStringInfo::CallEFun_IsValid` · 00538bb0
-- [ ] `gStringInfo::CallEFun_eq` · 00538c20
-- [ ] `gStringInfo::CallEFun_ne` · 00538ca0
-- [ ] `gStringInfo::CallEFun_GetLogString` · 00538d20
-- [ ] `gStringInfo::CallEFun_GetString` · 00538de0
+- [x] `gStringInfo::CallEFun_IsValid` · 00538bb0 — ac2-script glue::string_text (tables via ScriptData::string_table)
+- [x] `gStringInfo::CallEFun_eq` · 00538c20 — ac2-script glue::string_text (tables via ScriptData::string_table)
+- [x] `gStringInfo::CallEFun_ne` · 00538ca0 — ac2-script glue::string_text (tables via ScriptData::string_table)
+- [~] `gStringInfo::CallEFun_GetLogString` · 00538d20 — ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
+- [x] `gStringInfo::CallEFun_GetString` · 00538de0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `gStringInfo::CallEFun_GetStringCaseInsensitive` · 00538ea0
-- [ ] `gStringInfo::CallEFun_GetStringWithMetaTags` · 00538fa0 · legions 0051c0d0
+- [x] `gStringInfo::CallEFun_GetStringWithMetaTags` · 00538fa0 · legions 0051c0d0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `gStringInfo::CallEFun_FromFileNode` · 00539060 · legions 0051c160
 - [ ] `gStringInfo::CallEFun_GetSubDataIDs` · 00539100 · legions 0051c1d0
-- [ ] `gStringInfo::CallEFun_InqString` · 00539180
+- [x] `gStringInfo::CallEFun_InqString` · 00539180 — ac2-script glue::string_text (tables via ScriptData::string_table)
 
 ## `portal/shared/src/interp/glue/gstringutils.cpp.c` (0/3)
 
@@ -3143,24 +3143,24 @@ Legend and workflow: [README](README.md).
 ### gUISaveLocations
 - [ ] `gUISaveLocations::CallEFun_Clear` · 00537e30
 
-## `portal/shared/src/interp/glue/gvector.cpp.c` (0/15)
+## `portal/shared/src/interp/glue/gvector.cpp.c` (14/15)
 
 ### gVector
-- [ ] `gVector::CallEFun_Add` · 005376c0
-- [ ] `gVector::CallEFun_Copy` · 00537730
-- [ ] `gVector::CallEFun_MagnitudeSquared` · 005377a0
-- [ ] `gVector::CallEFun_Normalize` · 005377e0
-- [ ] `gVector::CallEFun_Scale` · 00537840
-- [ ] `gVector::CallEFun_Set` · 005378b0
-- [ ] `gVector::CallEFun_Subtract` · 00537920
-- [ ] `gVector::CallEFun_Dot` · 00537990
-- [ ] `gVector::CallEFun_Equals` · 00537a20
-- [ ] `gVector::CallEFun_GetX` · 00537af0
-- [ ] `gVector::CallEFun_GetY` · 00537b60
-- [ ] `gVector::CallEFun_GetZ` · 00537bd0
-- [ ] `gVector::CallEFun_Magnitude` · 00537c40
-- [ ] `gVector::CallEFun_Cross` · 00537cd0
-- [ ] `gVector::CallEFun_GetStringW` · 00537db0
+- [x] `gVector::CallEFun_Add` · 005376c0 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_Copy` · 00537730 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_MagnitudeSquared` · 005377a0 — ac2-script glue::math / glue::missile
+- [~] `gVector::CallEFun_Normalize` · 005377e0 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gVector::CallEFun_Scale` · 00537840 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_Set` · 005378b0 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_Subtract` · 00537920 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_Dot` · 00537990 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_Equals` · 00537a20 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_GetX` · 00537af0 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_GetY` · 00537b60 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_GetZ` · 00537bd0 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_Magnitude` · 00537c40 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_Cross` · 00537cd0 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_GetStringW` · 00537db0 — ac2-script glue::math / glue::missile
 
 ## `portal/shared/src/interp/glue/gvisualdesc.cpp.c` (0/13)
 
@@ -3179,13 +3179,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gVisualDesc::CallEFun_GetVisualDescFromDB` · 005375c0
 - [ ] `gVisualDesc::CallEFun_InqAppInfoHashForPartGroup` · 00537620 · legions 0051b160
 
-## `portal/shared/src/interp/glue/gvm.cpp.c` (11/24)
+## `portal/shared/src/interp/glue/gvm.cpp.c` (12/24)
 
 ### gVM
 - [~] `gVM::CallEFun_GarbageCollect` · 00553840 — ac2-script glue: no collector/debugger
 - [~] `gVM::CallEFun_SetActiveGC` · 00553850 — ac2-script glue: no collector/debugger
 - [~] `gVM::CallEFun_SetAggressiveGCDeletion` · 00553870 — ac2-script glue: no collector/debugger
-- [ ] `gVM::CallEFun_CloneReference` · 00553890 · legions 0052e1c0
+- [x] `gVM::CallEFun_CloneReference` · 00553890 · legions 0052e1c0 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 - [~] `gVM::CallEFun_DeleteAllUnUsedReferences` · 005538d0 — ac2-script glue: no collector/debugger
 - [x] `gVM::CallEFun_GetContextID` · 00553900 — ac2-script glue
 - [x] `gVM::CallEFun_GetDataID` · 00553930 — ac2-script glue
@@ -3229,25 +3229,25 @@ Legend and workflow: [README](README.md).
 - [x] `gwccinternal::CallEFun__WCC_strcat_uint` · 00553720 · legions 0052e050 — ac2-script glue
 - [x] `gwccinternal::CallEFun__WCC_strcat_ulint` · 005537b0 · legions 0052e0e0 — ac2-script glue
 
-## `portal/shared/src/interp/glue/gwlogsystem.cpp.c` (0/12)
+## `portal/shared/src/interp/glue/gwlogsystem.cpp.c` (12/12)
 
 ### gWLogSystem
-- [ ] `gWLogSystem::CallEFun_AddFileLog` · 00536c30
-- [ ] `gWLogSystem::CallEFun_AddPrintLog` · 00536c50
-- [ ] `gWLogSystem::CallEFun_RemoveFileLog` · 00536c70
-- [ ] `gWLogSystem::CallEFun_RemovePrintLog` · 00536c90
-- [ ] `gWLogSystem::CallEFun_SetFileLog` · 00536cb0
-- [ ] `gWLogSystem::CallEFun_SetPrintLog` · 00536cd0
+- [x] `gWLogSystem::CallEFun_AddFileLog` · 00536c30 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_AddPrintLog` · 00536c50 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_RemoveFileLog` · 00536c70 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_RemovePrintLog` · 00536c90 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_SetFileLog` · 00536cb0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_SetPrintLog` · 00536cd0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ### (free functions)
-- [ ] `DLogMsg` · 00536cf0 · legions 0051aa60
+- [x] `DLogMsg` · 00536cf0 · legions 0051aa60 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ### gWLogSystem
-- [ ] `gWLogSystem::CallEFun_GetFileLog` · 00536d50
-- [ ] `gWLogSystem::CallEFun_GetPrintLog` · 00536d80
-- [ ] `gWLogSystem::CallEFun_IsFileLogging` · 00536db0
-- [ ] `gWLogSystem::CallEFun_IsPrintLogging` · 00536de0
-- [ ] `gWLogSystem::CallEFun_DLogMsg` · 00536e10
+- [x] `gWLogSystem::CallEFun_GetFileLog` · 00536d50 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_GetPrintLog` · 00536d80 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_IsFileLogging` · 00536db0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_IsPrintLogging` · 00536de0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_DLogMsg` · 00536e10 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ## `portal/shared/src/interp/glue/gwpstring.cpp.c` (34/34)
 
@@ -3629,7 +3629,7 @@ Legend and workflow: [README](README.md).
 - [ ] `get_type` · 006e14c0 · legions 00668300
 - [ ] `new_type` · 006e15a0 · legions 006683e0
 
-## `portal/shared/src/interp/vm.cpp.c` (6/66)
+## `portal/shared/src/interp/vm.cpp.c` (12/66)
 
 ### VM
 - [ ] `VM::CreateProcessA` · 006dbe00 · legions 006652b0
@@ -3652,12 +3652,12 @@ Legend and workflow: [README](README.md).
 ### ReferenceTable
 - [ ] `ReferenceTable::GetReferencePackSize` · 006dbff0 · legions 006654a0
 - [~] `ReferenceTable::PackReferenceArray` · 006dc040 · legions 006654f0 — ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
-- [ ] `ReferenceTable::GetDependentReferences_Relative` · 006dc0b0 · legions 00665560
+- [x] `ReferenceTable::GetDependentReferences_Relative` · 006dc0b0 · legions 00665560 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ### VM
 - [ ] `VM::DeleteProcess` · 006dc0e0 · legions 00665590
-- [ ] `VM::HashNativeObject` · 006dc110 · legions 006655c0
-- [ ] `VM::IsNativeEqual` · 006dc140 · legions 006655f0
+- [~] `VM::HashNativeObject` · 006dc110 · legions 006655c0 — ac2-script glue::hashes NativeKeys: StringInfo and wpstring; CaseInsensitiveWPString (0x353F) not yet
+- [~] `VM::IsNativeEqual` · 006dc140 · legions 006655f0 — ac2-script glue::hashes NativeKeys: StringInfo and wpstring; CaseInsensitiveWPString (0x353F) not yet
 - [x] `VM::GetStringLiteral` · 006dc170 · legions 00665620 — ac2-script vm (VM/ReferenceTable/Resolver)
 - [x] `VM::GetHeapObject` · 006dc190 · legions 00665640 — ac2-script vm (VM/ReferenceTable/Resolver)
 - [ ] `VM::IsReferenceValid` · 006dc1a0
@@ -3679,8 +3679,8 @@ Legend and workflow: [README](README.md).
 - [ ] `VM::DeleteAllUnUsedReferences` · 006dc850 · legions 00665cd0
 
 ### ReferenceTable
-- [ ] `ReferenceTable::GetDependentReferences_Native` · 006dc860 · legions 00665ce0
-- [ ] `ReferenceTable::GetDependentReferences_Package` · 006dc910 · legions 00665d90
+- [x] `ReferenceTable::GetDependentReferences_Native` · 006dc860 · legions 00665ce0 — ac2-script vm::pack (dependent-reference walk, CloneReference)
+- [x] `ReferenceTable::GetDependentReferences_Package` · 006dc910 · legions 00665d90 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ### VM
 - [ ] `VM::QueryPerf` · 006dc9e0
@@ -3688,7 +3688,7 @@ Legend and workflow: [README](README.md).
 
 ### ReferenceTable
 - [ ] `ReferenceTable::~ReferenceTable` · 006dcb80 · legions 00665f80
-- [ ] `ReferenceTable::GetDependentReferences_HeapObject` · 006dcbe0 · legions 00665fe0
+- [x] `ReferenceTable::GetDependentReferences_HeapObject` · 006dcbe0 · legions 00665fe0 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ### VM
 - [ ] `VM::GetPackageNameByPkgID` · 006dcc00 · legions 00666000
@@ -3708,7 +3708,7 @@ Legend and workflow: [README](README.md).
 
 ### ReferenceTable
 - [ ] `ReferenceTable::ReferenceTable` · 006dd0a0 · legions 006664a0
-- [ ] `ReferenceTable::GetDependentReferences` · 006dd160 · legions 00666560
+- [x] `ReferenceTable::GetDependentReferences` · 006dd160 · legions 00666560 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ### VM
 - [ ] `VM::VM` · 006dd220 · legions 00666620
@@ -3716,16 +3716,16 @@ Legend and workflow: [README](README.md).
 
 ### ReferenceTable
 - [ ] `ReferenceTable::GetReferencePackSize` · 006dd310 · legions 00666710
-- [ ] `ReferenceTable::PackReference` · 006dd3f0 · legions 006667f0
+- [~] `ReferenceTable::PackReference` · 006dd3f0 · legions 006667f0 — ac2-script vm::pack: builds the PackedReference structure; the byte stream (native StreamPack) is the wire codec's
 
 ### VM
 - [ ] `VM::GetReferencePackSize` · 006dd4e0 · legions 006668e0
-- [ ] `VM::PackReference` · 006dd500 · legions 00666900
+- [~] `VM::PackReference` · 006dd500 · legions 00666900 — ac2-script vm::pack: builds the PackedReference structure; the byte stream (native StreamPack) is the wire codec's
 - [x] `VM::UnPackReference` · 006dd520 · legions 00666920 — ac2-script vm (VM/ReferenceTable/Resolver)
 - [ ] `VM::Preproc_CleanWState` · 006dd540 · legions 00666940
 - [ ] `VM::GetPackageName` · 006dd630 · legions 00666a20
 - [x] `VM::IsInstanceOf` · 006dd690 · legions 00666a80 — ac2-script glue
-- [ ] `VM::CloneReference` · 006dd6c0 · legions 00666ab0
+- [x] `VM::CloneReference` · 006dd6c0 · legions 00666ab0 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ## `portal/shared/src/interp/vmlogger.cpp.c` (0/2)
 

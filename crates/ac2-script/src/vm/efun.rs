@@ -25,6 +25,8 @@ pub trait EFunHost {
 pub struct EFuns {
     table: HashMap<u32, EFunFn>,
     host: Option<Box<dyn EFunHost>>,
+    /// The efun being called (one glue function can serve several ids).
+    current: u32,
 }
 
 impl EFuns {
@@ -48,6 +50,7 @@ impl EFuns {
 impl Vm {
     /// Calls efun `efun` with the frame already opened.
     pub(crate) fn call_efun(&mut self, efun: u32, ctx: &mut Context) -> InterpStatus {
+        self.efuns.current = efun;
         if let Some(function) = self.efuns.table.get(&efun).copied() {
             return function(self, ctx);
         }
@@ -59,6 +62,11 @@ impl Vm {
             }
         }
         self.fault(Fault::UnboundEFun(efun))
+    }
+
+    /// The id of the efun being called, for glue that serves several ids.
+    pub fn current_efun(&self) -> u32 {
+        self.efuns.current
     }
 
     /// `Interp::HandleCallEFun` after its operand was read.
@@ -85,6 +93,11 @@ impl Context {
     /// The word `n` slots below the frame pointer (`arg(1)` is `this`).
     pub fn arg(&self, n: usize) -> Option<u32> {
         self.fp.checked_sub(n).map(|i| self.data[i])
+    }
+
+    /// The tag of the slot `n` below the frame pointer.
+    pub fn arg_tag(&self, n: usize) -> Option<u8> {
+        self.fp.checked_sub(n).map(|i| self.tags[i])
     }
 
     /// Writes the slot `n` below the frame pointer.

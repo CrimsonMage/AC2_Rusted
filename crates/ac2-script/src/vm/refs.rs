@@ -339,24 +339,31 @@ pub fn native_references(
             }
         }
         NativeObject::Hash(hash) => {
-            if matches!(
+            let values = matches!(
                 native_type,
                 ntype::AR_HASH | ntype::LR_HASH | ntype::NR_HASH
-            ) {
-                for value in &mut hash.values {
-                    let mut r = *value as u32;
+            );
+            for node in hash.nodes_mut() {
+                if values {
+                    let mut r = node.value as u32;
                     visit(&mut r);
-                    *value = u64::from(r);
+                    node.value = u64::from(r);
                 }
-            }
-            if matches!(native_type, ntype::NA_HASH | ntype::NR_HASH) {
-                for key in &mut hash.keys {
-                    if let RefKey::Ref { id, .. } = key {
-                        visit(id);
-                    }
+                if let RefKey::Ref { id, .. } = &mut node.key {
+                    visit(id);
                 }
             }
         }
+        NativeObject::HashIter { hash, .. } => visit(hash),
+        NativeObject::MultiIter { container, .. } => visit(container),
+        NativeObject::MultiHash(hash) if matches!(native_type, 0x13 | 0x42) => {
+            for node in hash.nodes_mut() {
+                let mut r = node.value as u32;
+                visit(&mut r);
+                node.value = u64::from(r);
+            }
+        }
+        NativeObject::ListIter { list, .. } => visit(list),
         _ => {}
     }
 }

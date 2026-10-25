@@ -15,7 +15,7 @@ pub fn msvc_double(value: f64) -> String {
     msvc_fixed(value, 6)
 }
 
-fn msvc_fixed(value: f64, decimals: usize) -> String {
+pub(crate) fn msvc_fixed(value: f64, decimals: usize) -> String {
     if value.is_nan() {
         let bits = value.to_bits();
         let negative = bits >> 63 == 1;

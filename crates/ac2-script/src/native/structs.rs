@@ -69,31 +69,91 @@ const MISSILE_GROUPS: [(u32, &[&str]); 18] = [
     (0x20000, &["detonation_proximity", "detonation_chance"]),
 ];
 
-/// `MissileParameters`: the bitfield and the packed fields by `m_*` name (each a 32-bit word:
-/// a float, an int or a bool, as the field is).
-#[derive(Debug, Clone, PartialEq, Default)]
+/// `MissileParameters::MissileParameters`'s values, in member order (floats as their bits).
+const MISSILE_DEFAULTS: [(&str, u32); 35] = [
+    ("max_velocity", 0x4248_0000),
+    ("min_velocity", 0x3F80_0000),
+    ("max_forward_accel", 0x3F80_0000),
+    ("max_decel", 0x3F80_0000),
+    ("max_left_accel", 0x3F80_0000),
+    ("max_right_accel", 0x3F80_0000),
+    ("max_upward_accel", 0x3F80_0000),
+    ("max_downward_accel", 0x3F80_0000),
+    ("total_fuel", 0),
+    ("uses_fuel", 0),
+    ("report_if_no_fuel", 1),
+    ("missile_lifespan", 0),
+    ("missile_has_lifespan", 0),
+    ("drag", 0),
+    ("affected_by_gravity", 0),
+    ("affected_by_wind", 0),
+    ("ground_follow_type", 0),
+    ("height_above_ground", 0x3FC0_0000),
+    ("tight_turn_method", 2),
+    ("conserve_fuel", 0),
+    ("consider_remaining_time", 0),
+    ("min_catchup_speed", 0x4000_0000),
+    ("maintain_distance", 0x40A0_0000),
+    ("use_maint_dist", 0),
+    ("reaction_time_check", 0x3F00_0000),
+    ("min_reaction_time", 0x3F80_0000),
+    ("correct_for_target_velocity", 1),
+    ("use_env_max_velocities", 1),
+    ("align_type", 0),
+    ("spin_rate", 0),
+    ("sticks_upon_collide", 0),
+    ("can_land", 0),
+    ("detonates_on_miss", 0),
+    ("detonation_proximity", 0),
+    ("detonation_chance", 0),
+];
+
+/// `MissileParameters`: the bitfield and every field by `m_*` name, each a 32-bit word (a
+/// float's bits, an int or a bool, as the field is); unpacking starts from the constructor's
+/// values and overwrites the packed groups.
+#[derive(Debug, Clone, PartialEq)]
 pub struct MissileParameters {
     pub bitfield: u32,
     pub fields: Vec<(&'static str, u32)>,
 }
 
+impl Default for MissileParameters {
+    /// `MissileParameters::MissileParameters`.
+    fn default() -> Self {
+        Self {
+            bitfield: 0,
+            fields: MISSILE_DEFAULTS.to_vec(),
+        }
+    }
+}
+
 impl MissileParameters {
     pub(super) fn unpack(r: &mut Reader<'_>) -> UnpackResult<Self> {
-        let bitfield = r.u32()?;
-        let mut fields = Vec::new();
+        let mut p = Self {
+            bitfield: r.u32()?,
+            ..Self::default()
+        };
         for (bit, names) in MISSILE_GROUPS {
-            if bitfield & bit != 0 {
+            if p.bitfield & bit != 0 {
                 for name in names {
-                    fields.push((*name, r.u32()?));
+                    let v = r.u32()?;
+                    p.set(name, v);
                 }
             }
         }
-        Ok(Self { bitfield, fields })
+        Ok(p)
     }
 
-    /// A packed field's word, if its group was packed.
+    /// A field's word.
     pub fn field(&self, name: &str) -> Option<u32> {
         self.fields.iter().find(|(n, _)| *n == name).map(|f| f.1)
+    }
+
+    /// Sets a field's word (names as in `MISSILE_GROUPS`).
+    pub fn set(&mut self, name: &str, value: u32) {
+        if let Some(f) = self.fields.iter_mut().find(|(n, _)| *n == name) {
+            f.1 = value;
+        }
     }
 }
 
@@ -242,15 +302,18 @@ impl BehaviorParams {
 /// `ElementStruct::StreamPack` (object, weight, subtree weight).
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct RandomSelectionTable {
-    pub unused: Vec<(u32, f32, f32)>,
-    pub used: Vec<(u32, f32, f32)>,
+    /// `m_unusedElements`: (`m_object`, `m_weight`, `m_subTreeWeight`), a heap-ordered weight
+    /// tree (children of i at 2i+1, 2i+2).
+    pub unused: Vec<(u32, u32, u32)>,
+    /// `m_usedElements`.
+    pub used: Vec<(u32, u32, u32)>,
 }
 
 impl RandomSelectionTable {
     pub(super) fn unpack(r: &mut Reader<'_>) -> UnpackResult<Self> {
-        let read = |r: &mut Reader<'_>| -> UnpackResult<Vec<(u32, f32, f32)>> {
+        let read = |r: &mut Reader<'_>| -> UnpackResult<Vec<(u32, u32, u32)>> {
             let n = r.count(12, "random selection element count")?;
-            (0..n).map(|_| Ok((r.u32()?, r.f32()?, r.f32()?))).collect()
+            (0..n).map(|_| Ok((r.u32()?, r.u32()?, r.u32()?))).collect()
         };
         Ok(Self {
             unused: read(r)?,

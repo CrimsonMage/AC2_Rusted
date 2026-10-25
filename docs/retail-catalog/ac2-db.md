@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 18 done, 11 partial, 565 to do, 39 skipped.
+633 retail functions: 46 done, 13 partial, 535 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -383,7 +383,7 @@ Legend and workflow: [README](README.md).
 ### CLOCache
 - [ ] `CLOCache::CLOCache` · 004c4a10 · legions 004b8de0
 
-## `portal/shared/src/enummap/enummapper.cpp.c` (0/47)
+## `portal/shared/src/enummap/enummapper.cpp.c` (19/47)
 
 ### EnumMapper
 - [ ] `EnumMapper::Get` · 00660750 · legions 0060f060
@@ -401,26 +401,26 @@ Legend and workflow: [README](README.md).
 - [ ] `CaseInsensitivePStringCompare::operator()` · 006608b0 · legions 0060f1d0
 
 ### EnumMapper
-- [ ] `EnumMapper::GetNumMappings` · 006608e0 · legions 0060f200
+- [x] `EnumMapper::GetNumMappings` · 006608e0 · legions 0060f200 — ac2-script data/glue::enums
 
 ### EnumMapper::iterator
 - [ ] `EnumMapper::iterator::get_enum` · 00660900 · legions 0060f220
 
 ### EnumMapper
-- [ ] `EnumMapper::GetNumMappings` · 00660a30 · legions 0060f350
+- [x] `EnumMapper::GetNumMappings` · 00660a30 · legions 0060f350 — ac2-script data/glue::enums
 - [ ] `EnumMapper::end` · 00660ae0 · legions 0060f400
 
 ### EnumMapper::iterator
 - [ ] `EnumMapper::iterator::iterator` · 00660b10 · legions 0060f430
 
 ### EnumMapper
-- [ ] `EnumMapper::GetString` · 00660b90 · legions 0060f4b0
-- [ ] `EnumMapper::GetString` · 00660bd0 · legions 0060f4f0
-- [ ] `EnumMapper::GetString` · 00660c50 · legions 0060f570
-- [ ] `EnumMapper::InqString` · 00660d10 · legions 0060f630
-- [ ] `EnumMapper::GetStringW` · 00660dd0 · legions 0060f6f0
+- [x] `EnumMapper::GetString` · 00660b90 · legions 0060f4b0 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetString` · 00660bd0 · legions 0060f4f0 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetString` · 00660c50 · legions 0060f570 — ac2-script data/glue::enums
+- [x] `EnumMapper::InqString` · 00660d10 · legions 0060f630 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetStringW` · 00660dd0 · legions 0060f6f0 — ac2-script data/glue::enums
 - [ ] `EnumMapper::GetStringByDID` · 00660e40 · legions 0060f760
-- [ ] `EnumMapper::GetLogStringW` · 00660f10 · legions 0060f800
+- [x] `EnumMapper::GetLogStringW` · 00660f10 · legions 0060f800 — ac2-script data/glue::enums
 - [ ] `EnumMapper::begin` · 00660f70 · legions 0060f860
 
 ### EnumMapper::iterator
@@ -428,12 +428,12 @@ Legend and workflow: [README](README.md).
 - [ ] `EnumMapper::iterator::operator++` · 00661000 · legions 0060f8f0
 
 ### EnumMapper
-- [ ] `EnumMapper::GetEnum` · 00661020 · legions 0060f910
-- [ ] `EnumMapper::GetEnum` · 00661060 · legions 0060f950
-- [ ] `EnumMapper::GetEnum` · 006610b0 · legions 0060f9a0
-- [ ] `EnumMapper::InqEnum` · 00661170 · legions 0060fa60
-- [ ] `EnumMapper::GetEnumByDID` · 006611c0 · legions 0060fab0
-- [ ] `EnumMapper::GetEnumByDIDW` · 00661290 · legions 0060fb50
+- [x] `EnumMapper::GetEnum` · 00661020 · legions 0060f910 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetEnum` · 00661060 · legions 0060f950 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetEnum` · 006610b0 · legions 0060f9a0 — ac2-script data/glue::enums
+- [x] `EnumMapper::InqEnum` · 00661170 · legions 0060fa60 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetEnumByDID` · 006611c0 · legions 0060fab0 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetEnumByDIDW` · 00661290 · legions 0060fb50 — ac2-script data/glue::enums
 
 ### _STL::_Rb_tree<unsigned_long,_STL::pair<unsigned_long_const_,PStringBase<char>_>,_STL::_Select1st<_STL::pair<unsigned_long_const_,PStringBase<char>_>_>,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,PStringBase<char>_>_>_>
 - [ ] `_STL::_Rb_tree<unsigned_long,_STL::pair<unsigned_long_const_,PStringBase<char>_>,_STL::_Select1st<_STL::pair<unsigned_long_const_,PStringBase<char>_>_>,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,PStringBase<char>_>_>_>::operator=` · 00661950
@@ -442,8 +442,8 @@ Legend and workflow: [README](README.md).
 - [ ] `_STL::_Rb_tree<PStringBase<char>,_STL::pair<PStringBase<char>_const_,unsigned_long>,_STL::_Select1st<_STL::pair<PStringBase<char>_const_,unsigned_long>_>,CaseInsensitivePStringCompare,_STL::allocator<_STL::pair<PStringBase<char>_const_,unsigned_long>_>_>::operator=` · 00661bf0
 
 ### EnumMapper
-- [ ] `EnumMapper::GetAllEnumVals` · 00661f30 · legions 00610450
-- [ ] `EnumMapper::GetAllEnumVals` · 00662040 · legions 00610560
+- [x] `EnumMapper::GetAllEnumVals` · 00661f30 · legions 00610450 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetAllEnumVals` · 00662040 · legions 00610560 — ac2-script data/glue::enums
 
 ### (free functions)
 - [ ] `STREAMPACK_STL` · 00662120 · legions 00610640
@@ -451,8 +451,8 @@ Legend and workflow: [README](README.md).
 ### EnumMapper
 - [ ] `EnumMapper::Destroy` · 00662330 · legions 00610850
 - [-] `EnumMapper::LoadFromFile` · 006623a0 — text source loader, admin build only
-- [ ] `EnumMapper::GetAllEnumNames` · 00662490 · legions 006108c0
-- [ ] `EnumMapper::GetAllEnumNames` · 00662590 · legions 006109c0
+- [x] `EnumMapper::GetAllEnumNames` · 00662490 · legions 006108c0 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetAllEnumNames` · 00662590 · legions 006109c0 — ac2-script data/glue::enums
 
 ### _STL::map<unsigned_long,PStringBase<char>,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,PStringBase<char>_>_>_>
 - [ ] `_STL::map<unsigned_long,PStringBase<char>,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,PStringBase<char>_>_>_>::operator[]` · 00662670 · legions 00610aa0
@@ -465,7 +465,7 @@ Legend and workflow: [README](README.md).
 - [ ] `EnumMapper::GetDBOType` · 00662850
 - [ ] `EnumMapper::EnumMapper` · 00662860 · legions 00610c90
 - [ ] `EnumMapper::~EnumMapper` · 006628e0 · legions 00610d10
-- [ ] `EnumMapper::StreamPack` · 00662970 · legions 00610da0
+- [x] `EnumMapper::StreamPack` · 00662970 · legions 00610da0 — ac2-script data/glue::enums
 - [ ] `EnumMapper::AddMapping` · 00662a30 · legions 00610e60
 - [ ] `EnumMapper::Allocate` · 00662af0
 - [ ] `EnumMapper::AddEnumMapper` · 00662b20
@@ -927,7 +927,7 @@ Legend and workflow: [README](README.md).
 ### StringTableMetaLanguage
 - [ ] `StringTableMetaLanguage::LoadTokenizer` · 0065a310 · legions 00608c80
 
-## `portal/shared/src/stringtable/metalanguage/metalanguage_utils.cpp.c` (1/14)
+## `portal/shared/src/stringtable/metalanguage/metalanguage_utils.cpp.c` (3/14)
 
 ### StringTableMetaLanguage
 - [ ] `StringTableMetaLanguage::IsEscapeChar` · 00656b20 · legions 00605470
@@ -946,47 +946,47 @@ Legend and workflow: [README](README.md).
 - [ ] `StringTableMetaLanguage::TrimExcessSpaces` · 00656ea0 · legions 006057f0
 - [ ] `StringTableMetaLanguage::CapitalizeFirstLetter` · 00656ee0 · legions 00605830
 - [ ] `StringTableMetaLanguage::RetrieveMetaLetters` · 00656fd0 · legions 00605920
-- [ ] `StringTableMetaLanguage::StripMetaLetters` · 006570f0 · legions 00605a40
+- [x] `StringTableMetaLanguage::StripMetaLetters` · 006570f0 · legions 00605a40 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [x] `StringTableMetaLanguage::EscapeString` · 006571c0 · legions 00605b10 — ac2-script glue
-- [ ] `StringTableMetaLanguage::UnescapeString` · 006572d0 · legions 00605c20
+- [x] `StringTableMetaLanguage::UnescapeString` · 006572d0 · legions 00605c20 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `StringTableMetaLanguage::ApplyMetaTagsToName` · 006573f0 · legions 00605d40
 
-## `portal/shared/src/stringtable/stringinfo.cpp.c` (9/56)
+## `portal/shared/src/stringtable/stringinfo.cpp.c` (16/56)
 
 ### StringInfoData
 - [ ] `StringInfoData::operator==` · 00650880
 - [ ] `StringInfoData::operator!=` · 006508b0
 
 ### StringInfo
-- [ ] `StringInfo::SetTableID` · 006508d0 · legions 005ffba0
+- [x] `StringInfo::SetTableID` · 006508d0 · legions 005ffba0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `StringInfo::ApplyMetasToPlayerName` · 00650900 · legions 005ffbd0
 - [ ] `StringInfo::ReportError` · 00650920
-- [ ] `StringInfo::SetTableEnum` · 00650a50 · legions 005ffc10
+- [x] `StringInfo::SetTableEnum` · 00650a50 · legions 005ffc10 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [x] `StringInfo::SetStringIDandTableEnum` · 00650a90 · legions 005ffc50 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `StringInfo::SetStringIDandTableID` · 00650ad0 · legions 005ffc90 — ac2-script glue::string_info (lookups via ScriptData)
 - [ ] `StringInfo::operator%` · 00650b40 · legions 005ffd00
 - [x] `StringInfo::SetTableName` · 00650b90 · legions 005ffd50 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `StringInfo::SetStringIDandTableName` · 00650c50 · legions 005ffdf0 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `StringInfo::GetString` · 00650c70 · legions 005ffe10
-- [ ] `StringInfo::GetStringWithMetaTags` · 00650ce0 · legions 005ffe80
-- [ ] `StringInfo::InqString` · 00650d00 · legions 005ffea0
+- [x] `StringInfo::GetString` · 00650c70 · legions 005ffe10 — ac2-script glue::string_text (tables via ScriptData::string_table)
+- [x] `StringInfo::GetStringWithMetaTags` · 00650ce0 · legions 005ffe80 — ac2-script glue::string_text (tables via ScriptData::string_table)
+- [x] `StringInfo::InqString` · 00650d00 · legions 005ffea0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `StringInfo::InqStringTableFile` · 00650da0
 - [x] `StringInfo::SetLiteralValue` · 00650e30 · legions 005fffd0 — ac2-script glue::string_info (lookups via ScriptData)
 - [ ] `StringInfo::GetLiteralValue` · 00650ef0 · legions 00600090
 - [ ] `StringInfo::SetVarInTable` · 00651000 · legions 006001a0
-- [ ] `StringInfo::GetLogString` · 00651220 · legions 00600410
+- [~] `StringInfo::GetLogString` · 00651220 · legions 00600410 — ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
 - [-] `StringInfo::FromFileNode` · 00651390 · legions 00600580 — text source format (admin tools)
 - [-] `StringInfo::FromFileNode` · 006515c0 · legions 006007b0 — text source format (admin tools)
 - [-] `StringInfo::ToFileNode` · 00651620 — text source format (admin tools)
-- [ ] `StringInfo::IsValid` · 00651730 · legions 00600840
+- [x] `StringInfo::IsValid` · 00651730 · legions 00600840 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `StringInfo::GetSubDataIDs` · 00651860 · legions 00600950
 - [ ] `StringInfo::GetSubPrivateIDs` · 006518f0 · legions 006009e0
 - [ ] `StringInfo::GetPackSize` · 006519d0 · legions 00600aa0
 - [x] `StringInfo::Pack` · 00651b20 · legions 00600bf0
-- [ ] `StringInfo::InqStringInternal` · 00651dd0 · legions 00600ea0
+- [~] `StringInfo::InqStringInternal` · 00651dd0 · legions 00600ea0 — ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
 - [ ] `StringInfo::ClearVars` · 00651fb0 · legions 00601080
 - [x] `StringInfo::Reset` · 00652070 · legions 00601140 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `StringInfo::operator==` · 00652080 · legions 00601150
+- [x] `StringInfo::operator==` · 00652080 · legions 00601150 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `StringInfo::IsReady` · 00652140 · legions 00601210
 - [ ] `StringInfo::~StringInfo` · 00652150 · legions 00601220
 - [x] `StringInfo::AddVar` · 006521d0 · legions 006012a0 — ac2-script glue::string_info (lookups via ScriptData)

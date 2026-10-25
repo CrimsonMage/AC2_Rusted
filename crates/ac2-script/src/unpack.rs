@@ -6,7 +6,7 @@ use std::fmt;
 
 use ac2_dat::{ArchiveCursor, ArchiveError};
 
-use crate::pstring;
+use ac2_core::pstring;
 
 /// A script record that does not unpack the way retail unpacks it.
 #[derive(Debug, Clone, PartialEq, Eq)]

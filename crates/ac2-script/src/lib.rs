@@ -9,12 +9,12 @@
 //!   [`reference`] (`ReferenceEntry`/`HeapObject`) and [`native`] (the engine objects heap
 //!   objects can hold).
 //!
-//! DAT strings are scrambled; [`pstring`] undoes `crypto_uint32_munge`/`crypto_nibble_munge`.
+//! DAT strings are scrambled; [`ac2_core::pstring`] undoes `crypto_uint32_munge`/`crypto_nibble_munge`.
 
 pub mod bytestream;
+pub mod data;
 pub mod glue;
 pub mod native;
-pub mod pstring;
 pub mod reference;
 pub mod unpack;
 pub mod vm;

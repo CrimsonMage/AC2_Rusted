@@ -9,8 +9,8 @@ use super::cparse::{self, to_lower, to_upper, wcsicmp, wcsstr};
 use super::format::{msvc_double, msvc_float};
 use super::{Call, INT_RESULT};
 use crate::native::NativeObject;
-use crate::pstring;
 use crate::vm::{tag, Context, EFuns, InterpStatus, Vm};
+use ac2_core::pstring;
 
 pub(super) fn register(efuns: &mut EFuns) {
     let table: [(u32, crate::vm::EFunFn); 34] = [

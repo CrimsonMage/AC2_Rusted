@@ -1,6 +1,6 @@
 # ac2-dat: DAT files and the database layer
 
-507 retail functions: 16 done, 2 partial, 484 to do, 5 skipped.
+507 retail functions: 22 done, 4 partial, 476 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/database/asynccache.cpp.c` (1/48)
@@ -149,14 +149,14 @@ Legend and workflow: [README](README.md).
 ### GrooveInfo
 - [ ] `GrooveInfo::GrooveInfo` · 006d9b30 · legions 00662f60
 
-## `portal/shared/src/database/dbcache.cpp.c` (0/30)
+## `portal/shared/src/database/dbcache.cpp.c` (1/30)
 
 ### DBCache
 - [ ] `DBCache::ResetCache` · 006cfa10 · legions 00659790
 - [ ] `DBCache::SetMasterMapDID` · 006cfa20 · legions 006597a0
 - [ ] `DBCache::Get` · 006cfa30 · legions 006597b0
 - [ ] `DBCache::GetDIDFromEnumStatic` · 006cfa60 · legions 006597e0
-- [ ] `DBCache::GetDIDFromEnum` · 006cfa80 · legions 00659800
+- [x] `DBCache::GetDIDFromEnum` · 006cfa80 · legions 00659800 — ac2-script data/glue::enums
 - [ ] `DBCache::GetFromEnum` · 006cfb60 · legions 006598b0
 - [ ] `DBCache::GetCurrentRegion` · 006cfbb0 · legions 00659900
 - [ ] `DBCache::IsRunTime` · 006cfbd0 · legions 00659920
@@ -223,7 +223,7 @@ Legend and workflow: [README](README.md).
 - [-] `DBCategories::FromFileNode` · 006d9830 — text source format (admin tools)
 - [ ] `DBCategories::Allocate` · 006d9900
 
-## `portal/shared/src/database/dbobj.cpp.c` (0/21)
+## `portal/shared/src/database/dbobj.cpp.c` (1/21)
 
 ### CWBookKeeper
 - [ ] `CWBookKeeper::SetBookie` · 006d7690 · legions 006613b0
@@ -241,7 +241,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DBObj::GetDBOCache` · 006d78b0 · legions 006615d0
 
 ### FileArray
-- [ ] `FileArray::GetDIDFromEnum` · 006d78c0 · legions 00616cd0
+- [x] `FileArray::GetDIDFromEnum` · 006d78c0 · legions 00616cd0 — ac2-script data/glue::enums
 
 ### DBObj
 - [ ] `DBObj::Copy` · 006d78d0 · legions 006615e0
@@ -283,19 +283,19 @@ Legend and workflow: [README](README.md).
 - [ ] `DBOCache::DBOCache` · 006da240 · legions 00663680
 - [ ] `DBOCache::AddObj_Internal` · 006da2e0
 
-## `portal/shared/src/database/enuidmap.cpp.c` (0/15)
+## `portal/shared/src/database/enuidmap.cpp.c` (4/15)
 
 ### EnumIDMap
-- [ ] `EnumIDMap::StreamPack` · 006d80b0 · legions 00661c30
-- [ ] `EnumIDMap::NameToEnum` · 006d8150 · legions 00661cd0
+- [x] `EnumIDMap::StreamPack` · 006d80b0 · legions 00661c30 — ac2-script data/glue::enums
+- [x] `EnumIDMap::NameToEnum` · 006d8150 · legions 00661cd0 — ac2-script data/glue::enums
 - [ ] `EnumIDMap::GetSubDataIDs` · 006d8280 · legions 00661e00
 
 ### SmartArray<PEnum>
 - [ ] `SmartArray<PEnum>::operator=` · 006d8380 · legions 00661f00
 
 ### EnumIDMap
-- [ ] `EnumIDMap::EnumToDID` · 006d83f0 · legions 00661f70
-- [ ] `EnumIDMap::GetName` · 006d8450 · legions 00661fd0
+- [x] `EnumIDMap::EnumToDID` · 006d83f0 · legions 00661f70 — ac2-script data/glue::enums
+- [x] `EnumIDMap::GetName` · 006d8450 · legions 00661fd0 — ac2-script data/glue::enums
 - [ ] `EnumIDMap::Destroy` · 006d8490 · legions 00662010
 - [ ] `EnumIDMap::GetAllEnumVals` · 006d84c0 · legions 00662040
 - [ ] `EnumIDMap::EnumIDMap` · 006d85f0 · legions 00662170
@@ -324,8 +324,8 @@ Legend and workflow: [README](README.md).
 - [ ] `MasterDBMap::Init` · 006d6f80 · legions 00660ca0
 - [ ] `MasterDBMap::Cleanup` · 006d6fa0 · legions 00660cc0
 - [ ] `MasterDBMap::DivineCellType` · 006d6fc0 · legions 00660ce0
-- [ ] `MasterDBMap::DivineType` · 006d7020 · legions 00660d40
-- [ ] `MasterDBMap::DivineType` · 006d7040 · legions 00660d60
+- [~] `MasterDBMap::DivineType` · 006d7020 · legions 00660d40 — ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+- [~] `MasterDBMap::DivineType` · 006d7040 · legions 00660d60 — ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
 - [ ] `MasterDBMap::SetGameDataDir` · 006d70a0 · legions 00660dc0
 - [ ] `MasterDBMap::SetEngineDataDir` · 006d70e0 · legions 00660e00
 - [ ] `MasterDBMap::GetDBTypeDef` · 006d71e0 · legions 00660f00
