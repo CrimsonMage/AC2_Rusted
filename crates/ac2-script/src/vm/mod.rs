@@ -192,6 +192,10 @@ pub struct Vm {
     pub owners: std::collections::HashMap<u32, u64>,
     /// `CObjectMaint::GetPlayerID` (0 before the player exists).
     pub player: u64,
+    /// Each weenie's qualities (`CWRepository::m_qualities`), by object id.
+    pub repositories: std::collections::HashMap<u64, ac2_weenie::WeenieQualities>,
+    /// The chat services `gmCWInterface::RequestGUN_*` can reach.
+    pub chat: crate::host::ChatServices,
     /// `Random`: retail has one generator for the whole client; a host that runs other
     /// consumers of it on the same stream shares its state through this field.
     pub random: ac2_core::Random,
@@ -235,6 +239,8 @@ impl Vm {
             outbox: Default::default(),
             owners: Default::default(),
             player: 0,
+            repositories: Default::default(),
+            chat: Default::default(),
         }
     }
 

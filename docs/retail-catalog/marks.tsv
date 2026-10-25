@@ -73,13 +73,34 @@ key	status	note
 00450fa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 00451050	~	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 004520f0	x	ac2-net GunChatExtraInfo
+004521e0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00452250	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+004522c0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00452330	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+004523a0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00452410	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00452480	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00452580	~	ac2-net GunChatExtraInfo::new: version 1, flags; the meta letters (RetrieveMetaLetters) are left empty
+00452710	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 004527c0	~	ac2-weenie OnlineSession::send_to_room: the Turbine chat path (CSendToTurbineRoomByID); the GUN path is dead in Legions
+00452dd0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00452e40	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00453320	~	ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
 004534e0	x	ac2-net GunChatExtraInfo
 00454080	x	ac2-script vm (VM/ReferenceTable/Resolver)
 00454300	x	ac2-script vm (VM/ReferenceTable/Resolver)
 00454440	x	ac2-script vm (VM/ReferenceTable/Resolver)
+004549f0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00454a90	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00454b10	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00454b90	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00454c10	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00454c90	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00454d10	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00454d90	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00454e20	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00454eb0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00454f30	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00455060	x	ac2-script vm (VM/ReferenceTable/Resolver)
 004553f0	x	ac2-script vm (VM/ReferenceTable/Resolver)
 00455460	x	ac2-script vm (VM/ReferenceTable/Resolver)
@@ -99,15 +120,108 @@ key	status	note
 00463df0	~	ac2-script glue: id table + pure-glue registry; engine glue unbound
 004661d0	~	ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 00467160	~	ac2-script native::unpack: the native types Legions WStates hold
+00467a50	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00467ac0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00467b00	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00467b40	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00467b80	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00467bd0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00467c20	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00467c80	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00467ce0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00467d40	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00467ec0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00467f60	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00467fb0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468010	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468060	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468150	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468210	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 00468250	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
-00469580	x	ac2-script host notices -> ac2_weenie::GameplayNotice
-004695d0	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
-00469820	x	ac2-script host notices -> ac2_weenie::GameplayNotice
-00469e30	x	ac2-script host notices -> ac2_weenie::GameplayNotice
-00469f60	x	ac2-script host notices -> ac2_weenie::GameplayNotice
-0046a160	x	ac2-script host notices -> ac2_weenie::GameplayNotice
-0046a2d0	x	ac2-script host notices -> ac2_weenie::GameplayNotice
+00468870	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004688c0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468940	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468970	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004689a0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468a10	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468a50	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468aa0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468af0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468b40	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468bb0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468bf0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468c70	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468cb0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468d20	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468db0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468e00	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468e50	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468ec0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468f10	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468f70	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468fb0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469030	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469090	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004690e0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469130	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469180	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004691c0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469210	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469280	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004692e0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469330	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469390	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004693e0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469430	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469480	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004694e0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469530	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469580	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004695d0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469620	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004696a0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004696f0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469740	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469790	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004697d0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469820	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469870	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004698c0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469900	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469950	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004699a0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004699f0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469a40	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469a90	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469b10	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469b80	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469bc0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469c10	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469c60	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469cb0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469d00	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469d40	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469d90	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469de0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469e30	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469e80	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469ed0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469f10	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469f60	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469fd0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a020	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a070	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a0d0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a110	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a160	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a1b0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a200	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a260	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a2d0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a340	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a390	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a3f0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a440	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 0046ae10	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 0046af20	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 0046b090	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
@@ -452,6 +566,80 @@ key	status	note
 004ad1d0	~	ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 004b1da0	x	ac2-script reference/native unpack
 004b4720	~	ac2-script native::unpack: the native types Legions WStates hold
+004b4ba0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b4c50	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b4cf0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b4dd0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b4e60	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b4ee0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b4f90	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5010	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5090	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5110	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5190	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5210	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5290	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5310	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5390	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5410	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5490	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5580	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5600	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5680	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5700	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5770	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5810	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5890	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5920	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b59a0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5a20	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5aa0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5b20	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5bc0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5c40	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5cd0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5dc0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5ee0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5f60	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b5fe0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b6060	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b60e0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b6160	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b61e0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b6260	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b62e0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b6360	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b63e0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b6460	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b64e0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b6670	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b66f0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b6770	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b67f0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b6870	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b68f0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b69f0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b6a70	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b6af0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b73d0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b7480	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b7530	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b75f0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b76c0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b7780	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b7850	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b7900	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b7a50	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b7b00	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b7bb0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b7c60	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b7d10	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b7dc0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b7e60	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b7f00	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b7fa0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004bb600	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004bb7a0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004bb890	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 004bb910	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 004bfb90	x	
@@ -1078,11 +1266,70 @@ key	status	note
 0052e080	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 0052e130	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 0052e150	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+0052e5b0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+0052e620	x	ac2-script host::interface
 0052e6a0	x	
 00530150	x	ac2-weenie ObjectTable::apply_action
 00530e70	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
 00530f40	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
 00530f70	x	
+00530fd0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00530ff0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531010	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531030	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531050	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531070	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531090	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005310b0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005310d0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005310f0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531110	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531130	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531160	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531190	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005311c0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005311f0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531250	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531280	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005312f0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531320	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531360	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531380	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005313a0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005313c0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005313e0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531400	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531420	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531490	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005314b0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005314f0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531510	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531540	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531570	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005315a0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005315d0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531600	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531630	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531660	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531690	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005316c0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005316f0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531710	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531730	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531750	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531770	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531790	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005317b0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005317d0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005317f0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531810	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531830	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531850	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531880	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005318c0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531910	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00531970	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+005319b0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 005319f0	x	
 00531a30	x	
 00531a70	x	
@@ -1093,6 +1340,10 @@ key	status	note
 00531bb0	x	
 00531bf0	x	
 00531c30	x	
+00531fc0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00532050	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00532110	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00532170	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00536af0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536b30	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536b60	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
@@ -3109,16 +3360,107 @@ key	status	note
 0071fc50	~	queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
 00722f20	~	headless frame order in ac2-client Client::use_time; no render, sound, UI, triggers or DB cache step
 00723280	x	
+00723a10	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00723aa0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00723f00	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724000	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724150	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007241e0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724270	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724300	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724390	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724430	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724520	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724610	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724700	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007247f0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007248b0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724970	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724a30	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724b50	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724be0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724c70	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724d00	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724e20	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724eb0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724f50	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724fe0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00725100	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+00725220	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007252b0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725340	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 007253d0	x	ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
+00725490	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725520	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007255c0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725660	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007256f0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00725780	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+00725810	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007258a0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725950	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 007259f0	x	ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
+00725ab0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725b40	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725bd0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00725cc0	x	ac2-weenie GameplayNotice::DisplayStringInfo (chat lines from the CCommunicationSystem stand-in)
+00725d50	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725de0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725e70	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725f00	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725fb0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726040	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007260d0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007261c0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726250	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726310	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007263a0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726430	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007264d0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726560	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726620	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007266b0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726770	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726800	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007268b0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 007269d0	x	
+00726b80	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726c10	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726cb0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00726d40	x	ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
 00726e10	x	ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
+00726ec0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726f50	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726fe0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727070	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727100	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727190	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727240	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007272e0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727380	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727430	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007274d0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727570	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727610	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007276c0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727750	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 007277e0	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 00727870	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+00727900	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007279d0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727a60	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727af0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727b90	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727c20	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727cb0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727d40	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727dd0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727e60	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727ef0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727f80	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00728020	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007280c0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00728150	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 007281f0	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 007291f0	~	ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
 0072da60	x	ac2-ui maps.rs

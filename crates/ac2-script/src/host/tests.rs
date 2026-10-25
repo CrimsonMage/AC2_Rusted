@@ -125,6 +125,112 @@ fn pack_buffer_and_send_server_evt_reach_the_outbox() {
     );
 }
 
+/// Runs efun `id` with `this` and `args` (word 2 first) over a frame with a result slot.
+fn run_efun(vm: &mut Vm, id: u32, args: &[u32], this: u32) -> InterpStatus {
+    let mut ctx = Context::new(1, None);
+    ctx.enter(0).unwrap();
+    ctx.push(0, tag::INT).unwrap();
+    for &a in args.iter().rev() {
+        ctx.push(a, tag::INT).unwrap();
+    }
+    ctx.push(this, tag::REF).unwrap();
+    vm.run_efun(id, &mut ctx)
+}
+
+/// `CM_*` notices without an ac2-weenie type come out decoded by their signature; ones with a
+/// type come out typed.
+#[test]
+fn notices_decode_by_signature() {
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let vm = host.vm_mut();
+    let obj = vm.new_wstring(Vec::new());
+    vm.owners.insert(obj, 0x5000_0001);
+    // CM_Character::SendNotice_UpdateSkillPanel(obj, ulong64, ulong, ulong).
+    let args = [obj, 0x1, 0x2, 3, 4];
+    assert_eq!(
+        run_efun(vm, 0x0085_0005, &args, u32::MAX),
+        InterpStatus::Success
+    );
+    // CM_Inventory::SendNotice_UpdateInventory(obj, code, itemID, location).
+    let args = [obj, 0x4000_0001, 0, 9, 2];
+    assert_eq!(
+        run_efun(vm, 0x008B_0001, &args, u32::MAX),
+        InterpStatus::Success
+    );
+    assert_eq!(
+        host.take_script_notices(),
+        vec![ScriptNotice {
+            name: "CM_Character::SendNotice_UpdateSkillPanel",
+            object: 0x5000_0001,
+            args: vec![
+                NoticeArg::Long(0x1_0000_0002),
+                NoticeArg::Int(3),
+                NoticeArg::Int(4)
+            ],
+        }]
+    );
+    assert_eq!(
+        host.take_notices(),
+        vec![GameplayNotice::UpdateInventory {
+            code: 0x4000_0001,
+            item: 9,
+            location: 2
+        }]
+    );
+}
+
+/// `RequestGUN_SendToRoom` goes out only through a chat service; with none, retail returns the
+/// room id and sends nothing. GUN-only requests need GUN.
+#[test]
+fn chat_requests_follow_the_available_services() {
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let vm = host.vm_mut();
+    let this = vm.new_wstring(Vec::new());
+    let text = vm.new_wstring("hi".encode_utf16().collect());
+    run_efun(vm, 0x00B4_0033, &[5, text, 0x10], this);
+    run_efun(vm, 0x00B4_0037, &[1], this);
+    assert!(host.take_chat_requests().is_empty());
+    host.set_chat_services(ChatServices {
+        turbine_chat: true,
+        gun: false,
+    });
+    let vm = host.vm_mut();
+    run_efun(vm, 0x00B4_0033, &[5, text, 0x10], this);
+    run_efun(vm, 0x00B4_0037, &[1], this);
+    assert_eq!(
+        run_efun(vm, 0x00B4_0033, &[5, text, 0], u32::MAX),
+        InterpStatus::Crash
+    );
+    assert_eq!(
+        host.take_chat_requests(),
+        vec![ChatRequest::SendToRoom {
+            room: 5,
+            text: "hi".into(),
+            flags: 0x10
+        }]
+    );
+}
+
+/// `gCWRepository::SetInt` / `AdjInt` write the weenie's quality table; without qualities
+/// (`m_qualities == NULL`) nothing is stored.
+#[test]
+fn repository_efuns_write_the_weenie_qualities() {
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let this = host.vm_mut().new_wstring(Vec::new());
+    host.vm_mut().owners.insert(this, 0x5000_0001);
+    run_efun(host.vm_mut(), 0x0081_0006, &[0x14, 7], this);
+    assert!(host.qualities(0x5000_0001).is_none());
+    host.set_qualities(0x5000_0001, Default::default());
+    run_efun(host.vm_mut(), 0x0081_0006, &[0x14, 7], this);
+    // AdjInt(stat, delta, default): 7 + 5.
+    run_efun(host.vm_mut(), 0x0081_0009, &[0x14, 5, 0], this);
+    let q = host.qualities(0x5000_0001).unwrap();
+    assert_eq!(q.ints.get(&0x14), Some(&12));
+}
+
 /// The `CharacterGenSystem` singleton answers the creation screens' questions from its WState.
 #[test]
 fn the_character_gen_system_answers_from_its_state() {
@@ -185,4 +291,60 @@ fn the_character_gen_system_answers_from_its_state() {
     assert_eq!(r, Some(1));
     assert!(!cgr.phys_type_values().is_empty());
     assert!(phys.is_some_and(|d| d != 0));
+}
+
+#[test]
+#[ignore]
+fn probe_player_init() {
+    let Some(mut host) = legions_host() else {
+        return;
+    };
+    let pid = host.vm().program.package_id("CPlayer").expect("CPlayer");
+    let state = host.vm().data().wstate(0x7100_110F);
+    eprintln!(
+        "0x7100110F: {:?}",
+        state.as_ref().map(|s| (
+            s.pid,
+            s.references
+                .as_ref()
+                .map(|r| r.ids.len())
+                .map_err(|e| e.context)
+        ))
+    );
+    eprintln!(
+        "db type of 0x4700110F: {:x?}",
+        host.vm().data().db_type(0x4700_110F)
+    );
+    assert!(host.create_weenie(0x5000_0001, pid, 0x4700_110F));
+    host.set_player(0x5000_0001);
+    host.set_qualities(0x5000_0001, Default::default());
+    let args = vec![PackValue::Int(0); 14];
+    let outcome = host
+        .dispatch(0x5000_0001, script_function::INIT_PLAYER, &args)
+        .unwrap();
+    eprintln!(
+        "INIT_PLAYER: {outcome:?} ({:?}); notices {:?}; script notices {:?}; calls {:?}",
+        outcome.fault.as_ref().and_then(|f| match f {
+            Fault::UnboundEFun(id) => crate::glue::efun_name(*id),
+            _ => None,
+        }),
+        host.take_notices(),
+        host.take_script_notices()
+            .iter()
+            .map(|n| n.name)
+            .collect::<Vec<_>>(),
+        host.take_server_calls()
+    );
+}
+
+/// Prints every bound efun (`cargo test -p ac2-script list_bound_efuns -- --ignored`).
+#[test]
+#[ignore]
+fn list_bound_efuns() {
+    let efuns = host_efuns();
+    for (id, name) in crate::glue::efun_table() {
+        if efuns.is_bound(id) {
+            println!("BOUND {id:08x} {name}");
+        }
+    }
 }

@@ -8,6 +8,9 @@
 
 pub mod chargen;
 mod glue;
+mod gun;
+mod interface;
+mod notices;
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -23,6 +26,9 @@ use crate::vm::{
 use crate::wire;
 use crate::wstate::WSTATE_BASE_DID;
 
+pub use gun::{ChatRequest, ChatServices};
+pub use notices::{notice_names, NoticeArg, ScriptNotice};
+
 /// A script call for the server (`ECM_Interp::SendEvt_InterpSEvent[Encrypt]`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct ServerCall {
@@ -36,6 +42,10 @@ pub struct ServerCall {
 pub struct Outbox {
     pub server_calls: Vec<ServerCall>,
     pub notices: Vec<GameplayNotice>,
+    /// Notices ac2-weenie has no type for, in the order raised.
+    pub script_notices: Vec<ScriptNotice>,
+    /// Chat-service requests (`gmCWInterface::RequestGUN_*`).
+    pub chat_requests: Vec<ChatRequest>,
     /// Calls and notices the boundary could not convert (a native the wire cannot carry yet).
     pub dropped: Vec<String>,
 }
@@ -66,6 +76,17 @@ pub enum HostError {
     BadArguments,
 }
 
+/// The pure glue and the host glue.
+fn host_efuns() -> EFuns {
+    let mut efuns = EFuns::new();
+    crate::glue::register_pure(&mut efuns);
+    glue::register(&mut efuns);
+    notices::register(&mut efuns);
+    gun::register(&mut efuns);
+    interface::register(&mut efuns);
+    efuns
+}
+
 /// The VM with every weenie object's script process.
 pub struct ScriptHost {
     vm: Vm,
@@ -76,9 +97,7 @@ pub struct ScriptHost {
 impl ScriptHost {
     /// A VM over `program` with the pure glue and the host glue bound.
     pub fn new(program: Arc<Program>, data: Box<dyn ScriptData>) -> Self {
-        let mut efuns = EFuns::new();
-        crate::glue::register_pure(&mut efuns);
-        glue::register(&mut efuns);
+        let efuns = host_efuns();
         Self {
             vm: Vm::new(program, data, efuns),
             processes: HashMap::new(),
@@ -139,11 +158,29 @@ impl ScriptHost {
         self.vm.player = id;
     }
 
+    /// `CWRepository::SetQualities` / `SetWeenieDesc`: the object's qualities (from the player
+    /// description or `WeenieQualities::from_weenie_desc`), which the scripts read and change
+    /// through `gCWRepository`.
+    pub fn set_qualities(&mut self, id: u64, qualities: ac2_weenie::WeenieQualities) {
+        self.vm.repositories.insert(id, qualities);
+    }
+
+    /// The object's qualities as the scripts left them; quality updates from the server go
+    /// through [`ac2_weenie::WeenieQualities::set`] on this.
+    pub fn qualities_mut(&mut self, id: u64) -> Option<&mut ac2_weenie::WeenieQualities> {
+        self.vm.repositories.get_mut(&id)
+    }
+
+    pub fn qualities(&self, id: u64) -> Option<&ac2_weenie::WeenieQualities> {
+        self.vm.repositories.get(&id)
+    }
+
     /// The object went away (`VM::DeleteProcess`).
     pub fn remove_weenie(&mut self, id: u64) {
         if let Some(p) = self.processes.remove(&id) {
             self.vm.owners.remove(&p.instance);
         }
+        self.vm.repositories.remove(&id);
     }
 
     /// The object's script instance (`CWDistributor::GetInstanceReference`).
@@ -243,6 +280,21 @@ impl ScriptHost {
     }
 
     /// What the boundary had to drop since the last take.
+    /// The `CM_*` notices without a [`GameplayNotice`] type since the last call.
+    pub fn take_script_notices(&mut self) -> Vec<ScriptNotice> {
+        std::mem::take(&mut self.vm.outbox.script_notices)
+    }
+
+    /// The chat-service requests scripts made since the last call.
+    pub fn take_chat_requests(&mut self) -> Vec<ChatRequest> {
+        std::mem::take(&mut self.vm.outbox.chat_requests)
+    }
+
+    /// Which chat services requests can go to (none until the host says).
+    pub fn set_chat_services(&mut self, services: ChatServices) {
+        self.vm.chat = services;
+    }
+
     pub fn take_dropped(&mut self) -> Vec<String> {
         std::mem::take(&mut self.vm.outbox.dropped)
     }

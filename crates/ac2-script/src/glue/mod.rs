@@ -23,6 +23,7 @@ mod missile;
 mod multi;
 mod position;
 mod random;
+mod repository;
 mod skill_node;
 mod string_info;
 mod string_text;
@@ -57,6 +58,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     position::register(efuns);
     skill_node::register(efuns);
     chargen::register(efuns);
+    repository::register(efuns);
 }
 
 pub(crate) use chargen::empty_race_sex_info;
