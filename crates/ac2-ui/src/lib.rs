@@ -6,6 +6,7 @@
 //! consumes (`ActionInterpreter`); and the UI: layouts (`LayoutDesc`), the element tree built
 //! from them (`UIElementManager`, `UIElement`) and its software compositor (`UIRegion::DrawHere`).
 
+mod button;
 mod camera_ui;
 mod compose;
 mod controls;
@@ -16,6 +17,7 @@ mod interpreter;
 mod layout;
 mod layout_media;
 mod maps;
+mod mouse;
 mod place;
 #[cfg(test)]
 mod tests;
@@ -48,12 +50,18 @@ pub use maps::{
     load_action_map, load_key_map, ActionMap, ActionMapping, ActionValue, KeyMap, KEYMAP_CONTROL,
     KEYMAP_GROUP, KEYMAP_MAIN, KEYMAP_SHIFT,
 };
+pub use mouse::{
+    is_mouse_button, UiMessage, GLOBAL_KEY_PRESS, GLOBAL_KEY_RELEASE, GLOBAL_MOUSE_DOWN,
+    GLOBAL_MOUSE_MOVE, GLOBAL_MOUSE_UP, UI_POINTER_X, UI_POINTER_Y, UI_WHEEL_IN, UI_WHEEL_OUT,
+};
 pub use text::UiTextData;
 pub use text_data::{StoreTextData, DEFAULT_FONT, FONT_GROUP};
 pub use token::{tokenize, REFERENCE, REFERENT, STATELESS};
 
 #[cfg(test)]
 mod element_tests;
+#[cfg(test)]
+mod mouse_tests;
 #[cfg(test)]
 mod real_data_tests;
 #[cfg(test)]

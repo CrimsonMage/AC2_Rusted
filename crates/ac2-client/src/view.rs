@@ -206,6 +206,12 @@ impl ClientView {
             .count()
     }
 
+    /// The frame's UI actions for the HUD ([`ac2_ui::Controls::take_ui_input`]); returns the
+    /// messages they broadcast, for [`ac2_ui::Controls::ui_messages`].
+    pub fn ui_input(&mut self, actions: &[(u32, f32, bool)]) -> Vec<ac2_ui::UiMessage> {
+        self.hud.input(actions)
+    }
+
     /// How many HUD surfaces are drawn.
     pub fn hud_layers(&self) -> usize {
         self.hud.layers()

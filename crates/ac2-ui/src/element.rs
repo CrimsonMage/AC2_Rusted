@@ -18,8 +18,9 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 use std::sync::Arc;
 
 use crate::layout::{AttributeDesc, AttributeValue, ElementDesc, LayoutDesc, MediaDesc, StateDesc};
+use crate::mouse::UiMessage;
 use crate::text::{TextState, UiTextData};
-use crate::token::{HIDE, REFERENCE, REFERENT, ROOT_MOVER, STATELESS, TEXT};
+use crate::token::{HIDE, MOUSE_INVISIBLE, REFERENCE, REFERENT, ROOT_MOVER, STATELESS, TEXT};
 
 /// A `Box2D`: inclusive pixel bounds.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -87,6 +88,14 @@ pub struct UiElement {
     pub(crate) attributes: HashMap<u32, AttributeValue>,
     /// `UIElement_Text`'s state, for text elements.
     pub(crate) text: Option<Box<TextState>>,
+    /// `m_mouseOver`, `m_mouseOverTop`, `m_mouseVisible` and the buttons pressed on the element
+    /// (`m_mouseDownTable`).
+    pub(crate) mouse_over: bool,
+    pub(crate) mouse_over_top: bool,
+    pub(crate) mouse_visible: bool,
+    pub(crate) mouse_down: Vec<u32>,
+    /// `UIElement_Button::mousePressedOnButton`.
+    pub(crate) button_pressed: bool,
     media_state: Option<(Arc<ElementDesc>, usize)>,
     media_index: usize,
     latest_update: u32,
@@ -136,6 +145,12 @@ pub struct UiTree {
     pub(crate) display: (i32, i32),
     /// Fonts and strings for text elements.
     pub(crate) text_data: Option<Arc<dyn UiTextData>>,
+    /// Messages broadcast and not yet taken.
+    pub(crate) messages: Vec<UiMessage>,
+    pub(crate) pointer: (i32, i32),
+    pub(crate) mouse_top: Option<usize>,
+    /// Something drawn changed since the last [`UiTree::take_changed`].
+    pub(crate) changed: bool,
 }
 
 /// The index of `desc`'s state `id`.
@@ -176,6 +191,10 @@ impl UiTree {
             update_count: 0,
             display: (width, height),
             text_data: None,
+            messages: Vec::new(),
+            pointer: (0, 0),
+            mouse_top: None,
+            changed: true,
         }
     }
 
@@ -302,6 +321,11 @@ impl UiTree {
             alpha_image: None,
             attributes: HashMap::new(),
             text,
+            mouse_over: false,
+            mouse_over_top: false,
+            mouse_visible: true,
+            mouse_down: Vec::new(),
+            button_pressed: false,
             media_state: None,
             media_index: 0,
             latest_update: self.update_count,
@@ -317,6 +341,12 @@ impl UiTree {
     /// `UIElement::SetVisible` (`UIRegion::SetVisible`).
     pub fn set_visible(&mut self, index: usize, visible: bool) {
         self.el_mut(index).visible = visible;
+        self.changed = true;
+    }
+
+    /// Whether anything drawn changed since the last call.
+    pub fn take_changed(&mut self) -> bool {
+        std::mem::take(&mut self.changed)
     }
 
     /// `UIElement::SetAttribute_Bool`: stores the value; a change of `hide` shows or hides.
@@ -328,6 +358,13 @@ impl UiTree {
         let changed = previous != Some(AttributeValue::Bool(value));
         if changed && id == HIDE {
             self.set_visible(index, !value);
+        }
+        if changed && id == MOUSE_INVISIBLE {
+            self.el_mut(index).mouse_visible = !value;
+        }
+        if changed {
+            self.changed = true;
+            self.button_attribute(index, id, value);
         }
         self.text_attribute(index, id, &AttributeValue::Bool(value), changed);
     }
@@ -373,6 +410,7 @@ impl UiTree {
 
     /// `UIElement::SetState`.
     pub fn set_state(&mut self, index: usize, state: u32) {
+        self.button_set_state(index, state);
         if state == self.el(index).state {
             return;
         }
@@ -386,6 +424,7 @@ impl UiTree {
         }
         self.add_attributes_for_state(index, &desc, state, &mut seen);
         self.el_mut(index).state = state;
+        self.changed = true;
         self.reset_media(index);
         self.update_count += 1;
         self.update_internal(index);

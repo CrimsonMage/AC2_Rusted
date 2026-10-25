@@ -41,7 +41,7 @@ key	status	note
 00424510	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 00426450	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 00426720	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-0042bb00	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
+0042bb00	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 0042bbb0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 0042bce0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 00431e20	x	
@@ -2076,22 +2076,38 @@ key	status	note
 005e2230	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 005e2300	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e23b0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e25c0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e2a30	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e2da0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e2e70	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e2f50	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005e3220	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+005e3310	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+005e3af0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005e3b70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005e3cc0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005e4b60	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005e4c70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005e4e50	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005e4fc0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e59b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e5a80	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e75a0	x	ac2-physics moveto (slice 3)
 005e8ba0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e8c60	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+005e8c90	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e8e30	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e8e70	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005e8e90	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e9040	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+005e9060	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e90b0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9530	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e9720	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e9790	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e97c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005ea220	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005ea2c0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ea430	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005ea510	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -2127,6 +2143,13 @@ key	status	note
 005f18c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005f1a10	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005f1a50	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005fb4e0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005fb620	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+005fb710	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+005fb940	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005fb9d0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005fbb10	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+005fbc50	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005fbe40	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005fbe60	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005fbed0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing

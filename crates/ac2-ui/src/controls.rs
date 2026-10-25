@@ -7,10 +7,12 @@
 use ac2_db::{ResourceResult, ResourceStore};
 use ac2_weenie::ActiveAction;
 
-use crate::camera_ui::{CameraUi, CameraUiEffect};
+use crate::camera_ui::{CameraUi, CameraUiEffect, UI_WHEEL_IN, UI_WHEEL_OUT};
 use crate::input::{InputEvent, InputManager, RawAction, DEVICE_MOUSE};
 use crate::interpreter::{ActionInterpreter, Dispatch};
 use crate::maps::{load_action_map, load_key_map, KEYMAP_CONTROL, KEYMAP_MAIN, KEYMAP_SHIFT};
+use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS, GLOBAL_KEY_RELEASE};
+use crate::token::{tokenize, MSG_MOUSE_PRESS_TOP};
 
 /// `CInputManager_WIN32::Init`'s map.
 const KEYMAP_PREPROC: u32 = 0x4000_0001;
@@ -45,6 +47,11 @@ pub struct Controls {
     pub input: InputManager,
     pub interpreter: ActionInterpreter,
     pub camera_ui: CameraUi,
+    /// A UI element tree takes the UI actions (`IUIManager` start / stop): they wait in
+    /// [`Controls::take_ui_input`] and come back as [`Controls::ui_messages`]. Without one the
+    /// camera UI handles them directly.
+    pub ui_attached: bool,
+    ui_input: Vec<(u32, f32, bool)>,
     pending: ControlFrame,
 }
 
@@ -76,6 +83,8 @@ impl Controls {
             input,
             interpreter,
             camera_ui: CameraUi::default(),
+            ui_attached: false,
+            ui_input: Vec::new(),
             pending: ControlFrame::default(),
         }
     }
@@ -125,29 +134,66 @@ impl Controls {
                     action: ui,
                     value,
                     start,
-                } => match self.camera_ui.action(ui, start) {
-                    Some(CameraUiEffect::Action { action, extent }) => {
-                        // `gmCameraUI` re-sends with the action as its key, from device 1.
-                        self.action(action, extent, action, DEVICE_MOUSE, now);
-                    }
-                    Some(CameraUiEffect::States {
-                        mouse_look,
-                        first_person,
-                    }) => {
-                        self.pending.mouse_look_state = Some(mouse_look);
-                        self.pending.first_person_state = Some(first_person);
-                    }
-                    Some(CameraUiEffect::Zoom { zoom_in }) => {
-                        let zoom = if zoom_in {
-                            CAMERA_ZOOM_IN
-                        } else {
-                            CAMERA_ZOOM_OUT
-                        };
-                        self.pending.camera_actions.push((zoom, 1.0, true));
-                    }
-                    None => self.pending.ui.push((ui, value, start)),
-                },
+                } if self.ui_attached => self.ui_input.push((ui, value, start)),
+                Dispatch::Ui {
+                    action: ui,
+                    value,
+                    start,
+                } => self.camera_ui_action(ui, value, start, now),
             }
+        }
+    }
+
+    /// The UI actions for the UI tree (`UIElementManager::StartInput` / `StopInput`), in order.
+    pub fn take_ui_input(&mut self) -> Vec<(u32, f32, bool)> {
+        std::mem::take(&mut self.ui_input)
+    }
+
+    /// The UI tree's messages for the frameworks listening here: `gmCameraUI::ListenToMessage`
+    /// takes the global key press / release messages and `ItemSelectionField`'s
+    /// `mouse_press_top` wheel turns (the pointer over the world) as zoom.
+    pub fn ui_messages(&mut self, messages: &[UiMessage], now: f64) {
+        let world = tokenize("ItemSelectionField");
+        for message in messages {
+            match message.message {
+                GLOBAL_KEY_PRESS | GLOBAL_KEY_RELEASE if message.element.is_none() => {
+                    let start = message.message == GLOBAL_KEY_PRESS;
+                    self.camera_ui_action(message.data as u32, 0.0, start, now);
+                }
+                MSG_MOUSE_PRESS_TOP if message.element_id == world => {
+                    let action = message.data as u32;
+                    if matches!(action, UI_WHEEL_IN | UI_WHEEL_OUT) {
+                        self.camera_ui_action(action, 0.0, true, now);
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    /// `gmCameraUI`'s handling of one UI action; actions it ignores go to [`ControlFrame::ui`].
+    fn camera_ui_action(&mut self, ui: u32, value: f32, start: bool, now: f64) {
+        match self.camera_ui.action(ui, start) {
+            Some(CameraUiEffect::Action { action, extent }) => {
+                // `gmCameraUI` re-sends with the action as its key, from device 1.
+                self.action(action, extent, action, DEVICE_MOUSE, now);
+            }
+            Some(CameraUiEffect::States {
+                mouse_look,
+                first_person,
+            }) => {
+                self.pending.mouse_look_state = Some(mouse_look);
+                self.pending.first_person_state = Some(first_person);
+            }
+            Some(CameraUiEffect::Zoom { zoom_in }) => {
+                let zoom = if zoom_in {
+                    CAMERA_ZOOM_IN
+                } else {
+                    CAMERA_ZOOM_OUT
+                };
+                self.pending.camera_actions.push((zoom, 1.0, true));
+            }
+            None => self.pending.ui.push((ui, value, start)),
         }
     }
 

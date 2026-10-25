@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 94 done, 45 partial, 2091 to do, 17 skipped.
+2247 retail functions: 104 done, 58 partial, 2068 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -133,7 +133,7 @@ Legend and workflow: [README](README.md).
 
 ### gmCameraUI
 - [ ] `gmCameraUI::~gmCameraUI` · 0042baa0 · legions 0042b860
-- [x] `gmCameraUI::ListenToMessage` · 0042bb00 · legions 0042b8c0 — ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
+- [x] `gmCameraUI::ListenToMessage` · 0042bb00 · legions 0042b8c0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [ ] `gmCameraUI::SendKey` · 0042bb50
 - [x] `gmCameraUI::UpdateCamera` · 0042bbb0 · legions 0042b970 — ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 - [ ] `gmCameraUI::gmCameraUI` · 0042bc20 · legions 0042b9e0
@@ -2707,7 +2707,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Node::AddParent` · 00735c00 · legions 006b18a0
 - [ ] `UIElement_Node::AddChild` · 00735c30 · legions 006b18d0
 
-## `portal/client/src/uielement/prim/uiregion.cpp.c` (3/31)
+## `portal/client/src/uielement/prim/uiregion.cpp.c` (5/31)
 
 ### UIRegion
 - [ ] `UIRegion::SetObject` · 005e2540 · legions 005a32d0
@@ -2718,7 +2718,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CMotionInterp::SetAccelerationScale` · 005e25b0 · legions 005a3340
 
 ### UIRegion
-- [ ] `UIRegion::NotifyMouseMove` · 005e25c0 · legions 005a3350
+- [~] `UIRegion::NotifyMouseMove` · 005e25c0 · legions 005a3350 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [ ] `UIRegion::GetObjectA` · 005e26d0 · legions 005a3460
 - [ ] `UIRegion::GetObjectX0` · 005e26f0 · legions 005a3480
 - [ ] `UIRegion::GetObjectY0` · 005e2720 · legions 005a34b0
@@ -2742,11 +2742,11 @@ Legend and workflow: [README](README.md).
 - [ ] `UIRegion::~UIRegion` · 005e3140 · legions 005a3f00
 - [ ] `UIRegion::MouseOver` · 005e31e0 · legions 005a3fa0
 - [ ] `UIRegion::MouseOverTop` · 005e31f0 · legions 005a3fb0
-- [ ] `UIRegion::NotifyMouseDown` · 005e3220
-- [ ] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0
+- [x] `UIRegion::NotifyMouseDown` · 005e3220 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+- [x] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [ ] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180
 
-## `portal/client/src/uielement/system/uielement.cpp.c` (17/104)
+## `portal/client/src/uielement/system/uielement.cpp.c` (21/104)
 
 ### UIRectangleObject
 - [ ] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790
@@ -2768,8 +2768,8 @@ Legend and workflow: [README](README.md).
 ### UIElement
 - [ ] `UIElement::Initialized` · 005e8c30 · legions 005a9890
 - [ ] `UIElement::GetRootElement` · 005e8c40 · legions 005a98a0
-- [ ] `UIElement::MouseMove` · 005e8c60 · legions 005a98c0
-- [ ] `UIElement::MouseUp` · 005e8c90 · legions 005a98f0
+- [x] `UIElement::MouseMove` · 005e8c60 · legions 005a98c0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+- [x] `UIElement::MouseUp` · 005e8c90 · legions 005a98f0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [ ] `UIElement::StartMovement` · 005e8ce0 · legions 005a9940
 - [ ] `UIElement::StopMovement` · 005e8d40 · legions 005a99a0
 - [ ] `UIElement::MouseMoveElement` · 005e8d60 · legions 005a99c0
@@ -2782,8 +2782,8 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::SetCursor` · 005e8f70 · legions 005a9bd0
 - [ ] `UIElement::RestoreSavedCursor` · 005e8fd0 · legions 005a9c30
 - [ ] `UIElement::SaveCursor` · 005e9010 · legions 005a9c70
-- [ ] `UIElement::MouseOver` · 005e9040 · legions 005a9ca0
-- [ ] `UIElement::MouseOverTop` · 005e9060 · legions 005a9cc0
+- [x] `UIElement::MouseOver` · 005e9040 · legions 005a9ca0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+- [~] `UIElement::MouseOverTop` · 005e9060 · legions 005a9cc0 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [x] `UIElement::SetAttributeFromDesc` · 005e90b0 · legions 005a9d10 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::CopyElem` · 005e9180 · legions 005a9de0
 - [ ] `UIElement::MatchGraphics` · 005e91b0 · legions 005a9e10
@@ -2805,7 +2805,7 @@ Legend and workflow: [README](README.md).
 - [~] `UIElement::UIElement` · 005e9530 · legions 005aa190 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [ ] `UIElement::HasCursor` · 005e9710 · legions 005aa370
 - [x] `UIElement::SetParent` · 005e9720 · legions 005aa380 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [ ] `UIElement::BroadcastMessage` · 005e9790 · legions 005aa3f0
+- [~] `UIElement::BroadcastMessage` · 005e9790 · legions 005aa3f0 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [~] `UIElement::UpdateMedia` · 005e97c0 · legions 005aa420 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [ ] `UIElement::ClearTooltip` · 005e9810 · legions 005aa470
 
@@ -2828,7 +2828,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::GetAttribute_Bool` · 005ea0c0 · legions 005aac90
 - [ ] `UIElement::GetAttribute_DataID` · 005ea120 · legions 005aacf0
 - [ ] `UIElement::GetAttribute_Unicode` · 005ea180 · legions 005aad50
-- [ ] `UIElement::MouseDown` · 005ea220 · legions 005aadf0
+- [x] `UIElement::MouseDown` · 005ea220 · legions 005aadf0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [x] `UIElement::ResetMedia` · 005ea2c0 · legions 005aae90 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [~] `UIElement::SetImage` · 005ea430 · legions 005ab000 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [x] `UIElement::AddAttributesFromDesc` · 005ea510 · legions 005ab0e0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -2896,9 +2896,9 @@ Legend and workflow: [README](README.md).
 ### UIElementManager
 - [ ] `UIElementManager::AddRootElement` · 005e3960
 - [ ] `UIElementManager::ChangingElementVisibility` · 005e3aa0 · legions 005a48d0
-- [ ] `UIElementManager::MouseMoveEvent` · 005e3af0 · legions 005a4920
-- [ ] `UIElementManager::UpdateMouse` · 005e3b70 · legions 005a49a0
-- [ ] `UIElementManager::MouseDownEvent` · 005e3cc0
+- [~] `UIElementManager::MouseMoveEvent` · 005e3af0 · legions 005a4920 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+- [~] `UIElementManager::UpdateMouse` · 005e3b70 · legions 005a49a0 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+- [~] `UIElementManager::MouseDownEvent` · 005e3cc0 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [ ] `UIElementManager::CleanDeleteQueue` · 005e3de0 · legions 005a4c10
 - [ ] `UIElementManager::StartTooltip` · 005e3e90 · legions 005a4cc0
 - [ ] `UIElementManager::StartDragandDrop` · 005e42e0
@@ -2907,13 +2907,13 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElementManager::ActivateNext` · 005e4740
 - [ ] `UIElementManager::DrawDirtyRegions` · 005e4970
 - [ ] `UIElementManager::GetObjectRegionInfo` · 005e4b10
-- [ ] `UIElementManager::MouseUpEvent` · 005e4b60
-- [ ] `UIElementManager::KeyPressEvent` · 005e4c70 · legions 005a4440
+- [~] `UIElementManager::MouseUpEvent` · 005e4b60 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+- [~] `UIElementManager::KeyPressEvent` · 005e4c70 · legions 005a4440 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [ ] `UIElementManager::ResetTooltip` · 005e4d20 · legions 005a5bb0
 - [ ] `UIElementManager::AddtoListCleanQue` · 005e4d30 · legions 005a5bc0
 - [ ] `UIElementManager::HandleApply` · 005e4d70 · legions 005a5c00
-- [ ] `UIElementManager::StartInput` · 005e4e50
-- [ ] `UIElementManager::StopInput` · 005e4fc0
+- [~] `UIElementManager::StartInput` · 005e4e50 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+- [~] `UIElementManager::StopInput` · 005e4fc0 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [ ] `UIElementManager::RegisterActivatable` · 005e50d0 · legions 005a5df0
 
 ### Box2D
@@ -3140,25 +3140,25 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Text::SetAttribute_DataID` · 005f1a50 · legions 005b2580 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::ListenToMessage` · 005f1aa0 · legions 005b25d0
 
-## `portal/client/src/uielement/types/uielement_button.cpp.c` (0/16)
+## `portal/client/src/uielement/types/uielement_button.cpp.c` (4/16)
 
 ### UIElement_Button
-- [ ] `UIElement_Button::UIElement_Button` · 005fb4e0 · legions 005bc010
+- [~] `UIElement_Button::UIElement_Button` · 005fb4e0 · legions 005bc010 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [ ] `UIElement_Button::Create` · 005fb540
 - [ ] `UIElement_Button::Global_Loop` · 005fb570 · legions 005bc0a0
 - [ ] `UIElement_Button::ListenToMessage` · 005fb5f0 · legions 005bc120
-- [ ] `UIElement_Button::UpdateState` · 005fb620 · legions 005bc150
-- [ ] `UIElement_Button::SetState` · 005fb710 · legions 005bc240
+- [x] `UIElement_Button::UpdateState` · 005fb620 · legions 005bc150 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+- [x] `UIElement_Button::SetState` · 005fb710 · legions 005bc240 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [ ] `UIElement_Button::IsActivatable` · 005fb770 · legions 005bc2a0
 - [ ] `UIElement_Button::Activate` · 005fb7a0 · legions 005bc2d0
 - [ ] `UIElement_Button::Deactivate` · 005fb7c0 · legions 005bc2f0
 - [ ] `UIElement_Button::StartUseActive` · 005fb7e0 · legions 005bc310
 - [ ] `UIElement_Button::EndUseActive` · 005fb870 · legions 005bc3a0
-- [ ] `UIElement_Button::SetAttribute_Bool` · 005fb940 · legions 005bc470
+- [~] `UIElement_Button::SetAttribute_Bool` · 005fb940 · legions 005bc470 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [ ] `UIElement_Button::Register` · 005fb9b0 · legions 005bc4e0
-- [ ] `UIElement_Button::MouseDown` · 005fb9d0 · legions 005bc500
-- [ ] `UIElement_Button::MouseUp` · 005fbb10 · legions 005bc640
-- [ ] `UIElement_Button::MouseOverTop` · 005fbc50 · legions 005bc780
+- [~] `UIElement_Button::MouseDown` · 005fb9d0 · legions 005bc500 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+- [x] `UIElement_Button::MouseUp` · 005fbb10 · legions 005bc640 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+- [x] `UIElement_Button::MouseOverTop` · 005fbc50 · legions 005bc780 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 
 ## `portal/client/src/uielement/types/uielement_dragbar.cpp.c` (0/8)
 

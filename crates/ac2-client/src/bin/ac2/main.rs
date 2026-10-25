@@ -150,6 +150,11 @@ impl App {
         let Some(state) = self.state.as_mut() else {
             return;
         };
+        // The UI tree takes the UI actions first; its messages reach the camera UI.
+        let ui_input = state.controls.take_ui_input();
+        let messages = state.view.ui_input(&ui_input);
+        let (_, now) = state.now();
+        state.controls.ui_messages(&messages, now);
         let input = frame_input(state.controls.frame());
         if let Err(error) = self.client.use_time(&input) {
             eprintln!("ac2: {error}");
@@ -239,7 +244,12 @@ impl ApplicationHandler for App {
             config,
             depth,
             view,
-            controls: self.controls.take().expect("controls"),
+            controls: {
+                // The HUD's tree takes the UI actions (mouse over panels, the world's wheel).
+                let mut controls = self.controls.take().expect("controls");
+                controls.ui_attached = true;
+                controls
+            },
             started: Instant::now(),
             grabbed: false,
         });

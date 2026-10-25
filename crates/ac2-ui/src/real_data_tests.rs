@@ -192,3 +192,41 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
     let tree = build_gameplay_hud(&store_arc, 800, 600).unwrap();
     assert_eq!(tree.screen_box(root(&tree, "RadarField")).x1, 799);
 }
+
+#[test]
+fn the_wheel_zooms_over_the_world_and_not_over_the_toolbar() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut tree = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let mut controls = Controls::load(&store).unwrap().expect("controls");
+    controls.ui_attached = true;
+    let world = tokenize("ItemSelectionField");
+    let wheel_at = |tree: &mut UiTree, controls: &mut Controls, x: i32, y: i32| {
+        controls.event(InputEvent::Cursor { x, y }, 0, 0.0);
+        controls.event(InputEvent::Wheel { delta: 120 }, 10, 0.01);
+        for (action, extent, start) in controls.take_ui_input() {
+            if start {
+                tree.start_input(action, extent);
+            } else {
+                tree.stop_input(action);
+            }
+        }
+        let messages = tree.take_messages();
+        controls.ui_messages(&messages, 0.02);
+        controls.frame().camera_actions
+    };
+    // The middle of the screen is open world: the selection field is the top region.
+    let zoom = wheel_at(&mut tree, &mut controls, 512, 300);
+    let top = tree.mouse_top().map(|i| tree.get(i).unwrap().id());
+    assert_eq!(top, Some(world));
+    assert_eq!(zoom, vec![(0x4000_002D, 1.0, true)]);
+    // The toolbar covers the bottom middle.
+    let zoom = wheel_at(&mut tree, &mut controls, 512, 750);
+    assert_ne!(
+        tree.mouse_top().map(|i| tree.get(i).unwrap().id()),
+        Some(world)
+    );
+    assert!(zoom.is_empty(), "{zoom:?}");
+}

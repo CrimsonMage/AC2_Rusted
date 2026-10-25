@@ -1,7 +1,8 @@
 //! The gameplay HUD over the world (`window` feature): the element tree
 //! `gmGamePlayUI::SetupChildren`'s frameworks create, built and its images read on a worker
 //! thread, then composed (`UIRegion::DrawHere`, software, as retail) whenever it arrives or the
-//! window changes size, and drawn as one layer per root surface.
+//! window changes size, and drawn as one layer per root surface. The frame's UI actions go to
+//! the tree (`UIElementManager::StartInput`), and it is composed again when they change it.
 
 use std::collections::HashMap;
 use std::sync::mpsc::{self, Receiver, TryRecvError};
@@ -9,7 +10,7 @@ use std::sync::Arc;
 
 use ac2_db::{ResourceResult, ResourceStore};
 use ac2_gpu::{Gpu, UiLayer, UiOverlay};
-use ac2_ui::{UiPixels, UiTree};
+use ac2_ui::{UiMessage, UiPixels, UiTree};
 
 type Built = ResourceResult<(UiTree, HashMap<u32, UiPixels>)>;
 
@@ -52,13 +53,36 @@ impl HudView {
     /// The render device's new size: every root placed again (`UIElement::UpdateSizeAndPosition`).
     pub(crate) fn resize(&mut self, width: u32, height: u32) {
         self.size = (width.max(1), height.max(1));
+        if let Some((tree, _)) = &mut self.hud {
+            tree.set_display(self.size.0 as i32, self.size.1 as i32);
+        }
         self.dirty = true;
+    }
+
+    /// The frame's UI actions (`IUIManager` start / stop: `UIElementManager::StartInput` /
+    /// `StopInput`); returns the messages they broadcast.
+    pub(crate) fn input(&mut self, actions: &[(u32, f32, bool)]) -> Vec<UiMessage> {
+        let Some((tree, _)) = &mut self.hud else {
+            return Vec::new();
+        };
+        for &(action, extent, start) in actions {
+            if start {
+                tree.start_input(action, extent);
+            } else {
+                tree.stop_input(action);
+            }
+        }
+        if tree.take_changed() {
+            self.dirty = true;
+        }
+        tree.take_messages()
     }
 
     fn arrived(&mut self, built: Built) {
         match built {
-            Ok(hud) => {
-                self.hud = Some(hud);
+            Ok((mut tree, images)) => {
+                tree.set_display(self.size.0 as i32, self.size.1 as i32);
+                self.hud = Some((tree, images));
                 self.dirty = true;
             }
             Err(error) => eprintln!("ac2: the HUD did not load: {error}"),
@@ -98,7 +122,7 @@ impl HudView {
             return;
         };
         self.dirty = false;
-        tree.set_display(self.size.0 as i32, self.size.1 as i32);
+        tree.take_changed();
         let surfaces = tree.compose(images);
         self.overlay.set_layers(
             gpu,
