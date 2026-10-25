@@ -60,6 +60,9 @@ pub enum Command {
     LootAll(u64),
     /// `gmCWInterface::TransmuteAllFromContainer`.
     TransmuteAll(u64),
+    /// `gmCWInterface::RequestTrainSkill` / `RequestUntrainSkill` / `RequestRaiseSkill` /
+    /// `RequestUntrainSkillCancel` (the skill panel and its confirmation dialogs).
+    Skill(ac2_weenie::SkillRequest),
     /// `gmCWInterface::SetShortcut`: the shortcut into slot `index` of the bar.
     SetShortcut {
         index: u32,
@@ -139,6 +142,10 @@ impl Client {
                     Vec::new()
                 }
                 Command::ChatLine(line) => self.session.process_text(line),
+                Command::Skill(request) => {
+                    self.session.request_skill(*request);
+                    Vec::new()
+                }
                 Command::Emote(emote) => {
                     self.session.emote(*emote);
                     Vec::new()

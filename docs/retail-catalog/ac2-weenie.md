@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 207 done, 59 partial, 1632 to do, 6 skipped.
+1904 retail functions: 217 done, 59 partial, 1622 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (9/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (19/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -992,13 +992,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::GetMaxDurabilityLevel` · 004507d0 · legions 00451910
 - [ ] `gmCWInterface::GetIconID` · 00450800 · legions 00451940
 - [ ] `gmCWInterface::GetMaxContainerSize` · 00450830 · legions 00451970
-- [ ] `gmCWInterface::GetAvailableExperience` · 00450860 · legions 004519a0
-- [ ] `gmCWInterface::GetSkillCredits` · 004508a0 · legions 004519e0
-- [ ] `gmCWInterface::GetHeroSkillCredits` · 004508d0 · legions 00451a10
+- [x] `gmCWInterface::GetAvailableExperience` · 00450860 · legions 004519a0 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
+- [x] `gmCWInterface::GetSkillCredits` · 004508a0 · legions 004519e0 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
+- [x] `gmCWInterface::GetHeroSkillCredits` · 004508d0 · legions 00451a10 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
 - [ ] `gmCWInterface::Dismount` · 00450900 · legions 00451a40
 - [ ] `gmCWInterface::InqRootPanelFromRace` · 00450920 · legions 00451a60
-- [ ] `gmCWInterface::IsSkillTrainedByEnum` · 00450960 · legions 00451aa0
-- [ ] `gmCWInterface::IsSkillBeingUntrainedByEnum` · 004509a0 · legions 00451ae0
+- [x] `gmCWInterface::IsSkillTrainedByEnum` · 00450960 · legions 00451aa0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
+- [x] `gmCWInterface::IsSkillBeingUntrainedByEnum` · 004509a0 · legions 00451ae0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
 - [ ] `gmCWInterface::IsHeroSkillByEnum` · 004509e0 · legions 00451b20
 - [ ] `gmCWInterface::CanSkillBeTrainedByEnum` · 00450a20 · legions 00451b60
 - [ ] `gmCWInterface::CanSkillBeUntrainedByEnum` · 00450a60 · legions 00451ba0
@@ -1006,11 +1006,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::GetSkillExperienceNeededToLevelByEnum` · 00450ae0 · legions 00451c20
 - [ ] `gmCWInterface::InqSkillLevelByEnum` · 00450b30 · legions 00451c70
 - [ ] `gmCWInterface::GetSkillCostToTrainByEnum` · 00450b70 · legions 00451cb0
-- [ ] `gmCWInterface::GetSkillXPByEnum` · 00450bb0 · legions 00451cf0
-- [ ] `gmCWInterface::RequestTrainSkill` · 00450c00 · legions 00451d40
-- [ ] `gmCWInterface::RequestUntrainSkill` · 00450c20 · legions 00451d60
-- [ ] `gmCWInterface::RequestRaiseSkill` · 00450c40 · legions 00451d80
-- [ ] `gmCWInterface::RequestUntrainSkillCancel` · 00450c60 · legions 00451da0
+- [x] `gmCWInterface::GetSkillXPByEnum` · 00450bb0 · legions 00451cf0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
+- [x] `gmCWInterface::RequestTrainSkill` · 00450c00 · legions 00451d40 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
+- [x] `gmCWInterface::RequestUntrainSkill` · 00450c20 · legions 00451d60 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
+- [x] `gmCWInterface::RequestRaiseSkill` · 00450c40 · legions 00451d80 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
+- [x] `gmCWInterface::RequestUntrainSkillCancel` · 00450c60 · legions 00451da0 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
 - [ ] `gmCWInterface::InqSkillTimeLeft` · 00450c80 · legions 00451dc0
 - [ ] `gmCWInterface::IsSkillUsableBasedOnInventoryByEnum` · 00450cc0 · legions 00451e00
 - [ ] `gmCWInterface::GUNHandleReauthentication` · 00450d00 · legions 00451e40

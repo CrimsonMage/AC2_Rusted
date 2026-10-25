@@ -88,7 +88,7 @@ fn skills_shortcuts_and_fellowship_reach_the_panels() {
     // `WM_Skill` 0xE: the repository (credits 3, hero credits 1, two skills).
     let mut repo_slots = vec![0u32; 8];
     let mut repo_tags = vec![2u8; 8];
-    (repo_slots[0], repo_slots[3]) = (3, 1);
+    (repo_slots[0], repo_slots[3], repo_slots[5]) = (3, 1, 0x41);
     (repo_slots[7], repo_tags[7]) = (2, 1);
     let table = PackedEntry::Heap {
         flags: entry_flags::KIND_HEAP | entry_flags::LOADED | entry_flags::RECURSE,
@@ -139,6 +139,10 @@ fn skills_shortcuts_and_fellowship_reach_the_panels() {
             .collect::<Vec<_>>(),
         [(0x40, false, 0), (0x41, true, 700)]
     );
+    // The skill panel's queries over the repository.
+    assert!(skills.is_trained(0x41) && !skills.is_trained(0x40) && !skills.is_trained(0x99));
+    assert!(skills.is_being_untrained(0x41) && !skills.is_being_untrained(0x40));
+    assert_eq!((skills.xp(0x41), skills.xp(0x99)), (700, 0));
     // `WM_Skill` 0xD: one skill trained.
     let one = PackedReference {
         ids: vec![1],
@@ -205,4 +209,49 @@ fn skills_shortcuts_and_fellowship_reach_the_panels() {
         &[0, 0xFFFF_00AC, 0x4000_0002, 0x42, 0x8000_0002, 0, 1, 1],
     );
     assert_eq!(blob, expected);
+}
+
+#[test]
+fn skill_requests_go_out_as_the_wm_skill_stubs() {
+    use ac2_weenie::SkillRequest;
+    let (transport, state) = double(Spawn::default());
+    let mut session = OnlineSession::with_transport(config(), Box::new(transport)).unwrap();
+    session.wait_for_world(Duration::from_secs(10)).unwrap();
+    session.poll();
+    let requests = [
+        SkillRequest::Train(0x41),
+        SkillRequest::Raise(0x42),
+        SkillRequest::Untrain(0x43),
+        SkillRequest::CancelUntrain,
+    ];
+    for request in requests {
+        session.request_skill(request);
+    }
+    settle(&mut session, &state);
+    let s = state.borrow();
+    assert!(s.script_errors.is_empty(), "{:?}", s.script_errors);
+    let calls: Vec<ScriptCall> = requests.iter().map(|r| r.call()).collect();
+    for call in &calls {
+        assert!(s.script_calls.contains(call), "{call:?}");
+    }
+    // Byte for byte: `InterpSEvent`, the function, the buffer (an int tag and the enum).
+    let sent = |function: u32| {
+        s.blobs
+            .iter()
+            .find(|(_, q, d)| *q == 3 && d[4..8] == function.to_le_bytes())
+            .map(|(_, _, d)| d.clone())
+            .unwrap()
+    };
+    for (function, skill) in [
+        (0x8214_0002, 0x41),
+        (0x8214_000C, 0x42),
+        (0x8214_0007, 0x43),
+    ] {
+        let mut expected = Vec::new();
+        words(&mut expected, &[0x0001_0053, function, 8, 1, skill]);
+        assert_eq!(sent(function), expected);
+    }
+    let mut cancel = Vec::new();
+    words(&mut cancel, &[0x0001_0053, 0x8214_0001, 0]);
+    assert_eq!(sent(0x8214_0001), cancel);
 }

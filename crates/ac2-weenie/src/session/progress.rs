@@ -6,7 +6,7 @@ use ac2_net::protocol::{unpack_values, NativeObject, PackValue, ScriptCall, Shor
 use super::gameplay::player_qualities;
 use super::{OnlineSession, SessionEvent};
 use crate::notice::GameplayNotice;
-use crate::progress::Progress;
+use crate::progress::{Progress, SkillRequest};
 
 /// `WM_Player` 0x1A (`SetShortcut`'s stub).
 const SET_SHORTCUT: u32 = 0x8212_0018;
@@ -65,6 +65,12 @@ impl OnlineSession {
         .expect("SetShortcut's layout");
         self.send(call.to_event());
         true
+    }
+
+    /// A skill panel request (`gmCWInterface::RequestTrainSkill` and kin): its `WM_Skill`
+    /// call, as the stub packs it.
+    pub fn request_skill(&mut self, request: SkillRequest) {
+        self.send(request.call().to_event());
     }
 
     /// A `WM_Skill` answer to the player; `None` for other functions.
