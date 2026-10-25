@@ -201,3 +201,45 @@ fn a_client_stall_of_140_seconds_spares_the_connection_for_one_frame() {
         vec![NetEvent::Disconnected(crate::NetError::ServerDied)]
     );
 }
+
+#[test]
+fn a_clock_a_minute_ahead_of_the_server_for_a_minute_reports_a_speedhack() {
+    let (mut net, mut server) = logged_on();
+    // The server's clock is 110 s behind ours: `Timer::set_time` ignores it, and
+    // `ClientNet::HandleTimeSynch` notes when the lag began.
+    let sync = server.reliable(1, OptionalHeader::TimeSync(40.0));
+    let (out, events) = net.use_time(150.0, REAL + 150, vec![(addr(SERVER), sync)]);
+    assert_eq!(events, vec![NetEvent::TimeSync(40.0)]);
+    assert_eq!(net.timer().base_time(), 0.0);
+    assert!(out
+        .iter()
+        .all(|(_, d)| { PacketHeader::decode(d).unwrap().flags & flags::NET_ERROR == 0 }));
+    // Still behind 61 s later at 211: not yet more than a minute since 150.
+    let sync = server.reliable(1, OptionalHeader::TimeSync(100.0));
+    let (out, _) = net.use_time(210.0, REAL + 210, vec![(addr(SERVER), sync)]);
+    assert!(out
+        .iter()
+        .all(|(_, d)| { PacketHeader::decode(d).unwrap().flags & flags::NET_ERROR == 0 }));
+    // At 211 it is: `ID_ConnectionError_RunningSpeedhack` (table 0x40000005) goes alone
+    // (`NetError` is unreliable and exclusive), at the highest sequence sent.
+    let sync = server.reliable(1, OptionalHeader::TimeSync(101.0));
+    let (out, _) = net.use_time(211.0, REAL + 211, vec![(addr(SERVER), sync)]);
+    let errors: Vec<&Vec<u8>> = out
+        .iter()
+        .map(|(_, d)| d)
+        .filter(|d| PacketHeader::decode(d).unwrap().flags & flags::NET_ERROR != 0)
+        .collect();
+    assert_eq!(errors.len(), 1, "{out:?}");
+    let header = PacketHeader::decode(errors[0]).unwrap();
+    let error = OptionalHeader::NetError(crate::NetErrorId {
+        string_id: tokenize(b"ID_ConnectionError_RunningSpeedhack"),
+        table_id: 0x4000_0005,
+    })
+    .encode();
+    let expected = datagram(
+        client_header(header.sequence, flags::NET_ERROR, header.interval),
+        &[&error],
+        None,
+    );
+    assert_eq!(errors[0], &expected);
+}

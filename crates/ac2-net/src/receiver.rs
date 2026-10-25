@@ -283,6 +283,23 @@ mod tests {
     }
 
     #[test]
+    fn more_than_40000_missing_sequences_refuse_every_packet() {
+        let mut r = receiver();
+        // At most `0x7fff` ahead per packet: two jumps leave 2..=40001 missing. 40,000 missing is
+        // still sane (`SeqIDSanityCheck`: refused above 40,000).
+        assert_eq!(r.process_sequence(&sequenced(0x8000, false)), Some(None));
+        assert_eq!(r.process_sequence(&sequenced(40_001, false)), Some(None));
+        assert_eq!(r.naked.len(), 40_000);
+        assert_eq!(r.process_sequence(&sequenced(40_003, false)), Some(None));
+        assert_eq!(r.naked.len(), 40_002);
+        // Now even a missing sequence's resend is refused.
+        assert_eq!(r.process_sequence(&sequenced(2, true)), None);
+        assert_eq!(r.process_sequence(&sequenced(40_004, false)), None);
+        r.forget(&[2, 3]);
+        assert!(r.process_sequence(&sequenced(4, true)).is_some());
+    }
+
+    #[test]
     fn far_future_sequences_fail_the_sanity_check() {
         let mut r = receiver();
         assert_eq!(r.process_sequence(&sequenced(1 + 0x8000, true)), None);
