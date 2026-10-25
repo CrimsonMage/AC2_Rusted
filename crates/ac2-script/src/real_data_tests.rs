@@ -166,6 +166,7 @@ fn native_name(native: &NativeObject) -> &'static str {
         | NativeObject::CraftSkill(_)
         | NativeObject::DamageText(_)
         | NativeObject::Color(_) => "UI native",
+        NativeObject::Shortcut(_) => "ShortcutInfo",
         NativeObject::ListIter { .. } => "list iterator",
         NativeObject::HashIter { .. } => "hash iterator",
         NativeObject::MultiHash(_) => "multi-hash",

@@ -97,6 +97,7 @@ key	status	note
 00435d80	x	ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
 00435fc0	x	ac2-ui shortcut.rs
 004360e0	x	ac2-ui shortcut.rs
+004363e0	x	ac2-script glue::shortcut / native::shortcut
 00436440	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 004364f0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 004367a0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
@@ -480,6 +481,16 @@ key	status	note
 0046f710	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 0046f7c0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 0046f8e0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f9b0	x	ac2-script glue::shortcut / native::shortcut
+0046fa10	x	ac2-script glue::shortcut / native::shortcut
+0046fa70	x	ac2-script glue::shortcut / native::shortcut
+0046fad0	x	ac2-script glue::shortcut / native::shortcut
+0046fb30	x	ac2-script glue::shortcut / native::shortcut
+0046fba0	x	ac2-script glue::shortcut / native::shortcut
+0046fc10	x	ac2-script glue::shortcut / native::shortcut
+0046fc80	x	ac2-script glue::shortcut / native::shortcut
+0046fcf0	x	ac2-script glue::shortcut / native::shortcut
+0046fd70	x	ac2-script glue::shortcut / native::shortcut
 0046fe40	x	ac2-script glue::options / examination (Legions layout and efun switch)
 0046fea0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 0046ff60	x	ac2-script glue::options / examination (Legions layout and efun switch)
@@ -3101,10 +3112,10 @@ key	status	note
 00607a90	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 00607ae0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 00607b10	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
-00607fd0	x	ac2-script glue::options / examination (Legions layout and efun switch)
-00608040	~	ac2-script native::options (ShortcutInfo keeps its packed datum only; unversioned profiles upgrade before packing; inner UI tables copied as is)
-006080b0	x	ac2-script glue::options / examination (Legions layout and efun switch)
-00608120	x	ac2-script glue::options / examination (Legions layout and efun switch)
+00607fd0	x	ac2-script glue::shortcut / native::shortcut
+00608040	x	ac2-script glue::shortcut / native::shortcut
+006080b0	x	ac2-script glue::shortcut / native::shortcut
+00608120	x	ac2-script glue::shortcut / native::shortcut
 00608150	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00608380	x	ac2-net protocol::native (native objects in script-call PackBuffers)
 00608490	x	ac2-net protocol::native (native objects in script-call PackBuffers)

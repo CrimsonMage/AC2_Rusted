@@ -358,6 +358,31 @@ fn stores_and_damage_text_reach_the_ui_typed() {
     assert_eq!(d.color[1], (128.0 * f64::from(0.003_921_569_f32)) as f32);
 }
 
+/// `gShortcutInfo` sets every field; the wire form packs the type and the datum it names.
+#[test]
+fn shortcut_infos_keep_their_fields_and_pack_their_datum() {
+    use crate::native::{ntype, NativeObject};
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let vm = host.vm_mut();
+    let s = vm.refs.create_native(
+        ntype::SHORTCUT_INFO,
+        NativeObject::new_empty(ntype::SHORTCUT_INFO),
+    );
+    run_efun(vm, 0x00AC_0005, &[0x4000_0002], s); // SetType
+    run_efun(vm, 0x00AC_0006, &[0x8000_0001, 0x42], s); // SetDataIID (high word first)
+    run_efun(vm, 0x00AC_0007, &[9], s); // SetDataEnum (kept, not packed)
+    assert_eq!(efun_result(vm, 0x00AC_0001, &[], s, 2), 0x4000_0002);
+    assert_eq!(efun_result(vm, 0x00AC_0003, &[], s, 2), 9);
+    let Some(NativeObject::Shortcut(sc)) = vm.native(s) else {
+        panic!();
+    };
+    assert_eq!(
+        sc.to_net(),
+        ac2_net::protocol::ShortcutInfo::Instance(0x8000_0001_0000_0042)
+    );
+}
+
 /// `RequestGUN_SendToRoom` goes out only through a chat service; with none, retail returns the
 /// room id and sends nothing. GUN-only requests need GUN.
 #[test]

@@ -29,6 +29,7 @@ mod position;
 mod quests;
 mod random;
 mod repository;
+mod shortcut;
 mod skill_node;
 mod social;
 mod string_info;
@@ -74,6 +75,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     social::register(efuns);
     quests::register(efuns);
     ui_natives::register(efuns);
+    shortcut::register(efuns);
 }
 
 pub(crate) use chargen::empty_race_sex_info;

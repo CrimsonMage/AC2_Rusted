@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1302 done, 80 partial, 1006 to do, 80 skipped.
+2468 retail functions: 1312 done, 80 partial, 996 to do, 80 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -446,19 +446,19 @@ Legend and workflow: [README](README.md).
 - [x] `gSelectionInfo::CallEFun_eq` · 004703f0 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gSelectionInfo::CallEFun_ne` · 00470470 — ac2-script glue::options / examination (Legions layout and efun switch)
 
-## `ac2/shared/src/interp/glue/gshortcutinfo.cpp.c` (0/10)
+## `ac2/shared/src/interp/glue/gshortcutinfo.cpp.c` (10/10)
 
 ### gShortcutInfo
-- [ ] `gShortcutInfo::CallEFun_SetDataEnum` · 0046f9b0
-- [ ] `gShortcutInfo::CallEFun_SetDataID` · 0046fa10
-- [ ] `gShortcutInfo::CallEFun_SetDataIID` · 0046fa70
-- [ ] `gShortcutInfo::CallEFun_SetType` · 0046fad0
-- [ ] `gShortcutInfo::CallEFun_GetDataEnum` · 0046fb30
-- [ ] `gShortcutInfo::CallEFun_GetDataID` · 0046fba0
-- [ ] `gShortcutInfo::CallEFun_GetDataIID` · 0046fc10
-- [ ] `gShortcutInfo::CallEFun_GetType` · 0046fc80
-- [ ] `gShortcutInfo::CallEFun_SetDataStr` · 0046fcf0
-- [ ] `gShortcutInfo::CallEFun_GetDataStr` · 0046fd70
+- [x] `gShortcutInfo::CallEFun_SetDataEnum` · 0046f9b0 — ac2-script glue::shortcut / native::shortcut
+- [x] `gShortcutInfo::CallEFun_SetDataID` · 0046fa10 — ac2-script glue::shortcut / native::shortcut
+- [x] `gShortcutInfo::CallEFun_SetDataIID` · 0046fa70 — ac2-script glue::shortcut / native::shortcut
+- [x] `gShortcutInfo::CallEFun_SetType` · 0046fad0 — ac2-script glue::shortcut / native::shortcut
+- [x] `gShortcutInfo::CallEFun_GetDataEnum` · 0046fb30 — ac2-script glue::shortcut / native::shortcut
+- [x] `gShortcutInfo::CallEFun_GetDataID` · 0046fba0 — ac2-script glue::shortcut / native::shortcut
+- [x] `gShortcutInfo::CallEFun_GetDataIID` · 0046fc10 — ac2-script glue::shortcut / native::shortcut
+- [x] `gShortcutInfo::CallEFun_GetType` · 0046fc80 — ac2-script glue::shortcut / native::shortcut
+- [x] `gShortcutInfo::CallEFun_SetDataStr` · 0046fcf0 — ac2-script glue::shortcut / native::shortcut
+- [x] `gShortcutInfo::CallEFun_GetDataStr` · 0046fd70 — ac2-script glue::shortcut / native::shortcut
 
 ## `ac2/shared/src/interp/glue/gskillpanelmanager.cpp.c` (4/5)
 

@@ -5,14 +5,14 @@
 //! adds the source's elements in the source's order, each at the head of its bucket, so the
 //! orders the scripts see follow retail's.
 
-use ac2_net::protocol::{self as net, ShortcutInfo};
+use ac2_net::protocol as net;
 
 use super::hashes::with_hash;
 use super::options::{shortcut_of, with_profile};
 use super::{word, Call, INT_RESULT};
 use crate::native::{
     assign_ui_locations, ntype, word_assign, AliasTable, GameplayOptions, NativeObject, RefKey,
-    ScriptHash, DEFAULT_BUCKETS,
+    ScriptHash, Shortcut, DEFAULT_BUCKETS,
 };
 use crate::vm::{Context, EFuns, InterpStatus, Vm};
 
@@ -146,7 +146,7 @@ fn inq_alias_table(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
 
 /// `SetShortcutArray(RArray)`: `RArrayToShortcutInfoArray`, then `SetShortcutArray`.
 fn set_shortcut_array(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
-    let items: Vec<ShortcutInfo> = match vm.native(word(ctx, 2)) {
+    let items: Vec<Shortcut> = match vm.native(word(ctx, 2)) {
         Some(NativeObject::List(l)) => l.items.clone(),
         _ => Vec::new(),
     }
@@ -165,8 +165,7 @@ fn inq_shortcut_array(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
             .shortcuts
             .iter()
             .map(|s| {
-                let native =
-                    NativeObject::Wire(Box::new(net::NativeObject::ShortcutInfo(s.clone())));
+                let native = NativeObject::Shortcut(Box::new(s.clone()));
                 u64::from(vm.refs.create_native(ntype::SHORTCUT_INFO, native))
             })
             .collect();

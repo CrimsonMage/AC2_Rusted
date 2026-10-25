@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 120 done, 10 partial, 360 to do, 9 skipped.
+499 retail functions: 121 done, 9 partial, 360 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (2/4)
@@ -439,14 +439,14 @@ Legend and workflow: [README](README.md).
 ### UIShopSale
 - [x] `UIShopSale::UIShopSale` · 0060cd80 · legions 005cdb80 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
-## `ac2/shared/src/shortcut/shortcutinfo.cpp.c` (4/6)
+## `ac2/shared/src/shortcut/shortcutinfo.cpp.c` (5/6)
 
 ### ShortcutInfo
-- [x] `ShortcutInfo::Clear` · 00607fd0 · legions 005c8e70 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [~] `ShortcutInfo::operator=` · 00608040 · legions 005c8ee0 — ac2-script native::options (ShortcutInfo keeps its packed datum only; unversioned profiles upgrade before packing; inner UI tables copied as is)
-- [x] `ShortcutInfo::ShortcutInfo` · 006080b0 · legions 005c8f50 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `ShortcutInfo::Clear` · 00607fd0 · legions 005c8e70 — ac2-script glue::shortcut / native::shortcut
+- [x] `ShortcutInfo::operator=` · 00608040 · legions 005c8ee0 — ac2-script glue::shortcut / native::shortcut
+- [x] `ShortcutInfo::ShortcutInfo` · 006080b0 · legions 005c8f50 — ac2-script glue::shortcut / native::shortcut
 - [ ] `ShortcutInfo::~ShortcutInfo` · 006080e0 · legions 005c8f80
-- [x] `ShortcutInfo::ShortcutInfo` · 00608120 · legions 005c8fc0 — ac2-script glue::options / examination (Legions layout and efun switch)
+- [x] `ShortcutInfo::ShortcutInfo` · 00608120 · legions 005c8fc0 — ac2-script glue::shortcut / native::shortcut
 - [x] `ShortcutInfo::StreamPack` · 00608150 · legions 005c8ff0 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
 ## `ac2/shared/src/skilldisplay/skilluinode.cpp.c` (4/7)

@@ -10,6 +10,7 @@ mod containers;
 mod hash_table;
 mod multi;
 mod options;
+mod shortcut;
 pub mod social;
 mod string_info;
 mod structs;
@@ -27,6 +28,7 @@ pub use options::{
     assign_ui_locations, bits as option_bits, word_assign, word_get, word_set, AliasTable,
     GameplayOptions,
 };
+pub use shortcut::Shortcut;
 pub use string_info::{GetStringError, StringInfo, StringVar, StringVarValue};
 pub use structs::{
     behavior_defaults, behavior_pack_bitfield, BehaviorParams, MissileParameters,
@@ -183,6 +185,8 @@ pub enum NativeObject {
     DamageText(Box<ac2_weenie::DamageText>),
     /// `RGBAColor` (r, g, b, a).
     Color([f32; 4]),
+    /// `ShortcutInfo` (every field).
+    Shortcut(Box<Shortcut>),
     /// `GameplayOptionsProfile` (Legions layout).
     GameplayOptions(Box<GameplayOptions>),
     /// `BaseListIter`: a position in a list (`None` past the end). Retail holds the list node;
@@ -295,11 +299,7 @@ impl NativeObject {
             ntype::EXAMINATION_REQUEST => NativeObject::Wire(Box::new(
                 ac2_net::protocol::NativeObject::ExaminationRequest(Default::default()),
             )),
-            ntype::SHORTCUT_INFO => {
-                NativeObject::Wire(Box::new(ac2_net::protocol::NativeObject::ShortcutInfo(
-                    ac2_net::protocol::ShortcutInfo::Empty(0),
-                )))
-            }
+            ntype::SHORTCUT_INFO => NativeObject::Shortcut(Box::default()),
             ntype::UI_SAVE_LOCATIONS => {
                 NativeObject::Wire(Box::new(ac2_net::protocol::NativeObject::UiSaveLocations(
                     GameplayOptions::default().ui_locations,

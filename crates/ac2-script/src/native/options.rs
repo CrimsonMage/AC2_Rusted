@@ -10,10 +10,11 @@
 //! elements at their bucket's head), kept in [`ScriptHash`] so iteration order, and with it
 //! what packs and what the scripts see, follows retail.
 
-use ac2_net::protocol::{self as net, ShortcutInfo, UiSaveLocations, WordTable};
+use ac2_net::protocol::{self as net, UiSaveLocations, WordTable};
 
 use super::containers::RefKey;
 use super::hash_table::{bucket_size_index, PlainKeys, ScriptHash, BUCKET_SIZES, DEFAULT_BUCKETS};
+use super::shortcut::Shortcut;
 use crate::glue::compute_hash;
 
 /// `PHashTable<PStringBase<unsigned short>, PStringBase<unsigned short>>`: the aliases, by
@@ -199,7 +200,7 @@ pub struct GameplayOptions {
     /// +0x04 `m_aliasTable` (pack bit 0x1).
     pub aliases: AliasTable,
     /// +0x20 `m_shortcutArray` (0x2).
-    pub shortcuts: Vec<ShortcutInfo>,
+    pub shortcuts: Vec<Shortcut>,
     /// +0x30 `m_whichShortcutSet` (0x4).
     pub which_shortcut_set: u32,
     /// +0x34 `m_iShortcutHeight` (0x1000).
@@ -418,7 +419,7 @@ impl GameplayOptions {
             p.aliases = AliasTable::from_packed(w.aliases.0, &w.aliases.1);
         }
         if has(0x2) {
-            p.shortcuts = w.shortcuts.clone();
+            p.shortcuts = w.shortcuts.iter().map(Shortcut::from_net).collect();
         }
         if has(0x4) {
             p.which_shortcut_set = w.which_shortcut_set;
@@ -478,7 +479,7 @@ impl GameplayOptions {
                     .map(|(k, v)| (String::from_utf16_lossy(k), String::from_utf16_lossy(v)))
                     .collect(),
             ),
-            shortcuts: p.shortcuts.clone(),
+            shortcuts: p.shortcuts.iter().map(Shortcut::to_net).collect(),
             which_shortcut_set: p.which_shortcut_set,
             shortcut_height: p.shortcut_height,
             damage_text_range_other: p.damage_text_range_other,

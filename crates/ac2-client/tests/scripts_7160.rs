@@ -219,6 +219,12 @@ fn the_cache_only_vm_runs_the_login_and_answers_the_ui() {
         s.script_world.character.skills.clear();
         s.script_world.options = Some(Default::default());
     }
+    // The player's profile with an empty shortcut bar (ten slots).
+    server.borrow_mut().script_world.options = Some(ac2_net::protocol::GameplayOptionsProfile {
+        pack_bitfield: 0x2,
+        shortcuts: vec![ac2_net::protocol::ShortcutInfo::Empty(0); 10],
+        ..Default::default()
+    });
     server.borrow_mut().send_init_player();
     for _ in 0..8 {
         step(&mut client, &server, &idle);
@@ -255,10 +261,23 @@ fn the_cache_only_vm_runs_the_login_and_answers_the_ui() {
     let level = client.skill_level(0x10).unwrap();
     assert_eq!((level.raw, level.enchanted), (0, 0));
     assert!(!client.skill_time_left(0x10).unwrap().ok);
-    assert!(!client.shortcut_info(0).unwrap().ok);
+    // An empty slot names the empty-slot string (0xBF140F9E in 0x25000012).
+    let empty = client.shortcut_info(0).unwrap();
+    assert!(empty.ok && empty.icon == 0 && empty.name.string_id == 0xBF14_0F9E);
+    // A skill shortcut in slot 0, then its name and icon (gShortcutInfo on the VM).
+    let skill = ac2_net::protocol::ShortcutInfo::Enum {
+        kind: 0x4000_0001,
+        value: 0x10,
+    };
+    assert_eq!(client.set_shortcut(0, skill.clone()), Ok(1));
+    let info = client.shortcut_info(0).unwrap();
+    assert!(
+        info.ok && info.icon != 0 && info.name.string_id != 0,
+        "{info:?}"
+    );
+    assert_eq!(client.shortcut_array().unwrap()[0], skill);
     let settings = client.shortcut_settings().unwrap();
     assert_eq!((settings.which_set, settings.height), (0, 1));
-    assert!(client.shortcut_array().unwrap().is_empty());
     // The chat windows' defaults (`GameplayOptionsProfile::Clear`, Legions).
     let chat = client.chat_settings().unwrap();
     assert_eq!(chat.filters.get(&1), Some(&0x0060_017F));

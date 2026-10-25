@@ -13,7 +13,7 @@ use ac2_net::protocol as net;
 use crate::native::{
     behavior_defaults, behavior_pack_bitfield, bucket_size_index, ntype, GameplayOptions,
     MissileParameters, NativeObject, RandomSelectionTable, RefKey, ScriptHash, ScriptList,
-    ScriptMultiHash, StringInfo, StringVar, StringVarValue,
+    ScriptMultiHash, Shortcut, StringInfo, StringVar, StringVarValue,
 };
 use crate::reference::{HeapObject, PackedEntry, PackedReference};
 
@@ -142,6 +142,7 @@ pub fn native_from_net(native: &net::NativeObject) -> NativeObject {
         W::Empty(t) if !matches!(NativeObject::new_empty(*t), NativeObject::Unbound(_)) => {
             NativeObject::new_empty(*t)
         }
+        W::ShortcutInfo(s) => NativeObject::Shortcut(Box::new(Shortcut::from_net(s))),
         W::GameplayOptionsProfile(p) => {
             NativeObject::GameplayOptions(Box::new(GameplayOptions::from_net(p)))
         }
@@ -199,6 +200,7 @@ pub fn native_to_net(
             W::BehaviorParams(Box::new(p))
         }
         NativeObject::GameplayOptions(p) => W::GameplayOptionsProfile(Box::new(p.to_net())),
+        NativeObject::Shortcut(s) => W::ShortcutInfo(s.to_net()),
         NativeObject::Fellow(_)
         | NativeObject::Fellowship(_)
         | NativeObject::AllegianceData(_)
