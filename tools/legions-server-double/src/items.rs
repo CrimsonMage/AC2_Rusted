@@ -209,16 +209,17 @@ impl State {
             }
         }
         self.send_private(280, QualityValue::Int(MAIN_PACK_CAPACITY));
+        let player = self.player();
         let world = &mut self.script_world;
         for item in &items {
             if let Some(capacity) = item.capacity {
                 world.capacities.insert(item.id, capacity as u32);
             }
         }
-        world.capacities.insert(PLAYER, MAIN_PACK_CAPACITY as u32);
+        world.capacities.insert(player, MAIN_PACK_CAPACITY as u32);
         world
             .contents
-            .insert(PLAYER, (vec![PACK], vec![POTIONS, SWORD]));
+            .insert(player, (vec![PACK], vec![POTIONS, SWORD]));
         world.contents.insert(PACK, (Vec::new(), vec![RATIONS]));
         self.give_money(STARTER_MONEY);
     }

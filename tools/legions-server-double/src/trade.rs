@@ -9,7 +9,7 @@
 use ac2_net::protocol::{ScriptRequest, StringInfo, TradeMessage};
 
 use crate::social::FELLOW;
-use crate::{State, PLAYER};
+use crate::State;
 
 /// FELLOW's name as the partner's message carries it.
 const PARTNER_NAME: &str = "Birch";
@@ -22,6 +22,8 @@ pub const TRADE_COMPLETED: u32 = 1;
 /// One open trade: its partner, what each side offers and who has accepted.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Trade {
+    /// The player's id (the side the player offers on).
+    pub player: u64,
     /// The other party while a trade is open.
     pub partner: Option<u64>,
     /// The player's offers: item and amount.
@@ -34,7 +36,7 @@ pub struct Trade {
 
 impl Trade {
     fn offers(&mut self, side: u64) -> &mut Vec<(u64, u32)> {
-        if side == PLAYER {
+        if side == self.player {
             &mut self.player_offers
         } else {
             &mut self.partner_offers
@@ -42,7 +44,7 @@ impl Trade {
     }
 
     fn accepted(&mut self, side: u64) -> &mut bool {
-        if side == PLAYER {
+        if side == self.player {
             &mut self.player_accepted
         } else {
             &mut self.partner_accepted
@@ -55,10 +57,10 @@ impl State {
     pub(crate) fn answer_trade(&mut self, request: &ScriptRequest) {
         match request {
             ScriptRequest::OpenTrade(other) => self.open_trade(*other),
-            ScriptRequest::CloseTrade => self.end_trade(PLAYER, TRADE_CANCELLED),
-            ScriptRequest::AcceptTrade(_) => self.accept_trade(PLAYER),
+            ScriptRequest::CloseTrade => self.end_trade(self.player(), TRADE_CANCELLED),
+            ScriptRequest::AcceptTrade(_) => self.accept_trade(self.player()),
             ScriptRequest::DeclineTrade => self.decline_trade(),
-            ScriptRequest::OfferItem { item, amount } => self.offer(PLAYER, *item, *amount),
+            ScriptRequest::OfferItem { item, amount } => self.offer(self.player(), *item, *amount),
             ScriptRequest::RevokeItem(item) => self.revoke(*item),
             _ => {}
         }
@@ -80,12 +82,14 @@ impl State {
         if self.trade.partner.is_some() || other != FELLOW {
             return;
         }
+        let player = self.player();
         self.trade = Trade {
+            player,
             partner: Some(other),
             ..Trade::default()
         };
         self.send_trade(TradeMessage::Registered {
-            initiator: PLAYER,
+            initiator: self.player(),
             partner: other,
             partner_name: StringInfo {
                 literal: Some(PARTNER_NAME.into()),
@@ -131,7 +135,7 @@ impl State {
         self.clear_acceptance();
         self.trade.player_offers.remove(at);
         self.send_trade(TradeMessage::Revoked {
-            source: PLAYER,
+            source: self.player(),
             item,
         });
     }
@@ -153,7 +157,7 @@ impl State {
         if self.trade.partner.is_none() {
             return;
         }
-        self.send_trade(TradeMessage::Declined(PLAYER));
+        self.send_trade(TradeMessage::Declined(self.player()));
         self.trade = Trade::default();
     }
 
@@ -180,17 +184,17 @@ impl State {
     fn complete_trade(&mut self) {
         let player_offers = std::mem::take(&mut self.trade.player_offers);
         let partner_offers = std::mem::take(&mut self.trade.partner_offers);
-        self.script_world.contents.entry(PLAYER).or_default();
+        self.script_world.contents.entry(self.player()).or_default();
         self.script_world.contents.entry(FELLOW).or_default();
         for (item, _) in player_offers {
             self.inventory_move(item, FELLOW, -1);
         }
         for (item, _) in partner_offers {
-            self.inventory_move(item, PLAYER, -1);
+            self.inventory_move(item, self.player(), -1);
         }
-        self.send_contents(PLAYER);
+        self.send_contents(self.player());
         self.send_contents(FELLOW);
-        self.end_trade(PLAYER, TRADE_COMPLETED);
+        self.end_trade(self.player(), TRADE_COMPLETED);
     }
 
     /// Queues a `WM_Trade` answer to the player's script.

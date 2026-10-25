@@ -9,7 +9,7 @@ use ac2_net::protocol::{
 };
 
 use crate::items::{item_object_bytes, ItemSpawn};
-use crate::{State, PLAYER};
+use crate::State;
 
 /// The first id of an item a purchase gives the player (`answer_purchase` counts up from it).
 const PURCHASED_BASE: u64 = 0x8000_0000_0000_0300;
@@ -89,16 +89,16 @@ impl State {
             PURCHASED_BASE + self.script_world.purchases,
             ITEM_PACKAGE,
             "Purchased item",
-            PLAYER,
+            self.player(),
         );
         self.send_event(&item_object_bytes(&item));
         self.script_world
             .contents
-            .entry(PLAYER)
+            .entry(self.player())
             .or_default()
             .1
             .push(item.id);
-        self.send_contents(PLAYER);
+        self.send_contents(self.player());
     }
 
     fn send_store(&mut self, message: &StoreMessage) {

@@ -16,7 +16,7 @@
 use ac2_net::protocol::{CraftMessage, ScriptRequest};
 
 use crate::items::{item_object_bytes, ItemSpawn};
-use crate::{State, PLAYER};
+use crate::State;
 
 /// The first id of a crafted item (`answer_execute` counts up from it).
 const CRAFTED_BASE: u64 = 0x8000_0000_0000_0400;
@@ -81,7 +81,7 @@ impl State {
     fn in_pack(&self, object: u64) -> bool {
         self.script_world
             .contents
-            .get(&PLAYER)
+            .get(&self.player())
             .is_some_and(|(_, items)| items.contains(&object))
     }
 
@@ -92,13 +92,18 @@ impl State {
             CRAFTED_BASE + self.script_world.crafts,
             ITEM_PACKAGE,
             "Crafted item",
-            PLAYER,
+            self.player(),
         );
         self.send_event(&item_object_bytes(&item));
-        let items = &mut self.script_world.contents.entry(PLAYER).or_default().1;
+        let items = &mut self
+            .script_world
+            .contents
+            .entry(self.player())
+            .or_default()
+            .1;
         items.retain(|object| !ingredients.contains(object));
         items.push(item.id);
-        self.send_contents(PLAYER);
+        self.send_contents(self.player());
     }
 
     /// The player's registry (`WM_Craft` 0x19): the known skill and recipe. When retail's server

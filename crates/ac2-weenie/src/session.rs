@@ -553,11 +553,22 @@ impl OnlineSession {
                 response,
                 identity,
                 weenie_result,
-            } => out.push(SessionEvent::CharGenVerification {
-                response,
-                identity,
-                result: weenie_result,
-            }),
+            } => {
+                // `CharacterSet::AddIdentity` on the set the screens share: a created character
+                // is in it before the screens enter the world with it.
+                if response == 1 {
+                    if let Some(set) = self.characters.as_mut() {
+                        if !set.characters.iter().any(|c| c.id == identity.id) {
+                            set.characters.push((*identity).clone());
+                        }
+                    }
+                }
+                out.push(SessionEvent::CharGenVerification {
+                    response,
+                    identity,
+                    result: weenie_result,
+                });
+            }
             ServerEvent::Interp {
                 object,
                 function,

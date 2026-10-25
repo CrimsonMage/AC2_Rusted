@@ -8,7 +8,7 @@ use ac2_net::protocol::{
     ScriptCall, ScriptHash, StringInfo,
 };
 
-use crate::{State, PLAYER};
+use crate::State;
 
 /// The second member the double's fellowships get. Its id shares the player's bucket in the
 /// fellows table `FellowshipAdaptor` keeps (47 buckets) and comes after it in the
@@ -170,10 +170,10 @@ impl State {
                 let fellowship = Fellowship {
                     name,
                     flags: u32::from(*social == 0) | (1 << (looting & 0xF)),
-                    leader: PLAYER,
+                    leader: self.player(),
                     fellows: vec![
                         self.member(FELLOW, "Birch", 4),
-                        self.member(PLAYER, "Explorer", 1),
+                        self.member(self.player(), "Explorer", 1),
                     ],
                 };
                 let graph = fellowship.graph();

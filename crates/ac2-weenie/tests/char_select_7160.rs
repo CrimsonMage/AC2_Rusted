@@ -68,7 +68,7 @@ fn the_session_waits_at_the_character_set_until_asked_to_enter() {
         physical: vec![(7, 0.5)],
     });
     let events = settle(&mut session, &state);
-    assert!(events.iter().any(|e| matches!(e, SessionEvent::CharGenVerification { response: 1, identity, result: 0x11 } if identity.id == CREATED && identity.name == "Birch")));
+    assert!(events.iter().any(|e| matches!(e, SessionEvent::CharGenVerification { response: 1, identity, result: 0 } if identity.id == CREATED && identity.name == "Birch")));
     // The server lists the account's characters again, the new one included.
     let listed: Vec<u64> = session
         .characters()

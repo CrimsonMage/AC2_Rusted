@@ -9,7 +9,7 @@ use ac2_net::protocol::{
 };
 
 use crate::social::{Fellow, Fellowship};
-use crate::{State, PLAYER};
+use crate::State;
 
 /// A null reference slot.
 const NULL: u32 = u32::MAX;
@@ -193,7 +193,11 @@ fn info(name: &str) -> PackValue {
 
 impl State {
     fn player_liege(&self) -> Liege {
-        Liege::new(PLAYER, "Explorer", self.script_world.character.level as u32)
+        Liege::new(
+            self.player(),
+            "Explorer",
+            self.script_world.character.level as u32,
+        )
     }
 
     fn send_profile(&mut self) {
@@ -299,7 +303,7 @@ impl State {
                     name: fellowship,
                     flags: 1 | (1 << 1),
                     leader: id,
-                    fellows: vec![member(id, &name, 5), member(PLAYER, "Explorer", 1)],
+                    fellows: vec![member(id, &name, 5), member(self.player(), "Explorer", 1)],
                 };
                 let graph = fellowship.graph();
                 self.fellowship = Some(fellowship);

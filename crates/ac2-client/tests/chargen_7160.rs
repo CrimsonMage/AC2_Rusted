@@ -208,7 +208,11 @@ fn start(
             &mut session.ui,
             &mut session.t,
         );
-        assert!(session.t < 30.0, "no character selection");
+        assert!(
+            session.t < 30.0,
+            "no character selection (mode {:#x})",
+            session.ui.mode()
+        );
     }
     session
 }
@@ -395,8 +399,26 @@ fn the_create_pages_show_every_avatar_and_the_sliders_move_the_appearance() {
     snapshot(&mut s.ui, "pregame_avatar_modification.png");
 }
 
+/// The server's rules with the script's appearance taken away: a listing that recomputed the
+/// appearance would show none.
+struct NoAppearance(ScriptRules);
+
+impl CharGenRules for NoAppearance {
+    fn validate(&mut self, result: &CharGenResult) -> u32 {
+        self.0.validate(result)
+    }
+
+    fn appearance(&mut self, _: &CharGenResult) -> Option<Appearance> {
+        None
+    }
+}
+
+/// Characters are kept with their own ids and their appearance, and a later login lists and
+/// enters each as stored: Zeda (created and entered in one server), Ada (created in a second,
+/// entered there), and then Zeda entered by a third server whose rules would not make her
+/// appearance again.
 #[test]
-fn the_created_character_is_kept_listed_and_entered_in_a_later_session() {
+fn created_characters_keep_their_ids_and_appearances_across_sessions() {
     let Some((host, store)) = script_host() else {
         return;
     };
@@ -404,23 +426,23 @@ fn the_created_character_is_kept_listed_and_entered_in_a_later_session() {
     let file = dir.join("characters.bin");
     let _ = std::fs::remove_file(&file);
 
-    // Session one: create and enter. The server keeps the character in its file.
+    // Server one: Zeda is made and entered. The server keeps her in its file.
     let mut first = start(
         host,
         &store,
         Some((file.as_path(), Box::new(ScriptRules(new_host(&store))))),
     );
-    let created = first.create("Zeda", true);
+    let zeda = first.create("Zeda", true);
     while !first.client.frame().in_world {
         first.frame();
         assert!(first.t < 60.0, "no world entry");
     }
-    let entity = first.sent()[0].1.entity_did;
+    let zeda_entity = first.sent()[0].1.entity_did;
     drop(first);
     assert!(file.exists(), "the character was written");
 
-    // Session two, in a later server: the character is listed with its appearance, and it
-    // enters the world with that appearance.
+    // Server two: the list carries Zeda with her stored id and appearance. Ada is made and
+    // entered: her id is the next one.
     let (host, _) = script_host().unwrap();
     let mut second = start(
         host,
@@ -429,31 +451,74 @@ fn the_created_character_is_kept_listed_and_entered_in_a_later_session() {
     );
     let listed = second.listed();
     assert_eq!(listed.len(), 2, "{listed:?}");
-    let (name, id, visual) = &listed[1];
-    assert_eq!((name.as_str(), *id), ("Zeda", CREATED));
-    // The listed appearance is the one the screens applied, parented to the avatar's entity.
-    let expected = Appearance {
-        parent: entity,
-        ..created.appearance.clone()
-    };
-    assert_eq!(
-        Appearance::from_delta(visual),
-        expected,
-        "the saved appearance is listed"
-    );
-    let picked = find(&second.ui, "CharacterListBox").unwrap();
-    let items = second.ui.tree().list_items(picked).to_vec();
-    click_element(&mut second.ui, items[1]);
-    click(&mut second.ui, "EnterButton");
+    assert_eq!((listed[0].1, listed[1].1), (PLAYER, CREATED));
+    assert_eq!(listed[1].0, "Zeda");
+    let ada = second.create("Ada", true);
     while !second.client.frame().in_world {
         second.frame();
         assert!(second.t < 60.0, "no world entry");
     }
-    let player = second.client.frame().player.expect("the player");
-    assert_eq!(player.id, PLAYER);
+    let ada_entity = second.sent()[0].1.entity_did;
+    let ada_player = second.client.frame().player.expect("the player");
+    assert_eq!(ada_player.id, CREATED + 1, "Ada enters with her own id");
     assert_eq!(
-        player.appearance, expected,
-        "the world shows the saved appearance"
+        ada_player.appearance,
+        Appearance {
+            parent: ada_entity,
+            ..ada.appearance.clone()
+        },
+        "Ada enters with the appearance she was made with"
+    );
+    drop(second);
+
+    // Server three, with rules that make no appearance: the list still shows what was stored,
+    // with the ids in order, and Zeda enters with hers.
+    let (host, _) = script_host().unwrap();
+    let mut third = start(
+        host,
+        &store,
+        Some((
+            file.as_path(),
+            Box::new(NoAppearance(ScriptRules(new_host(&store)))),
+        )),
+    );
+    let listed = third.listed();
+    let ids: Vec<u64> = listed.iter().map(|(_, id, _)| *id).collect();
+    assert_eq!(ids, vec![PLAYER, CREATED, CREATED + 1]);
+    let zeda_listed = &listed[1];
+    assert_eq!(
+        Appearance::from_delta(&zeda_listed.2),
+        Appearance {
+            parent: zeda_entity,
+            ..zeda.appearance.clone()
+        },
+        "the saved appearance is listed"
+    );
+    assert_eq!(
+        Appearance::from_delta(&listed[2].2),
+        Appearance {
+            parent: ada_entity,
+            ..ada.appearance.clone()
+        },
+        "Ada's saved appearance is listed"
+    );
+    let picked = find(&third.ui, "CharacterListBox").unwrap();
+    let items = third.ui.tree().list_items(picked).to_vec();
+    click_element(&mut third.ui, items[1]);
+    click(&mut third.ui, "EnterButton");
+    while !third.client.frame().in_world {
+        third.frame();
+        assert!(third.t < 60.0, "no world entry");
+    }
+    let player = third.client.frame().player.expect("the player");
+    assert_eq!(player.id, CREATED, "Zeda enters with her id");
+    assert_eq!(
+        player.appearance,
+        Appearance {
+            parent: zeda_entity,
+            ..zeda.appearance.clone()
+        },
+        "the world shows Zeda's saved appearance"
     );
     let _ = std::fs::remove_dir_all(dir);
 }

@@ -11,7 +11,7 @@ use ac2_net::protocol::{
     ScriptRequest, SelectionInfo, StringInfo,
 };
 
-use crate::{State, PLAYER};
+use crate::State;
 
 /// The player's name in the double's character set.
 const PLAYER_NAME: &str = "Explorer";
@@ -121,7 +121,7 @@ impl State {
                 kind: 0,
                 text: text.clone(),
                 speaker_name: name(PLAYER_NAME),
-                speaker: PLAYER,
+                speaker: self.player(),
             }),
             // The only character the double knows is the player: a tell to it comes back.
             ScriptRequest::Tell {
@@ -132,7 +132,7 @@ impl State {
                         kind: 0,
                         text: text.clone(),
                         teller_name: name(PLAYER_NAME),
-                        teller: PLAYER,
+                        teller: self.player(),
                     });
                 }
             }
@@ -182,13 +182,14 @@ impl State {
                 });
             }
             ScriptRequest::LootAll(desc) => {
+                let player = self.player();
                 let world = &mut self.script_world;
                 let taken = world
                     .contents
                     .get_mut(&desc.container())
                     .map(|c| std::mem::take(&mut c.1))
                     .unwrap_or_default();
-                if let Some(pack) = world.contents.get_mut(&PLAYER) {
+                if let Some(pack) = world.contents.get_mut(&player) {
                     pack.1.extend(taken);
                 }
                 self.send_script(&ScriptMessage::LootAllDone(desc.clone()));
@@ -329,7 +330,7 @@ impl State {
             packs,
             items,
         });
-        if container == PLAYER {
+        if container == self.player() {
             self.send_script(&message);
         } else {
             self.send_event(&message.to_cell(InstanceIdWithStamp {
@@ -387,10 +388,10 @@ impl State {
         let (packs, items) = self
             .script_world
             .contents
-            .get(&PLAYER)
+            .get(&self.player())
             .cloned()
             .unwrap_or_default();
-        args[9] = PackValue::Reference(self.segments_of(PLAYER, items.len()));
+        args[9] = PackValue::Reference(self.segments_of(self.player(), items.len()));
         args[10] = PackValue::Reference(pack_id_list(&packs));
         args[11] = PackValue::Reference(pack_id_list(&items));
         self.send_script_call(script_function::INIT_PLAYER, &args);

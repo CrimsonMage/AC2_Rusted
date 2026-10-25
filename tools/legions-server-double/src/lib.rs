@@ -125,16 +125,14 @@ pub fn fragment_header(id: u64, size: u16, queue: u16) -> Vec<u8> {
 /// `CharacterSet` (`ECM_Login::RecvEvt_CharacterSet`) listing `characters` with their visuals,
 /// each with no greyed time; no deleted characters, status 0, five allowed. Legions packs two
 /// more words after the chat flag.
-pub(crate) fn character_set_of(
-    characters: &[(u64, &str, &ac2_net::protocol::VisualDesc)],
-) -> Vec<u8> {
+pub(crate) fn character_set_of(characters: &[(u64, &str, &[u8])]) -> Vec<u8> {
     let mut b = Vec::new();
     words(&mut b, &[0x0001_0055, characters.len() as u32]);
     for (id, name, visual) in characters {
         b.extend(id.to_le_bytes());
         pack_wide_string(&mut b, 0, name);
         words(&mut b, &[0]);
-        b.extend(appearance::visual_desc_bytes(visual));
+        b.extend(*visual);
     }
     words(&mut b, &[0, 0, 5]);
     pack_string(&mut b, 0, b"local");
@@ -142,19 +140,10 @@ pub(crate) fn character_set_of(
     b
 }
 
-/// `CharGenVerification`: response, the character's identity, the weenie's result.
-fn char_gen_verification() -> Vec<u8> {
-    let mut b = Vec::new();
-    words(&mut b, &[0x0001_0057, 1]);
-    b.extend(PLAYER.to_le_bytes());
-    pack_wide_string(&mut b, 0, "Explorer");
-    words(&mut b, &[0, 2, 0x1F00_0023, 0x11]);
-    b
-}
-
-fn create_player() -> Vec<u8> {
+/// `CreatePlayer` (`ECM_Physics::RecvEvt_CreatePlayer`): the player's object id and region.
+fn create_player(player: u64) -> Vec<u8> {
     let mut b = 0x0001_0060u32.to_le_bytes().to_vec();
-    b.extend(PLAYER.to_le_bytes());
+    b.extend(player.to_le_bytes());
     words(&mut b, &[1]);
     b
 }
@@ -320,6 +309,8 @@ pub struct State {
     pub char_gen_results: Vec<(String, ac2_net::protocol::CharGenResult)>,
     /// The created characters (`double_with`'s store).
     pub characters: CharacterStore,
+    /// The player's object id once a character entered (`None`: `PLAYER`, the `Explorer`).
+    pub player_id: Option<u64>,
     /// The server's character rules (`double_with`).
     pub rules: Option<Box<dyn CharGenRules>>,
     /// `Proto_UI::SendDeleteCharacter`s: the character ids.
@@ -331,7 +322,7 @@ impl State {
     /// `PositionPack` with the given stamps (position, teleport, force position).
     pub fn send_player_position(&mut self, cell: u32, origin: [f32; 3], stamps: [u16; 3]) {
         let mut b = 0x0001_0086u32.to_le_bytes().to_vec();
-        b.extend(PLAYER.to_le_bytes());
+        b.extend(self.player().to_le_bytes());
         b.extend([9, 0, 0, 0]); // instance 9, visual stamp 0
         b.extend(0.0f64.to_le_bytes());
         words(&mut b, &[cell]);
@@ -407,6 +398,15 @@ impl State {
             self.reliable(segments, flags::BLOB_FRAGMENTS);
         }
         id
+    }
+
+    /// A queue-1 blob under `id`, fragmented as `NetBlob::Fragmentize` does when it is larger
+    /// than a packet (a character set with several characters is).
+    pub(crate) fn reliable_blob_fragmented(&mut self, id: u64, queue: u16, data: &[u8]) {
+        for fragment in ac2_net::fragmentize(id, queue, data) {
+            let segments = vec![fragment_header_bytes(&fragment), fragment.data];
+            self.reliable(segments, flags::BLOB_FRAGMENTS);
+        }
     }
 
     /// A reliable packet carrying one optional header (`TimeSync`, `NetErrorDisconnect`):
@@ -647,7 +647,6 @@ impl State {
             assert_eq!(to, addr(ACK_PORT));
             if !self.character_set_sent && self.connected {
                 self.character_set_sent = true;
-                self.reliable_blob(0x2300_0001_0000_0000, 1, &char_gen_verification());
                 self.send_character_set(0x2300_0002_0000_0001);
             }
             return;
@@ -671,7 +670,7 @@ impl State {
                         .get(4..12)
                         .map_or(PLAYER, |b| u64::from_le_bytes(b.try_into().unwrap()));
                     let (object, description) = self.player_entry(character);
-                    self.reliable_blob(0x2300_0003_0000_0002, 1, &create_player());
+                    self.reliable_blob(0x2300_0003_0000_0002, 1, &create_player(character));
                     self.reliable_blob(0x0300_0004_0000_0003, 1, &object);
                     self.reliable_blob(0x0300_0005_0000_0004, 1, &description);
                 }
