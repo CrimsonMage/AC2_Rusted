@@ -1,4 +1,5 @@
 key	status	note
+00401850	_	NoticeHandler base: an empty virtual; the screens are the handlers (ac2-ui pregame ui.rs char_gen_verification)
 00401880	_	ac2-weenie SessionEvent::Characters / OnlineSession::characters (the latest set; CharacterChoice::Wait stops there for the selection screen)
 00401b20	x	
 00401b30	x	
@@ -103,6 +104,7 @@ key	status	note
 004115f0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00411890	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00411ac0	~	ac2-ui PregameUi::character_set (first set -> character selection) and bin/ac2 --character (start character enters at once); patching not ported
+00411f10	x	ac2-ui pregame/data_patch.rs char_gen_verification (enter at once, else character selection with no text)
 00411fd0	-	no DAT patching in this client (DDD patch events never come)
 004121d0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 004123d0	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
@@ -1706,6 +1708,7 @@ key	status	note
 0048f980	x	
 0048fe10	~	vertex normals and terrain SurfaceInfo; not far colours or water
 004907a0	~	road SurfaceInfo; not physics materials or scene DIDs
+00492c90	_	forwards to the notice; the session event carries it to the screens (pregame.rs)
 00492cb0	_	
 00492ce0	_	
 00492d20	_	
@@ -1717,7 +1720,8 @@ key	status	note
 00493410	_	
 00493460	_	
 00493500	_	
-00493520	_	
+00493520	_	ac2-net ServerEvent::CharGenVerification decode; ac2-weenie SessionEvent::CharGenVerification
+00493780	_	ac2-weenie: the session event is the notice; ac2-client pregame.rs pregame_event hands it to the UI
 004939b0	_	
 00493a30	_	SessionEvent::ServerDied, before Disconnected
 00493b30	_	
@@ -2033,7 +2037,7 @@ key	status	note
 004c9c10	x	
 004c9c20	x	
 004c9d10	x	
-004c9d40	x	ac2-net ClientEvent::CharGenResult (queue 8) / ac2-weenie OnlineSession::create_character; the CharGenData::Save dev copy is not kept
+004c9d40	x	ac2-net ClientEvent::CharGenResult (queue 8) / ac2-weenie OnlineSession::create_character; CharGenData::Save capture in ac2-client
 004c9e00	x	
 004c9e70	x	
 004ca310	x	
@@ -2130,6 +2134,7 @@ key	status	note
 004cdcb0	x	
 004cdd60	x	
 004cde10	x	
+004cdf20	x	ac2-client chargen_data.rs CharGenCapture::save and capture_image (record stream; written on a worker thread; --chargen names the file)
 004ce3f0	x	
 004ce560	x	
 004ce5c0	x	
@@ -4418,6 +4423,7 @@ key	status	note
 00600e40	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600e70	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600f10	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600f50	x	ac2-net CharGenResult::pack_size (name packed size, six words, table count and pairs); test checks it against write
 00600f90	x	ac2-net CharGenResult::write/read
 00601020	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00601090	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -4425,7 +4431,9 @@ key	status	note
 00601170	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 006011f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00601210	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601310	-	destructor: Rust drop
 00601390	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+006013b0	x	ac2-script glue/chargen.rs SetStartingPosition efun (start_pos)
 006013d0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00601470	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00601500	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -5515,6 +5523,7 @@ key	status	note
 0071fab0	x	
 0071fb10	x	
 0071fba0	x	
+0071fc00	x	ac2-client chargen_data.rs CharGenCapture::new (the --chargen file; relative names under the AC2 config directory)
 0071fc50	~	queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
 00722f20	~	headless frame order in ac2-client Client::use_time; no render, sound, UI, triggers or DB cache step
 00723280	_	

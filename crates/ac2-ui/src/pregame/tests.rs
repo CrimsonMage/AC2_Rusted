@@ -703,3 +703,44 @@ fn clear_all_undo_restore_and_quit_ask_first() {
     ui.use_time(0.2);
     assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
 }
+
+/// `gmDataPatchUI::RecvNotice_CharGenVerification`: without a character set the screen ignores
+/// the answer; with the set queued (not yet shown), a created character is entered at once and
+/// any other answer queues character selection with no text.
+#[test]
+fn the_data_patch_screen_answers_a_created_character() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    ui.use_time(0.0);
+    ui.input(&[(KEY, 1.0, true), (KEY, 1.0, false)]);
+    ui.use_time(0.0);
+    assert_eq!(ui.mode(), MODE_DATA_PATCH);
+    let created = character(0x5000_0009, "Gamma", 0);
+    ui.char_gen_verification(1, Some(&created), 0);
+    ui.use_time(0.1);
+    assert_eq!(ui.mode(), MODE_DATA_PATCH, "no set yet: ignored");
+    assert!(!actions(&mut ui)
+        .iter()
+        .any(|r| matches!(r, PregameRequest::EnterWorld(_))));
+
+    ui.character_set(set());
+    ui.char_gen_verification(1, Some(&created), 0);
+    assert_eq!(ui.data().characters().unwrap().characters.len(), 3);
+    assert!(actions(&mut ui).contains(&PregameRequest::EnterWorld(created.id)));
+    ui.use_time(0.2);
+    assert_eq!(ui.mode(), MODE_GAMEPLAY);
+
+    let mut refused = real_ui().unwrap();
+    refused.use_time(0.0);
+    refused.input(&[(KEY, 1.0, true), (KEY, 1.0, false)]);
+    refused.use_time(0.0);
+    refused.character_set(set());
+    refused.char_gen_verification(3, None, 0);
+    refused.use_time(0.3);
+    assert_eq!(refused.mode(), MODE_CHARACTER_SELECTION);
+    assert!(!actions(&mut refused).iter().any(|r| matches!(
+        r,
+        PregameRequest::EnterWorld(_) | PregameRequest::CreateCharacter(_)
+    )));
+}

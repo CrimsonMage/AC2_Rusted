@@ -9,6 +9,7 @@
 mod appearance;
 mod audio;
 mod chargen;
+mod chargen_data;
 mod chat_commands;
 pub mod chat_text;
 mod client;
@@ -84,6 +85,7 @@ pub use audio::{play_ui_sounds, sound_manager};
 pub use camera::{action as camera_action, CameraManager};
 pub use cells::{block_radius, CellManager, FAR_RADIUS, NEAR_RADIUS};
 pub use chargen::ScriptCharGen;
+pub use chargen_data::{capture_image, reassemble as reassemble_capture, CharGenCapture};
 pub use chat_commands::chat_commands;
 pub use client::{
     camera_state, CameraAction, Client, FrameInput, Notice, ENTER_WORLD_FLAGS, SYNC_POSITION_FLAGS,
@@ -98,7 +100,9 @@ pub use hud_chat_options::{chat_option_commands, ui_chat_settings};
 pub use hud_shop::{shop_commands, shop_notice, shop_stack_calls};
 pub use item_queries::ItemDisplay;
 pub use motion::PartPose;
-pub use pregame::{pregame_event, pregame_notice, pregame_requests, PregameOutcome};
+pub use pregame::{
+    pregame_event, pregame_notice, pregame_requests, pregame_requests_capturing, PregameOutcome,
+};
 pub use scene::CameraFrame;
 pub use scripts::SCRIPT_VM_FUNCTIONS;
 pub use scripts_queries::{ifun, ShortcutDisplay, ShortcutSettings, SkillLevel, SkillTime};

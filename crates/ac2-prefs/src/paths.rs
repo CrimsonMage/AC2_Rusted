@@ -18,7 +18,18 @@ pub const FILE_NAME: &str = "Preferences.ini";
 
 /// The default preferences file in the user's configuration directory.
 pub fn default_file() -> PathBuf {
-    user_config_dir().join("AC2").join(FILE_NAME)
+    config_file(FILE_NAME)
+}
+
+/// A file named in the user's AC2 configuration directory (`<config>/AC2/<name>`); an absolute
+/// name is used as it is.
+pub fn config_file(name: &str) -> PathBuf {
+    let path = Path::new(name);
+    if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        user_config_dir().join("AC2").join(path)
+    }
 }
 
 fn user_config_dir() -> PathBuf {

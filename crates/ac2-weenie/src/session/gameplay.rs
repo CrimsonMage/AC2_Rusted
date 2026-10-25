@@ -194,6 +194,11 @@ impl OnlineSession {
         vec![SessionEvent::Notice(notice)]
     }
 
+    /// The account the session logged on with (the account of `Proto_UI`'s sends).
+    pub fn account(&self) -> &str {
+        &self.account
+    }
+
     /// `Proto_UI::SendCharGenResult`: create the character the creation screens built
     /// (`gCharacterGenSystem` finishes with it); the answer is
     /// [`SessionEvent::CharGenVerification`].

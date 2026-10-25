@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 796 done, 287 partial, 1111 to do, 53 skipped.
+2247 retail functions: 797 done, 287 partial, 1110 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -1865,7 +1865,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCreditsUI::Create` · 004134b0
 - [ ] `gmCreditsUI::Register` · 004134d0 · legions 00413350
 
-## `ac2/client/src/ui/pregame/gmdatapatchui.cpp.c` (4/19)
+## `ac2/client/src/ui/pregame/gmdatapatchui.cpp.c` (5/19)
 
 ### gmDataPatchUI
 - [x] `gmDataPatchUI::ListenToMessage` · 00411260 · legions 00411240 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
@@ -1890,7 +1890,7 @@ Legend and workflow: [README](README.md).
 ### gmDataPatchUI
 - [ ] `gmDataPatchUI::~gmDataPatchUI` · 004119e0 · legions 004119c0
 - [~] `gmDataPatchUI::Update` · 00411ac0 · legions 00411aa0 — ac2-ui PregameUi::character_set (first set -> character selection) and bin/ac2 --character (start character enters at once); patching not ported
-- [ ] `gmDataPatchUI::RecvNotice_CharGenVerification` · 00411f10
+- [x] `gmDataPatchUI::RecvNotice_CharGenVerification` · 00411f10 — ac2-ui pregame/data_patch.rs char_gen_verification (enter at once, else character selection with no text)
 - [-] `gmDataPatchUI::OnDDDEvent` · 00411fd0 — no DAT patching in this client (DDD patch events never come)
 - [x] `gmDataPatchUI::gmDataPatchUI` · 004121d0 · legions 00412050 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [ ] `gmDataPatchUI::Create` · 00412330

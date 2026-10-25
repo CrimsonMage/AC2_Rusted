@@ -6,9 +6,11 @@
 //! `SendDeleteCharacter`, `SendCharGenResult`). Run the session with
 //! `CharacterChoice::Wait` so it stops at the character set.
 
+use ac2_net::protocol::ClientEvent;
 use ac2_ui::pregame::{PregameRequest, PregameUi};
 use ac2_weenie::{OnlineSession, SessionEvent};
 
+use crate::chargen_data::CharGenCapture;
 use crate::client::Notice;
 
 /// What carrying out the UI's requests asks of the program.
@@ -45,9 +47,19 @@ pub fn pregame_notice(ui: &mut PregameUi, notice: Notice) {
     }
 }
 
-/// The UI's requests carried out on the session. A refused entry is reported as the error
-/// retail's server would send (`CHAR_ERROR_ENTER_GAME_GENERIC`).
+/// The UI's requests carried out on the session, without a creation capture.
 pub fn pregame_requests(ui: &mut PregameUi, session: &mut OnlineSession) -> PregameOutcome {
+    pregame_requests_capturing(ui, session, &mut CharGenCapture::default())
+}
+
+/// The UI's requests carried out on the session. A refused entry is reported as the error
+/// retail's server would send (`CHAR_ERROR_ENTER_GAME_GENERIC`). A created character is also
+/// written to `capture` (`CharGenData::Save`, when the program named a capture file).
+pub fn pregame_requests_capturing(
+    ui: &mut PregameUi,
+    session: &mut OnlineSession,
+    capture: &mut CharGenCapture,
+) -> PregameOutcome {
     let mut outcome = PregameOutcome::default();
     for request in ui.take_requests() {
         match request {
@@ -58,7 +70,18 @@ pub fn pregame_requests(ui: &mut PregameUi, session: &mut OnlineSession) -> Preg
                 }
             }
             PregameRequest::DeleteCharacter(character) => session.delete_character(character),
-            PregameRequest::CreateCharacter(result) => session.create_character(result),
+            PregameRequest::CreateCharacter(result) => {
+                if capture.file().is_some() {
+                    let packet = ClientEvent::CharGenResult {
+                        account: session.account().to_owned(),
+                        result: result.clone(),
+                    }
+                    .encode()
+                    .1;
+                    capture.save(&packet, session.account(), &result.name);
+                }
+                session.create_character(result);
+            }
             PregameRequest::RestoreCharacter { character, .. } => {
                 eprintln!("ac2: restoring {character:#x} is an admin request; not sent");
             }

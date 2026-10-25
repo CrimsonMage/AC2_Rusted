@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 100 done, 29 partial, 185 to do, 40 skipped.
+354 retail functions: 101 done, 29 partial, 184 to do, 40 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -292,7 +292,7 @@ Legend and workflow: [README](README.md).
 - [ ] `InitCliCrypto::Delete` · 00568db0 · legions 00538d40
 - [ ] `InitCliCrypto::Init` · 00568dd0 · legions 00538d60
 
-## `portal/client/src/main/client.cpp.c` (5/37)
+## `portal/client/src/main/client.cpp.c` (6/37)
 
 ### CChatEvent
 - [x] `CChatEvent::CreateForSend` · 0071f6b0 · legions 0069ffb0
@@ -322,7 +322,7 @@ Legend and workflow: [README](README.md).
 - [x] `Turbine::Client::ChatInterfaceProvider::SendData` · 0071fba0 · legions 006a0450
 
 ### CharGenData
-- [ ] `CharGenData::SetFileName` · 0071fc00 · legions 006a04b0
+- [x] `CharGenData::SetFileName` · 0071fc00 · legions 006a04b0 — ac2-client chargen_data.rs CharGenCapture::new (the --chargen file; relative names under the AC2 config directory)
 
 ### ArgumentParser
 - [ ] `ArgumentParser::GetCharactersToWrapUsageTo` · 0071fc40 · legions 006a04f0

@@ -19,8 +19,9 @@ use ac2_ui::UiMessage;
 use ac2_weenie::{OnlineSession, SessionEvent};
 use ac2_world::Ac2WorldSource;
 
+use crate::chargen_data::CharGenCapture;
 use crate::client::Notice;
-use crate::pregame::{pregame_event, pregame_notice, pregame_requests, PregameOutcome};
+use crate::pregame::{pregame_event, pregame_notice, pregame_requests_capturing, PregameOutcome};
 use crate::pregame_scene::PregameScenes;
 
 /// The pregame screens over the window.
@@ -39,6 +40,8 @@ pub struct PregameView {
     format: wgpu::TextureFormat,
     size: (u32, u32),
     dirty: bool,
+    /// `CharGenData`: the creation capture (`--chargen`).
+    capture: CharGenCapture,
 }
 
 impl PregameView {
@@ -69,6 +72,7 @@ impl PregameView {
             format,
             size,
             dirty: false,
+            capture: CharGenCapture::default(),
         }
     }
 
@@ -156,9 +160,19 @@ impl PregameView {
     }
 
     /// The UI's requests carried out on the session.
+    /// The creation capture the program named (`--chargen`).
+    pub fn set_capture(&mut self, capture: CharGenCapture) {
+        self.capture = capture;
+    }
+
+    /// The creation capture, to wait for its saves.
+    pub fn capture_mut(&mut self) -> &mut CharGenCapture {
+        &mut self.capture
+    }
+
     pub fn requests(&mut self, session: &mut OnlineSession) -> PregameOutcome {
         match &mut self.ui {
-            Some(ui) => pregame_requests(ui, session),
+            Some(ui) => pregame_requests_capturing(ui, session, &mut self.capture),
             None => PregameOutcome::default(),
         }
     }

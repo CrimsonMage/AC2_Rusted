@@ -11,7 +11,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCEngineFactory::MakeUI_Internal` · 00401830
 
 ### NoticeHandler
-- [ ] `NoticeHandler::RecvNotice_CharGenVerification` · 00401850 · legions 00401bb0
+- [ ] `NoticeHandler::RecvNotice_CharGenVerification` · 00401850 · legions 00401bb0 — NoticeHandler base: an empty virtual; the screens are the handlers (ac2-ui pregame ui.rs char_gen_verification)
 - [ ] `NoticeHandler::RecvNotice_DisplayAdminStringInfo` · 00401860 · legions 00401b50
 
 ### ArgumentParser
@@ -1361,14 +1361,14 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Login::RecvEvt_CharacterError` · 00493410 · legions 0048be60
 - [ ] `ECM_Login::RecvEvt_PlayerDesc` · 00493460 · legions 0048beb0
 - [ ] `ECM_Login::SendEvt_ClientSceneRenderingComplete` · 00493500 · legions 0048bf50
-- [ ] `ECM_Login::RecvEvt_CharGenVerification` · 00493520 · legions 0048bf70
+- [ ] `ECM_Login::RecvEvt_CharGenVerification` · 00493520 · legions 0048bf70 — ac2-net ServerEvent::CharGenVerification decode; ac2-weenie SessionEvent::CharGenVerification
 
 ### CharacterSet
 - [ ] `CharacterSet::~CharacterSet` · 00493680 · legions 0048c0d0
 
 ### ECM_Login
 - [ ] `ECM_Login::SendNotice_CharExitGame` · 00493700
-- [ ] `ECM_Login::SendNotice_CharGenVerification` · 00493780
+- [ ] `ECM_Login::SendNotice_CharGenVerification` · 00493780 — ac2-weenie: the session event is the notice; ac2-client pregame.rs pregame_event hands it to the UI
 - [ ] `ECM_Login::SendNotice_CharacterDeletion` · 00493810
 - [ ] `ECM_Login::SendNotice_CharacterError` · 004938a0 · legions 0048c230
 - [ ] `ECM_Login::SendNotice_CharacterSet` · 00493930
@@ -1498,7 +1498,7 @@ Legend and workflow: [README](README.md).
 - [ ] `GlobalEventHandler::RecvEvt_CharacterSet` · 00492c20 · legions 0048b5d0
 - [ ] `GlobalEventHandler::RecvEvt_CharacterDeletion` · 00492c40 · legions 0048b5f0
 - [ ] `GlobalEventHandler::RecvEvt_CharacterError` · 00492c60 · legions 0048b610
-- [ ] `GlobalEventHandler::RecvEvt_CharGenVerification` · 00492c90 · legions 0048b640
+- [ ] `GlobalEventHandler::RecvEvt_CharGenVerification` · 00492c90 · legions 0048b640 — forwards to the notice; the session event carries it to the screens (pregame.rs)
 - [ ] `GlobalEventHandler::RecvEvt_CreatePlayer` · 00492cb0 · legions 0048b660
 - [ ] `GlobalEventHandler::RecvEvt_CreateObject` · 00492ce0 · legions 0048b690
 - [ ] `GlobalEventHandler::RecvEvt_DestroyObject` · 00492d20 · legions 0048b6d0

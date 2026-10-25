@@ -6,7 +6,7 @@
 //!
 //! ```text
 //! ac2 --dat-dir DIR [--server 127.0.0.1:9000] [--account local] [--version 7160]
-//!     [--character NAME] [--client-exe PATH] [--radius 1]
+//!     [--character NAME] [--client-exe PATH] [--radius 1] [--chargen FILE]
 //! ```
 
 mod keys;
@@ -46,6 +46,9 @@ struct Args {
     radius: i32,
     /// `Preferences.ini` (`-prefs` in retail): the default is in the user's configuration directory.
     prefs: Option<String>,
+    /// `chargen <file>` (`CharGenData::SetFileName`): every created character is also captured
+    /// there (a relative name goes to the configuration directory).
+    chargen: Option<String>,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -58,6 +61,7 @@ fn parse_args() -> Result<Args, String> {
         client_exe: None,
         radius: 1,
         prefs: None,
+        chargen: None,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -70,6 +74,7 @@ fn parse_args() -> Result<Args, String> {
             "--character" => args.character = Some(value),
             "--client-exe" => args.client_exe = Some(value),
             "--prefs" => args.prefs = Some(value),
+            "--chargen" => args.chargen = Some(value),
             "--radius" => args.radius = value.parse().map_err(|e| format!("--radius: {e}"))?,
             other => return Err(format!("unknown option {other}")),
         }
@@ -112,6 +117,8 @@ struct App {
     pregame: bool,
     /// Character generation's `CharacterGenSystem`, handed to the pregame screens.
     chargen: Option<ac2_client::ScriptCharGen>,
+    /// The `--chargen` capture file (`CharGenData`), made into the pregame view's capture.
+    chargen_file: Option<std::path::PathBuf>,
 }
 
 impl State {
@@ -357,6 +364,7 @@ impl ApplicationHandler for App {
             if let Some(chargen) = self.chargen.take() {
                 view.set_char_gen_system(Box::new(chargen));
             }
+            view.set_capture(ac2_client::CharGenCapture::new(self.chargen_file.clone()));
             view
         });
         self.state = Some(State {
@@ -566,6 +574,7 @@ fn run(args: Args) -> Result<(), String> {
         store,
         pregame: args.character.is_none(),
         chargen: Some(chargen),
+        chargen_file: args.chargen.as_deref().map(ac2_prefs::paths::config_file),
     };
     event_loop.run_app(&mut app).map_err(|e| e.to_string())
 }

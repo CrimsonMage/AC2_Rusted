@@ -11,8 +11,10 @@
 //! the screens) and a failed connection's text (`OnConnectFailed`; the session reports it as a
 //! lost server).
 
+use ac2_net::protocol::CharacterIdentity;
+
 use crate::mouse::UiMessage;
-use crate::pregame::flow::MODE_CHARACTER_SELECTION;
+use crate::pregame::flow::{MODE_CHARACTER_SELECTION, MODE_GAMEPLAY};
 use crate::pregame::{Ctx, PregameRequest, LAYOUT_DATA_PATCH};
 use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON};
 
@@ -63,6 +65,30 @@ impl DataPatchUi {
     /// `gmDataPatchUI::Update` (the character set arrived): character selection.
     pub(crate) fn update(&self, ctx: &mut Ctx<'_>) {
         ctx.flow.queue_mode(MODE_CHARACTER_SELECTION, "");
+    }
+
+    /// `gmDataPatchUI::RecvNotice_CharGenVerification`: a created character is added and entered
+    /// at once (`Proto_UI::SendEnterWorld`, then the gameplay mode). Any other response queues
+    /// character selection with no text, unlike the creation screens' error line.
+    pub(crate) fn char_gen_verification(
+        &self,
+        ctx: &mut Ctx<'_>,
+        response: u32,
+        identity: Option<&CharacterIdentity>,
+    ) {
+        if ctx.data.characters().is_none() {
+            return;
+        }
+        if response != 1 {
+            ctx.flow.queue_mode(MODE_CHARACTER_SELECTION, "");
+            return;
+        }
+        let Some(identity) = identity else {
+            return;
+        };
+        ctx.data.add_identity(identity.clone());
+        ctx.requests.push(PregameRequest::EnterWorld(identity.id));
+        ctx.flow.queue_mode(MODE_GAMEPLAY, "");
     }
 
     /// `gmDataPatchUI::ListenToMessage`: quit.

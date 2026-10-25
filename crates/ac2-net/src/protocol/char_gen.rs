@@ -44,6 +44,16 @@ impl CharGenResult {
         chains.into_iter().flatten().collect()
     }
 
+    /// `gmCharGenResult::GetPackSize` (`0x00600F50`, Legions `0x005C1DE0`): the name's packed size
+    /// (`PStringBase<unsigned short>::GetPackSize`: a count, the units, padded to 4), six words
+    /// and the table's count and pairs.
+    pub fn pack_size(&self) -> usize {
+        let units = self.name.encode_utf16().count();
+        let count = if units > 0xFFFE { 6 } else { 2 };
+        let name = (count + units * 2).next_multiple_of(4);
+        name + 0x18 + 4 + 8 * self.physical.len()
+    }
+
     /// `gmCharGenResult::Pack`: the name, six words, then `PHashTable<unsigned long, float>`
     /// (`count | bucket index << 24`, then key and value pairs).
     pub(crate) fn write(&self, w: &mut Writer) {
@@ -96,6 +106,28 @@ pub fn decode_char_gen_result(bytes: &[u8]) -> Result<(String, CharGenResult), P
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_pack_size_is_the_packed_length() {
+        for name in [
+            "",
+            "A",
+            "Zeda",
+            "Mary-Jo O'Neil",
+            &"n".repeat(0x1_0000 - 1)[..],
+        ] {
+            for physical in [vec![], vec![(1, 0.5), (48, 1.0), (7, -1.0)]] {
+                let result = CharGenResult {
+                    name: name.into(),
+                    physical,
+                    ..CharGenResult::default()
+                };
+                let mut w = Writer::new();
+                result.write(&mut w);
+                assert_eq!(result.pack_size(), w.bytes.len(), "{} units", name.len());
+            }
+        }
+    }
 
     #[test]
     fn the_result_packs_its_sliders_in_table_order() {

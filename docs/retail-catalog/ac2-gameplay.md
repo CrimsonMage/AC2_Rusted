@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 138 done, 15 partial, 337 to do, 9 skipped.
+499 retail functions: 140 done, 15 partial, 334 to do, 10 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -97,7 +97,7 @@ Legend and workflow: [README](README.md).
 - [x] `GameplayOptionsProfile::GameplayOptionsProfile` · 006009e0 · legions 005c1860 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `GameplayOptionsProfile::GameplayOptionsProfile` · 00600b40 · legions 005c19e0 — ac2-script glue::options / examination (Legions layout and efun switch)
 
-## `ac2/shared/src/character/gmchargenresult.cpp.c` (21/26)
+## `ac2/shared/src/character/gmchargenresult.cpp.c` (23/26)
 
 ### gmCharGenResult
 - [x] `gmCharGenResult::InqValidPhysTypeValues` · 00600cb0 · legions 005c1b70 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -111,7 +111,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCharGenResult::IsAdmin` · 00600e40 · legions 005c1cd0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmCharGenResult::FormatName` · 00600e70 · legions 005c1d00 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmCharGenResult::SanityCheck` · 00600f10 · legions 005c1da0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-- [ ] `gmCharGenResult::GetPackSize` · 00600f50 · legions 005c1de0
+- [x] `gmCharGenResult::GetPackSize` · 00600f50 · legions 005c1de0 — ac2-net CharGenResult::pack_size (name packed size, six words, table count and pairs); test checks it against write
 - [x] `gmCharGenResult::Pack` · 00600f90 · legions 005c1e20 — ac2-net CharGenResult::write/read
 - [x] `gmCharGenResult::Clear` · 00601020 · legions 005c1eb0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmCharGenResult::GetPhysTypeValue` · 00601090 · legions 005c1f20 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -119,14 +119,14 @@ Legend and workflow: [README](README.md).
 - [x] `gmCharGenResult::operator=` · 00601170 · legions 005c2000 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmCharGenResult::SetPhysTypeValue` · 006011f0 · legions 005c2080 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmCharGenResult::GetStartingPosition` · 00601210 · legions 005c20a0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-- [ ] `gmCharGenResult::~gmCharGenResult` · 00601310 · legions 005c21a0
+- [-] `gmCharGenResult::~gmCharGenResult` · 00601310 · legions 005c21a0 — destructor: Rust drop
 - [x] `gmCharGenResult::GetStartArea` · 00601390 · legions 005c2220 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
 ### CMotionInterp
 - [ ] `CMotionInterp::SetVelocityScale` · 006013a0 · legions 005c2230
 
 ### gmCharGenResult
-- [ ] `gmCharGenResult::SetStartingPosition` · 006013b0 · legions 005c2240
+- [x] `gmCharGenResult::SetStartingPosition` · 006013b0 · legions 005c2240 — ac2-script glue/chargen.rs SetStartingPosition efun (start_pos)
 - [x] `gmCharGenResult::gmCharGenResult` · 006013d0 · legions 005c22b0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmCharGenResult::gmCharGenResult` · 00601470 · legions 005c2350 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmCharGenResult::gmCharGenResult` · 00601500 · legions 005c23e0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)

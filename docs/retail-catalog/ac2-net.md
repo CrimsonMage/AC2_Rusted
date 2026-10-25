@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 216 done, 15 partial, 325 to do, 0 skipped.
+556 retail functions: 217 done, 15 partial, 324 to do, 0 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -351,10 +351,10 @@ Legend and workflow: [README](README.md).
 ### FlowQueue
 - [ ] `FlowQueue::SharedStaticInit` · 004cd7a0 · legions 004c1d10
 
-## `portal/client/src/clinet/chargendata.cpp.c` (0/1)
+## `portal/client/src/clinet/chargendata.cpp.c` (1/1)
 
 ### CharGenData
-- [ ] `CharGenData::Save` · 004cdf20 · legions 004c2490
+- [x] `CharGenData::Save` · 004cdf20 · legions 004c2490 — ac2-client chargen_data.rs CharGenCapture::save and capture_image (record stream; written on a worker thread; --chargen names the file)
 
 ## `portal/client/src/clinet/cindicator.cpp.c` (6/15)
 
@@ -565,7 +565,7 @@ Legend and workflow: [README](README.md).
 - [x] `Proto_UI::SetOrderingStamp` · 004c9c10 · legions 004be1f0
 - [x] `Proto_UI::SendBuff` · 004c9c20 · legions 004be200
 - [x] `Proto_UI::LogOffCharacter` · 004c9d10 · legions 004be2f0
-- [x] `Proto_UI::SendCharGenResult` · 004c9d40 · legions 004be320 — ac2-net ClientEvent::CharGenResult (queue 8) / ac2-weenie OnlineSession::create_character; the CharGenData::Save dev copy is not kept
+- [x] `Proto_UI::SendCharGenResult` · 004c9d40 · legions 004be320 — ac2-net ClientEvent::CharGenResult (queue 8) / ac2-weenie OnlineSession::create_character; CharGenData::Save capture in ac2-client
 - [x] `Proto_UI::SendDeleteCharacter` · 004c9e00 · legions 004be3e0
 - [x] `Proto_UI::SendEnterWorld` · 004c9e70 · legions 004be450
 - [ ] `Proto_UI::SendAdminRestoreCharacter` · 004c9ef0 · legions 004be4d0

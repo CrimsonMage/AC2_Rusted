@@ -284,6 +284,7 @@ impl PregameUi {
                     dialog.char_gen_verification(&mut ctx, response, identity, weenie_result);
                 }
             }
+            Framework::DataPatch(ui) => ui.char_gen_verification(&mut ctx, response, identity),
             _ => {}
         }
         self.pump();
