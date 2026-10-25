@@ -47,9 +47,12 @@ fn a_town_block_loads_off_thread_and_culls_far_chunks_behind_the_camera() {
         south.far_chunks.len()
     );
     assert!(north.far_chunks.len() < total && south.far_chunks.len() < total);
-    assert!(north.far_chunks.iter().all(|c| !south.far_chunks.contains(c) || {
-        // Chunks straddling the east-west line can be seen both ways.
-        let (min, max) = scene.far_bounds[*c];
-        min.y <= centre.y && max.y >= centre.y
-    }));
+    assert!(north
+        .far_chunks
+        .iter()
+        .all(|c| !south.far_chunks.contains(c) || {
+            // Chunks straddling the east-west line can be seen both ways.
+            let (min, max) = scene.far_bounds[*c];
+            min.y <= centre.y && max.y >= centre.y
+        }));
 }

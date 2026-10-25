@@ -144,31 +144,8 @@ pub(crate) fn ac2_entity_markers(
     };
     let mut markers = Vec::with_capacity(record.entities.len());
     for entity in &record.entities {
-        let Some(data) = entity.data else {
+        let Some((visual, template_scale)) = resolve_entity_visual(store, entity) else {
             continue;
-        };
-        let (visual, template_scale) = match data.raw() & 0xFF00_0000 {
-            VISUAL_DESC_PREFIX => (data, Vec3::ONE),
-            ENTITY_DESC_PREFIX => {
-                let Some(template) = store
-                    .load_cached_packed::<Ac2EntityDesc>(TypedResourceRef::new(
-                        DatFileKind::Portal,
-                        data,
-                        0,
-                    ))
-                    .ok()
-                    .flatten()
-                else {
-                    continue;
-                };
-                match template.data {
-                    Some(visual) if visual.raw() & 0xFF00_0000 == VISUAL_DESC_PREFIX => {
-                        (visual, template.scale)
-                    }
-                    _ => continue,
-                }
-            }
-            _ => continue,
         };
         markers.push(Ac2OutdoorEntityMarker {
             visual,
@@ -180,6 +157,56 @@ pub(crate) fn ac2_entity_markers(
     }
     append_scene_markers(store, block_origin, block_cell_id, &mut markers);
     Ok(Arc::from(markers))
+}
+
+/// The `VisualDesc` an entity draws and its template's scale: a placed `VisualDesc` itself, or
+/// the `VisualDesc` of the template `EntityDesc` it instances.
+fn resolve_entity_visual(store: &ResourceStore, entity: &Ac2EntityDesc) -> Option<(DataId, Vec3)> {
+    let data = entity.data?;
+    match data.raw() & 0xFF00_0000 {
+        VISUAL_DESC_PREFIX => Some((data, Vec3::ONE)),
+        ENTITY_DESC_PREFIX => {
+            let template = store
+                .load_cached_packed::<Ac2EntityDesc>(TypedResourceRef::new(
+                    DatFileKind::Portal,
+                    data,
+                    0,
+                ))
+                .ok()
+                .flatten()?;
+            match template.data {
+                Some(visual) if visual.raw() & 0xFF00_0000 == VISUAL_DESC_PREFIX => {
+                    Some((visual, template.scale))
+                }
+                _ => None,
+            }
+        }
+        _ => None,
+    }
+}
+
+/// `CEnvCell::InitStaticObjects`: the cell's entities of the static-object types
+/// (`0x40000001`, `0x40000007`; `CreatePhysicsObj`), each placed at its offset as a position in
+/// the cell's landblock (`block_origin` is that landblock's world origin).
+pub(crate) fn ac2_env_cell_markers(
+    store: &ResourceStore,
+    block_origin: Vec3,
+    entities: &[Ac2EntityDesc],
+) -> Vec<Ac2OutdoorEntityMarker> {
+    entities
+        .iter()
+        .filter(|entity| matches!(entity.entity_type, 0x4000_0001 | 0x4000_0007))
+        .filter_map(|entity| {
+            let (visual, template_scale) = resolve_entity_visual(store, entity)?;
+            Some(Ac2OutdoorEntityMarker {
+                visual,
+                world_frame: Frame::new(block_origin + entity.origin, entity.rotation),
+                scale: entity.scale * template_scale,
+                collides: true,
+                frill: false,
+            })
+        })
+        .collect()
 }
 
 /// Appends the block's procedural scenery and grass (`CLandBlock::GenerateSceneObjectList`). A

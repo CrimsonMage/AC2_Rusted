@@ -2,9 +2,9 @@
 //! as `WorldRender` draws visible env cells from outdoors: each cell mesh with its baked static
 //! light and up to four point lights, under the block's inside environment.
 
-use ac2_core::CellId;
+use ac2_core::{CellId, DataId};
 use ac2_db::ResourceStore;
-use ac2_math::Vec3;
+use ac2_math::{Mat4, Vec3};
 use ac2_world::Ac2WorldSource;
 
 use crate::object::{
@@ -21,6 +21,9 @@ pub struct BlockInteriors {
     pub environment: ObjectEnvironment,
     /// Each cell's model (in world space) and the point lights cached for it.
     pub cells: Vec<(ObjectModel, Vec<PointLight>)>,
+    /// The cells' static objects (`CEnvCell::InitStaticObjects`): visual, world matrix, and the
+    /// point lights of the cell they stand in.
+    pub objects: Vec<(DataId, Mat4, Vec<PointLight>)>,
 }
 
 /// Loads the outside-visible cells of `block`, or `None` when it shows none.
@@ -51,6 +54,7 @@ pub fn load_block_interiors(
         })
         .collect();
     let mut cells = Vec::new();
+    let mut objects = Vec::new();
     for id in interior.outside_stab_cells.iter() {
         let Some(cell) = world.env_cell(*id).ok().flatten() else {
             continue;
@@ -70,6 +74,10 @@ pub fn load_block_interiors(
         }
         let radius = (hi - lo).length() * 0.5 * 1.5;
         let point_lights = object_point_lights(&scene_lights, frame.origin, radius, true);
+        for marker in world.env_cell_markers(&cell) {
+            let world_matrix = marker.world_frame().to_mat4() * Mat4::from_scale(marker.scale());
+            objects.push((marker.visual(), world_matrix, point_lights.clone()));
+        }
         cells.push((model, point_lights));
     }
     let fog = (interior.fog_type == Some(FOG_LINEAR)).then(|| {
@@ -84,5 +92,6 @@ pub fn load_block_interiors(
     Some(BlockInteriors {
         environment: ObjectEnvironment::inside(ambient, fog),
         cells,
+        objects,
     })
 }

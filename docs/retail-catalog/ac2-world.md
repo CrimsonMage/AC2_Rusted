@@ -1,9 +1,9 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 132 done, 14 partial, 700 to do, 143 skipped.
+989 retail functions: 133 done, 14 partial, 699 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/cell/envcell.cpp.c` (14/140)
+## `portal/shared/src/cell/envcell.cpp.c` (15/140)
 
 ### PackObj
 - [ ] `PackObj::Pack` · 0047f1a0
@@ -174,14 +174,14 @@ Legend and workflow: [README](README.md).
 - [ ] `FileNodeName_PString::UnPack` · 00483440 · legions 0047d2e0
 
 ### CEnvCell
-- [ ] `CEnvCell::CreatePhysicsObj` · 00483460 · legions 0047d300
+- [~] `CEnvCell::CreatePhysicsObj` · 00483460 · legions 0047d300 — ac2-world env_cell_markers: drawn placement only (no physics object, no collision)
 - [ ] `CEnvCell::CreateLightSource` · 004834f0 · legions 0047d390
 - [ ] `CEnvCell::CheckVisibility` · 00483680 · legions 0047d520
 - [ ] `CEnvCell::GatherInsideObjects` · 00483970 · legions 0047d810
 - [-] `CEnvCell::FromFileNode` · 00483a60 — text source format (admin tools)
 - [ ] `CEnvCell::AddStaticLights` · 00484090 · legions 0047d900
 - [ ] `CEnvCell::GetNearbyGeometry` · 00484200 · legions 0047da70
-- [~] `CEnvCell::InitStaticObjects` · 00484680 · legions 0047def0 — ac2-physics load_block_interiors: cell entities as static objects (no ObjectClearance/CollisionParameters)
+- [x] `CEnvCell::InitStaticObjects` · 00484680 · legions 0047def0 — ac2-world env_cell_markers; drawn by ac2-render scene interiors
 - [ ] `CEnvCell::InitLightSources` · 00484710 · legions 0047df80
 - [ ] `CEnvCell::GatherInsideObjects` · 00484760 · legions 0047dfd0
 - [ ] `CEnvCell::InitLoad` · 00484800

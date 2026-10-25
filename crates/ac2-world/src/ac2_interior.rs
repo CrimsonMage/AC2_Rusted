@@ -66,6 +66,16 @@ impl Ac2WorldSource {
     }
 
     /// The decoded env cell `xxyy0100+`, or `None` when the cell DAT has no such record.
+    /// The static objects of an env cell (`CEnvCell::InitStaticObjects`) as placed visuals in
+    /// world AC axes.
+    pub fn env_cell_markers(&self, cell: &Ac2EnvCell) -> Vec<crate::Ac2OutdoorEntityMarker> {
+        crate::ac2_landblock_info::ac2_env_cell_markers(
+            self.resource_store(),
+            self.ac2_block_origin(cell.cell_id),
+            &cell.entities,
+        )
+    }
+
     pub fn env_cell(&self, cell_id: CellId) -> ResourceResult<Option<CachedResource<Ac2EnvCell>>> {
         if cell_id.raw() & 0xFFFF < AC2_FIRST_ENV_CELL
             || cell_id.raw() & 0xFFFF >= LIGHT_INFO_SUFFIX

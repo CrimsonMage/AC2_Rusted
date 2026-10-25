@@ -12,8 +12,8 @@ use ac2_gpu::{
 };
 use ac2_math::{Mat4, Vec3};
 use ac2_render::object::{
-    load_cell_model, object_point_lights, CellLighting, ObjectEnvironment, RenderSettings,
-    SceneLight,
+    load_cell_model, load_object_model, object_point_lights, CellLighting, ObjectEnvironment,
+    RenderSettings, SceneLight,
 };
 use ac2_render::{load_material_image, load_texture_image, Camera};
 use ac2_world::Ac2WorldSource;
@@ -92,6 +92,10 @@ fn dungeon_cells_render_with_baked_light() {
         })
         .collect();
     let mut first_frame = None;
+    // The cells' static objects (`CEnvCell::InitStaticObjects`): model, world, cell lights.
+    let mut statics = Vec::new();
+    let mut static_models = std::collections::HashMap::new();
+    let mut misplaced = 0;
     for id in interior.cell_ids(block) {
         let Some(cell) = world.env_cell(id).unwrap() else {
             continue;
@@ -107,12 +111,31 @@ fn dungeon_cells_render_with_baked_light() {
                 hi = hi.max(Vec3::from_array(v.position));
             }
             let radius = (hi - lo).length() * 0.5 * 1.5;
-            cell_lights.push(object_point_lights(
-                &scene_lights,
-                frame.origin,
-                radius,
-                true,
-            ));
+            let point_lights = object_point_lights(&scene_lights, frame.origin, radius, true);
+            for marker in world.env_cell_markers(&cell) {
+                // Static objects stand within their cell's mesh bounds (cell-local).
+                let origin = frame
+                    .to_mat4()
+                    .inverse()
+                    .transform_point3(marker.world_frame().origin);
+                let slack = Vec3::splat(2.0);
+                if origin.cmplt(lo - slack).any() || origin.cmpgt(hi + slack).any() {
+                    misplaced += 1;
+                }
+                let visual = marker.visual();
+                let model = static_models.entry(visual).or_insert_with(|| {
+                    load_object_model(&store, visual, &settings)
+                        .ok()
+                        .flatten()
+                        .map(|model| objects.upload(&gpu, &model, &mut load))
+                });
+                if model.is_some() {
+                    let world_matrix =
+                        marker.world_frame().to_mat4() * Mat4::from_scale(marker.scale());
+                    statics.push((visual, world_matrix, point_lights.clone()));
+                }
+            }
+            cell_lights.push(point_lights);
             models.push(objects.upload(&gpu, &model, &mut load));
         }
     }
@@ -127,6 +150,15 @@ fn dungeon_cells_render_with_baked_light() {
         !models.is_empty(),
         "dungeon cells resolve to drawable models"
     );
+    eprintln!(
+        "{} static objects, {misplaced} outside their cell",
+        statics.len()
+    );
+    assert!(!statics.is_empty(), "the dungeon furnishes its cells");
+    assert!(
+        misplaced * 20 <= statics.len(),
+        "static objects are placed in their landblock's frame"
+    );
     let instances: Vec<_> = models
         .iter()
         .zip(&cell_lights)
@@ -134,6 +166,12 @@ fn dungeon_cells_render_with_baked_light() {
             point_lights: lights,
             ..ObjectInstance::new(model, Mat4::IDENTITY)
         })
+        .chain(statics.iter().filter_map(|(visual, world, lights)| {
+            Some(ObjectInstance {
+                point_lights: lights,
+                ..ObjectInstance::new(static_models.get(visual)?.as_ref()?, *world)
+            })
+        }))
         .collect();
     let fog = (interior.fog_type == Some(FOG_LINEAR)).then(|| {
         (

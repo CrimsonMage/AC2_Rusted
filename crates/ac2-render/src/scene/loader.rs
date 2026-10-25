@@ -153,7 +153,22 @@ impl Worker {
                 frill: marker.frill(),
             });
         }
-        let interiors = load_block_interiors(&world, &store, id, &self.settings);
+        let mut interiors = load_block_interiors(&world, &store, id, &self.settings);
+        if let Some(interiors) = interiors.as_mut() {
+            for (visual, _, _) in &interiors.objects {
+                if self.models.insert(*visual) {
+                    let model = self.model(*visual);
+                    if model.is_some() {
+                        self.drawable.insert(*visual);
+                    }
+                    models.push((*visual, model));
+                }
+            }
+            let drawable = &self.drawable;
+            interiors
+                .objects
+                .retain(|(visual, _, _)| drawable.contains(visual));
+        }
         let mut keys: Vec<TextureKey> =
             terrain.iter().flat_map(TerrainMesh::texture_keys).collect();
         keys.extend(water.iter().flat_map(ObjectModel::texture_keys));

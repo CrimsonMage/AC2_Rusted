@@ -77,7 +77,8 @@ key	status	note
 00481030	x	ac2-render object::cell / point_lights
 00482060	x	ac2-physics los (Terrain::los_check)
 00482450	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
-00484680	~	ac2-physics load_block_interiors: cell entities as static objects (no ObjectClearance/CollisionParameters)
+00483460	~	ac2-world env_cell_markers: drawn placement only (no physics object, no collision)
+00484680	x	ac2-world env_cell_markers; drawn by ac2-render scene interiors
 00485890	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 00485930	~	ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 00486af0	x	ac2-physics los (Terrain::los_check)

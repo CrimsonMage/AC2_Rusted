@@ -22,7 +22,14 @@ use crate::{
 struct GpuBlock {
     terrain: Option<TerrainBlock>,
     water: Option<GpuObjectModel>,
-    interiors: Option<(ObjectEnvironment, Vec<(GpuObjectModel, Vec<PointLight>)>)>,
+    interiors: Option<GpuInteriors>,
+}
+
+/// A block's visible interior cells and the static objects standing in them.
+struct GpuInteriors {
+    environment: ObjectEnvironment,
+    cells: Vec<(GpuObjectModel, Vec<PointLight>)>,
+    objects: Vec<(DataId, Mat4, Vec<PointLight>)>,
 }
 
 /// The scene's GPU resources.
@@ -89,7 +96,11 @@ impl SceneRenderer {
                                 (self.objects.upload(gpu, &model, &mut load), lights)
                             })
                             .collect();
-                        (interiors.environment, cells)
+                        GpuInteriors {
+                            environment: interiors.environment,
+                            cells,
+                            objects: interiors.objects,
+                        }
                     });
                     self.blocks.insert(
                         block.key,
@@ -153,7 +164,7 @@ impl SceneRenderer {
         let before = sky_instances(models, &frame.sky.before);
         let world = world_instances(models, blocks, far, frame);
         let after = sky_instances(models, &frame.sky.after);
-        let interiors = interior_instances(blocks, frame);
+        let interiors = interior_instances(models, blocks, frame);
         let mut groups = vec![
             DrawGroup {
                 instances: &before,
@@ -208,7 +219,8 @@ impl SceneRenderer {
         }
         self.objects
             .draw(pass, 1, &world_instances(models, blocks, far, frame));
-        for (index, (instances, _)) in interior_instances(blocks, frame).iter().enumerate() {
+        for (index, (instances, _)) in interior_instances(models, blocks, frame).iter().enumerate()
+        {
             self.objects.draw(pass, 3 + index, instances);
         }
         self.objects
@@ -259,8 +271,10 @@ fn world_instances<'a>(
         .collect()
 }
 
-/// Each drawn interior block's cells with their point lights, and its inside environment.
+/// Each drawn interior block's cells and static objects with their point lights, and its inside
+/// environment.
 fn interior_instances<'a>(
+    models: &'a HashMap<DataId, GpuObjectModel>,
     blocks: &'a HashMap<BlockKey, GpuBlock>,
     frame: &SceneFrame,
 ) -> Vec<(Vec<ObjectInstance<'a>>, ObjectEnvironment)> {
@@ -268,15 +282,24 @@ fn interior_instances<'a>(
         .interiors
         .iter()
         .filter_map(|key| blocks.get(key)?.interiors.as_ref())
-        .map(|(environment, cells)| {
-            let instances = cells
+        .map(|interiors| {
+            let cells = interiors
+                .cells
                 .iter()
                 .map(|(model, lights)| ObjectInstance {
                     point_lights: lights,
                     ..ObjectInstance::new(model, Mat4::IDENTITY)
-                })
-                .collect();
-            (instances, *environment)
+                });
+            let objects = interiors
+                .objects
+                .iter()
+                .filter_map(|(visual, world, lights)| {
+                    Some(ObjectInstance {
+                        point_lights: lights,
+                        ..ObjectInstance::new(models.get(visual)?, *world)
+                    })
+                });
+            (cells.chain(objects).collect(), interiors.environment)
         })
         .collect()
 }
