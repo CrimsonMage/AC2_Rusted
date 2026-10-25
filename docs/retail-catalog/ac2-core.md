@@ -1,6 +1,6 @@
 # ac2-core: Core runtime: ids, strings, timers, errors, serialization helpers
 
-589 retail functions: 14 done, 0 partial, 171 to do, 404 skipped.
+589 retail functions: 16 done, 0 partial, 169 to do, 404 skipped.
 Legend and workflow: [README](README.md).
 
 ## `core/src/debug/crashcleaners.cpp.c` (0/3)
@@ -1057,14 +1057,14 @@ Legend and workflow: [README](README.md).
 - [ ] `MMapUtil::~MMapUtil` · 00737f90 · legions 006b3b50
 - [ ] `MMapUtil::MMap` · 00738010 · legions 006b3bd0
 
-## `portal/shared/src/utils/psutils.cpp.c` (0/40)
+## `portal/shared/src/utils/psutils.cpp.c` (2/40)
 
 ### (free functions)
-- [ ] `search_skipescapes` · 0065ccc0 · legions 0060b5f0
+- [x] `search_skipescapes` · 0065ccc0 · legions 0060b5f0 — ac2-db string_meta_text / string_state (CRT C locale classes)
 
 ### PSUtils
 - [ ] `PSUtils::check_access` · 0065cd10 · legions 0060b640
-- [ ] `PSUtils::wcschr_skipescapes` · 0065cd30 · legions 0060b660
+- [x] `PSUtils::wcschr_skipescapes` · 0065cd30 · legions 0060b660 — ac2-db string_meta_text / string_state (CRT C locale classes)
 
 ### PStringBaseIter_Common<char>
 - [ ] `PStringBaseIter_Common<char>::FindChar` · 0065cdf0 · legions 0060b720
