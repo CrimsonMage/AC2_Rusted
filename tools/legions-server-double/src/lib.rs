@@ -10,6 +10,7 @@ mod assembly;
 mod channel;
 mod character;
 mod chest;
+mod combat;
 mod craft;
 pub use craft::{CRAFT_SKILL, KNOWN_RECIPE};
 mod effects;

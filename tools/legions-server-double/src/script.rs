@@ -81,6 +81,7 @@ impl State {
                 .push(format!("function {function:#010x}: {error}")),
             None => match ScriptCall::decode(function, arguments) {
                 Some(Ok(call)) => {
+                    self.answer_combat(&call);
                     self.answer_call(&call);
                     self.script_calls.push(call);
                 }

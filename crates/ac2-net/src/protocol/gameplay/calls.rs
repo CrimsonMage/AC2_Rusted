@@ -99,6 +99,12 @@ pub const CALLS: &[CallSpec] = &[
     call(0x8204_0008, ToServer, "WM_Combat 0x16", "CCombatSystem 0x3 (RequestAttackStateChange: start, the selection)", &[LongInt]),
     call(0x8204_0010, ToServer, "WM_Combat 0x14", "CCombatSystem 0x10 (RequestAttackStateChange: stop)", &[]),
     call(0x8204_001B, ToClient, "WM_Combat 0x1B", "CPlayer 0x2 (SendNotice_UpdateAttackState)", &[Int]),
+    // The special attack (a maneuver's skill used from the shortcut bar): the request is packed
+    // in the stub's order (the attack, the maneuver, the target); the answers are packed last
+    // parameter first (the toggle's flag, then the maneuver; the end's attack).
+    call(0x8204_000B, ToServer, "WM_Combat 0x17", "CCombatSystem 0x4 (RequestSpecialAttack: attack, maneuver, target)", &[Int, Int, LongInt]),
+    call(0x8204_0019, ToClient, "WM_Combat 0x19", "CPlayer 0xB2 -> CCombatSystem 0xF (SendNotice_EndSpecialAttack)", &[Int]),
+    call(0x8204_0028, ToClient, "WM_Combat 0x28", "CPlayer 0x1C9 (SendNotice_ToggleSpecialAttack: toggled, maneuver)", &[Int, Int]),
     // The money bag (`WM_Money`, package 0x20F). `DragToMoneyBag`: the item's container, its
     // slot, the quantity, the item; `DragFromMoneyBag`: the target container, slot, quantity.
     call(0x820F_0002, ToServer, "WM_Money 0x7", "CMoneySystem 0x4 (DragToMoneyBag)", &[LongInt, Int, Int, LongInt]),

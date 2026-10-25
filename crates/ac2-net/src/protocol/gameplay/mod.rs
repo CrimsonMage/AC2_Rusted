@@ -10,6 +10,7 @@
 
 mod calls;
 mod catalog;
+mod combat;
 mod consignment;
 mod craft;
 mod craft_records;
@@ -21,6 +22,7 @@ mod trade;
 
 pub use calls::{call_spec, ArgKind, CallSpec, Direction, ScriptCall, CALLS};
 pub use catalog::StoreCatalog;
+pub use combat::{CombatMessage, SpecialAttackRequest};
 pub use consignment::{Consignment, ConsignmentList};
 pub use craft::CraftMessage;
 pub use message::{broadcast, ScriptMessage};

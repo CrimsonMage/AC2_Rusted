@@ -865,6 +865,7 @@ key	status	note
 0044fb20	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 0044fb80	x	ac2-client: the ShouldAutoTarget IFun on the VM before attacking
 0044fbb0	_	ac2-weenie OnlineSession::use_selection (CPlayer 0x79 -> CUsageSystem 0x9 stand-in)
+0044fbe0	_	skill shortcut sends WM_Combat 0x17 (combat_7160); text shortcuts (/e waves) hit unbound efun 0x7F0052 and are not run
 0044fc60	x	ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
 0044fce0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 0044fd20	x	lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
@@ -1004,6 +1005,9 @@ key	status	note
 00451df0	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451e10	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451e40	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
+00451ef0	_	IFun 0xB400C0 runs on the VM with the eight damage values; the Do3DDamage text is not raised yet (UIDamageControl 0x05 gate open); DoStory is not wired to the IFun
+00451f50	_	start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
+00451f70	_	start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
 00451fb0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00451ff0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 004520f0	_	ac2-net GunChatExtraInfo
@@ -1071,6 +1075,7 @@ key	status	note
 00458120	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 004581b0	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 00458380	_	net: LeaveConsignment is raised by the close-all body (CStoreSystem 0x1C, from ViewStore and the consignment view), not by a WM_Store opcode of its own. DisplaySaleReminders (IFun 0xB4013D, id matches Legions) is not exercised
+00458bf0	_	IFun 0xB400C0 runs on the VM with the eight damage values; the Do3DDamage text is not raised yet (UIDamageControl 0x05 gate open); DoStory is not wired to the IFun
 00458dd0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00458ec0	~	ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 00458fe0	~	ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
@@ -1149,8 +1154,10 @@ key	status	note
 00462db0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00462e60	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00462fc0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00463390	_	start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
+00463440	_	start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
 00463b70	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
-00463d30	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+00463d30	_	skill shortcut sends WM_Combat 0x17 (combat_7160); text shortcuts (/e waves) hit unbound efun 0x7F0052 and are not run
 00463df0	_	ac2-script glue: id table + pure-glue registry; engine glue unbound
 004661d0	_	ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 00467160	_	ac2-script native::unpack: the native types Legions WStates hold
@@ -1206,7 +1213,7 @@ key	status	note
 00468db0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468e00	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468e50	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468ec0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468ec0	_	IFun 0xB400C0 runs on the VM with the eight damage values; the Do3DDamage text is not raised yet (UIDamageControl 0x05 gate open); DoStory is not wired to the IFun
 00468f10	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468f70	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468fb0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -1237,11 +1244,11 @@ key	status	note
 00469820	_	ac2-script host notices -> ac2_weenie::GameplayNotice
 00469870	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004698c0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469900	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469950	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004699a0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004699f0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469a40	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469900	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
+00469950	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
+004699a0	_	start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
+004699f0	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
+00469a40	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 00469a90	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00469b10	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469b80	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
@@ -5576,7 +5583,7 @@ key	status	note
 00726800	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
 007268b0	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 007269d0	_	
-00726b80	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726b80	_	IFun 0xB400C0 runs on the VM with the eight damage values; the Do3DDamage text is not raised yet (UIDamageControl 0x05 gate open); DoStory is not wired to the IFun
 00726c10	_	ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
 00726cb0	_	ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
 00726d40	_	ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
@@ -5604,11 +5611,11 @@ key	status	note
 00727af0	~	net: bound; no wlib function calls efun 0x00880004 (scanned the Legions wlib's CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN sites), so no WM_Craft answer reaches it
 00727b90	x	craft_script_7160. Forwarders (wlib): WM_Craft 0x19 (the registry) -> CPlayer 0xC3, 0x1B (recipe learned by DID) -> CPlayer 0x105, 0x1A/0x37 (recipe records) -> CPlayer 0x61/0x1C5 and 0x27/0x34 (skill records) -> CPlayer 0x1AE/0x1C4 each raise it; the double sends 0x1A after a craft. 0x18 -> CPlayer 0xF9 calls efun 0x8F0003 (unbound) and is not driven.
 00727c20	x	lead: WM_Craft 0x27/0x34 -> CPlayer 0x1AE/0x1C4 set a CraftSkillRecord, then this notice with the skill's adaptor and UpdateCraftPanel; craft_script_7160 updates_change_only_known_records asserts it.
-00727cb0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00727d40	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00727dd0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00727e60	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00727ef0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727cb0	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
+00727d40	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
+00727dd0	_	start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
+00727e60	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
+00727ef0	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 00727f80	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 00728020	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 007280c0	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
