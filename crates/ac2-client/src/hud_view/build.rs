@@ -71,6 +71,7 @@ impl HudView {
             toolbar: None,
             shortcuts: None,
             skills: None,
+            craft: None,
             examination: None,
             allegiance: None,
             fellowship: None,
@@ -125,6 +126,7 @@ impl HudView {
                     toolbar,
                     shortcuts,
                     skills,
+                    craft,
                     examination,
                     allegiance,
                     fellowship,
@@ -162,6 +164,7 @@ impl HudView {
                 self.show_toolbar(true);
                 self.shortcuts = shortcuts;
                 self.skills = skills;
+                self.craft = craft;
                 self.examination = examination;
                 self.allegiance = allegiance;
                 self.fellowship = fellowship;

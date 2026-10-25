@@ -681,6 +681,27 @@ key	status	note
 00448c70	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 00448e50	x	ac2-ui skill_tree.rs
 00449110	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+004494b0	x	ac2-ui craft.rs select_element: the previous row returns to its default state, the new one shows selected
+004494f0	x	ac2-ui craft.rs select_category: the category's examination (SetSelection cleared, data_enum); tested through the category row (craft_ui_7160)
+00449550	x	ac2-ui craft.rs select_recipe: the recipe's examination (data_id), the selected recipe kept even at 0; tested through the recipe button
+004495b0	x	ac2-ui craft_pages.rs recipe_icon: the recipe's icon, else the selected skill's; tested with the recipe row
+00449610	~	the level text (its string id is not in the decompile) is not shown yet
+00449700	~	ac2-ui craft_pages.rs refresh_skill_display: name, icon, selected state and raise ghosting. Not: the raise and current-level texts (string ids unresolved), the raise text colours
+004499e0	~	ac2-ui craft_pages.rs make_skill: DID on row and back button, name in enabled/disabled state, selected row. Not: the level text and its states (DAT string ids), the name's truncation with an ellipsis
+00449bb0	~	ac2-ui craft_pages.rs make_category: DID, forward/back button, name, selected row. Not: the name's truncation with an ellipsis
+00449ce0	~	ac2-ui craft_pages.rs make_recipe: icon (recipe's or skill's), button and name, selected row. Not: the name's truncation with an ellipsis
+00449eb0	x	ac2-ui craft.rs clear_selection_info: the row maps and selected element cleared
+0044a040	~	ac2-ui craft_pages.rs update_categories: each recipe category once, with its name. Categories sort by id: CraftSkillCategoryAdaptor::operator< is not in the decompile. The lists are tested with the known SKILL and RECIPE (craft_ui_7160)
+0044a1a0	-	the handler registrations are per object in Rust (no per-object table); the panel's state is dropped with the HUD
+0044a3b0	x	ac2-ui craft.rs select_craft_skill: recipes and categories of the skill, the selection cleared, the examination; tested through the skill row (craft_ui_7160)
+0044a440	~	ac2-ui craft_pages.rs refresh_skill_page: a row per craft skill (CraftSkillList), made from the player's craft registry. Partial: the rows' level text (string id unresolved)
+0044a550	~	ac2-ui craft_pages.rs refresh_category_page: the skill header, a row per category. Partial: the header's level text and the categories' truncation (see MakeCraftSkill and MakeCraftSkillCategory)
+0044a6e0	~	ac2-ui craft_pages.rs refresh_recipe_page: the category header, the shown recipes of the category, the skill display. Partial: the truncation and the raise text (string ids unresolved)
+0044a8e0	x	ac2-ui craft.rs refresh_panel: the recipes of the selected skill, then the view's page (SkillPage, CategoryPage, RecipePage)
+0044a960	~	ac2-ui craft.rs CraftUi::create: the page and its lists looked up per refresh (GetChildRecursive). Not: the drag field and the notice handlers (per object in Rust)
+0044ab30	x	ac2-ui craft.rs set_state: the page takes the view, then the panel refreshes
+0044ab60	x	client hud_craft.rs craft_frameworks: CM_Craft UpdateCraftPanel refreshes the panel (craft_ui_7160 registry path)
+0044ab70	~	ac2-ui craft.rs message: forward, back, the headers, the rows (press and double click), recipe button, raise button, craft tab opened. Not: the recipe's icon drag (drag field, start drag), the raise button is not under the page in the layout tree yet
 0044afd0	x	ac2-ui chat.rs / chat_window.rs
 0044b000	x	ac2-ui chat.rs / chat_window.rs
 0044b030	x	ac2-ui chat.rs / chat_window.rs

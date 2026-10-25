@@ -122,6 +122,22 @@ impl LayoutDesc {
     pub fn element(&self, id: u32) -> Option<&Arc<ElementDesc>> {
         self.elements.iter().find(|element| element.id == id)
     }
+
+    /// The element `id` anywhere in the layout, depth first (a panel's templates can be nested in
+    /// its page).
+    pub fn find_element(&self, id: u32) -> Option<Arc<ElementDesc>> {
+        fn walk(element: &Arc<ElementDesc>, id: u32) -> Option<Arc<ElementDesc>> {
+            if element.id == id {
+                return Some(Arc::clone(element));
+            }
+            element
+                .states
+                .iter()
+                .flat_map(|state| state.children.iter())
+                .find_map(|child| walk(child, id))
+        }
+        self.elements.iter().find_map(|element| walk(element, id))
+    }
 }
 
 struct Reader<'a, 'b> {

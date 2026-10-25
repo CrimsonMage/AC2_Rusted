@@ -24,6 +24,7 @@ use crate::character::CharacterUi;
 use crate::chat::{ChatStrings, ChatUi, CHAT_STRING_TABLE, REPLY_STRING_TABLE, STRING_TABLE_GROUP};
 use crate::chat_options::ChatOptionsUi;
 use crate::compose::UiPixels;
+use crate::craft::CraftUi;
 use crate::damage_text::DamageTexts;
 use crate::dialog::DialogFactory;
 use crate::effects::EffectsUi;
@@ -94,6 +95,8 @@ pub struct GameplayHud {
     pub toolbar: ToolbarUi,
     /// `gmSkillUI`'s `gmSkillTreeUI`.
     pub skills: Option<SkillTreeUi>,
+    /// `gmCraftUI`, over `CraftPage`.
+    pub craft: Option<CraftUi>,
     /// `gmExaminationUI`.
     pub examination: Option<ExaminationUi>,
     /// `gmSocialUI`'s `gmAllegianceUI` (its player set once in the world) and `gmFellowshipUI`.
@@ -202,6 +205,15 @@ pub fn build_gameplay_hud(
         (Some(toolbar), Some(field)) => Some(SkillTreeUi::create(&tree, toolbar, field)),
         _ => None,
     };
+    // `gmCraftUI::gmCraftUI`: the craft panel over `CraftPage`.
+    let craft_page = tree
+        .roots()
+        .iter()
+        .find_map(|&r| tree.child_recursive(r, crate::craft::CRAFT_PAGE));
+    let craft = match (&layouts[&LAYOUT_TOOLBAR], craft_page) {
+        (Some(toolbar), Some(page)) => Some(CraftUi::create(toolbar, page)),
+        _ => None,
+    };
     let examination = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .map(|toolbar| ExaminationUi::create(&mut tree, toolbar));
@@ -263,6 +275,7 @@ pub fn build_gameplay_hud(
         chat,
         toolbar,
         skills,
+        craft,
         examination,
         allegiance,
         fellowship,

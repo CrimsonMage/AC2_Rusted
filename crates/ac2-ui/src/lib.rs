@@ -23,6 +23,8 @@ mod chat_options_tests;
 mod chat_window;
 mod compose;
 mod controls;
+mod craft;
+mod craft_pages;
 mod damage_text;
 mod dialog;
 mod drag;
@@ -102,6 +104,7 @@ pub use chat_options::{ChatOptionRequest, ChatOptionSetting, ChatOptionsUi};
 pub use chat_window::{ChatMessageInfo, CHAT_TEXT_TYPES};
 pub use compose::{UiPixels, UiSurface};
 pub use controls::{ControlFrame, Controls};
+pub use craft::{CraftCommand, CraftSource, CraftUi, STATE_CATEGORY, STATE_RECIPE, STATE_SKILL};
 pub use damage_text::{DamagePlace, DamageTexts};
 pub use dialog::{
     DialogFactory, DialogOutcome, DIALOG_CONFIRMATION, DIALOG_MESSAGE, DIALOG_RESURRECT,

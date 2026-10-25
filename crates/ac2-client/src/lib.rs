@@ -31,6 +31,7 @@ mod gameplay;
 #[cfg(feature = "window")]
 mod hud_character;
 mod hud_chat_options;
+mod hud_craft;
 mod hud_navigation;
 #[cfg(feature = "window")]
 mod hud_player;

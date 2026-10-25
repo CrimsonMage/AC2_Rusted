@@ -645,6 +645,18 @@ impl UiTree {
             .insert(id, AttributeValue::Int(value));
     }
 
+    /// `UIElement::SetAttribute_ID`.
+    pub(crate) fn set_attribute_id(&mut self, index: usize, id: u32, value: u32) {
+        self.el_mut(index)
+            .attributes
+            .insert(id, AttributeValue::Id(value));
+    }
+
+    /// `referenceDesc->defaultState`: the state `UIElement::SetState` returns the element to.
+    pub(crate) fn default_state_of(&self, index: usize) -> u32 {
+        self.el(index).reference.default_state
+    }
+
     /// `UIElement::SetImage`: the image and, while unset, `m_alphaValue` from `alpha_value`
     /// (retail reads the attribute into the draw mode's own slot, so without the attribute the
     /// value becomes the draw mode's bits as a float: no alpha).

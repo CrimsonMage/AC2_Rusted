@@ -516,8 +516,12 @@ impl ClientView {
             let viewport = self.hud.doll_viewport()?;
             self.doll.pick(point, &viewport)
         });
-        self.hud
-            .frameworks(client, frame, events, script_notices, doll_pick)
+        let mut commands = self.hud.craft_frameworks(client, frame, events);
+        commands.extend(
+            self.hud
+                .frameworks(client, frame, events, script_notices, doll_pick),
+        );
+        commands
     }
 
     /// `CM_UI::SendNotice_OpenExaminationPanel`: the examination panel shows.

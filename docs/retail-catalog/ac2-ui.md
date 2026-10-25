@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 769 done, 262 partial, 1169 to do, 47 skipped.
+2247 retail functions: 778 done, 273 partial, 1148 to do, 48 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -1445,31 +1445,31 @@ Legend and workflow: [README](README.md).
 - [ ] `gmStoryQuestsUI::ListenToMessage` · 004400d0 · legions 00440930
 - [ ] `gmStoryQuestsUI::gmStoryQuestsUI` · 00440110 · legions 00440970
 
-## `ac2/client/src/ui/gameplay/toolbar/skill/gmcraftui.cpp.c` (0/22)
+## `ac2/client/src/ui/gameplay/toolbar/skill/gmcraftui.cpp.c` (9/22)
 
 ### gmCraftUI
-- [ ] `gmCraftUI::SelectElement` · 004494b0 · legions 0044a110
-- [ ] `gmCraftUI::SelectCraftSkillCategory` · 004494f0 · legions 0044a150
-- [ ] `gmCraftUI::SelectRecipe` · 00449550 · legions 0044a1b0
-- [ ] `gmCraftUI::GetRecipeIcon` · 004495b0 · legions 0044a210
-- [ ] `gmCraftUI::MakeLevelText` · 00449610
-- [ ] `gmCraftUI::RefreshCraftSkillDisplay` · 00449700 · legions 0044a360
-- [ ] `gmCraftUI::MakeCraftSkill` · 004499e0 · legions 0044a640
-- [ ] `gmCraftUI::MakeCraftSkillCategory` · 00449bb0 · legions 0044a810
-- [ ] `gmCraftUI::MakeRecipe` · 00449ce0 · legions 0044a940
-- [ ] `gmCraftUI::ClearSelectionInfo` · 00449eb0 · legions 0044ab10
-- [ ] `gmCraftUI::UpdateCategories` · 0044a040 · legions 0044aca0
-- [ ] `gmCraftUI::~gmCraftUI` · 0044a1a0 · legions 0044ae00
+- [x] `gmCraftUI::SelectElement` · 004494b0 · legions 0044a110 — ac2-ui craft.rs select_element: the previous row returns to its default state, the new one shows selected
+- [x] `gmCraftUI::SelectCraftSkillCategory` · 004494f0 · legions 0044a150 — ac2-ui craft.rs select_category: the category's examination (SetSelection cleared, data_enum); tested through the category row (craft_ui_7160)
+- [x] `gmCraftUI::SelectRecipe` · 00449550 · legions 0044a1b0 — ac2-ui craft.rs select_recipe: the recipe's examination (data_id), the selected recipe kept even at 0; tested through the recipe button
+- [x] `gmCraftUI::GetRecipeIcon` · 004495b0 · legions 0044a210 — ac2-ui craft_pages.rs recipe_icon: the recipe's icon, else the selected skill's; tested with the recipe row
+- [~] `gmCraftUI::MakeLevelText` · 00449610 — the level text (its string id is not in the decompile) is not shown yet
+- [~] `gmCraftUI::RefreshCraftSkillDisplay` · 00449700 · legions 0044a360 — ac2-ui craft_pages.rs refresh_skill_display: name, icon, selected state and raise ghosting. Not: the raise and current-level texts (string ids unresolved), the raise text colours
+- [~] `gmCraftUI::MakeCraftSkill` · 004499e0 · legions 0044a640 — ac2-ui craft_pages.rs make_skill: DID on row and back button, name in enabled/disabled state, selected row. Not: the level text and its states (DAT string ids), the name's truncation with an ellipsis
+- [~] `gmCraftUI::MakeCraftSkillCategory` · 00449bb0 · legions 0044a810 — ac2-ui craft_pages.rs make_category: DID, forward/back button, name, selected row. Not: the name's truncation with an ellipsis
+- [~] `gmCraftUI::MakeRecipe` · 00449ce0 · legions 0044a940 — ac2-ui craft_pages.rs make_recipe: icon (recipe's or skill's), button and name, selected row. Not: the name's truncation with an ellipsis
+- [x] `gmCraftUI::ClearSelectionInfo` · 00449eb0 · legions 0044ab10 — ac2-ui craft.rs clear_selection_info: the row maps and selected element cleared
+- [~] `gmCraftUI::UpdateCategories` · 0044a040 · legions 0044aca0 — ac2-ui craft_pages.rs update_categories: each recipe category once, with its name. Categories sort by id: CraftSkillCategoryAdaptor::operator< is not in the decompile. The lists are tested with the known SKILL and RECIPE (craft_ui_7160)
+- [-] `gmCraftUI::~gmCraftUI` · 0044a1a0 · legions 0044ae00 — the handler registrations are per object in Rust (no per-object table); the panel's state is dropped with the HUD
 - [ ] `gmCraftUI::RecvNotice_ExaminationRequestChanged` · 0044a2d0
-- [ ] `gmCraftUI::SelectCraftSkill` · 0044a3b0 · legions 0044b010
-- [ ] `gmCraftUI::RefreshCraftSkillPage` · 0044a440 · legions 0044b0a0
-- [ ] `gmCraftUI::RefreshCraftSkillCategoryPage` · 0044a550 · legions 0044b1b0
-- [ ] `gmCraftUI::RefreshRecipePage` · 0044a6e0 · legions 0044b340
-- [ ] `gmCraftUI::RefreshCraftPanel` · 0044a8e0 · legions 0044b540
-- [ ] `gmCraftUI::gmCraftUI` · 0044a960 · legions 0044b5c0
-- [ ] `gmCraftUI::SetState` · 0044ab30 · legions 0044b790
-- [ ] `gmCraftUI::RecvNotice_UpdateCraftPanel` · 0044ab60
-- [ ] `gmCraftUI::ListenToMessage` · 0044ab70 · legions 0044b7d0
+- [x] `gmCraftUI::SelectCraftSkill` · 0044a3b0 · legions 0044b010 — ac2-ui craft.rs select_craft_skill: recipes and categories of the skill, the selection cleared, the examination; tested through the skill row (craft_ui_7160)
+- [~] `gmCraftUI::RefreshCraftSkillPage` · 0044a440 · legions 0044b0a0 — ac2-ui craft_pages.rs refresh_skill_page: a row per craft skill (CraftSkillList), made from the player's craft registry. Partial: the rows' level text (string id unresolved)
+- [~] `gmCraftUI::RefreshCraftSkillCategoryPage` · 0044a550 · legions 0044b1b0 — ac2-ui craft_pages.rs refresh_category_page: the skill header, a row per category. Partial: the header's level text and the categories' truncation (see MakeCraftSkill and MakeCraftSkillCategory)
+- [~] `gmCraftUI::RefreshRecipePage` · 0044a6e0 · legions 0044b340 — ac2-ui craft_pages.rs refresh_recipe_page: the category header, the shown recipes of the category, the skill display. Partial: the truncation and the raise text (string ids unresolved)
+- [x] `gmCraftUI::RefreshCraftPanel` · 0044a8e0 · legions 0044b540 — ac2-ui craft.rs refresh_panel: the recipes of the selected skill, then the view's page (SkillPage, CategoryPage, RecipePage)
+- [~] `gmCraftUI::gmCraftUI` · 0044a960 · legions 0044b5c0 — ac2-ui craft.rs CraftUi::create: the page and its lists looked up per refresh (GetChildRecursive). Not: the drag field and the notice handlers (per object in Rust)
+- [x] `gmCraftUI::SetState` · 0044ab30 · legions 0044b790 — ac2-ui craft.rs set_state: the page takes the view, then the panel refreshes
+- [x] `gmCraftUI::RecvNotice_UpdateCraftPanel` · 0044ab60 — client hud_craft.rs craft_frameworks: CM_Craft UpdateCraftPanel refreshes the panel (craft_ui_7160 registry path)
+- [~] `gmCraftUI::ListenToMessage` · 0044ab70 · legions 0044b7d0 — ac2-ui craft.rs message: forward, back, the headers, the rows (press and double click), recipe button, raise button, craft tab opened. Not: the recipe's icon drag (drag field, start drag), the raise button is not under the page in the layout tree yet
 
 ## `ac2/client/src/ui/gameplay/toolbar/skill/gmskilltreeui.cpp.c` (11/26)
 
