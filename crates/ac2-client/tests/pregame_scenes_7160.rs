@@ -1,7 +1,8 @@
 //! The pregame screens' 3D scenes in the window path, drawn headless (`AC2_DAT_DIR`, a GPU
 //! adapter) against the Legions 7160 server double: character selection's arms and figure,
 //! avatar selection's line-up (picked, its selected animation played to the end) and avatar
-//! modification's avatar. Writes `target/ac2-snapshots/pregame_scene_*.png`.
+//! modification's avatar; and the screens without scenes (intro, data patch, credits, controls). Writes
+//! `target/ac2-snapshots/pregame_scene_*.png` and `pregame_{intro,data_patch,credits,keyboard}.png`.
 
 mod common;
 
@@ -17,6 +18,7 @@ use ac2_script::vm::Program;
 use ac2_script::{load_wlib, LEGIONS_WLIB_DID};
 use ac2_ui::pregame::{
     SceneViewport, MODE_AVATAR_MODIFICATION, MODE_AVATAR_SELECTION, MODE_CHARACTER_SELECTION,
+    MODE_CREDITS, MODE_DATA_PATCH, MODE_INTRO, MODE_KEYBOARD,
 };
 use ac2_ui::{tokenize, UI_POINTER_X, UI_POINTER_Y};
 use ac2_weenie::{CharacterChoice, OnlineSession};
@@ -28,6 +30,8 @@ type Server = std::rc::Rc<std::cell::RefCell<legions_server_double::State>>;
 /// The pregame layouts are authored for 1024 x 768.
 const SIZE: (u32, u32) = (1024, 768);
 const LEFT: u32 = 0x4000_0004;
+/// A keyboard action (not the pointer's).
+const KEY: u32 = 0x4000_0100;
 
 struct Rig {
     gpu: Gpu,
@@ -41,6 +45,17 @@ impl Rig {
     /// The view with its scenes (and the `CharacterGenSystem` script when `chargen`), at
     /// character selection.
     fn new(chargen: bool) -> Option<Self> {
+        let mut rig = Self::at_intro(chargen)?;
+        while rig.view.mode() != MODE_CHARACTER_SELECTION {
+            rig.frame();
+            std::thread::sleep(std::time::Duration::from_millis(1));
+            assert!(rig.t < 60.0, "no character selection");
+        }
+        Some(rig)
+    }
+
+    /// The view at its first screen, the intro.
+    fn at_intro(chargen: bool) -> Option<Self> {
         let dataset = ac2_dat::test_support::env_dataset()?;
         let Ok(gpu) = Gpu::headless() else {
             eprintln!("no GPU adapter; skipping");
@@ -84,10 +99,10 @@ impl Rig {
             server,
             t: 0.0,
         };
-        while rig.view.mode() != MODE_CHARACTER_SELECTION {
+        while rig.view.mode() != MODE_INTRO {
             rig.frame();
             std::thread::sleep(std::time::Duration::from_millis(1));
-            assert!(rig.t < 60.0, "no character selection");
+            assert!(rig.t < 60.0, "no intro");
         }
         Some(rig)
     }
@@ -145,6 +160,11 @@ impl Rig {
     /// Every load in, then the frame drawn: (with the scenes, the UI alone).
     fn draw(&mut self) -> (Vec<u8>, Vec<u8>) {
         self.view.settle(&self.gpu, self.t);
+        self.draw_now()
+    }
+
+    /// The frame drawn as it stands: (with the scenes, the UI alone).
+    fn draw_now(&mut self) -> (Vec<u8>, Vec<u8>) {
         self.view.prepare(&self.gpu, self.t);
         let target = FrameTarget::new(&self.gpu.device, SIZE.0, SIZE.1);
         self.view
@@ -306,4 +326,59 @@ fn character_generation_shows_the_avatars_and_the_chosen_one() {
         .expect("the race's viewport");
     let changed = scene_pixels(&full, &ui, &viewport);
     assert!(changed > 20_000, "the avatar's scene is drawn: {changed}");
+}
+
+/// Lit pixels of a frame.
+fn lit(rgba: &[u8]) -> usize {
+    rgba.chunks(4).filter(|p| p[0] > 40 || p[1] > 40).count()
+}
+
+#[test]
+fn the_intro_data_patch_credits_and_controls_screens_draw() {
+    let Some(mut rig) = Rig::at_intro(false) else {
+        return;
+    };
+    rig.frame();
+    let (intro, _) = rig.draw();
+    save("pregame_intro.png", &intro);
+    // The Turbine logo, dark grey on black.
+    let logo = intro.chunks(4).filter(|p| p[0] > 8).count();
+    assert!(logo > 20_000, "the intro picture shows: {logo}");
+    // A click ends the intro; the data patch screen shows for the frame it takes the set.
+    rig.click("IntroField");
+    rig.frame();
+    assert_eq!(rig.view.mode(), MODE_DATA_PATCH);
+    let (patch, _) = rig.draw_now();
+    save("pregame_data_patch.png", &patch);
+    assert!(lit(&patch) > (SIZE.0 * SIZE.1 / 10) as usize);
+    while rig.view.mode() != MODE_CHARACTER_SELECTION {
+        rig.frame();
+        assert!(rig.t < 60.0, "no character selection");
+    }
+    rig.click("CreditsButton");
+    while rig.view.mode() != MODE_CREDITS {
+        rig.frame();
+        assert!(rig.t < 70.0, "no credits");
+    }
+    let shown = rig.t + 9.0;
+    while rig.t < shown {
+        rig.frame();
+    }
+    let (credits, _) = rig.draw();
+    save("pregame_credits.png", &credits);
+    assert!(lit(&credits) > 2000, "credits text and a picture");
+    // A key press ends the credits; the options button opens the controls screen.
+    rig.view.input(&[(KEY, 1.0, true), (KEY, 1.0, false)]);
+    while rig.view.mode() != MODE_CHARACTER_SELECTION {
+        rig.frame();
+        assert!(rig.t < 100.0, "the credits never closed");
+    }
+    rig.click("OptionsButton");
+    while rig.view.mode() != MODE_KEYBOARD {
+        rig.frame();
+        assert!(rig.t < 110.0, "no controls screen");
+    }
+    let (controls, _) = rig.draw();
+    save("pregame_keyboard.png", &controls);
+    assert!(lit(&controls) > (SIZE.0 * SIZE.1 / 10) as usize);
 }

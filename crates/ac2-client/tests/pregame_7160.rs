@@ -75,7 +75,7 @@ fn character_selection_enters_the_world_with_the_listed_character() {
     while ui.mode() != MODE_CHARACTER_SELECTION {
         frame(&mut client, &server, &mut ui, t);
         t += STEP;
-        assert!(t < 10.0, "no character selection");
+        assert!(t < 30.0, "no character selection");
     }
     assert!(!client.frame().in_world, "waits at the character set");
     let selection = ui.character_selection().unwrap();
@@ -85,7 +85,7 @@ fn character_selection_enters_the_world_with_the_listed_character() {
     while !client.frame().in_world {
         frame(&mut client, &server, &mut ui, t);
         t += STEP;
-        assert!(t < 20.0, "no world entry");
+        assert!(t < 40.0, "no world entry");
     }
     assert_eq!(ui.mode(), MODE_GAMEPLAY);
     assert_eq!(client.frame().player.map(|p| p.id), Some(PLAYER));
@@ -100,7 +100,7 @@ fn delete_is_confirmed_then_sent() {
     while ui.mode() != MODE_CHARACTER_SELECTION {
         frame(&mut client, &server, &mut ui, t);
         t += STEP;
-        assert!(t < 10.0, "no character selection");
+        assert!(t < 30.0, "no character selection");
     }
     click(&mut ui, "DeleteButton");
     assert!(ui.dialogs().shown().is_some());

@@ -21,7 +21,7 @@ key	status	note
 004064a0	-	GUN chat servers are not used (Turbine chat)
 00406af0	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 00406b00	x	ac2-ui pregame/flow.rs, pregame/ui.rs
-00406b10	~	pregame/ui.rs: character selection and disconnected made; intro, data patch (the client connects), keyboard, credits not ported
+00406b10	x	ac2-ui pregame/ui.rs PregameUi::new (every framework, the intro queued); gameplay is the client's view
 00406c60	~	ac2-script: unpack direction only
 00406cb0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00406f50	x	ac2-script reference/native unpack
@@ -96,13 +96,40 @@ key	status	note
 00410f00	~	character_selection.rs: roots, handlers, Update; background music not played
 00411220	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 00411240	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
-00411ac0	~	ac2-ui PregameUi::character_set (first set -> character selection) and bin/ac2 --character (start character enters at once); patching not ported
+00411260	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+004112a0	-	no DAT patching in this client (DDD patch events never come)
+004113b0	-	no DAT patching in this client (DDD patch events never come)
+004115f0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00411890	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00411ac0	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
+00411fd0	-	no DAT patching in this client (DDD patch events never come)
+004121d0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+004123d0	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 004125c0	x	ac2-ui pregame/disconnected.rs
 00412630	x	ac2-ui pregame/disconnected.rs
 00412650	x	ac2-ui pregame/disconnected.rs
 00412670	x	ac2-ui pregame/disconnected.rs
 004126b0	x	ac2-ui pregame/disconnected.rs
 004126d0	x	ac2-ui pregame/disconnected.rs
+00412710	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412870	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+004128c0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+004128e0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412900	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+004129c0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+004129f0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412a20	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412b10	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412d00	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412e30	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412e60	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412e80	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
+00413360	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
+004134f0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00413530	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+004139d0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00414bb0	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
+00414e70	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 00415210	~	dialog.rs: confirmation, wait, message; resurrect and timed dialogs not made
 00415300	-	Rust std replaces it
 00415390	-	Rust std replaces it

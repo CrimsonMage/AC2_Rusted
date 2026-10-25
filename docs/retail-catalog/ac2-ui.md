@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 445 done, 177 partial, 1603 to do, 22 skipped.
+2247 retail functions: 465 done, 181 partial, 1576 to do, 25 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (7/53)
@@ -1612,7 +1612,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmSocialUI::ListenToMessage` · 00430650 · legions 00430410
 - [ ] `gmSocialUI::gmSocialUI` · 004306b0 · legions 00430470
 
-## `ac2/client/src/ui/gmuiflow.cpp.c` (9/37)
+## `ac2/client/src/ui/gmuiflow.cpp.c` (10/37)
 
 ### gmUIFlow
 - [x] `gmUIFlow::~gmUIFlow` · 00405d80 · legions 00405a60 — ac2-ui pregame/flow.rs, pregame/ui.rs
@@ -1642,7 +1642,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmUIFlow::RecvNotice_GunConnectionLost` · 004064a0 — GUN chat servers are not used (Turbine chat)
 - [x] `gmUIFlow::RecvNotice_CharacterError` · 00406af0 — ac2-ui pregame/flow.rs, pregame/ui.rs
 - [x] `gmUIFlow::RecvNotice_ServerDied` · 00406b00 — ac2-ui pregame/flow.rs, pregame/ui.rs
-- [~] `gmUIFlow::gmUIFlow` · 00406b10 — pregame/ui.rs: character selection and disconnected made; intro, data patch (the client connects), keyboard, credits not ported
+- [x] `gmUIFlow::gmUIFlow` · 00406b10 — ac2-ui pregame/ui.rs PregameUi::new (every framework, the intro queued); gameplay is the client's view
 
 ### ImportData
 - [~] `ImportData::StreamPack` · 00406c60 · legions 00406970 — ac2-script: unpack direction only
@@ -1846,31 +1846,31 @@ Legend and workflow: [README](README.md).
 - [x] `gmCharacterSelectionUI::Create` · 00411220 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [x] `gmCharacterSelectionUI::Register` · 00411240 · legions 00411220 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 
-## `ac2/client/src/ui/pregame/gmcreditsui.cpp.c` (0/15)
+## `ac2/client/src/ui/pregame/gmcreditsui.cpp.c` (8/15)
 
 ### gmCreditsUI
-- [ ] `gmCreditsUI::MakePleaseWaitDialog` · 00412900 · legions 00412780
+- [x] `gmCreditsUI::MakePleaseWaitDialog` · 00412900 · legions 00412780 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [ ] `gmCreditsUI::~gmCreditsUI` · 00412950 · legions 004127d0
-- [ ] `gmCreditsUI::GetX` · 004129c0 · legions 00412840
-- [ ] `gmCreditsUI::GetY` · 004129f0 · legions 00412870
-- [ ] `gmCreditsUI::UpdatePicture` · 00412a20 · legions 004128a0
-- [ ] `gmCreditsUI::Close` · 00412b10 · legions 00412990
+- [x] `gmCreditsUI::GetX` · 004129c0 · legions 00412840 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmCreditsUI::GetY` · 004129f0 · legions 00412870 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmCreditsUI::UpdatePicture` · 00412a20 · legions 004128a0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmCreditsUI::Close` · 00412b10 · legions 00412990 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [ ] `gmCreditsUI::GetSoundID` · 00412b90 · legions 00412a10
 - [ ] `gmCreditsUI::UpdateSound` · 00412c50 · legions 00412ad0
-- [ ] `gmCreditsUI::UpdateText` · 00412d00 · legions 00412b80
-- [ ] `gmCreditsUI::ListenToMessage` · 00412e30 · legions 00412cb0
-- [ ] `gmCreditsUI::Update` · 00412e60 · legions 00412ce0
-- [ ] `gmCreditsUI::Initialize` · 00412e80 · legions 00412d00
-- [ ] `gmCreditsUI::gmCreditsUI` · 00413360
+- [x] `gmCreditsUI::UpdateText` · 00412d00 · legions 00412b80 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmCreditsUI::ListenToMessage` · 00412e30 · legions 00412cb0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmCreditsUI::Update` · 00412e60 · legions 00412ce0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [~] `gmCreditsUI::Initialize` · 00412e80 · legions 00412d00 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
+- [~] `gmCreditsUI::gmCreditsUI` · 00413360 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 - [ ] `gmCreditsUI::Create` · 004134b0
 - [ ] `gmCreditsUI::Register` · 004134d0 · legions 00413350
 
-## `ac2/client/src/ui/pregame/gmdatapatchui.cpp.c` (0/19)
+## `ac2/client/src/ui/pregame/gmdatapatchui.cpp.c` (4/19)
 
 ### gmDataPatchUI
-- [ ] `gmDataPatchUI::ListenToMessage` · 00411260 · legions 00411240
-- [ ] `gmDataPatchUI::Refresh` · 004112a0 · legions 00411280
-- [ ] `gmDataPatchUI::OnHeartbeat` · 004113b0
+- [x] `gmDataPatchUI::ListenToMessage` · 00411260 · legions 00411240 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [-] `gmDataPatchUI::Refresh` · 004112a0 · legions 00411280 — no DAT patching in this client (DDD patch events never come)
+- [-] `gmDataPatchUI::OnHeartbeat` · 004113b0 — no DAT patching in this client (DDD patch events never come)
 
 ### CPluginManager
 - [ ] `CPluginManager::RemovePluginPrototype` · 00411500 · legions 004114e0
@@ -1880,19 +1880,19 @@ Legend and workflow: [README](README.md).
 - [ ] `gmClient::SetCreateChar` · 004115a0 · legions 00411580
 
 ### gmDataPatchUI
-- [ ] `gmDataPatchUI::SetErrorMsg` · 004115f0 · legions 004115d0
+- [x] `gmDataPatchUI::SetErrorMsg` · 004115f0 · legions 004115d0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [ ] `gmDataPatchUI::OnConnectFailed` · 00411630 · legions 00411610
-- [ ] `gmDataPatchUI::Connect` · 00411890 · legions 00411870
+- [x] `gmDataPatchUI::Connect` · 00411890 · legions 00411870 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 
 ### (free functions)
 - [ ] `operator+` · 00411950 · legions 00411930
 
 ### gmDataPatchUI
 - [ ] `gmDataPatchUI::~gmDataPatchUI` · 004119e0 · legions 004119c0
-- [~] `gmDataPatchUI::Update` · 00411ac0 · legions 00411aa0 — ac2-ui PregameUi::character_set (first set -> character selection) and bin/ac2 --character (start character enters at once); patching not ported
+- [~] `gmDataPatchUI::Update` · 00411ac0 · legions 00411aa0 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 - [ ] `gmDataPatchUI::RecvNotice_CharGenVerification` · 00411f10
-- [ ] `gmDataPatchUI::OnDDDEvent` · 00411fd0
-- [ ] `gmDataPatchUI::gmDataPatchUI` · 004121d0 · legions 00412050
+- [-] `gmDataPatchUI::OnDDDEvent` · 00411fd0 — no DAT patching in this client (DDD patch events never come)
+- [x] `gmDataPatchUI::gmDataPatchUI` · 004121d0 · legions 00412050 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [ ] `gmDataPatchUI::Create` · 00412330
 
 ### CPluginManager
@@ -1900,7 +1900,7 @@ Legend and workflow: [README](README.md).
 
 ### gmDataPatchUI
 - [ ] `gmDataPatchUI::Register` · 004123b0 · legions 00412230
-- [ ] `gmDataPatchUI::OnNetStatusChange` · 004123d0
+- [~] `gmDataPatchUI::OnNetStatusChange` · 004123d0 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 
 ## `ac2/client/src/ui/pregame/gmdisconnectedui.cpp.c` (5/5)
 
@@ -1911,21 +1911,21 @@ Legend and workflow: [README](README.md).
 - [x] `gmDisconnectedUI::Register` · 004126b0 · legions 00412530 — ac2-ui pregame/disconnected.rs
 - [x] `gmDisconnectedUI::SetErrorMsg` · 004126d0 · legions 00412550 — ac2-ui pregame/disconnected.rs
 
-## `ac2/client/src/ui/pregame/gmintroui.cpp.c` (0/6)
+## `ac2/client/src/ui/pregame/gmintroui.cpp.c` (4/6)
 
 ### gmIntroUI
-- [ ] `gmIntroUI::gmIntroUI` · 00412710
+- [x] `gmIntroUI::gmIntroUI` · 00412710 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [ ] `gmIntroUI::Create` · 00412830
 - [ ] `gmIntroUI::Register` · 00412850 · legions 004126d0
-- [ ] `gmIntroUI::Close` · 00412870 · legions 004126f0
-- [ ] `gmIntroUI::ListenToMessage` · 004128c0 · legions 00412740
-- [ ] `gmIntroUI::ListenToMessage` · 004128e0 · legions 00412760
+- [x] `gmIntroUI::Close` · 00412870 · legions 004126f0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmIntroUI::ListenToMessage` · 004128c0 · legions 00412740 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmIntroUI::ListenToMessage` · 004128e0 · legions 00412760 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 
-## `ac2/client/src/ui/pregame/gmkeyboardui.cpp.c` (0/19)
+## `ac2/client/src/ui/pregame/gmkeyboardui.cpp.c` (3/19)
 
 ### gmKeyboardUI
-- [ ] `gmKeyboardUI::ConfirmationBoxesOpen` · 004134f0 · legions 00413370
-- [ ] `gmKeyboardUI::UpdateButtons` · 00413530 · legions 004133b0
+- [x] `gmKeyboardUI::ConfirmationBoxesOpen` · 004134f0 · legions 00413370 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+- [x] `gmKeyboardUI::UpdateButtons` · 00413530 · legions 004133b0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [ ] `gmKeyboardUI::DoClearAll` · 004135c0 · legions 00413440
 - [ ] `gmKeyboardUI::CloseAllDialogs` · 004136a0 · legions 00413520
 - [ ] `gmKeyboardUI::~gmKeyboardUI` · 00413720 · legions 004135a0
@@ -1936,15 +1936,15 @@ Legend and workflow: [README](README.md).
 - [ ] `IntrusiveSmartPointer<PFileNode>::create` · 00413960 · legions 004137e0
 
 ### gmKeyboardUI
-- [ ] `gmKeyboardUI::Close` · 004139d0 · legions 00413850
+- [x] `gmKeyboardUI::Close` · 004139d0 · legions 00413850 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [ ] `gmKeyboardUI::FinishSet` · 00413a70 · legions 004138f0
 - [ ] `gmKeyboardUI::StartSet` · 00413d10 · legions 00413b50
 - [ ] `gmKeyboardUI::InitializeKeyboardList` · 00414140 · legions 00413f80
 - [ ] `gmKeyboardUI::SaveKeyboardList` · 00414510 · legions 00414350
 - [ ] `gmKeyboardUI::RecvNotice_CloseConfirmationDialog` · 004149f0
-- [ ] `gmKeyboardUI::gmKeyboardUI` · 00414bb0 · legions 004149f0
+- [~] `gmKeyboardUI::gmKeyboardUI` · 00414bb0 · legions 004149f0 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 - [ ] `gmKeyboardUI::Create` · 00414e50
-- [ ] `gmKeyboardUI::ListenToMessage` · 00414e70 · legions 00414c60
+- [~] `gmKeyboardUI::ListenToMessage` · 00414e70 · legions 00414c60 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 - [ ] `gmKeyboardUI::KeyHitHandler` · 00415140 · legions 00414f30
 - [ ] `gmKeyboardUI::Register` · 004151f0 · legions 00414fe0
 
