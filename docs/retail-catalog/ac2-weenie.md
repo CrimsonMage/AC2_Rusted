@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 54 done, 0 partial, 1844 to do, 6 skipped.
+1904 retail functions: 56 done, 0 partial, 1842 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (3/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (5/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -575,7 +575,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PList<unsigned___int64>::UnPack` · 00456020 · legions 00456bd0
 
 ### ReferenceTable
-- [ ] `ReferenceTable::AddReference` · 00456190 · legions 00456d40 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+- [x] `ReferenceTable::AddReference` · 00456190 · legions 00456d40 — ac2-script vm::refs (reserved bit on every new entry)
 - [ ] `ReferenceTable::UpdateReferences` · 00456270 · legions 00456e20 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 
 ### ggmCWInterface
@@ -595,7 +595,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PList<gmActInfo>::PList<gmActInfo>` · 00456520 · legions 00457120
 
 ### ReferenceTable
-- [ ] `ReferenceTable::CreateNativeObject` · 00456550 · legions 00457150 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [x] `ReferenceTable::CreateNativeObject` · 00456550 · legions 00457150 — ac2-script vm::refs (reserved bit on every new entry)
 - [ ] `ReferenceTable::GetSingleton` · 004565c0 · legions 004571c0 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### RList

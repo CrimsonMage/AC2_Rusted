@@ -311,6 +311,12 @@ impl ClientView {
             .count()
     }
 
+    /// The sounds the HUD's media played since the last call (`MD_Data_Sound`), for
+    /// [`crate::play_ui_sounds`].
+    pub fn take_ui_sounds(&mut self) -> Vec<u32> {
+        std::mem::take(&mut self.hud.sounds)
+    }
+
     /// The frame's UI actions for the HUD ([`ac2_ui::Controls::take_ui_input`]); returns the
     /// messages they broadcast, for [`ac2_ui::Controls::ui_messages`].
     pub fn ui_input(

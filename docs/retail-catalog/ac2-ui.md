@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 405 done, 178 partial, 1642 to do, 22 skipped.
+2247 retail functions: 406 done, 177 partial, 1642 to do, 22 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -2564,11 +2564,11 @@ Legend and workflow: [README](README.md).
 - [x] `MD_Data_Pause::Update` · 005e20f0 — ac2-ui media.rs / transition.rs
 - [ ] `MD_Data_Pause::Copy` · 005e2160 · legions 005a2f50
 
-## `portal/client/src/uielement/desc/media/md_data_sound.cpp.c` (0/3)
+## `portal/client/src/uielement/desc/media/md_data_sound.cpp.c` (1/3)
 
 ### MD_Data_Sound
 - [ ] `MD_Data_Sound::MD_Data_Sound` · 005e1ea0 · legions 005a2cc0
-- [~] `MD_Data_Sound::Update` · 005e1ec0 — fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
+- [x] `MD_Data_Sound::Update` · 005e1ec0 — ac2-ui media queue -> ac2-audio SoundManager::Play
 - [ ] `MD_Data_Sound::Copy` · 005e1f30 · legions 005a2d50
 
 ## `portal/client/src/uielement/desc/media/md_data_state.cpp.c` (2/4)

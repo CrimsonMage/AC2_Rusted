@@ -48,7 +48,7 @@ pub(crate) struct HudView {
     overlay: UiOverlay,
     size: (u32, u32),
     pub(crate) dirty: bool,
-    /// The sounds the UI's media played this frame (`MD_Data_Sound`), for an audio sink.
+    /// The sounds the UI's media played (`MD_Data_Sound`) until the audio sink takes them.
     pub(crate) sounds: Vec<u32>,
 }
 
@@ -416,7 +416,7 @@ impl HudView {
         // `UIMESSAGE_GLOBAL_LOOP`: the meters move and the chat windows write what arrived.
         if let Some((tree, _)) = &mut self.hud {
             tree.global_loop(now);
-            self.sounds = tree.take_sounds();
+            self.sounds.extend(tree.take_sounds());
             if let Some(chat) = &mut self.chat {
                 chat.global_loop(tree);
             }
