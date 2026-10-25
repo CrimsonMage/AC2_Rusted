@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 791 done, 79 partial, 1520 to do, 78 skipped.
+2468 retail functions: 793 done, 77 partial, 1520 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -3299,12 +3299,12 @@ Legend and workflow: [README](README.md).
 - [ ] `NativeFactory::NativeFactory` · 0054cbd0 · legions 0052a380
 - [ ] `NativeFactory::~NativeFactory` · 0054cbf0 · legions 0052a3a0
 
-## `portal/shared/src/interp/heapobject.cpp.c` (1/6)
+## `portal/shared/src/interp/heapobject.cpp.c` (2/6)
 
 ### HeapObject
 - [ ] `HeapObject::Clear` · 006dba60 · legions 00664f10
 - [ ] `HeapObject::GetPackSize` · 006dbab0 · legions 00664f60
-- [~] `HeapObject::Pack` · 006dbb00 · legions 00664fb0 — ac2-net protocol::pack
+- [x] `HeapObject::Pack` · 006dbb00 · legions 00664fb0 — ac2-net protocol::pack
 - [x] `HeapObject::UnPack` · 006dbbd0 · legions 00665080 — ac2-script reference/native unpack
 - [ ] `HeapObject::UpdatePackageReferences` · 006dbd50 · legions 00665200
 - [ ] `HeapObject::UpdateReferences` · 006dbdd0 · legions 00665280
@@ -3584,12 +3584,12 @@ Legend and workflow: [README](README.md).
 - [ ] `ProcessTable::QueryProcessTable` · 006e1920 · legions 00668730
 - [ ] `ProcessTable::QueryProcesses` · 006e1960 · legions 00668770
 
-## `portal/shared/src/interp/referenceentry.cpp.c` (1/4)
+## `portal/shared/src/interp/referenceentry.cpp.c` (2/4)
 
 ### ReferenceEntry
 - [ ] `ReferenceEntry::GetPackSize` · 006e0ac0 · legions 00667990
 - [ ] `ReferenceEntry::GetResidentSizeEstimate` · 006e0b10
-- [~] `ReferenceEntry::Pack` · 006e0b40 · legions 006679e0 — ac2-net protocol::pack
+- [x] `ReferenceEntry::Pack` · 006e0b40 · legions 006679e0 — ac2-net protocol::pack
 - [x] `ReferenceEntry::UnPack` · 006e0c20 · legions 00667ac0 — ac2-script reference/native unpack
 
 ## `portal/shared/src/interp/referencetable.cpp.c` (0/3)

@@ -2451,7 +2451,7 @@ key	status	note
 006db0f0	x	
 006db450	x	
 006db7f0	x	
-006dbb00	~	ac2-net protocol::pack
+006dbb00	x	ac2-net protocol::pack
 006dbbd0	x	ac2-script reference/native unpack
 006dbe00	_	
 006dc040	~	ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
@@ -2481,7 +2481,7 @@ key	status	note
 006de1e0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006e08d0	~	ac2-script: handler table is a match in exec.rs
 006e08f0	x	ac2-script vm::exec / Program::walk
-006e0b40	~	ac2-net protocol::pack
+006e0b40	x	ac2-net protocol::pack
 006e0c20	x	ac2-script reference/native unpack
 006e0d30	x	ac2-script glue
 006e0d80	x	ac2-script glue
