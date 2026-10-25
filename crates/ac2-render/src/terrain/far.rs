@@ -20,7 +20,7 @@ use std::sync::Arc;
 use ac2_assets::load_ac2_material;
 use ac2_core::{CellId, Random};
 use ac2_db::{ResourceResult, ResourceStore};
-use ac2_math::Mat4;
+use ac2_math::{Mat4, Vec3};
 use ac2_world::{Ac2FarTerrain, Ac2WorldSource};
 
 use crate::object::{
@@ -269,6 +269,29 @@ impl FarTerrain {
 
     pub fn chunk_ranges(&self) -> &[Range<u32>] {
         &self.chunk_ranges
+    }
+
+    /// Each chunk's `m_BoundingBox` (`BuildFarTerrainMesh`'s `BBox::AdjustBBox` over the chunk's
+    /// terrain vertices) as (min, max); a chunk without vertices is an empty box at the origin.
+    pub fn chunk_bounds(&self, vertices: &FarVertices) -> Vec<(Vec3, Vec3)> {
+        self.chunk_ranges
+            .iter()
+            .map(|range| {
+                let (mut min, mut max) = (Vec3::splat(f32::MAX), Vec3::splat(f32::MIN));
+                for &index in &self.indices[range.start as usize..range.end as usize] {
+                    if let Some(vertex) = vertices.terrain.get(index as usize) {
+                        let p = Vec3::from_array(vertex.position);
+                        min = min.min(p);
+                        max = max.max(p);
+                    }
+                }
+                if min.x > max.x {
+                    (Vec3::ZERO, Vec3::ZERO)
+                } else {
+                    (min, max)
+                }
+            })
+            .collect()
     }
 
     /// `BuildFarTerrainMesh`'s vertex fill around `center` (block x, y): far-detail heights,

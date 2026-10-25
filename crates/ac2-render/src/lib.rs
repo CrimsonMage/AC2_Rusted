@@ -5,6 +5,7 @@
 //! the retail `smartbox/worldrender` pipeline (`LScapeTerrainMesh`, `LScapeMaterialInfo`).
 
 pub mod frill;
+pub mod frustum;
 mod image;
 pub mod object;
 pub mod scene;

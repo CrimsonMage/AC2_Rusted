@@ -171,12 +171,24 @@ impl TerrainRenderer {
         far: &GpuFarTerrain,
         first_chunk: usize,
     ) {
+        let chunks: Vec<usize> = (first_chunk..far.chunks.len()).collect();
+        self.draw_far_chunks(pass, far, &chunks);
+    }
+
+    /// Draws the listed chunks of the far mesh (`DrawMeshDegrade` per chunk that passed the
+    /// frustum test).
+    pub fn draw_far_chunks(
+        &self,
+        pass: &mut wgpu::RenderPass<'_>,
+        far: &GpuFarTerrain,
+        chunks: &[usize],
+    ) {
         pass.set_pipeline(&self.far.pipeline);
         pass.set_bind_group(0, &self.frame_group, &[]);
         pass.set_bind_group(1, &far.group, &[]);
         pass.set_vertex_buffer(0, far.vertices.slice(..));
         pass.set_index_buffer(far.indices.slice(..), wgpu::IndexFormat::Uint32);
-        for range in far.chunks.iter().skip(first_chunk) {
+        for range in chunks.iter().filter_map(|&chunk| far.chunks.get(chunk)) {
             pass.draw_indexed(range.clone(), 0, 0..1);
         }
     }

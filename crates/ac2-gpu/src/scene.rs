@@ -11,7 +11,6 @@ use ac2_math::Mat4;
 use ac2_render::object::{ObjectEnvironment, PointLight};
 use ac2_render::scene::{BlockKey, Images, Loaded, SceneFrame, SceneUpdate};
 use ac2_render::sky::SkyPlacement;
-use ac2_render::terrain::FIRST_FAR_CHUNK;
 use ac2_render::{Camera, Image, TextureKey};
 
 use crate::{
@@ -204,7 +203,8 @@ impl SceneRenderer {
                 .filter_map(|key| blocks.get(key)?.terrain.as_ref()),
         );
         if let Some((terrain, _)) = far {
-            self.terrain.draw_far(pass, terrain, FIRST_FAR_CHUNK);
+            self.terrain
+                .draw_far_chunks(pass, terrain, &frame.far_chunks);
         }
         self.objects
             .draw(pass, 1, &world_instances(models, blocks, far, frame));

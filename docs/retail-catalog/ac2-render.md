@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 33 done, 21 partial, 714 to do, 13 skipped.
+781 retail functions: 35 done, 21 partial, 712 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -729,11 +729,11 @@ Legend and workflow: [README](README.md).
 - [ ] `StreakEffectManager::CreateStreakEffect` · 005c1240 · legions 005884b0
 - [ ] `StreakEffectManager::StreakEffectManager` · 005c12d0 · legions 00588540
 
-## `portal/client/src/scenerender/frustum.cpp.c` (0/7)
+## `portal/client/src/scenerender/frustum.cpp.c` (2/7)
 
 ### Frustum
-- [ ] `Frustum::Generate` · 00572cd0 · legions 00542cd0
-- [ ] `Frustum::CheckRelationship` · 00572f40 · legions 00542f40
+- [x] `Frustum::Generate` · 00572cd0 · legions 00542cd0 — ac2-render frustum.rs
+- [x] `Frustum::CheckRelationship` · 00572f40 · legions 00542f40 — ac2-render frustum.rs
 
 ### CellFrustum
 - [ ] `CellFrustum::operator=` · 005730b0 · legions 005430b0
@@ -1097,7 +1097,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CVertexArray::~CVertexArray` · 005885e0 · legions 00557c70
 
 ### LScapeTerrainMesh
-- [~] `LScapeTerrainMesh::DrawTerrain` · 00588610 — near mesh then far chunks 2.. (far.rs, far_terrain.rs); no per-chunk frustum cull, no N-patches
+- [~] `LScapeTerrainMesh::DrawTerrain` · 00588610 — ac2-render scene: far chunk culling by m_BoundingBox (near mesh drawn whole; no N-patches)
 - [~] `LScapeTerrainMesh::DrawWaterMesh` · 00588840 · legions 00557ee0 — near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
 - [ ] `LScapeTerrainMesh::ApplyList` · 00588a30 · legions 005580d0
 - [ ] `LScapeTerrainMesh::InqNearBlockIndex` · 00588aa0 · legions 00558140

@@ -6,6 +6,8 @@
 
 mod interiors;
 mod loader;
+#[cfg(test)]
+mod tests;
 
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
@@ -19,10 +21,11 @@ pub use interiors::{load_block_interiors, BlockInteriors};
 pub use loader::{BlockKey, Images, Loaded, LoadedBlock, LoadedFar, Placement};
 
 use crate::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
+use crate::frustum::{Frustum, Relation};
 use crate::object::RenderSettings;
 use crate::sky::{sky_frame, SkyFrame};
-use crate::terrain::{far_radius_for_draw_distance, FarTerrain};
-use crate::SceneLighting;
+use crate::terrain::{far_radius_for_draw_distance, FarTerrain, FIRST_FAR_CHUNK};
+use crate::{Camera, SceneLighting};
 use loader::{Request, SceneLoader};
 
 /// `GameTime` day length in seconds for the Legions region.
@@ -52,6 +55,9 @@ pub struct SceneFrame {
     pub water: Vec<BlockKey>,
     /// Blocks whose visible interiors draw, each under its inside environment.
     pub interiors: Vec<BlockKey>,
+    /// Far mesh chunks past the near ring whose box the frustum does not exclude
+    /// (`LScapeTerrainMesh::DrawTerrain`).
+    pub far_chunks: Vec<usize>,
 }
 
 /// What changed since the last drain: loads to upload and blocks that left the ring.
@@ -85,6 +91,8 @@ pub struct WorldScene {
     known_models: HashSet<DataId>,
     outstanding: usize,
     evicted: Vec<BlockKey>,
+    /// The loaded far mesh's chunk boxes.
+    far_bounds: Vec<(Vec3, Vec3)>,
 }
 
 fn near(center: BlockKey, block: BlockKey, radius: i32) -> bool {
@@ -118,6 +126,7 @@ impl WorldScene {
             known_models: HashSet::new(),
             outstanding: 0,
             evicted: Vec::new(),
+            far_bounds: Vec::new(),
         }
     }
 
@@ -236,7 +245,7 @@ impl WorldScene {
                 );
             }
             Loaded::Model(visual, model, _) => self.note_model(*visual, model.as_ref()),
-            Loaded::Far(_) => {}
+            Loaded::Far(far) => self.far_bounds = far.layout.chunk_bounds(&far.vertices),
         }
         update.loaded.push(loaded);
     }
@@ -272,8 +281,18 @@ impl WorldScene {
             .unwrap_or(0.0);
     }
 
-    /// Lays out a frame seen from `eye`: requests sky objects not yet loaded.
-    pub fn frame(&mut self, eye: Vec3) -> SceneFrame {
+    /// Lays out a frame seen by `camera` at `aspect`: requests sky objects not yet loaded.
+    pub fn frame(&mut self, camera: &Camera, aspect: f32) -> SceneFrame {
+        let eye = camera.eye;
+        let frustum = Frustum::from_camera(camera, aspect);
+        let far_chunks = self
+            .far_bounds
+            .iter()
+            .enumerate()
+            .skip(FIRST_FAR_CHUNK)
+            .filter(|(_, (min, max))| frustum.check(*min, *max) != Relation::Outside)
+            .map(|(index, _)| index)
+            .collect();
         let lighting = self.lighting();
         let mut keys: Vec<BlockKey> = self.blocks.keys().copied().collect();
         keys.sort_unstable();
@@ -355,6 +374,7 @@ impl WorldScene {
             terrain,
             water,
             interiors,
+            far_chunks,
         }
     }
 }

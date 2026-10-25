@@ -71,7 +71,7 @@ impl Scene {
         self.scene.time_of_day = self.time_of_day;
         let update = self.scene.wait();
         self.renderer.apply(gpu, update);
-        self.scene.frame(camera.eye);
+        self.scene.frame(camera, 16.0 / 9.0);
         let update = self.scene.wait();
         self.renderer.apply(gpu, update);
     }
@@ -85,7 +85,7 @@ impl Scene {
     /// Lays out the frame; `time` is client time in seconds for animated materials.
     pub fn prepare(&mut self, gpu: &Gpu, camera: &Camera, aspect: f32, time: f64) {
         self.scene.time_of_day = self.time_of_day;
-        let frame = self.scene.frame(camera.eye);
+        let frame = self.scene.frame(camera, aspect);
         self.renderer.prepare(gpu, camera, aspect, time, frame);
     }
 
