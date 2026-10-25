@@ -751,3 +751,68 @@ fn the_data_patch_screen_answers_a_created_character() {
         PregameRequest::EnterWorld(_) | PregameRequest::CreateCharacter(_)
     )));
 }
+
+/// The creation's answers on the naming dialog: each code shows its retail string, the
+/// weenie's error for response 5 (`EnumMapper` 0x40000035 has no string in the stub, so the
+/// variable is empty), and the buttons come back.
+#[test]
+fn the_creation_answers_show_their_retail_strings() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    ui.set_char_gen_system(Box::new(Stub));
+    to_selection(&mut ui, set());
+    click_named(&mut ui, "CreateButton");
+    ui.use_time(0.1);
+    let viewport = find(&ui, "AvatarSelectionViewport");
+    click(&mut ui, viewport);
+    ui.finish_pick(Some(0));
+    click(&mut ui, viewport);
+    ui.finish_animation();
+    ui.use_time(0.2);
+    click_named(&mut ui, "NextButton");
+    click_named(&mut ui, "NameEntry");
+    let typed: Vec<(u16, u32)> = "Abc".encode_utf16().map(|c| (c, 0)).collect();
+    ui.text_input(&[], &typed, false);
+    click_named(&mut ui, "EnterButton");
+    assert!(matches!(
+        actions(&mut ui).as_slice(),
+        [PregameRequest::CreateCharacter(_)]
+    ));
+    let dataset = ac2_dat::test_support::env_dataset().unwrap();
+    let strings = load_pregame(&Arc::new(ResourceStore::new(dataset)))
+        .unwrap()
+        .strings;
+    let cases: [(u32, u32, &str); 13] = [
+        (2, 0, "ID_Character_Err_Pending"),
+        (3, 0, "ID_Character_Err_NameInUse"),
+        (4, 0, "ID_Character_Err_NameBanned"),
+        (5, 0, "ID_Character_Err_Corrupt"),
+        (5, 0xC749, "ID_Character_Err_Gun_Specific_Error"),
+        (5, 0xC74A, "ID_Character_Err_NameInUse"),
+        (5, 0xC74B, "ID_Character_Err_NameBanned"),
+        (5, 200, "ID_Character_Err_NameBanned"),
+        (5, 0x1234, "ID_Character_Err_Weenie_Specific_Error"),
+        (6, 0, "ID_Character_Err_DatabaseDown"),
+        (7, 0, "ID_Character_Err_AdminPriv"),
+        (8, 0, "ID_Character_Err_NoMoreSlots"),
+        (9, 0, "ID_Character_Err_Unknown"),
+    ];
+    for (response, weenie, id) in cases {
+        ui.char_gen_verification(response, None, weenie);
+        let vars = vec![
+            crate::pregame::strings::int_var("response", response as i32),
+            crate::pregame::strings::text_var("weenieError", ""),
+        ];
+        let expected = strings.render(tokenize(id), vars);
+        assert_eq!(
+            text_of(&ui, "GenerationConfirmationErrorMsg"),
+            expected,
+            "response {response} weenie {weenie:#x}"
+        );
+        assert!(
+            !ghosted(&ui, "EnterButton"),
+            "{response}: the buttons return"
+        );
+    }
+}
