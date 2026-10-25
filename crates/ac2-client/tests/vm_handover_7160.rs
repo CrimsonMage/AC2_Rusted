@@ -85,6 +85,19 @@ fn login_and_select(
         "{:?}",
         client.take_script_problems()
     );
+    // The skill panel's checks run on the VM: a skill the player lacks cannot be raised
+    // (`Skill_NotTrained`), and every check answers.
+    if owned.contains(&script_function::INIT_PLAYER) {
+        let skill = 0x41;
+        assert_eq!(
+            client.can_skill_be_raised(skill),
+            Some(ac2_weenie::skill_error::NOT_TRAINED)
+        );
+        assert!(client.can_skill_be_trained(skill).is_some());
+        assert!(client.can_skill_be_untrained(skill).is_some());
+        assert!(client.skill_cost_to_train(skill).is_some());
+        assert!(client.is_hero_skill(skill).is_some());
+    }
     let notices = events
         .into_iter()
         .filter_map(|e| match e {

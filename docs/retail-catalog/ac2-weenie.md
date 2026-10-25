@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 398 done, 193 partial, 1307 to do, 6 skipped.
+1904 retail functions: 403 done, 193 partial, 1302 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (19/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (24/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -999,13 +999,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::InqRootPanelFromRace` · 00450920 · legions 00451a60
 - [x] `gmCWInterface::IsSkillTrainedByEnum` · 00450960 · legions 00451aa0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
 - [x] `gmCWInterface::IsSkillBeingUntrainedByEnum` · 004509a0 · legions 00451ae0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
-- [ ] `gmCWInterface::IsHeroSkillByEnum` · 004509e0 · legions 00451b20
-- [ ] `gmCWInterface::CanSkillBeTrainedByEnum` · 00450a20 · legions 00451b60
-- [ ] `gmCWInterface::CanSkillBeUntrainedByEnum` · 00450a60 · legions 00451ba0
-- [ ] `gmCWInterface::CanSkillBeRaisedByEnum` · 00450aa0 · legions 00451be0
+- [x] `gmCWInterface::IsHeroSkillByEnum` · 004509e0 · legions 00451b20 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
+- [x] `gmCWInterface::CanSkillBeTrainedByEnum` · 00450a20 · legions 00451b60 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
+- [x] `gmCWInterface::CanSkillBeUntrainedByEnum` · 00450a60 · legions 00451ba0 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
+- [x] `gmCWInterface::CanSkillBeRaisedByEnum` · 00450aa0 · legions 00451be0 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
 - [ ] `gmCWInterface::GetSkillExperienceNeededToLevelByEnum` · 00450ae0 · legions 00451c20
 - [ ] `gmCWInterface::InqSkillLevelByEnum` · 00450b30 · legions 00451c70
-- [ ] `gmCWInterface::GetSkillCostToTrainByEnum` · 00450b70 · legions 00451cb0
+- [x] `gmCWInterface::GetSkillCostToTrainByEnum` · 00450b70 · legions 00451cb0 — ac2-client Client::can_skill_be_trained/untrained/raised, skill_cost_to_train, is_hero_skill: the IFun on the script VM (Client::call_ifun's retval)
 - [x] `gmCWInterface::GetSkillXPByEnum` · 00450bb0 · legions 00451cf0 — ac2-weenie Skills::is_trained / is_being_untrained / xp (SkillSystem 0x14/0x15/0x1F over the repository mirror)
 - [x] `gmCWInterface::RequestTrainSkill` · 00450c00 · legions 00451d40 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
 - [x] `gmCWInterface::RequestUntrainSkill` · 00450c20 · legions 00451d60 — ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill

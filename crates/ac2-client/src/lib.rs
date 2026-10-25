@@ -24,6 +24,7 @@ mod remote;
 mod scene;
 mod scripts;
 mod scripts_io;
+mod skill_queries;
 mod tables;
 mod targeting;
 #[cfg(feature = "window")]
