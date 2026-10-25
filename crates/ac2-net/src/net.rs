@@ -436,17 +436,18 @@ impl ClientNet {
                 }
             }
             OptionalHeader::Ack(num) => self.controller.queue_flush(id, *num),
-            OptionalHeader::NetError(reason) => {
-                let error = NetError::Server {
+            // During the logon the reason ends it (`EndState`); after, the client logs off and
+            // the server died (`SendNotice_ServerDied`), the reason unused.
+            OptionalHeader::NetError(reason) if self.logging_on => {
+                self.end_logon(Err(NetError::Server {
                     string_id: reason.string_id,
                     table_id: reason.table_id,
-                };
-                if self.logging_on {
-                    self.end_logon(Err(error));
-                } else {
-                    self.log_off_server();
-                    self.events.push(NetEvent::Disconnected(error));
-                }
+                }));
+            }
+            OptionalHeader::NetError(_) => {
+                self.log_off_server();
+                self.events
+                    .push(NetEvent::Disconnected(NetError::ServerDied));
             }
             OptionalHeader::Referral(referral) => self.handle_referral(referral),
             OptionalHeader::ServerSwitch { stamp, kind } => {

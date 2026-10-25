@@ -243,3 +243,32 @@ fn a_clock_a_minute_ahead_of_the_server_for_a_minute_reports_a_speedhack() {
     );
     assert_eq!(errors[0], &expected);
 }
+
+#[test]
+fn a_server_net_error_after_logon_logs_off_and_the_server_died() {
+    let (mut net, server) = logged_on();
+    // `ClientNet::ProcessOptionalHeader`, `NetError` outside the logon: `LogOffServer` (the
+    // logoff alone to the connection), then `SendNotice_ServerDied`; the reason is not used.
+    let error = OptionalHeader::NetError(crate::NetErrorId {
+        string_id: 0x0100_0007,
+        table_id: 0x4000_0005,
+    });
+    let packet = server.plain(1, error);
+    let (out, events) = net.use_time(1.0, REAL + 1, vec![(addr(SERVER), packet)]);
+    assert_eq!(
+        events,
+        vec![NetEvent::Disconnected(crate::NetError::ServerDied)]
+    );
+    let logoff = datagram(
+        PacketHeader {
+            flags: flags::LOGOFF,
+            recipient: NET_ID as u16,
+            iteration: 1,
+            ..Default::default()
+        },
+        &[],
+        None,
+    );
+    assert_eq!(out, vec![(addr(SERVER), logoff)]);
+    assert!(net.use_time(2.0, REAL + 2, vec![]).0.is_empty());
+}
