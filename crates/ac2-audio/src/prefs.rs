@@ -12,7 +12,7 @@
 
 use ac2_prefs::{Choice, NameTable, Pref, PreferenceBank};
 
-use crate::manager::SoundPreference;
+use crate::manager::{SoundManager, SoundPreference};
 
 /// The section the sound preferences are in.
 pub const SECTION: u32 = 0x4000_0007;
@@ -33,6 +33,18 @@ pub const NUM_PLAYING_SOUNDS: u32 = 0x4000_0058;
 pub const DISABLE_SOUND: u32 = 0x4000_0033;
 /// `ID_Sound_DisableMusic`.
 pub const DISABLE_MUSIC: u32 = 0x4000_0034;
+
+/// Every key of the sound section the manager takes ([`settings`]'s keys).
+pub const SOUND_KEYS: [u32; 8] = [
+    FX_VOLUME,
+    MUSIC_VOLUME,
+    PLAYER_MUSIC,
+    AMBIENT_VOLUME,
+    SOUND_FEATURES,
+    NUM_PLAYING_SOUNDS,
+    DISABLE_SOUND,
+    DISABLE_MUSIC,
+];
 
 /// The sound features' choices and their labels (`PreferenceEnum::AssignChoice`).
 const FEATURES: [(i32, u32); 3] = [(0, 0x4000_000F), (1, 0x4000_0010), (2, 0x4000_0011)];
@@ -88,7 +100,16 @@ pub fn settings(bank: &PreferenceBank) -> Vec<SoundPreference> {
             _ => None,
         })
     };
+    let choice = |key| {
+        bank.find(key).and_then(|p| match p.value {
+            ac2_prefs::Value::Int(v) => u32::try_from(v).ok(),
+            _ => None,
+        })
+    };
     let mut out = Vec::new();
+    if let Some(v) = choice(SOUND_FEATURES) {
+        out.push(SoundPreference::SoundFeatures(v));
+    }
     if let Some(v) = float(FX_VOLUME) {
         out.push(SoundPreference::SoundVolume(v));
     }
@@ -113,6 +134,14 @@ pub fn settings(bank: &PreferenceBank) -> Vec<SoundPreference> {
     out
 }
 
+/// Pushes the bank's sound settings to `manager` (the sound section's `HandleApply`): every
+/// setting the bank holds, in [`settings`]'s order.
+pub fn apply(manager: &mut SoundManager, bank: &PreferenceBank) {
+    for setting in settings(bank) {
+        manager.set_preference(setting);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -128,7 +157,7 @@ mod tests {
         fn key_name(&self, id: u32) -> Option<String> {
             Some(
                 match id {
-                    FX_VOLUME => "FXVolume",
+                    FX_VOLUME => "SoundVolume",
                     MUSIC_VOLUME => "MusicVolume",
                     PLAYER_MUSIC => "PlayerMusic",
                     AMBIENT_VOLUME => "AmbientVolume",
@@ -184,7 +213,7 @@ mod tests {
 
     #[test]
     fn the_file_overrides_the_defaults_and_the_manager_takes_the_values() {
-        let file = b"[Sound]\r\nFXVolume=0.500000\r\nDisableMusic=1\r\nSoundFeatures=EAX\r\nNumPlayingSounds=99\r\n";
+        let file = b"[Sound]\r\nSoundVolume=0.500000\r\nDisableMusic=1\r\nSoundFeatures=EAX\r\nNumPlayingSounds=99\r\n";
         let mut bank = PreferenceBank::new(file);
         register(&mut bank, &Names);
         assert_eq!(bank.find(SOUND_FEATURES).unwrap().value, Value::Int(2));
@@ -193,5 +222,31 @@ mod tests {
         assert!(settings.contains(&SoundPreference::DisableMusic(true)));
         // Retail's setters do not clamp: 99 is kept as read, even outside the 8 to 64 range.
         assert!(settings.contains(&SoundPreference::NumPlayingSounds(99.0)));
+    }
+
+    #[test]
+    fn the_sound_features_choice_reaches_the_manager() {
+        let file = b"[Sound]\r\nSoundFeatures=EAX\r\n";
+        let mut bank = PreferenceBank::new(file);
+        register(&mut bank, &Names);
+        assert!(settings(&bank).contains(&SoundPreference::SoundFeatures(2)));
+        let mut manager =
+            crate::SoundManager::new(Box::new(crate::NullSink), std::sync::Arc::new(NoSounds));
+        assert_eq!(
+            manager.sound_features(),
+            0,
+            "software until the setting applies"
+        );
+        apply(&mut manager, &bank);
+        assert_eq!(manager.sound_features(), 2);
+    }
+
+    /// A source with no sounds: the test never loads one.
+    struct NoSounds;
+
+    impl crate::SoundSource for NoSounds {
+        fn load(&self, _did: u32) -> Option<crate::LoadedSound> {
+            None
+        }
     }
 }

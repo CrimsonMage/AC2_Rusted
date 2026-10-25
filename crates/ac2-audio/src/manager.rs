@@ -48,6 +48,10 @@ pub enum SoundPreference {
     DisableSound(bool),
     /// `ID_Sound_DisableMusic` (`0x40000034`): stops the music playing.
     DisableMusic(bool),
+    /// `ID_Sound_SoundFeatures` (`0x40000057`): the choice, `0` software, `1` hardware, `2` EAX.
+    /// The value is kept for the device; this port's mixer is software, so it has no effect on
+    /// the output.
+    SoundFeatures(u32),
 }
 
 /// `SoundManager::SoundInstanceInfo`: a resident sound and when it was last played.
@@ -83,6 +87,8 @@ pub struct SoundManager {
     music_disabled: bool,
     non_looping: u32,
     max_secondary: u32,
+    /// `m_soundFeatures`: the sound features choice last applied (`0` software until set).
+    sound_features: u32,
     next_handle: u32,
     /// `m_fLastMusicVolume`.
     last_music_volume: f32,
@@ -114,6 +120,7 @@ impl SoundManager {
             music_disabled: false,
             non_looping: 0,
             max_secondary: MAX_SECONDARY_SOUNDS,
+            sound_features: 0,
             next_handle: 1,
             last_music_volume: 1.0,
             groove: (0, 0),
@@ -701,6 +708,11 @@ impl SoundManager {
         self.groove
     }
 
+    /// `SoundManager::m_soundFeatures`: the sound features choice last applied.
+    pub fn sound_features(&self) -> u32 {
+        self.sound_features
+    }
+
     /// A channel's volume.
     pub fn channel_volume(&self, channel: Channel) -> f32 {
         self.device.volumes[channel as usize]
@@ -721,6 +733,9 @@ impl SoundManager {
             }
             SoundPreference::AmbientVolume(v) => {
                 self.set_channel_volume(Channel::Ambient, v);
+            }
+            SoundPreference::SoundFeatures(v) => {
+                self.sound_features = v;
             }
             SoundPreference::NumPlayingSounds(v) => {
                 self.max_secondary = (f64::from(v).trunc() as u32).clamp(8, 64);

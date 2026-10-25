@@ -1363,16 +1363,16 @@ Legend and workflow: [README](README.md).
 - [ ] `gmClientUI::ConfirmRecall` · 00446710 · legions 00447250
 - [ ] `gmClientUI::ConfirmDefault` · 00446770 · legions 004472b0
 - [ ] `gmClientUI::ClearConfirmations` · 004467d0 · legions 00447310
-- [ ] `gmClientUI::VerifyRenderOptions` · 00446830 · legions 00447370
+- [ ] `gmClientUI::VerifyRenderOptions` · 00446830 · legions 00447370 — ac2-client apply returns verify_render; the VerifyRenderOptions dialog is not drawn
 - [ ] `gmClientUI::MonitorChange` · 00446890
-- [ ] `gmClientUI::Changed` · 004468d0 · legions 00447410
+- [ ] `gmClientUI::Changed` · 004468d0 · legions 00447410 — ac2-client ClientPrefs::options_changed: any of the page's sections has a changed value
 - [ ] `gmClientUI::LookupExpander` · 00446910 · legions 00447450
 - [ ] `gmClientUI::Dismantle` · 004469d0 · legions 00447510
 - [ ] `gmClientUI::UpdateButtons` · 00446a70 · legions 004475b0
 - [ ] `gmClientUI::~gmClientUI` · 00446b40 · legions 00447680
-- [ ] `gmClientUI::Apply` · 00446bf0 · legions 00447730
-- [ ] `gmClientUI::Recall` · 00446ce0 · legions 00447820
-- [ ] `gmClientUI::Default` · 00446d10 · legions 00447850
+- [ ] `gmClientUI::Apply` · 00446bf0 · legions 00447730 — ac2-client ClientPrefs::options_apply: render change noted, device submitted (no handler), sections applied in retail order, save on a worker unless the render changed; the render verification dialog is not drawn and its answer is not modelled
+- [ ] `gmClientUI::Recall` · 00446ce0 · legions 00447820 — ac2-client ClientPrefs::options_recall: every section recalled; the page's widgets are not synchronised
+- [ ] `gmClientUI::Default` · 00446d10 · legions 00447850 — ac2-client ClientPrefs::options_default: every section reset to its defaults then applied; widgets not modelled
 - [ ] `gmClientUI::MonitorReload` · 00446d50
 - [ ] `gmClientUI::RecvNotice_CloseConfirmationDialog` · 00446e80
 - [ ] `gmClientUI::ListenToMessage` · 00446f40 · legions 00447a80
@@ -1384,15 +1384,15 @@ Legend and workflow: [README](README.md).
 ### gmOptionUI
 - [ ] `gmOptionUI::gmOptionUI` · 004347e0 · legions 00434fb0
 - [ ] `gmOptionUI::UpdateButtons` · 00434a20 · legions 004351f0
-- [ ] `gmOptionUI::MakeConfirmDialog` · 00434aa0 · legions 00435270
-- [ ] `gmOptionUI::DoConfirm` · 00434af0 · legions 004352c0
+- [ ] `gmOptionUI::MakeConfirmDialog` · 00434aa0 · legions 00435270 — ac2-client OptionsWindow: the confirmation is a flag; the dialog itself (DialogFactory) is not drawn
+- [ ] `gmOptionUI::DoConfirm` · 00434af0 · legions 004352c0 — ac2-client options: DoConfirm yes applies the client page (options_apply), no recalls it; gmCharacterUI and gmChatOptionsUI apply/recall not modelled here
 - [ ] `gmOptionUI::MakeQuitDialog` · 00434b40 · legions 00435310
 - [ ] `gmOptionUI::MakeLogoutDialog` · 00434ba0 · legions 00435370
 - [ ] `gmOptionUI::CloseDialog` · 00434c00 · legions 004353d0
 - [ ] `gmOptionUI::~gmOptionUI` · 00434c30 · legions 00435400
-- [ ] `gmOptionUI::Show` · 00434d10 · legions 004354e0
+- [ ] `gmOptionUI::Show` · 00434d10 · legions 004354e0 — ac2-client OptionsWindow::request_close: closing with a change asks (confirming); the window and its show/hide are not modelled
 - [ ] `gmOptionUI::ListenToMessage` · 00434dd0 · legions 004355a0
-- [ ] `gmOptionUI::RecvNotice_CloseConfirmationDialog` · 00434f70
+- [ ] `gmOptionUI::RecvNotice_CloseConfirmationDialog` · 00434f70 — ac2-client OptionsWindow::answer: the confirmation's yes/no; the quit and logout confirmations are not modelled
 
 ## `ac2/client/src/ui/gameplay/toolbar/quest/gmjournalquestsui.cpp.c` (0/14)
 

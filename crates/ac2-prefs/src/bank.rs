@@ -161,6 +161,18 @@ impl PreferenceBank {
         keys
     }
 
+    /// The section's defaults become its values (`Reset` of each preference, which the expander's
+    /// `Default` calls); the applied values are kept, so the section then needs an `apply`. The keys
+    /// are returned.
+    pub fn reset_section(&mut self, section: u32) -> Vec<u32> {
+        let mut keys = Vec::new();
+        for pref in self.prefs.iter_mut().filter(|p| p.section == section) {
+            pref.reset();
+            keys.push(pref.key);
+        }
+        keys
+    }
+
     /// `PreferenceBank::Reload`: the monitors of `section` read its preferences again (the keys).
     pub fn reload(&self, section: u32) -> Vec<u32> {
         self.list(section)

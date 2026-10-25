@@ -176,6 +176,7 @@ dependencies = [
  "ac2-dat",
  "ac2-db",
  "ac2-math",
+ "ac2-prefs",
  "ac2-world",
 ]
 
@@ -202,6 +203,7 @@ dependencies = [
  "ac2-dat",
  "ac2-db",
  "ac2-physics",
+ "ac2-prefs",
  "ac2-world",
 ]
 

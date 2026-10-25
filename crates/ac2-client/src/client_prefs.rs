@@ -3,6 +3,10 @@
 //!
 //! The frame thread never touches the file: [`ClientPrefs::load`] runs before the frame loop, and
 //! [`ClientPrefs::save`] builds the bytes on the caller and writes them on a worker thread.
+//!
+//! The registered sets are the sound manager's, the render's (graphics and avatar, and the
+//! display), and the camera's. The client network's keys and FX's are not registered yet (see
+//! `docs/retail-catalog`).
 
 use std::io;
 use std::path::{Path, PathBuf};
@@ -122,6 +126,9 @@ impl ClientPrefs {
         let names = DatNames::new(&store);
         let mut bank = PreferenceBank::new(&bytes);
         ac2_audio::prefs::register(&mut bank, &names);
+        ac2_render::prefs::register_graphics(&mut bank, &names);
+        ac2_render::prefs::register_device(&mut bank, &names);
+        ac2_smartbox::prefs::register(&mut bank, &names);
         let cache = Preferences::new(&bytes);
         Ok(Self {
             bank,
@@ -150,6 +157,13 @@ impl ClientPrefs {
         self.cache
             .write_file_value(GRAPHICS_SECTION, GRAPHICS_QUALITY_KEY, &text);
         self.write_file()
+    }
+
+    /// `Render::SetOverallGraphicsQuality(level)`: the preset's values and defaults go into the
+    /// bank and the graphics section is applied (the file is written by
+    /// [`ClientPrefs::save_overall_graphics_quality`]). `false` for a level without a preset.
+    pub fn set_overall_graphics_quality(&mut self, level: u32) -> bool {
+        ac2_render::prefs::apply_quality(&mut self.bank, level)
     }
 
     pub fn bank(&self) -> &PreferenceBank {

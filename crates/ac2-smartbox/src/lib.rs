@@ -11,6 +11,7 @@ pub mod camera;
 mod camera_mouse;
 pub mod cells;
 mod player;
+pub mod prefs;
 pub mod scene;
 pub mod targeting;
 

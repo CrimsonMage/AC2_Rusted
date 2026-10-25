@@ -221,7 +221,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CameraManager::SetCameraAnimTarget` · 005750f0 · legions 00544fc0
 - [ ] `CameraManager::SetCameraAnimParent` · 00575150 · legions 00545020
 - [ ] `CameraManager::FakeTransition` · 005751b0 · legions 00546710
-- [~] `CameraManager::SetupPrefs` · 005751c0 · legions 00545090 — the preference defaults (height 0, distance 4.5, tilt 0.25, speeds 1, auto distance, align to slope, third person steers)
+- [~] `CameraManager::SetupPrefs` · 005751c0 · legions 00545090 — ac2-smartbox prefs::register: fourteen camera keys in sections 0x40000008, 0x4000000E, 0x4000000D with their ranges and defaults, linked to CameraManager; the camera does not yet read the values
 - [ ] `CameraManager::StopAllCameraFX` · 00575a20
 
 ### CameraFxTrack

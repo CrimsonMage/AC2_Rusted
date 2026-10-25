@@ -1,0 +1,349 @@
+//! The render preferences: `GraphicsPreferences` (section `0x40000004`, registered by
+//! `Render::InitRenderingPreferences`), the avatar's two in section `0x4000000D` (the same
+//! function), the display's five in section `0x4000000B` (`Device::InitializeRenderingPreferences`),
+//! and the quality presets of `Render::SetOverallGraphicsQuality`.
+//!
+//! The keys are the IDs the retail code passes to `PreferenceBank::Create` and `Bless`, in the
+//! order it registers them. Each enum's labels are the IDs of its choices in the render mapper
+//! `0x4000004A`. Retail's `DisplayResolution` (`0x40000047`) is not registered here: its default
+//! comes from the display modes the device lists at run time.
+//!
+//! `HighQualityUI` (a bool whose default the function sets to 1) has no `Create` in
+//! `Render::InitRenderingPreferences`, so it is not in the bank and is not registered here.
+//!
+//! The presets are the values and defaults `Render::SetOverallGraphicsQuality` sets for levels
+//! 1 to 5 (the keys with the same value and default), then `PreferenceBank::Apply(0x40000004)`.
+//! Levels 4 and 5 jump into the function's shared tail; the table lists the values that tail
+//! sets for them.
+
+use ac2_prefs::{Choice, NameTable, Pref, PreferenceBank, Value};
+
+/// The graphics section (`Preferences` section `0x40000004`, named `Graphics`).
+pub const GRAPHICS_SECTION: u32 = 0x4000_0004;
+/// The avatar's section (`0x4000000D`, the two avatar keys).
+pub const AVATAR_SECTION: u32 = 0x4000_000D;
+/// The display section (`0x4000000B`, `Device::InitializeRenderingPreferences`).
+pub const DEVICE_SECTION: u32 = 0x4000_000B;
+
+/// `ID_Graphics_LandscapeDrawDistance`: the landscape's far radius (`far_radius_for_draw_distance`).
+pub const LANDSCAPE_DRAW_DISTANCE: u32 = 0x4000_0043;
+/// `ID_Avatar_VisibleInFirstPerson`.
+pub const AVATAR_VISIBLE_IN_FIRST_PERSON: u32 = 0x4000_006C;
+/// `ID_Rendering_FullScreen`.
+pub const FULL_SCREEN: u32 = 0x4000_0003;
+
+/// The render mapper: the labels of the graphics enums are its IDs.
+const RENDER_MAP: u32 = 0x4000_004A;
+/// The avatar's mapper: its labels are ids in the render mapper as well.
+const AVATAR_MAP: u32 = 0x4000_004A;
+
+/// One preset line: a preference key, its value, and the default it is set to.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Preset {
+    pub key: u32,
+    pub value: f32,
+    pub default: f32,
+}
+
+/// The quality presets, levels 1 to 5 (`Render::SetOverallGraphicsQuality`). The keys are
+/// `TextureDetail` 0x4000_004F, `MaterialDetail` 0x4000_004D, `ModelDetail` 0x4000_004E, `WaterReflections` 0x4000_0021,
+/// `LightCoronas` 0x4000_0042, `DynamicObjectShadows` 0x4000_004C, `LandscapeDrawDistance` 0x4000_0043,
+/// `LandscapeFrillDistance` 0x4000_0044, `LandscapeStaticObjectShadows` 0x4000_0049, `LandscapeCloudShadows`
+/// 0x4000_0020, `LandscapeShoreEffects` 0x4000_005D, `TrilinearFiltering` 0x4000_005E, `AnisotropicFiltering` 0x4000_005F,
+/// `VolumetricFogEffects` 0x4000_0074, `LightSourceEffects` 0x4000_0061, `DecalEffects` 0x4000_0062, `StreakEffects`
+/// 0x4000_0063, `SceneryDrawDistance` 0x4000_0076, `AdaptiveDegrade` 0x4000_0064, `AdaptiveDegradeBias` 0x4000_0065.
+pub const QUALITY_PRESETS: [&[Preset]; 5] = [
+    // Level 1.
+    &[
+        preset(0x4000_004F, 2.0, 2.0),
+        preset(0x4000_004D, 0.0, 0.0),
+        preset(0x4000_004E, 0.0, 0.0),
+        preset(0x4000_0021, 0.0, 0.0),
+        preset(0x4000_0042, 0.0, 0.0),
+        preset(0x4000_004C, 0.0, 0.0),
+        preset(0x4000_0043, 0.0, 0.0),
+        preset(0x4000_0044, 0.0, 0.0),
+        preset(0x4000_0049, 0.0, 0.0),
+        preset(0x4000_0020, 0.0, 0.0),
+        preset(0x4000_005D, 0.0, 0.0),
+        preset(0x4000_005E, 0.0, 0.0),
+        preset(0x4000_005F, 0.0, 0.0),
+        preset(0x4000_0074, 0.0, 0.0),
+        preset(0x4000_0061, 0.0, 0.0),
+        preset(0x4000_0062, 0.0, 0.0),
+        preset(0x4000_0063, 0.0, 0.0),
+        preset(0x4000_0076, 0.0, 0.0),
+        preset(0x4000_0064, 1.0, 1.0),
+        preset(0x4000_0065, 0.5, 0.5),
+    ],
+    // Level 2.
+    &[
+        preset(0x4000_004F, 2.0, 2.0),
+        preset(0x4000_004D, 0.0, 0.0),
+        preset(0x4000_004E, 0.0, 0.0),
+        preset(0x4000_0021, 0.0, 0.0),
+        preset(0x4000_0042, 0.0, 0.0),
+        preset(0x4000_004C, 0.0, 0.0),
+        preset(0x4000_0043, 1.0, 1.0),
+        preset(0x4000_0044, 0.0, 0.0),
+        preset(0x4000_0049, 0.0, 0.0),
+        preset(0x4000_0020, 0.0, 0.0),
+        preset(0x4000_005D, 0.0, 0.0),
+        preset(0x4000_005E, 0.0, 0.0),
+        preset(0x4000_005F, 0.0, 0.0),
+        preset(0x4000_0074, 0.0, 0.0),
+        preset(0x4000_0061, 1.0, 1.0),
+        preset(0x4000_0062, 1.0, 1.0),
+        preset(0x4000_0063, 1.0, 1.0),
+        preset(0x4000_0076, 1.0, 1.0),
+        preset(0x4000_0064, 1.0, 1.0),
+        preset(0x4000_0065, 0.0, 0.0),
+    ],
+    // Level 3.
+    &[
+        preset(0x4000_004F, 3.0, 3.0),
+        preset(0x4000_004D, 1.0, 1.0),
+        preset(0x4000_004E, 1.0, 1.0),
+        preset(0x4000_0021, 1.0, 1.0),
+        preset(0x4000_0042, 0.0, 0.0),
+        preset(0x4000_004C, 0.0, 0.0),
+        preset(0x4000_0043, 2.0, 2.0),
+        preset(0x4000_0044, 0.0, 0.0),
+        preset(0x4000_0049, 0.0, 0.0),
+        preset(0x4000_0020, 0.0, 0.0),
+        preset(0x4000_005D, 1.0, 1.0),
+        preset(0x4000_005E, 1.0, 1.0),
+        preset(0x4000_005F, 0.0, 0.0),
+        preset(0x4000_0074, 0.0, 0.0),
+        preset(0x4000_0061, 1.0, 1.0),
+        preset(0x4000_0062, 1.0, 1.0),
+        preset(0x4000_0063, 1.0, 1.0),
+        preset(0x4000_0076, 1.0, 1.0),
+        preset(0x4000_0064, 1.0, 1.0),
+        preset(0x4000_0065, -0.5, -0.5),
+    ],
+    // Level 4: the `LandscapeCloudShadows` default and the `AdaptiveDegrade` default are the
+    // level's 0 (they are set after the jump to the shared tail).
+    &[
+        preset(0x4000_004F, 3.0, 3.0),
+        preset(0x4000_004D, 2.0, 2.0),
+        preset(0x4000_004E, 2.0, 2.0),
+        preset(0x4000_0021, 2.0, 2.0),
+        preset(0x4000_0042, 1.0, 1.0),
+        preset(0x4000_004C, 2.0, 2.0),
+        preset(0x4000_0043, 3.0, 3.0),
+        preset(0x4000_0044, 1.0, 1.0),
+        preset(0x4000_0049, 1.0, 1.0),
+        preset(0x4000_0020, 0.0, 0.0),
+        preset(0x4000_005D, 2.0, 2.0),
+        preset(0x4000_005E, 1.0, 1.0),
+        preset(0x4000_005F, 0.0, 0.0),
+        preset(0x4000_0074, 1.0, 1.0),
+        preset(0x4000_0061, 1.0, 1.0),
+        preset(0x4000_0062, 1.0, 1.0),
+        preset(0x4000_0063, 1.0, 1.0),
+        preset(0x4000_0076, 2.0, 2.0),
+        preset(0x4000_0064, 0.0, 0.0),
+        preset(0x4000_0065, 0.0, 0.0),
+    ],
+    // Level 5.
+    &[
+        preset(0x4000_004F, 4.0, 4.0),
+        preset(0x4000_004D, 2.0, 2.0),
+        preset(0x4000_004E, 2.0, 2.0),
+        preset(0x4000_0021, 2.0, 2.0),
+        preset(0x4000_0042, 1.0, 1.0),
+        preset(0x4000_004C, 2.0, 2.0),
+        preset(0x4000_0043, 4.0, 4.0),
+        preset(0x4000_0044, 2.0, 2.0),
+        preset(0x4000_0049, 1.0, 1.0),
+        preset(0x4000_0020, 1.0, 1.0),
+        preset(0x4000_005D, 2.0, 2.0),
+        preset(0x4000_005E, 1.0, 1.0),
+        preset(0x4000_005F, 0.0, 0.0),
+        preset(0x4000_0074, 1.0, 1.0),
+        preset(0x4000_0061, 1.0, 1.0),
+        preset(0x4000_0062, 1.0, 1.0),
+        preset(0x4000_0063, 1.0, 1.0),
+        preset(0x4000_0076, 2.0, 2.0),
+        preset(0x4000_0064, 0.0, 0.0),
+        preset(0x4000_0065, 0.0, 0.0),
+    ],
+];
+
+const fn preset(key: u32, value: f32, default: f32) -> Preset {
+    Preset {
+        key,
+        value,
+        default,
+    }
+}
+
+/// The enum choices of the graphics enums: `(value, label)` pairs, in `AssignChoice` order.
+const TEXTURE_DETAIL: &[(i32, u32)] = &[
+    (0, 0x4000_0002),
+    (1, 0x4000_0003),
+    (2, 0x4000_0004),
+    (3, 0x4000_0005),
+    (4, 0x4000_0006),
+];
+const LEVELS_3: &[(i32, u32)] = &[(0, 0x4000_0003), (1, 0x4000_0004), (2, 0x4000_0005)];
+const WATER: &[(i32, u32)] = &[(0, 0x4000_0001), (1, 0x4000_0003), (2, 0x4000_0005)];
+const SHORE: &[(i32, u32)] = &[(0, 0x4000_0001), (1, 0x4000_0004), (2, 0x4000_0005)];
+const OBJECT_SHADOWS: &[(i32, u32)] = &[
+    (0, 0x4000_0001),
+    (1, 0x4000_0007),
+    (2, 0x4000_0008),
+    (3, 0x4000_000A),
+];
+const LANDSCAPE_DRAW: &[(i32, u32)] = &[
+    (0, 0x4000_0002),
+    (1, 0x4000_0003),
+    (2, 0x4000_0004),
+    (3, 0x4000_0005),
+    (4, 0x4000_0006),
+];
+const FRILL: &[(i32, u32)] = &[
+    (0, 0x4000_0001),
+    (1, 0x4000_0003),
+    (2, 0x4000_0004),
+    (3, 0x4000_0005),
+];
+const AVATAR_FIRST_PERSON: &[(i32, u32)] = &[(0, 0x4000_0012), (1, 0x4000_0014), (2, 0x4000_0013)];
+
+/// Registers the graphics and avatar preferences (`Render::InitRenderingPreferences`) and links
+/// them to the renderer. Returns how many were registered.
+pub fn register_graphics(bank: &mut PreferenceBank, names: &dyn NameTable) -> usize {
+    let g = GRAPHICS_SECTION;
+    let enumeration = |key, choices: &[(i32, u32)], default| {
+        Pref::enumeration(
+            g,
+            key,
+            Some(RENDER_MAP),
+            choices
+                .iter()
+                .map(|&(value, label)| Choice { value, label })
+                .collect(),
+            default,
+        )
+    };
+    let flag = |key, default| Some(Pref::boolean(g, key, default));
+    let defs = [
+        enumeration(0x4000_004F, TEXTURE_DETAIL, 2),
+        enumeration(0x4000_004D, LEVELS_3, 1),
+        enumeration(0x4000_004E, LEVELS_3, 1),
+        enumeration(0x4000_0021, WATER, 0),
+        enumeration(0x4000_005D, SHORE, 1),
+        enumeration(0x4000_004C, OBJECT_SHADOWS, 0),
+        enumeration(0x4000_0076, LEVELS_3, 1),
+        enumeration(LANDSCAPE_DRAW_DISTANCE, LANDSCAPE_DRAW, 2),
+        enumeration(0x4000_0044, FRILL, 0),
+        flag(0x4000_0049, false),
+        flag(0x4000_0020, false),
+        flag(0x4000_0042, false),
+        flag(0x4000_005E, true),
+        flag(0x4000_005F, false),
+        flag(0x4000_0074, false),
+        flag(0x4000_0061, true),
+        flag(0x4000_0062, true),
+        flag(0x4000_0063, true),
+        flag(0x4000_0064, false),
+        Pref::float(g, 0x4000_0065, 0.0, -1.0, 1.0),
+        Pref::float(g, 0x4000_004B, 0.0, -0.2, 1.0),
+    ];
+    let mut registered = register_all(bank, names, defs.into_iter().flatten(), "Render");
+    let avatar = [
+        Pref::enumeration(
+            AVATAR_SECTION,
+            AVATAR_VISIBLE_IN_FIRST_PERSON,
+            Some(AVATAR_MAP),
+            AVATAR_FIRST_PERSON
+                .iter()
+                .map(|&(value, label)| Choice { value, label })
+                .collect(),
+            2,
+        ),
+        Some(Pref::boolean(AVATAR_SECTION, 0x4000_006D, true)),
+    ];
+    registered += register_all(bank, names, avatar.into_iter().flatten(), "Render");
+    registered
+}
+
+/// Registers the display preferences (`Device::InitializeRenderingPreferences`, section
+/// `0x4000000B`) and links them to the device. `DisplayResolution` is left out (see the module
+/// docs). Returns how many were registered.
+pub fn register_device(bank: &mut PreferenceBank, names: &dyn NameTable) -> usize {
+    let flag = |key, default| Pref::boolean(DEVICE_SECTION, key, default);
+    let defs = [
+        flag(FULL_SCREEN, true),
+        flag(0x4000_0005, false),
+        flag(0x4000_0007, false),
+        flag(0x4000_0006, true),
+        flag(0x4000_0060, false),
+    ];
+    register_all(bank, names, defs, "Device")
+}
+
+fn register_all(
+    bank: &mut PreferenceBank,
+    names: &dyn NameTable,
+    defs: impl IntoIterator<Item = Pref>,
+    owner: &'static str,
+) -> usize {
+    let mut registered = 0;
+    for def in defs {
+        let key = def.key;
+        if bank.register(def, names).is_some() {
+            bank.link(key, owner);
+            registered += 1;
+        }
+    }
+    registered
+}
+
+/// `Render::SetOverallGraphicsQuality(level)`: the preset's values and defaults for `level` (1 to
+/// 5), then the graphics section applied. Returns whether the level has a preset. The section is
+/// applied either way, as the function does.
+pub fn apply_quality(bank: &mut PreferenceBank, level: u32) -> bool {
+    let preset = usize::try_from(level)
+        .ok()
+        .and_then(|l| l.checked_sub(1))
+        .and_then(|i| QUALITY_PRESETS.get(i));
+    if let Some(lines) = preset {
+        for line in lines.iter() {
+            if let Some(pref) = bank.find_mut(line.key) {
+                match pref.kind() {
+                    ac2_prefs::Kind::Bool => {
+                        pref.set_default(Value::Bool(line.default != 0.0));
+                        pref.set_bool(line.value != 0.0);
+                    }
+                    ac2_prefs::Kind::Float => {
+                        pref.set_default(Value::Float(line.default));
+                        pref.set_float(line.value);
+                    }
+                    ac2_prefs::Kind::Enum => {
+                        let (value, default) = (line.value as i32, line.default as i32);
+                        pref.set_default(Value::Int(default));
+                        pref.set_choice(value);
+                    }
+                    ac2_prefs::Kind::Text => {}
+                }
+            }
+        }
+    }
+    bank.apply(GRAPHICS_SECTION);
+    preset.is_some()
+}
+
+/// The renderer's settings as the bank holds them: the landscape's draw distance (the choice
+/// `LandscapeDrawDistance`), or `None` when it is not registered.
+pub fn landscape_draw_distance(bank: &PreferenceBank) -> Option<u32> {
+    match bank.find(LANDSCAPE_DRAW_DISTANCE)?.value {
+        Value::Int(v) => u32::try_from(v).ok(),
+        _ => None,
+    }
+}
+
+#[cfg(test)]
+#[path = "prefs_tests.rs"]
+mod prefs_tests;

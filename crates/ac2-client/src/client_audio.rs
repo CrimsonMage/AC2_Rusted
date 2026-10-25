@@ -213,9 +213,7 @@ impl Client {
     /// Gives the sound manager the sound preferences the bank holds (`SoundManager::HandleApply`).
     pub fn apply_sound_preferences(&mut self, bank: &ac2_prefs::PreferenceBank) {
         if let Some(audio) = self.audio.as_mut() {
-            for setting in ac2_audio::prefs::settings(bank) {
-                audio.manager.set_preference(setting);
-            }
+            ac2_audio::prefs::apply(&mut audio.manager, bank);
         }
     }
 
