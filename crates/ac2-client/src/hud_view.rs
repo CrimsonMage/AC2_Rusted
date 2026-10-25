@@ -26,6 +26,7 @@ pub(crate) struct HudView {
     toolbar: Option<ToolbarUi>,
     pub(crate) shortcuts: Option<ShortcutUi>,
     pub(crate) skills: Option<SkillTreeUi>,
+    pub(crate) examination: Option<ac2_ui::ExaminationUi>,
     /// The tree's messages for the frameworks that ask the player
     /// ([`HudView::frameworks`](crate::hud_player)).
     pub(crate) player_messages: Vec<UiMessage>,
@@ -87,6 +88,7 @@ impl HudView {
             toolbar: None,
             shortcuts: None,
             skills: None,
+            examination: None,
             player_messages: Vec::new(),
             strings: None,
             pending_strings: Some(pending_strings),
@@ -212,6 +214,30 @@ impl HudView {
         self.skills.as_ref().map(ac2_ui::SkillTreeUi::current)
     }
 
+    /// The examination panel's texts, in order.
+    pub(crate) fn examination_texts(&self) -> Vec<String> {
+        let (Some((tree, _)), Some(panel)) = (&self.hud, &self.examination) else {
+            return Vec::new();
+        };
+        fn walk(tree: &UiTree, index: usize, out: &mut Vec<String>) {
+            if let Some(text) = tree.get(index).and_then(|e| e.text()) {
+                if !text.is_empty() {
+                    out.push(text);
+                }
+            }
+            for &child in tree.children(index) {
+                walk(tree, child, out);
+            }
+        }
+        let mut out = Vec::new();
+        if let Some(list) = panel.list() {
+            for &row in tree.list_items(list) {
+                walk(tree, row, &mut out);
+            }
+        }
+        out
+    }
+
     /// The shortcut bar's slots.
     pub(crate) fn shortcut_slots(&self) -> usize {
         let (Some((tree, _)), Some(bar)) = (&self.hud, &self.shortcuts) else {
@@ -266,6 +292,7 @@ impl HudView {
                     toolbar,
                     shortcuts,
                     skills,
+                    examination,
                 },
                 images,
             )) => {
@@ -284,6 +311,7 @@ impl HudView {
                 self.toolbar = Some(toolbar);
                 self.shortcuts = shortcuts;
                 self.skills = skills;
+                self.examination = examination;
                 self.dirty = true;
             }
             Err(error) => eprintln!("ac2: the HUD did not load: {error}"),

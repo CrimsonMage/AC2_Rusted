@@ -69,6 +69,7 @@ impl HudView {
             hud,
             skills,
             shortcuts,
+            examination,
             chat,
             player_loaded,
             dirty,
@@ -112,7 +113,16 @@ impl HudView {
                 continue;
             };
             match notice {
+                GameplayNotice::UpdateExaminationProfile(profile) => {
+                    if let Some(panel) = examination.as_mut() {
+                        let items = player.examination_items(profile);
+                        panel.update_profile(tree, &items);
+                    }
+                }
                 GameplayNotice::ExaminationRequestChanged(request) => {
+                    if let Some(panel) = examination.as_mut() {
+                        panel.request_changed(tree, request.kind);
+                    }
                     if let Some(skills) = skills.as_mut() {
                         skills.examination_request_changed(
                             tree,
@@ -155,6 +165,17 @@ impl HudView {
             }
             if let Some(bar) = shortcuts.as_mut() {
                 bar.message(tree, &player, message);
+            }
+        }
+        // `gmExaminationUI::Show`: the panel follows its field; opening holds the request open.
+        // Legions passes the panel's filter word (+0xB8; its filter tabs are not modelled).
+        if let Some(panel) = examination.as_mut() {
+            panel.follow_field(tree);
+            for call in panel.take_calls() {
+                commands.push(match call {
+                    ac2_ui::ExaminationCall::Start => Command::StartExamination(0),
+                    ac2_ui::ExaminationCall::Stop => Command::StopExamination,
+                });
             }
         }
         let mut open_examination = false;

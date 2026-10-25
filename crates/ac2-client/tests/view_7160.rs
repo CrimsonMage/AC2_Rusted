@@ -399,6 +399,61 @@ fn the_client_walks_with_w_and_draws_its_character() {
     let notices = client.take_script_notices();
     view.frameworks(&mut client, &frame, &events, &notices);
     assert_eq!(view.skills_current(), Some((root, 0)), "{events:?}");
+    // Examining the selected character (`gmSelectionUI` right click): the panel opens, holds the
+    // request open, and lays out the server's profile.
+    {
+        use ac2_net::protocol::{
+            ExaminationDataNode, ExaminationProfile, ExaminationRequest, ExaminationValue,
+            StringInfo,
+        };
+        let node = |order, value| ExaminationDataNode {
+            order,
+            appearance: 0,
+            value,
+        };
+        let name = StringInfo {
+            literal: Some("Explorer".into()),
+            ..StringInfo::default()
+        };
+        server.borrow_mut().script_world.profiles.insert(
+            player.id,
+            ExaminationProfile {
+                request: ExaminationRequest::object(player.id),
+                nodes: vec![
+                    node(1, ExaminationValue::Text(name)),
+                    node(2, ExaminationValue::Break),
+                    node(3, ExaminationValue::Int(42)),
+                ],
+            },
+        );
+    }
+    let examine = FrameInput {
+        commands: vec![ac2_client::Command::Examine(
+            ac2_net::protocol::ExaminationRequest::object(player.id),
+        )],
+        ..FrameInput::default()
+    };
+    let mut events = client.use_time(&examine).unwrap();
+    view.open_examination();
+    let mut texts = Vec::new();
+    for _ in 0..20 {
+        let notices = client.take_script_notices();
+        let commands = view.frameworks(&mut client, &frame, &events, &notices);
+        let input = FrameInput {
+            commands,
+            ..FrameInput::default()
+        };
+        server.borrow_mut().elapsed += STEP;
+        events = client.use_time(&input).unwrap();
+        texts = view.examination_texts();
+        if texts.len() > 1 {
+            break;
+        }
+    }
+    eprintln!("examination: {texts:?}");
+    assert!(view.panel_shown(ac2_ui::ToolbarChild::Examination));
+    assert!(texts.iter().any(|t| t == "Explorer"), "{texts:?}");
+    assert!(texts.iter().any(|t| t.contains("42")), "{texts:?}");
     // A displayed line reaches the log on the next update; the window shows it.
     view.chat_display(0x4_0000, "Explorer says, \"well met\"\n");
     // Images set since the build (icons) load on a worker; give them a moment.

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 216 done, 129 partial, 1886 to do, 16 skipped.
+2247 retail functions: 221 done, 133 partial, 1877 to do, 16 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -1016,7 +1016,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmChatUI::Show` · 00435b80 · legions 00436410
 - [~] `gmChatUI::ListenToMessage` · 00435bc0 · legions 00436450 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
-## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (1/14)
+## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (6/14)
 
 ### gmExaminationUI
 - [x] `gmExaminationUI::RecvNotice_OpenExaminationPanel` · 00430810 — ac2-ui toolbar.rs
@@ -1025,18 +1025,18 @@ Legend and workflow: [README](README.md).
 - [ ] `gmMiniFellowUI::RecvNotice_BeingDeleted` · 00430820
 
 ### gmExaminationUI
-- [ ] `gmExaminationUI::MakeString` · 00430840 · legions 00430690
-- [ ] `gmExaminationUI::DoBreak` · 004309a0 · legions 004307f0
+- [x] `gmExaminationUI::MakeString` · 00430840 · legions 00430690 — ac2-ui examination.rs + ac2-client ui_sources
+- [x] `gmExaminationUI::DoBreak` · 004309a0 · legions 004307f0 — ac2-ui examination.rs + ac2-client ui_sources
 - [ ] `gmExaminationUI::CleanupArray` · 00430a00 · legions 00430850
-- [ ] `gmExaminationUI::ProcessEffectIDNode` · 00430a50 · legions 004308e0
+- [~] `gmExaminationUI::ProcessEffectIDNode` · 00430a50 · legions 004308e0 — no TimeDisplay, icon layers, effect expansion, Legions filter tabs
 - [ ] `gmExaminationUI::~gmExaminationUI` · 00430ad0 · legions 004317b0
-- [ ] `gmExaminationUI::Update` · 00430b60 · legions 004312c0
-- [~] `gmExaminationUI::Show` · 00430c00 · legions 00431880 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
-- [ ] `gmExaminationUI::ListenToMessage` · 00430c80
-- [ ] `gmExaminationUI::RecvNotice_ExaminationRequestChanged` · 00430d80
-- [ ] `gmExaminationUI::ProcessNode` · 00430db0 · legions 00430ae0
-- [ ] `gmExaminationUI::gmExaminationUI` · 004312e0
-- [ ] `gmExaminationUI::RecvNotice_UpdateExaminationProfile` · 00431410
+- [x] `gmExaminationUI::Update` · 00430b60 · legions 004312c0 — ac2-ui examination.rs + ac2-client ui_sources
+- [~] `gmExaminationUI::Show` · 00430c00 · legions 00431880 — no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+- [~] `gmExaminationUI::ListenToMessage` · 00430c80 — no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+- [x] `gmExaminationUI::RecvNotice_ExaminationRequestChanged` · 00430d80 — ac2-ui examination.rs + ac2-client ui_sources
+- [~] `gmExaminationUI::ProcessNode` · 00430db0 · legions 00430ae0 — no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+- [~] `gmExaminationUI::gmExaminationUI` · 004312e0 — no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+- [x] `gmExaminationUI::RecvNotice_UpdateExaminationProfile` · 00431410 — ac2-ui examination.rs + ac2-client ui_sources
 
 ## `ac2/client/src/ui/gameplay/toolbar/gmnavigationui.cpp.c` (3/37)
 

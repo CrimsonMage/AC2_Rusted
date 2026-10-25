@@ -209,3 +209,78 @@ impl ShortcutSource for ClientPlayer<'_> {
             || inventory.equipped.iter().any(|(_, i)| *i == item)
     }
 }
+
+impl ClientPlayer<'_> {
+    /// A string of the UI table with one `value` variable.
+    fn ui_string(&self, name: &str, value: Option<RenderVar>) -> String {
+        let info = RenderInfo {
+            string_id: ac2_ui::tokenize(name),
+            table_id: self.ui_table,
+            literal: None,
+            variables: value
+                .map(|v| vec![(ac2_ui::tokenize("value"), v)])
+                .unwrap_or_default(),
+        };
+        String::from_utf16_lossy(&ac2_db::get_string(self.strings, &info, false))
+    }
+
+    /// `gmExaminationUI::MakeString` and `ProcessNode`'s cases: a wire profile as the panel's
+    /// items. Effect nodes (`ProcessEffectIDNode`: `AddEffectDataToProfileByEID`) are not
+    /// expanded.
+    pub(crate) fn examination_items(
+        &self,
+        profile: &ac2_net::protocol::ExaminationProfile,
+    ) -> Vec<ac2_ui::ExaminationItem> {
+        use ac2_net::protocol::ExaminationValue as V;
+        use ac2_ui::ExaminationItem as I;
+        let text = |appearance: u32, text: String| I::Text { appearance, text };
+        profile
+            .nodes
+            .iter()
+            .filter_map(|node| {
+                let a = node.appearance;
+                Some(match &node.value {
+                    V::Int(v) => text(
+                        a,
+                        self.ui_string("ID_Examination_Number", Some(RenderVar::Int(*v))),
+                    ),
+                    V::Float(v) => text(
+                        a,
+                        self.ui_string(
+                            "ID_Examination_Number",
+                            Some(RenderVar::Float {
+                                value: f64::from(*v),
+                                precision: 2,
+                            }),
+                        ),
+                    ),
+                    V::Bool(b) => text(
+                        a,
+                        self.ui_string(
+                            if *b {
+                                "ID_Examination_True"
+                            } else {
+                                "ID_Examination_False"
+                            },
+                            None,
+                        ),
+                    ),
+                    V::Text(info) => text(a, self.text(info)),
+                    V::LongInt(v) => text(
+                        a,
+                        self.ui_string("ID_Examination_Number", Some(RenderVar::LInt(*v))),
+                    ),
+                    V::Image(file) => I::Image(*file),
+                    V::Icon(layers) => I::Icon(layers.iter().map(|l| l.image).collect()),
+                    V::Break => I::Break,
+                    V::Tabs(n) => I::Tabs(*n),
+                    V::Countdown(seconds) => I::Countdown {
+                        appearance: a,
+                        seconds: *seconds,
+                    },
+                    V::Effect(_) | V::Other(_) => return None,
+                })
+            })
+            .collect()
+    }
+}

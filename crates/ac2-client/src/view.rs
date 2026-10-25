@@ -374,6 +374,11 @@ impl ClientView {
         self.hud.skills_current()
     }
 
+    /// The examination panel's texts, in order.
+    pub fn examination_texts(&self) -> Vec<String> {
+        self.hud.examination_texts()
+    }
+
     /// The shortcut bar's slots.
     pub fn shortcut_slots(&self) -> usize {
         self.hud.shortcut_slots()

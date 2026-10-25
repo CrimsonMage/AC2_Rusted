@@ -13,6 +13,7 @@ mod chat_window;
 mod compose;
 mod controls;
 mod element;
+mod examination;
 mod hud;
 mod input;
 mod interpreter;
@@ -46,6 +47,7 @@ pub use chat_window::{ChatMessageInfo, CHAT_TEXT_TYPES};
 pub use compose::{UiPixels, UiSurface};
 pub use controls::{ControlFrame, Controls};
 pub use element::{UiBox, UiElement, UiImage, UiTree};
+pub use examination::{ExaminationCall, ExaminationItem, ExaminationUi};
 pub use hud::{
     build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
     LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,

@@ -19,6 +19,7 @@ use ac2_db::{ResourceResult, ResourceStore};
 use crate::chat::{ChatStrings, ChatUi, CHAT_STRING_TABLE, REPLY_STRING_TABLE, STRING_TABLE_GROUP};
 use crate::compose::UiPixels;
 use crate::element::UiTree;
+use crate::examination::ExaminationUi;
 use crate::layout::{load_layout, LayoutDesc};
 use crate::reticle::Reticle;
 use crate::shortcut::ShortcutUi;
@@ -70,6 +71,8 @@ pub struct GameplayHud {
     pub toolbar: ToolbarUi,
     /// `gmSkillUI`'s `gmSkillTreeUI`.
     pub skills: Option<SkillTreeUi>,
+    /// `gmExaminationUI`.
+    pub examination: Option<ExaminationUi>,
 }
 
 /// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
@@ -128,6 +131,9 @@ pub fn build_gameplay_hud(
         (Some(toolbar), Some(field)) => Some(SkillTreeUi::create(&tree, toolbar, field)),
         _ => None,
     };
+    let examination = layouts[&LAYOUT_TOOLBAR]
+        .as_ref()
+        .map(|toolbar| ExaminationUi::create(&mut tree, toolbar));
     let toolbar = ToolbarUi::create(&mut tree);
     text_data.freeze();
     Ok(GameplayHud {
@@ -137,6 +143,7 @@ pub fn build_gameplay_hud(
         chat,
         toolbar,
         skills,
+        examination,
     })
 }
 

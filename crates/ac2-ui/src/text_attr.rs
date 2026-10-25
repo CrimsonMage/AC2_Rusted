@@ -220,6 +220,16 @@ impl UiTree {
         }
     }
 
+    /// `UIElement_Text::RecalculateGlyphList` at the element's size: the laid-out text's height
+    /// (`m_paperHeight`).
+    pub(crate) fn text_paper_height(&mut self, index: usize) -> Option<i32> {
+        let rect = self.el(index).rect;
+        let text = self.el_mut(index).text.as_mut()?;
+        text.dirty = true;
+        text.recalculate(rect.width(), rect.height());
+        Some(text.paper.1)
+    }
+
     /// `UIElement_Text::ScrollToEnd` (the view is kept in bounds when the text is laid out).
     pub(crate) fn scroll_to_end(&mut self, index: usize) {
         if let Some(text) = self.el_mut(index).text.as_mut() {

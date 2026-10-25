@@ -63,7 +63,16 @@ key	status	note
 0042bce0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 0042dac0	x	ac2-ui list_box.rs
 00430810	x	ac2-ui toolbar.rs
-00430c00	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+00430840	x	ac2-ui examination.rs + ac2-client ui_sources
+004309a0	x	ac2-ui examination.rs + ac2-client ui_sources
+00430a50	~	no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+00430b60	x	ac2-ui examination.rs + ac2-client ui_sources
+00430c00	~	no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+00430c80	~	no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+00430d80	x	ac2-ui examination.rs + ac2-client ui_sources
+00430db0	~	no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+004312e0	~	no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+00431410	x	ac2-ui examination.rs + ac2-client ui_sources
 004314c0	x	ac2-script glue::position (ported beside the gPosition glue)
 00431e20	x	
 00431e90	x	
