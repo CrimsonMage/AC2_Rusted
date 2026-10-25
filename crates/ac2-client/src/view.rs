@@ -374,6 +374,11 @@ impl ClientView {
         self.hud.skills_current()
     }
 
+    /// The fellowship page's rows, top first: each member's id and name.
+    pub fn fellowship_rows(&self) -> Vec<(u64, String)> {
+        self.hud.fellowship_rows()
+    }
+
     /// The examination panel's texts, in order.
     pub fn examination_texts(&self) -> Vec<String> {
         self.hud.examination_texts()

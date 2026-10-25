@@ -161,6 +161,26 @@ key	status	note
 0042d850	x	ac2-ui dialog.rs
 0042d8e0	x	ac2-ui dialog.rs
 0042dac0	x	ac2-ui list_box.rs
+0042f0f0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042f1a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042f300	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042f5f0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042f6e0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042f7a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042f7c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042fca0	~	GetFellowXPHash needs the host to return the script-filled LAHash
+0042fdc0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0042fdd0	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+0042feb0	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+0042ff90	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+00430060	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+00430080	_	
+00430180	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+00430210	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+00430390	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+00430430	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+004304a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+00430600	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 00430810	x	ac2-ui toolbar.rs
 00430840	x	ac2-ui examination.rs + ac2-client ui_sources
 004309a0	x	ac2-ui examination.rs + ac2-client ui_sources
@@ -215,6 +235,40 @@ key	status	note
 00438270	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 004386c0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 004387f0	x	ac2-ui shortcut.rs
+00439ea0	-	
+00439f30	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+00439f40	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+00439fa0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a030	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a060	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a090	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a0d0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a110	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a150	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a190	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a1d0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a1f0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a200	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043a4b0	-	
+0043a4d0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043bde0	~	UIElement_Menu not modelled: Create sends the default looting method 1
+0043bea0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043bef0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043bf40	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043bfd0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c050	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c0a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c0c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c0e0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c130	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c1d0	~	UIElement_Menu not modelled: Create sends the default looting method 1
+0043c280	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c3c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c4c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c4e0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c570	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c5c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+0043c630	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 00447550	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 004475b0	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
@@ -3827,6 +3881,7 @@ key	status	note
 0069be20	x	
 0069bfd0	x	
 0069c060	x	
+0069c4b0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0069c550	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 0069c8a0	x	ac2-physics moveto (slice 3)
 0069cb70	x	ac2-physics moveto (slice 3)

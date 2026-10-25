@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 346 done, 166 partial, 1716 to do, 19 skipped.
+2247 retail functions: 388 done, 173 partial, 1666 to do, 20 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -724,50 +724,50 @@ Legend and workflow: [README](README.md).
 - [ ] `ContainerDisplay::Init` · 0042e650 · legions 0042e4e0
 - [ ] `ContainerDisplay::RecvNotice_UpdateContainer` · 0042e7b0
 
-## `ac2/client/src/ui/gameplay/helper/fellowinfo.cpp.c` (0/15)
+## `ac2/client/src/ui/gameplay/helper/fellowinfo.cpp.c` (14/15)
 
 ### FellowInfo
-- [ ] `FellowInfo::~FellowInfo` · 00439ea0 · legions 0043a6f0
-- [ ] `FellowInfo::UpdateCellID` · 00439f30 · legions 0043a780
-- [ ] `FellowInfo::UpdateLevel` · 00439f40 · legions 0043a790
-- [ ] `FellowInfo::UpdatePercentage` · 00439fa0 · legions 0043a7f0
-- [ ] `FellowInfo::ToggleTextState` · 0043a030 · legions 0043a880
-- [ ] `FellowInfo::SetLeader` · 0043a060 · legions 0043a8b0
-- [ ] `FellowInfo::ShowSelectionHighlight` · 0043a090 · legions 0043a8e0
-- [ ] `FellowInfo::RecvNotice_UpdateFellowHealth` · 0043a0d0 · legions 0043a920
-- [ ] `FellowInfo::RecvNotice_UpdateFellowMaxHealth` · 0043a110
-- [ ] `FellowInfo::RecvNotice_UpdateFellowVigor` · 0043a150 · legions 0043a9a0
-- [ ] `FellowInfo::RecvNotice_UpdateFellowMaxVigor` · 0043a190
-- [ ] `FellowInfo::RecvNotice_UpdateFellowLevel` · 0043a1d0
-- [ ] `FellowInfo::RecvNotice_BeingDeleted` · 0043a1f0 · legions 0043aa40
-- [ ] `FellowInfo::FellowInfo` · 0043a200 · legions 0043aa50
-- [ ] `FellowInfo::UpdateInfo` · 0043a4d0 · legions 0043ad20
+- [-] `FellowInfo::~FellowInfo` · 00439ea0 · legions 0043a6f0
+- [x] `FellowInfo::UpdateCellID` · 00439f30 · legions 0043a780 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::UpdateLevel` · 00439f40 · legions 0043a790 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::UpdatePercentage` · 00439fa0 · legions 0043a7f0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::ToggleTextState` · 0043a030 · legions 0043a880 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::SetLeader` · 0043a060 · legions 0043a8b0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::ShowSelectionHighlight` · 0043a090 · legions 0043a8e0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::RecvNotice_UpdateFellowHealth` · 0043a0d0 · legions 0043a920 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::RecvNotice_UpdateFellowMaxHealth` · 0043a110 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::RecvNotice_UpdateFellowVigor` · 0043a150 · legions 0043a9a0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::RecvNotice_UpdateFellowMaxVigor` · 0043a190 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::RecvNotice_UpdateFellowLevel` · 0043a1d0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::RecvNotice_BeingDeleted` · 0043a1f0 · legions 0043aa40 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::FellowInfo` · 0043a200 · legions 0043aa50 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowInfo::UpdateInfo` · 0043a4d0 · legions 0043ad20 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/helper/fellowshiphelper.cpp.c` (0/24)
+## `ac2/client/src/ui/gameplay/helper/fellowshiphelper.cpp.c` (13/24)
 
 ### FellowshipHelper
-- [ ] `FellowshipHelper::SelectFellowByIdx` · 0042f0f0 · legions 0042eff0
+- [x] `FellowshipHelper::SelectFellowByIdx` · 0042f0f0 · legions 0042eff0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ### ItemDisplay
 - [ ] `ItemDisplay::RecvNotice_BeingDeleted` · 0042f180
 
 ### FellowshipHelper
-- [ ] `FellowshipHelper::ListenToMessage` · 0042f1a0 · legions 0042f080
+- [x] `FellowshipHelper::ListenToMessage` · 0042f1a0 · legions 0042f080 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ### HashIterator<InstanceID,float>
 - [ ] `HashIterator<InstanceID,float>::operator++` · 0042f2c0 · legions 0042f1a0
 
 ### FellowshipHelper
-- [ ] `FellowshipHelper::ToggleTextState` · 0042f300 · legions 0042f220
+- [x] `FellowshipHelper::ToggleTextState` · 0042f300 · legions 0042f220 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ### PHashTable<InstanceID,float>
 - [ ] `PHashTable<InstanceID,float>::~PHashTable<InstanceID,float>` · 0042f4a0 · legions 0042f360
 
 ### FellowshipHelper
-- [ ] `FellowshipHelper::ListenToMessage` · 0042f5f0 · legions 0042f4b0
-- [ ] `FellowshipHelper::SetLeader` · 0042f6e0 · legions 0042f5a0
-- [ ] `FellowshipHelper::RecvNotice_UpdateLeader` · 0042f7a0
-- [ ] `FellowshipHelper::RecvNotice_SelectionChanged` · 0042f7c0
+- [x] `FellowshipHelper::ListenToMessage` · 0042f5f0 · legions 0042f4b0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowshipHelper::SetLeader` · 0042f6e0 · legions 0042f5a0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowshipHelper::RecvNotice_UpdateLeader` · 0042f7a0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowshipHelper::RecvNotice_SelectionChanged` · 0042f7c0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ### PHashTable<InstanceID,float>
 - [ ] `PHashTable<InstanceID,float>::StreamPack` · 0042f8e0
@@ -776,18 +776,18 @@ Legend and workflow: [README](README.md).
 - [ ] `STREAMPACK` · 0042fb10 · legions 0042f9d0
 
 ### FellowshipHelper
-- [ ] `FellowshipHelper::UpdateXP` · 0042fca0 · legions 0042fa60
-- [ ] `FellowshipHelper::RecvNotice_UpdateFellowLevel` · 0042fdc0
-- [ ] `FellowshipHelper::RemoveFellow` · 0042fdd0 · legions 0042fb90
-- [ ] `FellowshipHelper::RemoveAllFellows` · 0042feb0 · legions 0042fc70
-- [ ] `FellowshipHelper::RecvNotice_UpdateFellowCellID` · 0042ff90
-- [ ] `FellowshipHelper::RecvNotice_ClearFellow` · 00430060
+- [~] `FellowshipHelper::UpdateXP` · 0042fca0 · legions 0042fa60 — GetFellowXPHash needs the host to return the script-filled LAHash
+- [x] `FellowshipHelper::RecvNotice_UpdateFellowLevel` · 0042fdc0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [~] `FellowshipHelper::RemoveFellow` · 0042fdd0 · legions 0042fb90 — map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+- [~] `FellowshipHelper::RemoveAllFellows` · 0042feb0 · legions 0042fc70 — map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+- [~] `FellowshipHelper::RecvNotice_UpdateFellowCellID` · 0042ff90 — map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+- [x] `FellowshipHelper::RecvNotice_ClearFellow` · 00430060 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [ ] `FellowshipHelper::RecvNotice_ReloadGameplayOptions` · 00430080
-- [ ] `FellowshipHelper::~FellowshipHelper` · 00430180 · legions 0042ff40
-- [ ] `FellowshipHelper::AddFellow` · 00430210 · legions 0042ffd0
-- [ ] `FellowshipHelper::AddAllFellows` · 00430390 · legions 00430150
-- [ ] `FellowshipHelper::RecvNotice_UpdateFellow` · 00430430
-- [ ] `FellowshipHelper::FellowshipHelper` · 004304a0 · legions 00430260
+- [x] `FellowshipHelper::~FellowshipHelper` · 00430180 · legions 0042ff40 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [~] `FellowshipHelper::AddFellow` · 00430210 · legions 0042ffd0 — map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
+- [x] `FellowshipHelper::AddAllFellows` · 00430390 · legions 00430150 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowshipHelper::RecvNotice_UpdateFellow` · 00430430 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `FellowshipHelper::FellowshipHelper` · 004304a0 · legions 00430260 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ## `ac2/client/src/ui/gameplay/helper/itemdisplay.cpp.c` (0/15)
 
@@ -1550,26 +1550,26 @@ Legend and workflow: [README](README.md).
 - [ ] `gmAllegianceUI::Update` · 0043d790 · legions 0043dfe0
 - [ ] `gmAllegianceUI::RecvNotice_UpdateAllegianceProfile` · 0043dcb0
 
-## `ac2/client/src/ui/gameplay/toolbar/social/gmfellowshipui.cpp.c` (0/17)
+## `ac2/client/src/ui/gameplay/toolbar/social/gmfellowshipui.cpp.c` (15/17)
 
 ### gmFellowshipUI
-- [ ] `gmFellowshipUI::InitLootingMenu` · 0043bde0 · legions 0043c630
-- [ ] `gmFellowshipUI::HandleRecruitButton` · 0043bea0 · legions 0043c6f0
-- [ ] `gmFellowshipUI::HandleDismissButton` · 0043bef0 · legions 0043c740
-- [ ] `gmFellowshipUI::SetLeaderState` · 0043bf40 · legions 0043c790
-- [ ] `gmFellowshipUI::MakeRecruitDialog` · 0043bfd0 · legions 0043c820
-- [ ] `gmFellowshipUI::RecvNotice_CloseConfirmationDialog` · 0043c050 · legions 0043c8a0
-- [ ] `gmFellowshipUI::RecvNotice_RequestRecruitment` · 0043c0a0
-- [ ] `gmFellowshipUI::RecvNotice_ExpireRecruitment` · 0043c0c0 · legions 0043c910
-- [ ] `gmFellowshipUI::RecvNotice_UpdateLeader` · 0043c0e0
-- [ ] `gmFellowshipUI::~gmFellowshipUI` · 0043c130 · legions 0043c980
-- [ ] `gmFellowshipUI::HandleCreateButton` · 0043c1d0 · legions 0043ca20
-- [ ] `gmFellowshipUI::SetFellowshipState` · 0043c280 · legions 0043cad0
-- [ ] `gmFellowshipUI::RecvNotice_UpdateFellowship` · 0043c3c0
-- [ ] `gmFellowshipUI::ListenToMessage` · 0043c4e0 · legions 0043cd30
-- [ ] `gmFellowshipUI::SetNoFellowshipState` · 0043c570 · legions 0043cdc0
-- [ ] `gmFellowshipUI::RecvNotice_ClearFellowship` · 0043c5c0 · legions 0043ce10
-- [ ] `gmFellowshipUI::gmFellowshipUI` · 0043c630 · legions 0043ce80
+- [~] `gmFellowshipUI::InitLootingMenu` · 0043bde0 · legions 0043c630 — UIElement_Menu not modelled: Create sends the default looting method 1
+- [x] `gmFellowshipUI::HandleRecruitButton` · 0043bea0 · legions 0043c6f0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::HandleDismissButton` · 0043bef0 · legions 0043c740 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::SetLeaderState` · 0043bf40 · legions 0043c790 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::MakeRecruitDialog` · 0043bfd0 · legions 0043c820 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::RecvNotice_CloseConfirmationDialog` · 0043c050 · legions 0043c8a0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::RecvNotice_RequestRecruitment` · 0043c0a0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::RecvNotice_ExpireRecruitment` · 0043c0c0 · legions 0043c910 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::RecvNotice_UpdateLeader` · 0043c0e0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::~gmFellowshipUI` · 0043c130 · legions 0043c980 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [~] `gmFellowshipUI::HandleCreateButton` · 0043c1d0 · legions 0043ca20 — UIElement_Menu not modelled: Create sends the default looting method 1
+- [x] `gmFellowshipUI::SetFellowshipState` · 0043c280 · legions 0043cad0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::RecvNotice_UpdateFellowship` · 0043c3c0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::ListenToMessage` · 0043c4e0 · legions 0043cd30 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::SetNoFellowshipState` · 0043c570 · legions 0043cdc0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::RecvNotice_ClearFellowship` · 0043c5c0 · legions 0043ce10 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+- [x] `gmFellowshipUI::gmFellowshipUI` · 0043c630 · legions 0043ce80 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ## `ac2/client/src/ui/gameplay/toolbar/social/gmfriendsui.cpp.c` (0/20)
 

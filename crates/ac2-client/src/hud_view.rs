@@ -27,6 +27,8 @@ pub(crate) struct HudView {
     pub(crate) shortcuts: Option<ShortcutUi>,
     pub(crate) skills: Option<SkillTreeUi>,
     pub(crate) examination: Option<ac2_ui::ExaminationUi>,
+    pub(crate) fellowship: Option<ac2_ui::FellowshipUi>,
+    pub(crate) dialogs: Option<ac2_ui::DialogFactory>,
     /// The tree's messages for the frameworks that ask the player
     /// ([`HudView::frameworks`](crate::hud_player)).
     pub(crate) player_messages: Vec<UiMessage>,
@@ -91,6 +93,8 @@ impl HudView {
             shortcuts: None,
             skills: None,
             examination: None,
+            fellowship: None,
+            dialogs: None,
             player_messages: Vec::new(),
             strings: None,
             pending_strings: Some(pending_strings),
@@ -218,6 +222,24 @@ impl HudView {
     }
 
     /// The examination panel's texts, in order.
+    pub(crate) fn fellowship_rows(&self) -> Vec<(u64, String)> {
+        let (Some((tree, _)), Some(panel)) = (&self.hud, &self.fellowship) else {
+            return Vec::new();
+        };
+        let name = ac2_ui::tokenize("FellowTemplateNameText");
+        panel
+            .rows(tree)
+            .into_iter()
+            .map(|(id, row)| {
+                let text = tree
+                    .child_recursive(row, name)
+                    .and_then(|t| tree.get(t))
+                    .and_then(|e| e.text());
+                (id, text.unwrap_or_default())
+            })
+            .collect()
+    }
+
     pub(crate) fn examination_texts(&self) -> Vec<String> {
         let (Some((tree, _)), Some(panel)) = (&self.hud, &self.examination) else {
             return Vec::new();
@@ -296,6 +318,8 @@ impl HudView {
                     shortcuts,
                     skills,
                     examination,
+                    fellowship,
+                    dialogs,
                 },
                 images,
             )) => {
@@ -315,6 +339,8 @@ impl HudView {
                 self.shortcuts = shortcuts;
                 self.skills = skills;
                 self.examination = examination;
+                self.fellowship = fellowship;
+                self.dialogs = Some(dialogs);
                 self.dirty = true;
             }
             Err(error) => eprintln!("ac2: the HUD did not load: {error}"),

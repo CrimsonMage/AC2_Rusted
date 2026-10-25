@@ -15,6 +15,8 @@ mod controls;
 mod dialog;
 mod element;
 mod examination;
+mod fellow_info;
+mod fellowship;
 mod hud;
 mod input;
 mod interpreter;
@@ -59,6 +61,8 @@ pub use dialog::{
 };
 pub use element::{UiBox, UiElement, UiImage, UiPlacement, UiTree};
 pub use examination::{ExaminationCall, ExaminationItem, ExaminationUi};
+pub use fellow_info::{Fellow, FellowStrings};
+pub use fellowship::{FellowshipData, FellowshipRequest, FellowshipSource, FellowshipUi};
 pub use hud::{
     build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
     LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,
@@ -108,6 +112,8 @@ mod chat_tests;
 mod dialog_tests;
 #[cfg(test)]
 mod element_tests;
+#[cfg(test)]
+mod fellowship_tests;
 #[cfg(test)]
 mod list_box_select_tests;
 #[cfg(test)]

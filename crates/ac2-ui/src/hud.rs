@@ -18,8 +18,10 @@ use ac2_db::{ResourceResult, ResourceStore};
 
 use crate::chat::{ChatStrings, ChatUi, CHAT_STRING_TABLE, REPLY_STRING_TABLE, STRING_TABLE_GROUP};
 use crate::compose::UiPixels;
+use crate::dialog::DialogFactory;
 use crate::element::UiTree;
 use crate::examination::ExaminationUi;
+use crate::fellowship::FellowshipUi;
 use crate::layout::{load_layout, LayoutDesc};
 use crate::reticle::Reticle;
 use crate::shortcut::ShortcutUi;
@@ -73,6 +75,10 @@ pub struct GameplayHud {
     pub skills: Option<SkillTreeUi>,
     /// `gmExaminationUI`.
     pub examination: Option<ExaminationUi>,
+    /// `gmSocialUI`'s `gmFellowshipUI`.
+    pub fellowship: Option<FellowshipUi>,
+    /// `DialogFactory` over the gameplay layout.
+    pub dialogs: DialogFactory,
 }
 
 /// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
@@ -134,6 +140,10 @@ pub fn build_gameplay_hud(
     let examination = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .map(|toolbar| ExaminationUi::create(&mut tree, toolbar));
+    let fellowship = layouts[&LAYOUT_TOOLBAR]
+        .as_ref()
+        .map(|toolbar| FellowshipUi::create(&mut tree, toolbar));
+    let dialogs = DialogFactory::new(layouts[&LAYOUT_GAMEPLAY].clone());
     let toolbar = ToolbarUi::create(&mut tree);
     text_data.freeze();
     Ok(GameplayHud {
@@ -144,6 +154,8 @@ pub fn build_gameplay_hud(
         toolbar,
         skills,
         examination,
+        fellowship,
+        dialogs,
     })
 }
 

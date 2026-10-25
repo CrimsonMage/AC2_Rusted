@@ -73,6 +73,8 @@ impl HudView {
             chat,
             player_loaded,
             dirty,
+            fellowship,
+            dialogs,
             ..
         } = self;
         let Some((tree, _)) = hud else {
@@ -112,6 +114,9 @@ impl HudView {
             let SessionEvent::Notice(notice) = event else {
                 continue;
             };
+            if let (Some(panel), Some(dialogs)) = (fellowship.as_mut(), dialogs.as_mut()) {
+                crate::ui_social::fellowship_notice(panel, tree, dialogs, &player, notice);
+            }
             match notice {
                 GameplayNotice::UpdateExaminationProfile(profile) => {
                     if let Some(panel) = examination.as_mut() {
@@ -166,6 +171,24 @@ impl HudView {
             if let Some(bar) = shortcuts.as_mut() {
                 bar.message(tree, &player, message);
             }
+            if let Some(panel) = fellowship.as_mut() {
+                panel.message(tree, message);
+            }
+            if let Some(dialogs) = dialogs.as_mut() {
+                dialogs.message(tree, message);
+            }
+        }
+        let mut tells = Vec::new();
+        if let Some(panel) = fellowship.as_mut() {
+            if let Some(dialogs) = dialogs.as_mut() {
+                crate::ui_social::dialog_outcomes(panel, &dialogs.take_outcomes());
+            }
+            let selection = frame.selection.as_ref().map(|s| s.id);
+            tells = crate::ui_social::fellowship_commands(
+                panel.take_requests(),
+                selection,
+                &mut commands,
+            );
         }
         // `gmExaminationUI::Show`: the panel follows its field; opening holds the request open.
         // Legions passes the panel's filter word (+0xB8; its filter tabs are not modelled).
@@ -227,6 +250,10 @@ impl HudView {
         }
         if open_examination {
             self.open_examination();
+        }
+        // `FellowshipHelper::ListenToMessage`: a member's name into the chat line.
+        for name in tells {
+            self.assisted_tell(&name);
         }
         commands
     }

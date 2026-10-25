@@ -73,6 +73,7 @@ impl SkillSource for Stub {
                 SkillVar::UInt(n) => n.to_string(),
                 SkillVar::Int(n) => n.to_string(),
                 SkillVar::Text(t) => t.clone(),
+                SkillVar::Float { value, .. } => value.to_string(),
             })
             .collect();
         format!("{string_id:08x}[{}]", vars.join(","))

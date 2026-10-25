@@ -69,6 +69,11 @@ pub(crate) struct ClientPlayer<'a> {
 }
 
 impl ClientPlayer<'_> {
+    /// A wire `StringInfo` rendered from the tables.
+    pub(crate) fn render_info(&self, info: &ac2_net::protocol::StringInfo) -> String {
+        self.text(info)
+    }
+
     fn text(&self, info: &ac2_net::protocol::StringInfo) -> String {
         let info = crate::chat_text::render_info(info);
         String::from_utf16_lossy(&ac2_db::get_string(self.strings, &info, false))
@@ -146,6 +151,10 @@ impl SkillSource for ClientPlayer<'_> {
                     SkillVar::UInt(v) => RenderVar::ULInt(*v),
                     SkillVar::Int(v) => RenderVar::LInt(*v),
                     SkillVar::Text(t) => RenderVar::String(t.encode_utf16().collect()),
+                    SkillVar::Float { value, precision } => RenderVar::Float {
+                        value: *value,
+                        precision: *precision as _,
+                    },
                 };
                 (*id, var)
             })
