@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 273 done, 134 partial, 1823 to do, 17 skipped.
+2247 retail functions: 288 done, 151 partial, 1791 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -1016,7 +1016,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmChatUI::Show` · 00435b80 · legions 00436410
 - [~] `gmChatUI::ListenToMessage` · 00435bc0 · legions 00436450 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
-## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (1/14)
+## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (6/14)
 
 ### gmExaminationUI
 - [x] `gmExaminationUI::RecvNotice_OpenExaminationPanel` · 00430810 — ac2-ui toolbar.rs
@@ -1025,18 +1025,18 @@ Legend and workflow: [README](README.md).
 - [ ] `gmMiniFellowUI::RecvNotice_BeingDeleted` · 00430820
 
 ### gmExaminationUI
-- [ ] `gmExaminationUI::MakeString` · 00430840 · legions 00430690
-- [ ] `gmExaminationUI::DoBreak` · 004309a0 · legions 004307f0
+- [x] `gmExaminationUI::MakeString` · 00430840 · legions 00430690 — ac2-ui examination.rs + ac2-client ui_sources
+- [x] `gmExaminationUI::DoBreak` · 004309a0 · legions 004307f0 — ac2-ui examination.rs + ac2-client ui_sources
 - [ ] `gmExaminationUI::CleanupArray` · 00430a00 · legions 00430850
-- [ ] `gmExaminationUI::ProcessEffectIDNode` · 00430a50 · legions 004308e0
+- [~] `gmExaminationUI::ProcessEffectIDNode` · 00430a50 · legions 004308e0 — no TimeDisplay, icon layers, effect expansion, Legions filter tabs
 - [ ] `gmExaminationUI::~gmExaminationUI` · 00430ad0 · legions 004317b0
-- [ ] `gmExaminationUI::Update` · 00430b60 · legions 004312c0
+- [x] `gmExaminationUI::Update` · 00430b60 · legions 004312c0 — ac2-ui examination.rs + ac2-client ui_sources
 - [~] `gmExaminationUI::Show` · 00430c00 · legions 00431880 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
-- [ ] `gmExaminationUI::ListenToMessage` · 00430c80
-- [ ] `gmExaminationUI::RecvNotice_ExaminationRequestChanged` · 00430d80
-- [ ] `gmExaminationUI::ProcessNode` · 00430db0 · legions 00430ae0
-- [ ] `gmExaminationUI::gmExaminationUI` · 004312e0
-- [ ] `gmExaminationUI::RecvNotice_UpdateExaminationProfile` · 00431410
+- [~] `gmExaminationUI::ListenToMessage` · 00430c80 — no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+- [x] `gmExaminationUI::RecvNotice_ExaminationRequestChanged` · 00430d80 — ac2-ui examination.rs + ac2-client ui_sources
+- [~] `gmExaminationUI::ProcessNode` · 00430db0 · legions 00430ae0 — no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+- [~] `gmExaminationUI::gmExaminationUI` · 004312e0 — no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+- [x] `gmExaminationUI::RecvNotice_UpdateExaminationProfile` · 00431410 — ac2-ui examination.rs + ac2-client ui_sources
 
 ## `ac2/client/src/ui/gameplay/toolbar/gmnavigationui.cpp.c` (3/37)
 
@@ -1093,13 +1093,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gmNavigationUI::UpdatePlayerPos` · 004341b0 · legions 00434980
 - [ ] `gmNavigationUI::ListenToMessage` · 00434280 · legions 00434a50
 
-## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (0/46)
+## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (10/46)
 
 ### gmShortcutUI
 - [ ] `gmShortcutUI::Show` · 00435cd0 · legions 00436520
-- [ ] `gmShortcutUI::CheckAttackButtons` · 00435ce0 · legions 00436530
-- [ ] `gmShortcutUI::RecvNotice_UpdateAttackState` · 00435d30
-- [ ] `gmShortcutUI::RequestAttackStateChange` · 00435d80 · legions 004365d0
+- [x] `gmShortcutUI::CheckAttackButtons` · 00435ce0 · legions 00436530 — ac2-ui shortcut.rs
+- [x] `gmShortcutUI::RecvNotice_UpdateAttackState` · 00435d30 — ac2-ui shortcut.rs
+- [x] `gmShortcutUI::RequestAttackStateChange` · 00435d80 · legions 004365d0 — ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
 
 ### (free functions)
 - [ ] `gmShortcutUI_DDCB` · 00435e10 · legions 00436660
@@ -1109,9 +1109,9 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartArray<TimeLeftInfo>::RemoveOrderedByIndex` · 00435ec0 · legions 00436710
 
 ### gmShortcutUI
-- [ ] `gmShortcutUI::RemoveShortcut` · 00435fc0 · legions 00436810
+- [x] `gmShortcutUI::RemoveShortcut` · 00435fc0 · legions 00436810 — ac2-ui shortcut.rs
 - [ ] `gmShortcutUI::RecvNotice_RemoveRecipe` · 00436060
-- [ ] `gmShortcutUI::CheckRecipe` · 004360e0 · legions 00436930
+- [x] `gmShortcutUI::CheckRecipe` · 004360e0 · legions 00436930 — ac2-ui shortcut.rs
 - [ ] `gmShortcutUI::CheckTimeLeftArray` · 00436120 · legions 00436970
 - [ ] `gmShortcutUI::UpdateTimeLeft` · 00436180 · legions 004369d0
 - [ ] `gmShortcutUI::RecvNotice_ToggleSpecialAttack` · 00436330
@@ -1120,25 +1120,25 @@ Legend and workflow: [README](README.md).
 - [ ] `ShortcutInfo::SetDataStr` · 004363e0 · legions 00436c30
 
 ### gmShortcutUI
-- [ ] `gmShortcutUI::CheckItem` · 00436440 · legions 00436c90
-- [ ] `gmShortcutUI::FromElement` · 004364f0 · legions 00436d40
+- [~] `gmShortcutUI::CheckItem` · 00436440 · legions 00436c90 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::FromElement` · 004364f0 · legions 00436d40 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 
 ### SmartArray<TimeLeftInfo>
 - [ ] `SmartArray<TimeLeftInfo>::AddToEnd` · 00436660 · legions 00436eb0
 
 ### gmShortcutUI
-- [ ] `gmShortcutUI::CheckSkill` · 004367a0 · legions 00436ff0
-- [ ] `gmShortcutUI::UpdateSetNumber` · 00436940 · legions 00437190
+- [~] `gmShortcutUI::CheckSkill` · 004367a0 · legions 00436ff0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::UpdateSetNumber` · 00436940 · legions 00437190 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 
 ### PSmartArray<ShortcutInfo>
 - [ ] `PSmartArray<ShortcutInfo>::StreamPack` · 00436a00 · legions 00437250
 
 ### gmShortcutUI
-- [ ] `gmShortcutUI::CheckShortcut` · 00436bc0 · legions 00437410
-- [ ] `gmShortcutUI::CheckAllItems` · 00436c20 · legions 00437470
-- [ ] `gmShortcutUI::CheckItem` · 00436ca0 · legions 004374f0
-- [ ] `gmShortcutUI::CheckAllSkills` · 00436da0 · legions 004375f0
-- [ ] `gmShortcutUI::CheckSkill` · 00436e20 · legions 00437670
+- [x] `gmShortcutUI::CheckShortcut` · 00436bc0 · legions 00437410 — ac2-ui shortcut.rs
+- [x] `gmShortcutUI::CheckAllItems` · 00436c20 · legions 00437470 — ac2-ui shortcut.rs
+- [~] `gmShortcutUI::CheckItem` · 00436ca0 · legions 004374f0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [x] `gmShortcutUI::CheckAllSkills` · 00436da0 · legions 004375f0 — ac2-ui shortcut.rs
+- [~] `gmShortcutUI::CheckSkill` · 00436e20 · legions 00437670 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 - [ ] `gmShortcutUI::RecvNotice_UpdateInventory` · 00436ea0
 - [ ] `gmShortcutUI::RecvNotice_UpdateContainer` · 00436f00
 - [ ] `gmShortcutUI::RecvNotice_UpdateSkill` · 00436f40
@@ -1147,18 +1147,18 @@ Legend and workflow: [README](README.md).
 - [ ] `gmShortcutUI::FIXMESetupItemElement` · 00436fe0 · legions 00437830
 - [ ] `gmShortcutUI::~gmShortcutUI` · 004371c0 · legions 00437a10
 - [ ] `gmShortcutUI::RecvNotice_CreateObject` · 00437290
-- [ ] `gmShortcutUI::MakeElement` · 00437320 · legions 00437b70
-- [ ] `gmShortcutUI::SetShortcut` · 00437620 · legions 00437e70
+- [~] `gmShortcutUI::MakeElement` · 00437320 · legions 00437b70 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::SetShortcut` · 00437620 · legions 00437e70 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 - [ ] `gmShortcutUI::RecvNotice_RequestSpecialAttack` · 004376c0
 - [ ] `gmShortcutUI::RecvNotice_StartSpecialAttack` · 00437770
 - [ ] `gmShortcutUI::RecvNotice_EndSpecialAttack` · 00437820
-- [ ] `gmShortcutUI::ListenToMessage` · 004379a0 · legions 004381f0
-- [ ] `gmShortcutUI::UpdatePadding` · 00437d90 · legions 004385e0
-- [ ] `gmShortcutUI::RefreshShortcutHeight` · 00437e50 · legions 004386a0
-- [ ] `gmShortcutUI::gmShortcutUI` · 00437fb0 · legions 00438800
-- [ ] `gmShortcutUI::ListenToMessage` · 00438270 · legions 00438ac0
-- [ ] `gmShortcutUI::Init` · 004386c0 · legions 00438f10
-- [ ] `gmShortcutUI::RecvNotice_ReloadShortcuts` · 004387f0
+- [~] `gmShortcutUI::ListenToMessage` · 004379a0 · legions 004381f0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [x] `gmShortcutUI::UpdatePadding` · 00437d90 · legions 004385e0 — ac2-ui shortcut.rs
+- [~] `gmShortcutUI::RefreshShortcutHeight` · 00437e50 · legions 004386a0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::gmShortcutUI` · 00437fb0 · legions 00438800 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::ListenToMessage` · 00438270 · legions 00438ac0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::Init` · 004386c0 · legions 00438f10 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [x] `gmShortcutUI::RecvNotice_ReloadShortcuts` · 004387f0 — ac2-ui shortcut.rs
 - [ ] `gmShortcutUI::RecvNotice_ReloadOptions` · 00438830 · legions 00439080
 
 ## `ac2/client/src/ui/gameplay/toolbar/gmtoolbarui.cpp.c` (1/16)
@@ -3156,7 +3156,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Button::EndUseActive` · 005fb870 · legions 005bc3a0
 - [~] `UIElement_Button::SetAttribute_Bool` · 005fb940 · legions 005bc470 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [ ] `UIElement_Button::Register` · 005fb9b0 · legions 005bc4e0
-- [~] `UIElement_Button::MouseDown` · 005fb9d0 · legions 005bc500 — button.rs: press, broadcasts, one hot_click on press; repeats while held (Global_Loop) not modelled
+- [~] `UIElement_Button::MouseDown` · 005fb9d0 · legions 005bc500 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [x] `UIElement_Button::MouseUp` · 005fbb10 · legions 005bc640 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [x] `UIElement_Button::MouseOverTop` · 005fbc50 · legions 005bc780 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 

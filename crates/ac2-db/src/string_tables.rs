@@ -70,6 +70,20 @@ impl PreloadedStringTables {
         self.tables.contains_key(&did)
     }
 
+    /// Every string table of the local DAT (about 5 MB of text) and the state `state_did`, for
+    /// UI text rendered on the frame thread. Reads files: call it on a worker.
+    pub fn load_all(store: &ResourceStore, state_did: u32) -> Self {
+        let dids: Vec<u32> = store
+            .dataset()
+            .ids_in_range(
+                ac2_dat::DatFileKind::Local,
+                crate::STRING_TABLE_FIRST,
+                crate::STRING_TABLE_LAST,
+            )
+            .collect();
+        Self::load(store, &dids, state_did)
+    }
+
     /// Reads `dids` and the private tables their entries name, plus the state `state_did`
     /// (0: none), from `store`. Reads files: call it on a worker.
     pub fn load(store: &ResourceStore, dids: &[u32], state_did: u32) -> Self {

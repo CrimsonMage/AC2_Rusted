@@ -138,6 +138,10 @@ pub fn native_from_net(native: &net::NativeObject) -> NativeObject {
             NativeObject::MissileParameters(MissileParameters::from_packed(m.bitfield, &m.words))
         }
         W::BehaviorParams(p) => NativeObject::BehaviorParams(Box::new(behavior_from_net(p))),
+        // The adaptors pack nothing (`gmCNativeFactory`); a fresh one each.
+        W::Empty(t) if !matches!(NativeObject::new_empty(*t), NativeObject::Unbound(_)) => {
+            NativeObject::new_empty(*t)
+        }
         W::GameplayOptionsProfile(p) => {
             NativeObject::GameplayOptions(Box::new(GameplayOptions::from_net(p)))
         }
@@ -195,6 +199,10 @@ pub fn native_to_net(
             W::BehaviorParams(Box::new(p))
         }
         NativeObject::GameplayOptions(p) => W::GameplayOptionsProfile(Box::new(p.to_net())),
+        NativeObject::Fellow(_)
+        | NativeObject::Fellowship(_)
+        | NativeObject::AllegianceData(_)
+        | NativeObject::AllegianceProfile(_) => W::Empty(native_type),
         NativeObject::RandomSelectionTable(t) => {
             W::RandomSelectionTable(net::RandomSelectionTable {
                 unused: t.unused.clone(),

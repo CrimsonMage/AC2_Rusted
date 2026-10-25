@@ -11,6 +11,9 @@ use ac2_weenie::{SessionEvent, NO_SELECTION};
 
 use crate::client::Client;
 
+/// The selection action `gmShortcutUI` raises to auto-target before attacking.
+const SELECT_AUTO_TARGET: u32 = 0x4100_0024;
+
 /// A gameplay command from the UI.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Command {
@@ -63,6 +66,11 @@ pub enum Command {
     /// `gmCWInterface::RequestTrainSkill` / `RequestUntrainSkill` / `RequestRaiseSkill` /
     /// `RequestUntrainSkillCancel` (the skill panel and its confirmation dialogs).
     Skill(ac2_weenie::SkillRequest),
+    /// `gmShortcutUI::RequestAttackStateChange` (the bar's attack buttons, key 0x41000013):
+    /// start attacking the selection, or stop.
+    SetAttacking(bool),
+    /// `gmCWInterface::SetWhichShortcutSet`: the bar shows set `n`.
+    SetShortcutSet(u32),
     /// `gmCWInterface::SetShortcut`: the shortcut into slot `index` of the bar.
     SetShortcut {
         index: u32,
@@ -113,6 +121,38 @@ pub struct SelectionFrame {
 }
 
 impl Client {
+    /// `gmShortcutUI::RequestAttackStateChange`: before starting, `ShouldAutoTarget` may ask
+    /// the UI to select a target (`SendNotice_Select(0x41000024)`, handled next frame here,
+    /// so the attack goes to the selection as it was); then `RequestAttackStateChange`, on
+    /// the script VM when it has the call, else the session's stand-in.
+    fn request_attack_state(&mut self, attacking: bool) -> Vec<SessionEvent> {
+        use crate::scripts::{IFUN_REQUEST_ATTACK_STATE_CHANGE, IFUN_SHOULD_AUTO_TARGET};
+        use ac2_script::host::IFunArg;
+        if !self.scripts_own(IFUN_REQUEST_ATTACK_STATE_CHANGE) {
+            self.session.request_attack_state(attacking);
+            return Vec::new();
+        }
+        let mut out = Vec::new();
+        let mut problems = Vec::new();
+        if attacking {
+            match self.ifun_into(IFUN_SHOULD_AUTO_TARGET, &[], &mut out) {
+                Ok(r) if r.retval != 0 => out.push(SessionEvent::Notice(
+                    ac2_weenie::GameplayNotice::Select(SELECT_AUTO_TARGET),
+                )),
+                Ok(_) => {}
+                Err(e) => problems.push(e),
+            }
+        }
+        let args = [IFunArg::Int(u32::from(attacking))];
+        if let Err(e) = self.ifun_into(IFUN_REQUEST_ATTACK_STATE_CHANGE, &args, &mut out) {
+            problems.push(e);
+        }
+        if let Some(scripts) = self.scripts.as_mut() {
+            scripts.problems.extend(problems);
+        }
+        out
+    }
+
     /// Runs the frame's commands; their notices join the frame's events.
     pub(crate) fn commands(&mut self, commands: &[Command]) -> Vec<SessionEvent> {
         let mut events = Vec::new();
@@ -142,6 +182,18 @@ impl Client {
                     Vec::new()
                 }
                 Command::ChatLine(line) => self.session.process_text(line),
+                Command::SetAttacking(attacking) => self.request_attack_state(*attacking),
+                Command::SetShortcutSet(set) => {
+                    self.session.set_shortcut_set(*set);
+                    if self.scripts_own(crate::scripts::IFUN_SET_WHICH_SHORTCUT_SET) {
+                        self.script_ifun(
+                            crate::scripts::IFUN_SET_WHICH_SHORTCUT_SET,
+                            &[ac2_net::protocol::PackValue::Int(*set)],
+                        )
+                    } else {
+                        Vec::new()
+                    }
+                }
                 Command::Skill(request) => {
                     self.session.request_skill(*request);
                     Vec::new()

@@ -157,6 +157,10 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::RandomSelectionTable(_) => "RandomSelectionTable",
         NativeObject::GameplayOptions(_) => "GameplayOptionsProfile",
         NativeObject::DataIds(_) => "QualifiedDataIDArray",
+        NativeObject::Fellow(_)
+        | NativeObject::Fellowship(_)
+        | NativeObject::AllegianceData(_)
+        | NativeObject::AllegianceProfile(_) => "adaptor",
         NativeObject::ListIter { .. } => "list iterator",
         NativeObject::HashIter { .. } => "hash iterator",
         NativeObject::MultiHash(_) => "multi-hash",
@@ -273,4 +277,28 @@ fn the_legions_dats_hold_no_places_table() {
         0
     );
     assert!(data.places_table().is_none());
+}
+
+/// `ScriptData::render_string` renders through ac2-db's meta-language renderer, with the
+/// `StringState` resident after `preload_tables`: the INIT_PLAYER welcome line renders.
+#[test]
+fn script_strings_render_through_the_meta_language() {
+    use crate::data::DatScriptData;
+    use crate::native::StringInfo;
+    use crate::vm::ScriptData;
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ResourceStore::new(dataset.clone());
+    let data = DatScriptData::new(dataset, store);
+    data.preload_tables();
+    let info = StringInfo {
+        string_id: 0x7365_1CBE,
+        table_id: 0x2500_0002,
+        ..Default::default()
+    };
+    let table = data.string_table(info.table_id).expect("table");
+    let text = data.render_string(&table, &info).expect("renders");
+    assert!(!text.is_empty());
+    eprintln!("{}", String::from_utf16_lossy(&text));
 }

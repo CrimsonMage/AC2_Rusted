@@ -20,13 +20,31 @@ use ac2_weenie::SessionEvent;
 use crate::client::Client;
 use crate::loader::Request;
 
-/// The server calls the script VM answers as the stand-ins did (verified against them), and so
-/// takes over: `WM_Communication` 0x11, 0x23 (`DisplayStringInfo`) and 0x12 (`DisplayText`).
+/// The server calls and UI IFuns the script VM answers as the stand-ins did (verified against
+/// them, `scripts_7160`), and so takes over: `WM_Communication` 0x11, 0x23
+/// (`DisplayStringInfo`) and 0x12 (`DisplayText`); `WM_Player` 0x27 (the login, `CPlayer`
+/// 0x65: vitals, inventory refresh; the session's mirrors still follow it) and 0x2C
+/// (`UpdateSelectionInfo`, `CPlayer` 0x34); `SetSelection` (`CPlayer` 0x6A),
+/// `RequestAttackStateChange` (`CPlayer` 0x4F) and `SetWhichShortcutSet` (`CPlayer` 0x5).
 pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     ac2_net::protocol::script_function::DISPLAY_STRING_INFO,
     ac2_net::protocol::script_function::DISPLAY_STRING_INFO_2,
     ac2_net::protocol::script_function::DISPLAY_TEXT,
+    ac2_net::protocol::script_function::INIT_PLAYER,
+    ac2_net::protocol::script_function::UPDATE_SELECTION_INFO,
+    IFUN_SET_SELECTION,
+    IFUN_REQUEST_ATTACK_STATE_CHANGE,
+    IFUN_SET_WHICH_SHORTCUT_SET,
 ];
+
+/// `gmCWInterface::RequestAttackStateChange` (`CPlayer` 0x4F: start attacking the selection,
+/// or stop).
+pub const IFUN_REQUEST_ATTACK_STATE_CHANGE: u32 = 0x00B4_0008;
+/// `gmCWInterface::ShouldAutoTarget` (`CPlayer` 0x7A: the auto-target option, and the
+/// selection not attackable).
+pub const IFUN_SHOULD_AUTO_TARGET: u32 = 0x00B4_0005;
+/// `gmCWInterface::SetWhichShortcutSet` (`CPlayer` 0x5).
+pub const IFUN_SET_WHICH_SHORTCUT_SET: u32 = 0x00B4_0071;
 
 /// `gmCWInterface::SetSelection`'s IFun (`ggmCWInterface::CallIFun_SetSelection`: the
 /// object, then `CPlayer` 0x6A).
@@ -54,6 +72,8 @@ pub(crate) struct Scripts {
     pub(crate) data_pending: usize,
     /// The `CM_*` notices ac2-weenie has no type for, since the last take.
     pub(crate) script_notices: Vec<ScriptNotice>,
+    /// GUN requests for the GUN service ([`Client::set_gun_service`]).
+    pub(crate) gun_requests: Vec<ac2_script::host::ChatRequest>,
 }
 
 impl Client {
@@ -69,7 +89,8 @@ impl Client {
     /// waiting calls resume when they land.
     pub fn attach_scripts(&mut self, mut host: ScriptHost, functions: &[u32]) {
         self.session.set_script_functions(functions);
-        // The Legions client chats through Turbine chat; it has no GUN (`S_pTurbineGun`).
+        // Room chat goes through Turbine chat; a GUN server only when the client has one
+        // (`Client::set_gun_service`), as `gmClient::Init` builds `TurbineGun` for `-gunserver`.
         host.set_chat_services(ChatServices {
             turbine_chat: true,
             gun: false,
@@ -84,6 +105,7 @@ impl Client {
             data_waits: BTreeMap::new(),
             data_pending: 0,
             script_notices: Vec::new(),
+            gun_requests: Vec::new(),
         });
         // Objects already known get their processes too.
         let known: Vec<u64> = self.session.objects().iter().map(|o| o.id).collect();
@@ -146,6 +168,7 @@ impl Client {
         if Some(id) == self.session.player() {
             scripts.host.set_player(id);
         }
+        self.share_qualities(id);
         let mut events = Vec::new();
         for (function, arguments) in missed {
             self.dispatch_script(id, function, &arguments, &mut events);
@@ -189,6 +212,12 @@ impl Client {
         for event in events.iter() {
             match event {
                 SessionEvent::ObjectAdded(id) => self.request_script(*id),
+                SessionEvent::QualityChanged { object, .. } => self.share_qualities(*object),
+                SessionEvent::PlayerQualities(_) => {
+                    if let Some(player) = self.session.player() {
+                        self.share_qualities(player);
+                    }
+                }
                 SessionEvent::EnteredWorld(entry) => self.request_script(entry.player),
                 SessionEvent::ObjectRemoved(id) => {
                     if let Some(scripts) = self.scripts.as_mut() {
@@ -213,6 +242,21 @@ impl Client {
             }
         }
         events.extend(produced);
+    }
+
+    /// `CWRepository::SetQualities` / `SetWeenieDesc` for a running process: the scripts read
+    /// the object's qualities (`gCWRepository`) as the session keeps them from the server
+    /// (the player description, the weenie description, the quality updates).
+    fn share_qualities(&mut self, id: u64) {
+        let Some(scripts) = self.scripts.as_mut() else {
+            return;
+        };
+        if !scripts.running.contains(&id) {
+            return;
+        }
+        if let Some(object) = self.session.objects().get(id) {
+            scripts.host.set_qualities(id, object.qualities.clone());
+        }
     }
 
     /// Whether the UI's IFun (or server call) `function` is the script VM's.

@@ -1,6 +1,6 @@
 # replaced: Third-party libraries, CRT and container templates replaced by Rust
 
-2058 retail functions: 25 done, 0 partial, 0 to do, 2033 skipped.
+2058 retail functions: 26 done, 0 partial, 0 to do, 2032 skipped.
 Legend and workflow: [README](README.md).
 
 ## `_libraries/ImeUI.lib/ImeUi.obj.c` (0/36)
@@ -1930,10 +1930,10 @@ Legend and workflow: [README](README.md).
 - [-] `List<ExaminationDataNode>::insert` · 00608750 · legions 005c9890 — Rust std replaces it
 - [-] `List<ExaminationDataNode>::flush` · 00608f70 · legions 005c9e50 — Rust std replaces it
 
-## `ac2/shared/src/fellowship/fellowshipadaptor.cpp.c` (0/2)
+## `ac2/shared/src/fellowship/fellowshipadaptor.cpp.c` (1/2)
 
 ### HashTable<InstanceID,FellowAdaptor>
-- [-] `HashTable<InstanceID,FellowAdaptor>::add` · 0060c010 · legions 005ccd60 — Rust std replaces it
+- [x] `HashTable<InstanceID,FellowAdaptor>::add` · 0060c010 · legions 005ccd60 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 
 ### IntrusiveHashTable<InstanceID,HashTableData<InstanceID,FellowAdaptor>_*>
 - [-] `IntrusiveHashTable<InstanceID,HashTableData<InstanceID,FellowAdaptor>_*>::IntrusiveHashTable<InstanceID,HashTableData<InstanceID,FellowAdaptor>_*>` · 0060c110 · legions 005cce60 — Rust std replaces it

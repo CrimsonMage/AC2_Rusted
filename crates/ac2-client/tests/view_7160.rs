@@ -76,11 +76,25 @@ fn the_client_walks_with_w_and_draws_its_character() {
         dat_iterations: Vec::new(),
     };
     let mut session = OnlineSession::with_transport(config, Box::new(transport)).unwrap();
-    // As the binary does: the string tables and the chat command line.
+    // As the binary does: the string tables, the chat command line and the player's scripts on
+    // a cache-only VM.
     let script_data = ac2_script::data::DatScriptData::new(tables_dataset, (*store).clone());
     session.set_string_tables(ac2_client::string_table_ids(&script_data));
     session.set_chat_commands(ac2_client::chat_commands(&script_data));
+    let dat_world = dat_world.with_script_data(script_data.clone());
     let mut client = Client::new(session, Arc::new(dat_world));
+    let wlib = ac2_script::load_wlib(&store, ac2_core::DataId::new(ac2_script::LEGIONS_WLIB_DID))
+        .unwrap()
+        .expect("the script library");
+    let program = Arc::new(ac2_script::vm::Program::from_stream(&wlib.stream));
+    script_data.preload_tables();
+    script_data.preload_states();
+    script_data.preload_skill_states(&program);
+    script_data.set_cache_only(true);
+    client.attach_scripts(
+        ac2_script::host::ScriptHost::new(program, Box::new(script_data)),
+        ac2_client::SCRIPT_VM_FUNCTIONS,
+    );
     client.set_load_budget(Duration::from_secs(30));
     let idle = FrameInput::default();
     let mut frames = 0;
@@ -91,6 +105,8 @@ fn the_client_walks_with_w_and_draws_its_character() {
         frames += 1;
         assert!(frames < 600);
     }
+    // The server's INIT_PLAYER runs the player's script (`CPlayer`).
+    server.borrow_mut().send_init_player();
     // Settle onto the ground.
     for _ in 0..128 {
         client.use_time(&idle).unwrap();
@@ -220,8 +236,8 @@ fn the_client_walks_with_w_and_draws_its_character() {
     );
     assert_eq!(
         view.hud_layers(),
-        15,
-        "every HUD root (and the reticle's objects and the first chat window) is drawn"
+        16,
+        "every HUD root (and the reticle's objects, the shortcut bar and the first chat window) is drawn"
     );
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
@@ -343,9 +359,108 @@ fn the_client_walks_with_w_and_draws_its_character() {
     }
     eprintln!("chat log: {log:?}");
     assert!(log.contains("You say, \"Well met\""), "{log:?}");
+    // The frameworks that ask the player load once the string tables are in: the shortcut bar
+    // pads to its slots, and the skills panel follows an examination request for the race's
+    // melee panel (the request goes through the server and comes back as a notice).
+    let mut ready = false;
+    for _ in 0..300 {
+        view.update(&gpu, &frame, Duration::ZERO);
+        let notices = client.take_script_notices();
+        let commands = view.frameworks(&mut client, &frame, &[], &notices);
+        assert!(commands.is_empty(), "{commands:?}");
+        if view.shortcut_slots() > 0 {
+            ready = true;
+            break;
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    assert!(ready, "the UI string tables load");
+    assert_eq!(view.shortcut_slots(), 100);
+    // `InqRootPanelFromRace` answers 0 for the double's player (it carries no race), so the
+    // human melee root panel (`HumanRootMeleePanel_SkillPanel`) is asked for directly.
+    let race_root = client.root_panel_from_race(ac2_ui::ROOT_MELEE_PANEL);
+    eprintln!("InqRootPanelFromRace(melee): {race_root:?}");
+    let root = 0x8000_000C;
+    let examine = FrameInput {
+        commands: vec![ac2_client::Command::Examine(
+            ac2_net::protocol::ExaminationRequest {
+                kind: ac2_ui::EXAMINE_PANEL,
+                data_enum: root,
+                ..Default::default()
+            },
+        )],
+        ..FrameInput::default()
+    };
+    let mut events = client.use_time(&examine).unwrap();
+    for _ in 0..4 {
+        server.borrow_mut().elapsed += STEP;
+        events.extend(client.use_time(&FrameInput::default()).unwrap());
+    }
+    let notices = client.take_script_notices();
+    view.frameworks(&mut client, &frame, &events, &notices);
+    assert_eq!(view.skills_current(), Some((root, 0)), "{events:?}");
+    // Examining the selected character (`gmSelectionUI` right click): the panel opens, holds the
+    // request open, and lays out the server's profile.
+    {
+        use ac2_net::protocol::{
+            ExaminationDataNode, ExaminationProfile, ExaminationRequest, ExaminationValue,
+            StringInfo,
+        };
+        let node = |order, value| ExaminationDataNode {
+            order,
+            appearance: 0,
+            value,
+        };
+        let name = StringInfo {
+            literal: Some("Explorer".into()),
+            ..StringInfo::default()
+        };
+        server.borrow_mut().script_world.profiles.insert(
+            player.id,
+            ExaminationProfile {
+                request: ExaminationRequest::object(player.id),
+                nodes: vec![
+                    node(1, ExaminationValue::Text(name)),
+                    node(2, ExaminationValue::Break),
+                    node(3, ExaminationValue::Int(42)),
+                ],
+            },
+        );
+    }
+    let examine = FrameInput {
+        commands: vec![ac2_client::Command::Examine(
+            ac2_net::protocol::ExaminationRequest::object(player.id),
+        )],
+        ..FrameInput::default()
+    };
+    let mut events = client.use_time(&examine).unwrap();
+    view.open_examination();
+    let mut texts = Vec::new();
+    for _ in 0..20 {
+        let notices = client.take_script_notices();
+        let commands = view.frameworks(&mut client, &frame, &events, &notices);
+        let input = FrameInput {
+            commands,
+            ..FrameInput::default()
+        };
+        server.borrow_mut().elapsed += STEP;
+        events = client.use_time(&input).unwrap();
+        texts = view.examination_texts();
+        if texts.len() > 1 {
+            break;
+        }
+    }
+    eprintln!("examination: {texts:?}");
+    assert!(view.panel_shown(ac2_ui::ToolbarChild::Examination));
+    assert!(texts.iter().any(|t| t == "Explorer"), "{texts:?}");
+    assert!(texts.iter().any(|t| t.contains("42")), "{texts:?}");
     // A displayed line reaches the log on the next update; the window shows it.
     view.chat_display(0x4_0000, "Explorer says, \"well met\"\n");
-    view.update(&gpu, &frame, Duration::ZERO);
+    // Images set since the build (icons) load on a worker; give them a moment.
+    for _ in 0..20 {
+        view.update(&gpu, &frame, Duration::ZERO);
+        std::thread::sleep(Duration::from_millis(10));
+    }
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
     target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
     write_png(

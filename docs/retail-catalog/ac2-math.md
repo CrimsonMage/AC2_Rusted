@@ -147,7 +147,7 @@ Legend and workflow: [README](README.md).
 - [-] `Frame::FromFileNode` · 0061a2d0 — text source format (admin tools)
 - [-] `Frame::ToFileNode` · 0061a300 — text source format (admin tools)
 - [x] `Frame::grotate` · 0061a310 · legions 005d5f70
-- [~] `Frame::slerp_rotation` · 0061a3c0 · legions 005d6020 — ac2-ui pregame/arms.rs (D3DXQuaternionSlerp in f64)
+- [~] `Frame::slerp_rotation` · 0061a3c0 · legions 005d6020 — ac2-physics interp (slice 3)
 - [ ] `Frame::OrientFrame` · 0061a460 · legions 005d60c0
 - [ ] `Frame::subtract2` · 0061a4e0 · legions 005d6140
 - [x] `Frame::set_vector_heading` · 0061a5b0 · legions 005d6210

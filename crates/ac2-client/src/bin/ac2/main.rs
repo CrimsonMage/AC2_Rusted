@@ -243,6 +243,12 @@ impl App {
         }
         state.sync_mouse_look(self.client.camera().movement_state().mouse_look);
         let frame = self.client.frame();
+        // The HUD frameworks that ask the player: skills panel, shortcut bar, chat options.
+        let script_notices = self.client.take_script_notices();
+        let asked = state
+            .view
+            .frameworks(&mut self.client, &frame, &events, &script_notices);
+        state.commands.extend(asked);
         // The selection render: the object under the pointer, selected (or the selection
         // cleared) by `gmSelectionUI::Finish3DSelection`.
         if state.selection.wants_pick() {
@@ -504,6 +510,7 @@ fn run(args: Args) -> Result<(), String> {
     // and from then on the VM only reads what is resident.
     script_data.preload_tables();
     script_data.preload_states();
+    script_data.preload_skill_states(&program);
     script_data.set_cache_only(true);
     let host = ac2_script::host::ScriptHost::new(program, Box::new(script_data));
     client.attach_scripts(host, ac2_client::SCRIPT_VM_FUNCTIONS);

@@ -563,12 +563,26 @@ impl OnlineSession {
                     out.extend(events);
                     return;
                 }
-                if stand_in && target.is_some() && target == self.world.player() {
-                    if function == ac2_net::protocol::script_function::INIT_PLAYER {
-                        out.extend(self.init_player());
-                        out.extend(self.init_player_inventory(&arguments));
-                        out.extend(self.init_player_options(&arguments));
+                let player = target.is_some() && target == self.world.player();
+                if player && function == ac2_net::protocol::script_function::INIT_PLAYER {
+                    // The session's skill, inventory, shortcut and chat mirrors follow the
+                    // login whoever answers it; the notices are the stand-in's only.
+                    let skills = self.init_player_skills(&arguments);
+                    let vitals = if stand_in {
+                        self.init_player()
+                    } else {
+                        Vec::new()
+                    };
+                    let inventory = self.init_player_inventory(&arguments);
+                    let options = self.init_player_options(&arguments);
+                    // `CPlayer` 0x65's order: the skill panel, the contents and equipment, the
+                    // options, then the hero status and vitals.
+                    if stand_in {
+                        out.extend(skills.into_iter().chain(inventory).chain(options));
+                        out.extend(vitals);
                     }
+                }
+                if stand_in && player {
                     // The skill stand-in's notices; the call still reaches the caller raw (the
                     // script VM takes it from there).
                     if let Some(events) = self.receive_skill(function, &arguments) {

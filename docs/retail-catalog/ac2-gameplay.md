@@ -1,17 +1,17 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 99 done, 10 partial, 381 to do, 9 skipped.
+499 retail functions: 108 done, 10 partial, 372 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
+## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (2/4)
 
 ### AllegianceDataAdaptor
-- [ ] `AllegianceDataAdaptor::AllegianceDataAdaptor` · 0060c6f0 · legions 005cd440
+- [x] `AllegianceDataAdaptor::AllegianceDataAdaptor` · 0060c6f0 · legions 005cd440 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 - [ ] `AllegianceDataAdaptor::operator=` · 0060c740 · legions 005cd490
-- [ ] `AllegianceDataAdaptor::AllegianceDataAdaptor` · 0060c7a0 · legions 005cd4f0
+- [x] `AllegianceDataAdaptor::AllegianceDataAdaptor` · 0060c7a0 · legions 005cd4f0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 - [ ] `AllegianceDataAdaptor::GetSpeciesGenderString` · 0060c7d0 · legions 005cd520
 
-## `ac2/shared/src/allegiance/allegianceprofileadaptor.cpp.c` (0/5)
+## `ac2/shared/src/allegiance/allegianceprofileadaptor.cpp.c` (2/5)
 
 ### AllegianceProfileAdaptor
 - [ ] `AllegianceProfileAdaptor::InqRealMonarch` · 0060c8f0 · legions 005cd6f0
@@ -21,8 +21,8 @@ Legend and workflow: [README](README.md).
 
 ### AllegianceProfileAdaptor
 - [ ] `AllegianceProfileAdaptor::operator=` · 0060c990 · legions 005cd790
-- [ ] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060ca40 · legions 005cd840
-- [ ] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060caf0 · legions 005cd8f0
+- [x] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060ca40 · legions 005cd840 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060caf0 · legions 005cd8f0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 
 ## `ac2/shared/src/character/gameplayoptionsprofile.cpp.c` (35/57)
 
@@ -275,22 +275,22 @@ Legend and workflow: [README](README.md).
 - [x] `SelectionInfo::SelectionInfo` · 00609780 · legions 005ca490 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `SelectionInfo::StreamPack` · 006097c0 · legions 005ca4d0 — ac2-net protocol::native (native objects in script-call PackBuffers)
 
-## `ac2/shared/src/fellowship/fellowadaptor.cpp.c` (0/2)
+## `ac2/shared/src/fellowship/fellowadaptor.cpp.c` (2/2)
 
 ### FellowAdaptor
-- [ ] `FellowAdaptor::FellowAdaptor` · 0060c230 · legions 005ccf80
-- [ ] `FellowAdaptor::FellowAdaptor` · 0060c260 · legions 005ccfb0
+- [x] `FellowAdaptor::FellowAdaptor` · 0060c230 · legions 005ccf80 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `FellowAdaptor::FellowAdaptor` · 0060c260 · legions 005ccfb0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 
-## `ac2/shared/src/fellowship/fellowshipadaptor.cpp.c` (0/5)
+## `ac2/shared/src/fellowship/fellowshipadaptor.cpp.c` (3/5)
 
 ### HashTable<InstanceID,FellowAdaptor>
 - [ ] `HashTable<InstanceID,FellowAdaptor>::operator=` · 0060bee0 · legions 005ccc30
 
 ### FellowshipAdaptor
 - [ ] `FellowshipAdaptor::operator=` · 0060c080 · legions 005ccdd0
-- [ ] `FellowshipAdaptor::AddFellow` · 0060c0f0 · legions 005cce40
-- [ ] `FellowshipAdaptor::FellowshipAdaptor` · 0060c1a0 · legions 005ccef0
-- [ ] `FellowshipAdaptor::FellowshipAdaptor` · 0060c1f0 · legions 005ccf40
+- [x] `FellowshipAdaptor::AddFellow` · 0060c0f0 · legions 005cce40 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `FellowshipAdaptor::FellowshipAdaptor` · 0060c1a0 · legions 005ccef0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `FellowshipAdaptor::FellowshipAdaptor` · 0060c1f0 · legions 005ccf40 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 
 ## `ac2/shared/src/quest/gmactinfo.cpp.c` (0/12)
 

@@ -19,8 +19,11 @@ use ac2_db::{ResourceResult, ResourceStore};
 use crate::chat::{ChatStrings, ChatUi, CHAT_STRING_TABLE, REPLY_STRING_TABLE, STRING_TABLE_GROUP};
 use crate::compose::UiPixels;
 use crate::element::UiTree;
+use crate::examination::ExaminationUi;
 use crate::layout::{load_layout, LayoutDesc};
 use crate::reticle::Reticle;
+use crate::shortcut::ShortcutUi;
+use crate::skill_tree::SkillTreeUi;
 use crate::text_data::StoreTextData;
 use crate::token::tokenize;
 use crate::toolbar::ToolbarUi;
@@ -60,10 +63,16 @@ pub struct GameplayHud {
     pub tree: UiTree,
     /// `gm3DTextUI`'s targeting reticle.
     pub reticle: Option<Reticle>,
+    /// `gmShortcutUI`.
+    pub shortcuts: Option<ShortcutUi>,
     /// `gmChatUI`.
     pub chat: Option<ChatUi>,
     /// `gmToolbarUI`'s panel children.
     pub toolbar: ToolbarUi,
+    /// `gmSkillUI`'s `gmSkillTreeUI`.
+    pub skills: Option<SkillTreeUi>,
+    /// `gmExaminationUI`.
+    pub examination: Option<ExaminationUi>,
 }
 
 /// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
@@ -100,17 +109,41 @@ pub fn build_gameplay_hud(
             }
         }
     }
+    // `gmToolbarUI::SetupChildren`: the shortcut bar first, then the chat.
+    let toolbar_field = tree.roots().iter().copied().find(|&r| {
+        tree.get(r)
+            .is_some_and(|e| e.id() == tokenize("ToolbarField"))
+    });
+    let shortcuts = match (&layouts[&LAYOUT_TOOLBAR], toolbar_field) {
+        (Some(toolbar), Some(field)) => Some(ShortcutUi::create(&mut tree, toolbar, field)),
+        _ => None,
+    };
     let chat = match &layouts[&LAYOUT_TOOLBAR] {
         Some(toolbar) => Some(ChatUi::create(&mut tree, toolbar, chat_strings(store)?)),
         None => None,
     };
+    // `gmSkillUI::gmSkillUI`: the skill tree over `SkillField`.
+    let skill_field = tree
+        .roots()
+        .iter()
+        .find_map(|&r| tree.child_recursive(r, tokenize("SkillField")));
+    let skills = match (&layouts[&LAYOUT_TOOLBAR], skill_field) {
+        (Some(toolbar), Some(field)) => Some(SkillTreeUi::create(&tree, toolbar, field)),
+        _ => None,
+    };
+    let examination = layouts[&LAYOUT_TOOLBAR]
+        .as_ref()
+        .map(|toolbar| ExaminationUi::create(&mut tree, toolbar));
     let toolbar = ToolbarUi::create(&mut tree);
     text_data.freeze();
     Ok(GameplayHud {
         tree,
         reticle,
+        shortcuts,
         chat,
         toolbar,
+        skills,
+        examination,
     })
 }
 

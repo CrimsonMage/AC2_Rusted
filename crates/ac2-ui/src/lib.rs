@@ -14,6 +14,7 @@ mod compose;
 mod controls;
 mod dialog;
 mod element;
+mod examination;
 mod hud;
 mod input;
 mod interpreter;
@@ -29,6 +30,7 @@ pub mod pregame;
 mod reticle;
 mod scrollbar;
 mod selection_ui;
+mod shortcut;
 mod skill_tree;
 #[cfg(test)]
 mod tests;
@@ -53,6 +55,7 @@ pub use dialog::{
     DIALOG_TIMED, DIALOG_WAIT, LAYOUT_DIALOGS,
 };
 pub use element::{UiBox, UiElement, UiImage, UiTree};
+pub use examination::{ExaminationCall, ExaminationItem, ExaminationUi};
 pub use hud::{
     build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
     LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,
@@ -81,6 +84,10 @@ pub use mouse::{
 pub use reticle::{Reticle, ReticleOutcome, ReticleTarget};
 pub use scrollbar::MSG_NEW_POSITION;
 pub use selection_ui::{SelectionClick, SelectionOutcome, SelectionUi};
+pub use shortcut::{
+    Shortcut, ShortcutOptions, ShortcutRequest, ShortcutSource, ShortcutUi, SHORTCUT_ALIAS,
+    SHORTCUT_EMPTY, SHORTCUT_ITEM, SHORTCUT_RECIPE, SHORTCUT_SKILL,
+};
 pub use skill_tree::{
     SkillNode, SkillPanel, SkillRequest, SkillSource, SkillStatus, SkillTreeUi, SkillVar,
     EXAMINE_PANEL, EXAMINE_SKILL, NODE_SKILL, ROOT_MAGIC_PANEL, ROOT_MELEE_PANEL,
@@ -107,6 +114,8 @@ mod mouse_tests;
 mod real_data_tests;
 #[cfg(test)]
 mod scrollbar_tests;
+#[cfg(test)]
+mod shortcut_tests;
 #[cfg(test)]
 mod skill_tree_tests;
 #[cfg(test)]

@@ -95,6 +95,9 @@ pub const CALLS: &[CallSpec] = &[
     call(0x8212_000C, ToServer, "WM_Player 0x1D", "UploadGameOptions", &[Int, Int, Int, Float]),
     call(0x8212_002D, ToServer, "WM_Player 0x2E", "UploadChatOptions", &[Reference, Reference, Reference, Reference, Reference]),
     call(0x8212_0031, ToServer, "WM_Player 0x32", "UploadUISettings", &[Reference, Reference]),
+    // Combat (`WM_Combat`, package 0x204).
+    call(0x8204_0008, ToServer, "WM_Combat 0x16", "CCombatSystem 0x3 (RequestAttackStateChange: start, the selection)", &[LongInt]),
+    call(0x8204_0010, ToServer, "WM_Combat 0x14", "CCombatSystem 0x10 (RequestAttackStateChange: stop)", &[]),
     // Chat channels (`WM_Communication`, package 0x205; speech and tells are typed).
     call(0x8205_001B, ToClient, "WM_Communication 0x1B", "CPlayer 0x147 (the chat channel table)", &[Word]),
     // Fellowships (`WM_Fellowship`, package 0x20C).
@@ -262,5 +265,18 @@ mod tests {
             );
         }
         assert!(ScriptCall::decode(0x8212_0016, &[]).is_none());
+        // `WM_Combat` 0x16: the target, a 64-bit id (tag 2, low word first); 0x14: nothing.
+        let attack =
+            ScriptCall::new(0x8204_0008, vec![PackValue::LongInt(0x7000_0000_0000_0042)]).unwrap();
+        let (_, bytes) = attack.to_event().encode();
+        assert_eq!(
+            bytes,
+            words(&[0x0001_0053, 0x8204_0008, 12, 2, 0x42, 0x7000_0000])
+        );
+        let stop = ScriptCall::new(0x8204_0010, vec![]).unwrap();
+        assert_eq!(
+            stop.to_event().encode().1,
+            words(&[0x0001_0053, 0x8204_0010, 0])
+        );
     }
 }

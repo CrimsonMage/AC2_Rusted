@@ -20,10 +20,12 @@
 mod db_types;
 mod enum_map;
 mod places;
+mod render;
 
 pub use db_types::{db_type, DB_TYPE_DID_MAPPER, DB_TYPE_ENUM_MAPPER, DB_TYPE_STRING_TABLE};
 pub use enum_map::{EnumIdMap, EnumMapper};
 pub use places::{PlacesTable, PLACES_TABLE_ENUM, UNIQUEDB_GROUP_ENUM};
+pub use render::{render_info, script_error};
 
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::ops::Deref;
@@ -51,6 +53,9 @@ pub const EMAPPER_GROUP: u32 = 0x4000_0001;
 /// `AllocatePackage` for `new`): 12,583 records, about 46 MB decoded, a third of a second.
 pub const STATE_RANGE: (u32, u32) = (WSTATE_BASE_DID + 0x0100_0000, WSTATE_BASE_DID + 0x0100_FFFF);
 
+/// The packages of the data WStates the skill queries read.
+pub const SKILL_STATE_PACKAGES: [&str; 3] = ["AdvancementTable", "LevelMappingTable", "CraftSkill"];
+
 /// Records held checked out of the store (preloads), and records known to be absent.
 #[derive(Default)]
 struct Resident {
@@ -58,6 +63,7 @@ struct Resident {
     mappers: HashMap<u32, CachedResource<EnumMapper>>,
     id_maps: HashMap<u32, CachedResource<EnumIdMap>>,
     places: Option<CachedResource<PlacesTable>>,
+    string_state: Option<CachedResource<ac2_db::StringState>>,
     absent: HashSet<DataRequest>,
 }
 
@@ -193,6 +199,13 @@ impl DatScriptData {
         if !self.load_places() {
             self.resident().absent.insert(DataRequest::PlacesTable);
         }
+        // `StringStateInfo`'s state (number formats, plurals, meta letters).
+        let did = self
+            .enum_did(ac2_db::STRING_STATE_ENUM, ac2_db::STRING_STATE_ENUM_GROUP)
+            .unwrap_or(ac2_db::STRING_STATE_FIRST);
+        if let Ok(Some(state)) = ac2_db::load_string_state(&self.store, DataId::new(did)) {
+            self.resident().string_state = Some(state);
+        }
     }
 
     /// Worker side: the `PlacesTable`, held resident.
@@ -221,6 +234,46 @@ impl DatScriptData {
                 self.resident().states.insert(did, state);
             }
         }
+    }
+
+    /// Worker side: the WStates in `first..=last` saved from one of `packages` (the package id
+    /// a WState record ends with), held resident. Only those records are decoded.
+    pub fn preload_package_states(&self, first: u32, last: u32, packages: &[u32]) -> usize {
+        let ids: Vec<u32> = self
+            .dataset
+            .ids_in_range(DatFileKind::Portal, first, last)
+            .collect();
+        let mut held = 0;
+        for did in ids {
+            let Ok(Some(bytes)) = self.dataset.read_packed(DatFileKind::Portal, did) else {
+                continue;
+            };
+            let Some(tail) = bytes.len().checked_sub(4).map(|at| &bytes[at..]) else {
+                continue;
+            };
+            let pid = u32::from_le_bytes([tail[0], tail[1], tail[2], tail[3]]);
+            if !packages.contains(&pid) {
+                continue;
+            }
+            if let Ok(Some(state)) = load_wstate(&self.store, DataId::new(did)) {
+                if state.pid == Some(pid) {
+                    self.resident().states.insert(did, state);
+                    held += 1;
+                }
+            }
+        }
+        held
+    }
+
+    /// Worker side: the skill system's data WStates (`0x6F000000 | n`) the player's skill
+    /// queries read (`gmCWInterface::GetSkillExperienceNeededToLevelByEnum` and kin): the
+    /// packages in [`SKILL_STATE_PACKAGES`], held resident (about 230 records).
+    pub fn preload_skill_states(&self, program: &crate::vm::Program) -> usize {
+        let pids: Vec<u32> = SKILL_STATE_PACKAGES
+            .iter()
+            .filter_map(|name| program.package_id(name))
+            .collect();
+        self.preload_package_states(WSTATE_BASE_DID, WSTATE_BASE_DID + 0x00FF_FFFF, &pids)
     }
 
     fn table<T: ResourcePackedDecode>(
@@ -309,6 +362,15 @@ impl ScriptData for DatScriptData {
         self.load_places();
         let table = self.resident().places.clone()?;
         Some(Box::new(table))
+    }
+
+    /// `StringTable::GetString` (vtable +0x80) through ac2-db's meta-language renderer.
+    fn render_string(
+        &self,
+        table: &StringTable,
+        info: &crate::native::StringInfo,
+    ) -> Result<Vec<u16>, crate::native::GetStringError> {
+        ac2_db::render_with_table(self, table, &render_info(info)).map_err(script_error)
     }
 
     /// `DBObj::Get(QualifiedDataID(did, DB_TYPE_STRING_TABLE))` through ac2-db's decoder.

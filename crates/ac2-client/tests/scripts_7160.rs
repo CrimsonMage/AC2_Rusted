@@ -196,6 +196,7 @@ fn the_cache_only_vm_runs_the_login_and_answers_the_ui() {
     let data = DatScriptData::new(dataset, store);
     data.preload_tables();
     data.preload_states();
+    data.preload_skill_states(&program);
     data.set_cache_only(true);
     let (mut client, server) = entered_with(
         Spawn {
@@ -212,6 +213,12 @@ fn the_cache_only_vm_runs_the_login_and_answers_the_ui() {
     let idle = FrameInput::default();
     step(&mut client, &server, &idle);
     assert!(client.script_host().unwrap().instance(PLAYER).is_some());
+    // A character without skills or shortcuts (the double's own are `character_7160`'s).
+    {
+        let mut s = server.borrow_mut();
+        s.script_world.character.skills.clear();
+        s.script_world.options = Some(Default::default());
+    }
     server.borrow_mut().send_init_player();
     for _ in 0..8 {
         step(&mut client, &server, &idle);
@@ -236,4 +243,29 @@ fn the_cache_only_vm_runs_the_login_and_answers_the_ui() {
     );
     let panel = client.skill_panel(1).unwrap().unwrap();
     assert!(panel.nodes.is_empty());
+
+    // The skill panel's and shortcut bar's questions (skill 0x10; the player has no skills:
+    // 30001 = not trainable here, 30009 = not trained).
+    assert_eq!(client.can_skill_be_trained(0x10), Ok(30001));
+    assert_eq!(client.can_skill_be_untrained(0x10), Ok(30009));
+    assert_eq!(client.can_skill_be_raised(0x10), Ok(30009));
+    assert_eq!(client.skill_cost_to_train(0x10), Ok(5));
+    assert_eq!(client.is_hero_skill(0x10), Ok(false));
+    assert_eq!(client.skill_experience_to_level(0x10), Ok(125_000));
+    let level = client.skill_level(0x10).unwrap();
+    assert_eq!((level.raw, level.enchanted), (0, 0));
+    assert!(!client.skill_time_left(0x10).unwrap().ok);
+    assert!(!client.shortcut_info(0).unwrap().ok);
+    let settings = client.shortcut_settings().unwrap();
+    assert_eq!((settings.which_set, settings.height), (0, 1));
+    assert!(client.shortcut_array().unwrap().is_empty());
+    // The chat windows' defaults (`GameplayOptionsProfile::Clear`, Legions).
+    let chat = client.chat_settings().unwrap();
+    assert_eq!(chat.filters.get(&1), Some(&0x0060_017F));
+    assert_eq!(chat.font_colors.get(&0x100), Some(&9));
+    assert!(
+        client.take_script_problems().is_empty(),
+        "{:?}",
+        client.take_script_problems()
+    );
 }
