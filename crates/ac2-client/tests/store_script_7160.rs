@@ -354,7 +354,7 @@ fn rendered(data: &DatScriptData, info: &StringInfo) -> String {
     let Some(table) = data.string_table(native.table_id) else {
         return String::new();
     };
-    data.render_string(&**table, &native)
+    data.render_string(&table, &native)
         .map(|text| String::from_utf16_lossy(&text))
         .unwrap_or_default()
 }

@@ -179,7 +179,7 @@ pub fn select_target(
             if rule.fellows && !c.fellow {
                 continue;
             }
-            if rule.foes && !(c.can_attack && !c.fellow) {
+            if rule.foes && (!c.can_attack || c.fellow) {
                 continue;
             }
             if rule.pets && c.owner.is_none_or(|o| o == player) {
@@ -198,7 +198,7 @@ pub fn select_target(
                 continue;
             }
             let nearer_than_best = farther((dist, c.id), (best_dist, best_id)) == prev;
-            let beyond_reference = farther((dist, c.id), (ref_dist_pass, ref_id)) == !prev;
+            let beyond_reference = farther((dist, c.id), (ref_dist_pass, ref_id)) != prev;
             if nearer_than_best && beyond_reference {
                 best_dist = dist;
                 best_id = c.id;

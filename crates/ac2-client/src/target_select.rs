@@ -47,7 +47,7 @@ fn candidates(client: &Client, frame: &ClientFrame) -> Vec<Candidate> {
                 selectable: qualities.inq_bool(0x270).unwrap_or(0) != 0,
                 owner,
                 fellow: is_fellow,
-                owner_fellow: owner.is_some_and(|o| fellow(o)),
+                owner_fellow: owner.is_some_and(&fellow),
                 // `CanAutoAttackTarget` is not modelled: a creature that is not a fellow.
                 can_attack: kind & 0x4F == 0x4F && !is_fellow,
                 offset: blip.offset,
