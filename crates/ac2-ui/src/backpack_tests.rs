@@ -73,6 +73,7 @@ fn the_backpack_shows_the_players_items_in_their_slots() {
         element: Some(potions.icon),
         message: MSG_MOUSE_PRESS_TOP,
         data: 0x4000_0007,
+        item: None,
     };
     assert_eq!(
         backpack.message(tree, &press),

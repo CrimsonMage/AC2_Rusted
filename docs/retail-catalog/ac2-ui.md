@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 431 done, 183 partial, 1611 to do, 22 skipped.
+2247 retail functions: 444 done, 183 partial, 1598 to do, 22 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (7/53)
@@ -1093,7 +1093,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmNavigationUI::UpdatePlayerPos` · 004341b0 · legions 00434980
 - [ ] `gmNavigationUI::ListenToMessage` · 00434280 · legions 00434a50
 
-## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (11/46)
+## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (13/46)
 
 ### gmShortcutUI
 - [ ] `gmShortcutUI::Show` · 00435cd0 · legions 00436520
@@ -1102,8 +1102,8 @@ Legend and workflow: [README](README.md).
 - [x] `gmShortcutUI::RequestAttackStateChange` · 00435d80 · legions 004365d0 — ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
 
 ### (free functions)
-- [ ] `gmShortcutUI_DDCB` · 00435e10 · legions 00436660
-- [ ] `gmShortcutUI_DOCB` · 00435e70
+- [x] `gmShortcutUI_DDCB` · 00435e10 · legions 00436660 — ac2-ui drag.rs; shortcut.rs drop
+- [~] `gmShortcutUI_DOCB` · 00435e70 — the locked-bar check (GetShortcutLocked + shift) is not asked
 
 ### SmartArray<TimeLeftInfo>
 - [ ] `SmartArray<TimeLeftInfo>::RemoveOrderedByIndex` · 00435ec0 · legions 00436710
@@ -1121,7 +1121,7 @@ Legend and workflow: [README](README.md).
 
 ### gmShortcutUI
 - [~] `gmShortcutUI::CheckItem` · 00436440 · legions 00436c90 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-- [~] `gmShortcutUI::FromElement` · 004364f0 · legions 00436d40 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [x] `gmShortcutUI::FromElement` · 004364f0 · legions 00436d40 — ac2-ui drag.rs; shortcut.rs drop
 
 ### SmartArray<TimeLeftInfo>
 - [ ] `SmartArray<TimeLeftInfo>::AddToEnd` · 00436660 · legions 00436eb0
@@ -2746,7 +2746,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [ ] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180
 
-## `portal/client/src/uielement/system/uielement.cpp.c` (35/104)
+## `portal/client/src/uielement/system/uielement.cpp.c` (41/104)
 
 ### UIRectangleObject
 - [ ] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790
@@ -2785,9 +2785,9 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::MouseOver` · 005e9040 · legions 005a9ca0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [x] `UIElement::MouseOverTop` · 005e9060 · legions 005a9cc0 — ac2-ui media.rs / transition.rs
 - [x] `UIElement::SetAttributeFromDesc` · 005e90b0 · legions 005a9d10 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [ ] `UIElement::CopyElem` · 005e9180 · legions 005a9de0
-- [ ] `UIElement::MatchGraphics` · 005e91b0 · legions 005a9e10
-- [ ] `UIElement::DragAndDropComplete` · 005e9250 · legions 005a9eb0
+- [x] `UIElement::CopyElem` · 005e9180 · legions 005a9de0 — ac2-ui drag.rs; shortcut.rs drop
+- [x] `UIElement::MatchGraphics` · 005e91b0 · legions 005a9e10 — ac2-ui drag.rs; shortcut.rs drop
+- [x] `UIElement::DragAndDropComplete` · 005e9250 · legions 005a9eb0 — ac2-ui drag.rs; shortcut.rs drop
 - [ ] `UIElement::SetDefaultLocation` · 005e92b0 · legions 005a9f10
 - [ ] `UIElement::InqImageSize` · 005e92c0 · legions 005a9f20
 - [x] `UIElement::SetTooltip` · 005e9300 · legions 005a9f60 — ac2-ui tooltip.rs
@@ -2832,9 +2832,9 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::ResetMedia` · 005ea2c0 · legions 005aae90 — ac2-ui media.rs / transition.rs
 - [x] `UIElement::SetImage` · 005ea430 · legions 005ab000 — ac2-ui compose.rs / element.rs set_image
 - [x] `UIElement::AddAttributesFromDesc` · 005ea510 · legions 005ab0e0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [ ] `UIElement::MatchAttributes` · 005ea5c0 · legions 005ab190
-- [ ] `UIElement::DragItem` · 005eab10 · legions 005ab6e0
-- [ ] `UIElement::CatchDroppedItem` · 005eabd0 · legions 005ab7a0
+- [x] `UIElement::MatchAttributes` · 005ea5c0 · legions 005ab190 — ac2-ui drag.rs; shortcut.rs drop
+- [x] `UIElement::DragItem` · 005eab10 · legions 005ab6e0 — ac2-ui drag.rs; shortcut.rs drop
+- [x] `UIElement::CatchDroppedItem` · 005eabd0 · legions 005ab7a0 — ac2-ui drag.rs; shortcut.rs drop
 - [x] `UIElement::IsTooltipOn` · 005eac90 · legions 005ab860 — ac2-ui tooltip.rs
 - [ ] `UIElement::IsActivatable` · 005eacb0 · legions 005ab880
 - [ ] `UIElement::GetActivateOrder` · 005eacd0 · legions 005ab8a0
@@ -2874,7 +2874,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::UpdateChild` · 005ed340 · legions 005adf10 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [~] `UIElement::SetState` · 005ed450 · legions 005ae020 — m_delOnTransStop (delete after the exit transition) not modelled
 
-## `portal/client/src/uielement/system/uielementmanager.cpp.c` (4/69)
+## `portal/client/src/uielement/system/uielementmanager.cpp.c` (8/69)
 
 ### Box2D
 - [ ] `Box2D::Includes` · 005e3490 · legions 005a4250
@@ -2886,8 +2886,8 @@ Legend and workflow: [README](README.md).
 - [x] `UIElementManager::UseDefaultCursor` · 005e3690 · legions 005a4420 — ac2-ui media.rs / transition.rs
 - [ ] `UIElementManager::KeyReleaseEvent` · 005e36b0
 - [x] `UIElementManager::ClearTooltip` · 005e3740 · legions 005a4570 — ac2-ui tooltip.rs
-- [ ] `UIElementManager::CheckDragandDrop` · 005e37c0 · legions 005a45f0
-- [ ] `UIElementManager::ClearDragandDrop` · 005e3820 · legions 005a4650
+- [x] `UIElementManager::CheckDragandDrop` · 005e37c0 · legions 005a45f0 — ac2-ui drag.rs; shortcut.rs drop
+- [x] `UIElementManager::ClearDragandDrop` · 005e3820 · legions 005a4650 — ac2-ui drag.rs; shortcut.rs drop
 - [~] `UIElementManager::ActivationAlert` · 005e38b0 · legions 005a46e0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 
 ### SmartArray<CPartGroup_*>
@@ -2901,8 +2901,8 @@ Legend and workflow: [README](README.md).
 - [~] `UIElementManager::MouseDownEvent` · 005e3cc0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 - [ ] `UIElementManager::CleanDeleteQueue` · 005e3de0 · legions 005a4c10
 - [~] `UIElementManager::StartTooltip` · 005e3e90 · legions 005a4cc0 — no right-button check; 32x32 cursor size assumed
-- [ ] `UIElementManager::StartDragandDrop` · 005e42e0
-- [ ] `UIElementManager::StopDragandDrop` · 005e46d0 · legions 005a5500
+- [x] `UIElementManager::StartDragandDrop` · 005e42e0 — ac2-ui drag.rs; shortcut.rs drop
+- [x] `UIElementManager::StopDragandDrop` · 005e46d0 · legions 005a5500 — ac2-ui drag.rs; shortcut.rs drop
 - [ ] `UIElementManager::UnregisterActivatable` · 005e4720 · legions 005a5550
 - [ ] `UIElementManager::ActivateNext` · 005e4740
 - [ ] `UIElementManager::DrawDirtyRegions` · 005e4970
@@ -3172,12 +3172,12 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Dragbar::Create` · 005f8e20
 - [ ] `UIElement_Dragbar::Register` · 005f8e50 · legions 005b9980
 
-## `portal/client/src/uielement/types/uielement_field.cpp.c` (0/4)
+## `portal/client/src/uielement/types/uielement_field.cpp.c` (1/4)
 
 ### UIElement_Field
 - [ ] `UIElement_Field::Create` · 005fbc70
 - [ ] `UIElement_Field::MouseOverTop` · 005fbcb0 · legions 005bc7e0
-- [ ] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0
+- [x] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0 — ac2-ui drag.rs; shortcut.rs drop
 - [ ] `UIElement_Field::Register` · 005fbe20 · legions 005bc950
 
 ## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (20/82)

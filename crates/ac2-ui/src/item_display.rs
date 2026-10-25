@@ -79,6 +79,16 @@ impl ItemDisplay {
         item: u64,
     ) -> Option<Self> {
         let icon = tree.child(background, child)?;
+        // The icon carries the item as a shortcut (`Token_ShortcutType` 0x40000002,
+        // `Token_ShortcutData`).
+        tree.el_mut(icon).attributes.insert(
+            id("Token_ShortcutType"),
+            crate::layout::AttributeValue::Id(0x4000_0002),
+        );
+        tree.el_mut(icon).attributes.insert(
+            id("Token_ShortcutData"),
+            crate::layout::AttributeValue::InstanceId(item),
+        );
         let mut display = Self {
             background,
             icon,

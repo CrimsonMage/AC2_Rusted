@@ -235,11 +235,13 @@ key	status	note
 00435ce0	x	ac2-ui shortcut.rs
 00435d30	x	ac2-ui shortcut.rs
 00435d80	x	ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
+00435e10	x	ac2-ui drag.rs; shortcut.rs drop
+00435e70	~	the locked-bar check (GetShortcutLocked + shift) is not asked
 00435fc0	x	ac2-ui shortcut.rs
 004360e0	x	ac2-ui shortcut.rs
 004363e0	x	ac2-script glue::shortcut / native::shortcut
 00436440	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-004364f0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+004364f0	x	ac2-ui drag.rs; shortcut.rs drop
 004367a0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 00436940	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 00436bc0	x	ac2-ui shortcut.rs
@@ -3212,11 +3214,15 @@ key	status	note
 005e35f0	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
 005e3690	x	ac2-ui media.rs / transition.rs
 005e3740	x	ac2-ui tooltip.rs
+005e37c0	x	ac2-ui drag.rs; shortcut.rs drop
+005e3820	x	ac2-ui drag.rs; shortcut.rs drop
 005e38b0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005e3af0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e3b70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e3cc0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005e3e90	~	no right-button check; 32x32 cursor size assumed
+005e42e0	x	ac2-ui drag.rs; shortcut.rs drop
+005e46d0	x	ac2-ui drag.rs; shortcut.rs drop
 005e4b60	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4c70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4d20	x	ac2-ui tooltip.rs
@@ -3237,6 +3243,9 @@ key	status	note
 005e9040	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e9060	x	ac2-ui media.rs / transition.rs
 005e90b0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e9180	x	ac2-ui drag.rs; shortcut.rs drop
+005e91b0	x	ac2-ui drag.rs; shortcut.rs drop
+005e9250	x	ac2-ui drag.rs; shortcut.rs drop
 005e9300	x	ac2-ui tooltip.rs
 005e9340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9470	x	ac2-ui input.rs / text_edit.rs: typing into text elements
@@ -3254,6 +3263,9 @@ key	status	note
 005ea2c0	x	ac2-ui media.rs / transition.rs
 005ea430	x	ac2-ui compose.rs / element.rs set_image
 005ea510	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005ea5c0	x	ac2-ui drag.rs; shortcut.rs drop
+005eab10	x	ac2-ui drag.rs; shortcut.rs drop
+005eabd0	x	ac2-ui drag.rs; shortcut.rs drop
 005eac90	x	ac2-ui tooltip.rs
 005eacf0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005eae20	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -3395,6 +3407,7 @@ key	status	note
 005fb9d0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005fbb10	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005fbc50	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+005fbdb0	x	ac2-ui drag.rs; shortcut.rs drop
 005fbe40	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005fbe60	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005fbed0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing

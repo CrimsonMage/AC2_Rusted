@@ -107,6 +107,7 @@ fn a_panel_lays_out_its_nodes_and_shows_the_selected_skill() {
         element: Some(melee),
         message: crate::token::MSG_MOUSE_PRESS,
         data: 0x4000_0004,
+        item: None,
     };
     ui.message(&mut tree, &Stub, &press);
     assert_eq!(
@@ -168,6 +169,7 @@ fn a_panel_lays_out_its_nodes_and_shows_the_selected_skill() {
         element: Some(train),
         message: crate::token::MSG_BUTTON_RELEASE_ON,
         data: 0x4000_0004,
+        item: None,
     };
     ui.message(&mut tree, &Stub, &release);
     assert_eq!(ui.take_requests(), vec![SkillRequest::ConfirmTrain(CHILD)]);

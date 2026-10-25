@@ -38,13 +38,15 @@ pub use crate::camera_ui::{UI_WHEEL_IN, UI_WHEEL_OUT};
 
 /// A message an element (or the manager, for globals) broadcast
 /// (`UIElementManager::BroadcastMessage` / `BroadcastGlobalMessage`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct UiMessage {
     /// The element id (`referenceDesc->elementID`); 0 for globals.
     pub element_id: u32,
     pub element: Option<usize>,
     pub message: u32,
     pub data: i32,
+    /// The dragged copy a `start_drag_item` / `stop_drag_item` carries.
+    pub item: Option<usize>,
 }
 
 /// Whether `action` is one of the buttons `StartInput` sends to `MouseDownEvent`.
@@ -61,6 +63,7 @@ impl UiTree {
             element: Some(index),
             message,
             data,
+            item: None,
         });
     }
 
@@ -70,6 +73,7 @@ impl UiTree {
             element: None,
             message,
             data: data as i32,
+            item: None,
         });
     }
 
@@ -128,6 +132,9 @@ impl UiTree {
         self.tooltip.last_mouse_move = self.time;
         self.broadcast_global(GLOBAL_MOUSE_MOVE, 0);
         self.scrollbar_mouse_move();
+        // `MouseMoveEvent` checks the drag against the region under the pointer before the move
+        // (`UpdateMouse` runs in the next `UseTime`).
+        self.drag_mouse_move();
         self.update_mouse();
     }
 
@@ -140,8 +147,8 @@ impl UiTree {
             if processed {
                 break;
             }
-            // The tooltip itself is not under the pointer.
-            if Some(root) == self.tooltip.element {
+            // The tooltip and the dragged copy are not under the pointer.
+            if Some(root) == self.tooltip.element || Some(root) == self.drag.element {
                 continue;
             }
             let (ox, oy) = self.el(root).object.unwrap_or((0, 0));
@@ -216,6 +223,7 @@ impl UiTree {
     /// `UIElementManager::MouseDownEvent`.
     fn mouse_down_event(&mut self, action: u32) {
         self.broadcast_global(GLOBAL_MOUSE_DOWN, action);
+        self.drag_mouse_down(action);
         // A press away from the active element deactivates it.
         if let Some(active) = self.active {
             if !self.el(active).mouse_over {
@@ -270,6 +278,7 @@ impl UiTree {
             self.notify_mouse_up(root, action, &mut processed);
         }
         self.update_mouse();
+        self.drag_mouse_up(action);
     }
 
     /// `UIRegion::NotifyMouseUp`.
