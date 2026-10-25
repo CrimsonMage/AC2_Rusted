@@ -9,6 +9,7 @@
 //! handlers; a handler takes the values in `PackBuffer` order.
 
 mod calls;
+mod consignment;
 mod craft;
 mod craft_records;
 mod message;
@@ -17,6 +18,7 @@ mod store;
 mod trade;
 
 pub use calls::{call_spec, ArgKind, CallSpec, Direction, ScriptCall, CALLS};
+pub use consignment::{Consignment, ConsignmentList};
 pub use craft::CraftMessage;
 pub use message::{broadcast, ScriptMessage};
 pub use request::ScriptRequest;
@@ -204,11 +206,12 @@ pub mod function {
     /// (long int).
     pub const STORE_LEAVE_CONSIGNMENT: u32 = 0xB83A_0045;
     /// S->C, `WM_Store` forwarder 0x53 (`CPlayer` 0x1F1 -> `CStoreSystem` 0x17 -> `ViewConsignment`):
-    /// the consignment (a package reference to a `StoreView`, as `ViewStore`), the storekeeper
-    /// (long int). The body closes the open store and catalog first, as `ViewStore`'s does.
+    /// the consignments (an `RList` of `Consignment`s, see [`super::ConsignmentList`]), the
+    /// storekeeper (long int). The body closes the open store and catalog first, as `ViewStore`'s
+    /// does.
     pub const STORE_VIEW_CONSIGNMENT: u32 = 0xB83A_0053;
     /// S->C, `WM_Store` forwarder 0x57 (`CPlayer` 0x1F6 -> `CStoreSystem` 0x16 -> `UpdateConsignment`):
-    /// the consignment (a `StoreView`), the storekeeper (long int).
+    /// the consignments (an `RList` of `Consignment`s), the storekeeper (long int).
     pub const STORE_UPDATE_CONSIGNMENT: u32 = 0xB83A_0057;
     /// C->S, `WM_Craft` stub 0x06 (`RequestAddIngredient`, IFun 0xB4009D): the spinner (int), the
     /// object (long int), the slot's ordinal (int), the recipe (int), in stub order.

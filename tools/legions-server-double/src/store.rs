@@ -3,7 +3,9 @@
 //! player's script answers with the shop; the player's leave comes back as `LeaveStore`. The
 //! stock is not the double's: the client's script builds it from the store's own script data.
 
-use ac2_net::protocol::{PackedReference, Purchase, ScriptRequest, StoreMessage, StoreView};
+use ac2_net::protocol::{
+    ConsignmentList, PackedReference, Purchase, ScriptRequest, StoreMessage, StoreView,
+};
 
 use crate::items::{item_object_bytes, ItemSpawn};
 use crate::{State, PLAYER};
@@ -19,6 +21,23 @@ impl State {
     pub fn open_store(&mut self, view: StoreView, vendor: u64) {
         self.script_world.open_store = Some(view.clone());
         self.send_store(&StoreMessage::ViewStore { view, vendor });
+    }
+
+    /// Opens the storekeeper `vendor`'s consignments, as the server does (`WM_Store` 0x53,
+    /// `ViewConsignment`).
+    pub fn open_consignment(&mut self, consignments: ConsignmentList, vendor: u64) {
+        self.send_store(&StoreMessage::ViewConsignment {
+            consignments,
+            vendor,
+        });
+    }
+
+    /// Replaces the open consignments, as the server does (`WM_Store` 0x57, `UpdateConsignment`).
+    pub fn update_consignment(&mut self, consignments: ConsignmentList, vendor: u64) {
+        self.send_store(&StoreMessage::UpdateConsignment {
+            consignments,
+            vendor,
+        });
     }
 
     /// Updates the open store to `view` with the storekeeper `vendor`, as the server does

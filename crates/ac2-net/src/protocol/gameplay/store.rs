@@ -8,7 +8,7 @@
 //! them to `CPlayer` in declared order, and the VM reads the first packed value as the last
 //! parameter), so each message lists its values last parameter first.
 
-use super::{function, Args};
+use super::{function, Args, ConsignmentList};
 use crate::protocol::native::{NativeObject, ScriptList};
 use crate::protocol::pack::{entry_flags, HeapObject, PackValue, PackedEntry, PackedReference};
 use crate::protocol::string_info::StringInfo;
@@ -28,6 +28,18 @@ pub enum StoreMessage {
     LeaveStore { vendor: u64 },
     /// [`function::STORE_UPDATE_SALE`]: an item's stock (`CM_Store::SendNotice_UpdateSale`).
     UpdateSale { vendor: u64, item: u64, stock: u32 },
+    /// [`function::STORE_VIEW_CONSIGNMENT`]: the storekeeper's consignments opened
+    /// (`CM_Store::SendNotice_ViewConsignment`), with the storekeeper.
+    ViewConsignment {
+        consignments: ConsignmentList,
+        vendor: u64,
+    },
+    /// [`function::STORE_UPDATE_CONSIGNMENT`]: the open consignments changed
+    /// (`CM_Store::SendNotice_UpdateConsignment`), with the storekeeper.
+    UpdateConsignment {
+        consignments: ConsignmentList,
+        vendor: u64,
+    },
 }
 
 impl StoreMessage {
@@ -38,6 +50,8 @@ impl StoreMessage {
             Self::UpdateStore { .. } => function::STORE_UPDATE,
             Self::LeaveStore { .. } => function::STORE_LEFT,
             Self::UpdateSale { .. } => function::STORE_UPDATE_SALE,
+            Self::ViewConsignment { .. } => function::STORE_VIEW_CONSIGNMENT,
+            Self::UpdateConsignment { .. } => function::STORE_UPDATE_CONSIGNMENT,
         }
     }
 
@@ -61,6 +75,17 @@ impl StoreMessage {
                 PackValue::LongInt(*vendor),
                 PackValue::LongInt(*item),
                 PackValue::Int(*stock),
+            ],
+            Self::ViewConsignment {
+                consignments,
+                vendor,
+            }
+            | Self::UpdateConsignment {
+                consignments,
+                vendor,
+            } => vec![
+                PackValue::Reference(consignments.to_reference()),
+                PackValue::LongInt(*vendor),
             ],
         }
     }
@@ -90,6 +115,20 @@ impl StoreMessage {
                 })
             }),
             function::STORE_LEFT => decode(|a| Ok(Self::LeaveStore { vendor: a.long()? })),
+            function::STORE_VIEW_CONSIGNMENT => decode(|a| {
+                let consignments = ConsignmentList::from_reference(&a.reference()?)?;
+                Ok(Self::ViewConsignment {
+                    consignments,
+                    vendor: a.long()?,
+                })
+            }),
+            function::STORE_UPDATE_CONSIGNMENT => decode(|a| {
+                let consignments = ConsignmentList::from_reference(&a.reference()?)?;
+                Ok(Self::UpdateConsignment {
+                    consignments,
+                    vendor: a.long()?,
+                })
+            }),
             function::STORE_UPDATE_SALE => decode(|a| {
                 let vendor = a.long()?;
                 let item = a.long()?;
@@ -239,7 +278,7 @@ impl StoreView {
 impl GameSale {
     /// The `GameSaleProfile` object (its members as the struct documents them), with its
     /// description at reference `desc_id`.
-    fn object(&self, desc_id: u32) -> HeapObject {
+    pub(super) fn object(&self, desc_id: u32) -> HeapObject {
         HeapObject {
             pkg_state_id: 0,
             pkg_id: GAME_SALE_PKG,
@@ -273,7 +312,10 @@ impl GameSale {
         }
     }
 
-    fn from_reference(reference: &PackedReference, id: u32) -> Result<Self, ProtocolError> {
+    pub(super) fn from_reference(
+        reference: &PackedReference,
+        id: u32,
+    ) -> Result<Self, ProtocolError> {
         let invalid = || ProtocolError::Invalid("store sale");
         let sale = find(reference, id).ok_or_else(invalid)?;
         if sale.pkg_id != GAME_SALE_PKG || sale.slots.len() != 11 {
@@ -332,7 +374,7 @@ impl Purchase {
 const TRANSACTION_BLOB_PKG: u32 = 0x3812;
 
 /// A heap entry, with the kind and loaded flags a server packs.
-fn heap(object: HeapObject) -> PackedEntry {
+pub(super) fn heap(object: HeapObject) -> PackedEntry {
     PackedEntry::Heap {
         flags: HEAP_FLAGS,
         object,
@@ -340,7 +382,7 @@ fn heap(object: HeapObject) -> PackedEntry {
 }
 
 /// The heap object at reference id `id`.
-fn find(reference: &PackedReference, id: u32) -> Option<&HeapObject> {
+pub(super) fn find(reference: &PackedReference, id: u32) -> Option<&HeapObject> {
     let index = reference.ids.iter().position(|i| *i == id)?;
     match reference.entries.get(index)? {
         PackedEntry::Heap { object, .. } => Some(object),

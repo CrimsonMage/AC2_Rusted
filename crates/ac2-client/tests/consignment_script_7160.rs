@@ -2,8 +2,8 @@
 //! the consignment are the IFuns' stubs, which the VM packs (the storekeeper, one long int) and the
 //! session sends, but only with a shopper open (the store the storekeeper opened). The sale itself
 //! (`RequestSell`) is refused outside a consignment: the VM's sell body raises a message and sends
-//! nothing. The consignment's answers (`ViewConsignment`, `UpdateConsignment`) are not run yet (see
-//! the catalog notes).
+//! nothing. The consignment's answers (`ViewConsignment`, `UpdateConsignment`) carry an `RList` of
+//! `Consignment`s and raise their notices with the shop built from them.
 
 mod common;
 
@@ -11,15 +11,23 @@ use std::sync::Arc;
 
 use ac2_client::{Command, FrameInput};
 use ac2_core::DataId;
-use ac2_net::protocol::{pack_values, PackValue, ScriptRequest, StoreView};
+use ac2_net::protocol::{
+    pack_values, Consignment, ConsignmentList, GameSale, PackValue, ScriptRequest, StoreView,
+};
 use ac2_script::data::DatScriptData;
 use ac2_script::host::ScriptHost;
+use ac2_script::native::NativeObject;
+use ac2_script::reference::{HeapObject, PackedEntry};
 use ac2_script::vm::Program;
-use ac2_script::{load_wlib, LEGIONS_WLIB_DID};
+use ac2_script::{load_wlib, load_wstate, LEGIONS_WLIB_DID};
 use ac2_weenie::{GameplayNotice, SessionEvent};
 use common::*;
 use legions_server_double::{Spawn, PLAYER, POTIONS};
 
+/// The items the consignments sell (the server's IIDs for them).
+const ITEM: u64 = 0x8000_0002_0000_0051;
+/// The StoreTemplate the shopper opens with (portal.dat WState).
+const STORE_TEMPLATE: u32 = 0x6F00_33A3;
 /// The storekeeper the shopper is open with.
 const VENDOR: u64 = 0x8000_0002_0000_0042;
 /// `RequestEnterConsignment`'s stub (WM_Store 0x46) and `RequestLeaveConsignment`'s (0x45).
@@ -93,7 +101,7 @@ fn run(
 fn open_shopper(client: &mut ac2_client::Client, server: &Shared) {
     server.borrow_mut().open_store(
         StoreView {
-            store: 0x6F00_33A3,
+            store: STORE_TEMPLATE,
             store_size: 0,
             position: 0,
             sales: Vec::new(),
@@ -192,5 +200,120 @@ fn sell_outside_a_consignment_is_refused_by_the_script() {
         matches!(notices[0], GameplayNotice::DisplayStringInfo { .. }),
         "the refusal's message: {notices:?}"
     );
+    assert!(client.take_script_problems().is_empty());
+}
+
+/// The first sale of the store template the shopper opens with (`SaleTemplate`, package 0x380F:
+/// slot 1 the item's DID, slot 3 the price, slot 5 the cost's DID, as the store test reads them),
+/// as a sale the server would consign.
+fn template_sale(item: u64) -> Option<GameSale> {
+    let dataset = ac2_dat::test_support::env_dataset()?;
+    let store = ac2_db::ResourceStore::new(dataset);
+    let wstate = load_wstate(&store, DataId::new(STORE_TEMPLATE)).ok()??;
+    let reference = wstate.references.as_ref().ok()?;
+    let heap = |id: u32| -> Option<&HeapObject> {
+        let index = reference.ids.iter().position(|i| *i == id)?;
+        match reference.entries.get(index)? {
+            PackedEntry::Heap { object, .. } => Some(object),
+            _ => None,
+        }
+    };
+    let root = heap(*reference.ids.first()?)?;
+    let NativeObject::List(list) = heap(root.slots[4])?.native.as_ref()? else {
+        return None;
+    };
+    let sale = heap(*list.items.first()? as u32)?;
+    Some(GameSale {
+        item_did: sale.slots[1],
+        item,
+        icon_did: 0,
+        item_desc: Default::default(),
+        cost: f32::from_bits(sale.slots[3]),
+        cost_did: sale.slots[5],
+        sold: 0,
+    })
+}
+
+/// `ViewConsignment` (`WM_Store` 0x53) opens the storekeeper's consignments: the shop holds one
+/// sale per consignment with stock, in the consignment's ordinal, stock and expiry; one with no
+/// stock is left out. `UpdateConsignment` (0x57) replaces them.
+#[test]
+fn view_and_update_consignment_show_the_consigned_sales() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    let (Some(first), Some(second)) = (template_sale(ITEM), template_sale(ITEM + 1)) else {
+        panic!("the store template's sale");
+    };
+    open_shopper(&mut client, &server);
+    let consignments = ConsignmentList {
+        consignments: vec![
+            Consignment {
+                sale: first.clone(),
+                ordinal: 0,
+                stock: 2,
+                expired: false,
+            },
+            Consignment {
+                sale: second.clone(),
+                ordinal: 1,
+                stock: 1,
+                expired: true,
+            },
+            Consignment {
+                sale: first.clone(),
+                ordinal: 2,
+                stock: 0,
+                expired: false,
+            },
+        ],
+    };
+    server.borrow_mut().open_consignment(consignments, VENDOR);
+    let notices = run(&mut client, &server, Vec::new());
+    let shop = notices
+        .iter()
+        .find_map(|n| match n {
+            GameplayNotice::ViewConsignment(shop) => Some(shop.clone()),
+            _ => None,
+        })
+        .unwrap_or_else(|| panic!("ViewConsignment: {notices:?}"));
+    let shown: Vec<(u32, u64, i32, u32)> = shop
+        .sales
+        .iter()
+        .map(|s| (s.ordinal, s.item, s.stock, s.status))
+        .collect();
+    assert_eq!(
+        shown,
+        vec![(0, ITEM, 2, 0), (1, ITEM + 1, 1, 2)],
+        "{shop:?}"
+    );
+    assert_eq!(shop.sales[0].item_did, first.item_did);
+    assert_eq!(shop.sales[0].cost_quantity, first.cost);
+
+    server.borrow_mut().update_consignment(
+        ConsignmentList {
+            consignments: vec![Consignment {
+                sale: second,
+                ordinal: 0,
+                stock: 3,
+                expired: false,
+            }],
+        },
+        VENDOR,
+    );
+    let notices = run(&mut client, &server, Vec::new());
+    let shop = notices
+        .iter()
+        .find_map(|n| match n {
+            GameplayNotice::UpdateConsignment(shop) => Some(shop.clone()),
+            _ => None,
+        })
+        .unwrap_or_else(|| panic!("UpdateConsignment: {notices:?}"));
+    let shown: Vec<(u32, u64, i32)> = shop
+        .sales
+        .iter()
+        .map(|s| (s.ordinal, s.item, s.stock))
+        .collect();
+    assert_eq!(shown, vec![(0, ITEM + 1, 3)]);
     assert!(client.take_script_problems().is_empty());
 }
