@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 17 done, 12 partial, 2362 to do, 77 skipped.
+2468 retail functions: 143 done, 19 partial, 2228 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -3309,171 +3309,171 @@ Legend and workflow: [README](README.md).
 - [ ] `HeapObject::UpdatePackageReferences` · 006dbd50 · legions 00665200
 - [ ] `HeapObject::UpdateReferences` · 006dbdd0 · legions 00665280
 
-## `portal/shared/src/interp/interp_binop.cpp.c` (0/71)
+## `portal/shared/src/interp/interp_binop.cpp.c` (71/71)
 
 ### ContextState
-- [ ] `ContextState::PushDFloat` · 006e2280 · legions 006689f0
+- [x] `ContextState::PushDFloat` · 006e2280 · legions 006689f0 — ac2-script vm::arith / Context
 
 ### Interp
-- [ ] `Interp::HandleBinOp_O_ADD` · 006e22d0
-- [ ] `Interp::HandleBinOp_O_SUB` · 006e2310
-- [ ] `Interp::HandleBinOp_O_MULT` · 006e2350
-- [ ] `Interp::HandleBinOp_O_DIV` · 006e2390
-- [ ] `Interp::HandleBinOp_O_MOD` · 006e23d0
-- [ ] `Interp::HandleBinOp_O_L_OR` · 006e2410
-- [ ] `Interp::HandleBinOp_O_L_AND` · 006e2450
-- [ ] `Interp::HandleBinOp_O_L_EQ` · 006e2490
-- [ ] `Interp::HandleBinOp_O_L_NEQ` · 006e24d0
-- [ ] `Interp::HandleBinOp_O_L_SLT` · 006e2510
-- [ ] `Interp::HandleBinOp_O_L_SGT` · 006e2550
-- [ ] `Interp::HandleBinOp_O_L_SLTE` · 006e2590
-- [ ] `Interp::HandleBinOp_O_L_SGTE` · 006e25d0
-- [ ] `Interp::HandleBinOp_O_L_ULT` · 006e2610
-- [ ] `Interp::HandleBinOp_O_L_UGT` · 006e2650
-- [ ] `Interp::HandleBinOp_O_L_ULTE` · 006e2690
-- [ ] `Interp::HandleBinOp_O_L_UGTE` · 006e26d0
-- [ ] `Interp::HandleBinOp_O_B_OR` · 006e2710
-- [ ] `Interp::HandleBinOp_O_B_XOR` · 006e2750
-- [ ] `Interp::HandleBinOp_O_B_AND` · 006e2790
-- [ ] `Interp::HandleBinOp_O_B_LSHIFT` · 006e27d0
-- [ ] `Interp::HandleBinOp_O_B_RSHIFT` · 006e2810
-- [ ] `Interp::HandleBinOp_O_B_URSHIFT` · 006e2850
-- [ ] `Interp::HandleBinOp_Long_O_ADD` · 006e2890
-- [ ] `Interp::HandleBinOp_Long_O_SUB` · 006e28f0
-- [ ] `Interp::HandleBinOp_Long_O_MULT` · 006e2950
-- [ ] `Interp::HandleBinOp_Long_O_DIV` · 006e29b0
-- [ ] `Interp::HandleBinOp_Long_O_MOD` · 006e2a10
-- [ ] `Interp::HandleBinOp_Long_O_B_OR` · 006e2a70
-- [ ] `Interp::HandleBinOp_Long_O_B_XOR` · 006e2ad0
-- [ ] `Interp::HandleBinOp_Long_O_B_AND` · 006e2b30
-- [ ] `Interp::HandleBinOp_Long_O_B_LSHIFT` · 006e2b90
-- [ ] `Interp::HandleBinOp_Long_O_B_RSHIFT` · 006e2c00
-- [ ] `Interp::HandleBinOp_Long_O_B_URSHIFT` · 006e2c80
-- [ ] `Interp::HandleBinLogicalOp_Long_O_L_OR` · 006e2cf0
-- [ ] `Interp::HandleBinLogicalOp_Long_O_L_AND` · 006e2d50
-- [ ] `Interp::HandleBinLogicalOp_Long_O_L_EQ` · 006e2db0
-- [ ] `Interp::HandleBinLogicalOp_Long_O_L_NEQ` · 006e2e10
-- [ ] `Interp::HandleBinLogicalOp_Long_O_L_SLT` · 006e2e70
-- [ ] `Interp::HandleBinLogicalOp_Long_O_L_SGT` · 006e2ed0
-- [ ] `Interp::HandleBinLogicalOp_Long_O_L_SLTE` · 006e2f30
-- [ ] `Interp::HandleBinLogicalOp_Long_O_L_SGTE` · 006e2f90
-- [ ] `Interp::HandleBinLogicalOp_Long_O_L_ULT` · 006e2ff0
-- [ ] `Interp::HandleBinLogicalOp_Long_O_L_UGT` · 006e3050
-- [ ] `Interp::HandleBinLogicalOp_Long_O_L_ULTE` · 006e30b0
-- [ ] `Interp::HandleBinLogicalOp_Long_O_L_UGTE` · 006e3110
-- [ ] `Interp::HandleFBinOp_O_FADD` · 006e3170
-- [ ] `Interp::HandleFBinOp_O_FSUB` · 006e31c0
-- [ ] `Interp::HandleFBinOp_O_FMULT` · 006e3210
-- [ ] `Interp::HandleFBinOp_O_FDIV` · 006e3260
-- [ ] `Interp::HandleFBinLogicalOp_O_L_FOR` · 006e32b0
-- [ ] `Interp::HandleFBinLogicalOp_O_L_FAND` · 006e3330
-- [ ] `Interp::HandleFBinLogicalOp_O_L_FEQ` · 006e33b0
-- [ ] `Interp::HandleFBinLogicalOp_O_L_FNEQ` · 006e3420
-- [ ] `Interp::HandleFBinLogicalOp_O_L_FLT` · 006e3490
-- [ ] `Interp::HandleFBinLogicalOp_O_L_FGT` · 006e3500
-- [ ] `Interp::HandleFBinLogicalOp_O_L_FLTE` · 006e3570
-- [ ] `Interp::HandleFBinLogicalOp_O_L_FGTE` · 006e35e0
-- [ ] `Interp::HandleFBinOp_Long_O_FADD` · 006e3650
-- [ ] `Interp::HandleFBinOp_Long_O_FSUB` · 006e36d0
-- [ ] `Interp::HandleFBinOp_Long_O_FMULT` · 006e3750
-- [ ] `Interp::HandleFBinOp_Long_O_FDIV` · 006e37d0
-- [ ] `Interp::HandleFBinLogicalOp_Long_O_L_FOR` · 006e3850
-- [ ] `Interp::HandleFBinLogicalOp_Long_O_L_FAND` · 006e38d0
-- [ ] `Interp::HandleFBinLogicalOp_Long_O_L_FEQ` · 006e3950
-- [ ] `Interp::HandleFBinLogicalOp_Long_O_L_FNEQ` · 006e39c0
-- [ ] `Interp::HandleFBinLogicalOp_Long_O_L_FLT` · 006e3a30
-- [ ] `Interp::HandleFBinLogicalOp_Long_O_L_FGT` · 006e3aa0
-- [ ] `Interp::HandleFBinLogicalOp_Long_O_L_FLTE` · 006e3b10
-- [ ] `Interp::HandleFBinLogicalOp_Long_O_L_FGTE` · 006e3b80
+- [x] `Interp::HandleBinOp_O_ADD` · 006e22d0 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_SUB` · 006e2310 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_MULT` · 006e2350 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_DIV` · 006e2390 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_MOD` · 006e23d0 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_L_OR` · 006e2410 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_L_AND` · 006e2450 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_L_EQ` · 006e2490 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_L_NEQ` · 006e24d0 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_L_SLT` · 006e2510 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_L_SGT` · 006e2550 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_L_SLTE` · 006e2590 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_L_SGTE` · 006e25d0 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_L_ULT` · 006e2610 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_L_UGT` · 006e2650 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_L_ULTE` · 006e2690 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_L_UGTE` · 006e26d0 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_B_OR` · 006e2710 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_B_XOR` · 006e2750 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_B_AND` · 006e2790 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_B_LSHIFT` · 006e27d0 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_B_RSHIFT` · 006e2810 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_O_B_URSHIFT` · 006e2850 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_Long_O_ADD` · 006e2890 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_Long_O_SUB` · 006e28f0 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_Long_O_MULT` · 006e2950 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_Long_O_DIV` · 006e29b0 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_Long_O_MOD` · 006e2a10 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_Long_O_B_OR` · 006e2a70 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_Long_O_B_XOR` · 006e2ad0 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_Long_O_B_AND` · 006e2b30 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_Long_O_B_LSHIFT` · 006e2b90 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_Long_O_B_RSHIFT` · 006e2c00 — ac2-script vm::arith
+- [x] `Interp::HandleBinOp_Long_O_B_URSHIFT` · 006e2c80 — ac2-script vm::arith
+- [x] `Interp::HandleBinLogicalOp_Long_O_L_OR` · 006e2cf0 — ac2-script vm::arith
+- [x] `Interp::HandleBinLogicalOp_Long_O_L_AND` · 006e2d50 — ac2-script vm::arith
+- [x] `Interp::HandleBinLogicalOp_Long_O_L_EQ` · 006e2db0 — ac2-script vm::arith
+- [x] `Interp::HandleBinLogicalOp_Long_O_L_NEQ` · 006e2e10 — ac2-script vm::arith
+- [x] `Interp::HandleBinLogicalOp_Long_O_L_SLT` · 006e2e70 — ac2-script vm::arith
+- [x] `Interp::HandleBinLogicalOp_Long_O_L_SGT` · 006e2ed0 — ac2-script vm::arith
+- [x] `Interp::HandleBinLogicalOp_Long_O_L_SLTE` · 006e2f30 — ac2-script vm::arith
+- [x] `Interp::HandleBinLogicalOp_Long_O_L_SGTE` · 006e2f90 — ac2-script vm::arith
+- [x] `Interp::HandleBinLogicalOp_Long_O_L_ULT` · 006e2ff0 — ac2-script vm::arith
+- [x] `Interp::HandleBinLogicalOp_Long_O_L_UGT` · 006e3050 — ac2-script vm::arith
+- [x] `Interp::HandleBinLogicalOp_Long_O_L_ULTE` · 006e30b0 — ac2-script vm::arith
+- [x] `Interp::HandleBinLogicalOp_Long_O_L_UGTE` · 006e3110 — ac2-script vm::arith
+- [x] `Interp::HandleFBinOp_O_FADD` · 006e3170 — ac2-script vm::arith
+- [x] `Interp::HandleFBinOp_O_FSUB` · 006e31c0 — ac2-script vm::arith
+- [x] `Interp::HandleFBinOp_O_FMULT` · 006e3210 — ac2-script vm::arith
+- [x] `Interp::HandleFBinOp_O_FDIV` · 006e3260 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_O_L_FOR` · 006e32b0 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_O_L_FAND` · 006e3330 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_O_L_FEQ` · 006e33b0 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_O_L_FNEQ` · 006e3420 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_O_L_FLT` · 006e3490 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_O_L_FGT` · 006e3500 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_O_L_FLTE` · 006e3570 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_O_L_FGTE` · 006e35e0 — ac2-script vm::arith
+- [x] `Interp::HandleFBinOp_Long_O_FADD` · 006e3650 — ac2-script vm::arith
+- [x] `Interp::HandleFBinOp_Long_O_FSUB` · 006e36d0 — ac2-script vm::arith
+- [x] `Interp::HandleFBinOp_Long_O_FMULT` · 006e3750 — ac2-script vm::arith
+- [x] `Interp::HandleFBinOp_Long_O_FDIV` · 006e37d0 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_Long_O_L_FOR` · 006e3850 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_Long_O_L_FAND` · 006e38d0 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_Long_O_L_FEQ` · 006e3950 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_Long_O_L_FNEQ` · 006e39c0 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_Long_O_L_FLT` · 006e3a30 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_Long_O_L_FGT` · 006e3aa0 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_Long_O_L_FLTE` · 006e3b10 — ac2-script vm::arith
+- [x] `Interp::HandleFBinLogicalOp_Long_O_L_FGTE` · 006e3b80 — ac2-script vm::arith
 
-## `portal/shared/src/interp/interp_core.cpp.c` (0/31)
+## `portal/shared/src/interp/interp_core.cpp.c` (28/31)
 
 ### FileNodeName_Int32
 - [ ] `FileNodeName_Int32::GetType` · 006e3bf0 · legions 0066a360
 
 ### Interp
-- [ ] `Interp::HandlePop` · 006e3c00
-- [ ] `Interp::HandlePopN` · 006e3c10 · legions 0066a380
-- [ ] `Interp::HandlePopFrame` · 006e3c30
-- [ ] `Interp::HandleCallStatic` · 006e3c70
+- [x] `Interp::HandlePop` · 006e3c00 — ac2-script vm::exec
+- [x] `Interp::HandlePopN` · 006e3c10 · legions 0066a380 — ac2-script vm::exec
+- [x] `Interp::HandlePopFrame` · 006e3c30 — ac2-script vm::exec
+- [x] `Interp::HandleCallStatic` · 006e3c70 — ac2-script vm::exec
 - [ ] `Interp::HandleCallEFun` · 006e3cc0
-- [ ] `Interp::HandleRJmp` · 006e3d40
+- [x] `Interp::HandleRJmp` · 006e3d40 — ac2-script vm::exec
 
 ### FileNodeName_Bool
 - [ ] `FileNodeName_Bool::GetPackSize` · 006e3d50 · legions 0066a4c0
 
 ### Interp
-- [ ] `Interp::HandlePush` · 006e3d60
-- [ ] `Interp::HandlePush_Long` · 006e3d90 · legions 0066a500
-- [ ] `Interp::HandlePushV` · 006e3e00
-- [ ] `Interp::HandlePushV_Long` · 006e3e30
-- [ ] `Interp::HandlePushFrame` · 006e3e80
-- [ ] `Interp::HandleLoad` · 006e3ed0 · legions 0066a640
-- [ ] `Interp::HandleLoad_Long` · 006e3f10
-- [ ] `Interp::HandleLoadThis` · 006e3f80
-- [ ] `Interp::HandleNewString` · 006e3fb0
-- [ ] `Interp::HandleStore` · 006e3ff0 · legions 0066a760
-- [ ] `Interp::HandleStore_Long` · 006e4040
-- [ ] `Interp::HandleIf` · 006e4090
-- [ ] `Interp::HandleSwitch` · 006e40b0 · legions 0066a820
-- [ ] `Interp::HandleSAddr` · 006e4120
-- [ ] `Interp::HandleRAddr` · 006e4190
-- [ ] `Interp::HandleNewNative` · 006e41f0
-- [ ] `Interp::HandleCall` · 006e4240 · legions 0066a9b0
+- [x] `Interp::HandlePush` · 006e3d60 — ac2-script vm::exec
+- [x] `Interp::HandlePush_Long` · 006e3d90 · legions 0066a500 — ac2-script vm::exec
+- [x] `Interp::HandlePushV` · 006e3e00 — ac2-script vm::exec
+- [x] `Interp::HandlePushV_Long` · 006e3e30 — ac2-script vm::exec
+- [x] `Interp::HandlePushFrame` · 006e3e80 — ac2-script vm::exec
+- [x] `Interp::HandleLoad` · 006e3ed0 · legions 0066a640 — ac2-script vm::exec
+- [x] `Interp::HandleLoad_Long` · 006e3f10 — ac2-script vm::exec
+- [x] `Interp::HandleLoadThis` · 006e3f80 — ac2-script vm::exec
+- [x] `Interp::HandleNewString` · 006e3fb0 — ac2-script vm::exec
+- [x] `Interp::HandleStore` · 006e3ff0 · legions 0066a760 — ac2-script vm::exec
+- [x] `Interp::HandleStore_Long` · 006e4040 — ac2-script vm::exec
+- [x] `Interp::HandleIf` · 006e4090 — ac2-script vm::exec
+- [x] `Interp::HandleSwitch` · 006e40b0 · legions 0066a820 — ac2-script vm::exec
+- [x] `Interp::HandleSAddr` · 006e4120 — ac2-script vm::exec
+- [x] `Interp::HandleRAddr` · 006e4190 — ac2-script vm::exec
+- [x] `Interp::HandleNewNative` · 006e41f0 — ac2-script vm::exec
+- [x] `Interp::HandleCall` · 006e4240 · legions 0066a9b0 — ac2-script vm::exec
 
 ### ReferenceTable
-- [ ] `ReferenceTable::GetReferenceTagAndPtr` · 006e42f0 · legions 0066aa60
+- [x] `ReferenceTable::GetReferenceTagAndPtr` · 006e42f0 · legions 0066aa60 — ac2-script vm::exec
 
 ### Interp
-- [ ] `Interp::HandleRLoad` · 006e43b0 · legions 0066ab20
-- [ ] `Interp::HandleRLoad_Long` · 006e4410
-- [ ] `Interp::HandleRStore` · 006e4490
-- [ ] `Interp::HandleRStore_Long` · 006e44f0
-- [ ] `Interp::HandleNew` · 006e4560
+- [x] `Interp::HandleRLoad` · 006e43b0 · legions 0066ab20 — ac2-script vm::exec
+- [x] `Interp::HandleRLoad_Long` · 006e4410 — ac2-script vm::exec
+- [x] `Interp::HandleRStore` · 006e4490 — ac2-script vm::exec
+- [x] `Interp::HandleRStore_Long` · 006e44f0 — ac2-script vm::exec
+- [x] `Interp::HandleNew` · 006e4560 — ac2-script vm::exec
 
-## `portal/shared/src/interp/interp_exec.cpp.c` (0/4)
-
-### Interp
-- [ ] `Interp::AddLongHandler` · 006de120
-- [ ] `Interp::SetupHandlers` · 006de1e0
-- [ ] `Interp::Interp` · 006e08d0 · legions 00667890
-- [ ] `Interp::Exec` · 006e08f0
-
-## `portal/shared/src/interp/interp_optimized.cpp.c` (0/8)
+## `portal/shared/src/interp/interp_exec.cpp.c` (1/4)
 
 ### Interp
-- [ ] `Interp::HandleOptimized_Store_PopN` · 006e20c0
-- [ ] `Interp::HandleOptimized_This_CallEFun` · 006e20e0
-- [ ] `Interp::HandleOptimized_Load_Call` · 006e2100
-- [ ] `Interp::HandleOptimized_Load_CallEFun` · 006e2120
-- [ ] `Interp::HandleOptimized_RLoad_Call` · 006e2140
-- [ ] `Interp::HandleOptimized_RLoad_CallEFun` · 006e2160
-- [ ] `Interp::HandleOptimized_This_Call` · 006e2180
-- [ ] `Interp::HandleOptimized_This_RLoad` · 006e2220 · legions 00668990
+- [~] `Interp::AddLongHandler` · 006de120 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+- [~] `Interp::SetupHandlers` · 006de1e0 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+- [~] `Interp::Interp` · 006e08d0 · legions 00667890 — ac2-script: handler table is a match in exec.rs
+- [x] `Interp::Exec` · 006e08f0 — ac2-script vm::exec / Program::walk
 
-## `portal/shared/src/interp/interp_unaryop.cpp.c` (0/13)
+## `portal/shared/src/interp/interp_optimized.cpp.c` (8/8)
+
+### Interp
+- [x] `Interp::HandleOptimized_Store_PopN` · 006e20c0 — ac2-script vm::exec / Program::walk
+- [x] `Interp::HandleOptimized_This_CallEFun` · 006e20e0 — ac2-script vm::exec / Program::walk
+- [x] `Interp::HandleOptimized_Load_Call` · 006e2100 — ac2-script vm::exec / Program::walk
+- [x] `Interp::HandleOptimized_Load_CallEFun` · 006e2120 — ac2-script vm::exec / Program::walk
+- [x] `Interp::HandleOptimized_RLoad_Call` · 006e2140 — ac2-script vm::exec / Program::walk
+- [x] `Interp::HandleOptimized_RLoad_CallEFun` · 006e2160 — ac2-script vm::exec / Program::walk
+- [x] `Interp::HandleOptimized_This_Call` · 006e2180 — ac2-script vm::exec / Program::walk
+- [x] `Interp::HandleOptimized_This_RLoad` · 006e2220 · legions 00668990 — ac2-script vm::exec / Program::walk
+
+## `portal/shared/src/interp/interp_unaryop.cpp.c` (13/13)
 
 ### ContextState
-- [ ] `ContextState::PushTimetype` · 006e45a0 · legions 0066ad10
+- [x] `ContextState::PushTimetype` · 006e45a0 · legions 0066ad10 — ac2-script vm::arith / Context
 
 ### Interp
-- [ ] `Interp::HandleUnaryOp_O_NEGATE` · 006e45f0
-- [ ] `Interp::HandleUnaryOp_O_L_NOT` · 006e4620
-- [ ] `Interp::HandleUnaryOp_O_B_NEGATE` · 006e4650
-- [ ] `Interp::HandleUnaryOp_O_INC` · 006e4680
-- [ ] `Interp::HandleUnaryOp_O_DEC` · 006e46b0
-- [ ] `Interp::HandleUnaryOp_O_I2F` · 006e46e0
-- [ ] `Interp::HandleUnaryOp_O_U2F` · 006e4710
-- [ ] `Interp::HandleUnaryOp_O_I2I` · 006e4750
-- [ ] `Interp::HandleUnaryOp_O_U2U` · 006e47a0
-- [ ] `Interp::HandleUnaryOp_Long` · 006e47f0
-- [ ] `Interp::HandleFUnaryOp` · 006e49c0
-- [ ] `Interp::HandleFUnaryOp_Long` · 006e4b30
+- [x] `Interp::HandleUnaryOp_O_NEGATE` · 006e45f0 — ac2-script vm::arith / Context
+- [x] `Interp::HandleUnaryOp_O_L_NOT` · 006e4620 — ac2-script vm::arith / Context
+- [x] `Interp::HandleUnaryOp_O_B_NEGATE` · 006e4650 — ac2-script vm::arith / Context
+- [x] `Interp::HandleUnaryOp_O_INC` · 006e4680 — ac2-script vm::arith / Context
+- [x] `Interp::HandleUnaryOp_O_DEC` · 006e46b0 — ac2-script vm::arith / Context
+- [x] `Interp::HandleUnaryOp_O_I2F` · 006e46e0 — ac2-script vm::arith / Context
+- [x] `Interp::HandleUnaryOp_O_U2F` · 006e4710 — ac2-script vm::arith / Context
+- [x] `Interp::HandleUnaryOp_O_I2I` · 006e4750 — ac2-script vm::arith / Context
+- [x] `Interp::HandleUnaryOp_O_U2U` · 006e47a0 — ac2-script vm::arith / Context
+- [x] `Interp::HandleUnaryOp_Long` · 006e47f0 — ac2-script vm::arith / Context
+- [x] `Interp::HandleFUnaryOp` · 006e49c0 — ac2-script vm::arith / Context
+- [x] `Interp::HandleFUnaryOp_Long` · 006e4b30 — ac2-script vm::arith / Context
 
-## `portal/shared/src/interp/opcodestream.cpp.c` (0/1)
+## `portal/shared/src/interp/opcodestream.cpp.c` (1/1)
 
 ### OpcodeStream
-- [ ] `OpcodeStream::WalkStream` · 006ec490 · legions 00671360
+- [x] `OpcodeStream::WalkStream` · 006ec490 · legions 00671360 — ac2-script vm::exec / Program::walk
 
 ## `portal/shared/src/interp/packagestate.cpp.c` (1/5)
 
@@ -3561,13 +3561,13 @@ Legend and workflow: [README](README.md).
 - [ ] `ProcessState::ProcessState` · 006ddcf0 · legions 00666ea0
 
 ### ReferenceTable
-- [ ] `ReferenceTable::AllocatePackage` · 006ddd50 · legions 00666f00
+- [~] `ReferenceTable::AllocatePackage` · 006ddd50 · legions 00666f00 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 
 ### ProcessState
 - [ ] `ProcessState::ProcessState` · 006dddf0 · legions 00666fa0
 
 ### ReferenceTable
-- [ ] `ReferenceTable::AllocatePackage` · 006dde60 · legions 00667010
+- [~] `ReferenceTable::AllocatePackage` · 006dde60 · legions 00667010 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 
 ### ProcessState
 - [ ] `ProcessState::ProcessState` · 006ddfe0 · legions 00667190
@@ -3617,10 +3617,10 @@ Legend and workflow: [README](README.md).
 - [~] `RuntimeByteStream::ValidateVersion` · 006ecb60 — ac2-script ByteStream::validate_versions: wcc check; InterpVersionCheck env path not ported
 
 ### ReferenceTable
-- [ ] `ReferenceTable::CreateStringLiteral` · 006ecd30 · legions 00671b70
+- [~] `ReferenceTable::CreateStringLiteral` · 006ecd30 · legions 00671b70 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 
 ### RuntimeByteStream
-- [-] `RuntimeByteStream::LoadStringLitTableSection` · 006ecdb0 — text source loader, admin build only
+- [~] `RuntimeByteStream::LoadStringLitTableSection` · 006ecdb0 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 
 ## `portal/shared/src/interp/typeinfo.cpp.c` (0/3)
 
@@ -3629,7 +3629,7 @@ Legend and workflow: [README](README.md).
 - [ ] `get_type` · 006e14c0 · legions 00668300
 - [ ] `new_type` · 006e15a0 · legions 006683e0
 
-## `portal/shared/src/interp/vm.cpp.c` (0/66)
+## `portal/shared/src/interp/vm.cpp.c` (4/66)
 
 ### VM
 - [ ] `VM::CreateProcessA` · 006dbe00 · legions 006652b0
@@ -3658,12 +3658,12 @@ Legend and workflow: [README](README.md).
 - [ ] `VM::DeleteProcess` · 006dc0e0 · legions 00665590
 - [ ] `VM::HashNativeObject` · 006dc110 · legions 006655c0
 - [ ] `VM::IsNativeEqual` · 006dc140 · legions 006655f0
-- [ ] `VM::GetStringLiteral` · 006dc170 · legions 00665620
-- [ ] `VM::GetHeapObject` · 006dc190 · legions 00665640
+- [x] `VM::GetStringLiteral` · 006dc170 · legions 00665620 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [x] `VM::GetHeapObject` · 006dc190 · legions 00665640 — ac2-script vm (VM/ReferenceTable/Resolver)
 - [ ] `VM::IsReferenceValid` · 006dc1a0
 
 ### InterpreterBreakpointHelper::StepBreakpointData
-- [ ] `InterpreterBreakpointHelper::StepBreakpointData::~StepBreakpointData` · 006dc210 · legions 00665690
+- [-] `InterpreterBreakpointHelper::StepBreakpointData::~StepBreakpointData` · 006dc210 · legions 00665690 — script debugger
 
 ### ReferenceTable
 - [ ] `ReferenceTable::DeleteAllReferences` · 006dc270 · legions 006656f0
@@ -3700,11 +3700,11 @@ Legend and workflow: [README](README.md).
 - [ ] `VM::GetSingletonPackage` · 006dce20 · legions 00666220
 - [ ] `VM::GetSingletonPackageW` · 006dce90 · legions 00666290
 - [~] `VM::GetSingletonPackageByID` · 006dcf50 · legions 00666350 — ac2-script wstate DID formulas / ByteStream::package_id
-- [ ] `VM::GetWStateReference` · 006dcf90 · legions 00666390
+- [x] `VM::GetWStateReference` · 006dcf90 · legions 00666390 — ac2-script vm (VM/ReferenceTable/Resolver)
 - [ ] `VM::GetPackageReference` · 006dcfb0 · legions 006663b0
 
 ### InterpreterBreakpointHelper
-- [ ] `InterpreterBreakpointHelper::InterpreterBreakpointHelper` · 006dd040 · legions 00666440
+- [-] `InterpreterBreakpointHelper::InterpreterBreakpointHelper` · 006dd040 · legions 00666440 — script debugger
 
 ### ReferenceTable
 - [ ] `ReferenceTable::ReferenceTable` · 006dd0a0 · legions 006664a0
@@ -3721,7 +3721,7 @@ Legend and workflow: [README](README.md).
 ### VM
 - [ ] `VM::GetReferencePackSize` · 006dd4e0 · legions 006668e0
 - [ ] `VM::PackReference` · 006dd500 · legions 00666900
-- [ ] `VM::UnPackReference` · 006dd520 · legions 00666920
+- [x] `VM::UnPackReference` · 006dd520 · legions 00666920 — ac2-script vm (VM/ReferenceTable/Resolver)
 - [ ] `VM::Preproc_CleanWState` · 006dd540 · legions 00666940
 - [ ] `VM::GetPackageName` · 006dd630 · legions 00666a20
 - [ ] `VM::IsInstanceOf` · 006dd690 · legions 00666a80

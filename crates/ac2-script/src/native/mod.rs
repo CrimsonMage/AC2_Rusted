@@ -75,6 +75,40 @@ pub enum NativeObject {
     GmRaceSexInfo(GmRaceSexInfo),
     GmSceneInfo(GmSceneInfo),
     SkillUiNode(Box<SkillUiNode>),
+    /// A native type made by `NewNative` that the port has no value for yet.
+    Unbound(u32),
+}
+
+impl NativeObject {
+    /// `CNativeFactory::NewNativeObject`: an empty object of `native_type`.
+    pub fn new_empty(native_type: u32) -> Self {
+        let list = |wide: bool| {
+            NativeObject::List(ScriptList {
+                wide,
+                items: Vec::new(),
+            })
+        };
+        match native_type {
+            ntype::A_LIST | ntype::R_LIST | ntype::A_ARRAY | ntype::R_ARRAY => list(false),
+            ntype::L_LIST | ntype::L_ARRAY => list(true),
+            ntype::AA_HASH
+            | ntype::AA_MULTI_HASH
+            | ntype::A_HASH_SET
+            | ntype::AL_HASH
+            | ntype::AR_HASH
+            | ntype::LA_HASH
+            | ntype::LL_HASH
+            | ntype::LR_HASH
+            | ntype::NA_HASH
+            | ntype::NR_HASH
+            | ntype::LA_HASH_SET => NativeObject::Hash(ScriptHash::default()),
+            ntype::STRING_INFO => NativeObject::StringInfo(StringInfo::default()),
+            ntype::WPSTRING => NativeObject::WString(Vec::new()),
+            ntype::VECTOR => NativeObject::Vector([0.0; 3]),
+            ntype::POSITION => NativeObject::Position(Position::default()),
+            other => NativeObject::Unbound(other),
+        }
+    }
 }
 
 /// `CNativeFactory::UnPackNativeObject` / `gmCNativeFactory::UnPackNativeObject`.

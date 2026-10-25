@@ -43,9 +43,25 @@ key	status	note
 00431e20	x	
 00431e90	x	
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+00454080	x	ac2-script vm (VM/ReferenceTable/Resolver)
+00454300	x	ac2-script vm (VM/ReferenceTable/Resolver)
+00454440	x	ac2-script vm (VM/ReferenceTable/Resolver)
+00455060	x	ac2-script vm (VM/ReferenceTable/Resolver)
+004553f0	x	ac2-script vm (VM/ReferenceTable/Resolver)
+00455460	x	ac2-script vm (VM/ReferenceTable/Resolver)
+00455740	x	ac2-script vm (VM/ReferenceTable/Resolver)
+004557b0	x	ac2-script vm (VM/ReferenceTable/Resolver)
+004558a0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+00456190	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+00456270	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+00456550	x	ac2-script vm (VM/ReferenceTable/Resolver)
+004565c0	x	ac2-script vm (VM/ReferenceTable/Resolver)
 004567b0	x	ac2-script reference/native unpack
 00457120	~	ac2-script PackedReference::unpack: decode only, no reference table insert yet
 00457330	~	ac2-script PackedReference::unpack: decode only, no reference table insert yet
+00457540	x	ac2-script vm (VM/ReferenceTable/Resolver)
+00457610	x	ac2-script vm (VM/ReferenceTable/Resolver)
+004576d0	x	ac2-script vm (VM/ReferenceTable/Resolver)
 00467160	~	ac2-script native::unpack: the native types Legions WStates hold
 00474780	~	ac2-script native: unpack direction only
 00479030	x	ac2-ui interpreter.rs
@@ -929,6 +945,7 @@ key	status	note
 00525f70	x	
 00528900	x	ac2-world region::sky_objects, ac2-render sky
 0052b1d0	x	ac2-world region::sky_objects, ac2-render sky
+0052dbb0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 0052e6a0	x	
 00530150	x	ac2-weenie ObjectTable::apply_action
 00530e70	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
@@ -1641,10 +1658,144 @@ key	status	note
 006db450	x	
 006db7f0	x	
 006dbbd0	x	ac2-script reference/native unpack
+006dbe00	_	
+006dc170	x	ac2-script vm (VM/ReferenceTable/Resolver)
+006dc190	x	ac2-script vm (VM/ReferenceTable/Resolver)
+006dc210	-	script debugger
 006dcce0	~	ac2-script wstate DID formulas / ByteStream::package_id
 006dcf50	~	ac2-script wstate DID formulas / ByteStream::package_id
+006dcf90	x	ac2-script vm (VM/ReferenceTable/Resolver)
+006dd040	-	script debugger
+006dd520	x	ac2-script vm (VM/ReferenceTable/Resolver)
+006ddd50	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+006dde60	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+006de120	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+006de1e0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+006e08d0	~	ac2-script: handler table is a match in exec.rs
+006e08f0	x	ac2-script vm::exec / Program::walk
 006e0c20	x	ac2-script reference/native unpack
 006e1700	x	ac2-script WLib/WState/ByteStream decode
+006e1830	_	
+006e20c0	x	ac2-script vm::exec / Program::walk
+006e20e0	x	ac2-script vm::exec / Program::walk
+006e2100	x	ac2-script vm::exec / Program::walk
+006e2120	x	ac2-script vm::exec / Program::walk
+006e2140	x	ac2-script vm::exec / Program::walk
+006e2160	x	ac2-script vm::exec / Program::walk
+006e2180	x	ac2-script vm::exec / Program::walk
+006e2220	x	ac2-script vm::exec / Program::walk
+006e2280	x	ac2-script vm::arith / Context
+006e22d0	x	ac2-script vm::arith
+006e2310	x	ac2-script vm::arith
+006e2350	x	ac2-script vm::arith
+006e2390	x	ac2-script vm::arith
+006e23d0	x	ac2-script vm::arith
+006e2410	x	ac2-script vm::arith
+006e2450	x	ac2-script vm::arith
+006e2490	x	ac2-script vm::arith
+006e24d0	x	ac2-script vm::arith
+006e2510	x	ac2-script vm::arith
+006e2550	x	ac2-script vm::arith
+006e2590	x	ac2-script vm::arith
+006e25d0	x	ac2-script vm::arith
+006e2610	x	ac2-script vm::arith
+006e2650	x	ac2-script vm::arith
+006e2690	x	ac2-script vm::arith
+006e26d0	x	ac2-script vm::arith
+006e2710	x	ac2-script vm::arith
+006e2750	x	ac2-script vm::arith
+006e2790	x	ac2-script vm::arith
+006e27d0	x	ac2-script vm::arith
+006e2810	x	ac2-script vm::arith
+006e2850	x	ac2-script vm::arith
+006e2890	x	ac2-script vm::arith
+006e28f0	x	ac2-script vm::arith
+006e2950	x	ac2-script vm::arith
+006e29b0	x	ac2-script vm::arith
+006e2a10	x	ac2-script vm::arith
+006e2a70	x	ac2-script vm::arith
+006e2ad0	x	ac2-script vm::arith
+006e2b30	x	ac2-script vm::arith
+006e2b90	x	ac2-script vm::arith
+006e2c00	x	ac2-script vm::arith
+006e2c80	x	ac2-script vm::arith
+006e2cf0	x	ac2-script vm::arith
+006e2d50	x	ac2-script vm::arith
+006e2db0	x	ac2-script vm::arith
+006e2e10	x	ac2-script vm::arith
+006e2e70	x	ac2-script vm::arith
+006e2ed0	x	ac2-script vm::arith
+006e2f30	x	ac2-script vm::arith
+006e2f90	x	ac2-script vm::arith
+006e2ff0	x	ac2-script vm::arith
+006e3050	x	ac2-script vm::arith
+006e30b0	x	ac2-script vm::arith
+006e3110	x	ac2-script vm::arith
+006e3170	x	ac2-script vm::arith
+006e31c0	x	ac2-script vm::arith
+006e3210	x	ac2-script vm::arith
+006e3260	x	ac2-script vm::arith
+006e32b0	x	ac2-script vm::arith
+006e3330	x	ac2-script vm::arith
+006e33b0	x	ac2-script vm::arith
+006e3420	x	ac2-script vm::arith
+006e3490	x	ac2-script vm::arith
+006e3500	x	ac2-script vm::arith
+006e3570	x	ac2-script vm::arith
+006e35e0	x	ac2-script vm::arith
+006e3650	x	ac2-script vm::arith
+006e36d0	x	ac2-script vm::arith
+006e3750	x	ac2-script vm::arith
+006e37d0	x	ac2-script vm::arith
+006e3850	x	ac2-script vm::arith
+006e38d0	x	ac2-script vm::arith
+006e3950	x	ac2-script vm::arith
+006e39c0	x	ac2-script vm::arith
+006e3a30	x	ac2-script vm::arith
+006e3aa0	x	ac2-script vm::arith
+006e3b10	x	ac2-script vm::arith
+006e3b80	x	ac2-script vm::arith
+006e3c00	x	ac2-script vm::exec
+006e3c10	x	ac2-script vm::exec
+006e3c30	x	ac2-script vm::exec
+006e3c70	x	ac2-script vm::exec
+006e3d40	x	ac2-script vm::exec
+006e3d60	x	ac2-script vm::exec
+006e3d90	x	ac2-script vm::exec
+006e3e00	x	ac2-script vm::exec
+006e3e30	x	ac2-script vm::exec
+006e3e80	x	ac2-script vm::exec
+006e3ed0	x	ac2-script vm::exec
+006e3f10	x	ac2-script vm::exec
+006e3f80	x	ac2-script vm::exec
+006e3fb0	x	ac2-script vm::exec
+006e3ff0	x	ac2-script vm::exec
+006e4040	x	ac2-script vm::exec
+006e4090	x	ac2-script vm::exec
+006e40b0	x	ac2-script vm::exec
+006e4120	x	ac2-script vm::exec
+006e4190	x	ac2-script vm::exec
+006e41f0	x	ac2-script vm::exec
+006e4240	x	ac2-script vm::exec
+006e42f0	x	ac2-script vm::exec
+006e43b0	x	ac2-script vm::exec
+006e4410	x	ac2-script vm::exec
+006e4490	x	ac2-script vm::exec
+006e44f0	x	ac2-script vm::exec
+006e4560	x	ac2-script vm::exec
+006e45a0	x	ac2-script vm::arith / Context
+006e45f0	x	ac2-script vm::arith / Context
+006e4620	x	ac2-script vm::arith / Context
+006e4650	x	ac2-script vm::arith / Context
+006e4680	x	ac2-script vm::arith / Context
+006e46b0	x	ac2-script vm::arith / Context
+006e46e0	x	ac2-script vm::arith / Context
+006e4710	x	ac2-script vm::arith / Context
+006e4750	x	ac2-script vm::arith / Context
+006e47a0	x	ac2-script vm::arith / Context
+006e47f0	x	ac2-script vm::arith / Context
+006e49c0	x	ac2-script vm::arith / Context
+006e4b30	x	ac2-script vm::arith / Context
 006e4dc0	x	ac2-script WLib/WState/ByteStream decode
 006e4e50	x	ac2-script WLib/WState/ByteStream decode
 006e4ee0	x	ac2-script WLib/WState/ByteStream decode
@@ -1663,7 +1814,10 @@ key	status	note
 006e89d0	~	ac2-script: unpack direction only
 006e92a0	~	ac2-script: unpack direction only
 006e9440	~	ac2-script: unpack direction only
+006ec490	x	ac2-script vm::exec / Program::walk
 006ecb60	~	ac2-script ByteStream::validate_versions: wcc check; InterpVersionCheck env path not ported
+006ecd30	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+006ecdb0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006ed9c0	x	
 006eda20	x	
 006ff763	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)

@@ -16,6 +16,7 @@ pub mod native;
 pub mod pstring;
 pub mod reference;
 pub mod unpack;
+pub mod vm;
 pub mod wlib;
 pub mod wstate;
 
@@ -27,3 +28,5 @@ pub use wstate::{load_wstate, WState};
 
 #[cfg(test)]
 mod real_data_tests;
+#[cfg(test)]
+mod real_data_vm_tests;
