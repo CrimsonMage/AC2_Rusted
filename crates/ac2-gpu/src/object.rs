@@ -1,7 +1,9 @@
 //! The static-object pass: one pipeline per blend/depth/cull state (`SetSourceBlend`,
 //! `SetDestBlend`, `SetDepthWrite`, `SetDepthTest`, `D3DRS_CULLMODE`), one draw per material layer
 //! (`RenderIndexedUsingMaterial` draws each drawn layer in turn), with that layer's material,
-//! program and texture stages in a dynamic-offset uniform.
+//! program and texture stages in a dynamic-offset uniform. A posed instance draws each part at its
+//! `CPhysicsPart::m_mObject`, and parts with matrix weights blend their vertices by their group's
+//! deform matrices (`SceneTool::SetMatrixStack`), read from a per-frame storage buffer.
 
 use std::collections::HashMap;
 use std::ops::Range;
@@ -9,13 +11,13 @@ use std::sync::Arc;
 
 use ac2_math::{Mat4, Vec3};
 use ac2_render::object::{
-    LayerPass, ObjectEnvironment, ObjectMaterial, ObjectModel, PointLight, VertexProgram,
-    MAX_POINT_LIGHTS,
+    LayerPass, ObjectEnvironment, ObjectMaterial, ObjectModel, ObjectPose, PointLight,
 };
 use ac2_render::{Camera, Image};
 use bytemuck::{Pod, Zeroable};
 use wgpu::util::DeviceExt;
 
+use crate::object_draw::{bone_storage, draw_storage, draw_uniform, set_point_lights, DrawUniform};
 use crate::object_state::{pipeline_key, sampler_key, PipelineKey, SamplerKey, DRAW_STRIDE};
 use crate::pixel_program::shade_function;
 use crate::texture::{TextureCache, TextureKey};
@@ -29,6 +31,9 @@ struct GpuVertex {
     color: [f32; 4],
     uvs: [[f32; 2]; 4],
     tangents: [[f32; 3]; 2],
+    /// Up to four (bone, weight) influences; all-zero weights for a rigid part.
+    bones: [u8; 4],
+    weights: [f32; 4],
 }
 
 #[repr(C)]
@@ -46,29 +51,12 @@ struct FrameUniform {
     fog: [f32; 4],
 }
 
-#[repr(C)]
-#[derive(Clone, Copy, Pod, Zeroable)]
-struct DrawUniform {
-    model: [[f32; 4]; 4],
-    ambient: [f32; 4],
-    diffuse: [f32; 4],
-    specular: [f32; 4],
-    texture_factor: [f32; 4],
-    program: [u32; 4],
-    color_ops: [[u32; 4]; 4],
-    alpha_ops: [[u32; 4]; 4],
-    matrices: [[f32; 4]; 8],
-    /// A frill's normal for every vertex (xyz) when w is 1 (`RefreshFrillMesh`).
-    frill: [f32; 4],
-    point_count: [u32; 4],
-    /// Per point light: origin and range^2, diffuse, specular, attenuation.
-    points: [[f32; 4]; 16],
-}
-
 /// Byte stride of one draw group's frame uniform (the dynamic-offset alignment).
 const FRAME_STRIDE: u64 = 256;
 /// Draw groups one `prepare` lays out.
 const MAX_GROUPS: usize = 16;
+/// Bytes of one bone matrix in the storage buffer.
+const BONE_BYTES: u64 = 64;
 
 /// One drawn layer of a batch: its state and the bind group of its stage textures.
 struct GpuPass {
@@ -89,6 +77,8 @@ struct GpuPart {
     indices: wgpu::Buffer,
     transform: Mat4,
     batches: Vec<GpuBatch>,
+    /// The mesh carries matrix weights.
+    weighted: bool,
 }
 
 /// An uploaded `ObjectModel`.
@@ -130,6 +120,8 @@ pub struct ObjectInstance<'a> {
     pub frill_normal: Option<Vec3>,
     /// The device's point lights for this object (`SceneTool::CacheStaticLights`), at most 4.
     pub point_lights: &'a [PointLight],
+    /// The model posed for this draw (`ObjectModel::pose`); `None` draws its default placement.
+    pub pose: Option<&'a ObjectPose>,
 }
 
 impl<'a> ObjectInstance<'a> {
@@ -141,6 +133,7 @@ impl<'a> ObjectInstance<'a> {
             tint: [1.0; 4],
             frill_normal: None,
             point_lights: &[],
+            pose: None,
         }
     }
 }
@@ -170,6 +163,10 @@ pub struct ObjectRenderer {
     draw_buffer: wgpu::Buffer,
     draw_group: wgpu::BindGroup,
     draw_capacity: u64,
+    bone_layout: wgpu::BindGroupLayout,
+    bone_buffer: wgpu::Buffer,
+    bone_group: wgpu::BindGroup,
+    bone_capacity: u64,
     samplers: HashMap<SamplerKey, wgpu::Sampler>,
     pub textures: TextureCache,
     time: f64,
@@ -225,6 +222,19 @@ impl ObjectRenderer {
             label: Some("ac2 object stages"),
             entries: &texture_entries,
         });
+        let bone_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            label: Some("ac2 object bones"),
+            entries: &[wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::VERTEX,
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Storage { read_only: true },
+                    has_dynamic_offset: false,
+                    min_binding_size: None,
+                },
+                count: None,
+            }],
+        });
         let frame_buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("ac2 object frame uniform"),
             size: FRAME_STRIDE * MAX_GROUPS as u64,
@@ -246,10 +256,11 @@ impl ObjectRenderer {
         let module = object_module(device, include_str!("object_stages.wgsl"));
         let layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("ac2 object"),
-            bind_group_layouts: &[&frame_layout, &draw_layout, &texture_layout],
+            bind_group_layouts: &[&frame_layout, &draw_layout, &texture_layout, &bone_layout],
             push_constant_ranges: &[],
         });
         let (draw_buffer, draw_group) = draw_storage(device, &draw_layout, DRAW_STRIDE * 64);
+        let (bone_buffer, bone_group) = bone_storage(device, &bone_layout, BONE_BYTES * 64);
         Self {
             format,
             modules: vec![module],
@@ -263,6 +274,10 @@ impl ObjectRenderer {
             draw_buffer,
             draw_group,
             draw_capacity: DRAW_STRIDE * 64,
+            bone_layout,
+            bone_buffer,
+            bone_group,
+            bone_capacity: BONE_BYTES * 64,
             samplers: HashMap::new(),
             textures: TextureCache::new(device, &gpu.queue),
             time: 0.0,
@@ -285,12 +300,23 @@ impl ObjectRenderer {
             let vertices: Vec<GpuVertex> = part
                 .vertices
                 .iter()
-                .map(|v| GpuVertex {
-                    position: v.position,
-                    normal: v.normal,
-                    color: v.color,
-                    uvs: v.uvs,
-                    tangents: v.tangents,
+                .enumerate()
+                .map(|(index, v)| {
+                    let influences = part
+                        .skin
+                        .as_ref()
+                        .and_then(|skin| skin.get(index))
+                        .copied()
+                        .unwrap_or_default();
+                    GpuVertex {
+                        position: v.position,
+                        normal: v.normal,
+                        color: v.color,
+                        uvs: v.uvs,
+                        tangents: v.tangents,
+                        bones: influences.map(|(bone, _)| bone),
+                        weights: influences.map(|(_, weight)| weight),
+                    }
                 })
                 .collect();
             for v in part.vertices.iter() {
@@ -333,6 +359,7 @@ impl ObjectRenderer {
                 }),
                 transform: part.transform,
                 batches,
+                weighted: part.skin.is_some(),
             });
         }
         let first_list = model.parts.first().map_or((0, 0), |part| {
@@ -435,6 +462,7 @@ impl ObjectRenderer {
         }
         let mut entries = Vec::new();
         let mut bounds = Vec::with_capacity(groups.len());
+        let mut bones: Vec<[[f32; 4]; 4]> = Vec::new();
         for group in groups {
             let start = entries.len();
             let mut opaque = Vec::new();
@@ -442,8 +470,26 @@ impl ObjectRenderer {
             for (instance_index, instance) in group.instances.iter().enumerate() {
                 let center = instance.world.transform_point3(instance.model.center);
                 let distance = center.distance_squared(camera.eye);
+                let base = bones.len() as u32;
+                if let Some(pose) = instance.pose {
+                    bones.extend(pose.palette.iter().map(Mat4::to_cols_array_2d));
+                }
                 for (part_index, part) in instance.model.parts.iter().enumerate() {
-                    let model = instance.world * part.transform;
+                    let (transform, skin) = match instance.pose {
+                        Some(pose) => (
+                            pose.parts
+                                .get(part_index)
+                                .copied()
+                                .unwrap_or(part.transform),
+                            pose.skins
+                                .get(part_index)
+                                .copied()
+                                .flatten()
+                                .filter(|_| part.weighted),
+                        ),
+                        None => (part.transform, None),
+                    };
+                    let model = instance.world * transform;
                     for (batch_index, batch) in part.batches.iter().enumerate() {
                         let recomputed = (batch.material.animated() || instance.tint != [1.0; 4])
                             .then(|| batch.material.passes(instance.tint, time));
@@ -464,6 +510,9 @@ impl ObjectRenderer {
                                 uniform.frill = normal.extend(1.0).to_array();
                             }
                             set_point_lights(&mut uniform, instance.point_lights);
+                            if let Some(first) = skin {
+                                uniform.skin = [base + first, 1, 0, 0];
+                            }
                             let entry = (uniform, draw);
                             if group.ordered || pass.depth_write {
                                 opaque.push(entry);
@@ -503,6 +552,17 @@ impl ObjectRenderer {
         }
         self.groups = bounds;
         gpu.queue.write_buffer(&self.draw_buffer, 0, &bytes);
+        let needed = BONE_BYTES * bones.len().max(1) as u64;
+        if needed > self.bone_capacity {
+            let capacity = needed.next_power_of_two();
+            (self.bone_buffer, self.bone_group) =
+                bone_storage(&gpu.device, &self.bone_layout, capacity);
+            self.bone_capacity = capacity;
+        }
+        if !bones.is_empty() {
+            gpu.queue
+                .write_buffer(&self.bone_buffer, 0, bytemuck::cast_slice(&bones));
+        }
     }
 
     fn write_frame(
@@ -564,6 +624,7 @@ impl ObjectRenderer {
             &self.frame_group,
             &[(group as u64 * FRAME_STRIDE) as u32],
         );
+        pass.set_bind_group(3, &self.bone_group, &[]);
         let mut current: Option<PipelineKey> = None;
         for draw in &self.queue[range.clone()] {
             let Some(part) = instances
@@ -586,20 +647,6 @@ impl ObjectRenderer {
     }
 }
 
-/// `VSLightState` constants of up to four point lights.
-fn set_point_lights(uniform: &mut DrawUniform, lights: &[PointLight]) {
-    let lights = &lights[..lights.len().min(MAX_POINT_LIGHTS)];
-    uniform.point_count = [lights.len() as u32, 0, 0, 0];
-    for (index, light) in lights.iter().enumerate() {
-        let rgb = |c: [f32; 3]| [c[0], c[1], c[2], 1.0];
-        uniform.points[index * 4] = light.origin.extend(light.range * light.range).to_array();
-        uniform.points[index * 4 + 1] = rgb(light.diffuse);
-        uniform.points[index * 4 + 2] = rgb(light.specular);
-        let [a, b, c] = light.attenuation;
-        uniform.points[index * 4 + 3] = [a, b, c, 0.0];
-    }
-}
-
 /// The object shader with a `shade` function appended.
 fn object_module(device: &wgpu::Device, shade: &str) -> wgpu::ShaderModule {
     let source = format!("{}\n{}", include_str!("object.wgsl"), shade);
@@ -607,100 +654,6 @@ fn object_module(device: &wgpu::Device, shade: &str) -> wgpu::ShaderModule {
         label: Some("ac2 object"),
         source: wgpu::ShaderSource::Wgsl(source.into()),
     })
-}
-
-fn draw_storage(
-    device: &wgpu::Device,
-    layout: &wgpu::BindGroupLayout,
-    size: u64,
-) -> (wgpu::Buffer, wgpu::BindGroup) {
-    let buffer = device.create_buffer(&wgpu::BufferDescriptor {
-        label: Some("ac2 object draws"),
-        size,
-        usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-        mapped_at_creation: false,
-    });
-    let group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-        label: Some("ac2 object draws"),
-        layout,
-        entries: &[wgpu::BindGroupEntry {
-            binding: 0,
-            resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                buffer: &buffer,
-                offset: 0,
-                size: wgpu::BufferSize::new(std::mem::size_of::<DrawUniform>() as u64),
-            }),
-        }],
-    });
-    (buffer, group)
-}
-
-fn draw_uniform(model: Mat4, pass: &LayerPass) -> DrawUniform {
-    let program = match pass.program {
-        VertexProgram::Unlit => 0,
-        VertexProgram::Lit => 1,
-        VertexProgram::PixelLit => 2,
-        VertexProgram::LitVertexDiffuse => 3,
-        VertexProgram::PixelLitMultiple => 4,
-    };
-    let f = &pass.flags;
-    let bits = [
-        f.material_diffuse,
-        f.vertex_diffuse,
-        f.modulate_vertex_diffuse,
-        f.specular,
-        pass.fog,
-        f.diffuse_fog_amount,
-        f.alpha_fog,
-        f.ignore_directional,
-        pass.specular_enable,
-        f.depth_fog,
-        f.pixel_specular,
-        f.unmodulated_color1,
-        f.dynamic,
-        f.ignore_point,
-    ]
-    .iter()
-    .enumerate()
-    .fold(0_u32, |acc, (bit, on)| acc | (u32::from(*on) << bit));
-    let mut uniform = DrawUniform {
-        model: model.to_cols_array_2d(),
-        ambient: pass.ambient,
-        diffuse: pass.diffuse,
-        specular: pass.specular,
-        texture_factor: pass.texture_factor,
-        program: [
-            program,
-            bits,
-            pass.alpha_test.unwrap_or(256).min(256),
-            pass.power.to_bits(),
-        ],
-        color_ops: [[1, 2, 1, 1]; 4],
-        alpha_ops: [[2, 1, 0xFFFF_FFFF, 0]; 4],
-        matrices: [[0.0; 4]; 8],
-        frill: [0.0; 4],
-        point_count: [0; 4],
-        points: [[0.0; 4]; 16],
-    };
-    for (index, stage) in pass.stages.iter().enumerate().take(4) {
-        uniform.color_ops[index] = [
-            stage.color_op,
-            stage.color_arg1,
-            stage.color_arg2,
-            stage.alpha_op,
-        ];
-        uniform.alpha_ops[index] = [
-            stage.alpha_arg1,
-            stage.alpha_arg2,
-            stage.tex_coord,
-            u32::from(stage.texture_matrix.is_some()),
-        ];
-        if let Some([row0, row1]) = stage.texture_matrix {
-            uniform.matrices[index * 2] = row0;
-            uniform.matrices[index * 2 + 1] = row1;
-        }
-    }
-    uniform
 }
 
 impl ObjectRenderer {

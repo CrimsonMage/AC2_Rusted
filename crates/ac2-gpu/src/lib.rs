@@ -7,6 +7,7 @@
 
 mod frame;
 mod object;
+mod object_draw;
 mod object_state;
 mod pixel_program;
 mod screen_quad;

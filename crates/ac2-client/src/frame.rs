@@ -13,7 +13,8 @@ pub struct PlayerFrame {
     pub visual: Option<u32>,
     pub velocity: [f32; 3],
     pub contact: bool,
-    /// The Setup's parts as the animation posed them (empty without a Setup).
+    /// The root Setup's bones relative to their parents as the animation left them (empty
+    /// without a Setup).
     pub pose: Vec<crate::motion::PartPose>,
 }
 
@@ -56,7 +57,8 @@ pub struct ObjectFrame {
     /// `CPhysicsObj::m_local_vdesc`: the server's appearance on top of `visual`'s DAT chain
     /// (Setup, part-group, attachment and appearance-table overrides).
     pub appearance: ac2_weenie::Appearance,
-    /// The Setup's parts as the animation posed them, when its physics object exists.
+    /// The root Setup's bones relative to their parents as the animation left them, when its
+    /// physics object exists.
     pub pose: Vec<crate::motion::PartPose>,
 }
 

@@ -673,8 +673,13 @@ key	status	note
 004ed190	~	flags 0x1010 into PhysicsBody::place
 004ed1f0	~	interp blips use set_position_checked(SLIDE); parent/placement-position bookkeeping not ported
 004ed470	x	the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
+004ee0c0	x	ac2-render object/skeleton.rs (render-side bones)
+004ee200	~	ac2-render skeleton: placement frame 0 only
+004ee3e0	~	ac2-render skeleton: placement frame 0 only
+004ee670	x	ac2-render object/skeleton.rs (render-side bones)
 004ee7d0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004ee860	x	ac2-physics los (Terrain::los_check)
+004ee8f0	x	ac2-render object/skeleton.rs (render-side bones)
 004f0a10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f0a80	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 004f0af0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
@@ -702,10 +707,16 @@ key	status	note
 004f2670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f2690	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
 004f36a0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+004f4610	x	ac2-render object/skeleton.rs (render-side bones)
 004f4670	x	ac2-physics los (Terrain::los_check)
 004f4a40	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 004f4aa0	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+004f4ce0	x	ac2-render object/skeleton.rs (render-side bones)
+004f4f10	x	ac2-render object/skeleton.rs (render-side bones)
 004f5110	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+004f5660	x	ac2-render object/skeleton.rs (render-side bones)
+004f6010	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
+004f6030	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
 004f6090	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f6160	x	ac2-physics los (Terrain::los_check)
 005083f0	_	
@@ -835,6 +846,7 @@ key	status	note
 00569440	x	
 005694f0	x	
 00569550	x	
+0056ad20	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
 0056b150	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b170	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b1c0	x	
@@ -941,6 +953,8 @@ key	status	note
 005912d0	~	base and alpha stages; no shadow-map or cloud-shadow stages
 005919d0	x	
 00591a40	x	
+005ae960	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
+005b7260	~	BlendLitVertices on the GPU (ac2-gpu object.wgsl); no bounds update, ModelDetail<2 path not reproduced
 005b75b0	x	
 005b7a50	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005b97c0	~	hardware-class layer filter (object::layer_drawn, class 2 default)
@@ -983,6 +997,8 @@ key	status	note
 0060d3b0	x	ac2_core::Random
 0060d3f0	x	ac2_core::Random
 0060e3d0	~	ac2-physics ObjectShape::new: physics containment radius and box only
+006124f0	x	ac2-render object/skeleton.rs rest_matrices
+00612670	x	ac2-render object/skeleton.rs rest_matrices
 006169c0	x	
 00617370	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 00618860	x	GameClock::new: day_length * days_per_year as a double
@@ -1013,6 +1029,11 @@ key	status	note
 0061b3e0	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0061b520	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0061b570	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+0061b5c0	x	ac2-render object/skeleton.rs (bone matrices)
+0061b780	x	ac2-render object/skeleton.rs (bone matrices)
+0061bce0	x	ac2-render object/skeleton.rs (bone matrices)
+0061bdd0	x	ac2-render object/skeleton.rs (bone matrices)
+0061c080	x	ac2-render object/skeleton.rs (bone matrices)
 0061c0c0	~	the forward row CameraManager::UpdateCamera reads (ac2-client camera.rs)
 0061c210	x	
 0061c570	x	
@@ -1050,6 +1071,7 @@ key	status	note
 00623a20	x	ac2-physics los (Terrain::los_check)
 00624fb0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00625070	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00625190	x	ac2-render object/skeleton.rs (bone matrices)
 006258e0	x	
 00625930	x	
 00628460	x	

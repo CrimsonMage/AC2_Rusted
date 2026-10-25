@@ -44,6 +44,8 @@ struct Draw {
     // Per point light: origin (w = range^2), diffuse, specular, attenuation (constant, linear,
     // squared).
     points: array<vec4<f32>, 16>,
+    // x: the part's first deform matrix in `bones`, y: 1 when its vertices blend.
+    skin: vec4<u32>,
 };
 
 const FLAG_MATERIAL_DIFFUSE: u32 = 1u;
@@ -71,6 +73,8 @@ const FLAG_IGNORE_POINT: u32 = 8192u;
 @group(2) @binding(5) var samp1: sampler;
 @group(2) @binding(6) var samp2: sampler;
 @group(2) @binding(7) var samp3: sampler;
+// The frame's deform matrices (`SceneTool::SetMatrixStack`).
+@group(3) @binding(0) var<storage, read> bones: array<mat4x4<f32>>;
 
 struct VsIn {
     @location(0) position: vec3<f32>,
@@ -82,6 +86,8 @@ struct VsIn {
     @location(6) uv3: vec2<f32>,
     @location(7) tangent_s: vec3<f32>,
     @location(8) tangent_t: vec3<f32>,
+    @location(9) bone_index: vec4<u32>,
+    @location(10) weights: vec4<f32>,
 };
 
 struct VsOut {
@@ -228,12 +234,32 @@ fn point_to_light(basis: Basis, position: vec3<f32>) -> vec3<f32> {
 @vertex
 fn vs(input: VsIn) -> VsOut {
     var out: VsOut;
-    let world = draw.model * vec4(input.position, 1.0);
+    // `BlendLitVertices` (`RenderVertexBuffer::BlendVertices` at high model detail): each
+    // influence with a non-zero weight adds its deformed point over the homogeneous w, times the
+    // weight, and its deformed normal over (w + 1); weights and normal are not renormalised. Bump
+    // tangents keep their bind-pose values (`AnimateVertex` copies them).
+    var position = input.position;
+    var normal = input.normal;
+    if draw.skin.y != 0u {
+        position = vec3(0.0);
+        normal = vec3(0.0);
+        for (var k = 0u; k < 4u; k = k + 1u) {
+            let weight = input.weights[k];
+            if weight != 0.0 {
+                let m = bones[draw.skin.x + input.bone_index[k]];
+                let h = m * vec4(input.position, 1.0);
+                let r = m * vec4(input.normal, 0.0);
+                position = position + h.xyz * (weight / h.w);
+                normal = normal + r.xyz * (weight / (r.w + 1.0));
+            }
+        }
+    }
+    let world = draw.model * vec4(position, 1.0);
     out.clip = frame.view_proj * world;
     let view_pos = (frame.view * world).xyz;
     var basis: Basis;
     // `f_TransformModel*ToView*`: the model matrix itself, then normalise.
-    basis.normal = normalize((draw.model * vec4(input.normal, 0.0)).xyz);
+    basis.normal = normalize((draw.model * vec4(normal, 0.0)).xyz);
     var vertex_color = input.color;
     if draw.frill.w > 0.5 {
         // Merged frill vertices: the frill's up axis, and the landscape shadow colour (white).

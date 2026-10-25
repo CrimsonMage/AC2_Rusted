@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 31 done, 20 partial, 717 to do, 13 skipped.
+781 retail functions: 33 done, 21 partial, 714 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -180,7 +180,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Render::LinkRGRCallback` · 005b5e70 · legions 00580810
 - [ ] `Render::HandleApply` · 005b5ee0 · legions 00580880
 
-## `portal/client/src/render/core/renderdevice.cpp.c` (0/17)
+## `portal/client/src/render/core/renderdevice.cpp.c` (1/17)
 
 ### RDTemporaryState
 - [ ] `RDTemporaryState::Invalidate` · 005ae490 · legions 00579f30
@@ -198,7 +198,7 @@ Legend and workflow: [README](README.md).
 - [ ] `RenderDevice::CreateLocalSurface` · 005ae8c0
 - [ ] `RenderDevice::SetViewport` · 005ae8e0 · legions 0057a380
 - [ ] `RenderDevice::GetUISurfaceFormat` · 005ae950 · legions 005cbab0
-- [ ] `RenderDevice::SetBlendMatrices` · 005ae960
+- [x] `RenderDevice::SetBlendMatrices` · 005ae960 — ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
 - [ ] `RenderDevice::SetRenderTargetTexture` · 005ae980 · legions 0057a410
 
 ### VertexShader
@@ -441,7 +441,7 @@ Legend and workflow: [README](README.md).
 - [ ] `RenderVertexBuffer::Shutdown` · 005b7080 · legions 005814b0
 - [ ] `RenderVertexBuffer::UnlockAnimVertices` · 005b70c0 · legions 005814f0
 - [ ] `RenderVertexBuffer::AnimateVertex` · 005b70e0 · legions 00581510
-- [ ] `RenderVertexBuffer::BlendVertices` · 005b7260 · legions 00581690
+- [~] `RenderVertexBuffer::BlendVertices` · 005b7260 · legions 00581690 — BlendLitVertices on the GPU (ac2-gpu object.wgsl); no bounds update, ModelDetail<2 path not reproduced
 - [ ] `RenderVertexBuffer::AnimateAllVertices` · 005b7530 · legions 00581c00
 - [ ] `RenderVertexBuffer::Unlock` · 005b7590 · legions 00581930
 - [x] `RenderVertexBuffer::IlluminateVertices` · 005b75b0 · legions 00581950
@@ -763,7 +763,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneCamera::SetRenderPosition` · 00572c90 · legions 0053a9d0
 - [x] `SceneCamera::SetCurrentPosition` · 00572cb0 · legions 0053a9f0
 
-## `portal/client/src/scenerender/scenetool.cpp.c` (4/100)
+## `portal/client/src/scenerender/scenetool.cpp.c` (5/100)
 
 ### SceneTool
 - [ ] `SceneTool::UsingSceneMotionBlur` · 0056a5d0 · legions 0053aa10
@@ -786,7 +786,7 @@ Legend and workflow: [README](README.md).
 ### SceneTool
 - [ ] `SceneTool::SetWorldMatrix` · 0056ac20 · legions 0053b040
 - [ ] `SceneTool::SetWorldTransform` · 0056ac70 · legions 0053b090
-- [ ] `SceneTool::SetMatrixStack` · 0056ad20 · legions 0053b140
+- [x] `SceneTool::SetMatrixStack` · 0056ad20 · legions 0053b140 — ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
 - [ ] `SceneTool::TransformVector` · 0056ad40 · legions 0053b160
 - [ ] `SceneTool::TransformPixelToClipPoint` · 0056af60 · legions 0053b380
 - [ ] `SceneTool::TransformClipPointToPixel` · 0056afb0 · legions 0053b3d0

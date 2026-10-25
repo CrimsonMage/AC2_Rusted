@@ -1,9 +1,9 @@
 # ac2-anim: Animation system
 
-532 retail functions: 83 done, 17 partial, 396 to do, 36 skipped.
+532 retail functions: 85 done, 17 partial, 394 to do, 36 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/anim/charactersetup.cpp.c` (0/67)
+## `portal/shared/src/anim/charactersetup.cpp.c` (2/67)
 
 ### PlacementFrame
 - [ ] `PlacementFrame::Pack` · 0060d540 · legions 005ce310
@@ -120,8 +120,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CharacterSetup::SaveToFile` · 00612030
 - [-] `CharacterSetup::LoadFromFile` · 00612190 — text source loader, admin build only
 - [ ] `CharacterSetup::Destroy` · 00612410 · legions 005d04d0
-- [ ] `CharacterSetup::SetRestBones` · 006124f0 · legions 005d05b0
-- [ ] `CharacterSetup::InitRestBones` · 00612670 · legions 005d0730
+- [x] `CharacterSetup::SetRestBones` · 006124f0 · legions 005d05b0 — ac2-render object/skeleton.rs rest_matrices
+- [x] `CharacterSetup::InitRestBones` · 00612670 · legions 005d0730 — ac2-render object/skeleton.rs rest_matrices
 - [ ] `CharacterSetup::~CharacterSetup` · 006126d0 · legions 005d0790
 - [ ] `CharacterSetup::GetParentIndex` · 00612760
 - [ ] `CharacterSetup::FindBoneType` · 00612780 · legions 005d0840

@@ -474,6 +474,13 @@ impl PhysicsBody {
         self.object.posed_parts()
     }
 
+    /// The body's bones relative to their parents (`CPartArray::m_boneTransforms`), what the
+    /// renderer builds the bone and deform matrices from (`CPartArray::UpdateBones`); empty
+    /// without a Setup.
+    pub fn bone_transforms(&self) -> Vec<ac2_anim::Ac2Transform> {
+        self.object.bone_transforms()
+    }
+
     /// The behaviour callbacks and FX the animation raised since the last call, in order.
     pub fn take_animation_events(&mut self) -> Vec<Ac2AnimEvent> {
         self.object.take_animation_events()

@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 107 done, 8 partial, 272 to do, 39 skipped.
+426 retail functions: 113 done, 8 partial, 266 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -262,7 +262,7 @@ Legend and workflow: [README](README.md).
 - [~] `LightSource::GetWeight` · 00622760 · legions 005ddb30 — static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 - [~] `LightSource::FillRenderLight` · 00622900 · legions 005ddcd0 — static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 
-## `portal/shared/src/geometry/matrix4.cpp.c` (4/18)
+## `portal/shared/src/geometry/matrix4.cpp.c` (9/18)
 
 ### Matrix4
 - [x] `Matrix4::Translate` · 0061b390 · legions 005d6ff0 — ac2-render object::pass / texture_matrix, ac2-gpu object
@@ -272,15 +272,15 @@ Legend and workflow: [README](README.md).
 - [ ] `Matrix4::RotateY` · 0061b4d0 · legions 005d7130
 - [x] `Matrix4::RotateZ` · 0061b520 · legions 005d7180 — ac2-render object::pass / texture_matrix, ac2-gpu object
 - [x] `Matrix4::Scale` · 0061b570 · legions 005d71d0 — ac2-render object::pass / texture_matrix, ac2-gpu object
-- [ ] `Matrix4::CalcDeterminant` · 0061b5c0 · legions 005d7220
-- [ ] `Matrix4::Adjoint` · 0061b780 · legions 005d73e0
+- [x] `Matrix4::CalcDeterminant` · 0061b5c0 · legions 005d7220 — ac2-render object/skeleton.rs (bone matrices)
+- [x] `Matrix4::Adjoint` · 0061b780 · legions 005d73e0 — ac2-render object/skeleton.rs (bone matrices)
 - [ ] `Matrix4::Inverse3` · 0061bb10 · legions 005d7770
 - [ ] `Matrix4::QuaternionFromRotation` · 0061bc80 · legions 005d78e0
-- [ ] `Matrix4::RotateBasis` · 0061bce0 · legions 005d7940
+- [x] `Matrix4::RotateBasis` · 0061bce0 · legions 005d7940 — ac2-render object/skeleton.rs (bone matrices)
 - [ ] `Matrix4::Transpose` · 0061bd60 · legions 005d79c0
-- [ ] `Matrix4::Inverse` · 0061bdd0 · legions 005d7a30
+- [x] `Matrix4::Inverse` · 0061bdd0 · legions 005d7a30 — ac2-render object/skeleton.rs (bone matrices)
 - [ ] `Matrix4::DirectionMatrix` · 0061be40 · legions 005d7aa0
-- [ ] `Matrix4::RotationFromQuaternion` · 0061c080 · legions 005d7ce0
+- [x] `Matrix4::RotationFromQuaternion` · 0061c080 · legions 005d7ce0 — ac2-render object/skeleton.rs (bone matrices)
 - [~] `Matrix4::RotateAngles` · 0061c0c0 · legions 005d7d20 — the forward row CameraManager::UpdateCamera reads (ac2-client camera.rs)
 - [ ] `Matrix4::LookAt` · 0061c1a0 · legions 005d7e00
 
@@ -568,7 +568,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SphPlaneCone::Intersects` · 007379a0 · legions 006b3560
 - [ ] `SphPlaneCone::StreamPack` · 00737bd0 · legions 006b3790
 
-## `portal/shared/src/geometry/transform.cpp.c` (2/13)
+## `portal/shared/src/geometry/transform.cpp.c` (3/13)
 
 ### TransformBase
 - [ ] `TransformBase::GetPackSize` · 00624ed0 · legions 005e0130
@@ -577,7 +577,7 @@ Legend and workflow: [README](README.md).
 - [x] `TransformBase::AddWeightedTransform` · 00624fb0 · legions 005e0210 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [x] `TransformBase::WeightTransform` · 00625070 · legions 005e02d0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [ ] `TransformBase::NormalizeEvenInvalid` · 00625110 · legions 005e0370
-- [ ] `TransformBase::FillMatrix` · 00625190 · legions 005e03f0
+- [x] `TransformBase::FillMatrix` · 00625190 · legions 005e03f0 — ac2-render object/skeleton.rs (bone matrices)
 
 ### (free functions)
 - [ ] `STREAMPACK_PACKOBJ` · 00625290 · legions 005e04f0

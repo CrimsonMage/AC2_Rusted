@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 289 done, 66 partial, 1707 to do, 62 skipped.
+2124 retail functions: 298 done, 68 partial, 1696 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -1988,18 +1988,18 @@ Legend and workflow: [README](README.md).
 - [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [x] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
-## `portal/shared/src/physobj/partarray.cpp.c` (4/72)
+## `portal/shared/src/physobj/partarray.cpp.c` (7/72)
 
 ### CPartArray
 - [ ] `CPartArray::SetOwnerID` · 004edfc0 · legions 004e0930
 - [ ] `CPartArray::SetupCompositor` · 004ee000 · legions 004e0970
 - [ ] `CPartArray::SetAnimMapID` · 004ee050 · legions 004e09c0
-- [ ] `CPartArray::UpdateBones` · 004ee0c0 · legions 004e0a20
+- [x] `CPartArray::UpdateBones` · 004ee0c0 · legions 004e0a20 — ac2-render object/skeleton.rs (render-side bones)
 - [ ] `CPartArray::SetBoundingObject` · 004ee1e0 · legions 004e0b40
-- [ ] `CPartArray::SetPlacementFrameID` · 004ee200 · legions 004e0b60
+- [~] `CPartArray::SetPlacementFrameID` · 004ee200 · legions 004e0b60 — ac2-render skeleton: placement frame 0 only
 - [ ] `CPartArray::InitParts` · 004ee2b0 · legions 004e0c10
 - [ ] `CPartArray::DestroyParts` · 004ee380 · legions 004e0ce0
-- [ ] `CPartArray::InitBones` · 004ee3e0 · legions 004e0d40
+- [~] `CPartArray::InitBones` · 004ee3e0 · legions 004e0d40 — ac2-render skeleton: placement frame 0 only
 - [ ] `CPartArray::DestroyBones` · 004ee4d0 · legions 004e0e30
 - [ ] `CPartArray::GetSelectionSphere` · 004ee540 · legions 004e0ea0
 - [ ] `CPartArray::GetNumSphere` · 004ee580
@@ -2014,7 +2014,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartArray::SetStepDownHeight` · 004ee630 · legions 004e0f90
 - [ ] `CPartArray::GetPhysicsBoundingBox` · 004ee650 · legions 004e0fb0
 - [ ] `CPartArray::GetPhysicsContainmentRadius` · 004ee660 · legions 004e0fc0
-- [ ] `CPartArray::CacheHasMatrixWeights` · 004ee670 · legions 004e0fd0
+- [x] `CPartArray::CacheHasMatrixWeights` · 004ee670 · legions 004e0fd0 — ac2-render object/skeleton.rs (render-side bones)
 - [ ] `CPartArray::BuildRenderBoundingBox` · 004ee6c0 · legions 004e1020
 - [ ] `CPartArray::CacheRenderBoundingBox` · 004ee700 · legions 004e1060
 - [ ] `CPartArray::BuildDefaultRenderBoundingBox` · 004ee720 · legions 004e1080
@@ -2022,7 +2022,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartArray::CacheHasPhysicsBSP` · 004ee780 · legions 004e10e0
 - [x] `CPartArray::FindObjCollisions` · 004ee7d0 · legions 004e1130 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [x] `CPartArray::TraceRayThroughPartsPhysics` · 004ee860 · legions 004e11c0 — ac2-physics los (Terrain::los_check)
-- [ ] `CPartArray::RefreshMatrices` · 004ee8f0 · legions 004e1250
+- [x] `CPartArray::RefreshMatrices` · 004ee8f0 · legions 004e1250 — ac2-render object/skeleton.rs (render-side bones)
 - [ ] `CPartArray::ApplyMeshReplacement` · 004ee970 · legions 004e12d0
 - [ ] `CPartArray::RemoveMeshReplacements` · 004ee9b0 · legions 004e1310
 - [ ] `CPartArray::ApplyMaterialModifier` · 004ee9f0 · legions 004e1350
@@ -2074,11 +2074,11 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartArray::~CPartArray` · 004f0d40 · legions 004e3670
 - [~] `CPartArray::DoAnimation` · 004f0de0 · legions 004e3710 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 
-## `portal/shared/src/physobj/partgroup.cpp.c` (3/44)
+## `portal/shared/src/physobj/partgroup.cpp.c` (7/44)
 
 ### CPartGroup
 - [ ] `CPartGroup::InitSetup` · 004f45e0 · legions 004e6e00
-- [ ] `CPartGroup::SetParentOffset` · 004f4610 · legions 004e6e30
+- [x] `CPartGroup::SetParentOffset` · 004f4610 · legions 004e6e30 — ac2-render object/skeleton.rs (render-side bones)
 - [x] `CPartGroup::TraceRayPhysics` · 004f4670 · legions 004e6e90 — ac2-physics los (Terrain::los_check)
 - [ ] `CPartGroup::GetBoneMatrix` · 004f46d0 · legions 004e6ef0
 - [ ] `CPartGroup::CPartGroup` · 004f46e0 · legions 004e6f00
@@ -2094,10 +2094,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartGroup::SetParentConnection` · 004f4bb0 · legions 004e73d0
 - [ ] `CPartGroup::DestroyChildren` · 004f4bf0 · legions 004e7410
 - [ ] `CPartGroup::SetCellID` · 004f4c90 · legions 004e74b0
-- [ ] `CPartGroup::UpdateBones` · 004f4ce0 · legions 004e7500
+- [x] `CPartGroup::UpdateBones` · 004f4ce0 · legions 004e7500 — ac2-render object/skeleton.rs (render-side bones)
 - [ ] `CPartGroup::TraceRay` · 004f4d20 · legions 004e7540
 - [ ] `CPartGroup::Draw` · 004f4e20 · legions 004e7640
-- [ ] `CPartGroup::RefreshMatrices` · 004f4f10 · legions 004e7730
+- [x] `CPartGroup::RefreshMatrices` · 004f4f10 · legions 004e7730 — ac2-render object/skeleton.rs (render-side bones)
 - [ ] `CPartGroup::SetPlacementFrameID` · 004f4fc0 · legions 004e77e0
 - [ ] `CPartGroup::BuildRenderBoundingBox` · 004f5020 · legions 004e7840
 - [ ] `CPartGroup::BuildDefaultRenderBoundingBox` · 004f5070 · legions 004e7890
@@ -2112,7 +2112,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartGroup::ApplyAtomCollection` · 004f5400 · legions 004e7c20
 - [ ] `CPartGroup::UpdatePartGroupFromPGDD` · 004f5540 · legions 004e7d30
 - [ ] `CPartGroup::ResetParentConnection` · 004f5590 · legions 004e7d80
-- [ ] `CPartGroup::CheckRefreshMatrices` · 004f5660 · legions 004e7e50
+- [x] `CPartGroup::CheckRefreshMatrices` · 004f5660 · legions 004e7e50 — ac2-render object/skeleton.rs (render-side bones)
 - [ ] `CPartGroup::AddChild` · 004f5710 · legions 004e7f00
 - [ ] `CPartGroup::HandleResidualChildren` · 004f5770 · legions 004e7f60
 - [ ] `CPartGroup::BuildAndApplyAtomCollection` · 004f5910 · legions 004e8100
@@ -2939,7 +2939,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::InitDataIDObject` · 004f44c0 · legions 004e6ce0
 - [ ] `PHYSICSOBJREP::CreateDataID` · 004f4510 · legions 004e6d30
 
-## `portal/shared/src/physobj/physicspart.cpp.c` (2/11)
+## `portal/shared/src/physobj/physicspart.cpp.c` (4/11)
 
 ### CPhysicsPart
 - [ ] `CPhysicsPart::CPhysicsPart` · 004f5c30 · legions 004e8420
@@ -2948,8 +2948,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsPart::BuildDefaultRenderBoundingBox` · 004f5e40 · legions 004e8630
 - [ ] `CPhysicsPart::HasPhysicsBSP` · 004f5fd0 · legions 004e87c0
 - [ ] `CPhysicsPart::SetMesh` · 004f5ff0 · legions 004e87e0
-- [ ] `CPhysicsPart::RefreshMatrix` · 004f6010 · legions 004e8800
-- [ ] `CPhysicsPart::DrawPart` · 004f6030 · legions 004e8820
+- [x] `CPhysicsPart::RefreshMatrix` · 004f6010 · legions 004e8800 — ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
+- [x] `CPhysicsPart::DrawPart` · 004f6030 · legions 004e8820 — ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
 - [x] `CPhysicsPart::FindObjCollisions` · 004f6090 · legions 004e8880 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `CPhysicsPart::makePhysicsPart` · 004f6110 · legions 004e8900
 - [x] `CPhysicsPart::TraceRayPhysics` · 004f6160 · legions 004e8950 — ac2-physics los (Terrain::los_check)

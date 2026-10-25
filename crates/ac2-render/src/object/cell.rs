@@ -121,7 +121,10 @@ pub fn load_cell_model(
             transform: world_frame.to_mat4(),
             vertices,
             batches,
+            slot: (0, 0),
+            skin: None,
         }],
+        skeleton: None,
     }))
 }
 

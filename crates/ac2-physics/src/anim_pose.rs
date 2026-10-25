@@ -196,6 +196,22 @@ impl PhysicsObj {
         setup.world_pose(&locals)
     }
 
+    /// `CPartArray::m_boneTransforms`: each bone relative to its parent as the last animation
+    /// step left it, or the Setup's default placement before the first step.
+    pub(crate) fn bone_transforms(&self) -> Vec<Ac2Transform> {
+        let Some(setup) = self.anim.setup.as_ref() else {
+            return Vec::new();
+        };
+        if self.anim.bones.len() != setup.bones.len() {
+            return setup.rest_locals();
+        }
+        self.anim
+            .bones
+            .iter()
+            .map(Ac2BoneTransform::to_transform)
+            .collect()
+    }
+
     /// Installs the body's behaviour table (`PHYSICSOBJREP::SetupModeTracker`).
     pub(crate) fn set_animation(&mut self, animation: BodyAnimation, player: bool) {
         self.anim = AnimRep::new(animation, player);

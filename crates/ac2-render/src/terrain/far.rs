@@ -419,7 +419,10 @@ impl FarTerrain {
                     indices: Arc::from(indices),
                     material: Arc::new(ObjectMaterial::new(layers)),
                 }],
+                slot: (0, 0),
+                skin: None,
             }],
+            skeleton: None,
         }))
     }
 }

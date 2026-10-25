@@ -5,8 +5,9 @@ use ac2_anim::Ac2BehaviorParams;
 use ac2_net::protocol::{BehaviorParams, ObjectAction};
 use ac2_physics::PhysicsBody;
 
-/// One Setup part as the animation posed it: model-space offset, rotation (w, x, y, z) and
-/// scale, relative to the body's frame (AC axes). Part `i` of the Setup draws with entry `i`.
+/// One Setup bone as the animation left it (`CPartArray::m_boneTransforms`): offset, rotation
+/// (w, x, y, z) and scale relative to its parent bone (AC axes). The renderer builds the bone and
+/// deform matrices from these (`ac2_render::object::ObjectModel::pose`).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct PartPose {
     pub offset: [f32; 3],
@@ -14,9 +15,21 @@ pub struct PartPose {
     pub scale: [f32; 3],
 }
 
-/// The body's posed parts (`PhysicsBody::posed_parts`).
+impl PartPose {
+    /// As the `TransformBase` the renderer poses a model with (`ObjectModel::pose`).
+    pub fn transform(&self) -> ac2_anim::Ac2Transform {
+        let [w, x, y, z] = self.rotation;
+        ac2_anim::Ac2Transform {
+            offset: self.offset.into(),
+            scale: self.scale.into(),
+            rotation: ac2_math::Quat::from_xyzw(x, y, z, w),
+        }
+    }
+}
+
+/// The body's bone transforms (`PhysicsBody::bone_transforms`).
 pub(crate) fn pose(body: &PhysicsBody) -> Vec<PartPose> {
-    body.posed_parts()
+    body.bone_transforms()
         .iter()
         .map(|t| PartPose {
             offset: [t.offset.x, t.offset.y, t.offset.z],

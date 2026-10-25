@@ -193,6 +193,78 @@ pub fn resolve_ac2_visual_meshes(
     Ok(meshes)
 }
 
+/// One part group of a visual (`CPartGroup`): its Setup and, for an attached group, the index of
+/// its parent group in the returned list and the parent Setup's connection point it hangs from.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Ac2VisualGroup {
+    pub setup: DataId,
+    pub parent: Option<(usize, u32)>,
+}
+
+/// The part groups a `VisualDesc` (or a bare `CSetup`) draws, parents before children: the first
+/// description in the parent chain that names a Setup supplies the tree, and groups whose parent
+/// never resolves are left out (as `place_parts` leaves them undrawn).
+pub fn resolve_ac2_visual_groups(
+    store: &ResourceStore,
+    did: DataId,
+) -> ResourceResult<Vec<Ac2VisualGroup>> {
+    if did.raw() & 0xFF00_0000 == SETUP_PREFIX {
+        return Ok(vec![Ac2VisualGroup {
+            setup: did,
+            parent: None,
+        }]);
+    }
+    let mut current = did;
+    let mut groups = None;
+    for _ in 0..MAX_VISUAL_DESC_DEPTH {
+        if current.raw() & 0xFF00_0000 != VISUAL_DESC_PREFIX {
+            break;
+        }
+        let Some(desc) = load::<Ac2VisualDesc>(store, current)? else {
+            break;
+        };
+        if desc.part_groups.iter().any(|group| group.setup.is_some()) {
+            groups = Some(Arc::clone(&desc.part_groups));
+            break;
+        }
+        let Some(parent) = desc.parent else {
+            break;
+        };
+        current = parent;
+    }
+    let Some(groups) = groups else {
+        return Ok(Vec::new());
+    };
+    let mut placed: Vec<(u32, Ac2VisualGroup)> = Vec::new();
+    let mut pending: Vec<_> = groups.iter().filter(|g| g.setup.is_some()).collect();
+    while !pending.is_empty() {
+        let before = pending.len();
+        let mut index = 0;
+        while index < pending.len() {
+            let group = pending[index];
+            let parent = if group.parent_key == 0 {
+                Some(None)
+            } else {
+                placed
+                    .iter()
+                    .position(|(key, _)| *key == group.parent_key)
+                    .map(|parent| Some((parent, group.connection_point)))
+            };
+            match (parent, group.setup) {
+                (Some(parent), Some(setup)) => {
+                    placed.push((group.key, Ac2VisualGroup { setup, parent }));
+                    pending.swap_remove(index);
+                }
+                _ => index += 1,
+            }
+        }
+        if pending.len() == before {
+            break;
+        }
+    }
+    Ok(placed.into_iter().map(|(_, group)| group).collect())
+}
+
 /// A Setup placed by a visual: its root transform and, for the animated root group, the posed
 /// model-space bone transforms that drive its skin.
 struct PlacedPart {

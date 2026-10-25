@@ -46,7 +46,7 @@ impl PipelineKey {
             dst_factor: blend_factor(self.dest_blend),
             operation: wgpu::BlendOperation::Add,
         };
-        let stride = (3 + 3 + 4 + 8 + 6) * 4;
+        let stride = (3 + 3 + 4 + 8 + 6) * 4 + 4 + 16;
         device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("ac2 object"),
             layout: Some(layout),
@@ -60,7 +60,7 @@ impl PipelineKey {
                     attributes: &wgpu::vertex_attr_array![
                         0 => Float32x3, 1 => Float32x3, 2 => Float32x4,
                         3 => Float32x2, 4 => Float32x2, 5 => Float32x2, 6 => Float32x2,
-                        7 => Float32x3, 8 => Float32x3
+                        7 => Float32x3, 8 => Float32x3, 9 => Uint8x4, 10 => Float32x4
                     ],
                 }],
             },

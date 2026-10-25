@@ -4,14 +4,18 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use ac2_assets::{load_ac2_material, resolve_ac2_visual_meshes, Ac2MaterialLayer, Ac2Mesh};
+use ac2_anim::{Ac2Setup, Ac2Transform};
+use ac2_assets::{load_ac2_material, resolve_ac2_visual_groups, Ac2MaterialLayer, Ac2Mesh};
 use ac2_core::DataId;
 use ac2_dat::DatFileKind;
-use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
+use ac2_db::{
+    CachedResource, ResourcePackedDecode, ResourceResult, ResourceStore, TypedResourceRef,
+};
 use ac2_math::Mat4;
 
 use super::pass::{layer_drawn, layer_pass, LayerPass, RenderSettings};
 use super::pixel_shader::{parse_pixel_shader, PixelProgram};
+use super::skeleton::{ObjectSkeleton, SkeletonGroup};
 
 /// One vertex as the vertex programs read it (`v0` position, `v1` normal, `v2` diffuse,
 /// `v6..` texture coordinate sets).
@@ -93,71 +97,172 @@ pub struct ObjectPart {
     pub transform: Mat4,
     pub vertices: Arc<[ObjectVertex]>,
     pub batches: Vec<ObjectBatch>,
+    /// The part's group in the model's skeleton and its index in that group's Setup.
+    pub slot: (usize, usize),
+    /// Per-vertex (bone, weight) influences when the mesh carries matrix weights.
+    pub skin: Option<Arc<[[(u8, f32); 4]]>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ObjectModel {
     pub visual: DataId,
     pub parts: Vec<ObjectPart>,
+    /// The visual's part-group tree, for posing; `None` for cells, water and the far mesh.
+    pub skeleton: Option<Arc<ObjectSkeleton>>,
 }
 
-/// Loads `visual` (a `VisualDesc` or `CSetup`) with the layers `settings` draws. `None` when it
-/// names no mesh with a drawn layer.
+/// A model posed for one draw: what `CPartArray::Draw` hands the device.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct ObjectPose {
+    /// `CPhysicsPart::m_mObject` of every part, in model part order (mesh to model space).
+    pub parts: Vec<Mat4>,
+    /// Per part, the first of its group's matrices in `palette` when its vertices blend.
+    pub skins: Vec<Option<u32>>,
+    /// The deform matrices of every skinned group (`SceneTool::SetMatrixStack`).
+    pub palette: Vec<Mat4>,
+}
+
+impl ObjectModel {
+    /// The model's parts with its root group's bones at `root` (parent-relative bone transforms,
+    /// `CPartArray::m_boneTransforms` as the animation leaves them) and every other group at its
+    /// default placement. `None` without a skeleton.
+    pub fn pose(&self, root: Option<&[Ac2Transform]>) -> Option<ObjectPose> {
+        let skeleton = self.skeleton.as_ref()?;
+        let groups = skeleton.pose(root);
+        let mut palette = Vec::new();
+        let mut starts = Vec::with_capacity(groups.len());
+        for group in &groups {
+            starts.push(group.blend_matrices().map(|matrices| {
+                let start = palette.len() as u32;
+                palette.extend(matrices);
+                start
+            }));
+        }
+        let (parts, skins) = self
+            .parts
+            .iter()
+            .map(|part| {
+                let (group, index) = part.slot;
+                let Some(pose) = groups.get(group) else {
+                    return (part.transform, None);
+                };
+                let skin = part.skin.as_ref().and(starts[group]);
+                (pose.part_matrix(index), skin)
+            })
+            .unzip();
+        Some(ObjectPose {
+            parts,
+            skins,
+            palette,
+        })
+    }
+}
+
+/// Loads `visual` (a `VisualDesc` or `CSetup`) with the layers `settings` draws: every part group
+/// of the visual (`CPartGroup`), each Setup mesh at its default placement. `None` when it names no
+/// mesh with a drawn layer.
 pub fn load_object_model(
     store: &ResourceStore,
     visual: DataId,
     settings: &RenderSettings,
 ) -> ResourceResult<Option<ObjectModel>> {
     let mut materials = HashMap::<DataId, Option<Arc<ObjectMaterial>>>::new();
-    let mut parts = Vec::new();
-    for (mesh_did, transform) in resolve_ac2_visual_meshes(store, visual)? {
-        let Some(mesh) = store.load_cached_packed::<Ac2Mesh>(TypedResourceRef::new(
-            DatFileKind::Portal,
-            mesh_did,
-            0,
-        ))?
-        else {
+    let mut skeleton = ObjectSkeleton::default();
+    let mut setups: Vec<CachedResource<Ac2Setup>> = Vec::new();
+    let mut meshes = Vec::new();
+    // Skeleton index of each resolved group that loaded.
+    let mut kept: Vec<Option<usize>> = Vec::new();
+    for group in resolve_ac2_visual_groups(store, visual)? {
+        let Some(setup) = load::<Ac2Setup>(store, group.setup)? else {
+            kept.push(None);
             continue;
         };
-        let degrade = mesh.highest_detail_degrade();
-        let mut batches = Vec::new();
-        for fragment in mesh.fragments.iter().filter(|f| f.degrade == degrade) {
-            let Some(material_did) = mesh.materials.get(fragment.material_index).copied() else {
-                continue;
-            };
-            let material = match materials.get(&material_did) {
-                Some(material) => material.clone(),
-                None => {
-                    let material = load_ac2_material(store, material_did)?.and_then(|material| {
-                        let layers: Vec<_> = material
-                            .layers
-                            .into_iter()
-                            .filter(|layer| layer_drawn(layer, settings))
-                            .collect();
-                        (!layers.is_empty()).then(|| Arc::new(ObjectMaterial::new(layers)))
-                    });
-                    materials.insert(material_did, material.clone());
-                    material
-                }
-            };
-            if let Some(material) = material {
-                batches.push(ObjectBatch {
-                    indices: Arc::clone(&fragment.indices),
-                    material,
-                });
+        let mut group_meshes = Vec::with_capacity(setup.meshes.len());
+        for (index, mesh_did) in setup.meshes.iter().enumerate() {
+            if let Some(mesh) = load::<Ac2Mesh>(store, *mesh_did)? {
+                group_meshes.push((index, *mesh_did, mesh));
             }
         }
-        if batches.is_empty() {
-            continue;
-        }
-        parts.push(ObjectPart {
-            mesh: mesh_did,
-            transform: transform.to_mat4(),
-            vertices: object_vertices(&mesh),
-            batches,
-        });
+        // `CPartArray::CacheHasMatrixWeights`.
+        let weighted = group_meshes.iter().any(|(_, _, mesh)| mesh.skin.is_some());
+        // A group whose parent's Setup failed to load is not drawn.
+        let parent = match group.parent {
+            None => None,
+            Some((parent, connection)) => match kept.get(parent).copied().flatten() {
+                Some(parent) => Some((parent, &*setups[parent], connection)),
+                None => {
+                    kept.push(None);
+                    continue;
+                }
+            },
+        };
+        let index = skeleton.groups.len();
+        kept.push(Some(index));
+        skeleton
+            .groups
+            .push(SkeletonGroup::new(group.setup, &setup, weighted, parent));
+        setups.push(setup);
+        meshes.push((index, group_meshes));
     }
-    Ok((!parts.is_empty()).then_some(ObjectModel { visual, parts }))
+    let rest = skeleton.pose(None);
+    let mut parts = Vec::new();
+    for (group, group_meshes) in meshes {
+        for (index, mesh_did, mesh) in group_meshes {
+            let degrade = mesh.highest_detail_degrade();
+            let mut batches = Vec::new();
+            for fragment in mesh.fragments.iter().filter(|f| f.degrade == degrade) {
+                let Some(material_did) = mesh.materials.get(fragment.material_index).copied()
+                else {
+                    continue;
+                };
+                let material = match materials.get(&material_did) {
+                    Some(material) => material.clone(),
+                    None => {
+                        let material =
+                            load_ac2_material(store, material_did)?.and_then(|material| {
+                                let layers: Vec<_> = material
+                                    .layers
+                                    .into_iter()
+                                    .filter(|layer| layer_drawn(layer, settings))
+                                    .collect();
+                                (!layers.is_empty()).then(|| Arc::new(ObjectMaterial::new(layers)))
+                            });
+                        materials.insert(material_did, material.clone());
+                        material
+                    }
+                };
+                if let Some(material) = material {
+                    batches.push(ObjectBatch {
+                        indices: Arc::clone(&fragment.indices),
+                        material,
+                    });
+                }
+            }
+            if batches.is_empty() {
+                continue;
+            }
+            parts.push(ObjectPart {
+                mesh: mesh_did,
+                transform: rest[group].part_matrix(index),
+                vertices: object_vertices(&mesh),
+                batches,
+                slot: (group, index),
+                skin: mesh.skin.clone(),
+            });
+        }
+    }
+    Ok((!parts.is_empty()).then_some(ObjectModel {
+        visual,
+        parts,
+        skeleton: Some(Arc::new(skeleton)),
+    }))
+}
+
+fn load<T: ResourcePackedDecode + Send + Sync + 'static>(
+    store: &ResourceStore,
+    did: DataId,
+) -> ResourceResult<Option<CachedResource<T>>> {
+    store.load_cached_packed::<T>(TypedResourceRef::new(DatFileKind::Portal, did, 0))
 }
 
 fn object_vertices(mesh: &Ac2Mesh) -> Arc<[ObjectVertex]> {

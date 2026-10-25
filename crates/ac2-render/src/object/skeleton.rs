@@ -1,0 +1,393 @@
+//! A visual's `CPartGroup` tree and its bone matrices, built the retail way.
+//!
+//! `CPartArray::UpdateBones` fills two matrices per bone from `m_boneTransforms`: `m_boneMatrices`
+//! from `TransformBase::FillMatrix(t, 0)` (no scale) and `m_deformMatrices` from
+//! `FillMatrix(t, 1)`, each multiplied into its parent's. When a part carries matrix weights
+//! (`CacheHasMatrixWeights`, state `0x40000000`) every deform matrix is then pre-multiplied by
+//! `CharacterSetup::rest_matrix` (`SetRestBones`: the inverse of placement frame 1 with scale).
+//! `CPartGroup::RefreshMatrices` hangs a child group from its parent's (unscaled) bone matrix
+//! through `m_parentOffsetMatrix` (`SetParentOffset`), and `CPartArray::RefreshMatrices` gives
+//! part `i` its bone matrix times the group matrix, or the group matrix alone in a skinned group,
+//! whose vertices `RenderVertexBuffer::BlendVertices` blends by the deform matrices instead.
+//!
+//! Matrices are kept as retail stores them: row-major `float[16]` for row vectors. A row-vector
+//! matrix read as column-major is its column-vector transpose, so `Mat4::from_cols_array` turns
+//! one into the `glam` matrix that maps points the same way.
+
+use ac2_anim::{Ac2Setup, Ac2Transform};
+use ac2_core::DataId;
+use ac2_math::Mat4;
+
+/// A retail `Matrix4`: row-major, row vectors.
+pub(crate) type Matrix4 = [f32; 16];
+
+const IDENTITY: Matrix4 = [
+    1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+];
+
+/// The placement frame `CPartArray::m_placementID` starts at, and the one `InitRestBones` takes
+/// as the rest pose.
+const DEFAULT_PLACEMENT: u32 = 0;
+const REST_PLACEMENT: u32 = 1;
+
+/// `Matrix4::Inverse` leaves the adjoint unscaled below this determinant.
+const MIN_DETERMINANT: f64 = 0.0002;
+
+fn ld(value: f32) -> f64 {
+    f64::from(value)
+}
+
+fn st(value: f64) -> f32 {
+    value as f32
+}
+
+/// The column-vector `glam` matrix of a retail row-vector matrix.
+pub(crate) fn to_mat4(m: &Matrix4) -> Mat4 {
+    Mat4::from_cols_array(m)
+}
+
+/// `D3DXMatrixMultiply(out, a, b)`: `a` applied first, each element summed on the x87 stack and
+/// stored as a `float`.
+pub(crate) fn multiply(a: &Matrix4, b: &Matrix4) -> Matrix4 {
+    let mut out = [0.0; 16];
+    for row in 0..4 {
+        for col in 0..4 {
+            let r = row * 4;
+            out[r + col] = st(((ld(a[r]) * ld(b[col]) + ld(a[r + 1]) * ld(b[4 + col]))
+                + ld(a[r + 2]) * ld(b[8 + col]))
+                + ld(a[r + 3]) * ld(b[12 + col]));
+        }
+    }
+    out
+}
+
+/// `Quaternion::InqRotationAxes` (right, forward, up), with the spills `Frame::cache_matrix`
+/// shows: the doubled `z` and the `w`/`x` cross terms are stored as `float`, `yy`, `yz` and `zz`
+/// stay on the x87 stack. The quaternion is not renormalised.
+fn rotation_axes(transform: &Ac2Transform) -> [[f32; 3]; 3] {
+    let q = transform.rotation;
+    let (w, x, y, z) = (ld(q.w), ld(q.x), ld(q.y), ld(q.z));
+    let x2 = x + x;
+    let y2 = y + y;
+    let z2 = ld(st(z + z));
+    let wx = ld(st(x2 * w));
+    let wy = ld(st(y2 * w));
+    let wz = ld(st(z2 * w));
+    let xx = ld(st(x2 * x));
+    let xy = ld(st(y2 * x));
+    let xz = ld(st(z2 * x));
+    let yy = y2 * y;
+    let yz = z2 * y;
+    let zz = z2 * z;
+    [
+        [st(1.0 - (zz + yy)), st(xy + wz), st(xz - wy)],
+        [st(xy - wz), st(1.0 - (zz + xx)), st(wx + yz)],
+        [st(xz + wy), st(yz - wx), st(1.0 - (yy + xx))],
+    ]
+}
+
+/// `TransformBase::FillMatrix`: `Matrix4::RotationFromQuaternion` (`RotateBasis` of the rotation
+/// axes), each axis row times its scale when `include_scale`, and the offset as the last row.
+pub(crate) fn fill_matrix(transform: &Ac2Transform, include_scale: bool) -> Matrix4 {
+    let axes = rotation_axes(transform);
+    let scale = transform.scale.to_array();
+    let mut m = IDENTITY;
+    for (row, axis) in axes.iter().enumerate() {
+        let factor = if include_scale { scale[row] } else { 1.0 };
+        for (col, value) in axis.iter().enumerate() {
+            m[row * 4 + col] = if include_scale {
+                st(ld(*value) * ld(factor))
+            } else {
+                *value
+            };
+        }
+    }
+    m[12..15].copy_from_slice(&transform.offset.to_array());
+    m
+}
+
+/// `Matrix4::Adjoint`.
+fn adjoint(src: &Matrix4) -> Matrix4 {
+    let m = src.map(ld);
+    let [a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, d1, d2, d3, d4] = m;
+    let mut out = [0.0; 16];
+    let (e17, e18, e19) = (d4 * c3 - d3 * c4, d4 * c2 - d2 * c4, d3 * c2 - d2 * c3);
+    out[0] = st(e19 * b4 + (e17 * b2 - e18 * b3));
+    let (e20, e21) = (d4 * c1 - d1 * c4, d3 * c1 - d1 * c3);
+    out[4] = st(-(e21 * b4 + (e17 * b1 - e20 * b3)));
+    let e22 = d2 * c1 - d1 * c2;
+    out[8] = st(e22 * b4 + (e18 * b1 - e20 * b2));
+    out[12] = st(-(e22 * b3 + (e19 * b1 - e21 * b2)));
+    out[1] = st(-(e19 * a4 + (e17 * a2 - e18 * a3)));
+    out[5] = st(e21 * a4 + (e17 * a1 - e20 * a3));
+    out[9] = st(-(e22 * a4 + (e18 * a1 - e20 * a2)));
+    out[13] = st(e22 * a3 + (e19 * a1 - e21 * a2));
+    let (f19, f18, f17) = (d4 * b3 - d3 * b4, d4 * b2 - d2 * b4, d3 * b2 - d2 * b3);
+    out[2] = st(f17 * a4 + (f19 * a2 - f18 * a3));
+    let (f16, f15) = (d4 * b1 - d1 * b4, d3 * b1 - d1 * b3);
+    out[6] = st(-(f15 * a4 + (f19 * a1 - f16 * a3)));
+    let f13 = d2 * b1 - d1 * b2;
+    out[10] = st(f13 * a4 + (f18 * a1 - f16 * a2));
+    out[14] = st(-(f13 * a3 + (f17 * a1 - f15 * a2)));
+    let (g15, g14, g13) = (c4 * b3 - c3 * b4, c4 * b2 - c2 * b4, c3 * b2 - c2 * b3);
+    out[3] = st(-(g13 * a4 + (g15 * a2 - g14 * a3)));
+    let (g8, g7) = (c4 * b1 - c1 * b4, c3 * b1 - c1 * b3);
+    out[7] = st(g7 * a4 + (g15 * a1 - g8 * a3));
+    let g5 = c2 * b1 - c1 * b2;
+    out[11] = st(-(g5 * a4 + (g14 * a1 - g8 * a2)));
+    out[15] = st(g5 * a3 + (g13 * a1 - g7 * a2));
+    out
+}
+
+/// `Matrix4::CalcDeterminant`, stored as a `float`.
+fn determinant(m: &Matrix4) -> f32 {
+    let m = m.map(ld);
+    let [m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15] = m;
+    let a = m8 * m13 - m9 * m12;
+    let b = m9 * m15 - m13 * m11;
+    let c = m8 * m15 - m12 * m11;
+    let d = m9 * m14 - m13 * m10;
+    let e = m10 * m15 - m14 * m11;
+    let f = m8 * m14 - m10 * m12;
+    st(((a * m7 + (b * m4 - c * m5)) * m2
+        + ((d * m7 + (e * m5 - b * m6)) * m0 - (f * m7 + (e * m4 - c * m6)) * m1))
+        - (a * m6 + (d * m4 - f * m5)) * m3)
+}
+
+/// `Matrix4::Inverse`: the adjoint over the determinant, or the bare adjoint when the
+/// determinant's magnitude is under 0.0002.
+fn inverse(src: &Matrix4) -> Matrix4 {
+    let adjoint = adjoint(src);
+    let det = determinant(src);
+    if ld(det).abs() < MIN_DETERMINANT {
+        return adjoint;
+    }
+    let scale = ld(st(1.0 / ld(det)));
+    adjoint.map(|value| st(scale * ld(value)))
+}
+
+/// `CharacterSetup::GetPlacementFrame(id)`: the bone transforms of that placement frame.
+fn placement(setup: &Ac2Setup, id: u32) -> Option<&[Ac2Transform]> {
+    setup
+        .placements
+        .iter()
+        .find(|frame| frame.kind == id)
+        .map(|frame| &frame.bones[..])
+}
+
+/// `CharacterSetup::SetRestBones` over placement frame 1 (`InitRestBones`): each bone's scaled
+/// matrix multiplied into its parent's, inverted. `None` when the Setup has no rest frame or its
+/// bone count differs.
+fn rest_matrices(setup: &Ac2Setup) -> Option<Vec<Matrix4>> {
+    let rest = placement(setup, REST_PLACEMENT)?;
+    if rest.len() != setup.bones.len() {
+        return None;
+    }
+    let mut world: Vec<Matrix4> = Vec::with_capacity(rest.len());
+    for (index, bone) in setup.bones.iter().enumerate() {
+        let local = fill_matrix(&rest[index], true);
+        world.push(match bone.parent.filter(|parent| *parent < index) {
+            Some(parent) => multiply(&local, &world[parent]),
+            None => local,
+        });
+    }
+    Some(world.iter().map(inverse).collect())
+}
+
+/// One `CPartGroup` of a visual.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SkeletonGroup {
+    pub setup: DataId,
+    /// Mesh count of the Setup (`m_numParts`).
+    pub parts: usize,
+    parents: Vec<Option<usize>>,
+    /// `m_boneTransforms` after `SetPlacementFrameID(0)`.
+    placement: Vec<Ac2Transform>,
+    /// `CharacterSetup::rest_matrix` when a part carries matrix weights; `None` for a rigid group.
+    rest: Option<Vec<Matrix4>>,
+    /// Parent group, the parent bone (`m_parentBoneIndex`, `None` past the parent's bones) and
+    /// `m_parentOffsetMatrix` (`FillMatrix` of the connection point with scale).
+    attachment: Option<(usize, Option<usize>, Matrix4)>,
+}
+
+impl SkeletonGroup {
+    /// The group for `setup`, skinned when `weighted` (`CacheHasMatrixWeights`), hung from
+    /// `parent` (its group and that group's Setup) at connection point `connection`.
+    pub fn new(
+        setup_did: DataId,
+        setup: &Ac2Setup,
+        weighted: bool,
+        parent: Option<(usize, &Ac2Setup, u32)>,
+    ) -> Self {
+        let bones = setup.bones.len();
+        let placement = (0..bones)
+            .map(|index| {
+                placement(setup, DEFAULT_PLACEMENT)
+                    .and_then(|frame| frame.get(index))
+                    .copied()
+                    .unwrap_or(Ac2Transform::IDENTITY)
+            })
+            .collect();
+        let attachment = parent.map(|(group, parent_setup, connection)| {
+            // `CPartGroup::SetParentOffset` takes the parent Setup's connection point only when
+            // its bone exists; otherwise the child keeps an identity offset.
+            match parent_setup
+                .connection_point(connection)
+                .filter(|point| point.bone < parent_setup.bones.len())
+            {
+                Some(point) => (group, Some(point.bone), fill_matrix(&point.transform, true)),
+                None => (group, None, IDENTITY),
+            }
+        });
+        Self {
+            setup: setup_did,
+            parts: setup.meshes.len(),
+            parents: setup.bones.iter().map(|bone| bone.parent).collect(),
+            placement,
+            rest: weighted.then(|| rest_matrices(setup)).flatten(),
+            attachment,
+        }
+    }
+
+    /// Whether the group's parts blend by deform matrices (`m_state & 0x40000000`).
+    pub fn skinned(&self) -> bool {
+        self.rest.is_some()
+    }
+
+    pub fn bone_count(&self) -> usize {
+        self.parents.len()
+    }
+
+    /// `CPartArray::UpdateBones` over `locals` (`m_boneTransforms`).
+    fn update_bones(&self, locals: &[Ac2Transform]) -> GroupPose {
+        let count = self.parents.len();
+        let mut bones: Vec<Matrix4> = Vec::with_capacity(count);
+        let mut deform: Vec<Matrix4> = Vec::with_capacity(count);
+        for index in 0..count {
+            let local = locals.get(index).unwrap_or(&Ac2Transform::IDENTITY);
+            let (bone, scaled) = (fill_matrix(local, false), fill_matrix(local, true));
+            match self.parents[index].filter(|parent| *parent < index) {
+                None => {
+                    bones.push(bone);
+                    deform.push(scaled);
+                }
+                Some(parent) => {
+                    bones.push(multiply(&bone, &bones[parent]));
+                    deform.push(if self.rest.is_some() {
+                        multiply(&scaled, &deform[parent])
+                    } else {
+                        scaled
+                    });
+                }
+            }
+        }
+        let deform = self.rest.as_ref().map(|rest| {
+            deform
+                .iter()
+                .zip(rest)
+                .map(|(matrix, rest)| multiply(rest, matrix))
+                .collect()
+        });
+        GroupPose {
+            bones,
+            deform,
+            matrix: IDENTITY,
+        }
+    }
+}
+
+/// The posed matrices of one group.
+#[derive(Debug, Clone, PartialEq)]
+pub struct GroupPose {
+    /// `m_boneMatrices` (no scale).
+    bones: Vec<Matrix4>,
+    /// `m_deformMatrices` with the rest matrices applied, for a skinned group.
+    deform: Option<Vec<Matrix4>>,
+    /// The group's `mFinal` in `CPartGroup::RefreshMatrices`.
+    matrix: Matrix4,
+}
+
+impl GroupPose {
+    /// `CPartArray::RefreshMatrices`: part `index`'s `CPhysicsPart::m_mObject` (bone matrix times
+    /// group matrix; the group matrix alone in a skinned group or past the bones).
+    pub fn part_matrix(&self, index: usize) -> Mat4 {
+        match (&self.deform, self.bones.get(index)) {
+            (None, Some(bone)) => to_mat4(&multiply(bone, &self.matrix)),
+            _ => to_mat4(&self.matrix),
+        }
+    }
+
+    /// The deform matrices `CPartArray::Draw` hands to `SceneTool::SetMatrixStack`.
+    pub fn blend_matrices(&self) -> Option<Vec<Mat4>> {
+        self.deform
+            .as_ref()
+            .map(|deform| deform.iter().map(to_mat4).collect())
+    }
+}
+
+/// A visual's part-group tree, parents before children.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct ObjectSkeleton {
+    pub groups: Vec<SkeletonGroup>,
+}
+
+impl ObjectSkeleton {
+    /// Every group's matrices with the root group's bones at `root` (parent-relative bone
+    /// transforms, as the animation leaves `m_boneTransforms`) and the rest at placement frame 0;
+    /// `root` of the wrong length is ignored. `CPartGroup::UpdateBones` then `RefreshMatrices`
+    /// from the identity (`CheckRefreshMatrices`).
+    pub fn pose(&self, root: Option<&[Ac2Transform]>) -> Vec<GroupPose> {
+        let mut poses: Vec<GroupPose> = Vec::with_capacity(self.groups.len());
+        for (index, group) in self.groups.iter().enumerate() {
+            let locals = match root {
+                Some(root) if index == 0 && root.len() == group.bone_count() => root,
+                _ => &group.placement[..],
+            };
+            let mut pose = group.update_bones(locals);
+            pose.matrix = match group.attachment {
+                Some((parent, bone, offset)) if parent < poses.len() => {
+                    let parent = &poses[parent];
+                    let local = match bone.and_then(|bone| parent.bones.get(bone)) {
+                        Some(bone) => multiply(&offset, bone),
+                        None => offset,
+                    };
+                    multiply(&local, &parent.matrix)
+                }
+                _ => IDENTITY,
+            };
+            poses.push(pose);
+        }
+        poses
+    }
+}
+
+/// `BlendLitVertices`: a skinned vertex's position and normal under `matrices` (column-vector
+/// deform matrices). Each influence with a non-zero weight adds its transformed point divided by
+/// the homogeneous `w` and scaled by the weight; the normal takes the rotation rows with `w`
+/// offset by one. Neither the weights nor the normal are renormalised.
+pub fn blend_vertex(
+    position: [f32; 3],
+    normal: [f32; 3],
+    influences: &[(u8, f32); 4],
+    matrices: &[Mat4],
+) -> ([f32; 3], [f32; 3]) {
+    let (mut p, mut n) = ([0.0_f32; 3], [0.0_f32; 3]);
+    let point = ac2_math::Vec4::new(position[0], position[1], position[2], 1.0);
+    let direction = ac2_math::Vec4::new(normal[0], normal[1], normal[2], 0.0);
+    for (bone, weight) in influences {
+        if *weight == 0.0 {
+            continue;
+        }
+        let Some(matrix) = matrices.get(usize::from(*bone)) else {
+            continue;
+        };
+        let h = *matrix * point;
+        let r = *matrix * direction;
+        let (pw, nw) = (weight / h.w, weight / (r.w + 1.0));
+        for axis in 0..3 {
+            p[axis] += h[axis] * pw;
+            n[axis] += r[axis] * nw;
+        }
+    }
+    (p, n)
+}
