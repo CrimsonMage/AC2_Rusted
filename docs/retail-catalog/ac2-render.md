@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 41 done, 27 partial, 700 to do, 13 skipped.
+781 retail functions: 42 done, 27 partial, 699 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -763,7 +763,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneCamera::SetRenderPosition` · 00572c90 · legions 0053a9d0
 - [x] `SceneCamera::SetCurrentPosition` · 00572cb0 · legions 0053a9f0
 
-## `portal/client/src/scenerender/scenetool.cpp.c` (6/100)
+## `portal/client/src/scenerender/scenetool.cpp.c` (7/100)
 
 ### SceneTool
 - [ ] `SceneTool::UsingSceneMotionBlur` · 0056a5d0 · legions 0053aa10
@@ -789,7 +789,7 @@ Legend and workflow: [README](README.md).
 - [x] `SceneTool::SetMatrixStack` · 0056ad20 · legions 0053b140 — ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
 - [ ] `SceneTool::TransformVector` · 0056ad40 · legions 0053b160
 - [ ] `SceneTool::TransformPixelToClipPoint` · 0056af60 · legions 0053b380
-- [ ] `SceneTool::TransformClipPointToPixel` · 0056afb0 · legions 0053b3d0
+- [x] `SceneTool::TransformClipPointToPixel` · 0056afb0 · legions 0053b3d0 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 - [ ] `SceneTool::ViewportToClip` · 0056b010 · legions 0053b430
 - [ ] `SceneTool::ClipToViewport` · 0056b080 · legions 0053b4a0
 

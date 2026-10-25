@@ -125,7 +125,7 @@ impl Frame {
     }
 
     /// `Frame::globaltolocal` (a point): the offset from the origin is stored as `float` first.
-    pub(crate) fn global_to_local(&self, v: Vector) -> Vector {
+    pub fn global_to_local(&self, v: Vector) -> Vector {
         let m = self.m.map(ld);
         let dx = ld(st(ld(v.x) - ld(self.origin.x)));
         let dy = ld(st(ld(v.y) - ld(self.origin.y)));

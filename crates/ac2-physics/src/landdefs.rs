@@ -6,11 +6,11 @@ use crate::fpu::{ld, st, F_EPSILON};
 use crate::vector::Vector;
 
 /// `LandDefs::square_length`.
-pub(crate) const SQUARE_LENGTH: f32 = 20.0;
+pub const SQUARE_LENGTH: f32 = 20.0;
 /// `LandDefs::block_length`.
-pub(crate) const BLOCK_LENGTH: f32 = 160.0;
+pub const BLOCK_LENGTH: f32 = 160.0;
 /// `LandDefs::lblock_side` (land cells per block side) and `lblock_shift`/`lblock_mask`.
-pub(crate) const LBLOCK_SIDE: i32 = 8;
+pub const LBLOCK_SIDE: i32 = 8;
 const LBLOCK_SHIFT: u32 = 3;
 const LBLOCK_MASK: u32 = 7;
 /// `LandDefs::vertex_per_cell`: terrain polygons per land cell side.
@@ -20,7 +20,7 @@ pub(crate) const POLYS_PER_LANDCELL: usize = VERTEX_PER_CELL * VERTEX_PER_CELL *
 /// `LandDefs::side_vertex_count`.
 pub(crate) const SIDE_VERTEX_COUNT: usize = 17;
 /// `LandDefs::land_width`/`land_length` in land cells.
-pub(crate) const LAND_WIDTH: i32 = 255 * LBLOCK_SIDE;
+pub const LAND_WIDTH: i32 = 255 * LBLOCK_SIDE;
 const FIRST_LCELL_ID: u32 = 1;
 const LAST_LCELL_ID: u32 = 64;
 const FIRST_ENVCELL_ID: u32 = 0x100;
@@ -29,13 +29,13 @@ const BLOCK_CELL_ID: u32 = 0xFFFF;
 const CELLID_MASK: u32 = 0xFFFF;
 
 /// Whether a cell id names a land cell (`(id & cellid_mask) < first_envcell_id`).
-pub(crate) fn is_outside(cell_id: u32) -> bool {
+pub fn is_outside(cell_id: u32) -> bool {
     (cell_id & CELLID_MASK) < FIRST_ENVCELL_ID
 }
 
 /// `LandDefs::blockid_to_lcoord`: the land-cell coordinates of a block's south-west corner.
 /// Retail leaves the outputs unwritten for id 0; that case maps to `(0, 0)` here.
-pub(crate) fn blockid_to_lcoord(block_id: u32) -> Option<(i32, i32)> {
+pub fn blockid_to_lcoord(block_id: u32) -> Option<(i32, i32)> {
     if block_id == 0 {
         return None;
     }
@@ -46,7 +46,7 @@ pub(crate) fn blockid_to_lcoord(block_id: u32) -> Option<(i32, i32)> {
 }
 
 /// `LandDefs::gid_to_lcoord` for a land cell.
-pub(crate) fn gid_to_lcoord(cell_id: u32) -> Option<(i32, i32)> {
+pub fn gid_to_lcoord(cell_id: u32) -> Option<(i32, i32)> {
     let local = cell_id & CELLID_MASK;
     if !(FIRST_LCELL_ID..=LAST_LCELL_ID).contains(&local) || (cell_id >> 16) == 0 {
         return None;
@@ -59,7 +59,7 @@ pub(crate) fn gid_to_lcoord(cell_id: u32) -> Option<(i32, i32)> {
 }
 
 /// `LandDefs::lcoord_to_gid`: 0 off the map.
-pub(crate) fn lcoord_to_gid(x: i32, y: i32) -> u32 {
+pub fn lcoord_to_gid(x: i32, y: i32) -> u32 {
     if !(0..LAND_WIDTH).contains(&x) || !(0..LAND_WIDTH).contains(&y) {
         return 0;
     }
@@ -70,7 +70,7 @@ pub(crate) fn lcoord_to_gid(x: i32, y: i32) -> u32 {
 
 /// `LandDefs::get_block_offset`: the offset from block `from`'s origin to block `to`'s, zero
 /// for the same block.
-pub(crate) fn get_block_offset(from: u32, to: u32) -> Vector {
+pub fn get_block_offset(from: u32, to: u32) -> Vector {
     if (from == 0 && to == 0) || (from != 0 && to != 0 && from >> 16 == to >> 16) {
         return Vector::ZERO;
     }
@@ -101,7 +101,7 @@ fn get_outside_lcoord(cell_id: u32, local: Vector) -> Option<(i32, i32)> {
 /// `LandDefs::adjust_to_outside`: moves a block-relative point into the land cell under it,
 /// rebasing the point onto that cell's block. Components within `F_EPSILON` of zero snap to
 /// zero first. Fails (cell id 0) off the map or for an invalid id.
-pub(crate) fn adjust_to_outside(cell_id: &mut u32, point: &mut Vector) -> bool {
+pub fn adjust_to_outside(cell_id: &mut u32, point: &mut Vector) -> bool {
     let id = *cell_id & CELLID_MASK;
     let valid = (FIRST_LCELL_ID..=LAST_LCELL_ID).contains(&id)
         || (FIRST_ENVCELL_ID..=LAST_ENVCELL_ID).contains(&id)

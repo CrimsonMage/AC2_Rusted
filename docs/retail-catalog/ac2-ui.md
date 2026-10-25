@@ -1,9 +1,9 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 106 done, 59 partial, 2065 to do, 17 skipped.
+2247 retail functions: 113 done, 67 partial, 2050 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
+## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
 
 ### BBox
 - [x] `BBox::AdjustBBox` · 00426720 · legions 00426510 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
@@ -16,8 +16,8 @@ Legend and workflow: [README](README.md).
 ### gm3DTextUI
 - [ ] `gm3DTextUI::ListenToMessage` · 004268a0 · legions 00426660
 - [ ] `gm3DTextUI::RecvNotice_ItemUpdate` · 00426920
-- [ ] `gm3DTextUI::ShowReticle` · 00426930 · legions 004266f0
-- [ ] `gm3DTextUI::CheckName` · 00426970 · legions 00426730
+- [x] `gm3DTextUI::ShowReticle` · 00426930 · legions 004266f0 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
+- [~] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 - [ ] `gm3DTextUI::DoStuffMeter` · 00426ae0 · legions 004268a0
 - [ ] `gm3DTextUI::MakeNewData` · 00426b70 · legions 00426930
 
@@ -29,7 +29,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Position::Position` · 00426d50 · legions 00426b10
 
 ### gm3DTextUI
-- [ ] `gm3DTextUI::InitReticle` · 00426d90 · legions 00426b50
+- [~] `gm3DTextUI::InitReticle` · 00426d90 · legions 00426b50 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 - [ ] `gm3DTextUI::RecvNotice_UpdateSelectionInfo` · 00426ee0 · legions 00426ca0
 - [ ] `gm3DTextUI::PlaceHere` · 00426f60 · legions 00426d20
 
@@ -50,9 +50,9 @@ Legend and workflow: [README](README.md).
 - [ ] `gm3DTextUI::DamageTextInfo::DamageTextInfo` · 00428e30
 
 ### gm3DTextUI
-- [ ] `gm3DTextUI::AverageBoundingBox` · 00428e60 · legions 00428c20
-- [ ] `gm3DTextUI::ConvertObjectToWindow` · 004291a0 · legions 00428f60
-- [ ] `gm3DTextUI::UpdateReticleInternal` · 00429320 · legions 004290e0
+- [x] `gm3DTextUI::AverageBoundingBox` · 00428e60 · legions 00428c20 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
+- [x] `gm3DTextUI::ConvertObjectToWindow` · 004291a0 · legions 00428f60 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
+- [~] `gm3DTextUI::UpdateReticleInternal` · 00429320 · legions 004290e0 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 - [ ] `gm3DTextUI::CalcScreenPosition` · 00429ab0 · legions 00429870
 
 ### _STL::deque<BBox,_STL::allocator<BBox>_>
@@ -60,7 +60,7 @@ Legend and workflow: [README](README.md).
 
 ### gm3DTextUI
 - [ ] `gm3DTextUI::UpdateNames` · 00429e20 · legions 00429be0
-- [ ] `gm3DTextUI::UpdateReticle` · 0042a1d0 · legions 00429f90
+- [x] `gm3DTextUI::UpdateReticle` · 0042a1d0 · legions 00429f90 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 
 ### gm3DTextUI::DamageTextInfo
 - [ ] `gm3DTextUI::DamageTextInfo::operator=` · 0042a290 · legions 0042a050
@@ -82,7 +82,7 @@ Legend and workflow: [README](README.md).
 
 ### gm3DTextUI
 - [ ] `gm3DTextUI::CleanUp` · 0042ad00 · legions 0042aac0
-- [ ] `gm3DTextUI::Update` · 0042adf0 · legions 0042abb0
+- [~] `gm3DTextUI::Update` · 0042adf0 · legions 0042abb0 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 - [ ] `gm3DTextUI::AddName` · 0042ae40 · legions 0042ac00
 - [ ] `gm3DTextUI::RecvNotice_CreateObject` · 0042b0c0
 - [ ] `gm3DTextUI::RecvNotice_Do3DDamage` · 0042b150
@@ -92,7 +92,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gm3DTextUI::Init` · 0042b510 · legions 0042b2d0
 - [ ] `gm3DTextUI::InitNames` · 0042b610 · legions 0042b3d0
 - [ ] `gm3DTextUI::RecvNotice_ChangeRadarLook` · 0042b6a0
-- [ ] `gm3DTextUI::RecvNotice_SelectionChanged` · 0042b730
+- [~] `gm3DTextUI::RecvNotice_SelectionChanged` · 0042b730 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 - [ ] `gm3DTextUI::ToggleNames` · 0042b7e0 · legions 0042b5a0
 - [ ] `gm3DTextUI::gm3DTextUI` · 0042b840 · legions 0042b600
 - [ ] `gm3DTextUI::ListenToMessage` · 0042ba40 · legions 0042b800
@@ -1038,10 +1038,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmExaminationUI::gmExaminationUI` · 004312e0
 - [ ] `gmExaminationUI::RecvNotice_UpdateExaminationProfile` · 00431410
 
-## `ac2/client/src/ui/gameplay/toolbar/gmnavigationui.cpp.c` (2/37)
+## `ac2/client/src/ui/gameplay/toolbar/gmnavigationui.cpp.c` (3/37)
 
 ### LandDefs
-- [ ] `LandDefs::inbound_valid_cellid` · 004314c0 · legions 00431dc0
+- [x] `LandDefs::inbound_valid_cellid` · 004314c0 · legions 00431dc0 — ac2-script glue::position (ported beside the gPosition glue)
 
 ### gmNavigationUI
 - [ ] `gmNavigationUI::AutoShowScrollButtons` · 00431550 · legions 00431e50
@@ -2418,7 +2418,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UISurface::Resize` · 005b1320 · legions 0057cdd0
 - [ ] `UISurface::RefreshHardware` · 005b13b0 · legions 0057ce60
 
-## `portal/client/src/render/ui/uisurfaceobject.cpp.c` (0/28)
+## `portal/client/src/render/ui/uisurfaceobject.cpp.c` (2/28)
 
 ### UISurfaceObject
 - [ ] `UISurfaceObject::UISurfaceObject` · 005b23b0 · legions 00582870
@@ -2436,7 +2436,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UISurfaceObject::ObjectToSurface` · 005b2680 · legions 00582b40
 - [ ] `UISurfaceObject::ClipToSurface` · 005b26f0 · legions 00582bb0
 - [ ] `UISurfaceObject::BuildClipMatrix` · 005b2790 · legions 00582c50
-- [ ] `UISurfaceObject::BuildRotateMatrix` · 005b2860 · legions 00582d20
+- [x] `UISurfaceObject::BuildRotateMatrix` · 005b2860 · legions 00582d20 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 - [ ] `UISurfaceObject::BuildScreenMatrix` · 005b2930 · legions 00582df0
 - [ ] `UISurfaceObject::SetScreenPosition` · 005b29f0 · legions 00582eb0
 - [ ] `UISurfaceObject::ResizeSurface` · 005b2a70 · legions 00582f30
@@ -2446,7 +2446,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UISurfaceObject::SetMaterialFiltering` · 005b2c30 · legions 005830f0
 - [~] `UISurfaceObject::Render` · 005b2c80 · legions 00583140 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [ ] `UISurfaceObject::GetLocalPosition` · 005b2dc0 · legions 00583280
-- [ ] `UISurfaceObject::SetRotateVals` · 005b2e10 · legions 005832d0
+- [x] `UISurfaceObject::SetRotateVals` · 005b2e10 · legions 005832d0 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 - [~] `UISurfaceObject::GenerateMaterial` · 005b2ea0 · legions 00583360 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [ ] `UISurfaceObject::SetMaterial` · 005b3000 · legions 005834c0
 
@@ -3078,7 +3078,7 @@ Legend and workflow: [README](README.md).
 - [~] `UIElement_Text::UIElement_Text` · 005eea40 · legions 005af5d0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [~] `UIElement_Text::SetAttribute_Int` · 005eec20 · legions 005af780 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [ ] `UIElement_Text::Create` · 005eed10
-- [ ] `UIElement_Text::InqSizewMargins` · 005eed40 · legions 005af8a0
+- [~] `UIElement_Text::InqSizewMargins` · 005eed40 · legions 005af8a0 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 - [ ] `UIElement_Text::UpdateScrollbars` · 005eef10 · legions 005afa70
 
 ### SmartArray<GlyphLine>
@@ -3131,8 +3131,8 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::SetStringInfo` · 005f14e0 · legions 005b2010
 - [ ] `UIElement_Text::AddText` · 005f1510 · legions 005b2040
 - [ ] `UIElement_Text::TruncateText` · 005f1570 · legions 005b20a0
-- [ ] `UIElement_Text::SetText` · 005f16e0 · legions 005b2210
-- [ ] `UIElement_Text::SetText` · 005f1750 · legions 005b2280
+- [~] `UIElement_Text::SetText` · 005f16e0 · legions 005b2210 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+- [~] `UIElement_Text::SetText` · 005f1750 · legions 005b2280 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 - [~] `UIElement_Text::SetString` · 005f17c0 · legions 005b22f0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [ ] `UIElement_Text::MatchAttributes` · 005f1810 · legions 005b2340
 - [~] `UIElement_Text::SetAttribute_Bool` · 005f18c0 · legions 005b23f0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces

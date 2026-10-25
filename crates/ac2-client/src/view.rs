@@ -47,6 +47,8 @@ pub struct ClientView {
     renderer: SceneRenderer,
     hud: HudView,
     block_size: f32,
+    /// The reticle asked to clear the selection (out of range).
+    deselect: bool,
 }
 
 /// The landblock (x, y) of a cell id.
@@ -106,6 +108,7 @@ impl ClientView {
         Self {
             block_size: world.block_size(),
             hud: HudView::new(Arc::clone(world.resource_store()), gpu, format, size),
+            deselect: false,
             scene: WorldScene::new(world, radius),
             renderer: SceneRenderer::new(gpu, format),
         }
@@ -189,6 +192,7 @@ impl ClientView {
             .collect();
         self.renderer
             .prepare(gpu, &camera, aspect, time, scene_frame, objects);
+        self.update_reticle(gpu, frame, &camera, aspect);
         self.hud.prepare(&gpu.queue);
         true
     }
@@ -244,6 +248,57 @@ impl ClientView {
         )
     }
 
+    /// `gm3DTextUI::Update`: the reticle around the selected object, from its model box, its
+    /// placement and the camera.
+    fn update_reticle(&mut self, gpu: &Gpu, frame: &ClientFrame, camera: &Camera, aspect: f32) {
+        let selection = frame.selection.as_ref();
+        let drawn = drawn_objects(frame);
+        let placed = selection
+            .and_then(|s| drawn.iter().find(|d| d.id == s.id))
+            .and_then(|d| {
+                let (key, world, _) = self.placed(d)?;
+                let mesh = self.scene.object_pick(key)?;
+                Some((
+                    world,
+                    mesh.min,
+                    mesh.max,
+                    self.world_point(d.cell, d.origin),
+                ))
+            });
+        let player = frame
+            .player
+            .as_ref()
+            .map(|p| self.world_point(p.cell, p.origin));
+        let view_projection = camera.view_projection(aspect);
+        let project = |world: Mat4| {
+            move |p: [f32; 3]| {
+                let clip = view_projection * world * Vec3::from_array(p).extend(1.0);
+                let w = if clip.w.abs() < 1e-6 { 1e-6 } else { clip.w };
+                ([clip.x / w, clip.y / w], clip.w > 0.0)
+            }
+        };
+        let projector = placed.map(|(world, ..)| project(world));
+        let target = match (selection, placed, &projector) {
+            (Some(s), Some((_, min, max, at)), Some(projector)) => Some(ac2_ui::ReticleTarget {
+                id: s.id,
+                bounds: (min.to_array(), max.to_array()),
+                project: projector,
+                planar_distance: player.map(|p| (at - p).truncate().length()),
+            }),
+            _ => None,
+        };
+        let outcome = self
+            .hud
+            .reticle(gpu, selection.map(|s| (s.id, s.name.as_deref())), target);
+        self.deselect |= outcome.deselect;
+    }
+
+    /// Whether the reticle cleared the selection since the last call (send
+    /// `Command::Select(None)`).
+    pub fn take_deselect(&mut self) -> bool {
+        std::mem::take(&mut self.deselect)
+    }
+
     /// How many of the frame's objects have their model loaded.
     pub fn loaded_objects(&self, frame: &ClientFrame) -> usize {
         drawn_objects(frame)
@@ -265,6 +320,11 @@ impl ClientView {
     /// The pointer as the HUD last saw it (`ICIDM` mouse position).
     pub fn pointer(&self) -> (i32, i32) {
         self.hud.pointer()
+    }
+
+    /// How many HUD surfaces are shown.
+    pub fn hud_shown_layers(&self) -> usize {
+        self.hud.shown_layers()
     }
 
     /// How many HUD surfaces are drawn.

@@ -17,6 +17,7 @@ use ac2_db::{ResourceResult, ResourceStore};
 use crate::compose::UiPixels;
 use crate::element::UiTree;
 use crate::layout::{load_layout, LayoutDesc};
+use crate::reticle::Reticle;
 use crate::text_data::StoreTextData;
 use crate::token::tokenize;
 
@@ -49,16 +50,30 @@ pub fn load_layout_by_enum(
     Ok(load_layout(store, did)?.map(|layout| Arc::new((*layout).clone())))
 }
 
+/// The gameplay HUD's tree and the frameworks that drive it.
+#[derive(Debug, Clone)]
+pub struct GameplayHud {
+    pub tree: UiTree,
+    /// `gm3DTextUI`'s targeting reticle.
+    pub reticle: Option<Reticle>,
+}
+
 /// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
+/// `gm3DTextUI` comes first in `gmGamePlayUI::SetupChildren`, so its reticle is made first.
 pub fn build_gameplay_hud(
     store: &Arc<ResourceStore>,
     width: i32,
     height: i32,
-) -> ResourceResult<UiTree> {
+) -> ResourceResult<GameplayHud> {
     let mut tree = UiTree::new(width, height);
     let text_data = Arc::new(StoreTextData::new(Arc::clone(store)));
     tree.set_text_data(text_data.clone());
     let mut layouts = HashMap::new();
+    let gameplay = load_layout_by_enum(store, LAYOUT_GAMEPLAY)?;
+    let reticle = gameplay
+        .as_ref()
+        .and_then(|layout| Reticle::create(&mut tree, layout));
+    layouts.insert(LAYOUT_GAMEPLAY, gameplay);
     for (layout_enum, name) in GAMEPLAY_ROOTS {
         if !layouts.contains_key(&layout_enum) {
             layouts.insert(layout_enum, load_layout_by_enum(store, layout_enum)?);
@@ -78,7 +93,7 @@ pub fn build_gameplay_hud(
         }
     }
     text_data.freeze();
-    Ok(tree)
+    Ok(GameplayHud { tree, reticle })
 }
 
 /// Every image the tree shows (`Graphic::Graphic`); a missing image draws nothing.

@@ -97,7 +97,7 @@ impl Position {
     }
 
     /// `Position::localtolocal`: a point of `from`'s frame in `self`'s frame.
-    pub(crate) fn local_to_local(&self, from: &Position, p: Vector) -> Vector {
+    pub fn local_to_local(&self, from: &Position, p: Vector) -> Vector {
         let global = self.local_to_global(from, p);
         self.frame.global_to_local(global)
     }
@@ -129,12 +129,12 @@ impl Position {
     }
 
     /// `Position::distance`: `|GetOffset(other)|`, an x87 result.
-    pub(crate) fn distance(&self, other: &Position) -> f64 {
+    pub fn distance(&self, other: &Position) -> f64 {
         self.distance_squared(other).sqrt()
     }
 
     /// `Position::distance_squared`: `(x*x + y*y) + z*z` of the offset.
-    pub(crate) fn distance_squared(&self, other: &Position) -> f64 {
+    pub fn distance_squared(&self, other: &Position) -> f64 {
         let o = self.offset_to(other);
         let (x, y, z) = (ld(o.x), ld(o.y), ld(o.z));
         (x * x + y * y) + z * z
@@ -142,7 +142,7 @@ impl Position {
 
     /// `Position::heading`: the compass heading from `self` toward `other` (0 when nearer
     /// than `F_EPSILON` horizontally).
-    pub(crate) fn heading_to(&self, other: &Position) -> crate::heading::Heading {
+    pub fn heading_to(&self, other: &Position) -> crate::heading::Heading {
         let o = self.offset_to(other);
         let (x, y) = (ld(o.x), ld(o.y));
         let length = (y * y + x * x).sqrt();
@@ -156,7 +156,7 @@ impl Position {
     }
 
     /// `Position::add_local_offset`: move by `offset` in the frame's local axes.
-    pub(crate) fn add_local_offset(&mut self, offset: Vector) {
+    pub fn add_local_offset(&mut self, offset: Vector) {
         let m = self.frame.m.map(ld);
         let (x, y, z) = (ld(offset.x), ld(offset.y), ld(offset.z));
         let gx = (m[3] * y + m[0] * x) + m[6] * z;

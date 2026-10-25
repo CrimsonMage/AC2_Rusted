@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 180 done, 53 partial, 1665 to do, 6 skipped.
+1904 retail functions: 191 done, 33 partial, 1674 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -29,12 +29,12 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/events/cm_allegiance.cpp.c` (0/4)
 
 ### CM_Allegiance
-- [~] `CM_Allegiance::SendNotice_Patron_SwearDone` · 00727f80 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Allegiance::SendNotice_RequestVassal` · 00728020 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Allegiance::SendNotice_UpdateAllegianceProfile` · 007280c0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Allegiance::SendNotice_Vassal_SwearDone` · 00728150 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Allegiance::SendNotice_Patron_SwearDone` · 00727f80 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Allegiance::SendNotice_RequestVassal` · 00728020 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Allegiance::SendNotice_UpdateAllegianceProfile` · 007280c0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Allegiance::SendNotice_Vassal_SwearDone` · 00728150 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 
-## `ac2/client/src/events/cm_character.cpp.c` (7/30)
+## `ac2/client/src/events/cm_character.cpp.c` (4/30)
 
 ### CM_Character
 - [ ] `CM_Character::SendNotice_AddMarker` · 007248b0 · legions 006a4270
@@ -46,7 +46,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Character::SendNotice_PetIsUnderAttack` · 00724c70
 - [ ] `CM_Character::SendNotice_PulseMissed` · 00724d00
 - [ ] `CM_Character::SendNotice_ReloadGameplayOptions` · 00724d90
-- [x] `CM_Character::SendNotice_ReloadOptions` · 00724e20 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
+- [ ] `CM_Character::SendNotice_ReloadOptions` · 00724e20 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
 - [ ] `CM_Character::SendNotice_RemoveMarker` · 00724eb0 · legions 006a45e0
 - [ ] `CM_Character::SendNotice_RemovePet` · 00724f50
 - [ ] `CM_Character::SendNotice_ResurrectionRequestedByOther` · 00724fe0
@@ -63,8 +63,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Character::SendNotice_UpdateResetTime` · 00725660
 - [ ] `CM_Character::SendNotice_UpdateSelectability` · 007256f0
 - [x] `CM_Character::SendNotice_UpdateSelectionInfo` · 00725780 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
-- [x] `CM_Character::SendNotice_UpdateSkill` · 00725810 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
-- [x] `CM_Character::SendNotice_UpdateSkillPanel` · 007258a0 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
+- [ ] `CM_Character::SendNotice_UpdateSkill` · 00725810 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
+- [ ] `CM_Character::SendNotice_UpdateSkillPanel` · 007258a0 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
 - [ ] `CM_Character::SendNotice_UpdateVitae` · 00725950
 - [x] `CM_Character::SendNotice_UpdateVital` · 007259f0 — ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
 
@@ -103,19 +103,19 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/events/cm_fellowship.cpp.c` (0/13)
 
 ### CM_Fellowship
-- [~] `CM_Fellowship::SendNotice_ClearFellow` · 00726fe0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_ClearFellowship` · 00727070 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_ExpireRecruitment` · 00727100 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_RequestRecruitment` · 00727190 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellow` · 00727240 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellowCellID` · 007272e0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellowHealth` · 00727380 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellowLevel` · 00727430 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellowMaxHealth` · 007274d0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellowMaxVigor` · 00727570 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellowVigor` · 00727610 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateFellowship` · 007276c0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [~] `CM_Fellowship::SendNotice_UpdateLeader` · 00727750 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_ClearFellow` · 00726fe0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_ClearFellowship` · 00727070 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_ExpireRecruitment` · 00727100 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_RequestRecruitment` · 00727190 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellow` · 00727240 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellowCellID` · 007272e0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellowHealth` · 00727380 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellowLevel` · 00727430 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellowMaxHealth` · 007274d0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellowMaxVigor` · 00727570 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellowVigor` · 00727610 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateFellowship` · 007276c0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Fellowship::SendNotice_UpdateLeader` · 00727750 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 
 ## `ac2/client/src/events/cm_friends.cpp.c` (0/5)
 
@@ -126,11 +126,11 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Friends::SendNotice_LocalStatus` · 00726040
 - [ ] `CM_Friends::SendNotice_GUNResult_GetFriendsList` · 007260d0
 
-## `ac2/client/src/events/cm_inventory.cpp.c` (4/4)
+## `ac2/client/src/events/cm_inventory.cpp.c` (2/4)
 
 ### CM_Inventory
-- [x] `CM_Inventory::SendNotice_ContainerStateUpdate` · 00726c10 — ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
-- [x] `CM_Inventory::SendNotice_ItemUpdate` · 00726cb0 — ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
+- [ ] `CM_Inventory::SendNotice_ContainerStateUpdate` · 00726c10 — ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
+- [ ] `CM_Inventory::SendNotice_ItemUpdate` · 00726cb0 — ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
 - [x] `CM_Inventory::SendNotice_UpdateContainer` · 00726d40 — ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
 - [x] `CM_Inventory::SendNotice_UpdateInventory` · 00726e10 — ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
 
@@ -156,7 +156,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/events/cm_shortcut.cpp.c` (0/2)
 
 ### CM_Shortcut
-- [~] `CM_Shortcut::SendNotice_ReloadShortcuts` · 007268b0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [ ] `CM_Shortcut::SendNotice_ReloadShortcuts` · 007268b0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 - [ ] `CM_Shortcut::SendNotice_RemoveRecipe` · 00726940
 
 ## `ac2/client/src/events/cm_store.cpp.c` (0/12)
@@ -271,7 +271,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Allegiance::CallEFun_SendNotice_UpdateAllegianceProfile` · 0046a3f0
 - [ ] `gCM_Allegiance::CallEFun_SendNotice_Vassal_SwearDone` · 0046a440
 
-## `ac2/client/src/weenie/interp/glue/gcm_character.cpp.c` (0/26)
+## `ac2/client/src/weenie/interp/glue/gcm_character.cpp.c` (4/26)
 
 ### gCM_Character
 - [ ] `gCM_Character::CallEFun_SendNotice_AddMarker` · 00469a90
@@ -285,21 +285,21 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Character::CallEFun_SendNotice_RemoveMarker` · 00469d40
 - [ ] `gCM_Character::CallEFun_SendNotice_RemovePet` · 00469d90
 - [ ] `gCM_Character::CallEFun_SendNotice_ResurrectionRequestedByOther` · 00469de0
-- [ ] `gCM_Character::CallEFun_SendNotice_SelectionChanged` · 00469e30
+- [x] `gCM_Character::CallEFun_SendNotice_SelectionChanged` · 00469e30 — ac2-script host notices -> ac2_weenie::GameplayNotice
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateDeathState` · 00469e80
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateEffect` · 00469ed0
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateFactionStatus` · 00469f10
-- [ ] `gCM_Character::CallEFun_SendNotice_UpdateHeroStatus` · 00469f60
+- [x] `gCM_Character::CallEFun_SendNotice_UpdateHeroStatus` · 00469f60 — ac2-script host notices -> ac2_weenie::GameplayNotice
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateMountState` · 00469fd0
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdatePetMode` · 0046a020
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdatePetName` · 0046a070
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateResetTime` · 0046a0d0
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateSelectability` · 0046a110
-- [ ] `gCM_Character::CallEFun_SendNotice_UpdateSelectionInfo` · 0046a160
+- [x] `gCM_Character::CallEFun_SendNotice_UpdateSelectionInfo` · 0046a160 — ac2-script host notices -> ac2_weenie::GameplayNotice
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateSkill` · 0046a1b0
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateSkillPanel` · 0046a200
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateVitae` · 0046a260
-- [ ] `gCM_Character::CallEFun_SendNotice_UpdateVital` · 0046a2d0
+- [x] `gCM_Character::CallEFun_SendNotice_UpdateVital` · 0046a2d0 — ac2-script host notices -> ac2_weenie::GameplayNotice
 
 ## `ac2/client/src/weenie/interp/glue/gcm_combat.cpp.c` (0/5)
 
@@ -310,10 +310,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Combat::CallEFun_SendNotice_ToggleSpecialAttack` · 004699f0
 - [ ] `gCM_Combat::CallEFun_SendNotice_UpdateAttackState` · 00469a40
 
-## `ac2/client/src/weenie/interp/glue/gcm_communication.cpp.c` (0/3)
+## `ac2/client/src/weenie/interp/glue/gcm_communication.cpp.c` (1/3)
 
 ### gCM_Communication
-- [ ] `gCM_Communication::CallEFun_SendNotice_DisplayStringInfo` · 00469820
+- [x] `gCM_Communication::CallEFun_SendNotice_DisplayStringInfo` · 00469820 — ac2-script host notices -> ac2_weenie::GameplayNotice
 - [ ] `gCM_Communication::CallEFun_SendNotice_DoAssistedTell` · 00469870
 - [ ] `gCM_Communication::CallEFun_SendNotice_ReloadChatSettings` · 004698c0
 
@@ -327,11 +327,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Craft::CallEFun_SendNotice_UpdateCraftPanel` · 00469790
 - [ ] `gCM_Craft::CallEFun_SendNotice_UpdateCraftSkill` · 004697d0
 
-## `ac2/client/src/weenie/interp/glue/gcm_examination.cpp.c` (0/2)
+## `ac2/client/src/weenie/interp/glue/gcm_examination.cpp.c` (2/2)
 
 ### gCM_Examination
-- [ ] `gCM_Examination::CallEFun_SendNotice_ExaminationRequestChanged` · 00469580
-- [ ] `gCM_Examination::CallEFun_SendNotice_UpdateExaminationProfile` · 004695d0
+- [x] `gCM_Examination::CallEFun_SendNotice_ExaminationRequestChanged` · 00469580 — ac2-script host notices -> ac2_weenie::GameplayNotice
+- [x] `gCM_Examination::CallEFun_SendNotice_UpdateExaminationProfile` · 004695d0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_fellowship.cpp.c` (0/13)
 
@@ -461,11 +461,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gFellowshipAdaptor::CallEFun_AddFellow` · 00468430
 - [ ] `gFellowshipAdaptor::CallEFun_SetName` · 004684b0
 
-## `ac2/client/src/weenie/interp/glue/ggmcobjmaint.cpp.c` (0/3)
+## `ac2/client/src/weenie/interp/glue/ggmcobjmaint.cpp.c` (2/3)
 
 ### ggmCObjMaint
-- [ ] `ggmCObjMaint::CallEFun_GetPlayerID` · 00468210
-- [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00
+- [x] `ggmCObjMaint::CallEFun_GetPlayerID` · 00468210 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [x] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
 ## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (14/301)
@@ -985,8 +985,8 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::IsOnInventory` · 00450680 · legions 004517c0
 - [ ] `gmCWInterface::DragToMoneyBag` · 004506c0 · legions 00451800
 - [ ] `gmCWInterface::DragFromMoneyBag` · 00450700 · legions 00451840
-- [~] `gmCWInterface::LootAllFromContainer` · 00450730 · legions 00451870 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
-- [~] `gmCWInterface::TransmuteAllFromContainer` · 00450750 · legions 00451890 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
+- [ ] `gmCWInterface::LootAllFromContainer` · 00450730 · legions 00451870 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
+- [ ] `gmCWInterface::TransmuteAllFromContainer` · 00450750 · legions 00451890 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
 - [ ] `gmCWInterface::HasDurability` · 00450770 · legions 004518b0
 - [ ] `gmCWInterface::GetDurabilityLevel` · 004507a0 · legions 004518e0
 - [ ] `gmCWInterface::GetMaxDurabilityLevel` · 004507d0 · legions 00451910
@@ -2262,7 +2262,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWDistributor::CallEFun_GetMyPackageID` · 004bc700
 - [ ] `gCWDistributor::CallEFun_GetProcessID` · 004bc770
 
-## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (0/32)
+## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (2/32)
 
 ### gCWInterface
 - [ ] `gCWInterface::Resume_Sleep` · 004bb120 · legions 004b0340
@@ -2277,8 +2277,8 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWInterface::CallEFun_InqStringInfoValue` · 004bb680
 - [ ] `gCWInterface::CallEFun_IsThePlayer` · 004bb7a0
 - [ ] `gCWInterface::CallEFun_ProcessText` · 004bb810
-- [ ] `gCWInterface::CallEFun_SendServerEvt` · 004bb890
-- [ ] `gCWInterface::CallEFun_SendServerEvtEncrypt` · 004bb910
+- [x] `gCWInterface::CallEFun_SendServerEvt` · 004bb890 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [x] `gCWInterface::CallEFun_SendServerEvtEncrypt` · 004bb910 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `gCWInterface::CallEFun_GetMyPosition` · 004bb990
 - [ ] `gCWInterface::CallIFun_ApplyProperties` · 004bba90 · legions 004b09b0
 - [ ] `gCWInterface::CallIFun_DisplayStringInfo` · 004bbb80 · legions 004b0aa0
@@ -2555,14 +2555,14 @@ Legend and workflow: [README](README.md).
 ### CWAllocator
 - [ ] `CWAllocator::Init` · 0052dd70 · legions 00512210
 
-## `portal/shared/src/weenie/distributor/wdistributor.cpp.c` (0/13)
+## `portal/shared/src/weenie/distributor/wdistributor.cpp.c` (5/13)
 
 ### CWDistributor
-- [ ] `CWDistributor::Construct` · 0052de20 · legions 005122c0
+- [x] `CWDistributor::Construct` · 0052de20 · legions 005122c0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `CWDistributor::~CWDistributor` · 0052dee0 · legions 00512380
 - [ ] `CWDistributor::GetContextState` · 0052df00 · legions 005123a0
 - [ ] `CWDistributor::HandleCrash` · 0052df20
-- [ ] `CWDistributor::GetInstanceReference` · 0052df80 · legions 005123c0
+- [x] `CWDistributor::GetInstanceReference` · 0052df80 · legions 005123c0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `CWDistributor::GetMyPackageID` · 0052df90 · legions 005123d0
 - [ ] `CWDistributor::GetProcessID` · 0052dfa0 · legions 005123e0
 
@@ -2571,9 +2571,9 @@ Legend and workflow: [README](README.md).
 
 ### CWDistributor
 - [ ] `CWDistributor::CWDistributor` · 0052e010 · legions 005123f0
-- [ ] `CWDistributor::ResumeContext` · 0052e080 · legions 00512460
-- [ ] `CWDistributor::ResumeContext` · 0052e130
-- [ ] `CWDistributor::DispatchInterpMsg` · 0052e150 · legions 005124d0
+- [x] `CWDistributor::ResumeContext` · 0052e080 · legions 00512460 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [x] `CWDistributor::ResumeContext` · 0052e130 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [x] `CWDistributor::DispatchInterpMsg` · 0052e150 · legions 005124d0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `CWDistributor::RecvEvt_InterpCEvent_Private` · 0052e250 · legions 00512590
 
 ## `portal/shared/src/weenie/interface/winterface.cpp.c` (1/52)

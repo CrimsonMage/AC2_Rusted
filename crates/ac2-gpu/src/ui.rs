@@ -1,13 +1,16 @@
 //! The UI over the scene: one texture per root element's surface, drawn the way
 //! `UISurfaceObject::Render` draws it with the material `UISurfaceObject::GenerateMaterial`
 //! builds (texture modulated by white, alpha modulated, point sampled, clamped) blended
-//! SRCALPHA, INVSRCALPHA at its screen position, pixel for pixel, ignoring depth.
+//! SRCALPHA, INVSRCALPHA at its screen position, pixel for pixel, ignoring depth. A surface turns
+//! about its centre (`UISurfaceObject::BuildRotateMatrix` applied to the unit quad before
+//! `BuildScreenMatrix` places it).
 
 use crate::{Gpu, DEPTH_FORMAT};
 
 const SHADER: &str = "
 struct Layer {
-    // x, y, width, height in pixels; then the screen width and height.
+    // x, y, width, height in pixels; then the screen width and height and the rotation about
+    // z in radians.
     rect: vec4<f32>,
     screen: vec4<f32>,
 };
@@ -24,7 +27,12 @@ struct VertexOut {
 @vertex
 fn vs(@builtin(vertex_index) index: u32) -> VertexOut {
     let corner = vec2(f32(index & 1u), f32((index >> 1u) & 1u));
-    let pixel = layer.rect.xy + corner * layer.rect.zw;
+    // Turned about the quad's centre, y up as in clip space.
+    let local = vec2(corner.x - 0.5, 0.5 - corner.y);
+    let c = cos(layer.screen.z);
+    let s = sin(layer.screen.z);
+    let turned = vec2(c * local.x - s * local.y, s * local.x + c * local.y);
+    let pixel = layer.rect.xy + vec2(turned.x + 0.5, 0.5 - turned.y) * layer.rect.zw;
     var out: VertexOut;
     out.position = vec4(
         pixel.x / layer.screen.x * 2.0 - 1.0,
@@ -48,11 +56,16 @@ pub struct UiLayer<'a> {
     pub y: i32,
     pub width: u32,
     pub height: u32,
+    /// Degrees about the surface's centre, and whether it is shown.
+    pub rotation: i32,
+    pub shown: bool,
     pub rgba: &'a [u8],
 }
 
 struct Uploaded {
     rect: [f32; 4],
+    rotation: f32,
+    shown: bool,
     uniform: wgpu::Buffer,
     group: wgpu::BindGroup,
 }
@@ -226,10 +239,28 @@ impl UiOverlay {
                     layer.width as f32,
                     layer.height as f32,
                 ],
+                rotation: (layer.rotation as f32).to_radians(),
+                shown: layer.shown,
                 uniform,
                 group,
             });
         }
+    }
+
+    /// New positions, rotations and shown flags for the uploaded layers, in their order
+    /// (`UISurfaceObject::SetScreenPosition` / `SetRotateVals` / show without new pixels).
+    pub fn set_placements(&mut self, placements: impl IntoIterator<Item = (i32, i32, i32, bool)>) {
+        for (layer, (x, y, rotation, shown)) in self.layers.iter_mut().zip(placements) {
+            layer.rect[0] = x as f32;
+            layer.rect[1] = y as f32;
+            layer.rotation = (rotation as f32).to_radians();
+            layer.shown = shown;
+        }
+    }
+
+    /// How many layers are shown.
+    pub fn shown_layers(&self) -> usize {
+        self.layers.iter().filter(|layer| layer.shown).count()
     }
 
     /// How many layers are drawn.
@@ -247,7 +278,7 @@ impl UiOverlay {
                 layer.rect[3],
                 width as f32,
                 height as f32,
-                0.0,
+                layer.rotation,
                 0.0,
             ];
             queue.write_buffer(&layer.uniform, 0, bytemuck::cast_slice(&data));
@@ -257,7 +288,7 @@ impl UiOverlay {
     /// Records the layers over whatever the pass has drawn.
     pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
         pass.set_pipeline(&self.pipeline);
-        for layer in &self.layers {
+        for layer in self.layers.iter().filter(|layer| layer.shown) {
             pass.set_bind_group(0, &layer.group, &[]);
             pass.draw(0..4, 0..1);
         }

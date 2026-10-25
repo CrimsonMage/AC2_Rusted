@@ -1,9 +1,9 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 992 done, 78 partial, 1320 to do, 78 skipped.
+2468 retail functions: 1123 done, 80 partial, 1187 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
+## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
 
 ### Position
 - [ ] `Position::operator=` · 0046ad40 · legions 0046b420
@@ -12,9 +12,9 @@ Legend and workflow: [README](README.md).
 - [ ] `PHashTable<unsigned_long,unsigned_long>::~PHashTable<unsigned_long,unsigned_long>` · 0046adc0 · legions 0046b440
 
 ### gCharacterGenSystem
-- [ ] `gCharacterGenSystem::ARHashToRaceSexInfoHash` · 0046ae10 · legions 0046b570
-- [ ] `gCharacterGenSystem::RaceSexInfoHashToARHash` · 0046af20 · legions 0046b680
-- [ ] `gCharacterGenSystem::RaceSexListHashToARHash` · 0046b090 · legions 0046b7f0
+- [~] `gCharacterGenSystem::ARHashToRaceSexInfoHash` · 0046ae10 · legions 0046b570 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+- [~] `gCharacterGenSystem::RaceSexInfoHashToARHash` · 0046af20 · legions 0046b680 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+- [~] `gCharacterGenSystem::RaceSexListHashToARHash` · 0046b090 · legions 0046b7f0 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 
 ### ARHash
 - [ ] `ARHash::ARHash` · 0046b250 · legions 0046b9b0
@@ -30,21 +30,21 @@ Legend and workflow: [README](README.md).
 - [ ] `BaseHash<unsigned_long,unsigned_long,18>::UpdateData` · 0046b330
 
 ### gCharacterGenSystem
-- [ ] `gCharacterGenSystem::ARHashToRaceSexListHash` · 0046b3f0 · legions 0046bb50
-- [ ] `gCharacterGenSystem::CallIFun_FormatNameString` · 0046b480 · legions 0046bbe0
-- [ ] `gCharacterGenSystem::CallIFun_GetPhysObj` · 0046b6d0 · legions 0046be30
-- [ ] `gCharacterGenSystem::CallIFun_InqAdminAvatarEntityDID` · 0046b800 · legions 0046bf60
+- [~] `gCharacterGenSystem::ARHashToRaceSexListHash` · 0046b3f0 · legions 0046bb50 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+- [x] `gCharacterGenSystem::CallIFun_FormatNameString` · 0046b480 · legions 0046bbe0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_GetPhysObj` · 0046b6d0 · legions 0046be30 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_InqAdminAvatarEntityDID` · 0046b800 · legions 0046bf60 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [ ] `gCharacterGenSystem::CallIFun_InqAppliedAppearanceVDesc` · 0046b960 · legions 0046c0c0
-- [ ] `gCharacterGenSystem::CallIFun_InqPhysTypeLabel` · 0046bb90 · legions 0046c2f0
-- [ ] `gCharacterGenSystem::CallIFun_InqPlayerAvatarEntityDID` · 0046bdb0 · legions 0046c510
-- [ ] `gCharacterGenSystem::CallIFun_InqRaceSexData` · 0046bf10 · legions 0046c670
-- [ ] `gCharacterGenSystem::CallIFun_InqRaceSexInfoData` · 0046c100 · legions 0046c860
-- [ ] `gCharacterGenSystem::CallIFun_InqStartingPosition` · 0046c2f0 · legions 0046ca50
-- [ ] `gCharacterGenSystem::CallIFun_InqValidPhysTypeValues` · 0046c500 · legions 0046cc60
-- [ ] `gCharacterGenSystem::CallIFun_InqValidStartingAreas` · 0046c750 · legions 0046ceb0
-- [ ] `gCharacterGenSystem::CallIFun_IsValid` · 0046c980 · legions 0046d0e0
-- [ ] `gCharacterGenSystem::CallIFun_RandomizeCGR` · 0046cac0 · legions 0046d220
-- [ ] `gCharacterGenSystem::CallIFun_SetCGRDefaults` · 0046cca0 · legions 0046d400
+- [x] `gCharacterGenSystem::CallIFun_InqPhysTypeLabel` · 0046bb90 · legions 0046c2f0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_InqPlayerAvatarEntityDID` · 0046bdb0 · legions 0046c510 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_InqRaceSexData` · 0046bf10 · legions 0046c670 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_InqRaceSexInfoData` · 0046c100 · legions 0046c860 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_InqStartingPosition` · 0046c2f0 · legions 0046ca50 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_InqValidPhysTypeValues` · 0046c500 · legions 0046cc60 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_InqValidStartingAreas` · 0046c750 · legions 0046ceb0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_IsValid` · 0046c980 · legions 0046d0e0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_RandomizeCGR` · 0046cac0 · legions 0046d220 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gCharacterGenSystem::CallIFun_SetCGRDefaults` · 0046cca0 · legions 0046d400 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
 ## `ac2/shared/src/interp/glue/gcraftskilladaptor.cpp.c` (0/16)
 
@@ -66,7 +66,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCraftSkillAdaptor::CallEFun_GetDescription` · 0046e8c0
 - [ ] `gCraftSkillAdaptor::CallEFun_GetName` · 0046e970
 
-## `ac2/shared/src/interp/glue/gdamagetextblob.cpp.c` (0/9)
+## `ac2/shared/src/interp/glue/gdamagetextblob.cpp.c` (1/9)
 
 ### gDamageTextBlob
 - [ ] `gDamageTextBlob::CallEFun_SetDuration` · 00478bb0
@@ -74,7 +74,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gDamageTextBlob::CallEFun_SetScale` · 00478c80
 
 ### gmCharGenResult
-- [ ] `gmCharGenResult::SetName` · 00478ce0 · legions 005c2260
+- [x] `gmCharGenResult::SetName` · 00478ce0 · legions 005c2260 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
 ### gDamageTextBlob
 - [ ] `gDamageTextBlob::CallEFun_GetDuration` · 00478d30
@@ -248,30 +248,30 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmActInfoList::CallEFun_pop_front` · 004743f0
 - [ ] `ggmActInfoList::CallEFun_insert_sort` · 004744b0
 
-## `ac2/shared/src/interp/glue/ggmchargenresult.cpp.c` (0/21)
+## `ac2/shared/src/interp/glue/ggmchargenresult.cpp.c` (21/21)
 
 ### ggmCharGenResult
-- [ ] `ggmCharGenResult::CallEFun_Clear` · 00473990
-- [ ] `ggmCharGenResult::CallEFun_SetAdmin` · 004739f0
-- [ ] `ggmCharGenResult::CallEFun_SetName` · 00473a50
-- [ ] `ggmCharGenResult::CallEFun_SetRace` · 00473ab0
-- [ ] `ggmCharGenResult::CallEFun_SetSex` · 00473b10
-- [ ] `ggmCharGenResult::CallEFun_SetStartArea` · 00473b70
-- [ ] `ggmCharGenResult::CallEFun_GetClassType` · 00473bd0
-- [ ] `ggmCharGenResult::CallEFun_GetImplement` · 00473c40
-- [ ] `ggmCharGenResult::CallEFun_GetPhysTypeValue` · 00473cb0
-- [ ] `ggmCharGenResult::CallEFun_GetRace` · 00473d30
-- [ ] `ggmCharGenResult::CallEFun_GetSex` · 00473da0
-- [ ] `ggmCharGenResult::CallEFun_GetStartArea` · 00473e10
-- [ ] `ggmCharGenResult::CallEFun_IsAdmin` · 00473e80
-- [ ] `ggmCharGenResult::CallEFun_SanityCheck` · 00473ef0
-- [ ] `ggmCharGenResult::CallEFun_SetClassType` · 00473f60
-- [ ] `ggmCharGenResult::CallEFun_SetImplement` · 00473fe0
-- [ ] `ggmCharGenResult::CallEFun_SetPhysTypeValue` · 00474060
-- [ ] `ggmCharGenResult::CallEFun_SetStartingPosition` · 004740e0
-- [ ] `ggmCharGenResult::CallEFun_VerifyCharGenResult` · 00474180
-- [ ] `ggmCharGenResult::CallEFun_GetName` · 004741f0
-- [ ] `ggmCharGenResult::CallEFun_GetStartingPosition` · 004742c0
+- [x] `ggmCharGenResult::CallEFun_Clear` · 00473990 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetAdmin` · 004739f0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetName` · 00473a50 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetRace` · 00473ab0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetSex` · 00473b10 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetStartArea` · 00473b70 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetClassType` · 00473bd0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetImplement` · 00473c40 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetPhysTypeValue` · 00473cb0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetRace` · 00473d30 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetSex` · 00473da0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetStartArea` · 00473e10 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_IsAdmin` · 00473e80 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SanityCheck` · 00473ef0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetClassType` · 00473f60 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetImplement` · 00473fe0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetPhysTypeValue` · 00474060 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_SetStartingPosition` · 004740e0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_VerifyCharGenResult` · 00474180 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetName` · 004741f0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmCharGenResult::CallEFun_GetStartingPosition` · 004742c0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
 ## `ac2/shared/src/interp/glue/ggmkeyframe.cpp.c` (0/21)
 
@@ -321,17 +321,17 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmQuestInfoList::CallEFun_UpdateQuestInfo` · 00472a00 · legions 004706c0
 - [ ] `ggmQuestInfoList::CallEFun_pop_head` · 00472ab0
 
-## `ac2/shared/src/interp/glue/ggmracesexinfo.cpp.c` (0/9)
+## `ac2/shared/src/interp/glue/ggmracesexinfo.cpp.c` (8/9)
 
 ### ggmRaceSexInfo
-- [ ] `ggmRaceSexInfo::CallEFun_SetMusic` · 00472260
-- [ ] `ggmRaceSexInfo::CallEFun_SetPhysObj` · 004722c0
-- [ ] `ggmRaceSexInfo::CallEFun_SetPileAppearance` · 00472320
-- [ ] `ggmRaceSexInfo::CallEFun_GetMusic` · 00472380
-- [ ] `ggmRaceSexInfo::CallEFun_GetPhysObj` · 004723f0
-- [ ] `ggmRaceSexInfo::CallEFun_GetPileAppearance` · 00472460
-- [ ] `ggmRaceSexInfo::CallEFun_PutObjInLoc` · 004724d0
-- [ ] `ggmRaceSexInfo::CallEFun_Verify` · 00472560
+- [x] `ggmRaceSexInfo::CallEFun_SetMusic` · 00472260 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmRaceSexInfo::CallEFun_SetPhysObj` · 004722c0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmRaceSexInfo::CallEFun_SetPileAppearance` · 00472320 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmRaceSexInfo::CallEFun_GetMusic` · 00472380 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmRaceSexInfo::CallEFun_GetPhysObj` · 004723f0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmRaceSexInfo::CallEFun_GetPileAppearance` · 00472460 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmRaceSexInfo::CallEFun_PutObjInLoc` · 004724d0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `ggmRaceSexInfo::CallEFun_Verify` · 00472560 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [ ] `ggmRaceSexInfo::CallEFun_GetSubDataIDs` · 004725d0 · legions 004703b0
 
 ## `ac2/shared/src/interp/glue/ggmsceneinfo.cpp.c` (0/20)
@@ -469,33 +469,33 @@ Legend and workflow: [README](README.md).
 - [ ] `gSkillPanelManager::CallIFun_InqName` · 0046d510 · legions 0046dc70
 - [ ] `gSkillPanelManager::CallIFun_InqNodeHash` · 0046d6f0 · legions 0046de50
 
-## `ac2/shared/src/interp/glue/gskilluinode.cpp.c` (0/24)
+## `ac2/shared/src/interp/glue/gskilluinode.cpp.c` (24/24)
 
 ### gSkillUINode
-- [ ] `gSkillUINode::CallEFun_AddParent` · 0046ed90
-- [ ] `gSkillUINode::CallEFun_Clear` · 0046edf0
-- [ ] `gSkillUINode::CallEFun_Set` · 0046ee50
-- [ ] `gSkillUINode::CallEFun_SetCoordinates` · 0046eeb0
-- [ ] `gSkillUINode::CallEFun_SetDescription` · 0046ef20
-- [ ] `gSkillUINode::CallEFun_SetEnum` · 0046ef80
-- [ ] `gSkillUINode::CallEFun_SetIcon` · 0046efe0
-- [ ] `gSkillUINode::CallEFun_SetName` · 0046f040
-- [ ] `gSkillUINode::CallEFun_SetPassive` · 0046f0a0
-- [ ] `gSkillUINode::CallEFun_SetType` · 0046f100
-- [ ] `gSkillUINode::CallEFun_SetUntrainable` · 0046f160
-- [ ] `gSkillUINode::CallEFun_AddDependency` · 0046f1c0
-- [ ] `gSkillUINode::CallEFun_GetEnum` · 0046f230
-- [ ] `gSkillUINode::CallEFun_GetIcon` · 0046f2a0
-- [ ] `gSkillUINode::CallEFun_GetType` · 0046f310
-- [ ] `gSkillUINode::CallEFun_GetX` · 0046f380
-- [ ] `gSkillUINode::CallEFun_GetY` · 0046f3f0
-- [ ] `gSkillUINode::CallEFun_IsPassive` · 0046f460
-- [ ] `gSkillUINode::CallEFun_IsUntrainable` · 0046f4d0
-- [ ] `gSkillUINode::CallEFun_GetDependencyList` · 0046f540
-- [ ] `gSkillUINode::CallEFun_GetDescription` · 0046f660
-- [ ] `gSkillUINode::CallEFun_GetName` · 0046f710
-- [ ] `gSkillUINode::CallEFun_GetParentList` · 0046f7c0
-- [ ] `gSkillUINode::CallEFun_InqCoordinates` · 0046f8e0
+- [x] `gSkillUINode::CallEFun_AddParent` · 0046ed90 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_Clear` · 0046edf0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_Set` · 0046ee50 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetCoordinates` · 0046eeb0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetDescription` · 0046ef20 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetEnum` · 0046ef80 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetIcon` · 0046efe0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetName` · 0046f040 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetPassive` · 0046f0a0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetType` · 0046f100 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetUntrainable` · 0046f160 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_AddDependency` · 0046f1c0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetEnum` · 0046f230 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetIcon` · 0046f2a0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetType` · 0046f310 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetX` · 0046f380 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetY` · 0046f3f0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_IsPassive` · 0046f460 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_IsUntrainable` · 0046f4d0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetDependencyList` · 0046f540 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetDescription` · 0046f660 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetName` · 0046f710 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetParentList` · 0046f7c0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_InqCoordinates` · 0046f8e0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
 
 ## `ac2/shared/src/interp/glue/gturbinegunutils.cpp.c` (0/2)
 
@@ -1323,8 +1323,8 @@ Legend and workflow: [README](README.md).
 - [ ] `gAppearanceTableAdaptor::CallEFun_HasAppearanceKey` · 0054c920
 
 ### gCharacterGenSystem
-- [ ] `gCharacterGenSystem::ValueListToAList` · 0054c960 · legions 0046b490
-- [ ] `gCharacterGenSystem::AListToValueList` · 0054c9d0 · legions 0046b500
+- [~] `gCharacterGenSystem::ValueListToAList` · 0054c960 · legions 0046b490 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+- [~] `gCharacterGenSystem::AListToValueList` · 0054c9d0 · legions 0046b500 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 
 ### gAppearanceTableAdaptor
 - [ ] `gAppearanceTableAdaptor::CallEFun_InqAppearanceKeyModList` · 0054ca40
@@ -1822,13 +1822,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gGameTime::CallEFun_IsNight` · 00543960
 - [ ] `gGameTime::CallEFun_TemporalDilation` · 005439b0
 
-## `portal/shared/src/interp/glue/gheading.cpp.c` (0/5)
+## `portal/shared/src/interp/glue/gheading.cpp.c` (4/5)
 
 ### gHeading
-- [ ] `gHeading::CallEFun_set_degrees` · 005433d0
-- [ ] `gHeading::CallEFun_get_degrees` · 00543430
-- [ ] `gHeading::CallEFun_get_degrees_0_centered` · 005434a0
-- [ ] `gHeading::CallEFun_is_in_range` · 00543510
+- [x] `gHeading::CallEFun_set_degrees` · 005433d0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gHeading::CallEFun_get_degrees` · 00543430 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gHeading::CallEFun_get_degrees_0_centered` · 005434a0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gHeading::CallEFun_is_in_range` · 00543510 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 - [ ] `gHeading::CallEFun_ToWPString` · 005435b0 · legions 005233a0
 
 ## `portal/shared/src/interp/glue/gicondesc.cpp.c` (0/2)
@@ -2563,19 +2563,19 @@ Legend and workflow: [README](README.md).
 - [ ] `gObjCollisionProfile::CallEFun_IsEndCollision` · 0053fd30
 - [ ] `gObjCollisionProfile::CallEFun_IsEthereal` · 0053fda0
 
-## `portal/shared/src/interp/glue/gpackbuffer.cpp.c` (0/10)
+## `portal/shared/src/interp/glue/gpackbuffer.cpp.c` (10/10)
 
 ### gPackBuffer
-- [~] `gPackBuffer::CallEFun_PackFloat` · 0053f690 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-- [~] `gPackBuffer::CallEFun_PackInt` · 0053f710 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-- [~] `gPackBuffer::CallEFun_PackLFloat` · 0053f790 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-- [~] `gPackBuffer::CallEFun_PackLInt` · 0053f830 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-- [~] `gPackBuffer::CallEFun_PackPackage` · 0053f8b0 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-- [ ] `gPackBuffer::CallEFun_UnPackFloat` · 0053f910 · legions 00520d70
-- [ ] `gPackBuffer::CallEFun_UnPackInt` · 0053f9b0 · legions 00520df0
-- [ ] `gPackBuffer::CallEFun_UnPackLFloat` · 0053fa50 · legions 00520e70
-- [ ] `gPackBuffer::CallEFun_UnPackLInt` · 0053faf0 · legions 00520ef0
-- [ ] `gPackBuffer::CallEFun_UnPackPackage` · 0053fba0 · legions 00520f70
+- [x] `gPackBuffer::CallEFun_PackFloat` · 0053f690 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_PackInt` · 0053f710 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_PackLFloat` · 0053f790 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_PackLInt` · 0053f830 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_PackPackage` · 0053f8b0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_UnPackFloat` · 0053f910 · legions 00520d70 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_UnPackInt` · 0053f9b0 · legions 00520df0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_UnPackLFloat` · 0053fa50 · legions 00520e70 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_UnPackLInt` · 0053faf0 · legions 00520ef0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_UnPackPackage` · 0053fba0 · legions 00520f70 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 
 ## `portal/shared/src/interp/glue/gpath.cpp.c` (0/12)
 
@@ -2760,50 +2760,50 @@ Legend and workflow: [README](README.md).
 - [ ] `gPlane::CallEFun_GetStringW` · 0053d510 · legions 0051f330
 - [ ] `gPlane::CallEFun_snap_to_plane` · 0053d590 · legions 0051f390
 
-## `portal/shared/src/interp/glue/gposition.cpp.c` (0/41)
+## `portal/shared/src/interp/glue/gposition.cpp.c` (38/41)
 
 ### gPosition
-- [ ] `gPosition::CallEFun_Set` · 0053be40
-- [ ] `gPosition::CallEFun_SetCellID` · 0053beb0
-- [ ] `gPosition::CallEFun_add_global_offset` · 0053bf10
-- [ ] `gPosition::CallEFun_add_local_offset` · 0053bf90
-- [ ] `gPosition::CallEFun_adjust_to_outside` · 0053bff0
-- [ ] `gPosition::CallEFun_set_cell_id` · 0053c050
-- [ ] `gPosition::CallEFun_set_height` · 0053c0b0
-- [ ] `gPosition::CallEFun_set_origin` · 0053c110
-- [ ] `gPosition::CallEFun_FromCellCoords` · 0053c180
-- [ ] `gPosition::CallEFun_FromCellCoordsString` · 0053c200
-- [ ] `gPosition::CallEFun_FromRealMapCoords` · 0053c280
-- [ ] `gPosition::CallEFun_FromWPString` · 0053c300
-- [ ] `gPosition::CallEFun_GetBlockID` · 0053c380
-- [ ] `gPosition::CallEFun_GetCellDistance` · 0053c400
-- [ ] `gPosition::CallEFun_GetCellDistanceSquared` · 0053c440
-- [ ] `gPosition::CallEFun_GetCellID` · 0053c480
-- [ ] `gPosition::CallEFun_GetCellX` · 0053c4f0
-- [ ] `gPosition::CallEFun_GetCellY` · 0053c560
-- [ ] `gPosition::CallEFun_IsValid` · 0053c5d0
-- [ ] `gPosition::CallEFun_NotInWorld` · 0053c640
-- [ ] `gPosition::CallEFun_cylinder_distance` · 0053c6b0
-- [ ] `gPosition::CallEFun_determine_quadrant` · 0053c770
-- [ ] `gPosition::CallEFun_distance` · 0053c800
-- [ ] `gPosition::CallEFun_distance_squared` · 0053c880
-- [ ] `gPosition::CallEFun_equals` · 0053c900
-- [ ] `gPosition::CallEFun_get_height` · 0053c9a0
-- [ ] `gPosition::CallEFun_in_same_block` · 0053ca10
-- [ ] `gPosition::CallEFun_outside` · 0053cac0
-- [ ] `gPosition::CallEFun_pitch` · 0053cb40
-- [ ] `gPosition::CallEFun_xy_distance` · 0053cbc0
-- [ ] `gPosition::CallEFun_xy_distance_squared` · 0053cc40
-- [ ] `gPosition::CallEFun_GetLocalHeading` · 0053ccc0
-- [ ] `gPosition::CallEFun_GetNullPosition` · 0053cd80
-- [ ] `gPosition::CallEFun_ToCellCoordsString` · 0053ce30
-- [ ] `gPosition::CallEFun_ToRealMapCoords` · 0053cef0
-- [ ] `gPosition::CallEFun_ToRealMapCoords_Info` · 0053cfb0
-- [ ] `gPosition::CallEFun_ToWPString` · 0053d060
-- [ ] `gPosition::CallEFun_get_block_offset` · 0053d120
-- [ ] `gPosition::CallEFun_get_offset` · 0053d1d0
-- [ ] `gPosition::CallEFun_get_origin` · 0053d280
-- [ ] `gPosition::CallEFun_heading` · 0053d330
+- [x] `gPosition::CallEFun_Set` · 0053be40 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_SetCellID` · 0053beb0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_add_global_offset` · 0053bf10 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_add_local_offset` · 0053bf90 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_adjust_to_outside` · 0053bff0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_set_cell_id` · 0053c050 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_set_height` · 0053c0b0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_set_origin` · 0053c110 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_FromCellCoords` · 0053c180 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_FromCellCoordsString` · 0053c200 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [~] `gPosition::CallEFun_FromRealMapCoords` · 0053c280 — ac2-script glue::position: swscanf parsing approximated / StringInfo variable layout inferred
+- [~] `gPosition::CallEFun_FromWPString` · 0053c300 — ac2-script glue::position: swscanf parsing approximated / StringInfo variable layout inferred
+- [x] `gPosition::CallEFun_GetBlockID` · 0053c380 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_GetCellDistance` · 0053c400 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_GetCellDistanceSquared` · 0053c440 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_GetCellID` · 0053c480 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_GetCellX` · 0053c4f0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_GetCellY` · 0053c560 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_IsValid` · 0053c5d0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_NotInWorld` · 0053c640 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_cylinder_distance` · 0053c6b0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_determine_quadrant` · 0053c770 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_distance` · 0053c800 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_distance_squared` · 0053c880 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_equals` · 0053c900 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_get_height` · 0053c9a0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_in_same_block` · 0053ca10 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_outside` · 0053cac0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_pitch` · 0053cb40 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_xy_distance` · 0053cbc0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_xy_distance_squared` · 0053cc40 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_GetLocalHeading` · 0053ccc0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_GetNullPosition` · 0053cd80 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_ToCellCoordsString` · 0053ce30 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_ToRealMapCoords` · 0053cef0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [~] `gPosition::CallEFun_ToRealMapCoords_Info` · 0053cfb0 — ac2-script glue::position: swscanf parsing approximated / StringInfo variable layout inferred
+- [x] `gPosition::CallEFun_ToWPString` · 0053d060 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_get_block_offset` · 0053d120 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_get_offset` · 0053d1d0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_get_origin` · 0053d280 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
+- [x] `gPosition::CallEFun_heading` · 0053d330 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 
 ## `portal/shared/src/interp/glue/gpropertycollection.cpp.c` (0/12)
 
@@ -3484,7 +3484,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PackageState::~PackageState` · 006e16d0 · legions 00668510
 - [x] `PackageState::UnPack` · 006e1700 · legions 00668540 — ac2-script WLib/WState/ByteStream decode
 
-## `portal/shared/src/interp/packing/packbuffer.cpp.c` (2/20)
+## `portal/shared/src/interp/packing/packbuffer.cpp.c` (14/20)
 
 ### PackBuffer
 - [ ] `PackBuffer::~PackBuffer` · 006ed4f0 · legions 00672300
@@ -3494,23 +3494,23 @@ Legend and workflow: [README](README.md).
 - [ ] `PackageState::GetPackSize` · 006ed580 · legions 00672390
 
 ### PackBuffer
-- [ ] `PackBuffer::UnPackInt` · 006ed590 · legions 006723a0
-- [ ] `PackBuffer::UnPackLInt` · 006ed630 · legions 00672440
-- [ ] `PackBuffer::UnPackFloat` · 006ed700 · legions 00672510
-- [ ] `PackBuffer::UnPackLFloat` · 006ed7b0 · legions 006725c0
-- [ ] `PackBuffer::UnPackPackage` · 006ed870 · legions 00672680
+- [x] `PackBuffer::UnPackInt` · 006ed590 · legions 006723a0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackLInt` · 006ed630 · legions 00672440 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackFloat` · 006ed700 · legions 00672510 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackLFloat` · 006ed7b0 · legions 006725c0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackPackage` · 006ed870 · legions 00672680 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 - [ ] `PackBuffer::Grow` · 006ed920 · legions 00672730
 - [ ] `PackBuffer::PackBuffer` · 006ed9a0 · legions 006727b0
 - [x] `PackBuffer::Pack` · 006ed9c0 · legions 006727d0
 - [x] `PackBuffer::UnPack` · 006eda20 · legions 00672830
 - [ ] `PackBuffer::PackRaw` · 006edaa0
-- [~] `PackBuffer::PackPackage` · 006edb40 — ac2-net UsageDesc::to_reference / PackValue::Reference: packed graphs the client builds (root, then reference slots in slot order); no walk over live VM state yet
-- [ ] `PackBuffer::UnPackBuffer_Int` · 006edc00 · legions 00672920
-- [ ] `PackBuffer::UnPackBuffer_LongInt` · 006edc50 · legions 00672970
-- [ ] `PackBuffer::UnPackBuffer_Float` · 006edcc0 · legions 006729e0
-- [ ] `PackBuffer::UnPackBuffer_LongFloat` · 006edd10 · legions 00672a30
-- [ ] `PackBuffer::UnPackBuffer_Package` · 006edd90 · legions 00672ab0
-- [~] `PackBuffer::UnPackBuffer` · 006edde0 · legions 00672b00 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+- [x] `PackBuffer::PackPackage` · 006edb40 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackBuffer_Int` · 006edc00 · legions 00672920 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackBuffer_LongInt` · 006edc50 · legions 00672970 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackBuffer_Float` · 006edcc0 · legions 006729e0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackBuffer_LongFloat` · 006edd10 · legions 00672a30 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackBuffer_Package` · 006edd90 · legions 00672ab0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackBuffer` · 006edde0 · legions 00672b00 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 
 ## `portal/shared/src/interp/packing/vmdata.cpp.c` (0/13)
 
