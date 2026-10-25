@@ -32,6 +32,7 @@ use crate::element::UiTree;
 use crate::examination::ExaminationUi;
 use crate::external_container::ExternalContainerUi;
 use crate::fellowship::FellowshipUi;
+use crate::ingredient::IngredientUi;
 use crate::layout::{load_layout, LayoutDesc};
 use crate::name_plates::NamePlates;
 use crate::navigation::NavigationUi;
@@ -97,6 +98,8 @@ pub struct GameplayHud {
     pub skills: Option<SkillTreeUi>,
     /// `gmCraftUI`, over `CraftPage`.
     pub craft: Option<CraftUi>,
+    /// `gmIngredientUI`, over the gameplay layout (its root made when a recipe opens).
+    pub ingredient: Option<IngredientUi>,
     /// `gmExaminationUI`.
     pub examination: Option<ExaminationUi>,
     /// `gmSocialUI`'s `gmAllegianceUI` (its player set once in the world) and `gmFellowshipUI`.
@@ -210,6 +213,7 @@ pub fn build_gameplay_hud(
         .roots()
         .iter()
         .find_map(|&r| tree.child_recursive(r, crate::craft::CRAFT_PAGE));
+    let ingredient = layouts[&LAYOUT_GAMEPLAY].as_ref().map(IngredientUi::new);
     let craft = match (&layouts[&LAYOUT_TOOLBAR], craft_page) {
         (Some(toolbar), Some(page)) => Some(CraftUi::create(toolbar, page)),
         _ => None,
@@ -276,6 +280,7 @@ pub fn build_gameplay_hud(
         toolbar,
         skills,
         craft,
+        ingredient,
         examination,
         allegiance,
         fellowship,

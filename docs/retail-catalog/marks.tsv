@@ -153,6 +153,44 @@ key	status	note
 00415740	x	ac2-ui dialog.rs
 004157e0	-	Rust std replaces it
 00415810	x	ac2-ui dialog.rs
+00415870	-	gmCObjectMaint::GetWeenieObject: the session's object table serves it (client hud_ingredient.rs)
+00415890	~	ac2-ui ingredient.rs close: the slots' objects leave and the list flushes; the panel's root is kept (the 15 s dormancy destroy is not modelled)
+00415900	~	ac2-ui ingredient.rs update_craft_button: ghosted while pending, mounted, out of the spinner range or past the difficulty cutoff. Not: the tooltips and the button text (their string ids are not in the decompile)
+00415b70	~	the drop filter: only item drags (ShortcutType 0x40000002) are accepted in retail; the drop here does not refuse other drags yet
+00415be0	~	ac2-ui ingredient.rs update_cost: the cost is kept and follows the dynamic cost; its text needs the retail string id, so the layout's text stays
+00415c50	x	ac2-ui ingredient.rs scale: Scale_ in f64, clamped to its range, mapped onto the scaled range
+00415cd0	~	ac2-ui ingredient.rs create_managed: the root made from the gameplay layout (the top-level element holding IngredientListBox; its own DAT id is not in the decompile), the list, spinner, labels and buttons looked up
+00415e60	~	ac2-ui ingredient.rs open/close: shown and hidden with the root; the timed dormancy is not modelled
+00415ee0	x	ac2-ui ingredient.rs mount_state: mounted, the craft button ghosts
+00415f10	_	
+00415fc0	x	ac2-ui ingredient.rs set_pending: the slots show pending (dragable off), the craft button ghosts
+004160b0	~	ac2-ui ingredient.rs update_difficulty: the name colour from Scale_ of the difficulty against the skill, 0..5, or 6 past the cutoff. The colour is not drawn (the tree has no name colour)
+00416280	x	ac2-ui ingredient.rs craft_skill_updated: the level changes, the craft button and the difficulty follow
+004164b0	-	C++ destructor: the Rust drop and the tree own the panel's state
+00416640	-	HashTable assignment: the Rust maps are copied by value
+00416740	-	PList pack: no save of the slot list (the panel is rebuilt on open)
+00416790	-	PList unpack: no load of the slot list (the panel is rebuilt on open)
+00416900	~	ac2-ui ingredient_slots.rs add_slot: the template at its ordinal's place in the list, with its description and the slot's mask bit (the list is sorted by ordinal)
+00416ad0	x	ac2-ui ingredient_slots.rs handle_item_removal: the object leaves its slot; the icon clears and stops being draggable
+00416be0	x	ac2-ui ingredient_slots.rs check_item: DoIHaveItem and CheckIngredient at the spinner, else the object leaves its slot
+00416d20	x	ac2-ui ingredient.rs object_removed: a deleted object leaves its slot (client hud_ingredient.rs ObjectRemoved)
+00416da0	x	ac2-ui ingredient_slots.rs item_changed: an object in a slot is checked again (client hud_ingredient.rs)
+00416df0	x	ac2-ui ingredient_slots.rs item_changed on the container notice's item
+00416e40	x	ac2-ui ingredient_slots.rs item_changed on ItemUpdate
+00416ea0	~	ac2-ui ingredient.rs open: name, description, spinner range and value, cost, skill level, the slots from InqRecipeIngredients, the craft button and the difficulty. Not: the misc text's value string (its id is not in the decompile). The spinner starts at last_spinner (the Init decompile overlays two adaptors)
+00417290	x	ac2-ui ingredient_slots.rs remove_slot: the slot's object leaves, the list item and the mask bit go
+004173f0	x	ac2-ui ingredient_slots.rs update_slot: the description and the object checked again at the spinner
+00417530	~	ac2-ui ingredient_slots.rs message: a drop on the list (MSG_STOP_DRAG_ITEM, the list item under the pointer) leaves the object's old slot, the slot goes pending and the add goes out. Not tested through a real drag; the drop filter gmIngredientUI_DDCB is not modelled
+004176c0	x	ac2-ui ingredient_slots.rs update_ingredients: slots added, kept ones refreshed, the ones no longer asked for removed (the mask as retail)
+00417800	~	ac2-ui ingredient.rs IngredientUi::new: the layout kept; the root is made when the panel opens. Not: the notice and message registrations (per object and listeners in Rust, no table)
+00417ac0	x	ac2-ui ingredient.rs open_notice: the recipe's panel opens unless it is shown and its cost is dynamic (client hud_ingredient.rs)
+00417b00	x	ac2-ui ingredient.rs spinner_changed and step_spinner: the spinner text and buttons, the dynamic cost and difficulty, the craft button, the slots (tested: craft spinner and execute)
+00417d20	x	ac2-ui ingredient_slots.rs auto_populate: each inventory object outside the slots goes to the first free slot the recipe auto-populates and takes; the requests go out (tested through the auto-populate button)
+00418060	x	ac2-ui ingredient.rs close: the slots' objects leave, the list flushes, the panel hides
+00418150	~	ac2-ui ingredient.rs step_spinner: the up and down buttons move the value in range (read-only spinners do not). Not: the typed spinner entry and its commit (its message id is not in the decompile)
+00418210	~	ac2-ui ingredient.rs message and ingredient_slots.rs message: the spinner buttons, auto-populate, the craft button, a drop on the list, an object dragged out of its slot. Not: the close button (its element name is not in the layout the decompile names), the typed spinner entry
+004185d0	~	ac2-ui ingredient_slots.rs add_done: a successful add puts the object in its slot (icon from the object's item display, draggable); a failure frees the slot; a new spinner value follows. Not: the object's notice registration and the icon desc (the item display's icon only)
+00418780	x	ac2-ui ingredient.rs execute_done: the slots go out of pending; no error and no charges closes the panel; charges show ID_Craft_Charges (a named string id) with the value
 0041b250	~	ac2-ui shop.rs recv_leave_store: closes via show(false); the vtable call in the decompile is untraced
 0041d3d0	x	ac2-ui shop.rs create_managed: the Shop root and its page buttons (Legions 7160)
 0041d4a0	~	ac2-ui shop_rows.rs update_position: page ghosting; the untraced one-argument branch is read as enabled without a pending page

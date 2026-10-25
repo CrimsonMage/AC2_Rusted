@@ -3,8 +3,6 @@
 //! `MakeRecipe`), `RefreshCraftSkillDisplay` shows the selected skill, and `UpdateCategories`
 //! collects the categories of the selected skill's recipes.
 
-use std::sync::Arc;
-
 use ac2_net::protocol::StringInfo;
 use ac2_weenie::{CraftSkill, Recipe};
 
@@ -19,18 +17,14 @@ use crate::element::UiTree;
 use crate::token::BUTTON_GHOSTED;
 
 impl CraftUi {
+    /// `UIFramework::CreateElement(0x41000003, template)`: a template of the toolbar layout.
+    fn create_template(&self, tree: &mut UiTree, template: u32) -> Option<usize> {
+        tree.create_nested_element(&self.layout, template)
+    }
+
     /// A named element of the page, looked up when the page needs it (`GetChildRecursive`).
     fn child(&self, tree: &UiTree, name: u32) -> Option<usize> {
         tree.child_recursive(self.page, name)
-    }
-
-    /// `UIFramework::CreateElement(0x41000003, template)`: a template made from the layout, wherever
-    /// it is nested.
-    fn create_template(&self, tree: &mut UiTree, template: u32) -> Option<usize> {
-        let reference = self.layout.find_element(template)?;
-        let index = tree.create_element(Arc::clone(&self.layout), reference, false)?;
-        tree.initialize_panel_pages(index);
-        Some(index)
     }
 
     /// `gmCraftUI::RefreshCraftSkillPage`: a row per craft skill in the skills view.

@@ -37,6 +37,8 @@ mod external_container;
 mod fellow_info;
 mod fellowship;
 mod hud;
+mod ingredient;
+mod ingredient_slots;
 mod input;
 mod interpreter;
 mod item_display;
@@ -122,6 +124,7 @@ pub use hud::{
     build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
     LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,
 };
+pub use ingredient::{IngredientCommand, IngredientSource, IngredientUi};
 pub use input::{
     is_ui_action, meta_mode_from_key, InputEvent, InputManager, KeyPress, RawAction,
     ACTION_POINTER_X, ACTION_POINTER_Y, DEVICE_KEYBOARD, DEVICE_MOUSE,

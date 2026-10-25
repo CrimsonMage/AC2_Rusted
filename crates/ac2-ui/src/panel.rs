@@ -24,6 +24,32 @@ const MSG_CLOSED: u32 = tokenize("closed");
 const LEFT: u32 = 0x4000_0004;
 
 impl UiTree {
+    /// `UIFramework::CreateElement(layout, id)` for a template the panel makes: the element is
+    /// looked up wherever the layout nests it.
+    pub(crate) fn create_nested_element(
+        &mut self,
+        layout: &std::sync::Arc<crate::layout::LayoutDesc>,
+        id: u32,
+    ) -> Option<usize> {
+        let reference = layout.find_element(id)?;
+        let index = self.create_element(std::sync::Arc::clone(layout), reference, false)?;
+        self.initialize_panel_pages(index);
+        Some(index)
+    }
+
+    /// `UIElement::SetAttribute_InstanceID`.
+    pub(crate) fn set_instance_attribute(&mut self, index: usize, id: u32, value: u64) {
+        self.el_mut(index)
+            .attributes
+            .insert(id, crate::layout::AttributeValue::InstanceId(value));
+    }
+
+    /// The position in the list of the item under the pointer.
+    pub(crate) fn list_index_under_mouse(&self, list: usize) -> Option<usize> {
+        let item = self.list_item_under_mouse(list)?;
+        self.list_items(list).iter().position(|&i| i == item)
+    }
+
     pub(crate) fn is_panel_page(&self, index: usize) -> bool {
         self.el(index).desc.kind == PANEL_PAGE
     }

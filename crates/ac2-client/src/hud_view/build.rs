@@ -72,6 +72,7 @@ impl HudView {
             shortcuts: None,
             skills: None,
             craft: None,
+            ingredient: None,
             examination: None,
             allegiance: None,
             fellowship: None,
@@ -127,6 +128,7 @@ impl HudView {
                     shortcuts,
                     skills,
                     craft,
+                    ingredient,
                     examination,
                     allegiance,
                     fellowship,
@@ -165,6 +167,7 @@ impl HudView {
                 self.shortcuts = shortcuts;
                 self.skills = skills;
                 self.craft = craft;
+                self.ingredient = ingredient;
                 self.examination = examination;
                 self.allegiance = allegiance;
                 self.fellowship = fellowship;

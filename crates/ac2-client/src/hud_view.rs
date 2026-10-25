@@ -12,8 +12,9 @@ use std::sync::Arc;
 use ac2_db::ResourceResult;
 use ac2_gpu::{Gpu, UiOverlay};
 use ac2_ui::{
-    ChatRequest, ChatSettings, ChatUi, CraftUi, GameplayHud, Modifiers, Reticle, ReticleOutcome,
-    ReticleTarget, ShortcutUi, SkillTreeUi, ToolbarChild, ToolbarUi, UiMessage, UiPixels, UiTree,
+    ChatRequest, ChatSettings, ChatUi, CraftUi, GameplayHud, IngredientUi, Modifiers, Reticle,
+    ReticleOutcome, ReticleTarget, ShortcutUi, SkillTreeUi, ToolbarChild, ToolbarUi, UiMessage,
+    UiPixels, UiTree,
 };
 
 type Built = ResourceResult<(GameplayHud, HashMap<u32, UiPixels>)>;
@@ -38,6 +39,8 @@ pub(crate) struct HudView {
     pub(crate) skills: Option<SkillTreeUi>,
     /// `gmCraftUI`: the craft panel on the skill toolbar.
     pub(crate) craft: Option<CraftUi>,
+    /// `gmIngredientUI`: the ingredient panel of a recipe.
+    pub(crate) ingredient: Option<IngredientUi>,
     pub(crate) examination: Option<ac2_ui::ExaminationUi>,
     pub(crate) allegiance: Option<ac2_ui::AllegianceUi>,
     pub(crate) fellowship: Option<ac2_ui::FellowshipUi>,

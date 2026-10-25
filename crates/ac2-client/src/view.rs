@@ -517,6 +517,7 @@ impl ClientView {
             self.doll.pick(point, &viewport)
         });
         let mut commands = self.hud.craft_frameworks(client, frame, events);
+        commands.extend(self.hud.ingredient_frameworks(client, frame, events));
         commands.extend(
             self.hud
                 .frameworks(client, frame, events, script_notices, doll_pick),

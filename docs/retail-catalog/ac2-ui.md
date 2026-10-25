@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 778 done, 273 partial, 1148 to do, 48 skipped.
+2247 retail functions: 796 done, 287 partial, 1111 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -258,59 +258,59 @@ Legend and workflow: [README](README.md).
 - [ ] `gmGamePlayUI::ListenToMessage` · 0040a810 · legions 0040a6d0
 - [ ] `gmGamePlayUI::RecvNotice_ReloadOptions` · 0040a960
 
-## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (0/39)
+## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (18/39)
 
 ### gmCObjectMaint
-- [ ] `gmCObjectMaint::GetWeenieObject` · 00415870 · legions 00415660
+- [-] `gmCObjectMaint::GetWeenieObject` · 00415870 · legions 00415660 — gmCObjectMaint::GetWeenieObject: the session's object table serves it (client hud_ingredient.rs)
 
 ### gmIngredientUI
-- [ ] `gmIngredientUI::DestroyManagedElements` · 00415890 · legions 00415680
-- [ ] `gmIngredientUI::UpdateCraftButton` · 00415900 · legions 004156f0
+- [~] `gmIngredientUI::DestroyManagedElements` · 00415890 · legions 00415680 — ac2-ui ingredient.rs close: the slots' objects leave and the list flushes; the panel's root is kept (the 15 s dormancy destroy is not modelled)
+- [~] `gmIngredientUI::UpdateCraftButton` · 00415900 · legions 004156f0 — ac2-ui ingredient.rs update_craft_button: ghosted while pending, mounted, out of the spinner range or past the difficulty cutoff. Not: the tooltips and the button text (their string ids are not in the decompile)
 
 ### (free functions)
-- [ ] `gmIngredientUI_DDCB` · 00415b70
+- [~] `gmIngredientUI_DDCB` · 00415b70 — the drop filter: only item drags (ShortcutType 0x40000002) are accepted in retail; the drop here does not refuse other drags yet
 
 ### gmIngredientUI
-- [ ] `gmIngredientUI::UpdateCost` · 00415be0 · legions 004159d0
-- [ ] `gmIngredientUI::Scale_` · 00415c50 · legions 00415a40
-- [ ] `gmIngredientUI::CreateManagedElements` · 00415cd0 · legions 00415ac0
-- [ ] `gmIngredientUI::Show` · 00415e60 · legions 00415c50
-- [ ] `gmIngredientUI::RecvNotice_UpdateMountState` · 00415ee0 · legions 00415cd0
+- [~] `gmIngredientUI::UpdateCost` · 00415be0 · legions 004159d0 — ac2-ui ingredient.rs update_cost: the cost is kept and follows the dynamic cost; its text needs the retail string id, so the layout's text stays
+- [x] `gmIngredientUI::Scale_` · 00415c50 · legions 00415a40 — ac2-ui ingredient.rs scale: Scale_ in f64, clamped to its range, mapped onto the scaled range
+- [~] `gmIngredientUI::CreateManagedElements` · 00415cd0 · legions 00415ac0 — ac2-ui ingredient.rs create_managed: the root made from the gameplay layout (the top-level element holding IngredientListBox; its own DAT id is not in the decompile), the list, spinner, labels and buttons looked up
+- [~] `gmIngredientUI::Show` · 00415e60 · legions 00415c50 — ac2-ui ingredient.rs open/close: shown and hidden with the root; the timed dormancy is not modelled
+- [x] `gmIngredientUI::RecvNotice_UpdateMountState` · 00415ee0 · legions 00415cd0 — ac2-ui ingredient.rs mount_state: mounted, the craft button ghosts
 - [ ] `gmIngredientUI::AutoSizeIngredientUI` · 00415f10 · legions 00415d00
-- [ ] `gmIngredientUI::SetPending` · 00415fc0 · legions 00415db0
-- [ ] `gmIngredientUI::UpdateApparentDifficulty` · 004160b0 · legions 00415ea0
-- [ ] `gmIngredientUI::RecvNotice_UpdateCraftSkill` · 00416280 · legions 00416070
-- [ ] `gmIngredientUI::~gmIngredientUI` · 004164b0 · legions 004162b0
+- [x] `gmIngredientUI::SetPending` · 00415fc0 · legions 00415db0 — ac2-ui ingredient.rs set_pending: the slots show pending (dragable off), the craft button ghosts
+- [~] `gmIngredientUI::UpdateApparentDifficulty` · 004160b0 · legions 00415ea0 — ac2-ui ingredient.rs update_difficulty: the name colour from Scale_ of the difficulty against the skill, 0..5, or 6 past the cutoff. The colour is not drawn (the tree has no name colour)
+- [x] `gmIngredientUI::RecvNotice_UpdateCraftSkill` · 00416280 · legions 00416070 — ac2-ui ingredient.rs craft_skill_updated: the level changes, the craft button and the difficulty follow
+- [-] `gmIngredientUI::~gmIngredientUI` · 004164b0 · legions 004162b0 — C++ destructor: the Rust drop and the tree own the panel's state
 
 ### HashTable<unsigned_long,InstanceID>
-- [ ] `HashTable<unsigned_long,InstanceID>::operator=` · 00416640 · legions 004a16f0
+- [-] `HashTable<unsigned_long,InstanceID>::operator=` · 00416640 · legions 004a16f0 — HashTable assignment: the Rust maps are copied by value
 
 ### PList<InstanceID>
-- [ ] `PList<InstanceID>::Pack` · 00416740 · legions 004164e0
-- [ ] `PList<InstanceID>::UnPack` · 00416790
+- [-] `PList<InstanceID>::Pack` · 00416740 · legions 004164e0 — PList pack: no save of the slot list (the panel is rebuilt on open)
+- [-] `PList<InstanceID>::UnPack` · 00416790 — PList unpack: no load of the slot list (the panel is rebuilt on open)
 
 ### gmIngredientUI
-- [ ] `gmIngredientUI::MultiOpAddIngredientSlot` · 00416900 · legions 004166c0
-- [ ] `gmIngredientUI::HandleItemRemoval` · 00416ad0 · legions 00416890
-- [ ] `gmIngredientUI::CheckItem` · 00416be0 · legions 004169a0
-- [ ] `gmIngredientUI::RecvNotice_BeingDeleted` · 00416d20
-- [ ] `gmIngredientUI::RecvNotice_UpdateInventory` · 00416da0
-- [ ] `gmIngredientUI::RecvNotice_UpdateContainer` · 00416df0 · legions 00416bb0
-- [ ] `gmIngredientUI::RecvNotice_ItemUpdate` · 00416e40 · legions 00416c00
-- [ ] `gmIngredientUI::Init` · 00416ea0 · legions 00416c60
-- [ ] `gmIngredientUI::MultiOpRemoveIngredientSlot` · 00417290 · legions 00417050
-- [ ] `gmIngredientUI::UpdateIngredientSlot` · 004173f0 · legions 004171b0
-- [ ] `gmIngredientUI::HandleListBoxDrop` · 00417530 · legions 004172f0
-- [ ] `gmIngredientUI::UpdateIngredients` · 004176c0 · legions 00417480
-- [ ] `gmIngredientUI::gmIngredientUI` · 00417800 · legions 004175c0
-- [ ] `gmIngredientUI::RecvNotice_OpenIngredientPanel` · 00417ac0 · legions 00417880
-- [ ] `gmIngredientUI::UpdateRecipeFromSpinnerChange` · 00417b00 · legions 004178c0
-- [ ] `gmIngredientUI::AutoPopulateIngredients` · 00417d20 · legions 00417ae0
-- [ ] `gmIngredientUI::DoClose` · 00418060 · legions 00417e20
-- [ ] `gmIngredientUI::ListenToMessage` · 00418150 · legions 00417f10
-- [ ] `gmIngredientUI::ListenToMessage` · 00418210 · legions 00417fd0
-- [ ] `gmIngredientUI::RecvNotice_AddIngredient_Done` · 004185d0
-- [ ] `gmIngredientUI::RecvNotice_ExecuteCraft_Done` · 00418780
+- [~] `gmIngredientUI::MultiOpAddIngredientSlot` · 00416900 · legions 004166c0 — ac2-ui ingredient_slots.rs add_slot: the template at its ordinal's place in the list, with its description and the slot's mask bit (the list is sorted by ordinal)
+- [x] `gmIngredientUI::HandleItemRemoval` · 00416ad0 · legions 00416890 — ac2-ui ingredient_slots.rs handle_item_removal: the object leaves its slot; the icon clears and stops being draggable
+- [x] `gmIngredientUI::CheckItem` · 00416be0 · legions 004169a0 — ac2-ui ingredient_slots.rs check_item: DoIHaveItem and CheckIngredient at the spinner, else the object leaves its slot
+- [x] `gmIngredientUI::RecvNotice_BeingDeleted` · 00416d20 — ac2-ui ingredient.rs object_removed: a deleted object leaves its slot (client hud_ingredient.rs ObjectRemoved)
+- [x] `gmIngredientUI::RecvNotice_UpdateInventory` · 00416da0 — ac2-ui ingredient_slots.rs item_changed: an object in a slot is checked again (client hud_ingredient.rs)
+- [x] `gmIngredientUI::RecvNotice_UpdateContainer` · 00416df0 · legions 00416bb0 — ac2-ui ingredient_slots.rs item_changed on the container notice's item
+- [x] `gmIngredientUI::RecvNotice_ItemUpdate` · 00416e40 · legions 00416c00 — ac2-ui ingredient_slots.rs item_changed on ItemUpdate
+- [~] `gmIngredientUI::Init` · 00416ea0 · legions 00416c60 — ac2-ui ingredient.rs open: name, description, spinner range and value, cost, skill level, the slots from InqRecipeIngredients, the craft button and the difficulty. Not: the misc text's value string (its id is not in the decompile). The spinner starts at last_spinner (the Init decompile overlays two adaptors)
+- [x] `gmIngredientUI::MultiOpRemoveIngredientSlot` · 00417290 · legions 00417050 — ac2-ui ingredient_slots.rs remove_slot: the slot's object leaves, the list item and the mask bit go
+- [x] `gmIngredientUI::UpdateIngredientSlot` · 004173f0 · legions 004171b0 — ac2-ui ingredient_slots.rs update_slot: the description and the object checked again at the spinner
+- [~] `gmIngredientUI::HandleListBoxDrop` · 00417530 · legions 004172f0 — ac2-ui ingredient_slots.rs message: a drop on the list (MSG_STOP_DRAG_ITEM, the list item under the pointer) leaves the object's old slot, the slot goes pending and the add goes out. Not tested through a real drag; the drop filter gmIngredientUI_DDCB is not modelled
+- [x] `gmIngredientUI::UpdateIngredients` · 004176c0 · legions 00417480 — ac2-ui ingredient_slots.rs update_ingredients: slots added, kept ones refreshed, the ones no longer asked for removed (the mask as retail)
+- [~] `gmIngredientUI::gmIngredientUI` · 00417800 · legions 004175c0 — ac2-ui ingredient.rs IngredientUi::new: the layout kept; the root is made when the panel opens. Not: the notice and message registrations (per object and listeners in Rust, no table)
+- [x] `gmIngredientUI::RecvNotice_OpenIngredientPanel` · 00417ac0 · legions 00417880 — ac2-ui ingredient.rs open_notice: the recipe's panel opens unless it is shown and its cost is dynamic (client hud_ingredient.rs)
+- [x] `gmIngredientUI::UpdateRecipeFromSpinnerChange` · 00417b00 · legions 004178c0 — ac2-ui ingredient.rs spinner_changed and step_spinner: the spinner text and buttons, the dynamic cost and difficulty, the craft button, the slots (tested: craft spinner and execute)
+- [x] `gmIngredientUI::AutoPopulateIngredients` · 00417d20 · legions 00417ae0 — ac2-ui ingredient_slots.rs auto_populate: each inventory object outside the slots goes to the first free slot the recipe auto-populates and takes; the requests go out (tested through the auto-populate button)
+- [x] `gmIngredientUI::DoClose` · 00418060 · legions 00417e20 — ac2-ui ingredient.rs close: the slots' objects leave, the list flushes, the panel hides
+- [~] `gmIngredientUI::ListenToMessage` · 00418150 · legions 00417f10 — ac2-ui ingredient.rs step_spinner: the up and down buttons move the value in range (read-only spinners do not). Not: the typed spinner entry and its commit (its message id is not in the decompile)
+- [~] `gmIngredientUI::ListenToMessage` · 00418210 · legions 00417fd0 — ac2-ui ingredient.rs message and ingredient_slots.rs message: the spinner buttons, auto-populate, the craft button, a drop on the list, an object dragged out of its slot. Not: the close button (its element name is not in the layout the decompile names), the typed spinner entry
+- [~] `gmIngredientUI::RecvNotice_AddIngredient_Done` · 004185d0 — ac2-ui ingredient_slots.rs add_done: a successful add puts the object in its slot (icon from the object's item display, draggable); a failure frees the slot; a new spinner value follows. Not: the object's notice registration and the icon desc (the item display's icon only)
+- [x] `gmIngredientUI::RecvNotice_ExecuteCraft_Done` · 00418780 — ac2-ui ingredient.rs execute_done: the slots go out of pending; no error and no charges closes the panel; charges show ID_Craft_Charges (a named string id) with the value
 - [ ] `gmIngredientUI::RecvNotice_CloseConfirmationDialog` · 00418880
 
 ## `ac2/client/src/ui/gameplay/gmminifellowui.cpp.c` (0/6)
