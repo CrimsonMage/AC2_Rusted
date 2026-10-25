@@ -28,14 +28,16 @@ pub(crate) struct ListBoxState {
     pub view: (i32, i32),
     /// Bit 0x200000: a multi-operation is open.
     pub multiop: bool,
+    /// `m_pSelectedItem` (`list_box_select.rs`).
+    pub selected: Option<usize>,
 }
 
 impl UiTree {
-    fn list(&mut self, list: usize) -> &mut ListBoxState {
+    pub(crate) fn list(&mut self, list: usize) -> &mut ListBoxState {
         self.el_mut(list).list.get_or_insert_with(Default::default)
     }
 
-    fn list_flag(&self, list: usize, name: &str) -> bool {
+    pub(crate) fn list_flag(&self, list: usize, name: &str) -> bool {
         matches!(
             self.el(list).attributes.get(&tokenize(name)),
             Some(AttributeValue::Bool(true))
@@ -112,6 +114,9 @@ impl UiTree {
             return None;
         }
         let item = state.items.remove(index);
+        if state.selected == Some(item) {
+            state.selected = None;
+        }
         self.set_parent(item, None);
         self.list_changed(list);
         Some(item)
@@ -133,7 +138,9 @@ impl UiTree {
 
     /// `UIElement_ListBox::Flush`: every item deleted, the view home.
     pub fn list_flush(&mut self, list: usize) {
-        let items = std::mem::take(&mut self.list(list).items);
+        let state = self.list(list);
+        state.selected = None;
+        let items = std::mem::take(&mut state.items);
         for item in items {
             self.set_parent(item, None);
             self.delete(item);
@@ -234,7 +241,7 @@ impl UiTree {
     }
 
     /// `UIElement_ListBox::UpdateLayout`.
-    fn list_update_layout(&mut self, list: usize) {
+    pub(crate) fn list_update_layout(&mut self, list: usize) {
         if self.el(list).attributes.get(&tokenize("allow_updating"))
             == Some(&AttributeValue::Bool(false))
         {

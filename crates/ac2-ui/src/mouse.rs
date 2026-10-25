@@ -284,6 +284,7 @@ impl UiTree {
         self.button_mouse_down(index, action, processed);
         self.text_mouse_down(index, action);
         self.panel_page_mouse_down(index, action);
+        self.list_mouse_down(index, action, processed);
     }
 
     /// `UIElement::MouseUp` (and `UIElement_Button::MouseUp`).

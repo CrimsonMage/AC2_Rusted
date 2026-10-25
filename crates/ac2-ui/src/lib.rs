@@ -12,6 +12,7 @@ mod chat;
 mod chat_window;
 mod compose;
 mod controls;
+mod dialog;
 mod element;
 mod hud;
 mod input;
@@ -19,6 +20,7 @@ mod interpreter;
 mod layout;
 mod layout_media;
 mod list_box;
+mod list_box_select;
 mod maps;
 mod mouse;
 mod panel;
@@ -44,6 +46,10 @@ pub use chat::{
 pub use chat_window::{ChatMessageInfo, CHAT_TEXT_TYPES};
 pub use compose::{UiPixels, UiSurface};
 pub use controls::{ControlFrame, Controls};
+pub use dialog::{
+    DialogFactory, DialogOutcome, DIALOG_CONFIRMATION, DIALOG_MESSAGE, DIALOG_RESURRECT,
+    DIALOG_TIMED, DIALOG_WAIT, LAYOUT_DIALOGS,
+};
 pub use element::{UiBox, UiElement, UiImage, UiTree};
 pub use hud::{
     build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
@@ -61,6 +67,7 @@ pub use layout::{
     load_layout, AttributeDesc, AttributeValue, ElementDesc, LayoutDesc, MediaDesc, Rect,
     StateDesc, TransitionData, TransitionDesc, LAYOUT_FIRST, LAYOUT_LAST,
 };
+pub use list_box_select::{CLICK_SELECT, MSG_NEW_SELECTION};
 pub use maps::{
     load_action_map, load_key_map, ActionMap, ActionMapping, ActionValue, KeyMap, KEYMAP_CONTROL,
     KEYMAP_GROUP, KEYMAP_MAIN, KEYMAP_SHIFT,
@@ -84,7 +91,11 @@ pub use toolbar::{ToolbarChild, ToolbarUi};
 #[cfg(test)]
 mod chat_tests;
 #[cfg(test)]
+mod dialog_tests;
+#[cfg(test)]
 mod element_tests;
+#[cfg(test)]
+mod list_box_select_tests;
 #[cfg(test)]
 mod list_box_tests;
 #[cfg(test)]

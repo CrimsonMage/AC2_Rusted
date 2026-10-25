@@ -31,6 +31,17 @@ key	status	note
 00409be0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00409e00	x	
 0040a1f0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+0040f880	x	ac2-ui list_box_select.rs
+00415210	~	dialog.rs: confirmation, wait, message; resurrect and timed dialogs not made
+00415300	-	Rust std replaces it
+00415390	-	Rust std replaces it
+00415440	-	Rust std replaces it
+004154b0	-	Rust std replaces it
+00415520	-	Rust std replaces it
+004155b0	x	ac2-ui dialog.rs
+00415740	x	ac2-ui dialog.rs
+004157e0	-	Rust std replaces it
+00415810	x	ac2-ui dialog.rs
 00422160	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 00422230	x	ac2-ui toolbar.rs
 00422270	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
@@ -61,6 +72,17 @@ key	status	note
 0042bb00	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 0042bbb0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 0042bce0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
+0042d300	x	ac2-ui dialog.rs
+0042d330	x	ac2-ui dialog.rs
+0042d350	x	ac2-ui dialog.rs
+0042d3c0	x	ac2-ui dialog.rs
+0042d4e0	x	ac2-ui dialog.rs
+0042d500	x	ac2-ui dialog.rs
+0042d560	x	ac2-ui dialog.rs
+0042d7f0	x	ac2-ui dialog.rs
+0042d830	x	ac2-ui dialog.rs
+0042d850	x	ac2-ui dialog.rs
+0042d8e0	x	ac2-ui dialog.rs
 0042dac0	x	ac2-ui list_box.rs
 00430810	x	ac2-ui toolbar.rs
 00430c00	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
@@ -2802,18 +2824,24 @@ key	status	note
 005f1bf0	x	ac2-ui list_box.rs
 005f1c70	x	ac2-ui list_box.rs
 005f1c90	x	ac2-ui list_box.rs
+005f1f80	~	list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 005f1fc0	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
 005f21f0	x	ac2-ui list_box.rs
 005f2540	x	ac2-ui list_box.rs
+005f2560	x	ac2-ui list_box_select.rs
+005f2650	x	ac2-ui list_box_select.rs
 005f26b0	x	ac2-ui list_box.rs
 005f27c0	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
+005f2930	~	list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 005f2bc0	x	ac2-ui list_box.rs
 005f3c20	x	ac2-ui list_box.rs
 005f3c90	x	ac2-ui list_box.rs
 005f3d70	x	ac2-ui list_box.rs
 005f3db0	x	ac2-ui list_box.rs
 005f3f30	x	ac2-ui list_box.rs
+005f3fd0	x	ac2-ui list_box_select.rs
 005f4170	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
+005f4420	~	list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 005f45e0	x	ac2-ui list_box.rs
 005f4680	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
 005f46f0	x	ac2-ui list_box.rs

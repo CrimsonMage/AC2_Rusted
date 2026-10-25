@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 207 done, 115 partial, 1909 to do, 16 skipped.
+2247 retail functions: 222 done, 119 partial, 1890 to do, 16 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -1813,7 +1813,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmGenerationConfirmationUI::ListenToMessage` · 0042cde0 · legions 0042cba0
 - [ ] `gmGenerationConfirmationUI::RecvNotice_CharGenVerification` · 0042d080
 
-## `ac2/client/src/ui/pregame/gmcharacterselectionui.cpp.c` (0/23)
+## `ac2/client/src/ui/pregame/gmcharacterselectionui.cpp.c` (1/23)
 
 ### CharacterIdentity
 - [ ] `CharacterIdentity::Invalid` · 0040f560 · legions 0040f530
@@ -1825,7 +1825,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCharacterSelectionUI::MakePleaseWaitDialog` · 0040f810 · legions 0040f7e0
 
 ### UIElement_ListBox
-- [ ] `UIElement_ListBox::GetSelectedIndex` · 0040f880 · legions 0040f850
+- [x] `UIElement_ListBox::GetSelectedIndex` · 0040f880 · legions 0040f850 — ac2-ui list_box_select.rs
 
 ### gmCharacterSelectionUI
 - [ ] `gmCharacterSelectionUI::MoveArm` · 0040f8c0 · legions 0040f890
@@ -1948,27 +1948,27 @@ Legend and workflow: [README](README.md).
 - [ ] `gmKeyboardUI::KeyHitHandler` · 00415140 · legions 00414f30
 - [ ] `gmKeyboardUI::Register` · 004151f0 · legions 00414fe0
 
-## `ac2/client/src/ui/util/dialog/confirmationdialog.cpp.c` (0/3)
+## `ac2/client/src/ui/util/dialog/confirmationdialog.cpp.c` (3/3)
 
 ### ConfirmationDialog
-- [ ] `ConfirmationDialog::ListenToMessage` · 0042d7f0 · legions 0042d5c0
-- [ ] `ConfirmationDialog::SetText` · 0042d830 · legions 0042d600
-- [ ] `ConfirmationDialog::ConfirmationDialog` · 0042d850 · legions 0042d620
+- [x] `ConfirmationDialog::ListenToMessage` · 0042d7f0 · legions 0042d5c0 — ac2-ui dialog.rs
+- [x] `ConfirmationDialog::SetText` · 0042d830 · legions 0042d600 — ac2-ui dialog.rs
+- [x] `ConfirmationDialog::ConfirmationDialog` · 0042d850 · legions 0042d620 — ac2-ui dialog.rs
 
-## `ac2/client/src/ui/util/dialog/dialogfactory.cpp.c` (0/4)
+## `ac2/client/src/ui/util/dialog/dialogfactory.cpp.c` (3/4)
 
 ### DialogFactory
-- [ ] `DialogFactory::CreateDialogInternal` · 00415210 · legions 00415000
-- [ ] `DialogFactory::MakeDialog` · 004155b0 · legions 004153a0
-- [ ] `DialogFactory::DialogDone` · 00415740 · legions 00415530
-- [ ] `DialogFactory::CloseDialog` · 00415810 · legions 00415600
+- [~] `DialogFactory::CreateDialogInternal` · 00415210 · legions 00415000 — dialog.rs: confirmation, wait, message; resurrect and timed dialogs not made
+- [x] `DialogFactory::MakeDialog` · 004155b0 · legions 004153a0 — ac2-ui dialog.rs
+- [x] `DialogFactory::DialogDone` · 00415740 · legions 00415530 — ac2-ui dialog.rs
+- [x] `DialogFactory::CloseDialog` · 00415810 · legions 00415600 — ac2-ui dialog.rs
 
-## `ac2/client/src/ui/util/dialog/messagedialog.cpp.c` (0/3)
+## `ac2/client/src/ui/util/dialog/messagedialog.cpp.c` (3/3)
 
 ### MessageDialog
-- [ ] `MessageDialog::ListenToMessage` · 0042d300 · legions 0042d0d0
-- [ ] `MessageDialog::SetText` · 0042d330 · legions 0042d100
-- [ ] `MessageDialog::MessageDialog` · 0042d350 · legions 0042d120
+- [x] `MessageDialog::ListenToMessage` · 0042d300 · legions 0042d0d0 — ac2-ui dialog.rs
+- [x] `MessageDialog::SetText` · 0042d330 · legions 0042d100 — ac2-ui dialog.rs
+- [x] `MessageDialog::MessageDialog` · 0042d350 · legions 0042d120 — ac2-ui dialog.rs
 
 ## `ac2/client/src/ui/util/dialog/resurrectdialog.cpp.c` (0/3)
 
@@ -1986,11 +1986,11 @@ Legend and workflow: [README](README.md).
 - [ ] `TimedDialog::TimedDialog` · 0042d6e0 · legions 0042d4b0
 - [ ] `TimedDialog::SetText` · 0042d7b0 · legions 0042d580
 
-## `ac2/client/src/ui/util/dialog/waitdialog.cpp.c` (0/2)
+## `ac2/client/src/ui/util/dialog/waitdialog.cpp.c` (2/2)
 
 ### WaitDialog
-- [ ] `WaitDialog::SetText` · 0042d4e0 · legions 0042d2b0
-- [ ] `WaitDialog::WaitDialog` · 0042d500 · legions 0042d2d0
+- [x] `WaitDialog::SetText` · 0042d4e0 · legions 0042d2b0 — ac2-ui dialog.rs
+- [x] `WaitDialog::WaitDialog` · 0042d500 · legions 0042d2d0 — ac2-ui dialog.rs
 
 ## `portal/client/src/cimelib/cime.cpp.c` (0/23)
 
@@ -3180,7 +3180,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0
 - [ ] `UIElement_Field::Register` · 005fbe20 · legions 005bc950
 
-## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (17/82)
+## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (20/82)
 
 ### UIElement_ListBox
 - [x] `UIElement_ListBox::Home` · 005f1b90 · legions 005b26c0 — ac2-ui list_box.rs
@@ -3194,15 +3194,15 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_ListBox::GetScrollBar` · 005f1db0 · legions 005b28e0
 - [ ] `UIElement_ListBox::UnregisterForScrollbar` · 005f1e50 · legions 005b2980
 - [ ] `UIElement_ListBox::TestBitMask` · 005f1f60 · legions 005b2a90
-- [ ] `UIElement_ListBox::ScrollToShow` · 005f1f80 · legions 005b2ab0
+- [~] `UIElement_ListBox::ScrollToShow` · 005f1f80 · legions 005b2ab0 — list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 - [~] `UIElement_ListBox::SetAttribute_Bool` · 005f1fc0 · legions 005b2af0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
 - [ ] `UIElement_ListBox::DetermineAndSetNewGoal` · 005f2180 · legions 005b2cb0
 - [x] `UIElement_ListBox::UpdateLayout` · 005f21f0 · legions 005b2d20 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::StartAnimation` · 005f23f0 · legions 005b2f20
 - [ ] `UIElement_ListBox::StopAnimation` · 005f2500 · legions 005b3030
 - [x] `UIElement_ListBox::GetItem` · 005f2540 · legions 005b3070 — ac2-ui list_box.rs
-- [ ] `UIElement_ListBox::SetSelectedItem` · 005f2560 · legions 005b3090
-- [ ] `UIElement_ListBox::SetSelectedIndex` · 005f2650 · legions 005b3180
+- [x] `UIElement_ListBox::SetSelectedItem` · 005f2560 · legions 005b3090 — ac2-ui list_box_select.rs
+- [x] `UIElement_ListBox::SetSelectedIndex` · 005f2650 · legions 005b3180 — ac2-ui list_box_select.rs
 - [x] `UIElement_ListBox::GetItemIndexAtPoint` · 005f26b0 · legions 005b31e0 — ac2-ui list_box.rs
 - [~] `UIElement_ListBox::InsertItem` · 005f27c0 · legions 005b32f0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
 - [ ] `UIElement_ListBox::MultiOpAddItem` · 005f2820 · legions 005b3350
@@ -3210,7 +3210,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_ListBox::MultiOpInsertItem` · 005f2850 · legions 005b3380
 - [ ] `UIElement_ListBox::GetCol` · 005f2870 · legions 005b33a0
 - [ ] `UIElement_ListBox::GetRow` · 005f28d0 · legions 005b3400
-- [ ] `UIElement_ListBox::ScrollToShow` · 005f2930 · legions 005b3460
+- [~] `UIElement_ListBox::ScrollToShow` · 005f2930 · legions 005b3460 — list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 - [ ] `UIElement_ListBox::StartDragSelect` · 005f2a50 · legions 005b3580
 - [ ] `UIElement_ListBox::EndDragSelect` · 005f2ac0 · legions 005b35f0
 - [ ] `UIElement_ListBox::StartRollover` · 005f2b10 · legions 005b3640
@@ -3245,11 +3245,11 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_ListBox::Flush` · 005f3db0 · legions 005b48e0 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::Rollover` · 005f3e70 · legions 005b49a0
 - [x] `UIElement_ListBox::ViewChanged` · 005f3f30 · legions 005b4a60 — ac2-ui list_box.rs
-- [ ] `UIElement_ListBox::HandleSelection` · 005f3fd0 · legions 005b4b00
+- [x] `UIElement_ListBox::HandleSelection` · 005f3fd0 · legions 005b4b00 — ac2-ui list_box_select.rs
 - [ ] `UIElement_ListBox::SetState` · 005f4030 · legions 005b4b60
 - [~] `UIElement_ListBox::SetAttribute_Int` · 005f4170 · legions 005b4ca0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
 - [ ] `UIElement_ListBox::SetAttribute_ID` · 005f4270 · legions 005b4da0
-- [ ] `UIElement_ListBox::MouseDown` · 005f4420 · legions 005b4f50
+- [~] `UIElement_ListBox::MouseDown` · 005f4420 · legions 005b4f50 — list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 - [ ] `UIElement_ListBox::Global_MouseMove` · 005f44c0 · legions 005b4ff0
 - [ ] `UIElement_ListBox::StartUpActive` · 005f4500 · legions 005b5030
 - [ ] `UIElement_ListBox::StartDownActive` · 005f4540 · legions 005b5070
