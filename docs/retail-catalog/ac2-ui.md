@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 168 done, 104 partial, 1958 to do, 17 skipped.
+2247 retail functions: 175 done, 104 partial, 1951 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -3334,27 +3334,27 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Meter::Create` · 005f53d0
 - [ ] `UIElement_Meter::Register` · 005f5400 · legions 005b5f30
 
-## `portal/client/src/uielement/types/uielement_panel.cpp.c` (0/6)
+## `portal/client/src/uielement/types/uielement_panel.cpp.c` (2/6)
 
 ### UIElement_Panel
 - [ ] `UIElement_Panel::~UIElement_Panel` · 005f89a0 · legions 005b94d0
 - [ ] `UIElement_Panel::Create` · 005f8a30
 - [ ] `UIElement_Panel::SetAttribute_Bool` · 005f8a60 · legions 005b9590
-- [ ] `UIElement_Panel::Initialized` · 005f8a70 · legions 005b95a0
-- [ ] `UIElement_Panel::ListenToMessage` · 005f8ae0 · legions 005b9610
+- [x] `UIElement_Panel::Initialized` · 005f8a70 · legions 005b95a0 — ac2-ui panel.rs
+- [x] `UIElement_Panel::ListenToMessage` · 005f8ae0 · legions 005b9610 — ac2-ui panel.rs
 - [ ] `UIElement_Panel::Register` · 005f8b60 · legions 005b9690
 
-## `portal/client/src/uielement/types/uielement_panelpage.cpp.c` (0/9)
+## `portal/client/src/uielement/types/uielement_panelpage.cpp.c` (5/9)
 
 ### UIElement_PanelPage
 - [ ] `UIElement_PanelPage::Create` · 005f8660
-- [ ] `UIElement_PanelPage::Initialized` · 005f86a0 · legions 005b91d0
-- [ ] `UIElement_PanelPage::SetState` · 005f8760 · legions 005b9290
-- [ ] `UIElement_PanelPage::MouseDown` · 005f87e0 · legions 005b9310
-- [ ] `UIElement_PanelPage::MouseOverTop` · 005f8830 · legions 005b9360
+- [x] `UIElement_PanelPage::Initialized` · 005f86a0 · legions 005b91d0 — ac2-ui panel.rs
+- [x] `UIElement_PanelPage::SetState` · 005f8760 · legions 005b9290 — ac2-ui panel.rs
+- [x] `UIElement_PanelPage::MouseDown` · 005f87e0 · legions 005b9310 — ac2-ui panel.rs
+- [x] `UIElement_PanelPage::MouseOverTop` · 005f8830 · legions 005b9360 — ac2-ui panel.rs
 - [ ] `UIElement_PanelPage::Activate` · 005f8890 · legions 005b93c0
 - [ ] `UIElement_PanelPage::Deactivate` · 005f88d0 · legions 005b9400
-- [ ] `UIElement_PanelPage::StartUseActive` · 005f8910 · legions 005b9440
+- [x] `UIElement_PanelPage::StartUseActive` · 005f8910 · legions 005b9440 — ac2-ui panel.rs
 - [ ] `UIElement_PanelPage::Register` · 005f8980 · legions 005b94b0
 
 ## `portal/client/src/uielement/types/uielement_resizebar.cpp.c` (0/8)

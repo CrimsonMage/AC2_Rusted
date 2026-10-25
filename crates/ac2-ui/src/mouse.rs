@@ -189,6 +189,7 @@ impl UiTree {
             self.el_mut(index).mouse_over_top = is_top;
             self.broadcast(index, MSG_MOUSE_OVER_TOP, i32::from(is_top));
             self.button_update_state(index);
+            self.panel_page_mouse_over_top(index, is_top);
         }
     }
 
@@ -282,6 +283,7 @@ impl UiTree {
         }
         self.button_mouse_down(index, action, processed);
         self.text_mouse_down(index, action);
+        self.panel_page_mouse_down(index, action);
     }
 
     /// `UIElement::MouseUp` (and `UIElement_Button::MouseUp`).

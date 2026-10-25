@@ -90,6 +90,8 @@ pub struct UiElement {
     pub(crate) attributes: HashMap<u32, AttributeValue>,
     /// `UIElement_Text`'s state, for text elements.
     pub(crate) text: Option<Box<TextState>>,
+    /// `UIElement_PanelPage::page`: the tab's content.
+    pub(crate) page: Option<usize>,
     /// `UIElement_Tree`'s state, once items are added.
     pub(crate) tree: Option<Box<crate::tree_view::TreeState>>,
     /// `m_mouseOver`, `m_mouseOverTop`, `m_mouseVisible` and the buttons pressed on the element
@@ -276,6 +278,7 @@ impl UiTree {
     pub fn create_root(&mut self, layout: Arc<LayoutDesc>, element_id: u32) -> Option<usize> {
         let reference = Arc::clone(layout.element(element_id)?);
         let index = self.create_element(layout, reference, true)?;
+        self.initialize_panel_pages(index);
         self.set_bool(index, ROOT_MOVER, true);
         self.update_size_and_position(index);
         self.add_root(index);
@@ -340,6 +343,7 @@ impl UiTree {
             attributes: HashMap::new(),
             text,
             tree: None,
+            page: None,
             mouse_over: false,
             mouse_over_top: false,
             mouse_visible: true,
@@ -510,6 +514,9 @@ impl UiTree {
                     self.set_state(child, state);
                 }
             }
+        }
+        if self.is_panel_page(index) {
+            self.panel_page_state(index, state);
         }
     }
 

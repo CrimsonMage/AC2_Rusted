@@ -20,6 +20,7 @@ mod layout;
 mod layout_media;
 mod maps;
 mod mouse;
+mod panel;
 mod place;
 mod reticle;
 mod selection_ui;

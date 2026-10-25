@@ -2412,6 +2412,13 @@ key	status	note
 005f76e0	x	ac2-ui tree_view.rs
 005f7b40	~	ac2-ui tree_view.rs: view via tree_end/flush only
 005f7b90	~	ac2-ui tree_view.rs: view via tree_end/flush only
+005f86a0	x	ac2-ui panel.rs
+005f8760	x	ac2-ui panel.rs
+005f87e0	x	ac2-ui panel.rs
+005f8830	x	ac2-ui panel.rs
+005f8910	x	ac2-ui panel.rs
+005f8a70	x	ac2-ui panel.rs
+005f8ae0	x	ac2-ui panel.rs
 005fb4e0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005fb620	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005fb710	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons

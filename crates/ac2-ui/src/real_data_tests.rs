@@ -341,3 +341,54 @@ fn the_toolbar_panels_start_hidden_and_toggle_by_side() {
     key(&mut tree, ToolbarChild::Inventory.key());
     assert_eq!(shown(&tree), vec![ToolbarChild::Examination]);
 }
+
+#[test]
+fn the_skill_panel_tabs_make_their_pages_and_open_one_at_a_time() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut tree = build_gameplay_hud(&store, 1024, 768).unwrap().tree;
+    let find = |tree: &UiTree, name: &str| {
+        tree.roots()
+            .iter()
+            .find_map(|&r| tree.child_recursive(r, tokenize(name)))
+    };
+    let skill_tree = find(&tree, "SkillTree").expect("the combat tab's page holds the skill tree");
+    let craft = find(&tree, "CraftTab").expect("craft tab");
+    let open = tokenize("open");
+    let tabs: Vec<usize> = tree
+        .children(tree.get(craft).unwrap().parent.unwrap())
+        .iter()
+        .copied()
+        .filter(|&c| tree.is_panel_page(c))
+        .collect();
+    assert_eq!(tabs.len(), 2);
+    let open_tabs = |tree: &UiTree| -> Vec<usize> {
+        tabs.iter()
+            .copied()
+            .filter(|&t| tree.get(t).unwrap().state() == open)
+            .collect()
+    };
+    let combat = *tabs.iter().find(|&&t| t != craft).unwrap();
+    eprintln!(
+        "open at start: {:?} (combat {combat}, craft {craft})",
+        open_tabs(&tree)
+    );
+    // The skill tree's page shows exactly when its tab is open.
+    let page_of = |tree: &UiTree, tab: usize| tree.get(tab).unwrap().page.unwrap();
+    let combat_page = page_of(&tree, combat);
+    assert_eq!(
+        tree.get(combat_page).unwrap().visible,
+        tree.get(combat).unwrap().state() == open
+    );
+    assert_eq!(tree.root_of(skill_tree), tree.root_of(combat_page));
+    // Opening the craft tab closes the combat tab and swaps the pages.
+    tree.set_state(craft, open);
+    assert_eq!(open_tabs(&tree), vec![craft]);
+    assert!(tree.get(page_of(&tree, craft)).unwrap().visible);
+    assert!(!tree.get(combat_page).unwrap().visible);
+    tree.set_state(combat, open);
+    assert_eq!(open_tabs(&tree), vec![combat]);
+    assert!(tree.get(combat_page).unwrap().visible);
+}
