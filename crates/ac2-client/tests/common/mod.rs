@@ -198,9 +198,20 @@ pub fn entered(
     ac2_client::Client,
     std::rc::Rc<std::cell::RefCell<legions_server_double::State>>,
 ) {
+    entered_with(spawn, Arc::new(Synthetic))
+}
+
+/// [`entered`] over another world.
+pub fn entered_with(
+    spawn: legions_server_double::Spawn,
+    world: Arc<dyn WorldData>,
+) -> (
+    ac2_client::Client,
+    std::rc::Rc<std::cell::RefCell<legions_server_double::State>>,
+) {
     let (transport, server) = legions_server_double::double(spawn);
     let session = ac2_weenie::OnlineSession::with_transport(config(), Box::new(transport)).unwrap();
-    let mut client = ac2_client::Client::new(session, Arc::new(Synthetic));
+    let mut client = ac2_client::Client::new(session, world);
     client.set_load_budget(std::time::Duration::from_secs(5));
     let idle = ac2_client::FrameInput::default();
     let mut frames = 0;

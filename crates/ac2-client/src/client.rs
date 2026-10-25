@@ -344,6 +344,7 @@ impl Client {
                 }
             }
             Loaded::ScriptState(id, pid, did) => self.script_state_loaded(id, pid, did),
+            Loaded::ScriptData => self.script_data_loaded(),
             other => {
                 self.cells
                     .loaded(other, &mut self.terrain, &mut self.loader)?;

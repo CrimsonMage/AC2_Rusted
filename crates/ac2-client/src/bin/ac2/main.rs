@@ -440,13 +440,19 @@ fn run(args: Args) -> Result<(), String> {
     session.set_string_tables(ac2_client::string_table_ids(&script_data));
     // `CWInterface`'s registered chat commands, emote names and usage texts.
     session.set_chat_commands(ac2_client::chat_commands(&script_data));
+    // The loader threads serve the script VM's missed reads (the frame thread never reads).
+    let dat_world = dat_world.with_script_data(script_data.clone());
     let mut client = Client::new(session, Arc::new(dat_world));
     // The weenies' scripts on the VM (`CWDistributor`), over the script library.
     let wlib = ac2_script::load_wlib(&store, ac2_core::DataId::new(ac2_script::LEGIONS_WLIB_DID))
         .map_err(|e| e.to_string())?
         .ok_or("the DATs hold no script library")?;
     let program = Arc::new(ac2_script::vm::Program::from_stream(&wlib.stream));
+    // Before the frame loop: what the interpreter reads between instructions stays resident,
+    // and from then on the VM only reads what is resident.
     script_data.preload_tables();
+    script_data.preload_states();
+    script_data.set_cache_only(true);
     let host = ac2_script::host::ScriptHost::new(program, Box::new(script_data));
     client.attach_scripts(host, ac2_client::SCRIPT_VM_FUNCTIONS);
     // Enter the world before opening the window.

@@ -49,12 +49,16 @@ pub trait WorldData: Send + Sync {
     /// `did`) into the shared cache, so `ScriptHost::create_weenie` on the frame thread finds
     /// them there.
     fn preload_script_state(&self, _pid: u32, _did: u32) {}
+    /// Makes a read the script VM stopped for (cache-only script data) resident.
+    fn load_script_data(&self, _read: ac2_script::vm::DataRequest) {}
 }
 
 /// The AC2 DATs, through `ac2-world` and `ac2-physics`' loaders.
 pub struct DatWorld {
     store: Arc<ResourceStore>,
     world: Arc<Ac2WorldSource>,
+    /// The script host's data (a clone sharing its state), for the reads the VM misses.
+    script_data: Option<ac2_script::data::DatScriptData>,
 }
 
 impl DatWorld {
@@ -62,7 +66,18 @@ impl DatWorld {
         let world = Ac2WorldSource::open(Arc::clone(&store))
             .map_err(|e| e.to_string())?
             .ok_or("no AC2 landscape in the DATs")?;
-        Ok(Self { store, world })
+        Ok(Self {
+            store,
+            world,
+            script_data: None,
+        })
+    }
+
+    /// The loader threads serve the script VM's missed reads through `data` (a clone of the
+    /// host's `DatScriptData`).
+    pub fn with_script_data(mut self, data: ac2_script::data::DatScriptData) -> Self {
+        self.script_data = Some(data);
+        self
     }
 
     /// The landscape source the client loads from (what a renderer draws from too).
@@ -72,6 +87,12 @@ impl DatWorld {
 }
 
 impl WorldData for DatWorld {
+    fn load_script_data(&self, read: ac2_script::vm::DataRequest) {
+        if let Some(data) = &self.script_data {
+            data.load(read);
+        }
+    }
+
     /// `ScriptHost::create_weenie`'s candidates: the class default `0x70000000 | pid` and, for
     /// an entity DID, `0x71000000 | did`.
     fn preload_script_state(&self, pid: u32, did: u32) {

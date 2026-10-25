@@ -13,8 +13,8 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use ac2_net::protocol::{pack_values, unpack_values, PackValue};
-use ac2_script::host::ScriptHost;
+use ac2_net::protocol::{unpack_values, PackValue};
+use ac2_script::host::{ChatServices, IFunArg, ScriptHost, ScriptNotice};
 use ac2_weenie::SessionEvent;
 
 use crate::client::Client;
@@ -34,19 +34,26 @@ pub const IFUN_SET_SELECTION: u32 = 0x00B4_0002;
 
 /// The script VM and the objects waiting for their process.
 pub(crate) struct Scripts {
-    host: ScriptHost,
+    pub(crate) host: ScriptHost,
     /// Objects whose WState is being read, and the script calls that arrived meanwhile
     /// (`CObjectMaint::GetObjectOrQueueEvent` keeps an object's events until it exists).
-    waiting: BTreeMap<u64, Vec<(u32, Vec<u8>)>>,
+    pub(crate) waiting: BTreeMap<u64, Vec<(u32, Vec<u8>)>>,
     /// Objects with a process.
-    running: BTreeSet<u64>,
+    pub(crate) running: BTreeSet<u64>,
     /// What the boundary dropped and dispatches that failed, for diagnostics.
-    problems: Vec<String>,
+    pub(crate) problems: Vec<String>,
     /// The server calls and UI IFuns handed to the VM.
-    owned: BTreeSet<u32>,
+    pub(crate) owned: BTreeSet<u32>,
     /// Events produced between frames (a process started on a loader result), for the next
     /// frame's events.
-    produced: Vec<SessionEvent>,
+    pub(crate) produced: Vec<SessionEvent>,
+    /// Contexts stopped for data the loader is reading: context id -> (object, the call it
+    /// runs; `None` for a UI IFun, always the VM's).
+    pub(crate) data_waits: BTreeMap<u32, (u64, Option<u32>)>,
+    /// Script data reads handed to the loader and not back yet.
+    pub(crate) data_pending: usize,
+    /// The `CM_*` notices ac2-weenie has no type for, since the last take.
+    pub(crate) script_notices: Vec<ScriptNotice>,
 }
 
 impl Client {
@@ -54,8 +61,19 @@ impl Client {
     /// handed over from the session's stand-ins (`OnlineSession::set_script_functions`). Build
     /// the host off the frame thread (`ScriptHost::new` over the WLib and a `DatScriptData`
     /// sharing the client's resource store, so the loader's WState reads land in its cache).
-    pub fn attach_scripts(&mut self, host: ScriptHost, functions: &[u32]) {
+    ///
+    /// Retail reads script data synchronously; here the frame thread must not, so give the
+    /// host a `DatScriptData` that was preloaded on a worker (`preload_tables`,
+    /// `preload_states`) and set cache-only, and the client's `DatWorld` a clone of it
+    /// (`DatWorld::with_script_data`): reads the VM misses go to the loader threads and the
+    /// waiting calls resume when they land.
+    pub fn attach_scripts(&mut self, mut host: ScriptHost, functions: &[u32]) {
         self.session.set_script_functions(functions);
+        // The Legions client chats through Turbine chat; it has no GUN (`S_pTurbineGun`).
+        host.set_chat_services(ChatServices {
+            turbine_chat: true,
+            gun: false,
+        });
         self.scripts = Some(Scripts {
             host,
             waiting: BTreeMap::new(),
@@ -63,6 +81,9 @@ impl Client {
             problems: Vec::new(),
             owned: functions.iter().copied().collect(),
             produced: Vec::new(),
+            data_waits: BTreeMap::new(),
+            data_pending: 0,
+            script_notices: Vec::new(),
         });
         // Objects already known get their processes too.
         let known: Vec<u64> = self.session.objects().iter().map(|o| o.id).collect();
@@ -110,9 +131,15 @@ impl Client {
             return;
         };
         if !scripts.host.create_weenie(id, pid, did) {
-            scripts.problems.push(format!(
-                "{id:#018x}: no script process for package {pid:#x}"
-            ));
+            if scripts.host.take_data_requests().is_empty() {
+                scripts.problems.push(format!(
+                    "{id:#018x}: no script process for package {pid:#x}"
+                ));
+            } else {
+                // Its WState left the cache before the process started: read it again.
+                scripts.waiting.insert(id, missed);
+                self.loader.request(Request::ScriptState(id, pid, did));
+            }
             return;
         }
         scripts.running.insert(id);
@@ -122,6 +149,31 @@ impl Client {
         let mut events = Vec::new();
         for (function, arguments) in missed {
             self.dispatch_script(id, function, &arguments, &mut events);
+        }
+        if let Some(scripts) = self.scripts.as_mut() {
+            scripts.produced.extend(events);
+        }
+    }
+
+    /// A script data read landed; once none is outstanding, the calls waiting on data run on.
+    pub(crate) fn script_data_loaded(&mut self) {
+        let Some(scripts) = self.scripts.as_mut() else {
+            return;
+        };
+        scripts.data_pending = scripts.data_pending.saturating_sub(1);
+        if scripts.data_pending > 0 {
+            return;
+        }
+        let waits = std::mem::take(&mut scripts.data_waits);
+        let mut events = Vec::new();
+        for (context, (id, function)) in waits {
+            let Some(scripts) = self.scripts.as_mut() else {
+                return;
+            };
+            let Some(outcome) = scripts.host.resume(id, context) else {
+                continue;
+            };
+            self.script_outcome(id, function, Ok(outcome), &mut events);
         }
         if let Some(scripts) = self.scripts.as_mut() {
             scripts.produced.extend(events);
@@ -178,16 +230,24 @@ impl Client {
     /// `ggmCWInterface::CallIFun_*`: the IFun on the player's process (a 0 return slot, the
     /// arguments, the instance, `VM::CallIFun`), its output sent and returned.
     pub(crate) fn script_ifun(&mut self, function: u32, args: &[PackValue]) -> Vec<SessionEvent> {
+        let args: Vec<IFunArg> = args
+            .iter()
+            .filter_map(|a| match a {
+                PackValue::Int(v) => Some(IFunArg::Int(*v)),
+                PackValue::LongInt(v) => Some(IFunArg::Long(*v)),
+                other => other.as_native().cloned().map(IFunArg::Native),
+            })
+            .collect();
         let mut out = Vec::new();
-        if let Some(player) = self.session.player() {
-            let arguments = pack_values(args);
-            self.dispatch_script(player, function, &arguments, &mut out);
+        if let Err(error) = self.ifun_into(function, &args, &mut out) {
+            if let Some(scripts) = self.scripts.as_mut() {
+                scripts.problems.push(error);
+            }
         }
         out
     }
 
-    /// `CWDistributor::DispatchInterpMsg`, then the scripts' output: sent and shown when the
-    /// call is the VM's, set aside when a stand-in already answered it.
+    /// `CWDistributor::DispatchInterpMsg`, then the scripts' output (`script_outcome`).
     fn dispatch_script(
         &mut self,
         id: u64,
@@ -195,7 +255,6 @@ impl Client {
         arguments: &[u8],
         out: &mut Vec<SessionEvent>,
     ) {
-        let owned = !self.session.stand_in_handles(function);
         let scripts = self.scripts.as_mut().expect("attached");
         let result = unpack_values(arguments)
             .map_err(|e| e.to_string())
@@ -205,27 +264,6 @@ impl Client {
                     .dispatch(id, function, &values)
                     .map_err(|e| format!("{e:?}"))
             });
-        match result {
-            Err(error) => scripts
-                .problems
-                .push(format!("{id:#018x} {function:#010x}: {error}")),
-            Ok(outcome) if outcome.fault.is_some() => scripts.problems.push(format!(
-                "{id:#018x} {function:#010x}: {:?} {:?}",
-                outcome.status, outcome.fault
-            )),
-            Ok(_) => {}
-        }
-        let calls = scripts.host.take_server_calls();
-        let notices = scripts.host.take_notices();
-        let dropped = scripts.host.take_dropped();
-        scripts.problems.extend(dropped);
-        if !owned {
-            return;
-        }
-        for call in calls {
-            self.session
-                .send_interp(call.function, pack_values(&call.args), call.encrypt);
-        }
-        out.extend(notices.into_iter().map(SessionEvent::Notice));
+        self.script_outcome(id, Some(function), result, out);
     }
 }

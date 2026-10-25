@@ -129,6 +129,8 @@ fn vitals_follow_the_login_message_and_quality_updates() {
                 item: 0,
                 location: 0
             },
+            // And its options profile (the double always sends one).
+            GameplayNotice::ReloadOptions,
         ]
     );
     // Its other arguments are left to the caller as the raw script event.

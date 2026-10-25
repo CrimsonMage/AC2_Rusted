@@ -311,16 +311,17 @@ impl State {
         self.send_event(&update.encode());
     }
 
-    /// Queues `WM_Player` 0x27 (the player's login state, `CPlayer` 0x65): the equipment and
-    /// the player's contents from [`ScriptWorld`]; the double has no other player systems, so
-    /// the remaining arguments are zero ints.
+    /// Queues `WM_Player` 0x27 (the player's login state, `CPlayer` 0x65): the options
+    /// profile, the equipment and the player's contents from [`ScriptWorld`]; the double has no
+    /// other player systems, so the remaining arguments are zero ints.
     pub fn send_init_player(&mut self) {
         let mut args = vec![PackValue::Int(0); 14];
-        if let Some(options) = &self.script_world.options {
-            args[3] = PackValue::native(ac2_net::protocol::NativeObject::GameplayOptionsProfile(
-                Box::new(options.clone()),
-            ));
-        }
+        // The player's options profile always comes (a default one when the double holds
+        // none): `CPlayer` 0x65 dereferences it.
+        let options = self.script_world.options.clone().unwrap_or_default();
+        args[3] = PackValue::native(ac2_net::protocol::NativeObject::GameplayOptionsProfile(
+            Box::new(options),
+        ));
         // Arguments 7-9: the equipment (`CInventorySystem` 0x6); 10-12: the player's contents
         // (`CInventorySystem` 0x1A).
         let equipment = Equipment::from_locations(&self.script_world.equipped);

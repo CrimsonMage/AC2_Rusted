@@ -161,3 +161,79 @@ fn a_call_handed_to_the_vm_comes_back_as_its_notice() {
         [ac2_net::protocol::ScriptRequest::SetTarget(npc)]
     );
 }
+
+/// The synthetic world, with the loader threads serving the script VM's missed reads.
+struct ScriptWorld(DatScriptData);
+
+impl ac2_client::WorldData for ScriptWorld {
+    fn load_block(&self, terrain: &mut ac2_physics::Terrain, block: u32) -> Result<bool, String> {
+        Synthetic.load_block(terrain, block)
+    }
+    fn body(&self, visual: Option<u32>) -> Result<ac2_client::BodyData, String> {
+        Synthetic.body(visual)
+    }
+    fn game_clock(&self) -> Option<ac2_world::GameClock> {
+        None
+    }
+    fn load_script_data(&self, read: ac2_script::vm::DataRequest) {
+        self.0.load(read);
+    }
+}
+
+/// The VM on cache-only data (preloaded first, as `bin/ac2` does): the login message runs
+/// through `CPlayer` without a problem, and the UI reaches the VM through the client (the
+/// `SetSelection` IFun, the skill panels).
+#[test]
+fn the_cache_only_vm_runs_the_login_and_answers_the_ui() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ac2_db::ResourceStore::new(dataset.clone());
+    let wlib = load_wlib(&store, DataId::new(LEGIONS_WLIB_DID))
+        .unwrap()
+        .unwrap();
+    let program = Arc::new(Program::from_stream(&wlib.stream));
+    let data = DatScriptData::new(dataset, store);
+    data.preload_tables();
+    data.preload_states();
+    data.set_cache_only(true);
+    let (mut client, server) = entered_with(
+        Spawn {
+            cell: CELL,
+            origin: [70.0, 70.0, GROUND],
+            rotation: [1.0, 0.0, 0.0, 0.0],
+        },
+        Arc::new(ScriptWorld(data.clone())),
+    );
+    client.attach_scripts(
+        ScriptHost::new(program, Box::new(data)),
+        ac2_client::SCRIPT_VM_FUNCTIONS,
+    );
+    let idle = FrameInput::default();
+    step(&mut client, &server, &idle);
+    assert!(client.script_host().unwrap().instance(PLAYER).is_some());
+    server.borrow_mut().send_init_player();
+    for _ in 0..8 {
+        step(&mut client, &server, &idle);
+    }
+    assert!(
+        client.take_script_problems().is_empty(),
+        "{:?}",
+        client.take_script_problems()
+    );
+    let r = client
+        .call_ifun(0x00B4_0002, &[ac2_script::host::IFunArg::Long(0x77)])
+        .unwrap();
+    assert_eq!(r.outcome.status, ac2_script::vm::InterpStatus::Terminated);
+    let mut events = Vec::new();
+    for _ in 0..4 {
+        events.extend(step(&mut client, &server, &idle));
+    }
+    assert!(
+        events.contains(&SessionEvent::Notice(GameplayNotice::SelectionChanged(
+            0x77
+        )))
+    );
+    let panel = client.skill_panel(1).unwrap().unwrap();
+    assert!(panel.nodes.is_empty());
+}
