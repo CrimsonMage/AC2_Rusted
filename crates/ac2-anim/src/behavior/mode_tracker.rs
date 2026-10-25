@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 use super::track::Ac2BehaviorParams;
 use super::tracker::{Ac2BehaviorTracker, AC2_BEHAVIOR_IDLE, AC2_BEHAVIOR_IDLE_LAYER};
-use super::{Ac2AnimEvent, Ac2AnimationSource, Env};
+use super::{Ac2AnimEvent, Ac2AnimationSource, Ac2TriggerUpdate, Env};
 use crate::behavior_table::{Ac2BehaviorTable, Ac2CharTemplate, Ac2ModeTransition};
 
 /// The default mode `DoElement` falls back to when the desired mode has no path.
@@ -30,6 +30,11 @@ pub struct Ac2ModeTracker {
     can_animate: bool,
     context: u32,
     events: Vec<Ac2AnimEvent>,
+    /// The body's `TriggerUpdate` (`CPhysicsObj::m_pTriggers`).
+    triggers: Ac2TriggerUpdate,
+    /// `ModeTracker::mTriggers` is fetched lazily (`Update`, `StopBehavior`); transition
+    /// effects before then are dropped.
+    triggers_bound: bool,
 }
 
 /// Splits the tracker into its environment and its two behaviour trackers.
@@ -41,6 +46,7 @@ macro_rules! env {
                 template: &$self.template,
                 source: $source,
                 events: &mut $self.events,
+                triggers: &mut $self.triggers,
             }),
             None => None,
         }
@@ -62,6 +68,8 @@ impl Ac2ModeTracker {
             can_animate: false,
             context: 0,
             events: Vec::new(),
+            triggers: Ac2TriggerUpdate::default(),
+            triggers_bound: false,
         }
     }
 
@@ -150,6 +158,23 @@ impl Ac2ModeTracker {
         }
     }
 
+    /// The end of `ModeTracker::Update`, after the caller's `DoAnimation` has added each
+    /// track's reached triggers (`DBAnimator::GetTriggers`): `BehaviorTracker::AddTriggers` for
+    /// the outgoing then the incoming tracker.
+    pub fn add_triggers(&mut self) {
+        if self.table.is_none() {
+            return;
+        }
+        for tracker in [self.from.as_mut(), self.to.as_mut()].into_iter().flatten() {
+            tracker.add_triggers(&mut self.triggers);
+        }
+    }
+
+    /// The body's `TriggerUpdate`, which `CPhysicsObj::UpdateAnimation` fires.
+    pub fn triggers_mut(&mut self) -> &mut Ac2TriggerUpdate {
+        &mut self.triggers
+    }
+
     /// The `CharTemplate` the tracker was made with.
     pub fn template(&self) -> &Ac2CharTemplate {
         &self.template
@@ -209,12 +234,14 @@ impl Ac2ModeTracker {
         let mut to = self.to.take();
         let mut next = Ac2BehaviorTracker::new();
         if let Some(mut env) = env!(self, source) {
-            if let Some(to) = to.as_mut() {
+            if let Some(mut to) = to.take() {
                 to.stop_all_weenie_behaviors(&mut env);
+                to.destroy(env.triggers);
             }
             let element = from.element();
             next.init(&mut env, element, mode, Some(&mut from.tracks));
             from.stop_all_weenie_behaviors(&mut env);
+            from.destroy(env.triggers);
         }
         self.from = Some(next);
         true
@@ -292,7 +319,9 @@ impl Ac2ModeTracker {
             return false;
         }
         if let Some(to) = self.to.take() {
-            self.from = Some(to);
+            if let Some(mut old) = self.from.replace(to) {
+                old.destroy(&mut self.triggers);
+            }
             self.transition_ctime = 0.0;
             self.transition_cvel = 0.0;
             if self.context != 0 {
@@ -330,6 +359,7 @@ impl Ac2ModeTracker {
             template: &self.template,
             source,
             events: &mut self.events,
+            triggers: &mut self.triggers,
         };
         let carried = self.from.as_mut().map(|from| &mut from.tracks);
         to.init(&mut env, key.dst_element, key.dst_mode, carried);
@@ -348,16 +378,11 @@ impl Ac2ModeTracker {
                     self.transition_cvel = cvel;
                 }
             }
-            if info.effect != 0 {
-                self.events.push(Ac2AnimEvent::StartFx {
-                    fx: info.effect,
-                    intensity: 1.0,
-                });
+            if self.triggers_bound && info.effect != 0 {
+                self.triggers.fire_and_forget(info.effect, false);
             }
-            if info.stop_effect != 0 {
-                self.events.push(Ac2AnimEvent::StopFx {
-                    fx: info.stop_effect,
-                });
+            if self.triggers_bound && info.stop_effect != 0 {
+                self.triggers.fire_and_forget(info.stop_effect, true);
             }
         }
         true
@@ -520,6 +545,7 @@ impl Ac2ModeTracker {
         if !self.can_animate {
             return 0;
         }
+        self.triggers_bound = true;
         self.stop_with_idle(source, |t, env| t.stop_behavior(env, behavior), false)
     }
 
@@ -580,6 +606,7 @@ impl Ac2ModeTracker {
     /// transition and complete it at 1, then start the next step toward the desired element and
     /// mode. The caller poses the parts afterwards (`AnimationObj::DoAnimation`).
     pub fn update(&mut self, quantum: f32, source: &dyn Ac2AnimationSource) {
+        self.triggers_bound = true;
         if self.from.is_none() || self.table.is_none() {
             return;
         }
@@ -590,7 +617,9 @@ impl Ac2ModeTracker {
             // Retail swaps in the incoming tracker unconditionally; one is always present while
             // the transition is timed.
             if let Some(to) = self.to.take() {
-                self.from = Some(to);
+                if let Some(mut old) = self.from.replace(to) {
+                    old.destroy(&mut self.triggers);
+                }
             }
             let reached = self.from.as_ref().is_some_and(|from| {
                 from.mode() == self.desired_mode && from.element() == self.desired_element

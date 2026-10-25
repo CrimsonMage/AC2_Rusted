@@ -20,7 +20,7 @@ const MAX_DEPTH: usize = 12;
 const MAX_SLIDERS: usize = 8;
 const MAX_TICKS: usize = 64;
 /// `AnimCube` drops lattice corners lighter than this.
-const MIN_WEIGHT: f32 = 0.0002;
+pub(super) const MIN_WEIGHT: f32 = 0.0002;
 /// `AMSwitchME::SwitchType`.
 const SWITCH_MODE: u32 = 0;
 const SWITCH_ELEMENT: u32 = 1;
@@ -139,55 +139,9 @@ impl Ac2DbAnimator {
         }
     }
 
-    /// The impulse half of `DBAnimator::GetTriggers`: the impulse triggers at or before `ctime`
-    /// (its fraction when `normalize` and past one cycle). `AnimCube` asks its weighted
-    /// children at a full cycle, so their impulses all count at once.
-    pub fn impulses(
-        &self,
-        ctx: &dyn Ac2AnimatorContext,
-        tracker: Ac2TrackerState,
-        ctime: f32,
-        normalize: bool,
-        out: &mut Vec<super::Ac2ImpulseTrigger>,
-    ) {
-        match self {
-            Self::Asset(asset) => {
-                let Some(info) = asset.info.as_ref() else {
-                    return;
-                };
-                let mut time = ctime;
-                if normalize && 1.0 < time {
-                    time = f64::from(time).fract() as f32;
-                }
-                out.extend(info.impulses.iter().filter(|impulse| impulse.time <= time));
-            }
-            Self::Cube { sliders, children } => {
-                for (weight, child) in cube_weights(sliders, children.len(), ctx)
-                    .into_iter()
-                    .zip(children.iter())
-                {
-                    if let (true, Some(child)) = (weight >= MIN_WEIGHT, child) {
-                        child.impulses(ctx, tracker, 1.0, false, out);
-                    }
-                }
-            }
-            Self::Human(child) => {
-                if let Some(child) = child {
-                    child.impulses(ctx, tracker, ctime, true, out);
-                }
-            }
-            Self::Switch { .. } => {
-                if let Some(child) = self.switch_target(ctx, tracker) {
-                    child.impulses(ctx, tracker, ctime, true, out);
-                }
-            }
-            Self::Other => {}
-        }
-    }
-
     /// `AMSwitchME::GetAnimator`: the override for the tracker's mode, element or the terrain,
     /// else the default.
-    fn switch_target(
+    pub(super) fn switch_target(
         &self,
         ctx: &dyn Ac2AnimatorContext,
         tracker: Ac2TrackerState,
@@ -216,7 +170,7 @@ impl Ac2DbAnimator {
 /// `AnimCube::GetAnimatorWeights`: multilinear weights over the bracketing ticks of each slider
 /// (a value on a tick weighs that tick 0.5 + 0.5), the first slider varying fastest in the child
 /// index; corners under 0.0002 are dropped.
-fn cube_weights(
+pub(super) fn cube_weights(
     sliders: &[Ac2CubeSlider],
     children: usize,
     ctx: &dyn Ac2AnimatorContext,

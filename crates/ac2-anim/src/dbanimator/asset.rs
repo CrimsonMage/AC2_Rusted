@@ -31,12 +31,15 @@ pub struct Ac2AnimTrigger {
     pub play: u32,
 }
 
-/// An `AnimInfo` `WeenieHook`.
+/// An `AnimInfo` `WeenieHook`: a call into the weenie (and its story manager) when the
+/// animation reaches `time`.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Ac2WeenieHook {
     pub hook_type: u32,
     pub hook_num: u32,
     pub data: u32,
+    /// `mTriggered`, as packed (a hook packed triggered never fires).
+    pub triggered: bool,
     pub time: f32,
 }
 
@@ -253,11 +256,12 @@ fn decode_info(cursor: &mut ArchiveCursor<'_>) -> Result<Ac2AnimInfo, Malformed>
         let hook_type = word(cursor)?;
         let hook_num = word(cursor)?;
         let data = word(cursor)?;
-        let _triggered = word(cursor)?;
+        let triggered = word(cursor)? != 0;
         info.hooks.push(Ac2WeenieHook {
             hook_type,
             hook_num,
             data,
+            triggered,
             time: float(cursor)?,
         });
     }

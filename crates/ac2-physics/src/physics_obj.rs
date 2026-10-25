@@ -99,6 +99,8 @@ pub(crate) struct PhysicsObj {
     pub(crate) move_to: Option<crate::moveto::MoveToManager>,
     /// `CMotionInterp::mInterpolationManager`, made by the first server position.
     pub(crate) interp: Option<crate::interp::InterpolationManager>,
+    /// `CMotionInterp::mConstraintManager`, made by the first `ConstrainTo`.
+    pub(crate) constraint: Option<crate::constraint::ConstraintManager>,
     /// `Timer::cur_time` as interpolation reads it (seconds, the clock positions are sent on).
     pub cur_time: f64,
     pub shape: BodyShape,
@@ -147,6 +149,7 @@ impl PhysicsObj {
             motion,
             anim: AnimRep::unanimated(),
             interp: None,
+            constraint: None,
             setup_radius: 0.0,
             move_to: None,
             cur_time: 0.0,
@@ -424,9 +427,17 @@ impl PhysicsObj {
             desired_element: self.desired_element(),
             element: self.current_element(),
             is_sliding_down: self.has_contact() && !self.on_walkable(),
-            constraint_factor: 1.0,
+            constraint_factor: self.constraint_factor(),
             vector_heading: self.position.frame.vector_heading(),
         }
+    }
+
+    /// `CPhysicsObj::GetConstraintFactor` -> `CMotionInterp::GetConstraintFactor` at the
+    /// body's position (1 without a constraint manager).
+    fn constraint_factor(&self) -> f32 {
+        self.constraint
+            .as_ref()
+            .map_or(1.0, |constraint| constraint.factor(&self.position))
     }
 
     /// `CPhysicsObj::GetHeightAboveWalkable`: zero in contact or walking on air, else the drop

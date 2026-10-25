@@ -16,6 +16,7 @@ mod body;
 mod body_anim_tests;
 mod bsp;
 mod cells;
+mod constraint;
 mod envcell;
 #[cfg(test)]
 mod envcell_real_data_tests;

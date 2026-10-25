@@ -318,13 +318,102 @@ fn impulses_count_once_their_time_is_reached_within_the_cycle() {
         }),
     }));
     let ctx = Ctx::default();
-    let mut found = Vec::new();
-    asset.impulses(&ctx, STATE, 0.4, false, &mut found);
-    assert!(found.is_empty());
-    asset.impulses(&ctx, STATE, 0.5, false, &mut found);
-    assert_eq!(found, vec![impulse]);
+    let mut found = Ac2TrackTriggers::default();
+    asset.triggers(&ctx, STATE, 0.4, false, &mut found);
+    assert!(found.impulses.is_empty());
+    asset.triggers(&ctx, STATE, 0.5, false, &mut found);
+    assert_eq!(found.impulses, vec![(impulse, false)]);
+    asset.triggers(&ctx, STATE, 0.75, false, &mut found);
+    assert_eq!(found.impulses.len(), 1, "added once");
     // A looping track wraps its time into the cycle: 1.25 is before the impulse again.
-    found.clear();
-    asset.impulses(&ctx, STATE, 1.25, true, &mut found);
-    assert!(found.is_empty());
+    let mut found = Ac2TrackTriggers::default();
+    asset.triggers(&ctx, STATE, 1.25, true, &mut found);
+    assert!(found.impulses.is_empty());
+}
+
+fn effect(fx: u32, time: f32, intensity: f32) -> Ac2AnimTrigger {
+    Ac2AnimTrigger {
+        fx,
+        time,
+        stop: false,
+        probability: 1.0,
+        intensity,
+        intensity_var: 0.0,
+        play: 1,
+    }
+}
+
+fn info_clip(info: Ac2AnimInfo) -> Arc<Ac2DbAnimator> {
+    Arc::new(Ac2DbAnimator::Asset(Arc::new(Ac2AnimAsset {
+        period: 1.0,
+        bones: Vec::new(),
+        info: Some(info),
+    })))
+}
+
+#[test]
+fn a_cube_merges_its_childrens_effects_and_hooks_by_weight() {
+    let hook = Ac2WeenieHook {
+        hook_type: 1,
+        hook_num: 2,
+        data: 5,
+        triggered: false,
+        time: 0.4,
+    };
+    let cube = Ac2DbAnimator::Cube {
+        sliders: Arc::from(vec![Ac2CubeSlider {
+            id: 7,
+            ticks: vec![0.0, 2.0, 4.0],
+        }]),
+        children: Arc::from(vec![
+            Some(info_clip(Ac2AnimInfo {
+                effects: vec![effect(9, 0.2, 1.0)],
+                hooks: vec![hook],
+                ..Ac2AnimInfo::default()
+            })),
+            Some(info_clip(Ac2AnimInfo {
+                effects: vec![effect(9, 0.6, 3.0)],
+                ..Ac2AnimInfo::default()
+            })),
+            None,
+        ]),
+    };
+    let mut ctx = Ctx::default();
+    ctx.sliders.insert(7, 1.0);
+    let mut early = Ac2TrackTriggers::default();
+    cube.triggers(&ctx, STATE, 0.3, false, &mut early);
+    assert!(early.effects.is_empty(), "the merged effect is at 0.4");
+    assert_eq!(early.hooks.len(), 1);
+    assert_eq!(early.hooks[0].time, 0.2, "half of 0.4");
+    let mut out = Ac2TrackTriggers::default();
+    cube.triggers(&ctx, STATE, 1.5, false, &mut out);
+    assert_eq!(out.effects.len(), 1, "within the cycle: 0.5");
+    let merged = out.effects[0];
+    assert_eq!(
+        (merged.time, merged.intensity, merged.probability),
+        (0.4, 2.0, 1.0)
+    );
+    assert!(out.triggered_effects.contains(&9));
+}
+
+#[test]
+fn an_asset_adds_each_reached_trigger_once() {
+    let hook = Ac2WeenieHook {
+        hook_type: 1,
+        hook_num: 2,
+        data: 5,
+        triggered: false,
+        time: 0.5,
+    };
+    let asset = info_clip(Ac2AnimInfo {
+        effects: vec![effect(9, 0.0, 1.0), effect(10, 0.75, 1.0)],
+        hooks: vec![hook],
+        ..Ac2AnimInfo::default()
+    });
+    let ctx = Ctx::default();
+    let mut out = Ac2TrackTriggers::default();
+    asset.triggers(&ctx, STATE, 0.5, false, &mut out);
+    asset.triggers(&ctx, STATE, 0.6, false, &mut out);
+    assert_eq!(out.effects, vec![effect(9, 0.0, 1.0)]);
+    assert_eq!(out.hooks, vec![hook]);
 }

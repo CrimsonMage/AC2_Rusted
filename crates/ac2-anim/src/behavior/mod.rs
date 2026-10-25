@@ -1,17 +1,18 @@
 //! The animsys runtime: `ModeTracker` over two `BehaviorTracker`s of `BehaviorTrack`s, and the
 //! `SliderTracker`. Where retail calls back into its `AnimationObj` (`PHYSICSOBJREP`), the
 //! queries go through [`Ac2AnimationSource`] and the notifications are queued as
-//! [`Ac2AnimEvent`]s in call order. Triggers, FX scripts, camera behaviours and the network
-//! behaviour list are not modelled.
+//! [`Ac2AnimEvent`]s in call order; the effect, hook and impulse triggers the tracks reach go
+//! through the [`Ac2TriggerUpdate`]. FX scripts and camera behaviours are not modelled.
 
 // Negated float comparisons keep retail's unordered (NaN) branches.
 #![allow(clippy::neg_cmp_op_on_partial_ord)]
 
-mod hash;
+pub(crate) mod hash;
 mod mode_tracker;
 mod slider;
 mod track;
 mod tracker;
+mod triggers;
 
 pub use mode_tracker::Ac2ModeTracker;
 pub use slider::{Ac2SliderTracker, AC2_SLIDER_INIT};
@@ -20,6 +21,7 @@ pub use tracker::{
     Ac2BehaviorTracker, AC2_BEHAVIOR_IDLE, AC2_BEHAVIOR_IDLE_LAYER, AC2_BEHAVIOR_MOVE,
     AC2_STOP_LAYER_BUSY, AC2_STOP_NOT_ACTIVE, AC2_STOP_NOT_PLAYING,
 };
+pub use triggers::{Ac2TriggerAction, Ac2TriggerUpdate};
 
 use crate::behavior_table::{Ac2BehaviorTable, Ac2CharTemplate, Ac2ComboInfo};
 use crate::dbanimator::Ac2TrackerState;
@@ -75,6 +77,13 @@ pub enum Ac2AnimEvent {
     },
     LockActions,
     UnlockActions,
+    /// A `WeenieHook` the animation reached (`CWeenieObject`'s anim hook and
+    /// `StoryManager::HandleAnimHook`).
+    WeenieHook {
+        hook_type: u32,
+        hook_num: u32,
+        data: u32,
+    },
 }
 
 /// The table, template, source and event queue a tracker call runs against.
@@ -83,7 +92,10 @@ pub(crate) struct Env<'a> {
     pub template: &'a Ac2CharTemplate,
     pub source: &'a dyn Ac2AnimationSource,
     pub events: &'a mut Vec<Ac2AnimEvent>,
+    pub triggers: &'a mut Ac2TriggerUpdate,
 }
 
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod trigger_tests;

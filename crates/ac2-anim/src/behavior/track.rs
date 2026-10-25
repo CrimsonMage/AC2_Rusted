@@ -69,9 +69,9 @@ pub struct Ac2BehaviorTrack {
     pub loop_start: f32,
     pub loop_end: f32,
     pub repeats: u32,
-    /// `AnimTrack::mImpulses`: the impulse triggers the animation has reached, each with its
-    /// `mTriggered` flag (an impulse fires once per track).
-    pub impulses: Vec<(crate::Ac2ImpulseTrigger, bool)>,
+    /// `AnimTrack::mEffect`, `mHooks`, `mImpulses` and `mTriggeredEffects`: what the animation
+    /// has reached (a hook or impulse fires once per track).
+    pub triggers: crate::Ac2TrackTriggers,
 }
 
 impl Ac2BehaviorTrack {
@@ -99,7 +99,7 @@ impl Ac2BehaviorTrack {
             loop_start: 0.0,
             loop_end: 0.0,
             repeats: 0,
-            impulses: Vec::new(),
+            triggers: crate::Ac2TrackTriggers::default(),
         }
     }
 
@@ -114,7 +114,10 @@ impl Ac2BehaviorTrack {
         self.ctime = advanced as f32;
         if advanced.floor() != before {
             self.looped = true;
-            // A plain behaviour also clears its effect triggers here (not modelled).
+            // A plain behaviour clears its effect triggers each cycle (`mEffect.m_num = 0`).
+            if !self.is_action && !self.is_hold {
+                self.triggers.effects.clear();
+            }
         }
         if !(f64::from(self.ctime) < 64.0) {
             self.ctime = (f64::from(self.ctime) - 64.0) as f32;
