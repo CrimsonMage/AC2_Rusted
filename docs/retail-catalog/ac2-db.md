@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 46 done, 13 partial, 535 to do, 39 skipped.
+633 retail functions: 123 done, 11 partial, 451 to do, 48 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -506,10 +506,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CharNameCharacterValidator::CharNameCharacterValidator` · 006bc580 · legions 00651520
 - [ ] `CharNameCharacterValidator::~CharNameCharacterValidator` · 006bc5a0 · legions 00651540
 
-## `portal/shared/src/languagespecific/charutils.cpp.c` (0/1)
+## `portal/shared/src/languagespecific/charutils.cpp.c` (1/1)
 
 ### CharUtils
-- [ ] `CharUtils::IsVowel` · 006bc600 · legions 006515a0
+- [x] `CharUtils::IsVowel` · 006bc600 · legions 006515a0 — ac2-db string_meta_text / string_state (CRT C locale classes)
 
 ## `portal/shared/src/property/baseproperty.cpp.c` (0/22)
 
@@ -867,91 +867,91 @@ Legend and workflow: [README](README.md).
 - [-] `PackageIDPropertyValue::ToFileNode` · 006b6ce0 — text source format (admin tools)
 - [ ] `PackageIDPropertyValue::GetValueAsString` · 006b6db0
 
-## `portal/shared/src/stringtable/metalanguage/metalanguage.cpp.c` (0/8)
+## `portal/shared/src/stringtable/metalanguage/metalanguage.cpp.c` (7/8)
 
 ### StringTableMetaLanguage
-- [ ] `StringTableMetaLanguage::GetMatchScore` · 00657600 · legions 00605f50
-- [ ] `StringTableMetaLanguage::SetError` · 006576c0 · legions 00606010
-- [ ] `StringTableMetaLanguage::SetError` · 00657720
-- [ ] `StringTableMetaLanguage::ChooseChoice` · 00657780 · legions 006060d0
+- [x] `StringTableMetaLanguage::GetMatchScore` · 00657600 · legions 00605f50 — ac2-db string_meta_render (render_string; Legions code identical)
+- [x] `StringTableMetaLanguage::SetError` · 006576c0 · legions 00606010 — ac2-db string_meta_render (render_string; Legions code identical)
+- [x] `StringTableMetaLanguage::SetError` · 00657720 — ac2-db string_meta_render (render_string; Legions code identical)
+- [x] `StringTableMetaLanguage::ChooseChoice` · 00657780 · legions 006060d0 — ac2-db string_meta_render (render_string; Legions code identical)
 
 ### SmartArray<PStringBase<unsigned_short>_>
-- [ ] `SmartArray<PStringBase<unsigned_short>_>::operator=` · 006577d0 · legions 00606120
+- [-] `SmartArray<PStringBase<unsigned_short>_>::operator=` · 006577d0 · legions 00606120 — Rust ownership (Vec/drop)
 
 ### StringTableMetaLanguage
-- [ ] `StringTableMetaLanguage::TakeValidLetters` · 00657860 · legions 006061b0
-- [ ] `StringTableMetaLanguage::RenderNodes` · 00657960 · legions 006062b0
-- [ ] `StringTableMetaLanguage::RenderString` · 00658660 · legions 00606fb0
+- [x] `StringTableMetaLanguage::TakeValidLetters` · 00657860 · legions 006061b0 — ac2-db string_meta_render (render_string; Legions code identical)
+- [x] `StringTableMetaLanguage::RenderNodes` · 00657960 · legions 006062b0 — ac2-db string_meta_render (render_string; Legions code identical)
+- [x] `StringTableMetaLanguage::RenderString` · 00658660 · legions 00606fb0 — ac2-db string_meta_render (render_string; Legions code identical)
 
-## `portal/shared/src/stringtable/metalanguage/metalanguage_rules.cpp.c` (0/15)
+## `portal/shared/src/stringtable/metalanguage/metalanguage_rules.cpp.c` (13/15)
 
 ### StringTableMetaLanguage
-- [ ] `StringTableMetaLanguage::GetRoot` · 00658b00 · legions 00607450
-- [ ] `StringTableMetaLanguage::IsInChoiceBlock` · 00658b10 · legions 00607460
-- [ ] `StringTableMetaLanguage::AddNode` · 00658b30 · legions 00607480
-- [ ] `StringTableMetaLanguage::r_Flags` · 00658ba0
-- [ ] `StringTableMetaLanguage::CheckForErrorsInChoiceBlock` · 00658bf0
+- [x] `StringTableMetaLanguage::GetRoot` · 00658b00 · legions 00607450 — ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+- [x] `StringTableMetaLanguage::IsInChoiceBlock` · 00658b10 · legions 00607460 — ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+- [x] `StringTableMetaLanguage::AddNode` · 00658b30 · legions 00607480 — ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+- [x] `StringTableMetaLanguage::r_Flags` · 00658ba0 — ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+- [x] `StringTableMetaLanguage::CheckForErrorsInChoiceBlock` · 00658bf0 — ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
 
 ### StringTableMetaLanguage::Node
-- [ ] `StringTableMetaLanguage::Node::Reset` · 00658c70 · legions 006075c0
+- [-] `StringTableMetaLanguage::Node::Reset` · 00658c70 · legions 006075c0 — Rust ownership (Vec/drop)
 
 ### StringTableMetaLanguage
-- [ ] `StringTableMetaLanguage::r_ChoiceBlockEnd` · 00658cd0
+- [x] `StringTableMetaLanguage::r_ChoiceBlockEnd` · 00658cd0 — ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
 
 ### StringTableMetaLanguage::Node
-- [ ] `StringTableMetaLanguage::Node::Node` · 00658cf0 · legions 00607640
-- [ ] `StringTableMetaLanguage::Node::~Node` · 00658d50 · legions 006076a0
+- [x] `StringTableMetaLanguage::Node::Node` · 00658cf0 · legions 00607640 — ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+- [-] `StringTableMetaLanguage::Node::~Node` · 00658d50 · legions 006076a0 — Rust ownership (Vec/drop)
 
 ### StringTableMetaLanguage
-- [ ] `StringTableMetaLanguage::InitRules` · 00658db0 · legions 00607700
-- [ ] `StringTableMetaLanguage::CleanRules` · 00658df0 · legions 00607740
-- [ ] `StringTableMetaLanguage::r_Text` · 00658e40 · legions 00607790
-- [ ] `StringTableMetaLanguage::r_Var` · 00658ea0
-- [ ] `StringTableMetaLanguage::r_ChoiceBlockBegin` · 006592b0
-- [ ] `StringTableMetaLanguage::r_OutsideInfoBlock` · 006592f0 · legions 00607c60
+- [x] `StringTableMetaLanguage::InitRules` · 00658db0 · legions 00607700 — ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+- [x] `StringTableMetaLanguage::CleanRules` · 00658df0 · legions 00607740 — ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+- [x] `StringTableMetaLanguage::r_Text` · 00658e40 · legions 00607790 — ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+- [x] `StringTableMetaLanguage::r_Var` · 00658ea0 — ac2-db string_meta_parse; Legions adds the + flag for non-negative numbers
+- [x] `StringTableMetaLanguage::r_ChoiceBlockBegin` · 006592b0 — ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+- [x] `StringTableMetaLanguage::r_OutsideInfoBlock` · 006592f0 · legions 00607c60 — ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
 
-## `portal/shared/src/stringtable/metalanguage/metalanguage_tokenizer.cpp.c` (0/7)
+## `portal/shared/src/stringtable/metalanguage/metalanguage_tokenizer.cpp.c` (7/7)
 
 ### (free functions)
-- [ ] `IsSpecialChar` · 00659920 · legions 00608290
+- [x] `IsSpecialChar` · 00659920 · legions 00608290 — ac2-db string_meta_lex
 
 ### StringTableMetaLanguage
-- [ ] `StringTableMetaLanguage::GetCurrentStreamPosition` · 00659960 · legions 006082d0
+- [x] `StringTableMetaLanguage::GetCurrentStreamPosition` · 00659960 · legions 006082d0 — ac2-db string_meta_lex
 
 ### (free functions)
-- [ ] `IsNumberLabel` · 00659970 · legions 006082e0
-- [ ] `stringmeta_error` · 00659c10 · legions 00608580
-- [ ] `IsFlagsBlock` · 00659c80 · legions 006085f0
-- [ ] `stringmeta_lex` · 0065a300 · legions 00608c70
+- [x] `IsNumberLabel` · 00659970 · legions 006082e0 — ac2-db string_meta_lex
+- [x] `stringmeta_error` · 00659c10 · legions 00608580 — ac2-db string_meta_lex
+- [x] `IsFlagsBlock` · 00659c80 · legions 006085f0 — ac2-db string_meta_lex
+- [x] `stringmeta_lex` · 0065a300 · legions 00608c70 — ac2-db string_meta_lex
 
 ### StringTableMetaLanguage
-- [ ] `StringTableMetaLanguage::LoadTokenizer` · 0065a310 · legions 00608c80
+- [x] `StringTableMetaLanguage::LoadTokenizer` · 0065a310 · legions 00608c80 — ac2-db string_meta_lex
 
-## `portal/shared/src/stringtable/metalanguage/metalanguage_utils.cpp.c` (3/14)
+## `portal/shared/src/stringtable/metalanguage/metalanguage_utils.cpp.c` (14/14)
 
 ### StringTableMetaLanguage
-- [ ] `StringTableMetaLanguage::IsEscapeChar` · 00656b20 · legions 00605470
-- [ ] `StringTableMetaLanguage::IsNumberSingular` · 00656b50
-- [ ] `StringTableMetaLanguage::GetMaleMetaLetters` · 00656b80
-- [ ] `StringTableMetaLanguage::GetFemaleMetaLetters` · 00656bb0
-- [ ] `StringTableMetaLanguage::GetTreasureMetaLetters` · 00656be0 · legions 00605530
+- [x] `StringTableMetaLanguage::IsEscapeChar` · 00656b20 · legions 00605470 — ac2-db string_meta_text / string_state (CRT C locale classes)
+- [x] `StringTableMetaLanguage::IsNumberSingular` · 00656b50 — ac2-db string_meta_text / string_state (CRT C locale classes)
+- [x] `StringTableMetaLanguage::GetMaleMetaLetters` · 00656b80 — ac2-db string_meta_text / string_state (CRT C locale classes)
+- [x] `StringTableMetaLanguage::GetFemaleMetaLetters` · 00656bb0 — ac2-db string_meta_text / string_state (CRT C locale classes)
+- [x] `StringTableMetaLanguage::GetTreasureMetaLetters` · 00656be0 · legions 00605530 — ac2-db string_meta_text / string_state (CRT C locale classes)
 
 ### PStringBase<unsigned_short>
-- [ ] `PStringBase<unsigned_short>::SetAtIndex` · 00656c40 · legions 00605590
+- [x] `PStringBase<unsigned_short>::SetAtIndex` · 00656c40 · legions 00605590 — ac2-db string_meta_text / string_state (CRT C locale classes)
 
 ### PSUtils
-- [ ] `PSUtils::TrimExcessSpaces` · 00656cb0 · legions 00605600
+- [x] `PSUtils::TrimExcessSpaces` · 00656cb0 · legions 00605600 — ac2-db string_meta_text / string_state (CRT C locale classes)
 
 ### StringTableMetaLanguage
-- [ ] `StringTableMetaLanguage::TrimExcessSpaces` · 00656ea0 · legions 006057f0
-- [ ] `StringTableMetaLanguage::CapitalizeFirstLetter` · 00656ee0 · legions 00605830
-- [ ] `StringTableMetaLanguage::RetrieveMetaLetters` · 00656fd0 · legions 00605920
-- [x] `StringTableMetaLanguage::StripMetaLetters` · 006570f0 · legions 00605a40 — ac2-script glue::string_text (tables via ScriptData::string_table)
-- [x] `StringTableMetaLanguage::EscapeString` · 006571c0 · legions 00605b10 — ac2-script glue
-- [x] `StringTableMetaLanguage::UnescapeString` · 006572d0 · legions 00605c20 — ac2-script glue::string_text (tables via ScriptData::string_table)
-- [ ] `StringTableMetaLanguage::ApplyMetaTagsToName` · 006573f0 · legions 00605d40
+- [x] `StringTableMetaLanguage::TrimExcessSpaces` · 00656ea0 · legions 006057f0 — ac2-db string_meta_text / string_state (CRT C locale classes)
+- [x] `StringTableMetaLanguage::CapitalizeFirstLetter` · 00656ee0 · legions 00605830 — ac2-db string_meta_text / string_state (CRT C locale classes)
+- [x] `StringTableMetaLanguage::RetrieveMetaLetters` · 00656fd0 · legions 00605920 — ac2-db string_meta_text / string_state (CRT C locale classes)
+- [x] `StringTableMetaLanguage::StripMetaLetters` · 006570f0 · legions 00605a40 — ac2-db string_meta_text / string_state (CRT C locale classes)
+- [x] `StringTableMetaLanguage::EscapeString` · 006571c0 · legions 00605b10 — ac2-db string_meta_text / string_state (CRT C locale classes)
+- [x] `StringTableMetaLanguage::UnescapeString` · 006572d0 · legions 00605c20 — ac2-db string_meta_text / string_state (CRT C locale classes)
+- [x] `StringTableMetaLanguage::ApplyMetaTagsToName` · 006573f0 · legions 00605d40 — ac2-db string_meta_text / string_state (CRT C locale classes)
 
-## `portal/shared/src/stringtable/stringinfo.cpp.c` (16/56)
+## `portal/shared/src/stringtable/stringinfo.cpp.c` (20/56)
 
 ### StringInfoData
 - [ ] `StringInfoData::operator==` · 00650880
@@ -959,22 +959,22 @@ Legend and workflow: [README](README.md).
 
 ### StringInfo
 - [x] `StringInfo::SetTableID` · 006508d0 · legions 005ffba0 — ac2-script glue::string_text (tables via ScriptData::string_table)
-- [ ] `StringInfo::ApplyMetasToPlayerName` · 00650900 · legions 005ffbd0
-- [ ] `StringInfo::ReportError` · 00650920
+- [x] `StringInfo::ApplyMetasToPlayerName` · 00650900 · legions 005ffbd0 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
+- [-] `StringInfo::ReportError` · 00650920 — logging only
 - [x] `StringInfo::SetTableEnum` · 00650a50 · legions 005ffc10 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [x] `StringInfo::SetStringIDandTableEnum` · 00650a90 · legions 005ffc50 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `StringInfo::SetStringIDandTableID` · 00650ad0 · legions 005ffc90 — ac2-script glue::string_info (lookups via ScriptData)
 - [ ] `StringInfo::operator%` · 00650b40 · legions 005ffd00
 - [x] `StringInfo::SetTableName` · 00650b90 · legions 005ffd50 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `StringInfo::SetStringIDandTableName` · 00650c50 · legions 005ffdf0 — ac2-script glue::string_info (lookups via ScriptData)
-- [x] `StringInfo::GetString` · 00650c70 · legions 005ffe10 — ac2-script glue::string_text (tables via ScriptData::string_table)
-- [x] `StringInfo::GetStringWithMetaTags` · 00650ce0 · legions 005ffe80 — ac2-script glue::string_text (tables via ScriptData::string_table)
-- [x] `StringInfo::InqString` · 00650d00 · legions 005ffea0 — ac2-script glue::string_text (tables via ScriptData::string_table)
+- [x] `StringInfo::GetString` · 00650c70 · legions 005ffe10 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
+- [x] `StringInfo::GetStringWithMetaTags` · 00650ce0 · legions 005ffe80 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
+- [x] `StringInfo::InqString` · 00650d00 · legions 005ffea0 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
 - [ ] `StringInfo::InqStringTableFile` · 00650da0
 - [x] `StringInfo::SetLiteralValue` · 00650e30 · legions 005fffd0 — ac2-script glue::string_info (lookups via ScriptData)
 - [ ] `StringInfo::GetLiteralValue` · 00650ef0 · legions 00600090
-- [ ] `StringInfo::SetVarInTable` · 00651000 · legions 006001a0
-- [~] `StringInfo::GetLogString` · 00651220 · legions 00600410 — ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
+- [x] `StringInfo::SetVarInTable` · 00651000 · legions 006001a0 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
+- [x] `StringInfo::GetLogString` · 00651220 · legions 00600410 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
 - [-] `StringInfo::FromFileNode` · 00651390 · legions 00600580 — text source format (admin tools)
 - [-] `StringInfo::FromFileNode` · 006515c0 · legions 006007b0 — text source format (admin tools)
 - [-] `StringInfo::ToFileNode` · 00651620 — text source format (admin tools)
@@ -983,7 +983,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StringInfo::GetSubPrivateIDs` · 006518f0 · legions 006009e0
 - [ ] `StringInfo::GetPackSize` · 006519d0 · legions 00600aa0
 - [x] `StringInfo::Pack` · 00651b20 · legions 00600bf0
-- [~] `StringInfo::InqStringInternal` · 00651dd0 · legions 00600ea0 — ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
+- [x] `StringInfo::InqStringInternal` · 00651dd0 · legions 00600ea0 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
 - [ ] `StringInfo::ClearVars` · 00651fb0 · legions 00601080
 - [x] `StringInfo::Reset` · 00652070 · legions 00601140 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `StringInfo::operator==` · 00652080 · legions 00601150 — ac2-script glue::string_text (tables via ScriptData::string_table)
@@ -1063,57 +1063,57 @@ Legend and workflow: [README](README.md).
 ### SID_FormattedLInt
 - [ ] `SID_FormattedLInt::operator==` · 00656640
 
-## `portal/shared/src/stringtable/stringstate.cpp.c` (0/30)
+## `portal/shared/src/stringtable/stringstate.cpp.c` (19/30)
 
 ### StringStateInfo
-- [ ] `StringStateInfo::GetNumDecDigits` · 00653200 · legions 006022d0
-- [ ] `StringStateInfo::GetLeadingZero` · 00653220 · legions 006022f0
-- [ ] `StringStateInfo::GetBase` · 00653240 · legions 00602310
+- [x] `StringStateInfo::GetNumDecDigits` · 00653200 · legions 006022d0 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+- [x] `StringStateInfo::GetLeadingZero` · 00653220 · legions 006022f0 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+- [x] `StringStateInfo::GetBase` · 00653240 · legions 00602310 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
 - [ ] `StringStateInfo::GetTopGoreLevel` · 00653260 · legions 00602330
 - [ ] `StringStateInfo::GetTopBloodLevel` · 006532a0 · legions 00602370
-- [ ] `StringStateInfo::GetGroupingSize` · 006532e0 · legions 006023b0
-- [ ] `StringStateInfo::IsNumberSingular` · 00653300
+- [x] `StringStateInfo::GetGroupingSize` · 006532e0 · legions 006023b0 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+- [x] `StringStateInfo::IsNumberSingular` · 00653300 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
 - [ ] `StringStateInfo::InqIMEAppearance` · 00653370 · legions 00602440
-- [ ] `StringStateInfo::Startup` · 00653430 · legions 00602500
+- [x] `StringStateInfo::Startup` · 00653430 · legions 00602500 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
 - [ ] `StringStateInfo::SetTopGoreLevelOverride` · 00653480 · legions 00602550
 - [ ] `StringStateInfo::SetTopBloodColorOverride` · 00653490 · legions 00602560
 
 ### StringState
-- [ ] `StringState::GetPackSize` · 006534a0 · legions 00602570
+- [x] `StringState::GetPackSize` · 006534a0 · legions 00602570 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
 - [ ] `StringState::Pack` · 006534d0 · legions 006025a0
-- [ ] `StringState::UnPack` · 00653510 · legions 006025e0
+- [x] `StringState::UnPack` · 00653510 · legions 006025e0 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
 
 ### StringStateInfo
-- [ ] `StringStateInfo::Shutdown` · 00653530 · legions 00602600
+- [-] `StringStateInfo::Shutdown` · 00653530 · legions 00602600 — Rust ownership
 
 ### StringState
-- [ ] `StringState::StringState` · 00653570 · legions 00602640
-- [ ] `StringState::GetDBOType` · 00653650
+- [x] `StringState::StringState` · 00653570 · legions 00602640 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+- [x] `StringState::GetDBOType` · 00653650 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
 - [-] `StringState::GetPackSize` · 00653670 — inline copy of 006534a0
 - [ ] `StringState::Pack` · 00653680
-- [ ] `StringState::UnPack` · 00653690
-- [ ] `StringState::~StringState` · 006536a0 · legions 00602770
+- [x] `StringState::UnPack` · 00653690 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+- [-] `StringState::~StringState` · 006536a0 · legions 00602770 — Rust ownership
 
 ### StringStateInfo
-- [ ] `StringStateInfo::GetNumerals` · 006537d0 · legions 006028a0
-- [ ] `StringStateInfo::GetGroupingSeperator` · 00653820 · legions 006028f0
-- [ ] `StringStateInfo::GetDecimalSeperator` · 00653870 · legions 00602940
-- [ ] `StringStateInfo::GetNegNumFormat` · 006538c0 · legions 00602990
-- [ ] `StringStateInfo::GetMaleMetaLetters` · 00653910
-- [ ] `StringStateInfo::GetFemaleMetaLetters` · 00653960
-- [ ] `StringStateInfo::GetTreasureMetaLetters` · 006539c0 · legions 00602a90
+- [x] `StringStateInfo::GetNumerals` · 006537d0 · legions 006028a0 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+- [x] `StringStateInfo::GetGroupingSeperator` · 00653820 · legions 006028f0 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+- [x] `StringStateInfo::GetDecimalSeperator` · 00653870 · legions 00602940 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+- [x] `StringStateInfo::GetNegNumFormat` · 006538c0 · legions 00602990 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+- [x] `StringStateInfo::GetMaleMetaLetters` · 00653910 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+- [x] `StringStateInfo::GetFemaleMetaLetters` · 00653960 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+- [x] `StringStateInfo::GetTreasureMetaLetters` · 006539c0 · legions 00602a90 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
 
 ### StringState
 - [ ] `StringState::Allocate` · 00653a90
-- [ ] `StringState::StreamPack` · 00653ac0 · legions 00602b90
+- [x] `StringState::StreamPack` · 00653ac0 · legions 00602b90 — ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
 
-## `portal/shared/src/stringtable/stringtable.cpp.c` (3/28)
+## `portal/shared/src/stringtable/stringtable.cpp.c` (10/28)
 
 ### StringTableString
 - [ ] `StringTableString::Destroy` · 00653d60 · legions 00602e30
 
 ### StringTable
-- [ ] `StringTable::FloatToString` · 00653e00 · legions 00602ed0
+- [x] `StringTable::FloatToString` · 00653e00 · legions 00602ed0 — ac2-db string_number (from the x87 assembly; Legions identical)
 - [ ] `StringTable::GetPackSize` · 00654260
 - [ ] `StringTable::Pack` · 006542f0
 
@@ -1131,10 +1131,10 @@ Legend and workflow: [README](README.md).
 ### StringTable
 - [ ] `StringTable::~StringTable` · 00654870 · legions 00603940
 - [ ] `StringTable::GetDBOType` · 00654900
-- [ ] `StringTable::IntToString` · 00654910 · legions 006039e0
-- [ ] `StringTable::UIntToString` · 00654940 · legions 00603a10
-- [ ] `StringTable::LIntToString` · 00654980 · legions 00603a50
-- [ ] `StringTable::ULIntToString` · 006549b0 · legions 00603a80
+- [x] `StringTable::IntToString` · 00654910 · legions 006039e0 — ac2-db string_number (from the x87 assembly; Legions identical)
+- [x] `StringTable::UIntToString` · 00654940 · legions 00603a10 — ac2-db string_number (from the x87 assembly; Legions identical)
+- [x] `StringTable::LIntToString` · 00654980 · legions 00603a50 — ac2-db string_number (from the x87 assembly; Legions identical)
+- [x] `StringTable::ULIntToString` · 006549b0 · legions 00603a80 — ac2-db string_number (from the x87 assembly; Legions identical)
 
 ### StringTableString
 - [ ] `StringTableString::GetPackSize` · 00654a30
@@ -1148,27 +1148,27 @@ Legend and workflow: [README](README.md).
 - [ ] `StringTableString::CopyInto` · 00654f50 · legions 00604020
 
 ### StringTable
-- [ ] `StringTable::GetString` · 00655170
-- [ ] `StringTable::GetRawString` · 00655260
-- [ ] `StringTable::GetString` · 00655420
-- [ ] `StringTable::SaveToFile` · 006557b0
+- [x] `StringTable::GetString` · 00655170 — ac2-db string_info (plain_entry / render_entry; Legions vtable +0x5C/+0x58)
+- [-] `StringTable::GetRawString` · 00655260 — admin 7148 only, not in Legions 7160
+- [x] `StringTable::GetString` · 00655420 — ac2-db string_info (plain_entry / render_entry; Legions vtable +0x5C/+0x58)
+- [-] `StringTable::SaveToFile` · 006557b0 — admin 7148 only, not in Legions 7160
 - [ ] `StringTable::StringTable` · 00655d70 · legions 006046c0
 - [x] `StringTable::UnPack` · 00655de0 — ac2-db string_table.rs: all 10,598 Legions tables decode
 - [ ] `StringTable::CopyInto` · 00655f90
 - [ ] `StringTable::Allocate` · 00656170
 
-## `portal/shared/src/stringtable/stringvartable.cpp.c` (0/9)
+## `portal/shared/src/stringtable/stringvartable.cpp.c` (8/9)
 
 ### StringVarTable
-- [ ] `StringVarTable::StringVarTable` · 00656690 · legions 00604fe0
-- [ ] `StringVarTable::SetVariable` · 00656700 · legions 00605050
-- [ ] `StringVarTable::SetVariableFromInt` · 006567d0 · legions 00605120
-- [ ] `StringVarTable::SetVariableFromUInt` · 00656840 · legions 00605190
-- [ ] `StringVarTable::SetVariableFromLInt` · 006568b0 · legions 00605200
-- [ ] `StringVarTable::SetVariableFromULInt` · 00656930 · legions 00605280
-- [ ] `StringVarTable::SetVariableFromFloat` · 006569b0 · legions 00605300
-- [ ] `StringVarTable::GetVariable` · 00656a30 · legions 00605380
-- [ ] `StringVarTable::~StringVarTable` · 00656af0 · legions 00605440
+- [x] `StringVarTable::StringVarTable` · 00656690 · legions 00604fe0 — ac2-db string_info (StringVarTable map)
+- [x] `StringVarTable::SetVariable` · 00656700 · legions 00605050 — ac2-db string_info (StringVarTable map)
+- [x] `StringVarTable::SetVariableFromInt` · 006567d0 · legions 00605120 — ac2-db string_info (StringVarTable map)
+- [x] `StringVarTable::SetVariableFromUInt` · 00656840 · legions 00605190 — ac2-db string_info (StringVarTable map)
+- [x] `StringVarTable::SetVariableFromLInt` · 006568b0 · legions 00605200 — ac2-db string_info (StringVarTable map)
+- [x] `StringVarTable::SetVariableFromULInt` · 00656930 · legions 00605280 — ac2-db string_info (StringVarTable map)
+- [x] `StringVarTable::SetVariableFromFloat` · 006569b0 · legions 00605300 — ac2-db string_info (StringVarTable map)
+- [x] `StringVarTable::GetVariable` · 00656a30 · legions 00605380 — ac2-db string_info (StringVarTable map)
+- [-] `StringVarTable::~StringVarTable` · 00656af0 · legions 00605440 — Rust ownership
 
 ## `portal/shared/src/taboo/tabootable.cpp.c` (0/13)
 

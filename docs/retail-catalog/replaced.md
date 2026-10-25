@@ -1,6 +1,6 @@
 # replaced: Third-party libraries, CRT and container templates replaced by Rust
 
-2058 retail functions: 20 done, 0 partial, 0 to do, 2038 skipped.
+2058 retail functions: 22 done, 0 partial, 0 to do, 2036 skipped.
 Legend and workflow: [README](README.md).
 
 ## `_libraries/ImeUI.lib/ImeUi.obj.c` (0/36)
@@ -1101,10 +1101,10 @@ Legend and workflow: [README](README.md).
 - [-] `FUN_0073dc00` · 0073dc00 · legions 006b9a20 — third-party library
 - [-] `___intel_cpu_indicator_init` · 0073dc60 · legions 006b9a80 — Rust std replaces it
 
-## `_libraries/metalanguage.lib/metalanguage_grammar.obj.c` (0/1)
+## `_libraries/metalanguage.lib/metalanguage_grammar.obj.c` (1/1)
 
 ### (free functions)
-- [-] `stringmeta_parse` · 00659350 · legions 00607cc0 — third-party library
+- [x] `stringmeta_parse` · 00659350 · legions 00607cc0 — ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
 
 ## `_libraries/msvc_crt/atonexit.c.c` (0/2)
 
@@ -4912,10 +4912,10 @@ Legend and workflow: [README](README.md).
 ### SmartArray<PStringBase<unsigned_short>_>
 - [-] `SmartArray<PStringBase<unsigned_short>_>::WhatNum` · 006575a0 · legions 00605ef0 — Rust std replaces it
 
-## `portal/shared/src/stringtable/metalanguage/metalanguage_tokenizer.cpp.c` (0/1)
+## `portal/shared/src/stringtable/metalanguage/metalanguage_tokenizer.cpp.c` (1/1)
 
 ### (free functions)
-- [-] `_stringmeta_lex` · 00659d80 · legions 006086f0 — Rust std replaces it
+- [x] `_stringmeta_lex` · 00659d80 · legions 006086f0 — ac2-db string_meta_lex
 
 ## `portal/shared/src/stringtable/metalanguage/metalanguage_utils.cpp.c` (0/1)
 

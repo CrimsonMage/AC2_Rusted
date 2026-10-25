@@ -34,10 +34,10 @@ scripts/retail_catalog.py status
 
 | Crate | Functions | Done | Partial | To do | Skipped |
 |---|---:|---:|---:|---:|---:|
-| [ac2-core](ac2-core.md) | 589 | 14 | 0 | 171 | 404 |
+| [ac2-core](ac2-core.md) | 589 | 16 | 0 | 169 | 404 |
 | [ac2-math](ac2-math.md) | 426 | 131 | 8 | 248 | 39 |
 | [ac2-dat](ac2-dat.md) | 507 | 22 | 4 | 476 | 5 |
-| [ac2-db](ac2-db.md) | 633 | 46 | 13 | 535 | 39 |
+| [ac2-db](ac2-db.md) | 633 | 123 | 11 | 451 | 48 |
 | [ac2-net](ac2-net.md) | 556 | 212 | 13 | 331 | 0 |
 | [ac2-weenie](ac2-weenie.md) | 1904 | 196 | 53 | 1649 | 6 |
 | [ac2-anim](ac2-anim.md) | 532 | 107 | 16 | 373 | 36 |
@@ -52,6 +52,6 @@ scripts/retail_catalog.py status
 | [ac2-script](ac2-script.md) | 2468 | 1123 | 80 | 1187 | 78 |
 | [ac2-gameplay](ac2-gameplay.md) | 499 | 57 | 8 | 425 | 9 |
 | [ac2-audio](ac2-audio.md) | 367 | 0 | 0 | 350 | 17 |
-| [replaced](replaced.md) | 2058 | 20 | 0 | 0 | 2038 |
+| [replaced](replaced.md) | 2058 | 22 | 0 | 0 | 2036 |
 
 Data formats ([data-formats.md](data-formats.md)): 81 `DBObj` types, 1 done, 0 partial, 80 to do.

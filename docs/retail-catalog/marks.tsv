@@ -2656,29 +2656,115 @@ key	status	note
 0064e640	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 0064e660	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 006508d0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00650900	x	ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
+00650920	-	logging only
 00650a50	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00650a90	x	ac2-script glue::string_info (lookups via ScriptData)
 00650ad0	x	ac2-script glue::string_info (lookups via ScriptData)
 00650b90	x	ac2-script glue::string_info (lookups via ScriptData)
 00650c50	x	ac2-script glue::string_info (lookups via ScriptData)
-00650c70	x	ac2-script glue::string_text (tables via ScriptData::string_table)
-00650ce0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
-00650d00	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00650c70	x	ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
+00650ce0	x	ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
+00650d00	x	ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
 00650e30	x	ac2-script glue::string_info (lookups via ScriptData)
-00651220	~	ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
+00651000	x	ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
+00651220	x	ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
 00651730	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00651b20	x	
-00651dd0	~	ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
+00651dd0	x	ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
 00652070	x	ac2-script glue::string_info (lookups via ScriptData)
 00652080	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 006521d0	x	ac2-script glue::string_info (lookups via ScriptData)
 00652db0	x	ac2-script reference/native unpack
+00653200	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+00653220	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+00653240	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+006532e0	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+00653300	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+00653430	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+006534a0	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+00653510	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+00653530	-	Rust ownership
+00653570	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+00653650	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+00653690	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+006536a0	-	Rust ownership
+006537d0	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+00653820	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+00653870	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+006538c0	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+00653910	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+00653960	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+006539c0	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+00653ac0	x	ac2-db string_state (StringState decode, 0x58000000 via enum 0x40000001)
+00653e00	x	ac2-db string_number (from the x87 assembly; Legions identical)
+00654910	x	ac2-db string_number (from the x87 assembly; Legions identical)
+00654940	x	ac2-db string_number (from the x87 assembly; Legions identical)
+00654980	x	ac2-db string_number (from the x87 assembly; Legions identical)
+006549b0	x	ac2-db string_number (from the x87 assembly; Legions identical)
 00654cb0	x	ac2-db string_table.rs: all 10,598 Legions tables decode
 00654f10	x	ac2-db string_table.rs: all 10,598 Legions tables decode
+00655170	x	ac2-db string_info (plain_entry / render_entry; Legions vtable +0x5C/+0x58)
+00655260	-	admin 7148 only, not in Legions 7160
+00655420	x	ac2-db string_info (plain_entry / render_entry; Legions vtable +0x5C/+0x58)
+006557b0	-	admin 7148 only, not in Legions 7160
 00655de0	x	ac2-db string_table.rs: all 10,598 Legions tables decode
-006570f0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
-006571c0	x	ac2-script glue
-006572d0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+00656690	x	ac2-db string_info (StringVarTable map)
+00656700	x	ac2-db string_info (StringVarTable map)
+006567d0	x	ac2-db string_info (StringVarTable map)
+00656840	x	ac2-db string_info (StringVarTable map)
+006568b0	x	ac2-db string_info (StringVarTable map)
+00656930	x	ac2-db string_info (StringVarTable map)
+006569b0	x	ac2-db string_info (StringVarTable map)
+00656a30	x	ac2-db string_info (StringVarTable map)
+00656af0	-	Rust ownership
+00656b20	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+00656b50	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+00656b80	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+00656bb0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+00656be0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+00656c40	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+00656cb0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+00656ea0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+00656ee0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+00656fd0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+006570f0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+006571c0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+006572d0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+006573f0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+00657600	x	ac2-db string_meta_render (render_string; Legions code identical)
+006576c0	x	ac2-db string_meta_render (render_string; Legions code identical)
+00657720	x	ac2-db string_meta_render (render_string; Legions code identical)
+00657780	x	ac2-db string_meta_render (render_string; Legions code identical)
+006577d0	-	Rust ownership (Vec/drop)
+00657860	x	ac2-db string_meta_render (render_string; Legions code identical)
+00657930	-	Rust ownership (Vec/drop)
+00657960	x	ac2-db string_meta_render (render_string; Legions code identical)
+00658660	x	ac2-db string_meta_render (render_string; Legions code identical)
+00658b00	x	ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+00658b10	x	ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+00658b30	x	ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+00658ba0	x	ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+00658bf0	x	ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+00658c70	-	Rust ownership (Vec/drop)
+00658cd0	x	ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+00658cf0	x	ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+00658d50	-	Rust ownership (Vec/drop)
+00658db0	x	ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+00658df0	x	ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+00658e40	x	ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+00658ea0	x	ac2-db string_meta_parse; Legions adds the + flag for non-negative numbers
+006592b0	x	ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+006592f0	x	ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+00659350	x	ac2-db string_meta_parse (grammar checked against the bison tables, identical in Legions)
+00659920	x	ac2-db string_meta_lex
+00659960	x	ac2-db string_meta_lex
+00659970	x	ac2-db string_meta_lex
+00659c10	x	ac2-db string_meta_lex
+00659c80	x	ac2-db string_meta_lex
+00659d80	x	ac2-db string_meta_lex
+0065a300	x	ac2-db string_meta_lex
+0065a310	x	ac2-db string_meta_lex
 0065a4a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 0065a510	_	
 0065a580	_	
@@ -2688,6 +2774,8 @@ key	status	note
 0065b3c0	x	
 0065b480	x	
 0065b5b0	x	
+0065ccc0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+0065cd30	x	ac2-db string_meta_text / string_state (CRT C locale classes)
 0065f3d0	x	
 0065fee0	x	
 0065ff80	x	
@@ -2892,6 +2980,7 @@ key	status	note
 006b79f0	~	ac2-script wstate DID formulas / ByteStream::package_id
 006b7aa0	x	ac2-script WLib/WState/ByteStream decode
 006baa40	_	
+006bc600	x	ac2-db string_meta_text / string_state (CRT C locale classes)
 006bc900	x	
 006bc940	x	
 006bc960	x	
