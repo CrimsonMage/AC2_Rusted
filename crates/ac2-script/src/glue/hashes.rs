@@ -148,7 +148,7 @@ impl NativeKeys for ReferenceTable {
 
 /// Runs `f` on `this` as a hash, with the reference table for native keys. The table is taken
 /// out of its heap object for the call (a hash used as its own key hashes to 0 either way).
-fn with_hash<R>(
+pub(crate) fn with_hash<R>(
     vm: &mut Vm,
     this: u32,
     f: impl FnOnce(&mut ScriptHash, &ReferenceTable, u32) -> R,

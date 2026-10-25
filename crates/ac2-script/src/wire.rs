@@ -11,9 +11,9 @@
 use ac2_net::protocol as net;
 
 use crate::native::{
-    behavior_defaults, behavior_pack_bitfield, bucket_size_index, ntype, MissileParameters,
-    NativeObject, RandomSelectionTable, RefKey, ScriptHash, ScriptList, ScriptMultiHash,
-    StringInfo, StringVar, StringVarValue,
+    behavior_defaults, behavior_pack_bitfield, bucket_size_index, ntype, GameplayOptions,
+    MissileParameters, NativeObject, RandomSelectionTable, RefKey, ScriptHash, ScriptList,
+    ScriptMultiHash, StringInfo, StringVar, StringVarValue,
 };
 use crate::reference::{HeapObject, PackedEntry, PackedReference};
 
@@ -138,6 +138,9 @@ pub fn native_from_net(native: &net::NativeObject) -> NativeObject {
             NativeObject::MissileParameters(MissileParameters::from_packed(m.bitfield, &m.words))
         }
         W::BehaviorParams(p) => NativeObject::BehaviorParams(Box::new(behavior_from_net(p))),
+        W::GameplayOptionsProfile(p) => {
+            NativeObject::GameplayOptions(Box::new(GameplayOptions::from_net(p)))
+        }
         W::RandomSelectionTable(t) => NativeObject::RandomSelectionTable(RandomSelectionTable {
             unused: t.unused.clone(),
             used: t.used.clone(),
@@ -191,6 +194,7 @@ pub fn native_to_net(
             p.bitfield = behavior_pack_bitfield(&p);
             W::BehaviorParams(Box::new(p))
         }
+        NativeObject::GameplayOptions(p) => W::GameplayOptionsProfile(Box::new(p.to_net())),
         NativeObject::RandomSelectionTable(t) => {
             W::RandomSelectionTable(net::RandomSelectionTable {
                 unused: t.unused.clone(),

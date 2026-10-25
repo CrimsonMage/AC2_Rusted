@@ -7,6 +7,9 @@ use crate::vm::{tag, Context, EFuns, InterpStatus, Vm};
 
 pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x007F_000A, get_internal_weenie_object);
+    // `GetExternalWeenieObject` (admin 0x004BB580, unnamed in the efun table): the same code;
+    // Legions binds 0x7F000A and 0x7F000B to one function (0x004B0680).
+    efuns.register(0x007F_000B, get_internal_weenie_object);
     efuns.register(0x007F_0040, is_the_player);
 }
 

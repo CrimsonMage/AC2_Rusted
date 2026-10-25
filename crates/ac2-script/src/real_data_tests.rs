@@ -155,6 +155,7 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::MissileParameters(_) => "MissileParameters",
         NativeObject::BehaviorParams(_) => "BehaviorParams",
         NativeObject::RandomSelectionTable(_) => "RandomSelectionTable",
+        NativeObject::GameplayOptions(_) => "GameplayOptionsProfile",
         NativeObject::ListIter { .. } => "list iterator",
         NativeObject::HashIter { .. } => "hash iterator",
         NativeObject::MultiHash(_) => "multi-hash",

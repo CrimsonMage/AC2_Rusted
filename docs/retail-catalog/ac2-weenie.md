@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 375 done, 193 partial, 1330 to do, 6 skipped.
+1904 retail functions: 377 done, 193 partial, 1328 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (25/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (26/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -613,7 +613,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::RecipeAdaptorListToRList` · 00456900 · legions 00457500
 - [ ] `ggmCWInterface::IgnoredListToRList` · 004569a0 · legions 00525e50
 - [ ] `ggmCWInterface::EffectUINodeListToRList` · 00456a40 · legions 004575a0
-- [ ] `ggmCWInterface::ShortcutInfoArrayToRArray` · 00456ae0 · legions 00457640
+- [x] `ggmCWInterface::ShortcutInfoArrayToRArray` · 00456ae0 · legions 00457640 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [ ] `ggmCWInterface::GUNUserStatusListToRList` · 00456b80 · legions 004576e0
 
 ### PHashTable<unsigned___int64,unsigned_long>
@@ -2262,7 +2262,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWDistributor::CallEFun_GetMyPackageID` · 004bc700
 - [ ] `gCWDistributor::CallEFun_GetProcessID` · 004bc770
 
-## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (4/32)
+## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (5/32)
 
 ### gCWInterface
 - [ ] `gCWInterface::Resume_Sleep` · 004bb120 · legions 004b0340
@@ -2272,7 +2272,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWInterface::CallEFun_AddShellCmdByStringID` · 004bb3f0
 - [ ] `gCWInterface::CallEFun_AddShellHelp` · 004bb480
 - [ ] `gCWInterface::CallEFun_AddShellHelpByStringID` · 004bb500
-- [ ] `gCWInterface::CallEFun_GetExternalWeenieObject` · 004bb580
+- [x] `gCWInterface::CallEFun_GetExternalWeenieObject` · 004bb580 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gCWInterface::CallEFun_GetInternalWeenieObject` · 004bb600 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCWInterface::CallEFun_InqStringInfoValue` · 004bb680
 - [x] `gCWInterface::CallEFun_IsThePlayer` · 004bb7a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)

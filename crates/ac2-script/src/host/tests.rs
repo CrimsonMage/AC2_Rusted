@@ -137,6 +137,54 @@ fn run_efun(vm: &mut Vm, id: u32, args: &[u32], this: u32) -> InterpStatus {
     vm.run_efun(id, &mut ctx)
 }
 
+/// Runs efun `id` and returns its frame slot `ret` (word 2 is the first argument).
+fn efun_result(vm: &mut Vm, id: u32, args: &[u32], this: u32, ret: usize) -> u32 {
+    let mut ctx = Context::new(1, None);
+    ctx.enter(0).unwrap();
+    ctx.push(0, tag::INT).unwrap();
+    for &a in args.iter().rev() {
+        ctx.push(a, tag::INT).unwrap();
+    }
+    ctx.push(this, tag::REF).unwrap();
+    let fp = ctx.sp;
+    assert_eq!(vm.run_efun(id, &mut ctx), InterpStatus::Success);
+    ctx.data[fp - ret]
+}
+
+/// `gGameplayOptionsProfile`: the "show" bits of hidden things invert, the alias list is
+/// "alias [%s] == [%s]\n" per alias, and a chat window without a text type answers 0x10.
+#[test]
+fn the_options_profile_glue_follows_legions() {
+    use crate::native::{ntype, NativeObject};
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let vm = host.vm_mut();
+    let p = vm.refs.create_native(
+        ntype::GAMEPLAY_OPTIONS_PROFILE,
+        NativeObject::new_empty(ntype::GAMEPLAY_OPTIONS_PROFILE),
+    );
+    assert_eq!(efun_result(vm, 0x009B_0056, &[], p, 2), 1); // GetShowPetUI
+    efun_result(vm, 0x009B_0055, &[0x100], p, 2); // SetShowPetUI(low byte 0)
+    assert_eq!(efun_result(vm, 0x009B_0056, &[], p, 2), 0);
+    assert_eq!(efun_result(vm, 0x009B_002D, &[], p, 2), 0x1_0000); // GetBitfield
+    let (a, b) = (
+        vm.new_wstring("hi".encode_utf16().collect()),
+        vm.new_wstring("/say hello".encode_utf16().collect()),
+    );
+    assert_eq!(efun_result(vm, 0x009B_0001, &[a, b], p, 4), 1); // SetAlias
+    let list = efun_result(vm, 0x009B_0007, &[], p, 2); // BuildAliasList
+    assert_eq!(
+        String::from_utf16_lossy(vm.wstring(list).unwrap()),
+        "alias [hi] == [/say hello]\n"
+    );
+    assert_eq!(efun_result(vm, 0x009B_0054, &[9], p, 3), 0x10);
+    assert_eq!(efun_result(vm, 0x009B_0054, &[2], p, 3), 0x8_0000);
+    // AddFilter / RemoveFilter on window 2.
+    efun_result(vm, 0x009B_001F, &[2, 0x3], p, 4);
+    efun_result(vm, 0x009B_0020, &[2, 0x8_0001], p, 4);
+    assert_eq!(efun_result(vm, 0x009B_0022, &[2], p, 3), 0x2);
+}
+
 /// `CM_*` notices without an ac2-weenie type come out decoded by their signature; ones with a
 /// type come out typed.
 #[test]
@@ -293,47 +341,92 @@ fn the_character_gen_system_answers_from_its_state() {
     assert!(phys.is_some_and(|d| d != 0));
 }
 
+/// The player's process (`CPlayer`, from its entity's WState) takes the login message
+/// (`WM_Player` 0x27, `CPlayer` 0x65) as the server double sends it - the options profile, the
+/// equipment and the contents - and runs it to the end, raising the panels' notices.
 #[test]
-#[ignore]
-fn probe_player_init() {
+fn init_player_runs_to_its_end() {
     let Some(mut host) = legions_host() else {
         return;
     };
+    let player = 0x5000_0001;
     let pid = host.vm().program.package_id("CPlayer").expect("CPlayer");
-    let state = host.vm().data().wstate(0x7100_110F);
-    eprintln!(
-        "0x7100110F: {:?}",
-        state.as_ref().map(|s| (
-            s.pid,
-            s.references
-                .as_ref()
-                .map(|r| r.ids.len())
-                .map_err(|e| e.context)
-        ))
-    );
-    eprintln!(
-        "db type of 0x4700110F: {:x?}",
-        host.vm().data().db_type(0x4700_110F)
-    );
-    assert!(host.create_weenie(0x5000_0001, pid, 0x4700_110F));
-    host.set_player(0x5000_0001);
-    host.set_qualities(0x5000_0001, Default::default());
-    let args = vec![PackValue::Int(0); 14];
-    let outcome = host
-        .dispatch(0x5000_0001, script_function::INIT_PLAYER, &args)
+    assert!(host.create_weenie(player, pid, 0x4700_110F));
+    host.set_player(player);
+    host.set_qualities(player, Default::default());
+    let outcome = init_player(&mut host, player);
+    assert_eq!(outcome.status, InterpStatus::Terminated, "{outcome:?}");
+    let notices = host.take_notices();
+    assert!(notices
+        .iter()
+        .any(|n| matches!(n, GameplayNotice::UpdateHeroStatus { .. })));
+    let raised: Vec<_> = host.take_script_notices().iter().map(|n| n.name).collect();
+    assert!(raised.contains(&"CM_Character::SendNotice_UpdateSkillPanel"));
+    assert!(host.take_dropped().is_empty());
+}
+
+fn init_player(host: &mut ScriptHost, player: u64) -> DispatchOutcome {
+    use ac2_net::protocol::{pack_id_list, Equipment, NativeObject as W};
+    let mut args = vec![PackValue::Int(0); 14];
+    args[3] = PackValue::native(W::GameplayOptionsProfile(Box::default()));
+    let equipment = Equipment::from_locations(&[]);
+    args[6] = equipment.first;
+    args[7] = PackValue::Reference(equipment.by_location);
+    args[8] = PackValue::Reference(equipment.by_item);
+    for arg in &mut args[9..12] {
+        *arg = PackValue::Reference(pack_id_list(&[]));
+    }
+    host.dispatch(player, script_function::INIT_PLAYER, &args)
+        .unwrap()
+}
+
+/// After the login message the selection runs on the VM: the UI's `SetSelection` IFun
+/// (0xB40002) raises SelectionChanged and the examination request and tells the server, and
+/// `WM_Player` 0x2C then shows the selected object's info.
+#[test]
+fn the_selection_runs_on_the_vm_after_login() {
+    let Some(mut host) = legions_host() else {
+        return;
+    };
+    let player = 0x5000_0001;
+    let pid = host.vm().program.package_id("CPlayer").expect("CPlayer");
+    assert!(host.create_weenie(player, pid, 0x4700_110F));
+    host.set_player(player);
+    host.set_qualities(player, Default::default());
+    init_player(&mut host, player);
+    host.take_notices();
+    host.take_script_notices();
+    let r = host
+        .call_ifun(player, 0x00B4_0002, &[IFunArg::Long(0x77)])
         .unwrap();
-    eprintln!(
-        "INIT_PLAYER: {outcome:?} ({:?}); notices {:?}; script notices {:?}; calls {:?}",
-        outcome.fault.as_ref().and_then(|f| match f {
-            Fault::UnboundEFun(id) => crate::glue::efun_name(*id),
-            _ => None,
-        }),
+    assert_eq!(r.outcome.status, InterpStatus::Terminated, "{r:?}");
+    let notices = host.take_notices();
+    assert_eq!(notices[0], GameplayNotice::SelectionChanged(0x77));
+    assert!(matches!(
+        &notices[1],
+        GameplayNotice::ExaminationRequestChanged(e) if e.iid == 0x77
+    ));
+    let calls = host.take_server_calls();
+    assert_eq!(calls.len(), 1);
+    assert_eq!(calls[0].args, vec![PackValue::LongInt(0x77)]);
+
+    let info = SelectionInfo {
+        kind: SelectionInfo::CREATURE,
+        cur_health: 40,
+        pk_damage: 0,
+        max_health: 50,
+        cur_vigor: 7,
+        pk_vigor_loss: 0,
+        max_vigor: 9,
+    };
+    let message = ScriptMessage::UpdateSelectionInfo { info, id: 0x77 };
+    let o = host
+        .dispatch(player, message.function(), &message.arguments())
+        .unwrap();
+    assert_eq!(o.status, InterpStatus::Terminated, "{o:?}");
+    assert_eq!(
         host.take_notices(),
-        host.take_script_notices()
-            .iter()
-            .map(|n| n.name)
-            .collect::<Vec<_>>(),
-        host.take_server_calls()
+        vec![GameplayNotice::UpdateSelectionInfo { id: player, info }]
     );
 }
 
