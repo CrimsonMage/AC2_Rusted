@@ -59,6 +59,7 @@ impl HudView {
     ) -> Vec<Command> {
         let messages = std::mem::take(&mut self.player_messages);
         let mut commands = Vec::new();
+        let mut open_examination = false;
         let Some(strings) = self.strings.clone() else {
             return commands;
         };
@@ -77,6 +78,9 @@ impl HudView {
             allegiance,
             vitals,
             dialogs,
+            backpack,
+            toolbar_layout,
+            item_selection,
             ..
         } = self;
         let Some((tree, _)) = hud else {
@@ -119,6 +123,13 @@ impl HudView {
                 let text = |cur, max| ac2_ui::vital_text(&player, cur, max);
                 bar.apply_snapshot(tree, &frame.player_vitals, &text);
             }
+            // `gmInventoryUI::SetupChildren`'s backpack over the player.
+            if let (Some(layout), Some(id)) =
+                (toolbar_layout.as_ref(), frame.player.as_ref().map(|p| p.id))
+            {
+                *item_selection = ac2_ui::InventorySource::selection(&player);
+                *backpack = Some(ac2_ui::BackpackUi::create(tree, layout, &player, id));
+            }
         }
         for event in events {
             let SessionEvent::Notice(notice) = event else {
@@ -129,6 +140,9 @@ impl HudView {
             }
             if let (Some(page), Some(dialogs)) = (allegiance.as_mut(), dialogs.as_mut()) {
                 crate::ui_social::allegiance_notice(page, tree, dialogs, &player, notice);
+            }
+            if let Some(pack) = backpack.as_mut() {
+                crate::ui_inventory::backpack_notice(pack, tree, &player, item_selection, notice);
             }
             if let Some(bar) = vitals.as_mut() {
                 let text = |cur, max| ac2_ui::vital_text(&player, cur, max);
@@ -206,6 +220,9 @@ impl HudView {
             if let Some(bar) = vitals.as_mut() {
                 bar.message(tree, message);
             }
+            if let Some(request) = backpack.as_ref().and_then(|p| p.message(tree, message)) {
+                open_examination |= crate::ui_inventory::item_commands(request, &mut commands);
+            }
             if let (Some(page), Some(dialogs)) = (allegiance.as_mut(), dialogs.as_mut()) {
                 page.message(tree, dialogs, &player, message);
             }
@@ -246,7 +263,6 @@ impl HudView {
                 });
             }
         }
-        let mut open_examination = false;
         if let Some(skills) = skills.as_mut() {
             for request in skills.take_requests() {
                 match request {

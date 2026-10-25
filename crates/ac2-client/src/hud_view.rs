@@ -30,6 +30,11 @@ pub(crate) struct HudView {
     pub(crate) allegiance: Option<ac2_ui::AllegianceUi>,
     pub(crate) fellowship: Option<ac2_ui::FellowshipUi>,
     pub(crate) vitals: Option<ac2_ui::VitalsUi>,
+    /// `gmInventoryUI`'s backpack, made once the player is in the world, over this layout.
+    pub(crate) backpack: Option<ac2_ui::BackpackUi>,
+    pub(crate) toolbar_layout: Option<Arc<ac2_ui::LayoutDesc>>,
+    /// The selection the item slots last saw.
+    pub(crate) item_selection: u64,
     /// The selection info the reticle's meters last took.
     reticle_info: Option<ac2_net::protocol::SelectionInfo>,
     pub(crate) dialogs: Option<ac2_ui::DialogFactory>,
@@ -99,6 +104,9 @@ impl HudView {
             allegiance: None,
             fellowship: None,
             vitals: None,
+            backpack: None,
+            toolbar_layout: None,
+            item_selection: 0,
             reticle_info: None,
             dialogs: None,
             player_messages: Vec::new(),
@@ -239,6 +247,19 @@ impl HudView {
         tree.get(element)?.text()
     }
 
+    /// The backpack's first page: each item and its slot's tooltip.
+    pub(crate) fn backpack_items(&self) -> Vec<(u64, String)> {
+        let (Some((tree, _)), Some(pack)) = (&self.hud, &self.backpack) else {
+            return Vec::new();
+        };
+        pack.packs.first().map_or(Vec::new(), |page| {
+            page.items
+                .iter()
+                .map(|d| (d.item, tree.tooltip_text(d.icon).unwrap_or_default()))
+                .collect()
+        })
+    }
+
     pub(crate) fn allegiance_texts(&self) -> Vec<String> {
         let (Some((tree, _)), Some(page)) = (&self.hud, &self.allegiance) else {
             return Vec::new();
@@ -359,6 +380,7 @@ impl HudView {
                     allegiance,
                     fellowship,
                     vitals,
+                    toolbar_layout,
                     dialogs,
                 },
                 images,
@@ -382,6 +404,7 @@ impl HudView {
                 self.allegiance = allegiance;
                 self.fellowship = fellowship;
                 self.vitals = Some(vitals);
+                self.toolbar_layout = toolbar_layout;
                 self.dialogs = Some(dialogs);
                 self.dirty = true;
             }

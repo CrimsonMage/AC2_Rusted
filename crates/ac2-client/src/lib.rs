@@ -40,6 +40,8 @@ mod targeting;
 #[cfg(feature = "window")]
 mod ui_images;
 #[cfg(feature = "window")]
+mod ui_inventory;
+#[cfg(feature = "window")]
 mod ui_social;
 #[cfg(feature = "window")]
 mod ui_sources;

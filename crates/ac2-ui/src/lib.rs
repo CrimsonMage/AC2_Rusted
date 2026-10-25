@@ -7,6 +7,7 @@
 //! from them (`UIElementManager`, `UIElement`) and its software compositor (`UIRegion::DrawHere`).
 
 mod allegiance;
+mod backpack;
 mod button;
 mod camera_ui;
 mod chat;
@@ -21,6 +22,7 @@ mod fellowship;
 mod hud;
 mod input;
 mod interpreter;
+mod item_display;
 mod layout;
 mod layout_media;
 mod list_box;
@@ -52,6 +54,7 @@ mod ui_string;
 mod vitals;
 
 pub use allegiance::{AllegianceRequest, AllegianceSource, AllegianceUi};
+pub use backpack::BackpackUi;
 pub use camera_ui::{CameraUi, CameraUiEffect};
 pub use chat::{
     ChatHistory, ChatRequest, ChatSettings, ChatStrings, ChatUi, Modifiers, CHAT_STRING_TABLE,
@@ -80,6 +83,7 @@ pub use interpreter::{
     ActionInfo, ActionInterpreter, Dispatch, CLASS_BEHAVIOR, CLASS_CAMERA, CLASS_MODIFIER,
     CLASS_MOVEMENT, CLASS_UI, TOGGLE_HOLD, TOGGLE_ONE_SHOT, TOGGLE_TOGGLE,
 };
+pub use item_display::{ContainerDisplay, InventorySource, ItemDisplay, ItemRequest, ItemSlot};
 pub use layout::{
     load_layout, AttributeDesc, AttributeValue, ElementDesc, LayoutDesc, MediaDesc, Rect,
     StateDesc, TransitionData, TransitionDesc, LAYOUT_FIRST, LAYOUT_LAST,
@@ -118,6 +122,8 @@ pub use vitals::{
 
 #[cfg(test)]
 mod allegiance_tests;
+#[cfg(test)]
+mod backpack_tests;
 #[cfg(test)]
 mod chat_tests;
 #[cfg(test)]

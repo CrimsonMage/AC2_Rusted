@@ -163,6 +163,24 @@ key	status	note
 0042d850	x	ac2-ui dialog.rs
 0042d8e0	x	ac2-ui dialog.rs
 0042dac0	x	ac2-ui list_box.rs
+0042e070	x	ac2-ui item_display.rs / backpack.rs
+0042e150	x	ac2-ui item_display.rs / backpack.rs
+0042e1e0	x	ac2-ui item_display.rs / backpack.rs
+0042e2a0	x	ac2-ui item_display.rs / backpack.rs
+0042e2d0	x	ac2-ui item_display.rs / backpack.rs
+0042e300	x	ac2-ui item_display.rs / backpack.rs
+0042e560	x	ac2-ui item_display.rs / backpack.rs
+0042e650	~	icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
+0042e7b0	x	ac2-ui item_display.rs / backpack.rs
+0042e900	x	ac2-ui item_display.rs / backpack.rs
+0042eb30	x	ac2-ui item_display.rs / backpack.rs
+0042ebb0	x	ac2-ui item_display.rs / backpack.rs
+0042ece0	~	icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
+0042eed0	x	ac2-ui item_display.rs / backpack.rs
+0042ef20	x	ac2-ui item_display.rs / backpack.rs
+0042ef30	x	ac2-ui item_display.rs / backpack.rs
+0042ef90	x	ac2-ui item_display.rs / backpack.rs
+0042f020	~	icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
 0042f0f0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0042f1a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0042f300	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -297,6 +315,9 @@ key	status	note
 0043d770	-	
 0043d790	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
 0043dcb0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+00441480	x	ac2-ui item_display.rs / backpack.rs
+004414e0	~	icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
+00441950	x	ac2-ui item_display.rs / backpack.rs
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 00447550	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 004475b0	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation

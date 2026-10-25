@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 413 done, 179 partial, 1633 to do, 22 skipped.
+2247 retail functions: 430 done, 183 partial, 1612 to do, 22 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (7/53)
@@ -690,7 +690,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ChatWindow::RecvNotice_ReloadOptions` · 0044cb10
 - [~] `ChatWindow::RecvNotice_ReloadChatSettings` · 0044cbc0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
-## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (1/22)
+## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (9/22)
 
 ### ContainerDisplay
 - [ ] `ContainerDisplay::FinishListBoxDrop` · 0042d910 · legions 0042d6e0
@@ -712,17 +712,17 @@ Legend and workflow: [README](README.md).
 - [ ] `ContainerDisplay::HandleListBoxDrop` · 0042dc20 · legions 0042d9f0
 - [ ] `ContainerDisplay::HandleDragFromMoneyBag` · 0042de90 · legions 0042dc60
 - [ ] `ContainerDisplay::ListenToMessage` · 0042dfb0 · legions 0042de40
-- [ ] `ContainerDisplay::AddItem` · 0042e070 · legions 0042df00
-- [ ] `ContainerDisplay::FindItem` · 0042e150 · legions 0042dfe0
-- [ ] `ContainerDisplay::RemoveItem` · 0042e1e0 · legions 0042e070
-- [ ] `ContainerDisplay::BeginRequest` · 0042e2a0 · legions 0042e130
-- [ ] `ContainerDisplay::RequestFailed` · 0042e2d0 · legions 0042e160
-- [ ] `ContainerDisplay::Flush` · 0042e300 · legions 0042e190
+- [x] `ContainerDisplay::AddItem` · 0042e070 · legions 0042df00 — ac2-ui item_display.rs / backpack.rs
+- [x] `ContainerDisplay::FindItem` · 0042e150 · legions 0042dfe0 — ac2-ui item_display.rs / backpack.rs
+- [x] `ContainerDisplay::RemoveItem` · 0042e1e0 · legions 0042e070 — ac2-ui item_display.rs / backpack.rs
+- [x] `ContainerDisplay::BeginRequest` · 0042e2a0 · legions 0042e130 — ac2-ui item_display.rs / backpack.rs
+- [x] `ContainerDisplay::RequestFailed` · 0042e2d0 · legions 0042e160 — ac2-ui item_display.rs / backpack.rs
+- [x] `ContainerDisplay::Flush` · 0042e300 · legions 0042e190 — ac2-ui item_display.rs / backpack.rs
 - [ ] `ContainerDisplay::ContainerDisplay` · 0042e3a0 · legions 0042e230
 - [ ] `ContainerDisplay::Cleanup` · 0042e470 · legions 0042e300
-- [ ] `ContainerDisplay::GetContents` · 0042e560 · legions 0042e3f0
-- [ ] `ContainerDisplay::Init` · 0042e650 · legions 0042e4e0
-- [ ] `ContainerDisplay::RecvNotice_UpdateContainer` · 0042e7b0
+- [x] `ContainerDisplay::GetContents` · 0042e560 · legions 0042e3f0 — ac2-ui item_display.rs / backpack.rs
+- [~] `ContainerDisplay::Init` · 0042e650 · legions 0042e4e0 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
+- [x] `ContainerDisplay::RecvNotice_UpdateContainer` · 0042e7b0 — ac2-ui item_display.rs / backpack.rs
 
 ## `ac2/client/src/ui/gameplay/helper/fellowinfo.cpp.c` (14/15)
 
@@ -789,24 +789,24 @@ Legend and workflow: [README](README.md).
 - [x] `FellowshipHelper::RecvNotice_UpdateFellow` · 00430430 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `FellowshipHelper::FellowshipHelper` · 004304a0 · legions 00430260 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/helper/itemdisplay.cpp.c` (0/15)
+## `ac2/client/src/ui/gameplay/helper/itemdisplay.cpp.c` (7/15)
 
 ### ItemDisplay
-- [ ] `ItemDisplay::ItemDisplay` · 0042e900 · legions 0042e7e0
+- [x] `ItemDisplay::ItemDisplay` · 0042e900 · legions 0042e7e0 — ac2-ui item_display.rs / backpack.rs
 - [ ] `ItemDisplay::~ItemDisplay` · 0042e9d0 · legions 0042e8b0
-- [ ] `ItemDisplay::ListenToMessage` · 0042eb30 · legions 0042ea10
-- [ ] `ItemDisplay::RecvNotice_SelectionChanged` · 0042ebb0 · legions 0042ea90
+- [x] `ItemDisplay::ListenToMessage` · 0042eb30 · legions 0042ea10 — ac2-ui item_display.rs / backpack.rs
+- [x] `ItemDisplay::RecvNotice_SelectionChanged` · 0042ebb0 · legions 0042ea90 — ac2-ui item_display.rs / backpack.rs
 - [ ] `ItemDisplay::RecvNotice_SetTargetingPointer` · 0042ec10
-- [ ] `ItemDisplay::Update` · 0042ece0 · legions 0042ebe0
-- [ ] `ItemDisplay::SetItem` · 0042eed0 · legions 0042edd0
-- [ ] `ItemDisplay::SetPending` · 0042ef20 · legions 0042ee20
-- [ ] `ItemDisplay::SetDraggable` · 0042ef30 · legions 0042ee30
+- [~] `ItemDisplay::Update` · 0042ece0 · legions 0042ebe0 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
+- [x] `ItemDisplay::SetItem` · 0042eed0 · legions 0042edd0 — ac2-ui item_display.rs / backpack.rs
+- [x] `ItemDisplay::SetPending` · 0042ef20 · legions 0042ee20 — ac2-ui item_display.rs / backpack.rs
+- [x] `ItemDisplay::SetDraggable` · 0042ef30 · legions 0042ee30 — ac2-ui item_display.rs / backpack.rs
 - [ ] `ItemDisplay::SetQuantity` · 0042ef40 · legions 0042ee40
 - [ ] `ItemDisplay::SetShortcutType` · 0042ef60 · legions 0042ee60
-- [ ] `ItemDisplay::RecvNotice_ItemUpdate` · 0042ef90
+- [x] `ItemDisplay::RecvNotice_ItemUpdate` · 0042ef90 — ac2-ui item_display.rs / backpack.rs
 - [ ] `ItemDisplay::RecvNotice_LocalVisualDescUpdate` · 0042efc0
 - [ ] `ItemDisplay::RecvNotice_CreateObject` · 0042eff0
-- [ ] `ItemDisplay::Init` · 0042f020 · legions 0042ef20
+- [~] `ItemDisplay::Init` · 0042f020 · legions 0042ef20 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
 
 ## `ac2/client/src/ui/gameplay/helper/optionbase.cpp.c` (0/7)
 
@@ -1211,16 +1211,16 @@ Legend and workflow: [README](README.md).
 - [ ] `gm3DItemsUI::MidMoneyDrop` · 00440a60 · legions 004412c0
 - [ ] `gm3DItemsUI::ListenToMessage` · 00440b40 · legions 004413a0
 
-## `ac2/client/src/ui/gameplay/toolbar/inventory/gmbackpackui.cpp.c` (0/7)
+## `ac2/client/src/ui/gameplay/toolbar/inventory/gmbackpackui.cpp.c` (2/7)
 
 ### gmBackpackUI
 - [ ] `gmBackpackUI::FinishItemDrop` · 004412f0 · legions 00441b50
 - [ ] `gmBackpackUI::FinishMoneyBagDrop` · 00441390 · legions 00441bf0
 - [ ] `gmBackpackUI::RecvNotice_StackUIDone` · 00441410
-- [ ] `gmBackpackUI::ShowPack` · 00441480 · legions 00441d70
-- [ ] `gmBackpackUI::ListenToMessage` · 004414e0 · legions 00441de0
+- [x] `gmBackpackUI::ShowPack` · 00441480 · legions 00441d70 — ac2-ui item_display.rs / backpack.rs
+- [~] `gmBackpackUI::ListenToMessage` · 004414e0 · legions 00441de0 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
 - [ ] `gmBackpackUI::~gmBackpackUI` · 00441860 · legions 00442160
-- [ ] `gmBackpackUI::gmBackpackUI` · 00441950 · legions 00442250
+- [x] `gmBackpackUI::gmBackpackUI` · 00441950 · legions 00442250 — ac2-ui item_display.rs / backpack.rs
 
 ## `ac2/client/src/ui/gameplay/toolbar/inventory/gminventoryui.cpp.c` (0/5)
 

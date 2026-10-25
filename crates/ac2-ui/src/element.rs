@@ -616,6 +616,21 @@ impl UiTree {
         self.scrollbar_update_layout(index);
     }
 
+    /// `UIRegion::ClearImage`.
+    pub fn clear_image(&mut self, index: usize) {
+        let el = self.el_mut(index);
+        if el.image.take().is_some() {
+            self.changed = true;
+        }
+    }
+
+    /// `UIElement::SetAttribute_Int`.
+    pub fn set_int(&mut self, index: usize, id: u32, value: i32) {
+        self.el_mut(index)
+            .attributes
+            .insert(id, AttributeValue::Int(value));
+    }
+
     /// `UIElement::SetImage`: the image and, while unset, `m_alphaValue` from `alpha_value`
     /// (retail reads the attribute into the draw mode's own slot, so without the attribute the
     /// value becomes the draw mode's bits as a float: no alpha).
