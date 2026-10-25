@@ -84,3 +84,50 @@ fn the_default_controls_walk_zoom_and_toggle_mouse_look() {
         .iter()
         .any(|a| a.class == CLASS_MOVEMENT && a.enum_value == ac2_weenie::ACTION_FORWARD));
 }
+
+#[test]
+fn every_ui_layout_decodes_to_its_last_byte() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let ids: Vec<u32> = dataset
+        .ids_in_range(ac2_dat::DatFileKind::Local, LAYOUT_FIRST, LAYOUT_LAST)
+        .collect();
+    assert!(!ids.is_empty(), "the local DAT has UI layouts");
+    assert_eq!(
+        dataset
+            .ids_in_range(ac2_dat::DatFileKind::Portal, LAYOUT_FIRST, LAYOUT_LAST)
+            .count(),
+        0,
+        "layouts live only in the local DAT"
+    );
+    let store = ResourceStore::new(dataset);
+    let (mut elements, mut media) = (0, 0);
+    fn walk(element: &ElementDesc, elements: &mut usize, media: &mut usize) {
+        *elements += 1;
+        for state in &element.states {
+            *media += state.media.len();
+            for child in &state.children {
+                walk(child, elements, media);
+            }
+        }
+    }
+    for did in &ids {
+        let layout = load_layout(&store, ac2_core::DataId::new(*did))
+            .unwrap_or_else(|e| panic!("{did:08x}: {e}"))
+            .unwrap_or_else(|| panic!("{did:08x} missing"));
+        eprintln!(
+            "{did:08x}: {}x{}, {} top-level elements",
+            layout.width,
+            layout.height,
+            layout.elements.len()
+        );
+        for element in &layout.elements {
+            walk(element, &mut elements, &mut media);
+        }
+    }
+    eprintln!(
+        "{} layouts, {elements} elements, {media} media items",
+        ids.len()
+    );
+}

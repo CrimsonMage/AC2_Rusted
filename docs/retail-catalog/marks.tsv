@@ -1094,6 +1094,19 @@ key	status	note
 005d6310	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6470	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6560	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005df8a0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005dff30	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e0950	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e1390	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e14b0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e1700	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e1850	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e1bd0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e1cb0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e1e40	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e2020	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e2230	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e23b0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 005e75a0	x	ac2-physics moveto (slice 3)
 005fe420	x	
 00601c80	x	

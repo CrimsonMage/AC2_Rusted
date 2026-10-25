@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 33 done, 8 partial, 2189 to do, 17 skipped.
+2247 retail functions: 46 done, 8 partial, 2176 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -2457,7 +2457,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIViewportObject::SetSceneID` · 00735590 · legions 006b1290
 - [ ] `UIViewportObject::Render` · 007355a0 · legions 006b12a0
 
-## `portal/client/src/uielement/desc/attributedesc.cpp.c` (0/6)
+## `portal/client/src/uielement/desc/attributedesc.cpp.c` (1/6)
 
 ### AttributeDesc
 - [ ] `AttributeDesc::GetSubDataIDs` · 005e10f0 · legions 005a1e80
@@ -2465,9 +2465,9 @@ Legend and workflow: [README](README.md).
 - [ ] `AttributeDesc::~AttributeDesc` · 005e1130 · legions 005a1ec0
 - [ ] `AttributeDesc::GetPackSize` · 005e1210
 - [ ] `AttributeDesc::Pack` · 005e1280
-- [ ] `AttributeDesc::UnPack` · 005e1390
+- [x] `AttributeDesc::UnPack` · 005e1390 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 
-## `portal/client/src/uielement/desc/elementdesc.cpp.c` (0/8)
+## `portal/client/src/uielement/desc/elementdesc.cpp.c` (1/8)
 
 ### ElementDesc
 - [ ] `ElementDesc::GetReferentType` · 005dfaf0 · legions 005a0880
@@ -2475,11 +2475,11 @@ Legend and workflow: [README](README.md).
 - [ ] `ElementDesc::Pack` · 005dfbd0 · legions 005a0960
 - [ ] `ElementDesc::GetSubDataIDs` · 005dfd30 · legions 005a0ac0
 - [ ] `ElementDesc::~ElementDesc` · 005dfde0 · legions 005a0b70
-- [ ] `ElementDesc::UnPack` · 005dff30 · legions 005a0cc0
+- [x] `ElementDesc::UnPack` · 005dff30 · legions 005a0cc0 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 - [ ] `ElementDesc::Copy` · 005e0110 · legions 005a0ea0
 - [ ] `ElementDesc::ElementDesc` · 005e0310 · legions 005a10a0
 
-## `portal/client/src/uielement/desc/layoutdesc.cpp.c` (0/10)
+## `portal/client/src/uielement/desc/layoutdesc.cpp.c` (1/10)
 
 ### LayoutDesc
 - [ ] `LayoutDesc::GetPackSize` · 005df410
@@ -2489,29 +2489,29 @@ Legend and workflow: [README](README.md).
 - [ ] `LayoutDesc::GetDBOType` · 005df770
 - [ ] `LayoutDesc::GetRootElementDesc` · 005df7a0 · legions 005a0530
 - [ ] `LayoutDesc::DereferenceElementDesc` · 005df7e0 · legions 005a0570
-- [ ] `LayoutDesc::UnPack` · 005df8a0
+- [x] `LayoutDesc::UnPack` · 005df8a0 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 - [ ] `LayoutDesc::LayoutDesc` · 005dfa80 · legions 005a0810
 - [ ] `LayoutDesc::Allocate` · 005dfae0
 
-## `portal/client/src/uielement/desc/media/md_data_alpha.cpp.c` (0/4)
+## `portal/client/src/uielement/desc/media/md_data_alpha.cpp.c` (1/4)
 
 ### MD_Data_Alpha
 - [ ] `MD_Data_Alpha::MD_Data_Alpha` · 005e2190 · legions 005a2f80
 - [ ] `MD_Data_Alpha::Update` · 005e21b0
 - [ ] `MD_Data_Alpha::Copy` · 005e21d0 · legions 005a2ff0
-- [ ] `MD_Data_Alpha::StreamPack` · 005e2230 · legions 005a2770
+- [x] `MD_Data_Alpha::StreamPack` · 005e2230 · legions 005a2770 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 
-## `portal/client/src/uielement/desc/media/md_data_anim.cpp.c` (0/6)
+## `portal/client/src/uielement/desc/media/md_data_anim.cpp.c` (1/6)
 
 ### MD_Data_Anim
 - [ ] `MD_Data_Anim::Reset` · 005e22a0
 - [ ] `MD_Data_Anim::GetSubDataIDs` · 005e22c0
 - [ ] `MD_Data_Anim::Update` · 005e2300
-- [ ] `MD_Data_Anim::StreamPack` · 005e23b0 · legions 005a3140
+- [x] `MD_Data_Anim::StreamPack` · 005e23b0 · legions 005a3140 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 - [ ] `MD_Data_Anim::MD_Data_Anim` · 005e2440 · legions 005a31d0
 - [ ] `MD_Data_Anim::Copy` · 005e24d0 · legions 005a3260
 
-## `portal/client/src/uielement/desc/media/md_data_avi.cpp.c` (0/6)
+## `portal/client/src/uielement/desc/media/md_data_avi.cpp.c` (1/6)
 
 ### MD_Data_AVI
 - [ ] `MD_Data_AVI::Reset` · 005e19c0 · legions 005a27e0
@@ -2519,7 +2519,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MD_Data_AVI::MD_Data_AVI` · 005e1ab0 · legions 005a28d0
 - [ ] `MD_Data_AVI::~MD_Data_AVI` · 005e1af0 · legions 005a2910
 - [ ] `MD_Data_AVI::Copy` · 005e1b40 · legions 005a2960
-- [ ] `MD_Data_AVI::StreamPack` · 005e1bd0 · legions 005a29f0
+- [x] `MD_Data_AVI::StreamPack` · 005e1bd0 · legions 005a29f0 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 
 ## `portal/client/src/uielement/desc/media/md_data_cursor.cpp.c` (0/3)
 
@@ -2528,7 +2528,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MD_Data_Cursor::Update` · 005e1950
 - [ ] `MD_Data_Cursor::Copy` · 005e1980 · legions 005a2710
 
-## `portal/client/src/uielement/desc/media/md_data_image.cpp.c` (0/5)
+## `portal/client/src/uielement/desc/media/md_data_image.cpp.c` (1/5)
 
 ### MD_Data_Image
 - [ ] `MD_Data_Image::MD_Data_Image` · 005e1f60 · legions 005a2d80
@@ -2539,15 +2539,15 @@ Legend and workflow: [README](README.md).
 ### MD_Data_Image
 - [ ] `MD_Data_Image::Update` · 005e1fc0
 - [ ] `MD_Data_Image::Copy` · 005e1fe0 · legions 005a2dd0
-- [ ] `MD_Data_Image::StreamPack` · 005e2020 · legions 005a2e10
+- [x] `MD_Data_Image::StreamPack` · 005e2020 · legions 005a2e10 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 
-## `portal/client/src/uielement/desc/media/md_data_jump.cpp.c` (0/4)
+## `portal/client/src/uielement/desc/media/md_data_jump.cpp.c` (1/4)
 
 ### MD_Data_Jump
 - [ ] `MD_Data_Jump::MD_Data_Jump` · 005e1da0 · legions 005a2c20
 - [ ] `MD_Data_Jump::Update` · 005e1dc0
 - [ ] `MD_Data_Jump::Copy` · 005e1e10 · legions 005a2c90
-- [ ] `MD_Data_Jump::StreamPack` · 005e1e40 · legions 005a2bc0
+- [x] `MD_Data_Jump::StreamPack` · 005e1e40 · legions 005a2bc0 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 
 ## `portal/client/src/uielement/desc/media/md_data_message.cpp.c` (0/3)
 
@@ -2571,7 +2571,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MD_Data_Sound::Update` · 005e1ec0
 - [ ] `MD_Data_Sound::Copy` · 005e1f30 · legions 005a2d50
 
-## `portal/client/src/uielement/desc/media/md_data_state.cpp.c` (0/4)
+## `portal/client/src/uielement/desc/media/md_data_state.cpp.c` (1/4)
 
 ### MD_Data_State
 - [ ] `MD_Data_State::MD_Data_State` · 005e1c40 · legions 005a2a60
@@ -2579,32 +2579,32 @@ Legend and workflow: [README](README.md).
 - [ ] `MD_Data_State::Copy` · 005e1c80 · legions 005a2aa0
 
 ### MD_Data_Sound
-- [ ] `MD_Data_Sound::StreamPack` · 005e1cb0 · legions 005a2ad0
+- [x] `MD_Data_Sound::StreamPack` · 005e1cb0 · legions 005a2ad0 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 
-## `portal/client/src/uielement/desc/mediadesc.cpp.c` (0/4)
+## `portal/client/src/uielement/desc/mediadesc.cpp.c` (2/4)
 
 ### MediaDesc
-- [ ] `MediaDesc::CreateMediaType` · 005e1700 · legions 005a2490
+- [x] `MediaDesc::CreateMediaType` · 005e1700 · legions 005a2490 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 - [ ] `MediaDesc::MediaDesc` · 005e1830 · legions 005a25c0
-- [ ] `MediaDesc::StreamPack` · 005e1850 · legions 005a25e0
+- [x] `MediaDesc::StreamPack` · 005e1850 · legions 005a25e0 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 - [ ] `MediaDesc::~MediaDesc` · 005e1880 · legions 005a2610
 
-## `portal/client/src/uielement/desc/statedesc.cpp.c` (0/7)
+## `portal/client/src/uielement/desc/statedesc.cpp.c` (1/7)
 
 ### StateDesc
 - [ ] `StateDesc::GetPackSize` · 005e0380 · legions 005a1110
 - [ ] `StateDesc::Pack` · 005e04a0 · legions 005a1230
 - [ ] `StateDesc::GetSubDataIDs` · 005e0690 · legions 005a1420
 - [ ] `StateDesc::~StateDesc` · 005e0750 · legions 005a14e0
-- [ ] `StateDesc::UnPack` · 005e0950 · legions 005a16e0
+- [x] `StateDesc::UnPack` · 005e0950 · legions 005a16e0 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 - [ ] `StateDesc::Copy` · 005e0cd0 · legions 005a1a60
 - [ ] `StateDesc::StateDesc` · 005e1060 · legions 005a1df0
 
-## `portal/client/src/uielement/desc/transitiondesc.cpp.c` (0/2)
+## `portal/client/src/uielement/desc/transitiondesc.cpp.c` (1/2)
 
 ### TransitionDesc
 - [ ] `TransitionDesc::TransitionDesc` · 005e1490 · legions 005a2220
-- [ ] `TransitionDesc::StreamPack` · 005e14b0 · legions 005a2240
+- [x] `TransitionDesc::StreamPack` · 005e14b0 · legions 005a2240 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 
 ## `portal/client/src/uielement/file/filetree.cpp.c` (0/1)
 

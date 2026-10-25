@@ -9,6 +9,7 @@
 
 use std::collections::{BTreeMap, HashMap};
 
+use crate::layout_media::pstring_bytes;
 use ac2_core::{DataId, QualifiedDataId};
 use ac2_dat::{ArchiveCursor, DatFileKind};
 use ac2_db::{
@@ -91,15 +92,6 @@ fn malformed(
         type_name,
         context,
     }
-}
-
-/// `PStringBase<char>::UnPack`'s bytes: a u16 length (`0xFFFF` escapes to a u32), the
-/// characters, then 4-byte alignment.
-fn pstring_bytes(cursor: &mut ArchiveCursor<'_>) -> Result<Vec<u8>, ac2_dat::ArchiveError> {
-    let len = cursor.read_packed_string_len()? as usize;
-    let bytes = cursor.read_bytes(len)?.to_vec();
-    cursor.align_to(4)?;
-    Ok(bytes)
 }
 
 fn count(cursor: &mut ArchiveCursor<'_>, item: usize) -> Option<usize> {
