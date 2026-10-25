@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 120 done, 5 partial, 1773 to do, 6 skipped.
+1904 retail functions: 121 done, 5 partial, 1772 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1353,7 +1353,7 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Interp::SendEvt_InterpSEvent` · 00498f30 · legions 00491440
 - [x] `ECM_Interp::SendEvt_InterpSEventEncrypt` · 00498fe0 · legions 004914f0
 
-## `portal/client/src/events/ecm_login.cpp.c` (11/21)
+## `portal/client/src/events/ecm_login.cpp.c` (12/21)
 
 ### ECM_Login
 - [x] `ECM_Login::RecvEvt_CharExitGame` · 004933b0 · legions 0048be00
@@ -1373,7 +1373,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Login::SendNotice_CharacterError` · 004938a0 · legions 0048c230
 - [ ] `ECM_Login::SendNotice_CharacterSet` · 00493930
 - [x] `ECM_Login::SendNotice_LoginFinished` · 004939b0
-- [ ] `ECM_Login::SendNotice_ServerDied` · 00493a30
+- [x] `ECM_Login::SendNotice_ServerDied` · 00493a30 — SessionEvent::ServerDied, before Disconnected
 - [ ] `ECM_Login::SendNotice_WorldName` · 00493ab0
 - [x] `ECM_Login::RecvEvt_CharacterSet` · 00493b30 · legions 0048c380
 

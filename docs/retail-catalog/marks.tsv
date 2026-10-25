@@ -10,6 +10,7 @@ key	status	note
 004042f0	x	
 00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+00406410	~	ac2-client Notice::ConnectionLost (ID_NetErr_ConnectionLost, 0x41000018); no UI modes in the headless client
 00406cb0	x	
 004079b0	x	OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
 00408e90	~	LogOffCharacter only; no UI or game-option upload
@@ -126,6 +127,7 @@ key	status	note
 00493500	x	
 00493520	x	
 004939b0	x	
+00493a30	x	SessionEvent::ServerDied, before Disconnected
 00493b30	x	
 00493c50	x	
 00493d30	x	

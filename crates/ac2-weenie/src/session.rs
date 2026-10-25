@@ -148,9 +148,14 @@ pub enum SessionEvent {
     WorldName(StringInfo),
     /// `GlobalEventHandler::RecvEvt_AccountBooted`: the reason.
     AccountBooted(StringInfo),
-    /// The server gave a reason for closing the connection (`Net_WorldConnectionError`); the
-    /// [`SessionEvent::Disconnected`] follows once the disconnect handshake ran.
+    /// The server gave a reason for closing the connection (`Net_LoginConnectionError` /
+    /// `Net_WorldConnectionError`); [`SessionEvent::ServerDied`] follows once the disconnect
+    /// handshake ran.
     ConnectionError(String),
+    /// `ECM_Login::SendNotice_ServerDied` (`ClientNet::RemoveConnection`): the logon or world
+    /// connection went away, closed by the server or silent for 140 s.
+    /// [`SessionEvent::Disconnected`] follows.
+    ServerDied,
     /// The session ended.
     Disconnected(String),
 }
@@ -353,6 +358,13 @@ impl OnlineSession {
             }
             NetEvent::Disconnected(error) => {
                 self.closed = true;
+                // The session is over: its world goes as at `CharExitGame`.
+                self.world.leave_world();
+                self.reporter = None;
+                self.entered = false;
+                if error == NetError::ServerDied {
+                    out.push(SessionEvent::ServerDied);
+                }
                 out.push(SessionEvent::Disconnected(error.to_string()));
             }
             NetEvent::Blob(blob) if blob.queue == QUEUE_EVENTS => {

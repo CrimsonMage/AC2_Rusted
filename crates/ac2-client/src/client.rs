@@ -70,6 +70,9 @@ pub enum Notice {
     PlayerReadyToEnterWorld,
     /// `SendNotice_NextFrameDrawn` (`WorldRender::Render`), which sent `SceneRenderingComplete`.
     NextFrameDrawn,
+    /// `gmUIFlow::RecvNotice_ServerDied`: the connection was lost; retail switches to the
+    /// Disconnected UI mode with `ID_NetErr_ConnectionLost` (table `0x41000018`).
+    ConnectionLost,
 }
 
 /// The player's simulated body, once its Setup has loaded.
@@ -532,6 +535,7 @@ impl Client {
                 teleported,
                 impulse,
             } => self.player_moved(position, *heading_degrees, *teleported, *impulse),
+            SessionEvent::ServerDied => self.notices.push(Notice::ConnectionLost),
             SessionEvent::LeftWorld | SessionEvent::Disconnected(_) => {
                 self.player = None;
                 self.camera.reset();
