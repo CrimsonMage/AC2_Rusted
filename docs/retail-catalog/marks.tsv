@@ -1190,6 +1190,7 @@ key	status	note
 00553840	~	ac2-script glue: no collector/debugger
 00553850	~	ac2-script glue: no collector/debugger
 00553870	~	ac2-script glue: no collector/debugger
+00553890	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
 005538d0	~	ac2-script glue: no collector/debugger
 00553900	x	ac2-script glue
 00553930	x	ac2-script glue
@@ -2450,29 +2451,37 @@ key	status	note
 006db0f0	x	
 006db450	x	
 006db7f0	x	
-006dbb00	x	ac2-net protocol::pack
+006dbb00	~	ac2-net protocol::pack
 006dbbd0	x	ac2-script reference/native unpack
 006dbe00	_	
 006dc040	~	ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
+006dc0b0	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
 006dc110	~	ac2-script glue::hashes NativeKeys: StringInfo and wpstring; CaseInsensitiveWPString (0x353F) not yet
 006dc140	~	ac2-script glue::hashes NativeKeys: StringInfo and wpstring; CaseInsensitiveWPString (0x353F) not yet
 006dc170	x	ac2-script vm (VM/ReferenceTable/Resolver)
 006dc190	x	ac2-script vm (VM/ReferenceTable/Resolver)
 006dc210	-	script debugger
+006dc860	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
+006dc910	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
+006dcbe0	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
 006dcce0	~	ac2-script wstate DID formulas / ByteStream::package_id
 006dcf50	~	ac2-script wstate DID formulas / ByteStream::package_id
 006dcf90	x	ac2-script vm (VM/ReferenceTable/Resolver)
 006dcfb0	x	ac2-script glue
 006dd040	-	script debugger
+006dd160	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
+006dd3f0	~	ac2-script vm::pack: builds the PackedReference structure; the byte stream (native StreamPack) is the wire codec's
+006dd500	~	ac2-script vm::pack: builds the PackedReference structure; the byte stream (native StreamPack) is the wire codec's
 006dd520	x	ac2-script vm (VM/ReferenceTable/Resolver)
 006dd690	x	ac2-script glue
+006dd6c0	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
 006ddd50	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006dde60	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006de120	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006de1e0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006e08d0	~	ac2-script: handler table is a match in exec.rs
 006e08f0	x	ac2-script vm::exec / Program::walk
-006e0b40	x	ac2-net protocol::pack
+006e0b40	~	ac2-net protocol::pack
 006e0c20	x	ac2-script reference/native unpack
 006e0d30	x	ac2-script glue
 006e0d80	x	ac2-script glue

@@ -20,6 +20,7 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x0072_0010, no_op);
     efuns.register(0x0072_0011, no_op);
     efuns.register(0x0072_0012, no_op);
+    efuns.register(0x0072_0013, clone_reference);
     efuns.register(0x0072_0014, get_instance_reference);
     efuns.register(0x0072_0017, is_instance_of);
     efuns.register(0x0072_0018, get_package_reference);
@@ -171,5 +172,13 @@ fn get_data_id(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let reference = call.word(2);
     let did = vm.refs.heap(reference).map_or(0, |o| o.pkg_state_id);
     call.ret(3, did, INT_RESULT);
+    InterpStatus::Success
+}
+
+/// `VM::CloneReference(ref)`: a copy of `ref` and everything it reaches.
+fn clone_reference(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let source = Call::new(ctx).word(2);
+    let copy = vm.refs.clone_reference(source);
+    Call::new(ctx).ret(3, copy, tag::REF);
     InterpStatus::Success
 }

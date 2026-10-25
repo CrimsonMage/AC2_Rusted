@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 786 done, 75 partial, 1529 to do, 78 skipped.
+2468 retail functions: 791 done, 79 partial, 1520 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -3179,13 +3179,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gVisualDesc::CallEFun_GetVisualDescFromDB` · 005375c0
 - [ ] `gVisualDesc::CallEFun_InqAppInfoHashForPartGroup` · 00537620 · legions 0051b160
 
-## `portal/shared/src/interp/glue/gvm.cpp.c` (11/24)
+## `portal/shared/src/interp/glue/gvm.cpp.c` (12/24)
 
 ### gVM
 - [~] `gVM::CallEFun_GarbageCollect` · 00553840 — ac2-script glue: no collector/debugger
 - [~] `gVM::CallEFun_SetActiveGC` · 00553850 — ac2-script glue: no collector/debugger
 - [~] `gVM::CallEFun_SetAggressiveGCDeletion` · 00553870 — ac2-script glue: no collector/debugger
-- [ ] `gVM::CallEFun_CloneReference` · 00553890 · legions 0052e1c0
+- [x] `gVM::CallEFun_CloneReference` · 00553890 · legions 0052e1c0 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 - [~] `gVM::CallEFun_DeleteAllUnUsedReferences` · 005538d0 — ac2-script glue: no collector/debugger
 - [x] `gVM::CallEFun_GetContextID` · 00553900 — ac2-script glue
 - [x] `gVM::CallEFun_GetDataID` · 00553930 — ac2-script glue
@@ -3299,12 +3299,12 @@ Legend and workflow: [README](README.md).
 - [ ] `NativeFactory::NativeFactory` · 0054cbd0 · legions 0052a380
 - [ ] `NativeFactory::~NativeFactory` · 0054cbf0 · legions 0052a3a0
 
-## `portal/shared/src/interp/heapobject.cpp.c` (2/6)
+## `portal/shared/src/interp/heapobject.cpp.c` (1/6)
 
 ### HeapObject
 - [ ] `HeapObject::Clear` · 006dba60 · legions 00664f10
 - [ ] `HeapObject::GetPackSize` · 006dbab0 · legions 00664f60
-- [x] `HeapObject::Pack` · 006dbb00 · legions 00664fb0 — ac2-net protocol::pack
+- [~] `HeapObject::Pack` · 006dbb00 · legions 00664fb0 — ac2-net protocol::pack
 - [x] `HeapObject::UnPack` · 006dbbd0 · legions 00665080 — ac2-script reference/native unpack
 - [ ] `HeapObject::UpdatePackageReferences` · 006dbd50 · legions 00665200
 - [ ] `HeapObject::UpdateReferences` · 006dbdd0 · legions 00665280
@@ -3584,12 +3584,12 @@ Legend and workflow: [README](README.md).
 - [ ] `ProcessTable::QueryProcessTable` · 006e1920 · legions 00668730
 - [ ] `ProcessTable::QueryProcesses` · 006e1960 · legions 00668770
 
-## `portal/shared/src/interp/referenceentry.cpp.c` (2/4)
+## `portal/shared/src/interp/referenceentry.cpp.c` (1/4)
 
 ### ReferenceEntry
 - [ ] `ReferenceEntry::GetPackSize` · 006e0ac0 · legions 00667990
 - [ ] `ReferenceEntry::GetResidentSizeEstimate` · 006e0b10
-- [x] `ReferenceEntry::Pack` · 006e0b40 · legions 006679e0 — ac2-net protocol::pack
+- [~] `ReferenceEntry::Pack` · 006e0b40 · legions 006679e0 — ac2-net protocol::pack
 - [x] `ReferenceEntry::UnPack` · 006e0c20 · legions 00667ac0 — ac2-script reference/native unpack
 
 ## `portal/shared/src/interp/referencetable.cpp.c` (0/3)
@@ -3629,7 +3629,7 @@ Legend and workflow: [README](README.md).
 - [ ] `get_type` · 006e14c0 · legions 00668300
 - [ ] `new_type` · 006e15a0 · legions 006683e0
 
-## `portal/shared/src/interp/vm.cpp.c` (6/66)
+## `portal/shared/src/interp/vm.cpp.c` (12/66)
 
 ### VM
 - [ ] `VM::CreateProcessA` · 006dbe00 · legions 006652b0
@@ -3652,7 +3652,7 @@ Legend and workflow: [README](README.md).
 ### ReferenceTable
 - [ ] `ReferenceTable::GetReferencePackSize` · 006dbff0 · legions 006654a0
 - [~] `ReferenceTable::PackReferenceArray` · 006dc040 · legions 006654f0 — ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
-- [ ] `ReferenceTable::GetDependentReferences_Relative` · 006dc0b0 · legions 00665560
+- [x] `ReferenceTable::GetDependentReferences_Relative` · 006dc0b0 · legions 00665560 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ### VM
 - [ ] `VM::DeleteProcess` · 006dc0e0 · legions 00665590
@@ -3679,8 +3679,8 @@ Legend and workflow: [README](README.md).
 - [ ] `VM::DeleteAllUnUsedReferences` · 006dc850 · legions 00665cd0
 
 ### ReferenceTable
-- [ ] `ReferenceTable::GetDependentReferences_Native` · 006dc860 · legions 00665ce0
-- [ ] `ReferenceTable::GetDependentReferences_Package` · 006dc910 · legions 00665d90
+- [x] `ReferenceTable::GetDependentReferences_Native` · 006dc860 · legions 00665ce0 — ac2-script vm::pack (dependent-reference walk, CloneReference)
+- [x] `ReferenceTable::GetDependentReferences_Package` · 006dc910 · legions 00665d90 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ### VM
 - [ ] `VM::QueryPerf` · 006dc9e0
@@ -3688,7 +3688,7 @@ Legend and workflow: [README](README.md).
 
 ### ReferenceTable
 - [ ] `ReferenceTable::~ReferenceTable` · 006dcb80 · legions 00665f80
-- [ ] `ReferenceTable::GetDependentReferences_HeapObject` · 006dcbe0 · legions 00665fe0
+- [x] `ReferenceTable::GetDependentReferences_HeapObject` · 006dcbe0 · legions 00665fe0 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ### VM
 - [ ] `VM::GetPackageNameByPkgID` · 006dcc00 · legions 00666000
@@ -3708,7 +3708,7 @@ Legend and workflow: [README](README.md).
 
 ### ReferenceTable
 - [ ] `ReferenceTable::ReferenceTable` · 006dd0a0 · legions 006664a0
-- [ ] `ReferenceTable::GetDependentReferences` · 006dd160 · legions 00666560
+- [x] `ReferenceTable::GetDependentReferences` · 006dd160 · legions 00666560 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ### VM
 - [ ] `VM::VM` · 006dd220 · legions 00666620
@@ -3716,16 +3716,16 @@ Legend and workflow: [README](README.md).
 
 ### ReferenceTable
 - [ ] `ReferenceTable::GetReferencePackSize` · 006dd310 · legions 00666710
-- [ ] `ReferenceTable::PackReference` · 006dd3f0 · legions 006667f0
+- [~] `ReferenceTable::PackReference` · 006dd3f0 · legions 006667f0 — ac2-script vm::pack: builds the PackedReference structure; the byte stream (native StreamPack) is the wire codec's
 
 ### VM
 - [ ] `VM::GetReferencePackSize` · 006dd4e0 · legions 006668e0
-- [ ] `VM::PackReference` · 006dd500 · legions 00666900
+- [~] `VM::PackReference` · 006dd500 · legions 00666900 — ac2-script vm::pack: builds the PackedReference structure; the byte stream (native StreamPack) is the wire codec's
 - [x] `VM::UnPackReference` · 006dd520 · legions 00666920 — ac2-script vm (VM/ReferenceTable/Resolver)
 - [ ] `VM::Preproc_CleanWState` · 006dd540 · legions 00666940
 - [ ] `VM::GetPackageName` · 006dd630 · legions 00666a20
 - [x] `VM::IsInstanceOf` · 006dd690 · legions 00666a80 — ac2-script glue
-- [ ] `VM::CloneReference` · 006dd6c0 · legions 00666ab0
+- [x] `VM::CloneReference` · 006dd6c0 · legions 00666ab0 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ## `portal/shared/src/interp/vmlogger.cpp.c` (0/2)
 

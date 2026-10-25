@@ -9,6 +9,7 @@ mod arith;
 pub mod context;
 pub mod efun;
 mod exec;
+mod pack;
 pub mod program;
 pub mod refs;
 
