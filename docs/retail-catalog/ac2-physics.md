@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 354 done, 76 partial, 1632 to do, 62 skipped.
+2124 retail functions: 355 done, 76 partial, 1631 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -1144,10 +1144,10 @@ Legend and workflow: [README](README.md).
 - [ ] `EtherealWeenieType::AddToSolidList` · 006a49f0 · legions 00641950
 - [ ] `EtherealWeenieType::Update` · 006a4a30 · legions 00641990
 
-## `portal/shared/src/physobj/ethereal/losparameters.cpp.c` (4/10)
+## `portal/shared/src/physobj/ethereal/losparameters.cpp.c` (5/10)
 
 ### UIPersistantData
-- [ ] `UIPersistantData::SetCurrentCGR` · 006a3cf0 · legions 00640c50
+- [x] `UIPersistantData::SetCurrentCGR` · 006a3cf0 · legions 00640c50 — ac2-ui pregame/persistent.rs (plain data)
 
 ### LOSParameters
 - [ ] `LOSParameters::SetBlockedByWater` · 006a3d00 · legions 00640c60

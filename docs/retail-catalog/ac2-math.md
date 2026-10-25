@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 131 done, 8 partial, 248 to do, 39 skipped.
+426 retail functions: 130 done, 10 partial, 247 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -132,7 +132,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DetectionObjRay::~DetectionObjRay` · 0062ac40 · legions 005e4d20
 - [ ] `DetectionObjRay::AddRay` · 0062ac80 · legions 005e4d60
 
-## `portal/shared/src/geometry/frame.cpp.c` (8/19)
+## `portal/shared/src/geometry/frame.cpp.c` (7/19)
 
 ### Frame
 - [x] `Frame::cache_matrix` · 00619f70 · legions 005d5c10
@@ -147,13 +147,13 @@ Legend and workflow: [README](README.md).
 - [-] `Frame::FromFileNode` · 0061a2d0 — text source format (admin tools)
 - [-] `Frame::ToFileNode` · 0061a300 — text source format (admin tools)
 - [x] `Frame::grotate` · 0061a310 · legions 005d5f70
-- [x] `Frame::slerp_rotation` · 0061a3c0 · legions 005d6020 — ac2-physics interp (slice 3)
+- [~] `Frame::slerp_rotation` · 0061a3c0 · legions 005d6020 — ac2-ui pregame/arms.rs (D3DXQuaternionSlerp in f64)
 - [ ] `Frame::OrientFrame` · 0061a460 · legions 005d60c0
 - [ ] `Frame::subtract2` · 0061a4e0 · legions 005d6140
 - [x] `Frame::set_vector_heading` · 0061a5b0 · legions 005d6210
 - [x] `Frame::set_heading` · 0061a810 · legions 005d6470
 - [ ] `Frame::set_pitch` · 0061a860 · legions 005d64c0
-- [ ] `Frame::slerp` · 0061a8a0 · legions 005d6500
+- [~] `Frame::slerp` · 0061a8a0 · legions 005d6500 — ac2-ui pregame/arms.rs (D3DXQuaternionSlerp in f64)
 
 ## `portal/shared/src/geometry/gcylsphere.cpp.c` (4/10)
 

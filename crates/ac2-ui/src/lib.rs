@@ -25,6 +25,7 @@ mod maps;
 mod mouse;
 mod panel;
 mod place;
+pub mod pregame;
 mod reticle;
 mod selection_ui;
 mod skill_tree;

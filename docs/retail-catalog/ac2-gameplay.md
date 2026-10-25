@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 95 done, 10 partial, 385 to do, 9 skipped.
+499 retail functions: 99 done, 10 partial, 381 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
@@ -544,15 +544,15 @@ Legend and workflow: [README](README.md).
 - [ ] `CharacterIdentity::operator=` · 006db080 · legions 006644f0
 - [x] `CharacterIdentity::StreamPack` · 006db0f0 · legions 00664560
 
-## `portal/shared/src/gameplay/character/characterset.cpp.c` (2/14)
+## `portal/shared/src/gameplay/character/characterset.cpp.c` (6/14)
 
 ### CharacterSet
 - [ ] `CharacterSet::WhichSlot` · 006db150 · legions 006645c0
-- [ ] `CharacterSet::GetIdentity` · 006db1a0 · legions 00664610
+- [x] `CharacterSet::GetIdentity` · 006db1a0 · legions 00664610 — ac2-ui pregame/persistent.rs over ac2_net CharacterSet
 - [ ] `CharacterSet::GetName` · 006db1d0 · legions 00664640
 - [ ] `CharacterSet::GetID` · 006db210 · legions 00664680
-- [ ] `CharacterSet::SetGreyedOutFor` · 006db270 · legions 006646e0
-- [ ] `CharacterSet::GetGreyedOutFor` · 006db2b0 · legions 00664720
+- [x] `CharacterSet::SetGreyedOutFor` · 006db270 · legions 006646e0 — ac2-ui pregame/persistent.rs over ac2_net CharacterSet
+- [x] `CharacterSet::GetGreyedOutFor` · 006db2b0 · legions 00664720 — ac2-ui pregame/persistent.rs over ac2_net CharacterSet
 - [ ] `CharacterSet::CharacterSet` · 006db3e0 · legions 00664850
 - [ ] `CharacterSet::IncludesIdentity` · 006db430 · legions 006648b0
 
@@ -565,7 +565,7 @@ Legend and workflow: [README](README.md).
 
 ### CharacterSet
 - [ ] `CharacterSet::operator=` · 006db620 · legions 00664aa0
-- [ ] `CharacterSet::AddIdentity` · 006db7a0 · legions 00664c30
+- [x] `CharacterSet::AddIdentity` · 006db7a0 · legions 00664c30 — ac2-ui pregame/persistent.rs over ac2_net CharacterSet
 - [x] `CharacterSet::StreamPack` · 006db7f0
 
 ## `portal/shared/src/gameplay/qualities/basequalities.cpp.c` (0/66)
