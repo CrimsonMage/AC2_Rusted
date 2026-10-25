@@ -181,8 +181,6 @@ pub enum GameplayNotice {
     UpdatePetName { pet: u64, name: StringInfo },
     /// `CM_Character::SendNotice_PetIsUnderAttack`.
     PetIsUnderAttack(u64),
-    /// `CM_Combat::SendNotice_UpdateAttackState`.
-    UpdateAttackState(bool),
     /// `CM_Combat::SendNotice_RequestSpecialAttack`.
     RequestSpecialAttack { maneuver: u32, attack: u32 },
     /// `CM_Combat::SendNotice_StartSpecialAttack`.
