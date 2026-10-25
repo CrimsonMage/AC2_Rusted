@@ -113,7 +113,18 @@ impl Client {
         let mut events = Vec::new();
         for command in commands {
             events.extend(match command {
-                Command::Select(id) => self.session.select(id.unwrap_or(NO_SELECTION)),
+                Command::Select(id) => {
+                    let id = id.unwrap_or(NO_SELECTION);
+                    if self.scripts_own(crate::scripts::IFUN_SET_SELECTION) {
+                        self.session.mirror_selection(id);
+                        self.script_ifun(
+                            crate::scripts::IFUN_SET_SELECTION,
+                            &[ac2_net::protocol::PackValue::LongInt(id)],
+                        )
+                    } else {
+                        self.session.select(id)
+                    }
+                }
                 Command::Examine(request) => self.session.examine(*request),
                 Command::StartExamination(context) => self.session.start_examination(*context),
                 Command::StopExamination => self.session.stop_examination(),
@@ -236,16 +247,26 @@ impl Client {
 
     /// The selection for [`crate::ClientFrame::selection`].
     pub(crate) fn selection_frame(&self) -> Option<SelectionFrame> {
-        let script = self.session.player_script();
-        let id = script.selection()?;
+        let selection = self.session.progress().selection;
+        let id = selection.id?;
         Some(SelectionFrame {
             id,
             name: self.session.objects().get(id).and_then(|o| o.name.clone()),
-            info: script
-                .selection_info()
-                .filter(|(info_id, _)| *info_id == id)
-                .map(|(_, info)| info),
+            info: selection.info,
         })
+    }
+
+    /// The frame's notices as the UI sees them (`gmSelectionUI`, the social panels): kept in
+    /// the session's panel state, whoever raised them.
+    pub(crate) fn notices_seen(&mut self, events: &[SessionEvent]) {
+        let notices: Vec<_> = events
+            .iter()
+            .filter_map(|e| match e {
+                SessionEvent::Notice(n) => Some(n.clone()),
+                _ => None,
+            })
+            .collect();
+        self.session.apply_notices(&notices);
     }
 }
 

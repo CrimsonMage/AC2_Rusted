@@ -13,7 +13,7 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use ac2_net::protocol::{pack_values, unpack_values};
+use ac2_net::protocol::{pack_values, unpack_values, PackValue};
 use ac2_script::host::ScriptHost;
 use ac2_weenie::SessionEvent;
 
@@ -28,6 +28,10 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     ac2_net::protocol::script_function::DISPLAY_TEXT,
 ];
 
+/// `gmCWInterface::SetSelection`'s IFun (`ggmCWInterface::CallIFun_SetSelection`: the
+/// object, then `CPlayer` 0x6A).
+pub const IFUN_SET_SELECTION: u32 = 0x00B4_0002;
+
 /// The script VM and the objects waiting for their process.
 pub(crate) struct Scripts {
     host: ScriptHost,
@@ -38,6 +42,8 @@ pub(crate) struct Scripts {
     running: BTreeSet<u64>,
     /// What the boundary dropped and dispatches that failed, for diagnostics.
     problems: Vec<String>,
+    /// The server calls and UI IFuns handed to the VM.
+    owned: BTreeSet<u32>,
     /// Events produced between frames (a process started on a loader result), for the next
     /// frame's events.
     produced: Vec<SessionEvent>,
@@ -55,6 +61,7 @@ impl Client {
             waiting: BTreeMap::new(),
             running: BTreeSet::new(),
             problems: Vec::new(),
+            owned: functions.iter().copied().collect(),
             produced: Vec::new(),
         });
         // Objects already known get their processes too.
@@ -116,7 +123,6 @@ impl Client {
         for (function, arguments) in missed {
             self.dispatch_script(id, function, &arguments, &mut events);
         }
-        self.notices_out(&events);
         if let Some(scripts) = self.scripts.as_mut() {
             scripts.produced.extend(events);
         }
@@ -154,8 +160,30 @@ impl Client {
                 _ => {}
             }
         }
-        self.notices_out(&produced);
         events.extend(produced);
+    }
+
+    /// Whether the UI's IFun (or server call) `function` is the script VM's.
+    pub(crate) fn scripts_own(&self, function: u32) -> bool {
+        self.scripts
+            .as_ref()
+            .is_some_and(|s| s.owned.contains(&function))
+            && self.session.player().is_some_and(|p| {
+                self.scripts
+                    .as_ref()
+                    .is_some_and(|s| s.running.contains(&p))
+            })
+    }
+
+    /// `ggmCWInterface::CallIFun_*`: the IFun on the player's process (a 0 return slot, the
+    /// arguments, the instance, `VM::CallIFun`), its output sent and returned.
+    pub(crate) fn script_ifun(&mut self, function: u32, args: &[PackValue]) -> Vec<SessionEvent> {
+        let mut out = Vec::new();
+        if let Some(player) = self.session.player() {
+            let arguments = pack_values(args);
+            self.dispatch_script(player, function, &arguments, &mut out);
+        }
+        out
     }
 
     /// `CWDistributor::DispatchInterpMsg`, then the scripts' output: sent and shown when the
@@ -177,10 +205,15 @@ impl Client {
                     .dispatch(id, function, &values)
                     .map_err(|e| format!("{e:?}"))
             });
-        if let Err(error) = result {
-            scripts
+        match result {
+            Err(error) => scripts
                 .problems
-                .push(format!("{id:#018x} {function:#010x}: {error}"));
+                .push(format!("{id:#018x} {function:#010x}: {error}")),
+            Ok(outcome) if outcome.fault.is_some() => scripts.problems.push(format!(
+                "{id:#018x} {function:#010x}: {:?} {:?}",
+                outcome.status, outcome.fault
+            )),
+            Ok(_) => {}
         }
         let calls = scripts.host.take_server_calls();
         let notices = scripts.host.take_notices();
@@ -194,17 +227,5 @@ impl Client {
                 .send_interp(call.function, pack_values(&call.args), call.encrypt);
         }
         out.extend(notices.into_iter().map(SessionEvent::Notice));
-    }
-
-    /// The VM's notices reach the session's panel state too.
-    fn notices_out(&mut self, events: &[SessionEvent]) {
-        let notices: Vec<_> = events
-            .iter()
-            .filter_map(|e| match e {
-                SessionEvent::Notice(n) => Some(n.clone()),
-                _ => None,
-            })
-            .collect();
-        self.session.apply_notices(&notices);
     }
 }

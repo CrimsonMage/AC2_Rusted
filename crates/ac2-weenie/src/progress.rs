@@ -81,12 +81,38 @@ pub struct Shortcuts {
     pub slots: Vec<ShortcutInfo>,
 }
 
-/// Everything the advancement, shortcut and social panels read.
+/// What the selection panel shows (`gmSelectionUI`): the object `SelectionChanged` named and
+/// the latest `UpdateSelectionInfo` since, whatever object the notice was raised on (retail's
+/// notice carries no object beyond the weenie it is raised on).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct SelectionState {
+    pub id: Option<u64>,
+    pub info: Option<ac2_net::protocol::SelectionInfo>,
+}
+
+impl SelectionState {
+    /// `gmSelectionUI::RecvNotice_SelectionChanged` / `RecvNotice_UpdateSelectionInfo`.
+    pub fn apply(&mut self, notice: &GameplayNotice) {
+        match notice {
+            GameplayNotice::SelectionChanged(id) => {
+                self.id = (*id != 0).then_some(*id);
+                self.info = None;
+            }
+            GameplayNotice::UpdateSelectionInfo { info, .. } if self.id.is_some() => {
+                self.info = Some(*info);
+            }
+            _ => {}
+        }
+    }
+}
+
+/// Everything the advancement, shortcut, social and selection panels read.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Progress {
     pub skills: Skills,
     pub shortcuts: Shortcuts,
     pub social: Social,
+    pub selection: SelectionState,
 }
 
 fn heap<'a>(graph: &'a PackedReference, id: u32) -> Option<&'a HeapObject> {
