@@ -10,6 +10,10 @@ mod allegiance;
 mod backpack;
 mod button;
 mod camera_ui;
+mod character;
+mod character_options;
+#[cfg(test)]
+mod character_tests;
 mod chat;
 mod chat_window;
 mod compose;
@@ -36,6 +40,12 @@ mod meter;
 mod money_bag;
 mod mouse;
 mod name_plates;
+mod navigation;
+mod navigation_detail;
+#[cfg(test)]
+mod navigation_detail_tests;
+mod navigation_map;
+mod overview_map;
 mod panel;
 mod paper_doll;
 mod place;
@@ -66,6 +76,8 @@ mod vitals;
 pub use allegiance::{AllegianceRequest, AllegianceSource, AllegianceUi};
 pub use backpack::BackpackUi;
 pub use camera_ui::{CameraUi, CameraUiEffect};
+pub use character::{CharacterRequest, CharacterUi};
+pub use character_options::{OptionSetting, OptionsSettings, Setter};
 pub use chat::{
     ChatHistory, ChatRequest, ChatSettings, ChatStrings, ChatUi, Modifiers, CHAT_STRING_TABLE,
     REPLY_STRING_TABLE, STRING_TABLE_GROUP,
@@ -112,6 +124,13 @@ pub use mouse::{
     GLOBAL_MOUSE_MOVE, GLOBAL_MOUSE_UP, UI_POINTER_X, UI_POINTER_Y, UI_WHEEL_IN, UI_WHEEL_OUT,
 };
 pub use name_plates::{NameLook, NamePlace, NamePlates};
+pub use navigation::{MapNote, NavigationUi, NavigationView};
+pub use navigation_detail::{
+    mul_div, tile_position, window_origin, DETAIL_WINDOW, MAP_FIELD_PRESS, MAP_PARENT_SWITCH,
+    PAN_STEP, PAN_STEP_SHIFT,
+};
+pub use navigation_map::MapFrame;
+pub use overview_map::OverviewMapUi;
 pub use paper_doll::{mesh_type_to_inv_loc, PaperDollUi};
 pub use radar::{RadarDot, RadarRequest, RadarUi, RadarView};
 pub use reticle::{Reticle, ReticleOutcome, ReticleTarget};
@@ -169,6 +188,8 @@ mod money_bag_tests;
 mod mouse_tests;
 #[cfg(test)]
 mod name_plates_tests;
+#[cfg(test)]
+mod navigation_tests;
 #[cfg(test)]
 mod paper_doll_tests;
 #[cfg(test)]

@@ -1,10 +1,13 @@
-//! The secure trade's server messages (`WM_Trade`, package 0x215): the handlers the server's
-//! answers reach, which the player's script turns into the `CM_Trade::SendNotice_Trade_*`
-//! notices. The client's requests are [`ScriptRequest`](super::ScriptRequest) variants.
+//! The secure trade's server messages (`WM_Trade`, package 0x215): the forwarders the server's
+//! answers reach in the Legions script library, which call `CPlayer` and raise the
+//! `CM_Trade::SendNotice_Trade_*` notices. The client's requests are
+//! [`ScriptRequest`](super::ScriptRequest) variants.
 //!
-//! Function ids come from the stubs and handlers of the Legions script library: a handler is
-//! the forwarder that calls `CPlayer`, which raises the notice (the notice's arguments after
-//! its object are the handler's). The argument kinds follow those notices.
+//! The function ids are the library's own (package 0x215 maps them, `Resolver::GetFunctionOffset`):
+//! each forwarder's body was traced to its `CPlayer` function and on to the notice's efun, and
+//! the forwarders were then run on the VM (`CPlayer` answers each with its notice). The wire
+//! packs a handler's arguments in reverse parameter order (`WSL` pushes the last parameter first,
+//! as the stubs do for the requests), so each message lists its values last parameter first.
 
 use super::{function, literal, Args};
 use crate::protocol::pack::PackValue;
@@ -55,7 +58,7 @@ impl TradeMessage {
         }
     }
 
-    /// The packed arguments, in the handler's order.
+    /// The packed arguments, last parameter first (the wire order).
     pub fn arguments(&self) -> Vec<PackValue> {
         match self {
             Self::Registered {
@@ -63,13 +66,13 @@ impl TradeMessage {
                 partner,
                 partner_name,
             } => vec![
-                PackValue::LongInt(*initiator),
-                PackValue::LongInt(*partner),
                 literal(partner_name),
+                PackValue::LongInt(*partner),
+                PackValue::LongInt(*initiator),
             ],
             Self::Opened | Self::Reset | Self::AcceptanceCleared => Vec::new(),
             Self::Closed { source, kind } => {
-                vec![PackValue::LongInt(*source), PackValue::Int(*kind)]
+                vec![PackValue::Int(*kind), PackValue::LongInt(*source)]
             }
             Self::Accepted(source) | Self::Declined(source) => {
                 vec![PackValue::LongInt(*source)]
@@ -79,18 +82,18 @@ impl TradeMessage {
                 item,
                 amount,
             } => vec![
-                PackValue::LongInt(*source),
-                PackValue::LongInt(*item),
                 PackValue::Int(*amount),
+                PackValue::LongInt(*item),
+                PackValue::LongInt(*source),
             ],
             Self::Revoked { source, item } => {
-                vec![PackValue::LongInt(*source), PackValue::LongInt(*item)]
+                vec![PackValue::LongInt(*item), PackValue::LongInt(*source)]
             }
         }
     }
 
     /// The server's side: a trade message from its function id and packed arguments, or `None`
-    /// for another function id.
+    /// for another function id. The forwarder 0x4C raises the same notice as 0x51.
     pub fn decode(function_id: u32, arguments: &[u8]) -> Option<Result<Self, ProtocolError>> {
         let decode = |read: fn(&mut Args) -> Result<Self, ProtocolError>| {
             let mut args = Args::new(arguments)?;
@@ -100,34 +103,37 @@ impl TradeMessage {
         };
         Some(match function_id {
             function::TRADE_REGISTERED => decode(|a| {
+                let partner_name = a.string_info()?;
                 Ok(Self::Registered {
-                    initiator: a.long()?,
                     partner: a.long()?,
-                    partner_name: a.string_info()?,
+                    initiator: a.long()?,
+                    partner_name,
                 })
             }),
             function::TRADE_OPENED => decode(|_| Ok(Self::Opened)),
             function::TRADE_CLOSED => decode(|a| {
                 Ok(Self::Closed {
-                    source: a.long()?,
                     kind: a.int()?,
+                    source: a.long()?,
                 })
             }),
             function::TRADE_ACCEPTED => decode(|a| Ok(Self::Accepted(a.long()?))),
             function::TRADE_DECLINED => decode(|a| Ok(Self::Declined(a.long()?))),
             function::TRADE_RESET => decode(|_| Ok(Self::Reset)),
-            function::TRADE_ACCEPTANCE_CLEARED => decode(|_| Ok(Self::AcceptanceCleared)),
+            function::TRADE_ACCEPTANCE_CLEARED | function::TRADE_ACCEPTANCE_CLEARED_ALT => {
+                decode(|_| Ok(Self::AcceptanceCleared))
+            }
             function::TRADE_OFFERED => decode(|a| {
                 Ok(Self::Offered {
-                    source: a.long()?,
-                    item: a.long()?,
                     amount: a.int()?,
+                    item: a.long()?,
+                    source: a.long()?,
                 })
             }),
             function::TRADE_REVOKED => decode(|a| {
                 Ok(Self::Revoked {
-                    source: a.long()?,
                     item: a.long()?,
+                    source: a.long()?,
                 })
             }),
             _ => return None,
@@ -149,19 +155,19 @@ mod tests {
     }
 
     #[test]
-    fn offered_packs_the_source_item_and_amount() {
+    fn offered_packs_the_amount_item_and_source() {
         let message = TradeMessage::Offered {
             source: 0x2000_0000_0000_0001,
             item: 0x8000_0002_0000_0021,
             amount: 3,
         };
-        let mut expected = long(0x2000_0000_0000_0001);
+        let mut expected = vec![1, 3];
         expected.extend(long(0x8000_0002_0000_0021));
-        expected.extend([1, 3]);
+        expected.extend(long(0x2000_0000_0000_0001));
         assert_eq!(pack_values(&message.arguments()), words(&expected));
-        assert_eq!(message.function(), 0x8215_000D);
+        assert_eq!(message.function(), 0x8215_0044);
         assert_eq!(
-            TradeMessage::decode(0x8215_000D, &words(&expected)),
+            TradeMessage::decode(0x8215_0044, &words(&expected)),
             Some(Ok(message))
         );
     }
@@ -172,21 +178,21 @@ mod tests {
             source: 7,
             item: 0x8000_0002_0000_0022,
         };
-        let mut expected = long(7);
-        expected.extend(long(0x8000_0002_0000_0022));
+        let mut expected = long(0x8000_0002_0000_0022);
+        expected.extend(long(7));
         assert_eq!(pack_values(&revoked.arguments()), words(&expected));
         let closed = TradeMessage::Closed { source: 7, kind: 1 };
-        let mut expected = long(7);
-        expected.extend([1, 1]);
+        let mut expected = vec![1, 1];
+        expected.extend(long(7));
         assert_eq!(pack_values(&closed.arguments()), words(&expected));
         assert_eq!(
-            TradeMessage::decode(0x8215_000A, &words(&expected)),
+            TradeMessage::decode(0x8215_0053, &words(&expected)),
             Some(Ok(closed))
         );
     }
 
     #[test]
-    fn registered_packs_the_partner_name_as_a_string_info() {
+    fn registered_packs_the_partner_name_first() {
         let name = StringInfo {
             literal: Some("Birch".into()),
             ..StringInfo::default()
@@ -196,12 +202,14 @@ mod tests {
             partner: 2,
             partner_name: name.clone(),
         };
-        let mut expected = long(1);
-        expected.extend(long(2));
-        let mut args = words(&expected);
-        args.extend(&pack_values(&[literal(&name)])[..]);
-        assert_eq!(pack_values(&message.arguments()), args);
-        assert_eq!(TradeMessage::decode(0x8215_0010, &args), Some(Ok(message)));
+        let mut expected = pack_values(&[literal(&name)]);
+        expected.extend(words(&long(2)));
+        expected.extend(words(&long(1)));
+        assert_eq!(pack_values(&message.arguments()), expected);
+        assert_eq!(
+            TradeMessage::decode(0x8215_0046, &expected),
+            Some(Ok(message))
+        );
     }
 
     #[test]
@@ -211,10 +219,14 @@ mod tests {
             Vec::<u8>::new()
         );
         assert_eq!(
-            TradeMessage::decode(0x8215_0001, &[]),
+            TradeMessage::decode(0x8215_004E, &[]),
             Some(Ok(TradeMessage::Opened))
         );
-        assert!(TradeMessage::decode(0x8215_0001, &words(&[1, 0]))
+        assert_eq!(
+            TradeMessage::decode(0x8215_004C, &[]),
+            Some(Ok(TradeMessage::AcceptanceCleared))
+        );
+        assert!(TradeMessage::decode(0x8215_004E, &words(&[1, 0]))
             .unwrap()
             .is_err());
         assert!(TradeMessage::decode(0x8215_0011, &[]).is_none());

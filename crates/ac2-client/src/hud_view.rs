@@ -51,12 +51,20 @@ pub(crate) struct HudView {
     pub(crate) external_container: Option<ac2_ui::ExternalContainerUi>,
     /// `gmSecureTradeUI`, hidden until a trade opens (its requests wait in the panel).
     pub(crate) secure_trade: Option<ac2_ui::SecureTradeUi>,
+    /// `gmCharacterUI`, the character options page (its requests wait in the page).
+    pub(crate) character: Option<ac2_ui::CharacterUi>,
     /// `gmRadarUI`'s blips, painted over the radar field each compose.
     pub(crate) radar: Option<ac2_ui::RadarUi>,
     /// The player's cell and its map coordinates as the radar shows them (rendered by the
     /// frameworks, which have the string tables).
     pub(crate) radar_cell: Option<u32>,
     pub(crate) radar_coordinates: Option<String>,
+    /// The navigation panel's game date and time, rendered for the calendar they were rendered
+    /// for (`GameTime::InqCurrentGameDateTimeString`).
+    pub(crate) navigation_time: Option<(ac2_world::GameDateTime, String, String)>,
+    /// `gmNavigationUI`'s macro map (its map image is set on the worker) and `gmOverviewMapUI`.
+    pub(crate) navigation: Option<ac2_ui::NavigationUi>,
+    pub(crate) overview: Option<ac2_ui::OverviewMapUi>,
     /// `gmMoneyBagUI`, made with the backpack.
     pub(crate) money: Option<ac2_ui::MoneyBagUi>,
     /// Whether shift is held (`GetKeyState(VK_SHIFT)` for the melting confirmation), as the
@@ -111,10 +119,28 @@ impl HudView {
         std::thread::Builder::new()
             .name("ac2 hud".into())
             .spawn(move || {
-                let built = ac2_ui::build_gameplay_hud(&store, width, height).and_then(|hud| {
-                    let images = ac2_ui::load_ui_images(&store, &hud.tree)?;
-                    Ok((hud, images))
-                });
+                let built =
+                    ac2_ui::build_gameplay_hud(&store, width, height).and_then(|mut hud| {
+                        // `CRegionDesc::GetGameMap`: the map image the navigation panel shows.
+                        if let (Some(nav), Some(map)) = (
+                            hud.navigation.as_mut(),
+                            ac2_world::ac2_region_game_map(&store)?,
+                        ) {
+                            nav.set_game_map(&mut hud.tree, map.raw());
+                        }
+                        // `CRegionDesc::GetCurrentDetailMapTable` and its `CDetailMapDesc`: the
+                        // detail view's tiles and their map notes, read on this worker.
+                        if let Some(table) = ac2_world::ac2_region_detail_map_table(&store)? {
+                            if let (Some(nav), Some(map)) = (
+                                hud.navigation.as_mut(),
+                                ac2_world::ac2_detail_map(&store, table)?,
+                            ) {
+                                nav.set_detail_map(std::sync::Arc::new(map));
+                            }
+                        }
+                        let images = ac2_ui::load_ui_images(&store, &hud.tree)?;
+                        Ok((hud, images))
+                    });
                 let _ = send.send(built);
             })
             .expect("spawn the HUD loader");
@@ -142,9 +168,13 @@ impl HudView {
             stack: None,
             external_container: None,
             secure_trade: None,
+            character: None,
             radar: None,
             radar_cell: None,
             radar_coordinates: None,
+            navigation_time: None,
+            navigation: None,
+            overview: None,
             money: None,
             shift_held: false,
             player_messages: Vec::new(),
@@ -456,6 +486,9 @@ impl HudView {
                     external_container,
                     radar,
                     secure_trade,
+                    character,
+                    navigation,
+                    overview,
                 },
                 images,
             )) => {
@@ -485,7 +518,10 @@ impl HudView {
                 self.stack = stack;
                 self.external_container = external_container;
                 self.secure_trade = secure_trade;
+                self.character = character;
                 self.radar = Some(radar);
+                self.navigation = navigation;
+                self.overview = overview;
                 self.dirty = true;
             }
             Err(error) => eprintln!("ac2: the HUD did not load: {error}"),

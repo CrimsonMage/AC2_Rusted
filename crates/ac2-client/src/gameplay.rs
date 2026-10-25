@@ -7,6 +7,7 @@
 //! classes listen to).
 
 use ac2_net::protocol::{ExaminationRequest, SelectionInfo};
+use ac2_script::host::{IFunArg, OutValue};
 use ac2_weenie::{SessionEvent, NO_SELECTION};
 
 use crate::client::Client;
@@ -75,6 +76,20 @@ pub enum Command {
     OfferItemForTrade { item: u64, amount: u32 },
     /// `gmCWInterface::RevokeItemFromTrade`.
     RevokeItemFromTrade(u64),
+    /// `gmCWInterface::RequestEnterStore`: the store's DID. The VM's script sends the request.
+    EnterStore(u32),
+    /// `gmCWInterface::RequestLeaveStore`.
+    LeaveStore,
+    /// `gmCWInterface::PurchaseItem`: `quantity` of `item` from store slot `slot`.
+    PurchaseItem { item: u64, quantity: u32, slot: u32 },
+    /// `gmCWInterface::PurchaseConfirmed`: the player's answer to the purchase confirmation.
+    PurchaseConfirmed(bool),
+    /// `gmCWInterface::RequestSell`: `quantity` of `item` at `price`.
+    RequestSell {
+        item: u64,
+        quantity: u32,
+        price: u32,
+    },
     /// `gmCWInterface::RequestTrainSkill` / `RequestUntrainSkill` / `RequestRaiseSkill` /
     /// `RequestUntrainSkillCancel` (the skill panel and its confirmation dialogs).
     Skill(ac2_weenie::SkillRequest),
@@ -89,6 +104,10 @@ pub enum Command {
     SetShortcutSet(u32),
     /// `gmCWInterface::SetShowRadarCoords` (the radar's coordinates box, `gmRadarUI`).
     SetShowRadarCoords(bool),
+    /// One of the options page's setters (`gmCharacterUI::Apply`'s `gmCWInterface::Set*`).
+    SetGameplayOption(ac2_ui::OptionSetting),
+    /// `gmCWInterface::UploadGameOptions`: the options profile to the server.
+    UploadGameOptions,
     /// `gmCWInterface::SetShowObjectNames` (`gm3DTextUI::ToggleNames`).
     SetShowObjectNames(bool),
     /// `gmCWInterface::SetShortcut`: the shortcut into slot `index` of the bar.
@@ -308,6 +327,22 @@ impl Client {
                         Vec::new()
                     }
                 }
+                Command::SetGameplayOption(setting) => {
+                    let (ifun, arg) = crate::scripts::option_call(setting);
+                    if self.scripts_own(ifun) {
+                        self.script_ifun(ifun, &[arg])
+                    } else {
+                        Vec::new()
+                    }
+                }
+                Command::UploadGameOptions => {
+                    let ifun = crate::scripts::IFUN_UPLOAD_GAME_OPTIONS;
+                    if self.scripts_own(ifun) {
+                        self.script_ifun(ifun, &[])
+                    } else {
+                        Vec::new()
+                    }
+                }
                 Command::Skill(request) => {
                     self.session.request_skill(*request);
                     Vec::new()
@@ -374,8 +409,22 @@ impl Client {
                     Vec::new()
                 }
                 Command::AcceptTrade => {
-                    self.session.accept_trade();
-                    Vec::new()
+                    // `gmCWInterface::AcceptTrade`: its IFun on the player's script, whose
+                    // stub packs the accepting instance; else the session's stand-in.
+                    if self.scripts_own(crate::scripts::IFUN_ACCEPT_TRADE) {
+                        let mut out = Vec::new();
+                        if let Err(e) =
+                            self.ifun_into(crate::scripts::IFUN_ACCEPT_TRADE, &[], &mut out)
+                        {
+                            if let Some(scripts) = self.scripts.as_mut() {
+                                scripts.problems.push(e);
+                            }
+                        }
+                        out
+                    } else {
+                        self.session.accept_trade();
+                        Vec::new()
+                    }
                 }
                 Command::DeclineTrade => {
                     self.session.decline_trade();
@@ -389,6 +438,41 @@ impl Client {
                     self.session.revoke_item_from_trade(*item);
                     Vec::new()
                 }
+                Command::EnterStore(store) => self.store_ifun(
+                    crate::scripts::IFUN_REQUEST_ENTER_STORE,
+                    &[IFunArg::Int(*store)],
+                ),
+                Command::LeaveStore => {
+                    self.store_ifun(crate::scripts::IFUN_REQUEST_LEAVE_STORE, &[])
+                }
+                Command::PurchaseItem {
+                    item,
+                    quantity,
+                    slot,
+                } => self.store_ifun(
+                    crate::scripts::IFUN_PURCHASE_ITEM,
+                    &[
+                        IFunArg::Long(*item),
+                        IFunArg::Int(*quantity),
+                        IFunArg::Int(*slot),
+                    ],
+                ),
+                Command::PurchaseConfirmed(answer) => self.store_ifun(
+                    crate::scripts::IFUN_PURCHASE_CONFIRMED,
+                    &[IFunArg::Int(u32::from(*answer))],
+                ),
+                Command::RequestSell {
+                    item,
+                    quantity,
+                    price,
+                } => self.store_ifun(
+                    crate::scripts::IFUN_REQUEST_SELL,
+                    &[
+                        IFunArg::Long(*item),
+                        IFunArg::Int(*quantity),
+                        IFunArg::Int(*price),
+                    ],
+                ),
                 Command::DragToMoneyBag {
                     item,
                     quantity,
@@ -533,4 +617,33 @@ fn refused(result: Result<(), String>) -> Vec<SessionEvent> {
         .map(SessionEvent::Rejected)
         .into_iter()
         .collect()
+}
+
+impl Client {
+    /// A store call: its IFun on the player's script, whose stubs send the request. The store has
+    /// no session stand-in, so without the VM the call does nothing.
+    fn store_ifun(&mut self, function: u32, args: &[IFunArg]) -> Vec<SessionEvent> {
+        let mut out = Vec::new();
+        if self.scripts_own(function) {
+            if let Err(e) = self.ifun_into(function, args, &mut out) {
+                if let Some(scripts) = self.scripts.as_mut() {
+                    scripts.problems.push(e);
+                }
+            }
+        }
+        out
+    }
+
+    /// `gmCWInterface::GetMaxPurchaseQuantity` (IFun 0xB4012D): the most of `item` the script
+    /// lets the player buy. `None` without the VM, or when the call fails.
+    pub fn max_purchase_quantity(&mut self, item: u64) -> Option<u32> {
+        let function = crate::scripts::IFUN_GET_MAX_PURCHASE_QUANTITY;
+        if !self.scripts_own(function) {
+            return None;
+        }
+        let args = [IFunArg::Long(item), IFunArg::Out(OutValue::Word(0))];
+        self.call_ifun(function, &args)
+            .ok()
+            .map(|result| result.out_word(0))
+    }
 }

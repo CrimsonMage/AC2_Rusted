@@ -22,7 +22,9 @@ impl OnlineSession {
     }
 
     /// `gmCWInterface::AcceptTrade` (IFun 0xB400BA) -> stub 0x35. The stub packs the accepting
-    /// side's script instance; the session has no such graph to send, so it sends an empty one.
+    /// side's script instance (`CWInterface`); with the script VM attached the client runs the
+    /// IFun on the VM and this is not called. Without a VM the session has no such graph, so it
+    /// sends an empty reference.
     pub fn accept_trade(&mut self) {
         let empty = PackedReference {
             ids: Vec::new(),

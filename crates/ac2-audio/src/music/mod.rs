@@ -5,6 +5,7 @@
 pub mod band;
 pub mod clock;
 pub mod container;
+pub mod curves;
 pub mod dls;
 pub mod encoded;
 pub mod harmony;
@@ -84,6 +85,8 @@ pub fn read_music_record(did: u32, bytes: &[u8]) -> MusicResult<MusicObject> {
     read_object_chunk(&riff(file)?)
 }
 
+#[cfg(test)]
+mod curve_dat_tests;
 #[cfg(test)]
 mod harmony_tests;
 #[cfg(test)]

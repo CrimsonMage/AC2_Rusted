@@ -11,11 +11,13 @@
 mod calls;
 mod message;
 mod request;
+mod store;
 mod trade;
 
 pub use calls::{call_spec, ArgKind, CallSpec, Direction, ScriptCall, CALLS};
 pub use message::{broadcast, ScriptMessage};
 pub use request::ScriptRequest;
+pub use store::StoreMessage;
 pub use trade::TradeMessage;
 
 use crate::protocol::native::NativeObject;
@@ -139,26 +141,58 @@ pub mod function {
     pub const OFFER_ITEM: u32 = 0x8215_0015;
     /// C->S, `WM_Trade` stub 0x3F (`RevokeItemFromTrade`, IFun 0xB400BD): the item (long int).
     pub const REVOKE_ITEM: u32 = 0x8215_003F;
-    /// S->C, `WM_Trade` 0x10 -> `CPlayer` -> `CM_Trade::SendNotice_Trade_BeRegistered`: the
-    /// initiator, the partner (long ints), the partner's name (`StringInfo`).
-    pub const TRADE_REGISTERED: u32 = 0x8215_0010;
-    /// S->C, `WM_Trade` 0x1 -> `CM_Trade::SendNotice_Trade_BeOpened`: no arguments.
-    pub const TRADE_OPENED: u32 = 0x8215_0001;
-    /// S->C, `WM_Trade` 0xA -> `BeClosed`: the source (long int), the kind (int).
-    pub const TRADE_CLOSED: u32 = 0x8215_000A;
-    /// S->C, `WM_Trade` 0xF -> `BeAccepted`: the source (long int).
-    pub const TRADE_ACCEPTED: u32 = 0x8215_000F;
-    /// S->C, `WM_Trade` 0xC -> `BeDeclined`: the source (long int).
-    pub const TRADE_DECLINED: u32 = 0x8215_000C;
-    /// S->C, `WM_Trade` 0xE -> `BeReset`: no arguments.
-    pub const TRADE_RESET: u32 = 0x8215_000E;
-    /// S->C, `WM_Trade` 0xB -> `BeAcceptanceCleared`: no arguments.
-    pub const TRADE_ACCEPTANCE_CLEARED: u32 = 0x8215_000B;
-    /// S->C, `WM_Trade` 0xD -> `BeOffered`: the source (long int), the item (long int), the
-    /// amount (int).
-    pub const TRADE_OFFERED: u32 = 0x8215_000D;
-    /// S->C, `WM_Trade` 0x7 -> `BeRevoked`: the source (long int), the item (long int).
-    pub const TRADE_REVOKED: u32 = 0x8215_0007;
+    /// S->C, `WM_Trade` forwarder 0x46 (`CPlayer` 0xF5 -> `CM_Trade::SendNotice_Trade_BeRegistered`):
+    /// the wire packs the partner's name, the partner, then the initiator (the handler's
+    /// parameters reversed).
+    pub const TRADE_REGISTERED: u32 = 0x8215_0046;
+    /// S->C, `WM_Trade` forwarder 0x4E (`CPlayer` 0x08 -> `BeOpened`): no arguments.
+    pub const TRADE_OPENED: u32 = 0x8215_004E;
+    /// S->C, `WM_Trade` forwarder 0x53 (`CPlayer` 0x102 -> `BeClosed`): the kind (int), then the
+    /// source (long int).
+    pub const TRADE_CLOSED: u32 = 0x8215_0053;
+    /// S->C, `WM_Trade` forwarder 0x50 (`CPlayer` 0x35 -> `BeAccepted`): the source (long int).
+    pub const TRADE_ACCEPTED: u32 = 0x8215_0050;
+    /// S->C, `WM_Trade` forwarder 0x56 (`CPlayer` 0xB0 -> `BeDeclined`): the source (long int).
+    pub const TRADE_DECLINED: u32 = 0x8215_0056;
+    /// S->C, `WM_Trade` forwarder 0x52 (`CPlayer` 0xC9 -> `BeReset`): no arguments.
+    pub const TRADE_RESET: u32 = 0x8215_0052;
+    /// S->C, `WM_Trade` forwarder 0x51 (`CPlayer` 0x106 -> `BeAcceptanceCleared`): no
+    /// arguments. Forwarder 0x4C (`CPlayer` 0x29) raises the same notice.
+    pub const TRADE_ACCEPTANCE_CLEARED: u32 = 0x8215_0051;
+    /// S->C, `WM_Trade` forwarder 0x4C (`CPlayer` 0x29 -> `BeAcceptanceCleared`): as 0x51.
+    pub const TRADE_ACCEPTANCE_CLEARED_ALT: u32 = 0x8215_004C;
+    /// S->C, `WM_Trade` forwarder 0x44 (`CPlayer` 0x122 -> `BeOffered`): the amount (int), the
+    /// item (long int), the source (long int).
+    pub const TRADE_OFFERED: u32 = 0x8215_0044;
+    /// S->C, `WM_Trade` forwarder 0x48 (`CPlayer` 0x10F -> `BeRevoked`): the item (long int),
+    /// the source (long int).
+    pub const TRADE_REVOKED: u32 = 0x8215_0048;
+    /// C->S, `WM_Store` stub 0x4D (`RequestEnterStore`, IFun 0xB40137, via `CStoreSystem` 0x10):
+    /// the store (int), then the storekeeper (long int).
+    pub const STORE_ENTER: u32 = 0xB83A_0044;
+    /// C->S, `WM_Store` stub 0x12 (`RequestLeaveStore`, IFun 0xB40131, via `CStoreSystem` 0x2):
+    /// the storekeeper (long int).
+    pub const STORE_LEAVE: u32 = 0xB83A_0003;
+    /// C->S, `WM_Store` stub 0x14 (`PurchaseConfirmed`, IFun 0xB40130, via `CStoreSystem` 0x4):
+    /// the purchase's `TransactionBlob` (a package reference).
+    pub const STORE_PURCHASE: u32 = 0xB83A_000B;
+    /// C->S, `WM_Store` stub 0x4E (`RequestSell`, IFun 0xB40138, the sell body in the client's
+    /// library at 0x11642C): an int (the body's local 0), the price (int), the quantity (int), the
+    /// item (long int), a long int (the body's local 3). Not decoded yet (no shopper opens).
+    pub const STORE_SELL: u32 = 0xB83A_0043;
+    /// S->C, `WM_Store` forwarder 0x13 (`CPlayer` 0x1DE -> `CStoreSystem` 0x6 -> `ViewStore`): the
+    /// store (a package reference to the StoreTemplate, its singleton DID), the storekeeper (long
+    /// int). The forwarder reads the store as a one-slot reference, so an int store crashes.
+    pub const STORE_VIEW: u32 = 0xB83A_0013;
+    /// S->C, `WM_Store` forwarder 0x2A (`CPlayer` 0x1E2 -> `CStoreSystem` 0x8 -> `UpdateStore`):
+    /// the store (int), the storekeeper (long int).
+    pub const STORE_UPDATE: u32 = 0xB83A_002A;
+    /// S->C, `WM_Store` forwarder 0x10 (`CPlayer` 0x1DD -> `CStoreSystem` 0x14 -> `LeaveStore`):
+    /// the storekeeper (long int).
+    pub const STORE_LEFT: u32 = 0xB83A_0010;
+    /// S->C, `WM_Store` forwarder 0x29 (`CPlayer` 0x1E3 -> `CStoreSystem` 0x9 -> `UpdateSale`):
+    /// the stock (int), the item (long int), the storekeeper (long int).
+    pub const STORE_UPDATE_SALE: u32 = 0xB83A_0029;
 }
 
 /// The values a handler takes, in order, each of the type the stub packed.

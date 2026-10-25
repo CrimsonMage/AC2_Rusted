@@ -373,6 +373,15 @@ pub(crate) fn read_chord(r: &mut Reader<'_>) -> Chord {
 }
 
 /// Reads a segment from its `RIFF 'DMSG'` chunk.
+/// The segment's band: the first of its band tracks (`DMUS_IO_BAND_ITEM`, by logical time). The
+/// performance and the synthesizer's channel bindings both use this one.
+pub fn first_band(segment: &Segment) -> Option<&Band> {
+    segment.tracks.iter().find_map(|track| match &track.data {
+        TrackData::Bands(bands) => bands.first().map(|(_, band)| band),
+        _ => None,
+    })
+}
+
 pub fn read_segment(top: &Chunk<'_>) -> Segment {
     let mut h = top.child(b"segh").map_or(Reader::new(&[]), |c| c.reader());
     let repeats = h.u32();

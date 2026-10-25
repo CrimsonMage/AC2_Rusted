@@ -677,6 +677,49 @@ fn the_client_walks_with_w_and_draws_its_character() {
     // `gmCWInterface::SetShowRadarCoords` runs on the player's script and keeps the choice in
     // the options profile.
     assert!(!client.show_radar_coords());
+    // The options page (`gmCharacterUI`) shows the login profile (coordinates off). Ticking the
+    // checkbox and pressing Apply sends the setter (`gmCWInterface::SetShowRadarCoords`) and the
+    // upload to the player's script, and the flag follows.
+    view.character_open();
+    assert_eq!(
+        view.character_value("ID_Option_RadarShowCoordinates"),
+        Some(0.0)
+    );
+    for on in [true, false] {
+        view.character_tick("ID_Option_RadarShowCoordinates", on);
+        view.character_press("ApplyButton");
+        let now = client.frame();
+        let notices = client.take_script_notices();
+        let commands = view.frameworks(&mut client, &now, &[], &notices);
+        assert_eq!(
+            commands[0],
+            ac2_client::Command::SetGameplayOption(ac2_ui::OptionSetting::Int {
+                setter: ac2_ui::Setter::ShowRadarCoords,
+                value: u32::from(on),
+            })
+        );
+        // `ApplyFlag` sends the radar mask after the flag (the login profile's, all five bits
+        // and the coordinates' 0x10 of it not changing it), then the upload.
+        assert_eq!(
+            commands[1],
+            ac2_client::Command::SetGameplayOption(ac2_ui::OptionSetting::Int {
+                setter: ac2_ui::Setter::RadarMask,
+                value: 0x3F,
+            })
+        );
+        assert_eq!(
+            commands.last(),
+            Some(&ac2_client::Command::UploadGameOptions)
+        );
+        assert_eq!(commands.len(), 3);
+        client
+            .use_time(&FrameInput {
+                commands,
+                ..FrameInput::default()
+            })
+            .unwrap();
+        assert_eq!(client.show_radar_coords(), on);
+    }
     let show = FrameInput {
         commands: vec![ac2_client::Command::SetShowRadarCoords(true)],
         ..FrameInput::default()

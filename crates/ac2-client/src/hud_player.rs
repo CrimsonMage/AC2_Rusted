@@ -35,6 +35,27 @@ fn chat_settings(client: &mut Client) -> Option<ChatSettings> {
     })
 }
 
+/// The options profile as the options page reads it (`gmCWInterface::Get*`).
+fn options_settings(client: &mut Client) -> Option<ac2_ui::OptionsSettings> {
+    let p = client.gameplay_options().ok()?;
+    Some(ac2_ui::OptionsSettings {
+        bits: p.bit_field,
+        radar_mask: p.radar_mask,
+        shortcut_height: p.shortcut_height,
+        damage_text_range_other: p.damage_text_range_other,
+    })
+}
+
+/// The options page's requests, as the gameplay commands they are.
+fn character_commands(page: &mut ac2_ui::CharacterUi, commands: &mut Vec<Command>) {
+    for request in page.take_requests() {
+        commands.push(match request {
+            ac2_ui::CharacterRequest::Set(setting) => Command::SetGameplayOption(setting),
+            ac2_ui::CharacterRequest::Upload => Command::UploadGameOptions,
+        });
+    }
+}
+
 /// `SetSelection(INVALID_IID)` (or the item), `SetExaminationRequest`.
 fn examine(kind: u32, data: u32, item: u64, commands: &mut Vec<Command>) {
     let mut request = ExaminationRequest {
@@ -86,6 +107,7 @@ impl HudView {
             stack,
             external_container,
             secure_trade,
+            character,
             money,
             shift_held,
             backpack,
@@ -95,6 +117,7 @@ impl HudView {
             item_selection,
             radar_cell,
             radar_coordinates,
+            navigation_time,
             radar,
             names,
             ..
@@ -121,6 +144,19 @@ impl HudView {
                 .iter()
                 .any(|n| n.name == "CM_Character::SendNotice_ReloadOptions");
         let show_radar_coords = reload_radar.then(|| client.show_radar_coords());
+        // `gmCharacterUI::RecvNotice_ReloadOptions`: the page's values as the profile has them.
+        let reload_page = reload_radar
+            || events
+                .iter()
+                .any(|e| matches!(e, SessionEvent::Notice(GameplayNotice::ReloadOptions)));
+        if let (true, Some(page)) = (reload_page, character.as_mut()) {
+            if let Some(settings) = options_settings(client) {
+                page.refresh(tree, &settings);
+            }
+        }
+        if let Some(page) = character.as_mut() {
+            character_commands(page, &mut commands);
+        }
         // `gm3DTextUI::RecvNotice_ReloadOptions`: the names as the options say.
         let show_names = reload_radar.then(|| client.show_object_names());
         *player_race = frame
@@ -151,6 +187,17 @@ impl HudView {
             *radar_cell = cell;
             let string = crate::ui_sources::map_coords_string(cell.unwrap_or(0));
             *radar_coordinates = Some(ac2_ui::UiStrings::render_string(&player, &string));
+        }
+        // `gmNavigationUI::UpdateMacroMap`'s date and time: rendered again when the calendar moves.
+        if let Some(date_time) = frame.date_time {
+            if navigation_time.as_ref().map(|(known, _, _)| *known) != Some(date_time) {
+                let (date, time) = crate::ui_sources::game_date_time(date_time);
+                *navigation_time = Some((
+                    date_time,
+                    ac2_ui::UiStrings::render_string(&player, &date),
+                    ac2_ui::UiStrings::render_string(&player, &time),
+                ));
+            }
         }
         let mut reload_shortcuts = !*player_loaded
             || script_notices
@@ -330,6 +377,10 @@ impl HudView {
             }
         }
         for message in &messages {
+            if let (Some(page), Some(dialogs)) = (character.as_mut(), dialogs.as_mut()) {
+                page.message(tree, dialogs, message);
+                character_commands(page, &mut commands);
+            }
             if let Some(skills) = skills.as_mut() {
                 skills.message(tree, &player, message);
             }
@@ -486,6 +537,11 @@ impl HudView {
             // The partner's request's confirmation (`CloseConfirmationDialog`).
             if let Some(panel) = secure_trade.as_mut() {
                 panel.dialog_outcomes(tree, &outcomes);
+            }
+            // The recall's and default's confirmations (`gmCharacterUI::RecvNotice_CloseConfirmationDialog`).
+            if let Some(page) = character.as_mut() {
+                page.dialog_outcomes(tree, dialogs, &outcomes);
+                character_commands(page, &mut commands);
             }
         }
         // `gmSecureTradeUI`'s calls on the player (`gmCWInterface::*Trade*`).

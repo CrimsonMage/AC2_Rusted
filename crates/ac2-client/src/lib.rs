@@ -20,12 +20,15 @@ mod client_audio;
 mod client_frame;
 mod client_objects;
 mod client_radar;
+pub use client_radar::add_map_note;
 mod controls;
 mod frame;
 mod gameplay;
 #[cfg(feature = "window")]
-mod hud_player;
+mod hud_character;
+mod hud_navigation;
 #[cfg(feature = "window")]
+mod hud_player;
 mod hud_view;
 mod item_queries;
 mod loader;

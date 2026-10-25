@@ -219,7 +219,7 @@ pub(crate) struct Ac2BlockMap {
 
 impl Ac2BlockMap {
     /// `BlockMap::GetValue`: `map[height * x + y]` inside the map, else `map[0]`.
-    fn value(&self, x: u32, y: u32) -> u8 {
+    pub(crate) fn value(&self, x: u32, y: u32) -> u8 {
         let index = if x < self.width && y < self.height {
             (self.height * x + y) as usize
         } else {

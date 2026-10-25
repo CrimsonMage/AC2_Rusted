@@ -26,6 +26,8 @@ impl SoundSource for Musics {
                 segment: 0x2400_0000 | (did & 0xFFFF),
             },
             segment: None,
+            sources: Arc::from(Vec::new()),
+            bands: Arc::from(Vec::new()),
         })
     }
 }

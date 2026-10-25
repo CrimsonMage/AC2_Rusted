@@ -38,10 +38,54 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_SET_WHICH_SHORTCUT_SET,
     IFUN_SET_SHOW_RADAR_COORDS,
     IFUN_SET_SHOW_OBJECT_NAMES,
+    // The options page's setters and the upload (`gmCharacterUI::Apply`).
+    IFUN_SET_AUTO_TARGET,
+    IFUN_SET_ACCEPT_ALLEGIANCE,
+    IFUN_SET_ACCEPT_FELLOWSHIP,
+    IFUN_SET_ACCEPT_TRADE,
+    IFUN_SET_SHOW_DAMAGE_TEXT,
+    IFUN_SET_SHOW_DAMAGE_TEXT_OTHER,
+    IFUN_SET_SHOW_SHORTCUT_NUMBERS,
+    IFUN_SET_SHOW_PK_DAMAGE,
+    IFUN_SET_SHORTCUT_LOCKED,
+    IFUN_SET_SHORTCUT_INSTA_SCROLL,
+    IFUN_SET_BYPASS_GOLD_MELTING,
+    IFUN_SET_LATENCY_INDICATOR_GRAPH,
+    IFUN_SET_SHOW_FELLOWS_ON_MAP,
+    IFUN_SET_SHOW_PET_UI,
+    IFUN_SET_RADAR_MASK,
+    IFUN_SET_DAMAGE_TEXT_RANGE_OTHER,
+    IFUN_SET_SHORTCUT_HEIGHT,
+    IFUN_UPLOAD_GAME_OPTIONS,
     // `CWInterface::OnStatChanged` (a quality update: vitals, the XP bar, the skill panel).
     ac2_weenie::IFUN_ON_STAT_CHANGED,
     // `WM_Combat` 0x1B -> `CPlayer` 0x2 (`SendNotice_UpdateAttackState`).
     0x8204_001B,
+    // The secure trade's `WM_Trade` forwarders (`CPlayer` -> `CM_Trade::SendNotice_Trade_*`).
+    ac2_net::protocol::script_function::TRADE_REGISTERED,
+    ac2_net::protocol::script_function::TRADE_OPENED,
+    ac2_net::protocol::script_function::TRADE_CLOSED,
+    ac2_net::protocol::script_function::TRADE_ACCEPTED,
+    ac2_net::protocol::script_function::TRADE_DECLINED,
+    ac2_net::protocol::script_function::TRADE_RESET,
+    ac2_net::protocol::script_function::TRADE_ACCEPTANCE_CLEARED,
+    ac2_net::protocol::script_function::TRADE_ACCEPTANCE_CLEARED_ALT,
+    ac2_net::protocol::script_function::TRADE_OFFERED,
+    ac2_net::protocol::script_function::TRADE_REVOKED,
+    // `gmCWInterface::AcceptTrade` (its IFun packs the accepting instance for the stub).
+    IFUN_ACCEPT_TRADE,
+    // The store's `WM_Store` forwarders (`CPlayer` -> `CStoreSystem` -> `CM_Store::SendNotice_*`).
+    ac2_net::protocol::script_function::STORE_VIEW,
+    ac2_net::protocol::script_function::STORE_UPDATE,
+    ac2_net::protocol::script_function::STORE_LEFT,
+    ac2_net::protocol::script_function::STORE_UPDATE_SALE,
+    // `gmCWInterface`'s store calls (their IFuns on the player's script).
+    IFUN_REQUEST_ENTER_STORE,
+    IFUN_REQUEST_LEAVE_STORE,
+    IFUN_PURCHASE_ITEM,
+    IFUN_PURCHASE_CONFIRMED,
+    IFUN_REQUEST_SELL,
+    IFUN_GET_MAX_PURCHASE_QUANTITY,
     // The fellowship and allegiance actions (`ac2_weenie::SocialRequest::ifun`).
     0x00B4_00A0,
     0x00B4_00A1,
@@ -70,9 +114,84 @@ pub const IFUN_SET_SHOW_RADAR_COORDS: u32 = 0x00B4_007D;
 /// `gmCWInterface::SetShowObjectNames` (`ggmCWInterface::CallIFun_SetShowObjectNames`).
 pub const IFUN_SET_SHOW_OBJECT_NAMES: u32 = 0x00B4_00CE;
 
+/// `gmCWInterface::AcceptTrade`'s IFun (`ggmCWInterface::CallIFun_AcceptTrade`: no
+/// arguments; `WM_Trade` stub 0x45 sends 0x35 with the instance packed).
+pub const IFUN_ACCEPT_TRADE: u32 = 0x00B4_00BA;
+
+/// `gmCWInterface::RequestEnterStore` (`ggmCWInterface::CallIFun_RequestEnterStore`: the store).
+pub const IFUN_REQUEST_ENTER_STORE: u32 = 0x00B4_0137;
+/// `gmCWInterface::RequestLeaveStore` (`CallIFun_RequestLeaveStore`: no arguments).
+pub const IFUN_REQUEST_LEAVE_STORE: u32 = 0x00B4_0131;
+/// `gmCWInterface::PurchaseItem` (`CallIFun_PurchaseItem`: the item, the quantity, the slot).
+pub const IFUN_PURCHASE_ITEM: u32 = 0x00B4_012C;
+/// `gmCWInterface::PurchaseConfirmed` (`CallIFun_PurchaseConfirmed`: the answer, an int).
+pub const IFUN_PURCHASE_CONFIRMED: u32 = 0x00B4_0130;
+/// `gmCWInterface::RequestSell` (`ggmCWInterface::CallIFun_RequestSell`, IFun 0xB40138 in admin
+/// and Legions; the item (long), the quantity, the price).
+pub const IFUN_REQUEST_SELL: u32 = 0x00B4_0138;
+/// `gmCWInterface::GetMaxPurchaseQuantity` (`CallIFun_GetMaxPurchaseQuantity`: the item, and an
+/// out quantity).
+pub const IFUN_GET_MAX_PURCHASE_QUANTITY: u32 = 0x00B4_012D;
+
 /// `gmCWInterface::SetSelection`'s IFun (`ggmCWInterface::CallIFun_SetSelection`: the
 /// object, then `CPlayer` 0x6A).
 pub const IFUN_SET_SELECTION: u32 = 0x00B4_0002;
+
+// The options page's setters (`ggmCWInterface::CallIFun_Set*`, the same ids in Legions 7160).
+pub const IFUN_SET_AUTO_TARGET: u32 = 0x00B4_0085;
+pub const IFUN_SET_ACCEPT_ALLEGIANCE: u32 = 0x00B4_0087;
+pub const IFUN_SET_ACCEPT_FELLOWSHIP: u32 = 0x00B4_0089;
+pub const IFUN_SET_ACCEPT_TRADE: u32 = 0x00B4_008B;
+pub const IFUN_SET_SHOW_DAMAGE_TEXT: u32 = 0x00B4_0075;
+pub const IFUN_SET_SHOW_DAMAGE_TEXT_OTHER: u32 = 0x00B4_0077;
+pub const IFUN_SET_SHOW_SHORTCUT_NUMBERS: u32 = 0x00B4_0073;
+pub const IFUN_SET_SHOW_PK_DAMAGE: u32 = 0x00B4_00FD;
+pub const IFUN_SET_SHORTCUT_LOCKED: u32 = 0x00B4_00FB;
+pub const IFUN_SET_SHORTCUT_INSTA_SCROLL: u32 = 0x00B4_010B;
+pub const IFUN_SET_BYPASS_GOLD_MELTING: u32 = 0x00B4_00D6;
+pub const IFUN_SET_LATENCY_INDICATOR_GRAPH: u32 = 0x00B4_010A;
+pub const IFUN_SET_SHOW_FELLOWS_ON_MAP: u32 = 0x00B4_0140;
+pub const IFUN_SET_SHOW_PET_UI: u32 = 0x00B4_014B;
+pub const IFUN_SET_RADAR_MASK: u32 = 0x00B4_007F;
+pub const IFUN_SET_DAMAGE_TEXT_RANGE_OTHER: u32 = 0x00B4_0079;
+pub const IFUN_SET_SHORTCUT_HEIGHT: u32 = 0x00B4_0142;
+/// `gmCWInterface::UploadGameOptions` (`ggmCWInterface::CallIFun_UploadGameOptions`: the script
+/// sends the profile, `WM_Player` 0x1D).
+pub const IFUN_UPLOAD_GAME_OPTIONS: u32 = 0x00B4_0093;
+
+/// The IFun and argument of an options page setting (`ggmCWInterface::CallIFun_Set*`).
+pub fn option_call(setting: &ac2_ui::OptionSetting) -> (u32, ac2_net::protocol::PackValue) {
+    use ac2_net::protocol::PackValue;
+    use ac2_ui::{OptionSetting, Setter};
+    let setter = match setting {
+        OptionSetting::Int { setter, .. } | OptionSetting::Float { setter, .. } => *setter,
+    };
+    let ifun = match setter {
+        Setter::AutoTarget => IFUN_SET_AUTO_TARGET,
+        Setter::AcceptAllegiance => IFUN_SET_ACCEPT_ALLEGIANCE,
+        Setter::AcceptFellowship => IFUN_SET_ACCEPT_FELLOWSHIP,
+        Setter::AcceptTrade => IFUN_SET_ACCEPT_TRADE,
+        Setter::ShowDamageText => IFUN_SET_SHOW_DAMAGE_TEXT,
+        Setter::ShowDamageTextOther => IFUN_SET_SHOW_DAMAGE_TEXT_OTHER,
+        Setter::ShowShortcutNumbers => IFUN_SET_SHOW_SHORTCUT_NUMBERS,
+        Setter::ShowPkDamage => IFUN_SET_SHOW_PK_DAMAGE,
+        Setter::ShortcutLocked => IFUN_SET_SHORTCUT_LOCKED,
+        Setter::ShortcutInstaScroll => IFUN_SET_SHORTCUT_INSTA_SCROLL,
+        Setter::BypassGoldMeltingConfirmation => IFUN_SET_BYPASS_GOLD_MELTING,
+        Setter::LatencyIndicatorGraph => IFUN_SET_LATENCY_INDICATOR_GRAPH,
+        Setter::ShowFellowsOnMap => IFUN_SET_SHOW_FELLOWS_ON_MAP,
+        Setter::ShowPetUi => IFUN_SET_SHOW_PET_UI,
+        Setter::ShowRadarCoords => IFUN_SET_SHOW_RADAR_COORDS,
+        Setter::RadarMask => IFUN_SET_RADAR_MASK,
+        Setter::DamageTextRangeOther => IFUN_SET_DAMAGE_TEXT_RANGE_OTHER,
+        Setter::ShortcutHeight => IFUN_SET_SHORTCUT_HEIGHT,
+    };
+    let arg = match setting {
+        OptionSetting::Int { value, .. } => PackValue::Int(*value),
+        OptionSetting::Float { value, .. } => PackValue::Float(*value),
+    };
+    (ifun, arg)
+}
 
 /// The script VM and the objects waiting for their process.
 pub(crate) struct Scripts {

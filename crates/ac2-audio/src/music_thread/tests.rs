@@ -14,12 +14,13 @@ use crate::music::segment::{SeqItem, Track, TrackData};
 use crate::music::style::Style;
 use crate::music::style_tests::{guid, note, part, pattern, segment, style, two_pattern_style};
 use crate::music::MusicObject;
+use crate::sink::Boundary;
 use crate::{LoadedSound, MusicInfo, PlaySoundData, RecordingSink, SoundManager, SoundSource};
 
-const QUARTER: i32 = 768;
+pub(super) const QUARTER: i32 = 768;
 const WAIT: Duration = Duration::from_secs(5);
 
-fn seq(time: i32, duration: i32, pchannel: u32, note: u8) -> SeqItem {
+pub(super) fn seq(time: i32, duration: i32, pchannel: u32, note: u8) -> SeqItem {
     SeqItem {
         time,
         duration,
@@ -43,7 +44,7 @@ fn track(class: u8, data: TrackData) -> Track {
 }
 
 /// A 120 BPM sequence segment of `length` ticks (a quarter is half a second).
-fn sequence(length: i32, notes: Vec<SeqItem>) -> Arc<LoadedMusic> {
+pub(super) fn sequence(length: i32, notes: Vec<SeqItem>) -> Arc<LoadedMusic> {
     let mut seg = segment(0);
     seg.length = length;
     seg.tracks = vec![
@@ -89,17 +90,18 @@ fn styled(style: Style, measures: i32) -> Arc<LoadedMusic> {
     })
 }
 
-fn info(kind: SegmentKind, handle: u32, music: &Arc<LoadedMusic>) -> SegmentInfo {
+pub(super) fn info(kind: SegmentKind, handle: u32, music: &Arc<LoadedMusic>) -> SegmentInfo {
     SegmentInfo {
         kind,
         handle,
         segment: Arc::clone(music),
+        bands: Arc::from(Vec::new()),
     }
 }
 
 /// Every callback the queue made, in order.
 #[derive(Default)]
-struct Calls(Vec<(&'static str, u32)>);
+pub(super) struct Calls(pub(super) Vec<(&'static str, u32)>);
 
 impl MusicHandler for Calls {
     fn on_segment_start(&mut self, handle: u32) {
@@ -114,14 +116,14 @@ impl MusicHandler for Calls {
 }
 
 /// Runs the queue to `now` and returns the events sent since the last call, in time order.
-fn run(thread: &mut MusicThread, now: f64, calls: &mut Calls) -> Vec<(f64, MusicEvent)> {
+pub(super) fn run(thread: &mut MusicThread, now: f64, calls: &mut Calls) -> Vec<(f64, MusicEvent)> {
     thread.use_time(now, Some(calls));
     let mut sink: Vec<TimedEvent> = Vec::new();
     thread.send_events(&mut sink);
     sink.iter().map(|e| (e.seconds, e.event)).collect()
 }
 
-fn on(channel: u32, note: u8) -> MusicEvent {
+pub(super) fn on(channel: u32, note: u8) -> MusicEvent {
     MusicEvent::NoteOn {
         channel,
         instrument: None,
@@ -130,7 +132,7 @@ fn on(channel: u32, note: u8) -> MusicEvent {
     }
 }
 
-fn off(channel: u32, note: u8) -> MusicEvent {
+pub(super) fn off(channel: u32, note: u8) -> MusicEvent {
     MusicEvent::NoteOff { channel, note }
 }
 
@@ -191,7 +193,7 @@ fn a_secondary_stop_ends_it_now_and_releases_its_notes() {
     assert!(thread.play(info(SegmentKind::Secondary, 5, &s)));
     assert_eq!(run(&mut thread, 0.25, &mut calls), vec![(0.0, on(0, 60))]);
     assert!(thread.is_playing(5));
-    thread.stop(5);
+    thread.stop(5, Boundary::Immediate);
     assert!(!thread.is_playing(5), "stopped at once");
     // The note sounding is released at the stop (a quarter-second in), not at its own end.
     assert_eq!(run(&mut thread, 0.5, &mut calls), vec![(0.25, off(0, 60))]);
@@ -206,7 +208,7 @@ fn a_stopped_primary_plays_out_its_pass_and_is_not_repeated() {
     run(&mut thread, 0.0, &mut calls);
     thread.play(info(SegmentKind::Primary, 7, &p));
     assert_eq!(run(&mut thread, 0.5, &mut calls), vec![(0.0, on(0, 60))]);
-    thread.stop(7);
+    thread.stop(7, Boundary::End);
     // A stopped primary is not cut: it plays to its end.
     assert!(thread.is_playing(7));
     let events = run(&mut thread, 3.0, &mut calls);
@@ -344,7 +346,7 @@ fn a_level_no_pattern_covers_plays_nothing() {
 }
 
 /// Sounds made up for the sound-manager test: each DID is one music segment.
-struct Musics(HashMap<u32, LoadedSound>);
+pub(super) struct Musics(pub(super) HashMap<u32, LoadedSound>);
 
 impl SoundSource for Musics {
     fn load(&self, did: u32) -> Option<LoadedSound> {
@@ -367,6 +369,8 @@ fn the_sound_manager_forwards_the_groove_and_its_tweaks_to_a_playing_style() {
             segment: 0x2400_0042,
         },
         segment: Some(styled(two, 2)),
+        sources: Arc::from(Vec::new()),
+        bands: Arc::from(Vec::new()),
     };
     let source = Musics(HashMap::from([(did, music)]));
     let mut manager = SoundManager::new(Box::new(RecordingSink::new()), Arc::new(source));

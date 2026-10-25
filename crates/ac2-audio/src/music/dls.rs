@@ -20,10 +20,13 @@ pub struct Connection {
     pub scale: i32,
 }
 
-/// An articulation (`lart` with `art1`, or `lar2` with `art2`).
+/// An articulation: the connection blocks of a `lart` list (its `art1` chunks, DLS Level 1) or a
+/// `lar2` list (its `art2` chunks, DLS Level 2). A level's `lar2` replaces its `lart`.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct Articulation {
     pub connections: Vec<Connection>,
+    /// Whether the blocks are `art2` (from a `lar2` list).
+    pub level2: bool,
 }
 
 /// A `WLOOP`.
@@ -151,12 +154,10 @@ fn wave_sample(chunk: &Chunk<'_>) -> WaveSample {
     }
 }
 
-fn articulation(chunk: &Chunk<'_>) -> Articulation {
+fn articulation(chunk: &Chunk<'_>, level2: bool) -> Articulation {
+    let id: &[u8; 4] = if level2 { b"art2" } else { b"art1" };
     let mut connections = Vec::new();
-    for art in chunk
-        .children()
-        .filter(|c| &c.id == b"art1" || &c.id == b"art2")
-    {
+    for art in chunk.children().filter(|c| &c.id == id) {
         let mut r = art.reader();
         let size = r.u32() as usize;
         let count = r.u32() as usize;
@@ -171,14 +172,18 @@ fn articulation(chunk: &Chunk<'_>) -> Articulation {
             });
         }
     }
-    Articulation { connections }
+    Articulation {
+        connections,
+        level2,
+    }
 }
 
+/// The articulation a chunk holds: its `lar2` (DLS Level 2) when it has one, else its `lart`.
 fn articulation_of(chunk: &Chunk<'_>) -> Option<Articulation> {
-    chunk
-        .list(b"lar2")
-        .or_else(|| chunk.list(b"lart"))
-        .map(|list| articulation(&list))
+    match chunk.list(b"lar2") {
+        Some(list) => Some(articulation(&list, true)),
+        None => chunk.list(b"lart").map(|list| articulation(&list, false)),
+    }
 }
 
 fn region(chunk: &Chunk<'_>) -> Region {

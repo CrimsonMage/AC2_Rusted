@@ -11,8 +11,19 @@ use crate::color::Rgba;
 mod ac2_region;
 #[path = "region_environment.rs"]
 mod environment;
-pub use ac2_region::ac2_region_sound_desc;
+pub use ac2_region::{ac2_region_detail_map_table, ac2_region_game_map, ac2_region_sound_desc};
+#[path = "region/detail_map.rs"]
+mod detail_map;
+#[cfg(test)]
+#[path = "region/detail_map_tests.rs"]
+mod detail_map_tests;
+#[cfg(test)]
+#[path = "region/game_time_real_tests.rs"]
+mod game_time_real_tests;
 pub(crate) use ac2_region::{ac2_region_water_desc, load_ac2_region};
+pub use detail_map::{
+    ac2_detail_map, ac2_map_note_desc, DetailMap, DetailMapRow, MapNoteDesc, MapNoteRow,
+};
 #[path = "region/day_desc.rs"]
 mod day_desc;
 #[path = "region/game_time.rs"]
@@ -20,8 +31,8 @@ mod game_time;
 #[path = "region/sky_objects.rs"]
 mod sky_objects;
 pub use environment::{SkyEnvironmentCadence, SkyEnvironmentSample, SkyFogDesc};
-pub use game_time::GameClock;
 use game_time::GameTime;
+pub use game_time::{GameClock, GameDateTime};
 pub use sky_objects::CelestialPosition;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -44,12 +55,6 @@ impl RegionDesc {
     /// The region's `GameTime` as a running clock for `WorldManager::Update`.
     pub fn game_clock(&self) -> GameClock {
         GameClock::new(&self.game_time)
-    }
-
-    /// The calendar date and time-of-day names at `server_time`, as two lines.
-    pub fn date_time_text(&self, server_time: f64) -> Option<String> {
-        let (date, time) = self.game_time.format_date_time_strings(server_time)?;
-        Some(format!("Date: {date}\nTime: {time}"))
     }
 
     /// Retimes an existing server timestamp within its current calendar day.

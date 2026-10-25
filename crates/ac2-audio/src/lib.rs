@@ -4,18 +4,21 @@
 //! music voices and sends their events to an event sink; and the output the voices go to (the
 //! speakers, or a null or recording sink).
 //!
-//! The frame thread never reads or decodes a file: a sound not yet resident is loaded on the
-//! loader thread and plays from a later [`SoundManager::use_time`].
+//! A music segment's notes are synthesised ([`synth`]) inside the same mixer, so the speakers play
+//! music and sound alike. The frame thread never reads or decodes a file: a sound not yet resident
+//! is loaded on the loader thread and plays from a later [`SoundManager::use_time`].
 
 mod ambient;
 mod ambient_data;
 mod ambient_objects;
 mod data;
+mod headless;
 mod loader;
 mod manager;
 mod mixer;
 pub mod music;
 mod music_thread;
+mod music_voice;
 #[cfg(feature = "output")]
 mod output;
 mod play_data;
@@ -25,6 +28,8 @@ pub mod synth;
 
 #[cfg(test)]
 mod ambient_tests;
+#[cfg(test)]
+mod music_output_tests;
 #[cfg(test)]
 mod tests;
 
@@ -36,6 +41,7 @@ pub use data::{
     flags, sound_db_type, DatSounds, LoadedSound, MusicInfo, Pcm, SoundInfo, SoundSource, Wave,
     DB_TYPE_MUSIC_INFO, DB_TYPE_SOUND_INFO, DB_TYPE_WAVE,
 };
+pub use headless::MixingSink;
 pub use manager::{SoundManager, SoundPreference};
 pub use mixer::{spatial_gains, Mixer};
 pub use music_thread::{

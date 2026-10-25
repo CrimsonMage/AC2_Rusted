@@ -7,9 +7,15 @@ use std::sync::Arc;
 use ac2_audio::{DatSounds, PlaySoundData, SoundManager, SoundSink};
 use ac2_db::ResourceStore;
 
-/// The sound manager over the DATs in `store`, its voices going to `sink`.
+/// The sound manager over the DATs in `store`, its voices going to `sink`. When `AC2_GM_DLS`
+/// names the user's General MIDI file it loads on a worker now; without it the GM channels of
+/// the music stay silent (no GM data ships with the client).
 pub fn sound_manager(store: Arc<ResourceStore>, sink: Box<dyn SoundSink>) -> SoundManager {
-    SoundManager::new(sink, Arc::new(DatSounds::new(store)))
+    let mut manager = SoundManager::new(sink, Arc::new(DatSounds::new(store)));
+    if let Some(path) = ac2_audio::synth::gm_path_from_env() {
+        manager.load_gm(path);
+    }
+    manager
 }
 
 /// `MD_Data_Sound::Update`: each sound the UI's media played goes to `SoundManager::Play`

@@ -20,6 +20,7 @@ use ac2_core::DataId;
 use ac2_db::{ResourceResult, ResourceStore};
 
 use crate::allegiance::AllegianceUi;
+use crate::character::CharacterUi;
 use crate::chat::{ChatStrings, ChatUi, CHAT_STRING_TABLE, REPLY_STRING_TABLE, STRING_TABLE_GROUP};
 use crate::compose::UiPixels;
 use crate::dialog::DialogFactory;
@@ -30,6 +31,8 @@ use crate::external_container::ExternalContainerUi;
 use crate::fellowship::FellowshipUi;
 use crate::layout::{load_layout, LayoutDesc};
 use crate::name_plates::NamePlates;
+use crate::navigation::NavigationUi;
+use crate::overview_map::OverviewMapUi;
 use crate::radar::RadarUi;
 use crate::reticle::Reticle;
 use crate::secure_trade::SecureTradeUi;
@@ -39,6 +42,7 @@ use crate::stack::StackUi;
 use crate::text_data::StoreTextData;
 use crate::token::tokenize;
 use crate::toolbar::ToolbarUi;
+use crate::ui_string::UI_TABLE;
 use crate::vitals::VitalsUi;
 
 /// `UILAYOUT_GROUP_ENUM` (`UIMainFramework::CreateAndAddRootElement`'s
@@ -106,6 +110,12 @@ pub struct GameplayHud {
     pub radar: RadarUi,
     /// `gmGamePlayUI`'s `gmSecureTradeUI`, hidden until a trade opens.
     pub secure_trade: Option<SecureTradeUi>,
+    /// `gmCharacterUI`, the character options page (`CharacterPage`).
+    pub character: Option<CharacterUi>,
+    /// `gmNavigationUI`, the navigation panel's macro map.
+    pub navigation: Option<NavigationUi>,
+    /// `gmOverviewMapUI`, hidden until a map is shown.
+    pub overview: Option<OverviewMapUi>,
 }
 
 /// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
@@ -199,6 +209,19 @@ pub fn build_gameplay_hud(
     let secure_trade = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()
         .map(SecureTradeUi::create);
+    let ui_table = ac2_assets::ac2_enum_did(store, STRING_TABLE_GROUP, UI_TABLE)?;
+    let character = match (&layouts[&LAYOUT_TOOLBAR], ui_table) {
+        (Some(toolbar), Some(table)) => {
+            CharacterUi::create(&mut tree, toolbar, &*text_data, table.raw())
+        }
+        _ => None,
+    };
+    let navigation = layouts[&LAYOUT_TOOLBAR]
+        .as_ref()
+        .and_then(|toolbar| NavigationUi::create(&mut tree, toolbar));
+    let overview = layouts[&LAYOUT_GAMEPLAY]
+        .as_ref()
+        .and_then(|gameplay| OverviewMapUi::create(&mut tree, gameplay));
     for layout in layouts.values().flatten() {
         crate::tooltip::prefetch_tooltip_strings(&*text_data, layout);
     }
@@ -222,6 +245,9 @@ pub fn build_gameplay_hud(
         external_container,
         radar,
         secure_trade,
+        character,
+        navigation,
+        overview,
     })
 }
 

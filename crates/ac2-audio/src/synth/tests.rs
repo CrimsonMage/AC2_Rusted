@@ -44,6 +44,9 @@ pub(crate) struct Spec {
     pub loop_: Option<(u32, u32)>,
     /// The EG1 release time in timecents (an `art1` connection on the instrument).
     pub release_tc: Option<i32>,
+    /// More `art1` connections on the instrument: `(source, control, destination, scale)`, the
+    /// scale in 16.16 fixed-point (the destination's unit times 65536).
+    pub connections: Vec<(u16, u16, u16, i32)>,
 }
 
 /// The wave a test expects in the output: `sample[i]` as `f32`.
@@ -80,12 +83,20 @@ pub(crate) fn dls_bytes(spec: &Spec) -> Vec<u8> {
     );
     let insh = u32s(&[1, 0, PATCH]);
     let mut ins_children = vec![chunk(b"insh", &insh), list(b"lrgn", &[region])];
+    let mut connections: Vec<(u16, u16, u16, i32)> = spec.connections.clone();
     if let Some(tc) = spec.release_tc {
-        // cbSize, cConnections, then src, ctl, dst, transform (u16 each) and scale (i32).
-        let mut art = u32s(&[8, 1]);
-        art.extend_from_slice(&[0, 0, 0, 0, 0x09, 0x02, 0, 0]);
         // The scale is 16.16 fixed-point timecents.
-        art.extend_from_slice(&(tc * 65_536).to_le_bytes());
+        connections.push((0, 0, 0x0209, tc * 65_536));
+    }
+    if !connections.is_empty() {
+        // cbSize, cConnections, then src, ctl, dst, transform (u16 each) and scale (i32).
+        let mut art = u32s(&[8, connections.len() as u32]);
+        for (source, control, destination, scale) in &connections {
+            for v in [*source, *control, *destination, 0] {
+                art.extend_from_slice(&v.to_le_bytes());
+            }
+            art.extend_from_slice(&scale.to_le_bytes());
+        }
         ins_children.push(list(b"lart", &[chunk(b"art1", &art)]));
     }
     let instrument = list(b"ins ", &ins_children);
@@ -114,15 +125,21 @@ pub(crate) fn dls_bytes(spec: &Spec) -> Vec<u8> {
 const GUID: [u8; 16] = [7; 16];
 
 /// `n` frames of a ramp: `(i - 8) * 2000`, so every sample is distinct.
-fn ramp(n: usize) -> Vec<i16> {
+pub(crate) fn ramp(n: usize) -> Vec<i16> {
     (0..n).map(|i| (i as i16 - 8) * 2000).collect()
 }
 
-fn collection(spec: &Spec) -> Arc<Collection> {
+pub(crate) fn collection(spec: &Spec) -> Arc<Collection> {
     Arc::new(read_collection(&dls_bytes(spec)).expect("the synthetic collection parses"))
 }
 
-fn note_on(seconds: f64, channel: u32, patch: u32, note: u8, velocity: u8) -> TimedEvent {
+pub(crate) fn note_on(
+    seconds: f64,
+    channel: u32,
+    patch: u32,
+    note: u8,
+    velocity: u8,
+) -> TimedEvent {
     TimedEvent {
         seconds,
         event: MusicEvent::NoteOn {
@@ -131,33 +148,36 @@ fn note_on(seconds: f64, channel: u32, patch: u32, note: u8, velocity: u8) -> Ti
             note,
             velocity,
         },
+        segment: 0,
     }
 }
 
-fn note_off(seconds: f64, channel: u32, note: u8) -> TimedEvent {
+pub(crate) fn note_off(seconds: f64, channel: u32, note: u8) -> TimedEvent {
     TimedEvent {
         seconds,
         event: MusicEvent::NoteOff { channel, note },
+        segment: 0,
     }
 }
 
-fn render(synth: &mut Synth, frames: usize, start: f64) -> Vec<f32> {
+pub(crate) fn render(synth: &mut Synth, frames: usize, start: f64) -> Vec<f32> {
     let mut out = vec![0.0f32; frames];
     synth.render(&mut out, 1, start);
     out
 }
 
-fn ramp_synth(spec: &Spec) -> Synth {
+pub(crate) fn ramp_synth(spec: &Spec) -> Synth {
     let mut synth = Synth::new(RATE);
     synth.bind(0, Source::Collection(collection(spec)));
     synth
 }
 
-fn plain_ramp() -> Spec {
+pub(crate) fn plain_ramp() -> Spec {
     Spec {
         wave: ramp(16),
         loop_: None,
         release_tc: None,
+        connections: Vec::new(),
     }
 }
 
@@ -167,6 +187,7 @@ fn a_synthetic_collection_parses_its_instrument_region_wave_and_loop() {
         wave: ramp(16),
         loop_: Some((4, 4)),
         release_tc: Some(-3986),
+        connections: Vec::new(),
     };
     let c = read_collection(&dls_bytes(&spec)).expect("parses");
     assert_eq!(c.guid.0, GUID);
@@ -237,6 +258,7 @@ fn the_loop_holds_while_the_note_is_on() {
         wave: ramp(16),
         loop_: Some((4, 4)),
         release_tc: None,
+        connections: Vec::new(),
     };
     let mut synth = ramp_synth(&spec);
     synth.event(&note_on(0.0, 0, PATCH, 60, 127));
@@ -255,6 +277,7 @@ fn release_decays_to_silence() {
         wave: vec![16384; RATE as usize],
         loop_: None,
         release_tc: Some(-3986),
+        connections: Vec::new(),
     };
     let mut synth = ramp_synth(&spec);
     synth.event(&note_on(0.0, 0, PATCH, 60, 127));

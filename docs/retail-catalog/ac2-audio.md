@@ -1,6 +1,6 @@
 # ac2-audio: Sound
 
-367 retail functions: 125 done, 28 partial, 195 to do, 19 skipped.
+367 retail functions: 124 done, 29 partial, 195 to do, 19 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/cregion/csound/cambientsoundinfo.cpp.c` (1/13)
@@ -319,7 +319,7 @@ Legend and workflow: [README](README.md).
 - [x] `DirectXPlayingSound::Enable` · 005a70e0 · legions 00573770 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::OnDeviceStateChanged` · 005a7180 · legions 00573810 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 
-## `portal/client/src/sound/directx/directxsounddevice.cpp.c` (6/34)
+## `portal/client/src/sound/directx/directxsounddevice.cpp.c` (5/34)
 
 ### DirectXSoundDevice
 - [ ] `DirectXSoundDevice::SetSoundFeatures` · 005a3e70 · legions 00570640
@@ -334,7 +334,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DirectXSoundInstance::GetDataID` · 005a4270 · legions 00570a40
 
 ### DirectXSoundDevice
-- [x] `DirectXSoundDevice::SetChannelVolume` · 005a4290 · legions 00570a60 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
+- [~] `DirectXSoundDevice::SetChannelVolume` · 005a4290 · legions 00570a60 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [~] `DirectXSoundDevice::UpdateListener` · 005a4440 · legions 00570c10 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [x] `DirectXSoundDevice::UseTime` · 005a45c0 · legions 00570d90 — ac2-audio: music queue events reach the playing sounds (OnSegmentEnded), then each sound's UseTime; DirectXSoundDevice::OnSegmentStart/UseTime
 - [ ] `DirectXSoundDevice::RemovePlayingSound` · 005a4600 · legions 00570dd0
@@ -394,7 +394,7 @@ Legend and workflow: [README](README.md).
 - [x] `DXMusicMessageThread::DXMusicMessageThread` · 005a90c0 · legions 00575700 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
 - [~] `DXMusicMessageThread::Startup` · 005a9170 — ac2-audio music_thread: Startup's notification loop runs inside MusicThread::use_time (no thread, no 100 ms wait; the WAIT_TIMEOUT watchdog is kept)
 - [x] `DXMusicMessageThread::QueuePrimaryInternal` · 005a93b0 · legions 005759f0 — ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
-- [~] `DXMusicMessageThread::Stop` · 005a9540 · legions 00575b80 — ac2-audio music_thread: Stop = StopEx at once (stop boundary flags not modelled); Play's audio path check and DMUS start flags not modelled
+- [~] `DXMusicMessageThread::Stop` · 005a9540 · legions 00575b80 — ac2-audio music_thread: Stop = StopEx at once (stop boundary flags not modelled); an immediate stop ends the segment's synthesizer (its notes release, Synth::stop); a boundary stop is played out by the queue; Play's audio path check and DMUS start flags not modelled
 - [~] `DXMusicMessageThread::Play` · 005a96f0 · legions 00575d30 — ac2-audio music_thread: Stop = StopEx at once (stop boundary flags not modelled); Play's audio path check and DMUS start flags not modelled
 
 ## `portal/client/src/sound/directx/envinfo_win32.cpp.c` (0/61)
@@ -534,7 +534,7 @@ Legend and workflow: [README](README.md).
 - [x] `SoundManager::FlushSounds` · 005a27d0 · legions 0056f4c0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundManager::AddSoundInstance` · 005a28d0 · legions 0056f5c0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundManager::Shutdown` · 005a29f0 · legions 0056f6e0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [~] `SoundManager::UseTime` · 005a2b00 · legions 0056f7f0 — ac2-audio: the music queue runs before the voices in UseTime; a music voice's PlayInternal starts its segment in the queue; no listener/3D or emitter muting
+- [~] `SoundManager::UseTime` · 005a2b00 · legions 0056f7f0 — ac2-audio: the music queue runs before the voices in UseTime; a music voice's PlayInternal starts its segment in the queue; after the voices, the queue's notes go to the mixer's synthesizers (MusicClock + Note); no listener/3D or emitter muting
 - [~] `SoundManager::PlayInternal` · 005a2c50 · legions 0056f8f0 — ac2-audio: the music queue runs before the voices in UseTime; a music voice's PlayInternal starts its segment in the queue; no listener/3D or emitter muting
 - [x] `SoundManager::OnContextFinished` · 005a3050 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundManager::Play` · 005a30c0 · legions 0056fc40 — ac2-audio: SoundManager / DirectXPlayingSound / sound records

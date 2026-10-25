@@ -196,6 +196,7 @@ dependencies = [
  "ac2-math",
  "ac2-net",
  "ac2-weenie",
+ "ac2-world",
  "png",
 ]
 

@@ -72,13 +72,42 @@ pub(crate) struct UiStringTables {
 /// The table enums the UI frameworks render from: the UI's, the chat's, race and sex names
 /// (`AllegianceDataAdaptor::GetSpeciesGenderString`), the MotD's, and the map coordinates'
 /// (`Position::ToRealMapCoords_Info`).
-const UI_TABLE_ENUMS: [u32; 5] = [
+const UI_TABLE_ENUMS: [u32; 6] = [
     0x4100_0018,
     0x4100_0004,
     0x4100_000B,
     0x4100_0001,
     MAP_COORDS_TABLE,
+    GAME_TIME_TABLE,
 ];
+
+/// `GameTime::GetDateTimeString`'s table enum (`0x40000002`): `ID_DateString` and `ID_TimeString`.
+pub(crate) const GAME_TIME_TABLE: u32 = 0x4000_0002;
+
+/// `GameTime::GetDateTimeString`: the date (`ID_DateString` with `YEAR`, `YEARSPEC`, `DAY` and
+/// `SEASON`) and the time (`ID_TimeString` with `TIME`), as `StringInfo`s of the game time's table.
+pub(crate) fn game_date_time(
+    date_time: ac2_world::GameDateTime,
+) -> (ac2_ui::UiString, ac2_ui::UiString) {
+    use ac2_ui::{tokenize, SkillVar, UiString};
+    let name = |id: u32| SkillVar::Info(Box::new(UiString::new(id, GAME_TIME_TABLE, Vec::new())));
+    let date = UiString::new(
+        tokenize("ID_DateString"),
+        GAME_TIME_TABLE,
+        vec![
+            (tokenize("YEAR"), SkillVar::Int(i64::from(date_time.year))),
+            (tokenize("YEARSPEC"), name(date_time.year_spec)),
+            (tokenize("DAY"), SkillVar::Int(i64::from(date_time.day))),
+            (tokenize("SEASON"), name(date_time.season)),
+        ],
+    );
+    let time = UiString::new(
+        tokenize("ID_TimeString"),
+        GAME_TIME_TABLE,
+        vec![(tokenize("TIME"), name(date_time.time))],
+    );
+    (date, time)
+}
 
 /// `Position::ToRealMapCoords_Info`'s table enum.
 const MAP_COORDS_TABLE: u32 = 0x4000_0007;

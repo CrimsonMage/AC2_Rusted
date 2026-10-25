@@ -18,6 +18,7 @@ mod radar;
 mod reliable;
 mod script;
 mod social;
+mod store;
 mod trade;
 
 pub use allegiance::{Allegiance, Liege};

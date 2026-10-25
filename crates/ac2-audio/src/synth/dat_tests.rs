@@ -55,6 +55,7 @@ fn every_dls_collection_parses_and_renders_a_note_from_its_first_instrument() {
                 note,
                 velocity,
             },
+            segment: 0,
         });
         let mut out = vec![0.0f32; 2 * 441_000];
         synth.render(&mut out, 2, 0.0);
@@ -78,4 +79,65 @@ fn every_dls_collection_parses_and_renders_a_note_from_its_first_instrument() {
         );
     }
     assert_eq!(parsed, COLLECTIONS);
+}
+
+/// The keys and velocities each region's connection blocks are resolved at.
+const NOTES: [(u8, u8); 3] = [(36, 1), (60, 100), (96, 127)];
+
+#[test]
+fn every_connection_block_resolves_to_finite_parameters_and_the_corpus_routes_are_read() {
+    use super::modulation::resolve;
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let library = MusicLibrary::new(Arc::new(ResourceStore::new(Arc::clone(&dataset))));
+    let ids: Vec<u32> = dataset
+        .ids_in_range(DatFileKind::Portal, FIRST, LAST)
+        .collect();
+    let (mut with_pan, mut with_lfo, mut with_lfo_route) = (0, 0, 0);
+    for did in ids {
+        let Some(MusicObject::Collection(c)) = library.record(did) else {
+            continue;
+        };
+        let (mut pan, mut lfo, mut lfo_route) = (false, false, false);
+        for instrument in &c.instruments {
+            for region in &instrument.regions {
+                for (key, velocity) in NOTES {
+                    let m = resolve(
+                        region
+                            .articulation
+                            .iter()
+                            .chain(instrument.articulation.iter()),
+                        key,
+                        velocity,
+                    );
+                    for env in [m.eg1, m.eg2] {
+                        for t in [env.attack, env.decay, env.release] {
+                            assert!(t.is_finite() && t >= 0.0, "{did:08X} a time {t}");
+                        }
+                        assert!((0.0..=1.0).contains(&env.sustain), "{did:08X} sustain");
+                    }
+                    assert!(m.pitch_cents.is_finite() && m.attenuation_db.is_finite());
+                    assert!((-1.0..=1.0).contains(&m.pan), "{did:08X} pan {}", m.pan);
+                    if let Some(l) = m.lfo {
+                        assert!(l.frequency.is_finite() && l.frequency > 0.0);
+                        assert!(l.delay.is_finite() && l.delay >= 0.0);
+                        lfo = true;
+                    }
+                    for route in &m.routes {
+                        assert!(route.scale.is_finite(), "{did:08X} route scale");
+                        lfo_route |= route.source == super::modulation::Source::Lfo;
+                    }
+                    pan |= m.pan != 0.0;
+                }
+            }
+        }
+        with_pan += usize::from(pan);
+        with_lfo += usize::from(lfo);
+        with_lfo_route += usize::from(lfo_route);
+    }
+    // The corpus's connection blocks set pan, the LFO, and LFO routes (art1 and art2 together).
+    assert!(with_pan > 0, "a collection sets pan");
+    assert!(with_lfo > 0, "a collection sets the LFO");
+    assert!(with_lfo_route > 0, "a collection routes the LFO");
 }

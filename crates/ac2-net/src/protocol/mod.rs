@@ -44,8 +44,8 @@ pub use error::ProtocolError;
 pub use fx::{DecalFx, EntityDesc, FxData, FxNode, LightSourceFx, RepulsorFx, StreakFx, Waveform};
 pub use gameplay::{
     broadcast as script_broadcast, call_spec, function as script_function, ArgKind, CallSpec,
-    Direction as CallDirection, ScriptCall, ScriptMessage, ScriptRequest, TradeMessage,
-    CALLS as SCRIPT_CALLS,
+    Direction as CallDirection, ScriptCall, ScriptMessage, ScriptRequest, StoreMessage,
+    TradeMessage, CALLS as SCRIPT_CALLS,
 };
 pub use inventory::{
     id_list, pack_id_list, ContainerContents, Equipment, InvEquipDesc, InvMoveDesc,

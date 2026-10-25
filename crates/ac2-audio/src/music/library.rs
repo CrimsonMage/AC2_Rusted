@@ -14,7 +14,8 @@ use ac2_db::{
 
 use super::band::{Band, Reference};
 use super::riff::{riff, Guid, Reader};
-use super::segment::TrackData;
+use super::segment::{Segment, TrackData};
+use super::style::Style;
 use super::{read_music_record, MusicObject};
 use crate::data::{MusicInfo, Pcm};
 
@@ -124,6 +125,18 @@ impl LoadedMusic {
     /// What a reference names (its GUID, else nothing).
     pub fn resolve(&self, reference: &Reference) -> Option<&MusicObject> {
         self.objects.get(reference.guid.as_ref()?)
+    }
+
+    /// The style `segment` references first (its styles track), when the closure holds it.
+    pub fn style_of(&self, segment: &Segment) -> Option<Arc<Style>> {
+        let reference = segment.tracks.iter().find_map(|track| match &track.data {
+            TrackData::Styles(styles) => styles.first().map(|(_, reference)| reference),
+            _ => None,
+        })?;
+        match self.resolve(reference)? {
+            MusicObject::Style(style) => Some(Arc::clone(style)),
+            _ => None,
+        }
     }
 }
 

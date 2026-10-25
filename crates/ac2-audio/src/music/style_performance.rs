@@ -109,6 +109,7 @@ impl StylePerformance {
             sink.event(&TimedEvent {
                 seconds: self.position,
                 event: MusicEvent::NoteOff { channel, note },
+                segment: 0,
             });
         }
         self.pending.clear();
@@ -163,6 +164,7 @@ impl StylePerformance {
             sink.event(&TimedEvent {
                 seconds,
                 event: p.event,
+                segment: 0,
             });
             self.cursor += 1;
         }
@@ -257,6 +259,7 @@ impl StylePerformance {
                     self.sounding.swap_remove(i);
                 }
             }
+            _ => {}
         }
     }
 

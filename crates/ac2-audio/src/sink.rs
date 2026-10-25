@@ -5,6 +5,9 @@
 use std::sync::{Arc, Mutex};
 
 use crate::data::Pcm;
+use crate::music::dls::Collection;
+use crate::music::performance::TimedEvent;
+use crate::synth::ChannelSources;
 
 /// The quietest attenuation, silence (`DSBVOLUME_MIN`, hundredths of a decibel).
 pub const SILENT: i32 = -9600;
@@ -50,6 +53,7 @@ pub enum SinkCommand {
         spatial: Option<Spatial>,
     },
     /// `DXMusicMessageThread::Play` of a `MusicInfo`'s segment (`DBMusicObj`) on its audio path.
+    /// The voice is the segment's synthesizer: its channels are bound to `sources`.
     StartMusic {
         voice: u32,
         music: u32,
@@ -63,9 +67,27 @@ pub enum SinkCommand {
         /// A secondary control segment (`DMUS_SEGF_CONTROL`).
         control: bool,
         spatial: Option<Spatial>,
+        /// The segment's style's bands: each performance channel's patch source.
+        sources: ChannelSources,
+        /// The band its notes play on (its own band, or the performance's), searched first.
+        band: ChannelSources,
     },
-    /// `DXMusicMessageThread::Stop` of a segment at `boundary`.
+    /// The channel sources of the band the voice's segment plays on changed (a band change of
+    /// the queue; see [`crate::music_thread::BandChange`]).
+    MusicBands { voice: u32, sources: ChannelSources },
+    /// `DXMusicMessageThread::Stop` of a segment at `boundary`. Only an immediate stop ends the
+    /// voice here; a later boundary is the queue's to play out (its notes end as its events do).
     StopMusic { voice: u32, boundary: Boundary },
+    /// The segment `voice` ended in the queue (its sound was flushed): its notes release and the
+    /// voice goes once silent.
+    MusicEnded { voice: u32 },
+    /// A note event of the music queue, for the voice of its `segment`.
+    Note(TimedEvent),
+    /// The queue's time (`DXMusicMessageThread`'s clock) that the notes after it are timed
+    /// against; the mixer advances it by the frames it renders.
+    MusicClock { seconds: f64 },
+    /// The General MIDI set (`None` makes its channels silent).
+    GeneralMidi { set: Option<Arc<Collection>> },
     /// `IDirectMusicPerformance` master groove level (`DirectXSoundDevice::SetGrooveLevel`).
     Groove { level: i32 },
     /// `IDirectSound3DBuffer::SetAllParameters`: the emitter moved.

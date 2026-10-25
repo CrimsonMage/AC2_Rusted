@@ -68,8 +68,10 @@ pub use land_lattice::{
 };
 pub use landblock::LandBlockDesc;
 pub use region::{
-    ac2_region_sound_desc, CelestialPosition, GameClock, RegionDesc, SkyEnvironmentCadence,
-    SkyEnvironmentSample, SkyFogDesc, SkyLightingDesc,
+    ac2_detail_map, ac2_map_note_desc, ac2_region_detail_map_table, ac2_region_game_map,
+    ac2_region_sound_desc, CelestialPosition, DetailMap, DetailMapRow, GameClock, GameDateTime,
+    MapNoteDesc, MapNoteRow, RegionDesc, SkyEnvironmentCadence, SkyEnvironmentSample, SkyFogDesc,
+    SkyLightingDesc,
 };
 pub use surface_desc::Ac2FarTerrain;
 pub use surface_info::Ac2SurfaceInfo;

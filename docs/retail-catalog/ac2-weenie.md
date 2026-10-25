@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 87 done, 26 partial, 1785 to do, 6 skipped.
+1904 retail functions: 149 done, 59 partial, 1689 to do, 7 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -162,31 +162,31 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/events/cm_store.cpp.c` (0/12)
 
 ### CM_Store
-- [ ] `CM_Store::SendNotice_ConfirmPurchase` · 00724000 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Store::SendNotice_InitNewSale` · 007240b0
-- [ ] `CM_Store::SendNotice_LeaveCatalog` · 00724150 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Store::SendNotice_LeaveConsignment` · 007241e0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Store::SendNotice_LeaveStore` · 00724270 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Store::SendNotice_ShowSaleReminder` · 00724300 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Store::SendNotice_UpdateSale` · 00724390 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Store::SendNotice_UpdateConsignment` · 00724430 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Store::SendNotice_UpdateStore` · 00724520 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Store::SendNotice_ViewConsignment` · 00724610 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Store::SendNotice_ViewStore` · 00724700 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Store::SendNotice_ViewCatalog` · 007247f0 · legions 006a41f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [~] `CM_Store::SendNotice_ConfirmPurchase` · 00724000 — Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+- [-] `CM_Store::SendNotice_InitNewSale` · 007240b0 — No gCM_Store efun and no WLib path reaches it (not script-raised).
+- [~] `CM_Store::SendNotice_LeaveCatalog` · 00724150 — Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+- [~] `CM_Store::SendNotice_LeaveConsignment` · 007241e0 — Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+- [~] `CM_Store::SendNotice_LeaveStore` · 00724270 — Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+- [~] `CM_Store::SendNotice_ShowSaleReminder` · 00724300 — Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+- [~] `CM_Store::SendNotice_UpdateSale` · 00724390 — Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+- [~] `CM_Store::SendNotice_UpdateConsignment` · 00724430 — Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+- [~] `CM_Store::SendNotice_UpdateStore` · 00724520 — Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+- [~] `CM_Store::SendNotice_ViewConsignment` · 00724610 — Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+- [~] `CM_Store::SendNotice_ViewStore` · 00724700 — Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+- [~] `CM_Store::SendNotice_ViewCatalog` · 007247f0 · legions 006a41f0 — Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
 
 ## `ac2/client/src/events/cm_trade.cpp.c` (0/9)
 
 ### CM_Trade
-- [~] `CM_Trade::SendNotice_Trade_BeAcceptanceCleared` · 00726310 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-- [~] `CM_Trade::SendNotice_Trade_BeAccepted` · 007263a0 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-- [~] `CM_Trade::SendNotice_Trade_BeClosed` · 00726430 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-- [~] `CM_Trade::SendNotice_Trade_BeDeclined` · 007264d0 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-- [~] `CM_Trade::SendNotice_Trade_BeOffered` · 00726560 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-- [~] `CM_Trade::SendNotice_Trade_BeOpened` · 00726620 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-- [~] `CM_Trade::SendNotice_Trade_BeRegistered` · 007266b0 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-- [~] `CM_Trade::SendNotice_Trade_BeReset` · 00726770 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-- [~] `CM_Trade::SendNotice_Trade_BeRevoked` · 00726800 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
+- [~] `CM_Trade::SendNotice_Trade_BeAcceptanceCleared` · 00726310 — raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+- [~] `CM_Trade::SendNotice_Trade_BeAccepted` · 007263a0 — raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+- [~] `CM_Trade::SendNotice_Trade_BeClosed` · 00726430 — raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+- [~] `CM_Trade::SendNotice_Trade_BeDeclined` · 007264d0 — raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+- [~] `CM_Trade::SendNotice_Trade_BeOffered` · 00726560 — raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+- [~] `CM_Trade::SendNotice_Trade_BeOpened` · 00726620 — raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+- [~] `CM_Trade::SendNotice_Trade_BeRegistered` · 007266b0 — raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+- [~] `CM_Trade::SendNotice_Trade_BeReset` · 00726770 — raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+- [~] `CM_Trade::SendNotice_Trade_BeRevoked` · 00726800 — raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
 
 ## `ac2/client/src/events/cm_ui.cpp.c` (0/21)
 
@@ -395,31 +395,31 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/weenie/interp/glue/gcm_store.cpp.c` (0/12)
 
 ### gCM_Store
-- [ ] `gCM_Store::CallEFun_SendNotice_ConfirmPurchase` · 00467a50 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Store::CallEFun_SendNotice_LeaveCatalog` · 00467ac0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Store::CallEFun_SendNotice_LeaveConsignment` · 00467b00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Store::CallEFun_SendNotice_LeaveStore` · 00467b40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Store::CallEFun_SendNotice_ShowSaleReminder` · 00467b80 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Store::CallEFun_SendNotice_UpdateSale` · 00467bd0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Store::CallEFun_SendNotice_UpdateStore` · 00467c20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Store::CallEFun_SendNotice_ViewConsignment` · 00467c80 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Store::CallEFun_SendNotice_ViewStore` · 00467ce0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Store::CallEFun_SendNotice_UpdateConsignment` · 00467d40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [~] `gCM_Store::CallEFun_SendNotice_ConfirmPurchase` · 00467a50 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+- [~] `gCM_Store::CallEFun_SendNotice_LeaveCatalog` · 00467ac0 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+- [~] `gCM_Store::CallEFun_SendNotice_LeaveConsignment` · 00467b00 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+- [~] `gCM_Store::CallEFun_SendNotice_LeaveStore` · 00467b40 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+- [~] `gCM_Store::CallEFun_SendNotice_ShowSaleReminder` · 00467b80 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+- [~] `gCM_Store::CallEFun_SendNotice_UpdateSale` · 00467bd0 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+- [~] `gCM_Store::CallEFun_SendNotice_UpdateStore` · 00467c20 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+- [~] `gCM_Store::CallEFun_SendNotice_ViewConsignment` · 00467c80 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+- [~] `gCM_Store::CallEFun_SendNotice_ViewStore` · 00467ce0 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+- [~] `gCM_Store::CallEFun_SendNotice_UpdateConsignment` · 00467d40 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
 - [ ] `gCM_Store::RListToUIShopList` · 00467e20 · legions 00468ad0
-- [ ] `gCM_Store::CallEFun_SendNotice_ViewCatalog` · 00467ec0 · legions 00468b70 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [~] `gCM_Store::CallEFun_SendNotice_ViewCatalog` · 00467ec0 · legions 00468b70 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
 
-## `ac2/client/src/weenie/interp/glue/gcm_trade.cpp.c` (0/9)
+## `ac2/client/src/weenie/interp/glue/gcm_trade.cpp.c` (8/9)
 
 ### gCM_Trade
-- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeAcceptanceCleared` · 00468a10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeAccepted` · 00468a50 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeClosed` · 00468aa0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeDeclined` · 00468af0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeOffered` · 00468b40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeOpened` · 00468bb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeRegistered` · 00468bf0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeReset` · 00468c70 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Trade::CallEFun_SendNotice_Trade_BeRevoked` · 00468cb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeAcceptanceCleared` · 00468a10 — ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeAccepted` · 00468a50 — ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeClosed` · 00468aa0 — ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeDeclined` · 00468af0 — ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeOffered` · 00468b40 — ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeOpened` · 00468bb0 — ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeRegistered` · 00468bf0 — ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+- [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeReset` · 00468c70 — ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+- [~] `gCM_Trade::CallEFun_SendNotice_Trade_BeRevoked` · 00468cb0 — BeRevoked efun: raised on the VM only through forwarder 0x48 (CPlayer 0x10F), not exercised on the VM yet
 
 ## `ac2/client/src/weenie/interp/glue/gcm_ui.cpp.c` (0/3)
 
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (8/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (27/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -643,7 +643,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ReferenceTable::GetPackageID` · 004576d0 · legions 00458230 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ggmCWInterface
-- [~] `ggmCWInterface::CallIFun_AcceptTrade` · 00457730 · legions 00458290 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
+- [x] `ggmCWInterface::CallIFun_AcceptTrade` · 00457730 · legions 00458290 — ac2-client gameplay.rs Command::AcceptTrade: the IFun on the player's VM script (CPlayer's CWInterface graph packed by stub 0x45 -> 0x35); stand-in only without a VM (empty reference)
 - [ ] `ggmCWInterface::CallIFun_AcceptVassal` · 004577c0 · legions 00458320
 - [ ] `ggmCWInterface::CallIFun_AddEffectDataToProfileByEID` · 00457850 · legions 004583b0
 - [ ] `ggmCWInterface::CallIFun_BreakAllegiance` · 00457a20 · legions 00458580
@@ -699,7 +699,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_GetLatencyIndicatorGraph` · 0045a820 · legions 0045b470
 - [ ] `ggmCWInterface::CallIFun_GetMaxContainerSize` · 0045a8c0 · legions 0045b510
 - [ ] `ggmCWInterface::CallIFun_GetMaxDurabilityLevel` · 0045a960 · legions 0045b5b0
-- [ ] `ggmCWInterface::CallIFun_GetMaxPurchaseQuantity` · 0045aa00 · legions 0045b650
+- [~] `ggmCWInterface::CallIFun_GetMaxPurchaseQuantity` · 0045aa00 · legions 0045b650 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 - [ ] `ggmCWInterface::CallIFun_GetMaxStackSize` · 0045aae0 · legions 0045b730
 - [ ] `ggmCWInterface::CallIFun_GetMissileInformationFromWSL` · 0045ab80 · legions 0045b7d0
 - [ ] `ggmCWInterface::CallIFun_GetPotentiallyPluralizedName` · 0045adb0 · legions 0045ba00
@@ -769,19 +769,19 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_OpenRecipe` · 0045f6e0 · legions 00460330
 - [~] `ggmCWInterface::CallIFun_OpenTradeNegotiations` · 0045f790 · legions 004603e0 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [ ] `ggmCWInterface::Resume_PopupYesNoDialog` · 0045f860 · legions 004604b0
-- [ ] `ggmCWInterface::CallIFun_PurchaseConfirmed` · 0045f8f0 · legions 00460540
-- [ ] `ggmCWInterface::CallIFun_PurchaseItem` · 0045f9a0 · legions 004605f0
+- [~] `ggmCWInterface::CallIFun_PurchaseConfirmed` · 0045f8f0 · legions 00460540 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
+- [~] `ggmCWInterface::CallIFun_PurchaseItem` · 0045f9a0 · legions 004605f0 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 - [ ] `ggmCWInterface::CallIFun_QueryAllegianceProfile` · 0045fac0 · legions 00460710
 - [ ] `ggmCWInterface::CallIFun_RegisterCommands` · 0045fb90 · legions 004607e0
 - [ ] `ggmCWInterface::CallIFun_RequestAddIngredient` · 0045fc20 · legions 00460870
 - [ ] `ggmCWInterface::CallIFun_RequestAttackStateChange` · 0045fd60 · legions 004609b0
 - [ ] `ggmCWInterface::CallIFun_RequestCollect` · 0045fe20 · legions 00460a70
 - [ ] `ggmCWInterface::CallIFun_RequestEnterConsignment` · 0045ff00 · legions 00460b50
-- [ ] `ggmCWInterface::CallIFun_RequestEnterStore` · 0045ff90 · legions 00460be0
+- [~] `ggmCWInterface::CallIFun_RequestEnterStore` · 0045ff90 · legions 00460be0 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 - [ ] `ggmCWInterface::CallIFun_RequestExecuteCraft` · 00460040 · legions 00460c90
 - [ ] `ggmCWInterface::CallIFun_RequestLeaveCatalog` · 00460190 · legions 00460de0
 - [ ] `ggmCWInterface::CallIFun_RequestLeaveConsignment` · 00460220 · legions 00460e70
-- [ ] `ggmCWInterface::CallIFun_RequestLeaveStore` · 004602b0 · legions 00460f00
+- [~] `ggmCWInterface::CallIFun_RequestLeaveStore` · 004602b0 · legions 00460f00 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 - [ ] `ggmCWInterface::CallIFun_RequestNextSales` · 00460340 · legions 00460f90
 - [ ] `ggmCWInterface::CallIFun_RequestPetAttack` · 004603d0 · legions 00461020
 - [ ] `ggmCWInterface::CallIFun_RequestPetBuff` · 004604a0 · legions 004610f0
@@ -794,7 +794,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_RequestRestock` · 00460940 · legions 00461590
 - [ ] `ggmCWInterface::CallIFun_RequestResurrect` · 00460a60 · legions 004616b0
 - [ ] `ggmCWInterface::CallIFun_RequestSales` · 00460af0 · legions 00461740
-- [ ] `ggmCWInterface::CallIFun_RequestSell` · 00460ba0 · legions 004617f0
+- [~] `ggmCWInterface::CallIFun_RequestSell` · 00460ba0 · legions 004617f0 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 - [ ] `ggmCWInterface::CallIFun_RequestSetPetName` · 00460cc0 · legions 00461910
 - [ ] `ggmCWInterface::CallIFun_RequestTrainSkill` · 00460df0 · legions 00461a40
 - [ ] `ggmCWInterface::CallIFun_RequestUntrainSkill` · 00460ea0 · legions 00461af0
@@ -811,32 +811,32 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_Result_SendToRoom` · 00461980 · legions 004625d0
 - [ ] `ggmCWInterface::CallIFun_Result_SendToUser` · 00461ab0 · legions 00462700
 - [~] `ggmCWInterface::CallIFun_RevokeItemFromTrade` · 00461c10 · legions 00462860 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
-- [ ] `ggmCWInterface::CallIFun_SetAcceptAllegianceRequest` · 00461ce0 · legions 00462930
-- [ ] `ggmCWInterface::CallIFun_SetAcceptFellowshipRequest` · 00461d90 · legions 004629e0
-- [ ] `ggmCWInterface::CallIFun_SetAcceptTradeRequest` · 00461e40 · legions 00462a90
-- [ ] `ggmCWInterface::CallIFun_SetAutoTarget` · 00461ef0 · legions 00462b40
-- [ ] `ggmCWInterface::CallIFun_SetBypassGoldMeltingConfirmationDlg` · 00461fa0 · legions 00462bf0
+- [x] `ggmCWInterface::CallIFun_SetAcceptAllegianceRequest` · 00461ce0 · legions 00462930 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+- [x] `ggmCWInterface::CallIFun_SetAcceptFellowshipRequest` · 00461d90 · legions 004629e0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+- [x] `ggmCWInterface::CallIFun_SetAcceptTradeRequest` · 00461e40 · legions 00462a90 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+- [x] `ggmCWInterface::CallIFun_SetAutoTarget` · 00461ef0 · legions 00462b40 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+- [x] `ggmCWInterface::CallIFun_SetBypassGoldMeltingConfirmationDlg` · 00461fa0 · legions 00462bf0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [ ] `ggmCWInterface::CallIFun_SetChatFontColor` · 00462050 · legions 00462ca0
 - [ ] `ggmCWInterface::CallIFun_SetChatFontSize` · 00462140 · legions 00462d90
 - [ ] `ggmCWInterface::CallIFun_SetChatPopupFlag` · 00462230 · legions 00462e80
 - [ ] `ggmCWInterface::CallIFun_SetChatWindowFilter` · 00462320 · legions 00462f70
-- [ ] `ggmCWInterface::CallIFun_SetDamageTextRangeOther` · 00462410 · legions 00463060
+- [x] `ggmCWInterface::CallIFun_SetDamageTextRangeOther` · 00462410 · legions 00463060 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [ ] `ggmCWInterface::CallIFun_SetExaminationRequest` · 004624c0 · legions 00463110
-- [ ] `ggmCWInterface::CallIFun_SetLatencyIndicatorGraph` · 004625a0 · legions 004631f0
-- [ ] `ggmCWInterface::CallIFun_SetRadarMask` · 00462650 · legions 004632a0
+- [x] `ggmCWInterface::CallIFun_SetLatencyIndicatorGraph` · 004625a0 · legions 004631f0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+- [x] `ggmCWInterface::CallIFun_SetRadarMask` · 00462650 · legions 004632a0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [ ] `ggmCWInterface::CallIFun_SetSelection` · 00462700 · legions 00463350
 - [ ] `ggmCWInterface::CallIFun_SetShortcut` · 004627d0 · legions 00463420 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-- [ ] `ggmCWInterface::CallIFun_SetShortcutHeight` · 004628e0 · legions 00463530
-- [ ] `ggmCWInterface::CallIFun_SetShortcutInstaScroll` · 00462990 · legions 004635e0
-- [ ] `ggmCWInterface::CallIFun_SetShortcutLocked` · 00462a40 · legions 00463690
-- [ ] `ggmCWInterface::CallIFun_SetShowDamageText` · 00462af0 · legions 00463740
-- [ ] `ggmCWInterface::CallIFun_SetShowDamageTextOther` · 00462ba0 · legions 004637f0
-- [ ] `ggmCWInterface::CallIFun_SetShowFellowsOnMap` · 00462c50 · legions 004638a0
+- [x] `ggmCWInterface::CallIFun_SetShortcutHeight` · 004628e0 · legions 00463530 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+- [x] `ggmCWInterface::CallIFun_SetShortcutInstaScroll` · 00462990 · legions 004635e0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+- [x] `ggmCWInterface::CallIFun_SetShortcutLocked` · 00462a40 · legions 00463690 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+- [x] `ggmCWInterface::CallIFun_SetShowDamageText` · 00462af0 · legions 00463740 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+- [x] `ggmCWInterface::CallIFun_SetShowDamageTextOther` · 00462ba0 · legions 004637f0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+- [x] `ggmCWInterface::CallIFun_SetShowFellowsOnMap` · 00462c50 · legions 004638a0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [ ] `ggmCWInterface::CallIFun_SetShowObjectNames` · 00462d00 · legions 00463950
-- [ ] `ggmCWInterface::CallIFun_SetShowPKDamage` · 00462db0 · legions 00463a00
-- [ ] `ggmCWInterface::CallIFun_SetShowPetUI` · 00462e60 · legions 00463ab0
+- [x] `ggmCWInterface::CallIFun_SetShowPKDamage` · 00462db0 · legions 00463a00 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+- [x] `ggmCWInterface::CallIFun_SetShowPetUI` · 00462e60 · legions 00463ab0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [ ] `ggmCWInterface::CallIFun_SetShowRadarCoords` · 00462f10 · legions 00463b60
-- [ ] `ggmCWInterface::CallIFun_SetShowShortcutNumbers` · 00462fc0 · legions 00463c10
+- [x] `ggmCWInterface::CallIFun_SetShowShortcutNumbers` · 00462fc0 · legions 00463c10 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [ ] `ggmCWInterface::CallIFun_SetUISaveLocations` · 00463070 · legions 00463cc0
 - [ ] `ggmCWInterface::CallIFun_SetWhichShortcutSet` · 00463150 · legions 00463da0
 - [ ] `ggmCWInterface::CallIFun_SetWindowOpacity` · 00463200 · legions 00463e50
@@ -852,7 +852,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_UnEquipItem` · 004638e0 · legions 00464550
 - [ ] `ggmCWInterface::CallIFun_UpdateOpen` · 004639e0 · legions 00464650
 - [ ] `ggmCWInterface::CallIFun_UploadChatOptions` · 00463ae0 · legions 00464750
-- [ ] `ggmCWInterface::CallIFun_UploadGameOptions` · 00463b70 · legions 004647e0
+- [x] `ggmCWInterface::CallIFun_UploadGameOptions` · 00463b70 · legions 004647e0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [ ] `ggmCWInterface::CallIFun_UploadUISettings` · 00463c00 · legions 00464870
 - [ ] `ggmCWInterface::CallIFun_UseSelection` · 00463c90 · legions 00464900
 - [ ] `ggmCWInterface::CallIFun_UseShortcut` · 00463d30 · legions 004649a0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (36/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (71/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -951,18 +951,18 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::InqRecipeCost` · 004500b0 · legions 004511f0
 - [ ] `gmCWInterface::GetAvailableCraftExperience` · 004500f0 · legions 00451230
 - [ ] `gmCWInterface::DoEmote` · 00450130 · legions 00451270 — ac2-weenie OnlineSession::emote(id): the WM_Communication emote call; the emote-table name lookup (CPlayer 0x15B) is not ported
-- [ ] `gmCWInterface::PurchaseItem` · 00450150 · legions 00451290
+- [~] `gmCWInterface::PurchaseItem` · 00450150 · legions 00451290 — Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
 - [ ] `gmCWInterface::RequestNextSales` · 00450180 · legions 004512c0
 - [ ] `gmCWInterface::RequestPrevSales` · 004501a0 · legions 004512e0
 - [ ] `gmCWInterface::RequestSales` · 004501c0 · legions 00451300
-- [ ] `gmCWInterface::PurchaseConfirmed` · 004501e0 · legions 00451320
-- [ ] `gmCWInterface::GetMaxPurchaseQuantity` · 00450200 · legions 00451340
-- [ ] `gmCWInterface::RequestLeaveStore` · 00450240 · legions 00451380
+- [~] `gmCWInterface::PurchaseConfirmed` · 004501e0 · legions 00451320 — Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
+- [~] `gmCWInterface::GetMaxPurchaseQuantity` · 00450200 · legions 00451340 — Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced; the requests need an open shopper (a server ViewStore), so no store request is byte-verified end to end yet (store_script_7160). RequestSell's three ints are not decoded.
+- [~] `gmCWInterface::RequestLeaveStore` · 00450240 · legions 00451380 — Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced; the requests need an open shopper (a server ViewStore), so no store request is byte-verified end to end yet (store_script_7160). RequestSell's three ints are not decoded.
 - [ ] `gmCWInterface::RequestLeaveCatalog` · 00450260 · legions 004513a0
 - [ ] `gmCWInterface::RequestLeaveConsignment` · 00450280 · legions 004513c0
 - [ ] `gmCWInterface::RequestEnterConsignment` · 004502a0 · legions 004513e0
-- [ ] `gmCWInterface::RequestEnterStore` · 004502c0 · legions 00451400
-- [ ] `gmCWInterface::RequestSell` · 004502e0 · legions 00451420
+- [~] `gmCWInterface::RequestEnterStore` · 004502c0 · legions 00451400 — Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
+- [~] `gmCWInterface::RequestSell` · 004502e0 · legions 00451420 — Command runs IFun 0xB40138 on the player's script (VM only, no session stand-in). The sell body (client library 0x11642C) checks the shopper first (CPlayer 0x1EC) and returns with none open, so no request goes out without a ViewStore (blocked, see store_script_7160). Stub 0x4E packs (local 0 int, price int, quantity int, item long, local 3 long); local 0 and local 3 are not traced.
 - [ ] `gmCWInterface::RequestRestock` · 00450310 · legions 00451450
 - [ ] `gmCWInterface::RequestCollect` · 00450340 · legions 00451480
 - [ ] `gmCWInterface::GetConsignmentCharge` · 00450360 · legions 004514a0
@@ -1040,52 +1040,52 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::InqShortcutArray` · 00451110 · legions 00452250
 - [x] `gmCWInterface::SetWhichShortcutSet` · 00451150 — ac2-client Command::SetShortcutSet: the IFun on the VM, the session's shortcut mirror (a profile write, nothing to the server)
 - [ ] `gmCWInterface::GetWhichShortcutSet` · 00451170 · legions 004522b0
-- [ ] `gmCWInterface::SetShowShortcutNumbers` · 004511a0 · legions 004522e0
-- [ ] `gmCWInterface::GetShowShortcutNumbers` · 004511c0 · legions 00452300
-- [ ] `gmCWInterface::SetShortcutLocked` · 004511f0 · legions 00452330
-- [ ] `gmCWInterface::GetShortcutLocked` · 00451210 · legions 00452350
-- [ ] `gmCWInterface::SetShortcutInstaScroll` · 00451240 · legions 00452380
-- [ ] `gmCWInterface::GetShortcutInstaScroll` · 00451260 · legions 004523a0
-- [ ] `gmCWInterface::SetShowPKDamage` · 00451290 · legions 004523d0
-- [ ] `gmCWInterface::GetShowPKDamage` · 004512b0 · legions 004523f0
-- [ ] `gmCWInterface::SetShowDamageText` · 004512e0 · legions 00452420
-- [ ] `gmCWInterface::GetShowDamageText` · 00451300 · legions 00452440
-- [ ] `gmCWInterface::SetShowDamageTextOther` · 00451330 · legions 00452470
-- [ ] `gmCWInterface::GetShowDamageTextOther` · 00451350 · legions 00452490
-- [ ] `gmCWInterface::SetDamageTextRangeOther` · 00451380 · legions 004524c0
-- [ ] `gmCWInterface::GetDamageTextRangeOther` · 004513a0 · legions 004524e0
-- [ ] `gmCWInterface::SetShortcutHeight` · 004513d0 · legions 00452510
-- [ ] `gmCWInterface::GetShortcutHeight` · 004513f0 · legions 00452530
-- [ ] `gmCWInterface::SetBypassGoldMeltingConfirmationDlg` · 00451420 · legions 00452560
+- [x] `gmCWInterface::SetShowShortcutNumbers` · 004511a0 · legions 004522e0 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetShowShortcutNumbers` · 004511c0 · legions 00452300 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+- [x] `gmCWInterface::SetShortcutLocked` · 004511f0 · legions 00452330 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetShortcutLocked` · 00451210 · legions 00452350 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+- [x] `gmCWInterface::SetShortcutInstaScroll` · 00451240 · legions 00452380 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetShortcutInstaScroll` · 00451260 · legions 004523a0 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+- [x] `gmCWInterface::SetShowPKDamage` · 00451290 · legions 004523d0 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetShowPKDamage` · 004512b0 · legions 004523f0 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+- [x] `gmCWInterface::SetShowDamageText` · 004512e0 · legions 00452420 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetShowDamageText` · 00451300 · legions 00452440 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+- [x] `gmCWInterface::SetShowDamageTextOther` · 00451330 · legions 00452470 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetShowDamageTextOther` · 00451350 · legions 00452490 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+- [x] `gmCWInterface::SetDamageTextRangeOther` · 00451380 · legions 004524c0 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetDamageTextRangeOther` · 004513a0 · legions 004524e0 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+- [x] `gmCWInterface::SetShortcutHeight` · 004513d0 · legions 00452510 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetShortcutHeight` · 004513f0 · legions 00452530 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+- [x] `gmCWInterface::SetBypassGoldMeltingConfirmationDlg` · 00451420 · legions 00452560 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 - [x] `gmCWInterface::GetBypassGoldMeltingConfirmationDlg` · 00451440 · legions 00452580 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
-- [ ] `gmCWInterface::SetLatencyIndicatorGraph` · 00451470 · legions 004525b0
-- [ ] `gmCWInterface::GetLatencyIndicatorGraph` · 00451490 · legions 004525d0
-- [ ] `gmCWInterface::SetShowFellowsOnMap` · 004514c0 · legions 00452600
-- [ ] `gmCWInterface::GetShowFellowsOnMap` · 004514e0 · legions 00452620
-- [ ] `gmCWInterface::SetShowPetUI` · 00451510 · legions 00452650
-- [ ] `gmCWInterface::GetShowPetUI` · 00451530 · legions 00452670
+- [x] `gmCWInterface::SetLatencyIndicatorGraph` · 00451470 · legions 004525b0 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetLatencyIndicatorGraph` · 00451490 · legions 004525d0 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+- [x] `gmCWInterface::SetShowFellowsOnMap` · 004514c0 · legions 00452600 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetShowFellowsOnMap` · 004514e0 · legions 00452620 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+- [x] `gmCWInterface::SetShowPetUI` · 00451510 · legions 00452650 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetShowPetUI` · 00451530 · legions 00452670 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
 - [ ] `gmCWInterface::SetUISaveLocations` · 00451560 · legions 00452290
 - [ ] `gmCWInterface::InqUISaveLocations` · 00451580 · legions 004526c0
 - [x] `gmCWInterface::SetShowRadarCoords` · 004515c0 · legions 00452700 — ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile)
 - [x] `gmCWInterface::GetShowRadarCoords` · 004515e0 · legions 00452720 — ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile)
 - [x] `gmCWInterface::SetShowObjectNames` · 00451610 · legions 00452750 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [x] `gmCWInterface::GetShowObjectNames` · 00451630 · legions 00452770 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
-- [ ] `gmCWInterface::SetRadarMask` · 00451660 · legions 004527a0
-- [ ] `gmCWInterface::GetRadarMask` · 00451680 · legions 004527c0
+- [x] `gmCWInterface::SetRadarMask` · 00451660 · legions 004527a0 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetRadarMask` · 00451680 · legions 004527c0 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
 - [ ] `gmCWInterface::SetChatWindowFilter` · 004516b0 · legions 004527f0
 - [ ] `gmCWInterface::SetChatFontSize` · 004516f0 · legions 00452830
 - [ ] `gmCWInterface::SetChatFontColor` · 00451730 · legions 00452870
 - [ ] `gmCWInterface::SetWindowOpacity` · 00451770 · legions 004528f0
 - [ ] `gmCWInterface::SetChatPopupFlag` · 004517b0 · legions 00452930
 - [ ] `gmCWInterface::InqGameplayOptions` · 004517f0 · legions 00452970
-- [ ] `gmCWInterface::SetAutoTarget` · 00451820 · legions 004529a0
-- [ ] `gmCWInterface::GetAutoTarget` · 00451840 · legions 004529c0
-- [ ] `gmCWInterface::SetAcceptAllegianceRequest` · 00451870 · legions 004529f0
-- [ ] `gmCWInterface::GetAcceptAllegianceRequest` · 00451890 · legions 00452a10
-- [ ] `gmCWInterface::SetAcceptFellowshipRequest` · 004518c0 · legions 00452a40
-- [ ] `gmCWInterface::GetAcceptFellowshipRequest` · 004518e0 · legions 00452a60
-- [ ] `gmCWInterface::SetAcceptTradeRequest` · 00451910 · legions 00452a90
-- [ ] `gmCWInterface::GetAcceptTradeRequest` · 00451930 · legions 00452ab0
+- [x] `gmCWInterface::SetAutoTarget` · 00451820 · legions 004529a0 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetAutoTarget` · 00451840 · legions 004529c0 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+- [x] `gmCWInterface::SetAcceptAllegianceRequest` · 00451870 · legions 004529f0 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetAcceptAllegianceRequest` · 00451890 · legions 00452a10 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+- [x] `gmCWInterface::SetAcceptFellowshipRequest` · 004518c0 · legions 00452a40 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetAcceptFellowshipRequest` · 004518e0 · legions 00452a60 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+- [x] `gmCWInterface::SetAcceptTradeRequest` · 00451910 · legions 00452a90 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+- [x] `gmCWInterface::GetAcceptTradeRequest` · 00451930 · legions 00452ab0 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
 - [ ] `gmCWInterface::InqNextRetellHistoryItem` · 00451960 · legions 00452ae0 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
 - [ ] `gmCWInterface::InqPrevRetellHistoryItem` · 00451990 · legions 00452b10 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
 - [ ] `gmCWInterface::InqNextReplyHistoryItem` · 004519c0 · legions 00452b40 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
@@ -1093,7 +1093,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::InqQuestList` · 00451a20 · legions 00452ba0
 - [ ] `gmCWInterface::InqActInfoList` · 00451a60 · legions 00452be0
 - [ ] `gmCWInterface::HandlePlayScenesDone` · 00451aa0 · legions 00452c20
-- [ ] `gmCWInterface::UploadGameOptions` · 00451ac0 · legions 00452c40
+- [x] `gmCWInterface::UploadGameOptions` · 00451ac0 · legions 00452c40 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 - [ ] `gmCWInterface::UploadChatOptions` · 00451ae0 · legions 00452c60
 - [ ] `gmCWInterface::UploadUISettings` · 00451b00 · legions 00452c80
 - [x] `gmCWInterface::DoFellowshipCreate` · 00451b20 · legions 00452ca0 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
@@ -1114,7 +1114,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::DeclineVassal` · 00451d70 · legions 00452ef0 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 - [x] `gmCWInterface::OpenTradeNegotiations` · 00451d90 · legions 00452f10 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 - [x] `gmCWInterface::CloseTradeNegotiations` · 00451db0 · legions 00452f30 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
-- [~] `gmCWInterface::AcceptTrade` · 00451dd0 · legions 00452f50 — accept_trade sends WM_Trade stub 0x35 with an empty PackedReference; retail packs the accepting side's CWInterface instance graph (not ported)
+- [x] `gmCWInterface::AcceptTrade` · 00451dd0 · legions 00452f50 — ac2-client Command::AcceptTrade runs IFUN_ACCEPT_TRADE (0x00B400BA) on the VM; ac2-weenie accept_trade is the no-VM stand-in (empty reference)
 - [x] `gmCWInterface::DeclineTrade` · 00451df0 · legions 00452f70 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 - [x] `gmCWInterface::OfferItemForTrade` · 00451e10 · legions 00452f90 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 - [x] `gmCWInterface::RevokeItemFromTrade` · 00451e40 · legions 00452fc0 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160

@@ -19,6 +19,8 @@ use crate::color::set_color32;
 const AC2_REGION_DID: DataId = DataId::new(0x0F00_0000);
 /// `CRegionDesc::UnPack` info lists in stream order; the sky list is the seventh.
 const SOUND_INFO_LIST: usize = 0;
+/// `CRegionDesc::UnPack` info lists: encounter 4, detail map table 5, sky 6, water 7.
+const DETAIL_MAP_INFO_LIST: usize = 5;
 const SKY_INFO_LIST: usize = 6;
 const WATER_INFO_LIST: usize = 7;
 const INFO_LIST_COUNT: usize = 11;
@@ -73,6 +75,19 @@ pub fn ac2_region_sound_desc(store: &ResourceStore) -> ResourceResult<Option<Dat
         .and_then(|region| region.sound_info.first().copied()))
 }
 
+/// `CRegionDesc::GetGameMap`: the region's game map image (`game_map`), `None` when it has none.
+pub fn ac2_region_game_map(store: &ResourceStore) -> ResourceResult<Option<DataId>> {
+    Ok(load::<Ac2RegionRecord>(store, AC2_REGION_DID)?
+        .and_then(|region| (region.game_map != 0).then(|| DataId::new(region.game_map))))
+}
+
+/// `CRegionDesc::GetCurrentDetailMapTable`: the region's first `CDetailMapDesc` (`0x5A`), the
+/// table `current_detailmap_table` (0) picks; `None` when the region has none.
+pub fn ac2_region_detail_map_table(store: &ResourceStore) -> ResourceResult<Option<DataId>> {
+    Ok(load::<Ac2RegionRecord>(store, AC2_REGION_DID)?
+        .and_then(|region| region.detail_map_info.first().copied()))
+}
+
 /// `CRegionDesc::GetCurrentWaterInfo`: the region's first `CWaterDesc`.
 pub(crate) fn ac2_region_water_desc(store: &ResourceStore) -> ResourceResult<Option<DataId>> {
     Ok(load::<Ac2RegionRecord>(store, AC2_REGION_DID)?
@@ -101,7 +116,7 @@ pub(super) fn ac2_day_index(seed: u32, frequencies: &[f32]) -> usize {
     frequencies.len() - 1
 }
 
-fn load<T: ResourcePackedDecode + Send + Sync + 'static>(
+pub(super) fn load<T: ResourcePackedDecode + Send + Sync + 'static>(
     store: &ResourceStore,
     did: DataId,
 ) -> ResourceResult<Option<ac2_db::CachedResource<T>>> {
@@ -113,7 +128,10 @@ fn load<T: ResourcePackedDecode + Send + Sync + 'static>(
 #[derive(Debug)]
 struct Ac2RegionRecord {
     region_number: u32,
+    /// `CRegionDesc::game_map`: the map image's DID (0 for none).
+    game_map: u32,
     sound_info: Vec<DataId>,
+    detail_map_info: Vec<DataId>,
     sky_info: Vec<DataId>,
     water_info: Vec<DataId>,
 }
@@ -139,9 +157,12 @@ impl ResourcePackedDecode for Ac2RegionRecord {
         };
         cursor.read_bytes(name_len)?;
         cursor.align_to(4)?;
-        // game_map, game_map_scale, autotest_map, autotest_map_size, land_defs_id, block length/width.
-        cursor.read_bytes(7 * 4)?;
+        // `CRegionDesc::UnPack`: game_map, game_map_scale, autotest_map, autotest_map_size,
+        // land_defs_id, num_block_length, num_block_width.
+        let game_map = cursor.read_u32()?;
+        cursor.read_bytes(6 * 4)?;
         let mut sound_info = Vec::new();
+        let mut detail_map_info = Vec::new();
         let mut sky_info = Vec::new();
         let mut water_info = Vec::new();
         for list in 0..INFO_LIST_COUNT {
@@ -152,6 +173,7 @@ impl ResourcePackedDecode for Ac2RegionRecord {
             let dids = dids.into_iter().filter(|did| *did != 0).map(DataId::new);
             match list {
                 SOUND_INFO_LIST => sound_info = dids.collect(),
+                DETAIL_MAP_INFO_LIST => detail_map_info = dids.collect(),
                 SKY_INFO_LIST => sky_info = dids.collect(),
                 WATER_INFO_LIST => water_info = dids.collect(),
                 _ => {}
@@ -160,7 +182,9 @@ impl ResourcePackedDecode for Ac2RegionRecord {
         expect_end(qdid, Self::TYPE_NAME, &cursor)?;
         Ok(Self {
             region_number,
+            game_map,
             sound_info,
+            detail_map_info,
             sky_info,
             water_info,
         })
@@ -168,7 +192,11 @@ impl ResourcePackedDecode for Ac2RegionRecord {
 
     fn cache_retained_bytes(&self) -> usize {
         std::mem::size_of::<Self>()
-            + (self.sound_info.len() + self.sky_info.len() + self.water_info.len()) * 4
+            + (self.sound_info.len()
+                + self.detail_map_info.len()
+                + self.sky_info.len()
+                + self.water_info.len())
+                * 4
     }
 }
 
@@ -330,7 +358,7 @@ fn read_time_of_day(
     })
 }
 
-/// `GameTime::StreamPack`. AC2 names are string-table IDs, published as hex text.
+/// `GameTime::StreamPack`. The names are string-table IDs, kept as they are.
 #[derive(Debug)]
 struct Ac2GameTimeRecord {
     game_time: GameTime,
@@ -351,29 +379,25 @@ impl ResourcePackedDecode for Ac2GameTimeRecord {
         let zero_year = cursor.read_u32()? as i32;
         let day_length = cursor.read_f32()?;
         let days_per_year = cursor.read_u32()?;
-        let year_spec = string_id(cursor.read_u32()?);
+        let year_spec = cursor.read_u32()?;
         let count = read_count(&mut cursor, qdid, Self::TYPE_NAME, 12)?;
         let times_of_day = (0..count)
             .map(|_| {
                 Ok(TimeOfDay {
                     start: cursor.read_f32()?,
                     is_night: cursor.read_u32()? != 0,
-                    name: string_id(cursor.read_u32()?),
+                    name: cursor.read_u32()?,
                 })
             })
             .collect::<ResourceResult<Vec<_>>>()?;
         let count = read_count(&mut cursor, qdid, Self::TYPE_NAME, 4)?;
-        let weekdays = cursor
-            .read_u32_items(count)?
-            .into_iter()
-            .map(string_id)
-            .collect();
+        let weekdays = cursor.read_u32_items(count)?;
         let count = read_count(&mut cursor, qdid, Self::TYPE_NAME, 8)?;
         let seasons = (0..count)
             .map(|_| {
                 Ok(Season {
                     start: cursor.read_u32()?,
-                    name: string_id(cursor.read_u32()?),
+                    name: cursor.read_u32()?,
                 })
             })
             .collect::<ResourceResult<Vec<_>>>()?;
@@ -398,11 +422,7 @@ impl ResourcePackedDecode for Ac2GameTimeRecord {
     }
 }
 
-fn string_id(id: u32) -> String {
-    format!("{id:08X}")
-}
-
-fn read_count(
+pub(super) fn read_count(
     cursor: &mut ArchiveCursor<'_>,
     qdid: QualifiedDataId,
     type_name: &'static str,
@@ -419,7 +439,11 @@ fn read_count(
     Ok(count)
 }
 
-fn expect_did(qdid: QualifiedDataId, type_name: &'static str, actual: u32) -> ResourceResult<()> {
+pub(super) fn expect_did(
+    qdid: QualifiedDataId,
+    type_name: &'static str,
+    actual: u32,
+) -> ResourceResult<()> {
     if actual == qdid.data_id().raw() {
         Ok(())
     } else {
@@ -431,7 +455,7 @@ fn expect_did(qdid: QualifiedDataId, type_name: &'static str, actual: u32) -> Re
     }
 }
 
-fn expect_end(
+pub(super) fn expect_end(
     qdid: QualifiedDataId,
     type_name: &'static str,
     cursor: &ArchiveCursor<'_>,

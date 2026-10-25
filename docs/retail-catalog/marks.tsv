@@ -354,12 +354,40 @@ key	status	note
 004312e0	~	no TimeDisplay, icon layers, effect expansion, Legions filter tabs
 00431410	x	ac2-ui examination.rs + ac2-client ui_sources
 004314c0	x	ac2-script glue::position (ported beside the gPosition glue)
+00431550	x	ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
+004315f0	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+004316d0	~	ac2-ui lock_tooltip_id picks the string id (on, off, error); the tooltip is not set (string tables). The Legions 7160 layout has no LockPositionButton, so the lock is set with NavigationUi::set_lock
+00431760	x	ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
+00431860	x	ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
+00431950	x	ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
+004319b0	x	ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
+00431bd0	~	ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
 00431e20	x	
 00431e90	x	
-00432b30	~	ac2-client client_radar.rs keeps the map-note list (type 3 hidden, AddMarker replaces by object); no navigation panel, placement or drawing
-00432b90	~	ac2-client client_radar.rs keeps the map-note list (type 3 hidden, AddMarker replaces by object); no navigation panel, placement or drawing
-00432ef0	~	ac2-client client_radar.rs keeps the map-note list (type 3 hidden, AddMarker replaces by object); no navigation panel, placement or drawing
-004330e0	~	ac2-client client_radar.rs keeps the map-note list (type 3 hidden, AddMarker replaces by object); no navigation panel, placement or drawing
+00431fa0	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+00432090	x	ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
+00432330	~	ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
+004325b0	x	ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
+00432640	x	ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
+004326a0	~	ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
+004327f0	-	C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
+004328b0	~	ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
+004329c0	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+00432b30	x	ac2-client client_radar.rs (add_map_note: type 3 never shown, a note within sqrt(6) cells of its type ignored, ten per type, same object replaces) and navigation.rs reconcile; Legions 7160 has no separate notice handler (admin rule)
+00432b90	~	ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
+00432e40	~	ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
+00432ed0	-	C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
+00432ef0	x	ac2-client client_radar.rs (add_map_note: type 3 never shown, a note within sqrt(6) cells of its type ignored, ten per type, same object replaces) and navigation.rs reconcile; Legions 7160 has no separate notice handler (admin rule)
+004330e0	x	ac2-client client_radar.rs (add_map_note: type 3 never shown, a note within sqrt(6) cells of its type ignored, ten per type, same object replaces) and navigation.rs reconcile; Legions 7160 has no separate notice handler (admin rule)
+00433100	~	ac2-ui navigation_detail.rs tile_notes: the tiles' notes at their cells and icons; the tooltip text (MapCoordinates, marker name) needs the string tables and is empty
+004335f0	x	ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
+00433810	x	ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
+00433830	x	ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
+00433880	~	ac2-ui navigation.rs: macro view only; the outdoor flag and the global loop's Update; detail-map init, lock and buttons not ported
+00433cf0	~	ac2-ui navigation_detail.rs: NavigationButton, NavigationCloseButton, the pan buttons, the macro switch (MapParentField data 0x40000005), the macro click (MapField), the global loop's switch. Not ported: the parent's coordinates message (0x40000007), ReadMarkerInfo (tooltip), NoteText (needs strings), the overview buttons; the Legions layout has no LockPositionButton or MacroMapButton
+00434160	x	ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
+004341b0	x	ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
+00434280	~	ac2-ui navigation_detail.rs: NavigationButton, NavigationCloseButton, the pan buttons, the macro switch (MapParentField data 0x40000005), the macro click (MapField), the global loop's switch. Not ported: the parent's coordinates message (0x40000007), ReadMarkerInfo (tooltip), NoteText (needs strings), the overview buttons; the Legions layout has no LockPositionButton or MacroMapButton
 004342d0	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 00434330	x	ac2-ui toolbar.rs
 004343c0	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
@@ -469,6 +497,13 @@ key	status	note
 0043d770	-	
 0043d790	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
 0043dcb0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043e150	~	ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
+0043e1c0	-	C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
+0043e230	~	ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
+0043e290	x	ac2-ui overview_map.rs: shows the overview and sets the label and client area to the map's state (the map buttons that call it are not identified in the layout)
+0043e2c0	~	ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
+0043e300	~	ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
+0043e380	-	C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
 00440b70	x	ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 00440be0	x	ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 00440c00	x	ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
@@ -513,6 +548,29 @@ key	status	note
 00443400	~	frame's equipment list; a list the worn items are not in takes them off (double answers an unequip with 0x40000001 alone; retail only adds)
 004434d0	~	viewport root, slots, the avatar and the worn list; notices come from the frame, not registered handlers
 00443670	x	step 1: request begun or failed marks the worn item pending
+00444e00	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+00444e60	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+00444ec0	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+00444f20	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+004451b0	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+00445450	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+004454a0	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+004454f0	-	C++ destructor and scalar deleter: the page's widgets are owned by the tree and dropped with it
+004455d0	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+004456d0	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+00445710	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+00445720	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+004457b0	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+00445800	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+004458d0	-	C++ destructor and scalar deleter: the page's widgets are owned by the tree and dropped with it
+004458f0	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+004459e0	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+00445a10	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+00445a50	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+00445ac0	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+00445c20	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+00445c80	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+00446610	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
 00447550	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 004475b0	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 00447610	x	ac2-ui skill_tree.rs
@@ -564,6 +622,76 @@ key	status	note
 0044dea0	x	ac2-ui meter.rs
 0044ded0	x	ac2-ui meter.rs
 0044def0	x	ac2-ui meter.rs
+0044df20	~	the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+0044dfa0	-	C++ downcast (Cast) and scalar deleter: the page keeps typed entries
+0044dfe0	~	the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+0044e060	~	the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+0044e090	~	the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+0044e140	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+0044e180	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+0044e1c0	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+0044e210	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+0044e260	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+0044e280	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+0044e2a0	~	the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+0044e370	-	C++ downcast (Cast) and scalar deleter: the page keeps typed entries
+0044e3a0	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+0044e3c0	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+0044e590	~	the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+0044e6d0	~	the checkbox, its value and the messages are ported; PreferenceBank::Change / ConnectSource (the bank's handlers) are not modelled
+0044e760	-	C++ downcast (Cast) and scalar deleter: the page keeps typed entries; no runtime cast needed
+0044e7a0	~	the checkbox, its value and the messages are ported; PreferenceBank::Change / ConnectSource (the bank's handlers) are not modelled
+0044e800	x	character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+0044e850	x	character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+0044e8b0	x	character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+0044e8e0	x	character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+0044e920	x	character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+0044e960	x	character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+0044e9b0	x	character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+0044ea00	~	the checkbox, its value and the messages are ported; PreferenceBank::Change / ConnectSource (the bank's handlers) are not modelled
+0044eab0	-	C++ downcast (Cast) and scalar deleter: the page keeps typed entries; no runtime cast needed
+0044eae0	x	character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+0044eb30	x	character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+0044eb80	~	the count and the refresh over the children are the page's; the list box's Refit sizes are not modelled
+0044eb90	~	the count and the refresh over the children are the page's; the list box's Refit sizes are not modelled
+0044ec30	~	the count and the refresh over the children are the page's; the list box's Refit sizes are not modelled
+0044ec80	~	the count and the refresh over the children are the page's; the list box's Refit sizes are not modelled
+0044ed10	-	index access (the page keeps children as entries), the destructor, Clear (the tree drops the rows) and the scalar deleter
+0044ed30	x	character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+0044edb0	x	character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+0044ee10	x	character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+0044ee50	x	character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+0044ee80	x	character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+0044eeb0	x	character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+0044eee0	x	character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+0044ef30	x	character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+0044efc0	-	index access (the page keeps children as entries), the destructor, Clear (the tree drops the rows) and the scalar deleter
+0044f030	-	index access (the page keeps children as entries), the destructor, Clear (the tree drops the rows) and the scalar deleter
+0044f090	-	index access (the page keeps children as entries), the destructor, Clear (the tree drops the rows) and the scalar deleter
+0044f0b0	x	character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+0044f100	~	the slider and its arrows (a tenth of the range) and the position message are ported; the preference bank's handlers and the float preference are not modelled
+0044f1f0	-	C++ downcast (Cast) and scalar deleter: the page keeps typed entries
+0044f230	~	the slider and its arrows (a tenth of the range) and the position message are ported; the preference bank's handlers and the float preference are not modelled
+0044f2a0	x	character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+0044f2f0	x	character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+0044f3d0	x	character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+0044f460	x	character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+0044f4d0	x	character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+0044f510	x	character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+0044f540	x	character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+0044f570	x	character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+0044f5a0	~	the slider and its arrows (a tenth of the range) and the position message are ported; the preference bank's handlers and the float preference are not modelled
+0044f710	-	C++ downcast (Cast) and scalar deleter: the page keeps typed entries
+0044f750	x	character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+0044f780	x	character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+0044f7b0	x	character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
+0044f7e0	-	C++ destructor and scalar deleter: the element is owned by the tree and dropped with it
+0044f810	x	character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
+0044f850	x	character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
+0044f870	x	character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
+0044f890	x	character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
+0044f940	x	character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
+0044f960	-	C++ destructor and scalar deleter: the element is owned by the tree and dropped with it
 0044fa00	~	ItemStats::display_name (gmEntity 0x10B/0x9F/0xAD); plural IsValid against the DAT tables left to the resolver
 0044faa0	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 0044fac0	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
@@ -572,6 +700,12 @@ key	status	note
 0044fbb0	_	ac2-weenie OnlineSession::use_selection (CPlayer 0x79 -> CUsageSystem 0x9 stand-in)
 0044fc60	x	ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
 00450130	_	ac2-weenie OnlineSession::emote(id): the WM_Communication emote call; the emote-table name lookup (CPlayer 0x15B) is not ported
+00450150	~	Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
+004501e0	~	Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
+00450200	~	Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced; the requests need an open shopper (a server ViewStore), so no store request is byte-verified end to end yet (store_script_7160). RequestSell's three ints are not decoded.
+00450240	~	Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced; the requests need an open shopper (a server ViewStore), so no store request is byte-verified end to end yet (store_script_7160). RequestSell's three ints are not decoded.
+004502c0	~	Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
+004502e0	~	Command runs IFun 0xB40138 on the player's script (VM only, no session stand-in). The sell body (client library 0x11642C) checks the shopper first (CPlayer 0x1EC) and returns with none open, so no request goes out without a ViewStore (blocked, see store_script_7160). Stub 0x4E packs (local 0 int, price int, quantity int, item long, local 3 long); local 0 and local 3 are not traced.
 00450490	_	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 004504f0	_	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 00450530	_	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
@@ -613,15 +747,49 @@ key	status	note
 00450fa0	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 00451050	_	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 00451150	x	ac2-client Command::SetShortcutSet: the IFun on the VM, the session's shortcut mirror (a profile write, nothing to the server)
+004511a0	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+004511c0	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+004511f0	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+00451210	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+00451240	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+00451260	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+00451290	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+004512b0	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+004512e0	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+00451300	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+00451330	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+00451350	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+00451380	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+004513a0	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+004513d0	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+004513f0	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+00451420	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 00451440	x	ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
+00451470	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+00451490	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+004514c0	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+004514e0	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+00451510	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+00451530	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
 004515c0	x	ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile)
 004515e0	x	ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile)
 00451610	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 00451630	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
+00451660	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+00451680	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+00451820	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+00451840	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+00451870	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+00451890	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+004518c0	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+004518e0	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+00451910	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+00451930	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
 00451960	_	ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
 00451990	_	ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
 004519c0	_	ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
 004519f0	_	ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
+00451ac0	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 00451b20	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 00451b50	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 00451b70	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
@@ -637,7 +805,7 @@ key	status	note
 00451d70	x	ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 00451d90	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451db0	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
-00451dd0	~	accept_trade sends WM_Trade stub 0x35 with an empty PackedReference; retail packs the accepting side's CWInterface instance graph (not ported)
+00451dd0	x	ac2-client Command::AcceptTrade runs IFUN_ACCEPT_TRADE (0x00B400BA) on the VM; ac2-weenie accept_trade is the no-VM stand-in (empty reference)
 00451df0	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451e10	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451e40	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
@@ -693,7 +861,7 @@ key	status	note
 00457540	_	ac2-script vm (VM/ReferenceTable/Resolver)
 00457610	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004576d0	_	ac2-script vm (VM/ReferenceTable/Resolver)
-00457730	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
+00457730	x	ac2-client gameplay.rs Command::AcceptTrade: the IFun on the player's VM script (CPlayer's CWInterface graph packed by stub 0x45 -> 0x35); stand-in only without a VM (empty reference)
 00457c90	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 00457d50	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 00457e10	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
@@ -705,6 +873,7 @@ key	status	note
 00459d30	x	ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 0045a310	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 0045a4b0	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045aa00	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 0045ae80	x	ac2-weenie ItemStats::preferred_location (Item 0x26: int 282), valid_locations (275), precluded_locations (283)
 0045b800	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045b960	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
@@ -717,23 +886,46 @@ key	status	note
 0045eea0	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045f5e0	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 0045f790	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
+0045f8f0	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
+0045f9a0	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
+0045ff90	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
+004602b0	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
+00460ba0	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 00461c10	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
+00461ce0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00461d90	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00461e40	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00461ef0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00461fa0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00462410	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+004625a0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00462650	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 004627d0	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+004628e0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00462990	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00462a40	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00462af0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00462ba0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00462c50	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00462db0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00462e60	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00462fc0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00463b70	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00463d30	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 00463df0	_	ac2-script glue: id table + pure-glue registry; engine glue unbound
 004661d0	_	ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 00467160	_	ac2-script native::unpack: the native types Legions WStates hold
-00467a50	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00467ac0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00467b00	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00467b40	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00467b80	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00467bd0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00467c20	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00467c80	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00467ce0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00467d40	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00467ec0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00467a50	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+00467ac0	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+00467b00	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+00467b40	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+00467b80	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+00467bd0	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+00467c20	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+00467c80	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+00467ce0	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+00467d40	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+00467ec0	~	Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
 00467f60	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00467fb0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468010	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -761,15 +953,15 @@ key	status	note
 00468940	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468970	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004689a0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468a10	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468a50	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468aa0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468af0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468b40	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468bb0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468bf0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468c70	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468cb0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468a10	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+00468a50	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+00468aa0	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+00468af0	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+00468b40	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+00468bb0	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+00468bf0	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+00468c70	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
+00468cb0	~	BeRevoked efun: raised on the VM only through forwarder 0x48 (CPlayer 0x10F), not exercised on the VM yet
 00468d20	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468db0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468e00	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -2093,7 +2285,14 @@ key	status	note
 0051b6c0	x	
 0051b740	x	
 0051b7c0	x	
+0051b930	x	ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
+0051bfb0	x	ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
+0051c4e0	x	ac2-world region/detail_map.rs: DBObj header, _blockMapDID, PSmartArray<CDetailMapRow>
+0051cc70	x	ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
+0051ce30	x	ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 0051de10	x	ac2-audio/ac2-client: ambient environments, groove
+0051def0	x	ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
+0051e480	~	ac2-world ac2_region: the first sky's game_time DID (sky_info[current_sky_info] 0), loaded with the region; the script's game-time glue is not wired
 00521ed0	x	ac2-audio/ac2-client: ambient environments, groove
 00522380	x	
 00522520	x	
@@ -3347,7 +3546,7 @@ key	status	note
 005a27d0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a28d0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a29f0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
-005a2b00	~	ac2-audio: the music queue runs before the voices in UseTime; a music voice's PlayInternal starts its segment in the queue; no listener/3D or emitter muting
+005a2b00	~	ac2-audio: the music queue runs before the voices in UseTime; a music voice's PlayInternal starts its segment in the queue; after the voices, the queue's notes go to the mixer's synthesizers (MusicClock + Note); no listener/3D or emitter muting
 005a2c50	~	ac2-audio: the music queue runs before the voices in UseTime; a music voice's PlayInternal starts its segment in the queue; no listener/3D or emitter muting
 005a3050	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a30c0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
@@ -3361,7 +3560,7 @@ key	status	note
 005a3f70	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 005a3ff0	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 005a4070	x	ac2-audio/ac2-client: ambient environments, groove
-005a4290	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a4290	~	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a4440	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 005a45c0	x	ac2-audio: music queue events reach the playing sounds (OnSegmentEnded), then each sound's UseTime; DirectXSoundDevice::OnSegmentStart/UseTime
 005a4990	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
@@ -3414,7 +3613,7 @@ key	status	note
 005a9150	-	COM reference counting and C++ deleting destructor: Arc and Option<SegmentInfo> ownership in music_thread
 005a9170	~	ac2-audio music_thread: Startup's notification loop runs inside MusicThread::use_time (no thread, no 100 ms wait; the WAIT_TIMEOUT watchdog is kept)
 005a93b0	x	ac2-audio music_thread: DXMusicMessageThread queue (primary queue, handles, notifications, UseTime dispatch); see music_thread/mod.rs
-005a9540	~	ac2-audio music_thread: Stop = StopEx at once (stop boundary flags not modelled); Play's audio path check and DMUS start flags not modelled
+005a9540	~	ac2-audio music_thread: Stop = StopEx at once (stop boundary flags not modelled); an immediate stop ends the segment's synthesizer (its notes release, Synth::stop); a boundary stop is played out by the queue; Play's audio path check and DMUS start flags not modelled
 005a96f0	~	ac2-audio music_thread: Stop = StopEx at once (stop boundary flags not modelled); Play's audio path check and DMUS start flags not modelled
 005acd10	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005acea0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
@@ -3891,9 +4090,14 @@ key	status	note
 006169c0	x	
 00617370	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 00618860	x	GameClock::new: day_length * days_per_year as a double
-00618bd0	x	ac2_world::GameClock (f64 intermediates; the year and day floors)
-00618c90	x	ac2_world::GameClock (the last time of day runs to day_length)
-00619130	x	ac2_world::GameClock::use_time
+006188d0	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+00618a40	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+00618b50	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+00618bd0	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+00618c90	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+00618d40	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+00619130	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+00619200	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
 00619f70	x	
 00619fe0	x	
 0061a220	x	
@@ -4410,6 +4614,25 @@ key	status	note
 006ad9f0	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 006ae260	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 006ae550	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
+006b0bb0	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b0bd0	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b0be0	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b12c0	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b1450	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b1800	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b1820	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b1840	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b1860	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b1870	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b1880	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b1ca0	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b1cd0	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b1cf0	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b1d10	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b1d30	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b1d50	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b1d60	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+006b1d70	~	character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
 006b2180	~	value type via PropertyTypes (MasterProperty::InqPropertyType); group lookup and defaults not modelled
 006b2250	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 006b2960	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
@@ -4488,6 +4711,7 @@ key	status	note
 006c59d0	x	
 006c82b0	x	ac2-world region::sky_objects, ac2-render sky
 006c8d90	~	decoded; field order after m_nDirectHeading not re-verified
+006cf2c0	x	ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 006cfa80	x	ac2-script data/glue::enums
 006d0bc0	x	ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
 006d7020	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
@@ -4738,17 +4962,18 @@ key	status	note
 00723a10	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00723aa0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00723f00	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00724000	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00724150	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-007241e0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00724270	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00724300	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00724390	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00724430	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00724520	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00724610	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00724700	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-007247f0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724000	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+007240b0	-	No gCM_Store efun and no WLib path reaches it (not script-raised).
+00724150	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+007241e0	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+00724270	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+00724300	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+00724390	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+00724430	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+00724520	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+00724610	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+00724700	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+007247f0	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
 007248b0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00724970	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00724a30	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
@@ -4788,15 +5013,15 @@ key	status	note
 007260d0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 007261c0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00726250	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00726310	~	raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-007263a0	~	raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-00726430	~	raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-007264d0	~	raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-00726560	~	raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-00726620	~	raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-007266b0	~	raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-00726770	~	raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
-00726800	~	raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
+00726310	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+007263a0	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+00726430	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+007264d0	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+00726560	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+00726620	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+007266b0	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+00726770	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
+00726800	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
 007268b0	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 007269d0	_	
 00726b80	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host

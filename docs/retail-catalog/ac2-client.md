@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 23 done, 6 partial, 320 to do, 5 skipped.
+354 retail functions: 23 done, 25 partial, 301 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -443,12 +443,12 @@ Legend and workflow: [README](README.md).
 - [ ] `PreferenceBool::Compare` · 006b1710
 - [ ] `PreferenceBool::Copy` · 006b1760 · legions 0064a9b0
 - [ ] `PreferenceBool::ConnectTarget` · 006b17c0 · legions 0064aa10
-- [ ] `PreferenceBool::SetValue` · 006b1800 · legions 0064aa50
-- [ ] `PreferenceBool::SetDefault` · 006b1820 · legions 0064aa70
-- [ ] `PreferenceBool::Changed` · 006b1840 · legions 0064aa90
-- [ ] `PreferenceBool::Apply` · 006b1860 · legions 0064aab0
-- [ ] `PreferenceBool::Recall` · 006b1870
-- [ ] `PreferenceBool::Reset` · 006b1880
+- [~] `PreferenceBool::SetValue` · 006b1800 · legions 0064aa50 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [~] `PreferenceBool::SetDefault` · 006b1820 · legions 0064aa70 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [~] `PreferenceBool::Changed` · 006b1840 · legions 0064aa90 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [~] `PreferenceBool::Apply` · 006b1860 · legions 0064aab0 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [~] `PreferenceBool::Recall` · 006b1870 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [~] `PreferenceBool::Reset` · 006b1880 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
 
 ### AMHuman
 - [ ] `AMHuman::GetType` · 006b1890
@@ -466,9 +466,9 @@ Legend and workflow: [README](README.md).
 - [ ] `PreferenceEnum::Compare` · 006b0b10
 - [ ] `PreferenceEnum::ConnectTarget` · 006b0b60 · legions 00649db0
 - [ ] `PreferenceEnum::Map` · 006b0ba0 · legions 00649df0
-- [ ] `PreferenceEnum::Changed` · 006b0bb0 · legions 00649e00
-- [ ] `PreferenceEnum::Apply` · 006b0bd0 · legions 00649e20
-- [ ] `PreferenceEnum::Reset` · 006b0be0
+- [~] `PreferenceEnum::Changed` · 006b0bb0 · legions 00649e00 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [~] `PreferenceEnum::Apply` · 006b0bd0 · legions 00649e20 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [~] `PreferenceEnum::Reset` · 006b0be0 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
 
 ### AnimAsset
 - [ ] `AnimAsset::GetType` · 006b0bf0
@@ -492,11 +492,11 @@ Legend and workflow: [README](README.md).
 - [ ] `PreferenceEnum::SetValue` · 006b1040
 - [ ] `PreferenceEnum::SetValue` · 006b1140 · legions 0064a390
 - [ ] `PreferenceEnum::SetDefault` · 006b11c0
-- [ ] `PreferenceEnum::SetDefault` · 006b12c0 · legions 0064a510
+- [~] `PreferenceEnum::SetDefault` · 006b12c0 · legions 0064a510 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
 - [ ] `PreferenceEnum::InqValue` · 006b1340 · legions 0064a590
 - [ ] `PreferenceEnum::InqDefault` · 006b13c0
 - [ ] `PreferenceEnum::AssignChoice` · 006b1430
-- [ ] `PreferenceEnum::AssignChoice` · 006b1450 · legions 0064a6a0
+- [~] `PreferenceEnum::AssignChoice` · 006b1450 · legions 0064a6a0 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
 - [ ] `PreferenceEnum::ExamineChoice` · 006b14a0
 - [ ] `PreferenceEnum::ExamineChoice` · 006b14c0 · legions 0064a710
 - [ ] `PreferenceEnum::ListChoices` · 006b1530
@@ -512,14 +512,14 @@ Legend and workflow: [README](README.md).
 - [ ] `PreferenceFloat::Compare` · 006b1b80
 - [ ] `PreferenceFloat::Copy` · 006b1bf0 · legions 0064ae40
 - [ ] `PreferenceFloat::ConnectTarget` · 006b1c60 · legions 0064aef0
-- [ ] `PreferenceFloat::SetRange` · 006b1ca0 · legions 0064af30
-- [ ] `PreferenceFloat::SetValue` · 006b1cd0 · legions 0064af60
-- [ ] `PreferenceFloat::SetDefault` · 006b1cf0 · legions 0064af80
-- [ ] `PreferenceFloat::InqRange` · 006b1d10 · legions 0064afa0
-- [ ] `PreferenceFloat::Changed` · 006b1d30 · legions 0064afc0
-- [ ] `PreferenceFloat::Apply` · 006b1d50 · legions 0064afe0
-- [ ] `PreferenceFloat::Recall` · 006b1d60
-- [ ] `PreferenceFloat::Reset` · 006b1d70
+- [~] `PreferenceFloat::SetRange` · 006b1ca0 · legions 0064af30 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [~] `PreferenceFloat::SetValue` · 006b1cd0 · legions 0064af60 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [~] `PreferenceFloat::SetDefault` · 006b1cf0 · legions 0064af80 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [~] `PreferenceFloat::InqRange` · 006b1d10 · legions 0064afa0 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [~] `PreferenceFloat::Changed` · 006b1d30 · legions 0064afc0 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [~] `PreferenceFloat::Apply` · 006b1d50 · legions 0064afe0 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [~] `PreferenceFloat::Recall` · 006b1d60 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
+- [~] `PreferenceFloat::Reset` · 006b1d70 — character_options.rs / character.rs: the option's current, saved (previous) and default values as the page uses them; PreferenceBank handlers are not modelled
 
 ### AnimCube
 - [ ] `AnimCube::GetType` · 006b1d80

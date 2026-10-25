@@ -219,6 +219,7 @@ impl ClientView {
             .prepare(gpu, &camera, aspect, time, scene_frame, objects);
         self.position_external_container(frame, &camera, aspect);
         self.hud.update_radar(radar_view(frame));
+        self.hud.update_navigation(frame);
         self.update_reticle(frame, &camera, aspect);
         self.update_names(frame, &camera, aspect);
         self.hud.finish_frame(gpu);
@@ -513,6 +514,50 @@ impl ClientView {
     /// The objects with a name plate (`gm3DTextUI`).
     pub fn named(&self) -> Vec<u64> {
         self.hud.named()
+    }
+
+    /// The character options page: its tab opens.
+    pub fn character_open(&mut self) {
+        self.hud.character_open();
+    }
+
+    /// The character options page: an option's checkbox is ticked or unticked.
+    pub fn character_tick(&mut self, option: &str, on: bool) {
+        self.hud.character_tick(option, on);
+    }
+
+    /// The character options page: one of its buttons is pressed (`ApplyButton`, ...); its
+    /// requests become commands on the next [`View::frameworks`].
+    pub fn character_press(&mut self, button: &str) {
+        self.hud.character_press(button);
+    }
+
+    /// The character options page: an option's value as the page shows it.
+    pub fn character_value(&self, option: &str) -> Option<f64> {
+        self.hud.character_value(option)
+    }
+
+    /// A press on one of the navigation panel's buttons (`LockPositionButton`, `NavigateLeftButton`,
+    /// ...), with Shift held or not (the short pan step). Returns whether the panel took it.
+    pub fn navigation_press(&mut self, button: &str, shift: bool) -> bool {
+        self.hud.navigation_press(button, shift)
+    }
+
+    /// A press on the navigation panel's map (`MapField`, `MapParentField`, `PlayerMarker`):
+    /// the element's data code and the pixel relative to the map field.
+    pub fn navigation_map_press(&mut self, element: &str, data: i32, pixel: (i32, i32)) -> bool {
+        self.hud.navigation_map_press(element, data, pixel)
+    }
+
+    /// The navigation panel's lock to the character (`gmNavigationUI::ListenToMessage`'s lock):
+    /// locking zooms to the character, unlocking leaves the window where it is.
+    pub fn navigation_lock(&mut self, locked: bool) {
+        self.hud.navigation_lock(locked);
+    }
+
+    /// The navigation panel and the tree it lives in, once the HUD is built.
+    pub fn navigation(&mut self) -> Option<(&mut ac2_ui::UiTree, &mut ac2_ui::NavigationUi)> {
+        self.hud.navigation_parts()
     }
 
     /// The radar's coordinates text.

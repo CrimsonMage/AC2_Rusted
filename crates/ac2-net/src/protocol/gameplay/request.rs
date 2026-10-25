@@ -59,6 +59,12 @@ pub enum ScriptRequest {
     OfferItem { item: u64, amount: u32 },
     /// [`function::REVOKE_ITEM`].
     RevokeItem(u64),
+    /// [`function::STORE_ENTER`]: the store (int), then the storekeeper (long int).
+    EnterStore { store: u32, vendor: u64 },
+    /// [`function::STORE_LEAVE`]: the storekeeper (long int).
+    LeaveStore(u64),
+    /// [`function::STORE_PURCHASE`]: the purchase's `TransactionBlob` (a package reference).
+    Purchase(PackedReference),
 }
 
 impl ScriptRequest {
@@ -85,6 +91,9 @@ impl ScriptRequest {
             Self::DeclineTrade => function::DECLINE_TRADE,
             Self::OfferItem { .. } => function::OFFER_ITEM,
             Self::RevokeItem(_) => function::REVOKE_ITEM,
+            Self::EnterStore { .. } => function::STORE_ENTER,
+            Self::LeaveStore(_) => function::STORE_LEAVE,
+            Self::Purchase(_) => function::STORE_PURCHASE,
         }
     }
 
@@ -121,6 +130,11 @@ impl ScriptRequest {
             Self::OfferItem { item, amount } => {
                 vec![PackValue::Int(*amount), PackValue::LongInt(*item)]
             }
+            Self::EnterStore { store, vendor } => {
+                vec![PackValue::Int(*store), PackValue::LongInt(*vendor)]
+            }
+            Self::LeaveStore(vendor) => vec![PackValue::LongInt(*vendor)],
+            Self::Purchase(reference) => vec![PackValue::Reference(reference.clone())],
         }
     }
 
@@ -210,6 +224,15 @@ impl ScriptRequest {
                 })
             }),
             function::REVOKE_ITEM => decode(|a| Ok(Self::RevokeItem(a.long()?))),
+            function::STORE_ENTER => decode(|a| {
+                let store = a.int()?;
+                Ok(Self::EnterStore {
+                    store,
+                    vendor: a.long()?,
+                })
+            }),
+            function::STORE_LEAVE => decode(|a| Ok(Self::LeaveStore(a.long()?))),
+            function::STORE_PURCHASE => decode(|a| Ok(Self::Purchase(a.reference()?))),
             _ => return None,
         })
     }

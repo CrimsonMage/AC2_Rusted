@@ -4,16 +4,19 @@
 //! settings follow the preferences. It never reads a file.
 
 use std::collections::{BTreeSet, HashMap};
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 
 use crate::data::{flags, sound_db_type, LoadedSound, SoundSource};
 use crate::loader::SoundLoader;
-use crate::music::performance::EventSink;
+use crate::music::dls::Collection;
+use crate::music::performance::{EventSink, TimedEvent};
 use crate::music_thread::{MusicHandler, MusicThread, SegmentInfo};
 use crate::play_data::{Channel, PlaySoundData, SoundType};
 use crate::playing::{DeviceState, Emitter, PlayingSound};
 use crate::sink::{SinkCommand, SoundSink};
+use crate::synth::{ChannelSources, GmLoad, GmLoadError, PerformanceBand};
 
 /// `ID_Sound_NumPlayingSounds`' default (`SoundManager::SoundManager`).
 const MAX_SECONDARY_SOUNDS: u32 = 32;
@@ -82,6 +85,8 @@ pub struct SoundManager {
     device: DeviceState,
     /// `DXMusicMessageThread`: the music segments the music voices play.
     music: MusicThread,
+    /// The General MIDI set's load, on its worker, until it arrives.
+    gm_load: GmLoad,
 }
 
 impl SoundManager {
@@ -111,6 +116,7 @@ impl SoundManager {
                 now: 0.0,
             },
             music: MusicThread::new(),
+            gm_load: GmLoad::default(),
         }
     }
 
@@ -193,8 +199,21 @@ impl SoundManager {
                 *length,
                 self.device.now,
             ),
-            LoadedSound::Music { info, .. } => {
-                PlayingSound::from_music(handle, data, info, self.device.now)
+            LoadedSound::Music {
+                info,
+                sources,
+                bands,
+                ..
+            } => {
+                let band = self.band_part(bands.first().map(|(_, own)| own));
+                PlayingSound::from_music(
+                    handle,
+                    data,
+                    info,
+                    Arc::clone(sources),
+                    band,
+                    self.device.now,
+                )
             }
         };
         // `DirectXPlayingSound::Play`: the segment goes to the music queue under the handle.
@@ -202,6 +221,7 @@ impl SoundManager {
             Some(kind),
             LoadedSound::Music {
                 segment: Some(segment),
+                bands,
                 ..
             },
         ) = (playing.segment_kind(), sound)
@@ -210,6 +230,7 @@ impl SoundManager {
                 kind,
                 handle,
                 segment: Arc::clone(segment),
+                bands: Arc::clone(bands),
             });
         }
         if playing.is_self_exclusive() {
@@ -217,6 +238,16 @@ impl SoundManager {
         }
         self.playing.push(playing);
         Some(handle)
+    }
+
+    /// The channel sources a music voice binds for its band: its own first band's, when its
+    /// segment has a band track, else the performance's (the band the queue holds now; see
+    /// [`MusicThread::performance`]). A segment with neither binds none.
+    fn band_part(&self, own: Option<&Arc<PerformanceBand>>) -> ChannelSources {
+        match own.cloned().or_else(|| self.music.performance()) {
+            Some(band) => Arc::clone(&band.sources),
+            None => Arc::from(Vec::new()),
+        }
     }
 
     /// `SoundManager::CheckSoundBudget`: a one-shot budgeted sound waits while the non-looping
@@ -273,6 +304,41 @@ impl SoundManager {
         while let Some((context, sound)) = self.loader.try_next() {
             self.on_context_finished(context, sound);
         }
+        if let Some(result) = self.gm_load.poll() {
+            self.gm_result(result);
+        }
+    }
+
+    /// Loads the General MIDI set from `path` on a worker thread (the frame thread never reads
+    /// the file). The set reaches the synthesizers once it has loaded; a failure is logged and
+    /// the GM channels stay silent.
+    pub fn load_gm(&mut self, path: PathBuf) {
+        self.gm_load.spawn(path);
+    }
+
+    /// Waits up to `timeout` for the General MIDI set (headless runs and tests); whether it
+    /// arrived (or none was loading).
+    pub fn wait_for_gm(&mut self, timeout: Duration) -> bool {
+        match self.gm_load.wait(timeout) {
+            Some(result) => {
+                self.gm_result(result);
+                true
+            }
+            None => !self.gm_load.is_pending(),
+        }
+    }
+
+    /// Sets the General MIDI set directly (`None` silences its channels).
+    pub fn set_gm(&mut self, set: Option<Arc<Collection>>) {
+        self.sink.send(SinkCommand::GeneralMidi { set });
+    }
+
+    /// Passes a loaded General MIDI set on, or logs why it did not load.
+    fn gm_result(&mut self, result: Result<Arc<Collection>, GmLoadError>) {
+        match result {
+            Ok(set) => self.set_gm(Some(set)),
+            Err(error) => log::warn!("{error}; General MIDI channels stay silent"),
+        }
     }
 
     /// Blocks until every pending load has finished (headless runs and tests); whether they
@@ -300,6 +366,14 @@ impl SoundManager {
     /// velocity in the listener's frame and whether it is muted; one it does not know keeps
     /// its last place.
     pub fn use_time_with(&mut self, now: f64, emitters: &dyn Fn(u64) -> Option<Emitter>) {
+        self.run_voices(now, emitters);
+        // After the voices are allocated, so a segment that starts this frame has its synthesizer.
+        self.send_music_notes(now);
+    }
+
+    /// The sound manager's frame: loads, the music queue, then each voice (see
+    /// [`SoundManager::use_time_with`]).
+    fn run_voices(&mut self, now: f64, emitters: &dyn Fn(u64) -> Option<Emitter>) {
         self.device.now = now;
         self.take_loads();
         self.flush_sounds(true);
@@ -343,6 +417,25 @@ impl SoundManager {
             first.play(&mut *self.sink, &device);
         }
         first.enable(&mut *self.sink, &device, true);
+    }
+
+    /// The music queue's notes since the last frame go to the sink (`SinkCommand::Note`), timed
+    /// against the queue's clock at `now` (`SinkCommand::MusicClock`, sent before the first).
+    fn send_music_notes(&mut self, now: f64) {
+        // The band changes come first: a note after one maps by the new band, and its voice has
+        // the new sources.
+        for change in self.music.take_band_changes() {
+            self.sink.send(SinkCommand::MusicBands {
+                voice: change.handle,
+                sources: change.sources,
+            });
+        }
+        let mut router = NoteRouter {
+            sink: &mut *self.sink,
+            now,
+            clock_sent: false,
+        };
+        self.music.send_events(&mut router);
     }
 
     /// `SoundManager::AllocateSounds`: the sounds in the world, under the priority limit and
@@ -397,6 +490,12 @@ impl SoundManager {
             if !expired_only {
                 playing.stop(&mut *self.sink, &device, 0.0, true);
             }
+            if playing.segment_kind().is_some() {
+                // The segment's synthesizer releases and goes (its notes end with the queue's).
+                self.sink.send(SinkCommand::MusicEnded {
+                    voice: playing.handle,
+                });
+            }
             flushed = true;
         }
         flushed
@@ -431,7 +530,7 @@ impl SoundManager {
             if stop {
                 playing.stop(&mut *self.sink, &device, 0.0, false);
                 if playing.segment_kind().is_some() {
-                    self.music.stop(playing.handle);
+                    self.music.stop(playing.handle, playing.stop_timing(false));
                 }
                 stopped += 1;
             }
@@ -448,7 +547,7 @@ impl SoundManager {
             if playing.emitter == Some(emitter) {
                 playing.stop(&mut *self.sink, &device, 0.0, true);
                 if playing.segment_kind().is_some() {
-                    self.music.stop(playing.handle);
+                    self.music.stop(playing.handle, playing.stop_timing(true));
                 }
                 stopped += 1;
             }
@@ -480,7 +579,7 @@ impl SoundManager {
             Some(playing) => {
                 playing.stop(&mut *self.sink, &device, fade, false);
                 if playing.segment_kind().is_some() {
-                    self.music.stop(handle);
+                    self.music.stop(handle, playing.stop_timing(false));
                 }
             }
             None => self.stop_sound_request(handle),
@@ -547,7 +646,7 @@ impl SoundManager {
     }
 
     /// Gives `sink` the music events sent since the last call (the notes of the playing
-    /// segments, in time order; no synthesiser takes them yet).
+    /// segments, in time order). The sound manager's own frame sends them to the mixer.
     pub fn send_music_events(&mut self, sink: &mut dyn EventSink) {
         self.music.send_events(sink);
     }
@@ -623,6 +722,24 @@ impl SoundManager {
         self.loaded.clear();
         self.lru.clear();
         self.requests.clear();
+    }
+}
+
+/// Sends the music queue's events to the sink as notes, the queue's clock first.
+struct NoteRouter<'a> {
+    sink: &'a mut dyn SoundSink,
+    now: f64,
+    clock_sent: bool,
+}
+
+impl EventSink for NoteRouter<'_> {
+    fn event(&mut self, event: &TimedEvent) {
+        if !self.clock_sent {
+            self.sink
+                .send(SinkCommand::MusicClock { seconds: self.now });
+            self.clock_sent = true;
+        }
+        self.sink.send(SinkCommand::Note(*event));
     }
 }
 

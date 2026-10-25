@@ -90,6 +90,25 @@ impl MusicClock {
         seconds
     }
 
+    /// The music time (in ticks, fractional) `seconds` from the segment's start reaches: the
+    /// inverse of [`Self::seconds_at`].
+    pub fn tick_at(&self, seconds: f64) -> f64 {
+        let mut remaining = seconds.max(0.0);
+        let ranges = self.tempo_ranges();
+        for (i, &(from, bpm)) in ranges.iter().enumerate() {
+            let from = f64::from(from.max(0));
+            let to = ranges.get(i + 1).map_or(f64::INFINITY, |r| f64::from(r.0));
+            let ticks_per_second = bpm * f64::from(PPQ) / 60.0;
+            let span = (to - from) / ticks_per_second;
+            if remaining <= span {
+                return from + remaining * ticks_per_second;
+            }
+            remaining -= span;
+        }
+        // Unreachable: the last range runs to infinity.
+        f64::from(i32::MAX)
+    }
+
     /// `(start tick, bpm)` for each range: the default from 0 unless the first item is at 0.
     fn tempo_ranges(&self) -> Vec<(i32, f64)> {
         let mut ranges = Vec::with_capacity(self.tempo.len() + 1);

@@ -139,6 +139,7 @@ fn a_dat_segment_queued_plays_its_notes_and_the_next_measure_follows_the_groove(
             kind: SegmentKind::Secondary,
             handle,
             segment: Arc::clone(&music),
+            bands: Arc::from(Vec::new()),
         }));
     }
     // Measure 0 of each copy chooses its pattern at level A.
@@ -251,4 +252,153 @@ fn a_dat_music_info_of_the_segment_plays_through_the_sound_manager() {
     assert!(manager.music().is_playing(handle));
     let choice = manager.music().choices(handle).expect("a style plays")[0];
     assert_eq!(choice.groove, level);
+}
+
+const FIRST_OBJECT: u32 = 0x2400_0000;
+const LAST_OBJECT: u32 = 0x24FF_FFFE;
+
+/// Whether the segment has a band track.
+fn has_bands(segment: &crate::music::segment::Segment) -> bool {
+    segment
+        .tracks
+        .iter()
+        .any(|t| matches!(t.data, TrackData::Bands(_)))
+}
+
+/// The channels a band's instruments play on.
+fn band_channels(items: &[(f64, Arc<crate::synth::PerformanceBand>)]) -> Vec<u32> {
+    items
+        .first()
+        .map(|(_, first)| first.band.instruments.iter().map(|i| i.pchannel).collect())
+        .unwrap_or_default()
+}
+
+#[test]
+fn a_dat_band_segment_starting_reaches_a_note_segment_already_playing() {
+    let Some(store) = store() else {
+        return;
+    };
+    let library = MusicLibrary::new(Arc::clone(&store));
+    let ids: Vec<u32> = store
+        .dataset()
+        .ids_in_range(DatFileKind::Portal, FIRST_OBJECT, LAST_OBJECT)
+        .collect();
+    // The band segments whose first band is bound to a DLS collection of the DATs, and the note
+    // segments with no band of their own, with the channels their notes use.
+    let mut bands = Vec::new();
+    let mut notes = Vec::new();
+    for &did in &ids {
+        let Some(object) = library.record(did) else {
+            continue;
+        };
+        let MusicObject::Segment(segment) = &object else {
+            continue;
+        };
+        if has_bands(segment) {
+            let music = Arc::new(library.closure(object.clone()));
+            let items = crate::synth::performance_bands(&music);
+            let collection = items.first().is_some_and(|(_, first)| {
+                first
+                    .sources
+                    .iter()
+                    .any(|(_, source)| matches!(source, crate::synth::Source::Collection(_)))
+            });
+            if collection {
+                bands.push((did, music, items));
+            }
+        } else {
+            let channels: Vec<u32> = segment
+                .tracks
+                .iter()
+                .filter_map(|t| match &t.data {
+                    TrackData::Sequence { events, .. } => Some(
+                        events
+                            .iter()
+                            .filter(|e| e.status & 0xF0 == 0x90)
+                            .map(|e| e.pchannel)
+                            .collect::<Vec<u32>>(),
+                    ),
+                    _ => None,
+                })
+                .flatten()
+                .collect();
+            if !channels.is_empty() {
+                notes.push((did, Arc::new(library.closure(object.clone())), channels));
+            }
+        }
+    }
+    // A band and a note segment that share a channel: the note's channel is the band's.
+    let mut pair = None;
+    'search: for (band_did, band_music, band_items) in &bands {
+        let channels = band_channels(band_items);
+        for (note_did, note_music, note_channels) in &notes {
+            if note_channels.iter().any(|c| channels.contains(c)) {
+                pair = Some((
+                    *band_did,
+                    Arc::clone(band_music),
+                    band_items.clone(),
+                    *note_did,
+                    Arc::clone(note_music),
+                ));
+                break 'search;
+            }
+        }
+    }
+    let Some((band_did, band_music, band_items, note_did, note_music)) = pair else {
+        panic!("the corpus has a band and a note segment on the same channel");
+    };
+    let channels = band_channels(&band_items);
+    let mut thread = MusicThread::new();
+    thread.use_time(0.0, None);
+    assert!(thread.play(SegmentInfo {
+        kind: SegmentKind::Secondary,
+        handle: 1,
+        segment: Arc::clone(&note_music),
+        bands: Arc::from(Vec::new()),
+    }));
+    let mut quiet = Quiet;
+    thread.use_time(0.5, Some(&mut quiet));
+    let mut early: Vec<TimedEvent> = Vec::new();
+    thread.send_events(&mut early);
+    // The band segment starts at 0.5 s: the note segment's voice is told the band's sources.
+    assert!(thread.play(SegmentInfo {
+        kind: SegmentKind::Secondary,
+        handle: 2,
+        segment: Arc::clone(&band_music),
+        bands: band_items.clone().into(),
+    }));
+    let changes = thread.take_band_changes();
+    let expected = band_items[0].1.sources.to_vec();
+    assert!(
+        changes
+            .iter()
+            .any(|c| c.handle == 1 && c.sources.to_vec() == expected),
+        "{note_did:08X} is told the band's sources when {band_did:08X} starts"
+    );
+    // Its later notes on the band's channels sound on the band's instruments.
+    let window = 2.0 * measure_seconds(&note_music);
+    thread.use_time(0.5 + window, Some(&mut quiet));
+    let mut later: Vec<TimedEvent> = Vec::new();
+    thread.send_events(&mut later);
+    let bound: Vec<_> = later
+        .iter()
+        .filter(|e| e.segment == 1)
+        .filter_map(|e| match e.event {
+            MusicEvent::NoteOn {
+                channel,
+                instrument,
+                ..
+            } if channels.contains(&channel) => Some(instrument),
+            _ => None,
+        })
+        .collect();
+    assert!(
+        !bound.is_empty(),
+        "the note segment plays on the band's channels"
+    );
+    assert!(
+        bound.iter().all(|i| i.is_some()),
+        "after the band starts, its notes name an instrument"
+    );
+    let _ = Arc::clone(&band_music);
 }

@@ -8,6 +8,7 @@ use crate::data::{flags, MusicInfo, Pcm, SoundInfo};
 use crate::music_thread::SegmentKind;
 use crate::play_data::{Channel, LoopingMode, PlaySoundData, SoundType, Track};
 use crate::sink::{millibels, Boundary, SinkCommand, SoundSink, Spatial};
+use crate::synth::ChannelSources;
 
 /// `DirectXPlayingSound::LifetimeState`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -57,6 +58,10 @@ pub(crate) enum VoiceSource {
         stop: Boundary,
         primary: bool,
         control: bool,
+        /// The segment's style's bands, bound to the voice's synthesizer.
+        sources: ChannelSources,
+        /// The band its notes play on (its own band, or the performance's): searched first.
+        band: ChannelSources,
     },
 }
 
@@ -194,7 +199,14 @@ impl PlayingSound {
     /// `DirectXSoundInstance::CreatePlayingSound` for a `MusicInfo`
     /// (`InitDXPSDFromMusicInfo`, then `DXInitialize`): no length (it plays until stopped),
     /// placed in 3D when its `0x10` bit asks (`AudioPath_3DMusic`).
-    pub fn from_music(handle: u32, data: &PlaySoundData, info: &MusicInfo, now: f64) -> Self {
+    pub fn from_music(
+        handle: u32,
+        data: &PlaySoundData,
+        info: &MusicInfo,
+        sources: ChannelSources,
+        band: ChannelSources,
+        now: f64,
+    ) -> Self {
         let exclusive = info.test(flags::EXCLUSIVE);
         let looping = match data.looping {
             LoopingMode::Inherit => !exclusive && info.test(flags::LOOP),
@@ -241,6 +253,8 @@ impl PlayingSound {
             stop: stop_boundary(info),
             primary: track == Track::ForcePrimary,
             control: track == Track::ForceSecondary && info.test(0x400),
+            sources,
+            band,
         };
         sound
     }
@@ -378,6 +392,8 @@ impl PlayingSound {
                 start,
                 primary,
                 control,
+                sources,
+                band,
                 ..
             } => sink.send(SinkCommand::StartMusic {
                 voice: self.handle,
@@ -389,6 +405,8 @@ impl PlayingSound {
                 primary: *primary,
                 control: *control,
                 spatial: self.spatial(),
+                sources: Arc::clone(sources),
+                band: Arc::clone(band),
             }),
         }
         self.has_voice = true;
@@ -407,7 +425,20 @@ impl PlayingSound {
     /// `OnSegmentEnded`.
     fn stop_at(&mut self, sink: &mut dyn SoundSink, boundary: Boundary) {
         self.send_stop(sink, boundary);
-        self.on_segment_ended();
+        // A music segment stopped at a boundary plays out: its end comes from the queue (its
+        // `SegmentEnd`), so the voice stays until then.
+        if boundary == Boundary::Immediate || !matches!(self.source, VoiceSource::Music { .. }) {
+            self.on_segment_ended();
+        }
+    }
+
+    /// The boundary the music queue stops this voice's segment at: its `MusicInfo`'s stop timing,
+    /// or immediately for an immediate stop (and for a wave, which has no queue segment).
+    pub fn stop_timing(&self, immediate: bool) -> Boundary {
+        match (&self.source, immediate) {
+            (VoiceSource::Music { stop, .. }, false) => *stop,
+            _ => Boundary::Immediate,
+        }
     }
 
     fn send_stop(&self, sink: &mut dyn SoundSink, boundary: Boundary) {
@@ -477,10 +508,7 @@ impl PlayingSound {
         } else {
             Lifetime::WaitingForEnd
         };
-        let boundary = match (&self.source, immediate) {
-            (VoiceSource::Music { stop, .. }, false) => *stop,
-            _ => Boundary::Immediate,
-        };
+        let boundary = self.stop_timing(immediate);
         self.stop_at(sink, boundary);
     }
 

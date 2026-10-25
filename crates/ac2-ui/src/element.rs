@@ -165,6 +165,11 @@ impl UiElement {
     }
 
     /// `UIRegion::IsVisible` (the element's own flag).
+    /// The element's rectangle on the screen (`UIRegion`'s bounds).
+    pub fn rect(&self) -> UiBox {
+        self.rect
+    }
+
     pub fn visible(&self) -> bool {
         self.visible
     }

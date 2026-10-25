@@ -130,6 +130,8 @@ pub struct ClientFrame {
     pub server_time: f64,
     /// `GameTime::present_time_of_day`.
     pub time_of_day: Option<f32>,
+    /// The game's calendar at this frame (`GameTime::InqCurrentGameDateTimeString`'s variables).
+    pub date_time: Option<ac2_world::GameDateTime>,
     /// The player's cell, when its body exists.
     pub cell_id: Option<u32>,
     /// `CPhysicsObj::IsInWorld` for the player.

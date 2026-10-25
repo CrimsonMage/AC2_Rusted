@@ -3,12 +3,15 @@
 //! here synthesises sound; the events go to an [`EventSink`].
 //!
 //! A sequence item (`DMUS_IO_SEQ_ITEM`) is a note at `time + offset` ticks lasting `duration`
-//! ticks. Only note-on items (status 0x90) are played for now; other channel messages and the
-//! curve items are not emitted yet.
+//! ticks (status 0x90), or a channel message at that time (control change 0xB0, pitch bend 0xE0,
+//! channel pressure 0xD0). A curve item (`DMUS_IO_CURVE_ITEM`) is sent as controller events over
+//! its time ([`super::curves`]).
+
+use std::sync::Arc;
 
 use super::band::Band;
 use super::clock::MusicClock;
-use super::segment::{Segment, TrackData};
+use super::segment::{Segment, SeqItem, TrackData};
 
 /// One note event on a performance channel (`pchannel`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -24,13 +27,34 @@ pub enum MusicEvent {
         channel: u32,
         note: u8,
     },
+    /// A control change (`0xB0`): `controller` set to `value` (0 to 127). Sent by sequence items
+    /// and by control curves ([`super::curves`]).
+    Control {
+        channel: u32,
+        controller: u8,
+        value: u8,
+    },
+    /// A pitch bend (`0xE0`): 14 bits, 8192 centred.
+    PitchBend {
+        channel: u32,
+        value: u16,
+    },
+    /// Channel pressure (`0xD0`, a mono aftertouch curve).
+    ChannelPressure {
+        channel: u32,
+        value: u8,
+    },
 }
 
-/// A note event at a physical time from the segment's start.
+/// A note event at a physical time from the segment's start (on the queue's timeline once a
+/// playback stamps it).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct TimedEvent {
     pub seconds: f64,
     pub event: MusicEvent,
+    /// The segment that sent it: the sound handle of its `SegmentInfo`, so two segments' events
+    /// (and their channels) stay apart. 0 until a music queue playback stamps it.
+    pub segment: u32,
 }
 
 /// Receives the events a performance emits.
@@ -45,52 +69,145 @@ impl EventSink for Vec<TimedEvent> {
     }
 }
 
-/// The note events of `segment`'s sequence tracks, in time order (a note-off before a note-on
-/// at the same tick). `band` maps each channel to its instrument and transposition.
+/// Sort ranks at one tick: controllers first (so a note starts with its controllers in place),
+/// then note-offs ahead of note-ons.
+const RANK_CONTROL: u8 = 0;
+const RANK_OFF: u8 = 1;
+const RANK_ON: u8 = 2;
+
+/// The note and controller events of `segment`'s sequence tracks, in time order. `band` maps each
+/// channel to its instrument and transposition. Sequence items carry notes (`0x90`), control
+/// changes (`0xB0`), pitch bends (`0xE0`) and channel pressure (`0xD0`); the control curves
+/// (`DMUS_IO_CURVE_ITEM`) become controller events over their time ([`super::curves`]).
 pub fn note_events(segment: &Segment, clock: &MusicClock, band: Option<&Band>) -> Vec<TimedEvent> {
-    // (tick, is_on, event): note-offs sort ahead of note-ons at the same tick.
-    let mut ticked: Vec<(i32, bool, MusicEvent)> = Vec::new();
+    raw_events(segment, clock)
+        .into_iter()
+        .map(|e| TimedEvent {
+            event: mapped(e.event, band),
+            ..e
+        })
+        .collect()
+}
+
+/// The events of `segment` in time order with the sequence's own notes (no band applied).
+fn raw_events(segment: &Segment, clock: &MusicClock) -> Vec<TimedEvent> {
+    let mut ticked: Vec<(i32, u8, MusicEvent)> = Vec::new();
     for track in &segment.tracks {
-        let TrackData::Sequence { events, .. } = &track.data else {
+        let TrackData::Sequence { events, curves } = &track.data else {
             continue;
         };
-        for item in events.iter().filter(|e| e.status & 0xF0 == 0x90) {
-            let on = (item.time + i32::from(item.offset)).max(0);
-            let off = on + item.duration.max(0);
-            let assignment =
-                band.and_then(|b| b.instruments.iter().find(|i| i.pchannel == item.pchannel));
-            let note = assignment.map_or(i32::from(item.byte1), |i| {
-                i32::from(item.byte1) + i32::from(i.transpose)
-            });
-            let note = note.clamp(0, 127) as u8;
-            ticked.push((
-                on,
-                true,
-                MusicEvent::NoteOn {
-                    channel: item.pchannel,
-                    instrument: assignment.map(|i| i.effective_patch()),
-                    note,
-                    velocity: item.byte2,
-                },
-            ));
-            ticked.push((
-                off,
-                false,
-                MusicEvent::NoteOff {
-                    channel: item.pchannel,
-                    note,
-                },
-            ));
+        for item in events {
+            match item.status & 0xF0 {
+                0x90 => push_note(&mut ticked, item),
+                0xB0 => ticked.push((
+                    (item.time + i32::from(item.offset)).max(0),
+                    RANK_CONTROL,
+                    MusicEvent::Control {
+                        channel: item.pchannel,
+                        controller: item.byte1 & 0x7F,
+                        value: item.byte2 & 0x7F,
+                    },
+                )),
+                0xE0 => ticked.push((
+                    (item.time + i32::from(item.offset)).max(0),
+                    RANK_CONTROL,
+                    MusicEvent::PitchBend {
+                        channel: item.pchannel,
+                        value: u16::from(item.byte1 & 0x7F) | (u16::from(item.byte2 & 0x7F) << 7),
+                    },
+                )),
+                0xD0 => ticked.push((
+                    (item.time + i32::from(item.offset)).max(0),
+                    RANK_CONTROL,
+                    MusicEvent::ChannelPressure {
+                        channel: item.pchannel,
+                        value: item.byte1 & 0x7F,
+                    },
+                )),
+                _ => {}
+            }
+        }
+        for curve in curves {
+            ticked.extend(
+                super::curves::curve_events(curve)
+                    .into_iter()
+                    .map(|(tick, event)| (tick.max(0), RANK_CONTROL, event)),
+            );
         }
     }
-    ticked.sort_by_key(|(tick, on, _)| (*tick, *on));
+    ticked.sort_by_key(|(tick, rank, _)| (*tick, *rank));
     ticked
         .into_iter()
         .map(|(tick, _, event)| TimedEvent {
             seconds: clock.seconds_at(tick),
             event,
+            segment: 0,
         })
         .collect()
+}
+
+/// A raw note event with the band applied (other events are unchanged).
+fn mapped(event: MusicEvent, band: Option<&Band>) -> MusicEvent {
+    match event {
+        MusicEvent::NoteOn {
+            channel,
+            note,
+            velocity,
+            ..
+        } => {
+            let (instrument, note) = assign(band, channel, note);
+            MusicEvent::NoteOn {
+                channel,
+                instrument,
+                note,
+                velocity,
+            }
+        }
+        MusicEvent::NoteOff { channel, note } => MusicEvent::NoteOff {
+            channel,
+            note: assign(band, channel, note).1,
+        },
+        other => other,
+    }
+}
+
+/// A note-on and its note-off, in `ticked`, with the note as the sequence gives it (the band
+/// maps it when the event is sent, see [`assign`]).
+fn push_note(ticked: &mut Vec<(i32, u8, MusicEvent)>, item: &SeqItem) {
+    let on = (item.time + i32::from(item.offset)).max(0);
+    let off = on + item.duration.max(0);
+    ticked.push((
+        on,
+        RANK_ON,
+        MusicEvent::NoteOn {
+            channel: item.pchannel,
+            instrument: None,
+            note: item.byte1,
+            velocity: item.byte2,
+        },
+    ));
+    ticked.push((
+        off,
+        RANK_OFF,
+        MusicEvent::NoteOff {
+            channel: item.pchannel,
+            note: item.byte1,
+        },
+    ));
+}
+
+/// The instrument (patch) and the note a channel's band gives a sequence note: the band's
+/// instrument for the channel, its transposition, and no patch when the band has no instrument on
+/// the channel.
+pub fn assign(band: Option<&Band>, channel: u32, note: u8) -> (Option<u32>, u8) {
+    let assignment = band.and_then(|b| b.instruments.iter().find(|i| i.pchannel == channel));
+    let transposed = assignment.map_or(i32::from(note), |i| {
+        i32::from(note) + i32::from(i.transpose)
+    });
+    (
+        assignment.map(|i| i.effective_patch()),
+        transposed.clamp(0, 127) as u8,
+    )
 }
 
 /// A segment playing in real time: [`advance`](Self::advance) by seconds and the events due in
@@ -99,7 +216,10 @@ pub fn note_events(segment: &Segment, clock: &MusicClock, band: Option<&Band>) -
 /// start when looping.
 #[derive(Debug, Clone)]
 pub struct MusicPerformance {
+    /// The events as the sequence gives them (notes before the band maps them).
     events: Vec<TimedEvent>,
+    /// The band its notes are mapped by when sent, which [`MusicPerformance::set_band`] changes.
+    band: Option<Arc<Band>>,
     /// The segment's length in seconds.
     stop: f64,
     /// `(loop start, loop end)` in seconds, when the segment loops.
@@ -109,17 +229,17 @@ pub struct MusicPerformance {
     /// Elapsed time at the segment's start for the current pass: elapsed = base + position.
     base: f64,
     cursor: usize,
-    /// Notes started and not yet released, as (channel, note).
-    sounding: Vec<(u32, u8)>,
+    /// Notes started and not yet released, as (channel, sequence note, sent note).
+    sounding: Vec<(u32, u8, u8)>,
     finished: bool,
 }
 
 impl MusicPerformance {
     /// A performance of `segment` with `band`'s instruments. `looping` wraps from the loop end to
     /// the loop start (a segment with no loop region plays once either way).
-    pub fn new(segment: &Segment, band: Option<&Band>, looping: bool) -> Self {
+    pub fn new(segment: &Segment, band: Option<Arc<Band>>, looping: bool) -> Self {
         let clock = MusicClock::from_segment(segment);
-        let events = note_events(segment, &clock, band);
+        let events = raw_events(segment, &clock);
         let looping = (looping && segment.loop_end > segment.loop_start).then(|| {
             (
                 clock.seconds_at(segment.loop_start),
@@ -128,6 +248,7 @@ impl MusicPerformance {
         });
         Self {
             events,
+            band,
             stop: clock.seconds_at(segment.length),
             looping: looping.filter(|(start, end)| end > start),
             position: 0.0,
@@ -138,9 +259,15 @@ impl MusicPerformance {
         }
     }
 
-    /// The events, in time order (before any playback).
+    /// The events as the sequence gives them, in time order (before the band maps the notes).
     pub fn events(&self) -> &[TimedEvent] {
         &self.events
+    }
+
+    /// The band the notes sent from now on are mapped by (`None`: the notes have no instrument).
+    /// A note already sounding keeps the instrument it started with.
+    pub fn set_band(&mut self, band: Option<Arc<Band>>) {
+        self.band = band;
     }
 
     /// The time played so far, in seconds.
@@ -203,31 +330,62 @@ impl MusicPerformance {
     /// Sends one event; a note-off only goes out for a note that is sounding (a note that began
     /// before a loop wrap is not released by its own later note-off).
     fn play(&mut self, event: TimedEvent, sink: &mut impl EventSink) {
-        let at = TimedEvent {
-            seconds: self.base + event.seconds,
-            event: event.event,
-        };
         match event.event {
-            MusicEvent::NoteOn { channel, note, .. } => {
-                self.sounding.push((channel, note));
-                sink.event(&at);
+            MusicEvent::NoteOn {
+                channel,
+                note,
+                velocity,
+                ..
+            } => {
+                let (instrument, sent) = assign(self.band.as_deref(), channel, note);
+                self.sounding.push((channel, note, sent));
+                sink.event(&TimedEvent {
+                    seconds: self.base + event.seconds,
+                    event: MusicEvent::NoteOn {
+                        channel,
+                        instrument,
+                        note: sent,
+                        velocity,
+                    },
+                    segment: 0,
+                });
             }
             MusicEvent::NoteOff { channel, note } => {
-                if let Some(i) = self.sounding.iter().position(|k| *k == (channel, note)) {
-                    self.sounding.swap_remove(i);
-                    sink.event(&at);
+                if let Some(i) = self
+                    .sounding
+                    .iter()
+                    .position(|k| (k.0, k.1) == (channel, note))
+                {
+                    let (_, _, sent) = self.sounding.swap_remove(i);
+                    sink.event(&TimedEvent {
+                        seconds: self.base + event.seconds,
+                        event: MusicEvent::NoteOff {
+                            channel,
+                            note: sent,
+                        },
+                        segment: 0,
+                    });
                 }
             }
+            other => sink.event(&TimedEvent {
+                seconds: self.base + event.seconds,
+                event: other,
+                segment: 0,
+            }),
         }
     }
 
     /// Releases every note still sounding at `seconds` (elapsed time: the segment's end or loop
     /// end).
     fn release_all(&mut self, seconds: f64, sink: &mut impl EventSink) {
-        for (channel, note) in std::mem::take(&mut self.sounding) {
+        for (channel, _, sent) in std::mem::take(&mut self.sounding) {
             sink.event(&TimedEvent {
                 seconds,
-                event: MusicEvent::NoteOff { channel, note },
+                event: MusicEvent::NoteOff {
+                    channel,
+                    note: sent,
+                },
+                segment: 0,
             });
         }
     }

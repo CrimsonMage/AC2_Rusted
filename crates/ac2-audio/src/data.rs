@@ -13,6 +13,7 @@ use ac2_db::{
 };
 
 use crate::music::library::{LoadedMusic, MusicLibrary, MusicSource};
+use crate::synth::{performance_bands, style_sources, ChannelSources, PerformanceBand};
 
 /// `SoundInfo::GetDBOType`.
 pub const DB_TYPE_SOUND_INFO: u32 = 0x4000_002C;
@@ -270,10 +271,15 @@ pub enum LoadedSound {
     },
     /// A `MusicInfo` and the DirectMusic segment it plays (`DirectXMusicLoader::LoadFromMusicInfo`
     /// with its closure). `None` when the record is an `EncodedWave` (played as a wave, which
-    /// the queue does not take) or the segment is missing.
+    /// the queue does not take) or the segment is missing. `sources` are the channel sources of
+    /// the segment's style (the bands its style's notes take instruments from), and `bands` the
+    /// items of its band track (the bands its own notes play on, and the performance's band they
+    /// make), all resolved here on the loader thread.
     Music {
         info: MusicInfo,
         segment: Option<Arc<LoadedMusic>>,
+        sources: ChannelSources,
+        bands: Arc<[(f64, Arc<PerformanceBand>)]>,
     },
 }
 
@@ -339,7 +345,20 @@ impl SoundSource for DatSounds {
                     Some(MusicSource::DirectMusic(music)) => Some(music),
                     _ => None,
                 };
-                Some(LoadedSound::Music { info, segment })
+                let sources: ChannelSources = match &segment {
+                    Some(music) => style_sources(music).into(),
+                    None => Arc::from(Vec::new()),
+                };
+                let bands: Arc<[(f64, Arc<PerformanceBand>)]> = match &segment {
+                    Some(music) => performance_bands(music).into(),
+                    None => Arc::from(Vec::new()),
+                };
+                Some(LoadedSound::Music {
+                    info,
+                    segment,
+                    sources,
+                    bands,
+                })
             }
         }
     }

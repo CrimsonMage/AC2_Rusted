@@ -41,6 +41,7 @@ impl Client {
         ClientFrame {
             server_time,
             time_of_day: self.game_clock.as_ref().map(GameClock::present_time_of_day),
+            date_time: self.game_clock.as_ref().map(GameClock::date_time),
             cell_id: player.as_ref().map(|p| p.cell),
             in_world,
             blocking_for_cells: self.cells.is_blocking(),

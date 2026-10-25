@@ -198,6 +198,9 @@ impl State {
             | ScriptRequest::DeclineTrade
             | ScriptRequest::OfferItem { .. }
             | ScriptRequest::RevokeItem(_) => self.answer_trade(request),
+            ScriptRequest::LeaveStore(_) => self.answer_leave_store(request),
+            // The purchase's answer is not modelled yet: the requests are recorded only.
+            ScriptRequest::EnterStore { .. } | ScriptRequest::Purchase(_) => {}
             ScriptRequest::Use(desc) => {
                 let mut desc = desc.clone();
                 desc.error = self.script_world.usage_error;

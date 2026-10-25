@@ -27,6 +27,44 @@ const GROOVE_LEVEL: u32 = 0x3B6;
 const GROOVE_DELAY: f64 = 2.0;
 /// The marker type `gmNavigationUI` never shows (`type != 3` in its add and clear notices).
 const HIDDEN_MARKER_TYPE: u32 = 3;
+/// `gmNavigationUI::RecvNotice_AddMarker`: a type keeps at most this many notes (`> 9` pops).
+const MAX_NOTES_PER_TYPE: usize = 10;
+/// `RecvNotice_AddMarker`'s squared distance (in land cells) under which a note of the same
+/// type is already there (`< 6.0`).
+const NEAR_NOTE_DISTANCE_SQ: f64 = 6.0;
+
+/// `gmNavigationUI::RecvNotice_AddMarker` and `AddMarker` over the map notes, in arrival order:
+/// type 3 is never shown; a note of a type within `sqrt(6)` land cells of a note of that type
+/// already there is ignored (its cell must be on the land); the type's oldest notes go beyond
+/// the limit of ten; a note for the same object in its type replaces that object's. Admin
+/// 7148's rule: Legions 7160 has no separate notice handler for it.
+pub fn add_map_note(markers: &mut Vec<MapMarker>, note: MapMarker) {
+    if note.kind == HIDDEN_MARKER_TYPE {
+        return;
+    }
+    if let Some(land) = ac2_physics::landdefs::gid_to_lcoord(note.cell) {
+        let near = markers
+            .iter()
+            .filter(|m| m.kind == note.kind)
+            .filter_map(|m| ac2_physics::landdefs::gid_to_lcoord(m.cell))
+            .any(|(x, y)| {
+                let (dx, dy) = (f64::from(land.0 - x), f64::from(land.1 - y));
+                dx * dx + dy * dy < NEAR_NOTE_DISTANCE_SQ
+            });
+        if near {
+            return;
+        }
+    }
+    while markers.iter().filter(|m| m.kind == note.kind).count() >= MAX_NOTES_PER_TYPE {
+        if let Some(at) = markers.iter().position(|m| m.kind == note.kind) {
+            markers.remove(at);
+        }
+    }
+    if note.id != 0 {
+        markers.retain(|m| !(m.kind == note.kind && m.id == note.id));
+    }
+    markers.push(note);
+}
 
 /// The radar's and the map notes' state in the client.
 #[derive(Debug, Default)]
@@ -72,17 +110,9 @@ impl RadarState {
         self.ranges = None;
     }
 
-    /// `gmNavigationUI::RecvNotice_AddMarker` (type 3 is never shown): a note for the same
-    /// object in its type is replaced (`AddMarker`).
+    /// `gmNavigationUI::RecvNotice_AddMarker`: see [`add_map_note`].
     fn add_marker(&mut self, marker: MapMarker) {
-        if marker.kind == HIDDEN_MARKER_TYPE {
-            return;
-        }
-        if marker.id != 0 {
-            self.markers
-                .retain(|m| !(m.kind == marker.kind && m.id == marker.id));
-        }
-        self.markers.push(marker);
+        add_map_note(&mut self.markers, marker);
     }
 
     /// `gmNavigationUI::RecvNotice_RemoveMarker` (`FlushMarkerByIID`).
@@ -155,7 +185,7 @@ impl Client {
                 cell,
                 image,
                 message,
-            } => self.radar.add_marker(MapMarker {
+            } if self.session.player().is_some() => self.radar.add_marker(MapMarker {
                 kind: *kind,
                 id: *id,
                 cell: *cell,

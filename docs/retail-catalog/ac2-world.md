@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 142 done, 14 partial, 690 to do, 143 skipped.
+989 retail functions: 149 done, 15 partial, 682 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (16/140)
@@ -721,7 +721,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjCell::InqVoyeurs` · 0047d5a0 · legions 004775d0
 - [ ] `CObjCell::AddVoyeur` · 0047d7b0 · legions 004777e0
 
-## `portal/shared/src/gametime/gametime.cpp.c` (4/29)
+## `portal/shared/src/gametime/gametime.cpp.c` (9/29)
 
 ### GameTime
 - [x] `GameTime::SetYearLength` · 00618860 · legions 005d50d0 — GameClock::new: day_length * days_per_year as a double
@@ -737,21 +737,21 @@ Legend and workflow: [README](README.md).
 
 ### Season
 - [ ] `Season::Season` · 006188c0
-- [ ] `Season::StreamPack` · 006188d0 · legions 005d5140
+- [x] `Season::StreamPack` · 006188d0 · legions 005d5140 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
 
 ### GameTime
 - [ ] `GameTime::Destroy` · 00618920 · legions 005d5190
-- [ ] `GameTime::StreamPack` · 00618a40 · legions 005d52b0
-- [ ] `GameTime::Init` · 00618b50 · legions 005d53c0
-- [x] `GameTime::CalcDayBegin` · 00618bd0 · legions 005d5420 — ac2_world::GameClock (f64 intermediates; the year and day floors)
-- [x] `GameTime::CalcTimeOfDay` · 00618c90 · legions 005d54e0 — ac2_world::GameClock (the last time of day runs to day_length)
-- [ ] `GameTime::GetDateTimeString` · 00618d40 · legions 005d5590
+- [x] `GameTime::StreamPack` · 00618a40 · legions 005d52b0 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+- [x] `GameTime::Init` · 00618b50 · legions 005d53c0 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+- [x] `GameTime::CalcDayBegin` · 00618bd0 · legions 005d5420 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+- [x] `GameTime::CalcTimeOfDay` · 00618c90 · legions 005d54e0 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+- [x] `GameTime::GetDateTimeString` · 00618d40 · legions 005d5590 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
 - [ ] `GameTime::GetGameTimeFromTimeStamp` · 00618e40 · legions 005d5690
 - [ ] `GameTime::InqGameDateTimeString` · 00618f30 · legions 005d5780
 - [ ] `GameTime::GameTime` · 00618fb0 · legions 005d5800
 - [ ] `GameTime::~GameTime` · 00619090 · legions 005d58e0
-- [x] `GameTime::UseTime` · 00619130 · legions 005d5980 — ac2_world::GameClock::use_time
-- [ ] `GameTime::InqCurrentGameDateTimeString` · 00619200 · legions 005d5a50
+- [x] `GameTime::UseTime` · 00619130 · legions 005d5980 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+- [x] `GameTime::InqCurrentGameDateTimeString` · 00619200 · legions 005d5a50 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
 - [ ] `GameTime::TemporalDilationInternal` · 00619250 · legions 005d5aa0
 - [ ] `GameTime::AlterTimeOfDayImmediate` · 00619320 · legions 005d5b70
 
@@ -795,12 +795,12 @@ Legend and workflow: [README](README.md).
 - [-] `PlacesTable::FromFileNode` · 00639cb0 — text source format (admin tools)
 - [-] `PlacesTable::ToFileNode` · 00639f70 — text source format (admin tools)
 
-## `portal/shared/src/region/blockmaps/blockmap.cpp.c` (0/8)
+## `portal/shared/src/region/blockmaps/blockmap.cpp.c` (1/8)
 
 ### BlockMap
 - [ ] `BlockMap::UnPack` · 006cf150
 - [ ] `BlockMap::Pack` · 006cf200
-- [ ] `BlockMap::GetValue` · 006cf2c0 · legions 00658ee0
+- [x] `BlockMap::GetValue` · 006cf2c0 · legions 00658ee0 — ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 - [ ] `BlockMap::BlockMap` · 006cf300 · legions 00658f20
 - [ ] `BlockMap::GetDBOType` · 006cf350
 - [ ] `BlockMap::Destroy` · 006cf360 · legions 00658f80
@@ -993,7 +993,7 @@ Legend and workflow: [README](README.md).
 - [-] `PropertyDesc::LoadProperty` · 006cefb0 — text source loader, admin build only
 - [-] `PropertyDesc::FromFileNode` · 006cf040 — text source format (admin tools)
 
-## `portal/shared/src/region/regiondesc.cpp.c` (1/47)
+## `portal/shared/src/region/regiondesc.cpp.c` (2/47)
 
 ### PackObj
 - [ ] `PackObj::ALIGN_PTR` · 0051d6e0 · legions 0050a0e0
@@ -1010,7 +1010,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CRegionDesc::GetCurrentSceneInfo` · 0051de40 · legions 0050a7e0
 - [ ] `CRegionDesc::GetCurrentTerrainInfo` · 0051de70 · legions 0050a810
 - [ ] `CRegionDesc::GetCurrentSurfaceInfo` · 0051deb0 · legions 0050a840
-- [ ] `CRegionDesc::GetCurrentDetailMapTable` · 0051def0 · legions 0050a870
+- [x] `CRegionDesc::GetCurrentDetailMapTable` · 0051def0 · legions 0050a870 — ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 - [ ] `CRegionDesc::GetCurrentWaterInfo` · 0051df30 · legions 0050a8a0
 - [ ] `CRegionDesc::GetCurrentFogInfo` · 0051df70 · legions 0050a8d0
 - [ ] `CRegionDesc::GetCurrentPropertyInfo` · 0051dfb0 · legions 0050a900
@@ -1023,7 +1023,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CRegionDesc::GetDBOType` · 0051e150
 - [ ] `CRegionDesc::~CRegionDesc` · 0051e160 · legions 0050aaa0
 - [ ] `CRegionDesc::GetPackSize` · 0051e290 · legions 0050abd0
-- [ ] `CRegionDesc::SetGameTime` · 0051e480 · legions 0050adc0
+- [~] `CRegionDesc::SetGameTime` · 0051e480 · legions 0050adc0 — ac2-world ac2_region: the first sky's game_time DID (sky_info[current_sky_info] 0), loaded with the region; the script's game-time glue is not wired
 - [ ] `CRegionDesc::GetCurrentSkyInfo` · 0051e540
 - [ ] `CRegionDesc::Allocate` · 0051e580
 - [ ] `CRegionDesc::UnPackInfoList` · 0051e5b0 · legions 0050aee0

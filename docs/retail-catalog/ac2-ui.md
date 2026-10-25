@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 623 done, 210 partial, 1384 to do, 30 skipped.
+2247 retail functions: 711 done, 237 partial, 1259 to do, 40 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (21/53)
@@ -323,15 +323,15 @@ Legend and workflow: [README](README.md).
 - [ ] `gmMiniFellowUI::RecvNotice_ClearFellowship` · 00421da0 · legions 00421bf0
 - [ ] `gmMiniFellowUI::gmMiniFellowUI` · 00421dd0 · legions 00421c20
 
-## `ac2/client/src/ui/gameplay/gmoverviewmapui.cpp.c` (0/6)
+## `ac2/client/src/ui/gameplay/gmoverviewmapui.cpp.c` (1/6)
 
 ### gmOverviewMapUI
-- [ ] `gmOverviewMapUI::CreateManagedElements` · 0043e150 · legions 0043e9a0
-- [ ] `gmOverviewMapUI::~gmOverviewMapUI` · 0043e1c0 · legions 0043ea10
-- [ ] `gmOverviewMapUI::Show` · 0043e230 · legions 0043ea80
-- [ ] `gmOverviewMapUI::ShowMap` · 0043e290 · legions 0043eae0
-- [ ] `gmOverviewMapUI::ListenToMessage` · 0043e2c0 · legions 0043eb10
-- [ ] `gmOverviewMapUI::gmOverviewMapUI` · 0043e300 · legions 0043eb70
+- [~] `gmOverviewMapUI::CreateManagedElements` · 0043e150 · legions 0043e9a0 — ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
+- [-] `gmOverviewMapUI::~gmOverviewMapUI` · 0043e1c0 · legions 0043ea10 — C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
+- [~] `gmOverviewMapUI::Show` · 0043e230 · legions 0043ea80 — ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
+- [x] `gmOverviewMapUI::ShowMap` · 0043e290 · legions 0043eae0 — ac2-ui overview_map.rs: shows the overview and sets the label and client area to the map's state (the map buttons that call it are not identified in the layout)
+- [~] `gmOverviewMapUI::ListenToMessage` · 0043e2c0 · legions 0043eb10 — ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
+- [~] `gmOverviewMapUI::gmOverviewMapUI` · 0043e300 · legions 0043eb70 — ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
 
 ## `ac2/client/src/ui/gameplay/gmpetui.cpp.c` (0/18)
 
@@ -808,90 +808,90 @@ Legend and workflow: [README](README.md).
 - [ ] `ItemDisplay::RecvNotice_CreateObject` · 0042eff0
 - [~] `ItemDisplay::Init` · 0042f020 · legions 0042ef20 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
 
-## `ac2/client/src/ui/gameplay/helper/optionbase.cpp.c` (0/7)
+## `ac2/client/src/ui/gameplay/helper/optionbase.cpp.c` (6/7)
 
 ### OptionBase
-- [ ] `OptionBase::OptionBase` · 0044f7b0 · legions 004508f0
-- [ ] `OptionBase::~OptionBase` · 0044f7e0 · legions 00450920
-- [ ] `OptionBase::Create` · 0044f810 · legions 00450950
-- [ ] `OptionBase::Retrieve` · 0044f850 · legions 00450990
-- [ ] `OptionBase::Describe` · 0044f870 · legions 004509b0
-- [ ] `OptionBase::Describe` · 0044f890 · legions 004509d0
-- [ ] `OptionBase::Identify` · 0044f940 · legions 00450a80
+- [x] `OptionBase::OptionBase` · 0044f7b0 · legions 004508f0 — character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
+- [-] `OptionBase::~OptionBase` · 0044f7e0 · legions 00450920 — C++ destructor and scalar deleter: the element is owned by the tree and dropped with it
+- [x] `OptionBase::Create` · 0044f810 · legions 00450950 — character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
+- [x] `OptionBase::Retrieve` · 0044f850 · legions 00450990 — character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
+- [x] `OptionBase::Describe` · 0044f870 · legions 004509b0 — character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
+- [x] `OptionBase::Describe` · 0044f890 · legions 004509d0 — character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
+- [x] `OptionBase::Identify` · 0044f940 · legions 00450a80 — character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
 
-## `ac2/client/src/ui/gameplay/helper/optionchoice.cpp.c` (0/15)
+## `ac2/client/src/ui/gameplay/helper/optionchoice.cpp.c` (8/15)
 
 ### OptionChoice
-- [ ] `OptionChoice::OptionChoice` · 0044df20 · legions 0044f0f0
-- [ ] `OptionChoice::Cast` · 0044dfa0 · legions 0044f170
-- [ ] `OptionChoice::AddChoice` · 0044dfe0 · legions 0044f1b0
-- [ ] `OptionChoice::AssignChoice` · 0044e060 · legions 0044f230
-- [ ] `OptionChoice::SetCurrent` · 0044e090 · legions 0044f260
-- [ ] `OptionChoice::SetDefault` · 0044e140 · legions 0044f310
-- [ ] `OptionChoice::GetCurrent` · 0044e180 · legions 0044f350
-- [ ] `OptionChoice::Changed` · 0044e1c0 · legions 0044f390
-- [ ] `OptionChoice::Apply` · 0044e210 · legions 0044f3e0
-- [ ] `OptionChoice::Recall` · 0044e260 · legions 0044f430
-- [ ] `OptionChoice::Default` · 0044e280 · legions 0044f450
-- [ ] `OptionChoice::ListenToMessage` · 0044e2a0 · legions 0044f470
-- [ ] `OptionChoice::Refresh` · 0044e3a0 · legions 0044f570
-- [ ] `OptionChoice::Refresh` · 0044e3c0 · legions 0044f590
-- [ ] `OptionChoice::Merge` · 0044e590 · legions 0044f6d0
+- [~] `OptionChoice::OptionChoice` · 0044df20 · legions 0044f0f0 — the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+- [-] `OptionChoice::Cast` · 0044dfa0 · legions 0044f170 — C++ downcast (Cast) and scalar deleter: the page keeps typed entries
+- [~] `OptionChoice::AddChoice` · 0044dfe0 · legions 0044f1b0 — the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+- [~] `OptionChoice::AssignChoice` · 0044e060 · legions 0044f230 — the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+- [~] `OptionChoice::SetCurrent` · 0044e090 · legions 0044f260 — the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+- [x] `OptionChoice::SetDefault` · 0044e140 · legions 0044f310 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+- [x] `OptionChoice::GetCurrent` · 0044e180 · legions 0044f350 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+- [x] `OptionChoice::Changed` · 0044e1c0 · legions 0044f390 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+- [x] `OptionChoice::Apply` · 0044e210 · legions 0044f3e0 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+- [x] `OptionChoice::Recall` · 0044e260 · legions 0044f430 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+- [x] `OptionChoice::Default` · 0044e280 · legions 0044f450 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+- [~] `OptionChoice::ListenToMessage` · 0044e2a0 · legions 0044f470 — the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+- [x] `OptionChoice::Refresh` · 0044e3a0 · legions 0044f570 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+- [x] `OptionChoice::Refresh` · 0044e3c0 · legions 0044f590 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
+- [~] `OptionChoice::Merge` · 0044e590 · legions 0044f6d0 — the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
 
-## `ac2/client/src/ui/gameplay/helper/optionexpander.cpp.c` (0/16)
+## `ac2/client/src/ui/gameplay/helper/optionexpander.cpp.c` (9/16)
 
 ### OptionExpander
-- [ ] `OptionExpander::CountOptions` · 0044eb80 · legions 0044fcc0
-- [ ] `OptionExpander::Refit` · 0044eb90 · legions 0044fcd0
-- [ ] `OptionExpander::Refresh` · 0044ec30 · legions 0044fd70
-- [ ] `OptionExpander::Refresh` · 0044ec80 · legions 0044fdc0
-- [ ] `OptionExpander::GetOption` · 0044ed10 · legions 0044fe50
-- [ ] `OptionExpander::Construct` · 0044ed30 · legions 0044fe70
-- [ ] `OptionExpander::Dismantle` · 0044edb0 · legions 0044fef0
-- [ ] `OptionExpander::Changed` · 0044ee10 · legions 0044ff50
-- [ ] `OptionExpander::Apply` · 0044ee50 · legions 0044ff90
-- [ ] `OptionExpander::Recall` · 0044ee80 · legions 0044ffc0
-- [ ] `OptionExpander::Default` · 0044eeb0 · legions 0044fff0
-- [ ] `OptionExpander::ListenToMessage` · 0044eee0 · legions 00450020
-- [ ] `OptionExpander::OptionExpander` · 0044ef30 · legions 00450070
-- [ ] `OptionExpander::~OptionExpander` · 0044efc0 · legions 00450100
-- [ ] `OptionExpander::Clear` · 0044f030 · legions 00450170
-- [ ] `OptionExpander::AddOption` · 0044f0b0 · legions 004501f0
+- [~] `OptionExpander::CountOptions` · 0044eb80 · legions 0044fcc0 — the count and the refresh over the children are the page's; the list box's Refit sizes are not modelled
+- [~] `OptionExpander::Refit` · 0044eb90 · legions 0044fcd0 — the count and the refresh over the children are the page's; the list box's Refit sizes are not modelled
+- [~] `OptionExpander::Refresh` · 0044ec30 · legions 0044fd70 — the count and the refresh over the children are the page's; the list box's Refit sizes are not modelled
+- [~] `OptionExpander::Refresh` · 0044ec80 · legions 0044fdc0 — the count and the refresh over the children are the page's; the list box's Refit sizes are not modelled
+- [-] `OptionExpander::GetOption` · 0044ed10 · legions 0044fe50 — index access (the page keeps children as entries), the destructor, Clear (the tree drops the rows) and the scalar deleter
+- [x] `OptionExpander::Construct` · 0044ed30 · legions 0044fe70 — character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+- [x] `OptionExpander::Dismantle` · 0044edb0 · legions 0044fef0 — character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+- [x] `OptionExpander::Changed` · 0044ee10 · legions 0044ff50 — character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+- [x] `OptionExpander::Apply` · 0044ee50 · legions 0044ff90 — character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+- [x] `OptionExpander::Recall` · 0044ee80 · legions 0044ffc0 — character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+- [x] `OptionExpander::Default` · 0044eeb0 · legions 0044fff0 — character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+- [x] `OptionExpander::ListenToMessage` · 0044eee0 · legions 00450020 — character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+- [x] `OptionExpander::OptionExpander` · 0044ef30 · legions 00450070 — character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
+- [-] `OptionExpander::~OptionExpander` · 0044efc0 · legions 00450100 — index access (the page keeps children as entries), the destructor, Clear (the tree drops the rows) and the scalar deleter
+- [-] `OptionExpander::Clear` · 0044f030 · legions 00450170 — index access (the page keeps children as entries), the destructor, Clear (the tree drops the rows) and the scalar deleter
+- [x] `OptionExpander::AddOption` · 0044f0b0 · legions 004501f0 — character.rs: the expander's header toggles its option rows (Construct / Dismantle into TreeList), its changed / apply / recall / default over its children (tested)
 
-## `ac2/client/src/ui/gameplay/helper/optionflag.cpp.c` (0/13)
+## `ac2/client/src/ui/gameplay/helper/optionflag.cpp.c` (9/13)
 
 ### OptionFlag
-- [ ] `OptionFlag::OptionFlag` · 0044e6d0 · legions 0044f810
-- [ ] `OptionFlag::Cast` · 0044e760 · legions 0044f8a0
-- [ ] `OptionFlag::Merge` · 0044e7a0 · legions 0044f8e0
-- [ ] `OptionFlag::SetCurrent` · 0044e800 · legions 0044f940
-- [ ] `OptionFlag::SetDefault` · 0044e850 · legions 0044f990
-- [ ] `OptionFlag::GetCurrent` · 0044e8b0 · legions 0044f9f0
-- [ ] `OptionFlag::Changed` · 0044e8e0 · legions 0044fa20
-- [ ] `OptionFlag::Apply` · 0044e920 · legions 0044fa60
-- [ ] `OptionFlag::Recall` · 0044e960 · legions 0044faa0
-- [ ] `OptionFlag::Default` · 0044e9b0 · legions 0044faf0
-- [ ] `OptionFlag::ListenToMessage` · 0044ea00 · legions 0044fb40
-- [ ] `OptionFlag::Refresh` · 0044eae0 · legions 0044fc20
-- [ ] `OptionFlag::Refresh` · 0044eb30 · legions 0044fc70
+- [~] `OptionFlag::OptionFlag` · 0044e6d0 · legions 0044f810 — the checkbox, its value and the messages are ported; PreferenceBank::Change / ConnectSource (the bank's handlers) are not modelled
+- [-] `OptionFlag::Cast` · 0044e760 · legions 0044f8a0 — C++ downcast (Cast) and scalar deleter: the page keeps typed entries; no runtime cast needed
+- [~] `OptionFlag::Merge` · 0044e7a0 · legions 0044f8e0 — the checkbox, its value and the messages are ported; PreferenceBank::Change / ConnectSource (the bank's handlers) are not modelled
+- [x] `OptionFlag::SetCurrent` · 0044e800 · legions 0044f940 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+- [x] `OptionFlag::SetDefault` · 0044e850 · legions 0044f990 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+- [x] `OptionFlag::GetCurrent` · 0044e8b0 · legions 0044f9f0 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+- [x] `OptionFlag::Changed` · 0044e8e0 · legions 0044fa20 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+- [x] `OptionFlag::Apply` · 0044e920 · legions 0044fa60 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+- [x] `OptionFlag::Recall` · 0044e960 · legions 0044faa0 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+- [x] `OptionFlag::Default` · 0044e9b0 · legions 0044faf0 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+- [~] `OptionFlag::ListenToMessage` · 0044ea00 · legions 0044fb40 — the checkbox, its value and the messages are ported; PreferenceBank::Change / ConnectSource (the bank's handlers) are not modelled
+- [x] `OptionFlag::Refresh` · 0044eae0 · legions 0044fc20 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
+- [x] `OptionFlag::Refresh` · 0044eb30 · legions 0044fc70 — character_options.rs / character.rs: the checkbox's value, default, changed, apply, recall, default and refresh over the option's current and saved values (tested)
 
-## `ac2/client/src/ui/gameplay/helper/optionvalue.cpp.c` (0/14)
+## `ac2/client/src/ui/gameplay/helper/optionvalue.cpp.c` (10/14)
 
 ### OptionValue
-- [ ] `OptionValue::OptionValue` · 0044f100 · legions 00450240
-- [ ] `OptionValue::Cast` · 0044f1f0 · legions 00450330
-- [ ] `OptionValue::Merge` · 0044f230 · legions 00450370
-- [ ] `OptionValue::SetRange` · 0044f2a0 · legions 004503e0
-- [ ] `OptionValue::SetCurrent` · 0044f2f0 · legions 00450430
-- [ ] `OptionValue::SetDefault` · 0044f3d0 · legions 00450510
-- [ ] `OptionValue::GetCurrent` · 0044f460 · legions 004505a0
-- [ ] `OptionValue::Changed` · 0044f4d0 · legions 00450610
-- [ ] `OptionValue::Apply` · 0044f510 · legions 00450650
-- [ ] `OptionValue::Recall` · 0044f540 · legions 00450680
-- [ ] `OptionValue::Default` · 0044f570 · legions 004506b0
-- [ ] `OptionValue::ListenToMessage` · 0044f5a0 · legions 004506e0
-- [ ] `OptionValue::Refresh` · 0044f750 · legions 00450890
-- [ ] `OptionValue::Refresh` · 0044f780 · legions 004508c0
+- [~] `OptionValue::OptionValue` · 0044f100 · legions 00450240 — the slider and its arrows (a tenth of the range) and the position message are ported; the preference bank's handlers and the float preference are not modelled
+- [-] `OptionValue::Cast` · 0044f1f0 · legions 00450330 — C++ downcast (Cast) and scalar deleter: the page keeps typed entries
+- [~] `OptionValue::Merge` · 0044f230 · legions 00450370 — the slider and its arrows (a tenth of the range) and the position message are ported; the preference bank's handlers and the float preference are not modelled
+- [x] `OptionValue::SetRange` · 0044f2a0 · legions 004503e0 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+- [x] `OptionValue::SetCurrent` · 0044f2f0 · legions 00450430 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+- [x] `OptionValue::SetDefault` · 0044f3d0 · legions 00450510 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+- [x] `OptionValue::GetCurrent` · 0044f460 · legions 004505a0 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+- [x] `OptionValue::Changed` · 0044f4d0 · legions 00450610 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+- [x] `OptionValue::Apply` · 0044f510 · legions 00450650 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+- [x] `OptionValue::Recall` · 0044f540 · legions 00450680 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+- [x] `OptionValue::Default` · 0044f570 · legions 004506b0 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+- [~] `OptionValue::ListenToMessage` · 0044f5a0 · legions 004506e0 — the slider and its arrows (a tenth of the range) and the position message are ported; the preference bank's handlers and the float preference are not modelled
+- [x] `OptionValue::Refresh` · 0044f750 · legions 00450890 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
+- [x] `OptionValue::Refresh` · 0044f780 · legions 004508c0 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
 
 ## `ac2/client/src/ui/gameplay/helper/timedisplay.cpp.c` (0/4)
 
@@ -1038,20 +1038,20 @@ Legend and workflow: [README](README.md).
 - [~] `gmExaminationUI::gmExaminationUI` · 004312e0 — no TimeDisplay, icon layers, effect expansion, Legions filter tabs
 - [x] `gmExaminationUI::RecvNotice_UpdateExaminationProfile` · 00431410 — ac2-ui examination.rs + ac2-client ui_sources
 
-## `ac2/client/src/ui/gameplay/toolbar/gmnavigationui.cpp.c` (3/37)
+## `ac2/client/src/ui/gameplay/toolbar/gmnavigationui.cpp.c` (22/37)
 
 ### LandDefs
 - [x] `LandDefs::inbound_valid_cellid` · 004314c0 · legions 00431dc0 — ac2-script glue::position (ported beside the gPosition glue)
 
 ### gmNavigationUI
-- [ ] `gmNavigationUI::AutoShowScrollButtons` · 00431550 · legions 00431e50
-- [ ] `gmNavigationUI::UpdateMacroMap` · 004315f0 · legions 00431ef0
-- [ ] `gmNavigationUI::UpdateLockPositionButtonToolTip` · 004316d0 · legions 00431fd0
-- [ ] `gmNavigationUI::ConvertLandscapeToPixel` · 00431760 · legions 00432060
-- [ ] `gmNavigationUI::ConvertPixelToLandscape` · 00431860 · legions 00432160
-- [ ] `gmNavigationUI::CenterMarker` · 00431950 · legions 00432250
-- [ ] `gmNavigationUI::SizeMap` · 004319b0 · legions 004322b0
-- [ ] `gmNavigationUI::ReadMarkerInfo` · 00431bd0 · legions 004324d0
+- [x] `gmNavigationUI::AutoShowScrollButtons` · 00431550 · legions 00431e50 — ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
+- [x] `gmNavigationUI::UpdateMacroMap` · 004315f0 · legions 00431ef0 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+- [~] `gmNavigationUI::UpdateLockPositionButtonToolTip` · 004316d0 · legions 00431fd0 — ac2-ui lock_tooltip_id picks the string id (on, off, error); the tooltip is not set (string tables). The Legions 7160 layout has no LockPositionButton, so the lock is set with NavigationUi::set_lock
+- [x] `gmNavigationUI::ConvertLandscapeToPixel` · 00431760 · legions 00432060 — ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
+- [x] `gmNavigationUI::ConvertPixelToLandscape` · 00431860 · legions 00432160 — ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
+- [x] `gmNavigationUI::CenterMarker` · 00431950 · legions 00432250 — ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
+- [x] `gmNavigationUI::SizeMap` · 004319b0 · legions 004322b0 — ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
+- [~] `gmNavigationUI::ReadMarkerInfo` · 00431bd0 · legions 004324d0 — ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
 
 ### LandDefs
 - [x] `LandDefs::lcoord_to_gid` · 00431e20 · legions 004326b0
@@ -1061,9 +1061,9 @@ Legend and workflow: [README](README.md).
 - [ ] `Position::Position` · 00431f60 · legions 004327f0
 
 ### gmNavigationUI
-- [ ] `gmNavigationUI::Update` · 00431fa0 · legions 00432830
-- [ ] `gmNavigationUI::PlaceMarker` · 00432090 · legions 00432920
-- [ ] `gmNavigationUI::Show` · 00432330 · legions 00432bc0
+- [x] `gmNavigationUI::Update` · 00431fa0 · legions 00432830 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+- [x] `gmNavigationUI::PlaceMarker` · 00432090 · legions 00432920 — ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
+- [~] `gmNavigationUI::Show` · 00432330 · legions 00432bc0 — ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
 
 ### SmartArray<CMapNoteRow>
 - [ ] `SmartArray<CMapNoteRow>::operator=` · 00432460 · legions 00432cf0
@@ -1072,26 +1072,26 @@ Legend and workflow: [README](README.md).
 - [ ] `PSmartArray<CMapNoteRow>::StreamPack` · 00432510 · legions 00432da0
 
 ### gmNavigationUI
-- [ ] `gmNavigationUI::PlaceMarkers` · 004325b0 · legions 00432e40
-- [ ] `gmNavigationUI::FlushMarkers` · 00432640 · legions 00432ed0
-- [ ] `gmNavigationUI::FlushAllMarkers` · 004326a0 · legions 00432f30
-- [ ] `gmNavigationUI::~gmNavigationUI` · 004327f0 · legions 00433080
-- [ ] `gmNavigationUI::SetupElementsForMapMode` · 004328b0 · legions 00433140
-- [ ] `gmNavigationUI::InitMacroMap` · 004329c0 · legions 00433250
-- [~] `gmNavigationUI::RecvNotice_ClearMarkers` · 00432b30 — ac2-client client_radar.rs keeps the map-note list (type 3 hidden, AddMarker replaces by object); no navigation panel, placement or drawing
-- [~] `gmNavigationUI::AddMarker` · 00432b90 · legions 00433420 — ac2-client client_radar.rs keeps the map-note list (type 3 hidden, AddMarker replaces by object); no navigation panel, placement or drawing
-- [ ] `gmNavigationUI::FlushMarkerByIID` · 00432e40 · legions 004336d0
-- [~] `gmNavigationUI::RecvNotice_AddMarker` · 00432ef0 — ac2-client client_radar.rs keeps the map-note list (type 3 hidden, AddMarker replaces by object); no navigation panel, placement or drawing
-- [~] `gmNavigationUI::RecvNotice_RemoveMarker` · 004330e0 — ac2-client client_radar.rs keeps the map-note list (type 3 hidden, AddMarker replaces by object); no navigation panel, placement or drawing
-- [ ] `gmNavigationUI::AddMapNotes` · 00433100 · legions 00433990
-- [ ] `gmNavigationUI::InitDetailMapFromCellCoords` · 004335f0 · legions 00433e50
-- [ ] `gmNavigationUI::ZoomToCharPos` · 00433810 · legions 00434070
-- [ ] `gmNavigationUI::OnPlayerBlockChanged` · 00433830 · legions 00434090
-- [ ] `gmNavigationUI::gmNavigationUI` · 00433880 · legions 004340e0
-- [ ] `gmNavigationUI::ListenToMessage` · 00433cf0 · legions 00434570
-- [ ] `gmNavigationUI::InitDetailMapFromLastClick` · 00434160 · legions 00434930
-- [ ] `gmNavigationUI::UpdatePlayerPos` · 004341b0 · legions 00434980
-- [ ] `gmNavigationUI::ListenToMessage` · 00434280 · legions 00434a50
+- [x] `gmNavigationUI::PlaceMarkers` · 004325b0 · legions 00432e40 — ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
+- [x] `gmNavigationUI::FlushMarkers` · 00432640 · legions 00432ed0 — ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
+- [~] `gmNavigationUI::FlushAllMarkers` · 004326a0 · legions 00432f30 — ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
+- [-] `gmNavigationUI::~gmNavigationUI` · 004327f0 · legions 00433080 — C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
+- [~] `gmNavigationUI::SetupElementsForMapMode` · 004328b0 · legions 00433140 — ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
+- [x] `gmNavigationUI::InitMacroMap` · 004329c0 · legions 00433250 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
+- [x] `gmNavigationUI::RecvNotice_ClearMarkers` · 00432b30 — ac2-client client_radar.rs (add_map_note: type 3 never shown, a note within sqrt(6) cells of its type ignored, ten per type, same object replaces) and navigation.rs reconcile; Legions 7160 has no separate notice handler (admin rule)
+- [~] `gmNavigationUI::AddMarker` · 00432b90 · legions 00433420 — ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
+- [~] `gmNavigationUI::FlushMarkerByIID` · 00432e40 · legions 004336d0 — ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
+- [x] `gmNavigationUI::RecvNotice_AddMarker` · 00432ef0 — ac2-client client_radar.rs (add_map_note: type 3 never shown, a note within sqrt(6) cells of its type ignored, ten per type, same object replaces) and navigation.rs reconcile; Legions 7160 has no separate notice handler (admin rule)
+- [x] `gmNavigationUI::RecvNotice_RemoveMarker` · 004330e0 — ac2-client client_radar.rs (add_map_note: type 3 never shown, a note within sqrt(6) cells of its type ignored, ten per type, same object replaces) and navigation.rs reconcile; Legions 7160 has no separate notice handler (admin rule)
+- [~] `gmNavigationUI::AddMapNotes` · 00433100 · legions 00433990 — ac2-ui navigation_detail.rs tile_notes: the tiles' notes at their cells and icons; the tooltip text (MapCoordinates, marker name) needs the string tables and is empty
+- [x] `gmNavigationUI::InitDetailMapFromCellCoords` · 004335f0 · legions 00433e50 — ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
+- [x] `gmNavigationUI::ZoomToCharPos` · 00433810 · legions 00434070 — ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
+- [x] `gmNavigationUI::OnPlayerBlockChanged` · 00433830 · legions 00434090 — ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
+- [~] `gmNavigationUI::gmNavigationUI` · 00433880 · legions 004340e0 — ac2-ui navigation.rs: macro view only; the outdoor flag and the global loop's Update; detail-map init, lock and buttons not ported
+- [~] `gmNavigationUI::ListenToMessage` · 00433cf0 · legions 00434570 — ac2-ui navigation_detail.rs: NavigationButton, NavigationCloseButton, the pan buttons, the macro switch (MapParentField data 0x40000005), the macro click (MapField), the global loop's switch. Not ported: the parent's coordinates message (0x40000007), ReadMarkerInfo (tooltip), NoteText (needs strings), the overview buttons; the Legions layout has no LockPositionButton or MacroMapButton
+- [x] `gmNavigationUI::InitDetailMapFromLastClick` · 00434160 · legions 00434930 — ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
+- [x] `gmNavigationUI::UpdatePlayerPos` · 004341b0 · legions 00434980 — ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
+- [~] `gmNavigationUI::ListenToMessage` · 00434280 · legions 00434a50 — ac2-ui navigation_detail.rs: NavigationButton, NavigationCloseButton, the pan buttons, the macro switch (MapParentField data 0x40000005), the macro click (MapField), the global loop's switch. Not ported: the parent's coordinates message (0x40000007), ReadMarkerInfo (tooltip), NoteText (needs strings), the overview buttons; the Legions layout has no LockPositionButton or MacroMapButton
 
 ## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (13/46)
 
@@ -1309,31 +1309,31 @@ Legend and workflow: [README](README.md).
 - [ ] `gmAssistanceUI::HandleSendButton` · 00443b00 · legions 00444450
 - [ ] `gmAssistanceUI::ListenToMessage` · 00443cc0 · legions 00444610
 
-## `ac2/client/src/ui/gameplay/toolbar/option/gmcharacterui.cpp.c` (0/22)
+## `ac2/client/src/ui/gameplay/toolbar/option/gmcharacterui.cpp.c` (21/22)
 
 ### gmCharacterUI
-- [ ] `gmCharacterUI::ConfirmRecall` · 00444e00 · legions 00445940
-- [ ] `gmCharacterUI::ConfirmDefault` · 00444e60 · legions 004459a0
-- [ ] `gmCharacterUI::ClearConfirmations` · 00444ec0 · legions 00445a00
-- [ ] `gmCharacterUI::RefreshFlag` · 00444f20 · legions 00445a60
-- [ ] `gmCharacterUI::ApplyFlag` · 004451b0 · legions 00445cf0
-- [ ] `gmCharacterUI::ApplyValue` · 00445450 · legions 00445f90
-- [ ] `gmCharacterUI::ApplyChoice` · 004454a0 · legions 00445fe0
-- [ ] `gmCharacterUI::~gmCharacterUI` · 004454f0 · legions 00446030
-- [ ] `gmCharacterUI::Refresh` · 004455d0 · legions 00446110
-- [ ] `gmCharacterUI::Changed` · 004456d0 · legions 00446210
-- [ ] `gmCharacterUI::RecvNotice_ReloadOptions` · 00445710
-- [ ] `gmCharacterUI::RecvNotice_SetShortcutHeight` · 00445720
-- [ ] `gmCharacterUI::BuildList` · 004457b0 · legions 004462f0
-- [ ] `gmCharacterUI::UpdateButtons` · 00445800 · legions 00446340
-- [ ] `gmCharacterUI::Apply` · 004458f0 · legions 00446430
-- [ ] `gmCharacterUI::Recall` · 004459e0 · legions 00446520
-- [ ] `gmCharacterUI::Default` · 00445a10 · legions 00446550
-- [ ] `gmCharacterUI::RecvNotice_CloseConfirmationDialog` · 00445a50
-- [ ] `gmCharacterUI::ListenToMessage` · 00445ac0 · legions 00446600
-- [ ] `gmCharacterUI::AddOption` · 00445c20 · legions 00446760
-- [ ] `gmCharacterUI::Setup` · 00445c80 · legions 004467c0
-- [ ] `gmCharacterUI::gmCharacterUI` · 00446610 · legions 00447150
+- [x] `gmCharacterUI::ConfirmRecall` · 00444e00 · legions 00445940 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::ConfirmDefault` · 00444e60 · legions 004459a0 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::ClearConfirmations` · 00444ec0 · legions 00445a00 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::RefreshFlag` · 00444f20 · legions 00445a60 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::ApplyFlag` · 004451b0 · legions 00445cf0 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::ApplyValue` · 00445450 · legions 00445f90 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::ApplyChoice` · 004454a0 · legions 00445fe0 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [-] `gmCharacterUI::~gmCharacterUI` · 004454f0 · legions 00446030 — C++ destructor and scalar deleter: the page's widgets are owned by the tree and dropped with it
+- [x] `gmCharacterUI::Refresh` · 004455d0 · legions 00446110 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::Changed` · 004456d0 · legions 00446210 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::RecvNotice_ReloadOptions` · 00445710 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::RecvNotice_SetShortcutHeight` · 00445720 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::BuildList` · 004457b0 · legions 004462f0 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::UpdateButtons` · 00445800 · legions 00446340 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::Apply` · 004458f0 · legions 00446430 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::Recall` · 004459e0 · legions 00446520 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::Default` · 00445a10 · legions 00446550 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::RecvNotice_CloseConfirmationDialog` · 00445a50 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::ListenToMessage` · 00445ac0 · legions 00446600 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::AddOption` · 00445c20 · legions 00446760 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::Setup` · 00445c80 · legions 004467c0 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
+- [x] `gmCharacterUI::gmCharacterUI` · 00446610 · legions 00447150 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
 
 ## `ac2/client/src/ui/gameplay/toolbar/option/gmchatoptionsui.cpp.c` (0/18)
 
@@ -2157,7 +2157,7 @@ Legend and workflow: [README](README.md).
 - [~] `CInputManager_WIN32::PushKeyMap` · 005a0da0 · legions 0056daa0 — ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
 - [x] `CInputManager_WIN32::PushKeyMap` · 005a0f80 — ac2-ui input.rs
 
-## `portal/client/src/cregion/cdetailmap/cdetailmapdesc.cpp.c` (0/22)
+## `portal/client/src/cregion/cdetailmap/cdetailmapdesc.cpp.c` (3/22)
 
 ### MyRect
 - [ ] `MyRect::MyRect` · 0051c390
@@ -2165,7 +2165,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MyRect::Include` · 0051c400
 
 ### CDetailMapDesc
-- [ ] `CDetailMapDesc::StreamPack` · 0051c4e0 · legions 00509c80
+- [x] `CDetailMapDesc::StreamPack` · 0051c4e0 · legions 00509c80 — ac2-world region/detail_map.rs: DBObj header, _blockMapDID, PSmartArray<CDetailMapRow>
 - [ ] `CDetailMapDesc::GetSubDataIDs` · 0051c560 · legions 00509d00
 - [ ] `CDetailMapDesc::CDetailMapDesc` · 0051c6b0
 - [ ] `CDetailMapDesc::GetDBOType` · 0051c6e0
@@ -2186,8 +2186,8 @@ Legend and workflow: [README](README.md).
 - [ ] `MapInfo::InqPString` · 0051cbe0
 
 ### CDetailMapDesc
-- [ ] `CDetailMapDesc::InqRowFromValue` · 0051cc70 · legions 00509e60
-- [ ] `CDetailMapDesc::InqRowFromXY` · 0051ce30 · legions 00509fd0
+- [x] `CDetailMapDesc::InqRowFromValue` · 0051cc70 · legions 00509e60 — ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
+- [x] `CDetailMapDesc::InqRowFromXY` · 0051ce30 · legions 00509fd0 — ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 
 ### PSmartArray<CDetailMapRow>
 - [ ] `PSmartArray<CDetailMapRow>::StreamPack` · 0051cef0 · legions 0050a040
@@ -2201,12 +2201,12 @@ Legend and workflow: [README](README.md).
 - [ ] `CDetailMapDesc::CheckAll` · 0051d1f0
 - [-] `CDetailMapDesc::FromFileNode` · 0051d570 — text source format (admin tools)
 
-## `portal/client/src/cregion/cdetailmap/cdetailmaprow.cpp.c` (0/7)
+## `portal/client/src/cregion/cdetailmap/cdetailmaprow.cpp.c` (1/7)
 
 ### CDetailMapRow
 - [ ] `CDetailMapRow::CheckXY` · 0051b8c0
 - [ ] `CDetailMapRow::Destroy` · 0051b900 · legions 00509a10
-- [ ] `CDetailMapRow::StreamPack` · 0051b930 · legions 00509a40
+- [x] `CDetailMapRow::StreamPack` · 0051b930 · legions 00509a40 — ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 - [ ] `CDetailMapRow::GetSubDataIDs` · 0051b9e0 · legions 00509af0
 - [ ] `CDetailMapRow::CDetailMapRow` · 0051ba20 · legions 00509b30
 - [ ] `CDetailMapRow::~CDetailMapRow` · 0051ba50 · legions 00509b60
@@ -2232,12 +2232,12 @@ Legend and workflow: [README](README.md).
 - [-] `CMapNoteDesc::LoadRow` · 00529210 — text source loader, admin build only
 - [-] `CMapNoteDesc::FromFileNode` · 00529280 — text source format (admin tools)
 
-## `portal/client/src/cregion/cmapnote/cmapnoterow.cpp.c` (0/4)
+## `portal/client/src/cregion/cmapnote/cmapnoterow.cpp.c` (1/4)
 
 ### CMapNoteRow
 - [ ] `CMapNoteRow::CMapNoteRow` · 0051bf70
 - [ ] `CMapNoteRow::~CMapNoteRow` · 0051bf90 · legions 00509bf0
-- [ ] `CMapNoteRow::StreamPack` · 0051bfb0 · legions 00509c10
+- [x] `CMapNoteRow::StreamPack` · 0051bfb0 · legions 00509c10 — ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 - [-] `CMapNoteRow::FromFileNode` · 0051c020 — text source format (admin tools)
 
 ## `portal/client/src/render/ui/renderui.cpp.c` (0/17)

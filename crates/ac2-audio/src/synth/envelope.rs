@@ -1,86 +1,47 @@
-//! The DLS volume envelope (`EG1`): attack, decay, sustain and release read from the connection
-//! blocks of an articulation (`art1`), as linear segments computed in f64.
+//! The DLS envelopes: attack, decay, sustain and release, computed in f64 per frame.
 //!
-//! Connection destinations used (DLS Level 1, `CONN_DST_EG1_*`): attack `0x0206`, decay
-//! `0x0207`, release `0x0209`, sustain level `0x020A`. A connection counts when its source is
-//! `CONN_SRC_NONE` with no control, so the value is fixed for the note. Times are 16.16
-//! fixed-point timecents (2^(tc/1200) seconds). The sustain level is 16.16 fixed-point tenths of a percent (the corpus values 0 to 991 after the
-//! division by 65536 fit that reading); the spec text was not available to confirm it (see the gaps
-//! in `synth/mod.rs`).
+//! Two shapes. The volume envelope (`EG1`) is dB-shaped: the attack rises linearly in amplitude,
+//! then decay and release fall linearly in dB, at 100 dB per their time (the dB attenuation
+//! grows by 100 over the time, full scale to silence). The sustain level is a fraction of full
+//! scale and is held as its dB attenuation. The pitch envelope (`EG2`) is linear in its level,
+//! decaying and releasing straight to the sustain level and to zero.
+//!
+//! The 100 dB-per-time rate is the port's reading (the DLS Level 1 text was not read); the times
+//! come from the connection blocks (timecents, see `modulation`). A release runs from the level
+//! the note has reached, so a release during the attack starts from that level.
 
-use crate::music::dls::Articulation;
+/// Full scale to silence in dB; a dB attenuation at or past it is silence.
+const SILENCE_DB: f64 = 100.0;
 
-const DST_EG1_ATTACK: u16 = 0x0206;
-const DST_EG1_DECAY: u16 = 0x0207;
-const DST_EG1_RELEASE: u16 = 0x0209;
-const DST_EG1_SUSTAIN: u16 = 0x020A;
-/// `CONN_SRC_NONE`.
-const SRC_NONE: u16 = 0x0000;
+/// The shape an envelope's decay and release take.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Shape {
+    /// Linear in level (the pitch envelope).
+    Linear,
+    /// Linear in dB attenuation (the volume envelope).
+    Db,
+}
 
-/// The four EG1 values, in seconds and a level from 0 to 1.
+/// The envelope values: times in seconds, a sustain level from 0 to 1.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct EnvelopeParams {
     pub attack: f64,
     pub decay: f64,
     pub sustain: f64,
     pub release: f64,
+    pub shape: Shape,
 }
 
-impl Default for EnvelopeParams {
-    /// Used for any destination no articulation sets: an immediate attack, no decay, full
-    /// sustain and an immediate release.
-    fn default() -> Self {
+impl EnvelopeParams {
+    /// The values for a destination nothing sets: an immediate attack, no decay, full sustain
+    /// and an immediate release.
+    pub fn immediate(shape: Shape) -> Self {
         Self {
             attack: 0.0,
             decay: 0.0,
             sustain: 1.0,
             release: 0.0,
-        }
-    }
-}
-
-/// Seconds for a DLS time connection's scale: 16.16 fixed-point timecents (1200 per octave from
-/// one second; the scale's low 16 bits are the fraction, which the corpus needs: raw timecents
-/// would give attacks of 2^47 seconds). The minimum 32-bit value is zero time.
-pub fn seconds_from_timecents(scale: i32) -> f64 {
-    if scale == i32::MIN {
-        0.0
-    } else {
-        (f64::from(scale) / 65_536.0 / 1200.0).exp2()
-    }
-}
-
-impl EnvelopeParams {
-    /// The EG1 values the articulations set. The first articulation in `arts` that sets a
-    /// destination wins, so a region's articulation is given before its instrument's.
-    pub fn from_articulations<'a>(arts: impl IntoIterator<Item = &'a Articulation>) -> Self {
-        let mut attack = None;
-        let mut decay = None;
-        let mut release = None;
-        let mut sustain = None;
-        for art in arts {
-            for c in art
-                .connections
-                .iter()
-                .filter(|c| c.source == SRC_NONE && c.control == 0)
-            {
-                match c.destination {
-                    DST_EG1_ATTACK => attack = attack.or(Some(c.scale)),
-                    DST_EG1_DECAY => decay = decay.or(Some(c.scale)),
-                    DST_EG1_RELEASE => release = release.or(Some(c.scale)),
-                    DST_EG1_SUSTAIN => sustain = sustain.or(Some(c.scale)),
-                    _ => {}
-                }
-            }
-        }
-        let defaults = Self::default();
-        Self {
-            attack: attack.map_or(defaults.attack, seconds_from_timecents),
-            decay: decay.map_or(defaults.decay, seconds_from_timecents),
-            release: release.map_or(defaults.release, seconds_from_timecents),
-            sustain: sustain.map_or(defaults.sustain, |v| {
-                (f64::from(v) / 65_536.0 / 1000.0).clamp(0.0, 1.0)
-            }),
+            shape,
         }
     }
 }
@@ -99,8 +60,29 @@ enum Stage {
 pub struct Envelope {
     params: EnvelopeParams,
     stage: Stage,
+    /// The attack's level (linear, 0 to 1).
     level: f64,
-    release_from: f64,
+    /// The dB shape: the attenuation below full scale past the attack (0 at the peak). The linear
+    /// shape keeps the level its release starts from here.
+    attenuation: f64,
+}
+
+/// The dB attenuation of a linear level (silence beyond the floor).
+fn db_of(level: f64) -> f64 {
+    if level <= 0.0 {
+        SILENCE_DB
+    } else {
+        (-20.0 * level.log10()).min(SILENCE_DB)
+    }
+}
+
+/// The linear level of a dB attenuation.
+fn level_of(attenuation: f64) -> f64 {
+    if attenuation >= SILENCE_DB {
+        0.0
+    } else {
+        10f64.powf(-attenuation / 20.0)
+    }
 }
 
 impl Envelope {
@@ -109,16 +91,22 @@ impl Envelope {
             params,
             stage: Stage::Attack,
             level: 0.0,
-            release_from: 0.0,
+            attenuation: 0.0,
         }
     }
 
     /// Note-off: the release starts from the current level.
     pub fn release(&mut self) {
-        if self.stage != Stage::Done {
-            self.release_from = self.level;
-            self.stage = Stage::Release;
+        if self.stage == Stage::Done {
+            return;
         }
+        if self.params.shape == Shape::Db && self.stage == Stage::Attack {
+            self.attenuation = db_of(self.level);
+        }
+        if self.params.shape == Shape::Linear {
+            self.attenuation = self.level;
+        }
+        self.stage = Stage::Release;
     }
 
     /// Whether the release has ended (the voice is silent for good).
@@ -126,21 +114,50 @@ impl Envelope {
         self.stage == Stage::Done
     }
 
-    /// Advances by `dt` seconds and returns the level, 0 to 1.
+    /// Advances by `dt` seconds and returns the level, 0 to 1 (linear amplitude).
     pub fn tick(&mut self, dt: f64) -> f64 {
+        match self.params.shape {
+            Shape::Linear => self.tick_linear(dt),
+            Shape::Db => self.tick_db(dt),
+        }
+    }
+
+    /// The attack, shared by both shapes: linear in amplitude. `true` once it has reached full.
+    fn attack(&mut self, dt: f64) -> bool {
+        if self.params.attack <= 0.0 {
+            self.level = 1.0;
+        } else {
+            self.level = (self.level + dt / self.params.attack).min(1.0);
+        }
+        if self.level >= 1.0 {
+            self.stage = Stage::Decay;
+            true
+        } else {
+            false
+        }
+    }
+
+    /// One step of the dB decay: the attenuation grows by 100 dB per decay time, to the sustain.
+    fn decay_db(&mut self, dt: f64) {
+        let p = self.params;
+        let sustain = db_of(p.sustain);
+        if p.decay <= 0.0 {
+            self.attenuation = sustain;
+            self.stage = Stage::Sustain;
+        } else {
+            self.attenuation += SILENCE_DB * dt / p.decay;
+            if self.attenuation >= sustain {
+                self.attenuation = sustain;
+                self.stage = Stage::Sustain;
+            }
+        }
+    }
+
+    fn tick_linear(&mut self, dt: f64) -> f64 {
         let p = self.params;
         match self.stage {
             Stage::Attack => {
-                if p.attack <= 0.0 {
-                    self.level = 1.0;
-                    self.stage = Stage::Decay;
-                } else {
-                    self.level += dt / p.attack;
-                    if self.level >= 1.0 {
-                        self.level = 1.0;
-                        self.stage = Stage::Decay;
-                    }
-                }
+                self.attack(dt);
             }
             Stage::Decay => {
                 if p.decay <= 0.0 {
@@ -160,7 +177,7 @@ impl Envelope {
                     self.level = 0.0;
                     self.stage = Stage::Done;
                 } else {
-                    self.level -= self.release_from * dt / p.release;
+                    self.level -= self.attenuation * dt / p.release;
                     if self.level <= 0.0 {
                         self.level = 0.0;
                         self.stage = Stage::Done;
@@ -170,5 +187,35 @@ impl Envelope {
             Stage::Done => self.level = 0.0,
         }
         self.level
+    }
+
+    fn tick_db(&mut self, dt: f64) -> f64 {
+        match self.stage {
+            // An attack that completes this tick starts its decay in the same tick.
+            Stage::Attack => {
+                if self.attack(dt) {
+                    self.decay_db(dt);
+                }
+            }
+            Stage::Decay => self.decay_db(dt),
+            Stage::Sustain => {}
+            Stage::Release => {
+                let p = self.params;
+                if p.release <= 0.0 {
+                    self.stage = Stage::Done;
+                } else {
+                    self.attenuation += SILENCE_DB * dt / p.release;
+                    if self.attenuation >= SILENCE_DB {
+                        self.stage = Stage::Done;
+                    }
+                }
+            }
+            Stage::Done => {}
+        }
+        match self.stage {
+            Stage::Attack => self.level,
+            Stage::Done => 0.0,
+            _ => level_of(self.attenuation),
+        }
     }
 }
