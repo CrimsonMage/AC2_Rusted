@@ -86,7 +86,8 @@ impl Scene {
     pub fn prepare(&mut self, gpu: &Gpu, camera: &Camera, aspect: f32, time: f64) {
         self.scene.time_of_day = self.time_of_day;
         let frame = self.scene.frame(camera, aspect);
-        self.renderer.prepare(gpu, camera, aspect, time, frame);
+        self.renderer
+            .prepare(gpu, camera, aspect, time, frame, Vec::new());
     }
 
     /// Records the frame into a pass cleared to `SceneTool::backgroundColor` (black).

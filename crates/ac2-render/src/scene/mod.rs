@@ -18,7 +18,7 @@ use ac2_math::{Mat4, Vec3};
 use ac2_world::Ac2WorldSource;
 
 pub use interiors::{load_block_interiors, BlockInteriors};
-pub use loader::{BlockKey, Images, Loaded, LoadedBlock, LoadedFar, Placement};
+pub use loader::{BlockKey, Images, Loaded, LoadedBlock, LoadedFar, LoadedObject, Placement};
 
 use crate::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
 use crate::frustum::{Frustum, Relation};
@@ -93,6 +93,9 @@ pub struct WorldScene {
     evicted: Vec<BlockKey>,
     /// The loaded far mesh's chunk boxes.
     far_bounds: Vec<(Vec3, Vec3)>,
+    /// World objects' models requested by key, and the rig and scale of those that loaded.
+    requested_objects: HashSet<u64>,
+    object_rigs: HashMap<u64, (crate::object::PoseRig, Vec3)>,
 }
 
 fn near(center: BlockKey, block: BlockKey, radius: i32) -> bool {
@@ -127,6 +130,8 @@ impl WorldScene {
             outstanding: 0,
             evicted: Vec::new(),
             far_bounds: Vec::new(),
+            requested_objects: HashSet::new(),
+            object_rigs: HashMap::new(),
         }
     }
 
@@ -246,8 +251,32 @@ impl WorldScene {
             }
             Loaded::Model(visual, model, _) => self.note_model(*visual, model.as_ref()),
             Loaded::Far(far) => self.far_bounds = far.layout.chunk_bounds(&far.vertices),
+            Loaded::Object(object) => {
+                if let Some(rig) = object.model.as_ref().and_then(|model| model.rig()) {
+                    self.object_rigs.insert(object.key, (rig, object.scale));
+                }
+            }
         }
         update.loaded.push(loaded);
+    }
+
+    /// Loads a world object's model off the frame thread: `visual`'s DAT chain with `local` (the
+    /// object's local `VisualDesc`) on top. `key` names the result; a key already asked for is
+    /// not loaded again.
+    pub fn request_object(
+        &mut self,
+        key: u64,
+        visual: DataId,
+        local: Option<ac2_assets::Ac2VisualDesc>,
+    ) {
+        if self.requested_objects.insert(key) {
+            self.request(Request::Object(key, visual, local));
+        }
+    }
+
+    /// The posing rig and total scale of a loaded world object's model.
+    pub fn object_rig(&self, key: u64) -> Option<&(crate::object::PoseRig, Vec3)> {
+        self.object_rigs.get(&key)
     }
 
     /// The region's lighting at the scene's time of day.

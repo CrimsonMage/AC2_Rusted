@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 70 done, 31 partial, 159 to do, 2 skipped.
+262 retail functions: 71 done, 31 partial, 158 to do, 2 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -197,7 +197,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CameraFxManager::AddCameraDistance` · 005790e0 · legions 00548a40
 - [ ] `CameraFxManager::StopAllCameraFX` · 00579160 · legions 00548ac0
 
-## `portal/client/src/smartbox/camera/cameramanager.cpp.c` (14/46)
+## `portal/client/src/smartbox/camera/cameramanager.cpp.c` (15/46)
 
 ### TargetingModule
 - [x] `TargetingModule::TargetingModule` · 00574850 · legions 00544720
@@ -243,8 +243,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CameraManager::GetTargetOffset` · 00576b00 · legions 005469c0
 - [x] `CameraManager::SetDefaults` · 00576b40 · legions 00546a30
 - [x] `CameraManager::LookAtGround` · 00576c70 · legions 00546b60 — camera action 0x400000AE (no map view)
-- [x] `CameraManager::SetMouseLookState` · 00576d10 · legions 00546c00
-- [x] `CameraManager::SetFirstPersonState` · 00576dc0 · legions 00546cb0
+- [x] `CameraManager::SetMouseLookState` · 00576d10 · legions 00546c00 — ac2-client camera.rs (driven by gmCameraUI states)
+- [x] `CameraManager::SetFirstPersonState` · 00576dc0 · legions 00546cb0 — ac2-client camera.rs (driven by gmCameraUI states)
 - [~] `CameraManager::HandleChange` · 00576e30 — applied once with the preference defaults
 - [~] `CameraManager::StartAction` · 00577100 · legions 00546ff0 — no swing-out, look-at-self, map view, zoom-scale animation or camera effects
 - [~] `CameraManager::StopAction` · 00577360 · legions 00547250 — no zoom-scale animation
@@ -255,7 +255,7 @@ Legend and workflow: [README](README.md).
 
 ### CameraManager
 - [ ] `CameraManager::~CameraManager` · 00577840 · legions 005477e0
-- [ ] `CameraManager::MouseMove` · 005778a0 · legions 00547840
+- [x] `CameraManager::MouseMove` · 005778a0 · legions 00547840 — ac2-client camera_mouse.rs / input_handlers
 
 ## `portal/client/src/smartbox/camera/targetingmodule.cpp.c` (6/11)
 

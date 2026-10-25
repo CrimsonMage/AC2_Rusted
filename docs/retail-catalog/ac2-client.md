@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 10 done, 5 partial, 334 to do, 5 skipped.
+354 retail functions: 10 done, 6 partial, 333 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -169,7 +169,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmClient::EvaluateCommandLineArg` · 00403ae0 · legions 00403a50
 - [ ] `gmClient::OnCommandLineEvaluationDone` · 00403b60 · legions 00403ad0
 - [ ] `gmClient::RegisterForGunEvents` · 00403c10 · legions 00403b80
-- [ ] `gmClient::InitKeymap` · 00403d30 · legions 00403c80
+- [~] `gmClient::InitKeymap` · 00403d30 · legions 00403c80 — ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
 - [ ] `gmClient::RecvNotice_WorldName` · 00403ff0 · legions 00403f40
 - [ ] `gmClient::RecvNotice_GunReconnected` · 00404080
 

@@ -60,6 +60,11 @@ impl DatWorld {
             .ok_or("no AC2 landscape in the DATs")?;
         Ok(Self { store, world })
     }
+
+    /// The landscape source the client loads from (what a renderer draws from too).
+    pub fn world(&self) -> &Arc<Ac2WorldSource> {
+        &self.world
+    }
 }
 
 impl WorldData for DatWorld {

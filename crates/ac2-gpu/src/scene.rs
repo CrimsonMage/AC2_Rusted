@@ -8,7 +8,7 @@ use std::collections::HashMap;
 
 use ac2_core::DataId;
 use ac2_math::Mat4;
-use ac2_render::object::{ObjectEnvironment, PointLight};
+use ac2_render::object::{ObjectEnvironment, ObjectPose, PointLight};
 use ac2_render::scene::{BlockKey, Images, Loaded, SceneFrame, SceneUpdate};
 use ac2_render::sky::SkyPlacement;
 use ac2_render::{Camera, Image, TextureKey};
@@ -32,12 +32,25 @@ struct GpuInteriors {
     objects: Vec<(DataId, Mat4, Vec<PointLight>)>,
 }
 
+/// A world object to draw this frame (a character or item placed by the client): its loaded
+/// model's key (`WorldScene::request_object`), world matrix, pose and tint.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SceneObject {
+    pub key: u64,
+    pub world: Mat4,
+    pub pose: Option<ObjectPose>,
+    pub tint: [f32; 4],
+}
+
 /// The scene's GPU resources.
 pub struct SceneRenderer {
     pub terrain: TerrainRenderer,
     objects: ObjectRenderer,
     fog_quad: ScreenQuad,
     models: HashMap<DataId, GpuObjectModel>,
+    /// World objects' models by request key.
+    world_objects: HashMap<u64, GpuObjectModel>,
+    frame_objects: Vec<SceneObject>,
     blocks: HashMap<BlockKey, GpuBlock>,
     far: Option<(GpuFarTerrain, Option<GpuObjectModel>)>,
     /// Every image the loader decoded, by key (it sends each once).
@@ -52,6 +65,8 @@ impl SceneRenderer {
             objects: ObjectRenderer::new(gpu, format),
             fog_quad: ScreenQuad::new(gpu, format),
             models: HashMap::new(),
+            world_objects: HashMap::new(),
+            frame_objects: Vec::new(),
             blocks: HashMap::new(),
             far: None,
             images: HashMap::new(),
@@ -136,6 +151,15 @@ impl SceneRenderer {
                         .map(|model| self.objects.upload(gpu, &model, &mut load));
                     self.far = Some((terrain, water));
                 }
+                Loaded::Object(object) => {
+                    self.take_images(object.images);
+                    let images = &self.images;
+                    let mut load = |key: TextureKey| images.get(&key).cloned();
+                    if let Some(model) = object.model {
+                        let gpu_model = self.objects.upload(gpu, &model, &mut load);
+                        self.world_objects.insert(object.key, gpu_model);
+                    }
+                }
             }
         }
         for key in update.evicted {
@@ -152,8 +176,10 @@ impl SceneRenderer {
         aspect: f32,
         time: f64,
         frame: SceneFrame,
+        objects: Vec<SceneObject>,
     ) {
         self.frame = frame;
+        self.frame_objects = objects;
         let lighting = self.frame.lighting;
         self.terrain
             .set_frame(&gpu.queue, camera, &lighting, aspect);
@@ -161,8 +187,9 @@ impl SceneRenderer {
             self.fog_quad.set_color(&gpu.queue, color);
         }
         let (models, blocks, far, frame) = (&self.models, &self.blocks, &self.far, &self.frame);
+        let placed = (&self.world_objects, self.frame_objects.as_slice());
         let before = sky_instances(models, &frame.sky.before);
-        let world = world_instances(models, blocks, far, frame);
+        let world = world_instances(models, placed, blocks, far, frame);
         let after = sky_instances(models, &frame.sky.after);
         let interiors = interior_instances(models, blocks, frame);
         let mut groups = vec![
@@ -201,6 +228,7 @@ impl SceneRenderer {
     /// `SceneTool::backgroundColor` (black).
     pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
         let (models, blocks, far, frame) = (&self.models, &self.blocks, &self.far, &self.frame);
+        let placed = (&self.world_objects, self.frame_objects.as_slice());
         self.objects
             .draw(pass, 0, &sky_instances(models, &frame.sky.before));
         if frame.sky.fog_quad.is_some() {
@@ -217,8 +245,11 @@ impl SceneRenderer {
             self.terrain
                 .draw_far_chunks(pass, terrain, &frame.far_chunks);
         }
-        self.objects
-            .draw(pass, 1, &world_instances(models, blocks, far, frame));
+        self.objects.draw(
+            pass,
+            1,
+            &world_instances(models, placed, blocks, far, frame),
+        );
         for (index, (instances, _)) in interior_instances(models, blocks, frame).iter().enumerate()
         {
             self.objects.draw(pass, 3 + index, instances);
@@ -243,10 +274,12 @@ fn sky_instances<'a>(
         .collect()
 }
 
-/// The frame's object instances followed by the near water of its blocks and the far water
-/// (`DrawWaterMesh`). `prepare` and `draw` build it from the same state, so the order matches.
+/// The frame's placements, then the client's world objects, then the near water of its blocks
+/// and the far water (`DrawWaterMesh`). `prepare` and `draw` build it from the same state, so
+/// the order matches.
 fn world_instances<'a>(
     models: &'a HashMap<DataId, GpuObjectModel>,
+    (world_objects, objects): (&'a HashMap<u64, GpuObjectModel>, &'a [SceneObject]),
     blocks: &'a HashMap<BlockKey, GpuBlock>,
     far: &'a Option<(GpuFarTerrain, Option<GpuObjectModel>)>,
     frame: &SceneFrame,
@@ -260,6 +293,13 @@ fn world_instances<'a>(
                 ..ObjectInstance::new(models.get(&p.visual)?, p.world)
             })
         })
+        .chain(objects.iter().filter_map(|o| {
+            Some(ObjectInstance {
+                tint: o.tint,
+                pose: o.pose.as_ref(),
+                ..ObjectInstance::new(world_objects.get(&o.key)?, o.world)
+            })
+        }))
         .chain(
             frame
                 .water

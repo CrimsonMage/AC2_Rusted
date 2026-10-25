@@ -333,23 +333,31 @@ fn load<T: ResourcePackedDecode + Send + Sync + 'static>(
     store.load_cached_packed::<T>(TypedResourceRef::new(DatFileKind::Portal, did, 0))
 }
 
-/// `DBObj::GetByEnum(DungeonAppearanceTable_UniqueDBID, UNIQUEDB_GROUP_ENUM, DB_TYPE_APPEARANCE)`.
-pub fn ac2_dungeon_appearance_table(store: &ResourceStore) -> ResourceResult<Option<DataId>> {
+/// `DBObj::GetByEnum(value, group, type)`'s DID: the group's `EnumIDMap` (from the enum-mapper
+/// group map `0x28000000`), then `value` in it.
+pub fn ac2_enum_did(
+    store: &ResourceStore,
+    group: u32,
+    value: u32,
+) -> ResourceResult<Option<DataId>> {
     let Some(groups) = load::<Ac2EnumIdMap>(store, ENUM_GROUP_MAP_DID)? else {
         return Ok(None);
     };
-    let Some(map) = groups.ids.get(&UNIQUE_DB_GROUP).copied() else {
+    let Some(map) = groups.ids.get(&group).copied() else {
         return Ok(None);
     };
     let Some(map) = load::<Ac2EnumIdMap>(store, DataId::new(map))? else {
         return Ok(None);
     };
-    Ok(map
-        .ids
-        .get(&DUNGEON_APPEARANCE_TABLE)
-        .copied()
-        .filter(|did| did & 0xFF00_0000 == APPEARANCE_TABLE_PREFIX)
-        .map(DataId::new))
+    Ok(map.ids.get(&value).copied().map(DataId::new))
+}
+
+/// `DBObj::GetByEnum(DungeonAppearanceTable_UniqueDBID, UNIQUEDB_GROUP_ENUM, DB_TYPE_APPEARANCE)`.
+pub fn ac2_dungeon_appearance_table(store: &ResourceStore) -> ResourceResult<Option<DataId>> {
+    Ok(
+        ac2_enum_did(store, UNIQUE_DB_GROUP, DUNGEON_APPEARANCE_TABLE)?
+            .filter(|did| did.raw() & 0xFF00_0000 == APPEARANCE_TABLE_PREFIX),
+    )
 }
 
 /// `AppearanceTable::GetAtoms` for an applied key and scalar: the material atoms in application

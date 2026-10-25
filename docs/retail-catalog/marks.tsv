@@ -7,6 +7,7 @@ key	status	note
 00401f90	x	
 00401fc0	x	
 00403030	x	
+00403d30	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
 004042f0	x	
 00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
@@ -27,9 +28,25 @@ key	status	note
 00423610	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 00423690	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 00426720	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+0042bb00	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
+0042bbb0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
+0042bce0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 00431e20	x	
 00431e90	x	
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+00479030	x	ac2-ui interpreter.rs
+00479110	x	ac2-ui interpreter.rs
+004791b0	x	ac2-ui interpreter.rs
+004791e0	x	ac2-ui interpreter.rs
+00479210	x	ac2-ui interpreter.rs
+00479310	x	ac2-ui interpreter.rs
+004793d0	x	ac2-ui interpreter.rs
+004794c0	x	ac2-ui interpreter.rs
+00479530	x	ac2-ui interpreter.rs
+00479540	x	ac2-ui interpreter.rs
+004797f0	~	ac2-ui controls.rs (no ICIDM handler registration)
+00479890	x	ac2-ui interpreter.rs
+004799c0	x	ac2-ui interpreter.rs
 0047bb40	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047bbd0	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047bcb0	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
@@ -915,7 +932,13 @@ key	status	note
 00569020	x	
 00569200	x	
 005692e0	x	
+00569380	x	ac2-client camera_mouse.rs / input_handlers
+005693a0	x	ac2-client camera_mouse.rs / input_handlers
+005693d0	x	ac2-client camera_mouse.rs / input_handlers
+00569400	x	ac2-client camera_mouse.rs / input_handlers
+00569420	x	ac2-client camera_mouse.rs / input_handlers
 00569440	x	
+00569450	x	ac2-client camera_mouse.rs / input_handlers
 005694f0	x	
 00569550	x	
 0056ad20	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
@@ -960,12 +983,13 @@ key	status	note
 005760f0	~	no dynamic first-person head-bone camera, no camera effects
 00576b40	x	
 00576c70	x	camera action 0x400000AE (no map view)
-00576d10	x	
-00576dc0	x	
+00576d10	x	ac2-client camera.rs (driven by gmCameraUI states)
+00576dc0	x	ac2-client camera.rs (driven by gmCameraUI states)
 00576e30	~	applied once with the preference defaults
 00577100	~	no swing-out, look-at-self, map view, zoom-scale animation or camera effects
 00577360	~	no zoom-scale animation
 005775a0	~	no camera effects manager
+005778a0	x	ac2-client camera_mouse.rs / input_handlers
 00579180	x	
 005791a0	x	
 00579210	x	
@@ -1027,6 +1051,24 @@ key	status	note
 005912d0	~	base and alpha stages; no shadow-map or cloud-shadow stages
 005919d0	x	
 00591a40	x	
+00599b90	x	ac2-ui input.rs
+00599c00	x	ac2-ui input.rs
+00599ce0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
+00599d60	x	ac2-ui maps.rs
+0059a1c0	x	ac2-ui maps.rs
+0059a2b0	x	ac2-ui maps.rs
+0059e260	x	ac2-ui input.rs
+0059e320	x	ac2-ui input.rs
+0059f5d0	x	ac2-ui input.rs
+0059f690	x	ac2-ui input.rs
+0059f980	x	ac2-ui input.rs
+0059ff00	x	ac2-ui input.rs
+005a04a0	x	ac2-ui input.rs
+005a05e0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
+005a09b0	x	ac2-ui input.rs
+005a0ac0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
+005a0da0	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
+005a0f80	x	ac2-ui input.rs
 005ae960	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
 005b7260	~	BlendLitVertices on the GPU (ac2-gpu object.wgsl); no bounds update, ModelDetail<2 path not reproduced
 005b75b0	x	
@@ -1517,6 +1559,9 @@ key	status	note
 00722f20	~	headless frame order in ac2-client Client::use_time; no render, sound, UI, triggers or DB cache step
 00723280	x	
 007269d0	x	
+0072da60	x	ac2-ui maps.rs
+0072da90	x	ac2-ui maps.rs
+0072f200	x	ac2-ui maps.rs
 0072f3b0	~	ac2-physics ObjectShape::new: physics containment radius and box only
 00731160	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
 007311c0	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)

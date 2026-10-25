@@ -61,6 +61,15 @@ pub struct FrameInput {
     pub actions: Vec<ActiveAction>,
     pub camera_actions: Vec<CameraAction>,
     pub head: Option<((f32, f32), bool)>,
+    /// The frame's mouse-look motion (`CallMouseLookHandler` -> `CameraManager::MouseMove`).
+    pub mouse_look: Option<(i32, i32)>,
+    /// `gmCameraUI::UpdateCamera`'s `SetMouseLookState` and `SetFirstPersonState`.
+    pub mouse_look_state: Option<bool>,
+    pub first_person_state: Option<bool>,
+    /// `PlayerMovementModule::DoBehavior` / `StopBehavior` (behaviour, start) from behaviour-class
+    /// actions, and `InterruptMoveTo` from a movement action starting.
+    pub behaviors: Vec<(u32, bool)>,
+    pub interrupt_move_to: bool,
 }
 
 /// Client-side notices of the frame.
@@ -238,6 +247,7 @@ impl Client {
     pub fn use_time(&mut self, input: &FrameInput) -> Result<Vec<SessionEvent>, String> {
         self.session.net_use_time();
         self.db_cache()?;
+        self.input_handlers(input);
         self.movement(input);
         let mut events = self.smart_box()?;
         let dispatched = self.session.dispatch_events();
@@ -248,6 +258,38 @@ impl Client {
         self.camera_actions(input);
         self.render();
         Ok(events)
+    }
+
+    /// What the input poll's handlers did this frame: mouse look (`CameraManager::MouseMove`),
+    /// the camera UI's mouse-look and first-person states, and the player's behaviours and
+    /// move-to interruption (`PlayerMovementModule`).
+    fn input_handlers(&mut self, input: &FrameInput) {
+        let subject = self.camera_subject(false);
+        if let Some(state) = input.mouse_look_state {
+            self.camera.set_mouse_look(state, subject.as_ref());
+        }
+        if let Some(state) = input.first_person_state {
+            self.camera.set_first_person(state);
+        }
+        if let Some((dx, dy)) = input.mouse_look {
+            if self.camera.mouse_look && self.player.as_ref().is_some_and(|p| p.body.is_some()) {
+                self.camera.mouse_move(dx, dy);
+            }
+        }
+        let Some(body) = self.player.as_mut().and_then(|p| p.body.as_mut()) else {
+            return;
+        };
+        if input.interrupt_move_to {
+            body.physics.interrupt_move_to();
+        }
+        for &(behavior, start) in &input.behaviors {
+            if start {
+                body.physics
+                    .do_behavior(&ac2_anim::Ac2BehaviorParams::new(behavior));
+            } else {
+                body.physics.stop_behavior(behavior);
+            }
+        }
     }
 
     /// `ActionInterpreter::UseTime`'s camera actions (`CameraManager::StartAction` and
@@ -653,6 +695,13 @@ impl Client {
                     .body
                     .as_ref()
                     .map(|b| crate::motion::pose(&b.physics))
+                    .unwrap_or_default(),
+                appearance: self
+                    .session
+                    .objects()
+                    .iter()
+                    .find(|o| o.id == p.id)
+                    .map(|o| o.appearance.clone())
                     .unwrap_or_default(),
             })
         });

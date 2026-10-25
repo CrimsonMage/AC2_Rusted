@@ -22,7 +22,7 @@ pub use cell::{bake_cell_colors, load_cell_model, CellLighting};
 pub use lights::{ObjectEnvironment, ObjectLights, SunLight};
 pub use model::{
     load_object_model, load_object_model_with, ObjectBatch, ObjectMaterial, ObjectModel,
-    ObjectPart, ObjectPose, ObjectVertex,
+    ObjectPart, ObjectPose, ObjectVertex, PoseRig,
 };
 pub use pass::{
     blend, layer_drawn, layer_pass, texture_matrices, LayerPass, ProgramFlags, RenderSettings,

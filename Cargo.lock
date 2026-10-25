@@ -52,12 +52,18 @@ dependencies = [
  "ac2-core",
  "ac2-dat",
  "ac2-db",
+ "ac2-gpu",
  "ac2-math",
  "ac2-net",
  "ac2-physics",
+ "ac2-render",
+ "ac2-ui",
  "ac2-weenie",
  "ac2-world",
  "legions-server-double",
+ "png",
+ "wgpu",
+ "winit",
 ]
 
 [[package]]
@@ -148,6 +154,17 @@ dependencies = [
  "ac2-db",
  "ac2-math",
  "ac2-world",
+]
+
+[[package]]
+name = "ac2-ui"
+version = "0.1.0"
+dependencies = [
+ "ac2-assets",
+ "ac2-core",
+ "ac2-dat",
+ "ac2-db",
+ "ac2-weenie",
 ]
 
 [[package]]

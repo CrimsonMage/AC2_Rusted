@@ -16,6 +16,8 @@ pub struct PlayerFrame {
     /// The root Setup's bones relative to their parents as the animation left them (empty
     /// without a Setup).
     pub pose: Vec<crate::motion::PartPose>,
+    /// The player's local `VisualDesc` (`CPhysicsObj::m_local_vdesc`), as for other objects.
+    pub appearance: ac2_weenie::Appearance,
 }
 
 /// An object other than the player: where its physics object is (in the client's world), or

@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 121 done, 5 partial, 1772 to do, 6 skipped.
+1904 retail functions: 142 done, 6 partial, 1750 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1203,34 +1203,34 @@ Legend and workflow: [README](README.md).
 ### gmCWInterface
 - [ ] `gmCWInterface::PopupYesNoDialog` · 00453e30 · legions 00454eb0
 
-## `portal/client/src/action/interp/actioninterp.cpp.c` (0/23)
+## `portal/client/src/action/interp/actioninterp.cpp.c` (12/23)
 
 ### ActionInterpreter
 - [ ] `ActionInterpreter::Shutdown` · 00478fe0 · legions 00474e20
 - [ ] `ActionInterpreter::Get` · 00479010 · legions 00474e50
 - [ ] `ActionInterpreter::OnDDDComplete` · 00479020
-- [ ] `ActionInterpreter::StopAction` · 00479030 · legions 00474e70
+- [x] `ActionInterpreter::StopAction` · 00479030 · legions 00474e70 — ac2-ui interpreter.rs
 - [ ] `ActionInterpreter::GetDescripValues` · 004790b0 · legions 00474ef0
 - [ ] `ActionInterpreter::SetPlayerID` · 004790d0 · legions 00474f10
 - [ ] `ActionInterpreter::MouseLookHandler` · 004790f0 · legions 00474f30
-- [ ] `ActionInterpreter::HandleDoubleTap` · 00479110 · legions 00474f50
-- [ ] `ActionInterpreter::FindAction` · 004791b0 · legions 00474ff0
-- [ ] `ActionInterpreter::ActionDown` · 004791e0 · legions 00475020
-- [ ] `ActionInterpreter::GetModifierBitfield` · 00479210 · legions 00475050
+- [x] `ActionInterpreter::HandleDoubleTap` · 00479110 · legions 00474f50 — ac2-ui interpreter.rs
+- [x] `ActionInterpreter::FindAction` · 004791b0 · legions 00474ff0 — ac2-ui interpreter.rs
+- [x] `ActionInterpreter::ActionDown` · 004791e0 · legions 00475020 — ac2-ui interpreter.rs
+- [x] `ActionInterpreter::GetModifierBitfield` · 00479210 · legions 00475050 — ac2-ui interpreter.rs
 - [ ] `ActionInterpreter::CtrlKeyDown` · 004792d0 · legions 00475110
 - [ ] `ActionInterpreter::ShiftKeyDown` · 004792e0 · legions 00475120
 - [ ] `ActionInterpreter::AltKeyDown` · 00479300 · legions 00475140
-- [ ] `ActionInterpreter::GetActionValues` · 00479310 · legions 00475150
-- [ ] `ActionInterpreter::StartAction` · 004793d0 · legions 00475210
-- [ ] `ActionInterpreter::PurgeSetActions` · 004794c0 · legions 00475300
-- [ ] `ActionInterpreter::UseTime` · 00479530 · legions 00475370
-- [ ] `ActionInterpreter::TurnOffRunLock` · 00479540 · legions 00475380
+- [x] `ActionInterpreter::GetActionValues` · 00479310 · legions 00475150 — ac2-ui interpreter.rs
+- [x] `ActionInterpreter::StartAction` · 004793d0 · legions 00475210 — ac2-ui interpreter.rs
+- [x] `ActionInterpreter::PurgeSetActions` · 004794c0 · legions 00475300 — ac2-ui interpreter.rs
+- [x] `ActionInterpreter::UseTime` · 00479530 · legions 00475370 — ac2-ui interpreter.rs
+- [x] `ActionInterpreter::TurnOffRunLock` · 00479540 · legions 00475380 — ac2-ui interpreter.rs
 - [ ] `ActionInterpreter::~ActionInterpreter` · 00479790 · legions 004755d0
-- [ ] `ActionInterpreter::Startup` · 004797f0 · legions 00475630
-- [ ] `ActionInterpreter::FocusSwitchHandler` · 00479890 · legions 004756d0
-- [ ] `ActionInterpreter::ActionHandler` · 004799c0 · legions 00475800
+- [~] `ActionInterpreter::Startup` · 004797f0 · legions 00475630 — ac2-ui controls.rs (no ICIDM handler registration)
+- [x] `ActionInterpreter::FocusSwitchHandler` · 00479890 · legions 004756d0 — ac2-ui interpreter.rs
+- [x] `ActionInterpreter::ActionHandler` · 004799c0 · legions 00475800 — ac2-ui interpreter.rs
 
-## `portal/client/src/action/map/actionmap.cpp.c` (0/16)
+## `portal/client/src/action/map/actionmap.cpp.c` (3/16)
 
 ### ActionMap
 - [ ] `ActionMap::GetMapper` · 0072d640 · legions 00613a40
@@ -1240,8 +1240,8 @@ Legend and workflow: [README](README.md).
 
 ### ActionMap
 - [ ] `ActionMap::Pack` · 0072d770
-- [ ] `ActionMap::GetToggleType` · 0072da60 · legions 006abae0
-- [ ] `ActionMap::GetActionValues` · 0072da90 · legions 006abb10
+- [x] `ActionMap::GetToggleType` · 0072da60 · legions 006abae0 — ac2-ui maps.rs
+- [x] `ActionMap::GetActionValues` · 0072da90 · legions 006abb10 — ac2-ui maps.rs
 - [ ] `ActionMap::GetDescripValues` · 0072daf0 · legions 006abb70
 - [ ] `ActionMap::~ActionMap` · 0072e690 · legions 006ac710
 - [ ] `ActionMap::GetDBOType` · 0072e760
@@ -1259,10 +1259,10 @@ Legend and workflow: [README](README.md).
 ### ActionMap
 - [ ] `ActionMap::ActionMap` · 0072e980 · legions 006aca00
 - [-] `ActionMap::FromFileNode` · 0072ea40 — text source format (admin tools)
-- [ ] `ActionMap::UnPack` · 0072f200
+- [x] `ActionMap::UnPack` · 0072f200 — ac2-ui maps.rs
 - [ ] `ActionMap::Allocate` · 0072f370
 
-## `portal/client/src/action/movement/playermovementmodule.cpp.c` (7/17)
+## `portal/client/src/action/movement/playermovementmodule.cpp.c` (13/17)
 
 ### PlayerMovementModule
 - [ ] `PlayerMovementModule::Startup` · 00568e20 · legions 00538db0
@@ -1271,13 +1271,13 @@ Legend and workflow: [README](README.md).
 - [x] `PlayerMovementModule::SendPositionEvent` · 00569020 · legions 00538fb0
 - [x] `PlayerMovementModule::ShouldSendLookAtEvent` · 00569200 · legions 00539190
 - [x] `PlayerMovementModule::SendLookAtEvent` · 005692e0 · legions 00539270
-- [ ] `PlayerMovementModule::MouseMove` · 00569380 · legions 00539310
-- [ ] `PlayerMovementModule::DoBehavior` · 005693a0 · legions 00539330
-- [ ] `PlayerMovementModule::StopBehavior` · 005693d0 · legions 00539360
-- [ ] `PlayerMovementModule::StartCameraAction` · 00569400 · legions 00539390
-- [ ] `PlayerMovementModule::StopCameraAction` · 00569420 · legions 005393b0
+- [x] `PlayerMovementModule::MouseMove` · 00569380 · legions 00539310 — ac2-client camera_mouse.rs / input_handlers
+- [x] `PlayerMovementModule::DoBehavior` · 005693a0 · legions 00539330 — ac2-client camera_mouse.rs / input_handlers
+- [x] `PlayerMovementModule::StopBehavior` · 005693d0 · legions 00539360 — ac2-client camera_mouse.rs / input_handlers
+- [x] `PlayerMovementModule::StartCameraAction` · 00569400 · legions 00539390 — ac2-client camera_mouse.rs / input_handlers
+- [x] `PlayerMovementModule::StopCameraAction` · 00569420 · legions 005393b0 — ac2-client camera_mouse.rs / input_handlers
 - [x] `PlayerMovementModule::LockActions` · 00569440 · legions 005393d0
-- [ ] `PlayerMovementModule::InterruptMoveTo` · 00569450 · legions 005393e0
+- [x] `PlayerMovementModule::InterruptMoveTo` · 00569450 · legions 005393e0 — ac2-client camera_mouse.rs / input_handlers
 - [ ] `PlayerMovementModule::StopAttackingIfAutoMoving` · 00569470 · legions 00539400
 - [ ] `PlayerMovementModule::Shutdown` · 005694a0 · legions 00539430
 - [x] `PlayerMovementModule::SetPlayerID` · 005694f0 · legions 00539480

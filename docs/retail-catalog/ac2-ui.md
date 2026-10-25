@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 16 done, 4 partial, 2210 to do, 17 skipped.
+2247 retail functions: 33 done, 8 partial, 2189 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -129,15 +129,15 @@ Legend and workflow: [README](README.md).
 - [ ] `gmBookUI::SendBookToClipboard` · 00420010 · legions 0041fe10
 - [ ] `gmBookUI::ListenToMessage` · 00420320 · legions 00420120
 
-## `ac2/client/src/ui/gameplay/gmcameraui.cpp.c` (0/7)
+## `ac2/client/src/ui/gameplay/gmcameraui.cpp.c` (3/7)
 
 ### gmCameraUI
 - [ ] `gmCameraUI::~gmCameraUI` · 0042baa0 · legions 0042b860
-- [ ] `gmCameraUI::ListenToMessage` · 0042bb00 · legions 0042b8c0
+- [x] `gmCameraUI::ListenToMessage` · 0042bb00 · legions 0042b8c0 — ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 - [ ] `gmCameraUI::SendKey` · 0042bb50
-- [ ] `gmCameraUI::UpdateCamera` · 0042bbb0 · legions 0042b970
+- [x] `gmCameraUI::UpdateCamera` · 0042bbb0 · legions 0042b970 — ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 - [ ] `gmCameraUI::gmCameraUI` · 0042bc20 · legions 0042b9e0
-- [ ] `gmCameraUI::ListenToMessage` · 0042bce0 · legions 0042baa0
+- [x] `gmCameraUI::ListenToMessage` · 0042bce0 · legions 0042baa0 — ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 - [ ] `gmCameraUI::RecvNotice_UpdateCanMouseLook` · 0042bf50
 
 ## `ac2/client/src/ui/gameplay/gmexternalcontainerui.cpp.c` (0/8)
@@ -2029,7 +2029,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CImeFontWrapper::GetTextExtent` · 004bddb0 · legions 004b20d0
 - [ ] `CImeFontWrapper::DrawTextA` · 004bde10 · legions 004b2130
 
-## `portal/client/src/cinputmap/cinputmanager.cpp.c` (0/16)
+## `portal/client/src/cinputmap/cinputmanager.cpp.c` (2/16)
 
 ### CInputManager
 - [ ] `CInputManager::CInputManager` · 00599540 · legions 005665e0
@@ -2048,17 +2048,17 @@ Legend and workflow: [README](README.md).
 - [ ] `CInputManager::RegisterInputHandler` · 005999d0 · legions 00566a00
 - [ ] `CInputManager::UnregisterInputHandler` · 00599ae0 · legions 00566b10
 - [ ] `CInputManager::CallCharacterHandler` · 00599b50 · legions 00566b80
-- [ ] `CInputManager::CallActionHandler` · 00599b90 · legions 00566bc0
-- [ ] `CInputManager::CallMouseLookHandler` · 00599c00 · legions 00566c30
+- [x] `CInputManager::CallActionHandler` · 00599b90 · legions 00566bc0 — ac2-ui input.rs
+- [x] `CInputManager::CallMouseLookHandler` · 00599c00 · legions 00566c30 — ac2-ui input.rs
 - [ ] `CInputManager::CallKeyHitHandler` · 00599c40 · legions 00566c70
 - [ ] `CInputManager::CallFocusSwitchHandler` · 00599c80 · legions 00566cb0
-- [ ] `CInputManager::SetMouseLookMode` · 00599ce0 · legions 00566d10
+- [~] `CInputManager::SetMouseLookMode` · 00599ce0 · legions 00566d10 — ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
 - [ ] `CInputManager::SetTextMode` · 00599d40 · legions 00566d70
 
-## `portal/client/src/cinputmap/ckeymap.cpp.c` (0/23)
+## `portal/client/src/cinputmap/ckeymap.cpp.c` (3/23)
 
 ### MapGUID
-- [ ] `MapGUID::StreamPack` · 00599d60 · legions 00566d90
+- [x] `MapGUID::StreamPack` · 00599d60 · legions 00566d90 — ac2-ui maps.rs
 
 ### HashIterator<unsigned_long,unsigned_long>
 - [ ] `HashIterator<unsigned_long,unsigned_long>::HashIterator<unsigned_long,unsigned_long>` · 00599e10 · legions 004b66a0
@@ -2076,11 +2076,11 @@ Legend and workflow: [README](README.md).
 - [ ] `CKeyMap::GetNameBySemantic` · 0059a000 · legions 00566fc0
 
 ### ActionMapping
-- [ ] `ActionMapping::StreamPack` · 0059a1c0 · legions 00567180
+- [x] `ActionMapping::StreamPack` · 0059a1c0 · legions 00567180 — ac2-ui maps.rs
 
 ### CKeyMap
 - [ ] `CKeyMap::AddAction` · 0059a210 · legions 005671d0
-- [ ] `CKeyMap::StreamPack` · 0059a2b0 · legions 00567270
+- [x] `CKeyMap::StreamPack` · 0059a2b0 · legions 00567270 — ac2-ui maps.rs
 - [ ] `CKeyMap::GetSemanticByName` · 0059a320 · legions 005672e0
 - [ ] `CKeyMap::UpdateVersion` · 0059a360 · legions 00567320
 - [ ] `CKeyMap::Destroy` · 0059a680
@@ -2102,11 +2102,11 @@ Legend and workflow: [README](README.md).
 - [ ] `CKeyMap::Allocate` · 0059e210
 - [-] `CKeyMap::FromFileNode` · 0059e240 — text source format (admin tools)
 
-## `portal/client/src/cinputmap/directx/cinputmanager_win32.cpp.c` (0/35)
+## `portal/client/src/cinputmap/directx/cinputmanager_win32.cpp.c` (9/35)
 
 ### CInputManager_WIN32
-- [ ] `CInputManager_WIN32::IsMetaKey` · 0059e260 · legions 0056b200
-- [ ] `CInputManager_WIN32::MetaModeFromKey` · 0059e320 · legions 0056b2c0
+- [x] `CInputManager_WIN32::IsMetaKey` · 0059e260 · legions 0056b200 — ac2-ui input.rs
+- [x] `CInputManager_WIN32::MetaModeFromKey` · 0059e320 · legions 0056b2c0 — ac2-ui input.rs
 - [ ] `CInputManager_WIN32::PollDevice` · 0059e400 · legions 0056b3a0
 - [ ] `CInputManager_WIN32::IsUIAction` · 0059e470 · legions 0056b410
 - [ ] `CInputManager_WIN32::UpdateCharacter` · 0059e500 · legions 0056b4a0
@@ -2136,26 +2136,26 @@ Legend and workflow: [README](README.md).
 
 ### CInputManager_WIN32
 - [ ] `CInputManager_WIN32::Init` · 0059f210 · legions 0056bfc0
-- [ ] `CInputManager_WIN32::GetInputActionFromKey` · 0059f5d0 · legions 0056c380
-- [ ] `CInputManager_WIN32::ReleaseKey` · 0059f690 · legions 0056c440
+- [x] `CInputManager_WIN32::GetInputActionFromKey` · 0059f5d0 · legions 0056c380 — ac2-ui input.rs
+- [x] `CInputManager_WIN32::ReleaseKey` · 0059f690 · legions 0056c440 — ac2-ui input.rs
 - [ ] `CInputManager_WIN32::SwitchTextMode` · 0059f750 · legions 0056c500
-- [ ] `CInputManager_WIN32::SetKey` · 0059f980 · legions 0056c730
+- [x] `CInputManager_WIN32::SetKey` · 0059f980 · legions 0056c730 — ac2-ui input.rs
 - [ ] `CInputManager_WIN32::UpdateVirtualKey` · 0059fa30 · legions 0056c7e0
 
 ### _STL::deque<HashTable<CInputManager_WIN32::QualifiedKey,unsigned_long>,_STL::allocator<HashTable<CInputManager_WIN32::QualifiedKey,unsigned_long>_>_>
 - [ ] `_STL::deque<HashTable<CInputManager_WIN32::QualifiedKey,unsigned_long>,_STL::allocator<HashTable<CInputManager_WIN32::QualifiedKey,unsigned_long>_>_>::~deque<HashTable<CInputManager_WIN32::QualifiedKey,unsigned_long>,_STL::allocator<HashTable<CInputManager_WIN32::QualifiedKey,unsigned_long>_>_>` · 0059fbf0 · legions 00645850
 
 ### CInputManager_WIN32
-- [ ] `CInputManager_WIN32::PopKeyMap` · 0059ff00 · legions 0056cc00
+- [x] `CInputManager_WIN32::PopKeyMap` · 0059ff00 · legions 0056cc00 — ac2-ui input.rs
 - [ ] `CInputManager_WIN32::GetKeyFromInputAction` · 0059ff60 · legions 0056cc60
 - [ ] `CInputManager_WIN32::~CInputManager_WIN32` · 005a01f0 · legions 0056cef0
 - [ ] `CInputManager_WIN32::CInputManager_WIN32` · 005a03a0 · legions 0056d0a0
-- [ ] `CInputManager_WIN32::CheckDoubleClick` · 005a04a0 · legions 0056d1a0
-- [ ] `CInputManager_WIN32::ProcessDeviceData` · 005a05e0 · legions 0056d2e0
-- [ ] `CInputManager_WIN32::PushKeyMap_Internal` · 005a09b0 · legions 0056d6b0
-- [ ] `CInputManager_WIN32::GetInput` · 005a0ac0 · legions 0056d7c0
-- [ ] `CInputManager_WIN32::PushKeyMap` · 005a0da0 · legions 0056daa0
-- [ ] `CInputManager_WIN32::PushKeyMap` · 005a0f80
+- [x] `CInputManager_WIN32::CheckDoubleClick` · 005a04a0 · legions 0056d1a0 — ac2-ui input.rs
+- [~] `CInputManager_WIN32::ProcessDeviceData` · 005a05e0 · legions 0056d2e0 — ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
+- [x] `CInputManager_WIN32::PushKeyMap_Internal` · 005a09b0 · legions 0056d6b0 — ac2-ui input.rs
+- [~] `CInputManager_WIN32::GetInput` · 005a0ac0 · legions 0056d7c0 — ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
+- [~] `CInputManager_WIN32::PushKeyMap` · 005a0da0 · legions 0056daa0 — ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
+- [x] `CInputManager_WIN32::PushKeyMap` · 005a0f80 — ac2-ui input.rs
 
 ## `portal/client/src/cregion/cdetailmap/cdetailmapdesc.cpp.c` (0/22)
 

@@ -156,8 +156,34 @@ impl ObjectModel {
     /// `CPartArray::m_boneTransforms` as the animation leaves them) and every other group at its
     /// default placement. `None` without a skeleton.
     pub fn pose(&self, root: Option<&[Ac2Transform]>) -> Option<ObjectPose> {
-        let skeleton = self.skeleton.as_ref()?;
-        let groups = skeleton.pose(root);
+        self.rig()?.pose(root)
+    }
+
+    /// What posing the model needs, without its vertices.
+    pub fn rig(&self) -> Option<PoseRig> {
+        Some(PoseRig {
+            skeleton: Arc::clone(self.skeleton.as_ref()?),
+            parts: self
+                .parts
+                .iter()
+                .map(|part| (part.slot, part.skin.is_some(), part.transform))
+                .collect(),
+        })
+    }
+}
+
+/// A model's skeleton and each part's slot, skinning and default transform: enough to pose it
+/// (`ObjectModel::pose`) where the drawn model lives on the GPU.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PoseRig {
+    pub skeleton: Arc<ObjectSkeleton>,
+    pub parts: Vec<((usize, usize), bool, Mat4)>,
+}
+
+impl PoseRig {
+    /// [`ObjectModel::pose`].
+    pub fn pose(&self, root: Option<&[Ac2Transform]>) -> Option<ObjectPose> {
+        let groups = self.skeleton.pose(root);
         let mut palette = Vec::new();
         let mut starts = Vec::with_capacity(groups.len());
         for group in &groups {
@@ -170,13 +196,11 @@ impl ObjectModel {
         let (parts, skins) = self
             .parts
             .iter()
-            .map(|part| {
-                let (group, index) = part.slot;
+            .map(|&((group, index), skinned, transform)| {
                 let Some(pose) = groups.get(group) else {
-                    return (part.transform, None);
+                    return (transform, None);
                 };
-                let skin = part.skin.as_ref().and(starts[group]);
-                (pose.part_matrix(index), skin)
+                (pose.part_matrix(index), starts[group].filter(|_| skinned))
             })
             .unzip();
         Some(ObjectPose {

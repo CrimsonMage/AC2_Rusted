@@ -125,7 +125,7 @@ pub struct CameraManager {
     pub(crate) mouse_look: bool,
     pub(crate) first_person: bool,
     pub(crate) mapview: bool,
-    camera_distance: f32,
+    pub(crate) camera_distance: f32,
     prefs_distance: f32,
     prefs_pitch: f32,
     pub(crate) third_person_steers: bool,
@@ -140,6 +140,12 @@ pub struct CameraManager {
     z_velocity: f32,
     last_z: f32,
     pub(crate) targeting: TargetingModule,
+    /// `m_mouseSensitivity`, `m_invertY` and `m_zoomMode` (constructor defaults: 1, off, off).
+    pub(crate) mouse_sensitivity: f32,
+    pub(crate) invert_y: bool,
+    pub(crate) zoom_mode: bool,
+    /// `MouseMove`'s static `mouseFilterDeque`: the last ten mouse-look deltas, newest first.
+    pub(crate) mouse_filter: std::collections::VecDeque<(i32, i32)>,
 }
 
 impl Default for CameraManager {
@@ -178,6 +184,10 @@ impl CameraManager {
             z_velocity: 0.0,
             last_z: 0.0,
             targeting: TargetingModule::default(),
+            mouse_sensitivity: 1.0,
+            invert_y: false,
+            zoom_mode: false,
+            mouse_filter: std::collections::VecDeque::new(),
         }
     }
 
@@ -330,7 +340,7 @@ impl CameraManager {
 
     /// `CameraManager::SetMouseLookState`: the viewer offset turns between the player's frame
     /// (orbiting with it) and the world's (mouse look).
-    fn set_mouse_look(&mut self, state: bool, subject: Option<&CameraSubject>) {
+    pub(crate) fn set_mouse_look(&mut self, state: bool, subject: Option<&CameraSubject>) {
         if self.mouse_look == state {
             return;
         }
@@ -346,7 +356,7 @@ impl CameraManager {
     }
 
     /// `CameraManager::SetFirstPersonState`.
-    fn set_first_person(&mut self, state: bool) {
+    pub(crate) fn set_first_person(&mut self, state: bool) {
         if self.first_person == state {
             return;
         }

@@ -1,0 +1,18 @@
+[package]
+name = "ac2-ui"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+# Input maps and the action interpreter (and, later, UI elements): plain data in, plain data out.
+# No window or GPU dependency, so the headless client can share it.
+[dependencies]
+ac2-core = { path = "../ac2-core" }
+ac2-dat = { path = "../ac2-dat" }
+ac2-db = { path = "../ac2-db" }
+ac2-assets = { path = "../ac2-assets" }
+ac2-weenie = { path = "../ac2-weenie" }
+
+[dev-dependencies]
+ac2-dat = { path = "../ac2-dat", features = ["test-support"] }

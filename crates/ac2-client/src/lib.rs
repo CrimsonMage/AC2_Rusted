@@ -8,15 +8,19 @@
 
 mod appearance;
 mod camera;
+mod camera_mouse;
 mod cells;
 mod client;
 mod client_objects;
+mod controls;
 mod frame;
 mod loader;
 mod motion;
 mod remote;
 mod scene;
 mod targeting;
+#[cfg(feature = "window")]
+pub mod view;
 mod world_data;
 
 pub use appearance::local_visual_desc;
@@ -25,6 +29,7 @@ pub use cells::{block_radius, CellManager, FAR_RADIUS, NEAR_RADIUS};
 pub use client::{
     CameraAction, Client, FrameInput, Notice, ENTER_WORLD_FLAGS, SYNC_POSITION_FLAGS,
 };
+pub use controls::frame_input;
 pub use frame::{ClientFrame, Holder, ObjectFrame, PlayerFrame};
 pub use motion::PartPose;
 pub use scene::CameraFrame;

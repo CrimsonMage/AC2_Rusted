@@ -6,7 +6,17 @@ publish.workspace = true
 license.workspace = true
 
 # The client program's core: the only crate that joins the online session (ac2-weenie) and the
-# body simulation (ac2-physics). Rendering (ac2-render, ac2-gpu) stays out of this headless core.
+# body simulation (ac2-physics). Rendering (ac2-render, ac2-gpu) stays out of this headless core:
+# only the `window` feature (on by default) adds the drawn view and the `ac2` window program.
+[features]
+default = ["window"]
+window = ["dep:ac2-render", "dep:ac2-gpu", "dep:winit", "dep:wgpu"]
+
+[[bin]]
+name = "ac2"
+path = "src/bin/ac2/main.rs"
+required-features = ["window"]
+
 [dependencies]
 ac2-anim = { path = "../ac2-anim" }
 ac2-assets = { path = "../ac2-assets" }
@@ -18,7 +28,13 @@ ac2-net = { path = "../ac2-net" }
 ac2-physics = { path = "../ac2-physics" }
 ac2-weenie = { path = "../ac2-weenie" }
 ac2-world = { path = "../ac2-world" }
+ac2-ui = { path = "../ac2-ui" }
+ac2-render = { path = "../ac2-render", optional = true }
+ac2-gpu = { path = "../ac2-gpu", optional = true }
+winit = { version = "0.30", optional = true }
+wgpu = { version = "26.0.1", default-features = false, optional = true }
 
 [dev-dependencies]
 ac2-dat = { path = "../ac2-dat", features = ["test-support"] }
 legions-server-double = { path = "../../tools/legions-server-double" }
+png = "0.18"

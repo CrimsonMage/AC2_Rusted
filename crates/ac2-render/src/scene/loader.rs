@@ -70,13 +70,26 @@ pub enum Loaded {
     /// A visual the frame asked for (sky objects).
     Model(DataId, Option<ObjectModel>, Images),
     Far(LoadedFar),
+    /// A world object's model under its own appearance (`WorldScene::request_object`), with
+    /// its total `VisualDesc` scale (`CPhysicsObj::GetTotalScale`'s visual part).
+    Object(LoadedObject),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// A world object's model.
+#[derive(Debug, Clone)]
+pub struct LoadedObject {
+    pub key: u64,
+    pub model: Option<ObjectModel>,
+    pub scale: ac2_math::Vec3,
+    pub images: Images,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) enum Request {
     Block(BlockKey),
     Model(DataId),
     Far(BlockKey),
+    Object(u64, DataId, Option<ac2_assets::Ac2VisualDesc>),
 }
 
 /// The loader thread and its queues.
@@ -237,6 +250,28 @@ impl Worker {
                 Loaded::Model(visual, model, images)
             }
             Request::Far(center) => Loaded::Far(self.far(center)),
+            Request::Object(key, visual, local) => {
+                let store = self.world.resource_store().clone();
+                let model = crate::object::load_object_model_with(
+                    &store,
+                    visual,
+                    local.as_ref(),
+                    &self.settings,
+                )
+                .ok()
+                .flatten();
+                let scale = crate::object::total_visual_desc(&store, visual, local.as_ref())
+                    .ok()
+                    .flatten()
+                    .map_or(ac2_math::Vec3::ONE, |total| total.scale);
+                let images = self.images(model.iter().flat_map(ObjectModel::texture_keys));
+                Loaded::Object(LoadedObject {
+                    key,
+                    model,
+                    scale,
+                    images,
+                })
+            }
         }
     }
 }

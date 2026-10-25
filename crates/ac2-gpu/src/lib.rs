@@ -17,7 +17,7 @@ mod texture;
 
 pub use frame::{render_to, FrameTarget, COLOR_FORMAT, DEPTH_FORMAT};
 pub use object::{DrawGroup, GpuObjectModel, ObjectInstance, ObjectRenderer};
-pub use scene::SceneRenderer;
+pub use scene::{SceneObject, SceneRenderer};
 pub use screen_quad::ScreenQuad;
 pub use terrain::{GpuFarTerrain, TerrainBlock, TerrainRenderer};
 pub use texture::{TextureCache, TextureKey};
