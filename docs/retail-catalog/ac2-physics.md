@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 314 done, 76 partial, 1672 to do, 62 skipped.
+2124 retail functions: 328 done, 75 partial, 1659 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -1491,22 +1491,22 @@ Legend and workflow: [README](README.md).
 - [ ] `LookAtManager::LookAtLogic` · 004fd930 · legions 004f0120
 - [ ] `LookAtManager::Update` · 004fdb70 · legions 004f0360
 
-## `portal/shared/src/physobj/minterp/constraintmanager.cpp.c` (0/6)
+## `portal/shared/src/physobj/minterp/constraintmanager.cpp.c` (6/6)
 
 ### ConstraintManager
-- [ ] `ConstraintManager::ConstraintManager` · 0050c9d0 · legions 004faa40
-- [ ] `ConstraintManager::~ConstraintManager` · 0050ca30 · legions 004faaa0
-- [ ] `ConstraintManager::SetConstraintDistance` · 0050ca40 · legions 004faab0
-- [ ] `ConstraintManager::GetConstraintFactor` · 0050ca60 · legions 004faad0
-- [ ] `ConstraintManager::Create` · 0050cad0 · legions 004fab40
-- [ ] `ConstraintManager::ConstrainTo` · 0050cb00 · legions 004fab70
+- [x] `ConstraintManager::ConstraintManager` · 0050c9d0 · legions 004faa40 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+- [x] `ConstraintManager::~ConstraintManager` · 0050ca30 · legions 004faaa0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+- [x] `ConstraintManager::SetConstraintDistance` · 0050ca40 · legions 004faab0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+- [x] `ConstraintManager::GetConstraintFactor` · 0050ca60 · legions 004faad0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+- [x] `ConstraintManager::Create` · 0050cad0 · legions 004fab40 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+- [x] `ConstraintManager::ConstrainTo` · 0050cb00 · legions 004fab70 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 
 ## `portal/shared/src/physobj/minterp/imotioninterp.cpp.c` (0/1)
 
 ### IMotionInterp
 - [ ] `IMotionInterp::IMotionInterp` · 0069f9a0 · legions 0063c810
 
-## `portal/shared/src/physobj/minterp/interpolationmanager.cpp.c` (24/33)
+## `portal/shared/src/physobj/minterp/interpolationmanager.cpp.c` (25/33)
 
 ### InterpolationManager
 - [ ] `InterpolationManager::SetPhysicsObject` · 0050cb20
@@ -1536,7 +1536,7 @@ Legend and workflow: [README](README.md).
 - [x] `InterpolationManager::InterpolationPath::GetInterpolatedDistance` · 0050e100 · legions 004fc170 — ac2-physics interp (slice 3)
 
 ### InterpolationManager
-- [~] `InterpolationManager::DoConstraint` · 0050e1c0 · legions 004fc230 — no ConstraintManager (GetConstraintManager is null for these bodies)
+- [x] `InterpolationManager::DoConstraint` · 0050e1c0 · legions 004fc230 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 - [x] `InterpolationManager::Blip` · 0050e340 · legions 004fc3b0 — ac2-physics interp (slice 3)
 - [ ] `InterpolationManager::GetLastReceivedMotionVector` · 0050e430
 - [x] `InterpolationManager::DoImpulseLogic` · 0050e8b0 · legions 004fc920 — ac2-physics interp (slice 3)
@@ -1565,7 +1565,7 @@ Legend and workflow: [README](README.md).
 ### InterpolationManager::InterpolationPath
 - [ ] `InterpolationManager::InterpolationPath::StreamPack` · 00510cf0 · legions 004fed00
 
-## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (29/62)
+## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (34/62)
 
 ### CMotionInterp
 - [ ] `CMotionInterp::Init` · 00509630 · legions 004f7680
@@ -1599,11 +1599,11 @@ Legend and workflow: [README](README.md).
 - [ ] `CMotionInterp::IsInterpolating` · 00509b80
 - [ ] `CMotionInterp::GetRemoteDoMotionValues` · 00509ba0
 - [ ] `CMotionInterp::MakeInterpolationManager` · 00509bc0 · legions 004f7c00
-- [ ] `CMotionInterp::MakeConstraintManager` · 00509bf0 · legions 004f7c30
+- [x] `CMotionInterp::MakeConstraintManager` · 00509bf0 · legions 004f7c30 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 - [ ] `CMotionInterp::HandleLeaveWorld` · 00509c90 · legions 004f7cd0
-- [ ] `CMotionInterp::ConstrainTo` · 00509cb0 · legions 004f7cf0
-- [ ] `CMotionInterp::UnConstrain` · 00509cd0
-- [ ] `CMotionInterp::GetConstraintFactor` · 00509ce0
+- [x] `CMotionInterp::ConstrainTo` · 00509cb0 · legions 004f7cf0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+- [x] `CMotionInterp::UnConstrain` · 00509cd0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+- [x] `CMotionInterp::GetConstraintFactor` · 00509ce0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 - [ ] `CMotionInterp::GetInterpolationValuesForDebugDisplay` · 00509d00
 
 ### (free functions)
@@ -1628,7 +1628,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CMotionInterp::AddTerrainModifier` · 0050b720
 - [ ] `CMotionInterp::~CMotionInterp` · 0050b740 · legions 004f9780
 - [ ] `CMotionInterp::GetTerrainType` · 0050b7b0
-- [ ] `CMotionInterp::GetConstraintManager` · 0050b7c0
+- [x] `CMotionInterp::GetConstraintManager` · 0050b7c0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 - [x] `CMotionInterp::GetTurnToDirection` · 0050b7d0 · legions 004f9810 — ac2-physics MovementState turning_to / turn_to_degrees
 - [x] `CMotionInterp::GetAcceleration` · 0050b7f0
 - [x] `CMotionInterp::GetOmegaAcceleration` · 0050b800
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (94/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (95/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2260,7 +2260,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::InterpolateTo` · 004deb70 · legions 004d15d0 — ac2-physics interp (slice 3)
 - [x] `CPhysicsObj::StopInterpolating` · 004dec30 · legions 004d1690 — ac2-physics interp (slice 3)
 - [x] `CPhysicsObj::IsInterpolating` · 004dec50 · legions 004d16b0 — ac2-physics interp (slice 3)
-- [ ] `CPhysicsObj::GetConstraintFactor` · 004dec70 · legions 004d16d0
+- [x] `CPhysicsObj::GetConstraintFactor` · 004dec70 · legions 004d16d0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 - [ ] `CPhysicsObj::MissileInitPlaceAndFire` · 004decb0
 - [ ] `CPhysicsObj::MissileInitEnd` · 004dece0 · legions 004d1740
 - [ ] `CPhysicsObj::MissileReportOutOfFuel` · 004ded10
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (29/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (30/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0
@@ -2812,7 +2812,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::GetVectorHeading` · 004f1970
 - [ ] `PHYSICSOBJREP::GetHeading` · 004f19d0 · legions 004e4300
 - [~] `PHYSICSOBJREP::GetTriggerUpdate` · 004f1a00 — the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
-- [ ] `PHYSICSOBJREP::GetConstraintFactor` · 004f1a20
+- [x] `PHYSICSOBJREP::GetConstraintFactor` · 004f1a20 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 - [ ] `PHYSICSOBJREP::GetLocalVelocity` · 004f1a40
 - [ ] `PHYSICSOBJREP::GetTransitionCVel` · 004f1a70 · legions 004e43a0
 - [x] `PHYSICSOBJREP::DoAnimation` · 004f1ad0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)

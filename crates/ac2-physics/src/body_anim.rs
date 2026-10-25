@@ -134,6 +134,25 @@ impl PhysicsBody {
         self.move_to(params)
     }
 
+    /// `CMotionInterp::ConstrainTo` (`CPhysicsObj::RecvEvt_Position` with a new teleport
+    /// stamp): from now on the body's own movement slows past 19 m from `position` and stops at
+    /// 20 m (2 m and 4 m for other bodies, which hold it only at the end of their
+    /// interpolation path), until `unconstrain`.
+    pub fn constrain_to(&mut self, position: crate::Position) {
+        let player = self.is_player();
+        self.object
+            .constraint
+            .get_or_insert_with(|| crate::constraint::ConstraintManager::new(player))
+            .constrain_to(position);
+    }
+
+    /// `CMotionInterp::UnConstrain` (`CPhysicsObj::HandleTeleportStart`, leaving the world).
+    pub fn unconstrain(&mut self) {
+        if let Some(constraint) = self.object.constraint.as_mut() {
+            constraint.constrained = false;
+        }
+    }
+
     /// `CPhysicsObj::GetSliderCurrentValue`.
     pub fn slider_value(&self, slider: u32) -> f32 {
         self.object.anim.sliders.value(slider)

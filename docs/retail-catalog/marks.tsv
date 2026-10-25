@@ -587,6 +587,7 @@ key	status	note
 004deb70	x	ac2-physics interp (slice 3)
 004dec30	x	ac2-physics interp (slice 3)
 004dec50	x	ac2-physics interp (slice 3)
+004dec70	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 004df5a0	~	no IsDoingBehavior(jump) check (behaviours not ported)
 004df670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004df6a0	x	
@@ -725,6 +726,7 @@ key	status	note
 004f17b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f17c0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1a00	~	the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
+004f1a20	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 004f1ad0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 004f1b00	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1b90	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
@@ -759,6 +761,10 @@ key	status	note
 00509af0	x	
 00509b40	x	
 00509b70	x	ac2-physics interp (slice 3)
+00509bf0	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+00509cb0	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+00509cd0	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+00509ce0	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 00509ed0	x	
 00509f20	x	
 0050a1b0	x	
@@ -770,6 +776,7 @@ key	status	note
 0050b540	x	
 0050b5d0	x	
 0050b660	x	
+0050b7c0	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 0050b7d0	x	ac2-physics MovementState turning_to / turn_to_degrees
 0050b7f0	x	
 0050b800	x	
@@ -788,6 +795,12 @@ key	status	note
 0050c450	x	ac2-physics moveto (slice 3)
 0050c790	x	ac2-physics moveto (slice 3)
 0050c960	x	ac2-physics moveto (slice 3)
+0050c9d0	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+0050ca30	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+0050ca40	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+0050ca60	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+0050cad0	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+0050cb00	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 0050cb30	x	ac2-physics interp (slice 3)
 0050cc10	x	ac2-physics interp (slice 3)
 0050cc40	x	ac2-physics interp (slice 3)
@@ -800,7 +813,7 @@ key	status	note
 0050e090	x	ac2-physics interp (slice 3)
 0050e0c0	x	ac2-physics interp (slice 3)
 0050e100	x	ac2-physics interp (slice 3)
-0050e1c0	~	no ConstraintManager (GetConstraintManager is null for these bodies)
+0050e1c0	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 0050e340	x	ac2-physics interp (slice 3)
 0050e8b0	x	ac2-physics interp (slice 3)
 0050f7d0	x	ac2-physics interp (slice 3)

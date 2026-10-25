@@ -437,7 +437,8 @@ impl PhysicsObj {
         steering.heading = pos.frame.heading();
     }
 
-    /// `InterpolationManager::DoConstraint`: cap the 2D travel at the distance to the target
+    /// `InterpolationManager::DoConstraint`: enable the constraint manager only when the path's
+    /// last node lies at path distance 0; cap the 2D travel at the distance to the target
     /// and rail the velocity toward it; synchronise the transition (taking the path's contact)
     /// once on the path short of its end.
     fn do_constraint(
@@ -449,6 +450,12 @@ impl PhysicsObj {
         off_path: f32,
         contact: bool,
     ) {
+        // The constraint holds only once the path's last node is at distance 0.
+        if let (Some(constraint), Some((_, tail))) =
+            (self.constraint.as_mut(), interp.path.queue.back())
+        {
+            constraint.enabled = ld(*tail) <= ld(F_EPSILON);
+        }
         let off = current.offset_to(target);
         let (x, y) = (ld(off.x), ld(off.y));
         self.distance_cap_2d = st((y * y + x * x).sqrt());

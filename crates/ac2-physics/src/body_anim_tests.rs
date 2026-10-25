@@ -294,3 +294,27 @@ fn idle_effect_triggers_restart_each_cycle_and_hooks_fire_once() {
         .count();
     assert_eq!(hooks, 1, "a hook fires once per track");
 }
+
+#[test]
+fn a_constrained_player_stops_twenty_metres_out() {
+    let ground = terrain(|_, _| 50.0);
+    let walk = |constrain: bool| {
+        let mut body = body_at(70.0, 30.0, 50.0);
+        for _ in 0..5 {
+            body.step_quantum(&ground);
+        }
+        let start = body.position();
+        if constrain {
+            body.constrain_to(start);
+        }
+        body.do_motion([0.0, 1.0, 0.0]);
+        for _ in 0..150 {
+            body.step_quantum(&ground);
+        }
+        body.position().distance(&start)
+    };
+    let free = walk(false);
+    let held = walk(true);
+    assert!(free > 25.0, "{free}");
+    assert!((19.0..20.5).contains(&held), "{held}");
+}
