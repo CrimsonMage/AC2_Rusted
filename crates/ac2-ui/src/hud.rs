@@ -22,6 +22,7 @@ use crate::element::UiTree;
 use crate::layout::{load_layout, LayoutDesc};
 use crate::reticle::Reticle;
 use crate::shortcut::ShortcutUi;
+use crate::skill_tree::SkillTreeUi;
 use crate::text_data::StoreTextData;
 use crate::token::tokenize;
 use crate::toolbar::ToolbarUi;
@@ -67,6 +68,8 @@ pub struct GameplayHud {
     pub chat: Option<ChatUi>,
     /// `gmToolbarUI`'s panel children.
     pub toolbar: ToolbarUi,
+    /// `gmSkillUI`'s `gmSkillTreeUI`.
+    pub skills: Option<SkillTreeUi>,
 }
 
 /// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
@@ -116,6 +119,15 @@ pub fn build_gameplay_hud(
         Some(toolbar) => Some(ChatUi::create(&mut tree, toolbar, chat_strings(store)?)),
         None => None,
     };
+    // `gmSkillUI::gmSkillUI`: the skill tree over `SkillField`.
+    let skill_field = tree
+        .roots()
+        .iter()
+        .find_map(|&r| tree.child_recursive(r, tokenize("SkillField")));
+    let skills = match (&layouts[&LAYOUT_TOOLBAR], skill_field) {
+        (Some(toolbar), Some(field)) => Some(SkillTreeUi::create(&tree, toolbar, field)),
+        _ => None,
+    };
     let toolbar = ToolbarUi::create(&mut tree);
     text_data.freeze();
     Ok(GameplayHud {
@@ -124,6 +136,7 @@ pub fn build_gameplay_hud(
         shortcuts,
         chat,
         toolbar,
+        skills,
     })
 }
 

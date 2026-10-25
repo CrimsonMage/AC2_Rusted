@@ -219,6 +219,12 @@ impl App {
         }
         state.sync_mouse_look(self.client.camera().movement_state().mouse_look);
         let frame = self.client.frame();
+        // The HUD frameworks that ask the player: skills panel, shortcut bar, chat options.
+        let script_notices = self.client.take_script_notices();
+        let asked = state
+            .view
+            .frameworks(&mut self.client, &frame, &events, &script_notices);
+        state.commands.extend(asked);
         // The selection render: the object under the pointer, selected (or the selection
         // cleared) by `gmSelectionUI::Finish3DSelection`.
         if state.selection.wants_pick() {

@@ -337,9 +337,16 @@ impl ClientView {
         self.hud.take_chat_requests()
     }
 
-    /// What the shortcut bar asked since the last call ([`ac2_ui::ShortcutRequest`]).
-    pub fn take_shortcut_requests(&mut self) -> Vec<ac2_ui::ShortcutRequest> {
-        self.hud.take_shortcut_requests()
+    /// The HUD frameworks that ask the player (skills panel, shortcut bar, chat options), once a
+    /// frame after `Client::use_time`; returns the gameplay commands they ask for.
+    pub fn frameworks(
+        &mut self,
+        client: &mut crate::Client,
+        frame: &crate::ClientFrame,
+        events: &[ac2_weenie::SessionEvent],
+        script_notices: &[ac2_script::host::ScriptNotice],
+    ) -> Vec<crate::Command> {
+        self.hud.frameworks(client, frame, events, script_notices)
     }
 
     /// `CM_UI::SendNotice_OpenExaminationPanel`: the examination panel shows.
@@ -360,6 +367,16 @@ impl ClientView {
     /// The chat's retell / reply history answer (`ChatWindow::DoAssistedTell`).
     pub fn assisted_tell(&mut self, target: &str) {
         self.hud.assisted_tell(target);
+    }
+
+    /// The skills panel's panel and selected skill.
+    pub fn skills_current(&self) -> Option<(u32, u32)> {
+        self.hud.skills_current()
+    }
+
+    /// The shortcut bar's slots.
+    pub fn shortcut_slots(&self) -> usize {
+        self.hud.shortcut_slots()
     }
 
     /// The first chat window's log text.

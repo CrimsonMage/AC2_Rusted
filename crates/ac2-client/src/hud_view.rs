@@ -13,51 +13,34 @@ use ac2_db::{ResourceResult, ResourceStore};
 use ac2_gpu::{Gpu, UiLayer, UiOverlay};
 use ac2_ui::{
     ChatRequest, ChatSettings, ChatUi, GameplayHud, Modifiers, Reticle, ReticleOutcome,
-    ReticleTarget, Shortcut, ShortcutOptions, ShortcutRequest, ShortcutSource, ShortcutUi,
-    ToolbarChild, ToolbarUi, UiMessage, UiPixels, UiTree,
+    ReticleTarget, ShortcutUi, SkillTreeUi, ToolbarChild, ToolbarUi, UiMessage, UiPixels, UiTree,
 };
-
-/// The shortcut bar's answers until the player's options profile is read: no shortcuts.
-struct NoShortcuts;
-
-impl ShortcutSource for NoShortcuts {
-    fn shortcuts(&self) -> Vec<Shortcut> {
-        Vec::new()
-    }
-    fn icon(&self, _: usize, _: &Shortcut) -> u32 {
-        0
-    }
-    fn options(&self) -> ShortcutOptions {
-        ShortcutOptions {
-            which_set: 1,
-            rows: 1,
-            ..ShortcutOptions::default()
-        }
-    }
-    fn skill_trained(&self, _: u32) -> bool {
-        false
-    }
-    fn has_item(&self, _: u64) -> bool {
-        false
-    }
-}
 
 type Built = ResourceResult<(GameplayHud, HashMap<u32, UiPixels>)>;
 
 pub(crate) struct HudView {
     pending: Option<Receiver<Built>>,
-    hud: Option<(UiTree, HashMap<u32, UiPixels>)>,
+    pub(crate) hud: Option<(UiTree, HashMap<u32, UiPixels>)>,
     reticle: Option<Reticle>,
-    chat: Option<ChatUi>,
+    pub(crate) chat: Option<ChatUi>,
     toolbar: Option<ToolbarUi>,
-    shortcuts: Option<ShortcutUi>,
+    pub(crate) shortcuts: Option<ShortcutUi>,
+    pub(crate) skills: Option<SkillTreeUi>,
+    /// The tree's messages for the frameworks that ask the player
+    /// ([`HudView::frameworks`](crate::hud_player)).
+    pub(crate) player_messages: Vec<UiMessage>,
+    /// Every string table, loaded on a worker, and the UI table's DID (enum `0x41000018`).
+    pub(crate) strings: Option<(Arc<ac2_db::PreloadedStringTables>, u32)>,
+    pending_strings: Option<Receiver<(ac2_db::PreloadedStringTables, u32)>>,
+    /// The frameworks that ask the player have been loaded from it.
+    pub(crate) player_loaded: bool,
     /// Lines displayed before the HUD arrived (`RecvNotice_DisplayStringInfo`).
     early_lines: Vec<(u32, String)>,
     /// The chat lines being rendered (`StringDownload`).
     chat_text: crate::chat_text::ChatText,
     overlay: UiOverlay,
     size: (u32, u32),
-    dirty: bool,
+    pub(crate) dirty: bool,
 }
 
 impl HudView {
@@ -68,6 +51,19 @@ impl HudView {
         size: (u32, u32),
     ) -> Self {
         let chat_text = crate::chat_text::ChatText::new((*store).clone());
+        let (send_strings, pending_strings) = mpsc::channel();
+        let strings_store = Arc::clone(&store);
+        std::thread::Builder::new()
+            .name("ac2 ui strings".into())
+            .spawn(move || {
+                let tables = ac2_db::PreloadedStringTables::load_all(&strings_store, 0x5800_0000);
+                let ui_table = ac2_assets::ac2_enum_did(&strings_store, 0x4000_0004, 0x4100_0018)
+                    .ok()
+                    .flatten()
+                    .map_or(0, |did| did.raw());
+                let _ = send_strings.send((tables, ui_table));
+            })
+            .expect("spawn the UI strings loader");
         let (send, receive) = mpsc::channel();
         let (width, height) = (size.0 as i32, size.1 as i32);
         std::thread::Builder::new()
@@ -87,6 +83,11 @@ impl HudView {
             chat: None,
             toolbar: None,
             shortcuts: None,
+            skills: None,
+            player_messages: Vec::new(),
+            strings: None,
+            pending_strings: Some(pending_strings),
+            player_loaded: false,
             early_lines: Vec::new(),
             chat_text,
             overlay: UiOverlay::new(gpu, format),
@@ -121,13 +122,8 @@ impl HudView {
                 tree.stop_input(action);
             }
         }
-        let messages = pump(
-            tree,
-            &mut self.chat,
-            &self.toolbar,
-            &mut self.shortcuts,
-            modifiers,
-        );
+        let messages = pump(tree, &mut self.chat, &self.toolbar, modifiers);
+        self.player_messages.extend(messages.iter().cloned());
         if tree.take_changed() {
             self.dirty = true;
         }
@@ -152,13 +148,8 @@ impl HudView {
         for &(ch, key) in characters {
             tree.character(ch, key, ctrl);
         }
-        let messages = pump(
-            tree,
-            &mut self.chat,
-            &self.toolbar,
-            &mut self.shortcuts,
-            modifiers,
-        );
+        let messages = pump(tree, &mut self.chat, &self.toolbar, modifiers);
+        self.player_messages.extend(messages.iter().cloned());
         if tree.take_changed() {
             self.dirty = true;
         }
@@ -170,13 +161,6 @@ impl HudView {
         self.chat
             .as_mut()
             .map_or_else(Vec::new, ChatUi::take_requests)
-    }
-
-    /// What the shortcut bar asked since the last call.
-    pub(crate) fn take_shortcut_requests(&mut self) -> Vec<ShortcutRequest> {
-        self.shortcuts
-            .as_mut()
-            .map_or_else(Vec::new, ShortcutUi::take_requests)
     }
 
     /// `CM_UI::SendNotice_OpenExaminationPanel` (`gmExaminationUI::RecvNotice_OpenExaminationPanel`).
@@ -217,6 +201,21 @@ impl HudView {
                 self.dirty = true;
             }
         }
+    }
+
+    /// The skills panel's panel and selected skill.
+    pub(crate) fn skills_current(&self) -> Option<(u32, u32)> {
+        self.skills.as_ref().map(ac2_ui::SkillTreeUi::current)
+    }
+
+    /// The shortcut bar's slots.
+    pub(crate) fn shortcut_slots(&self) -> usize {
+        let (Some((tree, _)), Some(bar)) = (&self.hud, &self.shortcuts) else {
+            return 0;
+        };
+        bar.elements()
+            .1
+            .map_or(0, |list| tree.list_items(list).len())
     }
 
     /// The first chat window's log text.
@@ -261,7 +260,8 @@ impl HudView {
                     reticle,
                     mut chat,
                     toolbar,
-                    mut shortcuts,
+                    shortcuts,
+                    skills,
                 },
                 images,
             )) => {
@@ -278,10 +278,8 @@ impl HudView {
                 self.reticle = reticle;
                 self.chat = chat;
                 self.toolbar = Some(toolbar);
-                if let (Some(bar), Some((tree, _))) = (&mut shortcuts, &mut self.hud) {
-                    bar.reload(tree, &NoShortcuts);
-                }
                 self.shortcuts = shortcuts;
+                self.skills = skills;
                 self.dirty = true;
             }
             Err(error) => eprintln!("ac2: the HUD did not load: {error}"),
@@ -290,6 +288,12 @@ impl HudView {
 
     /// Takes a finished build, then recomposes if anything changed.
     pub(crate) fn update(&mut self, gpu: &Gpu) {
+        if let Some(pending) = &self.pending_strings {
+            if let Ok((tables, ui_table)) = pending.try_recv() {
+                self.strings = Some((Arc::new(tables), ui_table));
+                self.pending_strings = None;
+            }
+        }
         if let Some(pending) = &self.pending {
             match pending.try_recv() {
                 Ok(built) => {
@@ -400,11 +404,10 @@ impl HudView {
 
 /// The tree's messages to the chat until it broadcasts no more (activating an entry line
 /// broadcasts `activated`, which the chat answers); all of them, in order.
-fn pump(
+pub(crate) fn pump(
     tree: &mut UiTree,
     chat: &mut Option<ChatUi>,
     toolbar: &Option<ToolbarUi>,
-    shortcuts: &mut Option<ShortcutUi>,
     modifiers: Modifiers,
 ) -> Vec<UiMessage> {
     let mut all = Vec::new();
@@ -419,9 +422,6 @@ fn pump(
             }
             if let Some(toolbar) = toolbar {
                 toolbar.message(tree, message);
-            }
-            if let Some(shortcuts) = shortcuts.as_mut() {
-                shortcuts.message(tree, &NoShortcuts, message);
             }
         }
         all.extend(messages);

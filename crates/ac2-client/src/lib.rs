@@ -18,6 +18,8 @@ mod controls;
 mod frame;
 mod gameplay;
 #[cfg(feature = "window")]
+mod hud_player;
+#[cfg(feature = "window")]
 mod hud_view;
 mod loader;
 mod motion;
@@ -28,6 +30,8 @@ mod scripts_io;
 mod scripts_queries;
 mod tables;
 mod targeting;
+#[cfg(feature = "window")]
+mod ui_sources;
 #[cfg(feature = "window")]
 pub mod view;
 mod world_data;

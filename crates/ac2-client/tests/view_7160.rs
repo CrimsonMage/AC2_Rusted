@@ -76,11 +76,25 @@ fn the_client_walks_with_w_and_draws_its_character() {
         dat_iterations: Vec::new(),
     };
     let mut session = OnlineSession::with_transport(config, Box::new(transport)).unwrap();
-    // As the binary does: the string tables and the chat command line.
+    // As the binary does: the string tables, the chat command line and the player's scripts on
+    // a cache-only VM.
     let script_data = ac2_script::data::DatScriptData::new(tables_dataset, (*store).clone());
     session.set_string_tables(ac2_client::string_table_ids(&script_data));
     session.set_chat_commands(ac2_client::chat_commands(&script_data));
+    let dat_world = dat_world.with_script_data(script_data.clone());
     let mut client = Client::new(session, Arc::new(dat_world));
+    let wlib = ac2_script::load_wlib(&store, ac2_core::DataId::new(ac2_script::LEGIONS_WLIB_DID))
+        .unwrap()
+        .expect("the script library");
+    let program = Arc::new(ac2_script::vm::Program::from_stream(&wlib.stream));
+    script_data.preload_tables();
+    script_data.preload_states();
+    script_data.preload_skill_states(&program);
+    script_data.set_cache_only(true);
+    client.attach_scripts(
+        ac2_script::host::ScriptHost::new(program, Box::new(script_data)),
+        ac2_client::SCRIPT_VM_FUNCTIONS,
+    );
     client.set_load_budget(Duration::from_secs(30));
     let idle = FrameInput::default();
     let mut frames = 0;
@@ -91,6 +105,8 @@ fn the_client_walks_with_w_and_draws_its_character() {
         frames += 1;
         assert!(frames < 600);
     }
+    // The server's INIT_PLAYER runs the player's script (`CPlayer`).
+    server.borrow_mut().send_init_player();
     // Settle onto the ground.
     for _ in 0..128 {
         client.use_time(&idle).unwrap();
@@ -343,6 +359,46 @@ fn the_client_walks_with_w_and_draws_its_character() {
     }
     eprintln!("chat log: {log:?}");
     assert!(log.contains("You say, \"Well met\""), "{log:?}");
+    // The frameworks that ask the player load once the string tables are in: the shortcut bar
+    // pads to its slots, and the skills panel follows an examination request for the race's
+    // melee panel (the request goes through the server and comes back as a notice).
+    let mut ready = false;
+    for _ in 0..300 {
+        view.update(&gpu, &frame, Duration::ZERO);
+        let notices = client.take_script_notices();
+        let commands = view.frameworks(&mut client, &frame, &[], &notices);
+        assert!(commands.is_empty(), "{commands:?}");
+        if view.shortcut_slots() > 0 {
+            ready = true;
+            break;
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    assert!(ready, "the UI string tables load");
+    assert_eq!(view.shortcut_slots(), 100);
+    // `InqRootPanelFromRace` answers 0 for the double's player (it carries no race), so the
+    // human melee root panel (`HumanRootMeleePanel_SkillPanel`) is asked for directly.
+    let race_root = client.root_panel_from_race(ac2_ui::ROOT_MELEE_PANEL);
+    eprintln!("InqRootPanelFromRace(melee): {race_root:?}");
+    let root = 0x8000_000C;
+    let examine = FrameInput {
+        commands: vec![ac2_client::Command::Examine(
+            ac2_net::protocol::ExaminationRequest {
+                kind: ac2_ui::EXAMINE_PANEL,
+                data_enum: root,
+                ..Default::default()
+            },
+        )],
+        ..FrameInput::default()
+    };
+    let mut events = client.use_time(&examine).unwrap();
+    for _ in 0..4 {
+        server.borrow_mut().elapsed += STEP;
+        events.extend(client.use_time(&FrameInput::default()).unwrap());
+    }
+    let notices = client.take_script_notices();
+    view.frameworks(&mut client, &frame, &events, &notices);
+    assert_eq!(view.skills_current(), Some((root, 0)), "{events:?}");
     // A displayed line reaches the log on the next update; the window shows it.
     view.chat_display(0x4_0000, "Explorer says, \"well met\"\n");
     view.update(&gpu, &frame, Duration::ZERO);

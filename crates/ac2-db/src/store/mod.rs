@@ -75,6 +75,11 @@ impl ResourceStore {
         Self::with_cache_config(dataset, ResourceCacheConfig::default())
     }
 
+    /// The DATs the store reads.
+    pub fn dataset(&self) -> &Arc<DatDataset> {
+        &self.dataset
+    }
+
     pub(crate) fn with_cache_config(
         dataset: Arc<DatDataset>,
         cache_config: ResourceCacheConfig,
