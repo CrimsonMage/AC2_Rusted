@@ -265,9 +265,11 @@ fn create_object(spawn: &Spawn) -> Vec<u8> {
     )
 }
 
+/// The player's qualities: int 20 (the weenie type, 31: a player for
+/// `EngineWeenieTypeSystem` 0xC) and int 0x19.
 fn player_description() -> Vec<u8> {
     let mut b = Vec::new();
-    words(&mut b, &[0x0001_0068, 2, 0x8100_110F, 1, 0x19, 7]);
+    words(&mut b, &[0x0001_0068, 2, 0x8100_110F, 2, 20, 31, 0x19, 7]);
     b
 }
 

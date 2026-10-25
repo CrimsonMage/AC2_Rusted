@@ -20,12 +20,18 @@ use ac2_weenie::SessionEvent;
 use crate::client::Client;
 use crate::loader::Request;
 
-/// The server calls the script VM answers as the stand-ins did (verified against them), and so
-/// takes over: `WM_Communication` 0x11, 0x23 (`DisplayStringInfo`) and 0x12 (`DisplayText`).
+/// The server calls and UI IFuns the script VM answers as the stand-ins did (verified against
+/// them, `scripts_7160`), and so takes over: `WM_Communication` 0x11, 0x23
+/// (`DisplayStringInfo`) and 0x12 (`DisplayText`); `WM_Player` 0x27 (the login, `CPlayer`
+/// 0x65: vitals, inventory refresh; the session's mirrors still follow it) and 0x2C
+/// (`UpdateSelectionInfo`, `CPlayer` 0x34); `SetSelection` (`CPlayer` 0x6A).
 pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     ac2_net::protocol::script_function::DISPLAY_STRING_INFO,
     ac2_net::protocol::script_function::DISPLAY_STRING_INFO_2,
     ac2_net::protocol::script_function::DISPLAY_TEXT,
+    ac2_net::protocol::script_function::INIT_PLAYER,
+    ac2_net::protocol::script_function::UPDATE_SELECTION_INFO,
+    IFUN_SET_SELECTION,
 ];
 
 /// `gmCWInterface::SetSelection`'s IFun (`ggmCWInterface::CallIFun_SetSelection`: the
@@ -146,6 +152,7 @@ impl Client {
         if Some(id) == self.session.player() {
             scripts.host.set_player(id);
         }
+        self.share_qualities(id);
         let mut events = Vec::new();
         for (function, arguments) in missed {
             self.dispatch_script(id, function, &arguments, &mut events);
@@ -189,6 +196,12 @@ impl Client {
         for event in events.iter() {
             match event {
                 SessionEvent::ObjectAdded(id) => self.request_script(*id),
+                SessionEvent::QualityChanged { object, .. } => self.share_qualities(*object),
+                SessionEvent::PlayerQualities(_) => {
+                    if let Some(player) = self.session.player() {
+                        self.share_qualities(player);
+                    }
+                }
                 SessionEvent::EnteredWorld(entry) => self.request_script(entry.player),
                 SessionEvent::ObjectRemoved(id) => {
                     if let Some(scripts) = self.scripts.as_mut() {
@@ -213,6 +226,21 @@ impl Client {
             }
         }
         events.extend(produced);
+    }
+
+    /// `CWRepository::SetQualities` / `SetWeenieDesc` for a running process: the scripts read
+    /// the object's qualities (`gCWRepository`) as the session keeps them from the server
+    /// (the player description, the weenie description, the quality updates).
+    fn share_qualities(&mut self, id: u64) {
+        let Some(scripts) = self.scripts.as_mut() else {
+            return;
+        };
+        if !scripts.running.contains(&id) {
+            return;
+        }
+        if let Some(object) = self.session.objects().get(id) {
+            scripts.host.set_qualities(id, object.qualities.clone());
+        }
     }
 
     /// Whether the UI's IFun (or server call) `function` is the script VM's.
