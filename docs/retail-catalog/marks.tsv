@@ -256,9 +256,9 @@ key	status	note
 00455740	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004557b0	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004558a0	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
-00456190	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+00456190	x	ac2-script vm::refs (reserved bit on every new entry)
 00456270	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
-00456550	_	ac2-script vm (VM/ReferenceTable/Resolver)
+00456550	x	ac2-script vm::refs (reserved bit on every new entry)
 004565c0	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004567b0	_	ac2-script reference/native unpack
 00456ae0	_	ac2-script glue::options / examination (Legions layout and efun switch)
@@ -3847,6 +3847,7 @@ key	status	note
 006de1e0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006e08d0	~	ac2-script: handler table is a match in exec.rs
 006e08f0	x	ac2-script vm::exec / Program::walk
+006e0a50	x	ac2-script vm::refs (reserved bit on every new entry)
 006e0b40	x	ac2-net protocol::pack
 006e0c20	x	ac2-script reference/native unpack
 006e0d30	x	ac2-script glue

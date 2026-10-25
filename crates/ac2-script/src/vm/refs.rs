@@ -18,7 +18,8 @@ pub mod flags {
     pub use crate::reference::flags::*;
     /// The heap object's data is present (a singleton is filled lazily).
     pub const FILLED: u32 = 0x4000_0000;
-    /// Entries the collector traverses.
+    /// Set on every new entry while the collector is not marking
+    /// (`ReservedRefTable::AddReference`): a reserved reference.
     pub const TRACED: u32 = 0x0400_0000;
     /// Bits 10-25: the slot offset of an address entry.
     pub const OFFSET_SHIFT: u32 = 10;
@@ -78,10 +79,13 @@ impl ReferenceTable {
     }
 
     /// `ReferenceTable::AddReference`.
+    /// `ReferenceTable::AddReference`: a new entry, which `ReservedRefTable::AddReference`
+    /// marks reserved (0x04000000; the port never runs the collector's mark phase, during
+    /// which retail would leave it clear).
     pub fn add(&mut self, blob: u32, target: Target) -> u32 {
         let id = self.entries.len() as u32;
         self.entries.push(Entry {
-            blob: (blob & !0xFF) | u32::from(self.gc_run),
+            blob: (blob & !0xFF) | flags::TRACED | u32::from(self.gc_run),
             target,
         });
         id
