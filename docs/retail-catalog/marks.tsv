@@ -61,6 +61,7 @@ key	status	note
 0042bb00	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 0042bbb0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 0042bce0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
+0042dac0	x	ac2-ui list_box.rs
 00430810	x	ac2-ui toolbar.rs
 00430c00	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 004314c0	x	ac2-script glue::position (ported beside the gPosition glue)
@@ -2779,6 +2780,28 @@ key	status	note
 005f18c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005f1a10	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005f1a50	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005f1b90	x	ac2-ui list_box.rs
+005f1bc0	x	ac2-ui list_box.rs
+005f1bf0	x	ac2-ui list_box.rs
+005f1c70	x	ac2-ui list_box.rs
+005f1c90	x	ac2-ui list_box.rs
+005f1fc0	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
+005f21f0	x	ac2-ui list_box.rs
+005f2540	x	ac2-ui list_box.rs
+005f26b0	x	ac2-ui list_box.rs
+005f27c0	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
+005f2bc0	x	ac2-ui list_box.rs
+005f3c20	x	ac2-ui list_box.rs
+005f3c90	x	ac2-ui list_box.rs
+005f3d70	x	ac2-ui list_box.rs
+005f3db0	x	ac2-ui list_box.rs
+005f3f30	x	ac2-ui list_box.rs
+005f4170	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
+005f45e0	x	ac2-ui list_box.rs
+005f4680	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
+005f46f0	x	ac2-ui list_box.rs
+005f47a0	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
+005f4b90	x	ac2-ui list_box.rs
 005f5d90	x	ac2-ui tree_view.rs
 005f5e20	x	ac2-ui tree_view.rs
 005f61e0	x	ac2-ui tree_view.rs

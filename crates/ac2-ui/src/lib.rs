@@ -18,6 +18,7 @@ mod input;
 mod interpreter;
 mod layout;
 mod layout_media;
+mod list_box;
 mod maps;
 mod mouse;
 mod panel;
@@ -84,6 +85,8 @@ pub use toolbar::{ToolbarChild, ToolbarUi};
 mod chat_tests;
 #[cfg(test)]
 mod element_tests;
+#[cfg(test)]
+mod list_box_tests;
 #[cfg(test)]
 mod mouse_tests;
 #[cfg(test)]

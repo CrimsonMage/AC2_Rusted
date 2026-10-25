@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 186 done, 113 partial, 1932 to do, 16 skipped.
+2247 retail functions: 204 done, 118 partial, 1909 to do, 16 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -690,7 +690,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ChatWindow::RecvNotice_ReloadOptions` · 0044cb10
 - [~] `ChatWindow::RecvNotice_ReloadChatSettings` · 0044cbc0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
-## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (0/22)
+## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (1/22)
 
 ### ContainerDisplay
 - [ ] `ContainerDisplay::FinishListBoxDrop` · 0042d910 · legions 0042d6e0
@@ -703,7 +703,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ContainerDisplay::RequestContext` · 0042dab0 · legions 0042d880
 
 ### UIElement_ListBox
-- [ ] `UIElement_ListBox::WhatNum` · 0042dac0 · legions 0042d890
+- [x] `UIElement_ListBox::WhatNum` · 0042dac0 · legions 0042d890 — ac2-ui list_box.rs
 
 ### ContainerDisplay
 - [ ] `ContainerDisplay::RecvNotice_StackUIDone` · 0042daf0 · legions 0042d8c0
@@ -3180,31 +3180,31 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0
 - [ ] `UIElement_Field::Register` · 005fbe20 · legions 005bc950
 
-## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (0/82)
+## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (17/82)
 
 ### UIElement_ListBox
-- [ ] `UIElement_ListBox::Home` · 005f1b90 · legions 005b26c0
-- [ ] `UIElement_ListBox::End` · 005f1bc0 · legions 005b26f0
-- [ ] `UIElement_ListBox::ScrollToRow` · 005f1bf0 · legions 005b2720
+- [x] `UIElement_ListBox::Home` · 005f1b90 · legions 005b26c0 — ac2-ui list_box.rs
+- [x] `UIElement_ListBox::End` · 005f1bc0 · legions 005b26f0 — ac2-ui list_box.rs
+- [x] `UIElement_ListBox::ScrollToRow` · 005f1bf0 · legions 005b2720 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::ScrollToCol` · 005f1c20 · legions 005b2750
 - [ ] `UIElement_ListBox::GetLeftCol` · 005f1c50 · legions 005b2780
-- [ ] `UIElement_ListBox::GetTopRow` · 005f1c70 · legions 005b27a0
-- [ ] `UIElement_ListBox::KeepViewInBounds` · 005f1c90 · legions 005b27c0
+- [x] `UIElement_ListBox::GetTopRow` · 005f1c70 · legions 005b27a0 — ac2-ui list_box.rs
+- [x] `UIElement_ListBox::KeepViewInBounds` · 005f1c90 · legions 005b27c0 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::HandleButtonGhosting` · 005f1d40 · legions 005b2870
 - [ ] `UIElement_ListBox::GetScrollBar` · 005f1db0 · legions 005b28e0
 - [ ] `UIElement_ListBox::UnregisterForScrollbar` · 005f1e50 · legions 005b2980
 - [ ] `UIElement_ListBox::TestBitMask` · 005f1f60 · legions 005b2a90
 - [ ] `UIElement_ListBox::ScrollToShow` · 005f1f80 · legions 005b2ab0
-- [ ] `UIElement_ListBox::SetAttribute_Bool` · 005f1fc0 · legions 005b2af0
+- [~] `UIElement_ListBox::SetAttribute_Bool` · 005f1fc0 · legions 005b2af0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
 - [ ] `UIElement_ListBox::DetermineAndSetNewGoal` · 005f2180 · legions 005b2cb0
-- [ ] `UIElement_ListBox::UpdateLayout` · 005f21f0 · legions 005b2d20
+- [x] `UIElement_ListBox::UpdateLayout` · 005f21f0 · legions 005b2d20 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::StartAnimation` · 005f23f0 · legions 005b2f20
 - [ ] `UIElement_ListBox::StopAnimation` · 005f2500 · legions 005b3030
-- [ ] `UIElement_ListBox::GetItem` · 005f2540 · legions 005b3070
+- [x] `UIElement_ListBox::GetItem` · 005f2540 · legions 005b3070 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::SetSelectedItem` · 005f2560 · legions 005b3090
 - [ ] `UIElement_ListBox::SetSelectedIndex` · 005f2650 · legions 005b3180
-- [ ] `UIElement_ListBox::GetItemIndexAtPoint` · 005f26b0 · legions 005b31e0
-- [ ] `UIElement_ListBox::InsertItem` · 005f27c0 · legions 005b32f0
+- [x] `UIElement_ListBox::GetItemIndexAtPoint` · 005f26b0 · legions 005b31e0 — ac2-ui list_box.rs
+- [~] `UIElement_ListBox::InsertItem` · 005f27c0 · legions 005b32f0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
 - [ ] `UIElement_ListBox::MultiOpAddItem` · 005f2820 · legions 005b3350
 - [ ] `UIElement_ListBox::MultiOpInsertItem` · 005f2840 · legions 005b3370
 - [ ] `UIElement_ListBox::MultiOpInsertItem` · 005f2850 · legions 005b3380
@@ -3215,7 +3215,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_ListBox::EndDragSelect` · 005f2ac0 · legions 005b35f0
 - [ ] `UIElement_ListBox::StartRollover` · 005f2b10 · legions 005b3640
 - [ ] `UIElement_ListBox::EndRollover` · 005f2b60 · legions 005b3690
-- [ ] `UIElement_ListBox::ConstrainViewValue` · 005f2bc0 · legions 005b36f0
+- [x] `UIElement_ListBox::ConstrainViewValue` · 005f2bc0 · legions 005b36f0 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::GetPercentageV` · 005f2c30 · legions 005b3760
 - [ ] `UIElement_ListBox::GetPercentageH` · 005f2cc0 · legions 005b37f0
 - [ ] `UIElement_ListBox::HandleMouseWheel` · 005f2d50 · legions 005b3880
@@ -3238,16 +3238,16 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_ListBox::UpdateAndDraw` · 005f3af0 · legions 005b4620
 - [ ] `UIElement_ListBox::ResizeTo` · 005f3b20 · legions 005b4650
 - [ ] `UIElement_ListBox::SetSelectedItemByID` · 005f3b60 · legions 005b4690
-- [ ] `UIElement_ListBox::GetItemUnderMouse` · 005f3c20 · legions 005b4750
-- [ ] `UIElement_ListBox::RemoveItem` · 005f3c90 · legions 005b47c0
+- [x] `UIElement_ListBox::GetItemUnderMouse` · 005f3c20 · legions 005b4750 — ac2-ui list_box.rs
+- [x] `UIElement_ListBox::RemoveItem` · 005f3c90 · legions 005b47c0 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::MultiOpRemoveItem` · 005f3d60 · legions 005b4890
-- [ ] `UIElement_ListBox::MultiOpComplete` · 005f3d70 · legions 005b48a0
-- [ ] `UIElement_ListBox::Flush` · 005f3db0 · legions 005b48e0
+- [x] `UIElement_ListBox::MultiOpComplete` · 005f3d70 · legions 005b48a0 — ac2-ui list_box.rs
+- [x] `UIElement_ListBox::Flush` · 005f3db0 · legions 005b48e0 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::Rollover` · 005f3e70 · legions 005b49a0
-- [ ] `UIElement_ListBox::ViewChanged` · 005f3f30 · legions 005b4a60
+- [x] `UIElement_ListBox::ViewChanged` · 005f3f30 · legions 005b4a60 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::HandleSelection` · 005f3fd0 · legions 005b4b00
 - [ ] `UIElement_ListBox::SetState` · 005f4030 · legions 005b4b60
-- [ ] `UIElement_ListBox::SetAttribute_Int` · 005f4170 · legions 005b4ca0
+- [~] `UIElement_ListBox::SetAttribute_Int` · 005f4170 · legions 005b4ca0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
 - [ ] `UIElement_ListBox::SetAttribute_ID` · 005f4270 · legions 005b4da0
 - [ ] `UIElement_ListBox::MouseDown` · 005f4420 · legions 005b4f50
 - [ ] `UIElement_ListBox::Global_MouseMove` · 005f44c0 · legions 005b4ff0
@@ -3255,15 +3255,15 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_ListBox::StartDownActive` · 005f4540 · legions 005b5070
 - [ ] `UIElement_ListBox::StartLeftActive` · 005f4570 · legions 005b50a0
 - [ ] `UIElement_ListBox::StartRightActive` · 005f45b0 · legions 005b50e0
-- [ ] `UIElement_ListBox::AddItem` · 005f45e0 · legions 005b5110
-- [ ] `UIElement_ListBox::InsertItem` · 005f4680 · legions 005b51b0
-- [ ] `UIElement_ListBox::DeleteItem` · 005f46f0 · legions 005b5220
+- [x] `UIElement_ListBox::AddItem` · 005f45e0 · legions 005b5110 — ac2-ui list_box.rs
+- [~] `UIElement_ListBox::InsertItem` · 005f4680 · legions 005b51b0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
+- [x] `UIElement_ListBox::DeleteItem` · 005f46f0 · legions 005b5220 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::MultiOpRemoveItem` · 005f4750 · legions 005b5280
-- [ ] `UIElement_ListBox::UIElement_ListBox` · 005f47a0 · legions 005b52d0
+- [~] `UIElement_ListBox::UIElement_ListBox` · 005f47a0 · legions 005b52d0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
 - [ ] `UIElement_ListBox::Create` · 005f4a80
 - [ ] `UIElement_ListBox::ListenToMessage` · 005f4ab0 · legions 005b55e0
 - [ ] `UIElement_ListBox::ListenToMessage` · 005f4b00 · legions 005b5630
-- [ ] `UIElement_ListBox::SetItem` · 005f4b90 · legions 005b56c0
+- [x] `UIElement_ListBox::SetItem` · 005f4b90 · legions 005b56c0 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::Register` · 005f4c30 · legions 005b5760
 
 ## `portal/client/src/uielement/types/uielement_listboxmsize.cpp.c` (0/20)

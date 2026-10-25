@@ -90,6 +90,8 @@ pub struct UiElement {
     pub(crate) attributes: HashMap<u32, AttributeValue>,
     /// `UIElement_Text`'s state, for text elements.
     pub(crate) text: Option<Box<TextState>>,
+    /// `UIElement_ListBox`'s state, once items are added.
+    pub(crate) list: Option<Box<crate::list_box::ListBoxState>>,
     /// `UIElement_PanelPage::page`: the tab's content.
     pub(crate) page: Option<usize>,
     /// `UIElement_Tree`'s state, once items are added.
@@ -344,6 +346,7 @@ impl UiTree {
             text,
             tree: None,
             page: None,
+            list: None,
             mouse_over: false,
             mouse_over_top: false,
             mouse_visible: true,
