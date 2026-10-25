@@ -105,6 +105,21 @@ impl OnlineSession {
         vec![SessionEvent::Notice(notice)]
     }
 
+    /// `Proto_UI::SendCharGenResult`: create the character the creation screens built
+    /// (`gCharacterGenSystem` finishes with it); the answer is
+    /// [`SessionEvent::CharGenVerification`].
+    pub fn create_character(&mut self, result: ac2_net::protocol::CharGenResult) {
+        let account = self.account.clone();
+        self.send(ac2_net::protocol::ClientEvent::CharGenResult { account, result });
+    }
+
+    /// `Proto_UI::SendDeleteCharacter` (`gmCharacterSelectionUI`); the answer is
+    /// [`SessionEvent::CharacterDeleted`].
+    pub fn delete_character(&mut self, character: u64) {
+        let account = self.account.clone();
+        self.send(ac2_net::protocol::ClientEvent::DeleteCharacter { account, character });
+    }
+
     /// `CCombatSystem` 0x1 as far as the client knows it: another object whose weenie is a
     /// creature (`CWInterface::IsCreature`). Retail also asks `CCombatSystem` 0x5 and the
     /// weenie type system.

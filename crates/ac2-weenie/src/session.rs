@@ -125,6 +125,8 @@ pub enum SessionEvent {
     LeftWorld,
     /// The server refused something; the session may continue.
     Rejected(String),
+    /// `ECM_Login::RecvEvt_CharacterDeletion`: the server deleted the character.
+    CharacterDeleted(u64),
     /// `ECM_Login::RecvEvt_CharGenVerification`: the server's answer to a character creation
     /// (its response, the character, the weenie's result).
     CharGenVerification {
@@ -552,6 +554,7 @@ impl OnlineSession {
                     });
                 }
             }
+            ServerEvent::CharacterDeleted(id) => out.push(SessionEvent::CharacterDeleted(id)),
             ServerEvent::CharExitGame => {
                 self.world.leave_world();
                 self.reporter = None;

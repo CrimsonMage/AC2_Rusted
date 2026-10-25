@@ -5,6 +5,7 @@
 //! the start of the blob. Positions are cell-local: a cell id and AC-axis (z-up) coordinates
 //! relative to the landblock the cell names.
 
+mod char_gen;
 mod character;
 mod client_event;
 mod dat_event;
@@ -30,6 +31,7 @@ mod types;
 mod visual;
 mod weenie_desc;
 
+pub use char_gen::{decode_char_gen_result, CharGenResult};
 pub use character::{CharacterIdentity, CharacterSet, MinimalCharacterSet};
 pub use client_event::ClientEvent;
 pub use dat_event::{

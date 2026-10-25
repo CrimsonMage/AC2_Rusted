@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 72 done, 32 partial, 2126 to do, 17 skipped.
+2247 retail functions: 71 done, 33 partial, 2126 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -152,7 +152,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700
 - [ ] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0
 
-## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (5/58)
+## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (4/58)
 
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::Show` · 00407910 · legions 00407620
@@ -238,7 +238,7 @@ Legend and workflow: [README](README.md).
 - [x] `PStringBase<unsigned_short>::UnPack` · 00409be0 · legions 00409950
 
 ### PHashTable<unsigned_long,float>
-- [x] `PHashTable<unsigned_long,float>::StreamPack` · 00409e00
+- [~] `PHashTable<unsigned_long,float>::StreamPack` · 00409e00 — ac2-net CharGenResult: PHashTable<ulong,float> packed in IntrusiveHashTable order (47 buckets, head insertion), no growth
 
 ### PHashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>
 - [ ] `PHashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>::~PHashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>` · 0040a190 · legions 0040a020

@@ -23,7 +23,7 @@ key	status	note
 00409a80	x	
 00409ab0	x	
 00409be0	x	
-00409e00	x	
+00409e00	~	ac2-net CharGenResult: PHashTable<ulong,float> packed in IntrusiveHashTable order (47 buckets, head insertion), no growth
 00422f80	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 004232f0	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 004233d0	x	
@@ -158,7 +158,7 @@ key	status	note
 00493200	x	
 004932b0	x	
 004933b0	x	
-004933c0	x	
+004933c0	x	ac2-weenie OnlineSession::delete_character / SessionEvent::CharacterDeleted
 00493410	x	
 00493460	x	
 00493500	x	
@@ -394,7 +394,8 @@ key	status	note
 004c9c10	x	
 004c9c20	x	
 004c9d10	x	
-004c9e00	x	
+004c9d40	x	ac2-net ClientEvent::CharGenResult (queue 8) / ac2-weenie OnlineSession::create_character; the CharGenData::Save dev copy is not kept
+004c9e00	x	ac2-weenie OnlineSession::delete_character / SessionEvent::CharacterDeleted
 004c9e70	x	
 004ca310	x	
 004ca320	x	
@@ -1185,6 +1186,8 @@ key	status	note
 005fe0b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005fe170	x	ac2-ui hud.rs
 005fe420	x	
+00600f90	x	ac2-net CharGenResult::write/read
+006010d0	x	ac2-net CharGenResult::write/read
 00601c80	x	
 00601cd0	x	
 00601d00	x	

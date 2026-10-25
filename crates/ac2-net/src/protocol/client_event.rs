@@ -22,6 +22,12 @@ pub enum ClientEvent {
     LogOffCharacter { character: u64 },
     /// `Proto_UI::SendDeleteCharacter`, queue 4.
     DeleteCharacter { account: String, character: u64 },
+    /// `Proto_UI::SendCharGenResult`: the account (`PStringBase<char>`), then
+    /// `gmCharGenResult::Pack`; queue 8 (encrypted with the session key).
+    CharGenResult {
+        account: String,
+        result: crate::protocol::char_gen::CharGenResult,
+    },
     /// `ECM_Interp::SendEvt_InterpSEvent` (`0x10053`, queue 3) or, `encrypted`,
     /// `SendEvt_InterpSEventEncrypt` (`0x100D0`, queue 7): a script function id and its packed
     /// arguments (`PackBuffer::Pack`: u32 size, then the bytes).
@@ -80,6 +86,12 @@ impl ClientEvent {
                 w.u32(*function).u32(arguments.len() as u32);
                 w.bytes.extend_from_slice(arguments);
                 (queue, w.bytes)
+            }
+            Self::CharGenResult { account, result } => {
+                let mut w = Writer::event(Opcode::CHAR_GEN_RESULT);
+                w.string(account.as_bytes());
+                result.write(&mut w);
+                (8, w.bytes)
             }
             Self::DeleteCharacter { account, character } => {
                 let mut w = Writer::event(Opcode::CHARACTER_DELETION);

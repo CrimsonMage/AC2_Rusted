@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 18 done, 7 partial, 465 to do, 9 skipped.
+499 retail functions: 20 done, 7 partial, 463 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
@@ -97,7 +97,7 @@ Legend and workflow: [README](README.md).
 - [ ] `GameplayOptionsProfile::GameplayOptionsProfile` · 006009e0 · legions 005c1860
 - [ ] `GameplayOptionsProfile::GameplayOptionsProfile` · 00600b40 · legions 005c19e0
 
-## `ac2/shared/src/character/gmchargenresult.cpp.c` (0/26)
+## `ac2/shared/src/character/gmchargenresult.cpp.c` (2/26)
 
 ### gmCharGenResult
 - [ ] `gmCharGenResult::InqValidPhysTypeValues` · 00600cb0 · legions 005c1b70
@@ -112,10 +112,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCharGenResult::FormatName` · 00600e70 · legions 005c1d00
 - [ ] `gmCharGenResult::SanityCheck` · 00600f10 · legions 005c1da0
 - [ ] `gmCharGenResult::GetPackSize` · 00600f50 · legions 005c1de0
-- [ ] `gmCharGenResult::Pack` · 00600f90 · legions 005c1e20
+- [x] `gmCharGenResult::Pack` · 00600f90 · legions 005c1e20 — ac2-net CharGenResult::write/read
 - [ ] `gmCharGenResult::Clear` · 00601020 · legions 005c1eb0
 - [ ] `gmCharGenResult::GetPhysTypeValue` · 00601090 · legions 005c1f20
-- [ ] `gmCharGenResult::UnPack` · 006010d0 · legions 005c1f60
+- [x] `gmCharGenResult::UnPack` · 006010d0 · legions 005c1f60 — ac2-net CharGenResult::write/read
 - [ ] `gmCharGenResult::operator=` · 00601170 · legions 005c2000
 - [ ] `gmCharGenResult::SetPhysTypeValue` · 006011f0 · legions 005c2080
 - [ ] `gmCharGenResult::GetStartingPosition` · 00601210 · legions 005c20a0

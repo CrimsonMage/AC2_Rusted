@@ -1357,7 +1357,7 @@ Legend and workflow: [README](README.md).
 
 ### ECM_Login
 - [x] `ECM_Login::RecvEvt_CharExitGame` · 004933b0 · legions 0048be00
-- [x] `ECM_Login::RecvEvt_CharacterDeletion` · 004933c0 · legions 0048be10
+- [x] `ECM_Login::RecvEvt_CharacterDeletion` · 004933c0 · legions 0048be10 — ac2-weenie OnlineSession::delete_character / SessionEvent::CharacterDeleted
 - [x] `ECM_Login::RecvEvt_CharacterError` · 00493410 · legions 0048be60
 - [x] `ECM_Login::RecvEvt_PlayerDesc` · 00493460 · legions 0048beb0
 - [x] `ECM_Login::SendEvt_ClientSceneRenderingComplete` · 00493500 · legions 0048bf50
