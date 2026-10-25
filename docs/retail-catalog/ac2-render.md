@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 76 done, 54 partial, 636 to do, 15 skipped.
+781 retail functions: 76 done, 56 partial, 634 to do, 15 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1177,7 +1177,7 @@ Legend and workflow: [README](README.md).
 - [~] `PortalSpace::Effect::UpdateGeometry` · 00586740 · legions 00555e30 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 - [~] `PortalSpace::Effect::StopNow` · 00586eb0 · legions 005565a0 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 - [~] `PortalSpace::Effect::Think` · 00586f50 · legions 00556640 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
-- [ ] `PortalSpace::Effect::Render` · 00587360 · legions 00556a50
+- [~] `PortalSpace::Effect::Render` · 00587360 · legions 00556a50 — the portal gate and the fader in ac2-client (view.rs, view_portal.rs; WorldRender::Render's world gate); the tunnel's own draw (materials 0x40000013/0x40000014 from the DAT, the background mesh, the clouds) is not ported
 - [ ] `PortalSpace::Effect::~Effect` · 00587da0 · legions 00557490
 - [~] `PortalSpace::Effect::Initialize` · 00587db0 · legions 005574a0 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 - [x] `PortalSpace::Effect::Stop` · 00588050 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
@@ -1238,4 +1238,4 @@ Legend and workflow: [README](README.md).
 - [ ] `WorldRender::GatherOutdoorObjects` · 0057ea20 · legions 0054e2f0
 - [ ] `WorldRender::CreateLandscapePointLightDecals` · 0057eb10 · legions 0054e3e0
 - [ ] `WorldRender::RenderSkeletonEffects` · 0057ef60 · legions 0054e830
-- [ ] `WorldRender::Render` · 0057f960 · legions 0054f230
+- [~] `WorldRender::Render` · 0057f960 · legions 0054f230 — the portal gate and the fader in ac2-client (view.rs, view_portal.rs; WorldRender::Render's world gate); the tunnel's own draw (materials 0x40000013/0x40000014 from the DAT, the background mesh, the clouds) is not ported

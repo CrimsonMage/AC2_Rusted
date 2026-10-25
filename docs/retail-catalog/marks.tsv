@@ -3804,6 +3804,7 @@ key	status	note
 0057cb50	~	outdoor sun, ambient and fog; indoor and sky environments not yet
 0057d680	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 0057e1b0	~	ac2-client world_manager_update: WorldManager::Update, UpdateRenderInterpolation, UpdateAnimation; no time of day, rain, ambient sound or scene tools
+0057f960	~	the portal gate and the fader in ac2-client (view.rs, view_portal.rs; WorldRender::Render's world gate); the tunnel's own draw (materials 0x40000013/0x40000014 from the DAT, the background mesh, the clouds) is not ported
 00581a00	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 005823e0	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 005828e0	~	ac2-render frill::select_frills + per-instance frill normal; shadow colour white (no static shadow map), drawn as instances not one merged mesh
@@ -3826,6 +3827,7 @@ key	status	note
 00586740	~	tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 00586eb0	~	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 00586f50	~	tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
+00587360	~	the portal gate and the fader in ac2-client (view.rs, view_portal.rs; WorldRender::Render's world gate); the tunnel's own draw (materials 0x40000013/0x40000014 from the DAT, the background mesh, the clouds) is not ported
 00587db0	~	tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 00588050	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 00588320	x	

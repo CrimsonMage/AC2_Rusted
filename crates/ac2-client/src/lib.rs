@@ -77,6 +77,8 @@ mod ui_social;
 mod ui_sources;
 #[cfg(feature = "window")]
 pub mod view;
+#[cfg(feature = "window")]
+mod view_portal;
 mod world_data;
 
 /// `EffectUINode`: one effect as the status bar's strip shows it ([`Client::effect_list`]).

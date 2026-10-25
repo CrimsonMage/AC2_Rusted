@@ -51,6 +51,11 @@ pub struct ClientView {
     deselect: bool,
     /// The inventory's paper doll scene (`gmPaperDollUI`).
     doll: crate::paper_doll_scene::PaperDollScene,
+    /// The portal space's fader (`PortalSpace::Effect`'s `DrawScreenQuad`).
+    fader: crate::view_portal::PortalFader,
+    /// `WorldRender::Render`'s gate for the frame: the world is drawn (not in portal space, or
+    /// the effect draws it).
+    world_drawn: bool,
 }
 
 /// The landblock (x, y) of a cell id.
@@ -115,6 +120,8 @@ impl ClientView {
             doll: crate::paper_doll_scene::PaperDollScene::new(store, Arc::clone(&world), format),
             scene: WorldScene::new(world, radius),
             renderer: SceneRenderer::new(gpu, format),
+            fader: crate::view_portal::PortalFader::new(gpu, format),
+            world_drawn: true,
         }
     }
 
@@ -198,6 +205,8 @@ impl ClientView {
 
     /// Lays out the frame; `false` while there is no camera (before world entry).
     pub fn prepare(&mut self, gpu: &Gpu, frame: &ClientFrame, aspect: f32, time: f64) -> bool {
+        self.world_drawn = frame.portal.world_drawn();
+        self.fader.update(gpu, &frame.portal);
         let Some(camera) = self.camera(frame) else {
             return false;
         };
@@ -709,7 +718,10 @@ impl ClientView {
     /// Records the frame into a pass cleared to `SceneTool::backgroundColor` (black): the
     /// world, then the HUD.
     pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
-        self.renderer.draw(pass);
+        if self.world_drawn {
+            self.renderer.draw(pass);
+        }
+        self.fader.draw(pass);
         self.hud.draw(pass);
     }
 
@@ -735,9 +747,10 @@ impl ClientView {
             roots,
             &[self.doll.scenes()],
             |pass| {
-                if world {
+                if world && self.world_drawn {
                     self.renderer.draw(pass);
                 }
+                self.fader.draw(pass);
             },
         );
     }
