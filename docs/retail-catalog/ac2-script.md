@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1355 done, 106 partial, 927 to do, 80 skipped.
+2468 retail functions: 1364 done, 108 partial, 916 to do, 80 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -1339,10 +1339,10 @@ Legend and workflow: [README](README.md).
 
 ### gAppliedAppearanceKey
 - [x] `gAppliedAppearanceKey::CallEFun_SetAppKey` · 0054c700 — ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
-- [x] `gAppliedAppearanceKey::CallEFun_SetMod` · 0054c760 — ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
-- [ ] `gAppliedAppearanceKey::CallEFun_FromFileNode` · 0054c7c0
-- [x] `gAppliedAppearanceKey::CallEFun_GetAppKey` · 0054c840 — ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
-- [x] `gAppliedAppearanceKey::CallEFun_GetMod` · 0054c8b0 — ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
+- [x] `gAppliedAppearanceKey::CallEFun_SetMod` · 0054c760 — ac2-script glue/visual_desc.rs
+- [~] `gAppliedAppearanceKey::CallEFun_FromFileNode` · 0054c7c0 — FromFileNode reads a PFileNode (gPFileNode, unbound: no PFileNode native in the port; ac2-dat PFileNode rows unchecked)
+- [x] `gAppliedAppearanceKey::CallEFun_GetAppKey` · 0054c840 — ac2-script glue/visual_desc.rs
+- [x] `gAppliedAppearanceKey::CallEFun_GetMod` · 0054c8b0 — ac2-script glue/visual_desc.rs
 
 ## `portal/shared/src/interp/glue/garhash.cpp.c` (20/20)
 
@@ -3162,22 +3162,22 @@ Legend and workflow: [README](README.md).
 - [x] `gVector::CallEFun_Cross` · 00537cd0 — ac2-script glue::math / glue::missile
 - [x] `gVector::CallEFun_GetStringW` · 00537db0 — ac2-script glue::math / glue::missile
 
-## `portal/shared/src/interp/glue/gvisualdesc.cpp.c` (3/13)
+## `portal/shared/src/interp/glue/gvisualdesc.cpp.c` (12/13)
 
 ### gVisualDesc
-- [x] `gVisualDesc::CallEFun_Clear` · 00537020 — ac2-script glue/visual_desc.rs over ac2-weenie Appearance
-- [x] `gVisualDesc::CallEFun_SetScale` · 00537080 — ac2-script glue/visual_desc.rs over ac2-weenie Appearance
-- [ ] `gVisualDesc::CallEFun_AddAppInfoHashToPartGroup` · 005370f0
-- [x] `gVisualDesc::CallEFun_AddAppearanceKey` · 00537170 — ac2-script glue/visual_desc.rs over ac2-weenie Appearance
-- [ ] `gVisualDesc::CallEFun_ApplyAdditiveVDesc` · 005371f0
-- [ ] `gVisualDesc::CallEFun_ApplySubtractiveVDesc` · 00537270
-- [ ] `gVisualDesc::CallEFun_Empty` · 005372f0
-- [ ] `gVisualDesc::CallEFun_RemoveAppearanceKey` · 00537360
-- [ ] `gVisualDesc::CallEFun_ReplaceVisualDesc` · 005373f0
-- [ ] `gVisualDesc::CallEFun_GetScale` · 00537470
-- [ ] `gVisualDesc::CallEFun_GetTotalIconDesc` · 00537520 · legions 0051b090
-- [ ] `gVisualDesc::CallEFun_GetVisualDescFromDB` · 005375c0
-- [ ] `gVisualDesc::CallEFun_InqAppInfoHashForPartGroup` · 00537620 · legions 0051b160
+- [x] `gVisualDesc::CallEFun_Clear` · 00537020 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+- [x] `gVisualDesc::CallEFun_SetScale` · 00537080 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+- [x] `gVisualDesc::CallEFun_AddAppInfoHashToPartGroup` · 005370f0 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+- [x] `gVisualDesc::CallEFun_AddAppearanceKey` · 00537170 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+- [x] `gVisualDesc::CallEFun_ApplyAdditiveVDesc` · 005371f0 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+- [x] `gVisualDesc::CallEFun_ApplySubtractiveVDesc` · 00537270 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+- [x] `gVisualDesc::CallEFun_Empty` · 005372f0 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+- [x] `gVisualDesc::CallEFun_RemoveAppearanceKey` · 00537360 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+- [x] `gVisualDesc::CallEFun_ReplaceVisualDesc` · 005373f0 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+- [x] `gVisualDesc::CallEFun_GetScale` · 00537470 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+- [~] `gVisualDesc::CallEFun_GetTotalIconDesc` · 00537520 · legions 0051b090 — ac2-script glue/visual_desc.rs: the parent-and-own icon layers; atom icon modifiers not modelled
+- [x] `gVisualDesc::CallEFun_GetVisualDescFromDB` · 005375c0 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+- [x] `gVisualDesc::CallEFun_InqAppInfoHashForPartGroup` · 00537620 · legions 0051b160 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
 
 ## `portal/shared/src/interp/glue/gvm.cpp.c` (12/24)
 

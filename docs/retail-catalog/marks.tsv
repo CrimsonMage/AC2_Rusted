@@ -53,7 +53,7 @@ key	status	note
 0040b640	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
 0040b6e0	x	ac2-ui pregame/avatar_modification.rs
 0040b760	x	ac2-ui pregame/avatar_modification.rs
-0040b8c0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040b8c0	x	ac2-ui avatar_modification.rs init_elements: the slider, right and left arrow tooltips by ID_AvModify_TT_* string ids
 0040bc90	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
 0040c0d0	x	ac2-ui pregame/avatar_modification.rs
 0040c7e0	x	ac2-ui pregame/avatar_modification.rs
@@ -2751,9 +2751,19 @@ key	status	note
 00536db0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536de0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536e10	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
-00537020	x	ac2-script glue/visual_desc.rs over ac2-weenie Appearance
-00537080	x	ac2-script glue/visual_desc.rs over ac2-weenie Appearance
-00537170	x	ac2-script glue/visual_desc.rs over ac2-weenie Appearance
+00537020	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+00537080	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+005370f0	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+00537170	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+005371f0	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+00537270	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+005372f0	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+00537360	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+005373f0	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+00537470	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+00537520	~	ac2-script glue/visual_desc.rs: the parent-and-own icon layers; atom icon modifiers not modelled
+005375c0	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+00537620	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
 005376c0	x	ac2-script glue::math / glue::missile
 00537730	x	ac2-script glue::math / glue::missile
 005377a0	x	ac2-script glue::math / glue::missile
@@ -2948,9 +2958,10 @@ key	status	note
 0054b190	~	ac2-script glue: f32 spill points unchecked against x87 / copy order of PHashTable operator= unverified
 0054b280	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0054c700	x	ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
-0054c760	x	ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
-0054c840	x	ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
-0054c8b0	x	ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
+0054c760	x	ac2-script glue/visual_desc.rs
+0054c7c0	~	FromFileNode reads a PFileNode (gPFileNode, unbound: no PFileNode native in the port; ac2-dat PFileNode rows unchecked)
+0054c840	x	ac2-script glue/visual_desc.rs
+0054c8b0	x	ac2-script glue/visual_desc.rs
 0054c960	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 0054c9d0	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 0054cc40	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
@@ -4722,23 +4733,38 @@ key	status	note
 0063c310	x	
 0063c340	x	
 0063c410	x	
+0063caf0	x	
 0063d2f0	x	ac2-weenie appearance.rs
+0063d310	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063d3e0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063d450	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063d680	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 0063d7f0	~	part-group FX overrides (FXData/FXNode) refused as unsupported
 0063db70	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
+0063dcc0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063dd00	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063dd40	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063ddb0	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
-0063dea0	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
-0063e0d0	x	ac2-weenie Appearance default (Clear)
+0063dea0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063e0d0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063e170	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
-0063e370	~	ac2-weenie Appearance::add_appearance_key: global and held groups; MakeLocalPGDDFromParent (the parent DAT copy) not modelled
-0063e460	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
-0063ee10	x	ac2-weenie Appearance::from_delta
+0063e1d0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063e370	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063e3e0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063e460	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063ee10	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063ee40	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
-0063eee0	~	ac2-weenie Appearance::add_appearance_key: global and held groups; MakeLocalPGDDFromParent (the parent DAT copy) not modelled
+0063eee0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063ef40	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063f070	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063f250	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063f3a0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063f4d0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063f6c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 0063f880	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 0063f930	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 0063f9c0	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
+0063f9f0	~	ac2-weenie total_icon_layers and glue GetTotalIconDesc: parent DAT icons and this icon; the appearance tables' icon modifiers (AugmentAtomCollection) not modelled
 0063fb80	x	
 00640190	x	
 00640580	~	ac2-weenie appearance.rs: a layer id replaces
@@ -4750,17 +4776,23 @@ key	status	note
 00641fa0	x	
 00641fc0	x	ac2-script native AppliedAppearanceKey (plain data)
 00641fe0	x	ac2-script native AppliedAppearanceKey (plain data)
+00642260	~	FromFileNode reads a PFileNode (gPFileNode, unbound: no PFileNode native in the port; ac2-dat PFileNode rows unchecked)
 006424f0	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 00642550	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 006425c0	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 00642790	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 006427d0	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 00642830	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
+00644100	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 00644160	x	ac2-weenie appearance.rs
 006441a0	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
+00644260	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 006443c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 00644510	x	ac2-render object/appearance.rs augment_atoms
-00645580	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
+00644a80	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+00644ad0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+00644bb0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+00645580	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 00645f00	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 00646300	x	ac2-weenie appearance.rs (FX override data kept by id)
 00647260	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
@@ -4773,7 +4805,11 @@ key	status	note
 00649370	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 0064a5b0	x	
 0064a630	x	ac2-render object/appearance.rs augment_atoms
-0064a970	x	ac2-weenie appearance.rs
+0064a730	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0064a760	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0064a840	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0064a870	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0064a970	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0064ac30	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 0064ac60	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 0064b540	x	

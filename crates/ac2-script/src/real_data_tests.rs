@@ -154,6 +154,8 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::CharGenResult(_) => "gmCharGenResult",
         NativeObject::VisualDesc(_) => "VisualDesc",
         NativeObject::AppliedKey(_) => "AppliedAppearanceKey",
+        NativeObject::IconDesc(_) => "IconDesc",
+        NativeObject::AppearanceInfo(_) => "AppearanceInfo",
         NativeObject::Position(_) => "Position",
         NativeObject::MissileParameters(_) => "MissileParameters",
         NativeObject::BehaviorParams(_) => "BehaviorParams",
@@ -313,4 +315,38 @@ fn script_strings_render_through_the_meta_language() {
     let text = data.render_string(&table, &info).expect("renders");
     assert!(!text.is_empty());
     eprintln!("{}", String::from_utf16_lossy(&text));
+}
+
+/// The human's visual description (`0x1F000023`, the parent the creation screens and the double
+/// use) read from the DATs: cache-only it is a request first, then the record's appearance; its
+/// parent chain and its part groups come out as the record has them.
+#[test]
+fn a_dat_visual_description_is_an_appearance_once_requested() {
+    use crate::data::DatScriptData;
+    use crate::vm::{DataRequest, ScriptData};
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ResourceStore::new(dataset.clone());
+    let data = DatScriptData::new(dataset, store);
+    data.set_cache_only(true);
+    let worker = data.clone();
+    let human = 0x1F00_0023;
+    assert!(data.visual_desc(human).is_none());
+    assert_eq!(data.take_requests(), vec![DataRequest::VisualDesc(human)]);
+    worker.load(DataRequest::VisualDesc(human));
+    let visual = data.visual_desc(human).expect("the human visual");
+    // The tree is built from the groups' parent keys: a root, and every held child names a group.
+    assert!(visual.root.is_some() && !visual.part_groups.is_empty());
+    for (parent, children) in &visual.children {
+        assert!(visual.group(*parent).is_some());
+        assert!(children.iter().all(|c| visual.group(*c).is_some()));
+    }
+    eprintln!(
+        "human visual: parent {:x} scale {:?} groups {} global tables {}",
+        visual.parent,
+        visual.scale,
+        visual.part_groups.len(),
+        visual.global.appearance.len()
+    );
 }

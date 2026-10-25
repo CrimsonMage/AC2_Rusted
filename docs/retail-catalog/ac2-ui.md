@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 797 done, 287 partial, 1110 to do, 53 skipped.
+2247 retail functions: 798 done, 286 partial, 1110 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -1691,7 +1691,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ExportData::~ExportData` · 00407720 · legions 00407430
 - [~] `ExportData::StreamPack` · 00407770 · legions 00407480 — ac2-script: unpack direction only
 
-## `ac2/client/src/ui/pregame/generation/gmavatarmodificationui.cpp.c` (14/27)
+## `ac2/client/src/ui/pregame/generation/gmavatarmodificationui.cpp.c` (15/27)
 
 ### AFrame
 - [ ] `AFrame::AFrame` · 0040a9e0 · legions 0040a8a0
@@ -1726,7 +1726,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmAvatarModificationUI::UpdateByMask` · 0040b640 · legions 0040b540 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
 - [x] `gmAvatarModificationUI::Temp` · 0040b6e0 · legions 0040b5e0 — ac2-ui pregame/avatar_modification.rs
 - [x] `gmAvatarModificationUI::InitUIFromData` · 0040b760 · legions 0040b660 — ac2-ui pregame/avatar_modification.rs
-- [~] `gmAvatarModificationUI::InitElements` · 0040b8c0 · legions 0040b7c0 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::InitElements` · 0040b8c0 · legions 0040b7c0 — ac2-ui avatar_modification.rs init_elements: the slider, right and left arrow tooltips by ID_AvModify_TT_* string ids
 
 ### PList<unsigned_long>
 - [ ] `PList<unsigned_long>::GetPackSize` · 0040bb40

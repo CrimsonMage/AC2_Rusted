@@ -22,6 +22,7 @@ pub mod entity;
 mod enum_map;
 mod places;
 mod render;
+mod visual;
 
 pub use db_types::{db_type, DB_TYPE_DID_MAPPER, DB_TYPE_ENUM_MAPPER, DB_TYPE_STRING_TABLE};
 pub use enum_map::{EnumIdMap, EnumMapper};
@@ -33,7 +34,7 @@ use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
-use ac2_assets::Ac2EntityDesc;
+use ac2_assets::{Ac2EntityDesc, Ac2VisualDesc};
 use ac2_core::DataId;
 use ac2_dat::{ArchiveCursor, DatDataset, DatFileKind};
 use ac2_db::{
@@ -67,6 +68,7 @@ struct Resident {
     places: Option<CachedResource<PlacesTable>>,
     string_state: Option<CachedResource<ac2_db::StringState>>,
     entities: HashMap<u32, EntityProperties>,
+    visuals: HashMap<u32, Arc<ac2_weenie::Appearance>>,
     absent: HashSet<DataRequest>,
 }
 
@@ -167,6 +169,14 @@ impl DatScriptData {
             DataRequest::EntityDesc(did) => match self.read_entity(did) {
                 Some(properties) => {
                     self.resident().entities.insert(did, properties);
+                    true
+                }
+                None => false,
+            },
+            DataRequest::VisualDesc(did) => match self.read::<Ac2VisualDesc>(did) {
+                Some(desc) => {
+                    let appearance = visual::appearance_of_dat(&desc);
+                    self.resident().visuals.insert(did, Arc::new(appearance));
                     true
                 }
                 None => false,
@@ -350,6 +360,20 @@ impl ScriptData for DatScriptData {
             return Some(properties);
         }
         self.miss(DataRequest::EntityDesc(did));
+        None
+    }
+
+    fn visual_desc(&self, did: u32) -> Option<Arc<ac2_weenie::Appearance>> {
+        if let Some(visual) = self.resident().visuals.get(&did).cloned() {
+            return Some(visual);
+        }
+        if !self.cache_only() {
+            let desc = self.read::<Ac2VisualDesc>(did)?;
+            let visual = Arc::new(visual::appearance_of_dat(&desc));
+            self.resident().visuals.insert(did, Arc::clone(&visual));
+            return Some(visual);
+        }
+        self.miss(DataRequest::VisualDesc(did));
         None
     }
 

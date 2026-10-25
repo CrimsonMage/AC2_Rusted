@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 76 done, 13 partial, 574 to do, 122 skipped.
+785 retail functions: 101 done, 13 partial, 550 to do, 121 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (13/62)
@@ -855,20 +855,20 @@ Legend and workflow: [README](README.md).
 - [-] `CVertexSetData::FromFileNode` · 004d4e90 — text source format (admin tools)
 - [ ] `CVertexSetData::CVertexSetData` · 004d4f60
 
-## `portal/shared/src/objdesc/appearance/appearanceinfo.cpp.c` (3/13)
+## `portal/shared/src/objdesc/appearance/appearanceinfo.cpp.c` (7/13)
 
 ### AppearanceInfo
 - [x] `AppearanceInfo::StreamPack` · 0064a5b0
 - [ ] `AppearanceInfo::GetAppliedAppKeyIter` · 0064a5e0 · legions 005f9c90
 - [ ] `AppearanceInfo::GetAppliedAppKeyEnd` · 0064a610 · legions 005f9cc0
 - [x] `AppearanceInfo::AugmentAtomCollection` · 0064a630 · legions 005f9ce0 — ac2-render object/appearance.rs augment_atoms
-- [ ] `AppearanceInfo::RemoveAppearanceKey` · 0064a730 · legions 005f9dd0
-- [ ] `AppearanceInfo::HasAppliedAppKey` · 0064a760 · legions 005f9e00
+- [x] `AppearanceInfo::RemoveAppearanceKey` · 0064a730 · legions 005f9dd0 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `AppearanceInfo::HasAppliedAppKey` · 0064a760 · legions 005f9e00 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [ ] `AppearanceInfo::operator=` · 0064a7c0 · legions 005f9e60
 - [ ] `AppearanceInfo::~AppearanceInfo` · 0064a7e0 · legions 005f9e80
-- [ ] `AppearanceInfo::AddAppliedAppKey` · 0064a840 · legions 005f9ee0
-- [ ] `AppearanceInfo::RemoveAppearanceKeys` · 0064a870 · legions 005f9f10
-- [x] `AppearanceInfo::AugmentExistingKeys` · 0064a970 · legions 005fa010 — ac2-weenie appearance.rs
+- [x] `AppearanceInfo::AddAppliedAppKey` · 0064a840 · legions 005f9ee0 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `AppearanceInfo::RemoveAppearanceKeys` · 0064a870 · legions 005f9f10 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `AppearanceInfo::AugmentExistingKeys` · 0064a970 · legions 005fa010 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [ ] `AppearanceInfo::AppearanceInfo` · 0064aa60 · legions 005fa100
 - [ ] `AppearanceInfo::AppearanceInfo` · 0064aaa0 · legions 005fa140
 
@@ -932,7 +932,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AppliedAppearanceKey::AppliedAppearanceKey` · 00642020 · legions 005f5820
 - [ ] `AppliedAppearanceKey::AppearanceKeyFFN` · 00642040 · legions 005f5890
 - [ ] `AppliedAppearanceKey::ValueFFN` · 006421f0 · legions 005f5a40
-- [-] `AppliedAppearanceKey::FromFileNode` · 00642260 · legions 005f5ab0 — text source format (admin tools)
+- [~] `AppliedAppearanceKey::FromFileNode` · 00642260 · legions 005f5ab0 — FromFileNode reads a PFileNode (gPFileNode, unbound: no PFileNode native in the port; ac2-dat PFileNode rows unchecked)
 
 ## `portal/shared/src/objdesc/appearance/atomcollection.cpp.c` (6/30)
 
@@ -1085,7 +1085,7 @@ Legend and workflow: [README](README.md).
 ### FXAtom
 - [-] `FXAtom::FromFileNode` · 00643fa0 — text source format (admin tools)
 
-## `portal/shared/src/objdesc/appearance/partgroupdatadesc.cpp.c` (5/32)
+## `portal/shared/src/objdesc/appearance/partgroupdatadesc.cpp.c` (10/32)
 
 ### UIRegion
 - [ ] `UIRegion::SetZLevel_Internal` · 00644090 · legions 005f61b0
@@ -1097,7 +1097,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CMotionInterp::GetLocalDesiredVelocity` · 006440f0 · legions 005f6210
 
 ### PartGroupDataDesc
-- [ ] `PartGroupDataDesc::RemoveChild` · 00644100 · legions 005f6220
+- [x] `PartGroupDataDesc::RemoveChild` · 00644100 · legions 005f6220 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [x] `PartGroupDataDesc::IsConnPtEmpty` · 00644160 · legions 005f6280 — ac2-weenie appearance.rs
 - [x] `PartGroupDataDesc::FindPGDDWithPartGroupKey` · 006441a0 · legions 005f62c0 — ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 
@@ -1105,7 +1105,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartArray<PartGroupDataDesc_*>::RemoveNullsOrdered` · 00644210 · legions 005f6330
 
 ### PartGroupDataDesc
-- [ ] `PartGroupDataDesc::PrepareForRemoval` · 00644260 · legions 005f6380
+- [x] `PartGroupDataDesc::PrepareForRemoval` · 00644260 · legions 005f6380 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [ ] `PartGroupDataDesc::Empty` · 006442b0 · legions 005f63d0
 - [ ] `PartGroupDataDesc::AddChildPointer` · 006442f0 · legions 005f6410
 - [ ] `PartGroupDataDesc::HasFX` · 00644330 · legions 005f6450
@@ -1115,12 +1115,12 @@ Legend and workflow: [README](README.md).
 - [ ] `PartGroupDataDesc::WriteAppearanceKeys` · 00644590
 - [ ] `PartGroupDataDesc::GetSubDataIDs` · 00644950 · legions 005f6710
 - [ ] `PartGroupDataDesc::Clear` · 00644a30 · legions 005f67c0
-- [ ] `PartGroupDataDesc::HasAppliedAppKey` · 00644a80 · legions 005f6810
-- [ ] `PartGroupDataDesc::RemoveAppearanceKeys` · 00644ad0 · legions 005f6860
-- [ ] `PartGroupDataDesc::RemoveAppearanceKey` · 00644bb0 · legions 005f6940
+- [x] `PartGroupDataDesc::HasAppliedAppKey` · 00644a80 · legions 005f6810 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `PartGroupDataDesc::RemoveAppearanceKeys` · 00644ad0 · legions 005f6860 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `PartGroupDataDesc::RemoveAppearanceKey` · 00644bb0 · legions 005f6940 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [ ] `PartGroupDataDesc::ReadFX` · 00644c40
 - [-] `PartGroupDataDesc::ToFileNode` · 00644fe0 — text source format (admin tools)
-- [x] `PartGroupDataDesc::AugmentAppearanceInfo` · 00645580 · legions 005f6b20 — ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
+- [x] `PartGroupDataDesc::AugmentAppearanceInfo` · 00645580 · legions 005f6b20 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [ ] `PartGroupDataDesc::ReadAppearanceKeys` · 006455e0
 - [ ] `PartGroupDataDesc::~PartGroupDataDesc` · 00645940 · legions 005f6bf0
 - [-] `PartGroupDataDesc::FromFileNode` · 00645a20 — text source format (admin tools)
@@ -1214,7 +1214,7 @@ Legend and workflow: [README](README.md).
 - [x] `PhysicsDesc::StreamPack` · 00641530
 - [ ] `PhysicsDesc::PhysicsDesc` · 00641c70 · legions 005f5470
 
-## `portal/shared/src/objdesc/visualdesc.cpp.c` (13/58)
+## `portal/shared/src/objdesc/visualdesc.cpp.c` (29/58)
 
 ### VisualDesc
 - [ ] `VisualDesc::FillFXTable` · 0063c910 · legions 005f1440
@@ -1226,7 +1226,7 @@ Legend and workflow: [README](README.md).
 - [ ] `STREAMPACK` · 0063c960 · legions 0050bc60
 
 ### VisualDesc
-- [ ] `VisualDesc::Empty` · 0063caf0 · legions 005f1540
+- [x] `VisualDesc::Empty` · 0063caf0 · legions 005f1540
 
 ### IntrusiveHashIterator<unsigned_long,HashTableData<unsigned_long,PartGroupDataDesc>_*>
 - [ ] `IntrusiveHashIterator<unsigned_long,HashTableData<unsigned_long,PartGroupDataDesc>_*>::operator++` · 0063cb50 · legions 006003c0
@@ -1242,24 +1242,24 @@ Legend and workflow: [README](README.md).
 - [-] `VisualDesc::ToFileNode` · 0063ce40 — text source format (admin tools)
 - [ ] `VisualDesc::GetSubDataIDs` · 0063d1c0
 - [x] `VisualDesc::GetPGDDesc` · 0063d2f0 · legions 005f18e0 — ac2-weenie appearance.rs
-- [ ] `VisualDesc::ResetRootPointer` · 0063d310 · legions 005f1900
-- [ ] `VisualDesc::RemovePGDD` · 0063d3e0 · legions 005f19d0
-- [ ] `VisualDesc::ModVDesc_DeleteStragglers` · 0063d450 · legions 005f1a40
+- [x] `VisualDesc::ResetRootPointer` · 0063d310 · legions 005f1900 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::RemovePGDD` · 0063d3e0 · legions 005f19d0 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::ModVDesc_DeleteStragglers` · 0063d450 · legions 005f1a40 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [x] `VisualDesc::BuildAtomCollection` · 0063d680 · legions 005f1c70 — ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 - [ ] `VisualDesc::GatherAppearanceKeys` · 0063d740 · legions 005f1d10
 - [~] `VisualDesc::StreamPack` · 0063d7f0 — part-group FX overrides (FXData/FXNode) refused as unsupported
 - [x] `VisualDesc::AddPGDDesc` · 0063db70 · legions 005f2140 — ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
-- [ ] `VisualDesc::HasAppliedAppKey` · 0063dcc0 · legions 005f2290
-- [ ] `VisualDesc::InqAppInfoHashForPartGroup` · 0063dd00 · legions 005f22d0
-- [ ] `VisualDesc::RemovePGDDRecursively` · 0063dd40 · legions 005f2310
+- [x] `VisualDesc::HasAppliedAppKey` · 0063dcc0 · legions 005f2290 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::InqAppInfoHashForPartGroup` · 0063dd00 · legions 005f22d0 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::RemovePGDDRecursively` · 0063dd40 · legions 005f2310 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [x] `VisualDesc::RecursiveAdditivePGDDMerge` · 0063ddb0 · legions 005f2380 — ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
-- [x] `VisualDesc::ApplyAdditiveVDesc` · 0063dea0 · legions 005f2470 — ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
-- [x] `VisualDesc::Clear` · 0063e0d0 · legions 005f26a0 — ac2-weenie Appearance default (Clear)
+- [x] `VisualDesc::ApplyAdditiveVDesc` · 0063dea0 · legions 005f2470 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::Clear` · 0063e0d0 · legions 005f26a0 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [x] `VisualDesc::AddPGDDesc` · 0063e170 · legions 005f2740 — ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
-- [ ] `VisualDesc::MakeLocalPGDDFromParent` · 0063e1d0 · legions 005f27ba
-- [~] `VisualDesc::AddAppearanceKey` · 0063e370 · legions 005f2920 — ac2-weenie Appearance::add_appearance_key: global and held groups; MakeLocalPGDDFromParent (the parent DAT copy) not modelled
-- [ ] `VisualDesc::AddAppInfoHashToPartGroup` · 0063e3e0 · legions 005f2990
-- [x] `VisualDesc::ApplyAdditiveVDesc` · 0063e460 · legions 005f2a10 — ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
+- [x] `VisualDesc::MakeLocalPGDDFromParent` · 0063e1d0 · legions 005f27ba — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::AddAppearanceKey` · 0063e370 · legions 005f2920 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::AddAppInfoHashToPartGroup` · 0063e3e0 · legions 005f2990 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::ApplyAdditiveVDesc` · 0063e460 · legions 005f2a10 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [-] `VisualDesc::FromFileNode` · 0063e4c0 — text source format (admin tools)
 - [ ] `VisualDesc::Destroy` · 0063eaf0
 
@@ -1270,19 +1270,19 @@ Legend and workflow: [README](README.md).
 - [ ] `VisualDesc::VisualDesc` · 0063ecd0 · legions 005f2c50
 - [ ] `VisualDesc::GetDBOType` · 0063ed70
 - [ ] `VisualDesc::~VisualDesc` · 0063ed80 · legions 005f2d00
-- [x] `VisualDesc::operator=` · 0063ee10 · legions 005f2d90 — ac2-weenie Appearance::from_delta
+- [x] `VisualDesc::operator=` · 0063ee10 · legions 005f2d90 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [x] `VisualDesc::GetTotalVisualDescInternal` · 0063ee40 · legions 005f2dc0 — ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
-- [~] `VisualDesc::AddAppearanceKey` · 0063eee0 · legions 005f2e30 — ac2-weenie Appearance::add_appearance_key: global and held groups; MakeLocalPGDDFromParent (the parent DAT copy) not modelled
-- [ ] `VisualDesc::RemoveAppearanceKey` · 0063ef40 · legions 005f2e90
-- [ ] `VisualDesc::AttemptToRemoveVDesc` · 0063f070 · legions 005f2fa0
-- [ ] `VisualDesc::ReplaceVisualDesc` · 0063f250 · legions 005f3180
+- [x] `VisualDesc::AddAppearanceKey` · 0063eee0 · legions 005f2e30 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::RemoveAppearanceKey` · 0063ef40 · legions 005f2e90 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::AttemptToRemoveVDesc` · 0063f070 · legions 005f2fa0 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::ReplaceVisualDesc` · 0063f250 · legions 005f3180 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [ ] `VisualDesc::CopyInto` · 0063f340 · legions 005f3270
 - [ ] `VisualDesc::AddAppearanceMod` · 0063f380 · legions 005f32b0
 - [ ] `VisualDesc::RemoveAppearanceMod` · 0063f390 · legions 005f32c0
-- [ ] `VisualDesc::GetVisualDescFromDB` · 0063f3a0 · legions 005f32d0
+- [x] `VisualDesc::GetVisualDescFromDB` · 0063f3a0 · legions 005f32d0 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [ ] `VisualDesc::Allocate` · 0063f410
 - [ ] `VisualDesc::VisualDesc` · 0063f440 · legions 005f3370
-- [ ] `VisualDesc::ApplySubtractiveVDesc` · 0063f4d0 · legions 005f3400
+- [x] `VisualDesc::ApplySubtractiveVDesc` · 0063f4d0 · legions 005f3400 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 
 ### FXData
 - [ ] `FXData::FXData` · 0063f520 · legions 005f3450
@@ -1300,7 +1300,7 @@ Legend and workflow: [README](README.md).
 - [x] `VisualDesc::SwapPGDD` · 0063f880 · legions 005f37b0 — ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 - [x] `VisualDesc::ModifyPGDTreeBasedOnApr` · 0063f930 · legions 005f3860 — ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 - [x] `VisualDesc::GetTotalVisualDesc` · 0063f9c0 · legions 005f38f0 — ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
-- [ ] `VisualDesc::GetTotalIconDesc` · 0063f9f0 · legions 005f3920
+- [~] `VisualDesc::GetTotalIconDesc` · 0063f9f0 · legions 005f3920 — ac2-weenie total_icon_layers and glue GetTotalIconDesc: parent DAT icons and this icon; the appearance tables' icon modifiers (AugmentAtomCollection) not modelled
 
 ## `portal/shared/src/objdesc/weeniedesc.cpp.c` (2/2)
 

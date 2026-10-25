@@ -30,6 +30,8 @@ mod persistent;
 mod strings;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod tests_creation;
 mod ui;
 
 pub use crate::scene_viewport::SceneViewport;

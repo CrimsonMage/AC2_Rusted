@@ -97,6 +97,8 @@ pub enum DataRequest {
     PlacesTable,
     /// An entity description's property collection (`EntityDesc`, DB type 0x40000049).
     EntityDesc(u32),
+    /// A `VisualDesc` record (DB type 0x40000021), its appearance.
+    VisualDesc(u32),
 }
 
 /// An entity description's properties in stream order (`PropertyCollection` flattened).
@@ -123,6 +125,13 @@ pub trait ScriptData {
     /// `m_properties`). `None` when it is not held or not read yet (a cache-only host records a
     /// [`DataRequest::EntityDesc`] and the efun runs again once loaded).
     fn entity_properties(&self, _did: u32) -> Option<EntityProperties> {
+        None
+    }
+
+    /// `DBObj::Get` of the `VisualDesc` at `did` (DB type 0x40000021) as an appearance. `None`
+    /// when it is not held or not read yet (a cache-only host records a
+    /// [`DataRequest::VisualDesc`]).
+    fn visual_desc(&self, _did: u32) -> Option<std::sync::Arc<ac2_weenie::Appearance>> {
         None
     }
 

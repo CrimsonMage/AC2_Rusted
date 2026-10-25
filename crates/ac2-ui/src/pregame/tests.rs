@@ -10,7 +10,7 @@ use super::*;
 use crate::token::{tokenize, BUTTON_GHOSTED};
 use crate::{DIALOG_CONFIRMATION, DIALOG_WAIT, UI_POINTER_X, UI_POINTER_Y};
 
-fn headings(arms: &CharacterArms) -> Vec<f32> {
+pub(super) fn headings(arms: &CharacterArms) -> Vec<f32> {
     arms.arms()
         .iter()
         .map(|a| (a.frame().heading_degrees() * 100.0).round() / 100.0)
@@ -18,7 +18,7 @@ fn headings(arms: &CharacterArms) -> Vec<f32> {
 }
 
 #[test]
-fn the_arms_share_the_circle_and_turn_the_selection_to_the_front() {
+pub(super) fn the_arms_share_the_circle_and_turn_the_selection_to_the_front() {
     let mut arms = CharacterArms::default();
     arms.init(5);
     // 45 back for the second, then (360 - 90) / 3 = 90 more for each.
@@ -42,7 +42,7 @@ fn the_arms_share_the_circle_and_turn_the_selection_to_the_front() {
 }
 
 #[test]
-fn login_errors_pick_their_mode_and_string() {
+pub(super) fn login_errors_pick_their_mode_and_string() {
     assert_eq!(
         character_error_mode(char_error::ACCOUNT_IN_USE),
         Some((MODE_DISCONNECTED, "ID_CHAR_ERROR_ACCOUNT_IN_USE"))
@@ -64,7 +64,7 @@ fn login_errors_pick_their_mode_and_string() {
     assert_eq!(flow.use_new_mode(), Some((MODE_DISCONNECTED, "x".into())));
 }
 
-fn character(id: u64, name: &str, greyed: u32) -> CharacterIdentity {
+pub(super) fn character(id: u64, name: &str, greyed: u32) -> CharacterIdentity {
     CharacterIdentity {
         id,
         name: name.into(),
@@ -73,7 +73,7 @@ fn character(id: u64, name: &str, greyed: u32) -> CharacterIdentity {
     }
 }
 
-fn set() -> CharacterSet {
+pub(super) fn set() -> CharacterSet {
     CharacterSet {
         characters: vec![
             character(0x5000_0001, "Alpha", 0),
@@ -88,12 +88,12 @@ fn set() -> CharacterSet {
     }
 }
 
-fn click_named(ui: &mut PregameUi, name: &str) {
+pub(super) fn click_named(ui: &mut PregameUi, name: &str) {
     let element = find(ui, name);
     click(ui, element);
 }
 
-fn click(ui: &mut PregameUi, element: usize) {
+pub(super) fn click(ui: &mut PregameUi, element: usize) {
     let b = ui.tree().screen_box(element);
     let (x, y) = ((b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2);
     ui.input(&[
@@ -104,7 +104,7 @@ fn click(ui: &mut PregameUi, element: usize) {
     ]);
 }
 
-fn try_find(ui: &PregameUi, name: &str) -> Option<usize> {
+pub(super) fn try_find(ui: &PregameUi, name: &str) -> Option<usize> {
     let id = tokenize(name);
     ui.tree().roots().iter().find_map(|&r| {
         if ui.tree().get(r).unwrap().id() == id {
@@ -115,11 +115,11 @@ fn try_find(ui: &PregameUi, name: &str) -> Option<usize> {
     })
 }
 
-fn find(ui: &PregameUi, name: &str) -> usize {
+pub(super) fn find(ui: &PregameUi, name: &str) -> usize {
     try_find(ui, name).unwrap_or_else(|| panic!("{name}"))
 }
 
-fn ghosted(ui: &PregameUi, name: &str) -> bool {
+pub(super) fn ghosted(ui: &PregameUi, name: &str) -> bool {
     ui.tree()
         .get(find(ui, name))
         .unwrap()
@@ -127,7 +127,7 @@ fn ghosted(ui: &PregameUi, name: &str) -> bool {
         == Some(&crate::layout::AttributeValue::Bool(true))
 }
 
-fn real_ui() -> Option<PregameUi> {
+pub(super) fn real_ui() -> Option<PregameUi> {
     let dataset = ac2_dat::test_support::env_dataset()?;
     let store = Arc::new(ResourceStore::new(dataset));
     let assets = load_pregame(&store).unwrap();
@@ -140,7 +140,7 @@ fn real_ui() -> Option<PregameUi> {
 
 /// The intro passed with a key press, then the data patch screen takes `set` into character
 /// selection.
-fn to_selection(ui: &mut PregameUi, set: CharacterSet) {
+pub(super) fn to_selection(ui: &mut PregameUi, set: CharacterSet) {
     ui.use_time(0.0);
     assert_eq!(ui.mode(), MODE_INTRO);
     ui.input(&[(KEY, 1.0, true), (KEY, 1.0, false)]);
@@ -152,11 +152,11 @@ fn to_selection(ui: &mut PregameUi, set: CharacterSet) {
 }
 
 /// A keyboard action (any action that is not the pointer's).
-const KEY: u32 = 0x4000_0100;
+pub(super) const KEY: u32 = 0x4000_0100;
 
 /// The requests the screens make of the client, without the screens' music (see
 /// [`the_screens_ask_for_their_music_as_they_open`]).
-fn actions(ui: &mut PregameUi) -> Vec<PregameRequest> {
+pub(super) fn actions(ui: &mut PregameUi) -> Vec<PregameRequest> {
     ui.take_requests()
         .into_iter()
         .filter(|request| !matches!(request, PregameRequest::Music(_)))
@@ -166,7 +166,7 @@ fn actions(ui: &mut PregameUi) -> Vec<PregameRequest> {
 /// The intro's and the character selection's music (`gmIntroUI` and
 /// `gmCharacterSelectionUI` constructors) are requested as their screens open, in that order.
 #[test]
-fn the_screens_ask_for_their_music_as_they_open() {
+pub(super) fn the_screens_ask_for_their_music_as_they_open() {
     let Some(mut ui) = real_ui() else {
         return;
     };
@@ -182,7 +182,7 @@ fn the_screens_ask_for_their_music_as_they_open() {
 }
 
 #[test]
-fn character_selection_lists_the_set_and_enters_with_the_selection() {
+pub(super) fn character_selection_lists_the_set_and_enters_with_the_selection() {
     let Some(mut ui) = real_ui() else {
         return;
     };
@@ -250,7 +250,7 @@ fn character_selection_lists_the_set_and_enters_with_the_selection() {
 }
 
 #[test]
-fn deleting_asks_first_and_create_opens_avatar_selection() {
+pub(super) fn deleting_asks_first_and_create_opens_avatar_selection() {
     let Some(mut ui) = real_ui() else {
         return;
     };
@@ -278,7 +278,7 @@ fn deleting_asks_first_and_create_opens_avatar_selection() {
 }
 
 /// The composed screen, surfaces over black in compose order.
-fn snapshot(ui: &mut PregameUi, name: &str) {
+pub(super) fn snapshot(ui: &mut PregameUi, name: &str) {
     let images = ui.images().clone();
     let (w, h) = (1024_usize, 768_usize);
     let mut rgba = vec![0_u8; w * h * 4];
@@ -316,7 +316,7 @@ fn snapshot(ui: &mut PregameUi, name: &str) {
 }
 
 #[test]
-fn character_selection_draws() {
+pub(super) fn character_selection_draws() {
     let Some(mut ui) = real_ui() else {
         return;
     };
@@ -327,7 +327,7 @@ fn character_selection_draws() {
 }
 
 /// A `CharacterGenSystem` with one Empyrean (needs the expansion) male and one slider.
-struct Stub;
+pub(super) struct Stub;
 
 impl CharGenSystem for Stub {
     fn race_sex_data(&mut self) -> Option<Vec<(u32, Vec<u32>)>> {
@@ -350,8 +350,14 @@ impl CharGenSystem for Stub {
     fn valid_phys_type_values(&mut self, _: u32, _: u32, t: u32) -> Option<Vec<f32>> {
         (t == phys_type::HEIGHT).then(|| vec![0.9, 1.0, 1.1])
     }
-    fn phys_type_label(&mut self, _: u32, _: u32, _: u32) -> Option<ac2_db::RenderInfo> {
-        None
+    fn phys_type_label(&mut self, _: u32, _: u32, phys_type: u32) -> Option<ac2_db::RenderInfo> {
+        let text: Vec<u16> = "Tall".encode_utf16().collect();
+        (phys_type == phys_type::HEIGHT).then(|| ac2_db::RenderInfo {
+            string_id: 0,
+            table_id: 0,
+            literal: Some(text),
+            variables: Vec::new(),
+        })
     }
     fn avatar_entity_did(&mut self, _: bool) -> u32 {
         0x4700_0001
@@ -376,7 +382,7 @@ impl CharGenSystem for Stub {
 }
 
 #[test]
-fn naming_checks_the_expansion_and_sends_the_result() {
+pub(super) fn naming_checks_the_expansion_and_sends_the_result() {
     let Some(mut ui) = real_ui() else {
         return;
     };
@@ -440,7 +446,7 @@ fn naming_checks_the_expansion_and_sends_the_result() {
     assert!(!ghosted(&ui, "EnterButton"));
 }
 
-fn text_of(ui: &PregameUi, name: &str) -> String {
+pub(super) fn text_of(ui: &PregameUi, name: &str) -> String {
     ui.tree()
         .get(find(ui, name))
         .unwrap()
@@ -451,7 +457,7 @@ fn text_of(ui: &PregameUi, name: &str) -> String {
 /// `gmIntroUI`: three pictures of four seconds, then `intro_stop` closes it into the data patch
 /// screen, which shows the connection and takes the set into character selection.
 #[test]
-fn the_intro_runs_its_pictures_then_the_data_patch_screen_connects() {
+pub(super) fn the_intro_runs_its_pictures_then_the_data_patch_screen_connects() {
     let Some(mut ui) = real_ui() else {
         return;
     };
@@ -481,7 +487,7 @@ fn the_intro_runs_its_pictures_then_the_data_patch_screen_connects() {
 /// `gmCreditsUI`: the credit strings scroll up the screen while the pictures change; a key
 /// press, or the end of the scroll, returns to character selection.
 #[test]
-fn the_credits_scroll_then_return_to_character_selection() {
+pub(super) fn the_credits_scroll_then_return_to_character_selection() {
     let Some(mut ui) = real_ui() else {
         return;
     };
@@ -524,7 +530,7 @@ fn the_credits_scroll_then_return_to_character_selection() {
 
 /// `gmKeyboardUI`: the controls screen opens with nothing to save and quits back.
 #[test]
-fn the_controls_screen_opens_and_quits_back() {
+pub(super) fn the_controls_screen_opens_and_quits_back() {
     let Some(mut ui) = real_ui() else {
         return;
     };
@@ -542,7 +548,7 @@ fn the_controls_screen_opens_and_quits_back() {
 }
 
 /// The controls screen's list items' texts (each row's `textid` child), in list order.
-fn list_texts(ui: &PregameUi) -> Vec<String> {
+pub(super) fn list_texts(ui: &PregameUi) -> Vec<String> {
     let list = find(ui, "list_box");
     let textid = tokenize("textid");
     ui.tree()
@@ -561,7 +567,7 @@ fn list_texts(ui: &PregameUi) -> Vec<String> {
 }
 
 /// The controls screen, opened from character selection's options button.
-fn controls(ui: &mut PregameUi) {
+pub(super) fn controls(ui: &mut PregameUi) {
     to_selection(ui, set());
     click_named(ui, "OptionsButton");
     ui.use_time(0.1);
@@ -569,7 +575,7 @@ fn controls(ui: &mut PregameUi) {
 }
 
 /// Selects list item `index` (a header selects its first key).
-fn select_item(ui: &mut PregameUi, index: usize) {
+pub(super) fn select_item(ui: &mut PregameUi, index: usize) {
     let list = find(ui, "list_box");
     ui.tree_mut()
         .list_set_selected_index(list, Some(index), true);
@@ -579,7 +585,7 @@ fn select_item(ui: &mut PregameUi, index: usize) {
 /// A key the defaults leave unbound (`DIK_APPS`).
 const APPS: u32 = 0x8100_04DD;
 
-fn press(ui: &mut PregameUi, semantic: u32) {
+pub(super) fn press(ui: &mut PregameUi, semantic: u32) {
     ui.key_presses(&[crate::input::KeyPress {
         semantic,
         meta_mode: 0,
@@ -587,14 +593,14 @@ fn press(ui: &mut PregameUi, semantic: u32) {
 }
 
 /// The dialog on screen answers `yes`.
-fn answer(ui: &mut PregameUi, yes: bool) {
+pub(super) fn answer(ui: &mut PregameUi, yes: bool) {
     let context = ui.shown_dialog().expect("a dialog on screen");
     ui.answer_dialog(context, yes);
 }
 
 /// `gmKeyboardUI::Create`: a row per action (header, then two keys) with the names as text.
 #[test]
-fn the_controls_screen_lists_each_action_with_its_two_keys() {
+pub(super) fn the_controls_screen_lists_each_action_with_its_two_keys() {
     let Some(mut ui) = real_ui() else {
         return;
     };
@@ -619,7 +625,7 @@ fn the_controls_screen_lists_each_action_with_its_two_keys() {
 /// `KeyHitHandler` and `FinishSet` bind the key to the selected slot; `SaveKeyboardList` hands the
 /// maps to the input manager and the list is unmodified.
 #[test]
-fn a_key_is_bound_to_the_selected_slot_and_saved_to_the_input_manager() {
+pub(super) fn a_key_is_bound_to_the_selected_slot_and_saved_to_the_input_manager() {
     let Some(mut ui) = real_ui() else {
         return;
     };
@@ -645,7 +651,7 @@ fn a_key_is_bound_to_the_selected_slot_and_saved_to_the_input_manager() {
 /// `StartSet`'s already-mapped question: yes moves the key and clears the other slot; no keeps
 /// both as they were.
 #[test]
-fn a_key_already_bound_to_another_slot_asks_before_it_moves() {
+pub(super) fn a_key_already_bound_to_another_slot_asks_before_it_moves() {
     let Some(mut ui) = real_ui() else {
         return;
     };
@@ -672,7 +678,7 @@ fn a_key_already_bound_to_another_slot_asks_before_it_moves() {
 /// `ListenToMessage`'s clear all, undo, restore and quit questions: each asks, and each answer
 /// does what retail does.
 #[test]
-fn clear_all_undo_restore_and_quit_ask_first() {
+pub(super) fn clear_all_undo_restore_and_quit_ask_first() {
     let Some(mut ui) = real_ui() else {
         return;
     };
@@ -709,110 +715,4 @@ fn clear_all_undo_restore_and_quit_ask_first() {
     answer(&mut ui, true);
     ui.use_time(0.2);
     assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
-}
-
-/// `gmDataPatchUI::RecvNotice_CharGenVerification`: without a character set the screen ignores
-/// the answer; with the set queued (not yet shown), a created character is entered at once and
-/// any other answer queues character selection with no text.
-#[test]
-fn the_data_patch_screen_answers_a_created_character() {
-    let Some(mut ui) = real_ui() else {
-        return;
-    };
-    ui.use_time(0.0);
-    ui.input(&[(KEY, 1.0, true), (KEY, 1.0, false)]);
-    ui.use_time(0.0);
-    assert_eq!(ui.mode(), MODE_DATA_PATCH);
-    let created = character(0x5000_0009, "Gamma", 0);
-    ui.char_gen_verification(1, Some(&created), 0);
-    ui.use_time(0.1);
-    assert_eq!(ui.mode(), MODE_DATA_PATCH, "no set yet: ignored");
-    assert!(!actions(&mut ui)
-        .iter()
-        .any(|r| matches!(r, PregameRequest::EnterWorld(_))));
-
-    ui.character_set(set());
-    ui.char_gen_verification(1, Some(&created), 0);
-    assert_eq!(ui.data().characters().unwrap().characters.len(), 3);
-    assert!(actions(&mut ui).contains(&PregameRequest::EnterWorld(created.id)));
-    ui.use_time(0.2);
-    assert_eq!(ui.mode(), MODE_GAMEPLAY);
-
-    let mut refused = real_ui().unwrap();
-    refused.use_time(0.0);
-    refused.input(&[(KEY, 1.0, true), (KEY, 1.0, false)]);
-    refused.use_time(0.0);
-    refused.character_set(set());
-    refused.char_gen_verification(3, None, 0);
-    refused.use_time(0.3);
-    assert_eq!(refused.mode(), MODE_CHARACTER_SELECTION);
-    assert!(!actions(&mut refused).iter().any(|r| matches!(
-        r,
-        PregameRequest::EnterWorld(_) | PregameRequest::CreateCharacter(_)
-    )));
-}
-
-/// The creation's answers on the naming dialog: each code shows its retail string, the
-/// weenie's error for response 5 (`EnumMapper` 0x40000035 has no string in the stub, so the
-/// variable is empty), and the buttons come back.
-#[test]
-fn the_creation_answers_show_their_retail_strings() {
-    let Some(mut ui) = real_ui() else {
-        return;
-    };
-    ui.set_char_gen_system(Box::new(Stub));
-    to_selection(&mut ui, set());
-    click_named(&mut ui, "CreateButton");
-    ui.use_time(0.1);
-    let viewport = find(&ui, "AvatarSelectionViewport");
-    click(&mut ui, viewport);
-    ui.finish_pick(Some(0));
-    click(&mut ui, viewport);
-    ui.finish_animation();
-    ui.use_time(0.2);
-    click_named(&mut ui, "NextButton");
-    click_named(&mut ui, "NameEntry");
-    let typed: Vec<(u16, u32)> = "Abc".encode_utf16().map(|c| (c, 0)).collect();
-    ui.text_input(&[], &typed, false);
-    click_named(&mut ui, "EnterButton");
-    assert!(matches!(
-        actions(&mut ui).as_slice(),
-        [PregameRequest::CreateCharacter(_)]
-    ));
-    let dataset = ac2_dat::test_support::env_dataset().unwrap();
-    let strings = load_pregame(&Arc::new(ResourceStore::new(dataset)))
-        .unwrap()
-        .strings;
-    let cases: [(u32, u32, &str); 13] = [
-        (2, 0, "ID_Character_Err_Pending"),
-        (3, 0, "ID_Character_Err_NameInUse"),
-        (4, 0, "ID_Character_Err_NameBanned"),
-        (5, 0, "ID_Character_Err_Corrupt"),
-        (5, 0xC749, "ID_Character_Err_Gun_Specific_Error"),
-        (5, 0xC74A, "ID_Character_Err_NameInUse"),
-        (5, 0xC74B, "ID_Character_Err_NameBanned"),
-        (5, 200, "ID_Character_Err_NameBanned"),
-        (5, 0x1234, "ID_Character_Err_Weenie_Specific_Error"),
-        (6, 0, "ID_Character_Err_DatabaseDown"),
-        (7, 0, "ID_Character_Err_AdminPriv"),
-        (8, 0, "ID_Character_Err_NoMoreSlots"),
-        (9, 0, "ID_Character_Err_Unknown"),
-    ];
-    for (response, weenie, id) in cases {
-        ui.char_gen_verification(response, None, weenie);
-        let vars = vec![
-            crate::pregame::strings::int_var("response", response as i32),
-            crate::pregame::strings::text_var("weenieError", ""),
-        ];
-        let expected = strings.render(tokenize(id), vars);
-        assert_eq!(
-            text_of(&ui, "GenerationConfirmationErrorMsg"),
-            expected,
-            "response {response} weenie {weenie:#x}"
-        );
-        assert!(
-            !ghosted(&ui, "EnterButton"),
-            "{response}: the buttons return"
-        );
-    }
 }

@@ -64,6 +64,12 @@ pub mod ntype {
     pub const VISUAL_DESC: u32 = 0x71;
     /// `AppliedAppearanceKey` (`CNativeFactory` 0x10).
     pub const APPLIED_APPEARANCE_KEY: u32 = 0x10;
+    /// `IconDesc` (`CNativeFactory` 0x2E): a description's icon layers.
+    pub const ICON_DESC: u32 = 0x2E;
+    /// `AppearanceInfo` (not a script type): the applied keys of one appearance table, held
+    /// as the values of an `AppearanceInfo` hash (`VisualDesc::InqAppInfoHashForPartGroup`).
+    /// The id is internal to the port; no script creates one.
+    pub const APPEARANCE_INFO: u32 = 0x2E0E;
     pub const PACK_BUFFER: u32 = 0x50;
     pub const POSITION: u32 = 0x5A;
     pub const RANDOM_SELECTION_TABLE_INT: u32 = 0x60;
@@ -174,6 +180,10 @@ pub enum NativeObject {
     VisualDesc(Box<ac2_weenie::Appearance>),
     /// `AppliedAppearanceKey` (native 0x10): one applied key of a description.
     AppliedKey(AppliedAppearanceKey),
+    /// `IconDesc` (native 0x2E): the icon layers (layer id, image DID, shift colour).
+    IconDesc(Vec<(u32, u32, u32)>),
+    /// An `AppearanceInfo` (`APPEARANCE_INFO`): the applied keys (key, scalar) of one table.
+    AppearanceInfo(Vec<(u32, f32)>),
     /// `Heading` (degrees in [0, 360)).
     Heading(ac2_physics::Heading),
     /// `Vector` (x, y, z).
@@ -289,6 +299,8 @@ impl NativeObject {
             ntype::HEADING => NativeObject::Heading(ac2_physics::Heading::ZERO),
             ntype::CHAR_GEN_RESULT => NativeObject::CharGenResult(Box::default()),
             ntype::VISUAL_DESC => NativeObject::VisualDesc(Box::default()),
+            ntype::ICON_DESC => NativeObject::IconDesc(Vec::new()),
+            ntype::APPEARANCE_INFO => NativeObject::AppearanceInfo(Vec::new()),
             ntype::APPLIED_APPEARANCE_KEY => {
                 NativeObject::AppliedKey(AppliedAppearanceKey::default())
             }

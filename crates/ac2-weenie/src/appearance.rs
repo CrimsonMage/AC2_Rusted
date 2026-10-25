@@ -138,25 +138,6 @@ fn augment_table(tables: &mut Vec<(u32, Vec<(u32, f32)>)>, table: u32, keys: &[(
 }
 
 impl Appearance {
-    /// `VisualDesc::AddAppearanceKey(pg_key, app_file, applied_key)`: the applied keys (key and
-    /// scalar) of appearance table `table` join part group `pg_key` (the global group for
-    /// `GLOBAL_PART_GROUP`). A group the description does not hold would be copied from its
-    /// parent's DAT description (`MakeLocalPGDDFromParent`); that copy is not modelled here, so
-    /// such a group, and a zero key or table, add nothing and the answer is false. The
-    /// character creation screens' description starts empty (no parent), where retail does the
-    /// same.
-    pub fn add_appearance_key(&mut self, pg_key: u32, table: u32, keys: &[(u32, f32)]) -> bool {
-        if pg_key == 0 || table == 0 {
-            return false;
-        }
-        let held = self.group_mut(pg_key);
-        let Some(group) = held else {
-            return false;
-        };
-        augment_table(&mut group.appearance, table, keys);
-        true
-    }
-
     /// `CPhysicsObj::SetLocalVisualDesc(delta)`: `VisualDesc::operator=`.
     pub fn from_delta(delta: &VisualDesc) -> Self {
         let mut local = Self {
@@ -230,85 +211,46 @@ impl Appearance {
         true
     }
 
-    /// `VisualDesc::ApplyAdditiveVDesc`: the incoming DIDs replace ours when set, scales
-    /// multiply, icon layers add, the global modifiers merge, then each incoming top-level
-    /// part group merges into our root when it is the root's key (its children following,
-    /// `RecursiveAdditivePGDDMerge`) or joins with its whole subtree.
+    /// `VisualDesc::ApplyAdditiveVDesc` of a wire description: the DIDs, scales, icon layers and
+    /// part groups it names join ours (its parent is not merged, `operator=` sets that apart).
     pub fn apply_additive(&mut self, incoming: &VisualDesc) -> bool {
-        let set = |ours: &mut u32, theirs: Option<u32>| {
-            if let Some(value) = theirs.filter(|&v| v != 0) {
-                *ours = value;
-            }
-        };
-        set(&mut self.motion_interp, incoming.motion_interp);
-        set(&mut self.behavior_table, incoming.behavior_table);
-        set(&mut self.modes, incoming.modes);
-        let scale = incoming.scale.unwrap_or([1.0; 3]);
-        for (ours, theirs) in self.scale.iter_mut().zip(scale) {
-            *ours = (f64::from(*ours) * f64::from(theirs)) as f32;
-        }
-        self.child_scale =
-            (f64::from(incoming.child_scale.unwrap_or(1.0)) * f64::from(self.child_scale)) as f32;
-        self.particle_scale = (f64::from(incoming.particle_scale.unwrap_or(1.0))
-            * f64::from(self.particle_scale)) as f32;
-        // `IconDesc::ApplyAdditiveIconDesc`: a layer id already present takes the new image.
-        for layer in &incoming.icon {
-            let entry = (layer.layer, layer.image, layer.color);
-            match self.icon.iter_mut().find(|(id, ..)| *id == layer.layer) {
-                Some(existing) => *existing = entry,
-                None => self.icon.push(entry),
-            }
-        }
-        if let Some(global) = &incoming.global_mods {
-            let mut global = group(global);
-            global.key = GLOBAL_PART_GROUP;
-            if !apply_additive_group(&mut self.global, &global) {
-                return false;
-            }
-        }
-        let groups: Vec<PartGroupAppearance> =
-            incoming.part_groups.iter().map(|(_, g)| group(g)).collect();
-        let present = |key: u32| groups.iter().any(|g| g.key == key);
-        for top in groups
-            .iter()
-            .filter(|g| g.parent_key == 0 || !present(g.parent_key))
-        {
-            if self.root == Some(top.key) {
-                let merged = match self.group_mut(top.key) {
-                    Some(root) => apply_additive_group(root, top),
-                    None => false,
-                };
-                if !merged {
-                    return false;
-                }
-                for child in groups.iter().filter(|g| g.parent_key == top.key) {
-                    if !self.merge_subtree(child, &groups) {
-                        return false;
-                    }
-                }
-            } else if !self.merge_subtree(top, &groups) {
-                return false;
-            }
-        }
-        true
+        self.apply_additive_appearance(&Appearance::incoming(incoming))
     }
 
-    /// `VisualDesc::RecursiveAdditivePGDDMerge`.
-    fn merge_subtree(&mut self, group: &PartGroupAppearance, all: &[PartGroupAppearance]) -> bool {
-        if !self.add_group(group) {
-            return false;
-        }
-        for child in all
-            .iter()
-            .filter(|g| g.parent_key == group.key && g.key != group.key)
-        {
-            if !self.merge_subtree(child, all) {
-                return false;
-            }
-        }
-        true
+    /// The incoming side of an `ApplyAdditiveVDesc` from a wire description: its DIDs, scales,
+    /// icon layers and groups (unset scales are 1, as `VisualDesc::Clear` leaves them).
+    pub(crate) fn incoming(delta: &VisualDesc) -> Self {
+        let mut global = delta.global_mods.as_ref().map_or_else(
+            || PartGroupAppearance {
+                key: GLOBAL_PART_GROUP,
+                ..PartGroupAppearance::default()
+            },
+            group,
+        );
+        global.key = GLOBAL_PART_GROUP;
+        let mut incoming = Self {
+            motion_interp: delta.motion_interp.unwrap_or(0),
+            behavior_table: delta.behavior_table.unwrap_or(0),
+            modes: delta.modes.unwrap_or(0),
+            scale: delta.scale.unwrap_or([1.0; 3]),
+            child_scale: delta.child_scale.unwrap_or(1.0),
+            particle_scale: delta.particle_scale.unwrap_or(1.0),
+            icon: delta
+                .icon
+                .iter()
+                .map(|layer| (layer.layer, layer.image, layer.color))
+                .collect(),
+            global,
+            part_groups: delta.part_groups.iter().map(|(_, g)| group(g)).collect(),
+            ..Self::default()
+        };
+        incoming.reset_root();
+        incoming
     }
 }
+
+#[path = "appearance_ops.rs"]
+mod ops;
 
 #[cfg(test)]
 mod tests {
@@ -383,33 +325,5 @@ mod tests {
             vec![(0x2000_0001, vec![(1, 0.75), (2, 1.0)])]
         );
         assert_eq!(local.scale, [1.0, 2.0, 2.0]);
-    }
-
-    #[test]
-    fn an_applied_key_joins_the_global_group_and_a_held_group_only() {
-        let mut local = Appearance::default();
-        // The global group takes a table's keys; a key already held is set again.
-        assert!(local.add_appearance_key(GLOBAL_PART_GROUP, 0x2000_0002, &[(1, 0.5)]));
-        assert!(local.add_appearance_key(GLOBAL_PART_GROUP, 0x2000_0002, &[(1, 0.75), (2, 1.0)]));
-        assert_eq!(
-            local.global.appearance,
-            vec![(0x2000_0002, vec![(1, 0.75), (2, 1.0)])]
-        );
-        // A group the description does not hold has no parent to copy from: nothing is added.
-        assert!(!local.add_appearance_key(0x8100_0001, 0x2000_0002, &[(1, 0.5)]));
-        assert!(local.part_groups.is_empty());
-        // Zero keys and tables add nothing.
-        assert!(!local.add_appearance_key(0, 0x2000_0002, &[(1, 0.5)]));
-        assert!(!local.add_appearance_key(GLOBAL_PART_GROUP, 0, &[(1, 0.5)]));
-        // A group it holds takes the keys.
-        local.part_groups.push(PartGroupAppearance {
-            key: 0x8100_0001,
-            ..PartGroupAppearance::default()
-        });
-        assert!(local.add_appearance_key(0x8100_0001, 0x2000_0003, &[(9, 0.25)]));
-        assert_eq!(
-            local.group(0x8100_0001).unwrap().appearance,
-            vec![(0x2000_0003, vec![(9, 0.25)])]
-        );
     }
 }

@@ -22,6 +22,7 @@ use crate::mouse::UiMessage;
 use crate::pregame::chargen::{phys_type as pt, phys_type_value, set_phys_type_value, RACE_NAMES};
 use crate::pregame::confirmation::ConfirmationUi;
 use crate::pregame::flow::MODE_AVATAR_SELECTION;
+use crate::pregame::strings::text_var;
 use crate::pregame::{screen_music, Ctx, PregameRequest, LAYOUT_AVATAR_MODIFICATION};
 use crate::scrollbar::MSG_NEW_POSITION;
 use crate::token::{tokenize, BUTTON_GHOSTED, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_MOVE_TOP};
@@ -204,6 +205,20 @@ impl AvatarModificationUi {
             if let Some(info) = ctx.system.phys_type_label(race, sex, slider.phys_type) {
                 let text = ctx.strings.render_info(&info);
                 ctx.tree.set_text(label, &text);
+                // `UIElement::SetTooltip` of the slider and its two arrows: the tooltip string
+                // ids with the slider's label as `label`.
+                for (part, id) in [
+                    ("Slider", "ID_AvModify_TT_Slider"),
+                    ("RightButton", "ID_AvModify_TT_RButton"),
+                    ("LeftButton", "ID_AvModify_TT_LButton"),
+                ] {
+                    if let Some(element) = self.find(ctx, &format!("{}{part}", slider.name)) {
+                        let tip = ctx
+                            .strings
+                            .render(tokenize(id), vec![text_var("label", &text)]);
+                        ctx.tree.set_tooltip(element, Some(tip));
+                    }
+                }
             }
         }
     }
