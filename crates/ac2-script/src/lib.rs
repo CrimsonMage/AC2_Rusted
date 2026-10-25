@@ -12,6 +12,7 @@
 //! DAT strings are scrambled; [`pstring`] undoes `crypto_uint32_munge`/`crypto_nibble_munge`.
 
 pub mod bytestream;
+pub mod data;
 pub mod glue;
 pub mod native;
 pub mod pstring;

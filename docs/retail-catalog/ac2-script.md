@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 230 done, 24 partial, 2136 to do, 78 skipped.
+2468 retail functions: 239 done, 27 partial, 2124 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -1722,17 +1722,17 @@ Legend and workflow: [README](README.md).
 - [ ] `gEntityLinkDesc::CallEFun_GetWBName_ForWsl` · 00536990
 - [ ] `gEntityLinkDesc::CallEFun_InqStringPropertyW` · 00536a50 · legions 0051a7e0
 
-## `portal/shared/src/interp/glue/genummapper.cpp.c` (0/8)
+## `portal/shared/src/interp/glue/genummapper.cpp.c` (8/8)
 
 ### gEnumMapper
-- [ ] `gEnumMapper::CallEFun_GetNumMappings` · 00546820
-- [ ] `gEnumMapper::CallEFun_GetAllEnumVals` · 00546850
-- [ ] `gEnumMapper::CallEFun_GetLogStringW` · 00546900 · legions 00525d50
-- [ ] `gEnumMapper::CallEFun_GetStringW` · 00546980 · legions 00525dd0
-- [ ] `gEnumMapper::CallEFun_GetAllEnumNames` · 00546a00
-- [ ] `gEnumMapper::CallEFun_GetEnumByDIDW` · 00546ab0
-- [ ] `gEnumMapper::CallEFun_InqEnum` · 00546b30
-- [ ] `gEnumMapper::CallEFun_InqString` · 00546bb0
+- [x] `gEnumMapper::CallEFun_GetNumMappings` · 00546820 — ac2-script data/glue::enums
+- [x] `gEnumMapper::CallEFun_GetAllEnumVals` · 00546850 — ac2-script data/glue::enums
+- [x] `gEnumMapper::CallEFun_GetLogStringW` · 00546900 · legions 00525d50 — ac2-script data/glue::enums
+- [x] `gEnumMapper::CallEFun_GetStringW` · 00546980 · legions 00525dd0 — ac2-script data/glue::enums
+- [x] `gEnumMapper::CallEFun_GetAllEnumNames` · 00546a00 — ac2-script data/glue::enums
+- [x] `gEnumMapper::CallEFun_GetEnumByDIDW` · 00546ab0 — ac2-script data/glue::enums
+- [x] `gEnumMapper::CallEFun_InqEnum` · 00546b30 — ac2-script data/glue::enums
+- [x] `gEnumMapper::CallEFun_InqString` · 00546bb0 — ac2-script data/glue::enums
 
 ## `portal/shared/src/interp/glue/getherealphysicstype.cpp.c` (0/7)
 
@@ -1786,13 +1786,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gFile::CallEFun_WSLWriteToFileTimestamped` · 00546230
 - [ ] `gFile::CallEFun_WSLReadFromFile` · 005462a0
 
-## `portal/shared/src/interp/glue/gfilearray.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/gfilearray.cpp.c` (1/4)
 
 ### gFileArray
-- [ ] `gFileArray::CallEFun_GetDIDForDummiesW` · 00545420
-- [ ] `gFileArray::CallEFun_GetDIDFromEnum` · 00545460
-- [ ] `gFileArray::CallEFun_GetDIDW` · 005454a0
-- [ ] `gFileArray::CallEFun_GetFileNameForDummiesW` · 005454f0 · legions 00524b00
+- [~] `gFileArray::CallEFun_GetDIDForDummiesW` · 00545420 — ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+- [x] `gFileArray::CallEFun_GetDIDFromEnum` · 00545460 — ac2-script data/glue::enums
+- [~] `gFileArray::CallEFun_GetDIDW` · 005454a0 — ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+- [~] `gFileArray::CallEFun_GetFileNameForDummiesW` · 005454f0 · legions 00524b00 — ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
 
 ## `portal/shared/src/interp/glue/gframe.cpp.c` (0/1)
 

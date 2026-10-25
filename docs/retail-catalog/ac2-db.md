@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 15 done, 11 partial, 568 to do, 39 skipped.
+633 retail functions: 34 done, 11 partial, 549 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -383,7 +383,7 @@ Legend and workflow: [README](README.md).
 ### CLOCache
 - [ ] `CLOCache::CLOCache` · 004c4a10 · legions 004b8de0
 
-## `portal/shared/src/enummap/enummapper.cpp.c` (0/47)
+## `portal/shared/src/enummap/enummapper.cpp.c` (19/47)
 
 ### EnumMapper
 - [ ] `EnumMapper::Get` · 00660750 · legions 0060f060
@@ -401,26 +401,26 @@ Legend and workflow: [README](README.md).
 - [ ] `CaseInsensitivePStringCompare::operator()` · 006608b0 · legions 0060f1d0
 
 ### EnumMapper
-- [ ] `EnumMapper::GetNumMappings` · 006608e0 · legions 0060f200
+- [x] `EnumMapper::GetNumMappings` · 006608e0 · legions 0060f200 — ac2-script data/glue::enums
 
 ### EnumMapper::iterator
 - [ ] `EnumMapper::iterator::get_enum` · 00660900 · legions 0060f220
 
 ### EnumMapper
-- [ ] `EnumMapper::GetNumMappings` · 00660a30 · legions 0060f350
+- [x] `EnumMapper::GetNumMappings` · 00660a30 · legions 0060f350 — ac2-script data/glue::enums
 - [ ] `EnumMapper::end` · 00660ae0 · legions 0060f400
 
 ### EnumMapper::iterator
 - [ ] `EnumMapper::iterator::iterator` · 00660b10 · legions 0060f430
 
 ### EnumMapper
-- [ ] `EnumMapper::GetString` · 00660b90 · legions 0060f4b0
-- [ ] `EnumMapper::GetString` · 00660bd0 · legions 0060f4f0
-- [ ] `EnumMapper::GetString` · 00660c50 · legions 0060f570
-- [ ] `EnumMapper::InqString` · 00660d10 · legions 0060f630
-- [ ] `EnumMapper::GetStringW` · 00660dd0 · legions 0060f6f0
+- [x] `EnumMapper::GetString` · 00660b90 · legions 0060f4b0 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetString` · 00660bd0 · legions 0060f4f0 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetString` · 00660c50 · legions 0060f570 — ac2-script data/glue::enums
+- [x] `EnumMapper::InqString` · 00660d10 · legions 0060f630 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetStringW` · 00660dd0 · legions 0060f6f0 — ac2-script data/glue::enums
 - [ ] `EnumMapper::GetStringByDID` · 00660e40 · legions 0060f760
-- [ ] `EnumMapper::GetLogStringW` · 00660f10 · legions 0060f800
+- [x] `EnumMapper::GetLogStringW` · 00660f10 · legions 0060f800 — ac2-script data/glue::enums
 - [ ] `EnumMapper::begin` · 00660f70 · legions 0060f860
 
 ### EnumMapper::iterator
@@ -428,12 +428,12 @@ Legend and workflow: [README](README.md).
 - [ ] `EnumMapper::iterator::operator++` · 00661000 · legions 0060f8f0
 
 ### EnumMapper
-- [ ] `EnumMapper::GetEnum` · 00661020 · legions 0060f910
-- [ ] `EnumMapper::GetEnum` · 00661060 · legions 0060f950
-- [ ] `EnumMapper::GetEnum` · 006610b0 · legions 0060f9a0
-- [ ] `EnumMapper::InqEnum` · 00661170 · legions 0060fa60
-- [ ] `EnumMapper::GetEnumByDID` · 006611c0 · legions 0060fab0
-- [ ] `EnumMapper::GetEnumByDIDW` · 00661290 · legions 0060fb50
+- [x] `EnumMapper::GetEnum` · 00661020 · legions 0060f910 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetEnum` · 00661060 · legions 0060f950 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetEnum` · 006610b0 · legions 0060f9a0 — ac2-script data/glue::enums
+- [x] `EnumMapper::InqEnum` · 00661170 · legions 0060fa60 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetEnumByDID` · 006611c0 · legions 0060fab0 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetEnumByDIDW` · 00661290 · legions 0060fb50 — ac2-script data/glue::enums
 
 ### _STL::_Rb_tree<unsigned_long,_STL::pair<unsigned_long_const_,PStringBase<char>_>,_STL::_Select1st<_STL::pair<unsigned_long_const_,PStringBase<char>_>_>,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,PStringBase<char>_>_>_>
 - [ ] `_STL::_Rb_tree<unsigned_long,_STL::pair<unsigned_long_const_,PStringBase<char>_>,_STL::_Select1st<_STL::pair<unsigned_long_const_,PStringBase<char>_>_>,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,PStringBase<char>_>_>_>::operator=` · 00661950
@@ -442,8 +442,8 @@ Legend and workflow: [README](README.md).
 - [ ] `_STL::_Rb_tree<PStringBase<char>,_STL::pair<PStringBase<char>_const_,unsigned_long>,_STL::_Select1st<_STL::pair<PStringBase<char>_const_,unsigned_long>_>,CaseInsensitivePStringCompare,_STL::allocator<_STL::pair<PStringBase<char>_const_,unsigned_long>_>_>::operator=` · 00661bf0
 
 ### EnumMapper
-- [ ] `EnumMapper::GetAllEnumVals` · 00661f30 · legions 00610450
-- [ ] `EnumMapper::GetAllEnumVals` · 00662040 · legions 00610560
+- [x] `EnumMapper::GetAllEnumVals` · 00661f30 · legions 00610450 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetAllEnumVals` · 00662040 · legions 00610560 — ac2-script data/glue::enums
 
 ### (free functions)
 - [ ] `STREAMPACK_STL` · 00662120 · legions 00610640
@@ -451,8 +451,8 @@ Legend and workflow: [README](README.md).
 ### EnumMapper
 - [ ] `EnumMapper::Destroy` · 00662330 · legions 00610850
 - [-] `EnumMapper::LoadFromFile` · 006623a0 — text source loader, admin build only
-- [ ] `EnumMapper::GetAllEnumNames` · 00662490 · legions 006108c0
-- [ ] `EnumMapper::GetAllEnumNames` · 00662590 · legions 006109c0
+- [x] `EnumMapper::GetAllEnumNames` · 00662490 · legions 006108c0 — ac2-script data/glue::enums
+- [x] `EnumMapper::GetAllEnumNames` · 00662590 · legions 006109c0 — ac2-script data/glue::enums
 
 ### _STL::map<unsigned_long,PStringBase<char>,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,PStringBase<char>_>_>_>
 - [ ] `_STL::map<unsigned_long,PStringBase<char>,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,PStringBase<char>_>_>_>::operator[]` · 00662670 · legions 00610aa0
@@ -465,7 +465,7 @@ Legend and workflow: [README](README.md).
 - [ ] `EnumMapper::GetDBOType` · 00662850
 - [ ] `EnumMapper::EnumMapper` · 00662860 · legions 00610c90
 - [ ] `EnumMapper::~EnumMapper` · 006628e0 · legions 00610d10
-- [ ] `EnumMapper::StreamPack` · 00662970 · legions 00610da0
+- [x] `EnumMapper::StreamPack` · 00662970 · legions 00610da0 — ac2-script data/glue::enums
 - [ ] `EnumMapper::AddMapping` · 00662a30 · legions 00610e60
 - [ ] `EnumMapper::Allocate` · 00662af0
 - [ ] `EnumMapper::AddEnumMapper` · 00662b20

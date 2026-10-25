@@ -20,6 +20,7 @@ pub use refs::{ReferenceTable, Slot, Target};
 use std::ops::Deref;
 use std::sync::Arc;
 
+use crate::data::{EnumIdMap, EnumMapper};
 use crate::native::{ntype, NativeObject};
 use crate::wstate::{singleton_did, WState, WSTATE_BASE_DID};
 
@@ -99,6 +100,21 @@ pub trait ScriptData {
 
     /// `MasterDBMap::DivineType`: the DB type a DID belongs to.
     fn db_type(&self, _did: u32) -> Option<u32> {
+        None
+    }
+
+    /// `FileArray::GetFileName`: a DID's data file name.
+    fn file_name(&self, _did: u32) -> Option<Vec<u8>> {
+        None
+    }
+
+    /// An `EnumMapper` (`DB_TYPE_ENUM_MAPPER`).
+    fn enum_mapper(&self, _did: u32) -> Option<Box<dyn Deref<Target = EnumMapper>>> {
+        None
+    }
+
+    /// An `EnumIDMap` (`DB_TYPE_DID_MAPPER`).
+    fn enum_id_map(&self, _did: u32) -> Option<Box<dyn Deref<Target = EnumIdMap>>> {
         None
     }
 }
@@ -300,6 +316,37 @@ impl Vm {
     /// The package id a WState was saved from (`WState::m_pid`).
     pub fn state_package(&self, did: u32) -> Option<u32> {
         self.states.wstate(did).and_then(|state| state.pid)
+    }
+
+    /// Writes the slot a reference points at (`GetReferencePtr`/`GetReferenceTagPtr` out
+    /// parameters).
+    pub fn write_through(
+        &mut self,
+        ctx: &mut Context,
+        reference: u32,
+        value: u32,
+        tag: u8,
+    ) -> bool {
+        match self.refs.locate(reference, 0) {
+            Ok(Some(slot)) => self.refs.write(ctx, slot, value, tag).is_ok(),
+            Ok(None) => {
+                self.fill_package(reference);
+                match self.refs.locate(reference, 0) {
+                    Ok(Some(slot)) => self.refs.write(ctx, slot, value, tag).is_ok(),
+                    _ => false,
+                }
+            }
+            Err(_) => false,
+        }
+    }
+
+    /// Reads the slot a reference points at.
+    pub fn read_through(&mut self, ctx: &Context, reference: u32) -> Option<u32> {
+        if let Ok(None) = self.refs.locate(reference, 0) {
+            self.fill_package(reference);
+        }
+        let slot = self.refs.locate(reference, 0).ok()??;
+        self.refs.read(ctx, slot).ok().map(|(v, _)| v)
     }
 
     /// The host's DAT services.

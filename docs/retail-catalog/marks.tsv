@@ -987,6 +987,18 @@ key	status	note
 00538b40	x	ac2-script glue::string_info (lookups via ScriptData)
 00542530	x	ac2-physics los (Terrain::los_check)
 005425b0	x	ac2-physics los (Terrain::los_check)
+00545420	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+00545460	x	ac2-script data/glue::enums
+005454a0	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+005454f0	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+00546820	x	ac2-script data/glue::enums
+00546850	x	ac2-script data/glue::enums
+00546900	x	ac2-script data/glue::enums
+00546980	x	ac2-script data/glue::enums
+00546a00	x	ac2-script data/glue::enums
+00546ab0	x	ac2-script data/glue::enums
+00546b30	x	ac2-script data/glue::enums
+00546bb0	x	ac2-script data/glue::enums
 00552130	x	ac2-script glue
 005521c0	x	ac2-script glue
 00552270	x	ac2-script glue
@@ -1515,7 +1527,26 @@ key	status	note
 006603e0	x	
 006606a0	x	
 006606e0	x	
+006608e0	x	ac2-script data/glue::enums
+00660a30	x	ac2-script data/glue::enums
+00660b90	x	ac2-script data/glue::enums
+00660bd0	x	ac2-script data/glue::enums
+00660c50	x	ac2-script data/glue::enums
+00660d10	x	ac2-script data/glue::enums
+00660dd0	x	ac2-script data/glue::enums
+00660f10	x	ac2-script data/glue::enums
+00661020	x	ac2-script data/glue::enums
+00661060	x	ac2-script data/glue::enums
+006610b0	x	ac2-script data/glue::enums
+00661170	x	ac2-script data/glue::enums
+006611c0	x	ac2-script data/glue::enums
+00661290	x	ac2-script data/glue::enums
+00661f30	x	ac2-script data/glue::enums
+00662040	x	ac2-script data/glue::enums
 00662120	_	
+00662490	x	ac2-script data/glue::enums
+00662590	x	ac2-script data/glue::enums
+00662970	x	ac2-script data/glue::enums
 00679220	x	ac2-anim; ac2-script native::BehaviorParams also unpacks it
 0067a480	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0067a490	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
@@ -1735,8 +1766,16 @@ key	status	note
 006c59d0	x	
 006c82b0	x	ac2-world region::sky_objects, ac2-render sky
 006c8d90	~	decoded; field order after m_nDirectHeading not re-verified
+006cfa80	x	ac2-script data/glue::enums
 006d0bc0	x	ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
+006d7020	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+006d7040	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
 006d7830	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+006d78c0	x	ac2-script data/glue::enums
+006d80b0	x	ac2-script data/glue::enums
+006d8150	x	ac2-script data/glue::enums
+006d83f0	x	ac2-script data/glue::enums
+006d8450	x	ac2-script data/glue::enums
 006da360	x	
 006da480	x	
 006da500	x	

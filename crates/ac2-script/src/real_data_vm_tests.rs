@@ -6,34 +6,13 @@ use std::sync::Arc;
 use ac2_core::DataId;
 use ac2_db::ResourceStore;
 
-use crate::vm::{
-    tag, Context, EFuns, Fault, FunctionId, InitState, InterpStatus, Program, ScriptData, StateRef,
-    Vm,
-};
-use crate::{load_wlib, load_wstate, LEGIONS_WLIB_DID};
-
-/// WStates from the DAT cache (the store decodes them on first use).
-struct StoreStates(ResourceStore);
-
-impl ScriptData for StoreStates {
-    fn wstate(&self, did: u32) -> Option<StateRef> {
-        load_wstate(&self.0, DataId::new(did))
-            .ok()
-            .flatten()
-            .map(|state| Box::new(state) as StateRef)
-    }
-
-    fn db_type(&self, did: u32) -> Option<u32> {
-        // `DB_TYPE_STRING_TABLE` 0x25000000-0x26FFFFFE (only the type the glue asks about).
-        (0x2500_0000..=0x26FF_FFFE)
-            .contains(&did)
-            .then_some(0x4000_0026)
-    }
-}
+use crate::data::DatScriptData;
+use crate::vm::{tag, Context, EFuns, Fault, FunctionId, InitState, InterpStatus, Program, Vm};
+use crate::{load_wlib, LEGIONS_WLIB_DID};
 
 fn library_vm() -> Option<Vm> {
     let dataset = ac2_dat::test_support::env_dataset()?;
-    let store = ResourceStore::new(dataset);
+    let store = ResourceStore::new(dataset.clone());
     let wlib = load_wlib(&store, DataId::new(LEGIONS_WLIB_DID))
         .unwrap()
         .expect("the library");
@@ -42,7 +21,7 @@ fn library_vm() -> Option<Vm> {
     crate::glue::register_pure(&mut efuns);
     Some(Vm::new(
         Arc::new(program),
-        Box::new(StoreStates(store)),
+        Box::new(DatScriptData::new(dataset, store)),
         efuns,
     ))
 }
@@ -108,9 +87,9 @@ fn every_package_initializer_runs_or_stops_at_an_unbound_efun() {
     eprintln!("most-needed efuns: {named:#?}");
     eprintln!("other crashes: {odd:#?}");
     eprintln!("references: {}", vm.refs.entries.len());
-    // 570 of 9,874 complete with no glue; with the pure glue bound so far, 1,622 (most of the
-    // rest next need gEnumMapper, gFileArray and the containers).
-    assert!(outcomes.get("Terminated").copied().unwrap_or(0) >= 1600);
+    // 570 of 9,874 complete with no glue; 4,828 with gVM, gwccinternal, gwpstring,
+    // gStringInfo, gEnumMapper and gFileArray bound.
+    assert!(outcomes.get("Terminated").copied().unwrap_or(0) >= 4800);
     for bad in ["crash: UnknownOpcode", "crash: BadJump", "crash: Stack"] {
         assert!(!outcomes.contains_key(bad), "{bad}: {odd:#?}");
     }

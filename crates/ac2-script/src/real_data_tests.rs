@@ -135,3 +135,56 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::Unbound(_) => "unbound",
     }
 }
+
+#[test]
+fn every_enum_table_decodes_and_the_master_map_names_the_mapper_group() {
+    use crate::data::{DatScriptData, EnumIdMap, EnumMapper, EMAPPER_GROUP, MASTER_MAP_DID};
+    use crate::vm::ScriptData;
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ResourceStore::new(dataset.clone());
+    let load = |did: u32| ac2_db::TypedResourceRef::new(DatFileKind::Portal, DataId::new(did), 0);
+    let mappers: Vec<u32> = dataset
+        .ids_in_range(DatFileKind::Portal, 0x2300_0000, 0x23FF_FFFE)
+        .collect();
+    let id_maps: Vec<u32> = dataset
+        .ids_in_range(DatFileKind::Portal, 0x2800_0000, 0x28FF_FFFE)
+        .collect();
+    for &did in &mappers {
+        let m = store
+            .load_cached_packed::<EnumMapper>(load(did))
+            .unwrap()
+            .unwrap();
+        assert!(
+            m.names.iter().all(|(_, n)| n.iter().all(u8::is_ascii)),
+            "{did:08x}"
+        );
+    }
+    for &did in &id_maps {
+        store
+            .load_cached_packed::<EnumIdMap>(load(did))
+            .unwrap()
+            .unwrap();
+    }
+    eprintln!(
+        "{} enum mappers, {} DID mappers",
+        mappers.len(),
+        id_maps.len()
+    );
+    assert_eq!((mappers.len(), id_maps.len()), (87, 18));
+    let data = DatScriptData::new(dataset, store);
+    let master = data.enum_id_map(MASTER_MAP_DID).unwrap();
+    assert_eq!(master.name(EMAPPER_GROUP), Some(&b"EMAPPER"[..]));
+    // Every mapper id the EMAPPER group lists resolves to a mapper or DID mapper.
+    let group = data
+        .enum_id_map(master.enum_to_did(EMAPPER_GROUP).unwrap())
+        .unwrap();
+    for (mapid, _) in &group.to_id {
+        let did = data.enum_did(*mapid, EMAPPER_GROUP).unwrap();
+        assert!(
+            matches!(data.db_type(did), Some(0x4000_0028 | 0x4000_002A)),
+            "{mapid:08x} -> {did:08x}"
+        );
+    }
+}

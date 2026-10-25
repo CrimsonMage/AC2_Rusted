@@ -12,6 +12,7 @@
 //! value below the last argument. Int and bool results are tagged `BOOL` (4), references `REF`.
 
 mod cparse;
+mod enums;
 mod format;
 mod string_info;
 mod vm_glue;
@@ -31,6 +32,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     wcc::register(efuns);
     wpstring::register(efuns);
     string_info::register(efuns);
+    enums::register(efuns);
 }
 
 /// The retail glue function behind efun `id` (`gAAHash::CallEFun_add`).
