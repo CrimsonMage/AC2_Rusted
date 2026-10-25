@@ -139,6 +139,21 @@ impl UiElement {
         self.attributes.get(&id)
     }
 
+    /// `UIRegion::IsVisible` (the element's own flag).
+    pub fn visible(&self) -> bool {
+        self.visible
+    }
+
+    /// `m_mouseOver`.
+    pub fn mouse_over(&self) -> bool {
+        self.mouse_over
+    }
+
+    /// The parent element.
+    pub fn parent_index(&self) -> Option<usize> {
+        self.parent
+    }
+
     /// A text element's text (`UIElement_Text::GetText`).
     pub fn text(&self) -> Option<String> {
         self.text

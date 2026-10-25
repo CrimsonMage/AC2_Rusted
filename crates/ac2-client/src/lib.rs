@@ -10,6 +10,7 @@ mod appearance;
 mod camera;
 mod camera_mouse;
 mod cells;
+mod chargen;
 mod chat_commands;
 pub mod chat_text;
 mod client;
@@ -44,6 +45,7 @@ mod world_data;
 pub use appearance::local_visual_desc;
 pub use camera::{action as camera_action, CameraManager};
 pub use cells::{block_radius, CellManager, FAR_RADIUS, NEAR_RADIUS};
+pub use chargen::ScriptCharGen;
 pub use chat_commands::chat_commands;
 pub use client::{
     CameraAction, Client, FrameInput, Notice, ENTER_WORLD_FLAGS, SYNC_POSITION_FLAGS,

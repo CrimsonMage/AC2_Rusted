@@ -50,6 +50,11 @@ impl UiStrings {
         String::from_utf16_lossy(&ac2_db::get_string(&self.tables, &info, false))
     }
 
+    /// `StringInfo::GetString` of a whole string reference (any table the preloaded set holds).
+    pub fn render_info(&self, info: &RenderInfo) -> String {
+        String::from_utf16_lossy(&ac2_db::get_string(&self.tables, info, false))
+    }
+
     /// [`UiStrings::render`] of the string named `name` (`Tokenize(name)`).
     pub fn get(&self, name: &str) -> String {
         self.render(tokenize(name), Vec::new())

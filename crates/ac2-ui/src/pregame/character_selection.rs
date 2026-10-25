@@ -84,6 +84,9 @@ impl CharacterSelectionUi {
         }
         ui.list_box = ui.child(ctx.tree, ui.background, "CharacterListBox");
         ui.ghost_buttons(ctx.tree, true);
+        // `UIPersistantData::ClearGenerationResultTable`: back at selection, character
+        // generation starts over.
+        ctx.data.clear_generation();
         ui.update(ctx);
         ui
     }

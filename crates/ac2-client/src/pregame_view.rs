@@ -12,7 +12,7 @@ use std::sync::Arc;
 
 use ac2_db::{ResourceResult, ResourceStore};
 use ac2_gpu::{Gpu, UiLayer, UiOverlay};
-use ac2_ui::pregame::{PregameAssets, PregameUi};
+use ac2_ui::pregame::{CharGenSystem, PregameAssets, PregameUi};
 use ac2_ui::UiMessage;
 use ac2_weenie::{OnlineSession, SessionEvent};
 
@@ -25,6 +25,8 @@ pub struct PregameView {
     ui: Option<PregameUi>,
     /// Login events and notices that came before the UI.
     early: Vec<Result<SessionEvent, Notice>>,
+    /// The `CharacterGenSystem` for the UI once it exists.
+    system: Option<Box<dyn CharGenSystem>>,
     overlay: UiOverlay,
     size: (u32, u32),
     dirty: bool,
@@ -49,9 +51,18 @@ impl PregameView {
             pending: Some(receive),
             ui: None,
             early: Vec::new(),
+            system: None,
             overlay: UiOverlay::new(gpu, format),
             size,
             dirty: false,
+        }
+    }
+
+    /// The `CharacterGenSystem` character generation asks (`PregameUi::set_char_gen_system`).
+    pub fn set_char_gen_system(&mut self, system: Box<dyn CharGenSystem>) {
+        match &mut self.ui {
+            Some(ui) => ui.set_char_gen_system(system),
+            None => self.system = Some(system),
         }
     }
 
@@ -136,6 +147,9 @@ impl PregameView {
                 Ok(Ok(assets)) => {
                     self.pending = None;
                     let mut ui = PregameUi::new(assets, self.size.0 as i32, self.size.1 as i32);
+                    if let Some(system) = self.system.take() {
+                        ui.set_char_gen_system(system);
+                    }
                     for early in self.early.drain(..) {
                         match early {
                             Ok(event) => pregame_event(&mut ui, &event),

@@ -8,7 +8,11 @@
 
 mod arms;
 mod assets;
+mod avatar_modification;
+mod avatar_selection;
 mod character_selection;
+mod chargen;
+mod confirmation;
 mod disconnected;
 mod flow;
 mod persistent;
@@ -19,7 +23,14 @@ mod ui;
 
 pub use arms::{CharacterArms, SceneEntity};
 pub use assets::{load_pregame, PregameAssets, PREGAME_LAYOUTS};
+pub use avatar_modification::{AvatarModificationUi, ModificationCamera};
+pub use avatar_selection::{Avatar, AvatarSelectionUi};
 pub use character_selection::{ArmOccupant, CharacterSelectionUi};
+pub use chargen::{
+    new_char_gen, phys_type, phys_type_value, result_key, set_phys_type_value, CharGenSystem,
+    NoCharGen, AVATAR_LOCATIONS, RACE_NAMES, SEX_NAMES,
+};
+pub use confirmation::{is_name_character, ConfirmationUi};
 pub use flow::{
     char_error, character_error_mode, UiFlow, MODE_AVATAR_MODIFICATION, MODE_AVATAR_SELECTION,
     MODE_CHARACTER_SELECTION, MODE_CREDITS, MODE_DATA_PATCH, MODE_DISCONNECTED, MODE_GAMEPLAY,
@@ -58,6 +69,7 @@ pub(crate) struct Ctx<'a> {
     pub strings: &'a UiStrings,
     pub assets: &'a PregameAssets,
     pub requests: &'a mut Vec<PregameRequest>,
+    pub system: &'a mut dyn CharGenSystem,
 }
 
 impl UiTree {

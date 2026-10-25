@@ -106,6 +106,8 @@ struct App {
     store: Arc<ac2_db::ResourceStore>,
     /// Whether the pregame screens show (no start character).
     pregame: bool,
+    /// Character generation's `CharacterGenSystem`, handed to the pregame screens.
+    chargen: Option<ac2_client::ScriptCharGen>,
 }
 
 impl State {
@@ -245,9 +247,7 @@ impl App {
         let frame = self.client.frame();
         // The HUD frameworks that ask the player: skills panel, shortcut bar, chat options.
         let script_notices = self.client.take_script_notices();
-        let asked = state
-            .view
-            .frameworks(&mut self.client, &frame, &events, &script_notices);
+        let asked = view.frameworks(&mut self.client, &frame, &events, &script_notices);
         state.commands.extend(asked);
         // The selection render: the object under the pointer, selected (or the selection
         // cleared) by `gmSelectionUI::Finish3DSelection`.
@@ -326,12 +326,16 @@ impl ApplicationHandler for App {
         surface.configure(&gpu.device, &config);
         let depth = depth_view(&gpu.device, &config);
         let pregame = self.pregame.then(|| {
-            PregameView::new(
+            let mut view = PregameView::new(
                 Arc::clone(&self.store),
                 &gpu,
                 format,
                 (config.width, config.height),
-            )
+            );
+            if let Some(chargen) = self.chargen.take() {
+                view.set_char_gen_system(Box::new(chargen));
+            }
+            view
         });
         self.state = Some(State {
             window,
@@ -512,6 +516,12 @@ fn run(args: Args) -> Result<(), String> {
     script_data.preload_states();
     script_data.preload_skill_states(&program);
     script_data.set_cache_only(true);
+    // Character generation asks the `CharacterGenSystem` singleton on a host of its own over
+    // the same resident data.
+    let chargen = ac2_client::ScriptCharGen::new(ac2_script::host::ScriptHost::new(
+        Arc::clone(&program),
+        Box::new(script_data.clone()),
+    ));
     let host = ac2_script::host::ScriptHost::new(program, Box::new(script_data));
     client.attach_scripts(host, ac2_client::SCRIPT_VM_FUNCTIONS);
     let event_loop = EventLoop::new().map_err(|e| e.to_string())?;
@@ -523,6 +533,7 @@ fn run(args: Args) -> Result<(), String> {
         state: None,
         store,
         pregame: args.character.is_none(),
+        chargen: Some(chargen),
     };
     event_loop.run_app(&mut app).map_err(|e| e.to_string())
 }

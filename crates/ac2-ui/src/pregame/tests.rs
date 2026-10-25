@@ -285,3 +285,111 @@ fn character_selection_draws() {
     click_named(&mut ui, "DeleteButton");
     snapshot(&mut ui, "pregame_delete_confirmation.png");
 }
+
+/// A `CharacterGenSystem` with one Empyrean (needs the expansion) male and one slider.
+struct Stub;
+
+impl CharGenSystem for Stub {
+    fn race_sex_data(&mut self) -> Option<Vec<(u32, Vec<u32>)>> {
+        Some(vec![(0x10, vec![0x1000])])
+    }
+    fn race_sex_info(&mut self) -> Vec<(u32, ac2_net::protocol::GmRaceSexInfo)> {
+        Vec::new()
+    }
+    fn set_defaults(&mut self, cgr: &mut ac2_net::protocol::CharGenResult) -> bool {
+        set_phys_type_value(cgr, phys_type::HEIGHT, 1.0);
+        true
+    }
+    fn randomize(&mut self, _: u32, cgr: &mut ac2_net::protocol::CharGenResult) -> bool {
+        set_phys_type_value(cgr, phys_type::HEIGHT, 1.1);
+        true
+    }
+    fn phys_obj(&mut self, _: u32, _: u32) -> u32 {
+        0x0200_0001
+    }
+    fn valid_phys_type_values(&mut self, _: u32, _: u32, t: u32) -> Option<Vec<f32>> {
+        (t == phys_type::HEIGHT).then(|| vec![0.9, 1.0, 1.1])
+    }
+    fn phys_type_label(&mut self, _: u32, _: u32, _: u32) -> Option<ac2_db::RenderInfo> {
+        None
+    }
+    fn avatar_entity_did(&mut self, _: bool) -> u32 {
+        0x4700_0001
+    }
+    fn enum_string(&mut self, mapper: u32, value: u32) -> Option<String> {
+        match (mapper, value) {
+            (RACE_NAMES, 0x10) => Some("Empyrean".into()),
+            (SEX_NAMES, 0x1000) => Some("Male".into()),
+            _ => None,
+        }
+    }
+    fn enum_value(&mut self, _: u32, _: &str) -> Option<u32> {
+        None
+    }
+}
+
+#[test]
+fn naming_checks_the_expansion_and_sends_the_result() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    ui.set_char_gen_system(Box::new(Stub));
+    let mut without = set();
+    without.legions = Some([0, 1]);
+    ui.character_set(without);
+    ui.use_time(0.0);
+    click_named(&mut ui, "CreateButton");
+    ui.use_time(0.1);
+    assert_eq!(ui.mode(), MODE_AVATAR_SELECTION);
+    let avatar = &ui.avatar_selection().unwrap().avatars()[0];
+    assert_eq!(avatar.state, tokenize("empyreanmale"));
+    // The pick, a press, the animation's end: modification with the one slider.
+    let viewport = find(&ui, "AvatarSelectionViewport");
+    click(&mut ui, viewport);
+    ui.finish_pick(Some(0));
+    click(&mut ui, viewport);
+    ui.finish_animation();
+    ui.use_time(0.2);
+    assert_eq!(ui.mode(), MODE_AVATAR_MODIFICATION);
+    assert_eq!(
+        ui.avatar_modification().unwrap().offered(),
+        vec![phys_type::HEIGHT]
+    );
+    assert!(
+        try_find(&ui, "BuildField").is_none(),
+        "a type not offered loses its field"
+    );
+    // The height slider at the default's stop (1.0 of 0.9 / 1.0 / 1.1); its right button
+    // steps to 1.1.
+    let slider = find(&ui, "HeightSlider");
+    assert_eq!(ui.tree().scrollbar_position(slider), 0.5);
+    click_named(&mut ui, "HeightRightButton");
+    let height = |ui: &PregameUi| phys_type_value(ui.data().current().unwrap(), phys_type::HEIGHT);
+    assert_eq!(height(&ui), 1.1);
+    // Naming: the expansion is missing, so nothing is sent.
+    click_named(&mut ui, "NextButton");
+    click_named(&mut ui, "NameEntry");
+    let typed: Vec<(u16, u32)> = "Ab1c".encode_utf16().map(|c| (c, 0)).collect();
+    ui.text_input(&[], &typed, false);
+    click_named(&mut ui, "EnterButton");
+    assert!(ui.take_requests().is_empty());
+    // With the expansion it goes out, named.
+    let mut with = set();
+    with.legions = Some([1, 1]);
+    ui.character_set(with);
+    click_named(&mut ui, "EnterButton");
+    match ui.take_requests().as_slice() {
+        [PregameRequest::CreateCharacter(cgr)] => {
+            assert_eq!(cgr.name, "Abc");
+            assert_eq!(
+                (cgr.race, cgr.sex, cgr.entity_did),
+                (0x10, 0x1000, 0x4700_0001)
+            );
+            assert_eq!(phys_type_value(cgr, phys_type::HEIGHT), 1.1);
+        }
+        other => panic!("{other:?}"),
+    }
+    // Refused name: the error shows and the buttons come back.
+    ui.char_gen_verification(3, None, 0);
+    assert!(!ghosted(&ui, "EnterButton"));
+}

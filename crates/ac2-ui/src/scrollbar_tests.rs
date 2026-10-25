@@ -70,7 +70,13 @@ fn tree() -> (UiTree, usize) {
     let hot = || vec![("hot_button", AttributeValue::Bool(true))];
     let left = element("Left", "button", (0, 20, 9, 29), hot(), vec![]);
     let right = element("Right", "button", (20, 20, 29, 29), hot(), vec![]);
-    let root = element("Root", "field", (0, 0, 299, 99), vec![], vec![slider, left, right]);
+    let root = element(
+        "Root",
+        "field",
+        (0, 0, 299, 99),
+        vec![],
+        vec![slider, left, right],
+    );
     let layout = Arc::new(LayoutDesc {
         sub_ids: Vec::new(),
         string_table: 0,

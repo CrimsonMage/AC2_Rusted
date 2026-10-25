@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 288 done, 151 partial, 1791 to do, 17 skipped.
+2247 retail functions: 309 done, 166 partial, 1755 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -1691,7 +1691,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ExportData::~ExportData` · 00407720 · legions 00407430
 - [~] `ExportData::StreamPack` · 00407770 · legions 00407480 — ac2-script: unpack direction only
 
-## `ac2/client/src/ui/pregame/generation/gmavatarmodificationui.cpp.c` (0/27)
+## `ac2/client/src/ui/pregame/generation/gmavatarmodificationui.cpp.c` (10/27)
 
 ### AFrame
 - [ ] `AFrame::AFrame` · 0040a9e0 · legions 0040a8a0
@@ -1704,9 +1704,9 @@ Legend and workflow: [README](README.md).
 - [ ] `UIRegion::IsVisible` · 0040aaa0 · legions 0040a960
 
 ### gmAvatarModificationUI
-- [ ] `gmAvatarModificationUI::GetCamera` · 0040aad0 · legions 0040a990
-- [ ] `gmAvatarModificationUI::MakeCurrentMask` · 0040ab10 · legions 0040a9d0
-- [ ] `gmAvatarModificationUI::MakePleaseWaitDialog` · 0040ab70 · legions 0040aa30
+- [~] `gmAvatarModificationUI::GetCamera` · 0040aad0 · legions 0040a990 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::MakeCurrentMask` · 0040ab10 · legions 0040a9d0 — ac2-ui pregame/avatar_modification.rs
+- [x] `gmAvatarModificationUI::MakePleaseWaitDialog` · 0040ab70 · legions 0040aa30 — ac2-ui pregame/avatar_modification.rs
 
 ### Frame
 - [ ] `Frame::Frame` · 0040ac80 · legions 0040ab40
@@ -1715,18 +1715,18 @@ Legend and workflow: [README](README.md).
 - [ ] `UISceneEntity::GetFrame` · 0040acb0 · legions 0040ab70
 
 ### gmAvatarModificationUI
-- [ ] `gmAvatarModificationUI::UpdateCamera` · 0040ace0 · legions 0040aba0
-- [ ] `gmAvatarModificationUI::InitCamera` · 0040b0b0 · legions 0040af70
+- [~] `gmAvatarModificationUI::UpdateCamera` · 0040ace0 · legions 0040aba0 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [~] `gmAvatarModificationUI::InitCamera` · 0040b0b0 · legions 0040af70 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
 
 ### PStringBase<char>
 - [ ] `PStringBase<char>::operator+` · 0040b300 · legions 0040b200
 
 ### gmAvatarModificationUI
-- [ ] `gmAvatarModificationUI::Init` · 0040b420 · legions 0040b320
-- [ ] `gmAvatarModificationUI::UpdateByMask` · 0040b640 · legions 0040b540
-- [ ] `gmAvatarModificationUI::Temp` · 0040b6e0 · legions 0040b5e0
-- [ ] `gmAvatarModificationUI::InitUIFromData` · 0040b760 · legions 0040b660
-- [ ] `gmAvatarModificationUI::InitElements` · 0040b8c0 · legions 0040b7c0
+- [~] `gmAvatarModificationUI::Init` · 0040b420 · legions 0040b320 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [~] `gmAvatarModificationUI::UpdateByMask` · 0040b640 · legions 0040b540 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::Temp` · 0040b6e0 · legions 0040b5e0 — ac2-ui pregame/avatar_modification.rs
+- [x] `gmAvatarModificationUI::InitUIFromData` · 0040b760 · legions 0040b660 — ac2-ui pregame/avatar_modification.rs
+- [~] `gmAvatarModificationUI::InitElements` · 0040b8c0 · legions 0040b7c0 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
 
 ### PList<unsigned_long>
 - [ ] `PList<unsigned_long>::GetPackSize` · 0040bb40
@@ -1735,16 +1735,16 @@ Legend and workflow: [README](README.md).
 - [ ] `PList<float>::UnPack` · 0040bb60
 
 ### gmAvatarModificationUI
-- [ ] `gmAvatarModificationUI::ListenToMessage` · 0040bc90 · legions 0040bc60
-- [ ] `gmAvatarModificationUI::InitUITables` · 0040c0d0
-- [ ] `gmAvatarModificationUI::ClearDataTable` · 0040c7e0 · legions 0040c800
-- [ ] `gmAvatarModificationUI::GetDataTable` · 0040c880 · legions 0040c8a0
-- [ ] `gmAvatarModificationUI::gmAvatarModificationUI` · 0040cc00
-- [ ] `gmAvatarModificationUI::~gmAvatarModificationUI` · 0040cff0 · legions 0040d010
-- [ ] `gmAvatarModificationUI::Create` · 0040d290
-- [ ] `gmAvatarModificationUI::Register` · 0040d2d0 · legions 0040d2f0
+- [~] `gmAvatarModificationUI::ListenToMessage` · 0040bc90 · legions 0040bc60 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::InitUITables` · 0040c0d0 — ac2-ui pregame/avatar_modification.rs
+- [x] `gmAvatarModificationUI::ClearDataTable` · 0040c7e0 · legions 0040c800 — ac2-ui pregame/avatar_modification.rs
+- [x] `gmAvatarModificationUI::GetDataTable` · 0040c880 · legions 0040c8a0 — ac2-ui pregame/avatar_modification.rs
+- [~] `gmAvatarModificationUI::gmAvatarModificationUI` · 0040cc00 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::~gmAvatarModificationUI` · 0040cff0 · legions 0040d010 — ac2-ui pregame/avatar_modification.rs
+- [x] `gmAvatarModificationUI::Create` · 0040d290 — ac2-ui pregame/avatar_modification.rs
+- [x] `gmAvatarModificationUI::Register` · 0040d2d0 · legions 0040d2f0 — ac2-ui pregame/avatar_modification.rs
 
-## `ac2/client/src/ui/pregame/generation/gmavatarselectionui.cpp.c` (0/25)
+## `ac2/client/src/ui/pregame/generation/gmavatarselectionui.cpp.c` (6/25)
 
 ### _InstanceID
 - [ ] `_InstanceID::operator==` · 0040d2f0 · legions 0040d310
@@ -1755,7 +1755,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ObjectSelection::operator=` · 0040d360 · legions 0040d380
 
 ### gmAvatarSelectionUI
-- [ ] `gmAvatarSelectionUI::MakePleaseWaitDialog` · 0040d390 · legions 0040d3b0
+- [x] `gmAvatarSelectionUI::MakePleaseWaitDialog` · 0040d390 · legions 0040d3b0 — ac2-ui pregame/avatar_selection.rs
 
 ### SmartArray<UISceneEntity_*>
 - [ ] `SmartArray<UISceneEntity_*>::AddToEnd` · 0040d690 · legions 0040ff80
@@ -1768,15 +1768,15 @@ Legend and workflow: [README](README.md).
 - [ ] `BehaviorParams::~BehaviorParams` · 0040daf0 · legions 0040dae0
 
 ### gmAvatarSelectionUI
-- [ ] `gmAvatarSelectionUI::MouseOffObject` · 0040db40 · legions 0040db30
-- [ ] `gmAvatarSelectionUI::MouseOnObject` · 0040dbd0 · legions 0040dbc0
+- [~] `gmAvatarSelectionUI::MouseOffObject` · 0040db40 · legions 0040db30 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+- [~] `gmAvatarSelectionUI::MouseOnObject` · 0040dbd0 · legions 0040dbc0 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
 
 ### BaseList<unsigned_long,11>
 - [ ] `BaseList<unsigned_long,11>::BaseList<unsigned_long,11>` · 0040dca0 · legions 0040dc90
 
 ### gmAvatarSelectionUI
-- [ ] `gmAvatarSelectionUI::ListenToMessage` · 0040de00 · legions 0040dde0
-- [ ] `gmAvatarSelectionUI::ListenToMessage` · 0040dfe0 · legions 0040dfc0
+- [~] `gmAvatarSelectionUI::ListenToMessage` · 0040de00 · legions 0040dde0 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+- [~] `gmAvatarSelectionUI::ListenToMessage` · 0040dfe0 · legions 0040dfc0 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
 
 ### BaseList<unsigned_long,11>
 - [ ] `BaseList<unsigned_long,11>::BaseList<unsigned_long,11>` · 0040e180 · legions 0040e160
@@ -1788,30 +1788,30 @@ Legend and workflow: [README](README.md).
 - [ ] `PHashTable<unsigned_long,unsigned_long>::PHashTable<unsigned_long,unsigned_long>` · 0040e3f0 · legions 0040e3f0
 
 ### gmAvatarSelectionUI
-- [ ] `gmAvatarSelectionUI::InitEntities` · 0040e510 · legions 0040e510
-- [ ] `gmAvatarSelectionUI::InitGenders` · 0040eaa0 · legions 0040ea70
-- [ ] `gmAvatarSelectionUI::InitRaces` · 0040ebf0 · legions 0040ebc0
+- [~] `gmAvatarSelectionUI::InitEntities` · 0040e510 · legions 0040e510 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+- [x] `gmAvatarSelectionUI::InitGenders` · 0040eaa0 · legions 0040ea70 — ac2-ui pregame/avatar_selection.rs
+- [x] `gmAvatarSelectionUI::InitRaces` · 0040ebf0 · legions 0040ebc0 — ac2-ui pregame/avatar_selection.rs
 
 ### PHashTable<unsigned_long,BaseList<unsigned_long,11>_>
 - [ ] `PHashTable<unsigned_long,BaseList<unsigned_long,11>_>::StreamPack` · 0040ecc0 · legions 0040ec90
 
 ### gmAvatarSelectionUI
-- [ ] `gmAvatarSelectionUI::gmAvatarSelectionUI` · 0040f020
-- [ ] `gmAvatarSelectionUI::~gmAvatarSelectionUI` · 0040f270 · legions 0040f240
-- [ ] `gmAvatarSelectionUI::Create` · 0040f500
-- [ ] `gmAvatarSelectionUI::Register` · 0040f540 · legions 0040f510
+- [~] `gmAvatarSelectionUI::gmAvatarSelectionUI` · 0040f020 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+- [x] `gmAvatarSelectionUI::~gmAvatarSelectionUI` · 0040f270 · legions 0040f240 — ac2-ui pregame/avatar_selection.rs
+- [x] `gmAvatarSelectionUI::Create` · 0040f500 — ac2-ui pregame/avatar_selection.rs
+- [x] `gmAvatarSelectionUI::Register` · 0040f540 · legions 0040f510 — ac2-ui pregame/avatar_selection.rs
 
-## `ac2/client/src/ui/pregame/generation/gmgenerationconfirmationui.cpp.c` (0/6)
+## `ac2/client/src/ui/pregame/generation/gmgenerationconfirmationui.cpp.c` (5/6)
 
 ### (free functions)
-- [ ] `NameInputFilter` · 0042cb60
+- [~] `NameInputFilter` · 0042cb60 — pregame/confirmation.rs is_name_character: English letters, ' - and space; other languages' letters not modelled
 
 ### gmGenerationConfirmationUI
-- [ ] `gmGenerationConfirmationUI::gmGenerationConfirmationUI` · 0042cb90 · legions 0042c950
-- [ ] `gmGenerationConfirmationUI::GhostButtons` · 0042cc90 · legions 0042ca50
-- [ ] `gmGenerationConfirmationUI::SetErrorMsg` · 0042cda0 · legions 0042cb60
-- [ ] `gmGenerationConfirmationUI::ListenToMessage` · 0042cde0 · legions 0042cba0
-- [ ] `gmGenerationConfirmationUI::RecvNotice_CharGenVerification` · 0042d080
+- [x] `gmGenerationConfirmationUI::gmGenerationConfirmationUI` · 0042cb90 · legions 0042c950 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+- [x] `gmGenerationConfirmationUI::GhostButtons` · 0042cc90 · legions 0042ca50 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+- [x] `gmGenerationConfirmationUI::SetErrorMsg` · 0042cda0 · legions 0042cb60 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+- [x] `gmGenerationConfirmationUI::ListenToMessage` · 0042cde0 · legions 0042cba0 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+- [x] `gmGenerationConfirmationUI::RecvNotice_CharGenVerification` · 0042d080 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 
 ## `ac2/client/src/ui/pregame/gmcharacterselectionui.cpp.c` (17/23)
 

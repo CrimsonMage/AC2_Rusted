@@ -39,6 +39,38 @@ key	status	note
 00409be0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00409e00	x	
 0040a1f0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+0040aad0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040ab10	x	ac2-ui pregame/avatar_modification.rs
+0040ab70	x	ac2-ui pregame/avatar_modification.rs
+0040ace0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040b0b0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040b420	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040b640	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040b6e0	x	ac2-ui pregame/avatar_modification.rs
+0040b760	x	ac2-ui pregame/avatar_modification.rs
+0040b8c0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040bc90	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040c0d0	x	ac2-ui pregame/avatar_modification.rs
+0040c7e0	x	ac2-ui pregame/avatar_modification.rs
+0040c880	x	ac2-ui pregame/avatar_modification.rs
+0040cc00	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040cff0	x	ac2-ui pregame/avatar_modification.rs
+0040d290	x	ac2-ui pregame/avatar_modification.rs
+0040d2b0	x	ac2-ui pregame/avatar_modification.rs
+0040d2d0	x	ac2-ui pregame/avatar_modification.rs
+0040d390	x	ac2-ui pregame/avatar_selection.rs
+0040db40	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040dbd0	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040de00	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040dfe0	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040e510	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040eaa0	x	ac2-ui pregame/avatar_selection.rs
+0040ebf0	x	ac2-ui pregame/avatar_selection.rs
+0040f020	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040f270	x	ac2-ui pregame/avatar_selection.rs
+0040f500	x	ac2-ui pregame/avatar_selection.rs
+0040f520	x	ac2-ui pregame/avatar_selection.rs
+0040f540	x	ac2-ui pregame/avatar_selection.rs
 0040f560	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 0040f590	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 0040f6c0	~	character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
@@ -110,6 +142,13 @@ key	status	note
 0042bb00	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 0042bbb0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 0042bce0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
+0042cb60	~	pregame/confirmation.rs is_name_character: English letters, ' - and space; other languages' letters not modelled
+0042cb90	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+0042cc90	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+0042cd40	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+0042cda0	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+0042cde0	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
+0042d080	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 0042d300	x	ac2-ui dialog.rs
 0042d330	x	ac2-ui dialog.rs
 0042d350	x	ac2-ui dialog.rs
@@ -3089,26 +3128,27 @@ key	status	note
 006000b0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 006009e0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00600b40	x	ac2-script glue::options / examination (Legions layout and efun switch)
-00600cb0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600cb0	x	ac2-ui pregame/chargen.rs over CharGenSystem (client: ScriptCharGen on the CharacterGenSystem script)
 00600cf0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-00600d00	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-00600d90	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-00600dc0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-00600e20	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600d00	x	ac2-ui pregame/chargen.rs over CharGenSystem (client: ScriptCharGen on the CharacterGenSystem script)
+00600d60	x	ac2-ui pregame/chargen.rs over CharGenSystem (client: ScriptCharGen on the CharacterGenSystem script)
+00600d90	x	ac2-ui pregame/chargen.rs over CharGenSystem (client: ScriptCharGen on the CharacterGenSystem script)
+00600dc0	x	ac2-ui pregame/chargen.rs over CharGenSystem (client: ScriptCharGen on the CharacterGenSystem script)
+00600e20	x	ac2-ui pregame/chargen.rs over CharGenSystem (client: ScriptCharGen on the CharacterGenSystem script)
 00600e40	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600e70	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600f10	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600f90	x	ac2-net CharGenResult::write/read
 00601020	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-00601090	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601090	x	ac2-ui pregame/chargen.rs over CharGenSystem (client: ScriptCharGen on the CharacterGenSystem script)
 006010d0	x	ac2-net CharGenResult::write/read
 00601170	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-006011f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+006011f0	x	ac2-ui pregame/chargen.rs over CharGenSystem (client: ScriptCharGen on the CharacterGenSystem script)
 00601210	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00601390	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-006013d0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-00601470	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-00601500	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+006013d0	~	pregame/chargen.rs new_char_gen (race, sex): SetAdmin(0) + SetCGRDefaults; plain data is ac2_net CharGenResult
+00601470	~	pregame/chargen.rs new_char_gen (race, sex): SetAdmin(0) + SetCGRDefaults; plain data is ac2_net CharGenResult
+00601500	~	pregame/chargen.rs new_char_gen (race, sex): SetAdmin(0) + SetCGRDefaults; plain data is ac2_net CharGenResult
 006015b0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00601610	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
 006016a0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -3156,6 +3196,7 @@ key	status	note
 0060c7a0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060ca40	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060caf0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+0060cb90	~	pregame/confirmation.rs is_name_character: English letters, ' - and space; other languages' letters not modelled
 0060d2d0	x	ac2_core::Random
 0060d3b0	x	ac2_core::Random
 0060d3f0	x	ac2_core::Random

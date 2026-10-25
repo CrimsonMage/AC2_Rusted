@@ -207,6 +207,16 @@ impl DialogFactory {
 }
 
 impl UiTree {
+    /// An element taken from its parent and deleted with its descendants (`delete`).
+    pub fn delete_element(&mut self, index: usize) {
+        if self.get(index).is_none() {
+            return;
+        }
+        self.set_parent(index, None);
+        self.delete(index);
+        self.changed = true;
+    }
+
     /// `UIMainFramework::RemoveRootElement`: a root and its descendants deleted.
     pub fn remove_root(&mut self, root: usize) {
         if self.get(root).is_none() {

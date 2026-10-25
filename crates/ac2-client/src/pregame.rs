@@ -36,7 +36,7 @@ pub fn pregame_event(ui: &mut PregameUi, event: &SessionEvent) {
             response,
             character,
             name,
-            ..
+            result,
         } => {
             // The event carries the identity's id and name; its appearance and greyed time
             // are not passed on yet.
@@ -46,7 +46,7 @@ pub fn pregame_event(ui: &mut PregameUi, event: &SessionEvent) {
                 seconds_greyed_out: 0,
                 visual: VisualDesc::default(),
             };
-            ui.char_gen_verification(*response, Some(&identity));
+            ui.char_gen_verification(*response, Some(&identity), *result);
         }
         SessionEvent::Disconnected(_) => ui.server_died(),
         _ => {}
