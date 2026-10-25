@@ -19,6 +19,9 @@ mod disconnected;
 mod flow;
 mod intro;
 mod keyboard;
+mod keyboard_list;
+#[cfg(test)]
+mod keyboard_list_tests;
 mod persistent;
 mod strings;
 #[cfg(test)]
@@ -40,6 +43,9 @@ pub use flow::{
     char_error, character_error_mode, UiFlow, MODE_AVATAR_MODIFICATION, MODE_AVATAR_SELECTION,
     MODE_CHARACTER_SELECTION, MODE_CREDITS, MODE_DATA_PATCH, MODE_DISCONNECTED, MODE_GAMEPLAY,
     MODE_INTRO, MODE_KEYBOARD,
+};
+pub use keyboard_list::{
+    BindingRow, KeyBinding, KeyboardList, SetOutcome, SlotRef, META_CONTROL, META_NONE, META_SHIFT,
 };
 pub use persistent::{greyed_out_for, identity, PersistentData};
 pub use strings::{UiStrings, UI_STRING_TABLE};

@@ -128,9 +128,17 @@ key	status	note
 00413360	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 004134f0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00413530	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+004135c0	~	ac2-ui pregame/keyboard_list.rs KeyboardList::clear_all: every slot cleared, modified. Not: the row texts and the list's selection item (UI)
+004136a0	~	ac2-ui pregame/keyboard.rs destroy closes the wait dialog only; the clear-all, already-mapped, restore, undo and exit dialog contexts are not made
+00413720	~	ac2-ui pregame/keyboard.rs destroy: the wait dialog closes and the root is removed; the list is not flushed and the notice handlers are not unregistered (no per-object table)
 004139d0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00413a70	~	ac2-ui pregame/keyboard_list.rs KeyboardList::finish_set: the selection takes the key, the occupied slot clears, modified. Not: the row text (InqKeyStringInfo)
+00413d10	~	ac2-ui pregame/keyboard_list.rs KeyboardList::start_set: the already-mapped conflict on another slot; a free key is set. Not: the second pass over actions without a row (ICIDM 0x54), the already-mapped dialog
+00414140	~	ac2-ui pregame/keyboard_list.rs KeyboardList::from_maps: a row per action with a description, two slots from the key maps' bindings. Not: the row elements (listbox items), key names (InqKeyStringInfo)
+00414510	~	ac2-ui pregame/keyboard_list.rs KeyboardList::bindings: the (action, key) pairs in list order. Not: the keymap file write and the input manager's reload; key names
 00414bb0	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
-00414e70	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
+00414e70	~	ac2-ui pregame/keyboard_list.rs: click (header to first slot), clear button, clear all, key set and the already-mapped conflict. Not: the restore, undo, exit and clear-all dialogs; save; the row elements
+00415140	~	ac2-ui pregame/keyboard_list.rs KeyboardList::key_hit: cancel key, dialog, reserved and mouse gates, then StartSet. The meta mode is the caller's; the decompile passes the key twice
 00415210	~	dialog.rs: confirmation, wait, message; resurrect and timed dialogs not made
 00415300	-	Rust std replaces it
 00415390	-	Rust std replaces it

@@ -3,10 +3,9 @@
 //! without a selected binding, save and undo without a change (`UpdateButtons`). Quit returns to
 //! character selection behind a please-wait dialog (`Close`; with changes it would ask first).
 //!
-//! Not modelled yet: the binding list (`InitializeKeyboardList`: every `InputActions` action
-//! with a description and its two keys, which needs the input manager's key maps) and its
-//! editing (`StartSet` / `FinishSet` / `KeyHitHandler`, clear, clear all, restore, undo and
-//! `SaveKeyboardList`'s keymap files), so nothing is ever modified here.
+//! The binding list's model (rows, set, clear, clear all, the key hit gate, the saved bindings)
+//! is [`KeyboardList`](super::KeyboardList). The page does not show it yet: the row elements and
+//! the key names are not made, so nothing is ever modified here.
 
 use crate::dialog::DIALOG_WAIT;
 use crate::mouse::UiMessage;
