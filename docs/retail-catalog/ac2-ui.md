@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 92 done, 45 partial, 2093 to do, 17 skipped.
+2247 retail functions: 94 done, 45 partial, 2091 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -152,7 +152,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700
 - [ ] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0
 
-## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (5/58)
+## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (7/58)
 
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::Show` · 00407910 · legions 00407620
@@ -221,7 +221,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmGamePlayUI::RecvNotice_PortalScene` · 00409330
 
 ### PHashTable<unsigned_long,UILocationData>
-- [ ] `PHashTable<unsigned_long,UILocationData>::StreamPack` · 004093a0
+- [x] `PHashTable<unsigned_long,UILocationData>::StreamPack` · 004093a0 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
 ### PHashTable<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>
 - [ ] `PHashTable<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>::StreamPack` · 004095e0 · legions 00409320
@@ -242,7 +242,7 @@ Legend and workflow: [README](README.md).
 
 ### PHashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>
 - [ ] `PHashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>::~PHashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>` · 0040a190 · legions 0040a020
-- [ ] `PHashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>::StreamPack` · 0040a1f0 · legions 0040a080
+- [x] `PHashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>::StreamPack` · 0040a1f0 · legions 0040a080 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
 ### PHashTable<unsigned_long,UILocationData>
 - [ ] `PHashTable<unsigned_long,UILocationData>::PHashTable<unsigned_long,UILocationData>` · 0040a440 · legions 0040a2c0

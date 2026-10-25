@@ -3,7 +3,8 @@
 //! [`PlayerScript`] stand-in, whose messages go out as `InterpSEvent`s.
 
 use ac2_net::protocol::{
-    ChatMessage, ChatRequest, ExaminationRequest, GunChatExtraInfo, ScriptMessage,
+    CallDirection, ChatMessage, ChatRequest, ExaminationRequest, GunChatExtraInfo, ScriptCall,
+    ScriptMessage,
 };
 
 use super::{OnlineSession, SessionEvent};
@@ -89,6 +90,16 @@ impl OnlineSession {
             }
             None => vec![SessionEvent::Notice(crate::usage::nothing_selected())],
         }
+    }
+
+    /// A client call from `ac2_net::protocol::SCRIPT_CALLS` (skills, shortcuts, fellowships,
+    /// allegiances), as its `WM_*` stub's `SendServerEvt` sends it; refused for a server call.
+    pub fn send_script_call(&mut self, call: &ScriptCall) -> Result<(), String> {
+        if call.spec().direction != CallDirection::ToServer {
+            return Err(format!("{:#010x} is a server call", call.function));
+        }
+        self.send(call.to_event());
+        Ok(())
     }
 
     /// `gmCWInterface::DoEmote` once the emote table named the emote (`CPlayer` 0x15B ->

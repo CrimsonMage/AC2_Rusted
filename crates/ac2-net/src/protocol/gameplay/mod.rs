@@ -8,9 +8,11 @@
 //! `C*System` script. Function ids, argument order and pack types are read from those stubs and
 //! handlers; a handler takes the values in `PackBuffer` order.
 
+mod calls;
 mod message;
 mod request;
 
+pub use calls::{call_spec, ArgKind, CallSpec, Direction, ScriptCall, CALLS};
 pub use message::{broadcast, ScriptMessage};
 pub use request::ScriptRequest;
 
@@ -125,6 +127,11 @@ impl Args {
             NativeObject::StringInfo(info) => Ok(info),
             _ => Err(ProtocolError::Invalid("script argument: StringInfo")),
         }
+    }
+
+    /// The values not yet taken.
+    pub(crate) fn into_values(self) -> Vec<PackValue> {
+        self.values.collect()
     }
 
     pub(crate) fn finish(mut self) -> Result<(), ProtocolError> {

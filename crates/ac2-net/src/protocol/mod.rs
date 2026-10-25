@@ -41,12 +41,15 @@ pub use dat_event::{
 pub use error::ProtocolError;
 pub use fx::{DecalFx, EntityDesc, FxData, FxNode, LightSourceFx, RepulsorFx, StreakFx, Waveform};
 pub use gameplay::{
-    broadcast as script_broadcast, function as script_function, ScriptMessage, ScriptRequest,
+    broadcast as script_broadcast, call_spec, function as script_function, ArgKind, CallSpec,
+    Direction as CallDirection, ScriptCall, ScriptMessage, ScriptRequest, CALLS as SCRIPT_CALLS,
 };
 pub use movement::{MoveTarget, MovementParameters, PhysicsStory, StoryHook, TargetPosition};
 pub use native::{
     ntype, ExaminationDataNode, ExaminationProfile, ExaminationRequest, ExaminationValue,
-    NativeObject, SelectionInfo,
+    GameplayOptionsProfile, GmKeyframe, GmRaceSexInfo, GmSceneInfo, HashKey, MissileParameters,
+    NativeObject, RandomSelectionTable, ScriptHash, ScriptList, SelectionElement, SelectionInfo,
+    ShortcutInfo, SkillUiNode, UiLocation, UiSaveLocations, WordTable,
 };
 pub use object::CreateObject;
 pub use opcode::Opcode;

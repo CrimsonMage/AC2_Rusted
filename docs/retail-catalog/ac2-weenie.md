@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 171 done, 29 partial, 1698 to do, 6 skipped.
+1904 retail functions: 173 done, 29 partial, 1696 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -870,7 +870,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCNativeFactory::GetReferences` · 00465fc0 · legions 00466c70
 - [ ] `gmCNativeFactory::UpdateReferences` · 00465fe0 · legions 00466c90
 - [ ] `gmCNativeFactory::GetNativePackSize` · 00466000 · legions 00466cb0
-- [ ] `gmCNativeFactory::PackNativeObject` · 004661d0 · legions 00466e80
+- [~] `gmCNativeFactory::PackNativeObject` · 004661d0 · legions 00466e80 — ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 - [ ] `gmCNativeFactory::GetCheckSums` · 004663b0 · legions 00467060
 - [ ] `gmCNativeFactory::ValidateCheckSums` · 004663d0 · legions 00467080
 
@@ -894,7 +894,7 @@ Legend and workflow: [README](README.md).
 - [ ] `FellowshipAdaptor::~FellowshipAdaptor` · 00467100 · legions 00467db0
 
 ### gmCNativeFactory
-- [~] `gmCNativeFactory::UnPackNativeObject` · 00467160 · legions 00467e10 — ac2-script native::unpack: the native types Legions WStates hold
+- [~] `gmCNativeFactory::UnPackNativeObject` · 00467160 · legions 00467e10 — ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 - [ ] `gmCNativeFactory::CopyNativeObject` · 00467370 · legions 00468020
 - [ ] `gmCNativeFactory::DeleteNativeObject` · 004677e0 · legions 00468490
 
@@ -1534,7 +1534,7 @@ Legend and workflow: [README](README.md).
 ### CEFunDispatcher
 - [~] `CEFunDispatcher::GetEFunAddress` · 0049fec0 · legions 00496f40 — ac2-script glue: id table + pure-glue registry; engine glue unbound
 
-## `portal/client/src/weenie/interp/glue/cnativefactory.cpp.c` (2/268)
+## `portal/client/src/weenie/interp/glue/cnativefactory.cpp.c` (4/268)
 
 ### PFileParser
 - [ ] `PFileParser::PFileParser` · 004a5eb0 · legions 0049cf30
@@ -1777,10 +1777,10 @@ Legend and workflow: [README](README.md).
 - [ ] `BaseListIter<unsigned_long,11>::Pack` · 004a95f0 · legions 004a0470
 
 ### RandomSelectionTable<unsigned_long>
-- [~] `RandomSelectionTable<unsigned_long>::StreamPack` · 004a9640 · legions 004a0640 — ac2-script native: unpack direction only
+- [x] `RandomSelectionTable<unsigned_long>::StreamPack` · 004a9640 · legions 004a0640 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
 ### RandomSelectionTable<unsigned_long>::ElementStruct
-- [~] `RandomSelectionTable<unsigned_long>::ElementStruct::StreamPack` · 004a9760 · legions 004a0760 — ac2-script native: unpack direction only
+- [x] `RandomSelectionTable<unsigned_long>::ElementStruct::StreamPack` · 004a9760 · legions 004a0760 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
 ### BaseHashSetIter<unsigned_long,7>
 - [ ] `BaseHashSetIter<unsigned_long,7>::Sync` · 004a97c0 · legions 004a07c0
@@ -1969,7 +1969,7 @@ Legend and workflow: [README](README.md).
 
 ### CNativeFactory
 - [ ] `CNativeFactory::UpdateReferences` · 004acef0 · legions 004a4040
-- [ ] `CNativeFactory::PackNativeObject` · 004ad1d0 · legions 004a4320
+- [~] `CNativeFactory::PackNativeObject` · 004ad1d0 · legions 004a4320 — ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 
 ### PHashTable<unsigned_long,float>
 - [ ] `PHashTable<unsigned_long,float>::PHashTable<unsigned_long,float>` · 004ad780 · legions 004a48d0
@@ -2242,7 +2242,7 @@ Legend and workflow: [README](README.md).
 ### CNativeFactory
 - [ ] `CNativeFactory::CopyNativeObject` · 004b28f0 · legions 004a9ae0
 - [ ] `CNativeFactory::NewNativeObject` · 004b3980 · legions 004aab70
-- [~] `CNativeFactory::UnPackNativeObject` · 004b4720 · legions 004ab910 — ac2-script native::unpack: the native types Legions WStates hold
+- [~] `CNativeFactory::UnPackNativeObject` · 004b4720 · legions 004ab910 — ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 
 ## `portal/client/src/weenie/interp/glue/gcwallocator.cpp.c` (0/1)
 

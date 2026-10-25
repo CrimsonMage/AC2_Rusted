@@ -127,6 +127,8 @@ name = "ac2-net"
 version = "0.1.0"
 dependencies = [
  "ac2-core",
+ "ac2-dat",
+ "ac2-db",
  "getrandom 0.3.4",
 ]
 

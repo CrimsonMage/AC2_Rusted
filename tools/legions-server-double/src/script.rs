@@ -6,8 +6,8 @@ use std::collections::HashMap;
 
 use ac2_net::protocol::{
     script_broadcast, script_function, ChatMessage, ChatPacket, ChatRequest, ChatResponse,
-    ExaminationProfile, ExaminationRequest, PackValue, QualityUpdate, RoomChat, ScriptMessage,
-    ScriptRequest, SelectionInfo, StringInfo,
+    ExaminationProfile, ExaminationRequest, PackValue, QualityUpdate, RoomChat, ScriptCall,
+    ScriptMessage, ScriptRequest, SelectionInfo, StringInfo,
 };
 
 use crate::{State, PLAYER};
@@ -57,7 +57,13 @@ impl State {
             Some(Err(error)) => self
                 .script_errors
                 .push(format!("function {function:#010x}: {error}")),
-            None => self.script_unknown.push((function, arguments.to_vec())),
+            None => match ScriptCall::decode(function, arguments) {
+                Some(Ok(call)) => self.script_calls.push(call),
+                Some(Err(error)) => self
+                    .script_errors
+                    .push(format!("function {function:#010x}: {error}")),
+                None => self.script_unknown.push((function, arguments.to_vec())),
+            },
         }
     }
 
