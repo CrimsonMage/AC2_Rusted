@@ -5,7 +5,7 @@
 //!
 //! - Windows: `%APPDATA%\AC2\Preferences.ini`
 //! - macOS: `~/Library/Application Support/AC2/Preferences.ini`
-//! - other: `$XDG_CONFIG_HOME/ac2/Preferences.ini`, or `~/.config/ac2/Preferences.ini`.
+//! - other: `$XDG_CONFIG_HOME/AC2/Preferences.ini`, or `~/.config/AC2/Preferences.ini`.
 //!
 //! The `--prefs` argument names another file: a relative one is taken against the working
 //! directory, as retail's `full_path` does.
