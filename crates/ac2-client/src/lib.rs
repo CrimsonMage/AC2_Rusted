@@ -21,6 +21,7 @@ use ac2_smartbox::{camera, cells, scene};
 mod client_frame;
 mod client_objects;
 mod client_radar;
+mod client_teleport;
 pub use client_options::{ApplyOutcome, Close, OptionsWindow};
 pub use client_prefs::{ClientPrefs, DatNames};
 pub use client_radar::add_map_note;
@@ -92,7 +93,9 @@ pub use client::{
 };
 pub use client_audio::FxSoundData;
 pub use controls::frame_input;
-pub use frame::{ClientFrame, Holder, MapMarker, ObjectFrame, PlayerFrame, RadarBlip, RadarFrame};
+pub use frame::{
+    ClientFrame, Holder, MapMarker, ObjectFrame, PlayerFrame, PortalFrame, RadarBlip, RadarFrame,
+};
 pub use gameplay::{
     Command, ContainerFrame, InventoryFrame, ItemFrame, ProgressFrame, SelectionFrame,
 };

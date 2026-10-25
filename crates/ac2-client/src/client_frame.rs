@@ -45,6 +45,7 @@ impl Client {
             cell_id: player.as_ref().map(|p| p.cell),
             in_world,
             blocking_for_cells: self.cells.is_blocking(),
+            portal: self.portal_frame(),
             player,
             camera: self.camera_frame(),
             objects,

@@ -30,6 +30,8 @@ key	status	note
 00407770	~	ac2-script: unpack direction only
 004079b0	x	OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
 00407b80	x	ac2-audio/ac2-client: 3D emitters and FX sounds
+00407bf0	_	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+00407c30	_	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 004080c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 00408e90	~	LogOffCharacter only; no UI or game-option upload
 00409270	~	asks for the next-frame-drawn notice (SetWantNoticeOnNextFrameDrawn); no portal scenes
@@ -1200,7 +1202,7 @@ key	status	note
 00468870	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004688c0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468940	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468970	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468970	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 004689a0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468a10	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
 00468a50	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
@@ -1782,6 +1784,7 @@ key	status	note
 00496b00	_	
 00496c10	_	
 00496cb0	_	
+00497190	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 00497550	_	
 00497750	_	
 004978c0	_	
@@ -1961,6 +1964,8 @@ key	status	note
 004bb7a0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004bb890	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 004bb910	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+004bc300	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+004bc3b0	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 004bc690	x	lead: ac2-script host/glue.rs get_entity_did: the DID the weenie was made with (CWDistributor::m_initData.m_did, +0x14), tag 4; null this crashes; host tests.
 004bfb90	x	
 004bfeb0	~	ac2-weenie dat_iterations + session answer; internal.dat (slot 4) not opened; language id is configuration (EnumMapper 0x4000002A lookup not ported)
@@ -2319,6 +2324,7 @@ key	status	note
 004e2030	~	ac2-physics: the drawn position slerp / previous position only (PhysicsBody::drawing_position)
 004e20b0	~	ac2-client remote.rs
 004e2100	~	ac2-client remote.rs over PhysicsBody::place (flags 0x11)
+004e2160	~	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 004e21e0	x	ac2-client remote.rs
 004e2220	x	ac2-client remote.rs
 004e2240	x	ac2-client remote.rs
@@ -2640,6 +2646,8 @@ key	status	note
 0052e080	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 0052e130	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 0052e150	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+0052e490	_	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+0052e4a0	_	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 0052e5b0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 0052e620	_	ac2-script host::interface
 0052e660	x	ac2-client stat_changed: OnStatChanged (IFun 0x7F0044: table, quality) on the object's process once the VM has it (CPlayer 0x85: vitals, XP bar, vitae, skill panel); the session's stand-ins otherwise
@@ -3727,6 +3735,9 @@ key	status	note
 00572cb0	x	
 00572cd0	x	ac2-render frustum.rs
 00572f40	x	ac2-render frustum.rs
+00573550	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+00573560	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+00573570	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 005735e0	x	
 00573630	x	
 005736f0	x	
@@ -3735,7 +3746,7 @@ key	status	note
 00573bd0	~	the line-of-sight pull-in (CObjCell::LOSCheck) is not ported: the desired position stands
 00574220	~	the body loads on a loader thread; m_bBlockingLoad set
 00574280	x	after every player physics quantum outside mouse look
-005742d0	~	the camera, LeaveWorld, StorePosition and the blocking load; no run-lock reset
+005742d0	~	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 005746d0	~	UpdatePlayer, WorldManager::Update, the mouse-look camera, SceneCamera::slerp; no camera effects
 00574850	x	
 00574980	x	ac2-client camera.rs
@@ -3786,6 +3797,9 @@ key	status	note
 0057c500	x	
 0057c510	x	GameTime::UseTime, then unless blocking CObjectMaint::UseTime and the physics step
 0057c540	x	
+0057ca90	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+0057cab0	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+0057cad0	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 0057cb00	x	ac2-audio/ac2-client: ambient environments, groove
 0057cb50	~	outdoor sun, ambient and fog; indoor and sky environments not yet
 0057d680	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
@@ -3804,6 +3818,12 @@ key	status	note
 00585980	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 00585ba0	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 00585cf0	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
+00585e90	~	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+00586220	~	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+00586720	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+00586eb0	~	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+00586f50	~	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+00588050	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 00588320	x	
 00588610	~	ac2-render scene: far chunk culling by m_BoundingBox (near mesh drawn whole; no N-patches)
 00588840	~	near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
@@ -5542,7 +5562,7 @@ key	status	note
 00722f20	~	headless frame order in ac2-client Client::use_time; no render, sound, UI, triggers or DB cache step
 00723280	_	
 00723a10	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00723aa0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00723aa0	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 00723f00	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00724000	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
 007240b0	-	No gCM_Store efun and no WLib path reaches it (not script-raised).

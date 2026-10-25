@@ -9,6 +9,7 @@ pub mod frustum;
 mod image;
 pub mod object;
 pub mod particles;
+pub mod portal;
 pub mod prefs;
 pub mod scene;
 pub mod selection;

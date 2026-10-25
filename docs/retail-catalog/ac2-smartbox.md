@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 79 done, 31 partial, 150 to do, 2 skipped.
+262 retail functions: 82 done, 31 partial, 147 to do, 2 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -272,7 +272,7 @@ Legend and workflow: [README](README.md).
 - [~] `TargetingModule::InternalCalcViewerPos` · 00579910 · legions 00549270 — a player target without parent or bone (third and first person)
 - [x] `TargetingModule::CalcViewerPos` · 0057a320 · legions 00549c80
 
-## `portal/client/src/smartbox/smartbox.cpp.c` (5/30)
+## `portal/client/src/smartbox/smartbox.cpp.c` (8/30)
 
 ### Position
 - [ ] `Position::operator!=` · 005734b0 · legions 005434b0
@@ -281,9 +281,9 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartBox::RefreshGraphicsResources` · 005734f0
 - [ ] `SmartBox::GetDisplayWidth` · 00573510 · legions 00543510
 - [ ] `SmartBox::GetDisplayHeight` · 00573530 · legions 00543530
-- [ ] `SmartBox::EnterPortalSpace` · 00573550 · legions 00543550
-- [ ] `SmartBox::ExitPortalSpace` · 00573560 · legions 00543560
-- [ ] `SmartBox::InPortalSpace` · 00573570 · legions 00543570
+- [x] `SmartBox::EnterPortalSpace` · 00573550 · legions 00543550 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+- [x] `SmartBox::ExitPortalSpace` · 00573560 · legions 00543560 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+- [x] `SmartBox::InPortalSpace` · 00573570 · legions 00543570 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 - [ ] `SmartBox::RenderScreenshot` · 00573580 · legions 00543580
 - [x] `SmartBox::SetCameraPosition` · 005735e0 · legions 005435e0
 - [x] `SmartBox::SetCameraDefaults` · 00573630 · legions 00543630
@@ -303,7 +303,7 @@ Legend and workflow: [README](README.md).
 - [~] `SmartBox::UpdateCamera` · 00573bd0 · legions 00543ba0 — the line-of-sight pull-in (CObjCell::LOSCheck) is not ported: the desired position stands
 - [~] `SmartBox::RecvNotice_CreatePlayerObject` · 00574220 · legions 00544170 — the body loads on a loader thread; m_bBlockingLoad set
 - [x] `SmartBox::PlayerPhysicsUpdatedCallback` · 00574280 · legions 005441d0 — after every player physics quantum outside mouse look
-- [~] `SmartBox::HandleTeleport` · 005742d0 · legions 00544220 — the camera, LeaveWorld, StorePosition and the blocking load; no run-lock reset
+- [~] `SmartBox::HandleTeleport` · 005742d0 · legions 00544220 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 - [ ] `SmartBox::~SmartBox` · 005743e0 · legions 00544330
 - [ ] `SmartBox::Init` · 005744f0 · legions 00544420
 - [~] `SmartBox::UseTime` · 005746d0 · legions 005445d0 — UpdatePlayer, WorldManager::Update, the mouse-look camera, SceneCamera::slerp; no camera effects

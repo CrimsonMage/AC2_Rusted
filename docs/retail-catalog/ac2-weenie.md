@@ -204,7 +204,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_UI::SendNotice_InitStackUI` · 007238a0 · legions 006a38e0
 - [ ] `CM_UI::SendNotice_Logoff` · 00723980
 - [ ] `CM_UI::SendNotice_OpenExaminationPanel` · 00723a10 · legions 006a39b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_UI::SendNotice_PortalSpace` · 00723aa0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_UI::SendNotice_PortalSpace` · 00723aa0 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 - [ ] `CM_UI::SendNotice_PrecludeFromBottom` · 00723b30
 - [ ] `CM_UI::SendNotice_PrecludeFromTop` · 00723bc0
 - [ ] `CM_UI::SendNotice_SaveLocationsChanged` · 00723c50 · legions 006a3af0
@@ -425,7 +425,7 @@ Legend and workflow: [README](README.md).
 
 ### gCM_UI
 - [ ] `gCM_UI::CallEFun_SendNotice_OpenExaminationPanel` · 00468940 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_UI::CallEFun_SendNotice_PortalSpace` · 00468970 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_UI::CallEFun_SendNotice_PortalSpace` · 00468970 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 - [ ] `gCM_UI::CallEFun_SendNotice_PortalScene` · 004689a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_usage.cpp.c` (0/2)
@@ -1448,7 +1448,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Physics::SendNotice_ModeUpdate` · 00497010
 - [ ] `ECM_Physics::SendNotice_NextFrameDrawn` · 00497090
 - [ ] `ECM_Physics::SendNotice_PlayerReadyToEnterWorld` · 00497110
-- [ ] `ECM_Physics::SendNotice_PlayerTeleportStart` · 00497190
+- [ ] `ECM_Physics::SendNotice_PlayerTeleportStart` · 00497190 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 - [ ] `ECM_Physics::SendNotice_SetPlayerID` · 00497210
 - [ ] `ECM_Physics::SendNotice_SetRegionID` · 004972a0
 
@@ -2292,8 +2292,8 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWInterface::CallIFun_HandleEnterWorld` · 004bc150 · legions 004b1040
 - [ ] `gCWInterface::CallIFun_HandleLeaveWorld` · 004bc1e0 · legions 004b10d0
 - [ ] `gCWInterface::CallIFun_HandlePostLeaveWorld` · 004bc270 · legions 004b1160
-- [ ] `gCWInterface::CallIFun_HandleTeleportEnd` · 004bc300 · legions 004b11f0
-- [ ] `gCWInterface::CallIFun_HandleTeleportStart` · 004bc3b0 · legions 004b12a0
+- [ ] `gCWInterface::CallIFun_HandleTeleportEnd` · 004bc300 · legions 004b11f0 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+- [ ] `gCWInterface::CallIFun_HandleTeleportStart` · 004bc3b0 · legions 004b12a0 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 - [ ] `gCWInterface::Resume_InqStringInfoValue` · 004bc440 · legions 004b1330
 - [ ] `gCWInterface::CallIFun_OnStatChanged` · 004bc510 · legions 004b1400
 - [ ] `gCWInterface::CallIFun_PreloadWSLSingletons` · 004bc600 · legions 004b14f0
@@ -2587,8 +2587,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CWInterface::HandleEnterWorld` · 0052e410 · legions 00512750
 - [ ] `CWInterface::HandleLeaveWorld` · 0052e440 · legions 00512780
 - [ ] `CWInterface::HandlePostLeaveWorld` · 0052e470 · legions 005127b0
-- [ ] `CWInterface::HandleTeleportStart` · 0052e490 · legions 005127d0
-- [ ] `CWInterface::HandleTeleportEnd` · 0052e4a0 · legions 005127e0
+- [ ] `CWInterface::HandleTeleportStart` · 0052e490 · legions 005127d0 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+- [ ] `CWInterface::HandleTeleportEnd` · 0052e4a0 · legions 005127e0 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 - [ ] `CWInterface::HandleCharacterSessionStart` · 0052e4c0 · legions 00512800
 - [ ] `CWInterface::HandleCharacterSessionEnd` · 0052e520 · legions 00512860
 - [ ] `CWInterface::ApplyProperties` · 0052e530 · legions 00512870

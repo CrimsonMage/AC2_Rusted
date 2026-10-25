@@ -123,6 +123,27 @@ pub struct MapMarker {
     pub message: StringInfo,
 }
 
+/// The portal space (`PortalSpace::Effect`): the phase and the draw flags for the frame.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct PortalFrame {
+    /// `WorldRender::InPortalSpace`.
+    pub in_portal_space: bool,
+    /// `PortalSpace::Effect::m_State`.
+    pub phase: ac2_render::portal::Phase,
+    /// The draw flags: the world is drawn only while `draw.world` (the fades).
+    pub draw: ac2_render::portal::Draw,
+    /// A teleport has started and its destination is not yet in.
+    pub teleporting: bool,
+}
+
+impl PortalFrame {
+    /// `WorldRender::Render`'s gate: the world is drawn unless the player is in portal space and
+    /// the effect does not draw it (then only the effect is drawn).
+    pub fn world_drawn(&self) -> bool {
+        !self.in_portal_space || self.draw.world
+    }
+}
+
 /// Everything a renderer needs from one frame.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct ClientFrame {
@@ -138,6 +159,8 @@ pub struct ClientFrame {
     pub in_world: bool,
     /// `CellManager::IsBlockingForCells`: the player's physics waits for its cells.
     pub blocking_for_cells: bool,
+    /// The portal space (the teleport's fade and tunnel).
+    pub portal: PortalFrame,
     pub player: Option<PlayerFrame>,
     /// The camera, while the player is in the world.
     pub camera: Option<crate::scene::CameraFrame>,

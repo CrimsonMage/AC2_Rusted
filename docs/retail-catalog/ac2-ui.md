@@ -168,8 +168,8 @@ Legend and workflow: [README](README.md).
 - [x] `PlayingSoundContext::Stop` · 00407b80 · legions 004078b0 — ac2-audio/ac2-client: 3D emitters and FX sounds
 
 ### gmGamePlayUI
-- [ ] `gmGamePlayUI::RecvNotice_PlayerTeleportStart` · 00407bf0
-- [ ] `gmGamePlayUI::RecvNotice_PortalSpace` · 00407c30
+- [ ] `gmGamePlayUI::RecvNotice_PlayerTeleportStart` · 00407bf0 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+- [ ] `gmGamePlayUI::RecvNotice_PortalSpace` · 00407c30 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 - [ ] `gmGamePlayUI::RecvNotice_UpdateDeathState` · 00407c80
 - [ ] `gmGamePlayUI::RecvNotice_ResurrectionRequestedByOther` · 00407cf0
 - [ ] `gmGamePlayUI::RecvNotice_CloseConfirmationDialog` · 00407d00 · legions 00407a30

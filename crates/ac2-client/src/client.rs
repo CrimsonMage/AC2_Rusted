@@ -27,6 +27,8 @@ use ac2_weenie::{
 };
 use ac2_world::GameClock;
 
+use ac2_render::portal::PortalSpace;
+
 use crate::camera::{CameraManager, CameraSubject};
 use crate::cells::CellManager;
 use crate::loader::{Loaded, Loader, Request};
@@ -83,6 +85,10 @@ pub enum Notice {
     /// `gmUIFlow::RecvNotice_ServerDied`: the connection was lost; retail switches to the
     /// Disconnected UI mode with `ID_NetErr_ConnectionLost` (table `0x41000018`).
     ConnectionLost,
+    /// `ECM_Physics::SendNotice_PlayerTeleportStart` (`0x10419`): the teleport began.
+    PlayerTeleportStart,
+    /// The teleport ended: the destination is in and the player is placed there.
+    TeleportEnd,
 }
 
 /// The player's simulated body, once its Setup has loaded.
@@ -142,7 +148,7 @@ pub struct Client {
     /// `CPhysics::sRenderInterpolation`, from the last render step.
     render_interpolation: f32,
     load_budget: Duration,
-    notices: Vec<Notice>,
+    pub(crate) notices: Vec<Notice>,
     /// The physics objects of everything but the player.
     pub(crate) remotes: Remotes,
     /// The weenies' script processes, when a script VM is attached.
@@ -152,6 +158,10 @@ pub struct Client {
     pub(crate) radar: crate::client_radar::RadarState,
     /// The friends panel (`gmFriendsUI`), fed by the GUN results and events.
     pub(crate) friends: ac2_ui::FriendsUi,
+    /// `SmartBox`'s portal space (`WorldRender::m_PortalSpaceEffect`): the teleport's fade and tunnel.
+    pub(crate) portal: PortalSpace,
+    /// Between a teleport's start and its end (`SmartBox::HandleTeleport` to the placement).
+    pub(crate) teleporting: bool,
 }
 
 fn physics_position(cell: u32, origin: [f32; 3], rotation: [f32; 4]) -> Position {
@@ -211,6 +221,8 @@ impl Client {
             audio: None,
             radar: Default::default(),
             friends: Default::default(),
+            portal: PortalSpace::new(),
+            teleporting: false,
         }
     }
 
@@ -273,6 +285,7 @@ impl Client {
         let produced = self.radar_use_time(&events);
         events.extend(produced);
         self.notices_seen(&events);
+        self.portal_notices(&events);
         self.camera_actions(input);
         self.render();
         Ok(events)
@@ -503,6 +516,9 @@ impl Client {
             // `gmGamePlayUI::RecvNotice_PlayerReadyToEnterWorld`.
             self.want_frame_drawn = true;
         }
+        if entered && self.teleporting {
+            self.teleport_ended();
+        }
         if entered {
             let at = self
                 .player
@@ -553,6 +569,8 @@ impl Client {
             }
         }
         self.render_interpolation = self.physics_clock.render_interpolation(now);
+        // `WorldRender::Update` -> `PortalSpace::Effect::Think`.
+        self.portal.think(now, &mut self.random);
         // `PhysicsModule::UpdateAnimation` -> `CPhysics::UpdateAllAnimation`.
         if let Some(step) = self.anim_clock.advance(now) {
             if let Some(body) = self.player.as_mut().and_then(|p| p.body.as_mut()) {
@@ -668,6 +686,7 @@ impl Client {
             }
         }
         self.blocking_load = true;
+        self.teleport_started();
     }
 
     /// `SmartBox::RecvNotice_CreatePlayerObject`: the player object at the server position;

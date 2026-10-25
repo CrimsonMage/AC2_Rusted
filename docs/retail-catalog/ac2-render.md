@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 69 done, 48 partial, 649 to do, 15 skipped.
+781 retail functions: 74 done, 52 partial, 640 to do, 15 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1162,27 +1162,27 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeTerrainMesh::Refresh` · 0058f030 · legions 0055e6a0
 - [ ] `LScapeTerrainMesh::Refresh` · 0058f070 · legions 0055e6e0
 
-## `portal/client/src/smartbox/worldrender/portalspace.cpp.c` (0/14)
+## `portal/client/src/smartbox/worldrender/portalspace.cpp.c` (2/14)
 
 ### CDataMesh
 - [ ] `CDataMesh::GetByEnum` · 00585e60 · legions 00555550
 
 ### PortalSpace::Effect
-- [ ] `PortalSpace::Effect::Effect` · 00585e90 · legions 00555580
+- [~] `PortalSpace::Effect::Effect` · 00585e90 · legions 00555580 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 - [ ] `PortalSpace::Effect::MakeSafePortalIndex` · 00585f40 · legions 00555630
 - [ ] `PortalSpace::Effect::GeneratePortals` · 00585f90 · legions 00555680
-- [ ] `PortalSpace::Effect::StartNow` · 00586220 · legions 00555910
+- [~] `PortalSpace::Effect::StartNow` · 00586220 · legions 00555910 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 - [ ] `PortalSpace::Effect::Destroy` · 00586650 · legions 00555d40
-- [ ] `PortalSpace::Effect::Start` · 00586720
+- [x] `PortalSpace::Effect::Start` · 00586720 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 - [ ] `PortalSpace::Effect::UpdateGeometry` · 00586740 · legions 00555e30
-- [ ] `PortalSpace::Effect::StopNow` · 00586eb0 · legions 005565a0
-- [ ] `PortalSpace::Effect::Think` · 00586f50 · legions 00556640
+- [~] `PortalSpace::Effect::StopNow` · 00586eb0 · legions 005565a0 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+- [~] `PortalSpace::Effect::Think` · 00586f50 · legions 00556640 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 - [ ] `PortalSpace::Effect::Render` · 00587360 · legions 00556a50
 - [ ] `PortalSpace::Effect::~Effect` · 00587da0 · legions 00557490
 - [ ] `PortalSpace::Effect::Initialize` · 00587db0 · legions 005574a0
-- [ ] `PortalSpace::Effect::Stop` · 00588050
+- [x] `PortalSpace::Effect::Stop` · 00588050 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 
-## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (1/36)
+## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (4/36)
 
 ### GameTime
 - [ ] `GameTime::GetTimeTilTomorrow` · 0057c720 · legions 0054bff0
@@ -1203,9 +1203,9 @@ Legend and workflow: [README](README.md).
 
 ### WorldRender
 - [ ] `WorldRender::Init` · 0057c8e0 · legions 0054c1b0
-- [ ] `WorldRender::EnterPortalSpace` · 0057ca90
-- [ ] `WorldRender::ExitPortalSpace` · 0057cab0
-- [ ] `WorldRender::InPortalSpace` · 0057cad0 · legions 0054c3a0
+- [x] `WorldRender::EnterPortalSpace` · 0057ca90 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+- [x] `WorldRender::ExitPortalSpace` · 0057cab0 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+- [x] `WorldRender::InPortalSpace` · 0057cad0 · legions 0054c3a0 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 - [ ] `WorldRender::ForceShadowRefresh` · 0057caf0 · legions 0054c3c0
 - [x] `WorldRender::UpdateAmbientSounds` · 0057cb00 · legions 0054c3d0 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `WorldRender::InitAmbientSounds` · 0057cb40

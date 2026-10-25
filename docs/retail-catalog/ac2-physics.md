@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 362 done, 81 partial, 1619 to do, 62 skipped.
+2124 retail functions: 362 done, 82 partial, 1618 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -2407,7 +2407,7 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::SetPlacementPosition` · 004e2030 · legions 004d4a80 — ac2-physics: the drawn position slerp / previous position only (PhysicsBody::drawing_position)
 - [~] `CPhysicsObj::EnterWorld` · 004e20b0 — ac2-client remote.rs
 - [~] `CPhysicsObj::EnterWorldSimple` · 004e2100 — ac2-client remote.rs over PhysicsBody::place (flags 0x11)
-- [ ] `CPhysicsObj::HandleTeleportStart` · 004e2160 · legions 004d4bb0
+- [~] `CPhysicsObj::HandleTeleportStart` · 004e2160 · legions 004d4bb0 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 - [ ] `CPhysicsObj::OnCellAddedToFreelist` · 004e21c0
 - [ ] `CPhysicsObj::OnCellRemovedFromFreelist` · 004e21d0
 - [x] `CPhysicsObj::LeaveVisibility` · 004e21e0 · legions 004d4c30 — ac2-client remote.rs

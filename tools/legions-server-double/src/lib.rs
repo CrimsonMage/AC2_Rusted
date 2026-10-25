@@ -226,10 +226,23 @@ pub struct Accepted {
     pub key: Option<u32>,
 }
 
+/// One server message of a teleport, in the order the double sends it.
+#[derive(Debug, Clone, PartialEq)]
+pub enum TeleportMessage {
+    /// `PositionPack` for the player with a newer teleport stamp (`ECM_Physics::RecvEvt_Position`).
+    PositionPack {
+        cell: u32,
+        origin: [f32; 3],
+        teleport_stamp: u16,
+    },
+}
+
 /// The server's view of the session: what it received and what it will send.
 #[derive(Default)]
 pub struct State {
     pub spawn: Spawn,
+    /// The teleports the double sent, in order (see [`State::teleport_player`]).
+    pub teleport_trace: Vec<TeleportMessage>,
     pub elapsed: f64,
     /// Datagrams for the client.
     pub inbox: Vec<(SocketAddr, Vec<u8>)>,
@@ -329,6 +342,25 @@ impl State {
         self.next_object_blob += 1;
         let id = 0x0300_0000_0000_0000 | u64::from(self.next_object_blob) << 32 | 0x100;
         self.reliable_blob(id, 1, &b);
+    }
+
+    /// A teleport of the player to `cell` at `origin` (a portal: `CPhysicsObj::RecvEvt_Position`
+    /// with a newer teleport stamp). Legions has no teleport message of its own, so the teleport
+    /// is this one `PositionPack` (the force stamp is kept at the spawn's 6). The trace records the
+    /// server's messages in the order they are sent.
+    pub fn teleport_player(
+        &mut self,
+        cell: u32,
+        origin: [f32; 3],
+        position_stamp: u16,
+        teleport_stamp: u16,
+    ) {
+        self.send_player_position(cell, origin, [position_stamp, teleport_stamp, 6]);
+        self.teleport_trace.push(TeleportMessage::PositionPack {
+            cell,
+            origin,
+            teleport_stamp,
+        });
     }
 
     /// Refuses a character request (`ECM_Login::RecvEvt_CharacterError`: the `charError`).
