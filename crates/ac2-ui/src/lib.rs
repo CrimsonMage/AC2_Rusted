@@ -19,6 +19,9 @@ mod maps;
 mod place;
 #[cfg(test)]
 mod tests;
+mod text;
+mod text_attr;
+mod text_data;
 mod token;
 
 pub use camera_ui::{CameraUi, CameraUiEffect};
@@ -45,9 +48,13 @@ pub use maps::{
     load_action_map, load_key_map, ActionMap, ActionMapping, ActionValue, KeyMap, KEYMAP_CONTROL,
     KEYMAP_GROUP, KEYMAP_MAIN, KEYMAP_SHIFT,
 };
+pub use text::UiTextData;
+pub use text_data::{StoreTextData, DEFAULT_FONT, FONT_GROUP};
 pub use token::{tokenize, REFERENCE, REFERENT, STATELESS};
 
 #[cfg(test)]
 mod element_tests;
 #[cfg(test)]
 mod real_data_tests;
+#[cfg(test)]
+mod text_tests;

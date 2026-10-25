@@ -1,9 +1,9 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 133 done, 14 partial, 699 to do, 143 skipped.
+989 retail functions: 134 done, 14 partial, 698 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/cell/envcell.cpp.c` (15/140)
+## `portal/shared/src/cell/envcell.cpp.c` (16/140)
 
 ### PackObj
 - [ ] `PackObj::Pack` · 0047f1a0
@@ -21,7 +21,7 @@ Legend and workflow: [README](README.md).
 - [ ] `BBox::DoesOverlap` · 0047f280 · legions 00479290
 
 ### RGBAColor
-- [ ] `RGBAColor::GetColor32` · 0047f3c0 · legions 004793d0
+- [x] `RGBAColor::GetColor32` · 0047f3c0 · legions 004793d0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [x] `RGBAColor::SetColor32` · 0047f410 · legions 00479420
 - [x] `RGBAColor::CapLow` · 0047f4b0 · legions 004794c0
 - [x] `RGBAColor::CapHigh` · 0047f500 · legions 00479510

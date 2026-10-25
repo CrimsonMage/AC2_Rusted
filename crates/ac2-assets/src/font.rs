@@ -41,6 +41,34 @@ pub struct Ac2Font {
 }
 
 impl Ac2Font {
+    /// A font from its metrics (`maxCharHeight`, `maxCharWidth`, `avgCharWidth`,
+    /// `totalWidth`), glyphs and strip, indexed by `Font::GenerateCharacterMap`.
+    pub fn new(
+        metrics: [u32; 4],
+        antialiased: bool,
+        chars: Vec<Ac2FontChar>,
+        data: Vec<u8>,
+    ) -> Self {
+        let [max_char_height, max_char_width, avg_char_width, total_width] = metrics;
+        let min_unicode = chars.iter().map(|c| c.unicode).min().unwrap_or(0);
+        let max_unicode = chars.iter().map(|c| c.unicode).max().unwrap_or(0);
+        let mut character_map = vec![-1; usize::from(max_unicode - min_unicode) + 1];
+        for (index, c) in chars.iter().enumerate() {
+            character_map[usize::from(c.unicode - min_unicode)] = index as i32;
+        }
+        Self {
+            max_char_height,
+            max_char_width,
+            avg_char_width,
+            total_width,
+            antialiased,
+            chars,
+            data,
+            min_unicode,
+            character_map,
+        }
+    }
+
     /// `Font::GetCharDesc`: the glyph for `chr`, else for `?`.
     pub fn char_desc(&self, chr: u16) -> Option<&Ac2FontChar> {
         self.lookup(chr).or_else(|| self.lookup(u16::from(b'?')))
@@ -131,24 +159,12 @@ impl ResourcePackedDecode for Ac2Font {
         if cursor.remaining() != 0 {
             return Err(bad(qdid, "trailing bytes after Font"));
         }
-        // `Font::GenerateCharacterMap`.
-        let min_unicode = chars.iter().map(|c| c.unicode).min().unwrap_or(0);
-        let max_unicode = chars.iter().map(|c| c.unicode).max().unwrap_or(0);
-        let mut character_map = vec![-1; usize::from(max_unicode - min_unicode) + 1];
-        for (index, c) in chars.iter().enumerate() {
-            character_map[usize::from(c.unicode - min_unicode)] = index as i32;
-        }
-        Ok(Self {
-            max_char_height,
-            max_char_width,
-            avg_char_width,
-            total_width,
+        Ok(Self::new(
+            [max_char_height, max_char_width, avg_char_width, total_width],
             antialiased,
             chars,
             data,
-            min_unicode,
-            character_map,
-        })
+        ))
     }
 
     fn cache_retained_bytes(&self) -> usize {

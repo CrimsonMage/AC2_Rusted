@@ -17,6 +17,7 @@ use ac2_db::{ResourceResult, ResourceStore};
 use crate::compose::UiPixels;
 use crate::element::UiTree;
 use crate::layout::{load_layout, LayoutDesc};
+use crate::text_data::StoreTextData;
 use crate::token::tokenize;
 
 /// `UILAYOUT_GROUP_ENUM` (`UIMainFramework::CreateAndAddRootElement`'s
@@ -48,13 +49,15 @@ pub fn load_layout_by_enum(
     Ok(load_layout(store, did)?.map(|layout| Arc::new((*layout).clone())))
 }
 
-/// The HUD on a `width` x `height` display.
+/// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
 pub fn build_gameplay_hud(
-    store: &ResourceStore,
+    store: &Arc<ResourceStore>,
     width: i32,
     height: i32,
 ) -> ResourceResult<UiTree> {
     let mut tree = UiTree::new(width, height);
+    let text_data = Arc::new(StoreTextData::new(Arc::clone(store)));
+    tree.set_text_data(text_data.clone());
     let mut layouts = HashMap::new();
     for (layout_enum, name) in GAMEPLAY_ROOTS {
         if !layouts.contains_key(&layout_enum) {
@@ -74,6 +77,7 @@ pub fn build_gameplay_hud(
             }
         }
     }
+    text_data.freeze();
     Ok(tree)
 }
 

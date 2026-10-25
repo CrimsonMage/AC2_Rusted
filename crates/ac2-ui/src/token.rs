@@ -36,3 +36,18 @@ pub const MIN_WIDTH: u32 = tokenize("min_width");
 pub const MIN_HEIGHT: u32 = tokenize("min_height");
 /// `Token_Element_root_mover`.
 pub const ROOT_MOVER: u32 = tokenize("root_mover");
+/// `Token_text`: the `UIElement_Text` class.
+pub const TEXT: u32 = tokenize("text");
+/// `UIElement_Text` attributes.
+pub const TEXT_ENTRY: u32 = tokenize("entry");
+pub const TEXT_FONT: u32 = tokenize("font");
+pub const TEXT_FONT_RESET: u32 = tokenize("font_reset");
+pub const TEXT_TOP_MARGIN: u32 = tokenize("top_margin");
+pub const TEXT_BOTTOM_MARGIN: u32 = tokenize("bottom_margin");
+pub const TEXT_LEFT_MARGIN: u32 = tokenize("left_margin");
+pub const TEXT_RIGHT_MARGIN: u32 = tokenize("right_margin");
+pub const TEXT_MAX_CHARS: u32 = tokenize("max_chars");
+pub const TEXT_ONE_LINE: u32 = tokenize("one_line");
+pub const TEXT_CENTER: u32 = tokenize("center");
+pub const TEXT_CENTER_VERTICALLY: u32 = tokenize("center_vertically");
+pub const TEXT_RIGHT_JUSTIFY: u32 = tokenize("right_justify");

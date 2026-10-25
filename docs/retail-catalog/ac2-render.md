@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 39 done, 22 partial, 707 to do, 13 skipped.
+781 retail functions: 40 done, 23 partial, 705 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -27,14 +27,14 @@ Legend and workflow: [README](README.md).
 ### CMeshTriList
 - [-] `CMeshTriList::FromFileNode` · 0052c830 — text source format (admin tools)
 
-## `portal/client/src/render/core/font/font.cpp.c` (4/13)
+## `portal/client/src/render/core/font/font.cpp.c` (5/13)
 
 ### Font
 - [ ] `Font::Begin` · 005b88d0 · legions 00583530
 - [ ] `Font::End` · 005b8900 · legions 00583560
 - [ ] `Font::Destroy` · 005b8940 · legions 005835a0
 - [x] `Font::GetCharDesc` · 005b89a0 · legions 00583600 — ac2-assets font.rs: all 55 portal fonts decode
-- [ ] `Font::GetCharWidthA` · 005b8a30 · legions 00583690
+- [x] `Font::GetCharWidthA` · 005b8a30 · legions 00583690 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `Font::ContainsString` · 005b8a50 · legions 005836b0
 - [x] `Font::GenerateCharacterMap` · 005b8ad0 · legions 00583730 — ac2-assets font.rs: all 55 portal fonts decode
 - [x] `Font::GetStringWidthInternal` · 005b8bc0 · legions 00583820 — ac2-assets font.rs: all 55 portal fonts decode
@@ -312,7 +312,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SurfaceWindow::SurfaceWindow` · 005af260 · legions 0057ace0
 - [ ] `SurfaceWindow::SurfaceWindow` · 005af2a0 · legions 0057ad20
 - [ ] `SurfaceWindow::SurfaceWindow` · 005af310 · legions 0057ad90
-- [ ] `SurfaceWindow::DrawCharacter` · 005af390 · legions 0057ae10
+- [~] `SurfaceWindow::DrawCharacter` · 005af390 · legions 0057ae10 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 
 ### SmartArray<PrefDisplayModeType>
 - [ ] `SmartArray<PrefDisplayModeType>::AddToEnd` · 005af8f0 · legions 0057b430

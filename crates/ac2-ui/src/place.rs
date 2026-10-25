@@ -174,9 +174,14 @@ impl UiTree {
             width = width.max(min);
         }
         // `UIRegion::ResizeTo`.
-        let rect = &mut self.el_mut(index).rect;
-        rect.x1 = rect.x0 - 1 + width;
-        rect.y1 = rect.y0 - 1 + height;
+        let el = self.el_mut(index);
+        el.rect.x1 = el.rect.x0 - 1 + width;
+        el.rect.y1 = el.rect.y0 - 1 + height;
+        // `UIElement_Text::ResizeTo`.
+        if let Some(text) = el.text.as_mut() {
+            text.determine_margins(width, height);
+            text.dirty = true;
+        }
         for child in self.el(index).children.clone() {
             self.update_size_and_position(child);
         }

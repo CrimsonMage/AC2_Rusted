@@ -113,6 +113,7 @@ key	status	note
 0047e7d0	x	ac2-physics los (Terrain::los_check)
 0047eed0	x	ac2-physics los (Terrain::los_check)
 0047f1f0	x	
+0047f3c0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 0047f410	x	
 0047f4b0	x	
 0047f500	x	
@@ -1194,6 +1195,7 @@ key	status	note
 005a0da0	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
 005a0f80	x	ac2-ui input.rs
 005ae960	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
+005af390	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005af9c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005b2c80	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 005b2ea0	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
@@ -1201,6 +1203,7 @@ key	status	note
 005b75b0	x	
 005b7a50	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005b89a0	x	ac2-assets font.rs: all 55 portal fonts decode
+005b8a30	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005b8ad0	x	ac2-assets font.rs: all 55 portal fonts decode
 005b8bc0	x	ac2-assets font.rs: all 55 portal fonts decode
 005b8e10	x	ac2-assets font.rs: all 55 portal fonts decode
@@ -1256,6 +1259,7 @@ key	status	note
 005e75a0	x	ac2-physics moveto (slice 3)
 005e8ba0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e8e30	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e8e70	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005e8e90	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e90b0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -1279,6 +1283,34 @@ key	status	note
 005ed2c0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ed340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ed450	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005ed8b0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005edb30	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005ee340	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005ee6a0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005eea40	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+005eec20	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+005ef1c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+005ef2f0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+005ef940	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+005efc10	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005eff20	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+005f00a0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005f0ba0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+005f0e90	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+005f17c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+005f18c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+005f1a10	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005f1a50	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005fbe40	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005fbe60	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005fbed0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005fbef0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005fbf30	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005fc7e0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+005fcaf0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005fcd70	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005fce80	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005fceb0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005fded0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005fe0b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005fe170	x	ac2-ui hud.rs
