@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 175 done, 104 partial, 1951 to do, 17 skipped.
+2247 retail functions: 186 done, 113 partial, 1932 to do, 16 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -1471,46 +1471,46 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCraftUI::RecvNotice_UpdateCraftPanel` · 0044ab60
 - [ ] `gmCraftUI::ListenToMessage` · 0044ab70 · legions 0044b7d0
 
-## `ac2/client/src/ui/gameplay/toolbar/skill/gmskilltreeui.cpp.c` (0/26)
+## `ac2/client/src/ui/gameplay/toolbar/skill/gmskilltreeui.cpp.c` (11/26)
 
 ### gmSkillTreeUI
-- [ ] `gmSkillTreeUI::MakeUntrainCancelDialog` · 00447550 · legions 00448090
-- [ ] `gmSkillTreeUI::MakeTrainDialog` · 004475b0 · legions 004480f0
-- [ ] `gmSkillTreeUI::MakeLevelText` · 00447610 · legions 00448150
-- [ ] `gmSkillTreeUI::SelectNode` · 00447700 · legions 00448240
+- [~] `gmSkillTreeUI::MakeUntrainCancelDialog` · 00447550 · legions 00448090 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [~] `gmSkillTreeUI::MakeTrainDialog` · 004475b0 · legions 004480f0 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::MakeLevelText` · 00447610 · legions 00448150 — ac2-ui skill_tree.rs
+- [x] `gmSkillTreeUI::SelectNode` · 00447700 · legions 00448240 — ac2-ui skill_tree.rs
 - [ ] `gmSkillTreeUI::Show` · 00447760 · legions 004482a0
 - [ ] `gmSkillTreeUI::RecvNotice_CloseConfirmationDialog` · 004477c0 · legions 00448300
-- [ ] `gmSkillTreeUI::SetStringAndTruncate` · 00447890 · legions 004483d0
+- [~] `gmSkillTreeUI::SetStringAndTruncate` · 00447890 · legions 004483d0 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 
 ### HashIterator<unsigned_long,BaseList<unsigned_long,11>_>
 - [ ] `HashIterator<unsigned_long,BaseList<unsigned_long,11>_>::operator++` · 004478f0 · legions 0062aa70
 
 ### gmSkillTreeUI
-- [ ] `gmSkillTreeUI::UpdateSelectedSkillDisplay` · 00447930 · legions 00448450
-- [ ] `gmSkillTreeUI::RefreshSkillNode` · 00447d50 · legions 00448870
-- [ ] `gmSkillTreeUI::FastRefreshSkillNode` · 00448040 · legions 00448bd0
-- [ ] `gmSkillTreeUI::HandleElement` · 00448110 · legions 00448ca0
-- [ ] `gmSkillTreeUI::RecvNotice_UpdateSkillPanel` · 00448250
-- [ ] `gmSkillTreeUI::SelectSkill` · 00448310 · legions 00448eb0
-- [ ] `gmSkillTreeUI::MakeUntrainDialog` · 00448430 · legions 00448fd0
-- [ ] `gmSkillTreeUI::ClearSelectedInfo` · 004484c0 · legions 00449060
-- [ ] `gmSkillTreeUI::ListenToMessage` · 00448630 · legions 00449230
-- [ ] `gmSkillTreeUI::InitElements` · 00448810 · legions 004496b0
+- [~] `gmSkillTreeUI::UpdateSelectedSkillDisplay` · 00447930 · legions 00448450 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [~] `gmSkillTreeUI::RefreshSkillNode` · 00447d50 · legions 00448870 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::FastRefreshSkillNode` · 00448040 · legions 00448bd0 — ac2-ui skill_tree.rs
+- [x] `gmSkillTreeUI::HandleElement` · 00448110 · legions 00448ca0 — ac2-ui skill_tree.rs
+- [x] `gmSkillTreeUI::RecvNotice_UpdateSkillPanel` · 00448250 — ac2-ui skill_tree.rs
+- [x] `gmSkillTreeUI::SelectSkill` · 00448310 · legions 00448eb0 — ac2-ui skill_tree.rs
+- [~] `gmSkillTreeUI::MakeUntrainDialog` · 00448430 · legions 00448fd0 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::ClearSelectedInfo` · 004484c0 · legions 00449060 — ac2-ui skill_tree.rs
+- [~] `gmSkillTreeUI::ListenToMessage` · 00448630 · legions 00449230 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::InitElements` · 00448810 · legions 004496b0 — ac2-ui skill_tree.rs
 
 ### SkillUINode
 - [ ] `SkillUINode::~SkillUINode` · 00448860 · legions 00449140
 
 ### gmSkillTreeUI
-- [ ] `gmSkillTreeUI::RecvNotice_UpdateSkill` · 004488c0
-- [ ] `gmSkillTreeUI::AddNode` · 004489c0 · legions 00449550
-- [-] `gmSkillTreeUI::LoadPanel` · 00448c70 — text source loader, admin build only
-- [ ] `gmSkillTreeUI::RecvNotice_ExaminationRequestChanged` · 00448e50
+- [x] `gmSkillTreeUI::RecvNotice_UpdateSkill` · 004488c0 — ac2-ui skill_tree.rs
+- [x] `gmSkillTreeUI::AddNode` · 004489c0 · legions 00449550 — ac2-ui skill_tree.rs
+- [~] `gmSkillTreeUI::LoadPanel` · 00448c70 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::RecvNotice_ExaminationRequestChanged` · 00448e50 — ac2-ui skill_tree.rs
 
 ### PHashTable<unsigned_long,SkillUINode>
 - [ ] `PHashTable<unsigned_long,SkillUINode>::StreamPack` · 00448eb0 · legions 00449ae0
 
 ### gmSkillTreeUI
-- [ ] `gmSkillTreeUI::gmSkillTreeUI` · 00449110 · legions 00449d40
+- [~] `gmSkillTreeUI::gmSkillTreeUI` · 00449110 · legions 00449d40 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 - [ ] `gmSkillTreeUI::~gmSkillTreeUI` · 00449370 · legions 00449fc0
 
 ## `ac2/client/src/ui/gameplay/toolbar/skill/gmskillui.cpp.c` (0/3)

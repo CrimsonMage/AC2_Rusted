@@ -553,7 +553,7 @@ impl UiTree {
     /// `UIElement::SetImage`: the image and, while unset, `m_alphaValue` from `alpha_value`
     /// (retail reads the attribute into the draw mode's own slot, so without the attribute the
     /// value becomes the draw mode's bits as a float: no alpha).
-    fn set_image(&mut self, index: usize, file: u32, draw_mode: u32) {
+    pub(crate) fn set_image(&mut self, index: usize, file: u32, draw_mode: u32) {
         let alpha = match self.el(index).attributes.get(&crate::token::ALPHA_VALUE) {
             Some(AttributeValue::Float(value)) => *value,
             _ => f32::from_bits(draw_mode),

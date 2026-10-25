@@ -24,6 +24,7 @@ mod panel;
 mod place;
 mod reticle;
 mod selection_ui;
+mod skill_tree;
 #[cfg(test)]
 mod tests;
 mod text;
@@ -69,6 +70,11 @@ pub use mouse::{
 };
 pub use reticle::{Reticle, ReticleOutcome, ReticleTarget};
 pub use selection_ui::{SelectionClick, SelectionOutcome, SelectionUi};
+pub use skill_tree::{
+    SkillNode, SkillPanel, SkillRequest, SkillSource, SkillStatus, SkillTreeUi, SkillVar,
+    EXAMINE_PANEL, EXAMINE_SKILL, NODE_SKILL, ROOT_MAGIC_PANEL, ROOT_MELEE_PANEL,
+    ROOT_MISSILE_PANEL, ROOT_NONCOMBAT_PANEL,
+};
 pub use text::UiTextData;
 pub use text_data::{StoreTextData, DEFAULT_FONT, FONT_GROUP};
 pub use token::{tokenize, REFERENCE, REFERENT, STATELESS};
@@ -82,6 +88,8 @@ mod element_tests;
 mod mouse_tests;
 #[cfg(test)]
 mod real_data_tests;
+#[cfg(test)]
+mod skill_tree_tests;
 #[cfg(test)]
 mod text_tests;
 #[cfg(test)]

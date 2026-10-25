@@ -83,6 +83,26 @@ key	status	note
 004357f0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 00435bc0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+00447550	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+004475b0	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+00447610	x	ac2-ui skill_tree.rs
+00447700	x	ac2-ui skill_tree.rs
+00447890	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+00447930	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+00447d50	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+00448040	x	ac2-ui skill_tree.rs
+00448110	x	ac2-ui skill_tree.rs
+00448250	x	ac2-ui skill_tree.rs
+00448310	x	ac2-ui skill_tree.rs
+00448430	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+004484c0	x	ac2-ui skill_tree.rs
+00448630	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+00448810	x	ac2-ui skill_tree.rs
+004488c0	x	ac2-ui skill_tree.rs
+004489c0	x	ac2-ui skill_tree.rs
+00448c70	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+00448e50	x	ac2-ui skill_tree.rs
+00449110	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 0044afd0	x	ac2-ui chat.rs / chat_window.rs
 0044b000	x	ac2-ui chat.rs / chat_window.rs
 0044b030	x	ac2-ui chat.rs / chat_window.rs
