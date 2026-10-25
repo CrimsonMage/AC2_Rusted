@@ -22,6 +22,7 @@ mod missile;
 mod multi;
 mod position;
 mod random;
+mod skill_node;
 mod string_info;
 mod string_text;
 mod vm_glue;
@@ -53,7 +54,10 @@ pub fn register_pure(efuns: &mut EFuns) {
     math::register(efuns);
     multi::register(efuns);
     position::register(efuns);
+    skill_node::register(efuns);
 }
+
+pub(crate) use skill_node::empty_node as empty_skill_node;
 
 /// The retail glue function behind efun `id` (`gAAHash::CallEFun_add`).
 pub fn efun_name(id: u32) -> Option<&'static str> {

@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1056 done, 74 partial, 1260 to do, 78 skipped.
+2468 retail functions: 1080 done, 74 partial, 1236 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -469,33 +469,33 @@ Legend and workflow: [README](README.md).
 - [ ] `gSkillPanelManager::CallIFun_InqName` · 0046d510 · legions 0046dc70
 - [ ] `gSkillPanelManager::CallIFun_InqNodeHash` · 0046d6f0 · legions 0046de50
 
-## `ac2/shared/src/interp/glue/gskilluinode.cpp.c` (0/24)
+## `ac2/shared/src/interp/glue/gskilluinode.cpp.c` (24/24)
 
 ### gSkillUINode
-- [ ] `gSkillUINode::CallEFun_AddParent` · 0046ed90
-- [ ] `gSkillUINode::CallEFun_Clear` · 0046edf0
-- [ ] `gSkillUINode::CallEFun_Set` · 0046ee50
-- [ ] `gSkillUINode::CallEFun_SetCoordinates` · 0046eeb0
-- [ ] `gSkillUINode::CallEFun_SetDescription` · 0046ef20
-- [ ] `gSkillUINode::CallEFun_SetEnum` · 0046ef80
-- [ ] `gSkillUINode::CallEFun_SetIcon` · 0046efe0
-- [ ] `gSkillUINode::CallEFun_SetName` · 0046f040
-- [ ] `gSkillUINode::CallEFun_SetPassive` · 0046f0a0
-- [ ] `gSkillUINode::CallEFun_SetType` · 0046f100
-- [ ] `gSkillUINode::CallEFun_SetUntrainable` · 0046f160
-- [ ] `gSkillUINode::CallEFun_AddDependency` · 0046f1c0
-- [ ] `gSkillUINode::CallEFun_GetEnum` · 0046f230
-- [ ] `gSkillUINode::CallEFun_GetIcon` · 0046f2a0
-- [ ] `gSkillUINode::CallEFun_GetType` · 0046f310
-- [ ] `gSkillUINode::CallEFun_GetX` · 0046f380
-- [ ] `gSkillUINode::CallEFun_GetY` · 0046f3f0
-- [ ] `gSkillUINode::CallEFun_IsPassive` · 0046f460
-- [ ] `gSkillUINode::CallEFun_IsUntrainable` · 0046f4d0
-- [ ] `gSkillUINode::CallEFun_GetDependencyList` · 0046f540
-- [ ] `gSkillUINode::CallEFun_GetDescription` · 0046f660
-- [ ] `gSkillUINode::CallEFun_GetName` · 0046f710
-- [ ] `gSkillUINode::CallEFun_GetParentList` · 0046f7c0
-- [ ] `gSkillUINode::CallEFun_InqCoordinates` · 0046f8e0
+- [x] `gSkillUINode::CallEFun_AddParent` · 0046ed90 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_Clear` · 0046edf0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_Set` · 0046ee50 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetCoordinates` · 0046eeb0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetDescription` · 0046ef20 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetEnum` · 0046ef80 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetIcon` · 0046efe0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetName` · 0046f040 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetPassive` · 0046f0a0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetType` · 0046f100 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_SetUntrainable` · 0046f160 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_AddDependency` · 0046f1c0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetEnum` · 0046f230 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetIcon` · 0046f2a0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetType` · 0046f310 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetX` · 0046f380 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetY` · 0046f3f0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_IsPassive` · 0046f460 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_IsUntrainable` · 0046f4d0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetDependencyList` · 0046f540 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetDescription` · 0046f660 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetName` · 0046f710 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_GetParentList` · 0046f7c0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `gSkillUINode::CallEFun_InqCoordinates` · 0046f8e0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
 
 ## `ac2/shared/src/interp/glue/gturbinegunutils.cpp.c` (0/2)
 

@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 26 done, 7 partial, 457 to do, 9 skipped.
+499 retail functions: 29 done, 7 partial, 454 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
@@ -449,13 +449,13 @@ Legend and workflow: [README](README.md).
 - [ ] `ShortcutInfo::ShortcutInfo` · 00608120 · legions 005c8fc0
 - [x] `ShortcutInfo::StreamPack` · 00608150 · legions 005c8ff0 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
-## `ac2/shared/src/skilldisplay/skilluinode.cpp.c` (1/7)
+## `ac2/shared/src/skilldisplay/skilluinode.cpp.c` (4/7)
 
 ### SkillUINode
 - [x] `SkillUINode::StreamPack` · 006079d0 · legions 005c8870 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
-- [ ] `SkillUINode::Clear` · 00607a90 · legions 005c8930
-- [ ] `SkillUINode::AddParent` · 00607ae0 · legions 005c8980
-- [ ] `SkillUINode::AddDependency` · 00607b10 · legions 005c89b0
+- [x] `SkillUINode::Clear` · 00607a90 · legions 005c8930 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `SkillUINode::AddParent` · 00607ae0 · legions 005c8980 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `SkillUINode::AddDependency` · 00607b10 · legions 005c89b0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
 - [ ] `SkillUINode::SkillUINode` · 00607b40 · legions 005c89e0
 - [ ] `SkillUINode::operator=` · 00607bd0 · legions 005c8a70
 - [ ] `SkillUINode::SkillUINode` · 00607c60 · legions 005c8b00

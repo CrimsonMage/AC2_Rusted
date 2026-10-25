@@ -210,6 +210,11 @@ impl NativeObject {
             ntype::BEHAVIOR_PARAMS => NativeObject::BehaviorParams(Box::new(behavior_defaults())),
             ntype::PACK_BUFFER => NativeObject::PackBuffer(Default::default()),
             ntype::HEADING => NativeObject::Heading(ac2_physics::Heading::ZERO),
+            ntype::SKILL_UI_NODE => {
+                NativeObject::Wire(Box::new(ac2_net::protocol::NativeObject::SkillUiNode(
+                    Box::new(crate::glue::empty_skill_node()),
+                )))
+            }
             ntype::MISSILE_PARAMETERS => {
                 NativeObject::MissileParameters(MissileParameters::default())
             }

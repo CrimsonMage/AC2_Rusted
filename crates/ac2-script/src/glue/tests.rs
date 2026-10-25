@@ -440,3 +440,23 @@ fn position_glue_addresses_cells_and_formats_coordinates() {
     );
     assert_eq!(f32::from_bits(r[0].0), 20.0); // GetCellDistance
 }
+
+#[test]
+fn skill_ui_node_glue_edits_the_wire_node() {
+    use crate::native::ntype;
+    let mut vm = vm();
+    let n = vm.refs.create_native(
+        ntype::SKILL_UI_NODE,
+        NativeObject::new_empty(ntype::SKILL_UI_NODE),
+    );
+    call(&mut vm, 0x00AE_0002, 0, &[0x4000_0123], n); // SetEnum
+    call(&mut vm, 0x00AE_000C, 0, &[3, 4], n); // SetCoordinates
+    assert_eq!(call(&mut vm, 0x00AE_0011, 1, &[9], n).1[0].0, 1); // AddDependency
+    assert_eq!(call(&mut vm, 0x00AE_0011, 1, &[9], n).1[0].0, 0);
+    assert_eq!(call(&mut vm, 0x00AE_0001, 1, &[], n).1[0].0, 0x4000_0123); // GetEnum
+    assert_eq!(call(&mut vm, 0x00AE_000E, 1, &[], n).1[0].0, 4); // GetY
+    let (_, r) = call(&mut vm, 0x00AE_0012, 1, &[], n); // GetDependencyList
+    assert!(matches!(vm.native(r[0].0), Some(NativeObject::List(l)) if l.items == vec![9]));
+    call(&mut vm, 0x00AE_0017, 0, &[], n); // Clear
+    assert_eq!(call(&mut vm, 0x00AE_000D, 1, &[], n).1[0].0, u32::MAX); // GetX -1
+}

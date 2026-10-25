@@ -92,6 +92,30 @@ key	status	note
 00469f60	x	ac2-script host notices -> ac2_weenie::GameplayNotice
 0046a160	x	ac2-script host notices -> ac2_weenie::GameplayNotice
 0046a2d0	x	ac2-script host notices -> ac2_weenie::GameplayNotice
+0046ed90	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046edf0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046ee50	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046eeb0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046ef20	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046ef80	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046efe0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f040	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f0a0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f100	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f160	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f1c0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f230	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f2a0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f310	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f380	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f3f0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f460	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f4d0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f540	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f660	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f710	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f7c0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f8e0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 00474780	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00479030	x	ac2-ui interpreter.rs
 00479110	x	ac2-ui interpreter.rs
@@ -2227,6 +2251,9 @@ key	status	note
 00603470	x	
 006037c0	x	
 006079d0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+00607a90	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+00607ae0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+00607b10	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 00608150	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00608380	x	ac2-net protocol::native (native objects in script-call PackBuffers)
 00608490	x	ac2-net protocol::native (native objects in script-call PackBuffers)
