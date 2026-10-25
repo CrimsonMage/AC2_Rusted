@@ -206,42 +206,66 @@ fn data_id_sets_add_each_did_once() {
 /// type come out typed.
 #[test]
 fn notices_decode_by_signature() {
+    use crate::native::{ntype, NativeObject};
     let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
     let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
     let vm = host.vm_mut();
     let obj = vm.new_wstring(Vec::new());
     vm.owners.insert(obj, 0x5000_0001);
-    // CM_Character::SendNotice_UpdateSkillPanel(obj, ulong64, ulong, ulong).
-    let args = [obj, 0x1, 0x2, 3, 4];
-    assert_eq!(
-        run_efun(vm, 0x0085_0005, &args, u32::MAX),
-        InterpStatus::Success
-    );
+    // CM_Money::SendNotice_UpdateMoney(obj, amount): no ac2-weenie type.
+    run_efun(vm, 0x008C_0002, &[obj, 250], u32::MAX);
+    // CM_Character::SendNotice_UpdateSkillPanel(obj, availableXP, credits, heroCredits).
+    run_efun(vm, 0x0085_0005, &[obj, 0x1, 0x2, 3, 4], u32::MAX);
     // CM_Inventory::SendNotice_UpdateInventory(obj, code, itemID, location).
-    let args = [obj, 0x4000_0001, 0, 9, 2];
-    assert_eq!(
-        run_efun(vm, 0x008B_0001, &args, u32::MAX),
-        InterpStatus::Success
-    );
+    run_efun(vm, 0x008B_0001, &[obj, 0x4000_0001, 0, 9, 2], u32::MAX);
+    // A fellowship: two fellows added (one twice), then the notice and a fellow update.
+    let new = |vm: &mut Vm, t: u32| vm.refs.create_native(t, NativeObject::new_empty(t));
+    let fs = new(vm, ntype::FELLOWSHIP_ADAPTOR);
+    let fellow = new(vm, ntype::FELLOW_ADAPTOR);
+    run_efun(vm, 0x0093_0002, &[7], fellow); // SetLevel
+    assert_eq!(efun_result(vm, 0x0094_0001, &[0, 48, fellow], fs, 5), 1);
+    assert_eq!(efun_result(vm, 0x0094_0001, &[0, 1, fellow], fs, 5), 1);
+    assert_eq!(efun_result(vm, 0x0094_0001, &[0, 48, fellow], fs, 5), 0);
+    run_efun(vm, 0x0094_0003, &[0, 1], fs); // SetLeader
+    run_efun(vm, 0x008A_0001, &[obj, fs], u32::MAX);
+    run_efun(vm, 0x008A_0008, &[obj, 0, 1, 30, 2], u32::MAX);
     assert_eq!(
         host.take_script_notices(),
         vec![ScriptNotice {
-            name: "CM_Character::SendNotice_UpdateSkillPanel",
+            name: "CM_Money::SendNotice_UpdateMoney",
             object: 0x5000_0001,
-            args: vec![
-                NoticeArg::Long(0x1_0000_0002),
-                NoticeArg::Int(3),
-                NoticeArg::Int(4)
-            ],
+            args: vec![NoticeArg::Int(250)],
         }]
     );
+    let notices = host.take_notices();
     assert_eq!(
-        host.take_notices(),
-        vec![GameplayNotice::UpdateInventory {
-            code: 0x4000_0001,
-            item: 9,
-            location: 2
-        }]
+        notices[..2],
+        [
+            GameplayNotice::UpdateSkillPanel {
+                available_xp: 0x1_0000_0002,
+                skill_credits: 3,
+                hero_skill_credits: 4
+            },
+            GameplayNotice::UpdateInventory {
+                code: 0x4000_0001,
+                item: 9,
+                location: 2
+            },
+        ]
+    );
+    // Fellows in table order (id % 47: 48 -> bucket 1, 1 -> bucket 1, the later at the head).
+    let GameplayNotice::UpdateFellowship(f) = &notices[2] else {
+        panic!("{notices:?}");
+    };
+    let ids: Vec<u64> = f.fellows.iter().map(|(id, _)| *id).collect();
+    assert_eq!((ids, f.leader, f.fellows[0].1.level), (vec![1, 48], 1, 7));
+    assert_eq!(
+        notices[3],
+        GameplayNotice::UpdateFellowHealth {
+            fellow: 1,
+            value: 30,
+            pk: 2
+        }
     );
 }
 
@@ -377,8 +401,12 @@ fn init_player_runs_to_its_end() {
     assert!(notices
         .iter()
         .any(|n| matches!(n, GameplayNotice::UpdateHeroStatus { .. })));
+    assert!(notices
+        .iter()
+        .any(|n| matches!(n, GameplayNotice::UpdateSkillPanel { .. })));
+    assert!(notices.contains(&GameplayNotice::ReloadOptions));
     let raised: Vec<_> = host.take_script_notices().iter().map(|n| n.name).collect();
-    assert!(raised.contains(&"CM_Character::SendNotice_UpdateSkillPanel"));
+    assert!(raised.contains(&"CM_Money::SendNotice_UpdateMoney"));
     assert!(host.take_dropped().is_empty());
 }
 
@@ -500,5 +528,54 @@ fn skill_panels_answer_through_the_singleton() {
     for panel in [1, 2, 3, 0x4000_0001] {
         let data = host.skill_panel(panel).unwrap().unwrap();
         assert!(data.nodes.is_empty());
+    }
+}
+
+/// The login's GUN line: `CPlayer` 0x65 asks GUN for the ignore and friends lists and sets
+/// its flags; when `RequestGUN_GetIgnoredList` answers 0 (no `TurbineGun`: no `-gunserver`,
+/// or its `Init` failed) it shows "Cannot connect to GUN server ..." (0x73651CBE in
+/// 0x25000002) instead.
+#[test]
+fn the_login_asks_gun_or_says_it_cannot() {
+    for gun in [false, true] {
+        let Some(mut host) = legions_host() else {
+            return;
+        };
+        host.set_chat_services(ChatServices {
+            turbine_chat: true,
+            gun,
+        });
+        let player = 0x5000_0001;
+        let pid = host.vm().program.package_id("CPlayer").expect("CPlayer");
+        assert!(host.create_weenie(player, pid, 0x4700_110F));
+        host.set_player(player);
+        init_player(&mut host, player);
+        let lines: Vec<u32> = host
+            .take_notices()
+            .into_iter()
+            .filter_map(|n| match n {
+                GameplayNotice::DisplayStringInfo { text, .. } => Some(text.string_id),
+                _ => None,
+            })
+            .collect();
+        let requests = host.take_chat_requests();
+        if gun {
+            assert!(lines.is_empty());
+            assert_eq!(
+                requests,
+                [
+                    ChatRequest::GetIgnoredList {
+                        user_requested: false
+                    },
+                    ChatRequest::GetFriendsList {
+                        user_requested: false
+                    },
+                    ChatRequest::SetStateFlags(1),
+                ]
+            );
+        } else {
+            assert_eq!(lines, [0x7365_1CBE]);
+            assert!(requests.is_empty());
+        }
     }
 }

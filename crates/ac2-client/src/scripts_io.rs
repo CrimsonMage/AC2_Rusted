@@ -64,10 +64,11 @@ impl Client {
                 ChatRequest::SendToRoom { room, text, flags } => {
                     self.session.send_to_room(room, &text, flags);
                 }
-                // `set_chat_services` says there is no GUN, so these never queue.
+                // The GUN service's (friends, ignore list, presence): only queued once
+                // `set_gun_service(true)` says the client has one.
                 other => {
                     if let Some(scripts) = self.scripts.as_mut() {
-                        scripts.problems.push(format!("no GUN for {other:?}"));
+                        scripts.gun_requests.push(other);
                     }
                 }
             }
@@ -128,6 +129,34 @@ impl Client {
         self.scripts
             .as_mut()
             .map(|s| std::mem::take(&mut s.script_notices))
+            .unwrap_or_default()
+    }
+}
+
+impl Client {
+    /// Whether the client has a GUN server (retail: `gmClient::Init` builds
+    /// `NSTurbineGun::TurbineGun` only for a `-gunserver` argument, the launcher's, and drops
+    /// it when `TurbineGun::Init` fails). Without one, `gmCWInterface::RequestGUN_*` answer 0 and
+    /// the player's login (`CPlayer` 0x65, after `RequestGUN_GetIgnoredList`) shows "Cannot
+    /// connect to GUN server ..."; with one, the requests come out of
+    /// [`Client::take_gun_requests`] for it. Room chat goes to Turbine chat either way.
+    pub fn set_gun_service(&mut self, gun: bool) {
+        if let Some(scripts) = self.scripts.as_mut() {
+            scripts
+                .host
+                .set_chat_services(ac2_script::host::ChatServices {
+                    turbine_chat: true,
+                    gun,
+                });
+        }
+    }
+
+    /// The GUN requests the scripts made (friends, ignore list, flags, presence, calls) since
+    /// the last call, for the GUN service.
+    pub fn take_gun_requests(&mut self) -> Vec<ChatRequest> {
+        self.scripts
+            .as_mut()
+            .map(|s| std::mem::take(&mut s.gun_requests))
             .unwrap_or_default()
     }
 }

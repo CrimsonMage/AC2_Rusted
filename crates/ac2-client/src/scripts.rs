@@ -60,6 +60,8 @@ pub(crate) struct Scripts {
     pub(crate) data_pending: usize,
     /// The `CM_*` notices ac2-weenie has no type for, since the last take.
     pub(crate) script_notices: Vec<ScriptNotice>,
+    /// GUN requests for the GUN service ([`Client::set_gun_service`]).
+    pub(crate) gun_requests: Vec<ac2_script::host::ChatRequest>,
 }
 
 impl Client {
@@ -75,7 +77,8 @@ impl Client {
     /// waiting calls resume when they land.
     pub fn attach_scripts(&mut self, mut host: ScriptHost, functions: &[u32]) {
         self.session.set_script_functions(functions);
-        // The Legions client chats through Turbine chat; it has no GUN (`S_pTurbineGun`).
+        // Room chat goes through Turbine chat; a GUN server only when the client has one
+        // (`Client::set_gun_service`), as `gmClient::Init` builds `TurbineGun` for `-gunserver`.
         host.set_chat_services(ChatServices {
             turbine_chat: true,
             gun: false,
@@ -90,6 +93,7 @@ impl Client {
             data_waits: BTreeMap::new(),
             data_pending: 0,
             script_notices: Vec::new(),
+            gun_requests: Vec::new(),
         });
         // Objects already known get their processes too.
         let known: Vec<u64> = self.session.objects().iter().map(|o| o.id).collect();

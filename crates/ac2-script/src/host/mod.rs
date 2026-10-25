@@ -12,6 +12,7 @@ mod gun;
 mod ifun;
 mod interface;
 mod notices;
+mod notices_typed;
 mod skill_panel;
 
 use std::collections::HashMap;

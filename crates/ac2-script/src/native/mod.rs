@@ -10,6 +10,7 @@ mod containers;
 mod hash_table;
 mod multi;
 mod options;
+pub mod social;
 mod string_info;
 mod structs;
 
@@ -96,6 +97,10 @@ pub mod ntype {
     pub const EXAMINATION_REQUEST: u32 = 0x9A;
     pub const GAMEPLAY_OPTIONS_PROFILE: u32 = 0x9B;
     pub const SHORTCUT_INFO: u32 = 0xAC;
+    pub const ALLEGIANCE_DATA_ADAPTOR: u32 = 0x82;
+    pub const ALLEGIANCE_PROFILE_ADAPTOR: u32 = 0x83;
+    pub const FELLOW_ADAPTOR: u32 = 0x93;
+    pub const FELLOWSHIP_ADAPTOR: u32 = 0x94;
     pub const QUALIFIED_DATA_ID_ARRAY: u32 = 0x5E;
     pub const SELECTION_INFO: u32 = 0xAB;
     pub const UI_SAVE_LOCATIONS: u32 = 0x6F;
@@ -153,6 +158,14 @@ pub enum NativeObject {
     /// `QualifiedDataIDArray`: the set of (DB type, DID) pairs (`std::set<QualifiedDataID>`;
     /// scripts only add to it).
     DataIds(std::collections::BTreeSet<(u32, u32)>),
+    /// `FellowAdaptor`.
+    Fellow(Box<ac2_weenie::FellowInfo>),
+    /// `FellowshipAdaptor` (fellows in the order added; see [`social`]).
+    Fellowship(Box<ac2_weenie::FellowshipInfo>),
+    /// `AllegianceDataAdaptor`.
+    AllegianceData(Box<ac2_weenie::AllegianceMember>),
+    /// `AllegianceProfileAdaptor`.
+    AllegianceProfile(Box<ac2_weenie::AllegianceProfile>),
     /// `GameplayOptionsProfile` (Legions layout).
     GameplayOptions(Box<GameplayOptions>),
     /// `BaseListIter`: a position in a list (`None` past the end). Retail holds the list node;
@@ -239,6 +252,14 @@ impl NativeObject {
                 )))
             }
             ntype::GAMEPLAY_OPTIONS_PROFILE => NativeObject::GameplayOptions(Box::default()),
+            ntype::FELLOW_ADAPTOR => NativeObject::Fellow(Box::new(social::fellow())),
+            ntype::FELLOWSHIP_ADAPTOR => NativeObject::Fellowship(Box::new(social::fellowship())),
+            ntype::ALLEGIANCE_DATA_ADAPTOR => {
+                NativeObject::AllegianceData(Box::new(social::allegiance_member()))
+            }
+            ntype::ALLEGIANCE_PROFILE_ADAPTOR => {
+                NativeObject::AllegianceProfile(Box::new(social::allegiance_profile()))
+            }
             ntype::QUALIFIED_DATA_ID_ARRAY => NativeObject::DataIds(Default::default()),
             ntype::SELECTION_INFO => NativeObject::Wire(Box::new(
                 ac2_net::protocol::NativeObject::SelectionInfo(Default::default()),
