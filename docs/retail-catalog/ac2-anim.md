@@ -1,6 +1,6 @@
 # ac2-anim: Animation system
 
-532 retail functions: 105 done, 16 partial, 375 to do, 36 skipped.
+532 retail functions: 106 done, 16 partial, 374 to do, 36 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/anim/charactersetup.cpp.c` (2/67)
@@ -532,11 +532,11 @@ Legend and workflow: [README](README.md).
 - [ ] `Behavior::Behavior` · 0068f360 · legions 0062fee0
 - [ ] `Behavior::StreamPack` · 0068f380
 
-## `portal/shared/src/animsys/behaviorparams.cpp.c` (1/6)
+## `portal/shared/src/animsys/behaviorparams.cpp.c` (2/6)
 
 ### BehaviorParams
 - [ ] `BehaviorParams::IsValid` · 00678fe0 · legions 006233b0
-- [ ] `BehaviorParams::get_pack_bitfield` · 00679000 · legions 006233d0
+- [x] `BehaviorParams::get_pack_bitfield` · 00679000 · legions 006233d0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [x] `BehaviorParams::StreamPack` · 00679220 · legions 006235f0 — ac2-anim; ac2-script native::BehaviorParams also unpacks it
 - [ ] `BehaviorParams::SetDefaults` · 006795b0 · legions 00623980
 - [ ] `BehaviorParams::BehaviorParams` · 00679660 · legions 00623a30

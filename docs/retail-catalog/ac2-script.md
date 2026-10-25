@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 992 done, 78 partial, 1320 to do, 78 skipped.
+2468 retail functions: 1014 done, 71 partial, 1305 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -2563,19 +2563,19 @@ Legend and workflow: [README](README.md).
 - [ ] `gObjCollisionProfile::CallEFun_IsEndCollision` · 0053fd30
 - [ ] `gObjCollisionProfile::CallEFun_IsEthereal` · 0053fda0
 
-## `portal/shared/src/interp/glue/gpackbuffer.cpp.c` (0/10)
+## `portal/shared/src/interp/glue/gpackbuffer.cpp.c` (10/10)
 
 ### gPackBuffer
-- [~] `gPackBuffer::CallEFun_PackFloat` · 0053f690 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-- [~] `gPackBuffer::CallEFun_PackInt` · 0053f710 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-- [~] `gPackBuffer::CallEFun_PackLFloat` · 0053f790 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-- [~] `gPackBuffer::CallEFun_PackLInt` · 0053f830 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-- [~] `gPackBuffer::CallEFun_PackPackage` · 0053f8b0 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-- [ ] `gPackBuffer::CallEFun_UnPackFloat` · 0053f910 · legions 00520d70
-- [ ] `gPackBuffer::CallEFun_UnPackInt` · 0053f9b0 · legions 00520df0
-- [ ] `gPackBuffer::CallEFun_UnPackLFloat` · 0053fa50 · legions 00520e70
-- [ ] `gPackBuffer::CallEFun_UnPackLInt` · 0053faf0 · legions 00520ef0
-- [ ] `gPackBuffer::CallEFun_UnPackPackage` · 0053fba0 · legions 00520f70
+- [x] `gPackBuffer::CallEFun_PackFloat` · 0053f690 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_PackInt` · 0053f710 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_PackLFloat` · 0053f790 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_PackLInt` · 0053f830 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_PackPackage` · 0053f8b0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_UnPackFloat` · 0053f910 · legions 00520d70 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_UnPackInt` · 0053f9b0 · legions 00520df0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_UnPackLFloat` · 0053fa50 · legions 00520e70 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_UnPackLInt` · 0053faf0 · legions 00520ef0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `gPackBuffer::CallEFun_UnPackPackage` · 0053fba0 · legions 00520f70 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 
 ## `portal/shared/src/interp/glue/gpath.cpp.c` (0/12)
 
@@ -3484,7 +3484,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PackageState::~PackageState` · 006e16d0 · legions 00668510
 - [x] `PackageState::UnPack` · 006e1700 · legions 00668540 — ac2-script WLib/WState/ByteStream decode
 
-## `portal/shared/src/interp/packing/packbuffer.cpp.c` (2/20)
+## `portal/shared/src/interp/packing/packbuffer.cpp.c` (14/20)
 
 ### PackBuffer
 - [ ] `PackBuffer::~PackBuffer` · 006ed4f0 · legions 00672300
@@ -3494,23 +3494,23 @@ Legend and workflow: [README](README.md).
 - [ ] `PackageState::GetPackSize` · 006ed580 · legions 00672390
 
 ### PackBuffer
-- [ ] `PackBuffer::UnPackInt` · 006ed590 · legions 006723a0
-- [ ] `PackBuffer::UnPackLInt` · 006ed630 · legions 00672440
-- [ ] `PackBuffer::UnPackFloat` · 006ed700 · legions 00672510
-- [ ] `PackBuffer::UnPackLFloat` · 006ed7b0 · legions 006725c0
-- [ ] `PackBuffer::UnPackPackage` · 006ed870 · legions 00672680
+- [x] `PackBuffer::UnPackInt` · 006ed590 · legions 006723a0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackLInt` · 006ed630 · legions 00672440 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackFloat` · 006ed700 · legions 00672510 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackLFloat` · 006ed7b0 · legions 006725c0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackPackage` · 006ed870 · legions 00672680 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 - [ ] `PackBuffer::Grow` · 006ed920 · legions 00672730
 - [ ] `PackBuffer::PackBuffer` · 006ed9a0 · legions 006727b0
 - [x] `PackBuffer::Pack` · 006ed9c0 · legions 006727d0
 - [x] `PackBuffer::UnPack` · 006eda20 · legions 00672830
 - [ ] `PackBuffer::PackRaw` · 006edaa0
-- [~] `PackBuffer::PackPackage` · 006edb40 — ac2-net UsageDesc::to_reference / PackValue::Reference: packed graphs the client builds (root, then reference slots in slot order); no walk over live VM state yet
-- [ ] `PackBuffer::UnPackBuffer_Int` · 006edc00 · legions 00672920
-- [ ] `PackBuffer::UnPackBuffer_LongInt` · 006edc50 · legions 00672970
-- [ ] `PackBuffer::UnPackBuffer_Float` · 006edcc0 · legions 006729e0
-- [ ] `PackBuffer::UnPackBuffer_LongFloat` · 006edd10 · legions 00672a30
-- [ ] `PackBuffer::UnPackBuffer_Package` · 006edd90 · legions 00672ab0
-- [~] `PackBuffer::UnPackBuffer` · 006edde0 · legions 00672b00 — ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+- [x] `PackBuffer::PackPackage` · 006edb40 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackBuffer_Int` · 006edc00 · legions 00672920 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackBuffer_LongInt` · 006edc50 · legions 00672970 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackBuffer_Float` · 006edcc0 · legions 006729e0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackBuffer_LongFloat` · 006edd10 · legions 00672a30 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackBuffer_Package` · 006edd90 · legions 00672ab0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+- [x] `PackBuffer::UnPackBuffer` · 006edde0 · legions 00672b00 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 
 ## `portal/shared/src/interp/packing/vmdata.cpp.c` (0/13)
 

@@ -11,6 +11,8 @@ license.workspace = true
 ac2-core = { path = "../ac2-core" }
 ac2-dat = { path = "../ac2-dat" }
 ac2-db = { path = "../ac2-db" }
+ac2-net = { path = "../ac2-net" }
+ac2-weenie = { path = "../ac2-weenie" }
 log = "0.4"
 
 [dev-dependencies]

@@ -82,6 +82,15 @@ key	status	note
 00463df0	~	ac2-script glue: id table + pure-glue registry; engine glue unbound
 004661d0	~	ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 00467160	~	ac2-script native::unpack: the native types Legions WStates hold
+00468210	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+00468250	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+00469580	x	ac2-script host notices -> ac2_weenie::GameplayNotice
+004695d0	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+00469820	x	ac2-script host notices -> ac2_weenie::GameplayNotice
+00469e30	x	ac2-script host notices -> ac2_weenie::GameplayNotice
+00469f60	x	ac2-script host notices -> ac2_weenie::GameplayNotice
+0046a160	x	ac2-script host notices -> ac2_weenie::GameplayNotice
+0046a2d0	x	ac2-script host notices -> ac2_weenie::GameplayNotice
 00474780	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00479030	x	ac2-ui interpreter.rs
 00479110	x	ac2-ui interpreter.rs
@@ -355,6 +364,8 @@ key	status	note
 004ad1d0	~	ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 004b1da0	x	ac2-script reference/native unpack
 004b4720	~	ac2-script native::unpack: the native types Legions WStates hold
+004bb890	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+004bb910	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 004bfb90	x	
 004bfeb0	~	ac2-weenie dat_iterations + session answer; internal.dat (slot 4) not opened; language id is configuration (EnumMapper 0x4000002A lookup not ported)
 004c4ed0	x	
@@ -971,6 +982,11 @@ key	status	note
 0052b1d0	x	ac2-world region::sky_objects, ac2-render sky
 0052dbb0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 0052ddb0	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
+0052de20	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+0052df80	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+0052e080	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+0052e130	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+0052e150	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 0052e6a0	x	
 00530150	x	ac2-weenie ObjectTable::apply_action
 00530e70	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
@@ -1059,11 +1075,16 @@ key	status	note
 0053a940	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053a9c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053aa20	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
-0053f690	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-0053f710	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-0053f790	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-0053f830	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-0053f8b0	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+0053f690	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053f710	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053f790	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053f830	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053f8b0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053f910	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053f9b0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053fa50	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053faf0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053fba0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 00541990	x	ac2-script glue::math / glue::missile
 005419f0	x	ac2-script glue::math / glue::missile
 00541a50	x	ac2-script glue::math / glue::missile
@@ -2417,6 +2438,7 @@ key	status	note
 00662490	x	ac2-script data/glue::enums
 00662590	x	ac2-script data/glue::enums
 00662970	x	ac2-script data/glue::enums
+00679000	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 00679220	x	ac2-anim; ac2-script native::BehaviorParams also unpacks it
 0067a480	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0067a490	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
@@ -2849,10 +2871,20 @@ key	status	note
 006ecb60	~	ac2-script ByteStream::validate_versions: wcc check; InterpVersionCheck env path not ported
 006ecd30	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006ecdb0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+006ed590	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006ed630	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006ed700	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006ed7b0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006ed870	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 006ed9c0	x	
 006eda20	x	
-006edb40	~	ac2-net UsageDesc::to_reference / PackValue::Reference: packed graphs the client builds (root, then reference slots in slot order); no walk over live VM state yet
-006edde0	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+006edb40	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006edc00	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006edc50	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006edcc0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006edd10	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006edd90	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006edde0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 006ff763	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0071f6b0	x	
 0071fa40	x	

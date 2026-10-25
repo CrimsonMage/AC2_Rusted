@@ -1,31 +1,29 @@
 //! Native objects: the engine types a heap object can hold instead of script slots, by native
 //! type id (`CNativeFactory::GetNativeTypeName`, `gmCNativeFactory::GetNativeTypeName`).
 //!
-//! [`unpack`] is `CNativeFactory::UnPackNativeObject` and `gmCNativeFactory::UnPackNativeObject`
-//! for every native type the Legions WStates hold; the others report "not ported" until a
-//! script needs them.
+//! These are the run-time forms the glue works on. The byte codecs
+//! (`CNativeFactory::UnPackNativeObject` / `PackNativeObject`) are ac2-net's; [`crate::wire`]
+//! converts, and natives no glue edits yet stay in their wire form ([`NativeObject::Wire`]).
 
 mod containers;
-mod gm;
 mod hash_table;
 mod multi;
 mod string_info;
 mod structs;
 
+/// `Position` (cell id, origin, rotation w x y z).
+pub use ac2_net::protocol::Position;
 pub use containers::{RefKey, ScriptList};
-pub use gm::{
-    ExaminationRequest, GameplayOptionsProfile, GmKeyframe, GmRaceSexInfo, GmSceneInfo,
-    ShortcutInfo, SkillUiNode,
-};
 pub use hash_table::{
     bucket_size_index, HashNode, HashPos, NativeKeys, PlainKeys, ScriptHash, BUCKET_SIZES,
     DEFAULT_BUCKETS,
 };
 pub use multi::{MultiNode, ScriptMultiHash, ScriptMultiMap, STL_PRIMES};
 pub use string_info::{GetStringError, StringInfo, StringVar, StringVarValue};
-pub use structs::{BehaviorParams, MissileParameters, Position, RandomSelectionTable};
-
-use crate::unpack::{Reader, UnpackResult};
+pub use structs::{
+    behavior_defaults, behavior_pack_bitfield, BehaviorParams, MissileParameters,
+    RandomSelectionTable,
+};
 
 /// Native type ids (`CNativeFactory` 0x01-0x76 and the 0x2Exx-0x38xx extensions,
 /// `gmCNativeFactory` 0x82-0xAF).
@@ -48,6 +46,7 @@ pub mod ntype {
     pub const MISSILE_PARAMETERS: u32 = 0x46;
     pub const NA_HASH: u32 = 0x4B;
     pub const NR_HASH: u32 = 0x4D;
+    pub const PACK_BUFFER: u32 = 0x50;
     pub const POSITION: u32 = 0x5A;
     pub const RANDOM_SELECTION_TABLE_INT: u32 = 0x60;
     pub const R_ARRAY: u32 = 0x61;
@@ -92,6 +91,17 @@ pub mod ntype {
     pub const SKILL_UI_NODE: u32 = 0xAE;
 }
 
+/// One `PackBuffer` value (`gPackBuffer::CallEFun_Pack*` tags 1-5); a package is packed when
+/// it is added (`PackBuffer::PackPackage` calls `VM::PackReference` then).
+#[derive(Debug, Clone, PartialEq)]
+pub enum PackItem {
+    Int(u32),
+    LongInt(u64),
+    Float(u32),
+    LongFloat(u64),
+    Package(crate::reference::PackedReference),
+}
+
 /// One unpacked native object.
 #[derive(Debug, Clone, PartialEq)]
 pub enum NativeObject {
@@ -123,17 +133,17 @@ pub enum NativeObject {
     MissileParameters(MissileParameters),
     BehaviorParams(Box<BehaviorParams>),
     RandomSelectionTable(RandomSelectionTable),
-    ExaminationRequest(ExaminationRequest),
-    GameplayOptionsProfile(Box<GameplayOptionsProfile>),
-    GmRaceSexInfo(GmRaceSexInfo),
-    GmSceneInfo(GmSceneInfo),
-    SkillUiNode(Box<SkillUiNode>),
     /// `BaseListIter`: a position in a list (`None` past the end). Retail holds the list node;
     /// the port holds its index, which agrees for everything done through the iterator.
     ListIter {
         list: u32,
         pos: Option<usize>,
     },
+    /// `PackBuffer`: the tagged values a script packs for a server call, in order.
+    PackBuffer(std::collections::VecDeque<PackItem>),
+    /// A native that came over the wire and has no run-time form yet; it goes back out as it
+    /// came.
+    Wire(Box<ac2_net::protocol::NativeObject>),
     /// A native type made by `NewNative` that the port has no value for yet.
     Unbound(u32),
 }
@@ -186,69 +196,20 @@ impl NativeObject {
                     pos: None,
                 }
             }
-            ntype::POSITION => NativeObject::Position(Position::default()),
+            ntype::POSITION => NativeObject::Position(Position {
+                cell: 0,
+                origin: [0.0; 3],
+                rotation: [1.0, 0.0, 0.0, 0.0],
+            }),
             ntype::RANDOM_SELECTION_TABLE_INT => {
                 NativeObject::RandomSelectionTable(RandomSelectionTable::default())
             }
-            ntype::BEHAVIOR_PARAMS => NativeObject::BehaviorParams(Box::default()),
+            ntype::BEHAVIOR_PARAMS => NativeObject::BehaviorParams(Box::new(behavior_defaults())),
+            ntype::PACK_BUFFER => NativeObject::PackBuffer(Default::default()),
             ntype::MISSILE_PARAMETERS => {
                 NativeObject::MissileParameters(MissileParameters::default())
             }
             other => NativeObject::Unbound(other),
         }
-    }
-}
-
-/// `CNativeFactory::UnPackNativeObject` / `gmCNativeFactory::UnPackNativeObject`.
-pub fn unpack(native_type: u32, r: &mut Reader<'_>) -> UnpackResult<NativeObject> {
-    use containers::{Elem, Key};
-    Ok(match native_type {
-        ntype::A_LIST | ntype::R_LIST | ntype::A_ARRAY | ntype::R_ARRAY => {
-            NativeObject::List(ScriptList::unpack(r, Elem::U32)?)
-        }
-        ntype::L_LIST | ntype::L_ARRAY => NativeObject::List(ScriptList::unpack(r, Elem::U64)?),
-        ntype::AA_HASH | ntype::AL_HASH | ntype::AR_HASH => {
-            let value = value_width(native_type);
-            NativeObject::Hash(containers::unpack_hash(r, Key::U32, Some(value))?)
-        }
-        ntype::LA_HASH | ntype::LL_HASH | ntype::LR_HASH => {
-            let value = value_width(native_type);
-            NativeObject::Hash(containers::unpack_hash(r, Key::U64, Some(value))?)
-        }
-        ntype::NA_HASH | ntype::NR_HASH => {
-            NativeObject::Hash(containers::unpack_hash(r, Key::Ref, Some(Elem::U32))?)
-        }
-        ntype::AA_MULTI_HASH => NativeObject::MultiHash(containers::unpack_multi_hash(r)?),
-        ntype::A_HASH_SET => NativeObject::Hash(containers::unpack_hash(r, Key::U32, None)?),
-        ntype::LA_HASH_SET => NativeObject::Hash(containers::unpack_hash(r, Key::U64, None)?),
-        ntype::STRING_INFO => NativeObject::StringInfo(StringInfo::unpack(r)?),
-        ntype::WPSTRING => NativeObject::WString(r.wpstring()?),
-        ntype::VECTOR => NativeObject::Vector([r.f32()?, r.f32()?, r.f32()?]),
-        ntype::POSITION => NativeObject::Position(Position::unpack(r)?),
-        ntype::MISSILE_PARAMETERS => NativeObject::MissileParameters(MissileParameters::unpack(r)?),
-        ntype::BEHAVIOR_PARAMS => {
-            NativeObject::BehaviorParams(Box::new(BehaviorParams::unpack(r)?))
-        }
-        ntype::RANDOM_SELECTION_TABLE_INT => {
-            NativeObject::RandomSelectionTable(RandomSelectionTable::unpack(r)?)
-        }
-        ntype::EXAMINATION_REQUEST => {
-            NativeObject::ExaminationRequest(ExaminationRequest::unpack(r)?)
-        }
-        ntype::GAMEPLAY_OPTIONS_PROFILE => {
-            NativeObject::GameplayOptionsProfile(Box::new(GameplayOptionsProfile::unpack(r)?))
-        }
-        ntype::GM_RACE_SEX_INFO => NativeObject::GmRaceSexInfo(GmRaceSexInfo::unpack(r)?),
-        ntype::GM_SCENE_INFO => NativeObject::GmSceneInfo(GmSceneInfo::unpack(r)?),
-        ntype::SKILL_UI_NODE => NativeObject::SkillUiNode(Box::new(SkillUiNode::unpack(r)?)),
-        _ => return Err(r.bad("native type not ported")),
-    })
-}
-
-/// The value width of an `XYHash`: `L` values are 64-bit, `A` and `R` values 32-bit.
-fn value_width(native_type: u32) -> containers::Elem {
-    match native_type {
-        ntype::AL_HASH | ntype::LL_HASH => containers::Elem::U64,
-        _ => containers::Elem::U32,
     }
 }

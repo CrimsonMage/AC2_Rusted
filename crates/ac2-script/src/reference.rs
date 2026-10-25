@@ -4,10 +4,11 @@
 //! `ReferenceTable::UnPackReferenceArray`: a `PSmartArray<unsigned long>` of the packed
 //! references' ids (the first is the root), then one `ReferenceEntry` per id
 //! (`ReferenceEntry::UnPack`): the entry's flag word, then by its storage kind either a
-//! `HeapObject` (`HeapObject::UnPack`), a WState DID, or a 4-byte value.
+//! `HeapObject` (`HeapObject::UnPack`), a WState DID, or a 4-byte value. The byte codec is
+//! ac2-net's; this is the VM's run-time form of the graph.
 
 use crate::native::NativeObject;
-use crate::unpack::{Reader, UnpackResult};
+use crate::unpack::{UnpackError, UnpackResult};
 
 /// `ReferenceEntry::m_blob` bits.
 pub mod flags {
@@ -72,16 +73,15 @@ pub struct PackedReference {
 }
 
 impl PackedReference {
-    /// `ReferenceTable::UnPackReferenceArray`'s read side, over all of `bytes`.
+    /// `ReferenceTable::UnPackReferenceArray` over all of `bytes`, through ac2-net's codec
+    /// (`ac2_net::protocol::PackedReference::from_bytes`), into the VM's run-time objects.
     pub fn unpack(bytes: &[u8]) -> UnpackResult<Self> {
-        let mut r = Reader::new(bytes);
-        let ids = r.u32_array()?;
-        let entries = ids
-            .iter()
-            .map(|_| entry(&mut r))
-            .collect::<UnpackResult<Vec<_>>>()?;
-        r.finish("bytes left after the packed references")?;
-        Ok(Self { ids, entries })
+        let packed =
+            ac2_net::protocol::PackedReference::from_bytes(bytes).map_err(|e| UnpackError {
+                context: protocol_context(&e),
+                position: 0,
+            })?;
+        Ok(crate::wire::from_net(&packed))
     }
 
     /// The root entry (the packed reference the WState saved).
@@ -90,59 +90,14 @@ impl PackedReference {
     }
 }
 
-/// `ReferenceEntry::UnPack`.
-fn entry(r: &mut Reader<'_>) -> UnpackResult<PackedEntry> {
-    let flags = r.u32()?;
-    Ok(match flags & flags::KIND_MASK {
-        flags::KIND_HEAP if flags & flags::PACKAGE_DID != 0 => PackedEntry::Package {
-            flags,
-            did: r.u32()?,
-        },
-        flags::KIND_HEAP if flags & flags::RELATIVE != 0 && flags & flags::FORCE_PACK == 0 => {
-            PackedEntry::Relative { flags }
-        }
-        flags::KIND_HEAP => PackedEntry::Heap {
-            flags,
-            object: heap_object(r)?,
-        },
-        flags::KIND_VALUE => PackedEntry::Value {
-            flags,
-            value: r.u32()?,
-        },
-        _ => return Err(r.bad("reference entry has no storage kind")),
-    })
-}
-
-/// `HeapObject::UnPack`: `m_pkgStateID`, then `m_pkgid << 16 | m_ntype`, the native object when
-/// `m_ntype != 0` (`VM::UnPackNativeObject`), the slot count, the slots, the tags, alignment.
-///
-/// Retail also rejects a package instance whose slot count differs from the library's
-/// `PackageInfo::size` for its package; that check needs the library, see
-/// [`HeapObject::matches_library`].
-fn heap_object(r: &mut Reader<'_>) -> UnpackResult<HeapObject> {
-    let pkg_state_id = r.u32()?;
-    let word = r.u32()?;
-    let native_type = word & 0xFFFF;
-    let pkg_id = match word >> 16 {
-        0xFFFF => u32::MAX,
-        id => id,
-    };
-    let native = match native_type {
-        0 => None,
-        ntype => Some(crate::native::unpack(ntype, r)?),
-    };
-    let n = r.count(5, "heap object slot count")?;
-    let slots = (0..n).map(|_| r.u32()).collect::<UnpackResult<_>>()?;
-    let tags = r.bytes(n)?.to_vec();
-    r.align()?;
-    Ok(HeapObject {
-        pkg_state_id,
-        pkg_id,
-        native_type,
-        native,
-        slots,
-        tags,
-    })
+fn protocol_context(e: &ac2_net::protocol::ProtocolError) -> &'static str {
+    use ac2_net::protocol::ProtocolError as E;
+    match e {
+        E::Truncated => "packed references end early",
+        E::TrailingBytes => "bytes left after the packed references",
+        E::Invalid(c) | E::Unsupported(c) => c,
+        E::String(_) => "a packed string does not decode",
+    }
 }
 
 impl HeapObject {

@@ -74,6 +74,7 @@ fn every_wstate_decodes_to_its_last_byte() {
     let package_info = &library.stream.vtables.package_info;
     let (mut current, mut legacy, mut stale) = (0, 0, 0);
     let mut natives: BTreeMap<&'static str, usize> = BTreeMap::new();
+    let mut mismatched = Vec::new();
     for chunk in ids.chunks(4096) {
         // A fresh store per chunk keeps the decoded states from piling up in one cache.
         let store = ResourceStore::new(dataset.clone());
@@ -104,6 +105,11 @@ fn every_wstate_decodes_to_its_last_byte() {
             if !fits {
                 stale += 1;
             }
+            // Through the VM's run-time form and back out byte for byte.
+            let back = crate::wire::to_net(refs).unwrap_or_else(|e| panic!("{did:08x}: {e:?}"));
+            if back.to_bytes() != state.package_state {
+                mismatched.push(*did);
+            }
         }
     }
     eprintln!(
@@ -112,8 +118,28 @@ fn every_wstate_decodes_to_its_last_byte() {
          (retail's HeapObject::UnPack rejects those)"
     );
     eprintln!("native objects: {natives:?}");
+    // One graph repacks differently, as retail's would: its NRHash keys were packed with
+    // `m_bUseCache` 0, and `ReferenceIDWrapper::StreamPack` sets it to 1 on unpack.
+    assert_eq!(mismatched, vec![0x7000_1ABD]);
     assert_eq!(current + legacy, ids.len());
     assert_eq!(legacy, 1638);
+}
+
+fn wire_name(native: &ac2_net::protocol::NativeObject) -> &'static str {
+    use ac2_net::protocol::NativeObject as W;
+    match native {
+        W::ExaminationRequest(_) => "ExaminationRequest (wire)",
+        W::ExaminationProfile(_) => "ExaminationProfile (wire)",
+        W::GameplayOptionsProfile(_) => "GameplayOptionsProfile (wire)",
+        W::GmRaceSexInfo(_) => "gmRaceSexInfo (wire)",
+        W::GmSceneInfo(_) => "gmSceneInfo (wire)",
+        W::SkillUiNode(_) => "SkillUINode (wire)",
+        W::ShortcutInfo(_) => "ShortcutInfo (wire)",
+        W::UiSaveLocations(_) => "UISaveLocations (wire)",
+        W::SelectionInfo(_) => "SelectionInfo (wire)",
+        W::Empty(_) => "adaptor (wire)",
+        _ => "other (wire)",
+    }
 }
 
 fn native_name(native: &NativeObject) -> &'static str {
@@ -127,15 +153,12 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::MissileParameters(_) => "MissileParameters",
         NativeObject::BehaviorParams(_) => "BehaviorParams",
         NativeObject::RandomSelectionTable(_) => "RandomSelectionTable",
-        NativeObject::ExaminationRequest(_) => "ExaminationRequest",
-        NativeObject::GameplayOptionsProfile(_) => "GameplayOptionsProfile",
-        NativeObject::GmRaceSexInfo(_) => "gmRaceSexInfo",
-        NativeObject::GmSceneInfo(_) => "gmSceneInfo",
-        NativeObject::SkillUiNode(_) => "SkillUINode",
         NativeObject::ListIter { .. } => "list iterator",
         NativeObject::HashIter { .. } => "hash iterator",
         NativeObject::MultiHash(_) => "multi-hash",
         NativeObject::MultiMap(_) => "multi-map",
+        NativeObject::PackBuffer(_) => "PackBuffer",
+        NativeObject::Wire(w) => wire_name(w),
         NativeObject::MultiIter { .. } => "multi iterator",
         NativeObject::Unbound(_) => "unbound",
     }

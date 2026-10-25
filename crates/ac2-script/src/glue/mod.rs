@@ -16,7 +16,7 @@ mod cparse;
 mod enums;
 mod format;
 mod hashes;
-mod lists;
+pub(crate) mod lists;
 mod math;
 mod missile;
 mod multi;

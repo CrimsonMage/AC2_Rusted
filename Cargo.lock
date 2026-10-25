@@ -165,6 +165,8 @@ dependencies = [
  "ac2-core",
  "ac2-dat",
  "ac2-db",
+ "ac2-net",
+ "ac2-weenie",
  "log",
 ]
 
