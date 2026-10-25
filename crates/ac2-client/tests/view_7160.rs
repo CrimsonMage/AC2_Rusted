@@ -550,6 +550,46 @@ fn the_client_walks_with_w_and_draws_its_character() {
     );
     // The UI table groups digits.
     assert!(experience.is_some_and(|t| t.starts_with("1,000 /")));
+    // The backpack: the double's starter items come and the login lists them; the first page
+    // asks the player's script for its segment (`GetContentsInfo`, `Container` 0x3D) and shows
+    // the sword with its name.
+    server.borrow_mut().give_starter_items();
+    server.borrow_mut().send_init_player();
+    let open = FrameInput {
+        commands: vec![ac2_client::Command::SetContainerOpen {
+            container: legions_server_double::PACK,
+            open: true,
+        }],
+        ..FrameInput::default()
+    };
+    let mut events = client.use_time(&open).unwrap();
+    let mut backpack = Vec::new();
+    for _ in 0..20 {
+        // The slots' names come from the frame's items.
+        let now = client.frame();
+        let notices = client.take_script_notices();
+        let commands = view.frameworks(&mut client, &now, &events, &notices);
+        let input = FrameInput {
+            commands,
+            ..FrameInput::default()
+        };
+        server.borrow_mut().elapsed += STEP;
+        events = client.use_time(&input).unwrap();
+        backpack = view.backpack_items();
+        if backpack
+            .iter()
+            .any(|(id, _)| *id == legions_server_double::SWORD)
+        {
+            break;
+        }
+    }
+    eprintln!("backpack: {backpack:?}");
+    assert!(
+        backpack
+            .iter()
+            .any(|(id, tip)| *id == legions_server_double::SWORD && tip.contains("Sword")),
+        "{backpack:?}"
+    );
     // A displayed line reaches the log on the next update; the window shows it.
     view.chat_display(0x4_0000, "Explorer says, \"well met\"\n");
     // Images set since the build (icons) load on a worker; give them a moment.
