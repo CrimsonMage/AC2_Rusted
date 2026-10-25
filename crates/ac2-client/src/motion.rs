@@ -1,9 +1,12 @@
-//! The server's motion events for a body (`CPhysicsObj::RecvEvt_DoBehavior`,
-//! `RecvEvt_StopBehavior`) and the animated part pose as plain data.
+//! The server's motion events for a body (`CPhysicsObj::RecvEvt_DoMode`, `RecvEvt_SetMode`,
+//! the behaviour, layer and slider events, `RecvEvt_MoveTo`) and the animated part pose as
+//! plain data.
 
 use ac2_anim::Ac2BehaviorParams;
-use ac2_net::protocol::{BehaviorParams, ObjectAction};
-use ac2_physics::PhysicsBody;
+use ac2_net::protocol::{BehaviorParams, MoveTarget, MovementParameters, ObjectAction};
+use ac2_physics::{
+    DescSlider, Frame, PackedMovementParameters, PhysicsBody, Position, Quaternion, Vector,
+};
 
 /// One Setup bone as the animation left it (`CPartArray::m_boneTransforms`): offset, rotation
 /// (w, x, y, z) and scale relative to its parent bone (AC axes). The renderer builds the bone and
@@ -44,6 +47,9 @@ pub(crate) fn pose(body: &PhysicsBody) -> Vec<PartPose> {
 fn behavior(params: &BehaviorParams) -> Ac2BehaviorParams {
     let has = |bit: u32| params.bitfield & bit != 0;
     let mut out = Ac2BehaviorParams::new(if has(0x1) { params.behavior } else { 0 });
+    if has(0x2) {
+        out.mode = params.mode;
+    }
     if has(0x4) {
         out.time_scale = params.time_scale;
     }
@@ -64,14 +70,103 @@ fn behavior(params: &BehaviorParams) -> Ac2BehaviorParams {
     out
 }
 
-/// The motion events a body plays: `RecvEvt_DoBehavior` (`DoBehavior` with context 1; a weenie
-/// emote is not run first) and `RecvEvt_StopBehavior`.
-pub(crate) fn apply(body: &mut PhysicsBody, action: &ObjectAction) {
+/// A `Position` as it travels: cell, origin and rotation (w, x, y, z).
+fn position(p: &ac2_net::protocol::Position) -> Position {
+    let [w, x, y, z] = p.rotation;
+    Position::new(
+        p.cell,
+        Frame::new(
+            Vector::new(p.origin[0], p.origin[1], p.origin[2]),
+            Quaternion::new(w, x, y, z),
+        ),
+    )
+}
+
+/// `MovementParameters` from a server `MoveTo` (`MovementParameters::StreamPack` over the
+/// defaults).
+pub(crate) fn movement_parameters(p: &MovementParameters) -> ac2_physics::MovementParameters {
+    let (target_object, target_position) = match &p.target {
+        MoveTarget::Object(id) => (Some(*id), None),
+        MoveTarget::Position(at) => (None, Some(position(at))),
+    };
+    ac2_physics::MovementParameters::unpack(PackedMovementParameters {
+        flags: p.flags,
+        desired_velocity: p.desired_velocity,
+        fail_distance: p.fail_distance,
+        desired_distance: p.desired_distance,
+        max_success_distance: p.max_success_distance,
+        min_success_distance: p.min_success_distance,
+        target_object,
+        target_position,
+        offset: p.offset,
+        offset_id: p.offset_id,
+        positions: p.positions.iter().map(position).collect(),
+        context: p.context_id,
+    })
+}
+
+/// The animation half of a `PhysicsDesc` (`CPhysicsObj::set_description`): its mode (0 when
+/// the description has none), behaviours and sliders.
+pub(crate) fn describe(
+    body: &mut PhysicsBody,
+    mode: u32,
+    behaviors: &[BehaviorParams],
+    sliders: &[(u32, f32, f32)],
+) {
+    let behaviors: Vec<Ac2BehaviorParams> = behaviors.iter().map(behavior).collect();
+    let sliders: Vec<DescSlider> = sliders
+        .iter()
+        .map(|&(slider, value, velocity)| DescSlider {
+            slider,
+            value,
+            velocity,
+        })
+        .collect();
+    body.set_description_animation(mode, &behaviors, &sliders);
+}
+
+/// The motion events a body plays (`CPhysicsObj::RecvEvt_*`): `DoMode` is `DoMode(0, mode)`;
+/// `DoBehavior` and `ReleaseBehavior` run copies whose context is 1 (a weenie emote is not run
+/// first); `DoSlider` leaves the player's client-controlled sliders alone; `MoveTo` moves the
+/// player only. Returns whether a move-to started.
+pub(crate) fn apply(body: &mut PhysicsBody, action: &ObjectAction) -> bool {
     match action {
+        ObjectAction::DoMode(mode) => {
+            body.do_mode(0, *mode);
+        }
+        ObjectAction::SetMode(mode) => {
+            body.set_mode(*mode);
+        }
+        ObjectAction::StopLayer(layer) => body.stop_layer(*layer),
         ObjectAction::DoBehavior(params) => {
             body.do_behavior(&behavior(params));
         }
         ObjectAction::StopBehavior(id) => body.stop_behavior(*id),
+        ObjectAction::ReleaseBehavior {
+            behavior: id,
+            params,
+        } => {
+            body.release_behavior(*id, &behavior(params));
+        }
+        ObjectAction::StopAllWeenieBehaviors => {
+            body.stop_all_weenie_behaviors();
+        }
+        ObjectAction::StopMoveToCancelsBehaviors => body.stop_move_to_cancels_behaviors(),
+        ObjectAction::DoSlider {
+            slider,
+            value,
+            time,
+        } => {
+            body.recv_do_slider(*slider, *value, *time);
+        }
+        ObjectAction::MoveTo { params, .. } => {
+            return body.recv_move_to(movement_parameters(params));
+        }
         _ => {}
     }
+    false
 }
+
+#[cfg(test)]
+#[path = "motion_tests.rs"]
+mod tests;

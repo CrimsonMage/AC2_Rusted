@@ -30,6 +30,8 @@ pub struct RemoteObject {
     pub mode: Option<u32>,
     /// `PhysicsDesc::m_behaviors`: the behaviours the object starts with.
     pub behaviors: Vec<ac2_net::protocol::BehaviorParams>,
+    /// `PhysicsDesc::m_sliders`: slider, desired value and velocity (`SliderData`).
+    pub sliders: Vec<(u32, f32, f32)>,
     /// Holder and location when the object is parented (a held item).
     pub parent: Option<(u64, u32)>,
     /// `PhysicsDesc::orientation_id` / `RecvEvt_Parent`'s orientation: the placement frame the
@@ -87,6 +89,7 @@ impl RemoteObject {
             motion: [0.0; 3],
             mode: object.physics.mode,
             behaviors: object.physics.behaviors.clone(),
+            sliders: object.physics.sliders.clone(),
             parent: object
                 .physics
                 .parent
@@ -297,6 +300,7 @@ mod tests {
             motion: [0.0; 3],
             mode: None,
             behaviors: Vec::new(),
+            sliders: Vec::new(),
             parent: None,
             orientation: None,
             contained: false,
