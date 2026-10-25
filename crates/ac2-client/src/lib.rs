@@ -6,6 +6,7 @@
 //! (`CellManager`), the player camera (`CameraManager`), and a plain-data [`ClientFrame`] per
 //! frame for a renderer.
 
+mod appearance;
 mod camera;
 mod cells;
 mod client;
@@ -18,6 +19,7 @@ mod scene;
 mod targeting;
 mod world_data;
 
+pub use appearance::local_visual_desc;
 pub use camera::{action as camera_action, CameraManager};
 pub use cells::{block_radius, CellManager, FAR_RADIUS, NEAR_RADIUS};
 pub use client::{

@@ -1133,19 +1133,19 @@ key	status	note
 0063c340	x	
 0063c410	x	
 0063d2f0	x	ac2-weenie appearance.rs
-0063d680	x	ac2-render object/appearance.rs over ac2_weenie::Appearance
+0063d680	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 0063d7f0	~	part-group FX overrides (FXData/FXNode) refused as unsupported
-0063db70	~	ac2-weenie appearance.rs (root by parent key 0)
-0063ddb0	x	ac2-weenie appearance.rs
-0063dea0	~	ac2-weenie appearance.rs: DIDs, scales, icon layers, global mods, part-group tree; the incoming groups in stream order rather than hash order
-0063e170	~	ac2-weenie appearance.rs (root by parent key 0)
-0063e460	~	ac2-weenie appearance.rs: DIDs, scales, icon layers, global mods, part-group tree; the incoming groups in stream order rather than hash order
+0063db70	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
+0063ddb0	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
+0063dea0	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
+0063e170	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
+0063e460	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
 0063ee10	x	ac2-weenie Appearance::from_delta
-0063ee40	x	ac2-render object/appearance.rs over ac2_weenie::Appearance
+0063ee40	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 0063f6c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
-0063f880	x	ac2-render object/appearance.rs over ac2_weenie::Appearance
-0063f930	x	ac2-render object/appearance.rs over ac2_weenie::Appearance
-0063f9c0	x	ac2-render object/appearance.rs over ac2_weenie::Appearance
+0063f880	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
+0063f930	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
+0063f9c0	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 0063fb80	x	
 00640190	x	
 00640580	~	ac2-weenie appearance.rs: a layer id replaces
@@ -1162,10 +1162,10 @@ key	status	note
 006427d0	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 00642830	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 00644160	x	ac2-weenie appearance.rs
-006441a0	x	ac2-render object/appearance.rs over ac2_weenie::Appearance
+006441a0	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 006443c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 00644510	x	ac2-render object/appearance.rs augment_atoms
-00645580	x	ac2-weenie appearance.rs
+00645580	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
 00645f00	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 00646300	x	ac2-weenie appearance.rs (FX override data kept by id)
 00647260	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)

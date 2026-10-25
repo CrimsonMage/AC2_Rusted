@@ -205,11 +205,24 @@ fn human_skin_takes_the_appearance_tables_modifiers() {
     };
     let store = ResourceStore::new(dataset);
     let settings = RenderSettings::default();
-    let mut local = ac2_weenie::Appearance {
-        parent: HUMAN_MALE_VISUAL,
-        ..ac2_weenie::Appearance::default()
+    // The object's local description: the human visual as parent, the skin key applied
+    // globally.
+    let local = ac2_assets::Ac2VisualDesc {
+        parent: Some(DataId::new(HUMAN_MALE_VISUAL)),
+        motion_interp: None,
+        behavior_table: None,
+        modes: None,
+        scale: None,
+        child_scale: None,
+        particle_scale: None,
+        part_groups: std::sync::Arc::from([]),
+        part_group_appearance: std::sync::Arc::from([]),
+        global_appearance: std::sync::Arc::from([(
+            DataId::new(SKIN_TABLE),
+            std::sync::Arc::from([(SKIN_KEY, 0.5)]),
+        )]),
+        fx: ac2_assets::Ac2VisualFx::default(),
     };
-    local.global.appearance = vec![(SKIN_TABLE, vec![(SKIN_KEY, 0.5)])];
     let bare = load_object_model(&store, DataId::new(HUMAN_MALE_VISUAL), &settings)
         .unwrap()
         .unwrap();

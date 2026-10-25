@@ -22,6 +22,7 @@ mod ac2_static_model;
 mod ac2_surface_pixels;
 mod ac2_terrain;
 mod ac2_texture;
+mod ac2_total_visual;
 mod ac2_visual_desc;
 mod ac2_visual_particles;
 mod cull;
@@ -84,5 +85,6 @@ pub use ac2_static_model::{
 };
 pub use ac2_terrain::{ac2_mipmapped_clamped_texture, compose_ac2_vertex_blended_terrain_texture};
 pub use ac2_texture::{load_ac2_texture_asset, resolve_ac2_material_texture_chain};
+pub use ac2_total_visual::{Ac2TotalGroup, Ac2TotalVisualDesc, GLOBAL_PART_GROUP};
 pub use ac2_visual_desc::{Ac2AppearanceHash, Ac2PartGroup, Ac2VisualDesc, Ac2VisualFx};
 pub use ac2_visual_particles::{resolve_ac2_visual_particles, Ac2VisualParticles};

@@ -101,7 +101,6 @@ dependencies = [
  "ac2-db",
  "ac2-math",
  "ac2-render",
- "ac2-weenie",
  "ac2-world",
  "bytemuck",
  "png",
@@ -148,8 +147,6 @@ dependencies = [
  "ac2-dat",
  "ac2-db",
  "ac2-math",
- "ac2-net",
- "ac2-weenie",
  "ac2-world",
 ]
 

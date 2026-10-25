@@ -24,6 +24,5 @@ ac2-anim = { path = "../ac2-anim" }
 ac2-assets = { path = "../ac2-assets" }
 ac2-dat = { path = "../ac2-dat", features = ["test-support"] }
 ac2-db = { path = "../ac2-db" }
-ac2-weenie = { path = "../ac2-weenie" }
 ac2-world = { path = "../ac2-world" }
 png = "0.18"

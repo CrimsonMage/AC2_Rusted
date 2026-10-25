@@ -5,7 +5,9 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use ac2_anim::{Ac2Setup, Ac2Transform};
-use ac2_assets::{load_ac2_material_with_atoms, Ac2Atoms, Ac2MaterialLayer, Ac2Mesh};
+use ac2_assets::{
+    load_ac2_material_with_atoms, Ac2Atoms, Ac2MaterialLayer, Ac2Mesh, Ac2VisualDesc,
+};
 use ac2_core::DataId;
 use ac2_dat::DatFileKind;
 use ac2_db::{
@@ -17,7 +19,6 @@ use super::appearance::resolve_drawn_groups;
 use super::pass::{layer_drawn, layer_pass, LayerPass, RenderSettings};
 use super::pixel_shader::{parse_pixel_shader, PixelProgram};
 use super::skeleton::{ObjectSkeleton, SkeletonGroup};
-use ac2_weenie::Appearance;
 
 /// One vertex as the vertex programs read it (`v0` position, `v1` normal, `v2` diffuse,
 /// `v6..` texture coordinate sets).
@@ -179,7 +180,7 @@ pub fn load_object_model(
 pub fn load_object_model_with(
     store: &ResourceStore,
     visual: DataId,
-    local: Option<&Appearance>,
+    local: Option<&Ac2VisualDesc>,
     settings: &RenderSettings,
 ) -> ResourceResult<Option<ObjectModel>> {
     let Some(groups) = resolve_drawn_groups(store, visual, local)? else {

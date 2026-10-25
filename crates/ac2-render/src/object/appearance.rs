@@ -11,11 +11,12 @@
 //! own (`PartGroupDataDesc::AugmentAtomCollection` over its `AppearanceInfo` hash, each applied
 //! key with a scalar other than -1 through `AppearanceTable::GetAtoms`).
 
-use ac2_assets::{ac2_appearance_atoms, Ac2AppearanceHash, Ac2Atoms, Ac2VisualDesc};
+use ac2_assets::{
+    ac2_appearance_atoms, Ac2Atoms, Ac2TotalGroup, Ac2TotalVisualDesc, Ac2VisualDesc,
+    GLOBAL_PART_GROUP,
+};
 use ac2_core::DataId;
 use ac2_db::{ResourceResult, ResourceStore};
-use ac2_net::protocol::{PartGroupDesc, VisualDesc};
-use ac2_weenie::{Appearance, PartGroupAppearance, GLOBAL_PART_GROUP};
 
 const SETUP_PREFIX: u32 = 0x0400_0000;
 const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;
@@ -23,53 +24,6 @@ const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;
 const MAX_CHAIN: usize = 16;
 /// `AppearanceInfo::AugmentAtomCollection` skips keys whose scalar is this.
 const UNAPPLIED: f32 = -1.0;
-
-/// A DAT `VisualDesc` as the additive delta `ApplyAdditiveVDesc` reads (FX override variants and
-/// icon layers, which do not change what is drawn, are left out).
-fn as_delta(desc: &Ac2VisualDesc) -> VisualDesc {
-    let hash = |hash: &Ac2AppearanceHash| -> Vec<(u32, Vec<(u32, f32)>)> {
-        hash.iter()
-            .map(|(table, keys)| (table.raw(), keys.to_vec()))
-            .collect()
-    };
-    let raw = |did: Option<DataId>| did.map(DataId::raw);
-    let global = PartGroupDesc {
-        appearance: hash(&desc.global_appearance),
-        fx_table: desc.fx.fx_table.map_or(0, DataId::raw),
-        startup_fx: desc.fx.startup.to_vec(),
-        ..PartGroupDesc::default()
-    };
-    VisualDesc {
-        parent: raw(desc.parent),
-        motion_interp: raw(desc.motion_interp),
-        behavior_table: raw(desc.behavior_table),
-        modes: raw(desc.modes),
-        scale: desc.scale.map(|scale| scale.to_array()),
-        child_scale: desc.child_scale,
-        particle_scale: desc.particle_scale,
-        global_mods: Some(global),
-        part_groups: desc
-            .part_groups
-            .iter()
-            .zip(desc.part_group_appearance.iter())
-            .map(|(group, appearance)| {
-                (
-                    group.key,
-                    PartGroupDesc {
-                        key: group.key,
-                        parent_key: group.parent_key,
-                        connection_point: group.connection_point,
-                        setup: group.setup.map_or(0, DataId::raw),
-                        anim_map: group.anim_map.map_or(0, DataId::raw),
-                        appearance: hash(appearance),
-                        ..PartGroupDesc::default()
-                    },
-                )
-            })
-            .collect(),
-        ..VisualDesc::default()
-    }
-}
 
 /// One part group as `CPartGroup::Init` builds it.
 #[derive(Debug, Clone, PartialEq)]
@@ -83,39 +37,42 @@ pub struct DrawnGroup {
 }
 
 /// `VisualDesc::GetTotalVisualDesc` of `local` (its parent chain, then itself), or of the DAT
-/// `VisualDesc` `visual` alone. A link of the chain that does not load ends it, as
-/// `GetTotalVisualDescInternal` fails there.
+/// `VisualDesc` `visual` alone. A link of the chain that does not load fails it, as
+/// `GetTotalVisualDescInternal` does.
 pub fn total_visual_desc(
     store: &ResourceStore,
     visual: DataId,
-    local: Option<&Appearance>,
-) -> ResourceResult<Option<Appearance>> {
+    local: Option<&Ac2VisualDesc>,
+) -> ResourceResult<Option<Ac2TotalVisualDesc>> {
     let mut chain = Vec::new();
-    let mut current = local.map_or(visual.raw(), |local| local.parent);
+    let mut current = match local {
+        Some(local) => local.parent,
+        None => Some(visual),
+    };
     for _ in 0..MAX_CHAIN {
-        if current == 0 {
+        let Some(did) = current else {
             break;
-        }
-        if current & 0xFF00_0000 != VISUAL_DESC_PREFIX {
+        };
+        if did.raw() & 0xFF00_0000 != VISUAL_DESC_PREFIX {
             return Ok(None);
         }
         let Some(desc) = store.load_cached_packed::<Ac2VisualDesc>(
-            ac2_db::TypedResourceRef::new(ac2_dat::DatFileKind::Portal, DataId::new(current), 0),
+            ac2_db::TypedResourceRef::new(ac2_dat::DatFileKind::Portal, did, 0),
         )?
         else {
             return Ok(None);
         };
-        current = desc.parent.map_or(0, DataId::raw);
-        chain.push(as_delta(&desc));
+        current = desc.parent;
+        chain.push(desc);
     }
-    let mut total = Appearance::default();
+    let mut total = Ac2TotalVisualDesc::default();
     for desc in chain.iter().rev() {
         if !total.apply_additive(desc) {
             return Ok(None);
         }
     }
     if let Some(local) = local {
-        if !total.apply_additive(&local.to_visual_desc()) {
+        if !total.apply_additive(local) {
             return Ok(None);
         }
     }
@@ -126,24 +83,17 @@ pub fn total_visual_desc(
 /// `PartGroupDataDesc::AugmentAtomCollection` of one group's appearance hash.
 fn augment_atoms(
     store: &ResourceStore,
-    group: &PartGroupAppearance,
+    group: &Ac2TotalGroup,
     only_part_groups: bool,
     atoms: &mut Ac2Atoms,
 ) -> ResourceResult<()> {
     for (table, keys) in &group.appearance {
-        if *table == 0 {
+        if table.is_null() {
             continue;
         }
         for &(key, scalar) in keys {
             if scalar != UNAPPLIED {
-                ac2_appearance_atoms(
-                    store,
-                    DataId::new(*table),
-                    key,
-                    scalar,
-                    only_part_groups,
-                    atoms,
-                )?;
+                ac2_appearance_atoms(store, *table, key, scalar, only_part_groups, atoms)?;
             }
         }
     }
@@ -151,32 +101,34 @@ fn augment_atoms(
 }
 
 /// `VisualDesc::ModifyPGDTreeBasedOnApr`.
-fn modify_tree_by_appearance(store: &ResourceStore, total: &mut Appearance) -> ResourceResult<()> {
+fn modify_tree_by_appearance(
+    store: &ResourceStore,
+    total: &mut Ac2TotalVisualDesc,
+) -> ResourceResult<()> {
     let mut atoms = Ac2Atoms::default();
     augment_atoms(store, &total.global, true, &mut atoms)?;
     for atom in &atoms.part_groups {
         let group = &atom.group;
-        let replacement = PartGroupAppearance {
+        let replacement = Ac2TotalGroup {
             key: group.key,
             parent_key: group.parent_key,
             connection_point: group.connection_point,
-            setup: group.setup.map_or(0, DataId::raw),
-            anim_map: group.anim_map.map_or(0, DataId::raw),
+            setup: group.setup,
+            anim_map: group.anim_map,
             appearance: atom
                 .appearance
                 .iter()
-                .map(|(table, keys)| (table.raw(), keys.to_vec()))
+                .map(|(table, keys)| (*table, keys.to_vec()))
                 .collect(),
-            ..PartGroupAppearance::default()
         };
         // `PartGroupDataDesc::FindPGDDWithPartGroupKey` looks among the root's children only.
         let swap = total
             .root
             .is_some_and(|root| total.children(root).contains(&group.key));
         if swap {
-            total.swap_part_group(group.key, &replacement);
+            total.swap_group(group.key, &replacement);
         } else {
-            total.add_part_group(&replacement);
+            total.add_group(&replacement);
         }
     }
     Ok(())
@@ -187,7 +139,7 @@ fn modify_tree_by_appearance(store: &ResourceStore, total: &mut Appearance) -> R
 /// and with it the whole build).
 pub fn drawn_groups(
     store: &ResourceStore,
-    total: &Appearance,
+    total: &Ac2TotalVisualDesc,
 ) -> ResourceResult<Option<Vec<DrawnGroup>>> {
     let Some(root) = total.root else {
         return Ok(None);
@@ -199,9 +151,9 @@ pub fn drawn_groups(
         let Some(group) = total.group(key) else {
             return Ok(None);
         };
-        if key == GLOBAL_PART_GROUP || key == 0 || group.setup == 0 {
+        let Some(setup) = group.setup.filter(|_| key != GLOBAL_PART_GROUP && key != 0) else {
             return Ok(None);
-        }
+        };
         // `VisualDesc::BuildAtomCollection`: the global modifiers, then the group's own.
         let mut atoms = Ac2Atoms::default();
         augment_atoms(store, &total.global, false, &mut atoms)?;
@@ -209,7 +161,7 @@ pub fn drawn_groups(
         let index = groups.len();
         groups.push(DrawnGroup {
             key,
-            setup: DataId::new(group.setup),
+            setup,
             parent: parent.map(|parent| (parent, group.connection_point)),
             atoms,
         });
@@ -226,7 +178,7 @@ pub fn drawn_groups(
 pub fn resolve_drawn_groups(
     store: &ResourceStore,
     visual: DataId,
-    local: Option<&Appearance>,
+    local: Option<&Ac2VisualDesc>,
 ) -> ResourceResult<Option<Vec<DrawnGroup>>> {
     if local.is_none() && visual.raw() & 0xFF00_0000 == SETUP_PREFIX {
         return Ok(Some(vec![DrawnGroup {
