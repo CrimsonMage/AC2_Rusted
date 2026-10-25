@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 222 done, 132 partial, 1877 to do, 16 skipped.
+2247 retail functions: 242 done, 133 partial, 1856 to do, 16 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -901,16 +901,16 @@ Legend and workflow: [README](README.md).
 - [ ] `TimeDisplay::ListenToMessage` · 0043e080 · legions 0043e8d0
 - [ ] `TimeDisplay::Init` · 0043e0d0 · legions 0043e920
 
-## `ac2/client/src/ui/gameplay/helper/vitaldisplay.cpp.c` (0/7)
+## `ac2/client/src/ui/gameplay/helper/vitaldisplay.cpp.c` (7/7)
 
 ### VitalDisplay
-- [ ] `VitalDisplay::VitalDisplay` · 0044dc80 · legions 0044ee50
-- [ ] `VitalDisplay::Update` · 0044dcd0 · legions 0044eea0
-- [ ] `VitalDisplay::UpdateCurrentVal` · 0044de30 · legions 0044f000
-- [ ] `VitalDisplay::UpdateMaxVal` · 0044de50 · legions 0044f020
-- [ ] `VitalDisplay::ToggleTextState` · 0044de70 · legions 0044f040
-- [ ] `VitalDisplay::SetTextState` · 0044dea0 · legions 0044f070
-- [ ] `VitalDisplay::SetMeterState` · 0044ded0 · legions 0044f0a0
+- [x] `VitalDisplay::VitalDisplay` · 0044dc80 · legions 0044ee50 — ac2-ui meter.rs
+- [x] `VitalDisplay::Update` · 0044dcd0 · legions 0044eea0 — ac2-ui meter.rs
+- [x] `VitalDisplay::UpdateCurrentVal` · 0044de30 · legions 0044f000 — ac2-ui meter.rs
+- [x] `VitalDisplay::UpdateMaxVal` · 0044de50 · legions 0044f020 — ac2-ui meter.rs
+- [x] `VitalDisplay::ToggleTextState` · 0044de70 · legions 0044f040 — ac2-ui meter.rs
+- [x] `VitalDisplay::SetTextState` · 0044dea0 · legions 0044f070 — ac2-ui meter.rs
+- [x] `VitalDisplay::SetMeterState` · 0044ded0 · legions 0044f0a0 — ac2-ui meter.rs
 
 ## `ac2/client/src/ui/gameplay/statusbar/gmeffectsui.cpp.c` (0/10)
 
@@ -3316,23 +3316,23 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Menu::MouseDown` · 005f5c60 · legions 005b6790
 - [ ] `UIElement_Menu::ListenToMessage` · 005f5cf0 · legions 005b6820
 
-## `portal/client/src/uielement/types/uielement_meter.cpp.c` (0/14)
+## `portal/client/src/uielement/types/uielement_meter.cpp.c` (13/14)
 
 ### UIElement_Meter
-- [ ] `UIElement_Meter::UpdateLayout` · 005f4c50 · legions 005b5780
-- [ ] `UIElement_Meter::SetParent` · 005f4eb0 · legions 005b59e0
-- [ ] `UIElement_Meter::SetState` · 005f4ed0 · legions 005b5a00
-- [ ] `UIElement_Meter::MoveTo` · 005f4ef0 · legions 005b5a20
-- [ ] `UIElement_Meter::ResizeTo` · 005f4f10 · legions 005b5a40
-- [ ] `UIElement_Meter::CalculateNextStateChange` · 005f4f30 · legions 005b5a60
-- [ ] `UIElement_Meter::Global_Loop` · 005f4fe0 · legions 005b5b10
-- [ ] `UIElement_Meter::ListenToMessage` · 005f5110 · legions 005b5c40
-- [ ] `UIElement_Meter::StartAnimation` · 005f5140 · legions 005b5c70
-- [ ] `UIElement_Meter::SetStateAtPercentage` · 005f5270 · legions 005b5da0
-- [ ] `UIElement_Meter::SetAttribute_Float` · 005f52a0 · legions 005b5dd0
-- [ ] `UIElement_Meter::UIElement_Meter` · 005f5320 · legions 005b5e50
-- [ ] `UIElement_Meter::Create` · 005f53d0
-- [ ] `UIElement_Meter::Register` · 005f5400 · legions 005b5f30
+- [x] `UIElement_Meter::UpdateLayout` · 005f4c50 · legions 005b5780 — ac2-ui meter.rs
+- [x] `UIElement_Meter::SetParent` · 005f4eb0 · legions 005b59e0 — ac2-ui meter.rs
+- [x] `UIElement_Meter::SetState` · 005f4ed0 · legions 005b5a00 — ac2-ui meter.rs
+- [x] `UIElement_Meter::MoveTo` · 005f4ef0 · legions 005b5a20 — ac2-ui meter.rs
+- [x] `UIElement_Meter::ResizeTo` · 005f4f10 · legions 005b5a40 — ac2-ui meter.rs
+- [~] `UIElement_Meter::CalculateNextStateChange` · 005f4f30 · legions 005b5a60 — ties between equal percentages follow insertion order, not hash bucket order
+- [x] `UIElement_Meter::Global_Loop` · 005f4fe0 · legions 005b5b10 — ac2-ui meter.rs
+- [x] `UIElement_Meter::ListenToMessage` · 005f5110 · legions 005b5c40 — ac2-ui meter.rs
+- [x] `UIElement_Meter::StartAnimation` · 005f5140 · legions 005b5c70 — ac2-ui meter.rs
+- [x] `UIElement_Meter::SetStateAtPercentage` · 005f5270 · legions 005b5da0 — ac2-ui meter.rs
+- [x] `UIElement_Meter::SetAttribute_Float` · 005f52a0 · legions 005b5dd0 — ac2-ui meter.rs
+- [x] `UIElement_Meter::UIElement_Meter` · 005f5320 · legions 005b5e50 — ac2-ui meter.rs
+- [x] `UIElement_Meter::Create` · 005f53d0 — ac2-ui meter.rs
+- [x] `UIElement_Meter::Register` · 005f5400 · legions 005b5f30 — ac2-ui meter.rs
 
 ## `portal/client/src/uielement/types/uielement_panel.cpp.c` (2/6)
 

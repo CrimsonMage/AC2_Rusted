@@ -13,7 +13,7 @@ use crate::token::{
 };
 
 impl UiTree {
-    fn float_attribute(&self, index: usize, id: u32) -> Option<f32> {
+    pub(crate) fn float_attribute(&self, index: usize, id: u32) -> Option<f32> {
         match self.el(index).attributes.get(&id) {
             Some(AttributeValue::Float(value)) => Some(*value),
             _ => None,

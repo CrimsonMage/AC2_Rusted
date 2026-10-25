@@ -21,6 +21,7 @@ mod layout;
 mod layout_media;
 mod list_box;
 mod maps;
+mod meter;
 mod mouse;
 mod panel;
 mod place;
@@ -68,6 +69,7 @@ pub use maps::{
     load_action_map, load_key_map, ActionMap, ActionMapping, ActionValue, KeyMap, KEYMAP_CONTROL,
     KEYMAP_GROUP, KEYMAP_MAIN, KEYMAP_SHIFT,
 };
+pub use meter::{VitalDisplay, VitalText};
 pub use mouse::{
     is_mouse_button, UiMessage, GLOBAL_KEY_PRESS, GLOBAL_KEY_RELEASE, GLOBAL_MOUSE_DOWN,
     GLOBAL_MOUSE_MOVE, GLOBAL_MOUSE_UP, UI_POINTER_X, UI_POINTER_Y, UI_WHEEL_IN, UI_WHEEL_OUT,
@@ -94,6 +96,8 @@ mod chat_tests;
 mod element_tests;
 #[cfg(test)]
 mod list_box_tests;
+#[cfg(test)]
+mod meter_tests;
 #[cfg(test)]
 mod mouse_tests;
 #[cfg(test)]

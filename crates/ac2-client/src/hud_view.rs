@@ -319,7 +319,8 @@ impl HudView {
     }
 
     /// Takes a finished build, then recomposes if anything changed.
-    pub(crate) fn update(&mut self, gpu: &Gpu) {
+    /// One frame of the HUD at `Timer::cur_time` `now` (seconds).
+    pub(crate) fn update(&mut self, gpu: &Gpu, now: f64) {
         if let Some(pending) = &self.pending_strings {
             if let Ok((tables, ui_table)) = pending.try_recv() {
                 self.strings = Some((Arc::new(tables), ui_table));
@@ -344,9 +345,12 @@ impl HudView {
         for (kind, text) in self.chat_text.take() {
             self.chat_display(kind, &text);
         }
-        // `UIMESSAGE_GLOBAL_LOOP`: the chat windows write what arrived.
-        if let (Some((tree, _)), Some(chat)) = (&mut self.hud, &mut self.chat) {
-            chat.global_loop(tree);
+        // `UIMESSAGE_GLOBAL_LOOP`: the meters move and the chat windows write what arrived.
+        if let Some((tree, _)) = &mut self.hud {
+            tree.global_loop(now);
+            if let Some(chat) = &mut self.chat {
+                chat.global_loop(tree);
+            }
             if tree.take_changed() {
                 self.dirty = true;
             }

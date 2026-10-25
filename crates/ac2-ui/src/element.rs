@@ -96,6 +96,8 @@ pub struct UiElement {
     pub(crate) page: Option<usize>,
     /// `UIElement_Tree`'s state, once items are added.
     pub(crate) tree: Option<Box<crate::tree_view::TreeState>>,
+    /// `UIElement_Meter`'s state, for meters.
+    pub(crate) meter: Option<Box<crate::meter::MeterState>>,
     /// `m_mouseOver`, `m_mouseOverTop`, `m_mouseVisible` and the buttons pressed on the element
     /// (`m_mouseDownTable`).
     pub(crate) mouse_over: bool,
@@ -167,6 +169,8 @@ pub struct UiTree {
     pub(crate) moved: bool,
     /// `m_activeElement`.
     pub(crate) active: Option<usize>,
+    /// `Timer::cur_time` of the last global loop, in seconds.
+    pub(crate) time: f64,
 }
 
 /// The index of `desc`'s state `id`.
@@ -213,6 +217,7 @@ impl UiTree {
             changed: true,
             moved: true,
             active: None,
+            time: 0.0,
         }
     }
 
@@ -322,6 +327,7 @@ impl UiTree {
     ) -> Option<usize> {
         let desc = dereference(&layout, &reference)?;
         let default_state = reference.default_state;
+        let is_meter = desc.kind == crate::meter::METER;
         // `UIElement_Text::UIElement_Text`: the default font, no text.
         let text = (desc.kind == TEXT).then(|| {
             let font = self.text_data.as_ref().and_then(|data| data.default_font());
@@ -345,6 +351,7 @@ impl UiTree {
             attributes: HashMap::new(),
             text,
             tree: None,
+            meter: None,
             page: None,
             list: None,
             mouse_over: false,
@@ -359,6 +366,9 @@ impl UiTree {
             latest_update: self.update_count,
             created_by_layout: false,
         });
+        if is_meter {
+            self.meter_create(index);
+        }
         self.set_state(index, default_state);
         self.update_count += 1;
         self.update_internal(index);
@@ -455,6 +465,10 @@ impl UiTree {
         match attribute.value {
             AttributeValue::Bool(value) => self.set_bool(index, attribute.id, value),
             AttributeValue::None(_) => {}
+            AttributeValue::Float(value) => {
+                let changed = self.set_float(index, attribute.id, value);
+                self.text_attribute(index, attribute.id, &attribute.value, changed);
+            }
             ref value => {
                 let previous = self
                     .el_mut(index)
@@ -489,8 +503,13 @@ impl UiTree {
         }
     }
 
-    /// `UIElement::SetState`.
+    /// `UIElement::SetState`; a meter lays its fills out again (`UIElement_Meter::SetState`).
     pub fn set_state(&mut self, index: usize, state: u32) {
+        self.element_set_state(index, state);
+        self.meter_update_layout(index);
+    }
+
+    fn element_set_state(&mut self, index: usize, state: u32) {
         self.button_set_state(index, state);
         if state == self.el(index).state {
             return;
@@ -697,6 +716,8 @@ impl UiTree {
             let at = self.z_slot(&self.el(parent).children, self.el(index).z);
             self.el_mut(parent).children.insert(at, index);
         }
+        // `UIElement_Meter::SetParent`.
+        self.meter_update_layout(index);
     }
 
     /// `UIElement::AddChild`'s position for z `z` in an ascending list: last when `0xFFFF` or
