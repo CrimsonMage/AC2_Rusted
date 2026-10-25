@@ -396,13 +396,19 @@ fn run(args: Args) -> Result<(), String> {
         dat_iterations: ac2_weenie::dat_iterations(&dataset)?,
     })
     .map_err(|e| e.to_string())?;
-    // The string tables chat and usage lines name (`StringInfo::SetTableEnum`), by DID.
-    let script_data = ac2_script::data::DatScriptData::new(
-        Arc::clone(&dataset),
-        ac2_db::ResourceStore::new(Arc::clone(&dataset)),
-    );
+    // The string tables chat and usage lines name (`StringInfo::SetTableEnum`), by DID, read
+    // through the client's own store so the script host's reads share its cache.
+    let script_data = ac2_script::data::DatScriptData::new(Arc::clone(&dataset), (*store).clone());
     session.set_string_tables(ac2_client::string_table_ids(&script_data));
     let mut client = Client::new(session, Arc::new(dat_world));
+    // The weenies' scripts on the VM (`CWDistributor`), over the script library.
+    let wlib = ac2_script::load_wlib(&store, ac2_core::DataId::new(ac2_script::LEGIONS_WLIB_DID))
+        .map_err(|e| e.to_string())?
+        .ok_or("the DATs hold no script library")?;
+    let program = Arc::new(ac2_script::vm::Program::from_stream(&wlib.stream));
+    script_data.preload_tables();
+    let host = ac2_script::host::ScriptHost::new(program, Box::new(script_data));
+    client.attach_scripts(host, ac2_client::SCRIPT_VM_FUNCTIONS);
     // Enter the world before opening the window.
     let deadline = Instant::now() + Duration::from_secs(60);
     while !client.frame().in_world {

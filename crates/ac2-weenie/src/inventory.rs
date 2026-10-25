@@ -13,7 +13,7 @@
 
 use std::collections::BTreeMap;
 
-use ac2_net::protocol::{ContainerContents, Equipment, InvEquipDesc, InvMoveDesc};
+use ac2_net::protocol::{ContainerContents, Equipment, InvEquipDesc, InvMoveDesc, InvTakeAllDesc};
 
 use crate::player_script::GameplayNotice;
 
@@ -35,6 +35,8 @@ pub struct InventoryState {
     contents: BTreeMap<u64, Contents>,
     /// Location and item, in the server's table order (`InqSimpleInvByLocTable`).
     equipped: Vec<(u32, u64)>,
+    /// The containers open on the player (`CContainer::Open_Done` .. `Close_Done`).
+    open: Vec<u64>,
 }
 
 fn refresh_container(container: u64) -> GameplayNotice {
@@ -108,6 +110,80 @@ impl InventoryState {
             self.equipped = locations;
         }
         refresh_inventory()
+    }
+
+    /// The containers open on the player, in the order they opened.
+    pub fn open_containers(&self) -> &[u64] {
+        &self.open
+    }
+
+    /// `CInventorySystem` 0xF (`WM_Inventory` 0x5D): on success the container's lists
+    /// (`CContainer` 0x8 `Open_Done`, when sent), then
+    /// `SendNotice_ContainerStateUpdate(container, 1)` and a refresh. An error shows a message
+    /// (not mirrored) and changes nothing.
+    pub fn open_done(
+        &mut self,
+        error: u32,
+        packs: Option<Vec<u64>>,
+        items: Option<Vec<u64>>,
+        container: u64,
+    ) -> Vec<GameplayNotice> {
+        if error != 0 {
+            return Vec::new();
+        }
+        if let Some(items) = items {
+            self.contents.insert(
+                container,
+                Contents {
+                    packs: packs.unwrap_or_default(),
+                    items,
+                },
+            );
+        }
+        if !self.open.contains(&container) {
+            self.open.push(container);
+        }
+        vec![
+            GameplayNotice::ContainerStateUpdate {
+                container,
+                open: true,
+            },
+            refresh_container(container),
+        ]
+    }
+
+    /// `CInventorySystem` 0x1B (`CloseContainer_Done`): on success `CContainer` 0x4
+    /// (`Close_Done`, its lists dropped), then `SendNotice_ContainerStateUpdate(container, 0)`.
+    pub fn close_done(&mut self, error: u32, container: u64) -> Vec<GameplayNotice> {
+        if error != 0 {
+            return Vec::new();
+        }
+        self.open.retain(|c| *c != container);
+        self.contents.remove(&container);
+        vec![GameplayNotice::ContainerStateUpdate {
+            container,
+            open: false,
+        }]
+    }
+
+    /// `CInventorySystem` 0x1D: a successful take-all leaves the container's items in the
+    /// player's pack, after its own (the server's later lists stay the truth).
+    pub fn loot_all_done(&mut self, d: &InvTakeAllDesc) -> Vec<GameplayNotice> {
+        if d.status() != 0 {
+            return Vec::new();
+        }
+        let taken = self
+            .contents
+            .get_mut(&d.container())
+            .map(|c| std::mem::take(&mut c.items))
+            .unwrap_or_default();
+        if let Some(pack) = self.contents.get_mut(&d.player()) {
+            pack.items.extend(taken);
+        }
+        vec![
+            refresh_container(d.container()),
+            refresh_container(d.player()),
+        ]
     }
 
     fn remove(&mut self, item: u64) -> Option<u64> {

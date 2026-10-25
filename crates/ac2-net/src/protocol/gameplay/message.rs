@@ -4,7 +4,9 @@ use super::{function, literal, Args};
 use crate::protocol::inventory::{
     id_list, pack_id_list, ContainerContents, Equipment, InvEquipDesc, InvMoveDesc,
 };
+use crate::protocol::inventory_bulk::{InvTakeAllDesc, InvTransmuteAllDesc};
 use crate::protocol::native::{ExaminationProfile, NativeObject, SelectionInfo};
+use crate::protocol::pack::PackedReference;
 use crate::protocol::pack::{pack_values, PackValue};
 use crate::protocol::string_info::StringInfo;
 use crate::protocol::usage::UsageDesc;
@@ -69,6 +71,20 @@ pub enum ScriptMessage {
     EquipItemDone(InvEquipDesc),
     /// [`function::UNEQUIP_ITEM_DONE`].
     UnequipItemDone(InvEquipDesc),
+    /// [`function::LOOT_ALL_DONE`].
+    LootAllDone(InvTakeAllDesc),
+    /// [`function::TRANSMUTE_ALL_DONE`].
+    TransmuteAllDone(InvTransmuteAllDesc),
+    /// [`function::OPEN_CONTAINER_DONE`]: `packs` and `items` are `None` when packed as null
+    /// references (as on an error).
+    OpenContainerDone {
+        error: u32,
+        packs: Option<Vec<u64>>,
+        items: Option<Vec<u64>>,
+        container: u64,
+    },
+    /// [`function::CLOSE_CONTAINER_DONE`].
+    CloseContainerDone { error: u32, container: u64 },
 }
 
 impl ScriptMessage {
@@ -88,6 +104,10 @@ impl ScriptMessage {
             Self::ReorganizeContentsDone(_) => function::REORGANIZE_CONTENTS_DONE,
             Self::EquipItemDone(_) => function::EQUIP_ITEM_DONE,
             Self::UnequipItemDone(_) => function::UNEQUIP_ITEM_DONE,
+            Self::LootAllDone(_) => function::LOOT_ALL_DONE,
+            Self::TransmuteAllDone(_) => function::TRANSMUTE_ALL_DONE,
+            Self::OpenContainerDone { .. } => function::OPEN_CONTAINER_DONE,
+            Self::CloseContainerDone { .. } => function::CLOSE_CONTAINER_DONE,
         }
     }
 
@@ -152,6 +172,33 @@ impl ScriptMessage {
             }
             Self::EquipItemDone(d) | Self::UnequipItemDone(d) => {
                 vec![PackValue::Reference(d.to_reference())]
+            }
+            Self::LootAllDone(d) => vec![PackValue::Reference(d.to_reference())],
+            Self::TransmuteAllDone(d) => vec![PackValue::Reference(d.to_reference())],
+            Self::OpenContainerDone {
+                error,
+                packs,
+                items,
+                container,
+            } => {
+                let list = |ids: &Option<Vec<u64>>| {
+                    PackValue::Reference(ids.as_deref().map_or_else(
+                        || PackedReference {
+                            ids: vec![],
+                            entries: vec![],
+                        },
+                        pack_id_list,
+                    ))
+                };
+                vec![
+                    PackValue::Int(*error),
+                    list(packs),
+                    list(items),
+                    PackValue::LongInt(*container),
+                ]
+            }
+            Self::CloseContainerDone { error, container } => {
+                vec![PackValue::Int(*error), PackValue::LongInt(*container)]
             }
         }
     }
@@ -271,6 +318,32 @@ impl ScriptMessage {
                 Ok(Self::UnequipItemDone(InvEquipDesc::from_reference(
                     &a.reference()?,
                 )?))
+            }),
+            function::LOOT_ALL_DONE => decode(&|a| {
+                Ok(Self::LootAllDone(InvTakeAllDesc::from_reference(
+                    &a.reference()?,
+                )?))
+            }),
+            function::TRANSMUTE_ALL_DONE => decode(&|a| {
+                Ok(Self::TransmuteAllDone(InvTransmuteAllDesc::from_reference(
+                    &a.reference()?,
+                )?))
+            }),
+            function::OPEN_CONTAINER_DONE => decode(&|a| {
+                let list =
+                    |r: PackedReference| (!r.ids.is_empty()).then(|| id_list(&r)).transpose();
+                Ok(Self::OpenContainerDone {
+                    error: a.int()?,
+                    packs: list(a.reference()?)?,
+                    items: list(a.reference()?)?,
+                    container: a.long()?,
+                })
+            }),
+            function::CLOSE_CONTAINER_DONE => decode(&|a| {
+                Ok(Self::CloseContainerDone {
+                    error: a.int()?,
+                    container: a.long()?,
+                })
             }),
             _ => return None,
         })

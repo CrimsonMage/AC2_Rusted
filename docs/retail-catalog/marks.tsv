@@ -68,6 +68,8 @@ key	status	note
 00450490	~	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 004504f0	~	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 00450530	~	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
+00450730	~	ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
+00450750	~	ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
 00450f30	~	ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
 00450f80	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 00450fa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
@@ -176,15 +178,15 @@ key	status	note
 00469480	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004694e0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469530	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469580	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004695d0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469580	x	ac2-script host notices -> ac2_weenie::GameplayNotice
+004695d0	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 00469620	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004696a0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004696f0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469740	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469790	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004697d0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469820	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469820	x	ac2-script host notices -> ac2_weenie::GameplayNotice
 00469870	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004698c0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469900	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -203,21 +205,21 @@ key	status	note
 00469d40	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469d90	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469de0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469e30	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469e30	x	ac2-script host notices -> ac2_weenie::GameplayNotice
 00469e80	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469ed0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469f10	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469f60	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469f60	x	ac2-script host notices -> ac2_weenie::GameplayNotice
 00469fd0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 0046a020	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 0046a070	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 0046a0d0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 0046a110	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-0046a160	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a160	x	ac2-script host notices -> ac2_weenie::GameplayNotice
 0046a1b0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 0046a200	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 0046a260	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-0046a2d0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a2d0	x	ac2-script host notices -> ac2_weenie::GameplayNotice
 0046a340	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 0046a390	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 0046a3f0	x	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -2585,6 +2587,7 @@ key	status	note
 005fe0b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005fe170	x	ac2-ui hud.rs
 005fe420	x	
+005fe7a0	x	ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
 006000b0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00600cb0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600cf0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -3381,7 +3384,7 @@ key	status	note
 00724be0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00724c70	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00724d00	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00724e20	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724e20	x	ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
 00724eb0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00724f50	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00724fe0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
@@ -3396,8 +3399,8 @@ key	status	note
 00725660	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 007256f0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00725780	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
-00725810	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-007258a0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725810	x	ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
+007258a0	x	ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
 00725950	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 007259f0	x	ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
 00725ab0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
@@ -3422,28 +3425,28 @@ key	status	note
 007266b0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00726770	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00726800	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-007268b0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007268b0	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 007269d0	x	
 00726b80	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00726c10	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00726cb0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726c10	x	ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
+00726cb0	x	ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
 00726d40	x	ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
 00726e10	x	ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
 00726ec0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00726f50	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00726fe0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00727070	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00727100	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00727190	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00727240	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-007272e0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00727380	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00727430	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-007274d0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00727570	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00727610	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-007276c0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00727750	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726fe0	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+00727070	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+00727100	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+00727190	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+00727240	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+007272e0	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+00727380	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+00727430	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+007274d0	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+00727570	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+00727610	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+007276c0	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+00727750	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 007277e0	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 00727870	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 00727900	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
@@ -3457,10 +3460,10 @@ key	status	note
 00727dd0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00727e60	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00727ef0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00727f80	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00728020	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-007280c0	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00728150	~	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00727f80	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+00728020	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+007280c0	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+00728150	~	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 007281f0	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 007291f0	~	ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
 0072da60	x	ac2-ui maps.rs

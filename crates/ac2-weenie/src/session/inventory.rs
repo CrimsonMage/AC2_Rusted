@@ -4,7 +4,8 @@
 //! [`InventoryState`].
 
 use ac2_net::protocol::{
-    script_function as function, InvEquipDesc, InvMoveDesc, ScriptMessage, ScriptRequest,
+    script_function as function, unpack_values, ContainerContents, Equipment, InvEquipDesc,
+    InvMoveDesc, InvTakeAllDesc, InvTransmuteAllDesc, ScriptMessage, ScriptRequest,
 };
 
 use super::{OnlineSession, SessionEvent};
@@ -83,6 +84,60 @@ impl OnlineSession {
         self.send(request.to_event());
     }
 
+    /// `gmCWInterface::LootAllFromContainer` -> `CPlayer` 0x157 -> `CInventorySystem` 0x1C:
+    /// take everything in `container` (its checks, `CInventorySystem` 0x1E, not mirrored).
+    pub fn loot_all(&mut self, container: u64) {
+        if let Some(player) = self.world.player() {
+            let desc = InvTakeAllDesc::new(container, player);
+            self.send(ScriptRequest::LootAll(desc).to_event());
+        }
+    }
+
+    /// `gmCWInterface::TransmuteAllFromContainer` -> `CPlayer` 0x158 -> `CInventorySystem`
+    /// 0x21: transmute everything in `container` (checks, 0x1F, not mirrored).
+    pub fn transmute_all(&mut self, container: u64) {
+        if let Some(player) = self.world.player() {
+            let desc = InvTransmuteAllDesc::new(container, player);
+            self.send(ScriptRequest::TransmuteAll(desc).to_event());
+        }
+    }
+
+    /// `CPlayer` 0x65's inventory part (`WM_Player` 0x27): arguments 7-9 to
+    /// `CInventorySystem` 0x6 (the equipment), 10-12 to 0x1A (the player's contents). Nothing
+    /// when the arguments do not decode.
+    pub(super) fn init_player_inventory(&mut self, arguments: &[u8]) -> Vec<SessionEvent> {
+        let (Ok(values), Some(player)) = (unpack_values(arguments), self.world.player()) else {
+            return Vec::new();
+        };
+        if values.len() != 14 {
+            return Vec::new();
+        }
+        let mut notices = Vec::new();
+        if let Ok(contents) = ContainerContents::from_values(&values[9..12]) {
+            notices.push(self.inventory.set_contents(player, contents));
+        }
+        if let Ok(equipment) = Equipment::from_values(&values[6..9]) {
+            notices.push(self.inventory.set_equipment(&equipment));
+        }
+        notices.into_iter().map(SessionEvent::Notice).collect()
+    }
+
+    /// `CItem` 0x3 (`OnStatChanged`) for an item: quantity (int 0x106) and durability (0x26A,
+    /// 0x26B) raise `SendNotice_ItemUpdate`.
+    pub(super) fn item_quality_changed(
+        &self,
+        object: u64,
+        table: u32,
+        quality: u32,
+    ) -> Option<SessionEvent> {
+        (Some(object) != self.world.player()
+            && table == 4
+            && matches!(quality, 0x106 | 0x26A | 0x26B))
+        .then_some(SessionEvent::Notice(crate::GameplayNotice::ItemUpdate(
+            object,
+        )))
+    }
+
     /// A `WM_Inventory` answer the stand-in keeps; `None` for other script calls.
     pub(super) fn receive_inventory(
         &mut self,
@@ -99,6 +154,10 @@ impl OnlineSession {
                 | function::REORGANIZE_CONTENTS_DONE
                 | function::EQUIP_ITEM_DONE
                 | function::UNEQUIP_ITEM_DONE
+                | function::LOOT_ALL_DONE
+                | function::TRANSMUTE_ALL_DONE
+                | function::OPEN_CONTAINER_DONE
+                | function::CLOSE_CONTAINER_DONE
         );
         if !known || (!player && func != function::CONTAINER_CONTENTS) {
             return None;
@@ -120,6 +179,24 @@ impl OnlineSession {
             }
             ScriptMessage::EquipItemDone(d) => inv.equip_done(&d),
             ScriptMessage::UnequipItemDone(d) => inv.unequip_done(&d),
+            ScriptMessage::LootAllDone(d) => inv.loot_all_done(&d),
+            // `CInventorySystem` 0x20: the container's contents change; the server's lists
+            // follow.
+            ScriptMessage::TransmuteAllDone(d) => vec![crate::GameplayNotice::UpdateContainer {
+                container: d.container(),
+                code: crate::INVENTORY_REFRESH,
+                item: 0,
+                slot: 0,
+            }],
+            ScriptMessage::OpenContainerDone {
+                error,
+                packs,
+                items,
+                container,
+            } => inv.open_done(error, packs, items, container),
+            ScriptMessage::CloseContainerDone { error, container } => {
+                inv.close_done(error, container)
+            }
             _ => return None,
         };
         Some(notices.into_iter().map(SessionEvent::Notice).collect())

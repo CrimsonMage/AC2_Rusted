@@ -101,4 +101,7 @@ pub struct ClientFrame {
     /// The player's inventory and open containers (`gmInventoryUI`, `gmPaperDollUI`,
     /// `gmExternalContainerUI`).
     pub inventory: crate::gameplay::InventoryFrame,
+    /// Experience, skills, shortcuts, fellowship and allegiance (the advancement, shortcut and
+    /// social panels).
+    pub progress: crate::gameplay::ProgressFrame,
 }

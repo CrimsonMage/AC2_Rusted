@@ -68,6 +68,22 @@ pub mod function {
     /// C->S, `WM_Inventory` stub 0x54 (`CInventorySystem` 0x18, from `CContainer` 0x3): close a
     /// container (long int).
     pub const CLOSE_CONTAINER: u32 = 0x820E_0047;
+    /// C->S, `WM_Inventory` stub 0x69 (`CInventorySystem` 0x1C, from `CPlayer` 0x157
+    /// `LootAllFromContainer`): an `InvTakeAllDesc`.
+    pub const LOOT_ALL: u32 = 0x820E_0068;
+    /// C->S, `WM_Inventory` stub 0x6E (`CInventorySystem` 0x21, from `CPlayer` 0x158
+    /// `TransmuteAllFromContainer`): an `InvTransmuteAllDesc`.
+    pub const TRANSMUTE_ALL: u32 = 0x820E_006C;
+    /// S->C, `WM_Inventory` 0x6A -> `CPlayer` 0x14F -> `CInventorySystem` 0x1D.
+    pub const LOOT_ALL_DONE: u32 = 0x820E_006A;
+    /// S->C, `WM_Inventory` 0x6D -> `CPlayer` 0x159 -> `CInventorySystem` 0x20.
+    pub const TRANSMUTE_ALL_DONE: u32 = 0x820E_006D;
+    /// S->C, `WM_Inventory` 0x5D -> `CPlayer` 0x8C -> `CInventorySystem` 0xF: a container
+    /// opened (error, packs, items, the container).
+    pub const OPEN_CONTAINER_DONE: u32 = 0x820E_005D;
+    /// S->C, `WM_Inventory` 0x60 -> `CPlayer` 0x21 -> `CInventorySystem` 0x1B
+    /// (`CloseContainer_Done`): error, the container.
+    pub const CLOSE_CONTAINER_DONE: u32 = 0x820E_0060;
     /// S->C, `WM_Inventory` 0x53 -> `CPlayer` 0x37 -> `CInventorySystem` 0x1A: a container's
     /// contents (segments, packs, items).
     pub const CONTAINER_CONTENTS: u32 = 0x820E_0053;

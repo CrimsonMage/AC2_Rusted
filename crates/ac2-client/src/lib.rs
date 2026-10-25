@@ -21,6 +21,7 @@ mod loader;
 mod motion;
 mod remote;
 mod scene;
+mod scripts;
 mod tables;
 mod targeting;
 #[cfg(feature = "window")]
@@ -35,8 +36,9 @@ pub use client::{
 };
 pub use controls::frame_input;
 pub use frame::{ClientFrame, Holder, ObjectFrame, PlayerFrame};
-pub use gameplay::{Command, ContainerFrame, InventoryFrame, SelectionFrame};
+pub use gameplay::{Command, ContainerFrame, InventoryFrame, ProgressFrame, SelectionFrame};
 pub use motion::PartPose;
 pub use scene::CameraFrame;
+pub use scripts::SCRIPT_VM_FUNCTIONS;
 pub use tables::string_table_ids;
 pub use world_data::{BodyData, DatWorld, WorldData, HUMAN_MOTION_INTERP_DESC};

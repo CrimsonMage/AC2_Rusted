@@ -54,6 +54,25 @@ pub enum Command {
     UnequipItem { item: u64, target_slot: i32 },
     /// `gmCWInterface::UpdateOpen`: open or close a container.
     SetContainerOpen { container: u64, open: bool },
+    /// `gmCWInterface::LootAllFromContainer`.
+    LootAll(u64),
+    /// `gmCWInterface::TransmuteAllFromContainer`.
+    TransmuteAll(u64),
+    /// `gmCWInterface::SetShortcut`: the shortcut into slot `index` of the bar.
+    SetShortcut {
+        index: u32,
+        shortcut: ac2_net::protocol::ShortcutInfo,
+    },
+}
+
+/// What the advancement, shortcut, fellowship and allegiance panels read.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct ProgressFrame {
+    pub experience: ac2_weenie::Experience,
+    pub skills: ac2_weenie::Skills,
+    pub shortcuts: ac2_weenie::Shortcuts,
+    pub fellowship: Option<ac2_weenie::FellowshipInfo>,
+    pub allegiance: Option<ac2_weenie::AllegianceProfile>,
 }
 
 /// One container's contents, as the inventory panels show them (ids; names, icons and
@@ -74,6 +93,8 @@ pub struct InventoryFrame {
     pub containers: Vec<ContainerFrame>,
     /// Equipment location and item.
     pub equipped: Vec<(u32, u64)>,
+    /// The containers open on the player (`gmExternalContainerUI`), in the order they opened.
+    pub open: Vec<u64>,
 }
 
 /// The selected object, as `gmSelectionUI` shows it.
@@ -149,6 +170,20 @@ impl Client {
                     self.session.set_container_open(*container, *open);
                     Vec::new()
                 }
+                Command::LootAll(container) => {
+                    self.session.loot_all(*container);
+                    Vec::new()
+                }
+                Command::TransmuteAll(container) => {
+                    self.session.transmute_all(*container);
+                    Vec::new()
+                }
+                Command::SetShortcut { index, shortcut } => refused(
+                    self.session
+                        .set_shortcut(*index, shortcut.clone())
+                        .then_some(())
+                        .ok_or_else(|| format!("no shortcut slot {index}")),
+                ),
             });
         }
         events
@@ -177,6 +212,25 @@ impl Client {
                 .map(frame)
                 .collect(),
             equipped: inv.equipped().to_vec(),
+            open: inv.open_containers().to_vec(),
+        }
+    }
+
+    /// The panels' state for [`crate::ClientFrame::progress`].
+    pub(crate) fn progress_frame(&self) -> ProgressFrame {
+        let progress = self.session.progress();
+        let experience = self
+            .session
+            .player()
+            .and_then(|id| self.session.objects().get(id))
+            .map(|o| ac2_weenie::Experience::of(&o.qualities))
+            .unwrap_or_default();
+        ProgressFrame {
+            experience,
+            skills: progress.skills.clone(),
+            shortcuts: progress.shortcuts.clone(),
+            fellowship: progress.social.fellowship.clone(),
+            allegiance: progress.social.allegiance.clone(),
         }
     }
 

@@ -261,12 +261,12 @@ fn the_client_walks_with_w_and_draws_its_character() {
     let selection = frame.selection.as_ref().expect("the character is selected");
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
     let shown = view.hud_shown_layers();
-    // `UpdateReticleInternal` shows the corners only with a name to show above them; the
-    // double's character has none yet.
-    let expected = if selection.name.is_some() { 5 } else { 0 };
+    // `UpdateReticleInternal` shows the corners only with a name to show above them: the
+    // double's character is named, so its five layers show.
+    assert_eq!(selection.name.as_deref(), Some("Explorer"));
     assert_eq!(
         shown,
-        shown_before + expected,
+        shown_before + 5,
         "the reticle follows the name ({:?})",
         selection.name
     );

@@ -13,11 +13,11 @@ use crate::protocol::native::{NativeObject, ScriptHash, ScriptList};
 use crate::protocol::pack::{entry_flags, HeapObject, PackedEntry, PackedReference};
 use crate::protocol::ProtocolError;
 
-const NULL: u32 = u32::MAX;
-const R: u8 = 0x01;
-const I: u8 = 0x02;
-const L: u8 = 0x82;
-const U: u8 = 0xCD;
+pub(super) const NULL: u32 = u32::MAX;
+pub(super) const R: u8 = 0x01;
+pub(super) const I: u8 = 0x02;
+pub(super) const L: u8 = 0x82;
+pub(super) const U: u8 = 0xCD;
 const M: u32 = u32::MAX;
 
 /// `InvMoveDesc`'s class default, (value, tag) per slot.
@@ -42,7 +42,7 @@ pub const INV_MOVE_DESC_PACKAGE: u32 = 0x1F8;
 pub const INV_EQUIP_DESC_PACKAGE: u32 = 0x1F6;
 pub const EQUIP_ITEM_PROFILE_PACKAGE: u32 = 0x1F5;
 
-fn instance(pkg_id: u32, layout: &[(u32, u8)]) -> PackedEntry {
+pub(super) fn instance(pkg_id: u32, layout: &[(u32, u8)]) -> PackedEntry {
     PackedEntry::Heap {
         flags: entry_flags::LOADED | entry_flags::RECURSE | entry_flags::KIND_HEAP,
         object: HeapObject {
@@ -57,10 +57,14 @@ fn instance(pkg_id: u32, layout: &[(u32, u8)]) -> PackedEntry {
 
 /// A package-instance graph whose root is package `pkg_id` with `size` slots.
 #[derive(Debug, Clone, PartialEq)]
-struct Instance(PackedReference);
+pub(super) struct Instance(pub(super) PackedReference);
 
 impl Instance {
-    fn check(reference: &PackedReference, pkg_id: u32, size: usize) -> Result<Self, ProtocolError> {
+    pub(super) fn check(
+        reference: &PackedReference,
+        pkg_id: u32,
+        size: usize,
+    ) -> Result<Self, ProtocolError> {
         match reference.entries.first() {
             Some(PackedEntry::Heap { object, .. })
                 if object.pkg_id == pkg_id
@@ -87,24 +91,24 @@ impl Instance {
         }
     }
 
-    fn word(&self, slot: usize) -> u32 {
+    pub(super) fn word(&self, slot: usize) -> u32 {
         self.root().slots[slot]
     }
 
-    fn long(&self, slot: usize) -> u64 {
+    pub(super) fn long(&self, slot: usize) -> u64 {
         let s = &self.root().slots;
         u64::from(s[slot]) | u64::from(s[slot + 1]) << 32
     }
 
     /// `rstore`: the value and the word's tag.
-    fn set_word(&mut self, slot: usize, value: u32) {
+    pub(super) fn set_word(&mut self, slot: usize, value: u32) {
         let root = self.root_mut();
         root.slots[slot] = value;
         root.tags[slot] = I;
     }
 
     /// `rstore_L`: both words, the first word's tag only (the second keeps its own).
-    fn set_long(&mut self, slot: usize, value: u64) {
+    pub(super) fn set_long(&mut self, slot: usize, value: u64) {
         let root = self.root_mut();
         root.slots[slot] = value as u32;
         root.slots[slot + 1] = (value >> 32) as u32;
@@ -329,6 +333,22 @@ pub struct Equipment {
     pub by_item: PackedReference,
 }
 
+impl ContainerContents {
+    /// The three values `WM_Inventory` 0x53 (and `WM_Player` 0x27's arguments 10-12) carry:
+    /// segments, packs, items.
+    pub fn from_values(values: &[crate::protocol::PackValue]) -> Result<Self, ProtocolError> {
+        use crate::protocol::PackValue::Reference;
+        match values {
+            [Reference(segments), Reference(packs), Reference(items)] => Ok(Self {
+                segments: segments.clone(),
+                packs: id_list(packs)?,
+                items: id_list(items)?,
+            }),
+            _ => Err(ProtocolError::Invalid("container contents")),
+        }
+    }
+}
+
 /// A packed `LList` of ids.
 pub fn id_list(reference: &PackedReference) -> Result<Vec<u64>, ProtocolError> {
     match reference.root_native() {
@@ -349,6 +369,19 @@ pub fn pack_id_list(ids: &[u64]) -> PackedReference {
 pub const INVENT_PROFILE_PACKAGE: u32 = 0x1F9;
 
 impl Equipment {
+    /// The three values `WM_Inventory` 0x5F (and `WM_Player` 0x27's arguments 7-9) carry.
+    pub fn from_values(values: &[crate::protocol::PackValue]) -> Result<Self, ProtocolError> {
+        use crate::protocol::PackValue::Reference;
+        match values {
+            [first, Reference(by_location), Reference(by_item)] => Ok(Self {
+                first: first.clone(),
+                by_location: by_location.clone(),
+                by_item: by_item.clone(),
+            }),
+            _ => Err(ProtocolError::Invalid("equipment")),
+        }
+    }
+
     /// The server's side: each location's item as the two tables `WM_Inventory` 0x5F packs,
     /// one `InventProfile` per item (its other slots at their class defaults), and a 0 word.
     pub fn from_locations(locations: &[(u32, u64)]) -> Self {
