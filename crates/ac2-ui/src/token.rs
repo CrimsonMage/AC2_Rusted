@@ -29,6 +29,8 @@ pub const STATELESS: u32 = tokenize("stateless");
 pub const REFERENT: u32 = tokenize("referent");
 /// `Token_Element_hide`.
 pub const HIDE: u32 = tokenize("hide");
+pub const ALPHA_VALUE: u32 = tokenize("alpha_value");
+pub const SIZE_IMAGE_TO_OWNER: u32 = tokenize("size_image_to_owner");
 /// `Token_Element_max_width` / `max_height` / `min_width` / `min_height`.
 pub const MAX_WIDTH: u32 = tokenize("max_width");
 pub const MAX_HEIGHT: u32 = tokenize("max_height");

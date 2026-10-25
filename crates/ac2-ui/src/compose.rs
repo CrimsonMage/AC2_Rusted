@@ -4,11 +4,12 @@
 //! then drawn over the scene (`UISurfaceObject`, point sampled, blended by their alpha). A text
 //! element's text goes over its image (`UIElement_Text::PostBlit`, in `text.rs`).
 //!
-//! `Graphic::Draw` puts an element's image 1:1 when the sizes match, centred at its own size for
-//! draw modes 2 and 3, stretched for mode 1 and tiled from the element's corner for mode 0.
-//! `SurfaceWindow::Blit` copies the pixels (alpha included) for modes 0 and 3; modes 1 and 2 are
-//! overlays, blended by the source alpha into the colour while the surface keeps its alpha.
-//! Scaling picks the nearest source pixel.
+//! `Graphic::Draw` puts an element's image 1:1 when the sizes match, stretched when the element
+//! sizes its image to itself (`size_image_to_owner`) and tiled from the element's corner
+//! otherwise. `SurfaceWindow::Blit` copies the pixels (alpha included) for draw mode 0; modes 1
+//! and 2 blend by the source alpha into the colour while the surface keeps its alpha; mode 3
+//! copies with the alpha scaled by the element's `alpha_value`. Scaling picks the nearest source
+//! pixel.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -44,7 +45,7 @@ impl UiSurface {
 
     /// `SurfaceWindow::Blit` of `src` (in `image`) onto `dst`; sizes that differ pick the
     /// nearest source pixel.
-    fn blit(&mut self, image: &UiPixels, src: UiBox, dst: UiBox, blend: bool) {
+    fn blit(&mut self, image: &UiPixels, src: UiBox, dst: UiBox, op: BlitOp) {
         let (src_w, src_h) = (src.width(), src.height());
         let (dst_w, dst_h) = (dst.width(), dst.height());
         if src_w <= 0 || src_h <= 0 || dst_w <= 0 || dst_h <= 0 {
@@ -66,48 +67,57 @@ impl UiSurface {
                 let d = (ty as usize * self.width as usize + tx as usize) * 4;
                 let source = &image.rgba[s..s + 4];
                 let dest = &mut self.rgba[d..d + 4];
-                if !blend {
-                    dest.copy_from_slice(source);
-                    continue;
-                }
                 let alpha = i32::from(source[3]);
-                if alpha == 0 {
-                    continue;
-                }
-                if alpha == 255 {
-                    dest.copy_from_slice(source);
-                    continue;
-                }
-                for c in 0..3 {
-                    let d = i32::from(dest[c]);
-                    // `(x + (x >> 31 & 0xff)) >> 8`: x / 256 truncated toward zero.
-                    dest[c] = (d - (d - i32::from(source[c])) * alpha / 256) as u8;
+                match op {
+                    BlitOp::Copy => dest.copy_from_slice(source),
+                    BlitOp::Value(value) => {
+                        // Copied, then the alpha byte times the value (`_ftol2`: truncated).
+                        dest.copy_from_slice(source);
+                        dest[3] = (f64::from(dest[3]) * f64::from(value)) as u8;
+                    }
+                    BlitOp::Channel if alpha == 0 => {}
+                    BlitOp::Channel if alpha == 255 => dest.copy_from_slice(source),
+                    BlitOp::Channel => {
+                        for c in 0..3 {
+                            let d = i32::from(dest[c]);
+                            // `(x + (x >> 31 & 0xff)) >> 8`: x / 256 truncated toward zero.
+                            dest[c] = (d - (d - i32::from(source[c])) * alpha / 256) as u8;
+                        }
+                    }
                 }
             }
         }
     }
 
-    /// `Graphic::Draw`: element box `me`, the dirty part `dirty` (both surface coordinates).
-    fn draw_graphic(&mut self, image: &UiPixels, mode: UiImage, me: UiBox, dirty: UiBox) {
+    /// `Graphic::Draw` with `UIElement::SetImage`'s flags: element box `me`, the dirty part
+    /// `dirty` (both surface coordinates). Draw mode 1 is an overlay and mode 2 blends by the
+    /// image's alpha channel (blit flag 0x10), mode 3 takes `alpha_value` as the alpha (0x20),
+    /// mode 0 copies. The image goes 1:1 when the sizes match, stretched when `scale`
+    /// (`size_image_to_owner`), and tiled from the element's corner otherwise (`SetImage` never
+    /// sets `m_centerImage`).
+    fn draw_graphic(
+        &mut self,
+        image: &UiPixels,
+        mode: UiImage,
+        scale: bool,
+        alpha_value: f32,
+        me: UiBox,
+        dirty: UiBox,
+    ) {
         let (w, h) = (me.width(), me.height());
         if w <= 0 || h <= 0 {
             return;
         }
         let (iw, ih) = (image.width as i32, image.height as i32);
-        let blend = matches!(mode.draw_mode, 1 | 2);
+        let op = match mode.draw_mode {
+            1 | 2 => BlitOp::Channel,
+            3 => BlitOp::Value(alpha_value),
+            _ => BlitOp::Copy,
+        };
         let local = dirty.offset(-me.x0, -me.y0);
         if w == iw && h == ih {
-            self.blit(image, local, dirty, blend);
-        } else if matches!(mode.draw_mode, 2 | 3) {
-            let x = ((w - iw) / 2).max(0);
-            let y = ((h - ih) / 2).max(0);
-            let placed = UiBox::new(me.x0 + x, me.y0 + y, me.x0 + x + iw - 1, me.y0 + y + ih - 1);
-            if let Some(clip) = dirty.intersection(&placed) {
-                // Retail takes the source from the image's corner whatever the clip.
-                let src = UiBox::new(0, 0, clip.width() - 1, clip.height() - 1);
-                self.blit(image, src, clip, blend);
-            }
-        } else if mode.draw_mode == 1 {
+            self.blit(image, local, dirty, op);
+        } else if scale {
             let sx = f64::from(iw) / f64::from(w);
             let sy = f64::from(ih) / f64::from(h);
             let src = UiBox::new(
@@ -116,7 +126,7 @@ impl UiSurface {
                 (f64::from(local.x1 + 1) * sx) as i32 - 1,
                 (f64::from(local.y1 + 1) * sy) as i32 - 1,
             );
-            self.blit(image, src, dirty, blend);
+            self.blit(image, src, dirty, op);
         } else {
             if iw <= 0 || ih <= 0 {
                 return;
@@ -135,7 +145,7 @@ impl UiSurface {
                         let x0 = (clip.x0 - me.x0) % iw;
                         let y0 = (clip.y0 - me.y0) % ih;
                         let src = UiBox::new(x0, y0, x0 + clip.width() - 1, y0 + clip.height() - 1);
-                        self.blit(image, src, clip, blend);
+                        self.blit(image, src, clip, op);
                     }
                     ty += ih;
                 }
@@ -143,6 +153,16 @@ impl UiSurface {
             }
         }
     }
+}
+
+/// `SurfaceWindow::Blit`'s flags as `Graphic::Draw` sets them.
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum BlitOp {
+    Copy,
+    /// 0x10: blended by the source alpha; the surface keeps its alpha.
+    Channel,
+    /// 0x20: copied with the alpha scaled by the value.
+    Value(f32),
 }
 
 impl UiTree {
@@ -166,7 +186,11 @@ impl UiTree {
         };
         if let Some(mode) = el.image {
             if let Some(image) = images.get(&mode.file) {
-                surface.draw_graphic(image, mode, me, clip);
+                let scale = matches!(
+                    el.attributes.get(&crate::token::SIZE_IMAGE_TO_OWNER),
+                    Some(crate::layout::AttributeValue::Bool(true))
+                );
+                surface.draw_graphic(image, mode, scale, el.alpha_value, me, clip);
             }
         }
         if let Some(text) = &el.text {

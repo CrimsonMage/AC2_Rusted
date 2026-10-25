@@ -176,7 +176,8 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
     );
     let mut tree = tree;
     let surfaces = tree.compose(&images);
-    assert_eq!(surfaces.len(), GAMEPLAY_ROOTS.len() + 7);
+    // The hidden roots are not drawn: of the chat windows only the first shows.
+    assert_eq!(surfaces.len(), GAMEPLAY_ROOTS.len() + 7 + 1);
     let drawn = surfaces
         .iter()
         .filter(|s| s.rgba.chunks_exact(4).any(|p| p[3] != 0))

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 141 done, 93 partial, 1996 to do, 17 skipped.
+2247 retail functions: 142 done, 92 partial, 1996 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -2738,7 +2738,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIRegion::ClearImage` · 005e2d30 · legions 005a3af0
 - [x] `UIRegion::MoveTo` · 005e2da0 · legions 005a3b60 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [x] `UIRegion::ResizeTo` · 005e2e70 · legions 005a3c30 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [~] `UIRegion::DrawHere` · 005e2f50 · legions 005a3d10 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [~] `UIRegion::DrawHere` · 005e2f50 · legions 005a3d10 — A8R8G8B8 only; colour key and format conversion not modelled
 - [ ] `UIRegion::~UIRegion` · 005e3140 · legions 005a3f00
 - [ ] `UIRegion::MouseOver` · 005e31e0 · legions 005a3fa0
 - [ ] `UIRegion::MouseOverTop` · 005e31f0 · legions 005a3fb0
@@ -2746,7 +2746,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [ ] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180
 
-## `portal/client/src/uielement/system/uielement.cpp.c` (23/104)
+## `portal/client/src/uielement/system/uielement.cpp.c` (24/104)
 
 ### UIRectangleObject
 - [ ] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790
@@ -2830,7 +2830,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::GetAttribute_Unicode` · 005ea180 · legions 005aad50
 - [x] `UIElement::MouseDown` · 005ea220 · legions 005aadf0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [x] `UIElement::ResetMedia` · 005ea2c0 · legions 005aae90 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [~] `UIElement::SetImage` · 005ea430 · legions 005ab000 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+- [x] `UIElement::SetImage` · 005ea430 · legions 005ab000 — ac2-ui compose.rs / element.rs set_image
 - [x] `UIElement::AddAttributesFromDesc` · 005ea510 · legions 005ab0e0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::MatchAttributes` · 005ea5c0 · legions 005ab190
 - [ ] `UIElement::DragItem` · 005eab10 · legions 005ab6e0
