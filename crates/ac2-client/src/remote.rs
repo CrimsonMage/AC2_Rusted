@@ -532,6 +532,24 @@ impl Remotes {
         }
     }
 
+    /// The animation events each object's body raised since the last call, with its visual.
+    pub(crate) fn take_animation_events(
+        &mut self,
+    ) -> Vec<(u64, Option<u32>, Vec<ac2_anim::Ac2AnimEvent>)> {
+        self.objects
+            .iter_mut()
+            .filter_map(|(id, remote)| {
+                let events = remote.body.as_mut()?.take_animation_events();
+                Some((*id, remote.visual, events))
+            })
+            .collect()
+    }
+
+    /// The loaded data of `visual`.
+    pub(crate) fn body_data(&self, visual: Option<u32>) -> Option<&BodyData> {
+        self.bodies.get(&visual)?.as_ref().ok()
+    }
+
     /// Leaving the world: every object goes.
     pub(crate) fn clear(&mut self) {
         self.objects.clear();

@@ -27,6 +27,8 @@ pub struct BodyData {
     /// What its Setup animates with (`PHYSICSOBJREP::SetupModeTracker`), when the visual has a
     /// behaviour table and an `AnimMap`.
     pub animation: Option<ac2_physics::BodyAnimation>,
+    /// Its FX sounds (`FXTable` from the total `VisualDesc`), when it has any.
+    pub fx_sounds: Option<Arc<crate::FxSoundData>>,
 }
 
 /// The world data the client reads, shared with its loader threads.
@@ -83,6 +85,26 @@ impl DatWorld {
     /// The landscape source the client loads from (what a renderer draws from too).
     pub fn world(&self) -> &Arc<Ac2WorldSource> {
         &self.world
+    }
+}
+
+impl DatWorld {
+    /// The visual's FX sounds and which of them loop (`FXManager::SoundIsLooping` reads them
+    /// here, on the loader thread).
+    fn fx_sounds(&self, visual: DataId) -> Result<Option<Arc<crate::FxSoundData>>, String> {
+        let Some(table) = ac2_assets::resolve_ac2_visual_fx_sounds(&self.store, visual)
+            .map_err(|e| e.to_string())?
+            .filter(ac2_assets::Ac2VisualFxSounds::has_sounds)
+        else {
+            return Ok(None);
+        };
+        let sounds = ac2_audio::DatSounds::new(Arc::clone(&self.store));
+        let looping = table
+            .sound_ids()
+            .into_iter()
+            .filter(|&did| sounds.is_looping(did))
+            .collect();
+        Ok(Some(Arc::new(crate::FxSoundData { table, looping })))
     }
 }
 
@@ -155,6 +177,7 @@ impl WorldData for DatWorld {
             motion,
             radius,
             animation,
+            fx_sounds: self.fx_sounds(visual)?,
         })
     }
 

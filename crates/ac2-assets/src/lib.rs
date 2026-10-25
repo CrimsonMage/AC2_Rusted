@@ -24,6 +24,7 @@ mod ac2_terrain;
 mod ac2_texture;
 mod ac2_total_visual;
 mod ac2_visual_desc;
+mod ac2_visual_fx_sounds;
 mod ac2_visual_particles;
 mod cull;
 mod font;
@@ -69,6 +70,7 @@ pub use ac2_appearance::{
 };
 pub use ac2_cell_surface::decode_ac2_cell_surfaces;
 pub use ac2_entity::{read_ac2_entity_desc, Ac2EntityDesc};
+pub use ac2_fx::Ac2FxSoundNode;
 pub use ac2_material::{
     Ac2LayerLighting, Ac2LayerModifier, Ac2LayerStage, Ac2MaterialLayer, Ac2RenderMaterial,
     Ac2Waveform,
@@ -91,4 +93,5 @@ pub use ac2_texture::{
 };
 pub use ac2_total_visual::{Ac2TotalGroup, Ac2TotalVisualDesc, GLOBAL_PART_GROUP};
 pub use ac2_visual_desc::{Ac2AppearanceHash, Ac2PartGroup, Ac2VisualDesc, Ac2VisualFx};
+pub use ac2_visual_fx_sounds::{resolve_ac2_visual_fx_sounds, Ac2VisualFxSounds};
 pub use ac2_visual_particles::{resolve_ac2_visual_particles, Ac2VisualParticles};

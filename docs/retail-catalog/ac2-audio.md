@@ -1,6 +1,6 @@
 # ac2-audio: Sound
 
-367 retail functions: 44 done, 19 partial, 287 to do, 17 skipped.
+367 retail functions: 47 done, 18 partial, 285 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/cregion/csound/cambientsoundinfo.cpp.c` (0/13)
@@ -279,11 +279,11 @@ Legend and workflow: [README](README.md).
 - [ ] `DirectXMusicLoader::Release` · 005a84b0 · legions 00574a10
 - [ ] `DirectXMusicLoader::DirectXMusicLoader` · 005a8580 · legions 00574ae0
 
-## `portal/client/src/sound/directx/directxplayingsound.cpp.c` (17/32)
+## `portal/client/src/sound/directx/directxplayingsound.cpp.c` (20/32)
 
 ### DirectXPlayingSound
 - [ ] `DirectXPlayingSound::OnSegmentStarted` · 005a6010 · legions 00572750
-- [ ] `DirectXPlayingSound::Update3DInfo` · 005a6030 · legions 00572770
+- [~] `DirectXPlayingSound::Update3DInfo` · 005a6030 · legions 00572770 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 - [x] `DirectXPlayingSound::GetIsPlaying` · 005a6170 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [ ] `DirectXPlayingSound::GetIsActuallyPlaying` · 005a61a0 · legions 005728e0
 - [x] `DirectXPlayingSound::GetReadyToDie` · 005a61c0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
@@ -305,15 +305,15 @@ Legend and workflow: [README](README.md).
 - [ ] `DirectXPlayingSound::~DirectXPlayingSound` · 005a6470 · legions 00572b80
 - [x] `DirectXPlayingSound::DXInitialize` · 005a64d0 · legions 00572be0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::OnSegmentEnded` · 005a6600 · legions 00572d10 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [~] `DirectXPlayingSound::UpdatePosition` · 005a6640 · legions 00572d50 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [x] `DirectXPlayingSound::UpdatePosition` · 005a6640 · legions 00572d50 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [x] `DirectXPlayingSound::SetVolumeInternal` · 005a6790 · legions 00572ea0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [ ] `DirectXPlayingSound::SetFrequency` · 005a6920
 - [ ] `DirectXPlayingSound::GetAudioPathAndBuffers` · 005a69b0 · legions 00573110
 - [~] `DirectXPlayingSound::PlayInternal` · 005a6b50 · legions 005731e0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [x] `DirectXPlayingSound::StopInternal` · 005a6d50 · legions 005733e0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [ ] `DirectXPlayingSound::SetVolume` · 005a6ee0
+- [x] `DirectXPlayingSound::SetVolume` · 005a6ee0 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [x] `DirectXPlayingSound::RecalculateVolume` · 005a6f00 · legions 00573590 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [~] `DirectXPlayingSound::UseTime` · 005a6f20 · legions 005735b0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [x] `DirectXPlayingSound::UseTime` · 005a6f20 · legions 005735b0 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [x] `DirectXPlayingSound::Play` · 005a70a0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::Stop` · 005a70b0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::Enable` · 005a70e0 · legions 00573770 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
@@ -335,7 +335,7 @@ Legend and workflow: [README](README.md).
 
 ### DirectXSoundDevice
 - [x] `DirectXSoundDevice::SetChannelVolume` · 005a4290 · legions 00570a60 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [~] `DirectXSoundDevice::UpdateListener` · 005a4440 · legions 00570c10 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+- [~] `DirectXSoundDevice::UpdateListener` · 005a4440 · legions 00570c10 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 - [x] `DirectXSoundDevice::UseTime` · 005a45c0 · legions 00570d90 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [ ] `DirectXSoundDevice::RemovePlayingSound` · 005a4600 · legions 00570dd0
 - [ ] `DirectXSoundDevice::RemoveSoundInstance` · 005a4650 · legions 00570e20

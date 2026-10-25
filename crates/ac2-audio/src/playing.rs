@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use crate::data::{flags, Pcm, SoundInfo};
 use crate::play_data::{Channel, LoopingMode, PlaySoundData, SoundType};
-use crate::sink::{millibels, SinkCommand, SoundSink};
+use crate::sink::{millibels, SinkCommand, SoundSink, Spatial};
 
 /// `DirectXPlayingSound::LifetimeState`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -25,6 +25,18 @@ pub(crate) struct DeviceState {
     pub enabled: bool,
     pub volumes: [f32; 4],
     pub now: f64,
+}
+
+/// An emitter as `DirectXPlayingSound::UpdatePosition` sees it (`ISoundObj`): its offset from
+/// the listener and its velocity, both already in the listener's frame
+/// (`Position::globaltolocalvec` of `PositionOffset::GetOffset`), and whether it is muted
+/// (`CPhysicsObj::ShouldMuteSound`).
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct Emitter {
+    /// Listener-local, AC2 axes (x right, y ahead, z up), metres.
+    pub offset: [f32; 3],
+    pub velocity: [f32; 3],
+    pub muted: bool,
 }
 
 impl DeviceState {
@@ -67,6 +79,13 @@ pub(crate) struct PlayingSound {
     disabled: bool,
     muted: bool,
     in_world: bool,
+    /// The `SoundInfo`'s `3D` flag: `Update3DInfo` places the buffer (else `DS3DMODE_DISABLE`).
+    three_d: bool,
+    /// `m_fMinDistance`.
+    min_distance: f32,
+    /// `m_vLocalOffset` / `m_vLocalVelocity`, DirectSound axes.
+    offset: [f32; 3],
+    velocity: [f32; 3],
 }
 
 impl PlayingSound {
@@ -116,7 +135,20 @@ impl PlayingSound {
             disabled: false,
             muted: false,
             in_world: true,
+            three_d: info.test(flags::THREE_D),
+            min_distance: info.min_distance,
+            offset: [0.0; 3],
+            velocity: [0.0; 3],
         }
+    }
+
+    /// `Update3DInfo`'s buffer parameters.
+    fn spatial(&self) -> Option<Spatial> {
+        self.three_d.then_some(Spatial {
+            position: self.offset,
+            velocity: self.velocity,
+            min_distance: self.min_distance,
+        })
     }
 
     /// `GetIsSelfExclusive`.
@@ -190,6 +222,11 @@ impl PlayingSound {
         self.set_volume_internal(sink, device, self.volume, 0.0, true);
     }
 
+    /// `SetVolume`.
+    pub fn set_volume(&mut self, sink: &mut dyn SoundSink, device: &DeviceState, volume: f32) {
+        self.set_volume_internal(sink, device, volume, 0.0, false);
+    }
+
     fn rate(&self) -> u32 {
         (f64::from(self.frequency) * f64::from(self.base_frequency))
             .trunc()
@@ -228,6 +265,7 @@ impl PlayingSound {
             looping: self.looping,
             millibels: millibels(device.channel_volume(self.channel), volume),
             frequency: if self.frequency < 0.0 { 0 } else { self.rate() },
+            spatial: self.spatial(),
         });
         self.lifetime = Lifetime::Playing;
         true
@@ -331,12 +369,33 @@ impl PlayingSound {
         }
     }
 
-    /// `DirectXPlayingSound::UseTime`: a sound kept alive plays again; a one-shot past its
-    /// length, or a finished fade, ends.
-    pub fn use_time(&mut self, sink: &mut dyn SoundSink, device: &DeviceState) {
-        self.muted = false;
-        if self.lifetime == Lifetime::KeepAlive && self.has_played {
-            self.play(sink, device);
+    /// `DirectXPlayingSound::UseTime`: a muted emitter's sound stops (kept alive unless it was
+    /// fading out); otherwise a sound kept alive plays again; a one-shot past its length, or a
+    /// finished fade, ends.
+    pub fn use_time(&mut self, sink: &mut dyn SoundSink, device: &DeviceState, muted: bool) {
+        if self.emitter.is_some() && muted {
+            self.muted = true;
+            match self.lifetime {
+                Lifetime::Playing => {
+                    self.lifetime = Lifetime::KeepAlive;
+                    self.stop_voice(sink);
+                }
+                Lifetime::Fading => {
+                    if self.ready_after_fade {
+                        self.lifetime = Lifetime::ReadyToDie;
+                        self.emitter = None;
+                    } else {
+                        self.lifetime = Lifetime::KeepAlive;
+                    }
+                    self.stop_voice(sink);
+                }
+                _ => {}
+            }
+        } else {
+            self.muted = false;
+            if self.lifetime == Lifetime::KeepAlive && self.has_played {
+                self.play(sink, device);
+            }
         }
         // Retail compares the times as floats.
         let ends = f64::from(self.length) + f64::from(self.start_time as f32);
@@ -370,16 +429,34 @@ impl PlayingSound {
         }
     }
 
-    /// `UpdatePosition` without a listener offset (no emitter: distance 1): the priority the
-    /// manager sorts by, `-1` for an all-exclusive sound.
-    pub fn update_priority(&mut self) {
+    /// `UpdatePosition`: an emitter's offset and velocity become the buffer's (y and z swapped
+    /// into DirectSound's axes, `Update3DInfo`), and the priority the manager sorts by is
+    /// `(2 - base) * distance` (distance 1 without an emitter), `-1` for an all-exclusive sound.
+    pub fn update_position(&mut self, sink: &mut dyn SoundSink, emitter: Option<&Emitter>) {
         if matches!(
             self.lifetime,
             Lifetime::WaitingForEnd | Lifetime::ReadyToDie
         ) {
             return;
         }
-        let distance = 1.0f64;
+        let mut distance = 1.0f64;
+        if let (Some(_), Some(emitter)) = (self.emitter, emitter) {
+            let [x, y, z] = emitter.offset;
+            let [vx, vy, vz] = emitter.velocity;
+            self.in_world = true;
+            distance = (f64::from(z) * f64::from(z)
+                + f64::from(y) * f64::from(y)
+                + f64::from(x) * f64::from(x))
+            .sqrt() as f32 as f64;
+            self.offset = [x, z, y];
+            self.velocity = [vx, vz, vy];
+            if let (true, Some(spatial)) = (self.has_voice, self.spatial()) {
+                sink.send(SinkCommand::Spatial {
+                    voice: self.handle,
+                    spatial,
+                });
+            }
+        }
         self.priority = if self.is_all_exclusive() {
             -1.0
         } else {
