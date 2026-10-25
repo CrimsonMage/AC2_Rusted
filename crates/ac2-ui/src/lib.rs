@@ -23,6 +23,8 @@ mod layout_media;
 mod list_box;
 mod list_box_select;
 mod maps;
+mod media;
+mod meter;
 mod mouse;
 mod panel;
 mod place;
@@ -40,6 +42,7 @@ mod text_data;
 mod text_edit;
 mod token;
 mod toolbar;
+mod transition;
 mod tree_view;
 
 pub use camera_ui::{CameraUi, CameraUiEffect};
@@ -54,7 +57,7 @@ pub use dialog::{
     DialogFactory, DialogOutcome, DIALOG_CONFIRMATION, DIALOG_MESSAGE, DIALOG_RESURRECT,
     DIALOG_TIMED, DIALOG_WAIT, LAYOUT_DIALOGS,
 };
-pub use element::{UiBox, UiElement, UiImage, UiTree};
+pub use element::{UiBox, UiElement, UiImage, UiPlacement, UiTree};
 pub use examination::{ExaminationCall, ExaminationItem, ExaminationUi};
 pub use hud::{
     build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
@@ -77,6 +80,7 @@ pub use maps::{
     load_action_map, load_key_map, ActionMap, ActionMapping, ActionValue, KeyMap, KEYMAP_CONTROL,
     KEYMAP_GROUP, KEYMAP_MAIN, KEYMAP_SHIFT,
 };
+pub use meter::{VitalDisplay, VitalText};
 pub use mouse::{
     is_mouse_button, UiMessage, GLOBAL_KEY_PRESS, GLOBAL_KEY_RELEASE, GLOBAL_MOUSE_DOWN,
     GLOBAL_MOUSE_MOVE, GLOBAL_MOUSE_UP, UI_POINTER_X, UI_POINTER_Y, UI_WHEEL_IN, UI_WHEEL_OUT,
@@ -108,6 +112,10 @@ mod element_tests;
 mod list_box_select_tests;
 #[cfg(test)]
 mod list_box_tests;
+#[cfg(test)]
+mod media_tests;
+#[cfg(test)]
+mod meter_tests;
 #[cfg(test)]
 mod mouse_tests;
 #[cfg(test)]

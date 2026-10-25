@@ -44,6 +44,8 @@ pub(crate) struct HudView {
     overlay: UiOverlay,
     size: (u32, u32),
     pub(crate) dirty: bool,
+    /// The sounds the UI's media played this frame (`MD_Data_Sound`), for an audio sink.
+    pub(crate) sounds: Vec<u32>,
 }
 
 impl HudView {
@@ -99,6 +101,7 @@ impl HudView {
             overlay: UiOverlay::new(gpu, format),
             size,
             dirty: false,
+            sounds: Vec::new(),
         }
     }
 
@@ -319,7 +322,8 @@ impl HudView {
     }
 
     /// Takes a finished build, then recomposes if anything changed.
-    pub(crate) fn update(&mut self, gpu: &Gpu) {
+    /// One frame of the HUD at `Timer::cur_time` `now` (seconds).
+    pub(crate) fn update(&mut self, gpu: &Gpu, now: f64) {
         if let Some(pending) = &self.pending_strings {
             if let Ok((tables, ui_table)) = pending.try_recv() {
                 self.strings = Some((Arc::new(tables), ui_table));
@@ -344,9 +348,13 @@ impl HudView {
         for (kind, text) in self.chat_text.take() {
             self.chat_display(kind, &text);
         }
-        // `UIMESSAGE_GLOBAL_LOOP`: the chat windows write what arrived.
-        if let (Some((tree, _)), Some(chat)) = (&mut self.hud, &mut self.chat) {
-            chat.global_loop(tree);
+        // `UIMESSAGE_GLOBAL_LOOP`: the meters move and the chat windows write what arrived.
+        if let Some((tree, _)) = &mut self.hud {
+            tree.global_loop(now);
+            self.sounds = tree.take_sounds();
+            if let Some(chat) = &mut self.chat {
+                chat.global_loop(tree);
+            }
             if tree.take_changed() {
                 self.dirty = true;
             }
@@ -394,8 +402,11 @@ impl HudView {
         if !self.dirty {
             if tree.take_moved() {
                 let placements = tree.placements();
-                self.overlay
-                    .set_placements(placements.into_iter().map(|(_, x, y, r, s)| (x, y, r, s)));
+                self.overlay.set_placements(
+                    placements
+                        .into_iter()
+                        .map(|p| (p.x, p.y, p.rotation, p.shown, p.opacity)),
+                );
             }
             return;
         }
@@ -413,6 +424,7 @@ impl HudView {
                 height: surface.height,
                 rotation: surface.rotation,
                 shown: surface.shown,
+                opacity: surface.opacity,
                 rgba: &surface.rgba,
             }),
         );

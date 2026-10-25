@@ -188,6 +188,10 @@ impl UiTree {
         if is_top != self.el(index).mouse_over_top && !*processed {
             // `UIElement::MouseOverTop`.
             self.el_mut(index).mouse_over_top = is_top;
+            let (file, x, y) = self.el(index).cursor;
+            if is_top && file != 0 {
+                self.set_pointer_cursor(file, x, y, false);
+            }
             self.broadcast(index, MSG_MOUSE_OVER_TOP, i32::from(is_top));
             self.button_update_state(index);
             self.panel_page_mouse_over_top(index, is_top);

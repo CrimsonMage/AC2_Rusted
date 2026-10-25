@@ -25,7 +25,7 @@ pub struct UiPixels {
 }
 
 /// One root's surface and where it sits on the screen.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct UiSurface {
     pub root: usize,
     pub x: i32,
@@ -35,6 +35,8 @@ pub struct UiSurface {
     /// The surface object's rotation about its centre, degrees, and whether it is shown.
     pub rotation: i32,
     pub shown: bool,
+    /// The surface object's material opacity.
+    pub opacity: f32,
     pub rgba: Vec<u8>,
 }
 
@@ -242,6 +244,7 @@ impl UiTree {
                     height: height as u32,
                     rotation: el.rotation,
                     shown: el.shown,
+                    opacity: el.opacity,
                     rgba: vec![0; width as usize * height as usize * 4],
                 };
                 let bounds = surface.bounds();

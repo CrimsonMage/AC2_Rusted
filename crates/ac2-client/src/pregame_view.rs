@@ -176,6 +176,15 @@ impl PregameView {
         }
         self.dirty |= ui.tree_mut().take_changed();
         if !self.dirty {
+            // Only surfaces moved, turned or faded: placements, no new pixels.
+            if ui.tree_mut().take_moved() {
+                let placements = ui.tree().placements();
+                self.overlay.set_placements(
+                    placements
+                        .into_iter()
+                        .map(|p| (p.x, p.y, p.rotation, p.shown, p.opacity)),
+                );
+            }
             return;
         }
         self.dirty = false;
@@ -190,6 +199,7 @@ impl PregameView {
                 height: surface.height,
                 rotation: surface.rotation,
                 shown: surface.shown,
+                opacity: surface.opacity,
                 rgba: &surface.rgba,
             }),
         );

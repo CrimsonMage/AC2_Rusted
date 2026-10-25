@@ -960,9 +960,9 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/random/random.cpp.c` (3/5)
 
 ### Random
-- [x] `Random::rand` · 0060d2d0 · legions 005ce0a0 — ac2_core::Random
-- [x] `Random::RollDice` · 0060d3b0 · legions 005ce180 — ac2_core::Random
-- [x] `Random::RollDice` · 0060d3f0 · legions 005ce1c0 — ac2_core::Random
+- [x] `Random::rand` · 0060d2d0 · legions 005ce0a0 — ac2-ui media.rs / transition.rs
+- [x] `Random::RollDice` · 0060d3b0 · legions 005ce180 — ac2-ui media.rs / transition.rs
+- [x] `Random::RollDice` · 0060d3f0 · legions 005ce1c0 — ac2-ui media.rs / transition.rs
 - [ ] `Random::RollGaussianDice` · 0060d450 · legions 005ce220
 - [ ] `Random::RollPercentile` · 0060d520 · legions 005ce2f0
 

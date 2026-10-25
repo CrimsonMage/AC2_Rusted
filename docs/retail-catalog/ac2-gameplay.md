@@ -127,9 +127,9 @@ Legend and workflow: [README](README.md).
 
 ### gmCharGenResult
 - [ ] `gmCharGenResult::SetStartingPosition` · 006013b0 · legions 005c2240
-- [~] `gmCharGenResult::gmCharGenResult` · 006013d0 · legions 005c22b0 — pregame/chargen.rs new_char_gen (race, sex): SetAdmin(0) + SetCGRDefaults; plain data is ac2_net CharGenResult
-- [~] `gmCharGenResult::gmCharGenResult` · 00601470 · legions 005c2350 — pregame/chargen.rs new_char_gen (race, sex): SetAdmin(0) + SetCGRDefaults; plain data is ac2_net CharGenResult
-- [~] `gmCharGenResult::gmCharGenResult` · 00601500 · legions 005c23e0 — pregame/chargen.rs new_char_gen (race, sex): SetAdmin(0) + SetCGRDefaults; plain data is ac2_net CharGenResult
+- [~] `gmCharGenResult::gmCharGenResult` · 006013d0 · legions 005c22b0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [~] `gmCharGenResult::gmCharGenResult` · 00601470 · legions 005c2350 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [~] `gmCharGenResult::gmCharGenResult` · 00601500 · legions 005c23e0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
 ## `ac2/shared/src/character/gmracesexinfo.cpp.c` (6/8)
 

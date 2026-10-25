@@ -187,6 +187,8 @@ impl UiTree {
         }
         // `UIElement_Scrollbar::ResizeTo`.
         self.scrollbar_update_layout(index);
+        // `UIElement_Meter::ResizeTo`.
+        self.meter_update_layout(index);
     }
 
     /// `UIElement::MoveTo`: a root keeps its box at the origin of its surface object, which is
@@ -206,6 +208,8 @@ impl UiTree {
         // `UIRegion::MoveTo`.
         let rect = el.rect;
         el.rect = rect.offset(x - rect.x0, y - rect.y0);
+        // `UIElement_Meter::MoveTo`.
+        self.meter_update_layout(index);
     }
 
     /// `UIElement::SetZLevel`: a new z re-sorts the element among its siblings (or the roots).

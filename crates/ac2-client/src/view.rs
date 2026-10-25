@@ -157,7 +157,7 @@ impl ClientView {
         }
         let update = self.scene.poll(budget);
         self.renderer.apply(gpu, update);
-        self.hud.update(gpu);
+        self.hud.update(gpu, frame.server_time);
     }
 
     /// Waits for every outstanding load (headless snapshots).

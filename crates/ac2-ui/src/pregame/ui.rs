@@ -361,9 +361,11 @@ impl PregameUi {
         self.pump();
     }
 
-    /// `UIMESSAGE_GLOBAL_LOOP` at `now` seconds: the frameworks' loop, then the flow switches
-    /// to a queued mode (`UIFlow::ListenToMessage`, `UseNewMode`).
+    /// `UIMESSAGE_GLOBAL_LOOP` at `now` seconds: the elements' media and transitions, the
+    /// frameworks' loop, then the flow switches to a queued mode (`UIFlow::ListenToMessage`,
+    /// `UseNewMode`).
     pub fn use_time(&mut self, now: f64) {
+        self.tree.global_loop(now);
         if let Framework::CharacterSelection(ui) = &mut self.current {
             ui.global_loop(now);
         }
