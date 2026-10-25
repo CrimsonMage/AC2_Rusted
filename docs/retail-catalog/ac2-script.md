@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1230 done, 80 partial, 1080 to do, 78 skipped.
+2468 retail functions: 1234 done, 80 partial, 1076 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -460,14 +460,14 @@ Legend and workflow: [README](README.md).
 - [ ] `gShortcutInfo::CallEFun_SetDataStr` · 0046fcf0
 - [ ] `gShortcutInfo::CallEFun_GetDataStr` · 0046fd70
 
-## `ac2/shared/src/interp/glue/gskillpanelmanager.cpp.c` (0/5)
+## `ac2/shared/src/interp/glue/gskillpanelmanager.cpp.c` (4/5)
 
 ### gSkillPanelManager
 - [ ] `gSkillPanelManager::SkillUINodeHashToARHash` · 0046d140 · legions 0046d8a0
-- [ ] `gSkillPanelManager::ARHashToSkillUINodeHash` · 0046d270 · legions 0046d9d0
-- [ ] `gSkillPanelManager::CallIFun_InqIcon` · 0046d380 · legions 0046dae0
-- [ ] `gSkillPanelManager::CallIFun_InqName` · 0046d510 · legions 0046dc70
-- [ ] `gSkillPanelManager::CallIFun_InqNodeHash` · 0046d6f0 · legions 0046de50
+- [x] `gSkillPanelManager::ARHashToSkillUINodeHash` · 0046d270 · legions 0046d9d0 — ac2-script host::skill_panel (ScriptHost::skill_panel)
+- [x] `gSkillPanelManager::CallIFun_InqIcon` · 0046d380 · legions 0046dae0 — ac2-script host::skill_panel (ScriptHost::skill_panel)
+- [x] `gSkillPanelManager::CallIFun_InqName` · 0046d510 · legions 0046dc70 — ac2-script host::skill_panel (ScriptHost::skill_panel)
+- [x] `gSkillPanelManager::CallIFun_InqNodeHash` · 0046d6f0 · legions 0046de50 — ac2-script host::skill_panel (ScriptHost::skill_panel)
 
 ## `ac2/shared/src/interp/glue/gskilluinode.cpp.c` (24/24)
 

@@ -12,6 +12,7 @@ mod gun;
 mod ifun;
 mod interface;
 mod notices;
+mod skill_panel;
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -31,6 +32,7 @@ pub use crate::vm::DataRequest;
 pub use gun::{ChatRequest, ChatServices};
 pub use ifun::{IFunArg, IFunResult};
 pub use notices::{notice_names, NoticeArg, ScriptNotice};
+pub use skill_panel::SkillPanelData;
 
 /// A script call for the server (`ECM_Interp::SendEvt_InterpSEvent[Encrypt]`).
 #[derive(Debug, Clone, PartialEq)]
@@ -77,6 +79,8 @@ pub enum HostError {
     UnknownObject(u64),
     /// `PackBuffer::UnPackBuffer` refused the arguments (a reference that does not unpack).
     BadArguments,
+    /// A host query's script call ended other than `Terminated` (and why, when it crashed).
+    Stopped(InterpStatus, Option<Fault>),
 }
 
 /// The pure glue and the host glue.

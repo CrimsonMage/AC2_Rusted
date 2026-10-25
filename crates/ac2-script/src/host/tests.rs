@@ -471,3 +471,17 @@ fn ui_ifun_calls_read_back_the_return_slot() {
     assert_eq!(result.retval, 41);
     assert_eq!(host.call_ifun(8, 0, &[]), Err(HostError::UnknownObject(8)));
 }
+
+/// The skill panels come from the `SkillPanelManager` singleton, which reads the `MasterList`
+/// singleton's hash; the DATs leave it empty (the server's skill data fills it), so a fresh VM
+/// answers every panel with no nodes and no crash.
+#[test]
+fn skill_panels_answer_through_the_singleton() {
+    let Some(mut host) = legions_host() else {
+        return;
+    };
+    for panel in [1, 2, 3, 0x4000_0001] {
+        let data = host.skill_panel(panel).unwrap().unwrap();
+        assert!(data.nodes.is_empty());
+    }
+}

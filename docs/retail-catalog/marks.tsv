@@ -242,6 +242,10 @@ key	status	note
 0046c980	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 0046cac0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 0046cca0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046d270	x	ac2-script host::skill_panel (ScriptHost::skill_panel)
+0046d380	x	ac2-script host::skill_panel (ScriptHost::skill_panel)
+0046d510	x	ac2-script host::skill_panel (ScriptHost::skill_panel)
+0046d6f0	x	ac2-script host::skill_panel (ScriptHost::skill_panel)
 0046ed90	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 0046edf0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 0046ee50	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
