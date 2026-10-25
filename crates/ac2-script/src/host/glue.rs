@@ -1,5 +1,5 @@
-//! Host glue: `gPackBuffer` (`PackBuffer`), `gCWInterface::SendServerEvt[Encrypt]` and
-//! `ggmCObjMaint`'s player lookups.
+//! Host glue: `gPackBuffer` (`PackBuffer`), `gCWInterface::SendServerEvt[Encrypt]`,
+//! `ggmCObjMaint`'s player lookups and `gCWDistributor::GetEntityDID`.
 
 use std::collections::VecDeque;
 
@@ -37,6 +37,7 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x007F_0037, |vm, c| send_server_evt(vm, c, true));
     efuns.register(0x0095_0001, get_player_id);
     efuns.register(0x0095_0002, get_player_weenie_object_reference);
+    efuns.register(0x007E_0003, get_entity_did);
 }
 
 fn with_buffer<R>(
@@ -176,5 +177,22 @@ fn get_player_weenie_object_reference(vm: &mut Vm, ctx: &mut Context) -> InterpS
         .find(|(_, &id)| id == player && player != 0)
         .map_or(u32::MAX, |(&r, _)| r);
     Call::new(ctx).ret(2, r, tag::REF);
+    InterpStatus::Success
+}
+
+/// `gCWDistributor::CallEFun_GetEntityDID`: the DID `this`'s weenie was made with
+/// (`CWDistributor::m_initData.m_did`, the link's +0x14), tagged 4 as retail writes it. A null
+/// `this` crashes (`index != Undef_ReferenceID`); an instance no weenie owns answers 0.
+fn get_entity_did(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let this = word(ctx, 1);
+    if this == u32::MAX {
+        return vm.bad_this(this);
+    }
+    let did = vm
+        .owners
+        .get(&this)
+        .and_then(|id| vm.init_data.get(id))
+        .map_or(0, |&(_, did)| did);
+    Call::new(ctx).ret(2, did, tag::BOOL);
     InterpStatus::Success
 }

@@ -9,6 +9,7 @@
 //! handlers; a handler takes the values in `PackBuffer` order.
 
 mod calls;
+mod catalog;
 mod consignment;
 mod craft;
 mod craft_records;
@@ -18,6 +19,7 @@ mod store;
 mod trade;
 
 pub use calls::{call_spec, ArgKind, CallSpec, Direction, ScriptCall, CALLS};
+pub use catalog::StoreCatalog;
 pub use consignment::{Consignment, ConsignmentList};
 pub use craft::CraftMessage;
 pub use message::{broadcast, ScriptMessage};
@@ -210,6 +212,10 @@ pub mod function {
     /// storekeeper (long int). The body closes the open store and catalog first, as `ViewStore`'s
     /// does.
     pub const STORE_VIEW_CONSIGNMENT: u32 = 0xB83A_0053;
+    /// S->C, `WM_Store` forwarder 0x52 (`CPlayer` 0x1F3 -> `CStoreSystem` 0xF -> `ViewCatalog`):
+    /// the store sizes (an `AAHash`), the `StoreGroup` DID, the storekeeper (long int); see
+    /// [`super::StoreCatalog`].
+    pub const STORE_VIEW_CATALOG: u32 = 0xB83A_0052;
     /// S->C, `WM_Store` forwarder 0x57 (`CPlayer` 0x1F6 -> `CStoreSystem` 0x16 -> `UpdateConsignment`):
     /// the consignments (an `RList` of `Consignment`s), the storekeeper (long int).
     pub const STORE_UPDATE_CONSIGNMENT: u32 = 0xB83A_0057;

@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 211 done, 63 partial, 1623 to do, 7 skipped.
+1904 retail functions: 214 done, 61 partial, 1622 to do, 7 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -159,7 +159,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Shortcut::SendNotice_ReloadShortcuts` · 007268b0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 - [ ] `CM_Shortcut::SendNotice_RemoveRecipe` · 00726940
 
-## `ac2/client/src/events/cm_store.cpp.c` (0/12)
+## `ac2/client/src/events/cm_store.cpp.c` (1/12)
 
 ### CM_Store
 - [~] `CM_Store::SendNotice_ConfirmPurchase` · 00724000 — Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
@@ -173,7 +173,7 @@ Legend and workflow: [README](README.md).
 - [~] `CM_Store::SendNotice_UpdateStore` · 00724520 — Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
 - [~] `CM_Store::SendNotice_ViewConsignment` · 00724610 — lead: WM_Store 0x53 (CPlayer 0x1F1 -> CStoreSystem 0x17) / 0x57 (CPlayer 0x1F6 -> CStoreSystem 0x16) take an RList of Consignments (package 0x3898: slot 0 the GameSaleProfile, 3 ordinal, 4 stock, 8 bit 0 expired) and the storekeeper; the build at 0x118008 makes a UIShopSale per consignment with stock (sale build 0x118530). ac2-net ConsignmentList; consignment_script_7160 asserts both notices' shops.
 - [~] `CM_Store::SendNotice_ViewStore` · 00724700 — Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
-- [~] `CM_Store::SendNotice_ViewCatalog` · 007247f0 · legions 006a41f0 — Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
+- [x] `CM_Store::SendNotice_ViewCatalog` · 007247f0 · legions 006a41f0 — lead: WM_Store 0x52 -> CPlayer 0x1F3 -> CStoreSystem 0xF (vendor, StoreGroup DID 0x3858, AAHash store DID -> size): closes store/consignment/catalog, sets the shopper's group (CShopperContext 0x2), lists the group's StoreTemplates (build 0x117914) and raises it; ac2-net StoreCatalog; consignment_script_7160 view_catalog asserts the shops and sizes.
 
 ## `ac2/client/src/events/cm_trade.cpp.c` (0/9)
 
@@ -392,7 +392,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Shortcut::CallEFun_SendNotice_ReloadShortcuts` · 00468d20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Shortcut::CallEFun_SendNotice_RemoveRecipe` · 00468d60
 
-## `ac2/client/src/weenie/interp/glue/gcm_store.cpp.c` (4/12)
+## `ac2/client/src/weenie/interp/glue/gcm_store.cpp.c` (5/12)
 
 ### gCM_Store
 - [x] `gCM_Store::CallEFun_SendNotice_ConfirmPurchase` · 00467a50 — ac2-script store round trip (store_script_7160): ViewStore with a StoreView's sales, UpdateStore after it, the ConfirmPurchase notice of PurchaseItem, LeaveStore in the shop body's prologue
@@ -406,7 +406,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCM_Store::CallEFun_SendNotice_ViewStore` · 00467ce0 — ac2-script store round trip (store_script_7160): ViewStore with a StoreView's sales, UpdateStore after it, the ConfirmPurchase notice of PurchaseItem, LeaveStore in the shop body's prologue
 - [~] `gCM_Store::CallEFun_SendNotice_UpdateConsignment` · 00467d40 — lead: WM_Store 0x53 (CPlayer 0x1F1 -> CStoreSystem 0x17) / 0x57 (CPlayer 0x1F6 -> CStoreSystem 0x16) take an RList of Consignments (package 0x3898: slot 0 the GameSaleProfile, 3 ordinal, 4 stock, 8 bit 0 expired) and the storekeeper; the build at 0x118008 makes a UIShopSale per consignment with stock (sale build 0x118530). ac2-net ConsignmentList; consignment_script_7160 asserts both notices' shops.
 - [ ] `gCM_Store::RListToUIShopList` · 00467e20 · legions 00468ad0
-- [~] `gCM_Store::CallEFun_SendNotice_ViewCatalog` · 00467ec0 · legions 00468b70 — Efun ids 0x3839xxxx in the notice table (ac2-script host/notices.rs); arguments as the glue reads them (frame in signature order). LeaveStore reached on the VM.
+- [x] `gCM_Store::CallEFun_SendNotice_ViewCatalog` · 00467ec0 · legions 00468b70 — lead: WM_Store 0x52 -> CPlayer 0x1F3 -> CStoreSystem 0xF (vendor, StoreGroup DID 0x3858, AAHash store DID -> size): closes store/consignment/catalog, sets the shopper's group (CShopperContext 0x2), lists the group's StoreTemplates (build 0x117914) and raises it; ac2-net StoreCatalog; consignment_script_7160 view_catalog asserts the shops and sizes.
 
 ## `ac2/client/src/weenie/interp/glue/gcm_trade.cpp.c` (8/9)
 
@@ -794,7 +794,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_RequestRestock` · 00460940 · legions 00461590
 - [ ] `ggmCWInterface::CallIFun_RequestResurrect` · 00460a60 · legions 004616b0
 - [ ] `ggmCWInterface::CallIFun_RequestSales` · 00460af0 · legions 00461740
-- [~] `ggmCWInterface::CallIFun_RequestSell` · 00460ba0 · legions 004617f0 — net: the VM's sell body refuses outside a consignment (one message, no stub sent: consignment_script_7160). The stub's values (an int, the price, the quantity, the item, a long) and the consignment-open case are not traced: opening it needs the ViewConsignment answer, which the VM does not run yet (see CM_Store::SendNotice_ViewConsignment)
+- [~] `ggmCWInterface::CallIFun_RequestSell` · 00460ba0 · legions 004617f0 — lead: the VM's sell body needs the storekeeper's shopper with a StoreGroup (set by ViewCatalog, WM_Store 0x52; without one it refuses with message 0xAFD1, consignment_script_7160). With the catalog open it runs on to gCWDistributor::GetEntityDID (bound) and then gCWPhysicsObject::CallEFun_GetLocalVisualDesc (0x800059, unbound: needs the item's VisualDesc native), so the RequestSell stub's bytes are not reached yet.
 - [ ] `ggmCWInterface::CallIFun_RequestSetPetName` · 00460cc0 · legions 00461910
 - [ ] `ggmCWInterface::CallIFun_RequestTrainSkill` · 00460df0 · legions 00461a40
 - [ ] `ggmCWInterface::CallIFun_RequestUntrainSkill` · 00460ea0 · legions 00461af0
@@ -962,7 +962,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::RequestLeaveConsignment` · 00450280 · legions 004513c0 — net: consignment_script_7160 (the stub packs the storekeeper, one long int, as WM_Store 0x46 enter / 0x45 leave, only with a shopper open; the charge is the script's float out value, 0.0 with no consignment). IFun ids 0xB40136/35/3B match Legions
 - [ ] `gmCWInterface::RequestEnterConsignment` · 004502a0 · legions 004513e0 — net: consignment_script_7160 (the stub packs the storekeeper, one long int, as WM_Store 0x46 enter / 0x45 leave, only with a shopper open; the charge is the script's float out value, 0.0 with no consignment). IFun ids 0xB40136/35/3B match Legions
 - [~] `gmCWInterface::RequestEnterStore` · 004502c0 · legions 00451400 — Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
-- [~] `gmCWInterface::RequestSell` · 004502e0 · legions 00451420 — net: the VM's sell body refuses outside a consignment (one message, no stub sent: consignment_script_7160). The stub's values (an int, the price, the quantity, the item, a long) and the consignment-open case are not traced: opening it needs the ViewConsignment answer, which the VM does not run yet (see CM_Store::SendNotice_ViewConsignment)
+- [~] `gmCWInterface::RequestSell` · 004502e0 · legions 00451420 — lead: the VM's sell body needs the storekeeper's shopper with a StoreGroup (set by ViewCatalog, WM_Store 0x52; without one it refuses with message 0xAFD1, consignment_script_7160). With the catalog open it runs on to gCWDistributor::GetEntityDID (bound) and then gCWPhysicsObject::CallEFun_GetLocalVisualDesc (0x800059, unbound: needs the item's VisualDesc native), so the RequestSell stub's bytes are not reached yet.
 - [ ] `gmCWInterface::RequestRestock` · 00450310 · legions 00451450
 - [ ] `gmCWInterface::RequestCollect` · 00450340 · legions 00451480
 - [ ] `gmCWInterface::GetConsignmentCharge` · 00450360 · legions 004514a0 — net: consignment_script_7160 (the stub packs the storekeeper, one long int, as WM_Store 0x46 enter / 0x45 leave, only with a shopper open; the charge is the script's float out value, 0.0 with no consignment). IFun ids 0xB40136/35/3B match Legions
@@ -2255,10 +2255,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWBookKeeper::CallEFun_AddObjectToBeDestroyed` · 004bc7e0
 - [ ] `gCWBookKeeper::CallEFun_RemoveObjectToBeDestroyed` · 004bc850
 
-## `portal/client/src/weenie/interp/glue/gcwdistributor.cpp.c` (0/3)
+## `portal/client/src/weenie/interp/glue/gcwdistributor.cpp.c` (1/3)
 
 ### gCWDistributor
-- [ ] `gCWDistributor::CallEFun_GetEntityDID` · 004bc690
+- [x] `gCWDistributor::CallEFun_GetEntityDID` · 004bc690 — lead: ac2-script host/glue.rs get_entity_did: the DID the weenie was made with (CWDistributor::m_initData.m_did, +0x14), tag 4; null this crashes; host tests.
 - [ ] `gCWDistributor::CallEFun_GetMyPackageID` · 004bc700
 - [ ] `gCWDistributor::CallEFun_GetProcessID` · 004bc770
 

@@ -8,7 +8,7 @@
 //! them to `CPlayer` in declared order, and the VM reads the first packed value as the last
 //! parameter), so each message lists its values last parameter first.
 
-use super::{function, Args, ConsignmentList};
+use super::{function, Args, ConsignmentList, StoreCatalog};
 use crate::protocol::native::{NativeObject, ScriptList};
 use crate::protocol::pack::{entry_flags, HeapObject, PackValue, PackedEntry, PackedReference};
 use crate::protocol::string_info::StringInfo;
@@ -28,6 +28,9 @@ pub enum StoreMessage {
     LeaveStore { vendor: u64 },
     /// [`function::STORE_UPDATE_SALE`]: an item's stock (`CM_Store::SendNotice_UpdateSale`).
     UpdateSale { vendor: u64, item: u64, stock: u32 },
+    /// [`function::STORE_VIEW_CATALOG`]: the storekeeper's catalog opened
+    /// (`CM_Store::SendNotice_ViewCatalog`), with the storekeeper.
+    ViewCatalog { catalog: StoreCatalog, vendor: u64 },
     /// [`function::STORE_VIEW_CONSIGNMENT`]: the storekeeper's consignments opened
     /// (`CM_Store::SendNotice_ViewConsignment`), with the storekeeper.
     ViewConsignment {
@@ -50,6 +53,7 @@ impl StoreMessage {
             Self::UpdateStore { .. } => function::STORE_UPDATE,
             Self::LeaveStore { .. } => function::STORE_LEFT,
             Self::UpdateSale { .. } => function::STORE_UPDATE_SALE,
+            Self::ViewCatalog { .. } => function::STORE_VIEW_CATALOG,
             Self::ViewConsignment { .. } => function::STORE_VIEW_CONSIGNMENT,
             Self::UpdateConsignment { .. } => function::STORE_UPDATE_CONSIGNMENT,
         }
@@ -76,6 +80,10 @@ impl StoreMessage {
                 PackValue::LongInt(*item),
                 PackValue::Int(*stock),
             ],
+            Self::ViewCatalog { catalog, vendor } => {
+                let [sizes, group] = catalog.values();
+                vec![sizes, group, PackValue::LongInt(*vendor)]
+            }
             Self::ViewConsignment {
                 consignments,
                 vendor,
@@ -115,6 +123,13 @@ impl StoreMessage {
                 })
             }),
             function::STORE_LEFT => decode(|a| Ok(Self::LeaveStore { vendor: a.long()? })),
+            function::STORE_VIEW_CATALOG => decode(|a| {
+                let catalog = StoreCatalog::read(a)?;
+                Ok(Self::ViewCatalog {
+                    catalog,
+                    vendor: a.long()?,
+                })
+            }),
             function::STORE_VIEW_CONSIGNMENT => decode(|a| {
                 let consignments = ConsignmentList::from_reference(&a.reference()?)?;
                 Ok(Self::ViewConsignment {

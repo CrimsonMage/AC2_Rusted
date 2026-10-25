@@ -153,6 +153,7 @@ impl ScriptHost {
         match instance {
             Some(instance) => {
                 self.vm.owners.insert(instance, id);
+                self.vm.init_data.insert(id, (pid, did));
                 self.processes.insert(
                     id,
                     Process {
@@ -194,6 +195,7 @@ impl ScriptHost {
         if let Some(p) = self.processes.remove(&id) {
             self.vm.owners.remove(&p.instance);
         }
+        self.vm.init_data.remove(&id);
         self.vm.repositories.remove(&id);
     }
 

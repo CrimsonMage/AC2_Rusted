@@ -711,3 +711,22 @@ fn the_login_asks_gun_or_says_it_cannot() {
         }
     }
 }
+
+/// `gCWDistributor::GetEntityDID`: the DID the weenie was made with (`m_initData.m_did`); a
+/// null `this` crashes.
+#[test]
+fn get_entity_did_answers_the_weenies_init_did() {
+    let Some(mut host) = legions_host() else {
+        return;
+    };
+    let player = 0x5000_0001;
+    let pid = host.vm().program.package_id("CPlayer").expect("CPlayer");
+    assert!(host.create_weenie(player, pid, 0x4700_110F));
+    let instance = host.instance(player).expect("the process instance");
+    let vm = host.vm_mut();
+    assert_eq!(efun_result(vm, 0x007E_0003, &[], instance, 2), 0x4700_110F);
+    assert_eq!(
+        run_efun(vm, 0x007E_0003, &[], u32::MAX),
+        InterpStatus::Crash
+    );
+}

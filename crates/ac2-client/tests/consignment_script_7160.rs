@@ -12,7 +12,8 @@ use std::sync::Arc;
 use ac2_client::{Command, FrameInput};
 use ac2_core::DataId;
 use ac2_net::protocol::{
-    pack_values, Consignment, ConsignmentList, GameSale, PackValue, ScriptRequest, StoreView,
+    pack_values, Consignment, ConsignmentList, GameSale, PackValue, ScriptRequest, StoreCatalog,
+    StoreView,
 };
 use ac2_script::data::DatScriptData;
 use ac2_script::host::ScriptHost;
@@ -315,5 +316,57 @@ fn view_and_update_consignment_show_the_consigned_sales() {
         .map(|s| (s.ordinal, s.item, s.stock))
         .collect();
     assert_eq!(shown, vec![(0, ITEM + 1, 3)]);
+    assert!(client.take_script_problems().is_empty());
+}
+
+/// A `StoreGroup` WState in portal.dat (package 0x3858) and one of its stores.
+const STORE_GROUP: u32 = 0x6F00_3558;
+const GROUP_STORE: u32 = 0x6F00_321C;
+
+/// `ViewCatalog` (`WM_Store` 0x52) opens the storekeeper's catalog: the group's stores, each
+/// with the size the hash gives it (`gUIShop::SetStoreSize`; a store the hash does not name shows
+/// 0), after the open store, consignment and catalog are closed.
+#[test]
+fn view_catalog_lists_the_groups_stores_with_their_sizes() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    open_shopper(&mut client, &server);
+    server.borrow_mut().open_catalog(
+        StoreCatalog {
+            group: STORE_GROUP,
+            store_sizes: vec![(GROUP_STORE, 5)],
+        },
+        VENDOR,
+    );
+    let notices = run(&mut client, &server, Vec::new());
+    let leaves: Vec<_> = notices
+        .iter()
+        .filter(|n| {
+            matches!(
+                n,
+                GameplayNotice::LeaveStore
+                    | GameplayNotice::LeaveConsignment
+                    | GameplayNotice::LeaveCatalog
+            )
+        })
+        .collect();
+    assert_eq!(leaves.len(), 3, "{notices:?}");
+    let shops = notices
+        .iter()
+        .find_map(|n| match n {
+            GameplayNotice::ViewCatalog { shops, .. } => Some(shops.clone()),
+            _ => None,
+        })
+        .unwrap_or_else(|| panic!("ViewCatalog: {notices:?}"));
+    let sized = shops
+        .iter()
+        .find(|shop| shop.id == GROUP_STORE)
+        .expect("the group's store");
+    assert_eq!(sized.store_size, 5);
+    assert!(shops
+        .iter()
+        .filter(|shop| shop.id != GROUP_STORE)
+        .all(|shop| shop.store_size == 0));
     assert!(client.take_script_problems().is_empty());
 }

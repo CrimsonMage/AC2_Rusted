@@ -230,6 +230,8 @@ pub struct Vm {
     /// The weenie object that owns each process instance (`HeapObject::m_link` of a process
     /// instance is its `CWDistributor`).
     pub owners: std::collections::HashMap<u32, u64>,
+    /// Each weenie's `CWDistributor::m_initData` (`WInitData::m_pid`, `m_did`), by object id.
+    pub init_data: std::collections::HashMap<u64, (u32, u32)>,
     /// `CObjectMaint::GetPlayerID` (0 before the player exists).
     pub player: u64,
     /// Each weenie's qualities (`CWRepository::m_qualities`), by object id.
@@ -278,6 +280,7 @@ impl Vm {
             random: ac2_core::Random::default(),
             outbox: Default::default(),
             owners: Default::default(),
+            init_data: Default::default(),
             player: 0,
             repositories: Default::default(),
             chat: Default::default(),

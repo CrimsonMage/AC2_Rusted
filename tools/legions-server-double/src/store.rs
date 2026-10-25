@@ -4,7 +4,8 @@
 //! stock is not the double's: the client's script builds it from the store's own script data.
 
 use ac2_net::protocol::{
-    ConsignmentList, PackedReference, Purchase, ScriptRequest, StoreMessage, StoreView,
+    ConsignmentList, PackedReference, Purchase, ScriptRequest, StoreCatalog, StoreMessage,
+    StoreView,
 };
 
 use crate::items::{item_object_bytes, ItemSpawn};
@@ -21,6 +22,12 @@ impl State {
     pub fn open_store(&mut self, view: StoreView, vendor: u64) {
         self.script_world.open_store = Some(view.clone());
         self.send_store(&StoreMessage::ViewStore { view, vendor });
+    }
+
+    /// Opens the storekeeper `vendor`'s catalog, as the server does (`WM_Store` 0x52,
+    /// `ViewCatalog`).
+    pub fn open_catalog(&mut self, catalog: StoreCatalog, vendor: u64) {
+        self.send_store(&StoreMessage::ViewCatalog { catalog, vendor });
     }
 
     /// Opens the storekeeper `vendor`'s consignments, as the server does (`WM_Store` 0x53,

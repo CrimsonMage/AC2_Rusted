@@ -103,6 +103,7 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_REQUEST_ENTER_STORE,
     IFUN_REQUEST_LEAVE_STORE,
     // The consignment answers and calls (`gmCWInterface`'s consignment IFuns).
+    ac2_net::protocol::script_function::STORE_VIEW_CATALOG,
     ac2_net::protocol::script_function::STORE_VIEW_CONSIGNMENT,
     ac2_net::protocol::script_function::STORE_UPDATE_CONSIGNMENT,
     IFUN_REQUEST_ENTER_CONSIGNMENT,
