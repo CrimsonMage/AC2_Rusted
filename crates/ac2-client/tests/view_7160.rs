@@ -220,8 +220,8 @@ fn the_client_walks_with_w_and_draws_its_character() {
     );
     assert_eq!(
         view.hud_layers(),
-        15,
-        "every HUD root (and the reticle's objects and the first chat window) is drawn"
+        16,
+        "every HUD root (and the reticle's objects, the shortcut bar and the first chat window) is drawn"
     );
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);

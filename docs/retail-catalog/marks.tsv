@@ -83,6 +83,29 @@ key	status	note
 004357d0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 004357f0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 00435bc0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+00435ce0	x	ac2-ui shortcut.rs
+00435d30	x	ac2-ui shortcut.rs
+00435d80	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+00435fc0	x	ac2-ui shortcut.rs
+004360e0	x	ac2-ui shortcut.rs
+00436440	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+004364f0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+004367a0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+00436940	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+00436bc0	x	ac2-ui shortcut.rs
+00436c20	x	ac2-ui shortcut.rs
+00436ca0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+00436da0	x	ac2-ui shortcut.rs
+00436e20	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+00437320	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+00437620	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+004379a0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+00437d90	x	ac2-ui shortcut.rs
+00437e50	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+00437fb0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+00438270	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+004386c0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+004387f0	x	ac2-ui shortcut.rs
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 00447550	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 004475b0	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation

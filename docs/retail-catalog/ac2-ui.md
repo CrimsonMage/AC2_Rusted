@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 207 done, 115 partial, 1909 to do, 16 skipped.
+2247 retail functions: 216 done, 129 partial, 1886 to do, 16 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -1093,13 +1093,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gmNavigationUI::UpdatePlayerPos` · 004341b0 · legions 00434980
 - [ ] `gmNavigationUI::ListenToMessage` · 00434280 · legions 00434a50
 
-## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (0/46)
+## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (9/46)
 
 ### gmShortcutUI
 - [ ] `gmShortcutUI::Show` · 00435cd0 · legions 00436520
-- [ ] `gmShortcutUI::CheckAttackButtons` · 00435ce0 · legions 00436530
-- [ ] `gmShortcutUI::RecvNotice_UpdateAttackState` · 00435d30
-- [ ] `gmShortcutUI::RequestAttackStateChange` · 00435d80 · legions 004365d0
+- [x] `gmShortcutUI::CheckAttackButtons` · 00435ce0 · legions 00436530 — ac2-ui shortcut.rs
+- [x] `gmShortcutUI::RecvNotice_UpdateAttackState` · 00435d30 — ac2-ui shortcut.rs
+- [~] `gmShortcutUI::RequestAttackStateChange` · 00435d80 · legions 004365d0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 
 ### (free functions)
 - [ ] `gmShortcutUI_DDCB` · 00435e10 · legions 00436660
@@ -1109,9 +1109,9 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartArray<TimeLeftInfo>::RemoveOrderedByIndex` · 00435ec0 · legions 00436710
 
 ### gmShortcutUI
-- [ ] `gmShortcutUI::RemoveShortcut` · 00435fc0 · legions 00436810
+- [x] `gmShortcutUI::RemoveShortcut` · 00435fc0 · legions 00436810 — ac2-ui shortcut.rs
 - [ ] `gmShortcutUI::RecvNotice_RemoveRecipe` · 00436060
-- [ ] `gmShortcutUI::CheckRecipe` · 004360e0 · legions 00436930
+- [x] `gmShortcutUI::CheckRecipe` · 004360e0 · legions 00436930 — ac2-ui shortcut.rs
 - [ ] `gmShortcutUI::CheckTimeLeftArray` · 00436120 · legions 00436970
 - [ ] `gmShortcutUI::UpdateTimeLeft` · 00436180 · legions 004369d0
 - [ ] `gmShortcutUI::RecvNotice_ToggleSpecialAttack` · 00436330
@@ -1120,25 +1120,25 @@ Legend and workflow: [README](README.md).
 - [ ] `ShortcutInfo::SetDataStr` · 004363e0 · legions 00436c30
 
 ### gmShortcutUI
-- [ ] `gmShortcutUI::CheckItem` · 00436440 · legions 00436c90
-- [ ] `gmShortcutUI::FromElement` · 004364f0 · legions 00436d40
+- [~] `gmShortcutUI::CheckItem` · 00436440 · legions 00436c90 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::FromElement` · 004364f0 · legions 00436d40 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 
 ### SmartArray<TimeLeftInfo>
 - [ ] `SmartArray<TimeLeftInfo>::AddToEnd` · 00436660 · legions 00436eb0
 
 ### gmShortcutUI
-- [ ] `gmShortcutUI::CheckSkill` · 004367a0 · legions 00436ff0
-- [ ] `gmShortcutUI::UpdateSetNumber` · 00436940 · legions 00437190
+- [~] `gmShortcutUI::CheckSkill` · 004367a0 · legions 00436ff0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::UpdateSetNumber` · 00436940 · legions 00437190 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 
 ### PSmartArray<ShortcutInfo>
 - [ ] `PSmartArray<ShortcutInfo>::StreamPack` · 00436a00 · legions 00437250
 
 ### gmShortcutUI
-- [ ] `gmShortcutUI::CheckShortcut` · 00436bc0 · legions 00437410
-- [ ] `gmShortcutUI::CheckAllItems` · 00436c20 · legions 00437470
-- [ ] `gmShortcutUI::CheckItem` · 00436ca0 · legions 004374f0
-- [ ] `gmShortcutUI::CheckAllSkills` · 00436da0 · legions 004375f0
-- [ ] `gmShortcutUI::CheckSkill` · 00436e20 · legions 00437670
+- [x] `gmShortcutUI::CheckShortcut` · 00436bc0 · legions 00437410 — ac2-ui shortcut.rs
+- [x] `gmShortcutUI::CheckAllItems` · 00436c20 · legions 00437470 — ac2-ui shortcut.rs
+- [~] `gmShortcutUI::CheckItem` · 00436ca0 · legions 004374f0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [x] `gmShortcutUI::CheckAllSkills` · 00436da0 · legions 004375f0 — ac2-ui shortcut.rs
+- [~] `gmShortcutUI::CheckSkill` · 00436e20 · legions 00437670 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 - [ ] `gmShortcutUI::RecvNotice_UpdateInventory` · 00436ea0
 - [ ] `gmShortcutUI::RecvNotice_UpdateContainer` · 00436f00
 - [ ] `gmShortcutUI::RecvNotice_UpdateSkill` · 00436f40
@@ -1147,18 +1147,18 @@ Legend and workflow: [README](README.md).
 - [ ] `gmShortcutUI::FIXMESetupItemElement` · 00436fe0 · legions 00437830
 - [ ] `gmShortcutUI::~gmShortcutUI` · 004371c0 · legions 00437a10
 - [ ] `gmShortcutUI::RecvNotice_CreateObject` · 00437290
-- [ ] `gmShortcutUI::MakeElement` · 00437320 · legions 00437b70
-- [ ] `gmShortcutUI::SetShortcut` · 00437620 · legions 00437e70
+- [~] `gmShortcutUI::MakeElement` · 00437320 · legions 00437b70 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::SetShortcut` · 00437620 · legions 00437e70 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 - [ ] `gmShortcutUI::RecvNotice_RequestSpecialAttack` · 004376c0
 - [ ] `gmShortcutUI::RecvNotice_StartSpecialAttack` · 00437770
 - [ ] `gmShortcutUI::RecvNotice_EndSpecialAttack` · 00437820
-- [ ] `gmShortcutUI::ListenToMessage` · 004379a0 · legions 004381f0
-- [ ] `gmShortcutUI::UpdatePadding` · 00437d90 · legions 004385e0
-- [ ] `gmShortcutUI::RefreshShortcutHeight` · 00437e50 · legions 004386a0
-- [ ] `gmShortcutUI::gmShortcutUI` · 00437fb0 · legions 00438800
-- [ ] `gmShortcutUI::ListenToMessage` · 00438270 · legions 00438ac0
-- [ ] `gmShortcutUI::Init` · 004386c0 · legions 00438f10
-- [ ] `gmShortcutUI::RecvNotice_ReloadShortcuts` · 004387f0
+- [~] `gmShortcutUI::ListenToMessage` · 004379a0 · legions 004381f0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [x] `gmShortcutUI::UpdatePadding` · 00437d90 · legions 004385e0 — ac2-ui shortcut.rs
+- [~] `gmShortcutUI::RefreshShortcutHeight` · 00437e50 · legions 004386a0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::gmShortcutUI` · 00437fb0 · legions 00438800 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::ListenToMessage` · 00438270 · legions 00438ac0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::Init` · 004386c0 · legions 00438f10 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [x] `gmShortcutUI::RecvNotice_ReloadShortcuts` · 004387f0 — ac2-ui shortcut.rs
 - [ ] `gmShortcutUI::RecvNotice_ReloadOptions` · 00438830 · legions 00439080
 
 ## `ac2/client/src/ui/gameplay/toolbar/gmtoolbarui.cpp.c` (1/16)

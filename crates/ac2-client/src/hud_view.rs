@@ -13,8 +13,34 @@ use ac2_db::{ResourceResult, ResourceStore};
 use ac2_gpu::{Gpu, UiLayer, UiOverlay};
 use ac2_ui::{
     ChatRequest, ChatSettings, ChatUi, GameplayHud, Modifiers, Reticle, ReticleOutcome,
-    ReticleTarget, ToolbarChild, ToolbarUi, UiMessage, UiPixels, UiTree,
+    ReticleTarget, Shortcut, ShortcutOptions, ShortcutRequest, ShortcutSource, ShortcutUi,
+    ToolbarChild, ToolbarUi, UiMessage, UiPixels, UiTree,
 };
+
+/// The shortcut bar's answers until the player's options profile is read: no shortcuts.
+struct NoShortcuts;
+
+impl ShortcutSource for NoShortcuts {
+    fn shortcuts(&self) -> Vec<Shortcut> {
+        Vec::new()
+    }
+    fn icon(&self, _: usize, _: &Shortcut) -> u32 {
+        0
+    }
+    fn options(&self) -> ShortcutOptions {
+        ShortcutOptions {
+            which_set: 1,
+            rows: 1,
+            ..ShortcutOptions::default()
+        }
+    }
+    fn skill_trained(&self, _: u32) -> bool {
+        false
+    }
+    fn has_item(&self, _: u64) -> bool {
+        false
+    }
+}
 
 type Built = ResourceResult<(GameplayHud, HashMap<u32, UiPixels>)>;
 
@@ -24,6 +50,7 @@ pub(crate) struct HudView {
     reticle: Option<Reticle>,
     chat: Option<ChatUi>,
     toolbar: Option<ToolbarUi>,
+    shortcuts: Option<ShortcutUi>,
     /// Lines displayed before the HUD arrived (`RecvNotice_DisplayStringInfo`).
     early_lines: Vec<(u32, String)>,
     /// The chat lines being rendered (`StringDownload`).
@@ -59,6 +86,7 @@ impl HudView {
             reticle: None,
             chat: None,
             toolbar: None,
+            shortcuts: None,
             early_lines: Vec::new(),
             chat_text,
             overlay: UiOverlay::new(gpu, format),
@@ -93,7 +121,13 @@ impl HudView {
                 tree.stop_input(action);
             }
         }
-        let messages = pump(tree, &mut self.chat, &self.toolbar, modifiers);
+        let messages = pump(
+            tree,
+            &mut self.chat,
+            &self.toolbar,
+            &mut self.shortcuts,
+            modifiers,
+        );
         if tree.take_changed() {
             self.dirty = true;
         }
@@ -118,7 +152,13 @@ impl HudView {
         for &(ch, key) in characters {
             tree.character(ch, key, ctrl);
         }
-        let messages = pump(tree, &mut self.chat, &self.toolbar, modifiers);
+        let messages = pump(
+            tree,
+            &mut self.chat,
+            &self.toolbar,
+            &mut self.shortcuts,
+            modifiers,
+        );
         if tree.take_changed() {
             self.dirty = true;
         }
@@ -130,6 +170,13 @@ impl HudView {
         self.chat
             .as_mut()
             .map_or_else(Vec::new, ChatUi::take_requests)
+    }
+
+    /// What the shortcut bar asked since the last call.
+    pub(crate) fn take_shortcut_requests(&mut self) -> Vec<ShortcutRequest> {
+        self.shortcuts
+            .as_mut()
+            .map_or_else(Vec::new, ShortcutUi::take_requests)
     }
 
     /// `CM_UI::SendNotice_OpenExaminationPanel` (`gmExaminationUI::RecvNotice_OpenExaminationPanel`).
@@ -214,6 +261,7 @@ impl HudView {
                     reticle,
                     mut chat,
                     toolbar,
+                    mut shortcuts,
                 },
                 images,
             )) => {
@@ -230,6 +278,10 @@ impl HudView {
                 self.reticle = reticle;
                 self.chat = chat;
                 self.toolbar = Some(toolbar);
+                if let (Some(bar), Some((tree, _))) = (&mut shortcuts, &mut self.hud) {
+                    bar.reload(tree, &NoShortcuts);
+                }
+                self.shortcuts = shortcuts;
                 self.dirty = true;
             }
             Err(error) => eprintln!("ac2: the HUD did not load: {error}"),
@@ -352,6 +404,7 @@ fn pump(
     tree: &mut UiTree,
     chat: &mut Option<ChatUi>,
     toolbar: &Option<ToolbarUi>,
+    shortcuts: &mut Option<ShortcutUi>,
     modifiers: Modifiers,
 ) -> Vec<UiMessage> {
     let mut all = Vec::new();
@@ -366,6 +419,9 @@ fn pump(
             }
             if let Some(toolbar) = toolbar {
                 toolbar.message(tree, message);
+            }
+            if let Some(shortcuts) = shortcuts.as_mut() {
+                shortcuts.message(tree, &NoShortcuts, message);
             }
         }
         all.extend(messages);

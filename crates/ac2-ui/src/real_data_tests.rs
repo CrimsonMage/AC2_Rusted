@@ -153,8 +153,9 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
             .unwrap_or_else(|| panic!("{name}"))
     };
     let tree = build_gameplay_hud(&store_arc, 1024, 768).unwrap().tree;
-    // The HUD roots, gm3DTextUI's seven reticle objects and gmChatUI's four windows.
-    assert_eq!(tree.roots().len(), GAMEPLAY_ROOTS.len() + 7 + 4);
+    // The HUD roots, gm3DTextUI's seven reticle objects, the shortcut bar and gmChatUI's four
+    // windows.
+    assert_eq!(tree.roots().len(), GAMEPLAY_ROOTS.len() + 7 + 1 + 4);
     // The radar sits where the layout authored it; the toolbar is centred on the bottom edge.
     let radar = root(&tree, "RadarField");
     assert_eq!(tree.screen_box(radar), UiBox::new(875, 60, 1017, 236));
@@ -177,7 +178,7 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
     let mut tree = tree;
     let surfaces = tree.compose(&images);
     // The hidden roots are not drawn: of the chat windows only the first shows.
-    assert_eq!(surfaces.len(), GAMEPLAY_ROOTS.len() + 7 + 1);
+    assert_eq!(surfaces.len(), GAMEPLAY_ROOTS.len() + 7 + 1 + 1);
     let drawn = surfaces
         .iter()
         .filter(|s| s.rgba.chunks_exact(4).any(|p| p[3] != 0))

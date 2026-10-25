@@ -337,6 +337,11 @@ impl ClientView {
         self.hud.take_chat_requests()
     }
 
+    /// What the shortcut bar asked since the last call ([`ac2_ui::ShortcutRequest`]).
+    pub fn take_shortcut_requests(&mut self) -> Vec<ac2_ui::ShortcutRequest> {
+        self.hud.take_shortcut_requests()
+    }
+
     /// `CM_UI::SendNotice_OpenExaminationPanel`: the examination panel shows.
     pub fn open_examination(&mut self) {
         self.hud.open_examination();

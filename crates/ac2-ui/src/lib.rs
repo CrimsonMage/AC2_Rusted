@@ -25,6 +25,7 @@ mod panel;
 mod place;
 mod reticle;
 mod selection_ui;
+mod shortcut;
 mod skill_tree;
 #[cfg(test)]
 mod tests;
@@ -71,6 +72,10 @@ pub use mouse::{
 };
 pub use reticle::{Reticle, ReticleOutcome, ReticleTarget};
 pub use selection_ui::{SelectionClick, SelectionOutcome, SelectionUi};
+pub use shortcut::{
+    Shortcut, ShortcutOptions, ShortcutRequest, ShortcutSource, ShortcutUi, SHORTCUT_ALIAS,
+    SHORTCUT_EMPTY, SHORTCUT_ITEM, SHORTCUT_RECIPE, SHORTCUT_SKILL,
+};
 pub use skill_tree::{
     SkillNode, SkillPanel, SkillRequest, SkillSource, SkillStatus, SkillTreeUi, SkillVar,
     EXAMINE_PANEL, EXAMINE_SKILL, NODE_SKILL, ROOT_MAGIC_PANEL, ROOT_MELEE_PANEL,
@@ -91,6 +96,8 @@ mod list_box_tests;
 mod mouse_tests;
 #[cfg(test)]
 mod real_data_tests;
+#[cfg(test)]
+mod shortcut_tests;
 #[cfg(test)]
 mod skill_tree_tests;
 #[cfg(test)]
