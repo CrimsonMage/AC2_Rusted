@@ -86,9 +86,19 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     ac2_net::protocol::script_function::STORE_UPDATE,
     ac2_net::protocol::script_function::STORE_LEFT,
     ac2_net::protocol::script_function::STORE_UPDATE_SALE,
-    // The craft answers (`WM_Craft` 0x16 -> `CPlayer` 0x30, 0x1C -> `CPlayer` 0xF7).
+    // The craft answers (`WM_Craft` 0x16 -> `CPlayer` 0x30, 0x1C -> `CPlayer` 0xF7), the panel
+    // updates (0x18, 0x19, 0x1B), and the registry adds (0x27 and 0x34 for skills, 0x1A and 0x37
+    // for recipes, each a record or an `RList` of them). `UpdateCost` has no forwarder in the
+    // Legions wlib.
     ac2_net::protocol::script_function::CRAFT_ADD_INGREDIENT_DONE,
     ac2_net::protocol::script_function::CRAFT_EXECUTE_DONE,
+    ac2_net::protocol::script_function::CRAFT_UPDATE_PANEL_18,
+    ac2_net::protocol::script_function::CRAFT_UPDATE_PANEL_19,
+    ac2_net::protocol::script_function::CRAFT_UPDATE_PANEL_1B,
+    ac2_net::protocol::script_function::CRAFT_ADD_SKILL,
+    ac2_net::protocol::script_function::CRAFT_ADD_SKILLS,
+    ac2_net::protocol::script_function::CRAFT_ADD_RECIPE,
+    ac2_net::protocol::script_function::CRAFT_ADD_RECIPES,
     // `gmCWInterface`'s store calls (their IFuns on the player's script).
     IFUN_REQUEST_ENTER_STORE,
     IFUN_REQUEST_LEAVE_STORE,

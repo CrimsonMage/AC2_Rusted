@@ -6,6 +6,10 @@
 //! (no check of the recipe's ingredient kinds or the spinner), a craft takes two ingredients, the
 //! result is a generic item, and the craft skill's experience is not updated (no
 //! `UpdateCraftSkill`).
+//!
+//! The craft registry lists are not sent at login: the VM crashes on the list adds for the known
+//! skill and recipe (see `send_craft_lists`). A craft refreshes the craft panel
+//! (`UpdateCraftPanel` through `CPlayer` 0x105).
 
 use ac2_net::protocol::{CraftMessage, ScriptRequest};
 
@@ -16,6 +20,10 @@ use crate::{State, PLAYER};
 const CRAFTED_BASE: u64 = 0x8000_0000_0000_0400;
 /// `CItem`, the package the double's items use.
 const ITEM_PACKAGE: u32 = 0x1AA9;
+/// The craft skill the player knows at login (`CraftSkill` WState 0x6F0028D7).
+pub const CRAFT_SKILL: u32 = 0x6F00_28D7;
+/// The recipe the player knows at login (`Recipe` WState 0x6F001F0C, of [`CRAFT_SKILL`]).
+pub const KNOWN_RECIPE: u32 = 0x6F00_1F0C;
 /// The ingredients a craft takes (the double's recipe).
 pub const INGREDIENTS: usize = 2;
 /// The error a craft or an ingredient refuses with (any non-zero value).
@@ -59,6 +67,14 @@ impl State {
                     recipe: *recipe,
                     error,
                 });
+                if error == 0 {
+                    // A craft changes the craft panel's ingredients and cost, so the panel
+                    // refreshes after the answer (`CPlayer` 0xF9's `UpdateCraftPanel`).
+                    self.send_craft(&CraftMessage::UpdateCraftPanel {
+                        forwarder: ac2_net::protocol::script_function::CRAFT_UPDATE_PANEL_1B,
+                        value: *recipe,
+                    });
+                }
             }
             _ => {}
         }
@@ -88,7 +104,21 @@ impl State {
         self.send_contents(PLAYER);
     }
 
-    fn send_craft(&mut self, message: &CraftMessage) {
+    /// The known skill and recipe as the list forms (`WM_Craft` 0x34 and 0x37): the registry's
+    /// content. Whether retail's server sends these as lists or as single adds at login is not
+    /// traced. Not sent at login yet: the VM does not run these adds for these records (the
+    /// skill's add reaches an unbound `gStringInfo` efun, the recipe's record does not resolve).
+    pub fn send_craft_lists(&mut self) {
+        self.send_craft(&CraftMessage::AddCraftSkills {
+            skills: vec![CRAFT_SKILL],
+        });
+        self.send_craft(&CraftMessage::AddRecipes {
+            recipes: vec![KNOWN_RECIPE],
+        });
+    }
+
+    /// Queues a craft answer (a test drives the registry adds through it).
+    pub fn send_craft(&mut self, message: &CraftMessage) {
         self.send_script_call(message.function(), &message.arguments());
     }
 }

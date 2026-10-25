@@ -790,23 +790,23 @@ key	status	note
 0044fbb0	_	ac2-weenie OnlineSession::use_selection (CPlayer 0x79 -> CUsageSystem 0x9 stand-in)
 0044fc60	x	ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
 0044fce0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
-0044fd20	~	net: bound over the script VM; not driven end to end (membership untraced or no VM test)
+0044fd20	~	net: the registry is empty in the VM. The adds that fill it are WM_Craft 0x27 -> CPlayer 0x1AE -> CraftSystem 0x26 -> CraftRegistry 0x1A (skill hash), 0x34 -> CPlayer 0x1C4 (list), 0x1A -> CPlayer 0x61 -> CraftSystem 0x15 -> CraftRegistry 0x12 (recipe hash), 0x37 -> CPlayer 0x1C5 (list); ac2-net encodes them. The VM does not run them yet: the skill add reaches the unbound gStringInfo::GetSubDataIDs (0x6A001C) and the recipe singleton does not resolve
 0044fd60	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 0044fda0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
-0044fde0	~	net: bound over the script VM; not driven end to end (membership untraced or no VM test)
-0044fe20	~	net: bound over the script VM; not driven end to end (membership untraced or no VM test)
-0044fe70	~	net: bound over the script VM; not driven end to end (membership untraced or no VM test)
-0044fec0	~	net: bound over the script VM; not driven end to end (membership untraced or no VM test)
+0044fde0	~	net: the registry is empty in the VM. The adds that fill it are WM_Craft 0x27 -> CPlayer 0x1AE -> CraftSystem 0x26 -> CraftRegistry 0x1A (skill hash), 0x34 -> CPlayer 0x1C4 (list), 0x1A -> CPlayer 0x61 -> CraftSystem 0x15 -> CraftRegistry 0x12 (recipe hash), 0x37 -> CPlayer 0x1C5 (list); ac2-net encodes them. The VM does not run them yet: the skill add reaches the unbound gStringInfo::GetSubDataIDs (0x6A001C) and the recipe singleton does not resolve
+0044fe20	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
+0044fe70	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
+0044fec0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 0044ff00	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 0044ff30	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
-0044ff50	~	net: bound over the script VM; not driven end to end (membership untraced or no VM test)
-0044ffa0	~	net: bound over the script VM; not driven end to end (membership untraced or no VM test)
-0044ffe0	~	net: bound over the script VM; not driven end to end (membership untraced or no VM test)
-00450020	~	net: bound over the script VM; not driven end to end (membership untraced or no VM test)
+0044ff50	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
+0044ffa0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
+0044ffe0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
+00450020	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00450040	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 00450080	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 004500b0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
-004500f0	~	net: bound over the script VM; not driven end to end (membership untraced or no VM test)
+004500f0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00450130	_	ac2-weenie OnlineSession::emote(id): the WM_Communication emote call; the emote-table name lookup (CPlayer 0x15B) is not ported
 00450150	~	Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
 004501e0	~	Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
@@ -974,17 +974,17 @@ key	status	note
 00457610	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004576d0	_	ac2-script vm (VM/ReferenceTable/Resolver)
 00457730	x	ac2-client gameplay.rs Command::AcceptTrade: the IFun on the player's VM script (CPlayer's CWInterface graph packed by stub 0x45 -> 0x35); stand-in only without a VM (empty reference)
-00457bd0	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+00457bd0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00457c90	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 00457d50	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 00457e10	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-00457ed0	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+00457ed0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00458120	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 004581b0	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
-00458dd0	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+00458dd0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00458ec0	~	ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 00458fe0	~	ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
-004598b0	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+004598b0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00459b70	x	ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 00459d30	x	ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 0045a310	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
@@ -996,19 +996,19 @@ key	status	note
 0045c630	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0045c7c0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 0045c950	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
-0045cb20	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+0045cb20	~	net: the registry is empty in the VM. The adds that fill it are WM_Craft 0x27 -> CPlayer 0x1AE -> CraftSystem 0x26 -> CraftRegistry 0x1A (skill hash), 0x34 -> CPlayer 0x1C4 (list), 0x1A -> CPlayer 0x61 -> CraftSystem 0x15 -> CraftRegistry 0x12 (recipe hash), 0x37 -> CPlayer 0x1C5 (list); ac2-net encodes them. The VM does not run them yet: the skill add reaches the unbound gStringInfo::GetSubDataIDs (0x6A001C) and the recipe singleton does not resolve
 0045ccc0	~	ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
 0045d660	~	ac2-client client_radar.rs + ac2-script radar.rs: looks asked on each object's script, the ranges from RadarControl; the creature, NPC and player scripts answer no look in the double (no reads, retval 0); no drawing (pixel mapping, tooltip) in ac2-ui
 0045d870	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0045da10	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
-0045db70	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
-0045dd60	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
-0045dfc0	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+0045db70	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
+0045dd60	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
+0045dfc0	~	net: the registry is empty in the VM. The adds that fill it are WM_Craft 0x27 -> CPlayer 0x1AE -> CraftSystem 0x26 -> CraftRegistry 0x1A (skill hash), 0x34 -> CPlayer 0x1C4 (list), 0x1A -> CPlayer 0x61 -> CraftSystem 0x15 -> CraftRegistry 0x12 (recipe hash), 0x37 -> CPlayer 0x1C5 (list); ac2-net encodes them. The VM does not run them yet: the skill add reaches the unbound gStringInfo::GetSubDataIDs (0x6A001C) and the recipe singleton does not resolve
 0045e180	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045e450	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045e7f0	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045e9c0	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-0045ed00	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+0045ed00	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 0045eea0	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045f5e0	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 0045f6e0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
@@ -1019,7 +1019,7 @@ key	status	note
 0045ff90	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 00460040	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 004602b0	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
-004607e0	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+004607e0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00460ba0	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 00461c10	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 00461ce0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
@@ -1121,9 +1121,9 @@ key	status	note
 00469620	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 004696a0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 004696f0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
-00469740	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
-00469790	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
-004697d0	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+00469740	~	net: bound; no wlib function calls efun 0x00880004 (scanned the Legions wlib's CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN sites), so no WM_Craft answer reaches it
+00469790	x	net: craft_script_7160. Forwarders (wlib): WM_Craft 0x19 -> CPlayer 0xC3 and 0x1B -> CPlayer 0x105 raise it from one singleton reference (the double sends 0x1B after a craft); 0x18 -> CPlayer 0xF9 calls efun 0x008F0003, which the glue does not bind
+004697d0	~	net: the registry is empty in the VM. The adds that fill it are WM_Craft 0x27 -> CPlayer 0x1AE -> CraftSystem 0x26 -> CraftRegistry 0x1A (skill hash), 0x34 -> CPlayer 0x1C4 (list), 0x1A -> CPlayer 0x61 -> CraftSystem 0x15 -> CraftRegistry 0x12 (recipe hash), 0x37 -> CPlayer 0x1C5 (list); ac2-net encodes them. The VM does not run them yet: the skill add reaches the unbound gStringInfo::GetSubDataIDs (0x6A001C) and the recipe singleton does not resolve
 00469820	_	ac2-script host notices -> ac2_weenie::GameplayNotice
 00469870	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004698c0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -1323,6 +1323,7 @@ key	status	note
 004711b0	~	net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
 00471260	~	net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
 00471370	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+004713d0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00471430	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 00471490	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 00471570	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
@@ -5351,9 +5352,9 @@ key	status	note
 00727900	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 007279d0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 00727a60	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
-00727af0	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
-00727b90	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
-00727c20	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+00727af0	~	net: bound; no wlib function calls efun 0x00880004 (scanned the Legions wlib's CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN sites), so no WM_Craft answer reaches it
+00727b90	x	net: craft_script_7160. Forwarders (wlib): WM_Craft 0x19 -> CPlayer 0xC3 and 0x1B -> CPlayer 0x105 raise it from one singleton reference (the double sends 0x1B after a craft); 0x18 -> CPlayer 0xF9 calls efun 0x008F0003, which the glue does not bind
+00727c20	~	net: the registry is empty in the VM. The adds that fill it are WM_Craft 0x27 -> CPlayer 0x1AE -> CraftSystem 0x26 -> CraftRegistry 0x1A (skill hash), 0x34 -> CPlayer 0x1C4 (list), 0x1A -> CPlayer 0x61 -> CraftSystem 0x15 -> CraftRegistry 0x12 (recipe hash), 0x37 -> CPlayer 0x1C5 (list); ac2-net encodes them. The VM does not run them yet: the skill add reaches the unbound gStringInfo::GetSubDataIDs (0x6A001C) and the recipe singleton does not resolve
 00727cb0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00727d40	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00727dd0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host

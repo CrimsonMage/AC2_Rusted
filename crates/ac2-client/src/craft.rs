@@ -11,6 +11,7 @@ use ac2_script::native::NativeObject;
 use ac2_weenie::{CraftSkill, Ingredient, Recipe, SessionEvent};
 
 use crate::client::Client;
+use crate::gameplay::Command;
 use crate::scripts::*;
 
 /// `RList`: the native a list out parameter is passed as.
@@ -281,5 +282,47 @@ impl Client {
         let result =
             self.craft_query(IFUN_GET_AVAILABLE_CRAFT_EXPERIENCE, &[], IFunReturn::Long)?;
         Some(result.retval)
+    }
+}
+
+impl Client {
+    /// The craft commands of [`Command`] (`gmCWInterface`'s craft requests), each one's IFun.
+    pub(crate) fn craft_command(&mut self, command: &Command) -> Vec<SessionEvent> {
+        match command {
+            Command::OpenRecipe(recipe) => {
+                self.craft_request(crate::scripts::IFUN_OPEN_RECIPE, &[IFunArg::Int(*recipe)])
+            }
+            Command::AddIngredient {
+                recipe,
+                ordinal,
+                object,
+                spinner,
+            } => self.craft_request(
+                crate::scripts::IFUN_REQUEST_ADD_INGREDIENT,
+                &[
+                    IFunArg::Int(*recipe),
+                    IFunArg::Int(*ordinal),
+                    IFunArg::Long(*object),
+                    IFunArg::Int(*spinner),
+                ],
+            ),
+            Command::ExecuteCraft {
+                recipe,
+                spinner,
+                ingredients,
+            } => self.craft_request(
+                crate::scripts::IFUN_REQUEST_EXECUTE_CRAFT,
+                &[
+                    IFunArg::Int(*recipe),
+                    IFunArg::Int(*spinner),
+                    IFunArg::ingredient_table(ingredients),
+                ],
+            ),
+            Command::RaiseCraftSkill(skill) => self.craft_request(
+                crate::scripts::IFUN_REQUEST_RAISE_CRAFT_SKILL,
+                &[IFunArg::Int(*skill)],
+            ),
+            _ => Vec::new(),
+        }
     }
 }

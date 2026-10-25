@@ -157,6 +157,11 @@ pub(super) fn register(efuns: &mut EFuns) {
         get(vm, c, |r: &Recipe| r.craft_skill_did)
     });
     // gIngredientAdaptor.
+    // `gIngredientAdaptor::CallEFun_SetID` (admin 0x4713D0: this at fp-4, the value at fp-8). The
+    // Legions `CheckIngredient` calls it as 0x00A50002; the efun table lists only 6..9.
+    efuns.register(0x00A5_0002, |vm, c| {
+        set(vm, c, |i: &mut Ingredient, v| i.id = v)
+    });
     efuns.register(0x00A5_0006, |vm, c| {
         text_into(vm, c, |i: &mut Ingredient| &mut i.description)
     });

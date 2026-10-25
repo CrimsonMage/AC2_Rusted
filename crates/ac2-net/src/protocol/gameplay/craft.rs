@@ -6,9 +6,15 @@
 //! (`gmCWInterface::RequestAddIngredient` -> 0x06, `RequestExecuteCraft` -> 0x12,
 //! `RequestRaiseCraftSkill` -> 0x2E); their values are in the stub's pack order, which
 //! [`ScriptRequest`](super::ScriptRequest) keeps.
+//!
+//! The registry messages (`WM_Craft` 0x27, 0x34, 0x1A, 0x37) fill the player's `CraftRegistry`
+//! (`CPlayer` 0x23 returns it from slot 0x21): the skill hash (slot 5) and the recipe hash (slot 6),
+//! keyed by each record's DID. A record is the DAT WState itself, packed as a singleton
+//! ([`PackedEntry::Singleton`]); a list of records is an `RList` (native 0x65) whose items name the
+//! singleton entries by reference id, laid out as `StoreView`'s sales are.
 
 use super::{function, Args};
-use crate::protocol::native::{NativeObject, ScriptHash};
+use crate::protocol::native::{NativeObject, ScriptHash, ScriptList};
 use crate::protocol::pack::{entry_flags, HeapObject, PackValue, PackedEntry, PackedReference};
 use crate::protocol::ProtocolError;
 
@@ -32,6 +38,23 @@ pub enum CraftMessage {
         recipe: u32,
         error: u32,
     },
+    /// One of the panel forwarders ([`function::CRAFT_UPDATE_PANEL_19`] and the rest): raises
+    /// `CM_Craft::SendNotice_UpdateCraftPanel`. `forwarder` is the function the answer is sent to;
+    /// `value` is the DID of the object its one reference argument names (the notice does not carry
+    /// it; the Legions wlib's type for it is not traced).
+    UpdateCraftPanel { forwarder: u32, value: u32 },
+    /// [`function::CRAFT_ADD_SKILL`]: craft skill `skill` (its DID) is added to the registry's skill
+    /// hash; the forwarder raises `UpdateCraftSkill` and `UpdateCraftPanel`.
+    AddCraftSkill { skill: u32 },
+    /// [`function::CRAFT_ADD_SKILLS`]: each craft skill of `skills` is added as
+    /// [`CraftMessage::AddCraftSkill`] does, from an `RList` of records.
+    AddCraftSkills { skills: Vec<u32> },
+    /// [`function::CRAFT_ADD_RECIPE`]: recipe `recipe` (its DID) is added to the registry's recipe
+    /// hash. A recipe already known changes nothing (the forwarder returns 0x9C51).
+    AddRecipe { recipe: u32 },
+    /// [`function::CRAFT_ADD_RECIPES`]: each recipe of `recipes` is added as
+    /// [`CraftMessage::AddRecipe`] does, from an `RList` of records.
+    AddRecipes { recipes: Vec<u32> },
 }
 
 impl CraftMessage {
@@ -40,6 +63,11 @@ impl CraftMessage {
         match self {
             Self::AddIngredientDone { .. } => function::CRAFT_ADD_INGREDIENT_DONE,
             Self::ExecuteCraftDone { .. } => function::CRAFT_EXECUTE_DONE,
+            Self::UpdateCraftPanel { forwarder, .. } => *forwarder,
+            Self::AddCraftSkill { .. } => function::CRAFT_ADD_SKILL,
+            Self::AddCraftSkills { .. } => function::CRAFT_ADD_SKILLS,
+            Self::AddRecipe { .. } => function::CRAFT_ADD_RECIPE,
+            Self::AddRecipes { .. } => function::CRAFT_ADD_RECIPES,
         }
     }
 
@@ -70,19 +98,19 @@ impl CraftMessage {
                 PackValue::Int(*error),
                 PackValue::Int(*recipe),
             ],
+            Self::UpdateCraftPanel { value, .. } | Self::AddCraftSkill { skill: value } => {
+                vec![singleton_ref(*value)]
+            }
+            Self::AddRecipe { recipe } => vec![singleton_ref(*recipe)],
+            Self::AddCraftSkills { skills } => vec![list_ref(skills)],
+            Self::AddRecipes { recipes } => vec![list_ref(recipes)],
         }
     }
 
     /// The server's answer from its function id and packed arguments, or `None` for another id.
     pub fn decode(function_id: u32, arguments: &[u8]) -> Option<Result<Self, ProtocolError>> {
-        let decode = |read: fn(&mut Args) -> Result<Self, ProtocolError>| {
-            let mut args = Args::new(arguments)?;
-            let message = read(&mut args)?;
-            args.finish()?;
-            Ok(message)
-        };
         Some(match function_id {
-            function::CRAFT_ADD_INGREDIENT_DONE => decode(|a| {
+            function::CRAFT_ADD_INGREDIENT_DONE => decode_with(arguments, |a| {
                 let error = a.int()?;
                 let spinner = a.int()?;
                 let ingredient = a.long()?;
@@ -95,7 +123,7 @@ impl CraftMessage {
                     error,
                 })
             }),
-            function::CRAFT_EXECUTE_DONE => decode(|a| {
+            function::CRAFT_EXECUTE_DONE => decode_with(arguments, |a| {
                 let notify = a.int()?;
                 let error = a.int()?;
                 Ok(Self::ExecuteCraftDone {
@@ -104,9 +132,125 @@ impl CraftMessage {
                     recipe: a.int()?,
                 })
             }),
+            function::CRAFT_UPDATE_PANEL_18
+            | function::CRAFT_UPDATE_PANEL_19
+            | function::CRAFT_UPDATE_PANEL_1B => decode_with(arguments, |a| {
+                Ok(Self::UpdateCraftPanel {
+                    forwarder: function_id,
+                    value: singleton_did(a)?,
+                })
+            }),
+            function::CRAFT_ADD_SKILL => decode_with(arguments, |a| {
+                Ok(Self::AddCraftSkill {
+                    skill: singleton_did(a)?,
+                })
+            }),
+            function::CRAFT_ADD_SKILLS => decode_with(arguments, |a| {
+                Ok(Self::AddCraftSkills {
+                    skills: list_dids(a)?,
+                })
+            }),
+            function::CRAFT_ADD_RECIPE => decode_with(arguments, |a| {
+                Ok(Self::AddRecipe {
+                    recipe: singleton_did(a)?,
+                })
+            }),
+            function::CRAFT_ADD_RECIPES => decode_with(arguments, |a| {
+                Ok(Self::AddRecipes {
+                    recipes: list_dids(a)?,
+                })
+            }),
             _ => return None,
         })
     }
+}
+
+/// Reads one craft answer's values with `read`, refusing any value left over.
+fn decode_with(
+    arguments: &[u8],
+    read: impl FnOnce(&mut Args) -> Result<CraftMessage, ProtocolError>,
+) -> Result<CraftMessage, ProtocolError> {
+    let mut args = Args::new(arguments)?;
+    let message = read(&mut args)?;
+    args.finish()?;
+    Ok(message)
+}
+
+/// A DAT record packed as the reference a server sends: one singleton entry, the WState DID
+/// (`PackedEntry::Singleton`, resolved by the VM through `GetWStateReference`).
+fn singleton_ref(did: u32) -> PackValue {
+    PackValue::Reference(PackedReference {
+        ids: vec![ROOT_ID],
+        entries: vec![singleton_entry(did)],
+    })
+}
+
+/// A list of DAT records packed as the reference a server sends: the root is an `RList` (native
+/// 0x65) whose items are the reference ids of the singleton entries after it.
+fn list_ref(dids: &[u32]) -> PackValue {
+    let item_ids: Vec<u32> = (0..dids.len() as u32).map(|i| ROOT_ID + 1 + i).collect();
+    let list = HeapObject {
+        pkg_state_id: 0,
+        pkg_id: u32::MAX,
+        native: Some(NativeObject::List(ScriptList {
+            native_type: R_LIST,
+            items: item_ids.iter().map(|id| u64::from(*id)).collect(),
+        })),
+        slots: Vec::new(),
+        tags: Vec::new(),
+    };
+    let mut ids = vec![ROOT_ID];
+    ids.extend(item_ids);
+    let mut entries = vec![PackedEntry::Heap {
+        flags: entry_flags::KIND_HEAP | entry_flags::LOADED | entry_flags::RECURSE,
+        object: list,
+    }];
+    entries.extend(dids.iter().map(|did| singleton_entry(*did)));
+    PackValue::Reference(PackedReference { ids, entries })
+}
+
+/// The singleton entry of WState `did`.
+fn singleton_entry(did: u32) -> PackedEntry {
+    PackedEntry::Singleton {
+        flags: entry_flags::KIND_HEAP | entry_flags::SINGLETON,
+        did,
+    }
+}
+
+/// The DID of the singleton reference an answer's one value is.
+fn singleton_did(args: &mut Args) -> Result<u32, ProtocolError> {
+    let reference = args.reference()?;
+    match reference.entries.as_slice() {
+        [PackedEntry::Singleton { did, .. }] => Ok(*did),
+        _ => Err(ProtocolError::Invalid("craft record")),
+    }
+}
+
+/// The DIDs of the records in an answer's `RList` (each item names a singleton entry by its
+/// reference id).
+fn list_dids(args: &mut Args) -> Result<Vec<u32>, ProtocolError> {
+    let reference = args.reference()?;
+    let invalid = || ProtocolError::Invalid("craft record list");
+    let Some(PackedEntry::Heap { object, .. }) = reference.entries.first() else {
+        return Err(invalid());
+    };
+    let Some(NativeObject::List(list)) = object.native.as_ref() else {
+        return Err(invalid());
+    };
+    list.items
+        .iter()
+        .map(|item| {
+            let index = reference
+                .ids
+                .iter()
+                .position(|id| u64::from(*id) == *item)?;
+            match reference.entries.get(index)? {
+                PackedEntry::Singleton { did, .. } => Some(*did),
+                _ => None,
+            }
+        })
+        .collect::<Option<Vec<u32>>>()
+        .ok_or_else(invalid)
 }
 
 /// The ingredients a craft is executed from, as the `ALHash` the stub packs (native type 8, a
@@ -158,6 +302,10 @@ pub(super) fn ingredient_entries(reference: &PackedReference) -> Option<Vec<(u32
     }
 }
 
+/// `R_LIST`: the native type of a list of records (`gRList`).
+const R_LIST: u32 = 0x65;
+/// The reference id of a message's root value.
+const ROOT_ID: u32 = 1;
 /// `ALHash`, the native type of the ingredient table.
 const ALHASH: u32 = 0x08;
 /// The bucket index of the default table (32 buckets), as the stub's table writes it.
@@ -175,6 +323,7 @@ mod tests {
     use crate::protocol::unpack_values;
 
     const RECIPE: u32 = 0x6F00_1F0C;
+    const SKILL: u32 = 0x6F00_28D7;
     const INGREDIENT: u64 = 0x8000_0002_0000_0021;
 
     /// Each answer's packed values, last parameter first, unpacked as the VM reads them.
@@ -216,7 +365,7 @@ mod tests {
         let bytes = pack_values(&message.arguments());
         assert_eq!(
             unpack_values(&bytes).unwrap(),
-            vec![PackValue::Int(1), PackValue::Int(0), PackValue::Int(RECIPE),]
+            vec![PackValue::Int(1), PackValue::Int(0), PackValue::Int(RECIPE)]
         );
         let decoded = CraftMessage::decode(function::CRAFT_EXECUTE_DONE, &bytes)
             .expect("a craft answer")
@@ -249,12 +398,11 @@ mod tests {
             object: INGREDIENT,
             spinner: 7,
         };
-        let event = request.to_event();
         let ClientEvent::Interp {
             function,
             arguments,
             ..
-        } = event
+        } = request.to_event()
         else {
             panic!("an interp event");
         };
@@ -309,7 +457,7 @@ mod tests {
 
     #[test]
     fn raise_craft_skill_request_is_one_int() {
-        let request = ScriptRequest::CraftRaiseSkill(0x6F00_23A8);
+        let request = ScriptRequest::CraftRaiseSkill(SKILL);
         let ClientEvent::Interp {
             function,
             arguments,
@@ -321,7 +469,98 @@ mod tests {
         assert_eq!(function, function::CRAFT_RAISE_SKILL);
         assert_eq!(
             unpack_values(&arguments).unwrap(),
-            vec![PackValue::Int(0x6F00_23A8)]
+            vec![PackValue::Int(SKILL)]
+        );
+    }
+
+    /// A panel forwarder takes one singleton reference (the object's WState DID).
+    #[test]
+    fn update_panel_answers_pack_one_singleton_for_their_forwarder() {
+        for forwarder in [
+            function::CRAFT_UPDATE_PANEL_18,
+            function::CRAFT_UPDATE_PANEL_19,
+            function::CRAFT_UPDATE_PANEL_1B,
+        ] {
+            let message = CraftMessage::UpdateCraftPanel {
+                forwarder,
+                value: RECIPE,
+            };
+            assert_eq!(message.function(), forwarder);
+            let bytes = pack_values(&message.arguments());
+            let values = unpack_values(&bytes).unwrap();
+            assert_eq!(values.len(), 1);
+            assert_eq!(
+                CraftMessage::decode(forwarder, &bytes)
+                    .expect("a craft answer")
+                    .unwrap(),
+                message
+            );
+        }
+    }
+
+    /// The single forms: one singleton reference, the record's DID.
+    #[test]
+    fn add_skill_and_recipe_pack_one_singleton() {
+        for (message, function) in [
+            (
+                CraftMessage::AddCraftSkill { skill: SKILL },
+                function::CRAFT_ADD_SKILL,
+            ),
+            (
+                CraftMessage::AddRecipe { recipe: RECIPE },
+                function::CRAFT_ADD_RECIPE,
+            ),
+        ] {
+            assert_eq!(message.function(), function);
+            let bytes = pack_values(&message.arguments());
+            let decoded = CraftMessage::decode(function, &bytes)
+                .expect("a craft answer")
+                .unwrap();
+            assert_eq!(decoded, message);
+            let mut values = message.arguments();
+            values.push(PackValue::Int(1));
+            assert!(CraftMessage::decode(function, &pack_values(&values))
+                .unwrap()
+                .is_err());
+        }
+    }
+
+    /// The list forms: an `RList` root whose items name the singleton entries after it, in
+    /// order; the decoder reads them back in that order.
+    #[test]
+    fn add_skills_and_recipes_pack_an_rlist_of_singletons() {
+        let skills = vec![SKILL, SKILL + 1];
+        for (message, function) in [
+            (
+                CraftMessage::AddCraftSkills {
+                    skills: skills.clone(),
+                },
+                function::CRAFT_ADD_SKILLS,
+            ),
+            (
+                CraftMessage::AddRecipes {
+                    recipes: vec![RECIPE, RECIPE + 1],
+                },
+                function::CRAFT_ADD_RECIPES,
+            ),
+        ] {
+            assert_eq!(message.function(), function);
+            let bytes = pack_values(&message.arguments());
+            let decoded = CraftMessage::decode(function, &bytes)
+                .expect("a craft answer")
+                .unwrap();
+            assert_eq!(decoded, message);
+        }
+        // The empty list is a root with no items.
+        let empty = CraftMessage::AddRecipes {
+            recipes: Vec::new(),
+        };
+        let bytes = pack_values(&empty.arguments());
+        assert_eq!(
+            CraftMessage::decode(function::CRAFT_ADD_RECIPES, &bytes)
+                .unwrap()
+                .unwrap(),
+            empty
         );
     }
 }

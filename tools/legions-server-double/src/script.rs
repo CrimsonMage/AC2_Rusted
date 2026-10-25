@@ -70,6 +70,7 @@ impl State {
             ));
             return;
         }
+        self.script_bytes.push((function, arguments.to_vec()));
         match ScriptRequest::decode(function, arguments) {
             Some(Ok(request)) => {
                 self.answer_script(&request);

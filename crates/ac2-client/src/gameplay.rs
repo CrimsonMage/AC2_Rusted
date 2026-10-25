@@ -548,39 +548,10 @@ impl Client {
                         IFunArg::Int(*price),
                     ],
                 ),
-                Command::OpenRecipe(recipe) => {
-                    self.craft_request(crate::scripts::IFUN_OPEN_RECIPE, &[IFunArg::Int(*recipe)])
-                }
-                Command::AddIngredient {
-                    recipe,
-                    ordinal,
-                    object,
-                    spinner,
-                } => self.craft_request(
-                    crate::scripts::IFUN_REQUEST_ADD_INGREDIENT,
-                    &[
-                        IFunArg::Int(*recipe),
-                        IFunArg::Int(*ordinal),
-                        IFunArg::Long(*object),
-                        IFunArg::Int(*spinner),
-                    ],
-                ),
-                Command::ExecuteCraft {
-                    recipe,
-                    spinner,
-                    ingredients,
-                } => self.craft_request(
-                    crate::scripts::IFUN_REQUEST_EXECUTE_CRAFT,
-                    &[
-                        IFunArg::Int(*recipe),
-                        IFunArg::Int(*spinner),
-                        IFunArg::ingredient_table(ingredients),
-                    ],
-                ),
-                Command::RaiseCraftSkill(skill) => self.craft_request(
-                    crate::scripts::IFUN_REQUEST_RAISE_CRAFT_SKILL,
-                    &[IFunArg::Int(*skill)],
-                ),
+                Command::OpenRecipe(_)
+                | Command::AddIngredient { .. }
+                | Command::ExecuteCraft { .. }
+                | Command::RaiseCraftSkill(_) => self.craft_command(command),
                 Command::DragToMoneyBag {
                     item,
                     quantity,

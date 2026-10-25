@@ -11,6 +11,7 @@ mod channel;
 mod character;
 mod chest;
 mod craft;
+pub use craft::{CRAFT_SKILL, KNOWN_RECIPE};
 mod effects;
 mod items;
 mod lossy;
@@ -282,6 +283,8 @@ pub struct State {
     pub recruiter: Option<(u64, String, String)>,
     /// The client's script calls, decoded, in arrival order.
     pub script_requests: Vec<ac2_net::protocol::ScriptRequest>,
+    /// Every script request as it arrived: its function id and packed arguments, byte for byte.
+    pub script_bytes: Vec<(u32, Vec<u8>)>,
     /// The client's calls in `ac2_net::protocol::SCRIPT_CALLS` (skills, shortcuts,
     /// fellowships, allegiances), decoded, in arrival order.
     pub script_calls: Vec<ac2_net::protocol::ScriptCall>,

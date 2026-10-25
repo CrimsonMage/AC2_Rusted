@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1343 done, 106 partial, 939 to do, 80 skipped.
+2468 retail functions: 1344 done, 106 partial, 938 to do, 80 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -366,12 +366,12 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmSceneInfoList::CallEFun_push_tail` · 00471810
 - [ ] `ggmSceneInfoList::CallEFun_insert_sort` · 004718d0
 
-## `ac2/shared/src/interp/glue/gingredientadaptor.cpp.c` (0/8)
+## `ac2/shared/src/interp/glue/gingredientadaptor.cpp.c` (1/8)
 
 ### gIngredientAdaptor
 - [ ] `gIngredientAdaptor::CallEFun_SetAutoPopulate` · 00471310
 - [~] `gIngredientAdaptor::CallEFun_SetDescription` · 00471370 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
-- [ ] `gIngredientAdaptor::CallEFun_SetID` · 004713d0
+- [x] `gIngredientAdaptor::CallEFun_SetID` · 004713d0 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [~] `gIngredientAdaptor::CallEFun_SetRecipeDID` · 00471430 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 - [~] `gIngredientAdaptor::CallEFun_GetAutoPopulate` · 00471490 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 - [ ] `gIngredientAdaptor::CallEFun_GetID` · 00471500
