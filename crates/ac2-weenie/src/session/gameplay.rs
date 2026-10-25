@@ -43,6 +43,27 @@ impl OnlineSession {
         self.apply_script(out)
     }
 
+    /// The say command (`CPlayer` 0xDB): `text` to everyone nearby.
+    pub fn say(&mut self, text: &str) {
+        if let Some(request) = crate::chat::say(text) {
+            self.send(request.to_event());
+        }
+    }
+
+    /// The tell command (`CCommunicationSystem` 0xB): `text` to the character named
+    /// `recipient` on this server.
+    pub fn tell(&mut self, recipient: &str, text: &str) {
+        if let Some(request) = crate::chat::tell(recipient, text) {
+            self.send(request.to_event());
+        }
+    }
+
+    /// `gmCWInterface::DoEmote` once the emote table named the emote (`CPlayer` 0x15B ->
+    /// `CCommunicationSystem` 0x8): play emote `emote`.
+    pub fn emote(&mut self, emote: u32) {
+        self.send(ac2_net::protocol::ScriptRequest::Emote(emote).to_event());
+    }
+
     /// `CCombatSystem` 0x1 as far as the client knows it: another object whose weenie is a
     /// creature (`CWInterface::IsCreature`). Retail also asks `CCombatSystem` 0x5 and the
     /// weenie type system.
@@ -65,7 +86,8 @@ impl OnlineSession {
     ) -> Option<Vec<SessionEvent>> {
         match ScriptMessage::decode(function, arguments)? {
             Ok(message) => {
-                let out = self.script.receive(message);
+                let player = self.world.player().unwrap_or_default();
+                let out = self.script.receive(message, player);
                 Some(self.apply_script(out))
             }
             Err(error) => Some(vec![SessionEvent::Rejected(format!(

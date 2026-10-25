@@ -10,8 +10,10 @@
 use std::collections::HashMap;
 
 use ac2_net::protocol::{
-    ExaminationProfile, ExaminationRequest, ScriptMessage, ScriptRequest, SelectionInfo,
+    ExaminationProfile, ExaminationRequest, ScriptMessage, ScriptRequest, SelectionInfo, StringInfo,
 };
+
+use crate::chat;
 
 /// "Nothing selected": `Player::GetSelection` returns 0 (`CPlayer::SetSelection` compares
 /// against a pushed 0).
@@ -28,6 +30,9 @@ pub enum GameplayNotice {
     ExaminationRequestChanged(ExaminationRequest),
     /// `CM_Examination::SendNotice_UpdateExaminationProfile`.
     UpdateExaminationProfile(ExaminationProfile),
+    /// `CM_Communication::SendNotice_DisplayStringInfo`: a line for the chat windows, with its
+    /// display type (`ChatWindow::RecvNotice_DisplayStringInfo` filters by it).
+    DisplayStringInfo { kind: u32, text: StringInfo },
 }
 
 /// What one script call did: messages for the server, notices for the UI.
@@ -204,10 +209,39 @@ impl PlayerScript {
         out.requests.push(ScriptRequest::Examine(self.examination));
     }
 
-    /// A server message for the player's scripts.
-    pub fn receive(&mut self, message: ScriptMessage) -> ScriptOutput {
+    /// A server message for the player's scripts; `player` is the player's object id
+    /// (`CWRepository::GetID` of the receiving weenie).
+    pub fn receive(&mut self, message: ScriptMessage, player: u64) -> ScriptOutput {
         let mut out = ScriptOutput::default();
         match message {
+            ScriptMessage::HearSpeech {
+                text,
+                speaker_name,
+                speaker,
+                ..
+            } => out
+                .notices
+                .push(chat::hear_speech(text, speaker_name, speaker, player)),
+            ScriptMessage::HearTell {
+                kind,
+                text,
+                teller_name,
+                teller,
+            } => out
+                .notices
+                .push(chat::hear_tell(kind, text, teller_name, teller)),
+            ScriptMessage::DisplayStringInfo { text, kind, .. } => out
+                .notices
+                .push(GameplayNotice::DisplayStringInfo { kind, text }),
+            ScriptMessage::DisplayText { text, kind } => {
+                out.notices.push(GameplayNotice::DisplayStringInfo {
+                    kind,
+                    text: StringInfo {
+                        literal: Some(text),
+                        ..StringInfo::default()
+                    },
+                })
+            }
             // `CPlayer` 0x34: only for the current selection; PK figures are cleared unless
             // the player shows PK damage.
             ScriptMessage::UpdateSelectionInfo { mut info, id } => {
@@ -308,7 +342,7 @@ mod tests {
             request: ExaminationRequest::object(8),
             nodes: vec![],
         };
-        let out = script.receive(ScriptMessage::ExaminationProfile(profile.clone()));
+        let out = script.receive(ScriptMessage::ExaminationProfile(profile.clone()), 1);
         assert_eq!(
             out.notices,
             vec![GameplayNotice::UpdateExaminationProfile(profile.clone())]
@@ -335,10 +369,10 @@ mod tests {
             ..SelectionInfo::default()
         };
         assert_eq!(
-            script.receive(ScriptMessage::UpdateSelectionInfo { info, id: 8 }),
+            script.receive(ScriptMessage::UpdateSelectionInfo { info, id: 8 }, 1),
             ScriptOutput::default()
         );
-        let out = script.receive(ScriptMessage::UpdateSelectionInfo { info, id: 7 });
+        let out = script.receive(ScriptMessage::UpdateSelectionInfo { info, id: 7 }, 1);
         let shown = SelectionInfo {
             pk_damage: 0,
             ..info

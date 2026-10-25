@@ -1,12 +1,13 @@
-//! The UI's selection command through the client core against the Legions 7160 server double:
+//! The UI's gameplay commands through the client core against the Legions 7160 server double:
 //! `Command::Select` goes out as the `WM_Player` target call, the double's `SelectionInfo`
-//! comes back, and the frame's selection shows the object's name and health.
+//! comes back, and the frame's selection shows the object's name and health; `Command::Say`
+//! comes back as the chat line the frame's events carry.
 
 mod common;
 
 use ac2_client::{Command, FrameInput, SelectionFrame};
 use ac2_net::protocol::{ScriptRequest, SelectionInfo};
-use ac2_weenie::{GameplayNotice, SessionEvent};
+use ac2_weenie::{GameplayNotice, SessionEvent, DISPLAY_SPEECH};
 use common::*;
 use legions_server_double::{create_object_bytes, ObjectSpawn, Spawn};
 
@@ -89,4 +90,29 @@ fn selecting_an_object_fills_the_frame_selection() {
         server.borrow().script_requests,
         vec![ScriptRequest::SetTarget(NPC), ScriptRequest::SetTarget(0)]
     );
+}
+
+#[test]
+fn saying_something_comes_back_as_a_chat_line() {
+    let (mut client, server) = entered(Spawn {
+        cell: CELL,
+        origin: [70.0, 70.0, GROUND],
+        rotation: [1.0, 0.0, 0.0, 0.0],
+    });
+    let say = FrameInput {
+        commands: vec![Command::Say("Well met".into())],
+        ..FrameInput::default()
+    };
+    let mut events = step(&mut client, &server, &say);
+    let idle = FrameInput::default();
+    for _ in 0..4 {
+        events.extend(step(&mut client, &server, &idle));
+    }
+    let line = events.iter().find_map(|e| match e {
+        SessionEvent::Notice(GameplayNotice::DisplayStringInfo { kind, text }) => {
+            Some((*kind, text.string_id))
+        }
+        _ => None,
+    });
+    assert_eq!(line, Some((DISPLAY_SPEECH, 0xD85E_9379)), "{events:?}");
 }

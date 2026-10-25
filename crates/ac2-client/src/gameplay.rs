@@ -1,7 +1,8 @@
 //! The UI's gameplay commands and the selection the selection panel shows.
 //!
 //! Retail's UI calls the player weenie's IFuns (`gmCWInterface::SetSelection`,
-//! `SetExaminationRequest`, `StartExamination`, `StopExamination`); their notices come back as
+//! `SetExaminationRequest`, `StartExamination`, `StopExamination`, `DoEmote`) and its chat
+//! commands (`CWInterface::ProcessText`); their notices come back as
 //! [`SessionEvent::Notice`] in the frame's events (`CM_*::SendNotice_*`, which retail's UI
 //! classes listen to).
 
@@ -21,6 +22,12 @@ pub enum Command {
     StartExamination(u32),
     /// `gmCWInterface::StopExamination` (the panel closed).
     StopExamination,
+    /// The say command: text to everyone nearby.
+    Say(String),
+    /// The tell command: text to the named character.
+    Tell { recipient: String, text: String },
+    /// `gmCWInterface::DoEmote`, with the emote the emote table named.
+    Emote(u32),
 }
 
 /// The selected object, as `gmSelectionUI` shows it.
@@ -38,11 +45,23 @@ impl Client {
     pub(crate) fn commands(&mut self, commands: &[Command]) -> Vec<SessionEvent> {
         let mut events = Vec::new();
         for command in commands {
-            events.extend(match *command {
+            events.extend(match command {
                 Command::Select(id) => self.session.select(id.unwrap_or(NO_SELECTION)),
-                Command::Examine(request) => self.session.examine(request),
-                Command::StartExamination(context) => self.session.start_examination(context),
+                Command::Examine(request) => self.session.examine(*request),
+                Command::StartExamination(context) => self.session.start_examination(*context),
                 Command::StopExamination => self.session.stop_examination(),
+                Command::Say(text) => {
+                    self.session.say(text);
+                    Vec::new()
+                }
+                Command::Tell { recipient, text } => {
+                    self.session.tell(recipient, text);
+                    Vec::new()
+                }
+                Command::Emote(emote) => {
+                    self.session.emote(*emote);
+                    Vec::new()
+                }
             });
         }
         events

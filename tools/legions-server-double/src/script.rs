@@ -5,10 +5,13 @@
 use std::collections::HashMap;
 
 use ac2_net::protocol::{
-    ExaminationProfile, ExaminationRequest, ScriptMessage, ScriptRequest, SelectionInfo,
+    ExaminationProfile, ExaminationRequest, ScriptMessage, ScriptRequest, SelectionInfo, StringInfo,
 };
 
-use crate::State;
+use crate::{State, PLAYER};
+
+/// The player's name in the double's character set.
+const PLAYER_NAME: &str = "Explorer";
 
 /// What the double answers script calls with.
 #[derive(Debug, Clone, Default)]
@@ -75,11 +78,39 @@ impl State {
                     self.send_script(&ScriptMessage::ExaminationProfile(profile));
                 }
             }
+            // A server repeats speech to everyone in range, the speaker included.
+            ScriptRequest::Say { text, .. } => self.send_script(&ScriptMessage::HearSpeech {
+                kind: 0,
+                text: text.clone(),
+                speaker_name: name(PLAYER_NAME),
+                speaker: PLAYER,
+            }),
+            // The only character the double knows is the player: a tell to it comes back.
+            ScriptRequest::Tell {
+                text, recipient, ..
+            } => {
+                if recipient.literal.as_deref() == Some(PLAYER_NAME) {
+                    self.send_script(&ScriptMessage::HearTell {
+                        kind: 0,
+                        text: text.clone(),
+                        teller_name: name(PLAYER_NAME),
+                        teller: PLAYER,
+                    });
+                }
+            }
+            ScriptRequest::Emote(_) => {}
         }
     }
 
     /// Queues a script call to the player (`InterpCEvent_Broadcast`, 0x10066).
     pub fn send_script(&mut self, message: &ScriptMessage) {
         self.send_event(&message.to_broadcast());
+    }
+}
+
+fn name(text: &str) -> StringInfo {
+    StringInfo {
+        literal: Some(text.into()),
+        ..StringInfo::default()
     }
 }

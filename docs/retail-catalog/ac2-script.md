@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 6 done, 9 partial, 2369 to do, 84 skipped.
+2468 retail functions: 7 done, 9 partial, 2368 to do, 84 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -3733,10 +3733,10 @@ Legend and workflow: [README](README.md).
 - [ ] `VMLogger::OpenLog` · 004bd0f0
 - [ ] `VMLogger::Log` · 004bd2d0
 
-## `portal/shared/src/interp/wccefuns.cpp.c` (0/4)
+## `portal/shared/src/interp/wccefuns.cpp.c` (1/4)
 
 ### (free functions)
-- [ ] `ToIID` · 006e0d80 · legions 00667bf0
+- [x] `ToIID` · 006e0d80 · legions 00667bf0 — ac2-weenie chat::to_iid (%04X:%04X:%04X:%04X)
 - [ ] `ToSHex` · 006e13b0 · legions 00668220
 - [ ] `ToLHex` · 006e1410 · legions 00668280
 - [ ] `ToHex` · 006e1470 · legions 006682e0

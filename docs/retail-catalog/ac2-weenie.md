@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 146 done, 13 partial, 1739 to do, 6 skipped.
+1904 retail functions: 147 done, 14 partial, 1737 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -77,10 +77,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Combat::SendNotice_ToggleSpecialAttack` · 00727e60
 - [ ] `CM_Combat::SendNotice_UpdateAttackState` · 00727ef0
 
-## `ac2/client/src/events/cm_communication.cpp.c` (0/3)
+## `ac2/client/src/events/cm_communication.cpp.c` (1/3)
 
 ### CM_Communication
-- [ ] `CM_Communication::SendNotice_DisplayStringInfo` · 00725cc0
+- [x] `CM_Communication::SendNotice_DisplayStringInfo` · 00725cc0 — ac2-weenie GameplayNotice::DisplayStringInfo (chat lines from the CCommunicationSystem stand-in)
 - [ ] `CM_Communication::SendNotice_DoAssistedTell` · 00725d50
 - [ ] `CM_Communication::SendNotice_ReloadChatSettings` · 00725de0
 
@@ -950,7 +950,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::RequestExecuteCraft` · 00450080 · legions 004511c0
 - [ ] `gmCWInterface::InqRecipeCost` · 004500b0 · legions 004511f0
 - [ ] `gmCWInterface::GetAvailableCraftExperience` · 004500f0 · legions 00451230
-- [ ] `gmCWInterface::DoEmote` · 00450130 · legions 00451270
+- [~] `gmCWInterface::DoEmote` · 00450130 · legions 00451270 — ac2-weenie OnlineSession::emote(id): the WM_Communication emote call; the emote-table name lookup (CPlayer 0x15B) is not ported
 - [ ] `gmCWInterface::PurchaseItem` · 00450150 · legions 00451290
 - [ ] `gmCWInterface::RequestNextSales` · 00450180 · legions 004512c0
 - [ ] `gmCWInterface::RequestPrevSales` · 004501a0 · legions 004512e0

@@ -14,6 +14,8 @@ pub mod ntype {
     pub const EXAMINATION_PROFILE: u32 = 0x99;
     pub const EXAMINATION_REQUEST: u32 = 0x9A;
     pub const SELECTION_INFO: u32 = 0xAB;
+    /// `wpstring` (`PStringBase<unsigned short>`).
+    pub const WPSTRING: u32 = 0x76;
 }
 
 /// One native object.
@@ -23,6 +25,8 @@ pub enum NativeObject {
     SelectionInfo(SelectionInfo),
     ExaminationRequest(ExaminationRequest),
     ExaminationProfile(ExaminationProfile),
+    /// `wpstring`: `PStringBase<unsigned short>::Pack`.
+    WString(String),
 }
 
 impl NativeObject {
@@ -33,6 +37,7 @@ impl NativeObject {
             Self::SelectionInfo(_) => ntype::SELECTION_INFO,
             Self::ExaminationRequest(_) => ntype::EXAMINATION_REQUEST,
             Self::ExaminationProfile(_) => ntype::EXAMINATION_PROFILE,
+            Self::WString(_) => ntype::WPSTRING,
         }
     }
 
@@ -43,6 +48,7 @@ impl NativeObject {
             ntype::SELECTION_INFO => Self::SelectionInfo(SelectionInfo::read(r)?),
             ntype::EXAMINATION_REQUEST => Self::ExaminationRequest(ExaminationRequest::read(r)?),
             ntype::EXAMINATION_PROFILE => Self::ExaminationProfile(ExaminationProfile::read(r)?),
+            ntype::WPSTRING => Self::WString(r.wide_string()?),
             _ => return Err(ProtocolError::Unsupported("native type")),
         })
     }
@@ -54,6 +60,9 @@ impl NativeObject {
             Self::SelectionInfo(info) => info.write(w),
             Self::ExaminationRequest(request) => request.write(w),
             Self::ExaminationProfile(profile) => profile.write(w),
+            Self::WString(text) => {
+                w.wide_string(text);
+            }
         }
     }
 }

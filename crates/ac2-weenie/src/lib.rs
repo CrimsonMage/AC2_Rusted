@@ -8,6 +8,7 @@
 //! server sends them; callers convert to their own frame.
 
 mod appearance;
+mod chat;
 mod ddd;
 mod destruction;
 mod movement_module;
@@ -22,6 +23,7 @@ mod world;
 pub use ac2_net::protocol::{CellPosition, CharacterIdentity, CharacterSet};
 pub use ac2_net::Credential;
 pub use appearance::{Appearance, PartGroupAppearance, GLOBAL_PART_GROUP};
+pub use chat::{to_iid, DISPLAY_SPEECH, DISPLAY_TELL};
 pub use ddd::{dat_file_id, dat_iterations};
 pub use movement_module::{
     ActiveAction, BodyFacts, CameraState, MovementCommands, MovementModule, ACTION_ABOUT_FACE,

@@ -42,6 +42,7 @@ key	status	note
 0044faa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 0044fac0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 0044fb20	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+00450130	~	ac2-weenie OnlineSession::emote(id): the WM_Communication emote call; the emote-table name lookup (CPlayer 0x15B) is not ported
 00450f30	~	ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
 00450f80	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 00450fa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
@@ -1637,6 +1638,7 @@ key	status	note
 006dc040	~	ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
 006e0b40	x	ac2-net protocol::pack
 006e0c20	~	ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
+006e0d80	x	ac2-weenie chat::to_iid (%04X:%04X:%04X:%04X)
 006ed9c0	x	
 006eda20	x	
 006edde0	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
@@ -1651,6 +1653,7 @@ key	status	note
 00723280	x	
 00725100	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 00725780	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+00725cc0	x	ac2-weenie GameplayNotice::DisplayStringInfo (chat lines from the CCommunicationSystem stand-in)
 007269d0	x	
 007277e0	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 00727870	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
