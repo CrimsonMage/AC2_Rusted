@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 212 done, 15 partial, 329 to do, 0 skipped.
+556 retail functions: 216 done, 15 partial, 325 to do, 0 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -41,7 +41,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/gun/result/cclifriendaddresult.cpp.c` (0/2)
 
 ### CCliFriendAddResult
-- [~] `CCliFriendAddResult::HandleFriendAddResult` · 00728690 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
+- [~] `CCliFriendAddResult::HandleFriendAddResult` · 00728690 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
 - [ ] `CCliFriendAddResult::CCliFriendAddResult` · 007286d0 · legions 006a69d0
 
 ## `ac2/client/src/gun/result/cclifrienddeleteresult.cpp.c` (0/2)
@@ -54,7 +54,7 @@ Legend and workflow: [README](README.md).
 
 ### CCliGetFriendsListResult
 - [ ] `CCliGetFriendsListResult::CCliGetFriendsListResult` · 00728870 · legions 006a6bc0
-- [ ] `CCliGetFriendsListResult::HandleGetFriendsListResult` · 00728910
+- [~] `CCliGetFriendsListResult::HandleGetFriendsListResult` · 00728910 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
 
 ## `ac2/client/src/gun/result/ccligetignoredlistresult.cpp.c` (0/2)
 
@@ -100,21 +100,21 @@ Legend and workflow: [README](README.md).
 - [ ] `CCliTicketResult::HandleAuthenticationResult` · 007282c0
 - [ ] `CCliTicketResult::CCliTicketResult` · 007282e0 · legions 006a65c0
 
-## `ac2/shared/src/gun/ctbullet.cpp.c` (0/1)
+## `ac2/shared/src/gun/ctbullet.cpp.c` (1/1)
 
 ### CTBullet
-- [~] `CTBullet::ConvertToWeenieResult` · 00735c60 · legions 006b1900 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
+- [x] `CTBullet::ConvertToWeenieResult` · 00735c60 · legions 006b1900 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 
-## `ac2/shared/src/gun/helper/turbineuserstatus.cpp.c` (0/10)
+## `ac2/shared/src/gun/helper/turbineuserstatus.cpp.c` (3/10)
 
 ### TurbineUserStatus
-- [ ] `TurbineUserStatus::InqMode` · 00604530 · legions 005c5410
+- [x] `TurbineUserStatus::InqMode` · 00604530 · legions 005c5410 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 - [ ] `TurbineUserStatus::~TurbineUserStatus` · 00604550 · legions 005c5430
 - [ ] `TurbineUserStatus::Clear` · 006045a0 · legions 005c5480
 - [ ] `TurbineUserStatus::operator=` · 00604630 · legions 005c5510
-- [ ] `TurbineUserStatus::InqName` · 006046c0 · legions 005c55a0
+- [x] `TurbineUserStatus::InqName` · 006046c0 · legions 005c55a0 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 - [ ] `TurbineUserStatus::SetLocation` · 00604720 · legions 005c5600
-- [ ] `TurbineUserStatus::InqLocation` · 00604770 · legions 005c5650
+- [x] `TurbineUserStatus::InqLocation` · 00604770 · legions 005c5650 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 - [ ] `TurbineUserStatus::TurbineUserStatus` · 006047d0 · legions 005c56b0
 - [ ] `TurbineUserStatus::TurbineUserStatus` · 00604830 · legions 005c5710
 - [ ] `TurbineUserStatus::StreamPack` · 00604880 · legions 005c5760

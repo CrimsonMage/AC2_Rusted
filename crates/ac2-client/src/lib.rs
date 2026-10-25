@@ -28,7 +28,7 @@ mod controls;
 mod craft;
 mod frame;
 mod friends;
-pub use friends::FriendResult;
+pub use friends::{FriendEvent, FriendResult};
 mod gameplay;
 #[cfg(feature = "window")]
 mod hud_character;

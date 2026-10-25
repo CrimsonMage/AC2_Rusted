@@ -110,6 +110,8 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     // The friends' GUN results (`ggmCWInterface::CallIFun_Result_Friend*`, see [`crate::friends`]).
     IFUN_RESULT_FRIEND_ADD,
     IFUN_RESULT_FRIEND_DELETE,
+    IFUN_GUN_EVENT_FRIEND_START,
+    IFUN_GUN_EVENT_FRIEND_STATUS,
     IFUN_REQUEST_LEAVE_CONSIGNMENT,
     IFUN_GET_CONSIGNMENT_CHARGE,
     IFUN_PURCHASE_ITEM,
@@ -175,6 +177,12 @@ pub const IFUN_REQUEST_ENTER_STORE: u32 = 0x00B4_0137;
 /// `gmCWInterface::Result_FriendAdd` (`CallIFun_Result_FriendAdd`: the weenie result, the name).
 /// The same id in admin 7148 and Legions 7160.
 pub const IFUN_RESULT_FRIEND_ADD: u32 = 0x00B4_0040;
+/// `gmCWInterface::GUNEvent_FriendStart` (`CallIFun_GUNEvent_FriendStart`: the friends list, an
+/// `RList` of `TurbineUserStatus`). The same id in admin 7148 and Legions 7160.
+pub const IFUN_GUN_EVENT_FRIEND_START: u32 = 0x00B4_0043;
+/// `gmCWInterface::GUNEvent_FriendStatus` (`CallIFun_GUNEvent_FriendStatus`: one
+/// `TurbineUserStatus`).
+pub const IFUN_GUN_EVENT_FRIEND_STATUS: u32 = 0x00B4_0044;
 /// `gmCWInterface::Result_FriendDelete` (`CallIFun_Result_FriendDelete`: the result, the name).
 pub const IFUN_RESULT_FRIEND_DELETE: u32 = 0x00B4_0041;
 /// `gmCWInterface::RequestEnterConsignment` (`CallIFun_RequestEnterConsignment`: no arguments).

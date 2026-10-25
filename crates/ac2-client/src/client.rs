@@ -150,6 +150,8 @@ pub struct Client {
     pub(crate) audio: Option<crate::client_audio::ClientAudio>,
     /// The radar (`gmRadarUI`) and the map notes (`gmNavigationUI`).
     pub(crate) radar: crate::client_radar::RadarState,
+    /// The friends panel (`gmFriendsUI`), fed by the GUN results and events.
+    pub(crate) friends: ac2_ui::FriendsUi,
 }
 
 fn physics_position(cell: u32, origin: [f32; 3], rotation: [f32; 4]) -> Position {
@@ -208,6 +210,7 @@ impl Client {
             scripts: None,
             audio: None,
             radar: Default::default(),
+            friends: Default::default(),
         }
     }
 

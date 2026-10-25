@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1344 done, 106 partial, 938 to do, 80 skipped.
+2468 retail functions: 1347 done, 106 partial, 935 to do, 80 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -503,15 +503,15 @@ Legend and workflow: [README](README.md).
 - [ ] `gTurbineGunUtils::CallEFun_GetWorldName` · 0046ea20
 - [ ] `gTurbineGunUtils::CallEFun_GetWorldSuffix` · 0046eaa0
 
-## `ac2/shared/src/interp/glue/gturbineuserstatus.cpp.c` (0/4)
+## `ac2/shared/src/interp/glue/gturbineuserstatus.cpp.c` (3/4)
 
 ### ReferenceTable
 - [ ] `ReferenceTable::GetReferenceTagPtr` · 0046eb20 · legions 0046e9c0
 
 ### gTurbineUserStatus
-- [ ] `gTurbineUserStatus::CallEFun_InqLocation` · 0046ebd0 · legions 0046ea70
-- [ ] `gTurbineUserStatus::CallEFun_InqMode` · 0046ec60 · legions 0046eae0
-- [ ] `gTurbineUserStatus::CallEFun_InqName` · 0046ed00
+- [x] `gTurbineUserStatus::CallEFun_InqLocation` · 0046ebd0 · legions 0046ea70 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
+- [x] `gTurbineUserStatus::CallEFun_InqMode` · 0046ec60 · legions 0046eae0 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
+- [x] `gTurbineUserStatus::CallEFun_InqName` · 0046ed00 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 
 ## `ac2/shared/src/interp/glue/guishop.cpp.c` (8/8)
 

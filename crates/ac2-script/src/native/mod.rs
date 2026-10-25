@@ -104,6 +104,8 @@ pub mod ntype {
     pub const CRAFT_SKILL_ADAPTOR: u32 = 0x33A5;
     pub const RECIPE_ADAPTOR: u32 = 0xAA;
     pub const INGREDIENT_ADAPTOR: u32 = 0xA5;
+    /// `TurbineUserStatus` (a friend's status the GUN events hand the script).
+    pub const TURBINE_USER_STATUS: u32 = 0xAF;
     pub const UI_SHOP: u32 = 0x380A;
     pub const UI_SHOP_SALE: u32 = 0x380B;
     pub const GM_QUEST_INFO: u32 = 0xA0;
@@ -191,6 +193,8 @@ pub enum NativeObject {
     Recipe(Box<ac2_weenie::Recipe>),
     /// `IngredientAdaptor`.
     Ingredient(Box<ac2_weenie::Ingredient>),
+    /// `TurbineUserStatus`: a friend's name, location and mode (`gTurbineUserStatus`'s efuns).
+    TurbineUserStatus(Box<ac2_weenie::FriendInfo>),
     /// `DamageTextBlob`.
     DamageText(Box<ac2_weenie::DamageText>),
     /// `RGBAColor` (r, g, b, a).
@@ -291,6 +295,7 @@ impl NativeObject {
             ntype::CRAFT_SKILL_ADAPTOR => NativeObject::CraftSkill(Box::default()),
             ntype::RECIPE_ADAPTOR => NativeObject::Recipe(Box::default()),
             ntype::INGREDIENT_ADAPTOR => NativeObject::Ingredient(Box::default()),
+            ntype::TURBINE_USER_STATUS => NativeObject::TurbineUserStatus(Box::default()),
             ntype::DAMAGE_TEXT_BLOB => NativeObject::DamageText(Box::default()),
             ntype::RGBA_COLOR => NativeObject::Color([0.0; 4]),
             ntype::GM_QUEST_INFO => NativeObject::Wire(Box::new(

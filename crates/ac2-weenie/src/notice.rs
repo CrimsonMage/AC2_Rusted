@@ -1,6 +1,7 @@
 //! The notices the player's scripts raise for the UI (`CM_*::SendNotice_*`), as plain data,
 //! whoever raises them: the native stand-ins, or the script VM's glue.
 
+use crate::FriendInfo;
 use ac2_net::protocol::{
     ExaminationProfile, ExaminationRequest, GmQuestInfo, GunChatExtraInfo, SelectionInfo,
     StringInfo,
@@ -260,6 +261,11 @@ pub enum GameplayNotice {
     FriendRemoved(String),
     /// `CM_Friends::SendNotice_LocalStatus`.
     LocalStatus(u32),
+    /// `CM_Friends::SendNotice_GUNResult_GetFriendsList`: the friends list (the FriendStart
+    /// event's list, with each friend's status).
+    FriendsList(Vec<FriendInfo>),
+    /// `CM_Friends::SendNotice_GUNResult_FriendStatus`: one friend's status changed (or arrived).
+    FriendStatus(FriendInfo),
     /// `CM_Store::SendNotice_UpdateSale`.
     UpdateSale { item: u64, stock: i32 },
     /// `CM_Store::SendNotice_LeaveStore`.

@@ -1575,7 +1575,7 @@ Legend and workflow: [README](README.md).
 
 ### gmFriendsUI
 - [ ] `gmFriendsUI::ListenToMessage` · 0043a570 · legions 0043adc0
-- [ ] `gmFriendsUI::RecvNotice_GUNResult_AddFriend` · 0043a5c0
+- [ ] `gmFriendsUI::RecvNotice_GUNResult_AddFriend` · 0043a5c0 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 - [ ] `gmFriendsUI::RecvNotice_LocalStatus` · 0043a5e0 · legions 0043ae30
 
 ### PStringBase<unsigned_short>
@@ -1587,23 +1587,23 @@ Legend and workflow: [README](README.md).
 - [ ] `TextPredicate::TextPredicate` · 0043a6f0 · legions 0043af40
 
 ### gmFriendsUI
-- [ ] `gmFriendsUI::HandleAddButton` · 0043a710 · legions 0043af60
-- [ ] `gmFriendsUI::HandleRemoveButton` · 0043a7a0 · legions 0043aff0
+- [ ] `gmFriendsUI::HandleAddButton` · 0043a710 · legions 0043af60 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
+- [ ] `gmFriendsUI::HandleRemoveButton` · 0043a7a0 · legions 0043aff0 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 - [ ] `gmFriendsUI::HandleStatusChange` · 0043a820 · legions 0043b070
-- [ ] `gmFriendsUI::UpdateButtonStates` · 0043abe0 · legions 0043b430
+- [ ] `gmFriendsUI::UpdateButtonStates` · 0043abe0 · legions 0043b430 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
 - [ ] `gmFriendsUI::ListenToMessage` · 0043ae30 · legions 0043b680
-- [ ] `gmFriendsUI::RecvNotice_SelectionChanged` · 0043ae90
+- [ ] `gmFriendsUI::RecvNotice_SelectionChanged` · 0043ae90 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
 
 ### PList<TurbineUserStatus>
 - [ ] `PList<TurbineUserStatus>::UnPack` · 0043b020
 
 ### gmFriendsUI
-- [ ] `gmFriendsUI::BuildUIList` · 0043b190 · legions 0043b9e0
-- [ ] `gmFriendsUI::RecvNotice_GUNResult_RemoveFriend` · 0043b4a0
+- [ ] `gmFriendsUI::BuildUIList` · 0043b190 · legions 0043b9e0 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
+- [ ] `gmFriendsUI::RecvNotice_GUNResult_RemoveFriend` · 0043b4a0 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 - [ ] `gmFriendsUI::gmFriendsUI` · 0043b6f0 · legions 0043bf40
 - [ ] `gmFriendsUI::~gmFriendsUI` · 0043b8d0 · legions 0043c120
-- [ ] `gmFriendsUI::RecvNotice_GUNResult_GetFriendsList` · 0043ba00
-- [ ] `gmFriendsUI::RecvNotice_GUNResult_FriendStatus` · 0043bb90
+- [ ] `gmFriendsUI::RecvNotice_GUNResult_GetFriendsList` · 0043ba00 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
+- [ ] `gmFriendsUI::RecvNotice_GUNResult_FriendStatus` · 0043bb90 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 
 ## `ac2/client/src/ui/gameplay/toolbar/social/gmsocialui.cpp.c` (0/3)
 

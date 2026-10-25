@@ -266,6 +266,16 @@ pub(super) fn typed(
         },
         "GUNResult_AddFriend" => N::FriendAdded(text(args, 0)),
         "GUNResult_RemoveFriend" => N::FriendRemoved(text(args, 0)),
+        // The friends list: the script's `RList` of `TurbineUserStatus` natives, in order.
+        "GUNResult_GetFriendsList" => N::FriendsList(match vm.native(*raw.first()?)? {
+            NativeObject::List(l) => l
+                .items
+                .iter()
+                .filter_map(|r| friend(vm, *r as u32))
+                .collect(),
+            _ => return None,
+        }),
+        "GUNResult_FriendStatus" => N::FriendStatus(friend(vm, *raw.first()?)?),
         "LocalStatus" => N::LocalStatus(int(args, 0)?),
         "UpdateSale" => N::UpdateSale {
             item: long(args, 0)?,
@@ -308,6 +318,13 @@ pub(super) fn typed(
         },
         _ => return None,
     })
+}
+
+fn friend(vm: &Vm, reference: u32) -> Option<ac2_weenie::FriendInfo> {
+    match vm.native(reference)? {
+        NativeObject::TurbineUserStatus(f) => Some((**f).clone()),
+        _ => None,
+    }
 }
 
 fn shop(vm: &Vm, reference: u32) -> Option<ac2_weenie::Shop> {

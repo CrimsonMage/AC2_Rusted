@@ -121,7 +121,7 @@ Legend and workflow: [README](README.md).
 
 ### CM_Friends
 - [x] `CM_Friends::SendNotice_GUNResult_AddFriend` · 00725e70 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-- [ ] `CM_Friends::SendNotice_GUNResult_FriendStatus` · 00725f00 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [ ] `CM_Friends::SendNotice_GUNResult_FriendStatus` · 00725f00 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 - [x] `CM_Friends::SendNotice_GUNResult_RemoveFriend` · 00725fb0 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 - [ ] `CM_Friends::SendNotice_LocalStatus` · 00726040 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_Friends::SendNotice_GUNResult_GetFriendsList` · 007260d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
@@ -354,10 +354,10 @@ Legend and workflow: [README](README.md).
 
 ### gCM_Friends
 - [x] `gCM_Friends::CallEFun_SendNotice_GUNResult_AddFriend` · 00467f60 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-- [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_FriendStatus` · 00467fb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_FriendStatus` · 00467fb0 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 - [x] `gCM_Friends::CallEFun_SendNotice_GUNResult_RemoveFriend` · 00468010 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 - [ ] `gCM_Friends::CallEFun_SendNotice_LocalStatus` · 00468060 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Friends::RListToGUNUserStatusList` · 004680b0 · legions 00468d60
+- [ ] `gCM_Friends::RListToGUNUserStatusList` · 004680b0 · legions 00468d60 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
 - [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_GetFriendsList` · 00468150 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_inventory.cpp.c` (0/4)
@@ -614,7 +614,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::IgnoredListToRList` · 004569a0 · legions 00525e50
 - [ ] `ggmCWInterface::EffectUINodeListToRList` · 00456a40 · legions 004575a0
 - [ ] `ggmCWInterface::ShortcutInfoArrayToRArray` · 00456ae0 · legions 00457640 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [ ] `ggmCWInterface::GUNUserStatusListToRList` · 00456b80 · legions 004576e0
+- [ ] `ggmCWInterface::GUNUserStatusListToRList` · 00456b80 · legions 004576e0 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
 
 ### PHashTable<unsigned___int64,unsigned_long>
 - [ ] `PHashTable<unsigned___int64,unsigned_long>::StreamPack` · 00456c20 · legions 00457780
@@ -674,8 +674,8 @@ Legend and workflow: [README](README.md).
 - [~] `ggmCWInterface::CallIFun_DragFromMoneyBag` · 00458ec0 · legions 00459b10 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [~] `ggmCWInterface::CallIFun_DragToMoneyBag` · 00458fe0 · legions 00459c30 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [ ] `ggmCWInterface::CallIFun_EquipItem` · 00459140 · legions 00459d90
-- [ ] `ggmCWInterface::CallIFun_GUNEvent_FriendStart` · 00459240 · legions 00459e90
-- [ ] `ggmCWInterface::CallIFun_GUNEvent_FriendStatus` · 00459340 · legions 00459f90
+- [ ] `ggmCWInterface::CallIFun_GUNEvent_FriendStart` · 00459240 · legions 00459e90 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
+- [ ] `ggmCWInterface::CallIFun_GUNEvent_FriendStatus` · 00459340 · legions 00459f90 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 - [ ] `ggmCWInterface::CallIFun_GUNEvent_HearFromRoom` · 00459420 · legions 0045a070
 - [ ] `ggmCWInterface::CallIFun_GUNHandleReauthentication` · 004595a0 · legions 0045a1f0
 - [ ] `ggmCWInterface::CallIFun_GetAcceptAllegianceRequest` · 00459630 · legions 0045a280
@@ -804,7 +804,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_Result_CallCreate` · 00461100 · legions 00461d50
 - [x] `ggmCWInterface::CallIFun_Result_FriendAdd` · 004612c0 · legions 00461f10 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 - [x] `ggmCWInterface::CallIFun_Result_FriendDelete` · 004613d0 · legions 00462020 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-- [ ] `ggmCWInterface::CallIFun_Result_GetFriendsList` · 004614e0
+- [ ] `ggmCWInterface::CallIFun_Result_GetFriendsList` · 004614e0 — not in Legions 7160: the wrapper gmCWInterface::Result_GetFriendsList and its IFun 0xB40042 are absent; the list arrives in GUNEvent_FriendStart
 - [ ] `ggmCWInterface::CallIFun_Result_GetIgnoredList` · 00461620
 - [ ] `ggmCWInterface::CallIFun_Result_IgnoredAdd` · 00461760 · legions 004623b0
 - [ ] `ggmCWInterface::CallIFun_Result_IgnoredDelete` · 00461870 · legions 004624c0

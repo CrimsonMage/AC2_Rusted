@@ -20,6 +20,7 @@ mod entity_desc;
 mod enums;
 mod examination;
 mod format;
+mod friend_natives;
 mod hashes;
 pub(crate) mod lists;
 mod math;
@@ -81,6 +82,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     quests::register(efuns);
     ui_natives::register(efuns);
     craft_natives::register(efuns);
+    friend_natives::register(efuns);
     entity_desc::register(efuns);
     shortcut::register(efuns);
     reserved_ids::register(efuns);

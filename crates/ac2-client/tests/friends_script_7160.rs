@@ -9,17 +9,21 @@ mod common;
 
 use std::sync::Arc;
 
-use ac2_client::{Client, FrameInput, FriendResult};
+use ac2_client::{Client, FrameInput, FriendEvent, FriendResult};
 use ac2_core::DataId;
 use ac2_script::data::DatScriptData;
 use ac2_script::host::{ChatRequest, ScriptHost};
 use ac2_script::vm::Program;
 use ac2_script::{load_wlib, LEGIONS_WLIB_DID};
-use ac2_weenie::{GameplayNotice, SessionEvent};
+use ac2_weenie::{FriendInfo, GameplayNotice, SessionEvent};
 use common::*;
-use legions_server_double::{FriendsBook, Spawn, PLAYER};
+use legions_server_double::{
+    FriendsBook, Spawn, GUN_ALREADY_IN_LIST, GUN_DONE, GUN_INVALID_USER, GUN_NOT_IN_LIST, PLAYER,
+};
 
 const NAME: &str = "Maria";
+/// The directory of players a friend can be.
+const DIRECTORY: [&str; 3] = ["Maria", "Tomas", "Ilse"];
 
 fn spawn() -> Spawn {
     Spawn {
@@ -96,8 +100,8 @@ fn login_queues_the_script_gun_lists() {
     assert!(client.take_script_problems().is_empty());
 }
 
-/// The UI's add goes to the GUN service; the service's new-friend answer (success) is delivered
-/// as `Result_FriendAdd`, which raises `FriendAdded` with the name.
+/// The UI's add goes to the GUN service; the service's new-friend answer (done) is delivered as
+/// `Result_FriendAdd`, which raises the message and `FriendAdded` with the name.
 #[test]
 fn friend_add_is_answered_by_the_gun_service() {
     let Some((mut client, _server)) = with_gun() else {
@@ -107,54 +111,79 @@ fn friend_add_is_answered_by_the_gun_service() {
     client.friend_add(NAME);
     let requests = client.take_gun_requests();
     assert_eq!(requests, vec![ChatRequest::FriendAdd(NAME.to_owned())]);
-    let mut book = FriendsBook::default();
+    let mut book = FriendsBook::with_directory(&DIRECTORY);
     let ChatRequest::FriendAdd(name) = &requests[0] else {
         panic!("{requests:?}");
     };
-    let result = book.add(name).expect("a new friend is answered");
-    let events = client.gun_friend_result(FriendResult::Added {
-        result,
+    let gun = book.add(name);
+    assert_eq!(gun, GUN_DONE);
+    let raised = notices(client.gun_friend_result(FriendResult::Added {
+        gun,
         name: name.clone(),
-    });
-    // The script's own message first (a `DisplayStringInfo`), then the notice of the add.
-    let raised = notices(events);
+    }));
     assert_eq!(raised.len(), 2, "{raised:?}");
     assert!(matches!(
         raised[0],
         GameplayNotice::DisplayStringInfo { .. }
     ));
     assert_eq!(raised[1], GameplayNotice::FriendAdded(NAME.to_owned()));
-    assert_eq!(book.names(), [NAME.to_owned()]);
+    assert_eq!(book.names(), vec![NAME.to_owned()]);
     assert!(client.take_script_problems().is_empty());
 }
 
-/// A second add of the same name is refused by the service, which answers nothing: no result
-/// reaches the script, so no notice.
+/// A duplicate add is refused by the service (`ZT_E_ALREADY_IN_LIST`, converted to weenie 0xC740):
+/// the script raises its error message and no `FriendAdded`.
 #[test]
-fn duplicate_friend_is_not_answered() {
+fn duplicate_friend_is_refused_with_a_message() {
     let Some((mut client, _server)) = with_gun() else {
         return;
     };
-    let mut book = FriendsBook::default();
-    book.add(NAME);
-    client.take_gun_requests();
-    client.friend_add(NAME);
-    let requests = client.take_gun_requests();
-    let ChatRequest::FriendAdd(name) = &requests[0] else {
-        panic!("{requests:?}");
+    let mut book = FriendsBook::with_directory(&DIRECTORY);
+    assert_eq!(book.add(NAME), GUN_DONE);
+    let gun = book.add(NAME);
+    assert_eq!(gun, GUN_ALREADY_IN_LIST);
+    let raised = notices(client.gun_friend_result(FriendResult::Added {
+        gun,
+        name: NAME.to_owned(),
+    }));
+    assert_eq!(raised.len(), 1, "{raised:?}");
+    assert!(matches!(
+        raised[0],
+        GameplayNotice::DisplayStringInfo { .. }
+    ));
+    assert_eq!(book.names(), vec![NAME.to_owned()], "the list is unchanged");
+    assert!(client.take_script_problems().is_empty());
+}
+
+/// An add of a name the directory does not hold is refused (`ZT_E_INVALID_USER`): the message only.
+#[test]
+fn unknown_friend_is_refused_with_a_message() {
+    let Some((mut client, _server)) = with_gun() else {
+        return;
     };
-    assert_eq!(book.add(name), None, "the service refuses a duplicate");
-    assert_eq!(book.names(), [NAME.to_owned()], "the list is unchanged");
+    let mut book = FriendsBook::with_directory(&DIRECTORY);
+    let gun = book.add("Nobody");
+    assert_eq!(gun, GUN_INVALID_USER);
+    let raised = notices(client.gun_friend_result(FriendResult::Added {
+        gun,
+        name: "Nobody".to_owned(),
+    }));
+    assert_eq!(raised.len(), 1, "{raised:?}");
+    assert!(matches!(
+        raised[0],
+        GameplayNotice::DisplayStringInfo { .. }
+    ));
+    assert!(book.friends().is_empty());
 }
 
 /// The UI's delete goes to the GUN service; its success is delivered as `Result_FriendDelete`,
-/// which raises `FriendRemoved`.
+/// which raises the message and `FriendRemoved`.
 #[test]
 fn friend_delete_is_answered_by_the_gun_service() {
     let Some((mut client, _server)) = with_gun() else {
         return;
     };
-    let mut book = FriendsBook::default();
+    let mut book = FriendsBook::with_directory(&DIRECTORY);
     book.add(NAME);
     client.take_gun_requests();
     client.friend_delete(NAME);
@@ -163,19 +192,92 @@ fn friend_delete_is_answered_by_the_gun_service() {
     let ChatRequest::FriendDelete(name) = &requests[0] else {
         panic!("{requests:?}");
     };
-    let result = book.remove(name).expect("a listed friend is answered");
-    let events = client.gun_friend_result(FriendResult::Removed {
-        result,
+    let gun = book.remove(name);
+    assert_eq!(gun, GUN_DONE);
+    let raised = notices(client.gun_friend_result(FriendResult::Removed {
+        gun,
         name: name.clone(),
-    });
-    let raised = notices(events);
+    }));
     assert_eq!(raised.len(), 2, "{raised:?}");
+    assert_eq!(raised[1], GameplayNotice::FriendRemoved(NAME.to_owned()));
+    assert!(book.friends().is_empty());
+    assert!(client.take_script_problems().is_empty());
+}
+
+/// A delete of a name not on the list is refused (`ZT_E_NOT_IN_LIST`): the message only.
+#[test]
+fn delete_of_a_non_friend_is_refused_with_a_message() {
+    let Some((mut client, _server)) = with_gun() else {
+        return;
+    };
+    let mut book = FriendsBook::with_directory(&DIRECTORY);
+    let gun = book.remove(NAME);
+    assert_eq!(gun, GUN_NOT_IN_LIST);
+    let raised = notices(client.gun_friend_result(FriendResult::Removed {
+        gun,
+        name: NAME.to_owned(),
+    }));
+    assert_eq!(raised.len(), 1, "{raised:?}");
     assert!(matches!(
         raised[0],
         GameplayNotice::DisplayStringInfo { .. }
     ));
-    assert_eq!(raised[1], GameplayNotice::FriendRemoved(NAME.to_owned()));
-    assert!(book.names().is_empty());
+}
+
+/// A friend's status (the GUN `FriendStatus` event): the script reads the `TurbineUserStatus`
+/// (name, location, mode through its efuns) and raises `FriendStatus` with it.
+#[test]
+fn friend_status_event_raises_the_status() {
+    let Some((mut client, _server)) = with_gun() else {
+        return;
+    };
+    let mut book = FriendsBook::with_directory(&DIRECTORY);
+    book.add("Tomas");
+    assert!(book.set_status("Tomas", "Yaraq", 2));
+    let friend = book.friends()[0].clone();
+    let raised = notices(client.gun_friend_event(FriendEvent::Status(FriendInfo {
+        name: friend.name.clone(),
+        location: friend.location.clone(),
+        mode: friend.mode,
+    })));
+    assert_eq!(raised.len(), 2, "{raised:?}");
+    assert_eq!(
+        raised[1],
+        GameplayNotice::FriendStatus(FriendInfo {
+            name: "Tomas".to_owned(),
+            location: "Yaraq".to_owned(),
+            mode: 2,
+        })
+    );
+    assert!(client.take_script_problems().is_empty());
+}
+
+/// The friends list (the GUN `FriendStart` event) runs the script's start body, which reads each
+/// status and keeps it in the player's list, but raises no list notice in Legions: only the
+/// script's message. The panel takes the list from the event (see the catalog notes).
+#[test]
+fn friend_start_event_raises_the_script_message_only() {
+    let Some((mut client, _server)) = with_gun() else {
+        return;
+    };
+    let list = vec![
+        FriendInfo {
+            name: "Tomas".to_owned(),
+            location: "Holtburg".to_owned(),
+            mode: 1,
+        },
+        FriendInfo {
+            name: "Ilse".to_owned(),
+            location: String::new(),
+            mode: 0,
+        },
+    ];
+    let raised = notices(client.gun_friend_event(FriendEvent::Start(list)));
+    assert_eq!(raised.len(), 1, "{raised:?}");
+    assert!(matches!(
+        raised[0],
+        GameplayNotice::DisplayStringInfo { .. }
+    ));
     assert!(client.take_script_problems().is_empty());
 }
 
@@ -186,4 +288,60 @@ fn friend_requests_are_not_queued_without_the_vm() {
     let (mut client, _server) = entered(spawn());
     client.friend_add(NAME);
     assert!(client.take_gun_requests().is_empty());
+}
+
+/// The friends panel follows the GUN list and its events: the list fills the rows, a status
+/// updates one row, the selected row's remove goes to the GUN service, a removal leaves the rows,
+/// and an added friend asks for the list again.
+#[test]
+fn friends_panel_follows_the_list_status_and_results() {
+    let Some((mut client, _server)) = with_gun() else {
+        return;
+    };
+    let friend = |name: &str, location: &str, mode: u32| FriendInfo {
+        name: name.to_owned(),
+        location: location.to_owned(),
+        mode,
+    };
+    client.gun_friend_event(FriendEvent::Start(vec![
+        friend("Tomas", "Holtburg", 1),
+        friend("Ilse", "", 0),
+    ]));
+    assert_eq!(
+        client.friends_panel().rows(),
+        [friend("Tomas", "Holtburg", 1), friend("Ilse", "", 0)]
+    );
+
+    client.gun_friend_event(FriendEvent::Status(friend("Tomas", "Yaraq", 2)));
+    assert_eq!(
+        client.friends_panel().friends()[0],
+        friend("Tomas", "Yaraq", 2)
+    );
+
+    client.take_gun_requests();
+    client.friend_select(Some(1));
+    client.friend_remove_selected();
+    assert_eq!(
+        client.take_gun_requests(),
+        vec![ChatRequest::FriendDelete("Ilse".to_owned())],
+        "the selected row's delete"
+    );
+    client.gun_friend_result(FriendResult::Removed {
+        gun: GUN_DONE,
+        name: "Ilse".to_owned(),
+    });
+    assert_eq!(client.friends_panel().friends().len(), 1, "the row leaves");
+
+    client.take_gun_requests();
+    client.gun_friend_result(FriendResult::Added {
+        gun: GUN_DONE,
+        name: NAME.to_owned(),
+    });
+    assert_eq!(
+        client.take_gun_requests(),
+        vec![ChatRequest::GetFriendsList {
+            user_requested: true
+        }],
+        "an added friend asks for the list again"
+    );
 }

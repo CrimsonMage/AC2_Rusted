@@ -12,6 +12,8 @@ mod button;
 mod camera_ui;
 mod character;
 mod character_options;
+mod friends;
+pub use friends::{FriendsRequest, FriendsUi, FRIEND_ROWS};
 #[cfg(test)]
 mod character_tests;
 mod chat;

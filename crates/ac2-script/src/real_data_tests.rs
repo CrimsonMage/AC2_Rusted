@@ -170,6 +170,7 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::Shortcut(_) => "ShortcutInfo",
         NativeObject::Recipe(_) => "RecipeAdaptor",
         NativeObject::Ingredient(_) => "IngredientAdaptor",
+        NativeObject::TurbineUserStatus(_) => "TurbineUserStatus",
         NativeObject::ListIter { .. } => "list iterator",
         NativeObject::HashIter { .. } => "hash iterator",
         NativeObject::MultiHash(_) => "multi-hash",

@@ -14,7 +14,9 @@ mod craft;
 pub use craft::{CRAFT_SKILL, KNOWN_RECIPE};
 mod effects;
 mod friends;
-pub use friends::FriendsBook;
+pub use friends::{
+    FriendRecord, FriendsBook, GUN_ALREADY_IN_LIST, GUN_DONE, GUN_INVALID_USER, GUN_NOT_IN_LIST,
+};
 mod items;
 mod lossy;
 mod objects;

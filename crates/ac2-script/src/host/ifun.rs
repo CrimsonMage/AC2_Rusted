@@ -33,6 +33,9 @@ pub enum IFunArg {
     /// A VM native passed by value, as the wrapper's own native of type `.0` (a table the script
     /// reads).
     Vm(u32, NativeObject),
+    /// A list of VM natives of type `.0` passed by value: an `RList` (native 0x65) whose items are
+    /// new natives of that type (a list the script reads, such as the friends' statuses).
+    VmList(u32, Vec<NativeObject>),
     /// An out parameter that is a new empty native of this type (a list the script fills, an
     /// adaptor): the native is the out value, its address the parameter, and it is read back
     /// after the call ([`OutValue::Items`] for a list, [`OutValue::Vm`] otherwise).
@@ -179,6 +182,21 @@ impl ScriptHost {
                 }
                 IFunArg::Vm(native_type, native) => {
                     let r = self.vm.refs.create_native(*native_type, native.clone());
+                    ctx.push(r, tag::REF)
+                }
+                IFunArg::VmList(item_type, items) => {
+                    let refs = items
+                        .iter()
+                        .map(|item| u64::from(self.vm.refs.create_native(*item_type, item.clone())))
+                        .collect();
+                    let list = crate::native::ScriptList {
+                        wide: false,
+                        items: refs,
+                    };
+                    let r = self
+                        .vm
+                        .refs
+                        .create_native(ntype::R_LIST, NativeObject::List(list));
                     ctx.push(r, tag::REF)
                 }
                 IFunArg::Out(_) | IFunArg::Filled(_) => {
