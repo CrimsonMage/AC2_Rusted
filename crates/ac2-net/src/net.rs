@@ -45,6 +45,10 @@ pub enum NetEvent {
     /// The server moved the client's world (`ssWorldSwitch`) or logon (`ssLogonSwitch`)
     /// connection to the connection the header came on.
     ServerSwitch { world: bool, recipient: u16 },
+    /// The server is closing the logon (`Net_LoginConnectionError`) or world
+    /// (`Net_WorldConnectionError`) connection for `error` (`NotifyPluginsOfStatusChange`); the
+    /// disconnect handshake follows and ends in [`NetEvent::Disconnected`].
+    ConnectionError { world: bool, error: NetError },
     /// The session ended; no further events follow.
     Disconnected(NetError),
 }
@@ -90,8 +94,10 @@ pub struct ClientNet {
     in_world: bool,
     world_switch: Option<u32>,
     logon_switch: Option<u32>,
-    /// `m_LastDidUseTime`: when the server clock first lagged ours by a minute.
+    /// When the server clock first lagged ours by a minute (`HandleTimeSynch`).
     lagging_since: f64,
+    /// `lastDidUseTime_`: `Timer::cur_time` at the start of the previous `SharedNet::UseTime`.
+    last_did_use_time: f64,
     out: Vec<(SocketAddr, Vec<u8>)>,
     events: Vec<NetEvent>,
     /// `hSessionKey_`: encrypts queue 6-8 blobs (`Proto_UI::SendBlob`).
@@ -126,6 +132,7 @@ impl ClientNet {
             world_switch: None,
             logon_switch: None,
             lagging_since: 0.0,
+            last_did_use_time: 0.0,
             out: Vec::new(),
             events: Vec::new(),
             session_key: logon.crypto.as_ref().map(|c| c.key.clone()),
@@ -165,6 +172,7 @@ impl ClientNet {
         self.timer.update_time(elapsed);
         self.elapsed = elapsed;
         self.real_time = real_time;
+        let started = self.timer.cur_time();
         if self.logging_on {
             self.logon_use_time();
         }
@@ -172,6 +180,8 @@ impl ClientNet {
             self.process_datagram(from, &bytes);
         }
         self.process_connections();
+        // `SharedNet::UseTime` keeps the time it started for the next frame's silence check.
+        self.last_did_use_time = started;
         self.flush();
         (
             std::mem::take(&mut self.out),
@@ -404,11 +414,19 @@ impl ClientNet {
             }
             OptionalHeader::NetErrorDisconnect(reason) => {
                 self.set_connection_state(id, ConnectionState::DisconnectReceived);
-                if *reason != NetErrorId::NONE {
-                    self.events.push(NetEvent::Disconnected(NetError::Server {
-                        string_id: reason.string_id,
-                        table_id: reason.table_id,
-                    }));
+                let world = if id == self.logon_rec {
+                    Some(false)
+                } else {
+                    (id == self.world_rec).then_some(true)
+                };
+                if let (true, Some(world)) = (*reason != NetErrorId::NONE, world) {
+                    self.events.push(NetEvent::ConnectionError {
+                        world,
+                        error: NetError::Server {
+                            string_id: reason.string_id,
+                            table_id: reason.table_id,
+                        },
+                    });
                 }
             }
             OptionalHeader::Nak(ids) => self.controller.process_naks(id, ids),
@@ -650,12 +668,28 @@ impl ClientNet {
                 }
                 _ => {}
             }
-            if let Some(r) = self.receivers.get(&id) {
-                if SILENCE_SECONDS < clock.local_time - r.last_got_data
-                    && r.state < ConnectionState::DisconnectReceived
-                {
-                    self.set_connection_state(id, ConnectionState::DisconnectReceived);
-                    self.events.push(NetEvent::Disconnected(NetError::Timeout));
+            // 140 s without data (unless the client itself stalled that long since its last
+            // frame): the connection is taken as gone; a connected one that came by referral is
+            // referred to again. The disconnect then runs its course (`RemoveConnection` tells
+            // the game the server died).
+            let Some(r) = self.receivers.get(&id) else {
+                continue;
+            };
+            if clock.cur_time - self.last_did_use_time < SILENCE_SECONDS
+                && SILENCE_SECONDS < clock.local_time - r.last_got_data
+                && r.state < ConnectionState::DisconnectReceived
+            {
+                let (was, cookie, addr) = (r.state, r.cookie, r.addr);
+                self.set_connection_state(id, ConnectionState::DisconnectReceived);
+                if was == ConnectionState::Connected && cookie != 0 && !self.log_off_sent {
+                    let referral = crate::optional::Referral {
+                        cookie,
+                        addr: sockaddr_in(addr),
+                        server_id: id,
+                        padding: 0,
+                        tail: 0,
+                    };
+                    self.handle_referral(&referral);
                 }
             }
         }
@@ -670,8 +704,9 @@ impl ClientNet {
         }
         if (id == self.logon_rec || id == self.world_rec) && !self.log_off_sent {
             self.log_off_server();
+            // `ECM_Login::SendNotice_ServerDied` (notice 0x1040D).
             self.events
-                .push(NetEvent::Disconnected(NetError::Io("server died".into())));
+                .push(NetEvent::Disconnected(NetError::ServerDied));
         }
     }
 
@@ -700,6 +735,17 @@ impl ClientNet {
     pub fn take_datagrams(&mut self) -> Vec<(SocketAddr, Vec<u8>)> {
         std::mem::take(&mut self.out)
     }
+}
+
+/// A `sockaddr_in` as the referral carries it: family, port and address in network order.
+fn sockaddr_in(addr: SocketAddr) -> crate::optional::SockAddrIn {
+    let mut bytes = [0u8; 16];
+    bytes[..2].copy_from_slice(&2u16.to_le_bytes());
+    bytes[2..4].copy_from_slice(&addr.port().to_be_bytes());
+    if let SocketAddr::V4(v4) = addr {
+        bytes[4..8].copy_from_slice(&v4.ip().octets());
+    }
+    crate::optional::SockAddrIn(bytes)
 }
 
 /// `TimeStampUtils::OverflowCompare`.

@@ -148,6 +148,9 @@ pub enum SessionEvent {
     WorldName(StringInfo),
     /// `GlobalEventHandler::RecvEvt_AccountBooted`: the reason.
     AccountBooted(StringInfo),
+    /// The server gave a reason for closing the connection (`Net_WorldConnectionError`); the
+    /// [`SessionEvent::Disconnected`] follows once the disconnect handshake ran.
+    ConnectionError(String),
     /// The session ended.
     Disconnected(String),
 }
@@ -345,6 +348,9 @@ impl OnlineSession {
         match event {
             NetEvent::Connected { .. } => out.push(SessionEvent::Connected),
             NetEvent::LoggedOn | NetEvent::TimeSync(_) | NetEvent::ServerSwitch { .. } => {}
+            NetEvent::ConnectionError { error, .. } => {
+                out.push(SessionEvent::ConnectionError(error.to_string()))
+            }
             NetEvent::Disconnected(error) => {
                 self.closed = true;
                 out.push(SessionEvent::Disconnected(error.to_string()));

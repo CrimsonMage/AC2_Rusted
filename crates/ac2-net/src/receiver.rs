@@ -262,6 +262,27 @@ mod tests {
     }
 
     #[test]
+    fn sequences_wrap_past_zero_which_is_never_naked() {
+        let mut expected = Isaac::new(0x1111);
+        let keys: Vec<u32> = (0..3).map(|_| expected.next_key()).collect();
+        let mut r = receiver();
+        r.highest_received = 0xFFFF_FFFE;
+        // 2 arrives: 0xFFFFFFFF then 1 take keys in sequence order; 0 is skipped.
+        assert_eq!(r.process_sequence(&sequenced(2, true)), Some(Some(keys[2])));
+        assert_eq!(r.naked.get(&0xFFFF_FFFF), Some(&keys[0]));
+        assert_eq!(r.naked.get(&1), Some(&keys[1]));
+        // `GetNaks` walks the AVL tree in key order.
+        assert_eq!(r.naks(), [1, 0xFFFF_FFFF]);
+        assert_eq!(
+            r.process_sequence(&sequenced(0xFFFF_FFFF, true)),
+            Some(Some(keys[0]))
+        );
+        assert_eq!(r.process_sequence(&sequenced(1, true)), Some(Some(keys[1])));
+        assert!(r.naked.is_empty());
+        assert_eq!(r.highest_received, 2);
+    }
+
+    #[test]
     fn far_future_sequences_fail_the_sanity_check() {
         let mut r = receiver();
         assert_eq!(r.process_sequence(&sequenced(1 + 0x8000, true)), None);

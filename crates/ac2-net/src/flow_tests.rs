@@ -2,7 +2,7 @@ use super::{standalone, Destination, FlowQueue, FlushContext, PROTO_UI_PRIORITY}
 use crate::checksum::checksum32;
 use crate::header::{flags, PacketHeader};
 use crate::isaac::Isaac;
-use crate::optional::OptionalHeader;
+use crate::optional::{NetErrorId, OptionalHeader};
 use crate::packet::split_packet;
 
 fn context(outgoing: &mut Isaac, local_time: f64) -> FlushContext<'_> {
@@ -13,6 +13,7 @@ fn context(outgoing: &mut Isaac, local_time: f64) -> FlushContext<'_> {
         iteration: 1,
         outgoing,
         disconnect_received: None,
+        disconnect_sent: false,
     }
 }
 
@@ -171,5 +172,61 @@ fn the_cicmd_header_goes_to_the_second_port_every_220_intervals() {
             header.iteration
         ),
         (0, flags::CICMD, 0, 0)
+    );
+}
+
+#[test]
+fn reliable_sequences_wrap_past_zero_and_acks_retire_across_the_wrap() {
+    let mut keys = Isaac::new(7);
+    let mut flow = FlowQueue::new(9, 0.0);
+    flow.set_highest_sent(0xFFFF_FFFE);
+    // Three whole-fragment blobs: one packet each.
+    for _ in 0..3 {
+        flow.enqueue_blob(0x0300_0001_0000_0000, 4, vec![1; 0x1C0], PROTO_UI_PRIORITY);
+    }
+    let sent = flow.empty(&mut context(&mut keys, 0.0));
+    let sequences: Vec<u32> = sent
+        .iter()
+        .map(|(_, b)| PacketHeader::decode(b).unwrap().sequence)
+        .collect();
+    // `TransmitNewPackets`: 0 is never a sequence.
+    assert_eq!(sequences, [0xFFFF_FFFF, 1, 2]);
+    // An ACK of 2 retires everything older across the wrap.
+    flow.flush_sent(2, false);
+    assert_eq!(flow.stored(), 1);
+    // A NAK of the pre-wrap sequence finds nothing left: empty-acked.
+    flow.enqueue_acks(&[0xFFFF_FFFF]);
+    let resent = flow.empty(&mut context(&mut keys, 0.1));
+    let header = PacketHeader::decode(&resent[0].1).unwrap();
+    assert_eq!((header.flags, header.sequence), (flags::EMPTY_ACK, 2));
+}
+
+#[test]
+fn a_received_disconnect_is_answered_once_the_queue_drains_and_marks_it_sent() {
+    let mut keys = Isaac::new(7);
+    let mut flow = FlowQueue::new(9, 0.0);
+    flow.enqueue_blob(0x0300_0001_0000_0000, 4, vec![1; 0x1C0], PROTO_UI_PRIORITY);
+    flow.enqueue_blob(0x0300_0001_0000_0001, 4, vec![2; 0x1C0], PROTO_UI_PRIORITY);
+    let mut ctx = context(&mut keys, 0.0);
+    ctx.disconnect_received = Some(0.0);
+    // Both blobs went out, so nothing waits: the reply is queued (after `TransmitNewPackets`).
+    assert_eq!(flow.empty(&mut ctx).len(), 2);
+    assert!(!ctx.disconnect_sent);
+    let mut ctx = context(&mut keys, 0.1);
+    ctx.disconnect_received = Some(0.1);
+    let sent = flow.empty(&mut ctx);
+    assert!(ctx.disconnect_sent);
+    let header = PacketHeader::decode(&sent[0].1).unwrap();
+    // `NetErrorDisconnect` is reliable (`m_Flags` 2): the next sequence and key.
+    assert_eq!(
+        (header.sequence, header.flags),
+        (4, flags::NET_ERROR_DISCONNECT | flags::ENCRYPTED_CHECKSUM)
+    );
+    let mut expected = Isaac::new(7);
+    let key = (0..3).map(|_| expected.next_key()).last().unwrap();
+    let parsed = split_packet(&sent[0].1, body_sum(&sent[0].1, Some(key)), true).unwrap();
+    assert_eq!(
+        parsed.optional,
+        vec![OptionalHeader::NetErrorDisconnect(NetErrorId::NONE)]
     );
 }

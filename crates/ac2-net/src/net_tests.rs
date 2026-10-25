@@ -521,3 +521,12 @@ fn duplicates_are_dropped_and_a_server_nak_resends_the_stored_packet() {
     );
     assert_eq!(out[0].1, expected);
 }
+
+/// The client's sends take keys from the connect's incoming seed, from sequence 2.
+fn client_key(sequence: u32) -> u32 {
+    let mut keys = Isaac::new(IN_SEED);
+    (1..sequence).map(|_| keys.next_key()).last().unwrap()
+}
+
+#[path = "net_disconnect_tests.rs"]
+mod disconnect;

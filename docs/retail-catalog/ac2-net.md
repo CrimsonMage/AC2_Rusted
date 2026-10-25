@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 204 done, 11 partial, 341 to do, 0 skipped.
+556 retail functions: 204 done, 12 partial, 340 to do, 0 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -391,7 +391,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CQuickTimer::Expired` · 004c52b0 · legions 004b9670
 
 ### SharedNet
-- [~] `SharedNet::UseTime` · 004c52d0 · legions 004b9690 — frame order kept; perf counters and the UseTime time limit not kept
+- [~] `SharedNet::UseTime` · 004c52d0 · legions 004b9690 — frame order and lastDidUseTime_ kept; perf counters and the UseTime time limit not kept
 - [x] `SharedNet::ReadAndProcessPackets` · 004c5360 · legions 004b9720
 - [x] `SharedNet::ProcessNewestSeqNum` · 004c53e0 · legions 004b97a0
 - [x] `SharedNet::ChecksumHeader` · 004c5440 · legions 004b9800
@@ -460,7 +460,7 @@ Legend and workflow: [README](README.md).
 - [~] `ClientNet::EndState` · 004c6900 · legions 004bad40 — logon outcome as an event; no async state machine
 - [x] `ClientNet::InitCrypto` · 004c6980 · legions 004badc0 — SessionKey::generate + ServerPublicKey: Base-provider 40-bit RC4 with 11-byte zero salt; key-container fallback (InitCliCrypto) not needed
 - [x] `ClientNet::VerifyHeader` · 004c6bd0 · legions 004bb010
-- [ ] `ClientNet::NotifyPluginsOfStatusChange` · 004c6d80 · legions 004bb1c0
+- [~] `ClientNet::NotifyPluginsOfStatusChange` · 004c6d80 · legions 004bb1c0 — Net_LoginConnectionError / Net_WorldConnectionError surface as NetEvent::ConnectionError; no plugin list
 - [ ] `ClientNet::NotifyPluginsOfHeartbeat` · 004c6dd0 · legions 004bb210
 
 ### COnePrimHeader<134217728,16,CFlowStruct>
@@ -516,7 +516,7 @@ Legend and workflow: [README](README.md).
 - [x] `ClientNet::RemoveConnection` · 004c8240 · legions 004bc700
 - [x] `ClientNet::SendLoginRequest` · 004c82c0 · legions 004bc780
 - [x] `ClientNet::ProcessConnections` · 004c8420 · legions 004bc8e0
-- [~] `ClientNet::ProcessConnection` · 004c8430 · legions 004bc8f0 — heartbeat link-status snapshots not kept; 140 s silence reports a timeout instead of re-referring
+- [~] `ClientNet::ProcessConnection` · 004c8430 · legions 004bc8f0 — heartbeat link-status snapshots not kept
 - [ ] `ClientNet::~ClientNet` · 004c8950 · legions 004bcea0
 - [x] `ClientNet::LogonUseTime` · 004c8a50 · legions 004bcfa0
 - [ ] `ClientNet::InitAddresses` · 004c8b40 · legions 004bd090

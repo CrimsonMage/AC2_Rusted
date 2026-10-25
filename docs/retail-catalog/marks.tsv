@@ -264,7 +264,7 @@ key	status	note
 004c4ff0	x	
 004c5170	x	
 004c5200	x	
-004c52d0	~	frame order kept; perf counters and the UseTime time limit not kept
+004c52d0	~	frame order and lastDidUseTime_ kept; perf counters and the UseTime time limit not kept
 004c5360	x	
 004c53e0	x	
 004c5440	x	
@@ -294,6 +294,7 @@ key	status	note
 004c6900	~	logon outcome as an event; no async state machine
 004c6980	x	SessionKey::generate + ServerPublicKey: Base-provider 40-bit RC4 with 11-byte zero salt; key-container fallback (InitCliCrypto) not needed
 004c6bd0	x	
+004c6d80	~	Net_LoginConnectionError / Net_WorldConnectionError surface as NetEvent::ConnectionError; no plugin list
 004c6e10	x	
 004c6e60	x	
 004c6ee0	x	
@@ -317,7 +318,7 @@ key	status	note
 004c8240	x	
 004c82c0	x	
 004c8420	x	
-004c8430	~	heartbeat link-status snapshots not kept; 140 s silence reports a timeout instead of re-referring
+004c8430	~	heartbeat link-status snapshots not kept
 004c8a50	x	
 004c9050	~	connection sequence from real time and SIMPLEBLOB session-key export; no address/interface parsing
 004c9200	x	

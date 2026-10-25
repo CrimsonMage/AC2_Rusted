@@ -5,11 +5,15 @@
 //! is the 7160 path's test peer.
 
 mod appearance;
+mod channel;
+mod reliable;
 
 pub use appearance::{
     contain_bytes, create_object_with_visual, part_group_bytes, quality_bytes,
     update_visual_desc_bytes, visual_desc_bytes,
 };
+pub use channel::{Channel, ChannelStats, Conditions, Direction, InFlight, SplitMix};
+pub use reliable::{newer, ClientTracker, SentStore, Stored, Verdict, MAX_IDS};
 
 use std::cell::RefCell;
 use std::net::SocketAddr;
@@ -226,6 +230,19 @@ fn player_description() -> Vec<u8> {
     b
 }
 
+/// A client packet the double accepted (checksum verified, not a duplicate).
+#[derive(Debug, Clone)]
+pub struct Accepted {
+    pub time: f64,
+    pub to: SocketAddr,
+    pub header: PacketHeader,
+    pub optional: Vec<OptionalHeader>,
+    pub fragments: Vec<ac2_net::Fragment>,
+    pub bytes: Vec<u8>,
+    /// The ISAAC key its checksum was encrypted under (reliable packets).
+    pub key: Option<u32>,
+}
+
 /// The server's view of the session: what it received and what it will send.
 #[derive(Default)]
 pub struct State {
@@ -238,7 +255,32 @@ pub struct State {
     /// Client blobs in arrival order: queue and bytes.
     pub blobs: Vec<(u64, u16, Vec<u8>)>,
     server_keys: Option<Isaac>,
-    client_keys: Option<Isaac>,
+    /// The client's sequences and keys (`ReceiverData`), from the connect.
+    pub tracker: Option<ClientTracker>,
+    /// The double's reliable packets, for resends.
+    pub store: SentStore,
+    /// When each entry of `sent` left the client (the double's clock).
+    pub sent_at: Vec<f64>,
+    /// Every client packet the double accepted, in acceptance order.
+    pub accepted: Vec<Accepted>,
+    /// Every datagram the double sent (before the channel), with its time.
+    pub server_sent: Vec<(f64, Vec<u8>)>,
+    /// The lossy network, when a test installs one.
+    pub channel: Option<Channel>,
+    /// Sequences the double resent, in order.
+    pub resent: Vec<u32>,
+    /// `NetErrorDisconnect` headers the client sent.
+    pub disconnects_received: u32,
+    /// Stop answering the client entirely (a dead server).
+    pub silent: bool,
+    /// Double sequences whose first transmission is lost, whatever the channel says.
+    pub drop_server_once: std::collections::BTreeSet<u32>,
+    /// Client sequences whose first arrival is lost.
+    pub drop_client_once: std::collections::BTreeSet<u32>,
+    /// The connect answer, sent again when the logon repeats (its answer was lost).
+    connect: Option<Vec<u8>>,
+    /// The ordering stamp of the last ordered event.
+    ordered_stamp: u16,
     sequence: u32,
     connected: bool,
     character_set_sent: bool,
@@ -276,24 +318,158 @@ impl State {
         self.reliable_blob(id, 1, data);
     }
 
+    /// Queues a player-ordered queue-1 event blob (`CEventQueue::ProcessOrderedNetBlob`): the
+    /// ordering stamps run 1, 2, 3...
+    pub fn send_ordered(&mut self, data: &[u8]) {
+        self.next_object_blob += 1;
+        self.ordered_stamp = self.ordered_stamp.wrapping_add(1);
+        let high = u64::from(ac2_net::ORDERING_ORDERED | u32::from(self.ordered_stamp));
+        let id = high << 32 | u64::from(self.next_object_blob) << 8;
+        self.reliable_blob(id, 1, data);
+    }
+
+    /// A reliable packet carrying one optional header (`TimeSync`, `NetErrorDisconnect`):
+    /// sequenced, its checksum encrypted, stored for resending.
+    pub fn reliable_header(&mut self, optional: OptionalHeader) {
+        let mask = optional.mask();
+        self.reliable(vec![optional.encode()], mask);
+    }
+
     fn interval(&self) -> u16 {
         1 + (self.elapsed / 0.5) as u16
     }
 
+    /// A datagram to the client, through the channel when one is installed.
+    fn emit(&mut self, packet: Vec<u8>) {
+        if self.silent {
+            return;
+        }
+        self.server_sent.push((self.elapsed, packet.clone()));
+        let now = self.elapsed;
+        match &mut self.channel {
+            Some(channel) => {
+                for flight in channel.send(now, Direction::ToClient, addr(SERVER), packet) {
+                    self.inbox.push((flight.addr, flight.bytes));
+                }
+            }
+            None => self.inbox.push((addr(SERVER), packet)),
+        }
+    }
+
     fn reliable_blob(&mut self, id: u64, queue: u16, data: &[u8]) {
+        let fragment = fragment_header(id, data.len() as u16 + 16, queue);
+        self.reliable(vec![fragment, data.to_vec()], flags::BLOB_FRAGMENTS);
+    }
+
+    /// The next reliable packet: sequence, key, stored for resends, then sent (or lost when a
+    /// test asked for its sequence to be).
+    fn reliable(&mut self, segments: Vec<Vec<u8>>, bits: u32) {
         self.sequence += 1;
         let header = PacketHeader {
             sequence: self.sequence,
-            flags: flags::BLOB_FRAGMENTS | flags::ENCRYPTED_CHECKSUM,
+            flags: bits | flags::ENCRYPTED_CHECKSUM,
             recipient: SLOT,
             interval: self.interval(),
             iteration: 1,
             ..Default::default()
         };
-        let fragment = fragment_header(id, data.len() as u16 + 16, queue);
         let key = self.server_keys.as_mut().unwrap().next_key();
-        let packet = datagram(header, &[&fragment, data], Some(key));
-        self.inbox.push((addr(SERVER), packet));
+        let parts: Vec<&[u8]> = segments.iter().map(Vec::as_slice).collect();
+        let packet = datagram(header, &parts, Some(key));
+        self.store.packets.insert(
+            self.sequence,
+            Stored {
+                key,
+                segments,
+                flags: bits,
+            },
+        );
+        if self.drop_server_once.remove(&self.sequence) {
+            self.server_sent.push((self.elapsed, packet));
+            return;
+        }
+        self.emit(packet);
+    }
+
+    /// `FlowQueue::TransmitAcks` on the double's side: a NAKed packet goes again under its
+    /// original sequence and key with `RETRANSMISSION`; one no longer stored is empty-acked.
+    fn resend(&mut self, ids: &[u32]) {
+        let mut empty = Vec::new();
+        for &seq in ids {
+            let Some(stored) = self.store.packets.get(&seq).cloned() else {
+                empty.push(seq);
+                continue;
+            };
+            let header = PacketHeader {
+                sequence: seq,
+                flags: flags::RETRANSMISSION | flags::ENCRYPTED_CHECKSUM | stored.flags,
+                recipient: SLOT,
+                interval: self.interval(),
+                iteration: 1,
+                ..Default::default()
+            };
+            self.resent.push(seq);
+            let segments: Vec<&[u8]> = stored.segments.iter().map(Vec::as_slice).collect();
+            let packet = datagram(header, &segments, Some(stored.key));
+            self.emit(packet);
+        }
+        if !empty.is_empty() {
+            self.control(OptionalHeader::EmptyAck(empty));
+        }
+    }
+
+    /// An unreliable control packet (ACK, NAK, empty ack, disconnect): the header alone under the
+    /// double's highest reliable sequence.
+    pub fn control(&mut self, optional: OptionalHeader) {
+        let header = PacketHeader {
+            sequence: self.sequence,
+            flags: optional.mask(),
+            recipient: SLOT,
+            interval: self.interval(),
+            iteration: 1,
+            ..Default::default()
+        };
+        let packet = datagram(header, &[&optional.encode()], None);
+        self.emit(packet);
+    }
+
+    /// Each frame: release the channel's held datagrams, then the double's ACK/NAK if due.
+    fn pump(&mut self) {
+        let now = self.elapsed;
+        let due = self
+            .channel
+            .as_mut()
+            .map(|c| c.release(now))
+            .unwrap_or_default();
+        for flight in due {
+            match flight.direction {
+                Direction::ToClient => self.inbox.push((flight.addr, flight.bytes)),
+                Direction::ToServer => self.answer(flight.addr, &flight.bytes),
+            }
+        }
+        if self.silent || !self.connected {
+            return;
+        }
+        if let Some(header) = self.tracker.as_mut().and_then(|t| t.due(now)) {
+            self.control(header);
+        }
+    }
+
+    /// The client sent a datagram: through the channel to [`State::answer`].
+    fn arrive(&mut self, to: SocketAddr, bytes: &[u8]) {
+        let now = self.elapsed;
+        let arrived = match &mut self.channel {
+            Some(channel) => channel.send(now, Direction::ToServer, to, bytes.to_vec()),
+            None => vec![InFlight {
+                release: now,
+                direction: Direction::ToServer,
+                addr: to,
+                bytes: bytes.to_vec(),
+            }],
+        };
+        for flight in arrived {
+            self.answer(flight.addr, &flight.bytes);
+        }
     }
 
     /// How a 7160 server answers each client datagram.
@@ -322,22 +498,73 @@ impl State {
                 iteration: 1,
                 ..Default::default()
             };
-            self.inbox
-                .push((addr(SERVER), datagram(header, &[&connect], None)));
+            if self.connected {
+                // A repeated logon (its answer was lost): the session stands; answer again.
+                if let Some(packet) = self.connect.clone() {
+                    self.emit(packet);
+                }
+                return;
+            }
+            let packet = datagram(header, &[&connect], None);
+            self.connect = Some(packet.clone());
+            self.emit(packet);
             self.server_keys = Some(Isaac::new(SERVER_SEED));
             // Reliable sequences start at 2, as `TransmitNewPackets` numbers them.
             self.sequence = 1;
-            self.client_keys = Some(Isaac::new(CLIENT_SEED));
+            self.tracker = Some(ClientTracker::new(CLIENT_SEED, self.elapsed));
             self.connected = true;
             return;
         }
-        if header.flags & flags::ENCRYPTED_CHECKSUM != 0 {
-            sum ^= self.client_keys.as_mut().expect("connected").next_key();
+        if self.silent {
+            return;
+        }
+        if header.flags & flags::RETRANSMISSION == 0
+            && header.sequence != 0
+            && header.flags & flags::ENCRYPTED_CHECKSUM != 0
+            && self.drop_client_once.remove(&header.sequence)
+        {
+            return;
+        }
+        let mut key = None;
+        if header.sequence != 0 {
+            let Some(tracker) = self.tracker.as_mut() else {
+                return;
+            };
+            match tracker.process(&header) {
+                Verdict::Drop => return,
+                Verdict::Accept(Some(k)) => {
+                    sum ^= k;
+                    key = Some(k);
+                }
+                Verdict::Accept(None) => {}
+            }
         }
         let packet = split_packet(bytes, sum, self.connected).expect("a valid client packet");
+        self.accepted.push(Accepted {
+            time: self.elapsed,
+            to,
+            header: packet.header,
+            optional: packet.optional.clone(),
+            fragments: packet.fragments.clone(),
+            bytes: bytes.to_vec(),
+            key,
+        });
+        for optional in &packet.optional {
+            match optional {
+                OptionalHeader::Nak(ids) => self.resend(ids),
+                OptionalHeader::Ack(highest) => self.store.retire(*highest),
+                OptionalHeader::EmptyAck(ids) => {
+                    if let Some(tracker) = self.tracker.as_mut() {
+                        tracker.forget(ids);
+                    }
+                }
+                OptionalHeader::NetErrorDisconnect(_) => self.disconnects_received += 1,
+                _ => {}
+            }
+        }
         if header.flags & flags::CONNECT_ACK != 0 {
             assert_eq!(to, addr(ACK_PORT));
-            if !self.character_set_sent {
+            if !self.character_set_sent && self.connected {
                 self.character_set_sent = true;
                 self.reliable_blob(0x2300_0001_0000_0000, 1, &char_gen_verification());
                 self.reliable_blob(0x2300_0002_0000_0001, 1, &character_set());
@@ -385,13 +612,17 @@ pub fn double(spawn: Spawn) -> (Double, Rc<RefCell<State>>) {
 
 impl Transport for Double {
     fn receive(&mut self) -> Result<Vec<(SocketAddr, Vec<u8>)>, NetError> {
-        Ok(std::mem::take(&mut self.0.borrow_mut().inbox))
+        let mut state = self.0.borrow_mut();
+        state.pump();
+        Ok(std::mem::take(&mut state.inbox))
     }
 
     fn send(&mut self, to: SocketAddr, datagram: &[u8]) -> Result<(), NetError> {
         let mut state = self.0.borrow_mut();
         state.sent.push((to, datagram.to_vec()));
-        state.answer(to, datagram);
+        let now = state.elapsed;
+        state.sent_at.push(now);
+        state.arrive(to, datagram);
         Ok(())
     }
 
