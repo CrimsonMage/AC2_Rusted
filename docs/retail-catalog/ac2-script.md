@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1313 done, 80 partial, 995 to do, 80 skipped.
+2468 retail functions: 1314 done, 80 partial, 994 to do, 80 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -3126,10 +3126,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gTimer::CallEFun_get_real_time` · 00554050
 - [ ] `gTimer::CallEFun_get_time` · 00554080
 
-## `portal/shared/src/interp/glue/gtokenize.cpp.c` (0/1)
+## `portal/shared/src/interp/glue/gtokenize.cpp.c` (1/1)
 
 ### gTokenize
-- [ ] `gTokenize::CallEFun_Tokenize` · 00537e90
+- [x] `gTokenize::CallEFun_Tokenize` · 00537e90 — ac2-script: gTokenize (Tokenize(wchar_t*))
 
 ## `portal/shared/src/interp/glue/gtypeinfo.cpp.c` (0/3)
 

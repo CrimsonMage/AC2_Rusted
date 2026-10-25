@@ -104,6 +104,21 @@ fn wpstring_keeps_the_retail_quirks() {
 }
 
 #[test]
+fn tokenize_hashes_the_wide_string_below_its_argument() {
+    let mut vm = vm();
+    // `Tokenize` of ASCII names gives the layouts' token values.
+    let name = vm.new_wstring(w("reference"));
+    let (status, rets) = call(&mut vm, 0x006D_0001, 1, &[name], u32::MAX);
+    assert_eq!(status, InterpStatus::Success);
+    assert_eq!(rets[0], (0xBCE0_5594, INT_RESULT));
+    let empty = vm.new_wstring(Vec::new());
+    let (_, rets) = call(&mut vm, 0x006D_0001, 1, &[empty], u32::MAX);
+    assert_eq!(rets[0].0, 0);
+    // Only a wide character's low seven bits survive `(ushort)c << 25`.
+    assert_eq!(wpstring::tokenize_wide(&[0x0141]), 0x0141 << 25);
+}
+
+#[test]
 fn string_info_glue_builds_the_native() {
     let mut vm = vm();
     let info = vm.refs.create_native(

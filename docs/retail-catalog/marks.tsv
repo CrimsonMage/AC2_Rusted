@@ -1945,6 +1945,7 @@ key	status	note
 00537c40	x	ac2-script glue::math / glue::missile
 00537cd0	x	ac2-script glue::math / glue::missile
 00537db0	x	ac2-script glue::math / glue::missile
+00537e90	x	ac2-script: gTokenize (Tokenize(wchar_t*))
 00538010	x	ac2-script glue::string_info (lookups via ScriptData)
 00538080	x	ac2-script glue::string_info (lookups via ScriptData)
 005380f0	x	ac2-script glue::string_info (lookups via ScriptData)
