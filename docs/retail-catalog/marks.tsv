@@ -4,24 +4,28 @@ key	status	note
 00401b80	x	
 00401e30	~	no TurbineGun (GUN) step
 00401e70	x	
-00401f90	x	
-00401fc0	x	
+00401f90	x	ac2-script pstring::unmunge
+00401fc0	x	ac2-script pstring::unmunge
 00403030	x	
 00403d30	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
 004042f0	x	
 00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 00406410	~	ac2-client Notice::ConnectionLost (ID_NetErr_ConnectionLost, 0x41000018); no UI modes in the headless client
-00406cb0	x	
+00406c60	~	ac2-script: unpack direction only
+00406cb0	x	ac2-script unpack::Reader::pstring/wpstring
+00406f50	x	ac2-script reference/native unpack
+00407050	x	ac2-script reference/native unpack
+00407770	~	ac2-script: unpack direction only
 004079b0	x	OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
 004080c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 00408e90	~	LogOffCharacter only; no UI or game-option upload
 00409270	~	asks for the next-frame-drawn notice (SetWantNoticeOnNextFrameDrawn); no portal scenes
 00409960	x	
 00409990	x	
-00409a80	x	
-00409ab0	x	
-00409be0	x	
+00409a80	x	ac2-script pstring::unmunge
+00409ab0	x	ac2-script pstring::unmunge
+00409be0	x	ac2-script unpack::Reader::pstring/wpstring
 00409e00	x	
 00422f80	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 004232f0	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
@@ -39,6 +43,11 @@ key	status	note
 00431e20	x	
 00431e90	x	
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+004567b0	x	ac2-script reference/native unpack
+00457120	~	ac2-script PackedReference::unpack: decode only, no reference table insert yet
+00457330	~	ac2-script PackedReference::unpack: decode only, no reference table insert yet
+00467160	~	ac2-script native::unpack: the native types Legions WStates hold
+00474780	~	ac2-script native: unpack direction only
 00479030	x	ac2-ui interpreter.rs
 00479110	x	ac2-ui interpreter.rs
 004791b0	x	ac2-ui interpreter.rs
@@ -302,8 +311,12 @@ key	status	note
 0049f980	x	ac2-physics bsp: placement insert (Legions identical)
 0049fa10	x	ac2-physics los (Terrain::los_check)
 004a6220	x	ac2-physics los (Terrain::los_check)
+004a9640	~	ac2-script native: unpack direction only
+004a9760	~	ac2-script native: unpack direction only
 004a9b90	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 004a9c30	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+004b1da0	x	ac2-script reference/native unpack
+004b4720	~	ac2-script native::unpack: the native types Legions WStates hold
 004bfb90	x	
 004bfeb0	~	ac2-weenie dat_iterations + session answer; internal.dat (slot 4) not opened; language id is configuration (EnumMapper 0x4000002A lookup not ported)
 004c4ed0	x	
@@ -1165,6 +1178,8 @@ key	status	note
 005fe0b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005fe170	x	ac2-ui hud.rs
 005fe420	x	
+006000b0	~	ac2-script: Legions unpack layout (v6 table); version upgrades and UISaveLocations not ported
+006015b0	~	ac2-script native: unpack direction only
 00601c80	x	
 00601cd0	x	
 00601d00	x	
@@ -1178,6 +1193,11 @@ key	status	note
 00603090	x	
 00603470	x	
 006037c0	x	
+006079d0	~	ac2-script native: unpack direction only
+00608150	~	ac2-script native: unpack direction only
+00609660	~	ac2-script native: unpack direction only
+00609a80	~	ac2-script native: unpack direction only
+0060aa40	~	ac2-script native: unpack direction only
 0060d2d0	x	ac2_core::Random
 0060d3b0	x	ac2_core::Random
 0060d3f0	x	ac2_core::Random
@@ -1368,7 +1388,7 @@ key	status	note
 0064e640	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 0064e660	x	ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 00651b20	x	
-00652db0	x	
+00652db0	x	ac2-script reference/native unpack
 0065a4a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 0065a510	_	
 0065a580	_	
@@ -1387,7 +1407,7 @@ key	status	note
 006606a0	x	
 006606e0	x	
 00662120	_	
-00679220	x	
+00679220	x	ac2-anim; ac2-script native::BehaviorParams also unpacks it
 0067a480	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0067a490	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0067a4a0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
@@ -1526,6 +1546,7 @@ key	status	note
 006a9f80	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006aa5d0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006aaa90	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+006ab140	~	ac2-script native: unpack direction only
 006abe20	x	ac2-physics moveto (slice 3)
 006abe50	x	ac2-physics moveto (slice 3)
 006abf00	x	ac2-physics moveto (slice 3)
@@ -1557,6 +1578,9 @@ key	status	note
 006b5160	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 006b54c0	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 006b5950	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+006b78f0	x	ac2-script WLib/WState/ByteStream decode
+006b79f0	~	ac2-script wstate DID formulas / ByteStream::package_id
+006b7aa0	x	ac2-script WLib/WState/ByteStream decode
 006baa40	_	
 006bc900	x	
 006bc940	x	
@@ -1616,6 +1640,30 @@ key	status	note
 006db0f0	x	
 006db450	x	
 006db7f0	x	
+006dbbd0	x	ac2-script reference/native unpack
+006dcce0	~	ac2-script wstate DID formulas / ByteStream::package_id
+006dcf50	~	ac2-script wstate DID formulas / ByteStream::package_id
+006e0c20	x	ac2-script reference/native unpack
+006e1700	x	ac2-script WLib/WState/ByteStream decode
+006e4dc0	x	ac2-script WLib/WState/ByteStream decode
+006e4e50	x	ac2-script WLib/WState/ByteStream decode
+006e4ee0	x	ac2-script WLib/WState/ByteStream decode
+006e4f70	x	ac2-script WLib/WState/ByteStream decode
+006e5000	x	ac2-script WLib/WState/ByteStream decode
+006e5090	x	ac2-script WLib/WState/ByteStream decode
+006e5140	~	ac2-script: unpack direction only
+006e58e0	~	ac2-script: unpack direction only
+006e5aa0	x	ac2-script WLib/WState/ByteStream decode
+006e5ec0	~	ac2-script: unpack direction only
+006e6c60	x	ac2-script WLib/WState/ByteStream decode
+006e6f40	x	ac2-script WLib/WState/ByteStream decode
+006e74f0	x	ac2-script WLib/WState/ByteStream decode
+006e7ad0	~	ac2-script: unpack direction only
+006e81f0	~	ac2-script: unpack direction only
+006e89d0	~	ac2-script: unpack direction only
+006e92a0	~	ac2-script: unpack direction only
+006e9440	~	ac2-script: unpack direction only
+006ecb60	~	ac2-script ByteStream::validate_versions: wcc check; InterpVersionCheck env path not ported
 006ed9c0	x	
 006eda20	x	
 006ff763	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)

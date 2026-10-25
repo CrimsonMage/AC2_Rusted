@@ -1014,7 +1014,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StringInfo::AddVariable_StringInfo` · 00652bf0 · legions 00601cc0
 - [ ] `StringInfo::AddVariable_String` · 00652c70 · legions 00601d40
 - [ ] `StringInfo::AsyncGetString` · 00652d10 · legions 00601de0
-- [x] `StringInfo::UnPack` · 00652db0 · legions 00601e80
+- [x] `StringInfo::UnPack` · 00652db0 · legions 00601e80 — ac2-script reference/native unpack
 - [ ] `StringInfo::AddVariable_String` · 00653190 · legions 00602260
 
 ## `portal/shared/src/stringtable/stringinfodata.cpp.c` (0/18)

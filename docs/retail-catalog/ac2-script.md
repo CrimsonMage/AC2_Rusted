@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 4 done, 0 partial, 2380 to do, 84 skipped.
+2468 retail functions: 17 done, 12 partial, 2362 to do, 77 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -145,7 +145,7 @@ Legend and workflow: [README](README.md).
 - [ ] `GameplayOptionsProfile::SetShowDamageTextOther` · 00474770 · legions 00471870
 
 ### ReferenceIDWrapper
-- [ ] `ReferenceIDWrapper::StreamPack` · 00474780 · legions 00471880
+- [~] `ReferenceIDWrapper::StreamPack` · 00474780 · legions 00471880 — ac2-script native: unpack direction only
 
 ### gGameplayOptionsProfile
 - [ ] `gGameplayOptionsProfile::CallEFun_AddRadarMask` · 004747f0
@@ -547,23 +547,23 @@ Legend and workflow: [README](README.md).
 ### InterpreterBreakpointHelper
 - [ ] `InterpreterBreakpointHelper::SetTemporaryBreakpoint` · 0073c990
 
-## `portal/shared/src/interp/bytestream.cpp.c` (0/87)
+## `portal/shared/src/interp/bytestream.cpp.c` (10/87)
 
 ### ByteStream
 - [ ] `ByteStream::Pack` · 006e4cd0 · legions 0066b440
 - [ ] `ByteStream::PackSection` · 006e4d40 · legions 0066b4b0
-- [-] `ByteStream::LoadOpcodeSection` · 006e4dc0 — text source loader, admin build only
-- [-] `ByteStream::LoadImportTableSection` · 006e4e50 — text source loader, admin build only
-- [-] `ByteStream::LoadStringLitTableSection` · 006e4ee0 — text source loader, admin build only
-- [-] `ByteStream::LoadExportTableSection` · 006e4f70 — text source loader, admin build only
-- [-] `ByteStream::LoadVTableSection` · 006e5000 — text source loader, admin build only
-- [-] `ByteStream::LoadValidEventTableSection` · 006e5090 — text source loader, admin build only
+- [x] `ByteStream::LoadOpcodeSection` · 006e4dc0 — ac2-script WLib/WState/ByteStream decode
+- [x] `ByteStream::LoadImportTableSection` · 006e4e50 — ac2-script WLib/WState/ByteStream decode
+- [x] `ByteStream::LoadStringLitTableSection` · 006e4ee0 — ac2-script WLib/WState/ByteStream decode
+- [x] `ByteStream::LoadExportTableSection` · 006e4f70 — ac2-script WLib/WState/ByteStream decode
+- [x] `ByteStream::LoadVTableSection` · 006e5000 — ac2-script WLib/WState/ByteStream decode
+- [x] `ByteStream::LoadValidEventTableSection` · 006e5090 — ac2-script WLib/WState/ByteStream decode
 
 ### CObjCell
 - [ ] `CObjCell::UpdateCellMaterial` · 006e5130 · legions 0066b600
 
 ### OpcodeStream
-- [ ] `OpcodeStream::StreamPack` · 006e5140
+- [~] `OpcodeStream::StreamPack` · 006e5140 — ac2-script: unpack direction only
 
 ### ByteStream
 - [ ] `ByteStream::DiscardAllDebuggingInformation` · 006e5220 · legions 0066b6f0
@@ -576,11 +576,11 @@ Legend and workflow: [README](README.md).
 
 ### VersionTable
 - [ ] `VersionTable::GetVersion` · 006e5820
-- [ ] `VersionTable::StreamPack` · 006e58e0
+- [~] `VersionTable::StreamPack` · 006e58e0 — ac2-script: unpack direction only
 
 ### ByteStream
 - [ ] `ByteStream::IsDerivedFrom` · 006e5960 · legions 0066bc20
-- [ ] `ByteStream::LoadVersionInfoSection` · 006e5aa0 · legions 0066bd30
+- [x] `ByteStream::LoadVersionInfoSection` · 006e5aa0 · legions 0066bd30 — ac2-script WLib/WState/ByteStream decode
 - [ ] `ByteStream::IsDerivedFrom` · 006e5c40 · legions 0066be60
 
 ### PSmartArray<PackageInfo>
@@ -593,7 +593,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AnimAssetWeightKey::StreamPack` · 006e5e80 · legions 006b22d0
 
 ### StringLitTable
-- [ ] `StringLitTable::StreamPack` · 006e5ec0 · legions 0066c040
+- [~] `StringLitTable::StreamPack` · 006e5ec0 · legions 0066c040 — ac2-script: unpack direction only
 
 ### ByteStream
 - [ ] `ByteStream::IsDerivedFrom` · 006e5f00
@@ -641,12 +641,12 @@ Legend and workflow: [README](README.md).
 - [ ] `POriginalSourceFileInfo::POriginalSourceFileInfo` · 006e6c20 · legions 0066cc10
 
 ### ByteStream
-- [ ] `ByteStream::ReadByteStream` · 006e6c60
-- [ ] `ByteStream::UnPack` · 006e6f40
+- [x] `ByteStream::ReadByteStream` · 006e6c60 — ac2-script WLib/WState/ByteStream decode
+- [x] `ByteStream::UnPack` · 006e6f40 — ac2-script WLib/WState/ByteStream decode
 - [ ] `ByteStream::IsCheckpointedMember` · 006e6fb0 · legions 0066ce00
 - [ ] `ByteStream::LoadSourceFileDebugSection` · 006e7090 · legions 0066ce80
 - [ ] `ByteStream::Open` · 006e7380
-- [-] `ByteStream::LoadSection` · 006e74f0 — text source loader, admin build only
+- [x] `ByteStream::LoadSection` · 006e74f0 — ac2-script WLib/WState/ByteStream decode
 
 ### PSmartArray<FrameDebugInfo>
 - [ ] `PSmartArray<FrameDebugInfo>::StreamPack` · 006e7750 · legions 0066d2e0
@@ -662,7 +662,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ByteStream::Clear` · 006e79d0 · legions 0066d560
 
 ### PHashTable<FunctionID,int>
-- [ ] `PHashTable<FunctionID,int>::StreamPack` · 006e7ad0
+- [~] `PHashTable<FunctionID,int>::StreamPack` · 006e7ad0 — ac2-script: unpack direction only
 
 ### PSmartArray<ImportData>
 - [ ] `PSmartArray<ImportData>::StreamPack` · 006e7cb0 · legions 0066d8c0
@@ -684,7 +684,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartArray<ImportSymbolInfo>::operator=` · 006e8140 · legions 0066dd50
 
 ### ImportSymbolInfo
-- [ ] `ImportSymbolInfo::StreamPack` · 006e81f0 · legions 0066de00
+- [~] `ImportSymbolInfo::StreamPack` · 006e81f0 · legions 0066de00 — ac2-script: unpack direction only
 
 ### PSmartArray<PLineOffsetList>
 - [ ] `PSmartArray<PLineOffsetList>::StreamPack` · 006e8240 · legions 0066de50
@@ -709,7 +709,7 @@ Legend and workflow: [README](README.md).
 
 ### VTableSection
 - [ ] `VTableSection::VTableSection` · 006e8950 · legions 0066e560
-- [ ] `VTableSection::StreamPack` · 006e89d0 · legions 0066e5e0
+- [~] `VTableSection::StreamPack` · 006e89d0 · legions 0066e5e0 — ac2-script: unpack direction only
 - [ ] `VTableSection::~VTableSection` · 006e8a30 · legions 0066e640
 
 ### ByteStream
@@ -728,7 +728,7 @@ Legend and workflow: [README](README.md).
 ### ExportFunctionData
 - [ ] `ExportFunctionData::ExportFunctionData` · 006e91c0 · legions 0066edd0
 - [ ] `ExportFunctionData::operator=` · 006e9210 · legions 0066ee20
-- [ ] `ExportFunctionData::StreamPack` · 006e92a0 · legions 0066eeb0
+- [~] `ExportFunctionData::StreamPack` · 006e92a0 · legions 0066eeb0 — ac2-script: unpack direction only
 
 ### ExportPackageArgs
 - [ ] `ExportPackageArgs::ExportPackageArgs` · 006e9310 · legions 0066ef20
@@ -737,7 +737,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DualHash<PStringBase<char>,CheckpointExportData>::init` · 006e9380 · legions 0066ef90
 
 ### ExportPackageArgs
-- [ ] `ExportPackageArgs::StreamPack` · 006e9440 · legions 0066f050
+- [~] `ExportPackageArgs::StreamPack` · 006e9440 · legions 0066f050 — ac2-script: unpack direction only
 
 ### ExportData
 - [ ] `ExportData::operator=` · 006e94f0 · legions 0066f100
@@ -3299,13 +3299,13 @@ Legend and workflow: [README](README.md).
 - [ ] `NativeFactory::NativeFactory` · 0054cbd0 · legions 0052a380
 - [ ] `NativeFactory::~NativeFactory` · 0054cbf0 · legions 0052a3a0
 
-## `portal/shared/src/interp/heapobject.cpp.c` (0/6)
+## `portal/shared/src/interp/heapobject.cpp.c` (1/6)
 
 ### HeapObject
 - [ ] `HeapObject::Clear` · 006dba60 · legions 00664f10
 - [ ] `HeapObject::GetPackSize` · 006dbab0 · legions 00664f60
 - [ ] `HeapObject::Pack` · 006dbb00 · legions 00664fb0
-- [ ] `HeapObject::UnPack` · 006dbbd0 · legions 00665080
+- [x] `HeapObject::UnPack` · 006dbbd0 · legions 00665080 — ac2-script reference/native unpack
 - [ ] `HeapObject::UpdatePackageReferences` · 006dbd50 · legions 00665200
 - [ ] `HeapObject::UpdateReferences` · 006dbdd0 · legions 00665280
 
@@ -3475,14 +3475,14 @@ Legend and workflow: [README](README.md).
 ### OpcodeStream
 - [ ] `OpcodeStream::WalkStream` · 006ec490 · legions 00671360
 
-## `portal/shared/src/interp/packagestate.cpp.c` (0/5)
+## `portal/shared/src/interp/packagestate.cpp.c` (1/5)
 
 ### PackageState
 - [ ] `PackageState::PackageState` · 006e1630 · legions 00668470
 - [ ] `PackageState::Pack` · 006e1650 · legions 00668490
 - [ ] `PackageState::Clear` · 006e16a0 · legions 006684e0
 - [ ] `PackageState::~PackageState` · 006e16d0 · legions 00668510
-- [ ] `PackageState::UnPack` · 006e1700 · legions 00668540
+- [x] `PackageState::UnPack` · 006e1700 · legions 00668540 — ac2-script WLib/WState/ByteStream decode
 
 ## `portal/shared/src/interp/packing/packbuffer.cpp.c` (2/20)
 
@@ -3584,13 +3584,13 @@ Legend and workflow: [README](README.md).
 - [ ] `ProcessTable::QueryProcessTable` · 006e1920 · legions 00668730
 - [ ] `ProcessTable::QueryProcesses` · 006e1960 · legions 00668770
 
-## `portal/shared/src/interp/referenceentry.cpp.c` (0/4)
+## `portal/shared/src/interp/referenceentry.cpp.c` (1/4)
 
 ### ReferenceEntry
 - [ ] `ReferenceEntry::GetPackSize` · 006e0ac0 · legions 00667990
 - [ ] `ReferenceEntry::GetResidentSizeEstimate` · 006e0b10
 - [ ] `ReferenceEntry::Pack` · 006e0b40 · legions 006679e0
-- [ ] `ReferenceEntry::UnPack` · 006e0c20 · legions 00667ac0
+- [x] `ReferenceEntry::UnPack` · 006e0c20 · legions 00667ac0 — ac2-script reference/native unpack
 
 ## `portal/shared/src/interp/referencetable.cpp.c` (0/3)
 
@@ -3614,7 +3614,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/runtimebytestream.cpp.c` (0/3)
 
 ### RuntimeByteStream
-- [ ] `RuntimeByteStream::ValidateVersion` · 006ecb60
+- [~] `RuntimeByteStream::ValidateVersion` · 006ecb60 — ac2-script ByteStream::validate_versions: wcc check; InterpVersionCheck env path not ported
 
 ### ReferenceTable
 - [ ] `ReferenceTable::CreateStringLiteral` · 006ecd30 · legions 00671b70
@@ -3695,11 +3695,11 @@ Legend and workflow: [README](README.md).
 - [ ] `VM::GetPackageNameByPkgIDW` · 006dcc50 · legions 00666050
 - [ ] `VM::GarbageCollect` · 006dcc70 · legions 00666070
 - [ ] `VM::~VM` · 006dcc80 · legions 00666080
-- [ ] `VM::GetPackageID` · 006dcce0 · legions 006660e0
+- [~] `VM::GetPackageID` · 006dcce0 · legions 006660e0 — ac2-script wstate DID formulas / ByteStream::package_id
 - [ ] `VM::GetPackageID` · 006dcd20 · legions 00666120
 - [ ] `VM::GetSingletonPackage` · 006dce20 · legions 00666220
 - [ ] `VM::GetSingletonPackageW` · 006dce90 · legions 00666290
-- [ ] `VM::GetSingletonPackageByID` · 006dcf50 · legions 00666350
+- [~] `VM::GetSingletonPackageByID` · 006dcf50 · legions 00666350 — ac2-script wstate DID formulas / ByteStream::package_id
 - [ ] `VM::GetWStateReference` · 006dcf90 · legions 00666390
 - [ ] `VM::GetPackageReference` · 006dcfb0 · legions 006663b0
 

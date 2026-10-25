@@ -1264,8 +1264,8 @@ Legend and workflow: [README](README.md).
 
 ### PStringBase<char>
 - [-] `PStringBase<char>::cmp` · 00401f20 · legions 00401ec0 — Rust std replaces it
-- [x] `PStringBase<char>::crypto_nibble_munge` · 00401f90 · legions 00401f30 — Rust std replaces it
-- [x] `PStringBase<char>::crypto_uint32_munge` · 00401fc0 · legions 00401f60 — Rust std replaces it
+- [x] `PStringBase<char>::crypto_nibble_munge` · 00401f90 · legions 00401f30 — ac2-script pstring::unmunge
+- [x] `PStringBase<char>::crypto_uint32_munge` · 00401fc0 · legions 00401f60 — ac2-script pstring::unmunge
 - [-] `PStringBase<char>::clear` · 00402300 · legions 004022a0 — Rust std replaces it
 - [-] `PStringBase<char>::eq` · 00402340 · legions 004022e0 — Rust std replaces it
 
@@ -1426,8 +1426,8 @@ Legend and workflow: [README](README.md).
 - [-] `HashTableData<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>::HashTableData<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>` · 00409890 · legions 004095d0 — Rust std replaces it
 
 ### PStringBase<unsigned_short>
-- [x] `PStringBase<unsigned_short>::crypto_nibble_munge` · 00409a80 · legions 004097f0 — Rust std replaces it
-- [x] `PStringBase<unsigned_short>::crypto_uint32_munge` · 00409ab0 · legions 00409820 — Rust std replaces it
+- [x] `PStringBase<unsigned_short>::crypto_nibble_munge` · 00409a80 · legions 004097f0 — ac2-script pstring::unmunge
+- [x] `PStringBase<unsigned_short>::crypto_uint32_munge` · 00409ab0 · legions 00409820 — ac2-script pstring::unmunge
 - [-] `PStringBase<unsigned_short>::break_reference` · 00409b80 · legions 004098f0 — Rust std replaces it
 - [-] `PStringBase<unsigned_short>::clear` · 00409cc0 · legions 00409a30 — Rust std replaces it
 

@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 349 done, 75 partial, 1638 to do, 62 skipped.
+2124 retail functions: 349 done, 76 partial, 1637 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -1932,7 +1932,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MissileParameters::SetDetonationProximity` · 006aae50 · legions 00643d70
 - [ ] `MissileParameters::MissileParameters` · 006aae80 · legions 00643da0
 - [ ] `MissileParameters::CopyInto` · 006aaf40 · legions 00643e60
-- [ ] `MissileParameters::StreamPack` · 006ab140 · legions 00644060
+- [~] `MissileParameters::StreamPack` · 006ab140 · legions 00644060 — ac2-script native: unpack direction only
 - [ ] `MissileParameters::SetSpeedLimits` · 006ab580 · legions 006444a0
 - [ ] `MissileParameters::SetMaxAcceleration` · 006ab5a0 · legions 006444c0
 - [ ] `MissileParameters::SetTotalFuel` · 006ab5e0 · legions 00644500

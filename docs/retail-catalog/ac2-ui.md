@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 72 done, 32 partial, 2126 to do, 17 skipped.
+2247 retail functions: 74 done, 34 partial, 2122 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -235,7 +235,7 @@ Legend and workflow: [README](README.md).
 ### PStringBase<unsigned_short>
 - [x] `PStringBase<unsigned_short>::GetPackSize` · 00409960 · legions 004096d0
 - [x] `PStringBase<unsigned_short>::Pack` · 00409990 · legions 00409700
-- [x] `PStringBase<unsigned_short>::UnPack` · 00409be0 · legions 00409950
+- [x] `PStringBase<unsigned_short>::UnPack` · 00409be0 · legions 00409950 — ac2-script unpack::Reader::pstring/wpstring
 
 ### PHashTable<unsigned_long,float>
 - [x] `PHashTable<unsigned_long,float>::StreamPack` · 00409e00
@@ -1612,7 +1612,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmSocialUI::ListenToMessage` · 00430650 · legions 00430410
 - [ ] `gmSocialUI::gmSocialUI` · 004306b0 · legions 00430470
 
-## `ac2/client/src/ui/gmuiflow.cpp.c` (1/37)
+## `ac2/client/src/ui/gmuiflow.cpp.c` (3/37)
 
 ### gmUIFlow
 - [ ] `gmUIFlow::~gmUIFlow` · 00405d80 · legions 00405a60
@@ -1645,20 +1645,20 @@ Legend and workflow: [README](README.md).
 - [ ] `gmUIFlow::gmUIFlow` · 00406b10
 
 ### ImportData
-- [ ] `ImportData::StreamPack` · 00406c60 · legions 00406970
+- [~] `ImportData::StreamPack` · 00406c60 · legions 00406970 — ac2-script: unpack direction only
 
 ### PStringBase<char>
-- [x] `PStringBase<char>::UnPack` · 00406cb0 · legions 004069c0
+- [x] `PStringBase<char>::UnPack` · 00406cb0 · legions 004069c0 — ac2-script unpack::Reader::pstring/wpstring
 
 ### DualHash<PStringBase<char>,CheckpointExportData>
 - [ ] `DualHash<PStringBase<char>,CheckpointExportData>::clear` · 00406d90 · legions 00406aa0
 - [ ] `DualHash<PStringBase<char>,CheckpointExportData>::destroy` · 00406ea0 · legions 00406bb0
 - [ ] `DualHash<PStringBase<char>,CheckpointExportData>::~DualHash<PStringBase<char>,CheckpointExportData>` · 00406ef0 · legions 00406c00
-- [ ] `DualHash<PStringBase<char>,CheckpointExportData>::UnPack` · 00406f50
+- [x] `DualHash<PStringBase<char>,CheckpointExportData>::UnPack` · 00406f50 — ac2-script reference/native unpack
 
 ### CheckpointExportData
 - [ ] `CheckpointExportData::Pack` · 00407010 · legions 00406d20
-- [ ] `CheckpointExportData::UnPack` · 00407050 · legions 00406d60
+- [x] `CheckpointExportData::UnPack` · 00407050 · legions 00406d60 — ac2-script reference/native unpack
 
 ### DualHash<PStringBase<char>,CheckpointExportData>
 - [ ] `DualHash<PStringBase<char>,CheckpointExportData>::add_internal` · 004070b0 · legions 00406dc0
@@ -1689,7 +1689,7 @@ Legend and workflow: [README](README.md).
 
 ### ExportData
 - [ ] `ExportData::~ExportData` · 00407720 · legions 00407430
-- [ ] `ExportData::StreamPack` · 00407770 · legions 00407480
+- [~] `ExportData::StreamPack` · 00407770 · legions 00407480 — ac2-script: unpack direction only
 
 ## `ac2/client/src/ui/pregame/generation/gmavatarmodificationui.cpp.c` (0/27)
 

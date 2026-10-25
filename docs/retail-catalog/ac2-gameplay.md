@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 14 done, 7 partial, 469 to do, 9 skipped.
+499 retail functions: 14 done, 14 partial, 462 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
@@ -90,7 +90,7 @@ Legend and workflow: [README](README.md).
 - [ ] `GameplayOptionsProfile::InqAliasTable` · 005ffd10 · legions 005c0b20
 - [ ] `GameplayOptionsProfile::AddFilter` · 005ffd30 · legions 005c0b40
 - [ ] `GameplayOptionsProfile::AliasesFromFileNode` · 005ffd90 · legions 005c0ba0
-- [ ] `GameplayOptionsProfile::StreamPack` · 006000b0
+- [~] `GameplayOptionsProfile::StreamPack` · 006000b0 — ac2-script: Legions unpack layout (v6 table); version upgrades and UISaveLocations not ported
 - [ ] `GameplayOptionsProfile::operator=` · 006004f0 · legions 005c1360
 - [-] `GameplayOptionsProfile::FromFileNode` · 006005c0 · legions 005c1440 — text source format (admin tools)
 - [ ] `GameplayOptionsProfile::Import` · 00600870 · legions 005c16f0
@@ -134,7 +134,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/shared/src/character/gmracesexinfo.cpp.c` (0/8)
 
 ### gmRaceSexInfo
-- [ ] `gmRaceSexInfo::StreamPack` · 006015b0 · legions 005c2490
+- [~] `gmRaceSexInfo::StreamPack` · 006015b0 · legions 005c2490 — ac2-script native: unpack direction only
 - [ ] `gmRaceSexInfo::GetSubDataIDs` · 00601610 · legions 005c24f0
 - [ ] `gmRaceSexInfo::Verify` · 006016a0 · legions 005c2580
 - [ ] `gmRaceSexInfo::PutObjInLoc` · 00601720 · legions 005c2600
@@ -265,7 +265,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ExaminationRequest::operator=` · 006095b0 · legions 005c9130
 - [ ] `ExaminationRequest::ExaminationRequest` · 006095f0 · legions 005c9180
 - [ ] `ExaminationRequest::ExaminationRequest` · 00609620 · legions 005c91c0
-- [ ] `ExaminationRequest::StreamPack` · 00609660
+- [~] `ExaminationRequest::StreamPack` · 00609660 — ac2-script native: unpack direction only
 
 ## `ac2/shared/src/examination/selectioninfo.cpp.c` (0/4)
 
@@ -337,7 +337,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmKeyframe::~gmKeyframe` · 0060a730 · legions 005cb440
 - [ ] `gmKeyframe::Dump` · 0060a7a0 · legions 005cb4b0
 - [ ] `gmKeyframe::Verify` · 0060a900 · legions 005cb610
-- [ ] `gmKeyframe::StreamPack` · 0060aa40 · legions 005cb750
+- [~] `gmKeyframe::StreamPack` · 0060aa40 · legions 005cb750 — ac2-script native: unpack direction only
 
 ## `ac2/shared/src/quest/gmquestinfo.cpp.c` (0/15)
 
@@ -386,7 +386,7 @@ Legend and workflow: [README](README.md).
 
 ### gmSceneInfo
 - [ ] `gmSceneInfo::SetIDByName` · 00609a50
-- [ ] `gmSceneInfo::StreamPack` · 00609a80 · legions 005ca790
+- [~] `gmSceneInfo::StreamPack` · 00609a80 · legions 005ca790 — ac2-script native: unpack direction only
 - [ ] `gmSceneInfo::Begin` · 00609b70 · legions 005ca880
 - [ ] `gmSceneInfo::End` · 00609b90 · legions 005ca8a0
 - [ ] `gmSceneInfo::ClearForHackers` · 00609bb0 · legions 005ca8c0
@@ -447,12 +447,12 @@ Legend and workflow: [README](README.md).
 - [ ] `ShortcutInfo::ShortcutInfo` · 006080b0 · legions 005c8f50
 - [ ] `ShortcutInfo::~ShortcutInfo` · 006080e0 · legions 005c8f80
 - [ ] `ShortcutInfo::ShortcutInfo` · 00608120 · legions 005c8fc0
-- [ ] `ShortcutInfo::StreamPack` · 00608150 · legions 005c8ff0
+- [~] `ShortcutInfo::StreamPack` · 00608150 · legions 005c8ff0 — ac2-script native: unpack direction only
 
 ## `ac2/shared/src/skilldisplay/skilluinode.cpp.c` (0/7)
 
 ### SkillUINode
-- [ ] `SkillUINode::StreamPack` · 006079d0 · legions 005c8870
+- [~] `SkillUINode::StreamPack` · 006079d0 · legions 005c8870 — ac2-script native: unpack direction only
 - [ ] `SkillUINode::Clear` · 00607a90 · legions 005c8930
 - [ ] `SkillUINode::AddParent` · 00607ae0 · legions 005c8980
 - [ ] `SkillUINode::AddDependency` · 00607b10 · legions 005c89b0

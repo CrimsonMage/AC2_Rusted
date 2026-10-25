@@ -1,0 +1,16 @@
+[package]
+name = "ac2-script"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+# The WSL interpreter: compiled script library (WLib), saved script states (WState), the VM and
+# its native glue. Plain data in, plain data out; DAT reads go through ac2-db on worker threads.
+[dependencies]
+ac2-core = { path = "../ac2-core" }
+ac2-dat = { path = "../ac2-dat" }
+ac2-db = { path = "../ac2-db" }
+
+[dev-dependencies]
+ac2-dat = { path = "../ac2-dat", features = ["test-support"] }

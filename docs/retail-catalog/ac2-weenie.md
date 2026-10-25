@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 142 done, 6 partial, 1750 to do, 6 skipped.
+1904 retail functions: 146 done, 13 partial, 1739 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (0/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (1/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -605,7 +605,7 @@ Legend and workflow: [README](README.md).
 
 ### LList
 - [ ] `LList::LList` · 00456770 · legions 00457370
-- [ ] `LList::UnPack` · 004567b0
+- [x] `LList::UnPack` · 004567b0 — ac2-script reference/native unpack
 
 ### ggmCWInterface
 - [ ] `ggmCWInterface::CraftSkillAdaptorListToRList` · 004567c0 · legions 004573c0
@@ -626,8 +626,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PHashTable<unsigned_long,unsigned___int64>::StreamPack` · 00456f30 · legions 00457a90
 
 ### ReferenceTable
-- [ ] `ReferenceTable::UnPackReferenceArray` · 00457120 · legions 00457c80
-- [ ] `ReferenceTable::UnPackReference` · 00457330 · legions 00457e90
+- [~] `ReferenceTable::UnPackReferenceArray` · 00457120 · legions 00457c80 — ac2-script PackedReference::unpack: decode only, no reference table insert yet
+- [~] `ReferenceTable::UnPackReference` · 00457330 · legions 00457e90 — ac2-script PackedReference::unpack: decode only, no reference table insert yet
 
 ### LAHash
 - [ ] `LAHash::LAHash` · 00457460 · legions 00457fc0
@@ -894,7 +894,7 @@ Legend and workflow: [README](README.md).
 - [ ] `FellowshipAdaptor::~FellowshipAdaptor` · 00467100 · legions 00467db0
 
 ### gmCNativeFactory
-- [ ] `gmCNativeFactory::UnPackNativeObject` · 00467160 · legions 00467e10
+- [~] `gmCNativeFactory::UnPackNativeObject` · 00467160 · legions 00467e10 — ac2-script native::unpack: the native types Legions WStates hold
 - [ ] `gmCNativeFactory::CopyNativeObject` · 00467370 · legions 00468020
 - [ ] `gmCNativeFactory::DeleteNativeObject` · 004677e0 · legions 00468490
 
@@ -1534,7 +1534,7 @@ Legend and workflow: [README](README.md).
 ### CEFunDispatcher
 - [ ] `CEFunDispatcher::GetEFunAddress` · 0049fec0 · legions 00496f40
 
-## `portal/client/src/weenie/interp/glue/cnativefactory.cpp.c` (1/268)
+## `portal/client/src/weenie/interp/glue/cnativefactory.cpp.c` (2/268)
 
 ### PFileParser
 - [ ] `PFileParser::PFileParser` · 004a5eb0 · legions 0049cf30
@@ -1777,10 +1777,10 @@ Legend and workflow: [README](README.md).
 - [ ] `BaseListIter<unsigned_long,11>::Pack` · 004a95f0 · legions 004a0470
 
 ### RandomSelectionTable<unsigned_long>
-- [ ] `RandomSelectionTable<unsigned_long>::StreamPack` · 004a9640 · legions 004a0640
+- [~] `RandomSelectionTable<unsigned_long>::StreamPack` · 004a9640 · legions 004a0640 — ac2-script native: unpack direction only
 
 ### RandomSelectionTable<unsigned_long>::ElementStruct
-- [ ] `RandomSelectionTable<unsigned_long>::ElementStruct::StreamPack` · 004a9760 · legions 004a0760
+- [~] `RandomSelectionTable<unsigned_long>::ElementStruct::StreamPack` · 004a9760 · legions 004a0760 — ac2-script native: unpack direction only
 
 ### BaseHashSetIter<unsigned_long,7>
 - [ ] `BaseHashSetIter<unsigned_long,7>::Sync` · 004a97c0 · legions 004a07c0
@@ -2192,7 +2192,7 @@ Legend and workflow: [README](README.md).
 - [ ] `BaseMultiHash<unsigned_long,unsigned_long,20>::Pack` · 004b1ce0 · legions 004a8460
 
 ### BaseMultiHash<unsigned_long,unsigned_long,4>
-- [ ] `BaseMultiHash<unsigned_long,unsigned_long,4>::UnPack` · 004b1da0 · legions 004a8f90
+- [x] `BaseMultiHash<unsigned_long,unsigned_long,4>::UnPack` · 004b1da0 · legions 004a8f90 — ac2-script reference/native unpack
 
 ### CNativeFactory
 - [ ] `CNativeFactory::DeleteNativeObject` · 004b1e80 · legions 004a9070
@@ -2242,7 +2242,7 @@ Legend and workflow: [README](README.md).
 ### CNativeFactory
 - [ ] `CNativeFactory::CopyNativeObject` · 004b28f0 · legions 004a9ae0
 - [ ] `CNativeFactory::NewNativeObject` · 004b3980 · legions 004aab70
-- [ ] `CNativeFactory::UnPackNativeObject` · 004b4720 · legions 004ab910
+- [~] `CNativeFactory::UnPackNativeObject` · 004b4720 · legions 004ab910 — ac2-script native::unpack: the native types Legions WStates hold
 
 ## `portal/client/src/weenie/interp/glue/gcwallocator.cpp.c` (0/1)
 
@@ -2663,7 +2663,7 @@ Legend and workflow: [README](README.md).
 ### WInterpAsserts
 - [ ] `WInterpAsserts::GetContextObject` · 006b8070
 
-## `portal/shared/src/weenie/interp/wlib.cpp.c` (0/8)
+## `portal/shared/src/weenie/interp/wlib.cpp.c` (1/8)
 
 ### WLib
 - [ ] `WLib::WLib` · 006b7790 · legions 0064efb0
@@ -2673,16 +2673,16 @@ Legend and workflow: [README](README.md).
 - [ ] `WLib::Allocate` · 006b7840
 - [ ] `WLib::ReleaseRefs` · 006b7850 · legions 0064f070
 - [ ] `WLib::Clear` · 006b78a0 · legions 0064f0c0
-- [ ] `WLib::UnPack` · 006b78f0
+- [x] `WLib::UnPack` · 006b78f0 — ac2-script WLib/WState/ByteStream decode
 
-## `portal/shared/src/weenie/interp/wstate.cpp.c` (0/16)
+## `portal/shared/src/weenie/interp/wstate.cpp.c` (1/16)
 
 ### WState
 - [ ] `WState::Destroy` · 006b79e0
-- [ ] `WState::GetStateByType` · 006b79f0 · legions 0064f210
+- [~] `WState::GetStateByType` · 006b79f0 · legions 0064f210 — ac2-script wstate DID formulas / ByteStream::package_id
 - [ ] `WState::GetPackSize` · 006b7a30 · legions 0064f250
 - [ ] `WState::Pack` · 006b7a50 · legions 0064f270
-- [ ] `WState::UnPack` · 006b7aa0 · legions 0064f2c0
+- [x] `WState::UnPack` · 006b7aa0 · legions 0064f2c0 — ac2-script WLib/WState/ByteStream decode
 - [ ] `WState::WState` · 006b7b00 · legions 0064f320
 - [ ] `WState::GetDBOType` · 006b7b50
 - [-] `WState::GetPackSize` · 006b7b70 — inline copy of 006b7a30
