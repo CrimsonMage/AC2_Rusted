@@ -33,12 +33,13 @@ impl OnlineSession {
     }
 
     /// The UI's view of the notices (the session's and the script VM's): the selection,
-    /// fellowship and allegiance are kept in [`Progress`]. The client applies each frame's
+    /// fellowship and allegiance are kept in [`Progress`], the vitals with the player script. The client applies each frame's
     /// notices once.
     pub fn apply_notices(&mut self, notices: &[GameplayNotice]) {
         for notice in notices {
             self.progress.social.apply(notice);
             self.progress.selection.apply(notice);
+            self.script.apply_vitals(notice);
         }
     }
 

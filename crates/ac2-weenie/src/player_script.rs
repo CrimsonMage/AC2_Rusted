@@ -111,6 +111,12 @@ impl PlayerScript {
         &self.vitals
     }
 
+    /// `gmVitalsUI`'s view: a vitals notice, whoever raised it (the script VM once it answers
+    /// the login), kept for [`PlayerScript::vitals`].
+    pub fn apply_vitals(&mut self, notice: &GameplayNotice) {
+        self.vitals.apply(notice);
+    }
+
     /// `CPlayer` 0x1A7: the gameplay option `CPlayer` 0x1A8 reads
     /// (`GameplayOptionsProfile::SetShowPKDamage`), then health and vigor again.
     pub fn set_show_pk_damage(&mut self, show: bool, player: &WeenieQualities) -> ScriptOutput {
