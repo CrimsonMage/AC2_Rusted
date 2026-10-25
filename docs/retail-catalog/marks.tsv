@@ -8,6 +8,7 @@ key	status	note
 00401fc0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00403030	x	
 00403d30	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
+00404100	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 004042f0	x	
 00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
@@ -43,6 +44,18 @@ key	status	note
 00431e20	x	
 00431e90	x	
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+0044faa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+0044fac0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+0044fb20	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+00450130	~	ac2-weenie OnlineSession::emote(id): the WM_Communication emote call; the emote-table name lookup (CPlayer 0x15B) is not ported
+00450f30	~	ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
+00450f80	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+00450fa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+004520f0	x	ac2-net GunChatExtraInfo
+00452580	~	ac2-net GunChatExtraInfo::new: version 1, flags; the meta letters (RetrieveMetaLetters) are left empty
+004527c0	~	ac2-weenie OnlineSession::send_to_room: the Turbine chat path (CSendToTurbineRoomByID); the GUN path is dead in Legions
+00453320	~	ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
+004534e0	x	ac2-net GunChatExtraInfo
 00454080	x	ac2-script vm (VM/ReferenceTable/Resolver)
 00454300	x	ac2-script vm (VM/ReferenceTable/Resolver)
 00454440	x	ac2-script vm (VM/ReferenceTable/Resolver)
@@ -412,6 +425,7 @@ key	status	note
 004c9c10	x	
 004c9c20	x	
 004c9d10	x	
+004c9d40	x	ac2-net ClientEvent::CharGenResult (queue 8) / ac2-weenie OnlineSession::create_character; the CharGenData::Save dev copy is not kept
 004c9e00	x	
 004c9e70	x	
 004ca310	x	
@@ -949,6 +963,7 @@ key	status	note
 00528900	x	ac2-world region::sky_objects, ac2-render sky
 0052b1d0	x	ac2-world region::sky_objects, ac2-render sky
 0052dbb0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+0052ddb0	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 0052e6a0	x	
 00530150	x	ac2-weenie ObjectTable::apply_action
 00530e70	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
@@ -986,6 +1001,11 @@ key	status	note
 00538a40	x	ac2-script glue::string_info (lookups via ScriptData)
 00538ad0	x	ac2-script glue::string_info (lookups via ScriptData)
 00538b40	x	ac2-script glue::string_info (lookups via ScriptData)
+0053f690	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+0053f710	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+0053f790	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+0053f830	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+0053f8b0	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 00542530	x	ac2-physics los (Terrain::los_check)
 005425b0	x	ac2-physics los (Terrain::los_check)
 00552130	x	ac2-script glue
@@ -1316,6 +1336,8 @@ key	status	note
 005fe170	x	ac2-ui hud.rs
 005fe420	x	
 006000b0	~	ac2-script: Legions unpack layout (v6 table); version upgrades and UISaveLocations not ported
+00600f90	x	ac2-net CharGenResult::write/read
+006010d0	x	ac2-net CharGenResult::write/read
 006015b0	~	ac2-script native: unpack direction only
 00601c80	x	
 00601cd0	x	
@@ -1332,7 +1354,10 @@ key	status	note
 006037c0	x	
 006079d0	~	ac2-script native: unpack direction only
 00608150	~	ac2-script native: unpack direction only
-00609660	~	ac2-script native: unpack direction only
+00608380	x	ac2-net protocol::native (native objects in script-call PackBuffers)
+00608490	x	ac2-net protocol::native (native objects in script-call PackBuffers)
+00609660	x	ac2-net ExaminationRequest: Legions 0x005C9210 layout (+3 words, type 0x4000000D)
+006097c0	x	ac2-net protocol::native (native objects in script-call PackBuffers)
 00609a80	~	ac2-script native: unpack direction only
 0060aa40	~	ac2-script native: unpack direction only
 0060d2d0	x	ac2_core::Random
@@ -1788,8 +1813,10 @@ key	status	note
 006db0f0	x	
 006db450	x	
 006db7f0	x	
+006dbb00	x	ac2-net protocol::pack
 006dbbd0	x	ac2-script reference/native unpack
 006dbe00	_	
+006dc040	~	ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
 006dc170	x	ac2-script vm (VM/ReferenceTable/Resolver)
 006dc190	x	ac2-script vm (VM/ReferenceTable/Resolver)
 006dc210	-	script debugger
@@ -1806,6 +1833,7 @@ key	status	note
 006de1e0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006e08d0	~	ac2-script: handler table is a match in exec.rs
 006e08f0	x	ac2-script vm::exec / Program::walk
+006e0b40	x	ac2-net protocol::pack
 006e0c20	x	ac2-script reference/native unpack
 006e0d30	x	ac2-script glue
 006e0d80	x	ac2-script glue
@@ -1968,6 +1996,7 @@ key	status	note
 006ecdb0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006ed9c0	x	
 006eda20	x	
+006edde0	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 006ff763	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0071f6b0	x	
 0071fa40	x	
@@ -1977,7 +2006,14 @@ key	status	note
 0071fc50	~	queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
 00722f20	~	headless frame order in ac2-client Client::use_time; no render, sound, UI, triggers or DB cache step
 00723280	x	
+00725100	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+00725780	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+00725cc0	x	ac2-weenie GameplayNotice::DisplayStringInfo (chat lines from the CCommunicationSystem stand-in)
 007269d0	x	
+007277e0	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+00727870	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+007281f0	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
+007291f0	~	ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
 0072da60	x	ac2-ui maps.rs
 0072da90	x	ac2-ui maps.rs
 0072f200	x	ac2-ui maps.rs
@@ -2003,4 +2039,3 @@ key	status	note
 00739460	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0073ab60	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 DB_TYPE_SURFACE_DESC	x	
-key	status	note

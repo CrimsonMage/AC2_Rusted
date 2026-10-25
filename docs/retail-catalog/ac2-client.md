@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 10 done, 6 partial, 333 to do, 5 skipped.
+354 retail functions: 11 done, 6 partial, 332 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -33,7 +33,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [ ] `WinMain` · 004013a0 · legions 00401370
 
-## `ac2/client/src/main/gmclient.cpp.c` (5/92)
+## `ac2/client/src/main/gmclient.cpp.c` (6/92)
 
 ### PackObj
 - [ ] `PackObj::ALIGN_PTR` · 00401a60 · legions 00401980
@@ -174,7 +174,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmClient::RecvNotice_GunReconnected` · 00404080
 
 ### gmClient::gmChatInterfaceProvider
-- [ ] `gmClient::gmChatInterfaceProvider::OnSendToRoom` · 00404100 · legions 00404050
+- [x] `gmClient::gmChatInterfaceProvider::OnSendToRoom` · 00404100 · legions 00404050 — ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 
 ### gmClient
 - [ ] `gmClient::CreateChatInterfaceProvider` · 00404190 · legions 004040e0

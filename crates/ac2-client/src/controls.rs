@@ -23,5 +23,6 @@ pub fn frame_input(controls: ac2_ui::ControlFrame) -> FrameInput {
         first_person_state: controls.first_person_state,
         behaviors: controls.behaviors,
         interrupt_move_to: controls.interrupt_move_to,
+        commands: Vec::new(),
     }
 }

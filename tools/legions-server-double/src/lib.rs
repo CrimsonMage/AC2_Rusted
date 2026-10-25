@@ -9,6 +9,7 @@ mod assembly;
 mod channel;
 mod lossy;
 mod reliable;
+mod script;
 
 pub use appearance::{
     contain_bytes, create_object_with_visual, part_group_bytes, quality_bytes,
@@ -18,6 +19,7 @@ pub use assembly::{fragment_header_bytes, Assembler};
 pub use channel::{Channel, ChannelStats, Conditions, Direction, InFlight, SplitMix};
 pub use lossy::LossyTransport;
 pub use reliable::{newer, ClientTracker, SentStore, Stored, Verdict, MAX_IDS};
+pub use script::ScriptWorld;
 
 use std::cell::RefCell;
 use std::net::SocketAddr;
@@ -37,6 +39,8 @@ pub const SERVER_SEED: u32 = 0x1357_9BDF;
 pub const CLIENT_SEED: u32 = 0x2468_ACE0;
 pub const REAL: i64 = 1_700_000_000;
 pub const PLAYER: u64 = 0x5000_0000_0000_0001;
+/// The id the double gives a character the client creates.
+pub const CREATED: u64 = 0x5000_0000_0000_0002;
 pub const CELL: u32 = 0x0299_0109;
 
 pub fn addr(text: &str) -> SocketAddr {
@@ -292,6 +296,20 @@ pub struct State {
     character_set_sent: bool,
     pub logged_off: bool,
     next_object_blob: u16,
+    /// What the double answers script calls with.
+    pub script_world: ScriptWorld,
+    /// The client's script calls, decoded, in arrival order.
+    pub script_requests: Vec<ac2_net::protocol::ScriptRequest>,
+    /// Script calls with a function id the double does not know: id and packed arguments.
+    pub script_unknown: Vec<(u32, Vec<u8>)>,
+    /// Script calls that did not decode.
+    pub script_errors: Vec<String>,
+    /// The client's chat-client requests, decoded.
+    pub chat_requests: Vec<ac2_net::protocol::ChatRequest>,
+    /// `Proto_UI::SendCharGenResult`s: account and result.
+    pub char_gen_results: Vec<(String, ac2_net::protocol::CharGenResult)>,
+    /// `Proto_UI::SendDeleteCharacter`s: the character ids.
+    pub deletions: Vec<u64>,
 }
 
 impl State {
@@ -608,6 +626,47 @@ impl State {
                     let object = create_object(&self.spawn);
                     self.reliable_blob(0x0300_0004_0000_0003, 1, &object);
                     self.reliable_blob(0x0300_0005_0000_0004, 1, &player_description());
+                }
+                // `ECM_Interp::SendEvt_InterpSEvent` / `SendEvt_InterpSEventEncrypt`.
+                0x0001_0053 | 0x0001_00D0 => {
+                    let data = self.blobs.last().unwrap().2.clone();
+                    self.script_event(&data);
+                }
+                // `CChatEvent::CreateForSend`: the chat client's data.
+                0x0001_00D3 => {
+                    let data = self.blobs.last().unwrap().2.clone();
+                    self.chat_event(&data);
+                }
+                // `Proto_UI::SendCharGenResult` (queue 8, in the clear without a session key):
+                // accepted as a new character, answered with `CharGenVerification`.
+                0x0001_002A => {
+                    let data = self.blobs.last().unwrap().2.clone();
+                    match ac2_net::protocol::decode_char_gen_result(&data) {
+                        Ok((account, result)) => {
+                            let mut b = Vec::new();
+                            words(&mut b, &[0x0001_0057, 1]);
+                            b.extend(CREATED.to_le_bytes());
+                            pack_wide_string(&mut b, 0, &result.name);
+                            words(&mut b, &[0, 2, result.entity_did, 0x11]);
+                            self.reliable_blob(0x2300_0007_0000_0006, 1, &b);
+                            self.char_gen_results.push((account, result));
+                        }
+                        Err(error) => self.script_errors.push(format!("char gen: {error}")),
+                    }
+                }
+                // `Proto_UI::SendDeleteCharacter`: account, then the id; confirmed with
+                // `ECM_Login::RecvEvt_CharacterDeletion`.
+                0x0001_0029 => {
+                    let data = self.blobs.last().unwrap().2.clone();
+                    if let Some(id) = data
+                        .get(data.len() - 8..)
+                        .map(|b| u64::from_le_bytes(b.try_into().unwrap()))
+                    {
+                        let mut b = 0x0001_0029u32.to_le_bytes().to_vec();
+                        b.extend(id.to_le_bytes());
+                        self.reliable_blob(0x2300_0008_0000_0007, 1, &b);
+                        self.deletions.push(id);
+                    }
                 }
                 // `Proto_UI::LogOffCharacter`.
                 0x0001_0027 => {
