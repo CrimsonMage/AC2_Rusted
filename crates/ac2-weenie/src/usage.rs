@@ -10,11 +10,10 @@
 use ac2_net::protocol::{ScriptRequest, StringInfo, UsageDesc, USAGE_FLAG_SILENT};
 
 use crate::player_script::GameplayNotice;
+use crate::tables::{StringTableIds, TABLE_ENUM_USAGE};
 
 /// `gmCEntity` 0x1A's display type for usage messages.
 pub const DISPLAY_USAGE: u32 = 8;
-/// String table `0x25000014` (enum 0x41000019, the usage strings).
-const TABLE_USAGE: u32 = 0x2500_0014;
 /// "You have nothing selected" (`CPlayer` 0x79).
 const STRING_NOTHING_SELECTED: u32 = 0xAE62_433B;
 
@@ -25,12 +24,12 @@ pub fn use_item(player: u64, item: u64, target: u64) -> Option<ScriptRequest> {
 }
 
 /// `CPlayer` 0x79 (`UseSelection`) with nothing selected: the usage message it shows.
-pub fn nothing_selected() -> GameplayNotice {
+pub fn nothing_selected(tables: &StringTableIds) -> GameplayNotice {
     GameplayNotice::DisplayStringInfo {
         kind: DISPLAY_USAGE,
         text: StringInfo {
             string_id: STRING_NOTHING_SELECTED,
-            table_id: TABLE_USAGE,
+            table_id: tables.did(TABLE_ENUM_USAGE),
             ..StringInfo::default()
         },
     }

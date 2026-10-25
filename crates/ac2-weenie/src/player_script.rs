@@ -16,6 +16,7 @@ use ac2_net::protocol::{
 
 use crate::chat;
 use crate::qualities::WeenieQualities;
+use crate::tables::StringTableIds;
 use crate::usage;
 use crate::vitals::{self, PlayerVitals};
 
@@ -87,6 +88,8 @@ pub struct PlayerScript {
     show_pk_damage: bool,
     /// The vitals the script last raised (what `gmVitalsUI` shows).
     vitals: PlayerVitals,
+    /// The string tables its lines name.
+    tables: StringTableIds,
 }
 
 impl Default for PlayerScript {
@@ -100,6 +103,7 @@ impl Default for PlayerScript {
             profiles: HashMap::new(),
             show_pk_damage: false,
             vitals: PlayerVitals::default(),
+            tables: StringTableIds::default(),
         }
     }
 }
@@ -127,6 +131,15 @@ impl PlayerScript {
 
     pub fn is_examining(&self) -> bool {
         self.examining
+    }
+
+    /// The string tables the lines the script builds name (`SetStringIDandTableEnum`).
+    pub fn set_string_tables(&mut self, tables: StringTableIds) {
+        self.tables = tables;
+    }
+
+    pub fn string_tables(&self) -> &StringTableIds {
+        &self.tables
     }
 
     /// The vitals the script last raised.
@@ -285,17 +298,25 @@ impl PlayerScript {
                 speaker_name,
                 speaker,
                 ..
-            } => out
-                .notices
-                .push(chat::hear_speech(text, speaker_name, speaker, player)),
+            } => out.notices.push(chat::hear_speech(
+                text,
+                speaker_name,
+                speaker,
+                player,
+                &self.tables,
+            )),
             ScriptMessage::HearTell {
                 kind,
                 text,
                 teller_name,
                 teller,
-            } => out
-                .notices
-                .push(chat::hear_tell(kind, text, teller_name, teller)),
+            } => out.notices.push(chat::hear_tell(
+                kind,
+                text,
+                teller_name,
+                teller,
+                &self.tables,
+            )),
             ScriptMessage::DisplayStringInfo { text, kind, .. } => out
                 .notices
                 .push(GameplayNotice::DisplayStringInfo { kind, text }),

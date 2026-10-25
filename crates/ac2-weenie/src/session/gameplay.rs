@@ -16,6 +16,11 @@ use crate::world::World;
 const CREATURE_TYPE: i32 = 0x4F;
 
 impl OnlineSession {
+    /// The string tables the player-script stand-in names (resolved from the DATs by the caller).
+    pub fn set_string_tables(&mut self, tables: crate::StringTableIds) {
+        self.script.set_string_tables(tables);
+    }
+
     /// The player's script state (selection, examination).
     pub fn player_script(&self) -> &PlayerScript {
         &self.script
@@ -88,7 +93,9 @@ impl OnlineSession {
                 self.use_object(item);
                 Vec::new()
             }
-            None => vec![SessionEvent::Notice(crate::usage::nothing_selected())],
+            None => vec![SessionEvent::Notice(crate::usage::nothing_selected(
+                self.script.string_tables(),
+            ))],
         }
     }
 

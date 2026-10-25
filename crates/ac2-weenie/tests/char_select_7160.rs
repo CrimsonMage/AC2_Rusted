@@ -74,6 +74,18 @@ fn the_session_waits_at_the_character_set_until_asked_to_enter() {
         name: "Birch".into(),
         result: 0x11,
     }));
+    // The server lists the account's characters again, the new one included.
+    let listed: Vec<u64> = session
+        .characters()
+        .unwrap()
+        .characters
+        .iter()
+        .map(|c| c.id)
+        .collect();
+    assert_eq!(listed, [PLAYER, CREATED]);
+    assert!(events
+        .iter()
+        .any(|e| matches!(e, SessionEvent::Characters(set) if set.characters.len() == 2)));
 
     // Only a listed character enters; then the world entry runs as usual.
     assert!(session.enter_world(0x1234).is_err());
