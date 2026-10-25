@@ -12,6 +12,7 @@ mod constants;
 mod enums;
 mod fast_hash;
 mod ids;
+pub mod pstring;
 mod random;
 mod scalar;
 mod timer;

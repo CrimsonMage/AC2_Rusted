@@ -35,16 +35,14 @@ pub struct ActionMapping {
     pub action: u32,
     /// The input semantic (`0x81000400 | DIK scan code` for keys, `0x82000xxx` for the mouse).
     pub semantic: u32,
-    /// The binding's name; the Legions DATs store these strings scrambled, so they are kept as
-    /// raw bytes.
-    pub name: Vec<u8>,
+    /// The binding's name.
+    pub name: String,
 }
 
 /// A `CKeyMap`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct KeyMap {
-    /// Raw bytes, like [`ActionMapping::name`].
-    pub name: Vec<u8>,
+    pub name: String,
     pub guid: [u8; 16],
     pub mappings: Vec<ActionMapping>,
 }
@@ -109,7 +107,7 @@ impl ResourcePackedDecode for KeyMap {
         if cursor.read_u32()? != qdid.data_id().raw() {
             return Err(bad("embedded DID did not match DAT identity"));
         }
-        let name = pstring_bytes(&mut cursor)?;
+        let name = String::from_utf8_lossy(&pstring_bytes(&mut cursor)?).into_owned();
         let mut guid = [0_u8; 16];
         guid[..4].copy_from_slice(&cursor.read_u32()?.to_le_bytes());
         guid[4..6].copy_from_slice(&cursor.read_u16()?.to_le_bytes());
@@ -123,7 +121,7 @@ impl ResourcePackedDecode for KeyMap {
             mappings.push(ActionMapping {
                 action: cursor.read_u32()?,
                 semantic: cursor.read_u32()?,
-                name: pstring_bytes(&mut cursor)?,
+                name: String::from_utf8_lossy(&pstring_bytes(&mut cursor)?).into_owned(),
             });
         }
         if cursor.remaining() != 0 {

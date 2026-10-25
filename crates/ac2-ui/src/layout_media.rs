@@ -84,10 +84,11 @@ pub struct TransitionDesc {
 }
 
 /// `PStringBase<char>::UnPack`'s bytes: a u16 length (`0xFFFF` escapes to a u32), the
-/// characters, then 4-byte alignment.
+/// characters descrambled (`crypto_uint32_munge`, `crypto_nibble_munge`), then 4-byte alignment.
 pub(crate) fn pstring_bytes(cursor: &mut ArchiveCursor<'_>) -> ArchiveResult<Vec<u8>> {
     let len = cursor.read_packed_string_len()? as usize;
-    let bytes = cursor.read_bytes(len)?.to_vec();
+    let mut bytes = cursor.read_bytes(len)?.to_vec();
+    ac2_core::pstring::unmunge(&mut bytes);
     cursor.align_to(4)?;
     Ok(bytes)
 }

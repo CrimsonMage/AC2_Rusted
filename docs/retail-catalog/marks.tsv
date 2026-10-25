@@ -4,8 +4,8 @@ key	status	note
 00401b80	x	
 00401e30	~	no TurbineGun (GUN) step
 00401e70	x	
-00401f90	x	ac2-script pstring::unmunge
-00401fc0	x	ac2-script pstring::unmunge
+00401f90	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
+00401fc0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00403030	x	
 00403d30	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
 004042f0	x	
@@ -13,7 +13,7 @@ key	status	note
 004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 00406410	~	ac2-client Notice::ConnectionLost (ID_NetErr_ConnectionLost, 0x41000018); no UI modes in the headless client
 00406c60	~	ac2-script: unpack direction only
-00406cb0	x	ac2-script unpack::Reader::pstring/wpstring
+00406cb0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00406f50	x	ac2-script reference/native unpack
 00407050	x	ac2-script reference/native unpack
 00407770	~	ac2-script: unpack direction only
@@ -23,9 +23,9 @@ key	status	note
 00409270	~	asks for the next-frame-drawn notice (SetWantNoticeOnNextFrameDrawn); no portal scenes
 00409960	x	
 00409990	x	
-00409a80	x	ac2-script pstring::unmunge
-00409ab0	x	ac2-script pstring::unmunge
-00409be0	x	ac2-script unpack::Reader::pstring/wpstring
+00409a80	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
+00409ab0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
+00409be0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00409e00	x	
 00422f80	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 004232f0	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
@@ -1200,6 +1200,10 @@ key	status	note
 005b7260	~	BlendLitVertices on the GPU (ac2-gpu object.wgsl); no bounds update, ModelDetail<2 path not reproduced
 005b75b0	x	
 005b7a50	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005b89a0	x	ac2-assets font.rs: all 55 portal fonts decode
+005b8ad0	x	ac2-assets font.rs: all 55 portal fonts decode
+005b8bc0	x	ac2-assets font.rs: all 55 portal fonts decode
+005b8e10	x	ac2-assets font.rs: all 55 portal fonts decode
 005b97c0	~	hardware-class layer filter (object::layer_drawn, class 2 default)
 005c4e90	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005c4f20	x	ac2-render object::pass / texture_matrix, ac2-gpu object
@@ -1497,6 +1501,9 @@ key	status	note
 00652070	x	ac2-script glue::string_info (lookups via ScriptData)
 006521d0	x	ac2-script glue::string_info (lookups via ScriptData)
 00652db0	x	ac2-script reference/native unpack
+00654cb0	x	ac2-db string_table.rs: all 10,598 Legions tables decode
+00654f10	x	ac2-db string_table.rs: all 10,598 Legions tables decode
+00655de0	x	ac2-db string_table.rs: all 10,598 Legions tables decode
 006571c0	x	ac2-script glue
 0065a4a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 0065a510	_	

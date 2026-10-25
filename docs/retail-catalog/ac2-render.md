@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 35 done, 22 partial, 711 to do, 13 skipped.
+781 retail functions: 39 done, 22 partial, 707 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -27,21 +27,21 @@ Legend and workflow: [README](README.md).
 ### CMeshTriList
 - [-] `CMeshTriList::FromFileNode` · 0052c830 — text source format (admin tools)
 
-## `portal/client/src/render/core/font/font.cpp.c` (0/13)
+## `portal/client/src/render/core/font/font.cpp.c` (4/13)
 
 ### Font
 - [ ] `Font::Begin` · 005b88d0 · legions 00583530
 - [ ] `Font::End` · 005b8900 · legions 00583560
 - [ ] `Font::Destroy` · 005b8940 · legions 005835a0
-- [ ] `Font::GetCharDesc` · 005b89a0 · legions 00583600
+- [x] `Font::GetCharDesc` · 005b89a0 · legions 00583600 — ac2-assets font.rs: all 55 portal fonts decode
 - [ ] `Font::GetCharWidthA` · 005b8a30 · legions 00583690
 - [ ] `Font::ContainsString` · 005b8a50 · legions 005836b0
-- [ ] `Font::GenerateCharacterMap` · 005b8ad0 · legions 00583730
-- [ ] `Font::GetStringWidthInternal` · 005b8bc0 · legions 00583820
+- [x] `Font::GenerateCharacterMap` · 005b8ad0 · legions 00583730 — ac2-assets font.rs: all 55 portal fonts decode
+- [x] `Font::GetStringWidthInternal` · 005b8bc0 · legions 00583820 — ac2-assets font.rs: all 55 portal fonts decode
 - [ ] `Font::InitLoad` · 005b8c20
 - [-] `Font::LoadFromFile` · 005b8c40 — text source loader, admin build only
 - [ ] `Font::SaveToFile` · 005b8d40
-- [ ] `Font::StreamPack` · 005b8e10 · legions 00583890
+- [x] `Font::StreamPack` · 005b8e10 · legions 00583890 — ac2-assets font.rs: all 55 portal fonts decode
 - [ ] `Font::GetStringWidth` · 005b8f70 · legions 005839f0
 
 ## `portal/client/src/render/core/font/fontmapper.cpp.c` (0/4)
