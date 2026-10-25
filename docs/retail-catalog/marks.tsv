@@ -63,6 +63,7 @@ key	status	note
 00410f00	~	character_selection.rs: roots, handlers, Update; background music not played
 00411220	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 00411240	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+00411ac0	~	ac2-ui PregameUi::character_set (first set -> character selection) and bin/ac2 --character (start character enters at once); patching not ported
 004125c0	x	ac2-ui pregame/disconnected.rs
 00412630	x	ac2-ui pregame/disconnected.rs
 00412650	x	ac2-ui pregame/disconnected.rs

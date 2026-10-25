@@ -1,7 +1,8 @@
-//! The Asheron's Call 2 client in a window: log on to a server, enter the world and play with
-//! the retail controls (the DATs' key maps and action map: W/S/A/D or the arrows to move, Q/E to
-//! strafe, the wheel to zoom, the middle button for mouse look, ...), drawn through the shared
-//! scene and seen from the retail camera.
+//! The Asheron's Call 2 client in a window: log on to a server, choose a character on the
+//! retail character selection screen (or name one to enter at once, as `-startchar` did), enter
+//! the world and play with the retail controls (the DATs' key maps and action map: W/S/A/D or
+//! the arrows to move, Q/E to strafe, the wheel to zoom, the middle button for mouse look, ...),
+//! drawn through the shared scene and seen from the retail camera.
 //!
 //! ```text
 //! ac2 --dat-dir DIR [--server 127.0.0.1:9000] [--account local] [--version 7160]
@@ -9,12 +10,14 @@
 //! ```
 
 mod keys;
+mod pregame;
 
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
+use ac2_client::pregame_view::PregameView;
 use ac2_client::view::ClientView;
-use ac2_client::{frame_input, Client, Command, DatWorld, FrameInput};
+use ac2_client::{frame_input, Client, Command, DatWorld};
 use ac2_gpu::{render_to, Gpu, DEPTH_FORMAT};
 use ac2_net::Credential;
 use ac2_ui::{Controls, InputEvent, SelectionUi};
@@ -37,7 +40,8 @@ struct Args {
     server: String,
     account: String,
     version: String,
-    character: CharacterChoice,
+    /// `gmClient::m_startChar`: enter with this character, skipping character selection.
+    character: Option<String>,
     client_exe: Option<String>,
     radius: i32,
 }
@@ -48,7 +52,7 @@ fn parse_args() -> Result<Args, String> {
         server: "127.0.0.1:9000".into(),
         account: "local".into(),
         version: ac2_net::LEGIONS_VERSION.into(),
-        character: CharacterChoice::First,
+        character: None,
         client_exe: None,
         radius: 1,
     };
@@ -60,7 +64,7 @@ fn parse_args() -> Result<Args, String> {
             "--server" => args.server = value,
             "--account" => args.account = value,
             "--version" => args.version = value,
-            "--character" => args.character = CharacterChoice::Name(value),
+            "--character" => args.character = Some(value),
             "--client-exe" => args.client_exe = Some(value),
             "--radius" => args.radius = value.parse().map_err(|e| format!("--radius: {e}"))?,
             other => return Err(format!("unknown option {other}")),
@@ -79,7 +83,11 @@ struct State {
     surface: wgpu::Surface<'static>,
     config: wgpu::SurfaceConfiguration,
     depth: wgpu::TextureView,
-    view: ClientView,
+    format: wgpu::TextureFormat,
+    /// The world and HUD, once the player is in the world.
+    view: Option<ClientView>,
+    /// The pregame screens until then (none when a start character enters at once).
+    pregame: Option<PregameView>,
     controls: Controls,
     /// `gmSelectionUI` and the commands its finished selections send next frame.
     selection: SelectionUi,
@@ -95,6 +103,9 @@ struct App {
     controls: Option<Controls>,
     radius: i32,
     state: Option<State>,
+    store: Arc<ac2_db::ResourceStore>,
+    /// Whether the pregame screens show (no start character).
+    pregame: bool,
 }
 
 impl State {
@@ -153,13 +164,28 @@ impl App {
         let Some(state) = self.state.as_mut() else {
             return;
         };
+        let Some(mut view) = state.view.take() else {
+            self.pregame_frame(event_loop);
+            return;
+        };
+        self.world_frame(event_loop, &mut view);
+        if let Some(state) = self.state.as_mut() {
+            state.view = Some(view);
+        }
+    }
+
+    /// One frame in the world.
+    fn world_frame(&mut self, event_loop: &ActiveEventLoop, view: &mut ClientView) {
+        let Some(state) = self.state.as_mut() else {
+            return;
+        };
         // The UI tree takes the UI actions first; its messages reach the camera UI.
         let ui_input = state.controls.take_ui_input();
         let modifiers = state.controls.modifiers();
-        let mut messages = state.view.ui_input(&ui_input, modifiers);
+        let mut messages = view.ui_input(&ui_input, modifiers);
         let (actions, characters, _) = state.controls.take_text_input();
-        messages.extend(state.view.text_input(&actions, &characters, modifiers));
-        for request in state.view.take_chat_requests() {
+        messages.extend(view.text_input(&actions, &characters, modifiers));
+        for request in view.take_chat_requests() {
             match request {
                 ac2_ui::ChatRequest::Line(line) => state.commands.push(Command::ChatLine(line)),
                 // `ChatWindow::DisplayCmdHistory` / `DisplayRetellHistory` /
@@ -174,17 +200,15 @@ impl App {
                         continue;
                     };
                     if history == ac2_ui::ChatHistory::Command {
-                        state.view.set_chat_entry(&item);
+                        view.set_chat_entry(&item);
                     } else {
-                        state.view.assisted_tell(&item);
+                        view.assisted_tell(&item);
                     }
                 }
             }
         }
         let (stamp, now) = state.now();
-        state
-            .controls
-            .set_text_mode(state.view.text_mode(), stamp, now);
+        state.controls.set_text_mode(view.text_mode(), stamp, now);
         state.controls.ui_messages(&messages, now);
         for message in &messages {
             state.selection.message(message);
@@ -202,7 +226,7 @@ impl App {
         for event in &events {
             match event {
                 SessionEvent::Notice(GameplayNotice::DisplayStringInfo { kind, text }) => {
-                    state.view.chat_display_info(*kind, text);
+                    view.chat_display_info(*kind, text);
                 }
                 SessionEvent::ShellCommand { text, .. } => {
                     eprintln!("ac2: chat command not ported: {text}");
@@ -223,17 +247,17 @@ impl App {
         // cleared) by `gmSelectionUI::Finish3DSelection`.
         if state.selection.wants_pick() {
             let screen = (state.config.width, state.config.height);
-            let picked = state.view.pick(&frame, screen, state.view.pointer());
+            let picked = view.pick(&frame, screen, view.pointer());
             let outcome = state.selection.finish(picked);
             state.commands.push(Command::Select(outcome.select));
             if outcome.use_selection {
                 state.commands.push(Command::UseSelection);
             }
             if outcome.open_examination {
-                state.view.open_examination();
+                view.open_examination();
             }
         }
-        state.view.update(&state.gpu, &frame, LOAD_BUDGET);
+        view.update(&state.gpu, &frame, LOAD_BUDGET);
         let Ok(output) = state.surface.get_current_texture() else {
             state.surface.configure(&state.gpu.device, &state.config);
             return;
@@ -241,11 +265,10 @@ impl App {
         let target = output.texture.create_view(&Default::default());
         let aspect = state.config.width as f32 / state.config.height as f32;
         let (_, time) = state.now();
-        let drawn = state.view.prepare(&state.gpu, &frame, aspect, time);
-        if state.view.take_deselect() {
+        let drawn = view.prepare(&state.gpu, &frame, aspect, time);
+        if view.take_deselect() {
             state.commands.push(Command::Select(None));
         }
-        let view = &state.view;
         render_to(
             &state.gpu.device,
             &state.gpu.queue,
@@ -296,20 +319,23 @@ impl ApplicationHandler for App {
         };
         surface.configure(&gpu.device, &config);
         let depth = depth_view(&gpu.device, &config);
-        let view = ClientView::new(
-            Arc::clone(&self.world),
-            &gpu,
-            format,
-            self.radius,
-            (config.width, config.height),
-        );
+        let pregame = self.pregame.then(|| {
+            PregameView::new(
+                Arc::clone(&self.store),
+                &gpu,
+                format,
+                (config.width, config.height),
+            )
+        });
         self.state = Some(State {
             window,
             gpu,
             surface,
             config,
             depth,
-            view,
+            format,
+            view: None,
+            pregame,
             selection: SelectionUi::default(),
             commands: Vec::new(),
             controls: {
@@ -341,7 +367,13 @@ impl ApplicationHandler for App {
                 state.config.height = size.height.max(1);
                 state.surface.configure(&state.gpu.device, &state.config);
                 state.depth = depth_view(&state.gpu.device, &state.config);
-                state.view.resize(state.config.width, state.config.height);
+                let (width, height) = (state.config.width, state.config.height);
+                if let Some(view) = &mut state.view {
+                    view.resize(width, height);
+                }
+                if let Some(pregame) = &mut state.pregame {
+                    pregame.resize(width, height);
+                }
             }
             WindowEvent::Focused(focused) => {
                 let (_, now) = state.now();
@@ -443,7 +475,12 @@ fn run(args: Args) -> Result<(), String> {
         account: args.account,
         credential: Credential::Account,
         version: args.version,
-        character: args.character,
+        // Without a start character the session waits at the character set for the
+        // selection screen (`gmCharacterSelectionUI`).
+        character: match &args.character {
+            Some(name) => CharacterChoice::Name(name.clone()),
+            None => CharacterChoice::Wait,
+        },
         server_key,
         language: 0,
         dat_iterations: ac2_weenie::dat_iterations(&dataset)?,
@@ -470,15 +507,6 @@ fn run(args: Args) -> Result<(), String> {
     script_data.set_cache_only(true);
     let host = ac2_script::host::ScriptHost::new(program, Box::new(script_data));
     client.attach_scripts(host, ac2_client::SCRIPT_VM_FUNCTIONS);
-    // Enter the world before opening the window.
-    let deadline = Instant::now() + Duration::from_secs(60);
-    while !client.frame().in_world {
-        if Instant::now() > deadline {
-            return Err("no world entry".into());
-        }
-        client.use_time(&FrameInput::default())?;
-        std::thread::sleep(Duration::from_millis(16));
-    }
     let event_loop = EventLoop::new().map_err(|e| e.to_string())?;
     let mut app = App {
         client,
@@ -486,6 +514,8 @@ fn run(args: Args) -> Result<(), String> {
         controls: Some(controls),
         radius: args.radius,
         state: None,
+        store,
+        pregame: args.character.is_none(),
     };
     event_loop.run_app(&mut app).map_err(|e| e.to_string())
 }

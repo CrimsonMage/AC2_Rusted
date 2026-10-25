@@ -21,6 +21,9 @@ mod gameplay;
 mod hud_view;
 mod loader;
 mod motion;
+mod pregame;
+#[cfg(feature = "window")]
+pub mod pregame_view;
 mod remote;
 mod scene;
 mod scripts;
@@ -42,6 +45,7 @@ pub use controls::frame_input;
 pub use frame::{ClientFrame, Holder, ObjectFrame, PlayerFrame};
 pub use gameplay::{Command, ContainerFrame, InventoryFrame, ProgressFrame, SelectionFrame};
 pub use motion::PartPose;
+pub use pregame::{pregame_event, pregame_notice, pregame_requests, PregameOutcome};
 pub use scene::CameraFrame;
 pub use scripts::SCRIPT_VM_FUNCTIONS;
 pub use tables::string_table_ids;

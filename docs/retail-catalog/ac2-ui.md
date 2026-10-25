@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 263 done, 127 partial, 1840 to do, 17 skipped.
+2247 retail functions: 263 done, 128 partial, 1839 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -1889,7 +1889,7 @@ Legend and workflow: [README](README.md).
 
 ### gmDataPatchUI
 - [ ] `gmDataPatchUI::~gmDataPatchUI` · 004119e0 · legions 004119c0
-- [ ] `gmDataPatchUI::Update` · 00411ac0 · legions 00411aa0
+- [~] `gmDataPatchUI::Update` · 00411ac0 · legions 00411aa0 — ac2-ui PregameUi::character_set (first set -> character selection) and bin/ac2 --character (start character enters at once); patching not ported
 - [ ] `gmDataPatchUI::RecvNotice_CharGenVerification` · 00411f10
 - [ ] `gmDataPatchUI::OnDDDEvent` · 00411fd0
 - [ ] `gmDataPatchUI::gmDataPatchUI` · 004121d0 · legions 00412050

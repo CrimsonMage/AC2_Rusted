@@ -1,0 +1,103 @@
+//! The frames before the world: the session runs with no movement input, its login events go to
+//! the pregame screens (`PregameView`), whose UI takes the UI actions and text input, and whose
+//! requests (enter, create, delete, quit) go out through the session. Once the player is in the
+//! world the screens give way to the world view and its HUD (`UIFlow`'s gameplay mode).
+
+use std::sync::Arc;
+use std::time::Duration;
+
+use ac2_client::view::ClientView;
+use ac2_client::FrameInput;
+use ac2_gpu::render_to;
+use winit::event_loop::ActiveEventLoop;
+
+use super::App;
+
+impl App {
+    /// One frame before the world.
+    pub(super) fn pregame_frame(&mut self, event_loop: &ActiveEventLoop) {
+        let Some(state) = self.state.as_mut() else {
+            return;
+        };
+        let (stamp, now) = state.now();
+        let ui_input = state.controls.take_ui_input();
+        let ctrl = state.controls.modifiers().ctrl;
+        let (actions, characters, _) = state.controls.take_text_input();
+        let mut messages = Vec::new();
+        if let Some(pregame) = &mut state.pregame {
+            messages = pregame.input(&ui_input);
+            messages.extend(pregame.text_input(&actions, &characters, ctrl));
+            state
+                .controls
+                .set_text_mode(pregame.text_mode(), stamp, now);
+        }
+        state.controls.ui_messages(&messages, now);
+        // No body to move yet: the controls' frame is dropped.
+        state.controls.frame();
+        let events = match self.client.use_time(&FrameInput::default()) {
+            Ok(events) => events,
+            Err(error) => {
+                eprintln!("ac2: {error}");
+                event_loop.exit();
+                return;
+            }
+        };
+        let notices = self.client.take_notices();
+        match &mut state.pregame {
+            Some(pregame) => {
+                for event in &events {
+                    pregame.event(event);
+                }
+                for notice in notices {
+                    pregame.notice(notice);
+                }
+                if pregame.requests(self.client.session_mut()).quit {
+                    self.client.session_mut().log_off(Duration::from_secs(3));
+                    event_loop.exit();
+                    return;
+                }
+                pregame.update(&state.gpu, now);
+            }
+            None if notices.contains(&ac2_client::Notice::ConnectionLost) => {
+                eprintln!("ac2: connection lost");
+                event_loop.exit();
+                return;
+            }
+            None => {}
+        }
+        if self.client.frame().in_world {
+            // `UseNewMode(Gameplay)`: the world and its HUD replace the pregame screens.
+            state.view = Some(ClientView::new(
+                Arc::clone(&self.world),
+                &state.gpu,
+                state.format,
+                self.radius,
+                (state.config.width, state.config.height),
+            ));
+            state.pregame = None;
+            return;
+        }
+        let Ok(output) = state.surface.get_current_texture() else {
+            state.surface.configure(&state.gpu.device, &state.config);
+            return;
+        };
+        let target = output.texture.create_view(&Default::default());
+        if let Some(pregame) = &state.pregame {
+            pregame.prepare(&state.gpu.queue);
+        }
+        let pregame = &state.pregame;
+        render_to(
+            &state.gpu.device,
+            &state.gpu.queue,
+            &target,
+            &state.depth,
+            [0.0; 3],
+            |pass| {
+                if let Some(pregame) = pregame {
+                    pregame.draw(pass);
+                }
+            },
+        );
+        output.present();
+    }
+}

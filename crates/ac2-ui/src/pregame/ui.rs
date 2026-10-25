@@ -14,7 +14,7 @@ use std::collections::HashMap;
 
 use ac2_net::protocol::{CharGenResult, CharacterIdentity, CharacterSet};
 
-use crate::compose::UiPixels;
+use crate::compose::{UiPixels, UiSurface};
 use crate::dialog::{DialogFactory, LAYOUT_DIALOGS};
 use crate::element::UiTree;
 use crate::mouse::UiMessage;
@@ -115,6 +115,11 @@ impl PregameUi {
     /// The images the pregame layouts show.
     pub fn images(&self) -> &HashMap<u32, UiPixels> {
         &self.assets.images
+    }
+
+    /// The tree's roots drawn over the screen (`UiTree::compose` with the pregame images).
+    pub fn compose(&mut self) -> Vec<UiSurface> {
+        self.tree.compose(&self.assets.images)
     }
 
     /// The current mode (0 while connecting).
