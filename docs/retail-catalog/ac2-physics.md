@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 313 done, 74 partial, 1675 to do, 62 skipped.
+2124 retail functions: 314 done, 76 partial, 1672 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -2068,7 +2068,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartArray::Destroy` · 004f0900 · legions 004e3230
 - [x] `CPartArray::GetComboCVel` · 004f0a10 · legions 004e3340 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `CPartArray::GetHoldLocations` · 004f0a80 · legions 004e33b0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-- [~] `CPartArray::AddAnimation` · 004f0af0 · legions 004e3420 — impulse triggers always, compositor only on refresh frames; effect triggers and weenie hooks not fired; one part group
+- [~] `CPartArray::AddAnimation` · 004f0af0 · legions 004e3420 — all triggers every frame, compositor only on refresh frames; no slider-driven layer weights; one part group
 - [ ] `CPartArray::CPartArray` · 004f0c10 · legions 004e3540
 - [ ] `CPartArray::SetColor` · 004f0d10 · legions 004e3640
 - [ ] `CPartArray::~CPartArray` · 004f0d40 · legions 004e3670
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (93/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (94/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2617,7 +2617,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::RemoveChild` · 004e92b0
 - [ ] `CPhysicsObj::set_report_collisions` · 004e92e0
 - [ ] `CPhysicsObj::AddToLOSList` · 004e9510 · legions 004dbd90
-- [~] `CPhysicsObj::UpdateAnimation` · 004e9700 — ac2-physics anim_pose: distance-degraded update frames (sliders, bone refresh), impulse triggers; no look-at, FX scripts, FX, effect triggers or weenie hooks
+- [~] `CPhysicsObj::UpdateAnimation` · 004e9700 — ac2-physics anim_pose: distance-degraded update frames, TriggerUpdate fired (FX and weenie hooks as events, impulses); no look-at, FX scripts or FX manager
 - [ ] `CPhysicsObj::UpdateMisc` · 004e9bb0 · legions 004dc430
 - [ ] `CPhysicsObj::calc_cross_cells_static` · 004e9be0
 - [~] `CPhysicsObj::calc_cross_cells` · 004e9d30 · legions 004dc5b0 — ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
@@ -2713,7 +2713,7 @@ Legend and workflow: [README](README.md).
 - [x] `PSmartArray<BehaviorParams>::StreamPack` · 004eb8b0 · legions 004de220
 
 ### TriggerUpdate
-- [ ] `TriggerUpdate::TriggerUpdate` · 004eb960 · legions 004de2d0
+- [x] `TriggerUpdate::TriggerUpdate` · 004eb960 · legions 004de2d0 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 - [ ] `TriggerUpdate::~TriggerUpdate` · 004eba30 · legions 004de3a0
 
 ### CPhysicsObj
@@ -2721,7 +2721,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::makeObjectInternal` · 004ec1a0 · legions 004deb10
 - [ ] `CPhysicsObj::makePartGroupObject` · 004ec230 · legions 004deba0
 - [~] `CPhysicsObj::RecvEvt_ReleaseBehavior` · 004ec290 — PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
-- [ ] `CPhysicsObj::GetTriggerUpdate` · 004ec310 · legions 004dec80
+- [~] `CPhysicsObj::GetTriggerUpdate` · 004ec310 · legions 004dec80 — the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
 - [~] `CPhysicsObj::SetPositionInternal` · 004ec350 · legions 004decc0 — ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 - [~] `CPhysicsObj::HandleLeaveWorld` · 004ec400 · legions 004ded70 — the bookie part only
 
@@ -2811,7 +2811,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::GetCell` · 004f1950 · legions 004e4280
 - [ ] `PHYSICSOBJREP::GetVectorHeading` · 004f1970
 - [ ] `PHYSICSOBJREP::GetHeading` · 004f19d0 · legions 004e4300
-- [ ] `PHYSICSOBJREP::GetTriggerUpdate` · 004f1a00
+- [~] `PHYSICSOBJREP::GetTriggerUpdate` · 004f1a00 — the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
 - [ ] `PHYSICSOBJREP::GetConstraintFactor` · 004f1a20
 - [ ] `PHYSICSOBJREP::GetLocalVelocity` · 004f1a40
 - [ ] `PHYSICSOBJREP::GetTransitionCVel` · 004f1a70 · legions 004e43a0

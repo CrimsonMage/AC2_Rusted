@@ -292,13 +292,13 @@ impl Ac2BehaviorTracker {
         if let Some(old) = self.non_active_by_layer.remove(combo.layer) {
             if let Some(mut track) = self.tracks.remove(old) {
                 Self::send_and_clear_callback(env, &mut track, 0);
+                if !track.terminated_fx {
+                    env.triggers.on_track_terminated(&mut track);
+                }
             }
         }
         if info.effect != 0 {
-            env.events.push(Ac2AnimEvent::StartFx {
-                fx: info.effect,
-                intensity: 1.0,
-            });
+            env.triggers.fire_and_forget(info.effect, false);
         }
         let mut track = Ac2BehaviorTrack::new(params);
         if info.ramp_time == 0.0 {
@@ -335,6 +335,26 @@ impl Ac2BehaviorTracker {
         self.active_by_layer.set(combo.layer, behavior);
         self.tracks.set(behavior, track);
         true
+    }
+
+    /// `BehaviorTracker::AddTriggers`: every track's reached triggers into the update.
+    pub(crate) fn add_triggers(&mut self, triggers: &mut super::Ac2TriggerUpdate) {
+        for behavior in self.tracks.keys() {
+            if let Some(track) = self.tracks.get_mut(behavior) {
+                triggers.add_track_triggers(track);
+            }
+        }
+    }
+
+    /// `BehaviorTracker::Destroy` (the tracker is being deleted): every track's weight drops to
+    /// -1 and its triggers go to the update one last time (camera behaviours not modelled).
+    pub(crate) fn destroy(&mut self, triggers: &mut super::Ac2TriggerUpdate) {
+        for behavior in self.tracks.keys() {
+            if let Some(track) = self.tracks.get_mut(behavior) {
+                track.weight = -1.0;
+                triggers.add_track_triggers(track);
+            }
+        }
     }
 
     /// `BehaviorTracker::StopBehavior`: ramp the track out over the behaviour's ramp time and
@@ -494,6 +514,8 @@ impl Ac2BehaviorTracker {
                 killed.push(track.params.behavior);
                 track.weight = -1.0;
                 track.weight_vel = 0.0;
+                env.triggers.add_track_triggers(&mut track);
+                env.triggers.on_track_terminated(&mut track);
                 track.terminated_fx = true;
                 if let Some(combo) = combo {
                     self.non_active_by_layer.remove(combo.layer);

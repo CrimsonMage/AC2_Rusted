@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use ac2_anim::{Ac2AnimEvent, Ac2BehaviorParams, Ac2CharTemplate};
+use ac2_core::Random;
 
 use crate::body::{PhysicsBody, PHYSICS_QUANTUM};
 use crate::moveto::{MovementParameters, PackedMovementParameters, MOVE_TO_MOVE};
@@ -67,7 +68,7 @@ fn the_player_keeps_its_client_sliders_from_the_server() {
 fn colour_and_opacity_sliders_set_the_animation_colour() {
     let mut body = remote_body();
     assert_eq!(body.anim_color(), [1.0; 4]);
-    body.update_animation(0.5, 1.0);
+    body.update_animation(0.5, 1.0, &mut Random::default());
     body.do_slider(0, RED, 1.5, 0.0);
     assert_eq!(body.anim_color()[0], 1.0, "capped");
     body.do_slider(0, RED, 0.25, 0.0);
@@ -80,7 +81,7 @@ fn colour_and_opacity_sliders_set_the_animation_colour() {
             context: 7,
             error: 0
         }));
-    body.update_animation(0.5, 1.5);
+    body.update_animation(0.5, 1.5, &mut Random::default());
     assert!(
         (body.anim_opacity() - 0.5).abs() < 1e-6,
         "{}",
@@ -96,7 +97,7 @@ fn far_bodies_refresh_their_sliders_less_often() {
     body.set_view_distance(35.0);
     body.do_slider(0, OPACITY, 0.0, 10.0);
     let mut now = 5.0;
-    body.update_animation(PHYSICS_QUANTUM, now);
+    body.update_animation(PHYSICS_QUANTUM, now, &mut Random::default());
     assert_eq!(
         body.slider_value(OPACITY),
         0.5,
@@ -107,7 +108,7 @@ fn far_bodies_refresh_their_sliders_less_often() {
     let mut values = Vec::new();
     for _ in 0..12 {
         now += 0.05;
-        body.update_animation(0.05, now);
+        body.update_animation(0.05, now, &mut Random::default());
         values.push(body.slider_value(OPACITY));
     }
     // Updates land after 0.25 s (the first frame at least 0.2083 s on) and 0.5 s.
@@ -120,7 +121,7 @@ fn far_bodies_refresh_their_sliders_less_often() {
     let before = body.slider_value(OPACITY);
     for _ in 0..10 {
         now += 0.05;
-        body.update_animation(0.05, now);
+        body.update_animation(0.05, now, &mut Random::default());
     }
     assert_eq!(
         body.slider_value(OPACITY),
@@ -129,11 +130,11 @@ fn far_bodies_refresh_their_sliders_less_often() {
     );
     body.set_player(true);
     now += 0.05;
-    body.update_animation(0.05, now);
+    body.update_animation(0.05, now, &mut Random::default());
     assert!(body.slider_value(OPACITY) == before, "still past it");
     body.set_view_distance(35.0);
     now += 0.05;
-    body.update_animation(0.05, now);
+    body.update_animation(0.05, now, &mut Random::default());
     assert!(
         body.slider_value(OPACITY) > before,
         "the player updates every step"
@@ -148,7 +149,7 @@ fn a_description_sets_mode_behaviours_and_sliders() {
     let mut animate = |body: &mut PhysicsBody, seconds: f32| {
         for _ in 0..(seconds / 0.05).round() as usize {
             now += 0.05;
-            body.update_animation(0.05, now);
+            body.update_animation(0.05, now, &mut Random::default());
         }
     };
     animate(&mut body, 0.05);
@@ -205,4 +206,91 @@ fn a_server_move_to_unpacks_over_the_defaults() {
     let mut body = body_at(70.0, 30.0, 50.0);
     assert!(body.recv_move_to(params));
     assert!(body.is_moving_to());
+}
+
+#[test]
+fn idle_effect_triggers_restart_each_cycle_and_hooks_fire_once() {
+    use ac2_anim::{
+        Ac2AnimAsset, Ac2AnimInfo, Ac2AnimTrigger, Ac2Bone, Ac2DbAnimator, Ac2PlacementFrame,
+        Ac2Setup, Ac2Transform, Ac2WeenieHook,
+    };
+
+    let mut body = remote_body();
+    let mut animation = body_animation();
+    // Triggers come from the part array's animators (`CPartArray::AddAnimation`).
+    animation.setup = Some(Arc::new(Ac2Setup {
+        meshes: Arc::from(Vec::new()),
+        bones: Arc::from(vec![Ac2Bone {
+            parent: None,
+            name: 0,
+        }]),
+        placements: Arc::from(vec![Ac2PlacementFrame {
+            kind: 0,
+            bones: Arc::from(vec![Ac2Transform::IDENTITY]),
+        }]),
+        holding_points: Arc::from(Vec::new()),
+        connection_points: Arc::from(Vec::new()),
+        bounds_min: ac2_math::Vec3::ZERO,
+        bounds_max: ac2_math::Vec3::ZERO,
+    }));
+    let info = Ac2AnimInfo {
+        effects: vec![Ac2AnimTrigger {
+            fx: 0x77,
+            time: 0.0,
+            stop: false,
+            probability: 1.0,
+            intensity: 0.5,
+            intensity_var: 0.0,
+            play: 1,
+        }],
+        hooks: vec![Ac2WeenieHook {
+            hook_type: 1,
+            hook_num: 2,
+            data: 3,
+            triggered: false,
+            time: 0.5,
+        }],
+        ..Ac2AnimInfo::default()
+    };
+    animation.animators.insert(
+        1,
+        Arc::new(Ac2DbAnimator::Asset(Arc::new(Ac2AnimAsset {
+            period: 1.0,
+            bones: Vec::new(),
+            info: Some(info),
+        }))),
+    );
+    body.set_animation(animation);
+    let mut random = Random::default();
+    let mut now = 1.0;
+    let mut events = Vec::new();
+    for _ in 0..50 {
+        now += 0.05;
+        body.update_animation(0.05, now, &mut random);
+        events.extend(body.take_animation_events());
+    }
+    let fx: Vec<&Ac2AnimEvent> = events
+        .iter()
+        .filter(|e| {
+            matches!(
+                e,
+                Ac2AnimEvent::StartFx { fx: 0x77, .. } | Ac2AnimEvent::StopFx { fx: 0x77 }
+            )
+        })
+        .collect();
+    // 2.5 s of a 1 s idle: started, then stopped and restarted at each of two wraps.
+    assert_eq!(fx.len(), 5, "{fx:?}");
+    assert_eq!(
+        fx[0],
+        &Ac2AnimEvent::StartFx {
+            fx: 0x77,
+            intensity: 0.5
+        }
+    );
+    assert_eq!(fx[1], &Ac2AnimEvent::StopFx { fx: 0x77 });
+    let hooks = events
+        .iter()
+        .filter(|e| matches!(e, Ac2AnimEvent::WeenieHook { data: 3, .. }))
+        .count();
+    assert_eq!(hooks, 1, "a hook fires once per track");
 }

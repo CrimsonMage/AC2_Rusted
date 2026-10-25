@@ -662,7 +662,7 @@ key	status	note
 004e7c80	~	ac2-physics: the drawn position slerp / previous position only (PhysicsBody::drawing_position)
 004e8f80	x	
 004e9140	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
-004e9700	~	ac2-physics anim_pose: distance-degraded update frames (sliders, bone refresh), impulse triggers; no look-at, FX scripts, FX, effect triggers or weenie hooks
+004e9700	~	ac2-physics anim_pose: distance-degraded update frames, TriggerUpdate fired (FX and weenie hooks as events, impulses); no look-at, FX scripts or FX manager
 004e9d30	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 004e9f50	~	no cell residency, shadow or material updates; LeaveGround FX not ported
 004ea490	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -685,7 +685,9 @@ key	status	note
 004eb1e0	x	ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 004eb370	~	no player-distance range checks, parent or missile paths
 004eb8b0	x	
+004eb960	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 004ec290	~	PhysicsBody entry point (stop_layer, stop_move_to_cancels_behaviors, stop_all_weenie_behaviors, do_mode(0, m), set_mode, release_behavior with context 1); the client does not forward the event yet
+004ec310	~	the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
 004ec350	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ec400	~	the bookie part only
 004ec680	~	ac2-client motion.rs: DoBehavior with context 1; a weenie emote is not run first
@@ -699,7 +701,7 @@ key	status	note
 004ee860	x	ac2-physics los (Terrain::los_check)
 004f0a10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f0a80	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-004f0af0	~	impulse triggers always, compositor only on refresh frames; effect triggers and weenie hooks not fired; one part group
+004f0af0	~	all triggers every frame, compositor only on refresh frames; no slider-driven layer weights; one part group
 004f0de0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 004f1170	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f1190	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -722,6 +724,7 @@ key	status	note
 004f15a0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f17b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f17c0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f1a00	~	the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
 004f1ad0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 004f1b00	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1b90	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
@@ -1207,10 +1210,21 @@ key	status	note
 0067def0	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 0067df60	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 00684b00	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+00688fa0	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+00689000	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+00689040	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+00689080	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+006890c0	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 00689100	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00689180	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 00689210	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-006893b0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
-00689880	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+006892f0	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+00689330	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+006893b0	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+006894d0	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+00689680	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+00689710	~	ac2-anim Ac2TriggerUpdate: rolls recorded in add order and drawn on the shared Random when the triggers fire
+00689880	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 00689ab0	~	ac2-anim Ac2SliderTracker; slider interpolators not modelled
 00689c20	x	ac2-anim: network behaviours and sliders, CharTemplate slider controllers (slice 4)
 00689d60	x	ac2-anim Ac2SliderTracker
@@ -1219,6 +1233,7 @@ key	status	note
 0068a1d0	x	ac2-anim Ac2SliderTracker
 0068a400	x	ac2-anim Ac2SliderTracker
 0068a840	x	ac2-anim Ac2SliderTracker
+0068a8b0	~	the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
 0068a900	x	ac2-anim Ac2ModeTracker
 0068a9f0	x	ac2-anim Ac2ModeTracker
 0068aac0	x	ac2-anim Ac2ModeTracker
@@ -1234,10 +1249,10 @@ key	status	note
 0068ae30	x	ac2-anim Ac2ModeTracker
 0068b060	x	ac2-anim Ac2ModeTracker
 0068b0b0	x	ac2-anim Ac2ModeTracker
-0068b1d0	~	ac2-anim Ac2ModeTracker; effect triggers become StartFx/StopFx events, no TriggerUpdate
+0068b1d0	~	ac2-anim: transition behaviour, effect and stop effect (fireAndForget once mTriggers is bound)
 0068b400	x	ac2-anim Ac2ModeTracker
 0068b450	x	ac2-anim Ac2ModeTracker
-0068b510	~	ac2-anim Ac2ModeTracker; effect triggers become StartFx/StopFx events, no TriggerUpdate
+0068b510	~	ac2-anim Ac2ModeTracker; transition effects through fireAndForget; AddTriggers after the caller's DoAnimation
 0068b730	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0068b770	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0068b7a0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
@@ -1245,11 +1260,12 @@ key	status	note
 0068bba0	x	ac2-anim Ac2BehaviorTracker
 0068bbf0	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
 0068bd50	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
-0068c290	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+0068c1e0	~	ac2-anim BehaviorTracker::destroy: weight -1 and AddTrackTriggers; camera/fade restore not modelled
+0068c290	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 0068c400	x	ac2-anim Ac2BehaviorTracker
 0068c4c0	x	ac2-anim Ac2BehaviorTracker
 0068c500	x	ac2-anim Ac2BehaviorTracker
-0068c720	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+0068c720	~	ac2-anim Ac2BehaviorTracker; triggers via TriggerUpdate; camera, fade, clone and FX-script parameters not modelled
 0068cbd0	x	ac2-anim Ac2BehaviorTracker
 0068cda0	x	ac2-anim Ac2BehaviorTracker
 0068ce80	x	ac2-anim Ac2BehaviorTracker
@@ -1259,13 +1275,14 @@ key	status	note
 0068d690	x	ac2-anim: network behaviours and sliders, CharTemplate slider controllers (slice 4)
 0068d800	x	ac2-anim Ac2BehaviorTracker
 0068db80	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
-0068dfc0	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+0068dfc0	~	ac2-anim Ac2BehaviorTracker; triggers via TriggerUpdate; camera, fade, clone and FX-script parameters not modelled
 0068e410	x	ac2-anim Ac2BehaviorTracker
 0068eaf0	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 0068eb00	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 0068eb90	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+0068f440	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 0068f4c0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-0068f520	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+0068f520	~	ac2-anim Ac2BehaviorTrack; plain behaviours clear their effect triggers each cycle; FX scripts not modelled
 0068fde0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00690090	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 006900c0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
@@ -1281,7 +1298,7 @@ key	status	note
 006967e0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00696d80	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00696e10	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-00697a20	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+00697a20	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 00698920	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00698930	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00698990	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
@@ -1435,5 +1452,5 @@ key	status	note
 00737dd0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 00739430	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00739460	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-0073ab60	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+0073ab60	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 DB_TYPE_SURFACE_DESC	x	

@@ -116,6 +116,8 @@ pub struct Client {
     physics_clock: PhysicsClock,
     /// `PhysicsModule::m_tAnimationUpdateTime`.
     anim_clock: AnimationClock,
+    /// `Random`, the client's shared generator (animation effect triggers roll on it).
+    random: ac2_core::Random,
     /// `SmartBox::m_bBlockingLoad`.
     blocking_load: bool,
     /// `SmartBox::SetWantNoticeOnNextFrameDrawn`.
@@ -175,6 +177,7 @@ impl Client {
             game_clock,
             physics_clock: PhysicsClock::new(now),
             anim_clock: AnimationClock::new(now),
+            random: ac2_core::Random::default(),
             blocking_load: false,
             want_frame_drawn: false,
             camera_update_time: now,
@@ -477,9 +480,9 @@ impl Client {
         // `PhysicsModule::UpdateAnimation` -> `CPhysics::UpdateAllAnimation`.
         if let Some(step) = self.anim_clock.advance(now) {
             if let Some(body) = self.player.as_mut().and_then(|p| p.body.as_mut()) {
-                body.physics.update_animation(step, now);
+                body.physics.update_animation(step, now, &mut self.random);
             }
-            self.remotes.update_animation(step, now);
+            self.remotes.update_animation(step, now, &mut self.random);
         }
         Ok(events)
     }

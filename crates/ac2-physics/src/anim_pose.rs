@@ -4,7 +4,7 @@
 
 use ac2_anim::{
     Ac2AnimEvent, Ac2AnimatorContext, Ac2BoneTransform, Ac2Compositor, Ac2ImpulseTrigger,
-    Ac2PoseInput, Ac2SliderTracker, Ac2Transform,
+    Ac2PoseInput, Ac2SliderTracker, Ac2Transform, Ac2TriggerAction,
 };
 
 use crate::anim_rep::{AnimRep, BodyAnimation};
@@ -71,14 +71,20 @@ impl PhysicsObj {
         step
     }
 
-    /// `CPhysicsObj::UpdateAnimation` (look-at, FX scripts, FX and the effect and weenie-hook
-    /// triggers are not modelled). Unless animation is frozen: an update frame comes once the
-    /// update step has passed since the last one while the body is within its minimum visible
-    /// distance (always the first call); it advances the sliders by the time since the last
-    /// update frame and refreshes the bones. Every call adds the half-step of local acceleration
-    /// to the animation velocity and runs `ModeTracker::Update`, whose `DoAnimation` collects
-    /// the impulse triggers; the triggers fire.
-    pub(crate) fn update_animation(&mut self, quantum: f32, local_time: f64) {
+    /// `CPhysicsObj::UpdateAnimation` (look-at, FX scripts and the FX manager are not
+    /// modelled). Unless animation is frozen: an update frame comes once the update step has
+    /// passed since the last one while the body is within its minimum visible distance (always
+    /// the first call); it advances the sliders by the time since the last update frame and
+    /// refreshes the bones. Every call adds the half-step of local acceleration to the animation
+    /// velocity and runs `ModeTracker::Update`, whose `DoAnimation` collects the tracks'
+    /// triggers; then the `TriggerUpdate` fires (FX and weenie hooks become events, impulses
+    /// move the body), its effect rolls drawn from `random`.
+    pub(crate) fn update_animation(
+        &mut self,
+        quantum: f32,
+        local_time: f64,
+        random: &mut ac2_core::Random,
+    ) {
         if self.is_animation_frozen() {
             return;
         }
@@ -106,10 +112,14 @@ impl PhysicsObj {
         if self.anim.can_animate() {
             self.anim
                 .with_modes(|modes, source| modes.update(quantum, source));
-            let impulses = self.do_animation(refresh);
+            self.do_animation(refresh);
+            self.anim.modes.add_triggers();
             self.sync_mode();
-            for impulse in impulses {
-                self.fire_impulse(&impulse);
+        }
+        for action in self.anim.modes.triggers_mut().fire(random) {
+            match action {
+                Ac2TriggerAction::Event(event) => self.anim.push_events([event]),
+                Ac2TriggerAction::Impulse(impulse) => self.fire_impulse(&impulse),
             }
         }
     }
@@ -136,10 +146,9 @@ impl PhysicsObj {
     }
 
     /// `PHYSICSOBJREP::DoAnimation(refreshBones)`: the bones are posed only when refreshing
-    /// (`CPartArray::AddAnimation` adds to the compositor only then); the impulse triggers the
-    /// tracks reached are collected either way (`DBAnimator::GetTriggers`,
-    /// `BehaviorTracker::AddTriggers`): the ones not fired yet, now marked fired.
-    fn do_animation(&mut self, refresh: bool) -> Vec<Ac2ImpulseTrigger> {
+    /// (`CPartArray::AddAnimation` adds to the compositor only then); each track's reached
+    /// triggers are added to it either way (`DBAnimator::GetTriggers`).
+    fn do_animation(&mut self, refresh: bool) {
         let terrain = self.motion.terrain_type();
         let (anim_velocity, effects_scale, omega) = (
             array(self.anim_velocity),
@@ -157,7 +166,7 @@ impl PhysicsObj {
             ..
         } = &mut self.anim;
         let (Some(setup), Some(table)) = (setup.as_ref(), table.as_ref()) else {
-            return Vec::new();
+            return;
         };
         let mut ctx = PoseContext {
             sliders,
@@ -191,28 +200,19 @@ impl PhysicsObj {
                 &input,
             );
         }
-        let mut pending = Vec::new();
         modes.visit_tracks_mut(|state, track| {
-            let Some(animator) = animators.get(&track.anim_key) else {
-                return;
-            };
-            let mut reached = Vec::new();
-            animator.impulses(&ctx, state, track.ctime, !track.is_action, &mut reached);
-            for impulse in reached {
-                if !track.impulses.iter().any(|(known, _)| *known == impulse) {
-                    track.impulses.push((impulse, false));
-                }
-            }
-            for (impulse, triggered) in &mut track.impulses {
-                if !*triggered {
-                    *triggered = true;
-                    pending.push(*impulse);
-                }
+            if let Some(animator) = animators.get(&track.anim_key) {
+                animator.triggers(
+                    &ctx,
+                    state,
+                    track.ctime,
+                    !track.is_action,
+                    &mut track.triggers,
+                );
             }
         });
         let events = self.anim.sliders.take_events();
         self.anim.push_events(events);
-        pending
     }
 
     /// The posed bones in model space (`CSetup` hierarchy over the local bone transforms), or

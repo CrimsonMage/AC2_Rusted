@@ -3,6 +3,7 @@
 //! whether the body is the player.
 
 use ac2_anim::{Ac2AnimEvent, Ac2BehaviorParams};
+use ac2_core::Random;
 
 use crate::anim_rep::BodyAnimation;
 use crate::moveto::MovementParameters;
@@ -35,8 +36,10 @@ impl PhysicsBody {
     /// an [`AnimationClock`](crate::AnimationClock) gives, at `local_time`
     /// (`Timer::local_time`, the clock's `now`). Bodies past a quarter of their minimum visible
     /// distance refresh their bones and sliders less often; see [`Self::set_view_distance`].
-    pub fn update_animation(&mut self, quantum: f32, local_time: f64) {
-        self.object.update_animation(quantum, local_time);
+    /// The animation's effect triggers roll their probability and intensity on `random`, the
+    /// client's shared generator (`Random::RollDice`).
+    pub fn update_animation(&mut self, quantum: f32, local_time: f64, random: &mut Random) {
+        self.object.update_animation(quantum, local_time, random);
     }
 
     /// `CPhysicsObj::UpdateViewerDistance`: the camera's distance to the body
@@ -174,8 +177,8 @@ impl PhysicsBody {
         self.object.posed_parts()
     }
 
-    /// The behaviour, mode and slider callbacks and the FX the animation raised since the last
-    /// call, in order.
+    /// The behaviour, mode and slider callbacks, the FX starts and stops and the weenie hooks
+    /// the animation raised since the last call, in order.
     pub fn take_animation_events(&mut self) -> Vec<Ac2AnimEvent> {
         self.object.take_animation_events()
     }

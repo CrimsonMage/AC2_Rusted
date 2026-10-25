@@ -271,6 +271,8 @@ pub(crate) fn body_at(x: f32, y: f32, z: f32) -> PhysicsBody {
 thread_local! {
     /// The test thread's `Timer::local_time`, advanced by [`animate`].
     static LOCAL_TIME: std::cell::Cell<f64> = const { std::cell::Cell::new(1.0) };
+    /// The test thread's shared generator.
+    static RANDOM: std::cell::RefCell<ac2_core::Random> = std::cell::RefCell::default();
 }
 
 /// One animation step of `quantum` seconds on the test thread's local clock.
@@ -279,5 +281,7 @@ pub(crate) fn animate(body: &mut PhysicsBody, quantum: f32) {
         time.set(time.get() + f64::from(quantum));
         time.get()
     });
-    body.update_animation(quantum, now);
+    let mut random = RANDOM.with(|random| random.take());
+    body.update_animation(quantum, now, &mut random);
+    RANDOM.with(|cell| cell.replace(random));
 }

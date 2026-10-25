@@ -13,12 +13,14 @@
 mod asset;
 mod compose;
 mod tree;
+mod triggers;
 
 pub use asset::{
     Ac2AnimAsset, Ac2AnimInfo, Ac2AnimTrigger, Ac2AssetBone, Ac2ImpulseTrigger, Ac2WeenieHook,
 };
 pub use compose::{Ac2Compositor, Ac2PoseInput};
 pub use tree::{load_ac2_db_animator, Ac2CubeSlider, Ac2DbAnimator};
+pub use triggers::Ac2TrackTriggers;
 
 /// What animators read from (and, for `AMHuman`, write to) the animated object.
 pub trait Ac2AnimatorContext {

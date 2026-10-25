@@ -1,6 +1,6 @@
 # ac2-anim: Animation system
 
-532 retail functions: 87 done, 18 partial, 391 to do, 36 skipped.
+532 retail functions: 103 done, 16 partial, 377 to do, 36 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/anim/charactersetup.cpp.c` (0/67)
@@ -168,7 +168,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AnimCompositor::~AnimCompositor` · 0068bad0 · legions 0062cb00
 - [ ] `AnimCompositor::AnimCompositor` · 0068bb40 · legions 0062cb70
 
-## `portal/shared/src/animsys/animinfo.cpp.c` (2/12)
+## `portal/shared/src/animsys/animinfo.cpp.c` (3/12)
 
 ### BaseList<unsigned_long,11>
 - [ ] `BaseList<unsigned_long,11>::GetReferences` · 00739420 · legions 006b4f60
@@ -179,7 +179,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AnimInfo::ParseLoopNode` · 007397a0
 - [ ] `AnimInfo::ParseComboAttackNode` · 00739990 · legions 006b5570
 - [-] `AnimInfo::ToFileNode` · 00739a90 · legions 006b5670 — text source format (admin tools)
-- [~] `AnimInfo::GetTriggers` · 0073ab60 · legions 006b6db0 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+- [x] `AnimInfo::GetTriggers` · 0073ab60 · legions 006b6db0 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 - [ ] `AnimInfo::ParseImpulseNode` · 0073b010
 - [ ] `AnimInfo::ParseEffectsNode` · 0073b320
 - [ ] `AnimInfo::ParseStopEffectsNode` · 0073b860
@@ -433,7 +433,7 @@ Legend and workflow: [README](README.md).
 - [-] `AnimAsset::ToFileNode` · 0069ba90 — text source format (admin tools)
 - [ ] `AnimAsset::CopyMe` · 0069bbf0
 
-## `portal/shared/src/animsys/animmodules/animcube.cpp.c` (3/22)
+## `portal/shared/src/animsys/animmodules/animcube.cpp.c` (4/22)
 
 ### AnimCube
 - [ ] `AnimCube::FlushCache` · 006965a0 · legions 00636140
@@ -460,7 +460,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AnimCube::SliderAndTickList::SliderAndTickList` · 00697860
 
 ### AnimCube
-- [~] `AnimCube::GetTriggers` · 00697a20 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+- [x] `AnimCube::GetTriggers` · 00697a20 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 
 ### SmartArray<AnimCube::SliderAndTickList>
 - [ ] `SmartArray<AnimCube::SliderAndTickList>::operator=` · 00697ff0 · legions 006372c0
@@ -662,7 +662,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/animsys/behaviortrack.cpp.c` (0/4)
 
 ### BehaviorTrack
-- [~] `BehaviorTrack::Update` · 0068f520 · legions 006300a0 — ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+- [~] `BehaviorTrack::Update` · 0068f520 · legions 006300a0 — ac2-anim Ac2BehaviorTrack; plain behaviours clear their effect triggers each cycle; FX scripts not modelled
 - [ ] `BehaviorTrack::~BehaviorTrack` · 0068f980 · legions 00630500
 
 ### (free functions)
@@ -671,7 +671,7 @@ Legend and workflow: [README](README.md).
 ### BehaviorTrack
 - [ ] `BehaviorTrack::StreamPack` · 0068fb60 · legions 006306e0
 
-## `portal/shared/src/animsys/behaviortracker.cpp.c` (13/34)
+## `portal/shared/src/animsys/behaviortracker.cpp.c` (14/34)
 
 ### BehaviorTracker
 - [x] `BehaviorTracker::SendAndClearCallback` · 0068bba0 · legions 0062cbd0 — ac2-anim Ac2BehaviorTracker
@@ -686,14 +686,14 @@ Legend and workflow: [README](README.md).
 - [ ] `PSmartArray<WeenieHook>::StreamPack` · 0068c140 · legions 0062d170
 
 ### BehaviorTracker
-- [ ] `BehaviorTracker::Destroy` · 0068c1e0 · legions 0062d210
-- [~] `BehaviorTracker::AddTriggers` · 0068c290 · legions 0062d2c0 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+- [~] `BehaviorTracker::Destroy` · 0068c1e0 · legions 0062d210 — ac2-anim BehaviorTracker::destroy: weight -1 and AddTrackTriggers; camera/fade restore not modelled
+- [x] `BehaviorTracker::AddTriggers` · 0068c290 · legions 0062d2c0 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 - [ ] `BehaviorTracker::CheckActiveBehaviorsForDynamicFPCamera` · 0068c300 · legions 0062d330
 - [x] `BehaviorTracker::ReleaseBehavior` · 0068c400 · legions 0062d430 — ac2-anim Ac2BehaviorTracker
 - [x] `BehaviorTracker::GetTrack` · 0068c4c0 · legions 0062d4f0 — ac2-anim Ac2BehaviorTracker
 - [x] `BehaviorTracker::IsDoingBehavior` · 0068c500 · legions 0062d530 — ac2-anim Ac2BehaviorTracker
 - [ ] `BehaviorTracker::~BehaviorTracker` · 0068c640 · legions 0062d670
-- [~] `BehaviorTracker::Update` · 0068c720 · legions 0062d750 — ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+- [~] `BehaviorTracker::Update` · 0068c720 · legions 0062d750 — ac2-anim Ac2BehaviorTracker; triggers via TriggerUpdate; camera, fade, clone and FX-script parameters not modelled
 - [x] `BehaviorTracker::StopBehavior` · 0068cbd0 · legions 0062dbf0 — ac2-anim Ac2BehaviorTracker
 - [x] `BehaviorTracker::StopAllWeenieBehaviors` · 0068cda0 · legions 0062ddc0 — ac2-anim Ac2BehaviorTracker
 - [x] `BehaviorTracker::StopLayer` · 0068ce80 · legions 0062dea0 — ac2-anim Ac2BehaviorTracker
@@ -734,7 +734,7 @@ Legend and workflow: [README](README.md).
 
 ### BehaviorTracker
 - [~] `BehaviorTracker::Init` · 0068db80 · legions 0062eba0 — ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
-- [~] `BehaviorTracker::DoBehavior` · 0068dfc0 · legions 0062efe0 — ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
+- [~] `BehaviorTracker::DoBehavior` · 0068dfc0 · legions 0062efe0 — ac2-anim Ac2BehaviorTracker; triggers via TriggerUpdate; camera, fade, clone and FX-script parameters not modelled
 - [x] `BehaviorTracker::DoAutonomousBehavior` · 0068e410 · legions 0062f430 — ac2-anim Ac2BehaviorTracker
 
 ## `portal/shared/src/animsys/chartemplate.cpp.c` (3/26)
@@ -917,10 +917,10 @@ Legend and workflow: [README](README.md).
 - [ ] `FXTrack::FXTrack` · 006902d0 · legions 00630e40
 - [ ] `FXTrack::FXTrack` · 00690300 · legions 00630e70
 
-## `portal/shared/src/animsys/impulsetrigger.cpp.c` (1/3)
+## `portal/shared/src/animsys/impulsetrigger.cpp.c` (2/3)
 
 ### ImpulseTrigger
-- [ ] `ImpulseTrigger::operator==` · 00689180 · legions 0062a1a0
+- [x] `ImpulseTrigger::operator==` · 00689180 · legions 0062a1a0 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 - [ ] `ImpulseTrigger::operator<` · 006891f0 · legions 0062a210
 - [x] `ImpulseTrigger::StreamPack` · 00689210 · legions 0062a230 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 
@@ -933,7 +933,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/animsys/modetracker.cpp.c` (17/23)
 
 ### ModeTracker
-- [ ] `ModeTracker::GetTriggerUpdate` · 0068a8b0 · legions 0062b8f0
+- [~] `ModeTracker::GetTriggerUpdate` · 0068a8b0 · legions 0062b8f0 — the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
 - [ ] `ModeTracker::SetAnimationObj` · 0068a8d0 · legions 0062b910
 - [x] `ModeTracker::Init` · 0068a900 · legions 0062b940 — ac2-anim Ac2ModeTracker
 - [x] `ModeTracker::SetMode` · 0068a9f0 · legions 0062ba20 — ac2-anim Ac2ModeTracker
@@ -952,10 +952,10 @@ Legend and workflow: [README](README.md).
 - [ ] `ModeTracker::StreamPack` · 0068ae60 · legions 0062be90
 - [x] `ModeTracker::GetModeState` · 0068b060 · legions 0062c090 — ac2-anim Ac2ModeTracker
 - [x] `ModeTracker::DoBehavior` · 0068b0b0 · legions 0062c0e0 — ac2-anim Ac2ModeTracker
-- [~] `ModeTracker::StartTransitioning` · 0068b1d0 · legions 0062c200 — ac2-anim Ac2ModeTracker; effect triggers become StartFx/StopFx events, no TriggerUpdate
+- [~] `ModeTracker::StartTransitioning` · 0068b1d0 · legions 0062c200 — ac2-anim: transition behaviour, effect and stop effect (fireAndForget once mTriggers is bound)
 - [x] `ModeTracker::DoElement` · 0068b400 · legions 0062c430 — ac2-anim Ac2ModeTracker
 - [x] `ModeTracker::DoMode` · 0068b450 · legions 0062c480 — ac2-anim Ac2ModeTracker
-- [~] `ModeTracker::Update` · 0068b510 · legions 0062c540 — ac2-anim Ac2ModeTracker; effect triggers become StartFx/StopFx events, no TriggerUpdate
+- [~] `ModeTracker::Update` · 0068b510 · legions 0062c540 — ac2-anim Ac2ModeTracker; transition effects through fireAndForget; AddTriggers after the caller's DoAnimation
 
 ## `portal/shared/src/animsys/slider.cpp.c` (0/2)
 
@@ -997,28 +997,28 @@ Legend and workflow: [README](README.md).
 ### SliderTracker
 - [x] `SliderTracker::SliderTracker` · 0068a840 · legions 0062b880 — ac2-anim Ac2SliderTracker
 
-## `portal/shared/src/animsys/trigger.cpp.c` (1/7)
+## `portal/shared/src/animsys/trigger.cpp.c` (6/7)
 
 ### Trigger
-- [ ] `Trigger::operator==` · 00688fa0 · legions 00629fc0
+- [x] `Trigger::operator==` · 00688fa0 · legions 00629fc0 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 - [ ] `Trigger::operator<` · 00688fe0 · legions 0062a000
-- [ ] `Trigger::Trigger` · 00689000 · legions 0062a020
-- [ ] `Trigger::Trigger` · 00689040 · legions 0062a060
-- [ ] `Trigger::Trigger` · 00689080 · legions 0062a0a0
-- [ ] `Trigger::Trigger` · 006890c0 · legions 0062a0e0
+- [x] `Trigger::Trigger` · 00689000 · legions 0062a020 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+- [x] `Trigger::Trigger` · 00689040 · legions 0062a060 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+- [x] `Trigger::Trigger` · 00689080 · legions 0062a0a0 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+- [x] `Trigger::Trigger` · 006890c0 · legions 0062a0e0 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 - [x] `Trigger::StreamPack` · 00689100 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 
-## `portal/shared/src/animsys/triggerupdate.cpp.c` (0/8)
+## `portal/shared/src/animsys/triggerupdate.cpp.c` (6/8)
 
 ### TriggerUpdate
 - [ ] `TriggerUpdate::StreamPack` · 00689290 · legions 0062a2b0
-- [ ] `TriggerUpdate::IsEmpty` · 006892f0 · legions 0062a310
-- [ ] `TriggerUpdate::AddWeenieHook` · 00689330 · legions 0062a350
-- [~] `TriggerUpdate::AddImpulseTrigger` · 006893b0 · legions 0062a3d0 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
-- [ ] `TriggerUpdate::OnTrackTerminated` · 006894d0 · legions 0062a4f0
-- [ ] `TriggerUpdate::CleanUp` · 00689680 · legions 0062a6a0
-- [ ] `TriggerUpdate::AddEffectsTrigger` · 00689710 · legions 0062a730
-- [~] `TriggerUpdate::AddTrackTriggers` · 00689880 · legions 0062a8a0 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+- [x] `TriggerUpdate::IsEmpty` · 006892f0 · legions 0062a310 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+- [x] `TriggerUpdate::AddWeenieHook` · 00689330 · legions 0062a350 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+- [x] `TriggerUpdate::AddImpulseTrigger` · 006893b0 · legions 0062a3d0 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+- [x] `TriggerUpdate::OnTrackTerminated` · 006894d0 · legions 0062a4f0 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+- [x] `TriggerUpdate::CleanUp` · 00689680 · legions 0062a6a0 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
+- [~] `TriggerUpdate::AddEffectsTrigger` · 00689710 · legions 0062a730 — ac2-anim Ac2TriggerUpdate: rolls recorded in add order and drawn on the shared Random when the triggers fire
+- [x] `TriggerUpdate::AddTrackTriggers` · 00689880 · legions 0062a8a0 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 
 ## `portal/shared/src/animsys/validmodes.cpp.c` (0/7)
 
@@ -1031,10 +1031,10 @@ Legend and workflow: [README](README.md).
 - [-] `ValidModes::ToFileNode` · 00685680 — text source format (admin tools)
 - [-] `ValidModes::FromFileNode` · 00685790 — text source format (admin tools)
 
-## `portal/shared/src/animsys/weeniehook.cpp.c` (1/4)
+## `portal/shared/src/animsys/weeniehook.cpp.c` (2/4)
 
 ### WeenieHook
-- [ ] `WeenieHook::operator==` · 0068f440 · legions 0062ffc0
+- [x] `WeenieHook::operator==` · 0068f440 · legions 0062ffc0 — ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 - [ ] `WeenieHook::operator<` · 0068f470 · legions 0062fff0
 - [ ] `WeenieHook::WeenieHook` · 0068f490 · legions 00630010
 - [x] `WeenieHook::StreamPack` · 0068f4c0 · legions 00630040 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
