@@ -747,6 +747,7 @@ impl Client {
                 ahead(o.z, forward.z),
             ],
             fov: self.scene.fov,
+            first_person: self.camera.first_person,
         })
     }
 }

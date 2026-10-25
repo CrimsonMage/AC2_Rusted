@@ -14,7 +14,9 @@ use std::time::Duration;
 use ac2_core::DataId;
 use ac2_gpu::{Gpu, SceneObject, SceneRenderer};
 use ac2_math::{Mat4, Quat, Vec3};
+use ac2_render::object::ObjectPose;
 use ac2_render::scene::WorldScene;
+use ac2_render::selection::{pick, PickCandidate};
 use ac2_render::Camera;
 use ac2_weenie::Appearance;
 use ac2_world::Ac2WorldSource;
@@ -29,6 +31,8 @@ const FAR: f32 = 4000.0;
 
 /// One object to draw: its id, visual, appearance, where it stands and how it is posed.
 struct Drawn<'a> {
+    id: u64,
+    player: bool,
     visual: u32,
     appearance: &'a Appearance,
     cell: u32,
@@ -61,6 +65,8 @@ fn model_key(visual: u32, appearance: &Appearance) -> u64 {
 fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
     let player = frame.player.iter().filter_map(|p| {
         Some(Drawn {
+            id: p.id,
+            player: true,
             visual: p.visual?,
             appearance: &p.appearance,
             cell: p.cell,
@@ -75,6 +81,8 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
         .filter(|o| o.in_world && o.holder.is_none())
         .filter_map(|o| {
             Some(Drawn {
+                id: o.id,
+                player: false,
                 visual: o.visual?,
                 appearance: &o.appearance,
                 cell: o.cell,
@@ -109,7 +117,7 @@ impl ClientView {
     }
 
     /// A position relative to `cell`'s landblock, in the world.
-    fn world_point(&self, cell: u32, origin: [f32; 3]) -> Vec3 {
+    pub fn world_point(&self, cell: u32, origin: [f32; 3]) -> Vec3 {
         let (x, y) = block_of(cell);
         Vec3::new(
             f32::from(x) * self.block_size,
@@ -168,18 +176,9 @@ impl ClientView {
         };
         let scene_frame = self.scene.frame(&camera, aspect);
         let objects = drawn_objects(frame)
-            .into_iter()
+            .iter()
             .filter_map(|drawn| {
-                let key = model_key(drawn.visual, drawn.appearance);
-                let (rig, scale) = self.scene.object_rig(key)?;
-                let [w, x, y, z] = drawn.rotation;
-                let world = Mat4::from_scale_rotation_translation(
-                    *scale,
-                    Quat::from_xyzw(x, y, z, w),
-                    self.world_point(drawn.cell, drawn.origin),
-                );
-                let bones: Vec<_> = drawn.pose.iter().map(PartPose::transform).collect();
-                let pose = rig.pose((!bones.is_empty()).then_some(bones.as_slice()));
+                let (key, world, pose) = self.placed(drawn)?;
                 Some(SceneObject {
                     key,
                     world,
@@ -192,6 +191,57 @@ impl ClientView {
             .prepare(gpu, &camera, aspect, time, scene_frame, objects);
         self.hud.prepare(&gpu.queue);
         true
+    }
+
+    /// A drawn object's model key, model-to-world matrix and pose (`CPartArray::UpdateBones`).
+    fn placed(&self, drawn: &Drawn<'_>) -> Option<(u64, Mat4, Option<ObjectPose>)> {
+        let key = model_key(drawn.visual, drawn.appearance);
+        let (rig, scale) = self.scene.object_rig(key)?;
+        let [w, x, y, z] = drawn.rotation;
+        let world = Mat4::from_scale_rotation_translation(
+            *scale,
+            Quat::from_xyzw(x, y, z, w),
+            self.world_point(drawn.cell, drawn.origin),
+        );
+        let bones: Vec<_> = drawn.pose.iter().map(PartPose::transform).collect();
+        let pose = rig.pose((!bones.is_empty()).then_some(bones.as_slice()));
+        Some((key, world, pose))
+    }
+
+    /// `gmSelectionUI::Start3DSelection` / `Finish3DSelection`: the object under `cursor` on a
+    /// `screen`-sized view (`ac2_render::selection::pick`); the player is not selectable in
+    /// first person.
+    pub fn pick(&self, frame: &ClientFrame, screen: (u32, u32), cursor: (i32, i32)) -> Option<u64> {
+        let camera = self.camera(frame)?;
+        let first_person = frame.camera.is_some_and(|c| c.first_person);
+        let aspect = screen.0 as f32 / screen.1.max(1) as f32;
+        let drawn = drawn_objects(frame);
+        let placed: Vec<_> = drawn
+            .iter()
+            .filter(|d| !(d.player && first_person))
+            .filter_map(|d| {
+                let (key, world, pose) = self.placed(d)?;
+                let mesh = self.scene.object_pick(key)?;
+                Some((d.id, d.player, world, pose, Arc::clone(mesh)))
+            })
+            .collect();
+        let candidates: Vec<_> = placed
+            .iter()
+            .map(|(id, player, world, pose, mesh)| PickCandidate {
+                id: *id,
+                world: *world,
+                pose: pose.as_ref(),
+                mesh,
+                third_person_player: *player,
+            })
+            .collect();
+        pick(
+            camera.view_projection(aspect),
+            camera.eye,
+            screen,
+            cursor,
+            &candidates,
+        )
     }
 
     /// How many of the frame's objects have their model loaded.
@@ -210,6 +260,11 @@ impl ClientView {
     /// messages they broadcast, for [`ac2_ui::Controls::ui_messages`].
     pub fn ui_input(&mut self, actions: &[(u32, f32, bool)]) -> Vec<ac2_ui::UiMessage> {
         self.hud.input(actions)
+    }
+
+    /// The pointer as the HUD last saw it (`ICIDM` mouse position).
+    pub fn pointer(&self) -> (i32, i32) {
+        self.hud.pointer()
     }
 
     /// How many HUD surfaces are drawn.

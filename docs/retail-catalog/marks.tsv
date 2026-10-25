@@ -38,6 +38,9 @@ key	status	note
 00423550	x	
 00423610	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 00423690	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
+00423a50	x	ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
+00423b20	x	ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
+00423bb0	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 00424510	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 00426450	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 00426720	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
@@ -690,6 +693,7 @@ key	status	note
 004dffc0	x	
 004dffe0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004e0190	x	ac2-physics los (Terrain::los_check)
+004e0200	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 004e05a0	x	
 004e05d0	x	
 004e05e0	x	ac2-physics interp (slice 3)
@@ -718,6 +722,7 @@ key	status	note
 004e2900	~	ac2-client: the object stops stepping physics
 004e2980	~	ac2-client: the object steps physics again
 004e2cb0	x	ac2-physics los (Terrain::los_check)
+004e2d80	x	ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
 004e30e0	x	
 004e3280	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004e3310	x	ac2-physics interp (slice 3)
@@ -1895,8 +1900,12 @@ key	status	note
 0056b150	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b170	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b1c0	x	
+0056be60	x	ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
+0056e450	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 0056ef40	~	object::ObjectLights; static/volumetric shadow strengths not used yet
 0056f260	~	untextured colour quad (ac2-gpu ScreenQuad) only
+005706d0	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
+00570730	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 00571da0	x	ac2-render object::cell / point_lights
 00571ec0	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 00572110	~	outdoor sun only; dynamic/point lights and shadow direction not yet
@@ -1966,6 +1975,7 @@ key	status	note
 0057c510	x	GameTime::UseTime, then unless blocking CObjectMaint::UseTime and the physics step
 0057c540	x	
 0057cb50	~	outdoor sun, ambient and fog; indoor and sky environments not yet
+0057d680	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 0057e1b0	~	ac2-client world_manager_update: WorldManager::Update, UpdateRenderInterpolation, UpdateAnimation; no time of day, rain, ambient sound or scene tools
 00581a00	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 005823e0	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)

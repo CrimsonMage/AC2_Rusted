@@ -80,6 +80,8 @@ pub enum Loaded {
 pub struct LoadedObject {
     pub key: u64,
     pub model: Option<ObjectModel>,
+    /// What selecting it traces against (`CPhysicsObj::TraceRay`).
+    pub pick: Option<std::sync::Arc<crate::selection::PickMesh>>,
     pub scale: ac2_math::Vec3,
     pub images: Images,
 }
@@ -265,9 +267,13 @@ impl Worker {
                     .flatten()
                     .map_or(ac2_math::Vec3::ONE, |total| total.scale);
                 let images = self.images(model.iter().flat_map(ObjectModel::texture_keys));
+                let pick = model.as_ref().map(|model| {
+                    std::sync::Arc::new(crate::selection::PickMesh::from_model(model))
+                });
                 Loaded::Object(LoadedObject {
                     key,
                     model,
+                    pick,
                     scale,
                     images,
                 })

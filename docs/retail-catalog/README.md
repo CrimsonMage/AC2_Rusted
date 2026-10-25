@@ -43,12 +43,12 @@ scripts/retail_catalog.py status
 | [ac2-anim](ac2-anim.md) | 532 | 105 | 16 | 375 | 36 |
 | [ac2-assets](ac2-assets.md) | 785 | 73 | 11 | 579 | 122 |
 | [ac2-world](ac2-world.md) | 989 | 134 | 14 | 698 | 143 |
-| [ac2-render](ac2-render.md) | 781 | 40 | 23 | 705 | 13 |
+| [ac2-render](ac2-render.md) | 781 | 41 | 27 | 700 | 13 |
 | [ac2-gpu](ac2-gpu.md) | 95 | 8 | 3 | 84 | 0 |
-| [ac2-physics](ac2-physics.md) | 2124 | 351 | 75 | 1636 | 62 |
+| [ac2-physics](ac2-physics.md) | 2124 | 352 | 76 | 1634 | 62 |
 | [ac2-smartbox](ac2-smartbox.md) | 262 | 71 | 31 | 158 | 2 |
 | [ac2-client](ac2-client.md) | 354 | 11 | 6 | 332 | 5 |
-| [ac2-ui](ac2-ui.md) | 2247 | 104 | 58 | 2068 | 17 |
+| [ac2-ui](ac2-ui.md) | 2247 | 106 | 59 | 2065 | 17 |
 | [ac2-script](ac2-script.md) | 2468 | 992 | 78 | 1320 | 78 |
 | [ac2-gameplay](ac2-gameplay.md) | 499 | 26 | 7 | 457 | 9 |
 | [ac2-audio](ac2-audio.md) | 367 | 0 | 0 | 350 | 17 |

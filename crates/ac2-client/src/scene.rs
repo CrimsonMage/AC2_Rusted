@@ -18,6 +18,8 @@ pub struct CameraFrame {
     pub target: [f32; 3],
     /// Vertical field of view, degrees (`CameraManager::m_fov`).
     pub fov: f32,
+    /// The camera is in first person (`CameraManager::GetFirstPersonIsReady`).
+    pub first_person: bool,
 }
 
 #[derive(Debug, Clone, Copy, Default)]

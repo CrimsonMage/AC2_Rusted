@@ -136,6 +136,11 @@ impl HudView {
         );
     }
 
+    /// The pointer as the UI last saw it.
+    pub(crate) fn pointer(&self) -> (i32, i32) {
+        self.hud.as_ref().map_or((0, 0), |(tree, _)| tree.pointer())
+    }
+
     pub(crate) fn layers(&self) -> usize {
         self.overlay.layers()
     }

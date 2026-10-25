@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 104 done, 58 partial, 2068 to do, 17 skipped.
+2247 retail functions: 106 done, 59 partial, 2065 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -447,7 +447,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmSecureTradeUI::RecvNotice_Trade_BeClosed` · 00421a90
 - [ ] `gmSecureTradeUI::RecvNotice_Trade_BeReset` · 00421bf0
 
-## `ac2/client/src/ui/gameplay/gmselectionui.cpp.c` (5/24)
+## `ac2/client/src/ui/gameplay/gmselectionui.cpp.c` (7/24)
 
 ### LandDefs
 - [ ] `LandDefs::in_bounds` · 004233a0 · legions 00423170
@@ -470,9 +470,9 @@ Legend and workflow: [README](README.md).
 - [ ] `gmSelectionUI::RecvNotice_SetTargetingPointer` · 00423820
 - [ ] `gmSelectionUI::Farther` · 004238f0 · legions 004236c0
 - [ ] `gmSelectionUI::TargetTypeVsKey` · 00423970 · legions 00423740
-- [ ] `gmSelectionUI::Start3DSelection` · 00423a50 · legions 00423820
-- [ ] `gmSelectionUI::ListenToMessage` · 00423b20 · legions 004238f0
-- [ ] `gmSelectionUI::Finish3DSelection` · 00423bb0 · legions 00423980
+- [x] `gmSelectionUI::Start3DSelection` · 00423a50 · legions 00423820 — ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
+- [x] `gmSelectionUI::ListenToMessage` · 00423b20 · legions 004238f0 — ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
+- [~] `gmSelectionUI::Finish3DSelection` · 00423bb0 · legions 00423980 — ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 - [ ] `gmSelectionUI::Init` · 00423d20 · legions 00423af0
 - [ ] `gmSelectionUI::Select` · 00423da0
 - [ ] `gmSelectionUI::RecvNotice_Select` · 00424500

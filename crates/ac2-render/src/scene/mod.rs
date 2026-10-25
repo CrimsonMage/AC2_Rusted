@@ -96,6 +96,7 @@ pub struct WorldScene {
     /// World objects' models requested by key, and the rig and scale of those that loaded.
     requested_objects: HashSet<u64>,
     object_rigs: HashMap<u64, (crate::object::PoseRig, Vec3)>,
+    object_picks: HashMap<u64, Arc<crate::selection::PickMesh>>,
 }
 
 fn near(center: BlockKey, block: BlockKey, radius: i32) -> bool {
@@ -132,6 +133,7 @@ impl WorldScene {
             far_bounds: Vec::new(),
             requested_objects: HashSet::new(),
             object_rigs: HashMap::new(),
+            object_picks: HashMap::new(),
         }
     }
 
@@ -255,6 +257,9 @@ impl WorldScene {
                 if let Some(rig) = object.model.as_ref().and_then(|model| model.rig()) {
                     self.object_rigs.insert(object.key, (rig, object.scale));
                 }
+                if let Some(pick) = &object.pick {
+                    self.object_picks.insert(object.key, Arc::clone(pick));
+                }
             }
         }
         update.loaded.push(loaded);
@@ -277,6 +282,11 @@ impl WorldScene {
     /// The posing rig and total scale of a loaded world object's model.
     pub fn object_rig(&self, key: u64) -> Option<&(crate::object::PoseRig, Vec3)> {
         self.object_rigs.get(&key)
+    }
+
+    /// The object model `key`'s pick mesh, once loaded.
+    pub fn object_pick(&self, key: u64) -> Option<&Arc<crate::selection::PickMesh>> {
+        self.object_picks.get(&key)
     }
 
     /// The region's lighting at the scene's time of day.

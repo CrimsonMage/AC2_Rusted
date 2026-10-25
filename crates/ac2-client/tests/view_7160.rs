@@ -226,4 +226,22 @@ fn the_client_walks_with_w_and_draws_its_character() {
         / (rgba.len() / 4 * 3) as f32;
     eprintln!("mean {mean:.1}");
     assert!(mean > 20.0, "the world is drawn ({mean})");
+
+    // Clicking the character selects it (`gmSelectionUI` over the selection render): its middle,
+    // a metre above its feet, projected to the screen.
+    let player = frame.player.as_ref().expect("player");
+    let camera = view.camera(&frame).expect("camera");
+    let body = view.world_point(player.cell, player.origin) + ac2_math::Vec3::new(0.0, 0.0, 1.0);
+    let clip = camera.view_projection(aspect) * body.extend(1.0);
+    let (x, y) = (clip.x / clip.w, clip.y / clip.w);
+    let pixel = (
+        ((x + 1.0) * 0.5 * SIZE.0 as f32) as i32,
+        ((1.0 - y) * 0.5 * SIZE.1 as f32) as i32,
+    );
+    assert_eq!(
+        view.pick(&frame, SIZE, pixel),
+        Some(player.id),
+        "at {pixel:?}"
+    );
+    assert_eq!(view.pick(&frame, SIZE, (5, 5)), None, "the sky's corner");
 }

@@ -19,6 +19,7 @@ mod layout_media;
 mod maps;
 mod mouse;
 mod place;
+mod selection_ui;
 #[cfg(test)]
 mod tests;
 mod text;
@@ -54,6 +55,7 @@ pub use mouse::{
     is_mouse_button, UiMessage, GLOBAL_KEY_PRESS, GLOBAL_KEY_RELEASE, GLOBAL_MOUSE_DOWN,
     GLOBAL_MOUSE_MOVE, GLOBAL_MOUSE_UP, UI_POINTER_X, UI_POINTER_Y, UI_WHEEL_IN, UI_WHEEL_OUT,
 };
+pub use selection_ui::{SelectionClick, SelectionOutcome, SelectionUi};
 pub use text::UiTextData;
 pub use text_data::{StoreTextData, DEFAULT_FONT, FONT_GROUP};
 pub use token::{tokenize, REFERENCE, REFERENT, STATELESS};

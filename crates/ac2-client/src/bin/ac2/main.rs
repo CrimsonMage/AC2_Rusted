@@ -14,10 +14,10 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use ac2_client::view::ClientView;
-use ac2_client::{frame_input, Client, DatWorld, FrameInput};
+use ac2_client::{frame_input, Client, Command, DatWorld, FrameInput};
 use ac2_gpu::{render_to, Gpu, DEPTH_FORMAT};
 use ac2_net::Credential;
-use ac2_ui::{Controls, InputEvent};
+use ac2_ui::{Controls, InputEvent, SelectionUi};
 use ac2_weenie::{CharacterChoice, OnlineConfig, OnlineSession};
 use winit::application::ApplicationHandler;
 use winit::event::{
@@ -81,6 +81,9 @@ struct State {
     depth: wgpu::TextureView,
     view: ClientView,
     controls: Controls,
+    /// `gmSelectionUI` and the commands its finished selections send next frame.
+    selection: SelectionUi,
+    commands: Vec<Command>,
     /// Client time origin (`Timer::cur_time` for the interpreter, materials and input stamps).
     started: Instant,
     grabbed: bool,
@@ -155,7 +158,11 @@ impl App {
         let messages = state.view.ui_input(&ui_input);
         let (_, now) = state.now();
         state.controls.ui_messages(&messages, now);
-        let input = frame_input(state.controls.frame());
+        for message in &messages {
+            state.selection.message(message);
+        }
+        let mut input = frame_input(state.controls.frame());
+        input.commands.append(&mut state.commands);
         if let Err(error) = self.client.use_time(&input) {
             eprintln!("ac2: {error}");
             event_loop.exit();
@@ -170,6 +177,17 @@ impl App {
         }
         state.sync_mouse_look(self.client.camera().movement_state().mouse_look);
         let frame = self.client.frame();
+        // The selection render: the object under the pointer, selected (or the selection
+        // cleared) by `gmSelectionUI::Finish3DSelection`.
+        if state.selection.wants_pick() {
+            let screen = (state.config.width, state.config.height);
+            let picked = state.view.pick(&frame, screen, state.view.pointer());
+            let outcome = state.selection.finish(picked);
+            state.commands.push(Command::Select(outcome.select));
+            if outcome.use_selection {
+                state.commands.push(Command::UseSelection);
+            }
+        }
         state.view.update(&state.gpu, &frame, LOAD_BUDGET);
         let Ok(output) = state.surface.get_current_texture() else {
             state.surface.configure(&state.gpu.device, &state.config);
@@ -244,6 +262,8 @@ impl ApplicationHandler for App {
             config,
             depth,
             view,
+            selection: SelectionUi::default(),
+            commands: Vec::new(),
             controls: {
                 // The HUD's tree takes the UI actions (mouse over panels, the world's wheel).
                 let mut controls = self.controls.take().expect("controls");

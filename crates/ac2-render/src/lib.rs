@@ -9,6 +9,9 @@ pub mod frustum;
 mod image;
 pub mod object;
 pub mod scene;
+pub mod selection;
+#[cfg(test)]
+mod selection_tests;
 pub mod sky;
 pub mod terrain;
 mod view;

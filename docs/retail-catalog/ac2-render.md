@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 40 done, 23 partial, 705 to do, 13 skipped.
+781 retail functions: 41 done, 27 partial, 700 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -763,7 +763,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneCamera::SetRenderPosition` · 00572c90 · legions 0053a9d0
 - [x] `SceneCamera::SetCurrentPosition` · 00572cb0 · legions 0053a9f0
 
-## `portal/client/src/scenerender/scenetool.cpp.c` (5/100)
+## `portal/client/src/scenerender/scenetool.cpp.c` (6/100)
 
 ### SceneTool
 - [ ] `SceneTool::UsingSceneMotionBlur` · 0056a5d0 · legions 0053aa10
@@ -819,7 +819,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneTool::RestoreMatrices` · 0056bcd0 · legions 0053c0b0
 - [ ] `SceneTool::SetBackgroundColor` · 0056bd90 · legions 0053c170
 - [ ] `SceneTool::StartFrame` · 0056bdd0 · legions 0053c1b0
-- [ ] `SceneTool::CheckObjectSelection` · 0056be60 · legions 0053c240
+- [x] `SceneTool::CheckObjectSelection` · 0056be60 · legions 0053c240 — ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
 - [ ] `SceneTool::ShouldSkipRenderNow` · 0056bf90 · legions 0053c370
 - [ ] `SceneTool::SetSelectionID` · 0056bfb0 · legions 0053c390
 - [ ] `SceneTool::GetDistortionMap` · 0056bfe0 · legions 0053c3c0
@@ -845,7 +845,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneTool::DrawTexturedPolygon` · 0056d240 · legions 0053d620
 - [ ] `SceneTool::BuildCylinderMesh` · 0056d2b0 · legions 0053d690
 - [ ] `SceneTool::BuildSphereMesh` · 0056dc60 · legions 0053e040
-- [ ] `SceneTool::StartSelection` · 0056e450 · legions 0053e830
+- [~] `SceneTool::StartSelection` · 0056e450 · legions 0053e830 — ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 - [ ] `SceneTool::DrawScreenQuadUsingMaterial` · 0056e5f0 · legions 0053e9d0
 - [ ] `SceneTool::Think` · 0056e860 · legions 0053ec40
 - [ ] `SceneTool::GetPixelScanResult` · 0056e880 · legions 0053ec60
@@ -870,8 +870,8 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneTool::StartShadowMap` · 0056fea0 · legions 005402e0
 - [ ] `SceneTool::FinishShadowMap` · 00570300 · legions 00540740
 - [ ] `SceneTool::RenderGlobalVolumetricShadows` · 005703e0 · legions 00540820
-- [ ] `SceneTool::FinishSelection` · 005706d0 · legions 00540b10
-- [ ] `SceneTool::SelectObject` · 00570730 · legions 00540b70
+- [~] `SceneTool::FinishSelection` · 005706d0 · legions 00540b10 — ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
+- [~] `SceneTool::SelectObject` · 00570730 · legions 00540b70 — ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 
 ### SmartArray<PixelScanRequest>
 - [ ] `SmartArray<PixelScanRequest>::AddToEnd` · 005708c0 · legions 00540d00
@@ -1218,7 +1218,7 @@ Legend and workflow: [README](README.md).
 ### WorldRender
 - [ ] `WorldRender::DrawBrushes` · 0057d290 · legions 0054cb60
 - [ ] `WorldRender::CreateDiscShadows` · 0057d3d0 · legions 0054cca0
-- [ ] `WorldRender::StartSelection` · 0057d680 · legions 0054cf50
+- [~] `WorldRender::StartSelection` · 0057d680 · legions 0054cf50 — ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 
 ### DBObjGrabber<CDayDesc>
 - [ ] `DBObjGrabber<CDayDesc>::DBObjGrabber<CDayDesc>` · 0057d6d0 · legions 0054cfa0

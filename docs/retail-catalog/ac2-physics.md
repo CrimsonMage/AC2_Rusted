@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 351 done, 75 partial, 1636 to do, 62 skipped.
+2124 retail functions: 352 done, 76 partial, 1634 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (101/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (102/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2316,7 +2316,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::SetContactInfo` · 004e00a0 · legions 004d2b00
 - [x] `CPhysicsObj::PerformLOS` · 004e0190 — ac2-physics los (Terrain::los_check)
 - [ ] `CPhysicsObj::EasyDraw` · 004e01a0
-- [ ] `CPhysicsObj::TraceRay` · 004e0200 · legions 004d2c60
+- [~] `CPhysicsObj::TraceRay` · 004e0200 · legions 004d2c60 — ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 - [ ] `CPhysicsObj::get_cell_position` · 004e0380
 - [ ] `CPhysicsObj::GetObjectA` · 004e0410 · legions 004d2e70
 - [ ] `CPhysicsObj::SetWeenieObj` · 004e0430
@@ -2472,7 +2472,7 @@ Legend and workflow: [README](README.md).
 - [ ] `BBox::BBox` · 004e2d40 · legions 004d5790
 
 ### SceneTool
-- [ ] `SceneTool::GetLocalSelectionRay` · 004e2d80 · legions 004d57d0
+- [x] `SceneTool::GetLocalSelectionRay` · 004e2d80 · legions 004d57d0 — ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
 
 ### CPhysicsObj
 - [ ] `CPhysicsObj::InitObjectBegin` · 004e2ed0 · legions 004d5920
