@@ -20,7 +20,9 @@ use ac2_script::vm::Program;
 use ac2_script::{load_wlib, LEGIONS_WLIB_DID};
 use ac2_weenie::{GameplayNotice, SessionEvent};
 use common::*;
-use legions_server_double::{Spawn, CREATURE_ONE, MELEE_AUTO_ATTACK, PLAYER};
+use legions_server_double::{
+    lifestone, Spawn, CORPSE, CORPSE_ITEM, CORPSE_SKIN, CREATURE_ONE, MELEE_AUTO_ATTACK, PLAYER,
+};
 
 fn spawn() -> Spawn {
     Spawn {
@@ -420,5 +422,130 @@ fn a_special_attack_hit_puts_its_text_over_the_creature() {
     assert_eq!(client.use_shortcut(0), Ok(1));
     let events = events_for(&mut client, &server, Vec::new(), 10);
     assert_eq!(damage_texts(&events), vec![CREATURE_ONE], "{events:?}");
+    assert!(client.take_script_problems().is_empty());
+}
+
+/// The packed `UpdateDeathState` flags, in order.
+fn death_flags(events: &[SessionEvent]) -> Vec<bool> {
+    events
+        .iter()
+        .filter_map(|e| match e {
+            SessionEvent::Notice(GameplayNotice::UpdateDeathState(dead)) => Some(*dead),
+            _ => None,
+        })
+        .collect()
+}
+
+/// The creature dies (three exchanges), leaves the world, and leaves its corpse where it stood:
+/// the corpse opens, lists its trophy skin and its item, and Loot All takes them into the pack.
+#[test]
+fn the_creature_dies_and_its_corpse_is_looted() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    select_creature(&mut client, &server);
+    events_for(&mut client, &server, vec![Command::SetAttacking(true)], 1);
+    let fight = advance(&mut client, &server, 3.0 * HIT_INTERVAL + 0.5);
+    assert!(server.borrow().fight.dead.contains(&CREATURE_ONE));
+    assert!(fight.iter().any(|e| matches!(
+        e,
+        SessionEvent::ObjectAction {
+            object,
+            action: ac2_net::protocol::ObjectAction::LeaveWorld(_),
+        } if *object == CREATURE_ONE
+    )));
+    // The corpse is placed at the creature's position (its cell, where the creature died).
+    let corpse = client
+        .frame()
+        .objects
+        .iter()
+        .find(|o| o.id == CORPSE)
+        .map(|o| (o.cell, o.origin));
+    let creature_origin = legions_server_double::radar_objects(&spawn())
+        .into_iter()
+        .find(|(o, _)| o.id == CREATURE_ONE)
+        .map(|(o, _)| (o.cell, o.origin));
+    assert_eq!(
+        corpse, creature_origin,
+        "the corpse lies where the creature died"
+    );
+
+    // Open the corpse: it lists its skin and item.
+    run(
+        &mut client,
+        &server,
+        vec![Command::SetContainerOpen {
+            container: CORPSE,
+            open: true,
+        }],
+    );
+    let listed = client
+        .frame()
+        .inventory
+        .containers
+        .iter()
+        .find(|c| c.id == CORPSE)
+        .map(|c| c.items.clone());
+    assert_eq!(listed, Some(vec![CORPSE_SKIN, CORPSE_ITEM]));
+    // Loot All: both come into the pack.
+    run(&mut client, &server, vec![Command::LootAll(CORPSE)]);
+    let pack = client.frame().inventory.pack.items.clone();
+    assert!(
+        pack.contains(&CORPSE_SKIN) && pack.contains(&CORPSE_ITEM),
+        "{pack:?}"
+    );
+    assert!(client.take_script_problems().is_empty());
+}
+
+/// The player dies under the creature's blows (the creature is made stronger than the player's
+/// blows, so the player falls first): the death flag goes up (`UpdateDeathState`), the attack ends,
+/// and the respawn request (`RequestResurrect`) puts the player at the lifestone with full health
+/// and the flag down.
+#[test]
+fn the_player_dies_and_respawns_at_a_lifestone() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    // A creature that outlasts the player's blows: 40 health for the player's 40 to go.
+    server
+        .borrow_mut()
+        .fight
+        .creatures
+        .insert(CREATURE_ONE, (1000, 1000));
+    select_creature(&mut client, &server);
+    events_for(&mut client, &server, vec![Command::SetAttacking(true)], 1);
+    // Fourteen exchanges: the creature's 3 a blow takes the player's 40 to zero.
+    let mut events = advance(&mut client, &server, 14.0 * HIT_INTERVAL + 0.5);
+    assert_eq!(death_flags(&events), vec![true], "{events:?}");
+    assert!(client.frame().progress.dead);
+    assert_eq!(health_currents(&events).last(), Some(&0));
+    assert!(combat_notices(&notices(events.clone()))
+        .ends_with(&[GameplayNotice::UpdateAttackState(false)]));
+
+    // The respawn request: the lifestone teleport, the flag down, full health.
+    events_for(&mut client, &server, vec![Command::RequestResurrect], 1);
+    for _ in 0..40 {
+        let more = advance(&mut client, &server, 0.5);
+        events.extend(more);
+        let frame = client.frame();
+        if !frame.progress.dead && frame.in_world && !frame.portal.teleporting {
+            break;
+        }
+    }
+    assert_eq!(death_flags(&events), vec![true, false]);
+    assert!(!client.frame().progress.dead);
+    assert_eq!(
+        health_currents(&events).last(),
+        Some(&u64::from(PLAYER_HEALTH))
+    );
+    let frame = client.frame();
+    let player = frame.player.as_ref().expect("the player's body");
+    let [x, y, _] = player.origin;
+    let [lx, ly, _] = lifestone(&spawn());
+    assert!(
+        (x - lx).abs() < 1e-3 && (y - ly).abs() < 1e-3,
+        "{:?}",
+        player.origin
+    );
     assert!(client.take_script_problems().is_empty());
 }

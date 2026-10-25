@@ -10,12 +10,14 @@
 use std::collections::BTreeMap;
 
 use ac2_net::protocol::{
-    CombatMessage, InstanceIdWithStamp, Opcode, QualityUpdate, QualityValue, ScriptCall,
-    ScriptMessage, SelectionInfo, SpecialAttackRequest,
+    CombatMessage, DeathMessage, InstanceIdWithStamp, Opcode, QualityUpdate, QualityValue,
+    ScriptCall, ScriptMessage, SelectionInfo, SpecialAttackRequest,
 };
 
+use crate::corpse::CORPSE;
 use crate::objects::object_event_bytes;
-use crate::{State, CREATURE_ONE, CREATURE_TWO, PLAYER};
+use crate::radar::radar_objects;
+use crate::{Spawn, State, CREATURE_ONE, CREATURE_TWO, PLAYER};
 
 pub use crate::character::MELEE_AUTO_ATTACK;
 
@@ -38,6 +40,8 @@ pub const HIT_INTERVAL: f64 = 2.0;
 /// The attack result of a hit: the `AttackResult` enum the damage text reads (`0x40000007` reads
 /// "MISS" in the DAT, `0x40000008` a hit).
 pub const HIT: u32 = 0x4000_0008;
+/// The lifestone the player respawns at, from where the player enters (its offset).
+const LIFESTONE_OFFSET: [f32; 3] = [-8.0, 8.0, 0.0];
 /// The `DoStory` hook bits: the damage type (1), the target (0x100), the attack result (0x80), the
 /// target's and the attacker's health change (0x800, 0x1000). The story's bits: the attacker
 /// (0x2) and the skill (0x10).
@@ -64,6 +68,19 @@ pub struct Fight {
     pub attack: Option<(u64, f64)>,
     /// The creatures that died, in order.
     pub dead: Vec<u64>,
+    /// Whether the player is dead (its health is zero until the respawn request).
+    pub player_dead: bool,
+    /// The player's respawns so far (each teleport's stamps are newer than the last).
+    pub respawns: u16,
+}
+
+/// The lifestone's position: the player's entry plus [`LIFESTONE_OFFSET`].
+pub fn lifestone(spawn: &Spawn) -> [f32; 3] {
+    [
+        spawn.origin[0] + LIFESTONE_OFFSET[0],
+        spawn.origin[1] + LIFESTONE_OFFSET[1],
+        spawn.origin[2] + LIFESTONE_OFFSET[2],
+    ]
 }
 
 impl State {
@@ -85,6 +102,16 @@ impl State {
     /// with the attack state going up, a hit, and the attack's end), the attack's start (the
     /// attack is kept and exchanged on the timer, see [`State::combat_tick`]) and its stop.
     pub(crate) fn answer_combat(&mut self, call: &ScriptCall) {
+        if DeathMessage::is_resurrect_request(call) {
+            if self.fight.player_dead {
+                self.respawn();
+            }
+            return;
+        }
+        // A dead player makes no attack.
+        if self.fight.player_dead {
+            return;
+        }
         if let Some(request) = SpecialAttackRequest::from_call(call) {
             if self.is_live_creature(request.target) {
                 self.send_combat(&CombatMessage::UpdateAttackState(true));
@@ -151,6 +178,9 @@ impl State {
             let (health, max) = self.fight.player;
             self.fight.player = (health.saturating_sub(damage), max);
             self.send_player_vitals();
+            if self.fight.player.0 == 0 {
+                self.die_player();
+            }
         } else if let Some((health, _)) = self.fight.creatures.get_mut(&target) {
             *health = health.saturating_sub(damage);
             if *health == 0 {
@@ -208,9 +238,10 @@ impl State {
         self.send_private(HEALTH_MAX, QualityValue::Int(max as i32));
     }
 
-    /// A creature at zero health leaves the world (`LEAVE_WORLD`). TODO(looting): the corpse
-    /// object goes here once the looting worker's corpse code lands; retail's death motion is not
-    /// traced yet, so the creature leaves at once.
+    /// A creature at zero health leaves the world (`LEAVE_WORLD`), and its corpse lies where it
+    /// died (`corpse.rs`: the skin and the item in it). Retail's death motion and death message are
+    /// not traced, so neither is sent. The corpse's id is one id: a creature killed after the first
+    /// corpse leaves none.
     fn kill(&mut self, creature: u64) {
         self.fight.creatures.remove(&creature);
         self.fight.dead.push(creature);
@@ -221,5 +252,41 @@ impl State {
             &[LEAVE_STAMP],
         );
         self.send_event(&bytes);
+        let place = radar_objects(&self.spawn)
+            .into_iter()
+            .find(|(object, _)| object.id == creature)
+            .map(|(object, _)| (object.cell, object.origin));
+        let corpse_placed = self.script_world.contents.contains_key(&CORPSE);
+        if let (Some((cell, origin)), false) = (place, corpse_placed) {
+            self.spawn_corpse_at(cell, origin);
+        }
+    }
+
+    /// The player at zero health: the death flag goes up (`WM_Death` 0x33), and the attack ends.
+    fn die_player(&mut self) {
+        self.fight.player_dead = true;
+        self.stop_attack();
+        self.send_death(true);
+    }
+
+    /// The respawn request (`WM_Death` 0x36): the player is teleported to the lifestone with full
+    /// health, and the death flag comes down.
+    fn respawn(&mut self) {
+        let n = self.fight.respawns;
+        self.fight.respawns += 1;
+        self.fight.player_dead = false;
+        self.fight.player = (PLAYER_HEALTH, PLAYER_HEALTH_MAX);
+        let origin = lifestone(&self.spawn);
+        let cell = self.spawn.cell;
+        // The teleport's stamps: the spawn's position 4 and teleport 5, each teleport newer.
+        self.teleport_player(cell, origin, 5 + 2 * n, 6 + 2 * n);
+        self.send_player_vitals();
+        self.send_death(false);
+    }
+
+    /// `WM_Death` 0x33: the death flag.
+    fn send_death(&mut self, dead: bool) {
+        let message = DeathMessage::PlayerDeath(dead);
+        self.send_script_call(message.function(), &message.arguments());
     }
 }

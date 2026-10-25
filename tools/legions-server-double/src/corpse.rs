@@ -36,21 +36,29 @@ const ITEM_PACKAGE: u32 = 0x1AA9;
 pub const CORPSE_CAPACITY: u32 = 12;
 
 impl State {
-    /// Places the corpse five metres from where the player enters, with its skin and item in it
-    /// (each object's `CreateObject`, the corpse's capacity, and the contents its open answer
-    /// lists).
+    /// Places the corpse three metres west and four south of where the player enters, with its
+    /// skin and item in it (each object's `CreateObject`, the corpse's capacity, and the contents
+    /// its open answer lists).
     pub fn spawn_corpse(&mut self) {
         let spawn = self.spawn;
+        let origin = [
+            spawn.origin[0] - 3.0,
+            spawn.origin[1] - 4.0,
+            spawn.origin[2],
+        ];
+        self.spawn_corpse_at(spawn.cell, origin);
+    }
+
+    /// Places the corpse at `origin` in `cell` (a creature's corpse is where the creature died),
+    /// with its skin and item in it. The corpse's id is one id: a second corpse replaces nothing
+    /// and is not placed (see the combat's `kill`).
+    pub fn spawn_corpse_at(&mut self, cell: u32, origin: [f32; 3]) {
         let corpse = ObjectSpawn {
             id: CORPSE,
             instance: 1,
             visual: 0,
-            cell: spawn.cell,
-            origin: [
-                spawn.origin[0] - 3.0,
-                spawn.origin[1] - 4.0,
-                spawn.origin[2],
-            ],
+            cell,
+            origin,
             rotation: [1.0, 0.0, 0.0, 0.0],
             stamps: [1, 0, 0, 0],
             name: "Corpse",

@@ -14,7 +14,9 @@ mod characters;
 mod chest;
 mod combat;
 mod corpse;
-pub use combat::{Fight, CREATURE_HEALTH, HEALTH, HEALTH_MAX, PLAYER_HEALTH, PLAYER_HEALTH_MAX};
+pub use combat::{
+    lifestone, Fight, CREATURE_HEALTH, HEALTH, HEALTH_MAX, PLAYER_HEALTH, PLAYER_HEALTH_MAX,
+};
 mod craft;
 pub use craft::{CRAFT_SKILL, KNOWN_RECIPE};
 mod effects;
