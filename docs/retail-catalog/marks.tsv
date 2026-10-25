@@ -3818,11 +3818,15 @@ key	status	note
 00585980	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 00585ba0	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 00585cf0	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
-00585e90	~	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+00585e90	~	tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
+00585f40	x	ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
+00585f90	x	ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
 00586220	~	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 00586720	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+00586740	~	tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 00586eb0	~	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
-00586f50	~	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+00586f50	~	tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
+00587db0	~	tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 00588050	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 00588320	x	
 00588610	~	ac2-render scene: far chunk culling by m_BoundingBox (near mesh drawn whole; no N-patches)
@@ -4589,7 +4593,9 @@ key	status	note
 0061ad80	~	in ac2-weenie reporter (ac2-math has no Heading yet)
 0061b390	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0061b3e0	x	ac2-render object::pass / texture_matrix, ac2-gpu object
-0061b520	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+0061b480	x	ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
+0061b4d0	x	ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
+0061b520	x	ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
 0061b570	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0061b5c0	x	ac2-render object/skeleton.rs (bone matrices)
 0061b780	x	ac2-render object/skeleton.rs (bone matrices)
@@ -4647,7 +4653,7 @@ key	status	note
 00621fb0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 00622760	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 00622900	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
-00622cf0	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
+00622cf0	~	tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 00622f10	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
 00623960	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 00623a20	x	ac2-physics los (Terrain::los_check)
@@ -4665,6 +4671,9 @@ key	status	note
 00629d60	x	
 0062acf0	x	
 0062ae10	x	
+0062b040	x	ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
+0062b0f0	x	ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
+0062b180	_	
 006388c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 00638ee0	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
 00639850	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)

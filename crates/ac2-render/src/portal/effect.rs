@@ -10,6 +10,8 @@
 
 use ac2_core::Random;
 
+use super::tunnel::{make_safe_index, Tunnel, PORTALS};
+
 /// `PortalSpace::Effect::StateType`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Phase {
@@ -86,6 +88,12 @@ pub struct PortalSpace {
     /// `m_fRandomFactor`: the tunnel's noise offset, rolled when the effect starts.
     random_factor: f32,
     draw: Draw,
+    /// `m_fCurrentPosition`: the distance the tunnel has moved past the start.
+    current_position: f32,
+    /// `m_nLastPortalPassed`: the portal the tunnel last moved past.
+    last_portal: usize,
+    /// `m_pTunnelPortals` and the ring's points.
+    tunnel: Tunnel,
 }
 
 impl Default for PortalSpace {
@@ -104,6 +112,9 @@ impl PortalSpace {
             last_think: 0.0,
             random_factor: 0.0,
             draw: Draw::default(),
+            current_position: 0.0,
+            last_portal: 0,
+            tunnel: Tunnel::new(),
         }
     }
 
@@ -168,7 +179,13 @@ impl PortalSpace {
         self.phase_start = now;
         self.last_think = now;
         self.phase = phase;
+        self.current_position = 0.0;
+        self.last_portal = 0;
         self.random_factor = random.roll_dice_f32(0.0, 10000.0);
+        // The tunnel's portals reset, then the whole ring is generated from the start.
+        self.tunnel.reset();
+        self.tunnel.generate(0, PORTALS, self.random_factor);
+        self.current_position = self.tunnel.portals[0].position;
     }
 
     /// `PortalSpace::Effect::StopNow(_State)`: the phase and its start time.
@@ -180,6 +197,7 @@ impl PortalSpace {
     /// `PortalSpace::Effect::Think`: advances the phase on the clock, then computes this frame's
     /// draw flags and scales.
     pub fn think(&mut self, now: f64, random: &mut Random) {
+        let previous = self.last_think;
         self.last_think = now;
         if self.phase == Phase::Inactive && self.want {
             self.start_now(Phase::StartupPhase0, now, random);
@@ -209,6 +227,60 @@ impl PortalSpace {
         }
         let elapsed = now - self.phase_start;
         self.draw = self.draw_for(elapsed);
+        if self.phase != Phase::Inactive {
+            self.advance_tunnel(previous, now);
+        }
+    }
+
+    /// `PortalSpace::Effect::Think`'s tunnel advance: the tunnel moves 120 units a second past
+    /// the portal the camera is at. The first portal ahead of the new position becomes the
+    /// portal passed (the one before it); the portals the tunnel leaves behind are regenerated
+    /// at the far end.
+    fn advance_tunnel(&mut self, previous: f64, now: f64) {
+        let last = self.last_portal;
+        // `(float)(now - previous) * 120.0 + m_fCurrentPosition`, stored as float.
+        let advanced =
+            ((now - previous) as f32 as f64 * 120.0 + f64::from(self.current_position)) as f32;
+        let mut found = None;
+        for step in 0..PORTALS {
+            let at = make_safe_index((last + step) as i64);
+            if advanced < self.tunnel.portals[at].position {
+                found = Some((at, advanced));
+                break;
+            }
+        }
+        let (next, position) =
+            found.unwrap_or((make_safe_index(last as i64 + 1), self.current_position));
+        let passed = make_safe_index(next as i64 - 1);
+        self.current_position = position;
+        let wraps = last > passed;
+        if passed != last {
+            if !wraps {
+                self.tunnel.generate(0, passed, self.random_factor);
+            } else {
+                self.tunnel
+                    .generate(last, PORTALS - last, self.random_factor);
+                if passed > 0 {
+                    self.tunnel.generate(0, passed, self.random_factor);
+                }
+            }
+        }
+        self.last_portal = passed;
+    }
+
+    /// The tunnel's portals (`PortalSpace::Effect::m_pTunnelPortals`).
+    pub fn tunnel(&self) -> &Tunnel {
+        &self.tunnel
+    }
+
+    /// `m_nLastPortalPassed`.
+    pub fn last_portal(&self) -> usize {
+        self.last_portal
+    }
+
+    /// `m_fCurrentPosition`.
+    pub fn current_position(&self) -> f32 {
+        self.current_position
     }
 
     /// The draw flags of `Think` for the phase at `elapsed` seconds into it.

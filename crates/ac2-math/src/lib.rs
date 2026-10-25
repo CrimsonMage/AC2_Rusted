@@ -4,6 +4,8 @@ mod box2;
 mod clip;
 mod frame;
 mod geometry;
+pub mod matrix;
+pub mod perlin;
 pub mod waveform;
 
 pub use frame::Frame;

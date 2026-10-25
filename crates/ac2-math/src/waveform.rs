@@ -48,8 +48,9 @@ impl Waveform {
         self.value_for_phase(0.0, time)
     }
 
-    /// `Waveform::GetValueForPhase`. `NOISE` rolls the client's global dice and `PERLIN`/`FRACTAL`
-    /// sample its global `PerlinNoise`; neither source is reproduced, so those return the base.
+    /// `Waveform::GetValueForPhase`. `PERLIN` samples the shared [`crate::perlin`] table. `NOISE`
+    /// (the client's global dice) and `FRACTAL` (`PerlinNoise::fBm1`) are not reproduced; they
+    /// return the base.
     pub fn value_for_phase(&self, phase: f32, time: f64) -> f32 {
         let term = |velocity: f32, value: f32| f64::from(velocity) * time + f64::from(value);
         if self.kind == kind::NONE {
@@ -67,7 +68,14 @@ impl Waveform {
             kind::SQUARE if wave() < 0.0 => -f64::from(amplitude) + base,
             kind::SQUARE => f64::from(amplitude) + base,
             kind::BOUNCE => wave().abs() * f64::from(amplitude) + base,
-            kind::NOISE | kind::PERLIN | kind::FRACTAL => f64::from(base as f32),
+            // `PerlinNoise::Noise(frequency * phase + time)`: the sum is a float, then the noise
+            // times the amplitude plus the base.
+            kind::PERLIN => {
+                let arg = (f64::from(frequency) * f64::from(phase) + f64::from(time as f32)) as f32;
+                f64::from(crate::perlin::shared().noise(f64::from(arg))) * f64::from(amplitude)
+                    + f64::from(base as f32)
+            }
+            kind::NOISE | kind::FRACTAL => f64::from(base as f32),
             kind::FRAMELOOP => frame_loop(amplitude, frequency, phase, time) + base,
             _ => base,
         };

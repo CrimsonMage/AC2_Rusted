@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 74 done, 52 partial, 640 to do, 15 skipped.
+781 retail functions: 76 done, 54 partial, 636 to do, 15 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1162,24 +1162,24 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeTerrainMesh::Refresh` · 0058f030 · legions 0055e6a0
 - [ ] `LScapeTerrainMesh::Refresh` · 0058f070 · legions 0055e6e0
 
-## `portal/client/src/smartbox/worldrender/portalspace.cpp.c` (2/14)
+## `portal/client/src/smartbox/worldrender/portalspace.cpp.c` (4/14)
 
 ### CDataMesh
 - [ ] `CDataMesh::GetByEnum` · 00585e60 · legions 00555550
 
 ### PortalSpace::Effect
-- [~] `PortalSpace::Effect::Effect` · 00585e90 · legions 00555580 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
-- [ ] `PortalSpace::Effect::MakeSafePortalIndex` · 00585f40 · legions 00555630
-- [ ] `PortalSpace::Effect::GeneratePortals` · 00585f90 · legions 00555680
+- [~] `PortalSpace::Effect::Effect` · 00585e90 · legions 00555580 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
+- [x] `PortalSpace::Effect::MakeSafePortalIndex` · 00585f40 · legions 00555630 — ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
+- [x] `PortalSpace::Effect::GeneratePortals` · 00585f90 · legions 00555680 — ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
 - [~] `PortalSpace::Effect::StartNow` · 00586220 · legions 00555910 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 - [ ] `PortalSpace::Effect::Destroy` · 00586650 · legions 00555d40
 - [x] `PortalSpace::Effect::Start` · 00586720 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
-- [ ] `PortalSpace::Effect::UpdateGeometry` · 00586740 · legions 00555e30
+- [~] `PortalSpace::Effect::UpdateGeometry` · 00586740 · legions 00555e30 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 - [~] `PortalSpace::Effect::StopNow` · 00586eb0 · legions 005565a0 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
-- [~] `PortalSpace::Effect::Think` · 00586f50 · legions 00556640 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+- [~] `PortalSpace::Effect::Think` · 00586f50 · legions 00556640 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 - [ ] `PortalSpace::Effect::Render` · 00587360 · legions 00556a50
 - [ ] `PortalSpace::Effect::~Effect` · 00587da0 · legions 00557490
-- [ ] `PortalSpace::Effect::Initialize` · 00587db0 · legions 005574a0
+- [~] `PortalSpace::Effect::Initialize` · 00587db0 · legions 005574a0 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 - [x] `PortalSpace::Effect::Stop` · 00588050 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 
 ## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (4/36)

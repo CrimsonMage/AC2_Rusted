@@ -4,5 +4,9 @@
 pub mod effect;
 #[cfg(test)]
 mod effect_tests;
+pub mod tunnel;
+#[cfg(test)]
+mod tunnel_tests;
 
 pub use effect::{Draw, Phase, PortalSpace};
+pub use tunnel::{Portal, Tunnel, TunnelVertex};

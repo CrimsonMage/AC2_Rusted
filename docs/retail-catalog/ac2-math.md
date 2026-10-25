@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 131 done, 11 partial, 245 to do, 39 skipped.
+426 retail functions: 135 done, 11 partial, 241 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -262,15 +262,15 @@ Legend and workflow: [README](README.md).
 - [~] `LightSource::GetWeight` · 00622760 · legions 005ddb30 — static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 - [~] `LightSource::FillRenderLight` · 00622900 · legions 005ddcd0 — static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 
-## `portal/shared/src/geometry/matrix4.cpp.c` (9/18)
+## `portal/shared/src/geometry/matrix4.cpp.c` (11/18)
 
 ### Matrix4
 - [x] `Matrix4::Translate` · 0061b390 · legions 005d6ff0 — ac2-render object::pass / texture_matrix, ac2-gpu object
 - [x] `Matrix4::Translate` · 0061b3e0 · legions 005d7040 — ac2-render object::pass / texture_matrix, ac2-gpu object
 - [ ] `Matrix4::Translate3` · 0061b430 · legions 005d7090
-- [ ] `Matrix4::RotateX` · 0061b480 · legions 005d70e0
-- [ ] `Matrix4::RotateY` · 0061b4d0 · legions 005d7130
-- [x] `Matrix4::RotateZ` · 0061b520 · legions 005d7180 — ac2-render object::pass / texture_matrix, ac2-gpu object
+- [x] `Matrix4::RotateX` · 0061b480 · legions 005d70e0 — ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
+- [x] `Matrix4::RotateY` · 0061b4d0 · legions 005d7130 — ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
+- [x] `Matrix4::RotateZ` · 0061b520 · legions 005d7180 — ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
 - [x] `Matrix4::Scale` · 0061b570 · legions 005d71d0 — ac2-render object::pass / texture_matrix, ac2-gpu object
 - [x] `Matrix4::CalcDeterminant` · 0061b5c0 · legions 005d7220 — ac2-render object/skeleton.rs (bone matrices)
 - [x] `Matrix4::Adjoint` · 0061b780 · legions 005d73e0 — ac2-render object/skeleton.rs (bone matrices)
@@ -284,11 +284,11 @@ Legend and workflow: [README](README.md).
 - [~] `Matrix4::RotateAngles` · 0061c0c0 · legions 005d7d20 — the forward row CameraManager::UpdateCamera reads (ac2-client camera.rs)
 - [ ] `Matrix4::LookAt` · 0061c1a0 · legions 005d7e00
 
-## `portal/shared/src/geometry/perlinnoise.cpp.c` (0/3)
+## `portal/shared/src/geometry/perlinnoise.cpp.c` (2/3)
 
 ### PerlinNoise
-- [ ] `PerlinNoise::Init` · 0062b040 · legions 005e4f60
-- [ ] `PerlinNoise::Noise` · 0062b0f0 · legions 005e5010
+- [x] `PerlinNoise::Init` · 0062b040 · legions 005e4f60 — ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
+- [x] `PerlinNoise::Noise` · 0062b0f0 · legions 005e5010 — ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
 - [ ] `PerlinNoise::fBm1` · 0062b180 · legions 005e50a0
 
 ## `portal/shared/src/geometry/plane.cpp.c` (2/16)
@@ -672,7 +672,7 @@ Legend and workflow: [README](README.md).
 ### Waveform
 - [ ] `Waveform::SetDefaults` · 00622c40 · legions 005de010
 - [ ] `Waveform::GetUpperBounds` · 00622c70 · legions 005de040
-- [~] `Waveform::GetValueForPhase` · 00622cf0 · legions 005de0c0 — ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
+- [~] `Waveform::GetValueForPhase` · 00622cf0 · legions 005de0c0 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 - [~] `Waveform::GetValue` · 00622f10 · legions 005de2e0 — ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
 - [ ] `Waveform::Waveform` · 00622f30 · legions 005de300
 - [ ] `Waveform::Waveform` · 00622f60 · legions 005de330
