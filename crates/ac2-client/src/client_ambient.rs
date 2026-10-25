@@ -146,6 +146,21 @@ impl Client {
         ambient.sound.use_time(now, &mut audio.manager);
     }
 
+    /// The ambient sound types the cells have weighed (`AmbientSound::sound_types`).
+    pub fn ambient_sound_types(&self) -> Vec<u32> {
+        self.audio
+            .as_ref()
+            .map_or_else(Vec::new, |audio| audio.ambient.sound.sound_types())
+    }
+
+    /// Every ambient emitter's sound id and its place from the listener, global axes
+    /// (`AmbientSound::emitters`).
+    pub fn ambient_sound_emitters(&self) -> Vec<(u64, [f32; 3])> {
+        self.audio
+            .as_ref()
+            .map_or_else(Vec::new, |audio| audio.ambient.sound.emitters())
+    }
+
     /// The dominant ambient environment's `EnvInfo` (its reverb), once the cells were weighed.
     pub fn ambient_environment(&self) -> Option<u32> {
         self.audio.as_ref()?.ambient.sound.environment()

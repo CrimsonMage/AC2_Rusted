@@ -2459,7 +2459,14 @@ key	status	note
 00522380	x	
 00522520	x	
 00522580	x	
+00523550	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
+00523590	x	ac2-audio ambient_data.rs: SoundDesc::decode_packed reads the CAmbientSoundInfo array with its intermittent and continuous records (StreamPack), and AmbientData::load resolves each record's sound (SoundInfo / MusicInfo 3D flag) by DID.
 005235d0	x	ac2-audio/ac2-client: ambient environments, groove
+00523700	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
+00523730	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
+00523740	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
+005237c0	x	ac2-audio ambient_data.rs: SoundDesc::decode_packed reads the CAmbientSoundInfo array with its intermittent and continuous records (StreamPack), and AmbientData::load resolves each record's sound (SoundInfo / MusicInfo 3D flag) by DID.
+00523860	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
 00523d70	x	ac2-audio/ac2-client: ambient environments, groove
 00524290	x	
 005257a0	x	ac2-world region::sky_objects, ac2-render sky
@@ -2472,13 +2479,27 @@ key	status	note
 00525d90	x	
 00525f70	x	
 00528900	x	ac2-world region::sky_objects, ac2-render sky
+00529500	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
+00529560	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
 005295a0	x	ac2-audio/ac2-client: ambient environments, groove
 005295d0	x	ac2-audio/ac2-client: ambient environments, groove
 00529610	x	ac2-audio/ac2-client: ambient environments, groove
+00529d10	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
 00529d60	x	ac2-audio/ac2-client: ambient environments, groove
 00529d90	x	ac2-audio/ac2-client: ambient environments, groove
 00529de0	x	ac2-audio/ac2-client: ambient environments, groove
+0052a5f0	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
+0052a660	x	ac2-audio ambient_data.rs: SoundDesc::decode_packed reads the CAmbientSoundInfo array with its intermittent and continuous records (StreamPack), and AmbientData::load resolves each record's sound (SoundInfo / MusicInfo 3D flag) by DID.
 0052a6d0	x	ac2-audio/ac2-client: ambient environments, groove
+0052a900	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
+0052a940	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
+0052a9b0	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
+0052aa20	x	ac2-audio ambient_data.rs: SoundDesc::decode_packed reads the CAmbientSoundInfo array with its intermittent and continuous records (StreamPack), and AmbientData::load resolves each record's sound (SoundInfo / MusicInfo 3D flag) by DID.
+0052aac0	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
+0052ab30	x	ac2-audio ambient_data.rs: SoundDesc::decode_packed reads the CAmbientSoundInfo array with its intermittent and continuous records (StreamPack), and AmbientData::load resolves each record's sound (SoundInfo / MusicInfo 3D flag) by DID.
+0052abd0	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
+0052ac20	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
+0052ac70	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
 0052b1d0	x	ac2-world region::sky_objects, ac2-render sky
 0052dbb0	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 0052ddb0	_	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
@@ -5342,46 +5363,67 @@ key	status	note
 007291f0	~	ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
 0072aef0	x	ac2-audio/ac2-client: ambient environments, groove
 0072af00	x	ac2-audio/ac2-client: ambient environments, groove
+0072b000	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
 0072b030	~	ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
 0072b330	x	ac2-audio/ac2-client: ambient environments, groove
 0072b4b0	x	ac2-audio/ac2-client: ambient environments, groove
 0072b500	x	ac2-audio/ac2-client: ambient environments, groove
 0072b540	x	ac2-audio ambient.rs change_cell_end: the dominant environment's hand-off (SoundManager->GetReferences, 0x739420) is a folded 'return 1' stub in admin and Legions alike (mov eax,1; ret 4): retail applies no EnvInfo reverb; ac2-audio records the environment only.
 0072b6c0	x	ac2-audio/ac2-client: ambient environments, groove
+0072b740	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
 0072b780	x	ac2-audio/ac2-client: ambient environments, groove
 0072ba00	x	ac2-audio/ac2-client: ambient environments, groove
+0072ba30	x	AmbientSoundDesc::Destroy stops every continuous sound (ambient.rs AmbientSoundDesc::destroy -> ContinSoundManager::stop_all).
 0072bae0	x	ac2-audio/ac2-client: ambient environments, groove
 0072bb80	x	ac2-audio/ac2-client: ambient environments, groove
 0072bbe0	x	ac2-audio/ac2-client: ambient environments, groove
 0072bd10	x	ac2-audio/ac2-client: ambient environments, groove
 0072bd40	x	ac2-audio/ac2-client: ambient environments, groove
+0072bd70	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
 0072bd90	x	ac2-audio/ac2-client: ambient environments, groove
 0072be50	x	ac2-audio/ac2-client: ambient environments, groove
 0072bf00	x	ac2-audio/ac2-client: ambient environments, groove
 0072c030	x	ac2-audio/ac2-client: ambient environments, groove
+0072c040	~	Used only by ReCalcContinSounds' four-copy branch (bit 0x10). The region record never sets bit 0x10 (its 60 continuous sounds have bits 6 and 14: music, dominant-only), so the branch is not reached with the Legions data. Not ported: the sector split in that branch is ambiguous in the export (its floor(0.5) start; disassembly 0x0072C42A-0x0072C5A6).
+0072c070	x	ac2-audio/ac2-client ambient: the sound's place is the viewer's frame origin plus player_offset on each axis, global axes (ContinObject::UpdatePos, admin 0x0072D2A0, checked by disassembly). The port keeps the offset from the viewer and client_ambient converts it to the listener each frame (ambient_sound_emitters). Velocity is never written (zero). Test: ac2-client the_town_ambient_emitters_are_the_region_records_continuous_sounds (every emitter on the listener).
 0072c0b0	x	ac2-audio/ac2-client: ambient environments, groove
 0072c100	x	ac2-audio/ac2-client: ambient environments, groove
+0072c180	~	Used only by ReCalcContinSounds' four-copy branch (bit 0x10). The region record never sets bit 0x10 (its 60 continuous sounds have bits 6 and 14: music, dominant-only), so the branch is not reached with the Legions data. Not ported: the sector split in that branch is ambiguous in the export (its floor(0.5) start; disassembly 0x0072C42A-0x0072C5A6).
 0072c200	x	ac2-audio/ac2-client: ambient environments, groove
 0072c220	x	ac2-audio/ac2-client: ambient environments, groove
-0072c300	~	ac2-audio ambient.rs/ambient_objects.rs: a dominant-only music re-requested on each weighing; the queue holds one playing copy and one waiting copy (replaced by the newest, as QueuePrimaryInternal aborts it). ac2-client tests/ambient_music_7160 keeps one copy sounding and at most one waiting. The 4-copy spread (0x10) is still unused by Legions sounds.
+0072c240	x	ContinSoundManager::Is3D asks the object: music is 3D by MusicInfo bit 0x10 (ContinMusicObject::Is3D, admin 0x0072D4F0). ambient_data.rs is_3d reads the same bit; the region's continuous sounds are not 3D.
+0072c260	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
+0072c300	~	ac2-audio ambient_objects.rs recalc: the eight-sector 3D sum, Init, and the play rule (dominant or not dominant-only; the caller passes m_is_dominant) are ported. Not ported: the four-copy branch (bit 0x10, see CalcHeight/CalcAngleSum). The one-copy dominant-only music is re-requested on each weighing (one playing copy, one waiting).
 0072c5b0	x	ac2-audio/ac2-client: ambient environments, groove
-0072c750	~	ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
+0072c6d0	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
+0072c710	x	ac2-audio/ac2-client ambient: the sound's place is the viewer's frame origin plus player_offset on each axis, global axes (ContinObject::UpdatePos, admin 0x0072D2A0, checked by disassembly). The port keeps the offset from the viewer and client_ambient converts it to the listener each frame (ambient_sound_emitters). Velocity is never written (zero). Test: ac2-client the_town_ambient_emitters_are_the_region_records_continuous_sounds (every emitter on the listener).
+0072c720	x	ac2-audio/ac2-client ambient: the sound's place is the viewer's frame origin plus player_offset on each axis, global axes (ContinObject::UpdatePos, admin 0x0072D2A0, checked by disassembly). The port keeps the offset from the viewer and client_ambient converts it to the listener each frame (ambient_sound_emitters). Velocity is never written (zero). Test: ac2-client the_town_ambient_emitters_are_the_region_records_continuous_sounds (every emitter on the listener).
+0072c750	x	IntermitObject::CalcHeight rolls RollDice(max_pitch, min_height) in retail's argument order; ambient_objects.rs IntermitObject::play adds it to the place's height after GetIntermitLoc.
 0072c790	x	ac2-audio/ac2-client: ambient environments, groove
 0072c890	x	ac2-audio/ac2-client: ambient environments, groove
-0072c970	~	ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
+0072c970	~	ambient_objects.rs IntermitObject::play: the place is GetIntermitLoc in the viewer's frame, raised by CalcHeight, then Play_Internal at the environment volume times the sound's, with the pitch roll. Not ported: SetTempo_Internal(volume), which IntermitObject::Play calls when the environment volume is not 1 (it tail-calls the playing sound's vtable +0x40 with the level, probably DirectXPlayingSound::SetFrequency 0x005A6920, unverified).
+0072ca30	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
+0072ca60	x	AmbSoundObject::CalcHeight returns 0 (the base); the port adds a height only in IntermitObject::play, which is where retail's overriding CalcHeight applies.
 0072ca70	x	ac2-audio/ac2-client: ambient environments, groove
 0072caa0	x	ac2-audio/ac2-client: ambient environments, groove
 0072cae0	x	ac2-audio/ac2-client: ambient environments, groove
 0072cbc0	x	ac2-audio/ac2-client: ambient environments, groove
 0072cc40	x	ac2-audio/ac2-client: ambient environments, groove
 0072ccf0	x	ac2-audio/ac2-client: ambient environments, groove
+0072ce50	x	IntermitSoundObject / IntermitMusicObject constructors: one IntermitObject (ambient_objects.rs IntermitObject::new) with its sound or music from bit 1 or 2.
 0072ce80	x	ac2-audio/ac2-client: ambient environments, groove
 0072cee0	x	ac2-audio/ac2-client: ambient environments, groove
 0072cf90	x	ac2-audio/ac2-client: ambient environments, groove
+0072cfd0	~	Not ported: tail-calls the playing sound's vtable +0x40 with the level (see IntermitObject::Play); reached only when the environment volume is not 1.
+0072d000	x	IntermitSoundObject / IntermitMusicObject constructors: one IntermitObject (ambient_objects.rs IntermitObject::new) with its sound or music from bit 1 or 2.
 0072d030	x	ac2-audio/ac2-client: ambient environments, groove
 0072d090	x	ac2-audio/ac2-client: ambient environments, groove
 0072d150	x	ac2-audio/ac2-client: ambient environments, groove
 0072d180	x	ac2-audio/ac2-client: ambient environments, groove
+0072d1d0	-	ContinObject::GetID returns INVALID_IID (the ISoundObj identity). The port keys its emitters by AMBIENT_EMITTERS ids; retail's matching is not by GetID.
+0072d1f0	x	ac2-audio/ac2-client ambient: the sound's place is the viewer's frame origin plus player_offset on each axis, global axes (ContinObject::UpdatePos, admin 0x0072D2A0, checked by disassembly). The port keeps the offset from the viewer and client_ambient converts it to the listener each frame (ambient_sound_emitters). Velocity is never written (zero). Test: ac2-client the_town_ambient_emitters_are_the_region_records_continuous_sounds (every emitter on the listener).
+0072d200	x	ac2-audio/ac2-client ambient: the sound's place is the viewer's frame origin plus player_offset on each axis, global axes (ContinObject::UpdatePos, admin 0x0072D2A0, checked by disassembly). The port keeps the offset from the viewer and client_ambient converts it to the listener each frame (ambient_sound_emitters). Velocity is never written (zero). Test: ac2-client the_town_ambient_emitters_are_the_region_records_continuous_sounds (every emitter on the listener).
+0072d220	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
 0072d230	x	ac2-audio/ac2-client: ambient environments, groove
 0072d250	x	ac2-audio/ac2-client: ambient environments, groove
 0072d2a0	x	ac2-audio/ac2-client: ambient environments, groove

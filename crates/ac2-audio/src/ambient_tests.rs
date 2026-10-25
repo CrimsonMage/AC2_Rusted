@@ -192,3 +192,112 @@ fn the_region_sound_desc_decodes() {
         }
     }
 }
+
+const CHIMES: u32 = 0x2C00_0004;
+
+/// A quarter-second sound for the intermittent chimes. Retail's `IsPlaying` holds a fire back
+/// while the last sound's voice is still in the sound manager's list; a voice (its length is the
+/// wave's time plus half a second) is released within the cadence, so no wait is held back.
+struct Chimes;
+
+impl SoundSource for Chimes {
+    fn load(&self, did: u32) -> Option<LoadedSound> {
+        Some(LoadedSound::Sound {
+            info: SoundInfo {
+                did,
+                bit_field: 0,
+                rand_freq_top: -1.0,
+                rand_freq_bot: -1.0,
+                priority: 1.0,
+                min_distance: 1.0,
+                wave: 0,
+            },
+            pcm: Arc::new(Pcm {
+                rate: 8000,
+                channels: 1,
+                samples: vec![0.0; 2000].into(),
+            }),
+            length: 0.25,
+        })
+    }
+}
+
+fn intermit(sound: u32, min_time: f32, max_time: f32) -> IntermitSoundInfo {
+    IntermitSoundInfo {
+        bit_field: 2,
+        sound,
+        volume: 1.0,
+        probability: 1.0,
+        min_pitch: 1.0,
+        max_pitch: 1.0,
+        min_height: 0.0,
+        max_height: 0.0,
+        min_time,
+        max_time,
+    }
+}
+
+/// `FOREST` with one intermittent sound whose wait is 2 to 4 seconds (its probability 1).
+fn chimes() -> Arc<AmbientData> {
+    Arc::new(AmbientData::new(
+        SoundDesc {
+            sounds: vec![AmbientSoundInfo {
+                sound_type: FOREST,
+                env: 0x2900_0001,
+                intermit: vec![intermit(CHIMES, 2.0, 4.0)],
+                contin: Vec::new(),
+            }],
+        },
+        HashMap::new(),
+    ))
+}
+
+/// The sounds started so far.
+fn starts(sink: &RecordingSink) -> usize {
+    sink.commands()
+        .iter()
+        .filter(|c| matches!(c, SinkCommand::Start { .. }))
+        .count()
+}
+
+/// The times (seconds) the intermittent sound starts over `seconds`, with the cells weighed
+/// once at 1 s and `AmbientSound::use_time` every half second after.
+fn chime_times(seconds: f64) -> Vec<f64> {
+    let sink = RecordingSink::new();
+    let mut manager = SoundManager::new(Box::new(sink.clone()), Arc::new(Chimes));
+    let mut ambient = AmbientSound::default();
+    ambient.set_data(Some(chimes()));
+    update(
+        &mut ambient,
+        &mut manager,
+        1.0,
+        &[(FOREST, [5.0, 0.0, 0.0])],
+    );
+    let mut times = Vec::new();
+    let mut fired = 0;
+    for step in 1..=(seconds / 0.5) as usize {
+        let now = 1.0 + step as f64 * 0.5;
+        ambient.use_time(now, &mut manager);
+        manager.wait_for_loads(WAIT);
+        manager.use_time(now);
+        while fired < starts(&sink) {
+            times.push(now);
+            fired += 1;
+        }
+    }
+    times
+}
+
+#[test]
+fn the_intermittent_sound_fires_on_its_timer_within_its_wait_and_repeats_exactly() {
+    let times = chime_times(60.0);
+    assert!(times.len() >= 10, "it fires again and again: {times:?}");
+    // Each wait is `min_time` to `max_time` seconds, read at the half-second cadence.
+    for pair in times.windows(2) {
+        let gap = pair[1] - pair[0];
+        assert!((2.0..=4.5 + 1e-9).contains(&gap), "gap {gap} in {times:?}");
+    }
+    // Retail's `Random::rand` stream is fixed (its state is never reseeded), so the same
+    // weighing gives the same schedule.
+    assert_eq!(times, chime_times(60.0));
+}

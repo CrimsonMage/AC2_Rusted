@@ -14,6 +14,7 @@
 //! at 0 the first pattern is a rest).
 
 use std::cell::RefCell;
+use std::collections::HashSet;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::time::Duration;
@@ -39,6 +40,8 @@ const FIRST_NOTES_WITHIN: f64 = 16.0;
 const FRAME: f64 = 1.0 / 64.0;
 const FRAME_FRAMES: usize = 44_100 / 64;
 const LOAD_TIMEOUT: Duration = Duration::from_secs(30);
+/// The region's `CSoundDesc`: the ambient sound types of the landblocks and their records.
+const REGION_SOUND_DESC: u32 = 0x1000_0000;
 
 /// Forwards every command to a mixer and keeps a copy of each one.
 #[derive(Clone)]
@@ -440,4 +443,102 @@ fn walking_into_an_interior_cell_switches_the_dominant_environment_and_music() {
     // The interior's music is its band only: its script's segment triggers a band segment and no
     // styled segment (no notes in the DAT's tree), so the mix's peak is the environment's sounds.
     assert!(peak > 0.0, "the interior mix is not silent (peak {peak})");
+}
+
+/// The town's ambient emitters come from the region record: one per continuous record of each
+/// sound type the cells weighed. The Legions record has no intermittent sounds and no four-copy
+/// spread (bit 0x10); its continuous sounds are dominant-only music, not 3D, so each emitter sits
+/// on the listener.
+#[test]
+fn the_town_ambient_emitters_are_the_region_records_continuous_sounds() {
+    let Some(spawn) = town_spawn() else {
+        return;
+    };
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ac2_db::ResourceStore::new(dataset);
+    let region = ac2_audio::AmbientData::load(&store, REGION_SOUND_DESC)
+        .expect("the region's CSoundDesc decodes")
+        .expect("the region's CSoundDesc");
+    let Some(mut harness) = Harness::enter(spawn) else {
+        return;
+    };
+    while !harness.client.frame().in_world {
+        harness.frame();
+    }
+    for _ in 0..128 {
+        harness.frame();
+    }
+    assert_eq!(harness.client.ambient_environment(), Some(TOWN_ENV));
+    let types = harness.client.ambient_sound_types();
+    assert!(
+        !types.is_empty(),
+        "the cells weighed the town's sound types"
+    );
+    let mut expected = 0;
+    for sound_type in &types {
+        let info = region
+            .desc()
+            .sound_info(*sound_type)
+            .expect("a sound type the region names");
+        assert!(info.intermit.is_empty(), "no intermittent sound: {info:?}");
+        for contin in &info.contin {
+            assert!(contin.test(2) && !contin.test(0x10), "{contin:?}");
+        }
+        expected += info.contin.len();
+    }
+    let emitters = harness.client.ambient_sound_emitters();
+    assert_eq!(
+        emitters.len(),
+        expected,
+        "one emitter per continuous record"
+    );
+    for (id, offset) in &emitters {
+        assert_eq!(id >> 56, 0x13, "an ambient emitter id");
+        assert_eq!(*offset, [0.0; 3], "a 2D sound sits on the listener");
+    }
+    let records: HashSet<u32> = region
+        .desc()
+        .sounds
+        .iter()
+        .flat_map(|info| info.contin.iter().map(|c| c.sound))
+        .collect();
+    let starts = harness.music_starts();
+    assert!(!starts.is_empty(), "the town's music is queued");
+    for (_, music, _) in starts.iter().filter(|(_, music, _)| *music != 0) {
+        assert!(
+            records.contains(music),
+            "{music:08X} is a continuous record"
+        );
+    }
+}
+
+/// The town's run repeats: the same frames give the same music requests and notes, second by
+/// second (the Legions random stream is fixed, and the double's clock is the frame count).
+#[test]
+fn the_town_ambient_run_repeats_second_by_second() {
+    fn schedule() -> Option<Vec<(usize, usize)>> {
+        let mut harness = Harness::enter(town_spawn()?)?;
+        while !harness.client.frame().in_world {
+            harness.frame();
+        }
+        let mut seconds = Vec::new();
+        for _ in 0..20 {
+            for _ in 0..64 {
+                harness.frame();
+            }
+            seconds.push((harness.music_starts().len(), harness.note_count()));
+        }
+        Some(seconds)
+    }
+    let Some(first) = schedule() else {
+        return;
+    };
+    let second = schedule().expect("the second run starts");
+    assert_eq!(first, second);
+    assert!(
+        first.last().is_some_and(|&(_, notes)| notes > 0),
+        "the town plays notes"
+    );
 }

@@ -174,6 +174,11 @@ impl AmbientData {
         Self { desc, three_d }
     }
 
+    /// The region's `CSoundDesc`: its sound types and their continuous and intermittent sounds.
+    pub fn desc(&self) -> &SoundDesc {
+        &self.desc
+    }
+
     /// The sound's `Is3D` (false when its record is missing, as retail's missing-data path).
     pub fn is_3d(&self, sound: u32) -> bool {
         self.three_d.get(&sound).copied().unwrap_or(false)
