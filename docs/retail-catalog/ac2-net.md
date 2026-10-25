@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 204 done, 12 partial, 340 to do, 0 skipped.
+556 retail functions: 210 done, 12 partial, 334 to do, 0 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -268,7 +268,7 @@ Legend and workflow: [README](README.md).
 - [x] `ArrivedEphInfo::fTimedOut` · 004cee90 · legions 004c3460
 - [x] `ArrivedEphInfo::ArrivedEphInfo` · 004ceeb0 · legions 004c3480
 
-## `portal/client/src/clinet/cflowqueue.cpp.c` (31/39)
+## `portal/client/src/clinet/cflowqueue.cpp.c` (32/39)
 
 ### FlowQueue
 - [x] `FlowQueue::DequeuePacket` · 004cbe20 · legions 004c0360
@@ -316,7 +316,7 @@ Legend and workflow: [README](README.md).
 - [x] `ClientFlowQueue::Dequeue` · 004cca70 · legions 004c0fe0
 
 ### NIListIter<unsigned_long>
-- [ ] `NIListIter<unsigned_long>::AddBeforeCur` · 004ccaa0 · legions 004c1010
+- [x] `NIListIter<unsigned_long>::AddBeforeCur` · 004ccaa0 · legions 004c1010 — FlowQueue::EnqueueAcks inserts into m_ackList before the cursor
 
 ### CPackObjHeader<NetError,2097152,2>
 - [x] `CPackObjHeader<NetError,2097152,2>::CreateFromData` · 004ccb40 · legions 004c10b0
@@ -385,7 +385,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Indicator::~Indicator` · 004ce980 · legions 004c2ef0
 - [x] `Indicator::CheckInPacket` · 004ce9d0 · legions 004c2f40
 
-## `portal/client/src/clinet/clientnet.cpp.c` (52/83)
+## `portal/client/src/clinet/clientnet.cpp.c` (56/83)
 
 ### CQuickTimer
 - [ ] `CQuickTimer::Expired` · 004c52b0 · legions 004b9670
@@ -419,7 +419,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AVLNode<unsigned_long,unsigned_long>::~AVLNode<unsigned_long,unsigned_long>` · 004c59f0 · legions 004b9db0
 
 ### AVL<unsigned_long,unsigned_long>
-- [ ] `AVL<unsigned_long,unsigned_long>::LeftRightRotate` · 004c5a40 · legions 005d0c70
+- [x] `AVL<unsigned_long,unsigned_long>::LeftRightRotate` · 004c5a40 · legions 005d0c70 — ReceiverData::m_SeqIDsWeNAKed as a BTreeMap: same key order for GetNaks, same add/remove results
 
 ### CEchoResponseHeader
 - [x] `CEchoResponseHeader::UpdateTimeSensitivePayload` · 004c5b80
@@ -473,8 +473,8 @@ Legend and workflow: [README](README.md).
 - [x] `COnePrimHeader<2048,1073741922,CReferralStruct>::CreateFromData` · 004c6ee0 · legions 004bb320
 
 ### AVL<unsigned_long,unsigned_long>
-- [ ] `AVL<unsigned_long,unsigned_long>::ReBalanceTree` · 004c6f30 · legions 004bb370
-- [ ] `AVL<unsigned_long,unsigned_long>::FindSuccessor` · 004c6fa0 · legions 004bb3e0
+- [x] `AVL<unsigned_long,unsigned_long>::ReBalanceTree` · 004c6f30 · legions 004bb370 — ReceiverData::m_SeqIDsWeNAKed as a BTreeMap: same key order for GetNaks, same add/remove results
+- [x] `AVL<unsigned_long,unsigned_long>::FindSuccessor` · 004c6fa0 · legions 004bb3e0 — ReceiverData::m_SeqIDsWeNAKed as a BTreeMap: same key order for GetNaks, same add/remove results
 
 ### TimeStampUtils
 - [x] `TimeStampUtils::lhs_newer` · 004c7040 · legions 004bb480
@@ -495,7 +495,7 @@ Legend and workflow: [README](README.md).
 - [x] `ClientNet::ProcessReferralQueue` · 004c7730 · legions 004bbb70
 
 ### AVL<unsigned_long,unsigned_long>
-- [ ] `AVL<unsigned_long,unsigned_long>::Remove` · 004c7950 · legions 004bbd80
+- [x] `AVL<unsigned_long,unsigned_long>::Remove` · 004c7950 · legions 004bbd80 — ReceiverData::m_SeqIDsWeNAKed as a BTreeMap: same key order for GetNaks, same add/remove results
 
 ### SmartArray<ClientNet::CReferralQueueEntry>
 - [ ] `SmartArray<ClientNet::CReferralQueueEntry>::AddToEnd` · 004c7ab0 · legions 004bbee0
@@ -978,7 +978,7 @@ Legend and workflow: [README](README.md).
 - [x] `PacketController::AddReceivedBlobToQueue` · 004cabe0 · legions 004bf180
 - [~] `PacketController::PacketController` · 004cacf0 · legions 004bf280 — net hook DLL and perf counters not loaded
 
-## `portal/shared/src/newnet/receiverdata.cpp.c` (11/16)
+## `portal/shared/src/newnet/receiverdata.cpp.c` (12/16)
 
 ### ReceiverData
 - [x] `ReceiverData::SetConnectionState` · 004caed0 · legions 004bf410
@@ -1001,7 +1001,7 @@ Legend and workflow: [README](README.md).
 - [x] `ReceiverData::GetNaks` · 004cb330 · legions 004bf870
 
 ### AVL<unsigned_long,unsigned_long>
-- [ ] `AVL<unsigned_long,unsigned_long>::Add` · 004cb3b0 · legions 004bf8f0
+- [x] `AVL<unsigned_long,unsigned_long>::Add` · 004cb3b0 · legions 004bf8f0 — ReceiverData::m_SeqIDsWeNAKed as a BTreeMap: same key order for GetNaks, same add/remove results
 
 ### ReceiverData
 - [x] `ReceiverData::AddNakked` · 004cb4b0 · legions 004bf9f0

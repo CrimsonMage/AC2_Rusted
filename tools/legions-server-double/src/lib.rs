@@ -5,6 +5,7 @@
 //! is the 7160 path's test peer.
 
 mod appearance;
+mod assembly;
 mod channel;
 mod reliable;
 
@@ -12,6 +13,7 @@ pub use appearance::{
     contain_bytes, create_object_with_visual, part_group_bytes, quality_bytes,
     update_visual_desc_bytes, visual_desc_bytes,
 };
+pub use assembly::{fragment_header_bytes, Assembler};
 pub use channel::{Channel, ChannelStats, Conditions, Direction, InFlight, SplitMix};
 pub use reliable::{newer, ClientTracker, SentStore, Stored, Verdict, MAX_IDS};
 
@@ -252,8 +254,10 @@ pub struct State {
     pub inbox: Vec<(SocketAddr, Vec<u8>)>,
     /// Every client datagram, with its destination.
     pub sent: Vec<(SocketAddr, Vec<u8>)>,
-    /// Client blobs in arrival order: queue and bytes.
+    /// Client blobs in completion order: id, queue and bytes.
     pub blobs: Vec<(u64, u16, Vec<u8>)>,
+    /// The client's fragments, assembling.
+    pub assembler: Assembler,
     server_keys: Option<Isaac>,
     /// The client's sequences and keys (`ReceiverData`), from the connect.
     pub tracker: Option<ClientTracker>,
@@ -311,11 +315,13 @@ impl State {
         self.reliable_blob(id, 1, &b);
     }
 
-    /// Queues an unordered queue-1 event blob (`CEventQueue::DispatchEvent` order).
-    pub fn send_event(&mut self, data: &[u8]) {
+    /// Queues an unordered queue-1 event blob (`CEventQueue::DispatchEvent` order); returns
+    /// its id.
+    pub fn send_event(&mut self, data: &[u8]) -> u64 {
         self.next_object_blob += 1;
         let id = 0x0300_0000_0000_0000 | u64::from(self.next_object_blob) << 32 | 0x100;
         self.reliable_blob(id, 1, data);
+        id
     }
 
     /// Queues a player-ordered queue-1 event blob (`CEventQueue::ProcessOrderedNetBlob`): the
@@ -326,6 +332,18 @@ impl State {
         let high = u64::from(ac2_net::ORDERING_ORDERED | u32::from(self.ordered_stamp));
         let id = high << 32 | u64::from(self.next_object_blob) << 8;
         self.reliable_blob(id, 1, data);
+    }
+
+    /// Queues an unordered queue-1 event of any size, fragmented as `NetBlob::Fragmentize`
+    /// does, one reliable packet per fragment. Returns the blob id.
+    pub fn send_fragmented(&mut self, data: &[u8]) -> u64 {
+        self.next_object_blob += 1;
+        let id = 0x0300_0000_0000_0000 | u64::from(self.next_object_blob) << 32 | 0x100;
+        for fragment in ac2_net::fragmentize(id, 1, data) {
+            let segments = vec![fragment_header_bytes(&fragment), fragment.data];
+            self.reliable(segments, flags::BLOB_FRAGMENTS);
+        }
+        id
     }
 
     /// A reliable packet carrying one optional header (`TimeSync`, `NetErrorDisconnect`):
@@ -576,9 +594,11 @@ impl State {
             return;
         }
         for fragment in packet.fragments {
-            let opcode = u32::from_le_bytes(fragment.data[..4].try_into().unwrap());
-            self.blobs
-                .push((fragment.blob_id, fragment.queue, fragment.data.clone()));
+            let Some((id, queue, data)) = self.assembler.add(&fragment) else {
+                continue;
+            };
+            let opcode = u32::from_le_bytes(data[..4].try_into().unwrap());
+            self.blobs.push((id, queue, data));
             match opcode {
                 // `Proto_UI::SendEnterWorld`.
                 0x0001_002B => {
