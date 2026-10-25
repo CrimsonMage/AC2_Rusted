@@ -12,6 +12,8 @@ use super::{OnlineSession, SessionEvent};
 /// `WM_Combat` 0x16 (start attacking a target) and 0x14 (stop).
 const ATTACK: u32 = 0x8204_0008;
 const STOP_ATTACKING: u32 = 0x8204_0010;
+/// `WM_Combat` 0x1B, the server's attack state.
+pub(super) const UPDATE_ATTACK_STATE: u32 = 0x8204_001B;
 use crate::player_script::{GameplayNotice, PlayerScript, ScriptOutput};
 use crate::qualities::WeenieQualities;
 use crate::world::World;
@@ -101,6 +103,26 @@ impl OnlineSession {
             ScriptCall::new(STOP_ATTACKING, Vec::new())
         };
         self.send(call.expect("WM_Combat's layouts").to_event());
+    }
+
+    /// `WM_Combat` 0x1B -> `CPlayer` 0x2: the server's attack state for the bar
+    /// (`SendNotice_UpdateAttackState`; `Player` 0x4 keeps it, and stopping runs `CPlayer`
+    /// 0x10C, the stance, which the stand-in leaves out). `None` for other functions.
+    pub(super) fn receive_combat(
+        &mut self,
+        function: u32,
+        arguments: &[u8],
+    ) -> Option<SessionEvent> {
+        if function != UPDATE_ATTACK_STATE {
+            return None;
+        }
+        let call = ScriptCall::decode(function, arguments)?.ok()?;
+        let [ac2_net::protocol::PackValue::Int(attacking)] = call.arguments[..] else {
+            return None;
+        };
+        Some(SessionEvent::Notice(GameplayNotice::UpdateAttackState(
+            attacking != 0,
+        )))
     }
 
     /// `gmCWInterface::UseSelection` (`CPlayer` 0x79): use the selected object, or say that

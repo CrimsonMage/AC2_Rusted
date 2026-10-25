@@ -98,6 +98,7 @@ pub const CALLS: &[CallSpec] = &[
     // Combat (`WM_Combat`, package 0x204).
     call(0x8204_0008, ToServer, "WM_Combat 0x16", "CCombatSystem 0x3 (RequestAttackStateChange: start, the selection)", &[LongInt]),
     call(0x8204_0010, ToServer, "WM_Combat 0x14", "CCombatSystem 0x10 (RequestAttackStateChange: stop)", &[]),
+    call(0x8204_001B, ToClient, "WM_Combat 0x1B", "CPlayer 0x2 (SendNotice_UpdateAttackState)", &[Int]),
     // Chat channels (`WM_Communication`, package 0x205; speech and tells are typed).
     call(0x8205_001B, ToClient, "WM_Communication 0x1B", "CPlayer 0x147 (the chat channel table)", &[Word]),
     // Fellowships (`WM_Fellowship`, package 0x20C).

@@ -68,7 +68,10 @@ impl State {
                 .script_errors
                 .push(format!("function {function:#010x}: {error}")),
             None => match ScriptCall::decode(function, arguments) {
-                Some(Ok(call)) => self.script_calls.push(call),
+                Some(Ok(call)) => {
+                    self.answer_call(&call);
+                    self.script_calls.push(call);
+                }
                 Some(Err(error)) => self
                     .script_errors
                     .push(format!("function {function:#010x}: {error}")),

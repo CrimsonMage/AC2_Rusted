@@ -11,6 +11,7 @@ mod character;
 mod lossy;
 mod reliable;
 mod script;
+mod social;
 
 pub use appearance::{
     contain_bytes, create_object_with_visual, part_group_bytes, quality_bytes,
@@ -22,6 +23,7 @@ pub use character::{default_options, Character, MELEE_ATTACK, MELEE_AUTO_ATTACK,
 pub use lossy::LossyTransport;
 pub use reliable::{newer, ClientTracker, SentStore, Stored, Verdict, MAX_IDS};
 pub use script::ScriptWorld;
+pub use social::{fellow_graph, Fellow, Fellowship, FELLOW, FELLOWSHIP_ROOM};
 
 use std::cell::RefCell;
 use std::net::SocketAddr;
@@ -349,6 +351,8 @@ pub struct State {
     next_object_blob: u16,
     /// What the double answers script calls with.
     pub script_world: ScriptWorld,
+    /// The fellowship the double made for the player (`WM_Fellowship` 0x22), if any.
+    pub fellowship: Option<Fellowship>,
     /// The client's script calls, decoded, in arrival order.
     pub script_requests: Vec<ac2_net::protocol::ScriptRequest>,
     /// The client's calls in `ac2_net::protocol::SCRIPT_CALLS` (skills, shortcuts,

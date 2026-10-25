@@ -56,7 +56,10 @@ pub use shell::{
     COMMAND_TABLE_ENUM, DEFAULT_COMMAND, EMOTE_TABLE_PACKAGE, HELP_STRINGS, REGISTERED_COMMANDS,
     SQUELCH_WORDS,
 };
-pub use social::{AllegianceMember, AllegianceProfile, FellowInfo, FellowshipInfo, Social};
+pub use social::{
+    AllegianceMember, AllegianceProfile, FellowInfo, FellowshipInfo, Social, SocialContext,
+    SocialRequest,
+};
 pub use tables::{
     StringTableIds, TABLE_ENUM_CHANNELS, TABLE_ENUM_CHAT_WINDOW, TABLE_ENUM_COMMUNICATION,
     TABLE_ENUM_FELLOWSHIP, TABLE_ENUM_TELL, TABLE_ENUM_USAGE,
