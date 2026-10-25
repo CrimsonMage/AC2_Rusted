@@ -20,10 +20,12 @@
 mod db_types;
 mod enum_map;
 mod places;
+mod render;
 
 pub use db_types::{db_type, DB_TYPE_DID_MAPPER, DB_TYPE_ENUM_MAPPER, DB_TYPE_STRING_TABLE};
 pub use enum_map::{EnumIdMap, EnumMapper};
 pub use places::{PlacesTable, PLACES_TABLE_ENUM, UNIQUEDB_GROUP_ENUM};
+pub use render::{render_info, script_error};
 
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::ops::Deref;
@@ -61,6 +63,7 @@ struct Resident {
     mappers: HashMap<u32, CachedResource<EnumMapper>>,
     id_maps: HashMap<u32, CachedResource<EnumIdMap>>,
     places: Option<CachedResource<PlacesTable>>,
+    string_state: Option<CachedResource<ac2_db::StringState>>,
     absent: HashSet<DataRequest>,
 }
 
@@ -195,6 +198,13 @@ impl DatScriptData {
         }
         if !self.load_places() {
             self.resident().absent.insert(DataRequest::PlacesTable);
+        }
+        // `StringStateInfo`'s state (number formats, plurals, meta letters).
+        let did = self
+            .enum_did(ac2_db::STRING_STATE_ENUM, ac2_db::STRING_STATE_ENUM_GROUP)
+            .unwrap_or(ac2_db::STRING_STATE_FIRST);
+        if let Ok(Some(state)) = ac2_db::load_string_state(&self.store, DataId::new(did)) {
+            self.resident().string_state = Some(state);
         }
     }
 
@@ -352,6 +362,15 @@ impl ScriptData for DatScriptData {
         self.load_places();
         let table = self.resident().places.clone()?;
         Some(Box::new(table))
+    }
+
+    /// `StringTable::GetString` (vtable +0x80) through ac2-db's meta-language renderer.
+    fn render_string(
+        &self,
+        table: &StringTable,
+        info: &crate::native::StringInfo,
+    ) -> Result<Vec<u16>, crate::native::GetStringError> {
+        ac2_db::render_with_table(self, table, &render_info(info)).map_err(script_error)
     }
 
     /// `DBObj::Get(QualifiedDataID(did, DB_TYPE_STRING_TABLE))` through ac2-db's decoder.
