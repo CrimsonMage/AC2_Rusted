@@ -2,7 +2,7 @@ use super::{standalone, Destination, FlowQueue, FlushContext, PROTO_UI_PRIORITY}
 use crate::checksum::checksum32;
 use crate::header::{flags, PacketHeader};
 use crate::isaac::Isaac;
-use crate::optional::OptionalHeader;
+use crate::optional::{NetErrorId, OptionalHeader};
 use crate::packet::split_packet;
 
 fn context(outgoing: &mut Isaac, local_time: f64) -> FlushContext<'_> {
@@ -13,6 +13,7 @@ fn context(outgoing: &mut Isaac, local_time: f64) -> FlushContext<'_> {
         iteration: 1,
         outgoing,
         disconnect_received: None,
+        disconnect_sent: false,
     }
 }
 
@@ -172,4 +173,192 @@ fn the_cicmd_header_goes_to_the_second_port_every_220_intervals() {
         ),
         (0, flags::CICMD, 0, 0)
     );
+}
+
+#[test]
+fn reliable_sequences_wrap_past_zero_and_acks_retire_across_the_wrap() {
+    let mut keys = Isaac::new(7);
+    let mut flow = FlowQueue::new(9, 0.0);
+    flow.set_highest_sent(0xFFFF_FFFE);
+    // Three whole-fragment blobs: one packet each.
+    for _ in 0..3 {
+        flow.enqueue_blob(0x0300_0001_0000_0000, 4, vec![1; 0x1C0], PROTO_UI_PRIORITY);
+    }
+    let sent = flow.empty(&mut context(&mut keys, 0.0));
+    let sequences: Vec<u32> = sent
+        .iter()
+        .map(|(_, b)| PacketHeader::decode(b).unwrap().sequence)
+        .collect();
+    // `TransmitNewPackets`: 0 is never a sequence.
+    assert_eq!(sequences, [0xFFFF_FFFF, 1, 2]);
+    // An ACK of 2 retires everything older across the wrap.
+    flow.flush_sent(2, false);
+    assert_eq!(flow.stored(), 1);
+    // A NAK of the pre-wrap sequence finds nothing left: empty-acked.
+    flow.enqueue_acks(&[0xFFFF_FFFF]);
+    let resent = flow.empty(&mut context(&mut keys, 0.1));
+    let header = PacketHeader::decode(&resent[0].1).unwrap();
+    assert_eq!((header.flags, header.sequence), (flags::EMPTY_ACK, 2));
+}
+
+#[test]
+fn a_received_disconnect_is_answered_once_the_queue_drains_and_marks_it_sent() {
+    let mut keys = Isaac::new(7);
+    let mut flow = FlowQueue::new(9, 0.0);
+    flow.enqueue_blob(0x0300_0001_0000_0000, 4, vec![1; 0x1C0], PROTO_UI_PRIORITY);
+    flow.enqueue_blob(0x0300_0001_0000_0001, 4, vec![2; 0x1C0], PROTO_UI_PRIORITY);
+    let mut ctx = context(&mut keys, 0.0);
+    ctx.disconnect_received = Some(0.0);
+    // Both blobs went out, so nothing waits: the reply is queued (after `TransmitNewPackets`).
+    assert_eq!(flow.empty(&mut ctx).len(), 2);
+    assert!(!ctx.disconnect_sent);
+    let mut ctx = context(&mut keys, 0.1);
+    ctx.disconnect_received = Some(0.1);
+    let sent = flow.empty(&mut ctx);
+    assert!(ctx.disconnect_sent);
+    let header = PacketHeader::decode(&sent[0].1).unwrap();
+    // `NetErrorDisconnect` is reliable (`m_Flags` 2): the next sequence and key.
+    assert_eq!(
+        (header.sequence, header.flags),
+        (4, flags::NET_ERROR_DISCONNECT | flags::ENCRYPTED_CHECKSUM)
+    );
+    let mut expected = Isaac::new(7);
+    let key = (0..3).map(|_| expected.next_key()).last().unwrap();
+    let parsed = split_packet(&sent[0].1, body_sum(&sent[0].1, Some(key)), true).unwrap();
+    assert_eq!(
+        parsed.optional,
+        vec![OptionalHeader::NetErrorDisconnect(NetErrorId::NONE)]
+    );
+}
+
+/// A datagram from header fields and body segments (each summed apart), XORed with `key`.
+fn built(mut header: PacketHeader, segments: &[&[u8]], key: Option<u32>) -> Vec<u8> {
+    let mut sum = 0u32;
+    let mut body = Vec::new();
+    for segment in segments {
+        sum = sum.wrapping_add(checksum32(segment));
+        body.extend_from_slice(segment);
+    }
+    header.size = body.len() as u16;
+    header.checksum = (sum ^ key.unwrap_or(0)).wrapping_add(header.header_checksum());
+    let mut out = header.encode().to_vec();
+    out.extend(body);
+    out
+}
+
+fn fragment_header(id: u64, count: u16, len: usize, index: u16, queue: u16) -> Vec<u8> {
+    let mut out = id.to_le_bytes().to_vec();
+    out.extend(count.to_le_bytes());
+    out.extend((len as u16 + 16).to_le_bytes());
+    out.extend(index.to_le_bytes());
+    out.extend(queue.to_le_bytes());
+    out
+}
+
+fn header(sequence: u32, bits: u32) -> PacketHeader {
+    PacketHeader {
+        sequence,
+        flags: bits,
+        recipient: 9,
+        interval: 1,
+        iteration: 1,
+        ..Default::default()
+    }
+}
+
+#[test]
+fn fragments_take_the_first_packet_they_fit_and_header_packets_lead() {
+    // `CoalesceData`: the ACK opens a packet (`AddToHead`); blob A's two full pieces
+    // (0x1c0 + 16 = 0x1d0 bytes) fit nothing and open packets at the tail; its last piece and
+    // blob B fit beside the ACK, so A's tail leaves before its head.
+    let mut keys = Isaac::new(7);
+    let mut flow = FlowQueue::new(9, 0.0);
+    let a: Vec<u8> = (0..1000).map(|i| i as u8).collect();
+    let b = vec![0xBB; 40];
+    let (id_a, id_b) = (0x0300_0001_0000_0000, 0x0300_0002_0000_0001);
+    flow.enqueue_header(OptionalHeader::Ack(5), 0.0);
+    flow.enqueue_blob(id_a, 4, a.clone(), PROTO_UI_PRIORITY);
+    flow.enqueue_blob(id_b, 4, b.clone(), PROTO_UI_PRIORITY);
+    let sent = flow.empty(&mut context(&mut keys, 0.0));
+    let mut expected_keys = Isaac::new(7);
+    let reliable = flags::BLOB_FRAGMENTS | flags::ENCRYPTED_CHECKSUM;
+    let first = built(
+        header(2, flags::ACK | reliable),
+        &[
+            &5u32.to_le_bytes(),
+            &fragment_header(id_a, 3, 104, 2, 4),
+            &a[896..],
+            &fragment_header(id_b, 1, 40, 0, 4),
+            &b,
+        ],
+        Some(expected_keys.next_key()),
+    );
+    let second = built(
+        header(3, reliable),
+        &[&fragment_header(id_a, 3, 0x1C0, 0, 4), &a[..448]],
+        Some(expected_keys.next_key()),
+    );
+    let third = built(
+        header(4, reliable),
+        &[&fragment_header(id_a, 3, 0x1C0, 1, 4), &a[448..896]],
+        Some(expected_keys.next_key()),
+    );
+    let datagrams: Vec<Vec<u8>> = sent.into_iter().map(|(_, d)| d).collect();
+    assert_eq!(datagrams, [first, second, third]);
+    assert_eq!(flow.stored(), 3);
+}
+
+#[test]
+fn an_exclusive_header_travels_alone_and_a_single_try_header_ends_the_header_pass() {
+    let mut keys = Isaac::new(7);
+    let mut flow = FlowQueue::new(9, 0.0);
+    // `NetError` (flags 7: unreliable, exclusive): its own packet, at the head, which nothing
+    // joins; the blob goes in beside the ACK.
+    let error = NetErrorId {
+        string_id: 0x1234,
+        table_id: 0x4000_0005,
+    };
+    flow.enqueue_header(OptionalHeader::Ack(5), 0.0);
+    flow.enqueue_header(OptionalHeader::NetError(error), 0.0);
+    flow.enqueue_blob(0x0300_0001_0000_0000, 4, vec![7; 8], PROTO_UI_PRIORITY);
+    let sent = flow.empty(&mut context(&mut keys, 0.0));
+    let alone = built(
+        header(1, flags::NET_ERROR),
+        &[&OptionalHeader::NetError(error).encode()],
+        None,
+    );
+    assert_eq!(sent[0].1, alone);
+    let second = PacketHeader::decode(&sent[1].1).unwrap();
+    assert_eq!(
+        (second.sequence, second.flags),
+        (
+            2,
+            flags::ACK | flags::BLOB_FRAGMENTS | flags::ENCRYPTED_CHECKSUM
+        )
+    );
+    assert_eq!(sent.len(), 2);
+    // A NAK (flags 0x21, single try) placed, the header pass ends: the ACK queued after it
+    // waits for the next `CoalesceData`.
+    flow.enqueue_header(OptionalHeader::Nak(vec![3]), 0.1);
+    flow.enqueue_header(OptionalHeader::Ack(6), 0.1);
+    let sent = flow.empty(&mut context(&mut keys, 0.1));
+    let nak = built(
+        header(2, flags::NAK),
+        &[&[1u32.to_le_bytes(), 3u32.to_le_bytes()].concat()],
+        None,
+    );
+    assert_eq!(sent.len(), 1);
+    assert_eq!(sent[0].1, nak);
+    let sent = flow.empty(&mut context(&mut keys, 0.2));
+    // The 0.1 flush moved the local interval on to 2 (`FlowQueue::Empty`).
+    let ack = built(
+        PacketHeader {
+            interval: 2,
+            ..header(2, flags::ACK)
+        },
+        &[&6u32.to_le_bytes()],
+        None,
+    );
+    assert_eq!(sent.len(), 1);
+    assert_eq!(sent[0].1, ack);
 }

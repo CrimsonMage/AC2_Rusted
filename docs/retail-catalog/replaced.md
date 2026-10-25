@@ -1,6 +1,6 @@
 # replaced: Third-party libraries, CRT and container templates replaced by Rust
 
-2058 retail functions: 8 done, 0 partial, 0 to do, 2050 skipped.
+2058 retail functions: 10 done, 0 partial, 0 to do, 2048 skipped.
 Legend and workflow: [README](README.md).
 
 ## `_libraries/ImeUI.lib/ImeUi.obj.c` (0/36)
@@ -2227,10 +2227,10 @@ Legend and workflow: [README](README.md).
 ### _STL::vector<GenericTriggerScheduler<ClientTrigger>::TriggerInfo,_STL::allocator<GenericTriggerScheduler<ClientTrigger>::TriggerInfo>_>
 - [-] `_STL::vector<GenericTriggerScheduler<ClientTrigger>::TriggerInfo,_STL::allocator<GenericTriggerScheduler<ClientTrigger>::TriggerInfo>_>::_M_allocate_and_copy` · 004c4b80 · legions 004b8f90 — Rust std replaces it
 
-## `portal/client/src/clinet/cflowqueue.cpp.c` (1/2)
+## `portal/client/src/clinet/cflowqueue.cpp.c` (2/2)
 
 ### PQueueArray<unsigned_long,void_*>
-- [-] `PQueueArray<unsigned_long,void_*>::_ExpandNodes` · 004cbf50 · legions 004c04c0 — Rust std replaces it
+- [x] `PQueueArray<unsigned_long,void_*>::_ExpandNodes` · 004cbf50 · legions 004c04c0 — pqueue.rs PQueueArray grows as needed
 - [x] `PQueueArray<unsigned_long,void_*>::_Heapify` · 004cbfa0 · legions 004c0510 — Rust std replaces it
 
 ## `portal/client/src/clinet/clientnet.cpp.c` (0/4)
@@ -4252,10 +4252,10 @@ Legend and workflow: [README](README.md).
 ### HashTable<PStringBase<char>,unsigned_long>
 - [-] `HashTable<PStringBase<char>,unsigned_long>::grow` · 0063b170 · legions 005efcf0 — Rust std replaces it
 
-## `portal/shared/src/newnet/packetcontroller.cpp.c` (1/2)
+## `portal/shared/src/newnet/packetcontroller.cpp.c` (2/2)
 
 ### PQueueArray<double,void_*>
-- [-] `PQueueArray<double,void_*>::_ExpandNodes` · 004ca400 · legions 004be9c0 — Rust std replaces it
+- [x] `PQueueArray<double,void_*>::_ExpandNodes` · 004ca400 · legions 004be9c0 — pqueue.rs PQueueArray grows as needed
 - [x] `PQueueArray<double,void_*>::_Heapify` · 004ca450 · legions 004bea10 — Rust std replaces it
 
 ## `portal/shared/src/newnet/sentpacket.cpp.c` (0/1)

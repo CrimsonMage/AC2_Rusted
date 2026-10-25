@@ -45,6 +45,10 @@ pub enum NetEvent {
     /// The server moved the client's world (`ssWorldSwitch`) or logon (`ssLogonSwitch`)
     /// connection to the connection the header came on.
     ServerSwitch { world: bool, recipient: u16 },
+    /// The server is closing the logon (`Net_LoginConnectionError`) or world
+    /// (`Net_WorldConnectionError`) connection for `error` (`NotifyPluginsOfStatusChange`); the
+    /// disconnect handshake follows and ends in [`NetEvent::Disconnected`].
+    ConnectionError { world: bool, error: NetError },
     /// The session ended; no further events follow.
     Disconnected(NetError),
 }
@@ -90,8 +94,10 @@ pub struct ClientNet {
     in_world: bool,
     world_switch: Option<u32>,
     logon_switch: Option<u32>,
-    /// `m_LastDidUseTime`: when the server clock first lagged ours by a minute.
+    /// When the server clock first lagged ours by a minute (`HandleTimeSynch`).
     lagging_since: f64,
+    /// `lastDidUseTime_`: `Timer::cur_time` at the start of the previous `SharedNet::UseTime`.
+    last_did_use_time: f64,
     out: Vec<(SocketAddr, Vec<u8>)>,
     events: Vec<NetEvent>,
     /// `hSessionKey_`: encrypts queue 6-8 blobs (`Proto_UI::SendBlob`).
@@ -126,6 +132,7 @@ impl ClientNet {
             world_switch: None,
             logon_switch: None,
             lagging_since: 0.0,
+            last_did_use_time: 0.0,
             out: Vec::new(),
             events: Vec::new(),
             session_key: logon.crypto.as_ref().map(|c| c.key.clone()),
@@ -165,6 +172,7 @@ impl ClientNet {
         self.timer.update_time(elapsed);
         self.elapsed = elapsed;
         self.real_time = real_time;
+        let started = self.timer.cur_time();
         if self.logging_on {
             self.logon_use_time();
         }
@@ -172,6 +180,8 @@ impl ClientNet {
             self.process_datagram(from, &bytes);
         }
         self.process_connections();
+        // `SharedNet::UseTime` keeps the time it started for the next frame's silence check.
+        self.last_did_use_time = started;
         self.flush();
         (
             std::mem::take(&mut self.out),
@@ -404,11 +414,19 @@ impl ClientNet {
             }
             OptionalHeader::NetErrorDisconnect(reason) => {
                 self.set_connection_state(id, ConnectionState::DisconnectReceived);
-                if *reason != NetErrorId::NONE {
-                    self.events.push(NetEvent::Disconnected(NetError::Server {
-                        string_id: reason.string_id,
-                        table_id: reason.table_id,
-                    }));
+                let world = if id == self.logon_rec {
+                    Some(false)
+                } else {
+                    (id == self.world_rec).then_some(true)
+                };
+                if let (true, Some(world)) = (*reason != NetErrorId::NONE, world) {
+                    self.events.push(NetEvent::ConnectionError {
+                        world,
+                        error: NetError::Server {
+                            string_id: reason.string_id,
+                            table_id: reason.table_id,
+                        },
+                    });
                 }
             }
             OptionalHeader::Nak(ids) => self.controller.process_naks(id, ids),
@@ -418,17 +436,18 @@ impl ClientNet {
                 }
             }
             OptionalHeader::Ack(num) => self.controller.queue_flush(id, *num),
-            OptionalHeader::NetError(reason) => {
-                let error = NetError::Server {
+            // During the logon the reason ends it (`EndState`); after, the client logs off and
+            // the server died (`SendNotice_ServerDied`), the reason unused.
+            OptionalHeader::NetError(reason) if self.logging_on => {
+                self.end_logon(Err(NetError::Server {
                     string_id: reason.string_id,
                     table_id: reason.table_id,
-                };
-                if self.logging_on {
-                    self.end_logon(Err(error));
-                } else {
-                    self.log_off_server();
-                    self.events.push(NetEvent::Disconnected(error));
-                }
+                }));
+            }
+            OptionalHeader::NetError(_) => {
+                self.log_off_server();
+                self.events
+                    .push(NetEvent::Disconnected(NetError::ServerDied));
             }
             OptionalHeader::Referral(referral) => self.handle_referral(referral),
             OptionalHeader::ServerSwitch { stamp, kind } => {
@@ -549,153 +568,6 @@ impl ClientNet {
         self.send(to, datagram);
     }
 
-    /// `ClientNet::HandleReferral`: queue a world login request to a new server.
-    fn handle_referral(&mut self, referral: &crate::optional::Referral) {
-        let id = referral.server_id;
-        if id > 0xFF {
-            return;
-        }
-        if let Some(r) = self.receivers.get_mut(&id) {
-            if r.state <= ConnectionState::Connected {
-                r.cookie = referral.cookie;
-                return;
-            }
-        }
-        if self
-            .receivers
-            .get(&id)
-            .is_some_and(|r| r.state > ConnectionState::Connected)
-        {
-            self.remove_connection(id);
-        }
-        if self.referrals.iter().any(|r| r.server_id == id) {
-            return;
-        }
-        let ip = referral.addr.ip();
-        let addr = SocketAddr::from((ip, referral.addr.port()));
-        self.referrals.push(ReferralEntry {
-            server_id: id,
-            addr,
-            cookie: referral.cookie,
-            next_send: 0.0,
-            sent: 0,
-        });
-        self.process_referral_queue();
-    }
-
-    /// `ClientNet::ProcessReferralQueue`: a world login request every third of a second, up to
-    /// 840 per referral.
-    fn process_referral_queue(&mut self) {
-        let local_time = self.timer.local_time();
-        let mut i = self.referrals.len();
-        while i > 0 {
-            i -= 1;
-            if self.referrals[i].next_send >= local_time {
-                continue;
-            }
-            if f64::from(self.referrals[i].sent) >= 840.000_000_84 {
-                let last = self.referrals.len() - 1;
-                self.referrals.swap(i, last);
-                self.referrals.pop();
-                self.events.push(NetEvent::Disconnected(NetError::Timeout));
-                continue;
-            }
-            let entry = &mut self.referrals[i];
-            entry.sent += 1;
-            entry.next_send = local_time + CONNECT_ACK_SECONDS;
-            let (to, cookie) = (entry.addr, entry.cookie);
-            self.send(
-                to,
-                standalone(OptionalHeader::WorldLoginRequest(cookie), 0, 0),
-            );
-        }
-    }
-
-    /// `ClientNet::ProcessConnections` and `ClientNet::ProcessConnection`.
-    fn process_connections(&mut self) {
-        self.process_referral_queue();
-        let clock = self.clock();
-        for id in self.connections.clone() {
-            let Some(r) = self.receivers.get(&id) else {
-                continue;
-            };
-            let state = r.state;
-            match state {
-                ConnectionState::ConnectionRequestAcked => {
-                    if CONNECT_ACK_SECONDS < clock.local_time - r.last_sent_handshake {
-                        self.send_connect_ack(id);
-                    }
-                }
-                ConnectionState::DisconnectReceived | ConnectionState::Connected => {
-                    if state == ConnectionState::DisconnectReceived
-                        && self
-                            .controller
-                            .recipients
-                            .get(&id)
-                            .is_none_or(|r| r.state == ConnectionState::DisconnectSent)
-                    {
-                        self.set_connection_state(id, ConnectionState::DisconnectSent);
-                    }
-                    let ack = self
-                        .receivers
-                        .get_mut(&id)
-                        .and_then(|r| r.acknowledgement(clock.cur_time));
-                    if let Some(ack) = ack {
-                        self.controller.enqueue_header(id, ack, clock.local_time);
-                    }
-                }
-                ConnectionState::DisconnectSent => {
-                    self.remove_connection(id);
-                    continue;
-                }
-                _ => {}
-            }
-            if let Some(r) = self.receivers.get(&id) {
-                if SILENCE_SECONDS < clock.local_time - r.last_got_data
-                    && r.state < ConnectionState::DisconnectReceived
-                {
-                    self.set_connection_state(id, ConnectionState::DisconnectReceived);
-                    self.events.push(NetEvent::Disconnected(NetError::Timeout));
-                }
-            }
-        }
-    }
-
-    /// `ClientNet::RemoveConnection`.
-    fn remove_connection(&mut self, id: u16) {
-        self.controller.delete_recipient(id);
-        self.connections.retain(|&c| c != id);
-        if let Some(r) = self.receivers.remove(&id) {
-            self.slots.insert(id, (r.remote_interval, r.bytes_received));
-        }
-        if (id == self.logon_rec || id == self.world_rec) && !self.log_off_sent {
-            self.log_off_server();
-            self.events
-                .push(NetEvent::Disconnected(NetError::Io("server died".into())));
-        }
-    }
-
-    /// `ClientNet::LogOffServer`: a logoff header alone to every connection, then silence.
-    pub fn log_off_server(&mut self) {
-        for id in self.connections.clone() {
-            if let Some(r) = self.receivers.get(&id) {
-                let datagram = standalone(OptionalHeader::Logoff, r.net_id, r.iteration);
-                let to = r.addr;
-                self.send(to, datagram);
-            }
-        }
-        self.log_off_sent = true;
-        self.logon_rec = 0;
-        // `ClientNet::ExitWorldDisconnect`.
-        self.in_world = false;
-        self.world_rec = self.logon_rec;
-        for id in self.connections.clone() {
-            if id != self.logon_rec {
-                self.remove_connection(id);
-            }
-        }
-    }
-
     /// Datagrams queued outside a frame (the logoff).
     pub fn take_datagrams(&mut self) -> Vec<(SocketAddr, Vec<u8>)> {
         std::mem::take(&mut self.out)
@@ -734,6 +606,9 @@ pub fn tokenize(text: &[u8]) -> u32 {
     }
     hash
 }
+
+#[path = "net_connections.rs"]
+mod connections;
 
 #[path = "pui.rs"]
 mod pui;

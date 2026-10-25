@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 16 done, 3 partial, 2211 to do, 17 skipped.
+2247 retail functions: 16 done, 4 partial, 2210 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -1638,7 +1638,7 @@ Legend and workflow: [README](README.md).
 
 ### gmUIFlow
 - [ ] `gmUIFlow::RecvNotice_CharacterError` · 00406220
-- [ ] `gmUIFlow::RecvNotice_ServerDied` · 00406410
+- [~] `gmUIFlow::RecvNotice_ServerDied` · 00406410 — ac2-client Notice::ConnectionLost (ID_NetErr_ConnectionLost, 0x41000018); no UI modes in the headless client
 - [ ] `gmUIFlow::RecvNotice_GunConnectionLost` · 004064a0
 - [ ] `gmUIFlow::RecvNotice_CharacterError` · 00406af0
 - [-] `gmUIFlow::RecvNotice_ServerDied` · 00406b00 — inline copy of 00406410

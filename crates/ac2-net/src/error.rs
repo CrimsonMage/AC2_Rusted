@@ -23,6 +23,9 @@ pub enum NetError {
     Server { string_id: u32, table_id: u32 },
     /// The server did not answer the logon in time.
     Timeout,
+    /// The world or logon connection went away (`ECM_Login::SendNotice_ServerDied`): the
+    /// server disconnected, or sent nothing for 140 s.
+    ServerDied,
     /// The session key could not be made or exported (`ID_NetError_CantCrypto`).
     Crypto(&'static str),
     /// A socket operation failed.

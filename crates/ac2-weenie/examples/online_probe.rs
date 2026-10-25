@@ -3,13 +3,17 @@
 //!
 //! `cargo run -p ac2-weenie --example online_probe -- --server 127.0.0.1:9000 \
 //!   --account local [--password PW] [--character NAME] [--seconds 10] [--walk 2.0] \
-//!   [--version 7160] [--client-exe PATH] [--dat-dir PATH] [--language N]`
+//!   [--version 7160] [--client-exe PATH] [--dat-dir PATH] [--language N] \
+//!   [--loss DROP,DUPLICATE,HOLD,MAX_HOLD] [--seed N]`
 //!
 //! The Legions DVD client logs on as `7160`; servers that only accept the admin build need
 //! `--version 7148` (the default here, for the local test server). `--client-exe` reads the RSA
 //! key a retail `ac2client.exe` carries and logs on with an exported session key, as retail
 //! does; without it the logon carries no session key. `--dat-dir` answers the DAT interrogation
-//! with those DATs' iterations, as retail does; without it the answer lists none.
+//! with those DATs' iterations, as retail does; without it the answer lists none. `--loss`
+//! runs the session through an in-process lossy proxy (`LossyTransport`): each datagram, both
+//! ways, is dropped, duplicated or held (up to `MAX_HOLD` seconds) with those odds, seeded by
+//! `--seed`; nothing on the system's network changes.
 
 use std::time::{Duration, Instant};
 
@@ -29,6 +33,8 @@ fn main() -> Result<(), String> {
     let mut language = 0;
     let mut dat_iterations = Vec::new();
     let mut property_types = false;
+    let mut loss = None;
+    let mut seed = 1u64;
     let mut args = std::env::args().skip(1);
     while let Some(flag) = args.next() {
         let value = args.next().ok_or(format!("missing value for {flag}"))?;
@@ -41,6 +47,22 @@ fn main() -> Result<(), String> {
             "--walk" => walk_speed = value.parse().map_err(|e| format!("{e}"))?,
             "--version" => version = value,
             "--language" => language = value.parse().map_err(|e| format!("{e}"))?,
+            "--seed" => seed = value.parse().map_err(|e| format!("{e}"))?,
+            "--loss" => {
+                let odds: Vec<f64> = value
+                    .split(',')
+                    .map(|v| v.parse().map_err(|e| format!("--loss {value}: {e}")))
+                    .collect::<Result<_, _>>()?;
+                let [drop, duplicate, delay, max_delay] = odds[..] else {
+                    return Err("--loss takes DROP,DUPLICATE,HOLD,MAX_HOLD".into());
+                };
+                loss = Some(legions_server_double::Conditions {
+                    drop,
+                    duplicate,
+                    delay,
+                    max_delay,
+                });
+            }
             "--dat-dir" => {
                 let dataset = ac2_dat::DatDataset::open(ac2_dat::DatOpenOptions::new(&value))
                     .map_err(|e| format!("{value}: {e}"))?;
@@ -66,7 +88,7 @@ fn main() -> Result<(), String> {
             other => return Err(format!("unknown option {other}")),
         }
     }
-    let mut session = OnlineSession::connect(OnlineConfig {
+    let config = OnlineConfig {
         server: server.parse().map_err(|e| format!("{e}"))?,
         account,
         credential,
@@ -75,7 +97,20 @@ fn main() -> Result<(), String> {
         server_key,
         language,
         dat_iterations,
-    })
+    };
+    let mut channel = None;
+    let mut session = match loss {
+        None => OnlineSession::connect(config),
+        Some(conditions) => {
+            let udp = ac2_net::UdpTransport::bind(config.server).map_err(|e| e.to_string())?;
+            let (proxy, handle) = legions_server_double::LossyTransport::new(
+                Box::new(udp),
+                legions_server_double::Channel::new(seed, conditions),
+            );
+            channel = Some(handle);
+            OnlineSession::with_transport(config, Box::new(proxy))
+        }
+    }
     .map_err(|e| e.to_string())?;
     if property_types {
         session.set_property_types(Box::new(ac2_db::ac2_property_type));
@@ -144,5 +179,8 @@ fn main() -> Result<(), String> {
     );
     let left = session.log_off(Duration::from_secs(3));
     println!("character exit acknowledged: {left}");
+    if let Some(channel) = channel {
+        println!("lossy proxy: {:?}", channel.borrow().stats);
+    }
     Ok(())
 }

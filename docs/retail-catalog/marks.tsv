@@ -10,6 +10,7 @@ key	status	note
 004042f0	x	
 00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+00406410	~	ac2-client Notice::ConnectionLost (ID_NetErr_ConnectionLost, 0x41000018); no UI modes in the headless client
 00406cb0	x	
 004079b0	x	OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
 00408e90	~	LogOffCharacter only; no UI or game-option upload
@@ -126,6 +127,7 @@ key	status	note
 00493500	x	
 00493520	x	
 004939b0	x	
+00493a30	x	SessionEvent::ServerDied, before Disconnected
 00493b30	x	
 00493c50	x	
 00493d30	x	
@@ -287,7 +289,7 @@ key	status	note
 004c4ff0	x	
 004c5170	x	
 004c5200	x	
-004c52d0	~	frame order kept; perf counters and the UseTime time limit not kept
+004c52d0	~	frame order and lastDidUseTime_ kept; perf counters and the UseTime time limit not kept
 004c5360	x	
 004c53e0	x	
 004c5440	x	
@@ -302,6 +304,7 @@ key	status	note
 004c58d0	~	logoff path only
 004c5950	x	
 004c59b0	x	
+004c5a40	x	ReceiverData::m_SeqIDsWeNAKed as a BTreeMap: same key order for GetNaks, same add/remove results
 004c5b80	x	
 004c5c80	x	
 004c5d20	x	
@@ -317,9 +320,12 @@ key	status	note
 004c6900	~	logon outcome as an event; no async state machine
 004c6980	x	SessionKey::generate + ServerPublicKey: Base-provider 40-bit RC4 with 11-byte zero salt; key-container fallback (InitCliCrypto) not needed
 004c6bd0	x	
+004c6d80	~	Net_LoginConnectionError / Net_WorldConnectionError surface as NetEvent::ConnectionError; no plugin list
 004c6e10	x	
 004c6e60	x	
 004c6ee0	x	
+004c6f30	x	ReceiverData::m_SeqIDsWeNAKed as a BTreeMap: same key order for GetNaks, same add/remove results
+004c6fa0	x	ReceiverData::m_SeqIDsWeNAKed as a BTreeMap: same key order for GetNaks, same add/remove results
 004c7040	x	
 004c7080	x	
 004c70c0	x	
@@ -331,6 +337,7 @@ key	status	note
 004c7590	x	
 004c7630	x	
 004c7730	x	
+004c7950	x	ReceiverData::m_SeqIDsWeNAKed as a BTreeMap: same key order for GetNaks, same add/remove results
 004c7c00	x	
 004c7d00	x	
 004c7e60	x	
@@ -340,7 +347,7 @@ key	status	note
 004c8240	x	
 004c82c0	x	
 004c8420	x	
-004c8430	~	heartbeat link-status snapshots not kept; 140 s silence reports a timeout instead of re-referring
+004c8430	~	heartbeat link-status snapshots not kept
 004c8a50	x	
 004c9050	~	connection sequence from real time and SIMPLEBLOB session-key export; no address/interface parsing
 004c9200	x	
@@ -357,6 +364,7 @@ key	status	note
 004ca340	x	
 004ca370	x	
 004ca3a0	x	
+004ca400	x	pqueue.rs PQueueArray grows as needed
 004ca450	x	
 004ca5e0	x	
 004ca620	x	
@@ -380,6 +388,7 @@ key	status	note
 004cb210	x	
 004cb270	~	slot interval and byte count kept; crypto/key exchange freed with the receiver
 004cb330	x	
+004cb3b0	x	ReceiverData::m_SeqIDsWeNAKed as a BTreeMap: same key order for GetNaks, same add/remove results
 004cb4b0	x	
 004cb520	~	lastTouched_ not tracked (no reader in the client)
 004cb540	x	
@@ -405,6 +414,7 @@ key	status	note
 004cbe60	x	
 004cbeb0	x	
 004cbec0	x	
+004cbf50	x	pqueue.rs PQueueArray grows as needed
 004cbfa0	x	
 004cc010	x	
 004cc030	x	
@@ -422,6 +432,7 @@ key	status	note
 004cc7b0	x	
 004cca20	x	
 004cca70	x	
+004ccaa0	x	FlowQueue::EnqueueAcks inserts into m_ackList before the cursor
 004ccb40	x	
 004ccbc0	x	
 004ccc10	~	not called by the client paths ported

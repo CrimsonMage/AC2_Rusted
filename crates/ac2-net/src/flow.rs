@@ -41,8 +41,12 @@ pub(crate) struct FlushContext<'a> {
     pub cur_time: f64,
     pub iteration: u16,
     pub outgoing: &'a mut Isaac,
-    /// `cs_DisconnectReceived`, with the seconds since the state changed.
+    /// The recipient is `cs_DisconnectReceived`, with the seconds since the receiver's state
+    /// changed.
     pub disconnect_received: Option<f64>,
+    /// Set when a packet carrying the disconnect header went out: the recipient is then
+    /// `cs_DisconnectSent` (`FlowQueue::TransmitNewPackets`).
+    pub disconnect_sent: bool,
 }
 
 #[derive(Debug)]
@@ -133,6 +137,11 @@ impl FlowQueue {
     #[cfg(test)]
     pub fn highest_sent(&self) -> u32 {
         self.highest_sent
+    }
+
+    #[cfg(test)]
+    pub fn set_highest_sent(&mut self, highest: u32) {
+        self.highest_sent = highest;
     }
 
     #[cfg(test)]
@@ -430,6 +439,12 @@ impl FlowQueue {
             header.size = packet.size as u16;
             out.push((Destination::Peer, packet.datagram(header)));
             self.packets_sent += 1;
+            if bits & flags::NET_ERROR_DISCONNECT != 0 {
+                // `myRecip_->m_ConnectionState = cs_DisconnectSent`: `Empty` then queues no
+                // further reply.
+                ctx.disconnect_sent = true;
+                ctx.disconnect_received = None;
+            }
             let mut sent = self.waiting.pop_front().expect("front packet");
             if sent.flags & PACKET_RELIABLE != 0 {
                 sent.remove_disposable();

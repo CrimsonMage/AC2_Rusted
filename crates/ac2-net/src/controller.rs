@@ -174,7 +174,10 @@ impl PacketController {
             let Some(receiver) = receivers.get_mut(&id) else {
                 continue;
             };
-            let disconnect_received = (receiver.state == ConnectionState::DisconnectReceived)
+            // `FlowQueue::Empty` tests the recipient's state (`myRecip_->m_ConnectionState`), which
+            // the disconnect reply moves to `cs_DisconnectSent`, and times it on the receiver's
+            // (`ReceiverData::GetConnectionStateDuration`).
+            let disconnect_received = (recipient.state == ConnectionState::DisconnectReceived)
                 .then(|| clock.local_time - receiver.state_changed);
             let mut ctx = FlushContext {
                 local_time: clock.local_time,
@@ -183,10 +186,14 @@ impl PacketController {
                 iteration: receiver.iteration,
                 outgoing: &mut receiver.outgoing,
                 disconnect_received,
+                disconnect_sent: false,
             };
             let before = recipient.flow.enqueued();
             for (to, datagram) in recipient.flow.empty(&mut ctx) {
                 sink(id, to, datagram);
+            }
+            if ctx.disconnect_sent {
+                recipient.state = ConnectionState::DisconnectSent;
             }
             if recipient.flush_num != 0 {
                 recipient.flow.flush_sent(recipient.flush_num, false);
