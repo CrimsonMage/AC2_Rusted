@@ -16,6 +16,7 @@ mod confirmation;
 mod disconnected;
 mod flow;
 mod persistent;
+mod scene;
 mod strings;
 #[cfg(test)]
 mod tests;
@@ -37,6 +38,7 @@ pub use flow::{
     MODE_INTRO, MODE_KEYBOARD,
 };
 pub use persistent::{greyed_out_for, identity, PersistentData};
+pub use scene::SceneViewport;
 pub use strings::{UiStrings, UI_STRING_TABLE};
 pub use ui::{PregameRequest, PregameUi};
 

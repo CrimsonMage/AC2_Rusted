@@ -9,7 +9,8 @@
 //!
 //! Character generation's screens ask the `CharacterGenSystem` script through the
 //! [`CharGenSystem`] the client sets ([`PregameUi::set_char_gen_system`]; without one they make
-//! nothing). Their 3D scenes are the client's: it answers picks ([`PregameUi::wants_pick`],
+//! nothing). Their 3D scenes are the client's: it renders the scenes the viewports name
+//! ([`PregameUi::viewports`]), answers picks ([`PregameUi::wants_pick`],
 //! [`PregameUi::finish_pick`]) and the end of the chosen avatar's animation
 //! ([`PregameUi::selected_animation`], [`PregameUi::finish_animation`]).
 //!
@@ -194,6 +195,12 @@ impl PregameUi {
             Framework::AvatarModification(ui) => Some(ui),
             _ => None,
         }
+    }
+
+    /// The shown viewport roots and the scenes they show, in the order the roots are drawn
+    /// (`UIViewportObject::Render` among the surfaces).
+    pub fn viewports(&self) -> Vec<crate::pregame::SceneViewport> {
+        crate::pregame::scene::viewports(&self.tree)
     }
 
     /// The dialogs.

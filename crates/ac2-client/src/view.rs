@@ -187,6 +187,7 @@ impl ClientView {
                     world,
                     pose,
                     tint: [1.0; 4],
+                    point_lights: Vec::new(),
                 })
             })
             .collect();

@@ -26,6 +26,8 @@ mod loader;
 mod motion;
 mod pregame;
 #[cfg(feature = "window")]
+pub mod pregame_scene;
+#[cfg(feature = "window")]
 pub mod pregame_view;
 mod remote;
 mod scene;

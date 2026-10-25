@@ -511,6 +511,11 @@ impl CharacterSelectionUi {
         &self.occupants
     }
 
+    /// The `Viewport` root the arms and figures stand in.
+    pub fn viewport(&self) -> Option<usize> {
+        self.viewport
+    }
+
     /// The scene `Viewport` shows (`uiscene`), its camera entity's name (`camera`) and the arm
     /// object (`armdid`).
     pub fn scene(&self, tree: &UiTree) -> (Option<u32>, Option<u32>) {

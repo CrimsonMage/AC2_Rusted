@@ -124,41 +124,45 @@ impl WorldData for DatWorld {
 
     fn body(&self, visual: Option<u32>) -> Result<BodyData, String> {
         let visual = DataId::new(visual.ok_or("the player has no visual")?);
-        let shape = load_body_shape(&self.store, visual)
-            .map_err(|e| e.to_string())?
-            .ok_or("the player's visual has no Setup")?;
-        let radius = match ac2_assets::resolve_ac2_visual_parts(&self.store, visual)
-            .map_err(|e| e.to_string())?
-            .first()
-        {
-            Some((setup, _)) => self
-                .store
-                .load_cached_packed::<ac2_assets::Ac2SetupPhysics>(TypedResourceRef::new(
-                    DatFileKind::Portal,
-                    *setup,
-                    0,
-                ))
-                .map_err(|e| e.to_string())?
-                .map_or(0.0, |physics| physics.radius),
-            None => 0.0,
-        };
-        let midesc = ac2_assets::resolve_ac2_visual_motion_interp(&self.store, visual)
-            .map_err(|e| e.to_string())?
-            .unwrap_or(DataId::new(HUMAN_MOTION_INTERP_DESC));
-        let motion = load_ac2_motion_interp_desc(&self.store, midesc)
-            .map_err(|e| e.to_string())?
-            .map(|desc| Arc::new((*desc).clone()));
-        let animation =
-            ac2_physics::load_body_animation(&self.store, visual).map_err(|e| e.to_string())?;
-        Ok(BodyData {
-            shape,
-            motion,
-            radius,
-            animation,
-        })
+        load_body_data(&self.store, visual)
     }
 
     fn game_clock(&self) -> Option<GameClock> {
         Some(self.world.region()?.game_clock())
     }
+}
+
+/// A body's collision shape, motion description, radius and animation for `visual` (its
+/// `VisualDesc` or `Setup`), read on a loader thread.
+pub(crate) fn load_body_data(store: &ResourceStore, visual: DataId) -> Result<BodyData, String> {
+    let shape = load_body_shape(store, visual)
+        .map_err(|e| e.to_string())?
+        .ok_or("the player's visual has no Setup")?;
+    let radius = match ac2_assets::resolve_ac2_visual_parts(store, visual)
+        .map_err(|e| e.to_string())?
+        .first()
+    {
+        Some((setup, _)) => store
+            .load_cached_packed::<ac2_assets::Ac2SetupPhysics>(TypedResourceRef::new(
+                DatFileKind::Portal,
+                *setup,
+                0,
+            ))
+            .map_err(|e| e.to_string())?
+            .map_or(0.0, |physics| physics.radius),
+        None => 0.0,
+    };
+    let midesc = ac2_assets::resolve_ac2_visual_motion_interp(store, visual)
+        .map_err(|e| e.to_string())?
+        .unwrap_or(DataId::new(HUMAN_MOTION_INTERP_DESC));
+    let motion = load_ac2_motion_interp_desc(store, midesc)
+        .map_err(|e| e.to_string())?
+        .map(|desc| Arc::new((*desc).clone()));
+    let animation = ac2_physics::load_body_animation(store, visual).map_err(|e| e.to_string())?;
+    Ok(BodyData {
+        shape,
+        motion,
+        radius,
+        animation,
+    })
 }

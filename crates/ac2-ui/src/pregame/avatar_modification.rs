@@ -8,10 +8,12 @@
 //! over `MouseRotationOverField`) move the camera; back returns to avatar selection; next opens
 //! the naming dialog (`gmGenerationConfirmationUI`), which cancel closes.
 //!
-//! Not modelled yet: the scene and its camera (`InitCamera` / `UpdateCamera`; the client renders
-//! the current result, `PersistentData::current`, again whenever
-//! [`AvatarModificationUi::appearance`] changes, framed by [`AvatarModificationUi::camera`]), the
-//! tooltips and the music.
+//! The scene is the client's: it stands [`AvatarModificationUi::phys_obj`] in
+//! [`AvatarModificationUi::viewport`], renders the current result (`PersistentData::current`)
+//! again whenever [`AvatarModificationUi::appearance`] changes, and frames it by
+//! [`AvatarModificationUi::camera`] (`InitCamera` / `UpdateCamera`).
+//!
+//! Not modelled yet: the tooltips and the music.
 
 use crate::dialog::DIALOG_WAIT;
 use crate::mouse::UiMessage;
@@ -71,6 +73,8 @@ pub struct AvatarModificationUi {
     last: (i32, i32),
     /// Bumped by `UpdateByMask`: the avatar's appearance changed.
     appearance: u32,
+    /// `gmCharGenResult::GetPhysObj`: the avatar's physics object (`Init`).
+    phys_obj: u32,
     dialog: Option<ConfirmationUi>,
     wait_context: u32,
 }
@@ -102,6 +106,8 @@ impl AvatarModificationUi {
         ui.get_data_table(ctx);
         ui.init_elements(ctx);
         ui.init_ui_from_data(ctx);
+        // `InitCamera`, whose `UpdateCamera` reads the rotation slider.
+        ui.update_camera(ctx);
         ui
     }
 
@@ -131,12 +137,15 @@ impl AvatarModificationUi {
         }
     }
 
-    /// `gmAvatarModificationUI::Init`: the race's viewport for the avatar.
+    /// `gmAvatarModificationUI::Init`: the avatar's physics object and the race's viewport for
+    /// it.
     fn init(&mut self, ctx: &mut Ctx<'_>) {
         self.last = ctx.tree.pointer();
         let Some(race) = ctx.data.current().map(|c| c.race) else {
             return;
         };
+        let sex = ctx.data.current().map_or(0, |c| c.sex);
+        self.phys_obj = ctx.system.phys_obj(race, sex);
         let name = ctx.system.enum_string(RACE_NAMES, race).unwrap_or_default();
         let viewport = format!("{}Viewport", name.to_lowercase());
         if let Some(layout) = ctx.assets.layout(LAYOUT_AVATAR_MODIFICATION) {
@@ -374,6 +383,16 @@ impl AvatarModificationUi {
 
     pub fn camera(&self) -> ModificationCamera {
         self.camera
+    }
+
+    /// The avatar's physics object (`GetPhysObj`), 0 without a current result.
+    pub fn phys_obj(&self) -> u32 {
+        self.phys_obj
+    }
+
+    /// The race's viewport root the avatar stands in (`Init`).
+    pub fn viewport(&self) -> Option<usize> {
+        self.viewport
     }
 
     /// The offered physique types, in `InitUITables` order.

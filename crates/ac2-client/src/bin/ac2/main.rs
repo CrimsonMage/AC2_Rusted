@@ -331,7 +331,8 @@ impl ApplicationHandler for App {
                 &gpu,
                 format,
                 (config.width, config.height),
-            );
+            )
+            .with_scenes(Arc::clone(&self.world));
             if let Some(chargen) = self.chargen.take() {
                 view.set_char_gen_system(Box::new(chargen));
             }

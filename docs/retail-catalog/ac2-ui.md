@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 346 done, 166 partial, 1716 to do, 19 skipped.
+2247 retail functions: 378 done, 164 partial, 1686 to do, 19 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -1691,7 +1691,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ExportData::~ExportData` · 00407720 · legions 00407430
 - [~] `ExportData::StreamPack` · 00407770 · legions 00407480 — ac2-script: unpack direction only
 
-## `ac2/client/src/ui/pregame/generation/gmavatarmodificationui.cpp.c` (10/27)
+## `ac2/client/src/ui/pregame/generation/gmavatarmodificationui.cpp.c` (14/27)
 
 ### AFrame
 - [ ] `AFrame::AFrame` · 0040a9e0 · legions 0040a8a0
@@ -1704,7 +1704,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIRegion::IsVisible` · 0040aaa0 · legions 0040a960
 
 ### gmAvatarModificationUI
-- [~] `gmAvatarModificationUI::GetCamera` · 0040aad0 · legions 0040a990 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::GetCamera` · 0040aad0 · legions 0040a990 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [x] `gmAvatarModificationUI::MakeCurrentMask` · 0040ab10 · legions 0040a9d0 — ac2-ui pregame/avatar_modification.rs
 - [x] `gmAvatarModificationUI::MakePleaseWaitDialog` · 0040ab70 · legions 0040aa30 — ac2-ui pregame/avatar_modification.rs
 
@@ -1712,18 +1712,18 @@ Legend and workflow: [README](README.md).
 - [ ] `Frame::Frame` · 0040ac80 · legions 0040ab40
 
 ### UISceneEntity
-- [ ] `UISceneEntity::GetFrame` · 0040acb0 · legions 0040ab70
+- [x] `UISceneEntity::GetFrame` · 0040acb0 · legions 0040ab70 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
 ### gmAvatarModificationUI
-- [~] `gmAvatarModificationUI::UpdateCamera` · 0040ace0 · legions 0040aba0 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
-- [~] `gmAvatarModificationUI::InitCamera` · 0040b0b0 · legions 0040af70 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::UpdateCamera` · 0040ace0 · legions 0040aba0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `gmAvatarModificationUI::InitCamera` · 0040b0b0 · legions 0040af70 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
 ### PStringBase<char>
 - [ ] `PStringBase<char>::operator+` · 0040b300 · legions 0040b200
 
 ### gmAvatarModificationUI
-- [~] `gmAvatarModificationUI::Init` · 0040b420 · legions 0040b320 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
-- [~] `gmAvatarModificationUI::UpdateByMask` · 0040b640 · legions 0040b540 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [~] `gmAvatarModificationUI::Init` · 0040b420 · legions 0040b320 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+- [~] `gmAvatarModificationUI::UpdateByMask` · 0040b640 · legions 0040b540 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 - [x] `gmAvatarModificationUI::Temp` · 0040b6e0 · legions 0040b5e0 — ac2-ui pregame/avatar_modification.rs
 - [x] `gmAvatarModificationUI::InitUIFromData` · 0040b760 · legions 0040b660 — ac2-ui pregame/avatar_modification.rs
 - [~] `gmAvatarModificationUI::InitElements` · 0040b8c0 · legions 0040b7c0 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
@@ -1768,8 +1768,8 @@ Legend and workflow: [README](README.md).
 - [ ] `BehaviorParams::~BehaviorParams` · 0040daf0 · legions 0040dae0
 
 ### gmAvatarSelectionUI
-- [~] `gmAvatarSelectionUI::MouseOffObject` · 0040db40 · legions 0040db30 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
-- [~] `gmAvatarSelectionUI::MouseOnObject` · 0040dbd0 · legions 0040dbc0 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+- [~] `gmAvatarSelectionUI::MouseOffObject` · 0040db40 · legions 0040db30 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+- [~] `gmAvatarSelectionUI::MouseOnObject` · 0040dbd0 · legions 0040dbc0 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 
 ### BaseList<unsigned_long,11>
 - [ ] `BaseList<unsigned_long,11>::BaseList<unsigned_long,11>` · 0040dca0 · legions 0040dc90
@@ -1788,7 +1788,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHashTable<unsigned_long,unsigned_long>::PHashTable<unsigned_long,unsigned_long>` · 0040e3f0 · legions 0040e3f0
 
 ### gmAvatarSelectionUI
-- [~] `gmAvatarSelectionUI::InitEntities` · 0040e510 · legions 0040e510 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+- [~] `gmAvatarSelectionUI::InitEntities` · 0040e510 · legions 0040e510 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 - [x] `gmAvatarSelectionUI::InitGenders` · 0040eaa0 · legions 0040ea70 — ac2-ui pregame/avatar_selection.rs
 - [x] `gmAvatarSelectionUI::InitRaces` · 0040ebf0 · legions 0040ebc0 — ac2-ui pregame/avatar_selection.rs
 
@@ -1813,14 +1813,14 @@ Legend and workflow: [README](README.md).
 - [x] `gmGenerationConfirmationUI::ListenToMessage` · 0042cde0 · legions 0042cba0 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 - [x] `gmGenerationConfirmationUI::RecvNotice_CharGenVerification` · 0042d080 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 
-## `ac2/client/src/ui/pregame/gmcharacterselectionui.cpp.c` (17/23)
+## `ac2/client/src/ui/pregame/gmcharacterselectionui.cpp.c` (20/23)
 
 ### CharacterIdentity
 - [x] `CharacterIdentity::Invalid` · 0040f560 · legions 0040f530 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 
 ### gmCharacterSelectionUI
 - [x] `gmCharacterSelectionUI::GhostButtons` · 0040f590 · legions 0040f560 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
-- [~] `gmCharacterSelectionUI::Start3DSelection` · 0040f6c0 · legions 0040f690 — character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
+- [x] `gmCharacterSelectionUI::Start3DSelection` · 0040f6c0 · legions 0040f690 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [x] `gmCharacterSelectionUI::DoDelete` · 0040f720 · legions 0040f6f0 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [x] `gmCharacterSelectionUI::MakePleaseWaitDialog` · 0040f810 · legions 0040f7e0 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 
@@ -1836,10 +1836,10 @@ Legend and workflow: [README](README.md).
 - [x] `gmCharacterSelectionUI::RecvNotice_CharGenVerification` · 0040fca0 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [x] `gmCharacterSelectionUI::MakeDeleteDialog` · 0040ff20 · legions 0040fef0 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [~] `gmCharacterSelectionUI::ListenToMessage` · 0040ffb0 · legions 0040ffd0 — character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
-- [x] `gmCharacterSelectionUI::InitArms` · 00410510 · legions 00410530 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
+- [x] `gmCharacterSelectionUI::InitArms` · 00410510 · legions 00410530 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [x] `gmCharacterSelectionUI::~gmCharacterSelectionUI` · 00410750 · legions 00410770 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
-- [~] `gmCharacterSelectionUI::AddPhysObjToArm` · 004108e0 · legions 004108e0 — character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
-- [~] `gmCharacterSelectionUI::Finish3DSelection` · 00410a10 · legions 00410a10 — character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
+- [x] `gmCharacterSelectionUI::AddPhysObjToArm` · 004108e0 · legions 004108e0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `gmCharacterSelectionUI::Finish3DSelection` · 00410a10 · legions 00410a10 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [~] `gmCharacterSelectionUI::ListenToMessage` · 00410ad0 · legions 00410ad0 — character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
 - [x] `gmCharacterSelectionUI::Update` · 00410c00 · legions 00410c00 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [~] `gmCharacterSelectionUI::gmCharacterSelectionUI` · 00410f00 — character_selection.rs: roots, handlers, Update; background music not played
@@ -2304,21 +2304,21 @@ Legend and workflow: [README](README.md).
 ### UIRectangleObject
 - [ ] `UIRectangleObject::Render` · 00735390 · legions 006b1060
 
-## `portal/client/src/render/ui/uiscene.cpp.c` (0/23)
+## `portal/client/src/render/ui/uiscene.cpp.c` (5/23)
 
 ### (free functions)
 - [ ] `STREAMPACK_PACKOBJ` · 005acbc0 · legions 00578b20
 
 ### UIScene
-- [ ] `UIScene::GetEntity` · 005acd10 · legions 00578c70
+- [x] `UIScene::GetEntity` · 005acd10 · legions 00578c70 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIScene::RemoveEntity` · 005acd50 · legions 00578cb0
 - [ ] `UIScene::DeleteEntity` · 005acdd0 · legions 00578d30
 - [ ] `UIScene::DeleteAllEntities` · 005ace50 · legions 00578db0
-- [ ] `UIScene::StartSelection` · 005acea0 · legions 00578e00
-- [ ] `UIScene::Think` · 005acee0 · legions 00578e40
+- [x] `UIScene::StartSelection` · 005acea0 · legions 00578e00 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [~] `UIScene::Think` · 005acee0 · legions 00578e40 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 - [ ] `UIScene::Destroy` · 005acf10 · legions 00578e70
 - [ ] `UIScene::Cleanup` · 005acf50
-- [ ] `UIScene::StreamPack` · 005acf60 · legions 00578ec0
+- [x] `UIScene::StreamPack` · 005acf60 · legions 00578ec0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIScene::GetSubDataIDs` · 005ad010 · legions 00578f70
 
 ### PSmartArray<EntityDesc>
@@ -2334,14 +2334,14 @@ Legend and workflow: [README](README.md).
 
 ### UIScene
 - [ ] `UIScene::Allocate` · 005ad2c0
-- [ ] `UIScene::AddEntity` · 005ad2f0 · legions 00579200
-- [ ] `UIScene::AddEntity` · 005ad330 · legions 00579240
+- [x] `UIScene::AddEntity` · 005ad2f0 · legions 00579200 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIScene::AddEntity` · 005ad330 · legions 00579240 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIScene::Init` · 005ad410 · legions 00579320
 - [-] `UIScene::FromFileNode` · 005ad450 — text source format (admin tools)
 - [-] `UIScene::ToFileNode` · 005ad820 — text source format (admin tools)
-- [ ] `UIScene::Render` · 005ad8e0
+- [~] `UIScene::Render` · 005ad8e0 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 
-## `portal/client/src/render/ui/uiscenecameraentity.cpp.c` (0/3)
+## `portal/client/src/render/ui/uiscenecameraentity.cpp.c` (1/3)
 
 ### UISceneCameraEntity
 - [ ] `UISceneCameraEntity::UISceneCameraEntity` · 005d8d30 · legions 0059a460
@@ -2350,56 +2350,56 @@ Legend and workflow: [README](README.md).
 - [ ] `UIScenePhysObjEntity::GetPhysObj` · 005d8d80 · legions 0059a4b0
 
 ### UISceneCameraEntity
-- [ ] `UISceneCameraEntity::SetFrame` · 005d8d90 · legions 0059a500
+- [x] `UISceneCameraEntity::SetFrame` · 005d8d90 · legions 0059a500 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
-## `portal/client/src/render/ui/uisceneentity.cpp.c` (2/6)
+## `portal/client/src/render/ui/uisceneentity.cpp.c` (4/6)
 
 ### UISceneEntity
 - [~] `UISceneEntity::UISceneEntity` · 005d8ff0 · legions 0059a720 — pregame/arms.rs: frames and slerp; no instance id/scene
 - [ ] `UISceneEntity::~UISceneEntity` · 005d90a0 · legions 0059a7d0
 - [x] `UISceneEntity::Think` · 005d9120 · legions 0059a850 — ac2-ui pregame/arms.rs SceneEntity
 - [x] `UISceneEntity::SLERPTo` · 005d9210 · legions 0059a940 — ac2-ui pregame/arms.rs SceneEntity
-- [ ] `UISceneEntity::InitFromDesc` · 005d92e0 · legions 0059aa10
-- [ ] `UISceneEntity::SetID` · 005d9330 · legions 0059aa60
+- [x] `UISceneEntity::InitFromDesc` · 005d92e0 · legions 0059aa10 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UISceneEntity::SetID` · 005d9330 · legions 0059aa60 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
-## `portal/client/src/render/ui/uiscenelightentity.cpp.c` (0/3)
+## `portal/client/src/render/ui/uiscenelightentity.cpp.c` (2/3)
 
 ### UISceneLightEntity
 - [ ] `UISceneLightEntity::UISceneLightEntity` · 005d8ed0 · legions 0059a640
-- [ ] `UISceneLightEntity::InitFromDesc` · 005d8f10 · legions 0059a4c0
-- [ ] `UISceneLightEntity::SetFrame` · 005d8f50 · legions 0059a680
+- [x] `UISceneLightEntity::InitFromDesc` · 005d8f10 · legions 0059a4c0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UISceneLightEntity::SetFrame` · 005d8f50 · legions 0059a680 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
 ## `portal/client/src/render/ui/uiscenemanager.cpp.c` (0/7)
 
 ### UISceneManager
-- [ ] `UISceneManager::UseTime` · 005ae180 · legions 00579c20
+- [~] `UISceneManager::UseTime` · 005ae180 · legions 00579c20 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 - [ ] `UISceneManager::ReleaseUIScene` · 005ae1b0 · legions 00579c50
 - [ ] `UISceneManager::Cleanup` · 005ae240 · legions 00579ce0
 - [ ] `UISceneManager::FreeID` · 005ae290 · legions 00579d30
 - [ ] `UISceneManager::Init` · 005ae2c0 · legions 00579d60
-- [ ] `UISceneManager::GetUIScene` · 005ae370 · legions 00579e10
+- [~] `UISceneManager::GetUIScene` · 005ae370 · legions 00579e10 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 - [ ] `UISceneManager::GetFreeID` · 005ae420 · legions 00579ec0
 
-## `portal/client/src/render/ui/uiscenephysobjentity.cpp.c` (0/13)
+## `portal/client/src/render/ui/uiscenephysobjentity.cpp.c` (6/13)
 
 ### UIScenePhysObjEntity
-- [ ] `UIScenePhysObjEntity::InitFromDID` · 005adcd0 · legions 00579770
+- [x] `UIScenePhysObjEntity::InitFromDID` · 005adcd0 · legions 00579770 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIScenePhysObjEntity::InitFromVDesc` · 005add20 · legions 005797c0
-- [ ] `UIScenePhysObjEntity::InitFromDesc` · 005add60 · legions 00579800
-- [ ] `UIScenePhysObjEntity::Think` · 005addb0 · legions 00579850
+- [x] `UIScenePhysObjEntity::InitFromDesc` · 005add60 · legions 00579800 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIScenePhysObjEntity::Think` · 005addb0 · legions 00579850 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIScenePhysObjEntity::SetInstanceID` · 005ade20 · legions 005798c0
 - [ ] `UIScenePhysObjEntity::ApplyVisualDesc` · 005ade60 · legions 00579900
 - [ ] `UIScenePhysObjEntity::ApplyAdditiveVisualDesc` · 005ade80 · legions 00579920
 - [ ] `UIScenePhysObjEntity::UIScenePhysObjEntity` · 005adec0 · legions 00579960
 
 ### UISceneEntity
-- [ ] `UISceneEntity::SetFrame` · 005adf30 · legions 005799d0
+- [x] `UISceneEntity::SetFrame` · 005adf30 · legions 005799d0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
 ### UIScenePhysObjEntity
 - [ ] `UIScenePhysObjEntity::Animate` · 005adf40 · legions 005799e0
 - [ ] `UIScenePhysObjEntity::~UIScenePhysObjEntity` · 005adf50 · legions 005799f0
-- [ ] `UIScenePhysObjEntity::Render` · 005ae030 · legions 00579ad0
-- [ ] `UIScenePhysObjEntity::AddChild` · 005ae130 · legions 00579bd0
+- [x] `UIScenePhysObjEntity::Render` · 005ae030 · legions 00579ad0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIScenePhysObjEntity::AddChild` · 005ae130 · legions 00579bd0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
 ## `portal/client/src/render/ui/uisurface.cpp.c` (0/9)
 
@@ -2450,12 +2450,12 @@ Legend and workflow: [README](README.md).
 - [~] `UISurfaceObject::GenerateMaterial` · 005b2ea0 · legions 00583360 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [ ] `UISurfaceObject::SetMaterial` · 005b3000 · legions 005834c0
 
-## `portal/client/src/render/ui/uiviewportobject.cpp.c` (0/3)
+## `portal/client/src/render/ui/uiviewportobject.cpp.c` (2/3)
 
 ### UIViewportObject
 - [ ] `UIViewportObject::UIViewportObject` · 00735550 · legions 006b1220
-- [ ] `UIViewportObject::SetSceneID` · 00735590 · legions 006b1290
-- [ ] `UIViewportObject::Render` · 007355a0 · legions 006b12a0
+- [x] `UIViewportObject::SetSceneID` · 00735590 · legions 006b1290 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIViewportObject::Render` · 007355a0 · legions 006b12a0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
 ## `portal/client/src/uielement/desc/attributedesc.cpp.c` (1/6)
 
@@ -3444,16 +3444,16 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Tree::Create` · 005f8000
 - [ ] `UIElement_Tree::Register` · 005f8030 · legions 005b8b60
 
-## `portal/client/src/uielement/types/uielement_viewport.cpp.c` (0/10)
+## `portal/client/src/uielement/types/uielement_viewport.cpp.c` (7/10)
 
 ### UIElement_Viewport
-- [ ] `UIElement_Viewport::GetUISceneID` · 005f8410 · legions 005b8f40
+- [x] `UIElement_Viewport::GetUISceneID` · 005f8410 · legions 005b8f40 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIElement_Viewport::Create` · 005f8420
-- [ ] `UIElement_Viewport::SetCameraID` · 005f8480 · legions 005b8fb0
-- [ ] `UIElement_Viewport::GetCameraID` · 005f84d0 · legions 005b9000
-- [ ] `UIElement_Viewport::GetUIScene` · 005f84f0 · legions 005b9020
+- [x] `UIElement_Viewport::SetCameraID` · 005f8480 · legions 005b8fb0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIElement_Viewport::GetCameraID` · 005f84d0 · legions 005b9000 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIElement_Viewport::GetUIScene` · 005f84f0 · legions 005b9020 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIElement_Viewport::ReleaseUIScene` · 005f8510 · legions 005b9040
 - [ ] `UIElement_Viewport::Register` · 005f8560 · legions 005b9090
-- [ ] `UIElement_Viewport::SetAttribute_DataID` · 005f8580 · legions 005b90b0
-- [ ] `UIElement_Viewport::SetAttribute_ASCII` · 005f85e0 · legions 005b9110
-- [ ] `UIElement_Viewport::SetObject` · 005f8620 · legions 005b9150
+- [x] `UIElement_Viewport::SetAttribute_DataID` · 005f8580 · legions 005b90b0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIElement_Viewport::SetAttribute_ASCII` · 005f85e0 · legions 005b9110 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+- [x] `UIElement_Viewport::SetObject` · 005f8620 · legions 005b9150 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs

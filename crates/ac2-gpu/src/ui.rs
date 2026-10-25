@@ -297,8 +297,16 @@ impl UiOverlay {
 
     /// Records the layers over whatever the pass has drawn.
     pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
+        self.draw_range(pass, 0..self.layers.len());
+    }
+
+    /// Records the layers in `range` (drawing order), for passes that put something between
+    /// them (a 3D viewport among the UI's surfaces).
+    pub fn draw_range(&self, pass: &mut wgpu::RenderPass<'_>, range: std::ops::Range<usize>) {
+        let end = range.end.min(self.layers.len());
+        let start = range.start.min(end);
         pass.set_pipeline(&self.pipeline);
-        for layer in self.layers.iter().filter(|layer| layer.shown) {
+        for layer in self.layers[start..end].iter().filter(|layer| layer.shown) {
             pass.set_bind_group(0, &layer.group, &[]);
             pass.draw(0..4, 0..1);
         }

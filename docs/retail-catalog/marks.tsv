@@ -39,13 +39,14 @@ key	status	note
 00409be0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00409e00	x	
 0040a1f0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
-0040aad0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040aad0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 0040ab10	x	ac2-ui pregame/avatar_modification.rs
 0040ab70	x	ac2-ui pregame/avatar_modification.rs
-0040ace0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
-0040b0b0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
-0040b420	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
-0040b640	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040acb0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+0040ace0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+0040b0b0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+0040b420	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+0040b640	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 0040b6e0	x	ac2-ui pregame/avatar_modification.rs
 0040b760	x	ac2-ui pregame/avatar_modification.rs
 0040b8c0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
@@ -59,11 +60,11 @@ key	status	note
 0040d2b0	x	ac2-ui pregame/avatar_modification.rs
 0040d2d0	x	ac2-ui pregame/avatar_modification.rs
 0040d390	x	ac2-ui pregame/avatar_selection.rs
-0040db40	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
-0040dbd0	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040db40	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+0040dbd0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 0040de00	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
 0040dfe0	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
-0040e510	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040e510	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 0040eaa0	x	ac2-ui pregame/avatar_selection.rs
 0040ebf0	x	ac2-ui pregame/avatar_selection.rs
 0040f020	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
@@ -73,7 +74,7 @@ key	status	note
 0040f540	x	ac2-ui pregame/avatar_selection.rs
 0040f560	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 0040f590	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
-0040f6c0	~	character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
+0040f6c0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 0040f720	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 0040f810	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 0040f880	x	ac2-ui list_box_select.rs
@@ -85,11 +86,11 @@ key	status	note
 0040fca0	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 0040ff20	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 0040ffb0	~	character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
-00410510	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+00410510	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 00410750	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 004108c0	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
-004108e0	~	character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
-00410a10	~	character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
+004108e0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+00410a10	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 00410ad0	~	character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
 00410c00	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 00410f00	~	character_selection.rs: roots, handlers, Update; background music not played
@@ -2810,6 +2811,7 @@ key	status	note
 00571da0	x	ac2-render object::cell / point_lights
 00571ec0	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 00572110	~	outdoor sun only; dynamic/point lights and shadow direction not yet
+00572840	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 00572aa0	x	
 00572ac0	x	
 00572c70	x	
@@ -2937,6 +2939,21 @@ key	status	note
 005a0ac0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
 005a0da0	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
 005a0f80	x	ac2-ui input.rs
+005acd10	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005acea0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005acee0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+005acf60	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005ad2f0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005ad330	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005ad8e0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+005adcd0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005add60	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005addb0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005adf30	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005ae030	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005ae130	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005ae180	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+005ae370	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 005ae960	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
 005af390	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005af9c0	~	A8R8G8B8 only; colour key and format conversion not modelled
@@ -2974,9 +2991,14 @@ key	status	note
 005d6310	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6470	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6560	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005d8d90	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005d8f10	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005d8f50	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005d8ff0	~	pregame/arms.rs: frames and slerp; no instance id/scene
 005d9120	x	ac2-ui pregame/arms.rs SceneEntity
 005d9210	x	ac2-ui pregame/arms.rs SceneEntity
+005d92e0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005d9330	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005df7a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005df7e0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005df8a0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
@@ -3162,6 +3184,13 @@ key	status	note
 005f76e0	x	ac2-ui tree_view.rs
 005f7b40	~	ac2-ui tree_view.rs: view via tree_end/flush only
 005f7b90	~	ac2-ui tree_view.rs: view via tree_end/flush only
+005f8410	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005f8480	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005f84d0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005f84f0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005f8580	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005f85e0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005f8620	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005f86a0	x	ac2-ui panel.rs
 005f8760	x	ac2-ui panel.rs
 005f87e0	x	ac2-ui panel.rs
@@ -3436,6 +3465,7 @@ key	status	note
 00621410	x	
 00621510	x	ac2-physics los (Terrain::los_check)
 00621ef0	x	ac2-render object::cell / point_lights
+00621fb0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 00622760	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 00622900	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 00622cf0	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
@@ -4309,6 +4339,8 @@ key	status	note
 007330f0	x	ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
 00733190	x	ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
 00733230	x	ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
+00735590	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+007355a0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 00735760	x	ac2-ui tree_view.rs
 00735770	x	ac2-ui tree_view.rs
 007358c0	x	ac2-ui tree_view.rs

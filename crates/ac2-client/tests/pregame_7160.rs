@@ -151,8 +151,8 @@ fn the_pregame_view_draws_character_selection() {
     view.update(&gpu, t);
     assert!(view.shown_layers() > 0);
     let target = ac2_gpu::FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
-    view.prepare(&gpu.queue);
-    target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
+    view.prepare(&gpu, t);
+    view.render(&gpu, &target.color_view, &target.depth_view);
     let rgba = target.read_rgba(&gpu.device, &gpu.queue);
     let dir =
         std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../target/ac2-snapshots");
