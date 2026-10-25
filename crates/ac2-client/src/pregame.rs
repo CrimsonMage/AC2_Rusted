@@ -5,7 +5,6 @@
 //! `SendDeleteCharacter`, `SendCharGenResult`). Run the session with
 //! `CharacterChoice::Wait` so it stops at the character set.
 
-use ac2_net::protocol::{CharacterIdentity, VisualDesc};
 use ac2_ui::pregame::{PregameRequest, PregameUi};
 use ac2_weenie::{OnlineSession, SessionEvent};
 
@@ -18,36 +17,16 @@ pub struct PregameOutcome {
     pub quit: bool,
 }
 
-/// The session's character error text, `"character error N"` (`SessionEvent::Rejected`).
-fn character_error(text: &str) -> Option<u32> {
-    text.strip_prefix("character error ")?.parse().ok()
-}
-
 /// One session event into the UI.
 pub fn pregame_event(ui: &mut PregameUi, event: &SessionEvent) {
     match event {
         SessionEvent::Characters(set) => ui.character_set(set.clone()),
-        SessionEvent::Rejected(text) => {
-            if let Some(error) = character_error(text) {
-                ui.character_error(error, None);
-            }
-        }
+        SessionEvent::CharacterError(error) => ui.character_error(*error, None),
         SessionEvent::CharGenVerification {
             response,
-            character,
-            name,
+            identity,
             result,
-        } => {
-            // The event carries the identity's id and name; its appearance and greyed time
-            // are not passed on yet.
-            let identity = CharacterIdentity {
-                id: *character,
-                name: name.clone(),
-                seconds_greyed_out: 0,
-                visual: VisualDesc::default(),
-            };
-            ui.char_gen_verification(*response, Some(&identity), *result);
-        }
+        } => ui.char_gen_verification(*response, Some(identity), *result),
         SessionEvent::Disconnected(_) => ui.server_died(),
         _ => {}
     }
@@ -81,15 +60,4 @@ pub fn pregame_requests(ui: &mut PregameUi, session: &mut OnlineSession) -> Preg
         }
     }
     outcome
-}
-
-#[cfg(test)]
-mod tests {
-    use super::character_error;
-
-    #[test]
-    fn the_session_s_character_error_text_gives_the_error() {
-        assert_eq!(character_error("character error 11"), Some(11));
-        assert_eq!(character_error("no character matching First"), None);
-    }
 }

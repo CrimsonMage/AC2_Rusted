@@ -401,6 +401,16 @@ impl State {
         self.reliable_blob(id, 1, &b);
     }
 
+    /// Refuses a character request (`ECM_Login::RecvEvt_CharacterError`: the `charError`).
+    pub fn send_character_error(&mut self, error: u32) {
+        let mut data = Vec::new();
+        words(&mut data, &[0x0001_0056, error]);
+        // A login event (type 0x23), like the character set's.
+        self.next_object_blob += 1;
+        let id = 0x2300_0000_0000_0000 | u64::from(self.next_object_blob) << 32;
+        self.reliable_blob(id, 1, &data);
+    }
+
     /// Queues an unordered queue-1 event blob (`CEventQueue::DispatchEvent` order); returns
     /// its id.
     pub fn send_event(&mut self, data: &[u8]) -> u64 {

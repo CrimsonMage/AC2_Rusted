@@ -68,12 +68,7 @@ fn the_session_waits_at_the_character_set_until_asked_to_enter() {
         physical: vec![(7, 0.5)],
     });
     let events = settle(&mut session, &state);
-    assert!(events.contains(&SessionEvent::CharGenVerification {
-        response: 1,
-        character: CREATED,
-        name: "Birch".into(),
-        result: 0x11,
-    }));
+    assert!(events.iter().any(|e| matches!(e, SessionEvent::CharGenVerification { response: 1, identity, result: 0x11 } if identity.id == CREATED && identity.name == "Birch")));
     // The server lists the account's characters again, the new one included.
     let listed: Vec<u64> = session
         .characters()
@@ -86,6 +81,14 @@ fn the_session_waits_at_the_character_set_until_asked_to_enter() {
     assert!(events
         .iter()
         .any(|e| matches!(e, SessionEvent::Characters(set) if set.characters.len() == 2)));
+
+    // A refusal (`ECM_Login::RecvEvt_CharacterError`) comes typed.
+    state.borrow_mut().send_character_error(11);
+    let events = settle(&mut session, &state);
+    assert!(
+        events.contains(&SessionEvent::CharacterError(11)),
+        "{events:?}"
+    );
 
     // Only a listed character enters; then the world entry runs as usual.
     assert!(session.enter_world(0x1234).is_err());

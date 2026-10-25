@@ -14,12 +14,38 @@ use crate::{State, PLAYER};
 /// A null reference slot.
 const NULL: u32 = u32::MAX;
 
-/// One member of the player's allegiance.
+/// One member of the player's allegiance, with what `AllegianceDataAdaptor` carries.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Liege {
     pub id: u64,
     pub name: String,
     pub level: u32,
+    /// The race (`m_species`, enum mapper 0x41000009: 1 Human).
+    pub species: u32,
+    /// The gender (enum mapper 0x4100000B: 0x1000 Male, 0x2000 Female); with the rank and
+    /// the race it keys the rank title (`AllegianceRankTable` 0x1).
+    pub gender: u32,
+    /// Experience passed up to the patron.
+    pub xp_passed: u64,
+    /// A custom title; empty for the rank's.
+    pub title: String,
+    pub officer: bool,
+}
+
+impl Liege {
+    /// A Human male member with the rank's title, passing nothing up.
+    pub fn new(id: u64, name: &str, level: u32) -> Self {
+        Self {
+            id,
+            name: name.into(),
+            level,
+            species: 1,
+            gender: 0x1000,
+            xp_passed: 0,
+            title: String::new(),
+            officer: false,
+        }
+    }
 }
 
 /// The player's allegiance as the double keeps it.
@@ -70,20 +96,27 @@ impl Graph {
     }
 
     /// An `AllegianceData` (`AllegianceData` 0x1: XP passed in slots 0-1, species 2, level
-    /// 3, the title 4, gender 5, officer 8, the id 9-10, rank 11, faction 12, the name 13).
+    /// 3, a custom title 4 (a `wpstring`; null: `AllegianceControl` 0x8's title for the rank,
+    /// gender and species), gender 5, officer 8, the id 9-10, rank 11, faction 12, the name
+    /// 13).
     fn member(&mut self, who: &Liege, rank: u32) -> u32 {
         let at = self.add(heap(0x1B1, None, Vec::new(), Vec::new()));
         let name = self.add(native(NativeObject::StringInfo(literal(&who.name))));
+        let title = if who.title.is_empty() {
+            NULL
+        } else {
+            self.add(native(NativeObject::WString(who.title.clone())))
+        };
         let slots = vec![
-            0,
-            0,
-            1,
+            who.xp_passed as u32,
+            (who.xp_passed >> 32) as u32,
+            who.species,
             who.level,
-            NULL,
+            title,
+            who.gender,
             0,
             0,
-            0,
-            0,
+            u32::from(who.officer),
             who.id as u32,
             (who.id >> 32) as u32,
             rank,
@@ -160,11 +193,7 @@ fn info(name: &str) -> PackValue {
 
 impl State {
     fn player_liege(&self) -> Liege {
-        Liege {
-            id: PLAYER,
-            name: "Explorer".into(),
-            level: 1,
-        }
+        Liege::new(PLAYER, "Explorer", self.script_world.character.level as u32)
     }
 
     fn send_profile(&mut self) {
@@ -177,9 +206,10 @@ impl State {
     /// player does not accept requests).
     pub fn ask_to_swear(&mut self, vassal: u64, name: &str) {
         self.asking_vassal = Some(Liege {
-            id: vassal,
-            name: name.into(),
-            level: 2,
+            gender: 0x2000,
+            xp_passed: 1500,
+            title: "Squire".into(),
+            ..Liege::new(vassal, name, 2)
         });
         self.send_script_call(0x8203_002F, &[info(name), PackValue::LongInt(vassal)]);
     }
@@ -203,9 +233,8 @@ impl State {
         match (function, args) {
             (0x8203_000A, [PackValue::LongInt(patron)]) => {
                 let patron = Liege {
-                    id: *patron,
-                    name: "Birch".into(),
-                    level: 7,
+                    officer: true,
+                    ..Liege::new(*patron, "Birch", 7)
                 };
                 let call = [
                     PackValue::Int(0),

@@ -35,12 +35,7 @@ fn a_7160_session_logs_on_enters_walks_and_logs_off() {
     assert_eq!(entry.position.cell, CELL);
     let events = session.poll();
     assert!(events.contains(&SessionEvent::LoginFinished), "{events:?}");
-    assert!(events.contains(&SessionEvent::CharGenVerification {
-        response: 1,
-        character: PLAYER,
-        name: "Explorer".into(),
-        result: 0x11,
-    }));
+    assert!(events.iter().any(|e| matches!(e, SessionEvent::CharGenVerification { response: 1, identity, result: 0x11 } if identity.id == PLAYER && identity.name == "Explorer")));
     session.scene_ready();
     // Walk north for half a second at 64 frames a second, then stand.
     let mut reports = Vec::new();
