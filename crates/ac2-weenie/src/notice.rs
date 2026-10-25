@@ -7,6 +7,7 @@ use ac2_net::protocol::{
 };
 
 use crate::social::{AllegianceProfile, FellowInfo, FellowshipInfo};
+use crate::ui_data::{CraftSkill, DamageText, Shop};
 
 /// A `CM_*::SendNotice_*` notice, as plain data, in the order the scripts raise them.
 #[derive(Debug, Clone, PartialEq)]
@@ -266,4 +267,21 @@ pub enum GameplayNotice {
     LeaveConsignment,
     /// `CM_Store::SendNotice_ShowSaleReminder`.
     ShowSaleReminder(bool),
+    /// `CM_Store::SendNotice_UpdateStore`.
+    UpdateStore(Box<Shop>),
+    /// `CM_Store::SendNotice_ViewStore`.
+    ViewStore(Box<Shop>),
+    /// `CM_Store::SendNotice_ViewCatalog`: the catalog's header and its stores.
+    ViewCatalog {
+        header: StringInfo,
+        shops: Vec<Shop>,
+    },
+    /// `CM_Store::SendNotice_ViewConsignment`.
+    ViewConsignment(Box<Shop>),
+    /// `CM_Store::SendNotice_UpdateConsignment`.
+    UpdateConsignment(Box<Shop>),
+    /// `CM_Craft::SendNotice_UpdateCraftSkill`.
+    UpdateCraftSkill(Box<CraftSkill>),
+    /// `CM_Physics::SendNotice_Do3DDamage`: a floating damage text.
+    Do3DDamage(DamageText),
 }

@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 114 done, 10 partial, 366 to do, 9 skipped.
+499 retail functions: 120 done, 10 partial, 360 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (2/4)
@@ -143,12 +143,12 @@ Legend and workflow: [README](README.md).
 - [x] `gmRaceSexInfo::gmRaceSexInfo` · 00601810 · legions 005c26f0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmRaceSexInfo::gmRaceSexInfo` · 00601860 · legions 005c2740 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
-## `ac2/shared/src/craft/craftskilladaptor.cpp.c` (0/3)
+## `ac2/shared/src/craft/craftskilladaptor.cpp.c` (2/3)
 
 ### CraftSkillAdaptor
-- [ ] `CraftSkillAdaptor::CraftSkillAdaptor` · 0060c550 · legions 005cd2a0
+- [x] `CraftSkillAdaptor::CraftSkillAdaptor` · 0060c550 · legions 005cd2a0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [ ] `CraftSkillAdaptor::operator=` · 0060c590 · legions 005cd2e0
-- [ ] `CraftSkillAdaptor::CraftSkillAdaptor` · 0060c5f0 · legions 005cd340
+- [x] `CraftSkillAdaptor::CraftSkillAdaptor` · 0060c5f0 · legions 005cd340 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
 ## `ac2/shared/src/craft/craftskillcategoryadaptor.cpp.c` (0/6)
 
@@ -414,7 +414,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmSceneInfo::Set` · 0060a280 · legions 005caf90
 - [ ] `gmSceneInfo::gmSceneInfo` · 0060a2d0 · legions 005cafe0
 
-## `ac2/shared/src/shop/uishop.cpp.c` (0/5)
+## `ac2/shared/src/shop/uishop.cpp.c` (2/5)
 
 ### UIShop
 - [ ] `UIShop::InqSale` · 0060cdb0 · legions 005cdbb0
@@ -423,21 +423,21 @@ Legend and workflow: [README](README.md).
 - [ ] `List<UIShopSale>::operator=` · 0060cdf0 · legions 005cdbf0
 
 ### UIShop
-- [ ] `UIShop::UIShop` · 0060ce30 · legions 005cdc30
+- [x] `UIShop::UIShop` · 0060ce30 · legions 005cdc30 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [ ] `UIShop::operator=` · 0060ce90 · legions 005cdc90
-- [ ] `UIShop::UIShop` · 0060cf10 · legions 005cdd10
+- [x] `UIShop::UIShop` · 0060cf10 · legions 005cdd10 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
-## `ac2/shared/src/shop/uishopsale.cpp.c` (0/4)
+## `ac2/shared/src/shop/uishopsale.cpp.c` (2/4)
 
 ### UIShopSale
-- [ ] `UIShopSale::UIShopSale` · 0060cc80 · legions 005cda80
+- [x] `UIShopSale::UIShopSale` · 0060cc80 · legions 005cda80 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [ ] `UIShopSale::operator=` · 0060cce0 · legions 005cdae0
 
 ### CraftSkillCategoryAdaptor
 - [ ] `CraftSkillCategoryAdaptor::operator<` · 0060cd70 · legions 005cdb70
 
 ### UIShopSale
-- [ ] `UIShopSale::UIShopSale` · 0060cd80 · legions 005cdb80
+- [x] `UIShopSale::UIShopSale` · 0060cd80 · legions 005cdb80 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
 ## `ac2/shared/src/shortcut/shortcutinfo.cpp.c` (4/6)
 

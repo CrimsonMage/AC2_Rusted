@@ -278,6 +278,35 @@ pub(super) fn typed(
         "LeaveCatalog" => N::LeaveCatalog,
         "LeaveConsignment" => N::LeaveConsignment,
         "ShowSaleReminder" => N::ShowSaleReminder(int(args, 0)? & 0xFF != 0),
+        "UpdateStore" => N::UpdateStore(Box::new(shop(vm, *raw.first()?)?)),
+        "ViewStore" => N::ViewStore(Box::new(shop(vm, *raw.first()?)?)),
+        "ViewConsignment" => N::ViewConsignment(Box::new(shop(vm, *raw.first()?)?)),
+        "UpdateConsignment" => N::UpdateConsignment(Box::new(shop(vm, *raw.first()?)?)),
+        // `RListToUIShopList`: the script's list of `UIShop`s, in order.
+        "ViewCatalog" => N::ViewCatalog {
+            header: info(args, 0),
+            shops: match vm.native(*raw.get(1)?)? {
+                NativeObject::List(l) => {
+                    l.items.iter().filter_map(|r| shop(vm, *r as u32)).collect()
+                }
+                _ => return None,
+            },
+        },
+        "UpdateCraftSkill" => match vm.native(*raw.first()?)? {
+            NativeObject::CraftSkill(s) => N::UpdateCraftSkill(s.clone()),
+            _ => return None,
+        },
+        "Do3DDamage" => match vm.native(*raw.first()?)? {
+            NativeObject::DamageText(d) => N::Do3DDamage((**d).clone()),
+            _ => return None,
+        },
         _ => return None,
     })
+}
+
+fn shop(vm: &Vm, reference: u32) -> Option<ac2_weenie::Shop> {
+    match vm.native(reference)? {
+        NativeObject::Shop(s) => Some((**s).clone()),
+        _ => None,
+    }
 }

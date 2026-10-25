@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1253 done, 80 partial, 1055 to do, 80 skipped.
+2468 retail functions: 1302 done, 80 partial, 1006 to do, 80 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -46,42 +46,42 @@ Legend and workflow: [README](README.md).
 - [x] `gCharacterGenSystem::CallIFun_RandomizeCGR` · 0046cac0 · legions 0046d220 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gCharacterGenSystem::CallIFun_SetCGRDefaults` · 0046cca0 · legions 0046d400 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
-## `ac2/shared/src/interp/glue/gcraftskilladaptor.cpp.c` (0/16)
+## `ac2/shared/src/interp/glue/gcraftskilladaptor.cpp.c` (16/16)
 
 ### gCraftSkillAdaptor
-- [ ] `gCraftSkillAdaptor::CallEFun_SetCostToRaise` · 0046e320
-- [ ] `gCraftSkillAdaptor::CallEFun_SetDID` · 0046e380
-- [ ] `gCraftSkillAdaptor::CallEFun_SetDescription` · 0046e3e0
-- [ ] `gCraftSkillAdaptor::CallEFun_SetIconDID` · 0046e440
-- [ ] `gCraftSkillAdaptor::CallEFun_SetLevel` · 0046e4a0
-- [ ] `gCraftSkillAdaptor::CallEFun_SetName` · 0046e500
-- [ ] `gCraftSkillAdaptor::CallEFun_SetRawLevel` · 0046e560
-- [ ] `gCraftSkillAdaptor::CallEFun_SetUsageXPMod` · 0046e5c0
-- [ ] `gCraftSkillAdaptor::CallEFun_GetCostToRaise` · 0046e620
-- [ ] `gCraftSkillAdaptor::CallEFun_GetDID` · 0046e690
-- [ ] `gCraftSkillAdaptor::CallEFun_GetIconDID` · 0046e700
-- [ ] `gCraftSkillAdaptor::CallEFun_GetLevel` · 0046e770
-- [ ] `gCraftSkillAdaptor::CallEFun_GetRawLevel` · 0046e7e0
-- [ ] `gCraftSkillAdaptor::CallEFun_GetUsageXPMod` · 0046e850
-- [ ] `gCraftSkillAdaptor::CallEFun_GetDescription` · 0046e8c0
-- [ ] `gCraftSkillAdaptor::CallEFun_GetName` · 0046e970
+- [x] `gCraftSkillAdaptor::CallEFun_SetCostToRaise` · 0046e320 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gCraftSkillAdaptor::CallEFun_SetDID` · 0046e380 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gCraftSkillAdaptor::CallEFun_SetDescription` · 0046e3e0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gCraftSkillAdaptor::CallEFun_SetIconDID` · 0046e440 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gCraftSkillAdaptor::CallEFun_SetLevel` · 0046e4a0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gCraftSkillAdaptor::CallEFun_SetName` · 0046e500 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gCraftSkillAdaptor::CallEFun_SetRawLevel` · 0046e560 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gCraftSkillAdaptor::CallEFun_SetUsageXPMod` · 0046e5c0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gCraftSkillAdaptor::CallEFun_GetCostToRaise` · 0046e620 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gCraftSkillAdaptor::CallEFun_GetDID` · 0046e690 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gCraftSkillAdaptor::CallEFun_GetIconDID` · 0046e700 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gCraftSkillAdaptor::CallEFun_GetLevel` · 0046e770 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gCraftSkillAdaptor::CallEFun_GetRawLevel` · 0046e7e0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gCraftSkillAdaptor::CallEFun_GetUsageXPMod` · 0046e850 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gCraftSkillAdaptor::CallEFun_GetDescription` · 0046e8c0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gCraftSkillAdaptor::CallEFun_GetName` · 0046e970 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
-## `ac2/shared/src/interp/glue/gdamagetextblob.cpp.c` (1/9)
+## `ac2/shared/src/interp/glue/gdamagetextblob.cpp.c` (9/9)
 
 ### gDamageTextBlob
-- [ ] `gDamageTextBlob::CallEFun_SetDuration` · 00478bb0
-- [ ] `gDamageTextBlob::CallEFun_SetFontColor` · 00478c10
-- [ ] `gDamageTextBlob::CallEFun_SetScale` · 00478c80
+- [x] `gDamageTextBlob::CallEFun_SetDuration` · 00478bb0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gDamageTextBlob::CallEFun_SetFontColor` · 00478c10 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gDamageTextBlob::CallEFun_SetScale` · 00478c80 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
 ### gmCharGenResult
 - [x] `gmCharGenResult::SetName` · 00478ce0 · legions 005c2260 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
 ### gDamageTextBlob
-- [ ] `gDamageTextBlob::CallEFun_GetDuration` · 00478d30
-- [ ] `gDamageTextBlob::CallEFun_GetScale` · 00478da0
-- [ ] `gDamageTextBlob::CallEFun_SetDisplayString` · 00478e10
-- [ ] `gDamageTextBlob::CallEFun_GetDisplayString` · 00478e70
-- [ ] `gDamageTextBlob::CallEFun_GetFontColor` · 00478f30
+- [x] `gDamageTextBlob::CallEFun_GetDuration` · 00478d30 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gDamageTextBlob::CallEFun_GetScale` · 00478da0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gDamageTextBlob::CallEFun_SetDisplayString` · 00478e10 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gDamageTextBlob::CallEFun_GetDisplayString` · 00478e70 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gDamageTextBlob::CallEFun_GetFontColor` · 00478f30 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
 ## `ac2/shared/src/interp/glue/geffectuinode.cpp.c` (0/11)
 
@@ -513,34 +513,34 @@ Legend and workflow: [README](README.md).
 - [ ] `gTurbineUserStatus::CallEFun_InqMode` · 0046ec60 · legions 0046eae0
 - [ ] `gTurbineUserStatus::CallEFun_InqName` · 0046ed00
 
-## `ac2/shared/src/interp/glue/guishop.cpp.c` (0/8)
+## `ac2/shared/src/interp/glue/guishop.cpp.c` (8/8)
 
 ### gUIShop
-- [ ] `gUIShop::CallEFun_SetDesc` · 0046de60
-- [ ] `gUIShop::CallEFun_SetID` · 0046dec0
-- [ ] `gUIShop::CallEFun_SetName` · 0046df20
-- [ ] `gUIShop::CallEFun_SetPortrait` · 0046df80
-- [ ] `gUIShop::CallEFun_SetPosition` · 0046dfe0
-- [ ] `gUIShop::CallEFun_SetSorter` · 0046e040
-- [ ] `gUIShop::CallEFun_SetStoreSize` · 0046e0a0
-- [ ] `gUIShop::CallEFun_AddSale` · 0046e280
+- [x] `gUIShop::CallEFun_SetDesc` · 0046de60 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShop::CallEFun_SetID` · 0046dec0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShop::CallEFun_SetName` · 0046df20 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShop::CallEFun_SetPortrait` · 0046df80 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShop::CallEFun_SetPosition` · 0046dfe0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShop::CallEFun_SetSorter` · 0046e040 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShop::CallEFun_SetStoreSize` · 0046e0a0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShop::CallEFun_AddSale` · 0046e280 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
-## `ac2/shared/src/interp/glue/guishopsale.cpp.c` (0/13)
+## `ac2/shared/src/interp/glue/guishopsale.cpp.c` (12/13)
 
 ### gUIShopSale
-- [ ] `gUIShopSale::CallEFun_SetCostDesc` · 0046d900
-- [ ] `gUIShopSale::CallEFun_SetCostIcon` · 0046d980
-- [ ] `gUIShopSale::CallEFun_SetCostQuantity` · 0046d9e0
-- [ ] `gUIShopSale::CallEFun_SetExpired` · 0046da40
-- [ ] `gUIShopSale::CallEFun_SetItemDID` · 0046daa0
-- [ ] `gUIShopSale::CallEFun_SetItemDesc` · 0046db00
-- [ ] `gUIShopSale::CallEFun_SetItemIID` · 0046db90
+- [x] `gUIShopSale::CallEFun_SetCostDesc` · 0046d900 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShopSale::CallEFun_SetCostIcon` · 0046d980 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShopSale::CallEFun_SetCostQuantity` · 0046d9e0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShopSale::CallEFun_SetExpired` · 0046da40 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShopSale::CallEFun_SetItemDID` · 0046daa0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShopSale::CallEFun_SetItemDesc` · 0046db00 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShopSale::CallEFun_SetItemIID` · 0046db90 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [ ] `gUIShopSale::CallEFun_SetItemIconDesc` · 0046dbf0
-- [ ] `gUIShopSale::CallEFun_SetItemIconID` · 0046dc80
-- [ ] `gUIShopSale::CallEFun_SetOrdinal` · 0046dce0
-- [ ] `gUIShopSale::CallEFun_SetRestricted` · 0046dd40
-- [ ] `gUIShopSale::CallEFun_SetSold` · 0046dda0
-- [ ] `gUIShopSale::CallEFun_SetStockQuantity` · 0046de00
+- [x] `gUIShopSale::CallEFun_SetItemIconID` · 0046dc80 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShopSale::CallEFun_SetOrdinal` · 0046dce0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShopSale::CallEFun_SetRestricted` · 0046dd40 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShopSale::CallEFun_SetSold` · 0046dda0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gUIShopSale::CallEFun_SetStockQuantity` · 0046de00 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
 ## `portal/shared/src/interp/breakpointinfo.cpp.c` (0/1)
 
@@ -2942,14 +2942,14 @@ Legend and workflow: [README](README.md).
 - [ ] `gReservedIDs::CallEFun_IsTemporaryID` · 00539f60
 - [ ] `gReservedIDs::CallEFun_IsUIID` · 00539fa0
 
-## `portal/shared/src/interp/glue/grgbacolor.cpp.c` (0/5)
+## `portal/shared/src/interp/glue/grgbacolor.cpp.c` (5/5)
 
 ### gRGBAColor
-- [ ] `gRGBAColor::CallEFun_Attenuate` · 00539c50
-- [ ] `gRGBAColor::CallEFun_Set` · 00539cc0
-- [ ] `gRGBAColor::CallEFun_SetAlpha` · 00539d30
-- [ ] `gRGBAColor::CallEFun_SetColor32` · 00539d90
-- [ ] `gRGBAColor::CallEFun_GetColor32` · 00539df0
+- [x] `gRGBAColor::CallEFun_Attenuate` · 00539c50 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gRGBAColor::CallEFun_Set` · 00539cc0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gRGBAColor::CallEFun_SetAlpha` · 00539d30 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gRGBAColor::CallEFun_SetColor32` · 00539d90 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+- [x] `gRGBAColor::CallEFun_GetColor32` · 00539df0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
 ## `portal/shared/src/interp/glue/grlist.cpp.c` (45/48)
 

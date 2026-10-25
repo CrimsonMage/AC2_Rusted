@@ -212,8 +212,8 @@ fn notices_decode_by_signature() {
     let vm = host.vm_mut();
     let obj = vm.new_wstring(Vec::new());
     vm.owners.insert(obj, 0x5000_0001);
-    // CM_Physics::SendNotice_Do3DDamage(obj, blob): no ac2-weenie type (a null blob here).
-    run_efun(vm, 0x008D_0001, &[obj, u32::MAX], u32::MAX);
+    // CM_Quest::SendNotice_PlaySequence(obj, scenes): no ac2-weenie type (a null list here).
+    run_efun(vm, 0x008E_0003, &[obj, u32::MAX], u32::MAX);
     // CM_Character::SendNotice_UpdateSkillPanel(obj, availableXP, credits, heroCredits).
     run_efun(vm, 0x0085_0005, &[obj, 0x1, 0x2, 3, 4], u32::MAX);
     // CM_Inventory::SendNotice_UpdateInventory(obj, code, itemID, location).
@@ -232,7 +232,7 @@ fn notices_decode_by_signature() {
     assert_eq!(
         host.take_script_notices(),
         vec![ScriptNotice {
-            name: "CM_Physics::SendNotice_Do3DDamage",
+            name: "CM_Quest::SendNotice_PlaySequence",
             object: 0x5000_0001,
             args: vec![NoticeArg::Null],
         }]
@@ -316,6 +316,46 @@ fn quests_sort_newest_first_and_notify_typed() {
         &host.take_notices()[..],
         [GameplayNotice::UpdateQuests { code: 5, quest }] if quest.id == 3
     ));
+}
+
+/// A store page built through `gUIShop` / `gUIShopSale` (sales kept in ordinal order) and a
+/// damage text with its colour (`RGBAColor::SetColor32`) reach the UI typed.
+#[test]
+fn stores_and_damage_text_reach_the_ui_typed() {
+    use crate::native::{ntype, NativeObject};
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let vm = host.vm_mut();
+    let obj = vm.new_wstring(Vec::new());
+    vm.owners.insert(obj, 0x5000_0001);
+    let new = |vm: &mut Vm, t: u32| vm.refs.create_native(t, NativeObject::new_empty(t));
+    let shop = new(vm, ntype::UI_SHOP);
+    run_efun(vm, 0x380A_0009, &[7], shop); // SetID
+    for ordinal in [5, 2, 9] {
+        let sale = new(vm, ntype::UI_SHOP_SALE);
+        run_efun(vm, 0x380B_0009, &[ordinal], sale); // SetOrdinal
+        run_efun(vm, 0x380B_000C, &[], sale); // SetSold
+        run_efun(vm, 0x380A_0004, &[sale], shop); // AddSale
+    }
+    run_efun(vm, 0x3839_0006, &[obj, shop], u32::MAX); // ViewStore
+    let color = new(vm, ntype::RGBA_COLOR);
+    run_efun(vm, 0x0064_0004, &[0xFF00_8000], color); // SetColor32
+    assert_eq!(efun_result(vm, 0x0064_0005, &[], color, 2), 0xFF00_8000);
+    let blob = new(vm, ntype::DAMAGE_TEXT_BLOB);
+    run_efun(vm, 0x0097_0003, &[color], blob); // SetFontColor
+    run_efun(vm, 0x0097_0007, &[1.5f32.to_bits()], blob); // SetScale
+    run_efun(vm, 0x008D_0001, &[obj, blob], u32::MAX); // Do3DDamage
+    let notices = host.take_notices();
+    let GameplayNotice::ViewStore(s) = &notices[0] else {
+        panic!("{notices:?}");
+    };
+    let ordinals: Vec<u32> = s.sales.iter().map(|x| x.ordinal).collect();
+    assert_eq!((s.id, ordinals, s.sales[0].status), (7, vec![2, 5, 9], 3));
+    let GameplayNotice::Do3DDamage(d) = &notices[1] else {
+        panic!("{notices:?}");
+    };
+    assert_eq!(d.scale, 1.5);
+    assert_eq!(d.color[1], (128.0 * f64::from(0.003_921_569_f32)) as f32);
 }
 
 /// `RequestGUN_SendToRoom` goes out only through a chat service; with none, retail returns the

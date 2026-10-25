@@ -33,6 +33,7 @@ mod skill_node;
 mod social;
 mod string_info;
 mod string_text;
+mod ui_natives;
 mod vm_glue;
 mod wcc;
 mod wlog;
@@ -72,6 +73,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     places::register(efuns);
     social::register(efuns);
     quests::register(efuns);
+    ui_natives::register(efuns);
 }
 
 pub(crate) use chargen::empty_race_sex_info;

@@ -97,6 +97,11 @@ pub mod ntype {
     pub const EXAMINATION_REQUEST: u32 = 0x9A;
     pub const GAMEPLAY_OPTIONS_PROFILE: u32 = 0x9B;
     pub const SHORTCUT_INFO: u32 = 0xAC;
+    pub const RGBA_COLOR: u32 = 0x64;
+    pub const DAMAGE_TEXT_BLOB: u32 = 0x97;
+    pub const CRAFT_SKILL_ADAPTOR: u32 = 0x33A5;
+    pub const UI_SHOP: u32 = 0x380A;
+    pub const UI_SHOP_SALE: u32 = 0x380B;
     pub const GM_QUEST_INFO: u32 = 0xA0;
     pub const GM_QUEST_INFO_LIST: u32 = 0xA1;
     pub const ALLEGIANCE_DATA_ADAPTOR: u32 = 0x82;
@@ -168,6 +173,16 @@ pub enum NativeObject {
     AllegianceData(Box<ac2_weenie::AllegianceMember>),
     /// `AllegianceProfileAdaptor`.
     AllegianceProfile(Box<ac2_weenie::AllegianceProfile>),
+    /// `UIShop`.
+    Shop(Box<ac2_weenie::Shop>),
+    /// `UIShopSale`.
+    ShopSale(Box<ac2_weenie::ShopSale>),
+    /// `CraftSkillAdaptor`.
+    CraftSkill(Box<ac2_weenie::CraftSkill>),
+    /// `DamageTextBlob`.
+    DamageText(Box<ac2_weenie::DamageText>),
+    /// `RGBAColor` (r, g, b, a).
+    Color([f32; 4]),
     /// `GameplayOptionsProfile` (Legions layout).
     GameplayOptions(Box<GameplayOptions>),
     /// `BaseListIter`: a position in a list (`None` past the end). Retail holds the list node;
@@ -254,6 +269,11 @@ impl NativeObject {
                 )))
             }
             ntype::GAMEPLAY_OPTIONS_PROFILE => NativeObject::GameplayOptions(Box::default()),
+            ntype::UI_SHOP => NativeObject::Shop(Box::default()),
+            ntype::UI_SHOP_SALE => NativeObject::ShopSale(Box::default()),
+            ntype::CRAFT_SKILL_ADAPTOR => NativeObject::CraftSkill(Box::default()),
+            ntype::DAMAGE_TEXT_BLOB => NativeObject::DamageText(Box::default()),
+            ntype::RGBA_COLOR => NativeObject::Color([0.0; 4]),
             ntype::GM_QUEST_INFO => NativeObject::Wire(Box::new(
                 ac2_net::protocol::NativeObject::GmQuestInfo(Box::default()),
             )),

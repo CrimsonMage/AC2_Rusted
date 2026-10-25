@@ -1,6 +1,6 @@
 # replaced: Third-party libraries, CRT and container templates replaced by Rust
 
-2058 retail functions: 29 done, 0 partial, 0 to do, 2029 skipped.
+2058 retail functions: 30 done, 0 partial, 0 to do, 2028 skipped.
 Legend and workflow: [README](README.md).
 
 ## `_libraries/ImeUI.lib/ImeUi.obj.c` (0/36)
@@ -2000,12 +2000,12 @@ Legend and workflow: [README](README.md).
 - [-] `List<gmSceneInfo>::insert` · 00471690 · legions 0046fd70 — Rust std replaces it
 - [-] `List<gmSceneInfo>::insert_sort` · 00471890 · legions 0046fec0 — Rust std replaces it
 
-## `ac2/shared/src/interp/glue/guishop.cpp.c` (0/3)
+## `ac2/shared/src/interp/glue/guishop.cpp.c` (1/3)
 
 ### List<UIShopSale>
 - [-] `List<UIShopSale>::push_back` · 0046e100 · legions 0046e450 — Rust std replaces it
 - [-] `List<UIShopSale>::insert` · 0046e180 · legions 0046e4d0 — Rust std replaces it
-- [-] `List<UIShopSale>::insert_sort` · 0046e220 · legions 0046e570 — Rust std replaces it
+- [x] `List<UIShopSale>::insert_sort` · 0046e220 · legions 0046e570 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
 ## `ac2/shared/src/quest/gmquestinfolist.cpp.c` (1/5)
 
