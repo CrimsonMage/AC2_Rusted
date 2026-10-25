@@ -185,6 +185,23 @@ fn the_options_profile_glue_follows_legions() {
     assert_eq!(efun_result(vm, 0x009B_0022, &[2], p, 3), 0x2);
 }
 
+/// `gQualifiedDataIDArray::WslAddToEnd`: a DID joins once; 0 never does.
+#[test]
+fn data_id_sets_add_each_did_once() {
+    use crate::native::{ntype, NativeObject};
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let vm = host.vm_mut();
+    let set = vm.refs.create_native(
+        ntype::QUALIFIED_DATA_ID_ARRAY,
+        NativeObject::new_empty(ntype::QUALIFIED_DATA_ID_ARRAY),
+    );
+    assert_eq!(efun_result(vm, 0x005E_0001, &[0x0400_0001], set, 3), 1);
+    assert_eq!(efun_result(vm, 0x005E_0001, &[0x0400_0001], set, 3), 0);
+    assert_eq!(efun_result(vm, 0x005E_0001, &[0], set, 3), 0);
+    assert!(matches!(vm.native(set), Some(NativeObject::DataIds(s)) if s.len() == 1));
+}
+
 /// `CM_*` notices without an ac2-weenie type come out decoded by their signature; ones with a
 /// type come out typed.
 #[test]

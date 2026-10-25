@@ -96,6 +96,7 @@ pub mod ntype {
     pub const EXAMINATION_REQUEST: u32 = 0x9A;
     pub const GAMEPLAY_OPTIONS_PROFILE: u32 = 0x9B;
     pub const SHORTCUT_INFO: u32 = 0xAC;
+    pub const QUALIFIED_DATA_ID_ARRAY: u32 = 0x5E;
     pub const SELECTION_INFO: u32 = 0xAB;
     pub const UI_SAVE_LOCATIONS: u32 = 0x6F;
     pub const GM_RACE_SEX_INFO: u32 = 0xA2;
@@ -149,6 +150,9 @@ pub enum NativeObject {
     MissileParameters(MissileParameters),
     BehaviorParams(Box<BehaviorParams>),
     RandomSelectionTable(RandomSelectionTable),
+    /// `QualifiedDataIDArray`: the set of (DB type, DID) pairs (`std::set<QualifiedDataID>`;
+    /// scripts only add to it).
+    DataIds(std::collections::BTreeSet<(u32, u32)>),
     /// `GameplayOptionsProfile` (Legions layout).
     GameplayOptions(Box<GameplayOptions>),
     /// `BaseListIter`: a position in a list (`None` past the end). Retail holds the list node;
@@ -235,6 +239,7 @@ impl NativeObject {
                 )))
             }
             ntype::GAMEPLAY_OPTIONS_PROFILE => NativeObject::GameplayOptions(Box::default()),
+            ntype::QUALIFIED_DATA_ID_ARRAY => NativeObject::DataIds(Default::default()),
             ntype::SELECTION_INFO => NativeObject::Wire(Box::new(
                 ac2_net::protocol::NativeObject::SelectionInfo(Default::default()),
             )),

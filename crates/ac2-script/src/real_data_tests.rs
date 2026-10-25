@@ -156,6 +156,7 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::BehaviorParams(_) => "BehaviorParams",
         NativeObject::RandomSelectionTable(_) => "RandomSelectionTable",
         NativeObject::GameplayOptions(_) => "GameplayOptionsProfile",
+        NativeObject::DataIds(_) => "QualifiedDataIDArray",
         NativeObject::ListIter { .. } => "list iterator",
         NativeObject::HashIter { .. } => "hash iterator",
         NativeObject::MultiHash(_) => "multi-hash",
@@ -250,4 +251,26 @@ fn cache_only_data_requests_what_is_not_resident() {
     worker.load(DataRequest::StringTable(0x2500_FFFF));
     assert!(data.string_table(0x2500_FFFF).is_none());
     assert!(!data.take_missed());
+}
+
+/// `PlacesTable_UniqueDBID` names 0x0E000004, which the Legions DATs do not hold: retail's
+/// `PlacesTable::InqPlace` reports the missing data and answers 0, and so does the port.
+#[test]
+fn the_legions_dats_hold_no_places_table() {
+    use crate::data::{DatScriptData, PLACES_TABLE_ENUM, UNIQUEDB_GROUP_ENUM};
+    use crate::vm::ScriptData;
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ResourceStore::new(dataset.clone());
+    let data = DatScriptData::new(dataset.clone(), store);
+    let did = data.enum_did(PLACES_TABLE_ENUM, UNIQUEDB_GROUP_ENUM);
+    assert_eq!(did, Some(0x0E00_0004));
+    assert_eq!(
+        dataset
+            .ids_in_range(DatFileKind::Portal, 0x0E00_0004, 0x0E00_0004)
+            .count(),
+        0
+    );
+    assert!(data.places_table().is_none());
 }

@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1234 done, 80 partial, 1076 to do, 78 skipped.
+2468 retail functions: 1239 done, 80 partial, 1071 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -321,7 +321,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmQuestInfoList::CallEFun_UpdateQuestInfo` · 00472a00 · legions 004706c0
 - [ ] `ggmQuestInfoList::CallEFun_pop_head` · 00472ab0
 
-## `ac2/shared/src/interp/glue/ggmracesexinfo.cpp.c` (8/9)
+## `ac2/shared/src/interp/glue/ggmracesexinfo.cpp.c` (9/9)
 
 ### ggmRaceSexInfo
 - [x] `ggmRaceSexInfo::CallEFun_SetMusic` · 00472260 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -332,7 +332,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmRaceSexInfo::CallEFun_GetPileAppearance` · 00472460 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `ggmRaceSexInfo::CallEFun_PutObjInLoc` · 004724d0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `ggmRaceSexInfo::CallEFun_Verify` · 00472560 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-- [ ] `ggmRaceSexInfo::CallEFun_GetSubDataIDs` · 004725d0 · legions 004703b0
+- [x] `ggmRaceSexInfo::CallEFun_GetSubDataIDs` · 004725d0 · legions 004703b0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 
 ## `ac2/shared/src/interp/glue/ggmsceneinfo.cpp.c` (0/20)
 
@@ -2742,15 +2742,15 @@ Legend and workflow: [README](README.md).
 - [ ] `gPhysicsStory::CallEFun_SetSkillID` · 0053dc80
 - [ ] `gPhysicsStory::CallEFun_GetOverallAttackResult` · 0053dce0
 
-## `portal/shared/src/interp/glue/gplacestable.cpp.c` (0/6)
+## `portal/shared/src/interp/glue/gplacestable.cpp.c` (3/6)
 
 ### gPlacesTable
 - [ ] `gPlacesTable::NRHashToPlacesHash` · 0053d6a0 · legions 0051f480
 - [ ] `gPlacesTable::CallEFun_WslDump` · 0053d730
-- [ ] `gPlacesTable::PlacesHashToNRHash` · 0053d7b0 · legions 0051f590
-- [ ] `gPlacesTable::CallEFun_InqPlace` · 0053d8f0
+- [x] `gPlacesTable::PlacesHashToNRHash` · 0053d7b0 · legions 0051f590 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
+- [x] `gPlacesTable::CallEFun_InqPlace` · 0053d8f0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 - [ ] `gPlacesTable::CallEFun_InqPlaceStr` · 0053d960
-- [ ] `gPlacesTable::CallEFun_InqPlacesHash` · 0053d9d0
+- [x] `gPlacesTable::CallEFun_InqPlacesHash` · 0053d9d0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 
 ## `portal/shared/src/interp/glue/gplane.cpp.c` (0/4)
 
@@ -2858,10 +2858,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gPSUtils::CallEFun_remove_extensionW` · 0053af50
 - [ ] `gPSUtils::CallEFun_strip_directoryW` · 0053afb0
 
-## `portal/shared/src/interp/glue/gqualifieddataidarray.cpp.c` (0/1)
+## `portal/shared/src/interp/glue/gqualifieddataidarray.cpp.c` (1/1)
 
 ### gQualifiedDataIDArray
-- [ ] `gQualifiedDataIDArray::CallEFun_WslAddToEnd` · 0053aac0
+- [x] `gQualifiedDataIDArray::CallEFun_WslAddToEnd` · 0053aac0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 
 ## `portal/shared/src/interp/glue/grandom.cpp.c` (6/7)
 

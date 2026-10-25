@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 94 done, 10 partial, 386 to do, 9 skipped.
+499 retail functions: 95 done, 10 partial, 385 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
@@ -131,11 +131,11 @@ Legend and workflow: [README](README.md).
 - [x] `gmCharGenResult::gmCharGenResult` · 00601470 · legions 005c2350 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmCharGenResult::gmCharGenResult` · 00601500 · legions 005c23e0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
-## `ac2/shared/src/character/gmracesexinfo.cpp.c` (5/8)
+## `ac2/shared/src/character/gmracesexinfo.cpp.c` (6/8)
 
 ### gmRaceSexInfo
 - [x] `gmRaceSexInfo::StreamPack` · 006015b0 · legions 005c2490 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
-- [ ] `gmRaceSexInfo::GetSubDataIDs` · 00601610 · legions 005c24f0
+- [x] `gmRaceSexInfo::GetSubDataIDs` · 00601610 · legions 005c24f0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 - [x] `gmRaceSexInfo::Verify` · 006016a0 · legions 005c2580 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmRaceSexInfo::PutObjInLoc` · 00601720 · legions 005c2600 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [ ] `gmRaceSexInfo::~gmRaceSexInfo` · 00601740 · legions 005c2620

@@ -19,9 +19,11 @@
 
 mod db_types;
 mod enum_map;
+mod places;
 
 pub use db_types::{db_type, DB_TYPE_DID_MAPPER, DB_TYPE_ENUM_MAPPER, DB_TYPE_STRING_TABLE};
 pub use enum_map::{EnumIdMap, EnumMapper};
+pub use places::{PlacesTable, PLACES_TABLE_ENUM, UNIQUEDB_GROUP_ENUM};
 
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::ops::Deref;
@@ -55,6 +57,7 @@ struct Resident {
     states: HashMap<u32, CachedResource<WState>>,
     mappers: HashMap<u32, CachedResource<EnumMapper>>,
     id_maps: HashMap<u32, CachedResource<EnumIdMap>>,
+    places: Option<CachedResource<PlacesTable>>,
     absent: HashSet<DataRequest>,
 }
 
@@ -151,6 +154,7 @@ impl DatScriptData {
                 .ok()
                 .flatten()
                 .is_some(),
+            DataRequest::PlacesTable => self.load_places(),
         };
         if !found {
             self.resident().absent.insert(request);
@@ -164,7 +168,8 @@ impl DatScriptData {
             .flatten()
     }
 
-    /// Worker side: every enum mapper and DID mapper (105 small records), held resident.
+    /// Worker side: every enum mapper and DID mapper (105 small records) and the
+    /// `PlacesTable`, held resident.
     pub fn preload_tables(&self) {
         let ranges = [
             (0x2300_0000, 0x23FF_FFFE, true),
@@ -184,6 +189,23 @@ impl DatScriptData {
                     self.resident().id_maps.insert(did, r);
                 }
             }
+        }
+        if !self.load_places() {
+            self.resident().absent.insert(DataRequest::PlacesTable);
+        }
+    }
+
+    /// Worker side: the `PlacesTable`, held resident.
+    fn load_places(&self) -> bool {
+        let Some(did) = self.enum_did(PLACES_TABLE_ENUM, UNIQUEDB_GROUP_ENUM) else {
+            return false;
+        };
+        match self.read::<PlacesTable>(did) {
+            Some(table) => {
+                self.resident().places = Some(table);
+                true
+            }
+            None => false,
         }
     }
 
@@ -273,6 +295,20 @@ impl ScriptData for DatScriptData {
             |r| r.id_maps.get(&did).cloned(),
             DataRequest::EnumIdMap(did),
         )
+    }
+
+    /// `PlacesTable::InqPlace`'s `DBObj::GetByEnum`.
+    fn places_table(&self) -> Option<Box<dyn Deref<Target = PlacesTable>>> {
+        if let Some(table) = self.resident().places.clone() {
+            return Some(Box::new(table));
+        }
+        if self.cache_only() {
+            self.miss(DataRequest::PlacesTable);
+            return None;
+        }
+        self.load_places();
+        let table = self.resident().places.clone()?;
+        Some(Box::new(table))
     }
 
     /// `DBObj::Get(QualifiedDataID(did, DB_TYPE_STRING_TABLE))` through ac2-db's decoder.

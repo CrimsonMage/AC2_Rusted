@@ -293,6 +293,7 @@ key	status	note
 00472460	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 004724d0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00472560	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004725d0	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
 00473990	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 004739f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00473a50	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -1531,6 +1532,7 @@ key	status	note
 0053a940	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053a9c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053aa20	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053aac0	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
 0053be40	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053beb0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053bf10	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
@@ -1572,6 +1574,9 @@ key	status	note
 0053d1d0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053d280	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053d330	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053d7b0	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
+0053d8f0	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
+0053d9d0	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
 0053f690	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 0053f710	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 0053f790	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
@@ -2777,6 +2782,7 @@ key	status	note
 00601470	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00601500	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 006015b0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+00601610	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
 006016a0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00601720	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00601810	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -2922,6 +2928,10 @@ key	status	note
 0062acf0	x	
 0062ae10	x	
 006388c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+00638ee0	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
+00639850	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
+006398d0	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
+00639c40	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
 0063a540	x	
 0063a560	x	
 0063a580	x	
@@ -3308,6 +3318,7 @@ key	status	note
 006d7040	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
 006d7830	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 006d78c0	x	ac2-script data/glue::enums
+006d7fe0	x	ac2-script glue::enums::add_data_id
 006d80b0	x	ac2-script data/glue::enums
 006d8150	x	ac2-script data/glue::enums
 006d83f0	x	ac2-script data/glue::enums

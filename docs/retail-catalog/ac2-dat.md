@@ -1,6 +1,6 @@
 # ac2-dat: DAT files and the database layer
 
-507 retail functions: 22 done, 4 partial, 476 to do, 5 skipped.
+507 retail functions: 23 done, 4 partial, 475 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/database/asynccache.cpp.c` (1/48)
@@ -341,7 +341,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MasterDBMap::GetFreelistDef` · 006d73b0 · legions 006610d0
 - [ ] `MasterDBMap::VerifyDirectory` · 006d73d0 · legions 006610f0
 
-## `portal/shared/src/database/qualifieddataid.cpp.c` (0/6)
+## `portal/shared/src/database/qualifieddataid.cpp.c` (1/6)
 
 ### QualifiedDataID
 - [ ] `QualifiedDataID::QualifiedDataID` · 006d7ce0 · legions 00661860
@@ -350,7 +350,7 @@ Legend and workflow: [README](README.md).
 - [ ] `QualifiedDataIDArray::operator[]` · 006d7d10 · legions 00661890
 - [ ] `QualifiedDataIDArray::AddToEnd` · 006d7f30 · legions 00661ab0
 - [ ] `QualifiedDataIDArray::AddToEnd` · 006d7f60 · legions 00661ae0
-- [ ] `QualifiedDataIDArray::AddToEnd` · 006d7fe0 · legions 00661b60
+- [x] `QualifiedDataIDArray::AddToEnd` · 006d7fe0 · legions 00661b60 — ac2-script glue::enums::add_data_id
 - [ ] `QualifiedDataIDArray::AddToEnd` · 006d8040 · legions 00661bc0
 
 ## `portal/shared/src/database/threadedcache.cpp.c` (0/16)

@@ -93,6 +93,8 @@ pub enum DataRequest {
     EnumMapper(u32),
     EnumIdMap(u32),
     StringTable(u32),
+    /// The `PlacesTable` (resolved through the enum tables).
+    PlacesTable,
 }
 
 pub trait ScriptData {
@@ -139,6 +141,11 @@ pub trait ScriptData {
 
     /// An `EnumIDMap` (`DB_TYPE_DID_MAPPER`).
     fn enum_id_map(&self, _did: u32) -> Option<Box<dyn Deref<Target = EnumIdMap>>> {
+        None
+    }
+
+    /// The `PlacesTable` (`DBObj::GetByEnum(PlacesTable_UniqueDBID, UNIQUEDB_GROUP_ENUM)`).
+    fn places_table(&self) -> Option<Box<dyn Deref<Target = crate::data::PlacesTable>>> {
         None
     }
 
