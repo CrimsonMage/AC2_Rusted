@@ -3160,17 +3160,21 @@ key	status	note
 005e3310	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e35f0	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
 005e3690	x	ac2-ui media.rs / transition.rs
+005e3740	x	ac2-ui tooltip.rs
 005e38b0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005e3af0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-005e3b70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005e3b70	~	tooltip owner/timing and default cursor ported; drag, resize and object regions not
 005e3cc0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+005e3e90	~	no right-button check; 32x32 cursor size assumed
 005e4b60	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4c70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005e4d20	x	ac2-ui tooltip.rs
 005e4e50	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4fc0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e59b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e5a80	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e75a0	x	ac2-physics moveto (slice 3)
+005e75b0	~	tooltip owner/timing and default cursor ported; drag, resize and object regions not
 005e8ba0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e8c60	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e8c90	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
@@ -3182,6 +3186,7 @@ key	status	note
 005e9040	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e9060	x	ac2-ui media.rs / transition.rs
 005e90b0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e9300	x	ac2-ui tooltip.rs
 005e9340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9470	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 005e94c0	x	ac2-ui input.rs / text_edit.rs: typing into text elements
@@ -3190,6 +3195,7 @@ key	status	note
 005e9720	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9790	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e97c0	x	ac2-ui media.rs / transition.rs
+005e9810	x	ac2-ui tooltip.rs
 005e9940	~	m_delOnTransStop (delete after the exit transition) not modelled
 005e99e0	x	ac2-ui media.rs / transition.rs
 005e9b80	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
@@ -3197,6 +3203,7 @@ key	status	note
 005ea2c0	x	ac2-ui media.rs / transition.rs
 005ea430	x	ac2-ui compose.rs / element.rs set_image
 005ea510	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005eac90	x	ac2-ui tooltip.rs
 005eacf0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005eae20	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005eafc0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar

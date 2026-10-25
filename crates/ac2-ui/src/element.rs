@@ -135,6 +135,8 @@ pub struct UiElement {
     pub(crate) opacity: f32,
     /// `m_cursorDID`, `m_cursorHotX`, `m_cursorHotY`.
     pub(crate) cursor: (u32, i32, i32),
+    /// `m_TTText`, rendered (`SetTooltip`).
+    pub(crate) tooltip: Option<String>,
     latest_update: u32,
     created_by_layout: bool,
 }
@@ -218,6 +220,9 @@ pub struct UiTree {
     /// `UIElementManager`'s cursor: the last set and the default.
     pub(crate) cursor: Option<(u32, i32, i32)>,
     pub(crate) default_cursor: Option<(u32, i32, i32)>,
+    /// `UIElementManager`'s tooltip, and the owner the current mouse pass found.
+    pub(crate) tooltip: crate::tooltip::TooltipState,
+    pub(crate) new_tooltip_owner: Option<usize>,
 }
 
 /// The index of `desc`'s state `id`.
@@ -270,6 +275,8 @@ impl UiTree {
             sounds: Vec::new(),
             cursor: None,
             default_cursor: None,
+            tooltip: crate::tooltip::TooltipState::default(),
+            new_tooltip_owner: None,
         }
     }
 
@@ -421,6 +428,7 @@ impl UiTree {
             transition_close: false,
             opacity: 1.0,
             cursor: (0, 0, 0),
+            tooltip: None,
             latest_update: self.update_count,
             created_by_layout: false,
         });
