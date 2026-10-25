@@ -37,10 +37,16 @@ pub struct Ac2VisualDesc {
     /// `m_midesc_did`: the `MotionInterpDesc` the object moves by.
     pub motion_interp: Option<DataId>,
     pub behavior_table: Option<DataId>,
+    pub modes: Option<DataId>,
     pub scale: Option<Vec3>,
+    pub child_scale: Option<f32>,
     /// `m_particle_scale` (`CPhysicsObj::GetParticleScale`).
     pub particle_scale: Option<f32>,
     pub part_groups: Arc<[Ac2PartGroup]>,
+    /// `m_app_hash` of each part group, in `part_groups` order.
+    pub part_group_appearance: Arc<[Ac2AppearanceHash]>,
+    /// `m_global_app_mods`' appearance hash.
+    pub global_appearance: Ac2AppearanceHash,
     pub fx: Ac2VisualFx,
 }
 
@@ -104,15 +110,17 @@ fn decode(
     let parent = did(cursor, 0x2)?;
     let motion_interp = did(cursor, 0x4)?;
     let behavior_table = did(cursor, 0x8)?;
-    let _modes = did(cursor, 0x10)?;
+    let modes = did(cursor, 0x10)?;
     let scale = if bits & 0x20 != 0 {
         Some(Vec3::new(float(cursor)?, float(cursor)?, float(cursor)?))
     } else {
         None
     };
-    if bits & 0x40 != 0 {
-        float(cursor)?;
-    }
+    let child_scale = if bits & 0x40 != 0 {
+        Some(float(cursor)?)
+    } else {
+        None
+    };
     let particle_scale = if bits & 0x400 != 0 {
         Some(float(cursor)?)
     } else {
@@ -124,15 +132,21 @@ fn decode(
         skip(cursor, layers * 12)?;
     }
     let mut part_groups = Vec::new();
+    let mut part_group_appearance = Vec::new();
     let mut fx = Ac2VisualFx::default();
+    let mut global_appearance: Ac2AppearanceHash = Arc::from([]);
     if bits & 0x100 != 0 {
         // `m_global_app_mods` is a part group applied to every part; it names no Setup.
-        fx = part_group(cursor)?.1;
+        let global = part_group(cursor)?;
+        fx = global.fx;
+        global_appearance = global.appearance;
     }
     if bits & 0x200 != 0 {
         for _ in 0..hash_count(cursor)? {
             word(cursor)?;
-            part_groups.push(part_group(cursor)?.0);
+            let group = part_group(cursor)?;
+            part_groups.push(group.group);
+            part_group_appearance.push(group.appearance);
         }
     }
     if !cursor.remaining_bytes().is_empty() {
@@ -142,15 +156,30 @@ fn decode(
         parent,
         motion_interp,
         behavior_table,
+        modes,
         scale,
+        child_scale,
         particle_scale,
         part_groups: Arc::from(part_groups),
+        part_group_appearance: Arc::from(part_group_appearance),
+        global_appearance,
         fx,
     })
 }
 
+/// `AppearanceInfo` hash of a part group (`m_app_hash`): appearance table DID -> its applied
+/// appearance keys and their scalars.
+pub type Ac2AppearanceHash = Arc<[(DataId, Arc<[(u32, f32)]>)]>;
+
+/// A decoded `PartGroupDataDesc`.
+pub(crate) struct DecodedPartGroup {
+    pub group: Ac2PartGroup,
+    pub fx: Ac2VisualFx,
+    pub appearance: Ac2AppearanceHash,
+}
+
 /// `PartGroupDataDesc::StreamPack`.
-fn part_group(cursor: &mut ArchiveCursor<'_>) -> Result<(Ac2PartGroup, Ac2VisualFx), Malformed> {
+pub(crate) fn part_group(cursor: &mut ArchiveCursor<'_>) -> Result<DecodedPartGroup, Malformed> {
     let bits = word(cursor)?;
     let mut group = Ac2PartGroup::default();
     let mut field = |bit: u32| -> Result<u32, Malformed> {
@@ -165,12 +194,14 @@ fn part_group(cursor: &mut ArchiveCursor<'_>) -> Result<(Ac2PartGroup, Ac2Visual
     group.connection_point = field(0x4)?;
     group.setup = Some(DataId::new(field(0x8)?)).filter(|did| !did.is_null());
     group.anim_map = Some(DataId::new(field(0x10)?)).filter(|did| !did.is_null());
+    let mut appearance = Vec::new();
     if bits & 0x20 != 0 {
-        // Appearance hash: key -> (key -> f32) table.
         for _ in 0..hash_count(cursor)? {
-            word(cursor)?;
-            let pairs = hash_count(cursor)?;
-            skip(cursor, pairs * 8)?;
+            let table = DataId::new(word(cursor)?);
+            let keys = (0..hash_count(cursor)?)
+                .map(|_| Ok((word(cursor)?, float(cursor)?)))
+                .collect::<Result<Vec<_>, Malformed>>()?;
+            appearance.push((table, Arc::from(keys)));
         }
     }
     let mut fx = Ac2VisualFx::default();
@@ -186,5 +217,9 @@ fn part_group(cursor: &mut ArchiveCursor<'_>) -> Result<(Ac2PartGroup, Ac2Visual
     if bits & 0x100 != 0 {
         fx.overrides = read_fx_map(cursor)?;
     }
-    Ok((group, fx))
+    Ok(DecodedPartGroup {
+        group,
+        fx,
+        appearance: Arc::from(appearance),
+    })
 }

@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 298 done, 68 partial, 1696 to do, 62 skipped.
+2124 retail functions: 304 done, 69 partial, 1689 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -1988,7 +1988,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [x] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
-## `portal/shared/src/physobj/partarray.cpp.c` (7/72)
+## `portal/shared/src/physobj/partarray.cpp.c` (9/72)
 
 ### CPartArray
 - [ ] `CPartArray::SetOwnerID` · 004edfc0 · legions 004e0930
@@ -2023,9 +2023,9 @@ Legend and workflow: [README](README.md).
 - [x] `CPartArray::FindObjCollisions` · 004ee7d0 · legions 004e1130 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [x] `CPartArray::TraceRayThroughPartsPhysics` · 004ee860 · legions 004e11c0 — ac2-physics los (Terrain::los_check)
 - [x] `CPartArray::RefreshMatrices` · 004ee8f0 · legions 004e1250 — ac2-render object/skeleton.rs (render-side bones)
-- [ ] `CPartArray::ApplyMeshReplacement` · 004ee970 · legions 004e12d0
+- [x] `CPartArray::ApplyMeshReplacement` · 004ee970 · legions 004e12d0 — ac2-render object/model.rs load_object_model_with
 - [ ] `CPartArray::RemoveMeshReplacements` · 004ee9b0 · legions 004e1310
-- [ ] `CPartArray::ApplyMaterialModifier` · 004ee9f0 · legions 004e1350
+- [x] `CPartArray::ApplyMaterialModifier` · 004ee9f0 · legions 004e1350 — ac2-render object/model.rs load_object_model_with
 - [ ] `CPartArray::RemoveMaterialModifiers` · 004eea40 · legions 004e13a0
 - [ ] `CPartArray::CacheAnimations` · 004eea70 · legions 004e13d0
 - [ ] `CPartArray::HasHoldingLocation` · 004eea80 · legions 004e13e0
@@ -2074,7 +2074,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartArray::~CPartArray` · 004f0d40 · legions 004e3670
 - [~] `CPartArray::DoAnimation` · 004f0de0 · legions 004e3710 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 
-## `portal/shared/src/physobj/partgroup.cpp.c` (7/44)
+## `portal/shared/src/physobj/partgroup.cpp.c` (11/44)
 
 ### CPartGroup
 - [ ] `CPartGroup::InitSetup` · 004f45e0 · legions 004e6e00
@@ -2109,16 +2109,16 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartGroup::FindMatrixForBoneType` · 004f52b0 · legions 004e7ad0
 - [ ] `CPartGroup::FindBoneType` · 004f5320 · legions 004e7b40
 - [ ] `CPartGroup::DestroyParticleSystem` · 004f53a0 · legions 004e7bc0
-- [ ] `CPartGroup::ApplyAtomCollection` · 004f5400 · legions 004e7c20
+- [~] `CPartGroup::ApplyAtomCollection` · 004f5400 · legions 004e7c20 — ac2-render model.rs: mesh + material atoms; opacity atoms not applied (none in the DATs)
 - [ ] `CPartGroup::UpdatePartGroupFromPGDD` · 004f5540 · legions 004e7d30
 - [ ] `CPartGroup::ResetParentConnection` · 004f5590 · legions 004e7d80
 - [x] `CPartGroup::CheckRefreshMatrices` · 004f5660 · legions 004e7e50 — ac2-render object/skeleton.rs (render-side bones)
 - [ ] `CPartGroup::AddChild` · 004f5710 · legions 004e7f00
 - [ ] `CPartGroup::HandleResidualChildren` · 004f5770 · legions 004e7f60
-- [ ] `CPartGroup::BuildAndApplyAtomCollection` · 004f5910 · legions 004e8100
-- [ ] `CPartGroup::SubInit` · 004f5980 · legions 004e8170
-- [ ] `CPartGroup::Init` · 004f59f0 · legions 004e81e0
-- [ ] `CPartGroup::InitVisualDesc` · 004f5aa0 · legions 004e8290
+- [x] `CPartGroup::BuildAndApplyAtomCollection` · 004f5910 · legions 004e8100 — ac2-render object/model.rs load_object_model_with
+- [x] `CPartGroup::SubInit` · 004f5980 · legions 004e8170 — ac2-render object/model.rs load_object_model_with
+- [x] `CPartGroup::Init` · 004f59f0 · legions 004e81e0 — ac2-render object/model.rs load_object_model_with
+- [x] `CPartGroup::InitVisualDesc` · 004f5aa0 · legions 004e8290 — ac2-render object/model.rs load_object_model_with
 - [ ] `CPartGroup::CompareAndModify` · 004f5ac0 · legions 004e82b0
 - [ ] `CPartGroup::CompareAndModifyChildren` · 004f5b80 · legions 004e8370
 

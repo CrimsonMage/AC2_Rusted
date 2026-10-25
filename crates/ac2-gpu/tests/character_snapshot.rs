@@ -14,7 +14,8 @@ use ac2_gpu::{
 };
 use ac2_math::{Mat4, Vec3};
 use ac2_render::object::{
-    blend_vertex, load_object_model, ObjectEnvironment, ObjectModel, ObjectPose, RenderSettings,
+    blend_vertex, load_object_model, load_object_model_with, ObjectEnvironment, ObjectModel,
+    ObjectPose, RenderSettings,
 };
 use ac2_render::{load_material_image, load_texture_image, Camera, SceneLighting};
 
@@ -24,6 +25,10 @@ const HUMAN_MALE_VISUAL: u32 = 0x1F00_0023;
 const HUMAN_ANIM_MAP: u32 = 0x0300_0014;
 const STANCE: u32 = 0x8000_0012;
 const BACKGROUND: [f32; 3] = [1.0, 0.0, 1.0];
+/// An appearance table whose key 1 ramps the skin material (`m_materialType` 0x81000001) through
+/// modifiers by scalar.
+const SKIN_TABLE: u32 = 0x2000_0000;
+const SKIN_KEY: u32 = 1;
 
 fn write_png(name: &str, rgba: &[u8]) {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../target/ac2-snapshots");
@@ -173,4 +178,93 @@ fn human_draws_posed_through_the_gpu_blend() {
         (widths[1] as f32) < widths[0] as f32 * 0.8,
         "the stance lowers the T-pose arms: {widths:?}"
     );
+}
+
+/// Mean colour of the non-background pixels.
+fn body_colour(rgba: &[u8]) -> [f32; 3] {
+    let (mut sum, mut n) = ([0.0_f32; 3], 0.0_f32);
+    for px in rgba.chunks_exact(4) {
+        if !(px[0] > 250 && px[1] < 5 && px[2] > 250) {
+            for c in 0..3 {
+                sum[c] += f32::from(px[c]);
+            }
+            n += 1.0;
+        }
+    }
+    sum.map(|c| c / n.max(1.0))
+}
+
+#[test]
+fn human_skin_takes_the_appearance_tables_modifiers() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let Ok(gpu) = Gpu::headless() else {
+        eprintln!("no GPU adapter; skipping");
+        return;
+    };
+    let store = ResourceStore::new(dataset);
+    let settings = RenderSettings::default();
+    let mut local = ac2_weenie::Appearance {
+        parent: HUMAN_MALE_VISUAL,
+        ..ac2_weenie::Appearance::default()
+    };
+    local.global.appearance = vec![(SKIN_TABLE, vec![(SKIN_KEY, 0.5)])];
+    let bare = load_object_model(&store, DataId::new(HUMAN_MALE_VISUAL), &settings)
+        .unwrap()
+        .unwrap();
+    let skinned = load_object_model_with(
+        &store,
+        DataId::new(HUMAN_MALE_VISUAL),
+        Some(&local),
+        &settings,
+    )
+    .unwrap()
+    .unwrap();
+    let mut load = |key: TextureKey| match key {
+        TextureKey::Material(did) => load_material_image(&store, did).ok().flatten(),
+        TextureKey::Mask(did) | TextureKey::Texture(did) => {
+            load_texture_image(&store, did).ok().flatten()
+        }
+    };
+    let mut objects = ObjectRenderer::new(&gpu, COLOR_FORMAT);
+    let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
+    let aspect = SIZE.0 as f32 / SIZE.1 as f32;
+    let camera = Camera {
+        eye: Vec3::new(0.0, -4.5, 1.0),
+        target: Vec3::new(0.0, 0.0, 0.9),
+        fov_y: 0.6,
+        near: 0.1,
+        far: 100.0,
+    };
+    let mut colours = Vec::new();
+    for (name, model) in [
+        ("character_human_bare.png", &bare),
+        ("character_human_skin.png", &skinned),
+    ] {
+        let uploaded = objects.upload(&gpu, model, &mut load);
+        let instances = [ObjectInstance::new(&uploaded, Mat4::IDENTITY)];
+        objects.prepare(
+            &gpu,
+            &camera,
+            &ObjectEnvironment::outside(&SceneLighting::default()),
+            aspect,
+            0.0,
+            &[DrawGroup {
+                instances: &instances,
+                ordered: false,
+                environment: None,
+            }],
+        );
+        target.render(&gpu.device, &gpu.queue, BACKGROUND, |pass| {
+            objects.draw(pass, 0, &instances);
+        });
+        let rgba = target.read_rgba(&gpu.device, &gpu.queue);
+        write_png(name, &rgba);
+        let colour = body_colour(&rgba);
+        eprintln!("{name}: body colour {colour:.1?}");
+        colours.push(colour);
+    }
+    let differs = (0..3).any(|c| (colours[0][c] - colours[1][c]).abs() > 8.0);
+    assert!(differs, "the skin modifiers change the body: {colours:?}");
 }

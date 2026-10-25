@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 39 done, 14 partial, 610 to do, 122 skipped.
+785 retail functions: 65 done, 14 partial, 584 to do, 122 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (13/62)
@@ -802,7 +802,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CMeshGroup::Release` · 004d48e0 · legions 004c7420
 - [ ] `CMeshGroup::SpawnDynamicMesh` · 004d4920 · legions 004c7460
 
-## `portal/shared/src/mesh/meshinstance.cpp.c` (0/15)
+## `portal/shared/src/mesh/meshinstance.cpp.c` (2/15)
 
 ### CMeshInstance
 - [ ] `CMeshInstance::CMeshInstance` · 004cf840 · legions 004c3a10
@@ -812,14 +812,14 @@ Legend and workflow: [README](README.md).
 - [ ] `CMeshInstance::InitCellMesh` · 004cf8b0 · legions 004c3a80
 - [ ] `CMeshInstance::InitStaticMesh` · 004cf8e0 · legions 004c3ab0
 - [ ] `CMeshInstance::ReleaseMesh` · 004cf900 · legions 004c3ad0
-- [ ] `CMeshInstance::PerformMeshReplacement` · 004cf930 · legions 004c3b00
+- [x] `CMeshInstance::PerformMeshReplacement` · 004cf930 · legions 004c3b00 — ac2-render object/model.rs load_object_model_with
 - [ ] `CMeshInstance::DrawMesh` · 004cf9a0 · legions 004c3b70
 - [ ] `CMeshInstance::~CMeshInstance` · 004cf9f0 · legions 004c3bc0
 - [ ] `CMeshInstance::GetCellMesh` · 004cfa20 · legions 004c3bf0
 - [ ] `CMeshInstance::GetDynamicMesh` · 004cfa40 · legions 004c3c10
 - [ ] `CMeshInstance::RemoveMaterialModifiers` · 004cfa60 · legions 004c3c30
 - [ ] `CMeshInstance::MakeDynamic` · 004cfab0 · legions 004c3c80
-- [ ] `CMeshInstance::ApplyMaterialModifier` · 004cfb60 · legions 004c3d30
+- [x] `CMeshInstance::ApplyMaterialModifier` · 004cfb60 · legions 004c3d30 — ac2-render object/model.rs load_object_model_with
 
 ## `portal/shared/src/mesh/morphtargetdata.cpp.c` (0/5)
 
@@ -855,13 +855,13 @@ Legend and workflow: [README](README.md).
 - [-] `CVertexSetData::FromFileNode` · 004d4e90 — text source format (admin tools)
 - [ ] `CVertexSetData::CVertexSetData` · 004d4f60
 
-## `portal/shared/src/objdesc/appearance/appearanceinfo.cpp.c` (2/13)
+## `portal/shared/src/objdesc/appearance/appearanceinfo.cpp.c` (3/13)
 
 ### AppearanceInfo
 - [x] `AppearanceInfo::StreamPack` · 0064a5b0
 - [ ] `AppearanceInfo::GetAppliedAppKeyIter` · 0064a5e0 · legions 005f9c90
 - [ ] `AppearanceInfo::GetAppliedAppKeyEnd` · 0064a610 · legions 005f9cc0
-- [ ] `AppearanceInfo::AugmentAtomCollection` · 0064a630 · legions 005f9ce0
+- [x] `AppearanceInfo::AugmentAtomCollection` · 0064a630 · legions 005f9ce0 — ac2-render object/appearance.rs augment_atoms
 - [ ] `AppearanceInfo::RemoveAppearanceKey` · 0064a730 · legions 005f9dd0
 - [ ] `AppearanceInfo::HasAppliedAppKey` · 0064a760 · legions 005f9e00
 - [ ] `AppearanceInfo::operator=` · 0064a7c0 · legions 005f9e60
@@ -872,18 +872,18 @@ Legend and workflow: [README](README.md).
 - [ ] `AppearanceInfo::AppearanceInfo` · 0064aa60 · legions 005fa100
 - [ ] `AppearanceInfo::AppearanceInfo` · 0064aaa0 · legions 005fa140
 
-## `portal/shared/src/objdesc/appearance/appearancetable.cpp.c` (0/24)
+## `portal/shared/src/objdesc/appearance/appearancetable.cpp.c` (2/24)
 
 ### (free functions)
 - [ ] `STREAMPACK` · 00648cf0 · legions 00486a30
 
 ### AppearanceTable
-- [ ] `AppearanceTable::StreamPack` · 00648d80 · legions 005f8d00
+- [x] `AppearanceTable::StreamPack` · 00648d80 · legions 005f8d00 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 - [ ] `AppearanceTable::Destroy` · 00648f70 · legions 005f8f70
 - [-] `AppearanceTable::ToFileNode` · 00648f90 — text source format (admin tools)
 - [ ] `AppearanceTable::GetSubDataIDs` · 00649260
 - [ ] `AppearanceTable::AddBaseAppearanceDID` · 00649330
-- [ ] `AppearanceTable::GetAtoms` · 00649370 · legions 005f9060
+- [x] `AppearanceTable::GetAtoms` · 00649370 · legions 005f9060 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 - [ ] `AppearanceTable::HasAppearanceKey` · 00649470 · legions 005f9140
 - [ ] `AppearanceTable::InqAppearanceKeyModList` · 00649540 · legions 005f91f0
 - [ ] `AppearanceTable::InqTsysAppearanceKeyModCount` · 00649650 · legions 005f92e0
@@ -934,7 +934,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AppliedAppearanceKey::ValueFFN` · 006421f0 · legions 005f5a40
 - [-] `AppliedAppearanceKey::FromFileNode` · 00642260 · legions 005f5ab0 — text source format (admin tools)
 
-## `portal/shared/src/objdesc/appearance/atomcollection.cpp.c` (0/30)
+## `portal/shared/src/objdesc/appearance/atomcollection.cpp.c` (6/30)
 
 ### FXAtom
 - [ ] `FXAtom::FXAtom` · 00646840
@@ -953,9 +953,9 @@ Legend and workflow: [README](README.md).
 - [ ] `AtomCollection::AddOpacityAtom` · 006471d0
 - [ ] `AtomCollection::AddMeshReplacementAtom` · 00647200
 - [ ] `AtomCollection::AddPGDReplacementAtom` · 00647230
-- [ ] `AtomCollection::AddReplacementOpacityAtom` · 00647260 · legions 005f7a70
-- [ ] `AtomCollection::AddReplacementMeshReplacementAtom` · 00647320 · legions 005f7b30
-- [ ] `AtomCollection::AddReplacementPGDReplacementAtom` · 006473e0 · legions 005f7bf0
+- [x] `AtomCollection::AddReplacementOpacityAtom` · 00647260 · legions 005f7a70 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
+- [x] `AtomCollection::AddReplacementMeshReplacementAtom` · 00647320 · legions 005f7b30 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
+- [x] `AtomCollection::AddReplacementPGDReplacementAtom` · 006473e0 · legions 005f7bf0 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 
 ### PList<MaterialModifierAtom>
 - [ ] `PList<MaterialModifierAtom>::operator=` · 006474c0 · legions 005f7cd0
@@ -970,7 +970,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PList<PGDReplacementAtom>::operator=` · 00647580 · legions 005f7d90
 
 ### AtomCollection
-- [ ] `AtomCollection::AddReplacementMatModAtom` · 006475c0 · legions 005f7dd0
+- [x] `AtomCollection::AddReplacementMatModAtom` · 006475c0 · legions 005f7dd0 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 - [ ] `AtomCollection::Clear` · 006476e0 · legions 005f7ef0
 - [ ] `AtomCollection::AtomCollection` · 00647780
 
@@ -991,10 +991,10 @@ Legend and workflow: [README](README.md).
 
 ### AtomCollection
 - [ ] `AtomCollection::AtomCollection` · 00648990 · legions 005f89a0
-- [ ] `AtomCollection::UpdateAtomCollection` · 00648a80 · legions 005f8a90
-- [ ] `AtomCollection::StreamPack` · 00648c40 · legions 005f8c50
+- [x] `AtomCollection::UpdateAtomCollection` · 00648a80 · legions 005f8a90 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
+- [x] `AtomCollection::StreamPack` · 00648c40 · legions 005f8c50 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 
-## `portal/shared/src/objdesc/appearance/atoms.cpp.c` (0/43)
+## `portal/shared/src/objdesc/appearance/atoms.cpp.c` (6/43)
 
 ### MaterialModifierAtom
 - [ ] `MaterialModifierAtom::Clear` · 00642410 · legions 005f5c60
@@ -1004,17 +1004,17 @@ Legend and workflow: [README](README.md).
 
 ### OpacityAtom
 - [ ] `OpacityAtom::Clear` · 006424e0 · legions 005f5d30
-- [ ] `OpacityAtom::Replaces` · 006424f0 · legions 005f5d40
+- [x] `OpacityAtom::Replaces` · 006424f0 · legions 005f5d40 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 - [ ] `OpacityAtom::operator==` · 00642510 · legions 005f5d60
 
 ### MeshReplacementAtom
 - [ ] `MeshReplacementAtom::Clear` · 00642540 · legions 005f5d90
-- [ ] `MeshReplacementAtom::Replaces` · 00642550 · legions 005f5da0
+- [x] `MeshReplacementAtom::Replaces` · 00642550 · legions 005f5da0 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 - [ ] `MeshReplacementAtom::operator==` · 00642580 · legions 005f5dd0
 
 ### PGDReplacementAtom
 - [ ] `PGDReplacementAtom::Clear` · 006425b0 · legions 005f5e00
-- [ ] `PGDReplacementAtom::Replaces` · 006425c0 · legions 005f5e10
+- [x] `PGDReplacementAtom::Replaces` · 006425c0 · legions 005f5e10 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 - [ ] `PGDReplacementAtom::operator==` · 006425f0 · legions 005f5e40
 - [ ] `PGDReplacementAtom::GetSubDataIDs` · 00642620 · legions 005f5e70
 
@@ -1031,13 +1031,13 @@ Legend and workflow: [README](README.md).
 - [ ] `MaterialModifierAtom::StreamPack` · 00642710
 
 ### OpacityAtom
-- [ ] `OpacityAtom::StreamPack` · 00642790
+- [x] `OpacityAtom::StreamPack` · 00642790 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 
 ### MeshReplacementAtom
-- [ ] `MeshReplacementAtom::StreamPack` · 006427d0
+- [x] `MeshReplacementAtom::StreamPack` · 006427d0 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 
 ### PGDReplacementAtom
-- [ ] `PGDReplacementAtom::StreamPack` · 00642830 · legions 005f6030
+- [x] `PGDReplacementAtom::StreamPack` · 00642830 · legions 005f6030 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 
 ### FXAtom
 - [ ] `FXAtom::Replaces` · 00642870 · legions 005f6070
@@ -1085,7 +1085,7 @@ Legend and workflow: [README](README.md).
 ### FXAtom
 - [-] `FXAtom::FromFileNode` · 00643fa0 — text source format (admin tools)
 
-## `portal/shared/src/objdesc/appearance/partgroupdatadesc.cpp.c` (3/32)
+## `portal/shared/src/objdesc/appearance/partgroupdatadesc.cpp.c` (5/32)
 
 ### UIRegion
 - [ ] `UIRegion::SetZLevel_Internal` · 00644090 · legions 005f61b0
@@ -1099,7 +1099,7 @@ Legend and workflow: [README](README.md).
 ### PartGroupDataDesc
 - [ ] `PartGroupDataDesc::RemoveChild` · 00644100 · legions 005f6220
 - [x] `PartGroupDataDesc::IsConnPtEmpty` · 00644160 · legions 005f6280 — ac2-weenie appearance.rs
-- [ ] `PartGroupDataDesc::FindPGDDWithPartGroupKey` · 006441a0 · legions 005f62c0
+- [x] `PartGroupDataDesc::FindPGDDWithPartGroupKey` · 006441a0 · legions 005f62c0 — ac2-render object/appearance.rs over ac2_weenie::Appearance
 
 ### SmartArray<PartGroupDataDesc_*>
 - [ ] `SmartArray<PartGroupDataDesc_*>::RemoveNullsOrdered` · 00644210 · legions 005f6330
@@ -1111,7 +1111,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PartGroupDataDesc::HasFX` · 00644330 · legions 005f6450
 - [ ] `PartGroupDataDesc::GetPackBitfield` · 00644350 · legions 005f6470
 - [~] `PartGroupDataDesc::StreamPack` · 006443c0 · legions 005f64e0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
-- [ ] `PartGroupDataDesc::AugmentAtomCollection` · 00644510 · legions 005f6690
+- [x] `PartGroupDataDesc::AugmentAtomCollection` · 00644510 · legions 005f6690 — ac2-render object/appearance.rs augment_atoms
 - [ ] `PartGroupDataDesc::WriteAppearanceKeys` · 00644590
 - [ ] `PartGroupDataDesc::GetSubDataIDs` · 00644950 · legions 005f6710
 - [ ] `PartGroupDataDesc::Clear` · 00644a30 · legions 005f67c0
@@ -1135,11 +1135,11 @@ Legend and workflow: [README](README.md).
 - [ ] `PartGroupDataDesc::PartGroupDataDesc` · 006464f0 · legions 005f72c0
 - [ ] `PartGroupDataDesc::FillFXTable` · 006465d0 · legions 005f73a0
 
-## `portal/shared/src/objdesc/appearance/visualmodtable.cpp.c` (0/8)
+## `portal/shared/src/objdesc/appearance/visualmodtable.cpp.c` (2/8)
 
 ### VisualModTable
-- [ ] `VisualModTable::StreamPack` · 0064ac30
-- [ ] `VisualModTable::UpdateAtomCollection` · 0064ac60 · legions 005fa2c0
+- [x] `VisualModTable::StreamPack` · 0064ac30 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
+- [x] `VisualModTable::UpdateAtomCollection` · 0064ac60 · legions 005fa2c0 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 - [ ] `VisualModTable::GetSubDataIDs` · 0064aca0 · legions 005fa300
 - [-] `VisualModTable::ToFileNode` · 0064ace0 — text source format (admin tools)
 - [ ] `VisualModTable::GetAtomCollection` · 0064adc0
@@ -1214,7 +1214,7 @@ Legend and workflow: [README](README.md).
 - [x] `PhysicsDesc::StreamPack` · 00641530
 - [ ] `PhysicsDesc::PhysicsDesc` · 00641c70 · legions 005f5470
 
-## `portal/shared/src/objdesc/visualdesc.cpp.c` (3/58)
+## `portal/shared/src/objdesc/visualdesc.cpp.c` (8/58)
 
 ### VisualDesc
 - [ ] `VisualDesc::FillFXTable` · 0063c910 · legions 005f1440
@@ -1245,7 +1245,7 @@ Legend and workflow: [README](README.md).
 - [ ] `VisualDesc::ResetRootPointer` · 0063d310 · legions 005f1900
 - [ ] `VisualDesc::RemovePGDD` · 0063d3e0 · legions 005f19d0
 - [ ] `VisualDesc::ModVDesc_DeleteStragglers` · 0063d450 · legions 005f1a40
-- [ ] `VisualDesc::BuildAtomCollection` · 0063d680 · legions 005f1c70
+- [x] `VisualDesc::BuildAtomCollection` · 0063d680 · legions 005f1c70 — ac2-render object/appearance.rs over ac2_weenie::Appearance
 - [ ] `VisualDesc::GatherAppearanceKeys` · 0063d740 · legions 005f1d10
 - [~] `VisualDesc::StreamPack` · 0063d7f0 — part-group FX overrides (FXData/FXNode) refused as unsupported
 - [~] `VisualDesc::AddPGDDesc` · 0063db70 · legions 005f2140 — ac2-weenie appearance.rs (root by parent key 0)
@@ -1271,7 +1271,7 @@ Legend and workflow: [README](README.md).
 - [ ] `VisualDesc::GetDBOType` · 0063ed70
 - [ ] `VisualDesc::~VisualDesc` · 0063ed80 · legions 005f2d00
 - [x] `VisualDesc::operator=` · 0063ee10 · legions 005f2d90 — ac2-weenie Appearance::from_delta
-- [ ] `VisualDesc::GetTotalVisualDescInternal` · 0063ee40 · legions 005f2dc0
+- [x] `VisualDesc::GetTotalVisualDescInternal` · 0063ee40 · legions 005f2dc0 — ac2-render object/appearance.rs over ac2_weenie::Appearance
 - [ ] `VisualDesc::AddAppearanceKey` · 0063eee0 · legions 005f2e30
 - [ ] `VisualDesc::RemoveAppearanceKey` · 0063ef40 · legions 005f2e90
 - [ ] `VisualDesc::AttemptToRemoveVDesc` · 0063f070 · legions 005f2fa0
@@ -1297,9 +1297,9 @@ Legend and workflow: [README](README.md).
 - [ ] `HashTable<unsigned_long,PSmartArray<FXData>_>::operator=` · 0063f770 · legions 005f36a0
 
 ### VisualDesc
-- [ ] `VisualDesc::SwapPGDD` · 0063f880 · legions 005f37b0
-- [ ] `VisualDesc::ModifyPGDTreeBasedOnApr` · 0063f930 · legions 005f3860
-- [ ] `VisualDesc::GetTotalVisualDesc` · 0063f9c0 · legions 005f38f0
+- [x] `VisualDesc::SwapPGDD` · 0063f880 · legions 005f37b0 — ac2-render object/appearance.rs over ac2_weenie::Appearance
+- [x] `VisualDesc::ModifyPGDTreeBasedOnApr` · 0063f930 · legions 005f3860 — ac2-render object/appearance.rs over ac2_weenie::Appearance
+- [x] `VisualDesc::GetTotalVisualDesc` · 0063f9c0 · legions 005f38f0 — ac2-render object/appearance.rs over ac2_weenie::Appearance
 - [ ] `VisualDesc::GetTotalIconDesc` · 0063f9f0 · legions 005f3920
 
 ## `portal/shared/src/objdesc/weeniedesc.cpp.c` (2/2)

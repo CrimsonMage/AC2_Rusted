@@ -2,6 +2,7 @@
 //! selection and `RenderDeviceD3D::SetupState` per layer, the vertex program `fragment.dll` links
 //! for it, and the outdoor sun and ambient it is lit by.
 
+mod appearance;
 mod cell;
 mod lights;
 mod model;
@@ -16,11 +17,12 @@ mod skeleton_tests;
 mod texture_matrix;
 mod water;
 
+pub use appearance::{drawn_groups, resolve_drawn_groups, total_visual_desc, DrawnGroup};
 pub use cell::{bake_cell_colors, load_cell_model, CellLighting};
 pub use lights::{ObjectEnvironment, ObjectLights, SunLight};
 pub use model::{
-    load_object_model, ObjectBatch, ObjectMaterial, ObjectModel, ObjectPart, ObjectPose,
-    ObjectVertex,
+    load_object_model, load_object_model_with, ObjectBatch, ObjectMaterial, ObjectModel,
+    ObjectPart, ObjectPose, ObjectVertex,
 };
 pub use pass::{
     blend, layer_drawn, layer_pass, texture_matrices, LayerPass, ProgramFlags, RenderSettings,

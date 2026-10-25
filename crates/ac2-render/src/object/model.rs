@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use ac2_anim::{Ac2Setup, Ac2Transform};
-use ac2_assets::{load_ac2_material, resolve_ac2_visual_groups, Ac2MaterialLayer, Ac2Mesh};
+use ac2_assets::{load_ac2_material_with_atoms, Ac2Atoms, Ac2MaterialLayer, Ac2Mesh};
 use ac2_core::DataId;
 use ac2_dat::DatFileKind;
 use ac2_db::{
@@ -13,9 +13,11 @@ use ac2_db::{
 };
 use ac2_math::Mat4;
 
+use super::appearance::resolve_drawn_groups;
 use super::pass::{layer_drawn, layer_pass, LayerPass, RenderSettings};
 use super::pixel_shader::{parse_pixel_shader, PixelProgram};
 use super::skeleton::{ObjectSkeleton, SkeletonGroup};
+use ac2_weenie::Appearance;
 
 /// One vertex as the vertex programs read it (`v0` position, `v1` normal, `v2` diffuse,
 /// `v6..` texture coordinate sets).
@@ -158,55 +160,73 @@ impl ObjectModel {
     }
 }
 
-/// Loads `visual` (a `VisualDesc` or `CSetup`) with the layers `settings` draws: every part group
-/// of the visual (`CPartGroup`), each Setup mesh at its default placement. `None` when it names no
-/// mesh with a drawn layer.
+/// Loads `visual` (a `VisualDesc` or `CSetup`) with the layers `settings` draws, as
+/// [`load_object_model_with`] without a local description.
 pub fn load_object_model(
     store: &ResourceStore,
     visual: DataId,
     settings: &RenderSettings,
 ) -> ResourceResult<Option<ObjectModel>> {
-    let mut materials = HashMap::<DataId, Option<Arc<ObjectMaterial>>>::new();
+    load_object_model_with(store, visual, None, settings)
+}
+
+/// Loads what an object draws: the part groups of its total `VisualDesc` (`visual`'s DAT chain,
+/// or `local`'s parent chain with `local` on top; `appearance::resolve_drawn_groups`), each Setup
+/// mesh at its default placement after the group's mesh replacements
+/// (`CPartArray::ApplyMeshReplacement`), its materials under the group's material atoms
+/// (`CPartArray::ApplyMaterialModifier`), with the layers `settings` draws. `None` when a group
+/// fails to build (`CPartGroup::Init`) or nothing has a drawn layer.
+pub fn load_object_model_with(
+    store: &ResourceStore,
+    visual: DataId,
+    local: Option<&Appearance>,
+    settings: &RenderSettings,
+) -> ResourceResult<Option<ObjectModel>> {
+    let Some(groups) = resolve_drawn_groups(store, visual, local)? else {
+        return Ok(None);
+    };
+    let mut materials = HashMap::<(DataId, u32, usize), Option<Arc<ObjectMaterial>>>::new();
     let mut skeleton = ObjectSkeleton::default();
     let mut setups: Vec<CachedResource<Ac2Setup>> = Vec::new();
     let mut meshes = Vec::new();
-    // Skeleton index of each resolved group that loaded.
-    let mut kept: Vec<Option<usize>> = Vec::new();
-    for group in resolve_ac2_visual_groups(store, visual)? {
+    for (group_index, group) in groups.iter().enumerate() {
+        // `CPartArray::SetSetupID` fails the build without its Setup.
         let Some(setup) = load::<Ac2Setup>(store, group.setup)? else {
-            kept.push(None);
-            continue;
+            return Ok(None);
         };
         let mut group_meshes = Vec::with_capacity(setup.meshes.len());
         for (index, mesh_did) in setup.meshes.iter().enumerate() {
-            if let Some(mesh) = load::<Ac2Mesh>(store, *mesh_did)? {
-                group_meshes.push((index, *mesh_did, mesh));
+            if let Some((did, mesh)) = replaced_mesh(store, *mesh_did, &group.atoms)? {
+                group_meshes.push((index, did, mesh));
             }
         }
         // `CPartArray::CacheHasMatrixWeights`.
         let weighted = group_meshes.iter().any(|(_, _, mesh)| mesh.skin.is_some());
-        // A group whose parent's Setup failed to load is not drawn.
         let parent = match group.parent {
             None => None,
-            Some((parent, connection)) => match kept.get(parent).copied().flatten() {
-                Some(parent) => Some((parent, &*setups[parent], connection)),
-                None => {
-                    kept.push(None);
-                    continue;
+            Some((parent, connection)) => {
+                // `CPartGroup::AddChild` fails without the parent's connection point
+                // (`ResetParentConnection` / `SetParentOffset`).
+                let parent_setup = &*setups[parent];
+                let attached = parent_setup
+                    .connection_point(connection)
+                    .is_some_and(|point| point.bone < parent_setup.bones.len());
+                if !attached {
+                    return Ok(None);
                 }
-            },
+                Some((parent, parent_setup, connection))
+            }
         };
-        let index = skeleton.groups.len();
-        kept.push(Some(index));
         skeleton
             .groups
             .push(SkeletonGroup::new(group.setup, &setup, weighted, parent));
         setups.push(setup);
-        meshes.push((index, group_meshes));
+        meshes.push((group_index, group_meshes));
     }
     let rest = skeleton.pose(None);
     let mut parts = Vec::new();
     for (group, group_meshes) in meshes {
+        let atoms = &groups[group].atoms.materials;
         for (index, mesh_did, mesh) in group_meshes {
             let degrade = mesh.highest_detail_degrade();
             let mut batches = Vec::new();
@@ -215,19 +235,30 @@ pub fn load_object_model(
                 else {
                     continue;
                 };
-                let material = match materials.get(&material_did) {
+                // Materials depend on the group's atoms and the mesh type they select by.
+                let key = (
+                    material_did,
+                    mesh.mesh_type,
+                    if atoms.is_empty() { 0 } else { group },
+                );
+                let material = match materials.get(&key) {
                     Some(material) => material.clone(),
                     None => {
-                        let material =
-                            load_ac2_material(store, material_did)?.and_then(|material| {
-                                let layers: Vec<_> = material
-                                    .layers
-                                    .into_iter()
-                                    .filter(|layer| layer_drawn(layer, settings))
-                                    .collect();
-                                (!layers.is_empty()).then(|| Arc::new(ObjectMaterial::new(layers)))
-                            });
-                        materials.insert(material_did, material.clone());
+                        let material = load_ac2_material_with_atoms(
+                            store,
+                            material_did,
+                            mesh.mesh_type,
+                            atoms,
+                        )?
+                        .and_then(|material| {
+                            let layers: Vec<_> = material
+                                .layers
+                                .into_iter()
+                                .filter(|layer| layer_drawn(layer, settings))
+                                .collect();
+                            (!layers.is_empty()).then(|| Arc::new(ObjectMaterial::new(layers)))
+                        });
+                        materials.insert(key, material.clone());
                         material
                     }
                 };
@@ -256,6 +287,30 @@ pub fn load_object_model(
         parts,
         skeleton: Some(Arc::new(skeleton)),
     }))
+}
+
+/// `CMeshInstance::PerformMeshReplacement` for each mesh atom in order: an atom of category 1, or
+/// of the current mesh's `mesh_type`, swaps the mesh (category 0 never does). `None` when the
+/// final mesh does not load.
+fn replaced_mesh(
+    store: &ResourceStore,
+    mesh_did: DataId,
+    atoms: &Ac2Atoms,
+) -> ResourceResult<Option<(DataId, CachedResource<Ac2Mesh>)>> {
+    let mut did = mesh_did;
+    let Some(mut mesh) = load::<Ac2Mesh>(store, did)? else {
+        return Ok(None);
+    };
+    for atom in &atoms.meshes {
+        if atom.mesh_type != 0 && (atom.mesh_type == 1 || atom.mesh_type == mesh.mesh_type) {
+            did = atom.mesh;
+            let Some(next) = load::<Ac2Mesh>(store, did)? else {
+                return Ok(None);
+            };
+            mesh = next;
+        }
+    }
+    Ok(Some((did, mesh)))
 }
 
 fn load<T: ResourcePackedDecode + Send + Sync + 'static>(

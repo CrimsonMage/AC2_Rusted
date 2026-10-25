@@ -243,3 +243,42 @@ fn human_stance_animation_poses_the_skinned_body() {
         "arms leave the bind T-pose"
     );
 }
+
+#[test]
+fn every_appearance_table_decodes_all_its_atom_kinds() {
+    let Some((dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    let tables = dataset
+        .ids_in_range(DatFileKind::Portal, 0x2000_0000, 0x20FF_FFFF)
+        .collect::<Vec<_>>();
+    assert!(!tables.is_empty());
+    let mut kinds = [0_usize; 4];
+    for did in &tables {
+        let table =
+            store
+                .load_cached_packed::<crate::ac2_appearance::Ac2AppearanceTable>(
+                    TypedResourceRef::new(DatFileKind::Portal, DataId::new(*did), 0),
+                )
+                .unwrap_or_else(|error| panic!("AppearanceTable {did:08X}: {error}"))
+                .expect("listed record exists");
+        for (_, atoms) in table.atoms.values().flatten() {
+            kinds[0] += atoms.materials.len();
+            kinds[1] += atoms.opacities.len();
+            kinds[2] += atoms.meshes.len();
+            kinds[3] += atoms.part_groups.len();
+        }
+    }
+    eprintln!(
+        "{} tables: {} material, {} opacity, {} mesh, {} part-group atoms",
+        tables.len(),
+        kinds[0],
+        kinds[1],
+        kinds[2],
+        kinds[3]
+    );
+    assert!(
+        kinds[0] > 0 && kinds[2] > 0,
+        "characters swap meshes and materials"
+    );
+}

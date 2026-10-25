@@ -30,6 +30,8 @@ pub struct Ac2MeshFragment {
 /// Decoded AC2 mesh in its own model space.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ac2Mesh {
+    /// `CGfxObj::mesh_type`: the category appearance atoms select meshes by.
+    pub mesh_type: u32,
     pub materials: Arc<[DataId]>,
     /// The `CVertexArray` format word (`VertexFormatInfo`).
     pub vertex_format: u32,
@@ -81,7 +83,7 @@ impl ResourcePackedDecode for Ac2Mesh {
         if cursor.read_u32()? != qdid.data_id().raw() {
             return Err(malformed("embedded DID did not match DAT identity"));
         }
-        let _mesh_type = cursor.read_u32()?;
+        let mesh_type = cursor.read_u32()?;
         let material_count = count(&mut cursor, 4).ok_or_else(|| malformed("material count"))?;
         let materials = cursor
             .read_u32_items(material_count)?
@@ -156,6 +158,7 @@ impl ResourcePackedDecode for Ac2Mesh {
             }
         }
         Ok(Self {
+            mesh_type,
             materials,
             vertex_format,
             vertices: Arc::from(vertices),

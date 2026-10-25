@@ -60,8 +60,9 @@ pub(crate) use texture_dxt::BlockCompressedTexture;
 pub use texture_dxt::{decode_block_compressed_texture, BlockCompressedTextureFormat};
 
 pub use ac2_appearance::{
-    ac2_appearance_material_atoms, ac2_dungeon_appearance_table, load_ac2_material_with_atoms,
-    Ac2MaterialAtom,
+    ac2_appearance_atoms, ac2_appearance_material_atoms, ac2_dungeon_appearance_table,
+    load_ac2_material_with_atoms, Ac2Atoms, Ac2MaterialAtom, Ac2MeshAtom, Ac2OpacityAtom,
+    Ac2PartGroupAtom,
 };
 pub use ac2_cell_surface::decode_ac2_cell_surfaces;
 pub use ac2_entity::{read_ac2_entity_desc, Ac2EntityDesc};
@@ -83,4 +84,5 @@ pub use ac2_static_model::{
 };
 pub use ac2_terrain::{ac2_mipmapped_clamped_texture, compose_ac2_vertex_blended_terrain_texture};
 pub use ac2_texture::{load_ac2_texture_asset, resolve_ac2_material_texture_chain};
+pub use ac2_visual_desc::{Ac2AppearanceHash, Ac2PartGroup, Ac2VisualDesc, Ac2VisualFx};
 pub use ac2_visual_particles::{resolve_ac2_visual_particles, Ac2VisualParticles};

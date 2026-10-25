@@ -1,18 +1,17 @@
-//! Asheron's Call 2 appearance material atoms: the `AppearanceTable` (`0x20`) entries that
-//! retexture a mesh's material instances, and material resolution under those atoms.
+//! Asheron's Call 2 appearance atoms: the `AppearanceTable` (`0x20`) entries that swap meshes and
+//! part groups, set opacity and retexture a mesh's material instances, and material resolution
+//! under those atoms.
 //!
 //! `AppearanceTable::StreamPack`: DID, counted base-table DIDs, then a
 //! `PHashTable<key, VisualModTable>` (entry count in the low half of its header word) whose
-//! tables are counted `AtomCollection`s (`AtomCollection::StreamPack`:
-//! intensity, then the material-modifier, opacity, mesh, part-group, FX and icon atom lists),
-//! then the threshold-count hash. `AppearanceTable::GetAtoms` merges base tables first,
-//! then the last collection whose intensity does not exceed the applied scalar
-//! (`VisualModTable::UpdateAtomCollection`), through `AddReplacementMatModAtom`.
-//! `CDynamicMesh::ApplyMaterialModifier` then gives every material
-//! instance whose `m_materialType` matches the atom its template and appends its modifier.
-//!
-//! Only material-modifier atoms are decoded: tables carrying any other atom kind are rejected.
-//! The dungeon table, the one `CEnvCell` applies, carries only material modifiers.
+//! tables are counted `AtomCollection`s (`AtomCollection::StreamPack`: intensity, then the
+//! material-modifier, opacity, mesh-replacement and part-group-replacement atom lists, the FX atom
+//! set and the icon atom list), then the threshold-count hash. `AppearanceTable::GetAtoms` merges
+//! base tables first, then the last collection whose intensity does not exceed the applied scalar
+//! (`VisualModTable::UpdateAtomCollection`, through the `AddReplacement*Atom` rules).
+//! `CDynamicMesh::ApplyMaterialModifier` then gives every material instance whose
+//! `m_materialType` matches the atom its template and appends its modifier. FX and icon atoms are
+//! decoded past and dropped.
 
 use std::collections::HashMap;
 
@@ -24,8 +23,10 @@ use ac2_db::{
     ResourceTypeId, TypedResourceRef,
 };
 
+use crate::ac2_fx::{count as fx_count, float, read_fx_data, skip, word, Malformed};
 use crate::ac2_material::{Ac2MaterialInstance, Ac2MaterialModifier, Ac2RenderMaterial};
 use crate::ac2_material_instance::apply_modifier;
+use crate::ac2_visual_desc::{part_group, Ac2AppearanceHash, Ac2PartGroup};
 
 /// `EnumIDMap` of enum-mapper groups (`DBCache::GetDIDFromEnumStatic`).
 const ENUM_GROUP_MAP_DID: DataId = DataId::new(0x2800_0000);
@@ -36,6 +37,8 @@ const APPEARANCE_TABLE_PREFIX: u32 = 0x2000_0000;
 const MATERIAL_INSTANCE_PREFIX: u32 = 0x3100_0000;
 /// Atom mesh/material type that matches every mesh or material.
 const ANY_TYPE: u32 = 1;
+/// `OpacityAtom::Clear`'s marker: the opacity is the applied scalar.
+const OPACITY_FROM_SCALAR: f32 = -999.0;
 const MAX_ITEMS: usize = 1 << 16;
 const MAX_BASE_DEPTH: usize = 8;
 
@@ -58,11 +61,164 @@ impl Ac2MaterialAtom {
     }
 }
 
+/// One `OpacityAtom`.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Ac2OpacityAtom {
+    pub priority: f32,
+    pub opacity: f32,
+}
+
+/// One `MeshReplacementAtom`: meshes of `mesh_type` (1: every mesh) become `mesh`.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Ac2MeshAtom {
+    pub priority: f32,
+    pub mesh_type: u32,
+    pub mesh: DataId,
+}
+
+/// One `PGDReplacementAtom`: the part group it swaps in.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Ac2PartGroupAtom {
+    pub priority: f32,
+    pub group: Ac2PartGroup,
+    pub appearance: Ac2AppearanceHash,
+}
+
+/// The atoms an `AtomCollection` gathers, in application order.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Ac2Atoms {
+    pub materials: Vec<Ac2MaterialAtom>,
+    pub opacities: Vec<Ac2OpacityAtom>,
+    pub meshes: Vec<Ac2MeshAtom>,
+    pub part_groups: Vec<Ac2PartGroupAtom>,
+}
+
+/// `AddReplacementOpacityAtom` / `AddReplacementMeshReplacementAtom` /
+/// `AddReplacementPGDReplacementAtom`: the first held atom the new one replaces takes its value; a
+/// held atom that replaces it drops it; an identical one fails the collection; otherwise it joins.
+fn add_replacing<T: Clone + PartialEq>(
+    list: &mut Vec<T>,
+    atom: &T,
+    replaces: impl Fn(&T, &T) -> bool,
+) -> bool {
+    for held in list.iter_mut() {
+        if replaces(atom, held) {
+            *held = atom.clone();
+            return true;
+        }
+        if replaces(held, atom) {
+            return true;
+        }
+    }
+    if list.contains(atom) {
+        return false;
+    }
+    list.push(atom.clone());
+    true
+}
+
+impl Ac2Atoms {
+    /// `AtomCollection::AddReplacementMatModAtom`: a held atom that replaces the new one drops
+    /// it; otherwise every held atom it replaces is removed, and it joins unless already held.
+    fn add_material(&mut self, atom: &Ac2MaterialAtom) -> bool {
+        if self.materials.iter().any(|held| held.replaces(atom)) {
+            return true;
+        }
+        self.materials.retain(|held| !atom.replaces(held));
+        if self.materials.contains(atom) {
+            return false;
+        }
+        self.materials.push(*atom);
+        true
+    }
+
+    /// `AtomCollection::UpdateAtomCollection` of `collection` at `intensity`: every kind but the
+    /// part-group swaps, or only those. Stops at the first atom a rule refuses.
+    fn update(&mut self, collection: &Ac2Atoms, intensity: f32, only_part_groups: bool) -> bool {
+        if only_part_groups {
+            return collection.part_groups.iter().all(|atom| {
+                add_replacing(&mut self.part_groups, atom, |a, b| {
+                    a.group.key == b.group.key && b.priority <= a.priority
+                })
+            });
+        }
+        for atom in &collection.materials {
+            if !self.add_material(atom) {
+                return false;
+            }
+        }
+        for atom in &collection.opacities {
+            let mut atom = *atom;
+            if atom.opacity == OPACITY_FROM_SCALAR {
+                atom.opacity = intensity;
+            }
+            if !add_replacing(&mut self.opacities, &atom, |a, b| b.priority <= a.priority) {
+                return false;
+            }
+        }
+        collection.meshes.iter().all(|atom| {
+            add_replacing(&mut self.meshes, atom, |a, b| {
+                a.mesh_type == b.mesh_type && b.priority <= a.priority
+            })
+        })
+    }
+}
+
 #[derive(Debug)]
-struct Ac2AppearanceTable {
-    base: Vec<DataId>,
-    /// Appearance key -> (intensity, material atoms) collections in stream order.
-    atoms: HashMap<u32, Vec<(f32, Vec<Ac2MaterialAtom>)>>,
+pub(crate) struct Ac2AppearanceTable {
+    pub(crate) base: Vec<DataId>,
+    /// Appearance key -> (intensity, atoms) collections in stream order.
+    pub(crate) atoms: HashMap<u32, Vec<(f32, Ac2Atoms)>>,
+}
+
+/// `AtomCollection::StreamPack`.
+fn read_collection(cursor: &mut ArchiveCursor<'_>) -> Result<(f32, Ac2Atoms), Malformed> {
+    let intensity = float(cursor)?;
+    let mut atoms = Ac2Atoms::default();
+    let did = |word: u32| Some(DataId::new(word)).filter(|did| !did.is_null());
+    for _ in 0..fx_count(cursor, 20)? {
+        atoms.materials.push(Ac2MaterialAtom {
+            priority: float(cursor)?,
+            template: did(word(cursor)?),
+            modifier: did(word(cursor)?),
+            mesh_type: word(cursor)?,
+            material_type: word(cursor)?,
+        });
+    }
+    for _ in 0..fx_count(cursor, 8)? {
+        atoms.opacities.push(Ac2OpacityAtom {
+            priority: float(cursor)?,
+            opacity: float(cursor)?,
+        });
+    }
+    for _ in 0..fx_count(cursor, 12)? {
+        atoms.meshes.push(Ac2MeshAtom {
+            priority: float(cursor)?,
+            mesh_type: word(cursor)?,
+            mesh: DataId::new(word(cursor)?),
+        });
+    }
+    for _ in 0..fx_count(cursor, 8)? {
+        let priority = float(cursor)?;
+        let decoded = part_group(cursor)?;
+        atoms.part_groups.push(Ac2PartGroupAtom {
+            priority,
+            group: decoded.group,
+            appearance: decoded.appearance,
+        });
+    }
+    // `STREAMPACK_STL_SET` of `FXAtom`s: their FX ids, then their `FXData`.
+    for _ in 0..fx_count(cursor, 8)? {
+        let ids = fx_count(cursor, 4)?;
+        skip(cursor, ids * 4)?;
+        for _ in 0..fx_count(cursor, 8)? {
+            read_fx_data(cursor)?;
+        }
+    }
+    // `IconModAtom`s: an `IconLayerDesc` each (layer id, image DID, shift colour).
+    let icons = fx_count(cursor, 12)?;
+    skip(cursor, icons * 12)?;
+    Ok((intensity, atoms))
 }
 
 impl ResourcePackedDecode for Ac2AppearanceTable {
@@ -90,29 +246,10 @@ impl ResourcePackedDecode for Ac2AppearanceTable {
         let mut atoms = HashMap::with_capacity(entries);
         for _ in 0..entries {
             let key = cursor.read_u32()?;
-            let mut collections = Vec::new();
-            for _ in 0..count(&mut cursor, 28)? {
-                let intensity = cursor.read_f32()?;
-                let mut list = Vec::new();
-                for _ in 0..count(&mut cursor, 20)? {
-                    let priority = cursor.read_f32()?;
-                    let did = |word: u32| Some(DataId::new(word)).filter(|did| !did.is_null());
-                    list.push(Ac2MaterialAtom {
-                        priority,
-                        template: did(cursor.read_u32()?),
-                        modifier: did(cursor.read_u32()?),
-                        mesh_type: cursor.read_u32()?,
-                        material_type: cursor.read_u32()?,
-                    });
-                }
-                // Opacity, mesh, part-group, FX and icon atom lists.
-                for _ in 0..5 {
-                    if cursor.read_u32()? != 0 {
-                        return Err(malformed("appearance atoms other than material modifiers"));
-                    }
-                }
-                collections.push((intensity, list));
-            }
+            let collections = (0..count(&mut cursor, 28)?)
+                .map(|_| read_collection(&mut cursor))
+                .collect::<Result<Vec<_>, _>>()
+                .map_err(malformed)?;
             atoms.insert(key, collections);
         }
         let thresholds = (cursor.read_u32()? & 0xFFFF) as usize;
@@ -130,7 +267,12 @@ impl ResourcePackedDecode for Ac2AppearanceTable {
                 .atoms
                 .values()
                 .flatten()
-                .map(|(_, list)| 8 + list.len() * std::mem::size_of::<Ac2MaterialAtom>())
+                .map(|(_, atoms)| {
+                    40 + atoms.materials.len() * std::mem::size_of::<Ac2MaterialAtom>()
+                        + atoms.opacities.len() * 8
+                        + atoms.meshes.len() * 12
+                        + atoms.part_groups.len() * 96
+                })
                 .sum::<usize>()
     }
 }
@@ -218,9 +360,23 @@ pub fn ac2_appearance_material_atoms(
     key: u32,
     scalar: f32,
 ) -> ResourceResult<Vec<Ac2MaterialAtom>> {
-    let mut atoms = Vec::new();
-    collect_atoms(store, table, key, scalar, &mut atoms, 0)?;
-    Ok(atoms)
+    let mut atoms = Ac2Atoms::default();
+    ac2_appearance_atoms(store, table, key, scalar, false, &mut atoms)?;
+    Ok(atoms.materials)
+}
+
+/// `AppearanceTable::GetAtoms(applied key, atoms, onlyGetPGDatoms)`: the base tables' atoms
+/// first, then the table's own collection for `scalar`, merged into `atoms`. A missing table
+/// adds nothing.
+pub fn ac2_appearance_atoms(
+    store: &ResourceStore,
+    table: DataId,
+    key: u32,
+    scalar: f32,
+    only_part_groups: bool,
+    atoms: &mut Ac2Atoms,
+) -> ResourceResult<()> {
+    collect_atoms(store, table, key, scalar, only_part_groups, atoms, 0)
 }
 
 fn collect_atoms(
@@ -228,7 +384,8 @@ fn collect_atoms(
     table: DataId,
     key: u32,
     scalar: f32,
-    atoms: &mut Vec<Ac2MaterialAtom>,
+    only_part_groups: bool,
+    atoms: &mut Ac2Atoms,
     depth: usize,
 ) -> ResourceResult<()> {
     if depth > MAX_BASE_DEPTH {
@@ -238,23 +395,27 @@ fn collect_atoms(
         return Ok(());
     };
     for base in &table.base {
-        collect_atoms(store, *base, key, scalar, atoms, depth + 1)?;
+        collect_atoms(
+            store,
+            *base,
+            key,
+            scalar,
+            only_part_groups,
+            atoms,
+            depth + 1,
+        )?;
     }
     let Some(collections) = table.atoms.get(&key) else {
         return Ok(());
     };
-    let chosen = collections
+    // `VisualModTable::UpdateAtomCollection`: the last collection whose intensity the scalar
+    // reaches.
+    if let Some((_, chosen)) = collections
         .iter()
         .take_while(|(intensity, _)| scalar >= *intensity)
-        .last();
-    for atom in chosen.map(|(_, list)| list.as_slice()).unwrap_or(&[]) {
-        if atoms.iter().any(|existing| existing.replaces(atom)) {
-            continue;
-        }
-        atoms.retain(|existing| !atom.replaces(existing));
-        if !atoms.contains(atom) {
-            atoms.push(*atom);
-        }
+        .last()
+    {
+        atoms.update(chosen, scalar, only_part_groups);
     }
     Ok(())
 }
