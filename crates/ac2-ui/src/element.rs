@@ -17,7 +17,7 @@
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::sync::Arc;
 
-use crate::layout::{AttributeDesc, AttributeValue, ElementDesc, LayoutDesc, MediaDesc, StateDesc};
+use crate::layout::{AttributeDesc, AttributeValue, ElementDesc, LayoutDesc, StateDesc};
 use crate::mouse::UiMessage;
 use crate::text::{TextState, UiTextData};
 use crate::token::{HIDE, MOUSE_INVISIBLE, REFERENCE, REFERENT, ROOT_MOVER, STATELESS, TEXT};
@@ -65,6 +65,18 @@ pub struct UiImage {
     pub draw_mode: u32,
 }
 
+/// A root's surface object on the screen: its position, rotation about its centre in degrees,
+/// whether it is shown, and its material opacity.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct UiPlacement {
+    pub root: usize,
+    pub x: i32,
+    pub y: i32,
+    pub rotation: i32,
+    pub shown: bool,
+    pub opacity: f32,
+}
+
 /// One element.
 #[derive(Debug, Clone)]
 pub struct UiElement {
@@ -110,8 +122,17 @@ pub struct UiElement {
     /// visibility) and rotated about its centre in degrees (`UISurfaceObject::SetRotateVals`).
     pub(crate) shown: bool,
     pub(crate) rotation: i32,
-    media_state: Option<(Arc<ElementDesc>, usize)>,
-    media_index: usize,
+    /// `mediaState` (the description and state whose media run) and `m_curMediaIndex`.
+    pub(crate) media_state: Option<(Arc<ElementDesc>, usize)>,
+    pub(crate) media_index: i32,
+    /// `m_transitionArray`, `m_transition_state`, `m_transition_close`.
+    pub(crate) transitions: Vec<crate::transition::ActiveTransition>,
+    pub(crate) transition_state: u32,
+    pub(crate) transition_close: bool,
+    /// A root's surface object's material opacity (`UISurfaceObject::SetMaterialOpacity`).
+    pub(crate) opacity: f32,
+    /// `m_cursorDID`, `m_cursorHotX`, `m_cursorHotY`.
+    pub(crate) cursor: (u32, i32, i32),
     latest_update: u32,
     created_by_layout: bool,
 }
@@ -171,6 +192,15 @@ pub struct UiTree {
     pub(crate) active: Option<usize>,
     /// `Timer::cur_time` of the last global loop, in seconds.
     pub(crate) time: f64,
+    /// `Random::rand`'s state for the media's rolls.
+    pub(crate) random: ac2_core::Random,
+    /// The media items' timers, shared by every element that runs the same description.
+    pub(crate) media_clocks: std::collections::HashMap<usize, crate::media::MediaClock>,
+    /// Sounds the media played since the last [`UiTree::take_sounds`].
+    pub(crate) sounds: Vec<u32>,
+    /// `UIElementManager`'s cursor: the last set and the default.
+    pub(crate) cursor: Option<(u32, i32, i32)>,
+    pub(crate) default_cursor: Option<(u32, i32, i32)>,
 }
 
 /// The index of `desc`'s state `id`.
@@ -218,6 +248,11 @@ impl UiTree {
             moved: true,
             active: None,
             time: 0.0,
+            random: ac2_core::Random::default(),
+            media_clocks: std::collections::HashMap::new(),
+            sounds: Vec::new(),
+            cursor: None,
+            default_cursor: None,
         }
     }
 
@@ -363,6 +398,11 @@ impl UiTree {
             rotation: 0,
             media_state: None,
             media_index: 0,
+            transitions: Vec::new(),
+            transition_state: 0,
+            transition_close: false,
+            opacity: 1.0,
+            cursor: (0, 0, 0),
             latest_update: self.update_count,
             created_by_layout: false,
         });
@@ -422,12 +462,19 @@ impl UiTree {
 
     /// Every root's surface object placement, in the order [`UiTree::compose`] returns them:
     /// (root, x, y, rotation, shown).
-    pub fn placements(&self) -> Vec<(usize, i32, i32, i32, bool)> {
+    pub fn placements(&self) -> Vec<UiPlacement> {
         self.composed_roots()
             .map(|root| {
                 let el = self.el(root);
                 let (x, y) = el.object.unwrap_or((0, 0));
-                (root, x, y, el.rotation, el.shown)
+                UiPlacement {
+                    root,
+                    x,
+                    y,
+                    rotation: el.rotation,
+                    shown: el.shown,
+                    opacity: el.opacity,
+                }
             })
             .collect()
     }
@@ -505,15 +552,14 @@ impl UiTree {
 
     /// `UIElement::SetState`; a meter lays its fills out again (`UIElement_Meter::SetState`).
     pub fn set_state(&mut self, index: usize, state: u32) {
-        self.element_set_state(index, state);
+        self.button_set_state(index, state);
+        self.transition_set_state(index, state);
         self.meter_update_layout(index);
     }
 
-    fn element_set_state(&mut self, index: usize, state: u32) {
-        self.button_set_state(index, state);
-        if state == self.el(index).state {
-            return;
-        }
+    /// `UIElement::SetState`'s change once no exit transition holds it: the state's attributes,
+    /// its media, its children, a flagged state passed on to the children.
+    pub(crate) fn enter_state(&mut self, index: usize, state: u32) {
         let (reference, desc) = {
             let el = self.el(index);
             (Arc::clone(&el.reference), Arc::clone(&el.desc))
@@ -542,36 +588,6 @@ impl UiTree {
         }
     }
 
-    /// `UIElement::ResetMedia`: the media of the current state, else the stateless state's, else
-    /// (for a reference) the reference's current then stateless state's; then runs them.
-    fn reset_media(&mut self, index: usize) {
-        let el = self.el(index);
-        let pick = |desc: &Arc<ElementDesc>, id: u32| {
-            desc.states
-                .iter()
-                .position(|s| s.id == id && !s.media.is_empty())
-                .map(|i| (Arc::clone(desc), i))
-        };
-        let state = el.state;
-        let current = (state != STATELESS)
-            .then(|| pick(&el.desc, state))
-            .flatten();
-        let media = current.or_else(|| pick(&el.desc, STATELESS)).or_else(|| {
-            if Arc::ptr_eq(&el.reference, &el.desc) {
-                return None;
-            }
-            (state != STATELESS)
-                .then(|| pick(&el.reference, state))
-                .flatten()
-                .or_else(|| pick(&el.reference, STATELESS))
-        });
-        let el = self.el_mut(index);
-        el.media_state = media;
-        el.media_index = 0;
-        self.update_media(index);
-    }
-
-    /// `UIElement::UpdateMedia` at the run's start: media in order until one waits.
     /// `UIElement::SetImage`: the image and, while unset, `m_alphaValue` from `alpha_value`
     /// (retail reads the attribute into the draw mode's own slot, so without the attribute the
     /// value becomes the draw mode's bits as a float: no alpha).
@@ -585,46 +601,7 @@ impl UiTree {
             el.alpha_value = alpha;
         }
         el.image = Some(UiImage { file, draw_mode });
-    }
-
-    fn update_media(&mut self, index: usize) {
-        loop {
-            let el = self.el(index);
-            let Some((desc, state)) = el.media_state.clone() else {
-                return;
-            };
-            let Some(media) = desc.states[state].media.get(el.media_index) else {
-                return;
-            };
-            match media {
-                MediaDesc::Image {
-                    file, draw_mode, ..
-                } => {
-                    let (file, draw_mode) = (*file, *draw_mode);
-                    self.set_image(index, file, draw_mode);
-                }
-                MediaDesc::Anim {
-                    draw_mode, frames, ..
-                } => {
-                    if let Some(&file) = frames.first() {
-                        let draw_mode = *draw_mode;
-                        self.set_image(index, file, draw_mode);
-                    }
-                    if frames.len() > 1 {
-                        return;
-                    }
-                }
-                MediaDesc::Alpha { file, .. } => self.el_mut(index).alpha_image = Some(*file),
-                MediaDesc::Pause { .. } => return,
-                MediaDesc::State { state } => {
-                    let state = *state;
-                    self.set_state(index, state);
-                    return;
-                }
-                _ => {}
-            }
-            self.el_mut(index).media_index += 1;
-        }
+        self.changed = true;
     }
 
     /// `UIElement::Update_Internal`.

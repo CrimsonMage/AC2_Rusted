@@ -258,7 +258,7 @@ fn the_reticle_frames_the_selection_with_its_name_above() {
     let placed: std::collections::HashMap<usize, (i32, i32, i32, bool)> = tree
         .placements()
         .into_iter()
-        .map(|(root, x, y, r, s)| (root, (x, y, r, s)))
+        .map(|p| (p.root, (p.x, p.y, p.rotation, p.shown)))
         .collect();
     fn by_name(tree: &UiTree, name: &str) -> Vec<usize> {
         tree.roots()
@@ -304,7 +304,7 @@ fn the_reticle_frames_the_selection_with_its_name_above() {
     assert!(tree
         .placements()
         .iter()
-        .all(|p| !corners.contains(&p.0) || !p.4));
+        .all(|p| !corners.contains(&p.root) || !p.shown));
 }
 
 #[test]

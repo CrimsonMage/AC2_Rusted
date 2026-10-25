@@ -2795,17 +2795,24 @@ key	status	note
 005e14b0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 005e1700	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 005e1850	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e1950	x	ac2-ui media.rs / transition.rs
+005e19c0	-	no layout on the DVD has an AVI item
+005e19f0	-	no layout on the DVD has an AVI item
 005e1bd0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
-005e1c60	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e1c60	x	ac2-ui media.rs / transition.rs
 005e1cb0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
-005e1dc0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005e1d20	x	ac2-ui media.rs / transition.rs
+005e1dc0	x	ac2-ui media.rs / transition.rs
 005e1e40	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
-005e1fc0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e1ec0	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
+005e1fc0	x	ac2-ui media.rs / transition.rs
 005e2020	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
-005e20f0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
-005e21b0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e20d0	x	ac2-ui media.rs / transition.rs
+005e20f0	x	ac2-ui media.rs / transition.rs
+005e21b0	x	ac2-ui media.rs / transition.rs
 005e2230	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
-005e2300	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005e22a0	x	ac2-ui media.rs / transition.rs
+005e2300	x	ac2-ui media.rs / transition.rs
 005e23b0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 005e25c0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e2a30	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -2814,6 +2821,8 @@ key	status	note
 005e2f50	~	A8R8G8B8 only; colour key and format conversion not modelled
 005e3220	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e3310	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+005e35f0	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
+005e3690	x	ac2-ui media.rs / transition.rs
 005e38b0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005e3af0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e3b70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
@@ -2830,35 +2839,43 @@ key	status	note
 005e8c90	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e8e30	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e8e70	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
+005e8e80	x	ac2-ui media.rs / transition.rs
 005e8e90	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e8f70	x	ac2-ui media.rs / transition.rs
 005e9040	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
-005e9060	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005e9060	x	ac2-ui media.rs / transition.rs
 005e90b0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9470	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 005e94c0	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 005e9530	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005e9710	x	ac2-ui media.rs / transition.rs
 005e9720	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9790	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-005e97c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005e97c0	x	ac2-ui media.rs / transition.rs
+005e9940	~	m_delOnTransStop (delete after the exit transition) not modelled
+005e99e0	x	ac2-ui media.rs / transition.rs
+005e9b80	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
 005ea220	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
-005ea2c0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005ea2c0	x	ac2-ui media.rs / transition.rs
 005ea430	x	ac2-ui compose.rs / element.rs set_image
 005ea510	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005eacf0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005eae20	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005eafc0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005eb100	x	ac2-ui media.rs / transition.rs
 005ebaf0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ebe50	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ec570	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005ec870	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ec8a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005ec9d0	x	ac2-ui media.rs / transition.rs
 005eca20	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ecd60	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005ed150	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005ed2c0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ed340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-005ed450	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005ed450	~	m_delOnTransStop (delete after the exit transition) not modelled
 005ed8b0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005ed9a0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005eda10	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
@@ -3081,9 +3098,9 @@ key	status	note
 0060c7a0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060ca40	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060caf0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
-0060d2d0	x	ac2_core::Random
-0060d3b0	x	ac2_core::Random
-0060d3f0	x	ac2_core::Random
+0060d2d0	x	ac2-ui media.rs / transition.rs
+0060d3b0	x	ac2-ui media.rs / transition.rs
+0060d3f0	x	ac2-ui media.rs / transition.rs
 0060dbd0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 0060e3d0	~	ac2-physics ObjectShape::new: physics containment radius and box only
 006124f0	x	ac2-render object/skeleton.rs rest_matrices

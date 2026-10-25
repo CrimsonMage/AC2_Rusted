@@ -9,8 +9,8 @@ use crate::{Gpu, DEPTH_FORMAT};
 
 const SHADER: &str = "
 struct Layer {
-    // x, y, width, height in pixels; then the screen width and height and the rotation about
-    // z in radians.
+    // x, y, width, height in pixels; then the screen width and height, the rotation about z in
+    // radians and the material opacity.
     rect: vec4<f32>,
     screen: vec4<f32>,
 };
@@ -46,7 +46,8 @@ fn vs(@builtin(vertex_index) index: u32) -> VertexOut {
 
 @fragment
 fn fs(in: VertexOut) -> @location(0) vec4<f32> {
-    return textureSample(image, image_sampler, in.uv);
+    let texel = textureSample(image, image_sampler, in.uv);
+    return vec4(texel.rgb, texel.a * layer.screen.w);
 }
 ";
 
@@ -59,6 +60,8 @@ pub struct UiLayer<'a> {
     /// Degrees about the surface's centre, and whether it is shown.
     pub rotation: i32,
     pub shown: bool,
+    /// `UISurfaceObject::SetMaterialOpacity`: the texture's alpha is modulated by it.
+    pub opacity: f32,
     pub rgba: &'a [u8],
 }
 
@@ -66,6 +69,7 @@ struct Uploaded {
     rect: [f32; 4],
     rotation: f32,
     shown: bool,
+    opacity: f32,
     uniform: wgpu::Buffer,
     group: wgpu::BindGroup,
 }
@@ -92,7 +96,7 @@ impl UiOverlay {
             entries: &[
                 entry(
                     0,
-                    wgpu::ShaderStages::VERTEX,
+                    wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
                     wgpu::BindingType::Buffer {
                         ty: wgpu::BufferBindingType::Uniform,
                         has_dynamic_offset: false,
@@ -241,20 +245,26 @@ impl UiOverlay {
                 ],
                 rotation: (layer.rotation as f32).to_radians(),
                 shown: layer.shown,
+                opacity: layer.opacity,
                 uniform,
                 group,
             });
         }
     }
 
-    /// New positions, rotations and shown flags for the uploaded layers, in their order
-    /// (`UISurfaceObject::SetScreenPosition` / `SetRotateVals` / show without new pixels).
-    pub fn set_placements(&mut self, placements: impl IntoIterator<Item = (i32, i32, i32, bool)>) {
-        for (layer, (x, y, rotation, shown)) in self.layers.iter_mut().zip(placements) {
+    /// New positions, rotations, shown flags and opacities for the uploaded layers, in their
+    /// order (`UISurfaceObject::SetScreenPosition` / `SetRotateVals` / show /
+    /// `SetMaterialOpacity` without new pixels).
+    pub fn set_placements(
+        &mut self,
+        placements: impl IntoIterator<Item = (i32, i32, i32, bool, f32)>,
+    ) {
+        for (layer, (x, y, rotation, shown, opacity)) in self.layers.iter_mut().zip(placements) {
             layer.rect[0] = x as f32;
             layer.rect[1] = y as f32;
             layer.rotation = (rotation as f32).to_radians();
             layer.shown = shown;
+            layer.opacity = opacity;
         }
     }
 
@@ -279,7 +289,7 @@ impl UiOverlay {
                 width as f32,
                 height as f32,
                 layer.rotation,
-                0.0,
+                layer.opacity,
             ];
             queue.write_buffer(&layer.uniform, 0, bytemuck::cast_slice(&data));
         }

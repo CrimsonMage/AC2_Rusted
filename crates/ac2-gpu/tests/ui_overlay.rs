@@ -19,6 +19,7 @@ fn draw(gpu: &Gpu, rotation: i32) -> Vec<[u8; 4]> {
             height: 2,
             rotation,
             shown: true,
+            opacity: 1.0,
             rgba: &rgba,
         }],
     );

@@ -21,6 +21,7 @@ mod layout;
 mod layout_media;
 mod list_box;
 mod maps;
+mod media;
 mod meter;
 mod mouse;
 mod panel;
@@ -37,6 +38,7 @@ mod text_data;
 mod text_edit;
 mod token;
 mod toolbar;
+mod transition;
 mod tree_view;
 
 pub use camera_ui::{CameraUi, CameraUiEffect};
@@ -47,7 +49,7 @@ pub use chat::{
 pub use chat_window::{ChatMessageInfo, CHAT_TEXT_TYPES};
 pub use compose::{UiPixels, UiSurface};
 pub use controls::{ControlFrame, Controls};
-pub use element::{UiBox, UiElement, UiImage, UiTree};
+pub use element::{UiBox, UiElement, UiImage, UiPlacement, UiTree};
 pub use examination::{ExaminationCall, ExaminationItem, ExaminationUi};
 pub use hud::{
     build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
@@ -96,6 +98,8 @@ mod chat_tests;
 mod element_tests;
 #[cfg(test)]
 mod list_box_tests;
+#[cfg(test)]
+mod media_tests;
 #[cfg(test)]
 mod meter_tests;
 #[cfg(test)]

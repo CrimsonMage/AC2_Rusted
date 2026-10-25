@@ -219,19 +219,20 @@ impl UiTree {
         meter.anim_end_time = f64::from(duration) + meter.anim_start_time;
     }
 
-    /// `UIElement_Meter::Global_Loop` of every moving meter (`0xffff0005`, the global loop
-    /// message) at time `now` in seconds.
+    /// `UIMESSAGE_GLOBAL_LOOP` (`0xffff0005`) at time `now` in seconds: every element's
+    /// transitions and media (`UIElement::ListenToMessage`), and every moving meter
+    /// (`UIElement_Meter::Global_Loop`).
     pub fn global_loop(&mut self, now: f64) {
         self.time = now;
-        let moving: Vec<usize> = (0..self.slots.len())
-            .filter(|&i| {
-                self.get(i)
-                    .and_then(|e| e.meter.as_ref())
-                    .is_some_and(|m| m.animating)
-            })
-            .collect();
-        for index in moving {
-            self.meter_global_loop(index, now);
+        for index in 0..self.slots.len() {
+            self.element_global_loop(index);
+            let moving = self
+                .get(index)
+                .and_then(|e| e.meter.as_ref())
+                .is_some_and(|m| m.animating);
+            if moving {
+                self.meter_global_loop(index, now);
+            }
         }
     }
 

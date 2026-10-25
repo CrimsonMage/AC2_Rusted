@@ -44,6 +44,8 @@ pub(crate) struct HudView {
     overlay: UiOverlay,
     size: (u32, u32),
     pub(crate) dirty: bool,
+    /// The sounds the UI's media played this frame (`MD_Data_Sound`), for an audio sink.
+    pub(crate) sounds: Vec<u32>,
 }
 
 impl HudView {
@@ -99,6 +101,7 @@ impl HudView {
             overlay: UiOverlay::new(gpu, format),
             size,
             dirty: false,
+            sounds: Vec::new(),
         }
     }
 
@@ -348,6 +351,7 @@ impl HudView {
         // `UIMESSAGE_GLOBAL_LOOP`: the meters move and the chat windows write what arrived.
         if let Some((tree, _)) = &mut self.hud {
             tree.global_loop(now);
+            self.sounds = tree.take_sounds();
             if let Some(chat) = &mut self.chat {
                 chat.global_loop(tree);
             }
@@ -398,8 +402,11 @@ impl HudView {
         if !self.dirty {
             if tree.take_moved() {
                 let placements = tree.placements();
-                self.overlay
-                    .set_placements(placements.into_iter().map(|(_, x, y, r, s)| (x, y, r, s)));
+                self.overlay.set_placements(
+                    placements
+                        .into_iter()
+                        .map(|p| (p.x, p.y, p.rotation, p.shown, p.opacity)),
+                );
             }
             return;
         }
@@ -417,6 +424,7 @@ impl HudView {
                 height: surface.height,
                 rotation: surface.rotation,
                 shown: surface.shown,
+                opacity: surface.opacity,
                 rgba: &surface.rgba,
             }),
         );
