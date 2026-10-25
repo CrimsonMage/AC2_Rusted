@@ -19,6 +19,7 @@ ac2-dat = { path = "../ac2-dat" }
 ac2-db = { path = "../ac2-db" }
 log = "0.4"
 cpal = { version = "0.17", optional = true }
+symphonia = { version = "0.5", default-features = false, features = ["mp3"] }
 
 [dev-dependencies]
 ac2-dat = { path = "../ac2-dat", features = ["test-support"] }

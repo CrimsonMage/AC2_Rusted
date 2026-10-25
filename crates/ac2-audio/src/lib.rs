@@ -12,6 +12,7 @@ mod data;
 mod loader;
 mod manager;
 mod mixer;
+pub mod music;
 #[cfg(feature = "output")]
 mod output;
 mod play_data;
