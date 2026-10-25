@@ -114,7 +114,7 @@ fn a_call_handed_to_the_vm_comes_back_as_its_notice() {
     );
 
     // Selecting (the stand-in's until the VM runs `CPlayer` 0x6A and 0x34 through), once.
-    let npc = 0x7000_0000_0000_0042u64;
+    let npc = 0x8000_0000_0000_0042u64;
     let info = ac2_net::protocol::SelectionInfo {
         kind: ac2_net::protocol::SelectionInfo::CREATURE,
         cur_health: 7,

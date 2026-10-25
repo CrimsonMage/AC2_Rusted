@@ -18,7 +18,7 @@ use ac2_weenie::{vital, GameplayNotice, SessionEvent};
 use common::*;
 use legions_server_double::{Spawn, PLAYER};
 
-const NPC: u64 = 0x7000_0000_0000_0042;
+const NPC: u64 = 0x8000_0000_0000_0042;
 
 /// The login, then selecting a creature: the notices, the server's requests, the frame.
 type Run = (

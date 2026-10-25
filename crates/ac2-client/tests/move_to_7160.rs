@@ -9,7 +9,7 @@ use ac2_client::{ClientFrame, FrameInput, ObjectFrame};
 use common::*;
 use legions_server_double::{create_object_bytes, object_event_bytes, ObjectSpawn, Spawn, PLAYER};
 
-const NPC: u64 = 0x7000_0000_0000_0042;
+const NPC: u64 = 0x8000_0000_0000_0042;
 
 fn spawn() -> Spawn {
     Spawn {

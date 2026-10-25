@@ -11,7 +11,7 @@ use ac2_weenie::{GameplayNotice, SessionEvent, DISPLAY_SPEECH};
 use common::*;
 use legions_server_double::{create_object_bytes, ObjectSpawn, Spawn};
 
-const NPC: u64 = 0x7000_0000_0000_0042;
+const NPC: u64 = 0x8000_0000_0000_0042;
 
 #[test]
 fn selecting_an_object_fills_the_frame_selection() {

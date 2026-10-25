@@ -13,8 +13,8 @@ use legions_server_double::{
     create_object_bytes, object_event_bytes, position_bytes, ObjectPosition, ObjectSpawn, Spawn,
 };
 
-const NPC: u64 = 0x7000_0000_0000_0042;
-const OTHER: u64 = 0x7000_0000_0000_0043;
+const NPC: u64 = 0x8000_0000_0000_0042;
+const OTHER: u64 = 0x8000_0000_0000_0043;
 /// Two blocks north of the spawn block: outside the resident 3 x 3.
 const FAR_CELL: u32 = 0x7F81_001C;
 

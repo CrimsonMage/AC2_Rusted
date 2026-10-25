@@ -3967,8 +3967,14 @@ key	status	note
 006b79f0	_	ac2-script wstate DID formulas / ByteStream::package_id
 006b7aa0	_	ac2-script WLib/WState/ByteStream decode
 006baa40	_	
-006bc380	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
-006bc410	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+006bc380	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
+006bc410	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
+006bc430	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
+006bc450	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
+006bc470	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
+006bc490	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
+006bc4c0	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
+006bc4e0	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
 006bc600	x	ac2-db string_meta_text / string_state (CRT C locale classes)
 006bc900	x	
 006bc940	x	
