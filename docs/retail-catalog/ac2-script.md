@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 239 done, 27 partial, 2124 to do, 78 skipped.
+2468 retail functions: 413 done, 51 partial, 1926 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -1071,21 +1071,21 @@ Legend and workflow: [README](README.md).
 - [ ] `gAAMultiMapIter::CallEFun_next` · 0054f410
 - [ ] `gAAMultiMapIter::CallEFun_prev` · 0054f4b0
 
-## `portal/shared/src/interp/glue/gaarray.cpp.c` (0/12)
+## `portal/shared/src/interp/glue/gaarray.cpp.c` (12/12)
 
 ### gAArray
-- [ ] `gAArray::CallEFun_flush` · 00566190
-- [ ] `gAArray::CallEFun_SetNElements` · 005661f0
-- [ ] `gAArray::CallEFun_contains` · 00566280
-- [ ] `gAArray::CallEFun_empty` · 00566310
-- [ ] `gAArray::CallEFun_get` · 00566380
-- [ ] `gAArray::CallEFun_num_elements` · 00566400
-- [ ] `gAArray::CallEFun_set` · 00566470
-- [ ] `gAArray::CallEFun_erase` · 00566500
-- [ ] `gAArray::CallEFun_push` · 005665a0
-- [ ] `gAArray::CallEFun_push_unique` · 00566650
-- [ ] `gAArray::CallEFun_pop` · 005666d0
-- [ ] `gAArray::CallEFun_query` · 00566790
+- [x] `gAArray::CallEFun_flush` · 00566190 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_SetNElements` · 005661f0 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_contains` · 00566280 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_empty` · 00566310 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_get` · 00566380 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_num_elements` · 00566400 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_set` · 00566470 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_erase` · 00566500 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_push` · 005665a0 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_push_unique` · 00566650 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_pop` · 005666d0 — ac2-script glue::lists
+- [x] `gAArray::CallEFun_query` · 00566790 — ac2-script glue::lists
 
 ## `portal/shared/src/interp/glue/gahashset.cpp.c` (0/20)
 
@@ -1173,80 +1173,80 @@ Legend and workflow: [README](README.md).
 - [ ] `gALHashIter::CallEFun_next` · 005648d0
 - [ ] `gALHashIter::CallEFun_remove` · 00564930
 
-## `portal/shared/src/interp/glue/galist.cpp.c` (0/52)
+## `portal/shared/src/interp/glue/galist.cpp.c` (49/52)
 
 ### gAList
-- [ ] `gAList::CallEFun_empty` · 00562880
-- [ ] `gAList::CallEFun_num_elements` · 005628f0
-- [ ] `gAList::CallEFun_push_back` · 00562960
-- [ ] `gAList::CallEFun_push_front` · 005629e0
+- [x] `gAList::CallEFun_empty` · 00562880 — ac2-script glue::lists
+- [x] `gAList::CallEFun_num_elements` · 005628f0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_back` · 00562960 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_front` · 005629e0 — ac2-script glue::lists
 
 ### BaseList<unsigned_long,11>
-- [ ] `BaseList<unsigned_long,11>::insert_sort_float` · 00562a60 · legions 00535ce0
-- [ ] `BaseList<unsigned_long,11>::insert_sort_int` · 00562b00 · legions 00535d80
+- [x] `BaseList<unsigned_long,11>::insert_sort_float` · 00562a60 · legions 00535ce0 — ac2-script glue::lists
+- [x] `BaseList<unsigned_long,11>::insert_sort_int` · 00562b00 · legions 00535d80 — ac2-script glue::lists
 
 ### gAList
-- [ ] `gAList::CallEFun_get_position` · 00562b90
-- [ ] `gAList::CallEFun_insert_back` · 00562c20
-- [ ] `gAList::CallEFun_insert_front` · 00562ca0
-- [ ] `gAList::CallEFun_insert_head` · 00562d20
-- [ ] `gAList::CallEFun_insert_sort_float` · 00562da0
-- [ ] `gAList::CallEFun_insert_sort_int` · 00562e20
-- [ ] `gAList::CallEFun_insert_tail` · 00562ea0
-- [ ] `gAList::CallEFun_push` · 00562f20
-- [ ] `gAList::CallEFun_push_head` · 00562fa0
-- [ ] `gAList::CallEFun_push_tail` · 00563020
-- [ ] `gAList::CallEFun_remove` · 005630a0
-- [ ] `gAList::CallEFun_contains` · 00563140
-- [ ] `gAList::CallEFun_erase_back` · 005631d0
-- [ ] `gAList::CallEFun_erase_front` · 00563280
-- [ ] `gAList::CallEFun_erase_head` · 00563330
-- [ ] `gAList::CallEFun_erase_tail` · 005633e0
-- [ ] `gAList::CallEFun_flush` · 00563490
-- [ ] `gAList::CallEFun_insert` · 005634f0
-- [ ] `gAList::CallEFun_push_unique_back` · 00563570
-- [ ] `gAList::CallEFun_push_unique_front` · 00563610
-- [ ] `gAList::CallEFun_insert_unique_back` · 005636b0
-- [ ] `gAList::CallEFun_insert_unique_front` · 00563750
-- [ ] `gAList::CallEFun_insert_unique_head` · 005637f0
-- [ ] `gAList::CallEFun_insert_unique_tail` · 00563890
-- [ ] `gAList::CallEFun_push_unique_head` · 00563930
-- [ ] `gAList::CallEFun_push_unique_tail` · 005639d0
+- [x] `gAList::CallEFun_get_position` · 00562b90 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_back` · 00562c20 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_front` · 00562ca0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_head` · 00562d20 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_sort_float` · 00562da0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_sort_int` · 00562e20 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_tail` · 00562ea0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push` · 00562f20 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_head` · 00562fa0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_tail` · 00563020 — ac2-script glue::lists
+- [x] `gAList::CallEFun_remove` · 005630a0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_contains` · 00563140 — ac2-script glue::lists
+- [x] `gAList::CallEFun_erase_back` · 005631d0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_erase_front` · 00563280 — ac2-script glue::lists
+- [x] `gAList::CallEFun_erase_head` · 00563330 — ac2-script glue::lists
+- [x] `gAList::CallEFun_erase_tail` · 005633e0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_flush` · 00563490 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert` · 005634f0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_unique_back` · 00563570 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_unique_front` · 00563610 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_unique_back` · 005636b0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_unique_front` · 00563750 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_unique_head` · 005637f0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_insert_unique_tail` · 00563890 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_unique_head` · 00563930 — ac2-script glue::lists
+- [x] `gAList::CallEFun_push_unique_tail` · 005639d0 — ac2-script glue::lists
 
 ### BaseList<unsigned_long,11>
-- [ ] `BaseList<unsigned_long,11>::get_begin` · 00563a70 · legions 00536090
-- [ ] `BaseList<unsigned_long,11>::get_reverse` · 00563ac0 · legions 005360e0
-- [ ] `BaseList<unsigned_long,11>::get_end` · 00563b10 · legions 00536130
+- [~] `BaseList<unsigned_long,11>::get_begin` · 00563a70 · legions 00536090 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `BaseList<unsigned_long,11>::get_reverse` · 00563ac0 · legions 005360e0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `BaseList<unsigned_long,11>::get_end` · 00563b10 · legions 00536130 — ac2-script glue::lists: iterators hold an index, not a node
 
 ### gAList
-- [ ] `gAList::CallEFun_get_begin` · 00563b60
-- [ ] `gAList::CallEFun_get_end` · 00563be0
-- [ ] `gAList::CallEFun_get_reverse` · 00563c60
-- [ ] `gAList::CallEFun_clone` · 00563ce0
-- [ ] `gAList::CallEFun_inq_data` · 00563d80
-- [ ] `gAList::CallEFun_peek_back` · 00563e30
-- [ ] `gAList::CallEFun_peek_front` · 00563ee0
-- [ ] `gAList::CallEFun_peek_head` · 00563f90
-- [ ] `gAList::CallEFun_peek_tail` · 00564040
-- [ ] `gAList::CallEFun_pop_back` · 005640f0
-- [ ] `gAList::CallEFun_pop_front` · 00564190
-- [ ] `gAList::CallEFun_pop_head` · 00564270
-- [ ] `gAList::CallEFun_pop_tail` · 00564350
-- [ ] `gAList::CallEFun_remove_back` · 005643f0
-- [ ] `gAList::CallEFun_remove_front` · 00564490
-- [ ] `gAList::CallEFun_remove_head` · 00564570
-- [ ] `gAList::CallEFun_remove_tail` · 00564650
+- [x] `gAList::CallEFun_get_begin` · 00563b60 — ac2-script glue::lists
+- [x] `gAList::CallEFun_get_end` · 00563be0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_get_reverse` · 00563c60 — ac2-script glue::lists
+- [x] `gAList::CallEFun_clone` · 00563ce0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_inq_data` · 00563d80 — ac2-script glue::lists
+- [x] `gAList::CallEFun_peek_back` · 00563e30 — ac2-script glue::lists
+- [x] `gAList::CallEFun_peek_front` · 00563ee0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_peek_head` · 00563f90 — ac2-script glue::lists
+- [x] `gAList::CallEFun_peek_tail` · 00564040 — ac2-script glue::lists
+- [x] `gAList::CallEFun_pop_back` · 005640f0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_pop_front` · 00564190 — ac2-script glue::lists
+- [x] `gAList::CallEFun_pop_head` · 00564270 — ac2-script glue::lists
+- [x] `gAList::CallEFun_pop_tail` · 00564350 — ac2-script glue::lists
+- [x] `gAList::CallEFun_remove_back` · 005643f0 — ac2-script glue::lists
+- [x] `gAList::CallEFun_remove_front` · 00564490 — ac2-script glue::lists
+- [x] `gAList::CallEFun_remove_head` · 00564570 — ac2-script glue::lists
+- [x] `gAList::CallEFun_remove_tail` · 00564650 — ac2-script glue::lists
 
 ## `portal/shared/src/interp/glue/galistiter.cpp.c` (0/7)
 
 ### gAListIter
-- [ ] `gAListIter::CallEFun_next` · 00562520
-- [ ] `gAListIter::CallEFun_prev` · 00562580
-- [ ] `gAListIter::CallEFun_data` · 005625e0
-- [ ] `gAListIter::CallEFun_equals` · 00562650
-- [ ] `gAListIter::CallEFun_notdone` · 005626d0
-- [ ] `gAListIter::CallEFun_insert` · 00562740
-- [ ] `gAListIter::CallEFun_remove` · 005627f0
+- [~] `gAListIter::CallEFun_next` · 00562520 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gAListIter::CallEFun_prev` · 00562580 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gAListIter::CallEFun_data` · 005625e0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gAListIter::CallEFun_equals` · 00562650 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gAListIter::CallEFun_notdone` · 005626d0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gAListIter::CallEFun_insert` · 00562740 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gAListIter::CallEFun_remove` · 005627f0 — ac2-script glue::lists: iterators hold an index, not a node
 
 ## `portal/shared/src/interp/glue/galmultihash.cpp.c` (0/13)
 
@@ -2011,26 +2011,26 @@ Legend and workflow: [README](README.md).
 - [ ] `gLandDefs::CallEFun_get_land_width` · 00543250
 - [ ] `gLandDefs::CallEFun_InqLandblockIIDFromStaticObjectIID` · 00543280
 
-## `portal/shared/src/interp/glue/glarray.cpp.c` (0/13)
+## `portal/shared/src/interp/glue/glarray.cpp.c` (12/13)
 
 ### gLArray
-- [ ] `gLArray::CallEFun_contains` · 0055e270
-- [ ] `gLArray::CallEFun_empty` · 0055e300
-- [ ] `gLArray::CallEFun_flush` · 0055e370
-- [ ] `gLArray::CallEFun_num_elements` · 0055e3d0
-- [ ] `gLArray::CallEFun_set` · 0055e440
-- [ ] `gLArray::CallEFun_SetNElements` · 0055e4e0
-- [ ] `gLArray::CallEFun_erase` · 0055e570
-- [ ] `gLArray::CallEFun_get` · 0055e610
+- [x] `gLArray::CallEFun_contains` · 0055e270 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_empty` · 0055e300 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_flush` · 0055e370 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_num_elements` · 0055e3d0 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_set` · 0055e440 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_SetNElements` · 0055e4e0 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_erase` · 0055e570 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_get` · 0055e610 — ac2-script glue::lists
 
 ### SmartArray<CLandBlock::DynamicObjectInfo>
 - [ ] `SmartArray<CLandBlock::DynamicObjectInfo>::AddToEnd` · 0055e690 · legions 00533650
 
 ### gLArray
-- [ ] `gLArray::CallEFun_push` · 0055e6e0
-- [ ] `gLArray::CallEFun_push_unique` · 0055e770
-- [ ] `gLArray::CallEFun_pop` · 0055e840
-- [ ] `gLArray::CallEFun_query` · 0055e910
+- [x] `gLArray::CallEFun_push` · 0055e6e0 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_push_unique` · 0055e770 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_pop` · 0055e840 — ac2-script glue::lists
+- [x] `gLArray::CallEFun_query` · 0055e910 — ac2-script glue::lists
 
 ## `portal/shared/src/interp/glue/glinkrequirements.cpp.c` (0/10)
 
@@ -2089,48 +2089,48 @@ Legend and workflow: [README](README.md).
 - [ ] `gLLHashIter::CallEFun_next` · 0055d5c0
 - [ ] `gLLHashIter::CallEFun_remove` · 0055d620
 
-## `portal/shared/src/interp/glue/gllist.cpp.c` (0/51)
+## `portal/shared/src/interp/glue/gllist.cpp.c` (46/51)
 
 ### gLList
-- [ ] `gLList::CallEFun_empty` · 0055b450
-- [ ] `gLList::CallEFun_get_position` · 0055b4c0
-- [ ] `gLList::CallEFun_num_elements` · 0055b560
-- [ ] `gLList::CallEFun_push_back` · 0055b5d0
-- [ ] `gLList::CallEFun_push_front` · 0055b660
+- [x] `gLList::CallEFun_empty` · 0055b450 — ac2-script glue::lists
+- [x] `gLList::CallEFun_get_position` · 0055b4c0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_num_elements` · 0055b560 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_back` · 0055b5d0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_front` · 0055b660 — ac2-script glue::lists
 
 ### BaseList<unsigned___int64,60>
 - [ ] `BaseList<unsigned___int64,60>::insert_sort_ulint` · 0055b810 · legions 00532260
 
 ### gLList
-- [ ] `gLList::CallEFun_insert_back` · 0055b860
-- [ ] `gLList::CallEFun_insert_front` · 0055b8f0
-- [ ] `gLList::CallEFun_insert_head` · 0055b980
-- [ ] `gLList::CallEFun_insert_sort_ulint` · 0055ba10
-- [ ] `gLList::CallEFun_insert_tail` · 0055baa0
-- [ ] `gLList::CallEFun_push` · 0055bb30
-- [ ] `gLList::CallEFun_push_head` · 0055bbc0
-- [ ] `gLList::CallEFun_push_tail` · 0055bc50
-- [ ] `gLList::CallEFun_remove` · 0055bce0
+- [x] `gLList::CallEFun_insert_back` · 0055b860 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_front` · 0055b8f0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_head` · 0055b980 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_sort_ulint` · 0055ba10 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_tail` · 0055baa0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push` · 0055bb30 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_head` · 0055bbc0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_tail` · 0055bc50 — ac2-script glue::lists
+- [x] `gLList::CallEFun_remove` · 0055bce0 — ac2-script glue::lists
 
 ### BaseList<unsigned___int64,60>
 - [ ] `BaseList<unsigned___int64,60>::inq_data` · 0055be10 · legions 00532510
 
 ### gLList
-- [ ] `gLList::CallEFun_contains` · 0055be60
-- [ ] `gLList::CallEFun_erase_back` · 0055bf00
-- [ ] `gLList::CallEFun_erase_front` · 0055bfb0
-- [ ] `gLList::CallEFun_erase_head` · 0055c060
-- [ ] `gLList::CallEFun_erase_tail` · 0055c110
-- [ ] `gLList::CallEFun_flush` · 0055c1c0
-- [ ] `gLList::CallEFun_insert` · 0055c220
-- [ ] `gLList::CallEFun_push_unique_back` · 0055c340
-- [ ] `gLList::CallEFun_push_unique_front` · 0055c3d0
-- [ ] `gLList::CallEFun_insert_unique_back` · 0055c460
-- [ ] `gLList::CallEFun_insert_unique_front` · 0055c4f0
-- [ ] `gLList::CallEFun_insert_unique_head` · 0055c580
-- [ ] `gLList::CallEFun_insert_unique_tail` · 0055c610
-- [ ] `gLList::CallEFun_push_unique_head` · 0055c6a0
-- [ ] `gLList::CallEFun_push_unique_tail` · 0055c730
+- [x] `gLList::CallEFun_contains` · 0055be60 — ac2-script glue::lists
+- [x] `gLList::CallEFun_erase_back` · 0055bf00 — ac2-script glue::lists
+- [x] `gLList::CallEFun_erase_front` · 0055bfb0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_erase_head` · 0055c060 — ac2-script glue::lists
+- [x] `gLList::CallEFun_erase_tail` · 0055c110 — ac2-script glue::lists
+- [x] `gLList::CallEFun_flush` · 0055c1c0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert` · 0055c220 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_unique_back` · 0055c340 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_unique_front` · 0055c3d0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_unique_back` · 0055c460 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_unique_front` · 0055c4f0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_unique_head` · 0055c580 — ac2-script glue::lists
+- [x] `gLList::CallEFun_insert_unique_tail` · 0055c610 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_unique_head` · 0055c6a0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_push_unique_tail` · 0055c730 — ac2-script glue::lists
 
 ### BaseList<unsigned___int64,60>
 - [ ] `BaseList<unsigned___int64,60>::get_begin` · 0055c7c0 · legions 005328f0
@@ -2138,34 +2138,34 @@ Legend and workflow: [README](README.md).
 - [ ] `BaseList<unsigned___int64,60>::get_end` · 0055c860 · legions 00532990
 
 ### gLList
-- [ ] `gLList::CallEFun_get_begin` · 0055c8b0
-- [ ] `gLList::CallEFun_get_end` · 0055c930
-- [ ] `gLList::CallEFun_get_reverse` · 0055c9b0
-- [ ] `gLList::CallEFun_clone` · 0055ca30 · legions 00532ad0
-- [ ] `gLList::CallEFun_inq_data` · 0055cad0 · legions 00532b40
-- [ ] `gLList::CallEFun_peek_back` · 0055cb80
-- [ ] `gLList::CallEFun_peek_front` · 0055cc40
-- [ ] `gLList::CallEFun_peek_head` · 0055cd00
-- [ ] `gLList::CallEFun_peek_tail` · 0055cdc0
-- [ ] `gLList::CallEFun_pop_back` · 0055ce80
-- [ ] `gLList::CallEFun_pop_front` · 0055cf20
-- [ ] `gLList::CallEFun_pop_head` · 0055cfc0
-- [ ] `gLList::CallEFun_pop_tail` · 0055d060
-- [ ] `gLList::CallEFun_remove_back` · 0055d100
-- [ ] `gLList::CallEFun_remove_front` · 0055d1a0
-- [ ] `gLList::CallEFun_remove_head` · 0055d240
-- [ ] `gLList::CallEFun_remove_tail` · 0055d2e0
+- [x] `gLList::CallEFun_get_begin` · 0055c8b0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_get_end` · 0055c930 — ac2-script glue::lists
+- [x] `gLList::CallEFun_get_reverse` · 0055c9b0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_clone` · 0055ca30 · legions 00532ad0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_inq_data` · 0055cad0 · legions 00532b40 — ac2-script glue::lists
+- [x] `gLList::CallEFun_peek_back` · 0055cb80 — ac2-script glue::lists
+- [x] `gLList::CallEFun_peek_front` · 0055cc40 — ac2-script glue::lists
+- [x] `gLList::CallEFun_peek_head` · 0055cd00 — ac2-script glue::lists
+- [x] `gLList::CallEFun_peek_tail` · 0055cdc0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_pop_back` · 0055ce80 — ac2-script glue::lists
+- [x] `gLList::CallEFun_pop_front` · 0055cf20 — ac2-script glue::lists
+- [x] `gLList::CallEFun_pop_head` · 0055cfc0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_pop_tail` · 0055d060 — ac2-script glue::lists
+- [x] `gLList::CallEFun_remove_back` · 0055d100 — ac2-script glue::lists
+- [x] `gLList::CallEFun_remove_front` · 0055d1a0 — ac2-script glue::lists
+- [x] `gLList::CallEFun_remove_head` · 0055d240 — ac2-script glue::lists
+- [x] `gLList::CallEFun_remove_tail` · 0055d2e0 — ac2-script glue::lists
 
 ## `portal/shared/src/interp/glue/gllistiter.cpp.c` (0/7)
 
 ### gLListIter
-- [ ] `gLListIter::CallEFun_next` · 0055b0b0
-- [ ] `gLListIter::CallEFun_prev` · 0055b110
-- [ ] `gLListIter::CallEFun_data` · 0055b170
-- [ ] `gLListIter::CallEFun_equals` · 0055b1e0
-- [ ] `gLListIter::CallEFun_notdone` · 0055b260
-- [ ] `gLListIter::CallEFun_insert` · 0055b2d0
-- [ ] `gLListIter::CallEFun_remove` · 0055b390
+- [~] `gLListIter::CallEFun_next` · 0055b0b0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gLListIter::CallEFun_prev` · 0055b110 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gLListIter::CallEFun_data` · 0055b170 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gLListIter::CallEFun_equals` · 0055b1e0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gLListIter::CallEFun_notdone` · 0055b260 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gLListIter::CallEFun_insert` · 0055b2d0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gLListIter::CallEFun_remove` · 0055b390 — ac2-script glue::lists: iterators hold an index, not a node
 
 ## `portal/shared/src/interp/glue/gllmultihash.cpp.c` (0/14)
 
@@ -2901,24 +2901,24 @@ Legend and workflow: [README](README.md).
 - [ ] `gRandomSelectionTable_Int::CallEFun_StartOver` · 0053a9c0
 - [ ] `gRandomSelectionTable_Int::CallEFun_Choose` · 0053aa20 · legions 0051d3e0
 
-## `portal/shared/src/interp/glue/grarray.cpp.c` (0/11)
+## `portal/shared/src/interp/glue/grarray.cpp.c` (10/11)
 
 ### gRArray
-- [ ] `gRArray::CallEFun_flush` · 00556110
+- [x] `gRArray::CallEFun_flush` · 00556110 — ac2-script glue::lists
 
 ### RArray
 - [ ] `RArray::SetNElements` · 00556170 · legions 0052f2d0
 
 ### gRArray
-- [ ] `gRArray::CallEFun_SetNElements` · 005561c0
-- [ ] `gRArray::CallEFun_empty` · 00556230
-- [ ] `gRArray::CallEFun_get` · 005562a0
-- [ ] `gRArray::CallEFun_num_elements` · 00556320
-- [ ] `gRArray::CallEFun_set` · 00556390
-- [ ] `gRArray::CallEFun_erase` · 00556420
-- [ ] `gRArray::CallEFun_push` · 005564c0
-- [ ] `gRArray::CallEFun_pop` · 00556570
-- [ ] `gRArray::CallEFun_query` · 00556620
+- [x] `gRArray::CallEFun_SetNElements` · 005561c0 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_empty` · 00556230 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_get` · 005562a0 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_num_elements` · 00556320 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_set` · 00556390 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_erase` · 00556420 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_push` · 005564c0 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_pop` · 00556570 — ac2-script glue::lists
+- [x] `gRArray::CallEFun_query` · 00556620 — ac2-script glue::lists
 
 ## `portal/shared/src/interp/glue/gray.cpp.c` (0/8)
 
@@ -2951,41 +2951,41 @@ Legend and workflow: [README](README.md).
 - [ ] `gRGBAColor::CallEFun_SetColor32` · 00539d90
 - [ ] `gRGBAColor::CallEFun_GetColor32` · 00539df0
 
-## `portal/shared/src/interp/glue/grlist.cpp.c` (0/48)
+## `portal/shared/src/interp/glue/grlist.cpp.c` (45/48)
 
 ### gRList
-- [ ] `gRList::CallEFun_empty` · 00554420
-- [ ] `gRList::CallEFun_num_elements` · 00554490
-- [ ] `gRList::CallEFun_push_back` · 00554500
-- [ ] `gRList::CallEFun_push_front` · 00554580
-- [ ] `gRList::CallEFun_insert_back` · 005546c0
-- [ ] `gRList::CallEFun_insert_front` · 00554740
-- [ ] `gRList::CallEFun_insert_head` · 005547c0
-- [ ] `gRList::CallEFun_insert_tail` · 00554840
-- [ ] `gRList::CallEFun_push` · 005548c0
-- [ ] `gRList::CallEFun_push_head` · 00554940
-- [ ] `gRList::CallEFun_push_tail` · 005549c0
-- [ ] `gRList::CallEFun_remove` · 00554a40
+- [x] `gRList::CallEFun_empty` · 00554420 — ac2-script glue::lists
+- [x] `gRList::CallEFun_num_elements` · 00554490 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_back` · 00554500 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_front` · 00554580 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_back` · 005546c0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_front` · 00554740 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_head` · 005547c0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_tail` · 00554840 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push` · 005548c0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_head` · 00554940 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_tail` · 005549c0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_remove` · 00554a40 — ac2-script glue::lists
 
 ### BaseList<unsigned_long,11>
-- [ ] `BaseList<unsigned_long,11>::inq_data` · 00554b30 · legions 00535ff0
+- [x] `BaseList<unsigned_long,11>::inq_data` · 00554b30 · legions 00535ff0 — ac2-script glue::lists
 
 ### gRList
-- [ ] `gRList::CallEFun_contains` · 00554b70
-- [ ] `gRList::CallEFun_erase_back` · 00554c00
-- [ ] `gRList::CallEFun_erase_front` · 00554cb0
-- [ ] `gRList::CallEFun_erase_head` · 00554d60
-- [ ] `gRList::CallEFun_erase_tail` · 00554e10
-- [ ] `gRList::CallEFun_flush` · 00554ec0
-- [ ] `gRList::CallEFun_insert` · 00554f20
-- [ ] `gRList::CallEFun_push_unique_back` · 00554fa0
-- [ ] `gRList::CallEFun_push_unique_front` · 00555040
-- [ ] `gRList::CallEFun_insert_unique_back` · 005550e0
-- [ ] `gRList::CallEFun_insert_unique_front` · 00555180
-- [ ] `gRList::CallEFun_insert_unique_head` · 00555220
-- [ ] `gRList::CallEFun_insert_unique_tail` · 005552c0
-- [ ] `gRList::CallEFun_push_unique_head` · 00555360
-- [ ] `gRList::CallEFun_push_unique_tail` · 00555400
+- [x] `gRList::CallEFun_contains` · 00554b70 — ac2-script glue::lists
+- [x] `gRList::CallEFun_erase_back` · 00554c00 — ac2-script glue::lists
+- [x] `gRList::CallEFun_erase_front` · 00554cb0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_erase_head` · 00554d60 — ac2-script glue::lists
+- [x] `gRList::CallEFun_erase_tail` · 00554e10 — ac2-script glue::lists
+- [x] `gRList::CallEFun_flush` · 00554ec0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert` · 00554f20 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_unique_back` · 00554fa0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_unique_front` · 00555040 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_unique_back` · 005550e0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_unique_front` · 00555180 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_unique_head` · 00555220 — ac2-script glue::lists
+- [x] `gRList::CallEFun_insert_unique_tail` · 005552c0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_unique_head` · 00555360 — ac2-script glue::lists
+- [x] `gRList::CallEFun_push_unique_tail` · 00555400 — ac2-script glue::lists
 
 ### BaseList<unsigned_long,102>
 - [ ] `BaseList<unsigned_long,102>::get_begin` · 005554a0 · legions 0052ee40
@@ -2993,34 +2993,34 @@ Legend and workflow: [README](README.md).
 - [ ] `BaseList<unsigned_long,102>::get_end` · 00555540 · legions 0052eee0
 
 ### gRList
-- [ ] `gRList::CallEFun_get_begin` · 00555590
-- [ ] `gRList::CallEFun_get_end` · 00555610
-- [ ] `gRList::CallEFun_get_reverse` · 00555690
-- [ ] `gRList::CallEFun_clone` · 00555710
-- [ ] `gRList::CallEFun_inq_data` · 005557b0
-- [ ] `gRList::CallEFun_peek_back` · 00555850
-- [ ] `gRList::CallEFun_peek_front` · 00555900
-- [ ] `gRList::CallEFun_peek_head` · 005559b0
-- [ ] `gRList::CallEFun_peek_tail` · 00555a60
-- [ ] `gRList::CallEFun_pop_back` · 00555b10
-- [ ] `gRList::CallEFun_pop_front` · 00555bb0
-- [ ] `gRList::CallEFun_pop_head` · 00555c90
-- [ ] `gRList::CallEFun_pop_tail` · 00555d70
-- [ ] `gRList::CallEFun_remove_back` · 00555e10
-- [ ] `gRList::CallEFun_remove_front` · 00555eb0
-- [ ] `gRList::CallEFun_remove_head` · 00555f90
-- [ ] `gRList::CallEFun_remove_tail` · 00556070
+- [x] `gRList::CallEFun_get_begin` · 00555590 — ac2-script glue::lists
+- [x] `gRList::CallEFun_get_end` · 00555610 — ac2-script glue::lists
+- [x] `gRList::CallEFun_get_reverse` · 00555690 — ac2-script glue::lists
+- [x] `gRList::CallEFun_clone` · 00555710 — ac2-script glue::lists
+- [x] `gRList::CallEFun_inq_data` · 005557b0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_peek_back` · 00555850 — ac2-script glue::lists
+- [x] `gRList::CallEFun_peek_front` · 00555900 — ac2-script glue::lists
+- [x] `gRList::CallEFun_peek_head` · 005559b0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_peek_tail` · 00555a60 — ac2-script glue::lists
+- [x] `gRList::CallEFun_pop_back` · 00555b10 — ac2-script glue::lists
+- [x] `gRList::CallEFun_pop_front` · 00555bb0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_pop_head` · 00555c90 — ac2-script glue::lists
+- [x] `gRList::CallEFun_pop_tail` · 00555d70 — ac2-script glue::lists
+- [x] `gRList::CallEFun_remove_back` · 00555e10 — ac2-script glue::lists
+- [x] `gRList::CallEFun_remove_front` · 00555eb0 — ac2-script glue::lists
+- [x] `gRList::CallEFun_remove_head` · 00555f90 — ac2-script glue::lists
+- [x] `gRList::CallEFun_remove_tail` · 00556070 — ac2-script glue::lists
 
 ## `portal/shared/src/interp/glue/grlistiter.cpp.c` (0/7)
 
 ### gRListIter
-- [ ] `gRListIter::CallEFun_next` · 005540c0
-- [ ] `gRListIter::CallEFun_prev` · 00554120
-- [ ] `gRListIter::CallEFun_data` · 00554180
-- [ ] `gRListIter::CallEFun_equals` · 005541f0
-- [ ] `gRListIter::CallEFun_notdone` · 00554270
-- [ ] `gRListIter::CallEFun_insert` · 005542e0
-- [ ] `gRListIter::CallEFun_remove` · 00554390
+- [~] `gRListIter::CallEFun_next` · 005540c0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gRListIter::CallEFun_prev` · 00554120 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gRListIter::CallEFun_data` · 00554180 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gRListIter::CallEFun_equals` · 005541f0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gRListIter::CallEFun_notdone` · 00554270 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gRListIter::CallEFun_insert` · 005542e0 — ac2-script glue::lists: iterators hold an index, not a node
+- [~] `gRListIter::CallEFun_remove` · 00554390 — ac2-script glue::lists: iterators hold an index, not a node
 
 ## `portal/shared/src/interp/glue/gsetpositionstruct.cpp.c` (0/10)
 

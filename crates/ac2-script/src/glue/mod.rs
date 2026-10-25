@@ -14,6 +14,7 @@
 mod cparse;
 mod enums;
 mod format;
+mod lists;
 mod string_info;
 mod vm_glue;
 mod wcc;
@@ -33,6 +34,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     wpstring::register(efuns);
     string_info::register(efuns);
     enums::register(efuns);
+    lists::register(efuns);
 }
 
 /// The retail glue function behind efun `id` (`gAAHash::CallEFun_add`).
@@ -51,6 +53,24 @@ pub fn efun_name(id: u32) -> Option<&'static str> {
         .binary_search_by_key(&id, |(i, _)| *i)
         .ok()
         .map(|i| table[i].1)
+}
+
+/// Every retail (efun id, glue name).
+pub(crate) fn efun_table() -> impl Iterator<Item = (u32, &'static str)> {
+    include_str!("efun_names.txt").lines().filter_map(|line| {
+        let (id, name) = line.split_once(' ')?;
+        Some((u32::from_str_radix(id, 16).ok()?, name))
+    })
+}
+
+/// The word `n` slots below the frame pointer of an efun frame (1 is `this`).
+pub(crate) fn word(ctx: &Context, n: usize) -> u32 {
+    ctx.arg(n).unwrap_or(u32::MAX)
+}
+
+/// A 64-bit argument whose low word is `n` slots down.
+pub(crate) fn word64(ctx: &Context, n: usize) -> u64 {
+    u64::from(word(ctx, n)) | u64::from(word(ctx, n - 1)) << 32
 }
 
 /// Every retail efun id.

@@ -1,6 +1,6 @@
 # replaced: Third-party libraries, CRT and container templates replaced by Rust
 
-2058 retail functions: 17 done, 0 partial, 0 to do, 2041 skipped.
+2058 retail functions: 20 done, 0 partial, 0 to do, 2038 skipped.
 Legend and workflow: [README](README.md).
 
 ## `_libraries/ImeUI.lib/ImeUi.obj.c` (0/36)
@@ -2590,10 +2590,10 @@ Legend and workflow: [README](README.md).
 ### _STL::deque<_STL::pair<long,long>,_STL::allocator<_STL::pair<long,long>_>_>
 - [-] `_STL::deque<_STL::pair<long,long>,_STL::allocator<_STL::pair<long,long>_>_>::_M_push_front_aux_v` · 005777d0 · legions 00547770 — Rust std replaces it
 
-## `portal/client/src/smartbox/worldmanager/lscapemanager.cpp.c` (0/3)
+## `portal/client/src/smartbox/worldmanager/lscapemanager.cpp.c` (1/3)
 
 ### List<ItemDisplay_*>
-- [-] `List<ItemDisplay_*>::insert` · 0057a700 · legions 005f8dd0 — Rust std replaces it
+- [x] `List<ItemDisplay_*>::insert` · 0057a700 · legions 005f8dd0 — ac2-script glue::lists
 
 ### IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,CLandCell_*>_*>
 - [-] `IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,CLandCell_*>_*>::IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,CLandCell_*>_*>` · 0057b090 · legions 0054a970 — Rust std replaces it
@@ -4164,13 +4164,13 @@ Legend and workflow: [README](README.md).
 ### HashTable<PStringBase<unsigned_short>,Position>
 - [-] `HashTable<PStringBase<unsigned_short>,Position>::add` · 0053d610 · legions 0051f3f0 — Rust std replaces it
 
-## `portal/shared/src/interp/glue/grlist.cpp.c` (0/2)
+## `portal/shared/src/interp/glue/grlist.cpp.c` (2/2)
 
 ### List<ItemDisplay_*>
-- [-] `List<ItemDisplay_*>::push` · 00554600 · legions 0042dd80 — Rust std replaces it
+- [x] `List<ItemDisplay_*>::push` · 00554600 · legions 0042dd80 — ac2-script glue::lists
 
 ### List<unsigned_long>
-- [-] `List<unsigned_long>::pop_back` · 00554ae0 · legions 0052eac0 — Rust std replaces it
+- [x] `List<unsigned_long>::pop_back` · 00554ae0 · legions 0052eac0 — ac2-script glue::lists
 
 ## `portal/shared/src/interp/glue/gwpstring.cpp.c` (0/1)
 

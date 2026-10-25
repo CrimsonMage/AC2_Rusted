@@ -87,9 +87,9 @@ fn every_package_initializer_runs_or_stops_at_an_unbound_efun() {
     eprintln!("most-needed efuns: {named:#?}");
     eprintln!("other crashes: {odd:#?}");
     eprintln!("references: {}", vm.refs.entries.len());
-    // 570 of 9,874 complete with no glue; 4,828 with gVM, gwccinternal, gwpstring,
-    // gStringInfo, gEnumMapper and gFileArray bound.
-    assert!(outcomes.get("Terminated").copied().unwrap_or(0) >= 4800);
+    // 570 of 9,874 complete with no glue; 5,223 with gVM, gwccinternal, gwpstring,
+    // gStringInfo, gEnumMapper, gFileArray and the list/array glue bound.
+    assert!(outcomes.get("Terminated").copied().unwrap_or(0) >= 5200);
     for bad in ["crash: UnknownOpcode", "crash: BadJump", "crash: Stack"] {
         assert!(!outcomes.contains_key(bad), "{bad}: {odd:#?}");
     }

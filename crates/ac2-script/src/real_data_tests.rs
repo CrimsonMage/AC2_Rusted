@@ -132,6 +132,7 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::GmRaceSexInfo(_) => "gmRaceSexInfo",
         NativeObject::GmSceneInfo(_) => "gmSceneInfo",
         NativeObject::SkillUiNode(_) => "SkillUINode",
+        NativeObject::ListIter { .. } => "list iterator",
         NativeObject::Unbound(_) => "unbound",
     }
 }

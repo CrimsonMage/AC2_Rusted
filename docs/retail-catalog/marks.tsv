@@ -1059,6 +1059,206 @@ key	status	note
 00553b50	x	ac2-script glue
 00553bd0	~	ac2-script glue: no collector/debugger
 00553c50	x	ac2-script glue
+005540c0	~	ac2-script glue::lists: iterators hold an index, not a node
+00554120	~	ac2-script glue::lists: iterators hold an index, not a node
+00554180	~	ac2-script glue::lists: iterators hold an index, not a node
+005541f0	~	ac2-script glue::lists: iterators hold an index, not a node
+00554270	~	ac2-script glue::lists: iterators hold an index, not a node
+005542e0	~	ac2-script glue::lists: iterators hold an index, not a node
+00554390	~	ac2-script glue::lists: iterators hold an index, not a node
+00554420	x	ac2-script glue::lists
+00554490	x	ac2-script glue::lists
+00554500	x	ac2-script glue::lists
+00554580	x	ac2-script glue::lists
+00554600	x	ac2-script glue::lists
+005546c0	x	ac2-script glue::lists
+00554740	x	ac2-script glue::lists
+005547c0	x	ac2-script glue::lists
+00554840	x	ac2-script glue::lists
+005548c0	x	ac2-script glue::lists
+00554940	x	ac2-script glue::lists
+005549c0	x	ac2-script glue::lists
+00554a40	x	ac2-script glue::lists
+00554ae0	x	ac2-script glue::lists
+00554b30	x	ac2-script glue::lists
+00554b70	x	ac2-script glue::lists
+00554c00	x	ac2-script glue::lists
+00554cb0	x	ac2-script glue::lists
+00554d60	x	ac2-script glue::lists
+00554e10	x	ac2-script glue::lists
+00554ec0	x	ac2-script glue::lists
+00554f20	x	ac2-script glue::lists
+00554fa0	x	ac2-script glue::lists
+00555040	x	ac2-script glue::lists
+005550e0	x	ac2-script glue::lists
+00555180	x	ac2-script glue::lists
+00555220	x	ac2-script glue::lists
+005552c0	x	ac2-script glue::lists
+00555360	x	ac2-script glue::lists
+00555400	x	ac2-script glue::lists
+00555590	x	ac2-script glue::lists
+00555610	x	ac2-script glue::lists
+00555690	x	ac2-script glue::lists
+00555710	x	ac2-script glue::lists
+005557b0	x	ac2-script glue::lists
+00555850	x	ac2-script glue::lists
+00555900	x	ac2-script glue::lists
+005559b0	x	ac2-script glue::lists
+00555a60	x	ac2-script glue::lists
+00555b10	x	ac2-script glue::lists
+00555bb0	x	ac2-script glue::lists
+00555c90	x	ac2-script glue::lists
+00555d70	x	ac2-script glue::lists
+00555e10	x	ac2-script glue::lists
+00555eb0	x	ac2-script glue::lists
+00555f90	x	ac2-script glue::lists
+00556070	x	ac2-script glue::lists
+00556110	x	ac2-script glue::lists
+005561c0	x	ac2-script glue::lists
+00556230	x	ac2-script glue::lists
+005562a0	x	ac2-script glue::lists
+00556320	x	ac2-script glue::lists
+00556390	x	ac2-script glue::lists
+00556420	x	ac2-script glue::lists
+005564c0	x	ac2-script glue::lists
+00556570	x	ac2-script glue::lists
+00556620	x	ac2-script glue::lists
+0055b0b0	~	ac2-script glue::lists: iterators hold an index, not a node
+0055b110	~	ac2-script glue::lists: iterators hold an index, not a node
+0055b170	~	ac2-script glue::lists: iterators hold an index, not a node
+0055b1e0	~	ac2-script glue::lists: iterators hold an index, not a node
+0055b260	~	ac2-script glue::lists: iterators hold an index, not a node
+0055b2d0	~	ac2-script glue::lists: iterators hold an index, not a node
+0055b390	~	ac2-script glue::lists: iterators hold an index, not a node
+0055b450	x	ac2-script glue::lists
+0055b4c0	x	ac2-script glue::lists
+0055b560	x	ac2-script glue::lists
+0055b5d0	x	ac2-script glue::lists
+0055b660	x	ac2-script glue::lists
+0055b860	x	ac2-script glue::lists
+0055b8f0	x	ac2-script glue::lists
+0055b980	x	ac2-script glue::lists
+0055ba10	x	ac2-script glue::lists
+0055baa0	x	ac2-script glue::lists
+0055bb30	x	ac2-script glue::lists
+0055bbc0	x	ac2-script glue::lists
+0055bc50	x	ac2-script glue::lists
+0055bce0	x	ac2-script glue::lists
+0055be60	x	ac2-script glue::lists
+0055bf00	x	ac2-script glue::lists
+0055bfb0	x	ac2-script glue::lists
+0055c060	x	ac2-script glue::lists
+0055c110	x	ac2-script glue::lists
+0055c1c0	x	ac2-script glue::lists
+0055c220	x	ac2-script glue::lists
+0055c340	x	ac2-script glue::lists
+0055c3d0	x	ac2-script glue::lists
+0055c460	x	ac2-script glue::lists
+0055c4f0	x	ac2-script glue::lists
+0055c580	x	ac2-script glue::lists
+0055c610	x	ac2-script glue::lists
+0055c6a0	x	ac2-script glue::lists
+0055c730	x	ac2-script glue::lists
+0055c8b0	x	ac2-script glue::lists
+0055c930	x	ac2-script glue::lists
+0055c9b0	x	ac2-script glue::lists
+0055ca30	x	ac2-script glue::lists
+0055cad0	x	ac2-script glue::lists
+0055cb80	x	ac2-script glue::lists
+0055cc40	x	ac2-script glue::lists
+0055cd00	x	ac2-script glue::lists
+0055cdc0	x	ac2-script glue::lists
+0055ce80	x	ac2-script glue::lists
+0055cf20	x	ac2-script glue::lists
+0055cfc0	x	ac2-script glue::lists
+0055d060	x	ac2-script glue::lists
+0055d100	x	ac2-script glue::lists
+0055d1a0	x	ac2-script glue::lists
+0055d240	x	ac2-script glue::lists
+0055d2e0	x	ac2-script glue::lists
+0055e270	x	ac2-script glue::lists
+0055e300	x	ac2-script glue::lists
+0055e370	x	ac2-script glue::lists
+0055e3d0	x	ac2-script glue::lists
+0055e440	x	ac2-script glue::lists
+0055e4e0	x	ac2-script glue::lists
+0055e570	x	ac2-script glue::lists
+0055e610	x	ac2-script glue::lists
+0055e6e0	x	ac2-script glue::lists
+0055e770	x	ac2-script glue::lists
+0055e840	x	ac2-script glue::lists
+0055e910	x	ac2-script glue::lists
+00562520	~	ac2-script glue::lists: iterators hold an index, not a node
+00562580	~	ac2-script glue::lists: iterators hold an index, not a node
+005625e0	~	ac2-script glue::lists: iterators hold an index, not a node
+00562650	~	ac2-script glue::lists: iterators hold an index, not a node
+005626d0	~	ac2-script glue::lists: iterators hold an index, not a node
+00562740	~	ac2-script glue::lists: iterators hold an index, not a node
+005627f0	~	ac2-script glue::lists: iterators hold an index, not a node
+00562880	x	ac2-script glue::lists
+005628f0	x	ac2-script glue::lists
+00562960	x	ac2-script glue::lists
+005629e0	x	ac2-script glue::lists
+00562a60	x	ac2-script glue::lists
+00562b00	x	ac2-script glue::lists
+00562b90	x	ac2-script glue::lists
+00562c20	x	ac2-script glue::lists
+00562ca0	x	ac2-script glue::lists
+00562d20	x	ac2-script glue::lists
+00562da0	x	ac2-script glue::lists
+00562e20	x	ac2-script glue::lists
+00562ea0	x	ac2-script glue::lists
+00562f20	x	ac2-script glue::lists
+00562fa0	x	ac2-script glue::lists
+00563020	x	ac2-script glue::lists
+005630a0	x	ac2-script glue::lists
+00563140	x	ac2-script glue::lists
+005631d0	x	ac2-script glue::lists
+00563280	x	ac2-script glue::lists
+00563330	x	ac2-script glue::lists
+005633e0	x	ac2-script glue::lists
+00563490	x	ac2-script glue::lists
+005634f0	x	ac2-script glue::lists
+00563570	x	ac2-script glue::lists
+00563610	x	ac2-script glue::lists
+005636b0	x	ac2-script glue::lists
+00563750	x	ac2-script glue::lists
+005637f0	x	ac2-script glue::lists
+00563890	x	ac2-script glue::lists
+00563930	x	ac2-script glue::lists
+005639d0	x	ac2-script glue::lists
+00563a70	~	ac2-script glue::lists: iterators hold an index, not a node
+00563ac0	~	ac2-script glue::lists: iterators hold an index, not a node
+00563b10	~	ac2-script glue::lists: iterators hold an index, not a node
+00563b60	x	ac2-script glue::lists
+00563be0	x	ac2-script glue::lists
+00563c60	x	ac2-script glue::lists
+00563ce0	x	ac2-script glue::lists
+00563d80	x	ac2-script glue::lists
+00563e30	x	ac2-script glue::lists
+00563ee0	x	ac2-script glue::lists
+00563f90	x	ac2-script glue::lists
+00564040	x	ac2-script glue::lists
+005640f0	x	ac2-script glue::lists
+00564190	x	ac2-script glue::lists
+00564270	x	ac2-script glue::lists
+00564350	x	ac2-script glue::lists
+005643f0	x	ac2-script glue::lists
+00564490	x	ac2-script glue::lists
+00564570	x	ac2-script glue::lists
+00564650	x	ac2-script glue::lists
+00566190	x	ac2-script glue::lists
+005661f0	x	ac2-script glue::lists
+00566280	x	ac2-script glue::lists
+00566310	x	ac2-script glue::lists
+00566380	x	ac2-script glue::lists
+00566400	x	ac2-script glue::lists
+00566470	x	ac2-script glue::lists
+00566500	x	ac2-script glue::lists
+005665a0	x	ac2-script glue::lists
+00566650	x	ac2-script glue::lists
+005666d0	x	ac2-script glue::lists
+00566790	x	ac2-script glue::lists
 00568050	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 00568220	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005682d0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -1136,6 +1336,7 @@ key	status	note
 00579910	~	a player target without parent or bone (third and first person)
 0057a320	x	
 0057a590	x	far radius consumed by FarTerrain::new
+0057a700	x	ac2-script glue::lists
 0057a780	~	near radius 1, far radius 4
 0057b980	~	the near window (radius 1) resident, the rest released
 0057ba10	x	

@@ -135,3 +135,59 @@ fn the_name_table_covers_the_dispatchers() {
     );
     assert_eq!(efun_ids().count(), 2112);
 }
+
+#[test]
+fn list_glue_follows_the_node_list_and_smart_array_rules() {
+    use crate::native::ScriptList;
+    use crate::vm::refs::{flags, ReferenceTable, Target};
+    let mut vm = vm();
+    let empty = |vm: &mut Vm, t: u32| {
+        vm.refs
+            .create_native(t, NativeObject::List(ScriptList::default()))
+    };
+    let list = empty(&mut vm, crate::native::ntype::A_LIST);
+    for v in [5, 7, 5, 9] {
+        call(&mut vm, 0x000A_0006, 1, &[v], list); // push_back
+    }
+    let (_, r) = call(&mut vm, 0x000A_000E, 1, &[7], list); // push_unique_back
+    assert_eq!(r[0].0, 0);
+    call(&mut vm, 0x000A_0024, 1, &[5], list); // remove: the last 5
+    let items = |vm: &Vm, r: u32| match vm.native(r) {
+        Some(NativeObject::List(l)) => l.items.clone(),
+        _ => panic!(),
+    };
+    assert_eq!(items(&vm, list), vec![5, 7, 9]);
+    let (_, r) = call(&mut vm, 0x000A_0029, 1, &[9], list); // get_position
+    assert_eq!(r[0].0, 2);
+    // pop_front into a heap slot through an address reference.
+    let holder = vm.refs.add(
+        flags::KIND_HEAP | flags::FILLED,
+        Target::Heap(Box::new(ReferenceTable::new_instance(0, 1))),
+    );
+    let out = vm.refs.add(flags::KIND_VALUE, Target::Ref(holder));
+    let (_, r) = call(&mut vm, 0x000A_0014, 1, &[out], list);
+    assert_eq!(r[0].0, 1);
+    assert_eq!(vm.refs.heap(holder).unwrap().slots[0], 5);
+    assert_eq!(vm.refs.heap(holder).unwrap().tags[0], tag::BOOL);
+    // An array erase moves the last element into the hole.
+    let array = empty(&mut vm, crate::native::ntype::A_ARRAY);
+    for v in [1, 2, 3, 4] {
+        call(&mut vm, 0x0005_0002, 1, &[v], array); // push
+    }
+    call(&mut vm, 0x0005_0008, 1, &[0], array); // erase(0)
+    assert_eq!(items(&vm, array), vec![4, 2, 3]);
+    // Iterate with get_begin / data / next / notdone.
+    let (_, r) = call(&mut vm, 0x000A_002D, 1, &[], list);
+    let iter = r[0].0;
+    let mut seen = Vec::new();
+    loop {
+        let (_, n) = call(&mut vm, 0x000B_0007, 1, &[], iter); // notdone
+        if n[0].0 == 0 {
+            break;
+        }
+        let (_, d) = call(&mut vm, 0x000B_0003, 1, &[], iter); // data
+        seen.push(d[0].0);
+        call(&mut vm, 0x000B_0001, 0, &[], iter); // next
+    }
+    assert_eq!(seen, vec![7, 9]);
+}

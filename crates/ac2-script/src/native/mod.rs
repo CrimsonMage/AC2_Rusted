@@ -29,12 +29,14 @@ pub mod ntype {
     pub const A_HASH_SET: u32 = 0x06;
     pub const AL_HASH: u32 = 0x08;
     pub const A_LIST: u32 = 0x0A;
+    pub const A_LIST_ITER: u32 = 0x0B;
     pub const AR_HASH: u32 = 0x11;
     pub const BEHAVIOR_PARAMS: u32 = 0x17;
     pub const LA_HASH: u32 = 0x32;
     pub const L_ARRAY: u32 = 0x37;
     pub const LL_HASH: u32 = 0x39;
     pub const L_LIST: u32 = 0x3B;
+    pub const L_LIST_ITER: u32 = 0x3C;
     pub const LR_HASH: u32 = 0x40;
     pub const MISSILE_PARAMETERS: u32 = 0x46;
     pub const NA_HASH: u32 = 0x4B;
@@ -43,6 +45,7 @@ pub mod ntype {
     pub const RANDOM_SELECTION_TABLE_INT: u32 = 0x60;
     pub const R_ARRAY: u32 = 0x61;
     pub const R_LIST: u32 = 0x65;
+    pub const R_LIST_ITER: u32 = 0x66;
     pub const STRING_INFO: u32 = 0x6A;
     pub const VECTOR: u32 = 0x70;
     pub const WPSTRING: u32 = 0x76;
@@ -75,6 +78,12 @@ pub enum NativeObject {
     GmRaceSexInfo(GmRaceSexInfo),
     GmSceneInfo(GmSceneInfo),
     SkillUiNode(Box<SkillUiNode>),
+    /// `BaseListIter`: a position in a list (`None` past the end). Retail holds the list node;
+    /// the port holds its index, which agrees for everything done through the iterator.
+    ListIter {
+        list: u32,
+        pos: Option<usize>,
+    },
     /// A native type made by `NewNative` that the port has no value for yet.
     Unbound(u32),
 }
@@ -105,6 +114,12 @@ impl NativeObject {
             ntype::STRING_INFO => NativeObject::StringInfo(StringInfo::default()),
             ntype::WPSTRING => NativeObject::WString(Vec::new()),
             ntype::VECTOR => NativeObject::Vector([0.0; 3]),
+            ntype::A_LIST_ITER | ntype::L_LIST_ITER | ntype::R_LIST_ITER => {
+                NativeObject::ListIter {
+                    list: u32::MAX,
+                    pos: None,
+                }
+            }
             ntype::POSITION => NativeObject::Position(Position::default()),
             other => NativeObject::Unbound(other),
         }
