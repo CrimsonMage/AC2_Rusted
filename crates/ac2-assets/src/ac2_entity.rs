@@ -20,6 +20,8 @@ pub struct Ac2EntityDesc {
     /// The packed `PropertyCollection`, decoded on demand with `ac2_db::read_ac2_property_groups`
     /// (it needs the `MasterProperty` table installed).
     pub properties: Option<std::sync::Arc<[u8]>>,
+    /// `m_strWbName`: the workbench name (`UISceneEntity::SetID` maps it to the entity id).
+    pub workbench_name: Option<String>,
 }
 
 impl Default for Ac2EntityDesc {
@@ -31,6 +33,7 @@ impl Default for Ac2EntityDesc {
             rotation: Quat::IDENTITY,
             scale: Vec3::ONE,
             properties: None,
+            workbench_name: None,
         }
     }
 }
@@ -107,8 +110,18 @@ pub fn read_ac2_entity_desc(cursor: &mut ArchiveCursor<'_>) -> Result<Ac2EntityD
         word(cursor)?;
     }
     if bits & 0x100 != 0 {
-        let len = usize::from(cursor.read_u16().map_err(|_| "record ended early")?);
-        skip(cursor, len)?;
+        // `PStringBase<char>::UnPack`: a u16 length (0xFFFF: a u32 follows), the scrambled
+        // characters, alignment.
+        let mut len = u32::from(cursor.read_u16().map_err(|_| "record ended early")?);
+        if len == 0xFFFF {
+            len = word(cursor)?;
+        }
+        let mut name = cursor
+            .read_bytes(len as usize)
+            .map_err(|_| "record ended early")?
+            .to_vec();
+        ac2_core::pstring::unmunge(&mut name);
+        desc.workbench_name = Some(String::from_utf8_lossy(&name).into_owned());
         cursor.align_to(4).map_err(|_| "record ended early")?;
     }
     Ok(desc)

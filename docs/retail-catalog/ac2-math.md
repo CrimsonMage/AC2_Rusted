@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 130 done, 10 partial, 247 to do, 39 skipped.
+426 retail functions: 130 done, 11 partial, 246 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -254,7 +254,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LightSource::GetAnimatedRange` · 00621ed0 · legions 005dd2b0
 - [x] `LightSource::RefreshMaxRange` · 00621ef0 · legions 005dd2d0 — ac2-render object::cell / point_lights
 - [ ] `LightSource::CalculateAttenuation` · 00621f30 · legions 005dd310
-- [ ] `LightSource::ApplyProperty` · 00621fb0
+- [~] `LightSource::ApplyProperty` · 00621fb0 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 - [ ] `LightSource::BuildOptionalProperties` · 00622190
 - [ ] `LightSource::LightSource` · 00622500 · legions 005dd8d0
 - [ ] `LightSource::ApplyPropertyCollection` · 00622650

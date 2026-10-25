@@ -88,26 +88,6 @@ impl DatWorld {
     }
 }
 
-impl DatWorld {
-    /// The visual's FX sounds and which of them loop (`FXManager::SoundIsLooping` reads them
-    /// here, on the loader thread).
-    fn fx_sounds(&self, visual: DataId) -> Result<Option<Arc<crate::FxSoundData>>, String> {
-        let Some(table) = ac2_assets::resolve_ac2_visual_fx_sounds(&self.store, visual)
-            .map_err(|e| e.to_string())?
-            .filter(ac2_assets::Ac2VisualFxSounds::has_sounds)
-        else {
-            return Ok(None);
-        };
-        let sounds = ac2_audio::DatSounds::new(Arc::clone(&self.store));
-        let looping = table
-            .sound_ids()
-            .into_iter()
-            .filter(|&did| sounds.is_looping(did))
-            .collect();
-        Ok(Some(Arc::new(crate::FxSoundData { table, looping })))
-    }
-}
-
 impl WorldData for DatWorld {
     fn load_script_data(&self, read: ac2_script::vm::DataRequest) {
         if let Some(data) = &self.script_data {
@@ -146,42 +126,70 @@ impl WorldData for DatWorld {
 
     fn body(&self, visual: Option<u32>) -> Result<BodyData, String> {
         let visual = DataId::new(visual.ok_or("the player has no visual")?);
-        let shape = load_body_shape(&self.store, visual)
-            .map_err(|e| e.to_string())?
-            .ok_or("the player's visual has no Setup")?;
-        let radius = match ac2_assets::resolve_ac2_visual_parts(&self.store, visual)
-            .map_err(|e| e.to_string())?
-            .first()
-        {
-            Some((setup, _)) => self
-                .store
-                .load_cached_packed::<ac2_assets::Ac2SetupPhysics>(TypedResourceRef::new(
-                    DatFileKind::Portal,
-                    *setup,
-                    0,
-                ))
-                .map_err(|e| e.to_string())?
-                .map_or(0.0, |physics| physics.radius),
-            None => 0.0,
-        };
-        let midesc = ac2_assets::resolve_ac2_visual_motion_interp(&self.store, visual)
-            .map_err(|e| e.to_string())?
-            .unwrap_or(DataId::new(HUMAN_MOTION_INTERP_DESC));
-        let motion = load_ac2_motion_interp_desc(&self.store, midesc)
-            .map_err(|e| e.to_string())?
-            .map(|desc| Arc::new((*desc).clone()));
-        let animation =
-            ac2_physics::load_body_animation(&self.store, visual).map_err(|e| e.to_string())?;
-        Ok(BodyData {
-            shape,
-            motion,
-            radius,
-            animation,
-            fx_sounds: self.fx_sounds(visual)?,
-        })
+        load_body_data(&self.store, visual)
     }
 
     fn game_clock(&self) -> Option<GameClock> {
         Some(self.world.region()?.game_clock())
     }
+}
+
+/// A body's collision shape, motion description, radius and animation for `visual` (its
+/// `VisualDesc` or `Setup`), read on a loader thread.
+pub(crate) fn load_body_data(
+    store: &Arc<ResourceStore>,
+    visual: DataId,
+) -> Result<BodyData, String> {
+    let shape = load_body_shape(store, visual)
+        .map_err(|e| e.to_string())?
+        .ok_or("the player's visual has no Setup")?;
+    let radius = match ac2_assets::resolve_ac2_visual_parts(store, visual)
+        .map_err(|e| e.to_string())?
+        .first()
+    {
+        Some((setup, _)) => store
+            .load_cached_packed::<ac2_assets::Ac2SetupPhysics>(TypedResourceRef::new(
+                DatFileKind::Portal,
+                *setup,
+                0,
+            ))
+            .map_err(|e| e.to_string())?
+            .map_or(0.0, |physics| physics.radius),
+        None => 0.0,
+    };
+    let midesc = ac2_assets::resolve_ac2_visual_motion_interp(store, visual)
+        .map_err(|e| e.to_string())?
+        .unwrap_or(DataId::new(HUMAN_MOTION_INTERP_DESC));
+    let motion = load_ac2_motion_interp_desc(store, midesc)
+        .map_err(|e| e.to_string())?
+        .map(|desc| Arc::new((*desc).clone()));
+    let animation = ac2_physics::load_body_animation(store, visual).map_err(|e| e.to_string())?;
+    Ok(BodyData {
+        shape,
+        motion,
+        radius,
+        animation,
+        fx_sounds: load_fx_sounds(store, visual)?,
+    })
+}
+
+/// The visual's FX sounds and which of them loop (`FXManager::SoundIsLooping` reads them
+/// here, on the loader thread).
+fn load_fx_sounds(
+    store: &Arc<ResourceStore>,
+    visual: DataId,
+) -> Result<Option<Arc<crate::FxSoundData>>, String> {
+    let Some(table) = ac2_assets::resolve_ac2_visual_fx_sounds(store, visual)
+        .map_err(|e| e.to_string())?
+        .filter(ac2_assets::Ac2VisualFxSounds::has_sounds)
+    else {
+        return Ok(None);
+    };
+    let sounds = ac2_audio::DatSounds::new(Arc::clone(store));
+    let looping = table
+        .sound_ids()
+        .into_iter()
+        .filter(|&did| sounds.is_looping(did))
+        .collect();
+    Ok(Some(Arc::new(crate::FxSoundData { table, looping })))
 }

@@ -3,18 +3,18 @@
 //! `RecvNotice_CharacterError`, `RecvNotice_CharGenVerification`, `RecvNotice_ServerDied`); the
 //! frame's UI actions go to the tree and its messages to the dialogs and the current framework
 //! (`UIListener`); each UI loop (`UIMESSAGE_GLOBAL_LOOP`) runs the frameworks and switches to a
-//! queued mode (`UIFlow::UseNewMode`). Before the first character set the UI is in the data patch
-//! (connecting) mode, which the client stands in for: the first set switches to character
-//! selection (`gmDataPatchUI::Update`).
+//! queued mode (`UIFlow::UseNewMode`). The UI opens on the intro, then the data patch
+//! (connecting) screen, which the character set ends with character selection
+//! (`gmDataPatchUI::Update`).
 //!
 //! Character generation's screens ask the `CharacterGenSystem` script through the
 //! [`CharGenSystem`] the client sets ([`PregameUi::set_char_gen_system`]; without one they make
-//! nothing). Their 3D scenes are the client's: it answers picks ([`PregameUi::wants_pick`],
+//! nothing). Their 3D scenes are the client's: it renders the scenes the viewports name
+//! ([`PregameUi::viewports`]), answers picks ([`PregameUi::wants_pick`],
 //! [`PregameUi::finish_pick`]) and the end of the chosen avatar's animation
 //! ([`PregameUi::selected_animation`], [`PregameUi::finish_animation`]).
 //!
-//! Not modelled yet: the intro, data patch, keyboard and credits frameworks (their modes show
-//! nothing).
+//! Not modelled yet: the controls screen's binding list and its editing (`gmKeyboardUI`).
 
 use std::collections::HashMap;
 
@@ -30,11 +30,15 @@ use crate::pregame::avatar_selection::AvatarSelectionUi;
 use crate::pregame::character_selection::CharacterSelectionUi;
 use crate::pregame::chargen::{CharGenSystem, NoCharGen};
 use crate::pregame::confirmation::is_name_character;
+use crate::pregame::credits::CreditsUi;
+use crate::pregame::data_patch::DataPatchUi;
 use crate::pregame::disconnected::DisconnectedUi;
 use crate::pregame::flow::{
     UiFlow, MODE_AVATAR_MODIFICATION, MODE_AVATAR_SELECTION, MODE_CHARACTER_SELECTION,
-    MODE_DISCONNECTED,
+    MODE_CREDITS, MODE_DATA_PATCH, MODE_DISCONNECTED, MODE_INTRO, MODE_KEYBOARD,
 };
+use crate::pregame::intro::IntroUi;
+use crate::pregame::keyboard::KeyboardUi;
 use crate::pregame::persistent::PersistentData;
 use crate::pregame::Ctx;
 
@@ -58,6 +62,10 @@ pub enum PregameRequest {
 enum Framework {
     #[default]
     None,
+    Intro(IntroUi),
+    DataPatch(DataPatchUi),
+    Credits(CreditsUi),
+    Keyboard(KeyboardUi),
     CharacterSelection(CharacterSelectionUi),
     AvatarSelection(AvatarSelectionUi),
     AvatarModification(AvatarModificationUi),
@@ -118,15 +126,17 @@ macro_rules! ctx {
 }
 
 impl PregameUi {
-    /// The UI on a `width` x `height` display, connecting (no framework yet).
+    /// The UI on a `width` x `height` display, the intro queued (`gmUIFlow::gmUIFlow`).
     pub fn new(assets: PregameAssets, width: i32, height: i32) -> Self {
         let tree = assets.tree(width, height);
         let dialogs = DialogFactory::new(assets.layout(LAYOUT_DIALOGS).cloned());
+        let mut flow = UiFlow::new();
+        flow.queue_mode(MODE_INTRO, "");
         Self {
             assets,
             tree,
             dialogs,
-            flow: UiFlow::new(),
+            flow,
             data: PersistentData::default(),
             current: Framework::None,
             requests: Vec::new(),
@@ -196,6 +206,12 @@ impl PregameUi {
         }
     }
 
+    /// The shown viewport roots and the scenes they show, in the order the roots are drawn
+    /// (`UIViewportObject::Render` among the surfaces).
+    pub fn viewports(&self) -> Vec<crate::pregame::SceneViewport> {
+        crate::pregame::scene::viewports(&self.tree)
+    }
+
     /// The dialogs.
     pub fn dialogs(&self) -> &DialogFactory {
         &self.dialogs
@@ -213,12 +229,18 @@ impl PregameUi {
         let (mut ctx, current) = ctx!(self);
         match current {
             Framework::CharacterSelection(ui) => ui.update(&mut ctx),
-            Framework::None if ctx.flow.mode() == 0 && ctx.flow.next_mode().is_none() => {
-                ctx.flow.queue_mode(MODE_CHARACTER_SELECTION, "");
-            }
+            Framework::DataPatch(ui) => ui.update(&mut ctx),
             _ => {}
         }
         self.pump();
+    }
+
+    /// `gmDataPatchUI::OnNetStatusChange(Net_LoginConnected)`: the session connected.
+    pub fn connected(&mut self) {
+        let (mut ctx, current) = ctx!(self);
+        if let Framework::DataPatch(ui) = current {
+            ui.connected(&mut ctx);
+        }
     }
 
     /// `gmUIFlow::RecvNotice_CharacterError`, with the server's text when it sent one.
@@ -312,6 +334,10 @@ impl PregameUi {
                     }
                 }
                 match current {
+                    Framework::Intro(ui) => ui.message(&mut ctx, message),
+                    Framework::DataPatch(ui) => ui.message(&mut ctx, message),
+                    Framework::Credits(ui) => ui.message(&mut ctx, message),
+                    Framework::Keyboard(ui) => ui.message(&mut ctx, message),
                     Framework::CharacterSelection(ui) => ui.message(&mut ctx, message),
                     Framework::AvatarSelection(ui) => ui.message(&mut ctx, message),
                     Framework::AvatarModification(ui) => ui.message(&mut ctx, message, left_down),
@@ -366,8 +392,11 @@ impl PregameUi {
     /// `UseNewMode`).
     pub fn use_time(&mut self, now: f64) {
         self.tree.global_loop(now);
-        if let Framework::CharacterSelection(ui) = &mut self.current {
-            ui.global_loop(now);
+        let (mut ctx, current) = ctx!(self);
+        match current {
+            Framework::CharacterSelection(ui) => ui.global_loop(now),
+            Framework::Credits(ui) => ui.global_loop(&mut ctx, now),
+            _ => {}
         }
         if let Some((mode, text)) = self.flow.use_new_mode() {
             self.use_new_mode(mode, &text);
@@ -379,6 +408,10 @@ impl PregameUi {
     fn use_new_mode(&mut self, mode: u32, text: &str) {
         let (mut ctx, current) = ctx!(self);
         match std::mem::take(current) {
+            Framework::Intro(ui) => ui.destroy(&mut ctx),
+            Framework::DataPatch(ui) => ui.destroy(&mut ctx),
+            Framework::Credits(ui) => ui.destroy(&mut ctx),
+            Framework::Keyboard(ui) => ui.destroy(&mut ctx),
             Framework::CharacterSelection(ui) => ui.destroy(&mut ctx),
             Framework::AvatarSelection(ui) => ui.destroy(&mut ctx),
             Framework::AvatarModification(ui) => ui.destroy(&mut ctx),
@@ -386,6 +419,10 @@ impl PregameUi {
             Framework::None => {}
         }
         *current = match mode {
+            MODE_INTRO => Framework::Intro(IntroUi::create(&mut ctx)),
+            MODE_DATA_PATCH => Framework::DataPatch(DataPatchUi::create(&mut ctx)),
+            MODE_CREDITS => Framework::Credits(CreditsUi::create(&mut ctx)),
+            MODE_KEYBOARD => Framework::Keyboard(KeyboardUi::create(&mut ctx)),
             MODE_CHARACTER_SELECTION => {
                 Framework::CharacterSelection(CharacterSelectionUi::create(&mut ctx))
             }
@@ -403,6 +440,7 @@ impl PregameUi {
         }
         match current {
             Framework::CharacterSelection(ui) => ui.set_error_msg(ctx.tree, text),
+            Framework::DataPatch(ui) => ui.set_error_msg(&mut ctx, text),
             Framework::Disconnected(ui) => ui.set_error_msg(&mut ctx, text),
             _ => {}
         }

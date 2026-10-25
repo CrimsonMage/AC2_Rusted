@@ -19,17 +19,21 @@ use crate::layout_media::MediaDesc;
 use crate::pregame::strings::UiStrings;
 use crate::pregame::{
     LAYOUT_AVATAR_MODIFICATION, LAYOUT_AVATAR_SELECTION, LAYOUT_CHARACTER_SELECTION,
-    LAYOUT_DISCONNECTED, LAYOUT_GENERATION_CONFIRMATION, LAYOUT_INTRO,
+    LAYOUT_CREDITS, LAYOUT_DATA_PATCH, LAYOUT_DISCONNECTED, LAYOUT_GENERATION_CONFIRMATION,
+    LAYOUT_INTRO, LAYOUT_KEYBOARD,
 };
 use crate::text::UiTextData;
 use crate::text_data::StoreTextData;
 use crate::token::{TEXT_ENTRY, TEXT_FONT};
 
 /// The layouts the pregame frameworks and their dialogs use.
-pub const PREGAME_LAYOUTS: [u32; 7] = [
+pub const PREGAME_LAYOUTS: [u32; 10] = [
     LAYOUT_DISCONNECTED,
     LAYOUT_CHARACTER_SELECTION,
     LAYOUT_INTRO,
+    LAYOUT_DATA_PATCH,
+    LAYOUT_CREDITS,
+    LAYOUT_KEYBOARD,
     LAYOUT_DIALOGS,
     LAYOUT_AVATAR_SELECTION,
     LAYOUT_AVATAR_MODIFICATION,
@@ -152,6 +156,9 @@ pub fn load_pregame(store: &Arc<ResourceStore>) -> ResourceResult<PregameAssets>
                 );
             }
         }
+    }
+    if let Some(credits) = layouts.get(&LAYOUT_CREDITS) {
+        crate::pregame::credits::preload_credits(store, credits, &text, &mut images)?;
     }
     text.freeze();
     Ok(PregameAssets {
