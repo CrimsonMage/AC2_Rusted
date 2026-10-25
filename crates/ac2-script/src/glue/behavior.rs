@@ -6,19 +6,17 @@ use crate::native::{BehaviorParams, NativeObject, PlainKeys, RefKey, ScriptHash}
 use crate::vm::{Context, EFuns, InterpStatus, Vm};
 
 pub(super) fn register(efuns: &mut EFuns) {
-    efuns.register(0x0017_0001, |vm, ctx| {
-        set(vm, ctx, |p, w| p.behavior_id = w.0)
-    });
+    efuns.register(0x0017_0001, |vm, ctx| set(vm, ctx, |p, w| p.behavior = w.0));
     efuns.register(0x0017_0002, get_behavior_id);
     efuns.register(0x0017_0003, |vm, ctx| {
         set(vm, ctx, |p, w| p.time_scale = f32::from_bits(w.0))
     });
-    efuns.register(0x0017_0004, |vm, ctx| set(vm, ctx, |p, w| p.mode_id = w.0));
+    efuns.register(0x0017_0004, |vm, ctx| set(vm, ctx, |p, w| p.mode = w.0));
     efuns.register(0x0017_0005, |vm, ctx| {
         set(vm, ctx, |p, w| p.hold_cycles = w.0)
     });
     efuns.register(0x0017_0006, |vm, ctx| {
-        set(vm, ctx, |p, _| p.move_to_cancels = 1)
+        set(vm, ctx, |p, _| p.moveto_cancels = 1)
     });
     efuns.register(0x0017_0007, |vm, ctx| {
         set(vm, ctx, |p, _| p.early_callback = 1)
@@ -27,7 +25,7 @@ pub(super) fn register(efuns: &mut EFuns) {
         set(vm, ctx, |p, _| p.camera_parent = 1)
     });
     efuns.register(0x0017_0009, |vm, ctx| {
-        set(vm, ctx, |p, _| p.camera_target = 1)
+        set(vm, ctx, |p, _| p.camera_target_flag = 1)
     });
     efuns.register(0x0017_000A, |vm, ctx| {
         set(vm, ctx, |p, _| p.camera_hold = 1)
@@ -36,7 +34,7 @@ pub(super) fn register(efuns: &mut EFuns) {
         set(vm, ctx, |p, _| p.camera_restore = 1)
     });
     efuns.register(0x0017_000C, |vm, ctx| {
-        set(vm, ctx, |p, w| p.camera_target_id = w.2)
+        set(vm, ctx, |p, w| p.camera_target = w.2)
     });
     efuns.register(0x0017_000D, |vm, ctx| {
         set(vm, ctx, |p, w| p.camera_behavior = w.0)
@@ -51,11 +49,9 @@ pub(super) fn register(efuns: &mut EFuns) {
         set(vm, ctx, |p, w| p.send_event = w.0)
     });
     efuns.register(0x0017_0011, |vm, ctx| {
-        set(vm, ctx, |p, w| p.fx_script_id = w.0)
+        set(vm, ctx, |p, w| p.fx_script = w.0)
     });
-    efuns.register(0x0017_0012, |vm, ctx| {
-        set(vm, ctx, |p, w| p.target_id = w.2)
-    });
+    efuns.register(0x0017_0012, |vm, ctx| set(vm, ctx, |p, w| p.target = w.2));
     efuns.register(0x0017_0013, |vm, ctx| {
         set(vm, ctx, |p, w| p.vdesc_to_clone = w.0)
     });
@@ -64,12 +60,12 @@ pub(super) fn register(efuns: &mut EFuns) {
         set(vm, ctx, |p, _| p.leave_idle_alone = 1)
     });
     efuns.register(0x0017_0016, |vm, ctx| set(vm, ctx, |p, _| p.propagate = 1));
-    efuns.register(0x0017_0017, |vm, ctx| set(vm, ctx, |p, w| p.fx_id = w.0));
+    efuns.register(0x0017_0017, |vm, ctx| set(vm, ctx, |p, w| p.fx = w.0));
     efuns.register(0x0017_0018, |vm, ctx| {
-        set(vm, ctx, |p, w| p.weenie_emote_id = w.0)
+        set(vm, ctx, |p, w| p.weenie_emote = w.0)
     });
     efuns.register(0x0017_0019, |vm, ctx| {
-        set(vm, ctx, |p, w| p.cloned_apr_id = w.0)
+        set(vm, ctx, |p, w| p.cloned_apr = w.0)
     });
     efuns.register(0x0017_001A, set_cloned_app_key_hash);
 }
@@ -94,7 +90,7 @@ fn set(vm: &mut Vm, ctx: &mut Context, f: fn(&mut BehaviorParams, Words)) -> Int
 fn get_behavior_id(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let this = Call::new(ctx).this();
     let id = match vm.native(this) {
-        Some(NativeObject::BehaviorParams(p)) => p.behavior_id,
+        Some(NativeObject::BehaviorParams(p)) => p.behavior,
         _ => return vm.bad_this(this),
     };
     Call::new(ctx).ret(2, id, INT_RESULT);
@@ -130,6 +126,7 @@ fn set_cloned_app_key_hash(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     for node in src.nodes() {
         dest.add(node.key, node.value, &PlainKeys);
     }
+    let dest_buckets = dest.num_buckets();
     let pairs: Vec<(u32, f32)> = dest
         .nodes()
         .map(|n| match n.key {
@@ -139,7 +136,8 @@ fn set_cloned_app_key_hash(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
         .collect();
     match vm.native_mut(this) {
         Some(NativeObject::BehaviorParams(p)) => {
-            p.cloned_app_apr_hash = pairs;
+            p.cloned_app_apr = pairs;
+            p.cloned_app_apr_buckets = crate::native::bucket_size_index(dest_buckets) as u8;
             InterpStatus::Success
         }
         _ => vm.bad_this(this),

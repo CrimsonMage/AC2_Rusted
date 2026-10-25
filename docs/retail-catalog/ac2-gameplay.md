@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 26 done, 7 partial, 457 to do, 9 skipped.
+499 retail functions: 51 done, 7 partial, 432 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
@@ -97,51 +97,51 @@ Legend and workflow: [README](README.md).
 - [ ] `GameplayOptionsProfile::GameplayOptionsProfile` · 006009e0 · legions 005c1860
 - [ ] `GameplayOptionsProfile::GameplayOptionsProfile` · 00600b40 · legions 005c19e0
 
-## `ac2/shared/src/character/gmchargenresult.cpp.c` (2/26)
+## `ac2/shared/src/character/gmchargenresult.cpp.c` (20/26)
 
 ### gmCharGenResult
-- [ ] `gmCharGenResult::InqValidPhysTypeValues` · 00600cb0 · legions 005c1b70
-- [ ] `gmCharGenResult::SetClassType` · 00600cf0 · legions 005c1bb0
-- [ ] `gmCharGenResult::GetPhysTypeLabel` · 00600d00 · legions 005c1bc0
+- [x] `gmCharGenResult::InqValidPhysTypeValues` · 00600cb0 · legions 005c1b70 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gmCharGenResult::SetClassType` · 00600cf0 · legions 005c1bb0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gmCharGenResult::GetPhysTypeLabel` · 00600d00 · legions 005c1bc0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [ ] `gmCharGenResult::InitDefaults` · 00600d60
-- [ ] `gmCharGenResult::Randomize` · 00600d90 · legions 005c1c20
-- [ ] `gmCharGenResult::GetPhysObj` · 00600dc0 · legions 005c1c50
+- [x] `gmCharGenResult::Randomize` · 00600d90 · legions 005c1c20 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gmCharGenResult::GetPhysObj` · 00600dc0 · legions 005c1c50 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [ ] `gmCharGenResult::InqAppliedAppearanceVDesc` · 00600df0 · legions 005c1c80
-- [ ] `gmCharGenResult::SetAdmin` · 00600e20 · legions 005c1cb0
-- [ ] `gmCharGenResult::IsAdmin` · 00600e40 · legions 005c1cd0
-- [ ] `gmCharGenResult::FormatName` · 00600e70 · legions 005c1d00
-- [ ] `gmCharGenResult::SanityCheck` · 00600f10 · legions 005c1da0
+- [x] `gmCharGenResult::SetAdmin` · 00600e20 · legions 005c1cb0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gmCharGenResult::IsAdmin` · 00600e40 · legions 005c1cd0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gmCharGenResult::FormatName` · 00600e70 · legions 005c1d00 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gmCharGenResult::SanityCheck` · 00600f10 · legions 005c1da0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [ ] `gmCharGenResult::GetPackSize` · 00600f50 · legions 005c1de0
 - [x] `gmCharGenResult::Pack` · 00600f90 · legions 005c1e20 — ac2-net CharGenResult::write/read
-- [ ] `gmCharGenResult::Clear` · 00601020 · legions 005c1eb0
-- [ ] `gmCharGenResult::GetPhysTypeValue` · 00601090 · legions 005c1f20
+- [x] `gmCharGenResult::Clear` · 00601020 · legions 005c1eb0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gmCharGenResult::GetPhysTypeValue` · 00601090 · legions 005c1f20 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmCharGenResult::UnPack` · 006010d0 · legions 005c1f60 — ac2-net CharGenResult::write/read
-- [ ] `gmCharGenResult::operator=` · 00601170 · legions 005c2000
-- [ ] `gmCharGenResult::SetPhysTypeValue` · 006011f0 · legions 005c2080
-- [ ] `gmCharGenResult::GetStartingPosition` · 00601210 · legions 005c20a0
+- [x] `gmCharGenResult::operator=` · 00601170 · legions 005c2000 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gmCharGenResult::SetPhysTypeValue` · 006011f0 · legions 005c2080 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gmCharGenResult::GetStartingPosition` · 00601210 · legions 005c20a0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [ ] `gmCharGenResult::~gmCharGenResult` · 00601310 · legions 005c21a0
-- [ ] `gmCharGenResult::GetStartArea` · 00601390 · legions 005c2220
+- [x] `gmCharGenResult::GetStartArea` · 00601390 · legions 005c2220 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
 ### CMotionInterp
 - [ ] `CMotionInterp::SetVelocityScale` · 006013a0 · legions 005c2230
 
 ### gmCharGenResult
 - [ ] `gmCharGenResult::SetStartingPosition` · 006013b0 · legions 005c2240
-- [ ] `gmCharGenResult::gmCharGenResult` · 006013d0 · legions 005c22b0
-- [ ] `gmCharGenResult::gmCharGenResult` · 00601470 · legions 005c2350
-- [ ] `gmCharGenResult::gmCharGenResult` · 00601500 · legions 005c23e0
+- [x] `gmCharGenResult::gmCharGenResult` · 006013d0 · legions 005c22b0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gmCharGenResult::gmCharGenResult` · 00601470 · legions 005c2350 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gmCharGenResult::gmCharGenResult` · 00601500 · legions 005c23e0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
-## `ac2/shared/src/character/gmracesexinfo.cpp.c` (1/8)
+## `ac2/shared/src/character/gmracesexinfo.cpp.c` (5/8)
 
 ### gmRaceSexInfo
 - [x] `gmRaceSexInfo::StreamPack` · 006015b0 · legions 005c2490 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 - [ ] `gmRaceSexInfo::GetSubDataIDs` · 00601610 · legions 005c24f0
-- [ ] `gmRaceSexInfo::Verify` · 006016a0 · legions 005c2580
-- [ ] `gmRaceSexInfo::PutObjInLoc` · 00601720 · legions 005c2600
+- [x] `gmRaceSexInfo::Verify` · 006016a0 · legions 005c2580 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gmRaceSexInfo::PutObjInLoc` · 00601720 · legions 005c2600 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [ ] `gmRaceSexInfo::~gmRaceSexInfo` · 00601740 · legions 005c2620
 - [ ] `gmRaceSexInfo::operator=` · 006017b0 · legions 005c2690
-- [ ] `gmRaceSexInfo::gmRaceSexInfo` · 00601810 · legions 005c26f0
-- [ ] `gmRaceSexInfo::gmRaceSexInfo` · 00601860 · legions 005c2740
+- [x] `gmRaceSexInfo::gmRaceSexInfo` · 00601810 · legions 005c26f0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+- [x] `gmRaceSexInfo::gmRaceSexInfo` · 00601860 · legions 005c2740 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
 ## `ac2/shared/src/craft/craftskilladaptor.cpp.c` (0/3)
 
@@ -449,13 +449,13 @@ Legend and workflow: [README](README.md).
 - [ ] `ShortcutInfo::ShortcutInfo` · 00608120 · legions 005c8fc0
 - [x] `ShortcutInfo::StreamPack` · 00608150 · legions 005c8ff0 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
-## `ac2/shared/src/skilldisplay/skilluinode.cpp.c` (1/7)
+## `ac2/shared/src/skilldisplay/skilluinode.cpp.c` (4/7)
 
 ### SkillUINode
 - [x] `SkillUINode::StreamPack` · 006079d0 · legions 005c8870 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
-- [ ] `SkillUINode::Clear` · 00607a90 · legions 005c8930
-- [ ] `SkillUINode::AddParent` · 00607ae0 · legions 005c8980
-- [ ] `SkillUINode::AddDependency` · 00607b10 · legions 005c89b0
+- [x] `SkillUINode::Clear` · 00607a90 · legions 005c8930 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `SkillUINode::AddParent` · 00607ae0 · legions 005c8980 — ac2-script glue::skill_node over ac2-net's SkillUiNode
+- [x] `SkillUINode::AddDependency` · 00607b10 · legions 005c89b0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
 - [ ] `SkillUINode::SkillUINode` · 00607b40 · legions 005c89e0
 - [ ] `SkillUINode::operator=` · 00607bd0 · legions 005c8a70
 - [ ] `SkillUINode::SkillUINode` · 00607c60 · legions 005c8b00

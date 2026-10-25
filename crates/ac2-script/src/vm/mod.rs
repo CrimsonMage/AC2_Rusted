@@ -185,6 +185,13 @@ pub struct Vm {
     pub last_fault: Option<Fault>,
     /// `WLogSystem`'s log-type masks.
     pub log_types: LogTypes,
+    /// What the scripts produced for the host (server calls, UI notices).
+    pub outbox: crate::host::Outbox,
+    /// The weenie object that owns each process instance (`HeapObject::m_link` of a process
+    /// instance is its `CWDistributor`).
+    pub owners: std::collections::HashMap<u32, u64>,
+    /// `CObjectMaint::GetPlayerID` (0 before the player exists).
+    pub player: u64,
     /// `Random`: retail has one generator for the whole client; a host that runs other
     /// consumers of it on the same stream shares its state through this field.
     pub random: ac2_core::Random,
@@ -225,6 +232,9 @@ impl Vm {
             last_fault: None,
             log_types: LogTypes::default(),
             random: ac2_core::Random::default(),
+            outbox: Default::default(),
+            owners: Default::default(),
+            player: 0,
         }
     }
 

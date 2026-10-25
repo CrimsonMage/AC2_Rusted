@@ -91,8 +91,8 @@ fn every_package_initializer_runs_or_stops_at_an_unbound_efun() {
     // gStringInfo, gEnumMapper, gFileArray and the list/array glue bound; 7,063 with the
     // gStringInfo text (IsValid over the string tables); 7,265 with the hash glue; 9,366 with
     // gWLogSystem, gRandom, gRandomSelectionTable_Int, gBehaviorParams and gDBCache; 9,794
-    // with gMissileParameters, gMath and gVector.
-    assert!(outcomes.get("Terminated").copied().unwrap_or(0) >= 9790);
+    // with gMissileParameters, gMath and gVector; 9,866 with gSkillUINode.
+    assert!(outcomes.get("Terminated").copied().unwrap_or(0) >= 9860);
     for bad in ["crash: UnknownOpcode", "crash: BadJump", "crash: Stack"] {
         assert!(!outcomes.contains_key(bad), "{bad}: {odd:#?}");
     }

@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 175 done, 33 partial, 1690 to do, 6 skipped.
+1904 retail functions: 191 done, 33 partial, 1674 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -271,7 +271,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Allegiance::CallEFun_SendNotice_UpdateAllegianceProfile` · 0046a3f0
 - [ ] `gCM_Allegiance::CallEFun_SendNotice_Vassal_SwearDone` · 0046a440
 
-## `ac2/client/src/weenie/interp/glue/gcm_character.cpp.c` (0/26)
+## `ac2/client/src/weenie/interp/glue/gcm_character.cpp.c` (4/26)
 
 ### gCM_Character
 - [ ] `gCM_Character::CallEFun_SendNotice_AddMarker` · 00469a90
@@ -285,21 +285,21 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Character::CallEFun_SendNotice_RemoveMarker` · 00469d40
 - [ ] `gCM_Character::CallEFun_SendNotice_RemovePet` · 00469d90
 - [ ] `gCM_Character::CallEFun_SendNotice_ResurrectionRequestedByOther` · 00469de0
-- [ ] `gCM_Character::CallEFun_SendNotice_SelectionChanged` · 00469e30
+- [x] `gCM_Character::CallEFun_SendNotice_SelectionChanged` · 00469e30 — ac2-script host notices -> ac2_weenie::GameplayNotice
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateDeathState` · 00469e80
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateEffect` · 00469ed0
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateFactionStatus` · 00469f10
-- [ ] `gCM_Character::CallEFun_SendNotice_UpdateHeroStatus` · 00469f60
+- [x] `gCM_Character::CallEFun_SendNotice_UpdateHeroStatus` · 00469f60 — ac2-script host notices -> ac2_weenie::GameplayNotice
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateMountState` · 00469fd0
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdatePetMode` · 0046a020
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdatePetName` · 0046a070
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateResetTime` · 0046a0d0
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateSelectability` · 0046a110
-- [ ] `gCM_Character::CallEFun_SendNotice_UpdateSelectionInfo` · 0046a160
+- [x] `gCM_Character::CallEFun_SendNotice_UpdateSelectionInfo` · 0046a160 — ac2-script host notices -> ac2_weenie::GameplayNotice
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateSkill` · 0046a1b0
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateSkillPanel` · 0046a200
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateVitae` · 0046a260
-- [ ] `gCM_Character::CallEFun_SendNotice_UpdateVital` · 0046a2d0
+- [x] `gCM_Character::CallEFun_SendNotice_UpdateVital` · 0046a2d0 — ac2-script host notices -> ac2_weenie::GameplayNotice
 
 ## `ac2/client/src/weenie/interp/glue/gcm_combat.cpp.c` (0/5)
 
@@ -310,10 +310,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Combat::CallEFun_SendNotice_ToggleSpecialAttack` · 004699f0
 - [ ] `gCM_Combat::CallEFun_SendNotice_UpdateAttackState` · 00469a40
 
-## `ac2/client/src/weenie/interp/glue/gcm_communication.cpp.c` (0/3)
+## `ac2/client/src/weenie/interp/glue/gcm_communication.cpp.c` (1/3)
 
 ### gCM_Communication
-- [ ] `gCM_Communication::CallEFun_SendNotice_DisplayStringInfo` · 00469820
+- [x] `gCM_Communication::CallEFun_SendNotice_DisplayStringInfo` · 00469820 — ac2-script host notices -> ac2_weenie::GameplayNotice
 - [ ] `gCM_Communication::CallEFun_SendNotice_DoAssistedTell` · 00469870
 - [ ] `gCM_Communication::CallEFun_SendNotice_ReloadChatSettings` · 004698c0
 
@@ -327,11 +327,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Craft::CallEFun_SendNotice_UpdateCraftPanel` · 00469790
 - [ ] `gCM_Craft::CallEFun_SendNotice_UpdateCraftSkill` · 004697d0
 
-## `ac2/client/src/weenie/interp/glue/gcm_examination.cpp.c` (0/2)
+## `ac2/client/src/weenie/interp/glue/gcm_examination.cpp.c` (2/2)
 
 ### gCM_Examination
-- [ ] `gCM_Examination::CallEFun_SendNotice_ExaminationRequestChanged` · 00469580
-- [ ] `gCM_Examination::CallEFun_SendNotice_UpdateExaminationProfile` · 004695d0
+- [x] `gCM_Examination::CallEFun_SendNotice_ExaminationRequestChanged` · 00469580 — ac2-script host notices -> ac2_weenie::GameplayNotice
+- [x] `gCM_Examination::CallEFun_SendNotice_UpdateExaminationProfile` · 004695d0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_fellowship.cpp.c` (0/13)
 
@@ -461,11 +461,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gFellowshipAdaptor::CallEFun_AddFellow` · 00468430
 - [ ] `gFellowshipAdaptor::CallEFun_SetName` · 004684b0
 
-## `ac2/client/src/weenie/interp/glue/ggmcobjmaint.cpp.c` (0/3)
+## `ac2/client/src/weenie/interp/glue/ggmcobjmaint.cpp.c` (2/3)
 
 ### ggmCObjMaint
-- [ ] `ggmCObjMaint::CallEFun_GetPlayerID` · 00468210
-- [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00
+- [x] `ggmCObjMaint::CallEFun_GetPlayerID` · 00468210 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [x] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
 ## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (14/301)
@@ -2262,7 +2262,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWDistributor::CallEFun_GetMyPackageID` · 004bc700
 - [ ] `gCWDistributor::CallEFun_GetProcessID` · 004bc770
 
-## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (0/32)
+## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (2/32)
 
 ### gCWInterface
 - [ ] `gCWInterface::Resume_Sleep` · 004bb120 · legions 004b0340
@@ -2277,8 +2277,8 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWInterface::CallEFun_InqStringInfoValue` · 004bb680
 - [ ] `gCWInterface::CallEFun_IsThePlayer` · 004bb7a0
 - [ ] `gCWInterface::CallEFun_ProcessText` · 004bb810
-- [ ] `gCWInterface::CallEFun_SendServerEvt` · 004bb890
-- [ ] `gCWInterface::CallEFun_SendServerEvtEncrypt` · 004bb910
+- [x] `gCWInterface::CallEFun_SendServerEvt` · 004bb890 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [x] `gCWInterface::CallEFun_SendServerEvtEncrypt` · 004bb910 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `gCWInterface::CallEFun_GetMyPosition` · 004bb990
 - [ ] `gCWInterface::CallIFun_ApplyProperties` · 004bba90 · legions 004b09b0
 - [ ] `gCWInterface::CallIFun_DisplayStringInfo` · 004bbb80 · legions 004b0aa0
@@ -2555,14 +2555,14 @@ Legend and workflow: [README](README.md).
 ### CWAllocator
 - [ ] `CWAllocator::Init` · 0052dd70 · legions 00512210
 
-## `portal/shared/src/weenie/distributor/wdistributor.cpp.c` (0/13)
+## `portal/shared/src/weenie/distributor/wdistributor.cpp.c` (5/13)
 
 ### CWDistributor
-- [ ] `CWDistributor::Construct` · 0052de20 · legions 005122c0
+- [x] `CWDistributor::Construct` · 0052de20 · legions 005122c0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `CWDistributor::~CWDistributor` · 0052dee0 · legions 00512380
 - [ ] `CWDistributor::GetContextState` · 0052df00 · legions 005123a0
 - [ ] `CWDistributor::HandleCrash` · 0052df20
-- [ ] `CWDistributor::GetInstanceReference` · 0052df80 · legions 005123c0
+- [x] `CWDistributor::GetInstanceReference` · 0052df80 · legions 005123c0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `CWDistributor::GetMyPackageID` · 0052df90 · legions 005123d0
 - [ ] `CWDistributor::GetProcessID` · 0052dfa0 · legions 005123e0
 
@@ -2571,9 +2571,9 @@ Legend and workflow: [README](README.md).
 
 ### CWDistributor
 - [ ] `CWDistributor::CWDistributor` · 0052e010 · legions 005123f0
-- [ ] `CWDistributor::ResumeContext` · 0052e080 · legions 00512460
-- [ ] `CWDistributor::ResumeContext` · 0052e130
-- [ ] `CWDistributor::DispatchInterpMsg` · 0052e150 · legions 005124d0
+- [x] `CWDistributor::ResumeContext` · 0052e080 · legions 00512460 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [x] `CWDistributor::ResumeContext` · 0052e130 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [x] `CWDistributor::DispatchInterpMsg` · 0052e150 · legions 005124d0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `CWDistributor::RecvEvt_InterpCEvent_Private` · 0052e250 · legions 00512590
 
 ## `portal/shared/src/weenie/interface/winterface.cpp.c` (1/52)

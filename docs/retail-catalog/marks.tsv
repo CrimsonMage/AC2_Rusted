@@ -56,6 +56,7 @@ key	status	note
 0042bb00	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 0042bbb0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 0042bce0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
+004314c0	x	ac2-script glue::position (ported beside the gPosition glue)
 00431e20	x	
 00431e90	x	
 004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
@@ -98,7 +99,87 @@ key	status	note
 00463df0	~	ac2-script glue: id table + pure-glue registry; engine glue unbound
 004661d0	~	ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 00467160	~	ac2-script native::unpack: the native types Legions WStates hold
+00468210	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+00468250	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+00469580	x	ac2-script host notices -> ac2_weenie::GameplayNotice
+004695d0	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+00469820	x	ac2-script host notices -> ac2_weenie::GameplayNotice
+00469e30	x	ac2-script host notices -> ac2_weenie::GameplayNotice
+00469f60	x	ac2-script host notices -> ac2_weenie::GameplayNotice
+0046a160	x	ac2-script host notices -> ac2_weenie::GameplayNotice
+0046a2d0	x	ac2-script host notices -> ac2_weenie::GameplayNotice
+0046ae10	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+0046af20	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+0046b090	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+0046b3f0	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+0046b480	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046b6d0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046b800	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046bb90	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046bdb0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046bf10	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046c100	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046c2f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046c500	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046c750	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046c980	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046cac0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046cca0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046ed90	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046edf0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046ee50	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046eeb0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046ef20	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046ef80	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046efe0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f040	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f0a0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f100	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f160	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f1c0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f230	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f2a0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f310	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f380	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f3f0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f460	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f4d0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f540	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f660	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f710	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f7c0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+0046f8e0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+00472260	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004722c0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00472320	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00472380	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004723f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00472460	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004724d0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00472560	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473990	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004739f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473a50	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473ab0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473b10	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473b70	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473bd0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473c40	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473cb0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473d30	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473da0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473e10	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473e80	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473ef0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473f60	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00473fe0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00474060	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004740e0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00474180	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004741f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004742c0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00474780	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00478ce0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00479030	x	ac2-ui interpreter.rs
 00479110	x	ac2-ui interpreter.rs
 004791b0	x	ac2-ui interpreter.rs
@@ -371,6 +452,8 @@ key	status	note
 004ad1d0	~	ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 004b1da0	x	ac2-script reference/native unpack
 004b4720	~	ac2-script native::unpack: the native types Legions WStates hold
+004bb890	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+004bb910	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 004bfb90	x	
 004bfeb0	~	ac2-weenie dat_iterations + session answer; internal.dat (slot 4) not opened; language id is configuration (EnumMapper 0x4000002A lookup not ported)
 004c4ed0	x	
@@ -951,6 +1034,7 @@ key	status	note
 00510700	x	ac2-physics interp (slice 3)
 00510950	x	ac2-physics interp (slice 3)
 00510b60	x	ac2-physics interp (slice 3)
+005115a0	x	ac2-script glue::position (ported beside the gPosition glue)
 00515b60	~	ac2-client track_move_to_target: the player's move-to object target's position, radius and height each physics quantum; lost when it leaves the world; no voyeur update thresholds or interpolation
 005161e0	~	ac2-client track_move_to_target: the player's move-to object target's position, radius and height each physics quantum; lost when it leaves the world; no voyeur update thresholds or interpolation
 00516330	~	ac2-client track_move_to_target: the player's move-to object target's position, radius and height each physics quantum; lost when it leaves the world; no voyeur update thresholds or interpolation
@@ -989,6 +1073,11 @@ key	status	note
 0052b1d0	x	ac2-world region::sky_objects, ac2-render sky
 0052dbb0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 0052ddb0	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
+0052de20	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+0052df80	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+0052e080	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+0052e130	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+0052e150	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 0052e6a0	x	
 00530150	x	ac2-weenie ObjectTable::apply_action
 00530e70	~	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
@@ -1077,11 +1166,57 @@ key	status	note
 0053a940	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053a9c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053aa20	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
-0053f690	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-0053f710	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-0053f790	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-0053f830	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
-0053f8b0	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+0053be40	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053beb0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053bf10	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053bf90	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053bff0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c050	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c0b0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c110	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c180	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c200	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c280	~	ac2-script glue::position: swscanf parsing approximated / StringInfo variable layout inferred
+0053c300	~	ac2-script glue::position: swscanf parsing approximated / StringInfo variable layout inferred
+0053c380	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c400	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c440	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c480	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c4f0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c560	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c5d0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c640	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c6b0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c770	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c800	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c880	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c900	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053c9a0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053ca10	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053cac0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053cb40	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053cbc0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053cc40	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053ccc0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053cd80	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053ce30	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053cef0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053cfb0	~	ac2-script glue::position: swscanf parsing approximated / StringInfo variable layout inferred
+0053d060	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053d120	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053d1d0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053d280	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053d330	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+0053f690	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053f710	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053f790	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053f830	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053f8b0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053f910	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053f9b0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053fa50	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053faf0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+0053fba0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 00541990	x	ac2-script glue::math / glue::missile
 005419f0	x	ac2-script glue::math / glue::missile
 00541a50	x	ac2-script glue::math / glue::missile
@@ -1107,6 +1242,10 @@ key	status	note
 00542230	x	ac2-script glue::math / glue::missile
 00542530	x	ac2-physics los (Terrain::los_check)
 005425b0	x	ac2-physics los (Terrain::los_check)
+005433d0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+00543430	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+005434a0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
+00543510	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 00545420	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
 00545460	x	ac2-script data/glue::enums
 005454a0	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
@@ -1147,6 +1286,8 @@ key	status	note
 0054b120	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0054b190	~	ac2-script glue: f32 spill points unchecked against x87 / copy order of PHashTable operator= unverified
 0054b280	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054c960	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
+0054c9d0	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 0054cc40	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 0054ccb0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 0054cd40	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
@@ -2194,9 +2335,31 @@ key	status	note
 005fe170	x	ac2-ui hud.rs
 005fe420	x	
 006000b0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+00600cb0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600cf0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600d00	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600d90	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600dc0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600e20	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600e40	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600e70	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600f10	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600f90	x	ac2-net CharGenResult::write/read
+00601020	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601090	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 006010d0	x	ac2-net CharGenResult::write/read
+00601170	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+006011f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601210	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601390	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+006013d0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601470	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601500	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 006015b0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+006016a0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601720	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601810	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00601860	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00601c80	x	
 00601cd0	x	
 00601d00	x	
@@ -2211,6 +2374,9 @@ key	status	note
 00603470	x	
 006037c0	x	
 006079d0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+00607a90	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+00607ae0	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
+00607b10	x	ac2-script glue::skill_node over ac2-net's SkillUiNode
 00608150	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00608380	x	ac2-net protocol::native (native objects in script-call PackBuffers)
 00608490	x	ac2-net protocol::native (native objects in script-call PackBuffers)
@@ -2221,6 +2387,7 @@ key	status	note
 0060d2d0	x	ac2_core::Random
 0060d3b0	x	ac2_core::Random
 0060d3f0	x	ac2_core::Random
+0060dbd0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 0060e3d0	~	ac2-physics ObjectShape::new: physics containment radius and box only
 006124f0	x	ac2-render object/skeleton.rs rest_matrices
 00612670	x	ac2-render object/skeleton.rs rest_matrices
@@ -2277,10 +2444,27 @@ key	status	note
 0061f400	x	ac2-physics los (Terrain::los_check)
 0061fdb0	x	ac2-physics interp (slice 3)
 0061fdf0	x	ac2-physics interp (slice 3)
+0061fe30	x	ac2-script glue::position (ported beside the gPosition glue)
+0061fe60	x	ac2-script glue::position (ported beside the gPosition glue)
 0061fe90	x	ac2-physics interp (slice 3)
+0061ff20	x	ac2-script glue::position (ported beside the gPosition glue)
+0061ffa0	x	ac2-script glue::position (ported beside the gPosition glue)
 00620070	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 006200b0	x	
 006200f0	x	ac2-physics moveto (slice 3)
+00620230	x	ac2-script glue::position (ported beside the gPosition glue)
+006202c0	x	ac2-script glue::position (ported beside the gPosition glue)
+00620350	x	ac2-script glue::position (ported beside the gPosition glue)
+006203e0	x	ac2-script glue::position (ported beside the gPosition glue)
+00620520	x	ac2-script glue::position (ported beside the gPosition glue)
+006205f0	x	ac2-script glue::position (ported beside the gPosition glue)
+00620620	x	ac2-script glue::position (ported beside the gPosition glue)
+00620650	x	ac2-script glue::position (ported beside the gPosition glue)
+00620a40	x	ac2-script glue::position (ported beside the gPosition glue)
+00620a60	x	ac2-script glue::position (ported beside the gPosition glue)
+00620ab0	x	ac2-script glue::position (ported beside the gPosition glue)
+00620b50	x	ac2-script glue::position (ported beside the gPosition glue)
+00620bf0	x	ac2-script glue::position (ported beside the gPosition glue)
 00620e20	x	
 00620e60	~	wire quantizer in ac2-net protocol::position
 00620f70	~	wire quantizer in ac2-net protocol::position
@@ -2469,6 +2653,7 @@ key	status	note
 00662490	x	ac2-script data/glue::enums
 00662590	x	ac2-script data/glue::enums
 00662970	x	ac2-script data/glue::enums
+00679000	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 00679220	x	ac2-anim; ac2-script native::BehaviorParams also unpacks it
 0067a480	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0067a490	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
@@ -2901,10 +3086,20 @@ key	status	note
 006ecb60	~	ac2-script ByteStream::validate_versions: wcc check; InterpVersionCheck env path not ported
 006ecd30	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006ecdb0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+006ed590	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006ed630	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006ed700	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006ed7b0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006ed870	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 006ed9c0	x	
 006eda20	x	
-006edb40	~	ac2-net UsageDesc::to_reference / PackValue::Reference: packed graphs the client builds (root, then reference slots in slot order); no walk over live VM state yet
-006edde0	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+006edb40	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006edc00	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006edc50	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006edcc0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006edd10	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006edd90	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
+006edde0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 006ff763	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0071f6b0	x	
 0071fa40	x	

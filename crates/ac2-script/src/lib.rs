@@ -14,10 +14,12 @@
 pub mod bytestream;
 pub mod data;
 pub mod glue;
+pub mod host;
 pub mod native;
 pub mod reference;
 pub mod unpack;
 pub mod vm;
+pub mod wire;
 pub mod wlib;
 pub mod wstate;
 
