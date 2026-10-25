@@ -385,6 +385,7 @@ key	status	note
 00451bb0	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 00451bd0	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 00451bf0	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
+00451c50	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 00451cf0	x	ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 00451d10	x	ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 00451d30	x	ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
@@ -428,8 +429,10 @@ key	status	note
 00455740	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004557b0	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004558a0	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+004559c0	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 00456190	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 00456270	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+00456330	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 00456550	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004565c0	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004567b0	_	ac2-script reference/native unpack
@@ -442,6 +445,7 @@ key	status	note
 00457c90	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 00457d50	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 00457e10	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045a310	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 0045a4b0	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045b800	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045b960	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries

@@ -106,7 +106,28 @@ fn allegiance_and_invitations_answer_through_the_vm() {
     assert_eq!(p.member.id, PLAYER);
     assert_eq!(p.vassals.len(), 1);
     assert_eq!(p.vassals[0].0.id, VASSAL);
-    assert_eq!(p.vassals[0].0.name.literal.as_deref(), Some("Ash"));
+    // Everything the panel shows per member (`AllegianceDataAdaptor`): name and title as
+    // StringInfos, level, race, gender, rank, XP passed up, officer flag; online flags beside.
+    let (ash, online) = &p.vassals[0];
+    assert_eq!(ash.name.literal.as_deref(), Some("Ash"));
+    assert_eq!(ash.title.literal.as_deref(), Some("Squire"));
+    assert_eq!(
+        (
+            ash.level,
+            ash.species,
+            ash.gender,
+            ash.xp_passed,
+            ash.rank,
+            ash.officer
+        ),
+        (2, 1, 0x2000, 1500, 0, false)
+    );
+    assert!(*online);
+    assert_eq!(p.member.name.literal.as_deref(), Some("Explorer"));
+    assert!(p.member_online);
+    assert_eq!(p.total, 2);
+    assert_eq!(p.name.literal.as_deref(), Some("Order of the Double"));
+    assert_eq!(p.motd.literal.as_deref(), Some("Welcome."));
 
     // Swearing to the selection, then breaking.
     server
@@ -136,6 +157,12 @@ fn allegiance_and_invitations_answer_through_the_vm() {
     }));
     let p = profile(&sworn);
     assert_eq!((p.patron.id, p.monarch.id), (PATRON, PATRON));
+    assert!(p.patron.officer);
+    // No custom title: the rank's (`AllegianceControl` 0x8, a string-table entry).
+    // No custom title: the rank's (`AllegianceControl` 0x8 -> `AllegianceRankTable`, a
+    // string-table entry keyed by rank, gender and race).
+    assert!(p.patron.title.literal.is_none() && p.patron.title.string_id != 0);
+    assert_eq!((p.patron.level, p.patron.rank), (7, 2));
     assert!(p.patron_online && p.monarch_online);
     assert_eq!(p.total, 3);
     let broken = frames(

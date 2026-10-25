@@ -45,12 +45,7 @@ fn a_character_is_created_and_deleted() {
         state.borrow_mut().elapsed += 0.05;
     }
     assert!(
-        events.contains(&SessionEvent::CharGenVerification {
-            response: 1,
-            character: CREATED,
-            name: "Birch".into(),
-            result: 0x11,
-        }),
+        events.iter().any(|e| matches!(e, SessionEvent::CharGenVerification { response: 1, identity, result: 0x11 } if identity.id == CREATED && identity.name == "Birch")),
         "{events:?}"
     );
     session.delete_character(CREATED);
