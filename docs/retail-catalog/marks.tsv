@@ -44,6 +44,15 @@ key	status	note
 00424510	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 00426450	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 00426720	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+00426930	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
+00426970	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+00426d90	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+00428e60	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
+004291a0	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
+00429320	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+0042a1d0	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
+0042adf0	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+0042b730	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 0042bb00	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 0042bbb0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 0042bce0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
@@ -1901,6 +1910,7 @@ key	status	note
 005694f0	x	
 00569550	x	
 0056ad20	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
+0056afb0	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 0056b150	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b170	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b1c0	x	
@@ -2037,7 +2047,9 @@ key	status	note
 005ae960	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
 005af390	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005af9c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+005b2860	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 005b2c80	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
+005b2e10	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 005b2ea0	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 005b7260	~	BlendLitVertices on the GPU (ac2-gpu object.wgsl); no bounds update, ModelDetail<2 path not reproduced
 005b75b0	x	
@@ -2145,6 +2157,7 @@ key	status	note
 005ee6a0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005eea40	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005eec20	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+005eed40	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 005ef1c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005ef2f0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005ef940	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
@@ -2153,6 +2166,8 @@ key	status	note
 005f00a0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005f0ba0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005f0e90	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
+005f16e0	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+005f1750	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 005f17c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005f18c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005f1a10	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing

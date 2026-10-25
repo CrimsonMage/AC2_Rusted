@@ -19,6 +19,7 @@ mod layout_media;
 mod maps;
 mod mouse;
 mod place;
+mod reticle;
 mod selection_ui;
 #[cfg(test)]
 mod tests;
@@ -32,8 +33,8 @@ pub use compose::{UiPixels, UiSurface};
 pub use controls::{ControlFrame, Controls};
 pub use element::{UiBox, UiElement, UiImage, UiTree};
 pub use hud::{
-    build_gameplay_hud, load_layout_by_enum, load_ui_images, GAMEPLAY_ROOTS, LAYOUT_GAMEPLAY,
-    LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,
+    build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
+    LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,
 };
 pub use input::{
     meta_mode_from_key, InputEvent, InputManager, RawAction, ACTION_POINTER_X, ACTION_POINTER_Y,
@@ -55,6 +56,7 @@ pub use mouse::{
     is_mouse_button, UiMessage, GLOBAL_KEY_PRESS, GLOBAL_KEY_RELEASE, GLOBAL_MOUSE_DOWN,
     GLOBAL_MOUSE_MOVE, GLOBAL_MOUSE_UP, UI_POINTER_X, UI_POINTER_Y, UI_WHEEL_IN, UI_WHEEL_OUT,
 };
+pub use reticle::{Reticle, ReticleOutcome, ReticleTarget};
 pub use selection_ui::{SelectionClick, SelectionOutcome, SelectionUi};
 pub use text::UiTextData;
 pub use text_data::{StoreTextData, DEFAULT_FONT, FONT_GROUP};

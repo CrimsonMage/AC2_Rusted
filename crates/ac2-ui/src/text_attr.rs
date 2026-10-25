@@ -81,6 +81,36 @@ impl UiTree {
         }
     }
 
+    /// `UIElement_Text::SetText`: the element's text replaced, in its current font.
+    pub fn set_text(&mut self, index: usize, text: &str) {
+        let units: Vec<u16> = text.encode_utf16().collect();
+        if let Some(state) = self.el_mut(index).text.as_mut() {
+            state.clear();
+            state.add_text(&units);
+            self.changed = true;
+        }
+    }
+
+    /// `UIElement_Text::InqSizewMargins`: the size `text` would take in the element's font,
+    /// laid out no wider than `max_width` (else the display) less the margins, plus the margins.
+    pub fn text_size_with_margins(&self, index: usize, text: &str) -> Option<(i32, i32)> {
+        let el = self.el(index);
+        let state = el.text.as_ref()?;
+        let font = state.font.clone()?;
+        let glyphs: Vec<_> = text
+            .encode_utf16()
+            .map(|ch| crate::text::Glyph::new(ch, state.color, Some(font.clone()), state.outline))
+            .collect();
+        let max_width = match el.attributes.get(&crate::token::MAX_WIDTH) {
+            Some(AttributeValue::Int(width)) => *width,
+            _ => self.display.0,
+        };
+        let [up, down, left, right] = state.margins;
+        let (_, width, height) =
+            crate::text::recalculate_lines(&glyphs, max_width - left - right, state.one_line);
+        Some((width + right + left, height + down + up))
+    }
+
     /// `GetText` / `SetText`: the text again in the current font.
     fn readd_text(&mut self, index: usize) {
         if let Some(text) = self.el_mut(index).text.as_mut() {

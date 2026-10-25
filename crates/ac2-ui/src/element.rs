@@ -96,6 +96,10 @@ pub struct UiElement {
     pub(crate) mouse_down: Vec<u32>,
     /// `UIElement_Button::mousePressedOnButton`.
     pub(crate) button_pressed: bool,
+    /// A root's surface object: shown (`UIObject` show, apart from the element's own
+    /// visibility) and rotated about its centre in degrees (`UISurfaceObject::SetRotateVals`).
+    pub(crate) shown: bool,
+    pub(crate) rotation: i32,
     media_state: Option<(Arc<ElementDesc>, usize)>,
     media_index: usize,
     latest_update: u32,
@@ -151,6 +155,8 @@ pub struct UiTree {
     pub(crate) mouse_top: Option<usize>,
     /// Something drawn changed since the last [`UiTree::take_changed`].
     pub(crate) changed: bool,
+    /// A root's surface object moved, turned or showed since the last [`UiTree::take_moved`].
+    pub(crate) moved: bool,
 }
 
 /// The index of `desc`'s state `id`.
@@ -195,6 +201,7 @@ impl UiTree {
             pointer: (0, 0),
             mouse_top: None,
             changed: true,
+            moved: true,
         }
     }
 
@@ -326,6 +333,8 @@ impl UiTree {
             mouse_visible: true,
             mouse_down: Vec::new(),
             button_pressed: false,
+            shown: true,
+            rotation: 0,
             media_state: None,
             media_index: 0,
             latest_update: self.update_count,
@@ -347,6 +356,59 @@ impl UiTree {
     /// Whether anything drawn changed since the last call.
     pub fn take_changed(&mut self) -> bool {
         std::mem::take(&mut self.changed)
+    }
+
+    /// Whether a root's surface object moved, turned or showed since the last call.
+    pub fn take_moved(&mut self) -> bool {
+        std::mem::take(&mut self.moved)
+    }
+
+    /// `UISurfaceObject::SetScreenPosition` of a root's object (no clamping: `UIElement::MoveTo`
+    /// keeps roots on the display, this does not).
+    pub fn set_object_position(&mut self, root: usize, x: i32, y: i32) {
+        let el = self.el_mut(root);
+        if el.object != Some((x, y)) {
+            el.object = Some((x, y));
+            self.moved = true;
+        }
+    }
+
+    /// `UISurfaceObject::SetRotateVals(0, 0, degrees)`.
+    pub fn set_object_rotation(&mut self, root: usize, degrees: i32) {
+        let el = self.el_mut(root);
+        if el.rotation != degrees {
+            el.rotation = degrees;
+            self.moved = true;
+        }
+    }
+
+    /// `UIObject` show of a root's surface object.
+    pub fn show_object(&mut self, root: usize, shown: bool) {
+        let el = self.el_mut(root);
+        if el.shown != shown {
+            el.shown = shown;
+            self.moved = true;
+        }
+    }
+
+    /// Every root's surface object placement, in the order [`UiTree::compose`] returns them:
+    /// (root, x, y, rotation, shown).
+    pub fn placements(&self) -> Vec<(usize, i32, i32, i32, bool)> {
+        self.composed_roots()
+            .map(|root| {
+                let el = self.el(root);
+                let (x, y) = el.object.unwrap_or((0, 0));
+                (root, x, y, el.rotation, el.shown)
+            })
+            .collect()
+    }
+
+    /// The roots [`UiTree::compose`] draws, in its order.
+    pub(crate) fn composed_roots(&self) -> impl Iterator<Item = usize> + '_ {
+        self.roots.iter().rev().copied().filter(|&root| {
+            let el = self.el(root);
+            el.visible && el.rect.width() > 0 && el.rect.height() > 0
+        })
     }
 
     /// `UIElement::SetAttribute_Bool`: stores the value; a change of `hide` shows or hides.

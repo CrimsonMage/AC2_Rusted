@@ -10,13 +10,14 @@ use std::sync::Arc;
 
 use ac2_db::{ResourceResult, ResourceStore};
 use ac2_gpu::{Gpu, UiLayer, UiOverlay};
-use ac2_ui::{UiMessage, UiPixels, UiTree};
+use ac2_ui::{GameplayHud, Reticle, ReticleOutcome, ReticleTarget, UiMessage, UiPixels, UiTree};
 
-type Built = ResourceResult<(UiTree, HashMap<u32, UiPixels>)>;
+type Built = ResourceResult<(GameplayHud, HashMap<u32, UiPixels>)>;
 
 pub(crate) struct HudView {
     pending: Option<Receiver<Built>>,
     hud: Option<(UiTree, HashMap<u32, UiPixels>)>,
+    reticle: Option<Reticle>,
     overlay: UiOverlay,
     size: (u32, u32),
     dirty: bool,
@@ -34,9 +35,9 @@ impl HudView {
         std::thread::Builder::new()
             .name("ac2 hud".into())
             .spawn(move || {
-                let built = ac2_ui::build_gameplay_hud(&store, width, height).and_then(|tree| {
-                    let images = ac2_ui::load_ui_images(&store, &tree)?;
-                    Ok((tree, images))
+                let built = ac2_ui::build_gameplay_hud(&store, width, height).and_then(|hud| {
+                    let images = ac2_ui::load_ui_images(&store, &hud.tree)?;
+                    Ok((hud, images))
                 });
                 let _ = send.send(built);
             })
@@ -44,6 +45,7 @@ impl HudView {
         Self {
             pending: Some(receive),
             hud: None,
+            reticle: None,
             overlay: UiOverlay::new(gpu, format),
             size,
             dirty: false,
@@ -80,9 +82,10 @@ impl HudView {
 
     fn arrived(&mut self, built: Built) {
         match built {
-            Ok((mut tree, images)) => {
+            Ok((GameplayHud { mut tree, reticle }, images)) => {
                 tree.set_display(self.size.0 as i32, self.size.1 as i32);
                 self.hud = Some((tree, images));
+                self.reticle = reticle;
                 self.dirty = true;
             }
             Err(error) => eprintln!("ac2: the HUD did not load: {error}"),
@@ -114,13 +117,42 @@ impl HudView {
         self.compose(gpu);
     }
 
-    fn compose(&mut self, gpu: &Gpu) {
-        if !self.dirty {
-            return;
+    /// `gm3DTextUI::Update`'s reticle for this frame: the selection (id and name) and, when it
+    /// is drawn, its box and projection. Then the HUD is composed again or its surfaces moved.
+    pub(crate) fn reticle(
+        &mut self,
+        gpu: &Gpu,
+        selection: Option<(u64, Option<&str>)>,
+        target: Option<ReticleTarget<'_>>,
+    ) -> ReticleOutcome {
+        let (Some((tree, _)), Some(reticle)) = (&mut self.hud, &mut self.reticle) else {
+            return ReticleOutcome::default();
+        };
+        let id = selection.map(|(id, _)| id);
+        if reticle.current() != id {
+            reticle.selection_changed(tree, id, selection.and_then(|(_, name)| name));
         }
+        let outcome = reticle.update(tree, target, false);
+        if tree.take_changed() {
+            self.dirty = true;
+        }
+        self.compose(gpu);
+        outcome
+    }
+
+    fn compose(&mut self, gpu: &Gpu) {
         let Some((tree, images)) = &mut self.hud else {
             return;
         };
+        if !self.dirty {
+            if tree.take_moved() {
+                let placements = tree.placements();
+                self.overlay
+                    .set_placements(placements.into_iter().map(|(_, x, y, r, s)| (x, y, r, s)));
+            }
+            return;
+        }
+        tree.take_moved();
         self.dirty = false;
         tree.take_changed();
         let surfaces = tree.compose(images);
@@ -131,6 +163,8 @@ impl HudView {
                 y: surface.y,
                 width: surface.width,
                 height: surface.height,
+                rotation: surface.rotation,
+                shown: surface.shown,
                 rgba: &surface.rgba,
             }),
         );
@@ -139,6 +173,10 @@ impl HudView {
     /// The pointer as the UI last saw it.
     pub(crate) fn pointer(&self) -> (i32, i32) {
         self.hud.as_ref().map_or((0, 0), |(tree, _)| tree.pointer())
+    }
+
+    pub(crate) fn shown_layers(&self) -> usize {
+        self.overlay.shown_layers()
     }
 
     pub(crate) fn layers(&self) -> usize {

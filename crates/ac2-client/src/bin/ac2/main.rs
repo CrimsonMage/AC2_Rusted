@@ -197,6 +197,9 @@ impl App {
         let aspect = state.config.width as f32 / state.config.height as f32;
         let (_, time) = state.now();
         let drawn = state.view.prepare(&state.gpu, &frame, aspect, time);
+        if state.view.take_deselect() {
+            state.commands.push(Command::Select(None));
+        }
         let view = &state.view;
         render_to(
             &state.gpu.device,

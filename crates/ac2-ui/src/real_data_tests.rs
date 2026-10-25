@@ -152,8 +152,9 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
             .find(|&&r| tree.get(r).unwrap().id() == tokenize(name))
             .unwrap_or_else(|| panic!("{name}"))
     };
-    let tree = build_gameplay_hud(&store_arc, 1024, 768).unwrap();
-    assert_eq!(tree.roots().len(), GAMEPLAY_ROOTS.len());
+    let tree = build_gameplay_hud(&store_arc, 1024, 768).unwrap().tree;
+    // The HUD roots and gm3DTextUI's seven reticle objects.
+    assert_eq!(tree.roots().len(), GAMEPLAY_ROOTS.len() + 7);
     // The radar sits where the layout authored it; the toolbar is centred on the bottom edge.
     let radar = root(&tree, "RadarField");
     assert_eq!(tree.screen_box(radar), UiBox::new(875, 60, 1017, 236));
@@ -175,7 +176,7 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
     );
     let mut tree = tree;
     let surfaces = tree.compose(&images);
-    assert_eq!(surfaces.len(), GAMEPLAY_ROOTS.len());
+    assert_eq!(surfaces.len(), GAMEPLAY_ROOTS.len() + 7);
     let drawn = surfaces
         .iter()
         .filter(|s| s.rgba.chunks_exact(4).any(|p| p[3] != 0))
@@ -184,12 +185,12 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
 
     // A larger display keeps the toolbar centred on the bottom edge and the side panels on the
     // bottom corners; a smaller one keeps the radar on the screen (`UIElement::MoveTo`).
-    let tree = build_gameplay_hud(&store_arc, 1280, 1024).unwrap();
+    let tree = build_gameplay_hud(&store_arc, 1280, 1024).unwrap().tree;
     let toolbar = tree.screen_box(root(&tree, "ToolbarField"));
     assert_eq!((toolbar.x0, toolbar.y1), ((1280 - 798) / 2, 1023));
     let right = tree.screen_box(root(&tree, "RightSidePanel"));
     assert_eq!((right.x1, right.y1), (1279, 1023));
-    let tree = build_gameplay_hud(&store_arc, 800, 600).unwrap();
+    let tree = build_gameplay_hud(&store_arc, 800, 600).unwrap().tree;
     assert_eq!(tree.screen_box(root(&tree, "RadarField")).x1, 799);
 }
 
@@ -199,7 +200,7 @@ fn the_wheel_zooms_over_the_world_and_not_over_the_toolbar() {
         return;
     };
     let store = std::sync::Arc::new(ResourceStore::new(dataset));
-    let mut tree = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let mut tree = build_gameplay_hud(&store, 1024, 768).unwrap().tree;
     let mut controls = Controls::load(&store).unwrap().expect("controls");
     controls.ui_attached = true;
     let world = tokenize("ItemSelectionField");
@@ -229,4 +230,75 @@ fn the_wheel_zooms_over_the_world_and_not_over_the_toolbar() {
         Some(world)
     );
     assert!(zoom.is_empty(), "{zoom:?}");
+}
+
+#[test]
+fn the_reticle_frames_the_selection_with_its_name_above() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let GameplayHud { mut tree, reticle } = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let mut reticle = reticle.expect("the gameplay layout has the reticle");
+    reticle.selection_changed(&mut tree, Some(7), Some("Gnome"));
+    // A box spanning -0.1..0.1 of the screen around its centre.
+    let project = |p: [f32; 3]| ([p[0], p[1]], true);
+    let target = |id| ReticleTarget {
+        id,
+        bounds: ([-0.1, -0.1, 0.0], [0.1, 0.1, 0.0]),
+        project: &project,
+        planar_distance: Some(10.0),
+    };
+    let outcome = reticle.update(&mut tree, Some(target(7)), false);
+    assert!(!outcome.deselect);
+    let placed: std::collections::HashMap<usize, (i32, i32, i32, bool)> = tree
+        .placements()
+        .into_iter()
+        .map(|(root, x, y, r, s)| (root, (x, y, r, s)))
+        .collect();
+    fn by_name(tree: &UiTree, name: &str) -> Vec<usize> {
+        tree.roots()
+            .iter()
+            .copied()
+            .filter(|&r| tree.get(r).unwrap().id() == tokenize(name))
+            .collect()
+    }
+    // `TransformClipPointToPixel`: x 461..563, y 345 (top)..421 (bottom); 20-pixel corners
+    // outside it, turned a quarter more each.
+    let mut corners: Vec<_> = by_name(&tree, "TargettingReticle")
+        .iter()
+        .map(|r| placed[r])
+        .collect();
+    corners.sort_by_key(|c| c.2);
+    assert_eq!(
+        corners,
+        vec![
+            (441, 325, 0, true),
+            (441, 421, 90, true),
+            (563, 325, 180, true),
+            (563, 421, 270, true)
+        ]
+    );
+    let name = by_name(&tree, "SelectionName")[0];
+    let (name_w, name_h) = {
+        let e = tree.get(name).unwrap();
+        (e.rect.width(), e.rect.height())
+    };
+    assert_eq!(tree.get(name).unwrap().text().as_deref(), Some("Gnome"));
+    assert_eq!(
+        placed[&name],
+        (441 - name_w / 2 + 71, 325 - name_h, 0, true)
+    );
+    // Out of range clears the selection; a selection without a box hides everything.
+    let far = ReticleTarget {
+        planar_distance: Some(1000.0),
+        ..target(7)
+    };
+    assert!(reticle.update(&mut tree, Some(far), false).deselect);
+    reticle.update(&mut tree, None, false);
+    let corners = by_name(&tree, "TargettingReticle");
+    assert!(tree
+        .placements()
+        .iter()
+        .all(|p| !corners.contains(&p.0) || !p.4));
 }

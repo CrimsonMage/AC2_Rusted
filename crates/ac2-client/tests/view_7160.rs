@@ -213,7 +213,11 @@ fn the_client_walks_with_w_and_draws_its_character() {
         1,
         "the player's character model loads"
     );
-    assert_eq!(view.hud_layers(), 7, "every HUD root is drawn");
+    assert_eq!(
+        view.hud_layers(),
+        14,
+        "every HUD root (and the reticle's objects) is drawn"
+    );
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
     target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
@@ -244,4 +248,31 @@ fn the_client_walks_with_w_and_draws_its_character() {
         "at {pixel:?}"
     );
     assert_eq!(view.pick(&frame, SIZE, (5, 5)), None, "the sky's corner");
+
+    // Selecting it frames it in the targeting reticle (`gm3DTextUI`), its name above.
+    let shown_before = view.hud_shown_layers();
+    let select = FrameInput {
+        commands: vec![ac2_client::Command::Select(Some(player.id))],
+        ..FrameInput::default()
+    };
+    client.use_time(&select).unwrap();
+    server.borrow_mut().elapsed += STEP;
+    let frame = client.frame();
+    let selection = frame.selection.as_ref().expect("the character is selected");
+    assert!(view.prepare(&gpu, &frame, aspect, 0.0));
+    let shown = view.hud_shown_layers();
+    // `UpdateReticleInternal` shows the corners only with a name to show above them; the
+    // double's character has none yet.
+    let expected = if selection.name.is_some() { 5 } else { 0 };
+    assert_eq!(
+        shown,
+        shown_before + expected,
+        "the reticle follows the name ({:?})",
+        selection.name
+    );
+    target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
+    write_png(
+        "client_cb4d_selected.png",
+        &target.read_rgba(&gpu.device, &gpu.queue),
+    );
 }

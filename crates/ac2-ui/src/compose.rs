@@ -31,6 +31,9 @@ pub struct UiSurface {
     pub y: i32,
     pub width: u32,
     pub height: u32,
+    /// The surface object's rotation about its centre, degrees, and whether it is shown.
+    pub rotation: i32,
+    pub shown: bool,
     pub rgba: Vec<u8>,
 }
 
@@ -184,16 +187,12 @@ impl UiTree {
                 text.recalculate(width, height);
             }
         }
-        self.roots
-            .iter()
-            .rev()
-            .filter(|&&root| self.el(root).visible)
-            .filter_map(|&root| {
+        let roots: Vec<usize> = self.composed_roots().collect();
+        roots
+            .into_iter()
+            .map(|root| {
                 let el = self.el(root);
                 let (width, height) = (el.rect.width(), el.rect.height());
-                if width <= 0 || height <= 0 {
-                    return None;
-                }
                 let (x, y) = el.object.unwrap_or((0, 0));
                 let mut surface = UiSurface {
                     root,
@@ -201,11 +200,13 @@ impl UiTree {
                     y,
                     width: width as u32,
                     height: height as u32,
+                    rotation: el.rotation,
+                    shown: el.shown,
                     rgba: vec![0; width as usize * height as usize * 4],
                 };
                 let bounds = surface.bounds();
                 self.draw_here(root, (0, 0), bounds, images, &mut surface);
-                Some(surface)
+                surface
             })
             .collect()
     }

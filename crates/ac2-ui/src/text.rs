@@ -57,7 +57,7 @@ pub(crate) struct Glyph {
 
 impl Glyph {
     /// `Glyph::Glyph`: a newline is one pixel wide.
-    fn new(ch: u16, color: [f32; 4], font: Option<Arc<Ac2Font>>, outline: bool) -> Self {
+    pub(crate) fn new(ch: u16, color: [f32; 4], font: Option<Arc<Ac2Font>>, outline: bool) -> Self {
         let (width, height) = match &font {
             Some(font) => (
                 if ch == 10 {
