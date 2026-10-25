@@ -7,6 +7,7 @@ use super::gameplay::player_qualities;
 use super::{OnlineSession, SessionEvent};
 use crate::notice::GameplayNotice;
 use crate::progress::{Progress, SkillRequest};
+use crate::social::{SocialContext, SocialRequest};
 
 /// `WM_Player` 0x1A (`SetShortcut`'s stub).
 const SET_SHORTCUT: u32 = 0x8212_0018;
@@ -24,6 +25,7 @@ impl OnlineSession {
         !self.script_functions.contains(&function)
             && (function == ac2_net::protocol::script_function::INIT_PLAYER
                 || function >> 16 == 0x8214
+                || function == super::gameplay::UPDATE_ATTACK_STATE
                 || ac2_net::protocol::ScriptMessage::decode(function, &[]).is_some())
     }
 
@@ -66,6 +68,19 @@ impl OnlineSession {
         .expect("SetShortcut's layout");
         self.send(call.to_event());
         true
+    }
+
+    /// A fellowship or allegiance action (`gmCWInterface::DoFellowship*` and the allegiance
+    /// calls): its stub's call, with the recruiter (instance id 400), the asking vassal (450)
+    /// and the selection as the `CPlayer` IFuns read them.
+    pub fn social_request(&mut self, request: &SocialRequest) {
+        let q = player_qualities(&self.world);
+        let who = SocialContext {
+            recruiter: q.iids.get(&400).copied().unwrap_or(0),
+            vassal: q.iids.get(&450).copied().unwrap_or(0),
+            selection: self.script.selection().unwrap_or(0),
+        };
+        self.send(request.call(who).to_event());
     }
 
     /// `gmCWInterface::SetWhichShortcutSet` (`CPlayer` 0x5 ->

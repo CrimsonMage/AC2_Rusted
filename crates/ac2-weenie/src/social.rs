@@ -7,6 +7,108 @@ use ac2_net::protocol::StringInfo;
 
 use crate::notice::GameplayNotice;
 
+/// The fellowship and allegiance panels' actions (`gmCWInterface::DoFellowship*`,
+/// `SwearAllegiance`, `BreakAllegiance`, `AcceptVassal`, `DeclineVassal`,
+/// `QueryAllegianceProfile` -> their `CPlayer` IFuns -> the `WM_Fellowship` / `WM_Allegiance`
+/// stubs).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SocialRequest {
+    /// `DoFellowshipCreate(name, social, lootingMethod)` (`CPlayer` 0xE3).
+    FellowshipCreate {
+        name: String,
+        social: u32,
+        looting: u32,
+    },
+    /// `DoFellowshipRecruit(target)` (`CPlayer` 0x9C).
+    FellowshipRecruit(u64),
+    /// `DoFellowshipRecruitAccept` (`CPlayer` 0x14): the recruiter (instance id 400).
+    FellowshipRecruitAccept,
+    /// `DoFellowshipRecruitDecline(context)` (`CPlayer` 0xEB; the panel passes 0x138D).
+    FellowshipRecruitDecline(u32),
+    /// `DoFellowshipLeave` (`CPlayer` 0x1C).
+    FellowshipLeave,
+    /// `DoFellowshipDisband` (`CPlayer` 0x86).
+    FellowshipDisband,
+    /// `DoFellowshipDismiss(target)` (`CPlayer` 0x26).
+    FellowshipDismiss(u64),
+    /// `SwearAllegiance` (`CPlayer` 0x7F): to the selection.
+    SwearAllegiance,
+    /// `BreakAllegiance(target)` (`CPlayer` 0xB).
+    BreakAllegiance(u64),
+    /// `AcceptVassal` (`CPlayer` 0x12B): the would-be vassal (instance id 450).
+    AcceptVassal,
+    /// `DeclineVassal(context)` (`CPlayer` 0xBF).
+    DeclineVassal(u32),
+    /// `QueryAllegianceProfile(target)` (`CPlayer` 0xEA).
+    QueryAllegianceProfile(u64),
+}
+
+/// What [`SocialRequest::call`] reads from the player: `Player` 0x77 (instance id quality 400,
+/// the fellowship recruiter), `Player` 0x36 (450, the vassal asking), `Player` 0x3D (the
+/// selection).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct SocialContext {
+    pub recruiter: u64,
+    pub vassal: u64,
+    pub selection: u64,
+}
+
+impl SocialRequest {
+    /// The `gmCWInterface` IFun the UI calls (`FunctionID` 0xB4xxxx).
+    pub fn ifun(&self) -> u32 {
+        0x00B4_0000
+            | match self {
+                Self::FellowshipCreate { .. } => 0xA0,
+                Self::FellowshipDisband => 0xA1,
+                Self::FellowshipLeave => 0xA2,
+                Self::FellowshipRecruit(_) => 0xA3,
+                Self::FellowshipDismiss(_) => 0xA4,
+                Self::FellowshipRecruitAccept => 0xA5,
+                Self::FellowshipRecruitDecline(_) => 0xA6,
+                Self::QueryAllegianceProfile(_) => 0xB3,
+                Self::SwearAllegiance => 0xB4,
+                Self::BreakAllegiance(_) => 0xB5,
+                Self::AcceptVassal => 0xB6,
+                Self::DeclineVassal(_) => 0xB7,
+            }
+    }
+
+    /// The stub's call as the `CPlayer` IFun makes it: `WM_Fellowship` 0x22 (looting, social,
+    /// the name as a `wpstring`), 0x2A, 0x25, 0x2F (context, recruiter), 0x29, 0x2C, 0x23;
+    /// `WM_Allegiance` 0x39, 0x32, 0x31, 0x3B (context, vassal), 0x36.
+    pub fn call(&self, who: SocialContext) -> ac2_net::protocol::ScriptCall {
+        use ac2_net::protocol::{NativeObject, PackValue::*};
+        let (function, args) = match self {
+            Self::FellowshipCreate {
+                name,
+                social,
+                looting,
+            } => (
+                0x820C_001B,
+                vec![
+                    Int(*looting),
+                    Int(*social),
+                    ac2_net::protocol::PackValue::native(NativeObject::WString(name.clone())),
+                ],
+            ),
+            Self::FellowshipRecruit(target) => (0x820C_0015, vec![LongInt(*target)]),
+            Self::FellowshipRecruitAccept => (0x820C_000D, vec![LongInt(who.recruiter)]),
+            Self::FellowshipRecruitDecline(context) => {
+                (0x820C_001A, vec![Int(*context), LongInt(who.recruiter)])
+            }
+            Self::FellowshipLeave => (0x820C_001C, Vec::new()),
+            Self::FellowshipDisband => (0x820C_0003, Vec::new()),
+            Self::FellowshipDismiss(target) => (0x820C_000E, vec![LongInt(*target)]),
+            Self::SwearAllegiance => (0x8203_000A, vec![LongInt(who.selection)]),
+            Self::BreakAllegiance(target) => (0x8203_0009, vec![LongInt(*target)]),
+            Self::AcceptVassal => (0x8203_001C, vec![LongInt(who.vassal)]),
+            Self::DeclineVassal(context) => (0x8203_0029, vec![Int(*context), LongInt(who.vassal)]),
+            Self::QueryAllegianceProfile(target) => (0x8203_0005, vec![LongInt(*target)]),
+        };
+        ac2_net::protocol::ScriptCall::new(function, args).expect("the stubs' layouts")
+    }
+}
+
 /// `FellowAdaptor`: one member.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct FellowInfo {
@@ -144,6 +246,52 @@ impl Social {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn words(w: &[u32]) -> Vec<u8> {
+        w.iter().flat_map(|w| w.to_le_bytes()).collect()
+    }
+
+    #[test]
+    fn social_requests_pack_as_their_stubs() {
+        let who = SocialContext {
+            recruiter: 0x5000_0000_0000_0042,
+            vassal: 0x5000_0000_0000_0043,
+            selection: 0x5000_0000_0000_0044,
+        };
+        let bytes = |r: SocialRequest| r.call(who).to_event().encode().1;
+        // `WM_Fellowship` 0x2F: the context, then the recruiter (int tag 1, 64-bit tag 2).
+        assert_eq!(
+            bytes(SocialRequest::FellowshipRecruitDecline(0x138D)),
+            words(&[
+                0x0001_0053,
+                0x820C_001A,
+                20,
+                1,
+                0x138D,
+                2,
+                0x42,
+                0x5000_0000
+            ])
+        );
+        assert_eq!(
+            bytes(SocialRequest::FellowshipRecruitAccept),
+            words(&[0x0001_0053, 0x820C_000D, 12, 2, 0x42, 0x5000_0000])
+        );
+        // `WM_Allegiance` 0x39 swears to the selection; 0x3B declines the asking vassal.
+        assert_eq!(
+            bytes(SocialRequest::SwearAllegiance),
+            words(&[0x0001_0053, 0x8203_000A, 12, 2, 0x44, 0x5000_0000])
+        );
+        assert_eq!(
+            bytes(SocialRequest::DeclineVassal(7)),
+            words(&[0x0001_0053, 0x8203_0029, 20, 1, 7, 2, 0x43, 0x5000_0000])
+        );
+        assert_eq!(
+            bytes(SocialRequest::FellowshipDisband),
+            words(&[0x0001_0053, 0x820C_0003, 0])
+        );
+        assert_eq!(SocialRequest::AcceptVassal.ifun(), 0x00B4_00B6);
+    }
 
     #[test]
     fn fellowship_notices_keep_the_latest_state() {

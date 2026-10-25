@@ -145,7 +145,11 @@ fn script_objects_cross_the_wire_byte_exact() {
             _ => None,
         })
         .collect();
-    assert_eq!(received, vec![skill]);
+    // The skill, and the double's answer to `DoFellowshipCreate` (`WM_Fellowship` 0x2B, the
+    // new fellowship).
+    assert!(received.contains(&skill), "{received:?}");
+    assert!(received.iter().any(|c| c.function == 0x820C_002B));
+    assert_eq!(received.len(), 2);
 
     let s = state.borrow();
     assert!(s.script_errors.is_empty(), "{:?}", s.script_errors);

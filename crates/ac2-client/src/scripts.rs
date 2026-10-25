@@ -25,7 +25,8 @@ use crate::loader::Request;
 /// (`DisplayStringInfo`) and 0x12 (`DisplayText`); `WM_Player` 0x27 (the login, `CPlayer`
 /// 0x65: vitals, inventory refresh; the session's mirrors still follow it) and 0x2C
 /// (`UpdateSelectionInfo`, `CPlayer` 0x34); `SetSelection` (`CPlayer` 0x6A),
-/// `RequestAttackStateChange` (`CPlayer` 0x4F) and `SetWhichShortcutSet` (`CPlayer` 0x5).
+/// `RequestAttackStateChange` (`CPlayer` 0x4F), `SetWhichShortcutSet` (`CPlayer` 0x5), and the
+/// fellowship and allegiance actions.
 pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     ac2_net::protocol::script_function::DISPLAY_STRING_INFO,
     ac2_net::protocol::script_function::DISPLAY_STRING_INFO_2,
@@ -35,6 +36,19 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_SET_SELECTION,
     IFUN_REQUEST_ATTACK_STATE_CHANGE,
     IFUN_SET_WHICH_SHORTCUT_SET,
+    // The fellowship and allegiance actions (`ac2_weenie::SocialRequest::ifun`).
+    0x00B4_00A0,
+    0x00B4_00A1,
+    0x00B4_00A2,
+    0x00B4_00A3,
+    0x00B4_00A4,
+    0x00B4_00A5,
+    0x00B4_00A6,
+    0x00B4_00B3,
+    0x00B4_00B4,
+    0x00B4_00B5,
+    0x00B4_00B6,
+    0x00B4_00B7,
 ];
 
 /// `gmCWInterface::RequestAttackStateChange` (`CPlayer` 0x4F: start attacking the selection,

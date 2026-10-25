@@ -69,6 +69,10 @@ pub enum Command {
     /// `gmShortcutUI::RequestAttackStateChange` (the bar's attack buttons, key 0x41000013):
     /// start attacking the selection, or stop.
     SetAttacking(bool),
+    /// A fellowship or allegiance panel action (`gmCWInterface::DoFellowship*`,
+    /// `SwearAllegiance`, `BreakAllegiance`, `AcceptVassal`, `DeclineVassal`,
+    /// `QueryAllegianceProfile`).
+    Social(ac2_weenie::SocialRequest),
     /// `gmCWInterface::SetWhichShortcutSet`: the bar shows set `n`.
     SetShortcutSet(u32),
     /// `gmCWInterface::SetShortcut`: the shortcut into slot `index` of the bar.
@@ -153,6 +157,44 @@ impl Client {
         out
     }
 
+    /// A fellowship or allegiance action: its `ggmCWInterface::CallIFun_*` on the script VM
+    /// when it has the call (the arguments in the wrapper's parameter order:
+    /// `DoFellowshipCreate(name, social, lootingMethod)`), else the session's stand-in.
+    fn social_request(&mut self, request: &ac2_weenie::SocialRequest) -> Vec<SessionEvent> {
+        use ac2_script::host::IFunArg;
+        use ac2_weenie::SocialRequest as R;
+        if !self.scripts_own(request.ifun()) {
+            self.session.social_request(request);
+            return Vec::new();
+        }
+        let args = match request {
+            R::FellowshipCreate {
+                name,
+                social,
+                looting,
+            } => vec![
+                IFunArg::Text(name.clone()),
+                IFunArg::Int(*social),
+                IFunArg::Int(*looting),
+            ],
+            R::FellowshipRecruit(id)
+            | R::FellowshipDismiss(id)
+            | R::BreakAllegiance(id)
+            | R::QueryAllegianceProfile(id) => vec![IFunArg::Long(*id)],
+            R::FellowshipRecruitDecline(context) | R::DeclineVassal(context) => {
+                vec![IFunArg::Int(*context)]
+            }
+            _ => Vec::new(),
+        };
+        let mut out = Vec::new();
+        if let Err(e) = self.ifun_into(request.ifun(), &args, &mut out) {
+            if let Some(scripts) = self.scripts.as_mut() {
+                scripts.problems.push(e);
+            }
+        }
+        out
+    }
+
     /// Runs the frame's commands; their notices join the frame's events.
     pub(crate) fn commands(&mut self, commands: &[Command]) -> Vec<SessionEvent> {
         let mut events = Vec::new();
@@ -183,6 +225,7 @@ impl Client {
                 }
                 Command::ChatLine(line) => self.session.process_text(line),
                 Command::SetAttacking(attacking) => self.request_attack_state(*attacking),
+                Command::Social(request) => self.social_request(request),
                 Command::SetShortcutSet(set) => {
                     self.session.set_shortcut_set(*set);
                     if self.scripts_own(crate::scripts::IFUN_SET_WHICH_SHORTCUT_SET) {

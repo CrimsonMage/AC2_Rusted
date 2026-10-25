@@ -12,6 +12,9 @@ use crate::social::{AllegianceProfile, FellowInfo, FellowshipInfo};
 pub enum GameplayNotice {
     /// `CM_Character::SendNotice_SelectionChanged`: the new selection (0 for none).
     SelectionChanged(u64),
+    /// `CM_Combat::SendNotice_UpdateAttackState`: the player is attacking or not
+    /// (`gmShortcutUI::RecvNotice_UpdateAttackState` ghosts its buttons).
+    UpdateAttackState(bool),
     /// `CM_Character::SendNotice_Select`: the UI runs a selection action
     /// (`gmShortcutUI::RequestAttackStateChange` raises 0x41000024 when the player should
     /// auto-target before attacking).

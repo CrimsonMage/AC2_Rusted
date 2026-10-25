@@ -589,6 +589,7 @@ impl OnlineSession {
                         out.extend(events);
                     }
                     out.extend(self.receive_chat_call(function, &arguments));
+                    out.extend(self.receive_combat(function, &arguments));
                     if let Some(events) = self.receive_script(function, &arguments) {
                         out.extend(events);
                         return;

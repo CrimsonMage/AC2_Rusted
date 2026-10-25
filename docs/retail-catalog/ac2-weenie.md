@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 37 done, 0 partial, 1861 to do, 6 skipped.
+1904 retail functions: 49 done, 0 partial, 1849 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (3/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (15/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -1096,22 +1096,22 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::UploadGameOptions` · 00451ac0 · legions 00452c40
 - [ ] `gmCWInterface::UploadChatOptions` · 00451ae0 · legions 00452c60
 - [ ] `gmCWInterface::UploadUISettings` · 00451b00 · legions 00452c80
-- [ ] `gmCWInterface::DoFellowshipCreate` · 00451b20 · legions 00452ca0
-- [ ] `gmCWInterface::DoFellowshipDisband` · 00451b50 · legions 00452cd0
-- [ ] `gmCWInterface::DoFellowshipLeave` · 00451b70 · legions 00452cf0
-- [ ] `gmCWInterface::DoFellowshipRecruit` · 00451b90 · legions 00452d10
-- [ ] `gmCWInterface::DoFellowshipDismiss` · 00451bb0 · legions 00452d30
-- [ ] `gmCWInterface::DoFellowshipRecruitAccept` · 00451bd0 · legions 00452d50
-- [ ] `gmCWInterface::DoFellowshipRecruitDecline` · 00451bf0 · legions 00452d70
+- [x] `gmCWInterface::DoFellowshipCreate` · 00451b20 · legions 00452ca0 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
+- [x] `gmCWInterface::DoFellowshipDisband` · 00451b50 · legions 00452cd0 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
+- [x] `gmCWInterface::DoFellowshipLeave` · 00451b70 · legions 00452cf0 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
+- [x] `gmCWInterface::DoFellowshipRecruit` · 00451b90 · legions 00452d10 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
+- [x] `gmCWInterface::DoFellowshipDismiss` · 00451bb0 · legions 00452d30 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
+- [x] `gmCWInterface::DoFellowshipRecruitAccept` · 00451bd0 · legions 00452d50 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
+- [x] `gmCWInterface::DoFellowshipRecruitDecline` · 00451bf0 · legions 00452d70 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 - [ ] `gmCWInterface::IsFellowshipMember` · 00451c10 · legions 00452d90
 - [ ] `gmCWInterface::GetFellowXPHash` · 00451c50 · legions 00452dd0
 - [ ] `gmCWInterface::DoAssistedTell` · 00451c90 · legions 00452e10
 - [ ] `gmCWInterface::HandleWeenieEmote` · 00451cb0 · legions 00452e30
-- [ ] `gmCWInterface::QueryAllegianceProfile` · 00451cf0 · legions 00452e70
-- [ ] `gmCWInterface::SwearAllegiance` · 00451d10 · legions 00452e90
-- [ ] `gmCWInterface::BreakAllegiance` · 00451d30 · legions 00452eb0
-- [ ] `gmCWInterface::AcceptVassal` · 00451d50 · legions 00452ed0
-- [ ] `gmCWInterface::DeclineVassal` · 00451d70 · legions 00452ef0
+- [x] `gmCWInterface::QueryAllegianceProfile` · 00451cf0 · legions 00452e70 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
+- [x] `gmCWInterface::SwearAllegiance` · 00451d10 · legions 00452e90 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
+- [x] `gmCWInterface::BreakAllegiance` · 00451d30 · legions 00452eb0 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
+- [x] `gmCWInterface::AcceptVassal` · 00451d50 · legions 00452ed0 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
+- [x] `gmCWInterface::DeclineVassal` · 00451d70 · legions 00452ef0 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 - [ ] `gmCWInterface::OpenTradeNegotiations` · 00451d90 · legions 00452f10
 - [ ] `gmCWInterface::CloseTradeNegotiations` · 00451db0 · legions 00452f30
 - [ ] `gmCWInterface::AcceptTrade` · 00451dd0 · legions 00452f50
