@@ -23,6 +23,8 @@ pub(crate) enum Request {
     Body(Option<u32>),
     /// An object's script state (`CWDistributor::Construct`'s WState): object, package, DID.
     ScriptState(u64, u32, u32),
+    /// A read a script call stopped for (cache-only script data).
+    ScriptData(ac2_script::vm::DataRequest),
 }
 
 /// Finished work.
@@ -33,6 +35,8 @@ pub(crate) enum Loaded {
     Body(Option<u32>, Result<BodyData, String>),
     /// The script state is in the cache (or does not exist): object, package, DID.
     ScriptState(u64, u32, u32),
+    /// The script data read is done (or the DATs lack it).
+    ScriptData,
 }
 
 /// A pool of loader threads over one `WorldData`.
@@ -58,6 +62,10 @@ fn load(data: &dyn WorldData, request: Request) -> Loaded {
         Request::ScriptState(id, pid, did) => {
             data.preload_script_state(pid, did);
             Loaded::ScriptState(id, pid, did)
+        }
+        Request::ScriptData(read) => {
+            data.load_script_data(read);
+            Loaded::ScriptData
         }
     }
 }

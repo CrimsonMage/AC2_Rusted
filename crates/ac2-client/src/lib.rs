@@ -23,6 +23,7 @@ mod motion;
 mod remote;
 mod scene;
 mod scripts;
+mod scripts_io;
 mod tables;
 mod targeting;
 #[cfg(feature = "window")]
