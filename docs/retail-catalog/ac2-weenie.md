@@ -1,9 +1,9 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 170 done, 29 partial, 1699 to do, 6 skipped.
+1904 retail functions: 171 done, 29 partial, 1698 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
+## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
 
 ### gmCEngineFactory
 - [ ] `gmCEngineFactory::Init` · 004017e0 · legions 00401750
@@ -18,7 +18,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ArgumentParser::FinishOutputText` · 00401870 · legions 006af780
 
 ### NoticeHandler
-- [ ] `NoticeHandler::RecvNotice_CharacterSet` · 00401880 · legions 00401ba0
+- [x] `NoticeHandler::RecvNotice_CharacterSet` · 00401880 · legions 00401ba0 — ac2-weenie SessionEvent::Characters / OnlineSession::characters (the latest set; CharacterChoice::Wait stops there for the selection screen)
 
 ### gmCEngineFactory
 - [ ] `gmCEngineFactory::MakeClient_Internal` · 00401890

@@ -1,4 +1,5 @@
 key	status	note
+00401880	x	ac2-weenie SessionEvent::Characters / OnlineSession::characters (the latest set; CharacterChoice::Wait stops there for the selection screen)
 00401b20	x	
 00401b30	x	
 00401b80	x	
