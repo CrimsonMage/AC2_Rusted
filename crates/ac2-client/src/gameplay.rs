@@ -54,6 +54,10 @@ pub enum Command {
     UnequipItem { item: u64, target_slot: i32 },
     /// `gmCWInterface::UpdateOpen`: open or close a container.
     SetContainerOpen { container: u64, open: bool },
+    /// `gmCWInterface::LootAllFromContainer`.
+    LootAll(u64),
+    /// `gmCWInterface::TransmuteAllFromContainer`.
+    TransmuteAll(u64),
 }
 
 /// One container's contents, as the inventory panels show them (ids; names, icons and
@@ -74,6 +78,8 @@ pub struct InventoryFrame {
     pub containers: Vec<ContainerFrame>,
     /// Equipment location and item.
     pub equipped: Vec<(u32, u64)>,
+    /// The containers open on the player (`gmExternalContainerUI`), in the order they opened.
+    pub open: Vec<u64>,
 }
 
 /// The selected object, as `gmSelectionUI` shows it.
@@ -149,6 +155,14 @@ impl Client {
                     self.session.set_container_open(*container, *open);
                     Vec::new()
                 }
+                Command::LootAll(container) => {
+                    self.session.loot_all(*container);
+                    Vec::new()
+                }
+                Command::TransmuteAll(container) => {
+                    self.session.transmute_all(*container);
+                    Vec::new()
+                }
             });
         }
         events
@@ -177,6 +191,7 @@ impl Client {
                 .map(frame)
                 .collect(),
             equipped: inv.equipped().to_vec(),
+            open: inv.open_containers().to_vec(),
         }
     }
 

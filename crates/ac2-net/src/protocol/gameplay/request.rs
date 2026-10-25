@@ -3,6 +3,7 @@
 use super::{function, literal, Args};
 use crate::protocol::client_event::ClientEvent;
 use crate::protocol::inventory::{InvEquipDesc, InvMoveDesc};
+use crate::protocol::inventory_bulk::{InvTakeAllDesc, InvTransmuteAllDesc};
 use crate::protocol::native::{ExaminationRequest, NativeObject};
 use crate::protocol::pack::{pack_values, PackValue};
 use crate::protocol::string_info::StringInfo;
@@ -40,6 +41,10 @@ pub enum ScriptRequest {
     OpenContainer(u64),
     /// [`function::CLOSE_CONTAINER`].
     CloseContainer(u64),
+    /// [`function::LOOT_ALL`].
+    LootAll(InvTakeAllDesc),
+    /// [`function::TRANSMUTE_ALL`].
+    TransmuteAll(InvTransmuteAllDesc),
 }
 
 impl ScriptRequest {
@@ -57,6 +62,8 @@ impl ScriptRequest {
             Self::UnequipItem(_) => function::UNEQUIP_ITEM,
             Self::OpenContainer(_) => function::OPEN_CONTAINER,
             Self::CloseContainer(_) => function::CLOSE_CONTAINER,
+            Self::LootAll(_) => function::LOOT_ALL,
+            Self::TransmuteAll(_) => function::TRANSMUTE_ALL,
         }
     }
 
@@ -84,6 +91,8 @@ impl ScriptRequest {
                 vec![PackValue::Reference(desc.to_reference())]
             }
             Self::OpenContainer(id) | Self::CloseContainer(id) => vec![PackValue::LongInt(*id)],
+            Self::LootAll(desc) => vec![PackValue::Reference(desc.to_reference())],
+            Self::TransmuteAll(desc) => vec![PackValue::Reference(desc.to_reference())],
         }
     }
 
@@ -148,6 +157,16 @@ impl ScriptRequest {
             }),
             function::OPEN_CONTAINER => decode(|a| Ok(Self::OpenContainer(a.long()?))),
             function::CLOSE_CONTAINER => decode(|a| Ok(Self::CloseContainer(a.long()?))),
+            function::LOOT_ALL => decode(|a| {
+                Ok(Self::LootAll(InvTakeAllDesc::from_reference(
+                    &a.reference()?,
+                )?))
+            }),
+            function::TRANSMUTE_ALL => decode(|a| {
+                Ok(Self::TransmuteAll(InvTransmuteAllDesc::from_reference(
+                    &a.reference()?,
+                )?))
+            }),
             _ => return None,
         })
     }

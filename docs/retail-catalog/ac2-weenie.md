@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 175 done, 33 partial, 1690 to do, 6 skipped.
+1904 retail functions: 177 done, 35 partial, 1686 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -126,11 +126,11 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Friends::SendNotice_LocalStatus` · 00726040
 - [ ] `CM_Friends::SendNotice_GUNResult_GetFriendsList` · 007260d0
 
-## `ac2/client/src/events/cm_inventory.cpp.c` (2/4)
+## `ac2/client/src/events/cm_inventory.cpp.c` (4/4)
 
 ### CM_Inventory
-- [ ] `CM_Inventory::SendNotice_ContainerStateUpdate` · 00726c10
-- [ ] `CM_Inventory::SendNotice_ItemUpdate` · 00726cb0
+- [x] `CM_Inventory::SendNotice_ContainerStateUpdate` · 00726c10 — ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
+- [x] `CM_Inventory::SendNotice_ItemUpdate` · 00726cb0 — ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
 - [x] `CM_Inventory::SendNotice_UpdateContainer` · 00726d40 — ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
 - [x] `CM_Inventory::SendNotice_UpdateInventory` · 00726e10 — ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
 
@@ -985,8 +985,8 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::IsOnInventory` · 00450680 · legions 004517c0
 - [ ] `gmCWInterface::DragToMoneyBag` · 004506c0 · legions 00451800
 - [ ] `gmCWInterface::DragFromMoneyBag` · 00450700 · legions 00451840
-- [ ] `gmCWInterface::LootAllFromContainer` · 00450730 · legions 00451870
-- [ ] `gmCWInterface::TransmuteAllFromContainer` · 00450750 · legions 00451890
+- [~] `gmCWInterface::LootAllFromContainer` · 00450730 · legions 00451870 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
+- [~] `gmCWInterface::TransmuteAllFromContainer` · 00450750 · legions 00451890 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
 - [ ] `gmCWInterface::HasDurability` · 00450770 · legions 004518b0
 - [ ] `gmCWInterface::GetDurabilityLevel` · 004507a0 · legions 004518e0
 - [ ] `gmCWInterface::GetMaxDurabilityLevel` · 004507d0 · legions 00451910

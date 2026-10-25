@@ -546,6 +546,7 @@ impl OnlineSession {
                 if target.is_some() && target == self.world.player() {
                     if function == ac2_net::protocol::script_function::INIT_PLAYER {
                         out.extend(self.init_player());
+                        out.extend(self.init_player_inventory(&arguments));
                     }
                     if let Some(events) = self.receive_script(function, &arguments) {
                         out.extend(events);
@@ -576,6 +577,7 @@ impl OnlineSession {
                     if Some(object) == self.world.player() {
                         out.extend(self.player_quality_changed(table, update.quality));
                     }
+                    out.extend(self.item_quality_changed(object, table, update.quality));
                 }
             }
             ServerEvent::CharacterDeleted(id) => out.push(SessionEvent::CharacterDeleted(id)),

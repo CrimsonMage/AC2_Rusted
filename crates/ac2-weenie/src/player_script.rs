@@ -58,6 +58,11 @@ pub enum GameplayNotice {
         item: u64,
         slot: i32,
     },
+    /// `CM_Inventory::SendNotice_ContainerStateUpdate`: a container opened or closed.
+    ContainerStateUpdate { container: u64, open: bool },
+    /// `CM_Inventory::SendNotice_ItemUpdate`: an item's quantity or durability changed
+    /// (`CItem` 0x3 `OnStatChanged`).
+    ItemUpdate(u64),
     /// `CM_Inventory::SendNotice_UpdateInventory`: the equipment changed (0x40000001: all).
     UpdateInventory { code: u32, item: u64, location: u32 },
     /// `CUsageSystem` 0x2: a use failed with `error` (the message it looks up by error code
@@ -371,7 +376,11 @@ impl PlayerScript {
             | ScriptMessage::MoveItemDone(_)
             | ScriptMessage::ReorganizeContentsDone(_)
             | ScriptMessage::EquipItemDone(_)
-            | ScriptMessage::UnequipItemDone(_) => {}
+            | ScriptMessage::UnequipItemDone(_)
+            | ScriptMessage::LootAllDone(_)
+            | ScriptMessage::TransmuteAllDone(_)
+            | ScriptMessage::OpenContainerDone { .. }
+            | ScriptMessage::CloseContainerDone { .. } => {}
             // `CExaminationSystem` 0x2: kept on the examined object's weenie, then shown.
             ScriptMessage::ExaminationProfile(profile) => {
                 if matches!(

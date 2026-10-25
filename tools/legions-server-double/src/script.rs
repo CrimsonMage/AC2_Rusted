@@ -143,12 +143,40 @@ impl State {
                 self.inventory_move(desc.item(), desc.container(), desc.slot());
                 self.send_script(&ScriptMessage::UnequipItemDone(desc.clone()));
             }
+            // `WM_Inventory` 0x5D: the container's lists, or an error for an unknown one.
             ScriptRequest::OpenContainer(id) => {
-                if self.script_world.contents.contains_key(id) {
-                    self.send_contents(*id);
-                }
+                let listed = self.script_world.contents.get(id).cloned();
+                self.send_script(&ScriptMessage::OpenContainerDone {
+                    error: u32::from(listed.is_none()),
+                    packs: listed.as_ref().map(|l| l.0.clone()),
+                    items: listed.map(|l| l.1),
+                    container: *id,
+                });
             }
-            ScriptRequest::CloseContainer(_) => {}
+            ScriptRequest::CloseContainer(id) => {
+                self.send_script(&ScriptMessage::CloseContainerDone {
+                    error: 0,
+                    container: *id,
+                });
+            }
+            ScriptRequest::LootAll(desc) => {
+                let world = &mut self.script_world;
+                let taken = world
+                    .contents
+                    .get_mut(&desc.container())
+                    .map(|c| std::mem::take(&mut c.1))
+                    .unwrap_or_default();
+                if let Some(pack) = world.contents.get_mut(&PLAYER) {
+                    pack.1.extend(taken);
+                }
+                self.send_script(&ScriptMessage::LootAllDone(desc.clone()));
+            }
+            ScriptRequest::TransmuteAll(desc) => {
+                if let Some(c) = self.script_world.contents.get_mut(&desc.container()) {
+                    c.1.clear();
+                }
+                self.send_script(&ScriptMessage::TransmuteAllDone(desc.clone()));
+            }
             // `WM_Usage` 0x22: the desc comes back with the outcome the test configured.
             ScriptRequest::Use(desc) => {
                 let mut desc = desc.clone();
@@ -280,10 +308,27 @@ impl State {
         self.send_event(&update.encode());
     }
 
-    /// Queues `WM_Player` 0x27 (the player's login state, `CPlayer` 0x65). The double has no
-    /// player systems to pack, so its fourteen arguments are zero ints.
+    /// Queues `WM_Player` 0x27 (the player's login state, `CPlayer` 0x65): the equipment and
+    /// the player's contents from [`ScriptWorld`]; the double has no other player systems, so
+    /// the remaining arguments are zero ints.
     pub fn send_init_player(&mut self) {
-        self.send_script_call(script_function::INIT_PLAYER, &vec![PackValue::Int(0); 14]);
+        let mut args = vec![PackValue::Int(0); 14];
+        // Arguments 7-9: the equipment (`CInventorySystem` 0x6); 10-12: the player's contents
+        // (`CInventorySystem` 0x1A).
+        let equipment = Equipment::from_locations(&self.script_world.equipped);
+        args[6] = equipment.first;
+        args[7] = PackValue::Reference(equipment.by_location);
+        args[8] = PackValue::Reference(equipment.by_item);
+        let (packs, items) = self
+            .script_world
+            .contents
+            .get(&PLAYER)
+            .cloned()
+            .unwrap_or_default();
+        args[9] = PackValue::Reference(pack_id_list(&[]));
+        args[10] = PackValue::Reference(pack_id_list(&packs));
+        args[11] = PackValue::Reference(pack_id_list(&items));
+        self.send_script_call(script_function::INIT_PLAYER, &args);
     }
 }
 
