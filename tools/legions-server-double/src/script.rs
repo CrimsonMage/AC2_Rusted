@@ -31,8 +31,11 @@ pub struct ScriptWorld {
     pub contents: std::collections::BTreeMap<u64, (Vec<u64>, Vec<u64>)>,
     /// The player's equipment by location (`WM_Inventory` 0x5F).
     pub equipped: Vec<(u32, u64)>,
-    /// The options profile `WM_Player` 0x27 carries (argument 4: shortcuts and the rest).
+    /// The options profile `WM_Player` 0x27 carries (argument 4: shortcuts and the rest);
+    /// `None`: [`crate::default_options`].
     pub options: Option<ac2_net::protocol::GameplayOptionsProfile>,
+    /// The skills the login message carries.
+    pub character: crate::Character,
 }
 
 impl State {
@@ -253,7 +256,13 @@ impl State {
 
     /// Queues a script call the client's codecs have no message for, from its packed values.
     pub fn send_script_call(&mut self, function: u32, arguments: &[PackValue]) {
-        self.send_event(&script_broadcast(function, arguments));
+        let event = script_broadcast(function, arguments);
+        // `NetBlob::Fragmentize`: a call longer than one fragment goes out in several.
+        if event.len() > ac2_net::FRAGMENT_DATA {
+            self.send_fragmented(&event);
+        } else {
+            self.send_event(&event);
+        }
     }
 
     /// Moves `item` out of whichever container holds it and, when `target` is a known
@@ -311,14 +320,21 @@ impl State {
         self.send_event(&update.encode());
     }
 
-    /// Queues `WM_Player` 0x27 (the player's login state, `CPlayer` 0x65): the options
-    /// profile, the equipment and the player's contents from [`ScriptWorld`]; the double has no
-    /// other player systems, so the remaining arguments are zero ints.
+    /// Queues `WM_Player` 0x27 (the player's login state, `CPlayer` 0x65): the skill
+    /// repository, the options profile, the equipment and the player's contents from
+    /// [`ScriptWorld`]; the double has no other player systems, so the remaining arguments are
+    /// zero ints.
     pub fn send_init_player(&mut self) {
         let mut args = vec![PackValue::Int(0); 14];
-        // The player's options profile always comes (a default one when the double holds
-        // none): `CPlayer` 0x65 dereferences it.
-        let options = self.script_world.options.clone().unwrap_or_default();
+        // Argument 5: the skill repository (`Agent` 0x6C), which the login's skill panel reads.
+        args[4] = PackValue::Reference(self.script_world.character.repository());
+        // The player's options profile always comes (the double's character's when the test
+        // set none): `CPlayer` 0x65 dereferences it.
+        let options = self
+            .script_world
+            .options
+            .clone()
+            .unwrap_or_else(crate::default_options);
         args[3] = PackValue::native(ac2_net::protocol::NativeObject::GameplayOptionsProfile(
             Box::new(options),
         ));

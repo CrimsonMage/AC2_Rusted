@@ -89,6 +89,21 @@ impl OnlineSession {
         Some(notices.into_iter().map(SessionEvent::Notice).collect())
     }
 
+    /// `CPlayer` 0x65's skill repository (`WM_Player` 0x27 argument 5, `Agent` 0x6C) and its
+    /// `UpdateSkillPanel`.
+    pub(super) fn init_player_skills(&mut self, arguments: &[u8]) -> Vec<SessionEvent> {
+        let Ok(values) = unpack_values(arguments) else {
+            return Vec::new();
+        };
+        let q = player_qualities(&self.world);
+        values
+            .get(4)
+            .and_then(|repository| self.progress.login_skills(repository, q))
+            .map(SessionEvent::Notice)
+            .into_iter()
+            .collect()
+    }
+
     /// `CPlayer` 0x65's options (`WM_Player` 0x27 argument 4).
     pub(super) fn init_player_options(&mut self, arguments: &[u8]) -> Vec<SessionEvent> {
         let Ok(values) = unpack_values(arguments) else {
