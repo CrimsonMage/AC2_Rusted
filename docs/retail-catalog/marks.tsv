@@ -979,6 +979,22 @@ key	status	note
 00531bb0	x	
 00531bf0	x	
 00531c30	x	
+00536af0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536b30	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536b60	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536b90	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536c30	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536c50	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536c70	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536c90	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536cb0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536cd0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536cf0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536d50	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536d80	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536db0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536de0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00536e10	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00538010	x	ac2-script glue::string_info (lookups via ScriptData)
 00538080	x	ac2-script glue::string_info (lookups via ScriptData)
 005380f0	x	ac2-script glue::string_info (lookups via ScriptData)
@@ -1009,6 +1025,18 @@ key	status	note
 00538de0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00538fa0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00539180	x	ac2-script glue::string_text (tables via ScriptData::string_table)
+0053a480	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a4e0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a550	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a5b0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a670	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a6c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a7a0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a840	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a8c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a940	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053a9c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0053aa20	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053f690	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 0053f710	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 0053f790	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
@@ -1028,6 +1056,33 @@ key	status	note
 00546ab0	x	ac2-script data/glue::enums
 00546b30	x	ac2-script data/glue::enums
 00546bb0	x	ac2-script data/glue::enums
+0054a800	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054a860	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054a8c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054a920	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054a980	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054a9e0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054aa40	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054aaa0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ab00	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ab60	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054abc0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ac20	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ac80	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ace0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ad40	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ada0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ae00	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054ae60	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054aec0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054af20	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054af80	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054b000	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054b060	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054b0c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054b120	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054b190	~	ac2-script glue: f32 spill points unchecked against x87 / copy order of PHashTable operator= unverified
+0054b280	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 005512f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00551380	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 005513f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
@@ -1174,6 +1229,13 @@ key	status	note
 005564c0	x	ac2-script glue::lists
 00556570	x	ac2-script glue::lists
 00556620	x	ac2-script glue::lists
+005566d0	~	ac2-script glue: f32 spill points unchecked against x87 / copy order of PHashTable operator= unverified
+00556740	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00556790	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+005567d0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00556820	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00556850	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+005568b0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00556910	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00556980	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 005569f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)

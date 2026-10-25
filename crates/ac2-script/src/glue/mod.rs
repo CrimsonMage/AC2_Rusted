@@ -11,15 +11,18 @@
 //! `fp - 1 - k` (a 64-bit argument takes two slots, low word lower) and writes the return
 //! value below the last argument. Int and bool results are tagged `BOOL` (4), references `REF`.
 
+mod behavior;
 mod cparse;
 mod enums;
 mod format;
 mod hashes;
 mod lists;
+mod random;
 mod string_info;
 mod string_text;
 mod vm_glue;
 mod wcc;
+mod wlog;
 mod wpstring;
 
 use std::sync::OnceLock;
@@ -39,6 +42,9 @@ pub fn register_pure(efuns: &mut EFuns) {
     enums::register(efuns);
     lists::register(efuns);
     hashes::register(efuns);
+    wlog::register(efuns);
+    random::register(efuns);
+    behavior::register(efuns);
 }
 
 /// The retail glue function behind efun `id` (`gAAHash::CallEFun_add`).

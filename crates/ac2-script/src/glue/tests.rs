@@ -251,3 +251,46 @@ fn hash_glue_keeps_retail_bucket_order_and_hashes_native_keys_by_value() {
     assert_eq!(call(&mut vm, 0x004B_0001, 1, &[b, 2], na).1[0].0, 0);
     assert_eq!(call(&mut vm, 0x004B_0012, 1, &[b], na).1[0].0, 1); // contains
 }
+
+#[test]
+fn random_selection_tables_choose_without_replacement_and_start_over() {
+    use crate::native::{ntype, RandomSelectionTable};
+    use crate::vm::refs::{flags, ReferenceTable, Target};
+    let mut vm = vm();
+    let t = vm.refs.create_native(
+        ntype::RANDOM_SELECTION_TABLE_INT,
+        NativeObject::RandomSelectionTable(RandomSelectionTable::default()),
+    );
+    for (object, weight) in [(10, 1), (20, 5), (30, 2), (40, 0)] {
+        call(&mut vm, 0x0060_0001, 0, &[object, weight], t); // AddEntry (weight 0 ignored)
+    }
+    let table = |vm: &Vm| match vm.native(t) {
+        Some(NativeObject::RandomSelectionTable(t)) => t.clone(),
+        _ => panic!(),
+    };
+    assert_eq!(table(&vm).unused, vec![(10, 1, 8), (20, 5, 5), (30, 2, 2)]);
+    let holder = vm.refs.add(
+        flags::KIND_HEAP | flags::FILLED,
+        Target::Heap(Box::new(ReferenceTable::new_instance(0, 1))),
+    );
+    let out = vm.refs.add(flags::KIND_VALUE, Target::Ref(holder));
+    let mut chosen = Vec::new();
+    while call(&mut vm, 0x0060_0005, 1, &[], t).1[0].0 == 0 {
+        let (_, r) = call(&mut vm, 0x0060_0007, 1, &[out], t); // Choose
+        assert_eq!(r[0].0, 1);
+        chosen.push(vm.refs.heap(holder).unwrap().slots[0]);
+        let unused = table(&vm).unused;
+        if let Some(root) = unused.first() {
+            assert_eq!(root.2, unused.iter().map(|e| e.1).sum::<u32>());
+        }
+    }
+    chosen.sort_unstable();
+    assert_eq!(chosen, vec![10, 20, 30]);
+    assert_eq!(call(&mut vm, 0x0060_0007, 1, &[out], t).1[0].0, 0);
+    call(&mut vm, 0x0060_0006, 0, &[], t); // StartOver
+    let unused = table(&vm).unused;
+    assert_eq!(unused.len(), 3);
+    assert_eq!(unused[0].2, 8);
+    let (_, r) = call(&mut vm, 0x005F_0001, 1, &[], t); // RollPercentile
+    assert!((1..=100).contains(&r[0].0));
+}

@@ -182,6 +182,27 @@ pub struct Vm {
     states: Box<dyn ScriptData>,
     /// The fault behind the most recent [`InterpStatus::Crash`].
     pub last_fault: Option<Fault>,
+    /// `WLogSystem`'s log-type masks.
+    pub log_types: LogTypes,
+    /// `Random`: retail has one generator for the whole client; a host that runs other
+    /// consumers of it on the same stream shares its state through this field.
+    pub random: ac2_core::Random,
+}
+
+/// `WLogSystem::m_logTypeFile` / `m_logTypePrint` (Legions starts them at 0x1A4 and 0).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LogTypes {
+    pub file: u32,
+    pub print: u32,
+}
+
+impl Default for LogTypes {
+    fn default() -> Self {
+        Self {
+            file: 0x1A4,
+            print: 0,
+        }
+    }
 }
 
 impl Vm {
@@ -201,6 +222,8 @@ impl Vm {
             efuns,
             states,
             last_fault: None,
+            log_types: LogTypes::default(),
+            random: ac2_core::Random::default(),
         }
     }
 

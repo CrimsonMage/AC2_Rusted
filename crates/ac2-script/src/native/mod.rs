@@ -158,6 +158,10 @@ impl NativeObject {
                 }
             }
             ntype::POSITION => NativeObject::Position(Position::default()),
+            ntype::RANDOM_SELECTION_TABLE_INT => {
+                NativeObject::RandomSelectionTable(RandomSelectionTable::default())
+            }
+            ntype::BEHAVIOR_PARAMS => NativeObject::BehaviorParams(Box::default()),
             other => NativeObject::Unbound(other),
         }
     }

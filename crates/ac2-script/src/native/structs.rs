@@ -242,15 +242,18 @@ impl BehaviorParams {
 /// `ElementStruct::StreamPack` (object, weight, subtree weight).
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct RandomSelectionTable {
-    pub unused: Vec<(u32, f32, f32)>,
-    pub used: Vec<(u32, f32, f32)>,
+    /// `m_unusedElements`: (`m_object`, `m_weight`, `m_subTreeWeight`), a heap-ordered weight
+    /// tree (children of i at 2i+1, 2i+2).
+    pub unused: Vec<(u32, u32, u32)>,
+    /// `m_usedElements`.
+    pub used: Vec<(u32, u32, u32)>,
 }
 
 impl RandomSelectionTable {
     pub(super) fn unpack(r: &mut Reader<'_>) -> UnpackResult<Self> {
-        let read = |r: &mut Reader<'_>| -> UnpackResult<Vec<(u32, f32, f32)>> {
+        let read = |r: &mut Reader<'_>| -> UnpackResult<Vec<(u32, u32, u32)>> {
             let n = r.count(12, "random selection element count")?;
-            (0..n).map(|_| Ok((r.u32()?, r.f32()?, r.f32()?))).collect()
+            (0..n).map(|_| Ok((r.u32()?, r.u32()?, r.u32()?))).collect()
         };
         Ok(Self {
             unused: read(r)?,

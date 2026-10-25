@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 673 done, 60 partial, 1657 to do, 78 skipped.
+2468 retail functions: 733 done, 62 partial, 1595 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -1451,40 +1451,40 @@ Legend and workflow: [README](README.md).
 - [ ] `gBaseProperty::CallEFun_InqStringW` · 0054c5b0 · legions 0052a0a0
 - [ ] `gBaseProperty::CallEFun_InqVector` · 0054c650
 
-## `portal/shared/src/interp/glue/gbehaviorparams.cpp.c` (0/27)
+## `portal/shared/src/interp/glue/gbehaviorparams.cpp.c` (26/27)
 
 ### gBehaviorParams
-- [ ] `gBehaviorParams::CallEFun_SendEarlyCallBack` · 0054a800
-- [ ] `gBehaviorParams::CallEFun_SetBehaviorID` · 0054a860
-- [ ] `gBehaviorParams::CallEFun_SetCameraBehavior` · 0054a8c0
-- [ ] `gBehaviorParams::CallEFun_SetClonedAppearanceID` · 0054a920
-- [ ] `gBehaviorParams::CallEFun_SetFXScript` · 0054a980
-- [ ] `gBehaviorParams::CallEFun_SetFXToStartAndStop` · 0054a9e0
-- [ ] `gBehaviorParams::CallEFun_SetFadeChildren` · 0054aa40
-- [ ] `gBehaviorParams::CallEFun_SetHoldCamera` · 0054aaa0
-- [ ] `gBehaviorParams::CallEFun_SetLeaveIdleAlone` · 0054ab00
-- [ ] `gBehaviorParams::CallEFun_SetLockActions` · 0054ab60
-- [ ] `gBehaviorParams::CallEFun_SetModeID` · 0054abc0
-- [ ] `gBehaviorParams::CallEFun_SetMoveToCancels` · 0054ac20
-- [ ] `gBehaviorParams::CallEFun_SetNewCameraOwnerID` · 0054ac80
-- [ ] `gBehaviorParams::CallEFun_SetNumberOfHoldCycles` · 0054ace0
-- [ ] `gBehaviorParams::CallEFun_SetParentedCamera` · 0054ad40
-- [ ] `gBehaviorParams::CallEFun_SetPropagate` · 0054ada0
-- [ ] `gBehaviorParams::CallEFun_SetRestoreCamera` · 0054ae00
-- [ ] `gBehaviorParams::CallEFun_SetSendEvent` · 0054ae60
-- [ ] `gBehaviorParams::CallEFun_SetTargetID` · 0054aec0
-- [ ] `gBehaviorParams::CallEFun_SetTargetedCamera` · 0054af20
-- [ ] `gBehaviorParams::CallEFun_SetTargetedImpulse` · 0054af80
-- [ ] `gBehaviorParams::CallEFun_SetTimeScale` · 0054b000
-- [ ] `gBehaviorParams::CallEFun_SetVDescIDToClone` · 0054b060
-- [ ] `gBehaviorParams::CallEFun_SetWeenieEmoteID` · 0054b0c0
-- [ ] `gBehaviorParams::CallEFun_GetBehaviorID` · 0054b120
+- [x] `gBehaviorParams::CallEFun_SendEarlyCallBack` · 0054a800 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetBehaviorID` · 0054a860 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetCameraBehavior` · 0054a8c0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetClonedAppearanceID` · 0054a920 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetFXScript` · 0054a980 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetFXToStartAndStop` · 0054a9e0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetFadeChildren` · 0054aa40 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetHoldCamera` · 0054aaa0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetLeaveIdleAlone` · 0054ab00 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetLockActions` · 0054ab60 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetModeID` · 0054abc0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetMoveToCancels` · 0054ac20 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetNewCameraOwnerID` · 0054ac80 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetNumberOfHoldCycles` · 0054ace0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetParentedCamera` · 0054ad40 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetPropagate` · 0054ada0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetRestoreCamera` · 0054ae00 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetSendEvent` · 0054ae60 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetTargetID` · 0054aec0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetTargetedCamera` · 0054af20 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetTargetedImpulse` · 0054af80 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetTimeScale` · 0054b000 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetVDescIDToClone` · 0054b060 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_SetWeenieEmoteID` · 0054b0c0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gBehaviorParams::CallEFun_GetBehaviorID` · 0054b120 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ### gGameplayOptionsProfile
-- [ ] `gGameplayOptionsProfile::AAHashToUIElementOpacities` · 0054b190 · legions 00529120
+- [~] `gGameplayOptionsProfile::AAHashToUIElementOpacities` · 0054b190 · legions 00529120 — ac2-script glue: f32 spill points unchecked against x87 / copy order of PHashTable operator= unverified
 
 ### gBehaviorParams
-- [ ] `gBehaviorParams::CallEFun_SetClonedAppKeyHash` · 0054b280
+- [x] `gBehaviorParams::CallEFun_SetClonedAppKeyHash` · 0054b280 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ## `portal/shared/src/interp/glue/gcaseinsensitivewpstring.cpp.c` (0/33)
 
@@ -1605,13 +1605,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gCollisionProfile::CallEFun_HasCollided` · 00549080 · legions 00527ca0
 - [ ] `gCollisionProfile::CallEFun_HasContact` · 00549150 · legions 00527d50
 
-## `portal/shared/src/interp/glue/gdbcache.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/gdbcache.cpp.c` (4/4)
 
 ### gDBCache
-- [ ] `gDBCache::CallEFun_GetDIDFromEnumStatic` · 00536af0
-- [ ] `gDBCache::CallEFun_IsClient` · 00536b30
-- [ ] `gDBCache::CallEFun_IsRunTime` · 00536b60
-- [ ] `gDBCache::CallEFun_IsServer` · 00536b90
+- [x] `gDBCache::CallEFun_GetDIDFromEnumStatic` · 00536af0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gDBCache::CallEFun_IsClient` · 00536b30 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gDBCache::CallEFun_IsRunTime` · 00536b60 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gDBCache::CallEFun_IsServer` · 00536b90 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ## `portal/shared/src/interp/glue/gdebug.cpp.c` (0/11)
 
@@ -2863,43 +2863,43 @@ Legend and workflow: [README](README.md).
 ### gQualifiedDataIDArray
 - [ ] `gQualifiedDataIDArray::CallEFun_WslAddToEnd` · 0053aac0
 
-## `portal/shared/src/interp/glue/grandom.cpp.c` (0/7)
+## `portal/shared/src/interp/glue/grandom.cpp.c` (6/7)
 
 ### (free functions)
-- [ ] `RollSkewedNumberEx` · 005566d0 · legions 0052f650
+- [~] `RollSkewedNumberEx` · 005566d0 · legions 0052f650 — ac2-script glue: f32 spill points unchecked against x87 / copy order of PHashTable operator= unverified
 
 ### gRandom
-- [ ] `gRandom::CallEFun_RollDice` · 00556740 · legions 0052f6c0
-- [ ] `gRandom::CallEFun_RollDiceInt` · 00556790
-- [ ] `gRandom::CallEFun_RollGaussianDice` · 005567d0 · legions 0052f750
-- [ ] `gRandom::CallEFun_RollPercentile` · 00556820
-- [ ] `gRandom::CallEFun_RollSkewedNumber` · 00556850
-- [ ] `gRandom::CallEFun_RollSkewedNumberEx` · 005568b0
+- [x] `gRandom::CallEFun_RollDice` · 00556740 · legions 0052f6c0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandom::CallEFun_RollDiceInt` · 00556790 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandom::CallEFun_RollGaussianDice` · 005567d0 · legions 0052f750 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandom::CallEFun_RollPercentile` · 00556820 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandom::CallEFun_RollSkewedNumber` · 00556850 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandom::CallEFun_RollSkewedNumberEx` · 005568b0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
-## `portal/shared/src/interp/glue/grandomselectiontable_int.cpp.c` (0/13)
+## `portal/shared/src/interp/glue/grandomselectiontable_int.cpp.c` (12/13)
 
 ### RandomSelectionTable<unsigned_long>
-- [ ] `RandomSelectionTable<unsigned_long>::InitializeWeights_Internal` · 0053a480 · legions 0051cf10
+- [x] `RandomSelectionTable<unsigned_long>::InitializeWeights_Internal` · 0053a480 · legions 0051cf10 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ### gRandomSelectionTable_Int
-- [ ] `gRandomSelectionTable_Int::CallEFun_Done` · 0053a4e0
-- [ ] `gRandomSelectionTable_Int::CallEFun_Clear` · 0053a550
-- [ ] `gRandomSelectionTable_Int::CallEFun_InitializeWeights` · 0053a5b0
+- [x] `gRandomSelectionTable_Int::CallEFun_Done` · 0053a4e0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandomSelectionTable_Int::CallEFun_Clear` · 0053a550 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandomSelectionTable_Int::CallEFun_InitializeWeights` · 0053a5b0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ### SmartArray<RandomSelectionTable<unsigned_long>::ElementStruct>
 - [ ] `SmartArray<RandomSelectionTable<unsigned_long>::ElementStruct>::AddToEnd` · 0053a610 · legions 0051d040
 
 ### RandomSelectionTable<unsigned_long>
-- [ ] `RandomSelectionTable<unsigned_long>::AddEntry_Internal` · 0053a670 · legions 0051d0a0
-- [ ] `RandomSelectionTable<unsigned_long>::MoveToUsedList` · 0053a6c0 · legions 0051d0f0
-- [ ] `RandomSelectionTable<unsigned_long>::StartOver` · 0053a7a0 · legions 0051d1d0
-- [ ] `RandomSelectionTable<unsigned_long>::Choose` · 0053a840 · legions 0051d270
+- [x] `RandomSelectionTable<unsigned_long>::AddEntry_Internal` · 0053a670 · legions 0051d0a0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `RandomSelectionTable<unsigned_long>::MoveToUsedList` · 0053a6c0 · legions 0051d0f0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `RandomSelectionTable<unsigned_long>::StartOver` · 0053a7a0 · legions 0051d1d0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `RandomSelectionTable<unsigned_long>::Choose` · 0053a840 · legions 0051d270 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ### gRandomSelectionTable_Int
-- [ ] `gRandomSelectionTable_Int::CallEFun_AddEntry` · 0053a8c0
-- [ ] `gRandomSelectionTable_Int::CallEFun_FastAddEntry` · 0053a940
-- [ ] `gRandomSelectionTable_Int::CallEFun_StartOver` · 0053a9c0
-- [ ] `gRandomSelectionTable_Int::CallEFun_Choose` · 0053aa20 · legions 0051d3e0
+- [x] `gRandomSelectionTable_Int::CallEFun_AddEntry` · 0053a8c0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandomSelectionTable_Int::CallEFun_FastAddEntry` · 0053a940 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandomSelectionTable_Int::CallEFun_StartOver` · 0053a9c0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gRandomSelectionTable_Int::CallEFun_Choose` · 0053aa20 · legions 0051d3e0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ## `portal/shared/src/interp/glue/grarray.cpp.c` (10/11)
 
@@ -3229,25 +3229,25 @@ Legend and workflow: [README](README.md).
 - [x] `gwccinternal::CallEFun__WCC_strcat_uint` · 00553720 · legions 0052e050 — ac2-script glue
 - [x] `gwccinternal::CallEFun__WCC_strcat_ulint` · 005537b0 · legions 0052e0e0 — ac2-script glue
 
-## `portal/shared/src/interp/glue/gwlogsystem.cpp.c` (0/12)
+## `portal/shared/src/interp/glue/gwlogsystem.cpp.c` (12/12)
 
 ### gWLogSystem
-- [ ] `gWLogSystem::CallEFun_AddFileLog` · 00536c30
-- [ ] `gWLogSystem::CallEFun_AddPrintLog` · 00536c50
-- [ ] `gWLogSystem::CallEFun_RemoveFileLog` · 00536c70
-- [ ] `gWLogSystem::CallEFun_RemovePrintLog` · 00536c90
-- [ ] `gWLogSystem::CallEFun_SetFileLog` · 00536cb0
-- [ ] `gWLogSystem::CallEFun_SetPrintLog` · 00536cd0
+- [x] `gWLogSystem::CallEFun_AddFileLog` · 00536c30 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_AddPrintLog` · 00536c50 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_RemoveFileLog` · 00536c70 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_RemovePrintLog` · 00536c90 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_SetFileLog` · 00536cb0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_SetPrintLog` · 00536cd0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ### (free functions)
-- [ ] `DLogMsg` · 00536cf0 · legions 0051aa60
+- [x] `DLogMsg` · 00536cf0 · legions 0051aa60 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ### gWLogSystem
-- [ ] `gWLogSystem::CallEFun_GetFileLog` · 00536d50
-- [ ] `gWLogSystem::CallEFun_GetPrintLog` · 00536d80
-- [ ] `gWLogSystem::CallEFun_IsFileLogging` · 00536db0
-- [ ] `gWLogSystem::CallEFun_IsPrintLogging` · 00536de0
-- [ ] `gWLogSystem::CallEFun_DLogMsg` · 00536e10
+- [x] `gWLogSystem::CallEFun_GetFileLog` · 00536d50 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_GetPrintLog` · 00536d80 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_IsFileLogging` · 00536db0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_IsPrintLogging` · 00536de0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
+- [x] `gWLogSystem::CallEFun_DLogMsg` · 00536e10 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ## `portal/shared/src/interp/glue/gwpstring.cpp.c` (34/34)
 

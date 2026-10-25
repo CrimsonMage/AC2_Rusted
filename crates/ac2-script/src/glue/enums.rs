@@ -22,6 +22,25 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x0027_0002, get_did_for_dummies_w);
     efuns.register(0x0027_0003, get_did_w);
     efuns.register(0x0027_0004, get_file_name_for_dummies_w);
+    efuns.register(0x1AC0_0001, get_did_from_enum_static);
+    // `DBCache::IsRunTime`, `IsClient`, `IsServer`: the client's cache is a run-time client.
+    efuns.register(0x1AC0_0002, |_, ctx| flag(ctx, true));
+    efuns.register(0x1AC0_0003, |_, ctx| flag(ctx, true));
+    efuns.register(0x1AC0_0004, |_, ctx| flag(ctx, false));
+}
+
+fn flag(ctx: &mut Context, on: bool) -> InterpStatus {
+    Call::new(ctx).ret(2, u32::from(on), INT_RESULT);
+    InterpStatus::Success
+}
+
+/// `DBCache::GetDIDFromEnumStatic(enum_id, enum_group)`.
+fn get_did_from_enum_static(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let call = Call::new(ctx);
+    let (id, group) = (call.word(2), call.word(3));
+    let did = vm.data().enum_did(id, group).unwrap_or(0);
+    Call::new(ctx).ret(4, did, INT_RESULT);
+    InterpStatus::Success
 }
 
 /// The base-mapper chain depth retail could follow before a cycle would hang it.
