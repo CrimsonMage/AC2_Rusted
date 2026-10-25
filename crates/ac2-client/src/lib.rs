@@ -31,6 +31,8 @@ mod scripts_queries;
 mod tables;
 mod targeting;
 #[cfg(feature = "window")]
+mod ui_images;
+#[cfg(feature = "window")]
 mod ui_sources;
 #[cfg(feature = "window")]
 pub mod view;

@@ -36,6 +36,8 @@ pub(crate) struct HudView {
     pub(crate) player_loaded: bool,
     /// Lines displayed before the HUD arrived (`RecvNotice_DisplayStringInfo`).
     early_lines: Vec<(u32, String)>,
+    /// Images set after the build, loaded on demand.
+    images: crate::ui_images::UiImageLoader,
     /// The chat lines being rendered (`StringDownload`).
     chat_text: crate::chat_text::ChatText,
     overlay: UiOverlay,
@@ -51,6 +53,7 @@ impl HudView {
         size: (u32, u32),
     ) -> Self {
         let chat_text = crate::chat_text::ChatText::new((*store).clone());
+        let images = crate::ui_images::UiImageLoader::new(Arc::clone(&store));
         let (send_strings, pending_strings) = mpsc::channel();
         let strings_store = Arc::clone(&store);
         std::thread::Builder::new()
@@ -90,6 +93,7 @@ impl HudView {
             player_loaded: false,
             early_lines: Vec::new(),
             chat_text,
+            images,
             overlay: UiOverlay::new(gpu, format),
             size,
             dirty: false,
@@ -304,6 +308,11 @@ impl HudView {
                 Err(TryRecvError::Empty) => {}
             }
         }
+        if let Some((_, images)) = &mut self.hud {
+            if self.images.take(images) {
+                self.dirty = true;
+            }
+        }
         for (kind, text) in self.chat_text.take() {
             self.chat_display(kind, &text);
         }
@@ -364,6 +373,7 @@ impl HudView {
         }
         tree.take_moved();
         self.dirty = false;
+        self.images.request_missing(tree, images);
         tree.take_changed();
         let surfaces = tree.compose(images);
         self.overlay.set_layers(

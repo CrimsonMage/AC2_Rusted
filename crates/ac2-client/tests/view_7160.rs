@@ -401,7 +401,11 @@ fn the_client_walks_with_w_and_draws_its_character() {
     assert_eq!(view.skills_current(), Some((root, 0)), "{events:?}");
     // A displayed line reaches the log on the next update; the window shows it.
     view.chat_display(0x4_0000, "Explorer says, \"well met\"\n");
-    view.update(&gpu, &frame, Duration::ZERO);
+    // Images set since the build (icons) load on a worker; give them a moment.
+    for _ in 0..20 {
+        view.update(&gpu, &frame, Duration::ZERO);
+        std::thread::sleep(Duration::from_millis(10));
+    }
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
     target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
     write_png(
