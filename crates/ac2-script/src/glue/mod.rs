@@ -29,6 +29,7 @@ mod position;
 mod random;
 mod repository;
 mod skill_node;
+mod social;
 mod string_info;
 mod string_text;
 mod vm_glue;
@@ -68,6 +69,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     options::register(efuns);
     examination::register(efuns);
     places::register(efuns);
+    social::register(efuns);
 }
 
 pub(crate) use chargen::empty_race_sex_info;

@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 0 done, 0 partial, 1898 to do, 6 skipped.
+1904 retail functions: 34 done, 0 partial, 1864 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -231,37 +231,37 @@ Legend and workflow: [README](README.md).
 - [ ] `gmGlobalEventHandler::gmGlobalEventHandler` · 007232c0 · legions 006a3580
 - [ ] `gmGlobalEventHandler::gmGetGlobalEventHandler` · 007232d0 · legions 006a3590
 
-## `ac2/client/src/weenie/interp/glue/gallegiancedataadaptor.cpp.c` (0/10)
+## `ac2/client/src/weenie/interp/glue/gallegiancedataadaptor.cpp.c` (10/10)
 
 ### gAllegianceDataAdaptor
-- [ ] `gAllegianceDataAdaptor::CallEFun_SetFaction` · 0046a980
-- [ ] `gAllegianceDataAdaptor::CallEFun_SetGender` · 0046a9e0
-- [ ] `gAllegianceDataAdaptor::CallEFun_SetID` · 0046aa40
-- [ ] `gAllegianceDataAdaptor::CallEFun_SetLevel` · 0046aaa0
-- [ ] `gAllegianceDataAdaptor::CallEFun_SetName` · 0046ab00
-- [ ] `gAllegianceDataAdaptor::CallEFun_SetOfficer` · 0046ab60
-- [ ] `gAllegianceDataAdaptor::CallEFun_SetRank` · 0046abc0
-- [ ] `gAllegianceDataAdaptor::CallEFun_SetSpecies` · 0046ac20
-- [ ] `gAllegianceDataAdaptor::CallEFun_SetTitle` · 0046ac80
-- [ ] `gAllegianceDataAdaptor::CallEFun_SetXPPassed` · 0046ace0
+- [x] `gAllegianceDataAdaptor::CallEFun_SetFaction` · 0046a980 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceDataAdaptor::CallEFun_SetGender` · 0046a9e0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceDataAdaptor::CallEFun_SetID` · 0046aa40 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceDataAdaptor::CallEFun_SetLevel` · 0046aaa0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceDataAdaptor::CallEFun_SetName` · 0046ab00 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceDataAdaptor::CallEFun_SetOfficer` · 0046ab60 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceDataAdaptor::CallEFun_SetRank` · 0046abc0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceDataAdaptor::CallEFun_SetSpecies` · 0046ac20 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceDataAdaptor::CallEFun_SetTitle` · 0046ac80 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceDataAdaptor::CallEFun_SetXPPassed` · 0046ace0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 
-## `ac2/client/src/weenie/interp/glue/gallegianceprofileadaptor.cpp.c` (0/10)
+## `ac2/client/src/weenie/interp/glue/gallegianceprofileadaptor.cpp.c` (9/10)
 
 ### gAllegianceProfileAdaptor
-- [ ] `gAllegianceProfileAdaptor::CallEFun_SetAllegianceName` · 0046a490
-- [ ] `gAllegianceProfileAdaptor::CallEFun_SetFactionType` · 0046a4f0
-- [ ] `gAllegianceProfileAdaptor::CallEFun_SetMember` · 0046a550
-- [ ] `gAllegianceProfileAdaptor::CallEFun_SetMonarch` · 0046a5c0
-- [ ] `gAllegianceProfileAdaptor::CallEFun_SetMotD` · 0046a630
-- [ ] `gAllegianceProfileAdaptor::CallEFun_SetPatron` · 0046a6a0
-- [ ] `gAllegianceProfileAdaptor::CallEFun_SetTotal` · 0046a710
-- [ ] `gAllegianceProfileAdaptor::CallEFun_AddVassal` · 0046a7f0
+- [x] `gAllegianceProfileAdaptor::CallEFun_SetAllegianceName` · 0046a490 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceProfileAdaptor::CallEFun_SetFactionType` · 0046a4f0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceProfileAdaptor::CallEFun_SetMember` · 0046a550 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceProfileAdaptor::CallEFun_SetMonarch` · 0046a5c0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceProfileAdaptor::CallEFun_SetMotD` · 0046a630 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceProfileAdaptor::CallEFun_SetPatron` · 0046a6a0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceProfileAdaptor::CallEFun_SetTotal` · 0046a710 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gAllegianceProfileAdaptor::CallEFun_AddVassal` · 0046a7f0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 
 ### HashSet<InstanceID>
 - [ ] `HashSet<InstanceID>::add` · 0046a890 · legions 0046b170
 
 ### gAllegianceProfileAdaptor
-- [ ] `gAllegianceProfileAdaptor::CallEFun_AddOfficer` · 0046a900
+- [x] `gAllegianceProfileAdaptor::CallEFun_AddOfficer` · 0046a900 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_allegiance.cpp.c` (0/4)
 
@@ -434,32 +434,32 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Usage::CallEFun_SendNotice_SetTargetingPointer` · 00468870 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Usage::CallEFun_SendNotice_UseBook` · 004688c0 · legions 00469340 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gfellowadaptor.cpp.c` (0/9)
+## `ac2/client/src/weenie/interp/glue/gfellowadaptor.cpp.c` (9/9)
 
 ### gFellowAdaptor
-- [ ] `gFellowAdaptor::CallEFun_SetCell` · 00468510
-- [ ] `gFellowAdaptor::CallEFun_SetHealth` · 00468570
-- [ ] `gFellowAdaptor::CallEFun_SetLevel` · 004685d0
-- [ ] `gFellowAdaptor::CallEFun_SetMaxHealth` · 00468630
-- [ ] `gFellowAdaptor::CallEFun_SetMaxVigor` · 00468690
-- [ ] `gFellowAdaptor::CallEFun_SetName` · 004686f0
-- [ ] `gFellowAdaptor::CallEFun_SetPKDamage` · 00468750
-- [ ] `gFellowAdaptor::CallEFun_SetPKVigorloss` · 004687b0
-- [ ] `gFellowAdaptor::CallEFun_SetVigor` · 00468810
+- [x] `gFellowAdaptor::CallEFun_SetCell` · 00468510 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gFellowAdaptor::CallEFun_SetHealth` · 00468570 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gFellowAdaptor::CallEFun_SetLevel` · 004685d0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gFellowAdaptor::CallEFun_SetMaxHealth` · 00468630 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gFellowAdaptor::CallEFun_SetMaxVigor` · 00468690 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gFellowAdaptor::CallEFun_SetName` · 004686f0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gFellowAdaptor::CallEFun_SetPKDamage` · 00468750 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gFellowAdaptor::CallEFun_SetPKVigorloss` · 004687b0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gFellowAdaptor::CallEFun_SetVigor` · 00468810 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 
-## `ac2/client/src/weenie/interp/glue/gfellowshipadaptor.cpp.c` (0/6)
+## `ac2/client/src/weenie/interp/glue/gfellowshipadaptor.cpp.c` (6/6)
 
 ### gFellowshipAdaptor
-- [ ] `gFellowshipAdaptor::CallEFun_SetLeader` · 004682c0
-- [ ] `gFellowshipAdaptor::CallEFun_SetLootingMethod` · 00468320
-- [ ] `gFellowshipAdaptor::CallEFun_SetSocial` · 00468380
+- [x] `gFellowshipAdaptor::CallEFun_SetLeader` · 004682c0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gFellowshipAdaptor::CallEFun_SetLootingMethod` · 00468320 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gFellowshipAdaptor::CallEFun_SetSocial` · 00468380 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 
 ### FellowshipAdaptor
-- [ ] `FellowshipAdaptor::SetName` · 004683e0 · legions 00468fa0
+- [x] `FellowshipAdaptor::SetName` · 004683e0 · legions 00468fa0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 
 ### gFellowshipAdaptor
-- [ ] `gFellowshipAdaptor::CallEFun_AddFellow` · 00468430
-- [ ] `gFellowshipAdaptor::CallEFun_SetName` · 004684b0
+- [x] `gFellowshipAdaptor::CallEFun_AddFellow` · 00468430 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
+- [x] `gFellowshipAdaptor::CallEFun_SetName` · 004684b0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 
 ## `ac2/client/src/weenie/interp/glue/ggmcobjmaint.cpp.c` (0/3)
 

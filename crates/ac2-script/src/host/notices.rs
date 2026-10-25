@@ -369,11 +369,12 @@ fn generic(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let Some(&(_, name, kinds)) = NOTICES.iter().find(|n| n.0 == id) else {
         return InterpStatus::Crash;
     };
-    let (mut slot, mut object, mut args) = (2, 0, Vec::new());
+    let (mut slot, mut object, mut args, mut raw) = (2, 0, Vec::new(), Vec::new());
     for kind in kinds.bytes() {
         match kind {
             b'o' => object = owner(vm, word(ctx, slot)),
             b'L' => {
+                raw.push(word(ctx, slot));
                 slot += 1;
                 args.push(NoticeArg::Long(word64(ctx, slot)));
             }
@@ -382,11 +383,18 @@ fn generic(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
             b'-' => continue,
             _ => args.push(native_arg(vm, word(ctx, slot))),
         }
+        if kind != b'L' && kind != b'o' {
+            raw.push(word(ctx, slot));
+        }
         slot += 1;
     }
-    vm.outbox
-        .script_notices
-        .push(ScriptNotice { name, object, args });
+    match super::notices_typed::typed(vm, name, object, &args, &raw) {
+        Some(n) => vm.outbox.notices.push(n),
+        None => vm
+            .outbox
+            .script_notices
+            .push(ScriptNotice { name, object, args }),
+    }
     Call::new(ctx).ret(slot, 1, tag::BOOL);
     InterpStatus::Success
 }

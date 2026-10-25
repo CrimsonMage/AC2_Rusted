@@ -157,6 +157,10 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::RandomSelectionTable(_) => "RandomSelectionTable",
         NativeObject::GameplayOptions(_) => "GameplayOptionsProfile",
         NativeObject::DataIds(_) => "QualifiedDataIDArray",
+        NativeObject::Fellow(_)
+        | NativeObject::Fellowship(_)
+        | NativeObject::AllegianceData(_)
+        | NativeObject::AllegianceProfile(_) => "adaptor",
         NativeObject::ListIter { .. } => "list iterator",
         NativeObject::HashIter { .. } => "hash iterator",
         NativeObject::MultiHash(_) => "multi-hash",
