@@ -29,6 +29,7 @@ pub(crate) struct HudView {
     pub(crate) examination: Option<ac2_ui::ExaminationUi>,
     pub(crate) allegiance: Option<ac2_ui::AllegianceUi>,
     pub(crate) fellowship: Option<ac2_ui::FellowshipUi>,
+    pub(crate) vitals: Option<ac2_ui::VitalsUi>,
     pub(crate) dialogs: Option<ac2_ui::DialogFactory>,
     /// The tree's messages for the frameworks that ask the player
     /// ([`HudView::frameworks`](crate::hud_player)).
@@ -95,6 +96,7 @@ impl HudView {
             examination: None,
             allegiance: None,
             fellowship: None,
+            vitals: None,
             dialogs: None,
             player_messages: Vec::new(),
             strings: None,
@@ -223,6 +225,17 @@ impl HudView {
     }
 
     /// The examination panel's texts, in order.
+    /// The text of the first element with id `name` (`IUIManager` lookup).
+    pub(crate) fn element_text(&self, name: &str) -> Option<String> {
+        let (tree, _) = self.hud.as_ref()?;
+        let id = ac2_ui::tokenize(name);
+        let element = tree
+            .roots()
+            .iter()
+            .find_map(|&r| tree.child_recursive(r, id))?;
+        tree.get(element)?.text()
+    }
+
     pub(crate) fn allegiance_texts(&self) -> Vec<String> {
         let (Some((tree, _)), Some(page)) = (&self.hud, &self.allegiance) else {
             return Vec::new();
@@ -342,6 +355,7 @@ impl HudView {
                     examination,
                     allegiance,
                     fellowship,
+                    vitals,
                     dialogs,
                 },
                 images,
@@ -364,6 +378,7 @@ impl HudView {
                 self.examination = examination;
                 self.allegiance = allegiance;
                 self.fellowship = fellowship;
+                self.vitals = Some(vitals);
                 self.dialogs = Some(dialogs);
                 self.dirty = true;
             }

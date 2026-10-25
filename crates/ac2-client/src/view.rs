@@ -374,6 +374,11 @@ impl ClientView {
         self.hud.skills_current()
     }
 
+    /// The HUD's text element `name` (`IUIManager` lookup by element id).
+    pub fn element_text(&self, name: &str) -> Option<String> {
+        self.hud.element_text(name)
+    }
+
     /// The allegiance page's member list texts, in order.
     pub fn allegiance_texts(&self) -> Vec<String> {
         self.hud.allegiance_texts()
