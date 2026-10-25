@@ -14,7 +14,9 @@ use ac2_weenie::{GameplayNotice, SessionEvent};
 use crate::client::Client;
 use crate::frame::ClientFrame;
 use crate::gameplay::Command;
+use crate::hud_character::character_commands;
 use crate::hud_chat_options::{chat_options_commands, ui_chat_settings};
+use crate::hud_death::{death_answers, death_notices};
 use crate::hud_view::HudView;
 use crate::ui_sources::{shortcut_to_info, ClientPlayer};
 
@@ -38,16 +40,6 @@ fn options_settings(client: &mut Client) -> Option<ac2_ui::OptionsSettings> {
         shortcut_height: p.shortcut_height,
         damage_text_range_other: p.damage_text_range_other,
     })
-}
-
-/// The options page's requests, as the gameplay commands they are.
-fn character_commands(page: &mut ac2_ui::CharacterUi, commands: &mut Vec<Command>) {
-    for request in page.take_requests() {
-        commands.push(match request {
-            ac2_ui::CharacterRequest::Set(setting) => Command::SetGameplayOption(setting),
-            ac2_ui::CharacterRequest::Upload => Command::UploadGameOptions,
-        });
-    }
 }
 
 /// `SetSelection(INVALID_IID)` (or the item), `SetExaminationRequest`.
@@ -98,6 +90,7 @@ impl HudView {
             vitals,
             effects,
             dialogs,
+            death,
             stack,
             external_container,
             secure_trade,
@@ -635,8 +628,10 @@ impl HudView {
                 crate::ui_inventory::secure_trade_split(split, tree, stack.as_mut(), &player);
             }
         }
+        death_notices(death, tree, dialogs, &player, events);
         if let Some(dialogs) = dialogs.as_mut() {
             let outcomes = dialogs.take_outcomes();
+            death_answers(death, &outcomes, &mut commands);
             crate::ui_social::dialog_outcomes(
                 tree,
                 fellowship.as_mut(),

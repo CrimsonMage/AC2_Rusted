@@ -85,6 +85,7 @@ impl HudView {
             item_selection: 0,
             reticle_info: None,
             dialogs: None,
+            death: ac2_ui::DeathPanel::default(),
             stack: None,
             external_container: None,
             secure_trade: None,

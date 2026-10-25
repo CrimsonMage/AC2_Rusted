@@ -28,6 +28,7 @@ mod controls;
 mod craft;
 mod craft_pages;
 mod damage_text;
+mod death;
 mod dialog;
 mod drag;
 mod effects;
@@ -110,6 +111,7 @@ pub use compose::{UiPixels, UiSurface};
 pub use controls::{ControlFrame, Controls};
 pub use craft::{CraftCommand, CraftSource, CraftUi, STATE_CATEGORY, STATE_RECIPE, STATE_SKILL};
 pub use damage_text::{DamagePlace, DamageTexts};
+pub use death::{you_died_string, DeathPanel};
 pub use dialog::{
     DialogFactory, DialogOutcome, DIALOG_CONFIRMATION, DIALOG_MESSAGE, DIALOG_RESURRECT,
     DIALOG_TIMED, DIALOG_WAIT, LAYOUT_DIALOGS,

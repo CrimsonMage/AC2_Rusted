@@ -58,6 +58,8 @@ pub(crate) struct HudView {
     /// The selection info the reticle's meters last took.
     reticle_info: Option<ac2_net::protocol::SelectionInfo>,
     pub(crate) dialogs: Option<ac2_ui::DialogFactory>,
+    /// `gmGamePlayUI`'s death dialog (`_deathContext`).
+    pub(crate) death: ac2_ui::DeathPanel,
     /// `gmStackUI`.
     pub(crate) stack: Option<ac2_ui::StackUi>,
     /// `gmExternalContainerUI`.

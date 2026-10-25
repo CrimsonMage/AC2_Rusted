@@ -29,9 +29,12 @@ key	status	note
 00407050	x	ac2-script reference/native unpack
 00407770	~	ac2-script: unpack direction only
 004079b0	x	OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
+00407a40	_	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 00407b80	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 00407bf0	_	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 00407c30	_	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+00407c80	_	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
+00407d70	_	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 004080c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 00408e90	~	LogOffCharacter only; no UI or game-option upload
 00409270	~	asks for the next-frame-drawn notice (SetWantNoticeOnNextFrameDrawn); no portal scenes
@@ -389,6 +392,9 @@ key	status	note
 0042d330	x	ac2-ui dialog.rs
 0042d350	x	ac2-ui dialog.rs
 0042d3c0	x	ac2-ui dialog.rs
+0042d3f0	_	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
+0042d420	_	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
+0042d440	_	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 0042d4e0	x	ac2-ui dialog.rs
 0042d500	x	ac2-ui dialog.rs
 0042d560	x	ac2-ui dialog.rs
@@ -945,6 +951,7 @@ key	status	note
 00450f30	_	ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
 00450f80	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 00450fa0	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+00451010	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 00451050	_	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 00451150	x	ac2-client Command::SetShortcutSet: the IFun on the VM, the session's shortcut mirror (a profile write, nothing to the server)
 004511a0	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
@@ -1010,7 +1017,7 @@ key	status	note
 00451e10	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451e40	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451ef0	_	the native StoryManager::DoStoryHook body is not run; client_story.rs makes the call the DoStory hook makes
-00451f50	_	start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
+00451f50	-	no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 00451f70	_	start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
 00451fb0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00451ff0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
@@ -1133,6 +1140,7 @@ key	status	note
 004602b0	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 004607e0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00460890	x	ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
+00460a60	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 00460ba0	~	lead: the VM's sell body needs the storekeeper's shopper with a StoreGroup (set by ViewCatalog, WM_Store 0x52; without one it refuses with message 0xAFD1, consignment_script_7160). With the catalog open it runs on to gCWDistributor::GetEntityDID (bound) and then gCWPhysicsObject::CallEFun_GetLocalVisualDesc (0x800059, unbound: needs the item's VisualDesc native), so the RequestSell stub's bytes are not reached yet.
 00460df0	x	ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
 00460ea0	~	query or request on the IFun; the double does not answer the untrain requests, and the query is not asserted by a test (see skill_script_7160 for the others)
@@ -1160,7 +1168,7 @@ key	status	note
 00462e60	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00462fc0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00463390	_	start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
-00463440	_	start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
+00463440	-	no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 00463b70	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00463d30	_	skill and text shortcuts run on the VM: WM_Combat 0x17 request (combat_7160); /e waves through efun 0x7F0052 into the chat shell
 00463df0	_	ac2-script glue: id table + pure-glue registry; engine glue unbound
@@ -1251,7 +1259,7 @@ key	status	note
 004698c0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469900	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 00469950	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
-004699a0	_	start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
+004699a0	-	no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 004699f0	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 00469a40	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 00469a90	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
@@ -1266,7 +1274,7 @@ key	status	note
 00469d90	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469de0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469e30	_	ac2-script host notices -> ac2_weenie::GameplayNotice
-00469e80	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469e80	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 00469ed0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469f10	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469f60	_	ac2-script host notices -> ac2_weenie::GameplayNotice
@@ -5610,6 +5618,7 @@ key	status	note
 0071fc50	~	queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
 00722f20	~	headless frame order in ac2-client Client::use_time; no render, sound, UI, triggers or DB cache step
 00723280	_	
+00723410	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 00723a10	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00723aa0	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 00723f00	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
@@ -5637,7 +5646,7 @@ key	status	note
 00724f50	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00724fe0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00725100	_	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
-00725220	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725220	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 007252b0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00725340	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 007253d0	_	ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
@@ -5705,7 +5714,7 @@ key	status	note
 00727c20	x	lead: WM_Craft 0x27/0x34 -> CPlayer 0x1AE/0x1C4 set a CraftSkillRecord, then this notice with the skill's adaptor and UpdateCraftPanel; craft_script_7160 updates_change_only_known_records asserts it.
 00727cb0	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 00727d40	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
-00727dd0	_	start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
+00727dd0	-	no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 00727e60	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 00727ef0	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 00727f80	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in

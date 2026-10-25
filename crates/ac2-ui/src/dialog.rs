@@ -9,11 +9,11 @@
 //! `ConfirmationDialog` (`ConfirmationField`, its question in `QuestionText`) closes on `YesButton`
 //! or `NoButton` and sends `CM_UI::SendNotice_CloseConfirmationDialog(context, yes)`; a
 //! `WaitDialog` (`WaitField`, `TextField`) only shows its text; a `MessageDialog` (`MessageField`,
-//! `TextField`) closes on `OkButton` (`SendNotice_CloseMessageDialog`). The notices come back as
-//! [`DialogOutcome`]s.
+//! `TextField`) closes on `OkButton` (`SendNotice_CloseMessageDialog`); a `ResurrectDialog`
+//! (`ResurrectField`, `TextField`) closes on `ResurrectButton` (`SendNotice_CloseResurrectDialog`).
+//! The notices come back as [`DialogOutcome`]s.
 //!
-//! Not modelled yet: the resurrect and timed dialogs (`0x40000003`, `0x40000005`), which make
-//! nothing here.
+//! Not modelled yet: the timed dialog (`0x40000005`), which makes nothing here.
 
 use std::collections::VecDeque;
 use std::sync::Arc;
@@ -39,6 +39,8 @@ pub enum DialogOutcome {
     Confirmation { context: u32, yes: bool },
     /// `CM_UI::SendNotice_CloseMessageDialog`.
     Message { context: u32 },
+    /// `CM_UI::SendNotice_CloseResurrectDialog`: the resurrect dialog's button.
+    Resurrect { context: u32 },
 }
 
 /// `DialogInfo`: the type, text and context of a dialog.
@@ -138,6 +140,7 @@ impl DialogFactory {
             DIALOG_CONFIRMATION => ("ConfirmationField", "QuestionText"),
             DIALOG_WAIT => ("WaitField", "TextField"),
             DIALOG_MESSAGE => ("MessageField", "TextField"),
+            DIALOG_RESURRECT => ("ResurrectField", "TextField"),
             _ => {
                 return Shown { info, root: None };
             }
@@ -191,6 +194,9 @@ impl DialogFactory {
             }
             DIALOG_MESSAGE if message.element_id == tokenize("OkButton") => {
                 Some(DialogOutcome::Message { context })
+            }
+            DIALOG_RESURRECT if message.element_id == tokenize("ResurrectButton") => {
+                Some(DialogOutcome::Resurrect { context })
             }
             _ => None,
         };

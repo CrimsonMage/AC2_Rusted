@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 238 done, 77 partial, 1582 to do, 7 skipped.
+1904 retail functions: 243 done, 77 partial, 1573 to do, 11 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -34,7 +34,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Allegiance::SendNotice_UpdateAllegianceProfile` · 007280c0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 - [ ] `CM_Allegiance::SendNotice_Vassal_SwearDone` · 00728150 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 
-## `ac2/client/src/events/cm_character.cpp.c` (4/30)
+## `ac2/client/src/events/cm_character.cpp.c` (5/30)
 
 ### CM_Character
 - [x] `CM_Character::SendNotice_AddMarker` · 007248b0 · legions 006a4270 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
@@ -53,7 +53,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Character::SendNotice_Select` · 00725070
 - [ ] `CM_Character::SendNotice_SelectionChanged` · 00725100 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 - [ ] `CM_Character::SendNotice_SetShortcutHeight` · 00725190
-- [ ] `CM_Character::SendNotice_UpdateDeathState` · 00725220 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CM_Character::SendNotice_UpdateDeathState` · 00725220 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [ ] `CM_Character::SendNotice_UpdateEffect` · 007252b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_Character::SendNotice_UpdateFactionStatus` · 00725340 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_Character::SendNotice_UpdateHeroStatus` · 007253d0 — ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
@@ -73,7 +73,7 @@ Legend and workflow: [README](README.md).
 ### CM_Combat
 - [ ] `CM_Combat::SendNotice_EndSpecialAttack` · 00727cb0 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 - [ ] `CM_Combat::SendNotice_RequestSpecialAttack` · 00727d40 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
-- [ ] `CM_Combat::SendNotice_StartSpecialAttack` · 00727dd0 — start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
+- [-] `CM_Combat::SendNotice_StartSpecialAttack` · 00727dd0 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 - [ ] `CM_Combat::SendNotice_ToggleSpecialAttack` · 00727e60 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 - [ ] `CM_Combat::SendNotice_UpdateAttackState` · 00727ef0 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 
@@ -188,12 +188,12 @@ Legend and workflow: [README](README.md).
 - [~] `CM_Trade::SendNotice_Trade_BeReset` · 00726770 — raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
 - [~] `CM_Trade::SendNotice_Trade_BeRevoked` · 00726800 — raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
 
-## `ac2/client/src/events/cm_ui.cpp.c` (0/21)
+## `ac2/client/src/events/cm_ui.cpp.c` (1/21)
 
 ### CM_UI
 - [ ] `CM_UI::SendNotice_CloseConfirmationDialog` · 007232e0
 - [ ] `CM_UI::SendNotice_CloseMessageDialog` · 00723380
-- [ ] `CM_UI::SendNotice_CloseResurrectDialog` · 00723410
+- [x] `CM_UI::SendNotice_CloseResurrectDialog` · 00723410 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [ ] `CM_UI::SendNotice_CloseStackUI` · 007234a0 · legions 006a36a0
 - [ ] `CM_UI::SendNotice_EndCharacterSession` · 00723530
 - [ ] `CM_UI::SendNotice_GunAuthenticated` · 007235c0
@@ -271,7 +271,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Allegiance::CallEFun_SendNotice_UpdateAllegianceProfile` · 0046a3f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Allegiance::CallEFun_SendNotice_Vassal_SwearDone` · 0046a440 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_character.cpp.c` (4/26)
+## `ac2/client/src/weenie/interp/glue/gcm_character.cpp.c` (5/26)
 
 ### gCM_Character
 - [x] `gCM_Character::CallEFun_SendNotice_AddMarker` · 00469a90 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
@@ -286,7 +286,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Character::CallEFun_SendNotice_RemovePet` · 00469d90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Character::CallEFun_SendNotice_ResurrectionRequestedByOther` · 00469de0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Character::CallEFun_SendNotice_SelectionChanged` · 00469e30 — ac2-script host notices -> ac2_weenie::GameplayNotice
-- [ ] `gCM_Character::CallEFun_SendNotice_UpdateDeathState` · 00469e80 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [x] `gCM_Character::CallEFun_SendNotice_UpdateDeathState` · 00469e80 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateEffect` · 00469ed0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateFactionStatus` · 00469f10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Character::CallEFun_SendNotice_UpdateHeroStatus` · 00469f60 — ac2-script host notices -> ac2_weenie::GameplayNotice
@@ -306,7 +306,7 @@ Legend and workflow: [README](README.md).
 ### gCM_Combat
 - [ ] `gCM_Combat::CallEFun_SendNotice_EndSpecialAttack` · 00469900 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 - [ ] `gCM_Combat::CallEFun_SendNotice_RequestSpecialAttack` · 00469950 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
-- [ ] `gCM_Combat::CallEFun_SendNotice_StartSpecialAttack` · 004699a0 — start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
+- [-] `gCM_Combat::CallEFun_SendNotice_StartSpecialAttack` · 004699a0 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 - [ ] `gCM_Combat::CallEFun_SendNotice_ToggleSpecialAttack` · 004699f0 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 - [ ] `gCM_Combat::CallEFun_SendNotice_UpdateAttackState` · 00469a40 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (63/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (64/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -792,7 +792,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_RequestRaiseCraftSkill` · 004607e0 · legions 00461430 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [x] `ggmCWInterface::CallIFun_RequestRaiseSkill` · 00460890 · legions 004614e0 — ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
 - [ ] `ggmCWInterface::CallIFun_RequestRestock` · 00460940 · legions 00461590
-- [ ] `ggmCWInterface::CallIFun_RequestResurrect` · 00460a60 · legions 004616b0
+- [x] `ggmCWInterface::CallIFun_RequestResurrect` · 00460a60 · legions 004616b0 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [ ] `ggmCWInterface::CallIFun_RequestSales` · 00460af0 · legions 00461740
 - [~] `ggmCWInterface::CallIFun_RequestSell` · 00460ba0 · legions 004617f0 — lead: the VM's sell body needs the storekeeper's shopper with a StoreGroup (set by ViewCatalog, WM_Store 0x52; without one it refuses with message 0xAFD1, consignment_script_7160). With the catalog open it runs on to gCWDistributor::GetEntityDID (bound) and then gCWPhysicsObject::CallEFun_GetLocalVisualDesc (0x800059, unbound: needs the item's VisualDesc native), so the RequestSell stub's bytes are not reached yet.
 - [ ] `ggmCWInterface::CallIFun_RequestSetPetName` · 00460cc0 · legions 00461910
@@ -842,7 +842,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_SetWindowOpacity` · 00463200 · legions 00463e50
 - [ ] `ggmCWInterface::CallIFun_ShouldAutoTarget` · 004632f0 · legions 00463f40
 - [ ] `ggmCWInterface::CallIFun_SpecialAttackEnded` · 00463390 · legions 00463fe0 — start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
-- [ ] `ggmCWInterface::CallIFun_SpecialAttackStarted` · 00463440 · legions 00464090 — start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
+- [-] `ggmCWInterface::CallIFun_SpecialAttackStarted` · 00463440 · legions 00464090 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 - [ ] `ggmCWInterface::CallIFun_StartExamination` · 004634f0 · legions 00464140
 - [ ] `ggmCWInterface::CallIFun_StopAttacking` · 00463580 · legions 004641f0
 - [ ] `ggmCWInterface::CallIFun_StopAttackingIfAutoMoving` · 00463660 · legions 004642d0
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (103/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (104/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -1032,7 +1032,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::StopExamination` · 00450fa0 · legions 004520e0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [ ] `gmCWInterface::HasSomethingSelected` · 00450fc0 · legions 00452100
 - [ ] `gmCWInterface::RegisterCommands` · 00450ff0 · legions 00452130
-- [ ] `gmCWInterface::RequestResurrect` · 00451010 · legions 00452150
+- [x] `gmCWInterface::RequestResurrect` · 00451010 · legions 00452150 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [ ] `gmCWInterface::ClearResurrectionRequest` · 00451030 · legions 00452170
 - [ ] `gmCWInterface::UpdateOpen` · 00451050 · legions 00452190 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 - [ ] `gmCWInterface::InqShortcutInfo` · 00451090 · legions 004521d0
@@ -1121,7 +1121,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::GetMissileInformationFromWSL` · 00451e60 · legions 00452fe0
 - [ ] `gmCWInterface::GetFXAndBehaviorInformationFromWsl` · 00451eb0 · legions 00453030
 - [ ] `gmCWInterface::DoUIDamage` · 00451ef0 · legions 00453070 — the native StoryManager::DoStoryHook body is not run; client_story.rs makes the call the DoStory hook makes
-- [ ] `gmCWInterface::SpecialAttackStarted` · 00451f50 · legions 004530d0 — start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
+- [-] `gmCWInterface::SpecialAttackStarted` · 00451f50 · legions 004530d0 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 - [ ] `gmCWInterface::SpecialAttackEnded` · 00451f70 · legions 004530f0 — start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
 - [ ] `gmCWInterface::StopAttackingIfAutoMoving` · 00451f90 · legions 00453110
 - [x] `gmCWInterface::InqRadarLook` · 00451fb0 · legions 00453130 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))

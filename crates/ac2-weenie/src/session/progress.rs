@@ -42,6 +42,9 @@ impl OnlineSession {
         for notice in notices {
             self.progress.social.apply(notice);
             self.progress.selection.apply(notice);
+            if let GameplayNotice::UpdateDeathState(dead) = notice {
+                self.progress.dead = *dead;
+            }
             self.script.apply_vitals(notice);
         }
     }

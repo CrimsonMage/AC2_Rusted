@@ -177,6 +177,8 @@ pub struct Progress {
     pub shortcuts: Shortcuts,
     pub social: Social,
     pub selection: SelectionState,
+    /// The player is dead (`CM_Character::SendNotice_UpdateDeathState`) until the respawn.
+    pub dead: bool,
 }
 
 impl Progress {

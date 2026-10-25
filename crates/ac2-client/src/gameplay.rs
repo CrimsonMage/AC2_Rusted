@@ -149,6 +149,9 @@ pub enum Command {
     /// `gmShortcutUI::RequestAttackStateChange` (the bar's attack buttons, key 0x41000013):
     /// start attacking the selection, or stop.
     SetAttacking(bool),
+    /// `gmCWInterface::RequestResurrect`: the respawn request (the player's script's IFun
+    /// 0xB4006B, which sends `WM_Death` 0x36 and so the server's lifestone teleport).
+    RequestResurrect,
     /// A fellowship or allegiance panel action (`gmCWInterface::DoFellowship*`,
     /// `SwearAllegiance`, `BreakAllegiance`, `AcceptVassal`, `DeclineVassal`,
     /// `QueryAllegianceProfile`).
@@ -197,6 +200,8 @@ pub struct ProgressFrame {
     pub shortcuts: ac2_weenie::Shortcuts,
     pub fellowship: Option<ac2_weenie::FellowshipInfo>,
     pub allegiance: Option<ac2_weenie::AllegianceProfile>,
+    /// The player is dead until the respawn (`UpdateDeathState`).
+    pub dead: bool,
 }
 
 /// One container's contents, as the inventory panels show them (ids, in slot order; what each
@@ -254,6 +259,14 @@ impl Client {
     /// the UI to select a target (`SendNotice_Select(0x41000024)`, handled next frame here,
     /// so the attack goes to the selection as it was); then `RequestAttackStateChange`, on
     /// the script VM when it has the call, else the session's stand-in.
+    /// `gmCWInterface::RequestResurrect`: the IFun on the player's script. Its server call and
+    /// notices go out with the frame; without the script the request is not made.
+    fn request_resurrect(&mut self) -> Vec<SessionEvent> {
+        // The call's own failure (no script, a stopped VM) is in the scripts' problem list.
+        let _ = self.call_ifun(crate::scripts_queries::ifun::REQUEST_RESURRECT, &[]);
+        Vec::new()
+    }
+
     fn request_attack_state(&mut self, attacking: bool) -> Vec<SessionEvent> {
         use crate::scripts::{IFUN_REQUEST_ATTACK_STATE_CHANGE, IFUN_SHOULD_AUTO_TARGET};
         use ac2_script::host::IFunArg;
@@ -350,6 +363,7 @@ impl Client {
                 }
                 Command::ChatLine(line) => self.session.process_text(line),
                 Command::SetAttacking(attacking) => self.request_attack_state(*attacking),
+                Command::RequestResurrect => self.request_resurrect(),
                 Command::Social(request) => self.social_request(request),
                 Command::SetShortcutSet(set) => {
                     self.session.set_shortcut_set(*set);
@@ -659,6 +673,7 @@ impl Client {
             shortcuts: progress.shortcuts.clone(),
             fellowship: progress.social.fellowship.clone(),
             allegiance: progress.social.allegiance.clone(),
+            dead: progress.dead,
         }
     }
 

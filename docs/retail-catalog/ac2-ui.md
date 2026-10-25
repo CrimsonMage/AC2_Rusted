@@ -162,7 +162,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmGamePlayUI::RecvNotice_NextFrameDrawn` · 004079b0 — OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
 - [ ] `gmGamePlayUI::RecvNotice_BeingDeleted` · 004079c0
 - [ ] `gmGamePlayUI::MakePleaseWaitDialog` · 004079e0 · legions 004076f0
-- [ ] `gmGamePlayUI::MakeResurrectDialog` · 00407a40 · legions 00407750
+- [ ] `gmGamePlayUI::MakeResurrectDialog` · 00407a40 · legions 00407750 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 
 ### PlayingSoundContext
 - [x] `PlayingSoundContext::Stop` · 00407b80 · legions 004078b0 — ac2-audio/ac2-client: 3D emitters and FX sounds
@@ -170,10 +170,10 @@ Legend and workflow: [README](README.md).
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::RecvNotice_PlayerTeleportStart` · 00407bf0 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 - [ ] `gmGamePlayUI::RecvNotice_PortalSpace` · 00407c30 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
-- [ ] `gmGamePlayUI::RecvNotice_UpdateDeathState` · 00407c80
+- [ ] `gmGamePlayUI::RecvNotice_UpdateDeathState` · 00407c80 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [ ] `gmGamePlayUI::RecvNotice_ResurrectionRequestedByOther` · 00407cf0
 - [ ] `gmGamePlayUI::RecvNotice_CloseConfirmationDialog` · 00407d00 · legions 00407a30
-- [ ] `gmGamePlayUI::RecvNotice_CloseResurrectDialog` · 00407d70
+- [ ] `gmGamePlayUI::RecvNotice_CloseResurrectDialog` · 00407d70 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [ ] `gmGamePlayUI::ChildKeyPress` · 00407f70 · legions 00407ca0
 - [ ] `gmGamePlayUI::Update` · 00408020 · legions 00407ce0
 - [ ] `gmGamePlayUI::RecvNotice_DisplayMessage` · 00408080
@@ -1973,9 +1973,9 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/util/dialog/resurrectdialog.cpp.c` (0/3)
 
 ### ResurrectDialog
-- [ ] `ResurrectDialog::ListenToMessage` · 0042d3f0 · legions 0042d1c0
-- [ ] `ResurrectDialog::SetText` · 0042d420 · legions 0042d1f0
-- [ ] `ResurrectDialog::ResurrectDialog` · 0042d440 · legions 0042d210
+- [ ] `ResurrectDialog::ListenToMessage` · 0042d3f0 · legions 0042d1c0 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
+- [ ] `ResurrectDialog::SetText` · 0042d420 · legions 0042d1f0 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
+- [ ] `ResurrectDialog::ResurrectDialog` · 0042d440 · legions 0042d210 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 
 ## `ac2/client/src/ui/util/dialog/timeddialog.cpp.c` (0/5)
 

@@ -111,6 +111,10 @@ pub const CALLS: &[CallSpec] = &[
     call(0x820F_0001, ToServer, "WM_Money 0x8", "CMoneySystem 0x5 (DragFromMoneyBag)", &[LongInt, Int, Int]),
     call(0x820F_0006, ToClient, "WM_Money 0x6", "CPlayer 0x12F -> CMoneySystem 0x7 (the bag unghosts)", &[LongInt]),
     call(0x820F_0009, ToClient, "WM_Money 0x9", "CPlayer 0x38 -> CMoneySystem 0x3 (the new item at its slot)", &[LongInt, Int, LongInt]),
+    // Death and respawn (`WM_Death`, package 0x207): the death flag from the server, and the
+    // respawn request the client sends (`CPlayer` 0x125, IFun 0xB4006B), with no values.
+    call(0x8207_0033, ToClient, "WM_Death 0x33", "CPlayer 0x107 -> CDeathSystem 0x3 (SendNotice_UpdateDeathState)", &[Int]),
+    call(0x8207_000E, ToServer, "WM_Death 0x36", "CPlayer 0x125 (RequestResurrect, IFun 0xB4006B)", &[]),
     // Chat channels (`WM_Communication`, package 0x205; speech and tells are typed).
     call(0x8205_001B, ToClient, "WM_Communication 0x1B", "CPlayer 0x147 (the chat channel table)", &[Word]),
     // Fellowships (`WM_Fellowship`, package 0x20C).

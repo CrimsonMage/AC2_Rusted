@@ -2,7 +2,18 @@
 //! checkbox is ticked, a button pressed, a value read. The page is [`HudView::character`]; its
 //! messages go through the tree's dialogs, and its requests wait for the next frameworks call.
 
+use crate::gameplay::Command;
 use crate::hud_view::HudView;
+
+/// The options page's requests, as the gameplay commands they are.
+pub(crate) fn character_commands(page: &mut ac2_ui::CharacterUi, commands: &mut Vec<Command>) {
+    for request in page.take_requests() {
+        commands.push(match request {
+            ac2_ui::CharacterRequest::Set(setting) => Command::SetGameplayOption(setting),
+            ac2_ui::CharacterRequest::Upload => Command::UploadGameOptions,
+        });
+    }
+}
 
 impl HudView {
     /// The options page's tab opens (its `opened` message, as the tree sends it).
