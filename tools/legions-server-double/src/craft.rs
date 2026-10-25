@@ -7,9 +7,11 @@
 //! result is a generic item, and the craft skill's experience is not updated (no
 //! `UpdateCraftSkill`).
 //!
-//! The craft registry lists are not sent at login: the VM crashes on the list adds for the known
-//! skill and recipe (see `send_craft_lists`). A craft refreshes the craft panel
-//! (`UpdateCraftPanel` through `CPlayer` 0x105).
+//! The player's craft registry (`WM_Craft` 0x19) holds the known skill and recipe; the double
+//! sends it when asked (`send_craft_registry`), since a test attaches the scripts after login.
+//! A craft updates its recipe's record (`WM_Craft` 0x1A), whose forwarder refreshes the craft
+//! panel; what retail's server put in the record after a craft (charges, reuse time) is not
+//! traced, so the record is sent as its constructor leaves it.
 
 use ac2_net::protocol::{CraftMessage, ScriptRequest};
 
@@ -68,12 +70,7 @@ impl State {
                     error,
                 });
                 if error == 0 {
-                    // A craft changes the craft panel's ingredients and cost, so the panel
-                    // refreshes after the answer (`CPlayer` 0xF9's `UpdateCraftPanel`).
-                    self.send_craft(&CraftMessage::UpdateCraftPanel {
-                        forwarder: ac2_net::protocol::script_function::CRAFT_UPDATE_PANEL_1B,
-                        value: *recipe,
-                    });
+                    self.send_craft(&CraftMessage::UpdateRecipe { recipe: *recipe });
                 }
             }
             _ => {}
@@ -104,15 +101,11 @@ impl State {
         self.send_contents(PLAYER);
     }
 
-    /// The known skill and recipe as the list forms (`WM_Craft` 0x34 and 0x37): the registry's
-    /// content. Whether retail's server sends these as lists or as single adds at login is not
-    /// traced. Not sent at login yet: the VM does not run these adds for these records (the
-    /// skill's add reaches an unbound `gStringInfo` efun, the recipe's record does not resolve).
-    pub fn send_craft_lists(&mut self) {
-        self.send_craft(&CraftMessage::AddCraftSkills {
+    /// The player's registry (`WM_Craft` 0x19): the known skill and recipe. When retail's server
+    /// sent it is not traced.
+    pub fn send_craft_registry(&mut self) {
+        self.send_craft(&CraftMessage::SetRegistry {
             skills: vec![CRAFT_SKILL],
-        });
-        self.send_craft(&CraftMessage::AddRecipes {
             recipes: vec![KNOWN_RECIPE],
         });
     }

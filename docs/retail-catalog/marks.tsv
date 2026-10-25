@@ -790,10 +790,10 @@ key	status	note
 0044fbb0	_	ac2-weenie OnlineSession::use_selection (CPlayer 0x79 -> CUsageSystem 0x9 stand-in)
 0044fc60	x	ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
 0044fce0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
-0044fd20	~	net: the registry is empty in the VM. The adds that fill it are WM_Craft 0x27 -> CPlayer 0x1AE -> CraftSystem 0x26 -> CraftRegistry 0x1A (skill hash), 0x34 -> CPlayer 0x1C4 (list), 0x1A -> CPlayer 0x61 -> CraftSystem 0x15 -> CraftRegistry 0x12 (recipe hash), 0x37 -> CPlayer 0x1C5 (list); ac2-net encodes them. The VM does not run them yet: the skill add reaches the unbound gStringInfo::GetSubDataIDs (0x6A001C) and the recipe singleton does not resolve
+0044fd20	x	lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
 0044fd60	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 0044fda0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
-0044fde0	~	net: the registry is empty in the VM. The adds that fill it are WM_Craft 0x27 -> CPlayer 0x1AE -> CraftSystem 0x26 -> CraftRegistry 0x1A (skill hash), 0x34 -> CPlayer 0x1C4 (list), 0x1A -> CPlayer 0x61 -> CraftSystem 0x15 -> CraftRegistry 0x12 (recipe hash), 0x37 -> CPlayer 0x1C5 (list); ac2-net encodes them. The VM does not run them yet: the skill add reaches the unbound gStringInfo::GetSubDataIDs (0x6A001C) and the recipe singleton does not resolve
+0044fde0	x	lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
 0044fe20	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 0044fe70	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 0044fec0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
@@ -957,9 +957,9 @@ key	status	note
 004557b0	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004558a0	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 004559c0	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
-00455ae0	~	net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
+00455ae0	x	lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
 00455b30	~	net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
-00455b80	~	net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
+00455b80	x	lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
 00455c40	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 00456190	x	ac2-script vm::refs (reserved bit on every new entry)
 00456270	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
@@ -996,14 +996,14 @@ key	status	note
 0045c630	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0045c7c0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 0045c950	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
-0045cb20	~	net: the registry is empty in the VM. The adds that fill it are WM_Craft 0x27 -> CPlayer 0x1AE -> CraftSystem 0x26 -> CraftRegistry 0x1A (skill hash), 0x34 -> CPlayer 0x1C4 (list), 0x1A -> CPlayer 0x61 -> CraftSystem 0x15 -> CraftRegistry 0x12 (recipe hash), 0x37 -> CPlayer 0x1C5 (list); ac2-net encodes them. The VM does not run them yet: the skill add reaches the unbound gStringInfo::GetSubDataIDs (0x6A001C) and the recipe singleton does not resolve
+0045cb20	x	lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
 0045ccc0	~	ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
 0045d660	~	ac2-client client_radar.rs + ac2-script radar.rs: looks asked on each object's script, the ranges from RadarControl; the creature, NPC and player scripts answer no look in the double (no reads, retval 0); no drawing (pixel mapping, tooltip) in ac2-ui
 0045d870	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0045da10	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 0045db70	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 0045dd60	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-0045dfc0	~	net: the registry is empty in the VM. The adds that fill it are WM_Craft 0x27 -> CPlayer 0x1AE -> CraftSystem 0x26 -> CraftRegistry 0x1A (skill hash), 0x34 -> CPlayer 0x1C4 (list), 0x1A -> CPlayer 0x61 -> CraftSystem 0x15 -> CraftRegistry 0x12 (recipe hash), 0x37 -> CPlayer 0x1C5 (list); ac2-net encodes them. The VM does not run them yet: the skill add reaches the unbound gStringInfo::GetSubDataIDs (0x6A001C) and the recipe singleton does not resolve
+0045dfc0	x	lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
 0045e180	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045e450	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045e7f0	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
@@ -1122,8 +1122,8 @@ key	status	note
 004696a0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 004696f0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 00469740	~	net: bound; no wlib function calls efun 0x00880004 (scanned the Legions wlib's CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN sites), so no WM_Craft answer reaches it
-00469790	x	net: craft_script_7160. Forwarders (wlib): WM_Craft 0x19 -> CPlayer 0xC3 and 0x1B -> CPlayer 0x105 raise it from one singleton reference (the double sends 0x1B after a craft); 0x18 -> CPlayer 0xF9 calls efun 0x008F0003, which the glue does not bind
-004697d0	~	net: the registry is empty in the VM. The adds that fill it are WM_Craft 0x27 -> CPlayer 0x1AE -> CraftSystem 0x26 -> CraftRegistry 0x1A (skill hash), 0x34 -> CPlayer 0x1C4 (list), 0x1A -> CPlayer 0x61 -> CraftSystem 0x15 -> CraftRegistry 0x12 (recipe hash), 0x37 -> CPlayer 0x1C5 (list); ac2-net encodes them. The VM does not run them yet: the skill add reaches the unbound gStringInfo::GetSubDataIDs (0x6A001C) and the recipe singleton does not resolve
+00469790	x	craft_script_7160. Forwarders (wlib): WM_Craft 0x19 (the registry) -> CPlayer 0xC3, 0x1B (recipe learned by DID) -> CPlayer 0x105, 0x1A/0x37 (recipe records) -> CPlayer 0x61/0x1C5 and 0x27/0x34 (skill records) -> CPlayer 0x1AE/0x1C4 each raise it; the double sends 0x1A after a craft. 0x18 -> CPlayer 0xF9 calls efun 0x8F0003 (unbound) and is not driven.
+004697d0	x	lead: WM_Craft 0x27/0x34 -> CPlayer 0x1AE/0x1C4 set a CraftSkillRecord, then this notice with the skill's adaptor and UpdateCraftPanel; craft_script_7160 updates_change_only_known_records asserts it.
 00469820	_	ac2-script host notices -> ac2_weenie::GameplayNotice
 00469870	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004698c0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -5353,8 +5353,8 @@ key	status	note
 007279d0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 00727a60	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 00727af0	~	net: bound; no wlib function calls efun 0x00880004 (scanned the Legions wlib's CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN sites), so no WM_Craft answer reaches it
-00727b90	x	net: craft_script_7160. Forwarders (wlib): WM_Craft 0x19 -> CPlayer 0xC3 and 0x1B -> CPlayer 0x105 raise it from one singleton reference (the double sends 0x1B after a craft); 0x18 -> CPlayer 0xF9 calls efun 0x008F0003, which the glue does not bind
-00727c20	~	net: the registry is empty in the VM. The adds that fill it are WM_Craft 0x27 -> CPlayer 0x1AE -> CraftSystem 0x26 -> CraftRegistry 0x1A (skill hash), 0x34 -> CPlayer 0x1C4 (list), 0x1A -> CPlayer 0x61 -> CraftSystem 0x15 -> CraftRegistry 0x12 (recipe hash), 0x37 -> CPlayer 0x1C5 (list); ac2-net encodes them. The VM does not run them yet: the skill add reaches the unbound gStringInfo::GetSubDataIDs (0x6A001C) and the recipe singleton does not resolve
+00727b90	x	craft_script_7160. Forwarders (wlib): WM_Craft 0x19 (the registry) -> CPlayer 0xC3, 0x1B (recipe learned by DID) -> CPlayer 0x105, 0x1A/0x37 (recipe records) -> CPlayer 0x61/0x1C5 and 0x27/0x34 (skill records) -> CPlayer 0x1AE/0x1C4 each raise it; the double sends 0x1A after a craft. 0x18 -> CPlayer 0xF9 calls efun 0x8F0003 (unbound) and is not driven.
+00727c20	x	lead: WM_Craft 0x27/0x34 -> CPlayer 0x1AE/0x1C4 set a CraftSkillRecord, then this notice with the skill's adaptor and UpdateCraftPanel; craft_script_7160 updates_change_only_known_records asserts it.
 00727cb0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00727d40	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00727dd0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host

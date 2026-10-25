@@ -10,6 +10,7 @@
 
 mod calls;
 mod craft;
+mod craft_records;
 mod message;
 mod request;
 mod store;
@@ -209,26 +210,32 @@ pub mod function {
     pub const CRAFT_ADD_INGREDIENT_DONE: u32 = 0x8206_0016;
     /// S->C, `WM_Craft` forwarder 0x1C (`CPlayer` 0xF7 -> `CM_Craft::SendNotice_ExecuteCraft_Done`).
     pub const CRAFT_EXECUTE_DONE: u32 = 0x8206_001C;
-    /// S->C, the `WM_Craft` forwarders that raise `CM_Craft::SendNotice_UpdateCraftPanel` from one
-    /// reference (a singleton: the object's WState DID): 0x18 -> `CPlayer` 0xF9 (calls efun
-    /// 0x8F0003, unbound in the glue), 0x19 -> `CPlayer` 0xC3, 0x1B -> `CPlayer` 0x105.
+    /// S->C, `WM_Craft` forwarder 0x18 (`CPlayer` 0xF9): calls efun 0x8F0003 (unbound in the glue)
+    /// and raises `CM_Craft::SendNotice_UpdateCraftPanel`; its argument is not traced.
     pub const CRAFT_UPDATE_PANEL_18: u32 = 0x8206_0018;
-    pub const CRAFT_UPDATE_PANEL_19: u32 = 0x8206_0019;
-    pub const CRAFT_UPDATE_PANEL_1B: u32 = 0x8206_001B;
+    /// S->C, `WM_Craft` 0x19 -> `CPlayer` 0xC3 -> `CPlayer` 0x1B: the player's `CraftRegistry`
+    /// (package 0x1D2) stored in player slot 0x21 (a null reference makes an empty one), then
+    /// `UpdateCraftPanel`. The skill hash is slot 5, the recipe hash slot 6, both keyed by DID.
+    pub const CRAFT_SET_REGISTRY: u32 = 0x8206_0019;
+    /// S->C, `WM_Craft` 0x1B -> `CPlayer` 0x105 -> `CraftSystem` 0x1B: a recipe's DID (int). An
+    /// unknown recipe gets a new `RecipeRecord` from its DID (`CraftRegistry` 0x5, `RecipeRecord`
+    /// 0xC); a known one only raises the system's messages. Then `UpdateCraftPanel`.
+    pub const CRAFT_LEARN_RECIPE: u32 = 0x8206_001B;
     /// S->C, `WM_Craft` 0x27 -> `CPlayer` 0x1AE -> `CraftSystem` 0x26 -> `CraftRegistry` 0x1A: one
-    /// `CraftSkillRecord` (a singleton) inserted in the registry's skill hash by its DID, then
-    /// `CM_Craft::SendNotice_UpdateCraftSkill` and `UpdateCraftPanel`.
-    pub const CRAFT_ADD_SKILL: u32 = 0x8206_0027;
-    /// S->C, `WM_Craft` 0x34 -> `CPlayer` 0x1C4: an `RList` of craft skill records, each added as
-    /// [`CRAFT_ADD_SKILL`] does.
-    pub const CRAFT_ADD_SKILLS: u32 = 0x8206_0034;
+    /// `CraftSkillRecord` (a heap object) set in the registry's skill hash by its DID (`ARHash::set`,
+    /// added or replaced), then `CM_Craft::SendNotice_UpdateCraftSkill` and `UpdateCraftPanel`.
+    pub const CRAFT_SET_SKILL: u32 = 0x8206_0027;
+    /// S->C, `WM_Craft` 0x34 -> `CPlayer` 0x1C4: an `RList` of craft skill records, each set as
+    /// [`CRAFT_SET_SKILL`] does.
+    pub const CRAFT_SET_SKILLS: u32 = 0x8206_0034;
     /// S->C, `WM_Craft` 0x1A -> `CPlayer` 0x61 -> `CraftSystem` 0x15 -> `CraftRegistry` 0x12: one
-    /// `RecipeRecord` (a singleton) inserted in the registry's recipe hash by its DID; a recipe
-    /// already known returns 0x9C51 and changes nothing.
-    pub const CRAFT_ADD_RECIPE: u32 = 0x8206_001A;
-    /// S->C, `WM_Craft` 0x37 -> `CPlayer` 0x1C5: an `RList` of recipe records, each added as
-    /// [`CRAFT_ADD_RECIPE`] does.
-    pub const CRAFT_ADD_RECIPES: u32 = 0x8206_0037;
+    /// `RecipeRecord` (a heap object) replacing the known record of its DID in the recipe hash; an
+    /// unknown recipe (`CraftRegistry` 0xC, `ARHash::contains`) returns 0x9C51 and changes nothing.
+    /// The forwarder raises `UpdateCraftPanel` either way.
+    pub const CRAFT_UPDATE_RECIPE: u32 = 0x8206_001A;
+    /// S->C, `WM_Craft` 0x37 -> `CPlayer` 0x1C5: an `RList` of recipe records, each updated as
+    /// [`CRAFT_UPDATE_RECIPE`] does.
+    pub const CRAFT_UPDATE_RECIPES: u32 = 0x8206_0037;
 }
 
 /// The values a handler takes, in order, each of the type the stub packed.

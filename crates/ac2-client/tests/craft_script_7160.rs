@@ -3,8 +3,9 @@
 //! script's loaders); the requests are the IFuns' stubs, which the VM packs and the session sends;
 //! the double answers them (`AddIngredient_Done` per ingredient, `ExecuteCraft_Done` with the
 //! ingredients taken and the result given, then the panel), and each answer reaches the VM's
-//! forwarder and raises its notice. The registry adds (`CraftRegistry` hashes) are encoded and
-//! decoded in ac2-net; their VM runs are blocked (see the known gaps in the catalog).
+//! forwarder and raises its notice. The player's `CraftRegistry` comes from the double
+//! (`WM_Craft` 0x19) once the scripts run; the list queries read it, and the registry messages
+//! (0x1B learn, 0x27/0x34 set skills, 0x1A/0x37 update known recipes) change it.
 
 mod common;
 
@@ -38,8 +39,17 @@ fn spawn() -> Spawn {
 
 type Shared = std::rc::Rc<std::cell::RefCell<legions_server_double::State>>;
 
-/// The script with the player attached, after the login's idle frames.
+/// The script with the player attached, after the login's idle frames, and the player's craft
+/// registry (the known skill and recipe) received.
 fn with_script() -> Option<(ac2_client::Client, Shared)> {
+    let (mut client, server) = without_registry()?;
+    server.borrow_mut().send_craft_registry();
+    run(&mut client, &server, Vec::new());
+    Some((client, server))
+}
+
+/// The script with the player attached, after the login's idle frames.
+fn without_registry() -> Option<(ac2_client::Client, Shared)> {
     let dataset = ac2_dat::test_support::env_dataset()?;
     let store = ac2_db::ResourceStore::new(dataset.clone());
     let wlib = load_wlib(&store, DataId::new(LEGIONS_WLIB_DID))
@@ -117,10 +127,21 @@ fn craft_queries_answer_from_the_dat_records() {
     assert_eq!(recipe.did, RECIPE);
     assert_eq!(recipe.craft_skill_did, SKILL, "the recipe's craft skill");
     assert_eq!(client.recipe_cost(RECIPE, SPINNER), Some(recipe.cost));
-    // The registry is empty: the double sends no registry adds at login, and the VM does not run
-    // the adds for these records yet (the list membership is the lead's open item).
-    assert_eq!(client.craft_skills(), Some(Vec::new()));
-    assert_eq!(client.recipes(SKILL), Some(Vec::new()));
+    // The lists are the registry's (`InqCraftSkillList`, `InqRecipeList` of the skill).
+    let skills: Vec<u32> = client
+        .craft_skills()
+        .unwrap()
+        .iter()
+        .map(|s| s.did)
+        .collect();
+    assert_eq!(skills, vec![SKILL]);
+    let recipes: Vec<u32> = client
+        .recipes(SKILL)
+        .unwrap()
+        .iter()
+        .map(|r| r.did)
+        .collect();
+    assert_eq!(recipes, vec![RECIPE]);
     assert!(client.take_script_problems().is_empty());
 }
 
@@ -244,7 +265,7 @@ fn execute_craft_takes_the_ingredients_and_gives_the_result() {
         }],
     );
     // The double sends the pack's update (the result given, the ingredients gone) before the
-    // answer, then the panel refresh.
+    // answer, then the recipe's record, whose forwarder refreshes the panel.
     assert_eq!(
         notices,
         vec![
@@ -284,56 +305,115 @@ fn execute_craft_takes_the_ingredients_and_gives_the_result() {
     assert!(client.take_script_problems().is_empty());
 }
 
-/// The panel forwarders that run in the VM (`WM_Craft` 0x19 and 0x1B) each raise
-/// `UpdateCraftPanel` from their one reference. 0x18 is not driven: `CPlayer` 0xF9 calls an efun
-/// the glue does not bind.
+/// The recipes the skill lists (`InqRecipeList`).
+fn recipe_dids(client: &mut ac2_client::Client) -> Vec<u32> {
+    client
+        .recipes(SKILL)
+        .unwrap()
+        .iter()
+        .map(|r| r.did)
+        .collect()
+}
+
+/// `WM_Craft` 0x19 hands the player its registry: an empty one lists nothing. 0x1B then learns a
+/// recipe by its DID (the script makes its record) and refreshes the panel; learning it again
+/// adds nothing.
 #[test]
-fn update_panel_forwarders_raise_the_panel_notice() {
-    let Some((mut client, server)) = with_script() else {
+fn a_recipe_is_learned_by_its_did() {
+    let Some((mut client, server)) = without_registry() else {
         return;
     };
-    for forwarder in [
-        script_function::CRAFT_UPDATE_PANEL_19,
-        script_function::CRAFT_UPDATE_PANEL_1B,
-    ] {
-        let notices = send_answer(
+    let set = send_answer(
+        &mut client,
+        &server,
+        &CraftMessage::SetRegistry {
+            skills: vec![SKILL],
+            recipes: Vec::new(),
+        },
+    );
+    assert_eq!(set, vec![GameplayNotice::UpdateCraftPanel]);
+    assert!(recipe_dids(&mut client).is_empty());
+    for _ in 0..2 {
+        let learned = send_answer(
             &mut client,
             &server,
-            &CraftMessage::UpdateCraftPanel {
-                forwarder,
-                value: RECIPE,
-            },
+            &CraftMessage::LearnRecipe { recipe: RECIPE },
         );
-        assert_eq!(
-            notices,
-            vec![GameplayNotice::UpdateCraftPanel],
-            "forwarder {forwarder:#x}"
-        );
+        assert_eq!(learned, vec![GameplayNotice::UpdateCraftPanel]);
+        assert_eq!(recipe_dids(&mut client), vec![RECIPE]);
     }
     assert!(client.take_script_problems().is_empty());
 }
 
-/// `WM_Craft` 0x37 (`CPlayer` 0x1C5) adds an `RList` of recipe records. An empty list changes
-/// nothing and raises only the panel refresh that ends the forwarder.
+/// `WM_Craft` 0x1A and 0x37 replace the records of known recipes only: an update of an unknown
+/// recipe (or of none) changes the lists not at all, and each forwarder still refreshes the
+/// panel. 0x27 and 0x34 set skill records, so a skill set twice is listed once.
 #[test]
-fn add_recipes_of_an_empty_list_changes_nothing() {
-    let Some((mut client, server)) = with_script() else {
+fn updates_change_only_known_records() {
+    let Some((mut client, server)) = without_registry() else {
         return;
     };
-    let before = client.recipes(SKILL).expect("the recipe list");
-    let notices = send_answer(
+    send_answer(
         &mut client,
         &server,
-        &CraftMessage::AddRecipes {
+        &CraftMessage::SetRegistry {
+            skills: Vec::new(),
             recipes: Vec::new(),
         },
     );
-    assert_eq!(
-        notices,
-        vec![GameplayNotice::UpdateCraftPanel],
-        "{notices:?}"
+    for message in [
+        CraftMessage::UpdateRecipe { recipe: RECIPE },
+        CraftMessage::UpdateRecipes {
+            recipes: Vec::new(),
+        },
+    ] {
+        let notices = send_answer(&mut client, &server, &message);
+        assert_eq!(
+            notices,
+            vec![GameplayNotice::UpdateCraftPanel],
+            "{message:?}"
+        );
+    }
+    for message in [
+        CraftMessage::SetCraftSkill { skill: SKILL },
+        CraftMessage::SetCraftSkills {
+            skills: vec![SKILL],
+        },
+    ] {
+        // Each record set raises `UpdateCraftSkill` with the skill's adaptor, then the panel.
+        let notices = send_answer(&mut client, &server, &message);
+        assert!(
+            notices
+                .iter()
+                .any(|n| matches!(n, GameplayNotice::UpdateCraftSkill(s) if s.did == SKILL)),
+            "{notices:?}"
+        );
+        assert!(
+            notices.contains(&GameplayNotice::UpdateCraftPanel),
+            "{notices:?}"
+        );
+    }
+    let skills: Vec<u32> = client
+        .craft_skills()
+        .unwrap()
+        .iter()
+        .map(|s| s.did)
+        .collect();
+    assert_eq!(skills, vec![SKILL]);
+    assert!(recipe_dids(&mut client).is_empty(), "no recipe was learned");
+    send_answer(
+        &mut client,
+        &server,
+        &CraftMessage::LearnRecipe { recipe: RECIPE },
     );
-    assert_eq!(client.recipes(SKILL), Some(before));
+    send_answer(
+        &mut client,
+        &server,
+        &CraftMessage::UpdateRecipes {
+            recipes: vec![RECIPE],
+        },
+    );
+    assert_eq!(recipe_dids(&mut client), vec![RECIPE]);
     assert!(client.take_script_problems().is_empty());
 }
 
