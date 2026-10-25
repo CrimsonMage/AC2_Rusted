@@ -11,3 +11,4 @@ workspace = true
 
 [dependencies]
 ac2-net = { path = "../../crates/ac2-net" }
+ac2-weenie = { path = "../../crates/ac2-weenie" }

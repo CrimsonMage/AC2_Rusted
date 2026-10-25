@@ -1594,6 +1594,7 @@ name = "legions-server-double"
 version = "0.1.0"
 dependencies = [
  "ac2-net",
+ "ac2-weenie",
 ]
 
 [[package]]

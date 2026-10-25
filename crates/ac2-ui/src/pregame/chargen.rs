@@ -6,6 +6,7 @@
 
 use ac2_db::RenderInfo;
 use ac2_net::protocol::{CharGenResult, GmRaceSexInfo};
+use ac2_weenie::Appearance;
 
 /// The physique types (`*_PhysiqueType`), one bit each.
 pub mod phys_type {
@@ -51,6 +52,9 @@ pub trait CharGenSystem {
     fn phys_type_label(&mut self, race: u32, sex: u32, phys_type: u32) -> Option<RenderInfo>;
     /// `CallIFun_InqAdminAvatarEntityDID` / `InqPlayerAvatarEntityDID`.
     fn avatar_entity_did(&mut self, admin: bool) -> u32;
+    /// `gmCharGenResult::InqAppliedAppearanceVDesc(0xFFFFFFFF, cgr)`: the appearance the result's
+    /// physique values apply (`None`: the script failed).
+    fn applied_appearance(&mut self, cgr: &CharGenResult) -> Option<Appearance>;
     /// `EnumMapper::GetString(mapper, value)`.
     fn enum_string(&mut self, mapper: u32, value: u32) -> Option<String>;
     /// `EnumMapper::GetEnum(mapper, name)`.
@@ -92,6 +96,10 @@ impl CharGenSystem for NoCharGen {
 
     fn avatar_entity_did(&mut self, _: bool) -> u32 {
         0
+    }
+
+    fn applied_appearance(&mut self, _: &CharGenResult) -> Option<Appearance> {
+        None
     }
 
     fn enum_string(&mut self, _: u32, _: u32) -> Option<String> {

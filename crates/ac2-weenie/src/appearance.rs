@@ -103,17 +103,7 @@ fn apply_additive_group(target: &mut PartGroupAppearance, incoming: &PartGroupAp
         return false;
     }
     for (table, keys) in &incoming.appearance {
-        match target.appearance.iter_mut().find(|(t, _)| t == table) {
-            Some((_, existing)) => {
-                for &(key, scalar) in keys {
-                    match existing.iter_mut().find(|(k, _)| *k == key) {
-                        Some(entry) => entry.1 = scalar,
-                        None => existing.push((key, scalar)),
-                    }
-                }
-            }
-            None => target.appearance.push((*table, keys.clone())),
-        }
+        augment_table(&mut target.appearance, *table, keys);
     }
     if incoming.fx_table != 0 {
         target.fx_table = incoming.fx_table;
@@ -131,7 +121,42 @@ fn apply_additive_group(target: &mut PartGroupAppearance, incoming: &PartGroupAp
     true
 }
 
+/// `AppearanceInfo::AugmentExistingKeys`: a table not held is added with its keys; a held one
+/// has each key set (a key not held is added).
+fn augment_table(tables: &mut Vec<(u32, Vec<(u32, f32)>)>, table: u32, keys: &[(u32, f32)]) {
+    match tables.iter_mut().find(|(t, _)| *t == table) {
+        Some((_, existing)) => {
+            for &(key, scalar) in keys {
+                match existing.iter_mut().find(|(k, _)| *k == key) {
+                    Some(entry) => entry.1 = scalar,
+                    None => existing.push((key, scalar)),
+                }
+            }
+        }
+        None => tables.push((table, keys.to_vec())),
+    }
+}
+
 impl Appearance {
+    /// `VisualDesc::AddAppearanceKey(pg_key, app_file, applied_key)`: the applied keys (key and
+    /// scalar) of appearance table `table` join part group `pg_key` (the global group for
+    /// `GLOBAL_PART_GROUP`). A group the description does not hold would be copied from its
+    /// parent's DAT description (`MakeLocalPGDDFromParent`); that copy is not modelled here, so
+    /// such a group, and a zero key or table, add nothing and the answer is false. The
+    /// character creation screens' description starts empty (no parent), where retail does the
+    /// same.
+    pub fn add_appearance_key(&mut self, pg_key: u32, table: u32, keys: &[(u32, f32)]) -> bool {
+        if pg_key == 0 || table == 0 {
+            return false;
+        }
+        let held = self.group_mut(pg_key);
+        let Some(group) = held else {
+            return false;
+        };
+        augment_table(&mut group.appearance, table, keys);
+        true
+    }
+
     /// `CPhysicsObj::SetLocalVisualDesc(delta)`: `VisualDesc::operator=`.
     pub fn from_delta(delta: &VisualDesc) -> Self {
         let mut local = Self {
@@ -358,5 +383,33 @@ mod tests {
             vec![(0x2000_0001, vec![(1, 0.75), (2, 1.0)])]
         );
         assert_eq!(local.scale, [1.0, 2.0, 2.0]);
+    }
+
+    #[test]
+    fn an_applied_key_joins_the_global_group_and_a_held_group_only() {
+        let mut local = Appearance::default();
+        // The global group takes a table's keys; a key already held is set again.
+        assert!(local.add_appearance_key(GLOBAL_PART_GROUP, 0x2000_0002, &[(1, 0.5)]));
+        assert!(local.add_appearance_key(GLOBAL_PART_GROUP, 0x2000_0002, &[(1, 0.75), (2, 1.0)]));
+        assert_eq!(
+            local.global.appearance,
+            vec![(0x2000_0002, vec![(1, 0.75), (2, 1.0)])]
+        );
+        // A group the description does not hold has no parent to copy from: nothing is added.
+        assert!(!local.add_appearance_key(0x8100_0001, 0x2000_0002, &[(1, 0.5)]));
+        assert!(local.part_groups.is_empty());
+        // Zero keys and tables add nothing.
+        assert!(!local.add_appearance_key(0, 0x2000_0002, &[(1, 0.5)]));
+        assert!(!local.add_appearance_key(GLOBAL_PART_GROUP, 0, &[(1, 0.5)]));
+        // A group it holds takes the keys.
+        local.part_groups.push(PartGroupAppearance {
+            key: 0x8100_0001,
+            ..PartGroupAppearance::default()
+        });
+        assert!(local.add_appearance_key(0x8100_0001, 0x2000_0003, &[(9, 0.25)]));
+        assert_eq!(
+            local.group(0x8100_0001).unwrap().appearance,
+            vec![(0x2000_0003, vec![(9, 0.25)])]
+        );
     }
 }

@@ -15,6 +15,8 @@
 //!
 //! Not modelled yet: the tooltips and the music.
 
+use ac2_weenie::Appearance;
+
 use crate::dialog::DIALOG_WAIT;
 use crate::mouse::UiMessage;
 use crate::pregame::chargen::{phys_type as pt, phys_type_value, set_phys_type_value, RACE_NAMES};
@@ -75,6 +77,9 @@ pub struct AvatarModificationUi {
     appearance: u32,
     /// `gmCharGenResult::GetPhysObj`: the avatar's physics object (`Init`).
     phys_obj: u32,
+    /// The appearance `UpdateByMask` last applied (`InqAppliedAppearanceVDesc`), boxed to keep
+    /// the screen's state small.
+    applied: Option<Box<Appearance>>,
     dialog: Option<ConfirmationUi>,
     wait_context: u32,
 }
@@ -146,6 +151,12 @@ impl AvatarModificationUi {
         };
         let sex = ctx.data.current().map_or(0, |c| c.sex);
         self.phys_obj = ctx.system.phys_obj(race, sex);
+        self.applied = ctx
+            .data
+            .current()
+            .cloned()
+            .and_then(|cgr| ctx.system.applied_appearance(&cgr))
+            .map(Box::new);
         let name = ctx.system.enum_string(RACE_NAMES, race).unwrap_or_default();
         let viewport = format!("{}Viewport", name.to_lowercase());
         if let Some(layout) = ctx.assets.layout(LAYOUT_AVATAR_MODIFICATION) {
@@ -243,8 +254,15 @@ impl AvatarModificationUi {
         }
     }
 
-    /// `gmAvatarModificationUI::UpdateByMask`: the avatar's appearance remade.
-    fn update_by_mask(&mut self) {
+    /// `gmAvatarModificationUI::UpdateByMask`: the avatar's appearance remade from the current
+    /// result (`InqAppliedAppearanceVDesc`), and counted.
+    fn update_by_mask(&mut self, ctx: &mut Ctx<'_>) {
+        self.applied = ctx
+            .data
+            .current()
+            .cloned()
+            .and_then(|cgr| ctx.system.applied_appearance(&cgr))
+            .map(Box::new);
         self.appearance = self.appearance.wrapping_add(1);
     }
 
@@ -282,7 +300,7 @@ impl AvatarModificationUi {
                 return;
             };
             self.temp(ctx, slider, message.element);
-            self.update_by_mask();
+            self.update_by_mask(ctx);
             return;
         }
         if message.message != MSG_BUTTON_RELEASE_ON {
@@ -306,7 +324,7 @@ impl AvatarModificationUi {
                 system.randomize(mask, cgr);
             }
             self.init_ui_from_data(ctx);
-            self.update_by_mask();
+            self.update_by_mask(ctx);
         } else if name("ZoomButton") {
             self.camera.zoomed = !self.camera.zoomed;
         } else if name("NextButton") {
@@ -383,6 +401,11 @@ impl AvatarModificationUi {
     /// How many times the avatar's appearance changed (`UpdateByMask`).
     pub fn appearance(&self) -> u32 {
         self.appearance
+    }
+
+    /// The applied appearance the avatar shows (`None` before the first `UpdateByMask`).
+    pub fn applied(&self) -> Option<&Appearance> {
+        self.applied.as_deref()
     }
 
     pub fn camera(&self) -> ModificationCamera {

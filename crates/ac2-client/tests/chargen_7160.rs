@@ -1,26 +1,31 @@
 //! Character creation on the real layouts and the real `CharacterGenSystem` script
 //! (`AC2_DAT_DIR`) against the Legions 7160 server double: create opens avatar selection with
 //! every race and sex, picking one opens avatar modification with its sliders, and the naming
-//! dialog sends the character and enters the world with it.
+//! dialog sends the character and enters the world with it. The server keeps created characters
+//! in a file: a later session lists the character with the appearance it was made with, enters
+//! the world with it, and refuses a name in use with the retail error.
 
 mod common;
 
+use std::path::Path;
 use std::sync::Arc;
 
 use ac2_client::{pregame_event, pregame_requests, Client, FrameInput, ScriptCharGen};
 use ac2_core::DataId;
+use ac2_net::protocol::{CharGenResult, ClientEvent, Opcode};
 use ac2_script::data::DatScriptData;
-use ac2_script::host::ScriptHost;
+use ac2_script::host::{chargen as host_chargen, ScriptHost};
+use ac2_script::native::CharGenResult as NativeCgr;
 use ac2_script::vm::Program;
 use ac2_script::{load_wlib, LEGIONS_WLIB_DID};
 use ac2_ui::pregame::{
-    phys_type_value, PregameUi, MODE_AVATAR_MODIFICATION, MODE_AVATAR_SELECTION,
+    load_pregame, phys_type_value, PregameUi, MODE_AVATAR_MODIFICATION, MODE_AVATAR_SELECTION,
     MODE_CHARACTER_SELECTION, MODE_GAMEPLAY,
 };
 use ac2_ui::{tokenize, UI_POINTER_X, UI_POINTER_Y};
-use ac2_weenie::{CharacterChoice, OnlineSession};
+use ac2_weenie::{Appearance, CharacterChoice, OnlineSession};
 use common::*;
-use legions_server_double::{double, Spawn, CREATED};
+use legions_server_double::{double, double_with, CharGenRules, Spawn, CREATED, PLAYER};
 
 type Server = std::rc::Rc<std::cell::RefCell<legions_server_double::State>>;
 
@@ -51,10 +56,14 @@ fn point_at(ui: &mut PregameUi, element: usize) {
     ]);
 }
 
-fn click(ui: &mut PregameUi, name: &str) {
-    let element = find(ui, name).unwrap_or_else(|| panic!("{name}"));
+fn click_element(ui: &mut PregameUi, element: usize) {
     point_at(ui, element);
     ui.input(&[(0x4000_0004, 1.0, true), (0x4000_0004, 1.0, false)]);
+}
+
+fn click(ui: &mut PregameUi, name: &str) {
+    let element = find(ui, name).unwrap_or_else(|| panic!("{name}"));
+    click_element(ui, element);
 }
 
 /// The composed screen over black (`target/ac2-snapshots/<name>`).
@@ -94,11 +103,9 @@ fn snapshot(ui: &mut PregameUi, name: &str) {
         .unwrap();
 }
 
-#[test]
-fn a_new_character_is_made_named_and_sent() {
-    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
-        return;
-    };
+/// The script host the client's screens and the server's rules run on.
+fn script_host() -> Option<(ScriptHost, Arc<ac2_db::ResourceStore>)> {
+    let dataset = ac2_dat::test_support::env_dataset()?;
     let store = Arc::new(ac2_db::ResourceStore::new(dataset.clone()));
     let wlib = load_wlib(&store, DataId::new(LEGIONS_WLIB_DID))
         .unwrap()
@@ -110,32 +117,243 @@ fn a_new_character_is_made_named_and_sent() {
     data.preload_tables();
     data.preload_states();
     data.set_cache_only(true);
-    let mut ui = PregameUi::new(ac2_ui::pregame::load_pregame(&store).unwrap(), 1024, 768);
-    ui.set_char_gen_system(Box::new(ScriptCharGen::new(ScriptHost::new(
-        program,
-        Box::new(data),
-    ))));
-    let (transport, server) = double(Spawn {
+    Some((ScriptHost::new(program, Box::new(data)), store))
+}
+
+/// The native `gmCharGenResult` of the wire result (`gmCharGenResult::operator=`).
+fn native_of(result: &CharGenResult) -> NativeCgr {
+    let mut out = NativeCgr {
+        name: result.name.encode_utf16().collect(),
+        entity_did: result.entity_did,
+        race: result.race,
+        sex: result.sex,
+        class: result.class,
+        implement: result.implement,
+        start_area: result.start_area,
+        ..NativeCgr::default()
+    };
+    for &(phys_type, value) in &result.physical {
+        out.set_phys_type_value(phys_type, value);
+    }
+    out
+}
+
+/// The server's rules on the `CharacterGenSystem` script: `IsValid` and the applied appearance.
+struct ScriptRules(ScriptHost);
+
+impl CharGenRules for ScriptRules {
+    fn validate(&mut self, result: &CharGenResult) -> u32 {
+        host_chargen::is_valid(self.0.vm_mut(), &native_of(result)).unwrap_or(0)
+    }
+
+    fn appearance(&mut self, result: &CharGenResult) -> Option<Appearance> {
+        host_chargen::applied_appearance(
+            self.0.vm_mut(),
+            Appearance::default(),
+            &native_of(result),
+            u32::MAX,
+        )
+        .map(|(_, appearance)| appearance)
+    }
+}
+
+fn spawn() -> Spawn {
+    Spawn {
         cell: CELL,
         origin: [70.0, 70.0, GROUND],
         rotation: [1.0, 0.0, 0.0, 0.0],
-    });
+    }
+}
+
+/// A session: the double, the client and the pregame screens, at character selection.
+struct Session {
+    client: Client,
+    server: Server,
+    ui: PregameUi,
+    t: f64,
+}
+
+/// Starts a session: `keep` is the server's character file and its rules (none: a double as it
+/// has always been, with no rules and no file). The screens run on `host`, the client's own
+/// script host; returns once the character set is shown.
+fn start(
+    host: ScriptHost,
+    store: &Arc<ac2_db::ResourceStore>,
+    keep: Option<(&Path, Box<dyn CharGenRules>)>,
+) -> Session {
+    let mut ui = PregameUi::new(load_pregame(store).unwrap(), 1024, 768);
+    ui.set_char_gen_system(Box::new(ScriptCharGen::new(host)));
+    let (transport, server) = match keep {
+        Some((path, rules)) => {
+            let (transport, server) = double_with(spawn(), path, Some(rules)).unwrap();
+            (transport, server)
+        }
+        None => double(spawn()),
+    };
     let mut config = config();
     config.character = CharacterChoice::Wait;
     let session = OnlineSession::with_transport(config, Box::new(transport)).unwrap();
     let mut client = Client::new(session, Arc::new(Synthetic));
     client.set_load_budget(std::time::Duration::from_secs(5));
-    let mut t = 0.0;
-    while ui.mode() != MODE_CHARACTER_SELECTION {
-        frame(&mut client, &server, &mut ui, &mut t);
-        assert!(t < 30.0, "no character selection");
+    let mut session = Session {
+        client,
+        server,
+        ui,
+        t: 0.0,
+    };
+    while session.ui.mode() != MODE_CHARACTER_SELECTION {
+        frame(
+            &mut session.client,
+            &session.server,
+            &mut session.ui,
+            &mut session.t,
+        );
+        assert!(session.t < 30.0, "no character selection");
+    }
+    session
+}
+
+/// What a creation made: the appearance the screens applied, and the race and sex.
+struct Created {
+    appearance: Appearance,
+    race: u32,
+    sex: u32,
+}
+
+impl Session {
+    fn frame(&mut self) {
+        frame(&mut self.client, &self.server, &mut self.ui, &mut self.t);
     }
 
-    // Create: avatar selection with every race and sex.
-    click(&mut ui, "CreateButton");
-    frame(&mut client, &server, &mut ui, &mut t);
-    assert_eq!(ui.mode(), MODE_AVATAR_SELECTION);
-    let avatars = ui.avatar_selection().unwrap().avatars().to_vec();
+    /// The creation pages: avatar selection (the first race and sex), avatar modification (a
+    /// slider stepped, then everything randomized), and the naming dialog, which sends the
+    /// character. With `enter` it enters the world with it; otherwise it waits for the answer
+    /// (the creation screens stay with the error line).
+    fn create(&mut self, name: &str, enter: bool) -> Created {
+        click(&mut self.ui, "CreateButton");
+        self.frame();
+        assert_eq!(self.ui.mode(), MODE_AVATAR_SELECTION);
+        let viewport = find(&self.ui, "AvatarSelectionViewport").unwrap();
+        point_at(&mut self.ui, viewport);
+        assert!(self.ui.wants_pick().is_some());
+        self.ui.finish_pick(Some(0));
+        self.ui
+            .input(&[(0x4000_0004, 1.0, true), (0x4000_0004, 1.0, false)]);
+        self.ui.finish_animation();
+        self.frame();
+        assert_eq!(self.ui.mode(), MODE_AVATAR_MODIFICATION);
+        let current = self.ui.data().current().cloned().unwrap();
+        let applied = self.ui.avatar_modification().unwrap().applied().cloned();
+        assert!(applied.is_some(), "the avatar shows its applied appearance");
+
+        // The body part shows first: step its first slider on with the right button.
+        let offered = self.ui.avatar_modification().unwrap().offered();
+        let names = [
+            (2, "Height"),
+            (1, "Build"),
+            (4, "SkinTone"),
+            (8, "SkinDetail"),
+            (128, "Special"),
+        ];
+        let (phys_type, slider) = names
+            .into_iter()
+            .find(|(t, _)| offered.contains(t))
+            .expect("a body slider");
+        let before = phys_type_value(&current, phys_type);
+        click(&mut self.ui, &format!("{slider}RightButton"));
+        let after = phys_type_value(self.ui.data().current().unwrap(), phys_type);
+        assert!(after > before, "{slider} steps up: {before} -> {after}");
+        click(&mut self.ui, "RandomizeAllButton");
+        let appearance = self
+            .ui
+            .avatar_modification()
+            .unwrap()
+            .applied()
+            .cloned()
+            .expect("the randomized appearance");
+
+        // Next: name it (the filter drops the digit) and send it.
+        click(&mut self.ui, "NextButton");
+        assert!(self.ui.avatar_modification().unwrap().dialog().is_some());
+        click(&mut self.ui, "NameEntry");
+        let typed: Vec<(u16, u32)> = name.encode_utf16().map(|c| (c, 0)).collect();
+        self.ui.text_input(&[], &typed, false);
+        click(
+            &mut self.ui,
+            if enter { "EnterButton" } else { "CreateButton" },
+        );
+        Created {
+            appearance,
+            race: current.race,
+            sex: current.sex,
+        }
+    }
+
+    /// The result the screens sent, from the server's side.
+    fn sent(&self) -> Vec<(String, CharGenResult)> {
+        self.server.borrow().char_gen_results.clone()
+    }
+
+    fn error_text(&self) -> String {
+        let element = find(&self.ui, "GenerationConfirmationErrorMsg").unwrap();
+        self.ui
+            .tree()
+            .get(element)
+            .unwrap()
+            .text()
+            .unwrap_or_default()
+    }
+
+    /// The login's characters, by name, with their visuals.
+    fn listed(&self) -> Vec<(String, u64, ac2_net::protocol::VisualDesc)> {
+        self.ui
+            .data()
+            .characters()
+            .unwrap()
+            .characters
+            .iter()
+            .map(|c| (c.name.clone(), c.id, c.visual.clone()))
+            .collect()
+    }
+}
+
+/// The creation flow as the client has always run it: one session, every page, the character
+/// sent and entered, and the server's answer.
+#[test]
+fn a_new_character_is_made_named_and_sent() {
+    let Some((host, store)) = script_host() else {
+        return;
+    };
+    let mut s = start(host, &store, None);
+    let created = s.create("Zed9a", true);
+    while !s.client.frame().in_world {
+        s.frame();
+        assert!(s.t < 60.0, "no world entry");
+    }
+    assert_eq!(s.ui.mode(), MODE_GAMEPLAY);
+    let sent = s.sent();
+    assert_eq!(sent.len(), 1);
+    let (_, result) = &sent[0];
+    assert_eq!(result.name, "Zeda");
+    assert_eq!((result.race, result.sex), (created.race, created.sex));
+    assert!(!result.physical.is_empty());
+    assert_ne!(result.entity_did, 0);
+    // The created character was added to the set the UI keeps.
+    assert!(s
+        .listed()
+        .iter()
+        .any(|(name, id, _)| name == "Zeda" && *id == CREATED));
+}
+
+#[test]
+fn the_create_pages_show_every_avatar_and_the_sliders_move_the_appearance() {
+    let Some((host, store)) = script_host() else {
+        return;
+    };
+    let mut s = start(host, &store, None);
+    click(&mut s.ui, "CreateButton");
+    s.frame();
+    let avatars = s.ui.avatar_selection().unwrap().avatars().to_vec();
     eprintln!(
         "avatars: {:?}",
         avatars
@@ -147,76 +365,259 @@ fn a_new_character_is_made_named_and_sent() {
     assert!(avatars
         .iter()
         .all(|a| a.phys_obj != 0 && a.location.is_some()));
-    // The pointer over the scene picks; the scene answers with the first avatar, whose race and
-    // sex name the description; a press plays its animation, whose end opens modification.
-    let viewport = find(&ui, "AvatarSelectionViewport").unwrap();
-    point_at(&mut ui, viewport);
-    assert!(ui.wants_pick().is_some());
-    ui.finish_pick(Some(0));
-    let desc = find(&ui, "RaceDescField").unwrap();
-    assert_eq!(ui.tree().get(desc).unwrap().state(), avatars[0].state);
-    ui.input(&[(0x4000_0004, 1.0, true), (0x4000_0004, 1.0, false)]);
-    assert_eq!(ui.selected_animation(), Some(0));
-    snapshot(&mut ui, "pregame_avatar_selection.png");
-    ui.finish_animation();
-    frame(&mut client, &server, &mut ui, &mut t);
-    assert_eq!(ui.mode(), MODE_AVATAR_MODIFICATION);
-    let current = ui.data().current().cloned().unwrap();
-    assert_eq!(
-        (current.race, current.sex),
-        (avatars[0].race, avatars[0].sex)
+    // Each avatar is shown in its race's default appearance (`InitEntities`).
+    assert!(avatars.iter().all(|a| a.appearance.is_some()));
+    // The applied appearance of the default result: a height slider step changes its scale.
+    let viewport = find(&s.ui, "AvatarSelectionViewport").unwrap();
+    point_at(&mut s.ui, viewport);
+    s.ui.finish_pick(Some(0));
+    s.ui.input(&[(0x4000_0004, 1.0, true), (0x4000_0004, 1.0, false)]);
+    s.ui.finish_animation();
+    s.frame();
+    assert_eq!(s.ui.mode(), MODE_AVATAR_MODIFICATION);
+    let before =
+        s.ui.avatar_modification()
+            .unwrap()
+            .applied()
+            .cloned()
+            .unwrap();
+    assert_eq!(before.scale, avatars[0].appearance.clone().unwrap().scale);
+    let offered = s.ui.avatar_modification().unwrap().offered();
+    assert!(offered.contains(&2), "a height slider: {offered:?}");
+    click(&mut s.ui, "HeightRightButton");
+    let after =
+        s.ui.avatar_modification()
+            .unwrap()
+            .applied()
+            .cloned()
+            .unwrap();
+    assert_ne!(before.scale, after.scale, "the height changes the scale");
+    snapshot(&mut s.ui, "pregame_avatar_modification.png");
+}
+
+#[test]
+fn the_created_character_is_kept_listed_and_entered_in_a_later_session() {
+    let Some((host, store)) = script_host() else {
+        return;
+    };
+    let dir = std::env::temp_dir().join(format!("ac2-chargen-session-{}", std::process::id()));
+    let file = dir.join("characters.bin");
+    let _ = std::fs::remove_file(&file);
+
+    // Session one: create and enter. The server keeps the character in its file.
+    let mut first = start(
+        host,
+        &store,
+        Some((file.as_path(), Box::new(ScriptRules(new_host(&store))))),
     );
-    let modification = ui.avatar_modification().unwrap();
-    let offered = modification.offered();
-    eprintln!("offered physique types: {offered:?}");
-    assert!(!offered.is_empty());
-    snapshot(&mut ui, "pregame_avatar_modification.png");
-
-    // The body part shows first: step its first slider on with the right button.
-    let names = [
-        (2, "Height"),
-        (1, "Build"),
-        (4, "SkinTone"),
-        (8, "SkinDetail"),
-        (128, "Special"),
-    ];
-    let (phys_type, name) = names
-        .into_iter()
-        .find(|(t, _)| offered.contains(t))
-        .expect("a body slider");
-    let before = phys_type_value(&current, phys_type);
-    click(&mut ui, &format!("{name}RightButton"));
-    let after = phys_type_value(ui.data().current().unwrap(), phys_type);
-    eprintln!("{name}: {before} -> {after}");
-    let appearance = ui.avatar_modification().unwrap().appearance();
-    click(&mut ui, "RandomizeAllButton");
-    assert!(ui.avatar_modification().unwrap().appearance() > appearance);
-
-    // Next: name it (the filter drops the digit) and enter with it (the Legions dialog has
-    // only enter and cancel).
-    click(&mut ui, "NextButton");
-    assert!(ui.avatar_modification().unwrap().dialog().is_some());
-    click(&mut ui, "NameEntry");
-    let typed: Vec<(u16, u32)> = "Zed9a".encode_utf16().map(|c| (c, 0)).collect();
-    ui.text_input(&[], &typed, false);
-    snapshot(&mut ui, "pregame_naming.png");
-    click(&mut ui, "EnterButton");
-    while !client.frame().in_world {
-        frame(&mut client, &server, &mut ui, &mut t);
-        assert!(t < 60.0, "no world entry");
+    let created = first.create("Zeda", true);
+    while !first.client.frame().in_world {
+        first.frame();
+        assert!(first.t < 60.0, "no world entry");
     }
-    assert_eq!(ui.mode(), MODE_GAMEPLAY);
-    let sent = server.borrow().char_gen_results.clone();
-    assert_eq!(sent.len(), 1);
-    let (_, result) = &sent[0];
-    assert_eq!(result.name, "Zeda");
-    assert_eq!((result.race, result.sex), (avatars[0].race, avatars[0].sex));
-    assert!(!result.physical.is_empty());
-    assert_ne!(result.entity_did, 0);
-    // The created character was added to the set the UI keeps.
-    let set = ui.data().characters().unwrap();
-    assert!(set
-        .characters
+    let entity = first.sent()[0].1.entity_did;
+    drop(first);
+    assert!(file.exists(), "the character was written");
+
+    // Session two, in a later server: the character is listed with its appearance, and it
+    // enters the world with that appearance.
+    let (host, _) = script_host().unwrap();
+    let mut second = start(
+        host,
+        &store,
+        Some((file.as_path(), Box::new(ScriptRules(new_host(&store))))),
+    );
+    let listed = second.listed();
+    assert_eq!(listed.len(), 2, "{listed:?}");
+    let (name, id, visual) = &listed[1];
+    assert_eq!((name.as_str(), *id), ("Zeda", CREATED));
+    // The listed appearance is the one the screens applied, parented to the avatar's entity.
+    let expected = Appearance {
+        parent: entity,
+        ..created.appearance.clone()
+    };
+    assert_eq!(
+        Appearance::from_delta(visual),
+        expected,
+        "the saved appearance is listed"
+    );
+    let picked = find(&second.ui, "CharacterListBox").unwrap();
+    let items = second.ui.tree().list_items(picked).to_vec();
+    click_element(&mut second.ui, items[1]);
+    click(&mut second.ui, "EnterButton");
+    while !second.client.frame().in_world {
+        second.frame();
+        assert!(second.t < 60.0, "no world entry");
+    }
+    let player = second.client.frame().player.expect("the player");
+    assert_eq!(player.id, PLAYER);
+    assert_eq!(
+        player.appearance, expected,
+        "the world shows the saved appearance"
+    );
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+/// A `CharacterGenSystem` host of its own, for the server's rules.
+fn new_host(store: &Arc<ac2_db::ResourceStore>) -> ScriptHost {
+    let wlib = load_wlib(store, DataId::new(LEGIONS_WLIB_DID))
+        .unwrap()
+        .unwrap();
+    let program = Arc::new(Program::from_stream(&wlib.stream));
+    let dataset = ac2_dat::test_support::env_dataset().unwrap();
+    let data = DatScriptData::new(dataset, (**store).clone());
+    data.preload_tables();
+    data.preload_states();
+    data.set_cache_only(true);
+    ScriptHost::new(program, Box::new(data))
+}
+
+#[test]
+fn a_name_in_use_is_refused_with_the_retail_error() {
+    let Some((host, store)) = script_host() else {
+        return;
+    };
+    let dir = std::env::temp_dir().join(format!("ac2-chargen-taken-{}", std::process::id()));
+    let file = dir.join("characters.bin");
+    let _ = std::fs::remove_file(&file);
+    let mut first = start(
+        host,
+        &store,
+        Some((file.as_path(), Box::new(ScriptRules(new_host(&store))))),
+    );
+    first.create("Zeda", true);
+    while !first.client.frame().in_world {
+        first.frame();
+        assert!(first.t < 60.0, "no world entry");
+    }
+    drop(first);
+
+    let (host, _) = script_host().unwrap();
+    let mut second = start(
+        host,
+        &store,
+        Some((file.as_path(), Box::new(ScriptRules(new_host(&store))))),
+    );
+    // The Legions naming dialog has enter (and cancel) only: a refused name stays in it.
+    second.create("zeda", true);
+    let mut t = 0;
+    while second.error_text().is_empty() {
+        second.frame();
+        t += 1;
+        assert!(t < 200, "no refusal");
+    }
+    let expected = load_pregame(&store)
+        .unwrap()
+        .strings
+        .get("ID_Character_Err_NameInUse");
+    assert_eq!(second.error_text(), expected);
+    assert_eq!(second.ui.mode(), MODE_AVATAR_MODIFICATION, "still naming");
+    assert!(!second.client.frame().in_world);
+    // The server kept one character: the refusal added none.
+    assert_eq!(second.server.borrow().characters.records.len(), 1);
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn the_sent_character_is_the_packed_result_byte_for_byte() {
+    let Some((host, store)) = script_host() else {
+        return;
+    };
+    let mut s = start(host, &store, None);
+    s.create("Zeda", true);
+    while !s.client.frame().in_world {
+        s.frame();
+        assert!(s.t < 60.0, "no world entry");
+    }
+    let server = s.server.borrow();
+    let (account, result) = server.char_gen_results[0].clone();
+    let (_, _, sent) = server
+        .blobs
         .iter()
-        .any(|c| c.id == CREATED && c.name == "Zeda"));
+        .find(|(_, _, data)| data[..4] == Opcode::CHAR_GEN_RESULT.to_le_bytes())
+        .expect("the CharGenResult blob")
+        .clone();
+    // The bytes are the event's encoding (opcode, account, the result's `Pack`).
+    let (queue, encoded) = ClientEvent::CharGenResult {
+        account: account.clone(),
+        result: result.clone(),
+    }
+    .encode();
+    assert_eq!(queue, 8);
+    assert_eq!(sent, encoded);
+    // The layout: the opcode, the account's packed string, the name, six words, then the
+    // table's count with its bucket index and the (key, value) pairs in table order.
+    let mut account_bytes = Vec::new();
+    ac2_net::pack_string(&mut account_bytes, 0, account.as_bytes());
+    let mut at = 4;
+    assert_eq!(&sent[at..at + account_bytes.len()], &account_bytes[..]);
+    at += account_bytes.len();
+    let mut name_bytes = Vec::new();
+    ac2_net::pack_wide_string(&mut name_bytes, 0, &result.name);
+    assert_eq!(&sent[at..at + name_bytes.len()], &name_bytes[..]);
+    at += name_bytes.len();
+    let word = |i: usize| u32::from_le_bytes(sent[at + 4 * i..at + 4 * i + 4].try_into().unwrap());
+    assert_eq!(
+        [word(0), word(1), word(2), word(3), word(4), word(5)],
+        [
+            result.entity_did,
+            result.start_area,
+            result.race,
+            result.sex,
+            result.class,
+            result.implement
+        ]
+    );
+    assert_eq!(word(6), result.physical.len() as u32 | 2 << 24);
+    assert_eq!(sent.len(), 4 + account_bytes.len() + result.pack_size());
+    assert_eq!(
+        result.pack_size(),
+        name_bytes.len() + 0x18 + 4 + 8 * result.physical.len()
+    );
+}
+
+/// The script's rules, except that a name with "Bad" in it is refused with the weenie's banned
+/// name error (200, `ID_Character_Err_NameBanned` on the confirmation screen).
+struct RefusingRules(ScriptRules);
+
+impl CharGenRules for RefusingRules {
+    fn validate(&mut self, result: &CharGenResult) -> u32 {
+        if result.name.contains("Bad") {
+            200
+        } else {
+            self.0.validate(result)
+        }
+    }
+
+    fn appearance(&mut self, result: &CharGenResult) -> Option<Appearance> {
+        self.0.appearance(result)
+    }
+}
+
+#[test]
+fn a_refused_result_shows_the_weenies_error_and_keeps_nothing() {
+    let Some((host, store)) = script_host() else {
+        return;
+    };
+    let dir = std::env::temp_dir().join(format!("ac2-chargen-refused-{}", std::process::id()));
+    let file = dir.join("characters.bin");
+    let _ = std::fs::remove_file(&file);
+    let rules = RefusingRules(ScriptRules(new_host(&store)));
+    let mut s = start(host, &store, Some((file.as_path(), Box::new(rules))));
+    s.create("Badger", true);
+    let mut t = 0;
+    while s.error_text().is_empty() {
+        s.frame();
+        t += 1;
+        assert!(t < 200, "no refusal");
+    }
+    let expected = load_pregame(&store)
+        .unwrap()
+        .strings
+        .get("ID_Character_Err_NameBanned");
+    assert_eq!(s.error_text(), expected);
+    assert!(!s.client.frame().in_world);
+    assert!(s.server.borrow().characters.records.is_empty());
+    assert!(!file.exists(), "nothing was written");
+    let _ = std::fs::remove_dir_all(dir);
 }

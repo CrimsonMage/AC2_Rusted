@@ -9,6 +9,8 @@ mod appearance;
 mod assembly;
 mod channel;
 mod character;
+pub use characters::{CharGenRules, CharacterStore, StoredCharacter};
+mod characters;
 mod chest;
 mod combat;
 mod craft;
@@ -117,21 +119,19 @@ pub fn fragment_header(id: u64, size: u16, queue: u16) -> Vec<u8> {
     out
 }
 
-/// The 7160 `CharacterSet`: one character, then the two words Legions packs after the
-/// turbine-chat flag.
-fn character_set() -> Vec<u8> {
-    character_set_of(&[(PLAYER, "Explorer")])
-}
-
-/// `CharacterSet` (`ECM_Login::RecvEvt_CharacterSet`) listing `characters`, each with no greyed
-/// time and the human appearance; no deleted characters, status 0, five allowed.
-fn character_set_of(characters: &[(u64, &str)]) -> Vec<u8> {
+/// `CharacterSet` (`ECM_Login::RecvEvt_CharacterSet`) listing `characters` with their visuals,
+/// each with no greyed time; no deleted characters, status 0, five allowed. Legions packs two
+/// more words after the chat flag.
+pub(crate) fn character_set_of(
+    characters: &[(u64, &str, &ac2_net::protocol::VisualDesc)],
+) -> Vec<u8> {
     let mut b = Vec::new();
     words(&mut b, &[0x0001_0055, characters.len() as u32]);
-    for (id, name) in characters {
+    for (id, name, visual) in characters {
         b.extend(id.to_le_bytes());
         pack_wide_string(&mut b, 0, name);
-        words(&mut b, &[0, 2, 0x1F00_0023]);
+        words(&mut b, &[0]);
+        b.extend(appearance::visual_desc_bytes(visual));
     }
     words(&mut b, &[0, 0, 5]);
     pack_string(&mut b, 0, b"local");
@@ -181,7 +181,7 @@ pub const PLAYER_PACKAGE: u32 = 0x1AA4;
 /// The player's `CreateObject`: a visual parent, a physics position and the stamps
 /// (position 4, teleport 5, force position 6, move-to 7), its script package (`CPlayer`) and
 /// its name.
-fn create_object(spawn: &Spawn) -> Vec<u8> {
+pub(crate) fn create_object(spawn: &Spawn) -> Vec<u8> {
     weenie_object_bytes(
         &ObjectSpawn {
             id: PLAYER,
@@ -199,22 +199,16 @@ fn create_object(spawn: &Spawn) -> Vec<u8> {
 
 /// The player's qualities: int 20 (the weenie type, 31: a player for
 /// `EngineWeenieTypeSystem` 0xC), int 0x19 and int 290 (the race, Human).
-fn player_description() -> Vec<u8> {
+pub(crate) fn player_description() -> Vec<u8> {
+    player_description_of(RACE_HUMAN)
+}
+
+/// [`player_description`] for a character of `race`.
+pub(crate) fn player_description_of(race: u32) -> Vec<u8> {
     let mut b = Vec::new();
     words(
         &mut b,
-        &[
-            0x0001_0068,
-            2,
-            0x8100_110F,
-            3,
-            20,
-            31,
-            0x19,
-            7,
-            290,
-            RACE_HUMAN,
-        ],
+        &[0x0001_0068, 2, 0x8100_110F, 3, 20, 31, 0x19, 7, 290, race],
     );
     b
 }
@@ -306,6 +300,10 @@ pub struct State {
     pub chat_requests: Vec<ac2_net::protocol::ChatRequest>,
     /// `Proto_UI::SendCharGenResult`s: account and result.
     pub char_gen_results: Vec<(String, ac2_net::protocol::CharGenResult)>,
+    /// The created characters (`double_with`'s store).
+    pub characters: CharacterStore,
+    /// The server's character rules (`double_with`).
+    pub rules: Option<Box<dyn CharGenRules>>,
     /// `Proto_UI::SendDeleteCharacter`s: the character ids.
     pub deletions: Vec<u64>,
 }
@@ -613,7 +611,7 @@ impl State {
             if !self.character_set_sent && self.connected {
                 self.character_set_sent = true;
                 self.reliable_blob(0x2300_0001_0000_0000, 1, &char_gen_verification());
-                self.reliable_blob(0x2300_0002_0000_0001, 1, &character_set());
+                self.send_character_set(0x2300_0002_0000_0001);
             }
             return;
         }
@@ -628,12 +626,17 @@ impl State {
             let opcode = u32::from_le_bytes(data[..4].try_into().unwrap());
             self.blobs.push((id, queue, data));
             match opcode {
-                // `Proto_UI::SendEnterWorld`.
+                // `Proto_UI::SendEnterWorld`: the player is the character entered (its record's
+                // visual and name, or the `Explorer` the double has always sent).
                 0x0001_002B => {
+                    let data = self.blobs.last().unwrap().2.clone();
+                    let character = data
+                        .get(4..12)
+                        .map_or(PLAYER, |b| u64::from_le_bytes(b.try_into().unwrap()));
+                    let (object, description) = self.player_entry(character);
                     self.reliable_blob(0x2300_0003_0000_0002, 1, &create_player());
-                    let object = create_object(&self.spawn);
                     self.reliable_blob(0x0300_0004_0000_0003, 1, &object);
-                    self.reliable_blob(0x0300_0005_0000_0004, 1, &player_description());
+                    self.reliable_blob(0x0300_0005_0000_0004, 1, &description);
                 }
                 // `ECM_Interp::SendEvt_InterpSEvent` / `SendEvt_InterpSEventEncrypt`.
                 0x0001_0053 | 0x0001_00D0 => {
@@ -645,32 +648,11 @@ impl State {
                     let data = self.blobs.last().unwrap().2.clone();
                     self.chat_event(&data);
                 }
-                // `Proto_UI::SendCharGenResult` (queue 8, in the clear without a session key):
-                // accepted as a new character, answered with `CharGenVerification`.
+                // `Proto_UI::SendCharGenResult` (queue 8, in the clear without a session key).
                 0x0001_002A => {
                     let data = self.blobs.last().unwrap().2.clone();
                     match ac2_net::protocol::decode_char_gen_result(&data) {
-                        Ok((account, result)) => {
-                            let mut b = Vec::new();
-                            words(&mut b, &[0x0001_0057, 1]);
-                            b.extend(CREATED.to_le_bytes());
-                            pack_wide_string(&mut b, 0, &result.name);
-                            words(&mut b, &[0, 2, result.entity_did, 0x11]);
-                            self.reliable_blob(0x2300_0007_0000_0006, 1, &b);
-                            self.char_gen_results.push((account, result));
-                            // Then the account's characters again, the new one included.
-                            let mut listed = vec![(PLAYER, "Explorer".to_owned())];
-                            listed.extend(
-                                self.char_gen_results
-                                    .iter()
-                                    .map(|(_, r)| (CREATED, r.name.clone())),
-                            );
-                            let listed: Vec<(u64, &str)> =
-                                listed.iter().map(|(id, n)| (*id, n.as_str())).collect();
-                            self.next_object_blob += 1;
-                            let id = 0x2300_0008_0000_0000 | u64::from(self.next_object_blob);
-                            self.reliable_blob(id, 1, &character_set_of(&listed));
-                        }
+                        Ok((account, result)) => self.create_character(account, result),
                         Err(error) => self.script_errors.push(format!("char gen: {error}")),
                     }
                 }
@@ -709,6 +691,22 @@ pub fn double(spawn: Spawn) -> (Double, Rc<RefCell<State>>) {
         ..State::default()
     }));
     (Double(Rc::clone(&state)), state)
+}
+
+/// A double whose created characters are kept in `store` (a file, read now and written on every
+/// creation) and whose appearances come from `rules`.
+pub fn double_with(
+    spawn: Spawn,
+    store: &std::path::Path,
+    rules: Option<Box<dyn CharGenRules>>,
+) -> std::io::Result<(Double, Rc<RefCell<State>>)> {
+    let state = Rc::new(RefCell::new(State {
+        spawn,
+        characters: CharacterStore::open(store)?,
+        rules,
+        ..State::default()
+    }));
+    Ok((Double(Rc::clone(&state)), state))
 }
 
 impl Transport for Double {

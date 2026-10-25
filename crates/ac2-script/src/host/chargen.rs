@@ -13,6 +13,7 @@ use crate::native::{ntype, CharGenResult, NativeObject, Position, ScriptHash, Sc
 use crate::vm::refs::{flags, Target};
 use crate::vm::{tag, Context, FunctionId, InterpStatus, Vm};
 use crate::wire::string_info_to_net;
+use ac2_weenie::Appearance;
 
 const SYSTEM: &str = "CharacterGenSystem";
 
@@ -31,6 +32,7 @@ pub mod function {
     pub const SET_CGR_DEFAULTS: u32 = 0x0096_000E;
     pub const RANDOMIZE_CGR: u32 = 0x0096_000F;
     pub const FORMAT_NAME_STRING: u32 = 0x0096_0011;
+    pub const INQ_APPLIED_APPEARANCE_VDESC: u32 = 0x0096_0010;
 }
 
 /// A value the native side pushes: an int (tag 4) or a reference (tag 1).
@@ -227,6 +229,41 @@ pub fn starting_position(vm: &mut Vm, area: u32) -> Option<(u32, Position)> {
         _ => return None,
     };
     Some((call.retval, pos))
+}
+
+/// `CallIFun_InqAppliedAppearanceVDesc(physMask, cgr, aaVDescOut)`: the appearance the result's
+/// physique values apply, written onto `start` (`VisualDesc::VisualDesc(out)` copies the
+/// caller's description first). The screens ask for every physique type (`0xFFFFFFFF`).
+/// Returns the script's result and the description.
+pub fn applied_appearance(
+    vm: &mut Vm,
+    start: Appearance,
+    cgr: &CharGenResult,
+    phys_mask: u32,
+) -> Option<(u32, Appearance)> {
+    let out = native(
+        vm,
+        ntype::VISUAL_DESC,
+        NativeObject::VisualDesc(Box::new(start)),
+    );
+    let cgr_ref = native(
+        vm,
+        ntype::CHAR_GEN_RESULT,
+        NativeObject::CharGenResult(Box::new(cgr.clone())),
+    );
+    let args = [Push::Ref(cgr_ref), Push::Int(phys_mask)];
+    let call = call_system(
+        vm,
+        SYSTEM,
+        function::INQ_APPLIED_APPEARANCE_VDESC,
+        Some((out, tag::REF)),
+        &args,
+    )?;
+    let desc = match vm.native(call.out) {
+        Some(NativeObject::VisualDesc(desc)) => (**desc).clone(),
+        _ => return None,
+    };
+    Some((call.retval, desc))
 }
 
 fn a_list(vm: &mut Vm) -> u32 {

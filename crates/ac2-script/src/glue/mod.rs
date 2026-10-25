@@ -40,6 +40,7 @@ mod social;
 mod string_info;
 mod string_text;
 mod ui_natives;
+mod visual_desc;
 mod vm_glue;
 mod wcc;
 mod wlog;
@@ -73,6 +74,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     position::register(efuns);
     skill_node::register(efuns);
     chargen::register(efuns);
+    visual_desc::register(efuns);
     repository::register(efuns);
     options::register(efuns);
     examination::register(efuns);

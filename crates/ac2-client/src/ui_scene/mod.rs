@@ -225,13 +225,19 @@ impl UiScenes {
         let mut models = Vec::with_capacity(figures.len());
         for figure in figures {
             let object = self.loader.object(figure.object);
-            let visual = match (&figure.local, object.and_then(|o| o.visual)) {
-                (Some(local), _) => local.parent,
-                (None, visual) => visual,
+            let object_visual = object.and_then(|o| o.visual);
+            // A figure's local description hangs from its object's visual unless it names one.
+            let local = figure.local.clone().map(|mut local| {
+                local.parent = local.parent.or(object_visual);
+                local
+            });
+            let visual = match &local {
+                Some(local) => local.parent,
+                None => object_visual,
             };
             let model = visual.map(|visual| {
-                let key = model_key(visual, figure.local.as_ref());
-                view.scene.request_object(key, visual, figure.local.clone());
+                let key = model_key(visual, local.as_ref());
+                view.scene.request_object(key, visual, local.clone());
                 key
             });
             models.push(model);

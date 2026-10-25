@@ -1307,6 +1307,7 @@ key	status	note
 0046b480	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 0046b6d0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 0046b800	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+0046b960	x	ac2-script host/chargen.rs applied_appearance over the CharacterGenSystem script
 0046bb90	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 0046bdb0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 0046bf10	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -2740,6 +2741,9 @@ key	status	note
 00536db0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536de0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536e10	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+00537020	x	ac2-script glue/visual_desc.rs over ac2-weenie Appearance
+00537080	x	ac2-script glue/visual_desc.rs over ac2-weenie Appearance
+00537170	x	ac2-script glue/visual_desc.rs over ac2-weenie Appearance
 005376c0	x	ac2-script glue::math / glue::missile
 00537730	x	ac2-script glue::math / glue::missile
 005377a0	x	ac2-script glue::math / glue::missile
@@ -2933,6 +2937,10 @@ key	status	note
 0054b120	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0054b190	~	ac2-script glue: f32 spill points unchecked against x87 / copy order of PHashTable operator= unverified
 0054b280	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+0054c700	x	ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
+0054c760	x	ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
+0054c840	x	ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
+0054c8b0	x	ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
 0054c960	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 0054c9d0	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 0054cc40	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
@@ -4003,19 +4011,19 @@ key	status	note
 005aae80	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
 005acd10	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005acea0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
-005acee0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+005acee0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; no tooltips
 005acf60	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005ad2f0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005ad330	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
-005ad8e0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+005ad8e0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; no tooltips
 005adcd0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005add60	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005addb0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005adf30	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005ae030	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005ae130	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
-005ae180	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
-005ae370	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+005ae180	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; no tooltips
+005ae370	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; no tooltips
 005ae960	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
 005af390	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005af9c0	~	A8R8G8B8 only; colour key and format conversion not modelled
@@ -4419,6 +4427,7 @@ key	status	note
 00600d60	x	ac2-ui pregame/chargen.rs over CharGenSystem (client: ScriptCharGen on the CharacterGenSystem script)
 00600d90	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600dc0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+00600df0	x	ac2-script host/chargen.rs applied_appearance (mask -1, the screens call); ac2-ui avatars and modification hold it; ac2-client content.rs and ui_scene take it as the figure local
 00600e20	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600e40	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00600e70	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -4686,10 +4695,13 @@ key	status	note
 0063db70	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
 0063ddb0	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
 0063dea0	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
+0063e0d0	x	ac2-weenie Appearance default (Clear)
 0063e170	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
+0063e370	~	ac2-weenie Appearance::add_appearance_key: global and held groups; MakeLocalPGDDFromParent (the parent DAT copy) not modelled
 0063e460	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
 0063ee10	x	ac2-weenie Appearance::from_delta
 0063ee40	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
+0063eee0	~	ac2-weenie Appearance::add_appearance_key: global and held groups; MakeLocalPGDDFromParent (the parent DAT copy) not modelled
 0063f6c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 0063f880	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 0063f930	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
@@ -4703,6 +4715,8 @@ key	status	note
 00641530	x	
 00641ea0	x	
 00641fa0	x	
+00641fc0	x	ac2-script native AppliedAppearanceKey (plain data)
+00641fe0	x	ac2-script native AppliedAppearanceKey (plain data)
 006424f0	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 00642550	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 006425c0	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)

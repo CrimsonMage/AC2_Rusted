@@ -1,9 +1,9 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1347 done, 106 partial, 935 to do, 80 skipped.
+2468 retail functions: 1355 done, 106 partial, 927 to do, 80 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
+## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
 
 ### Position
 - [ ] `Position::operator=` · 0046ad40 · legions 0046b420
@@ -34,7 +34,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCharacterGenSystem::CallIFun_FormatNameString` · 0046b480 · legions 0046bbe0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gCharacterGenSystem::CallIFun_GetPhysObj` · 0046b6d0 · legions 0046be30 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gCharacterGenSystem::CallIFun_InqAdminAvatarEntityDID` · 0046b800 · legions 0046bf60 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-- [ ] `gCharacterGenSystem::CallIFun_InqAppliedAppearanceVDesc` · 0046b960 · legions 0046c0c0
+- [x] `gCharacterGenSystem::CallIFun_InqAppliedAppearanceVDesc` · 0046b960 · legions 0046c0c0 — ac2-script host/chargen.rs applied_appearance over the CharacterGenSystem script
 - [x] `gCharacterGenSystem::CallIFun_InqPhysTypeLabel` · 0046bb90 · legions 0046c2f0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gCharacterGenSystem::CallIFun_InqPlayerAvatarEntityDID` · 0046bdb0 · legions 0046c510 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gCharacterGenSystem::CallIFun_InqRaceSexData` · 0046bf10 · legions 0046c670 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -1335,14 +1335,14 @@ Legend and workflow: [README](README.md).
 ### gAppInfoHash
 - [ ] `gAppInfoHash::CallEFun_num_elements` · 0054cb60
 
-## `portal/shared/src/interp/glue/gappliedappearancekey.cpp.c` (0/5)
+## `portal/shared/src/interp/glue/gappliedappearancekey.cpp.c` (4/5)
 
 ### gAppliedAppearanceKey
-- [ ] `gAppliedAppearanceKey::CallEFun_SetAppKey` · 0054c700
-- [ ] `gAppliedAppearanceKey::CallEFun_SetMod` · 0054c760
+- [x] `gAppliedAppearanceKey::CallEFun_SetAppKey` · 0054c700 — ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
+- [x] `gAppliedAppearanceKey::CallEFun_SetMod` · 0054c760 — ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
 - [ ] `gAppliedAppearanceKey::CallEFun_FromFileNode` · 0054c7c0
-- [ ] `gAppliedAppearanceKey::CallEFun_GetAppKey` · 0054c840
-- [ ] `gAppliedAppearanceKey::CallEFun_GetMod` · 0054c8b0
+- [x] `gAppliedAppearanceKey::CallEFun_GetAppKey` · 0054c840 — ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
+- [x] `gAppliedAppearanceKey::CallEFun_GetMod` · 0054c8b0 — ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
 
 ## `portal/shared/src/interp/glue/garhash.cpp.c` (20/20)
 
@@ -3162,13 +3162,13 @@ Legend and workflow: [README](README.md).
 - [x] `gVector::CallEFun_Cross` · 00537cd0 — ac2-script glue::math / glue::missile
 - [x] `gVector::CallEFun_GetStringW` · 00537db0 — ac2-script glue::math / glue::missile
 
-## `portal/shared/src/interp/glue/gvisualdesc.cpp.c` (0/13)
+## `portal/shared/src/interp/glue/gvisualdesc.cpp.c` (3/13)
 
 ### gVisualDesc
-- [ ] `gVisualDesc::CallEFun_Clear` · 00537020
-- [ ] `gVisualDesc::CallEFun_SetScale` · 00537080
+- [x] `gVisualDesc::CallEFun_Clear` · 00537020 — ac2-script glue/visual_desc.rs over ac2-weenie Appearance
+- [x] `gVisualDesc::CallEFun_SetScale` · 00537080 — ac2-script glue/visual_desc.rs over ac2-weenie Appearance
 - [ ] `gVisualDesc::CallEFun_AddAppInfoHashToPartGroup` · 005370f0
-- [ ] `gVisualDesc::CallEFun_AddAppearanceKey` · 00537170
+- [x] `gVisualDesc::CallEFun_AddAppearanceKey` · 00537170 — ac2-script glue/visual_desc.rs over ac2-weenie Appearance
 - [ ] `gVisualDesc::CallEFun_ApplyAdditiveVDesc` · 005371f0
 - [ ] `gVisualDesc::CallEFun_ApplySubtractiveVDesc` · 00537270
 - [ ] `gVisualDesc::CallEFun_Empty` · 005372f0

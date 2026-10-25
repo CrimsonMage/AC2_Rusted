@@ -2,7 +2,8 @@
 //! `PartGroupDataDesc` in `StreamPack` order, `CreateObject` with a full visual description,
 //! `UpdateVisualDesc` (`0x1009F`), the quality updates and `Contain` (`0x100CB`).
 
-use ac2_net::protocol::{PartGroupDesc, VisualDesc};
+use ac2_net::protocol::{IconLayer, PartGroupDesc, VisualDesc};
+use ac2_weenie::{Appearance, PartGroupAppearance};
 
 use crate::{words, ObjectSpawn};
 
@@ -122,6 +123,52 @@ pub fn visual_desc_bytes(d: &VisualDesc) -> Vec<u8> {
         }
     }
     b
+}
+
+/// A local appearance (`CPhysicsObj`'s `m_local_vdesc`) as the `VisualDesc` a server sends:
+/// the parent, the scales and icon layers, the global and the part-group modifications. The
+/// server computes it from a character's creation result (`gmCharGenResult::InqAppliedAppearanceVDesc`).
+pub fn appearance_visual(appearance: &Appearance) -> VisualDesc {
+    let did = |value: u32| (value != 0).then_some(value);
+    VisualDesc {
+        parent: did(appearance.parent),
+        motion_interp: did(appearance.motion_interp),
+        behavior_table: did(appearance.behavior_table),
+        modes: did(appearance.modes),
+        scale: Some(appearance.scale),
+        child_scale: Some(appearance.child_scale),
+        particle_scale: Some(appearance.particle_scale),
+        icon: appearance
+            .icon
+            .iter()
+            .map(|&(layer, image, color)| IconLayer {
+                layer,
+                image,
+                color,
+            })
+            .collect(),
+        global_mods: Some(part_group(&appearance.global)),
+        part_groups: appearance
+            .part_groups
+            .iter()
+            .map(|group| (group.key, part_group(group)))
+            .collect(),
+        ..VisualDesc::default()
+    }
+}
+
+fn part_group(group: &PartGroupAppearance) -> PartGroupDesc {
+    PartGroupDesc {
+        key: group.key,
+        parent_key: group.parent_key,
+        connection_point: group.connection_point,
+        setup: group.setup,
+        anim_map: group.anim_map,
+        appearance: group.appearance.clone(),
+        fx_table: group.fx_table,
+        startup_fx: group.startup_fx.clone(),
+        ..PartGroupDesc::default()
+    }
 }
 
 /// `CreateObject` with `visual` as its `VisualDesc` (the spawn's `visual` field is ignored).

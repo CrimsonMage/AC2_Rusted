@@ -10,6 +10,7 @@ use ac2_script::data::{DB_TYPE_DID_MAPPER, DB_TYPE_ENUM_MAPPER, EMAPPER_GROUP};
 use ac2_script::host::{chargen, ScriptHost};
 use ac2_script::native::CharGenResult as ScriptCgr;
 use ac2_ui::pregame::CharGenSystem;
+use ac2_weenie::Appearance;
 
 use crate::chat_text::render_info;
 
@@ -132,6 +133,12 @@ impl CharGenSystem for ScriptCharGen {
 
     fn avatar_entity_did(&mut self, admin: bool) -> u32 {
         chargen::avatar_entity_did(self.host.vm_mut(), admin).unwrap_or(0)
+    }
+
+    fn applied_appearance(&mut self, cgr: &CharGenResult) -> Option<Appearance> {
+        let script = to_script(cgr);
+        chargen::applied_appearance(self.host.vm_mut(), Appearance::default(), &script, u32::MAX)
+            .map(|(_, appearance)| appearance)
     }
 
     fn enum_string(&mut self, mapper: u32, value: u32) -> Option<String> {

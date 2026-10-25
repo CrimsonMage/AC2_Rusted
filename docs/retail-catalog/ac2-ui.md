@@ -2315,7 +2315,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIScene::DeleteEntity` · 005acdd0 · legions 00578d30
 - [ ] `UIScene::DeleteAllEntities` · 005ace50 · legions 00578db0
 - [x] `UIScene::StartSelection` · 005acea0 · legions 00578e00 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
-- [~] `UIScene::Think` · 005acee0 · legions 00578e40 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+- [~] `UIScene::Think` · 005acee0 · legions 00578e40 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; no tooltips
 - [ ] `UIScene::Destroy` · 005acf10 · legions 00578e70
 - [ ] `UIScene::Cleanup` · 005acf50
 - [x] `UIScene::StreamPack` · 005acf60 · legions 00578ec0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
@@ -2339,7 +2339,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIScene::Init` · 005ad410 · legions 00579320
 - [-] `UIScene::FromFileNode` · 005ad450 — text source format (admin tools)
 - [-] `UIScene::ToFileNode` · 005ad820 — text source format (admin tools)
-- [~] `UIScene::Render` · 005ad8e0 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+- [~] `UIScene::Render` · 005ad8e0 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; no tooltips
 
 ## `portal/client/src/render/ui/uiscenecameraentity.cpp.c` (1/3)
 
@@ -2372,12 +2372,12 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/render/ui/uiscenemanager.cpp.c` (0/7)
 
 ### UISceneManager
-- [~] `UISceneManager::UseTime` · 005ae180 · legions 00579c20 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+- [~] `UISceneManager::UseTime` · 005ae180 · legions 00579c20 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; no tooltips
 - [ ] `UISceneManager::ReleaseUIScene` · 005ae1b0 · legions 00579c50
 - [ ] `UISceneManager::Cleanup` · 005ae240 · legions 00579ce0
 - [ ] `UISceneManager::FreeID` · 005ae290 · legions 00579d30
 - [ ] `UISceneManager::Init` · 005ae2c0 · legions 00579d60
-- [~] `UISceneManager::GetUIScene` · 005ae370 · legions 00579e10 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+- [~] `UISceneManager::GetUIScene` · 005ae370 · legions 00579e10 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; no tooltips
 - [ ] `UISceneManager::GetFreeID` · 005ae420 · legions 00579ec0
 
 ## `portal/client/src/render/ui/uiscenephysobjentity.cpp.c` (6/13)

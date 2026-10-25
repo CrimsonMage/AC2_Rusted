@@ -356,6 +356,13 @@ impl CharGenSystem for Stub {
     fn avatar_entity_did(&mut self, _: bool) -> u32 {
         0x4700_0001
     }
+    fn applied_appearance(
+        &mut self,
+        _: &ac2_net::protocol::CharGenResult,
+    ) -> Option<ac2_weenie::Appearance> {
+        None
+    }
+
     fn enum_string(&mut self, mapper: u32, value: u32) -> Option<String> {
         match (mapper, value) {
             (RACE_NAMES, 0x10) => Some("Empyrean".into()),

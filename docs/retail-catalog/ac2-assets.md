@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 73 done, 11 partial, 579 to do, 122 skipped.
+785 retail functions: 76 done, 13 partial, 574 to do, 122 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (13/62)
@@ -919,11 +919,11 @@ Legend and workflow: [README](README.md).
 - [ ] `AppearanceTableAdaptor::InqTsysAppearanceKeyModCount` · 0064ab50 · legions 005fa1e0
 - [ ] `AppearanceTableAdaptor::InqAppearanceKeyModList` · 0064abc0
 
-## `portal/shared/src/objdesc/appearance/appliedappearancekey.cpp.c` (0/7)
+## `portal/shared/src/objdesc/appearance/appliedappearancekey.cpp.c` (2/7)
 
 ### AppliedAppearanceKey
-- [ ] `AppliedAppearanceKey::AppliedAppearanceKey` · 00641fc0 · legions 005f57c0
-- [ ] `AppliedAppearanceKey::operator=` · 00641fe0 · legions 005f57e0
+- [x] `AppliedAppearanceKey::AppliedAppearanceKey` · 00641fc0 · legions 005f57c0 — ac2-script native AppliedAppearanceKey (plain data)
+- [x] `AppliedAppearanceKey::operator=` · 00641fe0 · legions 005f57e0 — ac2-script native AppliedAppearanceKey (plain data)
 
 ### CAmbientSoundInfo
 - [ ] `CAmbientSoundInfo::operator==` · 00642000 · legions 005f5800
@@ -1214,7 +1214,7 @@ Legend and workflow: [README](README.md).
 - [x] `PhysicsDesc::StreamPack` · 00641530
 - [ ] `PhysicsDesc::PhysicsDesc` · 00641c70 · legions 005f5470
 
-## `portal/shared/src/objdesc/visualdesc.cpp.c` (12/58)
+## `portal/shared/src/objdesc/visualdesc.cpp.c` (13/58)
 
 ### VisualDesc
 - [ ] `VisualDesc::FillFXTable` · 0063c910 · legions 005f1440
@@ -1254,10 +1254,10 @@ Legend and workflow: [README](README.md).
 - [ ] `VisualDesc::RemovePGDDRecursively` · 0063dd40 · legions 005f2310
 - [x] `VisualDesc::RecursiveAdditivePGDDMerge` · 0063ddb0 · legions 005f2380 — ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
 - [x] `VisualDesc::ApplyAdditiveVDesc` · 0063dea0 · legions 005f2470 — ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
-- [ ] `VisualDesc::Clear` · 0063e0d0 · legions 005f26a0
+- [x] `VisualDesc::Clear` · 0063e0d0 · legions 005f26a0 — ac2-weenie Appearance default (Clear)
 - [x] `VisualDesc::AddPGDDesc` · 0063e170 · legions 005f2740 — ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
 - [ ] `VisualDesc::MakeLocalPGDDFromParent` · 0063e1d0 · legions 005f27ba
-- [ ] `VisualDesc::AddAppearanceKey` · 0063e370 · legions 005f2920
+- [~] `VisualDesc::AddAppearanceKey` · 0063e370 · legions 005f2920 — ac2-weenie Appearance::add_appearance_key: global and held groups; MakeLocalPGDDFromParent (the parent DAT copy) not modelled
 - [ ] `VisualDesc::AddAppInfoHashToPartGroup` · 0063e3e0 · legions 005f2990
 - [x] `VisualDesc::ApplyAdditiveVDesc` · 0063e460 · legions 005f2a10 — ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
 - [-] `VisualDesc::FromFileNode` · 0063e4c0 — text source format (admin tools)
@@ -1272,7 +1272,7 @@ Legend and workflow: [README](README.md).
 - [ ] `VisualDesc::~VisualDesc` · 0063ed80 · legions 005f2d00
 - [x] `VisualDesc::operator=` · 0063ee10 · legions 005f2d90 — ac2-weenie Appearance::from_delta
 - [x] `VisualDesc::GetTotalVisualDescInternal` · 0063ee40 · legions 005f2dc0 — ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
-- [ ] `VisualDesc::AddAppearanceKey` · 0063eee0 · legions 005f2e30
+- [~] `VisualDesc::AddAppearanceKey` · 0063eee0 · legions 005f2e30 — ac2-weenie Appearance::add_appearance_key: global and held groups; MakeLocalPGDDFromParent (the parent DAT copy) not modelled
 - [ ] `VisualDesc::RemoveAppearanceKey` · 0063ef40 · legions 005f2e90
 - [ ] `VisualDesc::AttemptToRemoveVDesc` · 0063f070 · legions 005f2fa0
 - [ ] `VisualDesc::ReplaceVisualDesc` · 0063f250 · legions 005f3180

@@ -31,9 +31,23 @@ pub fn create_object_bytes(object: &ObjectSpawn) -> Vec<u8> {
 /// [`create_object_bytes`] with the weenie's script package (`gmWeenieDesc` bit 1, the
 /// `CWDistributor::Construct` package) when `package` is not 0.
 pub fn weenie_object_bytes(object: &ObjectSpawn, package: u32) -> Vec<u8> {
+    let mut visual = Vec::new();
+    words(&mut visual, &[2, object.visual]);
+    weenie_object_with(object, &visual, package, object.name)
+}
+
+/// [`weenie_object_bytes`] with the `VisualDesc` bytes given and the weenie's name (the spawn's
+/// `visual` and `name` fields are not used).
+pub fn weenie_object_with(
+    object: &ObjectSpawn,
+    visual: &[u8],
+    package: u32,
+    name: &str,
+) -> Vec<u8> {
     let mut b = 0x0001_0058u32.to_le_bytes().to_vec();
     b.extend(object.id.to_le_bytes());
-    words(&mut b, &[2, object.visual, 0x8000]);
+    b.extend(visual);
+    words(&mut b, &[0x8000]);
     b.extend(object.instance.to_le_bytes());
     b.extend(0u16.to_le_bytes());
     words(&mut b, &[object.cell]);
@@ -43,13 +57,13 @@ pub fn weenie_object_bytes(object: &ObjectSpawn, package: u32) -> Vec<u8> {
     for stamp in object.stamps {
         b.extend(stamp.to_le_bytes());
     }
-    let mask = u32::from(package != 0) | if object.name.is_empty() { 0 } else { 4 };
+    let mask = u32::from(package != 0) | if name.is_empty() { 0 } else { 4 };
     words(&mut b, &[mask]);
     if package != 0 {
         words(&mut b, &[package]);
     }
-    if !object.name.is_empty() {
-        b.extend(ac2_net::protocol::StringInfo::literal(object.name).to_bytes());
+    if !name.is_empty() {
+        b.extend(ac2_net::protocol::StringInfo::literal(name).to_bytes());
     }
     b
 }

@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 140 done, 15 partial, 334 to do, 10 skipped.
+499 retail functions: 141 done, 15 partial, 333 to do, 10 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -97,7 +97,7 @@ Legend and workflow: [README](README.md).
 - [x] `GameplayOptionsProfile::GameplayOptionsProfile` · 006009e0 · legions 005c1860 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `GameplayOptionsProfile::GameplayOptionsProfile` · 00600b40 · legions 005c19e0 — ac2-script glue::options / examination (Legions layout and efun switch)
 
-## `ac2/shared/src/character/gmchargenresult.cpp.c` (23/26)
+## `ac2/shared/src/character/gmchargenresult.cpp.c` (24/26)
 
 ### gmCharGenResult
 - [x] `gmCharGenResult::InqValidPhysTypeValues` · 00600cb0 · legions 005c1b70 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -106,7 +106,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCharGenResult::InitDefaults` · 00600d60 — ac2-ui pregame/chargen.rs over CharGenSystem (client: ScriptCharGen on the CharacterGenSystem script)
 - [x] `gmCharGenResult::Randomize` · 00600d90 · legions 005c1c20 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmCharGenResult::GetPhysObj` · 00600dc0 · legions 005c1c50 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-- [ ] `gmCharGenResult::InqAppliedAppearanceVDesc` · 00600df0 · legions 005c1c80
+- [x] `gmCharGenResult::InqAppliedAppearanceVDesc` · 00600df0 · legions 005c1c80 — ac2-script host/chargen.rs applied_appearance (mask -1, the screens call); ac2-ui avatars and modification hold it; ac2-client content.rs and ui_scene take it as the figure local
 - [x] `gmCharGenResult::SetAdmin` · 00600e20 · legions 005c1cb0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmCharGenResult::IsAdmin` · 00600e40 · legions 005c1cd0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `gmCharGenResult::FormatName` · 00600e70 · legions 005c1d00 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)

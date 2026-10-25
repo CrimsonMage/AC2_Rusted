@@ -13,6 +13,7 @@
 //! Not modelled yet: the tooltip and the music.
 
 use ac2_net::protocol::GmRaceSexInfo;
+use ac2_weenie::Appearance;
 
 use crate::dialog::DIALOG_WAIT;
 use crate::mouse::UiMessage;
@@ -25,7 +26,7 @@ use crate::token::{
 
 /// One race and sex's avatar (its physics object, appearance and held objects come from its
 /// result and race/sex info).
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Avatar {
     pub race: u32,
     pub sex: u32,
@@ -38,6 +39,9 @@ pub struct Avatar {
     pub location: Option<u32>,
     /// `RaceDescField`'s state naming it (`Tokenize(lowercase race + sex)`).
     pub state: u32,
+    /// `gmCharGenResult::InqAppliedAppearanceVDesc` of the race and sex's result, applied to
+    /// the avatar (`InitEntities`).
+    pub appearance: Option<Appearance>,
 }
 
 /// `gmAvatarSelectionUI`'s state.
@@ -125,7 +129,13 @@ impl AvatarSelectionUi {
                 }
                 let sex_name = ctx.system.enum_string(SEX_NAMES, sex).unwrap_or_default();
                 let name = format!("{race_name}{sex_name}");
+                let appearance = ctx
+                    .data
+                    .char_gen_result(key)
+                    .cloned()
+                    .and_then(|cgr| ctx.system.applied_appearance(&cgr));
                 self.avatars.push(Avatar {
+                    appearance,
                     race: *race,
                     sex,
                     phys_obj,

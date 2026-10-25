@@ -14,6 +14,7 @@ mod shortcut;
 pub mod social;
 mod string_info;
 mod structs;
+mod visual;
 
 /// `Position` (cell id, origin, rotation w x y z).
 pub use ac2_net::protocol::Position;
@@ -34,6 +35,7 @@ pub use structs::{
     behavior_defaults, behavior_pack_bitfield, BehaviorParams, MissileParameters,
     RandomSelectionTable,
 };
+pub use visual::AppliedAppearanceKey;
 
 /// Native type ids (`CNativeFactory` 0x01-0x76 and the 0x2Exx-0x38xx extensions,
 /// `gmCNativeFactory` 0x82-0xAF).
@@ -58,6 +60,10 @@ pub mod ntype {
     pub const NR_HASH: u32 = 0x4D;
     pub const HEADING: u32 = 0x2D;
     pub const CHAR_GEN_RESULT: u32 = 0x9E;
+    /// `VisualDesc` (`CNativeFactory` 0x71): the appearance a script builds (`gVisualDesc`).
+    pub const VISUAL_DESC: u32 = 0x71;
+    /// `AppliedAppearanceKey` (`CNativeFactory` 0x10).
+    pub const APPLIED_APPEARANCE_KEY: u32 = 0x10;
     pub const PACK_BUFFER: u32 = 0x50;
     pub const POSITION: u32 = 0x5A;
     pub const RANDOM_SELECTION_TABLE_INT: u32 = 0x60;
@@ -164,6 +170,10 @@ pub enum NativeObject {
     WString(Vec<u16>),
     /// `gmCharGenResult`.
     CharGenResult(Box<CharGenResult>),
+    /// `VisualDesc`: the appearance a script edits (`gVisualDesc`'s efuns).
+    VisualDesc(Box<ac2_weenie::Appearance>),
+    /// `AppliedAppearanceKey` (native 0x10): one applied key of a description.
+    AppliedKey(AppliedAppearanceKey),
     /// `Heading` (degrees in [0, 360)).
     Heading(ac2_physics::Heading),
     /// `Vector` (x, y, z).
@@ -278,6 +288,10 @@ impl NativeObject {
             ntype::PACK_BUFFER => NativeObject::PackBuffer(Default::default()),
             ntype::HEADING => NativeObject::Heading(ac2_physics::Heading::ZERO),
             ntype::CHAR_GEN_RESULT => NativeObject::CharGenResult(Box::default()),
+            ntype::VISUAL_DESC => NativeObject::VisualDesc(Box::default()),
+            ntype::APPLIED_APPEARANCE_KEY => {
+                NativeObject::AppliedKey(AppliedAppearanceKey::default())
+            }
             ntype::GM_RACE_SEX_INFO => NativeObject::Wire(Box::new(
                 ac2_net::protocol::NativeObject::GmRaceSexInfo(crate::glue::empty_race_sex_info()),
             )),

@@ -452,6 +452,43 @@ fn new_natives_pack_the_reserved_bit() {
 }
 
 /// The `CharacterGenSystem` singleton answers the creation screens' questions from its WState.
+/// `CallIFun_InqAppliedAppearanceVDesc(0xFFFFFFFF, cgr)`: the defaults for a race and sex apply
+/// a scale and the physique tables' keys to the global group (the appearance the screens show);
+/// a description written onto keeps its parent.
+#[test]
+fn the_applied_appearance_follows_the_physique_values() {
+    use crate::host::chargen;
+    use crate::native::CharGenResult;
+    let Some(mut host) = legions_host() else {
+        return;
+    };
+    let vm = host.vm_mut();
+    let (_, races) = chargen::race_sex_data(vm).expect("race/sex data");
+    let (race, sexes) = races.first().cloned().expect("a race");
+    let mut cgr = CharGenResult {
+        race,
+        sex: sexes[0],
+        ..CharGenResult::default()
+    };
+    chargen::set_defaults(vm, &mut cgr).expect("defaults");
+    let (ret, applied) =
+        chargen::applied_appearance(vm, ac2_weenie::Appearance::default(), &cgr, u32::MAX)
+            .expect("the applied appearance");
+    // The script's answer for the whole mask is not read by the screens.
+    let _ = ret;
+    assert_ne!(applied.scale, [1.0; 3]);
+    assert!(!applied.global.appearance.is_empty());
+    assert!(applied.part_groups.is_empty());
+    // The start appearance is the one written onto (`VisualDesc::VisualDesc(out)` copies it).
+    let start = ac2_weenie::Appearance {
+        parent: 0x1F00_0023,
+        ..ac2_weenie::Appearance::default()
+    };
+    let (_, from_start) = chargen::applied_appearance(vm, start, &cgr, u32::MAX).unwrap();
+    assert_eq!(from_start.parent, 0x1F00_0023);
+    assert_eq!(from_start.scale, applied.scale);
+}
+
 #[test]
 fn the_character_gen_system_answers_from_its_state() {
     use crate::host::chargen;

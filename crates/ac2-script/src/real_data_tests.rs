@@ -152,6 +152,8 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::Vector(_) => "Vector",
         NativeObject::Heading(_) => "Heading",
         NativeObject::CharGenResult(_) => "gmCharGenResult",
+        NativeObject::VisualDesc(_) => "VisualDesc",
+        NativeObject::AppliedKey(_) => "AppliedAppearanceKey",
         NativeObject::Position(_) => "Position",
         NativeObject::MissileParameters(_) => "MissileParameters",
         NativeObject::BehaviorParams(_) => "BehaviorParams",

@@ -18,6 +18,7 @@ use ac2_ui::pregame::PregameUi;
 use ac2_ui::SceneViewport;
 use ac2_weenie::Appearance;
 
+use crate::appearance::local_visual_desc;
 use crate::ui_scene::{figure_key as key, scene_figures, At, Figure, SceneData};
 
 /// `AddPhysObjToArm`: figures hang from the arm's holding location 1.
@@ -49,7 +50,7 @@ pub(crate) fn figures(ui: &PregameUi, viewport: &SceneViewport, scene: &SceneDat
             out.push(Figure {
                 key: key(did, "avatar", i),
                 object: avatar.phys_obj,
-                local: None,
+                local: avatar.appearance.as_ref().map(local_visual_desc),
                 at: At::Held {
                     parent: land,
                     location,
@@ -77,7 +78,7 @@ pub(crate) fn figures(ui: &PregameUi, viewport: &SceneViewport, scene: &SceneDat
             out.push(Figure {
                 key: key(did, "avatar", 0),
                 object: modification.phys_obj(),
-                local: None,
+                local: modification.applied().map(local_visual_desc),
                 at: At::Scene(Frame::IDENTITY, Vec3::ONE),
                 pick: None,
                 mode: Some(MODE_AVATAR_MODIFICATION),
