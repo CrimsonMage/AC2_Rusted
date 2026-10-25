@@ -2,9 +2,9 @@
 //! resident around the player's landblock, every in-world object with a visual drawn under its
 //! own appearance (`VisualDesc::GetTotalVisualDesc` of its local description) and posed by its
 //! animation (`CPartArray::UpdateBones` over `ObjectFrame.pose`), seen from the client's scene
-//! camera (`SceneCamera::mRenderPosition`) and lit by the region sky at the server time. All
-//! loading runs on the scene's loader thread; this only drains finished loads and lays out
-//! frames.
+//! camera (`SceneCamera::mRenderPosition`) and lit by the region sky at the server time, with the
+//! gameplay HUD over it (`hud_view.rs`). All loading runs on worker threads; this only drains
+//! finished loads and lays out frames.
 
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
@@ -20,6 +20,7 @@ use ac2_weenie::Appearance;
 use ac2_world::Ac2WorldSource;
 
 use crate::frame::ClientFrame;
+use crate::hud_view::HudView;
 use crate::motion::PartPose;
 
 /// Near and far planes of the drawn view.
@@ -40,6 +41,7 @@ struct Drawn<'a> {
 pub struct ClientView {
     scene: WorldScene,
     renderer: SceneRenderer,
+    hud: HudView,
     block_size: f32,
 }
 
@@ -85,18 +87,25 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
 }
 
 impl ClientView {
-    /// A view with a near ring of `radius` landblocks.
+    /// A view with a near ring of `radius` landblocks on a `size` (pixels) target.
     pub fn new(
         world: Arc<Ac2WorldSource>,
         gpu: &Gpu,
         format: wgpu::TextureFormat,
         radius: i32,
+        size: (u32, u32),
     ) -> Self {
         Self {
             block_size: world.block_size(),
+            hud: HudView::new(Arc::clone(world.resource_store()), gpu, format, size),
             scene: WorldScene::new(world, radius),
             renderer: SceneRenderer::new(gpu, format),
         }
+    }
+
+    /// The target changed size.
+    pub fn resize(&mut self, width: u32, height: u32) {
+        self.hud.resize(width, height);
     }
 
     /// A position relative to `cell`'s landblock, in the world.
@@ -137,10 +146,12 @@ impl ClientView {
         }
         let update = self.scene.poll(budget);
         self.renderer.apply(gpu, update);
+        self.hud.update(gpu);
     }
 
     /// Waits for every outstanding load (headless snapshots).
     pub fn settle(&mut self, gpu: &Gpu, frame: &ClientFrame, aspect: f32) {
+        self.hud.settle(gpu);
         let update = self.scene.wait();
         self.renderer.apply(gpu, update);
         if let Some(camera) = self.camera(frame) {
@@ -179,6 +190,7 @@ impl ClientView {
             .collect();
         self.renderer
             .prepare(gpu, &camera, aspect, time, scene_frame, objects);
+        self.hud.prepare(&gpu.queue);
         true
     }
 
@@ -194,8 +206,15 @@ impl ClientView {
             .count()
     }
 
-    /// Records the frame into a pass cleared to `SceneTool::backgroundColor` (black).
+    /// How many HUD surfaces are drawn.
+    pub fn hud_layers(&self) -> usize {
+        self.hud.layers()
+    }
+
+    /// Records the frame into a pass cleared to `SceneTool::backgroundColor` (black): the
+    /// world, then the HUD.
     pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
         self.renderer.draw(pass);
+        self.hud.draw(pass);
     }
 }

@@ -225,7 +225,13 @@ impl ApplicationHandler for App {
         };
         surface.configure(&gpu.device, &config);
         let depth = depth_view(&gpu.device, &config);
-        let view = ClientView::new(Arc::clone(&self.world), &gpu, format, self.radius);
+        let view = ClientView::new(
+            Arc::clone(&self.world),
+            &gpu,
+            format,
+            self.radius,
+            (config.width, config.height),
+        );
         self.state = Some(State {
             window,
             gpu,
@@ -257,6 +263,7 @@ impl ApplicationHandler for App {
                 state.config.height = size.height.max(1);
                 state.surface.configure(&state.gpu.device, &state.config);
                 state.depth = depth_view(&state.gpu.device, &state.config);
+                state.view.resize(state.config.width, state.config.height);
             }
             WindowEvent::Focused(focused) => {
                 let (_, now) = state.now();

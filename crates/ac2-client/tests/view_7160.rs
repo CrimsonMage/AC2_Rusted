@@ -17,7 +17,8 @@ use ac2_weenie::{CharacterChoice, OnlineConfig, OnlineSession};
 use legions_server_double::{addr, double, Spawn, SERVER};
 
 const STEP: f64 = 1.0 / 64.0;
-const SIZE: (u32, u32) = (640, 400);
+/// The smallest display retail ran at; the HUD layouts are authored for 1024 x 768.
+const SIZE: (u32, u32) = (800, 600);
 /// DirectInput's `DIK_W`.
 const DIK_W: u32 = 0x11;
 
@@ -204,7 +205,7 @@ fn the_client_walks_with_w_and_draws_its_character() {
 
     let frame = client.frame();
     let aspect = SIZE.0 as f32 / SIZE.1 as f32;
-    let mut view = ClientView::new(world, &gpu, COLOR_FORMAT, 1);
+    let mut view = ClientView::new(world, &gpu, COLOR_FORMAT, 1, SIZE);
     view.update(&gpu, &frame, Duration::ZERO);
     view.settle(&gpu, &frame, aspect);
     assert_eq!(
@@ -212,6 +213,7 @@ fn the_client_walks_with_w_and_draws_its_character() {
         1,
         "the player's character model loads"
     );
+    assert_eq!(view.hud_layers(), 7, "every HUD root is drawn");
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
     target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));

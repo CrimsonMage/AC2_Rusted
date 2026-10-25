@@ -5,7 +5,8 @@
 //! `gmSelectionUI` makes `ItemSelectionField` from it, `gmStatusbarUI` makes `StatusbarField`
 //! from the status bar layout (`0x4100000F`) and `gmToolbarUI` makes `ToolbarField`,
 //! `LeftSidePanel` and `RightSidePanel` from the toolbar layout (`0x41000003`), in that order.
-//! The other children (stack, trade, shop, book, pet, ...) open dialogs on demand and are left out.
+//! The other children (stack, trade, shop, book, pet, ...) open dialogs on demand and are left out,
+//! as are the toolbar's own children (`gmToolbarUI::SetupChildren`: chat, inventory, ...).
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -59,8 +60,18 @@ pub fn build_gameplay_hud(
         if !layouts.contains_key(&layout_enum) {
             layouts.insert(layout_enum, load_layout_by_enum(store, layout_enum)?);
         }
-        if let Some(layout) = &layouts[&layout_enum] {
-            tree.create_root(Arc::clone(layout), tokenize(name));
+        let Some(layout) = &layouts[&layout_enum] else {
+            continue;
+        };
+        let root = tree.create_root(Arc::clone(layout), tokenize(name));
+        if let (Some(root), "ToolbarField") = (root, name) {
+            // `gmToolbarUI::gmToolbarUI` hides the dismount and consignment buttons until a
+            // mount or a sale needs them.
+            for button in ["DismountButton", "ConsignmentsButton"] {
+                if let Some(button) = tree.child_recursive(root, tokenize(button)) {
+                    tree.set_visible(button, false);
+                }
+            }
         }
     }
     Ok(tree)

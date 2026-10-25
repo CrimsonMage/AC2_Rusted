@@ -14,6 +14,8 @@ mod client;
 mod client_objects;
 mod controls;
 mod frame;
+#[cfg(feature = "window")]
+mod hud_view;
 mod loader;
 mod motion;
 mod remote;

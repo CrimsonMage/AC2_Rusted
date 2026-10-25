@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 71 done, 26 partial, 2133 to do, 17 skipped.
+2247 retail functions: 72 done, 32 partial, 2126 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (1/53)
@@ -409,7 +409,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmRadarUI::Init` · 004262a0 · legions 00426090
 - [ ] `gmRadarUI::RecvNotice_ChangeRadarLook` · 004263a0
 - [ ] `gmRadarUI::ReloadOptions` · 00426400
-- [ ] `gmRadarUI::gmRadarUI` · 00426450 · legions 00426240
+- [~] `gmRadarUI::gmRadarUI` · 00426450 · legions 00426240 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [ ] `gmRadarUI::RecvNotice_ReloadOptions` · 00426710
 
 ## `ac2/client/src/ui/gameplay/gmsecuretradeui.cpp.c` (0/27)
@@ -476,7 +476,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmSelectionUI::Init` · 00423d20 · legions 00423af0
 - [ ] `gmSelectionUI::Select` · 00423da0
 - [ ] `gmSelectionUI::RecvNotice_Select` · 00424500
-- [ ] `gmSelectionUI::gmSelectionUI` · 00424510 · legions 004242e0
+- [~] `gmSelectionUI::gmSelectionUI` · 00424510 · legions 004242e0 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [ ] `gmSelectionUI::ListenToMessage` · 00424610 · legions 004243e0
 - [ ] `gmSelectionUI::RecvNotice_UpdateSelectability` · 00424670
 - [ ] `gmSelectionUI::RecvNotice_BeingDeleted` · 00424720
@@ -935,7 +935,7 @@ Legend and workflow: [README](README.md).
 ### gmStatusbarUI
 - [ ] `gmStatusbarUI::Show` · 004231b0 · legions 00422f80
 - [ ] `gmStatusbarUI::SetupChildren` · 00423210 · legions 00422fe0
-- [ ] `gmStatusbarUI::gmStatusbarUI` · 004232f0 · legions 004230c0
+- [~] `gmStatusbarUI::gmStatusbarUI` · 004232f0 · legions 004230c0 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 
 ## `ac2/client/src/ui/gameplay/statusbar/gmvitalsui.cpp.c` (0/6)
 
@@ -1186,7 +1186,7 @@ Legend and workflow: [README](README.md).
 ### gmToolbarUI
 - [ ] `gmToolbarUI::SetupChildren` · 00422550 · legions 00422320
 - [ ] `gmToolbarUI::CleanupChildren` · 00422f00 · legions 00422cd0
-- [ ] `gmToolbarUI::gmToolbarUI` · 00422f80 · legions 00422d50
+- [~] `gmToolbarUI::gmToolbarUI` · 00422f80 · legions 00422d50 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [ ] `gmToolbarUI::~gmToolbarUI` · 00423120 · legions 00422ef0
 
 ## `ac2/client/src/ui/gameplay/toolbar/inventory/gm3ditemsui.cpp.c` (0/14)
@@ -2444,10 +2444,10 @@ Legend and workflow: [README](README.md).
 - [ ] `UISurfaceObject::SetMaterialColor` · 005b2b60 · legions 00583020
 - [ ] `UISurfaceObject::SetMaterialOpacity` · 005b2bc0 · legions 00583080
 - [ ] `UISurfaceObject::SetMaterialFiltering` · 005b2c30 · legions 005830f0
-- [ ] `UISurfaceObject::Render` · 005b2c80 · legions 00583140
+- [~] `UISurfaceObject::Render` · 005b2c80 · legions 00583140 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [ ] `UISurfaceObject::GetLocalPosition` · 005b2dc0 · legions 00583280
 - [ ] `UISurfaceObject::SetRotateVals` · 005b2e10 · legions 005832d0
-- [ ] `UISurfaceObject::GenerateMaterial` · 005b2ea0 · legions 00583360
+- [~] `UISurfaceObject::GenerateMaterial` · 005b2ea0 · legions 00583360 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [ ] `UISurfaceObject::SetMaterial` · 005b3000 · legions 005834c0
 
 ## `portal/client/src/render/ui/uiviewportobject.cpp.c` (0/3)
@@ -2617,12 +2617,12 @@ Legend and workflow: [README](README.md).
 - [ ] `GamePlayUI::GamePlayUI` · 005fd9c0 · legions 005be4f0
 - [ ] `GamePlayUI::~GamePlayUI` · 005fda00 · legions 005be530
 
-## `portal/client/src/uielement/framework/uichildframework.cpp.c` (0/6)
+## `portal/client/src/uielement/framework/uichildframework.cpp.c` (1/6)
 
 ### UIChildFramework
 - [ ] `UIChildFramework::UIChildFramework` · 005fe110 · legions 005bec10
 - [ ] `UIChildFramework::~UIChildFramework` · 005fe140 · legions 005bec40
-- [ ] `UIChildFramework::CreateAndAddRootElement` · 005fe170 · legions 005bec70
+- [x] `UIChildFramework::CreateAndAddRootElement` · 005fe170 · legions 005bec70 — ac2-ui hud.rs
 - [ ] `UIChildFramework::RemoveRootElement` · 005fe190 · legions 005bec90
 - [ ] `UIChildFramework::GetUIFlow` · 005fe1a0 · legions 005beca0
 - [ ] `UIChildFramework::Shown` · 005fe1b0 · legions 005becb0
