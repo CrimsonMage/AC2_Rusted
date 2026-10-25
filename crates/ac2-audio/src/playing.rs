@@ -5,6 +5,7 @@
 use std::sync::Arc;
 
 use crate::data::{flags, MusicInfo, Pcm, SoundInfo};
+use crate::music_thread::SegmentKind;
 use crate::play_data::{Channel, LoopingMode, PlaySoundData, SoundType, Track};
 use crate::sink::{millibels, Boundary, SinkCommand, SoundSink, Spatial};
 
@@ -419,8 +420,18 @@ impl PlayingSound {
         }
     }
 
-    /// `OnSegmentEnded`.
-    fn on_segment_ended(&mut self) {
+    /// Whether this is a music voice, and its segment's kind: a primary segment when the
+    /// `MusicInfo` track says so (`Track_ForcePrimary`). `None` for a wave.
+    pub fn segment_kind(&self) -> Option<SegmentKind> {
+        match &self.source {
+            VoiceSource::Music { primary: true, .. } => Some(SegmentKind::Primary),
+            VoiceSource::Music { .. } => Some(SegmentKind::Secondary),
+            VoiceSource::Wave(_) => None,
+        }
+    }
+
+    /// `OnSegmentEnded`, as the music queue calls it back for this voice's segment.
+    pub(crate) fn on_segment_ended(&mut self) {
         self.has_voice = false;
         if (self.looping && self.lifetime == Lifetime::WaitingForEnd)
             || (!self.looping && self.lifetime != Lifetime::KeepAlive)

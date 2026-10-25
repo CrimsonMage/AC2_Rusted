@@ -95,3 +95,49 @@ fn the_reticle_meters_show_the_selected_creatures_health() {
     let vigor = goal(tree, find(tree, "SelectionVigorMeter")).unwrap();
     assert!(vigor == 1.0 || vigor == 0.0, "{vigor}");
 }
+
+#[test]
+fn the_effect_strip_orders_effects_by_expiry_and_runs_their_meters() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let tree = &mut hud.tree;
+    let strip = hud.effects.as_mut().expect("the effect strip");
+    let effect = |eid, time_cast, duration, pulsed| crate::EffectEntry {
+        eid,
+        name: format!("effect {eid}"),
+        icon: 0x0600_2000 + eid,
+        time_cast,
+        duration,
+        pulsed,
+    };
+    // A long timed effect, a short one, and a pulsed one without a duration.
+    let effects = [
+        effect(1, 100.0, 600.0, false),
+        effect(2, 100.0, 60.0, false),
+        effect(3, -1.0, -1.0, true),
+    ];
+    // The meter's animation runs on the tree's clock, which the frame's global loop sets.
+    tree.global_loop(130.0);
+    strip.init(tree, &effects, 130.0);
+    assert_eq!(strip.shown(tree), vec![2, 1, 3]);
+    let short = strip.element(tree, 2).unwrap();
+    assert_eq!(tree.get(short).unwrap().state(), tokenize("active"));
+    assert_eq!(tree.tooltip_text(short).as_deref(), Some("effect 2"));
+    let meter = tree
+        .child_recursive(short, tokenize("EffectTimeMeter"))
+        .unwrap();
+    // Half of the short effect is left: the meter starts there and runs down.
+    let position = |tree: &UiTree| match tree.get(meter).unwrap().attribute(tokenize("position")) {
+        Some(AttributeValue::Float(v)) => *v,
+        _ => -1.0,
+    };
+    assert_eq!(position(tree), 0.5);
+    tree.global_loop(145.0);
+    assert!((position(tree) - 0.25).abs() < 1e-3, "{}", position(tree));
+    // An effect that ended leaves the strip.
+    strip.init(tree, &effects[..2], 140.0);
+    assert_eq!(strip.shown(tree), vec![2, 1]);
+}

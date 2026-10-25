@@ -1,5 +1,5 @@
-//! The pregame screens' 3D viewports. A `UIElement_Viewport` root names the `UIScene` it shows
-//! (`uiscene`, `SetAttribute_DataID`) and the scene's camera entity (`camera`,
+//! The UI's 3D viewports (the pregame screens'). A `UIElement_Viewport` root names the `UIScene`
+//! it shows (`uiscene`, `SetAttribute_DataID`) and the scene's camera entity (`camera`,
 //! `SetAttribute_ASCII`, mapped through `EnumMapper` 0x4000002E to the entity id in
 //! `SetCameraID`); its surface object (`UIViewportObject::Render`) sets the device viewport to
 //! the element's rectangle, renders the scene (`UIScene::Render`) and restores the viewport, in
@@ -28,7 +28,7 @@ pub struct SceneViewport {
 }
 
 /// Every composed root that shows a scene, in the order [`UiTree::compose`] draws the roots.
-pub(crate) fn viewports(tree: &UiTree) -> Vec<SceneViewport> {
+pub fn scene_viewports(tree: &UiTree) -> Vec<SceneViewport> {
     let (uiscene, camera) = (tokenize("uiscene"), tokenize("camera"));
     tree.composed_roots()
         .filter_map(|root| {

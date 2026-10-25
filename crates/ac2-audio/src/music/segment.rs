@@ -270,7 +270,8 @@ fn track_data(class: Guid, track: &Chunk<'_>) -> TrackData {
             .collect();
         return TrackData::Styles(styles);
     }
-    if let Some(lbdl) = list(b"lbdl") {
+    // The band track is a `RIFF 'DMBT'` whose `lbdl` list holds the band items.
+    if let Some(lbdl) = list(b"lbdl").or_else(|| list(b"DMBT").and_then(|b| b.list(b"lbdl"))) {
         let bands = lbdl
             .children()
             .filter(|c| c.is_list(b"lbnd"))

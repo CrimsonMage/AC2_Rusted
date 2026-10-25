@@ -74,6 +74,7 @@ pub fn load_water_model(
             }],
             slot: (0, 0),
             skin: None,
+            mesh_type: 0,
         }],
         skeleton: None,
     }))

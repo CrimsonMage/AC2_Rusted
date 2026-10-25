@@ -232,25 +232,28 @@ impl UiTree {
         let roots: Vec<usize> = self.composed_roots().collect();
         roots
             .into_iter()
-            .map(|root| {
-                let el = self.el(root);
-                let (width, height) = (el.rect.width(), el.rect.height());
-                let (x, y) = el.object.unwrap_or((0, 0));
-                let mut surface = UiSurface {
-                    root,
-                    x,
-                    y,
-                    width: width as u32,
-                    height: height as u32,
-                    rotation: el.rotation,
-                    shown: el.shown,
-                    opacity: el.opacity,
-                    rgba: vec![0; width as usize * height as usize * 4],
-                };
-                let bounds = surface.bounds();
-                self.draw_here(root, (0, 0), bounds, images, &mut surface);
-                surface
-            })
+            .map(|root| self.compose_root(root, images))
             .collect()
+    }
+
+    /// One root drawn into its surface (`UIRegion::ForceDraw` of a root).
+    pub fn compose_root(&mut self, root: usize, images: &HashMap<u32, UiPixels>) -> UiSurface {
+        let el = self.el(root);
+        let (width, height) = (el.rect.width(), el.rect.height());
+        let (x, y) = el.object.unwrap_or((0, 0));
+        let mut surface = UiSurface {
+            root,
+            x,
+            y,
+            width: width as u32,
+            height: height as u32,
+            rotation: el.rotation,
+            shown: el.shown,
+            opacity: el.opacity,
+            rgba: vec![0; width as usize * height as usize * 4],
+        };
+        let bounds = surface.bounds();
+        self.draw_here(root, (0, 0), bounds, images, &mut surface);
+        surface
     }
 }

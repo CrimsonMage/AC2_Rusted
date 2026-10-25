@@ -9,6 +9,8 @@ use std::time::Duration;
 
 use crate::data::{flags, sound_db_type, LoadedSound, SoundSource};
 use crate::loader::SoundLoader;
+use crate::music::performance::EventSink;
+use crate::music_thread::{MusicHandler, MusicThread, SegmentInfo};
 use crate::play_data::{Channel, PlaySoundData, SoundType};
 use crate::playing::{DeviceState, Emitter, PlayingSound};
 use crate::sink::{SinkCommand, SoundSink};
@@ -78,6 +80,8 @@ pub struct SoundManager {
     groove: (i32, i32),
     /// The device's channel volumes and state, and `Timer::local_time`.
     device: DeviceState,
+    /// `DXMusicMessageThread`: the music segments the music voices play.
+    music: MusicThread,
 }
 
 impl SoundManager {
@@ -106,6 +110,7 @@ impl SoundManager {
                 volumes: [1.0; 4],
                 now: 0.0,
             },
+            music: MusicThread::new(),
         }
     }
 
@@ -188,10 +193,25 @@ impl SoundManager {
                 *length,
                 self.device.now,
             ),
-            LoadedSound::Music(info) => {
+            LoadedSound::Music { info, .. } => {
                 PlayingSound::from_music(handle, data, info, self.device.now)
             }
         };
+        // `DirectXPlayingSound::Play`: the segment goes to the music queue under the handle.
+        if let (
+            Some(kind),
+            LoadedSound::Music {
+                segment: Some(segment),
+                ..
+            },
+        ) = (playing.segment_kind(), sound)
+        {
+            self.music.play(SegmentInfo {
+                kind,
+                handle,
+                segment: Arc::clone(segment),
+            });
+        }
         if playing.is_self_exclusive() {
             self.self_exclusive.insert(playing.sound);
         }
@@ -283,6 +303,13 @@ impl SoundManager {
         self.device.now = now;
         self.take_loads();
         self.flush_sounds(true);
+        // `DirectXSoundDevice::UseTime`: the music queue runs before the voices.
+        self.music.use_time(
+            now,
+            Some(&mut MusicCallbacks {
+                playing: &mut self.playing,
+            }),
+        );
         let device = self.device;
         for playing in &mut self.playing {
             let muted = playing
@@ -392,8 +419,8 @@ impl SoundManager {
                         bits & 4 != 0
                     }
                 }
-                LoadedSound::Music(music) if bits & 3 != 0 => {
-                    if music.test(0x10) {
+                LoadedSound::Music { info, .. } if bits & 3 != 0 => {
+                    if info.test(0x10) {
                         bits & 2 != 0
                     } else {
                         bits & 1 != 0
@@ -403,6 +430,9 @@ impl SoundManager {
             };
             if stop {
                 playing.stop(&mut *self.sink, &device, 0.0, false);
+                if playing.segment_kind().is_some() {
+                    self.music.stop(playing.handle);
+                }
                 stopped += 1;
             }
         }
@@ -417,6 +447,9 @@ impl SoundManager {
         for playing in &mut self.playing {
             if playing.emitter == Some(emitter) {
                 playing.stop(&mut *self.sink, &device, 0.0, true);
+                if playing.segment_kind().is_some() {
+                    self.music.stop(playing.handle);
+                }
                 stopped += 1;
             }
         }
@@ -444,7 +477,12 @@ impl SoundManager {
         }
         let device = self.device;
         match self.playing.iter_mut().find(|p| p.handle == handle) {
-            Some(playing) => playing.stop(&mut *self.sink, &device, fade, false),
+            Some(playing) => {
+                playing.stop(&mut *self.sink, &device, fade, false);
+                if playing.segment_kind().is_some() {
+                    self.music.stop(handle);
+                }
+            }
             None => self.stop_sound_request(handle),
         }
     }
@@ -486,17 +524,32 @@ impl SoundManager {
     /// device gets level plus offset.
     pub fn set_groove_level(&mut self, level: i32) {
         self.groove.0 = level;
-        self.sink.send(SinkCommand::Groove {
-            level: self.groove.0.wrapping_add(self.groove.1),
-        });
+        self.send_groove();
     }
 
     /// `SoundManager::TweakGrooveLevel`.
     pub fn tweak_groove_level(&mut self, offset: i32) {
         self.groove.1 = self.groove.1.wrapping_add(offset);
-        self.sink.send(SinkCommand::Groove {
-            level: self.groove.0.wrapping_add(self.groove.1),
-        });
+        self.send_groove();
+    }
+
+    /// `DirectXSoundDevice::SetGrooveLevel` with the level plus its offset: the device and the
+    /// music queue (whose styles choose their patterns at it from their next measure).
+    fn send_groove(&mut self) {
+        let level = self.groove.0.wrapping_add(self.groove.1);
+        self.sink.send(SinkCommand::Groove { level });
+        self.music.set_groove_level(level);
+    }
+
+    /// The music queue (`DXMusicMessageThread`).
+    pub fn music(&self) -> &MusicThread {
+        &self.music
+    }
+
+    /// Gives `sink` the music events sent since the last call (the notes of the playing
+    /// segments, in time order; no synthesiser takes them yet).
+    pub fn send_music_events(&mut self, sink: &mut dyn EventSink) {
+        self.music.send_events(sink);
     }
 
     /// The level and offset.
@@ -566,8 +619,34 @@ impl SoundManager {
     /// `SoundManager::Shutdown`: every sound stopped, the resident sounds and loads dropped.
     pub fn shutdown(&mut self) {
         self.flush_sounds(false);
+        self.music.shutdown();
         self.loaded.clear();
         self.lru.clear();
         self.requests.clear();
+    }
+}
+
+/// `DXMusicMessageHandler` for the sound manager (`DirectXSoundDevice::OnSegmentStart` and
+/// `OnSegmentEnded`): a music voice hears its segment end. The start has no effect here
+/// (`DirectXPlayingSound::OnSegmentStarted` sets a flag the admin decompile never reads).
+struct MusicCallbacks<'a> {
+    playing: &'a mut [PlayingSound],
+}
+
+impl MusicHandler for MusicCallbacks<'_> {
+    fn on_segment_start(&mut self, _handle: u32) {}
+
+    fn on_segment_ended(&mut self, handle: u32) {
+        // `DirectXSoundDevice::OnSegmentEnded`: a handle of 0 names no sound.
+        if handle == 0 {
+            return;
+        }
+        if let Some(playing) = self
+            .playing
+            .iter_mut()
+            .find(|p| p.handle == handle && p.segment_kind().is_some())
+        {
+            playing.on_segment_ended();
+        }
     }
 }

@@ -4,13 +4,16 @@
 //! previous page's slots. A page's button shows that page and presses its button; the others
 //! hide (`ShowPack`).
 //!
-//! Not modelled yet: dropping items onto the pages (`FinishItemDrop`, the stack dialog) and the
-//! money bag's drop.
+//! A coin field dropped on a page (`gmBackpackUI::ListenToMessage`'s coin branch) asks how much
+//! money to take out for the page's slot; the answer is `FinishMoneyBagDrop`'s `DragFromMoneyBag`.
+//!
+//! Not modelled yet: an item dropped on a page outside its list (`FinishItemDrop`).
 
 use std::sync::Arc;
 
+use crate::drag::MSG_STOP_DRAG_ITEM;
 use crate::element::UiTree;
-use crate::item_display::{ContainerDisplay, InventorySource, ItemRequest};
+use crate::item_display::{is_coin_copy, ContainerDisplay, InventorySource, ItemRequest};
 use crate::layout::LayoutDesc;
 use crate::mouse::UiMessage;
 use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, STATE_NORMAL, STATE_NORMAL_PRESSED};
@@ -29,9 +32,13 @@ pub struct BackpackUi {
     pub packs: Vec<ContainerDisplay>,
     containers: Vec<usize>,
     buttons: Vec<usize>,
+    /// `m_moneybagStackDialogContext` and `m_newSlot` of the coin branch (0: none).
+    money_context: u32,
+    money_slot: u32,
 }
 
-fn find(tree: &UiTree, name: &str) -> Option<usize> {
+/// The element named `name` among the layout's roots, or below one of them.
+pub(crate) fn find(tree: &UiTree, name: &str) -> Option<usize> {
     let id = tokenize(name);
     tree.roots().iter().find_map(|&r| {
         if tree.get(r).is_some_and(|e| e.id() == id) {
@@ -54,6 +61,8 @@ impl BackpackUi {
             packs: Vec::new(),
             containers: Vec::new(),
             buttons: Vec::new(),
+            money_context: 0,
+            money_slot: 0,
         };
         let mut first_slot = 0;
         for (segment, (container, button)) in PACKS.iter().enumerate() {
@@ -99,13 +108,50 @@ impl BackpackUi {
         }
     }
 
-    /// `gmBackpackUI::ListenToMessage` (a page's button) and the slots' presses.
+    /// `gmBackpackUI::ListenToMessage`'s coin branch: the coin field dropped on page `pack`
+    /// (`stop_drag_item`, the page's index under the pointer below its slot count) asks how much
+    /// to take out, for the slot the pointer is at.
+    fn coin_drop(
+        &mut self,
+        tree: &mut UiTree,
+        s: &dyn InventorySource,
+        pack: usize,
+        message: &UiMessage,
+    ) -> Option<ItemRequest> {
+        let copy = message.item?;
+        if message.data == 0 || !is_coin_copy(tree, copy) {
+            return None;
+        }
+        let page = &self.packs[pack];
+        if page.drop_index >= page.max_size() {
+            return None;
+        }
+        self.money_slot = page.first_slot() + page.drop_index;
+        self.money_context = tree.request_stack_context();
+        let amount = s.money().min(s.coin_max_stack());
+        Some(ItemRequest::MoneyStack {
+            context: self.money_context,
+            target: 0,
+            amount,
+        })
+    }
+
+    /// `gmBackpackUI::ListenToMessage` (a page's button, a drop on a page) and the slots' presses.
     pub fn message(
-        &self,
+        &mut self,
         tree: &mut UiTree,
         s: &dyn InventorySource,
         message: &UiMessage,
     ) -> Option<ItemRequest> {
+        if message.message == MSG_STOP_DRAG_ITEM {
+            let page = self
+                .containers
+                .iter()
+                .position(|&c| message.element == Some(c));
+            if let Some(pack) = page {
+                return self.coin_drop(tree, s, pack, message);
+            }
+        }
         if message.message == MSG_BUTTON_RELEASE_ON {
             if let Some(pack) = PACKS
                 .iter()
@@ -115,7 +161,29 @@ impl BackpackUi {
                 return None;
             }
         }
-        self.packs.iter().find_map(|p| p.message(tree, s, message))
+        self.packs
+            .iter_mut()
+            .find_map(|p| p.message(tree, s, message))
+    }
+
+    /// `gmBackpackUI::RecvNotice_StackUIDone` (`FinishItemDrop`): the pages' drops waiting for
+    /// the stack dialog.
+    pub fn stack_ui_done(
+        &mut self,
+        s: &dyn InventorySource,
+        context: u32,
+        amount: u32,
+    ) -> Option<ItemRequest> {
+        if context != 0 && context == self.money_context {
+            return Some(ItemRequest::DragFromMoneyBag {
+                quantity: amount,
+                to_slot: self.money_slot as i32,
+                to_container: 0,
+            });
+        }
+        self.packs
+            .iter_mut()
+            .find_map(|p| p.stack_ui_done(s, context, amount))
     }
 
     /// `ContainerDisplay::RecvNotice_UpdateContainer` for the pages over `container`.

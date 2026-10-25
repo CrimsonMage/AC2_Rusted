@@ -109,6 +109,8 @@ pub(crate) struct TextState {
     /// `m_bitField & 1`: the text takes typing; `m_nCursorPos`.
     pub editable: bool,
     pub cursor: usize,
+    /// `m_filter`: a typed printable character it refuses is dropped.
+    pub filter: Option<fn(u16) -> bool>,
 }
 
 impl TextState {
@@ -131,6 +133,7 @@ impl TextState {
             dirty: true,
             editable: false,
             cursor: 0,
+            filter: None,
         }
     }
 

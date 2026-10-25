@@ -58,6 +58,16 @@ pub fn gid_to_lcoord(cell_id: u32) -> Option<(i32, i32)> {
     ((0..LAND_WIDTH).contains(&x) && (0..LAND_WIDTH).contains(&y)).then_some((x, y))
 }
 
+/// `LandDefs::gid_to_game_map_coords`: a land cell's map coordinates, -100..100 east and north
+/// of the map's middle (`(coord - half) / half * 100` in the FPU, stored as floats); `None`
+/// inside.
+pub fn gid_to_game_map_coords(cell_id: u32) -> Option<(f32, f32)> {
+    let (x, y) = gid_to_lcoord(cell_id)?;
+    let half = f64::from(LAND_WIDTH) * 0.5;
+    let map = |v: i32| ((f64::from(v) - half) / half * 100.0) as f32;
+    Some((map(x), map(y)))
+}
+
 /// `LandDefs::lcoord_to_gid`: 0 off the map.
 pub fn lcoord_to_gid(x: i32, y: i32) -> u32 {
     if !(0..LAND_WIDTH).contains(&x) || !(0..LAND_WIDTH).contains(&y) {

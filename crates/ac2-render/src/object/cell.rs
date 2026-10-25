@@ -123,6 +123,7 @@ pub fn load_cell_model(
             batches,
             slot: (0, 0),
             skin: None,
+            mesh_type: 0,
         }],
         skeleton: None,
     }))

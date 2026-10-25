@@ -49,6 +49,8 @@ pub struct ClientView {
     block_size: f32,
     /// The reticle asked to clear the selection (out of range).
     deselect: bool,
+    /// The inventory's paper doll scene (`gmPaperDollUI`).
+    doll: crate::paper_doll_scene::PaperDollScene,
 }
 
 /// The landblock (x, y) of a cell id.
@@ -105,10 +107,12 @@ impl ClientView {
         radius: i32,
         size: (u32, u32),
     ) -> Self {
+        let store = Arc::clone(world.resource_store());
         Self {
             block_size: world.block_size(),
-            hud: HudView::new(Arc::clone(world.resource_store()), gpu, format, size),
+            hud: HudView::new(Arc::clone(&store), gpu, format, size),
             deselect: false,
+            doll: crate::paper_doll_scene::PaperDollScene::new(store, Arc::clone(&world), format),
             scene: WorldScene::new(world, radius),
             renderer: SceneRenderer::new(gpu, format),
         }
@@ -158,6 +162,21 @@ impl ClientView {
         let update = self.scene.poll(budget);
         self.renderer.apply(gpu, update);
         self.hud.update(gpu, frame.server_time);
+        self.update_doll(gpu, frame, false);
+    }
+
+    /// The paper doll's scene while its viewport shows, with the player's appearance.
+    fn update_doll(&mut self, gpu: &Gpu, frame: &ClientFrame, wait: bool) {
+        let viewports: Vec<_> = self.hud.doll_viewport().into_iter().collect();
+        let race = self.hud.player_race;
+        self.doll.update(
+            gpu,
+            viewports,
+            frame.player.as_ref(),
+            race,
+            frame.server_time,
+            wait,
+        );
     }
 
     /// Waits for every outstanding load (headless snapshots).
@@ -170,6 +189,11 @@ impl ClientView {
             let update = self.scene.wait();
             self.renderer.apply(gpu, update);
         }
+        self.update_doll(gpu, frame, true);
+        while self.doll.busy() {
+            self.update_doll(gpu, frame, true);
+        }
+        self.update_doll(gpu, frame, true);
     }
 
     /// Lays out the frame; `false` while there is no camera (before world entry).
@@ -193,8 +217,13 @@ impl ClientView {
             .collect();
         self.renderer
             .prepare(gpu, &camera, aspect, time, scene_frame, objects);
-        self.update_reticle(gpu, frame, &camera, aspect);
+        self.position_external_container(frame, &camera, aspect);
+        self.hud.update_radar(radar_view(frame));
+        self.update_reticle(frame, &camera, aspect);
+        self.update_names(frame, &camera, aspect);
+        self.hud.finish_frame(gpu);
         self.hud.prepare(&gpu.queue);
+        self.doll.prepare(gpu, time);
         true
     }
 
@@ -251,7 +280,7 @@ impl ClientView {
 
     /// `gm3DTextUI::Update`: the reticle around the selected object, from its model box, its
     /// placement and the camera.
-    fn update_reticle(&mut self, gpu: &Gpu, frame: &ClientFrame, camera: &Camera, aspect: f32) {
+    fn update_reticle(&mut self, frame: &ClientFrame, camera: &Camera, aspect: f32) {
         let selection = frame.selection.as_ref();
         let drawn = drawn_objects(frame);
         let placed = selection
@@ -289,12 +318,91 @@ impl ClientView {
             _ => None,
         };
         let outcome = self.hud.reticle(
-            gpu,
             selection.map(|s| (s.id, s.name.as_deref())),
             selection.and_then(|s| s.info.as_ref()),
             target,
         );
         self.deselect |= outcome.deselect;
+    }
+
+    /// `gmExternalContainerUI::PositionWindow` for a container that just opened: its model's
+    /// box centre projected (`SceneTool::TransformVector`); centred when it is not drawn or is
+    /// behind the camera.
+    fn position_external_container(&mut self, frame: &ClientFrame, camera: &Camera, aspect: f32) {
+        let Some(id) = self.hud.external_container_position() else {
+            return;
+        };
+        let view_projection = camera.view_projection(aspect);
+        let clip = drawn_objects(frame)
+            .iter()
+            .find(|d| d.id == id)
+            .and_then(|d| {
+                let (key, world, _) = self.placed(d)?;
+                let mesh = self.scene.object_pick(key)?;
+                let centre = (mesh.min + mesh.max) * 0.5;
+                let clip = view_projection * world * centre.extend(1.0);
+                (clip.w > 0.0).then(|| [clip.x / clip.w, clip.y / clip.w])
+            });
+        self.hud.position_external_container(clip);
+    }
+
+    /// `gm3DTextUI::UpdateNames`: each named object's model box and projection, and its ground
+    /// distance from the player (its radar offset).
+    fn update_names(&mut self, frame: &ClientFrame, camera: &Camera, aspect: f32) {
+        let named = self.hud.named();
+        if named.is_empty() {
+            return;
+        }
+        let view_projection = camera.view_projection(aspect);
+        let drawn = drawn_objects(frame);
+        let mut objects = Vec::new();
+        for id in named {
+            let Some(blip) = frame.radar.blips.iter().find(|b| b.id == id) else {
+                continue;
+            };
+            let Some(d) = drawn.iter().find(|d| d.id == id) else {
+                continue;
+            };
+            let Some((key, world, _)) = self.placed(d) else {
+                continue;
+            };
+            let Some(mesh) = self.scene.object_pick(key) else {
+                continue;
+            };
+            let (x, y) = (f64::from(blip.offset[0]), f64::from(blip.offset[1]));
+            let distance = (x * x + y * y) as f32;
+            objects.push((
+                id,
+                world,
+                mesh.min.to_array(),
+                mesh.max.to_array(),
+                distance,
+            ));
+        }
+        let projectors: Vec<_> = objects
+            .iter()
+            .map(|&(_, world, ..)| {
+                move |p: [f32; 3]| {
+                    let clip = view_projection * world * Vec3::from_array(p).extend(1.0);
+                    let w = if clip.w.abs() < 1e-6 { 1e-6 } else { clip.w };
+                    ([clip.x / w, clip.y / w], clip.w > 0.0)
+                }
+            })
+            .collect();
+        let places: Vec<_> = objects
+            .iter()
+            .zip(&projectors)
+            .map(
+                |(&(id, _, min, max, distance), project)| ac2_ui::NamePlace {
+                    id,
+                    bounds: (min, max),
+                    project,
+                    xy_distance_sq: distance,
+                },
+            )
+            .collect();
+        let selection = frame.selection.as_ref().map_or(0, |s| s.id);
+        self.hud.update_names(&places, selection, frame.radar.range);
     }
 
     /// Whether the reticle cleared the selection since the last call (send
@@ -356,7 +464,14 @@ impl ClientView {
         events: &[ac2_weenie::SessionEvent],
         script_notices: &[ac2_script::host::ScriptNotice],
     ) -> Vec<crate::Command> {
-        self.hud.frameworks(client, frame, events, script_notices)
+        // The paper doll's pick from the scene as last drawn (`FinishPaperDollClick` runs on
+        // the loop after the selection render).
+        let doll_pick = self.hud.doll_wants_pick().map(|point| {
+            let viewport = self.hud.doll_viewport()?;
+            self.doll.pick(point, &viewport)
+        });
+        self.hud
+            .frameworks(client, frame, events, script_notices, doll_pick)
     }
 
     /// `CM_UI::SendNotice_OpenExaminationPanel`: the examination panel shows.
@@ -389,9 +504,50 @@ impl ClientView {
         self.hud.element_text(name)
     }
 
+    /// The secure trade panel: whether it shows, the player's offers and the partner's.
+    pub fn trade(&self) -> Option<(bool, Vec<u64>, Vec<u64>)> {
+        let panel = self.hud.secure_trade.as_ref()?;
+        Some((panel.is_shown(), panel.own_items(), panel.partner_items()))
+    }
+
+    /// The objects with a name plate (`gm3DTextUI`).
+    pub fn named(&self) -> Vec<u64> {
+        self.hud.named()
+    }
+
+    /// The radar's coordinates text.
+    pub fn radar_coordinates(&self) -> Option<String> {
+        self.hud.radar_coordinates()
+    }
+
     /// The backpack's first page: each item and its slot's tooltip.
     pub fn backpack_items(&self) -> Vec<(u64, String)> {
         self.hud.backpack_items()
+    }
+
+    /// The external container panel's container and items, while it shows one.
+    pub fn external_container_items(&self) -> Option<(u64, Vec<u64>)> {
+        self.hud.external_container_items()
+    }
+
+    /// The item the paper doll shows worn at an inventory location.
+    pub fn paper_doll_item(&self, location: u32) -> Option<u64> {
+        self.hud.paper_doll.as_ref()?.item_at(location)
+    }
+
+    /// Shows or hides a toolbar panel, as its button does.
+    pub fn show_panel(&mut self, child: ac2_ui::ToolbarChild, shown: bool) {
+        self.hud.show_panel(child, shown);
+    }
+
+    /// The paper doll's viewport while it shows.
+    pub fn paper_doll_viewport(&self) -> Option<ac2_ui::SceneViewport> {
+        self.hud.doll_viewport()
+    }
+
+    /// The paper doll scene's pick at a screen point: the mesh type of the avatar's part there.
+    pub fn paper_doll_pick(&self, point: (i32, i32)) -> Option<u32> {
+        self.doll.pick(point, &self.hud.doll_viewport()?)
     }
 
     /// The allegiance page's member list texts, in order.
@@ -460,5 +616,66 @@ impl ClientView {
     pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
         self.renderer.draw(pass);
         self.hud.draw(pass);
+    }
+
+    /// Draws the frame into `color` (a `size` target) cleared to black: the world when
+    /// `prepare` laid it out, then the HUD with the paper doll's scene in its viewport, after
+    /// its surface and over a cleared depth ([`crate::ui_scene::render_with_scenes`]).
+    pub fn render(
+        &self,
+        gpu: &Gpu,
+        color: &wgpu::TextureView,
+        depth: &wgpu::TextureView,
+        size: (u32, u32),
+        world: bool,
+    ) {
+        let (overlay, roots) = self.hud.layers_for_scenes();
+        crate::ui_scene::render_with_scenes(
+            gpu,
+            color,
+            depth,
+            size,
+            [0.0; 3],
+            overlay,
+            roots,
+            &[self.doll.scenes()],
+            |pass| {
+                if world {
+                    self.renderer.draw(pass);
+                }
+            },
+        );
+    }
+}
+
+/// `gmRadarUI::Update`'s input from the frame: the range, the heading, each blip with its
+/// object's name, and the selection.
+fn radar_view(frame: &ClientFrame) -> ac2_ui::RadarView {
+    let radar = &frame.radar;
+    let name = |id| {
+        frame
+            .objects
+            .iter()
+            .find(|o| o.id == id)
+            .and_then(|o| o.name.clone())
+            .unwrap_or_default()
+    };
+    ac2_ui::RadarView {
+        range: radar.range,
+        heading_degrees: radar.heading_degrees,
+        dots: radar
+            .blips
+            .iter()
+            .map(|b| ac2_ui::RadarDot {
+                id: b.id,
+                color: b.color,
+                shape: b.shape,
+                offset: [b.offset[0], b.offset[1]],
+                in_range: b.in_range,
+                name: name(b.id),
+            })
+            .collect(),
+        selection: frame.selection.as_ref().map_or(0, |s| s.id),
+        coordinates: None,
     }
 }

@@ -29,10 +29,9 @@ use ac2_world::GameClock;
 
 use crate::camera::{CameraManager, CameraSubject};
 use crate::cells::CellManager;
-use crate::frame::{ClientFrame, PlayerFrame};
 use crate::loader::{Loaded, Loader, Request};
 use crate::remote::Remotes;
-use crate::scene::{frame_is_valid, CameraFrame, SceneCamera};
+use crate::scene::{frame_is_valid, SceneCamera};
 use crate::world_data::{BodyData, WorldData};
 
 /// `SetPositionSimple(p, sliding = 1)`'s flags (`SyncPositionSimple(pos, 1)`): `0x1000` and
@@ -126,9 +125,9 @@ pub struct Client {
     pub(crate) cells: CellManager,
     pub(crate) player: Option<Player>,
     module: MovementModule,
-    camera: CameraManager,
+    pub(crate) camera: CameraManager,
     pub(crate) scene: SceneCamera,
-    game_clock: Option<GameClock>,
+    pub(crate) game_clock: Option<GameClock>,
     physics_clock: PhysicsClock,
     /// `PhysicsModule::m_tAnimationUpdateTime`.
     anim_clock: AnimationClock,
@@ -149,6 +148,8 @@ pub struct Client {
     /// The weenies' script processes, when a script VM is attached.
     pub(crate) scripts: Option<crate::scripts::Scripts>,
     pub(crate) audio: Option<crate::client_audio::ClientAudio>,
+    /// The radar (`gmRadarUI`) and the map notes (`gmNavigationUI`).
+    pub(crate) radar: crate::client_radar::RadarState,
 }
 
 fn physics_position(cell: u32, origin: [f32; 3], rotation: [f32; 4]) -> Position {
@@ -206,6 +207,7 @@ impl Client {
             remotes: Remotes::default(),
             scripts: None,
             audio: None,
+            radar: Default::default(),
         }
     }
 
@@ -265,6 +267,8 @@ impl Client {
         }
         self.run_scripts(&mut dispatched);
         events.extend(dispatched);
+        let produced = self.radar_use_time(&events);
+        events.extend(produced);
         self.notices_seen(&events);
         self.camera_actions(input);
         self.render();
@@ -388,7 +392,7 @@ impl Client {
     }
 
     /// What the camera reads from the player's physics object.
-    fn camera_subject(&self, require_in_world: bool) -> Option<CameraSubject> {
+    pub(crate) fn camera_subject(&self, require_in_world: bool) -> Option<CameraSubject> {
         let player = self.player.as_ref()?;
         if require_in_world && !player.in_world {
             return None;
@@ -690,79 +694,6 @@ impl Client {
         });
         self.loader.request(Request::Body(entry.visual));
         self.blocking_load = true;
-    }
-
-    /// The frame for the renderer.
-    pub fn frame(&self) -> ClientFrame {
-        let server_time = self.session.cur_time();
-        let in_world = self.player.as_ref().is_some_and(|p| p.in_world);
-        let player = self.player.as_ref().and_then(|p| {
-            let state = p.body.as_ref()?.physics.movement_state();
-            Some(PlayerFrame {
-                id: p.id,
-                cell: state.cell_id,
-                origin: state.origin,
-                rotation: state.rotation,
-                heading_degrees: state.heading_degrees,
-                visual: p.visual,
-                velocity: state.velocity,
-                contact: state.contact,
-                pose: p
-                    .body
-                    .as_ref()
-                    .map(|b| crate::motion::pose(&b.physics))
-                    .unwrap_or_default(),
-                appearance: self
-                    .session
-                    .objects()
-                    .iter()
-                    .find(|o| o.id == p.id)
-                    .map(|o| o.appearance.clone())
-                    .unwrap_or_default(),
-            })
-        });
-        let objects = self.object_frames();
-        ClientFrame {
-            server_time,
-            time_of_day: self.game_clock.as_ref().map(GameClock::present_time_of_day),
-            cell_id: player.as_ref().map(|p| p.cell),
-            in_world,
-            blocking_for_cells: self.cells.is_blocking(),
-            player,
-            camera: self.camera_frame(),
-            objects,
-            blocks: self.cells.resident().collect(),
-            selection: self.selection_frame(),
-            player_vitals: *self.session.player_script().vitals(),
-            inventory: self.inventory_frame(),
-            progress: self.progress_frame(),
-        }
-    }
-
-    /// The scene camera's render position, and the point it looks at: the camera distance
-    /// ahead along its view axis (the player's head in third person).
-    fn camera_frame(&self) -> Option<CameraFrame> {
-        let subject = self.camera_subject(true)?;
-        let render = self.scene.render;
-        let forward = render.frame.vector_heading();
-        let distance =
-            f64::from(self.camera.targeting.camera_distance) * f64::from(subject.scale_z);
-        let o = render.frame.origin;
-        let ahead =
-            |origin: f32, axis: f32| (f64::from(origin) + f64::from(axis) * distance) as f32;
-        let q = render.frame.q;
-        Some(CameraFrame {
-            cell: render.cell_id,
-            origin: [o.x, o.y, o.z],
-            rotation: [q.w, q.x, q.y, q.z],
-            target: [
-                ahead(o.x, forward.x),
-                ahead(o.y, forward.y),
-                ahead(o.z, forward.z),
-            ],
-            fov: self.scene.fov,
-            first_person: self.camera.first_person,
-        })
     }
 }
 

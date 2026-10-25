@@ -213,7 +213,7 @@ impl PregameView {
             scenes.update(gpu, ui, now, wait);
         }
         if let Some(point) = ui.wants_pick() {
-            let picked = self.scenes.as_ref().and_then(|s| s.pick(point));
+            let picked = self.scenes.as_ref().and_then(|s| s.pick(ui, point));
             ui.finish_pick(picked);
         }
         if self.scenes.as_mut().is_some_and(|s| s.animation_done(ui)) {
@@ -274,94 +274,25 @@ impl PregameView {
     }
 
     /// Draws the frame into `color` cleared to black: the UI's surfaces in order, each scene
-    /// in its viewport after its root's surface, in a pass of its own that clears the depth
-    /// (`UIScene::Render`'s clear) and sets the device viewport to the root's rectangle
-    /// (`UIViewportObject::Render`).
+    /// in its viewport after its root's surface ([`crate::ui_scene::render_with_scenes`]).
     pub fn render(&self, gpu: &Gpu, color: &wgpu::TextureView, depth: &wgpu::TextureView) {
-        let mut views: Vec<(usize, usize, ac2_ui::pregame::SceneViewport)> = self
-            .scenes
-            .as_ref()
-            .map(|s| s.drawn())
-            .unwrap_or_default()
-            .into_iter()
-            .filter_map(|(view, viewport)| {
-                let layer = self.layer_roots.iter().position(|&r| r == viewport.root)?;
-                Some((layer, view, viewport))
-            })
-            .collect();
-        views.sort_by_key(|(layer, ..)| *layer);
-        let mut encoder = gpu.device.create_command_encoder(&Default::default());
-        let mut next = 0;
-        let (width, height) = self.size;
-        for (i, (layer, view, viewport)) in views.iter().enumerate() {
-            let mut pass = begin_pass(&mut encoder, color, depth, i == 0);
-            self.overlay.draw_range(&mut pass, next..layer + 1);
-            next = layer + 1;
-            let x0 = viewport.x.clamp(0, width as i32) as u32;
-            let y0 = viewport.y.clamp(0, height as i32) as u32;
-            let x1 = (viewport.x + viewport.width as i32).clamp(0, width as i32) as u32;
-            let y1 = (viewport.y + viewport.height as i32).clamp(0, height as i32) as u32;
-            if x1 <= x0 || y1 <= y0 {
-                continue;
-            }
-            pass.set_viewport(
-                x0 as f32,
-                y0 as f32,
-                (x1 - x0) as f32,
-                (y1 - y0) as f32,
-                0.0,
-                1.0,
-            );
-            if let Some(scenes) = &self.scenes {
-                scenes.draw(*view, &mut pass);
-            }
-        }
-        {
-            let mut pass = begin_pass(&mut encoder, color, depth, views.is_empty());
-            self.overlay
-                .draw_range(&mut pass, next..self.layer_roots.len().max(next));
-        }
-        gpu.queue.submit([encoder.finish()]);
+        let scenes: Vec<&crate::ui_scene::UiScenes> =
+            self.scenes.iter().map(PregameScenes::scenes).collect();
+        crate::ui_scene::render_with_scenes(
+            gpu,
+            color,
+            depth,
+            self.size,
+            [0.0; 3],
+            &self.overlay,
+            &self.layer_roots,
+            &scenes,
+            |_| {},
+        );
     }
 
     /// Records the UI layers alone into `pass`.
     pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
         self.overlay.draw(pass);
     }
-}
-
-/// A pass over `color` (cleared to black when `clear`, else kept) with its depth cleared.
-fn begin_pass<'a>(
-    encoder: &'a mut wgpu::CommandEncoder,
-    color: &wgpu::TextureView,
-    depth: &wgpu::TextureView,
-    clear: bool,
-) -> wgpu::RenderPass<'a> {
-    let load = if clear {
-        wgpu::LoadOp::Clear(wgpu::Color::BLACK)
-    } else {
-        wgpu::LoadOp::Load
-    };
-    encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-        label: Some("ac2 pregame"),
-        color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-            view: color,
-            resolve_target: None,
-            depth_slice: None,
-            ops: wgpu::Operations {
-                load,
-                store: wgpu::StoreOp::Store,
-            },
-        })],
-        depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
-            view: depth,
-            depth_ops: Some(wgpu::Operations {
-                load: wgpu::LoadOp::Clear(1.0),
-                store: wgpu::StoreOp::Discard,
-            }),
-            stencil_ops: None,
-        }),
-        timestamp_writes: None,
-        occlusion_query_set: None,
-    })
 }

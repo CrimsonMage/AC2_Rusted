@@ -12,6 +12,8 @@ use ac2_db::{
     TypedResourceRef,
 };
 
+use crate::music::library::{LoadedMusic, MusicLibrary, MusicSource};
+
 /// `SoundInfo::GetDBOType`.
 pub const DB_TYPE_SOUND_INFO: u32 = 0x4000_002C;
 /// `MusicInfo::GetDBOType`.
@@ -266,8 +268,13 @@ pub enum LoadedSound {
         pcm: Arc<Pcm>,
         length: f32,
     },
-    /// A `MusicInfo`; its DirectMusic segment is not played yet.
-    Music(MusicInfo),
+    /// A `MusicInfo` and the DirectMusic segment it plays (`DirectXMusicLoader::LoadFromMusicInfo`
+    /// with its closure). `None` when the record is an `EncodedWave` (played as a wave, which
+    /// the queue does not take) or the segment is missing.
+    Music {
+        info: MusicInfo,
+        segment: Option<Arc<LoadedMusic>>,
+    },
 }
 
 /// Where the sound manager's loads come from. Called on the loader thread only.
@@ -279,11 +286,14 @@ pub trait SoundSource: Send + Sync {
 /// The sounds in the portal DAT.
 pub struct DatSounds {
     store: Arc<ResourceStore>,
+    /// The `DBMusicObj` segments a `MusicInfo` plays.
+    music: MusicLibrary,
 }
 
 impl DatSounds {
     pub fn new(store: Arc<ResourceStore>) -> Self {
-        Self { store }
+        let music = MusicLibrary::new(Arc::clone(&store));
+        Self { store, music }
     }
 
     fn get<T: ResourcePackedDecode, R>(&self, did: u32, read: impl FnOnce(&T) -> R) -> Option<R> {
@@ -323,7 +333,14 @@ impl SoundSource for DatSounds {
                 })?;
                 Some(LoadedSound::Sound { info, pcm, length })
             }
-            _ => Some(LoadedSound::Music(self.get(did, |m: &MusicInfo| *m)?)),
+            _ => {
+                let info = self.get(did, |m: &MusicInfo| *m)?;
+                let segment = match self.music.load_music(&info) {
+                    Some(MusicSource::DirectMusic(music)) => Some(music),
+                    _ => None,
+                };
+                Some(LoadedSound::Music { info, segment })
+            }
         }
     }
 }

@@ -20,10 +20,16 @@ pub const RATIONS: u64 = 0x8000_0000_0000_0104;
 pub const MAIN_PACK_CAPACITY: i32 = 24;
 /// The money the starter inventory comes with.
 pub const STARTER_MONEY: i32 = 250;
+/// The first id of a coin stack the double makes (`make_coins` counts up from it).
+const COINS_BASE: u64 = 0x8000_0000_0000_0200;
+/// The most coins a stack holds, as the double's coin rule (`GetCoinMaxStackSize`).
+const COIN_MAX_STACK: i32 = 1000;
 /// `PrimaryHand_InvLoc` / `SecondaryHand_InvLoc`.
 pub const PRIMARY_HAND: u32 = 0x40;
 pub const SECONDARY_HAND: u32 = 0x80;
 
+/// `CContainer`, the script package of a container (the side pack, the world chest).
+pub const CONTAINER_PACKAGE: u32 = 0x1AA6;
 /// `ContainerSegmentDescriptor`: slot 0 the segment's slots, slot 1 the items in it.
 const SEGMENT_PACKAGE: u32 = 0x24A7;
 
@@ -51,7 +57,7 @@ pub struct ItemSpawn {
 }
 
 impl ItemSpawn {
-    fn new(id: u64, package: u32, name: &'static str, container: u64) -> Self {
+    pub(crate) fn new(id: u64, package: u32, name: &'static str, container: u64) -> Self {
         Self {
             id,
             package,
@@ -104,7 +110,7 @@ pub fn starter_items() -> Vec<ItemSpawn> {
             icon: 0x0600_1000,
             value: 10,
             capacity: Some(24),
-            ..ItemSpawn::new(PACK, 0x1AA6, "Pack", PLAYER)
+            ..ItemSpawn::new(PACK, CONTAINER_PACKAGE, "Pack", PLAYER)
         },
         ItemSpawn {
             plural: Some("Healing Potions"),
@@ -217,6 +223,50 @@ impl State {
         self.give_money(STARTER_MONEY);
     }
 
+    /// The coin stack of `amount` coins the double makes for `DragFromMoneyBag`: its object and
+    /// stackable and maximum-stack qualities, then the container listed with it at `slot` (-1:
+    /// the end). Returns its id.
+    pub fn make_coins(&mut self, container: u64, slot: i32, amount: i32) -> u64 {
+        let c = &mut self.script_world.character;
+        c.coins_made += 1;
+        let coin = ItemSpawn {
+            plural: Some("Coins"),
+            icon: 0x0600_1006,
+            quantity: Some(amount),
+            stackable: true,
+            max_stack: Some(COIN_MAX_STACK),
+            ..ItemSpawn::new(
+                COINS_BASE + u64::from(c.coins_made),
+                0x1AA9,
+                "Coin",
+                container,
+            )
+        };
+        self.send_event(&item_object_bytes(&coin));
+        let object = Some(InstanceIdWithStamp {
+            id: coin.id,
+            instance: 1,
+            other: 0,
+        });
+        for (quality, value) in [
+            (700, QualityValue::Bool(1)),
+            (261, QualityValue::Int(COIN_MAX_STACK)),
+        ] {
+            self.send_quality(&QualityUpdate {
+                object,
+                quality,
+                value,
+            });
+        }
+        let items = &mut self.script_world.contents.entry(container).or_default().1;
+        match usize::try_from(slot) {
+            Ok(at) if at < items.len() => items.insert(at, coin.id),
+            _ => items.push(coin.id),
+        }
+        self.send_contents(container);
+        coin.id
+    }
+
     /// The server adds `amount` to the player's money (int 3100, `CPlayer` 0x85 -> 0x71:
     /// `SendNotice_UpdateMoney`).
     pub fn give_money(&mut self, amount: i32) {
@@ -227,7 +277,7 @@ impl State {
     }
 
     /// `WM_Money` 0x8 (`DragFromMoneyBag`: container, slot, quantity) takes the money and
-    /// answers `WM_Money` 0x9 with no item made (the double has no coins to make); 0x7
+    /// answers `WM_Money` 0x9 with the coin stack made of it, in the container at the slot; 0x7
     /// (`DragToMoneyBag`: container, slot, quantity, item) adds the quantity, takes the item
     /// out of its container, answers `WM_Money` 0x6 and lists the container again.
     pub(crate) fn answer_money(&mut self, function: u32, args: &[PackValue]) {
@@ -237,12 +287,13 @@ impl State {
                 [PackValue::LongInt(container), PackValue::Int(slot), PackValue::Int(quantity)],
             ) => {
                 self.give_money(-(*quantity as i32));
+                let coin = self.make_coins(*container, *slot as i32, *quantity as i32);
                 self.send_script_call(
                     0x820F_0009,
                     &[
                         PackValue::LongInt(*container),
                         PackValue::Int(*slot),
-                        PackValue::LongInt(0),
+                        PackValue::LongInt(coin),
                     ],
                 );
             }

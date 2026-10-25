@@ -15,15 +15,18 @@ struct Musics;
 
 impl SoundSource for Musics {
     fn load(&self, did: u32) -> Option<LoadedSound> {
-        Some(LoadedSound::Music(MusicInfo {
-            did,
-            // 4: self-exclusive, as the Legions ambient music is.
-            bit_field: 0x44,
-            priority: 1.0,
-            min_distance: 1.0,
-            kind: 0x8000_0001,
-            segment: 0x2400_0000 | (did & 0xFFFF),
-        }))
+        Some(LoadedSound::Music {
+            info: MusicInfo {
+                did,
+                // 4: self-exclusive, as the Legions ambient music is.
+                bit_field: 0x44,
+                priority: 1.0,
+                min_distance: 1.0,
+                kind: 0x8000_0001,
+                segment: 0x2400_0000 | (did & 0xFFFF),
+            },
+            segment: None,
+        })
     }
 }
 

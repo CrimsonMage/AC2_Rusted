@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 130 done, 11 partial, 246 to do, 39 skipped.
+426 retail functions: 131 done, 11 partial, 245 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -378,7 +378,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPortalPoly::StreamPack` · 0072f890 · legions 006ad130
 - [-] `CPortalPoly::FromFileNode` · 0072f930 — text source format (admin tools)
 
-## `portal/shared/src/geometry/position.cpp.c` (23/36)
+## `portal/shared/src/geometry/position.cpp.c` (24/36)
 
 ### Position
 - [ ] `Position::Position` · 0061fd70 · legions 005db6b0
@@ -398,7 +398,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Position::CreateRay` · 00620260 · legions 005dbba0
 
 ### LandDefs
-- [x] `LandDefs::gid_to_game_map_coords` · 006202c0 · legions 005dbc00 — ac2-script glue::position (ported beside the gPosition glue)
+- [x] `LandDefs::gid_to_game_map_coords` · 006202c0 · legions 005dbc00 — ac2-physics landdefs.rs + ac2-client ui_sources.rs map_coords_string (the radar) + ac2-script glue
 - [x] `LandDefs::game_map_coords_to_gid` · 00620350 · legions 005dbc90 — ac2-script glue::position (ported beside the gPosition glue)
 - [x] `LandDefs::GetCellDistanceSquared` · 006203e0 · legions 005dbd20 — ac2-script glue::position (ported beside the gPosition glue)
 
@@ -417,7 +417,7 @@ Legend and workflow: [README](README.md).
 - [x] `Position::GetCellX` · 006205f0 · legions 005dbe90 — ac2-script glue::position (ported beside the gPosition glue)
 - [x] `Position::GetCellY` · 00620620 · legions 005dbec0 — ac2-script glue::position (ported beside the gPosition glue)
 - [x] `Position::FromCellCoords` · 00620650 · legions 005dbef0 — ac2-script glue::position (ported beside the gPosition glue)
-- [ ] `Position::ToRealMapCoords_Info` · 006206d0 · legions 005dbf70
+- [x] `Position::ToRealMapCoords_Info` · 006206d0 · legions 005dbf70 — ac2-physics landdefs.rs + ac2-client ui_sources.rs map_coords_string (the radar) + ac2-script glue
 - [ ] `Position::FromGameMapCoords` · 00620830 · legions 005dc0d0
 - [ ] `Position::FromRealMapCoords` · 006208b0 · legions 005dc150
 - [x] `Position::GetCellDistance` · 00620a40 · legions 005dc2e0 — ac2-script glue::position (ported beside the gPosition glue)

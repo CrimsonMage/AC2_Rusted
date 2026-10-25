@@ -5,7 +5,10 @@
 //! `gmSelectionUI` makes `ItemSelectionField` from it, `gmStatusbarUI` makes `StatusbarField`
 //! from the status bar layout (`0x4100000F`) and `gmToolbarUI` makes `ToolbarField`,
 //! `LeftSidePanel` and `RightSidePanel` from the toolbar layout (`0x41000003`), in that order.
-//! The other children (stack, trade, shop, book, pet, ...) open dialogs on demand and are left out.
+//! `gmStackUI` and `gmExternalContainerUI` make their hidden `StackableField` and
+//! `ExternalContainerField` from the gameplay layout; `gmSecureTradeUI` takes the gameplay layout
+//! too and makes its `SecureTradeField` when a trade opens. The other children
+//! (shop, book, pet, ...) open dialogs on demand and are left out.
 //! Of the toolbar's own children (`gmToolbarUI::SetupChildren`) the chat (`gmChatUI`) is made,
 //! and the panel children only show and hide their fields ([`ToolbarUi`]); their contents are
 //! not made yet.
@@ -20,13 +23,19 @@ use crate::allegiance::AllegianceUi;
 use crate::chat::{ChatStrings, ChatUi, CHAT_STRING_TABLE, REPLY_STRING_TABLE, STRING_TABLE_GROUP};
 use crate::compose::UiPixels;
 use crate::dialog::DialogFactory;
+use crate::effects::EffectsUi;
 use crate::element::UiTree;
 use crate::examination::ExaminationUi;
+use crate::external_container::ExternalContainerUi;
 use crate::fellowship::FellowshipUi;
 use crate::layout::{load_layout, LayoutDesc};
+use crate::name_plates::NamePlates;
+use crate::radar::RadarUi;
 use crate::reticle::Reticle;
+use crate::secure_trade::SecureTradeUi;
 use crate::shortcut::ShortcutUi;
 use crate::skill_tree::SkillTreeUi;
+use crate::stack::StackUi;
 use crate::text_data::StoreTextData;
 use crate::token::tokenize;
 use crate::toolbar::ToolbarUi;
@@ -65,8 +74,9 @@ pub fn load_layout_by_enum(
 #[derive(Debug, Clone)]
 pub struct GameplayHud {
     pub tree: UiTree,
-    /// `gm3DTextUI`'s targeting reticle.
+    /// `gm3DTextUI`'s targeting reticle and name plates.
     pub reticle: Option<Reticle>,
+    pub names: Option<NamePlates>,
     /// `gmShortcutUI`.
     pub shortcuts: Option<ShortcutUi>,
     /// `gmChatUI`.
@@ -83,10 +93,19 @@ pub struct GameplayHud {
     /// The toolbar layout, for the frameworks made once the player is in the world
     /// (`gmInventoryUI`'s backpack).
     pub toolbar_layout: Option<Arc<LayoutDesc>>,
-    /// `gmStatusbarUI`'s `gmVitalsUI`.
+    /// `gmStatusbarUI`'s `gmVitalsUI` and `gmEffectsUI`.
     pub vitals: VitalsUi,
+    pub effects: Option<EffectsUi>,
     /// `DialogFactory` over the gameplay layout.
     pub dialogs: DialogFactory,
+    /// `gmGamePlayUI`'s `gmStackUI`, hidden until a split asks for an amount.
+    pub stack: Option<StackUi>,
+    /// `gmGamePlayUI`'s `gmExternalContainerUI`, hidden until a container opens.
+    pub external_container: Option<ExternalContainerUi>,
+    /// `gmRadarUI`'s blips and heading ring.
+    pub radar: RadarUi,
+    /// `gmGamePlayUI`'s `gmSecureTradeUI`, hidden until a trade opens.
+    pub secure_trade: Option<SecureTradeUi>,
 }
 
 /// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
@@ -104,6 +123,13 @@ pub fn build_gameplay_hud(
     let reticle = gameplay
         .as_ref()
         .and_then(|layout| Reticle::create(&mut tree, layout));
+    let names = match (&gameplay, &reticle) {
+        (Some(layout), Some(reticle)) => {
+            let (frames, attempts) = reticle.name_tuning();
+            Some(NamePlates::create(layout, frames, attempts))
+        }
+        _ => None,
+    };
     layouts.insert(LAYOUT_GAMEPLAY, gameplay);
     for (layout_enum, name) in GAMEPLAY_ROOTS {
         if !layouts.contains_key(&layout_enum) {
@@ -155,8 +181,24 @@ pub fn build_gameplay_hud(
         .as_ref()
         .map(|toolbar| FellowshipUi::create(&mut tree, toolbar));
     let vitals = VitalsUi::create(&mut tree);
+    let effects = layouts[&LAYOUT_STATUSBAR]
+        .as_ref()
+        .map(|statusbar| EffectsUi::create(&tree, statusbar));
     let dialogs = DialogFactory::new(layouts[&LAYOUT_GAMEPLAY].clone());
+    let stack = layouts[&LAYOUT_GAMEPLAY]
+        .as_ref()
+        .map(|gameplay| StackUi::create(&mut tree, gameplay));
+    let external_container = match (&layouts[&LAYOUT_GAMEPLAY], &layouts[&LAYOUT_TOOLBAR]) {
+        (Some(gameplay), Some(toolbar)) => {
+            Some(ExternalContainerUi::create(&mut tree, gameplay, toolbar))
+        }
+        _ => None,
+    };
     let toolbar = ToolbarUi::create(&mut tree);
+    let radar = RadarUi::create(&tree);
+    let secure_trade = layouts[&LAYOUT_GAMEPLAY]
+        .as_ref()
+        .map(SecureTradeUi::create);
     for layout in layouts.values().flatten() {
         crate::tooltip::prefetch_tooltip_strings(&*text_data, layout);
     }
@@ -164,6 +206,7 @@ pub fn build_gameplay_hud(
     Ok(GameplayHud {
         tree,
         reticle,
+        names,
         shortcuts,
         chat,
         toolbar,
@@ -172,8 +215,13 @@ pub fn build_gameplay_hud(
         allegiance,
         fellowship,
         vitals,
+        effects,
         toolbar_layout: layouts[&LAYOUT_TOOLBAR].clone(),
         dialogs,
+        stack,
+        external_container,
+        radar,
+        secure_trade,
     })
 }
 

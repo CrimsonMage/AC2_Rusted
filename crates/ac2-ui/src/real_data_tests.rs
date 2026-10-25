@@ -153,9 +153,9 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
             .unwrap_or_else(|| panic!("{name}"))
     };
     let tree = build_gameplay_hud(&store_arc, 1024, 768).unwrap().tree;
-    // The HUD roots, gm3DTextUI's seven reticle objects, the shortcut bar and gmChatUI's four
-    // windows.
-    assert_eq!(tree.roots().len(), GAMEPLAY_ROOTS.len() + 7 + 1 + 4);
+    // The HUD roots, gm3DTextUI's seven reticle objects, the shortcut bar, gmChatUI's four
+    // windows and the hidden fields of gmStackUI and gmExternalContainerUI.
+    assert_eq!(tree.roots().len(), GAMEPLAY_ROOTS.len() + 7 + 1 + 4 + 2);
     // The radar sits where the layout authored it; the toolbar is centred on the bottom edge.
     let radar = root(&tree, "RadarField");
     assert_eq!(tree.screen_box(radar), UiBox::new(875, 60, 1017, 236));

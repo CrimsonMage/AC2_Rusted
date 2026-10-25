@@ -36,6 +36,7 @@ mod money;
 mod progress;
 mod select;
 mod shell;
+mod trade;
 
 /// Which listed character to enter the world with.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -604,6 +605,10 @@ impl OnlineSession {
                             .into_iter()
                             .flatten(),
                     );
+                    if let Some(events) = self.receive_trade(function, &arguments) {
+                        out.extend(events);
+                        return;
+                    }
                     if let Some(events) = self.receive_script(function, &arguments) {
                         out.extend(events);
                         return;

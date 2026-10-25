@@ -11,10 +11,12 @@
 mod calls;
 mod message;
 mod request;
+mod trade;
 
 pub use calls::{call_spec, ArgKind, CallSpec, Direction, ScriptCall, CALLS};
 pub use message::{broadcast, ScriptMessage};
 pub use request::ScriptRequest;
+pub use trade::TradeMessage;
 
 use crate::protocol::native::NativeObject;
 use crate::protocol::pack::{unpack_values, PackValue, PackedReference};
@@ -122,6 +124,41 @@ pub mod function {
     pub const HEAR_TELL: u32 = 0x8205_0017;
     /// S->C, `WM_Communication` 0x23 -> `gmCEntity` 0x21 -> 0x1A: as [`DISPLAY_STRING_INFO`].
     pub const DISPLAY_STRING_INFO_2: u32 = 0x8205_0023;
+    /// C->S, `WM_Trade` stub 0x2F (`gmCWInterface::OpenTradeNegotiations`, IFun 0xB400B8): the
+    /// other party (long int).
+    pub const OPEN_TRADE: u32 = 0x8215_002F;
+    /// C->S, `WM_Trade` stub 0x3E (`CloseTradeNegotiations`, IFun 0xB400B9): no arguments.
+    pub const CLOSE_TRADE: u32 = 0x8215_003E;
+    /// C->S, `WM_Trade` stub 0x35 (`AcceptTrade`, IFun 0xB400BA): one reference (the stub packs
+    /// the accepting side's script instance).
+    pub const ACCEPT_TRADE: u32 = 0x8215_0035;
+    /// C->S, `WM_Trade` stub 0x23 (`DeclineTrade`, IFun 0xB400BB): no arguments.
+    pub const DECLINE_TRADE: u32 = 0x8215_0023;
+    /// C->S, `WM_Trade` stub 0x15 (`OfferItemForTrade`, IFun 0xB400BC): the amount (int), then
+    /// the item (long int).
+    pub const OFFER_ITEM: u32 = 0x8215_0015;
+    /// C->S, `WM_Trade` stub 0x3F (`RevokeItemFromTrade`, IFun 0xB400BD): the item (long int).
+    pub const REVOKE_ITEM: u32 = 0x8215_003F;
+    /// S->C, `WM_Trade` 0x10 -> `CPlayer` -> `CM_Trade::SendNotice_Trade_BeRegistered`: the
+    /// initiator, the partner (long ints), the partner's name (`StringInfo`).
+    pub const TRADE_REGISTERED: u32 = 0x8215_0010;
+    /// S->C, `WM_Trade` 0x1 -> `CM_Trade::SendNotice_Trade_BeOpened`: no arguments.
+    pub const TRADE_OPENED: u32 = 0x8215_0001;
+    /// S->C, `WM_Trade` 0xA -> `BeClosed`: the source (long int), the kind (int).
+    pub const TRADE_CLOSED: u32 = 0x8215_000A;
+    /// S->C, `WM_Trade` 0xF -> `BeAccepted`: the source (long int).
+    pub const TRADE_ACCEPTED: u32 = 0x8215_000F;
+    /// S->C, `WM_Trade` 0xC -> `BeDeclined`: the source (long int).
+    pub const TRADE_DECLINED: u32 = 0x8215_000C;
+    /// S->C, `WM_Trade` 0xE -> `BeReset`: no arguments.
+    pub const TRADE_RESET: u32 = 0x8215_000E;
+    /// S->C, `WM_Trade` 0xB -> `BeAcceptanceCleared`: no arguments.
+    pub const TRADE_ACCEPTANCE_CLEARED: u32 = 0x8215_000B;
+    /// S->C, `WM_Trade` 0xD -> `BeOffered`: the source (long int), the item (long int), the
+    /// amount (int).
+    pub const TRADE_OFFERED: u32 = 0x8215_000D;
+    /// S->C, `WM_Trade` 0x7 -> `BeRevoked`: the source (long int), the item (long int).
+    pub const TRADE_REVOKED: u32 = 0x8215_0007;
 }
 
 /// The values a handler takes, in order, each of the type the stub packed.

@@ -63,6 +63,18 @@ pub enum Command {
     LootAll(u64),
     /// `gmCWInterface::TransmuteAllFromContainer`.
     TransmuteAll(u64),
+    /// `gmCWInterface::OpenTradeNegotiations`: ask `other` to trade.
+    OpenTrade(u64),
+    /// `gmCWInterface::CloseTradeNegotiations`.
+    CloseTrade,
+    /// `gmCWInterface::AcceptTrade`.
+    AcceptTrade,
+    /// `gmCWInterface::DeclineTrade`.
+    DeclineTrade,
+    /// `gmCWInterface::OfferItemForTrade`: `item`, `amount` of it.
+    OfferItemForTrade { item: u64, amount: u32 },
+    /// `gmCWInterface::RevokeItemFromTrade`.
+    RevokeItemFromTrade(u64),
     /// `gmCWInterface::RequestTrainSkill` / `RequestUntrainSkill` / `RequestRaiseSkill` /
     /// `RequestUntrainSkillCancel` (the skill panel and its confirmation dialogs).
     Skill(ac2_weenie::SkillRequest),
@@ -75,6 +87,10 @@ pub enum Command {
     Social(ac2_weenie::SocialRequest),
     /// `gmCWInterface::SetWhichShortcutSet`: the bar shows set `n`.
     SetShortcutSet(u32),
+    /// `gmCWInterface::SetShowRadarCoords` (the radar's coordinates box, `gmRadarUI`).
+    SetShowRadarCoords(bool),
+    /// `gmCWInterface::SetShowObjectNames` (`gm3DTextUI::ToggleNames`).
+    SetShowObjectNames(bool),
     /// `gmCWInterface::SetShortcut`: the shortcut into slot `index` of the bar.
     SetShortcut {
         index: u32,
@@ -270,6 +286,28 @@ impl Client {
                         Vec::new()
                     }
                 }
+                Command::SetShowObjectNames(show) => {
+                    let ifun = crate::scripts::IFUN_SET_SHOW_OBJECT_NAMES;
+                    if self.scripts_own(ifun) {
+                        self.script_ifun(
+                            ifun,
+                            &[ac2_net::protocol::PackValue::Int(u32::from(*show))],
+                        )
+                    } else {
+                        Vec::new()
+                    }
+                }
+                Command::SetShowRadarCoords(show) => {
+                    let ifun = crate::scripts::IFUN_SET_SHOW_RADAR_COORDS;
+                    if self.scripts_own(ifun) {
+                        self.script_ifun(
+                            ifun,
+                            &[ac2_net::protocol::PackValue::Int(u32::from(*show))],
+                        )
+                    } else {
+                        Vec::new()
+                    }
+                }
                 Command::Skill(request) => {
                     self.session.request_skill(*request);
                     Vec::new()
@@ -325,6 +363,30 @@ impl Client {
                 }
                 Command::TransmuteAll(container) => {
                     self.session.transmute_all(*container);
+                    Vec::new()
+                }
+                Command::OpenTrade(other) => {
+                    self.session.open_trade(*other);
+                    Vec::new()
+                }
+                Command::CloseTrade => {
+                    self.session.close_trade();
+                    Vec::new()
+                }
+                Command::AcceptTrade => {
+                    self.session.accept_trade();
+                    Vec::new()
+                }
+                Command::DeclineTrade => {
+                    self.session.decline_trade();
+                    Vec::new()
+                }
+                Command::OfferItemForTrade { item, amount } => {
+                    self.session.offer_item_for_trade(*item, *amount);
+                    Vec::new()
+                }
+                Command::RevokeItemFromTrade(item) => {
+                    self.session.revoke_item_from_trade(*item);
                     Vec::new()
                 }
                 Command::DragToMoneyBag {

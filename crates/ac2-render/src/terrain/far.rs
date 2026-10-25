@@ -444,6 +444,7 @@ impl FarTerrain {
                 }],
                 slot: (0, 0),
                 skin: None,
+                mesh_type: 0,
             }],
             skeleton: None,
         }))

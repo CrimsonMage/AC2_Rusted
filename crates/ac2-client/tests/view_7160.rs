@@ -590,14 +590,152 @@ fn the_client_walks_with_w_and_draws_its_character() {
             .any(|(id, tip)| *id == legions_server_double::SWORD && tip.contains("Sword")),
         "{backpack:?}"
     );
+    // A secure trade with the double's other player: the panel opens, the partner's offer fills
+    // its list (`gmSecureTradeUI` over `WM_Trade`).
+    const SHIELD: u64 = 0x8000_0002_0000_0031;
+    server
+        .borrow_mut()
+        .script_world
+        .contents
+        .insert(legions_server_double::FELLOW, (Vec::new(), vec![SHIELD]));
+    let open = FrameInput {
+        commands: vec![ac2_client::Command::OpenTrade(
+            legions_server_double::FELLOW,
+        )],
+        ..FrameInput::default()
+    };
+    events = client.use_time(&open).unwrap();
+    let mut offered = false;
+    for _ in 0..20 {
+        let now = client.frame();
+        let notices = client.take_script_notices();
+        let commands = view.frameworks(&mut client, &now, &events, &notices);
+        if view.trade().is_some_and(|(shown, ..)| shown) && !offered {
+            server.borrow_mut().partner_offer(SHIELD, 1);
+            offered = true;
+        }
+        let input = FrameInput {
+            commands,
+            ..FrameInput::default()
+        };
+        server.borrow_mut().elapsed += STEP;
+        events = client.use_time(&input).unwrap();
+        if view
+            .trade()
+            .is_some_and(|(_, _, partner)| !partner.is_empty())
+        {
+            break;
+        }
+    }
+    assert_eq!(view.trade(), Some((true, Vec::new(), vec![SHIELD])));
+    // The radar's creatures and NPC (drawn on the radar in the last snapshot): their looks come
+    // once their scripts run.
+    server.borrow_mut().spawn_radar_objects();
+    for _ in 0..40 {
+        if client.frame().radar.blips.len() == 3 {
+            break;
+        }
+        let now = client.frame();
+        let notices = client.take_script_notices();
+        let commands = view.frameworks(&mut client, &now, &events, &notices);
+        let input = FrameInput {
+            commands,
+            ..FrameInput::default()
+        };
+        server.borrow_mut().elapsed += STEP;
+        events = client.use_time(&input).unwrap();
+    }
+    assert_eq!(client.frame().radar.blips.len(), 3);
+    // The names key (`gm3DTextUI::ToggleNames`): plates for the creatures and the NPC, and the
+    // choice kept in the options profile.
+    assert!(view.named().is_empty());
+    view.ui_input(
+        &[(0x4100_000F, 1.0, true), (0x4100_000F, 0.0, false)],
+        ac2_ui::Modifiers::default(),
+    );
+    let now = client.frame();
+    let notices = client.take_script_notices();
+    let commands = view.frameworks(&mut client, &now, &events, &notices);
+    assert!(commands.contains(&ac2_client::Command::SetShowObjectNames(true)));
+    let mut named = view.named();
+    named.sort_unstable();
+    assert_eq!(
+        named,
+        [
+            legions_server_double::CREATURE_ONE,
+            legions_server_double::CREATURE_TWO,
+            legions_server_double::NPC
+        ]
+    );
+    client
+        .use_time(&FrameInput {
+            commands,
+            ..FrameInput::default()
+        })
+        .unwrap();
+    assert!(client.show_object_names());
+    // `gmCWInterface::SetShowRadarCoords` runs on the player's script and keeps the choice in
+    // the options profile.
+    assert!(!client.show_radar_coords());
+    let show = FrameInput {
+        commands: vec![ac2_client::Command::SetShowRadarCoords(true)],
+        ..FrameInput::default()
+    };
+    client.use_time(&show).unwrap();
+    assert!(client.show_radar_coords());
+    // The world chest: opening it shows `gmExternalContainerUI` with its two items.
+    server.borrow_mut().spawn_chest();
+    let open = FrameInput {
+        commands: vec![ac2_client::Command::SetContainerOpen {
+            container: legions_server_double::CHEST,
+            open: true,
+        }],
+        ..FrameInput::default()
+    };
+    let mut events = client.use_time(&open).unwrap();
+    let mut chest = None;
+    for _ in 0..20 {
+        let now = client.frame();
+        let notices = client.take_script_notices();
+        let commands = view.frameworks(&mut client, &now, &events, &notices);
+        let input = FrameInput {
+            commands,
+            ..FrameInput::default()
+        };
+        server.borrow_mut().elapsed += STEP;
+        events = client.use_time(&input).unwrap();
+        chest = view.external_container_items();
+        if chest
+            .as_ref()
+            .is_some_and(|(c, items)| *c == legions_server_double::CHEST && items.len() == 2)
+        {
+            break;
+        }
+    }
+    assert_eq!(
+        chest,
+        Some((
+            legions_server_double::CHEST,
+            vec![
+                legions_server_double::CHEST_GEM,
+                legions_server_double::CHEST_SCROLL
+            ]
+        ))
+    );
     // A displayed line reaches the log on the next update; the window shows it.
     view.chat_display(0x4_0000, "Explorer says, \"well met\"\n");
+    // The last snapshot shows the frame as it is now (the radar's blips included).
+    let frame = client.frame();
     // Images set since the build (icons) load on a worker; give them a moment.
     for _ in 0..20 {
         view.update(&gpu, &frame, Duration::ZERO);
         std::thread::sleep(Duration::from_millis(10));
     }
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
+    // The radar's coordinates (`Position::ToRealMapCoords_Info` through the DAT's table).
+    // The options profile hides the coordinates at login (`gmRadarUI::ReloadOptions` closes
+    // `BaseField`'s box, which then has no `CoordinatesText`).
+    assert_eq!(view.radar_coordinates(), None);
     target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
     write_png(
         "client_cb4d_chat.png",

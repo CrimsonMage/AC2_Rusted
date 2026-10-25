@@ -1,11 +1,14 @@
-//! The pregame scenes' cameras and lights.
+//! The UI scenes' cameras and lights.
 //!
 //! A viewport renders through its camera entity (`UIScene::Render`, `SceneTool::SetupCamera`):
 //! the view from the entity's frame looking along its +Y axis (`SceneTool::SetupView`'s forward
 //! row), the vertical field of view in degrees and the viewport's aspect
-//! (`SetupPerspectiveProjection`). Avatar modification moves its camera to frame the avatar
-//! (`gmAvatarModificationUI::InitCamera`) and turns it about the avatar by the rotation slider
-//! (`UpdateCamera`), and makes `Light_1` a light shining from the camera.
+//! (`SetupPerspectiveProjection`), or an orthographic view `mVerticalScale` metres high
+//! (`SetupOrthographicProjection`). The renderer's camera is perspective, so an orthographic
+//! one looks from [`ORTHO_DISTANCE`] behind the camera through the field of view that spans the
+//! vertical scale there (sizes differ from a true orthographic view by about distance / 10 km).
+//! A frame may make `Light_1` a light shining from the camera (avatar modification's
+//! `UpdateCamera`).
 //!
 //! The scene's light entities are linked as the lights (`SceneTool::LinkLight`) and the sun is
 //! disabled; a scene without lights gets ambient 0.1 and the sun along (0.3, -0.9, -1) at
@@ -14,7 +17,6 @@
 use ac2_math::Vec3;
 use ac2_render::object::{object_point_lights, PointLight, SceneLight};
 use ac2_render::{Camera, SceneLighting};
-use ac2_ui::pregame::ModificationCamera;
 use ac2_world::{Ac2LightKind, Ac2StaticLight};
 
 use super::data::{CameraData, LightData, SceneData, LIGHT_DIRECTIONAL};
@@ -27,6 +29,8 @@ const SUN_DIRECTION: [f64; 3] = [0.3, -0.9, -1.0];
 const SUN_INTENSITY: f32 = 0.5;
 /// No fog (`SetFogProperties` off): past any scene.
 const NO_FOG: (f32, f32) = (1.0e6, 2.0e6);
+/// How far behind an orthographic camera its view is taken from.
+pub(crate) const ORTHO_DISTANCE: f32 = 10_000.0;
 /// `gmAvatarModificationUI::UpdateCamera`'s light (`Light_1`): diffuse 0.6 grey, ambient 0.1.
 const CAMERA_LIGHT: &str = "Light_1";
 const CAMERA_LIGHT_DIFFUSE: f32 = 0.6;
@@ -45,82 +49,33 @@ pub(crate) fn camera_entity<'a>(
         .or_else(|| scene.cameras.first())
 }
 
-/// `SceneTool::SetupCamera` for a perspective camera (an orthographic one is not drawn).
-pub(crate) fn scene_camera(camera: &CameraData) -> Option<Camera> {
-    if camera.orthographic {
-        return None;
-    }
+/// `SceneTool::SetupCamera`: the camera at its frame; an orthographic one (`vertical_scale`
+/// metres high) from [`ORTHO_DISTANCE`] behind. Also the distance the eye stands behind the
+/// camera's origin (for the fog).
+pub(crate) fn scene_camera(camera: &CameraData) -> (Camera, f32) {
     let forward = camera.frame.orientation * Vec3::Y;
-    Some(Camera {
-        eye: camera.frame.origin,
-        target: camera.frame.origin + forward,
-        fov_y: camera.fov.to_radians(),
-        near: camera.near,
-        far: camera.far,
-    })
-}
-
-/// `InitCamera`'s framing for a race: the height factor, the camera's height and target
-/// fractions and its distance fraction, (un)zoomed. Legions adds Drudges (8) and Empyreans
-/// (0x10) with the human factors; other races leave them unset (the human ones here).
-fn framing(race: u32, zoomed: bool) -> (f64, f64, f64, f64) {
-    let human = if zoomed {
-        (0.35, 0.1, 0.75)
-    } else {
-        (0.85, 0.6, 0.75)
-    };
-    let ((height, target, distance), scale) = match race {
-        1 => (human, 0.95),
-        2 if zoomed => ((0.25, 0.1, 0.65), 1.0),
-        2 => ((0.75, 0.55, 0.4), 1.0),
-        4 if zoomed => ((0.25, 0.05, 1.0), 0.84),
-        4 => ((0.85, 0.6, 0.8), 0.84),
-        _ => (human, 1.0),
-    };
-    (scale, height, target, distance)
-}
-
-/// `InitCamera` then `UpdateCamera`: the eye at the race's height and distance fractions of the
-/// avatar's height (its box, scaled by the avatar's height when zoomed, the lower three
-/// quarters then skipped), looking at the target height on the avatar's axis, turned about it
-/// so the camera's heading is the rotation slider's position times 360 degrees.
-pub(crate) fn modification_camera(
-    base: &CameraData,
-    race: u32,
-    bounds: (Vec3, Vec3),
-    scale_z: f32,
-    state: ModificationCamera,
-) -> (Camera, Vec3) {
-    let (factor, height_f, target_f, distance_f) = framing(race, state.zoomed);
-    let mut height = (f64::from(bounds.1.z) - f64::from(bounds.0.z)) * factor;
-    let mut floor = 0.0;
-    if state.zoomed {
-        height *= f64::from(scale_z);
-        floor = height * 0.75;
+    let origin = camera.frame.origin;
+    if !camera.orthographic {
+        let view = Camera {
+            eye: origin,
+            target: origin + forward,
+            fov_y: camera.fov.to_radians(),
+            near: camera.near,
+            far: camera.far,
+        };
+        return (view, 0.0);
     }
-    let span = height - floor;
-    let eye_z = span * height_f + floor;
-    let target_z = span * target_f + floor;
-    let distance = span * distance_f;
-    // `Heading::set_degrees(pos * 360)`; the camera looks along `(sin a, cos a)`.
-    let angle = (f64::from(state.rotation) * 360.0).to_radians();
-    let eye = Vec3::new(
-        (-distance * angle.sin()) as f32,
-        (-distance * angle.cos()) as f32,
-        eye_z as f32,
-    );
-    let target = Vec3::new(0.0, 0.0, target_z as f32);
-    let camera = Camera {
-        eye,
-        target,
-        fov_y: base.fov.to_radians(),
-        near: base.near,
-        far: base.far,
+    let distance = f64::from(ORTHO_DISTANCE);
+    let fov = 2.0 * (f64::from(camera.vertical_scale) * 0.5 / distance).atan();
+    let view = Camera {
+        eye: origin - forward * ORTHO_DISTANCE,
+        target: origin,
+        fov_y: fov as f32,
+        // An orthographic camera's near plane may be behind it (the paper doll's is -20).
+        near: (ORTHO_DISTANCE + camera.near).max(1.0),
+        far: ORTHO_DISTANCE + camera.far,
     };
-    let forward = (target - eye).normalize_or_zero();
-    // The light along the view, tilted down by half a metre per metre.
-    let light = Vec3::new(forward.x, forward.y, forward.z - 0.5).normalize_or_zero();
-    (camera, light)
+    (view, ORTHO_DISTANCE)
 }
 
 /// The frame's lighting and the point lights each object gets: the scene's lights linked
@@ -212,59 +167,29 @@ pub(crate) fn object_lights(lights: &[SceneLight], position: Vec3, radius: f32) 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ac2_math::Frame;
 
-    fn base() -> CameraData {
-        CameraData {
-            name: Some("Camera_1".into()),
-            frame: Frame::IDENTITY,
-            orthographic: false,
+    /// `SetupOrthographicProjection`: `vertical_scale` metres high at the camera's plane,
+    /// looking along the frame's +Y; the near plane may lie behind the camera.
+    #[test]
+    fn an_orthographic_camera_spans_its_vertical_scale() {
+        let base = CameraData {
+            name: None,
+            frame: ac2_math::Frame::IDENTITY,
+            orthographic: true,
             fov: 90.0,
-            vertical_scale: 1.0,
-            near: 0.1,
-            far: 2500.0,
-        }
-    }
-
-    /// `UpdateCamera`: the slider's position times 360 degrees is the camera's heading, at the
-    /// distance and heights `InitCamera` gives a human (height factor 0.95).
-    #[test]
-    fn the_rotation_slider_turns_the_camera_about_the_avatar() {
-        let bounds = (Vec3::ZERO, Vec3::new(0.0, 0.0, 2.0));
-        for rotation in [0.0_f32, 0.25, 0.5, 0.8] {
-            let state = ModificationCamera {
-                zoomed: false,
-                rotation,
-            };
-            let (camera, light) = modification_camera(&base(), 1, bounds, 1.0, state);
-            let f = camera.target - camera.eye;
-            let heading = (450.0 - f64::from(f.y).atan2(f64::from(f.x)).to_degrees()) % 360.0;
-            let want = f64::from(rotation) * 360.0 % 360.0;
-            let diff = (heading - want).rem_euclid(360.0);
-            assert!(diff < 1e-3 || diff > 360.0 - 1e-3, "{rotation}: {heading}");
-            let height = 2.0 * 0.95;
-            assert!((camera.eye.z - (height * 0.85) as f32).abs() < 1e-5);
-            assert!((camera.target.z - (height * 0.6) as f32).abs() < 1e-5);
-            let flat = camera.eye.truncate().length();
-            assert!((flat - (height * 0.75) as f32).abs() < 1e-5);
-            assert!(light.z < 0.0, "the camera light shines down");
-        }
-    }
-
-    /// Zoomed, the lower three quarters of the (scaled) height are skipped.
-    #[test]
-    fn zooming_frames_the_head() {
-        let bounds = (Vec3::ZERO, Vec3::new(0.0, 0.0, 2.0));
-        let state = ModificationCamera {
-            zoomed: true,
-            rotation: 0.5,
+            vertical_scale: 2.0,
+            near: -20.0,
+            far: 20.0,
         };
-        let (camera, _) = modification_camera(&base(), 2, bounds, 1.5, state);
-        let (height, floor) = (2.0 * 1.5, 2.0 * 1.5 * 0.75);
-        let span = height - floor;
-        assert!((camera.eye.z - (span * 0.25 + floor) as f32).abs() < 1e-5);
-        assert!((camera.target.z - (span * 0.1 + floor) as f32).abs() < 1e-5);
-        assert!((camera.eye.y - (span * 0.65) as f32).abs() < 1e-5);
+        let (view, offset) = scene_camera(&base);
+        assert_eq!(offset, ORTHO_DISTANCE);
+        assert!((view.target - Vec3::ZERO).length() < 1e-6);
+        assert!(view.eye.y < -9_999.0, "behind the camera along -Y");
+        let vp = view.view_projection(1.0);
+        let top = vp.project_point3(Vec3::new(0.0, 0.0, 1.0));
+        assert!((top.y - 1.0).abs() < 1e-3, "{top:?}");
+        let behind = vp.project_point3(Vec3::new(0.0, -10.0, 0.0));
+        assert!((0.0..=1.0).contains(&behind.z), "{behind:?}");
     }
 
     /// `UIScene::Render` without lights: ambient 0.1 and the half-white sun; with lights the

@@ -3,13 +3,19 @@
 //! references to one another. Everything here runs on the loader thread.
 
 pub mod band;
+pub mod clock;
 pub mod container;
 pub mod dls;
 pub mod encoded;
+pub mod harmony;
 pub mod library;
+pub mod music_value;
+pub mod performance;
 pub mod riff;
 pub mod segment;
 pub mod style;
+pub mod style_performance;
+pub mod style_play;
 
 use std::sync::Arc;
 
@@ -78,5 +84,11 @@ pub fn read_music_record(did: u32, bytes: &[u8]) -> MusicResult<MusicObject> {
     read_object_chunk(&riff(file)?)
 }
 
+#[cfg(test)]
+mod harmony_tests;
+#[cfg(test)]
+mod music_value_tests;
+#[cfg(test)]
+pub(crate) mod style_tests;
 #[cfg(test)]
 mod tests;

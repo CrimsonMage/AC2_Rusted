@@ -11,6 +11,7 @@ mod glue;
 mod gun;
 mod ifun;
 mod interface;
+mod inventory_globals;
 mod notices;
 mod notices_typed;
 pub mod radar;

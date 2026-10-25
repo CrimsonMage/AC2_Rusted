@@ -248,6 +248,12 @@ impl UiTree {
         }
     }
 
+    /// `IUIManager`'s `StartDragandDrop` of `element` from code (`gmPaperDollUI::
+    /// HandlePaperDollDrag`): a drag of it starts when the held button would start one.
+    pub fn start_drag(&mut self, element: usize) -> bool {
+        self.drag.element.is_none() && self.start_drag_and_drop(element, 0, 0)
+    }
+
     /// The element being dragged (the copy at the pointer), if any.
     pub fn dragged(&self) -> Option<usize> {
         self.drag.element

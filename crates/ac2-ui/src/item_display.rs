@@ -49,6 +49,51 @@ pub trait InventorySource {
     fn max_container_size(&self, container: u64) -> u32;
     /// `gmCWInterface::GetSelection`.
     fn selection(&self) -> u64;
+    /// `gmCWInterface::GetPreferredInventoryLocation`: where a drop on the paper doll's body
+    /// equips the item (0: nowhere).
+    fn preferred_location(&self, _item: u64) -> u32 {
+        0
+    }
+    /// `gmCWInterface::HasDurability` / `GetDurabilityLevel` / `GetMaxDurabilityLevel`: the
+    /// current and maximum durability, for an item that has durability.
+    fn durability(&self, _item: u64) -> Option<(i32, i32)> {
+        None
+    }
+    /// `ID_Inventory_TT_Durability` with `current` and `max`, as the text shown.
+    fn durability_tooltip(&self, _current: i32, _max: i32) -> Option<String> {
+        None
+    }
+    /// The player (`CObjectMaint::GetPlayerWeenieObject`'s id; 0 before the player is in the world).
+    fn player(&self) -> u64 {
+        0
+    }
+    /// The player's money (`CWRepository::GetInt(player, 3100)`, `gmMoneyBagUI`'s amount).
+    fn money(&self) -> u32 {
+        0
+    }
+    /// `gInventoryGlobals::CallIFun_GetCoinMaxStackSize`: the most coins a stack holds.
+    fn coin_max_stack(&self) -> u32 {
+        u32::MAX
+    }
+    /// `gmMoneyBagUI::HandleMoneyBagDrop`'s test on the item's type (its `GetInt(item, 20)`
+    /// has the melting bits `0xF0081`).
+    fn melts_to_money(&self, _item: u64) -> bool {
+        false
+    }
+    /// `gmCWInterface::GetBypassGoldMeltingConfirmationDlg`: the option that skips the melting
+    /// confirmation.
+    fn bypass_melting_confirmation(&self) -> bool {
+        false
+    }
+}
+
+/// `ContainerDisplay::s_coinFieldElementName` (`CoinsField`): the money field a drag starts from.
+pub(crate) const COINS_FIELD: &str = "CoinsField";
+
+/// Whether the dragged copy is the coin field (`ContainerDisplay_DDCB` takes it without an item
+/// type).
+pub(crate) fn is_coin_copy(tree: &UiTree, copy: usize) -> bool {
+    tree.get(copy).map(|el| el.id()) == Some(id(COINS_FIELD))
 }
 
 /// What a slot asks of the player.
@@ -71,6 +116,104 @@ pub enum ItemRequest {
     },
     /// `gmCWInterface::UnEquipItem` into a slot of the player's pack.
     Unequip { item: u64, target_slot: i32 },
+    /// `CM_UI::SendNotice_InitStackUI`: how many of the stack `item` to move into `target`,
+    /// `amount` the default and the most; the answer comes back with `context`.
+    Split {
+        context: u32,
+        item: u64,
+        target: u64,
+        amount: u32,
+    },
+    /// `gmCWInterface::EquipItem` (`gmPaperDollUI::HandlePaperDollDrop`).
+    Equip { item: u64, location: u32 },
+    /// `CM_UI::SendNotice_InitStackUI` for the coin field dropped on a pack (`HandleDragFromMoneyBag`
+    /// and the backpack's coin branch): the money stack's question, `amount` the default and the
+    /// most (the money or the coin stack's maximum, whichever is less), `target` the container
+    /// (0 on the backpack's pages). The answer comes back with `context`.
+    MoneyStack {
+        context: u32,
+        target: u64,
+        amount: u32,
+    },
+    /// `CM_UI::SendNotice_InitStackUI` for an item dropped on the money bag
+    /// (`gmMoneyBagUI::HandleMoneyBagDrop`): how many of the stack `item` to melt, `from` the
+    /// container it is in.
+    MoneyBagSplit {
+        context: u32,
+        item: u64,
+        from: u64,
+        amount: u32,
+    },
+    /// `gmCWInterface::DragToMoneyBag`: `quantity` of `item` from slot `from_slot` of
+    /// `from_container` into the money bag.
+    DragToMoneyBag {
+        item: u64,
+        quantity: u32,
+        from_slot: i32,
+        from_container: u64,
+    },
+    /// `gmCWInterface::DragFromMoneyBag`: `quantity` of money out to slot `to_slot` of
+    /// `to_container` (0: the player's pack).
+    DragFromMoneyBag {
+        quantity: u32,
+        to_slot: i32,
+        to_container: u64,
+    },
+    /// `gmCWInterface::MoveItem` of the whole item into `to`'s slot 0, then `EquipItem`
+    /// (Legions 7160's `HandlePaperDollDrop`, which falls through from the move).
+    MoveAndEquip {
+        item: u64,
+        from: u64,
+        to: u64,
+        location: u32,
+    },
+}
+
+/// A drop waiting for the stack dialog (`m_itemToMove`, `m_moveFrom`, `m_oldIndex`,
+/// `m_newIndex`, `m_stackSize`, `m_lbdContext`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct PendingMove {
+    item: u64,
+    from: u64,
+    old_index: u32,
+    new_index: u32,
+    stack_size: u32,
+    context: u32,
+}
+
+/// A dragged item copy's attributes: the item (`Token_ShortcutData`), the container it came
+/// from (`FromID`), whether it is worn (`Equipped`) and its slot (`Token_OldIndex`).
+pub(crate) struct DraggedItem {
+    pub item: u64,
+    pub from: u64,
+    pub equipped: bool,
+    pub old_index: i32,
+}
+
+/// `gmPaperDollUI_DDCB` and `ContainerDisplay_DDCB`: only an item (`Token_ShortcutType`
+/// 0x40000002) is dropped on the slots.
+pub(crate) fn is_item_copy(tree: &UiTree, copy: usize) -> bool {
+    tree.get(copy)
+        .and_then(|el| el.attribute(id("Token_ShortcutType")))
+        == Some(&crate::layout::AttributeValue::Id(0x4000_0002))
+}
+
+pub(crate) fn dragged_item(tree: &UiTree, copy: usize) -> Option<DraggedItem> {
+    let el = tree.get(copy)?;
+    let instance = |name: &str| match el.attribute(id(name)) {
+        Some(crate::layout::AttributeValue::InstanceId(v)) => *v,
+        _ => 0,
+    };
+    let old_index = match el.attribute(id("Token_OldIndex")) {
+        Some(crate::layout::AttributeValue::Int(i)) => *i,
+        _ => 0,
+    };
+    Some(DraggedItem {
+        item: instance("Token_ShortcutData"),
+        from: instance("FromID"),
+        equipped: tree.bool_attribute(copy, id("Equipped")),
+        old_index,
+    })
 }
 
 /// `ItemDisplay`'s state.
@@ -163,6 +306,21 @@ impl ItemDisplay {
         self.update(tree, s);
     }
 
+    /// `ItemDisplay::SetDraggable`: the icon can be dragged (unless it is pending).
+    pub fn set_draggable(&mut self, tree: &mut UiTree, s: &dyn InventorySource, draggable: bool) {
+        self.draggable = draggable;
+        self.update(tree, s);
+    }
+
+    /// `ItemDisplay::SetShortcutType`: the icon's shortcut type; 0 is not an item, so the item
+    /// drop callbacks refuse a drag of it (`gmSecureTradeUI::AddItem`).
+    pub fn set_shortcut_type(&self, tree: &mut UiTree, shortcut_type: u32) {
+        tree.el_mut(self.icon).attributes.insert(
+            id("Token_ShortcutType"),
+            crate::layout::AttributeValue::Id(shortcut_type),
+        );
+    }
+
     /// `ItemDisplay::RecvNotice_SelectionChanged`: the icon `selected` while it is the selection.
     pub fn selection_changed(&self, tree: &mut UiTree, old: u64, new: u64) {
         if new == self.item && old != self.item {
@@ -201,6 +359,11 @@ pub struct ContainerDisplay {
     segment: u32,
     /// `_itemList`, in slot order.
     pub items: Vec<ItemDisplay>,
+    pending: Option<PendingMove>,
+    /// `m_newIndex`: the slot the last coin drop pointed at (the backpack's coin branch reads it).
+    pub(crate) drop_index: u32,
+    /// `m_dfmbContext`: the coin drop waiting for its stack dialog (0: none).
+    money_context: u32,
 }
 
 impl ContainerDisplay {
@@ -223,6 +386,9 @@ impl ContainerDisplay {
             first_slot,
             segment,
             items: Vec::new(),
+            pending: None,
+            drop_index: 0,
+            money_context: 0,
         };
         let Some(list) = display.list else {
             return display;
@@ -355,6 +521,22 @@ impl ContainerDisplay {
         self.count = 0;
     }
 
+    /// `ContainerDisplay::Cleanup`: the drops waiting for their stack dialogs dropped (their
+    /// contexts returned, for `CM_UI::SendNotice_CloseStackUI`: the list drop's, then the coin's),
+    /// the items and the slots gone.
+    pub fn cleanup(&mut self, tree: &mut UiTree) -> Vec<u32> {
+        let mut contexts: Vec<u32> = self.pending.take().map(|p| p.context).into_iter().collect();
+        contexts.push(std::mem::take(&mut self.money_context));
+        contexts.retain(|&c| c != 0);
+        self.container = 0;
+        self.flush(tree);
+        if let Some(list) = self.list.take() {
+            tree.list_flush(list);
+        }
+        self.max_size = 0;
+        contexts
+    }
+
     /// `ContainerDisplay::RecvNotice_UpdateContainer`.
     pub fn update_container(
         &mut self,
@@ -416,25 +598,22 @@ impl ContainerDisplay {
         self.first_slot + index
     }
 
-    /// `ContainerDisplay::HandleListBoxDrop` and `FinishListBoxDrop`: an item from a container
-    /// moves to the slot under the pointer (one dropped past the segment's end from this
-    /// container lands on the last slot); an equipped item is taken off into it. The stack
-    /// dialog for part of a stack (`gmStackUI`) is not modelled: the whole stack moves.
+    /// `ContainerDisplay::HandleListBoxDrop`: an item from a container moves to the slot under
+    /// the pointer; an equipped item is taken off into it. A stack of more than one asks how many
+    /// first (`gmStackUI`, default and most the stack's size up to its maximum).
     fn list_box_drop(
-        &self,
-        tree: &UiTree,
+        &mut self,
+        tree: &mut UiTree,
         s: &dyn InventorySource,
         copy: usize,
     ) -> Option<ItemRequest> {
-        let el = tree.get(copy)?;
-        let instance = |name: &str| match el.attribute(id(name)) {
-            Some(crate::layout::AttributeValue::InstanceId(v)) => *v,
-            _ => 0,
-        };
-        let item = instance("Token_ShortcutData");
-        let from = instance("FromID");
-        let equipped = tree.bool_attribute(copy, id("Equipped"));
-        let mut new_index = self.new_index(tree, s);
+        let DraggedItem {
+            item,
+            from,
+            equipped,
+            old_index,
+        } = dragged_item(tree, copy)?;
+        let new_index = self.new_index(tree, s);
         let slot = s.item(item)?;
         if equipped {
             return Some(ItemRequest::Unequip {
@@ -442,10 +621,7 @@ impl ContainerDisplay {
                 target_slot: new_index as i32,
             });
         }
-        let old_index = match el.attribute(id("Token_OldIndex")) {
-            Some(crate::layout::AttributeValue::Int(i)) => *i as u32,
-            _ => 0,
-        };
+        let old_index = old_index as u32;
         let quantity = slot.quantity;
         if from == self.container && old_index == new_index {
             return None;
@@ -455,26 +631,101 @@ impl ContainerDisplay {
         } else {
             quantity
         };
-        if from == self.container {
+        let mut pending = PendingMove {
+            item,
+            from,
+            old_index,
+            new_index,
+            stack_size,
+            context: 0,
+        };
+        if slot.stackable && 1 < quantity {
+            pending.context = tree.request_stack_context();
+            self.pending = Some(pending);
+            return Some(ItemRequest::Split {
+                context: pending.context,
+                item,
+                target: self.container,
+                amount: stack_size,
+            });
+        }
+        self.finish_list_box_drop(s, pending, quantity)
+    }
+
+    /// `ContainerDisplay::FinishListBoxDrop`: the move of `quantity` (one dropped past the
+    /// segment's end from this container, a whole stack, lands on the last slot).
+    fn finish_list_box_drop(
+        &self,
+        s: &dyn InventorySource,
+        mut pending: PendingMove,
+        quantity: u32,
+    ) -> Option<ItemRequest> {
+        if pending.from == self.container && pending.old_index == pending.new_index {
+            return None;
+        }
+        if pending.from == self.container {
             let (_, _, size) = s.contents_info(self.container, self.segment);
-            if size <= new_index - self.first_slot && stack_size == quantity && new_index > 0 {
-                new_index -= 1;
+            if size <= pending.new_index.wrapping_sub(self.first_slot)
+                && pending.stack_size == quantity
+            {
+                pending.new_index = pending.new_index.wrapping_sub(1);
             }
         }
         Some(ItemRequest::Move {
-            item,
-            from,
-            from_slot: old_index as i32,
+            item: pending.item,
+            from: pending.from,
+            from_slot: pending.old_index as i32,
             target: self.container,
-            target_slot: new_index as i32,
+            target_slot: pending.new_index as i32,
             quantity,
+        })
+    }
+
+    /// `ContainerDisplay::RecvNotice_StackUIDone`: the stack dialog's answer to this display's
+    /// drop finishes it.
+    pub fn stack_ui_done(
+        &mut self,
+        s: &dyn InventorySource,
+        context: u32,
+        amount: u32,
+    ) -> Option<ItemRequest> {
+        if context != 0 && context == self.money_context {
+            // `ContainerDisplay::RecvNotice_StackUIDone`'s coin branch: `DragFromMoneyBag`.
+            self.money_context = 0;
+            return Some(ItemRequest::DragFromMoneyBag {
+                quantity: amount,
+                to_slot: self.drop_index as i32,
+                to_container: self.container,
+            });
+        }
+        let pending = self.pending.filter(|p| p.context == context)?;
+        self.pending = None;
+        self.finish_list_box_drop(s, pending, amount)
+    }
+
+    /// `ContainerDisplay::HandleDragFromMoneyBag`: the coin field dropped on the list. The slot
+    /// under the pointer is kept (`m_newIndex`); the stack dialog asks how much, with the money
+    /// and the coin stack's maximum as the limits (the less of them is the default and the most).
+    fn drag_from_money_bag(
+        &mut self,
+        tree: &mut UiTree,
+        s: &dyn InventorySource,
+    ) -> Option<ItemRequest> {
+        self.drop_index = self.new_index(tree, s);
+        let context = tree.request_stack_context();
+        self.money_context = context;
+        let amount = s.money().min(s.coin_max_stack());
+        Some(ItemRequest::MoneyStack {
+            context,
+            target: self.container,
+            amount,
         })
     }
 
     /// `ContainerDisplay::ListenToMessage` (a drop on its list) and the slots' presses.
     pub fn message(
-        &self,
-        tree: &UiTree,
+        &mut self,
+        tree: &mut UiTree,
         s: &dyn InventorySource,
         message: &UiMessage,
     ) -> Option<ItemRequest> {
@@ -483,10 +734,13 @@ impl ContainerDisplay {
             && message.element == self.list
             && message.data != 0
         {
-            // `ContainerDisplay_DDCB`: only items.
             let copy = message.item?;
-            let kind = tree.get(copy)?.attribute(id("Token_ShortcutType")).cloned();
-            if kind != Some(crate::layout::AttributeValue::Id(0x4000_0002)) {
+            // `ContainerDisplay::ListenToMessage`: the coin field, else `ContainerDisplay_DDCB`
+            // takes only items.
+            if is_coin_copy(tree, copy) {
+                return self.drag_from_money_bag(tree, s);
+            }
+            if !is_item_copy(tree, copy) {
                 return None;
             }
             return self.list_box_drop(tree, s, copy);

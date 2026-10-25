@@ -3,8 +3,6 @@
 //!   (`AmbientSound::DoSoundUpdate`), the land points of the blocks around
 //!   (`LScapeRender::AddCellSounds`) and the visible interior cells (`CellRender::AddCellSounds`,
 //!   sound type 2) weigh the environments, and `AmbientSound::UseTime` runs every frame.
-//! - `gmRadarUI::UpdateGroove`: every `_grooveDelay` seconds the groove levels (int quality
-//!   0x3B6) of the objects within radar range add up to the music's groove level.
 //!
 //! The region's sound data and each block's points are read on the loader thread.
 
@@ -20,10 +18,6 @@ use crate::loader::Request;
 
 /// `CEnvCell::m_ambientSoundType`: every Legions interior cell's.
 const ENV_CELL_SOUND_TYPE: u32 = 2;
-/// `GrooveLevel`, the int quality an object's danger sets the music's intensity with.
-const GROOVE_LEVEL: u32 = 0x3B6;
-/// `gmRadarUI::_grooveDelay`'s default.
-const GROOVE_DELAY: f64 = 2.0;
 
 /// What the loader read for the ambient sound.
 #[derive(Debug, Clone)]
@@ -41,14 +35,9 @@ pub(crate) struct ClientAmbient {
     points_requested: HashSet<u32>,
     /// `m_posPlayerOld`.
     moved_from: Option<Position>,
-    /// `gmRadarUI::_grooveLevel`, `_nextGroove`.
-    groove: i8,
-    next_groove: f64,
-    /// `gRadarControl::CallIFun_InqRadarRanges`: indoor, outdoor.
-    radar_ranges: Option<(f32, f32)>,
 }
 
-fn is_outside(cell: u32) -> bool {
+pub(crate) fn is_outside(cell: u32) -> bool {
     cell & 0xFFFF < 0x100
 }
 
@@ -155,54 +144,6 @@ impl Client {
             ambient.sound.change_cell_end(now, &mut audio.manager);
         }
         ambient.sound.use_time(now, &mut audio.manager);
-        self.groove_use_time(now);
-    }
-
-    /// `gmRadarUI::UpdateGroove`.
-    fn groove_use_time(&mut self, now: f64) {
-        let Some(audio) = self.audio.as_mut() else {
-            return;
-        };
-        let ambient = &mut audio.ambient;
-        if now < ambient.next_groove {
-            return;
-        }
-        ambient.next_groove = now + GROOVE_DELAY;
-        if ambient.radar_ranges.is_none() {
-            ambient.radar_ranges = self.scripts.as_mut().and_then(|scripts| {
-                ac2_script::host::radar::inq_radar_ranges(scripts.host.vm_mut(), 0.0, 0.0)
-            });
-        }
-        let Some(player) = self.player.as_ref().filter(|p| p.in_world) else {
-            return;
-        };
-        let position = player.position();
-        let (indoor, outdoor) = ambient.radar_ranges.unwrap_or((0.0, 0.0));
-        let range = f64::from(if is_outside(position.cell_id) {
-            outdoor
-        } else {
-            indoor
-        });
-        let mut level = 0i8;
-        for object in self.session.objects().iter() {
-            let groove = object.qualities.inq_int(GROOVE_LEVEL).unwrap_or(0) as i8;
-            if groove == 0 {
-                continue;
-            }
-            let Some(at) = self.remotes.get(object.id).and_then(|r| r.position()) else {
-                continue;
-            };
-            // `Position::localtolocal`: the offset in the player's frame, level distance.
-            let local = position.frame.global_to_local_vec(position.offset_to(&at));
-            let (x, y) = (f64::from(local.x), f64::from(local.y));
-            if x * x + y * y <= range * range {
-                level = level.wrapping_add(groove);
-            }
-        }
-        if level != ambient.groove {
-            ambient.groove = level;
-            audio.manager.set_groove_level(i32::from(level));
-        }
     }
 
     /// The dominant ambient environment's `EnvInfo` (its reverb), once the cells were weighed.

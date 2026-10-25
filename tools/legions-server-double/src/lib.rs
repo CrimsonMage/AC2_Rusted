@@ -9,13 +9,16 @@ mod appearance;
 mod assembly;
 mod channel;
 mod character;
+mod chest;
 mod effects;
 mod items;
 mod lossy;
 mod objects;
+mod radar;
 mod reliable;
 mod script;
 mod social;
+mod trade;
 
 pub use allegiance::{Allegiance, Liege};
 pub use appearance::{
@@ -25,6 +28,7 @@ pub use appearance::{
 pub use assembly::{fragment_header_bytes, Assembler};
 pub use channel::{Channel, ChannelStats, Conditions, Direction, InFlight, SplitMix};
 pub use character::{default_options, Character, MELEE_ATTACK, MELEE_AUTO_ATTACK, RACE_HUMAN};
+pub use chest::{CHEST, CHEST_CAPACITY, CHEST_GEM, CHEST_SCROLL};
 pub use effects::{effect_registry, EffectGrant, EFFECT_PULSED, EFFECT_TIMED};
 pub use items::{
     item_object_bytes, segments, starter_items, ItemSpawn, MAIN_PACK_CAPACITY, PACK, POTIONS,
@@ -35,9 +39,11 @@ pub use objects::{
     create_object_bytes, object_event_bytes, position_bytes, weenie_object_bytes, ObjectPosition,
     ObjectSpawn,
 };
+pub use radar::{radar_objects, CREATURE_ONE, CREATURE_TWO, MONSTER_PACKAGE, NPC, NPC_PACKAGE};
 pub use reliable::{newer, ClientTracker, SentStore, Stored, Verdict, MAX_IDS};
 pub use script::ScriptWorld;
 pub use social::{fellow_graph, Fellow, Fellowship, FELLOW, FELLOWSHIP_ROOM};
+pub use trade::{Trade, TRADE_CANCELLED, TRADE_COMPLETED};
 
 use std::cell::RefCell;
 use std::net::SocketAddr;
@@ -266,6 +272,8 @@ pub struct State {
     pub fellowship: Option<Fellowship>,
     /// The player's allegiance.
     pub allegiance: Allegiance,
+    /// The open secure trade, if any (`WM_Trade`).
+    pub trade: Trade,
     /// Who last asked to swear to the player (`ask_to_swear`).
     pub asking_vassal: Option<Liege>,
     /// Who last invited the player into a fellowship: id, name, the fellowship's name.

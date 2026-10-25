@@ -22,6 +22,8 @@ pub(crate) struct HudView {
     pending: Option<Receiver<Built>>,
     pub(crate) hud: Option<(UiTree, HashMap<u32, UiPixels>)>,
     reticle: Option<Reticle>,
+    /// `gm3DTextUI`'s name plates.
+    pub(crate) names: Option<ac2_ui::NamePlates>,
     pub(crate) chat: Option<ChatUi>,
     toolbar: Option<ToolbarUi>,
     pub(crate) shortcuts: Option<ShortcutUi>,
@@ -30,14 +32,36 @@ pub(crate) struct HudView {
     pub(crate) allegiance: Option<ac2_ui::AllegianceUi>,
     pub(crate) fellowship: Option<ac2_ui::FellowshipUi>,
     pub(crate) vitals: Option<ac2_ui::VitalsUi>,
+    pub(crate) effects: Option<ac2_ui::EffectsUi>,
     /// `gmInventoryUI`'s backpack, made once the player is in the world, over this layout.
     pub(crate) backpack: Option<ac2_ui::BackpackUi>,
+    /// `gmInventoryUI`'s paper doll, made with the backpack.
+    pub(crate) paper_doll: Option<ac2_ui::PaperDollUi>,
+    /// The player's race (int 290) as the frameworks last read it (the doll's height).
+    pub(crate) player_race: Option<i32>,
     pub(crate) toolbar_layout: Option<Arc<ac2_ui::LayoutDesc>>,
     /// The selection the item slots last saw.
     pub(crate) item_selection: u64,
     /// The selection info the reticle's meters last took.
     reticle_info: Option<ac2_net::protocol::SelectionInfo>,
     pub(crate) dialogs: Option<ac2_ui::DialogFactory>,
+    /// `gmStackUI`.
+    pub(crate) stack: Option<ac2_ui::StackUi>,
+    /// `gmExternalContainerUI`.
+    pub(crate) external_container: Option<ac2_ui::ExternalContainerUi>,
+    /// `gmSecureTradeUI`, hidden until a trade opens (its requests wait in the panel).
+    pub(crate) secure_trade: Option<ac2_ui::SecureTradeUi>,
+    /// `gmRadarUI`'s blips, painted over the radar field each compose.
+    pub(crate) radar: Option<ac2_ui::RadarUi>,
+    /// The player's cell and its map coordinates as the radar shows them (rendered by the
+    /// frameworks, which have the string tables).
+    pub(crate) radar_cell: Option<u32>,
+    pub(crate) radar_coordinates: Option<String>,
+    /// `gmMoneyBagUI`, made with the backpack.
+    pub(crate) money: Option<ac2_ui::MoneyBagUi>,
+    /// Whether shift is held (`GetKeyState(VK_SHIFT)` for the melting confirmation), as the
+    /// frame's input last said.
+    pub(crate) shift_held: bool,
     /// The tree's messages for the frameworks that ask the player
     /// ([`HudView::frameworks`](crate::hud_player)).
     pub(crate) player_messages: Vec<UiMessage>,
@@ -53,6 +77,8 @@ pub(crate) struct HudView {
     /// The chat lines being rendered (`StringDownload`).
     chat_text: crate::chat_text::ChatText,
     overlay: UiOverlay,
+    /// The root of each drawn layer, in drawing order (the viewports' scenes go after theirs).
+    layer_roots: Vec<usize>,
     size: (u32, u32),
     pub(crate) dirty: bool,
     /// The sounds the UI's media played (`MD_Data_Sound`) until the audio sink takes them.
@@ -96,6 +122,7 @@ impl HudView {
             pending: Some(receive),
             hud: None,
             reticle: None,
+            names: None,
             chat: None,
             toolbar: None,
             shortcuts: None,
@@ -104,11 +131,22 @@ impl HudView {
             allegiance: None,
             fellowship: None,
             vitals: None,
+            effects: None,
             backpack: None,
+            paper_doll: None,
+            player_race: None,
             toolbar_layout: None,
             item_selection: 0,
             reticle_info: None,
             dialogs: None,
+            stack: None,
+            external_container: None,
+            secure_trade: None,
+            radar: None,
+            radar_cell: None,
+            radar_coordinates: None,
+            money: None,
+            shift_held: false,
             player_messages: Vec::new(),
             strings: None,
             pending_strings: Some(pending_strings),
@@ -117,6 +155,7 @@ impl HudView {
             chat_text,
             images,
             overlay: UiOverlay::new(gpu, format),
+            layer_roots: Vec::new(),
             size,
             dirty: false,
             sounds: Vec::new(),
@@ -139,6 +178,7 @@ impl HudView {
         actions: &[(u32, f32, bool)],
         modifiers: Modifiers,
     ) -> Vec<UiMessage> {
+        self.shift_held = modifiers.shift;
         let Some((tree, _)) = &mut self.hud else {
             return Vec::new();
         };
@@ -247,6 +287,14 @@ impl HudView {
         tree.get(element)?.text()
     }
 
+    /// The radar's `CoordinatesText` (the HUD has another element of that name).
+    pub(crate) fn radar_coordinates(&self) -> Option<String> {
+        let (tree, _) = self.hud.as_ref()?;
+        let field = self.radar.as_ref()?.field()?;
+        let text = tree.child_recursive(field, ac2_ui::tokenize("CoordinatesText"))?;
+        tree.get(text)?.text()
+    }
+
     /// The backpack's first page: each item and its slot's tooltip.
     pub(crate) fn backpack_items(&self) -> Vec<(u64, String)> {
         let (Some((tree, _)), Some(pack)) = (&self.hud, &self.backpack) else {
@@ -258,6 +306,15 @@ impl HudView {
                 .map(|d| (d.item, tree.tooltip_text(d.icon).unwrap_or_default()))
                 .collect()
         })
+    }
+
+    /// The external container panel's container and items, while it shows one.
+    pub(crate) fn external_container_items(&self) -> Option<(u64, Vec<u64>)> {
+        let display = self.external_container.as_ref()?.display()?;
+        Some((
+            display.container,
+            display.items.iter().map(|d| d.item).collect(),
+        ))
     }
 
     pub(crate) fn allegiance_texts(&self) -> Vec<String> {
@@ -347,6 +404,17 @@ impl HudView {
         }
     }
 
+    /// `gmToolbarUI`'s panel show (a toolbar button or key).
+    pub(crate) fn show_panel(&mut self, child: ToolbarChild, shown: bool) {
+        if let (Some((tree, _)), Some(toolbar)) = (&mut self.hud, &self.toolbar) {
+            toolbar.show(tree, child, shown);
+            if let Some(doll) = &self.paper_doll {
+                doll.follow_panel(tree);
+            }
+            self.dirty = true;
+        }
+    }
+
     /// `CM_Communication::SendNotice_DisplayStringInfo`: the line is rendered on a worker and
     /// reaches the chat windows when it is done.
     pub(crate) fn chat_display_info(&mut self, kind: u32, info: &ac2_net::protocol::StringInfo) {
@@ -372,6 +440,7 @@ impl HudView {
                 GameplayHud {
                     mut tree,
                     reticle,
+                    names,
                     mut chat,
                     toolbar,
                     shortcuts,
@@ -380,8 +449,13 @@ impl HudView {
                     allegiance,
                     fellowship,
                     vitals,
+                    effects,
                     toolbar_layout,
                     dialogs,
+                    stack,
+                    external_container,
+                    radar,
+                    secure_trade,
                 },
                 images,
             )) => {
@@ -396,6 +470,7 @@ impl HudView {
                 }
                 self.hud = Some((tree, images));
                 self.reticle = reticle;
+                self.names = names;
                 self.chat = chat;
                 self.toolbar = Some(toolbar);
                 self.shortcuts = shortcuts;
@@ -404,8 +479,13 @@ impl HudView {
                 self.allegiance = allegiance;
                 self.fellowship = fellowship;
                 self.vitals = Some(vitals);
+                self.effects = effects;
                 self.toolbar_layout = toolbar_layout;
                 self.dialogs = Some(dialogs);
+                self.stack = stack;
+                self.external_container = external_container;
+                self.secure_trade = secure_trade;
+                self.radar = Some(radar);
                 self.dirty = true;
             }
             Err(error) => eprintln!("ac2: the HUD did not load: {error}"),
@@ -442,6 +522,9 @@ impl HudView {
         // `UIMESSAGE_GLOBAL_LOOP`: the meters move and the chat windows write what arrived.
         if let Some((tree, _)) = &mut self.hud {
             tree.global_loop(now);
+            if let Some(doll) = &self.paper_doll {
+                doll.follow_panel(tree);
+            }
             self.sounds.extend(tree.take_sounds());
             if let Some(chat) = &mut self.chat {
                 chat.global_loop(tree);
@@ -463,11 +546,55 @@ impl HudView {
         self.compose(gpu);
     }
 
+    /// `gm3DTextUI::UpdateNames` after the reticle: the plates over `places`, clear of the
+    /// selection's reticle, within `range` (the radar's, squared as a float).
+    pub(crate) fn update_names(
+        &mut self,
+        places: &[ac2_ui::NamePlace<'_>],
+        selection: u64,
+        range: f32,
+    ) {
+        let (Some((tree, _)), Some(names)) = (&mut self.hud, &mut self.names) else {
+            return;
+        };
+        let rect = self.reticle.as_ref().and_then(|r| r.selection_rect());
+        let precluded = self
+            .reticle
+            .as_ref()
+            .map_or((0, 0), |r| (r.precluded_top, r.precluded_bottom));
+        names.update(
+            tree,
+            places,
+            selection,
+            rect,
+            range * range,
+            precluded,
+            false,
+        );
+    }
+
+    /// The objects with a name plate.
+    pub(crate) fn named(&self) -> Vec<u64> {
+        self.names.as_ref().map_or(Vec::new(), |n| n.named())
+    }
+
+    /// The container `gmExternalContainerUI` waits to be placed over.
+    pub(crate) fn external_container_position(&self) -> Option<u64> {
+        self.external_container.as_ref()?.wants_position()
+    }
+
+    /// `gmExternalContainerUI::PositionWindow` with the container's projected centre.
+    pub(crate) fn position_external_container(&mut self, clip: Option<[f32; 2]>) {
+        if let (Some((tree, _)), Some(panel)) = (&mut self.hud, &mut self.external_container) {
+            panel.position_window_clip(tree, clip);
+            self.dirty = true;
+        }
+    }
+
     /// `gm3DTextUI::Update`'s reticle for this frame: the selection (id and name) and, when it
     /// is drawn, its box and projection. Then the HUD is composed again or its surfaces moved.
     pub(crate) fn reticle(
         &mut self,
-        gpu: &Gpu,
         selection: Option<(u64, Option<&str>)>,
         info: Option<&ac2_net::protocol::SelectionInfo>,
         target: Option<ReticleTarget<'_>>,
@@ -485,12 +612,25 @@ impl HudView {
             reticle.selection_info(tree, info);
             self.reticle_info = Some(info.clone());
         }
-        let outcome = reticle.update(tree, target, false);
-        if tree.take_changed() {
-            self.dirty = true;
+        reticle.update(tree, target, false)
+    }
+
+    /// The frame's HUD composed again, or its surfaces moved, after `gm3DTextUI::Update`.
+    pub(crate) fn finish_frame(&mut self, gpu: &Gpu) {
+        if let Some((tree, _)) = &mut self.hud {
+            if tree.take_changed() {
+                self.dirty = true;
+            }
         }
         self.compose(gpu);
-        outcome
+    }
+
+    /// `gmRadarUI::Update` for this frame; the next compose paints it.
+    pub(crate) fn update_radar(&mut self, mut view: ac2_ui::RadarView) {
+        view.coordinates = self.radar_coordinates.clone();
+        if let (Some((tree, _)), Some(radar)) = (&mut self.hud, &mut self.radar) {
+            radar.update(tree, &view);
+        }
     }
 
     fn compose(&mut self, gpu: &Gpu) {
@@ -506,13 +646,27 @@ impl HudView {
                         .map(|p| (p.x, p.y, p.rotation, p.shown, p.opacity)),
                 );
             }
+            // `gmRadarUI::ListenToMessage`'s `ForceDraw`: the radar field alone, each frame.
+            let field = self.radar.as_ref().and_then(|r| r.field());
+            let layer = field.and_then(|f| self.layer_roots.iter().position(|&r| r == f));
+            if let (Some(field), Some(layer), Some(radar)) = (field, layer, &self.radar) {
+                let mut surface = tree.compose_root(field, images);
+                radar.draw(&mut surface);
+                self.overlay.replace_pixels(gpu, layer, &surface.rgba);
+            }
             return;
         }
         tree.take_moved();
         self.dirty = false;
         self.images.request_missing(tree, images);
         tree.take_changed();
-        let surfaces = tree.compose(images);
+        let mut surfaces = tree.compose(images);
+        if let Some(radar) = &self.radar {
+            if let Some(surface) = surfaces.iter_mut().find(|s| Some(s.root) == radar.field()) {
+                radar.draw(surface);
+            }
+        }
+        self.layer_roots = surfaces.iter().map(|surface| surface.root).collect();
         self.overlay.set_layers(
             gpu,
             surfaces.iter().map(|surface| UiLayer {
@@ -547,6 +701,25 @@ impl HudView {
 
     pub(crate) fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
         self.overlay.draw(pass);
+    }
+
+    /// The drawn layers and their roots, in drawing order.
+    pub(crate) fn layers_for_scenes(&self) -> (&UiOverlay, &[usize]) {
+        (&self.overlay, &self.layer_roots)
+    }
+
+    /// The paper doll's viewport while it shows.
+    pub(crate) fn doll_viewport(&self) -> Option<ac2_ui::SceneViewport> {
+        let (tree, _) = self.hud.as_ref()?;
+        let root = self.paper_doll.as_ref()?.viewport()?;
+        ac2_ui::scene_viewports(tree)
+            .into_iter()
+            .find(|v| v.root == root)
+    }
+
+    /// Where the paper doll waits for a pick, if it does.
+    pub(crate) fn doll_wants_pick(&self) -> Option<(i32, i32)> {
+        self.paper_doll.as_ref()?.wants_pick()
     }
 }
 

@@ -12,13 +12,15 @@ use ac2_math::{Mat4, Vec3, Vec4};
 
 use crate::object::{ObjectModel, ObjectPose};
 
-/// The pick data of a model: its bounding box in model space and each part's rest transform
-/// (mesh to model) and triangles in the part's mesh space.
+/// The pick data of a model: its bounding box in model space, each part's rest transform
+/// (mesh to model) and triangles in the part's mesh space, and each part's mesh type.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct PickMesh {
     pub min: Vec3,
     pub max: Vec3,
     pub parts: Vec<(Mat4, Vec<[Vec3; 3]>)>,
+    /// `CGfxObj::mesh_type` per part (`ObjectSelection::meshType` of a hit on it).
+    pub part_types: Vec<u32>,
 }
 
 impl PickMesh {
@@ -55,7 +57,13 @@ impl PickMesh {
         if min.x > max.x {
             (min, max) = (Vec3::ZERO, Vec3::ZERO);
         }
-        Self { min, max, parts }
+        let part_types = model.parts.iter().map(|part| part.mesh_type).collect();
+        Self {
+            min,
+            max,
+            parts,
+            part_types,
+        }
     }
 }
 
@@ -127,9 +135,10 @@ fn ray_triangle(origin: Vec3, direction: Vec3, tri: &[Vec3; 3]) -> Option<f32> {
     (t > 0.0).then_some(t)
 }
 
-/// `CPhysicsObj::TraceRay`: the nearest hit of the world-space ray on the posed parts.
-fn trace_ray(candidate: &PickCandidate<'_>, origin: Vec3, direction: Vec3) -> Option<f32> {
-    let mut nearest: Option<f32> = None;
+/// `CPhysicsObj::TraceRay`: the nearest hit of the world-space ray on the posed parts, and the
+/// part it hit.
+fn trace_ray(candidate: &PickCandidate<'_>, origin: Vec3, direction: Vec3) -> Option<(f32, usize)> {
+    let mut nearest: Option<(f32, usize)> = None;
     for (index, (rest, triangles)) in candidate.mesh.parts.iter().enumerate() {
         let part = candidate
             .pose
@@ -149,7 +158,9 @@ fn trace_ray(candidate: &PickCandidate<'_>, origin: Vec3, direction: Vec3) -> Op
         for tri in triangles {
             if let Some(t) = ray_triangle(local_origin, local_direction, tri) {
                 let t = t / scale;
-                nearest = Some(nearest.map_or(t, |n| n.min(t)));
+                if nearest.is_none_or(|(n, _)| t < n) {
+                    nearest = Some((t, index));
+                }
             }
         }
     }
@@ -165,6 +176,17 @@ pub fn pick(
     cursor: (i32, i32),
     candidates: &[PickCandidate<'_>],
 ) -> Option<u64> {
+    pick_part(view_projection, eye, screen, cursor, candidates).map(|(id, _)| id)
+}
+
+/// [`pick`], with the selection's `meshType`: the mesh type of the part the ray hit.
+pub fn pick_part(
+    view_projection: Mat4,
+    eye: Vec3,
+    screen: (u32, u32),
+    cursor: (i32, i32),
+    candidates: &[PickCandidate<'_>],
+) -> Option<(u64, u32)> {
     let ndc = (
         (cursor.0 as f32 + 0.5) / screen.0 as f32 * 2.0 - 1.0,
         1.0 - (cursor.1 as f32 + 0.5) / screen.1 as f32 * 2.0,
@@ -175,12 +197,12 @@ pub fn pick(
     let far = inverse.project_point3(Vec3::new(ndc.0, ndc.1, 1.0));
     let direction = (far - near).normalize_or_zero();
     let origin = eye;
-    let mut selected: Vec<(f32, u64)> = Vec::new();
+    let mut selected: Vec<(f32, u64, u32)> = Vec::new();
     for candidate in candidates {
         if check_object_selection(view_projection, candidate.world, candidate.mesh, ndc).is_none() {
             continue;
         }
-        let Some(depth) = trace_ray(candidate, origin, direction) else {
+        let Some((depth, part)) = trace_ray(candidate, origin, direction) else {
             // A miss is only a potential selection; the player's is dropped.
             continue;
         };
@@ -189,12 +211,13 @@ pub fn pick(
         } else {
             depth
         };
+        let mesh_type = candidate.mesh.part_types.get(part).copied().unwrap_or(0);
         // `SelectObject`: before the first entry farther than it.
         let at = selected
             .iter()
-            .position(|&(d, _)| depth < d)
+            .position(|&(d, _, _)| depth < d)
             .unwrap_or(selected.len());
-        selected.insert(at, (depth, candidate.id));
+        selected.insert(at, (depth, candidate.id, mesh_type));
     }
-    selected.first().map(|&(_, id)| id)
+    selected.first().map(|&(_, id, mesh_type)| (id, mesh_type))
 }

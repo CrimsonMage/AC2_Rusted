@@ -27,6 +27,8 @@ pub struct Character {
     pub level: i32,
     /// Int 3100, the money bag's money, as the double last sent it.
     pub money: i32,
+    /// The coin stacks the double has made (the coin item's id counts from them).
+    pub coins_made: u32,
 }
 
 impl Default for Character {
@@ -39,6 +41,7 @@ impl Default for Character {
             available_xp: 0,
             level: 1,
             money: 0,
+            coins_made: 0,
         }
     }
 }
@@ -127,7 +130,9 @@ impl Character {
 }
 
 /// The options profile the double's character logs in with: a shortcut bar of ten (set 0,
-/// one row) holding Melee Auto Attack, a chat line, then nothing; requests accepted.
+/// one row) holding Melee Auto Attack, a chat line, then nothing; requests accepted; the radar
+/// showing monsters, NPCs, players, portals, lifestones and items (`gmCharacterUI::RefreshFlag`'s
+/// mask bits 0x1..0x20; `GameplayOptionsProfile::Clear`'s 0 shows nothing).
 pub fn default_options() -> GameplayOptionsProfile {
     let mut shortcuts = vec![ShortcutInfo::Empty(0); 10];
     shortcuts[0] = ShortcutInfo::Enum {
@@ -137,8 +142,9 @@ pub fn default_options() -> GameplayOptionsProfile {
     shortcuts[1] = ShortcutInfo::Text("/e waves".into());
     GameplayOptionsProfile {
         // The bit field (0x80): allegiance and fellowship requests accepted (0x40, 0x80).
-        pack_bitfield: 0x2 | 0x4 | 0x80 | 0x1000,
+        pack_bitfield: 0x2 | 0x4 | 0x20 | 0x80 | 0x1000,
         bit_field: 0x40 | 0x80,
+        radar_mask: 0x3F,
         shortcuts,
         which_shortcut_set: 0,
         shortcut_height: 1,

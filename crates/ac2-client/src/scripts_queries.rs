@@ -225,6 +225,18 @@ impl Client {
     /// The shortcut bar's settings from the player's profile: `GetWhichShortcutSet`,
     /// `GetShowShortcutNumbers` (bit 0x1), `GetShortcutHeight`, `GetShortcutInstaScroll`
     /// (bit 0x2000).
+    /// `gmCWInterface::GetShowObjectNames`: the options profile's names flag (0x200).
+    pub fn show_object_names(&mut self) -> bool {
+        self.gameplay_options()
+            .is_ok_and(|p| p.bit_field & 0x200 != 0)
+    }
+
+    /// `gmCWInterface::GetShowRadarCoords`: the options profile's coordinates flag (0x10).
+    pub fn show_radar_coords(&mut self) -> bool {
+        self.gameplay_options()
+            .is_ok_and(|p| p.bit_field & 0x10 != 0)
+    }
+
     pub fn shortcut_settings(&mut self) -> Result<ShortcutSettings, String> {
         let p = self.gameplay_options()?;
         Ok(ShortcutSettings {

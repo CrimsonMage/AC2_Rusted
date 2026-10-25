@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1318 done, 80 partial, 990 to do, 80 skipped.
+2468 retail functions: 1330 done, 80 partial, 978 to do, 80 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (13/25)
@@ -83,24 +83,24 @@ Legend and workflow: [README](README.md).
 - [x] `gDamageTextBlob::CallEFun_GetDisplayString` · 00478e70 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [x] `gDamageTextBlob::CallEFun_GetFontColor` · 00478f30 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
-## `ac2/shared/src/interp/glue/geffectuinode.cpp.c` (0/11)
+## `ac2/shared/src/interp/glue/geffectuinode.cpp.c` (11/11)
 
 ### gEffectUINode
-- [ ] `gEffectUINode::CallEFun_Set` · 004787a0
-- [ ] `gEffectUINode::CallEFun_SetDisabled` · 00478800
-- [ ] `gEffectUINode::CallEFun_SetDurationInfo` · 00478860
-- [ ] `gEffectUINode::CallEFun_SetEID` · 004788c0
-- [ ] `gEffectUINode::CallEFun_SetEnabled` · 00478920
-- [ ] `gEffectUINode::CallEFun_SetIcon` · 00478980
-- [ ] `gEffectUINode::CallEFun_SetPulsed` · 004789e0
-- [ ] `gEffectUINode::CallEFun_SetToggled` · 00478a40
+- [x] `gEffectUINode::CallEFun_Set` · 004787a0 — ac2-script glue/effect_node.rs: efuns 0x98 SetEID/SetName/SetIcon/SetDescription/SetEnabled/SetDisabled/Set/SetDurationInfo/SetToggled/SetPulsed over ac2-net EffectUiNode
+- [x] `gEffectUINode::CallEFun_SetDisabled` · 00478800 — ac2-script glue/effect_node.rs: efuns 0x98 SetEID/SetName/SetIcon/SetDescription/SetEnabled/SetDisabled/Set/SetDurationInfo/SetToggled/SetPulsed over ac2-net EffectUiNode
+- [x] `gEffectUINode::CallEFun_SetDurationInfo` · 00478860 — ac2-script glue/effect_node.rs: efuns 0x98 SetEID/SetName/SetIcon/SetDescription/SetEnabled/SetDisabled/Set/SetDurationInfo/SetToggled/SetPulsed over ac2-net EffectUiNode
+- [x] `gEffectUINode::CallEFun_SetEID` · 004788c0 — ac2-script glue/effect_node.rs: efuns 0x98 SetEID/SetName/SetIcon/SetDescription/SetEnabled/SetDisabled/Set/SetDurationInfo/SetToggled/SetPulsed over ac2-net EffectUiNode
+- [x] `gEffectUINode::CallEFun_SetEnabled` · 00478920 — ac2-script glue/effect_node.rs: efuns 0x98 SetEID/SetName/SetIcon/SetDescription/SetEnabled/SetDisabled/Set/SetDurationInfo/SetToggled/SetPulsed over ac2-net EffectUiNode
+- [x] `gEffectUINode::CallEFun_SetIcon` · 00478980 — ac2-script glue/effect_node.rs: efuns 0x98 SetEID/SetName/SetIcon/SetDescription/SetEnabled/SetDisabled/Set/SetDurationInfo/SetToggled/SetPulsed over ac2-net EffectUiNode
+- [x] `gEffectUINode::CallEFun_SetPulsed` · 004789e0 — ac2-script glue/effect_node.rs: efuns 0x98 SetEID/SetName/SetIcon/SetDescription/SetEnabled/SetDisabled/Set/SetDurationInfo/SetToggled/SetPulsed over ac2-net EffectUiNode
+- [x] `gEffectUINode::CallEFun_SetToggled` · 00478a40 — ac2-script glue/effect_node.rs: efuns 0x98 SetEID/SetName/SetIcon/SetDescription/SetEnabled/SetDisabled/Set/SetDurationInfo/SetToggled/SetPulsed over ac2-net EffectUiNode
 
 ### EffectUINode
-- [ ] `EffectUINode::SetName` · 00478aa0 · legions 00474b30
+- [x] `EffectUINode::SetName` · 00478aa0 · legions 00474b30 — reproduced by the gEffectUINode glue (ac2-script glue/effect_node.rs); body from admin 7148 and Legions layout
 
 ### gEffectUINode
-- [ ] `gEffectUINode::CallEFun_SetDescription` · 00478af0
-- [ ] `gEffectUINode::CallEFun_SetName` · 00478b50
+- [x] `gEffectUINode::CallEFun_SetDescription` · 00478af0 — ac2-script glue/effect_node.rs: efuns 0x98 SetEID/SetName/SetIcon/SetDescription/SetEnabled/SetDisabled/Set/SetDurationInfo/SetToggled/SetPulsed over ac2-net EffectUiNode
+- [x] `gEffectUINode::CallEFun_SetName` · 00478b50 — ac2-script glue/effect_node.rs: efuns 0x98 SetEID/SetName/SetIcon/SetDescription/SetEnabled/SetDisabled/Set/SetDurationInfo/SetToggled/SetPulsed over ac2-net EffectUiNode
 
 ## `ac2/shared/src/interp/glue/gexaminationprofile.cpp.c` (0/17)
 
@@ -378,10 +378,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gIngredientAdaptor::CallEFun_GetRecipeDID` · 00471570
 - [ ] `gIngredientAdaptor::CallEFun_GetDescription` · 004715e0
 
-## `ac2/shared/src/interp/glue/ginventoryglobals.cpp.c` (0/1)
+## `ac2/shared/src/interp/glue/ginventoryglobals.cpp.c` (1/1)
 
 ### gInventoryGlobals
-- [ ] `gInventoryGlobals::CallIFun_GetCoinMaxStackSize` · 0046d050 · legions 0046d7b0
+- [x] `gInventoryGlobals::CallIFun_GetCoinMaxStackSize` · 0046d050 · legions 0046d7b0 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 
 ## `ac2/shared/src/interp/glue/gradarcontrol.cpp.c` (1/1)
 

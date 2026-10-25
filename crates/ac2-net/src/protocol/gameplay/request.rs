@@ -5,7 +5,7 @@ use crate::protocol::client_event::ClientEvent;
 use crate::protocol::inventory::{InvEquipDesc, InvMoveDesc};
 use crate::protocol::inventory_bulk::{InvTakeAllDesc, InvTransmuteAllDesc};
 use crate::protocol::native::{ExaminationRequest, NativeObject};
-use crate::protocol::pack::{pack_values, PackValue};
+use crate::protocol::pack::{pack_values, PackValue, PackedReference};
 use crate::protocol::string_info::StringInfo;
 use crate::protocol::usage::UsageDesc;
 use crate::protocol::ProtocolError;
@@ -47,6 +47,18 @@ pub enum ScriptRequest {
     LootAll(InvTakeAllDesc),
     /// [`function::TRANSMUTE_ALL`].
     TransmuteAll(InvTransmuteAllDesc),
+    /// [`function::OPEN_TRADE`]: the other party.
+    OpenTrade(u64),
+    /// [`function::CLOSE_TRADE`].
+    CloseTrade,
+    /// [`function::ACCEPT_TRADE`]: the reference the stub packs.
+    AcceptTrade(PackedReference),
+    /// [`function::DECLINE_TRADE`].
+    DeclineTrade,
+    /// [`function::OFFER_ITEM`]: `item` at `amount`.
+    OfferItem { item: u64, amount: u32 },
+    /// [`function::REVOKE_ITEM`].
+    RevokeItem(u64),
 }
 
 impl ScriptRequest {
@@ -67,6 +79,12 @@ impl ScriptRequest {
             Self::CloseContainer(_) => function::CLOSE_CONTAINER,
             Self::LootAll(_) => function::LOOT_ALL,
             Self::TransmuteAll(_) => function::TRANSMUTE_ALL,
+            Self::OpenTrade(_) => function::OPEN_TRADE,
+            Self::CloseTrade => function::CLOSE_TRADE,
+            Self::AcceptTrade(_) => function::ACCEPT_TRADE,
+            Self::DeclineTrade => function::DECLINE_TRADE,
+            Self::OfferItem { .. } => function::OFFER_ITEM,
+            Self::RevokeItem(_) => function::REVOKE_ITEM,
         }
     }
 
@@ -97,6 +115,12 @@ impl ScriptRequest {
             Self::OpenContainer(id) | Self::CloseContainer(id) => vec![PackValue::LongInt(*id)],
             Self::LootAll(desc) => vec![PackValue::Reference(desc.to_reference())],
             Self::TransmuteAll(desc) => vec![PackValue::Reference(desc.to_reference())],
+            Self::OpenTrade(id) | Self::RevokeItem(id) => vec![PackValue::LongInt(*id)],
+            Self::CloseTrade | Self::DeclineTrade => Vec::new(),
+            Self::AcceptTrade(reference) => vec![PackValue::Reference(reference.clone())],
+            Self::OfferItem { item, amount } => {
+                vec![PackValue::Int(*amount), PackValue::LongInt(*item)]
+            }
         }
     }
 
@@ -175,6 +199,17 @@ impl ScriptRequest {
                     &a.reference()?,
                 )?))
             }),
+            function::OPEN_TRADE => decode(|a| Ok(Self::OpenTrade(a.long()?))),
+            function::CLOSE_TRADE => decode(|_| Ok(Self::CloseTrade)),
+            function::ACCEPT_TRADE => decode(|a| Ok(Self::AcceptTrade(a.reference()?))),
+            function::DECLINE_TRADE => decode(|_| Ok(Self::DeclineTrade)),
+            function::OFFER_ITEM => decode(|a| {
+                Ok(Self::OfferItem {
+                    amount: a.int()?,
+                    item: a.long()?,
+                })
+            }),
+            function::REVOKE_ITEM => decode(|a| Ok(Self::RevokeItem(a.long()?))),
             _ => return None,
         })
     }
@@ -282,6 +317,39 @@ mod tests {
             0,
         ]);
         round_trip(ScriptRequest::EmoteText("wave".into()), args);
+    }
+
+    #[test]
+    fn trade_requests_pack_their_values() {
+        let long = |v: u64| {
+            let mut w = words(&[2]);
+            w.extend(v.to_le_bytes());
+            w
+        };
+        round_trip(
+            ScriptRequest::OpenTrade(0x2000_0000_0000_0030),
+            long(0x2000_0000_0000_0030),
+        );
+        round_trip(
+            ScriptRequest::RevokeItem(0x8000_0002_0000_0021),
+            long(0x8000_0002_0000_0021),
+        );
+        round_trip(ScriptRequest::CloseTrade, Vec::new());
+        round_trip(ScriptRequest::DeclineTrade, Vec::new());
+        // The amount (an int), then the item (a long int): `OfferItemForTrade`'s stub order.
+        let mut args = words(&[1, 3]);
+        args.extend(long(0x8000_0002_0000_0021));
+        round_trip(
+            ScriptRequest::OfferItem {
+                item: 0x8000_0002_0000_0021,
+                amount: 3,
+            },
+            args,
+        );
+        assert_eq!(ScriptRequest::CloseTrade.function(), 0x8215_003E);
+        assert!(ScriptRequest::decode(0x8215_0015, &words(&[2, 3]))
+            .unwrap()
+            .is_err());
     }
 
     #[test]

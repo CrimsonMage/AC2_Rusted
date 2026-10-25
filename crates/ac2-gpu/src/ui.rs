@@ -66,6 +66,7 @@ pub struct UiLayer<'a> {
 }
 
 struct Uploaded {
+    texture: wgpu::Texture,
     rect: [f32; 4],
     rotation: f32,
     shown: bool,
@@ -237,6 +238,7 @@ impl UiOverlay {
                 ],
             });
             self.layers.push(Uploaded {
+                texture,
                 rect: [
                     layer.x as f32,
                     layer.y as f32,
@@ -250,6 +252,29 @@ impl UiOverlay {
                 group,
             });
         }
+    }
+
+    /// New pixels for layer `index` (the same size it was uploaded at; a root drawn again on its
+    /// own, `UIRegion::ForceDraw`). Returns whether the layer took them.
+    pub fn replace_pixels(&mut self, gpu: &Gpu, index: usize, rgba: &[u8]) -> bool {
+        let Some(layer) = self.layers.get(index) else {
+            return false;
+        };
+        let size = layer.texture.size();
+        if rgba.len() != (size.width * size.height * 4) as usize {
+            return false;
+        }
+        gpu.queue.write_texture(
+            layer.texture.as_image_copy(),
+            rgba,
+            wgpu::TexelCopyBufferLayout {
+                offset: 0,
+                bytes_per_row: Some(size.width * 4),
+                rows_per_image: Some(size.height),
+            },
+            size,
+        );
+        true
     }
 
     /// New positions, rotations, shown flags and opacities for the uploaded layers, in their

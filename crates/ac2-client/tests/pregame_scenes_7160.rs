@@ -181,10 +181,11 @@ impl Rig {
     /// The pick answer at each point of a grid over `viewport`: the first hit of each answer.
     fn picks(&self, viewport: &SceneViewport) -> Vec<((i32, i32), usize)> {
         let scenes = self.view.scenes().unwrap();
+        let ui = self.view.ui().unwrap();
         let mut found: Vec<((i32, i32), usize)> = Vec::new();
         for y in (viewport.y..viewport.y + viewport.height as i32).step_by(6) {
             for x in (viewport.x..viewport.x + viewport.width as i32).step_by(6) {
-                if let Some(answer) = scenes.pick((x, y)) {
+                if let Some(answer) = scenes.pick(ui, (x, y)) {
                     if !found.iter().any(|(_, a)| *a == answer) {
                         found.push(((x, y), answer));
                     }
@@ -244,7 +245,8 @@ fn character_selection_shows_the_arms_and_answers_a_pick_on_the_figure() {
     eprintln!("picks: {picks:?}");
     assert_eq!(picks.iter().map(|(_, a)| *a).collect::<Vec<_>>(), vec![0]);
     let scenes = rig.view.scenes().unwrap();
-    assert_eq!(scenes.pick((viewport.x + 1, viewport.y + 1)), None);
+    let ui = rig.view.ui().unwrap();
+    assert_eq!(scenes.pick(ui, (viewport.x + 1, viewport.y + 1)), None);
     // A press there selects it through the UI's pick.
     rig.point(picks[0].0);
     rig.view.input(&[(LEFT, 1.0, true), (LEFT, 1.0, false)]);

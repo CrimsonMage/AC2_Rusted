@@ -158,6 +158,10 @@ fn the_items_processes_answer_from_their_tables() {
     assert_eq!(client.contents_info(0), Ok((vec![POTIONS, SWORD], 0, 2)));
     assert_eq!(client.contents_info(1), Ok((vec![POTIONS, SWORD], 2, 0)));
     assert_eq!(client.container_segment_info(0), Ok((0, 2)));
+    // The money bag's coin stacks: `gInventoryGlobals::CallIFun_GetCoinMaxStackSize` answers
+    // from the library, and the melting confirmation's bypass option is off by default.
+    assert!(client.coin_max_stack_size().is_some_and(|m| m > 0));
+    assert_eq!(client.call_ifun(0x00B4_00D7, &[]).map(|r| r.retval), Ok(0));
     assert!(
         client.take_script_problems().is_empty(),
         "{:?}",
@@ -261,7 +265,7 @@ fn drags_and_drops_refresh_the_frame() {
     );
     assert!(inv.equipped.is_empty());
     assert_eq!(container(&inv, PLAYER), [SWORD]);
-    // The money bag: 50 out (no coin item made), then the rations in.
+    // The money bag: 50 out as a coin stack at the end of the pack, then the rations in.
     assert_eq!(inv.money, 250);
     let (inv, notices) = run(
         &mut client,
@@ -278,6 +282,17 @@ fn drags_and_drops_refresh_the_frame() {
         "{notices:?}"
     );
     assert!(notices.contains(&GameplayNotice::GhostMoneyBag(false)));
+    // The coin stack made of the 50 lands after the sword (`WM_Money` 0x9's slot -1).
+    let items = container(&inv, PLAYER);
+    assert_eq!(items.len(), 2, "{items:?}");
+    assert_eq!(items[0], SWORD);
+    let coin = inv
+        .items
+        .iter()
+        .find(|i| i.id == items[1])
+        .expect("the coin stack is listed");
+    assert_eq!(coin.stats.quantity, 50);
+    assert!(coin.stats.stackable);
     let (inv, _) = run(
         &mut client,
         &server,

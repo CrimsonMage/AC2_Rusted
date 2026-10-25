@@ -13,15 +13,12 @@
 //! - Avatar modification: the current result's avatar at the scene origin
 //!   (`gmAvatarModificationUI::Init`, mode 0x41000008).
 
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
-
-use ac2_assets::Ac2VisualDesc;
 use ac2_math::{Frame, Vec3};
-use ac2_ui::pregame::{PregameUi, SceneViewport};
+use ac2_ui::pregame::PregameUi;
+use ac2_ui::SceneViewport;
 use ac2_weenie::Appearance;
 
-use super::data::SceneData;
+use crate::ui_scene::{figure_key as key, scene_figures, At, Figure, SceneData};
 
 /// `AddPhysObjToArm`: figures hang from the arm's holding location 1.
 const ARM_LOCATION: u32 = 1;
@@ -31,54 +28,10 @@ const LAND_MESH: &str = "CHARGEN_LANDMESH";
 pub(crate) const MODE_AVATAR_SELECTION: u32 = 0x4100_0006;
 pub(crate) const MODE_AVATAR_MODIFICATION: u32 = 0x4100_0008;
 
-/// Where a figure stands.
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) enum At {
-    /// At a frame in the scene, scaled.
-    Scene(Frame, Vec3),
-    /// On figure `parent`'s holding location `location` (`CPhysicsObj::add_child`).
-    Held { parent: usize, location: u32 },
-}
-
-/// One physics object of a viewport's scene this frame.
-#[derive(Debug, Clone, PartialEq)]
-pub(crate) struct Figure {
-    /// Names the figure across frames (its animated body).
-    pub key: u64,
-    /// What `makeObject` reads: an `EntityDesc` template or a visual. For a figure made from an
-    /// appearance, its parent visual (the body it animates with).
-    pub object: u32,
-    /// `makePartGroupObject`'s appearance, when the figure is made from one.
-    pub local: Option<Ac2VisualDesc>,
-    pub at: At,
-    /// What a pick on it answers (`finish_pick`), if anything.
-    pub pick: Option<usize>,
-    /// The mode it goes to once made (`CPhysicsObj::DoMode`).
-    pub mode: Option<u32>,
-}
-
-fn key(scene: u32, tag: &str, index: usize) -> u64 {
-    let mut hasher = DefaultHasher::new();
-    (scene, tag, index).hash(&mut hasher);
-    hasher.finish()
-}
-
 /// The figures of `viewport`'s scene, parents before the figures they hold.
 pub(crate) fn figures(ui: &PregameUi, viewport: &SceneViewport, scene: &SceneData) -> Vec<Figure> {
     let did = viewport.scene;
-    let mut out: Vec<Figure> = scene
-        .entities
-        .iter()
-        .enumerate()
-        .map(|(i, entity)| Figure {
-            key: key(did, "entity", i),
-            object: entity.object,
-            local: None,
-            at: At::Scene(entity.frame, entity.scale),
-            pick: None,
-            mode: None,
-        })
-        .collect();
+    let mut out: Vec<Figure> = scene_figures(did, scene);
     let root = Some(viewport.root);
     if let Some(selection) = ui.character_selection().filter(|s| s.viewport() == root) {
         character_selection(ui, selection, did, &mut out);

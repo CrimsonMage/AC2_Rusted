@@ -104,6 +104,8 @@ pub struct ObjectPart {
     pub slot: (usize, usize),
     /// Per-vertex (bone, weight) influences when the mesh carries matrix weights.
     pub skin: Option<Arc<[[(u8, f32); 4]]>>,
+    /// `CGfxObj::mesh_type` (the selection's `meshType`; 0 for cells, water and the far mesh).
+    pub mesh_type: u32,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -330,6 +332,7 @@ pub fn load_object_model_with(
                 batches,
                 slot: (group, index),
                 skin: mesh.skin.clone(),
+                mesh_type: mesh.mesh_type,
             });
         }
     }

@@ -160,7 +160,7 @@ pub(super) fn typed(
         "UpdateSelectability" => N::UpdateSelectability(flag(args, 0)?),
         "UpdateResetTime" => N::UpdateResetTime,
         "UpdateDeathState" => N::UpdateDeathState(flag(args, 0)?),
-        "ChangeRadarLook" => N::ChangeRadarLook,
+        "ChangeRadarLook" => N::ChangeRadarLook(object),
         "DisplayMessage" => N::DisplayMessage {
             text: info(args, 0),
             topmost: flag(args, 1)?,

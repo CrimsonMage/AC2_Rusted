@@ -2,7 +2,7 @@
 
 use ac2_math::{Mat4, Vec3};
 
-use crate::selection::{pick, PickCandidate, PickMesh};
+use crate::selection::{pick, pick_part, PickCandidate, PickMesh};
 use crate::Camera;
 
 /// A unit cube centred on the origin, as twelve triangles.
@@ -24,6 +24,7 @@ fn cube() -> PickMesh {
         min: Vec3::splat(-0.5),
         max: Vec3::splat(0.5),
         parts: vec![(Mat4::IDENTITY, triangles)],
+        part_types: vec![0x8100_001C],
     }
 }
 
@@ -57,6 +58,11 @@ fn the_nearest_hit_under_the_cursor_is_selected() {
     // A near and a far cube on the view axis: the near one wins.
     let candidates = [at(1, &mesh, 0.0, 5.0, false), at(2, &mesh, 0.0, 0.0, false)];
     assert_eq!(pick(vp, camera.eye, screen, centre, &candidates), Some(2));
+    // The hit part's mesh type (`ObjectSelection::meshType`).
+    assert_eq!(
+        pick_part(vp, camera.eye, screen, centre, &candidates),
+        Some((2, 0x8100_001C))
+    );
     // Off to the side nothing is under the cursor.
     assert_eq!(pick(vp, camera.eye, screen, (5, 5), &candidates), None);
 }

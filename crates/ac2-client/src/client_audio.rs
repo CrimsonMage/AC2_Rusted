@@ -280,6 +280,7 @@ impl Client {
     /// (`StopSoundsForEmitter`), and every emitter is placed relative to the camera.
     pub(crate) fn audio_use_time(&mut self, now: f64) {
         self.ambient_use_time(now);
+        self.groove_use_time(now);
         let ambient = self.ambient_emitters(&self.scene.current);
         let Some(audio) = self.audio.as_mut() else {
             return;

@@ -477,6 +477,53 @@ fn skill_ui_node_glue_edits_the_wire_node() {
 }
 
 #[test]
+fn effect_ui_node_glue_edits_the_wire_node() {
+    use crate::native::ntype;
+    use ac2_net::protocol::NativeObject as Wire;
+    let mut vm = vm();
+    let n = vm.refs.create_native(
+        ntype::EFFECT_UI_NODE,
+        NativeObject::new_empty(ntype::EFFECT_UI_NODE),
+    );
+    let node = |vm: &Vm, r: u32| match vm.native(r) {
+        Some(NativeObject::Wire(w)) => match &**w {
+            Wire::EffectUiNode(e) => (**e).clone(),
+            other => panic!("{other:?}"),
+        },
+        other => panic!("{other:?}"),
+    };
+    call(&mut vm, 0x0098_0002, 0, &[0x11], n); // SetEID
+    call(&mut vm, 0x0098_0006, 0, &[0x2222], n); // SetIcon
+    call(&mut vm, 0x0098_000A, 0, &[], n); // SetEnabled
+    call(&mut vm, 0x0098_0010, 0, &[], n); // SetToggled
+    call(&mut vm, 0x0098_0011, 0, &[], n); // SetPulsed
+    call(&mut vm, 0x0098_000C, 0, &[], n); // SetDisabled
+                                           // SetDurationInfo(timeCast 100.0, duration 30.0): each double is two words, the high
+                                           // word in the lower slot.
+    let words = |f: f64| {
+        let bits = f.to_bits();
+        [(bits >> 32) as u32, bits as u32]
+    };
+    let [t_hi, t_lo] = words(100.0);
+    let [d_hi, d_lo] = words(30.0);
+    call(&mut vm, 0x0098_000F, 0, &[t_hi, t_lo, d_hi, d_lo], n);
+    let e = node(&vm, n);
+    assert_eq!((e.eid, e.icon, e.flags), (0x11, 0x2222, 2 | 4));
+    assert_eq!((e.time_cast, e.duration), (100.0, 30.0));
+    let name = vm.new_wstring(w("Haste"));
+    call(&mut vm, 0x0098_0004, 0, &[name], n); // SetName
+    assert_eq!(node(&vm, n).name, "Haste");
+    let other = vm.refs.create_native(
+        ntype::EFFECT_UI_NODE,
+        NativeObject::new_empty(ntype::EFFECT_UI_NODE),
+    );
+    call(&mut vm, 0x0098_000D, 0, &[other], n); // Set: copies the node
+    assert_eq!(node(&vm, n).name, "");
+    assert_eq!(node(&vm, n).flags, 0);
+    assert_eq!(node(&vm, n).duration, -1.0);
+}
+
+#[test]
 fn reserved_ids_read_the_type_byte() {
     let mut vm = vm();
     // The 64-bit id: high word first, its low word deeper.

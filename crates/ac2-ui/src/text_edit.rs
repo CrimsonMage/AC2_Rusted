@@ -7,7 +7,7 @@
 //! `character_input` (with the character) and `key_input`.
 //!
 //! Not modelled yet: selection, copy / cut / paste, the IME, page up / down, the cursor's
-//! flashing, scrolling the view to the cursor and input filters.
+//! flashing and scrolling the view to the cursor.
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;
@@ -47,14 +47,13 @@ impl UiTree {
         })
     }
 
-    /// `UIElement::Activate` (and `UIElement_Text::Activate`): an `activatable`, shown element
-    /// becomes the active one, the previous one deactivating.
+    /// `UIElement::Activate` (and `UIElement_Text::Activate`): a visible element whose parent is
+    /// shown (`m_visible & UIRegion::IsVisible(m_parent)`, admin 0x5e9489) becomes the active
+    /// one, the previous one deactivating.
     pub fn activate(&mut self, index: usize) -> bool {
-        let shown = self
-            .el(index)
-            .parent
-            .map_or(true, |parent| self.el(parent).visible);
-        if !(shown && self.bool_attribute(index, tokenize("activatable"))) {
+        let el = self.el(index);
+        let shown = el.parent.map_or(true, |parent| self.region_visible(parent));
+        if !(el.visible && shown) {
             return false;
         }
         if self.active == Some(index) {
@@ -69,6 +68,12 @@ impl UiTree {
             self.changed = true;
         }
         true
+    }
+
+    /// `UIRegion::IsVisible`: the region and every parent visible.
+    fn region_visible(&self, index: usize) -> bool {
+        let el = self.el(index);
+        el.visible && el.parent.map_or(true, |parent| self.region_visible(parent))
     }
 
     /// `UIElement::Deactivate` (and `UIElement_Text::Deactivate`).
@@ -220,9 +225,9 @@ impl UiTree {
         if let Some(direction) = direction {
             self.move_cursor(index, direction);
         }
-        let (editable, one_line, cursor) = {
+        let (editable, one_line, cursor, filter) = {
             let text = self.el(index).text.as_ref().expect("text element");
-            (text.editable, text.one_line, text.cursor)
+            (text.editable, text.one_line, text.cursor, text.filter)
         };
         if !editable || key != 0 {
             if editable && key == 0x2E {
@@ -239,11 +244,20 @@ impl UiTree {
                     self.delete_at(index, cursor - 1);
                 }
                 10 | 13 if !one_line => self.insert(index, &[10]),
-                c if c >= 0x20 && c != 0x7F => self.insert(index, &[c]),
+                c if c >= 0x20 && c != 0x7F && filter.map_or(true, |f| f(c)) => {
+                    self.insert(index, &[c])
+                }
                 _ => {}
             }
         }
         self.broadcast(index, message("character_input"), i32::from(ch));
+    }
+
+    /// `m_filter` of a text element: typed printable characters `filter` refuses are dropped.
+    pub fn set_text_filter(&mut self, index: usize, filter: Option<fn(u16) -> bool>) {
+        if let Some(text) = self.el_mut(index).text.as_mut() {
+            text.filter = filter;
+        }
     }
 
     /// `UIElement_Text::AddText_Internal` at the cursor.

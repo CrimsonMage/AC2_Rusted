@@ -44,7 +44,7 @@ fn manager(sounds: Vec<LoadedSound>) -> (SoundManager, RecordingSink) {
         .into_iter()
         .map(|s| match &s {
             LoadedSound::Sound { info, .. } => (info.did, s),
-            LoadedSound::Music(m) => (m.did, s),
+            LoadedSound::Music { info, .. } => (info.did, s),
         })
         .collect();
     let sink = RecordingSink::new();
@@ -260,7 +260,10 @@ fn the_dats_sounds_decode() {
     assert!((f64::from(length) - pcm.frames() as f64 / f64::from(pcm.rate)).abs() < 1e-3);
     assert!(matches!(
         sounds.load(0x2C00_004A),
-        Some(LoadedSound::Music(MusicInfo { segment, .. })) if segment >> 24 == 0x24
+        Some(LoadedSound::Music {
+            info: MusicInfo { segment, .. },
+            ..
+        }) if segment >> 24 == 0x24
     ));
     assert_eq!(
         sounds.load(0x0C00_0000),

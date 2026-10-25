@@ -70,8 +70,54 @@ pub(crate) struct UiStringTables {
 }
 
 /// The table enums the UI frameworks render from: the UI's, the chat's, race and sex names
-/// (`AllegianceDataAdaptor::GetSpeciesGenderString`), and the MotD's.
-const UI_TABLE_ENUMS: [u32; 4] = [0x4100_0018, 0x4100_0004, 0x4100_000B, 0x4100_0001];
+/// (`AllegianceDataAdaptor::GetSpeciesGenderString`), the MotD's, and the map coordinates'
+/// (`Position::ToRealMapCoords_Info`).
+const UI_TABLE_ENUMS: [u32; 5] = [
+    0x4100_0018,
+    0x4100_0004,
+    0x4100_000B,
+    0x4100_0001,
+    MAP_COORDS_TABLE,
+];
+
+/// `Position::ToRealMapCoords_Info`'s table enum.
+const MAP_COORDS_TABLE: u32 = 0x4000_0007;
+
+/// `Position::ToRealMapCoords_Info` of a cell: "RealMapCoords" with NUM1 / DIR1 (north or
+/// south) and NUM2 / DIR2 (east or west), one decimal; "Inside" off the land.
+pub(crate) fn map_coords_string(cell: u32) -> ac2_ui::UiString {
+    use ac2_ui::{tokenize, SkillVar, UiString};
+    let Some((x, y)) = ac2_physics::landdefs::gid_to_game_map_coords(cell) else {
+        return UiString::new(tokenize("Inside"), MAP_COORDS_TABLE, Vec::new());
+    };
+    let number = |v: f32| SkillVar::Float {
+        value: f64::from(v.abs()),
+        precision: 1,
+    };
+    let word = |s: &str| {
+        SkillVar::Info(Box::new(UiString::new(
+            tokenize(s),
+            MAP_COORDS_TABLE,
+            Vec::new(),
+        )))
+    };
+    UiString::new(
+        tokenize("RealMapCoords"),
+        MAP_COORDS_TABLE,
+        vec![
+            (tokenize("NUM1"), number(y)),
+            (
+                tokenize("DIR1"),
+                word(if 0.0 <= y { "North" } else { "South" }),
+            ),
+            (tokenize("NUM2"), number(x)),
+            (
+                tokenize("DIR2"),
+                word(if 0.0 <= x { "East" } else { "West" }),
+            ),
+        ],
+    )
+}
 
 impl UiStringTables {
     /// On a worker: the enums resolved through the DAT's enum mapper.

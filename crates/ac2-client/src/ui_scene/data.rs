@@ -44,7 +44,7 @@ pub(crate) const LIGHT_DIRECTIONAL: u32 = 0x4000_0002;
 
 /// A camera entity (`UISceneCameraEntity`) with its `SceneCamera` settings.
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) struct CameraData {
+pub struct CameraData {
     pub name: Option<String>,
     pub frame: Frame,
     /// `mbOrthographic`, `mFOV` (vertical, degrees), `mVerticalScale`, `mNearDistance`,
@@ -59,7 +59,7 @@ pub(crate) struct CameraData {
 /// A light entity (`UISceneLightEntity`): its `LightSource` at the entity's origin
 /// (`UISceneLightEntity::SetFrame`).
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) struct LightData {
+pub struct LightData {
     pub name: Option<String>,
     pub origin: Vec3,
     /// `m_Type` (`LightSource::LightSource`: point).
@@ -75,7 +75,7 @@ pub(crate) struct LightData {
 
 /// A physics object entity (`UIScenePhysObjEntity`): its `EntityDesc`'s object, frame and name.
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) struct EntityData {
+pub struct EntityData {
     pub name: Option<String>,
     pub frame: Frame,
     pub scale: Vec3,
@@ -85,7 +85,7 @@ pub(crate) struct EntityData {
 
 /// A loaded `UIScene`.
 #[derive(Debug, Clone, PartialEq, Default)]
-pub(crate) struct SceneData {
+pub struct SceneData {
     pub entities: Vec<EntityData>,
     pub cameras: Vec<CameraData>,
     pub lights: Vec<LightData>,
@@ -95,7 +95,7 @@ pub(crate) struct SceneData {
 
 /// A physics object as `makeObject` builds it.
 #[derive(Clone, Default)]
-pub(crate) struct ObjectData {
+pub struct ObjectData {
     /// The `VisualDesc` (or Setup) the template chain ends at.
     pub visual: Option<DataId>,
     /// The templates' scales, multiplied.
@@ -124,7 +124,7 @@ impl ObjectData {
 /// A Setup holding location (`LocationType`): on bone `bone` at `local` in that bone's space,
 /// `rest` in model space at the rest pose.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) struct HoldingPoint {
+pub struct HoldingPoint {
     pub id: u32,
     pub bone: usize,
     pub local: Ac2Transform,

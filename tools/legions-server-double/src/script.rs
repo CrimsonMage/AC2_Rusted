@@ -192,6 +192,12 @@ impl State {
                 self.send_script(&ScriptMessage::TransmuteAllDone(desc.clone()));
             }
             // `WM_Usage` 0x22: the desc comes back with the outcome the test configured.
+            ScriptRequest::OpenTrade(_)
+            | ScriptRequest::CloseTrade
+            | ScriptRequest::AcceptTrade(_)
+            | ScriptRequest::DeclineTrade
+            | ScriptRequest::OfferItem { .. }
+            | ScriptRequest::RevokeItem(_) => self.answer_trade(request),
             ScriptRequest::Use(desc) => {
                 let mut desc = desc.clone();
                 desc.error = self.script_world.usage_error;
@@ -275,7 +281,7 @@ impl State {
 
     /// Moves `item` out of whichever container holds it and, when `target` is a known
     /// container, into it at `slot` (-1 or past the end: last); returns the slot it took.
-    fn inventory_move(&mut self, item: u64, target: u64, slot: i32) -> i32 {
+    pub(crate) fn inventory_move(&mut self, item: u64, target: u64, slot: i32) -> i32 {
         let world = &mut self.script_world;
         let mut is_pack = false;
         for (packs, items) in world.contents.values_mut() {

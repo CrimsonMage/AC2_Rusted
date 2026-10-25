@@ -21,7 +21,7 @@ pub struct StyleNote {
     pub duration_range: u8,
     pub velocity_range: u8,
     pub inversion_id: u8,
-    /// `DMUS_PLAYMODE_*` (0 inherits the part's).
+    /// `bPlayModeFlags`: `DMUS_PLAYMODE_*`, where 16 (NONE) takes the part's mode and 0 is FIXED.
     pub play_mode: u8,
     pub note_flags: u8,
 }

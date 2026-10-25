@@ -69,7 +69,7 @@ impl UiTree {
     }
 
     /// `UIRegion::GetObjectX0` / `GetObjectY0`: the box's corner in its surface.
-    fn object_origin(&self, index: usize) -> (i32, i32) {
+    pub(crate) fn object_origin(&self, index: usize) -> (i32, i32) {
         let el = self.el(index);
         let (x, y) = el.parent.map_or((0, 0), |p| self.object_origin(p));
         (el.rect.x0 + x, el.rect.y0 + y)

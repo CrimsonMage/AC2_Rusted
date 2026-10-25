@@ -209,7 +209,7 @@ impl PregameUi {
     /// The shown viewport roots and the scenes they show, in the order the roots are drawn
     /// (`UIViewportObject::Render` among the surfaces).
     pub fn viewports(&self) -> Vec<crate::pregame::SceneViewport> {
-        crate::pregame::scene::viewports(&self.tree)
+        crate::scene_viewports(&self.tree)
     }
 
     /// The dialogs.

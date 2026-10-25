@@ -45,6 +45,8 @@ pub struct ItemDisplay {
     pub value: Option<i32>,
 }
 
+const ITEM_TYPE: u32 = 20;
+
 impl Client {
     /// `ggmCWInterface::CallIFun_*` on `id`'s process: the return slot read back.
     fn object_query(
@@ -211,5 +213,21 @@ impl Client {
             ac2_net::protocol::NativeObject::StringInfo(info) => Some(info),
             _ => None,
         }
+    }
+
+    /// `gInventoryGlobals::CallIFun_GetCoinMaxStackSize`: the most coins a stack holds, from the
+    /// `InventoryGlobals` singleton (`None` without the script library or when the call stops).
+    pub fn coin_max_stack_size(&mut self) -> Option<i32> {
+        self.scripts.as_mut()?.host.coin_max_stack_size()
+    }
+
+    /// `gmMoneyBagUI::HandleMoneyBagDrop`'s melting test on `item`: its `GetInt(item, 20)` has the
+    /// bits `0xF0081`.
+    pub fn melts_to_money(&self, item: u64) -> bool {
+        self.session()
+            .objects()
+            .get(item)
+            .and_then(|o| o.qualities.inq_int(ITEM_TYPE))
+            .is_some_and(|t| (t as u32 & 0x000F_0081) == 0x000F_0081)
     }
 }

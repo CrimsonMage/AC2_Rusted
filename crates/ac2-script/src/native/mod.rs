@@ -116,6 +116,7 @@ pub mod ntype {
     pub const GM_RACE_SEX_INFO: u32 = 0xA2;
     pub const GM_SCENE_INFO: u32 = 0xA3;
     pub const SKILL_UI_NODE: u32 = 0xAE;
+    pub const EFFECT_UI_NODE: u32 = 0x98;
 }
 
 /// One `PackBuffer` value (`gPackBuffer::CallEFun_Pack*` tags 1-5); a package is packed when
@@ -272,6 +273,9 @@ impl NativeObject {
                     Box::new(crate::glue::empty_skill_node()),
                 )))
             }
+            ntype::EFFECT_UI_NODE => NativeObject::Wire(Box::new(
+                ac2_net::protocol::NativeObject::EffectUiNode(Box::default()),
+            )),
             ntype::GAMEPLAY_OPTIONS_PROFILE => NativeObject::GameplayOptions(Box::default()),
             ntype::UI_SHOP => NativeObject::Shop(Box::default()),
             ntype::UI_SHOP_SALE => NativeObject::ShopSale(Box::default()),

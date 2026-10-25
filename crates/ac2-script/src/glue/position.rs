@@ -212,10 +212,7 @@ fn place_in_cell(p: &mut Position, cell: u32) -> bool {
 
 /// `LandDefs::gid_to_game_map_coords`: percent of the half map from its middle (x, y).
 fn game_map_coords(cell: u32) -> Option<(f32, f32)> {
-    let (x, y) = gid_to_lcoord(cell)?;
-    let half = f64::from(LAND_WIDTH) * 0.5;
-    let map = |v: i32| ((f64::from(v) - half) / half * 100.0) as f32;
-    Some((map(x), map(y)))
+    ac2_physics::landdefs::gid_to_game_map_coords(cell)
 }
 
 /// `LandDefs::game_map_coords_to_gid`.

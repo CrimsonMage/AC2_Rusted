@@ -144,8 +144,9 @@ pub enum GameplayNotice {
     UpdateResetTime,
     /// `CM_Character::SendNotice_UpdateDeathState`.
     UpdateDeathState(bool),
-    /// `CM_Character::SendNotice_ChangeRadarLook`.
-    ChangeRadarLook,
+    /// `CM_Character::SendNotice_ChangeRadarLook`: the object whose radar look changed (the
+    /// player's means every blip is looked up again, `gmRadarUI::RecvNotice_ChangeRadarLook`).
+    ChangeRadarLook(u64),
     /// `CM_Character::SendNotice_DisplayMessage`: a message box.
     DisplayMessage { text: StringInfo, topmost: bool },
     /// `CM_Character::SendNotice_UpdateMountState`.

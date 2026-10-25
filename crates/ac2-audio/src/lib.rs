@@ -1,6 +1,8 @@
 //! Asheron's Call 2 audio (retail `portal/client/src/sound`): the DAT sound records, decoded on
 //! a loader thread; `SoundManager`, which the frame thread asks to play sounds and runs each
-//! frame; and the output the voices go to (the speakers, or a null or recording sink).
+//! frame; the music queue (`DXMusicMessageThread`), which plays the DirectMusic segments of the
+//! music voices and sends their events to an event sink; and the output the voices go to (the
+//! speakers, or a null or recording sink).
 //!
 //! The frame thread never reads or decodes a file: a sound not yet resident is loaded on the
 //! loader thread and plays from a later [`SoundManager::use_time`].
@@ -13,11 +15,13 @@ mod loader;
 mod manager;
 mod mixer;
 pub mod music;
+mod music_thread;
 #[cfg(feature = "output")]
 mod output;
 mod play_data;
 mod playing;
 mod sink;
+pub mod synth;
 
 #[cfg(test)]
 mod ambient_tests;
@@ -34,6 +38,9 @@ pub use data::{
 };
 pub use manager::{SoundManager, SoundPreference};
 pub use mixer::{spatial_gains, Mixer};
+pub use music_thread::{
+    MusicEventKind, MusicHandler, MusicThread, SegmentEvent, SegmentInfo, SegmentKind,
+};
 #[cfg(feature = "output")]
 pub use output::SpeakerSink;
 pub use play_data::{Channel, LoopingMode, PlaySoundData, SoundType, Track};

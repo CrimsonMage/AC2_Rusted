@@ -20,12 +20,12 @@ mod flow;
 mod intro;
 mod keyboard;
 mod persistent;
-mod scene;
 mod strings;
 #[cfg(test)]
 mod tests;
 mod ui;
 
+pub use crate::scene_viewport::SceneViewport;
 pub use arms::{CharacterArms, SceneEntity};
 pub use assets::{load_pregame, PregameAssets, PREGAME_LAYOUTS};
 pub use avatar_modification::{AvatarModificationUi, ModificationCamera};
@@ -42,7 +42,6 @@ pub use flow::{
     MODE_INTRO, MODE_KEYBOARD,
 };
 pub use persistent::{greyed_out_for, identity, PersistentData};
-pub use scene::SceneViewport;
 pub use strings::{UiStrings, UI_STRING_TABLE};
 pub use ui::{PregameRequest, PregameUi};
 

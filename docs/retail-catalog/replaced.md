@@ -1,6 +1,6 @@
 # replaced: Third-party libraries, CRT and container templates replaced by Rust
 
-2058 retail functions: 32 done, 0 partial, 0 to do, 2026 skipped.
+2058 retail functions: 34 done, 0 partial, 0 to do, 2024 skipped.
 Legend and workflow: [README](README.md).
 
 ## `_libraries/ImeUI.lib/ImeUi.obj.c` (0/36)
@@ -1531,19 +1531,19 @@ Legend and workflow: [README](README.md).
 ### PStringBase<unsigned_short>
 - [-] `PStringBase<unsigned_short>::replace` · 0041a1e0 · legions 0041a020 — Rust std replaces it
 
-## `ac2/client/src/ui/gameplay/gmradarui.cpp.c` (0/3)
+## `ac2/client/src/ui/gameplay/gmradarui.cpp.c` (1/3)
 
 ### SmartArray<RadarInfo>
 - [-] `SmartArray<RadarInfo>::grow` · 004255f0 · legions 004253e0 — Rust std replaces it
-- [-] `SmartArray<RadarInfo>::add_unique` · 00425fe0 · legions 00425dd0 — Rust std replaces it
+- [x] `SmartArray<RadarInfo>::add_unique` · 00425fe0 · legions 00425dd0 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 
 ### SmartArray<GrooveInfo>
 - [-] `SmartArray<GrooveInfo>::add_unique` · 00426020 · legions 00425e10 — Rust std replaces it
 
-## `ac2/client/src/ui/gameplay/gmsecuretradeui.cpp.c` (0/1)
+## `ac2/client/src/ui/gameplay/gmsecuretradeui.cpp.c` (1/1)
 
 ### List<ItemDisplay_*>
-- [-] `List<ItemDisplay_*>::remove` · 00421510 · legions 00421340 — Rust std replaces it
+- [x] `List<ItemDisplay_*>::remove` · 00421510 · legions 00421340 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 
 ## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (0/3)
 

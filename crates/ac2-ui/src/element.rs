@@ -197,6 +197,8 @@ pub struct UiTree {
     update_count: u32,
     /// The render device's display size.
     pub(crate) display: (i32, i32),
+    /// `gmStackUI::m_globalContext`.
+    pub(crate) stack_context: u32,
     /// Fonts and strings for text elements.
     pub(crate) text_data: Option<Arc<dyn UiTextData>>,
     /// Messages broadcast and not yet taken.
@@ -264,6 +266,7 @@ impl UiTree {
             roots: Vec::new(),
             update_count: 0,
             display: (width, height),
+            stack_context: 0,
             text_data: None,
             messages: Vec::new(),
             pointer: (0, 0),

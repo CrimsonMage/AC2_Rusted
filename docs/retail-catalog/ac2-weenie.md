@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 68 done, 9 partial, 1821 to do, 6 skipped.
+1904 retail functions: 87 done, 26 partial, 1785 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -34,20 +34,20 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Allegiance::SendNotice_UpdateAllegianceProfile` · 007280c0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 - [ ] `CM_Allegiance::SendNotice_Vassal_SwearDone` · 00728150 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 
-## `ac2/client/src/events/cm_character.cpp.c` (0/30)
+## `ac2/client/src/events/cm_character.cpp.c` (4/30)
 
 ### CM_Character
-- [ ] `CM_Character::SendNotice_AddMarker` · 007248b0 · legions 006a4270 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CM_Character::SendNotice_AddMarker` · 007248b0 · legions 006a4270 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [ ] `CM_Character::SendNotice_AddPet` · 00724970 · legions 006a42e0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Character::SendNotice_ChangeRadarLook` · 00724a30 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CM_Character::SendNotice_ChangeRadarLook` · 00724a30 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [ ] `CM_Character::SendNotice_ChangeRadarShowCoordsPreference` · 00724ac0
-- [ ] `CM_Character::SendNotice_ClearMarkers` · 00724b50 · legions 006a43e0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CM_Character::SendNotice_ClearMarkers` · 00724b50 · legions 006a43e0 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [ ] `CM_Character::SendNotice_DisplayMessage` · 00724be0 · legions 006a4430 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_Character::SendNotice_PetIsUnderAttack` · 00724c70 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_Character::SendNotice_PulseMissed` · 00724d00 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_Character::SendNotice_ReloadGameplayOptions` · 00724d90
 - [ ] `CM_Character::SendNotice_ReloadOptions` · 00724e20 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
-- [ ] `CM_Character::SendNotice_RemoveMarker` · 00724eb0 · legions 006a45e0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CM_Character::SendNotice_RemoveMarker` · 00724eb0 · legions 006a45e0 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [ ] `CM_Character::SendNotice_RemovePet` · 00724f50 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_Character::SendNotice_ResurrectionRequestedByOther` · 00724fe0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_Character::SendNotice_Select` · 00725070
@@ -178,15 +178,15 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/events/cm_trade.cpp.c` (0/9)
 
 ### CM_Trade
-- [ ] `CM_Trade::SendNotice_Trade_BeAcceptanceCleared` · 00726310 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Trade::SendNotice_Trade_BeAccepted` · 007263a0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Trade::SendNotice_Trade_BeClosed` · 00726430 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Trade::SendNotice_Trade_BeDeclined` · 007264d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Trade::SendNotice_Trade_BeOffered` · 00726560 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Trade::SendNotice_Trade_BeOpened` · 00726620 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Trade::SendNotice_Trade_BeRegistered` · 007266b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Trade::SendNotice_Trade_BeReset` · 00726770 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Trade::SendNotice_Trade_BeRevoked` · 00726800 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [~] `CM_Trade::SendNotice_Trade_BeAcceptanceCleared` · 00726310 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
+- [~] `CM_Trade::SendNotice_Trade_BeAccepted` · 007263a0 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
+- [~] `CM_Trade::SendNotice_Trade_BeClosed` · 00726430 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
+- [~] `CM_Trade::SendNotice_Trade_BeDeclined` · 007264d0 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
+- [~] `CM_Trade::SendNotice_Trade_BeOffered` · 00726560 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
+- [~] `CM_Trade::SendNotice_Trade_BeOpened` · 00726620 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
+- [~] `CM_Trade::SendNotice_Trade_BeRegistered` · 007266b0 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
+- [~] `CM_Trade::SendNotice_Trade_BeReset` · 00726770 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
+- [~] `CM_Trade::SendNotice_Trade_BeRevoked` · 00726800 — raised by the stand-in from WM_Trade handlers (ac2-net gameplay/trade.rs, ac2-weenie session/trade.rs); handler ids traced through CPlayer, arg kinds from the notice signatures; script VM path not wired
 
 ## `ac2/client/src/events/cm_ui.cpp.c` (0/21)
 
@@ -271,18 +271,18 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Allegiance::CallEFun_SendNotice_UpdateAllegianceProfile` · 0046a3f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Allegiance::CallEFun_SendNotice_Vassal_SwearDone` · 0046a440 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 
-## `ac2/client/src/weenie/interp/glue/gcm_character.cpp.c` (0/26)
+## `ac2/client/src/weenie/interp/glue/gcm_character.cpp.c` (4/26)
 
 ### gCM_Character
-- [ ] `gCM_Character::CallEFun_SendNotice_AddMarker` · 00469a90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [x] `gCM_Character::CallEFun_SendNotice_AddMarker` · 00469a90 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [ ] `gCM_Character::CallEFun_SendNotice_AddPet` · 00469b10 · legions 0046a500 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Character::CallEFun_SendNotice_ChangeRadarLook` · 00469b80 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Character::CallEFun_SendNotice_ClearMarkers` · 00469bc0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [x] `gCM_Character::CallEFun_SendNotice_ChangeRadarLook` · 00469b80 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
+- [x] `gCM_Character::CallEFun_SendNotice_ClearMarkers` · 00469bc0 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [ ] `gCM_Character::CallEFun_SendNotice_DisplayMessage` · 00469c10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Character::CallEFun_SendNotice_PetIsUnderAttack` · 00469c60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Character::CallEFun_SendNotice_PulseMissed` · 00469cb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Character::CallEFun_SendNotice_ReloadOptions` · 00469d00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Character::CallEFun_SendNotice_RemoveMarker` · 00469d40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [x] `gCM_Character::CallEFun_SendNotice_RemoveMarker` · 00469d40 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [ ] `gCM_Character::CallEFun_SendNotice_RemovePet` · 00469d90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Character::CallEFun_SendNotice_ResurrectionRequestedByOther` · 00469de0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Character::CallEFun_SendNotice_SelectionChanged` · 00469e30 — ac2-script host notices -> ac2_weenie::GameplayNotice
@@ -643,7 +643,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ReferenceTable::GetPackageID` · 004576d0 · legions 00458230 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ggmCWInterface
-- [ ] `ggmCWInterface::CallIFun_AcceptTrade` · 00457730 · legions 00458290
+- [~] `ggmCWInterface::CallIFun_AcceptTrade` · 00457730 · legions 00458290 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [ ] `ggmCWInterface::CallIFun_AcceptVassal` · 004577c0 · legions 00458320
 - [ ] `ggmCWInterface::CallIFun_AddEffectDataToProfileByEID` · 00457850 · legions 004583b0
 - [ ] `ggmCWInterface::CallIFun_BreakAllegiance` · 00457a20 · legions 00458580
@@ -654,8 +654,8 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_CanSkillBeUntrainedByEnum` · 00457e10 · legions 00458970 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_CheckIngredient` · 00457ed0 · legions 00458a30
 - [ ] `ggmCWInterface::CallIFun_ClearResurrectionRequest` · 00458090 · legions 00458bf0
-- [ ] `ggmCWInterface::CallIFun_CloseTradeNegotiations` · 00458120 · legions 00458c80
-- [ ] `ggmCWInterface::CallIFun_DeclineTrade` · 004581b0 · legions 00458d10
+- [~] `ggmCWInterface::CallIFun_CloseTradeNegotiations` · 00458120 · legions 00458c80 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
+- [~] `ggmCWInterface::CallIFun_DeclineTrade` · 004581b0 · legions 00458d10 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [ ] `ggmCWInterface::CallIFun_DeclineVassal` · 00458240 · legions 00458da0
 - [ ] `ggmCWInterface::CallIFun_Dismount` · 004582f0 · legions 00458f40
 - [ ] `ggmCWInterface::CallIFun_DisplaySaleReminders` · 00458380 · legions 00458fd0
@@ -742,7 +742,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_InqPrevReplyHistoryItem` · 0045d1a0 · legions 0045ddf0
 - [ ] `ggmCWInterface::CallIFun_InqPrevRetellHistoryItem` · 0045d340 · legions 0045df90
 - [ ] `ggmCWInterface::CallIFun_InqQuestInfoList` · 0045d4e0 · legions 0045e130
-- [ ] `ggmCWInterface::CallIFun_InqRadarLook` · 0045d660 · legions 0045e2b0
+- [~] `ggmCWInterface::CallIFun_InqRadarLook` · 0045d660 · legions 0045e2b0 — ac2-client client_radar.rs + ac2-script radar.rs: looks asked on each object's script, the ranges from RadarControl; the creature, NPC and player scripts answer no look in the double (no reads, retval 0); no drawing (pixel mapping, tooltip) in ac2-ui
 - [ ] `ggmCWInterface::CallIFun_InqRecipeAdaptor` · 0045d870 · legions 0045e4c0
 - [ ] `ggmCWInterface::CallIFun_InqRecipeCost` · 0045da10 · legions 0045e660
 - [ ] `ggmCWInterface::CallIFun_InqRecipeDifficulty` · 0045db70 · legions 0045e7c0
@@ -765,9 +765,9 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_IsSkillUsableBasedOnInventoryByEnum` · 0045f280 · legions 0045fed0
 - [ ] `ggmCWInterface::CallIFun_LootAllFromContainer` · 0045f340 · legions 0045ff90
 - [ ] `ggmCWInterface::CallIFun_MoveItem` · 0045f410 · legions 00460060
-- [ ] `ggmCWInterface::CallIFun_OfferItemForTrade` · 0045f5e0 · legions 00460230
+- [~] `ggmCWInterface::CallIFun_OfferItemForTrade` · 0045f5e0 · legions 00460230 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [ ] `ggmCWInterface::CallIFun_OpenRecipe` · 0045f6e0 · legions 00460330
-- [ ] `ggmCWInterface::CallIFun_OpenTradeNegotiations` · 0045f790 · legions 004603e0
+- [~] `ggmCWInterface::CallIFun_OpenTradeNegotiations` · 0045f790 · legions 004603e0 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [ ] `ggmCWInterface::Resume_PopupYesNoDialog` · 0045f860 · legions 004604b0
 - [ ] `ggmCWInterface::CallIFun_PurchaseConfirmed` · 0045f8f0 · legions 00460540
 - [ ] `ggmCWInterface::CallIFun_PurchaseItem` · 0045f9a0 · legions 004605f0
@@ -810,7 +810,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_Result_IgnoredDelete` · 00461870 · legions 004624c0
 - [ ] `ggmCWInterface::CallIFun_Result_SendToRoom` · 00461980 · legions 004625d0
 - [ ] `ggmCWInterface::CallIFun_Result_SendToUser` · 00461ab0 · legions 00462700
-- [ ] `ggmCWInterface::CallIFun_RevokeItemFromTrade` · 00461c10 · legions 00462860
+- [~] `ggmCWInterface::CallIFun_RevokeItemFromTrade` · 00461c10 · legions 00462860 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [ ] `ggmCWInterface::CallIFun_SetAcceptAllegianceRequest` · 00461ce0 · legions 00462930
 - [ ] `ggmCWInterface::CallIFun_SetAcceptFellowshipRequest` · 00461d90 · legions 004629e0
 - [ ] `ggmCWInterface::CallIFun_SetAcceptTradeRequest` · 00461e40 · legions 00462a90
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (25/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (36/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -1057,7 +1057,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::SetShortcutHeight` · 004513d0 · legions 00452510
 - [ ] `gmCWInterface::GetShortcutHeight` · 004513f0 · legions 00452530
 - [ ] `gmCWInterface::SetBypassGoldMeltingConfirmationDlg` · 00451420 · legions 00452560
-- [ ] `gmCWInterface::GetBypassGoldMeltingConfirmationDlg` · 00451440 · legions 00452580
+- [x] `gmCWInterface::GetBypassGoldMeltingConfirmationDlg` · 00451440 · legions 00452580 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 - [ ] `gmCWInterface::SetLatencyIndicatorGraph` · 00451470 · legions 004525b0
 - [ ] `gmCWInterface::GetLatencyIndicatorGraph` · 00451490 · legions 004525d0
 - [ ] `gmCWInterface::SetShowFellowsOnMap` · 004514c0 · legions 00452600
@@ -1066,10 +1066,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::GetShowPetUI` · 00451530 · legions 00452670
 - [ ] `gmCWInterface::SetUISaveLocations` · 00451560 · legions 00452290
 - [ ] `gmCWInterface::InqUISaveLocations` · 00451580 · legions 004526c0
-- [ ] `gmCWInterface::SetShowRadarCoords` · 004515c0 · legions 00452700
-- [ ] `gmCWInterface::GetShowRadarCoords` · 004515e0 · legions 00452720
-- [ ] `gmCWInterface::SetShowObjectNames` · 00451610 · legions 00452750
-- [ ] `gmCWInterface::GetShowObjectNames` · 00451630 · legions 00452770
+- [x] `gmCWInterface::SetShowRadarCoords` · 004515c0 · legions 00452700 — ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile)
+- [x] `gmCWInterface::GetShowRadarCoords` · 004515e0 · legions 00452720 — ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile)
+- [x] `gmCWInterface::SetShowObjectNames` · 00451610 · legions 00452750 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
+- [x] `gmCWInterface::GetShowObjectNames` · 00451630 · legions 00452770 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [ ] `gmCWInterface::SetRadarMask` · 00451660 · legions 004527a0
 - [ ] `gmCWInterface::GetRadarMask` · 00451680 · legions 004527c0
 - [ ] `gmCWInterface::SetChatWindowFilter` · 004516b0 · legions 004527f0
@@ -1112,19 +1112,19 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::BreakAllegiance` · 00451d30 · legions 00452eb0 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 - [x] `gmCWInterface::AcceptVassal` · 00451d50 · legions 00452ed0 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 - [x] `gmCWInterface::DeclineVassal` · 00451d70 · legions 00452ef0 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
-- [ ] `gmCWInterface::OpenTradeNegotiations` · 00451d90 · legions 00452f10
-- [ ] `gmCWInterface::CloseTradeNegotiations` · 00451db0 · legions 00452f30
-- [ ] `gmCWInterface::AcceptTrade` · 00451dd0 · legions 00452f50
-- [ ] `gmCWInterface::DeclineTrade` · 00451df0 · legions 00452f70
-- [ ] `gmCWInterface::OfferItemForTrade` · 00451e10 · legions 00452f90
-- [ ] `gmCWInterface::RevokeItemFromTrade` · 00451e40 · legions 00452fc0
+- [x] `gmCWInterface::OpenTradeNegotiations` · 00451d90 · legions 00452f10 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
+- [x] `gmCWInterface::CloseTradeNegotiations` · 00451db0 · legions 00452f30 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
+- [~] `gmCWInterface::AcceptTrade` · 00451dd0 · legions 00452f50 — accept_trade sends WM_Trade stub 0x35 with an empty PackedReference; retail packs the accepting side's CWInterface instance graph (not ported)
+- [x] `gmCWInterface::DeclineTrade` · 00451df0 · legions 00452f70 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
+- [x] `gmCWInterface::OfferItemForTrade` · 00451e10 · legions 00452f90 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
+- [x] `gmCWInterface::RevokeItemFromTrade` · 00451e40 · legions 00452fc0 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 - [ ] `gmCWInterface::GetMissileInformationFromWSL` · 00451e60 · legions 00452fe0
 - [ ] `gmCWInterface::GetFXAndBehaviorInformationFromWsl` · 00451eb0 · legions 00453030
 - [ ] `gmCWInterface::DoUIDamage` · 00451ef0 · legions 00453070
 - [ ] `gmCWInterface::SpecialAttackStarted` · 00451f50 · legions 004530d0
 - [ ] `gmCWInterface::SpecialAttackEnded` · 00451f70 · legions 004530f0
 - [ ] `gmCWInterface::StopAttackingIfAutoMoving` · 00451f90 · legions 00453110
-- [ ] `gmCWInterface::InqRadarLook` · 00451fb0 · legions 00453130
+- [x] `gmCWInterface::InqRadarLook` · 00451fb0 · legions 00453130 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [ ] `gmCWInterface::IsSkillHarmful` · 00451ff0 · legions 00453170
 - [ ] `gmCWInterface::HandleSetWeenieDesc` · 00452030 · legions 004531b0
 

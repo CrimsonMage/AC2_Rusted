@@ -290,18 +290,19 @@ impl App {
         if view.take_deselect() {
             state.commands.push(Command::Select(None));
         }
-        render_to(
-            &state.gpu.device,
-            &state.gpu.queue,
-            &target,
-            &state.depth,
-            [0.0; 3],
-            |pass| {
-                if drawn {
-                    view.draw(pass);
-                }
-            },
-        );
+        if drawn {
+            let size = (state.config.width, state.config.height);
+            view.render(&state.gpu, &target, &state.depth, size, true);
+        } else {
+            render_to(
+                &state.gpu.device,
+                &state.gpu.queue,
+                &target,
+                &state.depth,
+                [0.0; 3],
+                |_| {},
+            );
+        }
         output.present();
     }
 }

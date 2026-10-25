@@ -17,7 +17,9 @@ pub mod chat_text;
 mod client;
 mod client_ambient;
 mod client_audio;
+mod client_frame;
 mod client_objects;
+mod client_radar;
 mod controls;
 mod frame;
 mod gameplay;
@@ -28,6 +30,8 @@ mod hud_view;
 mod item_queries;
 mod loader;
 mod motion;
+#[cfg(feature = "window")]
+mod paper_doll_scene;
 mod pregame;
 #[cfg(feature = "window")]
 pub mod pregame_scene;
@@ -45,6 +49,8 @@ mod targeting;
 mod ui_images;
 #[cfg(feature = "window")]
 mod ui_inventory;
+#[cfg(feature = "window")]
+pub mod ui_scene;
 #[cfg(feature = "window")]
 mod ui_social;
 #[cfg(feature = "window")]
@@ -66,7 +72,7 @@ pub use client::{
 };
 pub use client_audio::FxSoundData;
 pub use controls::frame_input;
-pub use frame::{ClientFrame, Holder, ObjectFrame, PlayerFrame};
+pub use frame::{ClientFrame, Holder, MapMarker, ObjectFrame, PlayerFrame, RadarBlip, RadarFrame};
 pub use gameplay::{
     Command, ContainerFrame, InventoryFrame, ItemFrame, ProgressFrame, SelectionFrame,
 };

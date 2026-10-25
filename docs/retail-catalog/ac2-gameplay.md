@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 131 done, 15 partial, 344 to do, 9 skipped.
+499 retail functions: 136 done, 15 partial, 339 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -190,15 +190,15 @@ Legend and workflow: [README](README.md).
 - [ ] `DamageTextBlob::DamageTextBlob` · 006099b0 · legions 005ca6c0
 - [ ] `DamageTextBlob::StreamPack` · 006099e0 · legions 005ca6f0
 
-## `ac2/shared/src/effectdisplay/effectuinode.cpp.c` (3/10)
+## `ac2/shared/src/effectdisplay/effectuinode.cpp.c` (8/10)
 
 ### EffectUINode
-- [ ] `EffectUINode::SetEnabled` · 00607ce0 · legions 005c8b80
-- [ ] `EffectUINode::SetDisabled` · 00607cf0 · legions 005c8b90
-- [ ] `EffectUINode::SetToggled` · 00607d00 · legions 005c8ba0
-- [ ] `EffectUINode::SetPulsed` · 00607d10 · legions 005c8bb0
+- [x] `EffectUINode::SetEnabled` · 00607ce0 · legions 005c8b80 — reproduced by the gEffectUINode glue (ac2-script glue/effect_node.rs); body from admin 7148 and Legions layout
+- [x] `EffectUINode::SetDisabled` · 00607cf0 · legions 005c8b90 — reproduced by the gEffectUINode glue (ac2-script glue/effect_node.rs); body from admin 7148 and Legions layout
+- [x] `EffectUINode::SetToggled` · 00607d00 · legions 005c8ba0 — reproduced by the gEffectUINode glue (ac2-script glue/effect_node.rs); body from admin 7148 and Legions layout
+- [x] `EffectUINode::SetPulsed` · 00607d10 · legions 005c8bb0 — reproduced by the gEffectUINode glue (ac2-script glue/effect_node.rs); body from admin 7148 and Legions layout
 - [x] `EffectUINode::IsPulsed` · 00607d20 · legions 005c8bc0 — ac2-net EffectUiNode (StreamPack field order, is_pulsed, Default = Clear's -1 times)
-- [ ] `EffectUINode::operator=` · 00607d30 · legions 005c8bd0
+- [x] `EffectUINode::operator=` · 00607d30 · legions 005c8bd0 — reproduced by the gEffectUINode glue (ac2-script glue/effect_node.rs); body from admin 7148 and Legions layout
 - [x] `EffectUINode::Clear` · 00607de0 · legions 005c8c80 — ac2-net EffectUiNode (StreamPack field order, is_pulsed, Default = Clear's -1 times)
 - [ ] `EffectUINode::EffectUINode` · 00607e90 · legions 005c8d30
 - [ ] `EffectUINode::EffectUINode` · 00607f00 · legions 005c8da0

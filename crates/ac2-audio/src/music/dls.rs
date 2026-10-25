@@ -39,7 +39,7 @@ pub struct SampleLoop {
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct WaveSample {
     pub unity_note: u16,
-    /// Cents (relative pitch units / 65536 * 100 retail stores as 16-bit).
+    /// Cents, signed 16-bit (`sFineTune`).
     pub fine_tune: i16,
     /// Gain in 1/655360 dB.
     pub attenuation: i32,

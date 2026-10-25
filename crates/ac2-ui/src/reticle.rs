@@ -52,8 +52,11 @@ pub struct Reticle {
     stuff: usize,
     average_frames: usize,
     max_selection_distance: i32,
+    /// `m_maxNamePlacementAttempts` (the name plates').
+    max_name_attempts: i32,
     boxes: VecDeque<[f32; 6]>,
     current: Option<u64>,
+    selection_rect: Option<[i32; 4]>,
     has_name: bool,
     has_info: bool,
     /// `m_precludedFromTop` / `m_precludedFromBottom` (`CM_UI::SendNotice_PrecludeFrom*`).
@@ -68,8 +71,55 @@ fn int_attribute(tree: &UiTree, index: usize, name: &str) -> Option<i32> {
     }
 }
 
+/// `gm3DTextUI::AverageBoundingBox`: `bounds` added to the last `frames` boxes, their mean.
+pub(crate) fn average_box(
+    boxes: &mut VecDeque<[f32; 6]>,
+    frames: usize,
+    bounds: ([f32; 3], [f32; 3]),
+) -> ([f32; 3], [f32; 3]) {
+    while !boxes.is_empty() && boxes.len() >= frames {
+        boxes.pop_front();
+    }
+    let (lo, hi) = bounds;
+    boxes.push_back([lo[0], lo[1], lo[2], hi[0], hi[1], hi[2]]);
+    let mut sum = [0.0_f64; 6];
+    for b in boxes.iter() {
+        for (s, v) in sum.iter_mut().zip(b) {
+            *s += f64::from(*v);
+        }
+    }
+    let inv = 1.0 / boxes.len() as f64;
+    let v = sum.map(|s| (s * inv) as f32);
+    ([v[0], v[1], v[2]], [v[3], v[4], v[5]])
+}
+
+/// `gm3DTextUI::ConvertObjectToWindow`: the box's corners projected, their clip-space extent
+/// (min, max); `None` when no corner is in front of the camera.
+pub(crate) fn object_to_window(
+    project: &dyn Fn([f32; 3]) -> ([f32; 2], bool),
+    lo: [f32; 3],
+    hi: [f32; 3],
+) -> Option<([f32; 2], [f32; 2])> {
+    let mut in_front = false;
+    let (mut min, mut max) = ([f32::MAX; 2], [f32::MIN; 2]);
+    for i in 0..8 {
+        let corner = [
+            if i & 1 == 0 { lo[0] } else { hi[0] },
+            if i & 2 == 0 { lo[1] } else { hi[1] },
+            if i & 4 == 0 { lo[2] } else { hi[2] },
+        ];
+        let (clip, front) = project(corner);
+        in_front |= front;
+        for axis in 0..2 {
+            min[axis] = min[axis].min(clip[axis]);
+            max[axis] = max[axis].max(clip[axis]);
+        }
+    }
+    in_front.then_some((min, max))
+}
+
 /// `SceneTool::TransformClipPointToPixel`.
-fn clip_to_pixel(clip: [f32; 2], width: i32, height: i32) -> (i32, i32) {
+pub(crate) fn clip_to_pixel(clip: [f32; 2], width: i32, height: i32) -> (i32, i32) {
     let (w, h) = (f64::from(width), f64::from(height));
     let x = ((1.0 / w + f64::from(clip[0]) + 1.0) * w * 0.5) as i32;
     let y = ((1.0 - (1.0 / h + f64::from(clip[1]))) * h * 0.5) as i32;
@@ -96,12 +146,15 @@ impl Reticle {
                 .max(1) as usize,
             max_selection_distance: int_attribute(tree, corners[0], "MaxSelectionDistance")
                 .unwrap_or(i32::MAX / 2),
+            max_name_attempts: int_attribute(tree, corners[0], "MaxNamePlacementAttempts")
+                .unwrap_or(0),
             corners,
             off_screen,
             name,
             stuff,
             boxes: VecDeque::new(),
             current: None,
+            selection_rect: None,
             has_name: false,
             has_info: false,
             precluded_top: 0,
@@ -181,23 +234,15 @@ impl Reticle {
         tree.set_float(meter, tokenize("goal_position"), fraction);
     }
 
-    /// `gm3DTextUI::AverageBoundingBox`.
-    fn average(&mut self, bounds: ([f32; 3], [f32; 3])) -> ([f32; 3], [f32; 3]) {
-        while self.boxes.len() >= self.average_frames {
-            self.boxes.pop_front();
-        }
-        let (lo, hi) = bounds;
-        self.boxes
-            .push_back([lo[0], lo[1], lo[2], hi[0], hi[1], hi[2]]);
-        let mut sum = [0.0_f64; 6];
-        for b in &self.boxes {
-            for (s, v) in sum.iter_mut().zip(b) {
-                *s += f64::from(*v);
-            }
-        }
-        let inv = 1.0 / self.boxes.len() as f64;
-        let v = sum.map(|s| (s * inv) as f32);
-        ([v[0], v[1], v[2]], [v[3], v[4], v[5]])
+    /// `m_averageBBoxFrames` and `m_maxNamePlacementAttempts`, which the name plates share.
+    pub fn name_tuning(&self) -> (usize, i32) {
+        (self.average_frames, self.max_name_attempts)
+    }
+
+    /// The screen box the reticle and its name last took (`m_lastSelectionRect`), which the
+    /// name plates keep clear of.
+    pub fn selection_rect(&self) -> Option<[i32; 4]> {
+        self.selection_rect
     }
 
     /// `gm3DTextUI::UpdateReticle` for this frame (`hidden` in portal space).
@@ -236,27 +281,9 @@ impl Reticle {
                 return None;
             }
         }
-        // `ConvertObjectToWindow`.
-        let (lo, hi) = self.average(target.bounds);
-        let mut in_front = false;
-        let (mut min, mut max) = ([f32::MAX; 2], [f32::MIN; 2]);
-        for i in 0..8 {
-            let corner = [
-                if i & 1 == 0 { lo[0] } else { hi[0] },
-                if i & 2 == 0 { lo[1] } else { hi[1] },
-                if i & 4 == 0 { lo[2] } else { hi[2] },
-            ];
-            let (clip, front) = (target.project)(corner);
-            in_front |= front;
-            for axis in 0..2 {
-                min[axis] = min[axis].min(clip[axis]);
-                max[axis] = max[axis].max(clip[axis]);
-            }
-        }
-        if !in_front {
-            // The off-screen indicator is not modelled; nothing shows.
-            return None;
-        }
+        // `ConvertObjectToWindow` (the off-screen indicator is not modelled: nothing shows).
+        let (lo, hi) = average_box(&mut self.boxes, self.average_frames, target.bounds);
+        let (min, max) = object_to_window(target.project, lo, hi)?;
         let (display_w, display_h) = tree.display;
         let (x0, bottom) = clip_to_pixel(min, display_w, display_h);
         let (x1, top) = clip_to_pixel(max, display_w, display_h);
@@ -288,6 +315,8 @@ impl Reticle {
             tree.set_object_rotation(self.corners[i], 90 * i as i32);
             tree.set_object_position(self.corners[i], xs[i], ys[i]);
         }
+        // `m_lastSelectionRect`: the corners' box (with the name, below, when it shows).
+        self.selection_rect = Some([xs[0], ys[0], xs[2] + w - 1, ys[1] + h - 1]);
         if !self.has_name {
             return None;
         }
@@ -305,6 +334,11 @@ impl Reticle {
         }
         tree.set_object_position(self.name, name_x, name_y);
         tree.show_object(self.name, true);
+        if let Some(rect) = self.selection_rect.as_mut() {
+            rect[0] = rect[0].min(name_x);
+            rect[1] = rect[1].min(name_y);
+            rect[2] = rect[2].max(name_x + name_w - 1);
+        }
         if let Some(off_screen) = self.off_screen {
             tree.show_object(off_screen, false);
         }

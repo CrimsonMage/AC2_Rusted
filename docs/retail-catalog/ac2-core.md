@@ -1,6 +1,6 @@
 # ac2-core: Core runtime: ids, strings, timers, errors, serialization helpers
 
-589 retail functions: 16 done, 0 partial, 169 to do, 404 skipped.
+589 retail functions: 17 done, 0 partial, 169 to do, 403 skipped.
 Legend and workflow: [README](README.md).
 
 ## `core/src/debug/crashcleaners.cpp.c` (0/3)
@@ -920,7 +920,7 @@ Legend and workflow: [README](README.md).
 - [-] `NewParser::ParseString` · 0066ba80 · legions 006163b0 — text source files (admin tools)
 - [-] `NewParser::PostProcessNode` · 0066bac0 · legions 006163f0 — text source files (admin tools)
 
-## `portal/shared/src/pparser/pfileparser.cpp.c` (0/23)
+## `portal/shared/src/pparser/pfileparser.cpp.c` (1/23)
 
 ### PFileParser
 - [-] `PFileParser::LoadFromFile` · 00669b30 · legions 00614570 — text source files (admin tools)
@@ -929,7 +929,7 @@ Legend and workflow: [README](README.md).
 - [-] `PFileParser::ReleaseFileLock` · 00669bf0 · legions 00614620 — text source files (admin tools)
 
 ### EffectUINode
-- [-] `EffectUINode::SetDescription` · 00669c30 · legions 00614660 — text source files (admin tools)
+- [x] `EffectUINode::SetDescription` · 00669c30 · legions 00614660 — reproduced by the gEffectUINode glue (ac2-script glue/effect_node.rs); body from admin 7148 and Legions layout
 
 ### OutputStream
 - [-] `OutputStream::SetString` · 00669c80 · legions 006146b0 — text source files (admin tools)

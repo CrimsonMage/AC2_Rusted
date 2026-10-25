@@ -14,6 +14,7 @@
 mod behavior;
 mod chargen;
 mod cparse;
+mod effect_node;
 mod enums;
 mod examination;
 mod format;
@@ -72,6 +73,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     repository::register(efuns);
     options::register(efuns);
     examination::register(efuns);
+    effect_node::register(efuns);
     places::register(efuns);
     social::register(efuns);
     quests::register(efuns);

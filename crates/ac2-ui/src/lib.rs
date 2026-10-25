@@ -16,8 +16,10 @@ mod compose;
 mod controls;
 mod dialog;
 mod drag;
+mod effects;
 mod element;
 mod examination;
+mod external_container;
 mod fellow_info;
 mod fellowship;
 mod hud;
@@ -31,15 +33,22 @@ mod list_box_select;
 mod maps;
 mod media;
 mod meter;
+mod money_bag;
 mod mouse;
+mod name_plates;
 mod panel;
+mod paper_doll;
 mod place;
 pub mod pregame;
+mod radar;
 mod reticle;
+mod scene_viewport;
 mod scrollbar;
+mod secure_trade;
 mod selection_ui;
 mod shortcut;
 mod skill_tree;
+mod stack;
 #[cfg(test)]
 mod tests;
 mod text;
@@ -68,8 +77,10 @@ pub use dialog::{
     DialogFactory, DialogOutcome, DIALOG_CONFIRMATION, DIALOG_MESSAGE, DIALOG_RESURRECT,
     DIALOG_TIMED, DIALOG_WAIT, LAYOUT_DIALOGS,
 };
+pub use effects::{EffectEntry, EffectsUi, ExamineEffect};
 pub use element::{UiBox, UiElement, UiImage, UiPlacement, UiTree};
 pub use examination::{ExaminationCall, ExaminationItem, ExaminationUi};
+pub use external_container::{ExternalContainerRequest, ExternalContainerUi};
 pub use fellow_info::{vital_text, Fellow, FellowStrings};
 pub use fellowship::{FellowshipData, FellowshipRequest, FellowshipSource, FellowshipUi};
 pub use hud::{
@@ -95,12 +106,18 @@ pub use maps::{
     KEYMAP_GROUP, KEYMAP_MAIN, KEYMAP_SHIFT,
 };
 pub use meter::{VitalDisplay, VitalText};
+pub use money_bag::MoneyBagUi;
 pub use mouse::{
     is_mouse_button, UiMessage, GLOBAL_KEY_PRESS, GLOBAL_KEY_RELEASE, GLOBAL_MOUSE_DOWN,
     GLOBAL_MOUSE_MOVE, GLOBAL_MOUSE_UP, UI_POINTER_X, UI_POINTER_Y, UI_WHEEL_IN, UI_WHEEL_OUT,
 };
+pub use name_plates::{NameLook, NamePlace, NamePlates};
+pub use paper_doll::{mesh_type_to_inv_loc, PaperDollUi};
+pub use radar::{RadarDot, RadarRequest, RadarUi, RadarView};
 pub use reticle::{Reticle, ReticleOutcome, ReticleTarget};
+pub use scene_viewport::{scene_viewports, SceneViewport};
 pub use scrollbar::MSG_NEW_POSITION;
+pub use secure_trade::{SecureTradeRequest, SecureTradeSplit, SecureTradeUi};
 pub use selection_ui::{SelectionClick, SelectionOutcome, SelectionUi};
 pub use shortcut::{
     Shortcut, ShortcutOptions, ShortcutRequest, ShortcutSource, ShortcutUi, SHORTCUT_ALIAS,
@@ -111,6 +128,7 @@ pub use skill_tree::{
     EXAMINE_PANEL, EXAMINE_SKILL, NODE_SKILL, ROOT_MAGIC_PANEL, ROOT_MELEE_PANEL,
     ROOT_MISSILE_PANEL, ROOT_NONCOMBAT_PANEL,
 };
+pub use stack::{StackUi, StackUiDone};
 pub use text::UiTextData;
 pub use text_data::{StoreTextData, DEFAULT_FONT, FONT_GROUP};
 pub use token::{tokenize, REFERENCE, REFERENT, STATELESS};
@@ -134,6 +152,8 @@ mod drag_tests;
 #[cfg(test)]
 mod element_tests;
 #[cfg(test)]
+mod external_container_tests;
+#[cfg(test)]
 mod fellowship_tests;
 #[cfg(test)]
 mod list_box_select_tests;
@@ -144,15 +164,27 @@ mod media_tests;
 #[cfg(test)]
 mod meter_tests;
 #[cfg(test)]
+mod money_bag_tests;
+#[cfg(test)]
 mod mouse_tests;
+#[cfg(test)]
+mod name_plates_tests;
+#[cfg(test)]
+mod paper_doll_tests;
+#[cfg(test)]
+mod radar_tests;
 #[cfg(test)]
 mod real_data_tests;
 #[cfg(test)]
 mod scrollbar_tests;
 #[cfg(test)]
+mod secure_trade_tests;
+#[cfg(test)]
 mod shortcut_tests;
 #[cfg(test)]
 mod skill_tree_tests;
+#[cfg(test)]
+mod stack_tests;
 #[cfg(test)]
 mod text_tests;
 #[cfg(test)]

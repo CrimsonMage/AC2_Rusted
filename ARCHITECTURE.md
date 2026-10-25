@@ -29,7 +29,7 @@ brought over from Vitaeum-AC2 (commit `b2963be`) into the crate that owns it.
 | `ac2-ui` | UI framework and modules (14, 15) | input maps, UI elements, `LayoutDesc`, game panels | later |
 | `ac2-script` | WSL interpreter (10) | `WLib`/`ByteStream` and `WState` decode, the script VM and native glue (AC2 UI and much gameplay run on it) | rebuilt from the decompile |
 | `ac2-gameplay` | Gameplay (11) | characters, quests, fellowships, crafting, examination | later |
-| `ac2-audio` | Audio (16) | sound records (`SoundInfo`, `MusicInfo`, `DBWave`) decoded on a loader thread, `SoundManager` (play requests, budget, channel volumes), the mixer and speaker output (cpal) | rebuilt from the decompile |
+| `ac2-audio` | Audio (16) | sound records (`SoundInfo`, `MusicInfo`, `DBWave`) decoded on a loader thread, `SoundManager` (play requests, budget, channel volumes), the music queue (`DXMusicMessageThread`: primary and secondary segments over `MusicPerformance` and `StylePerformance`, events to an `EventSink`), the DLS software synthesizer (`synth`: voices from the band collections or the user's GM file, an `EventSink` that renders), the mixer and speaker output (cpal) | rebuilt from the decompile |
 | `ac2-client` | Client entry (09 `main`) | the program: window, input, login screen, world loop | new |
 
 ## Dependency order

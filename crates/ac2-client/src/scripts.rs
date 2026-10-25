@@ -25,8 +25,8 @@ use crate::loader::Request;
 /// (`DisplayStringInfo`) and 0x12 (`DisplayText`); `WM_Player` 0x27 (the login, `CPlayer`
 /// 0x65: vitals, inventory refresh; the session's mirrors still follow it) and 0x2C
 /// (`UpdateSelectionInfo`, `CPlayer` 0x34); `SetSelection` (`CPlayer` 0x6A),
-/// `RequestAttackStateChange` (`CPlayer` 0x4F), `SetWhichShortcutSet` (`CPlayer` 0x5), and the
-/// fellowship and allegiance actions.
+/// `RequestAttackStateChange` (`CPlayer` 0x4F), `SetWhichShortcutSet` (`CPlayer` 0x5), `SetShowRadarCoords`, and
+/// the fellowship and allegiance actions.
 pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     ac2_net::protocol::script_function::DISPLAY_STRING_INFO,
     ac2_net::protocol::script_function::DISPLAY_STRING_INFO_2,
@@ -36,6 +36,8 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_SET_SELECTION,
     IFUN_REQUEST_ATTACK_STATE_CHANGE,
     IFUN_SET_WHICH_SHORTCUT_SET,
+    IFUN_SET_SHOW_RADAR_COORDS,
+    IFUN_SET_SHOW_OBJECT_NAMES,
     // `CWInterface::OnStatChanged` (a quality update: vitals, the XP bar, the skill panel).
     ac2_weenie::IFUN_ON_STAT_CHANGED,
     // `WM_Combat` 0x1B -> `CPlayer` 0x2 (`SendNotice_UpdateAttackState`).
@@ -63,6 +65,10 @@ pub const IFUN_REQUEST_ATTACK_STATE_CHANGE: u32 = 0x00B4_0008;
 pub const IFUN_SHOULD_AUTO_TARGET: u32 = 0x00B4_0005;
 /// `gmCWInterface::SetWhichShortcutSet` (`CPlayer` 0x5).
 pub const IFUN_SET_WHICH_SHORTCUT_SET: u32 = 0x00B4_0071;
+/// `gmCWInterface::SetShowRadarCoords` (`ggmCWInterface::CallIFun_SetShowRadarCoords`).
+pub const IFUN_SET_SHOW_RADAR_COORDS: u32 = 0x00B4_007D;
+/// `gmCWInterface::SetShowObjectNames` (`ggmCWInterface::CallIFun_SetShowObjectNames`).
+pub const IFUN_SET_SHOW_OBJECT_NAMES: u32 = 0x00B4_00CE;
 
 /// `gmCWInterface::SetSelection`'s IFun (`ggmCWInterface::CallIFun_SetSelection`: the
 /// object, then `CPlayer` 0x6A).

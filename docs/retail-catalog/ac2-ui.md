@@ -1,25 +1,25 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 500 done, 188 partial, 1534 to do, 25 skipped.
+2247 retail functions: 623 done, 210 partial, 1384 to do, 30 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (7/53)
+## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (21/53)
 
 ### BBox
 - [x] `BBox::AdjustBBox` · 00426720 · legions 00426510 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 
 ### Box2D
-- [ ] `Box2D::Box2D` · 004267a0 · legions 00426590
+- [x] `Box2D::Box2D` · 004267a0 · legions 00426590 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [ ] `Box2D::Box2D` · 004267d0 · legions 005a35f0
-- [ ] `Box2D::Collide` · 00426800 · legions 004265c0
+- [x] `Box2D::Collide` · 00426800 · legions 004265c0 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
 ### gm3DTextUI
-- [ ] `gm3DTextUI::ListenToMessage` · 004268a0 · legions 00426660
+- [x] `gm3DTextUI::ListenToMessage` · 004268a0 · legions 00426660 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [ ] `gm3DTextUI::RecvNotice_ItemUpdate` · 00426920
 - [x] `gm3DTextUI::ShowReticle` · 00426930 · legions 004266f0 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 - [~] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 - [x] `gm3DTextUI::DoStuffMeter` · 00426ae0 · legions 004268a0 — ac2-ui reticle.rs
-- [ ] `gm3DTextUI::MakeNewData` · 00426b70 · legions 00426930
+- [x] `gm3DTextUI::MakeNewData` · 00426b70 · legions 00426930 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
 ### BBox
 - [ ] `BBox::BBox` · 00426d00 · legions 00426ac0
@@ -31,7 +31,7 @@ Legend and workflow: [README](README.md).
 ### gm3DTextUI
 - [~] `gm3DTextUI::InitReticle` · 00426d90 · legions 00426b50 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 - [x] `gm3DTextUI::RecvNotice_UpdateSelectionInfo` · 00426ee0 · legions 00426ca0 — ac2-ui reticle.rs
-- [ ] `gm3DTextUI::PlaceHere` · 00426f60 · legions 00426d20
+- [x] `gm3DTextUI::PlaceHere` · 00426f60 · legions 00426d20 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
 ### _STL::_Deque_iterator<BBox,_STL::_Nonconst_traits<BBox>_>
 - [ ] `_STL::_Deque_iterator<BBox,_STL::_Nonconst_traits<BBox>_>::operator-` · 00427090 · legions 00426eb0
@@ -44,7 +44,7 @@ Legend and workflow: [README](README.md).
 - [ ] `_STL::deque<BBox,_STL::allocator<BBox>_>::~deque<BBox,_STL::allocator<BBox>_>` · 004280e0 · legions 00427ea0
 
 ### gm3DTextUI::NameTextInfo
-- [ ] `gm3DTextUI::NameTextInfo::NameTextInfo` · 00428e00 · legions 00428bc0
+- [x] `gm3DTextUI::NameTextInfo::NameTextInfo` · 00428e00 · legions 00428bc0 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
 ### gm3DTextUI::DamageTextInfo
 - [ ] `gm3DTextUI::DamageTextInfo::DamageTextInfo` · 00428e30
@@ -53,13 +53,13 @@ Legend and workflow: [README](README.md).
 - [x] `gm3DTextUI::AverageBoundingBox` · 00428e60 · legions 00428c20 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 - [x] `gm3DTextUI::ConvertObjectToWindow` · 004291a0 · legions 00428f60 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 - [~] `gm3DTextUI::UpdateReticleInternal` · 00429320 · legions 004290e0 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
-- [ ] `gm3DTextUI::CalcScreenPosition` · 00429ab0 · legions 00429870
+- [x] `gm3DTextUI::CalcScreenPosition` · 00429ab0 · legions 00429870 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
 ### _STL::deque<BBox,_STL::allocator<BBox>_>
 - [ ] `_STL::deque<BBox,_STL::allocator<BBox>_>::operator=` · 00429bd0 · legions 00429990
 
 ### gm3DTextUI
-- [ ] `gm3DTextUI::UpdateNames` · 00429e20 · legions 00429be0
+- [x] `gm3DTextUI::UpdateNames` · 00429e20 · legions 00429be0 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [x] `gm3DTextUI::UpdateReticle` · 0042a1d0 · legions 00429f90 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 
 ### gm3DTextUI::DamageTextInfo
@@ -70,9 +70,9 @@ Legend and workflow: [README](README.md).
 
 ### gm3DTextUI
 - [ ] `gm3DTextUI::UpdateDamage` · 0042a560 · legions 0042a320
-- [ ] `gm3DTextUI::ClearNames` · 0042a980 · legions 0042a740
-- [ ] `gm3DTextUI::RemoveName` · 0042aa40 · legions 0042a800
-- [ ] `gm3DTextUI::RecvNotice_BeingDeleted` · 0042ab30 · legions 0042a8f0
+- [x] `gm3DTextUI::ClearNames` · 0042a980 · legions 0042a740 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
+- [x] `gm3DTextUI::RemoveName` · 0042aa40 · legions 0042a800 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
+- [~] `gm3DTextUI::RecvNotice_BeingDeleted` · 0042ab30 · legions 0042a8f0 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 
 ### SmartArray<gm3DTextUI::DamageTextInfo>
 - [ ] `SmartArray<gm3DTextUI::DamageTextInfo>::AddToEnd` · 0042ac30 · legions 0042a9f0
@@ -83,20 +83,20 @@ Legend and workflow: [README](README.md).
 ### gm3DTextUI
 - [ ] `gm3DTextUI::CleanUp` · 0042ad00 · legions 0042aac0
 - [~] `gm3DTextUI::Update` · 0042adf0 · legions 0042abb0 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
-- [ ] `gm3DTextUI::AddName` · 0042ae40 · legions 0042ac00
-- [ ] `gm3DTextUI::RecvNotice_CreateObject` · 0042b0c0
+- [~] `gm3DTextUI::AddName` · 0042ae40 · legions 0042ac00 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
+- [~] `gm3DTextUI::RecvNotice_CreateObject` · 0042b0c0 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 - [ ] `gm3DTextUI::RecvNotice_Do3DDamage` · 0042b150
 - [ ] `gm3DTextUI::RecvNotice_PrecludeFromTop` · 0042b340
 - [ ] `gm3DTextUI::RecvNotice_PrecludeFromBottom` · 0042b3a0
 - [ ] `gm3DTextUI::~gm3DTextUI` · 0042b400 · legions 0042b1c0
 - [ ] `gm3DTextUI::Init` · 0042b510 · legions 0042b2d0
-- [ ] `gm3DTextUI::InitNames` · 0042b610 · legions 0042b3d0
-- [ ] `gm3DTextUI::RecvNotice_ChangeRadarLook` · 0042b6a0
+- [x] `gm3DTextUI::InitNames` · 0042b610 · legions 0042b3d0 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
+- [~] `gm3DTextUI::RecvNotice_ChangeRadarLook` · 0042b6a0 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 - [~] `gm3DTextUI::RecvNotice_SelectionChanged` · 0042b730 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
-- [ ] `gm3DTextUI::ToggleNames` · 0042b7e0 · legions 0042b5a0
+- [x] `gm3DTextUI::ToggleNames` · 0042b7e0 · legions 0042b5a0 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [ ] `gm3DTextUI::gm3DTextUI` · 0042b840 · legions 0042b600
-- [ ] `gm3DTextUI::ListenToMessage` · 0042ba40 · legions 0042b800
-- [ ] `gm3DTextUI::RecvNotice_ReloadOptions` · 0042ba70
+- [x] `gm3DTextUI::ListenToMessage` · 0042ba40 · legions 0042b800 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
+- [x] `gm3DTextUI::RecvNotice_ReloadOptions` · 0042ba70 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
 ## `ac2/client/src/ui/gameplay/gmbookui.cpp.c` (0/19)
 
@@ -140,17 +140,17 @@ Legend and workflow: [README](README.md).
 - [x] `gmCameraUI::ListenToMessage` · 0042bce0 · legions 0042baa0 — ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 - [ ] `gmCameraUI::RecvNotice_UpdateCanMouseLook` · 0042bf50
 
-## `ac2/client/src/ui/gameplay/gmexternalcontainerui.cpp.c` (0/8)
+## `ac2/client/src/ui/gameplay/gmexternalcontainerui.cpp.c` (7/8)
 
 ### gmExternalContainerUI
-- [ ] `gmExternalContainerUI::~gmExternalContainerUI` · 00420400 · legions 00420200
-- [ ] `gmExternalContainerUI::ListenToMessage` · 00420460 · legions 00420290
-- [ ] `gmExternalContainerUI::RecvNotice_CreateObject` · 00420520
-- [ ] `gmExternalContainerUI::RecvNotice_BeingDeleted` · 00420570
-- [ ] `gmExternalContainerUI::PositionWindow` · 004205e0 · legions 00420410
-- [ ] `gmExternalContainerUI::RecvNotice_ContainerStateUpdate` · 00420860 · legions 00420690
-- [ ] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700
-- [ ] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0
+- [-] `gmExternalContainerUI::~gmExternalContainerUI` · 00420400 · legions 00420200 — teardown: the HUD tree is dropped whole
+- [x] `gmExternalContainerUI::ListenToMessage` · 00420460 · legions 00420290 — ac2-ui external_container.rs
+- [x] `gmExternalContainerUI::RecvNotice_CreateObject` · 00420520 — ac2-ui: the panel hears every object's notices (no per-object registration)
+- [x] `gmExternalContainerUI::RecvNotice_BeingDeleted` · 00420570 — ac2-ui external_container.rs
+- [x] `gmExternalContainerUI::PositionWindow` · 004205e0 · legions 00420410 — ac2-ui external_container.rs
+- [x] `gmExternalContainerUI::RecvNotice_ContainerStateUpdate` · 00420860 · legions 00420690 — ac2-ui external_container.rs
+- [x] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700 — ac2-ui: the panel hears every object's notices (no per-object registration)
+- [x] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0 — ac2-ui external_container.rs
 
 ## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (8/58)
 
@@ -359,93 +359,93 @@ Legend and workflow: [README](README.md).
 - [ ] `gmPetUI::gmPetUI` · 0041a040 · legions 00419e80
 - [ ] `gmPetUI::RecvNotice_UpdatePetName` · 0041a3a0
 
-## `ac2/client/src/ui/gameplay/gmradarui.cpp.c` (1/35)
+## `ac2/client/src/ui/gameplay/gmradarui.cpp.c` (26/35)
 
 ### Position
 - [ ] `Position::get_heading` · 00424fe0 · legions 00424dd0
 
 ### RadarInfo
-- [ ] `RadarInfo::RadarInfo` · 00425000
+- [x] `RadarInfo::RadarInfo` · 00425000 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 
 ### gmRadarUI
 - [ ] `gmRadarUI::Show` · 00425040 · legions 00424e30
 - [ ] `gmRadarUI::LocationApplied` · 00425090 · legions 00424e80
-- [ ] `gmRadarUI::RecvNotice_SelectionChanged` · 004250b0
-- [ ] `gmRadarUI::DrawPoint` · 004250d0 · legions 00424ec0
-- [ ] `gmRadarUI::DrawL` · 00425110 · legions 00424f00
-- [ ] `gmRadarUI::DrawEdges` · 00425180 · legions 00424f70
-- [ ] `gmRadarUI::DrawCorners` · 00425240 · legions 00425030
-- [ ] `gmRadarUI::DrawT` · 00425310 · legions 00425100
-- [ ] `gmRadarUI::DrawFace` · 00425380 · legions 00425170
-- [ ] `gmRadarUI::DrawSelected` · 00425420 · legions 00425210
-- [ ] `gmRadarUI::SetCoordButtonToolTip` · 00425500 · legions 004252f0
+- [x] `gmRadarUI::RecvNotice_SelectionChanged` · 004250b0 — ac2-ui radar.rs
+- [x] `gmRadarUI::DrawPoint` · 004250d0 · legions 00424ec0 — ac2-ui radar.rs
+- [x] `gmRadarUI::DrawL` · 00425110 · legions 00424f00 — ac2-ui radar.rs
+- [x] `gmRadarUI::DrawEdges` · 00425180 · legions 00424f70 — ac2-ui radar.rs
+- [x] `gmRadarUI::DrawCorners` · 00425240 · legions 00425030 — ac2-ui radar.rs
+- [x] `gmRadarUI::DrawT` · 00425310 · legions 00425100 — ac2-ui radar.rs
+- [x] `gmRadarUI::DrawFace` · 00425380 · legions 00425170 — ac2-ui radar.rs
+- [x] `gmRadarUI::DrawSelected` · 00425420 · legions 00425210 — ac2-ui radar.rs
+- [x] `gmRadarUI::SetCoordButtonToolTip` · 00425500 · legions 004252f0 — ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile)
 
 ### SmartArray<RadarInfo>
-- [ ] `SmartArray<RadarInfo>::RemoveUnOrdered` · 00425560 · legions 00425350
+- [x] `SmartArray<RadarInfo>::RemoveUnOrdered` · 00425560 · legions 00425350 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 
 ### SmartArray<GrooveInfo>
-- [ ] `SmartArray<GrooveInfo>::RemoveUnOrdered` · 004255b0 · legions 004253a0
+- [x] `SmartArray<GrooveInfo>::RemoveUnOrdered` · 004255b0 · legions 004253a0 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 
 ### gmRadarUI
-- [ ] `gmRadarUI::~gmRadarUI` · 004256b0 · legions 004254a0
+- [-] `gmRadarUI::~gmRadarUI` · 004256b0 · legions 004254a0 — teardown: the HUD tree is dropped whole
 - [x] `gmRadarUI::UpdateGroove` · 00425740 · legions 00425530 — ac2-audio/ac2-client: ambient environments, groove
-- [ ] `gmRadarUI::RemoveObject` · 00425850 · legions 00425640
-- [ ] `gmRadarUI::RecvNotice_BeingDeleted` · 004258d0 · legions 004256c0
-- [ ] `gmRadarUI::DrawCross` · 00425900 · legions 004256f0
-- [ ] `gmRadarUI::DrawX` · 00425950 · legions 00425740
-- [ ] `gmRadarUI::DrawHollow` · 004259a0 · legions 00425790
-- [ ] `gmRadarUI::ListenToMessage` · 004259f0 · legions 004257e0
-- [ ] `gmRadarUI::DrawFill` · 00425a30 · legions 00425820
+- [x] `gmRadarUI::RemoveObject` · 00425850 · legions 00425640
+- [x] `gmRadarUI::RecvNotice_BeingDeleted` · 004258d0 · legions 004256c0 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
+- [x] `gmRadarUI::DrawCross` · 00425900 · legions 004256f0 — ac2-ui radar.rs
+- [x] `gmRadarUI::DrawX` · 00425950 · legions 00425740 — ac2-ui radar.rs
+- [x] `gmRadarUI::DrawHollow` · 004259a0 · legions 00425790 — ac2-ui radar.rs
+- [~] `gmRadarUI::ListenToMessage` · 004259f0 · legions 004257e0 — ac2-client hud_view.rs: the radar field drawn alone each frame (ForceDraw); UpdateGroove in client_radar.rs
+- [x] `gmRadarUI::DrawFill` · 00425a30 · legions 00425820 — ac2-ui radar.rs
 
 ### SmartArray<RadarInfo>
-- [ ] `SmartArray<RadarInfo>::AddToEnd` · 00425a90 · legions 00425880
+- [x] `SmartArray<RadarInfo>::AddToEnd` · 00425a90 · legions 00425880 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 
 ### gmRadarUI
-- [ ] `gmRadarUI::DrawBlip` · 00425af0 · legions 004258e0
-- [ ] `gmRadarUI::Update` · 00425c00 · legions 004259f0
-- [ ] `gmRadarUI::ListenToMessage` · 00426060 · legions 00425e50
+- [x] `gmRadarUI::DrawBlip` · 00425af0 · legions 004258e0 — ac2-ui radar.rs
+- [~] `gmRadarUI::Update` · 00425c00 · legions 004259f0 — ac2-ui radar.rs + ac2-client: heading ring, blips (scale float, ftol, square clip), tooltip and last-under-mouse, CoordinatesText; SaveLocationsChanged on location_changed not yet
+- [x] `gmRadarUI::ListenToMessage` · 00426060 · legions 00425e50 — ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile)
 - [~] `gmRadarUI::AddObject` · 00426190 · legions 00425f80 — ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
-- [ ] `gmRadarUI::RecvNotice_CreateObject` · 00426270
-- [ ] `gmRadarUI::Init` · 004262a0 · legions 00426090
-- [ ] `gmRadarUI::RecvNotice_ChangeRadarLook` · 004263a0
-- [ ] `gmRadarUI::ReloadOptions` · 00426400
+- [x] `gmRadarUI::RecvNotice_CreateObject` · 00426270 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
+- [~] `gmRadarUI::Init` · 004262a0 · legions 00426090 — ac2-client client_radar.rs + ac2-script radar.rs: looks asked on each object's script (the templates' override; selectable objects, the player's radar mask), ranges from RadarControl
+- [x] `gmRadarUI::RecvNotice_ChangeRadarLook` · 004263a0 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
+- [x] `gmRadarUI::ReloadOptions` · 00426400 — ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile)
 - [~] `gmRadarUI::gmRadarUI` · 00426450 · legions 00426240 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
-- [ ] `gmRadarUI::RecvNotice_ReloadOptions` · 00426710
+- [x] `gmRadarUI::RecvNotice_ReloadOptions` · 00426710 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 
-## `ac2/client/src/ui/gameplay/gmsecuretradeui.cpp.c` (0/27)
+## `ac2/client/src/ui/gameplay/gmsecuretradeui.cpp.c` (24/27)
 
 ### gmSecureTradeUI
-- [ ] `gmSecureTradeUI::Show` · 00420a90 · legions 004208c0
-- [ ] `gmSecureTradeUI::CloseTrade` · 00420b10 · legions 00420940
-- [ ] `gmSecureTradeUI::FinishListBoxDrop` · 00420b50 · legions 00420980
-- [ ] `gmSecureTradeUI::UpdateButton` · 00420ba0 · legions 004209d0
-- [ ] `gmSecureTradeUI::HandleItemRemoval` · 00420c20 · legions 00420a50
+- [x] `gmSecureTradeUI::Show` · 00420a90 · legions 004208c0 — ac2-ui secure_trade.rs: SecureTradeUi (Show, CloseTrade, FinishListBoxDrop, UpdateButton, HandleItemRemoval, the DDCB as the list's item check in message())
+- [x] `gmSecureTradeUI::CloseTrade` · 00420b10 · legions 00420940 — ac2-ui secure_trade.rs: SecureTradeUi (Show, CloseTrade, FinishListBoxDrop, UpdateButton, HandleItemRemoval, the DDCB as the list's item check in message())
+- [x] `gmSecureTradeUI::FinishListBoxDrop` · 00420b50 · legions 00420980 — ac2-ui secure_trade.rs: SecureTradeUi (Show, CloseTrade, FinishListBoxDrop, UpdateButton, HandleItemRemoval, the DDCB as the list's item check in message())
+- [x] `gmSecureTradeUI::UpdateButton` · 00420ba0 · legions 004209d0 — ac2-ui secure_trade.rs: SecureTradeUi (Show, CloseTrade, FinishListBoxDrop, UpdateButton, HandleItemRemoval, the DDCB as the list's item check in message())
+- [x] `gmSecureTradeUI::HandleItemRemoval` · 00420c20 · legions 00420a50 — ac2-ui secure_trade.rs: SecureTradeUi (Show, CloseTrade, FinishListBoxDrop, UpdateButton, HandleItemRemoval, the DDCB as the list's item check in message())
 
 ### (free functions)
-- [ ] `gmSecureTradeUI_DDCB` · 00420c70
+- [x] `gmSecureTradeUI_DDCB` · 00420c70 — ac2-ui secure_trade.rs: SecureTradeUi (Show, CloseTrade, FinishListBoxDrop, UpdateButton, HandleItemRemoval, the DDCB as the list's item check in message())
 
 ### gmSecureTradeUI
-- [ ] `gmSecureTradeUI::ListenToMessage` · 00420ca0 · legions 00420ad0
-- [ ] `gmSecureTradeUI::RecvNotice_StackUIDone` · 00420cd0
-- [ ] `gmSecureTradeUI::RecvNotice_Trade_BeAcceptanceCleared` · 00420d10 · legions 00420b40
-- [ ] `gmSecureTradeUI::RecvNotice_Trade_BeAccepted` · 00420d50 · legions 00420b80
-- [ ] `gmSecureTradeUI::RecvNotice_Trade_BeDeclined` · 00420dd0 · legions 00420c00
-- [ ] `gmSecureTradeUI::RecvNotice_Trade_BeOpened` · 00420e50 · legions 00420c80
-- [ ] `gmSecureTradeUI::DoAcceptTrade` · 00420f00 · legions 00420d30
-- [ ] `gmSecureTradeUI::HandleListBoxDrop` · 00420f60 · legions 00420d90
-- [ ] `gmSecureTradeUI::ListenToMessage` · 00421100 · legions 00420f30
-- [ ] `gmSecureTradeUI::RecvNotice_CloseConfirmationDialog` · 00421230
-- [ ] `gmSecureTradeUI::MakeAcceptTradeDialog` · 00421250 · legions 00421080
-- [ ] `gmSecureTradeUI::RecvNotice_Trade_BeRegistered` · 004212d0
-- [ ] `gmSecureTradeUI::AddItem` · 00421380 · legions 004211b0
-- [ ] `gmSecureTradeUI::RecvNotice_Trade_BeOffered` · 00421550
-- [ ] `gmSecureTradeUI::RemoveItem` · 00421590 · legions 004213c0
-- [ ] `gmSecureTradeUI::RecvNotice_Trade_BeRevoked` · 00421690
-- [ ] `gmSecureTradeUI::ResetInternal` · 004216b0 · legions 00421520
-- [ ] `gmSecureTradeUI::gmSecureTradeUI` · 004217a0 · legions 00421610
-- [ ] `gmSecureTradeUI::~gmSecureTradeUI` · 004219d0 · legions 00421840
-- [ ] `gmSecureTradeUI::RecvNotice_Trade_BeClosed` · 00421a90
-- [ ] `gmSecureTradeUI::RecvNotice_Trade_BeReset` · 00421bf0
+- [x] `gmSecureTradeUI::ListenToMessage` · 00420ca0 · legions 00420ad0 — ac2-ui secure_trade.rs: SecureTradeUi::message (buttons, list drops, TradeItemTemplate drag out) and tick (the global loop)
+- [x] `gmSecureTradeUI::RecvNotice_StackUIDone` · 00420cd0 — ac2-ui secure_trade.rs: recv_* notice methods (StackUIDone, BeAcceptanceCleared, BeAccepted, BeDeclined, BeOpened, DoAcceptTrade, HandleListBoxDrop, CloseConfirmationDialog, MakeAcceptTradeDialog, BeRegistered); client ui_inventory::secure_trade_notice
+- [x] `gmSecureTradeUI::RecvNotice_Trade_BeAcceptanceCleared` · 00420d10 · legions 00420b40 — ac2-ui secure_trade.rs: recv_* notice methods (StackUIDone, BeAcceptanceCleared, BeAccepted, BeDeclined, BeOpened, DoAcceptTrade, HandleListBoxDrop, CloseConfirmationDialog, MakeAcceptTradeDialog, BeRegistered); client ui_inventory::secure_trade_notice
+- [x] `gmSecureTradeUI::RecvNotice_Trade_BeAccepted` · 00420d50 · legions 00420b80 — ac2-ui secure_trade.rs: recv_* notice methods (StackUIDone, BeAcceptanceCleared, BeAccepted, BeDeclined, BeOpened, DoAcceptTrade, HandleListBoxDrop, CloseConfirmationDialog, MakeAcceptTradeDialog, BeRegistered); client ui_inventory::secure_trade_notice
+- [x] `gmSecureTradeUI::RecvNotice_Trade_BeDeclined` · 00420dd0 · legions 00420c00 — ac2-ui secure_trade.rs: recv_* notice methods (StackUIDone, BeAcceptanceCleared, BeAccepted, BeDeclined, BeOpened, DoAcceptTrade, HandleListBoxDrop, CloseConfirmationDialog, MakeAcceptTradeDialog, BeRegistered); client ui_inventory::secure_trade_notice
+- [x] `gmSecureTradeUI::RecvNotice_Trade_BeOpened` · 00420e50 · legions 00420c80 — ac2-ui secure_trade.rs: recv_* notice methods (StackUIDone, BeAcceptanceCleared, BeAccepted, BeDeclined, BeOpened, DoAcceptTrade, HandleListBoxDrop, CloseConfirmationDialog, MakeAcceptTradeDialog, BeRegistered); client ui_inventory::secure_trade_notice
+- [x] `gmSecureTradeUI::DoAcceptTrade` · 00420f00 · legions 00420d30 — ac2-ui secure_trade.rs: recv_* notice methods (StackUIDone, BeAcceptanceCleared, BeAccepted, BeDeclined, BeOpened, DoAcceptTrade, HandleListBoxDrop, CloseConfirmationDialog, MakeAcceptTradeDialog, BeRegistered); client ui_inventory::secure_trade_notice
+- [x] `gmSecureTradeUI::HandleListBoxDrop` · 00420f60 · legions 00420d90 — ac2-ui secure_trade.rs: recv_* notice methods (StackUIDone, BeAcceptanceCleared, BeAccepted, BeDeclined, BeOpened, DoAcceptTrade, HandleListBoxDrop, CloseConfirmationDialog, MakeAcceptTradeDialog, BeRegistered); client ui_inventory::secure_trade_notice
+- [x] `gmSecureTradeUI::ListenToMessage` · 00421100 · legions 00420f30 — ac2-ui secure_trade.rs: SecureTradeUi::message (buttons, list drops, TradeItemTemplate drag out) and tick (the global loop)
+- [x] `gmSecureTradeUI::RecvNotice_CloseConfirmationDialog` · 00421230 — ac2-ui secure_trade.rs: recv_* notice methods (StackUIDone, BeAcceptanceCleared, BeAccepted, BeDeclined, BeOpened, DoAcceptTrade, HandleListBoxDrop, CloseConfirmationDialog, MakeAcceptTradeDialog, BeRegistered); client ui_inventory::secure_trade_notice
+- [x] `gmSecureTradeUI::MakeAcceptTradeDialog` · 00421250 · legions 00421080 — ac2-ui secure_trade.rs: recv_* notice methods (StackUIDone, BeAcceptanceCleared, BeAccepted, BeDeclined, BeOpened, DoAcceptTrade, HandleListBoxDrop, CloseConfirmationDialog, MakeAcceptTradeDialog, BeRegistered); client ui_inventory::secure_trade_notice
+- [x] `gmSecureTradeUI::RecvNotice_Trade_BeRegistered` · 004212d0 — ac2-ui secure_trade.rs: recv_* notice methods (StackUIDone, BeAcceptanceCleared, BeAccepted, BeDeclined, BeOpened, DoAcceptTrade, HandleListBoxDrop, CloseConfirmationDialog, MakeAcceptTradeDialog, BeRegistered); client ui_inventory::secure_trade_notice
+- [~] `gmSecureTradeUI::AddItem` · 00421380 · legions 004211b0 — ac2-ui secure_trade.rs add_item: the list, the draggable test (src == player) and the no-shortcut icon are as retail; the SetQuantity count (retail passes the item's high dword) is not modelled
+- [x] `gmSecureTradeUI::RecvNotice_Trade_BeOffered` · 00421550 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
+- [x] `gmSecureTradeUI::RemoveItem` · 00421590 · legions 004213c0 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
+- [x] `gmSecureTradeUI::RecvNotice_Trade_BeRevoked` · 00421690 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
+- [x] `gmSecureTradeUI::ResetInternal` · 004216b0 · legions 00421520 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
+- [~] `gmSecureTradeUI::gmSecureTradeUI` · 004217a0 · legions 00421610 — ac2-ui SecureTradeUi::create (hidden, no field); the notice registrations are the client's (hud_player), the player is set_player
+- [-] `gmSecureTradeUI::~gmSecureTradeUI` · 004219d0 · legions 00421840 — C++ destructors: the Rust state drops
+- [x] `gmSecureTradeUI::RecvNotice_Trade_BeClosed` · 00421a90 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
+- [x] `gmSecureTradeUI::RecvNotice_Trade_BeReset` · 00421bf0 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 
 ## `ac2/client/src/ui/gameplay/gmselectionui.cpp.c` (7/24)
 
@@ -586,26 +586,26 @@ Legend and workflow: [README](README.md).
 - [ ] `gmShopUI::RecvNotice_UpdateStore` · 0041e8d0
 - [ ] `gmShopUI::RecvNotice_ViewStore` · 0041e940
 
-## `ac2/client/src/ui/gameplay/gmstackui.cpp.c` (0/13)
+## `ac2/client/src/ui/gameplay/gmstackui.cpp.c` (12/13)
 
 ### gmStackUI
-- [ ] `gmStackUI::Show` · 004247f0 · legions 004245e0
-- [ ] `gmStackUI::PositionWindow` · 00424810 · legions 00424600
-- [ ] `gmStackUI::Close` · 004248f0 · legions 004246e0
-- [ ] `gmStackUI::gmStackUI` · 004249b0 · legions 004247a0
-- [ ] `gmStackUI::~gmStackUI` · 00424b00 · legions 004248f0
-- [ ] `gmStackUI::RecvNotice_CloseStackUI` · 00424b50
-- [ ] `gmStackUI::RecvNotice_ContainerStateUpdate` · 00424b70
-- [ ] `gmStackUI::RecvNotice_BeingDeleted` · 00424ba0
+- [x] `gmStackUI::Show` · 004247f0 · legions 004245e0 — ac2-ui stack.rs
+- [x] `gmStackUI::PositionWindow` · 00424810 · legions 00424600 — ac2-ui stack.rs
+- [x] `gmStackUI::Close` · 004248f0 · legions 004246e0 — ac2-ui stack.rs
+- [x] `gmStackUI::gmStackUI` · 004249b0 · legions 004247a0 — ac2-ui stack.rs
+- [-] `gmStackUI::~gmStackUI` · 00424b00 · legions 004248f0 — teardown: the HUD tree is dropped whole
+- [x] `gmStackUI::RecvNotice_CloseStackUI` · 00424b50 — ac2-ui stack.rs
+- [x] `gmStackUI::RecvNotice_ContainerStateUpdate` · 00424b70 — ac2-ui stack.rs
+- [x] `gmStackUI::RecvNotice_BeingDeleted` · 00424ba0 — ac2-ui stack.rs
 
 ### PSUtils
-- [ ] `PSUtils::is_uint32` · 00424be0 · legions 004249d0
+- [x] `PSUtils::is_uint32` · 00424be0 · legions 004249d0 — ac2-ui stack.rs
 
 ### gmStackUI
-- [ ] `gmStackUI::HandleOkButton` · 00424c70 · legions 00424a60
-- [ ] `gmStackUI::SetAmount` · 00424da0 · legions 00424b90
-- [ ] `gmStackUI::ListenToMessage` · 00424e20 · legions 00424c10
-- [ ] `gmStackUI::RecvNotice_InitStackUI` · 00424ed0 · legions 00424cc0
+- [x] `gmStackUI::HandleOkButton` · 00424c70 · legions 00424a60 — ac2-ui stack.rs
+- [x] `gmStackUI::SetAmount` · 00424da0 · legions 00424b90 — ac2-ui stack.rs
+- [x] `gmStackUI::ListenToMessage` · 00424e20 · legions 00424c10 — ac2-ui stack.rs
+- [x] `gmStackUI::RecvNotice_InitStackUI` · 00424ed0 · legions 00424cc0 — ac2-ui stack.rs
 
 ## `ac2/client/src/ui/gameplay/gmstoryui.cpp.c` (0/11)
 
@@ -690,10 +690,10 @@ Legend and workflow: [README](README.md).
 - [ ] `ChatWindow::RecvNotice_ReloadOptions` · 0044cb10
 - [~] `ChatWindow::RecvNotice_ReloadChatSettings` · 0044cbc0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
-## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (12/22)
+## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (17/22)
 
 ### ContainerDisplay
-- [~] `ContainerDisplay::FinishListBoxDrop` · 0042d910 · legions 0042d6e0 — the stack dialog (gmStackUI) for part of a stack is not modelled: the whole stack moves
+- [x] `ContainerDisplay::FinishListBoxDrop` · 0042d910 · legions 0042d6e0 — ac2-ui item_display.rs
 
 ### (free functions)
 - [x] `ContainerDisplay_DDCB` · 0042da30 — ac2-ui item_display.rs
@@ -706,11 +706,11 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_ListBox::WhatNum` · 0042dac0 · legions 0042d890 — ac2-ui list_box.rs
 
 ### ContainerDisplay
-- [ ] `ContainerDisplay::RecvNotice_StackUIDone` · 0042daf0 · legions 0042d8c0
+- [x] `ContainerDisplay::RecvNotice_StackUIDone` · 0042daf0 · legions 0042d8c0 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 - [x] `ContainerDisplay::GetNewIndex` · 0042db40 · legions 0042d910 — ac2-ui item_display.rs
 - [ ] `ContainerDisplay::HandleDragFrom` · 0042dbc0 · legions 0042d990
-- [~] `ContainerDisplay::HandleListBoxDrop` · 0042dc20 · legions 0042d9f0 — the stack dialog (gmStackUI) for part of a stack is not modelled: the whole stack moves
-- [ ] `ContainerDisplay::HandleDragFromMoneyBag` · 0042de90 · legions 0042dc60
+- [x] `ContainerDisplay::HandleListBoxDrop` · 0042dc20 · legions 0042d9f0 — ac2-ui item_display.rs
+- [x] `ContainerDisplay::HandleDragFromMoneyBag` · 0042de90 · legions 0042dc60 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 - [x] `ContainerDisplay::ListenToMessage` · 0042dfb0 · legions 0042de40 — ac2-ui item_display.rs
 - [x] `ContainerDisplay::AddItem` · 0042e070 · legions 0042df00 — ac2-ui item_display.rs / backpack.rs
 - [x] `ContainerDisplay::FindItem` · 0042e150 · legions 0042dfe0 — ac2-ui item_display.rs / backpack.rs
@@ -719,7 +719,7 @@ Legend and workflow: [README](README.md).
 - [x] `ContainerDisplay::RequestFailed` · 0042e2d0 · legions 0042e160 — ac2-ui item_display.rs / backpack.rs
 - [x] `ContainerDisplay::Flush` · 0042e300 · legions 0042e190 — ac2-ui item_display.rs / backpack.rs
 - [ ] `ContainerDisplay::ContainerDisplay` · 0042e3a0 · legions 0042e230
-- [ ] `ContainerDisplay::Cleanup` · 0042e470 · legions 0042e300
+- [x] `ContainerDisplay::Cleanup` · 0042e470 · legions 0042e300 — ac2-ui item_display.rs
 - [x] `ContainerDisplay::GetContents` · 0042e560 · legions 0042e3f0 — ac2-ui item_display.rs / backpack.rs
 - [~] `ContainerDisplay::Init` · 0042e650 · legions 0042e4e0 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
 - [x] `ContainerDisplay::RecvNotice_UpdateContainer` · 0042e7b0 — ac2-ui item_display.rs / backpack.rs
@@ -912,12 +912,12 @@ Legend and workflow: [README](README.md).
 - [x] `VitalDisplay::SetTextState` · 0044dea0 · legions 0044f070 — ac2-ui meter.rs
 - [x] `VitalDisplay::SetMeterState` · 0044ded0 · legions 0044f0a0 — ac2-ui meter.rs
 
-## `ac2/client/src/ui/gameplay/statusbar/gmeffectsui.cpp.c` (0/10)
+## `ac2/client/src/ui/gameplay/statusbar/gmeffectsui.cpp.c` (6/10)
 
 ### gmEffectsUI
-- [ ] `gmEffectsUI::SelectElement` · 00438a20 · legions 00439270
-- [ ] `gmEffectsUI::ListenToMessage` · 00438b80
-- [ ] `gmEffectsUI::RecvNotice_PulseMissed` · 00438c30
+- [x] `gmEffectsUI::SelectElement` · 00438a20 · legions 00439270 — ac2-ui effects.rs
+- [x] `gmEffectsUI::ListenToMessage` · 00438b80 — ac2-ui effects.rs
+- [x] `gmEffectsUI::RecvNotice_PulseMissed` · 00438c30 — ac2-ui effects.rs
 
 ### PList<EffectUINode>
 - [ ] `PList<EffectUINode>::Pack` · 00438ef0 · legions 00439740
@@ -925,10 +925,10 @@ Legend and workflow: [README](README.md).
 - [ ] `PList<EffectUINode>::UnPack` · 00438f80
 
 ### gmEffectsUI
-- [ ] `gmEffectsUI::Init` · 004391c0 · legions 00439a10
-- [ ] `gmEffectsUI::RecvNotice_ExaminationRequestChanged` · 004396b0
-- [ ] `gmEffectsUI::RecvNotice_UpdateEffect` · 00439700
-- [ ] `gmEffectsUI::gmEffectsUI` · 00439710 · legions 00439f60
+- [~] `gmEffectsUI::Init` · 004391c0 · legions 00439a10 — ac2-ui effects.rs; meter thresholds from objdump, EffectTimeout float compare as stored
+- [x] `gmEffectsUI::RecvNotice_ExaminationRequestChanged` · 004396b0 — ac2-ui effects.rs
+- [x] `gmEffectsUI::RecvNotice_UpdateEffect` · 00439700 — ac2-ui effects.rs
+- [x] `gmEffectsUI::gmEffectsUI` · 00439710 · legions 00439f60 — ac2-ui effects.rs
 
 ## `ac2/client/src/ui/gameplay/statusbar/gmstatusbarui.cpp.c` (0/3)
 
@@ -1078,11 +1078,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gmNavigationUI::~gmNavigationUI` · 004327f0 · legions 00433080
 - [ ] `gmNavigationUI::SetupElementsForMapMode` · 004328b0 · legions 00433140
 - [ ] `gmNavigationUI::InitMacroMap` · 004329c0 · legions 00433250
-- [ ] `gmNavigationUI::RecvNotice_ClearMarkers` · 00432b30
-- [ ] `gmNavigationUI::AddMarker` · 00432b90 · legions 00433420
+- [~] `gmNavigationUI::RecvNotice_ClearMarkers` · 00432b30 — ac2-client client_radar.rs keeps the map-note list (type 3 hidden, AddMarker replaces by object); no navigation panel, placement or drawing
+- [~] `gmNavigationUI::AddMarker` · 00432b90 · legions 00433420 — ac2-client client_radar.rs keeps the map-note list (type 3 hidden, AddMarker replaces by object); no navigation panel, placement or drawing
 - [ ] `gmNavigationUI::FlushMarkerByIID` · 00432e40 · legions 004336d0
-- [ ] `gmNavigationUI::RecvNotice_AddMarker` · 00432ef0
-- [ ] `gmNavigationUI::RecvNotice_RemoveMarker` · 004330e0
+- [~] `gmNavigationUI::RecvNotice_AddMarker` · 00432ef0 — ac2-client client_radar.rs keeps the map-note list (type 3 hidden, AddMarker replaces by object); no navigation panel, placement or drawing
+- [~] `gmNavigationUI::RecvNotice_RemoveMarker` · 004330e0 — ac2-client client_radar.rs keeps the map-note list (type 3 hidden, AddMarker replaces by object); no navigation panel, placement or drawing
 - [ ] `gmNavigationUI::AddMapNotes` · 00433100 · legions 00433990
 - [ ] `gmNavigationUI::InitDetailMapFromCellCoords` · 004335f0 · legions 00433e50
 - [ ] `gmNavigationUI::ZoomToCharPos` · 00433810 · legions 00434070
@@ -1211,12 +1211,12 @@ Legend and workflow: [README](README.md).
 - [ ] `gm3DItemsUI::MidMoneyDrop` · 00440a60 · legions 004412c0
 - [ ] `gm3DItemsUI::ListenToMessage` · 00440b40 · legions 004413a0
 
-## `ac2/client/src/ui/gameplay/toolbar/inventory/gmbackpackui.cpp.c` (2/7)
+## `ac2/client/src/ui/gameplay/toolbar/inventory/gmbackpackui.cpp.c` (3/7)
 
 ### gmBackpackUI
 - [ ] `gmBackpackUI::FinishItemDrop` · 004412f0 · legions 00441b50
-- [ ] `gmBackpackUI::FinishMoneyBagDrop` · 00441390 · legions 00441bf0
-- [ ] `gmBackpackUI::RecvNotice_StackUIDone` · 00441410
+- [x] `gmBackpackUI::FinishMoneyBagDrop` · 00441390 · legions 00441bf0 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
+- [~] `gmBackpackUI::RecvNotice_StackUIDone` · 00441410 — ac2-ui: item drop path; money bag (DragFromMoneyBag / FinishMoneyBagDrop) not yet
 - [x] `gmBackpackUI::ShowPack` · 00441480 · legions 00441d70 — ac2-ui item_display.rs / backpack.rs
 - [~] `gmBackpackUI::ListenToMessage` · 004414e0 · legions 00441de0 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
 - [ ] `gmBackpackUI::~gmBackpackUI` · 00441860 · legions 00442160
@@ -1235,69 +1235,69 @@ Legend and workflow: [README](README.md).
 ### gmInventoryUI
 - [ ] `gmInventoryUI::gmInventoryUI` · 00434700 · legions 00434ed0
 
-## `ac2/client/src/ui/gameplay/toolbar/inventory/gmmoneybagui.cpp.c` (0/11)
+## `ac2/client/src/ui/gameplay/toolbar/inventory/gmmoneybagui.cpp.c` (8/11)
 
 ### gmMoneyBagUI
-- [ ] `gmMoneyBagUI::RecvNotice_UpdateMoney` · 00440b70
-- [ ] `gmMoneyBagUI::CloseDialog` · 00440be0 · legions 00441440
-- [ ] `gmMoneyBagUI::IsConfirmationDialogAppropriate` · 00440c00 · legions 00441460
-- [ ] `gmMoneyBagUI::MakeConfirmationDialog` · 00440c30 · legions 00441490
-- [ ] `gmMoneyBagUI::DoDragTo` · 00440cd0 · legions 00441530
+- [x] `gmMoneyBagUI::RecvNotice_UpdateMoney` · 00440b70 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
+- [x] `gmMoneyBagUI::CloseDialog` · 00440be0 · legions 00441440 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
+- [x] `gmMoneyBagUI::IsConfirmationDialogAppropriate` · 00440c00 · legions 00441460 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
+- [x] `gmMoneyBagUI::MakeConfirmationDialog` · 00440c30 · legions 00441490 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
+- [x] `gmMoneyBagUI::DoDragTo` · 00440cd0 · legions 00441530 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 
 ### (free functions)
-- [ ] `gmMoneyBagUI_DDCB` · 00440d50
+- [~] `gmMoneyBagUI_DDCB` · 00440d50 — money bag: the coin/melt paths ported; not modelled: DDCB's IsOnInventory test (gmMoneyBagUI_DDCB), the bag's ctor listeners and the not_dragable branch (m_curAmount is only 0 in retail), the backpack page's item drop (FinishItemDrop) and its ListenToMessage item branch
 
 ### gmMoneyBagUI
-- [ ] `gmMoneyBagUI::gmMoneyBagUI` · 00440df0 · legions 00441650
-- [ ] `gmMoneyBagUI::RecvNotice_CloseConfirmationDialog` · 00440f70
-- [ ] `gmMoneyBagUI::RecvNotice_StackUIDone` · 00440f90
-- [ ] `gmMoneyBagUI::HandleMoneyBagDrop` · 00440fe0 · legions 00441840
-- [ ] `gmMoneyBagUI::ListenToMessage` · 00441280 · legions 00441ae0
+- [~] `gmMoneyBagUI::gmMoneyBagUI` · 00440df0 · legions 00441650 — money bag: the coin/melt paths ported; not modelled: DDCB's IsOnInventory test (gmMoneyBagUI_DDCB), the bag's ctor listeners and the not_dragable branch (m_curAmount is only 0 in retail), the backpack page's item drop (FinishItemDrop) and its ListenToMessage item branch
+- [x] `gmMoneyBagUI::RecvNotice_CloseConfirmationDialog` · 00440f70 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
+- [x] `gmMoneyBagUI::RecvNotice_StackUIDone` · 00440f90 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
+- [x] `gmMoneyBagUI::HandleMoneyBagDrop` · 00440fe0 · legions 00441840 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
+- [~] `gmMoneyBagUI::ListenToMessage` · 00441280 · legions 00441ae0 — money bag: the coin/melt paths ported; not modelled: DDCB's IsOnInventory test (gmMoneyBagUI_DDCB), the bag's ctor listeners and the not_dragable branch (m_curAmount is only 0 in retail), the backpack page's item drop (FinishItemDrop) and its ListenToMessage item branch
 
-## `ac2/client/src/ui/gameplay/toolbar/inventory/gmpaperdollui.cpp.c` (0/31)
+## `ac2/client/src/ui/gameplay/toolbar/inventory/gmpaperdollui.cpp.c` (19/31)
 
 ### gmMiniFellowUI
 - [ ] `gmMiniFellowUI::Show` · 00441b40 · legions 00420260
 
 ### gmPaperDollUI
 - [ ] `gmPaperDollUI::RecvNotice_OpenIngredientPanel` · 00441b70 · legions 00442490
-- [ ] `gmPaperDollUI::UpdatePaperDollPosition` · 00441ba0 · legions 0041af10
-- [ ] `gmPaperDollUI::MeshTypeToInvLoc` · 00441d20 · legions 00442670
-- [ ] `gmPaperDollUI::HandlePaperDollClick` · 00441db0 · legions 00442700
+- [~] `gmPaperDollUI::UpdatePaperDollPosition` · 00441ba0 · legions 0041af10 — Legions 7160 (followed): race 1, 2, 8, 16 x0.9, race 4 x0.75; z = -0.875 x height; camera scale 0.25 x height (admin: -0.5, full height). The physobj call before it (vtbl 0x2F4 (1, 0)) is not modelled
+- [x] `gmPaperDollUI::MeshTypeToInvLoc` · 00441d20 · legions 00442670 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
+- [x] `gmPaperDollUI::HandlePaperDollClick` · 00441db0 · legions 00442700 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 
 ### (free functions)
-- [ ] `gmPaperDollUI_DDCB` · 00441e50
+- [x] `gmPaperDollUI_DDCB` · 00441e50 — step 2: slot lookup by element (the slots are the containers the layout names); DDCB is is_item_copy
 
 ### gmPaperDollUI
 - [ ] `gmPaperDollUI::RecvNotice_UpdateMountState` · 00441e90
-- [ ] `gmPaperDollUI::SetDurabilityTooltip` · 00441ea0 · legions 004427f0
-- [ ] `gmPaperDollUI::InitPaperDoll` · 00441f10 · legions 00442860
-- [ ] `gmPaperDollUI::UpdatePaperDoll` · 00441fd0 · legions 00442920
-- [ ] `gmPaperDollUI::UpdateDurabilityMeter` · 00442030 · legions 00442980
-- [ ] `gmPaperDollUI::RecvNotice_LocalVisualDescUpdate` · 004420e0
-- [ ] `gmPaperDollUI::TokenToInvLoc` · 00442100 · legions 00442a50
-- [ ] `gmPaperDollUI::HandlePaperDollDrop` · 00442180 · legions 00442ad0
+- [x] `gmPaperDollUI::SetDurabilityTooltip` · 00441ea0 · legions 004427f0 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
+- [x] `gmPaperDollUI::InitPaperDoll` · 00441f10 · legions 00442860 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
+- [~] `gmPaperDollUI::UpdatePaperDoll` · 00441fd0 · legions 00442920 — the avatar follows the frame's appearance each frame (remade on change); the mode calls on the physobj (vtbl 0x110 / 0x114) are not modelled
+- [x] `gmPaperDollUI::UpdateDurabilityMeter` · 00442030 · legions 00442980 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
+- [x] `gmPaperDollUI::RecvNotice_LocalVisualDescUpdate` · 004420e0 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
+- [x] `gmPaperDollUI::TokenToInvLoc` · 00442100 · legions 00442a50 — step 2: slot lookup by element (the slots are the containers the layout names); DDCB is is_item_copy
+- [~] `gmPaperDollUI::HandlePaperDollDrop` · 00442180 · legions 00442ad0 — Legions 7160 (followed): an item from another container is moved into the player, then equipped (admin returns after the move). Drops on the slots and the body equip or move; no GetWeenieObject check (the frame lists the items)
 - [ ] `gmPaperDollUI::InqItemInvLoc` · 00442300 · legions 00442c50
-- [ ] `gmPaperDollUI::FinishPaperDollClick` · 00442380 · legions 00442cd0
-- [ ] `gmPaperDollUI::HandlePaperDollDrag` · 004424b0 · legions 00442e00
-- [ ] `gmPaperDollUI::~gmPaperDollUI` · 00442580 · legions 00442ed0
-- [ ] `gmPaperDollUI::ListenToMessage` · 00442870 · legions 004431c0
-- [ ] `gmPaperDollUI::ListenToMessage` · 00442890 · legions 004431e0
-- [ ] `gmPaperDollUI::RecvNotice_CreateObject` · 00442900
-- [ ] `gmPaperDollUI::RecvNotice_ItemUpdate` · 004429e0
-- [ ] `gmPaperDollUI::AddItem` · 00442af0 · legions 00443440
-- [ ] `gmPaperDollUI::RemoveItem` · 00442c70 · legions 004435c0
-- [ ] `gmPaperDollUI::BeginRequest` · 00442dc0 · legions 00443710
-- [ ] `gmPaperDollUI::RequestFailed` · 00442e10 · legions 00443760
-- [ ] `gmPaperDollUI::InitSlots` · 00442e60 · legions 004437b0
+- [x] `gmPaperDollUI::FinishPaperDollClick` · 00442380 · legions 00442cd0 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
+- [x] `gmPaperDollUI::HandlePaperDollDrag` · 004424b0 · legions 00442e00 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
+- [-] `gmPaperDollUI::~gmPaperDollUI` · 00442580 · legions 00442ed0 — C++ destructors: the Rust state drops
+- [x] `gmPaperDollUI::ListenToMessage` · 00442870 · legions 004431c0 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
+- [x] `gmPaperDollUI::ListenToMessage` · 00442890 · legions 004431e0 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
+- [~] `gmPaperDollUI::RecvNotice_CreateObject` · 00442900 — durability refresh runs on the frame's item changes; the object-creation notice handler is not registered
+- [x] `gmPaperDollUI::RecvNotice_ItemUpdate` · 004429e0 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
+- [x] `gmPaperDollUI::AddItem` · 00442af0 · legions 00443440 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
+- [x] `gmPaperDollUI::RemoveItem` · 00442c70 · legions 004435c0 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
+- [x] `gmPaperDollUI::BeginRequest` · 00442dc0 · legions 00443710 — step 1: request begun or failed marks the worn item pending
+- [x] `gmPaperDollUI::RequestFailed` · 00442e10 · legions 00443760 — step 1: request begun or failed marks the worn item pending
+- [x] `gmPaperDollUI::InitSlots` · 00442e60 · legions 004437b0 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 
 ### PHashTable<unsigned_long,InstanceID>
 - [~] `PHashTable<unsigned_long,InstanceID>::StreamPack` · 004431d0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 
 ### gmPaperDollUI
-- [ ] `gmPaperDollUI::GetInventory` · 00443400 · legions 00443d50
-- [ ] `gmPaperDollUI::gmPaperDollUI` · 004434d0 · legions 00443e20
-- [ ] `gmPaperDollUI::RecvNotice_UpdateInventory` · 00443670
+- [~] `gmPaperDollUI::GetInventory` · 00443400 · legions 00443d50 — frame's equipment list; a list the worn items are not in takes them off (double answers an unequip with 0x40000001 alone; retail only adds)
+- [~] `gmPaperDollUI::gmPaperDollUI` · 004434d0 · legions 00443e20 — viewport root, slots, the avatar and the worn list; notices come from the frame, not registered handlers
+- [x] `gmPaperDollUI::RecvNotice_UpdateInventory` · 00443670 — step 1: request begun or failed marks the worn item pending
 
 ## `ac2/client/src/ui/gameplay/toolbar/option/gmassistanceui.cpp.c` (0/6)
 
@@ -2055,7 +2055,7 @@ Legend and workflow: [README](README.md).
 - [~] `CInputManager::SetMouseLookMode` · 00599ce0 · legions 00566d10 — ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
 - [x] `CInputManager::SetTextMode` · 00599d40 · legions 00566d70 — ac2-ui input.rs / text_edit.rs: typing into text elements
 
-## `portal/client/src/cinputmap/ckeymap.cpp.c` (3/23)
+## `portal/client/src/cinputmap/ckeymap.cpp.c` (4/23)
 
 ### MapGUID
 - [x] `MapGUID::StreamPack` · 00599d60 · legions 00566d90 — ac2-ui maps.rs
@@ -2064,7 +2064,7 @@ Legend and workflow: [README](README.md).
 - [ ] `HashIterator<unsigned_long,unsigned_long>::HashIterator<unsigned_long,unsigned_long>` · 00599e10 · legions 004b66a0
 
 ### PSUtils
-- [ ] `PSUtils::is_uint32` · 00599e30 · legions 00566e40
+- [x] `PSUtils::is_uint32` · 00599e30 · legions 00566e40 — ac2-ui stack.rs
 
 ### (free functions)
 - [ ] `compute_hash` · 00599ea0 · legions 00566eb0
@@ -2794,7 +2794,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::GetParentCurrentPosition` · 005e9340 · legions 005a9fa0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::UpdateActivatable` · 005e93e0 · legions 005aa040
 - [ ] `UIElement::UpdateActivateOrder` · 005e9420 · legions 005aa080
-- [x] `UIElement::Activate` · 005e9470 · legions 005aa0d0 — ac2-ui input.rs / text_edit.rs: typing into text elements
+- [x] `UIElement::Activate` · 005e9470 · legions 005aa0d0 — ac2-ui text_edit.rs: m_visible & parent IsVisible
 - [x] `UIElement::Deactivate` · 005e94c0 · legions 005aa120 — ac2-ui input.rs / text_edit.rs: typing into text elements
 
 ### UIRegion
@@ -3034,10 +3034,10 @@ Legend and workflow: [README](README.md).
 - [ ] `StringDownload::OnTopLevelRequestFinished` · 005fd150
 - [ ] `StringDownload::StringDownload` · 005fd210 · legions 005bdd40
 
-## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (13/92)
+## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (14/92)
 
 ### (free functions)
-- [ ] `NumberInputFilter` · 005ed7c0
+- [x] `NumberInputFilter` · 005ed7c0 — ac2-ui stack.rs
 
 ### UIElement_Text
 - [ ] `UIElement_Text::GetScrollbar` · 005ed7d0 · legions 005ae3a0
