@@ -27,7 +27,7 @@ mod fpu;
 mod frame;
 mod heading;
 mod interp;
-mod landdefs;
+pub mod landdefs;
 mod loader;
 mod loader_anim;
 mod los;

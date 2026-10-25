@@ -36,12 +36,12 @@ impl Heading {
     }
 
     /// `Heading::get_radians` (an x87 result, not stored).
-    pub(crate) fn radians(self) -> f64 {
+    pub fn radians(self) -> f64 {
         ld(DEGREES_TO_RADIANS) * ld(self.degrees)
     }
 
     /// `Heading::get_degrees_0_centered`: `(-180, 180]`.
-    pub(crate) fn degrees_0_centered(self) -> f64 {
+    pub fn degrees_0_centered(self) -> f64 {
         let degrees = ld(self.degrees);
         if degrees > 180.0 {
             degrees - 360.0
@@ -82,7 +82,7 @@ impl Heading {
     }
 
     /// `Heading::is_in_range`: within `range` of `center` either way.
-    pub(crate) fn is_in_range(self, center: Self, range: Self) -> bool {
+    pub fn is_in_range(self, center: Self, range: Self) -> bool {
         ld(Self::difference(self, center).abs().degrees) < ld(range.degrees)
     }
 }
