@@ -21,6 +21,8 @@ pub(crate) enum Request {
     FarBlock(u32),
     /// The player body for a visual.
     Body(Option<u32>),
+    /// An object's script state (`CWDistributor::Construct`'s WState): object, package, DID.
+    ScriptState(u64, u32, u32),
 }
 
 /// Finished work.
@@ -29,6 +31,8 @@ pub(crate) enum Loaded {
     Block(u32, Result<Option<Terrain>, String>),
     FarBlock(u32, Result<(), String>),
     Body(Option<u32>, Result<BodyData, String>),
+    /// The script state is in the cache (or does not exist): object, package, DID.
+    ScriptState(u64, u32, u32),
 }
 
 /// A pool of loader threads over one `WorldData`.
@@ -51,6 +55,10 @@ fn load(data: &dyn WorldData, request: Request) -> Loaded {
         }
         Request::FarBlock(block) => Loaded::FarBlock(block, data.prefetch_far_block(block)),
         Request::Body(visual) => Loaded::Body(visual, data.body(visual)),
+        Request::ScriptState(id, pid, did) => {
+            data.preload_script_state(pid, did);
+            Loaded::ScriptState(id, pid, did)
+        }
     }
 }
 

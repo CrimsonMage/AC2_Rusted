@@ -202,6 +202,8 @@ pub struct OnlineSession {
     inventory: crate::inventory::InventoryState,
     /// Skills, shortcuts and the fellowship and allegiance, for the panels.
     progress: crate::progress::Progress,
+    /// Script functions the script VM handles instead of the stand-ins.
+    script_functions: std::collections::BTreeSet<u32>,
 }
 
 impl OnlineSession {
@@ -254,6 +256,7 @@ impl OnlineSession {
             characters: None,
             inventory: Default::default(),
             progress: Default::default(),
+            script_functions: Default::default(),
         })
     }
 
@@ -546,13 +549,16 @@ impl OnlineSession {
                 arguments,
             } => {
                 let target = object.map(|o| o.id).or(self.world.player());
-                if let Some(events) =
-                    target.and_then(|t| self.receive_inventory(t, function, &arguments))
+                // Functions the script VM runs skip the stand-ins.
+                let stand_in = !self.script_functions.contains(&function);
+                if let Some(events) = target
+                    .filter(|_| stand_in)
+                    .and_then(|t| self.receive_inventory(t, function, &arguments))
                 {
                     out.extend(events);
                     return;
                 }
-                if target.is_some() && target == self.world.player() {
+                if stand_in && target.is_some() && target == self.world.player() {
                     if function == ac2_net::protocol::script_function::INIT_PLAYER {
                         out.extend(self.init_player());
                         out.extend(self.init_player_inventory(&arguments));

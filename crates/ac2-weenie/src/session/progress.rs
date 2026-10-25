@@ -12,6 +12,21 @@ use crate::progress::Progress;
 const SET_SHORTCUT: u32 = 0x8212_0018;
 
 impl OnlineSession {
+    /// Hands `functions` (server script calls) to the script VM: the session's stand-ins leave
+    /// them alone and pass them on raw as [`SessionEvent::Interp`].
+    pub fn set_script_functions(&mut self, functions: &[u32]) {
+        self.script_functions = functions.iter().copied().collect();
+    }
+
+    /// Whether a stand-in handles server call `function` (its notices come from the session),
+    /// unless it was handed to the script VM.
+    pub fn stand_in_handles(&self, function: u32) -> bool {
+        !self.script_functions.contains(&function)
+            && (function == ac2_net::protocol::script_function::INIT_PLAYER
+                || function >> 16 == 0x8214
+                || ac2_net::protocol::ScriptMessage::decode(function, &[]).is_some())
+    }
+
     /// Skills, shortcuts, fellowship and allegiance as the panels read them.
     pub fn progress(&self) -> &Progress {
         &self.progress

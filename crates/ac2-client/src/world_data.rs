@@ -45,6 +45,10 @@ pub trait WorldData: Send + Sync {
     fn body(&self, visual: Option<u32>) -> Result<BodyData, String>;
     /// The region's `GameTime`, if the world has one.
     fn game_clock(&self) -> Option<GameClock>;
+    /// Reads the WStates a weenie's script process may start from (package `pid`, entity
+    /// `did`) into the shared cache, so `ScriptHost::create_weenie` on the frame thread finds
+    /// them there.
+    fn preload_script_state(&self, _pid: u32, _did: u32) {}
 }
 
 /// The AC2 DATs, through `ac2-world` and `ac2-physics`' loaders.
@@ -68,6 +72,18 @@ impl DatWorld {
 }
 
 impl WorldData for DatWorld {
+    /// `ScriptHost::create_weenie`'s candidates: the class default `0x70000000 | pid` and, for
+    /// an entity DID, `0x71000000 | did`.
+    fn preload_script_state(&self, pid: u32, did: u32) {
+        let mut dids = vec![0x7000_0000 | (pid & 0xFFFF)];
+        if did != 0 {
+            dids.push(0x7100_0000 | (did & 0x00FF_FFFF));
+        }
+        for did in dids {
+            let _ = ac2_script::load_wstate(&self.store, ac2_core::DataId::new(did));
+        }
+    }
+
     fn load_block(&self, terrain: &mut Terrain, block: u32) -> Result<bool, String> {
         let id = CellId::new(block | 0xFFFF);
         if !load_terrain_block(&self.world, terrain, id).map_err(|e| e.to_string())? {
