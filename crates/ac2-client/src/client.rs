@@ -723,6 +723,7 @@ impl Client {
             selection: self.selection_frame(),
             player_vitals: *self.session.player_script().vitals(),
             inventory: self.inventory_frame(),
+            progress: self.progress_frame(),
         }
     }
 

@@ -35,7 +35,7 @@ pub use client::{
 };
 pub use controls::frame_input;
 pub use frame::{ClientFrame, Holder, ObjectFrame, PlayerFrame};
-pub use gameplay::{Command, ContainerFrame, InventoryFrame, SelectionFrame};
+pub use gameplay::{Command, ContainerFrame, InventoryFrame, ProgressFrame, SelectionFrame};
 pub use motion::PartPose;
 pub use scene::CameraFrame;
 pub use tables::string_table_ids;

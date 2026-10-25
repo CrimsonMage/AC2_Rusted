@@ -31,6 +31,8 @@ pub struct ScriptWorld {
     pub contents: std::collections::BTreeMap<u64, (Vec<u64>, Vec<u64>)>,
     /// The player's equipment by location (`WM_Inventory` 0x5F).
     pub equipped: Vec<(u32, u64)>,
+    /// The options profile `WM_Player` 0x27 carries (argument 4: shortcuts and the rest).
+    pub options: Option<ac2_net::protocol::GameplayOptionsProfile>,
 }
 
 impl State {
@@ -313,6 +315,11 @@ impl State {
     /// the remaining arguments are zero ints.
     pub fn send_init_player(&mut self) {
         let mut args = vec![PackValue::Int(0); 14];
+        if let Some(options) = &self.script_world.options {
+            args[3] = PackValue::native(ac2_net::protocol::NativeObject::GameplayOptionsProfile(
+                Box::new(options.clone()),
+            ));
+        }
         // Arguments 7-9: the equipment (`CInventorySystem` 0x6); 10-12: the player's contents
         // (`CInventorySystem` 0x1A).
         let equipment = Equipment::from_locations(&self.script_world.equipped);

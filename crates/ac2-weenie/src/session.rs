@@ -31,6 +31,7 @@ use crate::world::{World, WorldEvent, WorldState};
 
 mod gameplay;
 mod inventory;
+mod progress;
 mod select;
 
 /// Which listed character to enter the world with.
@@ -199,6 +200,8 @@ pub struct OnlineSession {
     characters: Option<CharacterSet>,
     /// The inventory the player's scripts keep, natively until the script VM runs them.
     inventory: crate::inventory::InventoryState,
+    /// Skills, shortcuts and the fellowship and allegiance, for the panels.
+    progress: crate::progress::Progress,
 }
 
 impl OnlineSession {
@@ -250,6 +253,7 @@ impl OnlineSession {
             chat_context: 0,
             characters: None,
             inventory: Default::default(),
+            progress: Default::default(),
         })
     }
 
@@ -304,6 +308,11 @@ impl OnlineSession {
         let mut out = std::mem::take(&mut self.pending);
         for event in std::mem::take(&mut self.net_events) {
             self.handle(event, &mut out);
+        }
+        for event in &out {
+            if let SessionEvent::Notice(notice) = event {
+                self.progress.social.apply(notice);
+            }
         }
         out
     }
@@ -547,6 +556,12 @@ impl OnlineSession {
                     if function == ac2_net::protocol::script_function::INIT_PLAYER {
                         out.extend(self.init_player());
                         out.extend(self.init_player_inventory(&arguments));
+                        out.extend(self.init_player_options(&arguments));
+                    }
+                    // The skill stand-in's notices; the call still reaches the caller raw (the
+                    // script VM takes it from there).
+                    if let Some(events) = self.receive_skill(function, &arguments) {
+                        out.extend(events);
                     }
                     if let Some(events) = self.receive_script(function, &arguments) {
                         out.extend(events);
@@ -578,6 +593,9 @@ impl OnlineSession {
                         out.extend(self.player_quality_changed(table, update.quality));
                     }
                     out.extend(self.item_quality_changed(object, table, update.quality));
+                    if Some(object) == self.world.player() {
+                        out.extend(self.progress_quality_changed(table, update.quality));
+                    }
                 }
             }
             ServerEvent::CharacterDeleted(id) => out.push(SessionEvent::CharacterDeleted(id)),

@@ -234,7 +234,7 @@ impl OnlineSession {
 }
 
 /// The player's `CWRepository::m_qualities` (empty before its object exists).
-fn player_qualities(world: &World) -> &WeenieQualities {
+pub(super) fn player_qualities(world: &World) -> &WeenieQualities {
     static EMPTY: std::sync::OnceLock<WeenieQualities> = std::sync::OnceLock::new();
     world
         .player()
