@@ -264,3 +264,57 @@ fn the_posed_bone_follows_the_playing_behaviours() {
     // The move layer (1) sits above idle (0) and takes the bone once fully ramped in.
     assert_eq!(body.posed_parts()[0].offset.x, 0.5);
 }
+
+#[test]
+fn the_drawn_position_blends_the_last_quantum() {
+    let ground = terrain(|_, _| 50.0);
+    let mut body = body_at(70.0, 30.0, 50.0);
+    run(&mut body, &ground, 1.0);
+    body.set_input(MovementInput {
+        motion: [0.0, 1.0, 0.0],
+        ..MovementInput::default()
+    });
+    run(&mut body, &ground, 1.0);
+    let before = body.position();
+    body.step_quantum(&ground);
+    let (previous, current) = (body.previous_position(), body.position());
+    assert_eq!(previous, before);
+    assert!(current.frame.origin.y > previous.frame.origin.y);
+    assert_eq!(
+        body.drawing_position(0.0).frame.origin,
+        previous.frame.origin
+    );
+    assert_eq!(
+        body.drawing_position(1.0).frame.origin,
+        current.frame.origin
+    );
+    let half = body.drawing_position(0.5).frame.origin.y;
+    let mid = (previous.frame.origin.y + current.frame.origin.y) * 0.5;
+    assert!((half - mid).abs() < 1e-5, "{half} {mid}");
+    // A placement does not blend: the previous position is the placed one.
+    let mut there = current;
+    there.frame.origin.x += 3.0;
+    let placed = body.place(there, 0, &ground);
+    assert_eq!(placed, crate::physics_obj_place::SetPositionError::Ok);
+    assert_eq!(body.previous_position(), body.position());
+}
+
+#[test]
+fn an_immobile_body_is_forced_into_its_cell_and_stays_put() {
+    let ground = terrain(|_, _| 50.0);
+    let mut body = body_at(70.0, 30.0, 50.0);
+    body.set_mobile(false);
+    assert!(!body.is_mobile());
+    // Below the ground: a placement check would fail or lift it; ForceIntoCell takes it as is.
+    let mut sunk = body.position();
+    sunk.frame.origin.z = 40.0;
+    let placed = body.place(sunk, 0, &ground);
+    assert_eq!(placed, crate::physics_obj_place::SetPositionError::Ok);
+    assert_eq!(body.position().frame.origin.z, 40.0);
+    body.set_input(MovementInput {
+        motion: [0.0, 1.0, 0.0],
+        ..MovementInput::default()
+    });
+    run(&mut body, &ground, 1.0);
+    assert_eq!(body.position(), sunk);
+}

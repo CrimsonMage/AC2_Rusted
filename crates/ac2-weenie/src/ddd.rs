@@ -36,8 +36,8 @@ pub fn dat_iterations(dataset: &DatDataset) -> Result<Vec<(u64, Vec<i32>)>, Stri
             .read_packed(kind, RETAIL_DDD_ITERATION_DID)
             .map_err(|e| format!("{kind:?}: {e}"))?
             .ok_or(format!("Could not get history from datfile {id:#018X}"))?;
-        let iterations = read_int_set(&history.copy_to_vec())
-            .map_err(|e| format!("datfile {id:#018X} history: {e}"))?;
+        let iterations =
+            read_int_set(&history).map_err(|e| format!("datfile {id:#018X} history: {e}"))?;
         lists.push((id, iterations));
     }
     Ok(lists)
@@ -46,7 +46,6 @@ pub fn dat_iterations(dataset: &DatDataset) -> Result<Vec<(u64, Vec<i32>)>, Stri
 #[cfg(test)]
 mod tests {
     use super::{dat_file_id, dat_iterations};
-    use ac2_dat::{DatDataset, DatOpenOptions};
 
     #[test]
     fn the_file_id_puts_the_data_set_in_the_high_word() {
@@ -55,10 +54,9 @@ mod tests {
 
     #[test]
     fn every_open_dat_contributes_its_history() {
-        let Ok(dir) = std::env::var("AC2_DAT_DIR") else {
+        let Some(dataset) = ac2_dat::test_support::env_dataset() else {
             return;
         };
-        let dataset = DatDataset::open(DatOpenOptions::new(dir)).unwrap();
         let lists = dat_iterations(&dataset).unwrap();
         assert!(lists.len() >= 3);
         assert_eq!(lists[0].0 >> 32, 1, "portal first");

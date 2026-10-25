@@ -5,7 +5,6 @@
 use std::sync::Arc;
 
 use ac2_core::{CellId, DataId};
-use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_db::ResourceStore;
 use ac2_world::{load_ac2_motion_interp_desc, Ac2WorldSource};
 
@@ -26,8 +25,7 @@ const MOVE: u32 = 0x4000_0001;
 const STANDING_JUMP: u32 = 0x4000_000a;
 
 fn scene() -> Option<(Terrain, PhysicsBody)> {
-    let root = std::env::var_os("AC2_DAT_DIR")?;
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
+    let dataset = ac2_dat::test_support::env_dataset()?;
     let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
     let world = Ac2WorldSource::open(Arc::clone(&store))
         .expect("world source opens")

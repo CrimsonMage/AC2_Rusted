@@ -4,7 +4,6 @@
 use std::sync::Arc;
 
 use ac2_assets::resolve_ac2_material_texture_chain;
-use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_db::ResourceStore;
 
 use crate::ac2_land_defs::load_ac2_land_defs;
@@ -12,8 +11,7 @@ use crate::ac2_terrain_desc::load_ac2_terrain_desc;
 use crate::surface_desc::load_ac2_surface_desc;
 
 fn ac2_store() -> Option<ResourceStore> {
-    let root = std::env::var_os("AC2_DAT_DIR")?;
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
+    let dataset = ac2_dat::test_support::env_dataset()?;
     Some(ResourceStore::new(Arc::clone(&dataset)))
 }
 

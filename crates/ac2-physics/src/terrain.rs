@@ -274,6 +274,12 @@ impl Terrain {
         ))
     }
 
+    /// `CObjCell::LOSCheck`: traces `params`' ray through the resident cells (terrain, interior
+    /// physics BSPs and portals, static objects). False when its start cell is not resident.
+    pub fn los_check(&self, params: &mut crate::los::LosParameters) -> bool {
+        crate::los::los_check(self, params)
+    }
+
     /// The vertical distance from `position`'s origin down to the terrain polygon under it
     /// (negative when the origin is below it), as `CPhysicsObj::GetHeightAboveWalkable`'s
     /// downward `LOSCheck` finds it over open terrain. `None` off resident terrain.

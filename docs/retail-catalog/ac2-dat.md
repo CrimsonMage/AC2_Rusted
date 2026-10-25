@@ -1,6 +1,6 @@
 # ac2-dat: DAT files and the database layer
 
-507 retail functions: 11 done, 2 partial, 489 to do, 5 skipped.
+507 retail functions: 15 done, 2 partial, 485 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/database/asynccache.cpp.c` (0/48)
@@ -440,7 +440,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CLBlockAllocator::OpenDataFile` · 0064edd0 · legions 005fe100
 - [ ] `CLBlockAllocator::Update` · 0064ee50 · legions 005fe180
 
-## `portal/shared/src/diskcon/btree.cpp.c` (0/44)
+## `portal/shared/src/diskcon/btree.cpp.c` (4/44)
 
 ### BTEntry
 - [ ] `BTEntry::`default_constructor_closure'` · 0064c6f0
@@ -486,12 +486,12 @@ Legend and workflow: [README](README.md).
 - [ ] `BTree::RotateEntryTrans` · 0064e040 · legions 005fd370
 - [ ] `BTree::Lookup` · 0064e0d0 · legions 005fd400
 - [ ] `BTree::DescendToDelete` · 0064e100 · legions 005fd430
-- [ ] `BTree::Build_Id_List` · 0064e280 · legions 005fd5b0
-- [ ] `BTree::Build_Id_List` · 0064e380 · legions 005fd6b0
+- [x] `BTree::Build_Id_List` · 0064e280 · legions 005fd5b0 — ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
+- [x] `BTree::Build_Id_List` · 0064e380 · legions 005fd6b0 — ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 - [ ] `BTree::Delete` · 0064e470 · legions 005fd7a0
 - [ ] `BTree::Remove` · 0064e620 · legions 005fd950
-- [ ] `BTree::Get_Id_List` · 0064e640 · legions 005fd970
-- [ ] `BTree::Get_Id_List_Range` · 0064e660 · legions 005fd990
+- [x] `BTree::Get_Id_List` · 0064e640 · legions 005fd970 — ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
+- [x] `BTree::Get_Id_List_Range` · 0064e660 · legions 005fd990 — ac2-dat FileBtreeRuntime::collect_entries_in_range: pruned walk through the pinned root + 100-node cache; emits ascending DIDs (retail appends a node's entry before its left child)
 - [ ] `BTree::Try_Delete_Oldest` · 0064e6a0 · legions 005fd9d0
 
 ## `portal/shared/src/diskcon/diskcon.cpp.c` (0/19)

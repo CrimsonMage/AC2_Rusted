@@ -5,15 +5,14 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use ac2_core::{CellId, DataId};
-use ac2_dat::{DatDataset, DatFileKind, DatOpenOptions};
+use ac2_dat::{DatDataset, DatFileKind};
 use ac2_db::ResourceStore;
 use ac2_math::Vec3;
 
 use crate::{Ac2LightKind, Ac2WorldSource};
 
 fn ac2_world() -> Option<(Arc<DatDataset>, Arc<Ac2WorldSource>)> {
-    let root = std::env::var_os("AC2_DAT_DIR")?;
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
+    let dataset = ac2_dat::test_support::env_dataset()?;
     let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
     let world = Ac2WorldSource::open(store)
         .expect("AC2 vocabulary decodes")

@@ -255,12 +255,11 @@ impl ResourceStore {
         did: DataId,
         attribution: DatReadAttribution,
     ) -> ResourceResult<Option<ResourceDecodeInput>> {
-        // DAT resolves metadata and materializes one decode-local packed record together. This
-        // avoids a second DID lookup and prevents candidate B-tree reads from borrowing or
-        // retaining an mmap-backed record view through resource decode.
+        // DAT resolves metadata and reads one decode-local packed record together, so decode
+        // never repeats the DID lookup.
         let Some(record) = self
             .dataset
-            .read_record_owned(file_kind, did.raw(), attribution)?
+            .read_record(file_kind, did.raw(), attribution)?
         else {
             return Ok(None);
         };

@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use ac2_core::{DataId, QualifiedDataId};
-use ac2_dat::{DatDataset, DatFileKind, DatOpenOptions};
+use ac2_dat::DatFileKind;
 use ac2_db::{ResourcePackedDecode, ResourceStore, TypedResourceRef};
 
 use super::{vertex_stride, Ac2PhysicsMesh};
@@ -83,10 +83,9 @@ fn physics_polygons_and_tree_follow_the_render_data() {
 /// Every Legions `CDataMesh` parses through its physics tree to the exact record length.
 #[test]
 fn every_legions_mesh_record_decodes_its_physics_data() {
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let store = ResourceStore::new(Arc::clone(&dataset));
     let ids = dataset
         .ids_in_range(DatFileKind::Portal, 0x0600_0000, 0x06FF_FFFF)
@@ -110,10 +109,9 @@ fn every_legions_mesh_record_decodes_its_physics_data() {
 /// Every Legions `CSetup` parses through its collision primitives to its fixed tail.
 #[test]
 fn every_legions_setup_decodes_its_collision_primitives() {
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let store = ResourceStore::new(Arc::clone(&dataset));
     let ids = dataset
         .ids_in_range(DatFileKind::Portal, 0x0400_0000, 0x04FF_FFFF)
@@ -147,10 +145,9 @@ fn every_legions_setup_decodes_its_collision_primitives() {
 /// `CPartArray::GetHeight`/`GetRadius`/`GetStepUpHeight`/`GetStepDownHeight` read.
 #[test]
 fn the_human_body_setup_carries_its_spheres_and_step_heights() {
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let store = ResourceStore::new(Arc::clone(&dataset));
     let human = store
         .load_cached_packed::<super::Ac2SetupPhysics>(TypedResourceRef::new(

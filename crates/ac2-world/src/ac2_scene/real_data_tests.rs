@@ -4,15 +4,13 @@
 use std::sync::Arc;
 
 use ac2_core::CellId;
-use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_db::ResourceStore;
 
 use super::{ac2_scene_object_visual, ac2_scene_placements};
 use ac2_db::install_ac2_property_types;
 
 fn ac2_store() -> Option<ResourceStore> {
-    let root = std::env::var_os("AC2_DAT_DIR")?;
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
+    let dataset = ac2_dat::test_support::env_dataset()?;
     Some(ResourceStore::new(Arc::clone(&dataset)))
 }
 
@@ -75,10 +73,9 @@ fn ac2_scene_objects_resolve_to_visuals() {
 /// inside a clearance; this checks the shapes themselves.
 #[test]
 fn entity_clearance_shapes_decode_across_the_cell_dat() {
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let store = ResourceStore::new(Arc::clone(&dataset));
     install_ac2_property_types(&store).expect("MasterProperty decodes");
     let (mut blocks, mut boxes, mut cylinders) = (0, 0, 0);

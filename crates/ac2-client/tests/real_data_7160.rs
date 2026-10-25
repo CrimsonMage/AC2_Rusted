@@ -15,10 +15,9 @@ const STEP: f64 = 1.0 / 64.0;
 
 #[test]
 fn the_client_walks_into_a_wall_of_the_start_room() {
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
-    let dataset = ac2_dat::DatDataset::open(ac2_dat::DatOpenOptions::new(root)).unwrap();
     let store = Arc::new(ac2_db::ResourceStore::new(dataset));
     let world = DatWorld::new(store).unwrap();
     let spawn = Spawn {

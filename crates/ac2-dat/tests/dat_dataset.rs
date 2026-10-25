@@ -4,7 +4,7 @@ use std::thread;
 
 use ac2_dat::{
     DatDataset, DatError, DatFileKind, DatIdStamp, DatOpenOptions, DatReadAttribution,
-    DatStorageMode, RETAIL_DDD_ITERATION_DID,
+    RETAIL_DDD_ITERATION_DID,
 };
 use tempfile::TempDir;
 
@@ -21,17 +21,14 @@ const NODE_SIZE: usize = 1720;
 const FILE_ONE_ID: u32 = 0x1000_0001;
 const FILE_TWO_ID: u32 = 0x1000_0002;
 
-fn legacy_mmap_options(path: &Path) -> DatOpenOptions {
-    let mut options = DatOpenOptions::new(path);
-    options.storage_mode = DatStorageMode::LegacyMmapFlatIndex;
-    options
+fn open_fixture(fixture: &DatFixture) -> Arc<DatDataset> {
+    DatDataset::open(DatOpenOptions::new(fixture.path())).expect("dataset should open")
 }
 
 #[test]
-fn opens_dataset_builds_flat_indexes_and_iterates_sorted_ids() {
+fn walks_the_btree_for_sorted_ids_and_entries() {
     let fixture = DatFixture::new().expect("fixture should build");
-    let dataset =
-        DatDataset::open(DatOpenOptions::new(fixture.path())).expect("dataset should open");
+    let dataset = open_fixture(&fixture);
 
     assert!(dataset.contains(DatFileKind::Portal, FILE_ONE_ID));
     assert!(dataset.contains(DatFileKind::Portal, FILE_TWO_ID));
@@ -62,20 +59,57 @@ fn opens_dataset_builds_flat_indexes_and_iterates_sorted_ids() {
 }
 
 #[test]
-fn file_btree_mode_uses_owned_positioned_reads_without_eager_full_index() {
+fn range_walks_load_only_the_nodes_that_can_hold_the_range() {
+    // Root [DDD] with a left leaf [ONE, TWO] and an empty right leaf. `Get_Id_List_Range` must
+    // leave the subtree it cannot need unread.
     let fixture = DatFixture::new().expect("fixture should build");
-    let mut options = DatOpenOptions::new(fixture.path());
-    options.storage_mode = DatStorageMode::FileBtreeRuntime;
-    let dataset = DatDataset::open(options).expect("file-backed dataset should open");
+    let dataset = open_fixture(&fixture);
+    assert_eq!(
+        dataset
+            .ids_in_range(DatFileKind::Portal, FILE_ONE_ID, FILE_TWO_ID)
+            .collect::<Vec<_>>(),
+        vec![FILE_ONE_ID, FILE_TWO_ID]
+    );
+    let profile = dataset.btree_profile(DatFileKind::Portal).unwrap();
+    assert_eq!(profile.parsed_node_cache_entries, 1, "left leaf only");
+
+    let dataset = open_fixture(&fixture);
+    assert_eq!(
+        dataset
+            .ids_in_range(DatFileKind::Portal, RETAIL_DDD_ITERATION_DID, u32::MAX)
+            .collect::<Vec<_>>(),
+        vec![RETAIL_DDD_ITERATION_DID]
+    );
+    let profile = dataset.btree_profile(DatFileKind::Portal).unwrap();
+    assert_eq!(profile.parsed_node_cache_entries, 1, "right leaf only");
+
+    assert_eq!(
+        dataset
+            .ids_in_range(DatFileKind::Portal, FILE_TWO_ID, FILE_ONE_ID)
+            .count(),
+        0
+    );
+    assert_eq!(
+        dataset
+            .ids_in_range(DatFileKind::Portal, 0x1000_0003, 0x2000_0000)
+            .count(),
+        0
+    );
+}
+
+#[test]
+fn reads_are_positioned_and_open_builds_no_index() {
+    let fixture = DatFixture::new().expect("fixture should build");
+    let dataset = open_fixture(&fixture);
 
     let initial = dataset
-        .memory_stats(DatFileKind::Portal)
-        .expect("portal memory stats should exist");
-    assert_eq!(initial.mapped_bytes, 0);
-    assert!(initial.full_index.is_none());
+        .btree_profile(DatFileKind::Portal)
+        .expect("portal profile should exist");
+    assert_eq!(initial.btree_node_loads, 1, "open reads only the root");
+    assert_eq!(initial.parsed_node_cache_entries, 0);
 
     let single = dataset
-        .read_record_owned(
+        .read_record(
             DatFileKind::Portal,
             FILE_ONE_ID,
             DatReadAttribution::ActiveWorldScoped,
@@ -86,7 +120,7 @@ fn file_btree_mode_uses_owned_positioned_reads_without_eager_full_index() {
     assert_eq!(single.packed_bytes, fixture.payload_one);
 
     let multi = dataset
-        .read_record_owned(
+        .read_record(
             DatFileKind::Portal,
             FILE_TWO_ID,
             DatReadAttribution::GenericResource,
@@ -99,29 +133,14 @@ fn file_btree_mode_uses_owned_positioned_reads_without_eager_full_index() {
     let telemetry = dataset
         .read_telemetry(DatFileKind::Portal)
         .expect("portal telemetry should exist");
-    assert_eq!(telemetry.full_index_reads, 0);
     assert_eq!(telemetry.attribution.active_world_scoped_requests, 1);
     assert_eq!(telemetry.attribution.generic_resource_requests, 1);
-
-    // Iteration is tooling/rewrite work, not normal runtime lookup. It is therefore the explicit
-    // point that materializes a flat index in the file-backed candidate.
-    assert_eq!(
-        dataset.iter_ids(DatFileKind::Portal).collect::<Vec<_>>(),
-        vec![FILE_ONE_ID, FILE_TWO_ID, RETAIL_DDD_ITERATION_DID]
-    );
-    assert!(dataset
-        .memory_stats(DatFileKind::Portal)
-        .expect("portal memory stats should exist")
-        .full_index
-        .is_some());
 }
 
 #[test]
 fn file_btree_profile_observes_pinned_root_lookup_and_positioned_payload_reads() {
     let fixture = DatFixture::new().expect("fixture should build");
-    let mut options = DatOpenOptions::new(fixture.path());
-    options.storage_mode = DatStorageMode::FileBtreeRuntime;
-    let dataset = DatDataset::open(options).expect("file-backed dataset should open");
+    let dataset = open_fixture(&fixture);
 
     let before = dataset
         .btree_profile(DatFileKind::Portal)
@@ -141,7 +160,7 @@ fn file_btree_profile_observes_pinned_root_lookup_and_positioned_payload_reads()
         FILE_ONE_ID
     );
     dataset
-        .read_record_owned(
+        .read_record(
             DatFileKind::Portal,
             FILE_ONE_ID,
             DatReadAttribution::ActiveWorldScoped,
@@ -149,7 +168,7 @@ fn file_btree_profile_observes_pinned_root_lookup_and_positioned_payload_reads()
         .expect("single positioned read should succeed")
         .expect("fixture payload should exist");
     dataset
-        .read_record_owned(
+        .read_record(
             DatFileKind::Portal,
             FILE_TWO_ID,
             DatReadAttribution::ActiveWorldScoped,
@@ -204,9 +223,7 @@ fn file_btree_profile_observes_pinned_root_lookup_and_positioned_payload_reads()
 #[test]
 fn file_btree_serializes_concurrent_first_reads_of_one_child_node() {
     let fixture = DatFixture::new().expect("fixture should build");
-    let mut options = DatOpenOptions::new(fixture.path());
-    options.storage_mode = DatStorageMode::FileBtreeRuntime;
-    let dataset = DatDataset::open(options).expect("file-backed dataset should open");
+    let dataset = open_fixture(&fixture);
     let before = dataset
         .btree_profile(DatFileKind::Portal)
         .expect("file-backed storage should publish its profile");
@@ -221,7 +238,7 @@ fn file_btree_serializes_concurrent_first_reads_of_one_child_node() {
             readers.push(scope.spawn(move || {
                 start.wait();
                 dataset
-                    .read_record_owned(
+                    .read_record(
                         DatFileKind::Portal,
                         FILE_ONE_ID,
                         DatReadAttribution::ActiveWorldScoped,
@@ -254,84 +271,40 @@ fn file_btree_serializes_concurrent_first_reads_of_one_child_node() {
 }
 
 #[test]
-fn memory_stats_report_mmap_and_logical_index_components_without_waiting() {
+fn ddd_iteration_payload_is_read_through_the_btree() {
     let fixture = DatFixture::new().expect("fixture should build");
-    let dataset = DatDataset::open(legacy_mmap_options(fixture.path()))
-        .expect("legacy mmap dataset should open");
+    let dataset = open_fixture(&fixture);
 
-    let stats = dataset
-        .memory_stats(DatFileKind::Portal)
-        .expect("portal memory stats should exist");
-    assert_eq!(stats.file_kind, DatFileKind::Portal);
-    assert_eq!(
-        stats.mapped_path,
-        fixture.path().join(DatFileKind::Portal.default_file_name())
-    );
-    assert_eq!(
-        stats.mapped_bytes,
-        std::fs::metadata(&stats.mapped_path).unwrap().len() as usize
-    );
-    assert!(stats.startup_index.record_count > 0);
-    assert!(stats.startup_index.did_bytes > 0);
-    assert!(stats.startup_index.payload_bytes > 0);
-    assert!(stats.startup_index.prefix_directory_bytes > 0);
-    assert_eq!(
-        stats.startup_index.segment_metadata_capacity_bytes,
-        256 * 1024
-    );
-    // Full-index publication is asynchronous. Sampling must expose its current state, not block
-    // a caller or alter index construction merely to make a diagnostic report look complete.
-    let _ = stats.full_index;
-}
-
-#[test]
-fn ddd_iteration_payload_is_visible_through_btree_and_flat_index() {
-    let fixture = DatFixture::new().expect("fixture should build");
-    let dataset =
-        DatDataset::open(DatOpenOptions::new(fixture.path())).expect("dataset should open");
-
-    assert!(dataset.contains(DatFileKind::Portal, RETAIL_DDD_ITERATION_DID));
-
-    let from_index = dataset
+    let list = dataset
         .ddd_iteration(DatFileKind::Portal)
-        .expect("flat index iteration query should succeed")
+        .expect("iteration query should succeed")
         .expect("DDD iteration list should exist");
-    let from_btree = dataset
-        .ddd_iteration_via_btree(DatFileKind::Portal)
-        .expect("B-tree iteration query should succeed")
-        .expect("DDD iteration list should exist");
-
-    assert_eq!(from_index, from_btree);
-    assert_eq!(from_index.current_iteration, 5);
-    assert_eq!(from_index.mostly_consecutive_values(), vec![-3, 1, -2, 4]);
+    assert_eq!(list.current_iteration, 5);
+    assert_eq!(list.mostly_consecutive_values(), vec![-3, 1, -2, 4]);
 }
 
 #[test]
-fn packed_reads_use_zero_copy_for_single_block_and_segmented_views_for_multi_block() {
+fn packed_reads_return_single_and_multi_block_payloads() {
     let fixture = DatFixture::new().expect("fixture should build");
-    let dataset = DatDataset::open(legacy_mmap_options(fixture.path()))
-        .expect("legacy mmap dataset should open");
+    let dataset = open_fixture(&fixture);
 
     let single = dataset
         .read_packed(DatFileKind::Portal, FILE_ONE_ID)
         .expect("read should succeed")
         .expect("single-block payload should exist");
-    assert_eq!(single.as_slice(), Some(fixture.payload_one.as_slice()));
+    assert_eq!(single, fixture.payload_one);
 
     let multi = dataset
         .read_packed(DatFileKind::Portal, FILE_TWO_ID)
         .expect("read should succeed")
         .expect("multi-block payload should exist");
-    assert!(multi.as_slice().is_none());
-    assert_eq!(multi.copy_to_vec(), fixture.payload_two_packed);
-    assert_eq!(multi.segments().count(), 2);
+    assert_eq!(multi, fixture.payload_two_packed);
 }
 
 #[test]
-fn combined_record_read_returns_one_metadata_and_packed_view_with_attribution() {
+fn record_read_returns_metadata_and_packed_bytes_with_attribution() {
     let fixture = DatFixture::new().expect("fixture should build");
-    let dataset = DatDataset::open(legacy_mmap_options(fixture.path()))
-        .expect("legacy mmap dataset should open");
+    let dataset = open_fixture(&fixture);
 
     let record = dataset
         .read_record(
@@ -339,14 +312,11 @@ fn combined_record_read_returns_one_metadata_and_packed_view_with_attribution() 
             FILE_ONE_ID,
             DatReadAttribution::ActiveWorldScoped,
         )
-        .expect("combined read should succeed")
+        .expect("record read should succeed")
         .expect("fixture record should exist");
     assert_eq!(record.meta.did, FILE_ONE_ID);
     assert_eq!(record.meta.version, 1);
-    assert_eq!(
-        record.packed.as_slice(),
-        Some(fixture.payload_one.as_slice())
-    );
+    assert_eq!(record.packed_bytes, fixture.payload_one);
 
     let multi = dataset
         .read_record(
@@ -354,11 +324,10 @@ fn combined_record_read_returns_one_metadata_and_packed_view_with_attribution() 
             FILE_TWO_ID,
             DatReadAttribution::GenericResource,
         )
-        .expect("combined multi-block read should succeed")
+        .expect("multi-block record read should succeed")
         .expect("fixture record should exist");
     assert!(multi.meta.is_stored_compressed());
-    assert!(multi.packed.as_slice().is_none());
-    assert_eq!(multi.packed.copy_to_vec(), fixture.payload_two_packed);
+    assert_eq!(multi.packed_bytes, fixture.payload_two_packed);
 
     let telemetry = dataset
         .read_telemetry(DatFileKind::Portal)
@@ -376,23 +345,18 @@ fn combined_record_read_returns_one_metadata_and_packed_view_with_attribution() 
 }
 
 #[test]
-fn read_telemetry_aggregates_read_paths_and_observable_owned_copies() {
+fn read_telemetry_counts_single_and_multi_block_reads() {
     let fixture = DatFixture::new().expect("fixture should build");
-    let dataset = DatDataset::open(legacy_mmap_options(fixture.path()))
-        .expect("legacy mmap dataset should open");
+    let dataset = open_fixture(&fixture);
 
-    let single = dataset
+    dataset
         .read_packed(DatFileKind::Portal, FILE_ONE_ID)
         .expect("read should succeed")
         .expect("single-block payload should exist");
-    assert_eq!(single.copy_to_vec(), fixture.payload_one);
-
-    let multi = dataset
+    dataset
         .read_packed(DatFileKind::Portal, FILE_TWO_ID)
         .expect("read should succeed")
         .expect("multi-block payload should exist");
-    assert_eq!(multi.copy_to_vec(), fixture.payload_two_packed);
-
     assert!(dataset
         .read_packed(DatFileKind::Portal, 0xDEAD_BEEF)
         .expect("missing read should succeed")
@@ -406,7 +370,6 @@ fn read_telemetry_aggregates_read_paths_and_observable_owned_copies() {
     assert_eq!(summary.missing_did_reads, 1);
     assert_eq!(summary.direct_single_block_reads, 1);
     assert_eq!(summary.segmented_multi_block_reads, 1);
-    assert_eq!(summary.contiguous_reads_copied_to_owned_storage, 1);
     assert_eq!(
         summary.contiguous_read_bytes,
         fixture.payload_one.len() as u64
@@ -415,22 +378,18 @@ fn read_telemetry_aggregates_read_paths_and_observable_owned_copies() {
         summary.segmented_read_bytes,
         fixture.payload_two_packed.len() as u64
     );
-    assert!(summary.startup_index_reads + summary.full_index_reads >= 3);
-    // Startup-index hits and direct B-tree fallbacks may satisfy this short fixture before the
-    // background full index is published, so this sequence does not promise a chain-cache miss.
 }
 
 #[test]
-fn stored_uncompressed_reads_stay_zero_copy_and_reject_compressed_storage() {
+fn stored_uncompressed_reads_reject_compressed_storage() {
     let fixture = DatFixture::new().expect("fixture should build");
-    let dataset =
-        DatDataset::open(DatOpenOptions::new(fixture.path())).expect("dataset should open");
+    let dataset = open_fixture(&fixture);
 
     let single = dataset
         .read_stored_uncompressed(DatFileKind::Portal, FILE_ONE_ID)
         .expect("uncompressed storage read should succeed")
         .expect("single-block payload should exist");
-    assert_eq!(single.as_slice(), Some(fixture.payload_one.as_slice()));
+    assert_eq!(single, fixture.payload_one);
 
     let error = dataset
         .read_stored_uncompressed(DatFileKind::Portal, FILE_TWO_ID)
@@ -551,9 +510,8 @@ fn arc_clone_shares_one_open_dataset_handle() {
         cloned
             .read_packed(DatFileKind::Portal, FILE_ONE_ID)
             .expect("read should succeed")
-            .expect("payload should exist")
-            .as_slice(),
-        Some(fixture.payload_one.as_slice())
+            .expect("payload should exist"),
+        fixture.payload_one
     );
 }
 

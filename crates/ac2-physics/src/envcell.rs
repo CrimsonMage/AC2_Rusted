@@ -50,10 +50,12 @@ impl CellBsp {
     }
 }
 
-/// A `CCellPortal`: the portal polygon (cell space) and the cell beyond it (`None` outside).
+/// A `CCellPortal`: the portal polygon (cell space), the cell beyond it (`None` outside) and
+/// the index of this portal in that cell's list (`other_portal_id`; `None` when negative).
 #[derive(Debug, Clone, PartialEq)]
 pub struct CellPortal {
     pub other_cell: Option<u32>,
+    pub other_portal: Option<usize>,
     pub polygon: Polygon,
 }
 

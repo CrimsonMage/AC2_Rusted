@@ -11,3 +11,6 @@ ac2-math = { path = "../ac2-math" }
 ac2-dat = { path = "../ac2-dat" }
 ac2-db = { path = "../ac2-db" }
 ac2-assets = { path = "../ac2-assets" }
+
+[dev-dependencies]
+ac2-dat = { path = "../ac2-dat", features = ["test-support"] }

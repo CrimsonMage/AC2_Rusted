@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 100 done, 8 partial, 279 to do, 39 skipped.
+426 retail functions: 107 done, 8 partial, 272 to do, 39 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -155,7 +155,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Frame::set_pitch` · 0061a860 · legions 005d64c0
 - [ ] `Frame::slerp` · 0061a8a0 · legions 005d6500
 
-## `portal/shared/src/geometry/gcylsphere.cpp.c` (3/10)
+## `portal/shared/src/geometry/gcylsphere.cpp.c` (4/10)
 
 ### Cylsphere
 - [ ] `Cylsphere::BuildBoundingBox` · 006211c0 · legions 005dc960
@@ -165,11 +165,11 @@ Legend and workflow: [README](README.md).
 - [ ] `Cylsphere::Within` · 00621420 · legions 005dcbc0
 - [ ] `Cylsphere::StreamPack` · 00621480 · legions 005dcc20
 - [ ] `Cylsphere::Scale` · 006214d0 · legions 005dcc70
-- [ ] `Cylsphere::TraceRay` · 00621510 · legions 005dccb0
+- [x] `Cylsphere::TraceRay` · 00621510 · legions 005dccb0 — ac2-physics los (Terrain::los_check)
 - [-] `Cylsphere::ToFileNode` · 006218b0 — text source format (admin tools)
 - [-] `Cylsphere::FromFileNode` · 006219a0 — text source format (admin tools)
 
-## `portal/shared/src/geometry/gsphere.cpp.c` (2/7)
+## `portal/shared/src/geometry/gsphere.cpp.c` (3/7)
 
 ### Plane
 - [ ] `Plane::GetPackSize` · 00628450 · legions 005e33a0
@@ -177,7 +177,7 @@ Legend and workflow: [README](README.md).
 ### Sphere
 - [x] `Sphere::Intersects` · 00628460 · legions 005e33b0
 - [x] `Sphere::Intersects` · 00628580 · legions 005e34d0
-- [ ] `Sphere::TraceRay` · 00628590 · legions 005e34e0
+- [x] `Sphere::TraceRay` · 00628590 · legions 005e34e0 — ac2-physics los (Terrain::los_check)
 - [ ] `Sphere::FindCoverRays` · 006286a0 · legions 005e35f0
 - [-] `Sphere::FromFileNode` · 00628f40 — text source format (admin tools)
 - [-] `Sphere::ToFileNode` · 00629040 — text source format (admin tools)
@@ -211,19 +211,19 @@ Legend and workflow: [README](README.md).
 - [ ] `Heading::ToPString` · 0061ae20 · legions 005d6a80
 - [ ] `Heading::ToWPString` · 0061b2e0 · legions 005d6f40
 
-## `portal/shared/src/geometry/landdefs.cpp.c` (3/13)
+## `portal/shared/src/geometry/landdefs.cpp.c` (6/13)
 
 ### LandDefs
 - [ ] `LandDefs::init_misc` · 0061ed40 · legions 005da680
 - [x] `LandDefs::set_bitlengths` · 0061ef30 · legions 005da870
 - [ ] `LandDefs::set_height_table` · 0061efd0 · legions 005da910
 - [ ] `LandDefs::Interpolate` · 0061f020 · legions 005da960
-- [ ] `LandDefs::MoveVectorToBeInBlock` · 0061f0e0 · legions 005daa20
+- [x] `LandDefs::MoveVectorToBeInBlock` · 0061f0e0 · legions 005daa20 — ac2-physics los (Terrain::los_check)
 - [x] `LandDefs::get_outside_lcoord` · 0061f140 · legions 005daa80
-- [ ] `LandDefs::GetBlockOffset` · 0061f200 · legions 005dab40
+- [x] `LandDefs::GetBlockOffset` · 0061f200 · legions 005dab40 — ac2-physics los (Terrain::los_check)
 - [ ] `LandDefs::init_size` · 0061f240 · legions 005dab80
 - [x] `LandDefs::adjust_to_outside` · 0061f300 · legions 005dac40
-- [ ] `LandDefs::BlockRayClip` · 0061f400 · legions 005dad40
+- [x] `LandDefs::BlockRayClip` · 0061f400 · legions 005dad40 — ac2-physics los (Terrain::los_check)
 - [ ] `LandDefs::GetNearestPixel` · 0061f880 · legions 005db1c0
 - [ ] `LandDefs::InqLandblockIIDFromStaticObjectIID` · 0061fb30 · legions 005db470
 - [ ] `LandDefs::get_block_list` · 0061fb90 · legions 005db4d0
@@ -291,11 +291,11 @@ Legend and workflow: [README](README.md).
 - [ ] `PerlinNoise::Noise` · 0062b0f0 · legions 005e5010
 - [ ] `PerlinNoise::fBm1` · 0062b180 · legions 005e50a0
 
-## `portal/shared/src/geometry/plane.cpp.c` (1/16)
+## `portal/shared/src/geometry/plane.cpp.c` (2/16)
 
 ### Plane
 - [x] `Plane::localtoglobal` · 00623960 · legions 005ded30 — ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
-- [ ] `Plane::intersect_line` · 00623a20 · legions 005dedf0
+- [x] `Plane::intersect_line` · 00623a20 · legions 005dedf0 — ac2-physics los (Terrain::los_check)
 - [ ] `Plane::compute_time_of_intersection` · 00623b30 · legions 005def00
 - [ ] `Plane::FindIntercept` · 00623bb0 · legions 005def80
 - [ ] `Plane::Pack` · 00623c40 · legions 005df010
@@ -311,7 +311,7 @@ Legend and workflow: [README](README.md).
 - [-] `Plane::ToFileNode` · 00624550 — text source format (admin tools)
 - [ ] `Plane::SplitPolygon` · 006245b0 · legions 005df810
 
-## `portal/shared/src/geometry/polygon.cpp.c` (16/36)
+## `portal/shared/src/geometry/polygon.cpp.c` (17/36)
 
 ### SPHEREPATH
 - [x] `SPHEREPATH::is_walkable_allowable` · 00499290 · legions 004917c0 — ac2-physics transition/localspace.rs, sphere_path.rs
@@ -337,7 +337,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPolygon::MakePlane` · 00499940 · legions 00491e30 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
 - [ ] `CPolygon::UnPack` · 00499a90 · legions 00491f80
 - [x] `CPolygon::polygon_hits_sphere_slow_but_sure` · 00499b90 · legions 00492080 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
-- [x] `CPolygon::point_in_polygon` · 00499e60 · legions 00492350 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
+- [x] `CPolygon::point_in_polygon` · 00499e60 · legions 00492350 — ac2-physics los (Terrain::los_check)
 - [x] `CPolygon::check_walkable` · 00499f30 · legions 00492420 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
 - [x] `CPolygon::check_small_walkable` · 0049a160 · legions 00492650 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
 - [x] `CPolygon::find_crossed_edge` · 0049a3a0 · legions 00492890 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
@@ -351,7 +351,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPolygon::pos_hits_sphere` · 0049a860 · legions 00492d50 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
 - [x] `CPolygon::hits_sphere` · 0049a8b0 · legions 00492da0 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
 - [x] `CPolygon::walkable_hits_sphere` · 0049a8d0 · legions 00492dc0 — ac2-physics bsp/polygon.rs (asm float order; Legions identical)
-- [ ] `CPolygon::TraceRay` · 0049a920 · legions 00492e10
+- [x] `CPolygon::TraceRay` · 0049a920 · legions 00492e10 — ac2-physics los (Terrain::los_check)
 
 ### SmartArray<CPolygon>
 - [ ] `SmartArray<CPolygon>::SetNElements` · 0049a9c0

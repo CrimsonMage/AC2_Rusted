@@ -264,13 +264,11 @@ fn a_higher_layer_overrides_a_lower_one_and_unanimated_bones_rest() {
 /// `AC2_DAT_DIR`).
 #[test]
 fn retail_human_animators_load_and_pose_finitely() {
-    use ac2_dat::{DatDataset, DatOpenOptions};
     use ac2_db::ResourceStore;
 
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let store = ResourceStore::new(Arc::clone(&dataset));
     let map_did = ac2_core::DataId::new(0x0300_0014);
     let map = crate::animation::load_portal::<crate::Ac2AnimMap>(&store, map_did)

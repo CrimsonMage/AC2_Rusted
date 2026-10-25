@@ -5,7 +5,6 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use ac2_core::CellId;
-use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_db::ResourceStore;
 use ac2_gpu::{FrameTarget, Gpu, TerrainRenderer, TextureKey, COLOR_FORMAT};
 use ac2_math::Vec3;
@@ -102,14 +101,13 @@ fn stats(rgba: &[u8]) -> (usize, f32) {
 
 #[test]
 fn near_landscape_renders_blended_terrain() {
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
     let Ok(gpu) = Gpu::headless() else {
         eprintln!("no GPU adapter; skipping");
         return;
     };
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let world = Ac2WorldSource::open(Arc::new(ResourceStore::new(dataset)))
         .unwrap()
         .unwrap();

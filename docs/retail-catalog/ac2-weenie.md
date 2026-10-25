@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 119 done, 5 partial, 1774 to do, 6 skipped.
+1904 retail functions: 120 done, 5 partial, 1773 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1534,7 +1534,7 @@ Legend and workflow: [README](README.md).
 ### CEFunDispatcher
 - [ ] `CEFunDispatcher::GetEFunAddress` · 0049fec0 · legions 00496f40
 
-## `portal/client/src/weenie/interp/glue/cnativefactory.cpp.c` (0/268)
+## `portal/client/src/weenie/interp/glue/cnativefactory.cpp.c` (1/268)
 
 ### PFileParser
 - [ ] `PFileParser::PFileParser` · 004a5eb0 · legions 0049cf30
@@ -1567,7 +1567,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DetectionProfile::DetectionProfile` · 004a61a0 · legions 0049d220
 
 ### LOSParameters
-- [ ] `LOSParameters::LOSParameters` · 004a6220 · legions 0049d2a0
+- [x] `LOSParameters::LOSParameters` · 004a6220 · legions 0049d2a0 — ac2-physics los (Terrain::los_check)
 
 ### BaseMultiMapIter<unsigned_long,unsigned_long,13970>
 - [ ] `BaseMultiMapIter<unsigned_long,unsigned_long,13970>::BaseMultiMapIter<unsigned_long,unsigned_long,13970>` · 004a62f0 · legions 0049d370

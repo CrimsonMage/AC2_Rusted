@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use ac2_core::{DataId, QualifiedDataId};
-use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_db::{ResourcePackedDecode, ResourceStore};
 
 use super::*;
@@ -106,10 +105,9 @@ fn truncated_and_trailing_records_are_rejected() {
 
 #[test]
 fn ac2_human_ground_motion_values_match_the_retail_desc() {
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let store = ResourceStore::new(Arc::clone(&dataset));
     // Human male `VisualDesc` 0x1F000023 names this desc in `m_midesc_did`.
     let desc = load_ac2_motion_interp_desc(&store, DataId::new(DID))
@@ -152,10 +150,9 @@ fn ac2_human_ground_motion_values_match_the_retail_desc() {
 
 #[test]
 fn ac2_human_element_values_match_the_retail_desc() {
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let store = ResourceStore::new(Arc::clone(&dataset));
     let desc = load_ac2_motion_interp_desc(&store, DataId::new(DID))
         .expect("MotionInterpDesc decodes")

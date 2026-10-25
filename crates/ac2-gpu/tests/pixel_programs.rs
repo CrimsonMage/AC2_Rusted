@@ -5,21 +5,20 @@ use std::collections::BTreeSet;
 use std::sync::Arc;
 
 use ac2_core::DataId;
-use ac2_dat::{DatDataset, DatFileKind, DatOpenOptions};
+use ac2_dat::DatFileKind;
 use ac2_db::ResourceStore;
 use ac2_gpu::{Gpu, ObjectRenderer};
 use ac2_render::object::parse_pixel_shader;
 
 #[test]
 fn every_legions_pixel_shader_translates() {
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
     let Ok(gpu) = Gpu::headless() else {
         eprintln!("no GPU adapter; skipping");
         return;
     };
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let store = ResourceStore::new(Arc::clone(&dataset));
     ac2_db::install_ac2_property_types(&store).unwrap();
     let mut sources = BTreeSet::new();

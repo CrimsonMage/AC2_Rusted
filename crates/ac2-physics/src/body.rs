@@ -194,6 +194,45 @@ impl PhysicsBody {
         self.object.position
     }
 
+    /// `CPhysicsObj::m_posPrevious`: where the body was before its last physics quantum
+    /// (`UpdateMovement` saves it; a placement sets it to the placed position).
+    pub fn previous_position(&self) -> Position {
+        self.object.prev_position
+    }
+
+    /// The drawn position (`CPhysicsObj::PrepareObjectForDrawing`, and
+    /// `TargetingModule::GetPosition` for the camera's target): `Position::slerp` from the
+    /// previous to the current position by `t`, the clock's render interpolation
+    /// (`CPhysics::sRenderInterpolation`, `PhysicsClock::render_interpolation`). A static body
+    /// draws where it is.
+    pub fn drawing_position(&self, t: f32) -> Position {
+        let o = &self.object;
+        if o.state & crate::objects::STATIC_PS != 0 {
+            return o.position;
+        }
+        let mut drawn = o.position;
+        drawn.slerp(&o.prev_position, &o.position, t);
+        drawn
+    }
+
+    /// `CPhysicsObj::set_mobile` (`ICPhysicsObj::makeObject`'s `mobile`, from
+    /// `CWeenieObject::IsMobile`): an immobile body (an item, a door) does not move under
+    /// physics and its placements go straight into the cell (`ForceIntoCell`). Bodies start
+    /// mobile.
+    pub fn set_mobile(&mut self, mobile: bool) {
+        let o = &mut self.object;
+        if mobile {
+            o.state |= crate::physics_obj::MOBILE_PS;
+        } else {
+            o.state &= !crate::physics_obj::MOBILE_PS;
+        }
+    }
+
+    /// `CPhysicsObj::is_mobile`.
+    pub fn is_mobile(&self) -> bool {
+        self.object.is_mobile()
+    }
+
     /// Places the body (a server position update): velocity and contact are kept.
     pub fn set_position(&mut self, position: Position) {
         self.object.position = position;

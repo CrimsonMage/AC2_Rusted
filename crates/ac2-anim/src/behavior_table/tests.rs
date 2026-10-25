@@ -113,13 +113,12 @@ fn mode_paths_step_through_the_allowed_elements() {
 fn retail_behavior_tables_decode() {
     use std::sync::Arc;
 
-    use ac2_dat::{DatDataset, DatFileKind, DatOpenOptions};
+    use ac2_dat::DatFileKind;
     use ac2_db::{ResourceStore, TypedResourceRef};
 
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let store = ResourceStore::new(Arc::clone(&dataset));
     let template = store
         .load_cached_packed::<Ac2CharTemplate>(TypedResourceRef::new(

@@ -3,14 +3,11 @@ use std::sync::Arc;
 
 use crate::btree_profile::DatBtreeProfileSnapshot;
 use crate::entry::{
-    DatEntryIter, DatEntryMeta, DatFileKind, DatFileMeta, DatIdIter, DatReadRef, DatRecordRead,
-    DatRecordReadRef,
+    DatEntryIter, DatEntryMeta, DatFileKind, DatFileMeta, DatIdIter, DatRecordRead,
 };
 use crate::error::DatResult;
 use crate::file::DatFile;
-use crate::index::DatReadPathStats;
 use crate::iteration::DatDddIterationList;
-use crate::memory_stats::DatMemoryStats;
 use crate::paths::DatOpenOptions;
 use crate::read_telemetry::{DatReadAttribution, DatReadTelemetrySummary};
 
@@ -30,11 +27,7 @@ impl DatDataset {
             let mut tasks = Vec::with_capacity(file_kinds.len());
             for kind in file_kinds.iter().copied() {
                 let path = options.path_for(kind);
-                let storage_mode = options.storage_mode;
-                tasks.push((
-                    kind,
-                    scope.spawn(move || DatFile::open(kind, path, storage_mode)),
-                ));
+                tasks.push((kind, scope.spawn(move || DatFile::open(kind, path))));
             }
 
             let mut files = BTreeMap::new();
@@ -76,75 +69,34 @@ impl DatDataset {
         self.file(kind).map(DatFile::meta)
     }
 
-    /// Temporary storage-path counters for validating DAT read/cache behavior in a live viewer.
-    pub fn read_path_stats(&self, kind: DatFileKind) -> Option<DatReadPathStats> {
-        self.file(kind).map(DatFile::read_path_stats)
-    }
-
-    /// Temporary process-lifetime read telemetry for one mounted DAT.
-    ///
-    /// This is owned by `DatFile`, rather than either flat index, so startup-index and direct
-    /// B-tree fallback traffic remains visible after the background full index is published.
+    /// Process-lifetime read telemetry for one mounted DAT.
     pub fn read_telemetry(&self, kind: DatFileKind) -> Option<DatReadTelemetrySummary> {
         self.file(kind).map(DatFile::read_telemetry)
     }
 
-    /// Count-only observations of the retail-shaped file B-tree path for one mounted DAT.
-    ///
-    /// Legacy mmap storage has no matching profile and returns `None`.
+    /// Count-only observations of the B-tree lookup, node-cache and positioned-read path.
     pub fn btree_profile(&self, kind: DatFileKind) -> Option<DatBtreeProfileSnapshot> {
-        self.file(kind).and_then(DatFile::btree_profile)
+        self.file(kind).map(DatFile::btree_profile)
     }
 
-    /// Read-only mapping and logical index allocation facts for one mounted DAT.
-    ///
-    /// This does not wait for background index construction, change mapping residency, or
-    /// otherwise affect the mounted file.
-    pub fn memory_stats(&self, kind: DatFileKind) -> Option<DatMemoryStats> {
-        self.file(kind).map(DatFile::memory_stats)
-    }
-
-    /// Releases reclaimable pages of immutable DAT mappings while keeping map/index identity.
-    pub fn release_backing_pages(&self) -> usize {
-        self.files
-            .values()
-            .filter(|file| file.release_backing_pages().unwrap_or(false))
-            .count()
-    }
-
-    pub fn read_packed(&self, kind: DatFileKind, did: u32) -> DatResult<Option<DatReadRef<'_>>> {
+    /// The record's packed storage bytes, unattributed.
+    pub fn read_packed(&self, kind: DatFileKind, did: u32) -> DatResult<Option<Vec<u8>>> {
         match self.file(kind) {
             Some(file) => file.read_packed(did),
             None => Ok(None),
         }
     }
 
-    /// Resolves a DID once and returns both its immutable metadata and packed mmap-backed view.
-    ///
-    /// Typed decode belongs above DAT. The attribution is diagnostic-only and cannot affect
-    /// lookup, read, or ownership behavior.
+    /// Resolves a DID once and reads its packed bytes into an owned buffer. Typed decode belongs
+    /// above DAT. The attribution is diagnostic-only and cannot affect lookup or read behavior.
     pub fn read_record(
-        &self,
-        kind: DatFileKind,
-        did: u32,
-        attribution: DatReadAttribution,
-    ) -> DatResult<Option<DatRecordReadRef<'_>>> {
-        match self.file(kind) {
-            Some(file) => file.read_record(did, attribution),
-            None => Ok(None),
-        }
-    }
-
-    /// Resolves one DID and returns transient owned packed bytes for decode paths that must not
-    /// borrow a mounted mapping.
-    pub fn read_record_owned(
         &self,
         kind: DatFileKind,
         did: u32,
         attribution: DatReadAttribution,
     ) -> DatResult<Option<DatRecordRead>> {
         match self.file(kind) {
-            Some(file) => file.read_record_owned(did, attribution),
+            Some(file) => file.read_record(did, attribution),
             None => Ok(None),
         }
     }
@@ -153,7 +105,7 @@ impl DatDataset {
         &self,
         kind: DatFileKind,
         did: u32,
-    ) -> DatResult<Option<DatReadRef<'_>>> {
+    ) -> DatResult<Option<Vec<u8>>> {
         match self.file(kind) {
             Some(file) => file.read_stored_uncompressed(did),
             None => Ok(None),
@@ -182,40 +134,28 @@ impl DatDataset {
 
     pub fn ddd_iteration(&self, kind: DatFileKind) -> DatResult<Option<DatDddIterationList>> {
         match self.file(kind) {
-            Some(file) => file.ddd_iteration_from_index(),
+            Some(file) => file.ddd_iteration(),
             None => Ok(None),
         }
     }
 
-    pub fn ddd_iteration_via_btree(
-        &self,
-        kind: DatFileKind,
-    ) -> DatResult<Option<DatDddIterationList>> {
-        match self.file(kind) {
-            Some(file) => file.ddd_iteration_from_btree(),
-            None => Ok(None),
-        }
+    /// Every DID of one DAT, walked from its B-tree on each call (`BTree::Get_Id_List`).
+    pub fn iter_ids(&self, kind: DatFileKind) -> DatIdIter {
+        self.ids_in_range(kind, 0, u32::MAX)
     }
 
-    pub fn iter_ids(&self, kind: DatFileKind) -> DatIdIter<'_> {
-        self.file(kind)
-            .map(DatFile::iter_ids)
-            .unwrap_or_else(DatIdIter::empty)
+    pub fn iter_entries(&self, kind: DatFileKind) -> DatEntryIter {
+        self.entries_in_range(kind, 0, u32::MAX)
     }
 
-    pub fn iter_entries(&self, kind: DatFileKind) -> DatEntryIter<'_> {
-        self.file(kind)
-            .map(DatFile::iter_entries)
-            .unwrap_or_else(DatEntryIter::empty)
-    }
-
-    pub fn ids_in_range(&self, kind: DatFileKind, first: u32, last: u32) -> DatIdIter<'_> {
+    /// DIDs in `first..=last`, walked from the B-tree on each call (`BTree::Get_Id_List_Range`).
+    pub fn ids_in_range(&self, kind: DatFileKind, first: u32, last: u32) -> DatIdIter {
         self.file(kind)
             .map(|file| file.ids_in_range(first, last))
             .unwrap_or_else(DatIdIter::empty)
     }
 
-    pub fn entries_in_range(&self, kind: DatFileKind, first: u32, last: u32) -> DatEntryIter<'_> {
+    pub fn entries_in_range(&self, kind: DatFileKind, first: u32, last: u32) -> DatEntryIter {
         self.file(kind)
             .map(|file| file.entries_in_range(first, last))
             .unwrap_or_else(DatEntryIter::empty)

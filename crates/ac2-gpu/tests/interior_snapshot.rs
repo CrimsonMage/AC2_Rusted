@@ -6,7 +6,6 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use ac2_core::CellId;
-use ac2_dat::{DatDataset, DatOpenOptions};
 use ac2_db::ResourceStore;
 use ac2_gpu::{
     DrawGroup, FrameTarget, Gpu, ObjectInstance, ObjectRenderer, TextureKey, COLOR_FORMAT,
@@ -39,14 +38,13 @@ fn write_png(name: &str, rgba: &[u8]) {
 
 #[test]
 fn dungeon_cells_render_with_baked_light() {
-    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
     let Ok(gpu) = Gpu::headless() else {
         eprintln!("no GPU adapter; skipping");
         return;
     };
-    let dataset = DatDataset::open(DatOpenOptions::new(root)).expect("AC2 DATs mount");
     let world = Ac2WorldSource::open(Arc::new(ResourceStore::new(dataset)))
         .unwrap()
         .unwrap();

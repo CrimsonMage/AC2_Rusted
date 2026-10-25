@@ -1,9 +1,9 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 116 done, 12 partial, 718 to do, 143 skipped.
+989 retail functions: 132 done, 14 partial, 700 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/cell/envcell.cpp.c` (12/140)
+## `portal/shared/src/cell/envcell.cpp.c` (14/140)
 
 ### PackObj
 - [ ] `PackObj::Pack` · 0047f1a0
@@ -125,7 +125,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PFileNode::GetSubNameAsPString` · 00482040
 
 ### LOSParameters
-- [ ] `LOSParameters::SetFinalRay` · 00482060 · legions 0047bf90
+- [x] `LOSParameters::SetFinalRay` · 00482060 · legions 0047bf90 — ac2-physics los (Terrain::los_check)
 
 ### SceneTool
 - [ ] `SceneTool::GetSunlight` · 004820b0 · legions 0047bfe0
@@ -201,7 +201,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::DrawPostEffects` · 00485770
 - [ ] `CEnvCell::GatherVisibleInsideObjects` · 00485800
 - [x] `CEnvCell::find_visible_child_cell` · 00485890 · legions 0047f140 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
-- [ ] `CEnvCell::TraceRay` · 00485930 · legions 0047f1e0
+- [~] `CEnvCell::TraceRay` · 00485930 · legions 0047f1e0 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 
 ### PList<MaterialModifierAtom>
 - [ ] `PList<MaterialModifierAtom>::Pack` · 00486180 · legions 0047fa20
@@ -230,7 +230,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ListNode<PGDReplacementAtom>::ListNode<PGDReplacementAtom>` · 004868f0 · legions 00480180
 
 ### CEnvCell
-- [ ] `CEnvCell::Trace` · 00486af0
+- [x] `CEnvCell::Trace` · 00486af0 — ac2-physics los (Terrain::los_check)
 - [ ] `CEnvCell::release_visible` · 00486b00 · legions 00480390
 - [ ] `CEnvCell::ReleaseVisibleCells` · 00486bd0
 - [ ] `CEnvCell::add_visible_cell` · 00486d10 · legions 004805a0
@@ -249,10 +249,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::FlushCellGroups` · 004876a0 · legions 00480ed0
 - [~] `CEnvCell::flush_cells` · 00487750 · legions 00480f80 — static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
 
-## `portal/shared/src/cell/landblock.cpp.c` (12/72)
+## `portal/shared/src/cell/landblock.cpp.c` (16/72)
 
 ### LandDefs
-- [ ] `LandDefs::GetBlockOffset` · 00488140 · legions 00481970
+- [x] `LandDefs::GetBlockOffset` · 00488140 · legions 00481970 — ac2-physics los (Terrain::los_check)
 - [ ] `LandDefs::within_block` · 00488270 · legions 00481aa0
 
 ### EtherealPhysicsType
@@ -300,7 +300,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CLandBlock::ProcFrill` · 004891c0 · legions 00482a40
 - [~] `CLandBlock::CheckRadius` · 00489230 · legions 00482ab0 — ported; CLandCell::CheckRadius per-cell test not re-verified
 - [ ] `CLandBlock::CullObjects` · 00489520 · legions 00482d70
-- [ ] `CLandBlock::TraceRay` · 00489820 · legions 00483060
+- [x] `CLandBlock::TraceRay` · 00489820 · legions 00483060 — ac2-physics los (Terrain::los_check)
 - [ ] `CLandBlock::InqObjects` · 00489a70 · legions 004832b0
 
 ### SmartArray<CLandBlock::RenderEntityInfo>
@@ -313,7 +313,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DBObjGrabber<BlockMap>::DBObjGrabber<BlockMap>` · 00489ba0 · legions 004833e0
 
 ### LandDefs
-- [ ] `LandDefs::GetBlockID` · 00489d70 · legions 00483680
+- [x] `LandDefs::GetBlockID` · 00489d70 · legions 00483680 — ac2-physics los (Terrain::los_check)
 
 ### EtherealWeenieType
 - [ ] `EtherealWeenieType::EtherealWeenieType` · 00489de0 · legions 004836f0
@@ -362,7 +362,7 @@ Legend and workflow: [README](README.md).
 - [x] `CLandBlock::ProcGroup` · 0048b700 · legions 00484f60
 - [ ] `CLandBlock::RemoveLandCellsFromHash` · 0048b990 · legions 004851f0
 - [ ] `CLandBlock::GatherObjects` · 0048ba30 · legions 00485290
-- [ ] `CLandBlock::TraceRayCrossBlock` · 0048bcd0 · legions 00485500
+- [x] `CLandBlock::TraceRayCrossBlock` · 0048bcd0 · legions 00485500 — ac2-physics los (Terrain::los_check)
 - [ ] `CLandBlock::GenerateSceneObjectList` · 0048bfe0 · legions 00485810
 - [ ] `CLandBlock::AddLandCellsToHash` · 0048c180 · legions 004859b0
 - [ ] `CLandBlock::InitStaticObjects` · 0048c240 · legions 00485a60
@@ -512,7 +512,7 @@ Legend and workflow: [README](README.md).
 ### CLandBlockQuadTree
 - [ ] `CLandBlockQuadTree::Generate` · 00492b60 · legions 0048b510
 
-## `portal/shared/src/cell/landcell.cpp.c` (9/38)
+## `portal/shared/src/cell/landcell.cpp.c` (18/38)
 
 ### (free functions)
 - [ ] `AreFloatEqual` · 0047d8e0 · legions 00477910
@@ -524,13 +524,13 @@ Legend and workflow: [README](README.md).
 - [x] `PositionOffset::GetOffset` · 0047d920 · legions 00489c10
 
 ### Ray
-- [ ] `Ray::Ray` · 0047d990 · legions 00477950
-- [ ] `Ray::InitFromOffset` · 0047d9c0 · legions 00477980
-- [ ] `Ray::InitLineSegment` · 0047daa0 · legions 00477a60
-- [ ] `Ray::GetEndPoint` · 0047dae0 · legions 00477aa0
+- [x] `Ray::Ray` · 0047d990 · legions 00477950 — ac2-physics los (Terrain::los_check)
+- [x] `Ray::InitFromOffset` · 0047d9c0 · legions 00477980 — ac2-physics los (Terrain::los_check)
+- [x] `Ray::InitLineSegment` · 0047daa0 · legions 00477a60 — ac2-physics los (Terrain::los_check)
+- [x] `Ray::GetEndPoint` · 0047dae0 · legions 00477aa0 — ac2-physics los (Terrain::los_check)
 
 ### LOSParameters
-- [ ] `LOSParameters::SetImpactNormal` · 0047db20 · legions 00477ae0
+- [x] `LOSParameters::SetImpactNormal` · 0047db20 · legions 00477ae0 — ac2-physics los (Terrain::los_check)
 
 ### Plane
 - [x] `Plane::Plane` · 0047db50 · legions 00477b10 — ac2-physics shapes/sphere.rs (asm float order; Legions identical)
@@ -556,7 +556,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CLandCell::GetPhysicsMaterialDID` · 0047df20
 
 ### Ray
-- [ ] `Ray::operator=` · 0047df40 · legions 00477f60
+- [x] `Ray::operator=` · 0047df40 · legions 00477f60 — ac2-physics los (Terrain::los_check)
 
 ### CLandCell
 - [ ] `CLandCell::Allocate` · 0047df80
@@ -568,12 +568,12 @@ Legend and workflow: [README](README.md).
 - [ ] `DBObjGrabber<CLandBlockData>::DBObjGrabber<CLandBlockData>` · 0047e400 · legions 00478420
 
 ### LOSParameters
-- [ ] `LOSParameters::SetCurrentRay` · 0047e520 · legions 00478560
+- [x] `LOSParameters::SetCurrentRay` · 0047e520 · legions 00478560 — ac2-physics los (Terrain::los_check)
 
 ### CLandCell
 - [x] `CLandCell::FindOutsideCells` · 0047e570 · legions 004785b0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [~] `CLandCell::find_env_collisions` · 0047e670 — unloaded-landblock move restriction not ported
-- [ ] `CLandCell::TraceRay` · 0047e7d0 · legions 00478810
+- [x] `CLandCell::TraceRay` · 0047e7d0 · legions 00478810 — ac2-physics los (Terrain::los_check)
 
 ### SmartArray<Plane>
 - [ ] `SmartArray<Plane>::AddToEnd` · 0047ecb0 · legions 00478ce0
@@ -586,7 +586,7 @@ Legend and workflow: [README](README.md).
 
 ### CLandCell
 - [ ] `CLandCell::Get` · 0047eea0 · legions 00478ed0
-- [ ] `CLandCell::Trace` · 0047eed0
+- [x] `CLandCell::Trace` · 0047eed0 — ac2-physics los (Terrain::los_check)
 
 ## `portal/shared/src/cell/lightinfo.cpp.c` (0/26)
 
@@ -636,7 +636,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CLightInfo::Allocator` · 0048ed70
 - [-] `CLightInfo::FromFileNode` · 0048ed90 — text source format (admin tools)
 
-## `portal/shared/src/cell/objcell.cpp.c` (10/53)
+## `portal/shared/src/cell/objcell.cpp.c` (11/53)
 
 ### DBObj
 - [ ] `DBObj::SaveToFile` · 0047b860
@@ -663,7 +663,7 @@ Legend and workflow: [README](README.md).
 - [x] `CObjCell::FindCellsLocal` · 0047bbd0 · legions 00475d00 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CObjCell::FindCellsLocal` · 0047bcb0 · legions 00475de0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CObjCell::FindCells` · 0047bd90 · legions 00475ec0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-- [ ] `CObjCell::LOSCheck` · 0047be70 · legions 00475fa0
+- [x] `CObjCell::LOSCheck` · 0047be70 · legions 00475fa0 — ac2-physics los (Terrain::los_check)
 
 ### _STL::pair<ICPhysicsObj_*,BBox>
 - [ ] `_STL::pair<ICPhysicsObj_*,BBox>::~pair<ICPhysicsObj_*,BBox>` · 0047bf50
@@ -678,7 +678,7 @@ Legend and workflow: [README](README.md).
 - [x] `CObjCell::FindCellsLocal` · 0047c440 · legions 00476510 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CObjCell::FindCellsLocal` · 0047c460 · legions 00476530 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CObjCell::find_obj_collisions` · 0047c510 · legions 004765e0 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-- [ ] `CObjCell::TraceRayObjects` · 0047c560 · legions 00476630
+- [~] `CObjCell::TraceRayObjects` · 0047c560 · legions 00476630 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 
 ### SmartArray<ObjectClearance>
 - [ ] `SmartArray<ObjectClearance>::~SmartArray<ObjectClearance>` · 0047c600 · legions 004766c0
