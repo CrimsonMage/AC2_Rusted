@@ -30,6 +30,7 @@ mod text_attr;
 mod text_data;
 mod text_edit;
 mod token;
+mod toolbar;
 
 pub use camera_ui::{CameraUi, CameraUiEffect};
 pub use chat::{
@@ -69,6 +70,7 @@ pub use selection_ui::{SelectionClick, SelectionOutcome, SelectionUi};
 pub use text::UiTextData;
 pub use text_data::{StoreTextData, DEFAULT_FONT, FONT_GROUP};
 pub use token::{tokenize, REFERENCE, REFERENT, STATELESS};
+pub use toolbar::{ToolbarChild, ToolbarUi};
 
 #[cfg(test)]
 mod chat_tests;

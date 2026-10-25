@@ -31,6 +31,11 @@ key	status	note
 00409be0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00409e00	x	
 0040a1f0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+00422160	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+00422230	x	ac2-ui toolbar.rs
+00422270	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+00422300	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+00422550	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 00422f80	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 004232f0	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 004233d0	x	
@@ -56,9 +61,17 @@ key	status	note
 0042bb00	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 0042bbb0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 0042bce0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
+00430810	x	ac2-ui toolbar.rs
+00430c00	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 004314c0	x	ac2-script glue::position (ported beside the gPosition glue)
 00431e20	x	
 00431e90	x	
+004342d0	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+00434330	x	ac2-ui toolbar.rs
+004343c0	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+00435000	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+00435030	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+00435090	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 004351c0	x	ac2-ui chat.rs / chat_window.rs
 00435280	x	ac2-ui chat.rs / chat_window.rs
 00435320	x	ac2-ui chat.rs / chat_window.rs

@@ -337,6 +337,16 @@ impl ClientView {
         self.hud.take_chat_requests()
     }
 
+    /// `CM_UI::SendNotice_OpenExaminationPanel`: the examination panel shows.
+    pub fn open_examination(&mut self) {
+        self.hud.open_examination();
+    }
+
+    /// Whether a toolbar panel is shown.
+    pub fn panel_shown(&self, child: ac2_ui::ToolbarChild) -> bool {
+        self.hud.panel_shown(child)
+    }
+
     /// A line for the chat windows, with its display type (`RecvNotice_DisplayStringInfo`).
     pub fn chat_display(&mut self, kind: u32, text: &str) {
         self.hud.chat_display(kind, text);

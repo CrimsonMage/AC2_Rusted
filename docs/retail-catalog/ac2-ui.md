@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 142 done, 92 partial, 1996 to do, 17 skipped.
+2247 retail functions: 145 done, 102 partial, 1983 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -1016,10 +1016,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmChatUI::Show` · 00435b80 · legions 00436410
 - [~] `gmChatUI::ListenToMessage` · 00435bc0 · legions 00436450 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
-## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (0/14)
+## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (1/14)
 
 ### gmExaminationUI
-- [ ] `gmExaminationUI::RecvNotice_OpenExaminationPanel` · 00430810
+- [x] `gmExaminationUI::RecvNotice_OpenExaminationPanel` · 00430810 — ac2-ui toolbar.rs
 
 ### gmMiniFellowUI
 - [ ] `gmMiniFellowUI::RecvNotice_BeingDeleted` · 00430820
@@ -1031,7 +1031,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmExaminationUI::ProcessEffectIDNode` · 00430a50 · legions 004308e0
 - [ ] `gmExaminationUI::~gmExaminationUI` · 00430ad0 · legions 004317b0
 - [ ] `gmExaminationUI::Update` · 00430b60 · legions 004312c0
-- [ ] `gmExaminationUI::Show` · 00430c00 · legions 00431880
+- [~] `gmExaminationUI::Show` · 00430c00 · legions 00431880 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 - [ ] `gmExaminationUI::ListenToMessage` · 00430c80
 - [ ] `gmExaminationUI::RecvNotice_ExaminationRequestChanged` · 00430d80
 - [ ] `gmExaminationUI::ProcessNode` · 00430db0 · legions 00430ae0
@@ -1161,7 +1161,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmShortcutUI::RecvNotice_ReloadShortcuts` · 004387f0
 - [ ] `gmShortcutUI::RecvNotice_ReloadOptions` · 00438830 · legions 00439080
 
-## `ac2/client/src/ui/gameplay/toolbar/gmtoolbarui.cpp.c` (0/16)
+## `ac2/client/src/ui/gameplay/toolbar/gmtoolbarui.cpp.c` (1/16)
 
 ### PlayingSoundContext
 - [ ] `PlayingSoundContext::PlayingSoundContext` · 00421ec0 · legions 006b07e0
@@ -1172,10 +1172,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmToolbarUI::RecvNotice_ShowSaleReminder` · 00421fe0
 - [ ] `gmToolbarUI::RecvNotice_UpdateMountState` · 00422080 · legions 00421ec0
 - [ ] `gmToolbarUI::Show` · 004220d0 · legions 00421f10
-- [ ] `gmToolbarUI::ManageChildren` · 00422160 · legions 00421fa0
-- [ ] `gmToolbarUI::ChildKeyPress` · 00422230 · legions 00422070
-- [ ] `gmToolbarUI::ListenToMessage` · 00422270 · legions 004220b0
-- [ ] `gmToolbarUI::ListenToMessage` · 00422300 · legions 00422140
+- [~] `gmToolbarUI::ManageChildren` · 00422160 · legions 00421fa0 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [x] `gmToolbarUI::ChildKeyPress` · 00422230 · legions 00422070 — ac2-ui toolbar.rs
+- [~] `gmToolbarUI::ListenToMessage` · 00422270 · legions 004220b0 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [~] `gmToolbarUI::ListenToMessage` · 00422300 · legions 00422140 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 
 ### List<unsigned_long>
 - [ ] `List<unsigned_long>::operator=` · 00422360 · legions 0040d980
@@ -1184,7 +1184,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ListNode<ToolbarChildInfo>::ListNode<ToolbarChildInfo>` · 00422400 · legions 004221d0
 
 ### gmToolbarUI
-- [ ] `gmToolbarUI::SetupChildren` · 00422550 · legions 00422320
+- [~] `gmToolbarUI::SetupChildren` · 00422550 · legions 00422320 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 - [ ] `gmToolbarUI::CleanupChildren` · 00422f00 · legions 00422cd0
 - [~] `gmToolbarUI::gmToolbarUI` · 00422f80 · legions 00422d50 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [ ] `gmToolbarUI::~gmToolbarUI` · 00423120 · legions 00422ef0
@@ -1418,13 +1418,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gmJournalQuestsUI::~gmJournalQuestsUI` · 0043f130 · legions 0043f9e0
 - [ ] `gmJournalQuestsUI::RecvNotice_UpdateQuests` · 0043f1e0
 
-## `ac2/client/src/ui/gameplay/toolbar/quest/gmquestsui.cpp.c` (0/4)
+## `ac2/client/src/ui/gameplay/toolbar/quest/gmquestsui.cpp.c` (1/4)
 
 ### gmQuestsUI
-- [ ] `gmQuestsUI::Show` · 004342d0 · legions 00434aa0
-- [ ] `gmQuestsUI::ListenToMessage` · 00434330 · legions 00434b00
+- [~] `gmQuestsUI::Show` · 004342d0 · legions 00434aa0 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [x] `gmQuestsUI::ListenToMessage` · 00434330 · legions 00434b00 — ac2-ui toolbar.rs
 - [ ] `gmQuestsUI::SetActivePanel` · 00434390 · legions 00434b60
-- [ ] `gmQuestsUI::gmQuestsUI` · 004343c0 · legions 00434b90
+- [~] `gmQuestsUI::gmQuestsUI` · 004343c0 · legions 00434b90 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 
 ## `ac2/client/src/ui/gameplay/toolbar/quest/gmstoryquestsui.cpp.c` (0/11)
 
@@ -1516,9 +1516,9 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/toolbar/skill/gmskillui.cpp.c` (0/3)
 
 ### gmSkillUI
-- [ ] `gmSkillUI::Show` · 00435000 · legions 004357d0
-- [ ] `gmSkillUI::ListenToMessage` · 00435030 · legions 00435800
-- [ ] `gmSkillUI::gmSkillUI` · 00435090 · legions 00435860
+- [~] `gmSkillUI::Show` · 00435000 · legions 004357d0 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [~] `gmSkillUI::ListenToMessage` · 00435030 · legions 00435800 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [~] `gmSkillUI::gmSkillUI` · 00435090 · legions 00435860 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 
 ## `ac2/client/src/ui/gameplay/toolbar/social/gmallegianceui.cpp.c` (0/20)
 

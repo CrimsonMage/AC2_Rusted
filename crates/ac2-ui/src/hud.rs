@@ -6,8 +6,9 @@
 //! from the status bar layout (`0x4100000F`) and `gmToolbarUI` makes `ToolbarField`,
 //! `LeftSidePanel` and `RightSidePanel` from the toolbar layout (`0x41000003`), in that order.
 //! The other children (stack, trade, shop, book, pet, ...) open dialogs on demand and are left out.
-//! Of the toolbar's own children (`gmToolbarUI::SetupChildren`) only the chat (`gmChatUI`) is
-//! made; inventory, skills and the rest are not yet.
+//! Of the toolbar's own children (`gmToolbarUI::SetupChildren`) the chat (`gmChatUI`) is made,
+//! and the panel children only show and hide their fields ([`ToolbarUi`]); their contents are
+//! not made yet.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -22,6 +23,7 @@ use crate::layout::{load_layout, LayoutDesc};
 use crate::reticle::Reticle;
 use crate::text_data::StoreTextData;
 use crate::token::tokenize;
+use crate::toolbar::ToolbarUi;
 
 /// `UILAYOUT_GROUP_ENUM` (`UIMainFramework::CreateAndAddRootElement`'s
 /// `FileArray::GetDIDFromEnum(layoutEnum, 0x40000003)`).
@@ -60,6 +62,8 @@ pub struct GameplayHud {
     pub reticle: Option<Reticle>,
     /// `gmChatUI`.
     pub chat: Option<ChatUi>,
+    /// `gmToolbarUI`'s panel children.
+    pub toolbar: ToolbarUi,
 }
 
 /// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
@@ -100,11 +104,13 @@ pub fn build_gameplay_hud(
         Some(toolbar) => Some(ChatUi::create(&mut tree, toolbar, chat_strings(store)?)),
         None => None,
     };
+    let toolbar = ToolbarUi::create(&mut tree);
     text_data.freeze();
     Ok(GameplayHud {
         tree,
         reticle,
         chat,
+        toolbar,
     })
 }
 

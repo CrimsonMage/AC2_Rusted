@@ -305,3 +305,39 @@ fn the_reticle_frames_the_selection_with_its_name_above() {
         .iter()
         .all(|p| !corners.contains(&p.0) || !p.4));
 }
+
+#[test]
+fn the_toolbar_panels_start_hidden_and_toggle_by_side() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let GameplayHud {
+        mut tree, toolbar, ..
+    } = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let shown = |tree: &UiTree| -> Vec<ToolbarChild> {
+        ToolbarChild::ALL
+            .into_iter()
+            .filter(|&c| toolbar.shown(tree, c))
+            .collect()
+    };
+    assert!(shown(&tree).is_empty());
+    let key = |tree: &mut UiTree, action: u32| {
+        tree.start_input(action, 1.0);
+        tree.stop_input(action);
+        for message in tree.take_messages() {
+            toolbar.message(tree, &message);
+        }
+    };
+    key(&mut tree, ToolbarChild::Skill.key());
+    assert_eq!(shown(&tree), vec![ToolbarChild::Skill]);
+    // Inventory shares the right panel: skills hide. Examination is on the left.
+    key(&mut tree, ToolbarChild::Inventory.key());
+    key(&mut tree, ToolbarChild::Examination.key());
+    assert_eq!(
+        shown(&tree),
+        vec![ToolbarChild::Examination, ToolbarChild::Inventory]
+    );
+    key(&mut tree, ToolbarChild::Inventory.key());
+    assert_eq!(shown(&tree), vec![ToolbarChild::Examination]);
+}

@@ -207,6 +207,9 @@ impl App {
             if outcome.use_selection {
                 state.commands.push(Command::UseSelection);
             }
+            if outcome.open_examination {
+                state.view.open_examination();
+            }
         }
         state.view.update(&state.gpu, &frame, LOAD_BUDGET);
         let Ok(output) = state.surface.get_current_texture() else {

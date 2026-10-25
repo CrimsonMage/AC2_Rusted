@@ -296,6 +296,13 @@ fn the_client_walks_with_w_and_draws_its_character() {
         view.take_chat_requests(),
         vec![ac2_ui::ChatRequest::Line("well met".into())]
     );
+    // The toolbar panels start hidden; the skills key shows its panel.
+    assert!(!view.panel_shown(ac2_ui::ToolbarChild::Skill));
+    view.ui_input(
+        &[(0x4100_0006, 1.0, true), (0x4100_0006, 0.0, false)],
+        ac2_ui::Modifiers::default(),
+    );
+    assert!(view.panel_shown(ac2_ui::ToolbarChild::Skill));
     // A displayed line reaches the log on the next update; the window shows it.
     view.chat_display(0x4_0000, "Explorer says, \"well met\"\n");
     view.update(&gpu, &frame, Duration::ZERO);

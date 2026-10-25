@@ -13,7 +13,7 @@ use ac2_db::{ResourceResult, ResourceStore};
 use ac2_gpu::{Gpu, UiLayer, UiOverlay};
 use ac2_ui::{
     ChatRequest, ChatSettings, ChatUi, GameplayHud, Modifiers, Reticle, ReticleOutcome,
-    ReticleTarget, UiMessage, UiPixels, UiTree,
+    ReticleTarget, ToolbarChild, ToolbarUi, UiMessage, UiPixels, UiTree,
 };
 
 type Built = ResourceResult<(GameplayHud, HashMap<u32, UiPixels>)>;
@@ -23,6 +23,7 @@ pub(crate) struct HudView {
     hud: Option<(UiTree, HashMap<u32, UiPixels>)>,
     reticle: Option<Reticle>,
     chat: Option<ChatUi>,
+    toolbar: Option<ToolbarUi>,
     /// Lines displayed before the HUD arrived (`RecvNotice_DisplayStringInfo`).
     early_lines: Vec<(u32, String)>,
     overlay: UiOverlay,
@@ -54,6 +55,7 @@ impl HudView {
             hud: None,
             reticle: None,
             chat: None,
+            toolbar: None,
             early_lines: Vec::new(),
             overlay: UiOverlay::new(gpu, format),
             size,
@@ -87,7 +89,7 @@ impl HudView {
                 tree.stop_input(action);
             }
         }
-        let messages = pump(tree, &mut self.chat, modifiers);
+        let messages = pump(tree, &mut self.chat, &self.toolbar, modifiers);
         if tree.take_changed() {
             self.dirty = true;
         }
@@ -112,7 +114,7 @@ impl HudView {
         for &(ch, key) in characters {
             tree.character(ch, key, ctrl);
         }
-        let messages = pump(tree, &mut self.chat, modifiers);
+        let messages = pump(tree, &mut self.chat, &self.toolbar, modifiers);
         if tree.take_changed() {
             self.dirty = true;
         }
@@ -124,6 +126,24 @@ impl HudView {
         self.chat
             .as_mut()
             .map_or_else(Vec::new, ChatUi::take_requests)
+    }
+
+    /// `CM_UI::SendNotice_OpenExaminationPanel` (`gmExaminationUI::RecvNotice_OpenExaminationPanel`).
+    pub(crate) fn open_examination(&mut self) {
+        if let (Some((tree, _)), Some(toolbar)) = (&mut self.hud, &self.toolbar) {
+            toolbar.show(tree, ToolbarChild::Examination, true);
+            if tree.take_changed() {
+                self.dirty = true;
+            }
+        }
+    }
+
+    /// Whether a toolbar panel is shown.
+    pub(crate) fn panel_shown(&self, child: ToolbarChild) -> bool {
+        match (&self.hud, &self.toolbar) {
+            (Some((tree, _)), Some(toolbar)) => toolbar.shown(tree, child),
+            _ => false,
+        }
     }
 
     /// `CM_Communication::SendNotice_DisplayStringInfo`'s text for the chat windows.
@@ -146,6 +166,7 @@ impl HudView {
                     mut tree,
                     reticle,
                     mut chat,
+                    toolbar,
                 },
                 images,
             )) => {
@@ -161,6 +182,7 @@ impl HudView {
                 self.hud = Some((tree, images));
                 self.reticle = reticle;
                 self.chat = chat;
+                self.toolbar = Some(toolbar);
                 self.dirty = true;
             }
             Err(error) => eprintln!("ac2: the HUD did not load: {error}"),
@@ -276,16 +298,24 @@ impl HudView {
 
 /// The tree's messages to the chat until it broadcasts no more (activating an entry line
 /// broadcasts `activated`, which the chat answers); all of them, in order.
-fn pump(tree: &mut UiTree, chat: &mut Option<ChatUi>, modifiers: Modifiers) -> Vec<UiMessage> {
+fn pump(
+    tree: &mut UiTree,
+    chat: &mut Option<ChatUi>,
+    toolbar: &Option<ToolbarUi>,
+    modifiers: Modifiers,
+) -> Vec<UiMessage> {
     let mut all = Vec::new();
     loop {
         let messages = tree.take_messages();
         if messages.is_empty() {
             return all;
         }
-        if let Some(chat) = chat.as_mut() {
-            for message in &messages {
+        for message in &messages {
+            if let Some(chat) = chat.as_mut() {
                 chat.message(tree, message, modifiers);
+            }
+            if let Some(toolbar) = toolbar {
+                toolbar.message(tree, message);
             }
         }
         all.extend(messages);
