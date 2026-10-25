@@ -9,6 +9,18 @@ use crate::data::Pcm;
 /// The quietest attenuation, silence (`DSBVOLUME_MIN`, hundredths of a decibel).
 pub const SILENT: i32 = -9600;
 
+/// A 3D voice's `DS3DBUFFER` (`DirectXPlayingSound::Update3DInfo`): head-relative, in
+/// DirectSound's axes (x right, y up, z ahead of the listener).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Spatial {
+    /// `vPosition`: the emitter relative to the listener, metres.
+    pub position: [f32; 3],
+    /// `vVelocity`.
+    pub velocity: [f32; 3],
+    /// `flMinDistance`: the sound's `m_minDistance`; it fades with distance beyond it.
+    pub min_distance: f32,
+}
+
 /// One call on a voice (a playing sound's buffer).
 #[derive(Debug, Clone, PartialEq)]
 pub enum SinkCommand {
@@ -21,7 +33,11 @@ pub enum SinkCommand {
         millibels: i32,
         /// `IDirectSoundBuffer::SetFrequency`, samples per second.
         frequency: u32,
+        /// The 3D buffer's parameters, or `None` for a sound heard as is (`DS3DMODE_DISABLE`).
+        spatial: Option<Spatial>,
     },
+    /// `IDirectSound3DBuffer::SetAllParameters`: the emitter moved.
+    Spatial { voice: u32, spatial: Spatial },
     /// `IDirectMusicAudioPath::SetVolume`: the attenuation, reached over `ramp_ms`.
     Volume {
         voice: u32,

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 430 done, 183 partial, 1612 to do, 22 skipped.
+2247 retail functions: 431 done, 183 partial, 1611 to do, 22 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (7/53)
@@ -152,7 +152,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700
 - [ ] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0
 
-## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (7/58)
+## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (8/58)
 
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::Show` · 00407910 · legions 00407620
@@ -165,7 +165,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmGamePlayUI::MakeResurrectDialog` · 00407a40 · legions 00407750
 
 ### PlayingSoundContext
-- [ ] `PlayingSoundContext::Stop` · 00407b80 · legions 004078b0
+- [x] `PlayingSoundContext::Stop` · 00407b80 · legions 004078b0 — ac2-audio/ac2-client: 3D emitters and FX sounds
 
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::RecvNotice_PlayerTeleportStart` · 00407bf0

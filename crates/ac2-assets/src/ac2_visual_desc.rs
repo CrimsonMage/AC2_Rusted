@@ -10,7 +10,9 @@ use ac2_dat::ArchiveCursor;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
 use ac2_math::Vec3;
 
-use crate::ac2_fx::{count, float, hash_count, read_fx_map, skip, word, Ac2FxEntry, Malformed};
+use crate::ac2_fx::{
+    count, float, hash_count, read_fx_map, skip, word, Ac2FxEntry, Ac2FxSoundEntry, Malformed,
+};
 
 /// One visual part group: its key, parent group, connection point and authored resources.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -29,6 +31,8 @@ pub struct Ac2VisualFx {
     pub fx_table: Option<DataId>,
     pub startup: Arc<[(u32, f32)]>,
     pub overrides: Arc<[Ac2FxEntry]>,
+    /// The overrides' sound nodes.
+    pub sound_overrides: Arc<[Ac2FxSoundEntry]>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -215,7 +219,9 @@ pub(crate) fn part_group(cursor: &mut ArchiveCursor<'_>) -> Result<DecodedPartGr
             .into();
     }
     if bits & 0x100 != 0 {
-        fx.overrides = read_fx_map(cursor)?;
+        let map = read_fx_map(cursor)?;
+        fx.overrides = map.particles;
+        fx.sound_overrides = map.sounds;
     }
     Ok(DecodedPartGroup {
         group,

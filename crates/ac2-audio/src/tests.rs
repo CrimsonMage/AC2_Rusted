@@ -235,6 +235,7 @@ fn the_mixer_sums_resampled_voices() {
         looping: false,
         millibels: 0,
         frequency: 50,
+        spatial: None,
     });
     let mut out = vec![0.0; 2 * 10];
     mixer.render(&mut out, 2);
@@ -266,4 +267,122 @@ fn the_dats_sounds_decode() {
         None,
         "a wave is not a sound to play"
     );
+}
+
+fn spatials(sink: &RecordingSink) -> Vec<(u32, Option<Spatial>)> {
+    sink.commands()
+        .into_iter()
+        .filter_map(|c| match c {
+            SinkCommand::Start { voice, spatial, .. } => Some((voice, spatial)),
+            SinkCommand::Spatial { voice, spatial } => Some((voice, Some(spatial))),
+            _ => None,
+        })
+        .collect()
+}
+
+fn at(offset: [f32; 3]) -> Option<Emitter> {
+    Some(Emitter {
+        offset,
+        velocity: [0.0; 3],
+        muted: false,
+    })
+}
+
+#[test]
+fn a_3d_sound_follows_its_emitter() {
+    let did = 0x2A00_0020;
+    let mut looped = sound(did, flags::LOOP | flags::THREE_D, 1.0, 22050, 1.0);
+    if let LoadedSound::Sound { info, .. } = &mut looped {
+        info.min_distance = 3.0;
+    }
+    let (mut manager, sink) = manager(vec![looped]);
+    let mut data = PlaySoundData::new(did);
+    data.emitter = Some(9);
+    let handle = manager.play(&data).unwrap();
+    manager.wait_for_loads(WAIT);
+    // Ten metres ahead of the listener (AC2 y), then two to its right (x) and one up (z).
+    manager.use_time_with(0.1, &|id| (id == 9).then(|| at([0.0, 10.0, 0.0])).flatten());
+    manager.use_time_with(0.2, &|id| (id == 9).then(|| at([2.0, 0.0, 1.0])).flatten());
+    let spatial = |position| Spatial {
+        position,
+        velocity: [0.0; 3],
+        min_distance: 3.0,
+    };
+    assert_eq!(
+        spatials(&sink),
+        vec![
+            (handle, Some(spatial([0.0, 0.0, 10.0]))),
+            (handle, Some(spatial([2.0, 1.0, 0.0]))),
+        ],
+        "DirectSound axes: y up, z ahead"
+    );
+    // A muted emitter stops its loop, which plays again once it is heard.
+    manager.use_time_with(0.3, &|_| {
+        Some(Emitter {
+            muted: true,
+            ..Emitter::default()
+        })
+    });
+    assert_eq!(
+        sink.commands().last(),
+        Some(&SinkCommand::Stop { voice: handle })
+    );
+    manager.use_time_with(0.4, &|_| at([0.0, 1.0, 0.0]));
+    assert_eq!(starts(&sink).len(), 2);
+}
+
+#[test]
+fn distance_sets_the_priority_and_far_sounds_wait() {
+    let did = 0x2A00_0021;
+    let (mut manager, sink) = manager(vec![sound(
+        did,
+        flags::LOOP | flags::THREE_D,
+        1.0,
+        22050,
+        1.0,
+    )]);
+    let mut data = PlaySoundData::new(did);
+    data.emitter = Some(4);
+    manager.play(&data).unwrap();
+    manager.wait_for_loads(WAIT);
+    // `(2 - priority) * distance` of 300 is past `AllocateSounds`' 250.
+    manager.use_time_with(0.1, &|_| at([0.0, 300.0, 0.0]));
+    assert!(starts(&sink).is_empty(), "too far to be given a voice");
+    manager.use_time_with(0.2, &|_| at([0.0, 20.0, 0.0]));
+    assert_eq!(starts(&sink).len(), 1);
+}
+
+#[test]
+fn a_2d_sound_with_an_emitter_is_not_placed() {
+    let did = 0x2A00_0022;
+    let (mut manager, sink) = manager(vec![sound(did, 0, 1.0, 22050, 1.0)]);
+    let mut data = PlaySoundData::new(did);
+    data.emitter = Some(1);
+    manager.play(&data).unwrap();
+    manager.wait_for_loads(WAIT);
+    manager.use_time_with(0.1, &|_| at([5.0, 5.0, 0.0]));
+    assert_eq!(spatials(&sink), vec![(1, None)]);
+}
+
+#[test]
+fn spatial_gains_roll_off_and_pan() {
+    let gains = |position| {
+        spatial_gains(&Spatial {
+            position,
+            velocity: [0.0; 3],
+            min_distance: 2.0,
+        })
+    };
+    let [l, r] = gains([0.0, 0.0, 1.0]);
+    assert!(
+        (l - 1.0).abs() < 1e-6 && (r - 1.0).abs() < 1e-6,
+        "ahead, inside"
+    );
+    let [l, r] = gains([0.0, 0.0, 4.0]);
+    assert!(
+        (l - 0.5).abs() < 1e-6 && (r - 0.5).abs() < 1e-6,
+        "twice the minimum"
+    );
+    let [l, r] = gains([3.0, 0.0, 0.0]);
+    assert!(l.abs() < 1e-6 && r > 0.9, "to the right");
 }

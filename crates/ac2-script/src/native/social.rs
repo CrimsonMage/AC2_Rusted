@@ -10,8 +10,8 @@ use ac2_weenie::{AllegianceMember, AllegianceProfile, FellowInfo, FellowshipInfo
 
 use super::hash_table::{bucket_size_index, BUCKET_SIZES, DEFAULT_BUCKETS};
 
-/// `INVALID_IID`.
-pub const INVALID_IID: u64 = u64::MAX;
+/// `INVALID_IID`: the PDB constant is 0 and the global sits in zero-filled `.data`.
+pub const INVALID_IID: u64 = 0;
 
 /// `AllegianceDataAdaptor::AllegianceDataAdaptor`.
 pub fn allegiance_member() -> AllegianceMember {

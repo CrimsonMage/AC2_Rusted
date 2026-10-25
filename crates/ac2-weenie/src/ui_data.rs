@@ -9,7 +9,7 @@ use ac2_net::protocol::StringInfo;
 pub struct ShopSale {
     /// `m_uiOrdinal` (the store keeps its sales sorted by it).
     pub ordinal: u32,
-    /// `m_iidItem` (`INVALID_IID` when none).
+    /// `m_iidItem` (`INVALID_IID`, 0, when none).
     pub item: u64,
     pub item_did: u32,
     pub icon_did: u32,
@@ -27,7 +27,7 @@ impl Default for ShopSale {
     fn default() -> Self {
         Self {
             ordinal: 0,
-            item: u64::MAX,
+            item: 0,
             item_did: 0,
             icon_did: 0,
             item_desc: StringInfo::default(),

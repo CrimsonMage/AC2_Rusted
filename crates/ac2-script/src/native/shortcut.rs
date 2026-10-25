@@ -8,7 +8,7 @@ use ac2_net::protocol::ShortcutInfo as Wire;
 pub struct Shortcut {
     /// `_type`.
     pub kind: u32,
-    /// `_data_iid` (`INVALID_IID` when cleared).
+    /// `_data_iid` (`INVALID_IID`, 0, when cleared).
     pub iid: u64,
     /// `_data_enum`.
     pub data_enum: u32,
@@ -23,7 +23,7 @@ impl Default for Shortcut {
     fn default() -> Self {
         Self {
             kind: 0,
-            iid: u64::MAX,
+            iid: super::social::INVALID_IID,
             data_enum: 0,
             data_id: 0,
             text: Vec::new(),

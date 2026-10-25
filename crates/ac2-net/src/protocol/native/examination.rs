@@ -79,7 +79,8 @@ impl Default for ExaminationRequest {
             admin: 0,
             data_enum: 0,
             data_id: 0,
-            iid: u64::MAX,
+            // `INVALID_IID` is 0.
+            iid: 0,
             extra: [0, 0, 0x203],
         }
     }

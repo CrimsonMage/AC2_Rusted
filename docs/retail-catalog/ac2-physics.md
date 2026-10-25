@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 356 done, 76 partial, 1630 to do, 62 skipped.
+2124 retail functions: 362 done, 81 partial, 1619 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -1160,7 +1160,7 @@ Legend and workflow: [README](README.md).
 - [x] `LOSParameters::ResetState` · 006a4210 · legions 00641170 — ac2-physics los (Terrain::los_check)
 - [x] `LOSParameters::CalcFinalRay` · 006a4270 · legions 006411d0 — ac2-physics los (Terrain::los_check)
 
-## `portal/shared/src/physobj/fx/dbfxtable.cpp.c` (0/12)
+## `portal/shared/src/physobj/fx/dbfxtable.cpp.c` (1/12)
 
 ### DBFXTable
 - [ ] `DBFXTable::GetSubDataIDs` · 006a8dc0
@@ -1168,7 +1168,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DBFXTable::InitSubTableCache` · 006a8fb0 · legions 006432a0
 - [ ] `DBFXTable::StreamPack` · 006a8ff0 · legions 006432e0
 - [ ] `DBFXTable::Destroy` · 006a9080 · legions 00643370
-- [ ] `DBFXTable::GetFXData` · 006a90c0 · legions 006433b0
+- [x] `DBFXTable::GetFXData` · 006a90c0 · legions 006433b0 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [-] `DBFXTable::FromFileNode` · 006a9200 — text source format (admin tools)
 - [ ] `DBFXTable::~DBFXTable` · 006a9450 · legions 006434d0
 - [ ] `DBFXTable::GetDBOType` · 006a94c0
@@ -1185,7 +1185,7 @@ Legend and workflow: [README](README.md).
 - [-] `DecalFX::FromFileNode` · 006a99e0 — text source format (admin tools)
 - [-] `DecalFX::ToFileNode` · 006a9d20 — text source format (admin tools)
 
-## `portal/shared/src/physobj/fx/fxdefs.cpp.c` (0/25)
+## `portal/shared/src/physobj/fx/fxdefs.cpp.c` (1/25)
 
 ### FXNode
 - [ ] `FXNode::GetSubDataIDs` · 006a4c10 · legions 00641b70
@@ -1197,7 +1197,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StreakFX::operator=` · 006a4d30 · legions 00641c90
 
 ### FXNode
-- [ ] `FXNode::GetSoundID` · 006a4db0 · legions 00641d10
+- [x] `FXNode::GetSoundID` · 006a4db0 · legions 00641d10 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [ ] `FXNode::GetParticleID` · 006a4e00 · legions 00641d60
 - [~] `FXNode::get_pack_bitfield` · 006a4e50 · legions 00641db0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 
@@ -1242,7 +1242,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [ ] `FXMap_FromFileNode` · 006a8b00
 
-## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (0/44)
+## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (3/44)
 
 ### DecalEffectDesc
 - [ ] `DecalEffectDesc::DecalEffectDesc` · 005051c0 · legions 004f3500
@@ -1262,7 +1262,7 @@ Legend and workflow: [README](README.md).
 - [ ] `FXNode::GetAppearanceKey` · 00505850 · legions 004f3b20
 
 ### PlayingSoundContext
-- [ ] `PlayingSoundContext::SetVolume` · 00505870 · legions 004f3b40
+- [x] `PlayingSoundContext::SetVolume` · 00505870 · legions 004f3b40 — ac2-audio/ac2-client: 3D emitters and FX sounds
 
 ### FXState
 - [ ] `FXState::FXState` · 005058b0 · legions 004f3b80
@@ -1279,7 +1279,7 @@ Legend and workflow: [README](README.md).
 
 ### FXManager
 - [ ] `FXManager::FireParticleFX` · 00505dd0 · legions 004f3ff0
-- [ ] `FXManager::SoundIsLooping` · 005060e0 · legions 004f4300
+- [x] `FXManager::SoundIsLooping` · 005060e0 · legions 004f4300 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [ ] `FXManager::ParticleIsLooping` · 00506190 · legions 004f43b0
 - [ ] `FXManager::SoundIsDefaultChannelMusic` · 005061f0 · legions 004f4410
 
@@ -1287,10 +1287,10 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartArray<PlayingSoundContext>::operator=` · 00506260 · legions 004f4480
 
 ### FXManager
-- [ ] `FXManager::DoSoundFX` · 005062c0 · legions 004f44e0
+- [x] `FXManager::DoSoundFX` · 005062c0 · legions 004f44e0 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [ ] `FXManager::DoParticleFX` · 00506360 · legions 004f4580
 - [ ] `FXManager::DoLightSourceFX` · 00506430 · legions 004f4650
-- [ ] `FXManager::CalcDuration` · 005064f0 · legions 004f4710
+- [~] `FXManager::CalcDuration` · 005064f0 · legions 004f4710 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 
 ### FXState
 - [ ] `FXState::operator=` · 00506520 · legions 004f4740
@@ -1306,10 +1306,10 @@ Legend and workflow: [README](README.md).
 
 ### FXManager
 - [ ] `FXManager::DoCreateObjectFX` · 00507010 · legions 004f5230
-- [ ] `FXManager::StopFX` · 00507650 · legions 004f5870
+- [~] `FXManager::StopFX` · 00507650 · legions 004f5870 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 - [ ] `FXManager::FXManager` · 00507d10 · legions 004f5e80
 - [ ] `FXManager::Destroy` · 00507db0 · legions 004f5f20
-- [ ] `FXManager::UseTime` · 00507df0 · legions 004f5f60
+- [~] `FXManager::UseTime` · 00507df0 · legions 004f5f60 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 
 ### _STL::map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>
 - [ ] `_STL::map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>::operator[]` · 00508360 · legions 004f6490
@@ -1326,11 +1326,11 @@ Legend and workflow: [README](README.md).
 - [ ] `_STL::map<unsigned_long,FXState,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXState>_>_>::operator[]` · 00508860 · legions 004f6990
 
 ### FXManager
-- [ ] `FXManager::DoTargettedFX` · 005089d0 · legions 004f6b00
+- [~] `FXManager::DoTargettedFX` · 005089d0 · legions 004f6b00 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 - [ ] `FXManager::DoStartupFX` · 00509220 · legions 004f7270
-- [ ] `FXManager::DoFX` · 00509440 · legions 004f7490
+- [~] `FXManager::DoFX` · 00509440 · legions 004f7490 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 
-## `portal/shared/src/physobj/fx/fxtable.cpp.c` (0/8)
+## `portal/shared/src/physobj/fx/fxtable.cpp.c` (1/8)
 
 ### FXTable
 - [ ] `FXTable::SetStaticTable` · 006a95d0 · legions 00643650
@@ -1341,7 +1341,7 @@ Legend and workflow: [README](README.md).
 ### FXTable
 - [ ] `FXTable::StreamPack` · 006a9680 · legions 00643700
 - [ ] `FXTable::Clear` · 006a96d0 · legions 00643750
-- [ ] `FXTable::GetFXData` · 006a96e0 · legions 00643760
+- [x] `FXTable::GetFXData` · 006a96e0 · legions 00643760 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [ ] `FXTable::~FXTable` · 006a97a0 · legions 00643820
 - [ ] `FXTable::FXTable` · 006a9830 · legions 006438b0
 - [ ] `FXTable::AddEntry` · 006a9870 · legions 006438f0

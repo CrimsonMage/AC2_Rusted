@@ -45,13 +45,13 @@ scripts/retail_catalog.py status
 | [ac2-world](ac2-world.md) | 989 | 138 | 14 | 694 | 143 |
 | [ac2-render](ac2-render.md) | 781 | 43 | 27 | 698 | 13 |
 | [ac2-gpu](ac2-gpu.md) | 95 | 8 | 3 | 84 | 0 |
-| [ac2-physics](ac2-physics.md) | 2124 | 356 | 76 | 1630 | 62 |
+| [ac2-physics](ac2-physics.md) | 2124 | 362 | 81 | 1619 | 62 |
 | [ac2-smartbox](ac2-smartbox.md) | 262 | 79 | 31 | 150 | 2 |
 | [ac2-client](ac2-client.md) | 354 | 23 | 6 | 320 | 5 |
-| [ac2-ui](ac2-ui.md) | 2247 | 430 | 183 | 1612 | 22 |
-| [ac2-script](ac2-script.md) | 2468 | 1313 | 80 | 995 | 80 |
+| [ac2-ui](ac2-ui.md) | 2247 | 431 | 183 | 1611 | 22 |
+| [ac2-script](ac2-script.md) | 2468 | 1317 | 80 | 991 | 80 |
 | [ac2-gameplay](ac2-gameplay.md) | 499 | 128 | 15 | 347 | 9 |
-| [ac2-audio](ac2-audio.md) | 367 | 44 | 19 | 287 | 17 |
+| [ac2-audio](ac2-audio.md) | 367 | 47 | 18 | 285 | 17 |
 | [replaced](replaced.md) | 2058 | 32 | 0 | 0 | 2026 |
 
 Data formats ([data-formats.md](data-formats.md)): 81 `DBObj` types, 1 done, 0 partial, 80 to do.

@@ -23,8 +23,11 @@ pub use data::{
     DB_TYPE_MUSIC_INFO, DB_TYPE_SOUND_INFO, DB_TYPE_WAVE,
 };
 pub use manager::{SoundManager, SoundPreference};
-pub use mixer::Mixer;
+pub use mixer::{spatial_gains, Mixer};
 #[cfg(feature = "output")]
 pub use output::SpeakerSink;
 pub use play_data::{Channel, LoopingMode, PlaySoundData, SoundType, Track};
-pub use sink::{amplitude, millibels, NullSink, RecordingSink, SinkCommand, SoundSink, SILENT};
+pub use playing::Emitter;
+pub use sink::{
+    amplitude, millibels, NullSink, RecordingSink, SinkCommand, SoundSink, Spatial, SILENT,
+};

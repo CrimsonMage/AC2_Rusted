@@ -28,6 +28,7 @@ key	status	note
 00407050	x	ac2-script reference/native unpack
 00407770	~	ac2-script: unpack direction only
 004079b0	x	OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
+00407b80	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 004080c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 00408e90	~	LogOffCharacter only; no UI or game-option upload
 00409270	~	asks for the next-frame-drawn notice (SetWantNoticeOnNextFrameDrawn); no portal scenes
@@ -1737,7 +1738,15 @@ key	status	note
 004f6090	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f6160	x	ac2-physics los (Terrain::los_check)
 004f6690	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+00505870	x	ac2-audio/ac2-client: 3D emitters and FX sounds
+005060e0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
+005062c0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
+005064f0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
+00507650	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
+00507df0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 005083f0	_	
+005089d0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
+00509440	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 00509790	x	
 005097b0	x	
 005097d0	x	ac2-physics moveto (slice 3)
@@ -1983,6 +1992,7 @@ key	status	note
 00537c40	x	ac2-script glue::math / glue::missile
 00537cd0	x	ac2-script glue::math / glue::missile
 00537db0	x	ac2-script glue::math / glue::missile
+00537e90	x	ac2-script: gTokenize (Tokenize(wchar_t*))
 00538010	x	ac2-script glue::string_info (lookups via ScriptData)
 00538080	x	ac2-script glue::string_info (lookups via ScriptData)
 005380f0	x	ac2-script glue::string_info (lookups via ScriptData)
@@ -2018,6 +2028,9 @@ key	status	note
 00539d30	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 00539d90	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 00539df0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
+00539ea0	x	ac2-script: gReservedIDs over ac2-net iid
+00539ee0	x	ac2-script: gReservedIDs over ac2-net iid
+00539f20	x	ac2-script: gReservedIDs over ac2-net iid
 0053a480	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053a4e0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053a550	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
@@ -3097,6 +3110,7 @@ key	status	note
 005a52a0	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 005a5500	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 005a5a80	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a6030	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 005a6170	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a61c0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a61e0	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
@@ -3108,12 +3122,13 @@ key	status	note
 005a6430	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a64d0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a6600	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
-005a6640	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a6640	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 005a6790	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a6b50	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 005a6d50	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005a6ee0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 005a6f00	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
-005a6f20	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
+005a6f20	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 005a70a0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a70b0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a70e0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
@@ -4035,8 +4050,11 @@ key	status	note
 006a4210	x	ac2-physics los (Terrain::los_check)
 006a4270	x	ac2-physics los (Terrain::los_check)
 006a4ce0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006a4db0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 006a4e50	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006a6180	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006a90c0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
+006a96e0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 006a9930	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006a9f80	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006aa5d0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)

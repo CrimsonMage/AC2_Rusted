@@ -92,8 +92,6 @@ struct State {
     /// `gmSelectionUI` and the commands its finished selections send next frame.
     selection: SelectionUi,
     commands: Vec<Command>,
-    /// `SoundManager`: the UI's sounds, played through the speakers.
-    audio: ac2_audio::SoundManager,
     /// Client time origin (`Timer::cur_time` for the interpreter, materials and input stamps).
     started: Instant,
     grabbed: bool,
@@ -277,9 +275,11 @@ impl App {
             }
         }
         view.update(&state.gpu, &frame, LOAD_BUDGET);
-        ac2_client::play_ui_sounds(&mut state.audio, &view.take_ui_sounds());
+        // The HUD's sounds play from the client's sound manager on its next frame.
+        if let Some(audio) = self.client.audio_mut() {
+            ac2_client::play_ui_sounds(audio, &view.take_ui_sounds());
+        }
         let (_, time) = state.now();
-        state.audio.use_time(time);
         let Ok(output) = state.surface.get_current_texture() else {
             state.surface.configure(&state.gpu.device, &state.config);
             return;
@@ -369,7 +369,6 @@ impl ApplicationHandler for App {
                 controls.ui_attached = true;
                 controls
             },
-            audio: ac2_client::sound_manager(Arc::clone(self.world.resource_store()), speakers()),
             started: Instant::now(),
             grabbed: false,
         });
@@ -540,6 +539,8 @@ fn run(args: Args) -> Result<(), String> {
     ));
     let host = ac2_script::host::ScriptHost::new(program, Box::new(script_data));
     client.attach_scripts(host, ac2_client::SCRIPT_VM_FUNCTIONS);
+    // `SoundManager`: the speakers, or silence without an output device.
+    client.attach_audio(ac2_client::sound_manager(Arc::clone(&store), speakers()));
     let event_loop = EventLoop::new().map_err(|e| e.to_string())?;
     let mut app = App {
         client,

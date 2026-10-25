@@ -15,6 +15,7 @@ mod chargen;
 mod chat_commands;
 pub mod chat_text;
 mod client;
+mod client_audio;
 mod client_objects;
 mod controls;
 mod frame;
@@ -58,6 +59,7 @@ pub use chat_commands::chat_commands;
 pub use client::{
     CameraAction, Client, FrameInput, Notice, ENTER_WORLD_FLAGS, SYNC_POSITION_FLAGS,
 };
+pub use client_audio::FxSoundData;
 pub use controls::frame_input;
 pub use frame::{ClientFrame, Holder, ObjectFrame, PlayerFrame};
 pub use gameplay::{
