@@ -126,6 +126,32 @@ pub struct ObjectPose {
 }
 
 impl ObjectModel {
+    /// Index and vertex counts of the first part's first triangle list (`FrillRender` budgets).
+    pub fn first_list(&self) -> (u32, u32) {
+        self.parts.first().map_or((0, 0), |part| {
+            let indices = part.batches.first().map_or(0, |b| b.indices.len());
+            (indices as u32, part.vertices.len() as u32)
+        })
+    }
+
+    /// Every stage texture the model's drawn layers sample, once each.
+    pub fn texture_keys(&self) -> Vec<crate::TextureKey> {
+        let mut keys = Vec::new();
+        for batch in self.parts.iter().flat_map(|part| &part.batches) {
+            for pass in batch.material.passes([1.0; 4], 0.0) {
+                for stage in &pass.stages {
+                    if let Some(did) = stage.texture {
+                        let key = crate::TextureKey::Texture(did);
+                        if !keys.contains(&key) {
+                            keys.push(key);
+                        }
+                    }
+                }
+            }
+        }
+        keys
+    }
+
     /// The model's parts with its root group's bones at `root` (parent-relative bone transforms,
     /// `CPartArray::m_boneTransforms` as the animation leaves them) and every other group at its
     /// default placement. `None` without a skeleton.

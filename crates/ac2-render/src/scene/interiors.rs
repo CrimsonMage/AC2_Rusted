@@ -1,48 +1,34 @@
 //! The interior cells a landblock shows to the outside (`CLandBlockInfo`'s outside stab list),
-//! drawn as `WorldRender` draws visible env cells from outdoors: each cell mesh with its baked
-//! static light and up to four point lights, under the block's inside environment.
+//! as `WorldRender` draws visible env cells from outdoors: each cell mesh with its baked static
+//! light and up to four point lights, under the block's inside environment.
 
 use ac2_core::CellId;
 use ac2_db::ResourceStore;
-use ac2_gpu::{Gpu, GpuObjectModel, ObjectInstance, ObjectRenderer, TextureKey};
-use ac2_math::{Mat4, Vec3};
-use ac2_render::object::{
-    load_cell_model, object_point_lights, CellLighting, ObjectEnvironment, PointLight,
+use ac2_math::Vec3;
+use ac2_world::Ac2WorldSource;
+
+use crate::object::{
+    load_cell_model, object_point_lights, CellLighting, ObjectEnvironment, ObjectModel, PointLight,
     RenderSettings, SceneLight,
 };
-use ac2_render::Image;
-use ac2_world::Ac2WorldSource;
 
 /// `CLandBlockInfo::m_InteriorFogType` linear.
 const FOG_LINEAR: u32 = 0x4000_0002;
 
 /// One block's visible interiors.
+#[derive(Debug, Clone)]
 pub struct BlockInteriors {
     pub environment: ObjectEnvironment,
-    cells: Vec<(GpuObjectModel, Vec<PointLight>)>,
-}
-
-impl BlockInteriors {
-    pub fn instances(&self) -> Vec<ObjectInstance<'_>> {
-        self.cells
-            .iter()
-            .map(|(model, lights)| ObjectInstance {
-                point_lights: lights,
-                ..ObjectInstance::new(model, Mat4::IDENTITY)
-            })
-            .collect()
-    }
+    /// Each cell's model (in world space) and the point lights cached for it.
+    pub cells: Vec<(ObjectModel, Vec<PointLight>)>,
 }
 
 /// Loads the outside-visible cells of `block`, or `None` when it shows none.
 pub fn load_block_interiors(
     world: &Ac2WorldSource,
     store: &ResourceStore,
-    objects: &mut ObjectRenderer,
-    gpu: &Gpu,
     block: CellId,
     settings: &RenderSettings,
-    load: &mut dyn FnMut(TextureKey) -> Option<Image>,
 ) -> Option<BlockInteriors> {
     let interior = world.landblock_interior(block).ok().flatten()?;
     if interior.outside_stab_cells.is_empty() {
@@ -84,7 +70,7 @@ pub fn load_block_interiors(
         }
         let radius = (hi - lo).length() * 0.5 * 1.5;
         let point_lights = object_point_lights(&scene_lights, frame.origin, radius, true);
-        cells.push((objects.upload(gpu, &model, load), point_lights));
+        cells.push((model, point_lights));
     }
     let fog = (interior.fog_type == Some(FOG_LINEAR)).then(|| {
         (

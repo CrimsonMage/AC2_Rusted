@@ -33,6 +33,23 @@ impl Image {
     }
 }
 
+/// What a texture is for: a `RenderMaterial`'s base texture, an alpha mask `RenderTexture`, or a
+/// layer stage's `RenderTexture`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum TextureKey {
+    Material(DataId),
+    Mask(DataId),
+    Texture(DataId),
+}
+
+/// The image a texture key names: a material's base texture, or a `RenderTexture` itself.
+pub fn load_image(store: &ResourceStore, key: TextureKey) -> ResourceResult<Option<Image>> {
+    match key {
+        TextureKey::Material(did) => load_material_image(store, did),
+        TextureKey::Mask(did) | TextureKey::Texture(did) => load_texture_image(store, did),
+    }
+}
+
 /// The base texture of a `RenderMaterial`'s first layer (`LScapeMaterialInfo::GetCombineMaterials`
 /// takes `layers[0].stages[0].texture`).
 pub fn load_material_image(

@@ -7,9 +7,12 @@
 pub mod frill;
 mod image;
 pub mod object;
+pub mod scene;
 pub mod sky;
 pub mod terrain;
 mod view;
 
-pub use image::{load_material_image, load_texture_image, Image, ImageLevel};
+pub use image::{
+    load_image, load_material_image, load_texture_image, Image, ImageLevel, TextureKey,
+};
 pub use view::{Camera, SceneLighting};

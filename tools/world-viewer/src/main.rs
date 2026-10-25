@@ -8,7 +8,6 @@
 //! fast, `[` and `]` step the time of day.
 
 mod fly;
-mod interiors;
 mod scene;
 mod window;
 
@@ -98,6 +97,7 @@ fn snapshot(world: Arc<Ac2WorldSource>, args: &Args, path: &PathBuf) {
     scene.set_daytime();
     scene.update_residency(&gpu, args.block);
     let camera = start_camera(&scene, args.block).camera();
+    scene.settle(&gpu, &camera);
     scene.prepare(&gpu, &camera, width as f32 / height as f32, 0.0);
     let target = FrameTarget::new(&gpu.device, width, height);
     target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| scene.draw(pass));

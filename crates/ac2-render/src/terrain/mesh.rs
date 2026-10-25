@@ -39,6 +39,22 @@ pub struct TerrainMesh {
     pub batches: Vec<TerrainBatch>,
 }
 
+impl TerrainMesh {
+    /// Every layer material and alpha mask the mesh blends, once each.
+    pub fn texture_keys(&self) -> Vec<crate::TextureKey> {
+        let mut keys = Vec::new();
+        for layer in self.batches.iter().flat_map(|batch| &batch.layers.0) {
+            let mask = layer.alpha.map(|(mask, _)| crate::TextureKey::Mask(mask));
+            for key in std::iter::once(crate::TextureKey::Material(layer.material)).chain(mask) {
+                if !keys.contains(&key) {
+                    keys.push(key);
+                }
+            }
+        }
+        keys
+    }
+}
+
 /// Builds the near mesh of the landblock `block_cell_id` whose `block_size` is in metres. Hole
 /// polygons (`CLandBlockMesh::ConstructPolygons`) and polygons without a material are skipped.
 pub fn build_terrain_mesh(
