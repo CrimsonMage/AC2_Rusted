@@ -24,8 +24,10 @@ impl App {
         let ui_input = state.controls.take_ui_input();
         let ctrl = state.controls.modifiers().ctrl;
         let (actions, characters, _) = state.controls.take_text_input();
+        let presses = state.controls.take_key_presses();
         let mut messages = Vec::new();
         if let Some(pregame) = &mut state.pregame {
+            pregame.key_presses(&presses);
             messages = pregame.input(&ui_input);
             messages.extend(pregame.text_input(&actions, &characters, ctrl));
             state
@@ -55,6 +57,9 @@ impl App {
                 let outcome = pregame.requests(self.client.session_mut());
                 for did in outcome.music {
                     self.client.play_pregame_music(did);
+                }
+                if let Some(set) = &outcome.key_maps {
+                    state.controls.replace_key_maps(set);
                 }
                 if outcome.quit {
                     self.client.session_mut().log_off(Duration::from_secs(3));

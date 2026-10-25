@@ -82,6 +82,22 @@ impl Controls {
         )))
     }
 
+    /// The editable maps replaced by `set` (`SaveKeyboardList`'s reload and a restore): the
+    /// three pushed maps pop, and main, shift and control push again under their meta keys.
+    pub fn replace_key_maps(&mut self, set: &crate::pregame::KeyMapSet) {
+        for _ in 0..3 {
+            self.input.pop_key_map();
+        }
+        self.input.push_key_map(&set.main, 0);
+        self.input.push_key_map(&set.shift, LEFT_SHIFT);
+        self.input.push_key_map(&set.control, LEFT_CONTROL);
+    }
+
+    /// The keyboard presses since the last call, for the controls screen's key hit handler.
+    pub fn take_key_presses(&mut self) -> Vec<crate::input::KeyPress> {
+        self.input.take_key_presses()
+    }
+
     pub fn new(input: InputManager, interpreter: ActionInterpreter) -> Self {
         Self {
             input,

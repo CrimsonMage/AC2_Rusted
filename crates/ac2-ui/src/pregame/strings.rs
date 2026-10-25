@@ -28,15 +28,33 @@ impl UiStrings {
     /// Reads the UI string table, the private tables it names and the string state. Reads
     /// files: call it on a worker.
     pub fn load(store: &ResourceStore) -> ResourceResult<Self> {
+        Self::load_with(store, &[])
+    }
+
+    /// [`UiStrings::load`] with `extra` string tables preloaded as well (the action names of the
+    /// controls screen live in the action map's table, [`UiStrings::render_in`]).
+    pub fn load_with(store: &ResourceStore, extra: &[u32]) -> ResourceResult<Self> {
         let Some(table) = ac2_assets::ac2_enum_did(store, STRING_TABLE_GROUP, UI_STRING_TABLE)?
         else {
             return Ok(Self::default());
         };
         let table = table.raw();
+        let mut dids = vec![table];
+        dids.extend_from_slice(extra);
         Ok(Self::new(
-            PreloadedStringTables::load(store, &[table], STRING_STATE),
+            PreloadedStringTables::load(store, &dids, STRING_STATE),
             table,
         ))
+    }
+
+    /// `StringInfo::GetString` of string `string_id` in table `table` (no variables).
+    pub fn render_in(&self, table: u32, string_id: u32) -> String {
+        self.render_info(&RenderInfo {
+            string_id,
+            table_id: table,
+            literal: None,
+            variables: Vec::new(),
+        })
     }
 
     /// `StringInfo::GetString` of string `string_id` with `variables`.

@@ -533,3 +533,173 @@ fn the_controls_screen_opens_and_quits_back() {
     ui.use_time(0.2);
     assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
 }
+
+/// The controls screen's list items' texts (each row's `textid` child), in list order.
+fn list_texts(ui: &PregameUi) -> Vec<String> {
+    let list = find(ui, "list_box");
+    let textid = tokenize("textid");
+    ui.tree()
+        .list_items(list)
+        .iter()
+        .map(|&item| {
+            let child = match ui.tree().get(item).unwrap().attribute(textid) {
+                Some(crate::layout::AttributeValue::Id(id)) => ui.tree().child_recursive(item, *id),
+                _ => None,
+            };
+            child
+                .and_then(|c| ui.tree().get(c).unwrap().text())
+                .unwrap_or_default()
+        })
+        .collect()
+}
+
+/// The controls screen, opened from character selection's options button.
+fn controls(ui: &mut PregameUi) {
+    to_selection(ui, set());
+    click_named(ui, "OptionsButton");
+    ui.use_time(0.1);
+    assert_eq!(ui.mode(), MODE_KEYBOARD);
+}
+
+/// Selects list item `index` (a header selects its first key).
+fn select_item(ui: &mut PregameUi, index: usize) {
+    let list = find(ui, "list_box");
+    ui.tree_mut()
+        .list_set_selected_index(list, Some(index), true);
+    ui.input(&[]);
+}
+
+/// A key the defaults leave unbound (`DIK_APPS`).
+const APPS: u32 = 0x8100_04DD;
+
+fn press(ui: &mut PregameUi, semantic: u32) {
+    ui.key_presses(&[crate::input::KeyPress {
+        semantic,
+        meta_mode: 0,
+    }]);
+}
+
+/// The dialog on screen answers `yes`.
+fn answer(ui: &mut PregameUi, yes: bool) {
+    let context = ui.shown_dialog().expect("a dialog on screen");
+    ui.answer_dialog(context, yes);
+}
+
+/// `gmKeyboardUI::Create`: a row per action (header, then two keys) with the names as text.
+#[test]
+fn the_controls_screen_lists_each_action_with_its_two_keys() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    controls(&mut ui);
+    let texts = list_texts(&ui);
+    assert!(
+        !texts.is_empty() && texts.len().is_multiple_of(3),
+        "{texts:?}"
+    );
+    assert!(texts.iter().step_by(3).all(|t| !t.is_empty()), "{texts:?}");
+    assert!(
+        texts
+            .iter()
+            .enumerate()
+            .any(|(i, t)| i % 3 != 0 && !t.is_empty()),
+        "some key is bound: {texts:?}"
+    );
+    assert!(ghosted(&ui, "clear_button"));
+    assert!(ghosted(&ui, "save_button") && ghosted(&ui, "undo_button"));
+}
+
+/// `KeyHitHandler` and `FinishSet` bind the key to the selected slot; `SaveKeyboardList` hands the
+/// maps to the input manager and the list is unmodified.
+#[test]
+fn a_key_is_bound_to_the_selected_slot_and_saved_to_the_input_manager() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    controls(&mut ui);
+    select_item(&mut ui, 1);
+    assert!(!ghosted(&ui, "clear_button"));
+    press(&mut ui, APPS);
+    assert_eq!(list_texts(&ui)[1], "Apps");
+    assert!(!ghosted(&ui, "save_button") && !ghosted(&ui, "undo_button"));
+    click_named(&mut ui, "save_button");
+    let requests = actions(&mut ui);
+    let saved = requests
+        .iter()
+        .find_map(|r| match r {
+            PregameRequest::KeyMaps(set) => Some(set),
+            _ => None,
+        })
+        .expect("the saved maps");
+    assert!(saved.main.mappings.iter().any(|m| m.semantic == APPS));
+    assert!(ghosted(&ui, "save_button") && ghosted(&ui, "undo_button"));
+}
+
+/// `StartSet`'s already-mapped question: yes moves the key and clears the other slot; no keeps
+/// both as they were.
+#[test]
+fn a_key_already_bound_to_another_slot_asks_before_it_moves() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    controls(&mut ui);
+    select_item(&mut ui, 1);
+    press(&mut ui, APPS);
+    let other = list_texts(&ui)[4].clone();
+    select_item(&mut ui, 4);
+    press(&mut ui, APPS);
+    assert!(ui.shown_dialog().is_some(), "the question is up");
+    answer(&mut ui, false);
+    let texts = list_texts(&ui);
+    assert_eq!(
+        (texts[1].as_str(), texts[4].as_str()),
+        ("Apps", other.as_str())
+    );
+    select_item(&mut ui, 4);
+    press(&mut ui, APPS);
+    answer(&mut ui, true);
+    let texts = list_texts(&ui);
+    assert_eq!((texts[1].as_str(), texts[4].as_str()), ("", "Apps"));
+}
+
+/// `ListenToMessage`'s clear all, undo, restore and quit questions: each asks, and each answer
+/// does what retail does.
+#[test]
+fn clear_all_undo_restore_and_quit_ask_first() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    controls(&mut ui);
+    let original = list_texts(&ui);
+    click_named(&mut ui, "clear_all_button");
+    answer(&mut ui, true);
+    let cleared = list_texts(&ui);
+    assert!(cleared
+        .iter()
+        .enumerate()
+        .all(|(i, t)| i % 3 == 0 || t.is_empty()));
+    // Undo asks; no keeps the clearing.
+    click_named(&mut ui, "undo_button");
+    answer(&mut ui, false);
+    assert_eq!(list_texts(&ui), cleared);
+    // Yes rebuilds the list from the input manager's maps.
+    click_named(&mut ui, "undo_button");
+    answer(&mut ui, true);
+    assert_eq!(list_texts(&ui), original);
+    // A restore preset asks, then its maps are the input manager's and the list is modified.
+    click_named(&mut ui, "restore_eq_button");
+    answer(&mut ui, true);
+    assert!(!ghosted(&ui, "save_button"));
+    assert!(actions(&mut ui)
+        .iter()
+        .any(|r| matches!(r, PregameRequest::KeyMaps(_))));
+    // Quit with changes asks first: no stays, yes leaves for character selection.
+    click_named(&mut ui, "quit_button");
+    assert!(ui.shown_dialog().is_some());
+    answer(&mut ui, false);
+    assert_eq!(ui.mode(), MODE_KEYBOARD);
+    click_named(&mut ui, "quit_button");
+    answer(&mut ui, true);
+    ui.use_time(0.2);
+    assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
+}

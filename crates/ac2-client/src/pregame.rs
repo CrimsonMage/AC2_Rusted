@@ -18,6 +18,8 @@ pub struct PregameOutcome {
     pub quit: bool,
     /// The screens' music, in the order the screens opened it (`Client::play_pregame_music`).
     pub music: Vec<u32>,
+    /// The input manager's maps the controls screen saved or restored (`Controls::replace_key_maps`).
+    pub key_maps: Option<ac2_ui::pregame::KeyMapSet>,
 }
 
 /// One session event into the UI.
@@ -62,6 +64,7 @@ pub fn pregame_requests(ui: &mut PregameUi, session: &mut OnlineSession) -> Preg
             }
             PregameRequest::Music(did) => outcome.music.push(did),
             PregameRequest::Quit => outcome.quit = true,
+            PregameRequest::KeyMaps(set) => outcome.key_maps = Some(set),
         }
     }
     outcome

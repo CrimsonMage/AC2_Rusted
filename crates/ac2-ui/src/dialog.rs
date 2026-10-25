@@ -200,6 +200,14 @@ impl DialogFactory {
         }
     }
 
+    /// A confirmation's answer, as its yes or no button sends it (tests).
+    #[cfg(test)]
+    pub(crate) fn answer(&mut self, tree: &mut UiTree, context: u32, yes: bool) {
+        self.close_dialog(tree, context);
+        self.outcomes
+            .push(DialogOutcome::Confirmation { context, yes });
+    }
+
     /// The notices the dialogs sent since the last call.
     pub fn take_outcomes(&mut self) -> Vec<DialogOutcome> {
         std::mem::take(&mut self.outcomes)

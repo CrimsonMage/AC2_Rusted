@@ -127,15 +127,30 @@ fn a_key_on_another_slot_is_already_mapped_and_nothing_is_written() {
 }
 
 #[test]
-fn a_free_key_after_a_conflict_clears_the_conflicting_slot() {
-    // `FinishSet` clears `m_occupied`: the slot the conflict named loses its key.
+fn a_yes_to_the_already_mapped_question_moves_the_key_and_clears_the_conflicting_slot() {
+    // `RecvNotice_CloseConfirmationDialog`: yes runs `FinishSet`, which clears `m_occupied`.
     let mut list = list();
     list.click(4);
     list.start_set(key(W));
-    assert_eq!(list.start_set(key(MOUSE_LEFT)), Some(SetOutcome::Set));
+    assert_eq!(list.question(), Some((SlotRef { row: 0, slot: 0 }, key(W))));
+    list.answer_already_mapped(true);
     assert_eq!(list.rows()[0].slots[0], None);
-    assert_eq!(list.rows()[1].slots[0], Some(key(MOUSE_LEFT)));
+    assert_eq!(list.rows()[1].slots[0], Some(key(W)));
     assert!(list.modified());
+    assert_eq!(list.question(), None);
+}
+
+#[test]
+fn a_no_to_the_already_mapped_question_changes_nothing() {
+    let mut list = list();
+    list.click(4);
+    list.start_set(key(W));
+    list.answer_already_mapped(false);
+    assert_eq!(list.rows()[0].slots[0], Some(key(W)));
+    assert_eq!(list.rows()[1].slots[0], Some(key(SPACE)));
+    assert!(!list.modified());
+    assert_eq!(list.question(), None);
+    assert_eq!(list.selected(), Some(SlotRef { row: 1, slot: 0 }));
 }
 
 #[test]

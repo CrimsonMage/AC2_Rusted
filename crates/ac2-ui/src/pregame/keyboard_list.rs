@@ -1,27 +1,25 @@
 //! `gmKeyboardUI`'s binding list: the rows `InitializeKeyboardList` makes (an action's header,
 //! then its two key slots, three listbox items per action), the set logic (`StartSet`,
 //! `FinishSet`, `KeyHitHandler`), clear and clear all (`ListenToMessage`'s clear button and
-//! `DoClearAll`), and the bindings `SaveKeyboardList` writes out.
+//! `DoClearAll`), and the already-mapped question's answer (`RecvNotice_CloseConfirmationDialog`).
 //!
-//! The model is pure: the page's list and texts render from it. The list shows the input
-//! manager's bindings: each action's keys from the key maps the client pushes (`CKeyMap`s with
-//! their meta mode), two per action.
+//! The model is pure: the page (`keyboard.rs`) renders its rows and handles its messages. The
+//! list shows the bindings of the maps the input manager holds, two per action. Element creation,
+//! key names and the saved maps are in `keyboard.rs`, `key_names.rs` and `keyboard_maps.rs`.
 //!
-//! Not modelled yet: the element creation (the row templates in the keyboard layout), key names
-//! (`InqKeyStringInfo`'s string info), the keymap file `SaveKeyboardList` writes and the reload of
-//! the input manager, the undo, restore and exit confirmation dialogs (the modified flag is kept),
-//! the over-mapped flag of a binding, and `StartSet`'s second pass over actions without a row.
+//! Not modelled yet: a binding's over-mapped flag (`MappedKey::overMapped`), and `StartSet`'s
+//! second pass over actions without a row.
 
 use std::collections::BTreeMap;
 
 use crate::maps::{ActionMap, KeyMap};
 
-/// The meta mode of the main key map (no meta key).
+/// A binding's meta key when it has none (`MappedKey::metakey` 0).
 pub const META_NONE: u32 = 0;
-/// The meta mode of the shift key map (`gmClient::InitKeymap`: left shift).
-pub const META_SHIFT: u32 = 1;
-/// The meta mode of the control key map (`gmClient::InitKeymap`: left control).
-pub const META_CONTROL: u32 = 4;
+/// The meta key of the shift key map: left shift (`ID_HitMeta` holds the key's semantic).
+pub const META_SHIFT: u32 = 0x8100_042A;
+/// The meta key of the control key map: left control.
+pub const META_CONTROL: u32 = 0x8100_041D;
 /// `gmKeyboardUI::KeyHitHandler`'s cancel key (`0x8200040C`): it leaves the set.
 pub const KEY_CANCEL: u32 = 0x8200_040C;
 /// The two mouse semantics `KeyHitHandler` ignores while a binding waits for a key.
@@ -58,7 +56,7 @@ pub struct BindingRow {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SetOutcome {
     /// The key is on another slot already: `m_occupied` is that slot and the already-mapped
-    /// dialog opens (`m_already_mapped`); nothing is written.
+    /// question opens (`m_already_mapped`); the answer is [`KeyboardList::answer_already_mapped`].
     AlreadyMapped { occupied: SlotRef },
     /// The key is free (or is the selected slot's own): `FinishSet` wrote it to the selection.
     Set,
@@ -71,6 +69,8 @@ pub struct KeyboardList {
     rows: Vec<BindingRow>,
     selected: Option<SlotRef>,
     occupied: Option<SlotRef>,
+    /// `m_sem`, `m_meta`: the key a set is pending for, while the already-mapped question is up.
+    pending: Option<KeyBinding>,
     modified: bool,
 }
 
@@ -130,6 +130,16 @@ impl KeyboardList {
         self.modified
     }
 
+    /// Sets `m_modified` (a restore changes the bindings without a list edit).
+    pub fn set_modified(&mut self, modified: bool) {
+        self.modified = modified;
+    }
+
+    /// The slot a conflict named and the key it is asked about, while the question is up.
+    pub fn question(&self) -> Option<(SlotRef, KeyBinding)> {
+        Some((self.occupied?, self.pending?))
+    }
+
     /// The slot `index` names in the listbox (three items per row: the header, then the two
     /// slots). A header click selects its first slot (`ListenToMessage`).
     pub fn click(&mut self, index: usize) -> Option<SlotRef> {
@@ -156,8 +166,8 @@ impl KeyboardList {
     }
 
     /// `gmKeyboardUI::StartSet(semantic, meta)`: a key on another slot is already mapped (the
-    /// conflict is named and nothing is written); otherwise `FinishSet` writes it to the
-    /// selection. Without a selection there is nothing to set.
+    /// conflict is named, the key is kept pending for the question); otherwise `FinishSet` writes
+    /// it to the selection. Without a selection there is nothing to set.
     pub fn start_set(&mut self, binding: KeyBinding) -> Option<SetOutcome> {
         self.selected?;
         for (row_index, row) in self.rows.iter().enumerate() {
@@ -168,12 +178,26 @@ impl KeyboardList {
                 };
                 if Some(here) != self.selected && *slot == Some(binding) {
                     self.occupied = Some(here);
+                    self.pending = Some(binding);
                     return Some(SetOutcome::AlreadyMapped { occupied: here });
                 }
             }
         }
         self.finish_set(binding);
         Some(SetOutcome::Set)
+    }
+
+    /// The already-mapped question's answer (`RecvNotice_CloseConfirmationDialog`): yes finishes
+    /// the set, which clears the occupied slot; no drops it.
+    pub fn answer_already_mapped(&mut self, yes: bool) {
+        let Some(binding) = self.pending.take() else {
+            return;
+        };
+        if yes {
+            self.finish_set(binding);
+        } else {
+            self.occupied = None;
+        }
     }
 
     /// `gmKeyboardUI::FinishSet`: the occupied slot (if a conflict named one) is cleared, the
@@ -186,6 +210,7 @@ impl KeyboardList {
         if let Some(occupied) = self.occupied.take() {
             self.write(occupied, None);
         }
+        self.pending = None;
         self.write(slot, Some(binding));
         self.selected = None;
     }
@@ -229,6 +254,7 @@ impl KeyboardList {
         }
         self.selected = None;
         self.occupied = None;
+        self.pending = None;
     }
 
     /// The bindings `SaveKeyboardList` writes, in list order: the action and the key of each

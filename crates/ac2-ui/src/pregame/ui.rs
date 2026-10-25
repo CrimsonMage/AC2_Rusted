@@ -14,7 +14,8 @@
 //! [`PregameUi::finish_pick`]) and the end of the chosen avatar's animation
 //! ([`PregameUi::selected_animation`], [`PregameUi::finish_animation`]).
 //!
-//! Not modelled yet: the controls screen's binding list and its editing (`gmKeyboardUI`).
+//! The controls screen (`gmKeyboardUI`) takes the key presses ([`PregameUi::key_presses`]) and
+//! hands its saved or restored maps to the client as [`PregameRequest::KeyMaps`].
 
 use std::collections::HashMap;
 
@@ -23,6 +24,7 @@ use ac2_net::protocol::{CharGenResult, CharacterIdentity, CharacterSet};
 use crate::compose::{UiPixels, UiSurface};
 use crate::dialog::{DialogFactory, LAYOUT_DIALOGS};
 use crate::element::UiTree;
+use crate::input::KeyPress;
 use crate::mouse::UiMessage;
 use crate::pregame::assets::PregameAssets;
 use crate::pregame::avatar_modification::AvatarModificationUi;
@@ -39,6 +41,7 @@ use crate::pregame::flow::{
 };
 use crate::pregame::intro::IntroUi;
 use crate::pregame::keyboard::KeyboardUi;
+use crate::pregame::keyboard_maps::{ActiveKeyMaps, KeyMapSet};
 use crate::pregame::persistent::PersistentData;
 use crate::pregame::Ctx;
 
@@ -58,6 +61,8 @@ pub enum PregameRequest {
     Music(u32),
     /// `Device::Done`: close the client.
     Quit,
+    /// The input manager's maps are these (`SaveKeyboardList`'s reload, a restore preset).
+    KeyMaps(KeyMapSet),
 }
 
 /// The current main framework (`UIFlow::_curUI`).
@@ -87,6 +92,8 @@ pub struct PregameUi {
     system: Box<dyn CharGenSystem>,
     /// `ActionInterpreter::ActionDown(0x40000004 / 0x40000007)`: a left button is held.
     left_down: bool,
+    /// The key maps the controls screen edits and the input manager holds.
+    keymaps: ActiveKeyMaps,
 }
 
 impl std::fmt::Debug for PregameUi {
@@ -110,6 +117,7 @@ macro_rules! ctx {
             current,
             requests,
             system,
+            keymaps,
             ..
         } = $ui;
         (
@@ -122,6 +130,7 @@ macro_rules! ctx {
                 assets,
                 requests,
                 system: &mut **system,
+                keymaps,
             },
             current,
         )
@@ -132,6 +141,7 @@ impl PregameUi {
     /// The UI on a `width` x `height` display, the intro queued (`gmUIFlow::gmUIFlow`).
     pub fn new(assets: PregameAssets, width: i32, height: i32) -> Self {
         let tree = assets.tree(width, height);
+        let keymaps = assets.keymaps.clone();
         let dialogs = DialogFactory::new(assets.layout(LAYOUT_DIALOGS).cloned());
         let mut flow = UiFlow::new();
         flow.queue_mode(MODE_INTRO, "");
@@ -145,6 +155,7 @@ impl PregameUi {
             requests: Vec::new(),
             system: Box::new(NoCharGen),
             left_down: false,
+            keymaps: ActiveKeyMaps::new(keymaps),
         }
     }
 
@@ -318,6 +329,42 @@ impl PregameUi {
         self.pump()
     }
 
+    /// The dialogs' notices to the framework that asked (`RecvNotice_CloseConfirmationDialog`).
+    fn route_outcomes(&mut self) {
+        let outcomes = self.dialogs.take_outcomes();
+        let (mut ctx, current) = ctx!(self);
+        for outcome in outcomes {
+            match current {
+                Framework::CharacterSelection(ui) => ui.dialog_outcome(&mut ctx, outcome),
+                Framework::Keyboard(ui) => ui.dialog_outcome(&mut ctx, outcome),
+                _ => {}
+            }
+        }
+    }
+
+    /// The context of the dialog on screen, if one is (tests answer it).
+    #[cfg(test)]
+    pub(crate) fn shown_dialog(&self) -> Option<u32> {
+        self.dialogs.shown().map(|(context, _)| context)
+    }
+
+    /// A confirmation's yes or no, as its button sends it (tests).
+    #[cfg(test)]
+    pub(crate) fn answer_dialog(&mut self, context: u32, yes: bool) {
+        self.dialogs.answer(&mut self.tree, context, yes);
+        self.route_outcomes();
+    }
+
+    /// The keyboard presses the controls screen's key hit handler takes (`KeyHitHandler`).
+    pub fn key_presses(&mut self, presses: &[KeyPress]) {
+        for press in presses {
+            let (mut ctx, current) = ctx!(self);
+            if let Framework::Keyboard(ui) = current {
+                ui.key_hit(&mut ctx, press.semantic, press.meta_mode);
+            }
+        }
+    }
+
     /// The tree's messages to the dialogs and the framework until no more come; all of them.
     fn pump(&mut self) -> Vec<UiMessage> {
         let mut all = Vec::new();
@@ -328,14 +375,9 @@ impl PregameUi {
             }
             for message in &messages {
                 self.dialogs.message(&mut self.tree, message);
-                let outcomes = self.dialogs.take_outcomes();
+                self.route_outcomes();
                 let left_down = self.left_down;
                 let (mut ctx, current) = ctx!(self);
-                for outcome in outcomes {
-                    if let Framework::CharacterSelection(ui) = current {
-                        ui.dialog_outcome(&mut ctx, outcome);
-                    }
-                }
                 match current {
                     Framework::Intro(ui) => ui.message(&mut ctx, message),
                     Framework::DataPatch(ui) => ui.message(&mut ctx, message),

@@ -126,6 +126,15 @@ impl PregameView {
         messages
     }
 
+    /// The keyboard presses the controls screen's key hit handler takes.
+    pub fn key_presses(&mut self, presses: &[ac2_ui::KeyPress]) {
+        let Some(ui) = &mut self.ui else {
+            return;
+        };
+        ui.key_presses(presses);
+        self.dirty |= ui.tree_mut().take_changed();
+    }
+
     /// The active text element's actions and characters; the messages.
     pub fn text_input(
         &mut self,

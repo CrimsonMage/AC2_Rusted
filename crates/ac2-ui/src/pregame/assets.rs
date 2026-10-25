@@ -16,6 +16,8 @@ use crate::element::UiTree;
 use crate::hud::load_layout_by_enum;
 use crate::layout::{AttributeValue, ElementDesc, LayoutDesc};
 use crate::layout_media::MediaDesc;
+use crate::maps::{load_action_map, load_key_map, ActionMap, KeyMap};
+use crate::pregame::keyboard_maps::{KeyMapLibrary, Preset};
 use crate::pregame::strings::UiStrings;
 use crate::pregame::{
     LAYOUT_AVATAR_MODIFICATION, LAYOUT_AVATAR_SELECTION, LAYOUT_CHARACTER_SELECTION,
@@ -47,6 +49,8 @@ pub struct PregameAssets {
     text: Option<Arc<dyn UiTextData>>,
     pub strings: UiStrings,
     pub images: HashMap<u32, UiPixels>,
+    /// The key maps and action map the controls screen edits (`None` when the DATs lack them).
+    pub keymaps: Option<Arc<KeyMapLibrary>>,
 }
 
 impl std::fmt::Debug for PregameAssets {
@@ -80,6 +84,7 @@ impl PregameAssets {
             text: None,
             strings: UiStrings::default(),
             images: HashMap::new(),
+            keymaps: None,
         }
     }
 }
@@ -161,10 +166,33 @@ pub fn load_pregame(store: &Arc<ResourceStore>) -> ResourceResult<PregameAssets>
         crate::pregame::credits::preload_credits(store, credits, &text, &mut images)?;
     }
     text.freeze();
+    let keymaps = load_keymaps(store)?;
+    let action_table = keymaps.as_ref().map(|k| k.action_map.string_table);
     Ok(PregameAssets {
         layouts,
         text: Some(text),
-        strings: UiStrings::load(store)?,
+        strings: UiStrings::load_with(store, &action_table.into_iter().collect::<Vec<_>>())?,
         images,
+        keymaps: keymaps.map(Arc::new),
     })
+}
+
+/// The key maps of the three presets and the action map (`ActionInterpreter::Startup`'s action
+/// map, the `CKeyMap`s by enum).
+fn load_keymaps(store: &ResourceStore) -> ResourceResult<Option<KeyMapLibrary>> {
+    let Some(action_map) = load_action_map(store)? else {
+        return Ok(None);
+    };
+    let mut maps = HashMap::new();
+    for preset in [Preset::Default, Preset::Eq, Preset::Daoc] {
+        for enum_value in preset.maps() {
+            if let Some(map) = load_key_map(store, enum_value)? {
+                maps.insert(enum_value, KeyMap::clone(&map));
+            }
+        }
+    }
+    Ok(Some(KeyMapLibrary {
+        action_map: ActionMap::clone(&action_map),
+        maps,
+    }))
 }

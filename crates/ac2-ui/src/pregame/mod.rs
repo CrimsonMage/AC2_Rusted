@@ -18,10 +18,14 @@ mod data_patch;
 mod disconnected;
 mod flow;
 mod intro;
+mod key_names;
 mod keyboard;
 mod keyboard_list;
 #[cfg(test)]
 mod keyboard_list_tests;
+mod keyboard_maps;
+#[cfg(test)]
+mod keyboard_maps_tests;
 mod persistent;
 mod strings;
 #[cfg(test)]
@@ -47,6 +51,7 @@ pub use flow::{
 pub use keyboard_list::{
     BindingRow, KeyBinding, KeyboardList, SetOutcome, SlotRef, META_CONTROL, META_NONE, META_SHIFT,
 };
+pub use keyboard_maps::{KeyMapLibrary, KeyMapSet, Preset, LEFT_CONTROL, LEFT_SHIFT};
 pub use persistent::{greyed_out_for, identity, PersistentData};
 pub use strings::{UiStrings, UI_STRING_TABLE};
 pub use ui::{PregameRequest, PregameUi};
@@ -98,6 +103,7 @@ pub(crate) struct Ctx<'a> {
     pub assets: &'a PregameAssets,
     pub requests: &'a mut Vec<PregameRequest>,
     pub system: &'a mut dyn CharGenSystem,
+    pub keymaps: &'a mut keyboard_maps::ActiveKeyMaps,
 }
 
 impl UiTree {

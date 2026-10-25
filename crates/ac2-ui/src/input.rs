@@ -118,7 +118,21 @@ pub struct InputManager {
     /// The characters for the character handlers (`CallCharacterHandler`): (character, the
     /// key's virtual-key code when the key typed no character).
     characters: Vec<(u16, u32)>,
+    /// The keyboard presses of non-meta keys, mapped or not, for the controls screen's key hit
+    /// handler (`gmKeyboardUI::KeyHitHandler`); at most [`KEY_PRESS_LIMIT`] are kept.
+    presses: Vec<KeyPress>,
 }
+
+/// A keyboard press as the key hit handler reads it: the key's semantic and the meta mode it went
+/// down in.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct KeyPress {
+    pub semantic: u32,
+    pub meta_mode: u32,
+}
+
+/// How many presses wait for [`InputManager::take_key_presses`].
+pub const KEY_PRESS_LIMIT: usize = 64;
 
 /// `CInputManager_WIN32::IsUIAction`: the editing and navigation actions keys still raise in text
 /// mode.
@@ -256,6 +270,12 @@ impl InputManager {
                 }
             }
         };
+        if pressed && !is_meta_key(key) && self.presses.len() < KEY_PRESS_LIMIT {
+            self.presses.push(KeyPress {
+                semantic: key,
+                meta_mode: before,
+            });
+        }
         let Some(mut action) = self.action_from_key(key, meta) else {
             return;
         };
@@ -461,5 +481,10 @@ impl InputManager {
     pub fn take_mouse_look(&mut self) -> Option<(i32, i32)> {
         let rel = std::mem::take(&mut self.mouse_rel);
         self.mouse_look.then_some(rel)
+    }
+
+    /// The key presses since the last call, oldest first.
+    pub fn take_key_presses(&mut self) -> Vec<KeyPress> {
+        std::mem::take(&mut self.presses)
     }
 }

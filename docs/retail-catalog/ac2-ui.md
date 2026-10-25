@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 762 done, 265 partial, 1173 to do, 47 skipped.
+2247 retail functions: 769 done, 262 partial, 1169 to do, 47 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -1921,15 +1921,15 @@ Legend and workflow: [README](README.md).
 - [x] `gmIntroUI::ListenToMessage` · 004128c0 · legions 00412740 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmIntroUI::ListenToMessage` · 004128e0 · legions 00412760 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 
-## `ac2/client/src/ui/pregame/gmkeyboardui.cpp.c` (3/19)
+## `ac2/client/src/ui/pregame/gmkeyboardui.cpp.c` (10/19)
 
 ### gmKeyboardUI
 - [x] `gmKeyboardUI::ConfirmationBoxesOpen` · 004134f0 · legions 00413370 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmKeyboardUI::UpdateButtons` · 00413530 · legions 004133b0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
-- [~] `gmKeyboardUI::DoClearAll` · 004135c0 · legions 00413440 — ac2-ui pregame/keyboard_list.rs KeyboardList::clear_all: every slot cleared, modified. Not: the row texts and the list's selection item (UI)
-- [~] `gmKeyboardUI::CloseAllDialogs` · 004136a0 · legions 00413520 — ac2-ui pregame/keyboard.rs destroy closes the wait dialog only; the clear-all, already-mapped, restore, undo and exit dialog contexts are not made
-- [~] `gmKeyboardUI::~gmKeyboardUI` · 00413720 · legions 004135a0 — ac2-ui pregame/keyboard.rs destroy: the wait dialog closes and the root is removed; the list is not flushed and the notice handlers are not unregistered (no per-object table)
-- [ ] `gmKeyboardUI::InqKeyStringInfo` · 004137d0 · legions 00413650
+- [x] `gmKeyboardUI::DoClearAll` · 004135c0 · legions 00413440 — ac2-ui pregame/keyboard.rs KeyboardUi::dialog_outcome: the clear-all question's yes clears every slot (keyboard_list clear_all)
+- [x] `gmKeyboardUI::CloseAllDialogs` · 004136a0 · legions 00413520 — ac2-ui pregame/keyboard.rs KeyboardUi::destroy closes the clear-all, already-mapped, restore, undo, exit and wait questions
+- [x] `gmKeyboardUI::~gmKeyboardUI` · 00413720 · legions 004135a0 — ac2-ui pregame/keyboard.rs KeyboardUi::destroy: questions closed, root removed (rows go with it); notice handlers are per object in Rust
+- [~] `gmKeyboardUI::InqKeyStringInfo` · 004137d0 · legions 00413650 — ac2-ui pregame/key_names.rs key_name and keyboard.rs binding_text: the key with its meta key's name. The names are authored DIK scan-code names; the retail strings (CKeyMap::LoadSemantics) are not copied, and the format string is not the retail one
 
 ### IntrusiveSmartPointer<PFileNode>
 - [ ] `IntrusiveSmartPointer<PFileNode>::~IntrusiveSmartPointer<PFileNode>` · 00413930 · legions 004137b0
@@ -1937,16 +1937,16 @@ Legend and workflow: [README](README.md).
 
 ### gmKeyboardUI
 - [x] `gmKeyboardUI::Close` · 004139d0 · legions 00413850 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
-- [~] `gmKeyboardUI::FinishSet` · 00413a70 · legions 004138f0 — ac2-ui pregame/keyboard_list.rs KeyboardList::finish_set: the selection takes the key, the occupied slot clears, modified. Not: the row text (InqKeyStringInfo)
-- [~] `gmKeyboardUI::StartSet` · 00413d10 · legions 00413b50 — ac2-ui pregame/keyboard_list.rs KeyboardList::start_set: the already-mapped conflict on another slot; a free key is set. Not: the second pass over actions without a row (ICIDM 0x54), the already-mapped dialog
-- [~] `gmKeyboardUI::InitializeKeyboardList` · 00414140 · legions 00413f80 — ac2-ui pregame/keyboard_list.rs KeyboardList::from_maps: a row per action with a description, two slots from the key maps' bindings. Not: the row elements (listbox items), key names (InqKeyStringInfo)
-- [~] `gmKeyboardUI::SaveKeyboardList` · 00414510 · legions 00414350 — ac2-ui pregame/keyboard_list.rs KeyboardList::bindings: the (action, key) pairs in list order. Not: the keymap file write and the input manager's reload; key names
-- [ ] `gmKeyboardUI::RecvNotice_CloseConfirmationDialog` · 004149f0
-- [~] `gmKeyboardUI::gmKeyboardUI` · 00414bb0 · legions 004149f0 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
-- [ ] `gmKeyboardUI::Create` · 00414e50
-- [~] `gmKeyboardUI::ListenToMessage` · 00414e70 · legions 00414c60 — ac2-ui pregame/keyboard_list.rs: click (header to first slot), clear button, clear all, key set and the already-mapped conflict. Not: the restore, undo, exit and clear-all dialogs; save; the row elements
-- [~] `gmKeyboardUI::KeyHitHandler` · 00415140 · legions 00414f30 — ac2-ui pregame/keyboard_list.rs KeyboardList::key_hit: cancel key, dialog, reserved and mouse gates, then StartSet. The meta mode is the caller's; the decompile passes the key twice
-- [ ] `gmKeyboardUI::Register` · 004151f0 · legions 00414fe0
+- [x] `gmKeyboardUI::FinishSet` · 00413a70 · legions 004138f0 — ac2-ui pregame/keyboard_list.rs finish_set: the selection takes the key, the occupied slot clears; keyboard.rs rebuilds the texts
+- [~] `gmKeyboardUI::StartSet` · 00413d10 · legions 00413b50 — ac2-ui pregame/keyboard_list.rs start_set: the already-mapped conflict on another slot, a free key is set. Not: the second pass over actions without a row (ICIDM 0x54)
+- [~] `gmKeyboardUI::InitializeKeyboardList` · 00414140 · legions 00413f80 — ac2-ui pregame/keyboard_list.rs from_maps and keyboard.rs rebuild_rows: a row per action (action_box_item header, key_box_item slots); the key names from pregame/key_names.rs (authored DIK names). Not: overMapped flags; the map order assumed (main, shift, control)
+- [~] `gmKeyboardUI::SaveKeyboardList` · 00414510 · legions 00414350 — ac2-ui pregame/keyboard_maps.rs saved_set: the three maps named mydefault, mydefaults, mydefaultc, loaded into the input manager (Controls::replace_key_maps). Not: the keymap files (PreferenceBank 0x40000030-32 paths, not an obvious user config location); the mapping names
+- [x] `gmKeyboardUI::RecvNotice_CloseConfirmationDialog` · 004149f0 — ac2-ui pregame/keyboard.rs dialog_outcome: already-mapped (yes finishes), clear all, restore (keyboard_maps presets, sent as PregameRequest::KeyMaps), undo (rebuilt from the active maps), exit (close). The questions' wording is authored here
+- [~] `gmKeyboardUI::gmKeyboardUI` · 00414bb0 · legions 004149f0 — ac2-ui pregame/keyboard.rs KeyboardUi::create and keyboard_maps.rs ActiveKeyMaps: the field, the buttons, the list. Not: the GlobalEventHandler notice 0x436 (no notice table), CKeyMap::LoadSemantics (names are authored)
+- [x] `gmKeyboardUI::Create` · 00414e50 — ac2-ui pregame/keyboard.rs KeyboardUi::create: the field, the buttons, the list from the input manager's maps (keyboard_maps list_of), UpdateButtons; the row templates action_box_item and key_box_item resolved from the layout
+- [~] `gmKeyboardUI::ListenToMessage` · 00414e70 · legions 00414c60 — ac2-ui pregame/keyboard.rs message and dialog_outcome: the list selection (header to first key), clear, save, undo, quit, clear all and the restore presets, each question gated while one is up. Not: the ~mouse wait flag, the restore question's ICIDM bindings (the presets are the library's)
+- [~] `gmKeyboardUI::KeyHitHandler` · 00415140 · legions 00414f30 — ac2-ui pregame/keyboard.rs key_hit with keyboard_list key_hit: the cancel key, dialog and mouse gates, then StartSet; the key presses come from the input manager (InputManager::take_key_presses). Not: the ICIDM reserved-key check (none reserved), the name-length check
+- [x] `gmKeyboardUI::Register` · 004151f0 · legions 00414fe0 — ac2-ui pregame/ui.rs use_new_mode: MODE_KEYBOARD makes the framework (the registration is the match on the mode)
 
 ## `ac2/client/src/ui/util/dialog/confirmationdialog.cpp.c` (3/3)
 

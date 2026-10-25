@@ -118,8 +118,8 @@ pub use hud::{
     LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,
 };
 pub use input::{
-    is_ui_action, meta_mode_from_key, InputEvent, InputManager, RawAction, ACTION_POINTER_X,
-    ACTION_POINTER_Y, DEVICE_KEYBOARD, DEVICE_MOUSE,
+    is_ui_action, meta_mode_from_key, InputEvent, InputManager, KeyPress, RawAction,
+    ACTION_POINTER_X, ACTION_POINTER_Y, DEVICE_KEYBOARD, DEVICE_MOUSE,
 };
 pub use interpreter::{
     ActionInfo, ActionInterpreter, Dispatch, CLASS_BEHAVIOR, CLASS_CAMERA, CLASS_MODIFIER,
