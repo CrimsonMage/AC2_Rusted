@@ -162,6 +162,9 @@ impl NativeObject {
                 NativeObject::RandomSelectionTable(RandomSelectionTable::default())
             }
             ntype::BEHAVIOR_PARAMS => NativeObject::BehaviorParams(Box::default()),
+            ntype::MISSILE_PARAMETERS => {
+                NativeObject::MissileParameters(MissileParameters::default())
+            }
             other => NativeObject::Unbound(other),
         }
     }

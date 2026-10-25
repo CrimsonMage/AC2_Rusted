@@ -995,6 +995,21 @@ key	status	note
 00536db0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536de0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536e10	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
+005376c0	x	ac2-script glue::math / glue::missile
+00537730	x	ac2-script glue::math / glue::missile
+005377a0	x	ac2-script glue::math / glue::missile
+005377e0	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00537840	x	ac2-script glue::math / glue::missile
+005378b0	x	ac2-script glue::math / glue::missile
+00537920	x	ac2-script glue::math / glue::missile
+00537990	x	ac2-script glue::math / glue::missile
+00537a20	x	ac2-script glue::math / glue::missile
+00537af0	x	ac2-script glue::math / glue::missile
+00537b60	x	ac2-script glue::math / glue::missile
+00537bd0	x	ac2-script glue::math / glue::missile
+00537c40	x	ac2-script glue::math / glue::missile
+00537cd0	x	ac2-script glue::math / glue::missile
+00537db0	x	ac2-script glue::math / glue::missile
 00538010	x	ac2-script glue::string_info (lookups via ScriptData)
 00538080	x	ac2-script glue::string_info (lookups via ScriptData)
 005380f0	x	ac2-script glue::string_info (lookups via ScriptData)
@@ -1042,6 +1057,29 @@ key	status	note
 0053f790	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 0053f830	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 0053f8b0	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
+00541990	x	ac2-script glue::math / glue::missile
+005419f0	x	ac2-script glue::math / glue::missile
+00541a50	x	ac2-script glue::math / glue::missile
+00541ab0	x	ac2-script glue::math / glue::missile
+00541b20	x	ac2-script glue::math / glue::missile
+00541b80	x	ac2-script glue::math / glue::missile
+00541bf0	x	ac2-script glue::math / glue::missile
+00541c50	x	ac2-script glue::math / glue::missile
+00541cb0	x	ac2-script glue::math / glue::missile
+00541d10	x	ac2-script glue::math / glue::missile
+00541d70	x	ac2-script glue::math / glue::missile
+00541df0	x	ac2-script glue::math / glue::missile
+00541e50	x	ac2-script glue::math / glue::missile
+00541eb0	x	ac2-script glue::math / glue::missile
+00541f20	x	ac2-script glue::math / glue::missile
+00541f80	x	ac2-script glue::math / glue::missile
+00541ff0	x	ac2-script glue::math / glue::missile
+00542050	x	ac2-script glue::math / glue::missile
+005420b0	x	ac2-script glue::math / glue::missile
+00542110	x	ac2-script glue::math / glue::missile
+00542170	x	ac2-script glue::math / glue::missile
+005421d0	x	ac2-script glue::math / glue::missile
+00542230	x	ac2-script glue::math / glue::missile
 00542530	x	ac2-physics los (Terrain::los_check)
 005425b0	x	ac2-physics los (Terrain::los_check)
 00545420	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
@@ -1286,6 +1324,34 @@ key	status	note
 00558400	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00558480	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00558580	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
+00558690	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558700	x	ac2-script glue::math / glue::missile
+00558750	x	ac2-script glue::math / glue::missile
+005587a0	x	ac2-script glue::math / glue::missile
+005587d0	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558820	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558870	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+005588a0	x	ac2-script glue::math / glue::missile
+005588f0	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558920	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558960	x	ac2-script glue::math / glue::missile
+00558990	x	ac2-script glue::math / glue::missile
+005589d0	x	ac2-script glue::math / glue::missile
+00558a10	x	ac2-script glue::math / glue::missile
+00558a50	x	ac2-script glue::math / glue::missile
+00558aa0	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558b00	x	ac2-script glue::math / glue::missile
+00558b40	x	ac2-script glue::math / glue::missile
+00558b80	x	ac2-script glue::math / glue::missile
+00558bd0	x	ac2-script glue::math / glue::missile
+00558c20	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558c50	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558c80	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558ce0	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558d10	x	ac2-script glue::math / glue::missile
+00558d40	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558d70	x	ac2-script glue::math / glue::missile
+00558dc0	x	ac2-script glue::math / glue::missile
 005597d0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00559840	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 005598b0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)

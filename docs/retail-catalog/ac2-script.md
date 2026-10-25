@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 733 done, 62 partial, 1595 to do, 78 skipped.
+2468 retail functions: 786 done, 75 partial, 1529 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -2327,37 +2327,37 @@ Legend and workflow: [README](README.md).
 - [ ] `gLRMultiHashIter::CallEFun_key` · 00558f00
 - [ ] `gLRMultiHashIter::CallEFun_next` · 00558f70
 
-## `portal/shared/src/interp/glue/gmath.cpp.c` (0/28)
+## `portal/shared/src/interp/glue/gmath.cpp.c` (16/28)
 
 ### gMath
-- [ ] `gMath::CallEFun_MapToUnitInterval` · 00558690
-- [ ] `gMath::CallEFun___max` · 00558700
-- [ ] `gMath::CallEFun___min` · 00558750
-- [ ] `gMath::CallEFun_abs` · 005587a0
-- [ ] `gMath::CallEFun_acos` · 005587d0
-- [ ] `gMath::CallEFun_asin` · 00558820
-- [ ] `gMath::CallEFun_atan` · 00558870
-- [ ] `gMath::CallEFun_ceil` · 005588a0
-- [ ] `gMath::CallEFun_cos` · 005588f0
-- [ ] `gMath::CallEFun_exp` · 00558920
-- [ ] `gMath::CallEFun_fabs` · 00558960
-- [ ] `gMath::CallEFun_fake_abs64` · 00558990 · legions 00530920
-- [ ] `gMath::CallEFun_floatMax` · 005589d0
-- [ ] `gMath::CallEFun_floatMin` · 00558a10
-- [ ] `gMath::CallEFun_floor` · 00558a50
-- [ ] `gMath::CallEFun_fmod` · 00558aa0
-- [ ] `gMath::CallEFun_intMax` · 00558b00
-- [ ] `gMath::CallEFun_intMin` · 00558b40
-- [ ] `gMath::CallEFun_lintMax` · 00558b80
-- [ ] `gMath::CallEFun_lintMin` · 00558bd0
-- [ ] `gMath::CallEFun_log` · 00558c20
-- [ ] `gMath::CallEFun_log10` · 00558c50
-- [ ] `gMath::CallEFun_pow` · 00558c80
-- [ ] `gMath::CallEFun_sin` · 00558ce0
-- [ ] `gMath::CallEFun_sqrt` · 00558d10
-- [ ] `gMath::CallEFun_tan` · 00558d40
-- [ ] `gMath::CallEFun_ulintMax` · 00558d70
-- [ ] `gMath::CallEFun_ulintMin` · 00558dc0
+- [~] `gMath::CallEFun_MapToUnitInterval` · 00558690 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun___max` · 00558700 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun___min` · 00558750 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_abs` · 005587a0 — ac2-script glue::math / glue::missile
+- [~] `gMath::CallEFun_acos` · 005587d0 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [~] `gMath::CallEFun_asin` · 00558820 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [~] `gMath::CallEFun_atan` · 00558870 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_ceil` · 005588a0 — ac2-script glue::math / glue::missile
+- [~] `gMath::CallEFun_cos` · 005588f0 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [~] `gMath::CallEFun_exp` · 00558920 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_fabs` · 00558960 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_fake_abs64` · 00558990 · legions 00530920 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_floatMax` · 005589d0 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_floatMin` · 00558a10 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_floor` · 00558a50 — ac2-script glue::math / glue::missile
+- [~] `gMath::CallEFun_fmod` · 00558aa0 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_intMax` · 00558b00 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_intMin` · 00558b40 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_lintMax` · 00558b80 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_lintMin` · 00558bd0 — ac2-script glue::math / glue::missile
+- [~] `gMath::CallEFun_log` · 00558c20 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [~] `gMath::CallEFun_log10` · 00558c50 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [~] `gMath::CallEFun_pow` · 00558c80 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [~] `gMath::CallEFun_sin` · 00558ce0 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_sqrt` · 00558d10 — ac2-script glue::math / glue::missile
+- [~] `gMath::CallEFun_tan` · 00558d40 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_ulintMax` · 00558d70 — ac2-script glue::math / glue::missile
+- [x] `gMath::CallEFun_ulintMin` · 00558dc0 — ac2-script glue::math / glue::missile
 
 ## `portal/shared/src/interp/glue/gmissileinfo.cpp.c` (0/7)
 
@@ -2370,32 +2370,32 @@ Legend and workflow: [README](README.md).
 - [ ] `gMissileInfo::CallEFun_SetTargetingParameters` · 00542470
 - [ ] `gMissileInfo::CallEFun_SetThrown` · 005424d0
 
-## `portal/shared/src/interp/glue/gmissileparameters.cpp.c` (0/23)
+## `portal/shared/src/interp/glue/gmissileparameters.cpp.c` (23/23)
 
 ### gMissileParameters
-- [ ] `gMissileParameters::CallEFun_SetAffectedByGravity` · 00541990
-- [ ] `gMissileParameters::CallEFun_SetAlignToPath` · 005419f0
-- [ ] `gMissileParameters::CallEFun_SetCanLand` · 00541a50
-- [ ] `gMissileParameters::CallEFun_SetConserveFuel` · 00541ab0
-- [ ] `gMissileParameters::CallEFun_SetDetonatesOnMiss` · 00541b20
-- [ ] `gMissileParameters::CallEFun_SetDetonationProximity` · 00541b80
-- [ ] `gMissileParameters::CallEFun_SetDragFactor` · 00541bf0
-- [ ] `gMissileParameters::CallEFun_SetFollowGroundType` · 00541c50
-- [ ] `gMissileParameters::CallEFun_SetHasNoLifespan` · 00541cb0
-- [ ] `gMissileParameters::CallEFun_SetMaintainDistance` · 00541d10
-- [ ] `gMissileParameters::CallEFun_SetMaxAcceleration` · 00541d70
-- [ ] `gMissileParameters::CallEFun_SetMaxAccelerationUniform` · 00541df0
-- [ ] `gMissileParameters::CallEFun_SetMissileAsHoming` · 00541e50
-- [ ] `gMissileParameters::CallEFun_SetMissileReaction` · 00541eb0
-- [ ] `gMissileParameters::CallEFun_SetMissileSticky` · 00541f20
-- [ ] `gMissileParameters::CallEFun_SetSpeedLimits` · 00541f80
-- [ ] `gMissileParameters::CallEFun_SetSpinRate` · 00541ff0
-- [ ] `gMissileParameters::CallEFun_SetToNoAlign` · 00542050
-- [ ] `gMissileParameters::CallEFun_SetTotalFuel` · 005420b0
-- [ ] `gMissileParameters::CallEFun_SetTotalLifespan` · 00542110
-- [ ] `gMissileParameters::CallEFun_SetTurnMethod` · 00542170
-- [ ] `gMissileParameters::CallEFun_SetUseNoFuel` · 005421d0
-- [ ] `gMissileParameters::CallEFun_UseEnvironmentalMaximumVelocities` · 00542230
+- [x] `gMissileParameters::CallEFun_SetAffectedByGravity` · 00541990 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetAlignToPath` · 005419f0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetCanLand` · 00541a50 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetConserveFuel` · 00541ab0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetDetonatesOnMiss` · 00541b20 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetDetonationProximity` · 00541b80 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetDragFactor` · 00541bf0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetFollowGroundType` · 00541c50 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetHasNoLifespan` · 00541cb0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetMaintainDistance` · 00541d10 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetMaxAcceleration` · 00541d70 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetMaxAccelerationUniform` · 00541df0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetMissileAsHoming` · 00541e50 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetMissileReaction` · 00541eb0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetMissileSticky` · 00541f20 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetSpeedLimits` · 00541f80 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetSpinRate` · 00541ff0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetToNoAlign` · 00542050 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetTotalFuel` · 005420b0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetTotalLifespan` · 00542110 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetTurnMethod` · 00542170 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_SetUseNoFuel` · 005421d0 — ac2-script glue::math / glue::missile
+- [x] `gMissileParameters::CallEFun_UseEnvironmentalMaximumVelocities` · 00542230 — ac2-script glue::math / glue::missile
 
 ## `portal/shared/src/interp/glue/gmissiletargetingparameters.cpp.c` (0/12)
 
@@ -3143,24 +3143,24 @@ Legend and workflow: [README](README.md).
 ### gUISaveLocations
 - [ ] `gUISaveLocations::CallEFun_Clear` · 00537e30
 
-## `portal/shared/src/interp/glue/gvector.cpp.c` (0/15)
+## `portal/shared/src/interp/glue/gvector.cpp.c` (14/15)
 
 ### gVector
-- [ ] `gVector::CallEFun_Add` · 005376c0
-- [ ] `gVector::CallEFun_Copy` · 00537730
-- [ ] `gVector::CallEFun_MagnitudeSquared` · 005377a0
-- [ ] `gVector::CallEFun_Normalize` · 005377e0
-- [ ] `gVector::CallEFun_Scale` · 00537840
-- [ ] `gVector::CallEFun_Set` · 005378b0
-- [ ] `gVector::CallEFun_Subtract` · 00537920
-- [ ] `gVector::CallEFun_Dot` · 00537990
-- [ ] `gVector::CallEFun_Equals` · 00537a20
-- [ ] `gVector::CallEFun_GetX` · 00537af0
-- [ ] `gVector::CallEFun_GetY` · 00537b60
-- [ ] `gVector::CallEFun_GetZ` · 00537bd0
-- [ ] `gVector::CallEFun_Magnitude` · 00537c40
-- [ ] `gVector::CallEFun_Cross` · 00537cd0
-- [ ] `gVector::CallEFun_GetStringW` · 00537db0
+- [x] `gVector::CallEFun_Add` · 005376c0 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_Copy` · 00537730 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_MagnitudeSquared` · 005377a0 — ac2-script glue::math / glue::missile
+- [~] `gVector::CallEFun_Normalize` · 005377e0 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gVector::CallEFun_Scale` · 00537840 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_Set` · 005378b0 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_Subtract` · 00537920 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_Dot` · 00537990 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_Equals` · 00537a20 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_GetX` · 00537af0 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_GetY` · 00537b60 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_GetZ` · 00537bd0 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_Magnitude` · 00537c40 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_Cross` · 00537cd0 — ac2-script glue::math / glue::missile
+- [x] `gVector::CallEFun_GetStringW` · 00537db0 — ac2-script glue::math / glue::missile
 
 ## `portal/shared/src/interp/glue/gvisualdesc.cpp.c` (0/13)
 

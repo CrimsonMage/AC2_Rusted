@@ -294,3 +294,64 @@ fn random_selection_tables_choose_without_replacement_and_start_over() {
     let (_, r) = call(&mut vm, 0x005F_0001, 1, &[], t); // RollPercentile
     assert!((1..=100).contains(&r[0].0));
 }
+
+#[test]
+fn math_vector_and_missile_glue_use_retail_slots() {
+    use crate::native::{ntype, MissileParameters};
+    let mut vm = vm();
+    let d = |x: f64| [(x.to_bits() >> 32) as u32, x.to_bits() as u32];
+    // __max(2.5, -1.0): doubles high word first, the result low word tagged 0x84.
+    let args = [d(2.5), d(-1.0)].concat();
+    let (_, r) = call(&mut vm, 0x0044_0013, 2, &args, u32::MAX);
+    assert_eq!(r[0], (2.5f64.to_bits() as u32, 0x84));
+    assert_eq!(r[1].0, (2.5f64.to_bits() >> 32) as u32);
+    let (_, r) = call(&mut vm, 0x0044_0015, 1, &[3, (-7i32) as u32], u32::MAX); // intMax
+    assert_eq!(r[0].0, 3);
+    let (_, r) = call(
+        &mut vm,
+        0x0044_001E,
+        2,
+        &[u32::MAX, (-5i32) as u32],
+        u32::MAX,
+    ); // fake_abs64
+    assert_eq!((r[0].0, r[1].0), (5, 0));
+    // Vectors: Set, Cross, Dot, GetStringW.
+    let a = vm
+        .refs
+        .create_native(ntype::VECTOR, NativeObject::Vector([0.0; 3]));
+    let b = vm
+        .refs
+        .create_native(ntype::VECTOR, NativeObject::Vector([0.0, 1.0, 0.0]));
+    let f = |x: f32| x.to_bits();
+    call(&mut vm, 0x0070_0006, 0, &[f(1.0), f(0.0), f(0.0)], a); // Set
+    let (_, r) = call(&mut vm, 0x0070_0001, 1, &[b], a); // Cross
+    assert!(matches!(vm.native(r[0].0), Some(NativeObject::Vector(v)) if *v == [0.0, 0.0, 1.0]));
+    let (_, r) = call(&mut vm, 0x0070_0002, 1, &[b], a); // Dot
+    assert_eq!(r[0], (0f32.to_bits(), tag::BOOL));
+    use crate::vm::refs::{flags, ReferenceTable, Target};
+    let s = vm.new_wstring(Vec::new());
+    let mut holder = ReferenceTable::new_instance(0, 1);
+    holder.slots[0] = s;
+    holder.tags[0] = tag::REF;
+    let holder = vm.refs.add(
+        flags::KIND_HEAP | flags::FILLED,
+        Target::Heap(Box::new(holder)),
+    );
+    let out = vm.refs.add(flags::KIND_VALUE, Target::Ref(holder));
+    call(&mut vm, 0x0070_000F, 0, &[out], a); // GetStringW(out string)
+    assert_eq!(vm.wstring(s), Some(w("(1.000, 0.000, 0.000)").as_slice()));
+    // A missile setter writes its fields and its group's bit.
+    let m = vm.refs.create_native(
+        ntype::MISSILE_PARAMETERS,
+        NativeObject::MissileParameters(MissileParameters::default()),
+    );
+    call(&mut vm, 0x0046_0001, 0, &[f(20.0), f(2.0)], m); // SetSpeedLimits
+    call(&mut vm, 0x0046_0014, 0, &[1], m); // SetMissileSticky
+    let Some(NativeObject::MissileParameters(p)) = vm.native(m) else {
+        panic!()
+    };
+    assert_eq!(p.bitfield, 0x4001);
+    assert_eq!(p.field("max_velocity"), Some(f(20.0)));
+    assert_eq!(p.field("sticks_upon_collide"), Some(1));
+    assert_eq!(p.field("height_above_ground"), Some(f(1.5)));
+}
