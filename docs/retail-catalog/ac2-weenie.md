@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 54 done, 0 partial, 1844 to do, 6 skipped.
+1904 retail functions: 60 done, 3 partial, 1835 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (16/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (22/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -921,7 +921,7 @@ Legend and workflow: [README](README.md).
 
 ### gmCWInterface
 - [ ] `gmCWInterface::InqName` · 0044f9e0 · legions 00450b20
-- [ ] `gmCWInterface::GetPotentiallyPluralizedName` · 0044fa00 · legions 00450b40
+- [~] `gmCWInterface::GetPotentiallyPluralizedName` · 0044fa00 · legions 00450b40 — ItemStats::display_name (gmEntity 0x10B/0x9F/0xAD); plural IsValid against the DAT tables left to the resolver
 - [ ] `gmCWInterface::GetPhysObjID` · 0044fa70 · legions 00450bb0
 - [ ] `gmCWInterface::SetSelection` · 0044faa0 · legions 00450be0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [ ] `gmCWInterface::GetSelection` · 0044fac0 · legions 00450c00 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
@@ -987,11 +987,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::DragFromMoneyBag` · 00450700 · legions 00451840
 - [ ] `gmCWInterface::LootAllFromContainer` · 00450730 · legions 00451870 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
 - [ ] `gmCWInterface::TransmuteAllFromContainer` · 00450750 · legions 00451890 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
-- [ ] `gmCWInterface::HasDurability` · 00450770 · legions 004518b0
-- [ ] `gmCWInterface::GetDurabilityLevel` · 004507a0 · legions 004518e0
-- [ ] `gmCWInterface::GetMaxDurabilityLevel` · 004507d0 · legions 00451910
-- [ ] `gmCWInterface::GetIconID` · 00450800 · legions 00451940
-- [ ] `gmCWInterface::GetMaxContainerSize` · 00450830 · legions 00451970
+- [x] `gmCWInterface::HasDurability` · 00450770 · legions 004518b0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
+- [x] `gmCWInterface::GetDurabilityLevel` · 004507a0 · legions 004518e0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
+- [x] `gmCWInterface::GetMaxDurabilityLevel` · 004507d0 · legions 00451910 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
+- [x] `gmCWInterface::GetIconID` · 00450800 · legions 00451940 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
+- [~] `gmCWInterface::GetMaxContainerSize` · 00450830 · legions 00451970 — ItemStats::capacity: int 280 default 12; the EffectSystem pass is not applied
 - [ ] `gmCWInterface::GetAvailableExperience` · 00450860 · legions 004519a0 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
 - [ ] `gmCWInterface::GetSkillCredits` · 004508a0 · legions 004519e0 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
 - [ ] `gmCWInterface::GetHeroSkillCredits` · 004508d0 · legions 00451a10 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
@@ -1023,9 +1023,9 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::Result_IgnoredDelete` · 00450e00 · legions 00451f40 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 - [ ] `gmCWInterface::Result_CallCreate` · 00450e20 · legions 00451f60
 - [ ] `gmCWInterface::InqEffectList` · 00450e60 · legions 00451fa0
-- [ ] `gmCWInterface::GetStackable` · 00450ea0 · legions 00451fe0
-- [ ] `gmCWInterface::GetQuantity` · 00450ed0 · legions 00452010
-- [ ] `gmCWInterface::GetMaxStackSize` · 00450f00 · legions 00452040
+- [x] `gmCWInterface::GetStackable` · 00450ea0 · legions 00451fe0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
+- [x] `gmCWInterface::GetQuantity` · 00450ed0 · legions 00452010 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
+- [~] `gmCWInterface::GetMaxStackSize` · 00450f00 · legions 00452040 — ItemStats::max_stack: int 261; InventoryGlobals slot-5 default only through the VM
 - [ ] `gmCWInterface::SetExaminationRequest` · 00450f30 · legions 00452070 — ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
 - [ ] `gmCWInterface::AddEffectDataToProfileByEID` · 00450f50 · legions 00452090
 - [ ] `gmCWInterface::StartExamination` · 00450f80 · legions 004520c0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6

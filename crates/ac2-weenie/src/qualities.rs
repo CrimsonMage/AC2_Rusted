@@ -87,6 +87,96 @@ impl WeenieQualities {
     }
 }
 
+/// `CBaseQualities::Inq*` (`InqInt`, `InqBool`, ...): the description answers first
+/// (`gmWeenieDesc::Query*Stat` names its fields; `gmWeenieDesc::Inq*` answers only a field that
+/// was set), then the quality's table. Retail then asks `m_defaults` (the class defaults),
+/// which the client does not have.
+impl WeenieQualities {
+    fn desc(&self, stype: u32) -> Option<&WeenieDesc> {
+        self.weenie.as_ref().filter(|_| stype < 0x1_0000)
+    }
+
+    /// `gmWeenieDesc::QueryIntStat`'s fields, as set.
+    fn desc_int(w: &WeenieDesc, stype: u32) -> Option<i32> {
+        match stype {
+            3 => w.physics_type.0,
+            4 => w.physics_type.1,
+            5 => w.placement_ethereal.0,
+            6 => w.placement_ethereal.1,
+            7 => w.movement_ethereal.0,
+            8 => w.movement_ethereal.1,
+            0x106 => w.quantity,
+            0x226 => w.pk_always_true,
+            0x227 => w.pk_always_false,
+            0x264 => w.value,
+            0x26A => w.durability_max,
+            0x26B => w.durability_current,
+            2000 => w.faction_type,
+            _ => None,
+        }
+    }
+
+    pub fn inq_int(&self, stype: u32) -> Option<i32> {
+        self.desc(stype)
+            .and_then(|w| Self::desc_int(w, stype))
+            .or_else(|| self.ints.get(&stype).copied())
+    }
+
+    /// `gmWeenieDesc::QueryBoolStat`: each flag is a `_bitfield` bit, set when its mask bit is.
+    pub fn inq_bool(&self, stype: u32) -> Option<i32> {
+        let (mask, bit) = match stype {
+            10 => (0x0100_0000, 4),
+            0x117 => (0x4000, 8),
+            0x270 => (0x0080_0000, 2),
+            0x2BE => (0x400, 1),
+            _ => (0, 0),
+        };
+        self.desc(stype)
+            .filter(|w| w.data_mask & mask != 0)
+            .map(|w| i32::from(w.bitfield.unwrap_or(0) & bit != 0))
+            .or_else(|| self.bools.get(&stype).copied())
+    }
+
+    pub fn inq_float(&self, stype: u32) -> Option<f32> {
+        self.desc(stype)
+            .filter(|_| stype == 0x12A)
+            .and_then(|w| w.scale)
+            .or_else(|| self.floats.get(&stype).copied())
+    }
+
+    pub fn inq_data_id(&self, stype: u32) -> Option<u32> {
+        self.desc(stype)
+            .filter(|_| stype == 0x101)
+            .and_then(|w| w.icon)
+            .or_else(|| self.dids.get(&stype).copied())
+    }
+
+    pub fn inq_instance_id(&self, stype: u32) -> Option<u64> {
+        let field = |w: &WeenieDesc| match stype {
+            0x102 => w.container,
+            0x105 => w.wielder,
+            0x140 => w.killer,
+            0x141 => w.originator,
+            0x142 => w.claimant,
+            0x1C4 => w.monarch,
+            0x1F9 => w.pet_summoner,
+            _ => None,
+        };
+        self.desc(stype)
+            .and_then(field)
+            .or_else(|| self.iids.get(&stype).copied())
+    }
+
+    pub fn inq_string_info(&self, stype: u32) -> Option<StringInfo> {
+        let field = match (self.desc(stype), stype) {
+            (Some(w), 0x100) => w.name.as_ref(),
+            (Some(w), 0x101) => w.plural_name.as_ref(),
+            _ => None,
+        };
+        field.or_else(|| self.string_infos.get(&stype)).cloned()
+    }
+}
+
 /// `gmWeenieDesc::Query*Stat` and `gmWeenieDesc::Set*` together: whether the quality is a
 /// description field, and if so the field set with its data-mask bit.
 fn set_in_weenie_desc(w: &mut WeenieDesc, quality: u32, value: &QualityValue) -> bool {
@@ -169,6 +259,25 @@ fn set_in_weenie_desc(w: &mut WeenieDesc, quality: u32, value: &QualityValue) ->
 mod tests {
     use super::WeenieQualities;
     use ac2_net::protocol::QualityValue;
+
+    #[test]
+    fn inq_reads_the_description_before_the_tables() {
+        let mut q = WeenieQualities::default();
+        q.set(0x106, &QualityValue::Int(5));
+        q.set(0x2BE, &QualityValue::Bool(1));
+        q.set(0x101, &QualityValue::DataId(0x0600_1001));
+        q.set(261, &QualityValue::Int(10));
+        assert_eq!(q.inq_int(0x106), Some(5));
+        assert_eq!(q.inq_int(261), Some(10));
+        assert_eq!(q.inq_int(0x264), None);
+        // A description field it does not carry falls through to the table.
+        q.ints.insert(0x264, 7);
+        assert_eq!(q.inq_int(0x264), Some(7));
+        assert_eq!(q.inq_bool(0x2BE), Some(1));
+        assert_eq!(q.inq_bool(10), None);
+        assert_eq!(q.inq_data_id(0x101), Some(0x0600_1001));
+        assert!(q.ints.get(&0x106).is_none());
+    }
 
     #[test]
     fn description_fields_go_into_the_weenie_desc_with_their_mask_bits() {

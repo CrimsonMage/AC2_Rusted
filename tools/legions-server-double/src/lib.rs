@@ -9,6 +9,7 @@ mod appearance;
 mod assembly;
 mod channel;
 mod character;
+mod items;
 mod lossy;
 mod reliable;
 mod script;
@@ -22,6 +23,7 @@ pub use appearance::{
 pub use assembly::{fragment_header_bytes, Assembler};
 pub use channel::{Channel, ChannelStats, Conditions, Direction, InFlight, SplitMix};
 pub use character::{default_options, Character, MELEE_ATTACK, MELEE_AUTO_ATTACK, RACE_HUMAN};
+pub use items::{item_object_bytes, starter_items, ItemSpawn, PACK, POTIONS, SWORD};
 pub use lossy::LossyTransport;
 pub use reliable::{newer, ClientTracker, SentStore, Stored, Verdict, MAX_IDS};
 pub use script::ScriptWorld;

@@ -22,6 +22,7 @@ mod gameplay;
 mod hud_player;
 #[cfg(feature = "window")]
 mod hud_view;
+mod item_queries;
 mod loader;
 mod motion;
 mod pregame;
@@ -55,7 +56,10 @@ pub use client::{
 };
 pub use controls::frame_input;
 pub use frame::{ClientFrame, Holder, ObjectFrame, PlayerFrame};
-pub use gameplay::{Command, ContainerFrame, InventoryFrame, ProgressFrame, SelectionFrame};
+pub use gameplay::{
+    Command, ContainerFrame, InventoryFrame, ItemFrame, ProgressFrame, SelectionFrame,
+};
+pub use item_queries::ItemDisplay;
 pub use motion::PartPose;
 pub use pregame::{pregame_event, pregame_notice, pregame_requests, PregameOutcome};
 pub use scene::CameraFrame;

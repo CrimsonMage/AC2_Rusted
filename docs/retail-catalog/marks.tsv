@@ -340,6 +340,7 @@ key	status	note
 0044dea0	x	ac2-ui meter.rs
 0044ded0	x	ac2-ui meter.rs
 0044def0	x	ac2-ui meter.rs
+0044fa00	~	ItemStats::display_name (gmEntity 0x10B/0x9F/0xAD); plural IsValid against the DAT tables left to the resolver
 0044faa0	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 0044fac0	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 0044fb20	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
@@ -352,6 +353,11 @@ key	status	note
 00450530	_	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 00450730	_	ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
 00450750	_	ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
+00450770	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
+004507a0	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
+004507d0	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
+00450800	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
+00450830	~	ItemStats::capacity: int 280 default 12; the EffectSystem pass is not applied
 00450860	_	ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
 004508a0	_	ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
 004508d0	_	ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
@@ -369,6 +375,9 @@ key	status	note
 00450c60	_	ac2-weenie OnlineSession::request_skill(SkillRequest) -> WM_Skill 0x13/0x12/0x10/0xF (CPlayer 0x53/0xF3/0x124/0xB1); ac2-client Command::Skill
 00450de0	_	ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 00450e00	_	ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
+00450ea0	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
+00450ed0	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
+00450f00	~	ItemStats::max_stack: int 261; InventoryGlobals slot-5 default only through the VM
 00450f30	_	ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
 00450f80	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 00450fa0	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
@@ -1791,6 +1800,12 @@ key	status	note
 00518dc0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 005192f0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 00519a60	x	
+00519c10	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+00519dc0	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+00519e90	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+0051a050	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+0051a130	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+0051a3c0	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
 0051ad30	x	
 0051af80	x	
 0051b270	x	
