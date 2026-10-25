@@ -92,6 +92,7 @@ fn contents_moves_and_equipment_round_trip_through_the_double() {
             origin: [60.0, 240.0, -44.5],
             rotation: [1.0, 0.0, 0.0, 0.0],
             stamps: [1, 1, 1, 1],
+            name: "Side Pack",
         }));
         s.send_contents(PACK);
     }

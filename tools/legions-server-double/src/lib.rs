@@ -150,11 +150,14 @@ pub struct ObjectSpawn {
     pub rotation: [f32; 4],
     /// `PhysicsDesc` timestamps: position, teleport, force position, move-to.
     pub stamps: [u16; 4],
+    /// The weenie's name (`gmWeenieDesc` bit 4, a literal `StringInfo`), as retail servers send
+    /// one for every weenie; empty for none.
+    pub name: &'static str,
 }
 
 /// `CreateObject`: the id; `VisualDesc` with its parent (bit 2); `PhysicsDesc` with a position
 /// (bit `0x8000`), the instance stamp, visual stamp 0, the cell and frame, the four timestamps;
-/// an empty `WeenieDesc`.
+/// a `WeenieDesc` with the name, if any.
 pub fn create_object_bytes(object: &ObjectSpawn) -> Vec<u8> {
     let mut b = 0x0001_0058u32.to_le_bytes().to_vec();
     b.extend(object.id.to_le_bytes());
@@ -168,7 +171,12 @@ pub fn create_object_bytes(object: &ObjectSpawn) -> Vec<u8> {
     for stamp in object.stamps {
         b.extend(stamp.to_le_bytes());
     }
-    words(&mut b, &[0]);
+    if object.name.is_empty() {
+        words(&mut b, &[0]);
+    } else {
+        words(&mut b, &[4]);
+        b.extend(ac2_net::protocol::StringInfo::literal(object.name).to_bytes());
+    }
     b
 }
 
@@ -228,7 +236,7 @@ pub fn object_event_bytes(opcode: u32, id: u64, instance: u16, args: &[u32]) -> 
 }
 
 /// The player's `CreateObject`: a visual parent, a physics position and the stamps
-/// (position 4, teleport 5, force position 6, move-to 7), no weenie fields.
+/// (position 4, teleport 5, force position 6, move-to 7), and its name.
 fn create_object(spawn: &Spawn) -> Vec<u8> {
     create_object_bytes(&ObjectSpawn {
         id: PLAYER,
@@ -238,6 +246,7 @@ fn create_object(spawn: &Spawn) -> Vec<u8> {
         origin: spawn.origin,
         rotation: spawn.rotation,
         stamps: [4, 5, 6, 7],
+        name: "Explorer",
     })
 }
 

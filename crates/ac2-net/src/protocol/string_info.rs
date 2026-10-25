@@ -121,6 +121,21 @@ impl StringInfo {
     }
 
     /// `StringInfo::Pack`.
+    /// `StringInfo::Pack` on its own (alignment from its start): the server's side.
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut w = Writer::new();
+        self.write(&mut w);
+        w.bytes
+    }
+
+    /// A literal (`StringInfo::SetLiteralValue`).
+    pub fn literal(text: &str) -> Self {
+        Self {
+            literal: Some(text.to_owned()),
+            ..Self::default()
+        }
+    }
+
     pub(crate) fn write(&self, writer: &mut Writer) {
         writer
             .u32(self.string_id)
