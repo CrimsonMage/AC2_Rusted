@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 113 done, 67 partial, 2050 to do, 17 skipped.
+2247 retail functions: 121 done, 77 partial, 2032 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -2029,7 +2029,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CImeFontWrapper::GetTextExtent` · 004bddb0 · legions 004b20d0
 - [ ] `CImeFontWrapper::DrawTextA` · 004bde10 · legions 004b2130
 
-## `portal/client/src/cinputmap/cinputmanager.cpp.c` (2/16)
+## `portal/client/src/cinputmap/cinputmanager.cpp.c` (4/16)
 
 ### CInputManager
 - [ ] `CInputManager::CInputManager` · 00599540 · legions 005665e0
@@ -2047,13 +2047,13 @@ Legend and workflow: [README](README.md).
 - [ ] `CInputManager::RemoveHandlerFromList` · 00599980 · legions 005669b0
 - [ ] `CInputManager::RegisterInputHandler` · 005999d0 · legions 00566a00
 - [ ] `CInputManager::UnregisterInputHandler` · 00599ae0 · legions 00566b10
-- [ ] `CInputManager::CallCharacterHandler` · 00599b50 · legions 00566b80
+- [x] `CInputManager::CallCharacterHandler` · 00599b50 · legions 00566b80 — ac2-ui input.rs / text_edit.rs: typing into text elements
 - [x] `CInputManager::CallActionHandler` · 00599b90 · legions 00566bc0 — ac2-ui input.rs
 - [x] `CInputManager::CallMouseLookHandler` · 00599c00 · legions 00566c30 — ac2-ui input.rs
 - [ ] `CInputManager::CallKeyHitHandler` · 00599c40 · legions 00566c70
 - [ ] `CInputManager::CallFocusSwitchHandler` · 00599c80 · legions 00566cb0
 - [~] `CInputManager::SetMouseLookMode` · 00599ce0 · legions 00566d10 — ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
-- [ ] `CInputManager::SetTextMode` · 00599d40 · legions 00566d70
+- [x] `CInputManager::SetTextMode` · 00599d40 · legions 00566d70 — ac2-ui input.rs / text_edit.rs: typing into text elements
 
 ## `portal/client/src/cinputmap/ckeymap.cpp.c` (3/23)
 
@@ -2102,14 +2102,14 @@ Legend and workflow: [README](README.md).
 - [ ] `CKeyMap::Allocate` · 0059e210
 - [-] `CKeyMap::FromFileNode` · 0059e240 — text source format (admin tools)
 
-## `portal/client/src/cinputmap/directx/cinputmanager_win32.cpp.c` (9/35)
+## `portal/client/src/cinputmap/directx/cinputmanager_win32.cpp.c` (11/35)
 
 ### CInputManager_WIN32
 - [x] `CInputManager_WIN32::IsMetaKey` · 0059e260 · legions 0056b200 — ac2-ui input.rs
 - [x] `CInputManager_WIN32::MetaModeFromKey` · 0059e320 · legions 0056b2c0 — ac2-ui input.rs
 - [ ] `CInputManager_WIN32::PollDevice` · 0059e400 · legions 0056b3a0
-- [ ] `CInputManager_WIN32::IsUIAction` · 0059e470 · legions 0056b410
-- [ ] `CInputManager_WIN32::UpdateCharacter` · 0059e500 · legions 0056b4a0
+- [x] `CInputManager_WIN32::IsUIAction` · 0059e470 · legions 0056b410 — ac2-ui input.rs / text_edit.rs: typing into text elements
+- [x] `CInputManager_WIN32::UpdateCharacter` · 0059e500 · legions 0056b4a0 — ac2-ui input.rs / text_edit.rs: typing into text elements
 - [ ] `CInputManager_WIN32::OurMapVirtualKey` · 0059e520 · legions 0056b4c0
 
 ### _STL::_Rb_tree_iterator<_STL::pair<ActionWithModifiers_const_,ActionMapValue>,_STL::_Nonconst_traits<_STL::pair<ActionWithModifiers_const_,ActionMapValue>_>_>
@@ -2138,9 +2138,9 @@ Legend and workflow: [README](README.md).
 - [ ] `CInputManager_WIN32::Init` · 0059f210 · legions 0056bfc0
 - [x] `CInputManager_WIN32::GetInputActionFromKey` · 0059f5d0 · legions 0056c380 — ac2-ui input.rs
 - [x] `CInputManager_WIN32::ReleaseKey` · 0059f690 · legions 0056c440 — ac2-ui input.rs
-- [ ] `CInputManager_WIN32::SwitchTextMode` · 0059f750 · legions 0056c500
+- [~] `CInputManager_WIN32::SwitchTextMode` · 0059f750 · legions 0056c500 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 - [x] `CInputManager_WIN32::SetKey` · 0059f980 · legions 0056c730 — ac2-ui input.rs
-- [ ] `CInputManager_WIN32::UpdateVirtualKey` · 0059fa30 · legions 0056c7e0
+- [~] `CInputManager_WIN32::UpdateVirtualKey` · 0059fa30 · legions 0056c7e0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 
 ### _STL::deque<HashTable<CInputManager_WIN32::QualifiedKey,unsigned_long>,_STL::allocator<HashTable<CInputManager_WIN32::QualifiedKey,unsigned_long>_>_>
 - [ ] `_STL::deque<HashTable<CInputManager_WIN32::QualifiedKey,unsigned_long>,_STL::allocator<HashTable<CInputManager_WIN32::QualifiedKey,unsigned_long>_>_>::~deque<HashTable<CInputManager_WIN32::QualifiedKey,unsigned_long>,_STL::allocator<HashTable<CInputManager_WIN32::QualifiedKey,unsigned_long>_>_>` · 0059fbf0 · legions 00645850
@@ -2746,7 +2746,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [ ] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180
 
-## `portal/client/src/uielement/system/uielement.cpp.c` (21/104)
+## `portal/client/src/uielement/system/uielement.cpp.c` (23/104)
 
 ### UIRectangleObject
 - [ ] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790
@@ -2794,8 +2794,8 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::GetParentCurrentPosition` · 005e9340 · legions 005a9fa0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIElement::UpdateActivatable` · 005e93e0 · legions 005aa040
 - [ ] `UIElement::UpdateActivateOrder` · 005e9420 · legions 005aa080
-- [ ] `UIElement::Activate` · 005e9470 · legions 005aa0d0
-- [ ] `UIElement::Deactivate` · 005e94c0 · legions 005aa120
+- [x] `UIElement::Activate` · 005e9470 · legions 005aa0d0 — ac2-ui input.rs / text_edit.rs: typing into text elements
+- [x] `UIElement::Deactivate` · 005e94c0 · legions 005aa120 — ac2-ui input.rs / text_edit.rs: typing into text elements
 
 ### UIRegion
 - [ ] `UIRegion::GetScreenX1` · 005e94f0 · legions 005aa150
@@ -2888,7 +2888,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElementManager::ClearTooltip` · 005e3740 · legions 005a4570
 - [ ] `UIElementManager::CheckDragandDrop` · 005e37c0 · legions 005a45f0
 - [ ] `UIElementManager::ClearDragandDrop` · 005e3820 · legions 005a4650
-- [ ] `UIElementManager::ActivationAlert` · 005e38b0 · legions 005a46e0
+- [~] `UIElementManager::ActivationAlert` · 005e38b0 · legions 005a46e0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 
 ### SmartArray<CPartGroup_*>
 - [ ] `SmartArray<CPartGroup_*>::RemoveOrdered` · 005e3910 · legions 005a4740
@@ -2898,7 +2898,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElementManager::ChangingElementVisibility` · 005e3aa0 · legions 005a48d0
 - [~] `UIElementManager::MouseMoveEvent` · 005e3af0 · legions 005a4920 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [~] `UIElementManager::UpdateMouse` · 005e3b70 · legions 005a49a0 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-- [~] `UIElementManager::MouseDownEvent` · 005e3cc0 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+- [~] `UIElementManager::MouseDownEvent` · 005e3cc0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 - [ ] `UIElementManager::CleanDeleteQueue` · 005e3de0 · legions 005a4c10
 - [ ] `UIElementManager::StartTooltip` · 005e3e90 · legions 005a4cc0
 - [ ] `UIElementManager::StartDragandDrop` · 005e42e0
@@ -3034,7 +3034,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StringDownload::OnTopLevelRequestFinished` · 005fd150
 - [ ] `StringDownload::StringDownload` · 005fd210 · legions 005bdd40
 
-## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (8/92)
+## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (10/92)
 
 ### (free functions)
 - [ ] `NumberInputFilter` · 005ed7c0
@@ -3044,10 +3044,10 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::HandleMouseWheel` · 005ed840 · legions 005ae410
 - [x] `UIElement_Text::CalcJustification` · 005ed8b0 · legions 005ae480 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::IMETurnOn` · 005ed950 · legions 005ae540
-- [ ] `UIElement_Text::Activate` · 005ed9a0 · legions 005ae590
-- [ ] `UIElement_Text::Deactivate` · 005eda10 · legions 005ae600
+- [~] `UIElement_Text::Activate` · 005ed9a0 · legions 005ae590 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+- [~] `UIElement_Text::Deactivate` · 005eda10 · legions 005ae600 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 - [ ] `UIElement_Text::CleanupStringDownloads` · 005eda80 · legions 005ae670
-- [ ] `UIElement_Text::SetAtrb_Editable` · 005edaf0 · legions 005ae6e0
+- [x] `UIElement_Text::SetAtrb_Editable` · 005edaf0 · legions 005ae6e0 — ac2-ui input.rs / text_edit.rs: typing into text elements
 - [x] `UIElement_Text::DetermineMarginValues` · 005edb30 · legions 005ae720 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::SetAtrb_OneLine` · 005edbf0 · legions 005ae7e0
 - [ ] `UIElement_Text::GetPercentageV` · 005edc40 · legions 005ae830
@@ -3074,7 +3074,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::UpdateScrollbar` · 005ee550 · legions 005af140
 - [x] `UIElement_Text::ResizeTo` · 005ee6a0 · legions 005af290 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::DetermineFont` · 005ee6f0 · legions 005af2e0
-- [ ] `UIElement_Text::SetCursorPosition` · 005ee850 · legions 005af3e0
+- [~] `UIElement_Text::SetCursorPosition` · 005ee850 · legions 005af3e0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 - [~] `UIElement_Text::UIElement_Text` · 005eea40 · legions 005af5d0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [~] `UIElement_Text::SetAttribute_Int` · 005eec20 · legions 005af780 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [ ] `UIElement_Text::Create` · 005eed10
@@ -3098,8 +3098,8 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::SetViewY` · 005f0080 · legions 005b0bb0
 - [x] `UIElement_Text::DrawStart` · 005f00a0 · legions 005b0bd0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::DeterminePositionFromXY` · 005f00b0 · legions 005b0be0
-- [ ] `UIElement_Text::SetCursorPosition` · 005f01d0 · legions 005b0d00
-- [ ] `UIElement_Text::MouseDown` · 005f0200 · legions 005b0d30
+- [~] `UIElement_Text::SetCursorPosition` · 005f01d0 · legions 005b0d00 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+- [~] `UIElement_Text::MouseDown` · 005f0200 · legions 005b0d30 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 - [ ] `UIElement_Text::MouseUp` · 005f02e0 · legions 005b0e10
 - [ ] `UIElement_Text::Global_MouseMove` · 005f0370 · legions 005b0ea0
 - [ ] `UIElement_Text::DetermineAndSetNewLine` · 005f03e0 · legions 005b0f10
@@ -3112,16 +3112,16 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::ScrollToHome` · 005f0750 · legions 005b1280
 - [ ] `UIElement_Text::ScrollToEnd` · 005f0770 · legions 005b12a0
 - [ ] `UIElement_Text::HandleScrollBarMessage` · 005f0790 · legions 005b12c0
-- [ ] `UIElement_Text::MoveCursor` · 005f0940 · legions 005b1470
+- [~] `UIElement_Text::MoveCursor` · 005f0940 · legions 005b1470 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 - [ ] `UIElement_Text::MoveCursorToEnd` · 005f0ad0 · legions 005b1600
 - [ ] `UIElement_Text::DeleteChar` · 005f0b10 · legions 005b1640
 - [ ] `UIElement_Text::DeleteSelection` · 005f0b30 · legions 005b1660
 - [~] `UIElement_Text::AddText_Internal` · 005f0ba0 · legions 005b16d0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [ ] `UIElement_Text::Cut` · 005f0cf0
-- [ ] `UIElement_Text::ActionHandler` · 005f0d50
+- [x] `UIElement_Text::ActionHandler` · 005f0d50 — ac2-ui input.rs / text_edit.rs: typing into text elements
 - [~] `UIElement_Text::CheckStringDownloads` · 005f0e90 · legions 005b19c0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [ ] `UIElement_Text::Paste` · 005f0f70
-- [ ] `UIElement_Text::CharacterHandler` · 005f0ff0
+- [~] `UIElement_Text::CharacterHandler` · 005f0ff0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 - [ ] `UIElement_Text::Global_Loop` · 005f12a0 · legions 005b1dd0
 - [ ] `UIElement_Text::AddStringInfowFont` · 005f1350 · legions 005b1e80
 - [ ] `UIElement_Text::AddStringInfowFont` · 005f13e0 · legions 005b1f10

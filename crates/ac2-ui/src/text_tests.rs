@@ -162,3 +162,116 @@ fn a_centred_entry_draws_each_glyph_but_its_last_column() {
     assert_eq!(row, inked);
     assert_eq!(&surface.rgba[8..12], &[255, 255, 255, 255]);
 }
+
+fn element(
+    name: &str,
+    kind: u32,
+    rect: Rect,
+    attributes: Vec<AttributeDesc>,
+    children: Vec<ElementDesc>,
+) -> ElementDesc {
+    ElementDesc {
+        id: tokenize(name),
+        kind,
+        default_state: STATELESS,
+        rect,
+        z_level: 0,
+        edges: [0; 4],
+        states: vec![StateDesc {
+            id: STATELESS,
+            flags: 0,
+            rect: Rect {
+                x0: -1,
+                y0: -1,
+                x1: -1,
+                y1: -1,
+            },
+            z_level: 0,
+            attributes,
+            media: Vec::new(),
+            transitions: Vec::new(),
+            children: children.into_iter().map(Arc::new).collect(),
+        }],
+    }
+}
+
+fn flag(name: &str) -> AttributeDesc {
+    AttributeDesc {
+        id: tokenize(name),
+        value: AttributeValue::Bool(true),
+    }
+}
+
+#[test]
+fn clicking_an_editable_field_takes_typing_until_a_click_elsewhere() {
+    let entry = element(
+        "entry",
+        TEXT,
+        Rect {
+            x0: 0,
+            y0: 0,
+            x1: 49,
+            y1: 9,
+        },
+        vec![flag("editable"), flag("activatable"), flag("one_line")],
+        vec![],
+    );
+    let panel = element(
+        "panel",
+        0x4DA7_2ECC,
+        Rect {
+            x0: 0,
+            y0: 0,
+            x1: 99,
+            y1: 49,
+        },
+        vec![],
+        vec![entry],
+    );
+    let layout = Arc::new(LayoutDesc {
+        sub_ids: Vec::new(),
+        string_table: 0,
+        width: 100,
+        height: 50,
+        elements: vec![Arc::new(panel)],
+    });
+    let mut tree = UiTree::new(100, 50);
+    tree.set_text_data(Arc::new(Data));
+    let panel = tree.create_root(layout, tokenize("panel")).unwrap();
+    let entry = tree.child_recursive(panel, tokenize("entry")).unwrap();
+    let click = |tree: &mut UiTree, x: i32, y: i32| {
+        tree.start_input(crate::UI_POINTER_X, x as f32);
+        tree.start_input(crate::UI_POINTER_Y, y as f32);
+        tree.start_input(0x4000_0004, 1.0);
+        tree.stop_input(0x4000_0004);
+        tree.take_messages()
+    };
+    let messages = click(&mut tree, 10, 5);
+    assert_eq!(tree.active(), Some(entry));
+    assert!(tree.text_mode());
+    assert!(messages.iter().any(|m| m.message == tokenize("activated")));
+    let ch = |c: char| c as u16;
+    tree.character(ch('a'), 0, false);
+    tree.character(ch('b'), 0, false);
+    assert_eq!(tree.get(entry).unwrap().text().as_deref(), Some("ab"));
+    // Backspace, then the cursor-left action, then a character in front.
+    tree.character(8, 0, false);
+    tree.text_action(0x4000_0013, 1.0, false);
+    tree.character(ch('x'), 0, false);
+    assert_eq!(tree.get(entry).unwrap().text().as_deref(), Some("xa"));
+    // Enter types nothing on one line, but goes out as character input.
+    tree.take_messages();
+    tree.character(13, 0, false);
+    assert_eq!(tree.get(entry).unwrap().text().as_deref(), Some("xa"));
+    let messages = tree.take_messages();
+    assert!(messages
+        .iter()
+        .any(|m| m.message == tokenize("character_input") && m.data == 13));
+    // A press elsewhere deactivates it.
+    let messages = click(&mut tree, 80, 30);
+    assert_eq!(tree.active(), None);
+    assert!(!tree.text_mode());
+    assert!(messages
+        .iter()
+        .any(|m| m.message == tokenize("deactivated")));
+}

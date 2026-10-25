@@ -155,3 +155,60 @@ fn tokenize_matches_the_retail_token_values() {
     assert_eq!(crate::tokenize("referent"), 0xBCE0_425E);
     assert_eq!(crate::tokenize(""), 0);
 }
+
+#[test]
+fn text_mode_keeps_ui_actions_and_turns_other_keys_into_characters() {
+    const LEFT: u32 = 0xCB;
+    const CURSOR_LEFT: u32 = 0x4000_0013;
+    let mut input = InputManager::new();
+    let map = KeyMap {
+        name: String::new(),
+        guid: [0; 16],
+        mappings: vec![mapping(FORWARD, W), mapping(CURSOR_LEFT, LEFT)],
+    };
+    input.push_key_map(&map, 0);
+    let mut out = Vec::new();
+    // W held when typing starts is released.
+    input.process(
+        InputEvent::Key {
+            scan: W,
+            pressed: true,
+        },
+        0,
+        &mut out,
+    );
+    out.clear();
+    input.set_text_mode(true, 1, &mut out);
+    assert_eq!(out.len(), 1);
+    assert_eq!((out[0].action, out[0].extent), (FORWARD, 0.0));
+    out.clear();
+    // W now types; the arrow still raises its UI action.
+    input.process(
+        InputEvent::Key {
+            scan: W,
+            pressed: true,
+        },
+        2,
+        &mut out,
+    );
+    assert!(out.is_empty());
+    input.process(
+        InputEvent::Text {
+            ch: u16::from(b'w'),
+        },
+        2,
+        &mut out,
+    );
+    input.process(
+        InputEvent::Key {
+            scan: LEFT,
+            pressed: true,
+        },
+        3,
+        &mut out,
+    );
+    assert_eq!(out.len(), 1);
+    assert_eq!((out[0].action, out[0].extent), (CURSOR_LEFT, 1.0));
+    let typed = input.take_characters();
+    assert_eq!(typed, vec![(0, 0x1_0011), (u16::from(b'w'), 0)]);
+}

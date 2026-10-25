@@ -138,17 +138,10 @@ pub fn native_from_net(native: &net::NativeObject) -> NativeObject {
             NativeObject::MissileParameters(MissileParameters::from_packed(m.bitfield, &m.words))
         }
         W::BehaviorParams(p) => NativeObject::BehaviorParams(Box::new(behavior_from_net(p))),
-        W::RandomSelectionTable(t) => {
-            let bits = |v: &Vec<net::SelectionElement>| {
-                v.iter()
-                    .map(|(o, w, s)| (*o, w.to_bits(), s.to_bits()))
-                    .collect()
-            };
-            NativeObject::RandomSelectionTable(RandomSelectionTable {
-                unused: bits(&t.unused),
-                used: bits(&t.used),
-            })
-        }
+        W::RandomSelectionTable(t) => NativeObject::RandomSelectionTable(RandomSelectionTable {
+            unused: t.unused.clone(),
+            used: t.used.clone(),
+        }),
         other => NativeObject::Wire(Box::new(other.clone())),
     }
 }
@@ -199,14 +192,9 @@ pub fn native_to_net(
             W::BehaviorParams(Box::new(p))
         }
         NativeObject::RandomSelectionTable(t) => {
-            let floats = |v: &Vec<(u32, u32, u32)>| {
-                v.iter()
-                    .map(|(o, w, s)| (*o, f32::from_bits(*w), f32::from_bits(*s)))
-                    .collect()
-            };
             W::RandomSelectionTable(net::RandomSelectionTable {
-                unused: floats(&t.unused),
-                used: floats(&t.used),
+                unused: t.unused.clone(),
+                used: t.used.clone(),
             })
         }
         NativeObject::Wire(w) => (**w).clone(),

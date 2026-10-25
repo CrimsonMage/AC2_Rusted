@@ -263,6 +263,7 @@ impl Client {
         }
         self.run_scripts(&mut dispatched);
         events.extend(dispatched);
+        self.notices_seen(&events);
         self.camera_actions(input);
         self.render();
         Ok(events)

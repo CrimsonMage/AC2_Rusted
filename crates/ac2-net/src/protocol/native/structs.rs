@@ -63,8 +63,9 @@ impl MissileParameters {
     }
 }
 
-/// One `RandomSelectionTable<unsigned long>::ElementStruct`: object, weight, subtree weight.
-pub type SelectionElement = (u32, f32, f32);
+/// One `RandomSelectionTable<unsigned long>::ElementStruct`: object, weight, subtree weight,
+/// three `unsigned long`s as the PDB declares them.
+pub type SelectionElement = (u32, u32, u32);
 
 /// `RandomSelectionTable<unsigned long>::StreamPack`: the unused then the used elements, each
 /// a count and the elements.
@@ -81,7 +82,7 @@ impl RandomSelectionTable {
             if n > MAX_ITEMS || n * 12 > r.remaining() {
                 return Err(ProtocolError::Invalid("selection table count"));
             }
-            (0..n).map(|_| Ok((r.u32()?, r.f32()?, r.f32()?))).collect()
+            (0..n).map(|_| Ok((r.u32()?, r.u32()?, r.u32()?))).collect()
         };
         Ok(Self {
             unused: read(r)?,
@@ -93,7 +94,7 @@ impl RandomSelectionTable {
         for list in [&self.unused, &self.used] {
             w.u32(list.len() as u32);
             for (object, weight, subtree) in list {
-                w.u32(*object).f32(*weight).f32(*subtree);
+                w.u32(*object).u32(*weight).u32(*subtree);
             }
         }
     }
@@ -127,7 +128,7 @@ mod tests {
         assert_eq!(bytes.len(), 4 * 7);
         round_trip(NativeObject::Vector([1.0, -2.0, 0.5]));
         let table = RandomSelectionTable {
-            unused: vec![(1, 0.5, 1.0)],
+            unused: vec![(1, 2, 3)],
             used: vec![],
         };
         assert_eq!(

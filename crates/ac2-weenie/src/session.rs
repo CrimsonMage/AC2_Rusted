@@ -312,11 +312,6 @@ impl OnlineSession {
         for event in std::mem::take(&mut self.net_events) {
             self.handle(event, &mut out);
         }
-        for event in &out {
-            if let SessionEvent::Notice(notice) = event {
-                self.progress.social.apply(notice);
-            }
-        }
         out
     }
 

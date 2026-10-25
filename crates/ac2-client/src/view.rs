@@ -317,6 +317,22 @@ impl ClientView {
         self.hud.input(actions)
     }
 
+    /// The typing for the HUD's active text element ([`ac2_ui::Controls::take_text_input`]);
+    /// returns the messages it broadcast.
+    pub fn text_input(
+        &mut self,
+        actions: &[(u32, f32)],
+        characters: &[(u16, u32)],
+        ctrl: bool,
+    ) -> Vec<ac2_ui::UiMessage> {
+        self.hud.text_input(actions, characters, ctrl)
+    }
+
+    /// Whether the HUD takes typing (`CInputManager::SetTextMode`).
+    pub fn text_mode(&self) -> bool {
+        self.hud.text_mode()
+    }
+
     /// The pointer as the HUD last saw it (`ICIDM` mouse position).
     pub fn pointer(&self) -> (i32, i32) {
         self.hud.pointer()
