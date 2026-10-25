@@ -1094,6 +1094,7 @@ key	status	note
 00546ab0	x	ac2-script data/glue::enums
 00546b30	x	ac2-script data/glue::enums
 00546bb0	x	ac2-script data/glue::enums
+00546c80	x	ac2-script glue::enums (FileArray::GetDID: no name data on the DVD)
 0054a800	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0054a860	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0054a8c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)

@@ -23,6 +23,7 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x0027_0003, get_did_w);
     efuns.register(0x0027_0004, get_file_name_for_dummies_w);
     efuns.register(0x1AC0_0001, get_did_from_enum_static);
+    efuns.register(0x0022_000F, get_data_id_from_entity_name_w);
     // `DBCache::IsRunTime`, `IsClient`, `IsServer`: the client's cache is a run-time client.
     efuns.register(0x1AC0_0002, |_, ctx| flag(ctx, true));
     efuns.register(0x1AC0_0003, |_, ctx| flag(ctx, true));
@@ -256,5 +257,16 @@ fn get_file_name_for_dummies_w(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let name = vm.data().file_name(did).unwrap_or_default();
     let r = vm.new_wstring(widen(&name));
     Call::new(ctx).ret(3, r, tag::REF);
+    InterpStatus::Success
+}
+
+/// `EntityDesc::GetDataIDFromEntityNameW(name)`: `FileArray::GetDID(name, 0x40000049)`.
+fn get_data_id_from_entity_name_w(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let name = vm
+        .wstring(Call::new(ctx).word(2))
+        .map(narrow)
+        .unwrap_or_default();
+    let did = vm.data().file_did(&name, 0x4000_0049).unwrap_or(0);
+    Call::new(ctx).ret(3, did, INT_RESULT);
     InterpStatus::Success
 }

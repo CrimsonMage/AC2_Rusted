@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 991 done, 77 partial, 1322 to do, 78 skipped.
+2468 retail functions: 992 done, 77 partial, 1321 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -1679,11 +1679,11 @@ Legend and workflow: [README](README.md).
 ### gEmailUtils
 - [ ] `gEmailUtils::CallEFun_send_emailW` · 00547c90
 
-## `portal/shared/src/interp/glue/gentitydesc.cpp.c` (0/28)
+## `portal/shared/src/interp/glue/gentitydesc.cpp.c` (1/28)
 
 ### gEntityDesc
 - [ ] `gEntityDesc::CallEFun_GetDataID` · 00546c10
-- [ ] `gEntityDesc::CallEFun_GetDataIDFromEntityNameW` · 00546c80
+- [x] `gEntityDesc::CallEFun_GetDataIDFromEntityNameW` · 00546c80 — ac2-script glue::enums (FileArray::GetDID: no name data on the DVD)
 - [ ] `gEntityDesc::CallEFun_GetRootPackageID` · 00546cc0
 - [ ] `gEntityDesc::CallEFun_GetRuntimeID` · 00546d30
 - [ ] `gEntityDesc::CallEFun_GetType` · 00546da0
