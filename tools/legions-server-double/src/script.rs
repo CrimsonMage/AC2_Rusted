@@ -5,8 +5,9 @@
 use std::collections::HashMap;
 
 use ac2_net::protocol::{
-    ChatMessage, ChatPacket, ChatRequest, ChatResponse, ExaminationProfile, ExaminationRequest,
-    RoomChat, ScriptMessage, ScriptRequest, SelectionInfo, StringInfo,
+    script_broadcast, script_function, ChatMessage, ChatPacket, ChatRequest, ChatResponse,
+    ExaminationProfile, ExaminationRequest, PackValue, QualityUpdate, RoomChat, ScriptMessage,
+    ScriptRequest, SelectionInfo, StringInfo,
 };
 
 use crate::{State, PLAYER};
@@ -160,6 +161,22 @@ impl State {
     /// Queues a script call to the player (`InterpCEvent_Broadcast`, 0x10066).
     pub fn send_script(&mut self, message: &ScriptMessage) {
         self.send_event(&message.to_broadcast());
+    }
+
+    /// Queues a script call the client's codecs have no message for, from its packed values.
+    pub fn send_script_call(&mut self, function: u32, arguments: &[PackValue]) {
+        self.send_event(&script_broadcast(function, arguments));
+    }
+
+    /// Queues a quality update (`ECM_Qualities::SendEvt_Update*_Private` / `_Visual`).
+    pub fn send_quality(&mut self, update: &QualityUpdate) {
+        self.send_event(&update.encode());
+    }
+
+    /// Queues `WM_Player` 0x27 (the player's login state, `CPlayer` 0x65). The double has no
+    /// player systems to pack, so its fourteen arguments are zero ints.
+    pub fn send_init_player(&mut self) {
+        self.send_script_call(script_function::INIT_PLAYER, &vec![PackValue::Int(0); 14]);
     }
 }
 

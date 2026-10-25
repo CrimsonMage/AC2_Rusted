@@ -11,7 +11,7 @@
 mod message;
 mod request;
 
-pub use message::ScriptMessage;
+pub use message::{broadcast, ScriptMessage};
 pub use request::ScriptRequest;
 
 use crate::protocol::native::NativeObject;
@@ -35,6 +35,10 @@ pub mod function {
     /// C->S, `WM_Communication` stub 0xE (`CCommunicationSystem` 0x8, from `CPlayer` 0x15B,
     /// IFun `DoEmote`): the emote, one int.
     pub const EMOTE: u32 = 0x8205_000B;
+    /// S->C, `WM_Player` 0x27 -> `CPlayer` 0x65: the player's login state (fourteen 32-bit
+    /// arguments: money, the options profile, the faction, inventory and effect systems'
+    /// data...), after which `CPlayer` raises the hero status and the vitals.
+    pub const INIT_PLAYER: u32 = 0x8212_0027;
     /// S->C, `WM_Player` 0x2C -> `CPlayer` 0x34: `SelectionInfo`, then the object (long int).
     pub const UPDATE_SELECTION_INFO: u32 = 0x8212_002C;
     /// S->C, `WM_Examination` 0x9 -> `CPlayer` 0xDA -> `CExaminationSystem` 0x2:

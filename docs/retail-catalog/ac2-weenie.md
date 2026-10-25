@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 167 done, 29 partial, 1702 to do, 6 skipped.
+1904 retail functions: 169 done, 29 partial, 1700 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -34,7 +34,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Allegiance::SendNotice_UpdateAllegianceProfile` · 007280c0
 - [ ] `CM_Allegiance::SendNotice_Vassal_SwearDone` · 00728150
 
-## `ac2/client/src/events/cm_character.cpp.c` (2/30)
+## `ac2/client/src/events/cm_character.cpp.c` (4/30)
 
 ### CM_Character
 - [ ] `CM_Character::SendNotice_AddMarker` · 007248b0 · legions 006a4270
@@ -56,7 +56,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Character::SendNotice_UpdateDeathState` · 00725220
 - [ ] `CM_Character::SendNotice_UpdateEffect` · 007252b0
 - [ ] `CM_Character::SendNotice_UpdateFactionStatus` · 00725340
-- [ ] `CM_Character::SendNotice_UpdateHeroStatus` · 007253d0
+- [x] `CM_Character::SendNotice_UpdateHeroStatus` · 007253d0 — ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
 - [ ] `CM_Character::SendNotice_UpdateMountState` · 00725490
 - [ ] `CM_Character::SendNotice_UpdatePetMode` · 00725520
 - [ ] `CM_Character::SendNotice_UpdatePetName` · 007255c0
@@ -66,7 +66,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Character::SendNotice_UpdateSkill` · 00725810
 - [ ] `CM_Character::SendNotice_UpdateSkillPanel` · 007258a0
 - [ ] `CM_Character::SendNotice_UpdateVitae` · 00725950
-- [ ] `CM_Character::SendNotice_UpdateVital` · 007259f0
+- [x] `CM_Character::SendNotice_UpdateVital` · 007259f0 — ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
 
 ## `ac2/client/src/events/cm_combat.cpp.c` (0/5)
 

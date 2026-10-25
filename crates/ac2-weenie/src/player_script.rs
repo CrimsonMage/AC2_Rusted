@@ -15,6 +15,8 @@ use ac2_net::protocol::{
 };
 
 use crate::chat;
+use crate::qualities::WeenieQualities;
+use crate::vitals::{self, PlayerVitals};
 
 /// "Nothing selected": `Player::GetSelection` returns 0 (`CPlayer::SetSelection` compares
 /// against a pushed 0).
@@ -46,6 +48,12 @@ pub enum GameplayNotice {
     /// `CCliSendToRoomResult::HandleSendToRoomResult` (`gmCWInterface::Result_SendToRoom`):
     /// the chat server's answer to the room message with this context id.
     SendToRoomResult { context: u32, result: u32 },
+    /// `CM_Character::SendNotice_UpdateVital`: one of the player's vitals
+    /// ([`crate::vital`]), as `gmVitalsUI::RecvNotice_UpdateVital` takes it.
+    UpdateVital { vital: u32, current: u64, max: u64 },
+    /// `CM_Character::SendNotice_UpdateHeroStatus`: whether the player is a hero, with the
+    /// focus the focus meter then shows.
+    UpdateHeroStatus { hero: bool, current: u64, max: u64 },
 }
 
 /// What one script call did: messages for the server, notices for the UI.
@@ -73,6 +81,8 @@ pub struct PlayerScript {
     profiles: HashMap<u64, ExaminationProfile>,
     /// `GameplayOptionsProfile::GetShowPKDamage` (`CPlayer` 0x1A8).
     show_pk_damage: bool,
+    /// The vitals the script last raised (what `gmVitalsUI` shows).
+    vitals: PlayerVitals,
 }
 
 impl Default for PlayerScript {
@@ -85,6 +95,7 @@ impl Default for PlayerScript {
             selection_info: None,
             profiles: HashMap::new(),
             show_pk_damage: false,
+            vitals: PlayerVitals::default(),
         }
     }
 }
@@ -114,9 +125,47 @@ impl PlayerScript {
         self.examining
     }
 
-    /// The gameplay option `CPlayer` 0x1A8 reads (`GameplayOptionsProfile::GetShowPKDamage`).
-    pub fn set_show_pk_damage(&mut self, show: bool) {
+    /// The vitals the script last raised.
+    pub fn vitals(&self) -> &PlayerVitals {
+        &self.vitals
+    }
+
+    /// `CPlayer` 0x1A7: the gameplay option `CPlayer` 0x1A8 reads
+    /// (`GameplayOptionsProfile::SetShowPKDamage`), then health and vigor again.
+    pub fn set_show_pk_damage(&mut self, show: bool, player: &WeenieQualities) -> ScriptOutput {
         self.show_pk_damage = show;
+        let mut notices = Vec::new();
+        vitals::health(player, show, &mut notices);
+        vitals::vigor(player, show, &mut notices);
+        self.raise_vitals(notices)
+    }
+
+    /// `CPlayer` 0x65 (`WM_Player` 0x27), the vitals part: hero status, health, vigor, focus.
+    pub fn init_player(&mut self, player: &WeenieQualities) -> ScriptOutput {
+        let notices = vitals::login(player, self.show_pk_damage);
+        self.raise_vitals(notices)
+    }
+
+    /// `CPlayer` 0x85: one of the player's qualities changed (`CWRepository`'s table code and
+    /// the quality); the vitals it feeds are raised again.
+    pub fn quality_changed(
+        &mut self,
+        player: &WeenieQualities,
+        table: u32,
+        quality: u32,
+    ) -> ScriptOutput {
+        let notices = vitals::quality_changed(player, table, quality, self.show_pk_damage);
+        self.raise_vitals(notices)
+    }
+
+    fn raise_vitals(&mut self, notices: Vec<GameplayNotice>) -> ScriptOutput {
+        for notice in &notices {
+            self.vitals.apply(notice);
+        }
+        ScriptOutput {
+            requests: Vec::new(),
+            notices,
+        }
     }
 
     /// `CPlayer` 0x6A (`SetSelection`, IFun 0xB40002). `combat_target` is

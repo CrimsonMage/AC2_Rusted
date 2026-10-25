@@ -527,6 +527,9 @@ impl OnlineSession {
             } => {
                 let target = object.map(|o| o.id).or(self.world.player());
                 if target.is_some() && target == self.world.player() {
+                    if function == ac2_net::protocol::script_function::INIT_PLAYER {
+                        out.extend(self.init_player());
+                    }
                     if let Some(events) = self.receive_script(function, &arguments) {
                         out.extend(events);
                         return;
@@ -547,11 +550,15 @@ impl OnlineSession {
             ServerEvent::AccountBooted(text) => out.push(SessionEvent::AccountBooted(*text)),
             ServerEvent::Quality(update) => {
                 if let Some(object) = update.object.map(|o| o.id).or(self.world.player()) {
+                    let table = update.value.table();
                     out.push(SessionEvent::QualityChanged {
                         object,
-                        table: update.value.table(),
+                        table,
                         quality: update.quality,
                     });
+                    if Some(object) == self.world.player() {
+                        out.extend(self.player_quality_changed(table, update.quality));
+                    }
                 }
             }
             ServerEvent::CharacterDeleted(id) => out.push(SessionEvent::CharacterDeleted(id)),

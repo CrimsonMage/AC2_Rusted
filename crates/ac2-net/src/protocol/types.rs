@@ -21,7 +21,6 @@ impl InstanceIdWithStamp {
         })
     }
 
-    #[cfg(test)]
     pub(crate) fn write(&self, writer: &mut Writer) {
         writer.u64(self.id).u16(self.instance).u16(self.other);
     }
@@ -83,6 +82,14 @@ impl Position {
             origin,
             rotation,
         })
+    }
+
+    /// `Position::Pack`.
+    pub(crate) fn write(&self, writer: &mut Writer) {
+        writer.u32(self.cell);
+        for value in self.origin.iter().chain(&self.rotation) {
+            writer.f32(*value);
+        }
     }
 }
 

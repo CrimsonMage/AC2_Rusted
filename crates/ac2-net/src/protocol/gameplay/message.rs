@@ -6,6 +6,19 @@ use crate::protocol::pack::{pack_values, PackValue};
 use crate::protocol::string_info::StringInfo;
 use crate::protocol::ProtocolError;
 
+/// The server's side of any script call to the player: the `InterpCEvent_Broadcast`
+/// (0x10066) body, the function id, then the `PackBuffer` (its size, then the data).
+pub fn broadcast(function: u32, arguments: &[PackValue]) -> Vec<u8> {
+    let arguments = pack_values(arguments);
+    let mut bytes = crate::protocol::Opcode::INTERP_C_EVENT_BROADCAST
+        .to_le_bytes()
+        .to_vec();
+    bytes.extend(function.to_le_bytes());
+    bytes.extend((arguments.len() as u32).to_le_bytes());
+    bytes.extend(arguments);
+    bytes
+}
+
 /// A message the server sends to the client's scripts.
 #[derive(Debug, Clone, PartialEq)]
 pub enum ScriptMessage {
@@ -92,14 +105,7 @@ impl ScriptMessage {
     /// The `InterpCEvent_Broadcast` (0x10066) body for the player: function id, then the
     /// `PackBuffer` (its size, then the data).
     pub fn to_broadcast(&self) -> Vec<u8> {
-        let arguments = pack_values(&self.arguments());
-        let mut bytes = crate::protocol::Opcode::INTERP_C_EVENT_BROADCAST
-            .to_le_bytes()
-            .to_vec();
-        bytes.extend(self.function().to_le_bytes());
-        bytes.extend((arguments.len() as u32).to_le_bytes());
-        bytes.extend(arguments);
-        bytes
+        broadcast(self.function(), &self.arguments())
     }
 
     /// A known message from an `InterpCEvent`, or `None` for another function id. The client's

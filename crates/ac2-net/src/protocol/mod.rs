@@ -39,7 +39,9 @@ pub use dat_event::{
 };
 pub use error::ProtocolError;
 pub use fx::{DecalFx, EntityDesc, FxData, FxNode, LightSourceFx, RepulsorFx, StreakFx, Waveform};
-pub use gameplay::{function as script_function, ScriptMessage, ScriptRequest};
+pub use gameplay::{
+    broadcast as script_broadcast, function as script_function, ScriptMessage, ScriptRequest,
+};
 pub use movement::{MoveTarget, MovementParameters, PhysicsStory, StoryHook, TargetPosition};
 pub use native::{
     ntype, ExaminationDataNode, ExaminationProfile, ExaminationRequest, ExaminationValue,
