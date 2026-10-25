@@ -92,17 +92,31 @@ pub struct ProgressFrame {
     pub allegiance: Option<ac2_weenie::AllegianceProfile>,
 }
 
-/// One container's contents, as the inventory panels show them (ids; names, icons and
-/// quantities come from the frame's objects).
+/// One container's contents, as the inventory panels show them (ids, in slot order; what each
+/// item shows is in [`InventoryFrame::items`]).
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct ContainerFrame {
     pub id: u64,
     pub packs: Vec<u64>,
     pub items: Vec<u64>,
+    /// `gmCWInterface::GetMaxContainerSize`: how many slots it has.
+    pub capacity: i32,
+}
+
+/// What `ItemDisplay::Update` and the paper doll show of one item.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ItemFrame {
+    pub id: u64,
+    pub stats: ac2_weenie::ItemStats,
+    /// `GetPotentiallyPluralizedName` at the item's quantity: the slot's tooltip.
+    pub name: ac2_net::protocol::StringInfo,
+    /// The object's `VisualDesc` icon layers (layer id, image, shift colour); empty means the
+    /// slot shows `stats.icon`.
+    pub icon_layers: Vec<(u32, u32, u32)>,
 }
 
 /// The player's inventory and the containers it has open.
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct InventoryFrame {
     /// The player's own pack (the player is its container).
     pub pack: ContainerFrame,
@@ -112,6 +126,8 @@ pub struct InventoryFrame {
     pub equipped: Vec<(u32, u64)>,
     /// The containers open on the player (`gmExternalContainerUI`), in the order they opened.
     pub open: Vec<u64>,
+    /// Every listed or equipped item the session knows, in listing order.
+    pub items: Vec<ItemFrame>,
 }
 
 /// The selected object, as `gmSelectionUI` shows it.
@@ -309,26 +325,57 @@ impl Client {
     pub(crate) fn inventory_frame(&self) -> InventoryFrame {
         let player = self.session.player().unwrap_or_default();
         let inv = self.session.inventory();
+        let objects = self.session.objects();
+        let stats = |id: u64| {
+            objects
+                .get(id)
+                .map(|o| ac2_weenie::ItemStats::of(&o.qualities))
+        };
+        let capacity = |id| stats(id).map_or(0, |s| s.capacity);
         let frame = |(id, c): (u64, &ac2_weenie::Contents)| ContainerFrame {
             id,
             packs: c.packs.clone(),
             items: c.items.clone(),
+            capacity: capacity(id),
         };
+        let pack = inv
+            .contents(player)
+            .map(|c| frame((player, c)))
+            .unwrap_or(ContainerFrame {
+                id: player,
+                capacity: capacity(player),
+                ..ContainerFrame::default()
+            });
+        let containers: Vec<_> = inv
+            .containers()
+            .filter(|(id, _)| *id != player)
+            .map(frame)
+            .collect();
+        let equipped = inv.equipped().to_vec();
+        let tables = self.session.player_script().string_tables();
+        let mut items: Vec<ItemFrame> = Vec::new();
+        let listed = std::iter::once(&pack)
+            .chain(&containers)
+            .flat_map(|c| c.packs.iter().chain(&c.items))
+            .chain(equipped.iter().map(|(_, id)| id));
+        for &id in listed {
+            let (Some(object), false) = (objects.get(id), items.iter().any(|i| i.id == id)) else {
+                continue;
+            };
+            let stats = ac2_weenie::ItemStats::of(&object.qualities);
+            items.push(ItemFrame {
+                id,
+                name: stats.display_name(stats.quantity as u32, tables),
+                icon_layers: object.appearance.icon.clone(),
+                stats,
+            });
+        }
         InventoryFrame {
-            pack: inv
-                .contents(player)
-                .map(|c| frame((player, c)))
-                .unwrap_or(ContainerFrame {
-                    id: player,
-                    ..ContainerFrame::default()
-                }),
-            containers: inv
-                .containers()
-                .filter(|(id, _)| *id != player)
-                .map(frame)
-                .collect(),
-            equipped: inv.equipped().to_vec(),
+            pack,
+            containers,
+            equipped,
             open: inv.open_containers().to_vec(),
+            items,
         }
     }
 

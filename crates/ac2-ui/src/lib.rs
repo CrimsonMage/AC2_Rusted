@@ -45,6 +45,7 @@ mod text_data;
 mod text_edit;
 mod token;
 mod toolbar;
+mod tooltip;
 mod transition;
 mod tree_view;
 mod ui_string;
@@ -145,6 +146,8 @@ mod shortcut_tests;
 mod skill_tree_tests;
 #[cfg(test)]
 mod text_tests;
+#[cfg(test)]
+mod tooltip_tests;
 #[cfg(test)]
 mod tree_tests;
 #[cfg(test)]

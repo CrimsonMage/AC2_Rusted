@@ -12,9 +12,9 @@ use crate::{State, PLAYER};
 
 /// The second member the double's fellowships get. Its id shares the player's bucket in the
 /// fellows table `FellowshipAdaptor` keeps (47 buckets) and comes after it in the
-/// `Fellowship`'s own (11 buckets: 9 after 6), so it is added later, goes to the chain's head
+/// `Fellowship`'s own (11 buckets: 6 after 3), so it is added later, goes to the chain's head
 /// and the UI lists it before the leader: the panel's leader-first order shows.
-pub const FELLOW: u64 = 0x5000_0000_0000_0030;
+pub const FELLOW: u64 = 0x2000_0000_0000_0030;
 /// The fellowship's chat room (`Fellowship` slot 3).
 pub const FELLOWSHIP_ROOM: u32 = 0x0F00_0042;
 

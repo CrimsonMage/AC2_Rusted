@@ -154,6 +154,9 @@ pub fn build_gameplay_hud(
     let vitals = VitalsUi::create(&mut tree);
     let dialogs = DialogFactory::new(layouts[&LAYOUT_GAMEPLAY].clone());
     let toolbar = ToolbarUi::create(&mut tree);
+    for layout in layouts.values().flatten() {
+        crate::tooltip::prefetch_tooltip_strings(&*text_data, layout);
+    }
     text_data.freeze();
     Ok(GameplayHud {
         tree,

@@ -224,6 +224,7 @@ impl UiTree {
     /// (`UIElement_Meter::Global_Loop`).
     pub fn global_loop(&mut self, now: f64) {
         self.time = now;
+        self.tooltip_use_time(now);
         for index in 0..self.slots.len() {
             self.element_global_loop(index);
             let moving = self

@@ -287,9 +287,12 @@ impl ClientView {
             }),
             _ => None,
         };
-        let outcome = self
-            .hud
-            .reticle(gpu, selection.map(|s| (s.id, s.name.as_deref())), target);
+        let outcome = self.hud.reticle(
+            gpu,
+            selection.map(|s| (s.id, s.name.as_deref())),
+            selection.and_then(|s| s.info.as_ref()),
+            target,
+        );
         self.deselect |= outcome.deselect;
     }
 

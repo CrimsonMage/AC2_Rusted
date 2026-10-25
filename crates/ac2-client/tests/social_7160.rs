@@ -18,7 +18,7 @@ use ac2_weenie::{GameplayNotice, SessionEvent, SocialRequest};
 use common::*;
 use legions_server_double::{Spawn, FELLOW, PLAYER};
 
-const TARGET: u64 = 0x5000_0000_0000_0003;
+const TARGET: u64 = 0x2000_0000_0000_0003;
 
 fn requests() -> Vec<SocialRequest> {
     vec![

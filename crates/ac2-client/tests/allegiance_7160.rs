@@ -20,9 +20,9 @@ use ac2_weenie::{GameplayNotice, SessionEvent, SocialRequest};
 use common::*;
 use legions_server_double::{Spawn, State, PLAYER};
 
-const VASSAL: u64 = 0x5000_0000_0000_0051;
-const PATRON: u64 = 0x7000_0000_0000_0042;
-const RECRUITER: u64 = 0x5000_0000_0000_0052;
+const VASSAL: u64 = 0x2000_0000_0000_0051;
+const PATRON: u64 = 0x2000_0000_0000_0042;
+const RECRUITER: u64 = 0x2000_0000_0000_0052;
 
 /// One frame with `commands`, then a few idle ones: the notices.
 fn frames(
@@ -129,7 +129,11 @@ fn allegiance_and_invitations_answer_through_the_vm() {
     assert_eq!(p.name.literal.as_deref(), Some("Order of the Double"));
     assert_eq!(p.motd.literal.as_deref(), Some("Welcome."));
 
-    // Swearing to the selection, then breaking.
+    // Swearing to the selection, then breaking. The double's characters carry player ids
+    // (`IIDUtils::VerifyPlayer`, what gmAllegianceUI checks before offering Swear).
+    for id in [PLAYER, PATRON, VASSAL, legions_server_double::FELLOW] {
+        assert!(ac2_net::iid::is_player(id), "{id:#x}");
+    }
     server
         .borrow_mut()
         .send_event(&legions_server_double::create_object_bytes(
