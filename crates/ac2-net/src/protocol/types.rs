@@ -21,7 +21,6 @@ impl InstanceIdWithStamp {
         })
     }
 
-    #[cfg(test)]
     pub(crate) fn write(&self, writer: &mut Writer) {
         writer.u64(self.id).u16(self.instance).u16(self.other);
     }
@@ -84,6 +83,14 @@ impl Position {
             rotation,
         })
     }
+
+    /// `Position::Pack`.
+    pub(crate) fn write(&self, writer: &mut Writer) {
+        writer.u32(self.cell);
+        for value in self.origin.iter().chain(&self.rotation) {
+            writer.f32(*value);
+        }
+    }
 }
 
 /// `PHashTable::StreamPack`'s header: the count in the low 24 bits, the bucket-size index
@@ -96,11 +103,18 @@ pub(crate) fn hash_count(reader: &mut Reader<'_>) -> Result<usize, ProtocolError
     Ok(count)
 }
 
-/// `PHashTable<unsigned long, float>::StreamPack`: key and float pairs in table order.
-pub(crate) fn float_table(reader: &mut Reader<'_>) -> Result<Vec<(u32, f32)>, ProtocolError> {
-    (0..hash_count(reader)?)
+/// `PHashTable<unsigned long, float>::StreamPack`: the header's bucket-size index, and the key
+/// and float pairs in table order.
+pub(crate) fn float_table(reader: &mut Reader<'_>) -> Result<(u8, Vec<(u32, f32)>), ProtocolError> {
+    let header = reader.u32()?;
+    let count = (header & 0x00FF_FFFF) as usize;
+    if count > crate::protocol::reader::MAX_ITEMS {
+        return Err(ProtocolError::Invalid("hash table count"));
+    }
+    let pairs = (0..count)
         .map(|_| Ok((reader.u32()?, reader.f32()?)))
-        .collect()
+        .collect::<Result<_, ProtocolError>>()?;
+    Ok(((header >> 24) as u8, pairs))
 }
 
 #[cfg(test)]

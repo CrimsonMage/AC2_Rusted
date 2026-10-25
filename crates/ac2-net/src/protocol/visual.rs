@@ -46,14 +46,14 @@ impl PartGroupDesc {
         if bitfield & 0x20 != 0 {
             for _ in 0..hash_count(reader)? {
                 let key = reader.u32()?;
-                desc.appearance.push((key, float_table(reader)?));
+                desc.appearance.push((key, float_table(reader)?.1));
             }
         }
         if bitfield & 0x40 != 0 {
             desc.fx_table = reader.u32()?;
         }
         if bitfield & 0x80 != 0 {
-            desc.startup_fx = float_table(reader)?;
+            desc.startup_fx = float_table(reader)?.1;
         }
         if bitfield & 0x100 != 0 {
             desc.fx_overrides = fx_overrides(reader)?;

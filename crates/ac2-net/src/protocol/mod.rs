@@ -28,6 +28,7 @@ mod server_event;
 mod string_info;
 mod turbine_chat;
 mod types;
+mod usage;
 mod visual;
 mod weenie_desc;
 
@@ -39,11 +40,16 @@ pub use dat_event::{
 };
 pub use error::ProtocolError;
 pub use fx::{DecalFx, EntityDesc, FxData, FxNode, LightSourceFx, RepulsorFx, StreakFx, Waveform};
-pub use gameplay::{function as script_function, ScriptMessage, ScriptRequest};
+pub use gameplay::{
+    broadcast as script_broadcast, call_spec, function as script_function, ArgKind, CallSpec,
+    Direction as CallDirection, ScriptCall, ScriptMessage, ScriptRequest, CALLS as SCRIPT_CALLS,
+};
 pub use movement::{MoveTarget, MovementParameters, PhysicsStory, StoryHook, TargetPosition};
 pub use native::{
     ntype, ExaminationDataNode, ExaminationProfile, ExaminationRequest, ExaminationValue,
-    NativeObject, SelectionInfo,
+    GameplayOptionsProfile, GmKeyframe, GmRaceSexInfo, GmSceneInfo, HashKey, MissileParameters,
+    NativeObject, RandomSelectionTable, ScriptHash, ScriptList, SelectionElement, SelectionInfo,
+    ShortcutInfo, SkillUiNode, UiLocation, UiSaveLocations, WordTable,
 };
 pub use object::CreateObject;
 pub use opcode::Opcode;
@@ -66,6 +72,7 @@ pub use turbine_chat::{
     METHOD_SEND_TO_ROOM_BY_NAME,
 };
 pub use types::{CellPosition, InstanceIdWithStamp, Position};
+pub use usage::{UsageDesc, USAGE_DESC_PACKAGE, USAGE_FLAG_SILENT};
 pub use visual::{IconLayer, PartGroupDesc, VisualDesc};
 pub use weenie_desc::WeenieDesc;
 

@@ -8,3 +8,7 @@ license.workspace = true
 [dependencies]
 ac2-core = { path = "../ac2-core" }
 getrandom = "0.3"
+
+[dev-dependencies]
+ac2-dat = { path = "../ac2-dat", features = ["test-support"] }
+ac2-db = { path = "../ac2-db" }

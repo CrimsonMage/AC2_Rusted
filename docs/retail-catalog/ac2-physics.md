@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 349 done, 76 partial, 1637 to do, 62 skipped.
+2124 retail functions: 351 done, 75 partial, 1636 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -732,7 +732,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CollidePropertyList::BeginPropertyCollision` · 006a0ae0 · legions 0063d910
 - [ ] `CollidePropertyList::EndPropertyCollision` · 006a0b80 · legions 0063d9b0
 
-## `portal/shared/src/physobj/collision/collisionmanager.cpp.c` (0/61)
+## `portal/shared/src/physobj/collision/collisionmanager.cpp.c` (1/61)
 
 ### CollisionParameters
 - [ ] `CollisionParameters::SetWeeniePlacementType` · 004f6330 · legions 004e8b20
@@ -758,7 +758,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CCollisionManager::SetTerrainType` · 004f6650 · legions 004e8e40
 
 ### Vector
-- [ ] `Vector::StreamPack` · 004f6690 · legions 004e8e80
+- [x] `Vector::StreamPack` · 004f6690 · legions 004e8e80 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
 ### PusherValues
 - [ ] `PusherValues::PusherValues` · 004f66c0 · legions 004e8eb0
@@ -1924,7 +1924,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CMissileManager::Update` · 00514740 · legions 00502750
 - [ ] `CMissileManager::ClientRetarget` · 00514830 · legions 00502840
 
-## `portal/shared/src/physobj/missile/missileparameters.cpp.c` (0/25)
+## `portal/shared/src/physobj/missile/missileparameters.cpp.c` (1/25)
 
 ### MissileParameters
 - [ ] `MissileParameters::IsSet` · 006aae20 · legions 00643d40
@@ -1932,7 +1932,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MissileParameters::SetDetonationProximity` · 006aae50 · legions 00643d70
 - [ ] `MissileParameters::MissileParameters` · 006aae80 · legions 00643da0
 - [ ] `MissileParameters::CopyInto` · 006aaf40 · legions 00643e60
-- [~] `MissileParameters::StreamPack` · 006ab140 · legions 00644060 — ac2-script native: unpack direction only
+- [x] `MissileParameters::StreamPack` · 006ab140 · legions 00644060 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 - [ ] `MissileParameters::SetSpeedLimits` · 006ab580 · legions 006444a0
 - [ ] `MissileParameters::SetMaxAcceleration` · 006ab5a0 · legions 006444c0
 - [ ] `MissileParameters::SetTotalFuel` · 006ab5e0 · legions 00644500

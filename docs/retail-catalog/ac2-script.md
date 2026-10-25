@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 992 done, 77 partial, 1321 to do, 78 skipped.
+2468 retail functions: 992 done, 78 partial, 1320 to do, 78 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (0/25)
@@ -3504,7 +3504,7 @@ Legend and workflow: [README](README.md).
 - [x] `PackBuffer::Pack` · 006ed9c0 · legions 006727d0
 - [x] `PackBuffer::UnPack` · 006eda20 · legions 00672830
 - [ ] `PackBuffer::PackRaw` · 006edaa0
-- [ ] `PackBuffer::PackPackage` · 006edb40
+- [~] `PackBuffer::PackPackage` · 006edb40 — ac2-net UsageDesc::to_reference / PackValue::Reference: packed graphs the client builds (root, then reference slots in slot order); no walk over live VM state yet
 - [ ] `PackBuffer::UnPackBuffer_Int` · 006edc00 · legions 00672920
 - [ ] `PackBuffer::UnPackBuffer_LongInt` · 006edc50 · legions 00672970
 - [ ] `PackBuffer::UnPackBuffer_Float` · 006edcc0 · legions 006729e0

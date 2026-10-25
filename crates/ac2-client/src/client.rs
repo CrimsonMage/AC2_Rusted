@@ -721,6 +721,7 @@ impl Client {
             objects,
             blocks: self.cells.resident().collect(),
             selection: self.selection_frame(),
+            player_vitals: *self.session.player_script().vitals(),
         }
     }
 

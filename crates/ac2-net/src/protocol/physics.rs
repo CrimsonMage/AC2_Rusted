@@ -1,7 +1,7 @@
 //! `PhysicsDesc::StreamPack` (identical in admin 7148 and Legions 7160: Legions 0x005F4D30) and
 //! the `BehaviorParams` it carries.
 
-use crate::protocol::reader::Reader;
+use crate::protocol::reader::{Reader, Writer};
 use crate::protocol::types::{float_table, Position};
 use crate::protocol::ProtocolError;
 
@@ -22,6 +22,8 @@ pub struct BehaviorParams {
     pub vdesc_to_clone: u32,
     pub cloned_apr: u32,
     pub cloned_app_apr: Vec<(u32, f32)>,
+    /// The `g_bucketSizes` index in `m_clonedAppAprHash`'s `PHashTable` header.
+    pub cloned_app_apr_buckets: u8,
     pub impulse: [f32; 3],
     pub early_callback: u32,
     pub moveto_cancels: u32,
@@ -75,7 +77,9 @@ impl BehaviorParams {
         if has(0x1_0000) {
             p.vdesc_to_clone = reader.u32()?;
             p.cloned_apr = reader.u32()?;
-            p.cloned_app_apr = float_table(reader)?;
+            let (buckets, table) = float_table(reader)?;
+            p.cloned_app_apr = table;
+            p.cloned_app_apr_buckets = buckets;
         }
         if has(0x4000) {
             p.impulse = reader.vec3()?;
@@ -104,6 +108,65 @@ impl BehaviorParams {
             p.context = reader.u32()?;
         }
         Ok(p)
+    }
+
+    /// `BehaviorParams::StreamPack` (pack): the fields the bitfield names, in stream order.
+    pub(crate) fn write(&self, w: &mut Writer) {
+        let bits = self.bitfield;
+        let has = |bit: u32| bits & bit != 0;
+        w.u32(bits);
+        for (bit, value) in [
+            (0x1, self.behavior),
+            (0x4, self.time_scale.to_bits()),
+            (0x2, self.mode),
+            (0x10, self.hold_cycles),
+            (0x1000, self.fx_script),
+            (0x10_0000, self.fx),
+        ] {
+            if has(bit) {
+                w.u32(value);
+            }
+        }
+        if has(0x2000) {
+            w.u64(self.target);
+        }
+        if has(0x20_0000) {
+            w.u64(self.camera_target).u32(self.camera_behavior);
+        }
+        if has(0x1_0000) {
+            w.u32(self.vdesc_to_clone).u32(self.cloned_apr).u32(
+                self.cloned_app_apr.len() as u32 & 0x00FF_FFFF
+                    | u32::from(self.cloned_app_apr_buckets) << 24,
+            );
+            for (k, v) in &self.cloned_app_apr {
+                w.u32(*k).f32(*v);
+            }
+        }
+        if has(0x4000) {
+            for v in self.impulse {
+                w.f32(v);
+            }
+        }
+        for (bit, value) in [
+            (0x8, self.early_callback),
+            (0x20, self.moveto_cancels),
+            (0x80, self.camera_parent),
+            (0x40, self.camera_target_flag),
+            (0x4_0000, self.camera_hold),
+            (0x8_0000, self.camera_restore),
+            (0x100, self.fade_children),
+            (0x400, self.propagate),
+            (0x800, self.lock_actions),
+            (0x200, self.send_event),
+            (0x2_0000, self.leave_idle_alone),
+            (0x8000, self.destroy_on_completion),
+            (0x80_0000, self.weenie_emote),
+            (0x40_0000, self.context),
+        ] {
+            if has(bit) {
+                w.u32(value);
+            }
+        }
     }
 }
 

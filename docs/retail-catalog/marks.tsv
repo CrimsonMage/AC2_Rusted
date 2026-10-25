@@ -1,4 +1,5 @@
 key	status	note
+00401880	x	ac2-weenie SessionEvent::Characters / OnlineSession::characters (the latest set; CharacterChoice::Wait stops there for the selection screen)
 00401b20	x	
 00401b30	x	
 00401b80	x	
@@ -22,12 +23,14 @@ key	status	note
 004080c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 00408e90	~	LogOffCharacter only; no UI or game-option upload
 00409270	~	asks for the next-frame-drawn notice (SetWantNoticeOnNextFrameDrawn); no portal scenes
+004093a0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00409960	x	
 00409990	x	
 00409a80	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00409ab0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00409be0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00409e00	x	
+0040a1f0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00422f80	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 004232f0	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 004233d0	x	
@@ -47,6 +50,7 @@ key	status	note
 0044faa0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 0044fac0	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 0044fb20	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+0044fbb0	x	ac2-weenie OnlineSession::use_selection (CPlayer 0x79 -> CUsageSystem 0x9 stand-in)
 00450130	~	ac2-weenie OnlineSession::emote(id): the WM_Communication emote call; the emote-table name lookup (CPlayer 0x15B) is not ported
 00450f30	~	ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
 00450f80	~	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
@@ -76,6 +80,7 @@ key	status	note
 00457610	x	ac2-script vm (VM/ReferenceTable/Resolver)
 004576d0	x	ac2-script vm (VM/ReferenceTable/Resolver)
 00463df0	~	ac2-script glue: id table + pure-glue registry; engine glue unbound
+004661d0	~	ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 00467160	~	ac2-script native::unpack: the native types Legions WStates hold
 00474780	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00479030	x	ac2-ui interpreter.rs
@@ -343,10 +348,11 @@ key	status	note
 0049fa10	x	ac2-physics los (Terrain::los_check)
 0049fec0	~	ac2-script glue: id table + pure-glue registry; engine glue unbound
 004a6220	x	ac2-physics los (Terrain::los_check)
-004a9640	~	ac2-script native: unpack direction only
-004a9760	~	ac2-script native: unpack direction only
+004a9640	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+004a9760	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 004a9b90	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 004a9c30	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+004ad1d0	~	ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 004b1da0	x	ac2-script reference/native unpack
 004b4720	~	ac2-script native::unpack: the native types Legions WStates hold
 004bfb90	x	
@@ -845,6 +851,7 @@ key	status	note
 004f6030	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
 004f6090	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f6160	x	ac2-physics los (Terrain::los_check)
+004f6690	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 005083f0	_	
 00509790	x	
 005097b0	x	
@@ -2134,10 +2141,10 @@ key	status	note
 005fe0b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005fe170	x	ac2-ui hud.rs
 005fe420	x	
-006000b0	~	ac2-script: Legions unpack layout (v6 table); version upgrades and UISaveLocations not ported
+006000b0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00600f90	x	ac2-net CharGenResult::write/read
 006010d0	x	ac2-net CharGenResult::write/read
-006015b0	~	ac2-script native: unpack direction only
+006015b0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00601c80	x	
 00601cd0	x	
 00601d00	x	
@@ -2151,14 +2158,14 @@ key	status	note
 00603090	x	
 00603470	x	
 006037c0	x	
-006079d0	~	ac2-script native: unpack direction only
-00608150	~	ac2-script native: unpack direction only
+006079d0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+00608150	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00608380	x	ac2-net protocol::native (native objects in script-call PackBuffers)
 00608490	x	ac2-net protocol::native (native objects in script-call PackBuffers)
 00609660	x	ac2-net ExaminationRequest: Legions 0x005C9210 layout (+3 words, type 0x4000000D)
 006097c0	x	ac2-net protocol::native (native objects in script-call PackBuffers)
-00609a80	~	ac2-script native: unpack direction only
-0060aa40	~	ac2-script native: unpack direction only
+00609a80	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+0060aa40	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 0060d2d0	x	ac2_core::Random
 0060d3b0	x	ac2_core::Random
 0060d3f0	x	ac2_core::Random
@@ -2219,6 +2226,7 @@ key	status	note
 0061fdb0	x	ac2-physics interp (slice 3)
 0061fdf0	x	ac2-physics interp (slice 3)
 0061fe90	x	ac2-physics interp (slice 3)
+00620070	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 006200b0	x	
 006200f0	x	ac2-physics moveto (slice 3)
 00620e20	x	
@@ -2548,7 +2556,7 @@ key	status	note
 006a9f80	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006aa5d0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006aaa90	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
-006ab140	~	ac2-script native: unpack direction only
+006ab140	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 006abe20	x	ac2-physics moveto (slice 3)
 006abe50	x	ac2-physics moveto (slice 3)
 006abf00	x	ac2-physics moveto (slice 3)
@@ -2843,6 +2851,7 @@ key	status	note
 006ecdb0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 006ed9c0	x	
 006eda20	x	
+006edb40	~	ac2-net UsageDesc::to_reference / PackValue::Reference: packed graphs the client builds (root, then reference slots in slot order); no walk over live VM state yet
 006edde0	~	ac2-net pack_values/unpack_values: the tagged PackBuffer bytes; the VM glue itself is ac2-script's
 006ff763	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0071f6b0	x	
@@ -2854,7 +2863,9 @@ key	status	note
 00722f20	~	headless frame order in ac2-client Client::use_time; no render, sound, UI, triggers or DB cache step
 00723280	x	
 00725100	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+007253d0	x	ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
 00725780	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+007259f0	x	ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
 00725cc0	x	ac2-weenie GameplayNotice::DisplayStringInfo (chat lines from the CCommunicationSystem stand-in)
 007269d0	x	
 007277e0	x	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)

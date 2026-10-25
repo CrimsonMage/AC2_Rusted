@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 20 done, 13 partial, 457 to do, 9 skipped.
+499 retail functions: 26 done, 7 partial, 457 to do, 9 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (0/4)
@@ -24,7 +24,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060ca40 · legions 005cd840
 - [ ] `AllegianceProfileAdaptor::AllegianceProfileAdaptor` · 0060caf0 · legions 005cd8f0
 
-## `ac2/shared/src/character/gameplayoptionsprofile.cpp.c` (0/57)
+## `ac2/shared/src/character/gameplayoptionsprofile.cpp.c` (1/57)
 
 ### PFileNode
 - [ ] `PFileNode::MakeSubNodeAsBool` · 005fe6a0 · legions 005bf180
@@ -90,7 +90,7 @@ Legend and workflow: [README](README.md).
 - [ ] `GameplayOptionsProfile::InqAliasTable` · 005ffd10 · legions 005c0b20
 - [ ] `GameplayOptionsProfile::AddFilter` · 005ffd30 · legions 005c0b40
 - [ ] `GameplayOptionsProfile::AliasesFromFileNode` · 005ffd90 · legions 005c0ba0
-- [~] `GameplayOptionsProfile::StreamPack` · 006000b0 — ac2-script: Legions unpack layout (v6 table); version upgrades and UISaveLocations not ported
+- [x] `GameplayOptionsProfile::StreamPack` · 006000b0 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 - [ ] `GameplayOptionsProfile::operator=` · 006004f0 · legions 005c1360
 - [-] `GameplayOptionsProfile::FromFileNode` · 006005c0 · legions 005c1440 — text source format (admin tools)
 - [ ] `GameplayOptionsProfile::Import` · 00600870 · legions 005c16f0
@@ -131,10 +131,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCharGenResult::gmCharGenResult` · 00601470 · legions 005c2350
 - [ ] `gmCharGenResult::gmCharGenResult` · 00601500 · legions 005c23e0
 
-## `ac2/shared/src/character/gmracesexinfo.cpp.c` (0/8)
+## `ac2/shared/src/character/gmracesexinfo.cpp.c` (1/8)
 
 ### gmRaceSexInfo
-- [~] `gmRaceSexInfo::StreamPack` · 006015b0 · legions 005c2490 — ac2-script native: unpack direction only
+- [x] `gmRaceSexInfo::StreamPack` · 006015b0 · legions 005c2490 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 - [ ] `gmRaceSexInfo::GetSubDataIDs` · 00601610 · legions 005c24f0
 - [ ] `gmRaceSexInfo::Verify` · 006016a0 · legions 005c2580
 - [ ] `gmRaceSexInfo::PutObjInLoc` · 00601720 · legions 005c2600
@@ -312,7 +312,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmActInfo::operator=` · 0060be40 · legions 005ccb90
 - [ ] `gmActInfo::gmActInfo` · 0060be90 · legions 005ccbe0
 
-## `ac2/shared/src/quest/gmkeyframe.cpp.c` (0/23)
+## `ac2/shared/src/quest/gmkeyframe.cpp.c` (1/23)
 
 ### gmKeyframe
 - [ ] `gmKeyframe::GetSubDataIDs` · 0060a350 · legions 005cb060
@@ -337,7 +337,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmKeyframe::~gmKeyframe` · 0060a730 · legions 005cb440
 - [ ] `gmKeyframe::Dump` · 0060a7a0 · legions 005cb4b0
 - [ ] `gmKeyframe::Verify` · 0060a900 · legions 005cb610
-- [~] `gmKeyframe::StreamPack` · 0060aa40 · legions 005cb750 — ac2-script native: unpack direction only
+- [x] `gmKeyframe::StreamPack` · 0060aa40 · legions 005cb750 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
 ## `ac2/shared/src/quest/gmquestinfo.cpp.c` (0/15)
 
@@ -382,11 +382,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gmQuestInfoList::operator=` · 0060b8a0 · legions 005cc5f0
 - [ ] `gmQuestInfoList::gmQuestInfoList` · 0060b8c0 · legions 005cc610
 
-## `ac2/shared/src/quest/gmsceneinfo.cpp.c` (0/18)
+## `ac2/shared/src/quest/gmsceneinfo.cpp.c` (1/18)
 
 ### gmSceneInfo
 - [ ] `gmSceneInfo::SetIDByName` · 00609a50
-- [~] `gmSceneInfo::StreamPack` · 00609a80 · legions 005ca790 — ac2-script native: unpack direction only
+- [x] `gmSceneInfo::StreamPack` · 00609a80 · legions 005ca790 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 - [ ] `gmSceneInfo::Begin` · 00609b70 · legions 005ca880
 - [ ] `gmSceneInfo::End` · 00609b90 · legions 005ca8a0
 - [ ] `gmSceneInfo::ClearForHackers` · 00609bb0 · legions 005ca8c0
@@ -439,7 +439,7 @@ Legend and workflow: [README](README.md).
 ### UIShopSale
 - [ ] `UIShopSale::UIShopSale` · 0060cd80 · legions 005cdb80
 
-## `ac2/shared/src/shortcut/shortcutinfo.cpp.c` (0/6)
+## `ac2/shared/src/shortcut/shortcutinfo.cpp.c` (1/6)
 
 ### ShortcutInfo
 - [ ] `ShortcutInfo::Clear` · 00607fd0 · legions 005c8e70
@@ -447,12 +447,12 @@ Legend and workflow: [README](README.md).
 - [ ] `ShortcutInfo::ShortcutInfo` · 006080b0 · legions 005c8f50
 - [ ] `ShortcutInfo::~ShortcutInfo` · 006080e0 · legions 005c8f80
 - [ ] `ShortcutInfo::ShortcutInfo` · 00608120 · legions 005c8fc0
-- [~] `ShortcutInfo::StreamPack` · 00608150 · legions 005c8ff0 — ac2-script native: unpack direction only
+- [x] `ShortcutInfo::StreamPack` · 00608150 · legions 005c8ff0 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
-## `ac2/shared/src/skilldisplay/skilluinode.cpp.c` (0/7)
+## `ac2/shared/src/skilldisplay/skilluinode.cpp.c` (1/7)
 
 ### SkillUINode
-- [~] `SkillUINode::StreamPack` · 006079d0 · legions 005c8870 — ac2-script native: unpack direction only
+- [x] `SkillUINode::StreamPack` · 006079d0 · legions 005c8870 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 - [ ] `SkillUINode::Clear` · 00607a90 · legions 005c8930
 - [ ] `SkillUINode::AddParent` · 00607ae0 · legions 005c8980
 - [ ] `SkillUINode::AddDependency` · 00607b10 · legions 005c89b0
