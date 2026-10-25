@@ -6,9 +6,13 @@
 //! `mouse_release_off`, and toggles `highlighted` on a `boolean_button` released over it.
 //! A ghosted button broadcasts only with `broadcast_when_ghosted`.
 //!
-//! Not modelled yet: hot buttons' repeating clicks (`hot_click`), activation by keyboard.
+//! A left press on a `hot_button` also broadcasts `hot_click` (and steps the scroll bars that
+//! name the button).
+//!
+//! Not modelled yet: hot buttons' repeating clicks while held, activation by keyboard.
 
 use crate::element::UiTree;
+use crate::token::tokenize;
 use crate::token::{
     BUTTON, BUTTON_BOOLEAN, BUTTON_BROADCAST_WHEN_GHOSTED, BUTTON_GHOSTED, BUTTON_HIGHLIGHTED,
     BUTTON_RADIO, BUTTON_ROLLOVER, MOUSE_EVENT_PASSTHROUGH, MSG_BUTTON_RELEASE_OFF,
@@ -16,6 +20,10 @@ use crate::token::{
     STATE_HIGHLIGHT, STATE_HIGHLIGHT_PRESSED, STATE_HIGHLIGHT_ROLLOVER, STATE_NORMAL,
     STATE_NORMAL_PRESSED, STATE_NORMAL_ROLLOVER,
 };
+
+const BUTTON_HOT: u32 = tokenize("hot_button");
+/// `ButtonMsg_hot_click`.
+const MSG_HOT_CLICK: u32 = tokenize("hot_click");
 
 /// The left button actions a button presses on (`0x40000004`, `0x40000007`).
 fn is_left(action: u32) -> bool {
@@ -101,6 +109,11 @@ impl UiTree {
         }
         if self.button_broadcasts(index) {
             self.broadcast(index, MSG_MOUSE_PRESS, action as i32);
+            // A hot button clicks once on the press (the repeats while held are not modelled).
+            if is_left(action) && self.bool_attribute(index, BUTTON_HOT) {
+                self.broadcast(index, MSG_HOT_CLICK, action as i32);
+                self.scrollbar_hot_click(index);
+            }
         }
     }
 

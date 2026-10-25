@@ -92,6 +92,8 @@ pub struct UiElement {
     pub(crate) text: Option<Box<TextState>>,
     /// `UIElement_ListBox`'s state, once items are added.
     pub(crate) list: Option<Box<crate::list_box::ListBoxState>>,
+    /// `UIElement_Scrollbar`'s drag (`scrollbar.rs`).
+    pub(crate) scrollbar: Option<Box<crate::scrollbar::ScrollbarState>>,
     /// `UIElement_PanelPage::page`: the tab's content.
     pub(crate) page: Option<usize>,
     /// `UIElement_Tree`'s state, once items are added.
@@ -347,6 +349,7 @@ impl UiTree {
             tree: None,
             page: None,
             list: None,
+            scrollbar: None,
             mouse_over: false,
             mouse_over_top: false,
             mouse_visible: true,
@@ -521,6 +524,8 @@ impl UiTree {
         if self.is_panel_page(index) {
             self.panel_page_state(index, state);
         }
+        // `UIElement_Scrollbar::SetState`.
+        self.scrollbar_update_layout(index);
     }
 
     /// `UIElement::ResetMedia`: the media of the current state, else the stateless state's, else

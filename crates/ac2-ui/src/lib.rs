@@ -27,6 +27,7 @@ mod panel;
 mod place;
 pub mod pregame;
 mod reticle;
+mod scrollbar;
 mod selection_ui;
 mod skill_tree;
 #[cfg(test)]
@@ -78,6 +79,7 @@ pub use mouse::{
     GLOBAL_MOUSE_MOVE, GLOBAL_MOUSE_UP, UI_POINTER_X, UI_POINTER_Y, UI_WHEEL_IN, UI_WHEEL_OUT,
 };
 pub use reticle::{Reticle, ReticleOutcome, ReticleTarget};
+pub use scrollbar::MSG_NEW_POSITION;
 pub use selection_ui::{SelectionClick, SelectionOutcome, SelectionUi};
 pub use skill_tree::{
     SkillNode, SkillPanel, SkillRequest, SkillSource, SkillStatus, SkillTreeUi, SkillVar,
@@ -103,6 +105,8 @@ mod list_box_tests;
 mod mouse_tests;
 #[cfg(test)]
 mod real_data_tests;
+#[cfg(test)]
+mod scrollbar_tests;
 #[cfg(test)]
 mod skill_tree_tests;
 #[cfg(test)]

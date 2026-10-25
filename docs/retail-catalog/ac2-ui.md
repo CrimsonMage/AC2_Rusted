@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 263 done, 128 partial, 1839 to do, 17 skipped.
+2247 retail functions: 273 done, 134 partial, 1823 to do, 17 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (5/53)
@@ -3156,7 +3156,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Button::EndUseActive` · 005fb870 · legions 005bc3a0
 - [~] `UIElement_Button::SetAttribute_Bool` · 005fb940 · legions 005bc470 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [ ] `UIElement_Button::Register` · 005fb9b0 · legions 005bc4e0
-- [~] `UIElement_Button::MouseDown` · 005fb9d0 · legions 005bc500 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+- [~] `UIElement_Button::MouseDown` · 005fb9d0 · legions 005bc500 — button.rs: press, broadcasts, one hot_click on press; repeats while held (Global_Loop) not modelled
 - [x] `UIElement_Button::MouseUp` · 005fbb10 · legions 005bc640 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [x] `UIElement_Button::MouseOverTop` · 005fbc50 · legions 005bc780 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 
@@ -3369,36 +3369,36 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Resizebar::Create` · 005f83c0
 - [ ] `UIElement_Resizebar::Register` · 005f83f0 · legions 005b8f20
 
-## `portal/client/src/uielement/types/uielement_scrollbar.cpp.c` (0/28)
+## `portal/client/src/uielement/types/uielement_scrollbar.cpp.c` (10/28)
 
 ### UIElement_Scrollbar
 - [ ] `UIElement_Scrollbar::SetAttribute_ID` · 005f9a20 · legions 005ba550
-- [ ] `UIElement_Scrollbar::BroadcastMessageOnRoot` · 005f9a80 · legions 005ba5b0
+- [x] `UIElement_Scrollbar::BroadcastMessageOnRoot` · 005f9a80 · legions 005ba5b0 — ac2-ui scrollbar.rs
 - [ ] `UIElement_Scrollbar::HandleHideButton` · 005f9aa0 · legions 005ba5d0
 - [ ] `UIElement_Scrollbar::HandleFillChild` · 005f9ae0 · legions 005ba610
-- [ ] `UIElement_Scrollbar::UpdateLayout` · 005f9b30 · legions 005ba660
+- [~] `UIElement_Scrollbar::UpdateLayout` · 005f9b30 · legions 005ba660 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [ ] `UIElement_Scrollbar::StartAnimation` · 005fa050 · legions 005bab80
 - [ ] `UIElement_Scrollbar::StopAnimation` · 005fa170 · legions 005baca0
-- [ ] `UIElement_Scrollbar::ResizeTo` · 005fa1b0 · legions 005bace0
-- [ ] `UIElement_Scrollbar::RegisterForMouseMove` · 005fa1d0 · legions 005bad00
-- [ ] `UIElement_Scrollbar::HandleMoveTo` · 005fa200 · legions 005bad30
-- [ ] `UIElement_Scrollbar::HandleMouseMove` · 005fa330 · legions 005bae60
-- [ ] `UIElement_Scrollbar::HandleMoveSteps` · 005fa3a0 · legions 005baed0
+- [x] `UIElement_Scrollbar::ResizeTo` · 005fa1b0 · legions 005bace0 — ac2-ui scrollbar.rs
+- [x] `UIElement_Scrollbar::RegisterForMouseMove` · 005fa1d0 · legions 005bad00 — ac2-ui scrollbar.rs
+- [x] `UIElement_Scrollbar::HandleMoveTo` · 005fa200 · legions 005bad30 — ac2-ui scrollbar.rs
+- [x] `UIElement_Scrollbar::HandleMouseMove` · 005fa330 · legions 005bae60 — ac2-ui scrollbar.rs
+- [x] `UIElement_Scrollbar::HandleMoveSteps` · 005fa3a0 · legions 005baed0 — ac2-ui scrollbar.rs
 - [ ] `UIElement_Scrollbar::~UIElement_Scrollbar` · 005fa4a0 · legions 005bafd0
-- [ ] `UIElement_Scrollbar::SetState` · 005fa5b0 · legions 005bb0e0
+- [x] `UIElement_Scrollbar::SetState` · 005fa5b0 · legions 005bb0e0 — ac2-ui scrollbar.rs
 - [ ] `UIElement_Scrollbar::SetAttribute_Bool` · 005fa5d0 · legions 005bb100
-- [ ] `UIElement_Scrollbar::SetAttribute_Float` · 005fa780 · legions 005bb2b0
+- [~] `UIElement_Scrollbar::SetAttribute_Float` · 005fa780 · legions 005bb2b0 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [ ] `UIElement_Scrollbar::SetAttribute_Int` · 005fa820 · legions 005bb350
-- [ ] `UIElement_Scrollbar::MouseUp` · 005fa860 · legions 005bb390
+- [x] `UIElement_Scrollbar::MouseUp` · 005fa860 · legions 005bb390 — ac2-ui scrollbar.rs
 - [ ] `UIElement_Scrollbar::Global_Loop` · 005fa910 · legions 005bb440
-- [ ] `UIElement_Scrollbar::Global_MouseMove` · 005fabe0 · legions 005bb710
-- [ ] `UIElement_Scrollbar::ListenToMessage` · 005facd0 · legions 005bb800
+- [x] `UIElement_Scrollbar::Global_MouseMove` · 005fabe0 · legions 005bb710 — ac2-ui scrollbar.rs
+- [~] `UIElement_Scrollbar::ListenToMessage` · 005facd0 · legions 005bb800 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [ ] `UIElement_Scrollbar::HandleMouseWheel` · 005fad20 · legions 005bb850
-- [ ] `UIElement_Scrollbar::HandleButtonHotclick` · 005fadd0 · legions 005bb900
-- [ ] `UIElement_Scrollbar::UIElement_Scrollbar` · 005fae40 · legions 005bb970
+- [x] `UIElement_Scrollbar::HandleButtonHotclick` · 005fadd0 · legions 005bb900 — ac2-ui scrollbar.rs
+- [~] `UIElement_Scrollbar::UIElement_Scrollbar` · 005fae40 · legions 005bb970 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [ ] `UIElement_Scrollbar::Create` · 005fb0a0
-- [ ] `UIElement_Scrollbar::MouseDown` · 005fb0d0 · legions 005bbc00
-- [ ] `UIElement_Scrollbar::ListenToMessage` · 005fb400 · legions 005bbf30
+- [~] `UIElement_Scrollbar::MouseDown` · 005fb0d0 · legions 005bbc00 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
+- [~] `UIElement_Scrollbar::ListenToMessage` · 005fb400 · legions 005bbf30 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [ ] `UIElement_Scrollbar::Register` · 005fb4c0 · legions 005bbff0
 
 ## `portal/client/src/uielement/types/uielement_tree.cpp.c` (16/39)

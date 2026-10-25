@@ -126,6 +126,7 @@ impl UiTree {
     /// `UIElementManager::MouseMoveEvent`; the manager's next `UseTime` runs `UpdateMouse`.
     fn mouse_move_event(&mut self) {
         self.broadcast_global(GLOBAL_MOUSE_MOVE, 0);
+        self.scrollbar_mouse_move();
         self.update_mouse();
     }
 
@@ -285,6 +286,7 @@ impl UiTree {
         self.text_mouse_down(index, action);
         self.panel_page_mouse_down(index, action);
         self.list_mouse_down(index, action, processed);
+        self.scrollbar_mouse_down(index, action);
     }
 
     /// `UIElement::MouseUp` (and `UIElement_Button::MouseUp`).
@@ -294,5 +296,6 @@ impl UiTree {
         }
         self.broadcast(index, MSG_MOUSE_RELEASE, action as i32);
         self.button_mouse_up(index, action, processed);
+        self.scrollbar_mouse_up(index);
     }
 }
