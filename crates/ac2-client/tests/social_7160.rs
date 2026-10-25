@@ -187,8 +187,23 @@ fn social_actions_go_out_and_the_fellowship_comes_back() {
         .any(|n| matches!(n, GameplayNotice::UpdateFellow { fellow, .. } if *fellow == TARGET)));
     assert!(after[2].contains(&GameplayNotice::ClearFellow(TARGET)));
     assert!(after[5].contains(&GameplayNotice::ClearFellowship));
-    // The attack buttons: the server's state, on and off.
-    assert!(after[12].contains(&GameplayNotice::UpdateAttackState(true)));
-    assert!(after[13].contains(&GameplayNotice::UpdateAttackState(false)));
-    assert!(before[12].contains(&GameplayNotice::UpdateAttackState(true)));
+    // The attack buttons: the server's state, on and off, once each (the VM's `CPlayer` 0x2).
+    let attack_states = |n: &[GameplayNotice]| {
+        n.iter()
+            .filter(|n| matches!(n, GameplayNotice::UpdateAttackState(_)))
+            .cloned()
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(
+        attack_states(&after[12]),
+        [GameplayNotice::UpdateAttackState(true)]
+    );
+    assert_eq!(
+        attack_states(&after[13]),
+        [GameplayNotice::UpdateAttackState(false)]
+    );
+    assert_eq!(
+        attack_states(&before[12]),
+        [GameplayNotice::UpdateAttackState(true)]
+    );
 }

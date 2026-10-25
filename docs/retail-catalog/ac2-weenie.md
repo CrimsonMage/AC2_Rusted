@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 49 done, 0 partial, 1849 to do, 6 skipped.
+1904 retail functions: 50 done, 0 partial, 1848 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -2576,7 +2576,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWDistributor::DispatchInterpMsg` · 0052e150 · legions 005124d0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `CWDistributor::RecvEvt_InterpCEvent_Private` · 0052e250 · legions 00512590
 
-## `portal/shared/src/weenie/interface/winterface.cpp.c` (0/52)
+## `portal/shared/src/weenie/interface/winterface.cpp.c` (1/52)
 
 ### CWInterface
 - [ ] `CWInterface::CWInterface` · 0052e280 · legions 005125c0
@@ -2598,7 +2598,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWInterface::IsPlayer` · 0052e5e0 · legions 00512920
 - [ ] `CWInterface::IsCreature` · 0052e600 · legions 00512940
 - [ ] `CWInterface::IsThePlayer` · 0052e620 · legions 00512960 — ac2-script host::interface
-- [ ] `CWInterface::OnStatChanged` · 0052e660 · legions 005129a0
+- [x] `CWInterface::OnStatChanged` · 0052e660 · legions 005129a0 — ac2-client stat_changed: OnStatChanged (IFun 0x7F0044: table, quality) on the object's process once the VM has it (CPlayer 0x85: vitals, XP bar, vitae, skill panel); the session's stand-ins otherwise
 - [ ] `CWInterface::RecvEvt_PlayerDesc` · 0052e6a0 · legions 005129e0
 - [ ] `CWInterface::HandleIntersectionDone` · 0052e6c0 · legions 00512a00
 - [ ] `CWInterface::InqDetectionProfile` · 0052e6e0 · legions 00512a20
