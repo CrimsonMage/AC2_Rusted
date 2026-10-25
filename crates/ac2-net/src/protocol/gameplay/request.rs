@@ -63,6 +63,10 @@ pub enum ScriptRequest {
     EnterStore { store: u32, vendor: u64 },
     /// [`function::STORE_LEAVE`]: the storekeeper (long int).
     LeaveStore(u64),
+    /// [`function::STORE_ENTER_CONSIGNMENT`]: the storekeeper (long int).
+    EnterConsignment(u64),
+    /// [`function::STORE_LEAVE_CONSIGNMENT`]: the storekeeper (long int).
+    LeaveConsignment(u64),
     /// [`function::STORE_PURCHASE`]: the purchase's `TransactionBlob` (a package reference).
     Purchase(PackedReference),
     /// [`function::CRAFT_ADD_INGREDIENT`]: `object` into slot `ordinal` of `recipe`, at `spinner`.
@@ -110,6 +114,8 @@ impl ScriptRequest {
             Self::RevokeItem(_) => function::REVOKE_ITEM,
             Self::EnterStore { .. } => function::STORE_ENTER,
             Self::LeaveStore(_) => function::STORE_LEAVE,
+            Self::EnterConsignment(_) => function::STORE_ENTER_CONSIGNMENT,
+            Self::LeaveConsignment(_) => function::STORE_LEAVE_CONSIGNMENT,
             Self::Purchase(_) => function::STORE_PURCHASE,
             Self::CraftAddIngredient { .. } => function::CRAFT_ADD_INGREDIENT,
             Self::CraftExecute { .. } => function::CRAFT_EXECUTE,
@@ -154,6 +160,9 @@ impl ScriptRequest {
                 vec![PackValue::Int(*store), PackValue::LongInt(*vendor)]
             }
             Self::LeaveStore(vendor) => vec![PackValue::LongInt(*vendor)],
+            Self::EnterConsignment(vendor) | Self::LeaveConsignment(vendor) => {
+                vec![PackValue::LongInt(*vendor)]
+            }
             Self::Purchase(reference) => vec![PackValue::Reference(reference.clone())],
             Self::CraftAddIngredient {
                 recipe,
@@ -275,6 +284,8 @@ impl ScriptRequest {
                 })
             }),
             function::STORE_LEAVE => decode(|a| Ok(Self::LeaveStore(a.long()?))),
+            function::STORE_ENTER_CONSIGNMENT => decode(|a| Ok(Self::EnterConsignment(a.long()?))),
+            function::STORE_LEAVE_CONSIGNMENT => decode(|a| Ok(Self::LeaveConsignment(a.long()?))),
             function::STORE_PURCHASE => decode(|a| Ok(Self::Purchase(a.reference()?))),
             function::CRAFT_ADD_INGREDIENT => decode(|a| {
                 let spinner = a.int()?;

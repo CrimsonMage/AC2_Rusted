@@ -102,6 +102,12 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     // `gmCWInterface`'s store calls (their IFuns on the player's script).
     IFUN_REQUEST_ENTER_STORE,
     IFUN_REQUEST_LEAVE_STORE,
+    // The consignment answers and calls (`gmCWInterface`'s consignment IFuns).
+    ac2_net::protocol::script_function::STORE_VIEW_CONSIGNMENT,
+    ac2_net::protocol::script_function::STORE_UPDATE_CONSIGNMENT,
+    IFUN_REQUEST_ENTER_CONSIGNMENT,
+    IFUN_REQUEST_LEAVE_CONSIGNMENT,
+    IFUN_GET_CONSIGNMENT_CHARGE,
     IFUN_PURCHASE_ITEM,
     IFUN_PURCHASE_CONFIRMED,
     IFUN_REQUEST_SELL,
@@ -162,6 +168,12 @@ pub const IFUN_ACCEPT_TRADE: u32 = 0x00B4_00BA;
 
 /// `gmCWInterface::RequestEnterStore` (`ggmCWInterface::CallIFun_RequestEnterStore`: the store).
 pub const IFUN_REQUEST_ENTER_STORE: u32 = 0x00B4_0137;
+/// `gmCWInterface::RequestEnterConsignment` (`CallIFun_RequestEnterConsignment`: no arguments).
+pub const IFUN_REQUEST_ENTER_CONSIGNMENT: u32 = 0x00B4_0136;
+/// `gmCWInterface::RequestLeaveConsignment` (`CallIFun_RequestLeaveConsignment`: no arguments).
+pub const IFUN_REQUEST_LEAVE_CONSIGNMENT: u32 = 0x00B4_0135;
+/// `gmCWInterface::GetConsignmentCharge` (`CallIFun_GetConsignmentCharge`: a float out value).
+pub const IFUN_GET_CONSIGNMENT_CHARGE: u32 = 0x00B4_013B;
 /// `gmCWInterface::RequestLeaveStore` (`CallIFun_RequestLeaveStore`: no arguments).
 pub const IFUN_REQUEST_LEAVE_STORE: u32 = 0x00B4_0131;
 /// `gmCWInterface::PurchaseItem` (`CallIFun_PurchaseItem`: the item, the quantity, the slot).

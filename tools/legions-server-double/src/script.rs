@@ -212,6 +212,8 @@ impl State {
             }
             ScriptRequest::CraftRaiseSkill(_) => {}
             ScriptRequest::EnterStore { .. } => {}
+            // The consignment's enter and leave have no traced answer yet (see the catalog).
+            ScriptRequest::EnterConsignment(_) | ScriptRequest::LeaveConsignment(_) => {}
             ScriptRequest::Use(desc) => {
                 let mut desc = desc.clone();
                 desc.error = self.script_world.usage_error;

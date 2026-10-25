@@ -19,6 +19,7 @@ mod client_frame;
 mod client_objects;
 mod client_radar;
 pub use client_radar::add_map_note;
+mod consignment;
 mod controls;
 mod craft;
 mod frame;

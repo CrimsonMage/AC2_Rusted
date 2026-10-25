@@ -102,6 +102,9 @@ pub enum Command {
     EnterStore(u32),
     /// `gmCWInterface::RequestLeaveStore`.
     LeaveStore,
+    /// `gmCWInterface::RequestEnterConsignment` / `RequestLeaveConsignment`.
+    EnterConsignment,
+    LeaveConsignment,
     /// `gmCWInterface::PurchaseItem`: `quantity` of `item` from store slot `slot`.
     PurchaseItem {
         item: u64,
@@ -515,6 +518,9 @@ impl Client {
                 Command::LeaveStore => {
                     self.store_ifun(crate::scripts::IFUN_REQUEST_LEAVE_STORE, &[])
                 }
+                Command::EnterConsignment | Command::LeaveConsignment => {
+                    self.consignment_command(command)
+                }
                 Command::PurchaseItem {
                     item,
                     quantity,
@@ -701,7 +707,7 @@ fn refused(result: Result<(), String>) -> Vec<SessionEvent> {
 impl Client {
     /// A store call: its IFun on the player's script, whose stubs send the request. The store has
     /// no session stand-in, so without the VM the call does nothing.
-    fn store_ifun(&mut self, function: u32, args: &[IFunArg]) -> Vec<SessionEvent> {
+    pub(crate) fn store_ifun(&mut self, function: u32, args: &[IFunArg]) -> Vec<SessionEvent> {
         let mut out = Vec::new();
         if self.scripts_own(function) {
             if let Err(e) = self.ifun_into(function, args, &mut out) {

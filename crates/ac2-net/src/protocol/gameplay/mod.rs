@@ -197,6 +197,19 @@ pub mod function {
     /// S->C, `WM_Store` forwarder 0x29 (`CPlayer` 0x1E3 -> `CStoreSystem` 0x9 -> `UpdateSale`):
     /// the stock (int), the item (long int), the storekeeper (long int).
     pub const STORE_UPDATE_SALE: u32 = 0xB83A_0029;
+    /// C->S, `WM_Store` stub 0x46 (`RequestEnterConsignment`, IFun 0xB40136): the storekeeper
+    /// (long int). The stub sends it only with a shopper open (`CStoreSystem`'s shopper check).
+    pub const STORE_ENTER_CONSIGNMENT: u32 = 0xB83A_0046;
+    /// C->S, `WM_Store` stub 0x45 (`RequestLeaveConsignment`, IFun 0xB40135): the storekeeper
+    /// (long int).
+    pub const STORE_LEAVE_CONSIGNMENT: u32 = 0xB83A_0045;
+    /// S->C, `WM_Store` forwarder 0x53 (`CPlayer` 0x1F1 -> `CStoreSystem` 0x17 -> `ViewConsignment`):
+    /// the consignment (a package reference to a `StoreView`, as `ViewStore`), the storekeeper
+    /// (long int). The body closes the open store and catalog first, as `ViewStore`'s does.
+    pub const STORE_VIEW_CONSIGNMENT: u32 = 0xB83A_0053;
+    /// S->C, `WM_Store` forwarder 0x57 (`CPlayer` 0x1F6 -> `CStoreSystem` 0x16 -> `UpdateConsignment`):
+    /// the consignment (a `StoreView`), the storekeeper (long int).
+    pub const STORE_UPDATE_CONSIGNMENT: u32 = 0xB83A_0057;
     /// C->S, `WM_Craft` stub 0x06 (`RequestAddIngredient`, IFun 0xB4009D): the spinner (int), the
     /// object (long int), the slot's ordinal (int), the recipe (int), in stub order.
     pub const CRAFT_ADD_INGREDIENT: u32 = 0x8206_0006;
