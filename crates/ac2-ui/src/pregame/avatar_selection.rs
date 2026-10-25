@@ -7,8 +7,10 @@
 //! result current, and when the animation ends avatar modification follows. Cancel goes back to
 //! character selection.
 //!
-//! Not modelled yet: the scene itself (the client renders [`AvatarSelectionUi::avatars`], answers
-//! the pick and reports the animation's end), the tooltip and the music.
+//! The scene is the client's: it renders [`AvatarSelectionUi::avatars`] in
+//! [`AvatarSelectionUi::viewport`], answers the pick and reports the animation's end.
+//!
+//! Not modelled yet: the tooltip and the music.
 
 use ac2_net::protocol::GmRaceSexInfo;
 
@@ -144,6 +146,16 @@ impl AvatarSelectionUi {
     /// The avatars standing in the scene.
     pub fn avatars(&self) -> &[Avatar] {
         &self.avatars
+    }
+
+    /// The avatar under the pointer (`_objectUnderMouse`), as the last pick answered.
+    pub fn under_mouse(&self) -> Option<usize> {
+        self.under_mouse
+    }
+
+    /// The `AvatarSelectionViewport` root the avatars stand in.
+    pub fn viewport(&self) -> Option<usize> {
+        self.viewport
     }
 
     /// `gmAvatarSelectionUI::MakePleaseWaitDialog`.

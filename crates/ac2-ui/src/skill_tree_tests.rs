@@ -107,6 +107,7 @@ fn a_panel_lays_out_its_nodes_and_shows_the_selected_skill() {
         element: Some(melee),
         message: crate::token::MSG_MOUSE_PRESS,
         data: 0x4000_0004,
+        item: None,
     };
     ui.message(&mut tree, &Stub, &press);
     assert_eq!(
@@ -168,7 +169,91 @@ fn a_panel_lays_out_its_nodes_and_shows_the_selected_skill() {
         element: Some(train),
         message: crate::token::MSG_BUTTON_RELEASE_ON,
         data: 0x4000_0004,
+        item: None,
     };
     ui.message(&mut tree, &Stub, &release);
     assert_eq!(ui.take_requests(), vec![SkillRequest::ConfirmTrain(CHILD)]);
+}
+
+/// An empty shortcut bar.
+struct EmptyBar;
+
+impl ShortcutSource for EmptyBar {
+    fn shortcuts(&self) -> Vec<Shortcut> {
+        vec![Shortcut::default(); 100]
+    }
+    fn icon(&self, _: usize, _: &Shortcut) -> u32 {
+        0
+    }
+    fn options(&self) -> ShortcutOptions {
+        ShortcutOptions {
+            which_set: 1,
+            rows: 1,
+            ..ShortcutOptions::default()
+        }
+    }
+    fn skill_trained(&self, _: u32) -> bool {
+        true
+    }
+    fn has_item(&self, _: u64) -> bool {
+        false
+    }
+}
+
+#[test]
+fn a_trained_skill_dragged_onto_the_bar_becomes_a_shortcut() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let (mut tree, mut bar) = (hud.tree, hud.shortcuts.expect("the shortcut bar"));
+    let mut ui = hud.skills.expect("the skills panel");
+    bar.reload(&mut tree, &EmptyBar);
+    bar.take_requests();
+    let field = tree
+        .roots()
+        .iter()
+        .find_map(|&r| tree.child_recursive(r, tokenize("SkillField")))
+        .unwrap();
+    ui.update_skill_panel(&mut tree, &Stub);
+    ui.examination_request_changed(&mut tree, &Stub, EXAMINE_PANEL, PANEL);
+    // The skills panel shown.
+    let mut at = Some(field);
+    while let Some(e) = at {
+        tree.set_visible(e, true);
+        at = tree.get(e).unwrap().parent;
+    }
+    let skill_tree = tree.child_recursive(field, tokenize("SkillTree")).unwrap();
+    let base = tree.tree_item(skill_tree, 0, 0).expect("base node");
+    let icon = tree
+        .child_recursive(base, tokenize("SkillNodeIcon"))
+        .unwrap();
+    assert!(
+        tree.bool_attribute(icon, tokenize("dragable")),
+        "a trained skill drags"
+    );
+    let centre = |tree: &UiTree, e: usize| {
+        let b = tree.screen_box(e);
+        ((b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2)
+    };
+    let list = bar.elements().1.unwrap();
+    let (x, y) = centre(&tree, icon);
+    let (tx, ty) = centre(&tree, tree.list_items(list)[2]);
+    tree.start_input(crate::UI_POINTER_X, x as f32);
+    tree.start_input(crate::UI_POINTER_Y, y as f32);
+    tree.start_input(0x4000_0004, 1.0);
+    tree.start_input(crate::UI_POINTER_X, tx as f32);
+    tree.start_input(crate::UI_POINTER_Y, ty as f32);
+    assert!(tree.dragged().is_some(), "the skill is dragged");
+    tree.stop_input(0x4000_0004);
+    for message in tree.take_messages() {
+        bar.message(&mut tree, &EmptyBar, &message);
+    }
+    let skill = Shortcut {
+        kind: SHORTCUT_SKILL,
+        skill: BASE,
+        ..Shortcut::default()
+    };
+    assert_eq!(bar.take_requests(), vec![ShortcutRequest::Set(2, skill)]);
 }

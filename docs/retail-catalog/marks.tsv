@@ -21,7 +21,7 @@ key	status	note
 004064a0	-	GUN chat servers are not used (Turbine chat)
 00406af0	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 00406b00	x	ac2-ui pregame/flow.rs, pregame/ui.rs
-00406b10	~	pregame/ui.rs: character selection and disconnected made; intro, data patch (the client connects), keyboard, credits not ported
+00406b10	x	ac2-ui pregame/ui.rs PregameUi::new (every framework, the intro queued); gameplay is the client's view
 00406c60	~	ac2-script: unpack direction only
 00406cb0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00406f50	x	ac2-script reference/native unpack
@@ -40,11 +40,12 @@ key	status	note
 00409be0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00409e00	x	
 0040a1f0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
-0040aad0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040aad0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 0040ab10	x	ac2-ui pregame/avatar_modification.rs
 0040ab70	x	ac2-ui pregame/avatar_modification.rs
-0040ace0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
-0040b0b0	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040acb0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+0040ace0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+0040b0b0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 0040b420	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
 0040b640	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
 0040b6e0	x	ac2-ui pregame/avatar_modification.rs
@@ -74,7 +75,7 @@ key	status	note
 0040f540	x	ac2-ui pregame/avatar_selection.rs
 0040f560	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 0040f590	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
-0040f6c0	~	character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
+0040f6c0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 0040f720	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 0040f810	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 0040f880	x	ac2-ui list_box_select.rs
@@ -89,20 +90,47 @@ key	status	note
 00410510	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 00410750	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 004108c0	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
-004108e0	~	character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
-00410a10	~	character_selection.rs: occupants per arm and the pick protocol; the 3D figures and the scene pick are the client's to render (ArmOccupant, wants_pick/finish_pick)
+004108e0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+00410a10	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 00410ad0	~	character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
 00410c00	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 00410f00	~	character_selection.rs: roots, handlers, Update; background music not played
 00411220	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 00411240	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
+00411260	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+004112a0	-	no DAT patching in this client (DDD patch events never come)
+004113b0	-	no DAT patching in this client (DDD patch events never come)
+004115f0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00411890	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00411ac0	~	ac2-ui PregameUi::character_set (first set -> character selection) and bin/ac2 --character (start character enters at once); patching not ported
+00411fd0	-	no DAT patching in this client (DDD patch events never come)
+004121d0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+004123d0	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 004125c0	x	ac2-ui pregame/disconnected.rs
 00412630	x	ac2-ui pregame/disconnected.rs
 00412650	x	ac2-ui pregame/disconnected.rs
 00412670	x	ac2-ui pregame/disconnected.rs
 004126b0	x	ac2-ui pregame/disconnected.rs
 004126d0	x	ac2-ui pregame/disconnected.rs
+00412710	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412870	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+004128c0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+004128e0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412900	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+004129c0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+004129f0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412a20	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412b10	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412d00	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412e30	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412e60	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412e80	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
+00413360	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
+004134f0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00413530	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+004139d0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00414bb0	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
+00414e70	~	pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 00415210	~	dialog.rs: confirmation, wait, message; resurrect and timed dialogs not made
 00415300	-	Rust std replaces it
 00415390	-	Rust std replaces it
@@ -163,7 +191,12 @@ key	status	note
 0042d830	x	ac2-ui dialog.rs
 0042d850	x	ac2-ui dialog.rs
 0042d8e0	x	ac2-ui dialog.rs
+0042d910	~	the stack dialog (gmStackUI) for part of a stack is not modelled: the whole stack moves
+0042da30	x	ac2-ui item_display.rs
 0042dac0	x	ac2-ui list_box.rs
+0042db40	x	ac2-ui item_display.rs
+0042dc20	~	the stack dialog (gmStackUI) for part of a stack is not modelled: the whole stack moves
+0042dfb0	x	ac2-ui item_display.rs
 0042e070	x	ac2-ui item_display.rs / backpack.rs
 0042e150	x	ac2-ui item_display.rs / backpack.rs
 0042e1e0	x	ac2-ui item_display.rs / backpack.rs
@@ -235,11 +268,13 @@ key	status	note
 00435ce0	x	ac2-ui shortcut.rs
 00435d30	x	ac2-ui shortcut.rs
 00435d80	x	ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
+00435e10	x	ac2-ui drag.rs; shortcut.rs drop
+00435e70	~	the locked-bar check (GetShortcutLocked + shift) is not asked
 00435fc0	x	ac2-ui shortcut.rs
 004360e0	x	ac2-ui shortcut.rs
 004363e0	x	ac2-script glue::shortcut / native::shortcut
 00436440	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-004364f0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+004364f0	x	ac2-ui drag.rs; shortcut.rs drop
 004367a0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 00436940	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 00436bc0	x	ac2-ui shortcut.rs
@@ -2956,6 +2991,7 @@ key	status	note
 00571da0	x	ac2-render object::cell / point_lights
 00571ec0	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 00572110	~	outdoor sun only; dynamic/point lights and shadow direction not yet
+00572840	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 00572aa0	x	
 00572ac0	x	
 00572c70	x	
@@ -3143,6 +3179,21 @@ key	status	note
 005a70b0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a70e0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 005a7180	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
+005acd10	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005acea0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005acee0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+005acf60	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005ad2f0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005ad330	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005ad8e0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+005adcd0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005add60	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005addb0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005adf30	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005ae030	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005ae130	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005ae180	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
+005ae370	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 005ae960	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
 005af390	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005af9c0	~	A8R8G8B8 only; colour key and format conversion not modelled
@@ -3180,9 +3231,14 @@ key	status	note
 005d6310	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6470	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6560	x	ac2-render object::pass / texture_matrix, ac2-gpu object
+005d8d90	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005d8f10	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005d8f50	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005d8ff0	~	pregame/arms.rs: frames and slerp; no instance id/scene
 005d9120	x	ac2-ui pregame/arms.rs SceneEntity
 005d9210	x	ac2-ui pregame/arms.rs SceneEntity
+005d92e0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005d9330	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005df7a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005df7e0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005df8a0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
@@ -3222,11 +3278,15 @@ key	status	note
 005e35f0	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
 005e3690	x	ac2-ui media.rs / transition.rs
 005e3740	x	ac2-ui tooltip.rs
+005e37c0	x	ac2-ui drag.rs; shortcut.rs drop
+005e3820	x	ac2-ui drag.rs; shortcut.rs drop
 005e38b0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005e3af0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e3b70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e3cc0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005e3e90	~	no right-button check; 32x32 cursor size assumed
+005e42e0	x	ac2-ui drag.rs; shortcut.rs drop
+005e46d0	x	ac2-ui drag.rs; shortcut.rs drop
 005e4b60	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4c70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4d20	x	ac2-ui tooltip.rs
@@ -3247,6 +3307,9 @@ key	status	note
 005e9040	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e9060	x	ac2-ui media.rs / transition.rs
 005e90b0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005e9180	x	ac2-ui drag.rs; shortcut.rs drop
+005e91b0	x	ac2-ui drag.rs; shortcut.rs drop
+005e9250	x	ac2-ui drag.rs; shortcut.rs drop
 005e9300	x	ac2-ui tooltip.rs
 005e9340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e9470	x	ac2-ui input.rs / text_edit.rs: typing into text elements
@@ -3264,6 +3327,9 @@ key	status	note
 005ea2c0	x	ac2-ui media.rs / transition.rs
 005ea430	x	ac2-ui compose.rs / element.rs set_image
 005ea510	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005ea5c0	x	ac2-ui drag.rs; shortcut.rs drop
+005eab10	x	ac2-ui drag.rs; shortcut.rs drop
+005eabd0	x	ac2-ui drag.rs; shortcut.rs drop
 005eac90	x	ac2-ui tooltip.rs
 005eacf0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005eae20	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -3375,6 +3441,13 @@ key	status	note
 005f76e0	x	ac2-ui tree_view.rs
 005f7b40	~	ac2-ui tree_view.rs: view via tree_end/flush only
 005f7b90	~	ac2-ui tree_view.rs: view via tree_end/flush only
+005f8410	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005f8480	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005f84d0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005f84f0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005f8580	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005f85e0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+005f8620	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005f86a0	x	ac2-ui panel.rs
 005f8760	x	ac2-ui panel.rs
 005f87e0	x	ac2-ui panel.rs
@@ -3405,6 +3478,7 @@ key	status	note
 005fb9d0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005fbb10	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005fbc50	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+005fbdb0	x	ac2-ui drag.rs; shortcut.rs drop
 005fbe40	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005fbe60	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005fbed0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
@@ -3651,6 +3725,7 @@ key	status	note
 00621410	x	
 00621510	x	ac2-physics los (Terrain::los_check)
 00621ef0	x	ac2-render object::cell / point_lights
+00621fb0	~	pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips
 00622760	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 00622900	~	static point lights: weight sort, six cap, range test, indoor/outdoor; sunlight-type and dynamic lights not yet
 00622cf0	~	ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
@@ -4544,6 +4619,8 @@ key	status	note
 007330f0	x	ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
 00733190	x	ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
 00733230	x	ac2-weenie shell::CommandHistory (newest first; ResizeCmdHistory never trims, as retail's compare runs)
+00735590	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
+007355a0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 00735760	x	ac2-ui tree_view.rs
 00735770	x	ac2-ui tree_view.rs
 007358c0	x	ac2-ui tree_view.rs

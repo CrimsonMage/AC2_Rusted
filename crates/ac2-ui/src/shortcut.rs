@@ -258,6 +258,7 @@ impl ShortcutUi {
         let data = match shortcut.kind {
             SHORTCUT_SKILL | SHORTCUT_EMPTY => Some(AttributeValue::Id(shortcut.skill)),
             SHORTCUT_RECIPE => Some(AttributeValue::Id(shortcut.data_id)),
+            SHORTCUT_ITEM => Some(AttributeValue::InstanceId(shortcut.item)),
             _ => None,
         };
         if let Some(data) = data {
@@ -383,6 +384,67 @@ impl ShortcutUi {
         }
     }
 
+    /// `gmShortcutUI::FromElement`: the shortcut a (dragged) element carries.
+    fn from_element(tree: &UiTree, element: usize) -> Option<Shortcut> {
+        let el = tree.get(element)?;
+        let kind = match el.attribute(id("Token_ShortcutType")) {
+            Some(AttributeValue::Id(kind)) => *kind,
+            _ => return None,
+        };
+        let data = el.attribute(id("Token_ShortcutData"));
+        let mut shortcut = Shortcut {
+            kind,
+            ..Shortcut::default()
+        };
+        match (kind, data) {
+            (SHORTCUT_SKILL, Some(AttributeValue::Id(skill))) => shortcut.skill = *skill,
+            (SHORTCUT_ITEM, Some(AttributeValue::InstanceId(item))) => shortcut.item = *item,
+            (SHORTCUT_RECIPE, Some(AttributeValue::Id(did))) => shortcut.data_id = *did,
+            (SHORTCUT_ALIAS, _) => {
+                let alias = tree.child_recursive(element, id("AliasText"))?;
+                shortcut.text = tree.get(alias)?.text().unwrap_or_default();
+            }
+            (SHORTCUT_SKILL | SHORTCUT_ITEM | SHORTCUT_RECIPE, _) => return None,
+            _ => {}
+        }
+        Some(shortcut)
+    }
+
+    /// `ShortcutIndex` of a bar slot (or its copy).
+    fn shortcut_index(tree: &UiTree, element: usize) -> Option<usize> {
+        match tree.get(element)?.attribute(id("ShortcutIndex")) {
+            Some(AttributeValue::Int(index)) => usize::try_from(*index).ok(),
+            _ => None,
+        }
+    }
+
+    /// `ListenToMessage`'s `stop_drag_item` on the list: a drop puts the dragged shortcut in the
+    /// slot under the pointer (`gmShortcutUI_DDCB`: one carrying a shortcut, on a slot below 100)
+    /// and empties the slot it came from; a bar shortcut dragged off the bar is removed.
+    fn drop(&mut self, tree: &mut UiTree, source: &dyn ShortcutSource, message: &UiMessage) {
+        let (Some(list), Some(copy)) = (self.list, message.item) else {
+            return;
+        };
+        let from = Self::shortcut_index(tree, copy).filter(|&i| i < SLOTS);
+        if message.data != 0 {
+            let Some(target) = tree.list_item_under_mouse(list) else {
+                return;
+            };
+            let Some(index) = tree.list_what_num(list, target).filter(|&i| i < SLOTS) else {
+                return;
+            };
+            let Some(shortcut) = Self::from_element(tree, copy) else {
+                return;
+            };
+            if let Some(from) = from {
+                self.remove_shortcut(tree, source, from);
+            }
+            self.set_shortcut(tree, source, index, shortcut, true);
+        } else if let Some(from) = from {
+            self.remove_shortcut(tree, source, from);
+        }
+    }
+
     /// The first empty slot of the set shown (`ListenToMessage`'s double-click on a skill).
     fn first_empty_in_set(&self) -> Option<usize> {
         let end = (self.offset + 10).min(self.shortcuts.len());
@@ -425,6 +487,11 @@ impl ShortcutUi {
                 };
                 self.set_shortcut(tree, source, index, shortcut, true);
             }
+            return;
+        }
+        if element_id == id("ShortcutListBox") && message.message == crate::drag::MSG_STOP_DRAG_ITEM
+        {
+            self.drop(tree, source, message);
             return;
         }
         if self.list.is_none() || message.message != MSG_BUTTON_RELEASE_ON {

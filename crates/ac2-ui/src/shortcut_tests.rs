@@ -114,3 +114,50 @@ fn the_bar_shows_its_shortcuts_and_uses_the_set_shown() {
     key(&mut tree, &mut bar, 0x4100_002D);
     assert_eq!(bar.take_requests(), vec![ShortcutRequest::Use(12)]);
 }
+
+#[test]
+fn a_shortcut_dragged_to_another_slot_moves_there() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let mut tree = hud.tree;
+    let mut bar = hud.shortcuts.expect("the shortcut bar");
+    bar.reload(&mut tree, &Stub);
+    bar.take_requests();
+    let list = bar.elements().1.unwrap();
+    let items = tree.list_items(list).to_vec();
+    let centre = |tree: &UiTree, item: usize| {
+        let b = tree.screen_box(item);
+        ((b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2)
+    };
+    let (x, y) = centre(&tree, items[0]);
+    tree.start_input(crate::UI_POINTER_X, x as f32);
+    tree.start_input(crate::UI_POINTER_Y, y as f32);
+    tree.start_input(0x4000_0004, 1.0);
+    let (tx, ty) = centre(&tree, items[3]);
+    tree.start_input(crate::UI_POINTER_X, tx as f32);
+    tree.start_input(crate::UI_POINTER_Y, ty as f32);
+    assert!(tree.dragged().is_some(), "the slot's shortcut is dragged");
+    tree.stop_input(0x4000_0004);
+    for _ in 0..4 {
+        for message in tree.take_messages() {
+            bar.message(&mut tree, &Stub, &message);
+        }
+    }
+    let requests = bar.take_requests();
+    let skill = Shortcut {
+        kind: SHORTCUT_SKILL,
+        skill: SKILL,
+        ..Shortcut::default()
+    };
+    assert!(
+        requests.contains(&ShortcutRequest::Set(3, skill)),
+        "{requests:?}"
+    );
+    assert!(
+        requests.contains(&ShortcutRequest::Set(0, Shortcut::default())),
+        "{requests:?}"
+    );
+}

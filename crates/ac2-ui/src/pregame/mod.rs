@@ -13,9 +13,14 @@ mod avatar_selection;
 mod character_selection;
 mod chargen;
 mod confirmation;
+mod credits;
+mod data_patch;
 mod disconnected;
 mod flow;
+mod intro;
+mod keyboard;
 mod persistent;
+mod scene;
 mod strings;
 #[cfg(test)]
 mod tests;
@@ -37,6 +42,7 @@ pub use flow::{
     MODE_INTRO, MODE_KEYBOARD,
 };
 pub use persistent::{greyed_out_for, identity, PersistentData};
+pub use scene::SceneViewport;
 pub use strings::{UiStrings, UI_STRING_TABLE};
 pub use ui::{PregameRequest, PregameUi};
 
@@ -52,6 +58,12 @@ pub const LAYOUT_DISCONNECTED: u32 = 0x4100_0005;
 pub const LAYOUT_CHARACTER_SELECTION: u32 = 0x4100_0006;
 /// `gmIntroUI`'s layout.
 pub const LAYOUT_INTRO: u32 = 0x4100_0008;
+/// `gmDataPatchUI`'s layout.
+pub const LAYOUT_DATA_PATCH: u32 = 0x4100_000D;
+/// `gmCreditsUI`'s layout.
+pub const LAYOUT_CREDITS: u32 = 0x4100_000E;
+/// `gmKeyboardUI`'s layout.
+pub const LAYOUT_KEYBOARD: u32 = 0x4100_0001;
 /// `gmAvatarSelectionUI`'s layout.
 pub const LAYOUT_AVATAR_SELECTION: u32 = 0x4100_000A;
 /// `gmAvatarModificationUI`'s layout.

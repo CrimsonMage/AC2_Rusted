@@ -4,8 +4,10 @@
 //! layer per root surface, like the gameplay HUD. Login events that arrive before the data are
 //! kept and replayed.
 //!
-//! Not modelled yet: the 3D scenes behind the screens (character selection's arms and figures);
-//! a press on the scene picks nothing.
+//! With a world source ([`PregameView::with_scenes`]) the viewports' 3D scenes
+//! ([`PregameScenes`]) answer the UI's picks and its wait for the chosen avatar's animation, and
+//! each is drawn into its viewport's rectangle in its root's place among the surfaces
+//! (`UIViewportObject::Render`), its depth cleared first (`UIScene::Render`).
 
 use std::sync::mpsc::{self, Receiver, TryRecvError};
 use std::sync::Arc;
@@ -15,9 +17,11 @@ use ac2_gpu::{Gpu, UiLayer, UiOverlay};
 use ac2_ui::pregame::{CharGenSystem, PregameAssets, PregameUi};
 use ac2_ui::UiMessage;
 use ac2_weenie::{OnlineSession, SessionEvent};
+use ac2_world::Ac2WorldSource;
 
 use crate::client::Notice;
 use crate::pregame::{pregame_event, pregame_notice, pregame_requests, PregameOutcome};
+use crate::pregame_scene::PregameScenes;
 
 /// The pregame screens over the window.
 pub struct PregameView {
@@ -28,6 +32,11 @@ pub struct PregameView {
     /// The `CharacterGenSystem` for the UI once it exists.
     system: Option<Box<dyn CharGenSystem>>,
     overlay: UiOverlay,
+    /// The root of each uploaded layer, in drawing order.
+    layer_roots: Vec<usize>,
+    scenes: Option<PregameScenes>,
+    store: Arc<ResourceStore>,
+    format: wgpu::TextureFormat,
     size: (u32, u32),
     dirty: bool,
 }
@@ -41,10 +50,11 @@ impl PregameView {
         size: (u32, u32),
     ) -> Self {
         let (send, receive) = mpsc::channel();
+        let data = Arc::clone(&store);
         std::thread::Builder::new()
             .name("ac2 pregame".into())
             .spawn(move || {
-                let _ = send.send(ac2_ui::pregame::load_pregame(&store));
+                let _ = send.send(ac2_ui::pregame::load_pregame(&data));
             })
             .expect("spawn the pregame loader");
         Self {
@@ -53,9 +63,23 @@ impl PregameView {
             early: Vec::new(),
             system: None,
             overlay: UiOverlay::new(gpu, format),
+            layer_roots: Vec::new(),
+            scenes: None,
+            store,
+            format,
             size,
             dirty: false,
         }
+    }
+
+    /// The viewports' 3D scenes, their models read through `world`.
+    pub fn with_scenes(mut self, world: Arc<Ac2WorldSource>) -> Self {
+        self.scenes = Some(PregameScenes::new(
+            Arc::clone(&self.store),
+            world,
+            self.format,
+        ));
+        self
     }
 
     /// The `CharacterGenSystem` character generation asks (`PregameUi::set_char_gen_system`).
@@ -139,9 +163,23 @@ impl PregameView {
         self.dirty = true;
     }
 
-    /// Takes the data when it arrived, runs the UI loop at `now` seconds, answers a waiting pick
-    /// (no scene: nothing picked) and composes what changed.
+    /// Takes the data when it arrived, runs the UI loop at `now` seconds, follows the scenes,
+    /// answers a waiting pick (nothing without scenes) and the end of the chosen avatar's
+    /// animation, and composes what changed.
     pub fn update(&mut self, gpu: &Gpu, now: f64) {
+        self.step(gpu, now, false);
+    }
+
+    /// [`PregameView::update`], waiting for every load the frame asks for (headless snapshots).
+    pub fn settle(&mut self, gpu: &Gpu, now: f64) {
+        self.step(gpu, now, true);
+        while self.scenes.as_ref().is_some_and(PregameScenes::busy) {
+            self.step(gpu, now, true);
+        }
+        self.step(gpu, now, true);
+    }
+
+    fn step(&mut self, gpu: &Gpu, now: f64, wait: bool) {
         if let Some(pending) = &self.pending {
             match pending.try_recv() {
                 Ok(Ok(assets)) => {
@@ -171,8 +209,15 @@ impl PregameView {
             return;
         };
         ui.use_time(now);
-        if ui.wants_pick().is_some() {
-            ui.finish_pick(None);
+        if let Some(scenes) = &mut self.scenes {
+            scenes.update(gpu, ui, now, wait);
+        }
+        if let Some(point) = ui.wants_pick() {
+            let picked = self.scenes.as_ref().and_then(|s| s.pick(point));
+            ui.finish_pick(picked);
+        }
+        if self.scenes.as_mut().is_some_and(|s| s.animation_done(ui)) {
+            ui.finish_animation();
         }
         self.dirty |= ui.tree_mut().take_changed();
         if !self.dirty {
@@ -190,6 +235,7 @@ impl PregameView {
         self.dirty = false;
         let surfaces = ui.compose();
         ui.tree_mut().take_moved();
+        self.layer_roots = surfaces.iter().map(|surface| surface.root).collect();
         self.overlay.set_layers(
             gpu,
             surfaces.iter().map(|surface| UiLayer {
@@ -209,11 +255,113 @@ impl PregameView {
         self.overlay.shown_layers()
     }
 
-    pub fn prepare(&self, queue: &wgpu::Queue) {
-        self.overlay.prepare(queue, self.size.0, self.size.1);
+    /// The viewports' scenes, when the view has them.
+    pub fn scenes(&self) -> Option<&PregameScenes> {
+        self.scenes.as_ref()
     }
 
+    /// How many of the scenes' objects have their models loaded.
+    pub fn scene_objects(&self) -> usize {
+        self.scenes.as_ref().map_or(0, PregameScenes::drawn_objects)
+    }
+
+    /// Writes the frame's UI layout and scenes (before [`PregameView::render`]).
+    pub fn prepare(&mut self, gpu: &Gpu, time: f64) {
+        self.overlay.prepare(&gpu.queue, self.size.0, self.size.1);
+        if let Some(scenes) = &mut self.scenes {
+            scenes.prepare(gpu, time);
+        }
+    }
+
+    /// Draws the frame into `color` cleared to black: the UI's surfaces in order, each scene
+    /// in its viewport after its root's surface, in a pass of its own that clears the depth
+    /// (`UIScene::Render`'s clear) and sets the device viewport to the root's rectangle
+    /// (`UIViewportObject::Render`).
+    pub fn render(&self, gpu: &Gpu, color: &wgpu::TextureView, depth: &wgpu::TextureView) {
+        let mut views: Vec<(usize, usize, ac2_ui::pregame::SceneViewport)> = self
+            .scenes
+            .as_ref()
+            .map(|s| s.drawn())
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|(view, viewport)| {
+                let layer = self.layer_roots.iter().position(|&r| r == viewport.root)?;
+                Some((layer, view, viewport))
+            })
+            .collect();
+        views.sort_by_key(|(layer, ..)| *layer);
+        let mut encoder = gpu.device.create_command_encoder(&Default::default());
+        let mut next = 0;
+        let (width, height) = self.size;
+        for (i, (layer, view, viewport)) in views.iter().enumerate() {
+            let mut pass = begin_pass(&mut encoder, color, depth, i == 0);
+            self.overlay.draw_range(&mut pass, next..layer + 1);
+            next = layer + 1;
+            let x0 = viewport.x.clamp(0, width as i32) as u32;
+            let y0 = viewport.y.clamp(0, height as i32) as u32;
+            let x1 = (viewport.x + viewport.width as i32).clamp(0, width as i32) as u32;
+            let y1 = (viewport.y + viewport.height as i32).clamp(0, height as i32) as u32;
+            if x1 <= x0 || y1 <= y0 {
+                continue;
+            }
+            pass.set_viewport(
+                x0 as f32,
+                y0 as f32,
+                (x1 - x0) as f32,
+                (y1 - y0) as f32,
+                0.0,
+                1.0,
+            );
+            if let Some(scenes) = &self.scenes {
+                scenes.draw(*view, &mut pass);
+            }
+        }
+        {
+            let mut pass = begin_pass(&mut encoder, color, depth, views.is_empty());
+            self.overlay
+                .draw_range(&mut pass, next..self.layer_roots.len().max(next));
+        }
+        gpu.queue.submit([encoder.finish()]);
+    }
+
+    /// Records the UI layers alone into `pass`.
     pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
         self.overlay.draw(pass);
     }
+}
+
+/// A pass over `color` (cleared to black when `clear`, else kept) with its depth cleared.
+fn begin_pass<'a>(
+    encoder: &'a mut wgpu::CommandEncoder,
+    color: &wgpu::TextureView,
+    depth: &wgpu::TextureView,
+    clear: bool,
+) -> wgpu::RenderPass<'a> {
+    let load = if clear {
+        wgpu::LoadOp::Clear(wgpu::Color::BLACK)
+    } else {
+        wgpu::LoadOp::Load
+    };
+    encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+        label: Some("ac2 pregame"),
+        color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+            view: color,
+            resolve_target: None,
+            depth_slice: None,
+            ops: wgpu::Operations {
+                load,
+                store: wgpu::StoreOp::Store,
+            },
+        })],
+        depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+            view: depth,
+            depth_ops: Some(wgpu::Operations {
+                load: wgpu::LoadOp::Clear(1.0),
+                store: wgpu::StoreOp::Discard,
+            }),
+            stencil_ops: None,
+        }),
+        timestamp_writes: None,
+        occlusion_query_set: None,
+    })
 }

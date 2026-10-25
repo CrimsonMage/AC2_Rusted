@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 43 done, 27 partial, 698 to do, 13 skipped.
+781 retail functions: 44 done, 27 partial, 697 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -748,11 +748,11 @@ Legend and workflow: [README](README.md).
 ### Frustum
 - [ ] `Frustum::CheckPolygon` · 005733e0 · legions 005433e0
 
-## `portal/client/src/scenerender/scenecamera.cpp.c` (4/11)
+## `portal/client/src/scenerender/scenecamera.cpp.c` (5/11)
 
 ### SceneCamera
 - [ ] `SceneCamera::~SceneCamera` · 00572820 · legions 0053a560
-- [ ] `SceneCamera::ApplyProperty` · 00572840
+- [x] `SceneCamera::ApplyProperty` · 00572840 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `SceneCamera::BuildOptionalProperties` · 005728f0
 - [x] `SceneCamera::SetFOV` · 00572aa0 · legions 0053a7e0
 - [ ] `SceneCamera::SetVerticalScale` · 00572ab0 · legions 0053a7f0

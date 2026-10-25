@@ -19,6 +19,9 @@ impl InventorySource for ClientPlayer<'_> {
                 .map(|&(_, image, _)| image)
                 .collect(),
             name: self.render_info(&frame.name),
+            quantity: frame.stats.quantity.max(0) as u32,
+            stackable: frame.stats.stackable,
+            max_stack: frame.stats.max_stack.unwrap_or(0).max(0) as u32,
         })
     }
 
@@ -110,6 +113,24 @@ pub(crate) fn item_commands(request: ItemRequest, commands: &mut Vec<Command>) -
         ItemRequest::Examine(item) => {
             commands.push(Command::Select(Some(item)));
             return true;
+        }
+        ItemRequest::Move {
+            item,
+            from,
+            from_slot,
+            target,
+            target_slot,
+            quantity,
+        } => commands.push(Command::MoveItem {
+            item,
+            from,
+            from_slot,
+            target,
+            target_slot,
+            quantity: quantity as i32,
+        }),
+        ItemRequest::Unequip { item, target_slot } => {
+            commands.push(Command::UnequipItem { item, target_slot });
         }
     }
     false

@@ -138,14 +138,29 @@ fn real_ui() -> Option<PregameUi> {
     Some(PregameUi::new(assets, 1024, 768))
 }
 
+/// The intro passed with a key press, then the data patch screen takes `set` into character
+/// selection.
+fn to_selection(ui: &mut PregameUi, set: CharacterSet) {
+    ui.use_time(0.0);
+    assert_eq!(ui.mode(), MODE_INTRO);
+    ui.input(&[(KEY, 1.0, true), (KEY, 1.0, false)]);
+    ui.use_time(0.0);
+    assert_eq!(ui.mode(), MODE_DATA_PATCH);
+    ui.character_set(set);
+    ui.use_time(0.0);
+    assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
+}
+
+/// A keyboard action (any action that is not the pointer's).
+const KEY: u32 = 0x4000_0100;
+
 #[test]
 fn character_selection_lists_the_set_and_enters_with_the_selection() {
     let Some(mut ui) = real_ui() else {
         return;
     };
     assert_eq!(ui.mode(), 0, "connecting");
-    ui.character_set(set());
-    ui.use_time(0.0);
+    to_selection(&mut ui, set());
     assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
     let selection = ui.character_selection().expect("character selection");
     // Five slots (the allowed count), both characters standing on theirs.
@@ -212,8 +227,7 @@ fn deleting_asks_first_and_create_opens_avatar_selection() {
     let Some(mut ui) = real_ui() else {
         return;
     };
-    ui.character_set(set());
-    ui.use_time(0.0);
+    to_selection(&mut ui, set());
     let delete = find(&ui, "DeleteButton");
     click(&mut ui, delete);
     let (context, kind) = ui.dialogs().shown().expect("confirmation");
@@ -279,8 +293,7 @@ fn character_selection_draws() {
     let Some(mut ui) = real_ui() else {
         return;
     };
-    ui.character_set(set());
-    ui.use_time(0.0);
+    to_selection(&mut ui, set());
     snapshot(&mut ui, "pregame_character_selection.png");
     click_named(&mut ui, "DeleteButton");
     snapshot(&mut ui, "pregame_delete_confirmation.png");
@@ -336,8 +349,7 @@ fn naming_checks_the_expansion_and_sends_the_result() {
     ui.set_char_gen_system(Box::new(Stub));
     let mut without = set();
     without.legions = Some([0, 1]);
-    ui.character_set(without);
-    ui.use_time(0.0);
+    to_selection(&mut ui, without);
     click_named(&mut ui, "CreateButton");
     ui.use_time(0.1);
     assert_eq!(ui.mode(), MODE_AVATAR_SELECTION);
@@ -392,4 +404,105 @@ fn naming_checks_the_expansion_and_sends_the_result() {
     // Refused name: the error shows and the buttons come back.
     ui.char_gen_verification(3, None, 0);
     assert!(!ghosted(&ui, "EnterButton"));
+}
+
+fn text_of(ui: &PregameUi, name: &str) -> String {
+    ui.tree()
+        .get(find(ui, name))
+        .unwrap()
+        .text()
+        .unwrap_or_default()
+}
+
+/// `gmIntroUI`: three pictures of four seconds, then `intro_stop` closes it into the data patch
+/// screen, which shows the connection and takes the set into character selection.
+#[test]
+fn the_intro_runs_its_pictures_then_the_data_patch_screen_connects() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    ui.use_time(0.0);
+    assert_eq!(ui.mode(), MODE_INTRO);
+    assert!(try_find(&ui, "IntroField").is_some());
+    let mut t = 0.0;
+    while ui.mode() == MODE_INTRO {
+        t += 0.05;
+        ui.use_time(t);
+        assert!(t < 20.0, "the intro never stopped");
+    }
+    eprintln!("the intro ran {t:.2} s");
+    assert!(t > 11.9, "every picture showed: {t}");
+    assert_eq!(ui.mode(), MODE_DATA_PATCH);
+    let connecting = text_of(&ui, "ErrorText");
+    eprintln!("data patch: {connecting:?}");
+    assert!(!connecting.is_empty());
+    ui.connected();
+    let connected = text_of(&ui, "ErrorText");
+    assert!(!connected.is_empty() && connected != connecting);
+    ui.character_set(set());
+    ui.use_time(t + 0.05);
+    assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
+}
+
+/// `gmCreditsUI`: the credit strings scroll up the screen while the pictures change; a key
+/// press, or the end of the scroll, returns to character selection.
+#[test]
+fn the_credits_scroll_then_return_to_character_selection() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    to_selection(&mut ui, set());
+    click_named(&mut ui, "CreditsButton");
+    ui.use_time(0.1);
+    assert_eq!(ui.mode(), MODE_CREDITS);
+    let area = find(&ui, "TextArea");
+    let text = ui.tree().get(area).unwrap().text().unwrap();
+    assert!(text.starts_with("ASHERON'S CALL 2"), "{:?}", &text[..40]);
+    assert!(text.lines().count() > 400);
+    // The first loop shows a picture, fading, and the text starts below the field and rises.
+    ui.use_time(0.2);
+    let picture = find(&ui, "PictureField");
+    assert_eq!(ui.tree().get(picture).unwrap().state(), tokenize("fading"));
+    assert!(ui.tree().get(picture).unwrap().image().is_some());
+    let start = ui.tree().screen_box(area).y0;
+    assert!(start > 700, "{start}");
+    ui.use_time(10.2);
+    let later = ui.tree().screen_box(area).y0;
+    assert!(later < start, "{later} < {start}");
+    // A key press closes it.
+    ui.input(&[(KEY, 1.0, true), (KEY, 1.0, false)]);
+    assert_eq!(ui.flow().next_mode(), Some(MODE_CHARACTER_SELECTION));
+    ui.use_time(10.3);
+    assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
+    // Again, to the end of the scroll.
+    click_named(&mut ui, "CreditsButton");
+    ui.use_time(20.0);
+    assert_eq!(ui.mode(), MODE_CREDITS);
+    let mut t = 20.0;
+    while ui.mode() == MODE_CREDITS {
+        t += 1.0;
+        ui.use_time(t);
+        assert!(t < 1000.0, "the credits never ended");
+    }
+    eprintln!("the credits ran {:.0} s", t - 20.0);
+    assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
+}
+
+/// `gmKeyboardUI`: the controls screen opens with nothing to save and quits back.
+#[test]
+fn the_controls_screen_opens_and_quits_back() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    to_selection(&mut ui, set());
+    click_named(&mut ui, "OptionsButton");
+    ui.use_time(0.1);
+    assert_eq!(ui.mode(), MODE_KEYBOARD);
+    assert!(try_find(&ui, "list_box").is_some());
+    assert!(ghosted(&ui, "save_button") && ghosted(&ui, "undo_button"));
+    assert!(ghosted(&ui, "clear_button"));
+    click_named(&mut ui, "quit_button");
+    assert_eq!(ui.flow().next_mode(), Some(MODE_CHARACTER_SELECTION));
+    ui.use_time(0.2);
+    assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
 }

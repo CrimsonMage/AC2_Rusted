@@ -81,6 +81,7 @@ fn press(tree: &UiTree, element: usize) -> UiMessage {
         element: Some(element),
         message: MSG_BUTTON_RELEASE_ON,
         data: 0,
+        item: None,
     }
 }
 

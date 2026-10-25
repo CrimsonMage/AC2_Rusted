@@ -1,5 +1,6 @@
 //! The pregame UI (`ac2_ui::pregame::PregameUi`) joined to the session: the login events become
-//! the UI's notices (`UIPersistantData::RecvNotice_CharacterSet`, `gmUIFlow::
+//! the UI's notices (`gmDataPatchUI::OnNetStatusChange(Net_LoginConnected)`,
+//! `UIPersistantData::RecvNotice_CharacterSet`, `gmUIFlow::
 //! RecvNotice_CharacterError` / `RecvNotice_ServerDied`, `RecvNotice_CharGenVerification`), and
 //! the UI's requests go out through the session (`Proto_UI::SendEnterWorld`,
 //! `SendDeleteCharacter`, `SendCharGenResult`). Run the session with
@@ -20,6 +21,7 @@ pub struct PregameOutcome {
 /// One session event into the UI.
 pub fn pregame_event(ui: &mut PregameUi, event: &SessionEvent) {
     match event {
+        SessionEvent::Connected => ui.connected(),
         SessionEvent::Characters(set) => ui.character_set(set.clone()),
         SessionEvent::CharacterError(error) => ui.character_error(*error, None),
         SessionEvent::CharGenVerification {
