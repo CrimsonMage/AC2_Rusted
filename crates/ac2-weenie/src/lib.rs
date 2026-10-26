@@ -74,5 +74,5 @@ pub use tables::{
 };
 pub use ui_data::{CraftSkill, DamageText, Shop, ShopSale};
 pub use usage::DISPLAY_USAGE;
-pub use vitals::{vital, PlayerVitals, Vital};
+pub use vitals::{vital, PlayerVitals, VitaeStatus, Vital};
 pub use world::{World, WorldEvent, WorldState};

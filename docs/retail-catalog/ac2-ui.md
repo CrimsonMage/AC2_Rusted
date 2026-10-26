@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 809 done, 275 partial, 1110 to do, 53 skipped.
+2247 retail functions: 813 done, 275 partial, 1106 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -986,13 +986,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gmPKStatusUI::gmPKStatusUI` · 0044d040 · legions 0044e210
 - [ ] `gmPKStatusUI::RecvNotice_UpdateFactionStatus` · 0044d0c0
 
-## `ac2/client/src/ui/gameplay/statusbar/indicators/gmvitaestatusui.cpp.c` (0/4)
+## `ac2/client/src/ui/gameplay/statusbar/indicators/gmvitaestatusui.cpp.c` (4/4)
 
 ### gmVitaeStatusUI
-- [ ] `gmVitaeStatusUI::gmVitaeStatusUI` · 0044cd80 · legions 0044df50
-- [ ] `gmVitaeStatusUI::RecvNotice_ExaminationRequestChanged` · 0044ce40 · legions 0044e010
-- [ ] `gmVitaeStatusUI::RecvNotice_UpdateVitae` · 0044ce90
-- [ ] `gmVitaeStatusUI::ListenToMessage` · 0044cfc0
+- [x] `gmVitaeStatusUI::gmVitaeStatusUI` · 0044cd80 · legions 0044df50 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+- [x] `gmVitaeStatusUI::RecvNotice_ExaminationRequestChanged` · 0044ce40 · legions 0044e010 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+- [x] `gmVitaeStatusUI::RecvNotice_UpdateVitae` · 0044ce90 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+- [x] `gmVitaeStatusUI::ListenToMessage` · 0044cfc0 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
 
 ## `ac2/client/src/ui/gameplay/toolbar/gmchatui.cpp.c` (6/14)
 

@@ -15,7 +15,7 @@ const STRING_TABLE: u32 = 0x4000_0026;
 const STRING_TABLE_ENUM: u32 = 0x4000_0004;
 
 pub(super) fn register(efuns: &mut EFuns) {
-    let table: [(u32, crate::vm::EFunFn); 23] = [
+    let table: [(u32, crate::vm::EFunFn); 27] = [
         (0x01, add_string_id_and_table_enum),
         (0x02, add_string),
         (0x03, add_int),
@@ -39,6 +39,10 @@ pub(super) fn register(efuns: &mut EFuns) {
         (0x19, reset),
         (0x1F, get_string_id),
         (0x20, get_table_id),
+        (0x22, add_lint),
+        (0x23, add_formatted_lint),
+        (0x24, add_ulint),
+        (0x25, add_formatted_ulint),
     ];
     for (n, f) in table {
         efuns.register(0x006A_0000 | n, f);
@@ -116,6 +120,62 @@ fn add_uint(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let (id, v) = (call.word(2), call.word(3));
     with_this(vm, ctx, |info, _| {
         add_var(info, id, 6, StringVarValue::UInt(v))
+    })
+}
+
+/// `AddVariable_LInt(id, long)`: the long takes two slots (its low word is the lower one).
+fn add_lint(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let call = Call::new(ctx);
+    let (id, v) = (call.word(2), call.word64(4) as i64);
+    with_this(vm, ctx, |info, _| {
+        add_var(info, id, 10, StringVarValue::LInt(v))
+    })
+}
+
+/// `AddVariable_ULInt(id, ulong64)`.
+fn add_ulint(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let call = Call::new(ctx);
+    let (id, v) = (call.word(2), call.word64(4));
+    with_this(vm, ctx, |info, _| {
+        add_var(info, id, 12, StringVarValue::ULInt(v))
+    })
+}
+
+/// `AddVariable_FormattedLInt(id, long, grouping, base)`.
+fn add_formatted_lint(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let call = Call::new(ctx);
+    let (id, value) = (call.word(2), call.word64(4) as i64);
+    let (grouping, base) = (call.word(5) as i32, call.word(6) as u16);
+    with_this(vm, ctx, |info, _| {
+        add_var(
+            info,
+            id,
+            11,
+            StringVarValue::FormattedLInt {
+                value,
+                grouping,
+                base,
+            },
+        )
+    })
+}
+
+/// `AddVariable_FormattedULInt(id, ulong64, grouping, base)`.
+fn add_formatted_ulint(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let call = Call::new(ctx);
+    let (id, value) = (call.word(2), call.word64(4));
+    let (grouping, base) = (call.word(5) as i32, call.word(6) as u16);
+    with_this(vm, ctx, |info, _| {
+        add_var(
+            info,
+            id,
+            13,
+            StringVarValue::FormattedULInt {
+                value,
+                grouping,
+                base,
+            },
+        )
     })
 }
 

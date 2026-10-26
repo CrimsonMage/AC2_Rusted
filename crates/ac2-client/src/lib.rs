@@ -48,6 +48,8 @@ mod hud_navigation;
 mod hud_player;
 mod hud_shop;
 #[cfg(feature = "window")]
+mod hud_status;
+#[cfg(feature = "window")]
 mod hud_view;
 mod item_queries;
 mod loader;

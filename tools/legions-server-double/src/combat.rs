@@ -300,6 +300,7 @@ impl State {
         self.send_private(0x117, QualityValue::Bool(1));
         self.send_death_behavior(PLAYER);
         self.send_death(true);
+        self.apply_vitae_penalty();
     }
 
     /// The respawn request (`WM_Death` 0x36): the player is teleported to the lifestone with full
@@ -309,7 +310,7 @@ impl State {
         self.fight.respawns += 1;
         self.fight.player_dead = false;
         self.fight.player = (PLAYER_HEALTH, PLAYER_HEALTH_MAX);
-        self.vitals.vigor.0 = self.vitals.vigor.1;
+        self.vitals.vigor.0 = self.shown_max(self.vitals.vigor.1);
         let origin = lifestone(&self.spawn);
         let cell = self.spawn.cell;
         // The teleport's stamps: the spawn's position 4 and teleport 5, each teleport newer.

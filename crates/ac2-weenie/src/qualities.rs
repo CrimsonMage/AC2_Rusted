@@ -64,6 +64,32 @@ impl WeenieQualities {
         }
     }
 
+    /// One quality changed in `from` (a `CWRepository::RecvEvt_Update*` for `quality` of `table`,
+    /// the codes of [`QualityValue::table`]): the same value here, everything else (what the
+    /// scripts wrote) left as it is. The weenie description is copied whole, as the update may
+    /// have set one of its fields.
+    pub fn copy_quality(&mut self, from: &WeenieQualities, table: u32, quality: u32) {
+        self.weenie.clone_from(&from.weenie);
+        fn copy<T: Clone>(to: &mut BTreeMap<u32, T>, from: &BTreeMap<u32, T>, quality: u32) {
+            if let Some(value) = from.get(&quality) {
+                to.insert(quality, value.clone());
+            }
+        }
+        match table {
+            1 => copy(&mut self.bools, &from.bools, quality),
+            2 => copy(&mut self.dids, &from.dids, quality),
+            3 => copy(&mut self.floats, &from.floats, quality),
+            4 => copy(&mut self.ints, &from.ints, quality),
+            5 => copy(&mut self.iids, &from.iids, quality),
+            6 => copy(&mut self.positions, &from.positions, quality),
+            7 => copy(&mut self.strings, &from.strings, quality),
+            8 => copy(&mut self.timestamps, &from.timestamps, quality),
+            10 => copy(&mut self.string_infos, &from.string_infos, quality),
+            12 => copy(&mut self.long_ints, &from.long_ints, quality),
+            _ => {}
+        }
+    }
+
     /// `CBaseQualities::SetInt`, `SetBool`, ... for one update's value.
     pub fn set(&mut self, quality: u32, value: &QualityValue) {
         if quality < 0x1_0000 {

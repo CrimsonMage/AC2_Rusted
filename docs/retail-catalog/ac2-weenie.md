@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 248 done, 76 partial, 1569 to do, 11 skipped.
+1904 retail functions: 249 done, 76 partial, 1568 to do, 11 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -34,7 +34,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Allegiance::SendNotice_UpdateAllegianceProfile` · 007280c0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 - [ ] `CM_Allegiance::SendNotice_Vassal_SwearDone` · 00728150 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
 
-## `ac2/client/src/events/cm_character.cpp.c` (5/30)
+## `ac2/client/src/events/cm_character.cpp.c` (6/30)
 
 ### CM_Character
 - [x] `CM_Character::SendNotice_AddMarker` · 007248b0 · legions 006a4270 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
@@ -65,7 +65,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_Character::SendNotice_UpdateSelectionInfo` · 00725780 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 - [ ] `CM_Character::SendNotice_UpdateSkill` · 00725810 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
 - [ ] `CM_Character::SendNotice_UpdateSkillPanel` · 007258a0 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
-- [ ] `CM_Character::SendNotice_UpdateVitae` · 00725950 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CM_Character::SendNotice_UpdateVitae` · 00725950 — PlayerVitals.vitae; reached through CPlayer 0x127 on the VM, tested with the double's vitae qualities
 - [ ] `CM_Character::SendNotice_UpdateVital` · 007259f0 — ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
 
 ## `ac2/client/src/events/cm_combat.cpp.c` (0/5)

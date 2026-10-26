@@ -47,6 +47,8 @@ pub struct Vitals {
     pub vigor_costs: BTreeMap<u32, u32>,
     /// When the next regeneration step is due (0: not started).
     pub regen_due: f64,
+    /// The vitae penalty (`vitae.rs`).
+    pub vitae: crate::vitae::Vitae,
     /// Regeneration is off (a test of exact vital arithmetic pauses it).
     pub regen_paused: bool,
 }
@@ -126,13 +128,23 @@ impl State {
         } else {
             (HEALTH_REGEN, VIGOR_REGEN)
         };
-        let (health, max) = self.fight.player;
+        let (health, cached) = self.fight.player;
+        let max = if cached > 0 {
+            self.shown_max(cached)
+        } else {
+            0
+        };
         let healed = (health + health_rate as u32).min(max);
         if max > 0 && healed != health {
             self.fight.player.0 = healed;
             self.send_private(crate::HEALTH, QualityValue::Int(healed as i32));
         }
-        let (vigor, max) = self.vitals.vigor;
+        let (vigor, cached) = self.vitals.vigor;
+        let max = if cached > 0 {
+            self.shown_max(cached)
+        } else {
+            0
+        };
         let rested = (vigor + vigor_rate as u32).min(max);
         if max > 0 && rested != vigor {
             self.vitals.vigor.0 = rested;

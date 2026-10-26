@@ -17,6 +17,7 @@ use crate::gameplay::Command;
 use crate::hud_character::character_commands;
 use crate::hud_chat_options::{chat_options_commands, ui_chat_settings};
 use crate::hud_death::{death_answers, death_notices};
+use crate::hud_status::StatusBar;
 use crate::hud_view::HudView;
 use crate::ui_sources::{shortcut_to_info, ClientPlayer};
 
@@ -89,6 +90,7 @@ impl HudView {
             allegiance,
             vitals,
             effects,
+            vitae,
             dialogs,
             death,
             stack,
@@ -221,16 +223,13 @@ impl HudView {
             if let Some(page) = allegiance.as_mut() {
                 page.set_player(tree, ac2_ui::FellowshipSource::player(&player));
             }
-            if let Some(bar) = vitals.as_mut() {
-                let text = |cur, max| ac2_ui::vital_text(&player, cur, max);
-                bar.init_tooltips(tree, &player);
-                bar.apply_snapshot(tree, &frame.player_vitals, &text, &player);
+            // `gmVitalsUI`, `gmEffectsUI` (`Init`) and `gmVitaeStatusUI` read the player.
+            StatusBar {
+                vitals: &mut *vitals,
+                effects: &mut *effects,
+                vitae: &mut *vitae,
             }
-            // `gmEffectsUI::gmEffectsUI`'s `Init`.
-            if let Some(strip) = effects.as_mut() {
-                let list = crate::ui_inventory::effect_entries(&player);
-                strip.init(tree, &list, frame.server_time);
-            }
+            .player_loaded(tree, &player, &frame.player_vitals, frame.server_time);
             // `gmInventoryUI::SetupChildren`'s backpack over the player.
             if let (Some(layout), Some(id)) =
                 (toolbar_layout.as_ref(), frame.player.as_ref().map(|p| p.id))
@@ -315,43 +314,12 @@ impl HudView {
             if let Some(pack) = backpack.as_mut() {
                 crate::ui_inventory::backpack_notice(pack, tree, &player, item_selection, notice);
             }
-            if let Some(strip) = effects.as_mut() {
-                let now = frame.server_time;
-                match notice {
-                    GameplayNotice::UpdateEffect => {
-                        let list = crate::ui_inventory::effect_entries(&player);
-                        strip.init(tree, &list, now);
-                    }
-                    GameplayNotice::PulseMissed(eid) => strip.pulse_missed(tree, *eid, now),
-                    GameplayNotice::ExaminationRequestChanged(request) => {
-                        let list = crate::ui_inventory::effect_entries(&player);
-                        strip.examination_request_changed(
-                            tree,
-                            request.kind,
-                            request.data_enum,
-                            &list,
-                            now,
-                        );
-                    }
-                    _ => {}
-                }
+            StatusBar {
+                vitals: &mut *vitals,
+                effects: &mut *effects,
+                vitae: &mut *vitae,
             }
-            if let Some(bar) = vitals.as_mut() {
-                let text = |cur, max| ac2_ui::vital_text(&player, cur, max);
-                match *notice {
-                    GameplayNotice::UpdateVital {
-                        vital,
-                        current,
-                        max,
-                    } => {
-                        bar.update_vital(tree, vital, current, max, &text);
-                    }
-                    GameplayNotice::UpdateHeroStatus { hero, current, max } => {
-                        bar.update_hero_status(tree, hero, current, max, &text, &player);
-                    }
-                    _ => {}
-                }
-            }
+            .notice(tree, &player, frame.server_time, notice);
             match notice {
                 GameplayNotice::UpdateExaminationProfile(profile) => {
                     if let Some(panel) = examination.as_mut() {
@@ -478,6 +446,11 @@ impl HudView {
             }
             if let Some(bar) = vitals.as_mut() {
                 bar.message(tree, message, &player);
+            }
+            // `gmVitaeStatusUI::ListenToMessage`: examine the vitae.
+            if vitae.as_mut().is_some_and(|v| v.message(tree, message)) {
+                examine(ac2_ui::EXAMINE_VITAE, 0, 0, &mut commands);
+                open_examination = true;
             }
             // `gmRadarUI::ListenToMessage`: select the blip under the pointer, or show or hide
             // the coordinates.

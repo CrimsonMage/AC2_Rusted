@@ -154,6 +154,7 @@ impl crate::State {
         let (total, available) = (c.total_xp as i64, c.available_xp as i64);
         self.send_private(300, LongInt(total));
         self.send_private(301, LongInt(available));
+        self.restore_vitae(amount);
     }
 
     /// The server raises the player's level (int 0x12E, `CPlayer` 0x85: the XP bar against

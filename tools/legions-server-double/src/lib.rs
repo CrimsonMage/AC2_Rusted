@@ -35,6 +35,7 @@ mod script;
 mod social;
 mod store;
 mod trade;
+mod vitae;
 mod vitals;
 
 pub use allegiance::{Allegiance, Liege};
@@ -72,6 +73,9 @@ pub use reliable::{newer, ClientTracker, SentStore, Stored, Verdict, MAX_IDS};
 pub use script::ScriptWorld;
 pub use social::{fellow_graph, Fellow, Fellowship, FELLOW, FELLOWSHIP_ROOM};
 pub use trade::{Trade, TRADE_CANCELLED, TRADE_COMPLETED};
+pub use vitae::{
+    Vitae, CURRENT_VITAE, VITAE_FLOOR, VITAE_PENALTY, XP_PER_VITAE_POINT, XP_TO_RAISE_VITAE,
+};
 pub use vitals::{
     Vitals, COMBAT_NOT_ENOUGH_VIGOR, PLAYER_VIGOR_MAX, REGEN_INTERVAL, VIGOR, VIGOR_MAX,
 };

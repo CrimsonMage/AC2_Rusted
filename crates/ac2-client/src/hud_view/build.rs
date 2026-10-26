@@ -79,6 +79,7 @@ impl HudView {
             fellowship: None,
             vitals: None,
             effects: None,
+            vitae: None,
             backpack: None,
             paper_doll: None,
             player_race: None,
@@ -141,6 +142,7 @@ impl HudView {
                     fellowship,
                     vitals,
                     effects,
+                    vitae,
                     toolbar_layout,
                     dialogs,
                     stack,
@@ -180,6 +182,7 @@ impl HudView {
                 self.fellowship = fellowship;
                 self.vitals = Some(vitals);
                 self.effects = effects;
+                self.vitae = Some(vitae);
                 self.toolbar_layout = toolbar_layout;
                 self.dialogs = Some(dialogs);
                 self.stack = stack;

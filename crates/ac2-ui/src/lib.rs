@@ -94,6 +94,7 @@ mod tooltip;
 mod transition;
 mod tree_view;
 mod ui_string;
+mod vitae;
 mod vitals;
 
 pub use allegiance::{AllegianceRequest, AllegianceSource, AllegianceUi};
@@ -184,9 +185,13 @@ pub use stack::{StackUi, StackUiDone};
 pub use target_cycle::{is_select_key, select_key_of, select_target, Candidate};
 pub use text::UiTextData;
 pub use text_data::{StoreTextData, DEFAULT_FONT, FONT_GROUP};
-pub use token::{tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS, REFERENCE, REFERENT, STATELESS};
+pub use token::{
+    tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS, MSG_MOUSE_PRESS_TOP, REFERENCE, REFERENT,
+    STATELESS,
+};
 pub use toolbar::{ToolbarChild, ToolbarUi};
 pub use ui_string::{UiString, UiStrings, UI_TABLE};
+pub use vitae::{VitaeStatusUi, EXAMINE_VITAE};
 pub use vitals::{
     VitalsUi, VITAL_EXPERIENCE, VITAL_FOCUS, VITAL_HEALTH, VITAL_PK_DAMAGE, VITAL_PK_VIGOR_LOSS,
     VITAL_VIGOR,

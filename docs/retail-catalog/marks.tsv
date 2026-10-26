@@ -792,6 +792,10 @@ key	status	note
 0044c5f0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 0044c7d0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 0044cbc0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+0044cd80	x	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+0044ce40	x	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+0044ce90	x	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+0044cfc0	x	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
 0044dc80	x	ac2-ui meter.rs
 0044dcd0	x	ac2-ui meter.rs
 0044de30	x	ac2-ui meter.rs
@@ -5675,7 +5679,7 @@ key	status	note
 00725780	_	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 00725810	_	ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
 007258a0	_	ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
-00725950	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725950	x	PlayerVitals.vitae; reached through CPlayer 0x127 on the VM, tested with the double's vitae qualities
 007259f0	_	ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
 00725ab0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00725b40	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host

@@ -48,6 +48,7 @@ use crate::text_data::StoreTextData;
 use crate::token::tokenize;
 use crate::toolbar::ToolbarUi;
 use crate::ui_string::UI_TABLE;
+use crate::vitae::VitaeStatusUi;
 use crate::vitals::VitalsUi;
 
 /// `UILAYOUT_GROUP_ENUM` (`UIMainFramework::CreateAndAddRootElement`'s
@@ -111,6 +112,8 @@ pub struct GameplayHud {
     /// `gmStatusbarUI`'s `gmVitalsUI` and `gmEffectsUI`.
     pub vitals: VitalsUi,
     pub effects: Option<EffectsUi>,
+    /// `gmStatusbarUI`'s `gmVitaeStatusUI` (the indicators).
+    pub vitae: VitaeStatusUi,
     /// `DialogFactory` over the gameplay layout.
     pub dialogs: DialogFactory,
     /// `gmGamePlayUI`'s `gmStackUI`, hidden until a split asks for an amount.
@@ -228,6 +231,7 @@ pub fn build_gameplay_hud(
         .as_ref()
         .map(|toolbar| FellowshipUi::create(&mut tree, toolbar));
     let vitals = VitalsUi::create(&mut tree);
+    let vitae = VitaeStatusUi::create(&mut tree);
     let effects = layouts[&LAYOUT_STATUSBAR]
         .as_ref()
         .map(|statusbar| EffectsUi::create(&tree, statusbar));
@@ -286,6 +290,7 @@ pub fn build_gameplay_hud(
         fellowship,
         vitals,
         effects,
+        vitae,
         toolbar_layout: layouts[&LAYOUT_TOOLBAR].clone(),
         dialogs,
         stack,

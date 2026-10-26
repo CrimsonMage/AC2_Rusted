@@ -196,6 +196,8 @@ fn the_vm_raises_what_the_stand_ins_raised() {
     // The vitals panel and the inventory follow the VM's notices and the session's mirrors.
     let mut vitals = before_frame.player_vitals;
     vitals.experience = after_frame.player_vitals.experience;
+    // The vitae notice is the VM's alone (`CPlayer` 0x65; the stand-in does not mirror it).
+    vitals.vitae = after_frame.player_vitals.vitae;
     assert_eq!(after_frame.player_vitals, vitals);
     assert_eq!(after_frame.inventory, before_frame.inventory);
     assert_eq!(after_frame.progress, before_frame.progress);

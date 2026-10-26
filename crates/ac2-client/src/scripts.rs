@@ -539,7 +539,7 @@ impl Client {
                     table,
                     quality,
                 } => {
-                    self.share_qualities(*object);
+                    self.share_quality(*object, *table, *quality);
                     self.stat_changed(*object, *table, *quality, &mut produced);
                 }
                 SessionEvent::PlayerQualities(_) => {
@@ -585,6 +585,25 @@ impl Client {
         }
         if let Some(object) = self.session.objects().get(id) {
             scripts.host.set_qualities(id, object.qualities.clone());
+        }
+    }
+
+    /// One quality update for a running process: that quality alone is copied into the
+    /// scripts' repository, so what the scripts wrote since (`Agent` 0x3F's dead flag, bool 289)
+    /// survives it, as it does in retail's single `CWRepository`.
+    fn share_quality(&mut self, id: u64, table: u32, quality: u32) {
+        let Some(scripts) = self.scripts.as_mut() else {
+            return;
+        };
+        if !scripts.running.contains(&id) {
+            return;
+        }
+        let Some(object) = self.session.objects().get(id) else {
+            return;
+        };
+        match scripts.host.qualities_mut(id) {
+            Some(mine) => mine.copy_quality(&object.qualities, table, quality),
+            None => scripts.host.set_qualities(id, object.qualities.clone()),
         }
     }
 

@@ -47,6 +47,7 @@ pub(crate) struct HudView {
     pub(crate) fellowship: Option<ac2_ui::FellowshipUi>,
     pub(crate) vitals: Option<ac2_ui::VitalsUi>,
     pub(crate) effects: Option<ac2_ui::EffectsUi>,
+    pub(crate) vitae: Option<ac2_ui::VitaeStatusUi>,
     /// `gmInventoryUI`'s backpack, made once the player is in the world, over this layout.
     pub(crate) backpack: Option<ac2_ui::BackpackUi>,
     /// `gmInventoryUI`'s paper doll, made with the backpack.

@@ -45,8 +45,16 @@ pub struct Vital {
     pub max: u64,
 }
 
+/// What `CM_Character::SendNotice_UpdateVitae` last said (`gmVitaeStatusUI` shows it).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct VitaeStatus {
+    pub vitae: f32,
+    pub increment: f32,
+    pub cost: f32,
+}
+
 /// The latest value of each vital the player's script raised (`None` until it raised one).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct PlayerVitals {
     pub health: Option<Vital>,
     pub vigor: Option<Vital>,
@@ -59,6 +67,8 @@ pub struct PlayerVitals {
     pub pk_vigor_loss: Option<Vital>,
     /// `gmVitalsUI::RecvNotice_UpdateHeroStatus`: the focus meter shows only for a hero.
     pub hero: bool,
+    /// The latest `UpdateVitae` (`None` until the script raised one).
+    pub vitae: Option<VitaeStatus>,
 }
 
 impl PlayerVitals {
@@ -86,6 +96,17 @@ impl PlayerVitals {
                 if hero {
                     self.focus = Some(Vital { current, max });
                 }
+            }
+            GameplayNotice::UpdateVitae {
+                vitae,
+                increment,
+                cost,
+            } => {
+                self.vitae = Some(VitaeStatus {
+                    vitae,
+                    increment,
+                    cost,
+                });
             }
             _ => {}
         }
