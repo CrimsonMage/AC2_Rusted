@@ -129,6 +129,7 @@ fn a_quality_update_raises_what_the_stand_ins_raised() {
         return;
     };
     let after = health(ac2_client::SCRIPT_VM_FUNCTIONS).unwrap();
-    assert_eq!(before.0, [(7, 1)]);
+    // The double's player logs in with a max health of 50 (`Health_CachedMax`).
+    assert_eq!(before.0, [(7, 50)]);
     assert_eq!(after, before);
 }

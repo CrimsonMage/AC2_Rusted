@@ -300,7 +300,8 @@ fn untrain_and_cancel_are_answered_with_the_repository() {
     );
     assert_eq!(client.is_skill_trained(SKILL), Ok(true));
 
-    // The queries on the trained skill: its level and timer, the hero flag, and the inventory's
+    // The queries on the trained skill: its level (1 with no experience; 0 for a player with no
+    // vigor, `SkillSystem` 0x6 asks `Agent` 0x12, the Vigor_CurrentLevel quality) and timer, the hero flag, and the inventory's
     // use. The wlib answers with the pack as it is (no weapon): the auto-attack is usable, the
     // weapon skills are not.
     assert_eq!(client.can_skill_be_untrained(SKILL), Ok(30008));
@@ -309,8 +310,8 @@ fn untrain_and_cancel_are_answered_with_the_repository() {
     assert_eq!(
         client.skill_level(SKILL),
         Ok(SkillLevel {
-            raw: 0,
-            enchanted: 0,
+            raw: 1,
+            enchanted: 1,
             ok: true,
         })
     );

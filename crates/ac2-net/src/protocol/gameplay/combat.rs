@@ -9,7 +9,10 @@
 //! `CPlayer` 0xB2 -> `CCombatSystem` 0xF -> `SendNotice_EndSpecialAttack` (one int, the attack);
 //! `WM_Combat` 0x28 -> `CPlayer` 0x1C9 -> `SendNotice_ToggleSpecialAttack` (the toggled flag, then
 //! the maneuver, packed in that order); `WM_Combat` 0x1B -> `CPlayer` 0x2 ->
-//! `SendNotice_UpdateAttackState` (one int). A special attack's start (`CCombatSystem` 0x2,
+//! `SendNotice_UpdateAttackState` (one int); `WM_Combat` 0x1A -> `CPlayer` 0xE0 -> `CCombatSystem`
+//! 0x11 is a combat action's failure (the error from `gmWErrorType`, the long id of who failed, and
+//! the skill; `CCombatSystem` 0x11 turns it into the chat line, e.g. `Combat_NotEnoughVigor`
+//! 0x4E20). A special attack's start (`CCombatSystem` 0x2,
 //! `SendNotice_StartSpecialAttack`) is reached from `CPlayer` 0xD only, and no `WM_*` forwarder
 //! calls that function, so the codec has no start message.
 
@@ -26,6 +29,8 @@ pub const END_SPECIAL_ATTACK: u32 = 0x8204_0019;
 pub const TOGGLE_SPECIAL_ATTACK: u32 = 0x8204_0028;
 /// S->C, `WM_Combat` 0x1B -> `CPlayer` 0x2: the attack state.
 pub const UPDATE_ATTACK_STATE: u32 = 0x8204_001B;
+/// S->C, `WM_Combat` 0x1A -> `CPlayer` 0xE0 -> `CCombatSystem` 0x11: a combat action failed.
+pub const ACTION_FAILED: u32 = 0x8204_001A;
 
 /// The request a shortcut's skill makes: `attack` (the attack id), `maneuver` (the skill), and the
 /// `target` the selection holds.
@@ -77,6 +82,13 @@ pub enum CombatMessage {
     ToggleSpecialAttack { maneuver: u32, toggled: bool },
     /// [`UPDATE_ATTACK_STATE`]: the player is attacking or not (`SendNotice_UpdateAttackState`).
     UpdateAttackState(bool),
+    /// [`ACTION_FAILED`]: `subject` (an instance id) could not use `skill`, for `error` (a
+    /// `gmWErrorType` value; `CCombatSystem` 0x11's switch).
+    ActionFailed {
+        error: u32,
+        subject: u64,
+        skill: u32,
+    },
 }
 
 impl CombatMessage {
@@ -86,6 +98,7 @@ impl CombatMessage {
             Self::EndSpecialAttack(_) => END_SPECIAL_ATTACK,
             Self::ToggleSpecialAttack { .. } => TOGGLE_SPECIAL_ATTACK,
             Self::UpdateAttackState(_) => UPDATE_ATTACK_STATE,
+            Self::ActionFailed { .. } => ACTION_FAILED,
         }
     }
 
@@ -97,6 +110,15 @@ impl CombatMessage {
                 vec![PackValue::Int(u32::from(toggled)), PackValue::Int(maneuver)]
             }
             Self::UpdateAttackState(attacking) => vec![PackValue::Int(u32::from(attacking))],
+            Self::ActionFailed {
+                error,
+                subject,
+                skill,
+            } => vec![
+                PackValue::Int(skill),
+                PackValue::LongInt(subject),
+                PackValue::Int(error),
+            ],
         }
     }
 
@@ -119,6 +141,15 @@ impl CombatMessage {
                 })
             }),
             UPDATE_ATTACK_STATE => read(|a| Ok(Self::UpdateAttackState(a.int()? != 0))),
+            ACTION_FAILED => read(|a| {
+                let skill = a.int()?;
+                let subject = a.long()?;
+                Ok(Self::ActionFailed {
+                    error: a.int()?,
+                    subject,
+                    skill,
+                })
+            }),
             _ => return None,
         })
     }
@@ -194,6 +225,11 @@ mod tests {
                 toggled: false,
             },
             CombatMessage::UpdateAttackState(true),
+            CombatMessage::ActionFailed {
+                error: 0x4E20,
+                subject: 0x2000_0000_0000_0001,
+                skill: 6,
+            },
         ] {
             let bytes = crate::protocol::pack::pack_values(&message.arguments());
             assert_eq!(

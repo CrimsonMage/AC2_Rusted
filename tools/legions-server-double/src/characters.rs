@@ -299,6 +299,11 @@ impl State {
     /// the double has always sent.
     pub(crate) fn player_entry(&mut self, character: u64) -> (Vec<u8>, Vec<u8>) {
         self.move_player(character);
+        // A character enters at full vitals (the double's starting values).
+        if self.fight.player.1 == 0 {
+            self.fight.player = (crate::PLAYER_HEALTH_MAX, crate::PLAYER_HEALTH_MAX);
+            self.vitals.vigor = (crate::PLAYER_VIGOR_MAX, crate::PLAYER_VIGOR_MAX);
+        }
         let stored = self
             .characters
             .records
@@ -308,7 +313,7 @@ impl State {
         let Some((result, visual)) = stored else {
             return (
                 crate::create_object(&self.spawn),
-                crate::player_description(),
+                crate::description::player_description(self.fight.player, self.vitals.vigor),
             );
         };
         let spawn = ObjectSpawn {
@@ -322,7 +327,14 @@ impl State {
             name: "",
         };
         let object = weenie_object_with(&spawn, &visual, PLAYER_PACKAGE, &result.name);
-        (object, crate::player_description_of(result.race))
+        (
+            object,
+            crate::description::player_description_of(
+                result.race,
+                self.fight.player,
+                self.vitals.vigor,
+            ),
+        )
     }
 
     /// The player's object id becomes `to`: the starting items and the containers keyed by the

@@ -72,8 +72,10 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_UPLOAD_CHAT_OPTIONS,
     // `CWInterface::OnStatChanged` (a quality update: vitals, the XP bar, the skill panel).
     ac2_weenie::IFUN_ON_STAT_CHANGED,
-    // `WM_Combat` 0x1B -> `CPlayer` 0x2 (`SendNotice_UpdateAttackState`).
+    // `WM_Combat` 0x1B -> `CPlayer` 0x2 (`SendNotice_UpdateAttackState`) and 0x1A -> `CPlayer`
+    // 0xE0 (a combat action's failure: `CCombatSystem` 0x11 makes the chat line).
     0x8204_001B,
+    0x8204_001A,
     // The secure trade's `WM_Trade` forwarders (`CPlayer` -> `CM_Trade::SendNotice_Trade_*`).
     ac2_net::protocol::script_function::TRADE_REGISTERED,
     ac2_net::protocol::script_function::TRADE_OPENED,

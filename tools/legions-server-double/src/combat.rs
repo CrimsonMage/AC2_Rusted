@@ -122,7 +122,7 @@ impl State {
             return;
         }
         if let Some(request) = SpecialAttackRequest::from_call(call) {
-            if self.is_live_creature(request.target) {
+            if self.is_live_creature(request.target) && self.charge_vigor(request.maneuver) {
                 self.send_combat(&CombatMessage::UpdateAttackState(true));
                 self.hit(PLAYER, request.target, request.maneuver, HIT, PLAYER_DAMAGE);
                 self.send_combat(&CombatMessage::EndSpecialAttack(request.attack));
@@ -144,6 +144,7 @@ impl State {
     /// The fight's clock: when the attack's interval has run, the player blows and the creature
     /// hits back, and the attack goes on (or ends with the creature's death).
     pub fn combat_tick(&mut self) {
+        self.regenerate();
         let Some((target, due)) = self.fight.attack else {
             return;
         };
@@ -298,11 +299,13 @@ impl State {
         self.fight.respawns += 1;
         self.fight.player_dead = false;
         self.fight.player = (PLAYER_HEALTH, PLAYER_HEALTH_MAX);
+        self.vitals.vigor.0 = self.vitals.vigor.1;
         let origin = lifestone(&self.spawn);
         let cell = self.spawn.cell;
         // The teleport's stamps: the spawn's position 4 and teleport 5, each teleport newer.
         self.teleport_player(cell, origin, 5 + 2 * n, 6 + 2 * n);
         self.send_player_vitals();
+        self.send_player_vigor();
         self.send_private(0x117, QualityValue::Bool(0));
         self.send_event(&object_event_bytes(
             Opcode::SET_MODE,

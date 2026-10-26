@@ -25,6 +25,7 @@ mod friends;
 pub use friends::{
     FriendRecord, FriendsBook, GUN_ALREADY_IN_LIST, GUN_DONE, GUN_INVALID_USER, GUN_NOT_IN_LIST,
 };
+mod description;
 mod items;
 mod lossy;
 mod objects;
@@ -34,6 +35,7 @@ mod script;
 mod social;
 mod store;
 mod trade;
+mod vitals;
 
 pub use allegiance::{Allegiance, Liege};
 pub use appearance::{
@@ -67,6 +69,9 @@ pub use reliable::{newer, ClientTracker, SentStore, Stored, Verdict, MAX_IDS};
 pub use script::ScriptWorld;
 pub use social::{fellow_graph, Fellow, Fellowship, FELLOW, FELLOWSHIP_ROOM};
 pub use trade::{Trade, TRADE_CANCELLED, TRADE_COMPLETED};
+pub use vitals::{
+    Vitals, COMBAT_NOT_ENOUGH_VIGOR, PLAYER_VIGOR_MAX, REGEN_INTERVAL, VIGOR, VIGOR_MAX,
+};
 
 use std::cell::RefCell;
 use std::net::SocketAddr;
@@ -196,22 +201,6 @@ pub(crate) fn create_object(spawn: &Spawn) -> Vec<u8> {
     )
 }
 
-/// The player's qualities: int 20 (the weenie type, 31: a player for
-/// `EngineWeenieTypeSystem` 0xC), int 0x19 and int 290 (the race, Human).
-pub(crate) fn player_description() -> Vec<u8> {
-    player_description_of(RACE_HUMAN)
-}
-
-/// [`player_description`] for a character of `race`.
-pub(crate) fn player_description_of(race: u32) -> Vec<u8> {
-    let mut b = Vec::new();
-    words(
-        &mut b,
-        &[0x0001_0068, 2, 0x8100_110F, 3, 20, 31, 0x19, 7, 290, race],
-    );
-    b
-}
-
 /// A client packet the double accepted (checksum verified, not a duplicate).
 #[derive(Debug, Clone)]
 pub struct Accepted {
@@ -287,6 +276,10 @@ pub struct State {
     pub script_world: ScriptWorld,
     /// The fight against the double's creatures (`combat.rs`).
     pub fight: Fight,
+    /// Every unordered queue-1 event the double sent, byte for byte, in order (`send_event`).
+    pub events_sent: Vec<Vec<u8>>,
+    /// The player's vigor, its costs and regeneration (`vitals.rs`).
+    pub vitals: Vitals,
     /// The fellowship the double made for the player (`WM_Fellowship` 0x22), if any.
     pub fellowship: Option<Fellowship>,
     /// The player's allegiance.
@@ -379,6 +372,7 @@ impl State {
     /// Queues an unordered queue-1 event blob (`CEventQueue::DispatchEvent` order); returns
     /// its id.
     pub fn send_event(&mut self, data: &[u8]) -> u64 {
+        self.events_sent.push(data.to_vec());
         self.next_object_blob += 1;
         let id = 0x0300_0000_0000_0000 | u64::from(self.next_object_blob) << 32 | 0x100;
         self.reliable_blob(id, 1, data);

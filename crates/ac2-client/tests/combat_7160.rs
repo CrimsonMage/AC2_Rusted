@@ -70,6 +70,8 @@ fn with_script() -> Option<(ac2_client::Client, Shared)> {
         let mut state = server.borrow_mut();
         state.give_starter_items();
         state.send_contents(PLAYER);
+        // These tests count the blows' health exactly: no regeneration between them.
+        state.vitals.regen_paused = true;
     }
     client.attach_scripts(
         ScriptHost::new(program, Box::new(data)),
