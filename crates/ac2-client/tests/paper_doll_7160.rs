@@ -172,7 +172,7 @@ fn the_paper_doll_wears_the_sword_and_empties_when_it_comes_off() {
     view.settle(&gpu, &frame, aspect);
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
-    view.render(&gpu, &target.color_view, &target.depth_view, SIZE, true);
+    view.render(&gpu, &target.color_view, &target.depth_view, true);
     let full = target.read_rgba(&gpu.device, &gpu.queue);
     write_png("client_paper_doll.png", &full);
     target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));

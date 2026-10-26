@@ -158,9 +158,11 @@ impl HudView {
         self.external_container.as_ref()?.wants_position()
     }
 
-    /// The pointer as the UI last saw it.
+    /// The pointer as the UI last saw it, in window pixels.
     pub(crate) fn pointer(&self) -> (i32, i32) {
-        self.hud.as_ref().map_or((0, 0), |(tree, _)| tree.pointer())
+        let (x, y) = self.hud.as_ref().map_or((0, 0), |(tree, _)| tree.pointer());
+        let (x, y) = self.scale.to_window(f64::from(x), f64::from(y));
+        (x.round() as i32, y.round() as i32)
     }
 
     pub(crate) fn shown_layers(&self) -> usize {

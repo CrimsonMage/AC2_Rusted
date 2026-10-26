@@ -276,8 +276,7 @@ impl App {
             state.commands.push(Command::Select(None));
         }
         if drawn {
-            let size = (state.config.width, state.config.height);
-            view.render(&state.gpu, &target, &state.depth, size, true);
+            view.render(&state.gpu, &target, &state.depth, true);
         } else {
             render_to(
                 &state.gpu.device,

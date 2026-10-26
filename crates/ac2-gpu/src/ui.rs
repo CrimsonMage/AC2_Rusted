@@ -80,6 +80,9 @@ pub struct UiOverlay {
     pipeline: wgpu::RenderPipeline,
     layout: wgpu::BindGroupLayout,
     sampler: wgpu::Sampler,
+    /// Bilinear sampling for a UI drawn scaled (a deviation from retail: see [`UiOverlay::set_smooth`]).
+    smooth_sampler: wgpu::Sampler,
+    smooth: bool,
     layers: Vec<Uploaded>,
 }
 
@@ -124,6 +127,12 @@ impl UiOverlay {
             label: Some("ac2 ui point clamp"),
             mag_filter: wgpu::FilterMode::Nearest,
             min_filter: wgpu::FilterMode::Nearest,
+            ..Default::default()
+        });
+        let smooth_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+            label: Some("ac2 ui linear clamp"),
+            mag_filter: wgpu::FilterMode::Linear,
+            min_filter: wgpu::FilterMode::Linear,
             ..Default::default()
         });
         let module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
@@ -173,8 +182,17 @@ impl UiOverlay {
             pipeline,
             layout,
             sampler,
+            smooth_sampler,
+            smooth: false,
             layers: Vec::new(),
         }
+    }
+
+    /// Samples the layers bilinearly from the next [`UiOverlay::set_layers`] on. Retail draws
+    /// the UI pixel for pixel with point sampling; a window the UI is scaled to fit (a modern
+    /// client's resizable window) samples it smoothly instead.
+    pub fn set_smooth(&mut self, smooth: bool) {
+        self.smooth = smooth;
     }
 
     /// Replaces the drawn layers, in drawing order.
@@ -233,7 +251,11 @@ impl UiOverlay {
                     },
                     wgpu::BindGroupEntry {
                         binding: 2,
-                        resource: wgpu::BindingResource::Sampler(&self.sampler),
+                        resource: wgpu::BindingResource::Sampler(if self.smooth {
+                            &self.smooth_sampler
+                        } else {
+                            &self.sampler
+                        }),
                     },
                 ],
             });
@@ -305,12 +327,25 @@ impl UiOverlay {
 
     /// Lays the layers out on a `width` x `height` target (before the pass).
     pub fn prepare(&self, queue: &wgpu::Queue, width: u32, height: u32) {
+        self.prepare_scaled(queue, (width, height), 1.0, (0.0, 0.0));
+    }
+
+    /// Lays the layers out on a `target` sized target with every UI pixel `scale` target pixels
+    /// and the UI's origin at `origin` (target pixels): the UI fitted to a window of any size.
+    pub fn prepare_scaled(
+        &self,
+        queue: &wgpu::Queue,
+        target: (u32, u32),
+        scale: f32,
+        origin: (f32, f32),
+    ) {
+        let (width, height) = target;
         for layer in &self.layers {
             let data = [
-                layer.rect[0],
-                layer.rect[1],
-                layer.rect[2],
-                layer.rect[3],
+                origin.0 + layer.rect[0] * scale,
+                origin.1 + layer.rect[1] * scale,
+                layer.rect[2] * scale,
+                layer.rect[3] * scale,
                 width as f32,
                 height as f32,
                 layer.rotation,

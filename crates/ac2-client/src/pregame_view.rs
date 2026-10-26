@@ -23,6 +23,7 @@ use crate::chargen_data::CharGenCapture;
 use crate::client::Notice;
 use crate::pregame::{pregame_event, pregame_notice, pregame_requests_capturing, PregameOutcome};
 use crate::pregame_scene::PregameScenes;
+use crate::ui_scale::UiScale;
 
 /// The pregame screens over the window.
 pub struct PregameView {
@@ -38,7 +39,10 @@ pub struct PregameView {
     scenes: Option<PregameScenes>,
     store: Arc<ResourceStore>,
     format: wgpu::TextureFormat,
+    /// The window, in pixels.
     size: (u32, u32),
+    /// The fixed 1024 x 768 screens fitted to the window ([`UiScale::fit`]).
+    scale: UiScale,
     dirty: bool,
     /// `CharGenData`: the creation capture (`--chargen`).
     capture: CharGenCapture,
@@ -60,17 +64,21 @@ impl PregameView {
                 let _ = send.send(ac2_ui::pregame::load_pregame(&data));
             })
             .expect("spawn the pregame loader");
+        let scale = UiScale::fit(size);
+        let mut overlay = UiOverlay::new(gpu, format);
+        overlay.set_smooth(!scale.is_identity());
         Self {
             pending: Some(receive),
             ui: None,
             early: Vec::new(),
             system: None,
-            overlay: UiOverlay::new(gpu, format),
+            overlay,
             layer_roots: Vec::new(),
             scenes: None,
             store,
             format,
             size,
+            scale,
             dirty: false,
             capture: CharGenCapture::default(),
         }
@@ -125,7 +133,7 @@ impl PregameView {
         let Some(ui) = &mut self.ui else {
             return Vec::new();
         };
-        let messages = ui.input(actions);
+        let messages = ui.input(&self.scale.actions_to_ui(actions));
         self.dirty |= ui.tree_mut().take_changed();
         messages
     }
@@ -179,9 +187,12 @@ impl PregameView {
 
     pub fn resize(&mut self, width: u32, height: u32) {
         self.size = (width.max(1), height.max(1));
+        self.scale = UiScale::fit(self.size);
+        self.overlay.set_smooth(!self.scale.is_identity());
+        let display = self.scale.display;
         if let Some(ui) = &mut self.ui {
             ui.tree_mut()
-                .set_display(self.size.0 as i32, self.size.1 as i32);
+                .set_display(display.0 as i32, display.1 as i32);
         }
         self.dirty = true;
     }
@@ -207,7 +218,11 @@ impl PregameView {
             match pending.try_recv() {
                 Ok(Ok(assets)) => {
                     self.pending = None;
-                    let mut ui = PregameUi::new(assets, self.size.0 as i32, self.size.1 as i32);
+                    let mut ui = PregameUi::new(
+                        assets,
+                        self.scale.display.0 as i32,
+                        self.scale.display.1 as i32,
+                    );
                     if let Some(system) = self.system.take() {
                         ui.set_char_gen_system(system);
                     }
@@ -290,7 +305,13 @@ impl PregameView {
 
     /// Writes the frame's UI layout and scenes (before [`PregameView::render`]).
     pub fn prepare(&mut self, gpu: &Gpu, time: f64) {
-        self.overlay.prepare(&gpu.queue, self.size.0, self.size.1);
+        let scale = &self.scale;
+        self.overlay.prepare_scaled(
+            &gpu.queue,
+            self.size,
+            scale.scale as f32,
+            (scale.origin.0 as f32, scale.origin.1 as f32),
+        );
         if let Some(scenes) = &mut self.scenes {
             scenes.prepare(gpu, time);
         }
@@ -305,7 +326,7 @@ impl PregameView {
             gpu,
             color,
             depth,
-            self.size,
+            &self.scale,
             [0.0; 3],
             &self.overlay,
             &self.layer_roots,

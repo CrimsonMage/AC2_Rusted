@@ -66,7 +66,13 @@ impl HudView {
     }
 
     pub(crate) fn prepare(&self, queue: &wgpu::Queue) {
-        self.overlay.prepare(queue, self.size.0, self.size.1);
+        let scale = &self.scale;
+        self.overlay.prepare_scaled(
+            queue,
+            self.size,
+            scale.scale as f32,
+            (scale.origin.0 as f32, scale.origin.1 as f32),
+        );
     }
 
     pub(crate) fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {

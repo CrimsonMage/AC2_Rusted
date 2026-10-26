@@ -700,7 +700,7 @@ impl ClientView {
         self.hud.text_mode()
     }
 
-    /// The pointer as the HUD last saw it (`ICIDM` mouse position).
+    /// The pointer as the HUD last saw it (`ICIDM` mouse position), in window pixels.
     pub fn pointer(&self) -> (i32, i32) {
         self.hud.pointer()
     }
@@ -725,7 +725,7 @@ impl ClientView {
         self.hud.draw(pass);
     }
 
-    /// Draws the frame into `color` (a `size` target) cleared to black: the world when
+    /// Draws the frame into `color` (the window) cleared to black: the world when
     /// `prepare` laid it out, then the HUD with the paper doll's scene in its viewport, after
     /// its surface and over a cleared depth ([`crate::ui_scene::render_with_scenes`]).
     pub fn render(
@@ -733,7 +733,6 @@ impl ClientView {
         gpu: &Gpu,
         color: &wgpu::TextureView,
         depth: &wgpu::TextureView,
-        size: (u32, u32),
         world: bool,
     ) {
         let (overlay, roots) = self.hud.layers_for_scenes();
@@ -741,7 +740,7 @@ impl ClientView {
             gpu,
             color,
             depth,
-            size,
+            &self.hud.scale,
             [0.0; 3],
             overlay,
             roots,

@@ -5,6 +5,7 @@
 //! the tree (`UIElementManager::StartInput`), and it is composed again when they change it.
 //! The tree's messages go to the chat (`gmChatUI`) before they are returned.
 
+use crate::ui_scale::UiScale;
 use std::collections::HashMap;
 use std::sync::mpsc::{Receiver, TryRecvError};
 use std::sync::Arc;
@@ -106,7 +107,10 @@ pub(crate) struct HudView {
     overlay: UiOverlay,
     /// The root of each drawn layer, in drawing order (the viewports' scenes go after theirs).
     layer_roots: Vec<usize>,
+    /// The window, in pixels.
     size: (u32, u32),
+    /// The HUD laid out over the whole window and drawn scaled ([`UiScale::fill`]).
+    pub(crate) scale: UiScale,
     pub(crate) dirty: bool,
     /// The sounds the UI's media played (`MD_Data_Sound`) until the audio sink takes them.
     pub(crate) sounds: Vec<u32>,
@@ -116,8 +120,11 @@ impl HudView {
     /// The render device's new size: every root placed again (`UIElement::UpdateSizeAndPosition`).
     pub(crate) fn resize(&mut self, width: u32, height: u32) {
         self.size = (width.max(1), height.max(1));
+        self.scale = UiScale::fill(self.size);
+        self.overlay.set_smooth(!self.scale.is_identity());
+        let display = self.scale.display;
         if let Some((tree, _)) = &mut self.hud {
-            tree.set_display(self.size.0 as i32, self.size.1 as i32);
+            tree.set_display(display.0 as i32, display.1 as i32);
         }
         self.dirty = true;
     }
@@ -133,7 +140,7 @@ impl HudView {
         let Some((tree, _)) = &mut self.hud else {
             return Vec::new();
         };
-        for &(action, extent, start) in actions {
+        for (action, extent, start) in self.scale.actions_to_ui(actions) {
             if start {
                 tree.start_input(action, extent);
             } else {

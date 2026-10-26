@@ -24,6 +24,10 @@ subsystem it reproduces. This file states the working rules.
   `AddToDataGraph` matters outside tools, and whether the Pyrealium server ever pushes updated
   portal objects (the retail on-disk `AsyncCache` / `CMissingIteration` path exists for that). Read
   those before deleting the related code, and record the findings here.
+- Exception: the window resizes freely (a modern client). Retail drew its UI pixel for pixel on a
+  fixed window authored at 1024 x 768; here `ac2_client::ui_scale::UiScale` lays the UI out on a
+  logical display and draws it scaled by `min(width / 1024, height / 768)`. The HUD fills the
+  window and the pregame screens stay 1024 x 768, centred. Layout and anchoring code stays retail.
 - Where admin 7148 and Legions 7160 differ, follow Legions (the DVD client the DATs ship with):
   read `decompiled-pdb/legions7160/source_tree/` beside the admin tree and note the difference.
 - Numeric fidelity: retail ran x87 at 53-bit precision (`_setdefaultprecision`, and

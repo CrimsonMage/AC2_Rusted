@@ -31,7 +31,8 @@ impl HudView {
             })
             .expect("spawn the UI strings loader");
         let (send, receive) = mpsc::channel();
-        let (width, height) = (size.0 as i32, size.1 as i32);
+        let scale = crate::ui_scale::UiScale::fill(size);
+        let (width, height) = (scale.display.0 as i32, scale.display.1 as i32);
         std::thread::Builder::new()
             .name("ac2 hud".into())
             .spawn(move || {
@@ -107,9 +108,14 @@ impl HudView {
             early_lines: Vec::new(),
             chat_text,
             images,
-            overlay: UiOverlay::new(gpu, format),
+            overlay: {
+                let mut overlay = UiOverlay::new(gpu, format);
+                overlay.set_smooth(!scale.is_identity());
+                overlay
+            },
             layer_roots: Vec::new(),
             size,
+            scale,
             dirty: false,
             sounds: Vec::new(),
         }
@@ -149,7 +155,7 @@ impl HudView {
                 },
                 images,
             )) => {
-                tree.set_display(self.size.0 as i32, self.size.1 as i32);
+                tree.set_display(self.scale.display.0 as i32, self.scale.display.1 as i32);
                 if let Some(chat) = &mut chat {
                     // The player's options are not read yet: the chat starts on
                     // `GameplayOptionsProfile::Clear`'s (no filters, default fonts).

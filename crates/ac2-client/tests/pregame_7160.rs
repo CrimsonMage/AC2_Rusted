@@ -152,15 +152,81 @@ fn the_pregame_view_draws_character_selection() {
     }
     view.update(&gpu, t);
     assert!(view.shown_layers() > 0);
-    let target = ac2_gpu::FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
-    view.prepare(&gpu, t);
-    view.render(&gpu, &target.color_view, &target.depth_view);
+    let rgba = draw(&gpu, &mut view, SIZE, t, "pregame_view_selection.png");
+    // The stone frame and buttons cover a good part of the dark screen.
+    let lit = rgba.chunks(4).filter(|p| p[0] > 40 || p[1] > 40).count();
+    assert!(
+        lit > (SIZE.0 * SIZE.1 / 10) as usize,
+        "the screen is drawn: {lit}"
+    );
+    // A resized window (a deviation from retail): the 1024 x 768 screen is scaled to fit and
+    // centred, never cut off or left in a corner.
+    let wide = (1600, 900);
+    view.resize(wide.0, wide.1);
+    view.update(&gpu, t);
+    let rgba = draw(
+        &gpu,
+        &mut view,
+        wide,
+        t,
+        "pregame_view_selection_1600x900.png",
+    );
+    // 900 / 768 scales the 1024 wide screen to 1200 pixels: 200 black columns on each side.
+    let column_lit = |x: u32| {
+        (0..wide.1)
+            .filter(|&y| {
+                let p = &rgba[((y * wide.0 + x) * 4) as usize..][..3];
+                p[0] > 40 || p[1] > 40
+            })
+            .count()
+    };
+    assert_eq!(column_lit(100), 0, "left bar");
+    assert_eq!(column_lit(1500), 0, "right bar");
+    assert!(
+        column_lit(210) > 0 && column_lit(1390) > 0,
+        "the screen's edges"
+    );
+    let small = (800, 600);
+    view.resize(small.0, small.1);
+    view.update(&gpu, t);
+    let rgba = draw(
+        &gpu,
+        &mut view,
+        small,
+        t,
+        "pregame_view_selection_800x600.png",
+    );
+    // The stone pillar at the screen's right edge (x 1000 of 1024) reaches the window instead
+    // of being cut off: x 781 at 800 / 1024.
+    let lit_rows = (0..small.1)
+        .filter(|&y| {
+            let p = &rgba[((y * small.0 + 781) * 4) as usize..][..3];
+            p[0] > 40 || p[1] > 40
+        })
+        .count();
+    assert!(
+        lit_rows > small.1 as usize / 2,
+        "the right pillar: {lit_rows}"
+    );
+}
+
+/// Draws `view` on a `size` target and writes `target/ac2-snapshots/<name>`.
+fn draw(
+    gpu: &ac2_gpu::Gpu,
+    view: &mut ac2_client::pregame_view::PregameView,
+    size: (u32, u32),
+    t: f64,
+    name: &str,
+) -> Vec<u8> {
+    let target = ac2_gpu::FrameTarget::new(&gpu.device, size.0, size.1);
+    view.prepare(gpu, t);
+    view.render(gpu, &target.color_view, &target.depth_view);
     let rgba = target.read_rgba(&gpu.device, &gpu.queue);
     let dir =
         std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../target/ac2-snapshots");
     std::fs::create_dir_all(&dir).unwrap();
-    let file = std::fs::File::create(dir.join("pregame_view_selection.png")).unwrap();
-    let mut encoder = png::Encoder::new(std::io::BufWriter::new(file), SIZE.0, SIZE.1);
+    let file = std::fs::File::create(dir.join(name)).unwrap();
+    let mut encoder = png::Encoder::new(std::io::BufWriter::new(file), size.0, size.1);
     encoder.set_color(png::ColorType::Rgba);
     encoder.set_depth(png::BitDepth::Eight);
     encoder
@@ -168,10 +234,5 @@ fn the_pregame_view_draws_character_selection() {
         .unwrap()
         .write_image_data(&rgba)
         .unwrap();
-    // The stone frame and buttons cover a good part of the dark screen.
-    let lit = rgba.chunks(4).filter(|p| p[0] > 40 || p[1] > 40).count();
-    assert!(
-        lit > (SIZE.0 * SIZE.1 / 10) as usize,
-        "the screen is drawn: {lit}"
-    );
+    rgba
 }

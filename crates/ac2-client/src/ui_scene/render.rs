@@ -6,8 +6,9 @@
 use ac2_gpu::{Gpu, UiOverlay};
 
 use super::UiScenes;
+use crate::ui_scale::UiScale;
 
-/// Draws into `color` (cleared to `clear`) on a `size` target: `first` (the world, when there
+/// Draws into `color` (cleared to `clear`) on the window `scale` fits the UI to: `first` (the world, when there
 /// is one), then `overlay`'s layers (whose roots are `layer_roots`, in drawing order) with each
 /// of `scenes`' prepared viewports after its root's layer.
 #[allow(clippy::too_many_arguments)]
@@ -15,7 +16,7 @@ pub fn render_with_scenes(
     gpu: &Gpu,
     color: &wgpu::TextureView,
     depth: &wgpu::TextureView,
-    size: (u32, u32),
+    scale: &UiScale,
     clear: [f32; 3],
     overlay: &UiOverlay,
     layer_roots: &[usize],
@@ -40,7 +41,7 @@ pub fn render_with_scenes(
     let mut encoder = gpu.device.create_command_encoder(&Default::default());
     let mut first = Some(first);
     let mut next = 0;
-    let (width, height) = size;
+    let (width, height) = scale.window;
     for (i, (layer, owner, view, viewport)) in views.iter().enumerate() {
         let mut pass = begin_pass(&mut encoder, color, depth, (i == 0).then_some(clear));
         if let Some(first) = first.take() {
@@ -48,10 +49,16 @@ pub fn render_with_scenes(
         }
         overlay.draw_range(&mut pass, next..layer + 1);
         next = layer + 1;
-        let x0 = viewport.x.clamp(0, width as i32) as u32;
-        let y0 = viewport.y.clamp(0, height as i32) as u32;
-        let x1 = (viewport.x + viewport.width as i32).clamp(0, width as i32) as u32;
-        let y1 = (viewport.y + viewport.height as i32).clamp(0, height as i32) as u32;
+        // The viewport's UI rectangle in window pixels.
+        let (left, top) = scale.to_window(f64::from(viewport.x), f64::from(viewport.y));
+        let (right, bottom) = scale.to_window(
+            f64::from(viewport.x) + f64::from(viewport.width),
+            f64::from(viewport.y) + f64::from(viewport.height),
+        );
+        let x0 = (left.round() as i32).clamp(0, width as i32) as u32;
+        let y0 = (top.round() as i32).clamp(0, height as i32) as u32;
+        let x1 = (right.round() as i32).clamp(0, width as i32) as u32;
+        let y1 = (bottom.round() as i32).clamp(0, height as i32) as u32;
         if x1 <= x0 || y1 <= y0 {
             continue;
         }

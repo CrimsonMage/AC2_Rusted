@@ -72,6 +72,7 @@ mod target_select;
 mod ui_images;
 #[cfg(feature = "window")]
 mod ui_inventory;
+pub mod ui_scale;
 #[cfg(feature = "window")]
 pub mod ui_scene;
 #[cfg(feature = "window")]
