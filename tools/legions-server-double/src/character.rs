@@ -45,6 +45,8 @@ pub struct Character {
     pub coins_made: u32,
     /// The cost of each skill the test configures (see [`DEFAULT_SKILL_COST`]).
     pub skill_costs: BTreeMap<u32, SkillCost>,
+    /// The skill being untrained (0 for none; the repository's slot 5).
+    pub untraining: u32,
 }
 
 impl Default for Character {
@@ -59,11 +61,17 @@ impl Default for Character {
             money: 0,
             coins_made: 0,
             skill_costs: BTreeMap::new(),
+            untraining: 0,
         }
     }
 }
 
 impl Character {
+    /// Whether the character has `skill` trained.
+    pub fn is_trained(&self, skill: u32) -> bool {
+        self.skills.iter().any(|(s, t, _)| *s == skill && *t)
+    }
+
     /// The `SkillRepository` graph (`WM_Player` 0x27's argument 5, `WM_Skill` 0xE's), as the
     /// codec in ac2-net packs it.
     pub fn repository(&self) -> PackedReference {
@@ -75,7 +83,7 @@ impl Character {
         SkillRepository {
             credits: self.credits,
             hero_credits: self.hero_credits,
-            untraining: 0,
+            untraining: self.untraining,
             skills: self
                 .skills
                 .iter()
@@ -160,26 +168,37 @@ impl crate::State {
         self.script_world.character.skill_costs.insert(skill, cost);
     }
 
-    /// The server's answer to a skill request (`WM_Skill` 0x13 `RequestTrainSkill`, 0x10
-    /// `RequestRaiseSkill`); the untrain requests are not answered yet. A request the rules
-    /// refuse (already trained, not trained, not enough credits or XP) gets no answer.
-    ///
-    /// The rules are the double's, not retail's: a training takes the skill's credit cost and
-    /// makes the skill trained at no experience, answered with the repository (0xE, the credits
-    /// and the skills); a raise takes the skill's XP cost from `AvailableXP` (long 301, sent back
-    /// as a quality update) into the skill's experience, answered with the skill (0xD). The costs
-    /// are the test's ([`State::set_skill_cost`]): the double reads no advancement table.
+    /// The server's answer to a skill request. Train (`WM_Skill` 0x13) takes the skill's credits and
+    /// makes it trained: answered with the repository (0xE, the credits) and the skill (0xD). Raise
+    /// (0x10) takes its XP from `AvailableXP` (long 301, a quality update) into the skill's
+    /// experience: answered with the skill (0xD). Untrain (0x12) marks the skill as being untrained
+    /// (the repository's slot 5), and cancel (0xF) clears it: both answered with the repository.
+    /// A request the rules refuse (already trained, not trained, not enough credits or XP, another
+    /// untrain under way) gets no answer. The costs are the test's ([`State::set_skill_cost`]): the
+    /// double reads no advancement table, and its untrain completes nothing (no timer is run).
     pub(crate) fn answer_skill(&mut self, function: u32, arguments: &[PackValue]) {
-        let [PackValue::Int(skill)] = arguments else {
-            return;
-        };
-        let skill = *skill;
-        let cost = self.script_world.character.skill_cost(skill);
-        let c = &mut self.script_world.character;
-        let message = match function {
-            ac2_net::protocol::script_function::SKILL_TRAIN => {
-                let trained = c.skills.iter().any(|(s, t, _)| *s == skill && *t);
-                if trained || c.credits < cost.credits {
+        use ac2_net::protocol::script_function as f;
+        match (function, arguments) {
+            (f::SKILL_CANCEL_UNTRAIN, []) => {
+                if self.script_world.character.untraining == 0 {
+                    return;
+                }
+                self.script_world.character.untraining = 0;
+                self.send_skill(SkillMessage::SetRepository(self.repository_now()));
+            }
+            (f::SKILL_UNTRAIN, [PackValue::Int(skill)]) => {
+                let c = &mut self.script_world.character;
+                if c.untraining != 0 || !c.is_trained(*skill) {
+                    return;
+                }
+                c.untraining = *skill;
+                self.send_skill(SkillMessage::SetRepository(self.repository_now()));
+            }
+            (f::SKILL_TRAIN, [PackValue::Int(skill)]) => {
+                let skill = *skill;
+                let cost = self.script_world.character.skill_cost(skill);
+                let c = &mut self.script_world.character;
+                if c.is_trained(skill) || c.credits < cost.credits {
                     return;
                 }
                 c.credits -= cost.credits;
@@ -187,15 +206,28 @@ impl crate::State {
                     Some(entry) => entry.1 = true,
                     None => c.skills.push((skill, true, 0)),
                 }
-                SkillMessage::SetRepository(c.to_repository())
-            }
-            ac2_net::protocol::script_function::SKILL_RAISE => {
-                let Some(entry) = c.skills.iter_mut().find(|(s, t, _)| *s == skill && *t) else {
-                    return;
+                let record = SkillRecord {
+                    skill,
+                    flags: 1,
+                    xp: c
+                        .skills
+                        .iter()
+                        .find(|(s, _, _)| *s == skill)
+                        .map_or(0, |e| e.2),
                 };
-                if c.available_xp < cost.xp {
+                self.send_skill(SkillMessage::SetRepository(self.repository_now()));
+                self.send_skill(SkillMessage::UpdateSkill(record));
+            }
+            (f::SKILL_RAISE, [PackValue::Int(skill)]) => {
+                let skill = *skill;
+                let cost = self.script_world.character.skill_cost(skill);
+                let c = &mut self.script_world.character;
+                if !c.is_trained(skill) || c.available_xp < cost.xp {
                     return;
                 }
+                let Some(entry) = c.skills.iter_mut().find(|(s, _, _)| *s == skill) else {
+                    return;
+                };
                 entry.2 += cost.xp;
                 let record = SkillRecord {
                     skill,
@@ -205,10 +237,19 @@ impl crate::State {
                 c.available_xp -= cost.xp;
                 let available = c.available_xp as i64;
                 self.send_private(301, QualityValue::LongInt(available));
-                SkillMessage::UpdateSkill(record)
+                self.send_skill(SkillMessage::UpdateSkill(record));
             }
-            _ => return,
-        };
+            _ => {}
+        }
+    }
+
+    /// The repository as the double's character is now.
+    fn repository_now(&self) -> SkillRepository {
+        self.script_world.character.to_repository()
+    }
+
+    /// Sends a skill answer and keeps it for the tests.
+    fn send_skill(&mut self, message: SkillMessage) {
         self.send_script_call(message.function(), &message.arguments());
         self.skill_answers.push(message);
     }

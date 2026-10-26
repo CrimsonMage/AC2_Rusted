@@ -150,9 +150,9 @@ fn script_objects_cross_the_wire_byte_exact() {
     assert!(received.contains(&skill), "{received:?}");
     assert!(received.iter().any(|c| c.function == 0x820C_002B));
     // And the double's answer to `RequestTrainSkill` (the repository with the skill, `WM_Skill`
-    // 0xE): the character has the credits for it.
+    // 0xE, then the skill itself, 0xD): the character has the credits for it.
     assert!(received.iter().any(|c| c.function == 0x8214_000E));
-    assert_eq!(received.len(), 3);
+    assert_eq!(received.len(), 4);
 
     let s = state.borrow();
     assert!(s.script_errors.is_empty(), "{:?}", s.script_errors);

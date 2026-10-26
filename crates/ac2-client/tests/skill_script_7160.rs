@@ -10,7 +10,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
 
-use ac2_client::{Client, Command, FrameInput};
+use ac2_client::{Client, Command, FrameInput, SkillLevel};
 use ac2_core::DataId;
 use ac2_net::protocol::{pack_values, PackValue, SkillMessage, SkillRecord, SkillRepository};
 use ac2_script::data::DatScriptData;
@@ -157,7 +157,10 @@ fn a_skill_is_trained_and_raised_through_the_player_script() {
     after_train.push(record(SKILL, 1, 0));
     assert_eq!(
         server.borrow().skill_answers,
-        vec![repository(0, after_train.clone())]
+        vec![
+            repository(0, after_train.clone()),
+            SkillMessage::UpdateSkill(record(SKILL, 1, 0)),
+        ]
     );
     assert!(trained.contains(&GameplayNotice::UpdateSkillPanel {
         available_xp: GRANTED_XP,
@@ -179,7 +182,7 @@ fn a_skill_is_trained_and_raised_through_the_player_script() {
         &server,
         vec![Command::Skill(SkillRequest::Train(SKILL))],
     );
-    assert_eq!(server.borrow().skill_answers.len(), 1);
+    assert_eq!(server.borrow().skill_answers.len(), 2);
     assert_eq!(client.skill_credits(), Ok(0));
 
     // Raise: `WM_Skill` 0x10 with the skill. The double spends the XP from `AvailableXP` into the
@@ -267,4 +270,111 @@ fn a_skill_request_is_refused_without_the_credits_or_the_xp() {
         vec![Command::Skill(SkillRequest::CancelUntrain)],
     );
     assert_eq!(sent(&server, 0x8214_0001), vec![pack_values(&[])]);
+}
+
+/// `WM_Skill` 0x12 (the untrain stub) and 0xF (the cancel), answered by the repository (0xE, its
+/// untraining slot names the skill being untrained, cleared by the cancel). The panel's queries
+/// read the trained skill: `CanSkillBeUntrainedByEnum` gives the `gmWErrorType` why not
+/// (`Skill_StartingSkill` 30008 for the trained skill, `Skill_NotUntrainable` 30007 for a starting
+/// melee skill, `Skill_NotTrained` 30009 for a skill the character lacks).
+#[test]
+fn untrain_and_cancel_are_answered_with_the_repository() {
+    let Some((mut client, server)) = logged_in(ac2_client::SCRIPT_VM_FUNCTIONS) else {
+        return;
+    };
+    server.borrow_mut().grant_xp(GRANTED_XP);
+    settle(&mut client, &server);
+    server.borrow_mut().set_skill_cost(
+        SKILL,
+        SkillCost {
+            credits: TRAIN_CREDITS,
+            xp: RAISE_XP,
+        },
+    );
+    assert_eq!(client.can_skill_be_untrained(SKILL), Ok(30009));
+    assert_eq!(client.is_skill_being_untrained(SKILL), Ok(false));
+    run(
+        &mut client,
+        &server,
+        vec![Command::Skill(SkillRequest::Train(SKILL))],
+    );
+    assert_eq!(client.is_skill_trained(SKILL), Ok(true));
+
+    // The queries on the trained skill: its level and timer, the hero flag, and the inventory's
+    // use. The wlib answers with the pack as it is (no weapon): the auto-attack is usable, the
+    // weapon skills are not.
+    assert_eq!(client.can_skill_be_untrained(SKILL), Ok(30008));
+    assert_eq!(client.can_skill_be_untrained(MELEE_ATTACK), Ok(30007));
+    assert_eq!(client.can_skill_be_untrained(0x41), Ok(30009));
+    assert_eq!(
+        client.skill_level(SKILL),
+        Ok(SkillLevel {
+            raw: 0,
+            enchanted: 0,
+            ok: true,
+        })
+    );
+    let time = client.skill_time_left(SKILL).expect("the timer query");
+    assert!(!time.ok);
+    assert_eq!((time.total, time.left), (0.0, 0.0));
+    assert_eq!(client.is_hero_skill(SKILL), Ok(false));
+    assert_eq!(
+        client.is_skill_usable_by_inventory(MELEE_AUTO_ATTACK),
+        Ok(true)
+    );
+    assert_eq!(client.is_skill_usable_by_inventory(MELEE_ATTACK), Ok(false));
+    assert_eq!(client.is_skill_usable_by_inventory(SKILL), Ok(false));
+
+    // Untrain: `WM_Skill` 0x12 with the skill; the repository answer names it as untraining.
+    let repository = |untraining, skills: Vec<SkillRecord>| {
+        SkillMessage::SetRepository(SkillRepository {
+            credits: 0,
+            hero_credits: 0,
+            untraining,
+            skills,
+        })
+    };
+    let mut after_train = vec![record(MELEE_AUTO_ATTACK, 1, 0), record(MELEE_ATTACK, 1, 0)];
+    after_train.push(record(SKILL, 1, 0));
+    run(
+        &mut client,
+        &server,
+        vec![Command::Skill(SkillRequest::Untrain(SKILL))],
+    );
+    assert_eq!(
+        sent(&server, 0x8214_0007),
+        vec![pack_values(&[PackValue::Int(SKILL)])]
+    );
+    assert_eq!(
+        server.borrow().skill_answers.last(),
+        Some(&repository(SKILL, after_train.clone()))
+    );
+    assert_eq!(client.is_skill_being_untrained(SKILL), Ok(true));
+    // A second untrain while one is under way is refused by the double: no further answer.
+    let answers = server.borrow().skill_answers.len();
+    run(
+        &mut client,
+        &server,
+        vec![Command::Skill(SkillRequest::Untrain(SKILL))],
+    );
+    assert_eq!(server.borrow().skill_answers.len(), answers);
+
+    // Cancel: `WM_Skill` 0xF with no values; the repository answer clears the untraining slot.
+    run(
+        &mut client,
+        &server,
+        vec![Command::Skill(SkillRequest::CancelUntrain)],
+    );
+    assert_eq!(sent(&server, 0x8214_0001), vec![pack_values(&[])]);
+    assert_eq!(
+        server.borrow().skill_answers.last(),
+        Some(&repository(0, after_train))
+    );
+    assert_eq!(client.is_skill_being_untrained(SKILL), Ok(false));
+    assert_eq!(client.is_skill_trained(SKILL), Ok(true));
+    assert!(
+        client.take_script_problems().is_empty(),
+        "{:?}",
+        client.take_script_problems()
+    );
 }
