@@ -281,11 +281,14 @@ fn a_drop_from_another_container_moves_the_item_into_the_player_and_equips_it() 
         .collect();
     assert_eq!(
         asked,
-        vec![ItemRequest::MoveAndEquip {
+        // Retail returns after the move; the equip waits for another drop.
+        vec![ItemRequest::Move {
             item: SWORD,
             from: OTHER,
-            to: PLAYER,
-            location: TORSO,
+            from_slot: 0,
+            target: PLAYER,
+            target_slot: 0,
+            quantity: 1,
         }]
     );
 }

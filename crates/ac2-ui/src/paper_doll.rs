@@ -264,22 +264,25 @@ impl PaperDollUi {
         }
     }
 
+    /// `gmPaperDollUI::InqItemInvLoc`: where the item is worn (`_paperDollLocs`).
+    pub fn inq_item_inv_loc(&self, item: u64) -> Option<u32> {
+        self.items
+            .iter()
+            .find(|(_, d)| d.item == item)
+            .map(|(at, _)| *at)
+    }
+
     /// `gmPaperDollUI::RecvNotice_ItemUpdate` of a worn item: its display and durability are
     /// refreshed (the meter hides for an item without durability).
     pub fn item_changed(&mut self, tree: &mut UiTree, s: &dyn InventorySource, item: u64) {
-        let worn: Vec<u32> = self
-            .items
-            .iter()
-            .filter(|(_, d)| d.item == item)
-            .map(|(at, _)| *at)
-            .collect();
-        for (_, display) in self.items.iter_mut().filter(|(_, d)| d.item == item) {
+        let Some(at) = self.inq_item_inv_loc(item) else {
+            return;
+        };
+        if let Some((_, display)) = self.items.iter_mut().find(|(location, _)| *location == at) {
             display.update(tree, s);
         }
-        for at in worn {
-            if let Some(slot) = self.slot(at) {
-                self.set_durability(tree, s, slot, s.durability(item));
-            }
+        if let Some(slot) = self.slot(at) {
+            self.set_durability(tree, s, slot, s.durability(item));
         }
     }
 
@@ -355,9 +358,11 @@ impl PaperDollUi {
         self.item_at(self.last_location).map(ItemRequest::Select)
     }
 
-    /// `gmPaperDollUI::HandlePaperDollDrop`: the dropped item is equipped at the slot's location,
-    /// or on the doll at its preferred one. One from another container comes into the player
-    /// first (`MoveItem` into the player's pack, then the equip: Legions 7160).
+    /// `gmPaperDollUI::HandlePaperDollDrop`: an item in the player's own containers is equipped
+    /// at the slot's location, or on the doll at its preferred one. One from another container
+    /// (`FromID` not the player) only comes into the player's pack (`MoveItem` of one into slot
+    /// 0): retail returns after the move (Legions 7160 and admin 7148 alike), the equip waits for
+    /// a second drop.
     fn drop(
         &self,
         tree: &UiTree,
@@ -382,11 +387,13 @@ impl PaperDollUi {
             return None;
         }
         if dragged.from != self.player {
-            return Some(ItemRequest::MoveAndEquip {
+            return Some(ItemRequest::Move {
                 item: dragged.item,
                 from: dragged.from,
-                to: self.player,
-                location,
+                from_slot: 0,
+                target: self.player,
+                target_slot: 0,
+                quantity: 1,
             });
         }
         Some(ItemRequest::Equip {

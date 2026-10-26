@@ -167,14 +167,6 @@ pub enum ItemRequest {
         to_slot: i32,
         to_container: u64,
     },
-    /// `gmCWInterface::MoveItem` of the whole item into `to`'s slot 0, then `EquipItem`
-    /// (Legions 7160's `HandlePaperDollDrop`, which falls through from the move).
-    MoveAndEquip {
-        item: u64,
-        from: u64,
-        to: u64,
-        location: u32,
-    },
 }
 
 /// A drop waiting for the stack dialog (`m_itemToMove`, `m_moveFrom`, `m_oldIndex`,
@@ -375,6 +367,12 @@ pub struct ContainerDisplay {
 }
 
 impl ContainerDisplay {
+    /// `_count < _maxSize`: the first slot after the page's items (`m_firstSlotNumber +
+    /// _count`), if the page has room (`gmBackpackUI::ListenToMessage`'s drop on a page's tab).
+    pub(crate) fn end_slot(&self) -> Option<u32> {
+        (self.count < self.max_size).then(|| self.first_slot + self.count)
+    }
+
     /// `ContainerDisplay::Init`: the slots, then the segment's items; the slot count.
     pub fn init(
         tree: &mut UiTree,

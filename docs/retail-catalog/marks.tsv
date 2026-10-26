@@ -662,10 +662,11 @@ key	status	note
 00440f90	x	ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 00440fe0	x	ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 00441280	~	money bag: the coin/melt paths ported; not modelled: DDCB's IsOnInventory test (gmMoneyBagUI_DDCB), the bag's ctor listeners and the not_dragable branch (m_curAmount is only 0 in retail), the backpack page's item drop (FinishItemDrop) and its ListenToMessage item branch
+004412f0	x	ac2-ui backpack.rs finish_item_drop: MoveItem inside the page's container unless the slot is unchanged; reached by a drop on a page tab (tab_drop) with the stack dialog for a stack
 00441390	x	ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
-00441410	~	ac2-ui: item drop path; money bag (DragFromMoneyBag / FinishMoneyBagDrop) not yet
+00441410	x	ac2-ui backpack.rs stack_ui_done: the money bag and item drop answers
 00441480	x	ac2-ui item_display.rs / backpack.rs
-004414e0	~	icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
+004414e0	~	ac2-ui backpack.rs tab_drop: a worn item unequips to the page's end, the coin field asks how much, another item on a tab not shown moves to the page's end (stack dialog first); tested through the HUD (item_drag_7160). Not: icon descriptions' layers, GetContentsInfo from the VM
 00441950	x	ac2-ui item_display.rs / backpack.rs
 00441ba0	~	Legions 7160 (followed): race 1, 2, 8, 16 x0.9, race 4 x0.75; z = -0.875 x height; camera scale 0.25 x height (admin: -0.5, full height). The physobj call before it (vtbl 0x2F4 (1, 0)) is not modelled
 00441d20	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
@@ -677,7 +678,8 @@ key	status	note
 00442030	x	step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 004420e0	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 00442100	x	step 2: slot lookup by element (the slots are the containers the layout names); DDCB is is_item_copy
-00442180	~	Legions 7160 (followed): an item from another container is moved into the player, then equipped (admin returns after the move). Drops on the slots and the body equip or move; no GetWeenieObject check (the frame lists the items)
+00442180	x	ac2-ui paper_doll.rs drop: an item of the player's containers equips at the slot's (or the preferred) location; one from another container only moves into the player's pack and returns (admin and Legions alike, the earlier MoveAndEquip was wrong); tested through the HUD (item_drag_7160)
+00442300	x	ac2-ui paper_doll.rs inq_item_inv_loc: where an item is worn; item_changed (RecvNotice_ItemUpdate) uses it
 00442380	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 004424b0	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 00442580	-	C++ destructors: the Rust state drops

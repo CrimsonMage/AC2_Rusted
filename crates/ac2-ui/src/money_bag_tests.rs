@@ -460,9 +460,9 @@ fn a_coin_field_dropped_on_a_page_asks_for_the_page_s_first_slot() {
     let coin = tree
         .child_recursive(find(tree, "MoneyBag").unwrap(), tokenize("CoinsField"))
         .expect("the CoinsField");
-    // Dropped on the main page's container, outside its list: `gmBackpackUI::ListenToMessage`'s
-    // coin branch takes the page's slot (its last index, none pointed at yet: the first).
-    let page = find(tree, "PackMainContainer").expect("the main page");
+    // Dropped on the main page's tab: `gmBackpackUI::ListenToMessage`'s coin branch takes the
+    // first slot after the page's items.
+    let page = find(tree, "PackMainButton").expect("the main page's tab");
     let drop = UiMessage {
         element_id: tree.get(page).unwrap().id(),
         element: Some(page),
@@ -484,7 +484,8 @@ fn a_coin_field_dropped_on_a_page_asks_for_the_page_s_first_slot() {
         backpack.stack_ui_done(&purse, context, 7),
         Some(ItemRequest::DragFromMoneyBag {
             quantity: 7,
-            to_slot: 0,
+            // After the page's two items.
+            to_slot: 2,
             to_container: 0,
         })
     );

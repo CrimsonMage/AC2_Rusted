@@ -427,22 +427,6 @@ pub(crate) fn item_commands(request: ItemRequest, commands: &mut Vec<Command>) -
         ItemRequest::Equip { item, location } => {
             commands.push(Command::EquipItem { item, location });
         }
-        ItemRequest::MoveAndEquip {
-            item,
-            from,
-            to,
-            location,
-        } => {
-            commands.push(Command::MoveItem {
-                item,
-                from,
-                from_slot: 0,
-                target: to,
-                target_slot: 0,
-                quantity: 1,
-            });
-            commands.push(Command::EquipItem { item, location });
-        }
     }
     false
 }

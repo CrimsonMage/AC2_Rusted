@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 820 done, 277 partial, 1097 to do, 53 skipped.
+2247 retail functions: 824 done, 275 partial, 1095 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -1211,14 +1211,14 @@ Legend and workflow: [README](README.md).
 - [x] `gm3DItemsUI::MidMoneyDrop` · 00440a60 · legions 004412c0 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): the money up to the coin stack's maximum
 - [x] `gm3DItemsUI::ListenToMessage` · 00440b40 · legions 004413a0 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): the pick answer arrives with the frame's frameworks (the global loop's)
 
-## `ac2/client/src/ui/gameplay/toolbar/inventory/gmbackpackui.cpp.c` (3/7)
+## `ac2/client/src/ui/gameplay/toolbar/inventory/gmbackpackui.cpp.c` (5/7)
 
 ### gmBackpackUI
-- [ ] `gmBackpackUI::FinishItemDrop` · 004412f0 · legions 00441b50
+- [x] `gmBackpackUI::FinishItemDrop` · 004412f0 · legions 00441b50 — ac2-ui backpack.rs finish_item_drop: MoveItem inside the page's container unless the slot is unchanged; reached by a drop on a page tab (tab_drop) with the stack dialog for a stack
 - [x] `gmBackpackUI::FinishMoneyBagDrop` · 00441390 · legions 00441bf0 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
-- [~] `gmBackpackUI::RecvNotice_StackUIDone` · 00441410 — ac2-ui: item drop path; money bag (DragFromMoneyBag / FinishMoneyBagDrop) not yet
+- [x] `gmBackpackUI::RecvNotice_StackUIDone` · 00441410 — ac2-ui backpack.rs stack_ui_done: the money bag and item drop answers
 - [x] `gmBackpackUI::ShowPack` · 00441480 · legions 00441d70 — ac2-ui item_display.rs / backpack.rs
-- [~] `gmBackpackUI::ListenToMessage` · 004414e0 · legions 00441de0 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
+- [~] `gmBackpackUI::ListenToMessage` · 004414e0 · legions 00441de0 — ac2-ui backpack.rs tab_drop: a worn item unequips to the page's end, the coin field asks how much, another item on a tab not shown moves to the page's end (stack dialog first); tested through the HUD (item_drag_7160). Not: icon descriptions' layers, GetContentsInfo from the VM
 - [ ] `gmBackpackUI::~gmBackpackUI` · 00441860 · legions 00442160
 - [x] `gmBackpackUI::gmBackpackUI` · 00441950 · legions 00442250 — ac2-ui item_display.rs / backpack.rs
 
@@ -1254,7 +1254,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmMoneyBagUI::HandleMoneyBagDrop` · 00440fe0 · legions 00441840 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 - [~] `gmMoneyBagUI::ListenToMessage` · 00441280 · legions 00441ae0 — money bag: the coin/melt paths ported; not modelled: DDCB's IsOnInventory test (gmMoneyBagUI_DDCB), the bag's ctor listeners and the not_dragable branch (m_curAmount is only 0 in retail), the backpack page's item drop (FinishItemDrop) and its ListenToMessage item branch
 
-## `ac2/client/src/ui/gameplay/toolbar/inventory/gmpaperdollui.cpp.c` (19/31)
+## `ac2/client/src/ui/gameplay/toolbar/inventory/gmpaperdollui.cpp.c` (21/31)
 
 ### gmMiniFellowUI
 - [ ] `gmMiniFellowUI::Show` · 00441b40 · legions 00420260
@@ -1276,8 +1276,8 @@ Legend and workflow: [README](README.md).
 - [x] `gmPaperDollUI::UpdateDurabilityMeter` · 00442030 · legions 00442980 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 - [x] `gmPaperDollUI::RecvNotice_LocalVisualDescUpdate` · 004420e0 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 - [x] `gmPaperDollUI::TokenToInvLoc` · 00442100 · legions 00442a50 — step 2: slot lookup by element (the slots are the containers the layout names); DDCB is is_item_copy
-- [~] `gmPaperDollUI::HandlePaperDollDrop` · 00442180 · legions 00442ad0 — Legions 7160 (followed): an item from another container is moved into the player, then equipped (admin returns after the move). Drops on the slots and the body equip or move; no GetWeenieObject check (the frame lists the items)
-- [ ] `gmPaperDollUI::InqItemInvLoc` · 00442300 · legions 00442c50
+- [x] `gmPaperDollUI::HandlePaperDollDrop` · 00442180 · legions 00442ad0 — ac2-ui paper_doll.rs drop: an item of the player's containers equips at the slot's (or the preferred) location; one from another container only moves into the player's pack and returns (admin and Legions alike, the earlier MoveAndEquip was wrong); tested through the HUD (item_drag_7160)
+- [x] `gmPaperDollUI::InqItemInvLoc` · 00442300 · legions 00442c50 — ac2-ui paper_doll.rs inq_item_inv_loc: where an item is worn; item_changed (RecvNotice_ItemUpdate) uses it
 - [x] `gmPaperDollUI::FinishPaperDollClick` · 00442380 · legions 00442cd0 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 - [x] `gmPaperDollUI::HandlePaperDollDrag` · 004424b0 · legions 00442e00 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 - [-] `gmPaperDollUI::~gmPaperDollUI` · 00442580 · legions 00442ed0 — C++ destructors: the Rust state drops

@@ -4,16 +4,21 @@
 //! previous page's slots. A page's button shows that page and presses its button; the others
 //! hide (`ShowPack`).
 //!
-//! A coin field dropped on a page (`gmBackpackUI::ListenToMessage`'s coin branch) asks how much
-//! money to take out for the page's slot; the answer is `FinishMoneyBagDrop`'s `DragFromMoneyBag`.
-//!
-//! Not modelled yet: an item dropped on a page outside its list (`FinishItemDrop`).
+//! An item, the coin field or a worn item dropped on a page's tab (`gmBackpackUI::ListenToMessage`:
+//! the page buttons are the drop targets) goes to the end of that page, when it has room
+//! (`m_firstSlotNumber + _count < _maxSize`): a worn item comes off into the slot
+//! (`UnEquipItem`); the coin field asks how much money to take out (`FinishMoneyBagDrop`'s
+//! `DragFromMoneyBag`); any other item, on a tab that is not the page shown, asks how many of a
+//! stack (`gmStackUI`) and then moves (`FinishItemDrop`: `gmCWInterface::MoveItem` inside the
+//! page's container, nothing when the slot is the one it came from).
 
 use std::sync::Arc;
 
 use crate::drag::MSG_STOP_DRAG_ITEM;
 use crate::element::UiTree;
-use crate::item_display::{is_coin_copy, ContainerDisplay, InventorySource, ItemRequest};
+use crate::item_display::{
+    dragged_item, is_coin_copy, ContainerDisplay, InventorySource, ItemRequest,
+};
 use crate::layout::LayoutDesc;
 use crate::mouse::UiMessage;
 use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, STATE_NORMAL, STATE_NORMAL_PRESSED};
@@ -35,6 +40,18 @@ pub struct BackpackUi {
     /// `m_moneybagStackDialogContext` and `m_newSlot` of the coin branch (0: none).
     money_context: u32,
     money_slot: u32,
+    /// `m_stackDialogContext` (0: none) and the item drop waiting for it.
+    stack_context: u32,
+    pending: PageDrop,
+}
+
+/// `m_droppedItemID`, `m_containerID`, `m_oldSlot`, `m_newSlot`.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+struct PageDrop {
+    item: u64,
+    container: u64,
+    old_slot: i32,
+    new_slot: i32,
 }
 
 /// The element named `name` among the layout's roots, or below one of them.
@@ -63,6 +80,8 @@ impl BackpackUi {
             buttons: Vec::new(),
             money_context: 0,
             money_slot: 0,
+            stack_context: 0,
+            pending: PageDrop::default(),
         };
         let mut first_slot = 0;
         for (segment, (container, button)) in PACKS.iter().enumerate() {
@@ -108,31 +127,72 @@ impl BackpackUi {
         }
     }
 
-    /// `gmBackpackUI::ListenToMessage`'s coin branch: the coin field dropped on page `pack`
-    /// (`stop_drag_item`, the page's index under the pointer below its slot count) asks how much
-    /// to take out, for the slot the pointer is at.
-    fn coin_drop(
+    /// `gmBackpackUI::ListenToMessage`'s drop on page `pack`'s tab (`stop_drag_item`, dropped).
+    fn tab_drop(
         &mut self,
         tree: &mut UiTree,
         s: &dyn InventorySource,
         pack: usize,
         message: &UiMessage,
     ) -> Option<ItemRequest> {
-        let copy = message.item?;
-        if message.data == 0 || !is_coin_copy(tree, copy) {
+        let copy = message.item.filter(|_| message.data != 0)?;
+        let page = self.packs.get(pack)?;
+        let end = page.end_slot()?;
+        let dragged = dragged_item(tree, copy)?;
+        if dragged.equipped {
+            return Some(ItemRequest::Unequip {
+                item: dragged.item,
+                target_slot: end as i32,
+            });
+        }
+        if is_coin_copy(tree, copy) {
+            self.money_slot = end;
+            self.money_context = tree.request_stack_context();
+            return Some(ItemRequest::MoneyStack {
+                context: self.money_context,
+                target: 0,
+                amount: s.money().min(s.coin_max_stack()),
+            });
+        }
+        // The page shown is not a target for its own items.
+        if tree.get(*self.buttons.get(pack)?)?.state() == STATE_NORMAL_PRESSED {
             return None;
         }
-        let page = &self.packs[pack];
-        if page.drop_index >= page.max_size() {
-            return None;
+        let slot = s.item(dragged.item)?;
+        self.pending = PageDrop {
+            item: dragged.item,
+            container: page.container,
+            old_slot: dragged.old_index,
+            new_slot: end as i32,
+        };
+        if slot.stackable && 1 < slot.quantity {
+            self.stack_context = tree.request_stack_context();
+            let amount = if slot.max_stack != 0 {
+                slot.quantity.min(slot.max_stack)
+            } else {
+                slot.quantity
+            };
+            return Some(ItemRequest::Split {
+                context: self.stack_context,
+                item: dragged.item,
+                target: page.container,
+                amount,
+            });
         }
-        self.money_slot = page.first_slot() + page.drop_index;
-        self.money_context = tree.request_stack_context();
-        let amount = s.money().min(s.coin_max_stack());
-        Some(ItemRequest::MoneyStack {
-            context: self.money_context,
-            target: 0,
-            amount,
+        self.finish_item_drop(slot.quantity)
+    }
+
+    /// `gmBackpackUI::FinishItemDrop`: the move inside the page's container, unless it stays in
+    /// its slot; the drop is forgotten.
+    fn finish_item_drop(&mut self, quantity: u32) -> Option<ItemRequest> {
+        let drop = std::mem::take(&mut self.pending);
+        (drop.old_slot != drop.new_slot).then_some(ItemRequest::Move {
+            item: drop.item,
+            from: drop.container,
+            from_slot: drop.old_slot,
+            target: drop.container,
+            target_slot: drop.new_slot,
+            quantity,
         })
     }
 
@@ -144,12 +204,12 @@ impl BackpackUi {
         message: &UiMessage,
     ) -> Option<ItemRequest> {
         if message.message == MSG_STOP_DRAG_ITEM {
-            let page = self
-                .containers
+            if let Some(pack) = self
+                .buttons
                 .iter()
-                .position(|&c| message.element == Some(c));
-            if let Some(pack) = page {
-                return self.coin_drop(tree, s, pack, message);
+                .position(|&b| message.element == Some(b))
+            {
+                return self.tab_drop(tree, s, pack, message);
             }
         }
         if message.message == MSG_BUTTON_RELEASE_ON {
@@ -180,6 +240,10 @@ impl BackpackUi {
                 to_slot: self.money_slot as i32,
                 to_container: 0,
             });
+        }
+        if context != 0 && context == self.stack_context {
+            self.stack_context = 0;
+            return self.finish_item_drop(amount);
         }
         self.packs
             .iter_mut()
