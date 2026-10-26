@@ -63,6 +63,7 @@ dependencies = [
  "ac2-anim",
  "ac2-assets",
  "ac2-audio",
+ "ac2-client",
  "ac2-core",
  "ac2-dat",
  "ac2-db",

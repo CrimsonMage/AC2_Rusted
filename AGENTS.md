@@ -28,6 +28,10 @@ subsystem it reproduces. This file states the working rules.
   fixed window authored at 1024 x 768; here `ac2_client::ui_scale::UiScale` lays the UI out on a
   logical display and draws it scaled by `min(width / 1024, height / 768)`. The HUD fills the
   window and the pregame screens stay 1024 x 768, centred. Layout and anchoring code stays retail.
+- No admin tools in the client. The admin 7148 build is a reference for names and code, not for
+  features: do not port its admin-only commands, debuggers, account overrides, admin entities
+  (e.g. `wsl_butcherytool`) or admin UI; mark those catalog rows `skip` with the reason.
+  Test-only code (`view::probe`) stays behind the `test-support` feature.
 - Where admin 7148 and Legions 7160 differ, follow Legions (the DVD client the DATs ship with):
   read `decompiled-pdb/legions7160/source_tree/` beside the admin tree and note the difference.
 - Numeric fidelity: retail ran x87 at 53-bit precision (`_setdefaultprecision`, and

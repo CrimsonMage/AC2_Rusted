@@ -25,6 +25,7 @@ use crate::frame::ClientFrame;
 use crate::hud_view::HudView;
 use crate::motion::PartPose;
 
+#[cfg(feature = "test-support")]
 mod probe;
 
 /// Near and far planes of the drawn view.

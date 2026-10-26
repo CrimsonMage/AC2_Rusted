@@ -15,6 +15,8 @@ workspace = true
 [features]
 default = ["window"]
 window = ["dep:ac2-gpu", "dep:winit", "dep:wgpu", "ac2-audio/output"]
+# Element lookups for the HUD drag tests (`view::probe`); never in the shipped client.
+test-support = []
 
 [[bin]]
 name = "ac2"
@@ -43,6 +45,7 @@ winit = { version = "0.30", optional = true }
 wgpu = { version = "30.0.1", default-features = false, optional = true }
 
 [dev-dependencies]
+ac2-client = { path = ".", features = ["test-support"] }
 ac2-dat = { path = "../ac2-dat", features = ["test-support"] }
 legions-server-double = { path = "../../tools/legions-server-double" }
 png = "0.18"
