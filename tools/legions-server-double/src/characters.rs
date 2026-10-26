@@ -21,6 +21,10 @@ use crate::{State, CREATED, PLAYER, PLAYER_PACKAGE};
 const MAGIC: &[u8; 8] = b"AC2CHRS2";
 /// The parent visual the account's first character (`Explorer`) wears.
 pub const EXPLORER_VISUAL_PARENT: u32 = 0x1F00_0023;
+/// The default character the server's chargen makes for a race and sex: a human male (race 1,
+/// sex `0x1000`, `Male`), whose appearance `Explorer` wears.
+const DEFAULT_RACE: u32 = 1;
+const DEFAULT_SEX: u32 = 0x1000;
 /// `CharGenVerification`'s weenie result for an accepted character: `CallIFun_IsValid`'s answer
 /// for a valid result, the code `gmCharGenResult::SanityCheck` returns for one (its errors are
 /// the weenie-error table's; the client reads this value only for a refused creation, where 0
@@ -34,6 +38,25 @@ pub trait CharGenRules {
     fn validate(&mut self, result: &CharGenResult) -> u32;
     /// `gmCharGenResult::InqAppliedAppearanceVDesc(0xFFFFFFFF)`: the appearance the result makes.
     fn appearance(&mut self, result: &CharGenResult) -> Option<Appearance>;
+    /// The appearance of the default character of `race` and `sex` (`CharGenSystem::SetDefaults`,
+    /// then `InqAppliedAppearanceVDesc`): what `Explorer` wears. `None` leaves it the bare parent.
+    fn default_appearance(&mut self, _race: u32, _sex: u32) -> Option<Appearance> {
+        None
+    }
+}
+
+/// `Explorer`'s `VisualDesc` bytes for `rules`: the default human male's appearance, parented to
+/// `EXPLORER_VISUAL_PARENT` (empty without rules or an answer).
+pub(crate) fn explorer_visual_of(rules: Option<&mut Box<dyn CharGenRules>>) -> Vec<u8> {
+    let Some(appearance) = rules.and_then(|r| r.default_appearance(DEFAULT_RACE, DEFAULT_SEX))
+    else {
+        return Vec::new();
+    };
+    let appearance = Appearance {
+        parent: EXPLORER_VISUAL_PARENT,
+        ..appearance
+    };
+    visual_desc_bytes(&appearance_visual(&appearance))
 }
 
 /// A created character as the store keeps it.
@@ -223,14 +246,23 @@ impl State {
         visual_desc_bytes(&visual)
     }
 
+    /// `Explorer`'s `VisualDesc` bytes: the default human male's appearance when the rules make
+    /// one (`explorer_visual_of`), else the bare parent.
+    pub(crate) fn explorer_visual(&self) -> Vec<u8> {
+        if self.explorer_visual.is_empty() {
+            let explorer = VisualDesc {
+                parent: Some(EXPLORER_VISUAL_PARENT),
+                ..VisualDesc::default()
+            };
+            return visual_desc_bytes(&explorer);
+        }
+        self.explorer_visual.clone()
+    }
+
     /// The account's characters as the login lists them: `Explorer`, then the created ones with
     /// their stored visuals.
     pub(crate) fn listed_characters(&self) -> Vec<(u64, String, Vec<u8>)> {
-        let explorer = VisualDesc {
-            parent: Some(EXPLORER_VISUAL_PARENT),
-            ..VisualDesc::default()
-        };
-        let mut listed = vec![(PLAYER, "Explorer".to_owned(), visual_desc_bytes(&explorer))];
+        let mut listed = vec![(PLAYER, "Explorer".to_owned(), self.explorer_visual())];
         for record in &self.characters.records {
             listed.push((record.id, record.result.name.clone(), record.visual.clone()));
         }
@@ -312,7 +344,7 @@ impl State {
             .map(|r| (r.result.clone(), r.visual.clone()));
         let Some((result, visual)) = stored else {
             return (
-                crate::create_object(&self.spawn),
+                crate::create_object(&self.spawn, &self.explorer_visual()),
                 crate::description::player_description(self.fight.player, self.vitals.vigor),
             );
         };

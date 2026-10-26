@@ -6,6 +6,8 @@
 
 #![cfg(feature = "window")]
 
+mod common;
+
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
@@ -16,7 +18,9 @@ use ac2_gpu::{FrameTarget, Gpu, COLOR_FORMAT};
 use ac2_net::Credential;
 use ac2_ui::{Modifiers, ToolbarChild, UI_POINTER_X, UI_POINTER_Y};
 use ac2_weenie::{CharacterChoice, OnlineConfig, OnlineSession};
-use legions_server_double::{addr, double, Spawn, PACK, SERVER, SWORD};
+use common::pose::look;
+use common::script_rules::{new_host, ScriptRules};
+use legions_server_double::{addr, double_with_rules, Spawn, PACK, SERVER, SWORD};
 
 const STEP: f64 = 1.0 / 64.0;
 const SIZE: (u32, u32) = (1024, 768);
@@ -59,11 +63,14 @@ fn the_paper_doll_wears_the_sword_and_empties_when_it_comes_off() {
         .height_grid()
         .into_iter()
         .fold(0.0, f32::max);
-    let (transport, server) = double(Spawn {
-        cell: 0xCB4D_0025,
-        origin: [96.0, 96.0, top + 2.0],
-        rotation: [1.0, 0.0, 0.0, 0.0],
-    });
+    let (transport, server) = double_with_rules(
+        Spawn {
+            cell: 0xCB4D_0025,
+            origin: [96.0, 96.0, top + 2.0],
+            rotation: [1.0, 0.0, 0.0, 0.0],
+        },
+        Box::new(ScriptRules(new_host(&store))),
+    );
     let config = OnlineConfig {
         server: addr(SERVER),
         account: "local".into(),
@@ -185,6 +192,21 @@ fn the_paper_doll_wears_the_sword_and_empties_when_it_comes_off() {
         }
     }
     eprintln!("doll pixels: {changed}");
+    let doll = look(
+        &full,
+        SIZE.0,
+        (
+            viewport.x as u32,
+            viewport.y as u32,
+            (viewport.x + viewport.width as i32) as u32,
+            (viewport.y + viewport.height as i32) as u32,
+        ),
+    );
+    eprintln!("doll look {doll:?}");
+    assert!(
+        doll.white < 0.2 && doll.saturation > 0.25,
+        "the doll's avatar is textured: {doll:?}"
+    );
     assert!(changed > 1500, "the avatar is drawn in the doll: {changed}");
 
     // A point on the avatar's torso, found through the scene's pick.

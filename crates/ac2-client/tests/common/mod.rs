@@ -3,6 +3,9 @@
 
 #![allow(dead_code)]
 
+pub mod pose;
+pub mod script_rules;
+
 use std::sync::Arc;
 
 use ac2_client::{BodyData, WorldData};

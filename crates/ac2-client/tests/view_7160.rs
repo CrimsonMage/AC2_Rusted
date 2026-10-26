@@ -6,6 +6,8 @@
 
 #![cfg(feature = "window")]
 
+mod common;
+
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
@@ -16,7 +18,9 @@ use ac2_gpu::{FrameTarget, Gpu, COLOR_FORMAT};
 use ac2_net::Credential;
 use ac2_ui::{Controls, InputEvent};
 use ac2_weenie::{CharacterChoice, OnlineConfig, OnlineSession};
-use legions_server_double::{addr, double, Spawn, SERVER};
+use common::pose::{hand_height, look, screen_box, PLAYER_HEIGHT};
+use common::script_rules::{new_host, ScriptRules};
+use legions_server_double::{addr, double_with_rules, Spawn, SERVER};
 
 const STEP: f64 = 1.0 / 64.0;
 /// The smallest display retail ran at; the HUD layouts are authored for 1024 x 768.
@@ -66,7 +70,7 @@ fn the_client_walks_with_w_and_draws_its_character() {
         origin: [96.0, 96.0, top + 2.0],
         rotation: [1.0, 0.0, 0.0, 0.0],
     };
-    let (transport, server) = double(spawn);
+    let (transport, server) = double_with_rules(spawn, Box::new(ScriptRules(new_host(&store))));
     let config = OnlineConfig {
         server: addr(SERVER),
         account: "local".into(),
@@ -251,6 +255,25 @@ fn the_client_walks_with_w_and_draws_its_character() {
         / (rgba.len() / 4 * 3) as f32;
     eprintln!("mean {mean:.1}");
     assert!(mean > 20.0, "the world is drawn ({mean})");
+
+    // The character is textured and posed, not a white bind-pose mesh: its box on screen is not
+    // near white and carries colour, and its hand hangs below the bind height.
+    let player = frame.player.as_ref().expect("player");
+    let camera = view.camera(&frame).expect("camera");
+    let feet = view.world_point(player.cell, player.origin);
+    let boxed = screen_box(&camera, aspect, SIZE, feet, PLAYER_HEIGHT);
+    let figure = look(&rgba, SIZE.0, boxed);
+    eprintln!("player look {figure:?} box {boxed:?}");
+    assert!(
+        figure.white < 0.2 && figure.saturation > 0.25,
+        "the character is textured: {figure:?}"
+    );
+    let (posed_hand, bind_hand) = hand_height(&store, player).expect("the character's model");
+    eprintln!("hand {posed_hand:.3} m, bind {bind_hand:.3} m above the root");
+    assert!(
+        posed_hand < bind_hand - 0.2,
+        "the arms hang: hand {posed_hand} against bind {bind_hand}"
+    );
 
     // Clicking the character selects it (`gmSelectionUI` over the selection render): its middle,
     // a metre above its feet, projected to the screen.

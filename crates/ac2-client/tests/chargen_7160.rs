@@ -11,19 +11,15 @@ use std::path::Path;
 use std::sync::Arc;
 
 use ac2_client::{pregame_event, pregame_requests, Client, FrameInput, ScriptCharGen};
-use ac2_core::DataId;
 use ac2_net::protocol::{CharGenResult, ClientEvent, Opcode};
-use ac2_script::data::DatScriptData;
-use ac2_script::host::{chargen as host_chargen, ScriptHost};
-use ac2_script::native::CharGenResult as NativeCgr;
-use ac2_script::vm::Program;
-use ac2_script::{load_wlib, LEGIONS_WLIB_DID};
+use ac2_script::host::ScriptHost;
 use ac2_ui::pregame::{
     load_pregame, phys_type_value, PregameUi, MODE_AVATAR_MODIFICATION, MODE_AVATAR_SELECTION,
     MODE_CHARACTER_SELECTION, MODE_GAMEPLAY,
 };
 use ac2_ui::{tokenize, UI_POINTER_X, UI_POINTER_Y};
 use ac2_weenie::{Appearance, CharacterChoice, OnlineSession};
+use common::script_rules::*;
 use common::*;
 use legions_server_double::{double, double_with, CharGenRules, Spawn, CREATED, PLAYER};
 
@@ -101,60 +97,6 @@ fn snapshot(ui: &mut PregameUi, name: &str) {
         .unwrap()
         .write_image_data(&rgba)
         .unwrap();
-}
-
-/// The script host the client's screens and the server's rules run on.
-fn script_host() -> Option<(ScriptHost, Arc<ac2_db::ResourceStore>)> {
-    let dataset = ac2_dat::test_support::env_dataset()?;
-    let store = Arc::new(ac2_db::ResourceStore::new(dataset.clone()));
-    let wlib = load_wlib(&store, DataId::new(LEGIONS_WLIB_DID))
-        .unwrap()
-        .unwrap();
-    let program = Arc::new(Program::from_stream(&wlib.stream));
-    let data = DatScriptData::new(dataset, (*store).clone());
-    // As the client runs it: everything resident, then cache-only (the frame thread never
-    // reads).
-    data.preload_tables();
-    data.preload_states();
-    data.set_cache_only(true);
-    Some((ScriptHost::new(program, Box::new(data)), store))
-}
-
-/// The native `gmCharGenResult` of the wire result (`gmCharGenResult::operator=`).
-fn native_of(result: &CharGenResult) -> NativeCgr {
-    let mut out = NativeCgr {
-        name: result.name.encode_utf16().collect(),
-        entity_did: result.entity_did,
-        race: result.race,
-        sex: result.sex,
-        class: result.class,
-        implement: result.implement,
-        start_area: result.start_area,
-        ..NativeCgr::default()
-    };
-    for &(phys_type, value) in &result.physical {
-        out.set_phys_type_value(phys_type, value);
-    }
-    out
-}
-
-/// The server's rules on the `CharacterGenSystem` script: `IsValid` and the applied appearance.
-struct ScriptRules(ScriptHost);
-
-impl CharGenRules for ScriptRules {
-    fn validate(&mut self, result: &CharGenResult) -> u32 {
-        host_chargen::is_valid(self.0.vm_mut(), &native_of(result)).unwrap_or(0)
-    }
-
-    fn appearance(&mut self, result: &CharGenResult) -> Option<Appearance> {
-        host_chargen::applied_appearance(
-            self.0.vm_mut(),
-            Appearance::default(),
-            &native_of(result),
-            u32::MAX,
-        )
-        .map(|(_, appearance)| appearance)
-    }
 }
 
 fn spawn() -> Spawn {
@@ -521,20 +463,6 @@ fn created_characters_keep_their_ids_and_appearances_across_sessions() {
         "the world shows Zeda's saved appearance"
     );
     let _ = std::fs::remove_dir_all(dir);
-}
-
-/// A `CharacterGenSystem` host of its own, for the server's rules.
-fn new_host(store: &Arc<ac2_db::ResourceStore>) -> ScriptHost {
-    let wlib = load_wlib(store, DataId::new(LEGIONS_WLIB_DID))
-        .unwrap()
-        .unwrap();
-    let program = Arc::new(Program::from_stream(&wlib.stream));
-    let dataset = ac2_dat::test_support::env_dataset().unwrap();
-    let data = DatScriptData::new(dataset, (**store).clone());
-    data.preload_tables();
-    data.preload_states();
-    data.set_cache_only(true);
-    ScriptHost::new(program, Box::new(data))
 }
 
 #[test]

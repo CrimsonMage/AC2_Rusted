@@ -65,8 +65,8 @@ pub use items::{
 };
 pub use lossy::LossyTransport;
 pub use objects::{
-    create_object_bytes, object_event_bytes, position_bytes, weenie_object_bytes, ObjectPosition,
-    ObjectSpawn,
+    create_object_bytes, object_event_bytes, position_bytes, weenie_object_bytes,
+    weenie_object_with, ObjectPosition, ObjectSpawn,
 };
 pub use radar::{radar_objects, CREATURE_ONE, CREATURE_TWO, MONSTER_PACKAGE, NPC, NPC_PACKAGE};
 pub use reliable::{newer, ClientTracker, SentStore, Stored, Verdict, MAX_IDS};
@@ -194,8 +194,8 @@ pub const PLAYER_PACKAGE: u32 = 0x1AA4;
 /// The player's `CreateObject`: a visual parent, a physics position and the stamps
 /// (position 4, teleport 5, force position 6, move-to 7), its script package (`CPlayer`) and
 /// its name.
-pub(crate) fn create_object(spawn: &Spawn) -> Vec<u8> {
-    weenie_object_bytes(
+pub(crate) fn create_object(spawn: &Spawn, visual: &[u8]) -> Vec<u8> {
+    weenie_object_with(
         &ObjectSpawn {
             id: PLAYER,
             instance: 9,
@@ -206,7 +206,9 @@ pub(crate) fn create_object(spawn: &Spawn) -> Vec<u8> {
             stamps: [4, 5, 6, 7],
             name: "Explorer",
         },
+        visual,
         PLAYER_PACKAGE,
+        "Explorer",
     )
 }
 
@@ -326,6 +328,9 @@ pub struct State {
     pub player_id: Option<u64>,
     /// The server's character rules (`double_with`).
     pub rules: Option<Box<dyn CharGenRules>>,
+    /// `Explorer`'s `VisualDesc` bytes when the rules make an appearance for it (empty: the
+    /// bare parent).
+    pub(crate) explorer_visual: Vec<u8>,
     /// `Proto_UI::SendDeleteCharacter`s: the character ids.
     pub deletions: Vec<u64>,
 }
@@ -749,15 +754,33 @@ pub fn double(spawn: Spawn) -> (Double, Rc<RefCell<State>>) {
 pub fn double_with(
     spawn: Spawn,
     store: &std::path::Path,
-    rules: Option<Box<dyn CharGenRules>>,
+    mut rules: Option<Box<dyn CharGenRules>>,
 ) -> std::io::Result<(Double, Rc<RefCell<State>>)> {
+    let explorer_visual = characters::explorer_visual_of(rules.as_mut());
     let state = Rc::new(RefCell::new(State {
         spawn,
         characters: CharacterStore::open(store)?,
         rules,
+        explorer_visual,
         ..State::default()
     }));
     Ok((Double(Rc::clone(&state)), state))
+}
+
+/// A double with `rules` and no character file: created characters are kept in memory, and
+/// `Explorer` wears the rules' default appearance.
+pub fn double_with_rules(
+    spawn: Spawn,
+    mut rules: Box<dyn CharGenRules>,
+) -> (Double, Rc<RefCell<State>>) {
+    let explorer_visual = characters::explorer_visual_of(Some(&mut rules));
+    let state = Rc::new(RefCell::new(State {
+        spawn,
+        rules: Some(rules),
+        explorer_visual,
+        ..State::default()
+    }));
+    (Double(Rc::clone(&state)), state)
 }
 
 impl Transport for Double {
