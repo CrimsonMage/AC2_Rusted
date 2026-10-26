@@ -12,6 +12,12 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x007F_000B, get_internal_weenie_object);
     efuns.register(0x007F_0040, is_the_player);
     efuns.register(0x007F_0052, process_text);
+    // `gCWBookKeeper::CallEFun_{Add,Remove}ObjectToBeDestroyed` (the weenie's book keeper, `this`):
+    // `CWBookKeeper` -> `CBookKeep::{Add,Remove}ObjectToBeDestroyed`, which answer 1 whenever
+    // `CObjectMaint` exists (it always does here). The destroy list itself is the client's object
+    // maintenance, which this client does not keep (see the catalog).
+    efuns.register(0x007D_001E, add_object_to_be_destroyed);
+    efuns.register(0x007D_001F, remove_object_to_be_destroyed);
 }
 
 /// `CWInterface::ProcessText(text)` (`gCWInterface::CallEFun_ProcessText`, the text a `wpstring`
@@ -27,6 +33,21 @@ fn process_text(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     };
     vm.shell_lines.push(text);
     Call::new(ctx).ret(3, 0, tag::INT);
+    InterpStatus::Success
+}
+
+fn add_object_to_be_destroyed(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    book_keeper_answer(vm, ctx)
+}
+
+fn remove_object_to_be_destroyed(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    book_keeper_answer(vm, ctx)
+}
+
+/// The book keeper's answer: 1 for a defined `this`, else 0 (the efun's return slot).
+fn book_keeper_answer(_vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let defined = Call::new(ctx).this() != u32::MAX;
+    Call::new(ctx).ret(2, u32::from(defined), tag::BOOL);
     InterpStatus::Success
 }
 

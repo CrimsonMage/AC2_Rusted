@@ -1,13 +1,14 @@
 //! Corpse looting against the Legions server double (`AC2_DAT_DIR`): a monster's corpse (its
 //! `Corpse` package, 0x182, with its weenie type, int 20) and its loot, a trophy skin
-//! (`TrophyMimbuSkin`) and an item, open as an external container. Loot All sends the take-all
-//! descriptor (`WM_Inventory` 0x68, byte for byte), which the double answers by moving every item
-//! into the pack, the skin included; a single item comes off the corpse with a move.
-//!
-//! Loot All goes out on the session's path, not `gmCWInterface::LootAllFromContainer`'s IFun
-//! (0xB400E8): the wlib's loot check counts the corpse object's own lists, and no traced message
-//! fills them (the contents and open answers reach the player's `CPlayer`, which the corpse does
-//! not have).
+//! (`TrophyMimbuSkin`) and an item, open as an external container. Loot All runs
+//! `gmCWInterface::LootAllFromContainer`'s IFun (0xB400E8): the wlib counts the corpse's lists
+//! (`Container` 0x2B: slots 15 and 19), which the open answer fills. The answer reaches the
+//! player's script (`CPlayer` 0x8C, then `CInventorySystem`'s static, which finds the corpse's
+//! instance by IID with `GetInternalWeenieObject`); the corpse has its process from its
+//! `CreateObject`. The take-all descriptor (`WM_Inventory` 0x68) goes out byte for byte, and the
+//! double answers it by moving every item into the pack, the skin included; a single item comes
+//! off the corpse with a move. Another character's corpse is refused in the open answer
+//! (`NotMine`), so its lists stay empty and the take-all is never sent.
 
 mod common;
 
@@ -17,7 +18,7 @@ use std::sync::Arc;
 
 use ac2_client::{Client, Command, FrameInput};
 use ac2_core::DataId;
-use ac2_net::protocol::{pack_values, InvTakeAllDesc, PackValue, ScriptRequest};
+use ac2_net::protocol::ScriptRequest;
 use ac2_script::data::DatScriptData;
 use ac2_script::host::ScriptHost;
 use ac2_script::vm::Program;
@@ -25,7 +26,8 @@ use ac2_script::{load_wlib, LEGIONS_WLIB_DID};
 use ac2_weenie::{GameplayNotice, SessionEvent};
 use common::*;
 use legions_server_double::{
-    Spawn, State, CORPSE, CORPSE_ITEM, CORPSE_SKIN, CORPSE_WEENIE_TYPE, PLAYER,
+    Spawn, State, CORPSE, CORPSE_ITEM, CORPSE_SKIN, CORPSE_WEENIE_TYPE, FOREIGN_CORPSE,
+    FOREIGN_ITEM, PLAYER,
 };
 
 /// `WM_Inventory` 0x68: the take-all request (`ScriptRequest::LootAll`).
@@ -122,6 +124,15 @@ fn open(client: &mut Client, server: &Rc<RefCell<State>>) {
     );
 }
 
+/// The take-all descriptor as `CInventorySystem` 0x1C's stub packs it for the corpse and the
+/// player (`WM_Inventory` 0x68): the wlib's own values, its object tags and state id included.
+const STUB_TAKE_ALL: &[u8] = &[
+    5, 0, 0, 0, 1, 0, 0, 0, 2, 103, 0, 0, 0, 1, 0, 68, 0, 0, 0, 0, 0, 0, 239, 32, 14, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 0, 0, 0, 0, 0, 128,
+    255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 1, 0, 0, 0, 0, 0, 0, 32, 2, 2,
+    2, 2, 2, 2, 132, 205, 1, 2, 2, 1, 132, 205, 0, 0,
+];
+
 #[test]
 fn loot_all_takes_every_item_of_a_corpse() {
     let Some((mut client, server)) = with_corpse() else {
@@ -138,18 +149,19 @@ fn loot_all_takes_every_item_of_a_corpse() {
     );
     assert!(client.frame().inventory.open.contains(&CORPSE));
 
-    // Loot All: the take-all descriptor for the corpse and the player goes out byte for byte;
-    // the double answers it, moving the skin and the item into the pack.
-    let taken = InvTakeAllDesc::new(CORPSE, PLAYER);
+    // Loot All: the IFun's stub sends the take-all descriptor (the wlib's bytes); the double
+    // answers it, moving the skin and the item into the pack.
     run(&mut client, &server, Some(Command::LootAll(CORPSE)));
-    assert_eq!(
-        sent(&server, LOOT_ALL),
-        vec![pack_values(&[PackValue::Reference(taken.to_reference())])]
-    );
-    assert!(server
-        .borrow()
-        .script_requests
-        .contains(&ScriptRequest::LootAll(taken)));
+    assert_eq!(sent(&server, LOOT_ALL), vec![STUB_TAKE_ALL.to_vec()]);
+    let asked = server.borrow().script_requests.clone();
+    let Some(ScriptRequest::LootAll(taken)) = asked
+        .iter()
+        .find(|r| matches!(r, ScriptRequest::LootAll(_)))
+        .cloned()
+    else {
+        panic!("no take-all request: {asked:?}");
+    };
+    assert_eq!((taken.container(), taken.player()), (CORPSE, PLAYER));
     assert_eq!(listed(&client, CORPSE), Some(Vec::new()));
     let pack = listed(&client, PLAYER).unwrap_or_default();
     assert!(
@@ -196,6 +208,57 @@ fn a_single_item_comes_off_a_corpse_and_the_rest_stays() {
     assert!(listed(&client, PLAYER).is_some_and(|pack| pack.contains(&CORPSE_SKIN)));
     // No Loot All was asked, so none went out.
     assert!(sent(&server, LOOT_ALL).is_empty());
+    assert!(
+        client.take_script_problems().is_empty(),
+        "{:?}",
+        client.take_script_problems()
+    );
+}
+
+#[test]
+fn loot_all_needs_the_corpse_opened_first() {
+    let Some((mut client, server)) = with_corpse() else {
+        return;
+    };
+    // Unopened, the corpse's lists are empty: the wlib's count refuses, so no take-all is sent.
+    run(&mut client, &server, Some(Command::LootAll(CORPSE)));
+    assert!(sent(&server, LOOT_ALL).is_empty());
+    assert!(listed(&client, PLAYER).is_some_and(|pack| !pack.contains(&CORPSE_ITEM)));
+    assert!(
+        client.take_script_problems().is_empty(),
+        "{:?}",
+        client.take_script_problems()
+    );
+}
+
+#[test]
+fn another_characters_corpse_does_not_open_or_loot_for_the_player() {
+    let Some((mut client, server)) = with_corpse() else {
+        return;
+    };
+    server.borrow_mut().spawn_foreign_corpse();
+    run(&mut client, &server, None);
+    // The open answer refuses it: nothing is listed, and the corpse is not open on the player.
+    run(
+        &mut client,
+        &server,
+        Some(Command::SetContainerOpen {
+            container: FOREIGN_CORPSE,
+            open: true,
+        }),
+    );
+    assert_eq!(listed(&client, FOREIGN_CORPSE), None);
+    assert!(!client.frame().inventory.open.contains(&FOREIGN_CORPSE));
+    // Loot All: the refused corpse's lists are empty, so the wlib sends no take-all.
+    run(&mut client, &server, Some(Command::LootAll(FOREIGN_CORPSE)));
+    assert!(sent(&server, LOOT_ALL).is_empty());
+    assert!(listed(&client, PLAYER).is_some_and(|pack| !pack.contains(&FOREIGN_ITEM)));
+    // The player's own corpse still opens and loots.
+    open(&mut client, &server);
+    assert_eq!(
+        listed(&client, CORPSE),
+        Some(vec![CORPSE_SKIN, CORPSE_ITEM])
+    );
     assert!(
         client.take_script_problems().is_empty(),
         "{:?}",

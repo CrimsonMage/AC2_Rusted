@@ -47,6 +47,8 @@ pub struct ScriptWorld {
     pub purchases: u64,
     /// Crafts executed so far: the crafted item each one gives the player is counted from them.
     pub crafts: u64,
+    /// The owner of each corpse (its container); a corpse opens for its owner only.
+    pub corpse_owners: std::collections::BTreeMap<u64, u64>,
 }
 
 impl State {
@@ -165,13 +167,26 @@ impl State {
                 self.inventory_move(desc.item(), desc.container(), desc.slot());
                 self.send_script(&ScriptMessage::UnequipItemDone(desc.clone()));
             }
-            // `WM_Inventory` 0x5D: the container's lists, or an error for an unknown one.
+            // `WM_Inventory` 0x5D: the container's lists, or an error. An unknown container is
+            // refused with error 1 (its code is not traced); another character's corpse with
+            // `NOT_MINE` (`gmWErrorType::NotMine`, the open answer's error branch in the wlib). A
+            // refused container lists nothing (the answer keeps its reference arguments).
             ScriptRequest::OpenContainer(id) => {
+                let owned = self.may_loot(*id);
                 let listed = self.script_world.contents.get(id).cloned();
+                let error = match (&listed, owned) {
+                    (None, _) => 1,
+                    (Some(_), false) => crate::corpse::NOT_MINE,
+                    (Some(_), true) => 0,
+                };
+                let (packs, items) = match listed {
+                    Some(l) if owned => (l.0, l.1),
+                    _ => (Vec::new(), Vec::new()),
+                };
                 self.send_script(&ScriptMessage::OpenContainerDone {
-                    error: u32::from(listed.is_none()),
-                    packs: listed.as_ref().map(|l| l.0.clone()),
-                    items: listed.map(|l| l.1),
+                    error,
+                    packs: Some(packs),
+                    items: Some(items),
                     container: *id,
                 });
             }
@@ -181,16 +196,20 @@ impl State {
                     container: *id,
                 });
             }
+            // A take-all of another character's corpse moves nothing (the wlib asks only for a
+            // corpse whose lists it has counted, and a refused corpse lists nothing).
             ScriptRequest::LootAll(desc) => {
-                let player = self.player();
-                let world = &mut self.script_world;
-                let taken = world
-                    .contents
-                    .get_mut(&desc.container())
-                    .map(|c| std::mem::take(&mut c.1))
-                    .unwrap_or_default();
-                if let Some(pack) = world.contents.get_mut(&player) {
-                    pack.1.extend(taken);
+                if self.may_loot(desc.container()) {
+                    let player = self.player();
+                    let world = &mut self.script_world;
+                    let taken = world
+                        .contents
+                        .get_mut(&desc.container())
+                        .map(|c| std::mem::take(&mut c.1))
+                        .unwrap_or_default();
+                    if let Some(pack) = world.contents.get_mut(&player) {
+                        pack.1.extend(taken);
+                    }
                 }
                 self.send_script(&ScriptMessage::LootAllDone(desc.clone()));
             }

@@ -24,6 +24,8 @@ impl OnlineSession {
     pub fn stand_in_handles(&self, function: u32) -> bool {
         !self.script_functions.contains(&function)
             && (function == ac2_net::protocol::script_function::INIT_PLAYER
+                // The open answer: the stand-in's container notices; the script's run alongside.
+                || function == ac2_net::protocol::script_function::OPEN_CONTAINER_DONE
                 || function >> 16 == 0x8214
                 || function == super::gameplay::UPDATE_ATTACK_STATE
                 || super::money::is_money_call(function)

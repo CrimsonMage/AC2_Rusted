@@ -46,7 +46,10 @@ pub use character::{
     RACE_HUMAN,
 };
 pub use chest::{CHEST, CHEST_CAPACITY, CHEST_GEM, CHEST_SCROLL};
-pub use corpse::{CORPSE, CORPSE_ITEM, CORPSE_SKIN, CORPSE_WEENIE_TYPE, TROPHY_MIMBU_SKIN_PACKAGE};
+pub use corpse::{
+    CORPSE, CORPSE_ITEM, CORPSE_SKIN, CORPSE_WEENIE_TYPE, FOREIGN_CORPSE, FOREIGN_ITEM,
+    TROPHY_MIMBU_SKIN_PACKAGE,
+};
 pub use effects::{effect_registry, EffectGrant, EFFECT_PULSED, EFFECT_TIMED};
 pub use items::{
     item_object_bytes, segments, starter_items, ItemSpawn, MAIN_PACK_CAPACITY, PACK, POTIONS,

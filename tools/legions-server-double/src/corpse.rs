@@ -1,24 +1,35 @@
-//! The double's corpse: a monster's corpse (`Corpse`, package 0x182) with its loot, a trophy skin
-//! (`TrophyMimbuSkin`, the trophy's package 0x1019) and an item, in the corpse's container. The
-//! corpse is a container as the chest is: opening it lists its contents (`WM_Inventory` 0x5D), and
-//! the loot answers (`LootAll`, the per-item moves) take items out of it as the server does.
+//! The double's corpses: a monster's corpse (`Corpse`, package 0x182) with its loot, in the corpse's
+//! container. The player's corpse holds a trophy skin (`TrophyMimbuSkin`, the trophy's package
+//! 0x1019) and an item; a corpse of another character (Birch's kill) holds one item.
 //!
-//! What the double does not model: the corpse's permission. Retail's `CorpsePermissionBlob`
-//! (package 0x1BDF) and `CorpseUsagePermission` (0x26A) are not traced to the message that
-//! carries them, so the double sends no permission and opens the corpse for the player (its
-//! killer, the only character it has).
+//! A corpse opens for its owner only. Another character's corpse is refused in the open answer
+//! with `NOT_MINE` (1077, `gmWErrorType::NotMine`): the wlib's open handler (`CInventorySystem`,
+//! reached from `CPlayer` 0x8C) takes its error branch and lists nothing. Its take-all moves
+//! nothing either: the wlib's Loot All counts the corpse's lists (`Container` 0x2B, slots 15 and
+//! 19) and sends no take-all when they are empty.
+//!
+//! The corpse's usage permission (`CorpseUsagePermission`, package 0x26A, a singleton) is read by
+//! the corpse's function 0x1C; its fields are not traced, so the double keeps only each corpse's
+//! owner. The permission blob (`CorpsePermissionBlob`, 0x1BDF) is not traced to the message that
+//! carries it, so none is sent.
 
 use ac2_net::protocol::{InstanceIdWithStamp, QualityUpdate, QualityValue};
 
 use crate::items::{item_object_bytes, ItemSpawn};
 use crate::objects::{weenie_object_bytes, ObjectSpawn};
-use crate::State;
+use crate::{State, FELLOW};
 
-/// The corpse's instance id (type byte 0x80: a dynamic object).
+/// The player's corpse (a monster the player killed): its instance id (type byte 0x80).
 pub const CORPSE: u64 = 0x8000_0000_0000_0A05;
-/// The corpse's loot: the trophy skin, then an item.
+/// The player's corpse's loot: the trophy skin, then an item.
 pub const CORPSE_SKIN: u64 = 0x8000_0000_0000_0107;
 pub const CORPSE_ITEM: u64 = 0x8000_0000_0000_0108;
+/// Another character's corpse (Birch's kill) and its item.
+pub const FOREIGN_CORPSE: u64 = 0x8000_0000_0000_0A06;
+pub const FOREIGN_ITEM: u64 = 0x8000_0000_0000_0109;
+/// The open answer's error for another character's corpse: `gmWErrorType::NotMine` (1077), the
+/// value the wlib's open handler's error branch switches on.
+pub const NOT_MINE: u32 = 1077;
 /// `Corpse`, the corpse's script package.
 pub const CORPSE_PACKAGE: u32 = 0x182;
 /// `TrophyMimbuSkin`, the trophy skin's script package.
@@ -30,15 +41,14 @@ pub const TROPHY_MIMBU_SKIN_PACKAGE: u32 = 0x1019;
 pub const CORPSE_WEENIE_TYPE: i32 = 0x0002_0103;
 /// The weenie type quality (int 20, `WeenieType`).
 const WEENIE_TYPE: u32 = 20;
-/// `CItem`, the package of the item.
+/// `CItem`, the package of an item that is not a trophy.
 const ITEM_PACKAGE: u32 = 0x1AA9;
 /// The corpse's slots (int 280).
 pub const CORPSE_CAPACITY: u32 = 12;
 
 impl State {
-    /// Places the corpse three metres west and four south of where the player enters, with its
-    /// skin and item in it (each object's `CreateObject`, the corpse's capacity, and the contents
-    /// its open answer lists).
+    /// The player's corpse, three metres west and four south of where the player enters, with its
+    /// skin and item.
     pub fn spawn_corpse(&mut self) {
         let spawn = self.spawn;
         let origin = [
@@ -49,21 +59,10 @@ impl State {
         self.spawn_corpse_at(spawn.cell, origin);
     }
 
-    /// Places the corpse at `origin` in `cell` (a creature's corpse is where the creature died),
-    /// with its skin and item in it. The corpse's id is one id: a second corpse replaces nothing
+    /// Places the player's corpse at `origin` in `cell` (a creature's corpse is where the creature
+    /// died), with its skin and item. The corpse's id is one id: a second corpse replaces nothing
     /// and is not placed (see the combat's `kill`).
     pub fn spawn_corpse_at(&mut self, cell: u32, origin: [f32; 3]) {
-        let corpse = ObjectSpawn {
-            id: CORPSE,
-            instance: 1,
-            visual: 0,
-            cell,
-            origin,
-            rotation: [1.0, 0.0, 0.0, 0.0],
-            stamps: [1, 0, 0, 0],
-            name: "Corpse",
-        };
-        self.send_event(&weenie_object_bytes(&corpse, CORPSE_PACKAGE));
         let skin = ItemSpawn {
             icon: 0x0600_1019,
             value: 25,
@@ -74,21 +73,73 @@ impl State {
             value: 10,
             ..ItemSpawn::new(CORPSE_ITEM, ITEM_PACKAGE, "Bone", CORPSE)
         };
+        let owner = self.player();
+        self.spawn_corpse_of(CORPSE, owner, cell, origin, &[skin, item]);
+    }
+
+    /// Birch's corpse, on the other side of the player, with one item; the player may not loot it.
+    pub fn spawn_foreign_corpse(&mut self) {
+        let item = ItemSpawn {
+            icon: 0x0600_1004,
+            value: 10,
+            ..ItemSpawn::new(FOREIGN_ITEM, ITEM_PACKAGE, "Bone", FOREIGN_CORPSE)
+        };
+        let spawn = self.spawn;
+        let origin = [
+            spawn.origin[0] + 4.0,
+            spawn.origin[1] - 4.0,
+            spawn.origin[2],
+        ];
+        self.spawn_corpse_of(FOREIGN_CORPSE, FELLOW, spawn.cell, origin, &[item]);
+    }
+
+    /// A corpse `id` owned by `owner` at `origin` in `cell`, with `loot`: its `CreateObject`, its
+    /// weenie type, its items and the contents its open answer lists.
+    fn spawn_corpse_of(
+        &mut self,
+        id: u64,
+        owner: u64,
+        cell: u32,
+        origin: [f32; 3],
+        loot: &[ItemSpawn],
+    ) {
+        let corpse = ObjectSpawn {
+            id,
+            instance: 1,
+            visual: 0,
+            cell,
+            origin,
+            rotation: [1.0, 0.0, 0.0, 0.0],
+            stamps: [1, 0, 0, 0],
+            name: "Corpse",
+        };
+        self.send_event(&weenie_object_bytes(&corpse, CORPSE_PACKAGE));
         self.send_quality(&QualityUpdate {
             object: Some(InstanceIdWithStamp {
-                id: CORPSE,
+                id,
                 instance: 1,
                 other: 0,
             }),
             quality: WEENIE_TYPE,
             value: QualityValue::Int(CORPSE_WEENIE_TYPE),
         });
-        self.send_event(&item_object_bytes(&skin));
-        self.send_event(&item_object_bytes(&item));
+        for item in loot {
+            self.send_event(&item_object_bytes(item));
+        }
         let world = &mut self.script_world;
-        world.capacities.insert(CORPSE, CORPSE_CAPACITY);
+        world.capacities.insert(id, CORPSE_CAPACITY);
+        world.corpse_owners.insert(id, owner);
         world
             .contents
-            .insert(CORPSE, (Vec::new(), vec![CORPSE_SKIN, CORPSE_ITEM]));
+            .insert(id, (Vec::new(), loot.iter().map(|item| item.id).collect()));
+    }
+
+    /// Whether the player may loot container `container`: any container that is not a corpse, and
+    /// the player's own corpses.
+    pub(crate) fn may_loot(&self, container: u64) -> bool {
+        self.script_world
+            .corpse_owners
+            .get(&container)
+            .is_none_or(|owner| *owner == self.player())
     }
 }

@@ -126,6 +126,8 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_REQUEST_UNTRAIN_SKILL,
     IFUN_REQUEST_UNTRAIN_SKILL_CANCEL,
     IFUN_REQUEST_RAISE_SKILL,
+    // The loot-all (`gmCWInterface::LootAllFromContainer`, see [`crate::gameplay`]).
+    IFUN_LOOT_ALL_FROM_CONTAINER,
     // The crafting queries and requests (`ggmCWInterface::CallIFun_*`, see [`crate::craft`]).
     IFUN_CAN_CRAFT_SKILL_BE_RAISED,
     IFUN_CHECK_INGREDIENT,
@@ -247,6 +249,11 @@ pub const IFUN_REQUEST_TRAIN_SKILL: u32 = 0x00B4_002B;
 pub const IFUN_REQUEST_UNTRAIN_SKILL: u32 = 0x00B4_002C;
 pub const IFUN_REQUEST_UNTRAIN_SKILL_CANCEL: u32 = 0x00B4_002D;
 pub const IFUN_REQUEST_RAISE_SKILL: u32 = 0x00B4_002E;
+
+/// `gmCWInterface::LootAllFromContainer` (`ggmCWInterface::CallIFun_LootAllFromContainer`, the
+/// same id in Legions 7160): the container, an instance id (a long); its stub sends `WM_Inventory`
+/// 0x68 with the take-all descriptor.
+pub const IFUN_LOOT_ALL_FROM_CONTAINER: u32 = 0x00B4_00E8;
 
 /// `gmCWInterface::SetSelection`'s IFun (`ggmCWInterface::CallIFun_SetSelection`: the
 /// object, then `CPlayer` 0x6A).

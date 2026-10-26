@@ -476,10 +476,10 @@ impl Client {
                     self.session.set_container_open(*container, *open);
                     Vec::new()
                 }
-                Command::LootAll(container) => {
-                    self.session.loot_all(*container);
-                    Vec::new()
-                }
+                Command::LootAll(container) => self.script_request(
+                    crate::scripts::IFUN_LOOT_ALL_FROM_CONTAINER,
+                    &[IFunArg::Long(*container)],
+                ),
                 Command::TransmuteAll(container) => {
                     self.session.transmute_all(*container);
                     Vec::new()
