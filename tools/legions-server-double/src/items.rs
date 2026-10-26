@@ -54,6 +54,9 @@ pub struct ItemSpawn {
     pub max_stack: Option<i32>,
     pub capacity: Option<i32>,
     pub locations: Option<(u32, u32)>,
+    /// The entity description (`WeenieDesc` bit 0x0200_0000, an `EntityDesc` DID): the DAT record
+    /// that gives the object its usage action and usage qualities.
+    pub entity: Option<u32>,
 }
 
 impl ItemSpawn {
@@ -72,6 +75,7 @@ impl ItemSpawn {
             max_stack: None,
             capacity: None,
             locations: None,
+            entity: None,
         }
     }
 }
@@ -89,6 +93,7 @@ pub fn item_object_bytes(item: &ItemSpawn) -> Vec<u8> {
     }
     let desc = WeenieDesc {
         package_id: Some(item.package),
+        entity_did: item.entity,
         name: Some(StringInfo::literal(item.name)),
         plural_name: item.plural.map(StringInfo::literal),
         icon: Some(item.icon),

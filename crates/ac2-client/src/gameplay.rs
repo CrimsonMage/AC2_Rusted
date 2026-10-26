@@ -447,7 +447,15 @@ impl Client {
                     self.session.use_with_target(*item, *target);
                     Vec::new()
                 }
-                Command::UseSelection => self.session.use_selection(),
+                Command::UseSelection => {
+                    // The IFun on the player's script: `CUsageSystem` 0x9 starts a targeted use
+                    // (the targeting pointer, the usage list) and sends `WM_Usage` itself.
+                    if self.scripts_own(crate::scripts::IFUN_USE_SELECTION) {
+                        self.script_request(crate::scripts::IFUN_USE_SELECTION, &[])
+                    } else {
+                        self.session.use_selection()
+                    }
+                }
                 Command::MoveItem {
                     item,
                     from,

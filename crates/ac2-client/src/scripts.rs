@@ -34,6 +34,12 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     ac2_net::protocol::script_function::INIT_PLAYER,
     ac2_net::protocol::script_function::UPDATE_SELECTION_INFO,
     IFUN_SET_SELECTION,
+    // `gmCWInterface::UseSelection` (`CPlayer` 0x79 -> `CUsageSystem` 0x9) and the server's
+    // outcome and failure (`WM_Usage` 0x21 -> `CPlayer` 0x7D, 0x23 -> `CPlayer` 0x67), whose
+    // `CUsageSystem` 0xA / 0x2 name the error text (see [`crate::gameplay`]).
+    IFUN_USE_SELECTION,
+    ac2_net::protocol::script_function::USAGE_DONE,
+    ac2_net::protocol::script_function::USAGE_ERROR,
     IFUN_REQUEST_ATTACK_STATE_CHANGE,
     IFUN_SET_WHICH_SHORTCUT_SET,
     IFUN_SET_SHOW_RADAR_COORDS,
@@ -258,6 +264,10 @@ pub const IFUN_LOOT_ALL_FROM_CONTAINER: u32 = 0x00B4_00E8;
 /// `gmCWInterface::SetSelection`'s IFun (`ggmCWInterface::CallIFun_SetSelection`: the
 /// object, then `CPlayer` 0x6A).
 pub const IFUN_SET_SELECTION: u32 = 0x00B4_0002;
+
+/// `gmCWInterface::UseSelection` (`ggmCWInterface::CallIFun_UseSelection`, FunctionID 0xB40006, the
+/// same in Legions 7160): no arguments; `CPlayer` 0x79 uses the selection (`CUsageSystem` 0x9).
+pub const IFUN_USE_SELECTION: u32 = 0x00B4_0006;
 
 // The options page's setters (`ggmCWInterface::CallIFun_Set*`, the same ids in Legions 7160).
 pub const IFUN_SET_AUTO_TARGET: u32 = 0x00B4_0085;

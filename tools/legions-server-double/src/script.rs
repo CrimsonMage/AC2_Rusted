@@ -49,6 +49,10 @@ pub struct ScriptWorld {
     pub crafts: u64,
     /// The owner of each corpse (its container); a corpse opens for its owner only.
     pub corpse_owners: std::collections::BTreeMap<u64, u64>,
+    /// The corpses butchered so far (`Death_IsBeingButchered`).
+    pub butchered: std::collections::BTreeSet<u64>,
+    /// Whether the corpse has no skin to take (an empty butchery profile).
+    pub corpse_skinless: bool,
 }
 
 impl State {
@@ -235,6 +239,9 @@ impl State {
             ScriptRequest::EnterStore { .. } => {}
             // The consignment's enter and leave have no traced answer yet (see the catalog).
             ScriptRequest::EnterConsignment(_) | ScriptRequest::LeaveConsignment(_) => {}
+            ScriptRequest::Use(desc) if desc.item == crate::butcher::BUTCHER_KNIFE => {
+                self.answer_butcher(desc);
+            }
             ScriptRequest::Use(desc) => {
                 let mut desc = desc.clone();
                 desc.error = self.script_world.usage_error;

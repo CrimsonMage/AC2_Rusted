@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 245 done, 77 partial, 1571 to do, 11 skipped.
+1904 retail functions: 247 done, 77 partial, 1569 to do, 11 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (64/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (65/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -854,7 +854,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_UploadChatOptions` · 00463ae0 · legions 00464750
 - [x] `ggmCWInterface::CallIFun_UploadGameOptions` · 00463b70 · legions 004647e0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [ ] `ggmCWInterface::CallIFun_UploadUISettings` · 00463c00 · legions 00464870
-- [ ] `ggmCWInterface::CallIFun_UseSelection` · 00463c90 · legions 00464900
+- [x] `ggmCWInterface::CallIFun_UseSelection` · 00463c90 · legions 00464900 — ac2-client Command::UseSelection runs IFun 0xB40006 on the player's script when the VM owns it (CPlayer 0x79 -> CUsageSystem 0x9: the targeting pointer, the usage list, then WM_Usage 0x22); butchery_7160 asserts it. The session's use_selection stand-in stays for a client without scripts
 - [ ] `ggmCWInterface::CallIFun_UseShortcut` · 00463d30 · legions 004649a0 — skill and text shortcuts run on the VM: WM_Combat 0x17 request (combat_7160); /e waves through efun 0x7F0052 into the chat shell
 
 ## `ac2/client/src/weenie/interp/glue/gmcefundispatcher.cpp.c` (0/1)
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (104/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (105/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -927,7 +927,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::GetSelection` · 0044fac0 · legions 00450c00 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [ ] `gmCWInterface::GetLastSelection` · 0044fb20 · legions 00450c60 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [x] `gmCWInterface::ShouldAutoTarget` · 0044fb80 · legions 00450cc0 — ac2-client: the ShouldAutoTarget IFun on the VM before attacking
-- [ ] `gmCWInterface::UseSelection` · 0044fbb0 · legions 00450cf0 — ac2-weenie OnlineSession::use_selection (CPlayer 0x79 -> CUsageSystem 0x9 stand-in)
+- [x] `gmCWInterface::UseSelection` · 0044fbb0 · legions 00450cf0 — ac2-client Command::UseSelection runs IFun 0xB40006 on the player's script when the VM owns it (CPlayer 0x79 -> CUsageSystem 0x9: the targeting pointer, the usage list, then WM_Usage 0x22); butchery_7160 asserts it. The session's use_selection stand-in stays for a client without scripts
 - [ ] `gmCWInterface::UseShortcut` · 0044fbe0 · legions 00450d20 — skill and text shortcuts run on the VM: WM_Combat 0x17 request (combat_7160); /e waves through efun 0x7F0052 into the chat shell
 - [ ] `gmCWInterface::StopAttacking` · 0044fc20 · legions 00450d60
 - [x] `gmCWInterface::RequestAttackStateChange` · 0044fc60 · legions 00450da0 — ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)

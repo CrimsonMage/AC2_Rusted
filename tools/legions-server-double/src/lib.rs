@@ -10,6 +10,7 @@ mod assembly;
 mod channel;
 mod character;
 pub use characters::{CharGenRules, CharacterStore, StoredCharacter};
+mod butcher;
 mod characters;
 mod chest;
 mod combat;
@@ -40,6 +41,7 @@ pub use appearance::{
     update_visual_desc_bytes, visual_desc_bytes,
 };
 pub use assembly::{fragment_header_bytes, Assembler};
+pub use butcher::{BUTCHER_KNIFE, BUTCHER_SKIN};
 pub use channel::{Channel, ChannelStats, Conditions, Direction, InFlight, SplitMix};
 pub use character::{
     default_options, Character, SkillCost, DEFAULT_SKILL_COST, MELEE_ATTACK, MELEE_AUTO_ATTACK,

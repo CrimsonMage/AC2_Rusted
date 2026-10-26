@@ -43,6 +43,8 @@ pub const CORPSE_WEENIE_TYPE: i32 = 0x0002_0103;
 const WEENIE_TYPE: u32 = 20;
 /// `CItem`, the package of an item that is not a trophy.
 const ITEM_PACKAGE: u32 = 0x1AA9;
+/// `SkillValidTargets.MonsterCorpse`.
+pub const MONSTER_CORPSE_TARGET: i32 = 0x40;
 /// The corpse's slots (int 280).
 pub const CORPSE_CAPACITY: u32 = 12;
 
@@ -123,6 +125,20 @@ impl State {
             quality: WEENIE_TYPE,
             value: QualityValue::Int(CORPSE_WEENIE_TYPE),
         });
+        // `Usage_TargetType` (int 721): a monster's corpse, `SkillValidTargets` bit 0x40, the bit
+        // a tool's `Usage_ValidTargetTypes` (722) is masked with (`CUsageSystem` 0xB). Another
+        // player's corpse is not a monster's.
+        if id != FOREIGN_CORPSE {
+            self.send_quality(&QualityUpdate {
+                object: Some(InstanceIdWithStamp {
+                    id,
+                    instance: 1,
+                    other: 0,
+                }),
+                quality: 721,
+                value: QualityValue::Int(MONSTER_CORPSE_TARGET),
+            });
+        }
         for item in loot {
             self.send_event(&item_object_bytes(item));
         }
