@@ -370,6 +370,30 @@ fn visible_texts(tree: &ac2_ui::UiTree) -> Vec<String> {
     out
 }
 
+/// The slider captions (`<Name>Label`) inside one page's field.
+fn field_labels(rig: &Rig, field: &str) -> Vec<String> {
+    let ui = rig.view.ui().unwrap();
+    let tree = ui.tree();
+    let root = tree
+        .roots()
+        .iter()
+        .find_map(|&r| tree.child_recursive(r, tokenize(field)));
+    let mut out = Vec::new();
+    if let Some(root) = root {
+        collect_texts(tree, root, &mut out);
+    }
+    out
+}
+
+fn collect_texts(tree: &ac2_ui::UiTree, index: usize, out: &mut Vec<String>) {
+    if let Some(text) = tree.get(index).and_then(|e| e.text()) {
+        out.push(text);
+    }
+    for &child in tree.children(index) {
+        collect_texts(tree, child, out);
+    }
+}
+
 /// `0x` and eight hex digits: what `StringInfo::GetString` prints for a missing string.
 fn is_raw_id(text: &str) -> bool {
     text.strip_prefix("0x")
@@ -474,6 +498,30 @@ fn the_modification_camera_answers_zoom_and_rotation() {
         scene_pixels(&turned, &unturned, &viewport) > 0 || turn_change > 0,
         "the avatar stays drawn"
     );
+    // Each page's captions are its own category's, each once (`InitElements`'s
+    // `GetPhysTypeLabel(race, sex, physType)` per slider).
+    let pages = [
+        ("Head", vec!["Face", "Hairstyle", "Hair Color"]),
+        ("Body", vec!["Build", "Height", "Skin Tone"]),
+        (
+            "Clothing",
+            vec!["Shirt Color", "Pants Color", "Boots Color"],
+        ),
+    ];
+    let mut seen = Vec::new();
+    for (page, expected) in pages {
+        rig.click(&format!("{page}Button"));
+        let mut labels = field_labels(&rig, &format!("{page}Field"));
+        labels.retain(|t| !t.is_empty() && !["Head", "Body", "Cloth"].contains(&t.as_str()));
+        let mut got = labels.clone();
+        got.sort();
+        let mut want: Vec<String> = expected.iter().map(|s| s.to_string()).collect();
+        want.sort();
+        assert_eq!(got, want, "the {page} page's captions");
+        seen.extend(labels);
+    }
+    let distinct: std::collections::HashSet<_> = seen.iter().collect();
+    assert_eq!(distinct.len(), seen.len(), "no caption repeats: {seen:?}");
     // `gmGenerationConfirmationUI`: the name dialog's text is real too.
     rig.click("NextButton");
     rig.frame();

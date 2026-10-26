@@ -107,9 +107,10 @@ pub fn avatar_entity_did(vm: &mut Vm, admin: bool) -> Option<u32> {
     Some(call_system(vm, SYSTEM, f, Some((0, tag::BOOL)), &[])?.out)
 }
 
-/// `CallIFun_GetPhysObj(race, sex)`.
+/// `CallIFun_GetPhysObj(race, sex)`: the retail glue pushes the arguments right to left (`sex`,
+/// then `race`), as every `CallIFun_*` here does.
 pub fn phys_obj(vm: &mut Vm, race: u32, sex: u32) -> Option<u32> {
-    let args = [Push::Int(race), Push::Int(sex)];
+    let args = [Push::Int(sex), Push::Int(race)];
     Some(call_system(vm, SYSTEM, function::GET_PHYS_OBJ, None, &args)?.retval)
 }
 
@@ -125,7 +126,7 @@ pub fn phys_type_label(
         ntype::STRING_INFO,
         NativeObject::new_empty(ntype::STRING_INFO),
     );
-    let args = [Push::Int(race), Push::Int(sex), Push::Int(phys_type)];
+    let args = [Push::Int(phys_type), Push::Int(sex), Push::Int(race)];
     let call = call_system(
         vm,
         SYSTEM,
@@ -278,7 +279,7 @@ pub fn valid_phys_type_values(
     phys_type: u32,
 ) -> Option<(u32, Vec<f32>)> {
     let out = a_list(vm);
-    let args = [Push::Int(race), Push::Int(sex), Push::Int(phys_type)];
+    let args = [Push::Int(phys_type), Push::Int(sex), Push::Int(race)];
     let call = call_system(
         vm,
         SYSTEM,
@@ -296,7 +297,7 @@ pub fn valid_phys_type_values(
 /// `CallIFun_InqValidStartingAreas(race, classType)`.
 pub fn valid_starting_areas(vm: &mut Vm, race: u32, class: u32) -> Option<(u32, Vec<u32>)> {
     let out = a_list(vm);
-    let args = [Push::Int(race), Push::Int(class)];
+    let args = [Push::Int(class), Push::Int(race)];
     let call = call_system(
         vm,
         SYSTEM,
