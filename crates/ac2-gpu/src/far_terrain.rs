@@ -56,7 +56,14 @@ impl FarPipeline {
         });
         let module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("ac2 far terrain"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("far_terrain.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(
+                format!(
+                    "{}\n{}",
+                    include_str!("shading.wgsl"),
+                    include_str!("far_terrain.wgsl")
+                )
+                .into(),
+            ),
         });
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("ac2 far terrain"),

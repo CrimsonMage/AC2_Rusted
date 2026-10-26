@@ -115,6 +115,9 @@ impl Rig {
         }
         self.view.update(&self.gpu, self.t);
         self.view.requests(self.client.session_mut());
+        // The window submits every frame; without it the replaced UI surfaces are never freed.
+        self.gpu.queue.submit([]);
+        let _ = self.gpu.device.poll(wgpu::PollType::Poll);
         self.t += STEP;
     }
 

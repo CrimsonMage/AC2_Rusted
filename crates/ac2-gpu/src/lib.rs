@@ -12,16 +12,22 @@ mod object_state;
 mod pixel_program;
 mod scene;
 mod screen_quad;
+mod shading;
+mod sky;
 mod terrain;
 mod texture;
+mod tonemap;
 mod ui;
 
 pub use frame::{acquire_frame, render_to, FrameTarget, COLOR_FORMAT, DEPTH_FORMAT};
-pub use object::{DrawGroup, GpuObjectModel, ObjectInstance, ObjectRenderer};
+pub use object::{sky_backdrop, DrawGroup, GpuObjectModel, ObjectInstance, ObjectRenderer};
 pub use scene::{SceneObject, SceneRenderer};
 pub use screen_quad::ScreenQuad;
+pub use shading::srgb_to_linear;
+pub use sky::{SkyLook, SkyRenderer, DEFAULT_CLOUD_COVER};
 pub use terrain::{GpuFarTerrain, TerrainBlock, TerrainRenderer};
 pub use texture::{TextureCache, TextureKey};
+pub use tonemap::{HdrTarget, ScenePresenter, ToneMap, HDR_FORMAT};
 pub use ui::{UiLayer, UiOverlay};
 
 /// The device and queue every other object is created on.

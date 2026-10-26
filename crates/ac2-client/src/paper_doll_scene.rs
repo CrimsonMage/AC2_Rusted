@@ -43,13 +43,9 @@ pub(crate) struct PaperDollScene {
 }
 
 impl PaperDollScene {
-    pub(crate) fn new(
-        store: Arc<ResourceStore>,
-        world: Arc<Ac2WorldSource>,
-        format: wgpu::TextureFormat,
-    ) -> Self {
+    pub(crate) fn new(store: Arc<ResourceStore>, world: Arc<Ac2WorldSource>) -> Self {
         Self {
-            scenes: UiScenes::new(store, world, format),
+            scenes: UiScenes::new(store, world),
         }
     }
 

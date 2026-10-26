@@ -9,6 +9,7 @@ use ac2_render::{Camera, Image, SceneLighting};
 use bytemuck::{Pod, Zeroable};
 use wgpu::util::DeviceExt;
 
+use crate::shading::FRAME_SHADING;
 use crate::texture::{TextureCache, TextureKey};
 use crate::{Gpu, DEPTH_FORMAT};
 
@@ -37,6 +38,8 @@ struct FrameUniform {
     ambient: [f32; 4],
     fog_color: [f32; 4],
     fog: [f32; 4],
+    /// `FRAME_SHADING` (the layout keeps it; the tone map owns the grade).
+    shading: [f32; 4],
 }
 
 #[repr(C)]
@@ -126,7 +129,14 @@ impl TerrainRenderer {
         });
         let module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("ac2 terrain"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("terrain.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(
+                format!(
+                    "{}\n{}",
+                    include_str!("shading.wgsl"),
+                    include_str!("terrain.wgsl")
+                )
+                .into(),
+            ),
         });
         let layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("ac2 terrain"),
@@ -318,6 +328,7 @@ impl TerrainRenderer {
             ambient: rgb(lighting.ambient),
             fog_color: rgb(lighting.fog_color),
             fog: [fog_start, fog_end, 0.0, 0.0],
+            shading: FRAME_SHADING,
         };
         queue.write_buffer(&self.frame_buffer, 0, bytemuck::bytes_of(&uniform));
     }

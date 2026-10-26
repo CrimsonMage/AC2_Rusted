@@ -28,6 +28,13 @@ subsystem it reproduces. This file states the working rules.
   fixed window authored at 1024 x 768; here `ac2_client::ui_scale::UiScale` lays the UI out on a
   logical display and draws it scaled by `min(width / 1024, height / 768)`. The HUD fills the
   window and the pregame screens stay 1024 x 768, centred. Layout and anchoring code stays retail.
+- Exception: one modern shading pass, no retail look beside it. What is drawn, its colours,
+  order, blend, fog and baked light come from the DATs and the decompile (`LScapeSky::Draw`,
+  `CPartArray` colours, `CEnvCell` vertex light); the shading turns that into linear light.
+  It covers lighting (GGX for lit objects), sky, clouds, weather and the tone map.
+  Scenes draw unclamped into an `Rgba16Float` target (`ac2_gpu::HdrTarget`); one ACES tone map
+  (`ac2_gpu::ToneMap`) reaches the window, and the UI draws after it. UI viewport scenes
+  composite over their panel where they drew. Do not add a retail/modern switch.
 - No admin tools in the client. The admin 7148 build is a reference for names and code, not for
   features: do not port its admin-only commands, debuggers, account overrides, admin entities
   (e.g. `wsl_butcherytool`) or admin UI; mark those catalog rows `skip` with the reason.

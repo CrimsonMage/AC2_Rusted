@@ -14,6 +14,9 @@ struct Frame {
     fog_color: vec4<f32>,
     // start, end
     fog: vec4<f32>,
+    // x: 1 for the modern shading path (linear light, ACES), 0 for retail; y: exposure, z:
+    // saturation, w: contrast (`shading.wgsl`).
+    shading: vec4<f32>,
 };
 
 struct Batch {
@@ -49,6 +52,8 @@ struct VsOut {
     @location(2) mask1_uv: vec2<f32>,
     @location(3) mask2_uv: vec2<f32>,
     @location(4) distance: f32,
+    // The modern fogged fraction (`modern_fog`).
+    @location(5) haze: f32,
 };
 
 // `LScapeMaterialInfo::CalcRotUVs` by rotation (ROT_0..ROT_270) and slot (SW, SE, NW, NE).
@@ -72,26 +77,28 @@ fn vs(input: VsIn) -> VsOut {
     // ambient) * c.rgb), c being the vertex specular colour.
     let c = input.surface_color;
     let direct = max(-dot(input.normal, frame.light_dir.xyz) * c.a, 0.0);
-    let light = (direct * frame.dir_color.rgb + frame.ambient.rgb) * c.rgb;
-    out.color = vec4(clamp(light, vec3(0.0), vec3(1.0)), 1.0);
+    // The authored light and surface colour, decoded to linear light (the fragment multiplies
+    // the decoded texel by it).
+    let irradiance = light_linear((direct * frame.dir_color.rgb + frame.ambient.rgb) * c.rgb);
+    out.color = vec4(irradiance, 1.0);
     out.grid = input.grid;
     out.mask1_uv = mask_uv(batch.rot.x, input.corner);
     out.mask2_uv = mask_uv(batch.rot.y, input.corner);
     out.distance = distance(input.position, frame.eye.xyz);
+    out.haze = modern_fog(out.distance, input.position.z, frame.fog.xy);
     return out;
 }
 
+// The layers on linear texels and light, fogged in linear light; the scene's tone map follows.
 @fragment
 fn fs(input: VsOut) -> @location(0) vec4<f32> {
     let diffuse = input.color.rgb;
-    var color = saturate(2.0 * textureSample(base0, wrap_sampler, input.grid * batch.scale.x).rgb * diffuse);
-    let layer1 = saturate(2.0 * textureSample(base1, wrap_sampler, input.grid * batch.scale.y).rgb * diffuse);
-    let layer2 = saturate(2.0 * textureSample(base2, wrap_sampler, input.grid * batch.scale.z).rgb * diffuse);
+    let layer0 = 2.0 * srgb_to_linear(textureSample(base0, wrap_sampler, input.grid * batch.scale.x).rgb) * diffuse;
+    let layer1 = 2.0 * srgb_to_linear(textureSample(base1, wrap_sampler, input.grid * batch.scale.y).rgb) * diffuse;
+    let layer2 = 2.0 * srgb_to_linear(textureSample(base2, wrap_sampler, input.grid * batch.scale.z).rgb) * diffuse;
     let alpha1 = textureSample(mask1, clamp_sampler, input.mask1_uv).a;
     let alpha2 = textureSample(mask2, clamp_sampler, input.mask2_uv).a;
-    color = mix(color, layer1, select(0.0, alpha1, batch.rot.z > 1u));
+    var color = mix(layer0, layer1, select(0.0, alpha1, batch.rot.z > 1u));
     color = mix(color, layer2, select(0.0, alpha2, batch.rot.z > 2u));
-    let fog_span = max(frame.fog.y - frame.fog.x, 1e-3);
-    let fog = clamp((input.distance - frame.fog.x) / fog_span, 0.0, 1.0);
-    return vec4(mix(color, frame.fog_color.rgb, fog), 1.0);
+    return vec4(mix(color, fog_linear(frame.fog_color.rgb), input.haze), 1.0);
 }

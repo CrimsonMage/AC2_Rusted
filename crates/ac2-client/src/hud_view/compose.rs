@@ -75,10 +75,6 @@ impl HudView {
         );
     }
 
-    pub(crate) fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
-        self.overlay.draw(pass);
-    }
-
     /// The drawn layers and their roots, in drawing order.
     pub(crate) fn layers_for_scenes(&self) -> (&UiOverlay, &[usize]) {
         (&self.overlay, &self.layer_roots)

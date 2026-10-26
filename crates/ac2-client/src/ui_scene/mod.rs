@@ -90,7 +90,6 @@ pub struct ScenePick {
 /// The UI's viewport scenes.
 pub struct UiScenes {
     world: Arc<Ac2WorldSource>,
-    format: wgpu::TextureFormat,
     loader: SceneLoader,
     views: Vec<ViewScene>,
     bodies: HashMap<u64, PhysicsBody>,
@@ -108,14 +107,9 @@ fn model_key(visual: DataId, local: Option<&ac2_assets::Ac2VisualDesc>) -> u64 {
 impl UiScenes {
     /// Scenes over `store`'s DATs; each viewport's models load through a `WorldScene` over
     /// `world`.
-    pub fn new(
-        store: Arc<ResourceStore>,
-        world: Arc<Ac2WorldSource>,
-        format: wgpu::TextureFormat,
-    ) -> Self {
+    pub fn new(store: Arc<ResourceStore>, world: Arc<Ac2WorldSource>) -> Self {
         Self {
             world,
-            format,
             loader: SceneLoader::new(store),
             views: Vec::new(),
             bodies: HashMap::new(),
@@ -154,7 +148,7 @@ impl UiScenes {
                 None => self.views.push(ViewScene {
                     viewport,
                     scene: WorldScene::new(Arc::clone(&self.world), 0),
-                    renderer: SceneRenderer::new(gpu, self.format),
+                    renderer: SceneRenderer::new(gpu),
                     placed: Vec::new(),
                     camera: None,
                     frame: None,

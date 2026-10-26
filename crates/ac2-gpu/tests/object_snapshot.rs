@@ -10,7 +10,7 @@ use ac2_core::{CellId, DataId, Random};
 use ac2_db::ResourceStore;
 use ac2_gpu::{
     DrawGroup, FrameTarget, Gpu, GpuObjectModel, ObjectInstance, ObjectRenderer, ScreenQuad,
-    TerrainRenderer, TextureKey, COLOR_FORMAT,
+    SkyRenderer, TerrainRenderer, TextureKey, HDR_FORMAT,
 };
 use ac2_math::{Mat4, Vec3};
 use ac2_render::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
@@ -21,6 +21,9 @@ use ac2_render::terrain::{
 };
 use ac2_render::{load_material_image, load_texture_image, Camera, SceneLighting};
 use ac2_world::Ac2WorldSource;
+
+mod common;
+use common::{check_frame, check_sky_gradient};
 
 const SIZE: (u32, u32) = (800, 500);
 
@@ -89,8 +92,8 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
             load_texture_image(&store, did).ok().flatten()
         }
     };
-    let mut terrain = TerrainRenderer::new(&gpu, COLOR_FORMAT);
-    let mut objects = ObjectRenderer::new(&gpu, COLOR_FORMAT);
+    let mut terrain = TerrainRenderer::new(&gpu, HDR_FORMAT);
+    let mut objects = ObjectRenderer::new(&gpu, HDR_FORMAT);
     // `AC2_HARDWARE_CLASS=1` renders the fixed-function fallback layers for comparison.
     let settings = RenderSettings {
         hardware_class: std::env::var("AC2_HARDWARE_CLASS")
@@ -227,7 +230,8 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
     );
     let aspect = SIZE.0 as f32 / SIZE.1 as f32;
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
-    let quad = ScreenQuad::new(&gpu, COLOR_FORMAT);
+    let quad = ScreenQuad::new(&gpu, HDR_FORMAT);
+    let sky_gradient = SkyRenderer::new(&gpu, HDR_FORMAT);
     let mut means = Vec::new();
     for (name, offset, look) in views {
         let camera = Camera {
@@ -299,7 +303,15 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
                     .collect::<Vec<_>>()
             );
         }
+        // One frame in `WorldRender::Draw` order.
         terrain.set_frame(&gpu.queue, &camera, &lighting, aspect);
+        let look = ac2_gpu::SkyLook {
+            backdrop: ac2_gpu::sky_backdrop(&before).map(|index| before[index].tint),
+            ..ac2_gpu::SkyLook::default()
+        };
+        sky_gradient.set_frame(&gpu.queue, &camera, aspect, &lighting, &look);
+        // `SetupEnvironment(SkyEnvironment)`: the sky objects draw unfogged, with no ambient.
+        let sky_environment = ObjectEnvironment::sky(&lighting);
         objects.prepare(
             &gpu,
             &camera,
@@ -310,25 +322,30 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
                 DrawGroup {
                     instances: &before,
                     ordered: true,
-                    environment: None,
+                    environment: Some(&sky_environment),
+                    sky: true,
                 },
                 DrawGroup {
                     instances: &world_instances,
                     ordered: false,
                     environment: None,
+                    sky: false,
                 },
                 DrawGroup {
                     instances: &after,
                     ordered: true,
-                    environment: None,
+                    environment: Some(&sky_environment),
+                    sky: true,
                 },
             ],
         );
-        if let Some(color) = sky.fog_quad {
-            quad.set_color(&gpu.queue, color);
+        if let Some([r, g, b, a]) = sky.fog_quad {
+            let linear = [r, g, b].map(|c| srgb_to_linear(c.clamp(0.0, 1.0)));
+            quad.set_color(&gpu.queue, [linear[0], linear[1], linear[2], a]);
         }
         // `SceneTool::backgroundColor` is `RGBAColor_Null`; the sky draws over black.
-        target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| {
+        target.render_scene(&gpu, [0.0; 3], |pass| {
+            sky_gradient.draw(pass);
             objects.draw(pass, 0, &before);
             if sky.fog_quad.is_some() {
                 quad.draw(pass);
@@ -338,15 +355,17 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
             objects.draw(pass, 1, &world_instances);
             objects.draw(pass, 2, &after);
         });
-        let rgba = target.read_rgba(&gpu.device, &gpu.queue);
-        write_png(name, &rgba);
-        let mean = rgba
-            .chunks_exact(4)
-            .map(|px| u32::from(px[0]) + u32::from(px[1]) + u32::from(px[2]))
-            .sum::<u32>() as f32
-            / (rgba.len() / 4 * 3) as f32;
-        eprintln!("{name}: mean {mean:.1}");
-        assert!((15.0..240.0).contains(&mean), "{name}: lit frame ({mean})");
+        let frame = target.read_rgba(&gpu.device, &gpu.queue);
+        write_png(name, &frame);
+        // A chosen `AC2_SKY_TIME` (night, dusk) is for looking, not for the daylight bands.
+        if std::env::var_os("AC2_SKY_TIME").is_some() {
+            continue;
+        }
+        let mean = check_frame(name, &frame);
+        eprintln!("{name}: mean luma {mean:.1}");
+        if name.contains("horizon") {
+            check_sky_gradient(name, &frame, SIZE.0 as usize);
+        }
         means.push(mean);
     }
     Some(AreaStats {
@@ -410,4 +429,13 @@ fn lake_block_renders_its_water() {
         return;
     };
     assert!(stats.water_blocks > 0, "the lake blocks have near water");
+}
+
+/// The sRGB transfer to linear light (the fog quad's authored colour).
+fn srgb_to_linear(c: f32) -> f32 {
+    if c <= 0.04045 {
+        c / 12.92
+    } else {
+        ((c + 0.055) / 1.055).powf(2.4)
+    }
 }

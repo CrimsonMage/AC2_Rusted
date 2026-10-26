@@ -31,6 +31,16 @@ pub fn pipeline_key(pass: &LayerPass, program: u32) -> PipelineKey {
     }
 }
 
+/// A sky object: drawn on its own, at infinity, in list order (`LScapeSky::Draw`): no depth test or
+/// write, so the dome does not hide the objects beyond it and the world draws over the sky.
+pub fn sky_depth(key: PipelineKey) -> PipelineKey {
+    PipelineKey {
+        depth_write: false,
+        depth_test: 8,
+        ..key
+    }
+}
+
 impl PipelineKey {
     pub fn create(
         &self,
@@ -70,9 +80,15 @@ impl PipelineKey {
                 compilation_options: Default::default(),
                 targets: &[Some(wgpu::ColorTargetState {
                     format,
+                    // The alpha channel keeps the scene's coverage for a UI viewport's composite
+                    // (`ToneMap::draw`): the most opaque layer drawn at each pixel.
                     blend: blending.then_some(wgpu::BlendState {
                         color: component,
-                        alpha: component,
+                        alpha: wgpu::BlendComponent {
+                            src_factor: wgpu::BlendFactor::One,
+                            dst_factor: wgpu::BlendFactor::One,
+                            operation: wgpu::BlendOperation::Max,
+                        },
                     }),
                     write_mask: wgpu::ColorWrites::ALL,
                 })],

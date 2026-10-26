@@ -13,7 +13,7 @@ use std::sync::mpsc::{self, Receiver, TryRecvError};
 use std::sync::Arc;
 
 use ac2_db::{ResourceResult, ResourceStore};
-use ac2_gpu::{Gpu, UiLayer, UiOverlay};
+use ac2_gpu::{Gpu, ScenePresenter, UiLayer, UiOverlay};
 use ac2_ui::pregame::{CharGenSystem, PregameAssets, PregameUi};
 use ac2_ui::UiMessage;
 use ac2_weenie::{OnlineSession, SessionEvent};
@@ -38,7 +38,8 @@ pub struct PregameView {
     layer_roots: Vec<usize>,
     scenes: Option<PregameScenes>,
     store: Arc<ResourceStore>,
-    format: wgpu::TextureFormat,
+    /// The tone map the scenes reach the window through.
+    presenter: ScenePresenter,
     /// The window, in pixels.
     size: (u32, u32),
     /// The fixed 1024 x 768 screens fitted to the window ([`UiScale::fit`]).
@@ -76,7 +77,7 @@ impl PregameView {
             layer_roots: Vec::new(),
             scenes: None,
             store,
-            format,
+            presenter: ScenePresenter::new(gpu, format),
             size,
             scale,
             dirty: false,
@@ -86,11 +87,7 @@ impl PregameView {
 
     /// The viewports' 3D scenes, their models read through `world`.
     pub fn with_scenes(mut self, world: Arc<Ac2WorldSource>) -> Self {
-        self.scenes = Some(PregameScenes::new(
-            Arc::clone(&self.store),
-            world,
-            self.format,
-        ));
+        self.scenes = Some(PregameScenes::new(Arc::clone(&self.store), world));
         self
     }
 
@@ -324,6 +321,7 @@ impl PregameView {
             self.scenes.iter().map(PregameScenes::scenes).collect();
         crate::ui_scene::render_with_scenes(
             gpu,
+            &self.presenter,
             color,
             depth,
             &self.scale,
@@ -331,6 +329,7 @@ impl PregameView {
             &self.overlay,
             &self.layer_roots,
             &scenes,
+            None,
             |_| {},
         );
     }

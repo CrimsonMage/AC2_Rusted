@@ -245,7 +245,7 @@ fn the_client_walks_with_w_and_draws_its_character() {
     );
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
-    target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
+    view.render(&gpu, &target.color_view, &target.depth_view, true);
     let rgba = target.read_rgba(&gpu.device, &gpu.queue);
     write_png("client_cb4d_walk.png", &rgba);
     let mean = rgba
@@ -314,7 +314,7 @@ fn the_client_walks_with_w_and_draws_its_character() {
         "the reticle follows the name ({:?})",
         selection.name
     );
-    target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
+    view.render(&gpu, &target.color_view, &target.depth_view, true);
     write_png(
         "client_cb4d_selected.png",
         &target.read_rgba(&gpu.device, &gpu.queue),
@@ -802,7 +802,7 @@ fn the_client_walks_with_w_and_draws_its_character() {
     // The options profile hides the coordinates at login (`gmRadarUI::ReloadOptions` closes
     // `BaseField`'s box, which then has no `CoordinatesText`).
     assert_eq!(view.radar_coordinates(), None);
-    target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
+    view.render(&gpu, &target.color_view, &target.depth_view, true);
     write_png(
         "client_cb4d_chat.png",
         &target.read_rgba(&gpu.device, &gpu.queue),

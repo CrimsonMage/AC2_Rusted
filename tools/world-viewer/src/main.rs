@@ -251,7 +251,7 @@ fn snapshot(
     }
     view.prepare(&gpu, &frame, width as f32 / height as f32, 0.0);
     let target = FrameTarget::new(&gpu.device, width, height);
-    target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
+    view.render(&gpu, &target.color_view, &target.depth_view, true);
     // The control panel over it, as the window draws it.
     let mut gui = gui::Gui::headless(&gpu, COLOR_FORMAT);
     let mut panel = panel::Panel::new(

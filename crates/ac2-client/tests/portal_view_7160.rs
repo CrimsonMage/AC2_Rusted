@@ -125,7 +125,7 @@ fn the_tunnel_phase_draws_no_world_only_the_fader_and_the_hud() {
     view.update(&gpu, &town, Duration::ZERO);
     view.settle(&gpu, &town, aspect);
     assert!(view.prepare(&gpu, &town, aspect, 0.0));
-    target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
+    view.render(&gpu, &target.color_view, &target.depth_view, true);
     let town_rgba = target.read_rgba(&gpu.device, &gpu.queue);
     write_png("portal_town.png", &town_rgba);
     let town_mean = mean_luminance(&town_rgba);
@@ -147,7 +147,7 @@ fn the_tunnel_phase_draws_no_world_only_the_fader_and_the_hud() {
     assert_eq!(tunnel.portal.phase, Phase::Active, "the tunnel phase");
     assert!(!tunnel.portal.world_drawn());
     assert!(view.prepare(&gpu, &tunnel, aspect, 0.0));
-    target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
+    view.render(&gpu, &target.color_view, &target.depth_view, true);
     let tunnel_rgba = target.read_rgba(&gpu.device, &gpu.queue);
     write_png("portal_tunnel.png", &tunnel_rgba);
     let tunnel_mean = mean_luminance(&tunnel_rgba);

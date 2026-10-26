@@ -17,9 +17,14 @@ use ac2_render::{Camera, Image};
 use bytemuck::{Pod, Zeroable};
 use wgpu::util::DeviceExt;
 
-use crate::object_draw::{bone_storage, draw_storage, draw_uniform, set_point_lights, DrawUniform};
-use crate::object_state::{pipeline_key, sampler_key, PipelineKey, SamplerKey, DRAW_STRIDE};
+use crate::object_draw::{
+    bone_storage, draw_storage, draw_uniform, mark_sky, set_point_lights, DrawUniform,
+};
+use crate::object_state::{
+    pipeline_key, sampler_key, sky_depth, PipelineKey, SamplerKey, DRAW_STRIDE,
+};
 use crate::pixel_program::shade_function;
+use crate::shading::FRAME_SHADING;
 use crate::texture::{TextureCache, TextureKey};
 use crate::Gpu;
 
@@ -49,10 +54,12 @@ struct FrameUniform {
     ambient: [f32; 4],
     fog_color: [f32; 4],
     fog: [f32; 4],
+    shading: [f32; 4],
 }
 
-/// Byte stride of one draw group's frame uniform (the dynamic-offset alignment).
-const FRAME_STRIDE: u64 = 256;
+/// Byte stride of one draw group's frame uniform (the dynamic-offset alignment; the frame
+/// uniform is 272 bytes).
+const FRAME_STRIDE: u64 = 512;
 /// Draw groups one `prepare` lays out.
 const MAX_GROUPS: usize = 16;
 /// Bytes of one bone matrix in the storage buffer.
@@ -88,6 +95,8 @@ pub struct GpuObjectModel {
     center: Vec3,
     /// Index and vertex counts of the first part's first triangle list (`FrillRender` budgets).
     first_list: (u32, u32),
+    /// The farthest vertex from the model's origin.
+    radius: f32,
 }
 
 impl GpuObjectModel {
@@ -95,6 +104,18 @@ impl GpuObjectModel {
     pub fn first_list(&self) -> (u32, u32) {
         self.first_list
     }
+}
+
+/// The sky's backdrop among a group of DAT sky objects: the largest, the dome `LScapeSky` draws
+/// first (`0x04000022` in the shipped region). The modern sky takes its colour from the
+/// atmosphere and grades it by this object's tint; the dome itself adds only its texture's
+/// detail (`FLAG_SKY_BACKDROP`).
+pub fn sky_backdrop(instances: &[ObjectInstance<'_>]) -> Option<usize> {
+    instances
+        .iter()
+        .enumerate()
+        .max_by(|a, b| a.1.model.radius.total_cmp(&b.1.model.radius))
+        .map(|(index, _)| index)
 }
 
 /// One draw of the frame: pipeline, uniform offset, and instance/part/batch/layer indices.
@@ -146,6 +167,8 @@ pub struct DrawGroup<'a> {
     /// The environment the group draws in (`WorldRender::SetupEnvironment` before it); `None`
     /// uses the frame's.
     pub environment: Option<&'a ObjectEnvironment>,
+    /// The instances are DAT sky objects (`LScapeSky::Draw`): no depth test or write.
+    pub sky: bool,
 }
 
 pub struct ObjectRenderer {
@@ -301,6 +324,7 @@ impl ObjectRenderer {
         let device = &gpu.device;
         let mut parts = Vec::with_capacity(model.parts.len());
         let (mut sum, mut count) = (Vec3::ZERO, 0.0_f32);
+        let mut radius = 0.0_f32;
         for part in &model.parts {
             let vertices: Vec<GpuVertex> = part
                 .vertices
@@ -325,9 +349,11 @@ impl ObjectRenderer {
                 })
                 .collect();
             for v in part.vertices.iter() {
-                sum += part
+                let position = part
                     .transform
                     .transform_point3(Vec3::from_array(v.position));
+                sum += position;
+                radius = radius.max(position.length());
                 count += 1.0;
             }
             let mut indices = Vec::new();
@@ -375,6 +401,7 @@ impl ObjectRenderer {
             parts,
             center: if count > 0.0 { sum / count } else { Vec3::ZERO },
             first_list,
+            radius,
         }
     }
 
@@ -420,6 +447,10 @@ impl ObjectRenderer {
         }
         let sum: Vec3 = vertices.iter().map(|v| Vec3::from_array(v.position)).sum();
         model.center = sum / vertices.len().max(1) as f32;
+        model.radius = vertices
+            .iter()
+            .map(|v| Vec3::from_array(v.position).length())
+            .fold(0.0, f32::max);
     }
 
     /// The module index for a pass's pixel shader, translating and compiling it on first use.
@@ -516,6 +547,7 @@ impl ObjectRenderer {
             let start = entries.len();
             let mut opaque = Vec::new();
             let mut translucent = Vec::new();
+            let backdrop = group.sky.then(|| sky_backdrop(group.instances)).flatten();
             for (instance_index, instance) in group.instances.iter().enumerate() {
                 let center = instance.world.transform_point3(instance.model.center);
                 let distance = center.distance_squared(camera.eye);
@@ -546,8 +578,12 @@ impl ObjectRenderer {
                             let pass = recomputed
                                 .as_ref()
                                 .map_or(&gpu_pass.pass, |p| &p[pass_index]);
+                            let mut key = pipeline_key(pass, gpu_pass.program);
+                            if group.sky {
+                                key = sky_depth(key);
+                            }
                             let draw = QueuedDraw {
-                                key: pipeline_key(pass, gpu_pass.program),
+                                key,
                                 offset: 0,
                                 instance: instance_index,
                                 part: part_index,
@@ -555,6 +591,9 @@ impl ObjectRenderer {
                                 layer: pass_index,
                             };
                             let mut uniform = draw_uniform(model, pass);
+                            if group.sky {
+                                mark_sky(&mut uniform, pass, backdrop == Some(instance_index));
+                            }
                             if let Some(normal) = instance.frill_normal {
                                 uniform.frill = normal.extend(1.0).to_array();
                             }
@@ -649,6 +688,7 @@ impl ObjectRenderer {
             ambient: rgb(lights.ambient),
             fog_color: rgb(fog_color),
             fog: [start, end, 1.0 / (end - start).max(1e-3), fog_on],
+            shading: FRAME_SHADING,
         };
         queue.write_buffer(
             &self.frame_buffer,
@@ -698,7 +738,13 @@ impl ObjectRenderer {
 
 /// The object shader with a `shade` function appended.
 fn object_module(device: &wgpu::Device, shade: &str) -> wgpu::ShaderModule {
-    let source = format!("{}\n{}", include_str!("object.wgsl"), shade);
+    let source = format!(
+        "{}\n{}\n{}\n{}",
+        include_str!("shading.wgsl"),
+        include_str!("object.wgsl"),
+        include_str!("object_modern.wgsl"),
+        shade
+    );
     device.create_shader_module(wgpu::ShaderModuleDescriptor {
         label: Some("ac2 object"),
         source: wgpu::ShaderSource::Wgsl(source.into()),

@@ -70,6 +70,38 @@ impl FrameTarget {
         );
     }
 
+    /// Draws a scene the way the window does: `record` into an HDR target of this size
+    /// (renderers made with [`crate::HDR_FORMAT`]), its colour cleared to `clear` (an authored,
+    /// sRGB-encoded colour, decoded for the linear scene), then the tone map into this target.
+    pub fn render_scene(
+        &self,
+        gpu: &crate::Gpu,
+        clear: [f32; 3],
+        record: impl FnOnce(&mut wgpu::RenderPass<'_>),
+    ) {
+        let tonemap = crate::ToneMap::new(gpu, COLOR_FORMAT);
+        let hdr = crate::HdrTarget::new(gpu, &tonemap, self.width, self.height);
+        let mut encoder = gpu.device.create_command_encoder(&Default::default());
+        hdr.render(
+            &mut encoder,
+            {
+                let [r, g, b] = clear.map(|c| crate::shading::srgb_to_linear(c.clamp(0.0, 1.0)));
+                [r, g, b, 1.0]
+            },
+            None,
+            record,
+        );
+        gpu.queue.submit([encoder.finish()]);
+        render_to(
+            &gpu.device,
+            &gpu.queue,
+            &self.color_view,
+            &self.depth_view,
+            [0.0; 3],
+            |pass| tonemap.draw(pass, &hdr, None),
+        );
+    }
+
     /// Copies the colour target to the CPU as tightly packed RGBA8 rows.
     pub fn read_rgba(&self, device: &wgpu::Device, queue: &wgpu::Queue) -> Vec<u8> {
         let row = self.width * 4;

@@ -10,7 +10,7 @@ use ac2_core::DataId;
 use ac2_dat::DatFileKind;
 use ac2_db::{ResourceStore, TypedResourceRef};
 use ac2_gpu::{
-    DrawGroup, FrameTarget, Gpu, ObjectInstance, ObjectRenderer, TextureKey, COLOR_FORMAT,
+    DrawGroup, FrameTarget, Gpu, ObjectInstance, ObjectRenderer, TextureKey, HDR_FORMAT,
 };
 use ac2_math::{Mat4, Vec3};
 use ac2_render::object::{
@@ -48,13 +48,21 @@ fn write_png(name: &str, rgba: &[u8]) {
 fn silhouette_columns(rgba: &[u8]) -> Option<(u32, u32)> {
     let mut columns = None::<(u32, u32)>;
     for (index, px) in rgba.chunks_exact(4).enumerate() {
-        let background = px[0] > 250 && px[1] < 5 && px[2] > 250;
-        if !background {
+        if !is_background(rgba, px) {
             let x = index as u32 % SIZE.0;
             columns = Some(columns.map_or((x, x), |(l, r)| (l.min(x), r.max(x))));
         }
     }
     columns
+}
+
+/// Whether `px` is the cleared background: the frame's top-left pixel (the clear colour after the
+/// scene's tone map), within rounding.
+fn is_background(rgba: &[u8], px: &[u8]) -> bool {
+    px[..3]
+        .iter()
+        .zip(&rgba[..3])
+        .all(|(a, b)| a.abs_diff(*b) <= 2)
 }
 
 /// The CPU reference: every drawn vertex blended and placed as the GPU does, projected to pixel
@@ -125,7 +133,7 @@ fn human_draws_posed_through_the_gpu_blend() {
             load_texture_image(&store, did).ok().flatten()
         }
     };
-    let mut objects = ObjectRenderer::new(&gpu, COLOR_FORMAT);
+    let mut objects = ObjectRenderer::new(&gpu, HDR_FORMAT);
     let uploaded = objects.upload(&gpu, &model, &mut load);
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
     let aspect = SIZE.0 as f32 / SIZE.1 as f32;
@@ -157,9 +165,10 @@ fn human_draws_posed_through_the_gpu_blend() {
                 instances: &instances,
                 ordered: false,
                 environment: None,
+                sky: false,
             }],
         );
-        target.render(&gpu.device, &gpu.queue, BACKGROUND, |pass| {
+        target.render_scene(&gpu, BACKGROUND, |pass| {
             objects.draw(pass, 0, &instances);
         });
         let rgba = target.read_rgba(&gpu.device, &gpu.queue);
@@ -184,7 +193,7 @@ fn human_draws_posed_through_the_gpu_blend() {
 fn body_colour(rgba: &[u8]) -> [f32; 3] {
     let (mut sum, mut n) = ([0.0_f32; 3], 0.0_f32);
     for px in rgba.chunks_exact(4) {
-        if !(px[0] > 250 && px[1] < 5 && px[2] > 250) {
+        if !is_background(rgba, px) {
             for c in 0..3 {
                 sum[c] += f32::from(px[c]);
             }
@@ -240,7 +249,7 @@ fn human_skin_takes_the_appearance_tables_modifiers() {
             load_texture_image(&store, did).ok().flatten()
         }
     };
-    let mut objects = ObjectRenderer::new(&gpu, COLOR_FORMAT);
+    let mut objects = ObjectRenderer::new(&gpu, HDR_FORMAT);
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
     let aspect = SIZE.0 as f32 / SIZE.1 as f32;
     let camera = Camera {
@@ -267,9 +276,10 @@ fn human_skin_takes_the_appearance_tables_modifiers() {
                 instances: &instances,
                 ordered: false,
                 environment: None,
+                sky: false,
             }],
         );
-        target.render(&gpu.device, &gpu.queue, BACKGROUND, |pass| {
+        target.render_scene(&gpu, BACKGROUND, |pass| {
             objects.draw(pass, 0, &instances);
         });
         let rgba = target.read_rgba(&gpu.device, &gpu.queue);

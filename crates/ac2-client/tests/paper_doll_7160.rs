@@ -182,7 +182,7 @@ fn the_paper_doll_wears_the_sword_and_empties_when_it_comes_off() {
     view.render(&gpu, &target.color_view, &target.depth_view, true);
     let full = target.read_rgba(&gpu.device, &gpu.queue);
     write_png("client_paper_doll.png", &full);
-    target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| view.draw(pass));
+    view.render_without_scenes(&gpu, &target.color_view, &target.depth_view);
     let without = target.read_rgba(&gpu.device, &gpu.queue);
     let mut changed = 0;
     for y in viewport.y..viewport.y + viewport.height as i32 {

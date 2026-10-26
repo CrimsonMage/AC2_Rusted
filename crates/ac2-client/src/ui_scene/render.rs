@@ -2,18 +2,25 @@
 //! root's surface (`UIViewportObject::Render` in the surface objects' order), in a pass of its
 //! own that clears the depth (`UIScene::Render`'s clear) and sets the device viewport to the
 //! root's rectangle.
+//!
+//! The world and each scene draw in linear light into the presenter's HDR target and reach the
+//! window through its tone map (`ac2_gpu::ToneMap`); a scene's tone map composites over the UI
+//! surfaces behind it where the scene drew. The UI surfaces themselves draw straight to the
+//! window.
 
-use ac2_gpu::{Gpu, UiOverlay};
+use ac2_gpu::{Gpu, ScenePresenter, UiOverlay};
 
 use super::UiScenes;
 use crate::ui_scale::UiScale;
 
-/// Draws into `color` (cleared to `clear`) on the window `scale` fits the UI to: `first` (the world, when there
-/// is one), then `overlay`'s layers (whose roots are `layer_roots`, in drawing order) with each
+/// Draws into `color` (cleared to `clear`, an sRGB colour) on the window `scale` fits the UI
+/// to: `world` (when there is one) through the tone map, then `first` (drawn to the window
+/// format), then `overlay`'s layers (whose roots are `layer_roots`, in drawing order) with each
 /// of `scenes`' prepared viewports after its root's layer.
 #[allow(clippy::too_many_arguments)]
 pub fn render_with_scenes(
     gpu: &Gpu,
+    presenter: &ScenePresenter,
     color: &wgpu::TextureView,
     depth: &wgpu::TextureView,
     scale: &UiScale,
@@ -21,6 +28,7 @@ pub fn render_with_scenes(
     overlay: &UiOverlay,
     layer_roots: &[usize],
     scenes: &[&UiScenes],
+    world: Option<&dyn Fn(&mut wgpu::RenderPass<'_>)>,
     first: impl FnOnce(&mut wgpu::RenderPass<'_>),
 ) {
     let mut views: Vec<(usize, usize, usize, ac2_ui::SceneViewport)> = scenes
@@ -38,17 +46,34 @@ pub fn render_with_scenes(
         })
         .collect();
     views.sort_by_key(|(layer, ..)| *layer);
+    let (width, height) = scale.window;
+    let hdr = (world.is_some() || !views.is_empty()).then(|| presenter.target(gpu, width, height));
     let mut encoder = gpu.device.create_command_encoder(&Default::default());
+    // `Turbine::Client::UseTime`'s clear, then the world in the scene target.
+    if let (Some(world), Some(hdr)) = (world, &hdr) {
+        let [r, g, b] = clear.map(|c| ac2_gpu::srgb_to_linear(c.clamp(0.0, 1.0)));
+        hdr.render(&mut encoder, [r, g, b, 1.0], None, world);
+    }
+    let mut pass_clear = Some(clear);
     let mut first = Some(first);
     let mut next = 0;
-    let (width, height) = scale.window;
-    for (i, (layer, owner, view, viewport)) in views.iter().enumerate() {
-        let mut pass = begin_pass(&mut encoder, color, depth, (i == 0).then_some(clear));
-        if let Some(first) = first.take() {
-            first(&mut pass);
+    let mut pending: Option<[u32; 4]> = None;
+    for (layer, owner, view, viewport) in views.iter() {
+        {
+            let mut pass = begin_pass(&mut encoder, color, depth, pass_clear.take());
+            output_head(
+                &mut pass,
+                presenter,
+                hdr.as_deref(),
+                world.is_some(),
+                &mut first,
+            );
+            if let (Some(rect), Some(hdr)) = (pending.take(), &hdr) {
+                presenter.tonemap().draw(&mut pass, hdr, Some(rect));
+            }
+            overlay.draw_range(&mut pass, next..layer + 1);
+            next = layer + 1;
         }
-        overlay.draw_range(&mut pass, next..layer + 1);
-        next = layer + 1;
         // The viewport's UI rectangle in window pixels.
         let (left, top) = scale.to_window(f64::from(viewport.x), f64::from(viewport.y));
         let (right, bottom) = scale.to_window(
@@ -59,32 +84,50 @@ pub fn render_with_scenes(
         let y0 = (top.round() as i32).clamp(0, height as i32) as u32;
         let x1 = (right.round() as i32).clamp(0, width as i32) as u32;
         let y1 = (bottom.round() as i32).clamp(0, height as i32) as u32;
+        let Some(hdr) = &hdr else { continue };
         if x1 <= x0 || y1 <= y0 {
             continue;
         }
-        pass.set_viewport(
-            x0 as f32,
-            y0 as f32,
-            (x1 - x0) as f32,
-            (y1 - y0) as f32,
-            0.0,
-            1.0,
-        );
-        scenes[*owner].draw(*view, &mut pass);
+        let rect = [x0, y0, x1 - x0, y1 - y0];
+        // `UIScene::Render`: the scene alone, over nothing (coverage 0) and a cleared depth.
+        hdr.render(&mut encoder, [0.0; 4], Some(rect), |pass| {
+            scenes[*owner].draw(*view, pass);
+        });
+        pending = Some(rect);
     }
     {
-        let mut pass = begin_pass(
-            &mut encoder,
-            color,
-            depth,
-            views.is_empty().then_some(clear),
+        let mut pass = begin_pass(&mut encoder, color, depth, pass_clear.take());
+        output_head(
+            &mut pass,
+            presenter,
+            hdr.as_deref(),
+            world.is_some(),
+            &mut first,
         );
-        if let Some(first) = first.take() {
-            first(&mut pass);
+        if let (Some(rect), Some(hdr)) = (pending.take(), &hdr) {
+            presenter.tonemap().draw(&mut pass, hdr, Some(rect));
         }
         overlay.draw_range(&mut pass, next..layer_roots.len().max(next));
     }
+    drop(hdr);
     gpu.queue.submit([encoder.finish()]);
+}
+
+/// The start of the first window pass: the world's tone map (when it drew), then `first`.
+fn output_head(
+    pass: &mut wgpu::RenderPass<'_>,
+    presenter: &ScenePresenter,
+    hdr: Option<&ac2_gpu::HdrTarget>,
+    world: bool,
+    first: &mut Option<impl FnOnce(&mut wgpu::RenderPass<'_>)>,
+) {
+    let Some(first) = first.take() else {
+        return;
+    };
+    if let (true, Some(hdr)) = (world, hdr) {
+        presenter.tonemap().draw(pass, hdr, None);
+    }
+    first(pass);
 }
 
 /// A pass over `color` (cleared to `clear`, else kept) with its depth cleared.

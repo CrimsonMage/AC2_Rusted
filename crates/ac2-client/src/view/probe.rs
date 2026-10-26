@@ -25,6 +25,30 @@ fn find(
 }
 
 impl ClientView {
+    /// [`ClientView::render`] with no UI viewport scenes (the paper doll left out).
+    pub fn render_without_scenes(
+        &self,
+        gpu: &ac2_gpu::Gpu,
+        color: &wgpu::TextureView,
+        depth: &wgpu::TextureView,
+    ) {
+        let (overlay, roots) = self.hud.layers_for_scenes();
+        let draw_world: &dyn Fn(&mut wgpu::RenderPass<'_>) = &|pass| self.renderer.draw(pass);
+        crate::ui_scene::render_with_scenes(
+            gpu,
+            &self.presenter,
+            color,
+            depth,
+            &self.hud.scale,
+            [0.0; 3],
+            overlay,
+            roots,
+            &[],
+            self.world_drawn.then_some(draw_world),
+            |pass| self.fader.draw(pass),
+        );
+    }
+
     /// The window pixel at the centre of the HUD element at `index` of the tree.
     fn window_center(&self, tree: &UiTree, index: usize) -> (i32, i32) {
         let b = tree.screen_box(index);

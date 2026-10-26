@@ -8,7 +8,7 @@ use std::sync::Arc;
 use ac2_core::CellId;
 use ac2_db::ResourceStore;
 use ac2_gpu::{
-    DrawGroup, FrameTarget, Gpu, ObjectInstance, ObjectRenderer, TextureKey, COLOR_FORMAT,
+    DrawGroup, FrameTarget, Gpu, ObjectInstance, ObjectRenderer, TextureKey, HDR_FORMAT,
 };
 use ac2_math::{Mat4, Vec3};
 use ac2_render::object::{
@@ -74,7 +74,7 @@ fn dungeon_cells_render_with_baked_light() {
             .unwrap_or(2),
         ..RenderSettings::default()
     };
-    let mut objects = ObjectRenderer::new(&gpu, COLOR_FORMAT);
+    let mut objects = ObjectRenderer::new(&gpu, HDR_FORMAT);
     let mut models = Vec::new();
     let mut cell_lights = Vec::new();
     let block_origin = Vec3::new(
@@ -207,11 +207,10 @@ fn dungeon_cells_render_with_baked_light() {
                 instances: &instances,
                 ordered: false,
                 environment: None,
+                sky: false,
             }],
         );
-        target.render(&gpu.device, &gpu.queue, [0.0; 3], |pass| {
-            objects.draw(pass, 0, &instances)
-        });
+        target.render_scene(&gpu, [0.0; 3], |pass| objects.draw(pass, 0, &instances));
         let rgba = target.read_rgba(&gpu.device, &gpu.queue);
         write_png(name, &rgba);
         let mean = rgba

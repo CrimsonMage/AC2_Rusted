@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use ac2_core::CellId;
 use ac2_db::ResourceStore;
-use ac2_gpu::{FrameTarget, Gpu, TerrainRenderer, TextureKey, COLOR_FORMAT};
+use ac2_gpu::{FrameTarget, Gpu, TerrainRenderer, TextureKey, HDR_FORMAT};
 use ac2_math::Vec3;
 use ac2_render::terrain::build_terrain_mesh;
 use ac2_render::{load_material_image, load_texture_image, Camera, SceneLighting};
@@ -41,7 +41,7 @@ fn render(
     camera: Camera,
 ) -> Vec<u8> {
     let store = world.resource_store().clone();
-    let mut renderer = TerrainRenderer::new(gpu, COLOR_FORMAT);
+    let mut renderer = TerrainRenderer::new(gpu, HDR_FORMAT);
     let mut load = |key: TextureKey| match key {
         TextureKey::Material(did) => load_material_image(&store, did).ok().flatten(),
         TextureKey::Mask(did) | TextureKey::Texture(did) => {
@@ -82,9 +82,7 @@ fn render(
         &lighting,
         SIZE.0 as f32 / SIZE.1 as f32,
     );
-    target.render(&gpu.device, &gpu.queue, lighting.fog_color, |pass| {
-        renderer.draw(pass, &blocks)
-    });
+    target.render_scene(gpu, lighting.fog_color, |pass| renderer.draw(pass, &blocks));
     target.read_rgba(&gpu.device, &gpu.queue)
 }
 
@@ -156,6 +154,20 @@ fn near_landscape_renders_blended_terrain() {
         },
     );
     write_png("terrain_cb4d_top.png", &top);
+    for (name, frame) in [("oblique", &oblique), ("top", &top)] {
+        let (colors, mean) = stats(frame);
+        eprintln!("{name}: {colors} colours, mean {mean:.1}");
+        assert!((60.0..200.0).contains(&mean), "{name}: lit band ({mean})");
+        // Blown highlights: pixels with every channel at 255.
+        let blown = frame
+            .chunks_exact(4)
+            .filter(|px| px[..3] == [255; 3])
+            .count();
+        assert!(
+            blown * 100 < frame.len() / 4,
+            "{name}: {blown} blown pixels"
+        );
+    }
 
     for (name, frame) in [("oblique", &oblique), ("top", &top)] {
         let (colors, mean) = stats(frame);

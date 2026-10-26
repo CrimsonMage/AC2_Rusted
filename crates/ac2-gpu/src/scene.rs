@@ -13,9 +13,10 @@ use ac2_render::scene::{BlockKey, Images, Loaded, SceneFrame, SceneUpdate};
 use ac2_render::sky::SkyPlacement;
 use ac2_render::{Camera, Image, TextureKey};
 
+use crate::sky::{SkyLook, SkyRenderer};
 use crate::{
     DrawGroup, Gpu, GpuFarTerrain, GpuObjectModel, ObjectInstance, ObjectRenderer, ScreenQuad,
-    TerrainBlock, TerrainRenderer,
+    TerrainBlock, TerrainRenderer, HDR_FORMAT,
 };
 
 /// One resident block on the GPU.
@@ -49,6 +50,8 @@ pub struct SceneRenderer {
     pub terrain: TerrainRenderer,
     objects: ObjectRenderer,
     fog_quad: ScreenQuad,
+    /// The sky under the DAT sky objects.
+    sky: SkyRenderer,
     models: HashMap<DataId, GpuObjectModel>,
     /// World objects' models by request key.
     world_objects: HashMap<u64, GpuObjectModel>,
@@ -61,11 +64,13 @@ pub struct SceneRenderer {
 }
 
 impl SceneRenderer {
-    pub fn new(gpu: &Gpu, format: wgpu::TextureFormat) -> Self {
+    /// The renderers of a scene drawn into an [`crate::HdrTarget`] (`HDR_FORMAT`).
+    pub fn new(gpu: &Gpu) -> Self {
         Self {
-            terrain: TerrainRenderer::new(gpu, format),
-            objects: ObjectRenderer::new(gpu, format),
-            fog_quad: ScreenQuad::new(gpu, format),
+            terrain: TerrainRenderer::new(gpu, HDR_FORMAT),
+            objects: ObjectRenderer::new(gpu, HDR_FORMAT),
+            fog_quad: ScreenQuad::new(gpu, HDR_FORMAT),
+            sky: SkyRenderer::new(gpu, HDR_FORMAT),
             models: HashMap::new(),
             world_objects: HashMap::new(),
             frame_objects: Vec::new(),
@@ -196,12 +201,26 @@ impl SceneRenderer {
         let lighting = self.frame.lighting;
         self.terrain
             .set_frame(&gpu.queue, camera, &lighting, aspect);
-        if let Some(color) = self.frame.sky.fog_quad {
-            self.fog_quad.set_color(&gpu.queue, color);
+        if let Some([r, g, b, a]) = self.frame.sky.fog_quad {
+            // The authored fog colour, decoded for the linear scene; its alpha is `fog_sky`.
+            let linear = [r, g, b].map(|c| crate::shading::srgb_to_linear(c.clamp(0.0, 1.0)));
+            self.fog_quad
+                .set_color(&gpu.queue, [linear[0], linear[1], linear[2], a]);
         }
+        // `WorldRender::SetupEnvironment(SkyEnvironment)`: the sky objects draw with
+        // `FOGMODE_NONE`; the sky's only fog is `LScapeSky::Draw`'s `fog_sky` screen quad.
+        let sky_environment = ObjectEnvironment::sky(&lighting);
+        let sky_group_environment = Some(&sky_environment);
         let (models, blocks, far, frame) = (&self.models, &self.blocks, &self.far, &self.frame);
         let placed = (&self.world_objects, self.frame_objects.as_slice());
         let before = sky_instances(models, &frame.sky.before);
+        let look = SkyLook {
+            backdrop: crate::sky_backdrop(&before).map(|index| before[index].tint),
+            time,
+            ..SkyLook::default()
+        };
+        self.sky
+            .set_frame(&gpu.queue, camera, aspect, &lighting, &look);
         let world = world_instances(models, placed, blocks, far, frame);
         let after = sky_instances(models, &frame.sky.after);
         let interiors = interior_instances(models, blocks, frame);
@@ -209,23 +228,27 @@ impl SceneRenderer {
             DrawGroup {
                 instances: &before,
                 ordered: true,
-                environment: None,
+                environment: sky_group_environment,
+                sky: true,
             },
             DrawGroup {
                 instances: &world,
                 ordered: false,
                 environment: None,
+                sky: false,
             },
             DrawGroup {
                 instances: &after,
                 ordered: true,
-                environment: None,
+                environment: sky_group_environment,
+                sky: true,
             },
         ];
         groups.extend(interiors.iter().map(|(instances, environment)| DrawGroup {
             instances,
             ordered: false,
             environment: Some(environment),
+            sky: false,
         }));
         self.objects.prepare(
             gpu,
@@ -242,8 +265,15 @@ impl SceneRenderer {
     pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
         let (models, blocks, far, frame) = (&self.models, &self.blocks, &self.far, &self.frame);
         let placed = (&self.world_objects, self.frame_objects.as_slice());
+        // The sky under `LScapeSky`'s objects, only where there is a landscape sky (not in a
+        // dungeon or a UI viewport's scene, which clear to black).
+        if !(frame.sky.before.is_empty() && frame.sky.after.is_empty()) {
+            self.sky.draw(pass);
+        }
         self.objects
             .draw(pass, 0, &sky_instances(models, &frame.sky.before));
+        // `LScapeSky::Draw`: the sky fog, a fog-coloured quad at alpha `fog_sky` over the
+        // before-world sky objects.
         if frame.sky.fog_quad.is_some() {
             self.fog_quad.draw(pass);
         }

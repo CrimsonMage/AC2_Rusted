@@ -56,6 +56,8 @@ pub struct ClientView {
     doll: crate::paper_doll_scene::PaperDollScene,
     /// The portal space's fader (`PortalSpace::Effect`'s `DrawScreenQuad`).
     fader: crate::view_portal::PortalFader,
+    /// The tone map the world and the paper doll reach the window through.
+    presenter: ac2_gpu::ScenePresenter,
     /// `WorldRender::Render`'s gate for the frame: the world is drawn (not in portal space, or
     /// the effect draws it).
     world_drawn: bool,
@@ -120,10 +122,11 @@ impl ClientView {
             block_size: world.block_size(),
             hud: HudView::new(Arc::clone(&store), gpu, format, size),
             deselect: false,
-            doll: crate::paper_doll_scene::PaperDollScene::new(store, Arc::clone(&world), format),
+            doll: crate::paper_doll_scene::PaperDollScene::new(store, Arc::clone(&world)),
             scene: WorldScene::new(world, radius),
-            renderer: SceneRenderer::new(gpu, format),
+            renderer: SceneRenderer::new(gpu),
             fader: crate::view_portal::PortalFader::new(gpu, format),
+            presenter: ac2_gpu::ScenePresenter::new(gpu, format),
             world_drawn: true,
         }
     }
@@ -724,16 +727,6 @@ impl ClientView {
         self.hud.layers()
     }
 
-    /// Records the frame into a pass cleared to `SceneTool::backgroundColor` (black): the
-    /// world, then the HUD.
-    pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
-        if self.world_drawn {
-            self.renderer.draw(pass);
-        }
-        self.fader.draw(pass);
-        self.hud.draw(pass);
-    }
-
     /// Draws the frame into `color` (the window) cleared to black: the world when
     /// `prepare` laid it out, then the HUD with the paper doll's scene in its viewport, after
     /// its surface and over a cleared depth ([`crate::ui_scene::render_with_scenes`]).
@@ -745,8 +738,10 @@ impl ClientView {
         world: bool,
     ) {
         let (overlay, roots) = self.hud.layers_for_scenes();
+        let draw_world: &dyn Fn(&mut wgpu::RenderPass<'_>) = &|pass| self.renderer.draw(pass);
         crate::ui_scene::render_with_scenes(
             gpu,
+            &self.presenter,
             color,
             depth,
             &self.hud.scale,
@@ -754,12 +749,8 @@ impl ClientView {
             overlay,
             roots,
             &[self.doll.scenes()],
-            |pass| {
-                if world && self.world_drawn {
-                    self.renderer.draw(pass);
-                }
-                self.fader.draw(pass);
-            },
+            (world && self.world_drawn).then_some(draw_world),
+            |pass| self.fader.draw(pass),
         );
     }
 }

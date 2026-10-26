@@ -20,6 +20,9 @@ struct Frame {
     fog_color: vec4<f32>,
     // start, end, 1 / (end - start), enabled
     fog: vec4<f32>,
+    // x: 1 for the modern shading path (`object_modern.wgsl`), 0 for retail; y: exposure, z:
+    // saturation, w: contrast (`shading.wgsl`).
+    shading: vec4<f32>,
 };
 
 struct Draw {
@@ -62,6 +65,12 @@ const FLAG_PIXEL_SPECULAR: u32 = 1024u;
 const FLAG_UNMODULATED_COLOR1: u32 = 2048u;
 const FLAG_DYNAMIC: u32 = 4096u;
 const FLAG_IGNORE_POINT: u32 = 8192u;
+// A DAT sky object (`DrawGroup::sky`).
+const FLAG_SKY: u32 = 16384u;
+// The backdrop dome among the sky objects (`sky_backdrop`): it adds its texture's detail only.
+const FLAG_SKY_BACKDROP: u32 = 32768u;
+// An additive sky layer (stars, sun, debris): emissive in the HDR scene (`shade_modern`).
+const FLAG_SKY_EMISSIVE: u32 = 65536u;
 
 @group(0) @binding(0) var<uniform> frame: Frame;
 @group(1) @binding(0) var<uniform> draw: Draw;
@@ -99,6 +108,11 @@ struct VsOut {
     @location(4) t2: vec3<f32>,
     @location(5) t3: vec3<f32>,
     @location(6) fog: f32,
+    // World normal and position, for the modern per-pixel lighting.
+    @location(7) normal: vec3<f32>,
+    @location(8) world: vec3<f32>,
+    // The modern fogged fraction (`modern_fog`); 0 when the environment has no fog.
+    @location(9) haze: f32,
 };
 
 /// Per-vertex vectors the fragments share, in world space.
@@ -294,13 +308,13 @@ fn vs(input: VsIn) -> VsOut {
 
     var color0 = vec4(1.0);
     var color1 = vec4(0.0);
-    if program == 1u || program == 3u {
-        if program == 1u {
-            color0 = vec4(0.0, 0.0, 0.0, 1.0);
-        } else {
-            // Vertex diffuse with dynamic lighting: colour 1 carries the directional light colour.
-            color0 = select(vertex_color, vec4(0.0, 0.0, 0.0, 1.0), has(FLAG_MODULATE));
-        }
+    if program == 1u {
+        // The fragment lights the albedo itself (`modern_lit_albedo`). Program 3's vertex
+        // colour is baked light (cells, dungeons): it keeps retail's vertex lighting below.
+        color0 = modern_lit_albedo(program, vertex_color);
+    } else if program == 3u {
+        // Vertex diffuse with dynamic lighting: colour 1 carries the directional light colour.
+        color0 = select(vertex_color, vec4(0.0, 0.0, 0.0, 1.0), has(FLAG_MODULATE));
         // Directional light, then point lights (`f_ApplyDiffuse*ToColor0`,
         // `f_ApplySpecular*ToColor1`).
         var spec = vec3(0.0);
@@ -313,23 +327,16 @@ fn vs(input: VsIn) -> VsOut {
             color0 = vec4(color0.rgb + term.x * draw.points[i * 4u + 1u].rgb, color0.a);
             spec = spec + term.y * draw.points[i * 4u + 2u].rgb;
         }
-        if program == 1u {
-            if has(FLAG_MATERIAL_DIFFUSE) {
-                color0 = color0 * draw.diffuse;
-            }
+        // Ambient only when a stage takes the point-to-light vector.
+        if has_stage_source(0x500u) {
             color0 = vec4(color0.rgb + ambient, color0.a);
-        } else {
-            // Ambient only when a stage takes the point-to-light vector.
-            if has_stage_source(0x500u) {
-                color0 = vec4(color0.rgb + ambient, color0.a);
-            }
-            if has(FLAG_MODULATE) {
-                color0 = color0 * vertex_color;
-            }
+        }
+        if has(FLAG_MODULATE) {
+            color0 = color0 * vertex_color;
         }
         if specular {
             color1 = vec4(spec * draw.specular.rgb, 0.0);
-        } else if program == 3u {
+        } else {
             color1 = vec4(dir_diffuse, 1.0);
         }
     } else if program == 2u || program == 4u {
@@ -404,6 +411,9 @@ fn vs(input: VsIn) -> VsOut {
     out.t2 = stage_coord(input, 2u, basis, world.xyz, reflection, out.clip, view_pos);
     out.t3 = stage_coord(input, 3u, basis, world.xyz, reflection, out.clip, view_pos);
     out.fog = fog;
+    out.haze = select(0.0, modern_fog(distance, world.z, frame.fog.xy), frame.fog.w > 0.5);
+    out.normal = basis.normal;
+    out.world = world.xyz;
     return out;
 }
 
@@ -416,23 +426,35 @@ fn sample_stage(stage: u32, input: VsOut) -> vec4<f32> {
     }
 }
 
+// A stage at its full-size level: the sky objects, whose star dots a mip would average away
+// across a dome hundreds of metres wide.
+fn sample_stage_sharp(stage: u32, input: VsOut) -> vec4<f32> {
+    switch stage {
+        case 0u: { return textureSampleLevel(tex0, samp0, input.t0.xy, 0.0); }
+        case 1u: { return textureSampleLevel(tex1, samp1, input.t1.xy, 0.0); }
+        case 2u: { return textureSampleLevel(tex2, samp2, input.t2.xy, 0.0); }
+        default: { return textureSampleLevel(tex3, samp3, input.t3.xy, 0.0); }
+    }
+}
+
 @fragment
 fn fs(input: VsOut) -> @location(0) vec4<f32> {
     // Sample every stage up front: texture sampling needs uniform control flow.
-    let texels = array<vec4<f32>, 4>(
+    var texels = array<vec4<f32>, 4>(
         sample_stage(0u, input),
         sample_stage(1u, input),
         sample_stage(2u, input),
         sample_stage(3u, input),
     );
-    let shaded = shade(input, texels);
-    var color = shaded.rgb;
-    if has(FLAG_FOG) {
-        color = mix(frame.fog_color.rgb, color, input.fog);
+    if has(FLAG_SKY) {
+        texels = array<vec4<f32>, 4>(
+            sample_stage_sharp(0u, input),
+            sample_stage_sharp(1u, input),
+            sample_stage_sharp(2u, input),
+            sample_stage_sharp(3u, input),
+        );
     }
-    let reference = draw.program.z;
-    if reference < 256u && !(round(clamp(shaded.a, 0.0, 1.0) * 255.0) > f32(reference)) {
-        discard;
-    }
-    return vec4(color, shaded.a);
+    // Stage 0 at a coarse mip: the backdrop's local average, against which its detail shows.
+    let coarse = textureSampleLevel(tex0, samp0, input.t0.xy, 4.0);
+    return shade_modern(input, texels, coarse);
 }

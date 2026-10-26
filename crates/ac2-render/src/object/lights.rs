@@ -71,6 +71,15 @@ impl ObjectEnvironment {
         }
     }
 
+    /// `SkyEnvironment` (`WorldRender::SetupEnvironment`): the frame's sun with a black ambient
+    /// (only `OutsideEnvironment` takes the region's ambient colour and brightness). The sky's
+    /// fog is `LScapeSky::Draw`'s `fog_sky` screen quad, so the objects draw unfogged.
+    pub fn sky(lighting: &SceneLighting) -> Self {
+        let mut lights = ObjectLights::outdoor(lighting);
+        lights.ambient = [0.0; 3];
+        Self { lights, fog: None }
+    }
+
     /// `InsideEnvironment`: the landblock's interior ambient, no sun (`ApplyLights` adds it only
     /// in outdoor cells) and the interior fog when it is linear (`0x40000002`).
     pub fn inside(ambient: [f32; 3], fog: Option<([f32; 3], (f32, f32))>) -> Self {

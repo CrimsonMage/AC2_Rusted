@@ -35,13 +35,9 @@ pub struct PregameScenes {
 impl PregameScenes {
     /// Scenes over `store`'s DATs; each viewport's models load through a `WorldScene` over
     /// `world`.
-    pub fn new(
-        store: Arc<ResourceStore>,
-        world: Arc<Ac2WorldSource>,
-        format: wgpu::TextureFormat,
-    ) -> Self {
+    pub fn new(store: Arc<ResourceStore>, world: Arc<Ac2WorldSource>) -> Self {
         Self {
-            scenes: UiScenes::new(store, world, format),
+            scenes: UiScenes::new(store, world),
             selected: None,
             hovered: None,
         }

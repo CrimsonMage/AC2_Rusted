@@ -7,7 +7,7 @@ use std::time::{Duration, Instant};
 
 use ac2_client::view::ClientView;
 use ac2_core::DataId;
-use ac2_gpu::{acquire_frame, render_to, Gpu, DEPTH_FORMAT};
+use ac2_gpu::{acquire_frame, Gpu, DEPTH_FORMAT};
 use ac2_render::scene::DAY_SECONDS;
 use ac2_ui::Modifiers;
 use ac2_world::Ac2WorldSource;
@@ -411,15 +411,7 @@ impl State {
         let target = output.texture.create_view(&Default::default());
         let aspect = self.config.width as f32 / self.config.height as f32;
         self.view.prepare(&self.gpu, &frame, aspect, time);
-        let view = &self.view;
-        render_to(
-            &self.gpu.device,
-            &self.gpu.queue,
-            &target,
-            &self.depth,
-            [0.0; 3],
-            |pass| view.draw(pass),
-        );
+        self.view.render(&self.gpu, &target, &self.depth, true);
 
         let mut commands = Vec::new();
         let message = self

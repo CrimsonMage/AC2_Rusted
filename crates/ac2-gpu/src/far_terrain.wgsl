@@ -11,6 +11,8 @@ struct Frame {
     ambient: vec4<f32>,
     fog_color: vec4<f32>,
     fog: vec4<f32>,
+    // The terrain frame's shading vec4: x 1 for the modern path.
+    shading: vec4<f32>,
 };
 
 @group(0) @binding(0) var<uniform> frame: Frame;
@@ -30,6 +32,7 @@ struct VsOut {
     @location(0) color: vec4<f32>,
     @location(1) uv: vec2<f32>,
     @location(2) distance: f32,
+    @location(3) haze: f32,
 };
 
 @vertex
@@ -43,15 +46,16 @@ fn vs(input: VsIn) -> VsOut {
     out.color = vec4(clamp(light, vec3(0.0), vec3(1.0)), 1.0);
     out.uv = input.uv;
     out.distance = distance(input.position, frame.eye.xyz);
+    out.haze = modern_fog(out.distance, input.position.z, frame.fog.xy);
     return out;
 }
 
+// `D3DTOP_ADDSIGNED2X` ((arg1 + arg2 - 0.5) * 2, saturated) runs on the authored gamma values as
+// retail does (its 0.5 neutral point is an encoded value); the result is decoded and fogged in
+// linear light, and the scene's tone map follows.
 @fragment
 fn fs(input: VsOut) -> @location(0) vec4<f32> {
     let texel = textureSample(far_texture, wrap_sampler, input.uv).rgb;
-    // `D3DTOP_ADDSIGNED2X`: (arg1 + arg2 - 0.5) * 2, saturated.
-    let color = saturate((texel + input.color.rgb - 0.5) * 2.0);
-    let fog_span = max(frame.fog.y - frame.fog.x, 1e-3);
-    let fog = clamp((input.distance - frame.fog.x) / fog_span, 0.0, 1.0);
-    return vec4(mix(color, frame.fog_color.rgb, fog), 1.0);
+    let combined = saturate((texel + input.color.rgb - 0.5) * 2.0);
+    return vec4(mix(srgb_to_linear(combined), fog_linear(frame.fog_color.rgb), input.haze), 1.0);
 }

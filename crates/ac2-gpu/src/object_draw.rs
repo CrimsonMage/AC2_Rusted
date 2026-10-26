@@ -89,6 +89,25 @@ pub(crate) fn bone_storage(
     (buffer, group)
 }
 
+/// `FLAG_SKY` in `object.wgsl`: the draw is a DAT sky object.
+const FLAG_SKY: u32 = 1 << 14;
+/// `FLAG_SKY_BACKDROP`: the sky object is the backdrop dome ([`crate::sky_backdrop`]).
+const FLAG_SKY_BACKDROP: u32 = 1 << 15;
+
+/// `FLAG_SKY_EMISSIVE`: an additive (`SRCALPHA`, `ONE`) sky layer, light in the sky.
+const FLAG_SKY_EMISSIVE: u32 = 1 << 16;
+
+/// Marks a draw as a DAT sky object (`DrawGroup::sky`), as its backdrop dome, and as
+/// emissive when it adds light (`SRCALPHA`, `ONE`).
+pub(crate) fn mark_sky(uniform: &mut DrawUniform, pass: &LayerPass, backdrop: bool) {
+    uniform.program[1] |= FLAG_SKY;
+    if backdrop {
+        uniform.program[1] |= FLAG_SKY_BACKDROP;
+    } else if pass.source_blend == 5 && pass.dest_blend == 2 {
+        uniform.program[1] |= FLAG_SKY_EMISSIVE;
+    }
+}
+
 pub(crate) fn draw_uniform(model: Mat4, pass: &LayerPass) -> DrawUniform {
     let program = match pass.program {
         VertexProgram::Unlit => 0,
