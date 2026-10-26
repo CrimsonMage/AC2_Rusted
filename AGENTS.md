@@ -47,7 +47,8 @@ subsystem it reproduces. This file states the working rules.
 - New code goes in the crate that owns that AC2 subsystem. If no crate fits, revise
   `ARCHITECTURE.md` first.
 - The dependency graph is one-way in the order `ARCHITECTURE.md` lists.
-- Every `.rs` file stays under 800 lines; split by responsibility.
+- File size: plan a split by responsibility once a `.rs` file reaches 1000 lines; 1500 lines is a
+  hard fail (`scripts/check_file_sizes.sh` fails the gate).
 - Keep public APIs small: plain data and narrow entry points.
 - Tests that need game data read `AC2_DAT_DIR` and are skipped when it is unset.
 - `crates/` is the client. `tools/` holds test tooling only; the world viewer is an offline

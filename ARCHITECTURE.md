@@ -66,7 +66,7 @@ they are built: script after `ac2-weenie`, gameplay after script, audio after `a
 
 ## Rules carried over
 
-- Every `.rs` file stays under 800 lines. The dependency graph is one-way.
+- `.rs` files: plan a split at 1000 lines, 1500 is a hard fail. The dependency graph is one-way.
 - Behaviour follows the original client, cited by class and function name. No decompiled code,
   game data or data-derived fixtures are committed. Tests that need data read
   `AC2_DAT_DIR`.
