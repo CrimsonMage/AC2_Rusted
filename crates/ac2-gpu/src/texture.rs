@@ -10,6 +10,7 @@ pub use ac2_render::TextureKey;
 pub struct TextureCache {
     views: HashMap<TextureKey, wgpu::TextureView>,
     white: wgpu::TextureView,
+    neutral: wgpu::TextureView,
 }
 
 impl TextureCache {
@@ -25,14 +26,32 @@ impl TextureCache {
                 }],
             },
         );
+        let neutral = upload(
+            device,
+            queue,
+            &Image {
+                levels: vec![ac2_render::ImageLevel {
+                    width: 1,
+                    height: 1,
+                    rgba: [128, 128, 128, 255].into(),
+                }],
+            },
+        );
         Self {
             views: HashMap::new(),
             white,
+            neutral,
         }
     }
 
     pub fn white(&self) -> &wgpu::TextureView {
         &self.white
+    }
+
+    /// Opaque mid grey (0.5): what an authored pixel shader's `tex` reads from a stage with no
+    /// texture ([`crate::ObjectRenderer`]'s stage binding).
+    pub fn neutral(&self) -> &wgpu::TextureView {
+        &self.neutral
     }
 
     /// The view for `key`, uploading the image `load` returns on first use.

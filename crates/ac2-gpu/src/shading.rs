@@ -26,18 +26,6 @@ fn linear_to_srgb(linear: f32) -> f32 {
     }
 }
 
-#[cfg(test)]
-/// The ACES filmic tone curve (Narkowicz's fit, the one Unreal's default view uses), clamped to
-/// [0, 1]. Input is linear light after exposure.
-fn aces_filmic(x: f32) -> f32 {
-    const A: f32 = 2.51;
-    const B: f32 = 0.03;
-    const C: f32 = 2.43;
-    const D: f32 = 0.59;
-    const E: f32 = 0.14;
-    ((x * (A * x + B)) / (x * (C * x + D) + E)).clamp(0.0, 1.0)
-}
-
 /// `MODERN_FOG_HEIGHT_FALLOFF` in `shading.wgsl`: how fast distance fog thins per metre of altitude.
 #[cfg(test)]
 const FOG_HEIGHT_FALLOFF: f32 = 0.01;
@@ -81,36 +69,6 @@ mod tests {
             let encoded = step as f32 / 255.0;
             let back = linear_to_srgb(srgb_to_linear(encoded));
             assert!(close(back, encoded, 1e-5), "{encoded} -> {back}");
-        }
-    }
-
-    #[test]
-    fn aces_curve_matches_known_values() {
-        assert_eq!(aces_filmic(0.0), 0.0);
-        // The fit's own values: 0.18 maps to about 0.267, 1.0 to about 0.804.
-        assert!(
-            close(aces_filmic(0.18), 0.2669, 1e-3),
-            "{}",
-            aces_filmic(0.18)
-        );
-        assert!(
-            close(aces_filmic(1.0), 0.8038, 1e-3),
-            "{}",
-            aces_filmic(1.0)
-        );
-        // Highlights roll off towards 1 and never exceed it.
-        assert!(aces_filmic(4.0) < 1.0 && aces_filmic(4.0) > aces_filmic(1.0));
-        assert!(aces_filmic(1e6) <= 1.0);
-    }
-
-    #[test]
-    fn aces_is_monotonic() {
-        let mut last = -1.0;
-        for step in 0..=400 {
-            let x = step as f32 * 0.01;
-            let y = aces_filmic(x);
-            assert!(y >= last, "not monotonic at {x}");
-            last = y;
         }
     }
 

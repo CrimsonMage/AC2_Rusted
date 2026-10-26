@@ -77,10 +77,9 @@ fn vs(input: VsIn) -> VsOut {
     // ambient) * c.rgb), c being the vertex specular colour.
     let c = input.surface_color;
     let direct = max(-dot(input.normal, frame.light_dir.xyz) * c.a, 0.0);
-    // The authored light and surface colour, decoded to linear light (the fragment multiplies
-    // the decoded texel by it).
-    let irradiance = light_linear((direct * frame.dir_color.rgb + frame.ambient.rgb) * c.rgb);
-    out.color = vec4(irradiance, 1.0);
+    // The 8-bit display-space vertex diffuse retail writes; the fragment combines it with the
+    // texels in display space, as the D3D8 stages did, and decodes the result once.
+    out.color = vec4(saturate((direct * frame.dir_color.rgb + frame.ambient.rgb) * c.rgb), 1.0);
     out.grid = input.grid;
     out.mask1_uv = mask_uv(batch.rot.x, input.corner);
     out.mask2_uv = mask_uv(batch.rot.y, input.corner);
@@ -89,16 +88,19 @@ fn vs(input: VsIn) -> VsOut {
     return out;
 }
 
-// The layers on linear texels and light, fogged in linear light; the scene's tone map follows.
+// The layers as the D3D8 stages combined them, in display space (MODULATE2X saturating per
+// layer, the masks blending the 8-bit results), fogged there, then decoded once to linear light
+// for the HDR scene; the tone map keeps colours below its shoulder as they are.
 @fragment
 fn fs(input: VsOut) -> @location(0) vec4<f32> {
     let diffuse = input.color.rgb;
-    let layer0 = 2.0 * srgb_to_linear(textureSample(base0, wrap_sampler, input.grid * batch.scale.x).rgb) * diffuse;
-    let layer1 = 2.0 * srgb_to_linear(textureSample(base1, wrap_sampler, input.grid * batch.scale.y).rgb) * diffuse;
-    let layer2 = 2.0 * srgb_to_linear(textureSample(base2, wrap_sampler, input.grid * batch.scale.z).rgb) * diffuse;
+    let layer0 = saturate(2.0 * textureSample(base0, wrap_sampler, input.grid * batch.scale.x).rgb * diffuse);
+    let layer1 = saturate(2.0 * textureSample(base1, wrap_sampler, input.grid * batch.scale.y).rgb * diffuse);
+    let layer2 = saturate(2.0 * textureSample(base2, wrap_sampler, input.grid * batch.scale.z).rgb * diffuse);
     let alpha1 = textureSample(mask1, clamp_sampler, input.mask1_uv).a;
     let alpha2 = textureSample(mask2, clamp_sampler, input.mask2_uv).a;
     var color = mix(layer0, layer1, select(0.0, alpha1, batch.rot.z > 1u));
     color = mix(color, layer2, select(0.0, alpha2, batch.rot.z > 2u));
-    return vec4(mix(color, fog_linear(frame.fog_color.rgb), input.haze), 1.0);
+    let fogged = mix(color, saturate(frame.fog_color.rgb), input.haze);
+    return vec4(srgb_to_linear(fogged), 1.0);
 }

@@ -51,11 +51,11 @@ fn vs(input: VsIn) -> VsOut {
 }
 
 // `D3DTOP_ADDSIGNED2X` ((arg1 + arg2 - 0.5) * 2, saturated) runs on the authored gamma values as
-// retail does (its 0.5 neutral point is an encoded value); the result is decoded and fogged in
-// linear light, and the scene's tone map follows.
+// retail does (its 0.5 neutral point is an encoded value); the result is fogged there too, as the
+// near terrain is, then decoded once for the HDR scene.
 @fragment
 fn fs(input: VsOut) -> @location(0) vec4<f32> {
     let texel = textureSample(far_texture, wrap_sampler, input.uv).rgb;
     let combined = saturate((texel + input.color.rgb - 0.5) * 2.0);
-    return vec4(mix(srgb_to_linear(combined), fog_linear(frame.fog_color.rgb), input.haze), 1.0);
+    return vec4(srgb_to_linear(mix(combined, saturate(frame.fog_color.rgb), input.haze)), 1.0);
 }

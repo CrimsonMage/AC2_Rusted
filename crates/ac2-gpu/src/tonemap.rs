@@ -3,8 +3,8 @@
 //! A deliberate deviation from retail (`AGENTS.md`): the world, its sky and the UI viewports'
 //! scenes draw into an [`HdrTarget`] (`Rgba16Float`) in linear light, with each layer's colour
 //! unclamped, so stacked additive sky layers keep their gradients instead of saturating as they
-//! did in the D3D8 8-bit back buffer. [`ToneMap`] then writes the display colour (exposure and
-//! contrast about middle grey, ACES filmic, sRGB encode, saturation) once, before the UI's
+//! did in the D3D8 8-bit back buffer. [`ToneMap`] then writes the display colour (the Khronos PBR Neutral
+//! curve, then sRGB encode) once, before the UI's
 //! surfaces draw over it. What is drawn, in which order and with which blend stays retail's.
 
 use crate::{Gpu, DEPTH_FORMAT};
@@ -285,17 +285,24 @@ impl ScenePresenter {
 
 #[cfg(test)]
 mod tests {
-    /// `tonemap.wgsl`'s ACES fit at known points.
-    fn aces(x: f32) -> f32 {
-        ((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14)).clamp(0.0, 1.0)
+    /// `tonemap.wgsl`'s Khronos PBR Neutral curve on one grey channel.
+    fn neutral(x: f32) -> f32 {
+        let offset = if x < 0.08 { x - 6.25 * x * x } else { 0.04 };
+        let c = x - offset;
+        if c < 0.76 {
+            return c;
+        }
+        let d = 1.0 - 0.76;
+        1.0 - d * d / (c + d - 0.76)
     }
 
     #[test]
-    fn aces_keeps_black_and_rolls_highlights_off_below_one() {
-        assert_eq!(aces(0.0), 0.0);
-        assert!((aces(0.18) - 0.2672).abs() < 1e-3, "{}", aces(0.18));
-        assert!(aces(1.0) < 0.81 && aces(1.0) > 0.79);
+    fn neutral_keeps_black_and_mid_tones_and_rolls_highlights_off_below_one() {
+        assert_eq!(neutral(0.0), 0.0);
+        assert!((neutral(0.18) - 0.14).abs() < 1e-3, "{}", neutral(0.18));
+        assert!(neutral(1.0) < 0.95 && neutral(1.0) > 0.85);
         // Two stacked additive layers at 1.0 each stay distinguishable from one.
-        assert!(aces(2.0) - aces(1.0) > 0.05);
+        assert!(neutral(2.0) - neutral(1.0) > 0.03);
+        assert!(neutral(50.0) < 1.0);
     }
 }

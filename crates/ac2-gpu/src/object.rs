@@ -478,12 +478,19 @@ impl ObjectRenderer {
         let mut samplers = Vec::with_capacity(4);
         for index in 0..4 {
             let stage = pass.stages.get(index);
-            // An untextured stage reads `D3DTA_TEXTURE` as white.
+            // An untextured stage reads `D3DTA_TEXTURE` as white in the fixed-function cascade.
+            // Retail binds no texture for an authored pixel shader's empty stage either
+            // (`RenderDeviceD3D::SetStageTexture(stage, NULL)`), and the DX8 documentation leaves
+            // that `tex` read undefined. The human body and clothing shaders add their stage 2 as
+            // a centred detail (`add t1.rgb, t1, t2_bias`) and leave stage 2 empty, so it reads
+            // the detail's neutral value: mid grey keeps their authored albedo (white washed the
+            // skin out to chalk, black crushed it to brown).
             let view = match stage.and_then(|s| s.texture) {
                 Some(did) => {
                     self.textures
                         .get(&gpu.device, &gpu.queue, TextureKey::Texture(did), load)
                 }
+                None if pass.pixel_program.is_some() => self.textures.neutral().clone(),
                 None => self.textures.white().clone(),
             };
             views.push(view);
