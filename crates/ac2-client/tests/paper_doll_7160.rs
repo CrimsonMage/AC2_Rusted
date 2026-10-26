@@ -18,7 +18,7 @@ use ac2_gpu::{FrameTarget, Gpu, COLOR_FORMAT};
 use ac2_net::Credential;
 use ac2_ui::{Modifiers, ToolbarChild, UI_POINTER_X, UI_POINTER_Y};
 use ac2_weenie::{CharacterChoice, OnlineConfig, OnlineSession};
-use common::pose::look;
+use common::pose::{hand_height, look};
 use common::script_rules::{new_host, ScriptRules};
 use legions_server_double::{addr, double_with_rules, Spawn, PACK, SERVER, SWORD};
 
@@ -141,7 +141,25 @@ fn the_paper_doll_wears_the_sword_and_empties_when_it_comes_off() {
     for _ in 0..16 {
         events.extend(step(&mut client, &idle));
     }
+    // The double spawns Explorer above the ground: it falls (the arms raised in the fall
+    // animation) until it lands.
+    for _ in 0..240 {
+        if client.frame().player.as_ref().is_some_and(|p| p.contact) {
+            break;
+        }
+        events.extend(step(&mut client, &idle));
+    }
+    for _ in 0..32 {
+        events.extend(step(&mut client, &idle));
+    }
     let frame = client.frame();
+    let player = frame.player.as_ref().expect("player");
+    assert!(player.contact, "Explorer lands");
+    let (posed_hand, bind_hand) = hand_height(&store, player).expect("the character's model");
+    assert!(
+        posed_hand < bind_hand - 0.4,
+        "standing, the arms hang: hand {posed_hand} against bind {bind_hand}"
+    );
     assert!(
         frame.inventory.equipped.contains(&(TORSO, SWORD)),
         "{:?}",
