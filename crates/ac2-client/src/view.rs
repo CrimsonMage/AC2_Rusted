@@ -527,7 +527,13 @@ impl ClientView {
             let viewport = self.hud.doll_viewport()?;
             self.doll.pick(point, &viewport)
         });
-        let mut commands = self.hud.craft_frameworks(client, frame, events);
+        // `gm3DItemsUI`: a drop's target search finishes with the object under the pointer.
+        let world_pick = self.hud.world_pick_point().map(|point| {
+            let size = self.hud.window_size();
+            self.pick(frame, size, point)
+        });
+        let mut commands = self.hud.items_3d_frame(client, frame, world_pick);
+        commands.extend(self.hud.craft_frameworks(client, frame, events));
         commands.extend(self.hud.ingredient_frameworks(client, frame, events));
         commands.extend(
             self.hud

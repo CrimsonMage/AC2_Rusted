@@ -57,6 +57,8 @@ pub(crate) struct HudView {
     pub(crate) toolbar_layout: Option<Arc<ac2_ui::LayoutDesc>>,
     /// The selection the item slots last saw.
     pub(crate) item_selection: u64,
+    /// `gm3DItemsUI`, made with the backpack.
+    pub(crate) items_3d: Option<ac2_ui::Items3dUi>,
     /// The selection info the reticle's meters last took.
     reticle_info: Option<ac2_net::protocol::SelectionInfo>,
     pub(crate) dialogs: Option<ac2_ui::DialogFactory>,
@@ -118,6 +120,11 @@ pub(crate) struct HudView {
 }
 
 impl HudView {
+    /// The window, in pixels.
+    pub(crate) fn window_size(&self) -> (u32, u32) {
+        self.size
+    }
+
     /// The render device's new size: every root placed again (`UIElement::UpdateSizeAndPosition`).
     pub(crate) fn resize(&mut self, width: u32, height: u32) {
         self.size = (width.max(1), height.max(1));

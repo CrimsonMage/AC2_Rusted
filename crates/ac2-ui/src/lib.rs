@@ -43,6 +43,9 @@ mod ingredient_slots;
 mod input;
 mod interpreter;
 mod item_display;
+mod items_3d;
+#[cfg(test)]
+mod items_3d_tests;
 mod layout;
 mod layout_media;
 mod list_box;
@@ -138,6 +141,7 @@ pub use interpreter::{
     CLASS_MOVEMENT, CLASS_UI, TOGGLE_HOLD, TOGGLE_ONE_SHOT, TOGGLE_TOGGLE,
 };
 pub use item_display::{ContainerDisplay, InventorySource, ItemDisplay, ItemRequest, ItemSlot};
+pub use items_3d::Items3dUi;
 pub use layout::{
     load_layout, AttributeDesc, AttributeValue, ElementDesc, LayoutDesc, MediaDesc, Rect,
     StateDesc, TransitionData, TransitionDesc, LAYOUT_FIRST, LAYOUT_LAST,

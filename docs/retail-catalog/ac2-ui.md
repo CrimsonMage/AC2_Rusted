@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 809 done, 275 partial, 1110 to do, 53 skipped.
+2247 retail functions: 820 done, 277 partial, 1097 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -1189,27 +1189,27 @@ Legend and workflow: [README](README.md).
 - [~] `gmToolbarUI::gmToolbarUI` · 00422f80 · legions 00422d50 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [ ] `gmToolbarUI::~gmToolbarUI` · 00423120 · legions 00422ef0
 
-## `ac2/client/src/ui/gameplay/toolbar/inventory/gm3ditemsui.cpp.c` (0/14)
+## `ac2/client/src/ui/gameplay/toolbar/inventory/gm3ditemsui.cpp.c` (11/14)
 
 ### gm3DItemsUI
-- [ ] `gm3DItemsUI::FinishItemDrop` · 00440240 · legions 00440aa0
-- [ ] `gm3DItemsUI::StartFind3DTarget` · 004402c0 · legions 00440b20
-- [ ] `gm3DItemsUI::Start3DDrag` · 00440320 · legions 00440b80
+- [x] `gm3DItemsUI::FinishItemDrop` · 00440240 · legions 00440aa0 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): FinishItemDrop is gmCWInterface::MoveItem(item, player, target, fromSlot, 0, quantity)
+- [x] `gm3DItemsUI::StartFind3DTarget` · 004402c0 · legions 00440b20 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): StartFind3DTarget asks the pick at the pointer (one search at a time)
+- [~] `gm3DItemsUI::Start3DDrag` · 00440320 · legions 00440b80 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): Start3DDrag puts the selection's image (first icon layer) on the field's ItemIcon, dragable, ShortcutType 0x40000002 and the item as ShortcutData, and starts the drag; the icon description's layers are not composed. A drag of a world item into the pack is not traced (HandleListBoxDrop for an item with no FromID)
 
 ### (free functions)
-- [ ] `gm3DItems_DDCB` · 00440490
+- [x] `gm3DItems_DDCB` · 00440490 — ac2-ui drag.rs DragCheck::WorldDrop on ItemSelectionField: the coin field, or an item from a container (FromID set); tested in drag_tests
 
 ### gm3DItemsUI
-- [ ] `gm3DItemsUI::gm3DItemsUI` · 00440520 · legions 00440d80
+- [~] `gm3DItemsUI::gm3DItemsUI` · 00440520 · legions 00440d80 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): DDCB on ItemSelectionField and its ItemIcon found; the global loop and message registrations are the HUD's routing, and the notice handler 0x45a is not registered
 - [ ] `gm3DItemsUI::~gm3DItemsUI` · 00440650 · legions 00440eb0
-- [ ] `gm3DItemsUI::RecvNotice_StackUIDone` · 004406b0 · legions 00440f10
-- [ ] `gm3DItemsUI::StartItemDrop` · 00440700 · legions 00440f60
-- [ ] `gm3DItemsUI::StartMoneyDrop` · 004407f0 · legions 00441050
-- [ ] `gm3DItemsUI::FinishFind3DTarget` · 00440810 · legions 00441070
-- [ ] `gm3DItemsUI::ListenToMessage` · 004408e0 · legions 00441140
-- [ ] `gm3DItemsUI::MidItemDrop` · 00440960 · legions 004411c0
-- [ ] `gm3DItemsUI::MidMoneyDrop` · 00440a60 · legions 004412c0
-- [ ] `gm3DItemsUI::ListenToMessage` · 00440b40 · legions 004413a0
+- [x] `gm3DItemsUI::RecvNotice_StackUIDone` · 004406b0 · legions 00440f10 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): the dialog's answer finishes the item drop or leaves the money bag for the target
+- [x] `gm3DItemsUI::StartItemDrop` · 00440700 · legions 00440f60 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): an unworn item whose FromID is the player starts the search
+- [x] `gm3DItemsUI::StartMoneyDrop` · 004407f0 · legions 00441050 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160)
+- [x] `gm3DItemsUI::FinishFind3DTarget` · 00440810 · legions 00441070 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): the player itself is no target
+- [x] `gm3DItemsUI::ListenToMessage` · 004408e0 · legions 00441140 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): a drop on ItemSelectionField (the coin field: money, else StartItemDrop), a press nothing took (Start3DDrag)
+- [x] `gm3DItemsUI::MidItemDrop` · 00440960 · legions 004411c0 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): a stack of more than one asks how many first (gmStackUI), the default and the most min(quantity, max stack)
+- [x] `gm3DItemsUI::MidMoneyDrop` · 00440a60 · legions 004412c0 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): the money up to the coin stack's maximum
+- [x] `gm3DItemsUI::ListenToMessage` · 00440b40 · legions 004413a0 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): the pick answer arrives with the frame's frameworks (the global loop's)
 
 ## `ac2/client/src/ui/gameplay/toolbar/inventory/gmbackpackui.cpp.c` (3/7)
 

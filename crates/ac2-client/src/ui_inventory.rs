@@ -247,6 +247,26 @@ pub(crate) fn item_request(
             }
             false
         }
+        // `gm3DItemsUI::MidItemDrop`: the stack's name, from the player.
+        ItemRequest::DropSplit {
+            context,
+            item,
+            amount,
+        } => {
+            if let Some(dialog) = stack {
+                let name = player.item(item).map(|i| i.name).unwrap_or_default();
+                dialog.init(
+                    tree,
+                    context,
+                    &name,
+                    amount,
+                    amount,
+                    ac2_ui::InventorySource::player(player),
+                    0,
+                );
+            }
+            false
+        }
         // `ContainerDisplay::HandleDragFromMoneyBag`: `ID_Inventory_MoneyStack`, no target item.
         ItemRequest::MoneyStack {
             context,
@@ -381,6 +401,7 @@ pub(crate) fn item_commands(request: ItemRequest, commands: &mut Vec<Command>) -
             commands.push(Command::UnequipItem { item, target_slot });
         }
         ItemRequest::Split { .. }
+        | ItemRequest::DropSplit { .. }
         | ItemRequest::MoneyStack { .. }
         | ItemRequest::MoneyBagSplit { .. } => {}
         ItemRequest::DragToMoneyBag {

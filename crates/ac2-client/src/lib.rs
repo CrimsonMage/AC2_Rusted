@@ -43,6 +43,8 @@ mod hud_death;
 #[cfg(feature = "window")]
 mod hud_ingredient;
 #[cfg(feature = "window")]
+mod hud_items_3d;
+#[cfg(feature = "window")]
 mod hud_navigation;
 #[cfg(feature = "window")]
 mod hud_player;

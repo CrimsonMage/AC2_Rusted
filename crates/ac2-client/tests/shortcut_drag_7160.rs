@@ -168,6 +168,32 @@ fn a_shortcut_dragged_between_slots_clears_the_old_one_then_sets_the_new() {
 }
 
 #[test]
+fn a_shortcut_dragged_off_the_bar_is_removed() {
+    let Some(mut rig) = with_skill_panel() else {
+        return;
+    };
+    let (from, to) = (
+        rig.view.skill_node_center(SKILL).unwrap(),
+        rig.view.shortcut_slot_center(5).unwrap(),
+    );
+    rig.drag(from, to);
+    let before = calls(&rig);
+    // Released over the world: `UIElement::DragAndDropComplete` tells the owner it was not
+    // dropped, and the bar removes the shortcut.
+    let from = rig.view.shortcut_slot_center(5).unwrap();
+    rig.press_and_move(from, (400, 250));
+    eprintln!(
+        "DRAGGING {} field {:?} {:?}",
+        rig.view.is_dragging(),
+        rig.view.ui_element_rect("ItemSelectionField"),
+        rig.view.ui_tree().unwrap().roots().len()
+    );
+    rig.release();
+    assert_eq!(set_shortcuts(&rig, before), [(5, ShortcutInfo::Empty(0))]);
+    assert_eq!(slot(&mut rig, 5), ShortcutInfo::Empty(0));
+}
+
+#[test]
 fn a_skill_off_the_skill_panel_and_not_on_the_bar_changes_nothing() {
     let Some(mut rig) = with_skill_panel() else {
         return;

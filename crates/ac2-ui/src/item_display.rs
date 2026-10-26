@@ -144,6 +144,14 @@ pub enum ItemRequest {
         from: u64,
         amount: u32,
     },
+    /// `CM_UI::SendNotice_InitStackUI` for a stack dropped in the world
+    /// (`gm3DItemsUI::MidItemDrop`): how many of `item` from the player's pack, `amount` the
+    /// default and the most.
+    DropSplit {
+        context: u32,
+        item: u64,
+        amount: u32,
+    },
     /// `gmCWInterface::DragToMoneyBag`: `quantity` of `item` from slot `from_slot` of
     /// `from_container` into the money bag.
     DragToMoneyBag {

@@ -1,7 +1,10 @@
 //! Where the HUD's elements are on the window, for drivers that feed the pointer the way the
 //! window does (`UI_POINTER_X` / `UI_POINTER_Y` and the mouse buttons).
 
+use ac2_math::Vec3;
 use ac2_ui::{tokenize, AttributeValue, UiTree};
+
+use crate::frame::ClientFrame;
 
 use super::ClientView;
 
@@ -44,6 +47,25 @@ impl ClientView {
             .iter()
             .find_map(|&root| find(tree, root, id, &|_, _| true))?;
         Some(self.window_center(tree, index))
+    }
+
+    /// The window pixel `height` metres above the feet of the object `id`, as the camera sees
+    /// it (`None` for an object that is not in the frame or is behind the camera).
+    pub fn object_pixel(&self, frame: &ClientFrame, id: u64, height: f32) -> Option<(i32, i32)> {
+        let object = frame.objects.iter().find(|o| o.id == id)?;
+        let camera = self.camera(frame)?;
+        let size = self.hud.window_size();
+        let aspect = size.0 as f32 / size.1.max(1) as f32;
+        let body = self.world_point(object.cell, object.origin) + Vec3::new(0.0, 0.0, height);
+        let clip = camera.view_projection(aspect) * body.extend(1.0);
+        if clip.w <= 0.0 {
+            return None;
+        }
+        let (x, y) = (clip.x / clip.w, clip.y / clip.w);
+        Some((
+            ((x + 1.0) * 0.5 * size.0 as f32) as i32,
+            ((1.0 - y) * 0.5 * size.1 as f32) as i32,
+        ))
     }
 
     /// The HUD's element tree, read-only.

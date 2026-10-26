@@ -102,6 +102,7 @@ impl HudView {
             money,
             shift_held,
             backpack,
+            items_3d,
             paper_doll,
             player_race,
             toolbar_layout,
@@ -236,6 +237,7 @@ impl HudView {
             {
                 *item_selection = ac2_ui::InventorySource::selection(&player);
                 *backpack = Some(ac2_ui::BackpackUi::create(tree, layout, &player, id));
+                *items_3d = Some(ac2_ui::Items3dUi::create(tree, id));
                 // `gmMoneyBagUI::gmMoneyBagUI` and its amount (`RecvNotice_UpdateMoney`).
                 let mut bag = ac2_ui::MoneyBagUi::create(tree);
                 bag.set_money(tree, &player, frame.inventory.money.max(0) as u32);
@@ -539,6 +541,7 @@ impl HudView {
                             .as_mut()
                             .and_then(|p| p.stack_ui_done(&player, context, amount))
                     });
+                let request = request.or_else(|| items_3d.as_mut()?.stack_ui_done(context, amount));
                 let request = request.or_else(|| {
                     let (bag, dialogs) = (money.as_mut()?, dialogs.as_mut()?);
                     bag.stack_ui_done(

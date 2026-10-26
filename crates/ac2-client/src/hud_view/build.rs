@@ -101,6 +101,7 @@ impl HudView {
             navigation: None,
             overview: None,
             money: None,
+            items_3d: None,
             shift_held: false,
             player_messages: Vec::new(),
             strings: None,
