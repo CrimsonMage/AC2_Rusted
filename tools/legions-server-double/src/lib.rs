@@ -54,7 +54,10 @@ pub use corpse::{
     CORPSE, CORPSE_ITEM, CORPSE_SKIN, CORPSE_WEENIE_TYPE, FOREIGN_CORPSE, FOREIGN_ITEM,
     TROPHY_MIMBU_SKIN_PACKAGE,
 };
-pub use effects::{effect_registry, EffectGrant, EFFECT_PULSED, EFFECT_TIMED};
+pub use effects::{
+    effect_registry, record_graph, EffectGrant, Effects, SkillEffect, ADD_EFFECT, EFFECT_PULSED,
+    EFFECT_TIMED, REMOVE_EFFECT,
+};
 pub use items::{
     item_object_bytes, segments, starter_items, ItemSpawn, MAIN_PACK_CAPACITY, PACK, POTIONS,
     PRIMARY_HAND, RATIONS, SECONDARY_HAND, STARTER_MONEY, SWORD,
@@ -97,6 +100,8 @@ pub const PLAYER: u64 = 0x2000_0000_0000_0001;
 /// The id the double gives a character the client creates.
 pub const CREATED: u64 = 0x2000_0000_0000_0002;
 pub const CELL: u32 = 0x0299_0109;
+/// The server time the connect answer carries (`Connect::server_time`).
+pub const SERVER_TIME: f64 = 5000.0;
 
 pub fn addr(text: &str) -> SocketAddr {
     text.parse().unwrap()
@@ -280,6 +285,10 @@ pub struct State {
     pub events_sent: Vec<Vec<u8>>,
     /// The player's vigor, its costs and regeneration (`vitals.rs`).
     pub vitals: Vitals,
+    /// The effects the double applies to the player (`effects.rs`).
+    pub effects: Effects,
+    /// The double's clock when the client connected (the server time 5000).
+    connected_at: f64,
     /// The fellowship the double made for the player (`WM_Fellowship` 0x22), if any.
     pub fellowship: Option<Fellowship>,
     /// The player's allegiance.
@@ -564,8 +573,9 @@ impl State {
             assert_eq!(sum, checksum32(payload));
             let (version, ..) = ac2_net::Logon::decode_payload(payload).unwrap();
             assert_eq!(version, "7160");
+            self.connected_at = self.elapsed;
             let connect = OptionalHeader::Connect(Connect {
-                server_time: 5000.0,
+                server_time: SERVER_TIME,
                 cookie: 0x0102_0304_0506_0708,
                 net_id: NET_ID,
                 outgoing_seed: SERVER_SEED,

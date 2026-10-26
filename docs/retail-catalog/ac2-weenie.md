@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 247 done, 77 partial, 1569 to do, 11 skipped.
+1904 retail functions: 248 done, 76 partial, 1569 to do, 11 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (65/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (66/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -736,7 +736,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_InqCraftSkillCategoryName` · 0045c7c0 · legions 0045d410 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 - [x] `ggmCWInterface::CallIFun_InqCraftSkillLevel` · 0045c950 · legions 0045d5a0 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 - [x] `ggmCWInterface::CallIFun_InqCraftSkillList` · 0045cb20 · legions 0045d770 — lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
-- [~] `ggmCWInterface::CallIFun_InqEffectList` · 0045ccc0 · legions 0045d910 — ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
+- [x] `ggmCWInterface::CallIFun_InqEffectList` · 0045ccc0 · legions 0045d910 — ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); the VM's gEffectUINode efuns fill it, tested with the login registry and WM_Effect 0x17/0x16
 - [ ] `ggmCWInterface::CallIFun_InqNextReplyHistoryItem` · 0045ce60 · legions 0045dab0
 - [ ] `ggmCWInterface::CallIFun_InqNextRetellHistoryItem` · 0045d000 · legions 0045dc50
 - [ ] `ggmCWInterface::CallIFun_InqPrevReplyHistoryItem` · 0045d1a0 · legions 0045ddf0

@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 141 done, 15 partial, 333 to do, 10 skipped.
+499 retail functions: 143 done, 15 partial, 331 to do, 10 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -190,7 +190,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DamageTextBlob::DamageTextBlob` · 006099b0 · legions 005ca6c0
 - [ ] `DamageTextBlob::StreamPack` · 006099e0 · legions 005ca6f0
 
-## `ac2/shared/src/effectdisplay/effectuinode.cpp.c` (8/10)
+## `ac2/shared/src/effectdisplay/effectuinode.cpp.c` (10/10)
 
 ### EffectUINode
 - [x] `EffectUINode::SetEnabled` · 00607ce0 · legions 005c8b80 — reproduced by the gEffectUINode glue (ac2-script glue/effect_node.rs); body from admin 7148 and Legions layout
@@ -200,8 +200,8 @@ Legend and workflow: [README](README.md).
 - [x] `EffectUINode::IsPulsed` · 00607d20 · legions 005c8bc0 — ac2-net EffectUiNode (StreamPack field order, is_pulsed, Default = Clear's -1 times)
 - [x] `EffectUINode::operator=` · 00607d30 · legions 005c8bd0 — reproduced by the gEffectUINode glue (ac2-script glue/effect_node.rs); body from admin 7148 and Legions layout
 - [x] `EffectUINode::Clear` · 00607de0 · legions 005c8c80 — ac2-net EffectUiNode (StreamPack field order, is_pulsed, Default = Clear's -1 times)
-- [ ] `EffectUINode::EffectUINode` · 00607e90 · legions 005c8d30
-- [ ] `EffectUINode::EffectUINode` · 00607f00 · legions 005c8da0
+- [x] `EffectUINode::EffectUINode` · 00607e90 · legions 005c8d30 — ac2-net EffectUiNode: Default is the null-string constructor plus Clear, Clone is the copy constructor (operator=)
+- [x] `EffectUINode::EffectUINode` · 00607f00 · legions 005c8da0 — ac2-net EffectUiNode: Default is the null-string constructor plus Clear, Clone is the copy constructor (operator=)
 - [x] `EffectUINode::StreamPack` · 00607f50 · legions 005c8df0 — ac2-net EffectUiNode (StreamPack field order, is_pulsed, Default = Clear's -1 times)
 
 ## `ac2/shared/src/examination/examinationprofile.cpp.c` (2/35)

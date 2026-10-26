@@ -273,6 +273,33 @@ mod tests {
     }
 
     #[test]
+    fn a_new_effect_node_is_cleared_and_a_copy_keeps_every_field() {
+        // `EffectUINode::EffectUINode()`: null strings, then `Clear`: id, flags and icon 0, both
+        // times -1.0 (the high words 0xBFF00000).
+        let node = EffectUiNode::default();
+        assert_eq!(
+            (node.eid, node.flags, node.icon, &node.name, &node.desc),
+            (0, 0, 0, &String::new(), &String::new())
+        );
+        assert_eq!(node.duration.to_bits() >> 32, 0xBFF0_0000);
+        assert_eq!(node.time_cast.to_bits() >> 32, 0xBFF0_0000);
+        assert!(!node.is_pulsed());
+        // `EffectUINode::EffectUINode(const EffectUINode &)` copies by `operator=`.
+        let source = EffectUiNode {
+            eid: 7,
+            flags: 5,
+            name: "Name".into(),
+            desc: "Description".into(),
+            icon: 0x0600_0042,
+            duration: 30.0,
+            time_cast: 100.5,
+        };
+        let copy = source.clone();
+        assert_eq!(copy, source);
+        assert!(copy.is_pulsed());
+    }
+
+    #[test]
     fn skill_nodes_and_race_info_keep_their_field_order() {
         let node = SkillUiNode {
             skill_enum: 0x41,

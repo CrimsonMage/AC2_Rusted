@@ -122,6 +122,15 @@ impl State {
             return;
         }
         if let Some(request) = SpecialAttackRequest::from_call(call) {
+            // A self-buff needs no target: its cost comes off, its effect goes on the player,
+            // and the bar's special attack ends (the double's choice, as the hit's below).
+            if self.effects.skill_effects.contains_key(&request.maneuver) {
+                if self.charge_vigor(request.maneuver) {
+                    self.apply_skill_effect(request.maneuver);
+                    self.send_combat(&CombatMessage::EndSpecialAttack(request.attack));
+                }
+                return;
+            }
             if self.is_live_creature(request.target) && self.charge_vigor(request.maneuver) {
                 self.send_combat(&CombatMessage::UpdateAttackState(true));
                 self.hit(PLAYER, request.target, request.maneuver, HIT, PLAYER_DAMAGE);
@@ -145,6 +154,7 @@ impl State {
     /// hits back, and the attack goes on (or ends with the creature's death).
     pub fn combat_tick(&mut self) {
         self.regenerate();
+        self.effects_tick();
         let Some((target, due)) = self.fight.attack else {
             return;
         };

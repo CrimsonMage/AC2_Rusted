@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 808 done, 276 partial, 1110 to do, 53 skipped.
+2247 retail functions: 809 done, 275 partial, 1110 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -912,7 +912,7 @@ Legend and workflow: [README](README.md).
 - [x] `VitalDisplay::SetTextState` · 0044dea0 · legions 0044f070 — ac2-ui meter.rs
 - [x] `VitalDisplay::SetMeterState` · 0044ded0 · legions 0044f0a0 — ac2-ui meter.rs
 
-## `ac2/client/src/ui/gameplay/statusbar/gmeffectsui.cpp.c` (6/10)
+## `ac2/client/src/ui/gameplay/statusbar/gmeffectsui.cpp.c` (7/10)
 
 ### gmEffectsUI
 - [x] `gmEffectsUI::SelectElement` · 00438a20 · legions 00439270 — ac2-ui effects.rs
@@ -925,7 +925,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PList<EffectUINode>::UnPack` · 00438f80
 
 ### gmEffectsUI
-- [~] `gmEffectsUI::Init` · 004391c0 · legions 00439a10 — ac2-ui effects.rs; meter thresholds from objdump, EffectTimeout float compare as stored
+- [x] `gmEffectsUI::Init` · 004391c0 · legions 00439a10 — ac2-ui effects.rs; meter thresholds and the f32 stores checked against the x87 code (objdump of 0x439A10); EffectTimeout is the expiry (durationLeft), not the recovered pseudocode's reused slot
 - [x] `gmEffectsUI::RecvNotice_ExaminationRequestChanged` · 004396b0 — ac2-ui effects.rs
 - [x] `gmEffectsUI::RecvNotice_UpdateEffect` · 00439700 — ac2-ui effects.rs
 - [x] `gmEffectsUI::gmEffectsUI` · 00439710 · legions 00439f60 — ac2-ui effects.rs

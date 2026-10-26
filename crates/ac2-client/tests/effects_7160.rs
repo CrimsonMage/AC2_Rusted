@@ -102,11 +102,13 @@ fn the_effect_strip_lists_a_timed_and_a_pulsed_effect() {
         step(&mut client, &server, &idle);
     }
     assert_eq!(client.effect_list(), Ok(Vec::new()));
+    // Cast now: the double takes a timed effect off the player once its time has run out.
+    let cast = server.borrow().server_time();
     server.borrow_mut().give_effects(vec![
         EffectGrant {
             eid: 0x11,
             effect: effects[0],
-            time_cast: 100.0,
+            time_cast: cast,
             duration: 30.0,
             flags: EFFECT_TIMED,
         },
@@ -137,7 +139,7 @@ fn the_effect_strip_lists_a_timed_and_a_pulsed_effect() {
         (timed.name.as_str(), timed.icon, timed.flags),
         (name.as_str(), icon, 1)
     );
-    assert_eq!((timed.time_cast, timed.duration), (100.0, 30.0));
+    assert_eq!((timed.time_cast, timed.duration), (cast, 30.0));
     assert!(!timed.is_pulsed() && !timed.desc.is_empty());
     let pulsed = list.iter().find(|n| n.eid == 0x12).unwrap();
     let (icon, name) = effect_icon_and_name(&dataset, effects[1]);

@@ -558,7 +558,7 @@ key	status	note
 00438a20	x	ac2-ui effects.rs
 00438b80	x	ac2-ui effects.rs
 00438c30	x	ac2-ui effects.rs
-004391c0	~	ac2-ui effects.rs; meter thresholds from objdump, EffectTimeout float compare as stored
+004391c0	x	ac2-ui effects.rs; meter thresholds and the f32 stores checked against the x87 code (objdump of 0x439A10); EffectTimeout is the expiry (durationLeft), not the recovered pseudocode's reused slot
 004396b0	x	ac2-ui effects.rs
 00439700	x	ac2-ui effects.rs
 00439710	x	ac2-ui effects.rs
@@ -1110,7 +1110,7 @@ key	status	note
 0045c7c0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 0045c950	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 0045cb20	x	lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
-0045ccc0	~	ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
+0045ccc0	x	ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); the VM's gEffectUINode efuns fill it, tested with the login registry and WM_Effect 0x17/0x16
 0045d660	~	ac2-client client_radar.rs + ac2-script radar.rs: looks asked on each object's script, the ranges from RadarControl; the creature, NPC and player scripts answer no look in the double (no reads, retval 0); no drawing (pixel mapping, tooltip) in ac2-ui
 0045d870	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0045da10	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
@@ -4536,6 +4536,8 @@ key	status	note
 00607d20	x	ac2-net EffectUiNode (StreamPack field order, is_pulsed, Default = Clear's -1 times)
 00607d30	x	reproduced by the gEffectUINode glue (ac2-script glue/effect_node.rs); body from admin 7148 and Legions layout
 00607de0	x	ac2-net EffectUiNode (StreamPack field order, is_pulsed, Default = Clear's -1 times)
+00607e90	x	ac2-net EffectUiNode: Default is the null-string constructor plus Clear, Clone is the copy constructor (operator=)
+00607f00	x	ac2-net EffectUiNode: Default is the null-string constructor plus Clear, Clone is the copy constructor (operator=)
 00607f50	x	ac2-net EffectUiNode (StreamPack field order, is_pulsed, Default = Clear's -1 times)
 00607fd0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00608040	x	ac2-script glue::shortcut / native::shortcut
