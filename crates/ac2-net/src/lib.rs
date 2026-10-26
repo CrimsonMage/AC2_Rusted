@@ -42,7 +42,7 @@ pub use net::{tokenize, ClientNet, NetEvent};
 pub use optional::{Connect, NetErrorId, OptionalHeader, Referral, SockAddrIn};
 pub use packet::{split_packet, Fragment, InboundPacket, FRAGMENT_HEADER_LEN, MAX_PACKET_BODY};
 pub use receiver::ConnectionState;
-pub use resolve::{parse_port, resolve_server, DEFAULT_PORT};
+pub use resolve::{parse_c_number, parse_port, resolve_server, DEFAULT_PORT};
 pub use session_key::{
     ServerPublicKey, SessionCrypto, SessionKey, RETAIL_PUBLIC_KEY_LEN, SESSION_KEY_LEN,
 };

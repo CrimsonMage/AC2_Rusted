@@ -337,7 +337,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Turbine::Client::Connect` · 007202b0 · legions 006a0ae0
 - [ ] `Turbine::Client::Disconnect` · 00720450 · legions 006a0c40
 - [ ] `Turbine::Client::BuildCommandLineArgs` · 007205d0 · legions 006a0db0
-- [~] `Turbine::Client::EvaluateCommandLineArg` · 007218f0 · legions 006a1eb0 — ac2 bin cmdline.rs: account (lowercased), host, port, glsticketdirect, rodat; other args not ported
+- [~] `Turbine::Client::EvaluateCommandLineArg` · 007218f0 · legions 006a1eb0 — ac2 bin cmdline.rs: account (lowercased), host, port, width, height, glsticketdirect, glsticket (flag, or FILE), rodat; other args not ported
 - [ ] `Turbine::Client::StartupTurbineChat` · 00722600 · legions 006a2a30
 - [ ] `Turbine::Client::Client` · 00722720 · legions 006a2b30
 - [ ] `Turbine::Client::GetLanguage` · 00722900 · legions 006a2d10

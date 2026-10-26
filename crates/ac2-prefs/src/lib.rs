@@ -9,6 +9,7 @@
 
 pub mod bank;
 pub mod cnum;
+pub mod gls_ticket;
 pub mod ini;
 pub mod names;
 pub mod paths;

@@ -12,7 +12,18 @@
 //!     --account ACCOUNT --glsticketdirect PASSWORD --version 1802
 //! ```
 //!
-//! The second form is the retail command line (`Turbine::Client::Init`'s arguments); `--host` and
+//! The Pyrealium launcher runs this program as its client executable, as it runs retail's:
+//!
+//! ```text
+//! ac2 --dat-dir DIR --account NAME --host H --port P --rodat --width 1024 --height 768 /glsticket
+//! ```
+//!
+//! `glsticket` without a value reads the ticket the launcher left (the `GLSTicket` registry value
+//! on Windows, a mode 0600 `GLSTicket` file in the AC2 configuration directory elsewhere) and
+//! deletes it; `--glsticket FILE` reads and deletes that file instead. The ticket is the
+//! password.
+//!
+//! The second usage form above is the retail command line (`Turbine::Client::Init`'s arguments); `--host` and
 //! `--port` win over `--server`, and the ticket is the password. Retail's single-dash and `/`
 //! forms (`-host`, `/host`, `-h`) are accepted too. Servers for the 2012-2017 relaunch client
 //! check its data version, `1802` ([`ac2_net::RELAUNCH_VERSION`]).
@@ -80,6 +91,8 @@ struct App {
     chargen: Option<ac2_client::ScriptCharGen>,
     /// The `--chargen` capture file (`CharGenData`), made into the pregame view's capture.
     chargen_file: Option<std::path::PathBuf>,
+    /// `width` / `height` (`Client+0x60` / `Client+100`): the initial window size, when given.
+    window_size: Option<winit::dpi::PhysicalSize<u32>>,
 }
 
 impl State {
@@ -284,11 +297,11 @@ impl ApplicationHandler for App {
         if self.state.is_some() {
             return;
         }
-        let window = Arc::new(
-            event_loop
-                .create_window(Window::default_attributes().with_title("Asheron's Call 2"))
-                .expect("window"),
-        );
+        let mut attributes = Window::default_attributes().with_title("Asheron's Call 2");
+        if let Some(size) = self.window_size {
+            attributes = attributes.with_inner_size(size);
+        }
+        let window = Arc::new(event_loop.create_window(attributes).expect("window"));
         let instance = wgpu::Instance::default();
         let surface = instance.create_surface(window.clone()).expect("surface");
         let gpu = Gpu::new(Some(&surface), instance).expect("GPU adapter");
@@ -531,6 +544,10 @@ fn run(args: Args) -> Result<(), String> {
         pregame: args.character.is_none(),
         chargen: Some(chargen),
         chargen_file: args.chargen.as_deref().map(ac2_prefs::paths::config_file),
+        // `Client+0x60` / `+100` start at 0x400 x 0x300; either argument alone keeps the other.
+        window_size: (args.width.is_some() || args.height.is_some()).then(|| {
+            winit::dpi::PhysicalSize::new(args.width.unwrap_or(1024), args.height.unwrap_or(768))
+        }),
     };
     event_loop.run_app(&mut app).map_err(|e| e.to_string())
 }

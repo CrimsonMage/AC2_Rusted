@@ -25,7 +25,7 @@ pub fn parse_port(text: &str) -> Result<u16, NetError> {
 }
 
 /// `strtoul(text, 0, 0)` that must consume the whole text.
-fn parse_c_number(text: &str) -> Option<u32> {
+pub fn parse_c_number(text: &str) -> Option<u32> {
     let text = text.trim();
     let (digits, radix) = match text.strip_prefix("0x").or_else(|| text.strip_prefix("0X")) {
         Some(hex) => (hex, 16),

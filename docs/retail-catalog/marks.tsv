@@ -4985,10 +4985,10 @@ key	status	note
 00662490	x	ac2-script data/glue::enums
 00662590	x	ac2-script data/glue::enums
 00662970	x	ac2-script data/glue::enums
-00662cc0	-	launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
+00662cc0	~	ac2-prefs gls_ticket: HKCU Software\Turbine\ac2 GLSTicket on Windows (unbuilt here), 0600 file stand-in elsewhere
 00662dc0	-	launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
 00662ed0	-	launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
-00662f50	-	launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
+00662f50	~	ac2-prefs gls_ticket: deletes the GLSTicket value / file after reading
 00669c30	x	reproduced by the gEffectUINode glue (ac2-script glue/effect_node.rs); body from admin 7148 and Legions layout
 00679000	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 00679220	x	ac2-anim; ac2-script native::BehaviorParams also unpacks it
@@ -5622,7 +5622,7 @@ key	status	note
 0071fba0	x	
 0071fc00	x	ac2-client chargen_data.rs CharGenCapture::new (the --chargen file; relative names under the AC2 config directory)
 0071fc50	~	queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
-007218f0	~	ac2 bin cmdline.rs: account (lowercased), host, port, glsticketdirect, rodat; other args not ported
+007218f0	~	ac2 bin cmdline.rs: account (lowercased), host, port, width, height, glsticketdirect, glsticket (flag, or FILE), rodat; other args not ported
 00722f20	~	headless frame order in ac2-client Client::use_time; no render, sound, UI, triggers or DB cache step
 00723280	_	
 00723410	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)

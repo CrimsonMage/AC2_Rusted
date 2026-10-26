@@ -29,6 +29,10 @@ pub(crate) struct Args {
     /// `glsticketdirect` (`z`): the ticket text stored straight into `Client+0x3c`. Empty means
     /// no password (`gmClient::InitAuth`, Legions 0x00404BB0). It is the password: never print it.
     pub ticket: String,
+    /// `width` / `height` (`Client+0x60` / `Client+100`, default 1024x768): the initial window
+    /// size handed to `Turbine::Client::InitUI` and `Device::Init`; `None` keeps the default.
+    pub width: Option<u32>,
+    pub height: Option<u32>,
 }
 
 impl Args {
@@ -83,10 +87,45 @@ pub(crate) fn parse_args() -> Result<Args, String> {
     parse_from(
         std::env::args().skip(1),
         std::env::var("AC2_DAT_DIR").unwrap_or_default(),
+        &ac2_prefs::gls_ticket::take_gls_ticket,
     )
 }
 
-fn parse_from(tokens: impl IntoIterator<Item = String>, dat_dir: String) -> Result<Args, String> {
+/// The options with a value. `rodat` and `glsticket` take an optional one.
+const WITH_VALUE: [&str; 13] = [
+    "dat-dir",
+    "server",
+    "account",
+    "version",
+    "character",
+    "prefs",
+    "chargen",
+    "radius",
+    "host",
+    "port",
+    "glsticketdirect",
+    "width",
+    "height",
+];
+
+/// Whether `name` is an option this program knows.
+fn is_option(name: &str) -> bool {
+    WITH_VALUE.contains(&name) || matches!(name, "rodat" | "glsticket")
+}
+
+/// `width` / `height` are type 0x22: `strtol(text, 0, 0)`.
+fn window_size(name: &str, text: &str) -> Result<u32, String> {
+    ac2_net::parse_c_number(text)
+        .filter(|&n| n > 0)
+        .ok_or_else(|| format!("--{name}: {text:?} is not a positive number"))
+}
+
+/// `take_ticket` is `glsticket`'s read of the waiting ticket (the registry value on Windows).
+fn parse_from(
+    tokens: impl IntoIterator<Item = String>,
+    dat_dir: String,
+    take_ticket: &dyn Fn() -> Result<String, ac2_prefs::gls_ticket::GlsTicketError>,
+) -> Result<Args, String> {
     let mut args = Args {
         dat_dir,
         server: "127.0.0.1:9000".into(),
@@ -99,6 +138,8 @@ fn parse_from(tokens: impl IntoIterator<Item = String>, dat_dir: String) -> Resu
         host: None,
         port: None,
         ticket: String::new(),
+        width: None,
+        height: None,
     };
     let mut it = tokens.into_iter().peekable();
     while let Some(token) = it.next() {
@@ -112,20 +153,23 @@ fn parse_from(tokens: impl IntoIterator<Item = String>, dat_dir: String) -> Resu
             }
             continue;
         }
-        let known = [
-            "dat-dir",
-            "server",
-            "account",
-            "version",
-            "character",
-            "prefs",
-            "chargen",
-            "radius",
-            "host",
-            "port",
-            "glsticketdirect",
-        ];
-        if !known.contains(&name.as_str()) {
+        if name == "glsticket" {
+            // `glsticket` (Legions 0x006A1EB0): the ticket waits where a launcher left it, is
+            // read and deleted, and becomes the ticket like `glsticketdirect`; when it is not
+            // there the argument is refused (`return false`) and the client does not start.
+            // With a value (`--glsticket FILE`) the ticket is read from that file instead; a
+            // path is a value even when it starts with `/`, so only an option's name is not.
+            let file = it
+                .next_if(|next| argument_name(next).is_none_or(|n| !is_option(&n)))
+                .map(std::path::PathBuf::from);
+            let taken = match &file {
+                Some(path) => ac2_prefs::gls_ticket::take_from_file(path),
+                None => take_ticket(),
+            };
+            args.ticket = taken.map_err(|e| format!("--glsticket: {e}"))?;
+            continue;
+        }
+        if !is_option(&name) {
             return Err(format!("unknown option {token}"));
         }
         let value = it.next().ok_or(format!("{token} needs a value"))?;
@@ -138,6 +182,8 @@ fn parse_from(tokens: impl IntoIterator<Item = String>, dat_dir: String) -> Resu
             "prefs" => args.prefs = Some(value),
             "chargen" => args.chargen = Some(value),
             "radius" => args.radius = value.parse().map_err(|e| format!("--radius: {e}"))?,
+            "width" => args.width = Some(window_size("width", &value)?),
+            "height" => args.height = Some(window_size("height", &value)?),
             "host" => args.host = Some(value),
             "port" => args.port = Some(value),
             _ => args.ticket = value,
@@ -154,8 +200,21 @@ mod tests {
     use super::parse_from;
     use ac2_net::Credential;
 
+    use ac2_prefs::gls_ticket::GlsTicketError;
+
+    fn parse_with(
+        line: &str,
+        ticket: Result<String, GlsTicketError>,
+    ) -> Result<super::Args, String> {
+        parse_from(
+            line.split_whitespace().map(String::from),
+            "/dat".into(),
+            &|| ticket.clone(),
+        )
+    }
+
     fn parse(line: &str) -> Result<super::Args, String> {
-        parse_from(line.split_whitespace().map(String::from), "/dat".into())
+        parse_with(line, Err(GlsTicketError::Missing))
     }
 
     #[test]
@@ -214,5 +273,45 @@ mod tests {
             .is_err());
         let error = parse("--glsticketdirect hunter2 --bogus 1").err().unwrap();
         assert!(!error.contains("hunter2"), "{error}");
+    }
+
+    #[test]
+    fn the_windows_launcher_line_reads_the_waiting_ticket() {
+        let line = "--account Name --host 10.1.2.3 --port 8610 --rodat --width 1024 \
+                    --height 768 /glsticket";
+        let args = parse_with(line, Ok("from-registry".into())).unwrap();
+        assert_eq!(args.account, "name");
+        assert_eq!(args.ticket, "from-registry");
+        assert_eq!((args.width, args.height), (Some(1024), Some(768)));
+        assert_eq!(args.server_address().unwrap().to_string(), "10.1.2.3:8610");
+        // No ticket waiting: retail's `return false`, so the start-up fails.
+        let error = parse(line).err().unwrap();
+        assert!(error.contains("glsticket"), "{error}");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn the_linux_launcher_line_reads_the_ticket_file() {
+        use std::os::unix::fs::PermissionsExt;
+        let dir = std::env::temp_dir().join(format!("ac2-cmdline-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("ticket");
+        std::fs::write(&file, " pass word\n").unwrap();
+        std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o600)).unwrap();
+        let line = format!(
+            "--dat-dir D --server 127.0.0.1:9000 --account A --version 7148 --glsticket {}",
+            file.display()
+        );
+        let args = parse_with(&line, Err(GlsTicketError::Missing)).unwrap();
+        assert_eq!(args.ticket, "pass word");
+        assert_eq!(args.version, "7148");
+        assert_eq!(args.server_address().unwrap().to_string(), "127.0.0.1:9000");
+        assert!(!file.exists());
+        // A file anyone can read is refused, without echoing the ticket.
+        std::fs::write(&file, "hunter2").unwrap();
+        std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o644)).unwrap();
+        let error = parse_with(&line, Ok("x".into())).err().unwrap();
+        assert!(!error.contains("hunter2"), "{error}");
+        let _ = std::fs::remove_dir_all(dir);
     }
 }

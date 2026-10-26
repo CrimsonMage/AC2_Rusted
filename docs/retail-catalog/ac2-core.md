@@ -1,6 +1,6 @@
 # ac2-core: Core runtime: ids, strings, timers, errors, serialization helpers
 
-589 retail functions: 18 done, 2 partial, 166 to do, 403 skipped.
+589 retail functions: 18 done, 4 partial, 166 to do, 401 skipped.
 Legend and workflow: [README](README.md).
 
 ## `core/src/debug/crashcleaners.cpp.c` (0/3)
@@ -971,12 +971,12 @@ Legend and workflow: [README](README.md).
 ### RegEdit
 - [-] `RegEdit::CreateKey` · 00662ba0 — registry editing (admin tools)
 - [-] `RegEdit::SetStrValue` · 00662c30 — registry editing (admin tools)
-- [-] `RegEdit::QueryStrValue` · 00662cc0 · legions 00610f50 — launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
+- [~] `RegEdit::QueryStrValue` · 00662cc0 · legions 00610f50 — ac2-prefs gls_ticket: HKCU Software\Turbine\ac2 GLSTicket on Windows (unbuilt here), 0600 file stand-in elsewhere
 - [-] `RegEdit::SetIntValue` · 00662d40 — registry editing (admin tools)
 - [-] `RegEdit::QueryIntValue` · 00662dc0 · legions 00610fd0 — launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
 - [-] `RegEdit::SetBinValue` · 00662e50 — registry editing (admin tools)
 - [-] `RegEdit::QueryBinValue` · 00662ed0 · legions 00611060 — launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
-- [-] `RegEdit::DeleteValue` · 00662f50 · legions 006110e0 — launch-ticket handshake (the client reads and deletes GLSTicket and LaunchTicketSize/LaunchTicketData under HKCU): not preferences; the port takes the ticket from its arguments, and there is no registry on Linux
+- [~] `RegEdit::DeleteValue` · 00662f50 · legions 006110e0 — ac2-prefs gls_ticket: deletes the GLSTicket value / file after reading
 
 ## `portal/shared/src/setproject/projectsettings.cpp.c` (0/7)
 
