@@ -425,6 +425,25 @@ fn a_special_attack_hit_puts_its_text_over_the_creature() {
     assert!(client.take_script_problems().is_empty());
 }
 
+/// The `death` behaviour, the `dead` mode and the default mode the bodies return to.
+const DEATH_BEHAVIOR: u32 = 0x4100_001F;
+const DEAD_MODE: u32 = 0x4100_0005;
+const PEACE_MODE: u32 = 0x4000_0001;
+
+/// The (behaviour, mode) of each `DoBehavior` event `object` received.
+fn do_behaviors(events: &[SessionEvent], object: u64) -> Vec<(u32, u32)> {
+    events
+        .iter()
+        .filter_map(|e| match e {
+            SessionEvent::ObjectAction {
+                object: id,
+                action: ac2_net::protocol::ObjectAction::DoBehavior(p),
+            } if *id == object => Some((p.behavior, p.mode)),
+            _ => None,
+        })
+        .collect()
+}
+
 /// The packed `UpdateDeathState` flags, in order.
 fn death_flags(events: &[SessionEvent]) -> Vec<bool> {
     events
@@ -454,6 +473,16 @@ fn the_creature_dies_and_its_corpse_is_looted() {
             action: ac2_net::protocol::ObjectAction::LeaveWorld(_),
         } if *object == CREATURE_ONE
     )));
+    // The double sets the creature's Dead bool (quality 0x117) before it leaves; the client's
+    // quality update carries it to the creature's script.
+    assert!(fight.iter().any(|e| matches!(
+        e,
+        SessionEvent::QualityChanged { object, table: 1, quality: 0x117 } if *object == CREATURE_ONE
+    )), "{fight:?}");
+    // And its death presentation: `DoBehavior` with the `death` behaviour and the `dead` mode
+    // (`gmbehaviors.emp` 0x4100001F, `gmmodes.emp` 0x41000005), before the creature leaves.
+    let behaviors = do_behaviors(&fight, CREATURE_ONE);
+    assert_eq!(behaviors, vec![(DEATH_BEHAVIOR, DEAD_MODE)], "{fight:?}");
     // The corpse is placed at the creature's position (its cell, where the creature died).
     let corpse = client
         .frame()
@@ -517,6 +546,17 @@ fn the_player_dies_and_respawns_at_a_lifestone() {
     // Fourteen exchanges: the creature's 3 a blow takes the player's 40 to zero.
     let mut events = advance(&mut client, &server, 14.0 * HIT_INTERVAL + 0.5);
     assert_eq!(death_flags(&events), vec![true], "{events:?}");
+    assert!(
+        events.iter().any(|e| matches!(
+            e,
+            SessionEvent::QualityChanged { object, table: 1, quality: 0x117 } if *object == PLAYER
+        )),
+        "{events:?}"
+    );
+    assert_eq!(
+        do_behaviors(&events, PLAYER),
+        vec![(DEATH_BEHAVIOR, DEAD_MODE)]
+    );
     assert!(client.frame().progress.dead);
     assert_eq!(health_currents(&events).last(), Some(&0));
     assert!(combat_notices(&notices(events.clone()))
@@ -533,6 +573,24 @@ fn the_player_dies_and_respawns_at_a_lifestone() {
         }
     }
     assert_eq!(death_flags(&events), vec![true, false]);
+    // The respawn puts the body back in the default mode.
+    assert!(events.iter().any(|e| matches!(
+        e,
+        SessionEvent::ObjectAction { object, action: ac2_net::protocol::ObjectAction::SetMode(PEACE_MODE) } if *object == PLAYER
+    )));
+    // The respawn's alive branch (`CDeathSystem` 0x3 -> `DeathSystem` 0x7) runs on the VM and
+    // shows its two usage messages.
+    assert_eq!(
+        events
+            .iter()
+            .filter(|e| matches!(
+                e,
+                SessionEvent::Notice(GameplayNotice::DisplayStringInfo { kind: 8, .. })
+            ))
+            .count(),
+        2,
+        "{events:?}"
+    );
     assert!(!client.frame().progress.dead);
     assert_eq!(
         health_currents(&events).last(),
@@ -547,5 +605,6 @@ fn the_player_dies_and_respawns_at_a_lifestone() {
         "{:?}",
         player.origin
     );
-    assert!(client.take_script_problems().is_empty());
+    let problems = client.take_script_problems();
+    assert!(problems.is_empty(), "{problems:?}");
 }

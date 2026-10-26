@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 362 done, 82 partial, 1618 to do, 62 skipped.
+2124 retail functions: 363 done, 82 partial, 1617 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (102/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (103/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2370,7 +2370,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::set_ignore_collisions` · 004e1330
 - [ ] `CPhysicsObj::set_gamedraw` · 004e1360 · legions 004d3dc0
 - [ ] `CPhysicsObj::set_toolsdraw` · 004e13a0
-- [ ] `CPhysicsObj::set_nodraw` · 004e13e0
+- [x] `CPhysicsObj::set_nodraw` · 004e13e0 — ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
 - [ ] `CPhysicsObj::set_cloaked` · 004e1410
 - [ ] `CPhysicsObj::set_missile` · 004e1450
 - [x] `CPhysicsObj::set_mobile` · 004e1480 — ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}

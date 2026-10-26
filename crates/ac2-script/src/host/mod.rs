@@ -195,6 +195,11 @@ impl ScriptHost {
         std::mem::take(&mut self.vm.shell_lines)
     }
 
+    /// The no-draw changes the scripts asked for since the last call (`SetNoDrawPhysics`).
+    pub fn take_no_draw(&mut self) -> Vec<(u64, bool)> {
+        std::mem::take(&mut self.vm.no_draw)
+    }
+
     /// The object went away (`VM::DeleteProcess`).
     pub fn remove_weenie(&mut self, id: u64) {
         if let Some(p) = self.processes.remove(&id) {

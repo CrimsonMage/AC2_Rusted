@@ -242,6 +242,9 @@ pub struct Vm {
     /// The chat lines the scripts entered for the shell (`CWInterface::ProcessText`, efun
     /// 0x7F0052), in order; the client runs each through its chat shell.
     pub shell_lines: Vec<String>,
+    /// The no-draw changes the scripts asked of weenies' physics objects
+    /// (`CWPhysicsObject::SetNoDrawPhysics`, efun 0x800057): the object and the flag, in order.
+    pub no_draw: Vec<(u64, bool)>,
     /// Each weenie's `CWDistributor::m_initData` (`WInitData::m_pid`, `m_did`), by object id.
     pub init_data: std::collections::HashMap<u64, (u32, u32)>,
     /// `CObjectMaint::GetPlayerID` (0 before the player exists).
@@ -293,6 +296,7 @@ impl Vm {
             outbox: Default::default(),
             owners: Default::default(),
             shell_lines: Vec::new(),
+            no_draw: Vec::new(),
             init_data: Default::default(),
             player: 0,
             repositories: Default::default(),

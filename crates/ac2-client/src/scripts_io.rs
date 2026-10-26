@@ -42,6 +42,13 @@ impl Client {
             Ok(_) => {}
         }
         let lines = scripts.host.take_shell_lines();
+        for (object, flag) in scripts.host.take_no_draw() {
+            if flag {
+                scripts.no_draw.insert(object);
+            } else {
+                scripts.no_draw.remove(&object);
+            }
+        }
         let calls = scripts.host.take_server_calls();
         let notices = scripts.host.take_notices();
         let script_notices = scripts.host.take_script_notices();

@@ -56,6 +56,15 @@ fn instance_of(id: u64) -> u16 {
         1
     }
 }
+/// The `dead` mode (`gmmodes.emp`) and the `death` behaviour (`gmbehaviors.emp`), and the mode a
+/// body returns to on a respawn (`MODE_DEFAULT`). The monster and human behaviour tables both map
+/// `death` to the `death` animation key (0x8000002E) and the `dead` mode's idle to the `dead` key
+/// (0x8000002C).
+pub const MODE_DEAD: u32 = 0x4100_0005;
+pub const BEHAVIOR_DEATH: u32 = 0x4100_001F;
+pub const MODE_PEACE: u32 = 0x4000_0001;
+/// `BehaviorParams` bits: the behaviour (0x1) and the mode it enters first (0x2).
+const BEHAVIOR_AND_MODE: u32 = 0x3;
 /// A position stamp past the creatures' starting one (1): a leave-world the object takes.
 const LEAVE_STAMP: u32 = 2;
 
@@ -251,6 +260,16 @@ impl State {
             instance_of(creature),
             &[LEAVE_STAMP],
         );
+        self.send_quality(&QualityUpdate {
+            object: Some(InstanceIdWithStamp {
+                id: creature,
+                instance: instance_of(creature),
+                other: 0,
+            }),
+            quality: 0x117,
+            value: QualityValue::Bool(1),
+        });
+        self.send_death_behavior(creature);
         self.send_event(&bytes);
         let place = radar_objects(&self.spawn)
             .into_iter()
@@ -262,10 +281,13 @@ impl State {
         }
     }
 
-    /// The player at zero health: the death flag goes up (`WM_Death` 0x33), and the attack ends.
+    /// The player at zero health: the Dead bool (quality 0x117) goes up, the death flag goes up
+    /// (`WM_Death` 0x33), and the attack ends.
     fn die_player(&mut self) {
         self.fight.player_dead = true;
         self.stop_attack();
+        self.send_private(0x117, QualityValue::Bool(1));
+        self.send_death_behavior(PLAYER);
         self.send_death(true);
     }
 
@@ -281,7 +303,28 @@ impl State {
         // The teleport's stamps: the spawn's position 4 and teleport 5, each teleport newer.
         self.teleport_player(cell, origin, 5 + 2 * n, 6 + 2 * n);
         self.send_player_vitals();
+        self.send_private(0x117, QualityValue::Bool(0));
+        self.send_event(&object_event_bytes(
+            Opcode::SET_MODE,
+            PLAYER,
+            instance_of(PLAYER),
+            &[MODE_PEACE],
+        ));
         self.send_death(false);
+    }
+
+    /// The death presentation of `object`: `RecvEvt_DoBehavior` with the `death` behaviour and the
+    /// `dead` mode it enters first. The client plays the table's `death` animation, then rests in
+    /// the `dead` mode. The server's own choice of event is not traced (the client reacts to
+    /// physics events only: nothing in the executable or the wlib reads the Dead quality of a
+    /// creature); this is the one the behaviour tables are built for.
+    fn send_death_behavior(&mut self, object: u64) {
+        self.send_event(&object_event_bytes(
+            Opcode::DO_BEHAVIOR,
+            object,
+            instance_of(object),
+            &[BEHAVIOR_AND_MODE, BEHAVIOR_DEATH, MODE_DEAD],
+        ));
     }
 
     /// `WM_Death` 0x33: the death flag.

@@ -14,6 +14,9 @@ const HUMAN: u32 = 0x1F00_0023;
 /// `MODE_DEFAULT` (peace) and a ground mode its behaviour table can switch to.
 const PEACE: u32 = 0x4000_0001;
 const OTHER_MODE: u32 = 0x4100_0009;
+/// The `dead` mode and the `death` behaviour.
+const DEAD: u32 = 0x4100_0005;
+const DEATH: u32 = 0x4100_001F;
 /// Behaviours of the peace mode on the ground.
 const WAVE: u32 = 0x4000_000A;
 const OTHER_BEHAVIOR: u32 = 0x4000_000B;
@@ -92,6 +95,23 @@ fn modes_behaviours_and_layers_reach_the_body() {
     apply(&mut body, &ObjectAction::StopMoveToCancelsBehaviors);
     apply(&mut body, &ObjectAction::StopLayer(0));
     animate(&mut body, 1.0);
+    assert_eq!(body.mode(), PEACE);
+}
+
+/// The death presentation the server's `DoBehavior` starts (`gmbehaviors.emp` `death`, entering
+/// `gmmodes.emp` `dead` first): the body rests in the `dead` mode once the behaviour has played,
+/// and a `SetMode` of the default mode (the respawn) stands it up again.
+#[test]
+fn a_death_behavior_lays_the_body_in_the_dead_mode() {
+    let Some(mut body) = human(false) else {
+        return;
+    };
+    assert_eq!(body.mode(), PEACE);
+    apply(&mut body, &ObjectAction::DoBehavior(params(3, DEATH, DEAD)));
+    assert!(body.is_doing_behavior(DEATH));
+    animate(&mut body, 6.0);
+    assert_eq!(body.mode(), DEAD);
+    apply(&mut body, &ObjectAction::SetMode(PEACE));
     assert_eq!(body.mode(), PEACE);
 }
 

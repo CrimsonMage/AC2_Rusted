@@ -432,7 +432,7 @@ impl Client {
             scale_z: body.scale,
             local_velocity: position.frame.global_to_local_vec(Vector::new(vx, vy, vz)),
             element: state.element,
-            no_draw: false,
+            no_draw: self.session.player().is_some_and(|id| self.is_no_draw(id)),
         })
     }
 

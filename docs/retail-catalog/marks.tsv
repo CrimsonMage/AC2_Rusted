@@ -915,7 +915,7 @@ key	status	note
 004505d0	x	ac2-weenie ItemStats::preferred_location (Item 0x26: int 282), valid_locations (275), precluded_locations (283)
 004506c0	~	ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 00450700	~	ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
-00450730	x	Loot All runs on the player's script: IFun 0xB400E8 sends WM_Inventory 0x68 after the wlib counts the corpse's lists, which the open answer fills (CPlayer 0x8C -> CInventorySystem); corpse_script_7160. Another character's corpse is refused with NotMine (1077, consumed by CInventorySystem's open handler); the CorpseUsagePermission (0x26A) fields and the CorpsePermissionBlob message (0x1BDF) stay untraced
+00450730	~	Loot All runs on the player's script: IFun 0xB400E8 sends WM_Inventory 0x68 after the wlib counts the corpse's lists, which the open answer fills (CPlayer 0x8C -> CInventorySystem); corpse_script_7160. Another character's corpse is refused with NotMine (1077, consumed by CInventorySystem's open handler); the CorpseUsagePermission (0x26A) fields and the CorpsePermissionBlob message (0x1BDF) stay untraced
 00450750	_	ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
 00450770	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 004507a0	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
@@ -927,20 +927,20 @@ key	status	note
 004508d0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 00450960	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 004509a0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
-004509e0	x	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+004509e0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 00450a20	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
-00450a60	x	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+00450a60	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 00450aa0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 00450ae0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
-00450b30	x	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+00450b30	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 00450b70	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 00450bb0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 00450c00	x	ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
-00450c20	x	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+00450c20	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 00450c40	x	ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
-00450c60	x	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-00450c80	x	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-00450cc0	x	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+00450c60	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+00450c80	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+00450cc0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 00450d70	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 00450d90	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 00450de0	_	ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
@@ -1082,7 +1082,7 @@ key	status	note
 00457bd0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00457c90	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 00457d50	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
-00457e10	x	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+00457e10	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 00457ed0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00458120	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 004581b0	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
@@ -1119,15 +1119,15 @@ key	status	note
 0045dfc0	x	lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
 0045e180	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045e450	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-0045e7f0	x	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-0045e9c0	x	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+0045e7f0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+0045e9c0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 0045ed00	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-0045eea0	x	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+0045eea0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 0045f040	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045f100	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045f1c0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
-0045f280	x	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-0045f340	x	Loot All runs on the player's script: IFun 0xB400E8 sends WM_Inventory 0x68 after the wlib counts the corpse's lists (corpse_script_7160)
+0045f280	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+0045f340	~	Loot All runs on the player's script: IFun 0xB400E8 sends WM_Inventory 0x68 after the wlib counts the corpse's lists (corpse_script_7160)
 0045f5e0	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 0045f6e0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0045f790	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
@@ -1144,8 +1144,8 @@ key	status	note
 00460a60	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 00460ba0	~	lead: the VM's sell body needs the storekeeper's shopper with a StoreGroup (set by ViewCatalog, WM_Store 0x52; without one it refuses with message 0xAFD1, consignment_script_7160). With the catalog open it runs on to gCWDistributor::GetEntityDID (bound) and then gCWPhysicsObject::CallEFun_GetLocalVisualDesc (0x800059, unbound: needs the item's VisualDesc native), so the RequestSell stub's bytes are not reached yet.
 00460df0	x	ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
-00460ea0	x	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-00460f50	x	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+00460ea0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+00460f50	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 004612c0	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 004613d0	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 004614e0	_	not in Legions 7160: the wrapper gmCWInterface::Result_GetFriendsList and its IFun 0xB40042 are absent; the list arrives in GUNEvent_FriendStart
@@ -1969,6 +1969,7 @@ key	status	note
 004b7e60	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004b7f00	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004b7fa0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b9f60	x	ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
 004bb580	_	ac2-script glue::options / examination (Legions layout and efun switch)
 004bb600	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004bb7a0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -1978,8 +1979,8 @@ key	status	note
 004bc300	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 004bc3b0	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 004bc690	x	lead: ac2-script host/glue.rs get_entity_did: the DID the weenie was made with (CWDistributor::m_initData.m_did, +0x14), tag 4; null this crashes; host tests.
-004bc7e0	x	book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
-004bc850	x	book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
+004bc7e0	_	book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
+004bc850	_	book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
 004bfb90	x	
 004bfeb0	~	ac2-weenie dat_iterations + session answer; internal.dat (slot 4) not opened; language id is configuration (EnumMapper 0x4000002A lookup not ported)
 004c4ed0	x	
@@ -2330,6 +2331,7 @@ key	status	note
 004e0e30	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004e11f0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004e12f0	x	ac2-physics interp (slice 3)
+004e13e0	x	ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
 004e1480	x	ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 004e1520	x	
 004e1c90	~	no admin moves or missiles
@@ -2655,8 +2657,8 @@ key	status	note
 0052b1d0	x	ac2-world region::sky_objects, ac2-render sky
 0052dbb0	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 0052ddb0	_	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
-0052ddf0	x	book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
-0052de00	x	book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
+0052ddf0	_	book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
+0052de00	_	book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
 0052de20	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 0052df80	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 0052e080	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
@@ -2674,6 +2676,7 @@ key	status	note
 0052f430	_	ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
 0052f990	_	ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
 00530150	_	ac2-weenie ObjectTable::apply_action
+005309a0	x	ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
 00530e70	_	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
 00530f40	_	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
 00530f70	_	

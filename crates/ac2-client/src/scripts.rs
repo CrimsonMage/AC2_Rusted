@@ -381,6 +381,8 @@ pub(crate) struct Scripts {
     pub(crate) script_notices: Vec<ScriptNotice>,
     /// GUN requests for the GUN service ([`Client::set_gun_service`]).
     pub(crate) gun_requests: Vec<ac2_script::host::ChatRequest>,
+    /// The objects whose physics objects the scripts set no-draw (`SetNoDrawPhysics`).
+    pub(crate) no_draw: BTreeSet<u64>,
 }
 
 impl Client {
@@ -413,6 +415,7 @@ impl Client {
             data_pending: 0,
             script_notices: Vec::new(),
             gun_requests: Vec::new(),
+            no_draw: BTreeSet::new(),
         });
         // Objects already known get their processes too.
         let known: Vec<u64> = self.session.objects().iter().map(|o| o.id).collect();
@@ -591,6 +594,13 @@ impl Client {
             .map(|r| r.outcome)
             .map_err(|e| format!("{e:?}"));
         self.script_outcome(id, None, result, out);
+    }
+
+    /// Whether the scripts set `id`'s physics object no-draw (`CPhysicsObj::is_nodraw`).
+    pub fn is_no_draw(&self, id: u64) -> bool {
+        self.scripts
+            .as_ref()
+            .is_some_and(|s| s.no_draw.contains(&id))
     }
 
     /// Whether the UI's IFun (or server call) `function` is the script VM's.

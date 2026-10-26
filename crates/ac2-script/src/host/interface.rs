@@ -18,6 +18,22 @@ pub(super) fn register(efuns: &mut EFuns) {
     // maintenance, which this client does not keep (see the catalog).
     efuns.register(0x007D_001E, add_object_to_be_destroyed);
     efuns.register(0x007D_001F, remove_object_to_be_destroyed);
+    efuns.register(0x0080_0057, set_no_draw_physics);
+}
+
+/// `gCWPhysicsObject::CallEFun_SetNoDrawPhysics(flag)` -> `CWPhysicsObject::SetNoDrawPhysics` ->
+/// `CPhysicsObj::set_nodraw` (the state's 0x10 bit set or cleared): the weenie's physics object
+/// is the caller's, which the client owns, so the change is queued for it. The efun returns 1 (an
+/// int; retail returns 0 for a weenie without a physics object, which the host cannot be).
+fn set_no_draw_physics(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let flag = Call::new(ctx).word(2) != 0;
+    vm.no_draw.push((id, flag));
+    Call::new(ctx).ret(3, 1, tag::INT);
+    InterpStatus::Success
 }
 
 /// `CWInterface::ProcessText(text)` (`gCWInterface::CallEFun_ProcessText`, the text a `wpstring`

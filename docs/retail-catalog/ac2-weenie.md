@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 263 done, 61 partial, 1569 to do, 11 skipped.
+1904 retail functions: 245 done, 77 partial, 1571 to do, 11 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (72/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (64/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -651,7 +651,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_CanCraftSkillBeRaised` · 00457bd0 · legions 00458730 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [x] `ggmCWInterface::CallIFun_CanSkillBeRaisedByEnum` · 00457c90 · legions 004587f0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `ggmCWInterface::CallIFun_CanSkillBeTrainedByEnum` · 00457d50 · legions 004588b0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
-- [x] `ggmCWInterface::CallIFun_CanSkillBeUntrainedByEnum` · 00457e10 · legions 00458970 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+- [~] `ggmCWInterface::CallIFun_CanSkillBeUntrainedByEnum` · 00457e10 · legions 00458970 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [x] `ggmCWInterface::CallIFun_CheckIngredient` · 00457ed0 · legions 00458a30 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [ ] `ggmCWInterface::CallIFun_ClearResurrectionRequest` · 00458090 · legions 00458bf0
 - [~] `ggmCWInterface::CallIFun_CloseTradeNegotiations` · 00458120 · legions 00458c80 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
@@ -752,18 +752,18 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_InqShortcutArray` · 0045e2c0 · legions 0045ef10
 - [ ] `ggmCWInterface::CallIFun_InqShortcutInfo` · 0045e450 · legions 0045f0a0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [ ] `ggmCWInterface::CallIFun_InqSimpleInvByLocTable` · 0045e660 · legions 0045f2b0
-- [x] `ggmCWInterface::CallIFun_InqSkillLevelByEnum` · 0045e7f0 · legions 0045f440 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-- [x] `ggmCWInterface::CallIFun_InqSkillTimeLeft` · 0045e9c0 · legions 0045f610 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+- [~] `ggmCWInterface::CallIFun_InqSkillLevelByEnum` · 0045e7f0 · legions 0045f440 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+- [~] `ggmCWInterface::CallIFun_InqSkillTimeLeft` · 0045e9c0 · legions 0045f610 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [ ] `ggmCWInterface::CallIFun_InqUISaveLocations` · 0045eb90 · legions 0045f7e0
 - [x] `ggmCWInterface::CallIFun_IsCraftSkillRaiseable` · 0045ed00 · legions 0045f950 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [ ] `ggmCWInterface::CallIFun_IsFellowshipMember` · 0045edc0 · legions 0045fa10
-- [x] `ggmCWInterface::CallIFun_IsHeroSkillByEnum` · 0045eea0 · legions 0045faf0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+- [~] `ggmCWInterface::CallIFun_IsHeroSkillByEnum` · 0045eea0 · legions 0045faf0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [ ] `ggmCWInterface::CallIFun_IsOnInventory` · 0045ef60 · legions 0045fbb0
 - [x] `ggmCWInterface::CallIFun_IsSkillBeingUntrainedByEnum` · 0045f040 · legions 0045fc90 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `ggmCWInterface::CallIFun_IsSkillHarmful` · 0045f100 · legions 0045fd50 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `ggmCWInterface::CallIFun_IsSkillTrainedByEnum` · 0045f1c0 · legions 0045fe10 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
-- [x] `ggmCWInterface::CallIFun_IsSkillUsableBasedOnInventoryByEnum` · 0045f280 · legions 0045fed0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-- [x] `ggmCWInterface::CallIFun_LootAllFromContainer` · 0045f340 · legions 0045ff90 — Loot All runs on the player's script: IFun 0xB400E8 sends WM_Inventory 0x68 after the wlib counts the corpse's lists (corpse_script_7160)
+- [~] `ggmCWInterface::CallIFun_IsSkillUsableBasedOnInventoryByEnum` · 0045f280 · legions 0045fed0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+- [~] `ggmCWInterface::CallIFun_LootAllFromContainer` · 0045f340 · legions 0045ff90 — Loot All runs on the player's script: IFun 0xB400E8 sends WM_Inventory 0x68 after the wlib counts the corpse's lists (corpse_script_7160)
 - [ ] `ggmCWInterface::CallIFun_MoveItem` · 0045f410 · legions 00460060
 - [~] `ggmCWInterface::CallIFun_OfferItemForTrade` · 0045f5e0 · legions 00460230 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [x] `ggmCWInterface::CallIFun_OpenRecipe` · 0045f6e0 · legions 00460330 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
@@ -797,8 +797,8 @@ Legend and workflow: [README](README.md).
 - [~] `ggmCWInterface::CallIFun_RequestSell` · 00460ba0 · legions 004617f0 — lead: the VM's sell body needs the storekeeper's shopper with a StoreGroup (set by ViewCatalog, WM_Store 0x52; without one it refuses with message 0xAFD1, consignment_script_7160). With the catalog open it runs on to gCWDistributor::GetEntityDID (bound) and then gCWPhysicsObject::CallEFun_GetLocalVisualDesc (0x800059, unbound: needs the item's VisualDesc native), so the RequestSell stub's bytes are not reached yet.
 - [ ] `ggmCWInterface::CallIFun_RequestSetPetName` · 00460cc0 · legions 00461910
 - [x] `ggmCWInterface::CallIFun_RequestTrainSkill` · 00460df0 · legions 00461a40 — ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
-- [x] `ggmCWInterface::CallIFun_RequestUntrainSkill` · 00460ea0 · legions 00461af0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-- [x] `ggmCWInterface::CallIFun_RequestUntrainSkillCancel` · 00460f50 · legions 00461ba0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+- [~] `ggmCWInterface::CallIFun_RequestUntrainSkill` · 00460ea0 · legions 00461af0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+- [~] `ggmCWInterface::CallIFun_RequestUntrainSkillCancel` · 00460f50 · legions 00461ba0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [ ] `ggmCWInterface::CallIFun_ResetReplyHistoryIndex` · 00460fe0 · legions 00461c30
 - [ ] `ggmCWInterface::CallIFun_ResetRetellHistoryIndex` · 00461070 · legions 00461cc0
 - [ ] `ggmCWInterface::CallIFun_Result_CallCreate` · 00461100 · legions 00461d50
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (112/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (104/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -985,7 +985,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::IsOnInventory` · 00450680 · legions 004517c0
 - [~] `gmCWInterface::DragToMoneyBag` · 004506c0 · legions 00451800 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [~] `gmCWInterface::DragFromMoneyBag` · 00450700 · legions 00451840 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
-- [x] `gmCWInterface::LootAllFromContainer` · 00450730 · legions 00451870 — Loot All runs on the player's script: IFun 0xB400E8 sends WM_Inventory 0x68 after the wlib counts the corpse's lists, which the open answer fills (CPlayer 0x8C -> CInventorySystem); corpse_script_7160. Another character's corpse is refused with NotMine (1077, consumed by CInventorySystem's open handler); the CorpseUsagePermission (0x26A) fields and the CorpsePermissionBlob message (0x1BDF) stay untraced
+- [~] `gmCWInterface::LootAllFromContainer` · 00450730 · legions 00451870 — Loot All runs on the player's script: IFun 0xB400E8 sends WM_Inventory 0x68 after the wlib counts the corpse's lists, which the open answer fills (CPlayer 0x8C -> CInventorySystem); corpse_script_7160. Another character's corpse is refused with NotMine (1077, consumed by CInventorySystem's open handler); the CorpseUsagePermission (0x26A) fields and the CorpsePermissionBlob message (0x1BDF) stay untraced
 - [ ] `gmCWInterface::TransmuteAllFromContainer` · 00450750 · legions 00451890 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
 - [x] `gmCWInterface::HasDurability` · 00450770 · legions 004518b0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [x] `gmCWInterface::GetDurabilityLevel` · 004507a0 · legions 004518e0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
@@ -999,20 +999,20 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::InqRootPanelFromRace` · 00450920 · legions 00451a60
 - [x] `gmCWInterface::IsSkillTrainedByEnum` · 00450960 · legions 00451aa0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `gmCWInterface::IsSkillBeingUntrainedByEnum` · 004509a0 · legions 00451ae0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
-- [x] `gmCWInterface::IsHeroSkillByEnum` · 004509e0 · legions 00451b20 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+- [~] `gmCWInterface::IsHeroSkillByEnum` · 004509e0 · legions 00451b20 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [x] `gmCWInterface::CanSkillBeTrainedByEnum` · 00450a20 · legions 00451b60 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
-- [x] `gmCWInterface::CanSkillBeUntrainedByEnum` · 00450a60 · legions 00451ba0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+- [~] `gmCWInterface::CanSkillBeUntrainedByEnum` · 00450a60 · legions 00451ba0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [x] `gmCWInterface::CanSkillBeRaisedByEnum` · 00450aa0 · legions 00451be0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `gmCWInterface::GetSkillExperienceNeededToLevelByEnum` · 00450ae0 · legions 00451c20 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
-- [x] `gmCWInterface::InqSkillLevelByEnum` · 00450b30 · legions 00451c70 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+- [~] `gmCWInterface::InqSkillLevelByEnum` · 00450b30 · legions 00451c70 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [x] `gmCWInterface::GetSkillCostToTrainByEnum` · 00450b70 · legions 00451cb0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `gmCWInterface::GetSkillXPByEnum` · 00450bb0 · legions 00451cf0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `gmCWInterface::RequestTrainSkill` · 00450c00 · legions 00451d40 — ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
-- [x] `gmCWInterface::RequestUntrainSkill` · 00450c20 · legions 00451d60 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+- [~] `gmCWInterface::RequestUntrainSkill` · 00450c20 · legions 00451d60 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [x] `gmCWInterface::RequestRaiseSkill` · 00450c40 · legions 00451d80 — ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
-- [x] `gmCWInterface::RequestUntrainSkillCancel` · 00450c60 · legions 00451da0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-- [x] `gmCWInterface::InqSkillTimeLeft` · 00450c80 · legions 00451dc0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-- [x] `gmCWInterface::IsSkillUsableBasedOnInventoryByEnum` · 00450cc0 · legions 00451e00 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+- [~] `gmCWInterface::RequestUntrainSkillCancel` · 00450c60 · legions 00451da0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+- [~] `gmCWInterface::InqSkillTimeLeft` · 00450c80 · legions 00451dc0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+- [~] `gmCWInterface::IsSkillUsableBasedOnInventoryByEnum` · 00450cc0 · legions 00451e00 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [ ] `gmCWInterface::GUNHandleReauthentication` · 00450d00 · legions 00451e40
 - [ ] `gmCWInterface::Result_SendToUser` · 00450d10 · legions 00451e50
 - [ ] `gmCWInterface::Result_SendToRoom` · 00450d40 · legions 00451e80
@@ -2249,11 +2249,11 @@ Legend and workflow: [README](README.md).
 ### gCWAllocator
 - [ ] `gCWAllocator::CallEFun_ResetShell` · 004bc8c0
 
-## `portal/client/src/weenie/interp/glue/gcwbookkeeper.cpp.c` (2/2)
+## `portal/client/src/weenie/interp/glue/gcwbookkeeper.cpp.c` (0/2)
 
 ### gCWBookKeeper
-- [x] `gCWBookKeeper::CallEFun_AddObjectToBeDestroyed` · 004bc7e0 — book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
-- [x] `gCWBookKeeper::CallEFun_RemoveObjectToBeDestroyed` · 004bc850 — book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
+- [ ] `gCWBookKeeper::CallEFun_AddObjectToBeDestroyed` · 004bc7e0 — book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
+- [ ] `gCWBookKeeper::CallEFun_RemoveObjectToBeDestroyed` · 004bc850 — book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
 
 ## `portal/client/src/weenie/interp/glue/gcwdistributor.cpp.c` (1/3)
 
@@ -2298,7 +2298,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWInterface::CallIFun_OnStatChanged` · 004bc510 · legions 004b1400
 - [ ] `gCWInterface::CallIFun_PreloadWSLSingletons` · 004bc600 · legions 004b14f0
 
-## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (0/85)
+## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (1/85)
 
 ### gCWPhysicsObject
 - [ ] `gCWPhysicsObject::CallEFun_DoStory` · 004b8050
@@ -2359,7 +2359,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWPhysicsObject::CallEFun_SetLocalVisualDesc` · 004b9de0
 - [ ] `gCWPhysicsObject::CallEFun_SetMode` · 004b9e60
 - [ ] `gCWPhysicsObject::CallEFun_SetMovementFrozen` · 004b9ee0
-- [ ] `gCWPhysicsObject::CallEFun_SetNoDrawPhysics` · 004b9f60
+- [x] `gCWPhysicsObject::CallEFun_SetNoDrawPhysics` · 004b9f60 — ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
 - [ ] `gCWPhysicsObject::CallEFun_SetUndetectable` · 004b9fe0
 - [ ] `gCWPhysicsObject::CallEFun_StopAllWeenieBehaviors` · 004ba060
 - [ ] `gCWPhysicsObject::CallEFun_StopBehavior` · 004ba0d0
@@ -2818,13 +2818,13 @@ Legend and workflow: [README](README.md).
 - [ ] `WLogSystem::GetFileLog` · 007333c0 · legions 006af870
 - [ ] `WLogSystem::GetPrintLog` · 007333d0 · legions 006af880
 
-## `portal/shared/src/weenie/wbookie/wbookkeeper.cpp.c` (2/5)
+## `portal/shared/src/weenie/wbookie/wbookkeeper.cpp.c` (0/5)
 
 ### CWBookKeeper
 - [ ] `CWBookKeeper::CWBookKeeper` · 0052dd90 · legions 00512230
 - [ ] `CWBookKeeper::CSendToTurbineRoomByID` · 0052ddb0 · legions 00512250 — ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
-- [x] `CWBookKeeper::AddObjectToBeDestroyed` · 0052ddf0 · legions 00512290 — book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
-- [x] `CWBookKeeper::RemoveObjectToBeDestroyed` · 0052de00 · legions 005122a0 — book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
+- [ ] `CWBookKeeper::AddObjectToBeDestroyed` · 0052ddf0 · legions 00512290 — book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
+- [ ] `CWBookKeeper::RemoveObjectToBeDestroyed` · 0052de00 · legions 005122a0 — book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
 - [ ] `CWBookKeeper::~CWBookKeeper` · 0052de10 · legions 005122b0
 
 ## `portal/shared/src/weenie/weenieobject.cpp.c` (0/9)
@@ -2844,7 +2844,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWeenieObject::~CWeenieObject` · 0052fd40 · legions 00513e90
 - [ ] `CWeenieObject::UnRegisterAllNoticeHandlers` · 0052fd70 · legions 00513ec0
 
-## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (0/91)
+## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (1/91)
 
 ### CWPhysicsObject
 - [ ] `CWPhysicsObject::CWPhysicsObject` · 0052fe30 · legions 00513f80
@@ -2915,7 +2915,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWPhysicsObject::GetJumpScale` · 00530940 · legions 005148e0
 - [ ] `CWPhysicsObject::SetJumpScale` · 00530960 · legions 00514900
 - [ ] `CWPhysicsObject::Notify_DoMode` · 00530980 · legions 00514920
-- [ ] `CWPhysicsObject::SetNoDrawPhysics` · 005309a0 · legions 00514940
+- [x] `CWPhysicsObject::SetNoDrawPhysics` · 005309a0 · legions 00514940 — ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
 - [ ] `CWPhysicsObject::SetCloaked` · 005309c0 · legions 00514960
 - [ ] `CWPhysicsObject::SetUndetectable` · 005309e0 · legions 00514980
 - [ ] `CWPhysicsObject::InqCurrentProperties` · 00530ae0 · legions 00514a80
