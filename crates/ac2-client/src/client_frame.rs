@@ -13,21 +13,20 @@ impl Client {
         let server_time = self.session.cur_time();
         let in_world = self.player.as_ref().is_some_and(|p| p.in_world);
         let player = self.player.as_ref().and_then(|p| {
-            let state = p.body.as_ref()?.physics.movement_state();
+            let body = p.body.as_ref()?;
+            let state = body.physics.movement_state();
+            let (cell, origin, rotation) =
+                crate::motion::drawn_place(&body.physics, self.render_interpolation);
             Some(PlayerFrame {
                 id: p.id,
-                cell: state.cell_id,
-                origin: state.origin,
-                rotation: state.rotation,
+                cell,
+                origin,
+                rotation,
                 heading_degrees: state.heading_degrees,
                 visual: p.visual,
                 velocity: state.velocity,
                 contact: state.contact,
-                pose: p
-                    .body
-                    .as_ref()
-                    .map(|b| crate::motion::pose(&b.physics))
-                    .unwrap_or_default(),
+                pose: crate::motion::pose(&body.physics, self.pose_blend_time()),
                 appearance: self
                     .session
                     .objects()

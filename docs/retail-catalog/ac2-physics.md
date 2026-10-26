@@ -2586,7 +2586,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::CollisionRemoveObject` · 004e79e0
 - [ ] `CPhysicsObj::AlwaysPrepareObject` · 004e7a60
 - [~] `CPhysicsObj::UpdateViewerDistance` · 004e7af0 — PhysicsBody::set_view_distance takes the camera distance from the caller; no scene stamp or children
-- [~] `CPhysicsObj::PrepareObjectForDrawing` · 004e7c80 — ac2-physics: the drawn position slerp / previous position only (PhysicsBody::drawing_position)
+- [~] `CPhysicsObj::PrepareObjectForDrawing` · 004e7c80 — ac2-physics PhysicsBody::drawing_position (slerp of the previous and current position at the render interpolation); ac2-client draws the player and every remote at it; the pose blend is not retail (Client::set_pose_blend)
 - [ ] `CPhysicsObj::Draw` · 004e7db0
 - [ ] `CPhysicsObj::AddChildInternal` · 004e86c0 · legions 004db0a0
 - [ ] `CPhysicsObj::StickySetParent` · 004e8750

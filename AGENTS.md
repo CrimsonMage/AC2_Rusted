@@ -32,6 +32,10 @@ subsystem it reproduces. This file states the working rules.
   features: do not port its admin-only commands, debuggers, account overrides, admin entities
   (e.g. `wsl_butcherytool`) or admin UI; mark those catalog rows `skip` with the reason.
   Test-only code (`view::probe`) stays behind the `test-support` feature.
+- Exception: drawn poses blend between the last two bone refreshes (`ac2_anim::blend_transform`;
+  `Client::set_pose_blend`, on by default), so the skeleton moves at display rate. Retail draws the
+  last refresh; turn the blend off to get it. Drawn positions (`PhysicsBody::drawing_position`)
+  follow retail's render interpolation and are not an exception.
 - Where admin 7148 and Legions 7160 differ, follow Legions (the DVD client the DATs ship with):
   read `decompiled-pdb/legions7160/source_tree/` beside the admin tree and note the difference.
 - Numeric fidelity: retail ran x87 at 53-bit precision (`_setdefaultprecision`, and

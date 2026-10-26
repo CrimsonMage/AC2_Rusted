@@ -2400,7 +2400,7 @@ key	status	note
 004e6ff0	x	
 004e7580	~	ac2-physics objects.rs: static objects only; Interpermiable/CollisionParameters ethereal filter, missile proximity and temp ignore lists not ported
 004e7af0	~	PhysicsBody::set_view_distance takes the camera distance from the caller; no scene stamp or children
-004e7c80	~	ac2-physics: the drawn position slerp / previous position only (PhysicsBody::drawing_position)
+004e7c80	~	ac2-physics PhysicsBody::drawing_position (slerp of the previous and current position at the render interpolation); ac2-client draws the player and every remote at it; the pose blend is not retail (Client::set_pose_blend)
 004e8f80	x	
 004e9140	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 004e9700	~	ac2-physics anim_pose: distance-degraded update frames, TriggerUpdate fired (FX and weenie hooks as events, impulses); no look-at, FX scripts or FX manager

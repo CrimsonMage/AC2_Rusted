@@ -155,13 +155,9 @@ impl Client {
                 let (cell, origin, rotation, velocity, contact) = match (body, o.position) {
                     (Some(body), _) => {
                         let state = body.movement_state();
-                        (
-                            state.cell_id,
-                            state.origin,
-                            state.rotation,
-                            state.velocity,
-                            state.contact,
-                        )
+                        let (cell, origin, rotation) =
+                            crate::motion::drawn_place(body, self.render_interpolation);
+                        (cell, origin, rotation, state.velocity, state.contact)
                     }
                     (None, Some(p)) => (p.cell, p.origin, p.rotation, [0.0; 3], false),
                     (None, None) => (0, [0.0; 3], [1.0, 0.0, 0.0, 0.0], [0.0; 3], false),
@@ -187,7 +183,9 @@ impl Client {
                     container: weenie.and_then(|w| w.container),
                     wielder: weenie.and_then(|w| w.wielder),
                     appearance: o.appearance.clone(),
-                    pose: body.map(crate::motion::pose).unwrap_or_default(),
+                    pose: body
+                        .map(|b| crate::motion::pose(b, self.pose_blend_time()))
+                        .unwrap_or_default(),
                 })
             })
             .collect()

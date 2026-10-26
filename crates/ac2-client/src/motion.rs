@@ -30,9 +30,26 @@ impl PartPose {
     }
 }
 
-/// The body's bone transforms (`PhysicsBody::bone_transforms`).
-pub(crate) fn pose(body: &PhysicsBody) -> Vec<PartPose> {
-    body.bone_transforms()
+/// Where the body is drawn: `PhysicsBody::drawing_position` at the frame's render interpolation
+/// (`CPhysics::sRenderInterpolation`), as the cell and the origin and rotation (w, x, y, z).
+pub(crate) fn drawn_place(
+    body: &PhysicsBody,
+    render_interpolation: f32,
+) -> (u32, [f32; 3], [f32; 4]) {
+    let place = body.drawing_position(render_interpolation);
+    let o = place.frame.origin;
+    let q = place.frame.q;
+    (place.cell_id, [o.x, o.y, o.z], [q.w, q.x, q.y, q.z])
+}
+
+/// The body's bones as the renderer poses them: blended at `drawn_at` (the frame's time) when
+/// pose blending is on, else the retail refresh (`PhysicsBody::bone_transforms`).
+pub(crate) fn pose(body: &PhysicsBody, drawn_at: Option<f64>) -> Vec<PartPose> {
+    let bones = match drawn_at {
+        Some(now) => body.blended_bone_transforms(now),
+        None => body.bone_transforms(),
+    };
+    bones
         .iter()
         .map(|t| PartPose {
             offset: [t.offset.x, t.offset.y, t.offset.z],

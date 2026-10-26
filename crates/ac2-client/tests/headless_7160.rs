@@ -129,11 +129,11 @@ fn the_headless_client_walks_into_a_pillar_and_takes_a_forced_position() {
     let mut last = None;
     for _ in 0..192 {
         // The report reads the body as the previous frame left it, with this frame's motion.
-        let before = client.frame().player.unwrap();
+        let before = client.player_movement_state().unwrap();
         client.use_time(&walk).unwrap();
         let time = client.session().cur_time();
         let position = CellPosition {
-            cell: before.cell,
+            cell: before.cell_id,
             origin: before.origin,
         };
         let now = (time, position, [0.0, 1.0, 0.0]);

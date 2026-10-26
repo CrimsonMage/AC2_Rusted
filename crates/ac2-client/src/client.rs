@@ -146,7 +146,12 @@ pub struct Client {
     /// `SmartBox::mtCameraUpdate`.
     camera_update_time: f64,
     /// `CPhysics::sRenderInterpolation`, from the last render step.
-    render_interpolation: f32,
+    pub(crate) render_interpolation: f32,
+    /// `Timer::local_time` of the last render step: the time the poses are drawn at.
+    render_time: f64,
+    /// Whether the drawn pose blends between the last two bone refreshes (not retail; the
+    /// retail pose is the last refresh, drawn as it is).
+    pose_blend: bool,
     load_budget: Duration,
     pub(crate) notices: Vec<Notice>,
     /// The physics objects of everything but the player.
@@ -214,6 +219,8 @@ impl Client {
             want_frame_drawn: false,
             camera_update_time: now,
             render_interpolation: 0.0,
+            render_time: now,
+            pose_blend: true,
             load_budget: Duration::from_millis(4),
             notices: Vec::new(),
             remotes: Remotes::default(),
@@ -236,6 +243,24 @@ impl Client {
 
     pub fn camera(&self) -> &CameraManager {
         &self.camera
+    }
+
+    /// Whether drawn poses blend between the last two bone refreshes (on by default). Off draws
+    /// the retail pose, the last refresh, as it is.
+    pub fn set_pose_blend(&mut self, on: bool) {
+        self.pose_blend = on;
+    }
+
+    /// The player's physics state: what the movement reports carry. The frame's player is drawn
+    /// between physics quanta, so it is not the state the server is told.
+    pub fn player_movement_state(&self) -> Option<MovementState> {
+        let body = self.player.as_ref()?.body.as_ref()?;
+        Some(body.physics.movement_state())
+    }
+
+    /// The time poses are blended at, or `None` when pose blending is off.
+    pub(crate) fn pose_blend_time(&self) -> Option<f64> {
+        self.pose_blend.then_some(self.render_time)
     }
 
     /// How long one frame may spend taking in finished loads.
@@ -570,6 +595,7 @@ impl Client {
             }
         }
         self.render_interpolation = self.physics_clock.render_interpolation(now);
+        self.render_time = now;
         // `WorldRender::Update` -> `PortalSpace::Effect::Think`.
         self.portal.think(now, &mut self.random);
         // `PhysicsModule::UpdateAnimation` -> `CPhysics::UpdateAllAnimation`.
