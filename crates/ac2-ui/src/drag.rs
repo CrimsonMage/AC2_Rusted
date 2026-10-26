@@ -15,12 +15,17 @@
 //! The frameworks read a drop from the `stop_drag_item` message: its `item` is the copy, which
 //! stays readable until the next global loop.
 //!
-//! Not modelled yet: the frameworks' drag callbacks (`m_dragOutCallback`, `m_dragDropCallback`;
-//! the frameworks answer the messages instead) and drag selection in list boxes.
+//! The frameworks' drag callbacks are [`DragCheck`]s on the elements (`m_dragOutCallback` asked
+//! by `DragItem` of the owner, `m_dragDropCallback` asked by `CatchDroppedItem` of the
+//! container): a refusal ends the drag out or the catch, and a refused drop goes to the owner as
+//! a drop outside.
+//!
+//! Not modelled yet: drag selection in list boxes.
 
 use std::sync::Arc;
 
 use crate::element::UiTree;
+use crate::layout::AttributeValue;
 use crate::mouse::UiMessage;
 use crate::token::tokenize;
 
@@ -31,6 +36,24 @@ const DRAGABLE: u32 = tokenize("dragable");
 const CONTAINER: u32 = tokenize("container");
 const DISALLOW_DRAG_IN: u32 = tokenize("disallow_drag_in");
 const DISALLOW_DRAG_OUT: u32 = tokenize("disallow_drag_out");
+
+/// The callbacks the frameworks hang on elements (`UIElement::m_dragOutCallback` and
+/// `m_dragDropCallback`, called with the dragged element and the element that owns them).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DragCheck {
+    /// `gmShortcutUI_DOCB`: a bar slot leaves the bar unless the bar is locked and shift is up.
+    ShortcutOut,
+    /// `gmShortcutUI_DDCB`: something carrying a shortcut type, dropped on a slot below 100.
+    ShortcutDrop,
+    /// `gmIngredientUI_DDCB`: an item (`Token_ShortcutType` 0x40000002) from a container.
+    IngredientDrop,
+    /// `gmPaperDollUI_DDCB` / `gmSecureTradeUI_DDCB`: an item.
+    ItemDrop,
+    /// `ContainerDisplay_DDCB`: the coin field or an item.
+    ContainerDrop,
+    /// `gm3DItems_DDCB`: the coin field or an item from a container.
+    WorldDrop,
+}
 
 /// The left mouse button.
 pub(crate) const LEFT: u32 = 0x4000_0004;
@@ -48,7 +71,19 @@ pub(crate) struct DragState {
     pub left_down: bool,
     /// Copies dropped this frame, deleted on the next global loop.
     pub dropped: Vec<usize>,
+    /// `GetShortcutLocked` of the player's options (`gmShortcutUI_DOCB`), set by the bar.
+    pub shortcut_locked: bool,
+    /// `GetKeyState(VK_SHIFT)`, set from the input's modifiers.
+    pub shift: bool,
 }
+
+const SHORTCUT_TYPE: u32 = tokenize("Token_ShortcutType");
+const FROM_ID: u32 = tokenize("FromID");
+const SHORTCUT_INDEX: u32 = tokenize("ShortcutIndex");
+/// `Token_ShortcutType` of an item.
+const ITEM_TYPE: u32 = 0x4000_0002;
+/// `ContainerDisplay::s_coinFieldElementName`.
+const COINS_FIELD: u32 = tokenize("CoinsField");
 
 impl UiTree {
     /// `MouseDownEvent`'s part: when and where the press was.
@@ -145,6 +180,11 @@ impl UiTree {
         if self.bool_attribute(owner, DISALLOW_DRAG_OUT) {
             return None;
         }
+        if let Some(check) = self.el(owner).drag_out {
+            if !self.run_drag_check(check, item, owner) {
+                return None;
+            }
+        }
         let copy = self.copy_element(item)?;
         self.broadcast(owner, MSG_START_DRAG_ITEM, 0);
         Some(copy)
@@ -215,6 +255,11 @@ impl UiTree {
         if self.bool_attribute(element, CONTAINER)
             && !self.bool_attribute(element, DISALLOW_DRAG_IN)
         {
+            if let Some(check) = self.el(element).drag_drop {
+                if !self.run_drag_check(check, item, element) {
+                    return false;
+                }
+            }
             self.broadcast_item(element, MSG_STOP_DRAG_ITEM, 1, item);
             return true;
         }
@@ -222,6 +267,65 @@ impl UiTree {
             Some(parent) => self.catch_dropped_item(parent, item),
             None => false,
         }
+    }
+
+    /// The callback `check` on `item`, owned by `owner`.
+    fn run_drag_check(&self, check: DragCheck, item: usize, owner: usize) -> bool {
+        let shortcut_type = match self.get(item).and_then(|e| e.attribute(SHORTCUT_TYPE)) {
+            Some(AttributeValue::Id(kind)) => *kind,
+            _ => 0,
+        };
+        let from_container = || {
+            matches!(
+                self.get(item).and_then(|e| e.attribute(FROM_ID)),
+                Some(AttributeValue::InstanceId(from)) if *from != 0
+            )
+        };
+        match check {
+            DragCheck::ShortcutOut => {
+                let index = match self.get(item).and_then(|e| e.attribute(SHORTCUT_INDEX)) {
+                    Some(AttributeValue::Int(index)) => *index,
+                    _ => return false,
+                };
+                index < 100 && (!self.drag.shortcut_locked || self.drag.shift)
+            }
+            DragCheck::ShortcutDrop => {
+                let under = self.list_item_under_mouse(owner);
+                match under.and_then(|u| self.get(u)?.attribute(SHORTCUT_INDEX)) {
+                    Some(AttributeValue::Int(index)) => *index < 100 && shortcut_type != 0,
+                    _ => false,
+                }
+            }
+            DragCheck::IngredientDrop => shortcut_type == ITEM_TYPE && from_container(),
+            DragCheck::ItemDrop => shortcut_type == ITEM_TYPE,
+            DragCheck::ContainerDrop => {
+                self.el(item).id() == COINS_FIELD || shortcut_type == ITEM_TYPE
+            }
+            DragCheck::WorldDrop => {
+                self.el(item).id() == COINS_FIELD
+                    || (shortcut_type == ITEM_TYPE && from_container())
+            }
+        }
+    }
+
+    /// `UIElement::SetDragOutCallback`: the check `DragItem` asks of `element` as the owner.
+    pub fn set_drag_out_check(&mut self, element: usize, check: Option<DragCheck>) {
+        self.el_mut(element).drag_out = check;
+    }
+
+    /// `m_dragDropCallback = ...`: the check `CatchDroppedItem` asks of `element`.
+    pub fn set_drag_drop_check(&mut self, element: usize, check: Option<DragCheck>) {
+        self.el_mut(element).drag_drop = check;
+    }
+
+    /// `GetKeyState(VK_SHIFT)` as the callbacks read it.
+    pub fn set_shift(&mut self, shift: bool) {
+        self.drag.shift = shift;
+    }
+
+    /// `GetShortcutLocked` as `gmShortcutUI_DOCB` reads it.
+    pub fn set_shortcut_locked(&mut self, locked: bool) {
+        self.drag.shortcut_locked = locked;
     }
 
     /// `UIElementManager::ClearDragandDrop`: the copy leaves the screen (it is deleted on the

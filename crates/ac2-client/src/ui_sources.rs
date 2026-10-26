@@ -318,6 +318,7 @@ impl ShortcutSource for ClientPlayer<'_> {
                 which_set: s.which_set,
                 show_numbers: s.show_numbers,
                 insta_scroll: s.insta_scroll,
+                locked: s.locked,
                 rows: s.height as i32,
             },
         )

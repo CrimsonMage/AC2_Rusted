@@ -8,6 +8,11 @@ use super::*;
 
 const SKILL: u32 = 0x55;
 
+thread_local! {
+    /// `GetShortcutLocked` as the stub player answers it.
+    static LOCKED: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
 struct Stub;
 
 impl ShortcutSource for Stub {
@@ -44,6 +49,7 @@ impl ShortcutSource for Stub {
             show_numbers: true,
             insta_scroll: true,
             rows: 1,
+            locked: LOCKED.with(|l| l.get()),
         }
     }
     fn skill_trained(&self, skill: u32) -> bool {
@@ -152,12 +158,74 @@ fn a_shortcut_dragged_to_another_slot_moves_there() {
         skill: SKILL,
         ..Shortcut::default()
     };
+    // `RemoveShortcut` of the slot it came from, then `SetShortcut` of the slot dropped on.
+    assert_eq!(
+        requests,
+        vec![
+            ShortcutRequest::Set(0, Shortcut::default()),
+            ShortcutRequest::Set(3, skill)
+        ]
+    );
+}
+
+/// A press on slot `from` and a move to slot `to` (`MouseMoveEvent`), without the release.
+fn pull(tree: &mut UiTree, list: usize, from: usize, to: usize) {
+    let items = tree.list_items(list).to_vec();
+    let centre = |tree: &UiTree, item: usize| {
+        let b = tree.screen_box(item);
+        ((b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2)
+    };
+    let (x, y) = centre(tree, items[from]);
+    tree.start_input(crate::UI_POINTER_X, x as f32);
+    tree.start_input(crate::UI_POINTER_Y, y as f32);
+    tree.start_input(0x4000_0004, 1.0);
+    let (tx, ty) = centre(tree, items[to]);
+    tree.start_input(crate::UI_POINTER_X, tx as f32);
+    tree.start_input(crate::UI_POINTER_Y, ty as f32);
+}
+
+/// `gmShortcutUI_DOCB`: a locked bar keeps its shortcuts in their slots unless shift is held.
+#[test]
+fn a_locked_bar_lets_a_shortcut_out_only_with_shift() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let mut tree = hud.tree;
+    let mut bar = hud.shortcuts.expect("the shortcut bar");
+    LOCKED.with(|l| l.set(true));
+    bar.reload(&mut tree, &Stub);
+    bar.take_requests();
+    let list = bar.elements().1.unwrap();
+    pull(&mut tree, list, 0, 3);
+    assert!(tree.dragged().is_none(), "the locked bar holds the slot");
+    tree.stop_input(0x4000_0004);
+    for message in tree.take_messages() {
+        bar.message(&mut tree, &Stub, &message);
+    }
+    assert!(bar.take_requests().is_empty());
+    // Shift held, the same pull drags the slot out and the drop moves it.
+    tree.set_shift(true);
+    pull(&mut tree, list, 0, 3);
+    assert!(tree.dragged().is_some(), "shift unlocks the drag");
+    tree.stop_input(0x4000_0004);
+    for _ in 0..4 {
+        for message in tree.take_messages() {
+            bar.message(&mut tree, &Stub, &message);
+        }
+    }
+    let requests = bar.take_requests();
     assert!(
-        requests.contains(&ShortcutRequest::Set(3, skill)),
+        requests
+            .iter()
+            .any(|r| matches!(r, ShortcutRequest::Set(3, s) if s.kind == SHORTCUT_SKILL)),
         "{requests:?}"
     );
-    assert!(
-        requests.contains(&ShortcutRequest::Set(0, Shortcut::default())),
-        "{requests:?}"
-    );
+    // Unlocked, no shift is needed.
+    LOCKED.with(|l| l.set(false));
+    tree.set_shift(false);
+    bar.reload(&mut tree, &Stub);
+    pull(&mut tree, list, 0, 3);
+    assert!(tree.dragged().is_some(), "an unlocked bar drags freely");
 }

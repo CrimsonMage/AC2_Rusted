@@ -164,7 +164,7 @@ key	status	note
 00415870	-	gmCObjectMaint::GetWeenieObject: the session's object table serves it (client hud_ingredient.rs)
 00415890	~	ac2-ui ingredient.rs close: the slots' objects leave and the list flushes; the panel's root is kept (the 15 s dormancy destroy is not modelled)
 00415900	~	ac2-ui ingredient.rs update_craft_button: ghosted while pending, mounted, out of the spinner range or past the difficulty cutoff. Not: the tooltips and the button text (their string ids are not in the decompile)
-00415b70	~	the drop filter: only item drags (ShortcutType 0x40000002) are accepted in retail; the drop here does not refuse other drags yet
+00415b70	x	ac2-ui drag.rs DragCheck::IngredientDrop on the ingredient list (CatchDroppedItem asks it of the container): only an item (ShortcutType 0x40000002) from a container (FromID set); a refusal goes to the drag's owner as a drop outside
 00415be0	~	ac2-ui ingredient.rs update_cost: the cost is kept and follows the dynamic cost; its text needs the retail string id, so the layout's text stays
 00415c50	x	ac2-ui ingredient.rs scale: Scale_ in f64, clamped to its range, mapped onto the scaled range
 00415cd0	~	ac2-ui ingredient.rs create_managed: the root made from the gameplay layout (the top-level element holding IngredientListBox; its own DAT id is not in the decompile), the list, spinner, labels and buttons looked up
@@ -188,7 +188,7 @@ key	status	note
 00416ea0	~	ac2-ui ingredient.rs open: name, description, spinner range and value, cost, skill level, the slots from InqRecipeIngredients, the craft button and the difficulty. Not: the misc text's value string (its id is not in the decompile). The spinner starts at last_spinner (the Init decompile overlays two adaptors)
 00417290	x	ac2-ui ingredient_slots.rs remove_slot: the slot's object leaves, the list item and the mask bit go
 004173f0	x	ac2-ui ingredient_slots.rs update_slot: the description and the object checked again at the spinner
-00417530	~	ac2-ui ingredient_slots.rs message: a drop on the list (MSG_STOP_DRAG_ITEM, the list item under the pointer) leaves the object's old slot, the slot goes pending and the add goes out. Not tested through a real drag; the drop filter gmIngredientUI_DDCB is not modelled
+00417530	~	ac2-ui ingredient_slots.rs message: a drop on the list (MSG_STOP_DRAG_ITEM, the list item under the pointer) leaves the object's old slot, the slot goes pending and the add goes out; gmIngredientUI_DDCB now refuses what is not an item from a container (drag_tests). Not tested through the HUD with a real pack drag
 004176c0	x	ac2-ui ingredient_slots.rs update_ingredients: slots added, kept ones refreshed, the ones no longer asked for removed (the mask as retail)
 00417800	~	ac2-ui ingredient.rs IngredientUi::new: the layout kept; the root is made when the panel opens. Not: the notice and message registrations (per object and listeners in Rust, no table)
 00417ac0	x	ac2-ui ingredient.rs open_notice: the recipe's panel opens unless it is shown and its cost is dynamic (client hud_ingredient.rs)
@@ -404,7 +404,7 @@ key	status	note
 0042d850	x	ac2-ui dialog.rs
 0042d8e0	x	ac2-ui dialog.rs
 0042d910	x	ac2-ui item_display.rs
-0042da30	x	ac2-ui item_display.rs
+0042da30	x	ac2-ui drag.rs DragCheck::ContainerDrop on each container list: the coin field or an item
 0042dac0	x	ac2-ui list_box.rs
 0042daf0	x	ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 0042db40	x	ac2-ui item_display.rs
@@ -520,8 +520,8 @@ key	status	note
 00435ce0	x	ac2-ui shortcut.rs
 00435d30	x	ac2-ui shortcut.rs
 00435d80	x	ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
-00435e10	x	ac2-ui drag.rs; shortcut.rs drop
-00435e70	~	the locked-bar check (GetShortcutLocked + shift) is not asked
+00435e10	x	ac2-ui drag.rs DragCheck::ShortcutDrop on the bar's list: a drag carrying a shortcut type, over a slot below 100
+00435e70	x	ac2-ui drag.rs DragCheck::ShortcutOut on the bar's list (UIElement::DragItem asks it of the owner): a slot leaves the bar only below index 100 and, with the bar locked (GetShortcutLocked, kept by the options page's setter and the profile at reload), only while shift is held; tested through the HUD (shortcut_drag_7160)
 00435fc0	x	ac2-ui shortcut.rs
 004360e0	x	ac2-ui shortcut.rs
 00436120	x	ac2-ui shortcut_states.rs time_left_position: the entry for (skill, slot)
@@ -543,11 +543,11 @@ key	status	note
 00436f60	~	routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
 00437290	-	notice handlers are registered per object by the session in Rust (no per-object handler table)
 00437320	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-00437620	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+00437620	x	ac2-ui shortcut.rs set_shortcut: requested sets the slot (gmCWInterface::SetShortcut, WM_Player call 0x82120018 from the script) and the list item; tested through the HUD with skills, items and slot to slot drags (shortcut_drag_7160)
 004376c0	x	ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 00437770	x	ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 00437820	x	ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
-004379a0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+004379a0	x	ac2-ui shortcut.rs message: the double click on a skill, the use/examine presses and stop_drag_item (RemoveShortcut of the source slot, then SetShortcut of the slot under the pointer; a drop outside removes); tested through the HUD (shortcut_drag_7160)
 00437d90	x	ac2-ui shortcut.rs
 00437e50	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 00437fb0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
@@ -558,17 +558,17 @@ key	status	note
 00438a20	x	ac2-ui effects.rs
 00438b80	x	ac2-ui effects.rs
 00438c30	x	ac2-ui effects.rs
-004391c0	x	ac2-ui effects.rs; meter thresholds and the f32 stores checked against the x87 code (objdump of 0x439A10); EffectTimeout is the expiry (durationLeft), not the recovered pseudocode's reused slot
+004391c0	~	ac2-ui effects.rs; meter thresholds and the f32 stores checked against the x87 code (objdump of 0x439A10); EffectTimeout is the expiry (durationLeft), not the recovered pseudocode's reused slot
 004396b0	x	ac2-ui effects.rs
 00439700	x	ac2-ui effects.rs
 00439710	x	ac2-ui effects.rs
 004397d0	-	
 004398c0	x	ac2-ui vitals.rs
-00439930	x	ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
+00439930	~	ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
 004399a0	x	ac2-ui vitals.rs
 00439d10	-	
-00439d30	x	ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
-00439e00	x	ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
+00439d30	~	ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
+00439e00	~	ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
 00439ea0	-	
 00439f30	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 00439f40	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -657,7 +657,7 @@ key	status	note
 00441ba0	~	Legions 7160 (followed): race 1, 2, 8, 16 x0.9, race 4 x0.75; z = -0.875 x height; camera scale 0.25 x height (admin: -0.5, full height). The physobj call before it (vtbl 0x2F4 (1, 0)) is not modelled
 00441d20	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 00441db0	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
-00441e50	x	step 2: slot lookup by element (the slots are the containers the layout names); DDCB is is_item_copy
+00441e50	x	ac2-ui drag.rs DragCheck::ItemDrop on each paper doll slot (InitSlots): only an item
 00441ea0	x	step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 00441f10	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 00441fd0	~	the avatar follows the frame's appearance each frame (remade on change); the mode calls on the physobj (vtbl 0x110 / 0x114) are not modelled
@@ -792,10 +792,10 @@ key	status	note
 0044c5f0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 0044c7d0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 0044cbc0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
-0044cd80	x	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
-0044ce40	x	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
-0044ce90	x	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
-0044cfc0	x	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+0044cd80	_	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+0044ce40	_	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+0044ce90	_	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+0044cfc0	_	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
 0044dc80	x	ac2-ui meter.rs
 0044dcd0	x	ac2-ui meter.rs
 0044de30	x	ac2-ui meter.rs
@@ -4264,8 +4264,8 @@ key	status	note
 005ea430	x	ac2-ui compose.rs / element.rs set_image
 005ea510	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ea5c0	x	ac2-ui drag.rs; shortcut.rs drop
-005eab10	x	ac2-ui drag.rs; shortcut.rs drop
-005eabd0	x	ac2-ui drag.rs; shortcut.rs drop
+005eab10	x	ac2-ui drag.rs drag_item: disallow_drag_out, then the owner's drag-out callback (DragCheck), the copy and start_drag_item
+005eabd0	x	ac2-ui drag.rs catch_dropped_item: a container that takes drops asks its drag-drop callback (DragCheck; a refusal ends the catch), else stop_drag_item with the copy; other elements pass it to the parent
 005eac90	x	ac2-ui tooltip.rs
 005eacf0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005eae20	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor

@@ -118,6 +118,9 @@ pub struct UiElement {
     pub(crate) mouse_over_top: bool,
     pub(crate) mouse_visible: bool,
     pub(crate) mouse_down: Vec<u32>,
+    /// `m_dragOutCallback` and `m_dragDropCallback`.
+    pub(crate) drag_out: Option<crate::drag::DragCheck>,
+    pub(crate) drag_drop: Option<crate::drag::DragCheck>,
     /// `UIElement_Button::mousePressedOnButton`.
     pub(crate) button_pressed: bool,
     /// A root's surface object: shown (`UIObject` show, apart from the element's own
@@ -431,6 +434,8 @@ impl UiTree {
             mouse_over_top: false,
             mouse_visible: true,
             mouse_down: Vec::new(),
+            drag_out: None,
+            drag_drop: None,
             button_pressed: false,
             shown: true,
             rotation: 0,

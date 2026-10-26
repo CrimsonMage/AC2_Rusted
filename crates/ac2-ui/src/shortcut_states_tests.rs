@@ -27,6 +27,7 @@ impl ShortcutSource for Bar {
             show_numbers: false,
             insta_scroll: false,
             rows: 1,
+            locked: false,
         }
     }
     fn skill_trained(&self, _: u32) -> bool {

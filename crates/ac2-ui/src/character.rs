@@ -356,6 +356,10 @@ impl CharacterUi {
                         desc.target,
                         entry.current,
                     )));
+                    // `gmShortcutUI_DOCB` reads `GetShortcutLocked` as the drag starts.
+                    if desc.setter == Setter::ShortcutLocked {
+                        tree.set_shortcut_locked(entry.current != 0.0);
+                    }
                 }
             }
             if let Kind::Flag = desc.kind {

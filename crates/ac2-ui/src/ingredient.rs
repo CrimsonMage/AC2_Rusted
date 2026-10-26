@@ -175,6 +175,10 @@ impl IngredientUi {
             return false;
         };
         self.root = tree.create_root(layout, id);
+        // `gmIngredientUI::CreateManagedElements`: `gmIngredientUI_DDCB` on the list.
+        if let Some(list) = self.child(tree, INGREDIENT_LIST) {
+            tree.set_drag_drop_check(list, Some(crate::DragCheck::IngredientDrop));
+        }
         self.root.is_some()
     }
 

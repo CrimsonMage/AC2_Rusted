@@ -141,6 +141,7 @@ impl HudView {
         let Some((tree, _)) = &mut self.hud else {
             return Vec::new();
         };
+        tree.set_shift(modifiers.shift);
         for (action, extent, start) in self.scale.actions_to_ui(actions) {
             if start {
                 tree.start_input(action, extent);

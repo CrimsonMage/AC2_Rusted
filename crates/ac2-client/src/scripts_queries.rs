@@ -303,6 +303,7 @@ impl Client {
             show_numbers: p.bit_field & 0x1 != 0,
             height: p.shortcut_height,
             insta_scroll: p.bit_field & 0x2000 != 0,
+            locked: p.bit_field & 0x800 != 0,
         })
     }
 }
@@ -346,4 +347,6 @@ pub struct ShortcutSettings {
     pub show_numbers: bool,
     pub height: u32,
     pub insta_scroll: bool,
+    /// `GetShortcutLocked` (0x800).
+    pub locked: bool,
 }

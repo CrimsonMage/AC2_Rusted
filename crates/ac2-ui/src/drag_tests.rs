@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use crate::drag::{LEFT, MSG_STOP_DRAG_ITEM};
+use crate::drag::{DragCheck, LEFT, MSG_STOP_DRAG_ITEM};
 use crate::layout::{AttributeDesc, AttributeValue, ElementDesc, LayoutDesc, Rect, StateDesc};
 use crate::token::{tokenize, STATELESS};
 use crate::{UiTree, UI_POINTER_X, UI_POINTER_Y};
@@ -144,4 +144,80 @@ fn a_drop_on_nothing_tells_the_owner() {
         .expect("stop_drag_item");
     let owner = tree.get(icon).unwrap().parent;
     assert_eq!((drop.element, drop.data, drop.item), (owner, 0, Some(copy)));
+}
+
+/// Drags the icon onto the target and returns the `stop_drag_item` (element, data).
+fn drag_to_target(tree: &mut UiTree) -> (Option<usize>, i32) {
+    point(tree, 15, 15);
+    tree.start_input(LEFT, 1.0);
+    point(tree, 20, 15);
+    assert!(tree.dragged().is_some(), "a drag");
+    point(tree, 120, 20);
+    tree.take_messages();
+    tree.stop_input(LEFT);
+    let drop = tree
+        .take_messages()
+        .into_iter()
+        .find(|m| m.message == MSG_STOP_DRAG_ITEM)
+        .expect("stop_drag_item");
+    (drop.element, drop.data)
+}
+
+/// `UIElement::CatchDroppedItem`: the container's callback refuses what it does not take, and
+/// the drop then reaches the owner as one outside (`DragAndDropComplete`).
+#[test]
+fn a_refusing_drop_callback_sends_the_drop_back_to_the_owner() {
+    for (check, attributes, accepted) in [
+        (DragCheck::ItemDrop, vec![], false),
+        (DragCheck::ItemDrop, vec![(0x4000_0001, 0)], false),
+        (DragCheck::ItemDrop, vec![(0x4000_0002, 0)], true),
+        // `gmIngredientUI_DDCB` wants the item to come from a container.
+        (DragCheck::IngredientDrop, vec![(0x4000_0002, 0)], false),
+        (DragCheck::IngredientDrop, vec![(0x4000_0002, 0x55)], true),
+        // `gm3DItems_DDCB` too; `ContainerDisplay_DDCB` does not read it.
+        (DragCheck::WorldDrop, vec![(0x4000_0002, 0)], false),
+        (DragCheck::WorldDrop, vec![(0x4000_0002, 0x55)], true),
+        (DragCheck::ContainerDrop, vec![(0x4000_0002, 0)], true),
+        (DragCheck::ContainerDrop, vec![(0x4000_0003, 0)], false),
+    ] {
+        let (mut tree, icon, target) = tree();
+        tree.set_drag_drop_check(target, Some(check));
+        for &(kind, from) in &attributes {
+            tree.set_attribute_id(icon, tokenize("Token_ShortcutType"), kind);
+            if from != 0 {
+                tree.set_instance_attribute(icon, tokenize("FromID"), from);
+            }
+        }
+        let owner = tree.get(icon).unwrap().parent;
+        let (element, data) = drag_to_target(&mut tree);
+        if accepted {
+            assert_eq!(
+                (element, data),
+                (Some(target), 1),
+                "{check:?} {attributes:?}"
+            );
+        } else {
+            assert_eq!((element, data), (owner, 0), "{check:?} {attributes:?}");
+        }
+    }
+}
+
+/// `UIElement::DragItem`: the owner's drag-out callback can refuse the drag.
+#[test]
+fn a_refusing_drag_out_callback_keeps_the_icon_in_place() {
+    let (mut tree, icon, _) = tree();
+    let owner = tree.get(icon).unwrap().parent.unwrap();
+    // The shortcut bar's callback wants a `ShortcutIndex` below 100.
+    tree.set_drag_out_check(owner, Some(DragCheck::ShortcutOut));
+    point(&mut tree, 15, 15);
+    tree.start_input(LEFT, 1.0);
+    point(&mut tree, 20, 15);
+    assert!(tree.dragged().is_none(), "no ShortcutIndex, no drag out");
+    tree.stop_input(LEFT);
+    tree.set_attribute_id(icon, tokenize("ShortcutIndex"), 0);
+    tree.set_drag_out_check(owner, None);
+    point(&mut tree, 15, 15);
+    tree.start_input(LEFT, 1.0);
+    point(&mut tree, 20, 15);
+    assert!(tree.dragged().is_some(), "with no callback the drag starts");
 }

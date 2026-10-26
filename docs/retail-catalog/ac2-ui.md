@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 813 done, 275 partial, 1106 to do, 53 skipped.
+2247 retail functions: 809 done, 275 partial, 1110 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -258,7 +258,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmGamePlayUI::ListenToMessage` · 0040a810 · legions 0040a6d0
 - [ ] `gmGamePlayUI::RecvNotice_ReloadOptions` · 0040a960
 
-## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (18/39)
+## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (19/39)
 
 ### gmCObjectMaint
 - [-] `gmCObjectMaint::GetWeenieObject` · 00415870 · legions 00415660 — gmCObjectMaint::GetWeenieObject: the session's object table serves it (client hud_ingredient.rs)
@@ -268,7 +268,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmIngredientUI::UpdateCraftButton` · 00415900 · legions 004156f0 — ac2-ui ingredient.rs update_craft_button: ghosted while pending, mounted, out of the spinner range or past the difficulty cutoff. Not: the tooltips and the button text (their string ids are not in the decompile)
 
 ### (free functions)
-- [~] `gmIngredientUI_DDCB` · 00415b70 — the drop filter: only item drags (ShortcutType 0x40000002) are accepted in retail; the drop here does not refuse other drags yet
+- [x] `gmIngredientUI_DDCB` · 00415b70 — ac2-ui drag.rs DragCheck::IngredientDrop on the ingredient list (CatchDroppedItem asks it of the container): only an item (ShortcutType 0x40000002) from a container (FromID set); a refusal goes to the drag's owner as a drop outside
 
 ### gmIngredientUI
 - [~] `gmIngredientUI::UpdateCost` · 00415be0 · legions 004159d0 — ac2-ui ingredient.rs update_cost: the cost is kept and follows the dynamic cost; its text needs the retail string id, so the layout's text stays
@@ -300,7 +300,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmIngredientUI::Init` · 00416ea0 · legions 00416c60 — ac2-ui ingredient.rs open: name, description, spinner range and value, cost, skill level, the slots from InqRecipeIngredients, the craft button and the difficulty. Not: the misc text's value string (its id is not in the decompile). The spinner starts at last_spinner (the Init decompile overlays two adaptors)
 - [x] `gmIngredientUI::MultiOpRemoveIngredientSlot` · 00417290 · legions 00417050 — ac2-ui ingredient_slots.rs remove_slot: the slot's object leaves, the list item and the mask bit go
 - [x] `gmIngredientUI::UpdateIngredientSlot` · 004173f0 · legions 004171b0 — ac2-ui ingredient_slots.rs update_slot: the description and the object checked again at the spinner
-- [~] `gmIngredientUI::HandleListBoxDrop` · 00417530 · legions 004172f0 — ac2-ui ingredient_slots.rs message: a drop on the list (MSG_STOP_DRAG_ITEM, the list item under the pointer) leaves the object's old slot, the slot goes pending and the add goes out. Not tested through a real drag; the drop filter gmIngredientUI_DDCB is not modelled
+- [~] `gmIngredientUI::HandleListBoxDrop` · 00417530 · legions 004172f0 — ac2-ui ingredient_slots.rs message: a drop on the list (MSG_STOP_DRAG_ITEM, the list item under the pointer) leaves the object's old slot, the slot goes pending and the add goes out; gmIngredientUI_DDCB now refuses what is not an item from a container (drag_tests). Not tested through the HUD with a real pack drag
 - [x] `gmIngredientUI::UpdateIngredients` · 004176c0 · legions 00417480 — ac2-ui ingredient_slots.rs update_ingredients: slots added, kept ones refreshed, the ones no longer asked for removed (the mask as retail)
 - [~] `gmIngredientUI::gmIngredientUI` · 00417800 · legions 004175c0 — ac2-ui ingredient.rs IngredientUi::new: the layout kept; the root is made when the panel opens. Not: the notice and message registrations (per object and listeners in Rust, no table)
 - [x] `gmIngredientUI::RecvNotice_OpenIngredientPanel` · 00417ac0 · legions 00417880 — ac2-ui ingredient.rs open_notice: the recipe's panel opens unless it is shown and its cost is dynamic (client hud_ingredient.rs)
@@ -696,7 +696,7 @@ Legend and workflow: [README](README.md).
 - [x] `ContainerDisplay::FinishListBoxDrop` · 0042d910 · legions 0042d6e0 — ac2-ui item_display.rs
 
 ### (free functions)
-- [x] `ContainerDisplay_DDCB` · 0042da30 — ac2-ui item_display.rs
+- [x] `ContainerDisplay_DDCB` · 0042da30 — ac2-ui drag.rs DragCheck::ContainerDrop on each container list: the coin field or an item
 
 ### ContainerDisplay
 - [ ] `ContainerDisplay::Show` · 0042da90 · legions 0042d860
@@ -912,7 +912,7 @@ Legend and workflow: [README](README.md).
 - [x] `VitalDisplay::SetTextState` · 0044dea0 · legions 0044f070 — ac2-ui meter.rs
 - [x] `VitalDisplay::SetMeterState` · 0044ded0 · legions 0044f0a0 — ac2-ui meter.rs
 
-## `ac2/client/src/ui/gameplay/statusbar/gmeffectsui.cpp.c` (7/10)
+## `ac2/client/src/ui/gameplay/statusbar/gmeffectsui.cpp.c` (6/10)
 
 ### gmEffectsUI
 - [x] `gmEffectsUI::SelectElement` · 00438a20 · legions 00439270 — ac2-ui effects.rs
@@ -925,7 +925,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PList<EffectUINode>::UnPack` · 00438f80
 
 ### gmEffectsUI
-- [x] `gmEffectsUI::Init` · 004391c0 · legions 00439a10 — ac2-ui effects.rs; meter thresholds and the f32 stores checked against the x87 code (objdump of 0x439A10); EffectTimeout is the expiry (durationLeft), not the recovered pseudocode's reused slot
+- [~] `gmEffectsUI::Init` · 004391c0 · legions 00439a10 — ac2-ui effects.rs; meter thresholds and the f32 stores checked against the x87 code (objdump of 0x439A10); EffectTimeout is the expiry (durationLeft), not the recovered pseudocode's reused slot
 - [x] `gmEffectsUI::RecvNotice_ExaminationRequestChanged` · 004396b0 — ac2-ui effects.rs
 - [x] `gmEffectsUI::RecvNotice_UpdateEffect` · 00439700 — ac2-ui effects.rs
 - [x] `gmEffectsUI::gmEffectsUI` · 00439710 · legions 00439f60 — ac2-ui effects.rs
@@ -937,15 +937,15 @@ Legend and workflow: [README](README.md).
 - [ ] `gmStatusbarUI::SetupChildren` · 00423210 · legions 00422fe0
 - [~] `gmStatusbarUI::gmStatusbarUI` · 004232f0 · legions 004230c0 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 
-## `ac2/client/src/ui/gameplay/statusbar/gmvitalsui.cpp.c` (5/6)
+## `ac2/client/src/ui/gameplay/statusbar/gmvitalsui.cpp.c` (2/6)
 
 ### gmVitalsUI
 - [-] `gmVitalsUI::~gmVitalsUI` · 004397d0 · legions 0043a020
 - [x] `gmVitalsUI::RecvNotice_UpdateVital` · 004398c0 — ac2-ui vitals.rs
-- [x] `gmVitalsUI::SetTooltip` · 00439930 · legions 0043a180 — ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
+- [~] `gmVitalsUI::SetTooltip` · 00439930 · legions 0043a180 — ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
 - [x] `gmVitalsUI::gmVitalsUI` · 004399a0 · legions 0043a1f0 — ac2-ui vitals.rs
-- [x] `gmVitalsUI::ListenToMessage` · 00439d30 · legions 0043a580 — ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
-- [x] `gmVitalsUI::RecvNotice_UpdateHeroStatus` · 00439e00 · legions 0043a650 — ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
+- [~] `gmVitalsUI::ListenToMessage` · 00439d30 · legions 0043a580 — ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
+- [~] `gmVitalsUI::RecvNotice_UpdateHeroStatus` · 00439e00 · legions 0043a650 — ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
 
 ## `ac2/client/src/ui/gameplay/statusbar/indicators/gmindicatorsui.cpp.c` (0/4)
 
@@ -986,13 +986,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gmPKStatusUI::gmPKStatusUI` · 0044d040 · legions 0044e210
 - [ ] `gmPKStatusUI::RecvNotice_UpdateFactionStatus` · 0044d0c0
 
-## `ac2/client/src/ui/gameplay/statusbar/indicators/gmvitaestatusui.cpp.c` (4/4)
+## `ac2/client/src/ui/gameplay/statusbar/indicators/gmvitaestatusui.cpp.c` (0/4)
 
 ### gmVitaeStatusUI
-- [x] `gmVitaeStatusUI::gmVitaeStatusUI` · 0044cd80 · legions 0044df50 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
-- [x] `gmVitaeStatusUI::RecvNotice_ExaminationRequestChanged` · 0044ce40 · legions 0044e010 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
-- [x] `gmVitaeStatusUI::RecvNotice_UpdateVitae` · 0044ce90 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
-- [x] `gmVitaeStatusUI::ListenToMessage` · 0044cfc0 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+- [ ] `gmVitaeStatusUI::gmVitaeStatusUI` · 0044cd80 · legions 0044df50 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+- [ ] `gmVitaeStatusUI::RecvNotice_ExaminationRequestChanged` · 0044ce40 · legions 0044e010 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+- [ ] `gmVitaeStatusUI::RecvNotice_UpdateVitae` · 0044ce90 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+- [ ] `gmVitaeStatusUI::ListenToMessage` · 0044cfc0 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
 
 ## `ac2/client/src/ui/gameplay/toolbar/gmchatui.cpp.c` (6/14)
 
@@ -1093,7 +1093,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmNavigationUI::UpdatePlayerPos` · 004341b0 · legions 00434980 — ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
 - [~] `gmNavigationUI::ListenToMessage` · 00434280 · legions 00434a50 — ac2-ui navigation_detail.rs: NavigationButton, NavigationCloseButton, the pan buttons, the macro switch (MapParentField data 0x40000005), the macro click (MapField), the global loop's switch. Not ported: the parent's coordinates message (0x40000007), ReadMarkerInfo (tooltip), NoteText (needs strings), the overview buttons; the Legions layout has no LockPositionButton or MacroMapButton
 
-## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (20/46)
+## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (23/46)
 
 ### gmShortcutUI
 - [x] `gmShortcutUI::Show` · 00435cd0 · legions 00436520 — ac2-ui shortcut.rs show: the bar's field shows or hides; ac2-client show_toolbar calls it from the toolbar's Show
@@ -1102,8 +1102,8 @@ Legend and workflow: [README](README.md).
 - [x] `gmShortcutUI::RequestAttackStateChange` · 00435d80 · legions 004365d0 — ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
 
 ### (free functions)
-- [x] `gmShortcutUI_DDCB` · 00435e10 · legions 00436660 — ac2-ui drag.rs; shortcut.rs drop
-- [~] `gmShortcutUI_DOCB` · 00435e70 — the locked-bar check (GetShortcutLocked + shift) is not asked
+- [x] `gmShortcutUI_DDCB` · 00435e10 · legions 00436660 — ac2-ui drag.rs DragCheck::ShortcutDrop on the bar's list: a drag carrying a shortcut type, over a slot below 100
+- [x] `gmShortcutUI_DOCB` · 00435e70 — ac2-ui drag.rs DragCheck::ShortcutOut on the bar's list (UIElement::DragItem asks it of the owner): a slot leaves the bar only below index 100 and, with the bar locked (GetShortcutLocked, kept by the options page's setter and the profile at reload), only while shift is held; tested through the HUD (shortcut_drag_7160)
 
 ### SmartArray<TimeLeftInfo>
 - [ ] `SmartArray<TimeLeftInfo>::RemoveOrderedByIndex` · 00435ec0 · legions 00436710
@@ -1148,11 +1148,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gmShortcutUI::~gmShortcutUI` · 004371c0 · legions 00437a10
 - [-] `gmShortcutUI::RecvNotice_CreateObject` · 00437290 — notice handlers are registered per object by the session in Rust (no per-object handler table)
 - [~] `gmShortcutUI::MakeElement` · 00437320 · legions 00437b70 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-- [~] `gmShortcutUI::SetShortcut` · 00437620 · legions 00437e70 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [x] `gmShortcutUI::SetShortcut` · 00437620 · legions 00437e70 — ac2-ui shortcut.rs set_shortcut: requested sets the slot (gmCWInterface::SetShortcut, WM_Player call 0x82120018 from the script) and the list item; tested through the HUD with skills, items and slot to slot drags (shortcut_drag_7160)
 - [x] `gmShortcutUI::RecvNotice_RequestSpecialAttack` · 004376c0 — ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 - [x] `gmShortcutUI::RecvNotice_StartSpecialAttack` · 00437770 — ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 - [x] `gmShortcutUI::RecvNotice_EndSpecialAttack` · 00437820 — ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
-- [~] `gmShortcutUI::ListenToMessage` · 004379a0 · legions 004381f0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [x] `gmShortcutUI::ListenToMessage` · 004379a0 · legions 004381f0 — ac2-ui shortcut.rs message: the double click on a skill, the use/examine presses and stop_drag_item (RemoveShortcut of the source slot, then SetShortcut of the slot under the pointer; a drop outside removes); tested through the HUD (shortcut_drag_7160)
 - [x] `gmShortcutUI::UpdatePadding` · 00437d90 · legions 004385e0 — ac2-ui shortcut.rs
 - [~] `gmShortcutUI::RefreshShortcutHeight` · 00437e50 · legions 004386a0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 - [~] `gmShortcutUI::gmShortcutUI` · 00437fb0 · legions 00438800 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
@@ -1266,7 +1266,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmPaperDollUI::HandlePaperDollClick` · 00441db0 · legions 00442700 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 
 ### (free functions)
-- [x] `gmPaperDollUI_DDCB` · 00441e50 — step 2: slot lookup by element (the slots are the containers the layout names); DDCB is is_item_copy
+- [x] `gmPaperDollUI_DDCB` · 00441e50 — ac2-ui drag.rs DragCheck::ItemDrop on each paper doll slot (InitSlots): only an item
 
 ### gmPaperDollUI
 - [ ] `gmPaperDollUI::RecvNotice_UpdateMountState` · 00441e90
@@ -2833,8 +2833,8 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::SetImage` · 005ea430 · legions 005ab000 — ac2-ui compose.rs / element.rs set_image
 - [x] `UIElement::AddAttributesFromDesc` · 005ea510 · legions 005ab0e0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [x] `UIElement::MatchAttributes` · 005ea5c0 · legions 005ab190 — ac2-ui drag.rs; shortcut.rs drop
-- [x] `UIElement::DragItem` · 005eab10 · legions 005ab6e0 — ac2-ui drag.rs; shortcut.rs drop
-- [x] `UIElement::CatchDroppedItem` · 005eabd0 · legions 005ab7a0 — ac2-ui drag.rs; shortcut.rs drop
+- [x] `UIElement::DragItem` · 005eab10 · legions 005ab6e0 — ac2-ui drag.rs drag_item: disallow_drag_out, then the owner's drag-out callback (DragCheck), the copy and start_drag_item
+- [x] `UIElement::CatchDroppedItem` · 005eabd0 · legions 005ab7a0 — ac2-ui drag.rs catch_dropped_item: a container that takes drops asks its drag-drop callback (DragCheck; a refusal ends the catch), else stop_drag_item with the copy; other elements pass it to the parent
 - [x] `UIElement::IsTooltipOn` · 005eac90 · legions 005ab860 — ac2-ui tooltip.rs
 - [ ] `UIElement::IsActivatable` · 005eacb0 · legions 005ab880
 - [ ] `UIElement::GetActivateOrder` · 005eacd0 · legions 005ab8a0

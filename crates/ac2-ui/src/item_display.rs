@@ -393,6 +393,8 @@ impl ContainerDisplay {
         let Some(list) = display.list else {
             return display;
         };
+        // `ContainerDisplay::Init`: `ContainerDisplay_DDCB` on the list.
+        tree.set_drag_drop_check(list, Some(crate::DragCheck::ContainerDrop));
         display.max_size = match tree.get(element).and_then(|e| e.attribute(id("num_slots"))) {
             Some(crate::layout::AttributeValue::Int(n)) => *n as u32,
             _ => s.max_container_size(container),

@@ -25,6 +25,8 @@ use crate::frame::ClientFrame;
 use crate::hud_view::HudView;
 use crate::motion::PartPose;
 
+mod probe;
+
 /// Near and far planes of the drawn view.
 const NEAR: f32 = 0.1;
 const FAR: f32 = 4000.0;

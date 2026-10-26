@@ -18,6 +18,7 @@
 
 use std::sync::Arc;
 
+use crate::drag::DragCheck;
 use crate::element::UiTree;
 use crate::layout::{AttributeValue, LayoutDesc};
 use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS};
@@ -56,6 +57,8 @@ pub struct ShortcutOptions {
     pub show_numbers: bool,
     /// `GetShortcutInstaScroll`.
     pub insta_scroll: bool,
+    /// `GetShortcutLocked`: slots stay put unless shift is held (`gmShortcutUI_DOCB`).
+    pub locked: bool,
     /// `GetShortcutHeight`: the bar's rows (1 to 5).
     pub rows: i32,
 }
@@ -140,6 +143,11 @@ impl ShortcutUi {
             requests: Vec::new(),
         };
         ui.check_attack_buttons(tree);
+        if let Some(list) = ui.list {
+            // `gmShortcutUI::gmShortcutUI`: `gmShortcutUI_DOCB` and `gmShortcutUI_DDCB`.
+            tree.set_drag_out_check(list, Some(DragCheck::ShortcutOut));
+            tree.set_drag_drop_check(list, Some(DragCheck::ShortcutDrop));
+        }
         ui
     }
 
@@ -216,6 +224,7 @@ impl ShortcutUi {
     /// `RecvNotice_ReloadShortcuts` / `Init`: the set from the options, every slot made again.
     pub fn reload(&mut self, tree: &mut UiTree, source: &dyn ShortcutSource) {
         let options = source.options();
+        tree.set_shortcut_locked(options.locked);
         self.refresh_shortcut_height(tree, options.rows);
         self.offset = (options.which_set as usize * 10).saturating_sub(10);
         self.show_numbers = options.show_numbers;
@@ -459,12 +468,12 @@ impl ShortcutUi {
             let Some(index) = tree.list_what_num(list, target).filter(|&i| i < SLOTS) else {
                 return;
             };
-            let Some(shortcut) = Self::from_element(tree, copy) else {
-                return;
-            };
             if let Some(from) = from {
                 self.remove_shortcut(tree, source, from);
             }
+            let Some(shortcut) = Self::from_element(tree, copy) else {
+                return;
+            };
             self.set_shortcut(tree, source, index, shortcut, true);
         } else if let Some(from) = from {
             self.remove_shortcut(tree, source, from);

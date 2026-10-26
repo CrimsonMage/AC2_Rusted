@@ -134,6 +134,10 @@ impl PaperDollUi {
                 })
             })
             .collect();
+        // `gmPaperDollUI::InitSlots`: `gmPaperDollUI_DDCB` on each slot.
+        for slot in self.slots.iter().filter_map(|s| s.slot) {
+            tree.set_drag_drop_check(slot, Some(crate::DragCheck::ItemDrop));
+        }
         for durability in self.slots.iter().filter_map(|s| s.durability) {
             tree.set_visible(durability, false);
         }
