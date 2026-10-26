@@ -133,7 +133,7 @@ impl SceneRenderer {
                         },
                     );
                 }
-                Loaded::Model(visual, model, images) => {
+                Loaded::Model(visual, model, images) | Loaded::Rain(visual, model, images) => {
                     self.take_images(images);
                     let images = &self.images;
                     let mut load = |key: TextureKey| images.get(&key).cloned();
@@ -267,7 +267,7 @@ impl SceneRenderer {
         let placed = (&self.world_objects, self.frame_objects.as_slice());
         // The sky under `LScapeSky`'s objects, only where there is a landscape sky (not in a
         // dungeon or a UI viewport's scene, which clear to black).
-        if !(frame.sky.before.is_empty() && frame.sky.after.is_empty()) {
+        if landscape_sky(&frame.sky) {
             self.sky.draw(pass);
         }
         self.objects
@@ -276,6 +276,9 @@ impl SceneRenderer {
         // before-world sky objects.
         if frame.sky.fog_quad.is_some() {
             self.fog_quad.draw(pass);
+        }
+        if landscape_sky(&frame.sky) {
+            self.sky.draw_clouds(pass);
         }
         self.terrain.draw(
             pass,
@@ -300,6 +303,12 @@ impl SceneRenderer {
         self.objects
             .draw(pass, 2, &sky_instances(models, &frame.sky.after));
     }
+}
+
+/// Whether the frame has a landscape sky (`LScapeSky`): sky objects, or the fog quad that
+/// replaces the before-world ones when the sky is fogged out.
+fn landscape_sky(sky: &ac2_render::sky::SkyFrame) -> bool {
+    !(sky.before.is_empty() && sky.after.is_empty() && sky.fog_quad.is_none())
 }
 
 fn sky_instances<'a>(

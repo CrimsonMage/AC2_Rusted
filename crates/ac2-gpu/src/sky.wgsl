@@ -8,7 +8,7 @@
 struct SkyFrame {
     inv_view_proj: mat4x4<f32>,
     eye: vec4<f32>,
-    // The region's fog colour (the horizon), encoded.
+    // The region's fog colour (the horizon), encoded; alpha `fog_sky`.
     fog: vec4<f32>,
     // Unit vector towards the sun; sun_color is its linear colour (0 when the sun is off).
     sun_dir: vec4<f32>,
@@ -16,7 +16,7 @@ struct SkyFrame {
     // The backdrop dome's tint (`UpdateTimeOfDay`'s colour, linear) and opacity; a 0 opacity
     // leaves the atmosphere ungraded.
     grade: vec4<f32>,
-    // x cloud cover (0 clear to 1 overcast), y client seconds for the drift.
+    // x cloud cover (0 clear to 1 overcast), y client seconds for the drift, z rain amount.
     clouds: vec4<f32>,
 };
 
@@ -153,40 +153,72 @@ fn cloud_density(at: vec2<f32>, cover: f32) -> f32 {
     return smoothstep(threshold, threshold + 0.22, n);
 }
 
+fn view_direction(input: VsOut) -> vec3<f32> {
+    let far = sky.inv_view_proj * vec4(input.ndc, 1.0, 1.0);
+    return normalize(far.xyz / far.w - sky.eye.xyz);
+}
+
+// The region's directional light (the sun by day, the moon's dim light by night).
+fn sun_radiance() -> vec3<f32> {
+    return SUN_INTENSITY * clamp(sky.sun_color.rgb, vec3(0.0), vec3(2.0));
+}
+
+fn fog_linear_color() -> vec3<f32> {
+    return srgb_to_linear(clamp(sky.fog.rgb, vec3(0.0), vec3(1.0)));
+}
+
+// The atmosphere: drawn first, under the DAT sky objects and `LScapeSky::Draw`'s fog quad.
 @fragment
 fn fs(input: VsOut) -> @location(0) vec4<f32> {
-    let far = sky.inv_view_proj * vec4(input.ndc, 1.0, 1.0);
-    let view = normalize(far.xyz / far.w - sky.eye.xyz);
+    let view = view_direction(input);
     // Below the horizon the world covers the sky; keep the horizon's colour there.
     let dir = normalize(vec3(view.xy, max(view.z, 0.0)));
-    let sun = sky.sun_dir.xyz;
-    // The region's directional light (the sun by day, the moon's dim light by night).
-    let sun_radiance = SUN_INTENSITY * clamp(sky.sun_color.rgb, vec3(0.0), vec3(2.0));
-    var color = atmosphere(dir, sun, sun_radiance);
+    var color = atmosphere(dir, sky.sun_dir.xyz, sun_radiance());
 
     // The dome's authored tint grades the hue (its opacity says how much it shows).
     let grade = sky.grade.rgb / max(dot(sky.grade.rgb, vec3(0.2126, 0.7152, 0.0722)), 1e-3);
     color *= mix(vec3(1.0), clamp(grade, vec3(0.0), vec3(2.0)), GRADE_STRENGTH * sky.grade.a);
 
     // The horizon meets the region's fog, as the fogged terrain does.
-    let horizon = srgb_to_linear(clamp(sky.fog.rgb, vec3(0.0), vec3(1.0)));
     let level = max(dot(color, vec3(0.2126, 0.7152, 0.0722)), 1e-3);
-    color = mix(color, horizon * level * 1.4, exp(-dir.z * 9.0) * 0.55);
-
-    // The cloud deck, lit by the sun through it and by the sky from above.
-    let cover = clamp(sky.clouds.x, 0.0, 1.0);
-    if view.z > 0.0 && cover > 0.0 {
-        let distance = CLOUD_HEIGHT / max(view.z, 0.01);
-        let at = (sky.eye.xy + view.xy * distance) / CLOUD_SCALE + CLOUD_WIND * sky.clouds.y / CLOUD_SCALE;
-        let density = cloud_density(at, cover);
-        let toward_sun = cloud_density(at + sun.xy * 0.06, cover);
-        let shadow = exp(-2.2 * toward_sun);
-        let zenith = atmosphere(vec3(0.0, 0.0, 1.0), sun, sun_radiance);
-        let sunlight = sky.sun_color.rgb * max(sun.z, 0.0) * 1.6 + sky.sun_color.rgb * 0.15;
-        let silver = mie_phase(dot(view, sun), 0.55) * 2.0;
-        let lit = sunlight * (0.55 * shadow + silver * shadow) + zenith * 1.3 + horizon * 0.08;
-        let fade = exp(-distance / CLOUD_FADE) * smoothstep(0.03, 0.3, view.z);
-        color = mix(color, lit, density * fade);
-    }
+    color = mix(color, fog_linear_color() * level * 1.4, exp(-dir.z * 9.0) * 0.55);
     return vec4(max(color, vec3(0.0)), 1.0);
+}
+
+// The cloud deck, drawn after the DAT sky objects and the fog quad (premultiplied over them):
+// it covers the stars and the sun, and fogs itself by the sky fog (`fog_sky`, `fog.a`) so a
+// storm's fogged-out sky keeps its cloud shapes in the fog colour. Rain (`clouds.z`) thickens
+// and darkens it.
+@fragment
+fn fs_clouds(input: VsOut) -> @location(0) vec4<f32> {
+    let view = view_direction(input);
+    let cover = clamp(sky.clouds.x, 0.0, 1.0);
+    let rain = clamp(sky.clouds.z, 0.0, 1.0);
+    if view.z <= 0.0 || cover <= 0.0 {
+        return vec4(0.0);
+    }
+    let sun = sky.sun_dir.xyz;
+    let distance = CLOUD_HEIGHT / max(view.z, 0.01);
+    let at = (sky.eye.xy + view.xy * distance) / CLOUD_SCALE + CLOUD_WIND * sky.clouds.y / CLOUD_SCALE;
+    let density = cloud_density(at, cover);
+    let toward_sun = cloud_density(at + sun.xy * 0.06, cover);
+    let shadow = exp(-2.2 * toward_sun);
+    let zenith = atmosphere(vec3(0.0, 0.0, 1.0), sun, sun_radiance());
+    // Sunlight on the deck: full overhead, warm and grazing near the horizon, where the low sun
+    // lights the clouds' undersides (forward scattering towards the viewer).
+    let height = sun.z;
+    let day = smoothstep(-0.08, 0.3, height);
+    let low = (1.0 - smoothstep(0.0, 0.35, abs(height))) * smoothstep(-0.12, 0.02, height);
+    let forward = mie_phase(dot(view, sun), 0.55);
+    let sunlight = sky.sun_color.rgb * (0.25 + 1.35 * day + low * (0.6 + 2.5 * forward));
+    let silver = forward * 2.0 * day;
+    let fog = fog_linear_color();
+    var lit = sunlight * (0.55 * shadow + silver * shadow) + zenith * 1.3 + fog * 0.08;
+    lit *= 1.0 - 0.55 * rain;
+    // Fogged out (`fog_sky` 1): the cloud shapes in the fog colour, darker where thicker.
+    let fogged = fog * (0.45 + 0.55 * shadow);
+    let color = mix(lit, fogged, clamp(sky.fog.a, 0.0, 1.0));
+    let fade = exp(-distance / (CLOUD_FADE * (1.0 + 3.0 * rain))) * smoothstep(0.03, 0.3, view.z);
+    let alpha = density * fade;
+    return vec4(max(color, vec3(0.0)) * alpha, alpha);
 }

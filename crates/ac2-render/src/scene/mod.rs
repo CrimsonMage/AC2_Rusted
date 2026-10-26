@@ -27,8 +27,10 @@ pub use particles::ParticleBatch;
 use crate::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
 use crate::frustum::{Frustum, Relation};
 use crate::object::RenderSettings;
+use crate::particles::CameraBasis;
+use crate::rain::{RainField, RAIN_DRAW_THRESHOLD};
 use crate::sky::{sky_frame, SkyFrame};
-use crate::terrain::{far_radius_for_draw_distance, FarTerrain, FIRST_FAR_CHUNK};
+use crate::terrain::{far_radius_for_draw_distance, FarTerrain, TerrainHeights, FIRST_FAR_CHUNK};
 use crate::{Camera, SceneLighting};
 use loader::{Request, SceneLoader};
 use particles::SceneParticles;
@@ -105,6 +107,12 @@ pub struct WorldScene {
     object_rigs: HashMap<u64, (crate::object::PoseRig, Vec3)>,
     object_picks: HashMap<u64, Arc<crate::selection::PickMesh>>,
     particles: SceneParticles,
+    /// The resident blocks' ground, for the rain.
+    heights: HashMap<BlockKey, Arc<TerrainHeights>>,
+    rain: RainField,
+    /// The rain's material once loaded (`LScapeRender::m_pRainMaterial`).
+    rain_material: Option<DataId>,
+    started: Instant,
 }
 
 fn near(center: BlockKey, block: BlockKey, radius: i32) -> bool {
@@ -124,7 +132,7 @@ impl WorldScene {
             &mut Random::default(),
         ));
         let loader = SceneLoader::new(Arc::clone(&world), far, RenderSettings::default());
-        Self {
+        let mut scene = Self {
             world,
             loader,
             radius,
@@ -143,7 +151,13 @@ impl WorldScene {
             object_rigs: HashMap::new(),
             object_picks: HashMap::new(),
             particles: SceneParticles::new(),
-        }
+            heights: HashMap::new(),
+            rain: RainField::default(),
+            rain_material: None,
+            started: Instant::now(),
+        };
+        scene.request(Request::Rain);
+        scene
     }
 
     pub fn world(&self) -> &Arc<Ac2WorldSource> {
@@ -167,6 +181,7 @@ impl WorldScene {
             .collect();
         for block in leaving {
             self.blocks.remove(&block);
+            self.heights.remove(&block);
             self.particles.remove_block(&block);
             self.evicted.push(block);
         }
@@ -243,6 +258,7 @@ impl WorldScene {
                     // Its models stay known; the block itself is dropped.
                     update.loaded.push(Loaded::Block(LoadedBlock {
                         terrain: None,
+                        heights: None,
                         water: None,
                         placements: Vec::new(),
                         interiors: None,
@@ -252,6 +268,9 @@ impl WorldScene {
                     return;
                 }
                 self.particles.add_block(block.key, &block.particles);
+                if let Some(heights) = &block.heights {
+                    self.heights.insert(block.key, Arc::clone(heights));
+                }
                 self.blocks.insert(
                     block.key,
                     BlockInfo {
@@ -264,6 +283,7 @@ impl WorldScene {
             }
             Loaded::Model(visual, model, _) => self.note_model(*visual, model.as_ref()),
             Loaded::Far(far) => self.far_bounds = far.layout.chunk_bounds(&far.vertices),
+            Loaded::Rain(..) => {}
             Loaded::Object(object) => {
                 if let Some(rig) = object.model.as_ref().and_then(|model| model.rig()) {
                     self.object_rigs.insert(object.key, (rig, object.scale));
@@ -273,7 +293,16 @@ impl WorldScene {
                 }
             }
         }
-        update.loaded.push(loaded);
+        match loaded {
+            // The renderer takes the rain's material like a model.
+            Loaded::Rain(material, model, images) => {
+                if model.is_some() {
+                    self.rain_material = Some(material);
+                }
+                update.loaded.push(Loaded::Model(material, model, images));
+            }
+            loaded => update.loaded.push(loaded),
+        }
     }
 
     /// Loads a world object's model off the frame thread: `visual`'s DAT chain with `local` (the
@@ -417,7 +446,8 @@ impl WorldScene {
             .filter(|k| self.blocks[k].interiors)
             .collect();
         interiors.truncate(MAX_INTERIOR_BLOCKS);
-        let particles = self.particles.frame(camera);
+        let mut particles = self.particles.frame(camera);
+        particles.extend(self.rain_frame(camera, &lighting));
         SceneFrame {
             lighting,
             sky,
@@ -428,6 +458,34 @@ impl WorldScene {
             far_chunks,
             particles,
         }
+    }
+
+    /// `WorldRender::Update`'s `UpdateRain` and `WorldRender::Render`'s `DrawRain`: the frame's
+    /// streaks as a batch of the rain material, when it rains hard enough to draw.
+    fn rain_frame(&mut self, camera: &Camera, lighting: &SceneLighting) -> Option<ParticleBatch> {
+        let basis = CameraBasis::look_at(camera.eye, camera.target)?;
+        let block_size = self.world.block_size();
+        let heights = &self.heights;
+        let ground = |x: f32, y: f32| {
+            let key = (
+                u8::try_from((x / block_size).floor() as i32).ok()?,
+                u8::try_from((y / block_size).floor() as i32).ok()?,
+            );
+            let field = heights.get(&key)?;
+            Some((field.height_at(x, y)?, field.water))
+        };
+        let now = self.started.elapsed().as_secs_f64();
+        let geometry = self.rain.update(
+            now,
+            &basis,
+            lighting.rain,
+            lighting.rain_wind,
+            block_size,
+            &ground,
+        );
+        let material = self.rain_material?;
+        (lighting.rain > RAIN_DRAW_THRESHOLD && !geometry.is_empty())
+            .then_some(ParticleBatch { material, geometry })
     }
 
     /// The particles alive in the systems the last frame drew.

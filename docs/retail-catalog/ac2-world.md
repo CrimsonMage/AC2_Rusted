@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 149 done, 15 partial, 682 to do, 143 skipped.
+989 retail functions: 150 done, 15 partial, 681 to do, 143 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (16/140)
@@ -1226,7 +1226,7 @@ Legend and workflow: [README](README.md).
 - [-] `SceneType::LoadLScapeScene` · 006c2970 — text source loader, admin build only
 - [ ] `SceneType::Load` · 006c29f0
 
-## `portal/shared/src/region/sky/daydesc.cpp.c` (10/38)
+## `portal/shared/src/region/sky/daydesc.cpp.c` (11/38)
 
 ### CelestialPosition
 - [x] `CelestialPosition::CelestialPosition` · 005257a0 · legions 0050e750 — ac2-world region::sky_objects, ac2-render sky
@@ -1245,7 +1245,7 @@ Legend and workflow: [README](README.md).
 - [x] `CDayDesc::GetAfterTime` · 00525d30 · legions 0050ec00
 - [x] `CDayDesc::GetLighting` · 00525d90 · legions 0050ec60
 - [x] `CDayDesc::GetWorldFog` · 00525f70 · legions 0050ee40
-- [ ] `CDayDesc::GetRain` · 00526060 · legions 0050ef30
+- [x] `CDayDesc::GetRain` · 00526060 · legions 0050ef30 — rain amount and wind; streaks drawn as the rain material's particle batch above 0.4
 - [ ] `CDayDesc::CDayDesc` · 005262f0 · legions 0050f1c0
 - [ ] `CDayDesc::GetDBOType` · 00526330
 - [ ] `CDayDesc::~CDayDesc` · 00526340 · legions 0050f210

@@ -350,6 +350,7 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
             if sky.fog_quad.is_some() {
                 quad.draw(pass);
             }
+            sky_gradient.draw_clouds(pass);
             terrain.draw(pass, &blocks);
             terrain.draw_far(pass, &far, FIRST_FAR_CHUNK);
             objects.draw(pass, 1, &world_instances);

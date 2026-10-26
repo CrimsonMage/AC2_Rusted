@@ -18,10 +18,10 @@ use bytemuck::{Pod, Zeroable};
 use wgpu::util::DeviceExt;
 
 use crate::object_draw::{
-    bone_storage, draw_storage, draw_uniform, mark_sky, set_point_lights, DrawUniform,
+    bone_storage, draw_storage, draw_uniform, mark_sky, set_point_lights, DrawUniform, SkyRole,
 };
 use crate::object_state::{
-    pipeline_key, sampler_key, sky_depth, PipelineKey, SamplerKey, DRAW_STRIDE,
+    pipeline_key, sampler_key, sky_depth, sky_veil, PipelineKey, SamplerKey, DRAW_STRIDE,
 };
 use crate::pixel_program::shade_function;
 use crate::shading::FRAME_SHADING;
@@ -579,8 +579,16 @@ impl ObjectRenderer {
                                 .as_ref()
                                 .map_or(&gpu_pass.pass, |p| &p[pass_index]);
                             let mut key = pipeline_key(pass, gpu_pass.program);
+                            let role = SkyRole::of(
+                                pass,
+                                backdrop == Some(instance_index),
+                                instance.model.radius,
+                            );
                             if group.sky {
                                 key = sky_depth(key);
+                                if role == SkyRole::Veil {
+                                    key = sky_veil(key);
+                                }
                             }
                             let draw = QueuedDraw {
                                 key,
@@ -592,7 +600,7 @@ impl ObjectRenderer {
                             };
                             let mut uniform = draw_uniform(model, pass);
                             if group.sky {
-                                mark_sky(&mut uniform, pass, backdrop == Some(instance_index));
+                                mark_sky(&mut uniform, pass, role);
                             }
                             if let Some(normal) = instance.frill_normal {
                                 uniform.frill = normal.extend(1.0).to_array();

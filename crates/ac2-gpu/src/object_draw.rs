@@ -96,16 +96,45 @@ const FLAG_SKY_BACKDROP: u32 = 1 << 15;
 
 /// `FLAG_SKY_EMISSIVE`: an additive (`SRCALPHA`, `ONE`) sky layer, light in the sky.
 const FLAG_SKY_EMISSIVE: u32 = 1 << 16;
+/// `FLAG_SKY_VEIL`: a dome-sized alpha sky layer that tints the atmosphere
+/// ([`crate::object_state::sky_veil`]).
+const FLAG_SKY_VEIL: u32 = 1 << 17;
+/// Sky objects at least this wide (metres from their centre) are domes over the whole sky; the
+/// glow band and the sun are smaller.
+pub(crate) const SKY_DOME_RADIUS: f32 = 300.0;
 
-/// Marks a draw as a DAT sky object (`DrawGroup::sky`), as its backdrop dome, and as
-/// emissive when it adds light (`SRCALPHA`, `ONE`).
-pub(crate) fn mark_sky(uniform: &mut DrawUniform, pass: &LayerPass, backdrop: bool) {
-    uniform.program[1] |= FLAG_SKY;
-    if backdrop {
-        uniform.program[1] |= FLAG_SKY_BACKDROP;
-    } else if pass.source_blend == 5 && pass.dest_blend == 2 {
-        uniform.program[1] |= FLAG_SKY_EMISSIVE;
+/// What a sky object's layer is in the modern sky.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SkyRole {
+    /// The day dome (`crate::sky_backdrop`): only its texture's detail.
+    Backdrop,
+    /// A dome-sized alpha layer (the night layer `0x040000B4`): a tint over the atmosphere.
+    Veil,
+    /// Drawn as authored; additive layers shine (`FLAG_SKY_EMISSIVE`).
+    Layer,
+}
+
+impl SkyRole {
+    pub(crate) fn of(pass: &LayerPass, backdrop: bool, radius: f32) -> Self {
+        if backdrop {
+            Self::Backdrop
+        } else if pass.source_blend == 5 && pass.dest_blend == 6 && radius >= SKY_DOME_RADIUS {
+            Self::Veil
+        } else {
+            Self::Layer
+        }
     }
+}
+
+/// Marks a draw as a DAT sky object (`DrawGroup::sky`) in its `role`.
+pub(crate) fn mark_sky(uniform: &mut DrawUniform, pass: &LayerPass, role: SkyRole) {
+    uniform.program[1] |= FLAG_SKY;
+    uniform.program[1] |= match role {
+        SkyRole::Backdrop => FLAG_SKY_BACKDROP,
+        SkyRole::Veil => FLAG_SKY_VEIL,
+        SkyRole::Layer if pass.source_blend == 5 && pass.dest_blend == 2 => FLAG_SKY_EMISSIVE,
+        SkyRole::Layer => 0,
+    };
 }
 
 pub(crate) fn draw_uniform(model: Mat4, pass: &LayerPass) -> DrawUniform {

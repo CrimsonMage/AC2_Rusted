@@ -2652,6 +2652,7 @@ key	status	note
 00525d30	x	
 00525d90	x	
 00525f70	x	
+00526060	x	rain amount and wind; streaks drawn as the rain material's particle batch above 0.4
 00528900	x	ac2-world region::sky_objects, ac2-render sky
 00529500	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
 00529560	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
@@ -3861,8 +3862,11 @@ key	status	note
 005832a0	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 005834d0	~	ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
 005835c0	x	
+00583700	x	rain amount and wind; streaks drawn as the rain material's particle batch above 0.4
 00583890	x	
 00583d40	x	ac2-audio/ac2-client: ambient environments, groove
+00584d70	~	2500 streaks, fall, wind, ground and water; splash/ripple particles not yet
+005856f0	~	2500 streaks, fall, wind, ground and water; splash/ripple particles not yet
 005857b0	x	ac2-world region::sky_objects, ac2-render sky
 005857f0	x	ac2-world region::sky_objects, ac2-render sky
 005858b0	x	ac2-world region::sky_objects, ac2-render sky

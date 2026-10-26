@@ -15,7 +15,7 @@ use ac2_world::{ac2_block_particle_sources, Ac2ParticleSource, Ac2WorldSource};
 
 use super::interiors::{load_block_interiors, BlockInteriors};
 use crate::object::{load_object_model, load_water_model, ObjectModel, RenderSettings};
-use crate::terrain::{build_terrain_mesh, FarTerrain, FarVertices, TerrainMesh};
+use crate::terrain::{build_terrain_mesh, FarTerrain, FarVertices, TerrainHeights, TerrainMesh};
 use crate::{load_image, Image, TextureKey};
 
 /// Images decoded alongside a load: each key the loader had not sent before (`None` where the
@@ -48,6 +48,8 @@ pub struct LoadedBlock {
     /// The landblock edge in metres.
     pub block_size: f32,
     pub terrain: Option<TerrainMesh>,
+    /// The terrain's heights and water surface, for what stands on the ground (the rain).
+    pub heights: Option<Arc<TerrainHeights>>,
     /// Near water (`LScapeTerrainMesh::UpdateNearWater`), already in world space.
     pub water: Option<ObjectModel>,
     /// Placements whose visual draws.
@@ -81,6 +83,8 @@ pub enum Loaded {
     /// A visual the frame asked for (sky objects).
     Model(DataId, Option<ObjectModel>, Images),
     Far(LoadedFar),
+    /// The rain's material (`LScapeRender::Init`) and the empty model it draws through.
+    Rain(DataId, Option<ObjectModel>, Images),
     /// A world object's model under its own appearance (`WorldScene::request_object`), with
     /// its total `VisualDesc` scale (`CPhysicsObj::GetTotalScale`'s visual part).
     Object(LoadedObject),
@@ -103,6 +107,7 @@ pub(crate) enum Request {
     Model(DataId),
     Far(BlockKey),
     Object(u64, DataId, Option<ac2_assets::Ac2VisualDesc>),
+    Rain,
 }
 
 /// The loader thread and its queues.
@@ -192,14 +197,22 @@ impl Worker {
         let terrain = landblock
             .as_ref()
             .map(|landblock| build_terrain_mesh(id, landblock, world.block_size()));
-        let water = landblock
+        let block_water = landblock
             .as_ref()
-            .and_then(|landblock| world.block_water(id, landblock))
-            .and_then(|water| {
-                load_water_model(&store, id, &water, world.block_size(), &self.settings)
-                    .ok()
-                    .flatten()
-            });
+            .and_then(|landblock| world.block_water(id, landblock));
+        let heights = landblock.as_ref().map(|landblock| {
+            Arc::new(TerrainHeights::new(
+                id,
+                landblock,
+                world.block_size(),
+                block_water.as_ref().map(|water| water.height),
+            ))
+        });
+        let water = block_water.as_ref().and_then(|water| {
+            load_water_model(&store, id, water, world.block_size(), &self.settings)
+                .ok()
+                .flatten()
+        });
         let mut models = Vec::new();
         let mut placements = Vec::new();
         for marker in world.entity_markers(id).iter().flat_map(|m| m.iter()) {
@@ -261,6 +274,7 @@ impl Worker {
             key,
             block_size: world.block_size(),
             terrain,
+            heights,
             water,
             placements,
             models,
@@ -310,6 +324,22 @@ impl Worker {
                 Loaded::Model(visual, model, images)
             }
             Request::Far(center) => Loaded::Far(self.far(center)),
+            Request::Rain => {
+                let store = self.world.resource_store().clone();
+                let material = ac2_assets::ac2_enum_did(
+                    &store,
+                    crate::rain::RAIN_MATERIAL_GROUP,
+                    crate::rain::RAIN_MATERIAL_ENUM,
+                )
+                .ok()
+                .flatten()
+                .unwrap_or(DataId::new(0));
+                let model = (material.raw() != 0)
+                    .then(|| particle_model(&store, material, &self.settings))
+                    .flatten();
+                let images = self.images(model.iter().flat_map(ObjectModel::texture_keys));
+                Loaded::Rain(material, model, images)
+            }
             Request::Object(key, visual, local) => {
                 let store = self.world.resource_store().clone();
                 let model = crate::object::load_object_model_with(

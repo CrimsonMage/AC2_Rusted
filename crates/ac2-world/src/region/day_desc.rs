@@ -1,8 +1,8 @@
 //! `CDayDesc` sampling: the two `SkyTimeOfDay` keys around a time of day, their ratio, and the
-//! interpolated `LightInfo`, light vector and `FogInfo` (`CDayDesc::GetLighting`,
-//! `CDayDesc::GetWorldFog`).
+//! interpolated `LightInfo`, light vector, `FogInfo` and rain (`CDayDesc::GetLighting`,
+//! `CDayDesc::GetWorldFog`, `CDayDesc::GetRain`).
 
-use super::{SkyEnvironmentSample, SkyFogDesc, SkyLightingDesc, SkyTimeOfDay};
+use super::{SkyEnvironmentSample, SkyFogDesc, SkyLightingDesc, SkyRain, SkyTimeOfDay};
 use crate::color::{hsb_to_rgb, rgb_to_hsb, Rgba, WHITE};
 
 /// Lighting and fog at `time_of_day` (a fraction of the day). A day without keys gets retail's
@@ -29,6 +29,7 @@ pub(super) fn sample(keys: &[SkyTimeOfDay], time_of_day: f32) -> SkyEnvironmentS
                 sky: 0.0,
                 color: WHITE,
             },
+            rain: SkyRain::default(),
         };
     };
     let ratio = time_ratio(before.begin, after.begin, time_of_day);
@@ -52,6 +53,11 @@ pub(super) fn sample(keys: &[SkyTimeOfDay], time_of_day: f32) -> SkyEnvironmentS
             max_distance: lerp(bf.max_distance, af.max_distance),
             sky: lerp(bf.sky, af.sky),
             color: interp_color(bf.color, af.color, ratio),
+        },
+        rain: SkyRain {
+            amount: lerp(before.rain.amount, after.rain.amount),
+            wind_x: lerp(before.rain.wind_x, after.rain.wind_x),
+            wind_y: lerp(before.rain.wind_y, after.rain.wind_y),
         },
     }
 }
@@ -153,6 +159,11 @@ mod tests {
                 color: WHITE,
             },
             replacements: std::sync::Arc::from([]),
+            rain: SkyRain {
+                amount: brightness,
+                wind_x: heading,
+                wind_y: 0.0,
+            },
         }
     }
 
@@ -166,6 +177,16 @@ mod tests {
         // 0.875: from the 0.75 key towards the 0.25 key across midnight, a quarter of the way.
         let late = sample(&keys, 0.875);
         assert!((late.directional_brightness() - 0.75).abs() < 1e-6);
+    }
+
+    #[test]
+    fn rain_blends_linearly_and_is_dry_without_keys() {
+        // `CDayDesc::GetRain`: amount and wind lerp straight (no angle wrap), like the fog.
+        let keys = [key(0.25, 0.2, 350.0), key(0.75, 1.0, 10.0)];
+        let rain = sample(&keys, 0.5).rain();
+        assert!((rain.amount() - 0.6).abs() < 1e-6);
+        assert!((rain.wind()[0] - 180.0).abs() < 1e-3);
+        assert_eq!(sample(&[], 0.5).rain(), SkyRain::default());
     }
 
     #[test]

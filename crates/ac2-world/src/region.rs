@@ -30,7 +30,7 @@ mod day_desc;
 mod game_time;
 #[path = "region/sky_objects.rs"]
 mod sky_objects;
-pub use environment::{SkyEnvironmentCadence, SkyEnvironmentSample, SkyFogDesc};
+pub use environment::{SkyEnvironmentCadence, SkyEnvironmentSample, SkyFogDesc, SkyRain};
 use game_time::GameTime;
 pub use game_time::{GameClock, GameDateTime};
 pub use sky_objects::CelestialPosition;
@@ -242,4 +242,5 @@ struct SkyTimeOfDay {
     lighting: SkyLightingDesc,
     world_fog: SkyFogDesc,
     replacements: Arc<[sky_objects::SkyObjectReplace]>,
+    rain: SkyRain,
 }

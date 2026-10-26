@@ -11,6 +11,7 @@ pub mod object;
 pub mod particles;
 pub mod portal;
 pub mod prefs;
+pub mod rain;
 pub mod scene;
 pub mod selection;
 #[cfg(test)]

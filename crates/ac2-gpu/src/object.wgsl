@@ -71,6 +71,8 @@ const FLAG_SKY: u32 = 16384u;
 const FLAG_SKY_BACKDROP: u32 = 32768u;
 // An additive sky layer (stars, sun, debris): emissive in the HDR scene (`shade_modern`).
 const FLAG_SKY_EMISSIVE: u32 = 65536u;
+// A dome-sized alpha sky layer: multiplies the atmosphere by its colour (`shade_modern`).
+const FLAG_SKY_VEIL: u32 = 131072u;
 
 @group(0) @binding(0) var<uniform> frame: Frame;
 @group(1) @binding(0) var<uniform> draw: Draw;

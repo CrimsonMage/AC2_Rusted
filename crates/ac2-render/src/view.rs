@@ -39,6 +39,10 @@ pub struct SceneLighting {
     pub fog_range: (f32, f32),
     /// `m_finalFogSky`: how far the sky fades to the fog colour (`LScapeSky::SetSkyFog`).
     pub fog_sky: f32,
+    /// `WorldRender::m_fRainAmount` (`CDayDesc::GetRain`): 0 dry, 1 the heaviest rain.
+    pub rain: f32,
+    /// The rain's wind x and y (`PhysicsGlobals::SetWind`).
+    pub rain_wind: [f32; 2],
 }
 
 impl Default for SceneLighting {
@@ -53,6 +57,8 @@ impl Default for SceneLighting {
             fog_color: [1.0; 3],
             fog_range: (0.0, 10_000.0),
             fog_sky: 0.0,
+            rain: 0.0,
+            rain_wind: [0.0; 2],
         }
     }
 }
@@ -70,6 +76,8 @@ impl SceneLighting {
             fog_color: rgb(fog.color()),
             fog_range: (fog.min_distance(), fog.max_distance()),
             fog_sky: fog.sky(),
+            rain: sample.rain().amount(),
+            rain_wind: sample.rain().wind(),
         }
     }
 }

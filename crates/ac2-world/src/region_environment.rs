@@ -62,13 +62,34 @@ impl SkyFogDesc {
     }
 }
 
-/// `CDayDesc::GetLighting` (`LightInfo` and light vector) and `CDayDesc::GetWorldFog` at one time
-/// of day.
+/// `SkyTimeOfDay`'s rain: `m_nRainAmount` (0 dry; `LScapeRender::UpdateRain` draws that fraction
+/// of its segments, and `WorldRender::Render` only above 0.4) and the wind it falls in
+/// (`m_nRainWindX`, `m_nRainWindY`; `PhysicsGlobals::SetWind`).
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct SkyRain {
+    pub(super) amount: f32,
+    pub(super) wind_x: f32,
+    pub(super) wind_y: f32,
+}
+
+impl SkyRain {
+    pub fn amount(&self) -> f32 {
+        self.amount
+    }
+    /// The wind's x and y.
+    pub fn wind(&self) -> [f32; 2] {
+        [self.wind_x, self.wind_y]
+    }
+}
+
+/// `CDayDesc::GetLighting` (`LightInfo` and light vector), `CDayDesc::GetWorldFog` and
+/// `CDayDesc::GetRain` at one time of day.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct SkyEnvironmentSample {
     pub(super) light: SkyLightingDesc,
     pub(super) light_vector: [f32; 3],
     pub(super) world_fog: SkyFogDesc,
+    pub(super) rain: SkyRain,
 }
 
 impl SkyEnvironmentSample {
@@ -100,5 +121,8 @@ impl SkyEnvironmentSample {
     }
     pub fn world_fog(&self) -> SkyFogDesc {
         self.world_fog
+    }
+    pub fn rain(&self) -> SkyRain {
+        self.rain
     }
 }

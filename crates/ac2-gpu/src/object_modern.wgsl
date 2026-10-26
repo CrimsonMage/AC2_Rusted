@@ -19,6 +19,9 @@ const BACKDROP_DETAIL: f32 = 2.5;
 // Point lights in an additive sky layer (texels far above their local average: the stars) shine
 // this much brighter in the HDR scene, so they read through the night's glow band over them.
 const STAR_GAIN: f32 = 24.0;
+// A veil's colour (the night layer's tint at dusk and dawn) as a filter over the atmosphere:
+// this bright at full opacity, so a pale tint colours the sky rather than darkening it.
+const VEIL_GAIN: f32 = 1.5;
 
 // The lit light of one pixel: diffuse irradiance (multiplies the albedo) and specular radiance.
 struct ModernLight {
@@ -114,6 +117,12 @@ fn shade_modern(input: VsOut, texels: array<vec4<f32>, 4>, coarse: vec4<f32>) ->
     let program = draw.program.x;
     let pixel_program = program == 2u || program == 4u;
     let shaded = shade(input, texels);
+    if has(FLAG_SKY_VEIL) {
+        // Multiplied into the atmosphere (`DESTCOLOR`, `ZERO`): its retail colour over the sky
+        // at its opacity, the night's near-black tint darkening the sky to night.
+        let tint_filter = min(srgb_to_linear(clamp(shaded.rgb, vec3(0.0), vec3(1.0))) * VEIL_GAIN, vec3(1.0));
+        return vec4(mix(vec3(1.0), tint_filter, clamp(shaded.a, 0.0, 1.0)), shaded.a);
+    }
     var radiance = srgb_to_linear(clamp(shaded.rgb, vec3(0.0), vec3(1.0)));
     if !pixel_program && program == 1u {
         let light = modern_light(input.world, normalize(input.normal));

@@ -1,6 +1,8 @@
-//! The sky pass under the DAT sky objects: a single-scattering atmosphere lit by the region's
-//! sun, graded by the backdrop dome's tint, with a procedural cloud deck (`sky.wgsl`). Retail
-//! drew only the DAT objects and the fog quad over a black clear; both still draw over this.
+//! The sky around the DAT sky objects (`sky.wgsl`): a single-scattering atmosphere lit by the
+//! region's sun and graded by the backdrop dome's tint, drawn first; and a procedural cloud deck
+//! drawn after the before-world objects and `LScapeSky::Draw`'s fog quad, its cover thickening
+//! with the region's rain (`CDayDesc::GetRain`). Retail drew only the DAT objects and the fog
+//! quad over a black clear.
 
 use ac2_math::Mat4;
 use ac2_render::{Camera, SceneLighting};
@@ -27,7 +29,8 @@ pub struct SkyLook {
     /// The backdrop dome's tint and opacity (`crate::sky_backdrop`), sRGB as authored; `None`
     /// when no dome draws.
     pub backdrop: Option<[f32; 4]>,
-    /// The cloud deck's cover, 0 clear to 1 overcast.
+    /// The cloud deck's cover on a dry day, 0 clear to 1 overcast; rain closes it
+    /// ([`cloud_cover`]).
     pub cloud_cover: f32,
     /// Client seconds; the clouds drift with it.
     pub time: f64,
@@ -43,12 +46,21 @@ impl Default for SkyLook {
     }
 }
 
-/// The cloud cover until the region's weather drives it.
+/// The cloud cover of a dry day.
 pub const DEFAULT_CLOUD_COVER: f32 = 0.25;
 
-/// The full-screen sky gradient, its colours set each frame.
+/// The cover over `dry` cover in `rain` (`WorldRender::m_fRainAmount`): overcast by the time
+/// the rain is heavy enough to draw (`RAIN_DRAW_THRESHOLD`, 0.4).
+pub fn cloud_cover(dry: f32, rain: f32) -> f32 {
+    let t = (rain / 0.45).clamp(0.0, 1.0);
+    let wet = t * t * (3.0 - 2.0 * t);
+    dry + (1.0 - dry) * wet
+}
+
+/// The full-screen atmosphere and cloud passes, their colours set each frame.
 pub struct SkyRenderer {
     pipeline: wgpu::RenderPipeline,
+    clouds: wgpu::RenderPipeline,
     buffer: wgpu::Buffer,
     group: wgpu::BindGroup,
 }
@@ -99,39 +111,45 @@ impl SkyRenderer {
             bind_group_layouts: &[Some(&layout)],
             immediate_size: 0,
         });
-        let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("ac2 sky"),
-            layout: Some(&pipeline_layout),
-            vertex: wgpu::VertexState {
-                module: &module,
-                entry_point: Some("vs"),
-                compilation_options: Default::default(),
-                buffers: &[],
-            },
-            fragment: Some(wgpu::FragmentState {
-                module: &module,
-                entry_point: Some("fs"),
-                compilation_options: Default::default(),
-                targets: &[Some(wgpu::ColorTargetState {
-                    format,
-                    blend: None,
-                    write_mask: wgpu::ColorWrites::ALL,
-                })],
-            }),
-            primitive: wgpu::PrimitiveState::default(),
-            depth_stencil: Some(wgpu::DepthStencilState {
-                format: DEPTH_FORMAT,
-                depth_write_enabled: Some(false),
-                depth_compare: Some(wgpu::CompareFunction::Always),
-                stencil: Default::default(),
-                bias: Default::default(),
-            }),
-            multisample: Default::default(),
-            multiview_mask: None,
-            cache: None,
-        });
+        let pipeline = |entry_point, blend| {
+            device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+                label: Some("ac2 sky"),
+                layout: Some(&pipeline_layout),
+                vertex: wgpu::VertexState {
+                    module: &module,
+                    entry_point: Some("vs"),
+                    compilation_options: Default::default(),
+                    buffers: &[],
+                },
+                fragment: Some(wgpu::FragmentState {
+                    module: &module,
+                    entry_point: Some(entry_point),
+                    compilation_options: Default::default(),
+                    targets: &[Some(wgpu::ColorTargetState {
+                        format,
+                        blend,
+                        write_mask: wgpu::ColorWrites::ALL,
+                    })],
+                }),
+                primitive: wgpu::PrimitiveState::default(),
+                depth_stencil: Some(wgpu::DepthStencilState {
+                    format: DEPTH_FORMAT,
+                    depth_write_enabled: Some(false),
+                    depth_compare: Some(wgpu::CompareFunction::Always),
+                    stencil: Default::default(),
+                    bias: Default::default(),
+                }),
+                multisample: Default::default(),
+                multiview_mask: None,
+                cache: None,
+            })
+        };
         Self {
-            pipeline,
+            pipeline: pipeline("fs", None),
+            clouds: pipeline(
+                "fs_clouds",
+                Some(wgpu::BlendState::PREMULTIPLIED_ALPHA_BLENDING),
+            ),
             buffer,
             group,
         }
@@ -151,9 +169,10 @@ impl SkyRenderer {
         let uniform = SkyUniform {
             inv_view_proj: inverse_view_projection(camera, aspect).to_cols_array_2d(),
             eye: camera.eye.extend(1.0).to_array(),
+            // The fog colour, and `fog_sky` (how far the sky is fogged out) in alpha.
             fog: {
                 let c = lighting.fog_color.map(|c| c.clamp(0.0, 1.0));
-                [c[0], c[1], c[2], 1.0]
+                [c[0], c[1], c[2], lighting.fog_sky.clamp(0.0, 1.0)]
             },
             sun_dir: (-sun).extend(0.0).to_array(),
             sun_color: {
@@ -168,13 +187,26 @@ impl SkyRenderer {
                 None => [1.0, 1.0, 1.0, 0.0],
             },
             // The drift wraps once a day so the noise keeps its precision in f32.
-            clouds: [look.cloud_cover, (look.time % 86_400.0) as f32, 0.0, 0.0],
+            clouds: [
+                cloud_cover(look.cloud_cover, lighting.rain),
+                (look.time % 86_400.0) as f32,
+                lighting.rain.clamp(0.0, 1.0),
+                0.0,
+            ],
         };
         queue.write_buffer(&self.buffer, 0, bytemuck::bytes_of(&uniform));
     }
 
+    /// The atmosphere, first in the frame.
     pub fn draw(&self, pass: &mut wgpu::RenderPass<'_>) {
         pass.set_pipeline(&self.pipeline);
+        pass.set_bind_group(0, &self.group, &[]);
+        pass.draw(0..3, 0..1);
+    }
+
+    /// The cloud deck, after the before-world sky objects and the fog quad.
+    pub fn draw_clouds(&self, pass: &mut wgpu::RenderPass<'_>) {
+        pass.set_pipeline(&self.clouds);
         pass.set_bind_group(0, &self.group, &[]);
         pass.draw(0..3, 0..1);
     }
@@ -182,4 +214,17 @@ impl SkyRenderer {
 
 fn inverse_view_projection(camera: &Camera, aspect: f32) -> Mat4 {
     camera.view_projection(aspect).inverse()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::cloud_cover;
+
+    #[test]
+    fn rain_closes_the_cover_by_the_time_it_draws() {
+        assert_eq!(cloud_cover(0.25, 0.0), 0.25);
+        assert!(cloud_cover(0.25, 0.2) > 0.4);
+        assert_eq!(cloud_cover(0.25, 0.45), 1.0);
+        assert_eq!(cloud_cover(0.25, 1.0), 1.0);
+    }
 }

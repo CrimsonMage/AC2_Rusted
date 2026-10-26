@@ -48,6 +48,9 @@ struct Args {
     warm_up: u32,
     /// The start position within the block (default: its centre).
     at: Option<(f32, f32)>,
+    /// Server seconds to show (default: the day's brightest daylight); other days bring their
+    /// own weather.
+    time: Option<f64>,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -64,6 +67,7 @@ fn parse_args() -> Result<Args, String> {
         speed: 1,
         warm_up: 3,
         at: None,
+        time: None,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -91,6 +95,7 @@ fn parse_args() -> Result<Args, String> {
                     y.parse().map_err(|e| format!("--at: {e}"))?,
                 ));
             }
+            "--time" => args.time = Some(value()?.parse().map_err(|e| format!("--time: {e}"))?),
             "--warm-up" => {
                 args.warm_up = value()?.parse().map_err(|e| format!("--warm-up: {e}"))?;
             }
@@ -128,7 +133,7 @@ fn main() {
                 (half, half)
             });
             let fly = start_camera(&world, args.block);
-            let time_of_day = daytime(&world);
+            let time_of_day = args.time.unwrap_or_else(|| daytime(&world));
             window::run(window::Setup {
                 world,
                 store,
@@ -207,7 +212,7 @@ fn snapshot(
     );
     let model = models.get(args.model).filter(|_| !args.fly);
     let fly = start_camera(&world, args.block);
-    let time_of_day = daytime(&world);
+    let time_of_day = args.time.unwrap_or_else(|| daytime(&world));
     let mut walk = walk::Walk::new(&world, store, 0.0);
     let mode = if model.is_some() {
         panel::Mode::Walk

@@ -13,7 +13,7 @@ use ac2_db::{
 
 use super::game_time::{GameTime, Season, TimeOfDay};
 use super::sky_objects::{SkyObject, SkyObjectReplace};
-use super::{DayGroup, RegionDesc, SkyDesc, SkyFogDesc, SkyLightingDesc, SkyTimeOfDay};
+use super::{DayGroup, RegionDesc, SkyDesc, SkyFogDesc, SkyLightingDesc, SkyRain, SkyTimeOfDay};
 use crate::color::set_color32;
 
 const AC2_REGION_DID: DataId = DataId::new(0x0F00_0000);
@@ -336,7 +336,11 @@ fn read_time_of_day(
             color: set_color32(cursor.read_u32()?),
         });
     }
-    let _rain = (cursor.read_f32()?, cursor.read_f32()?, cursor.read_f32()?);
+    let rain = SkyRain {
+        amount: cursor.read_f32()?,
+        wind_x: cursor.read_f32()?,
+        wind_y: cursor.read_f32()?,
+    };
     Ok(SkyTimeOfDay {
         begin,
         lighting: SkyLightingDesc {
@@ -355,6 +359,7 @@ fn read_time_of_day(
             color: fog_color,
         },
         replacements: Arc::from(replacements),
+        rain,
     })
 }
 

@@ -31,6 +31,16 @@ pub fn pipeline_key(pass: &LayerPass, program: u32) -> PipelineKey {
     }
 }
 
+/// A dome-sized alpha sky layer in the modern sky (`FLAG_SKY_VEIL`): it multiplies the
+/// atmosphere under it (`DESTCOLOR`, `ZERO`) by its colour instead of covering it.
+pub fn sky_veil(key: PipelineKey) -> PipelineKey {
+    PipelineKey {
+        source_blend: 9,
+        dest_blend: 1,
+        ..key
+    }
+}
+
 /// A sky object: drawn on its own, at infinity, in list order (`LScapeSky::Draw`): no depth test or
 /// write, so the dome does not hide the objects beyond it and the world draws over the sky.
 pub fn sky_depth(key: PipelineKey) -> PipelineKey {
