@@ -12,6 +12,7 @@ key	status	note
 00403d30	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
 00404100	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 004042f0	x	
+00404e10	~	ac2-net Credential::from_ticket (empty -> Account, else Password); GUN ticket handler path elsewhere
 00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 00405d80	x	ac2-ui pregame/flow.rs, pregame/ui.rs
@@ -2045,6 +2046,7 @@ key	status	note
 004c8420	x	
 004c8430	~	heartbeat link-status snapshots not kept
 004c8a50	x	
+004c8b40	~	ac2-net resolve_server: host cut at ',' then ':', htons(port), GetSinAddr; interface binding elsewhere
 004c9050	~	connection sequence from real time and SIMPLEBLOB session-key export; no address/interface parsing
 004c9200	x	
 004c9480	x	
@@ -4712,6 +4714,7 @@ key	status	note
 0063a600	x	
 0063a660	x	
 0063a690	x	
+0063b640	x	ac2-client cmdline.rs argument_name / ac2-net resolve.rs inet_addr then DNS, IPv4
 0063b7e0	x	
 0063b830	x	
 0063b880	x	
@@ -4949,6 +4952,9 @@ key	status	note
 0065b3c0	x	
 0065b480	x	
 0065b5b0	x	
+0065b7a0	~	ac2 bin cmdline.rs: value types 0x22 (strtol base 0, ac2-net parse_port) and 0x32 (string)
+0065b9b0	x	ac2-client cmdline.rs argument_name / ac2-net resolve.rs inet_addr then DNS, IPv4
+0065c6c0	~	ac2 bin cmdline.rs parse_from: -/ prefixes, short and long names, optional rodat value
 0065ccc0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
 0065cd30	x	ac2-db string_meta_text / string_state (CRT C locale classes)
 0065f3d0	x	
@@ -5616,6 +5622,7 @@ key	status	note
 0071fba0	x	
 0071fc00	x	ac2-client chargen_data.rs CharGenCapture::new (the --chargen file; relative names under the AC2 config directory)
 0071fc50	~	queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
+007218f0	~	ac2 bin cmdline.rs: account (lowercased), host, port, glsticketdirect, rodat; other args not ported
 00722f20	~	headless frame order in ac2-client Client::use_time; no render, sound, UI, triggers or DB cache step
 00723280	_	
 00723410	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)

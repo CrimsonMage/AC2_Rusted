@@ -1,6 +1,6 @@
 # ac2-core: Core runtime: ids, strings, timers, errors, serialization helpers
 
-589 retail functions: 17 done, 0 partial, 169 to do, 403 skipped.
+589 retail functions: 18 done, 2 partial, 166 to do, 403 skipped.
 Legend and workflow: [README](README.md).
 
 ## `core/src/debug/crashcleaners.cpp.c` (0/3)
@@ -1008,7 +1008,7 @@ Legend and workflow: [README](README.md).
 - [x] `TSRecv::AddEntryBlocking` · 0065b480 · legions 00609d90
 - [x] `TSRecv::AddAndCheck` · 0065b5b0 · legions 00609ec0
 
-## `portal/shared/src/utils/argparser.cpp.c` (0/13)
+## `portal/shared/src/utils/argparser.cpp.c` (1/13)
 
 ### ArgumentParser
 - [ ] `ArgumentParser::AppendOutputText` · 0065b5e0 · legions 00609ef0
@@ -1021,8 +1021,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CommandLineArg::CommandLineArg` · 0065b760 · legions 0060a070
 
 ### ArgumentParser
-- [ ] `ArgumentParser::EvaluateCommandLineArg` · 0065b7a0 · legions 0060a0b0
-- [ ] `ArgumentParser::IsCommandLineArgument` · 0065b9b0 · legions 0060a2c0
+- [~] `ArgumentParser::EvaluateCommandLineArg` · 0065b7a0 · legions 0060a0b0 — ac2 bin cmdline.rs: value types 0x22 (strtol base 0, ac2-net parse_port) and 0x32 (string)
+- [x] `ArgumentParser::IsCommandLineArgument` · 0065b9b0 · legions 0060a2c0 — ac2-client cmdline.rs argument_name / ac2-net resolve.rs inet_addr then DNS, IPv4
 - [ ] `ArgumentParser::DisplayUsage` · 0065bce0 · legions 0060a610
 - [ ] `ArgumentParser::AppendAndWordWrap` · 0065bf50 · legions 0060a880
 
@@ -1037,7 +1037,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ArgumentParser::CommandLineArgList::~CommandLineArgList` · 0065c640 · legions 0060af70
 
 ### ArgumentParser
-- [ ] `ArgumentParser::ParseArgs` · 0065c6c0 · legions 0060aff0
+- [~] `ArgumentParser::ParseArgs` · 0065c6c0 · legions 0060aff0 — ac2 bin cmdline.rs parse_from: -/ prefixes, short and long names, optional rodat value
 
 ## `portal/shared/src/utils/checksum.cpp.c` (1/1)
 

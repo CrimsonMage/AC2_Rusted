@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 101 done, 29 partial, 184 to do, 40 skipped.
+354 retail functions: 101 done, 31 partial, 182 to do, 40 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -191,7 +191,7 @@ Legend and workflow: [README](README.md).
 ### gmClient
 - [ ] `gmClient::Init` · 00404410 · legions 00404340
 - [ ] `gmClient::StartupGUN` · 00404a40 · legions 00404820
-- [ ] `gmClient::InitAuth` · 00404e10 · legions 00404bb0
+- [~] `gmClient::InitAuth` · 00404e10 · legions 00404bb0 — ac2-net Credential::from_ticket (empty -> Account, else Password); GUN ticket handler path elsewhere
 - [ ] `gmClient::Connect` · 00404f80 · legions 00404d20
 
 ### gmNoticeHandler
@@ -337,7 +337,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Turbine::Client::Connect` · 007202b0 · legions 006a0ae0
 - [ ] `Turbine::Client::Disconnect` · 00720450 · legions 006a0c40
 - [ ] `Turbine::Client::BuildCommandLineArgs` · 007205d0 · legions 006a0db0
-- [ ] `Turbine::Client::EvaluateCommandLineArg` · 007218f0 · legions 006a1eb0
+- [~] `Turbine::Client::EvaluateCommandLineArg` · 007218f0 · legions 006a1eb0 — ac2 bin cmdline.rs: account (lowercased), host, port, glsticketdirect, rodat; other args not ported
 - [ ] `Turbine::Client::StartupTurbineChat` · 00722600 · legions 006a2a30
 - [ ] `Turbine::Client::Client` · 00722720 · legions 006a2b30
 - [ ] `Turbine::Client::GetLanguage` · 00722900 · legions 006a2d10

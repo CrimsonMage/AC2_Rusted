@@ -7,10 +7,20 @@
 //! ```text
 //! ac2 --dat-dir DIR [--server 127.0.0.1:9000] [--account local] [--version 7160]
 //!     [--character NAME] [--client-exe PATH] [--radius 1] [--chargen FILE]
+//!
+//! ac2 --dat-dir DIR --host icefire.portalspace.net --port 8610 --rodat on \
+//!     --account ACCOUNT --glsticketdirect PASSWORD
 //! ```
+//!
+//! The second form is the retail command line (`Turbine::Client::Init`'s arguments); `--host` and
+//! `--port` win over `--server`, and the ticket is the password. Retail's single-dash and `/`
+//! forms (`-host`, `/host`, `-h`) are accepted too.
 
+mod cmdline;
 mod keys;
 mod pregame;
+
+use cmdline::{parse_args, Args};
 
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -34,56 +44,6 @@ use winit::window::{CursorGrabMode, Window, WindowId};
 const LOAD_BUDGET: Duration = Duration::from_millis(4);
 /// `WHEEL_DELTA`: one notch.
 const WHEEL_DELTA: f32 = 120.0;
-
-struct Args {
-    dat_dir: String,
-    server: String,
-    account: String,
-    version: String,
-    /// `gmClient::m_startChar`: enter with this character, skipping character selection.
-    character: Option<String>,
-    client_exe: Option<String>,
-    radius: i32,
-    /// `Preferences.ini` (`-prefs` in retail): the default is in the user's configuration directory.
-    prefs: Option<String>,
-    /// `chargen <file>` (`CharGenData::SetFileName`): every created character is also captured
-    /// there (a relative name goes to the configuration directory).
-    chargen: Option<String>,
-}
-
-fn parse_args() -> Result<Args, String> {
-    let mut args = Args {
-        dat_dir: std::env::var("AC2_DAT_DIR").unwrap_or_default(),
-        server: "127.0.0.1:9000".into(),
-        account: "local".into(),
-        version: ac2_net::LEGIONS_VERSION.into(),
-        character: None,
-        client_exe: None,
-        radius: 1,
-        prefs: None,
-        chargen: None,
-    };
-    let mut it = std::env::args().skip(1);
-    while let Some(flag) = it.next() {
-        let value = it.next().ok_or(format!("{flag} needs a value"))?;
-        match flag.as_str() {
-            "--dat-dir" => args.dat_dir = value,
-            "--server" => args.server = value,
-            "--account" => args.account = value,
-            "--version" => args.version = value,
-            "--character" => args.character = Some(value),
-            "--client-exe" => args.client_exe = Some(value),
-            "--prefs" => args.prefs = Some(value),
-            "--chargen" => args.chargen = Some(value),
-            "--radius" => args.radius = value.parse().map_err(|e| format!("--radius: {e}"))?,
-            other => return Err(format!("unknown option {other}")),
-        }
-    }
-    if args.dat_dir.is_empty() {
-        return Err("set AC2_DAT_DIR or pass --dat-dir".into());
-    }
-    Ok(args)
-}
 
 /// Everything the program owns once the window exists.
 struct State {
@@ -518,9 +478,9 @@ fn run(args: Args) -> Result<(), String> {
         None => None,
     };
     let mut session = OnlineSession::connect(OnlineConfig {
-        server: args.server.parse().map_err(|e| format!("--server: {e}"))?,
+        server: args.server_address()?,
         account: args.account,
-        credential: Credential::Account,
+        credential: Credential::from_ticket(&args.ticket),
         version: args.version,
         // Without a start character the session waits at the character set for the
         // selection screen (`gmCharacterSelectionUI`).

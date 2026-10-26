@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 217 done, 15 partial, 324 to do, 0 skipped.
+556 retail functions: 218 done, 16 partial, 322 to do, 0 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -519,7 +519,7 @@ Legend and workflow: [README](README.md).
 - [~] `ClientNet::ProcessConnection` · 004c8430 · legions 004bc8f0 — heartbeat link-status snapshots not kept
 - [ ] `ClientNet::~ClientNet` · 004c8950 · legions 004bcea0
 - [x] `ClientNet::LogonUseTime` · 004c8a50 · legions 004bcfa0
-- [ ] `ClientNet::InitAddresses` · 004c8b40 · legions 004bd090
+- [~] `ClientNet::InitAddresses` · 004c8b40 · legions 004bd090 — ac2-net resolve_server: host cut at ',' then ':', htons(port), GetSinAddr; interface binding elsewhere
 - [~] `ClientNet::Init` · 004c9050 · legions 004bd5a0 — connection sequence from real time and SIMPLEBLOB session-key export; no address/interface parsing
 - [x] `ClientNet::HandleConnectionRequest` · 004c9200 · legions 004bd750
 - [x] `ClientNet::HandleReferral` · 004c9480 · legions 004bd9d0
@@ -860,10 +860,10 @@ Legend and workflow: [README](README.md).
 - [x] `NetPacket::UpdateTimeSensitiveHeaders` · 004cbb00 · legions 004c0040
 - [x] `NetPacket::AddFrag` · 004cbb70 · legions 004c00b0
 
-## `portal/shared/src/newnet/netutils.cpp.c` (0/3)
+## `portal/shared/src/newnet/netutils.cpp.c` (1/3)
 
 ### NetUtils
-- [ ] `NetUtils::GetSinAddr` · 0063b640 · legions 005f0170
+- [x] `NetUtils::GetSinAddr` · 0063b640 · legions 005f0170 — ac2-client cmdline.rs argument_name / ac2-net resolve.rs inet_addr then DNS, IPv4
 - [ ] `NetUtils::GetIPString` · 0063b6c0 · legions 005f01f0
 - [ ] `NetUtils::GetLastErrorString` · 0063b730 · legions 005f0260
 
