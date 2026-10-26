@@ -12,8 +12,18 @@ use crate::{
 struct Strings;
 
 impl FellowStrings for Strings {
-    fn render(&self, _: u32, vars: &[(u32, SkillVar)]) -> String {
-        let vars: Vec<String> = vars.iter().map(|(_, v)| format!("{v:?}")).collect();
+    fn render(&self, string_id: u32, vars: &[(u32, SkillVar)]) -> String {
+        // A string-id variable (`AddVariable_StringID`) renders as its id.
+        let vars: Vec<String> = vars
+            .iter()
+            .map(|(_, v)| match v {
+                SkillVar::Info(info) => info.string_id.to_string(),
+                v => format!("{v:?}"),
+            })
+            .collect();
+        if vars.len() == 1 && vars[0].chars().all(|c| c.is_ascii_digit()) {
+            return format!("{string_id}/{}", vars[0]);
+        }
         vars.join("/")
     }
 }
@@ -67,8 +77,64 @@ fn the_status_bar_shows_health_and_experience() {
         item: None,
     };
     let shown = tree.get(health_text).unwrap().visible;
-    hud.vitals.message(tree, &click);
+    hud.vitals.message(tree, &click, &Strings);
     assert_eq!(tree.get(health_text).unwrap().visible, !shown);
+}
+
+/// The tooltip a field carries, as `Strings` renders it: the string id, then its `value`
+/// variable's (`ID_Vital_TT_Hide` while the numbers show, `ID_Vital_TT_Show` while hidden).
+fn tooltip_of(tree: &UiTree, field: &str, string: &str, value: &str) -> Option<String> {
+    tree.tooltip_text(find(tree, field)).map(|text| {
+        assert_eq!(text, format!("{}/{}", tokenize(string), tokenize(value)));
+        text
+    })
+}
+
+#[test]
+fn the_vitals_fields_carry_tooltips_that_follow_the_numbers() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let tree = &mut hud.tree;
+    // Nothing yet; the constructor gives health and vigor theirs (numbers shown: "hide").
+    assert!(tree.tooltip_text(find(tree, "HealthField")).is_none());
+    hud.vitals.init_tooltips(tree, &Strings);
+    assert!(tooltip_of(
+        tree,
+        "HealthField",
+        "ID_Vital_TT_Health",
+        "ID_Vital_TT_Hide"
+    )
+    .is_some());
+    assert!(tooltip_of(tree, "VigorField", "ID_Vital_TT_Vigor", "ID_Vital_TT_Hide").is_some());
+    // The focus field has none until the player is a hero.
+    assert!(tree.tooltip_text(find(tree, "FocusField")).is_none());
+    let click = |tree: &UiTree, field: &str| UiMessage {
+        element_id: tokenize(field),
+        element: Some(find(tree, field)),
+        message: MSG_MOUSE_PRESS_TOP,
+        data: 0x4000_0004,
+        item: None,
+    };
+    // A click hides the numbers: the tooltip now offers to show them, and back.
+    let message = click(tree, "VigorField");
+    hud.vitals.message(tree, &message, &Strings);
+    assert!(tooltip_of(tree, "VigorField", "ID_Vital_TT_Vigor", "ID_Vital_TT_Show").is_some());
+    hud.vitals.message(tree, &message, &Strings);
+    assert!(tooltip_of(tree, "VigorField", "ID_Vital_TT_Vigor", "ID_Vital_TT_Hide").is_some());
+    // A hero's focus field gets one; a click toggles it; losing hero status clears it.
+    let text = |cur, max| vital_text(&Strings, cur, max);
+    hud.vitals
+        .update_hero_status(tree, true, 5, 100, &text, &Strings);
+    assert!(tooltip_of(tree, "FocusField", "ID_Vital_TT_Focus", "ID_Vital_TT_Hide").is_some());
+    let message = click(tree, "FocusField");
+    hud.vitals.message(tree, &message, &Strings);
+    assert!(tooltip_of(tree, "FocusField", "ID_Vital_TT_Focus", "ID_Vital_TT_Show").is_some());
+    hud.vitals
+        .update_hero_status(tree, false, 0, 0, &text, &Strings);
+    assert!(tree.tooltip_text(find(tree, "FocusField")).is_none());
 }
 
 #[test]

@@ -564,11 +564,11 @@ key	status	note
 00439710	x	ac2-ui effects.rs
 004397d0	-	
 004398c0	x	ac2-ui vitals.rs
-00439930	~	tooltips not modelled
+00439930	x	ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
 004399a0	x	ac2-ui vitals.rs
 00439d10	-	
-00439d30	~	tooltips not modelled
-00439e00	~	tooltips not modelled
+00439d30	x	ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
+00439e00	x	ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
 00439ea0	-	
 00439f30	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 00439f40	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 805 done, 279 partial, 1110 to do, 53 skipped.
+2247 retail functions: 808 done, 276 partial, 1110 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -937,15 +937,15 @@ Legend and workflow: [README](README.md).
 - [ ] `gmStatusbarUI::SetupChildren` · 00423210 · legions 00422fe0
 - [~] `gmStatusbarUI::gmStatusbarUI` · 004232f0 · legions 004230c0 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 
-## `ac2/client/src/ui/gameplay/statusbar/gmvitalsui.cpp.c` (2/6)
+## `ac2/client/src/ui/gameplay/statusbar/gmvitalsui.cpp.c` (5/6)
 
 ### gmVitalsUI
 - [-] `gmVitalsUI::~gmVitalsUI` · 004397d0 · legions 0043a020
 - [x] `gmVitalsUI::RecvNotice_UpdateVital` · 004398c0 — ac2-ui vitals.rs
-- [~] `gmVitalsUI::SetTooltip` · 00439930 · legions 0043a180 — tooltips not modelled
+- [x] `gmVitalsUI::SetTooltip` · 00439930 · legions 0043a180 — ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
 - [x] `gmVitalsUI::gmVitalsUI` · 004399a0 · legions 0043a1f0 — ac2-ui vitals.rs
-- [~] `gmVitalsUI::ListenToMessage` · 00439d30 · legions 0043a580 — tooltips not modelled
-- [~] `gmVitalsUI::RecvNotice_UpdateHeroStatus` · 00439e00 · legions 0043a650 — tooltips not modelled
+- [x] `gmVitalsUI::ListenToMessage` · 00439d30 · legions 0043a580 — ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
+- [x] `gmVitalsUI::RecvNotice_UpdateHeroStatus` · 00439e00 · legions 0043a650 — ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
 
 ## `ac2/client/src/ui/gameplay/statusbar/indicators/gmindicatorsui.cpp.c` (0/4)
 

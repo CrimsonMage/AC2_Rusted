@@ -3,12 +3,18 @@
 //! meter, its text only for a hero) and the experience bar. A left click (`mouse_press_top` with
 //! button `0x40000004`) on the health, vigor or focus field shows or hides its numbers.
 //!
-//! Not modelled yet: the fields' tooltips (`SetTooltip`, `ID_Vital_TT_*`).
+//! The health, vigor and (for a hero) focus fields carry a tooltip, `ID_Vital_TT_Health` /
+//! `_Vigor` / `_Focus` of the UI table with its `value` variable set to `ID_Vital_TT_Hide` while
+//! the numbers show and `ID_Vital_TT_Show` while they are hidden (`gmVitalsUI::SetTooltip`); a
+//! player who is no hero has none on the focus field (`UIElement::ClearTooltip`).
 
 use crate::element::UiTree;
+use crate::fellow_info::FellowStrings;
 use crate::meter::{VitalDisplay, VitalText};
 use crate::mouse::UiMessage;
+use crate::skill_tree::SkillVar;
 use crate::token::{tokenize, MSG_MOUSE_PRESS_TOP};
+use crate::ui_string::UiString;
 
 fn id(name: &str) -> u32 {
     tokenize(name)
@@ -24,6 +30,28 @@ pub const VITAL_PK_VIGOR_LOSS: u32 = 0x4000_0006;
 
 /// The left mouse button (`StartInput`'s `0x40000004`).
 const LEFT_BUTTON: i32 = 0x4000_0004;
+
+/// `gmVitalsUI::SetTooltip`: the field's tooltip, `string` of the UI table with `value` the
+/// `Hide` string while the numbers `visible`, else the `Show` string.
+fn tooltip(
+    tree: &mut UiTree,
+    strings: &dyn FellowStrings,
+    visible: bool,
+    element: Option<usize>,
+    string: &str,
+) {
+    let Some(element) = element else {
+        return;
+    };
+    let value = id(if visible {
+        "ID_Vital_TT_Hide"
+    } else {
+        "ID_Vital_TT_Show"
+    });
+    let var = SkillVar::Info(Box::new(UiString::new(value, 0, Vec::new())));
+    let text = strings.render(id(string), &[(id("value"), var)]);
+    tree.set_tooltip(element, Some(text));
+}
 
 /// `gmVitalsUI`'s state.
 #[derive(Debug, Clone)]
@@ -84,6 +112,12 @@ impl VitalsUi {
         }
     }
 
+    /// The tooltips `gmVitalsUI::gmVitalsUI` gives the health and vigor fields (numbers shown).
+    pub fn init_tooltips(&self, tree: &mut UiTree, strings: &dyn FellowStrings) {
+        tooltip(tree, strings, true, self.health_field, "ID_Vital_TT_Health");
+        tooltip(tree, strings, true, self.vigor_field, "ID_Vital_TT_Vigor");
+    }
+
     /// `RecvNotice_UpdateVital`: focus only for a hero.
     pub fn update_vital(
         &mut self,
@@ -116,6 +150,7 @@ impl VitalsUi {
         cur: u64,
         max: u64,
         text: VitalText<'_>,
+        strings: &dyn FellowStrings,
     ) {
         self.hero = hero;
         let Some(focus) = &mut self.focus else {
@@ -125,9 +160,13 @@ impl VitalsUi {
         if hero {
             focus.set_text_state(tree, true);
             focus.update(tree, cur, max, text);
+            tooltip(tree, strings, true, self.focus_field, "ID_Vital_TT_Focus");
         } else {
             focus.set_text_state(tree, false);
             focus.update(tree, 1, 1, text);
+            if let Some(field) = self.focus_field {
+                tree.set_tooltip(field, None);
+            }
         }
     }
 
@@ -138,9 +177,10 @@ impl VitalsUi {
         tree: &mut UiTree,
         vitals: &ac2_weenie::PlayerVitals,
         text: VitalText<'_>,
+        strings: &dyn FellowStrings,
     ) {
         if let Some(focus) = vitals.focus.filter(|_| vitals.hero) {
-            self.update_hero_status(tree, true, focus.current, focus.max, text);
+            self.update_hero_status(tree, true, focus.current, focus.max, text, strings);
         }
         for (vital, value) in [
             (VITAL_HEALTH, vitals.health),
@@ -157,27 +197,51 @@ impl VitalsUi {
 
     /// `gmVitalsUI::ListenToMessage`: a left click on a field shows or hides its numbers (focus
     /// only for a hero).
-    pub fn message(&mut self, tree: &mut UiTree, message: &UiMessage) {
+    pub fn message(&mut self, tree: &mut UiTree, message: &UiMessage, strings: &dyn FellowStrings) {
         if message.message != MSG_MOUSE_PRESS_TOP || message.data != LEFT_BUTTON {
             return;
         }
         let pressed = message.element;
         if pressed.is_some() && pressed == self.health_field {
             if let Some(health) = &self.health {
-                health.toggle_text_state(tree);
+                let visible = health.toggle_text_state(tree);
+                tooltip(
+                    tree,
+                    strings,
+                    visible,
+                    self.health_field,
+                    "ID_Vital_TT_Health",
+                );
             }
         }
         if pressed.is_some() && pressed == self.vigor_field {
             if let Some(vigor) = &self.vigor {
-                vigor.toggle_text_state(tree);
+                let visible = vigor.toggle_text_state(tree);
+                tooltip(
+                    tree,
+                    strings,
+                    visible,
+                    self.vigor_field,
+                    "ID_Vital_TT_Vigor",
+                );
             }
         }
         if pressed.is_some() && pressed == self.focus_field {
             if let Some(focus) = &self.focus {
                 if self.hero {
-                    focus.toggle_text_state(tree);
+                    let visible = focus.toggle_text_state(tree);
+                    tooltip(
+                        tree,
+                        strings,
+                        visible,
+                        self.focus_field,
+                        "ID_Vital_TT_Focus",
+                    );
                 } else {
                     focus.set_text_state(tree, false);
+                    if let Some(field) = self.focus_field {
+                        tree.set_tooltip(field, None);
+                    }
                 }
             }
         }

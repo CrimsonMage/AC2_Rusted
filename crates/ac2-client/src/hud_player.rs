@@ -223,7 +223,8 @@ impl HudView {
             }
             if let Some(bar) = vitals.as_mut() {
                 let text = |cur, max| ac2_ui::vital_text(&player, cur, max);
-                bar.apply_snapshot(tree, &frame.player_vitals, &text);
+                bar.init_tooltips(tree, &player);
+                bar.apply_snapshot(tree, &frame.player_vitals, &text, &player);
             }
             // `gmEffectsUI::gmEffectsUI`'s `Init`.
             if let Some(strip) = effects.as_mut() {
@@ -346,7 +347,7 @@ impl HudView {
                         bar.update_vital(tree, vital, current, max, &text);
                     }
                     GameplayNotice::UpdateHeroStatus { hero, current, max } => {
-                        bar.update_hero_status(tree, hero, current, max, &text);
+                        bar.update_hero_status(tree, hero, current, max, &text, &player);
                     }
                     _ => {}
                 }
@@ -476,7 +477,7 @@ impl HudView {
                 panel.message(tree, message);
             }
             if let Some(bar) = vitals.as_mut() {
-                bar.message(tree, message);
+                bar.message(tree, message, &player);
             }
             // `gmRadarUI::ListenToMessage`: select the blip under the pointer, or show or hide
             // the coordinates.
