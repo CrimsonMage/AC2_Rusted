@@ -14,6 +14,11 @@ use crate::NetError;
 /// 0x004BC780).
 pub const LEGIONS_VERSION: &str = "7160";
 
+/// The data version the 2012-2017 relaunch client sends (`ClientNet::SendLoginRequest`, build
+/// 0930 at 0x004D3B70). Its `gmClient::InitAuth` (0x00435E95) packs the ticket as auth type
+/// `0x40000002` like Legions, and the rest of the logon is laid out the same.
+pub const RELAUNCH_VERSION: &str = "1802";
+
 /// How the client authenticates (`gmClient::InitAuth`).
 ///
 /// `Debug` never shows the password: the ticket is a secret and must not reach a log.

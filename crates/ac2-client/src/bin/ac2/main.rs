@@ -6,15 +6,16 @@
 //!
 //! ```text
 //! ac2 --dat-dir DIR [--server 127.0.0.1:9000] [--account local] [--version 7160]
-//!     [--character NAME] [--client-exe PATH] [--radius 1] [--chargen FILE]
+//!     [--character NAME] [--radius 1] [--chargen FILE]
 //!
 //! ac2 --dat-dir DIR --host icefire.portalspace.net --port 8610 --rodat on \
-//!     --account ACCOUNT --glsticketdirect PASSWORD
+//!     --account ACCOUNT --glsticketdirect PASSWORD --version 1802
 //! ```
 //!
 //! The second form is the retail command line (`Turbine::Client::Init`'s arguments); `--host` and
 //! `--port` win over `--server`, and the ticket is the password. Retail's single-dash and `/`
-//! forms (`-host`, `/host`, `-h`) are accepted too.
+//! forms (`-host`, `/host`, `-h`) are accepted too. Servers for the 2012-2017 relaunch client
+//! check its data version, `1802` ([`ac2_net::RELAUNCH_VERSION`]).
 
 mod cmdline;
 mod keys;
@@ -470,13 +471,6 @@ fn run(args: Args) -> Result<(), String> {
     let controls = Controls::load(&store)
         .map_err(|e| e.to_string())?
         .ok_or("the DATs hold no action map")?;
-    let server_key = match &args.client_exe {
-        Some(path) => {
-            let exe = std::fs::read(path).map_err(|e| format!("{path}: {e}"))?;
-            ac2_net::ServerPublicKey::find_in_client(&exe)
-        }
-        None => None,
-    };
     let mut session = OnlineSession::connect(OnlineConfig {
         server: args.server_address()?,
         account: args.account,
@@ -488,7 +482,9 @@ fn run(args: Args) -> Result<(), String> {
             Some(name) => CharacterChoice::Name(name.clone()),
             None => CharacterChoice::Wait,
         },
-        server_key,
+        // Retail always exports an RSA-wrapped session key (`ClientNet::Init`); the servers we
+        // talk to cannot unwrap it, so the logon carries none (auth flags 0).
+        server_key: None,
         language: 0,
         dat_iterations: ac2_weenie::dat_iterations(&dataset)?,
     })

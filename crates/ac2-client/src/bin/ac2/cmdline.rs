@@ -16,7 +16,6 @@ pub(crate) struct Args {
     pub version: String,
     /// `gmClient::m_startChar`: enter with this character, skipping character selection.
     pub character: Option<String>,
-    pub client_exe: Option<String>,
     pub radius: i32,
     /// `Preferences.ini` (`-prefs` in retail): the default is in the user's configuration directory.
     pub prefs: Option<String>,
@@ -94,7 +93,6 @@ fn parse_from(tokens: impl IntoIterator<Item = String>, dat_dir: String) -> Resu
         account: "local".into(),
         version: ac2_net::LEGIONS_VERSION.into(),
         character: None,
-        client_exe: None,
         radius: 1,
         prefs: None,
         chargen: None,
@@ -120,7 +118,6 @@ fn parse_from(tokens: impl IntoIterator<Item = String>, dat_dir: String) -> Resu
             "account",
             "version",
             "character",
-            "client-exe",
             "prefs",
             "chargen",
             "radius",
@@ -138,7 +135,6 @@ fn parse_from(tokens: impl IntoIterator<Item = String>, dat_dir: String) -> Resu
             "account" => args.account = value.to_ascii_lowercase(),
             "version" => args.version = value,
             "character" => args.character = Some(value),
-            "client-exe" => args.client_exe = Some(value),
             "prefs" => args.prefs = Some(value),
             "chargen" => args.chargen = Some(value),
             "radius" => args.radius = value.parse().map_err(|e| format!("--radius: {e}"))?,
