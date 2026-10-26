@@ -8,6 +8,7 @@ mod animation;
 mod animator;
 mod behavior;
 mod behavior_table;
+mod blend;
 mod dbanimator;
 mod setup;
 
@@ -27,6 +28,7 @@ pub use behavior_table::{
     Ac2ModeTransition, Ac2TransitionInfo, AC2_BEHAVIOR_ACTION, AC2_BEHAVIOR_DYNAMIC_FP_CAMERA,
     AC2_BEHAVIOR_HOLD, AC2_SLIDER_CLIENT_CONTROLLED, AC2_SLIDER_WEENIE_CONTROLLED,
 };
+pub use blend::blend_transform;
 pub use dbanimator::{
     load_ac2_db_animator, Ac2AnimAsset, Ac2AnimInfo, Ac2AnimTrigger, Ac2AnimatorContext,
     Ac2AssetBone, Ac2BoneTransform, Ac2Compositor, Ac2CubeSlider, Ac2DbAnimator, Ac2ImpulseTrigger,

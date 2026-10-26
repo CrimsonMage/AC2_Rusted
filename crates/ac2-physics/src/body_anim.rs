@@ -203,6 +203,12 @@ impl PhysicsBody {
         self.object.bone_transforms()
     }
 
+    /// The bones drawn at `now`, blended between the last two refreshes (not retail; see
+    /// `ac2_anim::blend_transform`). [`Self::bone_transforms`] is the retail, unblended pose.
+    pub fn blended_bone_transforms(&self, now: f64) -> Vec<ac2_anim::Ac2Transform> {
+        self.object.blended_bone_transforms(now)
+    }
+
     /// The behaviour, mode and slider callbacks, the FX starts and stops and the weenie hooks
     /// the animation raised since the last call, in order.
     pub fn take_animation_events(&mut self) -> Vec<Ac2AnimEvent> {

@@ -3,8 +3,8 @@
 //! for the body's one part group).
 
 use ac2_anim::{
-    Ac2AnimEvent, Ac2AnimatorContext, Ac2BoneTransform, Ac2Compositor, Ac2ImpulseTrigger,
-    Ac2PoseInput, Ac2SliderTracker, Ac2Transform, Ac2TriggerAction,
+    blend_transform, Ac2AnimEvent, Ac2AnimatorContext, Ac2BoneTransform, Ac2Compositor,
+    Ac2ImpulseTrigger, Ac2PoseInput, Ac2SliderTracker, Ac2Transform, Ac2TriggerAction,
 };
 
 use crate::anim_rep::{AnimRep, BodyAnimation};
@@ -112,7 +112,7 @@ impl PhysicsObj {
         if self.anim.can_animate() {
             self.anim
                 .with_modes(|modes, source| modes.update(quantum, source));
-            self.do_animation(refresh);
+            self.do_animation(refresh, local_time);
             self.anim.modes.add_triggers();
             self.sync_mode();
         }
@@ -148,7 +148,7 @@ impl PhysicsObj {
     /// `PHYSICSOBJREP::DoAnimation(refreshBones)`: the bones are posed only when refreshing
     /// (`CPartArray::AddAnimation` adds to the compositor only then); each track's reached
     /// triggers are added to it either way (`DBAnimator::GetTriggers`).
-    fn do_animation(&mut self, refresh: bool) {
+    fn do_animation(&mut self, refresh: bool, local_time: f64) {
         let terrain = self.motion.terrain_type();
         let (anim_velocity, effects_scale, omega) = (
             array(self.anim_velocity),
@@ -163,6 +163,9 @@ impl PhysicsObj {
             setup,
             vdesc_scale,
             bones,
+            bones_at,
+            prev_bones,
+            prev_bones_at,
             ..
         } = &mut self.anim;
         let (Some(setup), Some(table)) = (setup.as_ref(), table.as_ref()) else {
@@ -193,12 +196,15 @@ impl PhysicsObj {
                 roots: &roots,
                 rest: &rest,
             };
-            *bones = Ac2Compositor::pose(
+            let fresh = Ac2Compositor::pose(
                 modes,
                 |key| animators.get(&key).map(|animator| &**animator),
                 &mut ctx,
                 &input,
             );
+            // The refresh before this one is what the drawn pose blends from.
+            *prev_bones = std::mem::replace(bones, fresh);
+            *prev_bones_at = std::mem::replace(bones_at, local_time);
         }
         modes.visit_tracks_mut(|state, track| {
             if let Some(animator) = animators.get(&track.anim_key) {
@@ -246,6 +252,26 @@ impl PhysicsObj {
             .bones
             .iter()
             .map(Ac2BoneTransform::to_transform)
+            .collect()
+    }
+
+    /// The bones at `now` drawn between the last two bone refreshes: `t` runs from 0 at the last
+    /// refresh to 1 one refresh interval later (clamped), and the pose is `blend_transform`
+    /// from the refresh before to the last one. Falls back to [`Self::bone_transforms`] when
+    /// there are not two refreshes of the same skeleton yet.
+    pub(crate) fn blended_bone_transforms(&self, now: f64) -> Vec<Ac2Transform> {
+        let current = self.bone_transforms();
+        let anim = &self.anim;
+        let span = anim.bones_at - anim.prev_bones_at;
+        if !(span > 0.0) || anim.prev_bones.is_empty() || anim.prev_bones.len() != anim.bones.len()
+        {
+            return current;
+        }
+        let t = ((now - anim.bones_at) / span).clamp(0.0, 1.0) as f32;
+        anim.prev_bones
+            .iter()
+            .zip(&anim.bones)
+            .map(|(from, to)| blend_transform(&from.to_transform(), &to.to_transform(), t))
             .collect()
     }
 

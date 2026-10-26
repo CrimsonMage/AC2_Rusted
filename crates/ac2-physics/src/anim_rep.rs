@@ -37,8 +37,13 @@ pub(crate) struct AnimRep {
     pub(crate) table: Option<Arc<Ac2BehaviorTable>>,
     pub(crate) setup: Option<Arc<Ac2Setup>>,
     pub(crate) vdesc_scale: [f32; 3],
-    /// The bone `TransformBase`s of the last `DoAnimation`.
+    /// The bone `TransformBase`s of the last `DoAnimation`, and the local time of that refresh.
     pub(crate) bones: Vec<Ac2BoneTransform>,
+    pub(crate) bones_at: f64,
+    /// The bones of the refresh before the last, and its local time: what the drawn pose blends
+    /// from (`PhysicsBody::blended_bone_transforms`).
+    pub(crate) prev_bones: Vec<Ac2BoneTransform>,
+    pub(crate) prev_bones_at: f64,
     /// `m_animcolor` (r, g, b, a) and `m_animopacity`, from the colour and opacity sliders.
     pub(crate) anim_color: [f32; 4],
     pub(crate) anim_opacity: f32,
@@ -155,6 +160,9 @@ impl AnimRep {
             setup: None,
             vdesc_scale: [1.0; 3],
             bones: Vec::new(),
+            bones_at: 0.0,
+            prev_bones: Vec::new(),
+            prev_bones_at: 0.0,
             anim_color: [1.0; 4],
             anim_opacity: 1.0,
             player: false,
@@ -172,6 +180,9 @@ impl AnimRep {
             setup: animation.setup,
             vdesc_scale: animation.vdesc_scale,
             bones: Vec::new(),
+            bones_at: 0.0,
+            prev_bones: Vec::new(),
+            prev_bones_at: 0.0,
             anim_color: [1.0; 4],
             anim_opacity: 1.0,
             player,

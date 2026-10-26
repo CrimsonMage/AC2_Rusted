@@ -318,3 +318,78 @@ fn a_constrained_player_stops_twenty_metres_out() {
     assert!(free > 25.0, "{free}");
     assert!((19.0..20.5).contains(&held), "{held}");
 }
+
+/// Two bone poses are the same to the float: offset, scale and the rotation up to its sign.
+fn same_transform(a: &ac2_anim::Ac2Transform, b: &ac2_anim::Ac2Transform) -> bool {
+    (a.offset - b.offset).length() < 1e-4
+        && (a.scale - b.scale).length() < 1e-4
+        && a.rotation.dot(b.rotation).abs() > 0.999_99
+}
+
+#[test]
+fn the_drawn_pose_blends_from_the_previous_refresh_to_the_current() {
+    let mut body = remote_body();
+    // One bone posed by the walk clip, so the refreshes differ.
+    let mut animation = body_animation();
+    animation.setup = Some(Arc::new(ac2_anim::Ac2Setup {
+        meshes: Arc::from(Vec::new()),
+        bones: Arc::from(vec![ac2_anim::Ac2Bone {
+            parent: None,
+            name: 0,
+        }]),
+        placements: Arc::from(vec![ac2_anim::Ac2PlacementFrame {
+            kind: 0,
+            bones: Arc::from(vec![ac2_anim::Ac2Transform::IDENTITY]),
+        }]),
+        holding_points: Arc::from(Vec::new()),
+        connection_points: Arc::from(Vec::new()),
+        bounds_min: ac2_math::Vec3::ZERO,
+        bounds_max: ac2_math::Vec3::ZERO,
+    }));
+    body.set_animation(animation);
+    let ground = terrain(|_, _| 50.0);
+    let mut random = Random::default();
+    let step = 1.0 / 30.0;
+    let mut now = 10.0;
+    // Walking forward: the walk clip ramps the bone in, so some refresh pair differs.
+    body.do_motion([0.0, 1.0, 0.0]);
+    // The first refresh has no earlier one to blend from: one step before the pair is taken.
+    now += step;
+    body.update_animation(step as f32, now, &mut random);
+    let (mut before, mut after) = (Vec::new(), Vec::new());
+    for k in 0..60 {
+        now += step;
+        if k % 3 == 0 {
+            body.step_quantum(&ground);
+        }
+        let prior = body.bone_transforms();
+        body.update_animation(step as f32, now, &mut random);
+        let current = body.bone_transforms();
+        if prior != current {
+            (before, after) = (prior, current);
+            break;
+        }
+    }
+    assert!(
+        !before.is_empty(),
+        "the walk changes the bones between refreshes"
+    );
+    let same = |a: &[ac2_anim::Ac2Transform], b: &[ac2_anim::Ac2Transform]| {
+        a.len() == b.len() && a.iter().zip(b).all(|(x, y)| same_transform(x, y))
+    };
+    // Fraction 0 at the refresh is the previous refresh; one interval later it is the current.
+    assert!(same(&body.blended_bone_transforms(now), &before));
+    assert!(same(&body.blended_bone_transforms(now + step), &after));
+    // Halfway between them is the blend of each bone.
+    let half = body.blended_bone_transforms(now + step / 2.0);
+    assert_eq!(half.len(), before.len());
+    for ((h, b), a) in half.iter().zip(&before).zip(&after) {
+        let expect = ac2_anim::blend_transform(b, a, 0.5);
+        assert!(same_transform(h, &expect), "{h:?} != {expect:?}");
+    }
+    // Past the next refresh the blend holds at the current pose.
+    assert!(same(
+        &body.blended_bone_transforms(now + 5.0 * step),
+        &after
+    ));
+}
