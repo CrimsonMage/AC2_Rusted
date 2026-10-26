@@ -9,17 +9,19 @@
 //!
 //! The scene is the client's: it renders [`AvatarSelectionUi::avatars`] in
 //! [`AvatarSelectionUi::viewport`], answers the pick and reports the animation's end.
-//!
-//! Not modelled yet: the tooltip and the music.
+//! The viewport carries `ID_AvSelect_TT_3DAvatar` as its tooltip while an avatar is under the
+//! pointer (`MouseOnObject`, cleared by `MouseOffObject`), and the bottom field's `primSong`
+//! plays when the screen opens ([`PregameRequest::Music`]).
 
 use ac2_net::protocol::GmRaceSexInfo;
 use ac2_weenie::Appearance;
 
 use crate::dialog::DIALOG_WAIT;
+use crate::layout::AttributeValue;
 use crate::mouse::UiMessage;
 use crate::pregame::chargen::{new_char_gen, result_key, AVATAR_LOCATIONS, RACE_NAMES, SEX_NAMES};
 use crate::pregame::flow::{MODE_AVATAR_MODIFICATION, MODE_CHARACTER_SELECTION};
-use crate::pregame::{Ctx, LAYOUT_AVATAR_SELECTION};
+use crate::pregame::{Ctx, PregameRequest, LAYOUT_AVATAR_SELECTION};
 use crate::token::{
     tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_MOVE_TOP, MSG_MOUSE_PRESS_TOP, STATELESS,
 };
@@ -70,7 +72,19 @@ impl AvatarSelectionUi {
             ui.bottom = root("AvatarSelectionFieldBottom");
         }
         ui.init_races(ctx);
+        // `SoundManager::Play` of the bottom field's `primSong` on `Channel_Main`.
+        if let Some(did) = ui.prim_song(ctx) {
+            ctx.requests.push(PregameRequest::Music(did));
+        }
         ui
+    }
+
+    /// `UIElement::GetAttribute_DataID(_avatarSelectionFieldBottom, Tokenize("primSong"))`.
+    fn prim_song(&self, ctx: &Ctx<'_>) -> Option<u32> {
+        match ctx.tree.get(self.bottom?)?.attribute(tokenize("primSong")) {
+            Some(AttributeValue::DataId(did)) => Some(*did),
+            _ => None,
+        }
     }
 
     /// The framework's destructor: roots removed, its dialog closed.
@@ -229,10 +243,29 @@ impl AvatarSelectionUi {
             return;
         }
         if self.under_mouse.is_some() {
-            self.race_desc(ctx, STATELESS);
+            self.mouse_off_object(ctx);
         }
         self.under_mouse = avatar;
         if let Some(avatar) = avatar {
+            self.mouse_on_object(ctx, avatar);
+        }
+    }
+
+    /// `gmAvatarSelectionUI::MouseOffObject`: the viewport's tooltip cleared, `RaceDescField`
+    /// back to no state.
+    fn mouse_off_object(&mut self, ctx: &mut Ctx<'_>) {
+        if let Some(viewport) = self.viewport {
+            ctx.tree.set_tooltip(viewport, None);
+            self.race_desc(ctx, STATELESS);
+        }
+    }
+
+    /// `gmAvatarSelectionUI::MouseOnObject`: the viewport's tooltip (`ID_AvSelect_TT_3DAvatar`)
+    /// and `RaceDescField` in the avatar's race and sex state (`_StateTable`).
+    fn mouse_on_object(&mut self, ctx: &mut Ctx<'_>, avatar: usize) {
+        if let Some(viewport) = self.viewport {
+            let tip = ctx.strings.get("ID_AvSelect_TT_3DAvatar");
+            ctx.tree.set_tooltip(viewport, Some(tip));
             let state = self.avatars[avatar].state;
             self.race_desc(ctx, state);
         }

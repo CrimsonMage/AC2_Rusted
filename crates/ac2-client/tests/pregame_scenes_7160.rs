@@ -294,6 +294,18 @@ fn character_generation_shows_the_avatars_and_the_chosen_one() {
     }
     let ui = rig.view.ui().unwrap();
     assert_eq!(ui.avatar_selection().unwrap().under_mouse(), Some(avatar));
+    // `MouseOnObject`: the viewport's tooltip and the race description are real text.
+    let root = ui.avatar_selection().unwrap().viewport().unwrap();
+    assert_eq!(
+        ui.tree().tooltip_text(root).as_deref(),
+        Some("Click to choose this avatar.")
+    );
+    let texts = visible_texts(ui.tree());
+    assert!(texts.iter().all(|t| !is_raw_id(t)), "raw id: {texts:?}");
+    assert!(
+        texts.iter().any(|t| t.len() > 60),
+        "the race description is shown: {texts:?}"
+    );
     rig.view.input(&[(LEFT, 1.0, true), (LEFT, 1.0, false)]);
     assert_eq!(rig.view.ui().unwrap().selected_animation(), Some(avatar));
     let started = rig.t;
@@ -330,6 +342,144 @@ fn character_generation_shows_the_avatars_and_the_chosen_one() {
         .expect("the race's viewport");
     let changed = scene_pixels(&full, &ui, &viewport);
     assert!(changed > 20_000, "the avatar's scene is drawn: {changed}");
+    // `InitElements`: the slider captions are the script's `StringInfo` labels looked up in
+    // their own string tables, never an unresolved `0x...` id.
+    let texts = visible_texts(rig.view.ui().unwrap().tree());
+    eprintln!("texts: {texts:?}");
+    assert!(texts.iter().any(|t| t == "Hairstyle"), "captions are text");
+    assert!(
+        texts.iter().all(|t| !is_raw_id(t)),
+        "an id is printed raw: {texts:?}"
+    );
+}
+
+/// Every text element's text below the tree's roots.
+fn visible_texts(tree: &ac2_ui::UiTree) -> Vec<String> {
+    fn walk(tree: &ac2_ui::UiTree, index: usize, out: &mut Vec<String>) {
+        if let Some(text) = tree.get(index).and_then(|e| e.text()) {
+            out.push(text);
+        }
+        for &child in tree.children(index) {
+            walk(tree, child, out);
+        }
+    }
+    let mut out = Vec::new();
+    for &root in tree.roots() {
+        walk(tree, root, &mut out);
+    }
+    out
+}
+
+/// `0x` and eight hex digits: what `StringInfo::GetString` prints for a missing string.
+fn is_raw_id(text: &str) -> bool {
+    text.strip_prefix("0x")
+        .is_some_and(|h| h.len() >= 8 && h.chars().all(|c| c.is_ascii_hexdigit()))
+}
+
+/// Pixels inside `viewport` that differ between two frames.
+fn changed_between(a: &[u8], b: &[u8], viewport: &SceneViewport) -> usize {
+    let mut changed = 0;
+    for y in viewport.y.max(0)..(viewport.y + viewport.height as i32).min(SIZE.1 as i32) {
+        for x in viewport.x.max(0)..(viewport.x + viewport.width as i32).min(SIZE.0 as i32) {
+            let i = (y as usize * SIZE.0 as usize + x as usize) * 4;
+            changed += usize::from((0..3).any(|c| a[i + c].abs_diff(b[i + c]) > 8));
+        }
+    }
+    changed
+}
+
+/// `gmAvatarModificationUI::InitCamera` / `UpdateCamera`: the head page frames the head and
+/// dragging over `MouseRotationOverField` turns the camera about the avatar; each moves the
+/// camera state and changes what the viewport shows.
+#[test]
+fn the_modification_camera_answers_zoom_and_rotation() {
+    let Some(mut rig) = Rig::new(true) else {
+        return;
+    };
+    rig.click("CreateButton");
+    while rig.view.mode() != MODE_AVATAR_SELECTION {
+        rig.frame();
+        assert!(rig.t < 70.0, "no avatar selection");
+    }
+    let _ = rig.draw();
+    let viewport = rig.viewport("AvatarSelectionViewport");
+    let picks = rig.picks(&viewport);
+    rig.point(picks[0].0);
+    rig.frame();
+    rig.view.input(&[(LEFT, 1.0, true), (LEFT, 1.0, false)]);
+    let started = rig.t;
+    while rig.view.mode() != MODE_AVATAR_MODIFICATION {
+        rig.frame();
+        assert!(rig.t < started + 30.0, "no avatar modification");
+    }
+    let camera = |rig: &Rig| {
+        rig.view
+            .ui()
+            .unwrap()
+            .avatar_modification()
+            .unwrap()
+            .camera()
+    };
+    let (before, _) = rig.draw();
+    let race = rig
+        .view
+        .ui()
+        .unwrap()
+        .avatar_modification()
+        .unwrap()
+        .viewport();
+    let viewport = rig
+        .view
+        .ui()
+        .unwrap()
+        .viewports()
+        .into_iter()
+        .find(|v| Some(v.root) == race)
+        .expect("the race's viewport");
+    assert!(!camera(&rig).zoomed);
+
+    rig.click("HeadButton");
+    assert!(camera(&rig).zoomed, "the head page frames the head");
+    let (zoomed, _) = rig.draw();
+    let zoom_change = changed_between(&before, &zoomed, &viewport);
+    assert!(
+        zoom_change > 10_000,
+        "zooming moved the view: {zoom_change}"
+    );
+    rig.click("BodyButton");
+    assert!(!camera(&rig).zoomed, "the body page frames the body");
+
+    // A drag over the field turns the camera by the pointer's travel over the field's width.
+    let (from, rotation) = (rig.element("MouseRotationOverField"), camera(&rig).rotation);
+    let (unturned, _) = rig.draw();
+    rig.point(from);
+    rig.frame();
+    rig.view.input(&[(LEFT, 1.0, true)]);
+    for step in 1..=8 {
+        rig.point((from.0 - step * 12, from.1));
+        rig.frame();
+    }
+    rig.view.input(&[(LEFT, 1.0, false)]);
+    let turned_to = camera(&rig).rotation;
+    eprintln!("rotation {rotation} -> {turned_to}");
+    assert!((turned_to - rotation).abs() > 0.05, "the drag turned it");
+    let (turned, _) = rig.draw();
+    save("pregame_scene_avatar_rotated.png", &turned);
+    let turn_change = changed_between(&unturned, &turned, &viewport);
+    assert!(
+        turn_change > 5_000,
+        "rotating moved the view: {turn_change}"
+    );
+    assert!(
+        scene_pixels(&turned, &unturned, &viewport) > 0 || turn_change > 0,
+        "the avatar stays drawn"
+    );
+    // `gmGenerationConfirmationUI`: the name dialog's text is real too.
+    rig.click("NextButton");
+    rig.frame();
+    let texts = visible_texts(rig.view.ui().unwrap().tree());
+    eprintln!("confirmation texts: {texts:?}");
+    assert!(texts.iter().all(|t| !is_raw_id(t)), "raw id: {texts:?}");
 }
 
 /// Lit pixels of a frame.

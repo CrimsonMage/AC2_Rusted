@@ -39,7 +39,19 @@ impl UiStrings {
             return Ok(Self::default());
         };
         let table = table.raw();
-        let mut dids = vec![table];
+        // The scripts hand back `StringInfo`s naming their own tables (the character generation
+        // script's slider labels are in table 0x250007C9, not the UI table), which retail's
+        // `StringInfo::InqStringInternal` fetches from the DBOCache on demand; the frame thread
+        // cannot read the DAT, so every string table is preloaded.
+        let mut dids: Vec<u32> = store
+            .dataset()
+            .ids_in_range(
+                ac2_dat::DatFileKind::Local,
+                ac2_db::STRING_TABLE_FIRST,
+                ac2_db::STRING_TABLE_LAST,
+            )
+            .collect();
+        dids.push(table);
         dids.extend_from_slice(extra);
         Ok(Self::new(
             PreloadedStringTables::load(store, &dids, STRING_STATE),

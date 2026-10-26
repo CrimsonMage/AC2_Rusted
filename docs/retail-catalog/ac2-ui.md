@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 798 done, 286 partial, 1110 to do, 53 skipped.
+2247 retail functions: 805 done, 279 partial, 1110 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -1691,7 +1691,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ExportData::~ExportData` · 00407720 · legions 00407430
 - [~] `ExportData::StreamPack` · 00407770 · legions 00407480 — ac2-script: unpack direction only
 
-## `ac2/client/src/ui/pregame/generation/gmavatarmodificationui.cpp.c` (15/27)
+## `ac2/client/src/ui/pregame/generation/gmavatarmodificationui.cpp.c` (19/27)
 
 ### AFrame
 - [ ] `AFrame::AFrame` · 0040a9e0 · legions 0040a8a0
@@ -1722,8 +1722,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PStringBase<char>::operator+` · 0040b300 · legions 0040b200
 
 ### gmAvatarModificationUI
-- [~] `gmAvatarModificationUI::Init` · 0040b420 · legions 0040b320 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
-- [~] `gmAvatarModificationUI::UpdateByMask` · 0040b640 · legions 0040b540 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::Init` · 0040b420 · legions 0040b320 — ac2-ui pregame/avatar_modification.rs (sliders, parts, randomize, zoom/rotation camera state, tooltips, naming dialog, music) with ac2-client pregame_scene/modification.rs driving the camera; captions are the script StringInfo labels in their own string tables (UiStrings preloads every string table)
+- [x] `gmAvatarModificationUI::UpdateByMask` · 0040b640 · legions 0040b540 — ac2-ui pregame/avatar_modification.rs (sliders, parts, randomize, zoom/rotation camera state, tooltips, naming dialog, music) with ac2-client pregame_scene/modification.rs driving the camera; captions are the script StringInfo labels in their own string tables (UiStrings preloads every string table)
 - [x] `gmAvatarModificationUI::Temp` · 0040b6e0 · legions 0040b5e0 — ac2-ui pregame/avatar_modification.rs
 - [x] `gmAvatarModificationUI::InitUIFromData` · 0040b760 · legions 0040b660 — ac2-ui pregame/avatar_modification.rs
 - [x] `gmAvatarModificationUI::InitElements` · 0040b8c0 · legions 0040b7c0 — ac2-ui avatar_modification.rs init_elements: the slider, right and left arrow tooltips by ID_AvModify_TT_* string ids
@@ -1735,16 +1735,16 @@ Legend and workflow: [README](README.md).
 - [ ] `PList<float>::UnPack` · 0040bb60
 
 ### gmAvatarModificationUI
-- [~] `gmAvatarModificationUI::ListenToMessage` · 0040bc90 · legions 0040bc60 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::ListenToMessage` · 0040bc90 · legions 0040bc60 — ac2-ui pregame/avatar_modification.rs (sliders, parts, randomize, zoom/rotation camera state, tooltips, naming dialog, music) with ac2-client pregame_scene/modification.rs driving the camera; captions are the script StringInfo labels in their own string tables (UiStrings preloads every string table)
 - [x] `gmAvatarModificationUI::InitUITables` · 0040c0d0 — ac2-ui pregame/avatar_modification.rs
 - [x] `gmAvatarModificationUI::ClearDataTable` · 0040c7e0 · legions 0040c800 — ac2-ui pregame/avatar_modification.rs
 - [x] `gmAvatarModificationUI::GetDataTable` · 0040c880 · legions 0040c8a0 — ac2-ui pregame/avatar_modification.rs
-- [~] `gmAvatarModificationUI::gmAvatarModificationUI` · 0040cc00 — avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; the race viewport's music is requested when it is created (PregameRequest::Music) and played on Channel_Main by Client::play_pregame_music (2 s fade of the previous screen's); tooltips and the avatar's scene and camera are the client's / not modelled
+- [x] `gmAvatarModificationUI::gmAvatarModificationUI` · 0040cc00 — ac2-ui pregame/avatar_modification.rs (sliders, parts, randomize, zoom/rotation camera state, tooltips, naming dialog, music) with ac2-client pregame_scene/modification.rs driving the camera; captions are the script StringInfo labels in their own string tables (UiStrings preloads every string table)
 - [x] `gmAvatarModificationUI::~gmAvatarModificationUI` · 0040cff0 · legions 0040d010 — ac2-ui pregame/avatar_modification.rs
 - [x] `gmAvatarModificationUI::Create` · 0040d290 — ac2-ui pregame/avatar_modification.rs
 - [x] `gmAvatarModificationUI::Register` · 0040d2d0 · legions 0040d2f0 — ac2-ui pregame/avatar_modification.rs
 
-## `ac2/client/src/ui/pregame/generation/gmavatarselectionui.cpp.c` (6/25)
+## `ac2/client/src/ui/pregame/generation/gmavatarselectionui.cpp.c` (9/25)
 
 ### _InstanceID
 - [ ] `_InstanceID::operator==` · 0040d2f0 · legions 0040d310
@@ -1768,15 +1768,15 @@ Legend and workflow: [README](README.md).
 - [ ] `BehaviorParams::~BehaviorParams` · 0040daf0 · legions 0040dae0
 
 ### gmAvatarSelectionUI
-- [~] `gmAvatarSelectionUI::MouseOffObject` · 0040db40 · legions 0040db30 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
-- [~] `gmAvatarSelectionUI::MouseOnObject` · 0040dbd0 · legions 0040dbc0 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+- [~] `gmAvatarSelectionUI::MouseOffObject` · 0040db40 · legions 0040db30 — avatar_selection.rs mouse_off_object / mouse_on_object: the viewport tooltip ID_AvSelect_TT_3DAvatar and RaceDescField state; retail check of the object current mode (0x41000006 off, 0x41000007 on) is not made in the UI
+- [~] `gmAvatarSelectionUI::MouseOnObject` · 0040dbd0 · legions 0040dbc0 — avatar_selection.rs mouse_off_object / mouse_on_object: the viewport tooltip ID_AvSelect_TT_3DAvatar and RaceDescField state; retail check of the object current mode (0x41000006 off, 0x41000007 on) is not made in the UI
 
 ### BaseList<unsigned_long,11>
 - [ ] `BaseList<unsigned_long,11>::BaseList<unsigned_long,11>` · 0040dca0 · legions 0040dc90
 
 ### gmAvatarSelectionUI
-- [~] `gmAvatarSelectionUI::ListenToMessage` · 0040de00 · legions 0040dde0 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
-- [~] `gmAvatarSelectionUI::ListenToMessage` · 0040dfe0 · legions 0040dfc0 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+- [x] `gmAvatarSelectionUI::ListenToMessage` · 0040de00 · legions 0040dde0 — ac2-ui pregame/avatar_selection.rs (pick, selected-animation protocol, primSong music) with ac2-client pregame_scene/ (line-up, mouse-over mode, selected behavior 0x41000005)
+- [x] `gmAvatarSelectionUI::ListenToMessage` · 0040dfe0 · legions 0040dfc0 — ac2-ui pregame/avatar_selection.rs (pick, selected-animation protocol, primSong music) with ac2-client pregame_scene/ (line-up, mouse-over mode, selected behavior 0x41000005)
 
 ### BaseList<unsigned_long,11>
 - [ ] `BaseList<unsigned_long,11>::BaseList<unsigned_long,11>` · 0040e180 · legions 0040e160
@@ -1788,7 +1788,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHashTable<unsigned_long,unsigned_long>::PHashTable<unsigned_long,unsigned_long>` · 0040e3f0 · legions 0040e3f0
 
 ### gmAvatarSelectionUI
-- [~] `gmAvatarSelectionUI::InitEntities` · 0040e510 · legions 0040e510 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+- [~] `gmAvatarSelectionUI::InitEntities` · 0040e510 · legions 0040e510 — avatar_selection.rs avatars + ac2-client pregame_scene/content.rs figures (makeObject, applied appearance, held objects, land location, line-up mode); the child-entity bookkeeping (_childArray) is the scene
 - [x] `gmAvatarSelectionUI::InitGenders` · 0040eaa0 · legions 0040ea70 — ac2-ui pregame/avatar_selection.rs
 - [x] `gmAvatarSelectionUI::InitRaces` · 0040ebf0 · legions 0040ebc0 — ac2-ui pregame/avatar_selection.rs
 
@@ -1796,7 +1796,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHashTable<unsigned_long,BaseList<unsigned_long,11>_>::StreamPack` · 0040ecc0 · legions 0040ec90
 
 ### gmAvatarSelectionUI
-- [~] `gmAvatarSelectionUI::gmAvatarSelectionUI` · 0040f020 — avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+- [x] `gmAvatarSelectionUI::gmAvatarSelectionUI` · 0040f020 — ac2-ui pregame/avatar_selection.rs (pick, selected-animation protocol, primSong music) with ac2-client pregame_scene/ (line-up, mouse-over mode, selected behavior 0x41000005)
 - [x] `gmAvatarSelectionUI::~gmAvatarSelectionUI` · 0040f270 · legions 0040f240 — ac2-ui pregame/avatar_selection.rs
 - [x] `gmAvatarSelectionUI::Create` · 0040f500 — ac2-ui pregame/avatar_selection.rs
 - [x] `gmAvatarSelectionUI::Register` · 0040f540 · legions 0040f510 — ac2-ui pregame/avatar_selection.rs

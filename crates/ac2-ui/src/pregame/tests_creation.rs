@@ -155,3 +155,50 @@ fn the_slider_tooltips_come_from_their_string_ids() {
     }
     assert!(!label.is_empty());
 }
+
+/// `gmAvatarSelectionUI::MouseOnObject` / `MouseOffObject`: the viewport's tooltip is
+/// `ID_AvSelect_TT_3DAvatar` while an avatar is under the pointer, and the bottom field's
+/// `primSong` is requested when the screen opens.
+#[test]
+fn the_avatar_under_the_pointer_sets_the_viewport_tooltip() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    ui.set_char_gen_system(Box::new(Stub));
+    to_selection(&mut ui, set());
+    let _ = ui.take_requests();
+    click_named(&mut ui, "CreateButton");
+    ui.use_time(0.1);
+    let music = ui
+        .take_requests()
+        .into_iter()
+        .filter(|r| matches!(r, PregameRequest::Music(_)))
+        .count();
+    assert_eq!(music, 1, "primSong plays once");
+    let viewport = find(&ui, "AvatarSelectionViewport");
+    let dataset = ac2_dat::test_support::env_dataset().unwrap();
+    let strings = load_pregame(&Arc::new(ResourceStore::new(dataset)))
+        .unwrap()
+        .strings;
+    assert_eq!(ui.tree().tooltip_text(viewport), None);
+    ui.finish_pick(Some(0));
+    assert_eq!(
+        ui.tree().tooltip_text(viewport),
+        Some(strings.get("ID_AvSelect_TT_3DAvatar"))
+    );
+    ui.finish_pick(None);
+    assert_eq!(ui.tree().tooltip_text(viewport), None);
+}
+
+/// `StringInfo::InqStringInternal` fetches the table a `StringInfo` names: the character
+/// generation script's slider labels (table 0x250007C9) are text, not a raw id.
+#[test]
+fn a_label_in_a_script_table_renders_as_text() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let strings = crate::pregame::UiStrings::load(&ResourceStore::new(dataset)).unwrap();
+    let text = strings.render_in(0x2500_07C9, 0x4E0D_DF65);
+    assert!(!text.starts_with("0x"), "{text}");
+    assert!(!text.is_empty());
+}

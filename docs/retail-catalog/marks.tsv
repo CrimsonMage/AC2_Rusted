@@ -53,29 +53,29 @@ key	status	note
 0040acb0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 0040ace0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 0040b0b0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
-0040b420	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
-0040b640	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040b420	x	ac2-ui pregame/avatar_modification.rs (sliders, parts, randomize, zoom/rotation camera state, tooltips, naming dialog, music) with ac2-client pregame_scene/modification.rs driving the camera; captions are the script StringInfo labels in their own string tables (UiStrings preloads every string table)
+0040b640	x	ac2-ui pregame/avatar_modification.rs (sliders, parts, randomize, zoom/rotation camera state, tooltips, naming dialog, music) with ac2-client pregame_scene/modification.rs driving the camera; captions are the script StringInfo labels in their own string tables (UiStrings preloads every string table)
 0040b6e0	x	ac2-ui pregame/avatar_modification.rs
 0040b760	x	ac2-ui pregame/avatar_modification.rs
 0040b8c0	x	ac2-ui avatar_modification.rs init_elements: the slider, right and left arrow tooltips by ID_AvModify_TT_* string ids
-0040bc90	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; tooltips, music, the avatar's scene and camera are the client's / not modelled
+0040bc90	x	ac2-ui pregame/avatar_modification.rs (sliders, parts, randomize, zoom/rotation camera state, tooltips, naming dialog, music) with ac2-client pregame_scene/modification.rs driving the camera; captions are the script StringInfo labels in their own string tables (UiStrings preloads every string table)
 0040c0d0	x	ac2-ui pregame/avatar_modification.rs
 0040c7e0	x	ac2-ui pregame/avatar_modification.rs
 0040c880	x	ac2-ui pregame/avatar_modification.rs
-0040cc00	~	avatar_modification.rs: sliders, parts, randomize, zoom/rotation state, naming dialog; the race viewport's music is requested when it is created (PregameRequest::Music) and played on Channel_Main by Client::play_pregame_music (2 s fade of the previous screen's); tooltips and the avatar's scene and camera are the client's / not modelled
+0040cc00	x	ac2-ui pregame/avatar_modification.rs (sliders, parts, randomize, zoom/rotation camera state, tooltips, naming dialog, music) with ac2-client pregame_scene/modification.rs driving the camera; captions are the script StringInfo labels in their own string tables (UiStrings preloads every string table)
 0040cff0	x	ac2-ui pregame/avatar_modification.rs
 0040d290	x	ac2-ui pregame/avatar_modification.rs
 0040d2b0	x	ac2-ui pregame/avatar_modification.rs
 0040d2d0	x	ac2-ui pregame/avatar_modification.rs
 0040d390	x	ac2-ui pregame/avatar_selection.rs
-0040db40	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
-0040dbd0	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
-0040de00	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
-0040dfe0	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
-0040e510	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040db40	~	avatar_selection.rs mouse_off_object / mouse_on_object: the viewport tooltip ID_AvSelect_TT_3DAvatar and RaceDescField state; retail check of the object current mode (0x41000006 off, 0x41000007 on) is not made in the UI
+0040dbd0	~	avatar_selection.rs mouse_off_object / mouse_on_object: the viewport tooltip ID_AvSelect_TT_3DAvatar and RaceDescField state; retail check of the object current mode (0x41000006 off, 0x41000007 on) is not made in the UI
+0040de00	x	ac2-ui pregame/avatar_selection.rs (pick, selected-animation protocol, primSong music) with ac2-client pregame_scene/ (line-up, mouse-over mode, selected behavior 0x41000005)
+0040dfe0	x	ac2-ui pregame/avatar_selection.rs (pick, selected-animation protocol, primSong music) with ac2-client pregame_scene/ (line-up, mouse-over mode, selected behavior 0x41000005)
+0040e510	~	avatar_selection.rs avatars + ac2-client pregame_scene/content.rs figures (makeObject, applied appearance, held objects, land location, line-up mode); the child-entity bookkeeping (_childArray) is the scene
 0040eaa0	x	ac2-ui pregame/avatar_selection.rs
 0040ebf0	x	ac2-ui pregame/avatar_selection.rs
-0040f020	~	avatar_selection.rs: avatars (phys obj, held objects, location, desc state), pick and selected-animation protocol; the 3D scene, behaviors, tooltip and music are the client's / not modelled
+0040f020	x	ac2-ui pregame/avatar_selection.rs (pick, selected-animation protocol, primSong music) with ac2-client pregame_scene/ (line-up, mouse-over mode, selected behavior 0x41000005)
 0040f270	x	ac2-ui pregame/avatar_selection.rs
 0040f500	x	ac2-ui pregame/avatar_selection.rs
 0040f520	x	ac2-ui pregame/avatar_selection.rs
