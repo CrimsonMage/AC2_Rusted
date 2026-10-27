@@ -17,6 +17,8 @@ use ac2_math::{Frame, Vec3};
 const ENTITY_DESC_PREFIX: u32 = 0x4700_0000;
 const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;
 const MAX_ITEMS: usize = 1 << 14;
+/// Template `EntityDesc` links followed before a chain is cut (a malformed cycle ends there).
+const MAX_TEMPLATE_DEPTH: usize = 8;
 
 /// One AC2 entity placed in a landblock, resolved to the `VisualDesc` it draws.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -160,24 +162,76 @@ pub(crate) fn ac2_entity_markers(
             scale: entity.scale * template_scale,
             collides: true,
             frill: false,
-            ethereal: entity_ethereal_mask(entity),
+            ethereal: entity_ethereal_mask(store, entity),
         });
     }
     append_scene_markers(store, block_origin, block_cell_id, &mut markers);
     Ok(Arc::from(markers))
 }
 
-/// The blocking-mask bits an entity's own `PropertyCollection` sets
-/// (`CPhysicsObj::ApplyPropertyCollection` on the object its `EntityDesc` makes). An entity
-/// whose properties do not decode sets none.
-pub(crate) fn entity_ethereal_mask(entity: &Ac2EntityDesc) -> u64 {
-    let Some(properties) = entity.properties.as_deref() else {
-        return 0;
+/// The blocking-mask bits an entity's `PropertyCollection` sets
+/// (`CPhysicsObj::ApplyPropertyCollection` on the object its `EntityDesc` makes), over its
+/// merged properties (`EntityDesc::GetTotalProperties`). An entity whose properties do not
+/// decode sets none.
+pub(crate) fn entity_ethereal_mask(store: &ResourceStore, entity: &Ac2EntityDesc) -> u64 {
+    ac2_db::ac2_ethereal_mask(&entity_total_properties(store, entity, 0))
+}
+
+/// `EntityDesc::GetTotalProperties`: a placed entity's template `EntityDesc` (its data is one
+/// of type `0x40000049`) contributes first, recursively, and the entity's own properties then
+/// update that collection (`PropertyCollection::UpdateCollection`), so a property of the same
+/// name and group replaces the template's. A missing or undecodable template or properties
+/// contribute nothing.
+pub(crate) fn entity_total_properties(
+    store: &ResourceStore,
+    entity: &Ac2EntityDesc,
+    depth: usize,
+) -> Vec<ac2_db::Ac2PropertyGroup> {
+    let mut groups = match entity.data {
+        Some(data)
+            if depth < MAX_TEMPLATE_DEPTH && data.raw() & 0xFF00_0000 == ENTITY_DESC_PREFIX =>
+        {
+            let template = store
+                .load_cached_packed::<Ac2EntityDesc>(TypedResourceRef::new(
+                    DatFileKind::Portal,
+                    data,
+                    0,
+                ))
+                .ok()
+                .flatten();
+            template.map_or_else(Vec::new, |t| entity_total_properties(store, &t, depth + 1))
+        }
+        _ => Vec::new(),
     };
-    match ac2_db::read_ac2_property_groups(&mut ArchiveCursor::new(properties)) {
-        Ok(groups) => ac2_db::ac2_ethereal_mask(&groups),
-        Err(_) => 0,
-    }
+    ac2_db::update_ac2_property_collection(&mut groups, &entity_own_groups(entity));
+    groups
+}
+
+/// An `EntityDesc`'s own `PropertyCollection` (`EntityDesc::m_properties`), decoded; empty when
+/// it has none or it does not decode.
+pub(crate) fn entity_own_groups(entity: &Ac2EntityDesc) -> Vec<ac2_db::Ac2PropertyGroup> {
+    entity
+        .properties
+        .as_deref()
+        .and_then(|properties| {
+            ac2_db::read_ac2_property_groups(&mut ArchiveCursor::new(properties)).ok()
+        })
+        .unwrap_or_default()
+}
+
+/// The ethereal blocking bits of the `EntityDesc` `did`'s own properties, as
+/// `CPhysicsObj::InitVisualDesc` applies them to a body an `EntityDesc` makes
+/// (`ApplyPropertyCollection` on `EntityDesc::m_properties`, not the template chain). A DID with
+/// no `EntityDesc` in the DATs sets none.
+pub fn load_entity_ethereal_mask(store: &ResourceStore, did: DataId) -> ResourceResult<u64> {
+    let entity = store.load_cached_packed::<Ac2EntityDesc>(TypedResourceRef::new(
+        DatFileKind::Portal,
+        did,
+        0,
+    ))?;
+    Ok(entity.map_or(0, |entity| {
+        ac2_db::ac2_ethereal_mask(&entity_own_groups(&entity))
+    }))
 }
 
 /// The `VisualDesc` an entity draws and its template's scale: a placed `VisualDesc` itself, or
@@ -225,7 +279,7 @@ pub(crate) fn ac2_env_cell_markers(
                 scale: entity.scale * template_scale,
                 collides: true,
                 frill: false,
-                ethereal: entity_ethereal_mask(entity),
+                ethereal: entity_ethereal_mask(store, entity),
             })
         })
         .collect()
@@ -262,3 +316,7 @@ fn append_scene_markers(
         });
     }
 }
+
+#[cfg(test)]
+#[path = "ac2_landblock_info_tests.rs"]
+mod tests;

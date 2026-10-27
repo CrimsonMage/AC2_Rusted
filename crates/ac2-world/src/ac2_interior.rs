@@ -195,7 +195,10 @@ impl Ac2WorldSource {
                 visual,
                 world_frame: Frame::new(origin + entity.origin, entity.rotation),
                 scale: entity.scale * template_scale,
-                ethereal: crate::ac2_landblock_info::entity_ethereal_mask(entity),
+                ethereal: crate::ac2_landblock_info::entity_ethereal_mask(
+                    self.resource_store(),
+                    entity,
+                ),
             });
         }
         Ok(placements)

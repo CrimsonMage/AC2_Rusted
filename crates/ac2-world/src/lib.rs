@@ -40,7 +40,7 @@ mod vertex_normals;
 
 pub use ac2_cell_struct::{Ac2CellBspNode, Ac2CellPolygon, Ac2CellPortalPolygon, Ac2CellStruct};
 pub use ac2_env_cell::{Ac2EnvCell, Ac2EnvCellPortal};
-pub use ac2_landblock_info::Ac2OutdoorEntityMarker;
+pub use ac2_landblock_info::{load_entity_ethereal_mask, Ac2OutdoorEntityMarker};
 pub use ac2_light_info::{Ac2LightInfo, Ac2LightKind, Ac2StaticLight};
 pub use ac2_motion_interp::{
     load_ac2_motion_interp_desc, Ac2Element, Ac2ElementMotionValues, Ac2MotionInterpDesc,
