@@ -90,3 +90,38 @@ fn a_script_question_is_asked_and_its_answers_go_back_to_the_script() {
         yes: false,
     }));
 }
+
+/// The HUD key (`0x4100000C`): a press and a release, as the window sends it.
+const HUD_KEY: u32 = 0x4100_000C;
+
+#[test]
+fn a_popup_with_the_gameplay_panels_hidden_still_has_its_buttons() {
+    let Some(mut rig) = Rig::new() else {
+        return;
+    };
+    rig.wait("the HUD", |r| r.view.shortcut_slots() > 0);
+    // The HUD key hides the gameplay panels (`gmGamePlayUI::Show(0)`).
+    rig.frame(&[(HUD_KEY, 1.0, true)]);
+    rig.frame(&[(HUD_KEY, 1.0, false)]);
+    assert!(!rig.view.gameplay_shown());
+
+    rig.notify(&[question("Accept the quest?", CONTEXT)]);
+    rig.wait("the question's confirmation", |r| {
+        r.view.ui_tree().and_then(confirmation).is_some()
+    });
+    let yes = rig
+        .view
+        .ui_element_center("YesButton")
+        .expect("the Yes button");
+    rig.click(yes);
+    rig.idle(4);
+    assert!(
+        rig.asked.contains(&Command::PopupAnswer {
+            object: OBJECT,
+            context: CONTEXT,
+            yes: true,
+        }),
+        "{:?}",
+        rig.asked
+    );
+}
