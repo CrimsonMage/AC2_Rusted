@@ -198,16 +198,22 @@ fn a_lever_pull_plays_its_flip_and_leaves_the_mode() {
     play(&mut client, &server, vec![Command::Select(Some(LEVER))], 0);
     play(&mut client, &server, vec![Command::UseSelection], 0);
     // The flip's frames: the bones move while the behaviour plays, and it plays out.
+    // The sound's wave loads on the loader threads, so under load it can start a little after
+    // the flip's frames; the frame budget bounds the wait.
     let mut moved = false;
-    for _ in 0..96 {
+    let mut started = false;
+    for frame in 0..960 {
         step(&mut client, &server, &FrameInput::default());
         moved |= object(&client, LEVER).pose != before.pose;
+        // The lever's FX sound (`dn_lever`'s FX table) plays from the lever's position.
+        started |= sounds.commands()[sounds_before..]
+            .iter()
+            .any(|command| matches!(command, SinkCommand::Start { .. }));
+        if frame >= 96 && moved && started {
+            break;
+        }
     }
     assert!(moved, "the flip moved the lever's bones");
-    // The lever's FX sound (`dn_lever`'s FX table) plays from the lever's position.
-    let started = sounds.commands()[sounds_before..]
-        .iter()
-        .any(|command| matches!(command, SinkCommand::Start { .. }));
     assert!(started, "the flip plays the lever's sound");
     assert_eq!(
         object(&client, LEVER).animated_mode,
