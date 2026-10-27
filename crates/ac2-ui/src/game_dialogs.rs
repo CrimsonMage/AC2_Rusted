@@ -1,14 +1,13 @@
-//! `gmGamePlayUI`'s dialogs besides the death panel ([`crate::DeathPanel`]): the please-wait
-//! dialog (`MakePleaseWaitDialog`, `RecvNotice_CloseWaitDialog`, `DoPleaseWaitCancel`), the message
-//! boxes (`RecvNotice_DisplayMessage`, `RecvNotice_CloseMessageDialog`), the resurrection offer's
-//! confirmation (`RecvNotice_CloseConfirmationDialog`) and the error line (`SetErrorMsg`). The
-//! dialogs themselves are made and closed by [`crate::DialogFactory`]; this keeps the contexts the
-//! gameplay UI keeps for them (`_waitContext`, `_messageContexts`, the offer's context).
+//! `gmGamePlayUI`'s dialogs besides the death panel ([`crate::DeathPanel`], which also keeps the
+//! resurrection offer): the please-wait dialog (`MakePleaseWaitDialog`, `RecvNotice_CloseWaitDialog`,
+//! `DoPleaseWaitCancel`) and the message boxes (`RecvNotice_DisplayMessage`,
+//! `RecvNotice_CloseMessageDialog`). The dialogs themselves are made and closed by
+//! [`crate::DialogFactory`]; this keeps the contexts the gameplay UI keeps for them
+//! (`_waitContext`, `_messageContexts`).
 //!
-//! Not modelled: who raises the resurrection offer (`RecvNotice_ResurrectionRequestedByOther`
-//! sets the context the confirmation answers), the please-wait dialog that `EndSession` shows
-//! while the character logs off, and the flow's `QueueUIMode` (character selection) that a
-//! cancelled wait sends the player to.
+//! Not modelled: the please-wait dialog that `EndSession` shows while the character logs off (it
+//! is raised by `EndSession(requested)`, which no HUD control reaches yet), and the flow's
+//! `QueueUIMode` (character selection) that a cancelled wait sends the player to.
 
 use crate::chat_window::TEXT_TYPE_ERROR;
 use crate::dialog::{DialogFactory, DIALOG_MESSAGE, DIALOG_WAIT};
@@ -19,25 +18,11 @@ use crate::ui_string::{UiString, UiStrings};
 /// The chat text type of `SetErrorMsg`'s line (`TEXT_TYPE_ERROR`, as the chat's error type).
 pub const ERROR_TEXT_TYPE: u32 = TEXT_TYPE_ERROR;
 
-/// What the resurrection offer's confirmation asked for (`RecvNotice_CloseConfirmationDialog`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum OfferAnswer {
-    /// Not the offer's confirmation.
-    None,
-    /// No: the offer is cleared (`gmCWInterface::ClearResurrectionRequest`) and the death dialog
-    /// is made again (`MakeResurrectDialog` with no resurrecter).
-    Declined,
-    /// Yes: the offer is cleared and the respawn is asked (`gmCWInterface::RequestResurrect`).
-    Accepted,
-}
-
-/// `gmGamePlayUI`'s wait, message and offer contexts (`_waitContext`, `_messageContexts`, and the
-/// offer's context, 0 for none).
+/// `gmGamePlayUI`'s wait and message contexts (`_waitContext`, `_messageContexts`, 0 for none).
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct GameplayDialogs {
     wait_context: u32,
     message_contexts: Vec<u32>,
-    offer_context: u32,
 }
 
 impl GameplayDialogs {
@@ -104,29 +89,6 @@ impl GameplayDialogs {
             self.message_contexts.remove(at);
         }
     }
-
-    /// `gmGamePlayUI::RecvNotice_CloseConfirmationDialog` for the resurrection offer. A yes
-    /// clears the offer's context and asks the respawn; a no keeps the context and makes the
-    /// death dialog again.
-    pub fn recv_close_confirmation(&mut self, context: u32, yes: bool) -> OfferAnswer {
-        // No dialog answers with context 0, so 0 never matches an offer that is not up.
-        if context == 0 || context != self.offer_context {
-            return OfferAnswer::None;
-        }
-        if yes {
-            self.offer_context = 0;
-            OfferAnswer::Accepted
-        } else {
-            OfferAnswer::Declined
-        }
-    }
-
-    /// The offer's confirmation context, set by whoever raises the offer (tests until the offer
-    /// notice is ported).
-    #[cfg(test)]
-    pub(crate) fn set_offer_context(&mut self, context: u32) {
-        self.offer_context = context;
-    }
 }
 
 #[cfg(test)]
@@ -178,24 +140,6 @@ mod tests {
         assert_eq!(game.message_contexts(), &[second]);
         game.close_message(second);
         assert!(game.message_contexts().is_empty());
-    }
-
-    #[test]
-    fn the_offer_confirmation_answers_only_its_own_context() {
-        let mut game = GameplayDialogs::default();
-        assert_eq!(game.recv_close_confirmation(0, true), OfferAnswer::None);
-        game.set_offer_context(7);
-        assert_eq!(game.recv_close_confirmation(8, true), OfferAnswer::None);
-        assert_eq!(
-            game.recv_close_confirmation(7, false),
-            OfferAnswer::Declined
-        );
-        assert_eq!(
-            game.recv_close_confirmation(7, false),
-            OfferAnswer::Declined
-        );
-        assert_eq!(game.recv_close_confirmation(7, true), OfferAnswer::Accepted);
-        assert_eq!(game.recv_close_confirmation(7, true), OfferAnswer::None);
     }
 
     #[test]

@@ -152,6 +152,9 @@ pub enum Command {
     /// `gmCWInterface::RequestResurrect`: the respawn request (the player's script's IFun
     /// 0xB4006B, which sends `WM_Death` 0x36 and so the server's lifestone teleport).
     RequestResurrect,
+    /// `gmCWInterface::ClearResurrectionRequest`: the resurrection offer is declined (the
+    /// player's script's IFun 0xB400F7).
+    ClearResurrectionRequest,
     /// A fellowship or allegiance panel action (`gmCWInterface::DoFellowship*`,
     /// `SwearAllegiance`, `BreakAllegiance`, `AcceptVassal`, `DeclineVassal`,
     /// `QueryAllegianceProfile`).
@@ -267,6 +270,16 @@ impl Client {
         Vec::new()
     }
 
+    /// `gmCWInterface::ClearResurrectionRequest`: the IFun on the player's script, as
+    /// [`Client::request_resurrect`] makes its call.
+    fn clear_resurrection_request(&mut self) -> Vec<SessionEvent> {
+        let _ = self.call_ifun(
+            crate::scripts_queries::ifun::CLEAR_RESURRECTION_REQUEST,
+            &[],
+        );
+        Vec::new()
+    }
+
     fn request_attack_state(&mut self, attacking: bool) -> Vec<SessionEvent> {
         use crate::scripts::{IFUN_REQUEST_ATTACK_STATE_CHANGE, IFUN_SHOULD_AUTO_TARGET};
         use ac2_script::host::IFunArg;
@@ -364,6 +377,7 @@ impl Client {
                 Command::ChatLine(line) => self.session.process_text(line),
                 Command::SetAttacking(attacking) => self.request_attack_state(*attacking),
                 Command::RequestResurrect => self.request_resurrect(),
+                Command::ClearResurrectionRequest => self.clear_resurrection_request(),
                 Command::Social(request) => self.social_request(request),
                 Command::SetShortcutSet(set) => {
                     self.session.set_shortcut_set(*set);

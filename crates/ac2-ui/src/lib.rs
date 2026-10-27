@@ -122,7 +122,7 @@ pub use compose::{UiPixels, UiSurface};
 pub use controls::{ControlFrame, Controls};
 pub use craft::{CraftCommand, CraftSource, CraftUi, STATE_CATEGORY, STATE_RECIPE, STATE_SKILL};
 pub use damage_text::{DamagePlace, DamageTexts};
-pub use death::{you_died_string, DeathPanel};
+pub use death::{resurrection_prompt, you_died_string, DeathPanel, OfferAnswer};
 pub use dialog::{
     DialogFactory, DialogOutcome, DIALOG_CONFIRMATION, DIALOG_MESSAGE, DIALOG_RESURRECT,
     DIALOG_TIMED, DIALOG_WAIT, LAYOUT_DIALOGS,
@@ -135,7 +135,7 @@ pub use external_container::{ExternalContainerRequest, ExternalContainerUi};
 pub use fellow_info::{vital_text, Fellow, FellowStrings};
 pub use fellow_rows::FellowNotice;
 pub use fellowship::{FellowshipData, FellowshipRequest, FellowshipSource, FellowshipUi};
-pub use game_dialogs::{GameplayDialogs, OfferAnswer, ERROR_TEXT_TYPE};
+pub use game_dialogs::{GameplayDialogs, ERROR_TEXT_TYPE};
 pub use hud::{
     build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
     LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,

@@ -7,7 +7,8 @@ use ac2_weenie::{GameplayNotice, SessionEvent};
 
 use crate::gameplay::Command;
 
-/// `RecvNotice_UpdateDeathState` for the frame's notices, in order.
+/// `RecvNotice_UpdateDeathState` and `RecvNotice_ResurrectionRequestedByOther` for the frame's
+/// notices, in order. The offer's prompt is rendered with the resurrecter's name.
 pub(crate) fn death_notices(
     death: &mut DeathPanel,
     tree: &mut UiTree,
@@ -19,8 +20,15 @@ pub(crate) fn death_notices(
         return;
     };
     for event in events {
-        if let SessionEvent::Notice(GameplayNotice::UpdateDeathState(dead)) = event {
-            death.notice(tree, dialogs, strings, *dead);
+        match event {
+            SessionEvent::Notice(GameplayNotice::UpdateDeathState(dead)) => {
+                death.notice(tree, dialogs, strings, *dead);
+            }
+            SessionEvent::Notice(GameplayNotice::ResurrectionRequestedByOther(name)) => {
+                let prompt = strings.render_string(&ac2_ui::resurrection_prompt(name));
+                death.recv_resurrection_requested(tree, dialogs, &prompt);
+            }
+            _ => {}
         }
     }
 }

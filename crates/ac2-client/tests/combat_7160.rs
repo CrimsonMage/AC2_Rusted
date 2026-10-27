@@ -610,3 +610,19 @@ fn the_player_dies_and_respawns_at_a_lifestone() {
     let problems = client.take_script_problems();
     assert!(problems.is_empty(), "{problems:?}");
 }
+
+/// A declined resurrection offer (`gmCWInterface::ClearResurrectionRequest`) runs the player's
+/// script's IFun 0xB400F7 with no problem, as the respawn's IFun 0xB4006B runs.
+#[test]
+fn a_declined_resurrection_offer_runs_the_clear_ifun_on_the_script() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    events_for(
+        &mut client,
+        &server,
+        vec![Command::ClearResurrectionRequest],
+        1,
+    );
+    assert!(client.take_script_problems().is_empty());
+}

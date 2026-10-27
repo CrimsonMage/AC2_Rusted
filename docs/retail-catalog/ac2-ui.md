@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 852 done, 292 partial, 1050 to do, 53 skipped.
+2247 retail functions: 856 done, 291 partial, 1047 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -152,11 +152,11 @@ Legend and workflow: [README](README.md).
 - [x] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700 — ac2-ui: the panel hears every object's notices (no per-object registration)
 - [x] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0 — ac2-ui external_container.rs
 
-## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (10/58)
+## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (14/58)
 
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::Show` · 00407910 · legions 00407620
-- [~] `gmGamePlayUI::SetErrorMsg` · 00407940 · legions 00407650 — ac2-ui ERROR_TEXT_TYPE (the chat error type 1, as ECM_Admin::SendNotice_DisplayAdminStringInfo reaches it); the line is not written to the chat and nothing calls it (the play mode is queued with empty text)
+- [x] `gmGamePlayUI::SetErrorMsg` · 00407940 · legions 00407650 — ac2-client view.rs ClientView::set_error_msg -> chat_display(ac2_ui::ERROR_TEXT_TYPE); no gameplay caller in retail (only the ECM_Admin notice), so no test reaches it
 - [ ] `gmGamePlayUI::RecvNotice_EndCharacterSession` · 00407980
 - [ ] `gmGamePlayUI::RecvNotice_Logoff` · 00407990
 - [x] `gmGamePlayUI::RecvNotice_NextFrameDrawn` · 004079b0 — OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
@@ -170,17 +170,17 @@ Legend and workflow: [README](README.md).
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::RecvNotice_PlayerTeleportStart` · 00407bf0 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 - [ ] `gmGamePlayUI::RecvNotice_PortalSpace` · 00407c30 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
-- [ ] `gmGamePlayUI::RecvNotice_UpdateDeathState` · 00407c80 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
-- [ ] `gmGamePlayUI::RecvNotice_ResurrectionRequestedByOther` · 00407cf0
-- [~] `gmGamePlayUI::RecvNotice_CloseConfirmationDialog` · 00407d00 · legions 00407a30 — ac2-ui game_dialogs.rs recv_close_confirmation (yes respawns, no re-makes the death dialog via DeathPanel); the offer context is never set (RecvNotice_ResurrectionRequestedByOther not ported); ClearResurrectionRequest not sent
-- [ ] `gmGamePlayUI::RecvNotice_CloseResurrectDialog` · 00407d70 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
+- [~] `gmGamePlayUI::RecvNotice_UpdateDeathState` · 00407c80 — ac2-ui death.rs (DeathPanel::notice: the death dialog up or closed); ac2-client hud_death.rs; not reproduced: the vtable call at +0x20 (the gameplay UI's show toggle, target not named in the export)
+- [x] `gmGamePlayUI::RecvNotice_ResurrectionRequestedByOther` · 00407cf0 — ac2-ui death.rs (DeathPanel::recv_resurrection_requested, the prompt); ac2-client hud_death.rs renders the notice; death_panel_7160 (offer layout)
+- [x] `gmGamePlayUI::RecvNotice_CloseConfirmationDialog` · 00407d00 · legions 00407a30 — ac2-ui death.rs (DeathPanel::recv_close_confirmation: yes respawns, no clears and makes the death dialog); ac2-client hud_game_dialogs.rs sends Command::ClearResurrectionRequest (IFun 0xB400F7) on no; death_panel_7160, combat_7160 (declined IFun)
+- [x] `gmGamePlayUI::RecvNotice_CloseResurrectDialog` · 00407d70 — ac2-ui death.rs (DeathPanel::take_resurrect: the death dialog's button asks the respawn); death_panel_7160
 - [ ] `gmGamePlayUI::ChildKeyPress` · 00407f70 · legions 00407ca0
 - [ ] `gmGamePlayUI::Update` · 00408020 · legions 00407ce0
 - [x] `gmGamePlayUI::RecvNotice_DisplayMessage` · 00408080 — ac2-ui game_dialogs.rs (GameplayDialogs: message contexts, display_message, close_message); ac2-client hud_game_dialogs.rs wires the DisplayMessage notice and the OK answer; game_dialogs_7160 (message box text and OK)
 - [~] `gmGamePlayUI::SetupChildren` · 004080c0 · legions 00407d80 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
-- [~] `gmGamePlayUI::DoPleaseWaitCancel` · 004084a0 · legions 00408160 — ac2-ui game_dialogs.rs: the wait context is cleared and recv_close_wait_dialog reports the cancel; the QueueUIMode(characterselection) it sends is not wired (the pregame view is separate from the HUD) and no HUD notice closes the wait
+- [~] `gmGamePlayUI::DoPleaseWaitCancel` · 004084a0 · legions 00408160 — ac2-ui game_dialogs.rs: the wait context is cleared; QueueUIMode(characterselection) not wired (the app's pregame to world switch is one-way; no HUD path closes the wait)
 - [ ] `gmGamePlayUI::Init` · 00408500 · legions 004081c0
-- [~] `gmGamePlayUI::RecvNotice_CloseWaitDialog` · 00408640 — ac2-ui game_dialogs.rs: the wait context is cleared and recv_close_wait_dialog reports the cancel; the QueueUIMode(characterselection) it sends is not wired (the pregame view is separate from the HUD) and no HUD notice closes the wait
+- [~] `gmGamePlayUI::RecvNotice_CloseWaitDialog` · 00408640 — ac2-ui game_dialogs.rs: the wait context is cleared; QueueUIMode(characterselection) not wired (the app's pregame to world switch is one-way; no HUD path closes the wait)
 
 ### HashTable<unsigned_long,int>
 - [ ] `HashTable<unsigned_long,int>::~HashTable<unsigned_long,int>` · 00408660 · legions 00408320
@@ -206,7 +206,7 @@ Legend and workflow: [README](README.md).
 
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::Create` · 00408e70
-- [~] `gmGamePlayUI::EndSession` · 00408e90 · legions 00408bd0 — LogOffCharacter only; no UI or game-option upload
+- [~] `gmGamePlayUI::EndSession` · 00408e90 · legions 00408bd0 — LogOffCharacter only; the please-wait (MakePleaseWaitDialog when requested) needs a HUD logoff control, which does not exist (ListenToMessage 0x4100000e/0xffff0005 not ported)
 - [ ] `gmGamePlayUI::RecvNotice_FinishPlaySequence` · 00408f50 · legions 00408c90
 - [ ] `gmGamePlayUI::RecvNotice_PlaySequence` · 00408fa0 · legions 00408ce0
 - [ ] `gmGamePlayUI::CheckPortalScene` · 00409000 · legions 00408d40

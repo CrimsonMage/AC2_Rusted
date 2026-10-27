@@ -21,6 +21,9 @@ pub mod ifun {
     pub const DO_UI_DAMAGE: u32 = 0x00B4_00C0;
     /// `ggmCWInterface::CallIFun_RequestResurrect` (`gmCWInterface::RequestResurrect`): no arguments.
     pub const REQUEST_RESURRECT: u32 = 0x00B4_006B;
+    /// `ggmCWInterface::CallIFun_ClearResurrectionRequest` (`gmCWInterface::ClearResurrectionRequest`):
+    /// no arguments; the resurrection offer is declined.
+    pub const CLEAR_RESURRECTION_REQUEST: u32 = 0x00B4_00F7;
     pub const INQ_ROOT_PANEL_FROM_RACE: u32 = 0x00B4_0020;
     pub const CAN_SKILL_BE_TRAINED_BY_ENUM: u32 = 0x00B4_0023;
     pub const CAN_SKILL_BE_UNTRAINED_BY_ENUM: u32 = 0x00B4_0024;

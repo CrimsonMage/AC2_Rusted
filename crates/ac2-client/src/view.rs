@@ -707,6 +707,12 @@ impl ClientView {
         self.hud.chat_display(kind, text);
     }
 
+    /// `gmGamePlayUI::SetErrorMsg`: the line reaches the chat as an error (the error text type,
+    /// through `chat_display`, as `ECM_Admin::SendNotice_DisplayAdminStringInfo` does).
+    pub fn set_error_msg(&mut self, text: &str) {
+        self.chat_display(ac2_ui::ERROR_TEXT_TYPE, text);
+    }
+
     /// Whether the HUD takes typing (`CInputManager::SetTextMode`).
     pub fn text_mode(&self) -> bool {
         self.hud.text_mode()
