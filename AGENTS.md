@@ -35,6 +35,15 @@ subsystem it reproduces. This file states the working rules.
   Scenes draw unclamped into an `Rgba16Float` target (`ac2_gpu::HdrTarget`); one ACES tone map
   (`ac2_gpu::ToneMap`) reaches the window, and the UI draws after it. UI viewport scenes
   composite over their panel where they drew. Do not add a retail/modern switch.
+- Exception: every HUD window can be moved and keeps its place. Retail moved only windows with a
+  drag bar and saved only `save_loc` windows to the server (`gmCWInterface::SetUISaveLocations`).
+  Here a window with a drag bar still moves by it, and any other top-level HUD window moves by
+  Alt + left drag anywhere on it. Every window's position is saved locally per character (the
+  client's config directory, `ac2_prefs::paths`) and restored at login, over the server's
+  locations; `save_loc` windows still upload to the server as retail does.
+- Exception: text fields support modern selection and the clipboard: mouse drag and Shift+arrow
+  selection, highlighted, with Ctrl+A / Ctrl+C / Ctrl+X / Ctrl+V (the OS clipboard). Password
+  fields never copy out. Retail's own text editing rules (max length, enter/escape) still apply.
 - Exception: the inventory paper doll frames the whole figure as admin 7148's
   `gmPaperDollUI::UpdatePaperDollPosition` does (avatar at -0.5 of its height, the camera that
   height tall); Legions 7160 framed a head-and-shoulders portrait (-0.875, a quarter).
