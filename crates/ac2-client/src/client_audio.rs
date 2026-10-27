@@ -573,7 +573,7 @@ impl Client {
                                     .get(effect)
                                     .map(|list| list.iter().map(|a| a.object).collect())
                                     .unwrap_or_default();
-                                audio.fx_objects.start(id, effect, &nodes, false, now);
+                                audio.fx_objects.start(id, effect, &nodes, now);
                             }
                         }
                     }
@@ -681,15 +681,34 @@ impl Client {
             if !audio.startup_objects.insert(id) {
                 continue;
             }
-            let Some(table) = self
-                .remotes
-                .body_data(visual)
-                .and_then(|data| data.fx_particles.as_deref())
-            else {
+            let Some(data) = self.remotes.body_data(visual) else {
+                continue;
+            };
+            let Some(table) = data.fx_particles.as_deref() else {
                 continue;
             };
             if audio.light_effects {
                 audio.object_lights.extend(startup_light_starts(id, table));
+            }
+            // `DoStartupFX`'s object branch, per startup FX: the sounds of each node play on the
+            // object (`DoSoundFX`), and the nodes that create an object make it (`DoCreateObjectFX`).
+            let sounds = data.fx_sounds.as_deref();
+            for &fx in table.startup() {
+                if let Some(nodes) = sounds.and_then(|s| s.table.get(fx)) {
+                    for node in nodes.iter() {
+                        let sound = sound_id(node, &mut self.random);
+                        if sound != 0 {
+                            let mut play = PlaySoundData::new(sound);
+                            play.emitter = Some(id);
+                            audio.manager.play(&play);
+                        }
+                    }
+                }
+                let objects: Vec<Ac2FxObject> = table
+                    .get(fx)
+                    .map(|list| list.iter().map(|a| a.object).collect())
+                    .unwrap_or_default();
+                audio.fx_objects.start_startup(id, fx, &objects);
             }
         }
     }

@@ -112,22 +112,13 @@ impl FxObjects {
     /// target), and the target's hide and destruction (`DoTargetAndCloningFXs`). A node that
     /// creates an object without a behaviour keeps it on the FX; a behaviour is not run here, so
     /// its object is kept as the retail fallback keeps a failed one (`DoCreateObjectFX`).
-    /// Returns without a record when no node has an object fact.
-    pub(crate) fn start(
-        &mut self,
-        emitter: u64,
-        fx: u32,
-        nodes: &[Ac2FxObject],
-        startup: bool,
-        now: f64,
-    ) {
-        if !nodes.iter().any(Ac2FxObject::is_active) && !startup {
+    /// Returns without a record when no node has an object fact, or when the FX is running
+    /// already (`DoTargettedFX` only updates a running FX's scalar).
+    pub(crate) fn start(&mut self, emitter: u64, fx: u32, nodes: &[Ac2FxObject], now: f64) {
+        if !nodes.iter().any(Ac2FxObject::is_active) || self.record(emitter, fx).is_some() {
             return;
         }
-        let mut record = FxRecord {
-            startup,
-            ..FxRecord::default()
-        };
+        let mut record = FxRecord::default();
         let mut end = None;
         for node in nodes {
             if let Some(colour) = node.color {
@@ -164,6 +155,23 @@ impl FxObjects {
             }
         }
         record.end = end;
+        self.records.entry(emitter).or_default().insert(fx, record);
+    }
+
+    /// `FXManager::DoStartupFX`'s object part, run when the object is created: each node that
+    /// creates an object does so (`DoCreateObjectFX`), and the FX is recorded as a startup one,
+    /// which `StopFX` leaves running. Colour and hides are not part of the startup branch.
+    pub(crate) fn start_startup(&mut self, emitter: u64, fx: u32, nodes: &[Ac2FxObject]) {
+        if self.record(emitter, fx).is_some() {
+            return;
+        }
+        let mut record = FxRecord {
+            startup: true,
+            ..FxRecord::default()
+        };
+        for node in nodes.iter().filter(|node| node.vdesc != 0) {
+            record.objects.push(self.new_object(emitter, node.vdesc));
+        }
         self.records.entry(emitter).or_default().insert(fx, record);
     }
 
@@ -344,7 +352,7 @@ mod tests {
     #[test]
     fn a_stopped_fx_fades_and_destroys_the_objects_it_created() {
         let mut fx = FxObjects::default();
-        fx.start(7, 9, &[vdesc_node(0.0)], false, 10.0);
+        fx.start(7, 9, &[vdesc_node(0.0)], 10.0);
         let pending = fx.take_pending();
         assert_eq!(pending.len(), 1);
         assert_eq!(pending[0].emitter, 7);
@@ -365,7 +373,7 @@ mod tests {
     #[test]
     fn a_startup_fx_keeps_running_through_stop() {
         let mut fx = FxObjects::default();
-        fx.start(7, 9, &[vdesc_node(0.0)], true, 0.0);
+        fx.start_startup(7, 9, &[vdesc_node(0.0)]);
         fx.stop(7, 9, &[], 1.0);
         assert!(fx.record(7, 9).is_some_and(|record| record.startup));
         assert!(fx.step(10.0).is_empty());
@@ -380,7 +388,7 @@ mod tests {
             hide_target: true,
             ..vdesc_node(0.0)
         };
-        fx.start(7, 9, &[node], false, 0.0);
+        fx.start(7, 9, &[node], 0.0);
         let id = fx.take_pending()[0].id;
         assert!(fx.looks().hidden.contains(&id));
         fx.stop(7, 9, &[], 1.0);
@@ -397,7 +405,7 @@ mod tests {
             restore: true,
             ..Ac2FxObject::default()
         };
-        fx.start(7, 9, &[node], false, 0.0);
+        fx.start(7, 9, &[node], 0.0);
         assert_eq!(fx.colour(7, 0.5), Some([1.0, 0.5, 0.5, 1.0]));
         fx.stop(7, 9, &[node], 2.0);
         assert_eq!(fx.colour(7, 2.05), Some([1.0, 0.5, 0.5, 1.0]));

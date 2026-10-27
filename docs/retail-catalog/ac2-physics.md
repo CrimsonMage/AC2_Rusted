@@ -1327,7 +1327,7 @@ Legend and workflow: [README](README.md).
 
 ### FXManager
 - [~] `FXManager::DoTargettedFX` · 005089d0 · legions 004f6b00 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
-- [~] `FXManager::DoStartupFX` · 00509220 · legions 004f7270 — ac2-client client_audio.rs start_startup_lights: each object's startup FX place their lights once at creation (startup_light_starts, LightSourceEffects gated); startup sounds, streaks, decals, repulsors and vdesc objects of the object branch, and the shared rep's particle branch, are not ported here
+- [~] `FXManager::DoStartupFX` · 00509220 · legions 004f7270 — ac2-client client_audio.rs start_startup_lights: each object's startup FX place their lights (startup_light_starts, LightSourceEffects gated), play their node sounds on the object (DoSoundFX, no day/night filter), and create their nodes' objects (fx_objects start_startup, recorded as startup so StopFX leaves them). Not ported: streak (PHYSICSOBJREP::CreateStreakEffect), decal (DoDecalFX) and repulsor (CreateParticleRepulsor) nodes, which need render support; the light-fails-skips-vdesc branch; the shared rep's particle branch (ApplyStartupFX with no object)
 - [~] `FXManager::DoFX` · 00509440 · legions 004f7490 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 
 ## `portal/shared/src/physobj/fx/fxtable.cpp.c` (1/8)
