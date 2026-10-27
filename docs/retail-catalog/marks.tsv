@@ -2199,7 +2199,7 @@ key	status	note
 00494a70	_	
 00494b00	_	
 00494b10	_	
-00494cb0	_	
+00494cb0	x	ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 00494e30	_	
 00494f30	_	
 00494fb0	x	ac2-weenie ObjectTable::apply_contain (position stamp newer); double world_objects.rs answer_pickup sends CONTAIN; test ac2-client/tests/world_objects_7160.rs a_ground_item_used_is_taken_into_the_main_pack
@@ -2220,7 +2220,7 @@ key	status	note
 00495da0	_	
 00495ea0	_	
 00495fa0	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
-00496060	_	
+00496060	x	ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 00496120	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 004961e0	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 004962a0	_	
@@ -2236,7 +2236,7 @@ key	status	note
 00496980	_	
 004969f0	_	
 00496a90	_	
-00496b00	_	
+00496b00	x	ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 00496c10	_	
 00496cb0	_	
 00497190	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
@@ -2418,8 +2418,13 @@ key	status	note
 004b8110	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 004b8170	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 004b81d0	~	ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
+004b8680	~	ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
 004b8820	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
+004b89c0	~	ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
+004b9b30	~	ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
+004b9e60	x	ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
 004b9f60	x	ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
+004ba0d0	x	ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
 004ba150	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 004bb580	_	ac2-script glue::options / examination (Legions layout and efun switch)
 004bb600	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -2766,6 +2771,8 @@ key	status	note
 004ddf50	x	ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 004de020	x	
 004de0d0	x	
+004de230	x	ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
+004de280	x	ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 004de2b0	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 004de320	x	ac2-client motion.rs
 004de330	x	ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
@@ -2781,6 +2788,7 @@ key	status	note
 004de590	x	ac2-physics moveto (slice 3)
 004de5b0	x	
 004de5d0	x	
+004de6d0	x	ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 004de780	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 004de7b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004de800	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
@@ -2843,14 +2851,18 @@ key	status	note
 004e2220	x	ac2-client remote.rs
 004e2240	x	ac2-client remote.rs
 004e2260	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004e22f0	~	ac2-physics body.rs set_velocity_scale sets CMotionInterp velocity scale. The collision impact minimum (CCollisionManager::SetMinReportedImpactXY from scale and a float at the body's +0x100 descriptor, plus 0.1) is not modelled: this client has no collision manager or collision reports
 004e23b0	~	instance stamp kept per object in ac2-weenie ObjectTable
 004e2900	~	ac2-client: the object stops stepping physics
 004e2980	~	ac2-client: the object steps physics again
 004e2cb0	x	ac2-physics los (Terrain::los_check)
 004e2d80	x	ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
+004e30b0	x	ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 004e30e0	x	
 004e3280	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004e3310	x	ac2-physics interp (slice 3)
+004e3350	x	ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
+004e33d0	x	ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 004e3a50	~	ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 004e3aa0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e3b90	~	elements go through ModeTracker::DoElement; the no-cell DoElement(GROUND) is not ported
@@ -2951,6 +2963,7 @@ key	status	note
 004f14c0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f1580	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f15a0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004f1630	x	ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 004f17b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f17c0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1a00	~	the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
@@ -3216,6 +3229,11 @@ key	status	note
 00530150	_	ac2-weenie ObjectTable::apply_action
 005301b0	x	ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 005301d0	x	ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
+00530220	~	ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
+005302f0	~	ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
+00530390	~	ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
+00530440	x	ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
+00530530	x	ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
 005308e0	x	ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 00530920	x	ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 00530960	x	ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
@@ -5819,6 +5837,7 @@ key	status	note
 006ac9b0	x	ac2-physics moveto (slice 3)
 006aca30	x	ac2-physics moveto (slice 3)
 006ad7f0	x	ac2-render particles ParticleSystem::set_no_fade
+006ad900	x	ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 006ad9f0	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 006ae260	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 006ae550	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)

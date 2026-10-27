@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 377 done, 81 partial, 1604 to do, 62 skipped.
+2124 retail functions: 385 done, 82 partial, 1595 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (112/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (118/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2189,10 +2189,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::SetBoundingObject` · 004de1f0
 - [ ] `CPhysicsObj::GetDataID` · 004de210
 - [ ] `CPhysicsObj::GetPartGroup` · 004de220 · legions 004d0c80
-- [ ] `CPhysicsObj::RecvEvt_SetGlobalModifier` · 004de230
+- [x] `CPhysicsObj::RecvEvt_SetGlobalModifier` · 004de230 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 - [ ] `CPhysicsObj::RecvEvt_AddTerrainModifier` · 004de250
 - [ ] `CPhysicsObj::RecvEvt_ClearTerrainModifiers` · 004de270
-- [ ] `CPhysicsObj::RecvEvt_AddTargetedImpulse` · 004de280
+- [x] `CPhysicsObj::RecvEvt_AddTargetedImpulse` · 004de280 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 - [x] `CPhysicsObj::RecvEvt_DoFXScript` · 004de2b0 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 - [ ] `CPhysicsObj::RecvEvt_LookAt` · 004de2e0
 - [ ] `CPhysicsObj::RecvEvt_LookAtDir` · 004de300
@@ -2226,7 +2226,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetSortingSphere` · 004de640
 - [ ] `CPhysicsObj::IsVisible` · 004de660
 - [ ] `CPhysicsObj::GetSelectionSphere` · 004de680 · legions 004d10e0
-- [ ] `CPhysicsObj::SetGlobalModifier` · 004de6d0
+- [x] `CPhysicsObj::SetGlobalModifier` · 004de6d0 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 - [ ] `CPhysicsObj::AddTerrainModifier` · 004de6e0
 - [ ] `CPhysicsObj::ClearTerrainModifiers` · 004de6f0
 - [ ] `CPhysicsObj::AddImpulseLocal` · 004de700
@@ -2420,7 +2420,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetDefaultHoverHeight` · 004e22c0
 - [ ] `CPhysicsObj::GetVelocityScale` · 004e22d0
 - [ ] `CPhysicsObj::GetAccelerationScale` · 004e22e0
-- [ ] `CPhysicsObj::SetVelocityScale` · 004e22f0
+- [~] `CPhysicsObj::SetVelocityScale` · 004e22f0 — ac2-physics body.rs set_velocity_scale sets CMotionInterp velocity scale. The collision impact minimum (CCollisionManager::SetMinReportedImpactXY from scale and a float at the body's +0x100 descriptor, plus 0.1) is not modelled: this client has no collision manager or collision reports
 - [ ] `CPhysicsObj::SetAccelerationScale` · 004e2340
 - [ ] `CPhysicsObj::SetJumpScale` · 004e2350
 - [ ] `CPhysicsObj::GetJumpScale` · 004e23a0
@@ -2477,15 +2477,15 @@ Legend and workflow: [README](README.md).
 ### CPhysicsObj
 - [ ] `CPhysicsObj::InitObjectBegin` · 004e2ed0 · legions 004d5920
 - [ ] `CPhysicsObj::InitObjectEnd` · 004e2fe0 · legions 004d5a30
-- [ ] `CPhysicsObj::RecvEvt_AddImpulse` · 004e30b0
+- [x] `CPhysicsObj::RecvEvt_AddImpulse` · 004e30b0 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 - [x] `CPhysicsObj::GetStepDownHeight` · 004e30e0
 - [ ] `CPhysicsObj::GetRenderBoundingBox` · 004e3140 · legions 004d5b90
 - [ ] `CPhysicsObj::GetDefaultRenderBoundingBox` · 004e31a0 · legions 004d5bf0
 - [ ] `CPhysicsObj::GetScaledDefaultRenderBoundingBox` · 004e3200
 - [x] `CPhysicsObj::CalcPhysicsBoundingBox` · 004e3280 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [x] `CPhysicsObj::ApplyImpulse` · 004e3310 · legions 004d5d60 — ac2-physics interp (slice 3)
-- [ ] `CPhysicsObj::AddImpulse` · 004e3350
-- [ ] `CPhysicsObj::AddTargetedImpulse` · 004e33d0
+- [x] `CPhysicsObj::AddImpulse` · 004e3350 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
+- [x] `CPhysicsObj::AddTargetedImpulse` · 004e33d0 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 - [ ] `CPhysicsObj::MoveTo` · 004e3510 · legions 004d5f60
 - [ ] `CPhysicsObj::CreateDetectionCylsphere` · 004e3550 · legions 004d5fa0
 - [ ] `CPhysicsObj::CheckIfSolid` · 004e35f0
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (33/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (34/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0
@@ -2782,7 +2782,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::HandleMoveToCallback` · 004f15e0
 - [ ] `PHYSICSOBJREP::IsMovingTo` · 004f15f0 · legions 004e3f20
 - [ ] `PHYSICSOBJREP::IsTurningTo` · 004f1610 · legions 004e3f40
-- [ ] `PHYSICSOBJREP::SetGlobalModifier` · 004f1630
+- [x] `PHYSICSOBJREP::SetGlobalModifier` · 004f1630 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 - [ ] `PHYSICSOBJREP::AddTerrainModifier` · 004f1650
 - [ ] `PHYSICSOBJREP::ClearTerrainModifiers` · 004f1670
 - [ ] `PHYSICSOBJREP::SetMIDESC` · 004f1690 · legions 004e3fc0
@@ -3022,7 +3022,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MissileInfo::operator=` · 006ad5d0 · legions 00646840
 - [ ] `MissileInfo::MissileInfo` · 006ad640 · legions 006468b0
 
-## `portal/shared/src/physobj/story/physicsstory.cpp.c` (1/35)
+## `portal/shared/src/physobj/story/physicsstory.cpp.c` (2/35)
 
 ### StoryHookData
 - [ ] `StoryHookData::StoryHookData` · 006ad680 · legions 006468f0
@@ -3050,7 +3050,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PhysicsStory::get_pack_bitfield` · 006ad8a0 · legions 00646b30
 
 ### CMotionInterp
-- [ ] `CMotionInterp::SetGlobalModifier` · 006ad900 · legions 00646b90
+- [x] `CMotionInterp::SetGlobalModifier` · 006ad900 · legions 00646b90 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 
 ### PhysicsStory
 - [ ] `PhysicsStory::SetSkillID` · 006ad910 · legions 00646ba0

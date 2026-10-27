@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 564 done, 168 partial, 1149 to do, 23 skipped.
+1904 retail functions: 571 done, 174 partial, 1136 to do, 23 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1390,13 +1390,13 @@ Legend and workflow: [README](README.md).
 ### PSmartArray<PStringBase<unsigned_short>_>
 - [ ] `PSmartArray<PStringBase<unsigned_short>_>::StreamPack` · 00493de0
 
-## `portal/client/src/events/ecm_physics.cpp.c` (18/59)
+## `portal/client/src/events/ecm_physics.cpp.c` (21/59)
 
 ### TargetPosition
 - [ ] `TargetPosition::TargetPosition` · 00494c30 · legions 0048d400
 
 ### ECM_Physics
-- [ ] `ECM_Physics::RecvEvt_AddTargetedImpulse` · 00494cb0 · legions 0048d480
+- [x] `ECM_Physics::RecvEvt_AddTargetedImpulse` · 00494cb0 · legions 0048d480 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 - [ ] `ECM_Physics::RecvEvt_AddTerrainModifier` · 00494e30 · legions 0048d600
 - [ ] `ECM_Physics::RecvEvt_ClearTerrainModifiers` · 00494f30 · legions 0048d700
 - [x] `ECM_Physics::RecvEvt_Contain` · 00494fb0 · legions 0048d780 — ac2-weenie ObjectTable::apply_contain (position stamp newer); double world_objects.rs answer_pickup sends CONTAIN; test ac2-client/tests/world_objects_7160.rs a_ground_item_used_is_taken_into_the_main_pack
@@ -1417,7 +1417,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Physics::RecvEvt_Position` · 00495da0 · legions 0048e570
 - [ ] `ECM_Physics::RecvEvt_PositionCell` · 00495ea0 · legions 0048e670
 - [x] `ECM_Physics::RecvEvt_SetAccelerationScale` · 00495fa0 · legions 0048e770 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
-- [ ] `ECM_Physics::RecvEvt_SetGlobalModifier` · 00496060 · legions 0048e830
+- [x] `ECM_Physics::RecvEvt_SetGlobalModifier` · 00496060 · legions 0048e830 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 - [x] `ECM_Physics::RecvEvt_SetHoverHeight` · 00496120 · legions 0048e8f0 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 - [x] `ECM_Physics::RecvEvt_SetJumpScale` · 004961e0 · legions 0048e9b0 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 - [ ] `ECM_Physics::RecvEvt_SetMIDESC` · 004962a0 · legions 0048ea70
@@ -1433,7 +1433,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Physics::SendEvt_CLookAt` · 00496980 · legions 0048f150
 - [ ] `ECM_Physics::SendEvt_CLookAtDir` · 004969f0 · legions 0048f1c0
 - [ ] `ECM_Physics::SendEvt_CPosition` · 00496a90 · legions 0048f260
-- [ ] `ECM_Physics::RecvEvt_AddImpulse` · 00496b00 · legions 0048f2d0
+- [x] `ECM_Physics::RecvEvt_AddImpulse` · 00496b00 · legions 0048f2d0 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 
 ### TargetPosition
 - [ ] `TargetPosition::StreamPack` · 00496c10
@@ -2298,7 +2298,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWInterface::CallIFun_OnStatChanged` · 004bc510 · legions 004b1400
 - [ ] `gCWInterface::CallIFun_PreloadWSLSingletons` · 004bc600 · legions 004b14f0
 
-## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (6/85)
+## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (8/85)
 
 ### gCWPhysicsObject
 - [ ] `gCWPhysicsObject::CallEFun_DoStory` · 004b8050
@@ -2314,11 +2314,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWPhysicsObject::CallEFun_ApplyVisualDescToPhysicsObj` · 004b8510
 - [ ] `gCWPhysicsObject::CallEFun_CalculateDistance` · 004b8580
 - [ ] `gCWPhysicsObject::CallEFun_CombineAndApplyVisualDesc` · 004b8600
-- [ ] `gCWPhysicsObject::CallEFun_DoBehavior` · 004b8680
+- [~] `gCWPhysicsObject::CallEFun_DoBehavior` · 004b8680 — ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
 - [ ] `gCWPhysicsObject::CallEFun_DoBehaviorNonLatent` · 004b87a0
 - [x] `gCWPhysicsObject::CallEFun_DoFX` · 004b8820 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 - [ ] `gCWPhysicsObject::CallEFun_DoIntersection` · 004b88a0
-- [ ] `gCWPhysicsObject::CallEFun_DoMode` · 004b89c0
+- [~] `gCWPhysicsObject::CallEFun_DoMode` · 004b89c0 — ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
 - [ ] `gCWPhysicsObject::CallEFun_DoModeNonLatent` · 004b8ae0
 - [ ] `gCWPhysicsObject::CallEFun_DoSlider` · 004b8b60
 - [ ] `gCWPhysicsObject::CallEFun_DoSliderNonLatent` · 004b8c90 · legions 004ae810
@@ -2352,17 +2352,17 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWPhysicsObject::CallEFun_MissilePlace` · 004b99c0
 - [ ] `gCWPhysicsObject::CallEFun_MissilePlaceAndFire` · 004b9a30
 - [ ] `gCWPhysicsObject::CallEFun_MissileRetarget` · 004b9aa0
-- [ ] `gCWPhysicsObject::CallEFun_ReleaseBehavior` · 004b9b30
+- [~] `gCWPhysicsObject::CallEFun_ReleaseBehavior` · 004b9b30 — ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
 - [ ] `gCWPhysicsObject::CallEFun_SetAnimationFrozen` · 004b9c60
 - [ ] `gCWPhysicsObject::CallEFun_SetCloaked` · 004b9ce0
 - [ ] `gCWPhysicsObject::CallEFun_SetCollisionState` · 004b9d60
 - [ ] `gCWPhysicsObject::CallEFun_SetLocalVisualDesc` · 004b9de0
-- [ ] `gCWPhysicsObject::CallEFun_SetMode` · 004b9e60
+- [x] `gCWPhysicsObject::CallEFun_SetMode` · 004b9e60 — ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
 - [ ] `gCWPhysicsObject::CallEFun_SetMovementFrozen` · 004b9ee0
 - [x] `gCWPhysicsObject::CallEFun_SetNoDrawPhysics` · 004b9f60 — ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
 - [ ] `gCWPhysicsObject::CallEFun_SetUndetectable` · 004b9fe0
 - [ ] `gCWPhysicsObject::CallEFun_StopAllWeenieBehaviors` · 004ba060
-- [ ] `gCWPhysicsObject::CallEFun_StopBehavior` · 004ba0d0
+- [x] `gCWPhysicsObject::CallEFun_StopBehavior` · 004ba0d0 — ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
 - [x] `gCWPhysicsObject::CallEFun_StopFX` · 004ba150 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 - [ ] `gCWPhysicsObject::CallEFun_StopLayer` · 004ba1d0
 - [ ] `gCWPhysicsObject::CallEFun_StopMoveToCancelsBehaviors` · 004ba250
@@ -2844,7 +2844,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWeenieObject::~CWeenieObject` · 0052fd40 · legions 00513e90
 - [ ] `CWeenieObject::UnRegisterAllNoticeHandlers` · 0052fd70 · legions 00513ec0
 
-## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (6/91)
+## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (8/91)
 
 ### CWPhysicsObject
 - [ ] `CWPhysicsObject::CWPhysicsObject` · 0052fe30 · legions 00513f80
@@ -2874,15 +2874,15 @@ Legend and workflow: [README](README.md).
 - [x] `CWPhysicsObject::DoFX` · 005301b0 · legions 005142b0 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 - [x] `CWPhysicsObject::StopFX` · 005301d0 · legions 005142d0 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 - [ ] `CWPhysicsObject::DoTargettedFX` · 005301f0 · legions 005142f0
-- [ ] `CWPhysicsObject::DoBehavior` · 00530220
+- [~] `CWPhysicsObject::DoBehavior` · 00530220 — ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
 - [ ] `CWPhysicsObject::DoBehaviorNonLatent` · 005302c0 · legions 00514360
-- [ ] `CWPhysicsObject::ReleaseBehavior` · 005302f0
-- [ ] `CWPhysicsObject::DoMode` · 00530390
+- [~] `CWPhysicsObject::ReleaseBehavior` · 005302f0 — ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
+- [~] `CWPhysicsObject::DoMode` · 00530390 — ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
 - [ ] `CWPhysicsObject::DoModeNonLatent` · 00530420 · legions 00514420
-- [ ] `CWPhysicsObject::SetMode` · 00530440 · legions 00514440
+- [x] `CWPhysicsObject::SetMode` · 00530440 · legions 00514440 — ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
 - [ ] `CWPhysicsObject::DoSlider` · 00530460
 - [ ] `CWPhysicsObject::DoSliderNonLatent` · 00530500 · legions 005144a0
-- [ ] `CWPhysicsObject::StopBehavior` · 00530530 · legions 005144d0
+- [x] `CWPhysicsObject::StopBehavior` · 00530530 · legions 005144d0 — ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
 - [ ] `CWPhysicsObject::StopLayer` · 00530550 · legions 005144f0
 - [ ] `CWPhysicsObject::StopMoveToCancelsBehaviors` · 00530570 · legions 00514510
 - [ ] `CWPhysicsObject::StopAllWeenieBehaviors` · 00530590 · legions 00514530

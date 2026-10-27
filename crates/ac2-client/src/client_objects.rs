@@ -65,7 +65,10 @@ impl Client {
         }
         match self.player.as_ref().filter(|p| p.id == target) {
             Some(player) => Some(player.position()),
-            None => self.remotes.target_info(target).map(|(position, _, _)| position),
+            None => self
+                .remotes
+                .target_info(target)
+                .map(|(position, _, _)| position),
         }
     }
 
@@ -103,7 +106,7 @@ impl Client {
                 };
                 remotes.action(target, &mut cx);
                 if !emote_refused {
-                    remotes.motion(*object, action, impulse_source.clone());
+                    remotes.motion(*object, action, impulse_source);
                 }
             }
             // `CPhysicsObj::RecvEvt_Contain`: out of the world, into the inventory.
