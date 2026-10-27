@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 960 done, 362 partial, 853 to do, 72 skipped.
+2247 retail functions: 961 done, 365 partial, 844 to do, 77 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -152,15 +152,15 @@ Legend and workflow: [README](README.md).
 - [x] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700 — ac2-ui: the panel hears every object's notices (no per-object registration)
 - [x] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0 — ac2-ui external_container.rs
 
-## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (20/58)
+## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (21/58)
 
 ### gmGamePlayUI
 - [~] `gmGamePlayUI::Show` · 00407910 · legions 00407620 — ac2-client hud_view.rs set_gameplay_shown (m_shown, 0x4100000C via gameplay_show_key with the wait/death/story/logout guard); cascades only to the status bar, radar and toolbar bar; the other children's Show (selection, stack, trade, panels) not modelled; gameplay_keys_7160 (the_hud_key_hides...)
 - [x] `gmGamePlayUI::SetErrorMsg` · 00407940 · legions 00407650 — ac2-client view.rs ClientView::set_error_msg -> chat_display(ac2_ui::ERROR_TEXT_TYPE); no gameplay caller in retail (only the ECM_Admin notice), so no test reaches it
-- [ ] `gmGamePlayUI::RecvNotice_EndCharacterSession` · 00407980
-- [ ] `gmGamePlayUI::RecvNotice_Logoff` · 00407990
+- [-] `gmGamePlayUI::RecvNotice_EndCharacterSession` · 00407980 — admin 7148 only: sets a flag on EndCharacterSession; Legions 7160 has no match and registers no such notice (the logoff path is EndSession + LogOffCharacter)
+- [-] `gmGamePlayUI::RecvNotice_Logoff` · 00407990 — admin 7148 only (UploadGameOptions + Device::Done); Legions 7160 has no match. The logoff is EndSession (hud_game_dialogs.rs game_dialog_logout) and LogOffCharacter
 - [x] `gmGamePlayUI::RecvNotice_NextFrameDrawn` · 004079b0 — OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
-- [ ] `gmGamePlayUI::RecvNotice_BeingDeleted` · 004079c0
+- [-] `gmGamePlayUI::RecvNotice_BeingDeleted` · 004079c0 — admin 7148 only: unregisters a deleted weenie's notice handlers; Legions 7160 has no match and the port has no weenie notice handlers to unregister
 - [x] `gmGamePlayUI::MakePleaseWaitDialog` · 004079e0 · legions 004076f0 — ac2-ui game_dialogs.rs end_session raises it (ID_Wait_PleaseWait, wait type); ac2-client hud_game_dialogs.rs game_dialog_logout runs it on the logout key; logout_hud_7160 and the game_dialogs unit tests
 - [ ] `gmGamePlayUI::MakeResurrectDialog` · 00407a40 · legions 00407750 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 
@@ -175,20 +175,20 @@ Legend and workflow: [README](README.md).
 - [x] `gmGamePlayUI::RecvNotice_CloseConfirmationDialog` · 00407d00 · legions 00407a30 — ac2-ui death.rs (DeathPanel::recv_close_confirmation: yes respawns, no clears and makes the death dialog); ac2-client hud_game_dialogs.rs sends Command::ClearResurrectionRequest (IFun 0xB400F7) on no; death_panel_7160, combat_7160 (declined IFun)
 - [x] `gmGamePlayUI::RecvNotice_CloseResurrectDialog` · 00407d70 — ac2-ui death.rs (DeathPanel::take_resurrect: the death dialog's button asks the respawn); death_panel_7160
 - [x] `gmGamePlayUI::ChildKeyPress` · 00407f70 · legions 00407ca0 — ac2-ui gameplay_keys.rs (child_for_key: keys 0x41000008 toolbar, 0x41000009 statusbar, 0x4100000B radar); ac2-client hud_view.rs gameplay_keys / set_child_shown; gameplay_keys_7160 (each_child_key_toggles_its_child)
-- [ ] `gmGamePlayUI::Update` · 00408020 · legions 00407ce0
+- [~] `gmGamePlayUI::Update` · 00408020 · legions 00407ce0 — ac2-ui game_dialogs.rs GameplayDialogs::update (queues the mode with the app, sets _endSession); the vtable slot that runs Update is not named, so no frame calls it yet (the HUD's leave path is bin/ac2 back_to_character_selection)
 - [x] `gmGamePlayUI::RecvNotice_DisplayMessage` · 00408080 — ac2-ui game_dialogs.rs (GameplayDialogs: message contexts, display_message, close_message); ac2-client hud_game_dialogs.rs wires the DisplayMessage notice and the OK answer; game_dialogs_7160 (message box text and OK)
 - [~] `gmGamePlayUI::SetupChildren` · 004080c0 · legions 00407d80 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar; the keypress registrations (GameplayChildInfo: radar 0x4100000B, statusbar 0x41000009, toolbar 0x41000008, the rest 0) are in ac2-ui gameplay_keys.rs
 - [~] `gmGamePlayUI::DoPleaseWaitCancel` · 004084a0 · legions 00408160 — ac2-ui game_dialogs.rs recv_close_wait_dialog clears the wait context; the app's QueueUIMode(characterselection) is ac2-client bin/ac2 back_to_character_selection after CharExitGame (pregame resume_at_character_selection), not from the wait close: no HUD path calls recv_close_wait_dialog yet
-- [ ] `gmGamePlayUI::Init` · 00408500 · legions 004081c0
+- [~] `gmGamePlayUI::Init` · 00408500 · legions 004081c0 — ac2-client hud_game_dialogs.rs game_dialog_notices (LoginFinished -> GameplayDialogs::init closes the please-wait dialog); ac2-ui game_dialogs.rs init. SetupChildren's HUD is built at entry and the notice registrations are implicit in the event flow
 - [~] `gmGamePlayUI::RecvNotice_CloseWaitDialog` · 00408640 — ac2-ui game_dialogs.rs recv_close_wait_dialog clears the wait context; the app's QueueUIMode(characterselection) is ac2-client bin/ac2 back_to_character_selection after CharExitGame (pregame resume_at_character_selection), not from the wait close: no HUD path calls recv_close_wait_dialog yet
 
 ### HashTable<unsigned_long,int>
 - [ ] `HashTable<unsigned_long,int>::~HashTable<unsigned_long,int>` · 00408660 · legions 00408320
 
 ### gmGamePlayUI
-- [~] `gmGamePlayUI::RecvNotice_LoginFinished` · 00408840 · legions 00408580 — ac2-ui gameplay_story.rs GameplayStory::player_ready_to_enter_world (_clientReady set; the gate, or in a portal scene the scene ends with CheckPortalScene(empty)); ac2-client client.rs update_player -> player_ready_to_enter_world; LoginFinished: client.rs apply -> client_teleport.rs login_finished (RecvNotice_PortalSpace(0), the vtable call at +0x22C); not modelled: the SmartBox tail call at +0x18 (1), and Init's please-wait close (Init's HUD part is built at entry)
+- [x] `gmGamePlayUI::RecvNotice_LoginFinished` · 00408840 · legions 00408580 — ac2-client hud_game_dialogs.rs game_dialog_notices (Init's wait close); client_teleport.rs login_finished (PortalSpace(0)); game_dialogs.rs init tests
 - [x] `gmGamePlayUI::RecvNotice_CloseMessageDialog` · 00408860 — ac2-ui game_dialogs.rs (GameplayDialogs: message contexts, display_message, close_message); ac2-client hud_game_dialogs.rs wires the DisplayMessage notice and the OK answer; game_dialogs_7160 (message box text and OK)
-- [ ] `gmGamePlayUI::CleanupChildren` · 00408890 · legions 004085d0
+- [~] `gmGamePlayUI::CleanupChildren` · 00408890 · legions 004085d0 — ac2-client: the HUD's children are dropped with the view when the character leaves (bin/ac2 back_to_character_selection); the per-child destroy and the list flush are not run
 
 ### PHashTable<unsigned_long,UILocationData>
 - [ ] `PHashTable<unsigned_long,UILocationData>::~PHashTable<unsigned_long,UILocationData>` · 004088f0 · legions 00408630
@@ -205,7 +205,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIFramework::Shown` · 00408e60 · legions 00408ba0
 
 ### gmGamePlayUI
-- [ ] `gmGamePlayUI::Create` · 00408e70
+- [-] `gmGamePlayUI::Create` · 00408e70 — admin 7148 factory (new gmGamePlayUI); Legions 7160 has no counterpart; the HUD is constructed directly by ac2-client
 - [~] `gmGamePlayUI::EndSession` · 00408e90 · legions 00408bd0 — ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
 - [~] `gmGamePlayUI::RecvNotice_FinishPlaySequence` · 00408f50 · legions 00408c90 — ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
 - [~] `gmGamePlayUI::RecvNotice_PlaySequence` · 00408fa0 · legions 00408ce0 — ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
@@ -215,8 +215,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PList<gmSceneInfo>::PList<gmSceneInfo>` · 004090e0 · legions 00408e20
 
 ### gmGamePlayUI
-- [ ] `gmGamePlayUI::~gmGamePlayUI` · 00409110 · legions 00408e50
-- [ ] `gmGamePlayUI::Register` · 00409250 · legions 00408f90
+- [~] `gmGamePlayUI::~gmGamePlayUI` · 00409110 · legions 00408e50 — ac2-ui game_dialogs.rs GameplayDialogs::destroy (EndSession(0) quiet, wait and message dialogs closed); the view drop closes the rest; CleanupChildren and the global notice unregistering are not run
+- [-] `gmGamePlayUI::Register` · 00409250 · legions 00408f90 — UIFlow::RegisterFrameworkClass sets the mode's factory; the Rust HUD is built by ac2-client's view when the world enters, so there is no factory table
 - [~] `gmGamePlayUI::RecvNotice_PlayerReadyToEnterWorld` · 00409270 — ac2-ui gameplay_story.rs GameplayStory::player_ready_to_enter_world (_clientReady set; the gate, or in a portal scene the scene ends with CheckPortalScene(empty)); ac2-client client.rs update_player -> player_ready_to_enter_world; LoginFinished: client.rs apply -> client_teleport.rs login_finished (RecvNotice_PortalSpace(0), the vtable call at +0x22C); not modelled: the SmartBox tail call at +0x18 (1), and Init's please-wait close (Init's HUD part is built at entry)
 - [~] `gmGamePlayUI::RecvNotice_PortalScene` · 00409330 — ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
 

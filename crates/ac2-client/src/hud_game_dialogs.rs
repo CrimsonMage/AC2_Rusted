@@ -13,8 +13,8 @@ use ac2_weenie::{GameplayNotice, SessionEvent};
 use crate::gameplay::Command;
 use crate::ui_sources::ClientPlayer;
 
-/// `RecvNotice_DisplayMessage` for the frame's notices, in order. The message's text is rendered
-/// from its `StringInfo` on the player's tables.
+/// `RecvNotice_DisplayMessage` for the frame's notices, in order, and `Init`'s dialog step on the
+/// login. The message's text is rendered from its `StringInfo` on the player's tables.
 pub(crate) fn game_dialog_notices(
     game: &mut GameplayDialogs,
     tree: &mut UiTree,
@@ -26,9 +26,15 @@ pub(crate) fn game_dialog_notices(
         return;
     };
     for event in events {
-        if let SessionEvent::Notice(GameplayNotice::DisplayMessage { text, topmost }) = event {
-            let text = player.render_info(text);
-            game.display_message(tree, dialogs, &text, *topmost);
+        match event {
+            SessionEvent::Notice(GameplayNotice::DisplayMessage { text, topmost }) => {
+                let text = player.render_info(text);
+                game.display_message(tree, dialogs, &text, *topmost);
+            }
+            // `gmGamePlayUI::RecvNotice_LoginFinished` runs `Init`, which closes the please-wait
+            // dialog the login left up.
+            SessionEvent::LoginFinished => game.init(tree, dialogs),
+            _ => {}
         }
     }
 }

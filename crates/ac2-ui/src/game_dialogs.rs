@@ -10,6 +10,11 @@
 //! which closes the death dialog, raises the please-wait dialog and marks the session ended
 //! (`_requestedEndSession`). The caller uploads the game options and sends `LogOffCharacter`.
 //!
+//! `gmGamePlayUI::Update` queues the character selection mode and sets `_endSession`
+//! ([`GameplayDialogs::update`]); `gmGamePlayUI::Init` closes the please-wait dialog
+//! ([`GameplayDialogs::init`]); the destructor's end of session and dialog closes are
+//! [`GameplayDialogs::destroy`].
+//!
 //! Not modelled: `EndSession`'s story UI close, its notice-handler unregistering, `CleanupChildren`
 //! (the HUD stays up until the server's `CharExitGame` moves the app on), `CWAllocator::ResetShell`
 //! and the gameplay UI's `Show(1)` after a death dialog. The flow's `QueueUIMode` (character
@@ -38,6 +43,7 @@ pub struct GameplayDialogs {
     message_contexts: Vec<u32>,
     do_end_session: bool,
     requested_end_session: bool,
+    end_session_pending: bool,
 }
 
 impl GameplayDialogs {
@@ -108,6 +114,65 @@ impl GameplayDialogs {
     /// `gmGamePlayUI::_requestedEndSession`: the session's end has been asked for.
     pub fn end_session_requested(&self) -> bool {
         self.requested_end_session
+    }
+
+    /// `gmGamePlayUI::_endSession`: set by [`GameplayDialogs::update`].
+    pub fn end_session_pending(&self) -> bool {
+        self.end_session_pending
+    }
+
+    /// `gmGamePlayUI::Update`: with the app present (`UIFlow`, the vtable call at `+0x18`), the
+    /// character selection mode is queued (`QueueUIMode("characterselection")`, the caller's) and
+    /// `_endSession` is set. Returns whether the mode is queued; without the app, nothing happens.
+    pub fn update(&mut self, app: bool) -> bool {
+        if !app {
+            return false;
+        }
+        self.end_session_pending = true;
+        true
+    }
+
+    /// `gmGamePlayUI::Init`'s dialog step: the please-wait dialog closes (`DialogFactory::CloseDialog`
+    /// on `_waitContext`, a no-op for 0) and its context is forgotten. The HUD's children are built
+    /// by the caller.
+    pub fn init(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory) {
+        dialogs.close_dialog(tree, self.wait_context);
+        self.wait_context = 0;
+    }
+
+    /// `gmGamePlayUI::EndSession(requested = 0)`: the death dialog closes and the session is marked
+    /// ended, with no please-wait dialog. Returns whether it ran (once); the caller logs the
+    /// character off as [`GameplayDialogs::end_session`] does.
+    pub fn end_session_quiet(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        death: &mut DeathPanel,
+    ) -> bool {
+        if self.requested_end_session {
+            return false;
+        }
+        death.close(tree, dialogs);
+        self.requested_end_session = true;
+        true
+    }
+
+    /// `gmGamePlayUI::~gmGamePlayUI`'s dialog part: `EndSession(0)` runs first when the session has
+    /// not ended (returned, as [`GameplayDialogs::end_session_quiet`]), then the please-wait dialog
+    /// and every message box close and their contexts are forgotten.
+    pub fn destroy(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        death: &mut DeathPanel,
+    ) -> bool {
+        let ended = self.end_session_quiet(tree, dialogs, death);
+        dialogs.close_dialog(tree, self.wait_context);
+        self.wait_context = 0;
+        for context in std::mem::take(&mut self.message_contexts) {
+            dialogs.close_dialog(tree, context);
+        }
+        ended
     }
 
     /// `gmGamePlayUI::ListenToMessage` for the global key press `0x4100000e` (`LOGOUT_KEY`):
@@ -251,5 +316,68 @@ mod tests {
         let wait = game.wait_context();
         assert_ne!(wait, died);
         assert_eq!(dialogs.shown(), Some((wait, DIALOG_WAIT)));
+    }
+
+    #[test]
+    fn update_queues_the_mode_only_with_an_app_and_sets_end_session() {
+        let mut game = GameplayDialogs::default();
+        assert!(!game.update(false));
+        assert!(!game.end_session_pending());
+        assert!(game.update(true));
+        assert!(game.end_session_pending());
+        // The flag is kept; the mode is queued again on each update the app runs.
+        assert!(game.update(true));
+    }
+
+    #[test]
+    fn init_closes_the_wait_dialog_it_was_left_with() {
+        let mut tree = UiTree::new(1024, 768);
+        let mut dialogs = DialogFactory::new(None);
+        let mut game = GameplayDialogs::default();
+        game.make_please_wait(&mut tree, &mut dialogs, &Text);
+        assert_ne!(game.wait_context(), 0);
+        game.init(&mut tree, &mut dialogs);
+        assert_eq!(game.wait_context(), 0);
+        assert_eq!(dialogs.shown(), None);
+        // With no wait dialog, Init closes nothing.
+        game.init(&mut tree, &mut dialogs);
+        assert_eq!(game.wait_context(), 0);
+    }
+
+    #[test]
+    fn the_destructor_ends_an_open_session_quietly_and_closes_its_dialogs() {
+        let mut tree = UiTree::new(1024, 768);
+        let mut dialogs = DialogFactory::new(None);
+        let mut game = GameplayDialogs::default();
+        let mut death = DeathPanel::default();
+        let first = game.display_message(&mut tree, &mut dialogs, "one", false);
+        game.make_please_wait(&mut tree, &mut dialogs, &Text);
+        death.notice(&mut tree, &mut dialogs, &Text, true);
+        let died = death.context();
+
+        assert!(game.destroy(&mut tree, &mut dialogs, &mut death));
+        assert_eq!(death.context(), 0, "EndSession(0) closes the death dialog");
+        assert!(game.end_session_requested());
+        assert_eq!(game.wait_context(), 0);
+        assert!(game.message_contexts().is_empty());
+        assert_eq!(dialogs.shown(), None);
+        assert!(dialogs.queued().is_empty(), "the queued message closed too");
+        assert_ne!(first, died);
+
+        // A session that already ended is not ended again.
+        assert!(!game.destroy(&mut tree, &mut dialogs, &mut death));
+    }
+
+    #[test]
+    fn the_quiet_end_raises_no_wait_dialog() {
+        let mut tree = UiTree::new(1024, 768);
+        let mut dialogs = DialogFactory::new(None);
+        let mut game = GameplayDialogs::default();
+        let mut death = DeathPanel::default();
+        assert!(game.end_session_quiet(&mut tree, &mut dialogs, &mut death));
+        assert!(game.end_session_requested());
+        assert_eq!(game.wait_context(), 0);
+        assert_eq!(dialogs.shown(), None);
+        assert!(!game.end_session_quiet(&mut tree, &mut dialogs, &mut death));
     }
 }
