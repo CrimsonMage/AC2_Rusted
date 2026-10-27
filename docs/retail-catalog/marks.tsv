@@ -5784,6 +5784,10 @@ key	status	note
 006b8b00	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 006b8b20	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 006baa40	_	
+006bacb0	_	not ported: no crate owns conversations yet (ac2-gameplay is later). Audit: cell.dat holds 261 ConversationTree DIDs (0x60xxFFFF/0x60xxFFFE, though the DB type says portal); 255 are 1468-byte filler, 6 real records use a header the StreamPack layout does not match; no client talk or response path traced
+006bb5b0	_	not ported: no crate owns conversations yet (ac2-gameplay is later). Audit: cell.dat holds 261 ConversationTree DIDs (0x60xxFFFF/0x60xxFFFE, though the DB type says portal); 255 are 1468-byte filler, 6 real records use a header the StreamPack layout does not match; no client talk or response path traced
+006bb930	_	not ported: no crate owns conversations yet (ac2-gameplay is later). Audit: cell.dat holds 261 ConversationTree DIDs (0x60xxFFFF/0x60xxFFFE, though the DB type says portal); 255 are 1468-byte filler, 6 real records use a header the StreamPack layout does not match; no client talk or response path traced
+006bc290	_	not ported: no crate owns conversations yet (ac2-gameplay is later). Audit: cell.dat holds 261 ConversationTree DIDs (0x60xxFFFF/0x60xxFFFE, though the DB type says portal); 255 are 1468-byte filler, 6 real records use a header the StreamPack layout does not match; no client talk or response path traced
 006bc380	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
 006bc410	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
 006bc430	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
@@ -6141,7 +6145,7 @@ key	status	note
 00725fb0	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 00726040	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 007260d0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-007261c0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007261c0	~	ac2-ui selection_notices.rs set_targeting_pointer and ac2-client target_select.rs take the pointer when the player's VM raises it; without the VM, ac2-weenie usage.rs use_item sends the use with its target directly (no multi-item collection; usage_7160 test)
 00726250	~	ac2-script host/notices.rs (oiiwwi) and notices_typed.rs UseBook -> GameplayNotice::UseBook -> ac2-client hud_book.rs; the handler list fan-out is the frame's event list
 00726310	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
 007263a0	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not

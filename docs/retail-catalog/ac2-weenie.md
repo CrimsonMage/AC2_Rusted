@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 323 done, 150 partial, 1418 to do, 13 skipped.
+1904 retail functions: 323 done, 151 partial, 1417 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -216,7 +216,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/events/cm_usage.cpp.c` (0/2)
 
 ### CM_Usage
-- [ ] `CM_Usage::SendNotice_SetTargetingPointer` · 007261c0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [~] `CM_Usage::SendNotice_SetTargetingPointer` · 007261c0 — ac2-ui selection_notices.rs set_targeting_pointer and ac2-client target_select.rs take the pointer when the player's VM raises it; without the VM, ac2-weenie usage.rs use_item sends the use with its target directly (no multi-item collection; usage_7160 test)
 - [~] `CM_Usage::SendNotice_UseBook` · 00726250 · legions 006a5160 — ac2-script host/notices.rs (oiiwwi) and notices_typed.rs UseBook -> GameplayNotice::UseBook -> ac2-client hud_book.rs; the handler list fan-out is the frame's event list
 
 ## `ac2/client/src/events/gmceventqueue.cpp.c` (0/2)
