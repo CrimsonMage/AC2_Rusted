@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use crate::layout::{AttributeDesc, AttributeValue, ElementDesc, LayoutDesc, Rect, StateDesc};
 use crate::token::{tokenize, STATELESS};
-use crate::{UiTree, MSG_NEW_POSITION, UI_POINTER_X, UI_POINTER_Y};
+use crate::{UiTree, MSG_NEW_POSITION, UI_POINTER_X, UI_POINTER_Y, UI_WHEEL_IN};
 
 fn element(
     id: &str,
@@ -52,6 +52,12 @@ fn element(
 /// A root with a 100 x 10 slider at (100, 0) (five stops, a 20-pixel widget) and its two step
 /// buttons.
 fn tree() -> (UiTree, usize) {
+    tree_with_widget("field")
+}
+
+/// The same slider, its widget an element of kind `widget_kind` (a `field`, or a `button` as a
+/// layout may make it).
+fn tree_with_widget(widget_kind: &str) -> (UiTree, usize) {
     let slider = element(
         "Slider",
         "scrollbar",
@@ -65,7 +71,13 @@ fn tree() -> (UiTree, usize) {
             ("left_button", AttributeValue::Id(tokenize("Left"))),
             ("right_button", AttributeValue::Id(tokenize("Right"))),
         ],
-        vec![element("widget", "field", (0, 0, 19, 9), vec![], vec![])],
+        vec![element(
+            "widget",
+            widget_kind,
+            (0, 0, 19, 9),
+            vec![],
+            vec![],
+        )],
     );
     let hot = || vec![("hot_button", AttributeValue::Bool(true))];
     let left = element("Left", "button", (0, 20, 9, 29), hot(), vec![]);
@@ -141,4 +153,35 @@ fn the_slider_jumps_snaps_drags_and_steps() {
     }
     assert_eq!(tree.scrollbar_position(slider), 0.0);
     assert_eq!(moves(&mut tree), 2, "nothing past the first stop");
+}
+
+/// A wheel turn over the widget (the thumb) reaches its bar, as one over the track does: the
+/// widget is a child that takes the pointer over the bar (`UIElement_Scrollbar::MouseDown` runs
+/// for the bar under it, `HandleMouseWheel`). Both a plain widget and a button widget.
+fn wheel_over_the_thumb_steps_the_bar(widget_kind: &str) {
+    let (mut tree, slider) = tree_with_widget(widget_kind);
+    tree.scrollbar_set_position(slider, 0.5);
+    let widget = tree.child_recursive(slider, tokenize("widget")).unwrap();
+    // The thumb is at x 40..59 in the track (100..199): its middle is at 150.
+    let thumb = tree.screen_box(widget);
+    point(&mut tree, (thumb.x0 + thumb.x1) / 2, 5);
+    assert_eq!(
+        tree.mouse_top(),
+        Some(widget),
+        "the pointer is over the thumb"
+    );
+    tree.take_messages();
+    tree.start_input(UI_WHEEL_IN, 1.0);
+    assert_eq!(
+        tree.scrollbar_position(slider),
+        0.25,
+        "a turn in over the thumb steps the bar back one stop ({widget_kind})"
+    );
+    assert_eq!(moves(&mut tree), 1);
+}
+
+#[test]
+fn the_wheel_over_the_thumb_reaches_the_bar() {
+    wheel_over_the_thumb_steps_the_bar("field");
+    wheel_over_the_thumb_steps_the_bar("button");
 }

@@ -12,6 +12,7 @@
 //! Not modelled yet: hot buttons' repeating clicks while held, activation by keyboard.
 
 use crate::element::UiTree;
+use crate::mouse::{UI_WHEEL_IN, UI_WHEEL_OUT};
 use crate::token::tokenize;
 use crate::token::{
     BUTTON, BUTTON_BOOLEAN, BUTTON_BROADCAST_WHEN_GHOSTED, BUTTON_GHOSTED, BUTTON_HIGHLIGHTED,
@@ -95,12 +96,16 @@ impl UiTree {
             || self.bool_attribute(index, BUTTON_BROADCAST_WHEN_GHOSTED)
     }
 
-    /// `UIElement_Button::MouseDown`, after `UIElement::MouseDown`.
+    /// `UIElement_Button::MouseDown`, after `UIElement::MouseDown`. A button takes a press (it
+    /// claims it, `processed`) but not a wheel turn: the turn goes on to the scroll bar or the
+    /// scrollable parent the button sits in (`UIRegion::NotifyMouseDown`'s children-first walk
+    /// stops at the first claim), so a wheel over a thumb or an arrow of a bar still reaches it.
     pub(crate) fn button_mouse_down(&mut self, index: usize, action: u32, processed: &mut bool) {
         if !self.is_button(index) {
             return;
         }
-        if !self.bool_attribute(index, MOUSE_EVENT_PASSTHROUGH) {
+        let wheel = matches!(action, UI_WHEEL_IN | UI_WHEEL_OUT);
+        if !wheel && !self.bool_attribute(index, MOUSE_EVENT_PASSTHROUGH) {
             *processed = true;
         }
         if is_left(action) {
