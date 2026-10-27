@@ -260,6 +260,10 @@ pub struct UiTree {
     /// The player's saved positions of the windows (`window_positions`): applied to a window when
     /// it is made and to the windows already up.
     pub(crate) saved_positions: Vec<crate::window_positions::WindowPosition>,
+    /// The read-only selectable text a left press last landed in: it takes the copy keys
+    /// (Ctrl+A / Ctrl+C) without becoming the active element, which only editable text does
+    /// (`UIElement_Text::MouseDown` activates an editable element alone).
+    pub(crate) copy_focus: Option<usize>,
 }
 
 /// The index of `desc`'s state `id`.
@@ -323,6 +327,7 @@ impl UiTree {
             alt: false,
             positions_changed: false,
             saved_positions: Vec::new(),
+            copy_focus: None,
         }
     }
 
@@ -340,6 +345,14 @@ impl UiTree {
     /// tree starts with its own in-memory one.
     pub fn set_text_clipboard(&mut self, clipboard: Arc<dyn crate::text_clipboard::TextClipboard>) {
         self.text_clipboard = clipboard;
+    }
+
+    /// Whether a read-only text element holds the copy focus: Ctrl+A, Ctrl+C reach it while no
+    /// editable element is active (the client then passes typed characters through).
+    pub fn text_copy_focus(&self) -> bool {
+        self.copy_focus
+            .is_some_and(|index| self.get(index).is_some())
+            && !self.text_mode()
     }
 
     /// One past the highest element index.

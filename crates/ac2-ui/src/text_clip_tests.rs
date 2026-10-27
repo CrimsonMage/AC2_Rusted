@@ -239,3 +239,159 @@ fn the_selection_is_drawn_highlighted_and_only_while_it_is_on() {
     tree.deselect(entry);
     assert_eq!(count(&mut tree), 0);
 }
+
+/// Moves the pointer to `(x, y)` in the tree's window (the press and the hover follow it).
+fn move_pointer(tree: &mut UiTree, x: i32, y: i32) {
+    tree.start_input(UI_POINTER_X, x as f32);
+    tree.start_input(UI_POINTER_Y, y as f32);
+}
+
+#[test]
+fn a_press_on_read_only_text_gives_it_the_copy_keys_but_not_the_edit_keys() {
+    let (mut tree, entry) = entry_with(&["selectable", "activatable", "one_line"]);
+    let (clip, dyn_clip) = clipboard("");
+    tree.set_text_clipboard(dyn_clip);
+    let units: Vec<u16> = "read only".encode_utf16().collect();
+    tree.add_text_with_font(entry, &units, 0, 0);
+    move_pointer(&mut tree, 3, 5);
+    tree.start_input(LEFT, 1.0);
+    tree.stop_input(LEFT);
+    // Nothing is active (no editable text), yet the text holds the copy focus.
+    assert_eq!(tree.active(), None);
+    assert!(tree.text_copy_focus());
+    tree.character(u16::from(b'a'), 0, CTRL);
+    assert_eq!(tree.selection(entry), Some((0, 9)));
+    tree.character(u16::from(b'c'), 0, CTRL);
+    assert_eq!(held(&clip).as_deref(), Some("read only"));
+    // Cut, paste and typing do nothing on it.
+    tree.character(u16::from(b'x'), 0, CTRL);
+    tree.character(0x16, 0, CTRL);
+    tree.character(u16::from(b'z'), 0, PLAIN);
+    assert_eq!(text(&tree, entry), "read only");
+    assert_eq!(held(&clip).as_deref(), Some("read only"));
+}
+
+#[test]
+fn a_press_away_from_read_only_text_takes_the_copy_focus_back() {
+    let (mut tree, entry) = entry_with(&["selectable", "activatable", "one_line"]);
+    let (clip, dyn_clip) = clipboard("kept");
+    tree.set_text_clipboard(dyn_clip);
+    let units: Vec<u16> = "read only".encode_utf16().collect();
+    tree.add_text_with_font(entry, &units, 0, 0);
+    move_pointer(&mut tree, 3, 5);
+    tree.start_input(LEFT, 1.0);
+    tree.stop_input(LEFT);
+    assert!(tree.text_copy_focus());
+    // The panel outside the text takes the press.
+    move_pointer(&mut tree, 80, 40);
+    tree.start_input(LEFT, 1.0);
+    tree.stop_input(LEFT);
+    assert!(!tree.text_copy_focus());
+    tree.character(u16::from(b'a'), 0, CTRL);
+    tree.character(u16::from(b'c'), 0, CTRL);
+    assert_eq!(tree.selection(entry), None);
+    assert_eq!(held(&clip).as_deref(), Some("kept"));
+}
+
+/// A clipboard the OS refused: nothing copies, nothing pastes.
+#[derive(Debug, Default)]
+struct RefusingClipboard;
+
+impl TextClipboard for RefusingClipboard {
+    fn text(&self) -> Option<String> {
+        None
+    }
+
+    fn set_text(&self, _text: &str) -> bool {
+        false
+    }
+}
+
+#[test]
+fn a_refused_clipboard_leaves_the_text_and_the_selection_as_they_were() {
+    let (mut tree, entry) = editable_entry();
+    tree.set_text_clipboard(Arc::new(RefusingClipboard));
+    type_text(&mut tree, "abc");
+    tree.character(u16::from(b'a'), 0, CTRL);
+    // Copy is refused, so cut must not delete the selection it could not copy.
+    tree.character(u16::from(b'c'), 0, CTRL);
+    tree.character(u16::from(b'x'), 0, CTRL);
+    assert_eq!(text(&tree, entry), "abc");
+    assert_eq!(tree.selection(entry), Some((0, 3)));
+    // An empty or unreadable clipboard pastes nothing.
+    tree.character(0x16, 0, CTRL);
+    assert_eq!(text(&tree, entry), "abc");
+}
+
+#[test]
+fn a_paste_drops_control_characters_and_keeps_a_line_break_only_on_a_multi_line_field() {
+    let tab_and_bell = "a\tb\u{7}c\u{1b}d\r\ne";
+    assert_eq!(
+        paste_units(tab_and_bell, false, None),
+        "abcd\ne".encode_utf16().collect::<Vec<_>>()
+    );
+    assert_eq!(
+        paste_units("x\r\n\r\ny", true, None),
+        "x  y".encode_utf16().collect::<Vec<_>>()
+    );
+}
+
+#[test]
+fn the_clipboard_shortcut_letters_map_to_the_control_codes_the_tree_acts_on() {
+    use crate::clipboard_control;
+    assert_eq!(clipboard_control('a'), Some(1));
+    assert_eq!(clipboard_control('C'), Some(3));
+    assert_eq!(clipboard_control('v'), Some(0x16));
+    assert_eq!(clipboard_control('X'), Some(0x18));
+    assert_eq!(clipboard_control('z'), None);
+}
+
+#[test]
+fn a_drag_held_below_a_multi_line_text_scrolls_it_and_extends_the_selection() {
+    let (mut tree, entry) = entry_with(&["selectable", "activatable"]);
+    let units: Vec<u16> = "one\ntwo\nthree\nfour\nfive\nsix".encode_utf16().collect();
+    tree.add_text_with_font(entry, &units, 0, 0);
+    // Press on the first line, then hold the pointer below the 9 pixel high element.
+    move_pointer(&mut tree, 1, 3);
+    tree.start_input(LEFT, 1.0);
+    move_pointer(&mut tree, 1, 30);
+    let view_y = |tree: &UiTree| tree.get(entry).unwrap().text.as_ref().unwrap().view.1;
+    let mut now = 1.0;
+    for _ in 0..10 {
+        now += 0.05;
+        tree.global_loop(now);
+    }
+    assert!(view_y(&tree) > 0, "the view should scroll down while held");
+    // The view runs to the bottom; the pointer then lands on the last visible line.
+    for _ in 0..400 {
+        now += 0.05;
+        tree.global_loop(now);
+    }
+    let (start, end) = tree.selection(entry).unwrap();
+    // The anchor is where the press landed (x 1 is in front of the first glyph's right half).
+    assert_eq!(start, 1);
+    assert!(
+        end >= units.len() - 3,
+        "selection reaches the last visible line"
+    );
+    // Released: the view stays where it is.
+    tree.stop_input(LEFT);
+    let at_release = view_y(&tree);
+    now += 1.0;
+    tree.global_loop(now);
+    assert_eq!(view_y(&tree), at_release);
+}
+
+#[test]
+fn a_drag_above_a_one_line_text_does_not_scroll_it() {
+    let (mut tree, entry) = entry_with(&["selectable", "activatable", "one_line"]);
+    let units: Vec<u16> = "a long line of text".encode_utf16().collect();
+    tree.add_text_with_font(entry, &units, 0, 0);
+    move_pointer(&mut tree, 1, 3);
+    tree.start_input(LEFT, 1.0);
+    move_pointer(&mut tree, 1, -30);
+    for frame in 1..40 {
+        tree.global_loop(f64::from(frame) * 0.05);
+    }
+    assert_eq!(tree.get(entry).unwrap().text.as_ref().unwrap().view.1, 0);
+}

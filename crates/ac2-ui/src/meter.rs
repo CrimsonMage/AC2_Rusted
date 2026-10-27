@@ -223,6 +223,9 @@ impl UiTree {
     /// transitions and media (`UIElement::ListenToMessage`), and every moving meter
     /// (`UIElement_Meter::Global_Loop`).
     pub fn global_loop(&mut self, now: f64) {
+        // The drag selection's auto-scroll runs on the frame, with the time since the last one.
+        let dt = (now - self.time).clamp(0.0, 0.1);
+        self.text_drag_auto_scroll(dt);
         self.time = now;
         self.tooltip_use_time(now);
         self.drag_use_time();

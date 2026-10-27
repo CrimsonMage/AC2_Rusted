@@ -235,6 +235,12 @@ impl UiTree {
                 self.deactivate(active);
             }
         }
+        // So does a press away from the read-only text that held the copy focus.
+        if let Some(focus) = self.copy_focus {
+            if self.get(focus).is_none_or(|e| !e.mouse_over) {
+                self.copy_focus = None;
+            }
+        }
         // Alt + press moves the window under the pointer; the press does not reach the controls
         // under it (`alt_move_mouse_down`).
         if self.alt_move_mouse_down(action) {

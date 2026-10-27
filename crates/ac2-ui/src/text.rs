@@ -118,7 +118,10 @@ pub(crate) struct TextState {
     pub selecting: bool,
     /// `m_nSelectionStart`, `m_nSelectionEnd`: the anchor and the moving end (either order).
     pub selection: (usize, usize),
-    /// A password field (the layout's `password` flag): its text never goes to the clipboard.
+    /// A password field: its text never goes to the clipboard. Retail's `UIElement_Text` has no
+    /// password attribute (its bool attributes are editable, one_line, selectable, center,
+    /// right_justify, center_vertically, no_IME and trim_from_top) and draws the text unmasked
+    /// (`GlyphList::AddText`), so this is the modern flag of AGENTS.md's text exception.
     pub password: bool,
 }
 

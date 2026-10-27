@@ -45,6 +45,14 @@ impl UiTree {
         self.active
     }
 
+    /// The text element typed keys go to: the active one when it is text, else the read-only
+    /// text that holds the copy focus.
+    fn text_target(&self) -> Option<usize> {
+        self.active
+            .filter(|&index| self.get(index).is_some_and(|e| e.text.is_some()))
+            .or_else(|| self.copy_focus.filter(|&index| self.get(index).is_some()))
+    }
+
     /// Whether the active element takes typing (the input manager's text mode).
     pub fn text_mode(&self) -> bool {
         self.active.is_some_and(|index| {
@@ -338,12 +346,9 @@ impl UiTree {
     /// `UIElement_Text::CharacterHandler` on the active element: `ch` a typed character, or `key`
     /// the virtual key of a key that typed none.
     pub fn character(&mut self, ch: u16, key: u32, modifiers: Modifiers) {
-        let Some(index) = self.active else {
+        let Some(index) = self.text_target() else {
             return;
         };
-        if self.el(index).text.is_none() {
-            return;
-        }
         let (shift, ctrl) = (modifiers.shift, modifiers.ctrl);
         let direction = match key {
             0x23 => Some(if ctrl {
@@ -377,6 +382,17 @@ impl UiTree {
             let text = self.el(index).text.as_ref().expect("text element");
             (text.editable, text.filter)
         };
+        if !editable {
+            // A read-only text takes the clipboard keys only (`text_clip.rs`): Ctrl+A and Ctrl+C
+            // work, and cut and paste do nothing there.
+            if key == 0 {
+                let ch = control_code(ch, modifiers.ctrl);
+                if matches!(ch, 1 | 3 | 0x16 | 0x18) {
+                    self.clipboard_key(index, ch);
+                }
+            }
+            return;
+        }
         if key != 0 {
             if editable && key == 0x2E {
                 self.delete_forward(index);
@@ -477,6 +493,8 @@ impl UiTree {
         if !(editable || self.selectable(index)) {
             return;
         }
+        // The press moves the copy focus to this text (or away from a read-only one).
+        self.copy_focus = (!editable).then_some(index);
         let (local_x, local_y) = self.text_local_pointer(index);
         let position = self
             .el(index)

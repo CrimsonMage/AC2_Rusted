@@ -247,6 +247,12 @@ impl Controls {
         }
     }
 
+    /// Whether a read-only text holds the copy focus: typed characters then reach the UI tree
+    /// (for Ctrl+A / Ctrl+C) without the text mode that would turn every key into a character.
+    pub fn set_copy_text(&mut self, on: bool) {
+        self.input.set_copy_text(on);
+    }
+
     /// The UI actions for the UI tree (`UIElementManager::StartInput` / `StopInput`), in order.
     pub fn take_ui_input(&mut self) -> Vec<(u32, f32, bool)> {
         std::mem::take(&mut self.ui_input)

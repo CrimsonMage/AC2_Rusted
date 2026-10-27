@@ -94,6 +94,20 @@ pub fn typed_text(text: &str) -> impl Iterator<Item = InputEvent> + '_ {
     text.encode_utf16().map(|ch| InputEvent::Text { ch })
 }
 
+/// The control code of a clipboard shortcut letter: Ctrl+A, C, V, X (or Cmd on macOS) give the
+/// codes 1, 3, 0x16 and 0x18 that `UiTree::character` acts on. The client sends it as a
+/// [`InputEvent::Text`] in place of the letter, so the shortcut works whichever key the platform
+/// calls its modifier.
+pub fn clipboard_control(letter: char) -> Option<u16> {
+    match letter.to_ascii_lowercase() {
+        'a' => Some(1),
+        'c' => Some(3),
+        'v' => Some(0x16),
+        'x' => Some(0x18),
+        _ => None,
+    }
+}
+
 /// One action for the handlers (`CallActionHandler`'s arguments).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct RawAction {
@@ -127,6 +141,9 @@ pub struct InputManager {
     pub double_click_time: u32,
     /// `m_textMode`: the keyboard types into the active text element.
     text_mode: bool,
+    /// A read-only text holds the copy focus: typed characters reach the UI, not only in text
+    /// mode (the clipboard keys; see `Controls::set_copy_text`).
+    copy_text: bool,
     /// The characters for the character handlers (`CallCharacterHandler`): (character, the
     /// key's virtual-key code when the key typed no character).
     characters: Vec<(u16, u32)>,
@@ -369,6 +386,11 @@ impl InputManager {
         self.text_mode
     }
 
+    /// The copy focus of a read-only text (see `copy_text`).
+    pub fn set_copy_text(&mut self, on: bool) {
+        self.copy_text = on;
+    }
+
     /// `ActionInterpreter::CtrlKeyDown`: a control key is held (meta modes 4 and 8).
     pub fn ctrl_down(&self) -> bool {
         self.meta_mode & 0xC != 0
@@ -468,7 +490,7 @@ impl InputManager {
                 }
             }
             InputEvent::Text { ch } => {
-                if self.text_mode {
+                if self.text_mode || self.copy_text {
                     self.characters.push((ch, 0));
                 }
             }

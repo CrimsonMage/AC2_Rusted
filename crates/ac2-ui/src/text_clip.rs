@@ -135,6 +135,53 @@ impl UiTree {
         }
     }
 
+    /// Drag auto-scroll (not in retail: `UIElement_Text::Global_MouseMove` only moves the cursor).
+    /// While a drag selection of a multi-line text is held above or below it, the view scrolls
+    /// toward the pointer, faster the further out it is, and the moving end follows the view.
+    /// `dt` is the frame's time in seconds; the drag ends with the button.
+    pub(crate) fn text_drag_auto_scroll(&mut self, dt: f64) {
+        let Some(index) = self.text_drag else {
+            return;
+        };
+        let multi_line = self
+            .get(index)
+            .and_then(|e| e.text.as_ref())
+            .is_some_and(|t| !t.one_line && !t.center_vertically);
+        if !self.drag.left_down || !multi_line {
+            if !self.drag.left_down {
+                self.text_drag = None;
+            }
+            return;
+        }
+        let rect = self.el(index).rect;
+        let (x, y) = self.text_local_pointer(index);
+        let past = if y < 0 {
+            y
+        } else if y > rect.height() {
+            y - rect.height()
+        } else {
+            return;
+        };
+        // Pixels per second: a slow crawl at the edge, up to a cap a few lines a frame.
+        let rate = (40.0 + 12.0 * f64::from(past.abs())).min(600.0);
+        let step = ((rate * dt).round() as i32).max(1);
+        // The view is kept in bounds against the laid-out height, so lay the text out first.
+        self.text_paper_height(index);
+        let Some(text) = self.el_mut(index).text.as_mut() else {
+            return;
+        };
+        text.view.1 += if past < 0 { -step } else { step };
+        text.keep_in_bounds(rect.width(), rect.height());
+        text.dirty = true;
+        self.changed = true;
+        let at = self
+            .el(index)
+            .text
+            .as_ref()
+            .map_or(0, |t| t.position_at(x, y));
+        self.set_cursor(index, at as isize, true);
+    }
+
     /// `UIElement_Text::MouseUp`: releasing the button ends the element's drag selection.
     pub(crate) fn text_mouse_up(&mut self, index: usize, action: u32) {
         if action == LEFT_BUTTON && self.text_drag == Some(index) {
