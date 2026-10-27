@@ -20,6 +20,7 @@ use ac2_core::DataId;
 use ac2_db::{ResourceResult, ResourceStore};
 
 use crate::allegiance::AllegianceUi;
+use crate::assistance::AssistancePanel;
 use crate::book::BookUi;
 use crate::catalog::CatalogUi;
 use crate::character::CharacterUi;
@@ -52,6 +53,7 @@ use crate::secure_trade::SecureTradeUi;
 use crate::shop::ShopUi;
 use crate::shortcut::ShortcutUi;
 use crate::skill_tree::SkillTreeUi;
+use crate::social_page::SocialPanel;
 use crate::stack::StackUi;
 use crate::statusbar::show_statusbar;
 use crate::story_view::StoryView;
@@ -118,6 +120,10 @@ pub struct GameplayHud {
     pub fellowship: Option<FellowshipUi>,
     /// `gmFriendsUI`, the friends page of the social toolbar.
     pub friends: Option<FriendsPanel>,
+    /// `gmAssistanceUI`, the assistance page of the option toolbar.
+    pub assistance: Option<AssistancePanel>,
+    /// `gmSocialUI`, the social panel's show, close and help buttons.
+    pub social: Option<SocialPanel>,
     /// `gmMiniFellowUI`, the fellowship mini panel (hidden until its button is pressed).
     pub mini_fellow: Option<MiniFellowUi>,
     /// `gmPetUI`: the pet panel.
@@ -270,6 +276,14 @@ pub fn build_gameplay_hud(
     let friends = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .map(|toolbar| FriendsPanel::create(&mut tree, toolbar));
+    // `gmSocialUI::gmSocialUI`: the field, hidden.
+    let social = layouts[&LAYOUT_TOOLBAR]
+        .as_ref()
+        .map(|_| SocialPanel::create(&mut tree));
+    // `gmAssistanceUI::gmAssistanceUI` over `AssistancePage`.
+    let assistance = layouts[&LAYOUT_TOOLBAR]
+        .as_ref()
+        .map(|toolbar| AssistancePanel::create(&mut tree, toolbar));
     let quests = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .map(|toolbar| QuestsUi::create(&tree, toolbar));
@@ -345,6 +359,8 @@ pub fn build_gameplay_hud(
         allegiance,
         fellowship,
         friends,
+        assistance,
+        social,
         mini_fellow,
         pets,
         quests,

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1008 done, 355 partial, 805 to do, 79 skipped.
+2247 retail functions: 1012 done, 360 partial, 796 to do, 79 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -1299,15 +1299,15 @@ Legend and workflow: [README](README.md).
 - [~] `gmPaperDollUI::gmPaperDollUI` · 004434d0 · legions 00443e20 — viewport root, slots, the avatar and the worn list; notices come from the frame, not registered handlers
 - [x] `gmPaperDollUI::RecvNotice_UpdateInventory` · 00443670 — step 1: request begun or failed marks the worn item pending
 
-## `ac2/client/src/ui/gameplay/toolbar/option/gmassistanceui.cpp.c` (0/6)
+## `ac2/client/src/ui/gameplay/toolbar/option/gmassistanceui.cpp.c` (4/6)
 
 ### gmAssistanceUI
-- [ ] `gmAssistanceUI::Reset` · 00443720 · legions 00444070
-- [ ] `gmAssistanceUI::RecvNotice_CloseMessageDialog` · 004437c0
-- [ ] `gmAssistanceUI::InitCallTypeMenu` · 004437e0 · legions 00444130
-- [ ] `gmAssistanceUI::gmAssistanceUI` · 00443990 · legions 004442e0
-- [ ] `gmAssistanceUI::HandleSendButton` · 00443b00 · legions 00444450
-- [ ] `gmAssistanceUI::ListenToMessage` · 00443cc0 · legions 00444610
+- [x] `gmAssistanceUI::Reset` · 00443720 · legions 00444070 — ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
+- [x] `gmAssistanceUI::RecvNotice_CloseMessageDialog` · 004437c0 — ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
+- [~] `gmAssistanceUI::InitCallTypeMenu` · 004437e0 · legions 00444130 — ac2-ui assistance.rs: nine GUN call types with GUNCallType items and the checks/box order; world name empty (client does not keep it), the eight non-default types' order is inferred, and the GUN answer is not wired (send_answered, queued = reset)
+- [x] `gmAssistanceUI::gmAssistanceUI` · 00443990 · legions 004442e0 — ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
+- [~] `gmAssistanceUI::HandleSendButton` · 00443b00 · legions 00444450 — ac2-ui assistance.rs: nine GUN call types with GUNCallType items and the checks/box order; world name empty (client does not keep it), the eight non-default types' order is inferred, and the GUN answer is not wired (send_answered, queued = reset)
+- [x] `gmAssistanceUI::ListenToMessage` · 00443cc0 · legions 00444610 — ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
 
 ## `ac2/client/src/ui/gameplay/toolbar/option/gmcharacterui.cpp.c` (21/22)
 
@@ -1608,9 +1608,9 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/toolbar/social/gmsocialui.cpp.c` (0/3)
 
 ### gmSocialUI
-- [ ] `gmSocialUI::Show` · 00430620 · legions 004303e0
-- [ ] `gmSocialUI::ListenToMessage` · 00430650 · legions 00430410
-- [ ] `gmSocialUI::gmSocialUI` · 004306b0 · legions 00430470
+- [~] `gmSocialUI::Show` · 00430620 · legions 004303e0 — ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; help page not opened (SocialAction::OpenHelp returned); UIFramework child-framework propagation not modelled; social_page_tests.rs
+- [~] `gmSocialUI::ListenToMessage` · 00430650 · legions 00430410 — ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; help page not opened (SocialAction::OpenHelp returned); UIFramework child-framework propagation not modelled; social_page_tests.rs
+- [~] `gmSocialUI::gmSocialUI` · 004306b0 · legions 00430470 — ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; help page not opened (SocialAction::OpenHelp returned); UIFramework child-framework propagation not modelled; social_page_tests.rs
 
 ## `ac2/client/src/ui/gmuiflow.cpp.c` (10/37)
 

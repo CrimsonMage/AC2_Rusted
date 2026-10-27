@@ -33,6 +33,7 @@ mod controls;
 mod craft;
 mod frame;
 mod friends;
+mod hud_assistance;
 mod hud_friends;
 pub use friends::{FriendEvent, FriendResult};
 mod gameplay;

@@ -94,6 +94,24 @@ impl Client {
         self.gun_request(ChatRequest::GetFriendsList { user_requested })
     }
 
+    /// `gmCWInterface::RequestGUN_CallCreate(callType, worldName, targetUserName, description)`,
+    /// the assistance page's call: queued for the GUN service. Without one retail returns 0 and
+    /// queues nothing (the page then shows its "can't connect" box).
+    pub fn call_create(
+        &mut self,
+        call_type: u32,
+        world: &str,
+        target: &str,
+        description: &str,
+    ) -> bool {
+        self.gun_request(ChatRequest::CallCreate {
+            call_type,
+            world: world.to_owned(),
+            target: target.to_owned(),
+            description: description.to_owned(),
+        })
+    }
+
     /// `gmCWInterface::RequestGUN_SetLocation(flags, "")`, the status drop-down's request: queued
     /// for the GUN service.
     pub fn friend_status(&mut self, flags: u32) -> bool {

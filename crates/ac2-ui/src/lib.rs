@@ -7,12 +7,14 @@
 //! from them (`UIElementManager`, `UIElement`) and its software compositor (`UIRegion::DrawHere`).
 
 mod allegiance;
+mod assistance;
 mod backpack;
 mod button;
 mod camera_ui;
 mod character;
 mod character_options;
 mod friends;
+mod social_page;
 pub use friends::{FriendsRequest, FriendsUi, FRIEND_ROWS};
 mod friends_panel;
 pub use friends_panel::{status_request, FriendsPanel, STATUS_TABLE};
@@ -51,6 +53,8 @@ mod interpreter;
 mod item_display;
 mod journal_quests;
 pub use journal_quests::{JournalQuestsUi, JournalSource, QuestTab, CODE_LIST as QUEST_CODE_LIST};
+#[cfg(test)]
+mod assistance_tests;
 mod book;
 #[cfg(test)]
 mod book_tests;
@@ -62,6 +66,8 @@ mod layout;
 mod menu;
 #[cfg(test)]
 mod menu_tests;
+#[cfg(test)]
+mod social_page_tests;
 pub use menu::MSG_MENU_NEW_SELECTION;
 mod layout_media;
 mod list_box;
@@ -159,6 +165,7 @@ mod vitals;
 mod window_locations_tests;
 
 pub use allegiance::{AllegianceRequest, AllegianceSource, AllegianceUi};
+pub use assistance::{AssistancePanel, AssistanceRequest, CALL_TYPES};
 pub use backpack::BackpackUi;
 pub use camera_ui::{CameraUi, CameraUiEffect};
 pub use catalog::{CatalogRequest, CatalogUi};
@@ -259,6 +266,7 @@ pub use skill_tree::{
     EXAMINE_PANEL, EXAMINE_SKILL, NODE_SKILL, ROOT_MAGIC_PANEL, ROOT_MELEE_PANEL,
     ROOT_MISSILE_PANEL, ROOT_NONCOMBAT_PANEL,
 };
+pub use social_page::{SocialAction, SocialPanel, SOCIAL_HELP_TOPIC};
 pub use stack::{StackUi, StackUiDone};
 pub use statusbar::{show_statusbar, statusbar_shown};
 pub use target_cycle::{is_select_key, select_key_of, select_target, Candidate};

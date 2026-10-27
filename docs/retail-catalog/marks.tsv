@@ -600,6 +600,9 @@ key	status	note
 00430430	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 004304a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 00430600	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
+00430620	~	ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; help page not opened (SocialAction::OpenHelp returned); UIFramework child-framework propagation not modelled; social_page_tests.rs
+00430650	~	ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; help page not opened (SocialAction::OpenHelp returned); UIFramework child-framework propagation not modelled; social_page_tests.rs
+004306b0	~	ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; help page not opened (SocialAction::OpenHelp returned); UIFramework child-framework propagation not modelled; social_page_tests.rs
 00430810	x	ac2-ui toolbar.rs
 00430820	~	ac2-ui: no per-object notice registration in Rust; the mini panel lives with the HUD and is rebuilt with it
 00430840	x	ac2-ui examination.rs + ac2-client ui_sources
@@ -908,6 +911,12 @@ key	status	note
 00443400	~	frame's equipment list; a list the worn items are not in takes them off (double answers an unequip with 0x40000001 alone; retail only adds)
 004434d0	~	viewport root, slots, the avatar and the worn list; notices come from the frame, not registered handlers
 00443670	x	step 1: request begun or failed marks the worn item pending
+00443720	x	ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
+004437c0	x	ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
+004437e0	~	ac2-ui assistance.rs: nine GUN call types with GUNCallType items and the checks/box order; world name empty (client does not keep it), the eight non-default types' order is inferred, and the GUN answer is not wired (send_answered, queued = reset)
+00443990	x	ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
+00443b00	~	ac2-ui assistance.rs: nine GUN call types with GUNCallType items and the checks/box order; world name empty (client does not keep it), the eight non-default types' order is inferred, and the GUN answer is not wired (send_answered, queued = reset)
+00443cc0	x	ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
 00443d20	x	chat_options.rs confirm_apply / confirm_recall / confirm_default ask their confirmation (ID_Option_ApplyText, RecallText, DefaultText); answers via dialog_outcomes; chat_options_tests.rs on the real layout
 00443d80	x	chat_options.rs confirm_apply / confirm_recall / confirm_default ask their confirmation (ID_Option_ApplyText, RecallText, DefaultText); answers via dialog_outcomes; chat_options_tests.rs on the real layout
 00443de0	x	chat_options.rs confirm_apply / confirm_recall / confirm_default ask their confirmation (ID_Option_ApplyText, RecallText, DefaultText); answers via dialog_outcomes; chat_options_tests.rs on the real layout

@@ -92,6 +92,8 @@ impl HudView {
             dirty,
             fellowship,
             friends,
+            assistance,
+            social,
             mini_fellow,
             pets,
             quests,
@@ -563,6 +565,13 @@ impl HudView {
             if let Some(panel) = friends.as_mut() {
                 crate::hud_friends::friends_message(panel, tree, message, None, &mut commands);
             }
+            if let Some(panel) = social.as_mut() {
+                // The help page is not modelled: the panel's `OpenHelp` is dropped.
+                let _ = panel.message(tree, message);
+            }
+            if let (Some(page), Some(dialogs)) = (assistance.as_mut(), dialogs.as_mut()) {
+                crate::hud_assistance::assistance_message(page, tree, dialogs, &player, message);
+            }
             if let Some(panel) = quests.as_mut() {
                 panel.journal_mut().message(tree, message);
                 if let Some(action) = panel.story_message(tree, message) {
@@ -809,6 +818,9 @@ impl HudView {
                 allegiance.as_mut(),
                 &outcomes,
             );
+            if let Some(page) = assistance.as_mut() {
+                crate::hud_assistance::assistance_outcomes(page, &outcomes);
+            }
             // The melt's confirmation (`CloseConfirmationDialog`).
             if let Some(request) = money.as_mut().and_then(|b| b.take_outcome(&outcomes)) {
                 crate::ui_inventory::item_commands(request, &mut commands);
