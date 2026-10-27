@@ -65,6 +65,8 @@ pub struct UiLayer<'a> {
     pub rgba: &'a [u8],
 }
 
+/// One drawn layer's GPU objects and placement. The texture and bind group outlive a recompose
+/// when the next layer at this index has the same size and sampler.
 struct Uploaded {
     texture: wgpu::Texture,
     rect: [f32; 4],
@@ -73,6 +75,37 @@ struct Uploaded {
     opacity: f32,
     uniform: wgpu::Buffer,
     group: wgpu::BindGroup,
+    /// The sampler the bind group was made with (see [`UiOverlay::set_smooth`]).
+    smooth: bool,
+}
+
+/// Uploads RGBA8 rows (top-down) into a layer's texture, which is the size of the rows.
+fn write_pixels(gpu: &Gpu, texture: &wgpu::Texture, rgba: &[u8]) {
+    let size = texture.size();
+    gpu.queue.write_texture(
+        texture.as_image_copy(),
+        rgba,
+        wgpu::TexelCopyBufferLayout {
+            offset: 0,
+            bytes_per_row: Some(size.width * 4),
+            rows_per_image: Some(size.height),
+        },
+        size,
+    );
+}
+
+impl Uploaded {
+    fn set_placement(&mut self, layer: &UiLayer<'_>) {
+        self.rect = [
+            layer.x as f32,
+            layer.y as f32,
+            layer.width as f32,
+            layer.height as f32,
+        ];
+        self.rotation = (layer.rotation as f32).to_radians();
+        self.shown = layer.shown;
+        self.opacity = layer.opacity;
+    }
 }
 
 /// The drawn UI layers.
@@ -84,6 +117,9 @@ pub struct UiOverlay {
     smooth_sampler: wgpu::Sampler,
     smooth: bool,
     layers: Vec<Uploaded>,
+    /// Textures created by [`UiOverlay::set_layers`] (tests check that a recompose reuses them).
+    #[cfg(test)]
+    textures_created: usize,
 }
 
 impl UiOverlay {
@@ -185,6 +221,8 @@ impl UiOverlay {
             smooth_sampler,
             smooth: false,
             layers: Vec::new(),
+            #[cfg(test)]
+            textures_created: 0,
         }
     }
 
@@ -195,9 +233,12 @@ impl UiOverlay {
         self.smooth = smooth;
     }
 
-    /// Replaces the drawn layers, in drawing order.
+    /// Replaces the drawn layers, in drawing order. Layer `i` keeps the texture and bind group of
+    /// the layer at index `i` from the last call when the size and sampler match: only its pixels
+    /// and placement are written. A new size (or a new layer) makes a texture and bind group, and
+    /// every layer keeps its uniform buffer. Layers past the last one are dropped.
     pub fn set_layers<'a>(&mut self, gpu: &Gpu, layers: impl IntoIterator<Item = UiLayer<'a>>) {
-        self.layers.clear();
+        let mut count = 0;
         for layer in layers {
             if layer.width == 0
                 || layer.height == 0
@@ -210,70 +251,90 @@ impl UiOverlay {
                 height: layer.height,
                 depth_or_array_layers: 1,
             };
-            let texture = gpu.device.create_texture(&wgpu::TextureDescriptor {
-                label: Some("ac2 ui surface"),
-                size,
-                mip_level_count: 1,
-                sample_count: 1,
-                dimension: wgpu::TextureDimension::D2,
-                format: wgpu::TextureFormat::Rgba8Unorm,
-                usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
-                view_formats: &[],
-            });
-            gpu.queue.write_texture(
-                texture.as_image_copy(),
-                layer.rgba,
-                wgpu::TexelCopyBufferLayout {
-                    offset: 0,
-                    bytes_per_row: Some(layer.width * 4),
-                    rows_per_image: Some(layer.height),
-                },
-                size,
-            );
-            let uniform = gpu.device.create_buffer(&wgpu::BufferDescriptor {
-                label: Some("ac2 ui layer rect"),
-                size: 32,
-                usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-                mapped_at_creation: false,
-            });
-            let view = texture.create_view(&Default::default());
-            let group = gpu.device.create_bind_group(&wgpu::BindGroupDescriptor {
-                label: Some("ac2 ui layer"),
-                layout: &self.layout,
-                entries: &[
-                    wgpu::BindGroupEntry {
-                        binding: 0,
-                        resource: uniform.as_entire_binding(),
-                    },
-                    wgpu::BindGroupEntry {
-                        binding: 1,
-                        resource: wgpu::BindingResource::TextureView(&view),
-                    },
-                    wgpu::BindGroupEntry {
-                        binding: 2,
-                        resource: wgpu::BindingResource::Sampler(if self.smooth {
-                            &self.smooth_sampler
-                        } else {
-                            &self.sampler
-                        }),
-                    },
-                ],
-            });
-            self.layers.push(Uploaded {
-                texture,
-                rect: [
-                    layer.x as f32,
-                    layer.y as f32,
-                    layer.width as f32,
-                    layer.height as f32,
-                ],
-                rotation: (layer.rotation as f32).to_radians(),
-                shown: layer.shown,
-                opacity: layer.opacity,
-                uniform,
-                group,
-            });
+            let reusable = self
+                .layers
+                .get(count)
+                .is_some_and(|slot| slot.texture.size() == size && slot.smooth == self.smooth);
+            if reusable {
+                write_pixels(gpu, &self.layers[count].texture, layer.rgba);
+            } else {
+                let uniform = match self.layers.get(count) {
+                    Some(slot) => slot.uniform.clone(),
+                    None => gpu.device.create_buffer(&wgpu::BufferDescriptor {
+                        label: Some("ac2 ui layer rect"),
+                        size: 32,
+                        usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+                        mapped_at_creation: false,
+                    }),
+                };
+                let texture = gpu.device.create_texture(&wgpu::TextureDescriptor {
+                    label: Some("ac2 ui surface"),
+                    size,
+                    mip_level_count: 1,
+                    sample_count: 1,
+                    dimension: wgpu::TextureDimension::D2,
+                    format: wgpu::TextureFormat::Rgba8Unorm,
+                    usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+                    view_formats: &[],
+                });
+                write_pixels(gpu, &texture, layer.rgba);
+                let group = self.bind_group(gpu, &uniform, &texture);
+                #[cfg(test)]
+                {
+                    self.textures_created += 1;
+                }
+                let slot = Uploaded {
+                    texture,
+                    rect: [0.0; 4],
+                    rotation: 0.0,
+                    shown: false,
+                    opacity: 0.0,
+                    uniform,
+                    group,
+                    smooth: self.smooth,
+                };
+                if count < self.layers.len() {
+                    self.layers[count] = slot;
+                } else {
+                    self.layers.push(slot);
+                }
+            }
+            self.layers[count].set_placement(&layer);
+            count += 1;
         }
+        self.layers.truncate(count);
+    }
+
+    /// The bind group of one layer: its uniform, its texture's view and the current sampler.
+    fn bind_group(
+        &self,
+        gpu: &Gpu,
+        uniform: &wgpu::Buffer,
+        texture: &wgpu::Texture,
+    ) -> wgpu::BindGroup {
+        let view = texture.create_view(&Default::default());
+        gpu.device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("ac2 ui layer"),
+            layout: &self.layout,
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: uniform.as_entire_binding(),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: wgpu::BindingResource::TextureView(&view),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 2,
+                    resource: wgpu::BindingResource::Sampler(if self.smooth {
+                        &self.smooth_sampler
+                    } else {
+                        &self.sampler
+                    }),
+                },
+            ],
+        })
     }
 
     /// New pixels for layer `index` (the same size it was uploaded at; a root drawn again on its
@@ -286,16 +347,7 @@ impl UiOverlay {
         if rgba.len() != (size.width * size.height * 4) as usize {
             return false;
         }
-        gpu.queue.write_texture(
-            layer.texture.as_image_copy(),
-            rgba,
-            wgpu::TexelCopyBufferLayout {
-                offset: 0,
-                bytes_per_row: Some(size.width * 4),
-                rows_per_image: Some(size.height),
-            },
-            size,
-        );
+        write_pixels(gpu, &layer.texture, rgba);
         true
     }
 
@@ -372,3 +424,7 @@ impl UiOverlay {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "ui_tests.rs"]
+mod tests;
