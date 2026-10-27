@@ -119,6 +119,8 @@ pub(crate) struct HudView {
     /// The navigation panel's game date and time, rendered for the calendar they were rendered
     /// for (`GameTime::InqCurrentGameDateTimeString`).
     pub(crate) navigation_time: Option<(ac2_world::GameDateTime, String, String)>,
+    /// `gmNavigationUI::AddMarker`'s tooltips, one per frame marker (rendered on the frame).
+    pub(crate) navigation_tooltips: Vec<String>,
     /// `gmNavigationUI`'s macro map (its map image is set on the worker) and `gmOverviewMapUI`.
     pub(crate) navigation: Option<ac2_ui::NavigationUi>,
     pub(crate) overview: Option<ac2_ui::OverviewMapUi>,

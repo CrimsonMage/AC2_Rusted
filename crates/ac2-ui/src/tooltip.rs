@@ -103,6 +103,11 @@ impl UiTree {
         self.get(index)?.tooltip.clone()
     }
 
+    /// The element whose tooltip the mouse pass chose (the one under the pointer), if any.
+    pub fn tooltip_owner(&self) -> Option<usize> {
+        self.tooltip.owner
+    }
+
     /// The tooltip root shown now, if any.
     pub fn tooltip_element(&self) -> Option<usize> {
         self.tooltip.element

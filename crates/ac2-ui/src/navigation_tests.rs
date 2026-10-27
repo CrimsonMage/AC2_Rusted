@@ -372,3 +372,54 @@ fn the_map_image_fits_the_parent_the_way_size_map_does() {
     assert_eq!(square.size, (150, 150));
     assert!(size_macro_map((256, 200), (0, 0)).is_none());
 }
+
+#[test]
+fn the_hovered_marker_s_tooltip_reads_into_the_note_text() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let nav = hud.navigation.as_mut().expect("NavigationField");
+    let tree = &mut hud.tree;
+    let images = image(256, 256);
+    // Shown, with one server note in the detail view (its tooltip is the marker's text).
+    nav.show(tree, true);
+    let view = NavigationView {
+        player: Some((5, 5)),
+        notes: vec![MapNote {
+            message: "Shrine: 12.0 N, 3.0 E".into(),
+            macro_map: false,
+            ..note(7, 1, Some((6, 5)), false)
+        }],
+        ..NavigationView::default()
+    };
+    nav.update(tree, &view, &images);
+    let Some(&marker) = nav.note_elements().first() else {
+        panic!("the note is placed");
+    };
+    // Hovering the marker: its tooltip is the text of `NoteText` (`ReadMarkerInfo`).
+    tree.set_tooltip_owner(Some(marker));
+    nav.update(tree, &view, &images);
+    assert_eq!(
+        tree.tooltip_owner(),
+        Some(marker),
+        "the marker is the hovered owner"
+    );
+    assert_eq!(
+        tree.tooltip_text(marker).as_deref(),
+        Some("Shrine: 12.0 N, 3.0 E")
+    );
+    // `NoteText` is looked up across the tree: the toolbar layout names it outside the field in
+    // some builds, and then there is no text to read (ReadMarkerInfo does nothing).
+    let note_text = tree
+        .roots()
+        .iter()
+        .find_map(|&root| tree.child_recursive(root, tokenize("NoteText")));
+    if let Some(note_text) = note_text {
+        assert_eq!(
+            tree.get(note_text).and_then(|e| e.text()).as_deref(),
+            Some("Shrine: 12.0 N, 3.0 E")
+        );
+    }
+}

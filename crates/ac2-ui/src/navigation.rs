@@ -439,6 +439,23 @@ impl NavigationUi {
             }
         }
         self.refresh(tree, images);
+        self.read_marker_info(tree);
+    }
+
+    /// `gmNavigationUI::ReadMarkerInfo`: the hovered note's tooltip is the text of `NoteText`
+    /// (retail sets it on the marker's message; here it follows the pointer each frame).
+    fn read_marker_info(&self, tree: &mut UiTree) {
+        let Some(owner) = tree.tooltip_owner() else {
+            return;
+        };
+        if !self.note_elements().contains(&owner) {
+            return;
+        }
+        let (Some(text), Some(note)) = (tree.tooltip_text(owner), self.child(tree, "NoteText"))
+        else {
+            return;
+        };
+        tree.set_text(note, &text);
     }
 
     /// `gmNavigationUI::Show`: the panel shown or hidden (`NavigationButton` and the close button).

@@ -655,30 +655,30 @@ key	status	note
 004314c0	x	ac2-script glue::position (ported beside the gPosition glue)
 00431550	x	ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
 004315f0	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
-004316d0	~	ac2-ui lock_tooltip_id picks the string id (on, off, error); the tooltip is not set (string tables). The Legions 7160 layout has no LockPositionButton, so the lock is set with NavigationUi::set_lock
+004316d0	x	Legions 7160 layout has no LockPositionButton (the element is absent, so the function does nothing there); the lock state and its tooltip id (navigation_detail lock_tooltip_id) are kept for the layout that has it
 00431760	x	ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
 00431860	x	ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
 00431950	x	ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
 004319b0	x	ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
-00431bd0	~	ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
+00431bd0	x	ac2-ui navigation.rs read_marker_info: the hovered note (tooltip owner) gives NoteText its tooltip text each frame; the tooltip is ID_Navigation_Marker with message and position (ac2-client ui_sources marker_tooltip)
 00431e20	x	
 00431e90	x	
 00431fa0	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
 00432090	x	ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
-00432330	~	ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
+00432330	x	ac2-ui navigation.rs show (visibility); update and the scroll buttons run on the next frame while shown
 004325b0	x	ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
 00432640	x	ac2-ui navigation_map.rs and navigation.rs: the macro view (238 constant, MapX/MapY/MapW/MapH from the layout); the detail view's 250 branch is in the same formula but no detail maps are read yet
-004326a0	~	ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
+004326a0	~	notes reconcile to the frame list (navigation.rs reconcile_notes); the per-type marker lists (one list in Rust) and the static-type flush are not modelled
 004327f0	-	C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
-004328b0	~	ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
+004328b0	~	ac2-ui navigation.rs setup_elements_for_map_mode: map and detail visibility, the parent state, the player marker parent, scroll buttons. Not: the static marker-type flush, the map and detail tooltips cleared, the overview buttons (gmOverviewMapUI not ported)
 004329c0	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
 00432b30	x	ac2-client client_radar.rs (add_map_note: type 3 never shown, a note within sqrt(6) cells of its type ignored, ten per type, same object replaces) and navigation.rs reconcile; Legions 7160 has no separate notice handler (admin rule)
-00432b90	~	ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
-00432e40	~	ac2-ui navigation.rs: macro view only; no detail maps, lock or zoom (CDetailMapDesc not read); date and time texts not set (GameTime calendar not ported); tooltips not rendered
+00432b90	x	ac2-client marker_tooltip renders ID_Navigation_Marker (message, map coords of the cell) into the note tooltip (ac2-ui navigation.rs reconcile_notes sets it); PlaceMarker via the notes
+00432e40	~	ac2-ui navigation.rs reconcile_notes: the frame list replaces the server notes, so a removed marker is gone next frame; the per-IID list removal is not separate
 00432ed0	-	C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
 00432ef0	x	ac2-client client_radar.rs (add_map_note: type 3 never shown, a note within sqrt(6) cells of its type ignored, ten per type, same object replaces) and navigation.rs reconcile; Legions 7160 has no separate notice handler (admin rule)
 004330e0	x	ac2-client client_radar.rs (add_map_note: type 3 never shown, a note within sqrt(6) cells of its type ignored, ten per type, same object replaces) and navigation.rs reconcile; Legions 7160 has no separate notice handler (admin rule)
-00433100	~	ac2-ui navigation_detail.rs tile_notes: the tiles' notes at their cells and icons; the tooltip text (MapCoordinates, marker name) needs the string tables and is empty
+00433100	~	ac2-ui navigation_detail.rs tile_notes: the tiles notes at their cells and icons; the tooltip is empty (the tile note descriptions carry no names in the decode). Server notes carry their tooltip (ID_Navigation_Marker)
 004335f0	x	ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
 00433810	x	ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
 00433830	x	ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs

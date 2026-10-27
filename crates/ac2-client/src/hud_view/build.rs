@@ -113,6 +113,7 @@ impl HudView {
             radar_cell: None,
             radar_coordinates: None,
             navigation_time: None,
+            navigation_tooltips: Vec::new(),
             navigation: None,
             overview: None,
             book: None,

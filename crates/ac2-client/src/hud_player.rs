@@ -241,6 +241,7 @@ impl HudView {
             hud,
             names,
             navigation_time,
+            navigation_tooltips,
             radar,
             radar_cell,
             radar_coordinates,
@@ -271,6 +272,12 @@ impl HudView {
             let string = crate::ui_sources::map_coords_string(cell.unwrap_or(0));
             *radar_coordinates = Some(ac2_ui::UiStrings::render_string(player, &string));
         }
+        // `gmNavigationUI::AddMarker`'s tooltips, rendered with the frame's markers.
+        *navigation_tooltips = frame
+            .markers
+            .iter()
+            .map(|m| player.marker_tooltip(&m.message, m.cell))
+            .collect();
         // `gmNavigationUI::UpdateMacroMap`'s date and time: rendered again when the calendar moves.
         if let Some(date_time) = frame.date_time {
             if navigation_time.as_ref().map(|(known, _, _)| *known) != Some(date_time) {

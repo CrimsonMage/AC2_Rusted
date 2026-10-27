@@ -283,6 +283,28 @@ impl ClientPlayer<'_> {
     }
 }
 
+impl ClientPlayer<'_> {
+    /// `gmNavigationUI::AddMarker`'s tooltip: `ID_Navigation_Marker` with the marker's text
+    /// (`message`) and the map coordinates of its cell (`position`).
+    pub(crate) fn marker_tooltip(
+        &self,
+        message: &ac2_net::protocol::StringInfo,
+        cell: u32,
+    ) -> String {
+        use ac2_ui::{tokenize, SkillVar, UiString, UiStrings};
+        let position = self.render_string(&map_coords_string(cell));
+        let string = UiString::new(
+            tokenize("ID_Navigation_Marker"),
+            self.ui_table,
+            vec![
+                (tokenize("message"), SkillVar::Text(self.text(message))),
+                (tokenize("position"), SkillVar::Text(position)),
+            ],
+        );
+        self.render_string(&string)
+    }
+}
+
 impl ac2_ui::UiStrings for ClientPlayer<'_> {
     fn render_string(&self, string: &ac2_ui::UiString) -> String {
         let info = self.ui_info(string);

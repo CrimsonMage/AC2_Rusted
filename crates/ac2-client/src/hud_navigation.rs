@@ -16,7 +16,13 @@ impl HudView {
             Some((_, date, time)) => (Some(date.clone()), Some(time.clone())),
             None => (None, None),
         };
-        let view = navigation_view(frame, self.radar_coordinates.clone(), date, time);
+        let view = navigation_view(
+            frame,
+            &self.navigation_tooltips,
+            self.radar_coordinates.clone(),
+            date,
+            time,
+        );
         if let (Some((tree, images)), Some(nav)) = (&mut self.hud, &mut self.navigation) {
             nav.update(tree, &view, images);
         }
@@ -68,10 +74,11 @@ impl HudView {
     }
 }
 
-/// The panel's input from the frame. A note's text is not rendered yet (its `StringInfo` needs
-/// the player's string tables), so its tooltip is empty.
+/// The panel's input from the frame. A marker's tooltip is its rendered text (`tooltips`, one
+/// per marker, from the player's string tables).
 fn navigation_view(
     frame: &ClientFrame,
+    tooltips: &[String],
     coordinates: Option<String>,
     date: Option<String>,
     time: Option<String>,
@@ -80,12 +87,13 @@ fn navigation_view(
     let notes = frame
         .markers
         .iter()
-        .map(|m| ac2_ui::MapNote {
+        .enumerate()
+        .map(|(at, m)| ac2_ui::MapNote {
             kind: m.kind,
             id: m.id,
             land: gid_to_lcoord(m.cell),
             image: m.image,
-            message: String::new(),
+            message: tooltips.get(at).cloned().unwrap_or_default(),
             // `RecvNotice_AddMarker` passes `macro == 0`: the notes show in the detail view.
             macro_map: false,
         })
