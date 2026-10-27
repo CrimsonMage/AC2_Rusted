@@ -5,7 +5,8 @@
 
 use ac2_ui::{AllegianceRequest, AllegianceSource, AllegianceUi};
 use ac2_ui::{
-    DialogFactory, DialogOutcome, Fellow, FellowshipData, FellowshipRequest, FellowshipUi,
+    DialogFactory, DialogOutcome, Fellow, FellowNotice, FellowshipData, FellowshipRequest,
+    FellowshipUi, MiniFellowUi,
 };
 use ac2_ui::{FellowStrings, FellowshipSource, SkillSource, SkillVar, UiTree};
 use ac2_weenie::{FellowInfo, FellowshipInfo, GameplayNotice, SocialRequest};
@@ -103,44 +104,83 @@ impl ClientPlayer<'_> {
     }
 }
 
-/// One notice for the fellowship page (`gmFellowshipUI` / `FellowshipHelper` / `FellowInfo`'s
-/// `RecvNotice_*`).
+/// A member-level notice, both lists' (`FellowshipHelper::RecvNotice_*`).
+fn member_notice(player: &ClientPlayer<'_>, notice: &GameplayNotice) -> Option<FellowNotice> {
+    use GameplayNotice as N;
+    Some(match notice {
+        N::UpdateFellow { fellow, info } => FellowNotice::Update(player.fellow(*fellow, info)),
+        N::ClearFellow(fellow) => FellowNotice::Clear(*fellow),
+        N::UpdateLeader(leader) => FellowNotice::Leader(*leader),
+        N::UpdateFellowHealth { fellow, value, pk } => FellowNotice::Health {
+            fellow: *fellow,
+            value: *value,
+            pk: *pk,
+        },
+        N::UpdateFellowMaxHealth { fellow, value } => FellowNotice::MaxHealth {
+            fellow: *fellow,
+            value: *value,
+        },
+        N::UpdateFellowVigor { fellow, value, pk } => FellowNotice::Vigor {
+            fellow: *fellow,
+            value: *value,
+            pk: *pk,
+        },
+        N::UpdateFellowMaxVigor { fellow, value } => FellowNotice::MaxVigor {
+            fellow: *fellow,
+            value: *value,
+        },
+        N::UpdateFellowLevel { fellow, level } => FellowNotice::Level {
+            fellow: *fellow,
+            level: *level,
+        },
+        N::UpdateFellowCell { fellow, cell } => FellowNotice::Cell {
+            fellow: *fellow,
+            cell: *cell,
+        },
+        N::SelectionChanged(selection) => {
+            FellowNotice::Selection((*selection != 0).then_some(*selection))
+        }
+        _ => return None,
+    })
+}
+
+/// One notice for the fellowship page and the mini panel (`gmFellowshipUI` / `gmMiniFellowUI` /
+/// `FellowshipHelper` / `FellowInfo`'s `RecvNotice_*`).
 pub(crate) fn fellowship_notice(
-    panel: &mut FellowshipUi,
+    panel: Option<&mut FellowshipUi>,
+    mini: Option<&mut MiniFellowUi>,
     tree: &mut UiTree,
     dialogs: &mut DialogFactory,
     player: &ClientPlayer<'_>,
     notice: &GameplayNotice,
 ) {
     use GameplayNotice as N;
+    if let Some(member) = member_notice(player, notice) {
+        if let Some(panel) = panel {
+            panel.fellow_notice(tree, player, &member);
+        }
+        if let Some(mini) = mini {
+            mini.fellow_notice(tree, player, &member);
+        }
+        return;
+    }
     match notice {
         N::UpdateFellowship(info) => {
             let data = player.fellowship(info);
-            panel.update_fellowship(tree, player, &data);
+            if let Some(panel) = panel {
+                panel.update_fellowship(tree, player, &data);
+            }
+            if let Some(mini) = mini {
+                mini.update_fellowship(tree, player, &data);
+            }
         }
-        N::ClearFellowship => panel.clear_fellowship(tree),
-        N::UpdateFellow { fellow, info } => {
-            let fellow = player.fellow(*fellow, info);
-            panel.update_fellow(tree, player, &fellow);
-        }
-        N::ClearFellow(fellow) => panel.clear_fellow(tree, player, *fellow),
-        N::UpdateLeader(leader) => panel.update_leader(tree, player, *leader),
-        N::UpdateFellowHealth { fellow, value, pk } => {
-            panel.update_health(tree, player, *fellow, *value, *pk);
-        }
-        N::UpdateFellowMaxHealth { fellow, value } => {
-            panel.update_max_health(tree, player, *fellow, *value);
-        }
-        N::UpdateFellowVigor { fellow, value, pk } => {
-            panel.update_vigor(tree, player, *fellow, *value, *pk);
-        }
-        N::UpdateFellowMaxVigor { fellow, value } => {
-            panel.update_max_vigor(tree, player, *fellow, *value);
-        }
-        N::UpdateFellowLevel { fellow, level } => panel.update_level(tree, player, *fellow, *level),
-        N::UpdateFellowCell { fellow, cell } => panel.update_cell(*fellow, *cell),
-        N::SelectionChanged(selection) => {
-            panel.selection_changed(tree, (*selection != 0).then_some(*selection));
+        N::ClearFellowship => {
+            if let Some(panel) = panel {
+                panel.clear_fellowship(tree);
+            }
+            if let Some(mini) = mini {
+                mini.clear_fellowship(tree);
+            }
         }
         N::RequestRecruitment {
             leader_name,
@@ -149,9 +189,15 @@ pub(crate) fn fellowship_notice(
         } => {
             let leader = player.render_info(leader_name);
             let name = player.render_info(fellowship_name);
-            panel.request_recruitment(tree, dialogs, player, &leader, &name);
+            if let Some(panel) = panel {
+                panel.request_recruitment(tree, dialogs, player, &leader, &name);
+            }
         }
-        N::ExpireRecruitment(_) => panel.expire_recruitment(tree, dialogs),
+        N::ExpireRecruitment(_) => {
+            if let Some(panel) = panel {
+                panel.expire_recruitment(tree, dialogs);
+            }
+        }
         _ => {}
     }
 }

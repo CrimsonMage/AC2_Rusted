@@ -7,8 +7,8 @@ use ac2_db::ResourceStore;
 use crate::mouse::UiMessage;
 use crate::token::{tokenize, BUTTON_GHOSTED, MSG_BUTTON_RELEASE_ON};
 use crate::{
-    build_gameplay_hud, Fellow, FellowStrings, FellowshipData, FellowshipRequest, FellowshipSource,
-    SkillVar, UiTree,
+    build_gameplay_hud, Fellow, FellowNotice, FellowStrings, FellowshipData, FellowshipRequest,
+    FellowshipSource, SkillVar, UiTree,
 };
 
 /// Strings as `id[vars]`; the player is 1; Birch has half the experience.
@@ -115,12 +115,20 @@ fn the_fellowship_page_lists_the_members_leader_first() {
     assert!(!ghosted(tree, page, "FellowshipDisbandButton"));
 
     // Birch takes the lead: the buttons ghost and Birch's row goes to the top.
-    panel.update_leader(tree, &player, 2);
+    panel.fellow_notice(tree, &player, &FellowNotice::Leader(2));
     assert!(ghosted(tree, page, "FellowshipRecruitButton"));
     assert_eq!(panel.rows(tree)[0].0, 2);
 
     // A hit: Birch's health text follows.
-    panel.update_health(tree, &player, 2, 10, 0);
+    panel.fellow_notice(
+        tree,
+        &player,
+        &FellowNotice::Health {
+            fellow: 2,
+            value: 10,
+            pk: 0,
+        },
+    );
     let health = format!("{:08x}[10,50]", tokenize("ID_Vital_DisplayText"));
     assert_eq!(text(tree, birch, "FellowTemplateHealthText"), health);
 
@@ -141,7 +149,7 @@ fn the_fellowship_page_lists_the_members_leader_first() {
     assert_eq!(panel.take_requests(), vec![FellowshipRequest::Leave]);
 
     // A member leaves, then the fellowship ends.
-    panel.clear_fellow(tree, &player, 2);
+    panel.fellow_notice(tree, &player, &FellowNotice::Clear(2));
     assert_eq!(panel.rows(tree).len(), 1);
     panel.clear_fellowship(tree);
     assert_eq!(tree.get(page).unwrap().state(), tokenize("nofellowship"));

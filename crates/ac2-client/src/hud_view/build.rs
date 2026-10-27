@@ -77,6 +77,7 @@ impl HudView {
             examination: None,
             allegiance: None,
             fellowship: None,
+            mini_fellow: None,
             vitals: None,
             effects: None,
             vitae: None,
@@ -142,6 +143,7 @@ impl HudView {
                     examination,
                     allegiance,
                     fellowship,
+                    mut mini_fellow,
                     vitals,
                     effects,
                     indicators,
@@ -168,6 +170,11 @@ impl HudView {
                         chat.display(kind, &text);
                     }
                 }
+                // `gmMiniFellowUI::LocationApplied` (no saved location yet): the shown state again.
+                if let Some(mini) = mini_fellow.as_mut() {
+                    mini.location_applied(&mut tree);
+                }
+                self.mini_fellow = mini_fellow;
                 self.hud = Some((tree, images));
                 self.reticle = reticle;
                 self.names = names;

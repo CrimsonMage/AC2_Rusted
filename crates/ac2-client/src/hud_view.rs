@@ -45,6 +45,8 @@ pub(crate) struct HudView {
     pub(crate) examination: Option<ac2_ui::ExaminationUi>,
     pub(crate) allegiance: Option<ac2_ui::AllegianceUi>,
     pub(crate) fellowship: Option<ac2_ui::FellowshipUi>,
+    /// `gmMiniFellowUI`: the fellowship mini panel on the HUD.
+    pub(crate) mini_fellow: Option<ac2_ui::MiniFellowUi>,
     pub(crate) vitals: Option<ac2_ui::VitalsUi>,
     pub(crate) effects: Option<ac2_ui::EffectsUi>,
     pub(crate) vitae: Option<ac2_ui::VitaeStatusUi>,

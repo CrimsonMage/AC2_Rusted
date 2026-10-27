@@ -1,6 +1,8 @@
-//! `FellowInfo`: one fellowship member's row (`FellowTemplate`): the name (in the `leader` state
-//! while the member is the selection), health and vigor meters with their text, the PK damage and
-//! vigor loss meters under them (their text hidden), the level and the share of the experience.
+//! `FellowInfo`: one fellowship member's row (`FellowTemplate`, or `FellowMiniPanelTemplate` on the
+//! mini panel): the name (in the `leader` state while the member is the selection), health and
+//! vigor meters with their text, the PK damage and vigor loss meters under them (their text
+//! hidden), the level and the share of the experience. A mini panel's row has no level or share,
+//! and its health and vigor text starts toggled (`FellowInfo::FellowInfo` with `miniPanel` set).
 
 use crate::element::UiTree;
 use crate::meter::VitalDisplay;
@@ -51,6 +53,8 @@ pub(crate) struct FellowInfo {
     pub root: usize,
     pub name: String,
     pub cell: u32,
+    /// `_miniPanel`.
+    mini: bool,
     name_text: Option<usize>,
     health: VitalDisplay,
     pk_damage: VitalDisplay,
@@ -67,6 +71,7 @@ impl FellowInfo {
         root: usize,
         fellow: &Fellow,
         strings: &dyn FellowStrings,
+        mini: bool,
     ) -> Self {
         let child = |tree: &UiTree, name: &str| tree.child_recursive(root, id(name));
         let display = |tree: &UiTree, meter: &str, text: &str| {
@@ -114,18 +119,25 @@ impl FellowInfo {
             root,
             name: fellow.name.clone(),
             cell: fellow.cell,
+            mini,
             name_text,
             health,
             pk_damage,
             vigor,
             pk_vigor_loss,
-            level_text: child(tree, "FellowTemplateLevelText"),
+            level_text: None,
             percent_text: None,
         };
-        if info.level_text.is_some() {
-            info.update_level(tree, fellow.level, strings);
-            info.percent_text = child(tree, "FellowTemplatePercentText");
-            info.update_percentage(tree, 0.0, strings);
+        if mini {
+            // `ToggleTextState`: the mini panel's health and vigor numbers start hidden.
+            info.toggle_text_state(tree);
+        } else {
+            info.level_text = child(tree, "FellowTemplateLevelText");
+            if info.level_text.is_some() {
+                info.update_level(tree, fellow.level, strings);
+                info.percent_text = child(tree, "FellowTemplatePercentText");
+                info.update_percentage(tree, 0.0, strings);
+            }
         }
         info
     }
@@ -196,8 +208,10 @@ impl FellowInfo {
             fellow.max_vigor.into(),
             &vital,
         );
-        self.level_text = tree.child_recursive(self.root, id("FellowTemplateLevelText"));
-        self.update_level(tree, fellow.level, strings);
+        if !self.mini {
+            self.level_text = tree.child_recursive(self.root, id("FellowTemplateLevelText"));
+            self.update_level(tree, fellow.level, strings);
+        }
     }
 
     /// `RecvNotice_UpdateFellowHealth`: health and PK damage.

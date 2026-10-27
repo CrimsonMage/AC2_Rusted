@@ -36,6 +36,7 @@ mod element;
 mod examination;
 mod external_container;
 mod fellow_info;
+mod fellow_rows;
 mod fellowship;
 mod game_dialogs;
 mod hud;
@@ -129,6 +130,7 @@ pub use element::{UiBox, UiElement, UiImage, UiPlacement, UiTree};
 pub use examination::{ExaminationCall, ExaminationItem, ExaminationUi};
 pub use external_container::{ExternalContainerRequest, ExternalContainerUi};
 pub use fellow_info::{vital_text, Fellow, FellowStrings};
+pub use fellow_rows::FellowNotice;
 pub use fellowship::{FellowshipData, FellowshipRequest, FellowshipSource, FellowshipUi};
 pub use game_dialogs::{GameplayDialogs, OfferAnswer, ERROR_TEXT_TYPE};
 pub use hud::{
@@ -157,6 +159,7 @@ pub use maps::{
     KEYMAP_GROUP, KEYMAP_MAIN, KEYMAP_SHIFT,
 };
 pub use meter::{VitalDisplay, VitalText};
+pub use mini_fellow::MiniFellowUi;
 pub use money_bag::MoneyBagUi;
 pub use mouse::{
     is_mouse_button, UiMessage, GLOBAL_KEY_PRESS, GLOBAL_KEY_RELEASE, GLOBAL_MOUSE_DOWN,
@@ -233,6 +236,9 @@ mod list_box_tests;
 mod media_tests;
 #[cfg(test)]
 mod meter_tests;
+mod mini_fellow;
+#[cfg(test)]
+mod mini_fellow_tests;
 #[cfg(test)]
 mod money_bag_tests;
 #[cfg(test)]

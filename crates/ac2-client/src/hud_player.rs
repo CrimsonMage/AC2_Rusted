@@ -88,6 +88,7 @@ impl HudView {
             player_loaded,
             dirty,
             fellowship,
+            mini_fellow,
             allegiance,
             vitals,
             effects,
@@ -305,8 +306,15 @@ impl HudView {
                     notice,
                 );
             }
-            if let (Some(panel), Some(dialogs)) = (fellowship.as_mut(), dialogs.as_mut()) {
-                crate::ui_social::fellowship_notice(panel, tree, dialogs, &player, notice);
+            if let Some(dialogs) = dialogs.as_mut() {
+                crate::ui_social::fellowship_notice(
+                    fellowship.as_mut(),
+                    mini_fellow.as_mut(),
+                    tree,
+                    dialogs,
+                    &player,
+                    notice,
+                );
             }
             if let (Some(page), Some(dialogs)) = (allegiance.as_mut(), dialogs.as_mut()) {
                 crate::ui_social::allegiance_notice(page, tree, dialogs, &player, notice);
@@ -446,6 +454,9 @@ impl HudView {
                 bar.message(tree, &player, message);
             }
             if let Some(panel) = fellowship.as_mut() {
+                panel.message(tree, message);
+            }
+            if let Some(panel) = mini_fellow.as_mut() {
                 panel.message(tree, message);
             }
             if let Some(bar) = vitals.as_mut() {

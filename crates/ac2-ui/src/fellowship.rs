@@ -2,19 +2,20 @@
 //! fellowship the page is in `nofellowship` (name entry, XP sharing toggle, looting menu and
 //! Create); with one it is in `fellowship`: the name, the XP sharing and looting indicators, the
 //! leader's buttons (Recruit, Dismiss and Disband ghosted for the others), Leave, and one
-//! [`FellowInfo`] row per member in `FellowshipListBox`, the leader first. A recruitment
-//! invitation is a confirmation dialog.
+//! [`FellowInfo`] row per member in `FellowshipListBox`, the leader first (the list itself is a
+//! [`FellowRows`]). A recruitment invitation is a confirmation dialog.
 //!
 //! The panel turns the player's buttons and clicks into [`FellowshipRequest`]s; the client runs
 //! them (`gmCWInterface::DoFellowship*`, `SetSelection`, `DoAssistedTell`).
 //!
 //! Not modelled yet: the looting drop-down (`UIElement_Menu`; Create sends retail's default,
-//! method 1), tooltips, the radar's mini panel (`FellowMiniPanelTemplate`) and the map markers
-//! (`SendNotice_AddMarker` / `RemoveMarker` / `ClearMarkers`).
+//! method 1), tooltips and the map markers (`SendNotice_AddMarker` / `RemoveMarker` /
+//! `ClearMarkers`). The radar's mini panel is `mini_fellow.rs`.
 
 use crate::dialog::{DialogFactory, DIALOG_CONFIRMATION};
 use crate::element::UiTree;
-use crate::fellow_info::{Fellow, FellowInfo, FellowStrings};
+use crate::fellow_info::{Fellow, FellowStrings};
+use crate::fellow_rows::{FellowNotice, FellowRows};
 use crate::layout::LayoutDesc;
 use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS};
 use crate::skill_tree::SkillVar;
@@ -67,22 +68,13 @@ pub trait FellowshipSource: FellowStrings {
     fn fellow_xp(&self) -> Option<Vec<(u64, f32)>>;
 }
 
-/// `FellowshipHelper`'s state.
-#[derive(Debug, Clone)]
-struct Helper {
-    list: usize,
-    /// `_fellowUIHash`, in the order added.
-    fellows: Vec<FellowInfo>,
-    leader: Option<u64>,
-    selection: Option<u64>,
-}
-
 /// `gmFellowshipUI`'s state.
 #[derive(Debug, Clone)]
 pub struct FellowshipUi {
     layout: Arc<LayoutDesc>,
     page: Option<usize>,
-    helper: Option<Helper>,
+    /// `_fellowshipHelper`: the members, `None` without a fellowship.
+    helper: Option<FellowRows>,
     name: String,
     social: bool,
     looting: i32,
@@ -124,19 +116,7 @@ impl FellowshipUi {
 
     /// The members' rows, top first, and their ids.
     pub fn rows(&self, tree: &UiTree) -> Vec<(u64, usize)> {
-        let Some(helper) = &self.helper else {
-            return Vec::new();
-        };
-        tree.list_items(helper.list)
-            .iter()
-            .filter_map(|&item| {
-                helper
-                    .fellows
-                    .iter()
-                    .find(|f| f.root == item)
-                    .map(|f| (f.id, item))
-            })
-            .collect()
+        self.helper.as_ref().map_or_else(Vec::new, |h| h.rows(tree))
     }
 
     fn page_child(&self, tree: &UiTree, name: &str) -> Option<usize> {
@@ -217,18 +197,9 @@ impl FellowshipUi {
         let Some(list) = self.page_child(tree, "FellowshipListBox") else {
             return;
         };
-        self.helper = Some(Helper {
-            list,
-            fellows: Vec::new(),
-            leader: None,
-            selection: None,
-        });
-        // `FellowshipHelper::AddAllFellows`.
-        for fellow in &data.fellows {
-            self.add_fellow(tree, source, fellow);
-        }
-        self.set_leader(tree, data.leader);
-        self.update_xp(tree, source);
+        let mut rows = FellowRows::new(list, Arc::clone(&self.layout), false);
+        rows.populate(tree, source, &data.fellows, data.leader);
+        self.helper = Some(rows);
     }
 
     /// `RecvNotice_ClearFellowship`.
@@ -238,199 +209,28 @@ impl FellowshipUi {
         self.set_no_fellowship_state(tree);
     }
 
-    /// `FellowshipHelper::AddFellow`: a `FellowTemplate` row added to the list.
-    fn add_fellow(&mut self, tree: &mut UiTree, strings: &dyn FellowStrings, fellow: &Fellow) {
-        let Some(helper) = &mut self.helper else {
-            return;
-        };
-        let Some(desc) = self.layout.element(id("FellowTemplate")).cloned() else {
-            return;
-        };
-        let Some(root) = tree.create_element(Arc::clone(&self.layout), desc, false) else {
-            return;
-        };
-        let info = FellowInfo::new(tree, root, fellow, strings);
-        tree.list_add_item(helper.list, root);
-        helper.fellows.push(info);
-    }
-
     /// `FellowshipHelper::RemoveAllFellows`.
     fn remove_all_fellows(&mut self, tree: &mut UiTree) {
         if let Some(helper) = &mut self.helper {
-            tree.list_flush(helper.list);
-            helper.fellows.clear();
+            helper.remove_all(tree);
         }
     }
 
-    /// `FellowshipHelper::SetLeader`: the leader's row moved to the top.
-    fn set_leader(&mut self, tree: &mut UiTree, leader: u64) {
-        let Some(helper) = &mut self.helper else {
-            return;
-        };
-        let old = helper.leader.replace(leader);
-        let find = |id: Option<u64>| helper.fellows.iter().find(|f| Some(f.id) == id);
-        // Retail moves the old leader back up when the new one has no row.
-        let Some(row) = find(Some(leader)).or_else(|| find(old)).map(|f| f.root) else {
-            return;
-        };
-        let list = helper.list;
-        tree.list_multi_op_start(list);
-        if let Some(at) = tree.list_what_num(list, row) {
-            tree.list_remove_item(list, at);
-        }
-        tree.list_insert_item(list, row, 0);
-        tree.list_multi_op_complete(list);
-    }
-
-    /// `FellowshipHelper::UpdateXP`: each member's share, when the player answers.
-    fn update_xp(&self, tree: &mut UiTree, source: &dyn FellowshipSource) {
-        let Some(helper) = &self.helper else {
-            return;
-        };
-        let Some(shares) = source.fellow_xp() else {
-            return;
-        };
-        for (fellow, share) in shares {
-            let Some(info) = helper.fellows.iter().find(|f| f.id == fellow) else {
-                return;
-            };
-            info.update_percentage(tree, share, source);
-        }
-    }
-
-    fn fellow_mut(&mut self, fellow: u64) -> Option<&mut FellowInfo> {
-        self.helper
-            .as_mut()?
-            .fellows
-            .iter_mut()
-            .find(|f| f.id == fellow)
-    }
-
-    /// `FellowshipHelper::RecvNotice_UpdateFellow`: a new member's row, or the row updated.
-    pub fn update_fellow(
+    /// A member-level notice (the helper's `RecvNotice_*`); a leader change also sets the
+    /// buttons (`gmFellowshipUI::RecvNotice_UpdateLeader`).
+    pub fn fellow_notice(
         &mut self,
         tree: &mut UiTree,
         source: &dyn FellowshipSource,
-        fellow: &Fellow,
+        notice: &FellowNotice,
     ) {
-        if self.helper.is_none() {
-            return;
-        }
-        match self.fellow_mut(fellow.id) {
-            Some(info) => info.update_info(tree, fellow, source),
-            None => self.add_fellow(tree, source, fellow),
-        }
-        self.update_xp(tree, source);
-    }
-
-    /// `FellowshipHelper::RecvNotice_ClearFellow` (`RemoveFellow`, then `UpdateXP`).
-    pub fn clear_fellow(&mut self, tree: &mut UiTree, source: &dyn FellowshipSource, fellow: u64) {
-        let Some(helper) = &mut self.helper else {
-            return;
-        };
-        if let Some(at) = helper.fellows.iter().position(|f| f.id == fellow) {
-            let info = helper.fellows.remove(at);
-            tree.list_delete_item(helper.list, info.root);
-        }
-        self.update_xp(tree, source);
-    }
-
-    /// `gmFellowshipUI::RecvNotice_UpdateLeader` and the helper's (`SetLeader`).
-    pub fn update_leader(&mut self, tree: &mut UiTree, source: &dyn FellowshipSource, leader: u64) {
-        if self.helper.is_some() {
-            self.set_leader_state(tree, leader == source.player());
-        }
-        self.set_leader(tree, leader);
-    }
-
-    /// `RecvNotice_UpdateFellowHealth` (health and PK damage).
-    pub fn update_health(
-        &mut self,
-        tree: &mut UiTree,
-        s: &dyn FellowStrings,
-        fellow: u64,
-        v: u32,
-        pk: u32,
-    ) {
-        if let Some(info) = self.fellow_mut(fellow) {
-            info.update_health(tree, v, pk, s);
-        }
-    }
-
-    /// `RecvNotice_UpdateFellowMaxHealth`.
-    pub fn update_max_health(
-        &mut self,
-        tree: &mut UiTree,
-        s: &dyn FellowStrings,
-        fellow: u64,
-        v: u32,
-    ) {
-        if let Some(info) = self.fellow_mut(fellow) {
-            info.update_max_health(tree, v, s);
-        }
-    }
-
-    /// `RecvNotice_UpdateFellowVigor` (vigor and PK vigor loss).
-    pub fn update_vigor(
-        &mut self,
-        tree: &mut UiTree,
-        s: &dyn FellowStrings,
-        fellow: u64,
-        v: u32,
-        pk: u32,
-    ) {
-        if let Some(info) = self.fellow_mut(fellow) {
-            info.update_vigor(tree, v, pk, s);
-        }
-    }
-
-    /// `RecvNotice_UpdateFellowMaxVigor`.
-    pub fn update_max_vigor(
-        &mut self,
-        tree: &mut UiTree,
-        s: &dyn FellowStrings,
-        fellow: u64,
-        v: u32,
-    ) {
-        if let Some(info) = self.fellow_mut(fellow) {
-            info.update_max_vigor(tree, v, s);
-        }
-    }
-
-    /// `RecvNotice_UpdateFellowLevel`: the row's level, then the shares.
-    pub fn update_level(
-        &mut self,
-        tree: &mut UiTree,
-        source: &dyn FellowshipSource,
-        fellow: u64,
-        level: u32,
-    ) {
-        if let Some(info) = self.fellow_mut(fellow) {
-            info.update_level(tree, level, source);
-        }
-        self.update_xp(tree, source);
-    }
-
-    /// `RecvNotice_UpdateFellowCellID`.
-    pub fn update_cell(&mut self, fellow: u64, cell: u32) {
-        if let Some(info) = self.fellow_mut(fellow) {
-            info.cell = cell;
-        }
-    }
-
-    /// `FellowshipHelper::RecvNotice_SelectionChanged`: the selected member's name highlighted.
-    pub fn selection_changed(&mut self, tree: &mut UiTree, selection: Option<u64>) {
-        let Some(helper) = &mut self.helper else {
-            return;
-        };
-        if let Some(old) = helper.selection.take() {
-            if let Some(info) = helper.fellows.iter().find(|f| f.id == old) {
-                info.show_selection_highlight(tree, false);
+        if let FellowNotice::Leader(leader) = notice {
+            if self.helper.is_some() {
+                self.set_leader_state(tree, *leader == source.player());
             }
         }
-        if let Some(info) = helper.fellows.iter().find(|f| Some(f.id) == selection) {
-            info.show_selection_highlight(tree, true);
-            helper.selection = selection;
+        if let Some(helper) = &mut self.helper {
+            helper.notice(tree, source, notice);
         }
     }
 
@@ -510,7 +310,7 @@ impl FellowshipUi {
                 let list = helper.list;
                 tree.list_set_selected_index(list, Some(index), true);
                 let row = tree.list_items(list).get(index).copied();
-                if let Some(info) = helper.fellows.iter().find(|f| Some(f.root) == row) {
+                if let Some(info) = helper.fellow_at_item(row) {
                     self.requests.push(FellowshipRequest::Select(info.id));
                 }
             }
@@ -518,7 +318,7 @@ impl FellowshipUi {
         }
         if message.message == id("mouse_press") && message.element == Some(helper.list) {
             let row = tree.list_item_under_mouse(helper.list);
-            if let Some(info) = helper.fellows.iter().find(|f| Some(f.root) == row) {
+            if let Some(info) = helper.fellow_at_item(row) {
                 self.requests.push(FellowshipRequest::Select(info.id));
                 if message.data as u32 == 0x4000_0007 {
                     self.requests

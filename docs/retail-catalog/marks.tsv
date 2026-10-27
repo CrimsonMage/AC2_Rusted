@@ -268,6 +268,12 @@ key	status	note
 00421a70	-	C++ destructors: the Rust state drops
 00421a90	x	ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 00421bf0	x	ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
+00421c50	x	Rust drop and the HUD tree own the panel and its rows; no notice handlers to unregister
+00421ca0	~	ac2-ui mini_fellow.rs location_applied: the shown state re-applied. Not: the saved panel location (no UI location load)
+00421cc0	~	ac2-ui mini_fellow.rs message: FellowshipMiniButton release toggles the panel (tested). Not: FellowMiniPanel location_changed -> SendNotice_SaveLocationsChanged (no UI location save path); the button element is in no UI layout of dataset-ac2
+00421d10	x	ac2-ui mini_fellow.rs update_fellowship: panel state fellowship, old list goes, new FellowRows over FellowMiniPanelListBox (mini template, Legions 7160 followed; tested)
+00421da0	x	ac2-ui mini_fellow.rs clear_fellowship: rows removed, then Show(0) on the mini (disassembly of admin 0x421da0 ends in vt+0x20 with shown=0; tested)
+00421dd0	x	ac2-ui mini_fellow.rs MiniFellowUi::create: FellowMiniPanel root from the gameplay layout, hidden; built in hud.rs
 00421ed0	-	KeyStone help and the plug-in manager are external windows (MSXML4); not opened, so the missing-XML4 message is not sent
 00421f60	-	KeyStone help and the plug-in manager are external windows (MSXML4); not opened, so the missing-XML4 message is not sent
 00421fe0	x	ac2-ui toolbar.rs sale_reminder: the consignments button in its state; the sale sound is not played
@@ -460,6 +466,7 @@ key	status	note
 004304a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 00430600	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 00430810	x	ac2-ui toolbar.rs
+00430820	~	ac2-ui: no per-object notice registration in Rust; the mini panel lives with the HUD and is rebuilt with it
 00430840	x	ac2-ui examination.rs + ac2-client ui_sources
 004309a0	x	ac2-ui examination.rs + ac2-client ui_sources
 00430a50	~	no TimeDisplay, icon layers, effect expansion, Legions filter tabs
@@ -683,6 +690,7 @@ key	status	note
 00441480	x	ac2-ui item_display.rs / backpack.rs
 004414e0	~	ac2-ui backpack.rs tab_drop: a worn item unequips to the page's end, the coin field asks how much, another item on a tab not shown moves to the page's end (stack dialog first); tested through the HUD (item_drag_7160). Not: icon descriptions' layers, GetContentsInfo from the VM
 00441950	x	ac2-ui item_display.rs / backpack.rs
+00441b40	x	ac2-ui mini_fellow.rs MiniFellowUi::show: the shown state, the panel follows it (tested: mini_fellow_tests)
 00441ba0	~	Legions 7160 (followed): race 1, 2, 8, 16 x0.9, race 4 x0.75; z = -0.875 x height; camera scale 0.25 x height (admin: -0.5, full height). The physobj call before it (vtbl 0x2F4 (1, 0)) is not modelled
 00441d20	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 00441db0	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)

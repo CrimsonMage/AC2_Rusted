@@ -35,6 +35,7 @@ use crate::fellowship::FellowshipUi;
 use crate::indicators::IndicatorsUi;
 use crate::ingredient::IngredientUi;
 use crate::layout::{load_layout, LayoutDesc};
+use crate::mini_fellow::MiniFellowUi;
 use crate::name_plates::NamePlates;
 use crate::navigation::NavigationUi;
 use crate::overview_map::OverviewMapUi;
@@ -107,6 +108,8 @@ pub struct GameplayHud {
     /// `gmSocialUI`'s `gmAllegianceUI` (its player set once in the world) and `gmFellowshipUI`.
     pub allegiance: Option<AllegianceUi>,
     pub fellowship: Option<FellowshipUi>,
+    /// `gmMiniFellowUI`, the fellowship mini panel (hidden until its button is pressed).
+    pub mini_fellow: Option<MiniFellowUi>,
     /// The toolbar layout, for the frameworks made once the player is in the world
     /// (`gmInventoryUI`'s backpack).
     pub toolbar_layout: Option<Arc<LayoutDesc>>,
@@ -199,6 +202,10 @@ pub fn build_gameplay_hud(
         (Some(toolbar), Some(field)) => Some(ShortcutUi::create(&mut tree, toolbar, field)),
         _ => None,
     };
+    // `gmGamePlayUI::SetupChildren` makes the mini panel after the toolbar's roots.
+    let mini_fellow = layouts[&LAYOUT_GAMEPLAY]
+        .as_ref()
+        .map(|gameplay| MiniFellowUi::create(&mut tree, gameplay));
     let chat = match &layouts[&LAYOUT_TOOLBAR] {
         Some(toolbar) => Some(ChatUi::create(&mut tree, toolbar, chat_strings(store)?)),
         None => None,
@@ -291,6 +298,7 @@ pub fn build_gameplay_hud(
         examination,
         allegiance,
         fellowship,
+        mini_fellow,
         vitals,
         effects,
         indicators,

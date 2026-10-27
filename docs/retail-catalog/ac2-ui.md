@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 833 done, 284 partial, 1077 to do, 53 skipped.
+2247 retail functions: 838 done, 287 partial, 1069 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -313,15 +313,15 @@ Legend and workflow: [README](README.md).
 - [x] `gmIngredientUI::RecvNotice_ExecuteCraft_Done` · 00418780 — ac2-ui ingredient.rs execute_done: the slots go out of pending; no error and no charges closes the panel; charges show ID_Craft_Charges (a named string id) with the value
 - [ ] `gmIngredientUI::RecvNotice_CloseConfirmationDialog` · 00418880
 
-## `ac2/client/src/ui/gameplay/gmminifellowui.cpp.c` (0/6)
+## `ac2/client/src/ui/gameplay/gmminifellowui.cpp.c` (4/6)
 
 ### gmMiniFellowUI
-- [ ] `gmMiniFellowUI::~gmMiniFellowUI` · 00421c50 · legions 00421ac0
-- [ ] `gmMiniFellowUI::LocationApplied` · 00421ca0 · legions 0043eb50
-- [ ] `gmMiniFellowUI::ListenToMessage` · 00421cc0 · legions 00421b10
-- [ ] `gmMiniFellowUI::RecvNotice_UpdateFellowship` · 00421d10 · legions 00421b60
-- [ ] `gmMiniFellowUI::RecvNotice_ClearFellowship` · 00421da0 · legions 00421bf0
-- [ ] `gmMiniFellowUI::gmMiniFellowUI` · 00421dd0 · legions 00421c20
+- [x] `gmMiniFellowUI::~gmMiniFellowUI` · 00421c50 · legions 00421ac0 — Rust drop and the HUD tree own the panel and its rows; no notice handlers to unregister
+- [~] `gmMiniFellowUI::LocationApplied` · 00421ca0 · legions 0043eb50 — ac2-ui mini_fellow.rs location_applied: the shown state re-applied. Not: the saved panel location (no UI location load)
+- [~] `gmMiniFellowUI::ListenToMessage` · 00421cc0 · legions 00421b10 — ac2-ui mini_fellow.rs message: FellowshipMiniButton release toggles the panel (tested). Not: FellowMiniPanel location_changed -> SendNotice_SaveLocationsChanged (no UI location save path); the button element is in no UI layout of dataset-ac2
+- [x] `gmMiniFellowUI::RecvNotice_UpdateFellowship` · 00421d10 · legions 00421b60 — ac2-ui mini_fellow.rs update_fellowship: panel state fellowship, old list goes, new FellowRows over FellowMiniPanelListBox (mini template, Legions 7160 followed; tested)
+- [x] `gmMiniFellowUI::RecvNotice_ClearFellowship` · 00421da0 · legions 00421bf0 — ac2-ui mini_fellow.rs clear_fellowship: rows removed, then Show(0) on the mini (disassembly of admin 0x421da0 ends in vt+0x20 with shown=0; tested)
+- [x] `gmMiniFellowUI::gmMiniFellowUI` · 00421dd0 · legions 00421c20 — ac2-ui mini_fellow.rs MiniFellowUi::create: FellowMiniPanel root from the gameplay layout, hidden; built in hud.rs
 
 ## `ac2/client/src/ui/gameplay/gmoverviewmapui.cpp.c` (1/6)
 
@@ -1022,7 +1022,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmExaminationUI::RecvNotice_OpenExaminationPanel` · 00430810 — ac2-ui toolbar.rs
 
 ### gmMiniFellowUI
-- [ ] `gmMiniFellowUI::RecvNotice_BeingDeleted` · 00430820
+- [~] `gmMiniFellowUI::RecvNotice_BeingDeleted` · 00430820 — ac2-ui: no per-object notice registration in Rust; the mini panel lives with the HUD and is rebuilt with it
 
 ### gmExaminationUI
 - [x] `gmExaminationUI::MakeString` · 00430840 · legions 00430690 — ac2-ui examination.rs + ac2-client ui_sources
@@ -1254,10 +1254,10 @@ Legend and workflow: [README](README.md).
 - [x] `gmMoneyBagUI::HandleMoneyBagDrop` · 00440fe0 · legions 00441840 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 - [~] `gmMoneyBagUI::ListenToMessage` · 00441280 · legions 00441ae0 — money bag: the coin/melt paths ported; not modelled: DDCB's IsOnInventory test (gmMoneyBagUI_DDCB), the bag's ctor listeners and the not_dragable branch (m_curAmount is only 0 in retail), the backpack page's item drop (FinishItemDrop) and its ListenToMessage item branch
 
-## `ac2/client/src/ui/gameplay/toolbar/inventory/gmpaperdollui.cpp.c` (21/31)
+## `ac2/client/src/ui/gameplay/toolbar/inventory/gmpaperdollui.cpp.c` (22/31)
 
 ### gmMiniFellowUI
-- [ ] `gmMiniFellowUI::Show` · 00441b40 · legions 00420260
+- [x] `gmMiniFellowUI::Show` · 00441b40 · legions 00420260 — ac2-ui mini_fellow.rs MiniFellowUi::show: the shown state, the panel follows it (tested: mini_fellow_tests)
 
 ### gmPaperDollUI
 - [ ] `gmPaperDollUI::RecvNotice_OpenIngredientPanel` · 00441b70 · legions 00442490
