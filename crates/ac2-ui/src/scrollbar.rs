@@ -55,6 +55,23 @@ impl UiTree {
         }
     }
 
+    /// `UIElement::GetScrollbar(attribute, bUnique)`: the scroll bar `owner` names in `attribute`.
+    /// Without `unique_msg` it is `UIElementManager::GetElement` (IUIManager slot 0x44): the first
+    /// scroll bar with that id in the whole UI, in any root. With `unique_msg` it is
+    /// `GetUniqueMatchElement` (slot 0x48): a bar of the owner's own root only.
+    pub(crate) fn named_scrollbar(&self, owner: usize, attribute: &str) -> Option<usize> {
+        let AttributeValue::Id(id) = self.el(owner).attributes.get(&tokenize(attribute))? else {
+            return None;
+        };
+        if self.bool_attribute(owner, tokenize("unique_msg")) {
+            return self.child_recursive(self.root_of(owner), *id);
+        }
+        self.slots.iter().enumerate().find_map(|(index, slot)| {
+            let el = slot.as_ref()?;
+            (el.desc.kind == SCROLLBAR && el.id() == *id).then_some(index)
+        })
+    }
+
     fn widget(&self, index: usize) -> Option<usize> {
         self.el(index)
             .children

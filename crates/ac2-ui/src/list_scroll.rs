@@ -62,39 +62,38 @@ fn scroll_range(paper: i32, extent: i32) -> i32 {
 }
 
 impl UiTree {
-    /// The scroll bar a list names in `vertical_scrollbar` (or `horizontal_scrollbar`), in the
-    /// list's root.
+    /// The scroll bar a list names in `vertical_scrollbar` (or `horizontal_scrollbar`), resolved
+    /// as `GetScrollbar` does (see `named_scrollbar`).
     fn list_scrollbar(&self, list: usize, vertical: bool) -> Option<usize> {
         let name = if vertical {
             "vertical_scrollbar"
         } else {
             "horizontal_scrollbar"
         };
-        let AttributeValue::Id(id) = self.el(list).attributes.get(&tokenize(name))? else {
-            return None;
-        };
-        self.child_recursive(self.root_of(list), *id)
+        self.named_scrollbar(list, name)
     }
 
-    /// The lists in `scrollbar`'s root that name it as their vertical or horizontal scroll bar,
+    /// The lists that name `scrollbar` as their vertical or horizontal scroll bar, in any root,
     /// with whether it is their vertical one.
     pub(crate) fn lists_bound_to(&self, scrollbar: usize) -> Vec<(usize, bool)> {
         let id = self.el(scrollbar).id();
-        let root = self.root_of(scrollbar);
         let mut lists = Vec::new();
         for (index, slot) in self.slots.iter().enumerate() {
             let Some(el) = slot.as_ref() else {
                 continue;
             };
-            if !crate::list_box_select::is_list_kind(el.desc.kind) || self.root_of(index) != root {
+            if !crate::list_box_select::is_list_kind(el.desc.kind) {
                 continue;
             }
             for (name, vertical) in [
                 ("vertical_scrollbar", true),
                 ("horizontal_scrollbar", false),
             ] {
-                if matches!(el.attributes.get(&tokenize(name)), Some(AttributeValue::Id(v)) if *v == id)
-                {
+                let names_it = matches!(
+                    el.attributes.get(&tokenize(name)),
+                    Some(AttributeValue::Id(v)) if *v == id
+                );
+                if names_it && self.list_scrollbar(index, vertical) == Some(scrollbar) {
                     lists.push((index, vertical));
                 }
             }

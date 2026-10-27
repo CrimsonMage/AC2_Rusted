@@ -20,33 +20,25 @@ const TREE: u32 = tokenize("tree");
 const VERTICAL_SCROLLBAR: &str = "vertical_scrollbar";
 
 impl UiTree {
-    /// The vertical scroll bar a tree names, in its root.
+    /// The vertical scroll bar a tree names (`GetScrollbar`, see `named_scrollbar`).
     fn tree_scrollbar(&self, tree: usize) -> Option<usize> {
-        let AttributeValue::Id(id) = self
-            .el(tree)
-            .attributes
-            .get(&tokenize(VERTICAL_SCROLLBAR))?
-        else {
-            return None;
-        };
-        self.child_recursive(self.root_of(tree), *id)
+        self.named_scrollbar(tree, VERTICAL_SCROLLBAR)
     }
 
-    /// The trees in `scrollbar`'s root that name it as their vertical scroll bar.
+    /// The trees that name `scrollbar` as their vertical scroll bar, in any root.
     pub(crate) fn trees_bound_to(&self, scrollbar: usize) -> Vec<usize> {
         let id = self.el(scrollbar).id();
-        let root = self.root_of(scrollbar);
         self.slots
             .iter()
             .enumerate()
             .filter_map(|(index, slot)| {
                 let el = slot.as_ref()?;
-                let bound = el.desc.kind == TREE
+                let names_it = el.desc.kind == TREE
                     && matches!(
                         el.attributes.get(&tokenize(VERTICAL_SCROLLBAR)),
                         Some(AttributeValue::Id(v)) if *v == id
                     );
-                (bound && self.root_of(index) == root).then_some(index)
+                (names_it && self.tree_scrollbar(index) == Some(scrollbar)).then_some(index)
             })
             .collect()
     }

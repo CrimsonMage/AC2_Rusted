@@ -26,31 +26,24 @@ const VERTICAL_SCROLLBAR: &str = "vertical_scrollbar";
 impl UiTree {
     /// The vertical scroll bar a text names (`GetScrollbar(Token_Text_vertical_scrollbar)`).
     fn text_scrollbar(&self, text: usize) -> Option<usize> {
-        let AttributeValue::Id(id) = self
-            .el(text)
-            .attributes
-            .get(&tokenize(VERTICAL_SCROLLBAR))?
-        else {
-            return None;
-        };
-        self.child_recursive(self.root_of(text), *id)
+        self.named_scrollbar(text, VERTICAL_SCROLLBAR)
     }
 
-    /// The text elements in `scrollbar`'s root that name it as their vertical scroll bar.
+    /// The text elements that name `scrollbar` as their vertical scroll bar (`GetScrollbar`
+    /// resolves it across the UI, see `named_scrollbar`).
     pub(crate) fn texts_bound_to(&self, scrollbar: usize) -> Vec<usize> {
         let id = self.el(scrollbar).id();
-        let root = self.root_of(scrollbar);
         self.slots
             .iter()
             .enumerate()
             .filter_map(|(index, slot)| {
                 let el = slot.as_ref()?;
-                let bound = el.desc.kind == TEXT
+                let names_it = el.desc.kind == TEXT
                     && matches!(
                         el.attributes.get(&tokenize(VERTICAL_SCROLLBAR)),
                         Some(AttributeValue::Id(v)) if *v == id
                     );
-                (bound && self.root_of(index) == root).then_some(index)
+                (names_it && self.text_scrollbar(index) == Some(scrollbar)).then_some(index)
             })
             .collect()
     }
