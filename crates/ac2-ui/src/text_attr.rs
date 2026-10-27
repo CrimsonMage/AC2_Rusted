@@ -111,6 +111,20 @@ impl UiTree {
         Some((width + right + left, height + down + up))
     }
 
+    /// `UIElement_Text::InqSizewMargins` with the text on one line: the width `text` takes in
+    /// the element's font, margins included (`m_paperWidth` of an unwrapped line).
+    pub fn text_line_width(&self, index: usize, text: &str) -> Option<i32> {
+        let state = self.el(index).text.as_ref()?;
+        let font = state.font.clone()?;
+        let glyphs: Vec<_> = text
+            .encode_utf16()
+            .map(|ch| crate::text::Glyph::new(ch, state.color, Some(font.clone()), state.outline))
+            .collect();
+        let [_, _, left, right] = state.margins;
+        let (_, width, _) = crate::text::recalculate_lines(&glyphs, i32::MAX / 2, true);
+        Some(width + left + right)
+    }
+
     /// `GetText` / `SetText`: the text again in the current font.
     fn readd_text(&mut self, index: usize) {
         if let Some(text) = self.el_mut(index).text.as_mut() {

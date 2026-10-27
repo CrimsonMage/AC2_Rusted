@@ -11,13 +11,18 @@
 //! buttons ask the player's interface ([`SkillRequest`]). The player's skills and the string
 //! table text come from a [`SkillSource`].
 //!
-//! Not modelled yet: the confirmation dialogs (`DialogFactory`, asked of the client as
-//! [`SkillRequest::ConfirmTrain`] and the like), tooltips, the name's truncation with an
-//! ellipsis (`SetStringAndTruncate`), and dragging a trained skill to the shortcut bar.
+//! The train, untrain and cancel buttons ask first: each makes its confirmation dialog
+//! (`MakeTrainDialog`, `MakeUntrainDialog`, `MakeUntrainCancelDialog`) and the answer comes back
+//! through [`SkillTreeUi::dialog_outcomes`] (`RecvNotice_CloseConfirmationDialog`). Showing or
+//! hiding the panel closes its dialogs (`Show`). The buttons and nodes carry tooltips, and the
+//! selected name is truncated with an ellipsis (`SetStringAndTruncate`).
+//!
+//! Not modelled yet: dragging a trained skill to the shortcut bar is in `shortcut.rs`.
 
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use crate::dialog::{DialogFactory, DialogOutcome, DIALOG_CONFIRMATION};
 use crate::element::UiTree;
 use crate::layout::{AttributeValue, LayoutDesc};
 use crate::mouse::UiMessage;
@@ -126,10 +131,18 @@ pub enum SkillRequest {
     ConfirmTrain(u32),
     /// `RequestRaiseSkill`.
     Raise(u32),
-    /// `MakeUntrainDialog`: confirm, then `RequestUntrainSkill`.
-    ConfirmUntrain(u32),
-    /// `MakeUntrainCancelDialog`: confirm, then `RequestUntrainSkillCancel`.
-    ConfirmCancelUntrain(u32),
+    /// `RequestUntrainSkill`: the untrain dialog was answered yes.
+    Untrain(u32),
+    /// `RequestUntrainSkillCancel`: the cancel dialog was answered yes.
+    CancelUntrain(u32),
+}
+
+/// One confirmation dialog of the panel: its context (0 when none is up) and the skill it asks
+/// about (`_untrainContext`, `_untrainCancelContext`, `_trainContext` and the skill they take).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+struct Confirm {
+    context: u32,
+    skill: u32,
 }
 
 fn id(name: &str) -> u32 {
@@ -151,6 +164,11 @@ pub struct SkillTreeUi {
     nodes: HashMap<u32, SkillNode>,
     available: (u64, u32, u32),
     requests: Vec<SkillRequest>,
+    train: Confirm,
+    untrain: Confirm,
+    cancel: Confirm,
+    /// The field's shown state at the last [`SkillTreeUi::follow_show_state`].
+    shown: Option<bool>,
 }
 
 /// `InitElements`: the tab buttons and their root panels.
@@ -178,6 +196,10 @@ impl SkillTreeUi {
             nodes: HashMap::new(),
             available: (0, 0, 0),
             requests: Vec::new(),
+            train: Confirm::default(),
+            untrain: Confirm::default(),
+            cancel: Confirm::default(),
+            shown: None,
         }
     }
 
@@ -350,6 +372,26 @@ impl SkillTreeUi {
         } else {
             tree.set_bool(icon, id("dragable"), false);
         }
+        // The node's tooltip: its name, with the level text when it is trained.
+        let trained = (node.kind == NODE_SKILL)
+            .then(|| source.status(node.skill))
+            .filter(|status| status.trained);
+        let tooltip = match trained {
+            Some(status) => {
+                let (level, _) = Self::level_text(source, &status, true);
+                source.render(
+                    id("ID_Skill_NameLevel"),
+                    &[
+                        (id("value"), SkillVar::Text(node.name.clone())),
+                        (id("level"), SkillVar::Text(level)),
+                    ],
+                )
+            }
+            None => node.name.clone(),
+        };
+        if let Some(item) = self.tree.and_then(|t| tree.tree_item(t, node.x, node.y)) {
+            tree.set_tooltip(item, Some(tooltip));
+        }
         self.fast_refresh_skill_node(tree, source, node);
     }
 
@@ -461,6 +503,11 @@ impl SkillTreeUi {
             cost = status.cost_to_train;
             name = node.name.clone();
             ghost(tree, "TrainButton", status.can_train != 0);
+            // `ID_Skill_TT_ClickToTrain` only where the skill can be trained.
+            if status.can_train == 0 {
+                let text = source.render(id("ID_Skill_TT_ClickToTrain"), &[(id("value"), SkillVar::UInt(0))]);
+                set_button_tooltip(tree, modify, "TrainButton", text);
+            }
         } else {
             if status.untraining {
                 tree.set_state(modify, id("untraining"));
@@ -476,6 +523,17 @@ impl SkillTreeUi {
                 cost = status.xp_to_level;
                 ghost(tree, "RaiseButton", status.can_raise != 0);
                 ghost(tree, "UntrainButton", status.can_untrain != 0);
+                // The raise button's tooltip: the experience it takes, click or can't-raise text.
+                let string = if status.can_raise == 0 {
+                    "ID_Skill_TT_ClickToRaise"
+                } else {
+                    "ID_Skill_CantRaise"
+                };
+                let text = source.render(
+                    id(string),
+                    &[(id("value"), SkillVar::UInt(status.xp_to_level))],
+                );
+                set_button_tooltip(tree, modify, "RaiseButton", text);
             }
             value = xp;
             let (level, _) = Self::level_text(source, &status, true);
@@ -499,6 +557,8 @@ impl SkillTreeUi {
         }
         if let Some(selected) = self.selected_name {
             tree.set_text(selected, &name);
+            let ellipsis = source.render(id("ID_Ellipsis"), &[]);
+            truncate_text(tree, selected, &ellipsis);
         }
     }
 
@@ -522,8 +582,116 @@ impl SkillTreeUi {
         }
     }
 
+    /// `gmSkillTreeUI::MakeTrainDialog`: one train confirmation at a time.
+    fn make_train_dialog(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        source: &dyn SkillSource,
+        skill: u32,
+    ) {
+        if self.train.context != 0 {
+            return;
+        }
+        let text = source.render(id("ID_Skill_TrainConfirm"), &[]);
+        let context = dialogs.make_dialog(tree, &text, DIALOG_CONFIRMATION, false);
+        self.train = Confirm { context, skill };
+    }
+
+    /// `gmSkillTreeUI::MakeUntrainDialog`: asked for a node the panel holds, naming the skill.
+    fn make_untrain_dialog(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        source: &dyn SkillSource,
+        skill: u32,
+    ) {
+        let Some(node) = self.nodes.get(&skill) else {
+            return;
+        };
+        if self.untrain.context != 0 {
+            return;
+        }
+        let text = source.render(
+            id("ID_Skill_UntrainText"),
+            &[(id("value"), SkillVar::Text(node.name.clone()))],
+        );
+        let context = dialogs.make_dialog(tree, &text, DIALOG_CONFIRMATION, false);
+        self.untrain = Confirm { context, skill };
+    }
+
+    /// `gmSkillTreeUI::MakeUntrainCancelDialog`: one cancel confirmation at a time.
+    fn make_cancel_dialog(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        source: &dyn SkillSource,
+        skill: u32,
+    ) {
+        if self.cancel.context != 0 {
+            return;
+        }
+        let text = source.render(id("ID_Skill_UntrainCancelConfirm"), &[]);
+        let context = dialogs.make_dialog(tree, &text, DIALOG_CONFIRMATION, false);
+        self.cancel = Confirm { context, skill };
+    }
+
+    /// `gmSkillTreeUI::Show`'s dialog part: the panel's shown state changed, so its dialogs
+    /// close and their contexts clear. Called each frame; it acts only on a change.
+    pub fn follow_show_state(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory) {
+        let Some(field) = tree.get(self.field) else {
+            return;
+        };
+        let shown = field.visible();
+        if self.shown == Some(shown) {
+            return;
+        }
+        self.shown = Some(shown);
+        for confirm in [&mut self.train, &mut self.untrain, &mut self.cancel] {
+            dialogs.close_dialog(tree, confirm.context);
+            *confirm = Confirm::default();
+        }
+    }
+
+    /// The confirmations' answers among the dialogs' outcomes
+    /// (`gmSkillTreeUI::RecvNotice_CloseConfirmationDialog`).
+    pub fn dialog_outcomes(&mut self, outcomes: &[DialogOutcome]) {
+        for outcome in outcomes {
+            if let DialogOutcome::Confirmation { context, yes } = *outcome {
+                self.recv_close_confirmation_dialog(context, yes);
+            }
+        }
+    }
+
+    /// `gmSkillTreeUI::RecvNotice_CloseConfirmationDialog`: a yes asks the player for the skill
+    /// the dialog was made for.
+    fn recv_close_confirmation_dialog(&mut self, context: u32, yes: bool) {
+        for (confirm, make) in [
+            (
+                &mut self.train,
+                SkillRequest::Train as fn(u32) -> SkillRequest,
+            ),
+            (&mut self.untrain, SkillRequest::Untrain),
+            (&mut self.cancel, SkillRequest::CancelUntrain),
+        ] {
+            if confirm.context == context && context != 0 {
+                let skill = confirm.skill;
+                *confirm = Confirm::default();
+                if yes {
+                    self.requests.push(make(skill));
+                }
+            }
+        }
+    }
+
     /// `gmSkillTreeUI::ListenToMessage`.
-    pub fn message(&mut self, tree: &mut UiTree, source: &dyn SkillSource, message: &UiMessage) {
+    pub fn message(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        source: &dyn SkillSource,
+        message: &UiMessage,
+    ) {
         let element_id = message.element_id;
         let action = message.data as u32;
         if element_id == id("SkillNodeIcon")
@@ -559,23 +727,24 @@ impl SkillTreeUi {
             if skill == 0 {
                 return;
             }
-            let request = if element_id == id("TrainButton") {
+            // `ListenToMessage`: train asks first unless the node is untrainable; untrain and
+            // cancel ask; raise is asked at once.
+            if element_id == id("TrainButton") {
                 if source.status(skill).can_train != 0 {
                     return;
                 }
-                match self.nodes.get(&skill) {
-                    Some(node) if !node.untrainable => SkillRequest::ConfirmTrain(skill),
-                    Some(_) => SkillRequest::Train(skill),
-                    None => return,
+                match self.nodes.get(&skill).map(|node| node.untrainable) {
+                    Some(false) => self.make_train_dialog(tree, dialogs, source, skill),
+                    Some(true) => self.requests.push(SkillRequest::Train(skill)),
+                    None => {}
                 }
             } else if element_id == id("UntrainButton") {
-                SkillRequest::ConfirmUntrain(skill)
+                self.make_untrain_dialog(tree, dialogs, source, skill);
             } else if element_id == id("RaiseButton") {
-                SkillRequest::Raise(skill)
+                self.requests.push(SkillRequest::Raise(skill));
             } else {
-                SkillRequest::ConfirmCancelUntrain(skill)
-            };
-            self.requests.push(request);
+                self.make_cancel_dialog(tree, dialogs, source, skill);
+            }
         }
         let tab = ELEMENT_PANELS
             .iter()
@@ -585,5 +754,32 @@ impl SkillTreeUi {
         if tab || craft {
             self.handle_element(tree, source, element_id);
         }
+    }
+}
+
+/// `UIElement::SetTooltip` on a named button under the modify field.
+fn set_button_tooltip(tree: &mut UiTree, modify: usize, name: &str, text: String) {
+    if let Some(button) = tree.child_recursive(modify, id(name)) {
+        tree.set_tooltip(button, Some(text));
+    }
+}
+
+/// `UIElement_Text::TruncateText`: while the text is wider than the element (its width plus
+/// one), its last character goes and the ellipsis is added, until it fits.
+fn truncate_text(tree: &mut UiTree, index: usize, ellipsis: &str) {
+    let Some(text) = tree.get(index).and_then(|e| e.text()) else {
+        return;
+    };
+    let limit = tree.get(index).map_or(0, |e| e.rect().width());
+    let mut kept: Vec<char> = text.chars().collect();
+    let mut shown = text.clone();
+    while tree.text_line_width(index, &shown).is_some_and(|w| limit + 1 < w) {
+        if kept.pop().is_none() {
+            break;
+        }
+        shown = format!("{}{ellipsis}", kept.iter().collect::<String>());
+    }
+    if shown != text {
+        tree.set_text(index, &shown);
     }
 }

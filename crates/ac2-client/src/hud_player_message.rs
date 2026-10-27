@@ -113,8 +113,8 @@ impl HudView {
             if let Some(dialogs) = dialogs.as_mut() {
                 options.message(&mut player.client.borrow_mut(), tree, dialogs, message);
             }
-            if let Some(skills) = skills.as_mut() {
-                skills.message(tree, player, message);
+            if let (Some(skills), Some(dialogs)) = (skills.as_mut(), dialogs.as_mut()) {
+                skills.message(tree, dialogs, player, message);
             }
             if let Some(bar) = shortcuts.as_mut() {
                 bar.message(tree, player, message);

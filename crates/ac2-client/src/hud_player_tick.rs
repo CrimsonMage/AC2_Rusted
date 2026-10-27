@@ -88,6 +88,10 @@ impl HudView {
             if let Some(page) = assistance.as_mut() {
                 crate::hud_assistance::assistance_outcomes(page, &outcomes);
             }
+            // The train, untrain and cancel confirmations (`gmSkillTreeUI::RecvNotice_CloseConfirmationDialog`).
+            if let Some(skills) = skills.as_mut() {
+                skills.dialog_outcomes(&outcomes);
+            }
             // The melt's confirmation (`CloseConfirmationDialog`).
             if let Some(request) = money.as_mut().and_then(|b| b.take_outcome(&outcomes)) {
                 crate::ui_inventory::item_commands(request, &mut commands);
@@ -204,6 +208,9 @@ impl HudView {
                 });
             }
         }
+        if let (Some(skills), Some(dialogs)) = (skills.as_mut(), dialogs.as_mut()) {
+            skills.follow_show_state(tree, dialogs);
+        }
         if let Some(skills) = skills.as_mut() {
             for request in skills.take_requests() {
                 match request {
@@ -211,17 +218,16 @@ impl HudView {
                         examine(kind, data, 0, &mut commands);
                         open_examination = true;
                     }
-                    // The confirmation dialogs are not modelled: confirmed at once.
-                    SkillRequest::Train(skill) | SkillRequest::ConfirmTrain(skill) => {
+                    SkillRequest::Train(skill) => {
                         commands.push(Command::Skill(ac2_weenie::SkillRequest::Train(skill)));
                     }
                     SkillRequest::Raise(skill) => {
                         commands.push(Command::Skill(ac2_weenie::SkillRequest::Raise(skill)));
                     }
-                    SkillRequest::ConfirmUntrain(skill) => {
+                    SkillRequest::Untrain(skill) => {
                         commands.push(Command::Skill(ac2_weenie::SkillRequest::Untrain(skill)));
                     }
-                    SkillRequest::ConfirmCancelUntrain(_) => {
+                    SkillRequest::CancelUntrain(_) => {
                         commands.push(Command::Skill(ac2_weenie::SkillRequest::CancelUntrain));
                     }
                 }
