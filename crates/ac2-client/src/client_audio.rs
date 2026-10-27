@@ -8,15 +8,17 @@ use std::collections::hash_map::Entry;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 use ac2_anim::Ac2AnimEvent;
-use ac2_assets::{Ac2FxSoundNode, Ac2VisualFxSounds};
+use ac2_assets::{Ac2FxObject, Ac2FxSoundNode, Ac2VisualFxSounds};
 use ac2_audio::{Channel, Emitter, LoopingMode, PlaySoundData, SoundManager, SoundType};
 use ac2_core::Random;
 use ac2_physics::{CellSource, PhysicsBody, Position, Vector};
 
 use crate::client::Client;
+use crate::fx_objects::FxObjects;
 use crate::fx_particles::{
     light_starts, particle_starts, startup_light_starts, ObjectLightStart, ObjectParticleStart,
 };
+use crate::remote::Context;
 
 /// A visual's FX sounds, read on the loader thread: `FXTable::GetFXData` per FX id, and which of
 /// their sounds loop (`FXManager::SoundIsLooping`).
@@ -195,6 +197,8 @@ pub(crate) struct ClientAudio {
     /// (`FXManager::DoParticleFX`), and the handles of those FX stopped or whose objects left.
     pub(crate) object_particles: Vec<ObjectParticleStart>,
     pub(crate) object_particle_stops: Vec<u64>,
+    /// The FX-made objects, colours and hides (`FXManager::DoCreateObjectFX`, `DoColorFX`).
+    pub(crate) fx_objects: FxObjects,
     /// The lights the objects' FX placed and have not been taken (`FXManager::DoLightSourceFX`),
     /// and the objects that left the world (their lights go with them).
     pub(crate) object_lights: Vec<ObjectLightStart>,
@@ -291,6 +295,7 @@ impl Client {
             object_particle_stops: Vec::new(),
             object_lights: Vec::new(),
             object_lights_gone: Vec::new(),
+            fx_objects: FxObjects::default(),
             light_effects: true,
             startup_objects: HashSet::new(),
             particle_handles: 0,
@@ -563,10 +568,25 @@ impl Client {
                                 if audio.light_effects {
                                     audio.object_lights.extend(light_starts(id, effect, table));
                                 }
+                                // `DoTargettedFX`'s object part for a new FX.
+                                let nodes: Vec<Ac2FxObject> = table
+                                    .get(effect)
+                                    .map(|list| list.iter().map(|a| a.object).collect())
+                                    .unwrap_or_default();
+                                audio.fx_objects.start(id, effect, &nodes, false, now);
                             }
                         }
                     }
                     Ac2AnimEvent::StopFx { fx: effect } => {
+                        // A startup FX runs on until forced (`FXManager::StopFX`'s
+                        // `m_bStartupFX` check, with no force flag from the animation).
+                        if audio
+                            .fx_objects
+                            .record(id, effect)
+                            .is_some_and(|r| r.startup)
+                        {
+                            continue;
+                        }
                         if sounds.is_some() {
                             fx.stop_fx(effect, &mut audio.manager);
                         }
@@ -574,6 +594,11 @@ impl Client {
                         if let Some(handles) = fx.particles.remove(&effect) {
                             audio.object_particle_stops.extend(handles);
                         }
+                        let nodes: Vec<Ac2FxObject> = particles
+                            .and_then(|table| table.get(effect))
+                            .map(|list| list.iter().map(|a| a.object).collect())
+                            .unwrap_or_default();
+                        audio.fx_objects.stop(id, effect, &nodes, now);
                     }
                     _ => {}
                 }
@@ -588,9 +613,56 @@ impl Client {
                 fx.use_time(step, now, data, call.is_player, &mut audio.manager);
             }
         }
+        // `FXManager::UseTime`'s expired FX stop.
+        audio.fx_objects.expire(now);
         if let Some(locked) = lock {
             self.lock_player_actions(locked);
         }
+        self.apply_fx_objects(now);
+    }
+
+    /// The FX objects the sound pass asked for are created at their emitter, and the faded ones
+    /// whose destruction has come are removed (`CObjectMaint`'s pending deletions).
+    fn apply_fx_objects(&mut self, now: f64) {
+        let pending = self
+            .audio
+            .as_mut()
+            .map(|audio| audio.fx_objects.take_pending())
+            .unwrap_or_default();
+        let player_id = self.player.as_ref().map(|p| p.id);
+        let player = self
+            .player
+            .as_ref()
+            .filter(|p| p.body.is_some())
+            .map(|p| p.position());
+        for object in pending {
+            let at = if Some(object.emitter) == player_id {
+                player
+            } else {
+                self.remotes.get(object.emitter).and_then(|r| r.position())
+            };
+            let Some(position) = at else {
+                continue;
+            };
+            let mut cx = Context {
+                session: &mut self.session,
+                terrain: &self.terrain,
+                player,
+            };
+            self.remotes
+                .add_local(object.id, object.visual, position, &mut cx);
+        }
+        let destroyed = self
+            .audio
+            .as_mut()
+            .map(|audio| audio.fx_objects.step(now))
+            .unwrap_or_default();
+        for id in destroyed {
+            if self.remotes.is_local(id) {
+                self.remotes.removed(id);
+            }
+        }
+        self.request_remote_bodies();
     }
 
     /// `CPhysicsObj::InitObjectEnd` -> `ApplyStartupFX(rep, object)`: each object whose body
@@ -645,6 +717,7 @@ impl Client {
             .filter(|id| *id & 0xFF00_0000_0000_0000 != ac2_audio::AMBIENT_EMITTERS)
             .collect();
         for id in gone {
+            audio.fx_objects.remove_emitter(id, now);
             if let Some(fx) = audio.objects.remove(&id) {
                 // The object's part array goes with it, and so its particle systems and lights.
                 audio

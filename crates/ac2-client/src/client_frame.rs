@@ -55,6 +55,11 @@ impl Client {
             progress: self.progress_frame(),
             radar: self.radar_frame(),
             markers: self.radar.markers.clone(),
+            fx_looks: self
+                .audio
+                .as_ref()
+                .map(|audio| audio.fx_objects.looks())
+                .unwrap_or_default(),
         }
     }
 

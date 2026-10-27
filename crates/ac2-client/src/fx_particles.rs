@@ -112,6 +112,7 @@ mod tests {
             water_plane: false,
             fire_and_forget: false,
             light,
+            object: Default::default(),
         }
     }
 

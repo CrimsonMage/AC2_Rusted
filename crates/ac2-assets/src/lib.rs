@@ -77,8 +77,8 @@ pub use ac2_appearance::{
 };
 pub use ac2_cell_surface::decode_ac2_cell_surfaces;
 pub use ac2_entity::{read_ac2_entity_desc, Ac2EntityDesc};
-pub use ac2_fx::Ac2FxLight;
 pub use ac2_fx::Ac2FxSoundNode;
+pub use ac2_fx::{Ac2FxLight, Ac2FxObject};
 pub use ac2_light_source::{read_ac2_light_source, Ac2LightSource};
 pub use ac2_material::{
     Ac2LayerLighting, Ac2LayerModifier, Ac2LayerStage, Ac2MaterialLayer, Ac2RenderMaterial,

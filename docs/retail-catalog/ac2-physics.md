@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 483 done, 95 partial, 768 to do, 778 skipped.
+2124 retail functions: 484 done, 97 partial, 765 to do, 778 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1242,13 +1242,13 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [-] `FXMap_FromFileNode` · 006a8b00 — admin FXMap text tool, not used by the client
 
-## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (8/44)
+## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (9/44)
 
 ### DecalEffectDesc
 - [-] `DecalEffectDesc::DecalEffectDesc` · 005051c0 · legions 004f3500 — C++ constructor/destructor; Rust constructor and Drop replace it
 
 ### FXManager
-- [ ] `FXManager::DoColorFX` · 00505210 · legions 004f3550 — needs port: FX manager effect
+- [x] `FXManager::DoColorFX` · 00505210 · legions 004f3550 — ac2-client fx_objects.rs set_colour: the emitter's colour ramps over the node's ramp time (PHYSICSOBJREP property ramp); drawn through FxLooks tints; restored by StopFX (node restore, 0.1 s) and by the colour lifetime
 - [ ] `FXManager::DoSliderFX` · 005052d0 · legions 004f3610 — needs port: FX manager effect
 - [ ] `FXManager::DoRepulseFX` · 00505310 · legions 004f3650 — needs port: FX manager effect
 - [ ] `FXManager::DoStreakFX` · 00505340 · legions 004f3680 — needs port: FX manager effect
@@ -1297,7 +1297,7 @@ Legend and workflow: [README](README.md).
 - [-] `FXState::FXState` · 005065e0 · legions 004f4800 — C++ constructor/destructor; Rust constructor and Drop replace it
 
 ### FXManager
-- [ ] `FXManager::DoTargetAndCloningFXs` · 00506680 · legions 004f48a0 — needs port: FX manager effect
+- [~] `FXManager::DoTargetAndCloningFXs` · 00506680 · legions 004f48a0 — ac2-client fx_objects.rs start: target hide (m_hide_target, unhidden on stop) and destruction (m_destroy_target). Not ported: retarget clones, parent/unparent to the holding location, target FX (m_target_fx_id)
 - [x] `FXManager::ChannelMissmatch` · 005069b0 · legions 004f4bd0 — FXManager::ChannelMissmatch - FXManager::ChannelMissmatch, ac2-assets ac2_fx.rs and ac2-client client_audio.rs
 
 ### ChannelPrefs
@@ -1305,11 +1305,11 @@ Legend and workflow: [README](README.md).
 - [-] `ChannelPrefs::HandleChange` · 00506be0 — admin/debug or text-file tooling
 
 ### FXManager
-- [ ] `FXManager::DoCreateObjectFX` · 00507010 · legions 004f5230 — needs port: FX manager effect
-- [~] `FXManager::StopFX` · 00507650 · legions 004f5870 — ac2-client client_audio.rs stop_fx destroys the FX's looping particle systems by handle and stops its looping sounds (non-looping systems run out). Retail does not stop the FX's lights: a CPartArray LightSourceInstance carries no FX id, so each runs out by its lifespan (tests/fx_light_7160.rs stop_fx_leaves_the_startup_light_running). Still not ported: the FX objects DoCreateObjectFX made (m_object_ids: FadeAndDestroyObject 0.5 s, 3.0 s), the unhide of m_objects_to_unhide, and the restore colours
+- [~] `FXManager::DoCreateObjectFX` · 00507010 · legions 004f5230 — ac2-client fx_objects.rs: the node's object is created at its emitter's position (CreateTemporaryObject at the rep's position, id 0x13FF...), handed to the FX (state object ids, target), faded and destroyed on StopFX/expiry (FadeAndDestroyObject 0.5/3.0). Not ported: bone and holding-location placement, water-plane placement, the behaviour start (its object is kept as the failed-behaviour fallback), ethereal physics flags
+- [~] `FXManager::StopFX` · 00507650 · legions 004f5870 — ac2-client fx_objects.rs stop: startup FX kept (m_bStartupFX), objects faded, targets unhidden, colour restored; sound and particle stop as before. Not ported: streak stop, appearance removal, camera FX, target FX on the target
 - [-] `FXManager::FXManager` · 00507d10 · legions 004f5e80 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `FXManager::Destroy` · 00507db0 · legions 004f5f20 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-- [~] `FXManager::UseTime` · 00507df0 · legions 004f5f60 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
+- [~] `FXManager::UseTime` · 00507df0 · legions 004f5f60 — ac2-client fx_objects.rs expire: an FX whose end came tears down as StopFX does (objects, hides, colour); sound and particle ends keep their existing approximation
 
 ### _STL::map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>
 - [-] `_STL::map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>::operator[]` · 00508360 · legions 004f6490 — STL/MSVC or archive template helper; Rust collections replace it

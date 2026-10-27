@@ -5433,7 +5433,7 @@ key	status	note
 005048f0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 00504940	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 005051c0	-	C++ constructor/destructor; Rust constructor and Drop replace it
-00505210	_	needs port: FX manager effect
+00505210	x	ac2-client fx_objects.rs set_colour: the emitter's colour ramps over the node's ramp time (PHYSICSOBJREP property ramp); drawn through FxLooks tints; restored by StopFX (node restore, 0.1 s) and by the colour lifetime
 005052d0	_	needs port: FX manager effect
 00505310	_	needs port: FX manager effect
 00505340	_	needs port: FX manager effect
@@ -5458,15 +5458,15 @@ key	status	note
 005064f0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 00506520	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 005065e0	-	C++ constructor/destructor; Rust constructor and Drop replace it
-00506680	_	needs port: FX manager effect
+00506680	~	ac2-client fx_objects.rs start: target hide (m_hide_target, unhidden on stop) and destruction (m_destroy_target). Not ported: retarget clones, parent/unparent to the holding location, target FX (m_target_fx_id)
 005069b0	x	FXManager::ChannelMissmatch - FXManager::ChannelMissmatch, ac2-assets ac2_fx.rs and ac2-client client_audio.rs
 00506b00	-	admin/debug or text-file tooling
 00506be0	-	admin/debug or text-file tooling
-00507010	_	needs port: FX manager effect
-00507650	~	ac2-client client_audio.rs stop_fx destroys the FX's looping particle systems by handle and stops its looping sounds (non-looping systems run out). Retail does not stop the FX's lights: a CPartArray LightSourceInstance carries no FX id, so each runs out by its lifespan (tests/fx_light_7160.rs stop_fx_leaves_the_startup_light_running). Still not ported: the FX objects DoCreateObjectFX made (m_object_ids: FadeAndDestroyObject 0.5 s, 3.0 s), the unhide of m_objects_to_unhide, and the restore colours
+00507010	~	ac2-client fx_objects.rs: the node's object is created at its emitter's position (CreateTemporaryObject at the rep's position, id 0x13FF...), handed to the FX (state object ids, target), faded and destroyed on StopFX/expiry (FadeAndDestroyObject 0.5/3.0). Not ported: bone and holding-location placement, water-plane placement, the behaviour start (its object is kept as the failed-behaviour fallback), ethereal physics flags
+00507650	~	ac2-client fx_objects.rs stop: startup FX kept (m_bStartupFX), objects faded, targets unhidden, colour restored; sound and particle stop as before. Not ported: streak stop, appearance removal, camera FX, target FX on the target
 00507d10	-	C++ constructor/destructor; Rust constructor and Drop replace it
 00507db0	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-00507df0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
+00507df0	~	ac2-client fx_objects.rs expire: an FX whose end came tears down as StopFX does (objects, hides, colour); sound and particle ends keep their existing approximation
 00508360	-	STL/MSVC or archive template helper; Rust collections replace it
 005083f0	-	STL/MSVC or archive template helper; Rust collections replace it
 00508660	-	C++ constructor/destructor; Rust constructor and Drop replace it

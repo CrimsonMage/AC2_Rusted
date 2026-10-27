@@ -64,6 +64,11 @@ impl Remote {
             .or(self.stored)
     }
 
+    /// The visual the object was created with.
+    pub(crate) fn visual(&self) -> Option<u32> {
+        self.visual
+    }
+
     pub(crate) fn in_world(&self) -> bool {
         self.in_world
     }
@@ -114,6 +119,8 @@ fn visible(terrain: &Terrain, cell: u32) -> bool {
 #[derive(Default)]
 pub(crate) struct Remotes {
     objects: BTreeMap<u64, Remote>,
+    /// The objects the client made itself (an FX's objects), with no session entry.
+    local: BTreeSet<u64>,
     /// `CObjectMaint::lost_cell_table`: each lost cell's objects, in arrival order.
     lost_cells: BTreeMap<u32, Vec<u64>>,
     /// Loaded Setups by visual, and the visuals asked for.
@@ -476,6 +483,44 @@ impl Remotes {
     pub(crate) fn removed(&mut self, id: u64) {
         self.remove_from_lost_cell(id);
         self.objects.remove(&id);
+        self.local.remove(&id);
+    }
+
+    /// `CObjectMaint::CreateTemporaryObject`: an object the client makes (an FX's), of `visual`
+    /// at `position`. It has no session entry; it is listed by [`Remotes::local_ids`] until
+    /// [`Remotes::removed`].
+    pub(crate) fn add_local(
+        &mut self,
+        id: u64,
+        visual: u32,
+        position: Position,
+        cx: &mut Context<'_>,
+    ) {
+        self.objects.insert(
+            id,
+            Remote {
+                visual: Some(visual),
+                body: None,
+                failed: false,
+                stored: Some(position),
+                in_world: false,
+                lost_cell: None,
+                active: true,
+                player_distance: 0.0,
+            },
+        );
+        self.local.insert(id);
+        self.try_create(id, cx);
+    }
+
+    /// The client-made objects, in id order.
+    pub(crate) fn local_ids(&self) -> impl Iterator<Item = u64> + '_ {
+        self.local.iter().copied()
+    }
+
+    /// Whether `id` is a client-made object.
+    pub(crate) fn is_local(&self, id: u64) -> bool {
+        self.local.contains(&id)
     }
 
     /// `CObjectMaint::ReleaseObjCell` for every cell of a released block: its objects in the

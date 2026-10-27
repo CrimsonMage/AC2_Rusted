@@ -142,6 +142,7 @@ pub fn resolve_ac2_visual_fx_particles(
                 fire_and_forget: node.fire_and_forget,
                 light: node.light,
                 looping,
+                object: node.object,
             });
         }
         entries.insert(id, Arc::from(attachments));

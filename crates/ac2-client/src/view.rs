@@ -46,6 +46,8 @@ struct Drawn<'a> {
     origin: [f32; 3],
     rotation: [f32; 4],
     pose: &'a [PartPose],
+    /// The FX's colour and fade for the object (white for none).
+    tint: [f32; 4],
 }
 
 /// The view's state.
@@ -94,12 +96,14 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
             origin: p.origin,
             rotation: p.rotation,
             pose: &p.pose,
+            tint: frame.fx_looks.tints.get(&p.id).copied().unwrap_or([1.0; 4]),
         })
     });
     let others = frame
         .objects
         .iter()
         .filter(|o| o.in_world && o.holder.is_none())
+        .filter(|o| !frame.fx_looks.hidden.contains(&o.id))
         .filter_map(|o| {
             let visual = o.visual?;
             Some(Drawn {
@@ -112,6 +116,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
                 origin: o.origin,
                 rotation: o.rotation,
                 pose: &o.pose,
+                tint: frame.fx_looks.tints.get(&o.id).copied().unwrap_or([1.0; 4]),
             })
         });
     player.chain(others).collect()
@@ -306,7 +311,7 @@ impl ClientView {
                     key,
                     world,
                     pose,
-                    tint: [1.0; 4],
+                    tint: drawn.tint,
                     point_lights: self.scene.object_point_lights(position, 0.0),
                 })
             })

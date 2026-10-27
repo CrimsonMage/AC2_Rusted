@@ -32,7 +32,7 @@ impl Client {
     }
 
     /// Asks the loader threads for the Setups new objects need.
-    fn request_remote_bodies(&mut self) {
+    pub(crate) fn request_remote_bodies(&mut self) {
         for visual in self.remotes.take_requests() {
             self.loader.request(Request::Body(visual));
         }
@@ -320,6 +320,45 @@ impl Client {
                     pose: body
                         .map(|b| crate::motion::pose(b, self.pose_blend_time()))
                         .unwrap_or_default(),
+                })
+            })
+            .chain(self.local_object_frames())
+            .collect()
+    }
+
+    /// The objects the client made for FX (`CObjectMaint::CreateTemporaryObject`), once their body
+    /// is in: they have no session entry, so they are drawn where their body stands.
+    fn local_object_frames(&self) -> Vec<ObjectFrame> {
+        self.remotes
+            .local_ids()
+            .filter_map(|id| {
+                let remote = self.remotes.get(id)?;
+                let body = remote.body()?;
+                let (cell, origin, rotation) =
+                    crate::motion::drawn_place(body, self.render_interpolation);
+                let state = body.movement_state();
+                Some(ObjectFrame {
+                    id,
+                    visual: remote.visual(),
+                    setup: None,
+                    name: None,
+                    cell,
+                    origin,
+                    rotation,
+                    heading_degrees: None,
+                    in_world: remote.in_world(),
+                    lost_cell: None,
+                    active: true,
+                    velocity: state.velocity,
+                    contact: state.contact,
+                    mode: None,
+                    animated_mode: Some(body.mode()),
+                    motion: [0.0; 3],
+                    holder: None,
+                    container: None,
+                    wielder: None,
+                    appearance: Default::default(),
+                    pose: crate::motion::pose(body, self.pose_blend_time()),
                 })
             })
             .collect()

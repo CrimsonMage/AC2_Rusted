@@ -109,6 +109,37 @@ fn every_legions_fx_table_decodes_to_its_exact_length() {
     assert!(sound_refs > 10_000, "{sound_refs} FX sound references");
 }
 
+/// The object facts of the FX nodes decode with the real `DBFXTable` layout: object-creating
+/// nodes exist, each with a visual, a finite lifetime and colour, and hide or colour nodes are
+/// found too. A misaligned read would scatter these out of range.
+#[test]
+fn fx_nodes_decode_their_object_facts() {
+    let Some((dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    let ids = portal_ids(&dataset, 0x1E00_0000);
+    let (mut vdesc, mut hides, mut colours, mut sample) = (0, 0, 0, None);
+    for did in &ids {
+        let table = load::<Ac2FxTable>(&store, *did);
+        for (fx, nodes) in table.entries.iter() {
+            for node in nodes.iter() {
+                let object = node.object;
+                assert!(object.lifetime.is_finite());
+                assert!(object.ramp_time.is_finite() && object.ramp_time >= 0.0);
+                if object.vdesc != 0 {
+                    vdesc += 1;
+                    sample.get_or_insert((*did, *fx, object.vdesc));
+                }
+                hides += usize::from(object.hide_target);
+                colours += usize::from(object.color.is_some());
+            }
+        }
+    }
+    assert!(vdesc > 0, "object-creating FX nodes");
+    assert!(colours > 0, "colour FX nodes");
+    eprintln!("object facts: vdesc {vdesc}, hide {hides}, colour {colours}, sample {sample:08X?}");
+}
+
 #[test]
 fn the_human_visual_resolves_its_footstep_sounds() {
     let Some((_, store)) = ac2_dataset() else {

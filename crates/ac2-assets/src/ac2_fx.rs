@@ -29,6 +29,46 @@ pub struct Ac2FxLight {
     pub fade_time: f32,
 }
 
+/// The object facts of one `FXNode`: the object it creates (`FXManager::DoCreateObjectFX`), its
+/// colour (`FXManager::DoColorFX`), what it does to the object it targets
+/// (`FXManager::DoTargetAndCloningFXs`'s hide and destroy), and whether `StopFX` restores the
+/// colour (`FXManager::StopFX`'s `m_restore`).
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct Ac2FxObject {
+    /// `m_vdesc_id`: the visual of the object the node creates (`CreateTemporaryObject`).
+    pub vdesc: u32,
+    /// `m_behavior`: the behaviour the created object starts (its failure keeps the object).
+    pub behavior: u32,
+    /// `m_lifetime`: seconds the created object's FX lasts (zero: until stopped).
+    pub lifetime: f32,
+    /// `m_hide_target`: the FX's target object is hidden until the FX stops.
+    pub hide_target: bool,
+    /// `m_destroy_target`: the FX's target object fades and is destroyed.
+    pub destroy_target: bool,
+    /// `m_target_fx_id`: an FX the target object plays.
+    pub target_fx_id: u32,
+    /// `m_has_color` and `m_color` (r, g, b, a): the emitter's colour, ramped over `ramp_time`.
+    pub color: Option<[f32; 4]>,
+    /// `m_ramp_time`: seconds a colour change takes.
+    pub ramp_time: f32,
+    /// `m_color_lifetime`: seconds a colour change holds before the FX restores it.
+    pub color_lifetime: f32,
+    /// `m_restore`: `StopFX` ramps the colour back to white (over 0.1 s).
+    pub restore: bool,
+}
+
+impl Ac2FxObject {
+    /// Whether the node carries any object fact `DoTargettedFX` acts on.
+    pub fn is_active(&self) -> bool {
+        self.vdesc != 0
+            || self.hide_target
+            || self.destroy_target
+            || self.target_fx_id != 0
+            || self.color.is_some()
+            || self.restore
+    }
+}
+
 /// The particle and light part of one `FXNode`: the `PSDesc` list (`GetParticleID` picks one at
 /// random) and where the system attaches (`PHYSICSOBJREP::CreateParticleSystem`), and the light
 /// it places (`FXManager::DoLightSourceFX`). A node with a light and no `PSDesc` keeps only the
@@ -51,6 +91,8 @@ pub struct Ac2FxParticleNode {
     pub remove_rotation: bool,
     /// `m_water_plane`: the system rides the cell's water surface.
     pub water_plane: bool,
+    /// The node's object facts (see [`Ac2FxObject`]).
+    pub object: Ac2FxObject,
 }
 
 /// One FX id's data list (`PSmartArray<FXData>`), reduced to its particle nodes.
@@ -245,26 +287,50 @@ fn read_fx_node(
         // `m_has_streak`, then `StreakFX` (colour, two points, material, five scalars).
         skip(cursor, 4 + 13 * 4)?;
     }
-    skip_words(cursor, &[0x800, 0x1000, 0x2000, 0x4000])?;
-    if has(0x8000) {
-        skip(cursor, 4 + 16)?;
-    }
-    skip_words(
-        cursor,
-        &[
-            0x1_0000,
-            0x2_0000,
-            0x4_0000,
-            0x20_0000_0000,
-            0x8_0000,
-            0x10_0000,
-            0x20_0000,
-            0x40_0000,
-            0x80_0000,
-            0x8_0000_0000,
-            0x100_0000,
-        ],
-    )?;
+    skip_words(cursor, &[0x800, 0x1000, 0x2000])?;
+    let restore = field(cursor, 0x4000)? != 0;
+    // `m_has_color`, then `m_color` (r, g, b, a).
+    let color = if has(0x8000) {
+        let has_color = word(cursor)? != 0;
+        let rgba = [
+            float(cursor)?,
+            float(cursor)?,
+            float(cursor)?,
+            float(cursor)?,
+        ];
+        has_color.then_some(rgba)
+    } else {
+        None
+    };
+    // Stream order: prop colour, vdesc, lifetime, colour lifetime, behaviour, parent, unparent,
+    // retarget, destroy target, hide target, target FX.
+    field(cursor, 0x1_0000)?;
+    let vdesc = field(cursor, 0x2_0000)?;
+    let lifetime = if has(0x4_0000) { float(cursor)? } else { 0.0 };
+    let color_lifetime = if has(0x20_0000_0000) {
+        float(cursor)?
+    } else {
+        0.0
+    };
+    let behavior = field(cursor, 0x8_0000)?;
+    field(cursor, 0x10_0000)?;
+    field(cursor, 0x20_0000)?;
+    field(cursor, 0x40_0000)?;
+    let destroy_target = field(cursor, 0x80_0000)? != 0;
+    let hide_target = field(cursor, 0x8_0000_0000)? != 0;
+    let target_fx_id = field(cursor, 0x100_0000)?;
+    let object = Ac2FxObject {
+        vdesc,
+        behavior,
+        lifetime,
+        hide_target,
+        destroy_target,
+        target_fx_id,
+        color,
+        ramp_time,
+        color_lifetime,
+        restore,
+    };
     let flag = |cursor: &mut ArchiveCursor<'_>, bit: u64, default: bool| {
         Ok::<_, Malformed>(if has(bit) {
             word(cursor)? != 0
@@ -311,16 +377,20 @@ fn read_fx_node(
     let player_only = flag(cursor, 0x4_0000_0000, false)?;
     skip_words(cursor, &[0x10_0000_0000])?;
     let remove_rotation = field(cursor, 0x40_0000_0000)? != 0;
-    let particle = (!particle_descs.is_empty() || light.is_some()).then(|| Ac2FxParticleNode {
-        particle_descs: Arc::from(particle_descs),
-        fire_and_forget,
-        light,
-        holding_location,
-        bone_name,
-        bone_offset,
-        remove_rotation,
-        water_plane,
-    });
+    let particle =
+        (!particle_descs.is_empty() || light.is_some() || object.is_active()).then(|| {
+            Ac2FxParticleNode {
+                particle_descs: Arc::from(particle_descs),
+                fire_and_forget,
+                light,
+                holding_location,
+                bone_name,
+                bone_offset,
+                remove_rotation,
+                water_plane,
+                object,
+            }
+        });
     let sound = Ac2FxSoundNode {
         sounds: Arc::from(sounds),
         ramp_time,

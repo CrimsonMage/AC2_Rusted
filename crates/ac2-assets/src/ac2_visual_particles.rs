@@ -15,7 +15,7 @@ use ac2_db::{
 };
 use ac2_math::Quat;
 
-use crate::ac2_fx::{Ac2FxLight, Ac2FxParticleNode, Ac2FxTable};
+use crate::ac2_fx::{Ac2FxLight, Ac2FxObject, Ac2FxParticleNode, Ac2FxTable};
 use crate::ac2_visual_desc::Ac2VisualDesc;
 use ac2_anim::{Ac2Setup, Ac2Transform};
 
@@ -38,6 +38,8 @@ pub struct Ac2ParticleAttachment {
     pub light: Option<Ac2FxLight>,
     /// `FXManager::ParticleIsLooping` of each `particle_descs` entry (the same order).
     pub looping: Arc<[bool]>,
+    /// The node's object facts (`FXNode`'s vdesc, hide, colour; see [`Ac2FxObject`]).
+    pub object: Ac2FxObject,
 }
 
 /// The startup particle systems of a visual and its `m_particle_scale`.
@@ -119,6 +121,7 @@ pub fn resolve_ac2_visual_particles(
             fire_and_forget: node.fire_and_forget,
             light: node.light,
             looping,
+            object: node.object,
         });
     }
     let attachments: Arc<[_]> = attachments.into();
