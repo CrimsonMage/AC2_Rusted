@@ -361,18 +361,10 @@ impl App {
         };
         show_world_names(&state.window, &events);
         for saved in screenshot::finished(&mut state.screenshots) {
+            // Retail's SaveScreenshot shows no chat line, on success or failure.
             match saved {
-                Ok(path) => {
-                    eprintln!("ac2: screenshot {}", path.display());
-                    view.chat_display(
-                        screenshot::TEXT_TYPE_STANDARD,
-                        &format!("Screenshot saved to {}", path.display()),
-                    );
-                }
-                Err(error) => {
-                    eprintln!("ac2: screenshot: {error}");
-                    view.set_error_msg("Screenshot failed.");
-                }
+                Ok(path) => eprintln!("ac2: screenshot {}", path.display()),
+                Err(error) => eprintln!("ac2: screenshot: {error}"),
             }
         }
         for event in &events {

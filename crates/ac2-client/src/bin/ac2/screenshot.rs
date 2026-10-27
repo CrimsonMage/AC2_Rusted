@@ -19,9 +19,6 @@ pub const SCREENSHOT_KEY: u32 = 0x4100_0017;
 /// `Device::SaveScreenshot`'s bound on the numbering scan.
 const MAX_NUMBER: u32 = 100_000;
 
-/// The chat's standard text type (`chat_window`'s `TEXT_TYPE_STANDARD`): the save's line.
-pub const TEXT_TYPE_STANDARD: u32 = 0x8;
-
 /// The file name of screenshot `number` (`cap%d`; PNG here).
 pub fn file_name(number: u32) -> String {
     format!("cap{number}.png")
