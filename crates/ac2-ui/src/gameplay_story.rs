@@ -44,8 +44,12 @@ pub enum StoryEvent {
 pub struct GameplayStory {
     /// `_storyUI`: the story holding the slot.
     story: Option<StoryPlayback>,
-    /// `_playingPortalScene`: the portal scene being entered (a skippable story is not started).
+    /// `_playingPortalScene`: set by the first portal scene entered and kept for the gameplay
+    /// UI's life (only its constructor clears it).
     playing_portal_scene: bool,
+    /// `_weenieReady`: the last portal-scene notice was a leave; with the client ready,
+    /// `gmGamePlayUI::Update` exits portal space.
+    weenie_ready: bool,
     /// The ids of the scenes the slot's story was made from, in list order.
     scene_ids: Vec<u32>,
     /// Whether the slot's story has shown a keyframe, so it has music or voice to stop.
@@ -78,11 +82,20 @@ impl GameplayStory {
         self.create(scenes, true)
     }
 
-    /// `gmGamePlayUI::RecvNotice_PortalScene(enter, scenes)`: the flag follows `enter`, then
+    /// `gmGamePlayUI::RecvNotice_PortalScene(enter, scenes)`: entering sets
+    /// `_playingPortalScene` (leaving does not clear it), `_weenieReady` becomes `!enter`, then
     /// `CheckPortalScene` decides (see [`GameplayStory::check_portal_scene`]).
     pub fn portal_scene(&mut self, enter: bool, scenes: &[StoryScene]) -> Vec<StoryEvent> {
-        self.playing_portal_scene = enter;
+        if enter {
+            self.playing_portal_scene = true;
+        }
+        self.weenie_ready = !enter;
         self.check_portal_scene(scenes)
+    }
+
+    /// `_weenieReady`: the server's last portal-scene notice let the player out.
+    pub fn weenie_ready(&self) -> bool {
+        self.weenie_ready
     }
 
     /// `gmGamePlayUI::CheckPortalScene`: outside a portal scene the slot's story is torn down and

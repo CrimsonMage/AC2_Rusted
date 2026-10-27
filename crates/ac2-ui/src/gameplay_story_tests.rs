@@ -106,27 +106,22 @@ fn a_skip_key_finishes_only_a_skippable_play_sequence() {
 }
 
 #[test]
-fn leaving_a_portal_scene_tears_its_story_down_and_reports_the_incoming_scenes() {
+fn a_portal_scene_once_entered_keeps_playing_through_the_leave_notice() {
     let mut game = GameplayStory::new();
     let entering = [scene(7, true, 2)];
     assert_eq!(
         game.portal_scene(true, &entering),
         vec![StoryEvent::MouseLook(false)]
     );
+    assert!(!game.weenie_ready());
     game.prefetch_done(0.0);
     let shown = shows(&game.fade_done(0.0));
     assert_eq!(shown.len(), 1);
-    // The leave notice carries its own list; that list is what gets reported.
-    let events = game.portal_scene(false, &[scene(8, true, 1)]);
-    assert_eq!(
-        events,
-        vec![
-            StoryEvent::MouseLook(true),
-            StoryEvent::StopAudio,
-            StoryEvent::PlayScenesDone(vec![8]),
-        ]
-    );
-    assert!(!game.is_active());
+    // `RecvNotice_PortalScene` never clears `_playingPortalScene`; the leave only sets
+    // `_weenieReady`, and the story holding the slot plays on.
+    assert!(game.portal_scene(false, &[scene(8, true, 1)]).is_empty());
+    assert!(game.weenie_ready());
+    assert!(game.is_active());
 }
 
 #[test]
