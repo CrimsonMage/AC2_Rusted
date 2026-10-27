@@ -148,7 +148,7 @@ fn the_name_table_covers_the_dispatchers() {
         efun_name(0x0074_0001),
         Some("gwccinternal::CallEFun__WCC_strcat_str")
     );
-    assert_eq!(efun_ids().count(), 2112);
+    assert_eq!(efun_ids().count(), 2113);
 }
 
 #[test]
