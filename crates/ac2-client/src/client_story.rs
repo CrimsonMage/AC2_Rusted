@@ -15,16 +15,30 @@ use crate::scripts_queries::ifun;
 const DAMAGE_HOOK: u32 = 1;
 
 impl Client {
-    /// The story slot's frame step: the background is never prefetched or faded here (drawing is a
-    /// known gap), so the story is ready as soon as it is made, and a playing story moves on.
+    /// The story slot's frame step. The keyframes are in once they are made (nothing is prefetched
+    /// here). The background's fade is the HUD's: its media reports `token_play` when it ends
+    /// ([`Client::story_fade_done`]). Without a background to draw, there is no fade to wait for,
+    /// and the story starts with the frame.
     pub(crate) fn story_frame(&mut self) -> Vec<SessionEvent> {
         let now = self.session.local_time();
         let mut events = self.story.prefetch_done(now);
-        events.extend(self.story.fade_done(now));
+        if !self.story_fades_on_hud {
+            events.extend(self.story.fade_done(now));
+        }
         events.extend(self.story.tick(now));
         let mut out = Vec::new();
         self.story_events(events, &[], &mut out);
         out
+    }
+
+    /// The background's fade is done (`gmStoryUI::ListenToMessage` on `token_play`): the story
+    /// starts, or moves on, from now. Its events join the frame.
+    pub(crate) fn story_fade_done(&mut self) {
+        let now = self.session.local_time();
+        let events = self.story.fade_done(now);
+        let mut out = Vec::new();
+        self.story_events(events, &[], &mut out);
+        self.story_outbox.extend(out);
     }
 
     /// `CM_Quest::SendNotice_PlaySequence` and `CM_UI::SendNotice_PortalScene`: the scenes go to
@@ -78,6 +92,7 @@ impl Client {
                 }
                 // The keyframe's music and voice play (`gmStoryUI::Play`); the HUD draws the
                 // keyframe and hides the fields (`hud_story.rs`).
+                StoryEvent::Begin => self.story_queue.push(StoryEvent::Begin),
                 StoryEvent::Show(show) => {
                     self.play_story_sounds(show.music, show.voice);
                     self.story_queue.push(StoryEvent::Show(show));

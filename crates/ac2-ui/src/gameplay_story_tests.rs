@@ -44,7 +44,7 @@ fn a_play_sequence_takes_the_slot_with_mouse_look_off_and_starts_when_ready() {
     let scenes = [scene(1, true, 2)];
     assert_eq!(
         game.play_sequence(&scenes),
-        vec![StoryEvent::MouseLook(false)]
+        vec![StoryEvent::MouseLook(false), StoryEvent::Begin]
     );
     assert!(game.is_active());
     // The story waits for its prefetch and its fade.
@@ -111,7 +111,7 @@ fn a_portal_scene_once_entered_keeps_playing_through_the_leave_notice() {
     let entering = [scene(7, true, 2)];
     assert_eq!(
         game.portal_scene(true, &entering),
-        vec![StoryEvent::MouseLook(false)]
+        vec![StoryEvent::MouseLook(false), StoryEvent::Begin]
     );
     assert!(!game.weenie_ready());
     game.prefetch_done(0.0);

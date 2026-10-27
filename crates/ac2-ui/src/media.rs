@@ -75,6 +75,27 @@ impl UiTree {
         self.update_media(index);
     }
 
+    /// `UIElement::ResetMedia` on its own: the element's media runs again from its first item (a
+    /// story's background, whose fade is its media, starts each story from the top).
+    pub fn restart_media(&mut self, index: usize) {
+        self.reset_media(index);
+    }
+
+    /// The messages the element's description sends from its media (`MD_Data_Message`), in layout
+    /// order.
+    pub fn media_messages(&self, index: usize) -> Vec<u32> {
+        self.el(index)
+            .desc
+            .states
+            .iter()
+            .flat_map(|state| state.media.iter())
+            .filter_map(|media| match media {
+                MediaDesc::Message { message, .. } => Some(*message),
+                _ => None,
+            })
+            .collect()
+    }
+
     /// `UIElement::UpdateMedia`: the items from the current one until one waits.
     pub(crate) fn update_media(&mut self, index: usize) {
         loop {

@@ -183,6 +183,9 @@ pub struct Client {
     /// Session events the story slot made outside a frame (the skip key, the session's end);
     /// they join the next frame's events.
     pub(crate) story_outbox: Vec<SessionEvent>,
+    /// Whether the HUD's background has a fade to report (`StoryView::fades_by_media`): the
+    /// story waits for its `token_play` ([`Client::story_fade_done`]) instead of starting at once.
+    pub(crate) story_fades_on_hud: bool,
     /// Whether mouse look may be on: a story holding the slot turns it off
     /// (`CM_UI::SendNotice_UpdateCanMouseLook`).
     pub(crate) mouse_look_allowed: bool,
@@ -263,6 +266,7 @@ impl Client {
             story_scenes: Vec::new(),
             story_queue: Vec::new(),
             story_outbox: Vec::new(),
+            story_fades_on_hud: false,
             mouse_look_allowed: true,
             world_name: String::new(),
             prefs: None,

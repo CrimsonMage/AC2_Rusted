@@ -36,6 +36,9 @@ pub enum PortalSpaceCall {
 /// What the story slot asks of its caller.
 #[derive(Debug, Clone, PartialEq)]
 pub enum StoryEvent {
+    /// `gmStoryUI::gmStoryUI`: the background and the story fields come up, and the background's
+    /// fade starts (its media reports `token_play` when done).
+    Begin,
     /// `CM_UI::SendNotice_UpdateCanMouseLook`: mouse look is off while a story holds the slot
     /// (the story's constructor sends 0, its destructor 1).
     MouseLook(bool),
@@ -228,7 +231,7 @@ impl GameplayStory {
         self.story = Some(StoryPlayback::new(frames, can_be_disabled));
         self.scene_ids = ids(scenes);
         self.shown = false;
-        vec![StoryEvent::MouseLook(false)]
+        vec![StoryEvent::MouseLook(false), StoryEvent::Begin]
     }
 
     /// `gmGamePlayUI::EndSession`: the slot's story is deleted (the session's end, not a scene's).

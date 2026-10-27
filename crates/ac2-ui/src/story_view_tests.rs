@@ -109,3 +109,31 @@ fn the_story_fields_draw_each_keyframe_and_hide_again() {
         assert!(text.unwrap_or_default().is_empty(), "{name}");
     }
 }
+
+/// The background's fade is its media: the story's `token_play` comes when the fade's pause is
+/// over (3.5 s on the DVD layout), not at once.
+#[test]
+fn the_background_reports_its_fade_when_its_media_ends() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let tree = &mut hud.tree;
+    let story: StoryView = hud.story.expect("the story fields in the gameplay layout");
+    assert!(story.fades_by_media());
+
+    tree.global_loop(0.0);
+    tree.take_messages();
+    let mut story = story;
+    story.begin(tree);
+    assert!(story.is_shown());
+    let fade_done = |tree: &mut UiTree, story: &StoryView, now: f64| {
+        tree.global_loop(now);
+        tree.take_messages()
+            .iter()
+            .any(|message| story.is_fade_done(message))
+    };
+    assert!(!fade_done(tree, &story, 3.0));
+    assert!(fade_done(tree, &story, 3.6));
+}

@@ -19,6 +19,7 @@ use ac2_net::protocol::StringInfo;
 
 use crate::element::UiTree;
 use crate::layout::LayoutDesc;
+use crate::mouse::UiMessage;
 use crate::story::{StoryField, StoryShow};
 use crate::token::{tokenize, STATELESS};
 
@@ -54,6 +55,10 @@ pub struct StoryView {
     shown: bool,
     /// Whether the active field has taken its first `Frame` state in this story.
     started: bool,
+    /// The message the background's media sends when its fade is over (`gmStoryUI::ListenToMessage`
+    /// compares the background's message with its `token_play`; the layout carries that id as the
+    /// background's `MD_Data_Message`). `None` for a background with no such item.
+    fade_done: Option<u32>,
 }
 
 /// The index of `field` in [`StoryView::fields`].
@@ -84,17 +89,48 @@ impl StoryView {
             });
         }
         let [first, second]: [FieldElements; 2] = fields.try_into().ok()?;
+        let fade_done = tree.media_messages(background).first().copied();
         Some(Self {
             background,
             fields: [first, second],
             shown: false,
             started: false,
+            fade_done,
         })
     }
 
     /// Whether a story is on the screen.
     pub fn is_shown(&self) -> bool {
         self.shown
+    }
+
+    /// `gmStoryUI::gmStoryUI` on the screen: the background and the two fields show and the
+    /// background's media (its fade) starts from the top.
+    pub fn begin(&mut self, tree: &mut UiTree) {
+        self.show_roots(tree);
+        tree.restart_media(self.background);
+    }
+
+    /// Whether the background fades by its media, so `token_play` reports the fade's end. A
+    /// background without media has no fade to wait for.
+    pub fn fades_by_media(&self) -> bool {
+        self.fade_done.is_some()
+    }
+
+    /// Whether `message` is the background's fade-done message.
+    pub fn is_fade_done(&self, message: &UiMessage) -> bool {
+        message.element == Some(self.background) && self.fade_done == Some(message.message)
+    }
+
+    /// The background and the story fields show, once.
+    fn show_roots(&mut self, tree: &mut UiTree) {
+        if !self.shown {
+            self.shown = true;
+            tree.set_visible(self.background, true);
+            for field in &self.fields {
+                tree.set_visible(field.root, true);
+            }
+        }
     }
 
     /// `gmStoryUI::Play` for one keyframe: the background and the story fields show, the image
@@ -107,13 +143,7 @@ impl StoryView {
         show: &StoryShow,
         render: &dyn Fn(&StringInfo) -> String,
     ) {
-        if !self.shown {
-            self.shown = true;
-            tree.set_visible(self.background, true);
-            for field in &self.fields {
-                tree.set_visible(field.root, true);
-            }
-        }
+        self.show_roots(tree);
         let active = index(show.field);
         let other = 1 - active;
         if show.image_changed || !self.started {

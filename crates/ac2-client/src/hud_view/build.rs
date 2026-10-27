@@ -122,6 +122,7 @@ impl HudView {
             items_3d: None,
             shift_held: false,
             gameplay_shown: true,
+            story_hid_gameplay: None,
             hud_key_pending: false,
             use_key_pending: false,
             player_messages: Vec::new(),

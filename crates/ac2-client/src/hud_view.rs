@@ -78,6 +78,8 @@ pub(crate) struct HudView {
     pub(crate) dialogs: Option<ac2_ui::DialogFactory>,
     /// `gmGamePlayUI::m_shown`: the HUD is shown (`gmGamePlayUI::Show`, the `0x4100000C` key).
     pub(crate) gameplay_shown: bool,
+    /// The gameplay panels' show state before a story hid them (`None` with no story playing).
+    pub(crate) story_hid_gameplay: Option<bool>,
     /// The `0x4100000C` key was pressed this frame; [`HudView::frameworks`] runs it, where the
     /// client's story state is.
     hud_key_pending: bool,
