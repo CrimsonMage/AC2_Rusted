@@ -102,6 +102,7 @@ impl HudView {
             shop: None,
             catalog: None,
             new_sale: None,
+            consignment: None,
             radar: None,
             radar_cell: None,
             radar_coordinates: None,
@@ -173,6 +174,7 @@ impl HudView {
                     shop,
                     catalog,
                     new_sale,
+                    consignment,
                     book,
                     story,
                 },
@@ -227,6 +229,7 @@ impl HudView {
                 self.shop = shop;
                 self.catalog = catalog;
                 self.new_sale = new_sale;
+                self.consignment = consignment;
                 self.radar = Some(radar);
                 self.navigation = navigation;
                 self.overview = overview;

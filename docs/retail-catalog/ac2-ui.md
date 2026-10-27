@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 919 done, 341 partial, 920 to do, 67 skipped.
+2247 retail functions: 932 done, 353 partial, 893 to do, 69 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -496,47 +496,47 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopCatalogUI::PostShop` · 0041d0f0 · legions 0041cf10 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 - [x] `gmShopCatalogUI::RecvNotice_ViewCatalog` · 0041d230 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 
-## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (0/28)
+## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (13/28)
 
 ### UIShopSale
-- [ ] `UIShopSale::~UIShopSale` · 0041b090 · legions 0041aef0
+- [-] `UIShopSale::~UIShopSale` · 0041b090 · legions 0041aef0 — C++ destructor of the sale record: ConsignmentUi's rows own their data in Rust
 
 ### gmShopConsignmentUI
-- [ ] `gmShopConsignmentUI::UpdatePortraitPosition` · 0041b0b0 · legions 004424c0
-- [ ] `gmShopConsignmentUI::RecvNotice_UpdateMountState` · 0041b240
+- [~] `gmShopConsignmentUI::UpdatePortraitPosition` · 0041b0b0 · legions 004424c0 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
+- [~] `gmShopConsignmentUI::RecvNotice_UpdateMountState` · 0041b240 — not modelled: the mount state, the drag-from-list notice and the server selection notice
 
 ### gmShopUI
 - [~] `gmShopUI::RecvNotice_LeaveStore` · 0041b250 — ac2-ui shop.rs recv_leave_store: closes via show(false); the vtable call in the decompile is untraced
 
 ### gmShopConsignmentUI
-- [ ] `gmShopConsignmentUI::SyncPortrait` · 0041b270 · legions 0041b0d0
+- [~] `gmShopConsignmentUI::SyncPortrait` · 0041b270 · legions 0041b0d0 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
 
 ### (free functions)
-- [ ] `gmShopConsignmentUI_DDCB` · 0041b320
+- [-] `gmShopConsignmentUI_DDCB` · 0041b320 — scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
 
 ### gmShopConsignmentUI
-- [ ] `gmShopConsignmentUI::RecvNotice_StackUIDone` · 0041b390
-- [ ] `gmShopConsignmentUI::RecvNotice_CloseConfirmationDialog` · 0041b550 · legions 0041b3b0
-- [ ] `gmShopConsignmentUI::CanStackWith` · 0041b5d0 · legions 0041b430
-- [ ] `gmShopConsignmentUI::InitPortrait` · 0041b6a0 · legions 0041b500
-- [ ] `gmShopConsignmentUI::UpdatePortrait` · 0041b760 · legions 0041b5c0
-- [ ] `gmShopConsignmentUI::RecvNotice_LocalVisualDescUpdate` · 0041b7c0
-- [ ] `gmShopConsignmentUI::UpdatePosition` · 0041b7e0 · legions 0041b640
-- [ ] `gmShopConsignmentUI::CreateManagedElements` · 0041b8b0 · legions 0041b710
-- [ ] `gmShopConsignmentUI::Show` · 0041b950 · legions 0041b7b0
-- [ ] `gmShopConsignmentUI::Select` · 0041ba10 · legions 0041b870
-- [ ] `gmShopConsignmentUI::DestroyManagedElements` · 0041bc00 · legions 0041ba20
-- [ ] `gmShopConsignmentUI::RecvNotice_HandleDragFrom` · 0041bc90
-- [ ] `gmShopConsignmentUI::RecvNotice_SelectionChanged` · 0041bd20
-- [ ] `gmShopConsignmentUI::ListenToMessage` · 0041bd90 · legions 0041bbb0
-- [ ] `gmShopConsignmentUI::HandleListBoxDrop` · 0041bde0 · legions 0041bc00
-- [ ] `gmShopConsignmentUI::~gmShopConsignmentUI` · 0041bff0 · legions 0041be10
-- [ ] `gmShopConsignmentUI::PostSale` · 0041c0f0 · legions 0041bf10
-- [ ] `gmShopConsignmentUI::ListenToMessage` · 0041c480 · legions 0041c2a0
-- [ ] `gmShopConsignmentUI::UpdateSales` · 0041c820 · legions 0041c640
-- [ ] `gmShopConsignmentUI::gmShopConsignmentUI` · 0041c980 · legions 0041c7a0
-- [ ] `gmShopConsignmentUI::RecvNotice_UpdateConsignment` · 0041cb60
-- [ ] `gmShopConsignmentUI::RecvNotice_ViewConsignment` · 0041cbd0 · legions 0041c9f0
+- [x] `gmShopConsignmentUI::RecvNotice_StackUIDone` · 0041b390 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+- [x] `gmShopConsignmentUI::RecvNotice_CloseConfirmationDialog` · 0041b550 · legions 0041b3b0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+- [~] `gmShopConsignmentUI::CanStackWith` · 0041b5d0 · legions 0041b430 — ac2-ui consignment.rs can_stack_with: the item definition id comes from ConsignmentSource::item_did, which the client does not yet supply (no stacking restock in the game)
+- [~] `gmShopConsignmentUI::InitPortrait` · 0041b6a0 · legions 0041b500 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
+- [~] `gmShopConsignmentUI::UpdatePortrait` · 0041b760 · legions 0041b5c0 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
+- [~] `gmShopConsignmentUI::RecvNotice_LocalVisualDescUpdate` · 0041b7c0 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
+- [x] `gmShopConsignmentUI::UpdatePosition` · 0041b7e0 · legions 0041b640 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+- [x] `gmShopConsignmentUI::CreateManagedElements` · 0041b8b0 · legions 0041b710 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+- [x] `gmShopConsignmentUI::Show` · 0041b950 · legions 0041b7b0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+- [x] `gmShopConsignmentUI::Select` · 0041ba10 · legions 0041b870 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+- [x] `gmShopConsignmentUI::DestroyManagedElements` · 0041bc00 · legions 0041ba20 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+- [~] `gmShopConsignmentUI::RecvNotice_HandleDragFrom` · 0041bc90 — not modelled: the mount state, the drag-from-list notice and the server selection notice
+- [~] `gmShopConsignmentUI::RecvNotice_SelectionChanged` · 0041bd20 — not modelled: the mount state, the drag-from-list notice and the server selection notice
+- [x] `gmShopConsignmentUI::ListenToMessage` · 0041bd90 · legions 0041bbb0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+- [x] `gmShopConsignmentUI::HandleListBoxDrop` · 0041bde0 · legions 0041bc00 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+- [~] `gmShopConsignmentUI::~gmShopConsignmentUI` · 0041bff0 · legions 0041be10 — no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
+- [x] `gmShopConsignmentUI::PostSale` · 0041c0f0 · legions 0041bf10 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+- [~] `gmShopConsignmentUI::ListenToMessage` · 0041c480 · legions 0041c2a0 — consignment.rs message: close, new, collect, paging, selection, examination and the drop are modelled; the help page is not
+- [x] `gmShopConsignmentUI::UpdateSales` · 0041c820 · legions 0041c640 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+- [~] `gmShopConsignmentUI::gmShopConsignmentUI` · 0041c980 · legions 0041c7a0 — no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
+- [x] `gmShopConsignmentUI::RecvNotice_UpdateConsignment` · 0041cb60 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+- [x] `gmShopConsignmentUI::RecvNotice_ViewConsignment` · 0041cbd0 · legions 0041c9f0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 
 ## `ac2/client/src/ui/gameplay/gmshopnewsaleui.cpp.c` (10/14)
 

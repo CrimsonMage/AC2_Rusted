@@ -4,8 +4,9 @@
 //! `hud_player`, which routes the notices and the messages in the order the frameworks get them.
 
 use ac2_ui::{
-    CatalogRequest, CatalogUi, DialogFactory, NewSaleRequest, ShopRequest, ShopSource,
-    ShopStackCall, ShopUi, StackUi, UiTree,
+    CatalogRequest, CatalogUi, ConsignmentRequest, ConsignmentSource, ConsignmentUi, DialogFactory,
+    NewSaleRequest, NewSaleSource, NewSaleUi, ShopRequest, ShopSource, ShopStackCall, ShopUi,
+    StackUi, UiTree,
 };
 use ac2_weenie::GameplayNotice;
 
@@ -15,6 +16,9 @@ use crate::ui_sources::ClientPlayer;
 
 /// `INVALID_IID`: a stack's from and target when it splits a store's sale.
 const INVALID: u64 = 0;
+
+#[cfg(feature = "window")]
+impl ConsignmentSource for ClientPlayer<'_> {}
 
 #[cfg(feature = "window")]
 impl ShopSource for ClientPlayer<'_> {
@@ -144,4 +148,66 @@ pub fn shop_stack_calls(calls: Vec<ShopStackCall>, tree: &mut UiTree, stack: Opt
             ShopStackCall::Close(context) => stack.close_stack_ui(tree, context),
         }
     }
+}
+
+/// One of the consignment's notices (`gmShopConsignmentUI::RecvNotice_ViewConsignment`,
+/// `_UpdateConsignment`, and the server's `LeaveConsignment`); `now` is the frame's clock.
+pub fn consignment_notice(
+    panel: &mut ConsignmentUi,
+    tree: &mut UiTree,
+    dialogs: &mut DialogFactory,
+    source: &dyn ConsignmentSource,
+    now: f64,
+    notice: &GameplayNotice,
+) {
+    match notice {
+        GameplayNotice::ViewConsignment(shop) => {
+            panel.recv_view_consignment(tree, dialogs, source, shop, now)
+        }
+        GameplayNotice::UpdateConsignment(shop) => {
+            panel.recv_update_consignment(tree, source, shop)
+        }
+        GameplayNotice::LeaveConsignment => panel.recv_leave_consignment(tree, dialogs, now),
+        _ => {}
+    }
+}
+
+/// The consignment's requests: the new-sale dialog opens for `NewSale` (`InitNewSale`), the
+/// examination is asked for (returns true), and the rest are gameplay commands.
+pub fn consignment_requests(
+    requests: Vec<ConsignmentRequest>,
+    new_sale: Option<&mut NewSaleUi>,
+    tree: &mut UiTree,
+    dialogs: &mut DialogFactory,
+    source: &dyn NewSaleSource,
+    now: f64,
+    commands: &mut Vec<Command>,
+) -> bool {
+    let mut open_examination = false;
+    let mut new_sale = new_sale;
+    for request in requests {
+        match request {
+            ConsignmentRequest::NewSale { item, quantity } => {
+                if let Some(panel) = new_sale.as_deref_mut() {
+                    panel.recv_init_new_sale(tree, dialogs, source, item, quantity, now);
+                }
+            }
+            ConsignmentRequest::OpenExamination => open_examination = true,
+            ConsignmentRequest::LeaveConsignment => commands.push(Command::LeaveConsignment),
+            ConsignmentRequest::Select(item) => commands.push(Command::Select(Some(item))),
+            ConsignmentRequest::Collect { target, profits } => {
+                commands.push(Command::RequestCollect { target, profits })
+            }
+            ConsignmentRequest::Restock {
+                item,
+                quantity,
+                target,
+            } => commands.push(Command::RequestRestock {
+                item,
+                quantity,
+                target,
+            }),
+        }
+    }
+    open_examination
 }

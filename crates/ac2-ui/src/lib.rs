@@ -87,6 +87,9 @@ mod catalog;
 #[cfg(test)]
 mod catalog_tests;
 mod gameplay_keys;
+mod consignment;
+#[cfg(test)]
+mod consignment_tests;
 mod gameplay_story;
 #[cfg(test)]
 mod gameplay_story_tests;
@@ -157,6 +160,7 @@ pub use chat::{
 pub use chat_options::{ChatOptionRequest, ChatOptionSetting, ChatOptionsUi};
 pub use chat_window::{ChatMessageInfo, CHAT_TEXT_TYPES};
 pub use compose::{UiPixels, UiSurface};
+pub use consignment::{ConsignmentRequest, ConsignmentSource, ConsignmentUi};
 pub use controls::{ControlFrame, Controls};
 pub use craft::{CraftCommand, CraftSource, CraftUi, STATE_CATEGORY, STATE_RECIPE, STATE_SKILL};
 pub use damage_text::{DamagePlace, DamageTexts};

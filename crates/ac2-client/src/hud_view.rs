@@ -97,6 +97,8 @@ pub(crate) struct HudView {
     pub(crate) catalog: Option<ac2_ui::CatalogUi>,
     /// `gmShopNewSaleUI`, the consignment's new-sale dialog (its requests wait in the panel).
     pub(crate) new_sale: Option<ac2_ui::NewSaleUi>,
+    /// `gmShopConsignmentUI`, the storekeeper's consignment (its requests wait in the panel).
+    pub(crate) consignment: Option<ac2_ui::ConsignmentUi>,
     /// `gmRadarUI`'s blips, painted over the radar field each compose.
     pub(crate) radar: Option<ac2_ui::RadarUi>,
     /// The player's cell and its map coordinates as the radar shows them (rendered by the

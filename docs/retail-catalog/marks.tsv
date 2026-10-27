@@ -245,7 +245,35 @@ key	status	note
 0041ad20	-	scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
 0041ad40	x	ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
 0041af80	~	ac2-ui newsale.rs message: the sale slot's mouse-over tooltip and the help page are not modelled
+0041b090	-	C++ destructor of the sale record: ConsignmentUi's rows own their data in Rust
+0041b0b0	~	3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
+0041b240	~	not modelled: the mount state, the drag-from-list notice and the server selection notice
 0041b250	~	ac2-ui shop.rs recv_leave_store: closes via show(false); the vtable call in the decompile is untraced
+0041b270	~	3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
+0041b320	-	scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
+0041b390	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+0041b550	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+0041b5d0	~	ac2-ui consignment.rs can_stack_with: the item definition id comes from ConsignmentSource::item_did, which the client does not yet supply (no stacking restock in the game)
+0041b6a0	~	3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
+0041b760	~	3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
+0041b7c0	~	3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
+0041b7e0	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+0041b8b0	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+0041b950	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+0041ba10	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+0041bc00	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+0041bc90	~	not modelled: the mount state, the drag-from-list notice and the server selection notice
+0041bd20	~	not modelled: the mount state, the drag-from-list notice and the server selection notice
+0041bd90	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+0041bde0	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+0041bff0	~	no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
+0041c0f0	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+0041c480	~	consignment.rs message: close, new, collect, paging, selection, examination and the drop are modelled; the help page is not
+0041c800	-	scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
+0041c820	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+0041c980	~	no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
+0041cb60	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+0041cbd0	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 0041cc80	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 0041ccb0	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 0041cd30	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs

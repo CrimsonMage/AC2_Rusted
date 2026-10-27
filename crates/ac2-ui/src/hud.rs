@@ -26,6 +26,7 @@ use crate::character::CharacterUi;
 use crate::chat::{ChatStrings, ChatUi, CHAT_STRING_TABLE, REPLY_STRING_TABLE, STRING_TABLE_GROUP};
 use crate::chat_options::ChatOptionsUi;
 use crate::compose::UiPixels;
+use crate::consignment::ConsignmentUi;
 use crate::craft::CraftUi;
 use crate::damage_text::DamageTexts;
 use crate::dialog::DialogFactory;
@@ -159,6 +160,8 @@ pub struct GameplayHud {
     pub story: Option<StoryView>,
     /// `gmShopNewSaleUI`, the consignment's new-sale dialog (its managed elements are made when it opens).
     pub new_sale: Option<NewSaleUi>,
+    /// `gmShopConsignmentUI`, the storekeeper's consignment (its managed elements are made when it opens).
+    pub consignment: Option<ConsignmentUi>,
 }
 
 /// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
@@ -314,6 +317,9 @@ pub fn build_gameplay_hud(
     let shop = layouts[&LAYOUT_GAMEPLAY].as_ref().map(ShopUi::create);
     let catalog = layouts[&LAYOUT_GAMEPLAY].as_ref().map(CatalogUi::create);
     let new_sale = layouts[&LAYOUT_GAMEPLAY].as_ref().map(NewSaleUi::create);
+    let consignment = layouts[&LAYOUT_GAMEPLAY]
+        .as_ref()
+        .map(ConsignmentUi::create);
     let book = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()
         .and_then(|gameplay| BookUi::create(&mut tree, gameplay));
@@ -358,6 +364,7 @@ pub fn build_gameplay_hud(
         shop,
         catalog,
         new_sale,
+        consignment,
         book,
         story,
     })

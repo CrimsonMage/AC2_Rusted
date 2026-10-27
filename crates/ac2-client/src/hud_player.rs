@@ -108,6 +108,7 @@ impl HudView {
             shop,
             catalog,
             new_sale,
+            consignment,
             character,
             chat_options,
             money,
@@ -344,6 +345,16 @@ impl HudView {
             }
             if let Some(panel) = catalog.as_mut() {
                 crate::hud_shop::catalog_notice(panel, tree, &player, frame.server_time, notice);
+            }
+            if let (Some(panel), Some(dialogs)) = (consignment.as_mut(), dialogs.as_mut()) {
+                crate::hud_shop::consignment_notice(
+                    panel,
+                    tree,
+                    dialogs,
+                    &player,
+                    frame.server_time,
+                    notice,
+                );
             }
             if let Some(dialogs) = dialogs.as_mut() {
                 crate::ui_social::fellowship_notice(
@@ -655,6 +666,23 @@ impl HudView {
                 if let Some(panel) = new_sale.as_mut() {
                     panel.recv_stack_ui_done(tree, &player, context, amount);
                 }
+                if let (Some(panel), Some(dialogs)) = (consignment.as_mut(), dialogs.as_mut()) {
+                    panel.recv_stack_ui_done(tree, dialogs, &player, context, amount);
+                    open_examination |= crate::hud_shop::consignment_requests(
+                        panel.take_requests(),
+                        new_sale.as_mut(),
+                        tree,
+                        dialogs,
+                        &player,
+                        frame.server_time,
+                        &mut commands,
+                    );
+                    crate::hud_shop::shop_stack_calls(
+                        panel.take_stack_calls(),
+                        tree,
+                        stack.as_mut(),
+                    );
+                }
             }
             if let Some(request) = paper_doll
                 .as_mut()
@@ -691,6 +719,20 @@ impl HudView {
             if let Some(panel) = catalog.as_mut() {
                 panel.message(tree, message, frame.server_time);
                 commands.extend(crate::hud_shop::catalog_commands(panel.take_requests()));
+            }
+            // `gmShopConsignmentUI::ListenToMessage`: the consignment's buttons, rows and drop.
+            if let (Some(panel), Some(dialogs)) = (consignment.as_mut(), dialogs.as_mut()) {
+                panel.message(tree, dialogs, &player, message, frame.server_time);
+                open_examination |= crate::hud_shop::consignment_requests(
+                    panel.take_requests(),
+                    new_sale.as_mut(),
+                    tree,
+                    dialogs,
+                    &player,
+                    frame.server_time,
+                    &mut commands,
+                );
+                crate::hud_shop::shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
             }
             // `gmShopNewSaleUI::ListenToMessage`: the sale's buttons and the drop on its slot.
             if let (Some(panel), Some(dialogs)) = (new_sale.as_mut(), dialogs.as_mut()) {
@@ -761,6 +803,19 @@ impl HudView {
                 panel.dialog_outcomes(tree, dialogs, &outcomes, frame.server_time);
                 commands.extend(crate::hud_shop::new_sale_commands(panel.take_requests()));
             }
+            // The restock's confirmation (`gmShopConsignmentUI::RecvNotice_CloseConfirmationDialog`).
+            if let Some(panel) = consignment.as_mut() {
+                panel.dialog_outcomes(&outcomes);
+                open_examination |= crate::hud_shop::consignment_requests(
+                    panel.take_requests(),
+                    new_sale.as_mut(),
+                    tree,
+                    dialogs,
+                    &player,
+                    frame.server_time,
+                    &mut commands,
+                );
+            }
             // The recall's and default's confirmations (`gmCharacterUI::RecvNotice_CloseConfirmationDialog`).
             if let Some(page) = character.as_mut() {
                 page.dialog_outcomes(tree, dialogs, &outcomes);
@@ -799,6 +854,9 @@ impl HudView {
         if let Some(panel) = catalog.as_mut() {
             panel.tick(tree, frame.server_time);
             commands.extend(crate::hud_shop::catalog_commands(panel.take_requests()));
+        }
+        if let Some(panel) = consignment.as_mut() {
+            panel.tick(tree, frame.server_time);
         }
         if let Some(panel) = new_sale.as_mut() {
             panel.tick(tree, frame.server_time);

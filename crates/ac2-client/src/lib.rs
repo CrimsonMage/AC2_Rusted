@@ -118,8 +118,8 @@ pub use gameplay::{
 };
 pub use hud_chat_options::{chat_option_commands, ui_chat_settings};
 pub use hud_shop::{
-    catalog_commands, catalog_notice, new_sale_commands, shop_commands, shop_notice,
-    shop_stack_calls,
+    catalog_commands, catalog_notice, consignment_notice, consignment_requests, new_sale_commands,
+    shop_commands, shop_notice, shop_stack_calls,
 };
 pub use item_queries::ItemDisplay;
 pub use motion::PartPose;
