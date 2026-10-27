@@ -1,6 +1,8 @@
 //! `gmMiniFellowUI`: the fellowship mini panel (`FellowMiniPanel`, a root of the gameplay layout),
 //! the members' names and vitals in `FellowMiniPanelListBox`. It starts hidden; the
-//! `FellowshipMiniButton` shows or hides it (`gmMiniFellowUI::ListenToMessage`). Its member rows
+//! `FellowshipMiniButton` shows or hides it (`gmMiniFellowUI::ListenToMessage`). The button is in
+//! the toolbar layout (`0x41000003`) inside `FellowshipPage`'s `c4bc4c07` child, in that child's
+//! state for the page's `fellowship` state, so it is in the tree only with a fellowship. Its member rows
 //! are a [`FellowRows`] over the gameplay layout's `FellowMiniPanelTemplate`
 //! (`FellowshipHelper` mode 1): no level, no XP share, health and vigor numbers hidden at first.
 //!

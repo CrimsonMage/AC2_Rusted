@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 856 done, 291 partial, 1047 to do, 53 skipped.
+2247 retail functions: 860 done, 297 partial, 1037 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -318,7 +318,7 @@ Legend and workflow: [README](README.md).
 ### gmMiniFellowUI
 - [x] `gmMiniFellowUI::~gmMiniFellowUI` · 00421c50 · legions 00421ac0 — Rust drop and the HUD tree own the panel and its rows; no notice handlers to unregister
 - [~] `gmMiniFellowUI::LocationApplied` · 00421ca0 · legions 0043eb50 — ac2-ui mini_fellow.rs location_applied: the shown state re-applied. Not: the saved panel location (no UI location load)
-- [~] `gmMiniFellowUI::ListenToMessage` · 00421cc0 · legions 00421b10 — ac2-ui mini_fellow.rs message: FellowshipMiniButton release toggles the panel (tested). Not: FellowMiniPanel location_changed -> SendNotice_SaveLocationsChanged (no UI location save path); the button element is in no UI layout of dataset-ac2
+- [~] `gmMiniFellowUI::ListenToMessage` · 00421cc0 · legions 00421b10 — ac2-ui mini_fellow.rs message: FellowshipMiniButton release toggles the panel (tested on the real layout: the button is in the toolbar's FellowshipPage child c4bc4c07, in its fellowship state). Not: FellowMiniPanel location_changed -> SendNotice_SaveLocationsChanged (no UI location save path)
 - [x] `gmMiniFellowUI::RecvNotice_UpdateFellowship` · 00421d10 · legions 00421b60 — ac2-ui mini_fellow.rs update_fellowship: panel state fellowship, old list goes, new FellowRows over FellowMiniPanelListBox (mini template, Legions 7160 followed; tested)
 - [x] `gmMiniFellowUI::RecvNotice_ClearFellowship` · 00421da0 · legions 00421bf0 — ac2-ui mini_fellow.rs clear_fellowship: rows removed, then Show(0) on the mini (disassembly of admin 0x421da0 ends in vt+0x20 with shown=0; tested)
 - [x] `gmMiniFellowUI::gmMiniFellowUI` · 00421dd0 · legions 00421c20 — ac2-ui mini_fellow.rs MiniFellowUi::create: FellowMiniPanel root from the gameplay layout, hidden; built in hud.rs
@@ -947,44 +947,44 @@ Legend and workflow: [README](README.md).
 - [~] `gmVitalsUI::ListenToMessage` · 00439d30 · legions 0043a580 — ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
 - [~] `gmVitalsUI::RecvNotice_UpdateHeroStatus` · 00439e00 · legions 0043a650 — ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
 
-## `ac2/client/src/ui/gameplay/statusbar/indicators/gmindicatorsui.cpp.c` (0/4)
+## `ac2/client/src/ui/gameplay/statusbar/indicators/gmindicatorsui.cpp.c` (2/4)
 
 ### gmIndicatorsUI
 - [~] `gmIndicatorsUI::Show` · 00438850 · legions 004390a0 — ac2-ui indicators.rs: no root element of its own, so only the shown flag is kept; the children show notification (vtable 0x20) is not modelled
-- [~] `gmIndicatorsUI::SetupChildren` · 00438860 · legions 004390b0 — ac2-ui indicators.rs: the vitae indicator is made; gmNetStatusUI and gmPKStatusUI are not (their frameworks are not ported)
+- [x] `gmIndicatorsUI::SetupChildren` · 00438860 · legions 004390b0 — ac2-ui indicators.rs: net, PK and vitae children made in retail order (net_status.rs, pk_status.rs); the child list and the children show notification are not kept
 - [~] `gmIndicatorsUI::CleanupChildren` · 00438910 · legions 00439160 — ac2-ui: the indicators children are fields of GameplayHud and drop with its tree; no per-child teardown call
-- [~] `gmIndicatorsUI::gmIndicatorsUI` · 004389a0 · legions 004391f0 — ac2-ui indicators.rs: the vitae indicator is made; gmNetStatusUI and gmPKStatusUI are not (their frameworks are not ported)
+- [x] `gmIndicatorsUI::gmIndicatorsUI` · 004389a0 · legions 004391f0 — ac2-ui indicators.rs: net, PK and vitae children made in retail order (net_status.rs, pk_status.rs); the child list and the children show notification are not kept
 
-## `ac2/client/src/ui/gameplay/statusbar/indicators/gmnetstatusui.cpp.c` (0/11)
+## `ac2/client/src/ui/gameplay/statusbar/indicators/gmnetstatusui.cpp.c` (2/11)
 
 ### GraphTool
 - [ ] `GraphTool::GraphTool` · 0044d1a0 · legions 0044e370
 - [ ] `GraphTool::BlendColors` · 0044d220 · legions 0044e3f0
 
 ### gmNetStatusUI
-- [ ] `gmNetStatusUI::RecvNotice_ReloadGameplayOptions` · 0044d2a0 · legions 0044e470
-- [ ] `gmNetStatusUI::RecvNotice_ReloadOptions` · 0044d2c0 · legions 0044e490
+- [~] `gmNetStatusUI::RecvNotice_ReloadGameplayOptions` · 0044d2a0 · legions 0044e470 — ac2-ui net_status.rs: not modelled, the latency-graph option read (gmCWInterface::GetLatencyIndicatorGraph) and its ForceDraw; no option input yet
+- [~] `gmNetStatusUI::RecvNotice_ReloadOptions` · 0044d2c0 · legions 0044e490 — ac2-ui net_status.rs: not modelled, the latency-graph option read (gmCWInterface::GetLatencyIndicatorGraph) and its ForceDraw; no option input yet
 
 ### GraphTool
 - [ ] `GraphTool::DrawBar` · 0044d2e0 · legions 0044e4b0
 
 ### gmNetStatusUI
-- [ ] `gmNetStatusUI::DrawBandwidthGraph` · 0044d3d0 · legions 0044e5a0
+- [~] `gmNetStatusUI::DrawBandwidthGraph` · 0044d3d0 · legions 0044e5a0 — ac2-ui net_status.rs: the graph history ring is kept (on_heartbeat / history); the blit into the render surface and GraphTool drawing are not ported
 
 ### SmartArray<gmNetStatusUI::GraphHistoryColumn>
-- [ ] `SmartArray<gmNetStatusUI::GraphHistoryColumn>::AddNElements` · 0044d720 · legions 0044e8f0
+- [x] `SmartArray<gmNetStatusUI::GraphHistoryColumn>::AddNElements` · 0044d720 · legions 0044e8f0 — ac2-ui net_status.rs: ring resized to the graph width in push_column (AddNElements); destructor is Rust drop
 
 ### gmNetStatusUI
-- [ ] `gmNetStatusUI::~gmNetStatusUI` · 0044d750 · legions 0044e920
-- [ ] `gmNetStatusUI::OnHeartbeat` · 0044d800 · legions 0044e9d0
-- [ ] `gmNetStatusUI::ListenToMessage` · 0044da90 · legions 0044ec60
-- [ ] `gmNetStatusUI::gmNetStatusUI` · 0044dab0 · legions 0044ec80
+- [x] `gmNetStatusUI::~gmNetStatusUI` · 0044d750 · legions 0044e920 — ac2-ui net_status.rs: ring resized to the graph width in push_column (AddNElements); destructor is Rust drop
+- [~] `gmNetStatusUI::OnHeartbeat` · 0044d800 · legions 0044e9d0 — ac2-ui net_status.rs NetStatusUi::on_heartbeat: tooltip, graph column and state (thresholds from the field). Partial: no LinkSample feed (client keeps no link averages), and the bandwidth tooltip is joined on a second line rather than one StringInfo; ID var precision not recovered
+- [~] `gmNetStatusUI::ListenToMessage` · 0044da90 · legions 0044ec60 — ac2-ui net_status.rs: not ported, the draw_done message's DrawBandwidthGraph (drawing not ported)
+- [~] `gmNetStatusUI::gmNetStatusUI` · 0044dab0 · legions 0044ec80 — ac2-ui net_status.rs NetStatusUi::create: NetStatusField lookup and good/bad/ugly thresholds. Not: the CWeenieObject notice registrations (0x46d, 0x417) and the CLinkStatusPlugin registration
 
 ## `ac2/client/src/ui/gameplay/statusbar/indicators/gmpkstatusui.cpp.c` (0/2)
 
 ### gmPKStatusUI
-- [ ] `gmPKStatusUI::gmPKStatusUI` · 0044d040 · legions 0044e210
-- [ ] `gmPKStatusUI::RecvNotice_UpdateFactionStatus` · 0044d0c0
+- [~] `gmPKStatusUI::gmPKStatusUI` · 0044d040 · legions 0044e210 — ac2-ui pk_status.rs PkStatusUi::create: PKStatusField lookup. Not: the CWeenieObject notice registrations (0x460, 0x1040c), no notice registry in ac2-ui
+- [~] `gmPKStatusUI::RecvNotice_UpdateFactionStatus` · 0044d0c0 — ac2-ui pk_status.rs update_faction_status: admin's status-to-state mapping (1 peace, 2 control, 3 factional, 4 ffa, else stateless). Legions 7160 has no such handler (no legions address); no notice feeds it yet
 
 ## `ac2/client/src/ui/gameplay/statusbar/indicators/gmvitaestatusui.cpp.c` (4/4)
 

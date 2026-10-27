@@ -9,7 +9,8 @@ use crate::fellowship::FellowshipSource;
 use crate::mouse::UiMessage;
 use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON};
 use crate::{
-    build_gameplay_hud, Fellow, FellowNotice, FellowStrings, FellowshipData, SkillVar, UiTree,
+    build_gameplay_hud, Fellow, FellowNotice, FellowStrings, FellowshipData, GameplayHud, SkillVar,
+    UiTree,
 };
 
 /// Strings as `id[vars]`; the player is 1 and has no experience shares to show.
@@ -69,6 +70,14 @@ fn text(tree: &UiTree, root: usize, name: &str) -> String {
         .unwrap_or_default()
 }
 
+/// `FellowshipMiniButton` in the tree: the toolbar's `FellowshipPage` holds it in the state the
+/// page takes with a fellowship (`gmMiniFellowUI::ListenToMessage`'s element).
+fn button(tree: &UiTree) -> Option<usize> {
+    tree.roots()
+        .iter()
+        .find_map(|&r| tree.child_recursive(r, tokenize("FellowshipMiniButton")))
+}
+
 #[test]
 fn the_mini_panel_starts_hidden_and_its_button_toggles_it() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {
@@ -76,8 +85,13 @@ fn the_mini_panel_starts_hidden_and_its_button_toggles_it() {
     };
     let store = Arc::new(ResourceStore::new(dataset));
     let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
-    let panel = hud.mini_fellow.as_mut().expect("the mini panel");
-    let tree = &mut hud.tree;
+    let GameplayHud {
+        tree,
+        mini_fellow,
+        fellowship,
+        ..
+    } = &mut hud;
+    let panel = mini_fellow.as_mut().expect("the mini panel");
     let root = tree
         .roots()
         .iter()
@@ -88,10 +102,25 @@ fn the_mini_panel_starts_hidden_and_its_button_toggles_it() {
         })
         .expect("the FellowMiniPanel root");
     assert!(!tree.get(root).unwrap().visible());
-    // The button's element is in no UI layout of this dataset, so the release comes by token.
+    // No fellowship: the page is in `nofellowship` and its button is not in the tree.
+    assert!(button(tree).is_none());
+    let strings = player();
+    let data = FellowshipData {
+        name: "Wanderers".into(),
+        leader: 1,
+        social: true,
+        looting: 2,
+        fellows: vec![fellow(1, "Explorer", 50)],
+    };
+    fellowship
+        .as_mut()
+        .expect("the fellowship page")
+        .update_fellowship(tree, &strings, &data);
+    // With a fellowship the button is in the tree: the element a release comes from.
+    let button = button(tree).expect("FellowshipMiniButton");
     let press = UiMessage {
         element_id: tokenize("FellowshipMiniButton"),
-        element: None,
+        element: Some(button),
         message: MSG_BUTTON_RELEASE_ON,
         data: 0,
         item: None,

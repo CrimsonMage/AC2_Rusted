@@ -271,7 +271,7 @@ key	status	note
 00421bf0	x	ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 00421c50	x	Rust drop and the HUD tree own the panel and its rows; no notice handlers to unregister
 00421ca0	~	ac2-ui mini_fellow.rs location_applied: the shown state re-applied. Not: the saved panel location (no UI location load)
-00421cc0	~	ac2-ui mini_fellow.rs message: FellowshipMiniButton release toggles the panel (tested). Not: FellowMiniPanel location_changed -> SendNotice_SaveLocationsChanged (no UI location save path); the button element is in no UI layout of dataset-ac2
+00421cc0	~	ac2-ui mini_fellow.rs message: FellowshipMiniButton release toggles the panel (tested on the real layout: the button is in the toolbar's FellowshipPage child c4bc4c07, in its fellowship state). Not: FellowMiniPanel location_changed -> SendNotice_SaveLocationsChanged (no UI location save path)
 00421d10	x	ac2-ui mini_fellow.rs update_fellowship: panel state fellowship, old list goes, new FellowRows over FellowMiniPanelListBox (mini template, Legions 7160 followed; tested)
 00421da0	x	ac2-ui mini_fellow.rs clear_fellowship: rows removed, then Show(0) on the mini (disassembly of admin 0x421da0 ends in vt+0x20 with shown=0; tested)
 00421dd0	x	ac2-ui mini_fellow.rs MiniFellowUi::create: FellowMiniPanel root from the gameplay layout, hidden; built in hud.rs
@@ -574,9 +574,9 @@ key	status	note
 004387f0	x	ac2-ui shortcut.rs
 00438830	~	ac2-ui shortcut.rs reload: the bar's rows and set; ac2-client reloads on ReloadOptions (no separate option refresh)
 00438850	~	ac2-ui indicators.rs: no root element of its own, so only the shown flag is kept; the children show notification (vtable 0x20) is not modelled
-00438860	~	ac2-ui indicators.rs: the vitae indicator is made; gmNetStatusUI and gmPKStatusUI are not (their frameworks are not ported)
+00438860	x	ac2-ui indicators.rs: net, PK and vitae children made in retail order (net_status.rs, pk_status.rs); the child list and the children show notification are not kept
 00438910	~	ac2-ui: the indicators children are fields of GameplayHud and drop with its tree; no per-child teardown call
-004389a0	~	ac2-ui indicators.rs: the vitae indicator is made; gmNetStatusUI and gmPKStatusUI are not (their frameworks are not ported)
+004389a0	x	ac2-ui indicators.rs: net, PK and vitae children made in retail order (net_status.rs, pk_status.rs); the child list and the children show notification are not kept
 004389e0	~	ac2-ui: the indicators children are fields of GameplayHud and drop with its tree; no per-child teardown call
 00438a20	x	ac2-ui effects.rs
 00438b80	x	ac2-ui effects.rs
@@ -854,6 +854,16 @@ key	status	note
 0044ce40	x	ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
 0044ce90	x	ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
 0044cfc0	x	ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
+0044d040	~	ac2-ui pk_status.rs PkStatusUi::create: PKStatusField lookup. Not: the CWeenieObject notice registrations (0x460, 0x1040c), no notice registry in ac2-ui
+0044d0c0	~	ac2-ui pk_status.rs update_faction_status: admin's status-to-state mapping (1 peace, 2 control, 3 factional, 4 ffa, else stateless). Legions 7160 has no such handler (no legions address); no notice feeds it yet
+0044d2a0	~	ac2-ui net_status.rs: not modelled, the latency-graph option read (gmCWInterface::GetLatencyIndicatorGraph) and its ForceDraw; no option input yet
+0044d2c0	~	ac2-ui net_status.rs: not modelled, the latency-graph option read (gmCWInterface::GetLatencyIndicatorGraph) and its ForceDraw; no option input yet
+0044d3d0	~	ac2-ui net_status.rs: the graph history ring is kept (on_heartbeat / history); the blit into the render surface and GraphTool drawing are not ported
+0044d720	x	ac2-ui net_status.rs: ring resized to the graph width in push_column (AddNElements); destructor is Rust drop
+0044d750	x	ac2-ui net_status.rs: ring resized to the graph width in push_column (AddNElements); destructor is Rust drop
+0044d800	~	ac2-ui net_status.rs NetStatusUi::on_heartbeat: tooltip, graph column and state (thresholds from the field). Partial: no LinkSample feed (client keeps no link averages), and the bandwidth tooltip is joined on a second line rather than one StringInfo; ID var precision not recovered
+0044da90	~	ac2-ui net_status.rs: not ported, the draw_done message's DrawBandwidthGraph (drawing not ported)
+0044dab0	~	ac2-ui net_status.rs NetStatusUi::create: NetStatusField lookup and good/bad/ugly thresholds. Not: the CWeenieObject notice registrations (0x46d, 0x417) and the CLinkStatusPlugin registration
 0044dc80	x	ac2-ui meter.rs
 0044dcd0	x	ac2-ui meter.rs
 0044de30	x	ac2-ui meter.rs

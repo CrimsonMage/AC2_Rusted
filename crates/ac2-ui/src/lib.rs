@@ -67,9 +67,11 @@ mod navigation_detail;
 #[cfg(test)]
 mod navigation_detail_tests;
 mod navigation_map;
+mod net_status;
 mod overview_map;
 mod panel;
 mod paper_doll;
+mod pk_status;
 mod place;
 mod placement;
 pub mod pregame;
@@ -175,8 +177,10 @@ pub use navigation_detail::{
     PAN_STEP, PAN_STEP_SHIFT,
 };
 pub use navigation_map::MapFrame;
+pub use net_status::{LinkSample, NetStatusUi};
 pub use overview_map::OverviewMapUi;
 pub use paper_doll::{mesh_type_to_inv_loc, PaperDollUi};
+pub use pk_status::PkStatusUi;
 pub use radar::{RadarDot, RadarRequest, RadarUi, RadarView};
 pub use reticle::{Reticle, ReticleOutcome, ReticleTarget};
 pub use scene_viewport::{scene_viewports, SceneViewport};
@@ -231,6 +235,8 @@ mod element_tests;
 mod external_container_tests;
 #[cfg(test)]
 mod fellowship_tests;
+#[cfg(test)]
+mod indicators_tests;
 #[cfg(test)]
 mod journal_quests_tests;
 #[cfg(test)]
