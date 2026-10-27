@@ -98,6 +98,8 @@ mod navigation_detail_tests;
 mod navigation_map;
 mod net_status;
 pub use book::{BookRequest, BookUi};
+pub use help::{help_button_topic, load_help_pages, HelpPages, HELP_BUTTONS, KEYSTONE_PANEL_KEY};
+pub use help_window::HelpWindow;
 mod overview_map;
 mod panel;
 mod paper_doll;
@@ -165,6 +167,9 @@ mod help_tests;
 pub mod help_view;
 #[cfg(test)]
 mod help_view_tests;
+pub mod help_window;
+#[cfg(test)]
+mod help_window_tests;
 pub mod ksml;
 #[cfg(test)]
 mod ksml_tests;

@@ -5,8 +5,9 @@
 //! `StringInfo::SetStringIDandTableEnum(token, 0x4100004E)` and `GetString`: the table entry
 //! named by the token is the page, a `.ksml` file name the plugin renders. The token is
 //! `Tokenize("ID_Help_<topic>")`, the same hash the callers keep in their `ID_Help_*` globals.
-//! The shipped table has one entry per topic below. The window itself is not drawn here yet.
+//! The shipped table has one entry per topic below. The window is [`crate::help_window`].
 
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 use ac2_assets::ac2_enum_did;
@@ -165,4 +166,115 @@ pub fn load_help_table(
         return Ok(None);
     }
     load_string_table(store, did)
+}
+
+/// `gmToolbarUI::ListenToMessage`'s key stone key (`0x400000BB`): `ShowKeyStone(!shown)`, the
+/// help window's default page when it opens, the window closed when it is shown.
+pub const KEYSTONE_PANEL_KEY: u32 = 0x4000_00BB;
+
+/// The help buttons whose panel's `ListenToMessage` opens a topic (`elementID == ...HelpButton`,
+/// then `KeyStone::OpenHelp`), as (button element name, topic id). `gmBookUI` and `gmSocialUI`
+/// return their help request from their own panel instead. `ShopHelpButton` is both `gmShopUI`'s
+/// and `gmShopNewSaleUI`'s; the HUD routes the new-sale one while its dialog shows.
+pub const HELP_BUTTONS: &[(&str, &str)] = &[
+    ("ShopHelpButton", "ID_Help_Shop"),
+    ("CatalogHelpButton", "ID_Help_ShopCatalog"),
+    ("HelpButton", "ID_Help_ShopConsignment"),
+    ("SkillHelpButton", "ID_Help_Skill"),
+    ("NavigationHelpButton", "ID_Help_Navigation"),
+    ("OptionHelpButton", "ID_Help_Option"),
+    ("OverviewMapHelpButton", "ID_Help_OverviewMap"),
+    ("InventoryHelpButton", "ID_Help_Inventory"),
+    ("QuestHelpButton", "ID_Help_Quest"),
+    ("ExaminationHelpButton", "ID_Help_Examine"),
+];
+
+/// The topic a help button's element name opens, from [`HELP_BUTTONS`].
+pub fn help_button_topic(element_id: u32) -> Option<&'static HelpTopic> {
+    let (_, id) = HELP_BUTTONS
+        .iter()
+        .find(|(name, _)| tokenize(name) == element_id)?;
+    HELP_TOPICS.iter().find(|topic| topic.id == *id)
+}
+
+/// The key a page name is stored under: its file name, the `content/` prefix dropped.
+pub fn page_key(page: &str) -> &str {
+    page.get(..8)
+        .filter(|prefix| {
+            prefix.eq_ignore_ascii_case("content/") || prefix.eq_ignore_ascii_case("content\\")
+        })
+        .map_or(page, |_| &page[8..])
+}
+
+/// The help pages a client keeps in memory: every `.ksml` file of the content directory parsed
+/// once (on a worker), and the page each topic token names. The window reads these on the frame
+/// thread, so it never touches a file.
+#[derive(Debug, Default, Clone)]
+pub struct HelpPages {
+    pages: HashMap<String, KsmlDocument>,
+    topics: HashMap<u32, String>,
+}
+
+impl HelpPages {
+    /// The parsed page a name (`content/<file>` or `<file>`) names.
+    pub fn page(&self, name: &str) -> Option<&KsmlDocument> {
+        self.pages.get(page_key(name))
+    }
+
+    /// The page a token opens: token 0 is [`DEFAULT_HELP_PAGE`], a topic token its table entry.
+    pub fn page_for_token(&self, token: u32) -> Option<&str> {
+        if token == 0 {
+            return Some(DEFAULT_HELP_PAGE);
+        }
+        self.topics.get(&token).map(String::as_str)
+    }
+
+    /// The number of parsed pages.
+    pub fn len(&self) -> usize {
+        self.pages.len()
+    }
+
+    /// Whether no page parsed.
+    pub fn is_empty(&self) -> bool {
+        self.pages.is_empty()
+    }
+}
+
+/// Loads the help pages from `content_dir` and the topic table from the DAT. `None` when the
+/// DAT has no help table. A file that does not parse is skipped. Reads files: call it on a worker.
+pub fn load_help_pages(
+    store: &ResourceStore,
+    content_dir: &Path,
+) -> ResourceResult<Option<HelpPages>> {
+    let Some(table) = load_help_table(store)? else {
+        return Ok(None);
+    };
+    let table = &*table;
+    let mut topics = HashMap::new();
+    for topic in HELP_TOPICS {
+        if let Some(page) = help_page_name(table, help_token(topic)) {
+            topics.insert(help_token(topic), page);
+        }
+    }
+    let mut pages = HashMap::new();
+    if let Ok(entries) = std::fs::read_dir(content_dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            let is_ksml = path
+                .extension()
+                .is_some_and(|ext| ext.eq_ignore_ascii_case("ksml"));
+            let Some(name) = path.file_name().and_then(|n| n.to_str()) else {
+                continue;
+            };
+            if !is_ksml {
+                continue;
+            }
+            if let Ok(bytes) = std::fs::read(&path) {
+                if let Ok(document) = parse_ksml(&bytes) {
+                    pages.insert(name.to_string(), document);
+                }
+            }
+        }
+    }
+    Ok(Some(HelpPages { pages, topics }))
 }

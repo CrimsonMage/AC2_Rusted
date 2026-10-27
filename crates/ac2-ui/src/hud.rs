@@ -163,6 +163,10 @@ pub struct GameplayHud {
     pub overview: Option<OverviewMapUi>,
     /// `gmBookUI`, hidden until a book is used.
     pub book: Option<BookUi>,
+    /// The help window (`KeyStone::OpenHelp`), a second book frame, hidden until a help page opens.
+    pub help: Option<crate::help_window::HelpWindow>,
+    /// The help pages, loaded by the client's worker (`None` until they load, or without them).
+    pub help_pages: Option<crate::help::HelpPages>,
     /// `gmShopUI`, the vendor's panel (its managed elements are made when a store opens).
     pub shop: Option<ShopUi>,
     /// `gmShopCatalogUI`, the storekeeper's catalog (its managed elements are made when it opens).
@@ -348,6 +352,9 @@ pub fn build_gameplay_hud(
     let book = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()
         .and_then(|gameplay| BookUi::create(&mut tree, gameplay));
+    let help = layouts[&LAYOUT_GAMEPLAY]
+        .as_ref()
+        .and_then(|gameplay| crate::help_window::HelpWindow::create(&mut tree, gameplay));
     let story = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()
         .and_then(|gameplay| StoryView::create(&mut tree, gameplay));
@@ -395,6 +402,8 @@ pub fn build_gameplay_hud(
         new_sale,
         consignment,
         book,
+        help,
+        help_pages: None,
         story,
     })
 }

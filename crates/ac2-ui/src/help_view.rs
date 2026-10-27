@@ -6,7 +6,8 @@
 //! the client on every platform, so the model is kept apart from the drawing: [`HelpView::open`]
 //! and [`HelpView::press_link`] return the [`HelpRequest`]s a loader fills off the frame thread
 //! ([`HelpView::loaded`]); [`layout_blocks`] wraps a page to a width with the caller's measure.
-//! Not drawn yet: controls (`button`, `listbox`, `editbox`, `treeview`) and the window chrome.
+//! The window draws the text, tabs and frames ([`crate::help_window`]). Controls (`button`,
+//! `listbox`, `editbox`, `treeview`) are not drawn.
 
 use crate::ksml::{KsmlDocument, KsmlFrame, KsmlNode, KsmlStyle, KsmlTab};
 use crate::wheel::WheelAccumulator;
@@ -234,6 +235,12 @@ impl HelpView {
     /// The scroll position in pixels.
     pub fn scroll(&self) -> i32 {
         self.scroll
+    }
+
+    /// Sets the scroll position in pixels (the caller clamps it to the page with
+    /// [`HelpView::scroll_by`] or its own maximum).
+    pub fn scroll_to(&mut self, pixels: i32) {
+        self.scroll = pixels.max(0);
     }
 
     /// Scrolls by `pixels` (positive down), clamped to the page for a view `view_height` tall

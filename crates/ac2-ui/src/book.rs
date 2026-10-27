@@ -8,9 +8,9 @@
 //! The panel is kept hidden in the HUD and shown by the notice (`gmBookUI::Show`); retail creates
 //! and destroys its elements on each show, here they stay in the tree.
 //!
-//! Not modelled: the `BookSliderLeft`/`Right`/`Copy` buttons' ghosting, the `SetViewY` offset
-//! beyond the page height (see [`BookUi::update_book`]), and the help page (the request is
-//! returned to the caller, which has no help viewer).
+//! Not modelled: the `BookSliderLeft`/`Right`/`Copy` buttons' ghosting, and the `SetViewY` offset
+//! beyond the page height (see [`BookUi::update_book`]). The help page is returned as
+//! [`BookRequest::OpenHelp`] for the caller to open in the help window.
 
 use std::sync::Arc;
 
@@ -84,6 +84,18 @@ impl BookUi {
     /// children found, hidden until a notice shows it. `None` when the layout has no `Book`.
     pub fn create(tree: &mut UiTree, gameplay: &Arc<LayoutDesc>) -> Option<Self> {
         let field = tree.create_nested_element(gameplay, tokenize("Book"))?;
+        Self::from_field(tree, field)
+    }
+
+    /// A second `Book` made as its own HUD root, so the window moves and keeps its place like any
+    /// other window (the help window reuses the book's frame and text area this way). The
+    /// layout's top-level `Book` is the root; `None` when the layout has none.
+    pub fn create_window(tree: &mut UiTree, gameplay: &Arc<LayoutDesc>) -> Option<Self> {
+        let field = tree.create_root(Arc::clone(gameplay), tokenize("Book"))?;
+        Self::from_field(tree, field)
+    }
+
+    fn from_field(tree: &mut UiTree, field: usize) -> Option<Self> {
         tree.set_visible(field, false);
         let find = |tree: &UiTree, name: &str| tree.child_recursive(field, tokenize(name));
         let text = find(tree, "BookClientAreaText");
@@ -327,6 +339,11 @@ impl BookUi {
         strings: &dyn UiStrings,
         message: &UiMessage,
     ) -> Option<BookRequest> {
+        // The book and the help window both carry these element names: only this book's own
+        // elements answer its messages.
+        if !self.owns(tree, message.element) {
+            return None;
+        }
         let id = message.element_id;
         if id == tokenize("BookCloseButton") && message.message == MSG_BUTTON_RELEASE_ON {
             self.show(tree, false);
@@ -365,6 +382,22 @@ impl BookUi {
             return Some(BookRequest::Copy(self.clipboard_text(tree)));
         }
         None
+    }
+
+    /// Whether `element` is this book's field or one of its children. A message with no element
+    /// is global (its element id is 0), so no book owns it and no name in it matches.
+    fn owns(&self, tree: &UiTree, element: Option<usize>) -> bool {
+        let Some(element) = element else {
+            return true;
+        };
+        let mut current = Some(element);
+        while let Some(index) = current {
+            if index == self.field {
+                return true;
+            }
+            current = tree.get(index).and_then(|e| e.parent_index());
+        }
+        false
     }
 
     /// `gmBookUI::SendBookToClipboard`: the title, a newline and the page text, with the markup
