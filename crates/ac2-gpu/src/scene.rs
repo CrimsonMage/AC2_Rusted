@@ -199,8 +199,6 @@ impl SceneRenderer {
             }
         }
         let lighting = self.frame.lighting;
-        self.terrain
-            .set_frame(&gpu.queue, camera, &lighting, aspect);
         if let Some([r, g, b, a]) = self.frame.sky.fog_quad {
             // The authored fog colour, decoded for the linear scene; its alpha is `fog_sky`.
             let linear = [r, g, b].map(|c| crate::shading::srgb_to_linear(c.clamp(0.0, 1.0)));
@@ -221,6 +219,8 @@ impl SceneRenderer {
         };
         self.sky
             .set_frame(&gpu.queue, camera, aspect, &lighting, &look);
+        self.terrain
+            .set_frame(&gpu.queue, camera, &lighting, aspect, &look);
         let world = world_instances(models, placed, blocks, far, frame);
         let after = sky_instances(models, &frame.sky.after);
         let interiors = interior_instances(models, blocks, frame);

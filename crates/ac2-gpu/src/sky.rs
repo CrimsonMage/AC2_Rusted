@@ -57,6 +57,17 @@ pub fn cloud_cover(dry: f32, rain: f32) -> f32 {
     dry + (1.0 - dry) * wet
 }
 
+/// The cloud deck's uniform: x cover (rain closing it), y drift seconds (wrapping once a day
+/// so the noise keeps its precision in f32), z rain.
+pub(crate) fn cloud_uniform(look: &SkyLook, lighting: &SceneLighting) -> [f32; 4] {
+    [
+        cloud_cover(look.cloud_cover, lighting.rain),
+        (look.time % 86_400.0) as f32,
+        lighting.rain.clamp(0.0, 1.0),
+        0.0,
+    ]
+}
+
 /// The full-screen atmosphere and cloud passes, their colours set each frame.
 pub struct SkyRenderer {
     pipeline: wgpu::RenderPipeline,
@@ -186,13 +197,7 @@ impl SkyRenderer {
                 }
                 None => [1.0, 1.0, 1.0, 0.0],
             },
-            // The drift wraps once a day so the noise keeps its precision in f32.
-            clouds: [
-                cloud_cover(look.cloud_cover, lighting.rain),
-                (look.time % 86_400.0) as f32,
-                lighting.rain.clamp(0.0, 1.0),
-                0.0,
-            ],
+            clouds: cloud_uniform(look, lighting),
         };
         queue.write_buffer(&self.buffer, 0, bytemuck::bytes_of(&uniform));
     }

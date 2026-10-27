@@ -11,8 +11,8 @@ struct Frame {
     ambient: vec4<f32>,
     fog_color: vec4<f32>,
     fog: vec4<f32>,
-    // The terrain frame's shading vec4: x 1 for the modern path.
-    shading: vec4<f32>,
+    // The terrain frame's cloud deck (`terrain.wgsl`).
+    clouds: vec4<f32>,
 };
 
 @group(0) @binding(0) var<uniform> frame: Frame;

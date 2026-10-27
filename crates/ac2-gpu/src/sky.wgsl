@@ -36,11 +36,6 @@ const LIGHT_SAMPLES: i32 = 4;
 const SUN_INTENSITY: f32 = 18.0;
 // How far the dome's tint moves the atmosphere's hue.
 const GRADE_STRENGTH: f32 = 0.35;
-// The cloud deck: height above the eye, the noise's feature size and drift speed (metres, m/s).
-const CLOUD_HEIGHT: f32 = 1600.0;
-const CLOUD_SCALE: f32 = 2400.0;
-const CLOUD_WIND: vec2<f32> = vec2<f32>(9.0, 3.5);
-const CLOUD_FADE: f32 = 16000.0;
 const PI: f32 = 3.14159265;
 
 struct VsOut {
@@ -115,42 +110,6 @@ fn atmosphere(dir: vec3<f32>, sun: vec3<f32>, sun_radiance: vec3<f32>) -> vec3<f
     }
     let mu = dot(dir, sun);
     return sun_radiance * (sum_r * RAYLEIGH * rayleigh_phase(mu) + sum_m * MIE * mie_phase(mu, MIE_G));
-}
-
-fn hash(p: vec2<f32>) -> f32 {
-    let q = fract(p * vec2(0.1031, 0.1030));
-    let r = q + dot(q, q.yx + 33.33);
-    return fract((r.x + r.y) * r.x);
-}
-
-fn value_noise(p: vec2<f32>) -> f32 {
-    let i = floor(p);
-    let f = fract(p);
-    let u = f * f * (3.0 - 2.0 * f);
-    return mix(
-        mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
-        mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x),
-        u.y,
-    );
-}
-
-fn fbm(p: vec2<f32>) -> f32 {
-    var sum = 0.0;
-    var amplitude = 0.5;
-    var q = p;
-    for (var i = 0; i < 6; i = i + 1) {
-        sum += amplitude * value_noise(q);
-        q = q * 2.03 + vec2(17.1, 9.7);
-        amplitude *= 0.5;
-    }
-    return sum;
-}
-
-// The cloud deck's coverage at a point of the deck (0 clear sky, 1 solid cloud).
-fn cloud_density(at: vec2<f32>, cover: f32) -> f32 {
-    let n = fbm(at);
-    let threshold = 1.0 - 0.45 - 0.45 * cover;
-    return smoothstep(threshold, threshold + 0.22, n);
 }
 
 fn view_direction(input: VsOut) -> vec3<f32> {

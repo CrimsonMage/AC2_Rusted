@@ -304,12 +304,12 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
             );
         }
         // One frame in `WorldRender::Draw` order.
-        terrain.set_frame(&gpu.queue, &camera, &lighting, aspect);
         let look = ac2_gpu::SkyLook {
             backdrop: ac2_gpu::sky_backdrop(&before).map(|index| before[index].tint),
             ..ac2_gpu::SkyLook::default()
         };
         sky_gradient.set_frame(&gpu.queue, &camera, aspect, &lighting, &look);
+        terrain.set_frame(&gpu.queue, &camera, &lighting, aspect, &look);
         // `SetupEnvironment(SkyEnvironment)`: the sky objects draw unfogged, with no ambient.
         let sky_environment = ObjectEnvironment::sky(&lighting);
         objects.prepare(

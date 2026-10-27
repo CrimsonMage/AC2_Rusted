@@ -81,6 +81,7 @@ fn render(
         &camera,
         &lighting,
         SIZE.0 as f32 / SIZE.1 as f32,
+        &ac2_gpu::SkyLook::default(),
     );
     target.render_scene(gpu, lighting.fog_color, |pass| renderer.draw(pass, &blocks));
     target.read_rgba(&gpu.device, &gpu.queue)

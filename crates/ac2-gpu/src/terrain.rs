@@ -9,7 +9,6 @@ use ac2_render::{Camera, Image, SceneLighting};
 use bytemuck::{Pod, Zeroable};
 use wgpu::util::DeviceExt;
 
-use crate::shading::FRAME_SHADING;
 use crate::texture::{TextureCache, TextureKey};
 use crate::{Gpu, DEPTH_FORMAT};
 
@@ -38,8 +37,8 @@ struct FrameUniform {
     ambient: [f32; 4],
     fog_color: [f32; 4],
     fog: [f32; 4],
-    /// `FRAME_SHADING` (the layout keeps it; the tone map owns the grade).
-    shading: [f32; 4],
+    /// The sky's cloud deck for the cloud shadows: x cover, y drift seconds.
+    clouds: [f32; 4],
 }
 
 #[repr(C)]
@@ -317,6 +316,7 @@ impl TerrainRenderer {
         camera: &Camera,
         lighting: &SceneLighting,
         aspect: f32,
+        look: &crate::SkyLook,
     ) {
         let (fog_start, fog_end) = lighting.fog_range;
         let rgb = |c: [f32; 3]| [c[0], c[1], c[2], 1.0];
@@ -328,7 +328,7 @@ impl TerrainRenderer {
             ambient: rgb(lighting.ambient),
             fog_color: rgb(lighting.fog_color),
             fog: [fog_start, fog_end, 0.0, 0.0],
-            shading: FRAME_SHADING,
+            clouds: crate::sky::cloud_uniform(look, lighting),
         };
         queue.write_buffer(&self.frame_buffer, 0, bytemuck::bytes_of(&uniform));
     }

@@ -14,9 +14,8 @@ struct Frame {
     fog_color: vec4<f32>,
     // start, end
     fog: vec4<f32>,
-    // x: 1 for the modern shading path (linear light, ACES), 0 for retail; y: exposure, z:
-    // saturation, w: contrast (`shading.wgsl`).
-    shading: vec4<f32>,
+    // The sky's cloud deck (`cloud_shadow`): x cover, y drift seconds.
+    clouds: vec4<f32>,
 };
 
 struct Batch {
@@ -57,6 +56,7 @@ struct VsOut {
     @location(6) normal: vec3<f32>,
     // `SurfaceInfo::vertex_color`: the surface tint (rgb) and how much the sun reaches it (a).
     @location(7) surface: vec4<f32>,
+    @location(8) world: vec3<f32>,
 };
 
 // `LScapeMaterialInfo::CalcRotUVs` by rotation (ROT_0..ROT_270) and slot (SW, SE, NW, NE).
@@ -80,6 +80,7 @@ fn vs(input: VsIn) -> VsOut {
     out.color = vec4(1.0);
     out.normal = input.normal;
     out.surface = input.surface_color;
+    out.world = input.position;
     out.grid = input.grid;
     out.mask1_uv = mask_uv(batch.rot.x, input.corner);
     out.mask2_uv = mask_uv(batch.rot.y, input.corner);
@@ -97,16 +98,18 @@ fn vs(input: VsIn) -> VsOut {
 // above, the warm ground bounce from below.
 const TERRAIN_GROUND_TINT: vec3<f32> = vec3<f32>(0.55, 0.5, 0.42);
 
-fn terrain_light(normal: vec3<f32>, c: vec4<f32>) -> vec3<f32> {
+fn terrain_light(normal: vec3<f32>, c: vec4<f32>, world: vec3<f32>) -> vec3<f32> {
     let n = normalize(normal);
-    let direct = max(-dot(n, frame.light_dir.xyz) * c.a, 0.0);
+    let to_sun = -normalize(frame.light_dir.xyz);
+    let shade = cloud_shadow(world, to_sun, frame.eye.z, frame.clouds);
+    let direct = max(-dot(n, frame.light_dir.xyz) * c.a, 0.0) * shade;
     let ambient = mix(frame.ambient.rgb * TERRAIN_GROUND_TINT, frame.ambient.rgb, n.z * 0.5 + 0.5);
     return saturate((direct * frame.dir_color.rgb + ambient) * c.rgb);
 }
 
 @fragment
 fn fs(input: VsOut) -> @location(0) vec4<f32> {
-    let diffuse = terrain_light(input.normal, input.surface);
+    let diffuse = terrain_light(input.normal, input.surface, input.world);
     let layer0 = saturate(2.0 * textureSample(base0, wrap_sampler, input.grid * batch.scale.x).rgb * diffuse);
     let layer1 = saturate(2.0 * textureSample(base1, wrap_sampler, input.grid * batch.scale.y).rgb * diffuse);
     let layer2 = saturate(2.0 * textureSample(base2, wrap_sampler, input.grid * batch.scale.z).rgb * diffuse);
