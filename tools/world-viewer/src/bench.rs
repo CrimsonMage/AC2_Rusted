@@ -27,6 +27,10 @@ pub struct Report {
     /// GPU texture bytes uploaded, and of those the BC blocks (`ac2_gpu::uploaded_texture_bytes`).
     pub texture_bytes: u64,
     pub texture_block_bytes: u64,
+    /// Object draw calls the last frame laid out.
+    pub draws: usize,
+    /// World instances the last frame culled.
+    pub culled: usize,
 }
 
 /// Renders `frames` frames of `frame` into `target` and reports their times.
@@ -71,6 +75,8 @@ pub fn run(
         cache_entries: cache.entry_count(),
         texture_bytes: ac2_gpu::uploaded_texture_bytes().0,
         texture_block_bytes: ac2_gpu::uploaded_texture_bytes().1,
+        draws: view.object_draw_count(),
+        culled: view.culled_count(),
     }
 }
 
@@ -80,7 +86,7 @@ impl Report {
         format!(
             "bench frames={} p50_ms={:.3} p95_ms={:.3} max_ms={:.3} update_p50_ms={:.3} \
              prepare_p50_ms={:.3} render_p50_ms={:.3} peak_rss_kib={} cache_bytes={} \
-             cache_entries={} texture_bytes={} texture_block_bytes={}",
+             cache_entries={} texture_bytes={} texture_block_bytes={} draws={} culled={}",
             self.frames,
             self.p50_ms,
             self.p95_ms,
@@ -93,6 +99,8 @@ impl Report {
             self.cache_entries,
             self.texture_bytes,
             self.texture_block_bytes,
+            self.draws,
+            self.culled,
         )
     }
 }

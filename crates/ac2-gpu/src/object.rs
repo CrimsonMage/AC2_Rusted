@@ -131,6 +131,11 @@ fn stream_buffer(
 }
 
 impl GpuObjectModel {
+    /// The farthest vertex from the model's origin (its bounding sphere about the origin).
+    pub(crate) fn bounding_radius(&self) -> f32 {
+        self.radius
+    }
+
     /// Index and vertex counts of the first part's first triangle list.
     pub fn first_list(&self) -> (u32, u32) {
         self.first_list
@@ -816,6 +821,11 @@ impl ObjectRenderer {
     /// running client, which must not stall a frame on a driver compile.
     pub fn set_stream_pipelines(&mut self, stream: bool) {
         self.stream_pipelines = stream;
+    }
+
+    /// Draw calls the last `prepare` laid out to record (deferred instances left out).
+    pub fn draw_count(&self) -> usize {
+        self.queue.iter().filter(|draw| !draw.deferred).count()
     }
 
     /// Whether pipelines are still compiling (a headless render waits for this).

@@ -8,6 +8,7 @@ use std::collections::HashMap;
 
 use ac2_core::DataId;
 use ac2_math::Mat4;
+use ac2_render::frustum::{Frustum, Relation};
 use ac2_render::object::{ObjectEnvironment, ObjectPose, PointLight};
 use ac2_render::scene::{BlockKey, Images, Loaded, SceneFrame, SceneUpdate};
 use ac2_render::sky::SkyPlacement;
@@ -63,6 +64,9 @@ pub struct SceneRenderer {
     /// Every image the loader decoded, by key (it sends each once).
     images: HashMap<TextureKey, Image>,
     frame: SceneFrame,
+    /// Which of the frame's world instances `prepare` found in the view (`draw` skips the rest
+    /// of the same list).
+    world_visible: Vec<bool>,
 }
 
 impl SceneRenderer {
@@ -70,6 +74,16 @@ impl SceneRenderer {
     /// (`ObjectRenderer::set_stream_pipelines`).
     pub fn set_stream_pipelines(&mut self, stream: bool) {
         self.objects.set_stream_pipelines(stream);
+    }
+
+    /// Object draw calls the last `prepare` laid out (bench statistics).
+    pub fn object_draw_count(&self) -> usize {
+        self.objects.draw_count()
+    }
+
+    /// World instances the last `prepare` left out as outside the view (bench statistics).
+    pub fn culled_count(&self) -> usize {
+        self.world_visible.iter().filter(|shown| !**shown).count()
     }
 
     /// The renderers of a scene drawn into an [`crate::HdrTarget`] (`HDR_FORMAT`).
@@ -92,6 +106,7 @@ impl SceneRenderer {
             far: None,
             images: HashMap::new(),
             frame: SceneFrame::default(),
+            world_visible: Vec::new(),
         }
     }
 
@@ -251,7 +266,9 @@ impl SceneRenderer {
             .set_frame(&gpu.queue, camera, aspect, &lighting, &look);
         self.terrain
             .set_frame(&gpu.queue, camera, &lighting, aspect, time);
-        let world = world_instances(models, placed, blocks, far, frame);
+        let all_world = world_instances(models, placed, blocks, far, frame);
+        let world_visible = in_view(&all_world, &Frustum::from_camera(camera, aspect));
+        let world = visible(&all_world, &world_visible);
         let after = sky_instances(models, &frame.sky.after);
         let interiors = interior_instances(models, blocks, frame);
         let mut groups = vec![
@@ -288,6 +305,7 @@ impl SceneRenderer {
             time,
             &groups,
         );
+        self.world_visible = world_visible;
     }
 
     /// `LScapeRender::RefreshShadowMap`: draws the near blocks' static objects (no frills, not
@@ -352,7 +370,10 @@ impl SceneRenderer {
         self.objects.draw(
             pass,
             1,
-            &world_instances(models, placed, blocks, far, frame),
+            &visible(
+                &world_instances(models, placed, blocks, far, frame),
+                &self.world_visible,
+            ),
         );
         for (index, (instances, _)) in interior_instances(models, blocks, frame).iter().enumerate()
         {
@@ -381,6 +402,44 @@ fn sky_instances<'a>(
                 ..ObjectInstance::new(models.get(&placement.gfx)?, placement.world)
             })
         })
+        .collect()
+}
+
+/// Whether each instance can be seen: `Frustum::CheckRelationship` of the box around its
+/// bounding sphere (the model's farthest vertex from its origin, scaled by the placement; a posed
+/// model's limbs may reach past its rest pose, so twice that). Instances drawn in world space
+/// (particles, water) are kept.
+fn in_view(instances: &[ObjectInstance<'_>], frustum: &Frustum) -> Vec<bool> {
+    instances
+        .iter()
+        .map(|instance| {
+            if instance.world == Mat4::IDENTITY {
+                return true;
+            }
+            let scale = [
+                instance.world.x_axis,
+                instance.world.y_axis,
+                instance.world.z_axis,
+            ]
+            .map(|axis| axis.truncate().length())
+            .into_iter()
+            .fold(0.0_f32, f32::max);
+            let pose = if instance.pose.is_some() { 2.0 } else { 1.0 };
+            let radius = instance.model.bounding_radius() * scale * pose;
+            let center = instance.world.w_axis.truncate();
+            let reach = ac2_math::Vec3::splat(radius);
+            frustum.check(center - reach, center + reach) != Relation::Outside
+        })
+        .collect()
+}
+
+/// The instances `mask` keeps, in order.
+fn visible<'a>(instances: &[ObjectInstance<'a>], mask: &[bool]) -> Vec<ObjectInstance<'a>> {
+    instances
+        .iter()
+        .zip(mask)
+        .filter(|(_, shown)| **shown)
+        .map(|(instance, _)| *instance)
         .collect()
 }
 

@@ -569,6 +569,16 @@ impl ClientView {
         std::mem::take(&mut self.deselect)
     }
 
+    /// Object draw calls the last `prepare` laid out for the world (bench statistics).
+    pub fn object_draw_count(&self) -> usize {
+        self.renderer.object_draw_count()
+    }
+
+    /// World instances the last `prepare` culled as outside the view (bench statistics).
+    pub fn culled_count(&self) -> usize {
+        self.renderer.culled_count()
+    }
+
     /// How many of the frame's objects have their model loaded.
     pub fn loaded_objects(&self, frame: &ClientFrame) -> usize {
         drawn_objects(frame)
