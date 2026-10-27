@@ -10,6 +10,7 @@ use std::sync::Arc;
 use ac2_audio::prefs::{DISABLE_SOUND, FX_VOLUME};
 use ac2_audio::{Channel, NullSink, SoundManager};
 use ac2_client::{ClientPrefs, Close, OptionsWindow};
+use ac2_ui::{ClientPage, ClientPageText, DialogFactory, PageAction, UiTree};
 
 /// No sounds: the page never loads one.
 struct NoSounds;
@@ -168,4 +169,74 @@ fn a_quality_level_reaches_the_landscape_draw_distance() {
         "the draw distance 4 is the widest far radius"
     );
     assert!(!prefs.set_overall_graphics_quality(0));
+}
+
+#[test]
+fn a_render_verification_answered_no_recalls_the_display_and_saves_once() {
+    let Some(store) = store() else {
+        return;
+    };
+    let dir = temp_dir("verify-no");
+    let path = dir.join("Preferences.ini");
+    let mut prefs = ClientPrefs::load(path.clone(), Arc::clone(&store)).expect("load");
+    prefs
+        .bank_mut()
+        .find_mut(0x4000_0043)
+        .expect("the landscape draw distance is registered")
+        .set_choice(4);
+    let outcome = prefs.options_apply();
+    assert!(outcome.verify_render);
+    // The page asks the question (a timed dialog) and the player answers no.
+    let mut tree = UiTree::new(1024, 768);
+    let mut dialogs = DialogFactory::new(None);
+    let mut page = ClientPage::new(ClientPageText::default());
+    assert!(page.after_apply(&mut tree, &mut dialogs, outcome.verify_render));
+    let render = page.open_contexts()[0];
+    let actions = page.recv_close_confirmation(&mut tree, &mut dialogs, render, false);
+    assert_eq!(actions, vec![PageAction::RecallDisplay]);
+
+    let answer = prefs.options_page_answer(&actions);
+    assert_eq!(answer.saves.len(), 1, "one save for the answer");
+    answer.wait_saved().expect("the file is written");
+    assert!(path.exists());
+    assert_eq!(
+        ac2_render::prefs::landscape_draw_distance(prefs.bank()),
+        Some(4),
+        "the graphics change stays applied: only the display section is recalled"
+    );
+}
+
+#[test]
+fn a_default_answered_yes_resets_every_section_and_saves() {
+    let Some(store) = store() else {
+        return;
+    };
+    let dir = temp_dir("default-yes");
+    let path = dir.join("Preferences.ini");
+    let mut prefs = ClientPrefs::load(path.clone(), Arc::clone(&store)).expect("load");
+    prefs
+        .bank_mut()
+        .find_mut(FX_VOLUME)
+        .expect("FX volume is registered")
+        .set_float(0.1);
+    prefs.options_apply().wait_saved().expect("saved");
+
+    let mut tree = UiTree::new(1024, 768);
+    let mut dialogs = DialogFactory::new(None);
+    let mut page = ClientPage::new(ClientPageText::default());
+    page.confirm_default(&mut tree, &mut dialogs);
+    let default = page.open_contexts()[2];
+    let actions = page.recv_close_confirmation(&mut tree, &mut dialogs, default, true);
+    assert_eq!(actions, vec![PageAction::Default]);
+
+    let answer = prefs.options_page_answer(&actions);
+    assert!(!answer.verify_render);
+    answer.wait_saved().expect("saved");
+    let volume = prefs.bank().find(FX_VOLUME).expect("registered");
+    assert!(!volume.changed());
+    assert_ne!(
+        volume.value,
+        ac2_prefs::Value::Float(0.1),
+        "the default came back"
+    );
 }

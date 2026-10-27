@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 961 done, 365 partial, 844 to do, 77 skipped.
+2247 retail functions: 964 done, 371 partial, 833 to do, 79 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -1357,26 +1357,26 @@ Legend and workflow: [README](README.md).
 - [x] `gmChatOptionsUI::RecvNotice_ReloadOptions` · 00444cb0 — hud_player.rs refreshes the chat page on CM_Character::SendNotice_ReloadOptions (the page's refresh); Legions 7160 has no matched handler of this name
 - [x] `gmChatOptionsUI::gmChatOptionsUI` · 00444cc0 · legions 00445800 — ChatOptionsUi::create over the ChatPage (hud.rs): the expanders, the refresh at login (hud_player.rs). Legions registers the same notices; the tooltips are not set
 
-## `ac2/client/src/ui/gameplay/toolbar/option/gmclientui.cpp.c` (1/18)
+## `ac2/client/src/ui/gameplay/toolbar/option/gmclientui.cpp.c` (4/18)
 
 ### gmClientUI
-- [ ] `gmClientUI::ConfirmRecall` · 00446710 · legions 00447250
-- [ ] `gmClientUI::ConfirmDefault` · 00446770 · legions 004472b0
-- [ ] `gmClientUI::ClearConfirmations` · 004467d0 · legions 00447310
-- [~] `gmClientUI::VerifyRenderOptions` · 00446830 · legions 00447370 — ac2-client client_options.rs options_apply / options_recall / options_default (sections in retail order, render change noted, save on a worker); the page's widgets are not synchronised and the render verification dialog (ConfirmRecall/ConfirmDefault/VerifyRenderOptions via DialogFactory) is not drawn; options_7160
-- [ ] `gmClientUI::MonitorChange` · 00446890
+- [~] `gmClientUI::ConfirmRecall` · 00446710 · legions 00447250 — ac2-ui client_page.rs ClientPage::confirm_recall / confirm_default (DIALOG_CONFIRMATION, answered via recv_close_confirmation -> ac2-client options_page_answer); the question texts are the caller's, the string IDs are unnamed
+- [~] `gmClientUI::ConfirmDefault` · 00446770 · legions 004472b0 — ac2-ui client_page.rs ClientPage::confirm_recall / confirm_default (DIALOG_CONFIRMATION, answered via recv_close_confirmation -> ac2-client options_page_answer); the question texts are the caller's, the string IDs are unnamed
+- [x] `gmClientUI::ClearConfirmations` · 004467d0 · legions 00447310 — ac2-ui client_page.rs ClientPage::clear_confirmations; client_page tests
+- [~] `gmClientUI::VerifyRenderOptions` · 00446830 · legions 00447370 — ac2-ui client_page.rs ClientPage::verify_render_options (DIALOG_TIMED) and after_apply; ac2-client options_7160 a_render_change_asks_for_verification. Legions 7160 has no answer handler for this dialog; the answer is admin 7148's (recv_close_confirmation)
+- [-] `gmClientUI::MonitorChange` · 00446890 — admin 7148 only (IPreferenceMonitor Change/Reload forwarding to an expander); Legions 7160 has no match and the port's preferences have no monitors
 - [x] `gmClientUI::Changed` · 004468d0 · legions 00447410 — ac2-client client_options.rs options_changed (any section's value differs from the applied one); options_7160 (no change after apply)
-- [ ] `gmClientUI::LookupExpander` · 00446910 · legions 00447450
-- [ ] `gmClientUI::Dismantle` · 004469d0 · legions 00447510
-- [ ] `gmClientUI::UpdateButtons` · 00446a70 · legions 004475b0
-- [ ] `gmClientUI::~gmClientUI` · 00446b40 · legions 00447680
-- [~] `gmClientUI::Apply` · 00446bf0 · legions 00447730 — ac2-client client_options.rs options_apply / options_recall / options_default (sections in retail order, render change noted, save on a worker); the page's widgets are not synchronised and the render verification dialog (ConfirmRecall/ConfirmDefault/VerifyRenderOptions via DialogFactory) is not drawn; options_7160
-- [~] `gmClientUI::Recall` · 00446ce0 · legions 00447820 — ac2-client client_options.rs options_apply / options_recall / options_default (sections in retail order, render change noted, save on a worker); the page's widgets are not synchronised and the render verification dialog (ConfirmRecall/ConfirmDefault/VerifyRenderOptions via DialogFactory) is not drawn; options_7160
-- [~] `gmClientUI::Default` · 00446d10 · legions 00447850 — ac2-client client_options.rs options_apply / options_recall / options_default (sections in retail order, render change noted, save on a worker); the page's widgets are not synchronised and the render verification dialog (ConfirmRecall/ConfirmDefault/VerifyRenderOptions via DialogFactory) is not drawn; options_7160
-- [ ] `gmClientUI::MonitorReload` · 00446d50
-- [ ] `gmClientUI::RecvNotice_CloseConfirmationDialog` · 00446e80
+- [x] `gmClientUI::LookupExpander` · 00446910 · legions 00447450 — ac2-ui client_page.rs ClientPage::lookup_expander over SECTION_ORDER; client_page tests
+- [x] `gmClientUI::Dismantle` · 004469d0 · legions 00447510 — ac2-ui client_page.rs ClientPage::dismantle (expanders gone, questions closed); no monitors to detach in the port
+- [~] `gmClientUI::UpdateButtons` · 00446a70 · legions 004475b0 — ac2-ui client_page.rs ClientPage::buttons (Apply and Recall enabled while changed; None once dismantled); the page's widgets are not built in the HUD
+- [~] `gmClientUI::~gmClientUI` · 00446b40 · legions 00447680 — ac2-ui client_page.rs ClientPage::dismantle and clear_confirmations; the list cleanup and notice unregistering are not run (no page widgets or notice handlers)
+- [~] `gmClientUI::Apply` · 00446bf0 · legions 00447730 — ac2-client client_options.rs options_apply / options_default with ac2-ui ClientPage::after_apply (verification); widgets not synchronised; not wired to a screen
+- [~] `gmClientUI::Recall` · 00446ce0 · legions 00447820 — ac2-client client_options.rs options_recall (every section back to applied); ac2-ui client_page.rs ClientPage::buttons; the page's widgets are not synchronised
+- [~] `gmClientUI::Default` · 00446d10 · legions 00447850 — ac2-client client_options.rs options_apply / options_default with ac2-ui ClientPage::after_apply (verification); widgets not synchronised; not wired to a screen
+- [-] `gmClientUI::MonitorReload` · 00446d50 — admin 7148 only (IPreferenceMonitor Change/Reload forwarding to an expander); Legions 7160 has no match and the port's preferences have no monitors
+- [~] `gmClientUI::RecvNotice_CloseConfirmationDialog` · 00446e80 — admin 7148 answer, ported: ac2-ui client_page.rs recv_close_confirmation, ac2-client client_options.rs options_page_answer (display recall/synchronize + save, Recall, Default). Legions 7160 has no match for this method
 - [ ] `gmClientUI::ListenToMessage` · 00446f40 · legions 00447a80
-- [ ] `gmClientUI::Construct` · 004470c0 · legions 00447c00
+- [~] `gmClientUI::Construct` · 004470c0 · legions 00447c00 — ac2-ui client_page.rs ClientPage::new (the expanders in Construct order, Rendering first); the monitor attach (PreferenceBank::Attach) and widget build are not modelled
 - [ ] `gmClientUI::gmClientUI` · 00447450 · legions 00447f90
 
 ## `ac2/client/src/ui/gameplay/toolbar/option/gmoptionui.cpp.c` (0/11)

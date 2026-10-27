@@ -25,7 +25,7 @@ mod client_objects;
 mod client_radar;
 mod client_story;
 mod client_teleport;
-pub use client_options::{ApplyOutcome, Close, OptionsWindow};
+pub use client_options::{ApplyOutcome, Close, OptionsWindow, PageOutcome};
 pub use client_prefs::{ClientPrefs, DatNames};
 pub use client_radar::add_map_note;
 mod consignment;

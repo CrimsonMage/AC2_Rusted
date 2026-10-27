@@ -25,6 +25,7 @@ mod chat_options_table;
 #[cfg(test)]
 mod chat_options_tests;
 mod chat_window;
+mod client_page;
 mod compose;
 mod controls;
 mod craft;
@@ -167,6 +168,10 @@ pub use chat::{
 };
 pub use chat_options::{ChatOptionRequest, ChatOptionSetting, ChatOptionsUi};
 pub use chat_window::{chat_window_id, ChatMessageInfo, CHAT_TEXT_TYPES};
+pub use chat_window::{ChatMessageInfo, CHAT_TEXT_TYPES};
+pub use client_page::{
+    ButtonStates, ClientPage, ClientPageText, PageAction, RENDERING_SECTION, SECTION_ORDER,
+};
 pub use compose::{UiPixels, UiSurface};
 pub use consignment::{ConsignmentRequest, ConsignmentSource, ConsignmentUi};
 pub use controls::{ControlFrame, Controls};

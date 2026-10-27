@@ -11,6 +11,8 @@
 use std::io;
 use std::thread::JoinHandle;
 
+use ac2_ui::PageAction;
+
 use crate::client_prefs::ClientPrefs;
 
 /// The sections `gmClientUI::Apply` applies, in its order: graphics, sound, FX, camera, then the
@@ -54,6 +56,31 @@ impl ApplyOutcome {
                 .unwrap_or_else(|_| Err(io::Error::other("the save thread panicked"))),
             None => Ok(()),
         }
+    }
+}
+
+/// What the options page's answers did: the keys applied, the saves started (on worker threads),
+/// and whether a default that changed the graphics asks for the render verification.
+#[derive(Debug, Default)]
+pub struct PageOutcome {
+    pub keys: Vec<u32>,
+    pub saves: Vec<JoinHandle<io::Result<()>>>,
+    pub verify_render: bool,
+}
+
+impl PageOutcome {
+    /// Waits for every save and returns the first error.
+    pub fn wait_saved(self) -> io::Result<()> {
+        let mut result = Ok(());
+        for handle in self.saves {
+            let saved = handle
+                .join()
+                .unwrap_or_else(|_| Err(io::Error::other("the save thread panicked")));
+            if result.is_ok() {
+                result = saved;
+            }
+        }
+        result
     }
 }
 
@@ -144,5 +171,33 @@ impl ClientPrefs {
             self.bank_mut().reset_section(section);
         }
         self.options_apply()
+    }
+
+    /// The options page's answers, in order (`gmClientUI::RecvNotice_CloseConfirmationDialog`, see
+    /// [`ac2_ui::ClientPage::recv_close_confirmation`]). A display recall or synchronize applies
+    /// the display section (`PreferenceBank::Recall` / `Synchronize` of `0x4000000B`) and saves;
+    /// Recall and Default run as the page's own. Ask the page to verify when `verify_render` is set.
+    pub fn options_page_answer(&mut self, actions: &[PageAction]) -> PageOutcome {
+        let mut out = PageOutcome::default();
+        for action in actions {
+            match action {
+                PageAction::RecallDisplay => {
+                    self.bank_mut().recall(DEVICE_SECTION);
+                    out.saves.push(self.save());
+                }
+                PageAction::SynchronizeDisplay => {
+                    out.keys.extend(self.bank_mut().apply(DEVICE_SECTION));
+                    out.saves.push(self.save());
+                }
+                PageAction::Recall => self.options_recall(),
+                PageAction::Default => {
+                    let applied = self.options_default();
+                    out.keys.extend(applied.keys);
+                    out.verify_render |= applied.verify_render;
+                    out.saves.extend(applied.save);
+                }
+            }
+        }
+        out
     }
 }
