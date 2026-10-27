@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 956 done, 355 partial, 867 to do, 69 skipped.
+2247 retail functions: 956 done, 365 partial, 856 to do, 70 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -1382,17 +1382,17 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/toolbar/option/gmoptionui.cpp.c` (0/11)
 
 ### gmOptionUI
-- [ ] `gmOptionUI::gmOptionUI` · 004347e0 · legions 00434fb0
-- [ ] `gmOptionUI::UpdateButtons` · 00434a20 · legions 004351f0
-- [ ] `gmOptionUI::MakeConfirmDialog` · 00434aa0 · legions 00435270 — ac2-client OptionsWindow: the confirmation is a flag; the dialog itself (DialogFactory) is not drawn
-- [ ] `gmOptionUI::DoConfirm` · 00434af0 · legions 004352c0 — ac2-client options: DoConfirm yes applies the client page (options_apply), no recalls it; gmCharacterUI and gmChatOptionsUI apply/recall not modelled here
-- [ ] `gmOptionUI::MakeQuitDialog` · 00434b40 · legions 00435310
-- [ ] `gmOptionUI::MakeLogoutDialog` · 00434ba0 · legions 00435370
-- [ ] `gmOptionUI::CloseDialog` · 00434c00 · legions 004353d0
-- [ ] `gmOptionUI::~gmOptionUI` · 00434c30 · legions 00435400
-- [ ] `gmOptionUI::Show` · 00434d10 · legions 004354e0 — ac2-client OptionsWindow::request_close: closing with a change asks (confirming); the window and its show/hide are not modelled
-- [ ] `gmOptionUI::ListenToMessage` · 00434dd0 · legions 004355a0
-- [ ] `gmOptionUI::RecvNotice_CloseConfirmationDialog` · 00434f70 — ac2-client OptionsWindow::answer: the confirmation's yes/no; the quit and logout confirmations are not modelled
+- [~] `gmOptionUI::gmOptionUI` · 004347e0 · legions 00434fb0 — ac2-client client_options.rs models the page's sections (gmClientUI Apply/Recall/Default/Changed) but no UI page is built or wired: the client page (graphics, sound, FX, camera, avatar) is not reachable from the HUD; the character and chat pages are wired (character_options.rs, chat_options.rs)
+- [~] `gmOptionUI::UpdateButtons` · 00434a20 · legions 004351f0 — ac2-client client_options.rs models the page's sections (gmClientUI Apply/Recall/Default/Changed) but no UI page is built or wired: the client page (graphics, sound, FX, camera, avatar) is not reachable from the HUD; the character and chat pages are wired (character_options.rs, chat_options.rs)
+- [~] `gmOptionUI::MakeConfirmDialog` · 00434aa0 · legions 00435270 — ac2-client client_options.rs OptionsWindow: the changed-close confirmation and its yes/no (answer: yes applies, no recalls); the dialog itself is not drawn and the page is not wired to a HUD
+- [~] `gmOptionUI::DoConfirm` · 00434af0 · legions 004352c0 — ac2-client client_options.rs OptionsWindow: the changed-close confirmation and its yes/no (answer: yes applies, no recalls); the dialog itself is not drawn and the page is not wired to a HUD
+- [~] `gmOptionUI::MakeQuitDialog` · 00434b40 · legions 00435310 — logout confirmation is ac2-ui game_dialogs.rs / ac2-client hud_game_dialogs.rs (the logout key); the quit confirmation and the page's message handler are not modelled
+- [~] `gmOptionUI::MakeLogoutDialog` · 00434ba0 · legions 00435370 — logout confirmation is ac2-ui game_dialogs.rs / ac2-client hud_game_dialogs.rs (the logout key); the quit confirmation and the page's message handler are not modelled
+- [~] `gmOptionUI::CloseDialog` · 00434c00 · legions 004353d0 — ac2-client client_options.rs OptionsWindow: the changed-close confirmation and its yes/no (answer: yes applies, no recalls); the dialog itself is not drawn and the page is not wired to a HUD
+- [-] `gmOptionUI::~gmOptionUI` · 00434c30 · legions 00435400 — C++ destructor: the page's widgets and the OptionsWindow model drop with the owner
+- [~] `gmOptionUI::Show` · 00434d10 · legions 004354e0 — ac2-client client_options.rs OptionsWindow: the changed-close confirmation and its yes/no (answer: yes applies, no recalls); the dialog itself is not drawn and the page is not wired to a HUD
+- [~] `gmOptionUI::ListenToMessage` · 00434dd0 · legions 004355a0 — logout confirmation is ac2-ui game_dialogs.rs / ac2-client hud_game_dialogs.rs (the logout key); the quit confirmation and the page's message handler are not modelled
+- [~] `gmOptionUI::RecvNotice_CloseConfirmationDialog` · 00434f70 — ac2-client client_options.rs OptionsWindow: the changed-close confirmation and its yes/no (answer: yes applies, no recalls); the dialog itself is not drawn and the page is not wired to a HUD
 
 ## `ac2/client/src/ui/gameplay/toolbar/quest/gmjournalquestsui.cpp.c` (12/14)
 

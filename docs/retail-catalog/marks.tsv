@@ -640,10 +640,17 @@ key	status	note
 00434390	x	ac2-ui quests_panel.rs QuestsUi::set_active_panel (tab found by name, panel.rs start_use_active opens it and closes the other tab)
 004343c0	~	ac2-ui quests_panel.rs QuestsUi::create (journal made; the field and the help button are not modelled, the registrations are the toolbar's)
 00434670	~	ac2-ui: the status bar children are fields of GameplayHud and drop with its tree; no per-child teardown call
-00434aa0	_	ac2-client OptionsWindow: the confirmation is a flag; the dialog itself (DialogFactory) is not drawn
-00434af0	_	ac2-client options: DoConfirm yes applies the client page (options_apply), no recalls it; gmCharacterUI and gmChatOptionsUI apply/recall not modelled here
-00434d10	_	ac2-client OptionsWindow::request_close: closing with a change asks (confirming); the window and its show/hide are not modelled
-00434f70	_	ac2-client OptionsWindow::answer: the confirmation's yes/no; the quit and logout confirmations are not modelled
+004347e0	~	ac2-client client_options.rs models the page's sections (gmClientUI Apply/Recall/Default/Changed) but no UI page is built or wired: the client page (graphics, sound, FX, camera, avatar) is not reachable from the HUD; the character and chat pages are wired (character_options.rs, chat_options.rs)
+00434a20	~	ac2-client client_options.rs models the page's sections (gmClientUI Apply/Recall/Default/Changed) but no UI page is built or wired: the client page (graphics, sound, FX, camera, avatar) is not reachable from the HUD; the character and chat pages are wired (character_options.rs, chat_options.rs)
+00434aa0	~	ac2-client client_options.rs OptionsWindow: the changed-close confirmation and its yes/no (answer: yes applies, no recalls); the dialog itself is not drawn and the page is not wired to a HUD
+00434af0	~	ac2-client client_options.rs OptionsWindow: the changed-close confirmation and its yes/no (answer: yes applies, no recalls); the dialog itself is not drawn and the page is not wired to a HUD
+00434b40	~	logout confirmation is ac2-ui game_dialogs.rs / ac2-client hud_game_dialogs.rs (the logout key); the quit confirmation and the page's message handler are not modelled
+00434ba0	~	logout confirmation is ac2-ui game_dialogs.rs / ac2-client hud_game_dialogs.rs (the logout key); the quit confirmation and the page's message handler are not modelled
+00434c00	~	ac2-client client_options.rs OptionsWindow: the changed-close confirmation and its yes/no (answer: yes applies, no recalls); the dialog itself is not drawn and the page is not wired to a HUD
+00434c30	-	C++ destructor: the page's widgets and the OptionsWindow model drop with the owner
+00434d10	~	ac2-client client_options.rs OptionsWindow: the changed-close confirmation and its yes/no (answer: yes applies, no recalls); the dialog itself is not drawn and the page is not wired to a HUD
+00434dd0	~	logout confirmation is ac2-ui game_dialogs.rs / ac2-client hud_game_dialogs.rs (the logout key); the quit confirmation and the page's message handler are not modelled
+00434f70	~	ac2-client client_options.rs OptionsWindow: the changed-close confirmation and its yes/no (answer: yes applies, no recalls); the dialog itself is not drawn and the page is not wired to a HUD
 00435000	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 00435030	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 00435090	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
