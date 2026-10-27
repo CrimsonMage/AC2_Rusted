@@ -7,6 +7,7 @@
 //! finished loads and lays out frames.
 
 use std::collections::hash_map::DefaultHasher;
+use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 use std::time::Duration;
@@ -38,6 +39,8 @@ struct Drawn<'a> {
     id: u64,
     player: bool,
     visual: u32,
+    /// `model_key(visual, appearance)`, computed once when the object is listed.
+    key: u64,
     appearance: &'a Appearance,
     cell: u32,
     origin: [f32; 3],
@@ -69,20 +72,23 @@ fn block_of(cell: u32) -> (u8, u8) {
     ((cell >> 24) as u8, (cell >> 16) as u8)
 }
 
-/// Names one object's model: its visual and local description.
+/// Names one object's model: its visual and local description (hashed directly, see
+/// `Appearance`'s `Hash`).
 fn model_key(visual: u32, appearance: &Appearance) -> u64 {
     let mut hasher = DefaultHasher::new();
     visual.hash(&mut hasher);
-    format!("{appearance:?}").hash(&mut hasher);
+    appearance.hash(&mut hasher);
     hasher.finish()
 }
 
 fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
     let player = frame.player.iter().filter_map(|p| {
+        let visual = p.visual?;
         Some(Drawn {
             id: p.id,
             player: true,
-            visual: p.visual?,
+            visual,
+            key: model_key(visual, &p.appearance),
             appearance: &p.appearance,
             cell: p.cell,
             origin: p.origin,
@@ -95,10 +101,12 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
         .iter()
         .filter(|o| o.in_world && o.holder.is_none())
         .filter_map(|o| {
+            let visual = o.visual?;
             Some(Drawn {
                 id: o.id,
                 player: false,
-                visual: o.visual?,
+                visual,
+                key: model_key(visual, &o.appearance),
                 appearance: &o.appearance,
                 cell: o.cell,
                 origin: o.origin,
@@ -181,7 +189,7 @@ impl ClientView {
         }
         self.scene.time_of_day = frame.server_time;
         for drawn in drawn_objects(frame) {
-            let key = model_key(drawn.visual, drawn.appearance);
+            let key = drawn.key;
             let local = crate::appearance::local_visual_desc(drawn.appearance);
             self.scene
                 .request_object(key, DataId::new(drawn.visual), Some(local));
@@ -257,9 +265,7 @@ impl ClientView {
         drawn_objects(frame)
             .iter()
             .filter_map(|drawn| {
-                let (_, scale) = self
-                    .scene
-                    .object_rig(model_key(drawn.visual, drawn.appearance))?;
+                let (_, scale) = self.scene.object_rig(drawn.key)?;
                 let [w, x, y, z] = drawn.rotation;
                 Some(ObjectPlacement {
                     emitter: drawn.id,
@@ -315,7 +321,7 @@ impl ClientView {
 
     /// A drawn object's model key, model-to-world matrix and pose (`CPartArray::UpdateBones`).
     fn placed(&self, drawn: &Drawn<'_>) -> Option<(u64, Mat4, Option<ObjectPose>)> {
-        let key = model_key(drawn.visual, drawn.appearance);
+        let key = drawn.key;
         let (rig, scale) = self.scene.object_rig(key)?;
         let [w, x, y, z] = drawn.rotation;
         let world = Mat4::from_scale_rotation_translation(
@@ -561,11 +567,7 @@ impl ClientView {
     pub fn loaded_objects(&self, frame: &ClientFrame) -> usize {
         drawn_objects(frame)
             .iter()
-            .filter(|d| {
-                self.scene
-                    .object_rig(model_key(d.visual, d.appearance))
-                    .is_some()
-            })
+            .filter(|d| self.scene.object_rig(d.key).is_some())
             .count()
     }
 
@@ -888,13 +890,18 @@ impl ClientView {
 /// object's name, and the selection.
 fn radar_view(frame: &ClientFrame) -> ac2_ui::RadarView {
     let radar = &frame.radar;
+    // The first object with each id names its blips (`find` order); a missing or unnamed one
+    // gives "".
+    let mut names: HashMap<u64, &str> = HashMap::with_capacity(frame.objects.len());
+    for object in &frame.objects {
+        names
+            .entry(object.id)
+            .or_insert_with(|| object.name.as_deref().unwrap_or(""));
+    }
     let name = |id| {
-        frame
-            .objects
-            .iter()
-            .find(|o| o.id == id)
-            .and_then(|o| o.name.clone())
-            .unwrap_or_default()
+        names
+            .get(&id)
+            .map_or_else(String::new, |n| (*n).to_string())
     };
     ac2_ui::RadarView {
         range: radar.range,

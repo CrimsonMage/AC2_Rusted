@@ -10,10 +10,70 @@
 //! top, then `ModifyPGDTreeBasedOnApr`'s appearance-driven part-group swaps; that needs the DATs
 //! and is the renderer's.
 
+use std::hash::{Hash, Hasher};
+
 use ac2_net::protocol::{PartGroupDesc, VisualDesc};
 
 /// `GLOBAL_PGD_KEY`: the key `VisualDesc::GetPGDDesc` maps to `m_global_app_mods`.
 pub const GLOBAL_PART_GROUP: u32 = 0x4000_0002;
+
+/// An `f32` hashes by its bits, so -0.0 and 0.0 (which their `Debug` text tells apart) hash
+/// apart too. `PartialEq` stays the derived float comparison; the hash is only for keys.
+fn hash_f32<H: Hasher>(value: f32, state: &mut H) {
+    value.to_bits().hash(state);
+}
+
+/// `Vec<(u32, f32)>`: the length, then each pair's id and scalar bits.
+fn hash_scalars<H: Hasher>(scalars: &[(u32, f32)], state: &mut H) {
+    scalars.len().hash(state);
+    for &(id, scalar) in scalars {
+        id.hash(state);
+        hash_f32(scalar, state);
+    }
+}
+
+/// `appearance`: the length, then each table's DID and its keys' scalars.
+fn hash_tables<H: Hasher>(tables: &[(u32, Vec<(u32, f32)>)], state: &mut H) {
+    tables.len().hash(state);
+    for (table, keys) in tables {
+        table.hash(state);
+        hash_scalars(keys, state);
+    }
+}
+
+impl Hash for PartGroupAppearance {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.key.hash(state);
+        self.parent_key.hash(state);
+        self.connection_point.hash(state);
+        self.setup.hash(state);
+        self.anim_map.hash(state);
+        hash_tables(&self.appearance, state);
+        self.fx_table.hash(state);
+        hash_scalars(&self.startup_fx, state);
+        self.fx_overrides.hash(state);
+    }
+}
+
+impl Hash for Appearance {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.parent.hash(state);
+        self.motion_interp.hash(state);
+        self.behavior_table.hash(state);
+        self.modes.hash(state);
+        self.scale.len().hash(state);
+        for &axis in &self.scale {
+            hash_f32(axis, state);
+        }
+        hash_f32(self.child_scale, state);
+        hash_f32(self.particle_scale, state);
+        self.icon.hash(state);
+        self.global.hash(state);
+        self.part_groups.hash(state);
+        self.root.hash(state);
+        self.children.hash(state);
+    }
+}
 
 /// One part group's overrides (`PartGroupDataDesc`).
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -325,5 +385,52 @@ mod tests {
             vec![(0x2000_0001, vec![(1, 0.75), (2, 1.0)])]
         );
         assert_eq!(local.scale, [1.0, 2.0, 2.0]);
+    }
+
+    fn hash_of(appearance: &Appearance) -> u64 {
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        appearance.hash(&mut hasher);
+        hasher.finish()
+    }
+
+    #[test]
+    fn hash_follows_every_field_of_the_appearance() {
+        let mut head = part(0x10, 0, 0, 1);
+        head.1.appearance = vec![(0x2000_0001, vec![(1, 0.25), (2, 1.0)])];
+        let mut base = Appearance::default();
+        base.apply_additive(&VisualDesc {
+            scale: Some([1.0, 2.0, 3.0]),
+            icon: vec![IconLayer {
+                layer: 1,
+                image: 0x0600_0001,
+                color: 7,
+            }],
+            part_groups: vec![head],
+            ..VisualDesc::default()
+        });
+        let same = base.clone();
+        assert_eq!(hash_of(&base), hash_of(&same));
+
+        let mut scaled = base.clone();
+        scaled.scale[1] = 2.5;
+        assert_ne!(hash_of(&base), hash_of(&scaled));
+
+        let mut signed_zero = base.clone();
+        signed_zero.child_scale = -0.0;
+        let mut positive_zero = base.clone();
+        positive_zero.child_scale = 0.0;
+        assert_ne!(hash_of(&signed_zero), hash_of(&positive_zero));
+
+        let mut iconned = base.clone();
+        iconned.icon[0].2 = 8;
+        assert_ne!(hash_of(&base), hash_of(&iconned));
+
+        let mut grouped = base.clone();
+        grouped.part_groups[0].setup = 2;
+        assert_ne!(hash_of(&base), hash_of(&grouped));
+
+        let mut tabled = base.clone();
+        tabled.part_groups[0].appearance[0].1[0].1 = 0.5;
+        assert_ne!(hash_of(&base), hash_of(&tabled));
     }
 }
