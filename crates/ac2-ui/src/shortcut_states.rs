@@ -112,7 +112,8 @@ impl ShortcutUi {
     }
 
     /// The skill on slot `index` went on reset: its entry is updated, or made with the slot's
-    /// meter (`gmShortcutUI::CheckSkill`'s timer), until `now` plus `left`.
+    /// meter (`gmShortcutUI::CheckSkill`'s timer), until `now` plus `left`. A slot without a
+    /// meter gets no entry. A total of zero counts as `1e-4` seconds (`0x38d1b717`).
     pub fn reset_timer(
         &mut self,
         tree: &mut UiTree,
@@ -121,23 +122,28 @@ impl ShortcutUi {
         total: f64,
         left: f64,
     ) {
-        if left <= 0.0 {
+        let meter = self
+            .list
+            .and_then(|list| tree.list_items(list).get(index).copied())
+            .and_then(|slot| tree.child_recursive(slot, tokenize("TimeLeftMeter")));
+        let Some(meter) = meter else {
             return;
-        }
+        };
+        let total = if total as f32 == 0.0 {
+            f64::from(1.0e-4_f32)
+        } else {
+            total
+        };
         let end = self.now + left;
         if let Some(at) = self.time_left_position(skill, index) {
             self.timers[at].total = total;
             self.timers[at].end = end;
             return;
         }
-        let meter = self
-            .list
-            .and_then(|list| tree.list_items(list).get(index).copied())
-            .and_then(|slot| tree.child_recursive(slot, tokenize("TimeLeftMeter")));
         self.timers.push(TimeLeft {
             index,
             skill,
-            meter,
+            meter: Some(meter),
             total,
             end,
         });

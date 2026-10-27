@@ -334,6 +334,8 @@ mod scrollbar_tests;
 #[cfg(test)]
 mod secure_trade_tests;
 #[cfg(test)]
+mod shortcut_checks_tests;
+#[cfg(test)]
 mod shortcut_states_tests;
 #[cfg(test)]
 mod shortcut_tests;

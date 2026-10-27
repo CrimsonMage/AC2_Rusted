@@ -687,34 +687,34 @@ key	status	note
 00436180	x	ac2-ui shortcut_states.rs update_time_left: the meter fills by 1 - (end - now)/total clamped; the entry goes when full or its slot no longer holds the skill; ac2-client HudView::update runs it per frame
 00436330	x	ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 004363e0	x	ac2-script glue::shortcut / native::shortcut
-00436440	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+00436440	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
 004364f0	x	ac2-ui drag.rs; shortcut.rs drop
-004367a0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-00436940	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+004367a0	x	ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
+00436940	x	ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 00436bc0	x	ac2-ui shortcut.rs
 00436c20	x	ac2-ui shortcut.rs
-00436ca0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+00436ca0	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
 00436da0	x	ac2-ui shortcut.rs
-00436e20	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-00436ea0	~	routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
-00436f00	~	routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
-00436f40	~	routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
-00436f60	~	routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
+00436e20	x	ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
+00436ea0	x	ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
+00436f00	x	ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
+00436f40	x	ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
+00436f60	x	ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 00436f70	-	no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
 00437290	-	notice handlers are registered per object by the session in Rust (no per-object handler table)
-00437320	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+00437320	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
 00437620	x	ac2-ui shortcut.rs set_shortcut: requested sets the slot (gmCWInterface::SetShortcut, WM_Player call 0x82120018 from the script) and the list item; tested through the HUD with skills, items and slot to slot drags (shortcut_drag_7160)
 004376c0	x	ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 00437770	x	ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 00437820	x	ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 004379a0	x	ac2-ui shortcut.rs message: the double click on a skill, the use/examine presses and stop_drag_item (RemoveShortcut of the source slot, then SetShortcut of the slot under the pointer; a drop outside removes); tested through the HUD (shortcut_drag_7160)
 00437d90	x	ac2-ui shortcut.rs
-00437e50	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-00437fb0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-00438270	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-004386c0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+00437e50	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
+00437fb0	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
+00438270	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
+004386c0	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
 004387f0	x	ac2-ui shortcut.rs
-00438830	~	ac2-ui shortcut.rs reload: the bar's rows and set; ac2-client reloads on ReloadOptions (no separate option refresh)
+00438830	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
 00438850	~	ac2-ui indicators.rs: no root element of its own, so only the shown flag is kept; the children show notification (vtable 0x20) is not modelled
 00438860	x	ac2-ui indicators.rs: net, PK and vitae children made in retail order (net_status.rs, pk_status.rs); the child list and the children show notification are not kept
 00438910	~	ac2-ui: the indicators children are fields of GameplayHud and drop with its tree; no per-child teardown call

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 986 done, 371 partial, 811 to do, 79 skipped.
+2247 retail functions: 993 done, 364 partial, 811 to do, 79 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -1093,7 +1093,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmNavigationUI::UpdatePlayerPos` · 004341b0 · legions 00434980 — ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
 - [~] `gmNavigationUI::ListenToMessage` · 00434280 · legions 00434a50 — ac2-ui navigation_detail.rs: NavigationButton, NavigationCloseButton, the pan buttons, the macro switch (MapParentField data 0x40000005), the macro click (MapField), the global loop's switch. Not ported: the parent's coordinates message (0x40000007), ReadMarkerInfo (tooltip), NoteText (needs strings), the overview buttons; the Legions layout has no LockPositionButton or MacroMapButton
 
-## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (23/46)
+## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (30/46)
 
 ### gmShortcutUI
 - [x] `gmShortcutUI::Show` · 00435cd0 · legions 00436520 — ac2-ui shortcut.rs show: the bar's field shows or hides; ac2-client show_toolbar calls it from the toolbar's Show
@@ -1120,15 +1120,15 @@ Legend and workflow: [README](README.md).
 - [x] `ShortcutInfo::SetDataStr` · 004363e0 · legions 00436c30 — ac2-script glue::shortcut / native::shortcut
 
 ### gmShortcutUI
-- [~] `gmShortcutUI::CheckItem` · 00436440 · legions 00436c90 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::CheckItem` · 00436440 · legions 00436c90 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
 - [x] `gmShortcutUI::FromElement` · 004364f0 · legions 00436d40 — ac2-ui drag.rs; shortcut.rs drop
 
 ### SmartArray<TimeLeftInfo>
 - [ ] `SmartArray<TimeLeftInfo>::AddToEnd` · 00436660 · legions 00436eb0
 
 ### gmShortcutUI
-- [~] `gmShortcutUI::CheckSkill` · 004367a0 · legions 00436ff0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-- [~] `gmShortcutUI::UpdateSetNumber` · 00436940 · legions 00437190 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [x] `gmShortcutUI::CheckSkill` · 004367a0 · legions 00436ff0 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
+- [x] `gmShortcutUI::UpdateSetNumber` · 00436940 · legions 00437190 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 
 ### PSmartArray<ShortcutInfo>
 - [ ] `PSmartArray<ShortcutInfo>::StreamPack` · 00436a00 · legions 00437250
@@ -1136,30 +1136,30 @@ Legend and workflow: [README](README.md).
 ### gmShortcutUI
 - [x] `gmShortcutUI::CheckShortcut` · 00436bc0 · legions 00437410 — ac2-ui shortcut.rs
 - [x] `gmShortcutUI::CheckAllItems` · 00436c20 · legions 00437470 — ac2-ui shortcut.rs
-- [~] `gmShortcutUI::CheckItem` · 00436ca0 · legions 004374f0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::CheckItem` · 00436ca0 · legions 004374f0 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
 - [x] `gmShortcutUI::CheckAllSkills` · 00436da0 · legions 004375f0 — ac2-ui shortcut.rs
-- [~] `gmShortcutUI::CheckSkill` · 00436e20 · legions 00437670 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-- [~] `gmShortcutUI::RecvNotice_UpdateInventory` · 00436ea0 — routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
-- [~] `gmShortcutUI::RecvNotice_UpdateContainer` · 00436f00 — routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
-- [~] `gmShortcutUI::RecvNotice_UpdateSkill` · 00436f40 — routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
-- [~] `gmShortcutUI::RecvNotice_UpdateResetTime` · 00436f60 — routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
+- [x] `gmShortcutUI::CheckSkill` · 00436e20 · legions 00437670 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
+- [x] `gmShortcutUI::RecvNotice_UpdateInventory` · 00436ea0 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
+- [x] `gmShortcutUI::RecvNotice_UpdateContainer` · 00436f00 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
+- [x] `gmShortcutUI::RecvNotice_UpdateSkill` · 00436f40 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
+- [x] `gmShortcutUI::RecvNotice_UpdateResetTime` · 00436f60 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 - [-] `gmShortcutUI::RecvNotice_BeingDeleted` · 00436f70 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
 - [ ] `gmShortcutUI::FIXMESetupItemElement` · 00436fe0 · legions 00437830
 - [ ] `gmShortcutUI::~gmShortcutUI` · 004371c0 · legions 00437a10
 - [-] `gmShortcutUI::RecvNotice_CreateObject` · 00437290 — notice handlers are registered per object by the session in Rust (no per-object handler table)
-- [~] `gmShortcutUI::MakeElement` · 00437320 · legions 00437b70 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::MakeElement` · 00437320 · legions 00437b70 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
 - [x] `gmShortcutUI::SetShortcut` · 00437620 · legions 00437e70 — ac2-ui shortcut.rs set_shortcut: requested sets the slot (gmCWInterface::SetShortcut, WM_Player call 0x82120018 from the script) and the list item; tested through the HUD with skills, items and slot to slot drags (shortcut_drag_7160)
 - [x] `gmShortcutUI::RecvNotice_RequestSpecialAttack` · 004376c0 — ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 - [x] `gmShortcutUI::RecvNotice_StartSpecialAttack` · 00437770 — ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 - [x] `gmShortcutUI::RecvNotice_EndSpecialAttack` · 00437820 — ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 - [x] `gmShortcutUI::ListenToMessage` · 004379a0 · legions 004381f0 — ac2-ui shortcut.rs message: the double click on a skill, the use/examine presses and stop_drag_item (RemoveShortcut of the source slot, then SetShortcut of the slot under the pointer; a drop outside removes); tested through the HUD (shortcut_drag_7160)
 - [x] `gmShortcutUI::UpdatePadding` · 00437d90 · legions 004385e0 — ac2-ui shortcut.rs
-- [~] `gmShortcutUI::RefreshShortcutHeight` · 00437e50 · legions 004386a0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-- [~] `gmShortcutUI::gmShortcutUI` · 00437fb0 · legions 00438800 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-- [~] `gmShortcutUI::ListenToMessage` · 00438270 · legions 00438ac0 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
-- [~] `gmShortcutUI::Init` · 004386c0 · legions 00438f10 — ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
+- [~] `gmShortcutUI::RefreshShortcutHeight` · 00437e50 · legions 004386a0 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
+- [~] `gmShortcutUI::gmShortcutUI` · 00437fb0 · legions 00438800 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
+- [~] `gmShortcutUI::ListenToMessage` · 00438270 · legions 00438ac0 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
+- [~] `gmShortcutUI::Init` · 004386c0 · legions 00438f10 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
 - [x] `gmShortcutUI::RecvNotice_ReloadShortcuts` · 004387f0 — ac2-ui shortcut.rs
-- [~] `gmShortcutUI::RecvNotice_ReloadOptions` · 00438830 · legions 00439080 — ac2-ui shortcut.rs reload: the bar's rows and set; ac2-client reloads on ReloadOptions (no separate option refresh)
+- [~] `gmShortcutUI::RecvNotice_ReloadOptions` · 00438830 · legions 00439080 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
 
 ## `ac2/client/src/ui/gameplay/toolbar/gmtoolbarui.cpp.c` (3/16)
 

@@ -11,10 +11,14 @@
 //! set shown. A shortcut whose skill is untrained or whose item is gone is removed
 //! (`CheckShortcut`).
 //!
-//! Not modelled yet: dragging shortcuts in, out and between slots (`gmShortcutUI_DOCB` /
-//! `_DDCB`, `stop_drag_item`), the skills' time-left meters (`UpdateTimeLeft`), the item slots'
-//! pending look, dragging the bar's edge to change its rows (`UIMESSAGE_GLOBAL_LOOP`'s resize)
-//! and the special attacks.
+//! The notices reach the bar as `check_all_items`, `check_all_skills`, `check_skill` and
+//! `check_item` (`RecvNotice_UpdateInventory` / `UpdateContainer` / `UpdateSkill` /
+//! `UpdateResetTime`), so each keeps retail's split: a skill's time left, an unusable skill's
+//! long meter, and a pending item's look (`CheckItem`'s `_pendingCreate`, cleared here on reload
+//! only). Not modelled yet: the pending look is not ended by the object-creation notice
+//! (`RecvNotice_CreateObject`, which needs per-object notices), an item not yet in the client
+//! has no icon or tooltip (`FIXMESetupItemElement`), dragging the bar's edge to change its rows
+//! (`UIMESSAGE_GLOBAL_LOOP`'s resize) and the special attacks' drag state.
 
 use std::sync::Arc;
 
@@ -79,6 +83,11 @@ pub trait ShortcutSource {
     }
     /// `DoIHaveItem`.
     fn has_item(&self, item: u64) -> bool;
+    /// `gmCWInterface::IsSkillUsableBasedOnInventoryByEnum`: a skill the inventory does not
+    /// allow is kept on a long meter (`CheckSkill`).
+    fn skill_usable(&self, _skill: u32) -> bool {
+        true
+    }
 }
 
 /// What the bar asks of the client.
@@ -113,6 +122,8 @@ pub struct ShortcutUi {
     pub(crate) specials: Vec<(u32, u32)>,
     /// `_timeLeftArray`: the skills on reset.
     pub(crate) timers: Vec<crate::shortcut_states::TimeLeft>,
+    /// `_pendingCreate`: the item slots that were checked while their item is pending.
+    pub(crate) pending: Vec<(u64, usize)>,
     /// The clock (`Timer::cur_time`) at the last `update_time_left`.
     pub(crate) now: f64,
     /// `_offset`: the first slot of the set shown.
@@ -136,6 +147,7 @@ impl ShortcutUi {
             shortcuts: Vec::new(),
             specials: Vec::new(),
             timers: Vec::new(),
+            pending: Vec::new(),
             now: 0.0,
             offset: 0,
             show_numbers: false,
@@ -235,6 +247,7 @@ impl ShortcutUi {
         tree.list_flush(list);
         tree.list_home(list);
         self.offset = offset;
+        self.pending.clear();
         self.shortcuts = source.shortcuts();
         tree.list_multi_op_start(list);
         for index in 0..self.shortcuts.len() {
@@ -362,8 +375,8 @@ impl ShortcutUi {
         self.set_shortcut(tree, source, index, Shortcut::default(), true);
     }
 
-    /// `gmShortcutUI::CheckShortcut`: a skill no longer trained or an item no longer held is
-    /// removed, as is an obsolete or empty recipe.
+    /// `gmShortcutUI::CheckShortcut`: a skill is checked by `CheckSkill`, an item by `CheckItem`,
+    /// an obsolete entry is removed and a recipe goes when it has no DID (`CheckRecipe`).
     fn check_shortcut(
         &mut self,
         tree: &mut UiTree,
@@ -371,28 +384,122 @@ impl ShortcutUi {
         index: usize,
         shortcut: &Shortcut,
     ) {
-        if shortcut.kind == SHORTCUT_SKILL {
-            if let Some((total, left)) = source.skill_reset(shortcut.skill) {
-                self.reset_timer(tree, index, shortcut.skill, total, left);
+        match shortcut.kind {
+            SHORTCUT_SKILL => self.check_skill_slot(tree, source, index, shortcut),
+            SHORTCUT_ITEM => {
+                if source.has_item(shortcut.item) {
+                    self.clear_pending_state(tree, index, shortcut.item);
+                } else {
+                    self.remove_shortcut(tree, source, index);
+                }
             }
-        }
-        let remove = match shortcut.kind {
-            SHORTCUT_SKILL => !source.skill_trained(shortcut.skill),
-            SHORTCUT_ITEM => !source.has_item(shortcut.item),
-            SHORTCUT_OBSOLETE => true,
-            SHORTCUT_RECIPE => shortcut.data_id == 0,
-            _ => false,
-        };
-        if remove {
-            self.remove_shortcut(tree, source, index);
+            SHORTCUT_OBSOLETE => self.remove_shortcut(tree, source, index),
+            SHORTCUT_RECIPE if shortcut.data_id == 0 => {
+                self.remove_shortcut(tree, source, index);
+            }
+            _ => {}
         }
     }
 
-    /// `RecvNotice_UpdateSkill` / `UpdateInventory`: the shortcuts checked again.
-    pub fn check_all(&mut self, tree: &mut UiTree, source: &dyn ShortcutSource) {
+    /// `gmShortcutUI::CheckSkill` (the slot's): an untrained skill is removed; an unusable one
+    /// shows a long meter; a skill on reset keeps its timer, and one ready again has its timer
+    /// ended (`UpdateTimeLeft` drops it on the next frame).
+    fn check_skill_slot(
+        &mut self,
+        tree: &mut UiTree,
+        source: &dyn ShortcutSource,
+        index: usize,
+        shortcut: &Shortcut,
+    ) {
+        let skill = shortcut.skill;
+        if !source.skill_trained(skill) {
+            self.remove_shortcut(tree, source, index);
+            return;
+        }
+        let usable = source.skill_usable(skill);
+        let (total, left) = match (usable, source.skill_reset(skill)) {
+            // `InqSkillTimeLeft` reports no reset for a usable skill: its entry ends.
+            (true, None) => {
+                if let Some(at) = self.time_left_position(skill, index) {
+                    self.timers[at].end = 0.0;
+                }
+                return;
+            }
+            (true, Some(reset)) => reset,
+            // `1e6` seconds (`0x49742400`) for a skill the inventory does not allow.
+            (false, _) => (f64::from(1.0e6_f32), f64::from(1.0e6_f32)),
+        };
+        self.reset_timer(tree, index, skill, total, left);
+    }
+
+    /// `CheckItem(index, ...)`'s pending part: an item slot whose item was pending is stateless
+    /// again once the item is held.
+    fn clear_pending_state(&mut self, tree: &mut UiTree, index: usize, item: u64) {
+        if !self.pending.iter().any(|&(pending, _)| pending == item) {
+            return;
+        }
+        if let Some(slot) = self.slot_element(tree, index) {
+            tree.set_state(slot, id("stateless"));
+        }
+    }
+
+    /// The bar's item element for `index`.
+    fn slot_element(&self, tree: &UiTree, index: usize) -> Option<usize> {
+        self.list
+            .and_then(|list| tree.list_items(list).get(index).copied())
+    }
+
+    /// `gmShortcutUI::CheckAllItems`: the item slots checked.
+    pub fn check_all_items(&mut self, tree: &mut UiTree, source: &dyn ShortcutSource) {
+        self.check_matching(tree, source, |s| s.kind == SHORTCUT_ITEM);
+    }
+
+    /// `gmShortcutUI::CheckAllSkills`: the skill slots checked.
+    pub fn check_all_skills(&mut self, tree: &mut UiTree, source: &dyn ShortcutSource) {
+        self.check_matching(tree, source, |s| s.kind == SHORTCUT_SKILL);
+    }
+
+    /// `gmShortcutUI::CheckSkill(skill)`: the slots holding that skill checked.
+    pub fn check_skill(&mut self, tree: &mut UiTree, source: &dyn ShortcutSource, skill: u32) {
+        self.check_matching(tree, source, |s| {
+            s.kind == SHORTCUT_SKILL && s.skill == skill
+        });
+    }
+
+    /// `gmShortcutUI::CheckItem(item, setPending)`: the slots holding `item` checked, then each
+    /// is pending (`pending` state) or stateless, and remembered as pending.
+    pub fn check_item(
+        &mut self,
+        tree: &mut UiTree,
+        source: &dyn ShortcutSource,
+        item: u64,
+        set_pending: bool,
+    ) {
         for index in 0..self.shortcuts.len() {
             let shortcut = self.shortcuts[index].clone();
-            self.check_shortcut(tree, source, index, &shortcut);
+            if shortcut.kind == SHORTCUT_ITEM && shortcut.item == item {
+                self.check_shortcut(tree, source, index, &shortcut);
+                if let Some(slot) = self.slot_element(tree, index) {
+                    self.pending.push((item, index));
+                    let state = if set_pending { "pending" } else { "stateless" };
+                    tree.set_state(slot, id(state));
+                }
+            }
+        }
+    }
+
+    /// The loops of `CheckAllItems` and `CheckAllSkills`: the slots `keep` selects.
+    fn check_matching(
+        &mut self,
+        tree: &mut UiTree,
+        source: &dyn ShortcutSource,
+        keep: impl Fn(&Shortcut) -> bool,
+    ) {
+        for index in 0..self.shortcuts.len() {
+            let shortcut = self.shortcuts[index].clone();
+            if keep(&shortcut) {
+                self.check_shortcut(tree, source, index, &shortcut);
+            }
         }
     }
 

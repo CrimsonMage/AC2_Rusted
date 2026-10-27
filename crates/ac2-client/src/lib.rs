@@ -55,6 +55,7 @@ mod hud_pets;
 #[cfg(feature = "window")]
 mod hud_player;
 mod hud_shop;
+mod hud_shortcut_checks;
 #[cfg(feature = "window")]
 mod hud_status;
 mod hud_story;

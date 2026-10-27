@@ -20,6 +20,7 @@ use crate::hud_death::{death_answers, death_notices};
 use crate::hud_game_dialogs::{
     game_dialog_answers, game_dialog_logout, game_dialog_message, game_dialog_notices,
 };
+use crate::hud_shortcut_checks::{apply_shortcut_checks, shortcut_checks_of, ShortcutCheck};
 use crate::hud_status::StatusBar;
 use crate::hud_view::HudView;
 use crate::ui_sources::{shortcut_to_info, ClientPlayer};
@@ -247,7 +248,7 @@ impl HudView {
             || script_notices
                 .iter()
                 .any(|n| n.name == "CM_Character::SendNotice_ReloadOptions");
-        let mut check_shortcuts = false;
+        let mut shortcut_checks: Vec<ShortcutCheck> = Vec::new();
         if !*player_loaded {
             *player_loaded = true;
             // `gmSecureTradeUI::gmSecureTradeUI` reads the player.
@@ -410,6 +411,7 @@ impl HudView {
                 net: &mut *net,
             }
             .notice(tree, &player, frame.server_time, notice);
+            shortcut_checks.extend(shortcut_checks_of(notice));
             match notice {
                 GameplayNotice::UpdateExaminationProfile(profile) => {
                     if let Some(panel) = examination.as_mut() {
@@ -439,16 +441,10 @@ impl HudView {
                     if let Some(skills) = skills.as_mut() {
                         skills.update_skill(tree, &player, *skill);
                     }
-                    check_shortcuts = true;
                 }
                 GameplayNotice::ReloadShortcuts | GameplayNotice::ReloadOptions => {
                     reload_shortcuts = true;
                 }
-                GameplayNotice::UpdateInventory { .. } | GameplayNotice::UpdateContainer { .. } => {
-                    check_shortcuts = true;
-                }
-                // `gmShortcutUI::RecvNotice_UpdateResetTime`: CheckAllSkills.
-                GameplayNotice::UpdateResetTime => check_shortcuts = true,
                 // `gmShortcutUI::RecvNotice_ToggleSpecialAttack`, `RequestSpecialAttack`,
                 // `StartSpecialAttack` and `EndSpecialAttack`.
                 GameplayNotice::ToggleSpecialAttack { maneuver, toggled } => {
@@ -501,8 +497,8 @@ impl HudView {
         if let Some(bar) = shortcuts.as_mut() {
             if reload_shortcuts {
                 bar.reload(tree, &player);
-            } else if check_shortcuts {
-                bar.check_all(tree, &player);
+            } else {
+                apply_shortcut_checks(bar, tree, &player, &shortcut_checks);
             }
         }
         // `gmQuestsUI::Show` when the toolbar's Quest child changed, then

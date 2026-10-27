@@ -334,7 +334,16 @@ impl ShortcutSource for ClientPlayer<'_> {
     /// `gmCWInterface::InqSkillTimeLeft`: the skill's total and time left, while it is on reset.
     fn skill_reset(&self, skill: u32) -> Option<(f64, f64)> {
         let time = self.client.borrow_mut().skill_time_left(skill).ok()?;
-        (time.ok && time.left > 0.0).then_some((f64::from(time.total), f64::from(time.left)))
+        time.ok
+            .then_some((f64::from(time.total), f64::from(time.left)))
+    }
+
+    /// `gmCWInterface::IsSkillUsableBasedOnInventoryByEnum`.
+    fn skill_usable(&self, skill: u32) -> bool {
+        self.client
+            .borrow_mut()
+            .is_skill_usable_by_inventory(skill)
+            .unwrap_or(true)
     }
 
     /// `gmCWInterface::DoIHaveItem`: in a pack the player lists or equipped.
