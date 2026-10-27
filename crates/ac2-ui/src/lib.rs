@@ -162,6 +162,9 @@ pub use story_view::StoryView;
 pub mod help;
 #[cfg(test)]
 mod help_tests;
+pub mod help_view;
+#[cfg(test)]
+mod help_view_tests;
 pub mod ksml;
 #[cfg(test)]
 mod ksml_tests;

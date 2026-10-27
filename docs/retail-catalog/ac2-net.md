@@ -241,7 +241,7 @@ Legend and workflow: [README](README.md).
 - [-] `KeyStone::OpenPluginManager` · 004be270 · legions 004b2590 — KeyStone COM help-plugin host (Windows COM, help window); not ported
 - [-] `KeyStone::Release` · 004be2b0 · legions 004b25d0 — KeyStone COM help-plugin host (Windows COM, help window); not ported
 - [-] `KeyStone::Cleanup` · 004be300 · legions 004b2620 — KeyStone COM help-plugin host (Windows COM, help window); not ported
-- [~] `KeyStone::OpenHelp` · 004be3b0 · legions 004b26d0 — help page resolution (ac2-ui help.rs: token to KSML page via string table 0x4100004e) and KSML parsing (ksml.rs); the help window rendering is phase B, not drawn yet
+- [~] `KeyStone::OpenHelp` · 004be3b0 · legions 004b26d0 — ac2-ui help.rs resolves the token to its KSML page; ac2-ui help_view.rs is the viewer model (wrapped styled text, radio tabs, iframes, page/frame loads with tickets, scroll and wheel), tests in help_view_tests.rs. Not drawn yet and the 14 callers are not wired (help buttons still drop OpenHelp in ac2-client)
 - [-] `KeyStone::IsHelpOpen` · 004be4c0 · legions 004b27e0 — KeyStone COM help-plugin host (Windows COM, help window); not ported
 - [-] `KeyStone::IsPluginManagerOpen` · 004be550 · legions 004b2870 — KeyStone COM help-plugin host (Windows COM, help window); not ported
 

@@ -57,6 +57,10 @@ subsystem it reproduces. This file states the working rules.
   wheel turn over a bar's thumb or arrow buttons reaches the bar; retail's buttons swallowed it.
   Pixel deltas (trackpads, smooth wheels) accumulate into whole notches. All of this (wheel,
   clipboard, Alt-move) must work on Windows, macOS, Linux X11 and Linux Wayland.
+- Exception: help pages are drawn in the client on every platform. Retail's KSML help viewer was
+  `AC2HelpPlugin.dll`, a Windows-only KeyStone plugin; `KeyStone::OpenHelp` pages (`ac2_ui::help`
+  resolves the page, `ac2_ui::help_view` lays it out) are shown in the client's own window, with
+  the same pages, links, tabs and frames (the window's drawing is not yet built).
 - Exception: the inventory paper doll frames the whole figure as admin 7148's
   `gmPaperDollUI::UpdatePaperDollPosition` does (avatar at -0.5 of its height, the camera that
   height tall); Legions 7160 framed a head-and-shoulders portrait (-0.875, a quarter).
