@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1424 done, 108 partial, 855 to do, 81 skipped.
+2468 retail functions: 1425 done, 108 partial, 854 to do, 81 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -1679,7 +1679,7 @@ Legend and workflow: [README](README.md).
 ### gEmailUtils
 - [ ] `gEmailUtils::CallEFun_send_emailW` · 00547c90
 
-## `portal/shared/src/interp/glue/gentitydesc.cpp.c` (3/28)
+## `portal/shared/src/interp/glue/gentitydesc.cpp.c` (4/28)
 
 ### gEntityDesc
 - [ ] `gEntityDesc::CallEFun_GetDataID` · 00546c10
@@ -1705,7 +1705,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gEntityDesc::CallEFun_InqEntityDescFromNameW` · 00547780
 - [ ] `gEntityDesc::CallEFun_InqEnum` · 005477f0
 - [ ] `gEntityDesc::CallEFun_InqFloat` · 005478a0
-- [ ] `gEntityDesc::CallEFun_InqInteger` · 00547950
+- [x] `gEntityDesc::CallEFun_InqInteger` · 00547950 — Integer property of an entity link (name, out long); a property of another type answers 0 (entity_desc.rs). SaleProfile::ComputeMaxStackSize reads its max stack size through it; the sell's rig test runs it.
 - [ ] `gEntityDesc::CallEFun_InqPackageID` · 00547a00
 - [~] `gEntityDesc::CallEFun_InqStringInfo` · 00547ab0 — ac2-script glue/entity_desc.rs: the DB type check (DB_TYPE_ENTITYDESC 0x40000049) answers InqEntityDescFromDataID; the entity's properties are not read (InqStringInfo, InqDataID report missing), so names and icons the sale build takes from them stay empty
 - [ ] `gEntityDesc::CallEFun_InqStringW` · 00547b50 · legions 00526d30

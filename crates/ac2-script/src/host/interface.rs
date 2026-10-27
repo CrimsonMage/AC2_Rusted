@@ -22,6 +22,7 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x007D_001E, add_object_to_be_destroyed);
     efuns.register(0x007D_001F, remove_object_to_be_destroyed);
     efuns.register(0x0080_0057, set_no_draw_physics);
+    efuns.register(0x0080_0059, get_local_visual_desc);
     efuns.register(0x0080_002A, look_at);
     efuns.register(0x0080_002C, stop_all_camera_fx);
     efuns.register(0x0080_0045, do_fx);
@@ -220,6 +221,26 @@ fn set_no_draw_physics(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let flag = Call::new(ctx).word(2) != 0;
     vm.no_draw.push((id, flag));
     Call::new(ctx).ret(3, 1, tag::INT);
+    InterpStatus::Success
+}
+
+/// `gCWPhysicsObject::CallEFun_GetLocalVisualDesc` -> `CWPhysicsObject::GetLocalVisualDesc`
+/// (`VisualDesc::VisualDesc` copy into a new native of type 0x71): the weenie's local description
+/// as the client holds it, returned as a new reference in the return slot (word 2, tagged REF).
+/// Retail reads the physics object's `m_visual`; the client's object table keeps that copy and
+/// the host shares it through [`crate::host::ScriptHost::set_appearance`]. A weenie the host
+/// never shared has no description, so the copy is the default (empty) one.
+fn get_local_visual_desc(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let appearance = vm.appearances.get(&id).cloned().unwrap_or_default();
+    let reference = vm.refs.create_native(
+        crate::native::ntype::VISUAL_DESC,
+        NativeObject::VisualDesc(Box::new(appearance)),
+    );
+    Call::new(ctx).ret(2, reference, tag::REF);
     InterpStatus::Success
 }
 

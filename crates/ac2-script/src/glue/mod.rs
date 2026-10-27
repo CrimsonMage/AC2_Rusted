@@ -137,6 +137,17 @@ pub(crate) fn word64(ctx: &Context, n: usize) -> u64 {
     u64::from(word(ctx, n)) | u64::from(word(ctx, n - 1)) << 32
 }
 
+/// The native an out parameter names. A script passes either the native's reference or the
+/// address of the slot holding it (`SADDR`, a local the script stored the new native in); the
+/// address reads through to that slot's reference. An address with no native behind it stays as
+/// it is, so the caller's `native_mut` reports it as a bad reference.
+pub(crate) fn out_native(vm: &mut Vm, ctx: &Context, reference: u32) -> u32 {
+    if vm.native(reference).is_some() {
+        return reference;
+    }
+    vm.read_through(ctx, reference).unwrap_or(reference)
+}
+
 /// Every retail efun id.
 pub fn efun_ids() -> impl Iterator<Item = u32> {
     include_str!("efun_names.txt")

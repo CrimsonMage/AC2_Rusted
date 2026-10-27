@@ -168,10 +168,11 @@ fn enter_and_leave_consignment_send_the_storekeeper() {
     assert!(client.take_script_problems().is_empty());
 }
 
-/// A sale outside a consignment is refused by the VM's sell body: it raises one message and sends
-/// no `RequestSell` (the stub is not reached).
+/// A sale with no catalog open is refused by the VM's sell body (`CStoreSystem::RequestSell`'s
+/// "no catalog" check): it raises one message and sends no `RequestSell` (the stub is not
+/// reached). With the catalog open the sale goes out, consignment or not.
 #[test]
-fn sell_outside_a_consignment_is_refused_by_the_script() {
+fn sell_without_a_catalog_is_refused_by_the_script() {
     let Some((mut client, server)) = with_script() else {
         return;
     };
@@ -322,6 +323,58 @@ fn view_and_update_consignment_show_the_consigned_sales() {
 /// A `StoreGroup` WState in portal.dat (package 0x3858) and one of its stores.
 const STORE_GROUP: u32 = 0x6F00_3558;
 const GROUP_STORE: u32 = 0x6F00_321C;
+
+/// The price and quantity the new-sale dialog confirms.
+const SALE_PRICE: u32 = 10;
+const SALE_QUANTITY: u32 = 1;
+
+/// Opens the shopper, then the storekeeper's catalog of `STORE_GROUP` (the store the sale is
+/// made in is the group's one store the catalog lists, `GROUP_STORE`).
+fn open_catalog_shopper(client: &mut ac2_client::Client, server: &Shared) {
+    open_shopper(client, server);
+    server.borrow_mut().open_catalog(
+        StoreCatalog {
+            group: STORE_GROUP,
+            store_sizes: vec![(GROUP_STORE, 5)],
+        },
+        VENDOR,
+    );
+    run(client, server, Vec::new());
+}
+
+/// Selling from the new-sale dialog inside the consignment: `RequestSell` (`WM_Store` 0x43,
+/// stub 0x4E) sends the packed values the stub builds, in its order: the store (an int, the sell
+/// body's head of the group's one-store list), the price and the quantity (ints), the item and
+/// the storekeeper (long ints). The double receives exactly those bytes.
+#[test]
+fn sell_inside_a_consignment_sends_the_request_sell_bytes() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    open_catalog_shopper(&mut client, &server);
+    run(&mut client, &server, vec![Command::EnterConsignment]);
+    run(
+        &mut client,
+        &server,
+        vec![Command::RequestSell {
+            item: POTIONS,
+            quantity: SALE_QUANTITY,
+            price: SALE_PRICE,
+        }],
+    );
+    assert_eq!(
+        sent(&server, SELL),
+        vec![pack_values(&[
+            PackValue::Int(GROUP_STORE),
+            PackValue::Int(SALE_PRICE),
+            PackValue::Int(SALE_QUANTITY),
+            PackValue::LongInt(POTIONS),
+            PackValue::LongInt(VENDOR),
+        ])],
+        "the RequestSell stub's PackBuffer"
+    );
+    assert!(client.take_script_problems().is_empty());
+}
 
 /// `ViewCatalog` (`WM_Store` 0x52) opens the storekeeper's catalog: the group's stores, each
 /// with the size the hash gives it (`gUIShop::SetStoreSize`; a store the hash does not name shows

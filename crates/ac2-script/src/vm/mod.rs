@@ -264,6 +264,10 @@ pub struct Vm {
     pub player: u64,
     /// Each weenie's qualities (`CWRepository::m_qualities`), by object id.
     pub repositories: std::collections::HashMap<u64, ac2_weenie::WeenieQualities>,
+    /// Each weenie's local visual description (`CPhysicsObj::m_visual`'s local delta, as the
+    /// client's object table holds it), by object id: `CWPhysicsObject::GetLocalVisualDesc`
+    /// copies it.
+    pub appearances: std::collections::HashMap<u64, ac2_weenie::Appearance>,
     /// The chat services `gmCWInterface::RequestGUN_*` can reach.
     pub chat: crate::host::ChatServices,
     /// The world's name as the client holds it (`Turbine::Client`'s, set by the world-name
@@ -317,6 +321,7 @@ impl Vm {
             init_data: Default::default(),
             player: 0,
             repositories: Default::default(),
+            appearances: Default::default(),
             chat: Default::default(),
             world_name: String::new(),
         }

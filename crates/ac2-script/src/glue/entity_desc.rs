@@ -22,13 +22,38 @@ const DB_TYPE_ENTITY_DESC: u32 = 0x4000_0049;
 const TYPE_DATA_FILE: u32 = 0x4000_0008;
 /// The MasterProperty value type of a `StringInfo` property.
 const TYPE_STRING_INFO: u32 = 0x4000_000A;
+/// The MasterProperty value type of an integer property (`BasePropertyValue` integer).
+const TYPE_INTEGER: u32 = 0x4000_0002;
 /// The tag a DID carries in a script slot (retail writes `'\x04'`, the VM's `BOOL` tag).
 const DID_TAG: u8 = tag::BOOL;
 
 pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x0022_0010, inq_entity_desc_from_data_id);
+    efuns.register(0x0022_0014, inq_integer);
     efuns.register(0x0022_0018, inq_data_id);
     efuns.register(0x0022_001D, inq_string_info);
+}
+
+/// `gEntityDesc::CallEFun_InqInteger(name, out long)` (`EntityDesc::InqInteger`): the integer
+/// property `name`, written to the out reference. A property of another type answers 0 (the
+/// `BasePropertyValue` integer getter only takes an integer value).
+fn inq_integer(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let this = Call::new(ctx).this();
+    let (name, out) = (word(ctx, 2), word(ctx, 3));
+    let value = property(vm, this, name)
+        .filter(|p| p.value_type == TYPE_INTEGER)
+        .and_then(|p| p.word());
+    let found = match value {
+        Some(value) => {
+            if let Ok(Some(slot)) = vm.refs.locate(out, 0) {
+                _ = vm.refs.write(ctx, slot, value, tag::INT);
+            }
+            true
+        }
+        None => false,
+    };
+    Call::new(ctx).ret(4, u32::from(found), INT_RESULT);
+    InterpStatus::Success
 }
 
 /// `gEntityDesc::CallEFun_InqEntityDescFromDataID(did, entity)`: `did` at fp-8, the entity

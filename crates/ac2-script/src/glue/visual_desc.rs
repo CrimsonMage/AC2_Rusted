@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 use ac2_weenie::Appearance;
 
-use super::{word, Call, INT_RESULT};
+use super::{out_native, word, Call, INT_RESULT};
 use crate::native::{ntype, AppliedAppearanceKey, NativeObject, RefKey};
 use crate::vm::{tag, Context, EFunFn, EFuns, InterpStatus, Vm};
 
@@ -192,7 +192,7 @@ fn visual_method(m: &str) -> Option<EFunFn> {
         },
         "GetTotalIconDesc" => |vm, c| {
             let this = Call::new(c).this();
-            let icon = word(c, 2);
+            let icon = out_native(vm, c, word(c, 2));
             let layers = match vm.native(this) {
                 Some(NativeObject::VisualDesc(a)) => {
                     let parent = parent_of(vm, this);

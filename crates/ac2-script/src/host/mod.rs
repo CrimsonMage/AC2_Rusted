@@ -184,6 +184,13 @@ impl ScriptHost {
         self.vm.repositories.insert(id, qualities);
     }
 
+    /// The object's local visual description as the client holds it (the server's
+    /// `CWPhysicsObject::RecvEvt_UpdateVisualDesc` delta, applied); the scripts copy it with
+    /// `gCWPhysicsObject::GetLocalVisualDesc`.
+    pub fn set_appearance(&mut self, id: u64, appearance: ac2_weenie::Appearance) {
+        self.vm.appearances.insert(id, appearance);
+    }
+
     /// The object's qualities as the scripts left them; quality updates from the server go
     /// through [`ac2_weenie::WeenieQualities::set`] on this.
     pub fn qualities_mut(&mut self, id: u64) -> Option<&mut ac2_weenie::WeenieQualities> {
@@ -216,6 +223,7 @@ impl ScriptHost {
         }
         self.vm.init_data.remove(&id);
         self.vm.repositories.remove(&id);
+        self.vm.appearances.remove(&id);
     }
 
     /// The object's script instance (`CWDistributor::GetInstanceReference`).

@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 101 done, 13 partial, 550 to do, 121 skipped.
+785 retail functions: 102 done, 13 partial, 549 to do, 121 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (13/62)
@@ -508,7 +508,7 @@ Legend and workflow: [README](README.md).
 - [ ] `TGADecoder::readImage` · 00734990
 - [ ] `TGADecoder::Decode` · 007349f0
 
-## `portal/shared/src/entitydesc/entitydesc.cpp.c` (1/41)
+## `portal/shared/src/entitydesc/entitydesc.cpp.c` (2/41)
 
 ### LM_UVScale
 - [ ] `LM_UVScale::GetType` · 00615d90 · legions 005d3ac0
@@ -523,7 +523,7 @@ Legend and workflow: [README](README.md).
 ### EntityDesc
 - [ ] `EntityDesc::SetProperties` · 00615e50 · legions 005d3b50
 - [ ] `EntityDesc::InqBool` · 00615e70 · legions 005d3b70
-- [ ] `EntityDesc::InqInteger` · 00615ea0 · legions 005d3ba0
+- [x] `EntityDesc::InqInteger` · 00615ea0 · legions 005d3ba0 — Integer property of an entity link (name, out long); a property of another type answers 0 (entity_desc.rs). SaleProfile::ComputeMaxStackSize reads its max stack size through it; the sell's rig test runs it.
 - [ ] `EntityDesc::InqFloat` · 00615ed0 · legions 005d3bd0
 - [ ] `EntityDesc::InqVector` · 00615f00 · legions 005d3c00
 - [ ] `EntityDesc::InqEnum` · 00615f30 · legions 005d3c30

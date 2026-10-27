@@ -573,6 +573,7 @@ impl Client {
             scripts.host.set_player(id);
         }
         self.share_qualities(id);
+        self.share_appearance(id);
         let mut events = Vec::new();
         for (function, arguments) in missed {
             self.dispatch_script(id, function, &arguments, &mut events);
@@ -624,6 +625,10 @@ impl Client {
                     self.share_quality(*object, *table, *quality);
                     self.stat_changed(*object, *table, *quality, &mut produced);
                 }
+                SessionEvent::ObjectAction {
+                    object,
+                    action: ac2_net::protocol::ObjectAction::UpdateVisualDesc(_),
+                } => self.share_appearance(*object),
                 SessionEvent::PlayerQualities(_) => {
                     if let Some(player) = self.session.player() {
                         self.share_qualities(player);
@@ -653,6 +658,21 @@ impl Client {
             }
         }
         events.extend(produced);
+    }
+
+    /// `CWPhysicsObject::SetLocalVisualDesc` for a running process: the scripts copy the object's
+    /// local description (`gCWPhysicsObject::GetLocalVisualDesc`) as the session keeps it from the
+    /// server (`RecvEvt_UpdateVisualDesc`, the object's create).
+    fn share_appearance(&mut self, id: u64) {
+        let Some(scripts) = self.scripts.as_mut() else {
+            return;
+        };
+        if !scripts.running.contains(&id) {
+            return;
+        }
+        if let Some(object) = self.session.objects().get(id) {
+            scripts.host.set_appearance(id, object.appearance.clone());
+        }
     }
 
     /// `CWRepository::SetQualities` / `SetWeenieDesc` for a running process: the scripts read
