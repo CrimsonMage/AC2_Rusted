@@ -2023,19 +2023,26 @@ key	status	note
 00478e10	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 00478e70	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 00478f30	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
-00479030	_	ac2-ui interpreter.rs
-00479110	_	ac2-ui interpreter.rs
-004791b0	_	ac2-ui interpreter.rs
-004791e0	_	ac2-ui interpreter.rs
-00479210	_	ac2-ui interpreter.rs
-00479310	_	ac2-ui interpreter.rs
-004793d0	_	ac2-ui interpreter.rs
-004794c0	_	ac2-ui interpreter.rs
-00479530	_	ac2-ui interpreter.rs
-00479540	_	ac2-ui interpreter.rs
-004797f0	_	ac2-ui controls.rs (no ICIDM handler registration)
-00479890	_	ac2-ui interpreter.rs
-004799c0	_	ac2-ui interpreter.rs
+00478fe0	-	Rust Drop / singleton accessor / synchronous DAT load: no retail state to tear down or DDD callback
+00479010	-	Rust Drop / singleton accessor / synchronous DAT load: no retail state to tear down or DDD callback
+00479020	-	Rust Drop / singleton accessor / synchronous DAT load: no retail state to tear down or DDD callback
+00479030	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+00479110	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+004791b0	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+004791e0	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+00479210	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+004792d0	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+004792e0	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+00479300	x	ac2-ui chat.rs Modifiers: alt is never held (retail's input manager has no Alt meta key, see the chat.rs note)
+00479310	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+004793d0	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+004794c0	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+00479530	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+00479540	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+00479790	-	Rust Drop / singleton accessor / synchronous DAT load: no retail state to tear down or DDD callback
+004797f0	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+00479890	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+004799c0	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
 0047bb40	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047bbd0	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047bcb0	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
@@ -2164,12 +2171,12 @@ key	status	note
 00495060	_	
 00495100	_	
 004951f0	_	
-00495260	_	
+00495260	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 00495360	_	
-00495420	_	
-004954e0	_	
+00495420	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
+004954e0	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 00495620	_	
-00495710	_	
+00495710	~	sound branch only: the target is ignored (FXManager::DoTargettedFX sound path = untargeted DoFX); the targeted visual part is not drawn
 00495850	_	
 00495a00	_	
 00495ac0	_	
@@ -2177,18 +2184,18 @@ key	status	note
 00495c80	_	
 00495da0	_	
 00495ea0	_	
-00495fa0	_	
+00495fa0	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 00496060	_	
-00496120	_	
-004961e0	_	
+00496120	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
+004961e0	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 004962a0	_	
-00496360	_	
-00496420	_	
-004964e0	_	
-00496560	_	
-00496620	_	
-004966e0	_	
-004967a0	_	
+00496360	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
+00496420	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
+004964e0	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
+00496560	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
+00496620	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
+004966e0	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
+004967a0	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 00496820	_	
 00496910	_	
 00496980	_	
@@ -2199,9 +2206,9 @@ key	status	note
 00496cb0	_	
 00497190	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 00497550	_	
-00497750	_	
-004978c0	_	
-00497a00	~	ECM_Physics::RecvEvt_DoBehavior: the session decodes the event; the emote gate runs in ac2-client apply_remote
+00497750	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
+004978c0	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
+00497a00	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 00497af0	_	
 00497ba0	_	
 00497c90	_	
@@ -2372,9 +2379,13 @@ key	status	note
 004b7e60	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004b7f00	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004b7fa0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b80b0	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
+004b8110	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
+004b8170	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 004b81d0	~	ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
-004b8820	~	efun bound as a no-op (interface.rs do_fx): the physics object's FX is not played; equipping calls it, so the VM no longer crashes
+004b8820	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 004b9f60	x	ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
+004ba150	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 004bb580	_	ac2-script glue::options / examination (Legions layout and efun switch)
 004bb600	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004bb7a0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -2699,6 +2710,10 @@ key	status	note
 004de350	x	ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
 004de360	x	ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
 004de380	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004de410	x	ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
+004de430	x	ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
+004de450	x	ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
+004de470	x	ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
 004de490	x	ac2-client motion.rs -> PhysicsBody::recv_move_to (player only); stamp in ac2-weenie; no path planner (retail passes none)
 004de590	x	ac2-physics moveto (slice 3)
 004de5b0	x	
@@ -2786,6 +2801,8 @@ key	status	note
 004e4c10	~	ac2-client remote.rs: out of the world, queued for destruction
 004e4ca0	~	the bookie part only
 004e4d00	x	ac2-client remote.rs
+004e4d80	x	ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
+004e4e10	x	ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
 004e56e0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e5780	~	vertical distance to the terrain polygon instead of CObjCell::LOSCheck
 004e5d10	~	environment response only; object collisions and the collision manager not ported
@@ -3096,7 +3113,11 @@ key	status	note
 0052f430	_	ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
 0052f990	_	ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
 00530150	_	ac2-weenie ObjectTable::apply_action
-005301b0	~	efun bound as a no-op (interface.rs do_fx): the physics object's FX is not played; equipping calls it, so the VM no longer crashes
+005301b0	x	ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
+005301d0	x	ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
+005308e0	x	ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
+00530920	x	ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
+00530960	x	ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 005309a0	x	ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
 00530e70	_	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
 00530f40	_	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
@@ -4152,19 +4173,23 @@ key	status	note
 005682d0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 00568380	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 00568470	x	ac2-ui compose.rs / element.rs set_image
-00568ea0	_	
-00569020	_	
-00569200	_	
-005692e0	_	
-00569380	_	ac2-client camera_mouse.rs / input_handlers
-005693a0	_	ac2-client camera_mouse.rs / input_handlers
-005693d0	_	ac2-client camera_mouse.rs / input_handlers
-00569400	_	ac2-client camera_mouse.rs / input_handlers
-00569420	_	ac2-client camera_mouse.rs / input_handlers
-00569440	_	
-00569450	_	ac2-client camera_mouse.rs / input_handlers
-005694f0	_	
-00569550	_	
+00568e20	x	ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+00568e90	-	Rust owns the module inside Client (no singleton accessor, no Shutdown ordering)
+00568ea0	x	ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+00569020	x	ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+00569200	x	ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+005692e0	x	ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+00569380	x	ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+005693a0	x	ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+005693d0	x	ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+00569400	x	ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+00569420	x	ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+00569440	x	ac2-client client.rs lock_player_actions, set from the player's LockActions/UnlockActions animation events (client_audio animation_sounds); movement_module.rs locked; motion_tests a_locking_behaviour_on_the_player_emits_lock_events
+00569450	x	ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+00569470	~	ac2-ui controls.rs: a turn key starting dispatches StopAttackingIfAutoMoving and it is a no-op, so turning does not stop an auto-move attack (the attack's stop is not wired to the client's combat state)
+005694a0	-	Rust owns the module inside Client (no singleton accessor, no Shutdown ordering)
+005694f0	x	ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+00569550	x	ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
 0056ad20	x	ac2-gpu ObjectInstance.pose (part matrices, bone storage buffer)
 0056afb0	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 0056b150	x	ac2-render object::pass / texture_matrix, ac2-gpu object
@@ -4630,6 +4655,7 @@ key	status	note
 005e22a0	x	ac2-ui media.rs / transition.rs
 005e2300	x	ac2-ui media.rs / transition.rs
 005e23b0	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
+005e25b0	~	ac2-physics motion_interp.rs set_velocity_scale / set_acceleration_scale (reached from the server and script events); the collision impact minimum CPhysicsObj::SetVelocityScale also sets is not modelled
 005e25c0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e2a30	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e2da0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -4962,6 +4988,7 @@ key	status	note
 00601210	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00601310	-	destructor: Rust drop
 00601390	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+006013a0	~	ac2-physics motion_interp.rs set_velocity_scale / set_acceleration_scale (reached from the server and script events); the collision impact minimum CPhysicsObj::SetVelocityScale also sets is not modelled
 006013b0	x	ac2-script glue/chargen.rs SetStartingPosition efun (start_pos)
 006013d0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00601470	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -6303,9 +6330,9 @@ key	status	note
 0072d5e0	x	ac2-audio/ac2-client: ambient environments, groove
 0072d620	x	ac2-audio/ac2-client: ambient environments, groove
 0072d630	x	ac2-audio/ac2-client: ambient environments, groove
-0072da60	_	ac2-ui maps.rs
-0072da90	_	ac2-ui maps.rs
-0072f200	_	ac2-ui maps.rs
+0072da60	x	ac2-ui maps.rs (ActionMap values by action, modifiers and toggle type, UnPack from the DAT)
+0072da90	x	ac2-ui maps.rs (ActionMap values by action, modifiers and toggle type, UnPack from the DAT)
+0072f200	x	ac2-ui maps.rs (ActionMap values by action, modifiers and toggle type, UnPack from the DAT)
 0072f3b0	~	ac2-physics ObjectShape::new: physics containment radius and box only
 00731160	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)
 007311c0	x	ac2-physics shapes/cylsphere.rs (asm float order; Legions identical)

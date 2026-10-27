@@ -3,6 +3,7 @@
 
 use std::sync::Arc;
 
+use ac2_anim::Ac2AnimEvent;
 use ac2_world::Ac2MotionInterpDesc;
 
 use crate::fpu::{ld, st};
@@ -462,6 +463,72 @@ impl PhysicsBody {
     pub fn set_velocity(&mut self, velocity: [f32; 3]) {
         self.object.velocity = Vector::new(velocity[0], velocity[1], velocity[2]);
     }
+
+    /// `ECM_Physics::RecvEvt_SetVelocityScale` -> `CPhysicsObj::SetVelocityScale` ->
+    /// `CMotionInterp::SetVelocityScale`: scales the walking and running speeds.
+    pub fn set_velocity_scale(&mut self, scale: f32) {
+        self.object.motion.set_velocity_scale(scale);
+    }
+
+    /// `ECM_Physics::RecvEvt_SetAccelerationScale` -> `CMotionInterp::SetAccelerationScale`.
+    pub fn set_acceleration_scale(&mut self, scale: f32) {
+        self.object.motion.set_acceleration_scale(scale);
+    }
+
+    /// `ECM_Physics::RecvEvt_SetJumpScale` -> `CPhysicsObj::SetJumpScale`: a negative scale is
+    /// refused (`m_fJumpScale` keeps its value).
+    pub fn set_jump_scale(&mut self, scale: f32) {
+        if scale >= 0.0 {
+            self.object.jump_scale = scale;
+        }
+    }
+
+    /// `ECM_Physics::RecvEvt_SetHoverHeight` -> `CPhysicsObj::SetHoverHeight`.
+    pub fn set_hover_height(&mut self, height: f32) {
+        self.object.motion.set_hover_height(height);
+    }
+
+    /// `CPhysicsObj::ResetHoverHeight`: the motion table's hover height again.
+    pub fn reset_hover_height(&mut self) {
+        self.object.motion.reset_hover_height();
+    }
+
+    /// `CPhysicsObj::RecvEvt_DoFX` -> `CPhysicsObj::DoFX` -> `PHYSICSOBJREP::DoFX` ->
+    /// `FXManager::DoFX`: the effect starts at `scalar`; its sounds are the client's
+    /// (`StartFx` on the animation events, as an animation's own FX starts).
+    pub fn do_fx(&mut self, fx: u32, scalar: f32) -> bool {
+        self.object.anim.push_events([Ac2AnimEvent::StartFx {
+            fx,
+            intensity: scalar,
+        }]);
+        true
+    }
+
+    /// `CPhysicsObj::RecvEvt_StopFX` -> `PHYSICSOBJREP::StopFX` -> `FXManager::StopFX`.
+    pub fn stop_fx(&mut self, fx: u32) -> bool {
+        self.object.anim.push_events([Ac2AnimEvent::StopFx { fx }]);
+        true
+    }
+
+    /// The server-tuned scales and hover height the body moves with.
+    pub fn tuning(&self) -> Tuning {
+        Tuning {
+            velocity_scale: self.object.motion.velocity_scale(),
+            acceleration_scale: self.object.motion.acceleration_scale(),
+            jump_scale: self.object.jump_scale,
+            hover_height: self.object.motion.hover_height_override(),
+        }
+    }
+}
+
+/// The per-body scales a server event sets (`CPhysicsObj::Get*Scale`, `GetHoverHeight` before
+/// the table's default). `hover_height` is -1 while the motion table's height applies.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Tuning {
+    pub velocity_scale: f32,
+    pub acceleration_scale: f32,
+    pub jump_scale: f32,
+    pub hover_height: f32,
 }
 
 #[path = "body_anim.rs"]

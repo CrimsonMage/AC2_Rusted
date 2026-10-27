@@ -380,6 +380,13 @@ impl Client {
         Ok(events)
     }
 
+    /// `PlayerMovementModule::LockActions` (`m_lock_actions`): the player's movement keys do
+    /// nothing while a behaviour that locks actions plays. The animation's `LockActions` and
+    /// `UnlockActions` events for the player set it (`client_audio`).
+    pub(crate) fn lock_player_actions(&mut self, locked: bool) {
+        self.module.locked = locked;
+    }
+
     /// What the input poll's handlers did this frame: mouse look (`CameraManager::MouseMove`),
     /// the camera UI's mouse-look and first-person states, and the player's behaviours and
     /// move-to interruption (`PlayerMovementModule`).

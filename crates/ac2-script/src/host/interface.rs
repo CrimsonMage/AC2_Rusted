@@ -2,6 +2,8 @@
 //! script): which object it is and the objects it can reach. Each wrapper crashes on an
 //! undefined `this` ("index != Undef_ReferenceID").
 
+use ac2_net::protocol::ObjectAction;
+
 use crate::glue::{word64, Call};
 use crate::vm::{tag, Context, EFuns, InterpStatus, Vm};
 
@@ -21,6 +23,16 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x0080_0057, set_no_draw_physics);
     efuns.register(0x0080_002C, stop_all_camera_fx);
     efuns.register(0x0080_0045, do_fx);
+    efuns.register(0x0080_0047, stop_fx);
+    efuns.register(0x0080_0003, |vm, ctx| {
+        physics_scale(vm, ctx, ObjectAction::SetVelocityScale)
+    });
+    efuns.register(0x0080_0005, |vm, ctx| {
+        physics_scale(vm, ctx, ObjectAction::SetAccelerationScale)
+    });
+    efuns.register(0x0080_0007, |vm, ctx| {
+        physics_scale(vm, ctx, ObjectAction::SetJumpScale)
+    });
 }
 
 /// `gCWPhysicsObject::CallEFun_StopAllCameraFX` (`CWPhysicsObject::StopAllCameraFX` ->
@@ -34,16 +46,48 @@ fn stop_all_camera_fx(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     }
 }
 
-/// `gCWPhysicsObject::CallEFun_DoFX(fx, scalar)` -> `CWPhysicsObject::DoFX` -> the physics
-/// object's FX (its vtable slot 0x3BC). The client's FX sounds are driven by the animation's FX
-/// events (`FxSounds::do_fx`), not by script calls, so the effect is not played yet; the efun
-/// answers 1 (started) for a weenie with an owner. Equipping a weapon calls it (`CPlayer` 0xC8's
-/// `EquipItem_Done`), so the call must not crash the script.
+/// `gCWPhysicsObject::CallEFun_DoFX(fx, scalar)` -> `CWPhysicsObject::DoFX` -> `CPhysicsObj::DoFX`
+/// -> `FXManager::DoFX`: the weenie's physics object starts the effect (its sounds, which the
+/// client's FX manager plays). The call is queued as the server's `DoFX` event for the object;
+/// the efun answers 1 (started) for a weenie with an owner. Equipping a weapon calls it
+/// (`CPlayer` 0xC8's `EquipItem_Done`).
 fn do_fx(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
-    if let Err(status) = this_weenie(vm, ctx) {
-        return status;
-    }
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let fx = Call::new(ctx).word(2);
+    let scalar = f32::from_bits(Call::new(ctx).word(3));
+    vm.physics.push((id, ObjectAction::DoFx { fx, scalar }));
     Call::new(ctx).ret(4, 1, tag::INT);
+    InterpStatus::Success
+}
+
+/// `gCWPhysicsObject::CallEFun_StopFX(fx)` -> `CWPhysicsObject::StopFX` -> `CPhysicsObj::StopFX`:
+/// the effect's sounds stop. Answers 1 for a weenie with an owner.
+fn stop_fx(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let fx = Call::new(ctx).word(2);
+    vm.physics.push((id, ObjectAction::StopFx(fx)));
+    Call::new(ctx).ret(3, 1, tag::INT);
+    InterpStatus::Success
+}
+
+/// `gCWPhysicsObject::CallEFun_SetVelocityScale`, `SetAccelerationScale` and `SetJumpScale` (a
+/// float in argument 2, no result): `CWPhysicsObject::Set*Scale` on the weenie's physics object,
+/// queued as the server's event for it.
+fn physics_scale(vm: &mut Vm, ctx: &mut Context, action: fn(f32) -> ObjectAction) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let scale = f32::from_bits(Call::new(ctx).word(2));
+    if id != 0 {
+        vm.physics.push((id, action(scale)));
+    }
     InterpStatus::Success
 }
 

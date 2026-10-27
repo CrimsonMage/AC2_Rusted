@@ -296,6 +296,32 @@ mod tests {
         assert!(ObjectEvent::read(0x1234, &mut Reader::new(&sender())).is_none());
     }
 
+    /// `ECM_Physics::RecvEvt_SetVelocityScale` (0x10092), `SetAccelerationScale` (0x10093),
+    /// `SetHoverHeight` (0x10091) and `SetJumpScale` (0x100BA): the sender, then one float.
+    #[test]
+    fn the_scale_and_hover_events_carry_one_float_after_the_sender() {
+        for (opcode, expected) in [
+            (Opcode::SET_HOVER_HEIGHT, ObjectAction::SetHoverHeight(1.5)),
+            (
+                Opcode::SET_VELOCITY_SCALE,
+                ObjectAction::SetVelocityScale(1.5),
+            ),
+            (
+                Opcode::SET_ACCELERATION_SCALE,
+                ObjectAction::SetAccelerationScale(1.5),
+            ),
+            (Opcode::SET_JUMP_SCALE, ObjectAction::SetJumpScale(1.5)),
+        ] {
+            let mut b = sender();
+            b.extend(1.5f32.to_le_bytes());
+            let mut r = Reader::new(&b);
+            let event = ObjectEvent::read(opcode, &mut r).unwrap().unwrap();
+            r.finish().unwrap();
+            assert_eq!((event.sender.id, event.sender.instance), (0x55, 2));
+            assert_eq!(event.action, expected, "opcode {opcode:#x}");
+        }
+    }
+
     #[test]
     fn move_to_ends_with_its_aligned_stamp_and_impulses_align_each_argument() {
         let mut b = sender();

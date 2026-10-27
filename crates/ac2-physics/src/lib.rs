@@ -56,7 +56,7 @@ mod vector;
 
 pub use anim_rep::BodyAnimation;
 pub use body::{
-    AnimationClock, MovementInput, MovementState, PhysicsBody, PhysicsClock, ANIM_QUANTUM,
+    AnimationClock, MovementInput, MovementState, PhysicsBody, PhysicsClock, Tuning, ANIM_QUANTUM,
     PHYSICS_QUANTUM,
 };
 pub use bsp::{BspTree, Polygon};

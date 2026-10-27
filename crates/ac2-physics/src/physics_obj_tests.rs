@@ -318,3 +318,82 @@ fn an_immobile_body_is_forced_into_its_cell_and_stays_put() {
     run(&mut body, &ground, 1.0);
     assert_eq!(body.position(), sunk);
 }
+
+/// `CPhysicsObj::SetVelocityScale` -> `CMotionInterp::SetVelocityScale`: the forward speed
+/// limit (`max_forward_velocity` times the scale) becomes the held speed.
+#[test]
+fn a_velocity_scale_from_the_server_sets_the_walking_speed() {
+    let ground = terrain(|_, _| 50.0);
+    let mut body = body_at(70.0, 30.0, 50.0);
+    body.set_velocity_scale(0.5);
+    assert_eq!(body.tuning().velocity_scale, 0.5);
+    run(&mut body, &ground, 1.0);
+    body.set_input(MovementInput {
+        motion: [0.0, 1.0, 0.0],
+        ..MovementInput::default()
+    });
+    run(&mut body, &ground, 3.0);
+    let state = body.movement_state();
+    assert!((state.velocity[1] - 2.0).abs() < 1e-3, "{state:?}");
+}
+
+/// `CPhysicsObj::SetJumpScale`: the jump impulse is `m_fJumpScale` times the table's; a negative
+/// scale is refused and keeps the last one.
+#[test]
+fn a_jump_scale_from_the_server_scales_the_jump_and_refuses_negatives() {
+    let ground = terrain(|_, _| 50.0);
+    let mut body = body_at(70.0, 70.0, 50.0);
+    body.set_jump_scale(2.0);
+    assert_eq!(body.tuning().jump_scale, 2.0);
+    body.set_jump_scale(-1.0);
+    assert_eq!(body.tuning().jump_scale, 2.0);
+    run(&mut body, &ground, 0.3);
+    run(&mut body, &ground, 0.5);
+    assert!(body.jump());
+    assert_eq!(body.movement_state().velocity[2], 10.0);
+}
+
+/// `CPhysicsObj::SetHoverHeight` stores the height; `ResetHoverHeight` returns to the table's
+/// (-1 here).
+#[test]
+fn a_hover_height_from_the_server_is_kept_until_reset() {
+    let mut body = body_at(70.0, 70.0, 50.0);
+    assert_eq!(body.tuning().hover_height, -1.0);
+    body.set_hover_height(1.5);
+    assert_eq!(body.tuning().hover_height, 1.5);
+    body.reset_hover_height();
+    assert_eq!(body.tuning().hover_height, -1.0);
+    // The acceleration scale stores as given.
+    body.set_acceleration_scale(0.25);
+    assert_eq!(body.tuning().acceleration_scale, 0.25);
+}
+
+/// `CPhysicsObj::DoFX` and `StopFX` queue the FX manager's start and stop (its sound part is the
+/// client's): the events come out of the body's animation events in order.
+#[test]
+fn a_server_fx_starts_and_stops_through_the_animation_events() {
+    use ac2_anim::Ac2AnimEvent;
+    let mut body = body_at(70.0, 70.0, 50.0);
+    assert!(body.do_fx(0x4000_0010, 0.5));
+    assert!(body.stop_fx(0x4000_0010));
+    let fx: Vec<Ac2AnimEvent> = body
+        .take_animation_events()
+        .into_iter()
+        .filter(|e| {
+            matches!(
+                e,
+                Ac2AnimEvent::StartFx { .. } | Ac2AnimEvent::StopFx { .. }
+            )
+        })
+        .collect();
+    assert_eq!(
+        fx,
+        vec![
+            Ac2AnimEvent::StartFx {
+                fx: 0x4000_0010,
+                intensity: 0.5
+            },
+            Ac2AnimEvent::StopFx { fx: 0x4000_0010 },
+        ]
+    );
+}

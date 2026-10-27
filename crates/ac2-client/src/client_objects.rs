@@ -37,6 +37,26 @@ impl Client {
     }
 
     /// The session's object events (`CObjectMaint`, `CPhysicsObj::RecvEvt_*`).
+    /// A physics change a script asked of a weenie's physics object (`gCWPhysicsObject`'s scale
+    /// and FX efuns, the `CWPhysicsObject` calls behind them): the server event's effect, on the
+    /// player's body or a remote's.
+    pub(crate) fn apply_script_physics(
+        &mut self,
+        object: u64,
+        action: &ac2_net::protocol::ObjectAction,
+    ) {
+        if let Some(body) = self
+            .player
+            .as_mut()
+            .filter(|p| p.id == object)
+            .and_then(|p| p.body.as_mut())
+        {
+            crate::motion::apply(&mut body.physics, action);
+            return;
+        }
+        self.remotes.motion(object, action);
+    }
+
     pub(crate) fn apply_remote(&mut self, event: &SessionEvent) {
         // `CPhysicsObj::RecvEvt_DoBehavior`: a behaviour that names a weenie emote is asked of the
         // object's weenie first, and a no leaves the body alone.

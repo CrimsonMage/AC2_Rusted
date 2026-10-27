@@ -64,6 +64,15 @@ fn sound_id(node: &Ac2FxSoundNode, random: &mut Random) -> u32 {
     }
 }
 
+/// The last `LockActions` (true) or `UnlockActions` (false) in a body's animation events.
+fn lock_change(events: &[Ac2AnimEvent]) -> Option<bool> {
+    events.iter().rev().find_map(|event| match event {
+        Ac2AnimEvent::LockActions => Some(true),
+        Ac2AnimEvent::UnlockActions => Some(false),
+        _ => None,
+    })
+}
+
 impl FxSounds {
     /// `FXManager::DoTargettedFX`'s sound branch (`DoFX`, no target): a new FX plays one sound
     /// per node through `DoSoundFX` with the object as emitter, keeping the looping ones; an FX
@@ -328,6 +337,16 @@ impl Client {
     /// its `FXManager::UseTime` for the step.
     pub(crate) fn animation_sounds(&mut self, step: f32, now: f64) {
         let Some(audio) = self.audio.as_mut() else {
+            // No sound device: the player's lock events still reach the movement module.
+            let lock = self
+                .player
+                .as_mut()
+                .filter(|p| p.in_world)
+                .and_then(|p| p.body.as_mut())
+                .and_then(|body| lock_change(&body.physics.take_animation_events()));
+            if let Some(locked) = lock {
+                self.lock_player_actions(locked);
+            }
             return;
         };
         let mut events = self.remotes.take_animation_events();
@@ -342,6 +361,13 @@ impl Client {
                 ));
             }
         }
+        // The player's `LockActions` / `UnlockActions` events (`PlayerMovementModule::LockActions`)
+        // count whatever the visual's sounds are.
+        let lock = events
+            .iter()
+            .filter(|(id, _, _)| Some(*id) == player_id)
+            .filter_map(|(_, _, events)| lock_change(events))
+            .next_back();
         for (id, visual, events) in events {
             let Some(data) = self
                 .remotes
@@ -376,6 +402,9 @@ impl Client {
                 }
             }
             fx.use_time(step, now, data, call.is_player, &mut audio.manager);
+        }
+        if let Some(locked) = lock {
+            self.lock_player_actions(locked);
         }
     }
 

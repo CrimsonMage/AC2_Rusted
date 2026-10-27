@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1018 done, 356 partial, 794 to do, 79 skipped.
+2247 retail functions: 1018 done, 357 partial, 793 to do, 79 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -2715,7 +2715,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIRegion::ClearAlphaImage` · 005e2590 · legions 005a3320
 
 ### CMotionInterp
-- [ ] `CMotionInterp::SetAccelerationScale` · 005e25b0 · legions 005a3340
+- [~] `CMotionInterp::SetAccelerationScale` · 005e25b0 · legions 005a3340 — ac2-physics motion_interp.rs set_velocity_scale / set_acceleration_scale (reached from the server and script events); the collision impact minimum CPhysicsObj::SetVelocityScale also sets is not modelled
 
 ### UIRegion
 - [~] `UIRegion::NotifyMouseMove` · 005e25c0 · legions 005a3350 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)

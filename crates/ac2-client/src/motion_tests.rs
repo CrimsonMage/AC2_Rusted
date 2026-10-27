@@ -208,3 +208,73 @@ fn a_server_move_to_unpacks_into_the_physics_parameters() {
     );
     assert_eq!(unpacked.context, 7);
 }
+
+/// `ECM_Physics::RecvEvt_SetVelocityScale`, `SetAccelerationScale`, `SetJumpScale` and
+/// `SetHoverHeight` reach the body's tuning; a negative jump scale is refused.
+#[test]
+fn the_server_tunes_the_body_scales_and_hover_height() {
+    let Some(mut body) = human(false) else {
+        return;
+    };
+    apply(&mut body, &ObjectAction::SetVelocityScale(0.5));
+    apply(&mut body, &ObjectAction::SetAccelerationScale(0.25));
+    apply(&mut body, &ObjectAction::SetJumpScale(2.0));
+    apply(&mut body, &ObjectAction::SetHoverHeight(1.5));
+    let tuning = body.tuning();
+    assert_eq!(tuning.velocity_scale, 0.5);
+    assert_eq!(tuning.acceleration_scale, 0.25);
+    assert_eq!(tuning.jump_scale, 2.0);
+    assert_eq!(tuning.hover_height, 1.5);
+    apply(&mut body, &ObjectAction::SetJumpScale(-1.0));
+    assert_eq!(body.tuning().jump_scale, 2.0);
+}
+
+/// `ECM_Physics::RecvEvt_DoFX` and `StopFX` start and stop the effect's sounds: the body's
+/// animation events carry them to the client's FX manager.
+#[test]
+fn a_server_fx_reaches_the_body_as_fx_events() {
+    let Some(mut body) = human(false) else {
+        return;
+    };
+    apply(
+        &mut body,
+        &ObjectAction::DoFx {
+            fx: 0x4000_0010,
+            scalar: 1.0,
+        },
+    );
+    apply(&mut body, &ObjectAction::StopFx(0x4000_0010));
+    let events = body.take_animation_events();
+    assert!(events.iter().any(|e| matches!(
+        e,
+        ac2_anim::Ac2AnimEvent::StartFx { fx: 0x4000_0010, intensity } if *intensity == 1.0
+    )));
+    assert!(events
+        .iter()
+        .any(|e| matches!(e, ac2_anim::Ac2AnimEvent::StopFx { fx: 0x4000_0010 })));
+}
+
+/// A behaviour that locks actions (`BehaviorParams::lock_actions`) emits the player's
+/// `LockActions` when it starts; the client's movement module follows that event
+/// (`client_audio::animation_sounds`), and `UnlockActions` ends it.
+#[test]
+fn a_locking_behaviour_on_the_player_emits_lock_events() {
+    let Some(mut player) = human(true) else {
+        return;
+    };
+    let locking = Box::new(BehaviorParams {
+        bitfield: 0x1 | 0x800,
+        behavior: WAVE,
+        lock_actions: 1,
+        ..BehaviorParams::default()
+    });
+    apply(&mut player, &ObjectAction::DoBehavior(locking));
+    animate(&mut player, 1.0);
+    let events = player.take_animation_events();
+    assert!(
+        events
+            .iter()
+            .any(|e| matches!(e, ac2_anim::Ac2AnimEvent::LockActions)),
+        "{events:?}"
+    );
+}

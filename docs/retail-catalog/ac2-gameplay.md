@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 151 done, 18 partial, 318 to do, 12 skipped.
+499 retail functions: 151 done, 19 partial, 317 to do, 12 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -123,7 +123,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCharGenResult::GetStartArea` · 00601390 · legions 005c2220 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
 ### CMotionInterp
-- [ ] `CMotionInterp::SetVelocityScale` · 006013a0 · legions 005c2230
+- [~] `CMotionInterp::SetVelocityScale` · 006013a0 · legions 005c2230 — ac2-physics motion_interp.rs set_velocity_scale / set_acceleration_scale (reached from the server and script events); the collision impact minimum CPhysicsObj::SetVelocityScale also sets is not modelled
 
 ### gmCharGenResult
 - [x] `gmCharGenResult::SetStartingPosition` · 006013b0 · legions 005c2240 — ac2-script glue/chargen.rs SetStartingPosition efun (start_pos)

@@ -145,7 +145,8 @@ pub(crate) fn describe(
 /// The motion events a body plays (`CPhysicsObj::RecvEvt_*`): `DoMode` is `DoMode(0, mode)`;
 /// `DoBehavior` and `ReleaseBehavior` run copies whose context is 1 (a weenie emote is not run
 /// first); `DoSlider` leaves the player's client-controlled sliders alone; `MoveTo` moves the
-/// player only. Returns whether a move-to started.
+/// player only; the velocity, acceleration and jump scales and the hover height set the body's
+/// tuning; the FX events start and stop the effect's sounds. Returns whether a move-to started.
 pub(crate) fn apply(body: &mut PhysicsBody, action: &ObjectAction) -> bool {
     match action {
         ObjectAction::DoMode(mode) => {
@@ -178,6 +179,21 @@ pub(crate) fn apply(body: &mut PhysicsBody, action: &ObjectAction) -> bool {
         }
         ObjectAction::MoveTo { params, .. } => {
             return body.recv_move_to(movement_parameters(params));
+        }
+        ObjectAction::SetVelocityScale(scale) => body.set_velocity_scale(*scale),
+        ObjectAction::SetAccelerationScale(scale) => body.set_acceleration_scale(*scale),
+        ObjectAction::SetJumpScale(scale) => body.set_jump_scale(*scale),
+        ObjectAction::SetHoverHeight(height) => body.set_hover_height(*height),
+        ObjectAction::DoFx { fx, scalar } => {
+            body.do_fx(*fx, *scalar);
+        }
+        // `CPhysicsObj::RecvEvt_DoTargettedFX`: the FX manager's sound branch is the untargeted
+        // one (`FXManager::DoTargettedFX`); the target only steers the visual part.
+        ObjectAction::DoTargettedFx { fx, scalar, .. } => {
+            body.do_fx(*fx, *scalar);
+        }
+        ObjectAction::StopFx(fx) => {
+            body.stop_fx(*fx);
         }
         _ => {}
     }

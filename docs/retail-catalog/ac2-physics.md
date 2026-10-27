@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 365 done, 81 partial, 1616 to do, 62 skipped.
+2124 retail functions: 371 done, 81 partial, 1610 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (104/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (110/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2203,10 +2203,10 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::RecvEvt_DoMode` · 004de360 — ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
 - [x] `CPhysicsObj::RecvEvt_DoSlider` · 004de380 · legions 004d0de0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `CPhysicsObj::RecvEvt_SetMIDESC` · 004de3f0
-- [ ] `CPhysicsObj::RecvEvt_SetAccelerationScale` · 004de410
-- [ ] `CPhysicsObj::RecvEvt_SetVelocityScale` · 004de430
-- [ ] `CPhysicsObj::RecvEvt_SetJumpScale` · 004de450
-- [ ] `CPhysicsObj::RecvEvt_SetHoverHeight` · 004de470
+- [x] `CPhysicsObj::RecvEvt_SetAccelerationScale` · 004de410 — ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
+- [x] `CPhysicsObj::RecvEvt_SetVelocityScale` · 004de430 — ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
+- [x] `CPhysicsObj::RecvEvt_SetJumpScale` · 004de450 — ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
+- [x] `CPhysicsObj::RecvEvt_SetHoverHeight` · 004de470 — ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
 - [x] `CPhysicsObj::RecvEvt_MoveTo` · 004de490 · legions 004d0ef0 — ac2-client motion.rs -> PhysicsBody::recv_move_to (player only); stamp in ac2-weenie; no path planner (retail passes none)
 - [ ] `CPhysicsObj::RecvEvt_PositionCell` · 004de4e0
 - [ ] `CPhysicsObj::RecvEvt_DoFX` · 004de4f0
@@ -2521,9 +2521,9 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::LeaveWorld` · 004e4c10 · legions 004d7660 — ac2-client remote.rs: out of the world, queued for destruction
 - [~] `CPhysicsObj::HandleEnterWorld` · 004e4ca0 · legions 004d76f0 — the bookie part only
 - [x] `CPhysicsObj::LeaveVisibility` · 004e4d00 — ac2-client remote.rs
-- [ ] `CPhysicsObj::DoFX` · 004e4d80 · legions 004d77d0
+- [x] `CPhysicsObj::DoFX` · 004e4d80 · legions 004d77d0 — ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
 - [ ] `CPhysicsObj::DoTargettedFX` · 004e4dc0 · legions 004d7810
-- [ ] `CPhysicsObj::StopFX` · 004e4e10 · legions 004d7860
+- [x] `CPhysicsObj::StopFX` · 004e4e10 · legions 004d7860 — ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
 - [ ] `CPhysicsObj::GetGroundPosition` · 004e4e50
 - [ ] `CPhysicsObj::GetBonePosition` · 004e4f60
 - [ ] `CPhysicsObj::RecvEvt_DoFX_Private` · 004e50c0 · legions 004d7b10

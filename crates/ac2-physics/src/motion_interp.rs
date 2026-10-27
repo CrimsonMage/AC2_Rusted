@@ -143,10 +143,40 @@ impl MotionInterp {
         self.omega_acl
     }
 
-    /// `CPhysicsObj::RecvEvt_SetVelocityScale` / `SetAccelerationScale`.
-    pub fn set_scales(&mut self, velocity: f32, acceleration: f32) {
-        self.vel_scale = velocity;
-        self.acl_scale = acceleration;
+    /// `CMotionInterp::SetVelocityScale` (`mVelScale`), reached from the server's
+    /// `ECM_Physics::RecvEvt_SetVelocityScale` through `CPhysicsObj::SetVelocityScale` and
+    /// `PHYSICSOBJREP::SetVelocityScale`.
+    pub fn set_velocity_scale(&mut self, scale: f32) {
+        self.vel_scale = scale;
+    }
+
+    /// `CMotionInterp::SetAccelerationScale` (`mAclScale`), from
+    /// `ECM_Physics::RecvEvt_SetAccelerationScale`.
+    pub fn set_acceleration_scale(&mut self, scale: f32) {
+        self.acl_scale = scale;
+    }
+
+    pub(crate) fn velocity_scale(&self) -> f32 {
+        self.vel_scale
+    }
+
+    pub(crate) fn acceleration_scale(&self) -> f32 {
+        self.acl_scale
+    }
+
+    /// `CMotionInterp::SetHoverHeight` (`mHoverHeight`), from `ECM_Physics::RecvEvt_SetHoverHeight`
+    /// through `PHYSICSOBJREP::SetHoverHeight`. The default (-1) reads the motion table's height.
+    pub fn set_hover_height(&mut self, height: f32) {
+        self.hover_height = height;
+    }
+
+    /// `CMotionInterp::ResetHoverHeight` (`mHoverHeight = -1`).
+    pub fn reset_hover_height(&mut self) {
+        self.hover_height = -1.0;
+    }
+
+    pub(crate) fn hover_height_override(&self) -> f32 {
+        self.hover_height
     }
 
     /// `CMotionInterp::FindMotionValues`: the desc's values for (element, mode) with the global

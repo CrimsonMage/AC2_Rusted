@@ -809,5 +809,51 @@ fn the_player_script_answers_the_weenie_emote_ifun() {
     assert_eq!(
         host.call_ifun(0x6, 0x00B4_00AA, &[IFunArg::Int(0x2A)]),
         Err(HostError::UnknownObject(0x6))
+/// `gCWPhysicsObject`'s DoFX, StopFX and scale efuns queue the server event each one is for the
+/// weenie's physics object (the client applies them to the body); an undefined `this` crashes.
+#[test]
+fn physics_object_efuns_queue_their_server_events_for_the_weenie() {
+    use ac2_net::protocol::ObjectAction;
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    host.vm.owners.insert(9, 0x55);
+    let fx = 0x4000_0010;
+    assert_eq!(
+        efun_result(&mut host.vm, 0x0080_0045, &[fx, 0.5f32.to_bits()], 9, 4),
+        1,
+        "DoFX answers 1 for an owned weenie"
+    );
+    assert_eq!(
+        efun_result(&mut host.vm, 0x0080_0047, &[fx], 9, 3),
+        1,
+        "StopFX answers 1"
+    );
+    assert_eq!(
+        run_efun(&mut host.vm, 0x0080_0003, &[2.0f32.to_bits()], 9),
+        InterpStatus::Success
+    );
+    assert_eq!(
+        run_efun(&mut host.vm, 0x0080_0005, &[0.25f32.to_bits()], 9),
+        InterpStatus::Success
+    );
+    assert_eq!(
+        run_efun(&mut host.vm, 0x0080_0007, &[3.0f32.to_bits()], 9),
+        InterpStatus::Success
+    );
+    assert_eq!(
+        host.take_physics(),
+        vec![
+            (0x55, ObjectAction::DoFx { fx, scalar: 0.5 }),
+            (0x55, ObjectAction::StopFx(fx)),
+            (0x55, ObjectAction::SetVelocityScale(2.0)),
+            (0x55, ObjectAction::SetAccelerationScale(0.25)),
+            (0x55, ObjectAction::SetJumpScale(3.0)),
+        ]
+    );
+    assert!(host.take_physics().is_empty());
+    assert_ne!(
+        run_efun(&mut host.vm, 0x0080_0003, &[1.0f32.to_bits()], u32::MAX),
+        InterpStatus::Success,
+        "an undefined this crashes the script"
     );
 }

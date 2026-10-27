@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 332 done, 150 partial, 1409 to do, 13 skipped.
+1904 retail functions: 391 done, 149 partial, 1345 to do, 19 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1203,34 +1203,34 @@ Legend and workflow: [README](README.md).
 ### gmCWInterface
 - [x] `gmCWInterface::PopupYesNoDialog` · 00453e30 · legions 00454eb0 — ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
 
-## `portal/client/src/action/interp/actioninterp.cpp.c` (0/23)
+## `portal/client/src/action/interp/actioninterp.cpp.c` (16/23)
 
 ### ActionInterpreter
-- [ ] `ActionInterpreter::Shutdown` · 00478fe0 · legions 00474e20
-- [ ] `ActionInterpreter::Get` · 00479010 · legions 00474e50
-- [ ] `ActionInterpreter::OnDDDComplete` · 00479020
-- [ ] `ActionInterpreter::StopAction` · 00479030 · legions 00474e70 — ac2-ui interpreter.rs
+- [-] `ActionInterpreter::Shutdown` · 00478fe0 · legions 00474e20 — Rust Drop / singleton accessor / synchronous DAT load: no retail state to tear down or DDD callback
+- [-] `ActionInterpreter::Get` · 00479010 · legions 00474e50 — Rust Drop / singleton accessor / synchronous DAT load: no retail state to tear down or DDD callback
+- [-] `ActionInterpreter::OnDDDComplete` · 00479020 — Rust Drop / singleton accessor / synchronous DAT load: no retail state to tear down or DDD callback
+- [x] `ActionInterpreter::StopAction` · 00479030 · legions 00474e70 — ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
 - [ ] `ActionInterpreter::GetDescripValues` · 004790b0 · legions 00474ef0
 - [ ] `ActionInterpreter::SetPlayerID` · 004790d0 · legions 00474f10
 - [ ] `ActionInterpreter::MouseLookHandler` · 004790f0 · legions 00474f30
-- [ ] `ActionInterpreter::HandleDoubleTap` · 00479110 · legions 00474f50 — ac2-ui interpreter.rs
-- [ ] `ActionInterpreter::FindAction` · 004791b0 · legions 00474ff0 — ac2-ui interpreter.rs
-- [ ] `ActionInterpreter::ActionDown` · 004791e0 · legions 00475020 — ac2-ui interpreter.rs
-- [ ] `ActionInterpreter::GetModifierBitfield` · 00479210 · legions 00475050 — ac2-ui interpreter.rs
-- [ ] `ActionInterpreter::CtrlKeyDown` · 004792d0 · legions 00475110
-- [ ] `ActionInterpreter::ShiftKeyDown` · 004792e0 · legions 00475120
-- [ ] `ActionInterpreter::AltKeyDown` · 00479300 · legions 00475140
-- [ ] `ActionInterpreter::GetActionValues` · 00479310 · legions 00475150 — ac2-ui interpreter.rs
-- [ ] `ActionInterpreter::StartAction` · 004793d0 · legions 00475210 — ac2-ui interpreter.rs
-- [ ] `ActionInterpreter::PurgeSetActions` · 004794c0 · legions 00475300 — ac2-ui interpreter.rs
-- [ ] `ActionInterpreter::UseTime` · 00479530 · legions 00475370 — ac2-ui interpreter.rs
-- [ ] `ActionInterpreter::TurnOffRunLock` · 00479540 · legions 00475380 — ac2-ui interpreter.rs
-- [ ] `ActionInterpreter::~ActionInterpreter` · 00479790 · legions 004755d0
-- [ ] `ActionInterpreter::Startup` · 004797f0 · legions 00475630 — ac2-ui controls.rs (no ICIDM handler registration)
-- [ ] `ActionInterpreter::FocusSwitchHandler` · 00479890 · legions 004756d0 — ac2-ui interpreter.rs
-- [ ] `ActionInterpreter::ActionHandler` · 004799c0 · legions 00475800 — ac2-ui interpreter.rs
+- [x] `ActionInterpreter::HandleDoubleTap` · 00479110 · legions 00474f50 — ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+- [x] `ActionInterpreter::FindAction` · 004791b0 · legions 00474ff0 — ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+- [x] `ActionInterpreter::ActionDown` · 004791e0 · legions 00475020 — ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+- [x] `ActionInterpreter::GetModifierBitfield` · 00479210 · legions 00475050 — ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+- [x] `ActionInterpreter::CtrlKeyDown` · 004792d0 · legions 00475110 — ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+- [x] `ActionInterpreter::ShiftKeyDown` · 004792e0 · legions 00475120 — ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+- [x] `ActionInterpreter::AltKeyDown` · 00479300 · legions 00475140 — ac2-ui chat.rs Modifiers: alt is never held (retail's input manager has no Alt meta key, see the chat.rs note)
+- [x] `ActionInterpreter::GetActionValues` · 00479310 · legions 00475150 — ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+- [x] `ActionInterpreter::StartAction` · 004793d0 · legions 00475210 — ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+- [x] `ActionInterpreter::PurgeSetActions` · 004794c0 · legions 00475300 — ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+- [x] `ActionInterpreter::UseTime` · 00479530 · legions 00475370 — ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+- [x] `ActionInterpreter::TurnOffRunLock` · 00479540 · legions 00475380 — ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+- [-] `ActionInterpreter::~ActionInterpreter` · 00479790 · legions 004755d0 — Rust Drop / singleton accessor / synchronous DAT load: no retail state to tear down or DDD callback
+- [x] `ActionInterpreter::Startup` · 004797f0 · legions 00475630 — ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+- [x] `ActionInterpreter::FocusSwitchHandler` · 00479890 · legions 004756d0 — ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
+- [x] `ActionInterpreter::ActionHandler` · 004799c0 · legions 00475800 — ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
 
-## `portal/client/src/action/map/actionmap.cpp.c` (0/16)
+## `portal/client/src/action/map/actionmap.cpp.c` (3/16)
 
 ### ActionMap
 - [ ] `ActionMap::GetMapper` · 0072d640 · legions 00613a40
@@ -1240,8 +1240,8 @@ Legend and workflow: [README](README.md).
 
 ### ActionMap
 - [ ] `ActionMap::Pack` · 0072d770
-- [ ] `ActionMap::GetToggleType` · 0072da60 · legions 006abae0 — ac2-ui maps.rs
-- [ ] `ActionMap::GetActionValues` · 0072da90 · legions 006abb10 — ac2-ui maps.rs
+- [x] `ActionMap::GetToggleType` · 0072da60 · legions 006abae0 — ac2-ui maps.rs (ActionMap values by action, modifiers and toggle type, UnPack from the DAT)
+- [x] `ActionMap::GetActionValues` · 0072da90 · legions 006abb10 — ac2-ui maps.rs (ActionMap values by action, modifiers and toggle type, UnPack from the DAT)
 - [ ] `ActionMap::GetDescripValues` · 0072daf0 · legions 006abb70
 - [ ] `ActionMap::~ActionMap` · 0072e690 · legions 006ac710
 - [ ] `ActionMap::GetDBOType` · 0072e760
@@ -1259,29 +1259,29 @@ Legend and workflow: [README](README.md).
 ### ActionMap
 - [ ] `ActionMap::ActionMap` · 0072e980 · legions 006aca00
 - [-] `ActionMap::FromFileNode` · 0072ea40 — text source format (admin tools)
-- [ ] `ActionMap::UnPack` · 0072f200 — ac2-ui maps.rs
+- [x] `ActionMap::UnPack` · 0072f200 — ac2-ui maps.rs (ActionMap values by action, modifiers and toggle type, UnPack from the DAT)
 - [ ] `ActionMap::Allocate` · 0072f370
 
-## `portal/client/src/action/movement/playermovementmodule.cpp.c` (0/17)
+## `portal/client/src/action/movement/playermovementmodule.cpp.c` (14/17)
 
 ### PlayerMovementModule
-- [ ] `PlayerMovementModule::Startup` · 00568e20 · legions 00538db0
-- [ ] `PlayerMovementModule::Get` · 00568e90 · legions 00538e20
-- [ ] `PlayerMovementModule::ShouldSendPositionEvent` · 00568ea0 · legions 00538e30
-- [ ] `PlayerMovementModule::SendPositionEvent` · 00569020 · legions 00538fb0
-- [ ] `PlayerMovementModule::ShouldSendLookAtEvent` · 00569200 · legions 00539190
-- [ ] `PlayerMovementModule::SendLookAtEvent` · 005692e0 · legions 00539270
-- [ ] `PlayerMovementModule::MouseMove` · 00569380 · legions 00539310 — ac2-client camera_mouse.rs / input_handlers
-- [ ] `PlayerMovementModule::DoBehavior` · 005693a0 · legions 00539330 — ac2-client camera_mouse.rs / input_handlers
-- [ ] `PlayerMovementModule::StopBehavior` · 005693d0 · legions 00539360 — ac2-client camera_mouse.rs / input_handlers
-- [ ] `PlayerMovementModule::StartCameraAction` · 00569400 · legions 00539390 — ac2-client camera_mouse.rs / input_handlers
-- [ ] `PlayerMovementModule::StopCameraAction` · 00569420 · legions 005393b0 — ac2-client camera_mouse.rs / input_handlers
-- [ ] `PlayerMovementModule::LockActions` · 00569440 · legions 005393d0
-- [ ] `PlayerMovementModule::InterruptMoveTo` · 00569450 · legions 005393e0 — ac2-client camera_mouse.rs / input_handlers
-- [ ] `PlayerMovementModule::StopAttackingIfAutoMoving` · 00569470 · legions 00539400
-- [ ] `PlayerMovementModule::Shutdown` · 005694a0 · legions 00539430
-- [ ] `PlayerMovementModule::SetPlayerID` · 005694f0 · legions 00539480
-- [ ] `PlayerMovementModule::UseTime` · 00569550 · legions 005394e0
+- [x] `PlayerMovementModule::Startup` · 00568e20 · legions 00538db0 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+- [-] `PlayerMovementModule::Get` · 00568e90 · legions 00538e20 — Rust owns the module inside Client (no singleton accessor, no Shutdown ordering)
+- [x] `PlayerMovementModule::ShouldSendPositionEvent` · 00568ea0 · legions 00538e30 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+- [x] `PlayerMovementModule::SendPositionEvent` · 00569020 · legions 00538fb0 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+- [x] `PlayerMovementModule::ShouldSendLookAtEvent` · 00569200 · legions 00539190 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+- [x] `PlayerMovementModule::SendLookAtEvent` · 005692e0 · legions 00539270 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+- [x] `PlayerMovementModule::MouseMove` · 00569380 · legions 00539310 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+- [x] `PlayerMovementModule::DoBehavior` · 005693a0 · legions 00539330 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+- [x] `PlayerMovementModule::StopBehavior` · 005693d0 · legions 00539360 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+- [x] `PlayerMovementModule::StartCameraAction` · 00569400 · legions 00539390 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+- [x] `PlayerMovementModule::StopCameraAction` · 00569420 · legions 005393b0 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+- [x] `PlayerMovementModule::LockActions` · 00569440 · legions 005393d0 — ac2-client client.rs lock_player_actions, set from the player's LockActions/UnlockActions animation events (client_audio animation_sounds); movement_module.rs locked; motion_tests a_locking_behaviour_on_the_player_emits_lock_events
+- [x] `PlayerMovementModule::InterruptMoveTo` · 00569450 · legions 005393e0 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+- [~] `PlayerMovementModule::StopAttackingIfAutoMoving` · 00569470 · legions 00539400 — ac2-ui controls.rs: a turn key starting dispatches StopAttackingIfAutoMoving and it is a no-op, so turning does not stop an auto-move attack (the attack's stop is not wired to the client's combat state)
+- [-] `PlayerMovementModule::Shutdown` · 005694a0 · legions 00539430 — Rust owns the module inside Client (no singleton accessor, no Shutdown ordering)
+- [x] `PlayerMovementModule::SetPlayerID` · 005694f0 · legions 00539480 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+- [x] `PlayerMovementModule::UseTime` · 00569550 · legions 005394e0 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
 
 ## `portal/client/src/cfactory/cenginefactory.cpp.c` (0/5)
 
@@ -1390,7 +1390,7 @@ Legend and workflow: [README](README.md).
 ### PSmartArray<PStringBase<unsigned_short>_>
 - [ ] `PSmartArray<PStringBase<unsigned_short>_>::StreamPack` · 00493de0
 
-## `portal/client/src/events/ecm_physics.cpp.c` (1/59)
+## `portal/client/src/events/ecm_physics.cpp.c` (17/59)
 
 ### TargetPosition
 - [ ] `TargetPosition::TargetPosition` · 00494c30 · legions 0048d400
@@ -1403,12 +1403,12 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Physics::RecvEvt_CreatePlayer` · 00495060 · legions 0048d830
 - [ ] `ECM_Physics::RecvEvt_DeParent` · 00495100 · legions 0048d8d0
 - [ ] `ECM_Physics::RecvEvt_DestroyObject` · 004951f0 · legions 0048d9c0
-- [ ] `ECM_Physics::RecvEvt_DoFX` · 00495260 · legions 0048da30
+- [x] `ECM_Physics::RecvEvt_DoFX` · 00495260 · legions 0048da30 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 - [ ] `ECM_Physics::RecvEvt_DoFXScript` · 00495360 · legions 0048db30
-- [ ] `ECM_Physics::RecvEvt_DoMode` · 00495420 · legions 0048dbf0
-- [ ] `ECM_Physics::RecvEvt_DoSlider` · 004954e0 · legions 0048dcb0
+- [x] `ECM_Physics::RecvEvt_DoMode` · 00495420 · legions 0048dbf0 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
+- [x] `ECM_Physics::RecvEvt_DoSlider` · 004954e0 · legions 0048dcb0 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 - [ ] `ECM_Physics::RecvEvt_DoStory` · 00495620 · legions 0048ddf0
-- [ ] `ECM_Physics::RecvEvt_DoTargettedFX` · 00495710 · legions 0048dee0
+- [~] `ECM_Physics::RecvEvt_DoTargettedFX` · 00495710 · legions 0048dee0 — sound branch only: the target is ignored (FXManager::DoTargettedFX sound path = untargeted DoFX); the targeted visual part is not drawn
 - [ ] `ECM_Physics::RecvEvt_InitializeMissile` · 00495850 · legions 0048e020
 - [ ] `ECM_Physics::RecvEvt_LeaveWorld` · 00495a00 · legions 0048e1d0
 - [ ] `ECM_Physics::RecvEvt_LookAt` · 00495ac0 · legions 0048e290
@@ -1416,18 +1416,18 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Physics::RecvEvt_Parent` · 00495c80 · legions 0048e450
 - [ ] `ECM_Physics::RecvEvt_Position` · 00495da0 · legions 0048e570
 - [ ] `ECM_Physics::RecvEvt_PositionCell` · 00495ea0 · legions 0048e670
-- [ ] `ECM_Physics::RecvEvt_SetAccelerationScale` · 00495fa0 · legions 0048e770
+- [x] `ECM_Physics::RecvEvt_SetAccelerationScale` · 00495fa0 · legions 0048e770 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 - [ ] `ECM_Physics::RecvEvt_SetGlobalModifier` · 00496060 · legions 0048e830
-- [ ] `ECM_Physics::RecvEvt_SetHoverHeight` · 00496120 · legions 0048e8f0
-- [ ] `ECM_Physics::RecvEvt_SetJumpScale` · 004961e0 · legions 0048e9b0
+- [x] `ECM_Physics::RecvEvt_SetHoverHeight` · 00496120 · legions 0048e8f0 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
+- [x] `ECM_Physics::RecvEvt_SetJumpScale` · 004961e0 · legions 0048e9b0 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 - [ ] `ECM_Physics::RecvEvt_SetMIDESC` · 004962a0 · legions 0048ea70
-- [ ] `ECM_Physics::RecvEvt_SetMode` · 00496360 · legions 0048eb30
-- [ ] `ECM_Physics::RecvEvt_SetVelocityScale` · 00496420 · legions 0048ebf0
-- [ ] `ECM_Physics::RecvEvt_StopAllWeenieBehaviors` · 004964e0 · legions 0048ecb0
-- [ ] `ECM_Physics::RecvEvt_StopBehavior` · 00496560 · legions 0048ed30
-- [ ] `ECM_Physics::RecvEvt_StopFX` · 00496620 · legions 0048edf0
-- [ ] `ECM_Physics::RecvEvt_StopLayer` · 004966e0 · legions 0048eeb0
-- [ ] `ECM_Physics::RecvEvt_StopMoveToCancelsBehaviors` · 004967a0 · legions 0048ef70
+- [x] `ECM_Physics::RecvEvt_SetMode` · 00496360 · legions 0048eb30 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
+- [x] `ECM_Physics::RecvEvt_SetVelocityScale` · 00496420 · legions 0048ebf0 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
+- [x] `ECM_Physics::RecvEvt_StopAllWeenieBehaviors` · 004964e0 · legions 0048ecb0 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
+- [x] `ECM_Physics::RecvEvt_StopBehavior` · 00496560 · legions 0048ed30 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
+- [x] `ECM_Physics::RecvEvt_StopFX` · 00496620 · legions 0048edf0 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
+- [x] `ECM_Physics::RecvEvt_StopLayer` · 004966e0 · legions 0048eeb0 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
+- [x] `ECM_Physics::RecvEvt_StopMoveToCancelsBehaviors` · 004967a0 · legions 0048ef70 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 - [ ] `ECM_Physics::RecvEvt_UpdateVisualDesc` · 00496820 · legions 0048eff0
 - [ ] `ECM_Physics::SendEvt_CForceCreate` · 00496910 · legions 0048f0e0
 - [ ] `ECM_Physics::SendEvt_CLookAt` · 00496980 · legions 0048f150
@@ -1461,9 +1461,9 @@ Legend and workflow: [README](README.md).
 - [ ] `ListNode<Position>::ListNode<Position>` · 004976a0 · legions 0048fbb0
 
 ### ECM_Physics
-- [ ] `ECM_Physics::RecvEvt_MoveTo` · 00497750 · legions 0048fc60
-- [ ] `ECM_Physics::RecvEvt_ReleaseBehavior` · 004978c0 · legions 0048fdd0
-- [~] `ECM_Physics::RecvEvt_DoBehavior` · 00497a00 · legions 0048ff10 — ECM_Physics::RecvEvt_DoBehavior: the session decodes the event; the emote gate runs in ac2-client apply_remote
+- [x] `ECM_Physics::RecvEvt_MoveTo` · 00497750 · legions 0048fc60 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
+- [x] `ECM_Physics::RecvEvt_ReleaseBehavior` · 004978c0 · legions 0048fdd0 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
+- [x] `ECM_Physics::RecvEvt_DoBehavior` · 00497a00 · legions 0048ff10 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 
 ## `portal/client/src/events/ecm_qualities.cpp.c` (0/20)
 
@@ -2298,13 +2298,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWInterface::CallIFun_OnStatChanged` · 004bc510 · legions 004b1400
 - [ ] `gCWInterface::CallIFun_PreloadWSLSingletons` · 004bc600 · legions 004b14f0
 
-## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (1/85)
+## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (6/85)
 
 ### gCWPhysicsObject
 - [ ] `gCWPhysicsObject::CallEFun_DoStory` · 004b8050
-- [ ] `gCWPhysicsObject::CallEFun_SetAccelerationScale` · 004b80b0
-- [ ] `gCWPhysicsObject::CallEFun_SetJumpScale` · 004b8110
-- [ ] `gCWPhysicsObject::CallEFun_SetVelocityScale` · 004b8170
+- [x] `gCWPhysicsObject::CallEFun_SetAccelerationScale` · 004b80b0 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
+- [x] `gCWPhysicsObject::CallEFun_SetJumpScale` · 004b8110 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
+- [x] `gCWPhysicsObject::CallEFun_SetVelocityScale` · 004b8170 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 - [~] `gCWPhysicsObject::CallEFun_StopAllCameraFX` · 004b81d0 — ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 - [ ] `gCWPhysicsObject::CallEFun_AddImpulse` · 004b8270
 - [ ] `gCWPhysicsObject::CallEFun_AddImpulseLocal` · 004b82f0
@@ -2316,7 +2316,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWPhysicsObject::CallEFun_CombineAndApplyVisualDesc` · 004b8600
 - [ ] `gCWPhysicsObject::CallEFun_DoBehavior` · 004b8680
 - [ ] `gCWPhysicsObject::CallEFun_DoBehaviorNonLatent` · 004b87a0
-- [~] `gCWPhysicsObject::CallEFun_DoFX` · 004b8820 — efun bound as a no-op (interface.rs do_fx): the physics object's FX is not played; equipping calls it, so the VM no longer crashes
+- [x] `gCWPhysicsObject::CallEFun_DoFX` · 004b8820 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 - [ ] `gCWPhysicsObject::CallEFun_DoIntersection` · 004b88a0
 - [ ] `gCWPhysicsObject::CallEFun_DoMode` · 004b89c0
 - [ ] `gCWPhysicsObject::CallEFun_DoModeNonLatent` · 004b8ae0
@@ -2363,7 +2363,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWPhysicsObject::CallEFun_SetUndetectable` · 004b9fe0
 - [ ] `gCWPhysicsObject::CallEFun_StopAllWeenieBehaviors` · 004ba060
 - [ ] `gCWPhysicsObject::CallEFun_StopBehavior` · 004ba0d0
-- [ ] `gCWPhysicsObject::CallEFun_StopFX` · 004ba150
+- [x] `gCWPhysicsObject::CallEFun_StopFX` · 004ba150 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 - [ ] `gCWPhysicsObject::CallEFun_StopLayer` · 004ba1d0
 - [ ] `gCWPhysicsObject::CallEFun_StopMoveToCancelsBehaviors` · 004ba250
 - [ ] `gCWPhysicsObject::CallEFun_TogglePlaceMarkerObjects` · 004ba2c0
@@ -2844,7 +2844,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWeenieObject::~CWeenieObject` · 0052fd40 · legions 00513e90
 - [ ] `CWeenieObject::UnRegisterAllNoticeHandlers` · 0052fd70 · legions 00513ec0
 
-## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (1/91)
+## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (6/91)
 
 ### CWPhysicsObject
 - [ ] `CWPhysicsObject::CWPhysicsObject` · 0052fe30 · legions 00513f80
@@ -2871,8 +2871,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CWPhysicsObject::ApplyVisualDescToPhysicsObj` · 00530130 · legions 00514230
 - [ ] `CWPhysicsObject::RecvEvt_UpdateVisualDesc` · 00530150 · legions 00514250 — ac2-weenie ObjectTable::apply_action
 - [ ] `CWPhysicsObject::ForceVisualDesc` · 00530190 · legions 00514290
-- [~] `CWPhysicsObject::DoFX` · 005301b0 · legions 005142b0 — efun bound as a no-op (interface.rs do_fx): the physics object's FX is not played; equipping calls it, so the VM no longer crashes
-- [ ] `CWPhysicsObject::StopFX` · 005301d0 · legions 005142d0
+- [x] `CWPhysicsObject::DoFX` · 005301b0 · legions 005142b0 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
+- [x] `CWPhysicsObject::StopFX` · 005301d0 · legions 005142d0 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 - [ ] `CWPhysicsObject::DoTargettedFX` · 005301f0 · legions 005142f0
 - [ ] `CWPhysicsObject::DoBehavior` · 00530220
 - [ ] `CWPhysicsObject::DoBehaviorNonLatent` · 005302c0 · legions 00514360
@@ -2909,11 +2909,11 @@ Legend and workflow: [README](README.md).
 - [ ] `CWPhysicsObject::LocalToGlobal` · 00530870 · legions 00514810
 - [ ] `CWPhysicsObject::CalculateDistance` · 00530890 · legions 00514830
 - [ ] `CWPhysicsObject::GetVelocityScale` · 005308c0 · legions 00514860
-- [ ] `CWPhysicsObject::SetVelocityScale` · 005308e0 · legions 00514880
+- [x] `CWPhysicsObject::SetVelocityScale` · 005308e0 · legions 00514880 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 - [ ] `CWPhysicsObject::GetAccelerationScale` · 00530900 · legions 005148a0
-- [ ] `CWPhysicsObject::SetAccelerationScale` · 00530920 · legions 005148c0
+- [x] `CWPhysicsObject::SetAccelerationScale` · 00530920 · legions 005148c0 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 - [ ] `CWPhysicsObject::GetJumpScale` · 00530940 · legions 005148e0
-- [ ] `CWPhysicsObject::SetJumpScale` · 00530960 · legions 00514900
+- [x] `CWPhysicsObject::SetJumpScale` · 00530960 · legions 00514900 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 - [ ] `CWPhysicsObject::Notify_DoMode` · 00530980 · legions 00514920
 - [x] `CWPhysicsObject::SetNoDrawPhysics` · 005309a0 · legions 00514940 — ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
 - [ ] `CWPhysicsObject::SetCloaked` · 005309c0 · legions 00514960

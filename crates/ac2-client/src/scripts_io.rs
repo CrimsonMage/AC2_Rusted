@@ -24,6 +24,16 @@ impl Client {
         result: Result<DispatchOutcome, String>,
         out: &mut Vec<SessionEvent>,
     ) {
+        // The physics changes the scripts made (`gCWPhysicsObject` scale and FX efuns) reach the
+        // bodies whatever became of the call.
+        let physics = self
+            .scripts
+            .as_mut()
+            .map(|scripts| scripts.host.take_physics())
+            .unwrap_or_default();
+        for (object, action) in physics {
+            self.apply_script_physics(object, &action);
+        }
         let owned = function.is_none_or(|f| !self.session.stand_in_handles(f));
         let Some(scripts) = self.scripts.as_mut() else {
             return;

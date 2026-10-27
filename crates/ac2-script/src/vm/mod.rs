@@ -245,6 +245,10 @@ pub struct Vm {
     /// The no-draw changes the scripts asked of weenies' physics objects
     /// (`CWPhysicsObject::SetNoDrawPhysics`, efun 0x800057): the object and the flag, in order.
     pub no_draw: Vec<(u64, bool)>,
+    /// The physics changes the scripts asked of weenies' physics objects (the scale, FX and
+    /// hover setters of `gCWPhysicsObject`), as the server event each one is: the object and
+    /// the action, in order. The client applies them to the object's body.
+    pub physics: Vec<(u64, ac2_net::protocol::ObjectAction)>,
     /// Each weenie's `CWDistributor::m_initData` (`WInitData::m_pid`, `m_did`), by object id.
     pub init_data: std::collections::HashMap<u64, (u32, u32)>,
     /// `CObjectMaint::GetPlayerID` (0 before the player exists).
@@ -297,6 +301,7 @@ impl Vm {
             owners: Default::default(),
             shell_lines: Vec::new(),
             no_draw: Vec::new(),
+            physics: Vec::new(),
             init_data: Default::default(),
             player: 0,
             repositories: Default::default(),
