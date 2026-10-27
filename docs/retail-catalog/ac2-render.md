@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 78 done, 58 partial, 630 to do, 15 skipped.
+781 retail functions: 80 done, 56 partial, 630 to do, 15 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1004,7 +1004,7 @@ Legend and workflow: [README](README.md).
 - [x] `LScapeMaterialInfo::MultiCombine` · 005919d0 · legions 00561000
 - [x] `LScapeMaterialInfo::Create` · 00591a40 · legions 00561070
 
-## `portal/client/src/smartbox/worldrender/lscaperender.cpp.c` (4/39)
+## `portal/client/src/smartbox/worldrender/lscaperender.cpp.c` (6/39)
 
 ### LScapeLighting
 - [x] `LScapeLighting::GetAmbientLight` · 005835c0 · legions 00552d30
@@ -1054,8 +1054,8 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeRender::CalcBlockDrawOrderInternal` · 00584950 · legions 00554080
 - [ ] `LScapeRender::CalcBlockDrawOrder` · 00584b10 · legions 00554240
 - [ ] `LScapeRender::SetViewerPosition` · 00584c80 · legions 005543b0
-- [~] `LScapeRender::FillRainVertices` · 00584d70 · legions 00554490 — 2500 streaks, fall, wind, ground and water; splash/ripple particles not yet
-- [~] `LScapeRender::UpdateRain` · 005856f0 · legions 00554de0 — 2500 streaks, fall, wind, ground and water; splash/ripple particles not yet
+- [x] `LScapeRender::FillRainVertices` · 00584d70 · legions 00554490 — ac2-render rain.rs RainField (streaks, splashes and near-water ripples) + scene rain_frame discharging WorldRender's rain particle systems
+- [x] `LScapeRender::UpdateRain` · 005856f0 · legions 00554de0 — ac2-render rain.rs RainField (streaks, splashes and near-water ripples) + scene rain_frame discharging WorldRender's rain particle systems
 
 ## `portal/client/src/smartbox/worldrender/lscapesky.cpp.c` (3/9)
 

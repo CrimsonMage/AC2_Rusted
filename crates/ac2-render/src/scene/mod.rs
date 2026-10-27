@@ -27,7 +27,7 @@ pub use particles::ParticleBatch;
 use crate::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
 use crate::frustum::{Frustum, Relation};
 use crate::object::RenderSettings;
-use crate::particles::CameraBasis;
+use crate::particles::{CameraBasis, ParticleSystem};
 use crate::rain::{RainField, RAIN_DRAW_THRESHOLD};
 use crate::sky::{sky_frame, SkyFrame};
 use crate::terrain::{far_radius_for_draw_distance, FarTerrain, TerrainHeights, FIRST_FAR_CHUNK};
@@ -112,6 +112,9 @@ pub struct WorldScene {
     rain: RainField,
     /// The rain's material once loaded (`LScapeRender::m_pRainMaterial`).
     rain_material: Option<DataId>,
+    /// `WorldRender`'s rain splash and water ripple systems (no fade, at the world's origin).
+    rain_splash: Option<ParticleSystem>,
+    rain_ripples: Option<ParticleSystem>,
     started: Instant,
 }
 
@@ -154,6 +157,8 @@ impl WorldScene {
             heights: HashMap::new(),
             rain: RainField::default(),
             rain_material: None,
+            rain_splash: None,
+            rain_ripples: None,
             started: Instant::now(),
         };
         scene.request(Request::Rain);
@@ -295,11 +300,36 @@ impl WorldScene {
         }
         match loaded {
             // The renderer takes the rain's material like a model.
-            Loaded::Rain(material, model, images) => {
-                if model.is_some() {
-                    self.rain_material = Some(material);
+            Loaded::Rain(rain) => {
+                let rain = *rain;
+                if rain.model.is_some() {
+                    self.rain_material = Some(rain.material);
                 }
-                update.loaded.push(Loaded::Model(material, model, images));
+                let now = self.started.elapsed().as_secs_f64();
+                let system = |desc: Option<Arc<ac2_assets::Ac2ParticleSystemDesc>>| {
+                    let mut system = ParticleSystem::new(
+                        desc?,
+                        ac2_math::Frame::IDENTITY,
+                        Vec3::ONE,
+                        1.0,
+                        0,
+                        now,
+                    );
+                    system.set_no_fade(true);
+                    Some(system)
+                };
+                self.rain_splash = system(rain.splash);
+                self.rain_ripples = system(rain.ripples);
+                // The images ride with the first model, so the others find them uploaded.
+                update
+                    .loaded
+                    .push(Loaded::Model(rain.material, rain.model, rain.images));
+                for (material, model) in rain.models {
+                    self.note_model(material, model.as_ref());
+                    update
+                        .loaded
+                        .push(Loaded::Model(material, model, Vec::new()));
+                }
             }
             loaded => update.loaded.push(loaded),
         }
@@ -462,8 +492,47 @@ impl WorldScene {
 
     /// `WorldRender::Update`'s `UpdateRain` and `WorldRender::Render`'s `DrawRain`: the frame's
     /// streaks as a batch of the rain material, when it rains hard enough to draw.
-    fn rain_frame(&mut self, camera: &Camera, lighting: &SceneLighting) -> Option<ParticleBatch> {
-        let basis = CameraBasis::look_at(camera.eye, camera.target)?;
+    fn rain_frame(&mut self, camera: &Camera, lighting: &SceneLighting) -> Vec<ParticleBatch> {
+        let mut batches = Vec::new();
+        let Some(basis) = CameraBasis::look_at(camera.eye, camera.target) else {
+            return batches;
+        };
+        batches.extend(self.rain_streaks(&basis, lighting));
+        // `FillRainVertices`' discharges: a splash where each streak lands (the systems' second
+        // emitter), a ripple on near water; then the systems think and draw like the others.
+        let now = self.started.elapsed().as_secs_f64();
+        for splash in self.rain.splashes().to_vec() {
+            if let Some(system) = self.rain_splash.as_mut() {
+                system.discharge(1, now, splash.at);
+            }
+            if let (true, Some(system)) = (splash.ripple, self.rain_ripples.as_mut()) {
+                system.discharge(1, now, splash.at);
+            }
+        }
+        for system in self
+            .rain_splash
+            .iter_mut()
+            .chain(self.rain_ripples.iter_mut())
+        {
+            system.think(now);
+            let (Some(material), true) = (system.material(), system.alive() > 0) else {
+                continue;
+            };
+            let mut geometry = crate::particles::ParticleGeometry::default();
+            system.fill(&basis, now, 1.0, &mut geometry);
+            if !geometry.is_empty() {
+                batches.push(ParticleBatch { material, geometry });
+            }
+        }
+        batches
+    }
+
+    /// The rain's streaks as a batch of its material, when it rains hard enough to draw.
+    fn rain_streaks(
+        &mut self,
+        basis: &CameraBasis,
+        lighting: &SceneLighting,
+    ) -> Option<ParticleBatch> {
         let block_size = self.world.block_size();
         let heights = &self.heights;
         let ground = |x: f32, y: f32| {
@@ -477,7 +546,7 @@ impl WorldScene {
         let now = self.started.elapsed().as_secs_f64();
         let geometry = self.rain.update(
             now,
-            &basis,
+            basis,
             lighting.rain,
             lighting.rain_wind,
             block_size,

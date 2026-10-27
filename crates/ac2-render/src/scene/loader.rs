@@ -83,11 +83,24 @@ pub enum Loaded {
     /// A visual the frame asked for (sky objects).
     Model(DataId, Option<ObjectModel>, Images),
     Far(LoadedFar),
-    /// The rain's material (`LScapeRender::Init`) and the empty model it draws through.
-    Rain(DataId, Option<ObjectModel>, Images),
+    /// The rain's material (`LScapeRender::Init`), and its splash and ripple particle systems
+    /// (`WorldRender`'s `m_pRainVaporParticleSystem`, `m_pWaterRipplesParticleSystem`).
+    Rain(Box<LoadedRain>),
     /// A world object's model under its own appearance (`WorldScene::request_object`), with
     /// its total `VisualDesc` scale (`CPhysicsObj::GetTotalScale`'s visual part).
     Object(LoadedObject),
+}
+
+/// The rain's loads.
+#[derive(Debug, Clone)]
+pub struct LoadedRain {
+    pub material: DataId,
+    pub model: Option<ObjectModel>,
+    pub splash: Option<Arc<Ac2ParticleSystemDesc>>,
+    pub ripples: Option<Arc<Ac2ParticleSystemDesc>>,
+    /// The particle systems' material models.
+    pub models: Vec<(DataId, Option<ObjectModel>)>,
+    pub images: Images,
 }
 
 /// A world object's model.
@@ -157,9 +170,25 @@ impl Worker {
         source: Ac2ParticleSource,
         models: &mut Vec<(DataId, Option<ObjectModel>)>,
     ) -> Option<ParticleSource> {
-        let did = source.particle_desc;
+        let desc = self.particle_desc(source.particle_desc)?;
         let store = self.world.resource_store().clone();
-        let desc = match self.particle_descs.get(&did) {
+        let material = desc.material?;
+        if self.models.insert(material) {
+            let model = particle_model(&store, material, &self.settings);
+            if model.is_some() {
+                self.drawable.insert(material);
+            }
+            models.push((material, model));
+        }
+        self.drawable
+            .contains(&material)
+            .then_some(ParticleSource { source, desc })
+    }
+
+    /// A particle system description with a material and emitters, decoded once.
+    fn particle_desc(&mut self, did: DataId) -> Option<Arc<Ac2ParticleSystemDesc>> {
+        let store = self.world.resource_store().clone();
+        match self.particle_descs.get(&did) {
             Some(desc) => desc.clone(),
             None => {
                 let desc = store
@@ -175,18 +204,7 @@ impl Worker {
                 self.particle_descs.insert(did, desc.clone());
                 desc
             }
-        }?;
-        let material = desc.material?;
-        if self.models.insert(material) {
-            let model = particle_model(&store, material, &self.settings);
-            if model.is_some() {
-                self.drawable.insert(material);
-            }
-            models.push((material, model));
         }
-        self.drawable
-            .contains(&material)
-            .then_some(ParticleSource { source, desc })
     }
 
     fn block(&mut self, key: BlockKey) -> LoadedBlock {
@@ -284,6 +302,53 @@ impl Worker {
         }
     }
 
+    /// `LScapeRender::Init`'s rain material and `WorldRender::Init`'s rain particle systems
+    /// (`FileArray::GetDIDFromEnum(0x40000010 / 0x40000012, 0x40000002)`), with their models.
+    fn rain(&mut self) -> LoadedRain {
+        use crate::rain::{
+            RAIN_MATERIAL_ENUM, RAIN_MATERIAL_GROUP, RAIN_RIPPLES_ENUM, RAIN_SPLASH_ENUM,
+        };
+        let store = self.world.resource_store().clone();
+        let enum_did = |value| {
+            ac2_assets::ac2_enum_did(&store, RAIN_MATERIAL_GROUP, value)
+                .ok()
+                .flatten()
+                .filter(|did| did.raw() != 0)
+        };
+        let material = enum_did(RAIN_MATERIAL_ENUM).unwrap_or(DataId::new(0));
+        let model = (material.raw() != 0)
+            .then(|| particle_model(&store, material, &self.settings))
+            .flatten();
+        let splash = enum_did(RAIN_SPLASH_ENUM).and_then(|did| self.particle_desc(did));
+        let ripples = enum_did(RAIN_RIPPLES_ENUM).and_then(|did| self.particle_desc(did));
+        let mut models = Vec::new();
+        for desc in splash.iter().chain(&ripples) {
+            if let Some(material) = desc.material {
+                if self.models.insert(material) {
+                    let model = particle_model(&store, material, &self.settings);
+                    if model.is_some() {
+                        self.drawable.insert(material);
+                    }
+                    models.push((material, model));
+                }
+            }
+        }
+        let images = self.images(
+            model
+                .iter()
+                .chain(models.iter().filter_map(|(_, m)| m.as_ref()))
+                .flat_map(ObjectModel::texture_keys),
+        );
+        LoadedRain {
+            material,
+            model,
+            splash,
+            ripples,
+            models,
+            images,
+        }
+    }
+
     fn far(&mut self, center: BlockKey) -> LoadedFar {
         let world = Arc::clone(&self.world);
         let store = world.resource_store().clone();
@@ -324,22 +389,7 @@ impl Worker {
                 Loaded::Model(visual, model, images)
             }
             Request::Far(center) => Loaded::Far(self.far(center)),
-            Request::Rain => {
-                let store = self.world.resource_store().clone();
-                let material = ac2_assets::ac2_enum_did(
-                    &store,
-                    crate::rain::RAIN_MATERIAL_GROUP,
-                    crate::rain::RAIN_MATERIAL_ENUM,
-                )
-                .ok()
-                .flatten()
-                .unwrap_or(DataId::new(0));
-                let model = (material.raw() != 0)
-                    .then(|| particle_model(&store, material, &self.settings))
-                    .flatten();
-                let images = self.images(model.iter().flat_map(ObjectModel::texture_keys));
-                Loaded::Rain(material, model, images)
-            }
+            Request::Rain => Loaded::Rain(Box::new(self.rain())),
             Request::Object(key, visual, local) => {
                 let store = self.world.resource_store().clone();
                 let model = crate::object::load_object_model_with(

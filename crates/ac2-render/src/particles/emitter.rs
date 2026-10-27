@@ -159,6 +159,12 @@ impl Emitter {
         }
     }
 
+    /// `ParticleEmitter::DischargeParticle` from outside the emitter's timing: born now, at
+    /// `offset`, with no sweep.
+    pub(crate) fn discharge(&mut self, context: &mut SystemContext<'_>, now: f64, offset: Vec3) {
+        self.discharge_particle(context, now, now, offset, Vec3::ZERO);
+    }
+
     /// `ParticleEmitter::CalculateInitialOrigin`: where in the emitter's shape a particle starts.
     fn initial_origin(&self, context: &mut SystemContext<'_>, wave_time: f64, sweep: Vec3) -> Vec3 {
         let system = context.desc;

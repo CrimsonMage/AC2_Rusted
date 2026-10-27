@@ -5,8 +5,9 @@
 //! `WorldRender::Render` draws them only above 0.4, with the material
 //! `DBObj::GetByEnum(0x4000000F, 0x40000002)` (`LScapeRender::Init`).
 //!
-//! Not yet ported: the splash (`m_pRainVaporParticleSystem`) and water ripple
-//! (`m_pWaterRipplesParticleSystem`) particles each streak discharges as it lands.
+//! A streak in the last 8 m of its fall discharges a splash (`m_pRainVaporParticleSystem`'s
+//! second emitter) where it lands, and a water ripple (`m_pWaterRipplesParticleSystem`'s) when
+//! it stands on water within 65 m of the viewer: [`RainField::splashes`].
 
 use ac2_core::Random;
 use ac2_math::Vec3;
@@ -19,6 +20,10 @@ pub const RAIN_SEGMENTS: usize = 2500;
 /// `LScapeRender::Init`'s rain material: `DBObj::GetByEnum(0x4000000F, 0x40000002, ...)`.
 pub const RAIN_MATERIAL_ENUM: u32 = 0x4000_000F;
 pub const RAIN_MATERIAL_GROUP: u32 = 0x4000_0002;
+/// `WorldRender::Init`'s rain particle systems, enums in the same group: the splash
+/// (`m_pRainVaporParticleSystem`) and the water ripples (`m_pWaterRipplesParticleSystem`).
+pub const RAIN_SPLASH_ENUM: u32 = 0x4000_0010;
+pub const RAIN_RIPPLES_ENUM: u32 = 0x4000_0012;
 /// `WorldRender::Render` draws rain only above this amount.
 pub const RAIN_DRAW_THRESHOLD: f32 = 0.4;
 /// `RAIN_cColor` (admin 7148 `.data`): the streak's foot; its head is the same colour at alpha 0.
@@ -33,6 +38,8 @@ const SEGMENT_LENGTH: f32 = 8.0;
 const HALF_WIDTH: f32 = 0.05;
 /// A streak whose block is more than this many blocks from the viewer's stands anew.
 const REGEN_BLOCKS: i32 = 5;
+/// A streak landing ripples the water only within this distance of the viewer (`4225` m²).
+const RIPPLE_RANGE: f32 = 65.0;
 /// `PhysicsGlobals::gravity`.
 const GRAVITY: Vec3 = Vec3::new(0.0, 0.0, -9.8);
 
@@ -55,9 +62,17 @@ struct RainSegment {
     phase: f32,
 }
 
+/// Where a streak lands this update: a splash there, and a ripple when `ripple`.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Splash {
+    pub at: Vec3,
+    pub ripple: bool,
+}
+
 /// The rain around the viewer.
 pub struct RainField {
     segments: Vec<RainSegment>,
+    splashes: Vec<Splash>,
     random: Random,
     last_think: Option<f64>,
     center: Option<(i32, i32)>,
@@ -73,6 +88,7 @@ impl Default for RainField {
                 };
                 RAIN_SEGMENTS
             ],
+            splashes: Vec::new(),
             random: Random::default(),
             last_think: None,
             center: None,
@@ -115,6 +131,7 @@ impl RainField {
         }
         let elapsed = self.last_think.map_or(0.0, |last| (now - last) as f32);
         self.last_think = Some(now);
+        self.splashes.clear();
         if count == 0 {
             return out;
         }
@@ -122,6 +139,7 @@ impl RainField {
         let right = camera.right * HALF_WIDTH;
         let head = [RAIN_COLOR[0], RAIN_COLOR[1], RAIN_COLOR[2], 0.0];
         let random = &mut self.random;
+        let splashes = &mut self.splashes;
         for segment in self.segments.iter_mut().take(count) {
             if segment.need_regen {
                 let x = random.roll_dice_f32(-RAIN_RANGE, RAIN_RANGE) + viewer.x;
@@ -162,6 +180,11 @@ impl RainField {
             }
             let height = segment.phase * FALL_HEIGHT;
             let length = if height <= SEGMENT_LENGTH {
+                let near = (segment.landing.truncate() - viewer.truncate()).length_squared();
+                splashes.push(Splash {
+                    at: segment.landing,
+                    ripple: segment.on_water && near < RIPPLE_RANGE * RIPPLE_RANGE,
+                });
                 height
             } else {
                 SEGMENT_LENGTH
@@ -189,6 +212,11 @@ impl RainField {
             segment.phase -= elapsed * FALL_SPEED / FALL_HEIGHT;
         }
         out
+    }
+
+    /// The streaks that reached the ground in the last update (`FillRainVertices`' discharges).
+    pub fn splashes(&self) -> &[Splash] {
+        &self.splashes
     }
 }
 
@@ -239,10 +267,37 @@ mod tests {
             .collect();
         // 10 ms falls 1.5 m (or wraps to a new fall).
         assert!(fell.iter().any(|d| (d - 1.5).abs() < 1e-3));
+        assert!(!rain.splashes().is_empty() || fell.iter().any(|d| *d < 0.0));
         let mut dry = RainField::default();
         let nowhere = |_: f32, _: f32| None;
         assert!(dry
             .update(0.0, &camera(), 1.0, [0.0; 2], 192.0, &nowhere)
             .is_empty());
+    }
+
+    #[test]
+    fn landing_streaks_splash_and_ripple_only_near_water() {
+        let mut rain = RainField::default();
+        // Water stands a metre above the ground everywhere.
+        let wet = |_: f32, _: f32| Some((0.0, Some(1.0)));
+        let mut seen = Vec::new();
+        for step in 0..40 {
+            rain.update(
+                f64::from(step) * 0.02,
+                &camera(),
+                1.0,
+                [0.0; 2],
+                192.0,
+                &wet,
+            );
+            seen.extend_from_slice(rain.splashes());
+        }
+        assert!(!seen.is_empty(), "streaks reach the ground");
+        for splash in &seen {
+            assert!((splash.at.z - 1.0).abs() < 1e-3, "on the water surface");
+            let near = (splash.at.truncate() - camera().eye.truncate()).length() < RIPPLE_RANGE;
+            assert_eq!(splash.ripple, near);
+        }
+        assert!(seen.iter().any(|s| s.ripple) && seen.iter().any(|s| !s.ripple));
     }
 }

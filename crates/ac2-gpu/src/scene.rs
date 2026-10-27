@@ -133,7 +133,9 @@ impl SceneRenderer {
                         },
                     );
                 }
-                Loaded::Model(visual, model, images) | Loaded::Rain(visual, model, images) => {
+                // `WorldScene` hands the rain's loads on as models.
+                Loaded::Rain(_) => {}
+                Loaded::Model(visual, model, images) => {
                     self.take_images(images);
                     let images = &self.images;
                     let mut load = |key: TextureKey| images.get(&key).cloned();

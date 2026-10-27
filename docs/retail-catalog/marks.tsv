@@ -3908,8 +3908,8 @@ key	status	note
 00583700	x	rain amount and wind; streaks drawn as the rain material's particle batch above 0.4
 00583890	x	
 00583d40	x	ac2-audio/ac2-client: ambient environments, groove
-00584d70	~	2500 streaks, fall, wind, ground and water; splash/ripple particles not yet
-005856f0	~	2500 streaks, fall, wind, ground and water; splash/ripple particles not yet
+00584d70	x	ac2-render rain.rs RainField (streaks, splashes and near-water ripples) + scene rain_frame discharging WorldRender's rain particle systems
+005856f0	x	ac2-render rain.rs RainField (streaks, splashes and near-water ripples) + scene rain_frame discharging WorldRender's rain particle systems
 005857b0	x	ac2-world region::sky_objects, ac2-render sky
 005857f0	x	ac2-world region::sky_objects, ac2-render sky
 005858b0	x	ac2-world region::sky_objects, ac2-render sky
@@ -5231,6 +5231,7 @@ key	status	note
 006ac900	x	ac2-physics moveto (slice 3)
 006ac9b0	x	ac2-physics moveto (slice 3)
 006aca30	x	ac2-physics moveto (slice 3)
+006ad7f0	x	ac2-render particles ParticleSystem::set_no_fade
 006ad9f0	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 006ae260	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 006ae550	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)

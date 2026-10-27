@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 363 done, 82 partial, 1617 to do, 62 skipped.
+2124 retail functions: 364 done, 82 partial, 1616 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -3022,7 +3022,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MissileInfo::operator=` · 006ad5d0 · legions 00646840
 - [ ] `MissileInfo::MissileInfo` · 006ad640 · legions 006468b0
 
-## `portal/shared/src/physobj/story/physicsstory.cpp.c` (0/35)
+## `portal/shared/src/physobj/story/physicsstory.cpp.c` (1/35)
 
 ### StoryHookData
 - [ ] `StoryHookData::StoryHookData` · 006ad680 · legions 006468f0
@@ -3031,7 +3031,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StoryHookData::SetWeaponID` · 006ad7d0 · legions 00646a40
 
 ### ParticleSystem
-- [ ] `ParticleSystem::SetNoFade` · 006ad7f0 · legions 00646a60
+- [x] `ParticleSystem::SetNoFade` · 006ad7f0 · legions 00646a60 — ac2-render particles ParticleSystem::set_no_fade
 
 ### StoryHookData
 - [ ] `StoryHookData::SetTargetPKDamageChange` · 006ad800 · legions 00646a70

@@ -66,6 +66,8 @@ pub struct ParticleSystem {
     creation_time: f64,
     /// `m_bDisabled`: not drawn last frame, so not thinking until it is drawn again.
     disabled: bool,
+    /// `ParticleSystem::SetNoFade`: drawn at full strength at any distance.
+    no_fade: bool,
     rng: Random,
 }
 
@@ -93,6 +95,7 @@ impl ParticleSystem {
             start_time,
             creation_time: now,
             disabled: false,
+            no_fade: false,
             rng: seeded(seed),
         };
         let starts: Vec<f64> = system
@@ -168,8 +171,35 @@ impl ParticleSystem {
         }
     }
 
+    /// `ParticleSystem::SetNoFade`.
+    pub fn set_no_fade(&mut self, no_fade: bool) {
+        self.no_fade = no_fade;
+    }
+
+    /// `ParticleEmitter::DischargeParticle` on emitter `emitter` at client time `now`: one
+    /// particle of its shape and velocity, `offset` from the system's frame (the rain's splashes
+    /// and ripples, `LScapeRender::FillRainVertices`). An emitter the system lacks does nothing.
+    pub fn discharge(&mut self, emitter: usize, now: f64, offset: Vec3) {
+        let mut context = SystemContext {
+            desc: &self.desc,
+            start_time: self.start_time,
+            frame: if self.desc.world_space {
+                self.frame
+            } else {
+                Frame::IDENTITY
+            },
+            rng: &mut self.rng,
+        };
+        if let Some(emitter) = self.emitters.get_mut(emitter) {
+            emitter.discharge(&mut context, now, offset);
+        }
+    }
+
     /// The system's distance fade (`RenderAtPosition`): `None` beyond `StopFadeDistance`.
     pub fn fade(&self, camera: Vec3) -> Option<f32> {
+        if self.no_fade {
+            return Some(1.0);
+        }
         let distance = camera.distance(self.frame.origin);
         let (start, stop) = (self.desc.start_fade_distance, self.desc.stop_fade_distance);
         if stop < distance {
