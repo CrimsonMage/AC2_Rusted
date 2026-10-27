@@ -256,6 +256,8 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
         &mut load,
     );
     terrain.set_shadow_matrix(shadow_matrix);
+    objects.set_shadow_map(&gpu, shadow_map.view());
+    objects.set_shadow_matrix(shadow_matrix);
     eprintln!("shadow strength {:?}", lighting.shadow_strength);
     let aspect = SIZE.0 as f32 / SIZE.1 as f32;
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);

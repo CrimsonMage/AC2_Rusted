@@ -71,10 +71,12 @@ impl SceneRenderer {
         let mut terrain = TerrainRenderer::new(gpu, HDR_FORMAT);
         let shadow_map = StaticShadowMap::new(gpu);
         terrain.set_shadows(gpu, None, shadow_map.view(), &mut |_| None);
+        let mut objects = ObjectRenderer::new(gpu, HDR_FORMAT);
+        objects.set_shadow_map(gpu, shadow_map.view());
         Self {
             terrain,
             shadow_map,
-            objects: ObjectRenderer::new(gpu, HDR_FORMAT),
+            objects,
             fog_quad: ScreenQuad::new(gpu, HDR_FORMAT),
             sky: SkyRenderer::new(gpu, HDR_FORMAT),
             models: HashMap::new(),
@@ -300,6 +302,7 @@ impl SceneRenderer {
             &casters,
         );
         self.terrain.set_shadow_matrix(matrix);
+        self.objects.set_shadow_matrix(matrix);
     }
 
     /// Records the frame laid out by the last `prepare` into a pass cleared to

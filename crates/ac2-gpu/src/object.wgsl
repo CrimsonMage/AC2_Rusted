@@ -23,6 +23,8 @@ struct Frame {
     // x: 1 for the modern shading path (`object_modern.wgsl`), 0 for retail; y: exposure, z:
     // saturation, w: contrast (`shading.wgsl`).
     shading: vec4<f32>,
+    // World to the landscape's static shadow map.
+    shadow: mat4x4<f32>,
 };
 
 struct Draw {
@@ -75,6 +77,23 @@ const FLAG_SKY_EMISSIVE: u32 = 65536u;
 const FLAG_SKY_VEIL: u32 = 131072u;
 
 @group(0) @binding(0) var<uniform> frame: Frame;
+@group(0) @binding(1) var shadow_map: texture_2d<f32>;
+@group(0) @binding(2) var shadow_sampler: sampler;
+
+// `LScapeTerrainMesh::GetShadowColor`'s map term: the mean of the texels two apart within four of
+// the one under world point `p` (25 samples), as `FrillRenderType::AddPos` colours a frill.
+fn landscape_shadow(p: vec3<f32>) -> vec3<f32> {
+    let size = vec2<f32>(textureDimensions(shadow_map));
+    let center = floor((frame.shadow * vec4(p, 1.0)).xy * size);
+    var sum = vec3(0.0);
+    for (var dx = -4; dx <= 4; dx += 2) {
+        for (var dy = -4; dy <= 4; dy += 2) {
+            let texel = (center + vec2(f32(dx), f32(dy)) + 0.5) / size;
+            sum += textureSampleLevel(shadow_map, shadow_sampler, clamp(texel, vec2(0.0), vec2(1.0)), 0.0).rgb;
+        }
+    }
+    return saturate(sum / 25.0);
+}
 @group(1) @binding(0) var<uniform> draw: Draw;
 @group(2) @binding(0) var tex0: texture_2d<f32>;
 @group(2) @binding(1) var tex1: texture_2d<f32>;
@@ -278,9 +297,10 @@ fn vs(input: VsIn) -> VsOut {
     basis.normal = normalize((draw.model * vec4(normal, 0.0)).xyz);
     var vertex_color = input.color;
     if draw.frill.w > 0.5 {
-        // Merged frill vertices: the frill's up axis, and the landscape shadow colour (white).
+        // Merged frill vertices: the frill's up axis, and the landscape shadow colour at the
+        // frill's origin (`FrillRenderType::AddPos`).
         basis.normal = normalize(draw.frill.xyz);
-        vertex_color = vec4(1.0);
+        vertex_color = vec4(landscape_shadow(draw.model[3].xyz), 1.0);
     }
     basis.tangent_s = normalize((draw.model * vec4(input.tangent_s, 0.0)).xyz);
     basis.tangent_t = normalize((draw.model * vec4(input.tangent_t, 0.0)).xyz);

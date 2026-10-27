@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 85 done, 54 partial, 627 to do, 15 skipped.
+781 retail functions: 85 done, 56 partial, 625 to do, 15 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1047,7 +1047,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeRender::GatherVisibleOutsideObjects` · 00584040 · legions 00553780
 - [ ] `LScapeRender::GetSunLightDirectionBits` · 00584090 · legions 005537d0
 - [ ] `LScapeRender::UpdateLighting` · 005841c0 · legions 00553900
-- [ ] `LScapeRender::CalculateShadowColor` · 00584290 · legions 005539d0
+- [~] `LScapeRender::CalculateShadowColor` · 00584290 · legions 005539d0 — object.wgsl landscape_shadow: 5x5 shadow-map mean under a frill; the terrain self-shadow factor (vertex specular alpha) is not applied
 - [ ] `LScapeRender::GetTerrainGeometry` · 005843b0 · legions 00553af0
 - [x] `LScapeRender::RefreshShadowMap` · 00584540 · legions 00553c80 — ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
 - [ ] `LScapeRender::Init` · 005847b0 · legions 00553ee0
@@ -1131,7 +1131,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartArray<LScapeFarBlock>::operator=` · 0058a460 · legions 00559b50
 
 ### LScapeTerrainMesh
-- [ ] `LScapeTerrainMesh::GetShadowColor` · 0058a4d0 · legions 00559bc0
+- [~] `LScapeTerrainMesh::GetShadowColor` · 0058a4d0 · legions 00559bc0 — object.wgsl landscape_shadow: 5x5 shadow-map mean under a frill; the terrain self-shadow factor (vertex specular alpha) is not applied
 - [ ] `LScapeTerrainMesh::SetVertexValue` · 0058a870 · legions 00559f60
 
 ### SmartArray<LayerStage_*>

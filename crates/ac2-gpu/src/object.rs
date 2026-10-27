@@ -58,6 +58,8 @@ struct FrameUniform {
     fog_color: [f32; 4],
     fog: [f32; 4],
     shading: [f32; 4],
+    /// World to the landscape's static shadow map (`crate::StaticShadowMap`).
+    shadow: [[f32; 4]; 4],
 }
 
 /// Byte stride of one draw group's frame uniform (the dynamic-offset alignment; the frame
@@ -140,7 +142,7 @@ pub struct ObjectInstance<'a> {
     /// Material tint (`CPhysicsObj` diffuse colour and opacity); white leaves it unchanged.
     pub tint: [f32; 4],
     /// A grass frill merged by `FrillRender`: every vertex takes this world normal and the
-    /// landscape shadow colour (white until static shadow maps exist) as its diffuse.
+    /// landscape shadow colour under its origin (`FrillRenderType::AddPos`).
     pub frill_normal: Option<Vec3>,
     /// The device's point lights for this object (`SceneTool::CacheStaticLights`), at most 4.
     pub point_lights: &'a [PointLight],
@@ -184,6 +186,10 @@ pub struct ObjectRenderer {
     pipelines: HashMap<PipelineKey, wgpu::RenderPipeline>,
     frame_buffer: wgpu::Buffer,
     frame_group: wgpu::BindGroup,
+    frame_layout: wgpu::BindGroupLayout,
+    shadow_sampler: wgpu::Sampler,
+    /// World to the static shadow map, for the frills' landscape shadow colour.
+    shadow_matrix: Mat4,
     draw_layout: wgpu::BindGroupLayout,
     texture_layout: wgpu::BindGroupLayout,
     draw_buffer: wgpu::Buffer,
@@ -220,7 +226,25 @@ impl ObjectRenderer {
         };
         let frame_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("ac2 object frame"),
-            entries: &[uniform(0, true)],
+            entries: &[
+                uniform(0, true),
+                wgpu::BindGroupLayoutEntry {
+                    binding: 1,
+                    visibility: wgpu::ShaderStages::VERTEX,
+                    ty: wgpu::BindingType::Texture {
+                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                        view_dimension: wgpu::TextureViewDimension::D2,
+                        multisampled: false,
+                    },
+                    count: None,
+                },
+                wgpu::BindGroupLayoutEntry {
+                    binding: 2,
+                    visibility: wgpu::ShaderStages::VERTEX,
+                    ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                    count: None,
+                },
+            ],
         });
         let draw_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("ac2 object draw"),
@@ -270,18 +294,20 @@ impl ObjectRenderer {
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
-        let frame_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("ac2 object frame"),
-            layout: &frame_layout,
-            entries: &[wgpu::BindGroupEntry {
-                binding: 0,
-                resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                    buffer: &frame_buffer,
-                    offset: 0,
-                    size: wgpu::BufferSize::new(std::mem::size_of::<FrameUniform>() as u64),
-                }),
-            }],
+        let textures = TextureCache::new(device, &gpu.queue);
+        let shadow_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+            label: Some("ac2 object shadow map"),
+            mag_filter: wgpu::FilterMode::Nearest,
+            min_filter: wgpu::FilterMode::Nearest,
+            ..Default::default()
         });
+        let frame_group = frame_group(
+            device,
+            &frame_layout,
+            &frame_buffer,
+            textures.white(),
+            &shadow_sampler,
+        );
         let module = object_module(device, include_str!("object_stages.wgsl"));
         let layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("ac2 object"),
@@ -303,6 +329,9 @@ impl ObjectRenderer {
             pipelines: HashMap::new(),
             frame_buffer,
             frame_group,
+            frame_layout,
+            shadow_sampler,
+            shadow_matrix: Mat4::ZERO,
             draw_layout,
             texture_layout,
             draw_buffer,
@@ -313,7 +342,7 @@ impl ObjectRenderer {
             bone_group,
             bone_capacity: BONE_BYTES * 64,
             samplers: HashMap::new(),
-            textures: TextureCache::new(device, &gpu.queue),
+            textures,
             time: 0.0,
             queue: Vec::new(),
             groups: Vec::new(),
@@ -323,6 +352,22 @@ impl ObjectRenderer {
     }
 
     /// Uploads a model; `load` supplies images for stage textures not yet on the GPU.
+    /// Binds the landscape's static shadow map, which merged frills read their colour from.
+    pub fn set_shadow_map(&mut self, gpu: &Gpu, view: &wgpu::TextureView) {
+        self.frame_group = frame_group(
+            &gpu.device,
+            &self.frame_layout,
+            &self.frame_buffer,
+            view,
+            &self.shadow_sampler,
+        );
+    }
+
+    /// The world-to-shadow-map transform for the next `prepare` (zero without a map).
+    pub fn set_shadow_matrix(&mut self, matrix: Mat4) {
+        self.shadow_matrix = matrix;
+    }
+
     pub fn upload(
         &mut self,
         gpu: &Gpu,
@@ -712,6 +757,7 @@ impl ObjectRenderer {
             fog_color: rgb(fog_color),
             fog: [start, end, 1.0 / (end - start).max(1e-3), fog_on],
             shading: FRAME_SHADING,
+            shadow: self.shadow_matrix.to_cols_array_2d(),
         };
         queue.write_buffer(
             &self.frame_buffer,
@@ -760,6 +806,37 @@ impl ObjectRenderer {
 }
 
 /// The object shader with a `shade` function appended.
+fn frame_group(
+    device: &wgpu::Device,
+    layout: &wgpu::BindGroupLayout,
+    buffer: &wgpu::Buffer,
+    shadow_map: &wgpu::TextureView,
+    sampler: &wgpu::Sampler,
+) -> wgpu::BindGroup {
+    device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: Some("ac2 object frame"),
+        layout,
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                    buffer,
+                    offset: 0,
+                    size: wgpu::BufferSize::new(std::mem::size_of::<FrameUniform>() as u64),
+                }),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: wgpu::BindingResource::TextureView(shadow_map),
+            },
+            wgpu::BindGroupEntry {
+                binding: 2,
+                resource: wgpu::BindingResource::Sampler(sampler),
+            },
+        ],
+    })
+}
+
 fn object_module(device: &wgpu::Device, shade: &str) -> wgpu::ShaderModule {
     let source = format!(
         "{}\n{}\n{}\n{}",

@@ -3931,6 +3931,7 @@ key	status	note
 00583700	x	rain amount and wind; streaks drawn as the rain material's particle batch above 0.4
 00583890	x	
 00583d40	x	ac2-audio/ac2-client: ambient environments, groove
+00584290	~	object.wgsl landscape_shadow: 5x5 shadow-map mean under a frill; the terrain self-shadow factor (vertex specular alpha) is not applied
 00584540	x	ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
 00584d70	x	ac2-render rain.rs RainField (streaks, splashes and near-water ripples) + scene rain_frame discharging WorldRender's rain particle systems
 005856f0	x	ac2-render rain.rs RainField (streaks, splashes and near-water ripples) + scene rain_frame discharging WorldRender's rain particle systems
@@ -3955,6 +3956,7 @@ key	status	note
 00588610	~	ac2-render scene: far chunk culling by m_BoundingBox (near mesh drawn whole; no N-patches)
 00588840	~	near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
 00589130	x	indices with RollDice diagonals and LOD crack fill, vertices, far water quads (terrain/far.rs)
+0058a4d0	~	object.wgsl landscape_shadow: 5x5 shadow-map mean under a frill; the terrain self-shadow factor (vertex specular alpha) is not applied
 0058ad90	~	near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
 0058b600	x	ac2-render object::load_water_model
 0058b9e0	~	per-block near mesh; no cloud-shadow UVs or shared near vertex array
