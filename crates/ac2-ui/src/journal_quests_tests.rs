@@ -133,7 +133,7 @@ fn the_pages_list_the_quests_and_follow_their_changes() {
     };
     let store = Arc::new(ResourceStore::new(dataset));
     let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
-    let journal = hud.journal.as_mut().expect("the quest journal");
+    let journal = hud.quests.as_mut().expect("the quest panel").journal_mut();
     let tree = &mut hud.tree;
     let strings = Strings;
     let underway_list = named_list(tree, "UnderwayQuestListBox");

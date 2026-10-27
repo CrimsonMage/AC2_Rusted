@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 860 done, 297 partial, 1037 to do, 53 skipped.
+2247 retail functions: 864 done, 294 partial, 1036 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -1394,7 +1394,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmOptionUI::ListenToMessage` · 00434dd0 · legions 004355a0
 - [ ] `gmOptionUI::RecvNotice_CloseConfirmationDialog` · 00434f70 — ac2-client OptionsWindow::answer: the confirmation's yes/no; the quit and logout confirmations are not modelled
 
-## `ac2/client/src/ui/gameplay/toolbar/quest/gmjournalquestsui.cpp.c` (10/14)
+## `ac2/client/src/ui/gameplay/toolbar/quest/gmjournalquestsui.cpp.c` (12/14)
 
 ### gmJournalQuestsUI
 - [x] `gmJournalQuestsUI::RemoveQuestElement` · 0043e3a0 · legions 0043ec10 — ac2-ui journal_quests.rs drop_row
@@ -1413,18 +1413,18 @@ Legend and workflow: [README](README.md).
 - [x] `gmJournalQuestsUI::FindQuestDescriptor` · 0043eae0 · legions 0043f350 — ac2-ui journal_quests.rs find_mut
 - [x] `gmJournalQuestsUI::ListenToMessage` · 0043ebd0 · legions 0043f440 — ac2-ui journal_quests.rs message (QuestTemplate click) and global_loop (m_update); client hud_player.rs
 - [x] `gmJournalQuestsUI::ListenToMessage` · 0043ecb0 · legions 0043f520 — ac2-ui journal_quests.rs message (QuestTemplate click) and global_loop (m_update); client hud_player.rs
-- [~] `gmJournalQuestsUI::Show` · 0043ecd0 · legions 0043f540 — ac2-ui journal_quests.rs show(tree, shown): the updated quest closes; the toolbar does not report the page visibility yet
+- [x] `gmJournalQuestsUI::Show` · 0043ecd0 · legions 0043f540 — ac2-ui journal_quests.rs show (the updated quest closes when the panel closes); reached from quests_panel.rs QuestsUi::show
 - [~] `gmJournalQuestsUI::gmJournalQuestsUI` · 0043f000 · legions 0043f8b0 — ac2-ui journal_quests.rs JournalQuestsUi::create (lists found under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs); elements are left to the tree
 - [~] `gmJournalQuestsUI::~gmJournalQuestsUI` · 0043f130 · legions 0043f9e0 — ac2-ui journal_quests.rs JournalQuestsUi::create (lists found under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs); elements are left to the tree
-- [~] `gmJournalQuestsUI::RecvNotice_UpdateQuests` · 0043f1e0 — ac2-ui journal_quests.rs recv_notice_update_quests, all codes; the code 2 list is empty (InqQuestList is not asked of the script yet); the Quest tabs (gmQuestsUI::SetActivePanel) are dropped in ac2-client ui_quests.rs
+- [x] `gmJournalQuestsUI::RecvNotice_UpdateQuests` · 0043f1e0 — ac2-ui journal_quests.rs recv_notice_update_quests (all codes); quests_panel.rs recv_notice makes the tabs active; client ui_quests.rs quest_notice fetches the list for code 2
 
-## `ac2/client/src/ui/gameplay/toolbar/quest/gmquestsui.cpp.c` (1/4)
+## `ac2/client/src/ui/gameplay/toolbar/quest/gmquestsui.cpp.c` (3/4)
 
 ### gmQuestsUI
-- [~] `gmQuestsUI::Show` · 004342d0 · legions 00434aa0 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [x] `gmQuestsUI::Show` · 004342d0 · legions 00434aa0 — ac2-ui quests_panel.rs QuestsUi::show and sync (journal show, QuestButton unchanged when open); the toolbar shows the field (toolbar.rs)
 - [x] `gmQuestsUI::ListenToMessage` · 00434330 · legions 00434b00 — ac2-ui toolbar.rs
-- [ ] `gmQuestsUI::SetActivePanel` · 00434390 · legions 00434b60
-- [~] `gmQuestsUI::gmQuestsUI` · 004343c0 · legions 00434b90 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [x] `gmQuestsUI::SetActivePanel` · 00434390 · legions 00434b60 — ac2-ui quests_panel.rs QuestsUi::set_active_panel (tab found by name, panel.rs start_use_active opens it and closes the other tab)
+- [~] `gmQuestsUI::gmQuestsUI` · 004343c0 · legions 00434b90 — ac2-ui quests_panel.rs QuestsUi::create (journal made; the field and the help button are not modelled, the registrations are the toolbar's)
 
 ## `ac2/client/src/ui/gameplay/toolbar/quest/gmstoryquestsui.cpp.c` (0/11)
 

@@ -7,10 +7,10 @@
 //! wait for the global loop, which lays the rows out (`Update`); the quest the last notice
 //! changed opens and scrolls into view.
 //!
-//! Not modelled yet: the Quest panel's tabs (`gmQuestsUI::SetActivePanel` is recorded as
-//! [`QuestTab`] requests for the toolbar), the `InqQuestList` answer that fills the lists when the
-//! player logs in (code 2 takes the list the caller gives it), the relayout after an extra text
-//! downloads, and the toolbar's report of the page's visibility (`Show`).
+//! The Quest panel (`gmQuestsUI`, `quests_panel`) owns this journal: it asks the script for the
+//! list when the login notice comes (code 2), makes the tab the notice names active
+//! ([`QuestTab`] requests from [`JournalQuestsUi::take_tabs`]) and reports the panel's `Show`.
+//! Not modelled yet: the relayout after an extra text downloads.
 
 use std::sync::Arc;
 
@@ -115,6 +115,11 @@ impl JournalQuestsUi {
             tabs: Vec::new(),
             shown: false,
         }
+    }
+
+    /// The journal's shown state (`UIFramework::IsShown`).
+    pub fn shown(&self) -> bool {
+        self.shown
     }
 
     /// The Quest panel's tab requests since the last call (`gmQuestsUI::SetActivePanel`).
@@ -309,12 +314,12 @@ impl JournalQuestsUi {
         }
     }
 
-    /// `gmJournalQuestsUI::Show`: closing the journal with an updated quest pending clears it.
-    pub fn show(&mut self, tree: &UiTree, shown: bool) {
-        let was_visible = self
-            .underway_list
-            .and_then(|list| tree.get(list))
-            .is_some_and(|e| e.visible());
+    /// `gmJournalQuestsUI::Show` (`UIFramework::Show` from the Quest panel): closing the journal
+    /// with an updated quest pending clears it. Retail tests the underway list's visibility
+    /// before the change; the journal's own shown state is that visibility, since the panel
+    /// shows and hides the list only through this call.
+    pub fn show(&mut self, shown: bool) {
+        let was_visible = self.underway_list.is_some() && self.shown;
         self.shown = shown;
         if was_visible && !shown && self.updated_quest != 0 {
             if let Some(desc) = self.find_mut(self.updated_quest) {
@@ -553,7 +558,7 @@ fn flash(tree: &mut UiTree, element: Option<usize>) {
 }
 
 /// `IUIManager::GetElement`: the first root (or descendant of one) with this name.
-fn find_named(tree: &UiTree, name: &str) -> Option<usize> {
+pub(crate) fn find_named(tree: &UiTree, name: &str) -> Option<usize> {
     let name = tokenize(name);
     tree.roots().iter().find_map(|&root| {
         if tree.get(root).is_some_and(|e| e.id() == name) {

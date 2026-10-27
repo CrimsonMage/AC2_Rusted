@@ -137,13 +137,17 @@ pub(super) fn typed(
             patron: long(args, 0)?,
             kind: int(args, 1)?,
         },
-        "UpdateQuests" => match args.get(1)? {
-            NoticeArg::Native(Wire::GmQuestInfo(q)) => N::UpdateQuests {
-                code: int(args, 0)?,
-                quest: q.clone(),
-            },
-            _ => return None,
-        },
+        "UpdateQuests" => {
+            let code = int(args, 0)?;
+            let quest = match args.get(1)? {
+                NoticeArg::Native(Wire::GmQuestInfo(q)) => q.clone(),
+                // The list notice (code 2, `LIST`) names no quest: the journal asks the script
+                // for the list (`gmCWInterface::InqQuestList`) and reads no quest from it.
+                NoticeArg::Null if code == 0x4000_0002 => Box::default(),
+                _ => return None,
+            };
+            N::UpdateQuests { code, quest }
+        }
         "UpdateStoryQuests" => N::UpdateStoryQuests {
             code: int(args, 0)?,
             act: int(args, 1)?,

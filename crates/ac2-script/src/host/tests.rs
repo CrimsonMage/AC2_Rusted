@@ -312,9 +312,14 @@ fn quests_sort_newest_first_and_notify_typed() {
     assert_eq!(efun_result(vm, 0x00A1_0006, &[], list, 2), 2);
     // CM_Quest::SendNotice_UpdateQuests(obj, code, quest).
     run_efun(vm, 0x008E_0001, &[obj, 5, q], u32::MAX);
+    // The list notice (code 2) names no quest: a null quest still reaches the journal.
+    run_efun(vm, 0x008E_0001, &[obj, 0x4000_0002, u32::MAX], u32::MAX);
     assert!(matches!(
         &host.take_notices()[..],
-        [GameplayNotice::UpdateQuests { code: 5, quest }] if quest.id == 3
+        [
+            GameplayNotice::UpdateQuests { code: 5, quest },
+            GameplayNotice::UpdateQuests { code: 0x4000_0002, .. },
+        ] if quest.id == 3
     ));
 }
 

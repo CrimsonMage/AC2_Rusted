@@ -113,7 +113,16 @@ impl UiTree {
 
     /// `UIElement_PanelPage::MouseDown`: a left press opens the tab (`StartUseActive`).
     pub(crate) fn panel_page_mouse_down(&mut self, index: usize, action: u32) {
-        if !self.is_panel_page(index) || action != LEFT {
+        if action != LEFT {
+            return;
+        }
+        self.start_use_active(index);
+    }
+
+    /// `UIElement_PanelPage::StartUseActive`: the tab opens unless it is open or ghosted. The
+    /// quest panel's `gmQuestsUI::SetActivePanel` calls it on a page's tab.
+    pub(crate) fn start_use_active(&mut self, index: usize) {
+        if !self.is_panel_page(index) {
             return;
         }
         let state = self.el(index).state;

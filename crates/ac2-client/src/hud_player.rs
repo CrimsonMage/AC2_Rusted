@@ -89,7 +89,7 @@ impl HudView {
             dirty,
             fellowship,
             mini_fellow,
-            journal,
+            quests,
             allegiance,
             vitals,
             effects,
@@ -317,8 +317,8 @@ impl HudView {
                     notice,
                 );
             }
-            if let Some(panel) = journal.as_mut() {
-                crate::ui_quests::quest_notice(panel, tree, notice);
+            if let Some(panel) = quests.as_mut() {
+                crate::ui_quests::quest_notice(panel, tree, &player, notice);
             }
             if let (Some(page), Some(dialogs)) = (allegiance.as_mut(), dialogs.as_mut()) {
                 crate::ui_social::allegiance_notice(page, tree, dialogs, &player, notice);
@@ -431,10 +431,14 @@ impl HudView {
                 bar.check_all(tree, &player);
             }
         }
+        // `gmQuestsUI::Show` when the toolbar's Quest child changed, then
         // `gmJournalQuestsUI::ListenToMessage` on the global loop: the pages laid out, and the
         // time displays counted down.
-        if let Some(panel) = journal.as_mut() {
-            panel.global_loop(tree, &player, *now);
+        if let Some(panel) = quests.as_mut() {
+            if let Some(bar) = toolbar.as_ref() {
+                panel.sync(tree, bar.shown(tree, ac2_ui::ToolbarChild::Quest));
+            }
+            panel.journal_mut().global_loop(tree, &player, *now);
         }
         for message in &messages {
             // `gmSelectionUI::ListenToMessage`: a target key selects (the cycling keys).
@@ -468,8 +472,8 @@ impl HudView {
             if let Some(panel) = mini_fellow.as_mut() {
                 panel.message(tree, message);
             }
-            if let Some(panel) = journal.as_mut() {
-                panel.message(tree, message);
+            if let Some(panel) = quests.as_mut() {
+                panel.journal_mut().message(tree, message);
             }
             if let Some(bar) = vitals.as_mut() {
                 bar.message(tree, message, &player);

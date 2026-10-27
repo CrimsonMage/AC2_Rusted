@@ -34,12 +34,12 @@ use crate::external_container::ExternalContainerUi;
 use crate::fellowship::FellowshipUi;
 use crate::indicators::IndicatorsUi;
 use crate::ingredient::IngredientUi;
-use crate::journal_quests::JournalQuestsUi;
 use crate::layout::{load_layout, LayoutDesc};
 use crate::mini_fellow::MiniFellowUi;
 use crate::name_plates::NamePlates;
 use crate::navigation::NavigationUi;
 use crate::overview_map::OverviewMapUi;
+use crate::quests_panel::QuestsUi;
 use crate::radar::RadarUi;
 use crate::reticle::Reticle;
 use crate::secure_trade::SecureTradeUi;
@@ -111,8 +111,8 @@ pub struct GameplayHud {
     pub fellowship: Option<FellowshipUi>,
     /// `gmMiniFellowUI`, the fellowship mini panel (hidden until its button is pressed).
     pub mini_fellow: Option<MiniFellowUi>,
-    /// `gmJournalQuestsUI`, over `UnderwayPage` and `FinishedPage`.
-    pub journal: Option<JournalQuestsUi>,
+    /// `gmQuestsUI`, the Quest panel: its journal over `UnderwayPage` and `FinishedPage`.
+    pub quests: Option<QuestsUi>,
     /// The toolbar layout, for the frameworks made once the player is in the world
     /// (`gmInventoryUI`'s backpack).
     pub toolbar_layout: Option<Arc<LayoutDesc>>,
@@ -241,9 +241,9 @@ pub fn build_gameplay_hud(
     let fellowship = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .map(|toolbar| FellowshipUi::create(&mut tree, toolbar));
-    let journal = layouts[&LAYOUT_TOOLBAR]
+    let quests = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
-        .map(|toolbar| JournalQuestsUi::create(&tree, toolbar));
+        .map(|toolbar| QuestsUi::create(&tree, toolbar));
     let vitals = VitalsUi::create(&mut tree);
     let effects = layouts[&LAYOUT_STATUSBAR]
         .as_ref()
@@ -305,7 +305,7 @@ pub fn build_gameplay_hud(
         allegiance,
         fellowship,
         mini_fellow,
-        journal,
+        quests,
         vitals,
         effects,
         indicators,

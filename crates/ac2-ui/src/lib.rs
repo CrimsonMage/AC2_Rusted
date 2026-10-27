@@ -47,7 +47,7 @@ mod input;
 mod interpreter;
 mod item_display;
 mod journal_quests;
-pub use journal_quests::{JournalQuestsUi, JournalSource, QuestTab};
+pub use journal_quests::{JournalQuestsUi, JournalSource, QuestTab, CODE_LIST as QUEST_CODE_LIST};
 mod items_3d;
 #[cfg(test)]
 mod items_3d_tests;
@@ -75,6 +75,8 @@ mod pk_status;
 mod place;
 mod placement;
 pub mod pregame;
+mod quests_panel;
+pub use quests_panel::QuestsUi;
 mod radar;
 mod reticle;
 mod scene_viewport;
@@ -261,6 +263,8 @@ mod name_plates_tests;
 mod navigation_tests;
 #[cfg(test)]
 mod paper_doll_tests;
+#[cfg(test)]
+mod quests_panel_tests;
 #[cfg(test)]
 mod radar_tests;
 #[cfg(test)]

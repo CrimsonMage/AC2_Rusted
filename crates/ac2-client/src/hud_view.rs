@@ -47,8 +47,8 @@ pub(crate) struct HudView {
     pub(crate) fellowship: Option<ac2_ui::FellowshipUi>,
     /// `gmMiniFellowUI`: the fellowship mini panel on the HUD.
     pub(crate) mini_fellow: Option<ac2_ui::MiniFellowUi>,
-    /// `gmJournalQuestsUI`: the quest journal's pages.
-    pub(crate) journal: Option<ac2_ui::JournalQuestsUi>,
+    /// `gmQuestsUI`: the Quest panel and its quest journal.
+    pub(crate) quests: Option<ac2_ui::QuestsUi>,
     pub(crate) vitals: Option<ac2_ui::VitalsUi>,
     pub(crate) effects: Option<ac2_ui::EffectsUi>,
     pub(crate) vitae: Option<ac2_ui::VitaeStatusUi>,
@@ -263,6 +263,10 @@ impl HudView {
     pub(crate) fn show_panel(&mut self, child: ToolbarChild, shown: bool) {
         if let (Some((tree, _)), Some(toolbar)) = (&mut self.hud, &self.toolbar) {
             toolbar.show(tree, child, shown);
+            // `gmQuestsUI::Show` when the Quest child changed.
+            if let Some(quests) = self.quests.as_mut() {
+                quests.sync(tree, toolbar.shown(tree, ToolbarChild::Quest));
+            }
             if let Some(doll) = &self.paper_doll {
                 doll.follow_panel(tree);
             }
