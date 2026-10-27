@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1406 done, 108 partial, 873 to do, 81 skipped.
+2468 retail functions: 1407 done, 108 partial, 872 to do, 81 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -497,10 +497,10 @@ Legend and workflow: [README](README.md).
 - [x] `gSkillUINode::CallEFun_GetParentList` · 0046f7c0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
 - [x] `gSkillUINode::CallEFun_InqCoordinates` · 0046f8e0 — ac2-script glue::skill_node over ac2-net's SkillUiNode
 
-## `ac2/shared/src/interp/glue/gturbinegunutils.cpp.c` (0/2)
+## `ac2/shared/src/interp/glue/gturbinegunutils.cpp.c` (1/2)
 
 ### gTurbineGunUtils
-- [ ] `gTurbineGunUtils::CallEFun_GetWorldName` · 0046ea20
+- [x] `gTurbineGunUtils::CallEFun_GetWorldName` · 0046ea20 — ac2-script glue/turbine_gun.rs: returns the client's world name (Vm::world_name, from the WORLD_NAME notice); test in glue/turbine_gun.rs
 - [ ] `gTurbineGunUtils::CallEFun_GetWorldSuffix` · 0046eaa0
 
 ## `ac2/shared/src/interp/glue/gturbineuserstatus.cpp.c` (3/4)

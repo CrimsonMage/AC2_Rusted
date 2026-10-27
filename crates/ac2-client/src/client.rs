@@ -188,6 +188,10 @@ pub struct Client {
     pub(crate) mouse_look_allowed: bool,
     /// The client's preferences (`Preferences.ini`): the bank the options pages write, and the file.
     pub(crate) prefs: Option<crate::client_prefs::ClientPrefs>,
+    /// `Turbine::Client`'s world name (`Turbine::Client::SetWorldName`, from the world-name
+    /// notice); the scripts' `gTurbineGunUtils::CallEFun_GetWorldName` and the assistance page
+    /// read it. Empty until the notice arrives.
+    pub(crate) world_name: String,
 }
 
 fn physics_position(cell: u32, origin: [f32; 3], rotation: [f32; 4]) -> Position {
@@ -260,6 +264,7 @@ impl Client {
             story_queue: Vec::new(),
             story_outbox: Vec::new(),
             mouse_look_allowed: true,
+            world_name: String::new(),
             prefs: None,
         }
     }
@@ -759,6 +764,20 @@ impl Client {
         }
     }
 
+    /// `Turbine::Client::SetWorldName` (the name the notice carries; a non-literal name is
+    /// kept as empty), and the script VM's copy of it.
+    fn set_world_name(&mut self, info: &ac2_net::protocol::StringInfo) {
+        self.world_name = info.literal.clone().unwrap_or_default();
+        if let Some(scripts) = self.scripts.as_mut() {
+            scripts.host.set_world_name(&self.world_name);
+        }
+    }
+
+    /// `Turbine::Client::GetWorldName`: the world's name ("" before the notice).
+    pub fn world_name(&self) -> &str {
+        &self.world_name
+    }
+
     /// The events that create, move and remove the player.
     fn apply(&mut self, event: &SessionEvent) -> Result<(), String> {
         match event {
@@ -772,6 +791,8 @@ impl Client {
             SessionEvent::ServerDied => self.notices.push(Notice::ConnectionLost),
             // `gmGamePlayUI::RecvNotice_LoginFinished` (Init, then the portal gate's leave).
             SessionEvent::LoginFinished => self.login_finished(),
+            // `GlobalEventHandler::RecvEvt_WorldName` -> `gmClient::RecvNotice_WorldName`.
+            SessionEvent::WorldName(info) => self.set_world_name(info),
             SessionEvent::LeftWorld | SessionEvent::Disconnected(_) => {
                 self.player = None;
                 self.camera.reset();

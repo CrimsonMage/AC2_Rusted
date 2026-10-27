@@ -6,7 +6,7 @@ use ac2_ui::{AssistancePanel, AssistanceRequest, DialogFactory, DialogOutcome, U
 
 use crate::ui_sources::ClientPlayer;
 
-/// The page's message. Its world name is empty: the client does not keep the world's name yet.
+/// The page's message, with the world's name (`Turbine::Client::GetWorldName`) as the call's world.
 pub(crate) fn assistance_message(
     page: &mut AssistancePanel,
     tree: &mut UiTree,
@@ -14,7 +14,8 @@ pub(crate) fn assistance_message(
     player: &ClientPlayer<'_>,
     message: &UiMessage,
 ) {
-    let Some(request) = page.message(tree, dialogs, message, "") else {
+    let world = player.client.borrow().world_name().to_owned();
+    let Some(request) = page.message(tree, dialogs, message, &world) else {
         return;
     };
     let AssistanceRequest::CallCreate {

@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 121 done, 50 partial, 134 to do, 49 skipped.
+354 retail functions: 122 done, 49 partial, 134 to do, 49 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -33,7 +33,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [ ] `WinMain` · 004013a0 · legions 00401370
 
-## `ac2/client/src/main/gmclient.cpp.c` (24/92)
+## `ac2/client/src/main/gmclient.cpp.c` (25/92)
 
 ### PackObj
 - [ ] `PackObj::ALIGN_PTR` · 00401a60 · legions 00401980
@@ -125,7 +125,7 @@ Legend and workflow: [README](README.md).
 - [x] `Turbine::Client::GetHostName` · 00402860 · legions 004027b0 — Args (account, host, port, width, height) and Args::server_address, the window size
 - [x] `Turbine::Client::GetPort` · 00402870 · legions 004027c0 — Args (account, host, port, width, height) and Args::server_address, the window size
 - [x] `Turbine::Client::SetPortA` · 00402880 · legions 004027d0 — Args (account, host, port, width, height) and Args::server_address, the window size
-- [~] `Turbine::Client::GetWorldName` · 00402890 · legions 004027e0 — read through TurbineGunUtils::GetWorldName by the efun gTurbineGunUtils::CallEFun_GetWorldName (not bound in the VM); the window title shows the name instead
+- [x] `Turbine::Client::GetWorldName` · 00402890 · legions 004027e0 — Turbine::Client world name: set by the WORLD_NAME notice (Client::set_world_name), read by the efun and the assistance page
 - [ ] `Turbine::Client::SetHostName` · 004028a0 · legions 004027f0
 - [~] `Turbine::Client::SetWorldName` · 004028f0 · legions 00402840 — the virtual slot +0x70 gmClient calls (Turbine::Client vtable 0x9c60a0) is this setter; the world-name path reaches the window title (bin/ac2 show_world_name)
 
@@ -170,7 +170,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmClient::OnCommandLineEvaluationDone` · 00403b60 · legions 00403ad0
 - [ ] `gmClient::RegisterForGunEvents` · 00403c10 · legions 00403b80
 - [~] `gmClient::InitKeymap` · 00403d30 · legions 00403c80 — ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
-- [~] `gmClient::RecvNotice_WorldName` · 00403ff0 · legions 00403f40 — bin/ac2 main.rs show_world_name: the window title carries the literal world name (modern stand-in); retail's HUD reads it via efun gTurbineGunUtils::CallEFun_GetWorldName, not bound in the VM
+- [~] `gmClient::RecvNotice_WorldName` · 00403ff0 · legions 00403f40 — window title (main.rs) and the script copy (Client::set_world_name); the GUN copy (NSTurbineGun::SetWorldName) is not kept, no GUN service
 - [ ] `gmClient::RecvNotice_GunReconnected` · 00404080
 
 ### gmClient::gmChatInterfaceProvider

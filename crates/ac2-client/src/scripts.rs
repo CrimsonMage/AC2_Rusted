@@ -490,6 +490,7 @@ impl Client {
     /// waiting calls resume when they land.
     pub fn attach_scripts(&mut self, mut host: ScriptHost, functions: &[u32]) {
         self.session.set_script_functions(functions);
+        host.set_world_name(&self.world_name);
         // Room chat goes through Turbine chat; a GUN server only when the client has one
         // (`Client::set_gun_service`), as `gmClient::Init` builds `TurbineGun` for `-gunserver`.
         host.set_chat_services(ChatServices {

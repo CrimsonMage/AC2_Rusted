@@ -266,6 +266,9 @@ pub struct Vm {
     pub repositories: std::collections::HashMap<u64, ac2_weenie::WeenieQualities>,
     /// The chat services `gmCWInterface::RequestGUN_*` can reach.
     pub chat: crate::host::ChatServices,
+    /// The world's name as the client holds it (`Turbine::Client`'s, set by the world-name
+    /// notice); `gTurbineGunUtils::CallEFun_GetWorldName` answers with it.
+    pub world_name: String,
     /// `Random`: retail has one generator for the whole client; a host that runs other
     /// consumers of it on the same stream shares its state through this field.
     pub random: ac2_core::Random,
@@ -315,6 +318,7 @@ impl Vm {
             player: 0,
             repositories: Default::default(),
             chat: Default::default(),
+            world_name: String::new(),
         }
     }
 

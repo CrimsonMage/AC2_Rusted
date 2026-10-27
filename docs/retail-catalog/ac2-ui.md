@@ -616,13 +616,13 @@ Legend and workflow: [README](README.md).
 - [x] `gmStoryUI::Finish` · 0042c030 · legions 0042bdf0 — ac2-client client_audio.rs stop_story_sounds: the music and voice fade out over 2 s (PlayingSoundContext::Stop); the ~gmStoryUI teardown reaches it
 - [~] `gmStoryUI::~gmStoryUI` · 0042c1e0 · legions 0042bfa0 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
 - [~] `gmStoryUI::Play` · 0042c2d0 · legions 0042c090 — story music and voice play (ac2-client client_audio.rs play_story_sounds, Type_ForceAllExclusive, Channel_Main, Looping_ForceOn for music); subtitles are the keyframe's StringInfo rendered on the HUD (hud_story.rs); the background's token_play fade is still immediate
-- [~] `gmStoryUI::CheckStart` · 0042c5a0 · legions 0042c360 — story music and voice play (ac2-client client_audio.rs play_story_sounds, Type_ForceAllExclusive, Channel_Main, Looping_ForceOn for music); the background's token_play fade is still immediate
+- [~] `gmStoryUI::CheckStart` · 0042c5a0 · legions 0042c360 — CheckStart waits for the fade (0042c6b0); background not sized to the viewport yet (rect 0 in the layout)
 
 ### QualifiedDataIDArray
 - [ ] `QualifiedDataIDArray::~QualifiedDataIDArray` · 0042c660 · legions 0042c420
 
 ### gmStoryUI
-- [~] `gmStoryUI::ListenToMessage` · 0042c6b0 · legions 0042c470 — story music and voice play (ac2-client client_audio.rs play_story_sounds, Type_ForceAllExclusive, Channel_Main, Looping_ForceOn for music); the background's token_play fade is still immediate
+- [~] `gmStoryUI::ListenToMessage` · 0042c6b0 · legions 0042c470 — fade done = the background's media message (layout MD_Data_Message, 3.5 s); the HUD waits for it (ac2-ui story_view.rs is_fade_done, ac2-client hud_story.rs). Test: story_view_tests.rs
 - [~] `gmStoryUI::ListenToMessage` · 0042c6f0 · legions 0042c4b0 — story music and voice play (ac2-client client_audio.rs play_story_sounds, Type_ForceAllExclusive, Channel_Main, Looping_ForceOn for music); the background's token_play fade is still immediate
 - [~] `gmStoryUI::OnContextFinished` · 0042c780 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
 
@@ -630,7 +630,7 @@ Legend and workflow: [README](README.md).
 - [ ] `QualifiedDataIDArray::QualifiedDataIDArray` · 0042c7a0 · legions 0042c560
 
 ### gmStoryUI
-- [~] `gmStoryUI::gmStoryUI` · 0042c7f0 · legions 0042c5b0 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
+- [~] `gmStoryUI::gmStoryUI` · 0042c7f0 · legions 0042c5b0 — begin event (StoryEvent::Begin) starts the background's fade; HUD panels hidden while a story plays and restored after (hud_story.rs), a modern addition: the decompile shows no Show(0) at story start
 
 ## `ac2/client/src/ui/gameplay/helper/chatwindow.cpp.c` (16/32)
 

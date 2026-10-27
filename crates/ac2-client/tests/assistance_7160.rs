@@ -43,6 +43,7 @@ fn attached(gun: bool) -> Option<Client> {
     );
     client.set_gun_service(gun);
     server.borrow_mut().send_init_player();
+    server.borrow_mut().send_world_name("Legions");
     let idle = FrameInput::default();
     for _ in 0..10 {
         step(&mut client, &server, &idle);
@@ -74,4 +75,16 @@ fn the_call_is_a_gun_request_only_with_a_gun_service() {
         }]
     );
     assert!(client.take_script_problems().is_empty());
+}
+
+#[test]
+fn the_world_name_notice_reaches_the_client_and_the_script_vm() {
+    let Some(client) = attached(false) else {
+        return;
+    };
+    // `Turbine::Client::SetWorldName` from the notice; the scripts' copy for
+    // `gTurbineGunUtils::CallEFun_GetWorldName`.
+    assert_eq!(client.world_name(), "Legions");
+    let host = client.script_host().expect("the script VM");
+    assert_eq!(host.vm().world_name, "Legions");
 }

@@ -396,6 +396,16 @@ impl State {
         self.send_script(&ScriptMessage::Equipment(equipment));
     }
 
+    /// Queues the world-name event (`ECM_Login::SendNotice_WorldName`'s wire form) with `name`
+    /// as its literal.
+    pub fn send_world_name(&mut self, name: &str) {
+        let info = ac2_net::protocol::StringInfo {
+            literal: Some(name.into()),
+            ..ac2_net::protocol::StringInfo::default()
+        };
+        self.send_event(&info.world_name_event());
+    }
+
     /// Queues a quality update (`ECM_Qualities::SendEvt_Update*_Private` / `_Visual`).
     pub fn send_quality(&mut self, update: &QualityUpdate) {
         self.send_event(&update.encode());

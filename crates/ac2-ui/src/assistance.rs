@@ -11,9 +11,9 @@
 //! returns it as an [`AssistanceRequest`], the client answers with whether it was queued, and
 //! [`AssistancePanel::send_answered`] shows the "can't connect" box, or resets the page.
 //!
-//! The toolbar's `AssistanceButton` closes an open message box (`ListenToMessage`). Not modelled
-//! yet: the world name the call carries (`Turbine::Client`'s world, not kept by the client), and the
-//! order of the eight call types the decompile does not trace (see [`CALL_TYPES`]).
+//! The toolbar's `AssistanceButton` closes an open message box (`ListenToMessage`). The call carries
+//! the world name the caller passes (`Turbine::Client`'s). Not modelled yet: the order of the eight
+//! call types the decompile does not trace (see [`CALL_TYPES`]).
 
 use crate::dialog::{DialogFactory, DIALOG_MESSAGE};
 use crate::element::UiTree;

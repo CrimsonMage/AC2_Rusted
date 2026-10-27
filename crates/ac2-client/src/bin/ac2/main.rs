@@ -204,8 +204,8 @@ impl State {
 }
 
 /// `gmClient::RecvNotice_WorldName`: the window title carries the world's name, a modern stand-in
-/// for the HUD's display. Retail reads the name through the efun
-/// `gTurbineGunUtils::CallEFun_GetWorldName`, which the script VM does not bind yet.
+/// for the HUD's display. The HUD scripts read the name through the efun
+/// `gTurbineGunUtils::CallEFun_GetWorldName` (bound in `ac2_script`).
 fn world_title(info: &ac2_net::protocol::StringInfo) -> Option<String> {
     info.literal
         .as_deref()

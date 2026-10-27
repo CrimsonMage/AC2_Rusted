@@ -42,6 +42,7 @@ mod story;
 mod string_info;
 mod string_text;
 mod string_utils;
+mod turbine_gun;
 mod ui_natives;
 mod visual_desc;
 mod vm_glue;
@@ -94,6 +95,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     entity_desc::register(efuns);
     shortcut::register(efuns);
     reserved_ids::register(efuns);
+    turbine_gun::register(efuns);
 }
 
 pub(crate) use chargen::empty_race_sex_info;

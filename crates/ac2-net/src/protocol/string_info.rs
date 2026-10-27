@@ -5,6 +5,7 @@
 //! packed UTF-16 string when flagged, then each variable: u32 id, u16 type, alignment, the
 //! type's value, alignment; then a final alignment.
 
+use crate::protocol::opcode::Opcode;
 use crate::protocol::reader::Reader;
 use crate::protocol::reader::Writer;
 use crate::protocol::ProtocolError;
@@ -134,6 +135,14 @@ impl StringInfo {
             literal: Some(text.to_owned()),
             ..Self::default()
         }
+    }
+
+    /// The `WORLD_NAME` event the server sends with this string (`GlobalEventHandler::RecvEvt_WorldName`),
+    /// its opcode first, as [`crate::protocol::ServerEvent`] reads it.
+    pub fn world_name_event(&self) -> Vec<u8> {
+        let mut writer = Writer::event(Opcode::WORLD_NAME);
+        self.write(&mut writer);
+        writer.bytes
     }
 
     pub(crate) fn write(&self, writer: &mut Writer) {

@@ -357,6 +357,11 @@ impl ScriptHost {
         self.vm.chat = services;
     }
 
+    /// The world's name for `gTurbineGunUtils::CallEFun_GetWorldName` (the client's world name).
+    pub fn set_world_name(&mut self, name: &str) {
+        self.vm.world_name = name.to_owned();
+    }
+
     pub fn take_dropped(&mut self) -> Vec<String> {
         std::mem::take(&mut self.vm.outbox.dropped)
     }

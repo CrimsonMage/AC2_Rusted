@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 229 done, 19 partial, 308 to do, 0 skipped.
+556 retail functions: 229 done, 20 partial, 307 to do, 0 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -205,7 +205,7 @@ Legend and workflow: [README](README.md).
 - [ ] `TurbineGunUtils::GetModeText` · 006075d0 · legions 005c8470
 - [ ] `TurbineGunUtils::GetRoomModeText` · 00607690 · legions 005c8530
 - [ ] `TurbineGunUtils::GunCreateInstance` · 00607780 · legions 005c8620
-- [ ] `TurbineGunUtils::GetWorldName` · 00607830 · legions 005c86d0
+- [~] `TurbineGunUtils::GetWorldName` · 00607830 · legions 005c86d0 — GUN-only in retail (reads TurbineGun::m_worldName); the client answers from Turbine::Client's copy, which retail also keeps without GUN
 - [ ] `TurbineGunUtils::GetWorldSuffix` · 00607870 · legions 005c8710
 - [ ] `TurbineGunUtils::StringFromHR` · 006078b0 · legions 005c8750
 - [ ] `TurbineGunUtils::PrintCmdHRESULT` · 00607930 · legions 005c87d0
