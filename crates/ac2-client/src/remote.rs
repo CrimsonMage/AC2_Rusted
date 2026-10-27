@@ -29,6 +29,7 @@ pub(crate) fn look_snapshot(body: &ac2_physics::PhysicsBody) -> LookTarget {
 }
 
 use crate::client::{ENTER_WORLD_FLAGS, SYNC_POSITION_FLAGS};
+use crate::frame::FxFollow;
 use crate::world_data::BodyData;
 
 /// `CPhysicsObj::RecvEvt_Position`: beyond this distance from the player (metres) an object is
@@ -62,6 +63,8 @@ pub(crate) struct Remote {
     shadow: Option<u32>,
     /// An FX object: ethereal to every mover (`FXManager::DoCreateObjectFX`).
     ethereal: bool,
+    /// The emitter and attach point of an FX object that hangs from one (`FXSetParent`).
+    fx_follow: Option<FxFollow>,
 }
 
 /// `CPhysicsObj::add_to_cells` / `remove_from_cells` and `CObjCell::AddObject` /
@@ -133,6 +136,10 @@ impl Remote {
 
     pub(crate) fn lost_cell(&self) -> Option<u32> {
         self.lost_cell
+    }
+
+    pub(crate) fn fx_follow(&self) -> Option<FxFollow> {
+        self.fx_follow
     }
 }
 
@@ -276,6 +283,7 @@ impl Remotes {
                 object: None,
                 shadow: None,
                 ethereal: false,
+                fx_follow: None,
             },
         );
         self.try_create(id, cx);
@@ -605,6 +613,7 @@ impl Remotes {
         id: u64,
         visual: u32,
         position: Position,
+        fx_follow: Option<FxFollow>,
         cx: &mut Context<'_>,
     ) {
         self.objects.insert(
@@ -621,6 +630,7 @@ impl Remotes {
                 object: None,
                 shadow: None,
                 ethereal: true,
+                fx_follow,
             },
         );
         self.local.insert(id);
@@ -828,6 +838,7 @@ mod entity_mask_tests {
             object: Some((shape, ac2_physics::Vector::new(1.0, 1.0, 1.0))),
             shadow: None,
             ethereal: false,
+            fx_follow: None,
         }
     }
 

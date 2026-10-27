@@ -61,6 +61,7 @@ pub fn objects(
                 animated_mode: None,
                 motion: [0.0; 3],
                 holder: None,
+                fx_follow: None,
                 container: None,
                 wielder: None,
                 appearance: Arc::new(Appearance {

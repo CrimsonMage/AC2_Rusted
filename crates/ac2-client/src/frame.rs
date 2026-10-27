@@ -59,6 +59,9 @@ pub struct ObjectFrame {
     /// The object holding this one at a holding location (`CPhysicsObj::set_parent`: a wielded
     /// or carried item), drawn there rather than at `origin`.
     pub holder: Option<Holder>,
+    /// The FX object's emitter and attach point, when the object hangs from one
+    /// (`CPhysicsObj::FXSetParent`): drawn on the emitter's posed bone each frame.
+    pub fx_follow: Option<FxFollow>,
     /// `gmWeenieDesc::m_containerID` and `m_wielderID` (qualities `0x102`, `0x105`): the weenie
     /// graph's container and wielder.
     pub container: Option<u64>,
@@ -69,6 +72,13 @@ pub struct ObjectFrame {
     /// The root Setup's bones relative to their parents as the animation left them, when its
     /// physics object exists.
     pub pose: Vec<crate::motion::PartPose>,
+}
+
+/// An FX-created object's emitter and where on it the object hangs.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct FxFollow {
+    pub emitter: u64,
+    pub attach: ac2_assets::Ac2FxAttach,
 }
 
 /// Where a held object hangs.

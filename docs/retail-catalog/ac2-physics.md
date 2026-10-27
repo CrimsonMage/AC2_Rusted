@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 488 done, 107 partial, 751 to do, 778 skipped.
+2124 retail functions: 488 done, 109 partial, 749 to do, 778 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1305,7 +1305,7 @@ Legend and workflow: [README](README.md).
 - [-] `ChannelPrefs::HandleChange` · 00506be0 — admin/debug or text-file tooling
 
 ### FXManager
-- [~] `FXManager::DoCreateObjectFX` · 00507010 · legions 004f5230 — DoCreateObjectFX: object created on the emitter, attached by its node (Ac2FxObjectAttach) and placed at rest; not yet following the bone per frame
+- [~] `FXManager::DoCreateObjectFX` · 00507010 · legions 004f5230 — object created on the emitter and attached by its node (Ac2FxObjectAttach, re-placed each frame). The water-plane branch is not a surface placement: retail places the object at the emitter's position (SetPosition of the copied Position) and writes a water plane it never reads, so the object stands at the emitter. Slot 0x9c is CPhysicsObj::DoSlider (vtable 0xa64070, verified in the admin exe) with slider 0x4000001a, the colour alpha, not scale: its two calls set alpha 0.0 then 1.0; the alpha fade is not applied. Unplaced nodes are dropped (known gap).
 - [~] `FXManager::StopFX` · 00507650 · legions 004f5870 — ac2-client fx_objects.rs stop: startup FX kept (m_bStartupFX), objects faded, targets unhidden, colour restored; sound and particle stop as before. Not ported: streak stop, appearance removal, camera FX, target FX on the target
 - [-] `FXManager::FXManager` · 00507d10 · legions 004f5e80 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `FXManager::Destroy` · 00507db0 · legions 004f5f20 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
@@ -2350,7 +2350,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::calc_heading` · 004e0b30 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::HasBoneType` · 004e0b50 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::HasHoldingLocation` · 004e0b60 — needs port: cite-only physics-object method
-- [~] `CPhysicsObj::FXSetParent` · 004e0b90 · legions 004d35f0 — FX-created objects attach at creation to the emitter frame x the rest bone or holding point x the node offset (client_fx_objects placed_at, ac2-assets object_attach); the object does not follow the animated bone, and an object whose point the emitter lacks is not placed (retail AddChild does not check it; the bone matrix is then unset)
+- [~] `CPhysicsObj::FXSetParent` · 004e0b90 · legions 004d35f0 — FX-created objects hang from their emitter at creation (client_fx_objects placed_at, ac2-assets Ac2FxAttach::rest) and are re-placed each frame on the emitter's live bone or holding point in the view (view/fx_follow.rs, client_fx_objects::follow_frame); the physics frame stays at rest. The emitter's scale scales the offset as particle systems do (the creation place is unscaled). A point the emitter lacks is not placed: retail's AddChild does not check it and the bone matrix is then unset, so retail's place is undefined (dropped, known gap).
 - [x] `CPhysicsObj::set_parent` · 004e0c00 · legions 004d3660 — CPhysicsObj::set_parent - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::set_parent` · 004e0ca0 — CPhysicsObj::set_parent - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::set_parent` · 004e0cd0 · legions 004d3730 — CPhysicsObj::set_parent - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
@@ -2550,7 +2550,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::GetScaledRenderBoundingBox` · 004e5660 — render plumbing
 - [x] `CPhysicsObj::JumpLogic` · 004e56e0 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [~] `CPhysicsObj::GetHeightAboveWalkable` · 004e5780 — vertical distance to the terrain polygon instead of CObjCell::LOSCheck
-- [ ] `CPhysicsObj::UpdateChild` · 004e5980 · legions 004d83d0 — needs port: cite-only physics-object method
+- [~] `CPhysicsObj::UpdateChild` · 004e5980 · legions 004d83d0 — FX children only: the view places each attached FX object on its emitter's posed bone or holding point every frame (view/fx_follow.rs follow_emitters). Other children, and the physics frame of FX children, are not updated per frame.
 - [~] `CPhysicsObj::handle_all_collisions` · 004e5d10 · legions 004d8760 — environment response only; object collisions and the collision manager not ported
 - [~] `CPhysicsObj::CheckRayIntersect` · 004e60f0 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 - [ ] `CPhysicsObj::SetVisualDesc` · 004e6650 · legions 004d90a0 — needs port: cite-only physics-object method
@@ -2822,10 +2822,10 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::SetupFXScriptTracker` · 004f1cb0 · legions 004e45b0 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 - [x] `PHYSICSOBJREP::SetupModeTracker` · 004f1d10 · legions 004e4610 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [ ] `PHYSICSOBJREP::SetTerrainType` · 004f1d70 · legions 004e4670 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::GetBoneTypeMatrix` · 004f1da0 · legions 004e46a0 — needs port: cite-only physics-object method
+- [~] `PHYSICSOBJREP::GetBoneTypeMatrix` · 004f1da0 · legions 004e46a0 — the named bone an FX attach point reads, live each frame (client_fx_objects::follow_frame over the emitter's posed named bones). A missing bone keeps the object's last place (retail: undefined). Not used for other children.
 - [ ] `PHYSICSOBJREP::HasBoneType` · 004f1db0 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::HasHoldingLocation` · 004f1dd0 · legions 004e46d0 — needs port: cite-only physics-object method
-- [~] `PHYSICSOBJREP::GetHoldingLocation` · 004f1de0 · legions 004e46e0 — ac2-assets ac2_visual_particles anchor(): root Setup holding points only (bone and transform posed per frame in ac2-render). Child part-group holding points are not searched.
+- [~] `PHYSICSOBJREP::GetHoldingLocation` · 004f1de0 · legions 004e46e0 — the root bone an FX holding point reads, live each frame (client_fx_objects::follow_frame over the emitter's posed root bones); the holding transform comes from the Setup, resolved once on the loader (ac2-assets object_attach). Root Setup holding points only.
 - [ ] `PHYSICSOBJREP::GetPartGroup` · 004f1df0 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::GetNumSphere` · 004f1e00 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::GetSphere` · 004f1e10 — needs port: cite-only physics-object method

@@ -22,11 +22,12 @@ use ac2_render::Camera;
 use ac2_weenie::Appearance;
 use ac2_world::Ac2WorldSource;
 
-use crate::frame::ClientFrame;
+use crate::frame::{ClientFrame, FxFollow};
 use crate::fx_particles::{ObjectLightStart, ObjectParticleStart};
 use crate::hud_view::HudView;
 use crate::motion::PartPose;
 
+mod fx_follow;
 #[cfg(feature = "test-support")]
 mod probe;
 
@@ -48,6 +49,9 @@ struct Drawn<'a> {
     pose: &'a [PartPose],
     /// The FX's colour and fade for the object (white for none).
     tint: [f32; 4],
+    /// The emitter and attach point of an FX object that hangs from one: it is placed on the
+    /// emitter's posed bone each frame.
+    follow: Option<FxFollow>,
 }
 
 /// The view's state.
@@ -83,6 +87,11 @@ fn model_key(visual: u32, appearance: &Appearance) -> u64 {
     hasher.finish()
 }
 
+/// An object's model-to-world matrix: its total scale, then its place.
+fn world_matrix(scale: Vec3, at: Frame) -> Mat4 {
+    Mat4::from_scale_rotation_translation(scale, at.orientation, at.origin)
+}
+
 fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
     let player = frame.player.iter().filter_map(|p| {
         let visual = p.visual?;
@@ -97,6 +106,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
             rotation: p.rotation,
             pose: &p.pose,
             tint: frame.fx_looks.tints.get(&p.id).copied().unwrap_or([1.0; 4]),
+            follow: None,
         })
     });
     let others = frame
@@ -117,6 +127,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
                 rotation: o.rotation,
                 pose: &o.pose,
                 tint: frame.fx_looks.tints.get(&o.id).copied().unwrap_or([1.0; 4]),
+                follow: o.fx_follow,
             })
         });
     player.chain(others).collect()
@@ -276,25 +287,23 @@ impl ClientView {
     fn object_placements(
         &self,
         drawn: &[Drawn<'_>],
+        frames: &[Frame],
         placed: &[Option<(u64, Mat4, Option<ObjectPose>)>],
     ) -> Vec<ObjectPlacement> {
         drawn
             .iter()
+            .zip(frames)
             .zip(placed)
-            .filter_map(|(drawn, placed)| {
+            .filter_map(|((drawn, frame), placed)| {
                 let (_, scale) = self.scene.object_rig(drawn.key)?;
                 let pose = placed.as_ref()?.2.as_ref();
                 let bones = pose.map(|pose| pose.bones.clone()).unwrap_or_default();
                 let named_bones = pose
                     .map(|pose| pose.named_bones.clone())
                     .unwrap_or_default();
-                let [w, x, y, z] = drawn.rotation;
                 Some(ObjectPlacement {
                     emitter: drawn.id,
-                    frame: Frame::new(
-                        self.world_point(drawn.cell, drawn.origin),
-                        Quat::from_xyzw(x, y, z, w),
-                    ),
+                    frame: *frame,
                     scale: *scale,
                     bones,
                     named_bones,
@@ -313,22 +322,28 @@ impl ClientView {
         };
         self.scene.set_clock(time);
         let drawn = drawn_objects(frame);
-        let placed: Vec<_> = drawn.iter().map(|drawn| self.placed(drawn)).collect();
-        let placements = self.object_placements(&drawn, &placed);
+        let mut frames: Vec<Frame> = drawn.iter().map(|drawn| self.drawn_frame(drawn)).collect();
+        let mut placed: Vec<_> = drawn
+            .iter()
+            .zip(&frames)
+            .map(|(drawn, at)| self.placed(drawn, *at))
+            .collect();
+        self.follow_emitters(&drawn, &mut frames, &mut placed);
+        let placements = self.object_placements(&drawn, &frames, &placed);
         self.scene.place_objects(&placements);
         let scene_frame = self.scene.frame(&camera, aspect);
         let objects = drawn
             .iter()
+            .zip(frames)
             .zip(placed)
-            .filter_map(|(drawn, placed)| {
+            .filter_map(|((drawn, at), placed)| {
                 let (key, world, pose) = placed?;
-                let position = self.world_point(drawn.cell, drawn.origin);
                 Some(SceneObject {
                     key,
                     world,
                     pose,
                     tint: drawn.tint,
-                    point_lights: self.scene.object_point_lights(position, 0.0),
+                    point_lights: self.scene.object_point_lights(at.origin, 0.0),
                 })
             })
             .collect();
@@ -346,16 +361,21 @@ impl ClientView {
         true
     }
 
-    /// A drawn object's model key, model-to-world matrix and pose (`CPartArray::UpdateBones`).
-    fn placed(&self, drawn: &Drawn<'_>) -> Option<(u64, Mat4, Option<ObjectPose>)> {
+    /// A drawn object's place in the world, from its cell and origin and its rotation.
+    fn drawn_frame(&self, drawn: &Drawn<'_>) -> Frame {
+        let [w, x, y, z] = drawn.rotation;
+        Frame::new(
+            self.world_point(drawn.cell, drawn.origin),
+            Quat::from_xyzw(x, y, z, w),
+        )
+    }
+
+    /// A drawn object's model key, model-to-world matrix and pose (`CPartArray::UpdateBones`),
+    /// standing at `at`.
+    fn placed(&self, drawn: &Drawn<'_>, at: Frame) -> Option<(u64, Mat4, Option<ObjectPose>)> {
         let key = drawn.key;
         let (rig, scale) = self.scene.object_rig(key)?;
-        let [w, x, y, z] = drawn.rotation;
-        let world = Mat4::from_scale_rotation_translation(
-            *scale,
-            Quat::from_xyzw(x, y, z, w),
-            self.world_point(drawn.cell, drawn.origin),
-        );
+        let world = world_matrix(*scale, at);
         let bones: Vec<_> = drawn.pose.iter().map(PartPose::transform).collect();
         let pose = rig.pose((!bones.is_empty()).then_some(bones.as_slice()));
         Some((key, world, pose))
@@ -386,7 +406,7 @@ impl ClientView {
             .iter()
             .filter(|d| !(d.player && first_person))
             .filter_map(|d| {
-                let (key, world, pose) = self.placed(d)?;
+                let (key, world, pose) = self.placed(d, self.drawn_frame(d))?;
                 let mesh = self.scene.object_pick(key)?;
                 Some((d.id, d.player, world, pose, Arc::clone(mesh)))
             })
@@ -421,7 +441,7 @@ impl ClientView {
         let placed = selection
             .and_then(|s| drawn.iter().find(|d| d.id == s.id))
             .and_then(|d| {
-                let (key, world, _) = self.placed(d)?;
+                let (key, world, _) = self.placed(d, self.drawn_frame(d))?;
                 let mesh = self.scene.object_pick(key)?;
                 Some((
                     world,
@@ -472,7 +492,7 @@ impl ClientView {
             .iter()
             .find(|d| d.id == id)
             .and_then(|d| {
-                let (key, world, _) = self.placed(d)?;
+                let (key, world, _) = self.placed(d, self.drawn_frame(d))?;
                 let mesh = self.scene.object_pick(key)?;
                 let centre = (mesh.min + mesh.max) * 0.5;
                 let clip = view_projection * world * centre.extend(1.0);
@@ -498,7 +518,7 @@ impl ClientView {
             let Some(d) = drawn.iter().find(|d| d.id == id) else {
                 continue;
             };
-            let Some((key, world, _)) = self.placed(d) else {
+            let Some((key, world, _)) = self.placed(d, self.drawn_frame(d)) else {
                 continue;
             };
             let Some(mesh) = self.scene.object_pick(key) else {
@@ -553,7 +573,7 @@ impl ClientView {
             let Some(d) = drawn.iter().find(|d| d.id == id) else {
                 continue;
             };
-            let Some((key, world, _)) = self.placed(d) else {
+            let Some((key, world, _)) = self.placed(d, self.drawn_frame(d)) else {
                 continue;
             };
             let Some(mesh) = self.scene.object_pick(key) else {

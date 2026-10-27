@@ -34,15 +34,38 @@ pub struct Ac2FxLight {
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum Ac2FxObjectAttach {
     /// Neither a holding point nor a bone: the object stands where its emitter does
-    /// (`CPhysicsObj::set_position` at the rep's position).
+    /// (`CPhysicsObj::set_position` at the rep's position). A water-plane node is the same: the
+    /// branch writes a water plane it never reads.
     #[default]
     Emitter,
-    /// A holding point or bone: the rest transform of that point in the emitter's space, the
-    /// node's offset composed in, rotation removed when asked (`CPhysicsObj::FXSetParent`).
-    Attached(Ac2Transform),
+    /// A holding point or bone (`CPhysicsObj::FXSetParent`). The object is re-placed on every
+    /// frame from the emitter's posed bone (`CPhysicsObj::UpdateChild`).
+    Attached(Ac2FxAttach),
     /// The node names a bone or holding point the emitter's part groups lack, so there is
     /// nothing to attach to and the object is not placed.
     Unplaced,
+}
+
+/// The point an attached FX object hangs from, on its emitter's posed skeleton.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Ac2FxAttachPoint {
+    /// A holding point's bone: the index into the emitter's root Setup bones
+    /// (`PHYSICSOBJREP::GetHoldingLocation`).
+    Holding(usize),
+    /// A bone node's name, found in the part groups' search order (`GetBoneTypeMatrix`).
+    Bone(u32),
+}
+
+/// An attached FX object's place on its emitter: the point, the local frame from that point
+/// (a holding point's transform then the node's offset, or the offset alone for a bone), whether
+/// the rotation is dropped (`m_remove_rotation`), and the same frame at the emitter's rest pose
+/// (the object's place when it is created).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Ac2FxAttach {
+    pub point: Ac2FxAttachPoint,
+    pub local: Ac2Transform,
+    pub remove_rotation: bool,
+    pub rest: Ac2Transform,
 }
 
 /// The object facts of one `FXNode`: the object it creates (`FXManager::DoCreateObjectFX`), its
@@ -71,7 +94,8 @@ pub struct Ac2FxObject {
     pub color_lifetime: f32,
     /// `m_restore`: `StopFX` ramps the colour back to white (over 0.1 s).
     pub restore: bool,
-    /// Where the created object is placed on its emitter (rest pose; see [`Ac2FxObjectAttach`]).
+    /// Where the created object is placed on its emitter (see [`Ac2FxObjectAttach`]; its rest
+    /// place is in [`Ac2FxAttach::rest`]).
     pub attach: Ac2FxObjectAttach,
 }
 

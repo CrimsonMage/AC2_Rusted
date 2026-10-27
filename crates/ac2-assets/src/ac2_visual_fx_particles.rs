@@ -13,7 +13,9 @@ use ac2_dat::DatFileKind;
 use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
 
 use crate::ac2_drawn_groups::rest_named_bones;
-use crate::ac2_fx::{Ac2FxObject, Ac2FxObjectAttach, Ac2FxParticleNode, Ac2FxTable};
+use crate::ac2_fx::{
+    Ac2FxAttach, Ac2FxAttachPoint, Ac2FxObject, Ac2FxObjectAttach, Ac2FxParticleNode, Ac2FxTable,
+};
 use crate::ac2_visual_desc::Ac2VisualDesc;
 use crate::ac2_visual_particles::{
     anchor, attaches, load, looping_flags, placement, Ac2ParticleAnchor, Ac2ParticleAttachment,
@@ -208,41 +210,54 @@ fn collect_table(
 }
 
 /// `FXManager::DoCreateObjectFX`: where a created object goes on its emitter. A holding point
-/// (`PHYSICSOBJREP::GetHoldingLocation`) or a bone (`GetBoneTypeMatrix`, the part groups' rest
-/// bone) is the attach point; the node's offset is composed in, and the rotation is dropped when
-/// `m_remove_rotation` says so (`CPhysicsObj::FXSetParent`). A point or bone the emitter lacks
-/// leaves the object unplaced; a node with neither stands at the emitter.
+/// (`PHYSICSOBJREP::GetHoldingLocation`) or a bone (`GetBoneTypeMatrix`) is the attach point, its
+/// node offset composed in (`CPhysicsObj::FXSetParent`); the rotation is dropped when
+/// `m_remove_rotation` says so. The point's transform is kept as a local frame so the object can
+/// be placed on the emitter's posed bone each frame; `rest` is the same frame at the rest pose.
+/// A point or bone the emitter lacks leaves the object unplaced; a node with neither stands at
+/// the emitter, and a water-plane node does too (its branch never moves the object off that point).
 fn object_attach(
     setup: Option<&Ac2Setup>,
     rest_bone: &dyn Fn(usize) -> Ac2Transform,
     named: &[(u32, Ac2Transform)],
     node: &Ac2FxParticleNode,
 ) -> Ac2FxObjectAttach {
-    let base = if node.holding_location != 0 {
+    let offset = Ac2Transform {
+        offset: node.bone_offset,
+        ..Ac2Transform::IDENTITY
+    };
+    let (point, local, mut rest) = if node.holding_location != 0 {
         let point = setup.and_then(|setup| {
             setup
                 .holding_points
                 .iter()
                 .find(|point| point.id == node.holding_location)
         });
-        match point {
-            Some(point) => rest_bone(point.bone).compose(&point.transform),
-            None => return Ac2FxObjectAttach::Unplaced,
-        }
+        let Some(point) = point else {
+            return Ac2FxObjectAttach::Unplaced;
+        };
+        let local = point.transform.compose(&offset);
+        let rest = rest_bone(point.bone).compose(&local);
+        (Ac2FxAttachPoint::Holding(point.bone), local, rest)
     } else if node.bone_name != 0 {
-        match named.iter().find(|(name, _)| *name == node.bone_name) {
-            Some((_, bone)) => *bone,
-            None => return Ac2FxObjectAttach::Unplaced,
-        }
+        let Some((_, bone)) = named.iter().find(|(name, _)| *name == node.bone_name) else {
+            return Ac2FxObjectAttach::Unplaced;
+        };
+        (
+            Ac2FxAttachPoint::Bone(node.bone_name),
+            offset,
+            bone.compose(&offset),
+        )
     } else {
         return Ac2FxObjectAttach::Emitter;
     };
-    let mut placed = base.compose(&Ac2Transform {
-        offset: node.bone_offset,
-        ..Ac2Transform::IDENTITY
-    });
     if node.remove_rotation {
-        placed.rotation = Quat::IDENTITY;
+        rest.rotation = Quat::IDENTITY;
     }
-    Ac2FxObjectAttach::Attached(placed)
+    Ac2FxObjectAttach::Attached(Ac2FxAttach {
+        point,
+        local,
+        remove_rotation: node.remove_rotation,
+        rest,
+    })
 }
