@@ -37,6 +37,10 @@ pub struct Rig {
     /// The commands every frame asked for, in order.
     pub asked: Vec<Command>,
     pub shift: bool,
+    /// The Alt key held (the window exception's Alt + drag).
+    pub alt: bool,
+    /// The world the view draws, kept to rebuild the HUD.
+    pub world: Arc<ac2_world::Ac2WorldSource>,
     /// Held for the rig's life ([`GPU_SLOT`]); dropped last.
     _gpu_slot: MutexGuard<'static, ()>,
 }
@@ -100,7 +104,7 @@ impl Rig {
             ac2_client::SCRIPT_VM_FUNCTIONS,
         );
         client.set_load_budget(Duration::from_secs(30));
-        let view = ClientView::new(world, &gpu, COLOR_FORMAT, 1, SIZE);
+        let view = ClientView::new(Arc::clone(&world), &gpu, COLOR_FORMAT, 1, SIZE);
         let mut rig = Self {
             client,
             server,
@@ -109,6 +113,8 @@ impl Rig {
             pending: Vec::new(),
             asked: Vec::new(),
             shift: false,
+            alt: false,
+            world: Arc::clone(&world),
             _gpu_slot: gpu_slot,
         };
         let mut frames = 0;
@@ -127,6 +133,7 @@ impl Rig {
     pub fn frame(&mut self, actions: &[(u32, f32, bool)]) -> Vec<SessionEvent> {
         let modifiers = Modifiers {
             shift: self.shift,
+            alt: self.alt,
             ..Modifiers::default()
         };
         self.view.ui_input(actions, modifiers);
@@ -202,6 +209,13 @@ impl Rig {
             std::thread::sleep(Duration::from_millis(5));
         }
         panic!("{what}");
+    }
+
+    /// A new view of the same world: the HUD is built again, as after a relog, and its windows
+    /// take the player's saved places at the first frame in the world.
+    pub fn rebuild_hud(&mut self) {
+        self.view = ClientView::new(Arc::clone(&self.world), &self.gpu, COLOR_FORMAT, 1, SIZE);
+        self.wait("the rebuilt HUD", |r| r.view.shortcut_slots() > 0);
     }
 
     /// Shows or hides a toolbar panel.

@@ -577,6 +577,11 @@ impl ApplicationHandler for App {
                 let (_, now) = state.now();
                 state.controls.focus(focused, now);
             }
+            // The OS's modifier state: Alt reaches the UI as a held modifier (a window moves by
+            // Alt + drag), and a change with no key event (focus, a dropped release) is seen here.
+            WindowEvent::ModifiersChanged(modifiers) => {
+                state.controls.set_alt(modifiers.state().alt_key());
+            }
             WindowEvent::KeyboardInput { event, .. } => {
                 // Outside text mode a held key is one press (DirectInput); in text mode key
                 // repeats move the cursor and type again (`WM_KEYDOWN` / `WM_CHAR`).

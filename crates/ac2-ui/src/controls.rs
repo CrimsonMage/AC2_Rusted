@@ -163,6 +163,10 @@ impl Controls {
     /// `ActionInterpreter::FocusSwitchHandler`: losing focus releases every held action (with
     /// focus kept, modifier and UI actions stay).
     pub fn focus(&mut self, have_focus: bool, now: f64) {
+        if !have_focus {
+            // A key released while the window had no focus never reports its release.
+            self.input.set_alt(false);
+        }
         let held: Vec<_> = self.interpreter.current().to_vec();
         for info in held {
             let Some(value) = self.interpreter.action_values(info.action) else {
@@ -216,14 +220,21 @@ impl Controls {
         )
     }
 
-    /// The modifier keys held (`ActionInterpreter::CtrlKeyDown` / `ShiftKeyDown`; Alt is not a
-    /// meta key of the input manager, so it never reads as held).
+    /// The modifier keys held (`ActionInterpreter::CtrlKeyDown` / `ShiftKeyDown`). Alt is not a
+    /// meta key of the key maps; the input manager tracks it apart (`InputManager::alt_down`), and
+    /// it reaches the UI here so a window can take an Alt + drag (`UiTree::set_alt`).
     pub fn modifiers(&self) -> crate::chat::Modifiers {
         crate::chat::Modifiers {
             ctrl: self.input.ctrl_down(),
             shift: self.input.shift_down(),
-            alt: false,
+            alt: self.input.alt_down(),
         }
+    }
+
+    /// The window's Alt state, from its modifier report (`WindowEvent::ModifiersChanged`), so a
+    /// press of Alt made while the window had no focus is seen too.
+    pub fn set_alt(&mut self, held: bool) {
+        self.input.set_alt(held);
     }
 
     /// `CInputManager::SetTextMode`, following the UI's active text element; entering it

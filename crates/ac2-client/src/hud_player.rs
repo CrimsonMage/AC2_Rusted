@@ -152,6 +152,13 @@ impl HudView {
         if tree.take_locations_changed() {
             commands.push(Command::SaveWindowLocations(tree.inq_locations()));
         }
+        // The window exception (`AGENTS.md`): a window moved and its drag ended, so every
+        // window's place is kept on this machine for the character.
+        if tree.take_positions_changed() {
+            if let Some(player) = frame.player.as_ref() {
+                client.save_local_window_positions(player.id, &tree.window_positions());
+            }
+        }
         // `gmChatOptionsUI`'s Apply sent the reload notice; its values refresh on the options'
         // reload (`RecvNotice_ReloadOptions`), as the page's Refresh does.
         let applied = chat_options.as_mut().is_some_and(|page| page.take_reload());
@@ -197,6 +204,13 @@ impl HudView {
                 tree.apply_locations(&saved);
                 if let Some(radar) = radar.as_ref() {
                     radar.location_applied(tree);
+                }
+            }
+            // The player's own places, per character, override the server's (`AGENTS.md`).
+            if let Some(player) = frame.player.as_ref() {
+                match client.local_window_positions(player.id) {
+                    Ok(local) => tree.set_window_positions(&local),
+                    Err(error) => eprintln!("ac2: window positions: {error}"),
                 }
             }
         }

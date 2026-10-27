@@ -175,11 +175,17 @@ mod transition;
 mod tree_view;
 mod window_locations;
 pub use window_locations::{clip_to_pixel, pixel_to_clip, SavedWindow, WindowLocation};
+mod window_positions;
+pub use window_positions::{
+    parse as parse_window_positions, to_text as window_positions_text, WindowPosition,
+};
 mod ui_string;
 mod vitae;
 mod vitals;
 #[cfg(test)]
 mod window_locations_tests;
+#[cfg(test)]
+mod window_positions_tests;
 
 pub use allegiance::{AllegianceRequest, AllegianceSource, AllegianceUi};
 pub use assistance::{AssistancePanel, AssistanceRequest, CALL_TYPES};

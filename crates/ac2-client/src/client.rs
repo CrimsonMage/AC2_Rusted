@@ -156,6 +156,8 @@ pub struct Client {
     pose_blend: bool,
     load_budget: Duration,
     pub(crate) notices: Vec<Notice>,
+    /// Where the per-character window position files are (`None`: the player's AC2 directory).
+    pub(crate) window_positions_dir: Option<std::path::PathBuf>,
     /// The physics objects of everything but the player.
     pub(crate) remotes: Remotes,
     /// The weenies' script processes, when a script VM is attached.
@@ -244,6 +246,7 @@ impl Client {
             pose_blend: true,
             load_budget: Duration::from_millis(4),
             notices: Vec::new(),
+            window_positions_dir: None,
             remotes: Remotes::default(),
             scripts: None,
             audio: None,

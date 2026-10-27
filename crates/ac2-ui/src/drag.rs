@@ -115,7 +115,8 @@ impl UiTree {
 
     /// `UIElementManager::CheckDragandDrop`.
     pub(crate) fn check_drag_and_drop(&mut self) {
-        if self.drag.element.is_some() {
+        // A window moving (drag bar or Alt + drag) takes the press: no item is dragged out of it.
+        if self.drag.element.is_some() || self.movement.is_some() {
             return;
         }
         // The region from the last pointer pass may have gone since.

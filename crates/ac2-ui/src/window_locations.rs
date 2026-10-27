@@ -150,8 +150,50 @@ impl UiTree {
     /// `UIElement::StopMovement`.
     pub(crate) fn stop_movement(&mut self, element: usize) {
         if self.movement.is_some_and(|m| m.element == element) {
-            self.movement = None;
+            self.end_movement();
         }
+    }
+
+    /// The move ends (the button came up). A move that went somewhere raises
+    /// `positions_changed`, so the client writes every window's place
+    /// ([`UiTree::take_positions_changed`]).
+    pub(crate) fn end_movement(&mut self) {
+        if let Some(m) = self.movement.take() {
+            if self.pointer != m.start_pointer {
+                self.positions_changed = true;
+            }
+        }
+    }
+
+    /// The window exception (`AGENTS.md`): with Alt held, a left press on the topmost element under
+    /// the pointer, when that element belongs to a HUD window that is not chrome, moves that window,
+    /// drag bar or not. It is decided before the press is offered to the elements, because a
+    /// full-screen chrome root under the window would otherwise take the press first. Retail moved
+    /// a window only by its drag bar (`UIElement_Dragbar::MouseDown`). Returns whether the press was
+    /// taken for a move.
+    pub(crate) fn alt_move_mouse_down(&mut self, action: u32) -> bool {
+        if action != UI_LEFT_BUTTON || !self.alt {
+            return false;
+        }
+        let Some(top) = self.mouse_top else {
+            return false;
+        };
+        let root = self.root_of(top);
+        if !self.is_window_root(root) || self.is_transient_root(root) {
+            return false;
+        }
+        self.start_movement(root);
+        true
+    }
+
+    /// The Alt key's state (`GetKeyState(VK_MENU)`), set from the frame's modifiers.
+    pub fn set_alt(&mut self, held: bool) {
+        self.alt = held;
+    }
+
+    /// A root that is not under the pointer: the tooltip and the dragged copy.
+    fn is_transient_root(&self, root: usize) -> bool {
+        Some(root) == self.tooltip.element || Some(root) == self.drag.element
     }
 
     /// `UIElement::MouseMoveElement` on each global mouse move: the moving element goes where

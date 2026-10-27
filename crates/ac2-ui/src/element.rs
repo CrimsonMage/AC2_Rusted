@@ -146,6 +146,9 @@ pub struct UiElement {
     pub(crate) tooltip: Option<String>,
     latest_update: u32,
     created_by_layout: bool,
+    /// A root of the fixed HUD chrome (the bars, the radar, the world's overlays): it does not
+    /// move by Alt + drag and is not saved as a window position ([`UiTree::set_fixed_root`]).
+    pub(crate) fixed: bool,
 }
 
 impl UiElement {
@@ -248,6 +251,13 @@ pub struct UiTree {
     /// The editable or selectable text element a left press started a selection in
     /// (`UIElement_Text::m_mouseSelecting`); the drag moves its moving end until the release.
     pub(crate) text_drag: Option<usize>,
+    /// The Alt key is held (the window's modifier state, [`UiTree::set_alt`]).
+    pub(crate) alt: bool,
+    /// A window moved and the drag ended since the last [`UiTree::take_positions_changed`].
+    pub(crate) positions_changed: bool,
+    /// The player's saved positions of the windows (`window_positions`): applied to a window when
+    /// it is made and to the windows already up.
+    pub(crate) saved_positions: Vec<crate::window_positions::WindowPosition>,
 }
 
 /// The index of `desc`'s state `id`.
@@ -308,6 +318,9 @@ impl UiTree {
             locations_changed: false,
             text_clipboard: std::sync::Arc::new(crate::text_clipboard::MemoryClipboard::default()),
             text_drag: None,
+            alt: false,
+            positions_changed: false,
+            saved_positions: Vec::new(),
         }
     }
 
@@ -390,6 +403,8 @@ impl UiTree {
         self.set_bool(index, ROOT_MOVER, true);
         self.update_size_and_position(index);
         self.add_root(index);
+        // A window the player left somewhere else opens there (`window_positions`).
+        self.apply_saved_position(index);
         Some(index)
     }
 
@@ -479,6 +494,7 @@ impl UiTree {
             tooltip: None,
             latest_update: self.update_count,
             created_by_layout: false,
+            fixed: false,
         });
         if is_meter {
             self.meter_create(index);

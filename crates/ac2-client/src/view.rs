@@ -783,6 +783,11 @@ impl ClientView {
         self.hud.net_indicator()
     }
 
+    /// The gameplay HUD's element tree, once it is built (the windows' places).
+    pub fn hud_tree(&self) -> Option<&ac2_ui::UiTree> {
+        self.hud.tree()
+    }
+
     /// The shortcut bar's slots.
     pub fn shortcut_slots(&self) -> usize {
         self.hud.shortcut_slots()

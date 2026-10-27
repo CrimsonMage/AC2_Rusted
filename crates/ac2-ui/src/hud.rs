@@ -228,6 +228,10 @@ pub fn build_gameplay_hud(
             }
         }
     }
+    // The roots so far are the HUD's chrome: the radar and heading, the selection field, the
+    // status bar and the toolbar's side panels. Their places are not kept, and Alt + drag does not
+    // move them. The windows made later (the chat, the panels, the dialogs) are.
+    tree.fix_current_roots();
     // `gmToolbarUI::SetupChildren`: the shortcut bar first, then the chat.
     let toolbar_field = tree.roots().iter().copied().find(|&r| {
         tree.get(r)

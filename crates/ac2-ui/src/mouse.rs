@@ -23,6 +23,7 @@ use crate::token::{
     MSG_MOUSE_OVER_TOP, MSG_MOUSE_PRESS, MSG_MOUSE_PRESS_TOP, MSG_MOUSE_RELEASE,
     MSG_MOUSE_RELEASE_TOP,
 };
+use crate::window_locations::UI_LEFT_BUTTON;
 
 /// `UIMESSAGE_GLOBAL_*` (`UIElementManager::BroadcastGlobalMessage`).
 pub const GLOBAL_MOUSE_DOWN: u32 = 0xFFFF_0000;
@@ -234,6 +235,12 @@ impl UiTree {
                 self.deactivate(active);
             }
         }
+        // Alt + press moves the window under the pointer; the press does not reach the controls
+        // under it (`alt_move_mouse_down`).
+        if self.alt_move_mouse_down(action) {
+            self.update_mouse();
+            return;
+        }
         let mut processed = false;
         for root in self.roots.clone() {
             self.notify_mouse_down(root, action, &mut processed);
@@ -284,6 +291,10 @@ impl UiTree {
         }
         self.update_mouse();
         self.drag_mouse_up(action);
+        if action == UI_LEFT_BUTTON {
+            // The release ends a move, by a drag bar or by Alt + drag.
+            self.end_movement();
+        }
     }
 
     /// `UIRegion::NotifyMouseUp`.

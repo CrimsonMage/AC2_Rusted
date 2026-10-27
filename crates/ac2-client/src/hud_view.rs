@@ -189,6 +189,7 @@ impl HudView {
             return Vec::new();
         };
         tree.set_shift(modifiers.shift);
+        tree.set_alt(modifiers.alt);
         for (action, extent, start) in self.scale.actions_to_ui(actions) {
             if start {
                 tree.start_input(action, extent);

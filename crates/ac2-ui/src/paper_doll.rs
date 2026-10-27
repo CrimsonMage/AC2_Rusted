@@ -101,6 +101,10 @@ impl PaperDollUi {
         equipped: &[(u32, u64)],
     ) -> Self {
         let viewport = tree.create_root(Arc::clone(layout), tokenize("PaperDollViewport"));
+        // The doll's 3D viewport belongs to the docked inventory panel: it does not move alone.
+        if let Some(viewport) = viewport {
+            tree.set_fixed_root(viewport);
+        }
         let mut ui = Self {
             viewport,
             player,

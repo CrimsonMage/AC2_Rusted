@@ -33,6 +33,9 @@ const WHEEL_DELTA: f32 = 120.0;
 const LEFT_SHIFT: u32 = 0x8100_042A;
 const RIGHT_SHIFT: u32 = 0x8100_0436;
 const LEFT_CONTROL: u32 = 0x8100_041D;
+/// `DIK_LMENU` and `DIK_RMENU`: the Alt keys.
+const DIK_LEFT_ALT: u32 = 0x38;
+const DIK_RIGHT_ALT: u32 = 0xB8;
 const RIGHT_CONTROL: u32 = 0x8100_049D;
 
 /// Device indices (`m_aDevices`): the keyboard, then the mouse.
@@ -130,6 +133,9 @@ pub struct InputManager {
     /// The keyboard presses of non-meta keys, mapped or not, for the controls screen's key hit
     /// handler (`gmKeyboardUI::KeyHitHandler`); at most [`KEY_PRESS_LIMIT`] are kept.
     presses: Vec<KeyPress>,
+    /// An Alt key is held (`DIK_LMENU` / `DIK_RMENU`, or the OS state as the window reports it).
+    /// Alt is not a meta key of the key maps, so it is kept apart from `meta_mode`.
+    alt_held: bool,
 }
 
 /// A keyboard press as the key hit handler reads it: the key's semantic and the meta mode it went
@@ -373,6 +379,17 @@ impl InputManager {
         self.meta_mode & 0x3 != 0
     }
 
+    /// An Alt key is held. The window's Alt state (`set_alt`) and the Alt key events agree.
+    pub fn alt_down(&self) -> bool {
+        self.alt_held
+    }
+
+    /// The window's Alt state, when the OS reports it (`WM_SYSKEYDOWN` and focus changes); a
+    /// key event for Alt sets the same flag.
+    pub fn set_alt(&mut self, held: bool) {
+        self.alt_held = held;
+    }
+
     /// The characters typed since the last call.
     pub fn take_characters(&mut self) -> Vec<(u16, u32)> {
         std::mem::take(&mut self.characters)
@@ -390,13 +407,18 @@ impl InputManager {
     /// One event (`GetInput`'s device loop); the actions it raises are appended to `out`.
     pub fn process(&mut self, event: InputEvent, timestamp: u32, out: &mut Vec<RawAction>) {
         match event {
-            InputEvent::Key { scan, pressed } => self.key(
-                SEMANTIC_KEY_BASE | scan,
-                DEVICE_KEYBOARD,
-                pressed,
-                timestamp,
-                out,
-            ),
+            InputEvent::Key { scan, pressed } => {
+                if matches!(scan, DIK_LEFT_ALT | DIK_RIGHT_ALT) {
+                    self.alt_held = pressed;
+                }
+                self.key(
+                    SEMANTIC_KEY_BASE | scan,
+                    DEVICE_KEYBOARD,
+                    pressed,
+                    timestamp,
+                    out,
+                )
+            }
             InputEvent::Button { button, pressed } => {
                 let semantic = match (button, self.swap_buttons) {
                     (0, false) | (1, true) => SEMANTIC_BUTTON_LEFT,
