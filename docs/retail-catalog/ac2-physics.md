@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 487 done, 106 partial, 753 to do, 778 skipped.
+2124 retail functions: 488 done, 106 partial, 752 to do, 778 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1288,7 +1288,7 @@ Legend and workflow: [README](README.md).
 
 ### FXManager
 - [x] `FXManager::DoSoundFX` · 005062c0 · legions 004f44e0 — ac2-audio/ac2-client: 3D emitters and FX sounds
-- [x] `FXManager::DoParticleFX` · 00506360 · legions 004f4580 — ac2-client client_audio.rs: a handle is kept only for a looping PSDesc (fx_particles ObjectParticleStart.looping), so StopFX destroys only those; the random PSDesc pick is unchanged
+- [x] `FXManager::DoParticleFX` · 00506360 · legions 004f4580 — emitter's own rep only (DoParticleFX calls CreateParticleSystem on this->m_physobjrep): a bone the rep lacks starts no system; no parent or wearer lookup for particle bones (ac2-assets attaches, ac2-render fx_bone_tests split)
 - [x] `FXManager::DoLightSourceFX` · 00506430 · legions 004f4650 — ac2-client client_audio.rs: light_starts only while Render::m_Prefs.LightSourceEffects is on (ac2-render prefs light_source_effects, applied by apply_light_preferences); particle systems still start with the light off
 - [~] `FXManager::CalcDuration` · 005064f0 · legions 004f4710 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (147/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (148/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2522,7 +2522,7 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::HandleEnterWorld` · 004e4ca0 · legions 004d76f0 — the bookie part only
 - [x] `CPhysicsObj::LeaveVisibility` · 004e4d00 — ac2-client remote.rs
 - [x] `CPhysicsObj::DoFX` · 004e4d80 · legions 004d77d0 — ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
-- [ ] `CPhysicsObj::DoTargettedFX` · 004e4dc0 · legions 004d7810 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::DoTargettedFX` · 004e4dc0 · legions 004d7810 — CPhysicsObj::DoTargettedFX delivers to its own PHYSICSOBJREP (no parent routing for FX particles)
 - [x] `CPhysicsObj::StopFX` · 004e4e10 · legions 004d7860 — ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
 - [ ] `CPhysicsObj::GetGroundPosition` · 004e4e50 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetBonePosition` · 004e4f60 — needs port: cite-only physics-object method

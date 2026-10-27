@@ -4760,7 +4760,7 @@ key	status	note
 004e4ca0	~	the bookie part only
 004e4d00	x	ac2-client remote.rs
 004e4d80	x	ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
-004e4dc0	_	needs port: cite-only physics-object method
+004e4dc0	x	CPhysicsObj::DoTargettedFX delivers to its own PHYSICSOBJREP (no parent routing for FX particles)
 004e4e10	x	ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
 004e4e50	_	needs port: cite-only physics-object method
 004e4f60	_	needs port: cite-only physics-object method
@@ -5453,7 +5453,7 @@ key	status	note
 005061f0	_	needs port: FX manager effect
 00506260	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 005062c0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
-00506360	x	ac2-client client_audio.rs: a handle is kept only for a looping PSDesc (fx_particles ObjectParticleStart.looping), so StopFX destroys only those; the random PSDesc pick is unchanged
+00506360	x	emitter's own rep only (DoParticleFX calls CreateParticleSystem on this->m_physobjrep): a bone the rep lacks starts no system; no parent or wearer lookup for particle bones (ac2-assets attaches, ac2-render fx_bone_tests split)
 00506430	x	ac2-client client_audio.rs: light_starts only while Render::m_Prefs.LightSourceEffects is on (ac2-render prefs light_source_effects, applied by apply_light_preferences); particle systems still start with the light off
 005064f0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 00506520	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
