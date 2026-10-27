@@ -133,6 +133,10 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_REQUEST_SALES,
     IFUN_REQUEST_NEXT_SALES,
     IFUN_REQUEST_PREV_SALES,
+    IFUN_REQUEST_LEAVE_CATALOG,
+    IFUN_REQUEST_COLLECT,
+    IFUN_REQUEST_RESTOCK,
+    IFUN_DISPLAY_SALE_REMINDERS,
     // The skill requests (`ggmCWInterface::CallIFun_Request*Skill`, see [`crate::skills`]).
     IFUN_REQUEST_TRAIN_SKILL,
     IFUN_REQUEST_UNTRAIN_SKILL,
@@ -240,6 +244,16 @@ pub const IFUN_REQUEST_SALES: u32 = 0x00B4_013E;
 pub const IFUN_REQUEST_NEXT_SALES: u32 = 0x00B4_0132;
 /// `gmCWInterface::RequestPrevSales` (`CallIFun_RequestPrevSales`, no arguments).
 pub const IFUN_REQUEST_PREV_SALES: u32 = 0x00B4_0133;
+/// `gmCWInterface::RequestLeaveCatalog` (`CallIFun_RequestLeaveCatalog`, no arguments).
+pub const IFUN_REQUEST_LEAVE_CATALOG: u32 = 0x00B4_0134;
+/// `gmCWInterface::RequestCollect` (`CallIFun_RequestCollect`: the target (ulong), whether the
+/// profits are taken (int)).
+pub const IFUN_REQUEST_COLLECT: u32 = 0x00B4_0139;
+/// `gmCWInterface::RequestRestock` (`CallIFun_RequestRestock`: the item (long), the quantity, the
+/// target (ulong)).
+pub const IFUN_REQUEST_RESTOCK: u32 = 0x00B4_013A;
+/// `gmCWInterface::DisplaySaleReminders` (`CallIFun_DisplaySaleReminders`, no arguments).
+pub const IFUN_DISPLAY_SALE_REMINDERS: u32 = 0x00B4_013D;
 
 /// The crafting IFuns (`ggmCWInterface::CallIFun_*`, the same ids in Legions 7160). The
 /// queries' parameters are in the order the glue declares them, the out values after them.

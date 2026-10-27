@@ -120,6 +120,22 @@ pub enum Command {
     /// `gmCWInterface::RequestNextSales` / `RequestPrevSales`: the next or previous page.
     NextSales,
     PrevSales,
+    /// `gmCWInterface::RequestLeaveCatalog`: the storekeeper's catalog closes.
+    LeaveCatalog,
+    /// `gmCWInterface::RequestRestock`: `quantity` of `item` into the consignment `target`.
+    RequestRestock {
+        item: u64,
+        quantity: u32,
+        target: u32,
+    },
+    /// `gmCWInterface::RequestCollect`: the consignment `target`'s stock (`profits`: the profits
+    /// are taken, else the items).
+    RequestCollect {
+        target: u32,
+        profits: bool,
+    },
+    /// `gmCWInterface::DisplaySaleReminders`: the sale reminders (the toolbar's sale reminder).
+    DisplaySaleReminders,
     /// `gmCWInterface::RequestSell`: `quantity` of `item` at `price`.
     RequestSell {
         item: u64,
@@ -606,6 +622,28 @@ impl Client {
                 }
                 Command::NextSales => self.store_ifun(crate::scripts::IFUN_REQUEST_NEXT_SALES, &[]),
                 Command::PrevSales => self.store_ifun(crate::scripts::IFUN_REQUEST_PREV_SALES, &[]),
+                Command::LeaveCatalog => {
+                    self.store_ifun(crate::scripts::IFUN_REQUEST_LEAVE_CATALOG, &[])
+                }
+                Command::RequestRestock {
+                    item,
+                    quantity,
+                    target,
+                } => self.store_ifun(
+                    crate::scripts::IFUN_REQUEST_RESTOCK,
+                    &[
+                        IFunArg::Long(*item),
+                        IFunArg::Int(*quantity),
+                        IFunArg::Int(*target),
+                    ],
+                ),
+                Command::RequestCollect { target, profits } => self.store_ifun(
+                    crate::scripts::IFUN_REQUEST_COLLECT,
+                    &[IFunArg::Int(*target), IFunArg::Int(u32::from(*profits))],
+                ),
+                Command::DisplaySaleReminders => {
+                    self.store_ifun(crate::scripts::IFUN_DISPLAY_SALE_REMINDERS, &[])
+                }
                 Command::RequestSell {
                     item,
                     quantity,

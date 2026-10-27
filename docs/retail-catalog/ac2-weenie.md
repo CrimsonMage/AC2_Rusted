@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 269 done, 114 partial, 1510 to do, 11 skipped.
+1904 retail functions: 287 done, 116 partial, 1490 to do, 11 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (72/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (81/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -658,7 +658,7 @@ Legend and workflow: [README](README.md).
 - [~] `ggmCWInterface::CallIFun_DeclineTrade` · 004581b0 · legions 00458d10 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [ ] `ggmCWInterface::CallIFun_DeclineVassal` · 00458240 · legions 00458da0
 - [x] `ggmCWInterface::CallIFun_Dismount` · 004582f0 · legions 00458f40 — ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
-- [ ] `ggmCWInterface::CallIFun_DisplaySaleReminders` · 00458380 · legions 00458fd0 — net: LeaveConsignment is raised by the close-all body (CStoreSystem 0x1C, from ViewStore and the consignment view), not by a WM_Store opcode of its own. DisplaySaleReminders (IFun 0xB4013D, id matches Legions) is not exercised
+- [~] `ggmCWInterface::CallIFun_DisplaySaleReminders` · 00458380 · legions 00458fd0 — Command::DisplaySaleReminders sends IFun 0xB4013D (scripts.rs); the stub sends nothing with a shopper open, and the sale reminder notice (gmToolbarUI::RecvNotice_ShowSaleReminder) is not shown
 - [ ] `ggmCWInterface::CallIFun_DoAssistedTell` · 00458410 · legions 00459060
 - [~] `ggmCWInterface::CallIFun_DoEmote` · 00458500 · legions 00459150 — ac2-weenie OnlineSession::emote and the chat shell's emote table (shell/mod.rs EmoteTable) send the emote id (WM_Communication emote, chat_7160); the StringInfo IFun 0xB400EC is not called; friends' status emote (gmFriendsUI::HandleStatusChange) not wired
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipCreate` · 004585e0 · legions 00459230
@@ -685,7 +685,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_GetAvailableCraftExperience` · 004598b0 · legions 0045a500 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [ ] `ggmCWInterface::CallIFun_GetAvailableExperience` · 00459970 · legions 0045a5c0
 - [ ] `ggmCWInterface::CallIFun_GetBypassGoldMeltingConfirmationDlg` · 00459a30 · legions 0045a680
-- [ ] `ggmCWInterface::CallIFun_GetConsignmentCharge` · 00459ad0 · legions 0045a720 — net: consignment_script_7160 (the stub packs the storekeeper, one long int, as WM_Store 0x46 enter / 0x45 leave, only with a shopper open; the charge is the script's float out value, 0.0 with no consignment). IFun ids 0xB40136/35/3B match Legions
+- [x] `ggmCWInterface::CallIFun_GetConsignmentCharge` · 00459ad0 · legions 0045a720 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 - [x] `ggmCWInterface::CallIFun_GetContainerSegmentInfo` · 00459b70 · legions 0045a7c0 — ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 - [x] `ggmCWInterface::CallIFun_GetContentsInfo` · 00459d30 · legions 0045a980 — ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 - [ ] `ggmCWInterface::CallIFun_GetDamageTextRangeOther` · 0045a000 · legions 0045ac50
@@ -775,25 +775,25 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_RegisterCommands` · 0045fb90 · legions 004607e0
 - [x] `ggmCWInterface::CallIFun_RequestAddIngredient` · 0045fc20 · legions 00460870 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 - [ ] `ggmCWInterface::CallIFun_RequestAttackStateChange` · 0045fd60 · legions 004609b0
-- [ ] `ggmCWInterface::CallIFun_RequestCollect` · 0045fe20 · legions 00460a70
-- [ ] `ggmCWInterface::CallIFun_RequestEnterConsignment` · 0045ff00 · legions 00460b50 — net: consignment_script_7160 (the stub packs the storekeeper, one long int, as WM_Store 0x46 enter / 0x45 leave, only with a shopper open; the charge is the script's float out value, 0.0 with no consignment). IFun ids 0xB40136/35/3B match Legions
+- [x] `ggmCWInterface::CallIFun_RequestCollect` · 0045fe20 · legions 00460a70 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
+- [x] `ggmCWInterface::CallIFun_RequestEnterConsignment` · 0045ff00 · legions 00460b50 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 - [~] `ggmCWInterface::CallIFun_RequestEnterStore` · 0045ff90 · legions 00460be0 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 - [x] `ggmCWInterface::CallIFun_RequestExecuteCraft` · 00460040 · legions 00460c90 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
-- [ ] `ggmCWInterface::CallIFun_RequestLeaveCatalog` · 00460190 · legions 00460de0
-- [ ] `ggmCWInterface::CallIFun_RequestLeaveConsignment` · 00460220 · legions 00460e70 — net: consignment_script_7160 (the stub packs the storekeeper, one long int, as WM_Store 0x46 enter / 0x45 leave, only with a shopper open; the charge is the script's float out value, 0.0 with no consignment). IFun ids 0xB40136/35/3B match Legions
+- [x] `ggmCWInterface::CallIFun_RequestLeaveCatalog` · 00460190 · legions 00460de0 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
+- [x] `ggmCWInterface::CallIFun_RequestLeaveConsignment` · 00460220 · legions 00460e70 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 - [~] `ggmCWInterface::CallIFun_RequestLeaveStore` · 004602b0 · legions 00460f00 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
-- [ ] `ggmCWInterface::CallIFun_RequestNextSales` · 00460340 · legions 00460f90
+- [x] `ggmCWInterface::CallIFun_RequestNextSales` · 00460340 · legions 00460f90 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 - [ ] `ggmCWInterface::CallIFun_RequestPetAttack` · 004603d0 · legions 00461020
 - [ ] `ggmCWInterface::CallIFun_RequestPetBuff` · 004604a0 · legions 004610f0
 - [ ] `ggmCWInterface::CallIFun_RequestPetHeal` · 00460530 · legions 00461180
 - [ ] `ggmCWInterface::CallIFun_RequestPetMode` · 004605c0 · legions 00461210
 - [ ] `ggmCWInterface::CallIFun_RequestPetReturn` · 004606c0 · legions 00461310
-- [ ] `ggmCWInterface::CallIFun_RequestPrevSales` · 00460750 · legions 004613a0
+- [x] `ggmCWInterface::CallIFun_RequestPrevSales` · 00460750 · legions 004613a0 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 - [x] `ggmCWInterface::CallIFun_RequestRaiseCraftSkill` · 004607e0 · legions 00461430 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [x] `ggmCWInterface::CallIFun_RequestRaiseSkill` · 00460890 · legions 004614e0 — ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
-- [ ] `ggmCWInterface::CallIFun_RequestRestock` · 00460940 · legions 00461590
+- [x] `ggmCWInterface::CallIFun_RequestRestock` · 00460940 · legions 00461590 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 - [x] `ggmCWInterface::CallIFun_RequestResurrect` · 00460a60 · legions 004616b0 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
-- [ ] `ggmCWInterface::CallIFun_RequestSales` · 00460af0 · legions 00461740
+- [x] `ggmCWInterface::CallIFun_RequestSales` · 00460af0 · legions 00461740 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 - [~] `ggmCWInterface::CallIFun_RequestSell` · 00460ba0 · legions 004617f0 — lead: the VM's sell body needs the storekeeper's shopper with a StoreGroup (set by ViewCatalog, WM_Store 0x52; without one it refuses with message 0xAFD1, consignment_script_7160). With the catalog open it runs on to gCWDistributor::GetEntityDID (bound) and then gCWPhysicsObject::CallEFun_GetLocalVisualDesc (0x800059, unbound: needs the item's VisualDesc native), so the RequestSell stub's bytes are not reached yet.
 - [ ] `ggmCWInterface::CallIFun_RequestSetPetName` · 00460cc0 · legions 00461910
 - [x] `ggmCWInterface::CallIFun_RequestTrainSkill` · 00460df0 · legions 00461a40 — ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (119/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (128/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -952,21 +952,21 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::GetAvailableCraftExperience` · 004500f0 · legions 00451230 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [~] `gmCWInterface::DoEmote` · 00450130 · legions 00451270 — ac2-weenie OnlineSession::emote and the chat shell's emote table (shell/mod.rs EmoteTable) send the emote id (WM_Communication emote, chat_7160); the StringInfo IFun 0xB400EC is not called; friends' status emote (gmFriendsUI::HandleStatusChange) not wired
 - [~] `gmCWInterface::PurchaseItem` · 00450150 · legions 00451290 — Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
-- [ ] `gmCWInterface::RequestNextSales` · 00450180 · legions 004512c0
-- [ ] `gmCWInterface::RequestPrevSales` · 004501a0 · legions 004512e0
-- [ ] `gmCWInterface::RequestSales` · 004501c0 · legions 00451300
+- [x] `gmCWInterface::RequestNextSales` · 00450180 · legions 004512c0 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
+- [x] `gmCWInterface::RequestPrevSales` · 004501a0 · legions 004512e0 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
+- [x] `gmCWInterface::RequestSales` · 004501c0 · legions 00451300 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 - [~] `gmCWInterface::PurchaseConfirmed` · 004501e0 · legions 00451320 — Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
 - [~] `gmCWInterface::GetMaxPurchaseQuantity` · 00450200 · legions 00451340 — Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced; the requests need an open shopper (a server ViewStore), so no store request is byte-verified end to end yet (store_script_7160). RequestSell's three ints are not decoded.
 - [~] `gmCWInterface::RequestLeaveStore` · 00450240 · legions 00451380 — Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced; the requests need an open shopper (a server ViewStore), so no store request is byte-verified end to end yet (store_script_7160). RequestSell's three ints are not decoded.
-- [ ] `gmCWInterface::RequestLeaveCatalog` · 00450260 · legions 004513a0
-- [ ] `gmCWInterface::RequestLeaveConsignment` · 00450280 · legions 004513c0 — net: consignment_script_7160 (the stub packs the storekeeper, one long int, as WM_Store 0x46 enter / 0x45 leave, only with a shopper open; the charge is the script's float out value, 0.0 with no consignment). IFun ids 0xB40136/35/3B match Legions
-- [ ] `gmCWInterface::RequestEnterConsignment` · 004502a0 · legions 004513e0 — net: consignment_script_7160 (the stub packs the storekeeper, one long int, as WM_Store 0x46 enter / 0x45 leave, only with a shopper open; the charge is the script's float out value, 0.0 with no consignment). IFun ids 0xB40136/35/3B match Legions
+- [x] `gmCWInterface::RequestLeaveCatalog` · 00450260 · legions 004513a0 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
+- [x] `gmCWInterface::RequestLeaveConsignment` · 00450280 · legions 004513c0 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
+- [x] `gmCWInterface::RequestEnterConsignment` · 004502a0 · legions 004513e0 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 - [~] `gmCWInterface::RequestEnterStore` · 004502c0 · legions 00451400 — Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
 - [~] `gmCWInterface::RequestSell` · 004502e0 · legions 00451420 — lead: the VM's sell body needs the storekeeper's shopper with a StoreGroup (set by ViewCatalog, WM_Store 0x52; without one it refuses with message 0xAFD1, consignment_script_7160). With the catalog open it runs on to gCWDistributor::GetEntityDID (bound) and then gCWPhysicsObject::CallEFun_GetLocalVisualDesc (0x800059, unbound: needs the item's VisualDesc native), so the RequestSell stub's bytes are not reached yet.
-- [ ] `gmCWInterface::RequestRestock` · 00450310 · legions 00451450
-- [ ] `gmCWInterface::RequestCollect` · 00450340 · legions 00451480
-- [ ] `gmCWInterface::GetConsignmentCharge` · 00450360 · legions 004514a0 — net: consignment_script_7160 (the stub packs the storekeeper, one long int, as WM_Store 0x46 enter / 0x45 leave, only with a shopper open; the charge is the script's float out value, 0.0 with no consignment). IFun ids 0xB40136/35/3B match Legions
-- [ ] `gmCWInterface::DisplaySaleReminders` · 00450390 · legions 004514d0 — net: LeaveConsignment is raised by the close-all body (CStoreSystem 0x1C, from ViewStore and the consignment view), not by a WM_Store opcode of its own. DisplaySaleReminders (IFun 0xB4013D, id matches Legions) is not exercised
+- [x] `gmCWInterface::RequestRestock` · 00450310 · legions 00451450 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
+- [x] `gmCWInterface::RequestCollect` · 00450340 · legions 00451480 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
+- [x] `gmCWInterface::GetConsignmentCharge` · 00450360 · legions 004514a0 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
+- [~] `gmCWInterface::DisplaySaleReminders` · 00450390 · legions 004514d0 — Command::DisplaySaleReminders sends IFun 0xB4013D (scripts.rs); the stub sends nothing with a shopper open, and the sale reminder notice (gmToolbarUI::RecvNotice_ShowSaleReminder) is not shown
 - [ ] `gmCWInterface::RequestPetAttack` · 004503b0 · legions 004514f0
 - [ ] `gmCWInterface::RequestPetBuff` · 004503d0 · legions 00451510
 - [ ] `gmCWInterface::RequestPetHeal` · 004503f0 · legions 00451530

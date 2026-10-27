@@ -242,6 +242,22 @@ pub mod function {
     /// S->C, `WM_Store` forwarder 0x57 (`CPlayer` 0x1F6 -> `CStoreSystem` 0x16 -> `UpdateConsignment`):
     /// the consignments (an `RList` of `Consignment`s), the storekeeper (long int).
     pub const STORE_UPDATE_CONSIGNMENT: u32 = 0xB83A_0057;
+    /// C->S, `WM_Store` stub 0x70 (`RequestSales`, IFun 0xB4013E): the page index (int), the
+    /// storekeeper (long int).
+    pub const STORE_SALES: u32 = 0xB83A_0070;
+    /// C->S, `WM_Store` stub 0x2F (`RequestNextSales`, IFun 0xB40132): the storekeeper (long int).
+    pub const STORE_NEXT_SALES: u32 = 0xB83A_002F;
+    /// C->S, `WM_Store` stub 0x30 (`RequestPrevSales`, IFun 0xB40133): the storekeeper (long int).
+    pub const STORE_PREV_SALES: u32 = 0xB83A_0030;
+    /// C->S, `WM_Store` stub 0x41 (`RequestLeaveCatalog`, IFun 0xB40134): the storekeeper (long
+    /// int).
+    pub const STORE_LEAVE_CATALOG: u32 = 0xB83A_0041;
+    /// C->S, `WM_Store` stub 0x5A (`RequestRestock`, IFun 0xB4013A): the target (int), the
+    /// quantity (int), the item (long int), the storekeeper (long int).
+    pub const STORE_RESTOCK: u32 = 0xB83A_005A;
+    /// C->S, `WM_Store` stub 0x4B (`RequestCollect`, IFun 0xB40139): the profits flag (int), the
+    /// target (int), the storekeeper (long int).
+    pub const STORE_COLLECT: u32 = 0xB83A_004B;
     /// C->S, `WM_Craft` stub 0x06 (`RequestAddIngredient`, IFun 0xB4009D): the spinner (int), the
     /// object (long int), the slot's ordinal (int), the recipe (int), in stub order.
     pub const CRAFT_ADD_INGREDIENT: u32 = 0x8206_0006;

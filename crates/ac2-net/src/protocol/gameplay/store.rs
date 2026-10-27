@@ -584,6 +584,54 @@ mod tests {
     }
 
     #[test]
+    fn sales_paging_restock_and_collect_are_the_stubs_events() {
+        use crate::protocol::ScriptRequest;
+        let vendor = 0x8000_0002_0000_0042;
+        let item = 0x8000_0000_0000_0102;
+        let cases = [
+            (
+                ScriptRequest::StoreSales { index: 3, vendor },
+                0xB83A_0070,
+                [int(3), long(vendor)].concat(),
+            ),
+            (ScriptRequest::NextSales(vendor), 0xB83A_002F, long(vendor)),
+            (ScriptRequest::PrevSales(vendor), 0xB83A_0030, long(vendor)),
+            (
+                ScriptRequest::LeaveCatalog(vendor),
+                0xB83A_0041,
+                long(vendor),
+            ),
+            (
+                ScriptRequest::Restock {
+                    item,
+                    quantity: 2,
+                    target: 3,
+                    vendor,
+                },
+                0xB83A_005A,
+                [int(3), int(2), long(item), long(vendor)].concat(),
+            ),
+            (
+                ScriptRequest::Collect {
+                    target: 3,
+                    profits: 1,
+                    vendor,
+                },
+                0xB83A_004B,
+                [int(1), int(3), long(vendor)].concat(),
+            ),
+        ];
+        for (request, function, expected) in cases {
+            let (_, bytes) = request.to_event().encode();
+            assert_eq!(bytes, event_words(function, &words(&expected)));
+            assert_eq!(
+                ScriptRequest::decode(function, &words(&expected)),
+                Some(Ok(request))
+            );
+        }
+    }
+
+    #[test]
     fn other_function_ids_are_not_store_messages() {
         assert!(StoreMessage::decode(0xB83A_0044, &[]).is_none());
         assert!(StoreMessage::decode(0x8215_0046, &[]).is_none());

@@ -18,7 +18,10 @@ pub enum ScriptRequest {
     /// [`function::EXAMINE`]: the request to examine, or a cleared request to stop.
     Examine(ExaminationRequest),
     /// [`function::SAY`]: `CPlayer` 0xDB passes 0 for `mode`.
-    Say { mode: u32, text: StringInfo },
+    Say {
+        mode: u32,
+        text: StringInfo,
+    },
     /// [`function::TELL`]: `CPlayer` 0x112 passes 0 for `mode`.
     Tell {
         mode: u32,
@@ -56,17 +59,48 @@ pub enum ScriptRequest {
     /// [`function::DECLINE_TRADE`].
     DeclineTrade,
     /// [`function::OFFER_ITEM`]: `item` at `amount`.
-    OfferItem { item: u64, amount: u32 },
+    OfferItem {
+        item: u64,
+        amount: u32,
+    },
     /// [`function::REVOKE_ITEM`].
     RevokeItem(u64),
     /// [`function::STORE_ENTER`]: the store (int), then the storekeeper (long int).
-    EnterStore { store: u32, vendor: u64 },
+    EnterStore {
+        store: u32,
+        vendor: u64,
+    },
     /// [`function::STORE_LEAVE`]: the storekeeper (long int).
     LeaveStore(u64),
     /// [`function::STORE_ENTER_CONSIGNMENT`]: the storekeeper (long int).
     EnterConsignment(u64),
     /// [`function::STORE_LEAVE_CONSIGNMENT`]: the storekeeper (long int).
     LeaveConsignment(u64),
+    /// [`function::STORE_SALES`]: the page index (int), then the storekeeper (long int).
+    StoreSales {
+        index: u32,
+        vendor: u64,
+    },
+    /// [`function::STORE_NEXT_SALES`] / [`function::STORE_PREV_SALES`]: the storekeeper (long int).
+    NextSales(u64),
+    PrevSales(u64),
+    /// [`function::STORE_LEAVE_CATALOG`]: the storekeeper (long int).
+    LeaveCatalog(u64),
+    /// [`function::STORE_RESTOCK`]: the target (int), the quantity (int), the item (long int),
+    /// then the storekeeper (long int).
+    Restock {
+        item: u64,
+        quantity: u32,
+        target: u32,
+        vendor: u64,
+    },
+    /// [`function::STORE_COLLECT`]: the profits flag (int, as the stub packs it), the target
+    /// (int), then the storekeeper (long int).
+    Collect {
+        target: u32,
+        profits: u32,
+        vendor: u64,
+    },
     /// [`function::STORE_PURCHASE`]: the purchase's `TransactionBlob` (a package reference).
     Purchase(PackedReference),
     /// [`function::CRAFT_ADD_INGREDIENT`]: `object` into slot `ordinal` of `recipe`, at `spinner`.
@@ -116,6 +150,12 @@ impl ScriptRequest {
             Self::LeaveStore(_) => function::STORE_LEAVE,
             Self::EnterConsignment(_) => function::STORE_ENTER_CONSIGNMENT,
             Self::LeaveConsignment(_) => function::STORE_LEAVE_CONSIGNMENT,
+            Self::StoreSales { .. } => function::STORE_SALES,
+            Self::NextSales(_) => function::STORE_NEXT_SALES,
+            Self::PrevSales(_) => function::STORE_PREV_SALES,
+            Self::LeaveCatalog(_) => function::STORE_LEAVE_CATALOG,
+            Self::Restock { .. } => function::STORE_RESTOCK,
+            Self::Collect { .. } => function::STORE_COLLECT,
             Self::Purchase(_) => function::STORE_PURCHASE,
             Self::CraftAddIngredient { .. } => function::CRAFT_ADD_INGREDIENT,
             Self::CraftExecute { .. } => function::CRAFT_EXECUTE,
@@ -163,6 +203,32 @@ impl ScriptRequest {
             Self::EnterConsignment(vendor) | Self::LeaveConsignment(vendor) => {
                 vec![PackValue::LongInt(*vendor)]
             }
+            Self::StoreSales { index, vendor } => {
+                vec![PackValue::Int(*index), PackValue::LongInt(*vendor)]
+            }
+            Self::NextSales(vendor) | Self::PrevSales(vendor) | Self::LeaveCatalog(vendor) => {
+                vec![PackValue::LongInt(*vendor)]
+            }
+            Self::Restock {
+                item,
+                quantity,
+                target,
+                vendor,
+            } => vec![
+                PackValue::Int(*target),
+                PackValue::Int(*quantity),
+                PackValue::LongInt(*item),
+                PackValue::LongInt(*vendor),
+            ],
+            Self::Collect {
+                target,
+                profits,
+                vendor,
+            } => vec![
+                PackValue::Int(*profits),
+                PackValue::Int(*target),
+                PackValue::LongInt(*vendor),
+            ],
             Self::Purchase(reference) => vec![PackValue::Reference(reference.clone())],
             Self::CraftAddIngredient {
                 recipe,
@@ -286,6 +352,36 @@ impl ScriptRequest {
             function::STORE_LEAVE => decode(|a| Ok(Self::LeaveStore(a.long()?))),
             function::STORE_ENTER_CONSIGNMENT => decode(|a| Ok(Self::EnterConsignment(a.long()?))),
             function::STORE_LEAVE_CONSIGNMENT => decode(|a| Ok(Self::LeaveConsignment(a.long()?))),
+            function::STORE_SALES => decode(|a| {
+                let index = a.int()?;
+                Ok(Self::StoreSales {
+                    index,
+                    vendor: a.long()?,
+                })
+            }),
+            function::STORE_NEXT_SALES => decode(|a| Ok(Self::NextSales(a.long()?))),
+            function::STORE_PREV_SALES => decode(|a| Ok(Self::PrevSales(a.long()?))),
+            function::STORE_LEAVE_CATALOG => decode(|a| Ok(Self::LeaveCatalog(a.long()?))),
+            function::STORE_RESTOCK => decode(|a| {
+                let target = a.int()?;
+                let quantity = a.int()?;
+                let item = a.long()?;
+                Ok(Self::Restock {
+                    item,
+                    quantity,
+                    target,
+                    vendor: a.long()?,
+                })
+            }),
+            function::STORE_COLLECT => decode(|a| {
+                let profits = a.int()?;
+                let target = a.int()?;
+                Ok(Self::Collect {
+                    target,
+                    profits,
+                    vendor: a.long()?,
+                })
+            }),
             function::STORE_PURCHASE => decode(|a| Ok(Self::Purchase(a.reference()?))),
             function::CRAFT_ADD_INGREDIENT => decode(|a| {
                 let spinner = a.int()?;

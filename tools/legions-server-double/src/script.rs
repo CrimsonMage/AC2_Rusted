@@ -239,6 +239,14 @@ impl State {
             ScriptRequest::EnterStore { .. } => {}
             // The consignment's enter and leave have no traced answer yet (see the catalog).
             ScriptRequest::EnterConsignment(_) | ScriptRequest::LeaveConsignment(_) => {}
+            // The paging, restock, collect and leave-catalog requests have no traced answer yet: the
+            // sales and consignment notices come back from the store's own forwarders.
+            ScriptRequest::StoreSales { .. }
+            | ScriptRequest::NextSales(_)
+            | ScriptRequest::PrevSales(_)
+            | ScriptRequest::LeaveCatalog(_)
+            | ScriptRequest::Restock { .. }
+            | ScriptRequest::Collect { .. } => {}
             ScriptRequest::Use(desc) if desc.item == crate::butcher::BUTCHER_KNIFE => {
                 self.answer_butcher(desc);
             }
