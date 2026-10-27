@@ -28,6 +28,8 @@ const MOUSE_SENSITIVITY: u32 = 0x4000_0025;
 const INVERT_Y: u32 = 0x4000_0026;
 const STEER_PLAYER: u32 = 0x4000_006B;
 const ALIGN_TO_SLOPE: u32 = 0x4000_005A;
+/// `Camera_Zoom_Speed` (`CameraManager::SetupPrefs`'s `m_zoomScale`).
+const ZOOM_SPEED: u32 = 0x4000_002C;
 
 /// The camera's preference values, as the bank holds them.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -35,6 +37,7 @@ pub struct CameraValues {
     pub distance: f32,
     pub tilt: f32,
     pub rotate_speed: f32,
+    pub zoom_speed: f32,
     pub mouse_sensitivity: f32,
     pub invert_y: bool,
     pub steer_player: bool,
@@ -55,6 +58,7 @@ pub fn values(bank: &PreferenceBank) -> CameraValues {
         distance: float(DISTANCE, 4.5),
         tilt: float(TILT, 0.25),
         rotate_speed: float(ROTATE_SPEED, 1.0),
+        zoom_speed: float(ZOOM_SPEED, 1.0),
         mouse_sensitivity: float(MOUSE_SENSITIVITY, 1.0),
         invert_y: flag(INVERT_Y, false),
         steer_player: flag(STEER_PLAYER, true),

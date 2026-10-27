@@ -15,6 +15,9 @@ pub const STATUSBAR_CHILD_KEY: u32 = 0x4100_0009;
 pub const RADAR_CHILD_KEY: u32 = 0x4100_000B;
 /// Case `0x4100000C`: the gameplay UI itself (`gmGamePlayUI::Show` of its toggle).
 pub const GAMEPLAY_SHOW_KEY: u32 = 0x4100_000C;
+/// Case `0x4100000D`: `USE_KEY`, which runs `gmCWInterface::UseSelection` on the player's
+/// selection (no shown check; it needs only the player object).
+pub const USE_KEY: u32 = 0x4100_000D;
 
 /// A gameplay child that a key toggles.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

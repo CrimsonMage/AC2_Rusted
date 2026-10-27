@@ -155,3 +155,94 @@ fn auto_distance_eases_a_close_camera_out_while_running() {
     // At rest for over a second it eases back to the chosen distance.
     assert_eq!(camera.targeting.camera_distance, 1.3);
 }
+
+#[test]
+fn the_zoom_keys_scale_the_distance_by_powers_of_the_retail_bases() {
+    // `CameraZoomIn` raises 0.75 and `CameraZoomOut` 1.5 to the extent times the zoom speed.
+    let mut camera = camera();
+    let p = player();
+    camera.start_action(action::ZOOM_SCALE_IN, 1.0, Some(&p));
+    assert!(
+        (camera.anim_scale - 0.75).abs() < 1e-6,
+        "{}",
+        camera.anim_scale
+    );
+    camera.stop_action(action::ZOOM_SCALE_IN, Some(&p));
+    assert_eq!(camera.anim_scale, 1.0);
+    camera.start_action(action::ZOOM_SCALE_OUT, 1.0, Some(&p));
+    assert!(
+        (camera.anim_scale - 1.5).abs() < 1e-6,
+        "{}",
+        camera.anim_scale
+    );
+    camera.stop_action(action::ZOOM_SCALE_OUT, Some(&p));
+    assert_eq!(camera.anim_scale, 1.0);
+    // The zoom speed preference multiplies the extent: 1.5^(0.5 * 2) = 1.5.
+    let values = CameraValues {
+        distance: 4.5,
+        tilt: 0.25,
+        rotate_speed: 1.0,
+        zoom_speed: 2.0,
+        mouse_sensitivity: 1.0,
+        invert_y: false,
+        steer_player: true,
+        align_to_slope: true,
+    };
+    camera.apply_prefs(&values);
+    camera.start_action(action::ZOOM_SCALE_OUT, 0.5, Some(&p));
+    assert!(
+        (camera.anim_scale - 1.5).abs() < 1e-6,
+        "{}",
+        camera.anim_scale
+    );
+}
+
+#[test]
+fn the_swing_right_key_swings_left_as_legions_does() {
+    let p = player();
+    let mut right = camera();
+    let mut left = camera();
+    right.start_action(action::SWING_OUT_RIGHT, 0.0, Some(&p));
+    left.start_action(0x4000_0029, 0.0, Some(&p));
+    assert_eq!(right.viewer_offset, left.viewer_offset);
+    // The normalised (5.9, -2.5, 4.75) is the target, so the viewer leans to +x.
+    assert!(right.viewer_offset.x > 0.5, "{:?}", right.viewer_offset);
+}
+
+#[test]
+fn the_fake_transition_key_turns_the_viewer_to_the_retail_direction() {
+    let p = player();
+    let mut camera = camera();
+    camera.start_action(action::FAKE_TRANSITION, 0.0, Some(&p));
+    assert!(camera.viewer_offset.x < -0.5, "{:?}", camera.viewer_offset);
+    // A second press at the target returns to the default pitch behind the player.
+    camera.start_action(action::FAKE_TRANSITION, 0.0, Some(&p));
+    assert_eq!(camera.viewer_offset, Vector::new(0.0, -1.0, 0.25));
+}
+
+#[test]
+fn look_at_self_turns_the_camera_down_then_back_to_the_front() {
+    let p = player();
+    let mut camera = camera();
+    camera.start_action(action::LOOK_AT_SELF, 0.0, Some(&p));
+    assert_eq!(camera.viewer_offset, Vector::new(0.0, 1.0, 0.0));
+    camera.start_action(action::LOOK_AT_SELF, 0.0, Some(&p));
+    assert_eq!(camera.viewer_offset, Vector::new(0.0, -1.0, 0.25));
+}
+
+#[test]
+fn map_view_saves_the_orbit_and_restores_it() {
+    let p = player();
+    let mut camera = camera();
+    let before = (camera.viewer_offset, camera.camera_distance);
+    camera.start_action(action::MAP_VIEW, 0.0, Some(&p));
+    assert!(camera.mapview);
+    assert_eq!(camera.camera_distance, 160.0);
+    assert_eq!(camera.viewer_offset, Vector::new(0.0, -1.0, 1.37));
+    // Map view ignores the zoom keys and turns: the orbit stays where the map left it.
+    camera.start_action(action::FAKE_TRANSITION, 0.0, Some(&p));
+    assert_eq!(camera.viewer_offset, Vector::new(0.0, -1.0, 1.37));
+    camera.start_action(action::MAP_VIEW, 0.0, Some(&p));
+    assert!(!camera.mapview);
+    assert_eq!((camera.viewer_offset, camera.camera_distance), before);
+}

@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 82 done, 32 partial, 146 to do, 2 skipped.
+262 retail functions: 85 done, 33 partial, 141 to do, 3 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -197,7 +197,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CameraFxManager::AddCameraDistance` · 005790e0 · legions 00548a40
 - [ ] `CameraFxManager::StopAllCameraFX` · 00579160 · legions 00548ac0
 
-## `portal/client/src/smartbox/camera/cameramanager.cpp.c` (15/46)
+## `portal/client/src/smartbox/camera/cameramanager.cpp.c` (18/46)
 
 ### TargetingModule
 - [x] `TargetingModule::TargetingModule` · 00574850 · legions 00544720
@@ -220,7 +220,7 @@ Legend and workflow: [README](README.md).
 - [x] `CameraManager::GetGlobalDirection` · 005750d0 · legions 00544fa0 — CameraManager::global_direction, fed to the movement module
 - [ ] `CameraManager::SetCameraAnimTarget` · 005750f0 · legions 00544fc0
 - [ ] `CameraManager::SetCameraAnimParent` · 00575150 · legions 00545020
-- [ ] `CameraManager::FakeTransition` · 005751b0 · legions 00546710
+- [x] `CameraManager::FakeTransition` · 005751b0 · legions 00546710 — ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
 - [~] `CameraManager::SetupPrefs` · 005751c0 · legions 00545090 — ac2-smartbox prefs.rs values + camera.rs apply_prefs: default distance and tilt (taken at the camera's next reset, not live), rotate speed, mouse-look sensitivity, Invert_Y, Steer_Player, Align_To_Slope; zoom speed, transition time, auto distance and camera height are registered but not read
 - [ ] `CameraManager::StopAllCameraFX` · 00575a20
 
@@ -236,18 +236,18 @@ Legend and workflow: [README](README.md).
 - [~] `CameraManager::HandleApply` · 00575ee0 · legions 00545db0 — ac2-smartbox prefs.rs values + camera.rs apply_prefs: default distance and tilt (taken at the camera's next reset, not live), rotate speed, mouse-look sensitivity, Invert_Y, Steer_Player, Align_To_Slope; zoom speed, transition time, auto distance and camera height are registered but not read
 - [ ] `CameraManager::DoCameraFX` · 00575f20 · legions 00545df0
 - [~] `CameraManager::UpdateCamera` · 005760f0 · legions 00545fb0 — no dynamic first-person head-bone camera, no camera effects
-- [ ] `CameraManager::LookAtSelf` · 005767a0 · legions 00546660
-- [ ] `CameraManager::SwingOutLeft` · 00576850 · legions 005467f0
-- [ ] `CameraManager::SwingOutRight` · 00576930
-- [ ] `CameraManager::SetMapView` · 00576a10 · legions 005468d0
+- [x] `CameraManager::LookAtSelf` · 005767a0 · legions 00546660 — ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
+- [x] `CameraManager::SwingOutLeft` · 00576850 · legions 005467f0 — ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
+- [-] `CameraManager::SwingOutRight` · 00576930 — no Legions 7160 function: Legions StartAction runs SwingOutLeft for 0x40000029 (camera.rs SWING_OUT_RIGHT); admin-only
+- [~] `CameraManager::SetMapView` · 00576a10 · legions 005468d0 — ac2-smartbox camera.rs set_map_view saves and restores the orbit and distance; SceneTool::m_bDisableDegrades not modelled
 - [ ] `CameraManager::GetTargetOffset` · 00576b00 · legions 005469c0
 - [x] `CameraManager::SetDefaults` · 00576b40 · legions 00546a30
 - [x] `CameraManager::LookAtGround` · 00576c70 · legions 00546b60 — camera action 0x400000AE (no map view)
 - [x] `CameraManager::SetMouseLookState` · 00576d10 · legions 00546c00 — ac2-client camera.rs (driven by gmCameraUI states)
 - [x] `CameraManager::SetFirstPersonState` · 00576dc0 · legions 00546cb0 — ac2-client camera.rs (driven by gmCameraUI states)
 - [~] `CameraManager::HandleChange` · 00576e30 — applied once with the preference defaults
-- [~] `CameraManager::StartAction` · 00577100 · legions 00546ff0 — no swing-out, look-at-self, map view, zoom-scale animation or camera effects
-- [~] `CameraManager::StopAction` · 00577360 · legions 00547250 — no zoom-scale animation
+- [~] `CameraManager::StartAction` · 00577100 · legions 00546ff0 — ac2-smartbox camera.rs start_action / stop_action: every camera action id of Legions StartAction and StopAction; camera effects (FX) and the SceneTool degrade switch not modelled
+- [~] `CameraManager::StopAction` · 00577360 · legions 00547250 — ac2-smartbox camera.rs start_action / stop_action: every camera action id of Legions StartAction and StopAction; camera effects (FX) and the SceneTool degrade switch not modelled
 - [~] `CameraManager::CameraManager` · 005775a0 · legions 005475f0 — no camera effects manager
 
 ### _STL::deque<_STL::pair<long,long>,_STL::allocator<_STL::pair<long,long>_>_>

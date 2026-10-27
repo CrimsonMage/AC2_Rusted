@@ -155,7 +155,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (21/58)
 
 ### gmGamePlayUI
-- [~] `gmGamePlayUI::Show` · 00407910 · legions 00407620 — ac2-client hud_view.rs set_gameplay_shown (m_shown, 0x4100000C via gameplay_show_key with the wait/death/story/logout guard); cascades only to the status bar, radar and toolbar bar; the other children's Show (selection, stack, trade, panels) not modelled; gameplay_keys_7160 (the_hud_key_hides...)
+- [~] `gmGamePlayUI::Show` · 00407910 · legions 00407620 — ac2-client hud_view.rs set_gameplay_shown: status bar, radar and toolbar bar. Legions UIFramework::Show re-applies each child's own m_shown (disassembly 0x005BE390), it does not pass the new flag down; cascade unchanged
 - [x] `gmGamePlayUI::SetErrorMsg` · 00407940 · legions 00407650 — ac2-client view.rs ClientView::set_error_msg -> chat_display(ac2_ui::ERROR_TEXT_TYPE); no gameplay caller in retail (only the ECM_Admin notice), so no test reaches it
 - [-] `gmGamePlayUI::RecvNotice_EndCharacterSession` · 00407980 — admin 7148 only: sets a flag on EndCharacterSession; Legions 7160 has no match and registers no such notice (the logoff path is EndSession + LogOffCharacter)
 - [-] `gmGamePlayUI::RecvNotice_Logoff` · 00407990 — admin 7148 only (UploadGameOptions + Device::Done); Legions 7160 has no match. The logoff is EndSession (hud_game_dialogs.rs game_dialog_logout) and LogOffCharacter
@@ -255,7 +255,7 @@ Legend and workflow: [README](README.md).
 
 ### gmGamePlayUI
 - [x] `gmGamePlayUI::RecvNotice_SaveLocationsChanged` · 0040a790 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
-- [~] `gmGamePlayUI::ListenToMessage` · 0040a810 · legions 0040a6d0 — ac2-ui game_dialogs.rs logout_key (0x4100000e); ac2-client hud_view.rs gameplay_keys (0x41000008/09/0B child keys while Shown) and gameplay_show_key (0x4100000C); 0x4100000D UseSelection and 0xffff0007 save locations not here
+- [~] `gmGamePlayUI::ListenToMessage` · 0040a810 · legions 0040a6d0 — ac2-ui game_dialogs.rs logout_key (0x4100000e); ac2-client hud_view.rs gameplay_keys (child keys, 0x4100000C via gameplay_show_key, 0x4100000D via take_use_key -> Command::UseSelection); 0xffff0005 and 0xffff0007 notices not here
 - [x] `gmGamePlayUI::RecvNotice_ReloadOptions` · 0040a960 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 
 ## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (21/39)

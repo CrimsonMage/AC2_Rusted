@@ -75,6 +75,8 @@ mod menu_tests;
 #[cfg(test)]
 mod social_page_tests;
 pub use menu::MSG_MENU_NEW_SELECTION;
+#[cfg(test)]
+mod key_action_audit_tests;
 mod layout_media;
 mod list_box;
 mod list_box_select;
@@ -134,7 +136,7 @@ mod stack;
 mod statusbar;
 pub use gameplay_keys::{
     child_for_key, GameplayChild, GAMEPLAY_SHOW_KEY, RADAR_CHILD_KEY, STATUSBAR_CHILD_KEY,
-    TOOLBAR_CHILD_KEY,
+    TOOLBAR_CHILD_KEY, USE_KEY,
 };
 pub use gameplay_story::{GameplayStory, PortalSpaceCall, StoryEvent, StoryScene};
 mod story;

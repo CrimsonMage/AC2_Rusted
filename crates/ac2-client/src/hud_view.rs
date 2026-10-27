@@ -81,6 +81,8 @@ pub(crate) struct HudView {
     /// The `0x4100000C` key was pressed this frame; [`HudView::frameworks`] runs it, where the
     /// client's story state is.
     hud_key_pending: bool,
+    /// The `0x4100000D` use key was pressed this frame ([`HudView::take_use_key`]).
+    use_key_pending: bool,
     /// `gmGamePlayUI`'s death dialog (`_deathContext`).
     pub(crate) death: ac2_ui::DeathPanel,
     /// `gmGamePlayUI`'s wait, message and offer contexts (`_waitContext`, `_messageContexts`).
@@ -209,6 +211,8 @@ impl HudView {
             let key = message.data as u32;
             if key == GAMEPLAY_SHOW_KEY {
                 self.hud_key_pending = true;
+            } else if key == ac2_ui::USE_KEY {
+                self.use_key_pending = true;
             } else if let Some(child) = ac2_ui::child_for_key(key) {
                 if self.gameplay_shown {
                     self.set_child_shown(child, !self.child_shown(child));
@@ -259,6 +263,11 @@ impl HudView {
         ] {
             self.set_child_shown(child, shown);
         }
+    }
+
+    /// Whether the use key was pressed since the last call (`gmCWInterface::UseSelection`).
+    pub(crate) fn take_use_key(&mut self) -> bool {
+        std::mem::take(&mut self.use_key_pending)
     }
 
     /// `gmGamePlayUI::ListenToMessage` case `0x4100000C`: the HUD toggles unless a death dialog is

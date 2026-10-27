@@ -41,6 +41,9 @@ pub const FIRST_PERSON_DISTANCE: f32 = 0.01;
 /// Camera actions (`CameraManager::StartAction`/`StopAction`), `ActionInterpreter` ids.
 pub mod action {
     pub const FAKE_TRANSITION: u32 = 0x4000_0028;
+    /// Legions runs `SwingOutLeft` for this id (`CameraSwingOutRight`'s key); the admin build
+    /// runs `SwingOutRight`, which Legions does not have.
+    pub const SWING_OUT_RIGHT: u32 = 0x4000_0029;
     pub const SHOULDER_VIEW: u32 = 0x4000_002A;
     pub const MOUSE_LOOK_HOLD: u32 = 0x4000_002C;
     pub const ZOOM_IN: u32 = 0x4000_002D;
@@ -49,11 +52,26 @@ pub mod action {
     pub const RESET: u32 = 0x4000_0030;
     pub const TOGGLE_FIRST_PERSON: u32 = 0x4000_00A2;
     pub const LOOK_AT_GROUND: u32 = 0x4000_00AE;
+    pub const LOOK_AT_SELF: u32 = 0x4000_00B1;
     pub const ZOOM_OUT: u32 = 0x4000_00B2;
+    pub const MAP_VIEW: u32 = 0x4000_00B3;
+    /// `CameraZoomIn` / `CameraZoomOut`: the scale the distance is multiplied by.
+    pub const ZOOM_SCALE_IN: u32 = 0x4000_00B4;
+    pub const ZOOM_SCALE_OUT: u32 = 0x4000_00B5;
     pub const PITCH_UP: u32 = 0x4000_00B6;
     pub const PITCH_DOWN: u32 = 0x4000_00B7;
     pub const TOGGLE_MOUSE_LOOK: u32 = 0x4000_00BA;
 }
+
+/// `CameraManager::FakeTransition`'s and `SwingOutLeft`'s target directions (normalised).
+const FAKE_TRANSITION_OFFSET: [f32; 3] = [-5.9, -2.5, 4.75];
+const SWING_OUT_LEFT_OFFSET: [f32; 3] = [5.9, -2.5, 4.75];
+/// `CameraManager::SetMapView`'s viewer pitch and distance.
+const MAP_VIEW_PITCH: f32 = 1.37;
+const MAP_VIEW_DISTANCE: f32 = 160.0;
+/// The bases `CameraZoomIn` and `CameraZoomOut` raise to the extent times the zoom speed.
+const ZOOM_IN_BASE: f64 = 0.75;
+const ZOOM_OUT_BASE: f64 = 1.5;
 
 /// What the camera reads from the player's physics object.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -132,6 +150,10 @@ pub struct CameraManager {
     pub third_person_steers: bool,
     anim_scale: f32,
     rotate_scale: f32,
+    /// `m_zoomScale` (`Camera_Zoom_Speed`).
+    zoom_scale: f32,
+    /// `SetMapView`'s saved viewer offset and distance (`DAT_00ae6350`..`DAT_00ae635c`).
+    map_saved: (Vector, f32),
     align_to_slope: bool,
     start_shoulder: Vector,
     current_shoulder: Vector,
@@ -176,6 +198,8 @@ impl CameraManager {
             third_person_steers: true,
             anim_scale: 1.0,
             rotate_scale: 1.0,
+            zoom_scale: 1.0,
+            map_saved: (Vector::new(0.0, 0.0, 0.0), 0.0),
             align_to_slope: true,
             start_shoulder: Vector::new(0.0, 0.0, 0.0),
             current_shoulder: Vector::new(0.0, 0.0, 0.0),
@@ -247,7 +271,16 @@ impl CameraManager {
     /// `CameraManager::StartAction`.
     pub fn start_action(&mut self, action: u32, extent: f32, subject: Option<&CameraSubject>) {
         match action {
-            action::FAKE_TRANSITION => self.targeting.fake_transition(),
+            action::FAKE_TRANSITION => self.fake_transition(),
+            action::SWING_OUT_RIGHT => self.swing_out_left(),
+            action::LOOK_AT_SELF => self.look_at_self(),
+            action::MAP_VIEW => self.set_map_view(!self.mapview),
+            action::ZOOM_SCALE_IN if !self.first_person => {
+                self.anim_scale = st(ZOOM_IN_BASE.powf(ld(extent) * ld(self.zoom_scale)));
+            }
+            action::ZOOM_SCALE_OUT if !self.first_person => {
+                self.anim_scale = st(ZOOM_OUT_BASE.powf(ld(extent) * ld(self.zoom_scale)));
+            }
             action::SHOULDER_VIEW => self.shoulder_view(),
             action::MOUSE_LOOK_HOLD => self.set_mouse_look(true, subject),
             action::ZOOM_IN if !self.first_person => {
@@ -296,9 +329,100 @@ impl CameraManager {
             action::ROTATE_LEFT | action::ROTATE_RIGHT if !self.first_person => {
                 self.anim_heading = 0.0;
             }
+            action::ZOOM_SCALE_IN | action::ZOOM_SCALE_OUT if !self.first_person => {
+                self.anim_scale = 1.0;
+            }
             action::PITCH_UP | action::PITCH_DOWN => self.anim_pitch = 0.0,
             _ => {}
         }
+    }
+
+    /// `CameraManager::FakeTransition`: the viewer offset turns to the normalised
+    /// `(-5.9, -2.5, 4.75)` when it is more than `0.0002` from there, else to the default pitch
+    /// behind the player; then the targeting module transitions. Nothing runs in map view, first
+    /// person or mouse look.
+    fn fake_transition(&mut self) {
+        if self.mapview || self.first_person || self.mouse_look {
+            return;
+        }
+        let target = Vector::new(
+            FAKE_TRANSITION_OFFSET[0],
+            FAKE_TRANSITION_OFFSET[1],
+            FAKE_TRANSITION_OFFSET[2],
+        )
+        .d3dx_normalize();
+        self.turn_viewer_toward(target);
+        self.targeting.fake_transition();
+    }
+
+    /// `CameraManager::SwingOutLeft`: the same turn as [`Self::fake_transition`], toward the
+    /// normalised `(5.9, -2.5, 4.75)`.
+    fn swing_out_left(&mut self) {
+        if self.mapview || self.first_person || self.mouse_look {
+            return;
+        }
+        let target = Vector::new(
+            SWING_OUT_LEFT_OFFSET[0],
+            SWING_OUT_LEFT_OFFSET[1],
+            SWING_OUT_LEFT_OFFSET[2],
+        )
+        .d3dx_normalize();
+        self.turn_viewer_toward(target);
+        self.targeting.fake_transition();
+    }
+
+    /// The branch both swings share: move the viewer offset to `target` when it is farther than
+    /// `F_EPSILON` away (the `0.0002` compare is unrounded), else to the default pitch behind the
+    /// player.
+    fn turn_viewer_toward(&mut self, target: Vector) {
+        let v = self.viewer_offset;
+        let dx = st(ld(v.x) - ld(target.x));
+        let dy = st(ld(v.y) - ld(target.y));
+        let dz = ld(v.z) - ld(target.z);
+        let gap = (ld(dx) * ld(dx) + ld(dy) * ld(dy) + dz * dz).sqrt();
+        if gap > 0.0002 {
+            self.viewer_offset = target;
+        } else {
+            self.viewer_offset = Vector::new(0.0, -1.0, self.prefs_pitch);
+        }
+    }
+
+    /// `CameraManager::LookAtSelf`: from straight up the camera turns to the default pitch
+    /// behind the player, otherwise it looks straight down from the front (`y = 1`).
+    fn look_at_self(&mut self) {
+        if self.mapview || self.first_person || self.mouse_look {
+            return;
+        }
+        let v = self.viewer_offset;
+        if ld(v.x).abs() < 0.0002 && (ld(v.y) - 1.0).abs() < 0.0002 && ld(v.z).abs() < 0.0002 {
+            self.viewer_offset = Vector::new(0.0, -1.0, self.prefs_pitch);
+        } else {
+            self.viewer_offset = Vector::new(0.0, 1.0, 0.0);
+        }
+        self.targeting.fake_transition();
+    }
+
+    /// `CameraManager::SetMapView(state)`: the overhead map view saves the viewer offset and
+    /// distance, looks down from 1.37 at 160 m, and restores them when it is turned off. The
+    /// retail `SceneTool::m_bDisableDegrades` switch is not modelled here.
+    pub fn set_map_view(&mut self, state: bool) {
+        if self.first_person {
+            return;
+        }
+        if state {
+            self.map_saved = (self.viewer_offset, self.camera_distance);
+            self.viewer_offset = Vector::new(0.0, -1.0, MAP_VIEW_PITCH);
+            self.targeting.fake_transition();
+            self.camera_distance = MAP_VIEW_DISTANCE;
+            self.mapview = true;
+            return;
+        }
+        let (offset, distance) = self.map_saved;
+        self.camera_distance = distance;
+        self.targeting.camera_distance = distance;
+        self.viewer_offset = offset;
+        self.targeting.fake_transition();
+        self.mapview = false;
     }
 
     /// `CameraManager::ShoulderView`: toggles a close over-the-shoulder view (1.3 m).
@@ -560,6 +684,7 @@ impl CameraManager {
         self.prefs_distance = values.distance;
         self.prefs_pitch = values.tilt;
         self.rotate_scale = values.rotate_speed;
+        self.zoom_scale = values.zoom_speed;
         self.mouse_sensitivity = values.mouse_sensitivity;
         self.invert_y = values.invert_y;
         self.third_person_steers = values.steer_player;

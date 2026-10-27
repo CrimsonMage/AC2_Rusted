@@ -119,6 +119,7 @@ impl HudView {
             shift_held: false,
             gameplay_shown: true,
             hud_key_pending: false,
+            use_key_pending: false,
             player_messages: Vec::new(),
             strings: None,
             pending_strings: Some(pending_strings),

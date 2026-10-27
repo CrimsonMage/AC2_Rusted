@@ -63,7 +63,7 @@ key	status	note
 00406f50	x	ac2-script reference/native unpack
 00407050	x	ac2-script reference/native unpack
 00407770	~	ac2-script: unpack direction only
-00407910	~	ac2-client hud_view.rs set_gameplay_shown (m_shown, 0x4100000C via gameplay_show_key with the wait/death/story/logout guard); cascades only to the status bar, radar and toolbar bar; the other children's Show (selection, stack, trade, panels) not modelled; gameplay_keys_7160 (the_hud_key_hides...)
+00407910	~	ac2-client hud_view.rs set_gameplay_shown: status bar, radar and toolbar bar. Legions UIFramework::Show re-applies each child's own m_shown (disassembly 0x005BE390), it does not pass the new flag down; cascade unchanged
 00407940	x	ac2-client view.rs ClientView::set_error_msg -> chat_display(ac2_ui::ERROR_TEXT_TYPE); no gameplay caller in retail (only the ECM_Admin notice), so no test reaches it
 00407980	-	admin 7148 only: sets a flag on EndCharacterSession; Legions 7160 has no match and registers no such notice (the logoff path is EndSession + LogOffCharacter)
 00407990	-	admin 7148 only (UploadGameOptions + Device::Done); Legions 7160 has no match. The logoff is EndSession (hud_game_dialogs.rs game_dialog_logout) and LogOffCharacter
@@ -107,7 +107,7 @@ key	status	note
 00409e00	x	
 0040a1f0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 0040a790	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
-0040a810	~	ac2-ui game_dialogs.rs logout_key (0x4100000e); ac2-client hud_view.rs gameplay_keys (0x41000008/09/0B child keys while Shown) and gameplay_show_key (0x4100000C); 0x4100000D UseSelection and 0xffff0007 save locations not here
+0040a810	~	ac2-ui game_dialogs.rs logout_key (0x4100000e); ac2-client hud_view.rs gameplay_keys (child keys, 0x4100000C via gameplay_show_key, 0x4100000D via take_use_key -> Command::UseSelection); 0xffff0005 and 0xffff0007 notices not here
 0040a960	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 0040aad0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 0040ab10	x	ac2-ui pregame/avatar_modification.rs
@@ -4325,6 +4325,7 @@ key	status	note
 00574d40	x	camera action 0x400000B2
 00574eb0	~	the player target only
 005750d0	x	CameraManager::global_direction, fed to the movement module
+005751b0	x	ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
 005751c0	~	ac2-smartbox prefs.rs values + camera.rs apply_prefs: default distance and tilt (taken at the camera's next reset, not live), rotate speed, mouse-look sensitivity, Invert_Y, Steer_Player, Align_To_Slope; zoom speed, transition time, auto distance and camera height are registered but not read
 00575ab0	x	no camera effects run, so their distance sum is 0
 00575ad0	x	camera action 0x4000002A
@@ -4332,13 +4333,17 @@ key	status	note
 00575c00	x	
 00575ee0	~	ac2-smartbox prefs.rs values + camera.rs apply_prefs: default distance and tilt (taken at the camera's next reset, not live), rotate speed, mouse-look sensitivity, Invert_Y, Steer_Player, Align_To_Slope; zoom speed, transition time, auto distance and camera height are registered but not read
 005760f0	~	no dynamic first-person head-bone camera, no camera effects
+005767a0	x	ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
+00576850	x	ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
+00576930	-	no Legions 7160 function: Legions StartAction runs SwingOutLeft for 0x40000029 (camera.rs SWING_OUT_RIGHT); admin-only
+00576a10	~	ac2-smartbox camera.rs set_map_view saves and restores the orbit and distance; SceneTool::m_bDisableDegrades not modelled
 00576b40	x	
 00576c70	x	camera action 0x400000AE (no map view)
 00576d10	x	ac2-client camera.rs (driven by gmCameraUI states)
 00576dc0	x	ac2-client camera.rs (driven by gmCameraUI states)
 00576e30	~	applied once with the preference defaults
-00577100	~	no swing-out, look-at-self, map view, zoom-scale animation or camera effects
-00577360	~	no zoom-scale animation
+00577100	~	ac2-smartbox camera.rs start_action / stop_action: every camera action id of Legions StartAction and StopAction; camera effects (FX) and the SceneTool degrade switch not modelled
+00577360	~	ac2-smartbox camera.rs start_action / stop_action: every camera action id of Legions StartAction and StopAction; camera effects (FX) and the SceneTool degrade switch not modelled
 005775a0	~	no camera effects manager
 005778a0	x	ac2-client camera_mouse.rs / input_handlers
 00579180	x	

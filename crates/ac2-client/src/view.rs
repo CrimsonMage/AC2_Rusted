@@ -551,7 +551,14 @@ impl ClientView {
             let size = self.hud.window_size();
             self.pick(frame, size, point)
         });
-        let mut commands = self.hud.items_3d_frame(client, frame, world_pick);
+        // `gmGamePlayUI::ListenToMessage` 0x4100000D: `gmCWInterface::UseSelection`.
+        let mut commands: Vec<crate::Command> = self
+            .hud
+            .take_use_key()
+            .then_some(crate::Command::UseSelection)
+            .into_iter()
+            .collect();
+        commands.extend(self.hud.items_3d_frame(client, frame, world_pick));
         commands.extend(self.hud.craft_frameworks(client, frame, events));
         self.hud.story_frameworks(client);
         self.hud.book_frameworks(client, frame, events);
