@@ -37,6 +37,7 @@ impl HudView {
             consignment,
             death,
             dialogs,
+            display_backlog,
             examination,
             fellowship,
             game_dialogs,
@@ -70,7 +71,15 @@ impl HudView {
             }
         }
         death_notices(death, tree, dialogs, player, events);
-        game_dialog_notices(game_dialogs, tree, dialogs, player, events, popup_backlog);
+        game_dialog_notices(
+            game_dialogs,
+            tree,
+            dialogs,
+            player,
+            events,
+            popup_backlog,
+            display_backlog,
+        );
         game_dialog_logout(game_dialogs, death, tree, dialogs, player, &mut commands);
         if let Some(dialogs) = dialogs.as_mut() {
             let outcomes = dialogs.take_outcomes();

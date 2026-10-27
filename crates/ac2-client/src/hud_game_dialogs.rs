@@ -23,6 +23,31 @@ pub(crate) struct PopupQuestion {
     pub context: u32,
 }
 
+/// A message box as the notice carried it (`GameplayNotice::DisplayMessage`), until the HUD's
+/// dialogs show it ([`HudView::display_backlog`](crate::hud_view::HudView)).
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct DisplayNotice {
+    pub text: ac2_net::protocol::StringInfo,
+    pub topmost: bool,
+}
+
+/// The frame's message boxes (`GameplayNotice::DisplayMessage`), in order. Retail's handler is
+/// registered by `gmGamePlayUI::SetupChildren`, so a box that comes before the HUD waits for it.
+pub(crate) fn display_notices(events: &[SessionEvent]) -> Vec<DisplayNotice> {
+    events
+        .iter()
+        .filter_map(|event| match event {
+            SessionEvent::Notice(GameplayNotice::DisplayMessage { text, topmost }) => {
+                Some(DisplayNotice {
+                    text: text.clone(),
+                    topmost: *topmost,
+                })
+            }
+            _ => None,
+        })
+        .collect()
+}
+
 /// The frame's script questions (`GameplayNotice::PopupYesNo`), in order.
 pub(crate) fn popup_questions(events: &[SessionEvent]) -> Vec<PopupQuestion> {
     events
@@ -42,8 +67,8 @@ pub(crate) fn popup_questions(events: &[SessionEvent]) -> Vec<PopupQuestion> {
         .collect()
 }
 
-/// `RecvNotice_DisplayMessage` for the frame's notices, in order, and `Init`'s dialog step on the
-/// login. The message's text is rendered from its `StringInfo` on the player's tables. The
+/// `RecvNotice_DisplayMessage` for the backlog's message boxes, in order, and `Init`'s dialog step
+/// on the login. The message's text is rendered from its `StringInfo` on the player's tables. The
 /// backlog's script questions are asked first, as they were raised before this frame's notices.
 pub(crate) fn game_dialog_notices(
     game: &mut GameplayDialogs,
@@ -52,6 +77,7 @@ pub(crate) fn game_dialog_notices(
     player: &ClientPlayer<'_>,
     events: &[SessionEvent],
     popup_backlog: &mut Vec<PopupQuestion>,
+    display_backlog: &mut Vec<DisplayNotice>,
 ) {
     let Some(dialogs) = dialogs.as_mut() else {
         return;
@@ -61,16 +87,15 @@ pub(crate) fn game_dialog_notices(
         let text = player.render_info(&question.text);
         game.ask_popup(tree, dialogs, &text, question.object, question.context);
     }
+    for notice in display_backlog.drain(..) {
+        let text = player.render_info(&notice.text);
+        game.display_message(tree, dialogs, &text, notice.topmost);
+    }
     for event in events {
-        match event {
-            SessionEvent::Notice(GameplayNotice::DisplayMessage { text, topmost }) => {
-                let text = player.render_info(text);
-                game.display_message(tree, dialogs, &text, *topmost);
-            }
-            // `gmGamePlayUI::RecvNotice_LoginFinished` runs `Init`, which closes the please-wait
-            // dialog the login left up.
-            SessionEvent::LoginFinished => game.init(tree, dialogs),
-            _ => {}
+        // `gmGamePlayUI::RecvNotice_LoginFinished` runs `Init`, which closes the please-wait
+        // dialog the login left up.
+        if let SessionEvent::LoginFinished = event {
+            game.init(tree, dialogs);
         }
     }
 }

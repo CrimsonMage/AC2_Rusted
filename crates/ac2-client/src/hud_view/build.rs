@@ -99,6 +99,7 @@ impl HudView {
             death: ac2_ui::DeathPanel::default(),
             game_dialogs: ac2_ui::GameplayDialogs::default(),
             popup_backlog: Vec::new(),
+            display_backlog: Vec::new(),
             stack: None,
             external_container: None,
             secure_trade: None,
