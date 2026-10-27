@@ -43,6 +43,8 @@ mod motion_interp_behaviors;
 mod moveto;
 mod objects;
 #[cfg(test)]
+mod objects_dynamic_tests;
+#[cfg(test)]
 mod objects_real_data_tests;
 #[cfg(test)]
 mod objects_tests;
@@ -75,8 +77,8 @@ pub use envcell::{CellBsp, CellBspNode, CellPortal, CellStructure, EnvCell};
 pub use frame::Frame;
 pub use heading::Heading;
 pub use loader::{
-    load_block_interiors, load_block_objects, load_body_shape, load_object_shape,
-    load_terrain_block,
+    load_block_interiors, load_block_objects, load_body_shape, load_object_scale,
+    load_object_shape, load_terrain_block,
 };
 pub use loader_anim::load_body_animation;
 pub use look_at::LookTarget;

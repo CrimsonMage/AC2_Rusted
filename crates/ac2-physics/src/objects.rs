@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 use crate::bsp::{BspTree, ContactKind};
 use crate::cells::CellSource;
-use crate::collision_types::PhysicsTypeMask;
+use crate::collision_types::{CollisionParameters, PhysicsTypeMask};
 use crate::fpu::{ld, st};
 use crate::position::Position;
 use crate::shapes::cylsphere::CylSphere;
@@ -49,6 +49,22 @@ impl BBox {
         grow(&mut self.min.x, &mut self.max.x, v.x);
         grow(&mut self.min.y, &mut self.max.y, v.y);
         grow(&mut self.min.z, &mut self.max.z, v.z);
+    }
+
+    /// The box grown by `margin` on every side.
+    pub(crate) fn grown(self, margin: f32) -> Self {
+        Self {
+            min: Vector::new(
+                self.min.x - margin,
+                self.min.y - margin,
+                self.min.z - margin,
+            ),
+            max: Vector::new(
+                self.max.x + margin,
+                self.max.y + margin,
+                self.max.z + margin,
+            ),
+        }
     }
 
     /// `BBox::localtoglobal` with one position for both frames: the box around the eight
@@ -147,8 +163,10 @@ impl ObjectShape {
     }
 }
 
-/// One static object: its position, total scale (`CPhysicsObj::GetTotalScale`), `PhysicsState`
-/// and shape.
+/// One object in the world's collision lists: a static object (`CLandBlock::CreateStaticObjects`)
+/// or a server object's body (`CObjCell::AddObject` for a `CPhysicsObj` that is not static). Its
+/// position, total scale (`CPhysicsObj::GetTotalScale`), `PhysicsState`, shape, and whether it is
+/// ethereal to every mover (an FX object, `FXManager::DoCreateObjectFX`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct StaticObject {
     pub(crate) position: Position,
@@ -160,14 +178,37 @@ pub struct StaticObject {
     /// The object's blocking physics-type mask (`CPhysicsObj::m_blocking_mask`), set from its
     /// ethereal properties (`CPhysicsObj::ApplyEtherealProperty`). Zero unless set.
     pub(crate) blocking: PhysicsTypeMask,
+    /// `ETHEREAL` as `FXManager::DoCreateObjectFX` sets it: no mover is blocked by it, whatever
+    /// its blocking mask says.
+    pub(crate) ethereal: bool,
+    /// The position its cell list was built for, while the list may be reused (`None` for a
+    /// static object, which never moves). See `Terrain::move_object`.
+    pub(crate) covered: Option<Position>,
 }
 
 impl StaticObject {
     /// A static object (`STATIC_PS`, with `HAS_PHYSICS_BSP_PS` when its shape has BSPs).
     pub fn new(position: Position, scale: Vector, shape: Arc<ObjectShape>) -> Self {
+        Self::with_state(position, scale, shape, STATIC_PS)
+    }
+
+    /// A server object's body in the world: not `STATIC_PS`, so it moves under physics; mobile
+    /// (`MOBILE_PS`) bodies can be stood on only when the mover is ethereal to them, as
+    /// `CPhysicsObj::FindObjCollisions` decides.
+    pub fn dynamic(
+        position: Position,
+        scale: Vector,
+        shape: Arc<ObjectShape>,
+        mobile: bool,
+    ) -> Self {
+        let state = if mobile { MOBILE_PS } else { 0 };
+        Self::with_state(position, scale, shape, state)
+    }
+
+    fn with_state(position: Position, scale: Vector, shape: Arc<ObjectShape>, state: u32) -> Self {
         let (x, y, z) = (ld(scale.x), ld(scale.y), ld(scale.z));
         let length = ld(st((x * x + y * y) + z * z)).sqrt();
-        let mut state = STATIC_PS;
+        let mut state = state;
         if !shape.bsps.is_empty() {
             state |= HAS_PHYSICS_BSP_PS;
         }
@@ -178,6 +219,8 @@ impl StaticObject {
             containment_radius: st(length * ld(shape.containment_radius)),
             shape,
             blocking: PhysicsTypeMask::default(),
+            ethereal: false,
+            covered: None,
         }
     }
 
@@ -185,6 +228,17 @@ impl StaticObject {
     pub fn with_blocking_mask(mut self, bits: u64) -> Self {
         self.blocking = PhysicsTypeMask::from_bits(bits);
         self
+    }
+
+    /// `FXManager::DoCreateObjectFX`'s ETHEREAL: the object is passed through by every mover
+    /// (outside a placement, where the overlap test still runs).
+    pub fn set_ethereal(&mut self, ethereal: bool) {
+        self.ethereal = ethereal;
+    }
+
+    /// Whether the object is static (`STATIC_PS`): it never moves, and its cells are fixed.
+    pub fn is_static(&self) -> bool {
+        self.state & STATIC_PS != 0
     }
 
     pub fn position(&self) -> Position {
@@ -245,11 +299,19 @@ impl StaticObject {
     }
 
     fn is_dynamic(&self) -> bool {
-        self.state & STATIC_PS == 0
+        !self.is_static()
     }
 
     fn is_mobile(&self) -> bool {
         self.state & MOBILE_PS != 0
+    }
+
+    /// `CPhysicsObj::IsBlocking` for this object against the mover's sets (`collision`, the
+    /// placement or the movement set): the object is ethereal to the mover when its ETHEREAL
+    /// state is set (an FX object, `FXManager::DoCreateObjectFX`), or when the mover is not
+    /// blocked by its blocking mask (`CollisionParameters::blocks`).
+    fn is_ethereal_to(&self, id: u32, collision: &CollisionParameters, placement: bool) -> bool {
+        self.ethereal || !collision.blocks(u64::from(id), self.blocking, placement)
     }
 
     /// `CPhysicsObj::CanCollide`: the mover at `check` (containment `mover`) is within the
@@ -276,6 +338,10 @@ impl Transition {
             return TransitionState::Ok;
         }
         for &id in objects {
+            // `pIVar1 != transition->object_info.object`: the mover is not its own obstruction.
+            if self.identity == Some(id) {
+                continue;
+            }
             let Some(object) = cells.object(id) else {
                 continue;
             };
@@ -314,13 +380,12 @@ impl Transition {
             return TransitionState::Ok;
         }
         // `CPhysicsObj::IsBlocking` against the mover's sets: an object the mover is not blocked by
-        // is ethereal to it. Outside a placement the transition passes through it; a placement
-        // keeps the overlap test with the obstruction marked ethereal. The object's blocking mask
-        // is `StaticObject::blocking`, from its entity's ethereal properties.
+        // `CPhysicsObj::IsBlocking` against the mover's sets: an object the mover is not blocked by
+        // is ethereal to it (`StaticObject::is_ethereal_to`, which also reads the ETHEREAL state).
+        // Outside a placement the transition passes through it; a placement keeps the overlap test
+        // with the obstruction marked ethereal.
         let placement = self.sphere_path.placement_ethereal;
-        let ethereal = !self
-            .collision
-            .blocks(u64::from(id), object.blocking, placement);
+        let ethereal = object.is_ethereal_to(id, &self.collision, placement);
         if ethereal && !placement {
             return TransitionState::Ok;
         }

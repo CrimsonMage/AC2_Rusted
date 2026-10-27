@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 180 done, 19 partial, 338 to do, 452 skipped.
+989 retail functions: 180 done, 23 partial, 334 to do, 452 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (18/140)
@@ -672,12 +672,12 @@ Legend and workflow: [README](README.md).
 - [-] `CObjCell::ClearForFreelist` · 0047c120 · legions 004761f0 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [ ] `CObjCell::MakeFrillList` · 0047c150 · legions 00476220 — needs port: object cells: membership, detection voyeurs, frills, shadows
 - [ ] `CObjCell::RemoveAllFrillObjects` · 0047c320 · legions 004763f0 — needs port: object cells: membership, detection voyeurs, frills, shadows
-- [ ] `CObjCell::RemoveShadowObject` · 0047c330 · legions 00476400 — needs port: object cells: membership, detection voyeurs, frills, shadows
+- [~] `CObjCell::RemoveShadowObject` · 0047c330 · legions 00476400 — ac2-physics terrain.rs insert_object/remove_object/list_in: a server object is listed in the shadow lists of the cells its shadow box touches (static and dynamic lists merged into one per cell); CObjCell::m_objectList and the voyeur and detection bookkeeping (UpdateAllVoyeur, CLandBlock::AddDynamicObject) are not ported
 - [~] `CObjCell::InitDynamicObjects` · 0047c390 · legions 00476460 — ac2-client: CellManager's block changes
 - [ ] `CObjCell::DoIntersection` · 0047c3f0 · legions 004764c0 — needs port: object cells: membership, detection voyeurs, frills, shadows
 - [x] `CObjCell::FindCellsLocal` · 0047c440 · legions 00476510 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CObjCell::FindCellsLocal` · 0047c460 · legions 00476530 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-- [~] `CObjCell::find_obj_collisions` · 0047c510 · legions 004765e0 — ac2-physics objects.rs: the ethereal filter (IsBlocking against the mover's sets, collision.rs/collision_types.rs); the admin vtable branch on 0x250 and the step/missile/temp-ignore lists are not ported
+- [~] `CObjCell::find_obj_collisions` · 0047c510 · legions 004765e0 — ac2-physics objects.rs find_object_collisions: the mover's own entry is skipped (object_info.object test), server objects are tested in the dynamic shadow list, FX objects are ethereal (DoCreateObjectFX); the admin 0x250 branch and the step/missile/temp-ignore lists are not ported
 - [~] `CObjCell::TraceRayObjects` · 0047c560 · legions 00476630 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 
 ### SmartArray<ObjectClearance>
@@ -695,7 +695,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjCell::~CObjCell` · 0047c9e0 · legions 00476ad0 — needs port: CObjCell destructor unload (world hash and resident state)
 - [ ] `CObjCell::InvalidateShadowObjects` · 0047ca70 · legions 00476b60 — needs port: object cells: membership, detection voyeurs, frills, shadows
 - [~] `CObjCell::ReleaseDynamicObjects` · 0047cb40 · legions 00476c30 — ac2-client: CellManager's block changes
-- [~] `CObjCell::find_obj_collisions` · 0047cb70 · legions 00476c60 — ac2-physics objects.rs: the ethereal filter (IsBlocking against the mover's sets, collision.rs/collision_types.rs); the admin vtable branch on 0x250 and the step/missile/temp-ignore lists are not ported
+- [~] `CObjCell::find_obj_collisions` · 0047cb70 · legions 00476c60 — ac2-physics objects.rs find_object_collisions: the mover's own entry is skipped (object_info.object test), server objects are tested in the dynamic shadow list, FX objects are ethereal (DoCreateObjectFX); the admin 0x250 branch and the step/missile/temp-ignore lists are not ported
 
 ### SmartArray<BBox>
 - [-] `SmartArray<BBox>::operator=` · 0047cbb0 · legions 00476ca0 — copy assignment of plain data (Rust clone/move)
@@ -708,12 +708,12 @@ Legend and workflow: [README](README.md).
 
 ### CObjCell
 - [x] `CObjCell::AddTouchingCell` · 0047ce60 · legions 00476f50 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-- [ ] `CObjCell::AddShadowObject` · 0047cfc0 · legions 00477050 — needs port: object cells: membership, detection voyeurs, frills, shadows
+- [~] `CObjCell::AddShadowObject` · 0047cfc0 · legions 00477050 — ac2-physics terrain.rs insert_object/remove_object/list_in: a server object is listed in the shadow lists of the cells its shadow box touches (static and dynamic lists merged into one per cell); CObjCell::m_objectList and the voyeur and detection bookkeeping (UpdateAllVoyeur, CLandBlock::AddDynamicObject) are not ported
 - [ ] `CObjCell::UpdateAllVoyeur` · 0047d020 · legions 004770b0 — needs port: object cells: membership, detection voyeurs, frills, shadows
 - [ ] `CObjCell::HideObject` · 0047d0c0 · legions 00477150 — needs port: object cells: membership, detection voyeurs, frills, shadows
 - [ ] `CObjCell::UnhideObject` · 0047d0d0 · legions 00477160 — needs port: object cells: membership, detection voyeurs, frills, shadows
-- [ ] `CObjCell::AddObject` · 0047d170 · legions 004771a0 — needs port: object cells: membership, detection voyeurs, frills, shadows
-- [ ] `CObjCell::RemoveObject` · 0047d1f0 · legions 00477220 — needs port: object cells: membership, detection voyeurs, frills, shadows
+- [~] `CObjCell::AddObject` · 0047d170 · legions 004771a0 — ac2-physics terrain.rs insert_object/remove_object/list_in: a server object is listed in the shadow lists of the cells its shadow box touches (static and dynamic lists merged into one per cell); CObjCell::m_objectList and the voyeur and detection bookkeeping (UpdateAllVoyeur, CLandBlock::AddDynamicObject) are not ported
+- [~] `CObjCell::RemoveObject` · 0047d1f0 · legions 00477220 — ac2-physics terrain.rs insert_object/remove_object/list_in: a server object is listed in the shadow lists of the cells its shadow box touches (static and dynamic lists merged into one per cell); CObjCell::m_objectList and the voyeur and detection bookkeeping (UpdateAllVoyeur, CLandBlock::AddDynamicObject) are not ported
 - [ ] `CObjCell::RemoveVoyeur` · 0047d260 · legions 00477290 — needs port: object cells: membership, detection voyeurs, frills, shadows
 - [ ] `CObjCell::ObjectWatchedBy` · 0047d330 · legions 00477360 — needs port: object cells: membership, detection voyeurs, frills, shadows
 - [ ] `CObjCell::InqObjects` · 0047d3e0 · legions 00477410 — needs port: object cells: membership, detection voyeurs, frills, shadows

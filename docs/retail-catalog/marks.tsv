@@ -2550,12 +2550,12 @@ key	status	note
 0047c120	-	retail free-object pool (DBOCache exception, AGENTS.md)
 0047c150	_	needs port: object cells: membership, detection voyeurs, frills, shadows
 0047c320	_	needs port: object cells: membership, detection voyeurs, frills, shadows
-0047c330	_	needs port: object cells: membership, detection voyeurs, frills, shadows
+0047c330	~	ac2-physics terrain.rs insert_object/remove_object/list_in: a server object is listed in the shadow lists of the cells its shadow box touches (static and dynamic lists merged into one per cell); CObjCell::m_objectList and the voyeur and detection bookkeeping (UpdateAllVoyeur, CLandBlock::AddDynamicObject) are not ported
 0047c390	~	ac2-client: CellManager's block changes
 0047c3f0	_	needs port: object cells: membership, detection voyeurs, frills, shadows
 0047c440	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047c460	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-0047c510	~	ac2-physics objects.rs: the ethereal filter (IsBlocking against the mover's sets, collision.rs/collision_types.rs); the admin vtable branch on 0x250 and the step/missile/temp-ignore lists are not ported
+0047c510	~	ac2-physics objects.rs find_object_collisions: the mover's own entry is skipped (object_info.object test), server objects are tested in the dynamic shadow list, FX objects are ethereal (DoCreateObjectFX); the admin 0x250 branch and the step/missile/temp-ignore lists are not ported
 0047c560	~	ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 0047c600	-	SmartArray container destructor (Vec drop)
 0047c640	-	hash table container; Rust map replaces it
@@ -2565,17 +2565,17 @@ key	status	note
 0047c9e0	_	needs port: CObjCell destructor unload (world hash and resident state)
 0047ca70	_	needs port: object cells: membership, detection voyeurs, frills, shadows
 0047cb40	~	ac2-client: CellManager's block changes
-0047cb70	~	ac2-physics objects.rs: the ethereal filter (IsBlocking against the mover's sets, collision.rs/collision_types.rs); the admin vtable branch on 0x250 and the step/missile/temp-ignore lists are not ported
+0047cb70	~	ac2-physics objects.rs find_object_collisions: the mover's own entry is skipped (object_info.object test), server objects are tested in the dynamic shadow list, FX objects are ethereal (DoCreateObjectFX); the admin 0x250 branch and the step/missile/temp-ignore lists are not ported
 0047cbb0	-	copy assignment of plain data (Rust clone/move)
 0047cc40	-	copy assignment of plain data (Rust clone/move)
 0047cd90	x	
 0047ce60	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-0047cfc0	_	needs port: object cells: membership, detection voyeurs, frills, shadows
+0047cfc0	~	ac2-physics terrain.rs insert_object/remove_object/list_in: a server object is listed in the shadow lists of the cells its shadow box touches (static and dynamic lists merged into one per cell); CObjCell::m_objectList and the voyeur and detection bookkeeping (UpdateAllVoyeur, CLandBlock::AddDynamicObject) are not ported
 0047d020	_	needs port: object cells: membership, detection voyeurs, frills, shadows
 0047d0c0	_	needs port: object cells: membership, detection voyeurs, frills, shadows
 0047d0d0	_	needs port: object cells: membership, detection voyeurs, frills, shadows
-0047d170	_	needs port: object cells: membership, detection voyeurs, frills, shadows
-0047d1f0	_	needs port: object cells: membership, detection voyeurs, frills, shadows
+0047d170	~	ac2-physics terrain.rs insert_object/remove_object/list_in: a server object is listed in the shadow lists of the cells its shadow box touches (static and dynamic lists merged into one per cell); CObjCell::m_objectList and the voyeur and detection bookkeeping (UpdateAllVoyeur, CLandBlock::AddDynamicObject) are not ported
+0047d1f0	~	ac2-physics terrain.rs insert_object/remove_object/list_in: a server object is listed in the shadow lists of the cells its shadow box touches (static and dynamic lists merged into one per cell); CObjCell::m_objectList and the voyeur and detection bookkeeping (UpdateAllVoyeur, CLandBlock::AddDynamicObject) are not ported
 0047d260	_	needs port: object cells: membership, detection voyeurs, frills, shadows
 0047d330	_	needs port: object cells: membership, detection voyeurs, frills, shadows
 0047d3e0	_	needs port: object cells: membership, detection voyeurs, frills, shadows
@@ -4573,9 +4573,9 @@ key	status	note
 004e0440	_	needs port: cite-only physics-object method
 004e0450	-	state-bit flag accessor
 004e0470	_	needs port: cite-only physics-object method
-004e04c0	_	needs port: cite-only physics-object method
-004e0510	_	needs port: cite-only physics-object method
-004e0560	_	needs port: cite-only physics-object method
+004e04c0	~	ac2-physics terrain.rs move_object (cell membership on a move, rebuilt when the object leaves its cover margin) and ac2-client remote.rs sync_shadow (enter when in the world with a shape, leave otherwise); the CPhysicsObj cell bookkeeping itself is not a separate method here
+004e0510	~	ac2-physics terrain.rs move_object (cell membership on a move, rebuilt when the object leaves its cover margin) and ac2-client remote.rs sync_shadow (enter when in the world with a shape, leave otherwise); the CPhysicsObj cell bookkeeping itself is not a separate method here
+004e0560	~	ac2-physics terrain.rs move_object (cell membership on a move, rebuilt when the object leaves its cover margin) and ac2-client remote.rs sync_shadow (enter when in the world with a shape, leave otherwise); the CPhysicsObj cell bookkeeping itself is not a separate method here
 004e05a0	x	
 004e05d0	x	
 004e05e0	x	ac2-physics interp (slice 3)
@@ -4807,7 +4807,7 @@ key	status	note
 004e6f30	_	needs port: cite-only physics-object method
 004e6f80	_	needs port: cite-only physics-object method
 004e6ff0	x	
-004e7580	~	ac2-physics objects.rs find_object_collisions: the ethereal filter via IsBlocking (collision_types.rs); the admin branch on the 0x250 slot, step/missile/temp-ignore lists not ported
+004e7580	~	ac2-physics objects.rs find_object_collisions: the mover's own entry is skipped (object_info.object test), server objects are tested in the dynamic shadow list, FX objects are ethereal (DoCreateObjectFX); the admin 0x250 branch and the step/missile/temp-ignore lists are not ported
 004e79a0	~	impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 004e79e0	_	needs port: cite-only physics-object method
 004e7a60	_	needs port: cite-only physics-object method

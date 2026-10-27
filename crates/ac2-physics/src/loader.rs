@@ -59,6 +59,17 @@ pub fn load_body_shape(store: &ResourceStore, visual: DataId) -> ResourceResult<
     }))
 }
 
+/// The root part's scale of a visual (`CPhysicsObj::GetTotalScale`'s x, y and z): each axis
+/// is `1.0` when the DAT gives no finite positive value.
+pub fn load_object_scale(store: &ResourceStore, visual: DataId) -> ResourceResult<Vector> {
+    let scale = resolve_ac2_visual_parts(store, visual)?
+        .first()
+        .map(|(_, root)| Vector::from(root.scale))
+        .unwrap_or(Vector::new(1.0, 1.0, 1.0));
+    let axis = |v: f32| if v.is_finite() && v > 0.0 { v } else { 1.0 };
+    Ok(Vector::new(axis(scale.x), axis(scale.y), axis(scale.z)))
+}
+
 /// Makes the landblock holding `block_cell_id` resident with its water plane; returns whether
 /// the block exists.
 pub fn load_terrain_block(

@@ -181,6 +181,12 @@ impl CollisionParameters {
         )
     }
 
+    /// `CollisionParameters::SetBit`: ORs a raw flag into the set's bitfield (`FXManager::
+    /// DoCreateObjectFX` sets `0x10` on an FX object's parameters).
+    pub fn set_bit(&mut self, bit: u32) {
+        self.bitfield |= bit;
+    }
+
     /// `CollisionParameters::UpdatePhysicsType` (`ethereal` true) and `RemovePhysicsType`.
     pub fn update_physics_type(
         &mut self,

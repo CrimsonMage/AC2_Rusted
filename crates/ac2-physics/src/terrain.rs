@@ -30,10 +30,16 @@ pub struct Terrain {
     env_cells: HashMap<u32, EnvCell>,
     /// `CLandBlockData::m_waterPlane` heights of the blocks that have water.
     water: HashMap<u32, f32>,
-    /// Static objects by id (a removed object leaves `None`) and the land cells their shadow box
-    /// covers.
+    /// Objects by id (a removed object leaves `None`) and the cells their shadow box covers.
     objects: Vec<Option<(StaticObject, Vec<u32>)>>,
+    /// Ids a removed object left free, reused by the next insert.
+    free: Vec<u32>,
 }
+
+/// How far (metres) a moving object may go from the position its cell list was built for before
+/// the list is rebuilt. The list is built for the shadow box grown by this margin, so every cell
+/// the object can reach from there is already listed.
+const COVER_MARGIN: f32 = 4.0;
 
 impl Terrain {
     pub fn new() -> Self {
@@ -117,7 +123,8 @@ impl Terrain {
         }
     }
 
-    /// Drops a landblock's cells (land and interior) and the static objects it placed.
+    /// Drops a landblock's cells (land and interior) and the static objects it placed. Server
+    /// objects stay: their owner removes them when it leaves the world.
     pub fn remove_block(&mut self, block_cell_id: u32) {
         let block = block_cell_id & 0xFFFF_0000;
         self.cells.retain(|id, _| id & 0xFFFF_0000 != block);
@@ -126,7 +133,9 @@ impl Terrain {
         for id in 0..self.objects.len() as u32 {
             let owned = self.objects[id as usize]
                 .as_ref()
-                .is_some_and(|(object, _)| object.position().cell_id & 0xFFFF_0000 == block);
+                .is_some_and(|(object, _)| {
+                    object.is_static() && object.position().cell_id & 0xFFFF_0000 == block
+                });
             if owned {
                 self.remove_object(id);
             }
@@ -136,6 +145,45 @@ impl Terrain {
     /// Adds a static object and enters it in the shadow lists of the resident cells its shadow
     /// box touches (`CPhysicsObj::calc_cross_cells` -> `add_shadows_to_cells`); cells made
     /// resident later pick it up too. Returns its id.
+    pub fn insert_object(&mut self, mut object: StaticObject) -> u32 {
+        let id = self.free.pop().unwrap_or(self.objects.len() as u32);
+        let cells = self.cover(&object, object.position());
+        if !object.is_static() {
+            object.covered = Some(object.position());
+        }
+        self.list_in(id, &cells);
+        let entry = Some((object, cells));
+        match self.objects.get_mut(id as usize) {
+            Some(slot) => *slot = entry,
+            None => self.objects.push(entry),
+        }
+        id
+    }
+
+    /// The cells a server object at `position` is listed in: the shadow box grown by the cover
+    /// margin (static objects never move, so their box is exact).
+    fn cover(&self, object: &StaticObject, position: Position) -> Vec<u32> {
+        let margin = if object.is_static() {
+            0.0
+        } else {
+            COVER_MARGIN
+        };
+        let local = object.shadow_box().grown(margin);
+        shadow_cells(&position, local, self)
+    }
+
+    /// Enters object `id` in the shadow lists of `cells`.
+    fn list_in(&mut self, id: u32, cells: &[u32]) {
+        for cell_id in cells {
+            if let Some(cell) = self.cells.get_mut(cell_id) {
+                cell.objects.push(id);
+            }
+            if let Some(cell) = self.env_cells.get_mut(cell_id) {
+                cell.objects.push(id);
+            }
+        }
+    }
+
     /// The blocking mask bits of every resident static object, for the loader's checks.
     #[cfg(test)]
     pub(crate) fn object_blocking_masks(&self) -> Vec<u64> {
@@ -146,19 +194,47 @@ impl Terrain {
             .collect()
     }
 
-    pub fn insert_object(&mut self, object: StaticObject) -> u32 {
-        let id = self.objects.len() as u32;
-        let cells = shadow_cells(&object.position(), object.shadow_box(), self);
-        for cell_id in &cells {
-            if let Some(cell) = self.cells.get_mut(cell_id) {
-                cell.objects.push(id);
-            }
-            if let Some(cell) = self.env_cells.get_mut(cell_id) {
-                cell.objects.push(id);
-            }
+    /// Marks object `id` ethereal to every mover (or solid again); see `StaticObject::set_ethereal`.
+    pub fn set_object_ethereal(&mut self, id: u32, ethereal: bool) {
+        if let Some(Some((object, _))) = self.objects.get_mut(id as usize) {
+            object.set_ethereal(ethereal);
         }
-        self.objects.push(Some((object, cells)));
-        id
+    }
+
+    /// `CPhysicsObj::leave_cell` then `enter_cell` for a moved object: its position is
+    /// updated, and its shadow lists are rebuilt only when it has gone far enough from (or
+    /// changed its cell or orientation since) the position its list was built for. Between
+    /// rebuilds the list is a superset of the cells the object touches, so nothing is missed.
+    pub fn move_object(&mut self, id: u32, position: Position) {
+        let Some(mut entry) = self.objects.get_mut(id as usize).and_then(Option::take) else {
+            return;
+        };
+        let (object, cells) = &mut entry;
+        let stale = match object.covered {
+            Some(covered) => {
+                let (a, b) = (covered.frame.origin, position.frame.origin);
+                let (dx, dy, dz) = (a.x - b.x, a.y - b.y, a.z - b.z);
+                covered.cell_id != position.cell_id
+                    || covered.frame.m != position.frame.m
+                    || (dx * dx + dy * dy + dz * dz).sqrt() >= COVER_MARGIN
+            }
+            None => false,
+        };
+        object.position = position;
+        if !object.is_static() && stale {
+            for cell_id in cells.drain(..) {
+                if let Some(cell) = self.cells.get_mut(&cell_id) {
+                    cell.objects.retain(|&other| other != id);
+                }
+                if let Some(cell) = self.env_cells.get_mut(&cell_id) {
+                    cell.objects.retain(|&other| other != id);
+                }
+            }
+            *cells = shadow_cells(&position, object.shadow_box().grown(COVER_MARGIN), &*self);
+            object.covered = Some(position);
+            self.list_in(id, cells);
+        }
+        self.objects[id as usize] = Some(entry);
     }
 
     /// Makes an interior cell resident (objects already shadowing it join its list).
@@ -218,6 +294,7 @@ impl Terrain {
             env_cells,
             water,
             objects,
+            free: _,
         } = other;
         let mut cells: Vec<_> = cells.into_iter().collect();
         cells.sort_by_key(|(id, _)| *id);
@@ -237,7 +314,8 @@ impl Terrain {
         }
     }
 
-    /// Removes a static object from the world and its cells' shadow lists.
+    /// Removes an object from the world and its cells' shadow lists (`CObjCell::RemoveObject`).
+    /// Its id is free for the next insert.
     pub fn remove_object(&mut self, id: u32) {
         let Some(Some((_, cells))) = self.objects.get_mut(id as usize).map(Option::take) else {
             return;
@@ -246,7 +324,11 @@ impl Terrain {
             if let Some(cell) = self.cells.get_mut(&cell_id) {
                 cell.objects.retain(|&other| other != id);
             }
+            if let Some(cell) = self.env_cells.get_mut(&cell_id) {
+                cell.objects.retain(|&other| other != id);
+            }
         }
+        self.free.push(id);
     }
 
     /// The static objects whose shadow box covers `cell_id`, in insertion order.

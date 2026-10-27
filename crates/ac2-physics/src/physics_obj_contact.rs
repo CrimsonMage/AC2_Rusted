@@ -155,6 +155,7 @@ impl PhysicsObj {
             frames_stationary_fall,
             containment_radius: self.containment_radius(),
             collision: &self.collision,
+            identity: self.world_id,
         };
         let begin_cell =
             ObjCell::get(terrain, self.position.cell_id).map(|_| self.position.cell_id);

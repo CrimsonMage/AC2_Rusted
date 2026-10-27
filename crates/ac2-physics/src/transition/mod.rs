@@ -66,6 +66,9 @@ pub(crate) struct Transition {
     pub object_stamps: std::collections::HashMap<u32, u32>,
     /// The mover's collision parameters for this transition (`CTransition`'s object info).
     pub collision: CollisionParameters,
+    /// The mover's own entry in the world's object lists, which its transition skips
+    /// (`CObjCell::find_obj_collisions`'s `object_info.object` test).
+    pub identity: Option<u32>,
 }
 
 /// The object traits `CPhysicsObj::transition` hands `CTransition` (`get_object_info`,
@@ -86,6 +89,8 @@ pub(crate) struct TransitionObject<'a> {
     pub containment_radius: f32,
     /// The body's collision parameters (`CollisionParameters`).
     pub collision: &'a CollisionParameters,
+    /// The body's id in the world's object lists (`PhysicsObj::world_id`).
+    pub identity: Option<u32>,
 }
 
 impl Transition {
@@ -109,6 +114,7 @@ impl Transition {
         transition.object_info.affected_by_gravity = object.affected_by_gravity;
         transition.object_info.containment_radius = object.containment_radius;
         transition.collision = object.collision.clone();
+        transition.identity = object.identity;
         if let Some((cell_id, plane, is_water, is_landscape, is_environment)) = object.contact {
             transition.init_contact_plane(cell_id, plane, is_water, is_landscape, is_environment);
         }

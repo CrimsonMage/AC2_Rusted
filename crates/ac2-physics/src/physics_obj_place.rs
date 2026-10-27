@@ -85,6 +85,7 @@ impl PhysicsObj {
             frames_stationary_fall: 0,
             containment_radius: self.containment_radius(),
             collision: &self.collision,
+            identity: self.world_id,
         };
         let mut p = position;
         let probe = Transition::new(&object, None, None, p);

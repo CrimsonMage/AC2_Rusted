@@ -1,0 +1,177 @@
+//! Server objects in the world's object lists (`CObjCell::AddObject`, `CPhysicsObj::change_cell`):
+//! a mover stops at a dynamic cylinder, passes an ethereal one, follows an object as it moves
+//! between cells, and is not blocked by its own entry.
+
+use std::sync::Arc;
+
+use crate::body::{MovementInput, PhysicsBody, PHYSICS_QUANTUM};
+use crate::cells::CellSource;
+use crate::frame::Frame;
+use crate::landdefs::{lcoord_to_gid, SIDE_VERTEX_COUNT};
+use crate::motion_interp::{ELEMENT_AIR, ELEMENT_GROUND};
+use crate::objects::{ObjectShape, StaticObject};
+use crate::physics_obj::BodyShape;
+use crate::position::Position;
+use crate::shapes::cylsphere::CylSphere;
+use crate::terrain::Terrain;
+use crate::test_support::{desc, walking_values};
+use crate::vector::{Quaternion, Sphere, Vector};
+
+const BLOCK: u32 = 0x7F7F_FFFF;
+
+fn cell_at(x: f32, y: f32) -> u32 {
+    lcoord_to_gid(0x7F * 8 + (x / 20.0) as i32, 0x7F * 8 + (y / 20.0) as i32)
+}
+
+fn position(x: f32, y: f32, z: f32) -> Position {
+    Position::new(
+        cell_at(x, y),
+        Frame::new(Vector::new(x, y, z), Quaternion::IDENTITY),
+    )
+}
+
+fn flat() -> Terrain {
+    let heights = vec![0.0; SIDE_VERTEX_COUNT * SIDE_VERTEX_COUNT];
+    let mut terrain = Terrain::new();
+    terrain.insert_heights(BLOCK, &heights, |_, _| false);
+    terrain
+}
+
+fn pillar() -> Arc<ObjectShape> {
+    Arc::new(ObjectShape::new(
+        Vec::new(),
+        vec![CylSphere {
+            low: Vector::ZERO,
+            height: 3.0,
+            radius: 0.5,
+        }],
+        Vec::new(),
+    ))
+}
+
+/// A dynamic mobile object of the pillar shape at `(80.2, 84)`.
+fn creature(terrain: &mut Terrain, x: f32, y: f32) -> u32 {
+    let at = position(x, y, 0.0);
+    terrain.insert_object(StaticObject::dynamic(
+        at,
+        Vector::new(1.0, 1.0, 1.0),
+        pillar(),
+        true,
+    ))
+}
+
+fn walker(x: f32, y: f32) -> PhysicsBody {
+    let mut air = walking_values();
+    air.forward_acceleration = 0.0;
+    air.backward_acceleration = 0.0;
+    air.strafe_acceleration = 0.0;
+    let shape = BodyShape {
+        spheres: vec![
+            Sphere::new(Vector::new(0.0, 0.0, 0.4), 0.4),
+            Sphere::new(Vector::new(0.0, 0.0, 1.2), 0.4),
+        ],
+        height: 1.8,
+        step_up_height: 0.5,
+        step_down_height: 0.5,
+        scale: 1.0,
+        allow_free_heading: false,
+    };
+    let desc = desc(&[(ELEMENT_GROUND, walking_values()), (ELEMENT_AIR, air)]);
+    PhysicsBody::new(position(x, y, 0.0), shape, Some(desc))
+}
+
+/// Settles the body, then walks it north for `seconds`, returning every origin on the way.
+fn walk_north(body: &mut PhysicsBody, world: &Terrain, seconds: f32) -> Vec<[f32; 3]> {
+    for _ in 0..5 {
+        body.step_quantum(world);
+    }
+    body.set_input(MovementInput {
+        motion: [0.0, 1.0, 0.0],
+        heading: Some(0.0),
+        turn: 0.0,
+    });
+    let quanta = (seconds / PHYSICS_QUANTUM).round() as usize;
+    (0..quanta)
+        .map(|_| {
+            body.step_quantum(world);
+            body.movement_state().origin
+        })
+        .collect()
+}
+
+#[test]
+fn a_mover_stops_at_a_dynamic_cylinder() {
+    let mut world = flat();
+    creature(&mut world, 80.2, 84.0);
+    let mut body = walker(80.0, 80.0);
+    let path = walk_north(&mut body, &world, 3.0);
+    for p in &path {
+        let (dx, dy) = (p[0] - 80.2, p[1] - 84.0);
+        assert!((dx * dx + dy * dy).sqrt() >= 0.9 - 0.02, "{p:?}");
+    }
+    assert!(path.last().expect("steps")[1] > 82.5, "{path:?}");
+}
+
+#[test]
+fn a_mover_passes_an_ethereal_dynamic_object() {
+    let mut world = flat();
+    let id = creature(&mut world, 80.2, 84.0);
+    world.set_object_ethereal(id, true);
+    let mut body = walker(80.0, 80.0);
+    let path = walk_north(&mut body, &world, 3.0);
+    let last = *path.last().expect("steps");
+    assert!(last[1] > 86.0, "passed the ethereal object: {last:?}");
+}
+
+#[test]
+fn a_moved_object_is_listed_in_its_new_cells_only() {
+    let mut world = flat();
+    let id = creature(&mut world, 80.2, 84.0);
+    let before = cell_at(80.2, 84.0);
+    let away = cell_at(150.2, 84.0);
+    assert!(world.land_cell(before).expect("cell").objects.contains(&id));
+    world.move_object(id, position(150.2, 84.0, 0.0));
+    assert!(!world.land_cell(before).expect("cell").objects.contains(&id));
+    assert!(world.land_cell(away).expect("cell").objects.contains(&id));
+
+    // Out of the path, the mover walks past where the object was.
+    let mut body = walker(80.0, 80.0);
+    let path = walk_north(&mut body, &world, 3.0);
+    assert!(path.last().expect("steps")[1] > 82.5, "{path:?}");
+
+    // Back into the path, it stops the mover again.
+    world.move_object(id, position(80.2, 84.0, 0.0));
+    assert!(world.land_cell(before).expect("cell").objects.contains(&id));
+    let mut body = walker(80.0, 80.0);
+    let path = walk_north(&mut body, &world, 3.0);
+    for p in &path {
+        let (dx, dy) = (p[0] - 80.2, p[1] - 84.0);
+        assert!((dx * dx + dy * dy).sqrt() >= 0.9 - 0.02, "{p:?}");
+    }
+}
+
+#[test]
+fn a_mover_is_not_blocked_by_its_own_entry() {
+    let mut world = flat();
+    let id = creature(&mut world, 80.0, 80.0);
+    let mut body = walker(80.0, 80.0);
+    body.set_world_id(Some(id));
+    let path = walk_north(&mut body, &world, 3.0);
+    assert!(path.last().expect("steps")[1] > 82.5, "{path:?}");
+}
+
+#[test]
+fn removed_ids_are_reused_and_removed_objects_stop_blocking() {
+    let mut world = flat();
+    let id = creature(&mut world, 80.2, 84.0);
+    world.remove_object(id);
+    assert!(world
+        .land_cell(cell_at(80.2, 84.0))
+        .expect("cell")
+        .objects
+        .is_empty());
+    let mut body = walker(80.0, 80.0);
+    let path = walk_north(&mut body, &world, 3.0);
+    assert!(path.last().expect("steps")[1] > 82.5, "{path:?}");
+    assert_eq!(creature(&mut world, 120.2, 84.0), id);
+}

@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 486 done, 102 partial, 758 to do, 778 skipped.
+2124 retail functions: 486 done, 105 partial, 755 to do, 778 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -2323,9 +2323,9 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetTopLevelObject` · 004e0440 — needs port: cite-only physics-object method
 - [-] `CPhysicsObj::set_cell_id` · 004e0450 — state-bit flag accessor
 - [ ] `CPhysicsObj::AddStaticObjToCell` · 004e0470 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::change_cell` · 004e04c0 · legions 004d2f20 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::enter_cell` · 004e0510 · legions 004d2f70 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::leave_cell` · 004e0560 · legions 004d2fc0 — needs port: cite-only physics-object method
+- [~] `CPhysicsObj::change_cell` · 004e04c0 · legions 004d2f20 — ac2-physics terrain.rs move_object (cell membership on a move, rebuilt when the object leaves its cover margin) and ac2-client remote.rs sync_shadow (enter when in the world with a shape, leave otherwise); the CPhysicsObj cell bookkeeping itself is not a separate method here
+- [~] `CPhysicsObj::enter_cell` · 004e0510 · legions 004d2f70 — ac2-physics terrain.rs move_object (cell membership on a move, rebuilt when the object leaves its cover margin) and ac2-client remote.rs sync_shadow (enter when in the world with a shape, leave otherwise); the CPhysicsObj cell bookkeeping itself is not a separate method here
+- [~] `CPhysicsObj::leave_cell` · 004e0560 · legions 004d2fc0 — ac2-physics terrain.rs move_object (cell membership on a move, rebuilt when the object leaves its cover margin) and ac2-client remote.rs sync_shadow (enter when in the world with a shape, leave otherwise); the CPhysicsObj cell bookkeeping itself is not a separate method here
 - [x] `CPhysicsObj::is_valid_walkable` · 004e05a0
 - [x] `CPhysicsObj::get_walkable_z` · 004e05d0
 - [x] `CPhysicsObj::set_contact` · 004e05e0 · legions 004d3040 — ac2-physics interp (slice 3)
@@ -2581,7 +2581,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::UpdateAnimationRecursive` · 004e6f30 · legions 004d9980 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::UpdateFXRecursive` · 004e6f80 · legions 004d99d0 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::UpdateMovementInternal` · 004e6ff0 · legions 004d9a40
-- [~] `CPhysicsObj::FindObjCollisions` · 004e7580 — ac2-physics objects.rs find_object_collisions: the ethereal filter via IsBlocking (collision_types.rs); the admin branch on the 0x250 slot, step/missile/temp-ignore lists not ported
+- [~] `CPhysicsObj::FindObjCollisions` · 004e7580 — ac2-physics objects.rs find_object_collisions: the mover's own entry is skipped (object_info.object test), server objects are tested in the dynamic shadow list, FX objects are ethereal (DoCreateObjectFX); the admin 0x250 branch and the step/missile/temp-ignore lists are not ported
 - [~] `CPhysicsObj::HandleCollision` · 004e79a0 · legions 004da3f0 — impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 - [ ] `CPhysicsObj::CollisionRemoveObject` · 004e79e0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::AlwaysPrepareObject` · 004e7a60 — needs port: cite-only physics-object method

@@ -214,6 +214,12 @@ impl PhysicsBody {
         drawn
     }
 
+    /// The body's id in the world's object lists (`Terrain::insert_object`), or `None` while it
+    /// is not listed. The body's own transitions skip that entry.
+    pub fn set_world_id(&mut self, id: Option<u32>) {
+        self.object.world_id = id;
+    }
+
     /// `CPhysicsObj::set_mobile` (`ICPhysicsObj::makeObject`'s `mobile`, from
     /// `CWeenieObject::IsMobile`): an immobile body (an item, a door) does not move under
     /// physics and its placements go straight into the cell (`ForceIntoCell`). Bodies start
