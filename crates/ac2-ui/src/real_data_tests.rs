@@ -138,6 +138,38 @@ fn every_ui_layout_decodes_to_its_last_byte() {
     );
 }
 
+/// `LayoutDesc::GetSubDataIDs` reports `subIDArray` for loading. Across the local DAT every sub id
+/// is a string table (`StringTable`'s `0x25000000..=0x26FFFFFE`), the layout's own string table,
+/// so the sub-data adds no element to any layout.
+#[test]
+fn every_layout_sub_id_is_a_string_table_and_adds_no_element() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let ids: Vec<u32> = dataset
+        .ids_in_range(ac2_dat::DatFileKind::Local, LAYOUT_FIRST, LAYOUT_LAST)
+        .collect();
+    let store = ResourceStore::new(dataset);
+    let mut sub_ids = 0usize;
+    for did in &ids {
+        let layout = load_layout(&store, ac2_core::DataId::new(*did))
+            .unwrap()
+            .unwrap();
+        for sub in &layout.sub_ids {
+            assert!(
+                (0x2500_0000..=0x26FF_FFFE).contains(sub),
+                "{did:08x}: sub id {sub:08x}"
+            );
+            assert_eq!(*sub, layout.string_table, "{did:08x}: its own string table");
+        }
+        sub_ids += layout.sub_ids.len();
+    }
+    eprintln!(
+        "{} layouts, {sub_ids} sub ids, all string tables",
+        ids.len()
+    );
+}
+
 #[test]
 fn the_gameplay_hud_builds_and_places_its_roots() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {

@@ -111,6 +111,9 @@ pub struct LayoutDesc {
     /// The layout's DID (`LayoutDesc`'s embedded identity): the key saved window locations are
     /// filed under (`UILocationData`'s layout id).
     pub did: u32,
+    /// `subIDArray`: the DIDs `LayoutDesc::GetSubDataIDs` reports for loading. In every local
+    /// layout they are the layout's own string table (`0x25xxxxxx`), and none adds an element:
+    /// the element tree is the `elements` alone.
     pub sub_ids: Vec<u32>,
     pub string_table: u32,
     pub width: u16,
