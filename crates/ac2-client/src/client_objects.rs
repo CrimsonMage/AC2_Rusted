@@ -51,7 +51,7 @@ impl Client {
             .filter(|p| p.id == object)
             .and_then(|p| p.body.as_mut())
         {
-            crate::motion::apply(&mut body.physics, action);
+            crate::motion::apply_owned(&mut body.physics, object, action, None);
             return;
         }
         self.remotes.motion(object, action, None);
@@ -123,7 +123,7 @@ impl Client {
                 .filter(|p| p.id == *object && !emote_refused)
             {
                 let started = player.body.as_mut().is_some_and(|body| {
-                    crate::motion::apply_from(&mut body.physics, action, impulse_source)
+                    crate::motion::apply_owned(&mut body.physics, *object, action, impulse_source)
                 });
                 if let (true, ObjectAction::MoveTo { params, .. }) = (started, action) {
                     player.move_to_target = match params.target {

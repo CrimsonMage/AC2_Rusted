@@ -6,6 +6,7 @@
 use crate::anim_rep::AnimRep;
 use crate::fpu::{ld, st, F_EPSILON};
 use crate::frame::Frame;
+use crate::look_at::{LookAtManager, LookTarget};
 use crate::heading::Heading;
 use crate::motion_interp::{
     MotionContext, MotionInterp, ELEMENT_AIR, ELEMENT_GROUND, ELEMENT_SEA_FLOOR,
@@ -95,6 +96,13 @@ pub(crate) struct PhysicsObj {
     pub motion: MotionInterp,
     /// `PHYSICSOBJREP`'s mode and slider trackers.
     pub(crate) anim: AnimRep,
+    /// `CPhysicsObj::m_pLookAtManager`.
+    pub(crate) look: LookAtManager,
+    /// The look target's position and size, refreshed by the client before each animation step.
+    pub(crate) look_snapshot: Option<LookTarget>,
+    /// `CPhysicsObj::m_fHeadX` and `m_fHeadZ`: the head direction a server `LookAtDir` sent.
+    pub(crate) head_x: f32,
+    pub(crate) head_z: f32,
     /// `CSetup::radius` (unscaled), for move-to distances.
     pub setup_radius: f32,
     /// `CMotionInterp::mMoveToManager`.
@@ -162,6 +170,10 @@ impl PhysicsObj {
             view_distance: 1.0,
             min_visible_distance: f32::MAX,
             last_animation_update_time: 0.0,
+            look: LookAtManager::default(),
+            look_snapshot: None,
+            head_x: 0.0,
+            head_z: 0.0,
         }
     }
 

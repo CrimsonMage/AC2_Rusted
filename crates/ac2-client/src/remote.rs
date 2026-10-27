@@ -13,10 +13,19 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use ac2_net::protocol::ServerPosition;
 use ac2_physics::{
-    CellSource, Frame, Heading, PhysicsBody, Position, Quaternion, SetPositionError, Terrain,
-    Vector,
+    CellSource, Frame, Heading, LookTarget, PhysicsBody, Position, Quaternion, SetPositionError,
+    Terrain, Vector,
 };
 use ac2_weenie::{OnlineSession, RemoteObject};
+
+/// A body's look-at snapshot: where it is and how big (`GetPosition`, `GetHeight`, `is_mobile`).
+pub(crate) fn look_snapshot(body: &ac2_physics::PhysicsBody) -> LookTarget {
+    LookTarget {
+        position: body.position(),
+        height: body.height(),
+        mobile: body.is_mobile(),
+    }
+}
 
 use crate::client::{ENTER_WORLD_FLAGS, SYNC_POSITION_FLAGS};
 use crate::world_data::BodyData;
@@ -420,7 +429,7 @@ impl Remotes {
         impulse_source: Option<ac2_physics::Position>,
     ) {
         if let Some(body) = self.objects.get_mut(&id).and_then(|r| r.body.as_mut()) {
-            crate::motion::apply_from(body, action, impulse_source);
+            crate::motion::apply_owned(body, id, action, impulse_source);
         }
     }
 
@@ -531,12 +540,23 @@ impl Remotes {
         wind: [f32; 3],
         random: &mut ac2_core::Random,
         scripts: &crate::FxScripts,
+        looks: &HashMap<u64, LookTarget>,
     ) {
         for remote in self.objects.values_mut() {
             if let Some(body) = &mut remote.body {
                 body.resolve_fx_scripts(|id| scripts.get(id));
                 body.set_wind(wind);
+                body.set_look_snapshot(body.look_target().and_then(|t| looks.get(&t).copied()));
                 body.update_animation(step, local_time, random);
+            }
+        }
+    }
+
+    /// Every in-world remote's look-at snapshot (position, height, mobility), by id.
+    pub(crate) fn look_targets(&self, into: &mut HashMap<u64, LookTarget>) {
+        for (id, remote) in &self.objects {
+            if let (true, Some(body)) = (remote.in_world, remote.body.as_ref()) {
+                into.insert(*id, look_snapshot(body));
             }
         }
     }

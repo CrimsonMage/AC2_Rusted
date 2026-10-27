@@ -22,6 +22,7 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x007D_001E, add_object_to_be_destroyed);
     efuns.register(0x007D_001F, remove_object_to_be_destroyed);
     efuns.register(0x0080_0057, set_no_draw_physics);
+    efuns.register(0x0080_002A, look_at);
     efuns.register(0x0080_002C, stop_all_camera_fx);
     efuns.register(0x0080_0045, do_fx);
     efuns.register(0x0080_0047, stop_fx);
@@ -39,6 +40,22 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x0080_0007, |vm, ctx| {
         physics_scale(vm, ctx, ObjectAction::SetJumpScale)
     });
+}
+
+/// `gCWPhysicsObject::CallEFun_LookAt(iid)` -> `CWPhysicsObject::LookAt` -> `CPhysicsObj::LookAt`:
+/// the weenie's body turns its head to the object `iid` (`INVALID_IID` ends the look). Queued as
+/// the server's `LookAt` event for the object; answers 1 for a weenie with an owner.
+fn look_at(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let target = Call::new(ctx).word64(3);
+    if id != 0 {
+        vm.physics.push((id, ObjectAction::LookAt(target)));
+    }
+    Call::new(ctx).ret(4, u32::from(id != 0), tag::INT);
+    InterpStatus::Success
 }
 
 /// `gCWPhysicsObject::CallEFun_StopAllCameraFX` (`CWPhysicsObject::StopAllCameraFX` ->

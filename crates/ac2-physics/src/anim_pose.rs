@@ -117,6 +117,8 @@ impl PhysicsObj {
             self.anim.modes.add_triggers();
             self.sync_mode();
         }
+        // `LookAtManager::Update` (`CPhysicsObj::UpdateAnimation`, before the slider tracker).
+        self.update_look_at(quantum);
         for action in self.anim.modes.triggers_mut().fire(random) {
             match action {
                 Ac2TriggerAction::Event(event) => self.anim.push_events([event]),

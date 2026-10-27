@@ -30,6 +30,8 @@ mod interp;
 pub mod landdefs;
 mod loader;
 mod loader_anim;
+mod look_at;
+mod physics_obj_look;
 mod los;
 mod motion_interp;
 mod motion_interp_behaviors;
@@ -55,6 +57,7 @@ mod transition;
 mod vector;
 
 pub use anim_rep::BodyAnimation;
+pub use look_at::LookTarget;
 pub use body::{
     AnimationClock, MovementInput, MovementState, PhysicsBody, PhysicsClock, Tuning, ANIM_QUANTUM,
     PHYSICS_QUANTUM,

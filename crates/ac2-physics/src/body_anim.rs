@@ -42,6 +42,34 @@ impl PhysicsBody {
         self.object.update_animation(quantum, local_time, random);
     }
 
+    /// `CPhysicsObj::LookAt(target)` for the body `own`: the head turns to `target` (0 or the
+    /// body itself ends the look). The client refreshes the target's snapshot each step
+    /// ([`Self::set_look_snapshot`]).
+    pub fn look_at(&mut self, target: u64, own: u64) {
+        self.object.look_at(target, own);
+    }
+
+    /// `CPhysicsObj::LookAtDir(x, z)`: a non-player's head direction.
+    pub fn look_at_dir(&mut self, x: f32, z: f32) {
+        self.object.look_at_dir(x, z);
+    }
+
+    /// `CPhysicsObj::GetHeight`: the Setup's height, scaled.
+    pub fn height(&self) -> f32 {
+        self.object.height()
+    }
+
+    /// The object the body is looking at, if any.
+    pub fn look_target(&self) -> Option<u64> {
+        self.object.look_target()
+    }
+
+    /// The look target's position, height and mobility for the next animation step (`None`
+    /// when the target is not in the world).
+    pub fn set_look_snapshot(&mut self, snapshot: Option<crate::LookTarget>) {
+        self.object.look_snapshot = snapshot;
+    }
+
     /// `CPhysicsObj::DoFXScript`: starts the FX script `id` on the body. The script record is
     /// attached by [`Self::resolve_fx_scripts`] before the next animation step.
     pub fn do_fx_script(&mut self, id: u32) {

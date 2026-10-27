@@ -186,6 +186,8 @@ pub(crate) fn apply(body: &mut PhysicsBody, action: &ObjectAction) -> bool {
         ObjectAction::SetAccelerationScale(scale) => body.set_acceleration_scale(*scale),
         ObjectAction::SetJumpScale(scale) => body.set_jump_scale(*scale),
         ObjectAction::SetHoverHeight(height) => body.set_hover_height(*height),
+        // `CPhysicsObj::RecvEvt_LookAtDir`: a non-player's head direction.
+        ObjectAction::LookAtDir { x, y } => body.look_at_dir(*x, *y),
         ObjectAction::SetGlobalModifier(id) => body.set_global_modifier(*id),
         ObjectAction::DoFxScript(id) => body.do_fx_script(*id),
         ObjectAction::DoFx { fx, scalar } => {
@@ -202,6 +204,21 @@ pub(crate) fn apply(body: &mut PhysicsBody, action: &ObjectAction) -> bool {
         _ => {}
     }
     false
+}
+
+/// [`apply_from`] for the object `own`: a look at the object itself ends the look
+/// (`CPhysicsObj::LookAt`'s own-id check), which needs the body's id.
+pub(crate) fn apply_owned(
+    body: &mut PhysicsBody,
+    own: u64,
+    action: &ObjectAction,
+    source: Option<Position>,
+) -> bool {
+    if let ObjectAction::LookAt(target) = action {
+        body.look_at(*target, own);
+        return false;
+    }
+    apply_from(body, action, source)
 }
 
 /// [`apply`] with the position a targeted impulse pushes from: the target's position
