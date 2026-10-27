@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 488 done, 106 partial, 752 to do, 778 skipped.
+2124 retail functions: 488 done, 107 partial, 751 to do, 778 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1305,7 +1305,7 @@ Legend and workflow: [README](README.md).
 - [-] `ChannelPrefs::HandleChange` · 00506be0 — admin/debug or text-file tooling
 
 ### FXManager
-- [~] `FXManager::DoCreateObjectFX` · 00507010 · legions 004f5230 — ac2-client fx_objects.rs and client_fx_objects.rs: the node's object is created at its emitter (CreateTemporaryObject, id 0x13FF...), handed to the FX (state object ids, target), faded and destroyed on StopFX/expiry (FadeAndDestroyObject 0.5/3.0); the objects are made without a sound device. Its vdesc is an EntityDesc (0x47), resolved to a drawable visual on the loader. Not ported: bone and holding-location placement, water-plane placement, the behaviour start (its object is kept as the failed-behaviour fallback), and the ethereal physics flags (EtherealPhysicsType placement/movement and CollisionParameters bit 0x10): remote dynamic bodies never obstruct the player in this port, so the flags have no effect yet
+- [~] `FXManager::DoCreateObjectFX` · 00507010 · legions 004f5230 — DoCreateObjectFX: object created on the emitter, attached by its node (Ac2FxObjectAttach) and placed at rest; not yet following the bone per frame
 - [~] `FXManager::StopFX` · 00507650 · legions 004f5870 — ac2-client fx_objects.rs stop: startup FX kept (m_bStartupFX), objects faded, targets unhidden, colour restored; sound and particle stop as before. Not ported: streak stop, appearance removal, camera FX, target FX on the target
 - [-] `FXManager::FXManager` · 00507d10 · legions 004f5e80 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `FXManager::Destroy` · 00507db0 · legions 004f5f20 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
@@ -2350,7 +2350,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::calc_heading` · 004e0b30 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::HasBoneType` · 004e0b50 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::HasHoldingLocation` · 004e0b60 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::FXSetParent` · 004e0b90 · legions 004d35f0 — needs port: cite-only physics-object method
+- [~] `CPhysicsObj::FXSetParent` · 004e0b90 · legions 004d35f0 — FX-created objects attach at creation to the emitter frame x the rest bone or holding point x the node offset (client_fx_objects placed_at, ac2-assets object_attach); the object does not follow the animated bone, and an object whose point the emitter lacks is not placed (retail AddChild does not check it; the bone matrix is then unset)
 - [x] `CPhysicsObj::set_parent` · 004e0c00 · legions 004d3660 — CPhysicsObj::set_parent - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::set_parent` · 004e0ca0 — CPhysicsObj::set_parent - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::set_parent` · 004e0cd0 · legions 004d3730 — CPhysicsObj::set_parent - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs

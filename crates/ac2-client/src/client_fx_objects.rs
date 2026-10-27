@@ -5,8 +5,10 @@
 //! The sound and particle parts of the same events run in `client_audio` when a sound device is
 //! attached; the objects do not wait for it.
 
-use ac2_anim::Ac2AnimEvent;
-use ac2_assets::{Ac2FxObject, Ac2VisualFxParticles};
+use ac2_anim::{Ac2AnimEvent, Ac2Transform};
+use ac2_assets::{Ac2FxObject, Ac2FxObjectAttach, Ac2VisualFxParticles};
+use ac2_math::Quat;
+use ac2_physics::{Frame, Position, Quaternion, Vector};
 
 use crate::client::Client;
 use crate::fx_particles::startup_light_starts;
@@ -134,7 +136,7 @@ impl Client {
             } else {
                 self.remotes.get(object.emitter).and_then(|r| r.position())
             };
-            let Some(position) = at else {
+            let Some(position) = placed_at(at, object.attach) else {
                 continue;
             };
             let mut cx = Context {
@@ -151,5 +153,97 @@ impl Client {
             }
         }
         self.request_remote_bodies();
+    }
+}
+
+/// Where an FX-created object is placed, from its emitter's position (`FXManager::DoCreateObjectFX`):
+/// the emitter's own position for a node with no attachment, its attach point composed in for a
+/// bone or holding point (`CPhysicsObj::FXSetParent`), and nowhere when the emitter lacks the
+/// point (the object is not placed).
+pub(crate) fn placed_at(emitter: Option<Position>, attach: Ac2FxObjectAttach) -> Option<Position> {
+    match attach {
+        Ac2FxObjectAttach::Emitter => emitter,
+        Ac2FxObjectAttach::Attached(local) => emitter.map(|at| attached(&at, local)),
+        Ac2FxObjectAttach::Unplaced => None,
+    }
+}
+
+/// The emitter's frame with `local` (the attach point's offset and rotation, in the emitter's
+/// space) composed in.
+fn attached(emitter: &Position, local: Ac2Transform) -> Position {
+    let frame = emitter.frame;
+    let offset = local.offset;
+    let global = frame.local_to_global_vec(Vector::new(offset.x, offset.y, offset.z));
+    let origin = Vector::new(
+        frame.origin.x + global.x,
+        frame.origin.y + global.y,
+        frame.origin.z + global.z,
+    );
+    let emitter_rotation = Quat::from_xyzw(frame.q.x, frame.q.y, frame.q.z, frame.q.w);
+    let q = (emitter_rotation * local.rotation).normalize();
+    Position::new(
+        emitter.cell_id,
+        Frame::new(origin, Quaternion::new(q.w, q.x, q.y, q.z)),
+    )
+}
+
+#[cfg(test)]
+mod tests {
+    use ac2_anim::Ac2Transform;
+    use ac2_assets::Ac2FxObjectAttach;
+    use ac2_math::{Quat, Vec3};
+    use ac2_physics::{Frame, Position, Quaternion, Vector};
+
+    use super::placed_at;
+
+    fn emitter(origin: Vector, q: Quaternion) -> Position {
+        Position::new(7, Frame::new(origin, q))
+    }
+
+    fn local(offset: Vec3, rotation: Quat) -> Ac2Transform {
+        Ac2Transform {
+            offset,
+            rotation,
+            ..Ac2Transform::IDENTITY
+        }
+    }
+
+    /// `FXManager::DoCreateObjectFX` with no bone and no holding point: the object stands where
+    /// its emitter does.
+    #[test]
+    fn an_object_with_no_attachment_stands_at_its_emitter() {
+        let at = emitter(
+            Vector::new(1.0, 2.0, 3.0),
+            Quaternion::new(1.0, 0.0, 0.0, 0.0),
+        );
+        assert_eq!(placed_at(Some(at), Ac2FxObjectAttach::Emitter), Some(at));
+        assert_eq!(placed_at(None, Ac2FxObjectAttach::Emitter), None);
+    }
+
+    /// `CPhysicsObj::FXSetParent` on a bone the emitter has: the offset is in the emitter's
+    /// turned frame, so a quarter turn about z carries an x offset onto y.
+    #[test]
+    fn an_attached_object_takes_the_offset_in_the_emitters_frame() {
+        let half = std::f32::consts::FRAC_1_SQRT_2;
+        let at = emitter(
+            Vector::new(1.0, 2.0, 3.0),
+            Quaternion::new(half, 0.0, 0.0, half),
+        );
+        let placed = placed_at(
+            Some(at),
+            Ac2FxObjectAttach::Attached(local(Vec3::new(1.0, 0.0, 0.0), Quat::IDENTITY)),
+        )
+        .expect("attached");
+        assert_eq!(placed.cell_id, 7);
+        assert!((placed.frame.origin.x - 1.0).abs() < 1e-5);
+        assert!((placed.frame.origin.y - 3.0).abs() < 1e-5);
+        assert!((placed.frame.origin.z - 3.0).abs() < 1e-5);
+    }
+
+    /// A bone the emitter lacks leaves the object unplaced, so it is never drawn at the origin.
+    #[test]
+    fn an_object_on_a_missing_bone_is_not_placed() {
+        let at = emitter(Vector::ZERO, Quaternion::new(1.0, 0.0, 0.0, 0.0));
+        assert_eq!(placed_at(Some(at), Ac2FxObjectAttach::Unplaced), None);
     }
 }

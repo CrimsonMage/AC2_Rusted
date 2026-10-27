@@ -324,3 +324,38 @@ fn fx_particle_nodes_attach_to_bones_holding_points_and_water_in_the_dataset() {
     assert!(holding > 0, "some FX attach to a holding point");
     assert!(object > 0);
 }
+
+/// Every FX node that creates an object (`FXNode::m_vdesc_id`), by where the object is placed on
+/// its emitter (`FXManager::DoCreateObjectFX`): the emitter itself, a bone or holding point, or
+/// nowhere when the emitter lacks the point.
+#[test]
+fn fx_created_objects_attach_to_their_emitters_points_in_the_dataset() {
+    use crate::Ac2FxObjectAttach;
+    let Some((dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    let (mut emitter, mut attached, mut unplaced) = (0, 0, 0);
+    for did in portal_ids(&dataset, 0x1F00_0000) {
+        let Some(table) = resolve_ac2_visual_fx_particles(&store, DataId::new(did))
+            .unwrap_or_else(|error| panic!("VisualDesc {did:08X}: {error}"))
+        else {
+            continue;
+        };
+        for (_, attachments) in table.entries_for_test() {
+            for attachment in attachments.iter().filter(|a| a.object.vdesc != 0) {
+                match attachment.object.attach {
+                    Ac2FxObjectAttach::Emitter => emitter += 1,
+                    Ac2FxObjectAttach::Attached(_) => attached += 1,
+                    Ac2FxObjectAttach::Unplaced => unplaced += 1,
+                }
+            }
+        }
+    }
+    eprintln!(
+        "FX-created objects: at the emitter {emitter}, attached {attached}, unplaced {unplaced}"
+    );
+    assert!(
+        emitter + attached + unplaced > 0,
+        "the dataset has FX objects"
+    );
+}

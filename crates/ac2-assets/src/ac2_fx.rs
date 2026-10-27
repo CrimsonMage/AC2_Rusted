@@ -6,6 +6,7 @@
 
 use std::sync::Arc;
 
+use ac2_anim::Ac2Transform;
 use ac2_core::{DataId, QualifiedDataId};
 use ac2_dat::ArchiveCursor;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
@@ -27,6 +28,21 @@ pub struct Ac2FxLight {
     pub lifespan: f32,
     /// `m_fFadeTime`: seconds of fade in and fade out.
     pub fade_time: f32,
+}
+
+/// Where an FX-created object is placed on its emitter (`FXManager::DoCreateObjectFX`).
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub enum Ac2FxObjectAttach {
+    /// Neither a holding point nor a bone: the object stands where its emitter does
+    /// (`CPhysicsObj::set_position` at the rep's position).
+    #[default]
+    Emitter,
+    /// A holding point or bone: the rest transform of that point in the emitter's space, the
+    /// node's offset composed in, rotation removed when asked (`CPhysicsObj::FXSetParent`).
+    Attached(Ac2Transform),
+    /// The node names a bone or holding point the emitter's part groups lack, so there is
+    /// nothing to attach to and the object is not placed.
+    Unplaced,
 }
 
 /// The object facts of one `FXNode`: the object it creates (`FXManager::DoCreateObjectFX`), its
@@ -55,6 +71,8 @@ pub struct Ac2FxObject {
     pub color_lifetime: f32,
     /// `m_restore`: `StopFX` ramps the colour back to white (over 0.1 s).
     pub restore: bool,
+    /// Where the created object is placed on its emitter (rest pose; see [`Ac2FxObjectAttach`]).
+    pub attach: Ac2FxObjectAttach,
 }
 
 impl Ac2FxObject {
@@ -330,6 +348,7 @@ fn read_fx_node(
         ramp_time,
         color_lifetime,
         restore,
+        attach: Ac2FxObjectAttach::Emitter,
     };
     let flag = |cursor: &mut ArchiveCursor<'_>, bit: u64, default: bool| {
         Ok::<_, Malformed>(if has(bit) {

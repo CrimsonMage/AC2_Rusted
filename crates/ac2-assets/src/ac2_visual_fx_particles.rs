@@ -13,12 +13,13 @@ use ac2_dat::DatFileKind;
 use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
 
 use crate::ac2_drawn_groups::rest_named_bones;
-use crate::ac2_fx::{Ac2FxParticleNode, Ac2FxTable};
+use crate::ac2_fx::{Ac2FxObject, Ac2FxObjectAttach, Ac2FxParticleNode, Ac2FxTable};
 use crate::ac2_visual_desc::Ac2VisualDesc;
 use crate::ac2_visual_particles::{
     anchor, attaches, load, looping_flags, placement, Ac2ParticleAnchor, Ac2ParticleAttachment,
 };
-use ac2_anim::Ac2Setup;
+use ac2_anim::{Ac2Setup, Ac2Transform};
+use ac2_math::Quat;
 
 const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;
 const MAX_VISUAL_DESC_DEPTH: usize = 16;
@@ -148,6 +149,7 @@ pub fn resolve_ac2_visual_fx_particles(
         .unwrap_or_default();
     let named = rest_named_bones(store, visual)?;
     let mut entries = HashMap::new();
+    let rest_bone = |index: usize| rest.get(index).copied().unwrap_or(Ac2Transform::IDENTITY);
     for (id, list) in nodes.into_iter().filter(|(_, list)| !list.is_empty()) {
         let mut attachments = Vec::with_capacity(list.len());
         for node in list {
@@ -167,7 +169,10 @@ pub fn resolve_ac2_visual_fx_particles(
                 fire_and_forget: node.fire_and_forget,
                 light: node.light,
                 looping,
-                object: node.object,
+                object: Ac2FxObject {
+                    attach: object_attach(setup.as_deref(), &rest_bone, &named, &node),
+                    ..node.object
+                },
             });
         }
         entries.insert(id, Arc::from(attachments));
@@ -200,4 +205,44 @@ fn collect_table(
         collect_table(store, *sub, depth + 1, nodes)?;
     }
     Ok(())
+}
+
+/// `FXManager::DoCreateObjectFX`: where a created object goes on its emitter. A holding point
+/// (`PHYSICSOBJREP::GetHoldingLocation`) or a bone (`GetBoneTypeMatrix`, the part groups' rest
+/// bone) is the attach point; the node's offset is composed in, and the rotation is dropped when
+/// `m_remove_rotation` says so (`CPhysicsObj::FXSetParent`). A point or bone the emitter lacks
+/// leaves the object unplaced; a node with neither stands at the emitter.
+fn object_attach(
+    setup: Option<&Ac2Setup>,
+    rest_bone: &dyn Fn(usize) -> Ac2Transform,
+    named: &[(u32, Ac2Transform)],
+    node: &Ac2FxParticleNode,
+) -> Ac2FxObjectAttach {
+    let base = if node.holding_location != 0 {
+        let point = setup.and_then(|setup| {
+            setup
+                .holding_points
+                .iter()
+                .find(|point| point.id == node.holding_location)
+        });
+        match point {
+            Some(point) => rest_bone(point.bone).compose(&point.transform),
+            None => return Ac2FxObjectAttach::Unplaced,
+        }
+    } else if node.bone_name != 0 {
+        match named.iter().find(|(name, _)| *name == node.bone_name) {
+            Some((_, bone)) => *bone,
+            None => return Ac2FxObjectAttach::Unplaced,
+        }
+    } else {
+        return Ac2FxObjectAttach::Emitter;
+    };
+    let mut placed = base.compose(&Ac2Transform {
+        offset: node.bone_offset,
+        ..Ac2Transform::IDENTITY
+    });
+    if node.remove_rotation {
+        placed.rotation = Quat::IDENTITY;
+    }
+    Ac2FxObjectAttach::Attached(placed)
 }

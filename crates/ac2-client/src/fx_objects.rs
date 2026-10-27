@@ -11,7 +11,7 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
-use ac2_assets::Ac2FxObject;
+use ac2_assets::{Ac2FxObject, Ac2FxObjectAttach};
 
 /// The temporary ids the client gives the objects its FX create (`IIDUtils` type 0x13, numbered
 /// from the top of the instance range so they cannot meet the server's own).
@@ -72,12 +72,14 @@ struct Fade {
     destroy_at: f64,
 }
 
-/// An object an FX asked for, to be created by the client at its emitter.
+/// An object an FX asked for, to be created by the client at its emitter, where its node's
+/// attachment puts it (`Ac2FxObjectAttach`).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub(crate) struct PendingObject {
     pub(crate) id: u64,
     pub(crate) emitter: u64,
     pub(crate) visual: u32,
+    pub(crate) attach: Ac2FxObjectAttach,
 }
 
 /// What the renderer tints and hides: each object's colour times its fade, and the hidden ones.
@@ -131,7 +133,7 @@ impl FxObjects {
             }
             let mut target = None;
             if node.vdesc != 0 {
-                let id = self.new_object(emitter, node.vdesc);
+                let id = self.new_object(emitter, node);
                 record.objects.push(id);
                 target = Some(id);
                 // `DoTargettedFX`: a non-negative lifetime ends the FX; a negative one never does.
@@ -172,7 +174,7 @@ impl FxObjects {
             ..FxRecord::default()
         };
         for node in nodes.iter().filter(|node| node.vdesc != 0) {
-            record.objects.push(self.new_object(emitter, node.vdesc));
+            record.objects.push(self.new_object(emitter, node));
         }
         self.records.entry(emitter).or_default().insert(fx, record);
     }
@@ -264,13 +266,14 @@ impl FxObjects {
         record
     }
 
-    fn new_object(&mut self, emitter: u64, visual: u32) -> u64 {
+    fn new_object(&mut self, emitter: u64, node: &Ac2FxObject) -> u64 {
         self.next += 1;
         let id = FX_OBJECT_BASE | self.next;
         self.pending.push(PendingObject {
             id,
             emitter,
-            visual,
+            visual: node.vdesc,
+            attach: node.attach,
         });
         id
     }

@@ -82,7 +82,7 @@ pub use ac2_drawn_groups::{
 };
 pub use ac2_entity::{read_ac2_entity_desc, Ac2EntityDesc};
 pub use ac2_fx::Ac2FxSoundNode;
-pub use ac2_fx::{Ac2FxLight, Ac2FxObject, Ac2FxTable};
+pub use ac2_fx::{Ac2FxLight, Ac2FxObject, Ac2FxObjectAttach, Ac2FxTable};
 pub use ac2_light_source::{read_ac2_light_source, Ac2LightSource};
 pub use ac2_material::{
     Ac2LayerLighting, Ac2LayerModifier, Ac2LayerStage, Ac2MaterialLayer, Ac2RenderMaterial,
