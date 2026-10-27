@@ -20,7 +20,8 @@ use ac2_world::Ac2WorldSource;
 
 pub use interiors::{load_block_interiors, BlockInteriors};
 pub use loader::{
-    BlockKey, Images, Loaded, LoadedBlock, LoadedFar, LoadedObject, ParticleSource, Placement,
+    BlockKey, CloudShadow, Images, Loaded, LoadedBlock, LoadedFar, LoadedObject, ParticleSource,
+    Placement,
 };
 pub use particles::ParticleBatch;
 

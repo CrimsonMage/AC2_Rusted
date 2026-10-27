@@ -228,6 +228,35 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
         (f32::from(center.1) + 0.5) * block,
         ground,
     );
+    // `LScapeRender::RefreshShadowMap` over the near blocks, and the region's cloud shadows.
+    let mut shadow_map = ac2_gpu::StaticShadowMap::new(&gpu);
+    let shadow_blocks: Vec<((u8, u8), &ac2_gpu::TerrainBlock)> = blocks
+        .iter()
+        .enumerate()
+        .map(|(index, block)| ((index as u8, 0), block))
+        .collect();
+    let casters: Vec<ObjectInstance<'_>> = placements
+        .iter()
+        .filter_map(|(visual, world)| {
+            Some(ObjectInstance::new(models.get(visual)?.as_ref()?, *world))
+        })
+        .collect();
+    let shadow_matrix = shadow_map.refresh(
+        &gpu,
+        &mut objects,
+        &shadow_blocks,
+        lighting.light_dir,
+        lighting.shadow_strength,
+        &casters,
+    );
+    terrain.set_shadows(
+        &gpu,
+        Some(ac2_render::scene::CloudShadow::new(&far_desc)),
+        shadow_map.view(),
+        &mut load,
+    );
+    terrain.set_shadow_matrix(shadow_matrix);
+    eprintln!("shadow strength {:?}", lighting.shadow_strength);
     let aspect = SIZE.0 as f32 / SIZE.1 as f32;
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
     let quad = ScreenQuad::new(&gpu, HDR_FORMAT);
@@ -309,7 +338,7 @@ fn render_area(center: (u8, u8), views: &[(&str, Vec3, Vec3)]) -> Option<AreaSta
             ..ac2_gpu::SkyLook::default()
         };
         sky_gradient.set_frame(&gpu.queue, &camera, aspect, &lighting, &look);
-        terrain.set_frame(&gpu.queue, &camera, &lighting, aspect, &look);
+        terrain.set_frame(&gpu.queue, &camera, &lighting, aspect, server_time);
         // `SetupEnvironment(SkyEnvironment)`: the sky objects draw unfogged, with no ambient.
         let sky_environment = ObjectEnvironment::sky(&lighting);
         objects.prepare(

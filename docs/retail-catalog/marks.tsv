@@ -3828,8 +3828,10 @@ key	status	note
 0056b1c0	x	
 0056be60	x	ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
 0056e450	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
-0056ef40	~	object::ObjectLights; static/volumetric shadow strengths not used yet
+0056ef40	x	object::ObjectLights; static shadow strength SceneLighting::shadow_strength (volumetric shadows not drawn)
 0056f260	~	untextured colour quad (ac2-gpu ScreenQuad) only
+0056fea0	x	ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
+00570300	x	ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
 005706d0	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 00570730	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 00571da0	x	ac2-render object::cell / point_lights
@@ -3922,6 +3924,7 @@ key	status	note
 00583700	x	rain amount and wind; streaks drawn as the rain material's particle batch above 0.4
 00583890	x	
 00583d40	x	ac2-audio/ac2-client: ambient environments, groove
+00584540	x	ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
 00584d70	x	ac2-render rain.rs RainField (streaks, splashes and near-water ripples) + scene rain_frame discharging WorldRender's rain particle systems
 005856f0	x	ac2-render rain.rs RainField (streaks, splashes and near-water ripples) + scene rain_frame discharging WorldRender's rain particle systems
 005857b0	x	ac2-world region::sky_objects, ac2-render sky
@@ -3948,7 +3951,7 @@ key	status	note
 0058ad90	~	near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
 0058b600	x	ac2-render object::load_water_model
 0058b9e0	~	per-block near mesh; no cloud-shadow UVs or shared near vertex array
-0058bce0	x	chunks, LOD steps, block edges, far material (no cloud-shadow stage: LandscapeCloudShadows off)
+0058bce0	x	far chunks, LOD, block edges, far material with ADDSIGNED + MODULATE2X cloud stage (far_terrain.wgsl)
 0058c8c0	~	per-block near mesh; no cloud-shadow UVs or shared near vertex array
 0058d700	x	ac2-render object::load_water_model
 0058f1d0	x	
@@ -3961,7 +3964,7 @@ key	status	note
 00591020	x	
 005911e0	x	
 00591270	x	
-005912d0	~	base and alpha stages; no shadow-map or cloud-shadow stages
+005912d0	x	terrain.wgsl: base/alpha stages, shadow-map and cloud-shadow modulate before fog
 005919d0	x	
 00591a40	x	
 00599b50	x	ac2-ui input.rs / text_edit.rs: typing into text elements

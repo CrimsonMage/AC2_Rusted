@@ -93,6 +93,7 @@ pub(crate) fn scene_lighting(scene: &SceneData, camera_light: Option<Vec3>) -> S
         fog_sky: 0.0,
         rain: 0.0,
         rain_wind: [0.0; 2],
+        shadow_strength: [0.0; 3],
     };
     if scene.lights.is_empty() {
         let [x, y, z] = SUN_DIRECTION;

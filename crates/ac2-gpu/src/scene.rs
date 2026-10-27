@@ -16,7 +16,7 @@ use ac2_render::{Camera, Image, TextureKey};
 use crate::sky::{SkyLook, SkyRenderer};
 use crate::{
     DrawGroup, Gpu, GpuFarTerrain, GpuObjectModel, ObjectInstance, ObjectRenderer, ScreenQuad,
-    TerrainBlock, TerrainRenderer, HDR_FORMAT,
+    StaticShadowMap, TerrainBlock, TerrainRenderer, HDR_FORMAT,
 };
 
 /// One resident block on the GPU.
@@ -52,6 +52,8 @@ pub struct SceneRenderer {
     fog_quad: ScreenQuad,
     /// The sky under the DAT sky objects.
     sky: SkyRenderer,
+    /// The near landscape's static shadow map.
+    shadow_map: StaticShadowMap,
     models: HashMap<DataId, GpuObjectModel>,
     /// World objects' models by request key.
     world_objects: HashMap<u64, GpuObjectModel>,
@@ -66,8 +68,12 @@ pub struct SceneRenderer {
 impl SceneRenderer {
     /// The renderers of a scene drawn into an [`crate::HdrTarget`] (`HDR_FORMAT`).
     pub fn new(gpu: &Gpu) -> Self {
+        let mut terrain = TerrainRenderer::new(gpu, HDR_FORMAT);
+        let shadow_map = StaticShadowMap::new(gpu);
+        terrain.set_shadows(gpu, None, shadow_map.view(), &mut |_| None);
         Self {
-            terrain: TerrainRenderer::new(gpu, HDR_FORMAT),
+            terrain,
+            shadow_map,
             objects: ObjectRenderer::new(gpu, HDR_FORMAT),
             fog_quad: ScreenQuad::new(gpu, HDR_FORMAT),
             sky: SkyRenderer::new(gpu, HDR_FORMAT),
@@ -155,6 +161,12 @@ impl SceneRenderer {
                         far.texture,
                         &mut load,
                     );
+                    self.terrain.set_shadows(
+                        gpu,
+                        Some(far.clouds),
+                        self.shadow_map.view(),
+                        &mut load,
+                    );
                     let water = far
                         .water
                         .map(|model| self.objects.upload(gpu, &model, &mut load));
@@ -201,6 +213,7 @@ impl SceneRenderer {
             }
         }
         let lighting = self.frame.lighting;
+        self.refresh_shadow_map(gpu);
         if let Some([r, g, b, a]) = self.frame.sky.fog_quad {
             // The authored fog colour, decoded for the linear scene; its alpha is `fog_sky`.
             let linear = [r, g, b].map(|c| crate::shading::srgb_to_linear(c.clamp(0.0, 1.0)));
@@ -222,7 +235,7 @@ impl SceneRenderer {
         self.sky
             .set_frame(&gpu.queue, camera, aspect, &lighting, &look);
         self.terrain
-            .set_frame(&gpu.queue, camera, &lighting, aspect, &look);
+            .set_frame(&gpu.queue, camera, &lighting, aspect, time);
         let world = world_instances(models, placed, blocks, far, frame);
         let after = sky_instances(models, &frame.sky.after);
         let interiors = interior_instances(models, blocks, frame);
@@ -260,6 +273,33 @@ impl SceneRenderer {
             time,
             &groups,
         );
+    }
+
+    /// `LScapeRender::RefreshShadowMap`: draws the near blocks' static objects (no frills, not
+    /// culled; `CLandBlock::GatherObjects` while rendering to the shadow map) into the map when
+    /// what it shows changed, and hands the terrain its transform.
+    fn refresh_shadow_map(&mut self, gpu: &Gpu) {
+        let frame = &self.frame;
+        let terrain: Vec<(BlockKey, &TerrainBlock)> = frame
+            .terrain
+            .iter()
+            .filter_map(|key| Some((*key, self.blocks.get(key)?.terrain.as_ref()?)))
+            .collect();
+        let casters: Vec<ObjectInstance<'_>> = frame
+            .placements
+            .iter()
+            .filter(|p| p.frill_normal.is_none())
+            .filter_map(|p| Some(ObjectInstance::new(self.models.get(&p.visual)?, p.world)))
+            .collect();
+        let matrix = self.shadow_map.refresh(
+            gpu,
+            &mut self.objects,
+            &terrain,
+            frame.lighting.light_dir,
+            frame.lighting.shadow_strength,
+            &casters,
+        );
+        self.terrain.set_shadow_matrix(matrix);
     }
 
     /// Records the frame laid out by the last `prepare` into a pass cleared to

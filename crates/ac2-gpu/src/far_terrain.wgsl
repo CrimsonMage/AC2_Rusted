@@ -1,7 +1,8 @@
 // Far landscape (`LScapeTerrainMesh::InitFarMesh`'s material): one layer, vertex diffuse, ONE/ZERO,
 // LESSEQUAL with depth write, stage 0 ADDSIGNED2X(texture, diffuse) with the far texture, alpha
 // SELECTARG2 diffuse. `IlluminateVertices` lights the diffuse from the far colour exactly as it
-// lights the near mesh; fog is the near landscape's linear range fog.
+// lights the near mesh; fog is the near landscape's linear range fog. With cloud shadows, stage 0
+// is ADDSIGNED and stage 1 MODULATE2X(cloud texture, current) on world x, y times the cloud scale.
 
 struct Frame {
     view_proj: mat4x4<f32>,
@@ -11,11 +12,13 @@ struct Frame {
     ambient: vec4<f32>,
     fog_color: vec4<f32>,
     fog: vec4<f32>,
-    // The terrain frame's cloud deck (`terrain.wgsl`).
+    // The cloud-shadow texture (`terrain.wgsl`).
     clouds: vec4<f32>,
 };
 
 @group(0) @binding(0) var<uniform> frame: Frame;
+@group(0) @binding(1) var cloud_texture: texture_2d<f32>;
+@group(0) @binding(3) var frame_wrap: sampler;
 @group(1) @binding(0) var far_texture: texture_2d<f32>;
 @group(1) @binding(1) var wrap_sampler: sampler;
 
@@ -33,6 +36,7 @@ struct VsOut {
     @location(1) uv: vec2<f32>,
     @location(2) distance: f32,
     @location(3) haze: f32,
+    @location(4) world: vec2<f32>,
 };
 
 @vertex
@@ -45,6 +49,7 @@ fn vs(input: VsIn) -> VsOut {
     let light = (direct * frame.dir_color.rgb + frame.ambient.rgb) * c.rgb;
     out.color = vec4(clamp(light, vec3(0.0), vec3(1.0)), 1.0);
     out.uv = input.uv;
+    out.world = input.position.xy;
     out.distance = distance(input.position, frame.eye.xyz);
     out.haze = modern_fog(out.distance, input.position.z, frame.fog.xy);
     return out;
@@ -56,6 +61,10 @@ fn vs(input: VsIn) -> VsOut {
 @fragment
 fn fs(input: VsOut) -> @location(0) vec4<f32> {
     let texel = textureSample(far_texture, wrap_sampler, input.uv).rgb;
-    let combined = saturate((texel + input.color.rgb - 0.5) * 2.0);
+    let cloud = textureSample(cloud_texture, frame_wrap, input.world * frame.clouds.z + frame.clouds.xy).rgb;
+    var combined = saturate((texel + input.color.rgb - 0.5) * 2.0);
+    if frame.clouds.w > 0.0 {
+        combined = saturate(saturate(texel + input.color.rgb - 0.5) * 2.0 * cloud);
+    }
     return vec4(srgb_to_linear(mix(combined, saturate(frame.fog_color.rgb), input.haze)), 1.0);
 }

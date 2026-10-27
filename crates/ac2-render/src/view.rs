@@ -43,6 +43,9 @@ pub struct SceneLighting {
     pub rain: f32,
     /// The rain's wind x and y (`PhysicsGlobals::SetWind`).
     pub rain_wind: [f32; 2],
+    /// `SceneTool::m_cStaticShadowStrength`: 0.95 of the day's shadow colour, clamped to 0..1
+    /// (`SceneTool::SetSunlight`); the static shadow map darkens the terrain by it.
+    pub shadow_strength: [f32; 3],
 }
 
 impl Default for SceneLighting {
@@ -59,6 +62,7 @@ impl Default for SceneLighting {
             fog_sky: 0.0,
             rain: 0.0,
             rain_wind: [0.0; 2],
+            shadow_strength: [0.0; 3],
         }
     }
 }
@@ -78,6 +82,12 @@ impl SceneLighting {
             fog_sky: fog.sky(),
             rain: sample.rain().amount(),
             rain_wind: sample.rain().wind(),
+            shadow_strength: static_shadow_strength(sample.shadow_color()),
         }
     }
+}
+
+/// `SceneTool::SetSunlight`: the static shadow strength is 0.95 of the shadow colour, clamped.
+fn static_shadow_strength(shadow_color: [f32; 4]) -> [f32; 3] {
+    [0, 1, 2].map(|i| (shadow_color[i] * 0.95).clamp(0.0, 1.0))
 }

@@ -2,7 +2,10 @@
 // three: every layer's stage 0 is MODULATE2X(texture, diffuse); layer 0 blends ONE/ZERO, later
 // layers SRCALPHA/INVSRCALPHA with alpha from their mask (stage 1 SELECTARG1 texture alpha).
 // Fixed-function linear range fog (`FOGVERTEXMODE` LINEAR, `RANGEFOGENABLE`) applies per layer,
-// which equals fogging the blend.
+// which equals fogging the blend. With landscape shadows on, the blend is modulated by the static
+// shadow map (texcoord 7, `SceneTool::StartShadowMap`) and the region's cloud-shadow texture
+// (texcoord 6, scrolled by an `LM_UVTranslate`): stages 1 and 2 of a single layer, or a
+// DESTCOLOR/ZERO pass after several, both before the fog.
 
 struct Frame {
     view_proj: mat4x4<f32>,
@@ -14,8 +17,10 @@ struct Frame {
     fog_color: vec4<f32>,
     // start, end
     fog: vec4<f32>,
-    // The sky's cloud deck (`cloud_shadow`): x cover, y drift seconds.
+    // The cloud-shadow texture: xy its scroll offset, z its scale per metre, w 1 when loaded.
     clouds: vec4<f32>,
+    // World to static shadow map coordinates (the texcoord 7 `StartShadowMap` writes).
+    shadow: mat4x4<f32>,
 };
 
 struct Batch {
@@ -26,6 +31,10 @@ struct Batch {
 };
 
 @group(0) @binding(0) var<uniform> frame: Frame;
+@group(0) @binding(1) var cloud_texture: texture_2d<f32>;
+@group(0) @binding(2) var shadow_map: texture_2d<f32>;
+@group(0) @binding(3) var frame_wrap: sampler;
+@group(0) @binding(4) var frame_clamp: sampler;
 @group(1) @binding(0) var<uniform> batch: Batch;
 @group(1) @binding(1) var base0: texture_2d<f32>;
 @group(1) @binding(2) var base1: texture_2d<f32>;
@@ -98,18 +107,16 @@ fn vs(input: VsIn) -> VsOut {
 // above, the warm ground bounce from below.
 const TERRAIN_GROUND_TINT: vec3<f32> = vec3<f32>(0.55, 0.5, 0.42);
 
-fn terrain_light(normal: vec3<f32>, c: vec4<f32>, world: vec3<f32>) -> vec3<f32> {
+fn terrain_light(normal: vec3<f32>, c: vec4<f32>) -> vec3<f32> {
     let n = normalize(normal);
-    let to_sun = -normalize(frame.light_dir.xyz);
-    let shade = cloud_shadow(world, to_sun, frame.eye.z, frame.clouds);
-    let direct = max(-dot(n, frame.light_dir.xyz) * c.a, 0.0) * shade;
+    let direct = max(-dot(n, frame.light_dir.xyz) * c.a, 0.0);
     let ambient = mix(frame.ambient.rgb * TERRAIN_GROUND_TINT, frame.ambient.rgb, n.z * 0.5 + 0.5);
     return saturate((direct * frame.dir_color.rgb + ambient) * c.rgb);
 }
 
 @fragment
 fn fs(input: VsOut) -> @location(0) vec4<f32> {
-    let diffuse = terrain_light(input.normal, input.surface, input.world);
+    let diffuse = terrain_light(input.normal, input.surface);
     let layer0 = saturate(2.0 * textureSample(base0, wrap_sampler, input.grid * batch.scale.x).rgb * diffuse);
     let layer1 = saturate(2.0 * textureSample(base1, wrap_sampler, input.grid * batch.scale.y).rgb * diffuse);
     let layer2 = saturate(2.0 * textureSample(base2, wrap_sampler, input.grid * batch.scale.z).rgb * diffuse);
@@ -117,6 +124,11 @@ fn fs(input: VsOut) -> @location(0) vec4<f32> {
     let alpha2 = textureSample(mask2, clamp_sampler, input.mask2_uv).a;
     var color = mix(layer0, layer1, select(0.0, alpha1, batch.rot.z > 1u));
     color = mix(color, layer2, select(0.0, alpha2, batch.rot.z > 2u));
+    // D3DTOP_MODULATE by the shadow map (clamped) and the cloud shadows (wrapped).
+    let shadow_uv = (frame.shadow * vec4(input.world, 1.0)).xy;
+    color *= textureSample(shadow_map, frame_clamp, shadow_uv).rgb;
+    let cloud_uv = input.world.xy * frame.clouds.z + frame.clouds.xy;
+    color *= textureSample(cloud_texture, frame_wrap, cloud_uv).rgb;
     let fogged = mix(color, saturate(frame.fog_color.rgb), input.haze);
     return vec4(srgb_to_linear(fogged), 1.0);
 }

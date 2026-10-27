@@ -28,6 +28,9 @@ use crate::shading::FRAME_SHADING;
 use crate::texture::{TextureCache, TextureKey};
 use crate::Gpu;
 
+#[path = "object_shadow.rs"]
+mod shadow;
+
 #[repr(C)]
 #[derive(Clone, Copy, Pod, Zeroable)]
 struct GpuVertex {
@@ -197,6 +200,9 @@ pub struct ObjectRenderer {
     queue: Vec<QueuedDraw>,
     /// Ranges of `queue` by draw group.
     groups: Vec<Range<usize>>,
+    /// The static shadow map's caster pipeline, made on first use.
+    casters: Option<shadow::CasterPass>,
+    shadow_format: wgpu::TextureFormat,
 }
 
 impl ObjectRenderer {
@@ -311,6 +317,8 @@ impl ObjectRenderer {
             time: 0.0,
             queue: Vec::new(),
             groups: Vec::new(),
+            casters: None,
+            shadow_format: crate::SHADOW_MAP_FORMAT,
         }
     }
 

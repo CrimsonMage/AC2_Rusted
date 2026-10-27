@@ -4,6 +4,8 @@
 
 use std::ops::Range;
 
+use ac2_math::{Mat4, Vec3};
+use ac2_render::scene::CloudShadow;
 use ac2_render::terrain::{TerrainLayer, TerrainMesh};
 use ac2_render::{Camera, Image, SceneLighting};
 use bytemuck::{Pod, Zeroable};
@@ -37,8 +39,10 @@ struct FrameUniform {
     ambient: [f32; 4],
     fog_color: [f32; 4],
     fog: [f32; 4],
-    /// The sky's cloud deck for the cloud shadows: x cover, y drift seconds.
+    /// The cloud-shadow texture: xy scroll offset, z scale per metre, w 1 when loaded.
     clouds: [f32; 4],
+    /// World to static shadow map coordinates.
+    shadow: [[f32; 4]; 4],
 }
 
 #[repr(C)]
@@ -50,6 +54,8 @@ struct BatchUniform {
 
 /// One landblock's near mesh on the GPU.
 pub struct TerrainBlock {
+    /// World positions of the mesh, which bound the static shadow map (`StartShadowMap`).
+    pub(crate) positions: Vec<Vec3>,
     vertices: wgpu::Buffer,
     indices: wgpu::Buffer,
     batches: Vec<(Range<u32>, wgpu::BindGroup)>,
@@ -58,8 +64,13 @@ pub struct TerrainBlock {
 pub struct TerrainRenderer {
     pipeline: wgpu::RenderPipeline,
     batch_layout: wgpu::BindGroupLayout,
+    frame_layout: wgpu::BindGroupLayout,
     frame_buffer: wgpu::Buffer,
     frame_group: wgpu::BindGroup,
+    /// The region's cloud shadows once the far load brings them.
+    clouds: Option<CloudShadow>,
+    /// The frame's world-to-shadow-map transform (`crate::StaticShadowMap::texture_matrix`).
+    shadow: Mat4,
     wrap: wgpu::Sampler,
     clamp: wgpu::Sampler,
     far: far::FarPipeline,
@@ -97,7 +108,7 @@ impl TerrainRenderer {
         };
         let frame_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("ac2 terrain frame"),
-            entries: &[uniform(0)],
+            entries: &[uniform(0), texture(1), texture(2), sampler(3), sampler(4)],
         });
         let batch_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("ac2 terrain batch"),
@@ -117,14 +128,6 @@ impl TerrainRenderer {
             size: std::mem::size_of::<FrameUniform>() as u64,
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
-        });
-        let frame_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("ac2 terrain frame"),
-            layout: &frame_layout,
-            entries: &[wgpu::BindGroupEntry {
-                binding: 0,
-                resource: frame_buffer.as_entire_binding(),
-            }],
         });
         let module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("ac2 terrain"),
@@ -185,16 +188,58 @@ impl TerrainRenderer {
                 ..Default::default()
             })
         };
+        let wrap = filtered(wgpu::AddressMode::Repeat);
+        let clamp = filtered(wgpu::AddressMode::ClampToEdge);
+        let textures = TextureCache::new(device, &gpu.queue);
+        let frame_group = frame_group(
+            device,
+            &frame_layout,
+            &frame_buffer,
+            [textures.white(), textures.white()],
+            [&wrap, &clamp],
+        );
         Self {
             far: far::FarPipeline::new(device, &frame_layout, color_format),
             pipeline,
             batch_layout,
+            frame_layout,
             frame_buffer,
             frame_group,
-            wrap: filtered(wgpu::AddressMode::Repeat),
-            clamp: filtered(wgpu::AddressMode::ClampToEdge),
-            textures: TextureCache::new(device, &gpu.queue),
+            clouds: None,
+            shadow: Mat4::ZERO,
+            wrap,
+            clamp,
+            textures,
         }
+    }
+
+    /// Binds the region's cloud shadows (uploading their texture from `load`) and the static
+    /// shadow map the near landscape modulates by.
+    pub fn set_shadows(
+        &mut self,
+        gpu: &Gpu,
+        clouds: Option<CloudShadow>,
+        shadow_map: &wgpu::TextureView,
+        load: &mut dyn FnMut(TextureKey) -> Option<Image>,
+    ) {
+        let cloud = clouds.and_then(|c| c.texture).map(|did| {
+            self.textures
+                .get(&gpu.device, &gpu.queue, TextureKey::Texture(did), load)
+        });
+        self.clouds = clouds.filter(|_| cloud.is_some());
+        let cloud = cloud.unwrap_or_else(|| self.textures.white().clone());
+        self.frame_group = frame_group(
+            &gpu.device,
+            &self.frame_layout,
+            &self.frame_buffer,
+            [&cloud, shadow_map],
+            [&self.wrap, &self.clamp],
+        );
+    }
+
+    /// Sets the frame's world-to-shadow-map transform; zero samples the map's corner texel.
+    pub fn set_shadow_matrix(&mut self, matrix: Mat4) {
+        self.shadow = matrix;
     }
 
     /// Uploads one landblock's mesh. `block_size` is the block edge in metres; `load` supplies
@@ -228,6 +273,11 @@ impl TerrainRenderer {
             batches.push((start..indices.len() as u32, group));
         }
         TerrainBlock {
+            positions: mesh
+                .vertices
+                .iter()
+                .map(|v| Vec3::from_array(v.position))
+                .collect(),
             vertices: device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
                 label: Some("ac2 terrain vertices"),
                 contents: bytemuck::cast_slice(&vertices),
@@ -316,9 +366,13 @@ impl TerrainRenderer {
         camera: &Camera,
         lighting: &SceneLighting,
         aspect: f32,
-        look: &crate::SkyLook,
+        time: f64,
     ) {
         let (fog_start, fog_end) = lighting.fog_range;
+        let clouds = self.clouds.map_or([0.0, 0.0, 0.0, 0.0], |c| {
+            let [u, v] = c.offset(time);
+            [u, v, c.scale, 1.0]
+        });
         let rgb = |c: [f32; 3]| [c[0], c[1], c[2], 1.0];
         let uniform = FrameUniform {
             view_proj: camera.view_projection(aspect).to_cols_array_2d(),
@@ -328,7 +382,8 @@ impl TerrainRenderer {
             ambient: rgb(lighting.ambient),
             fog_color: rgb(lighting.fog_color),
             fog: [fog_start, fog_end, 0.0, 0.0],
-            clouds: crate::sky::cloud_uniform(look, lighting),
+            clouds,
+            shadow: self.shadow.to_cols_array_2d(),
         };
         queue.write_buffer(&self.frame_buffer, 0, bytemuck::bytes_of(&uniform));
     }
@@ -350,4 +405,39 @@ impl TerrainRenderer {
             }
         }
     }
+}
+
+fn frame_group(
+    device: &wgpu::Device,
+    layout: &wgpu::BindGroupLayout,
+    buffer: &wgpu::Buffer,
+    [cloud, shadow]: [&wgpu::TextureView; 2],
+    [wrap, clamp]: [&wgpu::Sampler; 2],
+) -> wgpu::BindGroup {
+    device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: Some("ac2 terrain frame"),
+        layout,
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: buffer.as_entire_binding(),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: wgpu::BindingResource::TextureView(cloud),
+            },
+            wgpu::BindGroupEntry {
+                binding: 2,
+                resource: wgpu::BindingResource::TextureView(shadow),
+            },
+            wgpu::BindGroupEntry {
+                binding: 3,
+                resource: wgpu::BindingResource::Sampler(wrap),
+            },
+            wgpu::BindGroupEntry {
+                binding: 4,
+                resource: wgpu::BindingResource::Sampler(clamp),
+            },
+        ],
+    })
 }

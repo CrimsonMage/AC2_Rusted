@@ -72,8 +72,38 @@ pub struct LoadedFar {
     pub vertices: FarVertices,
     /// `Ac2FarTerrain::texture`.
     pub texture: DataId,
+    /// The region's cloud-shadow texture, its scale and scroll (`Ac2FarTerrain::cloud_texture`).
+    pub clouds: CloudShadow,
     pub water: Option<ObjectModel>,
     pub images: Images,
+}
+
+/// `CSurfaceDesc`'s cloud shadows: the texture `LScapeTerrainMesh::InitFarMesh` grabs, its scale
+/// per metre (`m_fCloudTextureScale`, the texture coordinates are world x and y times it) and its
+/// scroll in texture units per second (`m_fCloudScrollU`/`V`, an `LM_UVTranslate` of
+/// `WAVEFORM_SPEED` waveforms).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CloudShadow {
+    pub texture: Option<DataId>,
+    pub scale: f32,
+    pub scroll: [f32; 2],
+}
+
+impl CloudShadow {
+    pub fn new(desc: &ac2_world::Ac2FarTerrain) -> Self {
+        Self {
+            texture: (desc.cloud_texture.raw() != 0).then_some(desc.cloud_texture),
+            scale: desc.cloud_texture_scale,
+            scroll: desc.cloud_scroll,
+        }
+    }
+
+    /// The texture offset at client time `time`, wrapped to one tile (the waveform's
+    /// `frequency * time`, kept in f64 until it is small).
+    pub fn offset(&self, time: f64) -> [f32; 2] {
+        self.scroll
+            .map(|rate| (f64::from(rate) * time).rem_euclid(1.0) as f32)
+    }
 }
 
 /// Finished work.
@@ -361,6 +391,8 @@ impl Worker {
             .ok()
             .flatten();
         let mut keys = vec![TextureKey::Texture(desc.texture)];
+        let clouds = CloudShadow::new(&desc);
+        keys.extend(clouds.texture.map(TextureKey::Texture));
         keys.extend(water.iter().flat_map(ObjectModel::texture_keys));
         let images = self.images(keys);
         LoadedFar {
@@ -368,6 +400,7 @@ impl Worker {
             layout: Arc::clone(&self.far),
             vertices,
             texture: desc.texture,
+            clouds,
             water,
             images,
         }

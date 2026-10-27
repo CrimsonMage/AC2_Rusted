@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 80 done, 56 partial, 630 to do, 15 skipped.
+781 retail functions: 85 done, 54 partial, 627 to do, 15 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -763,7 +763,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneCamera::SetRenderPosition` · 00572c90 · legions 0053a9d0
 - [x] `SceneCamera::SetCurrentPosition` · 00572cb0 · legions 0053a9f0
 
-## `portal/client/src/scenerender/scenetool.cpp.c` (7/100)
+## `portal/client/src/scenerender/scenetool.cpp.c` (10/100)
 
 ### SceneTool
 - [ ] `SceneTool::UsingSceneMotionBlur` · 0056a5d0 · legions 0053aa10
@@ -852,7 +852,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneTool::SetupCamera` · 0056ea20 · legions 0053ee00
 - [ ] `SceneTool::GetPointLightShadowVector` · 0056ed50 · legions 0053f130
 - [ ] `SceneTool::DisableSunlight` · 0056eef0 · legions 0053f2d0
-- [~] `SceneTool::SetSunlight` · 0056ef40 · legions 0053f320 — object::ObjectLights; static/volumetric shadow strengths not used yet
+- [x] `SceneTool::SetSunlight` · 0056ef40 · legions 0053f320 — object::ObjectLights; static shadow strength SceneLighting::shadow_strength (volumetric shadows not drawn)
 - [ ] `SceneTool::DrawLine` · 0056f230 · legions 0053f610
 - [~] `SceneTool::DrawScreenQuad` · 0056f260 · legions 0053f640 — untextured colour quad (ac2-gpu ScreenQuad) only
 - [ ] `SceneTool::SwitchTextureTargets` · 0056f2e0 · legions 0053f6c0
@@ -867,8 +867,8 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneTool::RefreshGraphicsResources` · 0056fb70
 - [ ] `SceneTool::Shutdown` · 0056fc00 · legions 00540040
 - [ ] `SceneTool::SetupCamera` · 0056fe60 · legions 005402a0
-- [ ] `SceneTool::StartShadowMap` · 0056fea0 · legions 005402e0
-- [ ] `SceneTool::FinishShadowMap` · 00570300 · legions 00540740
+- [x] `SceneTool::StartShadowMap` · 0056fea0 · legions 005402e0 — ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
+- [x] `SceneTool::FinishShadowMap` · 00570300 · legions 00540740 — ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
 - [ ] `SceneTool::RenderGlobalVolumetricShadows` · 005703e0 · legions 00540820
 - [~] `SceneTool::FinishSelection` · 005706d0 · legions 00540b10 — ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 - [~] `SceneTool::SelectObject` · 00570730 · legions 00540b70 — ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
@@ -984,7 +984,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeLighting::UpdateInfo` · 00590b60 · legions 005601b0
 - [ ] `LScapeLighting::ChangeCell` · 00590bc0 · legions 00560210
 
-## `portal/client/src/smartbox/worldrender/lscapematerialinfo.cpp.c` (10/14)
+## `portal/client/src/smartbox/worldrender/lscapematerialinfo.cpp.c` (11/14)
 
 ### RenderTextureLocal
 - [ ] `RenderTextureLocal::GetGlobalOrLocal` · 00590c10 · legions 00560260
@@ -1000,11 +1000,11 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeMaterialInfo::LScapeMaterialInfo` · 005910d0 · legions 00560700
 - [x] `LScapeMaterialInfo::SetUVs` · 005911e0 · legions 00560810
 - [x] `LScapeMaterialInfo::Apply` · 00591270 · legions 005608a0
-- [~] `LScapeMaterialInfo::CombineMaterials` · 005912d0 · legions 00560900 — base and alpha stages; no shadow-map or cloud-shadow stages
+- [x] `LScapeMaterialInfo::CombineMaterials` · 005912d0 · legions 00560900 — terrain.wgsl: base/alpha stages, shadow-map and cloud-shadow modulate before fog
 - [x] `LScapeMaterialInfo::MultiCombine` · 005919d0 · legions 00561000
 - [x] `LScapeMaterialInfo::Create` · 00591a40 · legions 00561070
 
-## `portal/client/src/smartbox/worldrender/lscaperender.cpp.c` (6/39)
+## `portal/client/src/smartbox/worldrender/lscaperender.cpp.c` (7/39)
 
 ### LScapeLighting
 - [x] `LScapeLighting::GetAmbientLight` · 005835c0 · legions 00552d30
@@ -1049,7 +1049,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeRender::UpdateLighting` · 005841c0 · legions 00553900
 - [ ] `LScapeRender::CalculateShadowColor` · 00584290 · legions 005539d0
 - [ ] `LScapeRender::GetTerrainGeometry` · 005843b0 · legions 00553af0
-- [ ] `LScapeRender::RefreshShadowMap` · 00584540 · legions 00553c80
+- [x] `LScapeRender::RefreshShadowMap` · 00584540 · legions 00553c80 — ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
 - [ ] `LScapeRender::Init` · 005847b0 · legions 00553ee0
 - [ ] `LScapeRender::CalcBlockDrawOrderInternal` · 00584950 · legions 00554080
 - [ ] `LScapeRender::CalcBlockDrawOrder` · 00584b10 · legions 00554240
@@ -1151,7 +1151,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeTerrainMesh::Destroy` · 0058b8a0 · legions 0055af10
 - [~] `LScapeTerrainMesh::BuildNearTerrainMesh` · 0058b9e0 · legions 0055b050 — per-block near mesh; no cloud-shadow UVs or shared near vertex array
 - [ ] `LScapeTerrainMesh::~LScapeTerrainMesh` · 0058bc10 · legions 0055b280
-- [x] `LScapeTerrainMesh::InitFarMesh` · 0058bce0 · legions 0055b350 — chunks, LOD steps, block edges, far material (no cloud-shadow stage: LandscapeCloudShadows off)
+- [x] `LScapeTerrainMesh::InitFarMesh` · 0058bce0 · legions 0055b350 — far chunks, LOD, block edges, far material with ADDSIGNED + MODULATE2X cloud stage (far_terrain.wgsl)
 - [~] `LScapeTerrainMesh::UpdateNearTerrain` · 0058c8c0 · legions 0055bf30 — per-block near mesh; no cloud-shadow UVs or shared near vertex array
 - [x] `LScapeTerrainMesh::UpdateNearWater` · 0058d700 · legions 0055cd70 — ac2-render object::load_water_model
 - [ ] `LScapeTerrainMesh::GenerateShore` · 0058dcb0 · legions 0055d320

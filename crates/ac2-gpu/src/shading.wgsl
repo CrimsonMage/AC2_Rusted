@@ -115,20 +115,3 @@ fn cloud_density(at: vec2<f32>, cover: f32) -> f32 {
     let threshold = 1.0 - 0.45 - 0.45 * cover;
     return smoothstep(threshold, threshold + 0.22, n);
 }
-
-// How much of the sun reaches world point `p` through the cloud deck (1 clear, down to 0.35
-// under thick cloud): the deck sampled where the ray to the sun crosses it. `clouds` is the sky's
-// x cover, y drift seconds; `sun` points to the sun; `eye_z` places the deck. Retail's terrain
-// cloud-shadow stage (`LScapeMaterialInfo::CombineMaterials`, texcoord 6) samples a region
-// texture through coordinates nothing writes; this follows the drawn clouds instead.
-fn cloud_shadow(p: vec3<f32>, sun: vec3<f32>, eye_z: f32, clouds: vec4<f32>) -> f32 {
-    let cover = clamp(clouds.x, 0.0, 1.0);
-    if cover <= 0.0 || sun.z <= 0.05 {
-        return 1.0;
-    }
-    let deck = eye_z + CLOUD_HEIGHT;
-    let at_deck = p.xy + sun.xy / sun.z * (deck - p.z);
-    let at = at_deck / CLOUD_SCALE + CLOUD_WIND * clouds.y / CLOUD_SCALE;
-    let density = cloud_density(at, cover);
-    return 1.0 - 0.65 * density * smoothstep(0.05, 0.25, sun.z);
-}

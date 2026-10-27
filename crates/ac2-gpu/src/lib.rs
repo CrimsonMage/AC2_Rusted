@@ -13,6 +13,7 @@ mod pixel_program;
 mod scene;
 mod screen_quad;
 mod shading;
+mod shadow_map;
 mod sky;
 mod terrain;
 mod texture;
@@ -24,6 +25,7 @@ pub use object::{sky_backdrop, DrawGroup, GpuObjectModel, ObjectInstance, Object
 pub use scene::{SceneObject, SceneRenderer};
 pub use screen_quad::ScreenQuad;
 pub use shading::srgb_to_linear;
+pub use shadow_map::{StaticShadowMap, SHADOW_MAP_FORMAT, SHADOW_MAP_SIZE};
 pub use sky::{SkyLook, SkyRenderer, DEFAULT_CLOUD_COVER};
 pub use terrain::{GpuFarTerrain, TerrainBlock, TerrainRenderer};
 pub use texture::{TextureCache, TextureKey};
