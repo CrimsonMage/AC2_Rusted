@@ -31,6 +31,10 @@ use crate::Gpu;
 #[path = "object_shadow.rs"]
 mod shadow;
 
+#[cfg(test)]
+#[path = "object_stream_tests.rs"]
+mod stream_tests;
+
 #[repr(C)]
 #[derive(Clone, Copy, Pod, Zeroable)]
 struct GpuVertex {
@@ -91,6 +95,9 @@ struct GpuPart {
     batches: Vec<GpuBatch>,
     /// The mesh carries matrix weights.
     weighted: bool,
+    /// The buffers were made by `set_geometry` (`COPY_DST`, power-of-two capacity) and are
+    /// refilled in place from then on.
+    streamed: bool,
 }
 
 /// An uploaded `ObjectModel`.
@@ -102,6 +109,24 @@ pub struct GpuObjectModel {
     first_list: (u32, u32),
     /// The farthest vertex from the model's origin.
     radius: f32,
+}
+
+/// Every `GpuVertex` is a whole number of 4-byte words, so `write_buffer` sizes need no padding.
+const _: () = assert!(std::mem::size_of::<GpuVertex>().is_multiple_of(4));
+
+/// A buffer for `set_geometry`: at least one copy alignment unit, rounded up to a power of two.
+fn stream_buffer(
+    device: &wgpu::Device,
+    label: &str,
+    usage: wgpu::BufferUsages,
+    bytes: u64,
+) -> wgpu::Buffer {
+    device.create_buffer(&wgpu::BufferDescriptor {
+        label: Some(label),
+        size: bytes.max(wgpu::COPY_BUFFER_ALIGNMENT).next_power_of_two(),
+        usage: usage | wgpu::BufferUsages::COPY_DST,
+        mapped_at_creation: false,
+    })
 }
 
 impl GpuObjectModel {
@@ -209,6 +234,15 @@ pub struct ObjectRenderer {
     /// The static shadow map's caster pipeline, made on first use.
     casters: Option<shadow::CasterPass>,
     shadow_format: wgpu::TextureFormat,
+    /// `prepare`'s working storage, cleared and refilled each frame so steady frames allocate
+    /// nothing. Never shrunk.
+    scratch_entries: Vec<(DrawUniform, QueuedDraw)>,
+    scratch_opaque: Vec<(DrawUniform, QueuedDraw)>,
+    scratch_translucent: Vec<(f32, (DrawUniform, QueuedDraw))>,
+    scratch_bones: Vec<[[f32; 4]; 4]>,
+    scratch_bytes: Vec<u8>,
+    /// `set_geometry`'s converted vertices.
+    scratch_vertices: Vec<GpuVertex>,
 }
 
 impl ObjectRenderer {
@@ -348,6 +382,12 @@ impl ObjectRenderer {
             groups: Vec::new(),
             casters: None,
             shadow_format: crate::SHADOW_MAP_FORMAT,
+            scratch_entries: Vec::new(),
+            scratch_opaque: Vec::new(),
+            scratch_translucent: Vec::new(),
+            scratch_bones: Vec::new(),
+            scratch_bytes: Vec::new(),
+            scratch_vertices: Vec::new(),
         }
     }
 
@@ -444,6 +484,7 @@ impl ObjectRenderer {
                 transform: part.transform,
                 batches,
                 weighted: part.skin.is_some(),
+                streamed: false,
             });
         }
         let first_list = model.parts.first().map_or((0, 0), |part| {
@@ -461,6 +502,7 @@ impl ObjectRenderer {
     /// Replaces the geometry of `model`'s first part and batch: a particle material's model,
     /// whose triangles are laid out again every frame (`ParticleSystem::FillVertexBuffer`).
     pub fn set_geometry(
+        &mut self,
         gpu: &Gpu,
         model: &mut GpuObjectModel,
         vertices: &[ObjectVertex],
@@ -469,9 +511,9 @@ impl ObjectRenderer {
         let Some(part) = model.parts.first_mut() else {
             return;
         };
-        let gpu_vertices: Vec<GpuVertex> = vertices
-            .iter()
-            .map(|v| GpuVertex {
+        self.scratch_vertices.clear();
+        self.scratch_vertices
+            .extend(vertices.iter().map(|v| GpuVertex {
                 position: v.position,
                 normal: v.normal,
                 color: v.color,
@@ -479,22 +521,36 @@ impl ObjectRenderer {
                 tangents: v.tangents,
                 bones: [0; 4],
                 weights: [0.0; 4],
-            })
-            .collect();
-        part.vertices = gpu
-            .device
-            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                label: Some("ac2 particle vertices"),
-                contents: bytemuck::cast_slice(&gpu_vertices),
-                usage: wgpu::BufferUsages::VERTEX,
-            });
-        part.indices = gpu
-            .device
-            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                label: Some("ac2 particle indices"),
-                contents: bytemuck::cast_slice(indices),
-                usage: wgpu::BufferUsages::INDEX,
-            });
+            }));
+        let vertex_bytes: &[u8] = bytemuck::cast_slice(&self.scratch_vertices);
+        let index_bytes: &[u8] = bytemuck::cast_slice(indices);
+        // The first call replaces the upload's buffers, which lack `COPY_DST`; later calls refill
+        // them until the live geometry outgrows their capacity.
+        let first = !part.streamed;
+        if first || vertex_bytes.len() as u64 > part.vertices.size() {
+            part.vertices = stream_buffer(
+                &gpu.device,
+                "ac2 particle vertices",
+                wgpu::BufferUsages::VERTEX,
+                vertex_bytes.len() as u64,
+            );
+        }
+        if first || index_bytes.len() as u64 > part.indices.size() {
+            part.indices = stream_buffer(
+                &gpu.device,
+                "ac2 particle indices",
+                wgpu::BufferUsages::INDEX,
+                index_bytes.len() as u64,
+            );
+        }
+        part.streamed = true;
+        // The draw range below bounds the indices drawn, so a larger buffer's tail is never read.
+        if !vertex_bytes.is_empty() {
+            gpu.queue.write_buffer(&part.vertices, 0, vertex_bytes);
+        }
+        if !index_bytes.is_empty() {
+            gpu.queue.write_buffer(&part.indices, 0, index_bytes);
+        }
         if let Some(batch) = part.batches.first_mut() {
             batch.range = 0..indices.len() as u32;
         }
@@ -600,20 +656,21 @@ impl ObjectRenderer {
             let environment = group.environment.unwrap_or(environment);
             self.write_frame(&gpu.queue, index, camera, environment, aspect);
         }
-        let mut entries = Vec::new();
-        let mut bounds = Vec::with_capacity(groups.len());
-        let mut bones: Vec<[[f32; 4]; 4]> = Vec::new();
+        self.scratch_entries.clear();
+        self.scratch_bones.clear();
+        self.groups.clear();
         for group in groups {
-            let start = entries.len();
-            let mut opaque = Vec::new();
-            let mut translucent = Vec::new();
+            let start = self.scratch_entries.len();
+            self.scratch_opaque.clear();
+            self.scratch_translucent.clear();
             let backdrop = group.sky.then(|| sky_backdrop(group.instances)).flatten();
             for (instance_index, instance) in group.instances.iter().enumerate() {
                 let center = instance.world.transform_point3(instance.model.center);
                 let distance = center.distance_squared(camera.eye);
-                let base = bones.len() as u32;
+                let base = self.scratch_bones.len() as u32;
                 if let Some(pose) = instance.pose {
-                    bones.extend(pose.palette.iter().map(Mat4::to_cols_array_2d));
+                    self.scratch_bones
+                        .extend(pose.palette.iter().map(Mat4::to_cols_array_2d));
                 }
                 for (part_index, part) in instance.model.parts.iter().enumerate() {
                     let (transform, skin) = match instance.pose {
@@ -671,32 +728,38 @@ impl ObjectRenderer {
                             }
                             let entry = (uniform, draw);
                             if group.ordered || pass.depth_write {
-                                opaque.push(entry);
+                                self.scratch_opaque.push(entry);
                             } else {
-                                translucent.push((distance, entry));
+                                self.scratch_translucent.push((distance, entry));
                             }
                         }
                     }
                 }
             }
-            translucent.sort_by(|a, b| b.0.total_cmp(&a.0));
-            entries.extend(opaque);
-            entries.extend(translucent.into_iter().map(|(_, entry)| entry));
-            bounds.push(start..entries.len());
+            self.scratch_translucent.sort_by(|a, b| b.0.total_cmp(&a.0));
+            self.scratch_entries.append(&mut self.scratch_opaque);
+            self.scratch_entries
+                .extend(self.scratch_translucent.drain(..).map(|(_, entry)| entry));
+            let end = self.scratch_entries.len();
+            self.groups.push(start..end);
         }
-        let needed = DRAW_STRIDE * entries.len().max(1) as u64;
+        let needed = DRAW_STRIDE * self.scratch_entries.len().max(1) as u64;
         if needed > self.draw_capacity {
             let capacity = needed.next_power_of_two();
             (self.draw_buffer, self.draw_group) =
                 draw_storage(&gpu.device, &self.draw_layout, capacity);
             self.draw_capacity = capacity;
         }
-        let mut bytes = vec![0_u8; needed as usize];
+        // Zeroed, as the padding between draw uniforms must be.
+        self.scratch_bytes.clear();
+        self.scratch_bytes.resize(needed as usize, 0);
         self.queue.clear();
-        for (index, (uniform, mut draw)) in entries.into_iter().enumerate() {
+        for (index, (uniform, draw)) in self.scratch_entries.iter().enumerate() {
             let offset = index as u64 * DRAW_STRIDE;
-            bytes[offset as usize..offset as usize + std::mem::size_of::<DrawUniform>()]
-                .copy_from_slice(bytemuck::bytes_of(&uniform));
+            self.scratch_bytes
+                [offset as usize..offset as usize + std::mem::size_of::<DrawUniform>()]
+                .copy_from_slice(bytemuck::bytes_of(uniform));
+            let mut draw = *draw;
             let key = draw.key;
             if !self.pipelines.contains_key(&key) {
                 let module = &self.modules[key.program as usize];
@@ -706,18 +769,21 @@ impl ObjectRenderer {
             draw.offset = offset as u32;
             self.queue.push(draw);
         }
-        self.groups = bounds;
-        gpu.queue.write_buffer(&self.draw_buffer, 0, &bytes);
-        let needed = BONE_BYTES * bones.len().max(1) as u64;
+        gpu.queue
+            .write_buffer(&self.draw_buffer, 0, &self.scratch_bytes);
+        let needed = BONE_BYTES * self.scratch_bones.len().max(1) as u64;
         if needed > self.bone_capacity {
             let capacity = needed.next_power_of_two();
             (self.bone_buffer, self.bone_group) =
                 bone_storage(&gpu.device, &self.bone_layout, capacity);
             self.bone_capacity = capacity;
         }
-        if !bones.is_empty() {
-            gpu.queue
-                .write_buffer(&self.bone_buffer, 0, bytemuck::cast_slice(&bones));
+        if !self.scratch_bones.is_empty() {
+            gpu.queue.write_buffer(
+                &self.bone_buffer,
+                0,
+                bytemuck::cast_slice(&self.scratch_bones),
+            );
         }
     }
 

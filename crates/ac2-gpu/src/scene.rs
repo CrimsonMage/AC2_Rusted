@@ -207,7 +207,7 @@ impl SceneRenderer {
         // The particles of the frame go into their materials' models.
         for batch in &self.frame.particles {
             if let Some(model) = self.models.get_mut(&batch.material) {
-                ObjectRenderer::set_geometry(
+                self.objects.set_geometry(
                     gpu,
                     model,
                     &batch.geometry.vertices,
