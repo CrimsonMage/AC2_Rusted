@@ -28,8 +28,13 @@ pub fn config_file(name: &str) -> PathBuf {
     if path.is_absolute() {
         path.to_path_buf()
     } else {
-        user_config_dir().join("AC2").join(path)
+        config_dir().join(path)
     }
+}
+
+/// The player's AC2 directory (`<config>/AC2`): the preferences, keymap files and screenshots.
+pub fn config_dir() -> PathBuf {
+    user_config_dir().join("AC2")
 }
 
 fn user_config_dir() -> PathBuf {

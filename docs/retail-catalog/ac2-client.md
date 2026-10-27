@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 121 done, 47 partial, 137 to do, 49 skipped.
+354 retail functions: 121 done, 48 partial, 136 to do, 49 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -277,7 +277,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Device::ForceDisplayResolution` · 005350a0 · legions 00518fa0
 - [ ] `Device::StartupGraphicsEngine` · 00535180 · legions 00519080
 - [ ] `Device::InitWindow` · 005352d0 · legions 005191d0
-- [ ] `Device::SaveScreenshot` · 005356e0 · legions 005195e0
+- [~] `Device::SaveScreenshot` · 005356e0 · legions 005195e0 — bin/ac2/screenshot.rs: copies the presented frame to the AC2 dir as capN.png (first free N); not re-rendered, PNG not JPEG
 - [ ] `Device::RunConfigTool` · 00535aa0 · legions 005199a0
 - [~] `Device::InitializeRenderingPreferences` · 00535e20 · legions 00519d20 — ac2-render prefs::register_device: five display flags (section 0x4000000B); DisplayResolution (0x40000047, a float-free enum whose default comes from the device's display modes at run time) is not registered
 - [ ] `Device::Init` · 005362f0 · legions 0051a1f0

@@ -502,8 +502,8 @@ const AUDIT: &[(u32, &str, &str, &str, Status)] = &[
         0x4100_0017,
         "SCREENSHOT_KEY",
         "gmUIFlow::ListenToMessage (release) -> Device::SaveScreenshot",
-        "none yet: needs a surface read-back in the window path",
-        Status::Gap,
+        "bin/ac2/screenshot.rs (release of the key saves the presented frame)",
+        Status::Wired,
     ),
     (
         0x4100_0018,
@@ -1055,7 +1055,7 @@ fn every_gap_and_skip_row_says_why() {
     }
     let skips = AUDIT.iter().filter(|r| r.4 == Status::Skip).count();
     let gaps = AUDIT.iter().filter(|r| r.4 == Status::Gap).count();
-    assert_eq!(gaps, 2, "screenshot and KeyStone");
+    assert_eq!(gaps, 1, "KeyStone");
     assert_eq!(
         skips, 8,
         "admin-only keys: sound, benchmark, debug HUD, groove, exam tabs"

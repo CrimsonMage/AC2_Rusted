@@ -43,9 +43,9 @@ ac2-render = { path = "../ac2-render" }
 ac2-gpu = { path = "../ac2-gpu", optional = true }
 winit = { version = "0.30", optional = true }
 wgpu = { version = "30.0.1", default-features = false, optional = true }
+png = "0.18"
 
 [dev-dependencies]
 ac2-client = { path = ".", features = ["test-support"] }
 ac2-dat = { path = "../ac2-dat", features = ["test-support"] }
 legions-server-double = { path = "../../tools/legions-server-double" }
-png = "0.18"

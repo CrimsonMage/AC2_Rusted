@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1027 done, 361 partial, 750 to do, 109 skipped.
+2247 retail functions: 1027 done, 362 partial, 750 to do, 108 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -1622,7 +1622,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIFlow::GetUIMainFramework` · 00405e00 — ac2-ui pregame/flow.rs, pregame/ui.rs
 
 ### gmUIFlow
-- [-] `gmUIFlow::ListenToMessage` · 00405e10 · legions 00405af0 — debug keys (bench mode, debug HUD, screenshot, sound debug)
+- [~] `gmUIFlow::ListenToMessage` · 00405e10 · legions 00405af0 — screenshot key 0x41000017 on release: crates/ac2-client/src/bin/ac2/screenshot.rs (the other debug keys are admin-only, skip)
 
 ### PLineOffsetList
 - [ ] `PLineOffsetList::~PLineOffsetList` · 004060b0 · legions 00405dc0

@@ -51,7 +51,7 @@ key	status	note
 00405b40	x	base virtual releases its arguments; the panel is the override: hud_shop.rs consignment_notice / catalog_notice via hud_player_notice
 00405d80	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 00405e00	x	ac2-ui pregame/flow.rs, pregame/ui.rs
-00405e10	-	debug keys (bench mode, debug HUD, screenshot, sound debug)
+00405e10	~	screenshot key 0x41000017 on release: crates/ac2-client/src/bin/ac2/screenshot.rs (the other debug keys are admin-only, skip)
 00406220	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 00406410	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 004064a0	-	GUN chat servers are not used (Turbine chat)
@@ -3283,6 +3283,7 @@ key	status	note
 00532050	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
 00532110	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
 00532170	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005356e0	~	bin/ac2/screenshot.rs: copies the presented frame to the AC2 dir as capN.png (first free N); not re-rendered, PNG not JPEG
 00535e20	~	ac2-render prefs::register_device: five display flags (section 0x4000000B); DisplayResolution (0x40000047, a float-free enum whose default comes from the device's display modes at run time) is not registered
 00536af0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536b30	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
@@ -4285,6 +4286,10 @@ key	status	note
 0056b150	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b170	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 0056b1c0	x	
+0056b6b0	-	tiled re-render capture not ported; the presented frame is copied instead
+0056b7a0	-	tiled re-render capture not ported; the presented frame is copied instead
+0056b7c0	-	tiled re-render capture not ported; the presented frame is copied instead
+0056b7d0	-	tiled re-render capture not ported; the presented frame is copied instead
 0056be60	x	ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
 0056e450	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 0056ef40	x	object::ObjectLights; static shadow strength SceneLighting::shadow_strength (volumetric shadows not drawn)
@@ -4306,6 +4311,7 @@ key	status	note
 00573550	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 00573560	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 00573570	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+00573580	~	bin/ac2/screenshot.rs: copies the presented frame to the AC2 dir as capN.png (first free N); not re-rendered, PNG not JPEG
 005735e0	x	
 00573630	x	
 005736f0	x	
@@ -4657,6 +4663,7 @@ key	status	note
 005af390	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005af9c0	~	A8R8G8B8 only; colour key and format conversion not modelled
 005b0620	x	ac2-ui tree_view.rs
+005b1f70	-	Intel IJL JPEG writer not ported; screenshots are PNG via the png crate
 005b2860	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 005b2c80	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 005b2e10	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle

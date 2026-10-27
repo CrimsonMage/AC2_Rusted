@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 85 done, 56 partial, 625 to do, 15 skipped.
+781 retail functions: 85 done, 56 partial, 620 to do, 20 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -286,7 +286,7 @@ Legend and workflow: [README](README.md).
 - [ ] `RenderSurface::StreamPack` · 005b1c40 · legions 0057d6d0
 - [-] `RenderSurface::LoadDDS` · 005b1d60 — text source loader, admin build only
 - [-] `RenderSurface::LoadJPGAsRawData` · 005b1eb0 — text source loader, admin build only
-- [ ] `RenderSurface::SaveJPG` · 005b1f70 · legions 0057d7f0
+- [-] `RenderSurface::SaveJPG` · 005b1f70 · legions 0057d7f0 — Intel IJL JPEG writer not ported; screenshots are PNG via the png crate
 - [ ] `RenderSurface::Allocator` · 005b2130
 - [-] `RenderSurface::LoadFromFile` · 005b2170 — text source loader, admin build only
 - [ ] `RenderSurface::Unlock` · 005b2370 · legions 0057d9f0
@@ -806,10 +806,10 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneTool::PrepareGenericRenderTarget2` · 0056b2c0 · legions 0053b6e0
 - [ ] `SceneTool::PrepareGenericDepthTarget` · 0056b330 · legions 0053b750
 - [ ] `SceneTool::GenerateGlobalShadowVolume` · 0056b390 · legions 0053b7b0
-- [ ] `SceneTool::StartScreenshotCapture` · 0056b6b0 · legions 0053ba90
-- [ ] `SceneTool::FinishScreenshotCapture` · 0056b7a0 · legions 0053bb80
-- [ ] `SceneTool::GetNumSubScreenshots` · 0056b7c0 · legions 0053bba0
-- [ ] `SceneTool::FinishSubScreenshot` · 0056b7d0 · legions 0053bbb0
+- [-] `SceneTool::StartScreenshotCapture` · 0056b6b0 · legions 0053ba90 — tiled re-render capture not ported; the presented frame is copied instead
+- [-] `SceneTool::FinishScreenshotCapture` · 0056b7a0 · legions 0053bb80 — tiled re-render capture not ported; the presented frame is copied instead
+- [-] `SceneTool::GetNumSubScreenshots` · 0056b7c0 · legions 0053bba0 — tiled re-render capture not ported; the presented frame is copied instead
+- [-] `SceneTool::FinishSubScreenshot` · 0056b7d0 · legions 0053bbb0 — tiled re-render capture not ported; the presented frame is copied instead
 - [ ] `SceneTool::StartReflectionMap` · 0056ba00 · legions 0053bde0
 - [ ] `SceneTool::FinishReflectionMap` · 0056ba60 · legions 0053be40
 - [ ] `SceneTool::StartWaterBumpMap` · 0056baa0 · legions 0053be80

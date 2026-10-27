@@ -32,10 +32,13 @@ mod cmdline;
 mod instance;
 mod keys;
 mod pregame;
+mod screenshot;
 
 use cmdline::{parse_args, Args};
 
-use std::sync::Arc;
+use std::io;
+use std::path::PathBuf;
+use std::sync::{mpsc::Receiver, Arc};
 use std::time::{Duration, Instant};
 
 use ac2_client::pregame_view::PregameView;
@@ -112,6 +115,8 @@ struct State {
     /// Whether the OS input method is enabled (`CIme`'s active state; see `sync_ime`).
     ime_allowed: bool,
     grabbed: bool,
+    /// Screenshots being encoded and written on a worker (`Device::SaveScreenshot`'s file).
+    screenshots: Vec<Receiver<io::Result<PathBuf>>>,
 }
 
 struct App {
@@ -148,6 +153,28 @@ impl State {
         if on != self.ime_allowed {
             self.window.set_ime_allowed(on);
             self.ime_allowed = on;
+        }
+    }
+
+    /// Copies the presented frame and queues its save on a worker (`Device::SaveScreenshot`). The
+    /// read-back waits for the GPU; the encode and the file write do not run on this thread.
+    fn save_screenshot(&mut self, texture: &wgpu::Texture) {
+        let (width, height) = (self.config.width, self.config.height);
+        match screenshot::read_surface(&self.gpu, texture, self.format, width, height) {
+            Ok(rgba) => {
+                let (sender, receiver) = std::sync::mpsc::channel();
+                let dir = ac2_prefs::paths::config_dir();
+                std::thread::spawn(move || {
+                    let _ = sender.send(screenshot::save_frame(&dir, width, height, &rgba));
+                });
+                self.screenshots.push(receiver);
+            }
+            Err(error) => {
+                // The failure takes the same path as a failed write, to the chat.
+                let (sender, receiver) = std::sync::mpsc::channel();
+                let _ = sender.send(Err(io::Error::other(error)));
+                self.screenshots.push(receiver);
+            }
         }
     }
 
@@ -260,6 +287,12 @@ impl App {
         let ui_input = state.controls.take_ui_input();
         let modifiers = state.controls.modifiers();
         let mut messages = view.ui_input(&ui_input, modifiers);
+        // `gmUIFlow::ListenToMessage`: the screenshot key's release saves the frame below.
+        let screenshot = messages.iter().any(|message| {
+            message.message == ac2_ui::GLOBAL_KEY_RELEASE
+                && message.element.is_none()
+                && message.data as u32 == screenshot::SCREENSHOT_KEY
+        });
         let (actions, characters, _) = state.controls.take_text_input();
         messages.extend(view.text_input(&actions, &characters, modifiers));
         for request in view.take_chat_requests() {
@@ -300,6 +333,21 @@ impl App {
                 return;
             }
         };
+        for saved in screenshot::finished(&mut state.screenshots) {
+            match saved {
+                Ok(path) => {
+                    eprintln!("ac2: screenshot {}", path.display());
+                    view.chat_display(
+                        screenshot::TEXT_TYPE_STANDARD,
+                        &format!("Screenshot saved to {}", path.display()),
+                    );
+                }
+                Err(error) => {
+                    eprintln!("ac2: screenshot: {error}");
+                    view.set_error_msg("Screenshot failed.");
+                }
+            }
+        }
         for event in &events {
             match event {
                 SessionEvent::Notice(GameplayNotice::DisplayStringInfo { kind, text }) => {
@@ -383,6 +431,9 @@ impl App {
                 |_| {},
             );
         }
+        if screenshot {
+            state.save_screenshot(&output.texture);
+        }
         state.gpu.queue.present(output);
     }
 }
@@ -409,8 +460,14 @@ impl ApplicationHandler for App {
             .find(|format| !format.is_srgb())
             .unwrap_or(caps.formats[0]);
         let size = window.inner_size();
+        // `COPY_SRC` lets the screenshot key read the presented frame back.
+        let copy = if caps.usages.contains(wgpu::TextureUsages::COPY_SRC) {
+            wgpu::TextureUsages::COPY_SRC
+        } else {
+            wgpu::TextureUsages::empty()
+        };
         let config = wgpu::SurfaceConfiguration {
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | copy,
             format,
             width: size.width.max(1),
             height: size.height.max(1),
@@ -454,6 +511,7 @@ impl ApplicationHandler for App {
             started: Instant::now(),
             ime_allowed: false,
             grabbed: false,
+            screenshots: Vec::new(),
         });
     }
 
