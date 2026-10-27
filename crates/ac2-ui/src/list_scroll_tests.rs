@@ -45,12 +45,7 @@ fn element(
 }
 
 fn rect(x0: i16, y0: i16, x1: i16, y1: i16) -> Rect {
-    Rect {
-        x0: i32::from(x0),
-        y0: i32::from(y0),
-        x1: i32::from(x1),
-        y1: i32::from(y1),
-    }
+    Rect { x0, y0, x1, y1 }
 }
 
 /// A panel holding a 30 x 20 list of one column of 10 x 10 items, and beside it the scroll bar
@@ -113,8 +108,11 @@ fn view_y(tree: &UiTree, list: usize) -> i32 {
 #[test]
 fn the_scroll_bar_and_the_list_view_follow_each_other() {
     let (mut tree, list, bar, _) = panel();
-    // Half way down the 49 pixels of scroll: 24, snapped to the row boundary at 20.
+    // Half way down the 49 pixels of scroll: 24, snapped to the row boundary at 20. A bare
+    // `SetAttribute_Float` only lays the widget out; the list follows the bar's move.
     tree.scrollbar_set_position(bar, 0.5);
+    assert_eq!(view_y(&tree, list), 0);
+    tree.lists_follow_scrollbar(bar);
     assert_eq!(view_y(&tree, list), 20);
     // Scrolling the list moves the bar to the view's share of the paper.
     tree.list_set_view(list, None, Some(30));

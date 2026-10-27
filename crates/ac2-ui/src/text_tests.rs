@@ -346,7 +346,10 @@ fn shift_selects_typing_replaces_and_the_clipboard_moves_text() {
     tree.text_action(0x4000_0013, 1.0, shift);
     tree.text_action(0x4000_0013, 1.0, shift);
     assert_eq!(tree.selection(entry), Some((2, 4)));
-    assert_eq!(tree.selected_text(entry), "cd".encode_utf16().collect::<Vec<_>>());
+    assert_eq!(
+        tree.selected_text(entry),
+        "cd".encode_utf16().collect::<Vec<_>>()
+    );
     // A plain move drops the selection (cursor 2 to 1); typing goes in there.
     tree.text_action(0x4000_0013, 1.0, plain);
     assert_eq!(tree.selection(entry), None);

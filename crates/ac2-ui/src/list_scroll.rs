@@ -71,8 +71,10 @@ impl UiTree {
             if el.desc.kind != crate::list_box_select::LIST_BOX || self.root_of(index) != root {
                 continue;
             }
-            for (name, vertical) in [("vertical_scrollbar", true), ("horizontal_scrollbar", false)]
-            {
+            for (name, vertical) in [
+                ("vertical_scrollbar", true),
+                ("horizontal_scrollbar", false),
+            ] {
                 if matches!(el.attributes.get(&tokenize(name)), Some(AttributeValue::Id(v)) if *v == id)
                 {
                     lists.push((index, vertical));

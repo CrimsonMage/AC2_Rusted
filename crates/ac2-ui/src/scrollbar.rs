@@ -214,7 +214,10 @@ impl UiTree {
     /// (the line message the bar broadcasts). A bar with no position attribute ignores it.
     pub(crate) fn scrollbar_mouse_wheel(&mut self, index: usize, action: u32) {
         if !self.is_scrollbar(index)
-            || !self.el(index).attributes.contains_key(&self.position_id(index))
+            || !self
+                .el(index)
+                .attributes
+                .contains_key(&self.position_id(index))
         {
             return;
         }
