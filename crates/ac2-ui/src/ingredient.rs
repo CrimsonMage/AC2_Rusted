@@ -9,11 +9,11 @@
 //! ingredient slots and their checks, the cost and difficulty at a spinner value, and the
 //! inventory. Requests go out as [`IngredientCommand`]s.
 //!
-//! Not modelled yet: the cost and difficulty texts and the name's colour (their retail string ids
-//! are not resolvable from the decompile, and the colour attribute is not in the tree), the
-//! typed spinner entry, the close button (its element name is not in the layout the decompile
-//! names), the 15 second dormancy that destroys the panel, and the panel's size from its
-//! ingredient count (`AutoSizeIngredientUI`).
+//! The panel's height follows its ingredient count (`AutoSizeIngredientUI`).
+//!
+//! Not modelled yet: the difficulty text and the name's colour (the colour attribute is not in the
+//! tree; the string ids are the decompile's `ID_Craft_*` literals), the typed spinner entry, the close button (its element name is not
+//! in the layout the decompile names), and the 15 second dormancy that destroys the panel.
 
 use std::sync::Arc;
 
@@ -22,7 +22,7 @@ use ac2_weenie::{CraftSkill, Ingredient, Recipe};
 
 use crate::element::UiTree;
 use crate::layout::{ElementDesc, LayoutDesc};
-use crate::token::{tokenize, BUTTON_GHOSTED};
+use crate::token::{tokenize, BUTTON_GHOSTED, MAX_HEIGHT, MIN_HEIGHT, MIN_WIDTH};
 
 /// `gmIngredientUI`'s element names (the gameplay layout's `IngredientField`'s children).
 pub(crate) const INGREDIENT_LIST: u32 = tokenize("IngredientListBox");
@@ -35,7 +35,9 @@ pub(crate) const SPINNER_DOWN: u32 = tokenize("SpinnerDownButton");
 pub(crate) const SPINNER_VALUE: u32 = tokenize("SpinnerValueField");
 pub(crate) const AUTO_POPULATE: u32 = tokenize("AutoPopulateButton");
 pub(crate) const CRAFT_BUTTON: u32 = tokenize("CraftButton");
-pub(crate) const COST_TEXT: u32 = tokenize("Cost");
+pub(crate) const COST_FIELD: u32 = tokenize("CostField");
+/// `ID_Craft_Cost`: the cost text, with its `value`.
+pub(crate) const CRAFT_COST: u32 = tokenize("ID_Craft_Cost");
 pub(crate) const LABEL_TEXT: u32 = tokenize("Label");
 pub(crate) const MISC_TEXT: u32 = tokenize("TextField");
 pub(crate) const TOKEN_ID: u32 = tokenize("id");
@@ -231,7 +233,7 @@ impl IngredientUi {
             .craft_skill(self.skill)
             .map_or(0, |skill| skill.level);
         self.show_spinner(tree);
-        self.update_cost(tree);
+        self.update_cost(tree, source);
         if let Some(label) = self.child(tree, LABEL_TEXT) {
             let text = source.text(&record.name);
             tree.set_text(label, &text);
@@ -250,6 +252,7 @@ impl IngredientUi {
         }
         self.update_craft_button(tree);
         self.update_difficulty();
+        self.auto_size(tree);
         self.shown = true;
         if let Some(root) = self.root {
             tree.set_visible(root, true);
@@ -270,10 +273,13 @@ impl IngredientUi {
         self.set_button_ghosted(tree, SPINNER_UP, self.spinner >= self.max_spinner);
     }
 
-    /// `gmIngredientUI::UpdateCost`: the cost is kept; its text needs the retail string id, which
-    /// the decompile does not name, so the text element keeps its layout text.
-    fn update_cost(&self, tree: &mut UiTree) {
-        let _ = (tree, COST_TEXT);
+    /// `gmIngredientUI::UpdateCost`: the cost text (`ID_Craft_Cost` with the cost as `value`) on
+    /// the `CostField` element.
+    fn update_cost(&self, tree: &mut UiTree, source: &dyn IngredientSource) {
+        if let Some(field) = self.child(tree, COST_FIELD) {
+            let text = source.string_with_value(CRAFT_COST, self.cost);
+            tree.set_text(field, &text);
+        }
     }
 
     /// `gmIngredientUI::UpdateCraftButton`: the button is ghosted while a craft is pending, while
@@ -282,6 +288,32 @@ impl IngredientUi {
         let out_of_range = self.spinner < self.min_spinner || self.spinner > self.max_spinner;
         let ghosted = self.pending || self.mounted || out_of_range || self.difficulty_too_high();
         self.set_button_ghosted(tree, CRAFT_BUTTON, ghosted);
+    }
+
+    /// `gmIngredientUI::AutoSizeIngredientUI`: the panel is as wide as its `min_width` and as tall
+    /// as its `min_height`, plus one template row (the template's box height) for each ingredient
+    /// past the third, up to `max_height`. The template is made to read its height and freed.
+    fn auto_size(&self, tree: &mut UiTree) {
+        let Some(root) = self.root else {
+            return;
+        };
+        let attribute = |id| tree.int_attribute(root, id).unwrap_or(0);
+        let (width, mut height) = (attribute(MIN_WIDTH), attribute(MIN_HEIGHT));
+        let max_height = attribute(MAX_HEIGHT);
+        if self.max_ingredients > 3 {
+            let Some(template) = self.create_template(tree, INGREDIENT_TEMPLATE) else {
+                return;
+            };
+            let row = tree.el(template).rect().height();
+            tree.delete(template);
+            let grown = row * (self.max_ingredients as i32 - 3) + height;
+            height = if grown <= max_height {
+                grown
+            } else {
+                max_height
+            };
+        }
+        tree.resize_to(root, width, height);
     }
 
     /// The difficulty past the cutoff (`m_hasDifficultyMinusSkillCutoff` and the skill's level).
@@ -325,7 +357,7 @@ impl IngredientUi {
         if self.dynamic_cost {
             if let Some(cost) = source.cost(self.recipe, self.spinner) {
                 self.cost = cost;
-                self.update_cost(tree);
+                self.update_cost(tree, source);
             }
         }
         if self.dynamic_difficulty {

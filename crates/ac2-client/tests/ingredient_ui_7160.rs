@@ -171,6 +171,38 @@ fn the_panel_opens_on_the_recipes_ingredients_and_executes() {
     assert!(mask != 0 || ingredients.is_empty());
     assert_eq!(slot_objects(tree, &panel).len(), ingredients.len());
 
+    // The panel's height follows its ingredient count (`AutoSizeIngredientUI`): one more row for
+    // each ingredient past the third, between its `min_height` and its `max_height`.
+    let root = panel.root().expect("the panel's root");
+    let attribute = |id: &str| match tree.get(root).unwrap().attribute(tokenize(id)) {
+        Some(AttributeValue::Int(value)) => *value,
+        _ => 0,
+    };
+    let (min_height, max_height) = (attribute("min_height"), attribute("max_height"));
+    let upper = if max_height > 0 { max_height } else { i32::MAX };
+    let count = source.recipe(RECIPE).expect("the recipe").max_ingredients as i32;
+    // Each row past the third adds at least one pixel: the height is at least that much.
+    let lower = if count > 3 {
+        (min_height + (count - 3)).min(upper)
+    } else {
+        min_height
+    };
+    let height = tree.get(root).unwrap().rect().height();
+    assert!(
+        (lower..=upper).contains(&height),
+        "height {height} for {count} ingredients"
+    );
+
+    // The cost text (`UpdateCost`): `ID_Craft_Cost` with the recipe's cost as its value.
+    let cost = source.recipe(RECIPE).expect("the recipe").cost;
+    let field = tree
+        .child_recursive(root, tokenize("CostField"))
+        .expect("the cost field");
+    assert_eq!(
+        tree.get(field).unwrap().text().unwrap_or_default(),
+        format!("string {:08x} {cost}", tokenize("ID_Craft_Cost")),
+    );
+
     // The spinner moves within its range (a read-only spinner does not move), and the craft button
     // is ghosted at the range's ends.
     let before = panel.spinner();

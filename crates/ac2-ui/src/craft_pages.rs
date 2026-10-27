@@ -7,11 +7,12 @@ use ac2_net::protocol::StringInfo;
 use ac2_weenie::{CraftSkill, Recipe};
 
 use crate::craft::{
-    CraftSource, CraftUi, BACK_BUTTON, CATEGORY_HEADER, CATEGORY_LIST, CATEGORY_TEMPLATE,
-    ENTRY_TEMPLATE, FORWARD_BUTTON, NAME, RAISE_CRAFT_BUTTON, RECIPE_BUTTON, RECIPE_HEADER,
-    RECIPE_ICON, RECIPE_LIST, RECIPE_TEMPLATE, SELECTED_FIELD, SELECTED_ICON, SELECTED_NAME,
-    SKILL_LIST, STATE_CATEGORY, STATE_RECIPE, STATE_SKILL, TOKEN_DID, TOKEN_DISABLED,
-    TOKEN_ENABLED, TOKEN_SELECTED,
+    CraftSource, CraftUi, AVAILABLE_XP_RAISE, BACK_BUTTON, CANT_RAISE, CATEGORY_HEADER,
+    CATEGORY_LIST, CATEGORY_TEMPLATE, ENTRY_TEMPLATE, FORWARD_BUTTON, NAME, RAISE_CRAFT_BUTTON,
+    RECIPE_BUTTON, RECIPE_HEADER, RECIPE_ICON, RECIPE_LIST, RECIPE_TEMPLATE, SELECTED_FIELD,
+    SELECTED_ICON, SELECTED_LEVEL, SELECTED_NAME, SKILL_LEVEL_BUFFED, SKILL_LEVEL_DEBUFFED,
+    SKILL_LEVEL_NORMAL, SKILL_LIST, STATE_CATEGORY, STATE_RECIPE, STATE_SKILL, TOKEN_COST,
+    TOKEN_DID, TOKEN_DISABLED, TOKEN_ENABLED, TOKEN_LEVEL, TOKEN_SELECTED, TOKEN_VALUE, TOKEN_XP,
 };
 use crate::element::UiTree;
 use crate::token::BUTTON_GHOSTED;
@@ -119,9 +120,10 @@ impl CraftUi {
         }
     }
 
-    /// `gmCraftUI::RefreshCraftSkillDisplay`: the selected skill's name, icon and raise button, on
-    /// the category and recipe views. The raise text and the level text are not shown yet (their
-    /// retail string ids are not in the decompile).
+    /// `gmCraftUI::RefreshCraftSkillDisplay`: the selected skill's name, icon, level and raise
+    /// button, on the category and recipe views. The level text (`MakeLevelText` in the buffed
+    /// state) is set first; with a raise button the raise text replaces it on the same element, as
+    /// the decompile does.
     pub(crate) fn refresh_skill_display(
         &mut self,
         tree: &mut UiTree,
@@ -141,9 +143,18 @@ impl CraftUi {
         if let Some(field) = self.child(tree, SELECTED_FIELD) {
             tree.set_state(field, TOKEN_SELECTED);
         }
+        if let Some(level) = self.child(tree, SELECTED_LEVEL) {
+            if let Some(text) = level_text(source, skill.did, true) {
+                tree.set_text(level, &text);
+            }
+        }
         if let Some(raise) = self.child(tree, RAISE_CRAFT_BUTTON) {
             let can = source.can_raise(skill.did);
             tree.set_bool(raise, BUTTON_GHOSTED, !can);
+            if let Some(level) = self.child(tree, SELECTED_LEVEL) {
+                let text = raise_text(source, skill);
+                tree.set_text(level, &text);
+            }
         }
     }
 
@@ -261,6 +272,43 @@ impl CraftUi {
             self.categories.insert(at, (category, name));
         }
     }
+}
+
+/// `gmCraftUI::MakeLevelText`: the skill's level (the enchanted one) and, when the level is
+/// enchanted, its buffed or debuffed text with the difference (`buffed` is the state argument: the
+/// selected skill shows it, a row does not). `None` when the level query fails.
+fn level_text(source: &dyn CraftSource, skill: u32, buffed: bool) -> Option<String> {
+    let (raw, enchanted) = source.skill_level(skill)?;
+    let level = i64::from(enchanted);
+    let difference = i64::from(enchanted) - i64::from(raw);
+    let (id, vars) = if difference == 0 || !buffed {
+        (SKILL_LEVEL_NORMAL, vec![(TOKEN_LEVEL, level)])
+    } else {
+        let id = if difference > 0 {
+            SKILL_LEVEL_BUFFED
+        } else {
+            SKILL_LEVEL_DEBUFFED
+        };
+        (
+            id,
+            vec![(TOKEN_LEVEL, level), (TOKEN_VALUE, difference.abs())],
+        )
+    };
+    Some(source.ui_text(id, &vars))
+}
+
+/// `gmCraftUI::RefreshCraftSkillDisplay`'s raise text: the skill cannot be raised (`CantRaise`), or
+/// it can, with the experience the player may use and the cost of the raise.
+fn raise_text(source: &dyn CraftSource, skill: &CraftSkill) -> String {
+    if !source.is_raiseable(skill.did) {
+        return source.ui_text(CANT_RAISE, &[]);
+    }
+    let available = i64::try_from(source.available_experience()).unwrap_or(i64::MAX);
+    let cost = i64::try_from(skill.cost_to_raise).unwrap_or(i64::MAX);
+    source.ui_text(
+        AVAILABLE_XP_RAISE,
+        &[(TOKEN_XP, available), (TOKEN_COST, cost)],
+    )
 }
 
 /// `UIElement::SetImage` / `ClearImage` of an icon element.

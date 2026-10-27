@@ -344,7 +344,7 @@ impl IngredientUi {
     }
 
     /// Creates a panel template by name (`UIFramework::CreateElement(0x41000009, template)`).
-    fn create_template(&self, tree: &mut UiTree, name: u32) -> Option<usize> {
+    pub(crate) fn create_template(&self, tree: &mut UiTree, name: u32) -> Option<usize> {
         let layout = self.layout.clone()?;
         tree.create_nested_element(&layout, name)
     }

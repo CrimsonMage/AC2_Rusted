@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 956 done, 365 partial, 856 to do, 70 skipped.
+2247 retail functions: 960 done, 362 partial, 853 to do, 72 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -258,7 +258,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmGamePlayUI::ListenToMessage` · 0040a810 · legions 0040a6d0 — ac2-ui game_dialogs.rs logout_key (0x4100000e); ac2-client hud_view.rs gameplay_keys (0x41000008/09/0B child keys while Shown) and gameplay_show_key (0x4100000C); 0x4100000D UseSelection and 0xffff0007 save locations not here
 - [x] `gmGamePlayUI::RecvNotice_ReloadOptions` · 0040a960 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 
-## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (19/39)
+## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (21/39)
 
 ### gmCObjectMaint
 - [-] `gmCObjectMaint::GetWeenieObject` · 00415870 · legions 00415660 — gmCObjectMaint::GetWeenieObject: the session's object table serves it (client hud_ingredient.rs)
@@ -271,12 +271,12 @@ Legend and workflow: [README](README.md).
 - [x] `gmIngredientUI_DDCB` · 00415b70 — ac2-ui drag.rs DragCheck::IngredientDrop on the ingredient list (CatchDroppedItem asks it of the container): only an item (ShortcutType 0x40000002) from a container (FromID set); a refusal goes to the drag's owner as a drop outside
 
 ### gmIngredientUI
-- [~] `gmIngredientUI::UpdateCost` · 00415be0 · legions 004159d0 — ac2-ui ingredient.rs update_cost: the cost is kept and follows the dynamic cost; its text needs the retail string id, so the layout's text stays
+- [x] `gmIngredientUI::UpdateCost` · 00415be0 · legions 004159d0 — ac2-ui ingredient.rs update_cost: ID_Craft_Cost with the cost as value, on CostField (ingredient_ui_7160 asserts the text)
 - [x] `gmIngredientUI::Scale_` · 00415c50 · legions 00415a40 — ac2-ui ingredient.rs scale: Scale_ in f64, clamped to its range, mapped onto the scaled range
 - [~] `gmIngredientUI::CreateManagedElements` · 00415cd0 · legions 00415ac0 — ac2-ui ingredient.rs create_managed: the root made from the gameplay layout (the top-level element holding IngredientListBox; its own DAT id is not in the decompile), the list, spinner, labels and buttons looked up
 - [~] `gmIngredientUI::Show` · 00415e60 · legions 00415c50 — ac2-ui ingredient.rs open/close: shown and hidden with the root; the timed dormancy is not modelled
 - [x] `gmIngredientUI::RecvNotice_UpdateMountState` · 00415ee0 · legions 00415cd0 — ac2-ui ingredient.rs mount_state: mounted, the craft button ghosts
-- [ ] `gmIngredientUI::AutoSizeIngredientUI` · 00415f10 · legions 00415d00
+- [x] `gmIngredientUI::AutoSizeIngredientUI` · 00415f10 · legions 00415d00 — ac2-ui ingredient.rs auto_size: min_width, min_height and max_height of the panel, plus one template row (box y1-y0+1) for each ingredient past three, capped at max_height; ingredient_ui_7160 bounds the height
 - [x] `gmIngredientUI::SetPending` · 00415fc0 · legions 00415db0 — ac2-ui ingredient.rs set_pending: the slots show pending (dragable off), the craft button ghosts
 - [~] `gmIngredientUI::UpdateApparentDifficulty` · 004160b0 · legions 00415ea0 — ac2-ui ingredient.rs update_difficulty: the name colour from Scale_ of the difficulty against the skill, 0..5, or 6 past the cutoff. The colour is not drawn (the tree has no name colour)
 - [x] `gmIngredientUI::RecvNotice_UpdateCraftSkill` · 00416280 · legions 00416070 — ac2-ui ingredient.rs craft_skill_updated: the level changes, the craft button and the difficulty follow
@@ -311,7 +311,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmIngredientUI::ListenToMessage` · 00418210 · legions 00417fd0 — ac2-ui ingredient.rs message and ingredient_slots.rs message: the spinner buttons, auto-populate, the craft button, a drop on the list, an object dragged out of its slot. Not: the close button (its element name is not in the layout the decompile names), the typed spinner entry
 - [~] `gmIngredientUI::RecvNotice_AddIngredient_Done` · 004185d0 — ac2-ui ingredient_slots.rs add_done: a successful add puts the object in its slot (icon from the object's item display, draggable); a failure frees the slot; a new spinner value follows. Not: the object's notice registration and the icon desc (the item display's icon only)
 - [x] `gmIngredientUI::RecvNotice_ExecuteCraft_Done` · 00418780 — ac2-ui ingredient.rs execute_done: the slots go out of pending; no error and no charges closes the panel; charges show ID_Craft_Charges (a named string id) with the value
-- [ ] `gmIngredientUI::RecvNotice_CloseConfirmationDialog` · 00418880
+- [-] `gmIngredientUI::RecvNotice_CloseConfirmationDialog` · 00418880 — no Legions 7160 counterpart: the DVD client's gmIngredientUI::DoClose closes the panel at once, with no close confirmation (admin only)
 
 ## `ac2/client/src/ui/gameplay/gmminifellowui.cpp.c` (4/6)
 
@@ -1445,22 +1445,22 @@ Legend and workflow: [README](README.md).
 - [x] `gmStoryQuestsUI::ListenToMessage` · 004400d0 · legions 00440930 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
 - [x] `gmStoryQuestsUI::gmStoryQuestsUI` · 00440110 · legions 00440970 — ac2-ui quests_panel.rs (the Story page's act list under StoryPage, StoryQuestsUi::create); the Quest panel holds it
 
-## `ac2/client/src/ui/gameplay/toolbar/skill/gmcraftui.cpp.c` (9/22)
+## `ac2/client/src/ui/gameplay/toolbar/skill/gmcraftui.cpp.c` (11/22)
 
 ### gmCraftUI
 - [x] `gmCraftUI::SelectElement` · 004494b0 · legions 0044a110 — ac2-ui craft.rs select_element: the previous row returns to its default state, the new one shows selected
 - [x] `gmCraftUI::SelectCraftSkillCategory` · 004494f0 · legions 0044a150 — ac2-ui craft.rs select_category: the category's examination (SetSelection cleared, data_enum); tested through the category row (craft_ui_7160)
 - [x] `gmCraftUI::SelectRecipe` · 00449550 · legions 0044a1b0 — ac2-ui craft.rs select_recipe: the recipe's examination (data_id), the selected recipe kept even at 0; tested through the recipe button
 - [x] `gmCraftUI::GetRecipeIcon` · 004495b0 · legions 0044a210 — ac2-ui craft_pages.rs recipe_icon: the recipe's icon, else the selected skill's; tested with the recipe row
-- [~] `gmCraftUI::MakeLevelText` · 00449610 — the level text (its string id is not in the decompile) is not shown yet
-- [~] `gmCraftUI::RefreshCraftSkillDisplay` · 00449700 · legions 0044a360 — ac2-ui craft_pages.rs refresh_skill_display: name, icon, selected state and raise ghosting. Not: the raise and current-level texts (string ids unresolved), the raise text colours
+- [~] `gmCraftUI::MakeLevelText` · 00449610 — level text used by the skill display (craft_pages.rs level_text, buffed state); the row use of the state argument and the token output are not ported
+- [x] `gmCraftUI::RefreshCraftSkillDisplay` · 00449700 · legions 0044a360 — ac2-ui craft_pages.rs refresh_skill_display: name, icon, selected field, level text (MakeLevelText buffed state), raise ghosting and raise text on SelectedLevel when the page has RaiseCraftButton; craft_ui_7160 asserts the level text
 - [~] `gmCraftUI::MakeCraftSkill` · 004499e0 · legions 0044a640 — ac2-ui craft_pages.rs make_skill: DID on row and back button, name in enabled/disabled state, selected row. Not: the level text and its states (DAT string ids), the name's truncation with an ellipsis
 - [~] `gmCraftUI::MakeCraftSkillCategory` · 00449bb0 · legions 0044a810 — ac2-ui craft_pages.rs make_category: DID, forward/back button, name, selected row. Not: the name's truncation with an ellipsis
 - [~] `gmCraftUI::MakeRecipe` · 00449ce0 · legions 0044a940 — ac2-ui craft_pages.rs make_recipe: icon (recipe's or skill's), button and name, selected row. Not: the name's truncation with an ellipsis
 - [x] `gmCraftUI::ClearSelectionInfo` · 00449eb0 · legions 0044ab10 — ac2-ui craft.rs clear_selection_info: the row maps and selected element cleared
-- [~] `gmCraftUI::UpdateCategories` · 0044a040 · legions 0044aca0 — ac2-ui craft_pages.rs update_categories: each recipe category once, with its name. Categories sort by id: CraftSkillCategoryAdaptor::operator< is not in the decompile. The lists are tested with the known SKILL and RECIPE (craft_ui_7160)
+- [x] `gmCraftUI::UpdateCategories` · 0044a040 · legions 0044aca0 — ac2-ui craft_pages.rs update_categories: one row per category, sorted by category id (CraftSkillCategoryAdaptor::operator< compares m_category, legions 005cdb70); craft_ui_7160
 - [-] `gmCraftUI::~gmCraftUI` · 0044a1a0 · legions 0044ae00 — the handler registrations are per object in Rust (no per-object table); the panel's state is dropped with the HUD
-- [ ] `gmCraftUI::RecvNotice_ExaminationRequestChanged` · 0044a2d0
+- [-] `gmCraftUI::RecvNotice_ExaminationRequestChanged` · 0044a2d0 — no Legions 7160 counterpart: the DVD client's gmCraftUI has no ExaminationRequestChanged notice (the examined row's highlight is admin only)
 - [x] `gmCraftUI::SelectCraftSkill` · 0044a3b0 · legions 0044b010 — ac2-ui craft.rs select_craft_skill: recipes and categories of the skill, the selection cleared, the examination; tested through the skill row (craft_ui_7160)
 - [~] `gmCraftUI::RefreshCraftSkillPage` · 0044a440 · legions 0044b0a0 — ac2-ui craft_pages.rs refresh_skill_page: a row per craft skill (CraftSkillList), made from the player's craft registry. Partial: the rows' level text (string id unresolved)
 - [~] `gmCraftUI::RefreshCraftSkillCategoryPage` · 0044a550 · legions 0044b1b0 — ac2-ui craft_pages.rs refresh_category_page: the skill header, a row per category. Partial: the header's level text and the categories' truncation (see MakeCraftSkill and MakeCraftSkillCategory)

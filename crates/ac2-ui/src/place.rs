@@ -69,7 +69,7 @@ impl UiTree {
         el.rect.offset(x, y)
     }
 
-    fn int_attribute(&self, index: usize, id: u32) -> Option<i32> {
+    pub(crate) fn int_attribute(&self, index: usize, id: u32) -> Option<i32> {
         match self.el(index).attributes.get(&id) {
             Some(AttributeValue::Int(value)) => Some(*value),
             _ => None,

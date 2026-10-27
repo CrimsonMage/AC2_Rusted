@@ -186,12 +186,12 @@ key	status	note
 00415890	~	ac2-ui ingredient.rs close: the slots' objects leave and the list flushes; the panel's root is kept (the 15 s dormancy destroy is not modelled)
 00415900	~	ac2-ui ingredient.rs update_craft_button: ghosted while pending, mounted, out of the spinner range or past the difficulty cutoff. Not: the tooltips and the button text (their string ids are not in the decompile)
 00415b70	x	ac2-ui drag.rs DragCheck::IngredientDrop on the ingredient list (CatchDroppedItem asks it of the container): only an item (ShortcutType 0x40000002) from a container (FromID set); a refusal goes to the drag's owner as a drop outside
-00415be0	~	ac2-ui ingredient.rs update_cost: the cost is kept and follows the dynamic cost; its text needs the retail string id, so the layout's text stays
+00415be0	x	ac2-ui ingredient.rs update_cost: ID_Craft_Cost with the cost as value, on CostField (ingredient_ui_7160 asserts the text)
 00415c50	x	ac2-ui ingredient.rs scale: Scale_ in f64, clamped to its range, mapped onto the scaled range
 00415cd0	~	ac2-ui ingredient.rs create_managed: the root made from the gameplay layout (the top-level element holding IngredientListBox; its own DAT id is not in the decompile), the list, spinner, labels and buttons looked up
 00415e60	~	ac2-ui ingredient.rs open/close: shown and hidden with the root; the timed dormancy is not modelled
 00415ee0	x	ac2-ui ingredient.rs mount_state: mounted, the craft button ghosts
-00415f10	_	
+00415f10	x	ac2-ui ingredient.rs auto_size: min_width, min_height and max_height of the panel, plus one template row (box y1-y0+1) for each ingredient past three, capped at max_height; ingredient_ui_7160 bounds the height
 00415fc0	x	ac2-ui ingredient.rs set_pending: the slots show pending (dragable off), the craft button ghosts
 004160b0	~	ac2-ui ingredient.rs update_difficulty: the name colour from Scale_ of the difficulty against the skill, 0..5, or 6 past the cutoff. The colour is not drawn (the tree has no name colour)
 00416280	x	ac2-ui ingredient.rs craft_skill_updated: the level changes, the craft button and the difficulty follow
@@ -220,6 +220,7 @@ key	status	note
 00418210	~	ac2-ui ingredient.rs message and ingredient_slots.rs message: the spinner buttons, auto-populate, the craft button, a drop on the list, an object dragged out of its slot. Not: the close button (its element name is not in the layout the decompile names), the typed spinner entry
 004185d0	~	ac2-ui ingredient_slots.rs add_done: a successful add puts the object in its slot (icon from the object's item display, draggable); a failure frees the slot; a new spinner value follows. Not: the object's notice registration and the icon desc (the item display's icon only)
 00418780	x	ac2-ui ingredient.rs execute_done: the slots go out of pending; no error and no charges closes the panel; charges show ID_Craft_Charges (a named string id) with the value
+00418880	-	no Legions 7160 counterpart: the DVD client's gmIngredientUI::DoClose closes the panel at once, with no close confirmation (admin only)
 004188d0	~	ac2-ui pets.rs show: the framework's shown state; the HUD shows it at build. The option-driven show (GetShowPetUI) is set by set_show_pet_ui, not yet wired from the options page
 00418920	x	ac2-ui pets.rs next_mode / previous_mode: the ModeTable of admin 7148's static initializer (_E554); the table is in the admin tree only, not the Legions decompile
 00418950	x	ac2-ui pets.rs next_mode / previous_mode: the ModeTable of admin 7148's static initializer (_E554); the table is in the admin tree only, not the Legions decompile
@@ -962,14 +963,15 @@ key	status	note
 004494f0	x	ac2-ui craft.rs select_category: the category's examination (SetSelection cleared, data_enum); tested through the category row (craft_ui_7160)
 00449550	x	ac2-ui craft.rs select_recipe: the recipe's examination (data_id), the selected recipe kept even at 0; tested through the recipe button
 004495b0	x	ac2-ui craft_pages.rs recipe_icon: the recipe's icon, else the selected skill's; tested with the recipe row
-00449610	~	the level text (its string id is not in the decompile) is not shown yet
-00449700	~	ac2-ui craft_pages.rs refresh_skill_display: name, icon, selected state and raise ghosting. Not: the raise and current-level texts (string ids unresolved), the raise text colours
+00449610	~	level text used by the skill display (craft_pages.rs level_text, buffed state); the row use of the state argument and the token output are not ported
+00449700	x	ac2-ui craft_pages.rs refresh_skill_display: name, icon, selected field, level text (MakeLevelText buffed state), raise ghosting and raise text on SelectedLevel when the page has RaiseCraftButton; craft_ui_7160 asserts the level text
 004499e0	~	ac2-ui craft_pages.rs make_skill: DID on row and back button, name in enabled/disabled state, selected row. Not: the level text and its states (DAT string ids), the name's truncation with an ellipsis
 00449bb0	~	ac2-ui craft_pages.rs make_category: DID, forward/back button, name, selected row. Not: the name's truncation with an ellipsis
 00449ce0	~	ac2-ui craft_pages.rs make_recipe: icon (recipe's or skill's), button and name, selected row. Not: the name's truncation with an ellipsis
 00449eb0	x	ac2-ui craft.rs clear_selection_info: the row maps and selected element cleared
-0044a040	~	ac2-ui craft_pages.rs update_categories: each recipe category once, with its name. Categories sort by id: CraftSkillCategoryAdaptor::operator< is not in the decompile. The lists are tested with the known SKILL and RECIPE (craft_ui_7160)
+0044a040	x	ac2-ui craft_pages.rs update_categories: one row per category, sorted by category id (CraftSkillCategoryAdaptor::operator< compares m_category, legions 005cdb70); craft_ui_7160
 0044a1a0	-	the handler registrations are per object in Rust (no per-object table); the panel's state is dropped with the HUD
+0044a2d0	-	no Legions 7160 counterpart: the DVD client's gmCraftUI has no ExaminationRequestChanged notice (the examined row's highlight is admin only)
 0044a3b0	x	ac2-ui craft.rs select_craft_skill: recipes and categories of the skill, the selection cleared, the examination; tested through the skill row (craft_ui_7160)
 0044a440	~	ac2-ui craft_pages.rs refresh_skill_page: a row per craft skill (CraftSkillList), made from the player's craft registry. Partial: the rows' level text (string id unresolved)
 0044a550	~	ac2-ui craft_pages.rs refresh_category_page: the skill header, a row per category. Partial: the header's level text and the categories' truncation (see MakeCraftSkill and MakeCraftSkillCategory)

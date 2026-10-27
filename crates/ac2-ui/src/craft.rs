@@ -10,9 +10,12 @@
 //! player's registry fills (`InqCraftSkillList`, `InqRecipeList`) and the ingredient queries. The
 //! pages and their rows are in `craft_pages.rs`.
 //!
+//! The selected skill's level text and its raise text (`RefreshCraftSkillDisplay`) are shown on the
+//! category and recipe views.
+//!
 //! Not modelled yet: the list-driven rows for a registry that is still empty (the lists answer
-//! nothing until the server fills them), the level text and its states, the raise cost text, the
-//! names' truncation with an ellipsis, the drag of a recipe's icon to the shortcut bar, and the
+//! nothing until the server fills them), the level text on the skill rows, the names' truncation
+//! with an ellipsis, the drag of a recipe's icon to the shortcut bar, and the
 //! category sort (`CraftSkillCategoryAdaptor::operator<` is not in the decompile: categories sort
 //! by their id here).
 
@@ -57,6 +60,19 @@ pub(crate) const TOKEN_DID: u32 = tokenize("did");
 pub(crate) const TOKEN_SELECTED: u32 = tokenize("selected");
 pub(crate) const TOKEN_ENABLED: u32 = tokenize("enabled");
 pub(crate) const TOKEN_DISABLED: u32 = tokenize("disabled");
+pub(crate) const SELECTED_LEVEL: u32 = tokenize("SelectedLevel");
+/// The level text's strings (`ID_Craft_SkillLevelNormal`, `..Buffed`, `..Debuffed`), the raise
+/// text's (`ID_Craft_CantRaise`, `ID_Craft_AvailableXPRaise`) and their variables (`level`,
+/// `value`, `xp`, `cost`). The string ids are the names's tokens, as the UI table keys them.
+pub(crate) const SKILL_LEVEL_NORMAL: u32 = tokenize("ID_Craft_SkillLevelNormal");
+pub(crate) const SKILL_LEVEL_BUFFED: u32 = tokenize("ID_Craft_SkillLevelBuffed");
+pub(crate) const SKILL_LEVEL_DEBUFFED: u32 = tokenize("ID_Craft_SkillLevelDebuffed");
+pub(crate) const CANT_RAISE: u32 = tokenize("ID_Craft_CantRaise");
+pub(crate) const AVAILABLE_XP_RAISE: u32 = tokenize("ID_Craft_AvailableXPRaise");
+pub(crate) const TOKEN_LEVEL: u32 = tokenize("level");
+pub(crate) const TOKEN_VALUE: u32 = tokenize("value");
+pub(crate) const TOKEN_XP: u32 = tokenize("xp");
+pub(crate) const TOKEN_COST: u32 = tokenize("cost");
 
 /// The mouse actions the rows answer (`0x40000004` left, `0x40000005` right, `0x40000007` double,
 /// `0x40000008`): a press on a row selects it, a double click also opens it.
@@ -86,6 +102,12 @@ pub trait CraftSource {
     fn is_raiseable(&self, skill: u32) -> bool;
     /// `gmCWInterface::CanCraftSkillBeRaised`.
     fn can_raise(&self, skill: u32) -> bool;
+    /// `gmCWInterface::InqCraftSkillLevel`: the raw and the enchanted level of `skill`.
+    fn skill_level(&self, skill: u32) -> Option<(u32, u32)>;
+    /// `gmCWInterface::GetAvailableCraftExperience`.
+    fn available_experience(&self) -> u64;
+    /// A UI string of the UI table, with its integer variables (token, value).
+    fn ui_text(&self, string_id: u32, vars: &[(u32, i64)]) -> String;
 }
 
 /// A request the panel makes of the player's interface, in order.

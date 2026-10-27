@@ -122,6 +122,21 @@ impl CraftSource for Known<'_> {
             .can_craft_skill_be_raised(skill)
             .unwrap_or(false)
     }
+
+    fn skill_level(&self, skill: u32) -> Option<(u32, u32)> {
+        self.client.borrow_mut().craft_skill_level(skill)
+    }
+
+    fn available_experience(&self) -> u64 {
+        self.client
+            .borrow_mut()
+            .available_craft_experience()
+            .unwrap_or(0)
+    }
+
+    fn ui_text(&self, string_id: u32, vars: &[(u32, i64)]) -> String {
+        format!("ui {string_id:08x} {vars:?}")
+    }
 }
 
 /// A message from the element at `element` (its token `element_id`), a mouse action or a button.
@@ -248,6 +263,35 @@ fn the_craft_pages_show_the_known_skill_and_recipe() {
             }),
             CraftCommand::OpenRecipe(RECIPE),
         ]
+    );
+
+    // The selected skill's level text (`RefreshCraftSkillDisplay` through `MakeLevelText`): the
+    // enchanted level, with its buffed or debuffed difference when it differs from the raw one.
+    // The raise button is not under this layout's craft page (the test above), so the raise text
+    // does not replace it here.
+    let (raw, enchanted) = source.skill_level(SKILL).expect("the skill's level");
+    let mut vars = vec![(tokenize("level"), i64::from(enchanted))];
+    let id = if enchanted == raw {
+        "ID_Craft_SkillLevelNormal"
+    } else {
+        vars.push((
+            tokenize("value"),
+            (i64::from(enchanted) - i64::from(raw)).abs(),
+        ));
+        if enchanted > raw {
+            "ID_Craft_SkillLevelBuffed"
+        } else {
+            "ID_Craft_SkillLevelDebuffed"
+        }
+    };
+    let level_text = tree
+        .child_recursive(page, tokenize("SelectedLevel"))
+        .and_then(|level| tree.get(level)?.text())
+        .expect("the level element's text");
+    assert_eq!(
+        level_text,
+        format!("ui {:08x} {vars:?}", tokenize(id)),
+        "the level text"
     );
 
     // The raise button's request: the selected skill is raised. The button itself is a page
