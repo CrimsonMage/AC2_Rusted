@@ -133,3 +133,39 @@ fn the_indicators_hold_the_net_pk_and_vitae_children() {
         "full vitae"
     );
 }
+
+/// `gmNetStatusUI::DrawBandwidthGraph` on the real layout: a heartbeat's column paints into the
+/// composed status bar only with the latency-graph option on.
+#[test]
+fn the_bandwidth_graph_paints_the_status_bar_only_with_the_option_on() {
+    let Some(mut hud) = hud() else {
+        return;
+    };
+    let indicators = &mut hud.indicators;
+    let tree = &mut hud.tree;
+    let strings = Strings::default();
+    let sample = LinkSample {
+        bytes_in_per_second: 12288.0,
+        bytes_out_per_second: 4096.0,
+        ..LinkSample::default()
+    };
+    indicators.net.on_heartbeat(tree, &strings, sample);
+    let images = std::collections::HashMap::new();
+    let plain: Vec<Vec<u8>> = tree.compose(&images).into_iter().map(|s| s.rgba).collect();
+
+    let changed = |surfaces: &[crate::UiSurface]| {
+        surfaces
+            .iter()
+            .zip(&plain)
+            .map(|(s, before)| s.rgba.iter().zip(before).filter(|(a, b)| a != b).count())
+            .sum::<usize>()
+    };
+    let mut off = tree.compose(&images);
+    indicators.net.draw_bandwidth_graph(tree, &mut off);
+    assert_eq!(changed(&off), 0, "the option is off");
+
+    indicators.net.set_graph_enabled(true);
+    let mut on = tree.compose(&images);
+    indicators.net.draw_bandwidth_graph(tree, &mut on);
+    assert!(changed(&on) > 0, "the graph paints its columns");
+}

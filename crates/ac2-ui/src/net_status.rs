@@ -12,7 +12,8 @@
 //! The bandwidth graph (`gmNetStatusUI::DrawBandwidthGraph`) is painted over the composed status
 //! bar surface ([`NetStatusUi::draw_bandwidth_graph`]) when the latency-graph option is on
 //! (`gmNetStatusUI::RecvNotice_ReloadOptions`, [`NetStatusUi::set_graph_enabled`]). Retail blits it
-//! through a 32 x 32 render surface; this paints the same pixels straight into the root's surface.
+//! through a 32 x 32 render surface with `SurfaceWindow::Blit` flags `0x14`, which are not modelled:
+//! this writes the bars straight into the root's surface.
 
 use ac2_net::LinkAverages;
 

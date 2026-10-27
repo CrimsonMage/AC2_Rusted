@@ -869,16 +869,16 @@ key	status	note
 0044cfc0	x	ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
 0044d040	~	ac2-ui pk_status.rs PkStatusUi::create: PKStatusField lookup. Not: the CWeenieObject notice registrations (0x460, 0x1040c), no notice registry in ac2-ui
 0044d0c0	~	ac2-ui pk_status.rs update_faction_status: admin's status-to-state mapping (1 peace, 2 control, 3 factional, 4 ffa, else stateless). Legions 7160 has no such handler (no legions address); no notice feeds it yet
-0044d1a0	x	ac2-ui net_status.rs draw_bandwidth_graph (Graph bars, unit-tested); painted by ac2-client hud_view/compose.rs on each status bar compose; option from hud_player reload
-0044d220	x	ac2-ui net_status.rs draw_bandwidth_graph (Graph bars, unit-tested); painted by ac2-client hud_view/compose.rs on each status bar compose; option from hud_player reload
-0044d2a0	x	ac2-ui net_status.rs draw_bandwidth_graph (Graph bars, unit-tested); painted by ac2-client hud_view/compose.rs on each status bar compose; option from hud_player reload
-0044d2c0	x	ac2-ui net_status.rs draw_bandwidth_graph (Graph bars, unit-tested); painted by ac2-client hud_view/compose.rs on each status bar compose; option from hud_player reload
-0044d2e0	x	ac2-ui net_status.rs draw_bandwidth_graph (Graph bars, unit-tested); painted by ac2-client hud_view/compose.rs on each status bar compose; option from hud_player reload
-0044d3d0	x	ac2-ui net_status.rs draw_bandwidth_graph (Graph bars, unit-tested); painted by ac2-client hud_view/compose.rs on each status bar compose; option from hud_player reload
+0044d1a0	x	ac2-ui net_status.rs draw_bandwidth_graph (GraphTool bars, unit-tested); ac2-client hud_view/compose.rs paints it on each status bar compose; the latency-graph option from hud_player reload
+0044d220	x	ac2-ui net_status.rs draw_bandwidth_graph (GraphTool bars, unit-tested); ac2-client hud_view/compose.rs paints it on each status bar compose; the latency-graph option from hud_player reload
+0044d2a0	x	ac2-ui net_status.rs draw_bandwidth_graph (GraphTool bars, unit-tested); ac2-client hud_view/compose.rs paints it on each status bar compose; the latency-graph option from hud_player reload
+0044d2c0	x	ac2-ui net_status.rs draw_bandwidth_graph (GraphTool bars, unit-tested); ac2-client hud_view/compose.rs paints it on each status bar compose; the latency-graph option from hud_player reload
+0044d2e0	x	ac2-ui net_status.rs draw_bandwidth_graph (GraphTool bars, unit-tested); ac2-client hud_view/compose.rs paints it on each status bar compose; the latency-graph option from hud_player reload
+0044d3d0	~	ac2-ui net_status.rs draw_bandwidth_graph paints the kept history ring (GraphTool bars, unit-tested, DAT test on the real HUD); painted by ac2-client hud_view/compose.rs on each status bar compose. Not modelled: SurfaceWindow::Blit flags 0x14 (retail blits a 32 x 32 surface; the port writes the pixels directly) and m_bGraphBright (no writer in the Legions tree)
 0044d720	x	ac2-ui net_status.rs: ring resized to the graph width in push_column (AddNElements); destructor is Rust drop
 0044d750	x	ac2-ui net_status.rs: ring resized to the graph width in push_column (AddNElements); destructor is Rust drop
 0044d800	x	ac2-client hud_player/hud_status: SessionEvent::LinkHeartbeat -> NetStatusUi::on_heartbeat (ac2-ui net_status.rs)
-0044da90	x	ac2-ui net_status.rs draw_bandwidth_graph (Graph bars, unit-tested); painted by ac2-client hud_view/compose.rs on each status bar compose; option from hud_player reload
+0044da90	x	ac2-ui net_status.rs draw_bandwidth_graph (GraphTool bars, unit-tested); ac2-client hud_view/compose.rs paints it on each status bar compose; the latency-graph option from hud_player reload
 0044dab0	~	ac2-ui net_status.rs create; client routes LinkHeartbeat (hud_player). Not modelled: CWeenieObject notice registrations (0x46d, 0x417) and the CLinkStatusPlugin registration
 0044dc80	x	ac2-ui meter.rs
 0044dcd0	x	ac2-ui meter.rs
