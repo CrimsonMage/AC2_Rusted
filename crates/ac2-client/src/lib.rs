@@ -33,7 +33,7 @@ mod rain_sounds;
 pub use client_options::{ApplyOutcome, Close, OptionsWindow, PageOutcome};
 pub use client_prefs::{ClientPrefs, DatNames};
 pub use client_radar::add_map_note;
-pub use fx_particles::ObjectParticleStart;
+pub use fx_particles::{ObjectLightStart, ObjectParticleStart};
 pub use fx_scripts::{load_fx_scripts, FxScripts};
 pub use hud_options::OptionsEffect;
 pub use portal_sounds::{portal_sound_ids, PortalSoundIds};

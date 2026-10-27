@@ -4,6 +4,7 @@
 //! (`SmartBox::mRenderCamera.mCurrentPosition`, zero velocity). Every DAT read happened on the
 //! loader thread with the object's body ([`FxSoundData`]).
 
+use std::collections::hash_map::Entry;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 use ac2_anim::Ac2AnimEvent;
@@ -13,7 +14,7 @@ use ac2_core::Random;
 use ac2_physics::{CellSource, PhysicsBody, Position, Vector};
 
 use crate::client::Client;
-use crate::fx_particles::{particle_starts, ObjectParticleStart};
+use crate::fx_particles::{light_starts, particle_starts, ObjectLightStart, ObjectParticleStart};
 
 /// A visual's FX sounds, read on the loader thread: `FXTable::GetFXData` per FX id, and which of
 /// their sounds loop (`FXManager::SoundIsLooping`).
@@ -192,6 +193,10 @@ pub(crate) struct ClientAudio {
     /// (`FXManager::DoParticleFX`), and the handles of those FX stopped or whose objects left.
     pub(crate) object_particles: Vec<ObjectParticleStart>,
     pub(crate) object_particle_stops: Vec<u64>,
+    /// The lights the objects' FX placed and have not been taken (`FXManager::DoLightSourceFX`),
+    /// and the objects that left the world (their lights go with them).
+    pub(crate) object_lights: Vec<ObjectLightStart>,
+    pub(crate) object_lights_gone: Vec<u64>,
     /// The last handle handed out (`ObjectParticleStart::handle`).
     particle_handles: u64,
     /// `WorldRender`'s rain loop and thunder.
@@ -270,6 +275,8 @@ impl Client {
             objects: HashMap::new(),
             object_particles: Vec::new(),
             object_particle_stops: Vec::new(),
+            object_lights: Vec::new(),
+            object_lights_gone: Vec::new(),
             particle_handles: 0,
             ambient: Default::default(),
             pregame_music: None,
@@ -315,6 +322,23 @@ impl Client {
         self.audio
             .as_mut()
             .map(|audio| std::mem::take(&mut audio.object_particle_stops))
+            .unwrap_or_default()
+    }
+
+    /// The lights the objects' FX placed since the renderer last took them, in the order they
+    /// started (`FXManager::DoLightSourceFX`).
+    pub fn take_object_light_starts(&mut self) -> Vec<ObjectLightStart> {
+        self.audio
+            .as_mut()
+            .map(|audio| std::mem::take(&mut audio.object_lights))
+            .unwrap_or_default()
+    }
+
+    /// The objects that left the world since the renderer last took them; their FX lights go.
+    pub fn take_object_lights_gone(&mut self) -> Vec<u64> {
+        self.audio
+            .as_mut()
+            .map(|audio| std::mem::take(&mut audio.object_lights_gone))
             .unwrap_or_default()
     }
 
@@ -502,18 +526,23 @@ impl Client {
                             );
                         }
                         if let Some(table) = particles {
-                            // `FXManager::DoParticleFX`: an FX already running keeps its systems.
-                            if !fx.particles.contains_key(&effect) {
+                            // `FXManager::DoTargettedFX`: an FX already running keeps its systems
+                            // and lights.
+                            if let Entry::Vacant(slot) = fx.particles.entry(effect) {
                                 let mut starts =
                                     particle_starts(id, effect, table, &mut self.random);
                                 let mut handles = Vec::with_capacity(starts.len());
                                 for start in &mut starts {
                                     audio.particle_handles += 1;
                                     start.handle = audio.particle_handles;
-                                    handles.push(start.handle);
+                                    // A fire-and-forget system is never stopped with its FX.
+                                    if !start.fire_and_forget {
+                                        handles.push(start.handle);
+                                    }
                                 }
-                                fx.particles.insert(effect, handles);
+                                slot.insert(handles);
                                 audio.object_particles.extend(starts);
+                                audio.object_lights.extend(light_starts(id, effect, table));
                             }
                         }
                     }
@@ -565,10 +594,11 @@ impl Client {
             .collect();
         for id in gone {
             if let Some(fx) = audio.objects.remove(&id) {
-                // The object's part array goes with it, and so its particle systems.
+                // The object's part array goes with it, and so its particle systems and lights.
                 audio
                     .object_particle_stops
                     .extend(fx.particles.into_values().flatten());
+                audio.object_lights_gone.push(id);
             }
             audio.manager.stop_sounds_for_emitter(id);
         }

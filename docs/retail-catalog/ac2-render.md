@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 86 done, 57 partial, 619 to do, 19 skipped.
+781 retail functions: 88 done, 58 partial, 616 to do, 19 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -564,7 +564,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ParticleWrapper::GetPointSpeed` · 005dcf90 · legions 0059dc80
 - [ ] `ParticleWrapper::SetPointSpeed` · 005dcfa0 · legions 0059dc90
 
-## `portal/client/src/render/particle/particleemitter.cpp.c` (22/40)
+## `portal/client/src/render/particle/particleemitter.cpp.c` (23/40)
 
 ### ParticleEmitter
 - [x] `ParticleEmitter::SetLastDischargeTime` · 005d07a0 · legions 00593e90 — ac2-render particles
@@ -584,7 +584,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ParticleEmitter::ParticleEmitter` · 005d1060 · legions 00594750
 - [ ] `ParticleEmitter::~ParticleEmitter` · 005d1150 · legions 00594840
 - [ ] `ParticleEmitter::GetDesc` · 005d11b0 · legions 005948a0
-- [ ] `ParticleEmitter::GetReadyToDie` · 005d11d0 · legions 005948c0
+- [x] `ParticleEmitter::GetReadyToDie` · 005d11d0 · legions 005948c0 — ac2-render particles/emitter.rs ready_to_die and particles/mod.rs ready_to_die: the emitter's inactive, time-limit and emission-limit tests and the system's ten-thousand second wait, checked against the decompile
 - [x] `ParticleEmitter::DetermineDataFlags` · 005d1250 · legions 00594940 — ac2-render particles
 - [x] `ParticleEmitter::GetParticleNumVerts` · 005d1540 · legions 00594c30 — ac2-render particles
 - [x] `ParticleEmitter::CalculateInitialOrigin` · 005d1580 · legions 00594c70 — ac2-render particles
@@ -626,7 +626,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ParticleRepulsor::GetIsActive` · 005c3820 · legions 0058a930
 - [ ] `ParticleRepulsor::SetPosition` · 005c3870 · legions 0058a980
 
-## `portal/client/src/render/particle/particlesystem.cpp.c` (1/22)
+## `portal/client/src/render/particle/particlesystem.cpp.c` (2/22)
 
 ### ParticleSystem
 - [ ] `ParticleSystem::AddRef` · 005c22a0 · legions 005894e0
@@ -640,7 +640,7 @@ Legend and workflow: [README](README.md).
 
 ### ParticleSystem
 - [ ] `ParticleSystem::CanBeShared` · 005c25b0 · legions 005897b0
-- [ ] `ParticleSystem::GetReadyToDie` · 005c25f0 · legions 005897f0
+- [x] `ParticleSystem::GetReadyToDie` · 005c25f0 · legions 005897f0 — ac2-render particles/emitter.rs ready_to_die and particles/mod.rs ready_to_die: the emitter's inactive, time-limit and emission-limit tests and the system's ten-thousand second wait, checked against the decompile
 - [ ] `ParticleSystem::Destroy` · 005c2680 · legions 00589880
 - [~] `ParticleSystem::Start` · 005c2700 · legions 00589900 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
 - [~] `ParticleSystem::Think` · 005c2770 · legions 00589970 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
@@ -695,7 +695,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PSManager::RenderParticleSystems` · 005c0db0 · legions 00588040
 - [ ] `PSManager::RegisterSystem` · 005c0e60 · legions 005880f0
 - [ ] `PSManager::RegisterAutonomousSystem` · 005c0ec0 · legions 00588150
-- [ ] `PSManager::CreateAutonomousParticleSystem` · 005c0f80 · legions 00588210
+- [~] `PSManager::CreateAutonomousParticleSystem` · 005c0f80 · legions 00588210 — ac2-render scene/particles.rs follow=false path: a system placed once at the object's frame when first drawn; the autonomous registry and the water-plane frame are not ported
 
 ## `portal/client/src/render/streak/streakeffect.cpp.c` (0/10)
 

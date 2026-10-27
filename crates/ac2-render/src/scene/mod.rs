@@ -6,6 +6,7 @@
 
 mod interiors;
 mod loader;
+mod object_lights;
 mod particles;
 #[cfg(test)]
 mod tests;
@@ -15,6 +16,7 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use ac2_anim::Ac2Transform;
+use ac2_assets::Ac2FxLight;
 use ac2_core::{DataId, Random};
 use ac2_math::{Frame, Mat4, Vec3};
 use ac2_world::Ac2WorldSource;
@@ -28,7 +30,7 @@ pub use particles::ParticleBatch;
 
 use crate::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
 use crate::frustum::{Frustum, Relation};
-use crate::object::RenderSettings;
+use crate::object::{PointLight, RenderSettings};
 use crate::particles::{CameraBasis, ParticleSystem};
 use crate::prefs::SceneOptions;
 use crate::rain::{RainField, RAIN_DRAW_THRESHOLD};
@@ -36,6 +38,7 @@ use crate::sky::{sky_frame, SkyFrame};
 use crate::terrain::{FarTerrain, TerrainHeights, FIRST_FAR_CHUNK};
 use crate::{Camera, SceneLighting};
 use loader::{Request, SceneLoader};
+use object_lights::ObjectLights;
 use particles::SceneParticles;
 
 /// `GameTime` day length in seconds for the Legions region.
@@ -123,6 +126,8 @@ pub struct WorldScene {
     object_rigs: HashMap<u64, (crate::object::PoseRig, Vec3)>,
     object_picks: HashMap<u64, Arc<crate::selection::PickMesh>>,
     particles: SceneParticles,
+    /// The point lights of object FX (`CPartArray::CreateLightSource`).
+    object_lights: ObjectLights,
     /// The resident blocks' ground, for the rain.
     heights: HashMap<BlockKey, Arc<TerrainHeights>>,
     rain: RainField,
@@ -173,6 +178,7 @@ impl WorldScene {
             object_rigs: HashMap::new(),
             object_picks: HashMap::new(),
             particles: SceneParticles::new(),
+            object_lights: ObjectLights::default(),
             heights: HashMap::new(),
             rain: RainField::default(),
             rain_material: None,
@@ -427,15 +433,20 @@ impl WorldScene {
 
     /// `CPartArray::CreateParticleSystem` for an object FX: a system `handle` run by the object
     /// `emitter` at `placement` (object space), its description `desc` loading on the loader
-    /// thread. It starts at the scene's clock now and is drawn where the object is placed.
+    /// thread. It starts at the scene's clock now and is drawn where the object is placed;
+    /// `follow` is false for a fire-and-forget system, which stays where its object first stood.
     pub fn start_object_particle(
         &mut self,
         handle: u64,
         emitter: u64,
         desc: DataId,
         placement: Ac2Transform,
+        follow: bool,
     ) {
-        if self.particles.request_object(handle, emitter, placement) {
+        if self
+            .particles
+            .request_object(handle, emitter, placement, follow)
+        {
             self.request(Request::ObjectParticle(handle, desc));
         }
     }
@@ -446,10 +457,36 @@ impl WorldScene {
         self.particles.stop_object(handle);
     }
 
-    /// The object placements of the frame (see [`ObjectPlacement`]); the object systems are
-    /// drawn only where their object is placed.
-    pub fn place_object_particles(&mut self, placements: &[ObjectPlacement]) {
+    /// `CPartArray::CreateLightSource` for an object FX: a point light on `emitter` at the node's
+    /// offset, created at the scene's clock now.
+    pub fn start_object_light(&mut self, emitter: u64, light: Ac2FxLight) {
+        self.object_lights
+            .start(emitter, light, self.particles.now());
+    }
+
+    /// `CPartArray::DestroyAllTransientFX`: the object left the world, so its FX lights go. Its
+    /// particle systems are stopped by their handles.
+    pub fn remove_object_lights(&mut self, emitter: u64) {
+        self.object_lights.remove_emitter(emitter);
+    }
+
+    /// The frame's object placements (see [`ObjectPlacement`]): the object systems are drawn
+    /// where their object is placed, and the object lights take the object's frame.
+    pub fn place_objects(&mut self, placements: &[ObjectPlacement]) {
         self.particles.place_objects(placements);
+        self.object_lights.place(placements, self.particles.now());
+    }
+
+    /// The point lights of the FX lights that reach an object at `position` with bounding radius
+    /// `radius` at the scene's clock (the heaviest in range, at most the device's point lights).
+    pub fn object_point_lights(&self, position: Vec3, radius: f32) -> Vec<PointLight> {
+        self.object_lights
+            .point_lights(self.particles.now(), position, radius)
+    }
+
+    /// How many FX lights the scene holds.
+    pub fn object_light_count(&self) -> usize {
+        self.object_lights.count()
     }
 
     /// How many object particle systems the scene holds (loading, running or running out).

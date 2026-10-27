@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 385 done, 82 partial, 1595 to do, 62 skipped.
+2124 retail functions: 385 done, 88 partial, 1589 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -1278,7 +1278,7 @@ Legend and workflow: [README](README.md).
 - [ ] `_STL::pair<unsigned_long_const_,FXState>::~pair<unsigned_long_const_,FXState>` · 00505ce0 · legions 004f3fb0
 
 ### FXManager
-- [ ] `FXManager::FireParticleFX` · 00505dd0 · legions 004f3ff0
+- [~] `FXManager::FireParticleFX` · 00505dd0 · legions 004f3ff0 — fire-and-forget FX nodes: ac2-client keeps no handle; ac2-render scene/particles.rs starts the system unfollowed, placed once where its object first stood (PSManager::CreateAutonomousParticleSystem); water-plane riding and the holding and bone attachment of the autonomous frame not ported
 - [x] `FXManager::SoundIsLooping` · 005060e0 · legions 004f4300 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [ ] `FXManager::ParticleIsLooping` · 00506190 · legions 004f43b0
 - [ ] `FXManager::SoundIsDefaultChannelMusic` · 005061f0 · legions 004f4410
@@ -1288,8 +1288,8 @@ Legend and workflow: [README](README.md).
 
 ### FXManager
 - [x] `FXManager::DoSoundFX` · 005062c0 · legions 004f44e0 — ac2-audio/ac2-client: 3D emitters and FX sounds
-- [ ] `FXManager::DoParticleFX` · 00506360 · legions 004f4580
-- [ ] `FXManager::DoLightSourceFX` · 00506430 · legions 004f4650
+- [~] `FXManager::DoParticleFX` · 00506360 · legions 004f4580 — ac2-client fx_particles.rs and client_audio.rs: one system per FX node picked from its PSDesc list, started at its attachment (handle per start); the FX state guard keeps running systems (DoTargettedFX); stop applies to every system, retail stops only the looping ones (PSDesc::ApproximateLifetime not ported)
+- [~] `FXManager::DoLightSourceFX` · 00506430 · legions 004f4650 — ac2-client fx_particles.rs light_starts -> view set_object_lights -> ac2-render scene/object_lights.rs: a point light at the node's bone offset with lifespan and fade time; the LightSourceEffects pref is not consulted; LightSource properties read as a subset (type, range, intensity, diffuse, specular; ac2-assets ac2_light_source.rs)
 - [~] `FXManager::CalcDuration` · 005064f0 · legions 004f4710 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 
 ### FXState
@@ -1306,7 +1306,7 @@ Legend and workflow: [README](README.md).
 
 ### FXManager
 - [ ] `FXManager::DoCreateObjectFX` · 00507010 · legions 004f5230
-- [~] `FXManager::StopFX` · 00507650 · legions 004f5870 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
+- [~] `FXManager::StopFX` · 00507650 · legions 004f5870 — ac2-client FX sounds stop, and the FX's particle systems stop by handle (client_audio.rs StopFx); the FX's lights are not stopped (retail keeps them to their lifespan, CreateLightSource returns no id); appearance and channel prefs still not ported
 - [ ] `FXManager::FXManager` · 00507d10 · legions 004f5e80
 - [ ] `FXManager::Destroy` · 00507db0 · legions 004f5f20
 - [~] `FXManager::UseTime` · 00507df0 · legions 004f5f60 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
@@ -2033,7 +2033,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartArray::FindMatrixForBoneType` · 004eeac0 · legions 004e1420
 - [ ] `CPartArray::CalculateBoneIndexAndOffset` · 004eeb10 · legions 004e1470
 - [ ] `CPartArray::InitInternal` · 004eec30 · legions 004e1590
-- [ ] `CPartArray::DestroyAllTransientFX` · 004eec50 · legions 004e15b0
+- [~] `CPartArray::DestroyAllTransientFX` · 004eec50 · legions 004e15b0 — ac2-render WorldScene::remove_object_lights on object gone (client_audio object_lights_gone); FX systems are stopped by handle; the streak, decal and repulsor lists are not part of this port
 - [ ] `CPartArray::ActivateStreakEffects` · 004eed30 · legions 004e1690
 - [ ] `CPartArray::DeactivateStreakEffects` · 004eed80 · legions 004e16e0
 - [ ] `CPartArray::DestroyParticleSystem` · 004eedd0 · legions 004e1730
@@ -2061,7 +2061,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartArray::CreateParticleSystem` · 004f0260 · legions 004e2ba0
 - [ ] `CPartArray::CreateRepulsorEffect` · 004f0300 · legions 004e2c40
 - [ ] `CPartArray::CreateStreakEffect` · 004f0380 · legions 004e2cc0
-- [ ] `CPartArray::CreateLightSource` · 004f0410 · legions 004e2d50
+- [~] `CPartArray::CreateLightSource` · 004f0410 · legions 004e2d50 — ac2-render scene/object_lights.rs: instance keeps the offset, lifespan, fade time and creation time; the light is an Ac2LightSource subset, not a full LightSource copy
 - [ ] `CPartArray::GetAnimator` · 004f0500 · legions 004e2e40
 - [ ] `CPartArray::ClearUnusedAnimations` · 004f05b0 · legions 004e2ee0
 - [ ] `CPartArray::DestroyAnimCache` · 004f0710 · legions 004e3040
@@ -2910,7 +2910,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::GetMotionValues` · 004f2d20 · legions 004e5510
 - [ ] `PHYSICSOBJREP::GetDesiredMotionValues` · 004f2d70
 - [ ] `PHYSICSOBJREP::GetStandardMotionValues` · 004f2df0
-- [ ] `PHYSICSOBJREP::PrepareObjectForDrawing` · 004f2e70 · legions 004e5660
+- [~] `PHYSICSOBJREP::PrepareObjectForDrawing` · 004f2e70 · legions 004e5660 — ac2-render scene/object_lights.rs place: light fade in/out and lifespan (opacity), origin = object frame times offset, spent lights dropped; object particle systems follow the object's frame (scene/particles.rs place_objects); cell and water-plane placement not ported
 - [ ] `PHYSICSOBJREP::CreateParticleSystem` · 004f3280 · legions 004e5a40
 - [ ] `PHYSICSOBJREP::GetBaseSetupName` · 004f3460
 - [ ] `PHYSICSOBJREP::ApplyStartupFX` · 004f3510 · legions 004e5d70

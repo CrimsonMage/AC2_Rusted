@@ -191,7 +191,10 @@ fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
     let mut body = PhysicsBody::new(
         Position::new(
             0x0299_0109,
-            Frame::new(Vector::new(at.x, at.y, at.z), Quaternion::new(1.0, 0.0, 0.0, 0.0)),
+            Frame::new(
+                Vector::new(at.x, at.y, at.z),
+                Quaternion::new(1.0, 0.0, 0.0, 0.0),
+            ),
         ),
         data.shape.clone(),
         data.motion.clone(),
@@ -216,13 +219,22 @@ fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
             start
         })
         .collect();
-    assert!(!started.is_empty(), "the footstep FX starts a particle system");
+    assert!(
+        !started.is_empty(),
+        "the footstep FX starts a particle system"
+    );
 
     // The client's frame: the systems start on the scene, and the object is placed where it stands.
     let mut scene = WorldScene::new(world, 1);
     scene.set_clock(0.0);
     for start in &started {
-        scene.start_object_particle(start.handle, start.emitter, start.desc, start.placement);
+        scene.start_object_particle(
+            start.handle,
+            start.emitter,
+            start.desc,
+            start.placement,
+            true,
+        );
     }
     scene.wait();
     assert_eq!(scene.object_particle_systems(), started.len());
@@ -243,14 +255,20 @@ fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
     for _ in 0..400 {
         time += 0.05;
         scene.set_clock(time);
-        scene.place_object_particles(&placements);
+        scene.place_objects(&placements);
         if !scene.frame(&camera, 1.0).particles.is_empty() {
             drawn = true;
             break;
         }
     }
-    assert!(drawn, "the started system reaches the frame's particle batches");
-    assert!(scene.particles_alive() > 0, "the drawn system has particles");
+    assert!(
+        drawn,
+        "the started system reaches the frame's particle batches"
+    );
+    assert!(
+        scene.particles_alive() > 0,
+        "the drawn system has particles"
+    );
 
     // Stopped: the system keeps its last place, runs out its particles, and is gone.
     for start in &started {
@@ -260,13 +278,19 @@ fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
     for _ in 0..12_000 {
         time += 1.0;
         scene.set_clock(time);
-        scene.place_object_particles(&placements);
+        scene.place_objects(&placements);
         let frame = scene.frame(&camera, 1.0);
         if scene.object_particle_systems() == 0 {
-            assert!(frame.particles.is_empty(), "a system that ended draws nothing");
+            assert!(
+                frame.particles.is_empty(),
+                "a system that ended draws nothing"
+            );
             gone = true;
             break;
         }
     }
-    assert!(gone, "a stopped system ends once its particles have run out");
+    assert!(
+        gone,
+        "a stopped system ends once its particles have run out"
+    );
 }

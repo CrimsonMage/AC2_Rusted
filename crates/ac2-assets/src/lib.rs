@@ -9,6 +9,7 @@ mod ac2_cell_surface;
 mod ac2_cell_surface_tests;
 mod ac2_entity;
 mod ac2_fx;
+mod ac2_light_source;
 mod ac2_material;
 mod ac2_material_instance;
 mod ac2_mesh;
@@ -76,7 +77,9 @@ pub use ac2_appearance::{
 };
 pub use ac2_cell_surface::decode_ac2_cell_surfaces;
 pub use ac2_entity::{read_ac2_entity_desc, Ac2EntityDesc};
+pub use ac2_fx::Ac2FxLight;
 pub use ac2_fx::Ac2FxSoundNode;
+pub use ac2_light_source::{read_ac2_light_source, Ac2LightSource};
 pub use ac2_material::{
     Ac2LayerLighting, Ac2LayerModifier, Ac2LayerStage, Ac2MaterialLayer, Ac2RenderMaterial,
     Ac2Waveform,

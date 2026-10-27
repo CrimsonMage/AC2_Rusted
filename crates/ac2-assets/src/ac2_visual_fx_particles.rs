@@ -21,14 +21,27 @@ const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;
 const MAX_VISUAL_DESC_DEPTH: usize = 16;
 const MAX_FX_TABLE_DEPTH: usize = 8;
 
-/// A visual's FX id -> particle systems to start (`FXManager::DoParticleFX`'s list).
+/// A visual's FX id -> the particle systems and lights each starts (`FXManager::DoParticleFX`
+/// and `FXManager::DoLightSourceFX`, one attachment per FX node).
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Ac2VisualFxParticles {
     entries: HashMap<u32, Arc<[Ac2ParticleAttachment]>>,
 }
 
 impl Ac2VisualFxParticles {
-    /// The systems FX `fx_id` starts, `None` when it starts none.
+    /// A table over `entries`, for tests that build an object's FX without a DAT.
+    pub fn from_entries(
+        entries: impl IntoIterator<Item = (u32, Vec<Ac2ParticleAttachment>)>,
+    ) -> Self {
+        Self {
+            entries: entries
+                .into_iter()
+                .map(|(id, list)| (id, list.into()))
+                .collect(),
+        }
+    }
+
+    /// The nodes FX `fx_id` starts, `None` when it starts none.
     pub fn get(&self, fx_id: u32) -> Option<&Arc<[Ac2ParticleAttachment]>> {
         self.entries.get(&fx_id)
     }
@@ -105,6 +118,8 @@ pub fn resolve_ac2_visual_fx_particles(
                     placement: placement(setup.as_deref(), &rest, &node),
                     particle_descs: node.particle_descs,
                     water_plane: node.water_plane,
+                    fire_and_forget: node.fire_and_forget,
+                    light: node.light,
                 })
                 .collect::<Arc<[_]>>();
             (id, attachments)

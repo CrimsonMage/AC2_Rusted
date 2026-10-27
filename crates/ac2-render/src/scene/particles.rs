@@ -31,6 +31,9 @@ pub struct ParticleBatch {
 struct ObjectSystem {
     emitter: u64,
     placement: Ac2Transform,
+    /// Kept on its object every frame; a fire-and-forget system is placed once, where its object
+    /// stood when it started (`FXManager::FireParticleFX`).
+    follow: bool,
     /// The client time the system was started at (`ParticleSystem::Start`).
     started: f64,
     /// Released by a stop: it keeps its last place and runs out its particles.
@@ -104,7 +107,13 @@ impl SceneParticles {
 
     /// `CPartArray::CreateParticleSystem`: a system `handle` on `emitter`, at `placement`. Its
     /// description still has to load; `false` when `handle` is already known.
-    pub(super) fn request_object(&mut self, handle: u64, emitter: u64, placement: Ac2Transform) -> bool {
+    pub(super) fn request_object(
+        &mut self,
+        handle: u64,
+        emitter: u64,
+        placement: Ac2Transform,
+        follow: bool,
+    ) -> bool {
         if self.objects.contains_key(&handle) {
             return false;
         }
@@ -114,6 +123,7 @@ impl SceneParticles {
             ObjectSystem {
                 emitter,
                 placement,
+                follow,
                 started,
                 stopped: false,
                 system: None,
@@ -169,11 +179,8 @@ impl SceneParticles {
     /// The frame's object placements (`CPartArray::QueueParticleSystems`' object frames).
     pub(super) fn place_objects(&mut self, placements: &[ObjectPlacement]) {
         self.placed.clear();
-        self.placed.extend(
-            placements
-                .iter()
-                .map(|p| (p.emitter, (p.frame, p.scale))),
-        );
+        self.placed
+            .extend(placements.iter().map(|p| (p.emitter, (p.frame, p.scale))));
     }
 
     pub(super) fn alive(&self) -> usize {
@@ -205,7 +212,7 @@ impl SceneParticles {
             let Some(system) = entry.system.as_mut() else {
                 continue;
             };
-            if !entry.stopped {
+            if !entry.stopped && (entry.follow || !system.placed()) {
                 let Some((frame, scale)) = self.placed.get(&entry.emitter) else {
                     continue;
                 };

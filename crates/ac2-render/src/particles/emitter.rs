@@ -70,7 +70,12 @@ impl Emitter {
     /// `ParticleEmitter::GetReadyToDie`: the emitter has stopped discharging for good. It is
     /// inactive, its time limit has passed (the window runs from the system's start and the
     /// emitter's start time), or its emission limit is spent.
-    pub(crate) fn ready_to_die(&self, desc: &Ac2ParticleSystemDesc, system_start: f64, now: f64) -> bool {
+    pub(crate) fn ready_to_die(
+        &self,
+        desc: &Ac2ParticleSystemDesc,
+        system_start: f64,
+        now: f64,
+    ) -> bool {
         let emitter = &desc.emitters[self.index];
         if !emitter.active {
             return true;

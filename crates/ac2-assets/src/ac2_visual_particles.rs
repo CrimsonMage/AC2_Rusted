@@ -15,7 +15,7 @@ use ac2_db::{
 };
 use ac2_math::Quat;
 
-use crate::ac2_fx::{Ac2FxParticleNode, Ac2FxTable};
+use crate::ac2_fx::{Ac2FxLight, Ac2FxParticleNode, Ac2FxTable};
 use crate::ac2_visual_desc::Ac2VisualDesc;
 use ac2_anim::{Ac2Setup, Ac2Transform};
 
@@ -32,6 +32,10 @@ pub struct Ac2ParticleAttachment {
     pub placement: Ac2Transform,
     /// The node rides its cell's water plane (`FXManager::FireParticleFX`).
     pub water_plane: bool,
+    /// `m_fire_and_forget` (see [`Ac2FxParticleNode::fire_and_forget`]).
+    pub fire_and_forget: bool,
+    /// The node's light, if it places one.
+    pub light: Option<Ac2FxLight>,
 }
 
 /// The startup particle systems of a visual and its `m_particle_scale`.
@@ -99,12 +103,16 @@ pub fn resolve_ac2_visual_particles(
         .as_ref()
         .map(|setup| setup.rest_pose())
         .unwrap_or_default();
+    // Startup systems are the particle nodes; a light-only node starts none.
     let attachments = nodes
         .into_iter()
+        .filter(|node| !node.particle_descs.is_empty())
         .map(|node| Ac2ParticleAttachment {
             placement: placement(setup.as_deref(), &rest, &node),
             particle_descs: node.particle_descs,
             water_plane: node.water_plane,
+            fire_and_forget: node.fire_and_forget,
+            light: node.light,
         })
         .collect::<Arc<[_]>>();
     Ok(Some(Ac2VisualParticles {

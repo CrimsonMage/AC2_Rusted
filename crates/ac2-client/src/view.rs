@@ -21,8 +21,8 @@ use ac2_render::Camera;
 use ac2_weenie::Appearance;
 use ac2_world::Ac2WorldSource;
 
-use crate::fx_particles::ObjectParticleStart;
 use crate::frame::ClientFrame;
+use crate::fx_particles::{ObjectLightStart, ObjectParticleStart};
 use crate::hud_view::HudView;
 use crate::motion::PartPose;
 
@@ -232,10 +232,22 @@ impl ClientView {
                 start.emitter,
                 start.desc,
                 start.placement,
+                !start.fire_and_forget,
             );
         }
         for handle in stops {
             self.scene.stop_object_particle(*handle);
+        }
+    }
+
+    /// The lights the objects' FX placed (`DoLightSourceFX`) and the objects that left the world
+    /// (`DestroyAllTransientFX`): the scene's point lights reach the objects it draws.
+    pub fn set_object_lights(&mut self, starts: &[ObjectLightStart], gone: &[u64]) {
+        for start in starts {
+            self.scene.start_object_light(start.emitter, start.light);
+        }
+        for emitter in gone {
+            self.scene.remove_object_lights(*emitter);
         }
     }
 
@@ -244,7 +256,9 @@ impl ClientView {
         drawn_objects(frame)
             .iter()
             .filter_map(|drawn| {
-                let (_, scale) = self.scene.object_rig(model_key(drawn.visual, drawn.appearance))?;
+                let (_, scale) = self
+                    .scene
+                    .object_rig(model_key(drawn.visual, drawn.appearance))?;
                 let [w, x, y, z] = drawn.rotation;
                 Some(ObjectPlacement {
                     emitter: drawn.id,
@@ -267,18 +281,19 @@ impl ClientView {
         };
         self.scene.set_clock(time);
         let placements = self.object_placements(frame);
-        self.scene.place_object_particles(&placements);
+        self.scene.place_objects(&placements);
         let scene_frame = self.scene.frame(&camera, aspect);
         let objects = drawn_objects(frame)
             .iter()
             .filter_map(|drawn| {
                 let (key, world, pose) = self.placed(drawn)?;
+                let position = self.world_point(drawn.cell, drawn.origin);
                 Some(SceneObject {
                     key,
                     world,
                     pose,
                     tint: [1.0; 4],
-                    point_lights: Vec::new(),
+                    point_lights: self.scene.object_point_lights(position, 0.0),
                 })
             })
             .collect();

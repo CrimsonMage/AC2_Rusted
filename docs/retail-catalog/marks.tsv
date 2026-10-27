@@ -2941,6 +2941,8 @@ key	status	note
 004ee8f0	x	ac2-render object/skeleton.rs (render-side bones)
 004ee970	x	ac2-render object/model.rs load_object_model_with
 004ee9f0	x	ac2-render object/model.rs load_object_model_with
+004eec50	~	ac2-render WorldScene::remove_object_lights on object gone (client_audio object_lights_gone); FX systems are stopped by handle; the streak, decal and repulsor lists are not part of this port
+004f0410	~	ac2-render scene/object_lights.rs: instance keeps the offset, lifespan, fade time and creation time; the light is an Ac2LightSource subset, not a full LightSource copy
 004f0a10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f0a80	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 004f0af0	~	all triggers every frame, compositor only on refresh frames; no slider-driven layer weights; one part group
@@ -2983,6 +2985,7 @@ key	status	note
 004f2560	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f2670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f2690	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+004f2e70	~	ac2-render scene/object_lights.rs place: light fade in/out and lifespan (opacity), origin = object frame times offset, spent lights dropped; object particle systems follow the object's frame (scene/particles.rs place_objects); cell and water-plane placement not ported
 004f36a0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 004f4610	x	ac2-render object/skeleton.rs (render-side bones)
 004f4670	x	ac2-physics los (Terrain::los_check)
@@ -3004,10 +3007,13 @@ key	status	note
 004f6690	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00505870	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 00505ca0	x	ac2-anim fxscript.rs load_ac2_fx_script (the 0x57 DBO read)
+00505dd0	~	fire-and-forget FX nodes: ac2-client keeps no handle; ac2-render scene/particles.rs starts the system unfollowed, placed once where its object first stood (PSManager::CreateAutonomousParticleSystem); water-plane riding and the holding and bone attachment of the autonomous frame not ported
 005060e0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 005062c0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
+00506360	~	ac2-client fx_particles.rs and client_audio.rs: one system per FX node picked from its PSDesc list, started at its attachment (handle per start); the FX state guard keeps running systems (DoTargettedFX); stop applies to every system, retail stops only the looping ones (PSDesc::ApproximateLifetime not ported)
+00506430	~	ac2-client fx_particles.rs light_starts -> view set_object_lights -> ac2-render scene/object_lights.rs: a point light at the node's bone offset with lifespan and fade time; the LightSourceEffects pref is not consulted; LightSource properties read as a subset (type, range, intensity, diffuse, specular; ac2-assets ac2_light_source.rs)
 005064f0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
-00507650	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
+00507650	~	ac2-client FX sounds stop, and the FX's particle systems stop by handle (client_audio.rs StopFx); the FX's lights are not stopped (retail keeps them to their lifespan, CreateLightSource returns no id); appearance and channel prefs still not ported
 00507df0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 005083f0	_	
 005089d0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
@@ -4715,7 +4721,9 @@ key	status	note
 005b8bc0	x	ac2-assets font.rs: all 55 portal fonts decode
 005b8e10	x	ac2-assets font.rs: all 55 portal fonts decode
 005b97c0	~	hardware-class layer filter (object::layer_drawn, class 2 default)
+005c0f80	~	ac2-render scene/particles.rs follow=false path: a system placed once at the object's frame when first drawn; the autonomous registry and the water-plane frame are not ported
 005c22c0	x	ac2-render particles
+005c25f0	x	ac2-render particles/emitter.rs ready_to_die and particles/mod.rs ready_to_die: the emitter's inactive, time-limit and emission-limit tests and the system's ten-thousand second wait, checked against the decompile
 005c2700	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
 005c2770	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
 005c2bf0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
@@ -4746,6 +4754,7 @@ key	status	note
 005d0880	x	ac2-render particles
 005d0940	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
 005d0f50	x	ac2-render particles
+005d11d0	x	ac2-render particles/emitter.rs ready_to_die and particles/mod.rs ready_to_die: the emitter's inactive, time-limit and emission-limit tests and the system's ten-thousand second wait, checked against the decompile
 005d1250	x	ac2-render particles
 005d1540	x	ac2-render particles
 005d1580	x	ac2-render particles

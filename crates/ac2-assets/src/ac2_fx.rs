@@ -11,14 +11,36 @@ use ac2_dat::ArchiveCursor;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
 use ac2_math::Vec3;
 
+use crate::ac2_light_source::{read_ac2_light_source, Ac2LightSource};
+
 pub(crate) type Malformed = &'static str;
 const MAX_ITEMS: usize = 4096;
 
-/// The particle part of one `FXNode`: the `PSDesc` list (`GetParticleID` picks one at random) and
-/// where the system attaches (`PHYSICSOBJREP::CreateParticleSystem`).
+/// The light part of one `FXNode` (`LightSourceFX`): the light, its lifespan and its fade time.
+/// `FXManager::DoLightSourceFX` places it at `offset`, the node's bone offset in the object's
+/// space (`CPartArray::CreateLightSource`).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Ac2FxLight {
+    pub offset: Vec3,
+    pub source: Ac2LightSource,
+    /// `m_fLifespan`: seconds the light lasts; zero keeps it while its object is in the world.
+    pub lifespan: f32,
+    /// `m_fFadeTime`: seconds of fade in and fade out.
+    pub fade_time: f32,
+}
+
+/// The particle and light part of one `FXNode`: the `PSDesc` list (`GetParticleID` picks one at
+/// random) and where the system attaches (`PHYSICSOBJREP::CreateParticleSystem`), and the light
+/// it places (`FXManager::DoLightSourceFX`). A node with a light and no `PSDesc` keeps only the
+/// light.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ac2FxParticleNode {
     pub particle_descs: Arc<[DataId]>,
+    /// `m_fire_and_forget`: the systems are placed once where their object is, not kept on it
+    /// (`FXManager::FireParticleFX`), and are not tracked for `StopFX`.
+    pub fire_and_forget: bool,
+    /// `m_has_light`'s light.
+    pub light: Option<Ac2FxLight>,
     /// `m_holding_location`: a Setup holding point id (takes precedence over the bone).
     pub holding_location: u32,
     /// `m_bone_name`: a Setup bone name (`CPartGroup::FindBoneType`).
@@ -269,17 +291,30 @@ fn read_fx_node(
         // `m_has_repulsor`, then `RepulsorFX`: acceleration, range, lifetime, attractor, speed.
         skip(cursor, 4 + 5 * 4)?;
     }
+    let mut light = None;
     if has(0x1_0000_0000) {
         // `m_has_light`, then `LightSourceFX`: an `EntityDesc`, lifespan and fade time.
         word(cursor)?;
-        crate::ac2_entity::read_ac2_entity_desc(cursor)?;
-        skip(cursor, 8)?;
+        let entity = crate::ac2_entity::read_ac2_entity_desc(cursor)?;
+        let lifespan = float(cursor)?;
+        let fade_time = float(cursor)?;
+        light = Some(Ac2FxLight {
+            offset: bone_offset,
+            source: entity
+                .properties
+                .as_deref()
+                .map_or(Ac2LightSource::default(), read_ac2_light_source),
+            lifespan,
+            fade_time,
+        });
     }
     let player_only = flag(cursor, 0x4_0000_0000, false)?;
     skip_words(cursor, &[0x10_0000_0000])?;
     let remove_rotation = field(cursor, 0x40_0000_0000)? != 0;
-    let particle = (!particle_descs.is_empty()).then(|| Ac2FxParticleNode {
+    let particle = (!particle_descs.is_empty() || light.is_some()).then(|| Ac2FxParticleNode {
         particle_descs: Arc::from(particle_descs),
+        fire_and_forget,
+        light,
         holding_location,
         bone_name,
         bone_offset,
