@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 615 done, 172 partial, 632 to do, 485 skipped.
+1904 retail functions: 743 done, 172 partial, 478 to do, 511 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -11,14 +11,14 @@ Legend and workflow: [README](README.md).
 - [-] `gmCEngineFactory::MakeUI_Internal` · 00401830 — engine factory: Rust builds the subsystems directly
 
 ### NoticeHandler
-- [ ] `NoticeHandler::RecvNotice_CharGenVerification` · 00401850 · legions 00401bb0 — NoticeHandler base: an empty virtual; the screens are the handlers (ac2-ui pregame ui.rs char_gen_verification)
+- [ ] `NoticeHandler::RecvNotice_CharGenVerification` · 00401850 · legions 00401bb0 — needs port: notice handler::recv notice char gen verification; no citation in crates/
 - [ ] `NoticeHandler::RecvNotice_DisplayAdminStringInfo` · 00401860 · legions 00401b50 — needs port: notice handler::recv notice display admin string info; no citation in crates/
 
 ### ArgumentParser
 - [-] `ArgumentParser::FinishOutputText` · 00401870 · legions 006af780 — admin/debug/logging tooling: not in the client
 
 ### NoticeHandler
-- [ ] `NoticeHandler::RecvNotice_CharacterSet` · 00401880 · legions 00401ba0 — ac2-weenie SessionEvent::Characters / OnlineSession::characters (the latest set; CharacterChoice::Wait stops there for the selection screen)
+- [ ] `NoticeHandler::RecvNotice_CharacterSet` · 00401880 · legions 00401ba0 — needs port: notice handler::recv notice character set; no citation in crates/
 
 ### gmCEngineFactory
 - [-] `gmCEngineFactory::MakeClient_Internal` · 00401890 — engine factory: Rust builds the subsystems directly
@@ -26,15 +26,15 @@ Legend and workflow: [README](README.md).
 - [-] `gmCEngineFactory::MakeGlobalEventHandler_Internal` · 004018d0 — engine factory: Rust builds the subsystems directly
 - [-] `gmCEngineFactory::MakeCObjectMaint_Internal` · 004018f0 — engine factory: Rust builds the subsystems directly
 
-## `ac2/client/src/events/cm_allegiance.cpp.c` (0/4)
+## `ac2/client/src/events/cm_allegiance.cpp.c` (4/4)
 
 ### CM_Allegiance
-- [ ] `CM_Allegiance::SendNotice_Patron_SwearDone` · 00727f80 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [ ] `CM_Allegiance::SendNotice_RequestVassal` · 00728020 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [ ] `CM_Allegiance::SendNotice_UpdateAllegianceProfile` · 007280c0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [ ] `CM_Allegiance::SendNotice_Vassal_SwearDone` · 00728150 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [x] `CM_Allegiance::SendNotice_Patron_SwearDone` · 00727f80 — implemented: cited at crates/ac2-weenie/src/notice.rs:120
+- [x] `CM_Allegiance::SendNotice_RequestVassal` · 00728020 — implemented: cited at crates/ac2-weenie/src/notice.rs:118
+- [x] `CM_Allegiance::SendNotice_UpdateAllegianceProfile` · 007280c0 — implemented: cited at crates/ac2-weenie/src/notice.rs:116
+- [x] `CM_Allegiance::SendNotice_Vassal_SwearDone` · 00728150 — implemented: cited at crates/ac2-weenie/src/notice.rs:122
 
-## `ac2/client/src/events/cm_character.cpp.c` (20/30)
+## `ac2/client/src/events/cm_character.cpp.c` (21/30)
 
 ### CM_Character
 - [x] `CM_Character::SendNotice_AddMarker` · 007248b0 · legions 006a4270 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
@@ -66,23 +66,23 @@ Legend and workflow: [README](README.md).
 - [x] `CM_Character::SendNotice_UpdateSkill` · 00725810 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 - [x] `CM_Character::SendNotice_UpdateSkillPanel` · 007258a0 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 - [x] `CM_Character::SendNotice_UpdateVitae` · 00725950 — PlayerVitals.vitae; reached through CPlayer 0x127 on the VM, tested with the double's vitae qualities
-- [ ] `CM_Character::SendNotice_UpdateVital` · 007259f0 — ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
+- [x] `CM_Character::SendNotice_UpdateVital` · 007259f0 — implemented: cited at crates/ac2-ui/src/vitals.rs:23
 
-## `ac2/client/src/events/cm_combat.cpp.c` (0/5)
+## `ac2/client/src/events/cm_combat.cpp.c` (4/5)
 
 ### CM_Combat
-- [ ] `CM_Combat::SendNotice_EndSpecialAttack` · 00727cb0 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
-- [ ] `CM_Combat::SendNotice_RequestSpecialAttack` · 00727d40 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
+- [x] `CM_Combat::SendNotice_EndSpecialAttack` · 00727cb0 — implemented: cited at crates/ac2-weenie/src/notice.rs:207
+- [x] `CM_Combat::SendNotice_RequestSpecialAttack` · 00727d40 — implemented: cited at crates/ac2-net/src/protocol/gameplay/combat.rs:4
 - [-] `CM_Combat::SendNotice_StartSpecialAttack` · 00727dd0 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
-- [ ] `CM_Combat::SendNotice_ToggleSpecialAttack` · 00727e60 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
-- [ ] `CM_Combat::SendNotice_UpdateAttackState` · 00727ef0 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
+- [x] `CM_Combat::SendNotice_ToggleSpecialAttack` · 00727e60 — implemented: cited at crates/ac2-weenie/src/notice.rs:209
+- [x] `CM_Combat::SendNotice_UpdateAttackState` · 00727ef0 — implemented: cited at crates/ac2-weenie/src/notice.rs:19
 
-## `ac2/client/src/events/cm_communication.cpp.c` (0/3)
+## `ac2/client/src/events/cm_communication.cpp.c` (3/3)
 
 ### CM_Communication
-- [ ] `CM_Communication::SendNotice_DisplayStringInfo` · 00725cc0 — ac2-weenie GameplayNotice::DisplayStringInfo (chat lines from the CCommunicationSystem stand-in)
-- [ ] `CM_Communication::SendNotice_DoAssistedTell` · 00725d50 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Communication::SendNotice_ReloadChatSettings` · 00725de0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CM_Communication::SendNotice_DisplayStringInfo` · 00725cc0 — implemented: cited at crates/ac2-net/src/protocol/gameplay/mod.rs:149
+- [x] `CM_Communication::SendNotice_DoAssistedTell` · 00725d50 — implemented: cited at crates/ac2-weenie/src/notice.rs:211
+- [x] `CM_Communication::SendNotice_ReloadChatSettings` · 00725de0 — implemented: cited at crates/ac2-weenie/src/notice.rs:213
 
 ## `ac2/client/src/events/cm_craft.cpp.c` (5/6)
 
@@ -94,69 +94,69 @@ Legend and workflow: [README](README.md).
 - [x] `CM_Craft::SendNotice_UpdateCraftPanel` · 00727b90 — craft_script_7160. Forwarders (wlib): WM_Craft 0x19 (the registry) -> CPlayer 0xC3, 0x1B (recipe learned by DID) -> CPlayer 0x105, 0x1A/0x37 (recipe records) -> CPlayer 0x61/0x1C5 and 0x27/0x34 (skill records) -> CPlayer 0x1AE/0x1C4 each raise it; the double sends 0x1A after a craft. 0x18 -> CPlayer 0xF9 calls efun 0x8F0003 (unbound) and is not driven.
 - [x] `CM_Craft::SendNotice_UpdateCraftSkill` · 00727c20 — lead: WM_Craft 0x27/0x34 -> CPlayer 0x1AE/0x1C4 set a CraftSkillRecord, then this notice with the skill's adaptor and UpdateCraftPanel; craft_script_7160 updates_change_only_known_records asserts it.
 
-## `ac2/client/src/events/cm_examination.cpp.c` (0/2)
+## `ac2/client/src/events/cm_examination.cpp.c` (2/2)
 
 ### CM_Examination
-- [ ] `CM_Examination::SendNotice_ExaminationRequestChanged` · 007277e0 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
-- [ ] `CM_Examination::SendNotice_UpdateExaminationProfile` · 00727870 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+- [x] `CM_Examination::SendNotice_ExaminationRequestChanged` · 007277e0 — implemented: cited at crates/ac2-weenie/src/notice.rs:28
+- [x] `CM_Examination::SendNotice_UpdateExaminationProfile` · 00727870 — implemented: cited at crates/ac2-weenie/src/notice.rs:30
 
-## `ac2/client/src/events/cm_fellowship.cpp.c` (0/13)
+## `ac2/client/src/events/cm_fellowship.cpp.c` (13/13)
 
 ### CM_Fellowship
-- [ ] `CM_Fellowship::SendNotice_ClearFellow` · 00726fe0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [ ] `CM_Fellowship::SendNotice_ClearFellowship` · 00727070 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [ ] `CM_Fellowship::SendNotice_ExpireRecruitment` · 00727100 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [ ] `CM_Fellowship::SendNotice_RequestRecruitment` · 00727190 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [ ] `CM_Fellowship::SendNotice_UpdateFellow` · 00727240 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [ ] `CM_Fellowship::SendNotice_UpdateFellowCellID` · 007272e0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [ ] `CM_Fellowship::SendNotice_UpdateFellowHealth` · 00727380 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [ ] `CM_Fellowship::SendNotice_UpdateFellowLevel` · 00727430 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [ ] `CM_Fellowship::SendNotice_UpdateFellowMaxHealth` · 007274d0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [ ] `CM_Fellowship::SendNotice_UpdateFellowMaxVigor` · 00727570 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [ ] `CM_Fellowship::SendNotice_UpdateFellowVigor` · 00727610 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [ ] `CM_Fellowship::SendNotice_UpdateFellowship` · 007276c0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-- [ ] `CM_Fellowship::SendNotice_UpdateLeader` · 00727750 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [x] `CM_Fellowship::SendNotice_ClearFellow` · 00726fe0 — implemented: cited at crates/ac2-weenie/src/notice.rs:90
+- [x] `CM_Fellowship::SendNotice_ClearFellowship` · 00727070 — implemented: cited at crates/ac2-weenie/src/notice.rs:92
+- [x] `CM_Fellowship::SendNotice_ExpireRecruitment` · 00727100 — implemented: cited at crates/ac2-weenie/src/notice.rs:114
+- [x] `CM_Fellowship::SendNotice_RequestRecruitment` · 00727190 — implemented: cited at crates/ac2-weenie/src/notice.rs:108
+- [x] `CM_Fellowship::SendNotice_UpdateFellow` · 00727240 — implemented: cited at crates/ac2-weenie/src/notice.rs:88
+- [x] `CM_Fellowship::SendNotice_UpdateFellowCellID` · 007272e0 — implemented: cited at crates/ac2-weenie/src/notice.rs:106
+- [x] `CM_Fellowship::SendNotice_UpdateFellowHealth` · 00727380 — implemented: cited at crates/ac2-weenie/src/notice.rs:96
+- [x] `CM_Fellowship::SendNotice_UpdateFellowLevel` · 00727430 — implemented: cited at crates/ac2-weenie/src/notice.rs:104
+- [x] `CM_Fellowship::SendNotice_UpdateFellowMaxHealth` · 007274d0 — implemented: cited at crates/ac2-weenie/src/notice.rs:100
+- [x] `CM_Fellowship::SendNotice_UpdateFellowMaxVigor` · 00727570 — implemented: cited at crates/ac2-weenie/src/notice.rs:102
+- [x] `CM_Fellowship::SendNotice_UpdateFellowVigor` · 00727610 — implemented: cited at crates/ac2-weenie/src/notice.rs:98
+- [x] `CM_Fellowship::SendNotice_UpdateFellowship` · 007276c0 — implemented: cited at crates/ac2-weenie/src/notice.rs:86
+- [x] `CM_Fellowship::SendNotice_UpdateLeader` · 00727750 — implemented: cited at crates/ac2-weenie/src/notice.rs:94
 
-## `ac2/client/src/events/cm_friends.cpp.c` (2/5)
+## `ac2/client/src/events/cm_friends.cpp.c` (5/5)
 
 ### CM_Friends
 - [x] `CM_Friends::SendNotice_GUNResult_AddFriend` · 00725e70 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-- [ ] `CM_Friends::SendNotice_GUNResult_FriendStatus` · 00725f00 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
+- [x] `CM_Friends::SendNotice_GUNResult_FriendStatus` · 00725f00 — implemented: cited at crates/ac2-weenie/src/notice.rs:280
 - [x] `CM_Friends::SendNotice_GUNResult_RemoveFriend` · 00725fb0 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-- [ ] `CM_Friends::SendNotice_LocalStatus` · 00726040 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Friends::SendNotice_GUNResult_GetFriendsList` · 007260d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CM_Friends::SendNotice_LocalStatus` · 00726040 — implemented: cited at crates/ac2-weenie/src/notice.rs:275
+- [x] `CM_Friends::SendNotice_GUNResult_GetFriendsList` · 007260d0 — implemented: cited at crates/ac2-weenie/src/notice.rs:277
 
-## `ac2/client/src/events/cm_inventory.cpp.c` (0/4)
+## `ac2/client/src/events/cm_inventory.cpp.c` (4/4)
 
 ### CM_Inventory
-- [ ] `CM_Inventory::SendNotice_ContainerStateUpdate` · 00726c10 — ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
-- [ ] `CM_Inventory::SendNotice_ItemUpdate` · 00726cb0 — ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
-- [ ] `CM_Inventory::SendNotice_UpdateContainer` · 00726d40 — ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
-- [ ] `CM_Inventory::SendNotice_UpdateInventory` · 00726e10 — ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
+- [x] `CM_Inventory::SendNotice_ContainerStateUpdate` · 00726c10 — implemented: cited at crates/ac2-weenie/src/notice.rs:55
+- [x] `CM_Inventory::SendNotice_ItemUpdate` · 00726cb0 — implemented: cited at crates/ac2-weenie/src/notice.rs:57
+- [x] `CM_Inventory::SendNotice_UpdateContainer` · 00726d40 — implemented: cited at crates/ac2-weenie/src/notice.rs:47
+- [x] `CM_Inventory::SendNotice_UpdateInventory` · 00726e10 — implemented: cited at crates/ac2-weenie/src/notice.rs:60
 
-## `ac2/client/src/events/cm_money.cpp.c` (0/2)
+## `ac2/client/src/events/cm_money.cpp.c` (2/2)
 
 ### CM_Money
-- [ ] `CM_Money::SendNotice_GhostMoneyBag` · 00726ec0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Money::SendNotice_UpdateMoney` · 00726f50 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CM_Money::SendNotice_GhostMoneyBag` · 00726ec0 — implemented: cited at crates/ac2-weenie/src/notice.rs:137
+- [x] `CM_Money::SendNotice_UpdateMoney` · 00726f50 — implemented: cited at crates/ac2-weenie/src/notice.rs:135
 
-## `ac2/client/src/events/cm_physics.cpp.c` (0/2)
+## `ac2/client/src/events/cm_physics.cpp.c` (2/2)
 
 ### CM_Physics
-- [ ] `CM_Physics::RecvEvt_CreateObject` · 007269d0 · legions 006a55c0
-- [ ] `CM_Physics::SendNotice_Do3DDamage` · 00726b80 — IFun 0xB400C0 run by client_story.rs for each DoStory damage hook; Do3DDamage raised on the VM with HIT 0x40000008 (combat_7160)
+- [x] `CM_Physics::RecvEvt_CreateObject` · 007269d0 · legions 006a55c0 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:93
+- [x] `CM_Physics::SendNotice_Do3DDamage` · 00726b80 — implemented: cited at crates/ac2-weenie/src/notice.rs:314
 
-## `ac2/client/src/events/cm_quest.cpp.c` (0/3)
+## `ac2/client/src/events/cm_quest.cpp.c` (3/3)
 
 ### CM_Quest
-- [ ] `CM_Quest::SendNotice_UpdateQuests` · 00725ab0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Quest::SendNotice_UpdateStoryQuests` · 00725b40 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Quest::SendNotice_PlaySequence` · 00725bd0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CM_Quest::SendNotice_UpdateQuests` · 00725ab0 — implemented: cited at crates/ac2-weenie/src/notice.rs:125
+- [x] `CM_Quest::SendNotice_UpdateStoryQuests` · 00725b40 — implemented: cited at crates/ac2-ui/src/story_quests.rs:6
+- [x] `CM_Quest::SendNotice_PlaySequence` · 00725bd0 — implemented: cited at crates/ac2-ui/src/story_quests.rs:34
 
-## `ac2/client/src/events/cm_shortcut.cpp.c` (0/2)
+## `ac2/client/src/events/cm_shortcut.cpp.c` (1/2)
 
 ### CM_Shortcut
-- [ ] `CM_Shortcut::SendNotice_ReloadShortcuts` · 007268b0 — ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+- [x] `CM_Shortcut::SendNotice_ReloadShortcuts` · 007268b0 — implemented: cited at crates/ac2-weenie/src/notice.rs:81
 - [ ] `CM_Shortcut::SendNotice_RemoveRecipe` · 00726940 — needs port: notice RemoveRecipe to the UI/client; no citation in crates/
 
 ## `ac2/client/src/events/cm_store.cpp.c` (1/12)
@@ -188,7 +188,7 @@ Legend and workflow: [README](README.md).
 - [~] `CM_Trade::SendNotice_Trade_BeReset` · 00726770 — raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
 - [~] `CM_Trade::SendNotice_Trade_BeRevoked` · 00726800 — raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
 
-## `ac2/client/src/events/cm_ui.cpp.c` (11/21)
+## `ac2/client/src/events/cm_ui.cpp.c` (14/21)
 
 ### CM_UI
 - [x] `CM_UI::SendNotice_CloseConfirmationDialog` · 007232e0 — implemented: cited at crates/ac2-ui/src/dialog.rs:10
@@ -203,15 +203,15 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_UI::SendNotice_HandleDragFrom` · 00723800 · legions 006a3880 — needs port: notice HandleDragFrom to the UI/client; no citation in crates/
 - [x] `CM_UI::SendNotice_InitStackUI` · 007238a0 · legions 006a38e0 — implemented: cited at crates/ac2-ui/src/money_bag.rs:4
 - [ ] `CM_UI::SendNotice_Logoff` · 00723980 — needs port: notice Logoff to the UI/client; no citation in crates/
-- [ ] `CM_UI::SendNotice_OpenExaminationPanel` · 00723a10 · legions 006a39b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_UI::SendNotice_PortalSpace` · 00723aa0 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+- [x] `CM_UI::SendNotice_OpenExaminationPanel` · 00723a10 · legions 006a39b0 — implemented: cited at crates/ac2-ui/src/consignment.rs:63
+- [x] `CM_UI::SendNotice_PortalSpace` · 00723aa0 — implemented: cited at crates/ac2-weenie/src/notice.rs:257
 - [x] `CM_UI::SendNotice_PrecludeFromBottom` · 00723b30 — implemented: cited at crates/ac2-client/src/hud_view.rs:374
 - [x] `CM_UI::SendNotice_PrecludeFromTop` · 00723bc0 — implemented: cited at crates/ac2-ui/src/statusbar.rs:25
 - [x] `CM_UI::SendNotice_SaveLocationsChanged` · 00723c50 · legions 006a3af0 — implemented: cited at crates/ac2-ui/src/window_locations.rs:272
 - [x] `CM_UI::SendNotice_StackUIDone` · 00723ce0 · legions 006a3b40 — implemented: cited at crates/ac2-ui/src/stack.rs:6
 - [x] `CM_UI::SendNotice_UpdateCanMouseLook` · 00723d80 · legions 006a3ba0 — implemented: cited at crates/ac2-ui/src/gameplay_story.rs:42
 - [x] `CM_UI::SendNotice_FinishPlaySequence` · 00723e10 — implemented: cited at crates/ac2-ui/src/story.rs:11
-- [ ] `CM_UI::SendNotice_PortalScene` · 00723f00 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CM_UI::SendNotice_PortalScene` · 00723f00 — implemented: cited at crates/ac2-weenie/src/notice.rs:131
 
 ## `ac2/client/src/events/cm_usage.cpp.c` (0/2)
 
@@ -219,11 +219,11 @@ Legend and workflow: [README](README.md).
 - [~] `CM_Usage::SendNotice_SetTargetingPointer` · 007261c0 — ac2-ui selection_notices.rs set_targeting_pointer and ac2-client target_select.rs take the pointer when the player's VM raises it; without the VM, ac2-weenie usage.rs use_item sends the use with its target directly (no multi-item collection; usage_7160 test)
 - [~] `CM_Usage::SendNotice_UseBook` · 00726250 · legions 006a5160 — ac2-script host/notices.rs (oiiwwi) and notices_typed.rs UseBook -> GameplayNotice::UseBook -> ac2-client hud_book.rs; the handler list fan-out is the frame's event list
 
-## `ac2/client/src/events/gmceventqueue.cpp.c` (0/2)
+## `ac2/client/src/events/gmceventqueue.cpp.c` (1/2)
 
 ### gmCEventQueue
 - [-] `gmCEventQueue::gmCEventQueue` · 00723260 — constructor of plain data: Rust struct init replaces it
-- [ ] `gmCEventQueue::DispatchEvent` · 00723280 · legions 006a3540
+- [x] `gmCEventQueue::DispatchEvent` · 00723280 · legions 006a3540 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:4
 
 ## `ac2/client/src/events/gmglobaleventhandler.cpp.c` (0/2)
 
@@ -266,10 +266,10 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/weenie/interp/glue/gcm_allegiance.cpp.c` (0/4)
 
 ### gCM_Allegiance
-- [ ] `gCM_Allegiance::CallEFun_SendNotice_Patron_SwearDone` · 0046a340 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Allegiance::CallEFun_SendNotice_RequestVassal` · 0046a390 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Allegiance::CallEFun_SendNotice_UpdateAllegianceProfile` · 0046a3f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Allegiance::CallEFun_SendNotice_Vassal_SwearDone` · 0046a440 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Allegiance::CallEFun_SendNotice_Patron_SwearDone` · 0046a340 — needs port: script notice Patron_SwearDone raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Allegiance::CallEFun_SendNotice_RequestVassal` · 0046a390 — needs port: script notice RequestVassal raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Allegiance::CallEFun_SendNotice_UpdateAllegianceProfile` · 0046a3f0 — needs port: script notice UpdateAllegianceProfile raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Allegiance::CallEFun_SendNotice_Vassal_SwearDone` · 0046a440 — needs port: script notice Vassal_SwearDone raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_character.cpp.c` (19/26)
 
@@ -298,24 +298,24 @@ Legend and workflow: [README](README.md).
 - [x] `gCM_Character::CallEFun_SendNotice_UpdateSelectionInfo` · 0046a160 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 - [x] `gCM_Character::CallEFun_SendNotice_UpdateSkill` · 0046a1b0 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 - [x] `gCM_Character::CallEFun_SendNotice_UpdateSkillPanel` · 0046a200 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-- [ ] `gCM_Character::CallEFun_SendNotice_UpdateVitae` · 0046a260 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Character::CallEFun_SendNotice_UpdateVital` · 0046a2d0 — ac2-script host notices -> ac2_weenie::GameplayNotice
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdateVitae` · 0046a260 — needs port: script notice UpdateVitae raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Character::CallEFun_SendNotice_UpdateVital` · 0046a2d0 — needs port: script notice UpdateVital raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_combat.cpp.c` (0/5)
 
 ### gCM_Combat
-- [ ] `gCM_Combat::CallEFun_SendNotice_EndSpecialAttack` · 00469900 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
-- [ ] `gCM_Combat::CallEFun_SendNotice_RequestSpecialAttack` · 00469950 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
+- [ ] `gCM_Combat::CallEFun_SendNotice_EndSpecialAttack` · 00469900 — needs port: script notice EndSpecialAttack raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Combat::CallEFun_SendNotice_RequestSpecialAttack` · 00469950 — needs port: script notice RequestSpecialAttack raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 - [-] `gCM_Combat::CallEFun_SendNotice_StartSpecialAttack` · 004699a0 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
-- [ ] `gCM_Combat::CallEFun_SendNotice_ToggleSpecialAttack` · 004699f0 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
-- [ ] `gCM_Combat::CallEFun_SendNotice_UpdateAttackState` · 00469a40 — net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
+- [ ] `gCM_Combat::CallEFun_SendNotice_ToggleSpecialAttack` · 004699f0 — needs port: script notice ToggleSpecialAttack raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Combat::CallEFun_SendNotice_UpdateAttackState` · 00469a40 — needs port: script notice UpdateAttackState raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_communication.cpp.c` (0/3)
 
 ### gCM_Communication
-- [ ] `gCM_Communication::CallEFun_SendNotice_DisplayStringInfo` · 00469820 — ac2-script host notices -> ac2_weenie::GameplayNotice
-- [ ] `gCM_Communication::CallEFun_SendNotice_DoAssistedTell` · 00469870 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Communication::CallEFun_SendNotice_ReloadChatSettings` · 004698c0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Communication::CallEFun_SendNotice_DisplayStringInfo` · 00469820 — needs port: script notice DisplayStringInfo raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Communication::CallEFun_SendNotice_DoAssistedTell` · 00469870 — needs port: script notice DoAssistedTell raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Communication::CallEFun_SendNotice_ReloadChatSettings` · 004698c0 — needs port: script notice ReloadChatSettings raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_craft.cpp.c` (5/6)
 
@@ -330,66 +330,66 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/weenie/interp/glue/gcm_examination.cpp.c` (0/2)
 
 ### gCM_Examination
-- [ ] `gCM_Examination::CallEFun_SendNotice_ExaminationRequestChanged` · 00469580 — ac2-script host notices -> ac2_weenie::GameplayNotice
-- [ ] `gCM_Examination::CallEFun_SendNotice_UpdateExaminationProfile` · 004695d0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [ ] `gCM_Examination::CallEFun_SendNotice_ExaminationRequestChanged` · 00469580 — needs port: script notice ExaminationRequestChanged raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Examination::CallEFun_SendNotice_UpdateExaminationProfile` · 004695d0 — needs port: script notice UpdateExaminationProfile raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_fellowship.cpp.c` (0/13)
 
 ### gCM_Fellowship
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_ClearFellow` · 00469130 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_ClearFellowship` · 00469180 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_ExpireRecruitment` · 004691c0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_RequestRecruitment` · 00469210 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellow` · 00469280 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowCellID` · 004692e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowHealth` · 00469330 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowLevel` · 00469390 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowMaxHealth` · 004693e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowMaxVigor` · 00469430 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowVigor` · 00469480 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowship` · 004694e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateLeader` · 00469530 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_ClearFellow` · 00469130 — needs port: script notice ClearFellow raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_ClearFellowship` · 00469180 — needs port: script notice ClearFellowship raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_ExpireRecruitment` · 004691c0 — needs port: script notice ExpireRecruitment raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_RequestRecruitment` · 00469210 — needs port: script notice RequestRecruitment raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellow` · 00469280 — needs port: script notice UpdateFellow raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowCellID` · 004692e0 — needs port: script notice UpdateFellowCellID raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowHealth` · 00469330 — needs port: script notice UpdateFellowHealth raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowLevel` · 00469390 — needs port: script notice UpdateFellowLevel raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowMaxHealth` · 004693e0 — needs port: script notice UpdateFellowMaxHealth raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowMaxVigor` · 00469430 — needs port: script notice UpdateFellowMaxVigor raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowVigor` · 00469480 — needs port: script notice UpdateFellowVigor raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowship` · 004694e0 — needs port: script notice UpdateFellowship raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateLeader` · 00469530 — needs port: script notice UpdateLeader raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_friends.cpp.c` (2/6)
 
 ### gCM_Friends
 - [x] `gCM_Friends::CallEFun_SendNotice_GUNResult_AddFriend` · 00467f60 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-- [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_FriendStatus` · 00467fb0 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
+- [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_FriendStatus` · 00467fb0 — needs port: script notice GUNResult_FriendStatus raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 - [x] `gCM_Friends::CallEFun_SendNotice_GUNResult_RemoveFriend` · 00468010 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-- [ ] `gCM_Friends::CallEFun_SendNotice_LocalStatus` · 00468060 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Friends::RListToGUNUserStatusList` · 004680b0 · legions 00468d60 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
-- [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_GetFriendsList` · 00468150 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Friends::CallEFun_SendNotice_LocalStatus` · 00468060 — needs port: script notice LocalStatus raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [-] `gCM_Friends::RListToGUNUserStatusList` · 004680b0 · legions 00468d60 — STL/container internals: a Rust collection replaces it
+- [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_GetFriendsList` · 00468150 — needs port: script notice GUNResult_GetFriendsList raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_inventory.cpp.c` (0/4)
 
 ### gCM_Inventory
-- [ ] `gCM_Inventory::CallEFun_SendNotice_ContainerStateUpdate` · 00468f10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Inventory::CallEFun_SendNotice_ItemUpdate` · 00468f70 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Inventory::CallEFun_SendNotice_UpdateContainer` · 00468fb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Inventory::CallEFun_SendNotice_UpdateInventory` · 00469030 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Inventory::CallEFun_SendNotice_ContainerStateUpdate` · 00468f10 — needs port: script notice ContainerStateUpdate raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Inventory::CallEFun_SendNotice_ItemUpdate` · 00468f70 — needs port: script notice ItemUpdate raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Inventory::CallEFun_SendNotice_UpdateContainer` · 00468fb0 — needs port: script notice UpdateContainer raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Inventory::CallEFun_SendNotice_UpdateInventory` · 00469030 — needs port: script notice UpdateInventory raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_money.cpp.c` (0/2)
 
 ### gCM_Money
-- [ ] `gCM_Money::CallEFun_SendNotice_GhostMoneyBag` · 00469090 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Money::CallEFun_SendNotice_UpdateMoney` · 004690e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Money::CallEFun_SendNotice_GhostMoneyBag` · 00469090 — needs port: script notice GhostMoneyBag raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Money::CallEFun_SendNotice_UpdateMoney` · 004690e0 — needs port: script notice UpdateMoney raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_physics.cpp.c` (0/1)
 
 ### gCM_Physics
-- [ ] `gCM_Physics::CallEFun_SendNotice_Do3DDamage` · 00468ec0 — IFun 0xB400C0 run by client_story.rs for each DoStory damage hook; Do3DDamage raised on the VM with HIT 0x40000008 (combat_7160)
+- [ ] `gCM_Physics::CallEFun_SendNotice_Do3DDamage` · 00468ec0 — needs port: script notice Do3DDamage raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_quest.cpp.c` (0/3)
 
 ### gCM_Quest
-- [ ] `gCM_Quest::CallEFun_SendNotice_UpdateQuests` · 00468db0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Quest::CallEFun_SendNotice_UpdateStoryQuests` · 00468e00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Quest::CallEFun_SendNotice_UpdateQuests` · 00468db0 — needs port: script notice UpdateQuests raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_Quest::CallEFun_SendNotice_UpdateStoryQuests` · 00468e00 — needs port: script notice UpdateStoryQuests raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 - [~] `gCM_Quest::CallEFun_SendNotice_PlaySequence` · 00468e50 — ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 
 ## `ac2/client/src/weenie/interp/glue/gcm_shortcut.cpp.c` (0/2)
 
 ### gCM_Shortcut
-- [ ] `gCM_Shortcut::CallEFun_SendNotice_ReloadShortcuts` · 00468d20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Shortcut::CallEFun_SendNotice_ReloadShortcuts` · 00468d20 — needs port: script notice ReloadShortcuts raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 - [ ] `gCM_Shortcut::CallEFun_SendNotice_RemoveRecipe` · 00468d60 — needs port: script notice RemoveRecipe raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 
 ## `ac2/client/src/weenie/interp/glue/gcm_store.cpp.c` (5/12)
@@ -424,14 +424,14 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/weenie/interp/glue/gcm_ui.cpp.c` (0/3)
 
 ### gCM_UI
-- [ ] `gCM_UI::CallEFun_SendNotice_OpenExaminationPanel` · 00468940 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_UI::CallEFun_SendNotice_PortalSpace` · 00468970 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+- [ ] `gCM_UI::CallEFun_SendNotice_OpenExaminationPanel` · 00468940 — needs port: script notice OpenExaminationPanel raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [ ] `gCM_UI::CallEFun_SendNotice_PortalSpace` · 00468970 — needs port: script notice PortalSpace raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 - [~] `gCM_UI::CallEFun_SendNotice_PortalScene` · 004689a0 — ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 
 ## `ac2/client/src/weenie/interp/glue/gcm_usage.cpp.c` (1/2)
 
 ### gCM_Usage
-- [ ] `gCM_Usage::CallEFun_SendNotice_SetTargetingPointer` · 00468870 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCM_Usage::CallEFun_SendNotice_SetTargetingPointer` · 00468870 — needs port: script notice SetTargetingPointer raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 - [x] `gCM_Usage::CallEFun_SendNotice_UseBook` · 004688c0 · legions 00469340 — ac2-script host/notices.rs entry 0x00920002 'oiiwwi' (argument order checked against the glue's stack slots)
 
 ## `ac2/client/src/weenie/interp/glue/gfellowadaptor.cpp.c` (9/9)
@@ -464,17 +464,17 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/weenie/interp/glue/ggmcobjmaint.cpp.c` (0/3)
 
 ### ggmCObjMaint
-- [ ] `ggmCObjMaint::CallEFun_GetPlayerID` · 00468210 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
-- [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [ ] `ggmCObjMaint::CallEFun_GetPlayerID` · 00468210 — needs port: script efun get player id on the object maintenance; no citation in crates/
+- [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — needs port: script efun get player weenie object reference on the object maintenance; no citation in crates/
 - [-] `ggmCObjMaint::CallEFun_DumpToString` · 00468280 — admin dump-to-string / dump debug output: not in the client
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (109/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (122/301)
 
 ### PackObj
 - [x] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0 — implemented: cited at crates/ac2-script/src/bytestream/mod.rs:93
 
 ### HeapObject
-- [ ] `HeapObject::InitializeData` · 00454080 · legions 00455100 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [x] `HeapObject::InitializeData` · 00454080 · legions 00455100 — implemented: cited at crates/ac2-script/src/vm/refs.rs:121
 
 ### VMMon
 - [-] `VMMon::iBegin` · 004540e0 — admin/debug/logging tooling: not in the client
@@ -489,13 +489,13 @@ Legend and workflow: [README](README.md).
 - [-] `HeapObject::HeapObject` · 004542d0 · legions 004551e0 — constructor of plain data: Rust struct init replaces it
 
 ### WDataMapper
-- [ ] `WDataMapper::WStateIDToPackageID` · 00454300 · legions 00455210 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [x] `WDataMapper::WStateIDToPackageID` · 00454300 · legions 00455210 — implemented: cited at crates/ac2-script/src/vm/mod.rs:392
 
 ### ReferenceTable
 - [-] `ReferenceTable::MarkReference` · 00454350 · legions 00455260 — VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 
 ### ContextState
-- [ ] `ContextState::Init` · 00454440 · legions 00455320 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [x] `ContextState::Init` · 00454440 · legions 00455320 — implemented: cited at crates/ac2-script/src/vm/context.rs:58
 
 ### ggmCWInterface
 - [x] `ggmCWInterface::CallEFun_PopupYesNoDialog` · 004544b0 — ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
@@ -526,7 +526,7 @@ Legend and workflow: [README](README.md).
 - [-] `VM::DeleteContext` · 00455000 · legions 00455c70 — VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 
 ### Resolver
-- [ ] `Resolver::GetVirtualFunctionOffset` · 00455060 · legions 00455cd0 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [x] `Resolver::GetVirtualFunctionOffset` · 00455060 · legions 00455cd0 — implemented: cited at crates/ac2-script/src/vm/program.rs:8
 
 ### ReferenceTable
 - [-] `ReferenceTable::Grow` · 004550b0 · legions 00455d20 — VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
@@ -540,21 +540,21 @@ Legend and workflow: [README](README.md).
 - [-] `ContextState::ResumeTimers` · 00455340 · legions 00455fa0 — VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 
 ### VM
-- [ ] `VM::Execute` · 004553f0 · legions 00456050 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [x] `VM::Execute` · 004553f0 · legions 00456050 — implemented: cited at crates/ac2-script/src/vm/mod.rs:330
 
 ### Resolver
-- [ ] `Resolver::GetFunctionOffset` · 00455460 · legions 004560c0 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [x] `Resolver::GetFunctionOffset` · 00455460 · legions 004560c0 — implemented: cited at crates/ac2-net/src/protocol/gameplay/trade.rs:6
 
 ### ReferenceTable
 - [-] `ReferenceTable::FinishGarbageCollection` · 004554d0 · legions 00456130 — VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 - [-] `ReferenceTable::ScanProcesses` · 00455600 · legions 00456210 — VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 
 ### VM
-- [ ] `VM::CallIFun` · 00455740 · legions 00456350 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [x] `VM::CallIFun` · 00455740 · legions 00456350 — implemented: cited at crates/ac2-script/src/host/ifun.rs:3
 
 ### ReferenceTable
-- [ ] `ReferenceTable::CallPackageInitializer` · 004557b0 · legions 004563c0 — ac2-script vm (VM/ReferenceTable/Resolver)
-- [ ] `ReferenceTable::UpdateRelativeReferences` · 004558a0 · legions 004564b0 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+- [x] `ReferenceTable::CallPackageInitializer` · 004557b0 · legions 004563c0 — implemented: cited at crates/ac2-script/src/vm/mod.rs:418
+- [-] `ReferenceTable::UpdateRelativeReferences` · 004558a0 · legions 004564b0 — VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 - [-] `ReferenceTable::StartGarbageCollection` · 004558f0 · legions 00456500 — VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 
 ### ggmCWInterface
@@ -576,7 +576,7 @@ Legend and workflow: [README](README.md).
 
 ### ReferenceTable
 - [x] `ReferenceTable::AddReference` · 00456190 · legions 00456d40 — ac2-script vm::refs (reserved bit on every new entry)
-- [ ] `ReferenceTable::UpdateReferences` · 00456270 · legions 00456e20 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+- [-] `ReferenceTable::UpdateReferences` · 00456270 · legions 00456e20 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 
 ### ggmCWInterface
 - [x] `ggmCWInterface::XPHashToLAHash` · 00456330 · legions 00456ee0 — ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
@@ -596,7 +596,7 @@ Legend and workflow: [README](README.md).
 
 ### ReferenceTable
 - [x] `ReferenceTable::CreateNativeObject` · 00456550 · legions 00457150 — ac2-script vm::refs (reserved bit on every new entry)
-- [ ] `ReferenceTable::GetSingleton` · 004565c0 · legions 004571c0 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [x] `ReferenceTable::GetSingleton` · 004565c0 · legions 004571c0 — implemented: cited at crates/ac2-script/src/vm/refs.rs:149
 
 ### RList
 - [-] `RList::RList` · 00456690 · legions 00457290 — STL/container internals: a Rust collection replaces it
@@ -605,7 +605,7 @@ Legend and workflow: [README](README.md).
 
 ### LList
 - [-] `LList::LList` · 00456770 · legions 00457370 — STL/container internals: a Rust collection replaces it
-- [ ] `LList::UnPack` · 004567b0 — ac2-script reference/native unpack
+- [-] `LList::UnPack` · 004567b0 — STL/container internals: a Rust collection replaces it
 
 ### ggmCWInterface
 - [-] `ggmCWInterface::CraftSkillAdaptorListToRList` · 004567c0 · legions 004573c0 — STL/container internals: a Rust collection replaces it
@@ -613,8 +613,8 @@ Legend and workflow: [README](README.md).
 - [-] `ggmCWInterface::RecipeAdaptorListToRList` · 00456900 · legions 00457500 — STL/container internals: a Rust collection replaces it
 - [-] `ggmCWInterface::IgnoredListToRList` · 004569a0 · legions 00525e50 — STL/container internals: a Rust collection replaces it
 - [-] `ggmCWInterface::EffectUINodeListToRList` · 00456a40 · legions 004575a0 — STL/container internals: a Rust collection replaces it
-- [ ] `ggmCWInterface::ShortcutInfoArrayToRArray` · 00456ae0 · legions 00457640 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [ ] `ggmCWInterface::GUNUserStatusListToRList` · 00456b80 · legions 004576e0 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
+- [-] `ggmCWInterface::ShortcutInfoArrayToRArray` · 00456ae0 · legions 00457640 — STL/container internals: a Rust collection replaces it
+- [-] `ggmCWInterface::GUNUserStatusListToRList` · 00456b80 · legions 004576e0 — STL/container internals: a Rust collection replaces it
 
 ### PHashTable<unsigned___int64,unsigned_long>
 - [-] `PHashTable<unsigned___int64,unsigned_long>::StreamPack` · 00456c20 · legions 00457780 — STL/container internals: a Rust collection replaces it
@@ -626,8 +626,8 @@ Legend and workflow: [README](README.md).
 - [-] `PHashTable<unsigned_long,unsigned___int64>::StreamPack` · 00456f30 · legions 00457a90 — STL/container internals: a Rust collection replaces it
 
 ### ReferenceTable
-- [ ] `ReferenceTable::UnPackReferenceArray` · 00457120 · legions 00457c80 — ac2-script PackedReference::unpack: decode only, no reference table insert yet
-- [ ] `ReferenceTable::UnPackReference` · 00457330 · legions 00457e90 — ac2-script PackedReference::unpack: decode only, no reference table insert yet
+- [x] `ReferenceTable::UnPackReferenceArray` · 00457120 · legions 00457c80 — implemented: cited at crates/ac2-net/src/protocol/pack.rs:6
+- [ ] `ReferenceTable::UnPackReference` · 00457330 · legions 00457e90 — needs port: packed reference decode only; the reference-table insert is missing (ac2-script refs)
 
 ### LAHash
 - [-] `LAHash::LAHash` · 00457460 · legions 00457fc0 — STL/container internals: a Rust collection replaces it
@@ -638,9 +638,9 @@ Legend and workflow: [README](README.md).
 - [-] `ALHash::StreamPack` · 00457510 — STL/container internals: a Rust collection replaces it
 
 ### ReferenceTable
-- [ ] `ReferenceTable::FillPackage` · 00457540 · legions 004580a0 — ac2-script vm (VM/ReferenceTable/Resolver)
-- [ ] `ReferenceTable::GetReferencePtr` · 00457610 · legions 00458170 — ac2-script vm (VM/ReferenceTable/Resolver)
-- [ ] `ReferenceTable::GetPackageID` · 004576d0 · legions 00458230 — ac2-script vm (VM/ReferenceTable/Resolver)
+- [x] `ReferenceTable::FillPackage` · 00457540 · legions 004580a0 — implemented: cited at crates/ac2-script/src/vm/mod.rs:378
+- [-] `ReferenceTable::GetReferencePtr` · 00457610 · legions 00458170 — VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
+- [x] `ReferenceTable::GetPackageID` · 004576d0 · legions 00458230 — implemented: cited at crates/ac2-script/src/vm/mod.rs:352
 
 ### ggmCWInterface
 - [x] `ggmCWInterface::CallIFun_AcceptTrade` · 00457730 · legions 00458290 — ac2-client gameplay.rs Command::AcceptTrade: the IFun on the player's VM script (CPlayer's CWInterface graph packed by stub 0x45 -> 0x35); stand-in only without a VM (empty reference)
@@ -669,13 +669,13 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipRecruitAccept` · 004589d0 · legions 00459620 — needs port: script IFun do fellowship recruit accept on the client interface; no citation in crates/
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipRecruitDecline` · 00458a60 · legions 004596b0 — needs port: script IFun do fellowship recruit decline on the client interface; no citation in crates/
 - [~] `ggmCWInterface::CallIFun_DoIHaveItem` · 00458b10 · legions 00459760 — answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
-- [ ] `ggmCWInterface::CallIFun_DoUIDamage` · 00458bf0 · legions 00459840 — IFun 0xB400C0 run by client_story.rs for each DoStory damage hook; Do3DDamage raised on the VM with HIT 0x40000008 (combat_7160)
+- [x] `ggmCWInterface::CallIFun_DoUIDamage` · 00458bf0 · legions 00459840 — implemented: cited at crates/ac2-client/src/scripts_queries.rs:19
 - [x] `ggmCWInterface::CallIFun_DoesIngredientAutoPopulate` · 00458dd0 · legions 00459a20 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [~] `ggmCWInterface::CallIFun_DragFromMoneyBag` · 00458ec0 · legions 00459b10 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [~] `ggmCWInterface::CallIFun_DragToMoneyBag` · 00458fe0 · legions 00459c30 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [~] `ggmCWInterface::CallIFun_EquipItem` · 00459140 · legions 00459d90 — ac2-weenie session/inventory.rs equip_item: InvEquipDesc.equip byte-exact (inventory_7160); client EquipItem (inventory_items_7160). Script checks not mirrored
-- [ ] `ggmCWInterface::CallIFun_GUNEvent_FriendStart` · 00459240 · legions 00459e90 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
-- [ ] `ggmCWInterface::CallIFun_GUNEvent_FriendStatus` · 00459340 · legions 00459f90 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
+- [ ] `ggmCWInterface::CallIFun_GUNEvent_FriendStart` · 00459240 · legions 00459e90 — needs port: script IFun gunevent friend start on the client interface; no citation in crates/
+- [ ] `ggmCWInterface::CallIFun_GUNEvent_FriendStatus` · 00459340 · legions 00459f90 — needs port: script IFun gunevent friend status on the client interface; no citation in crates/
 - [ ] `ggmCWInterface::CallIFun_GUNEvent_HearFromRoom` · 00459420 · legions 0045a070 — needs port: script IFun gunevent hear from room on the client interface; no citation in crates/
 - [ ] `ggmCWInterface::CallIFun_GUNHandleReauthentication` · 004595a0 · legions 0045a1f0 — needs port: script IFun gunhandle reauthentication on the client interface; no citation in crates/
 - [ ] `ggmCWInterface::CallIFun_GetAcceptAllegianceRequest` · 00459630 · legions 0045a280 — needs port: script IFun get accept allegiance request on the client interface; no citation in crates/
@@ -692,7 +692,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_GetDurabilityLevel` · 0045a0a0 · legions 0045acf0 — needs port: script IFun get durability level on the client interface; no citation in crates/
 - [ ] `ggmCWInterface::CallIFun_GetFXAndBehaviorInformationFromWsl` · 0045a140 · legions 0045ad90 — needs port: script IFun get fxand behavior information from wsl on the client interface; no citation in crates/
 - [x] `ggmCWInterface::CallIFun_GetFellowXPHash` · 0045a310 · legions 0045af60 — ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
-- [ ] `ggmCWInterface::CallIFun_GetGameplayOptions` · 0045a4b0 · legions 0045b100 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+- [ ] `ggmCWInterface::CallIFun_GetGameplayOptions` · 0045a4b0 · legions 0045b100 — needs port: script IFun get gameplay options on the client interface; no citation in crates/
 - [x] `ggmCWInterface::CallIFun_GetHeroSkillCredits` · 0045a620 · legions 0045b270 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [ ] `ggmCWInterface::CallIFun_GetIconID` · 0045a6c0 · legions 0045b310 — needs port: script IFun get icon id on the client interface; no citation in crates/
 - [ ] `ggmCWInterface::CallIFun_GetLastSelection` · 0045a760 · legions 0045b3b0 — needs port: script IFun get last selection on the client interface; no citation in crates/
@@ -748,7 +748,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_InqRecipeDifficulty` · 0045db70 · legions 0045e7c0 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [x] `ggmCWInterface::CallIFun_InqRecipeIngredients` · 0045dd60 · legions 0045e9b0 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [x] `ggmCWInterface::CallIFun_InqRecipeList` · 0045dfc0 · legions 0045ec10 — lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
-- [ ] `ggmCWInterface::CallIFun_InqRootPanelFromRace` · 0045e180 · legions 0045edd0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+- [ ] `ggmCWInterface::CallIFun_InqRootPanelFromRace` · 0045e180 · legions 0045edd0 — needs port: script IFun inq root panel from race on the client interface; no citation in crates/
 - [~] `ggmCWInterface::CallIFun_InqShortcutArray` · 0045e2c0 · legions 0045ef10 — read from GetGameplayOptions' profile (scripts_queries.rs shortcut_array, progress_7160), not IFun 0xB40070 itself
 - [x] `ggmCWInterface::CallIFun_InqShortcutInfo` · 0045e450 · legions 0045f0a0 — client shortcut_info (scripts_queries.rs, IFun 0xB4006D); icon in ui_sources ShortcutSource::icon; shortcut_drag_7160 and view tests
 - [~] `ggmCWInterface::CallIFun_InqSimpleInvByLocTable` · 0045e660 · legions 0045f2b0 — answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
@@ -857,12 +857,12 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_UseSelection` · 00463c90 · legions 00464900 — ac2-client Command::UseSelection runs IFun 0xB40006 on the player's script when the VM owns it (CPlayer 0x79 -> CUsageSystem 0x9: the targeting pointer, the usage list, then WM_Usage 0x22); butchery_7160 asserts it. The session's use_selection stand-in stays for a client without scripts
 - [x] `ggmCWInterface::CallIFun_UseShortcut` · 00463d30 · legions 004649a0 — client use_shortcut (scripts_queries.rs, IFun 0xB40007); skill and text shortcuts run on the VM; vitals_7160 use_shortcut
 
-## `ac2/client/src/weenie/interp/glue/gmcefundispatcher.cpp.c` (0/1)
+## `ac2/client/src/weenie/interp/glue/gmcefundispatcher.cpp.c` (1/1)
 
 ### gmCEFunDispatcher
-- [ ] `gmCEFunDispatcher::GetEFunAddress` · 00463df0 · legions 00464a60 — ac2-script glue: id table + pure-glue registry; engine glue unbound
+- [x] `gmCEFunDispatcher::GetEFunAddress` · 00463df0 · legions 00464a60 — implemented: cited at crates/ac2-script/src/vm/efun.rs:4
 
-## `ac2/client/src/weenie/interp/glue/gmcnativefactory.cpp.c` (1/18)
+## `ac2/client/src/weenie/interp/glue/gmcnativefactory.cpp.c` (2/18)
 
 ### gmCNativeFactory
 - [-] `gmCNativeFactory::HashNativeObject` · 00465f30 · legions 00466c10 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
@@ -870,7 +870,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmCNativeFactory::GetReferences` · 00465fc0 · legions 00466c70 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 - [-] `gmCNativeFactory::UpdateReferences` · 00465fe0 · legions 00466c90 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 - [-] `gmCNativeFactory::GetNativePackSize` · 00466000 · legions 00466cb0 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
-- [ ] `gmCNativeFactory::PackNativeObject` · 004661d0 · legions 00466e80 — ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
+- [x] `gmCNativeFactory::PackNativeObject` · 004661d0 · legions 00466e80 — implemented: cited at crates/ac2-net/src/protocol/native/mod.rs:4
 - [ ] `gmCNativeFactory::GetCheckSums` · 004663b0 · legions 00467060 — needs port: gm cnative factory::get check sums; no citation in crates/
 - [ ] `gmCNativeFactory::ValidateCheckSums` · 004663d0 · legions 00467080 — needs port: gm cnative factory::validate check sums; no citation in crates/
 
@@ -894,7 +894,7 @@ Legend and workflow: [README](README.md).
 - [-] `FellowshipAdaptor::~FellowshipAdaptor` · 00467100 · legions 00467db0 — destructor: Rust Drop replaces it
 
 ### gmCNativeFactory
-- [ ] `gmCNativeFactory::UnPackNativeObject` · 00467160 · legions 00467e10 — ac2-script native::unpack: the native types Legions WStates hold
+- [ ] `gmCNativeFactory::UnPackNativeObject` · 00467160 · legions 00467e10 — needs port: gm cnative factory::un pack native object; no citation in crates/
 - [-] `gmCNativeFactory::CopyNativeObject` · 00467370 · legions 00468020 — copy / delete of plain native data: Rust clone and Drop replace it
 - [-] `gmCNativeFactory::DeleteNativeObject` · 004677e0 · legions 00468490 — copy / delete of plain native data: Rust clone and Drop replace it
 
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090 — needs port: weenie allocator allocate efun dispatcher; no citation in crates/
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0 — needs port: weenie allocator allocate native factory; no citation in crates/
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (159/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (164/249)
 
 ### gmCWInterface
 - [-] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0 — constructor of plain data: Rust struct init replaces it
@@ -992,7 +992,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::GetMaxDurabilityLevel` · 004507d0 · legions 00451910 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [x] `gmCWInterface::GetIconID` · 00450800 · legions 00451940 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [~] `gmCWInterface::GetMaxContainerSize` · 00450830 · legions 00451970 — ItemStats::capacity: int 280 default 12; the EffectSystem pass is not applied
-- [ ] `gmCWInterface::GetAvailableExperience` · 00450860 · legions 004519a0 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
+- [ ] `gmCWInterface::GetAvailableExperience` · 00450860 · legions 004519a0 — needs port: interface get available experience; no citation in crates/
 - [x] `gmCWInterface::GetSkillCredits` · 004508a0 · legions 004519e0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `gmCWInterface::GetHeroSkillCredits` · 004508d0 · legions 00451a10 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `gmCWInterface::Dismount` · 00450900 · legions 00451a40 — ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
@@ -1034,7 +1034,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::RegisterCommands` · 00450ff0 · legions 00452130 — needs port: interface register commands; no citation in crates/
 - [x] `gmCWInterface::RequestResurrect` · 00451010 · legions 00452150 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [x] `gmCWInterface::ClearResurrectionRequest` · 00451030 · legions 00452170 — implemented: cited at crates/ac2-ui/src/death.rs:12
-- [ ] `gmCWInterface::UpdateOpen` · 00451050 · legions 00452190 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
+- [x] `gmCWInterface::UpdateOpen` · 00451050 · legions 00452190 — implemented: cited at crates/ac2-ui/src/external_container.rs:6
 - [x] `gmCWInterface::InqShortcutInfo` · 00451090 · legions 004521d0 — client shortcut_info (scripts_queries.rs, IFun 0xB4006D); icon in ui_sources ShortcutSource::icon; shortcut_drag_7160 and view tests
 - [x] `gmCWInterface::SetShortcut` · 004510d0 · legions 00452210 — client set_shortcut (scripts_queries.rs, IFun 0xB4006F); shortcut_drag_7160 asserts the SetShortcut bytes (ShortcutInfo native, slot)
 - [~] `gmCWInterface::InqShortcutArray` · 00451110 · legions 00452250 — read from GetGameplayOptions' profile (scripts_queries.rs shortcut_array, progress_7160), not IFun 0xB40070 itself
@@ -1086,10 +1086,10 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::GetAcceptFellowshipRequest` · 004518e0 · legions 00452a60 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
 - [x] `gmCWInterface::SetAcceptTradeRequest` · 00451910 · legions 00452a90 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 - [x] `gmCWInterface::GetAcceptTradeRequest` · 00451930 · legions 00452ab0 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
-- [ ] `gmCWInterface::InqNextRetellHistoryItem` · 00451960 · legions 00452ae0 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
-- [ ] `gmCWInterface::InqPrevRetellHistoryItem` · 00451990 · legions 00452b10 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
-- [ ] `gmCWInterface::InqNextReplyHistoryItem` · 004519c0 · legions 00452b40 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
-- [ ] `gmCWInterface::InqPrevReplyHistoryItem` · 004519f0 · legions 00452b70 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
+- [ ] `gmCWInterface::InqNextRetellHistoryItem` · 00451960 · legions 00452ae0 — needs port: interface inq next retell history item; no citation in crates/
+- [ ] `gmCWInterface::InqPrevRetellHistoryItem` · 00451990 · legions 00452b10 — needs port: interface inq prev retell history item; no citation in crates/
+- [ ] `gmCWInterface::InqNextReplyHistoryItem` · 004519c0 · legions 00452b40 — needs port: interface inq next reply history item; no citation in crates/
+- [ ] `gmCWInterface::InqPrevReplyHistoryItem` · 004519f0 · legions 00452b70 — needs port: interface inq prev reply history item; no citation in crates/
 - [~] `gmCWInterface::InqQuestList` · 00451a20 · legions 00452ba0 — client ui_quests.rs Client::inq_quest_list (IFun 0xB4008E, list as IFunArg::Filled: the out list is approximated, not run against a live login)
 - [x] `gmCWInterface::InqActInfoList` · 00451a60 · legions 00452be0 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 - [x] `gmCWInterface::HandlePlayScenesDone` · 00451aa0 · legions 00452c20 — implemented: cited at crates/ac2-ui/src/gameplay_story.rs:9
@@ -1129,10 +1129,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::HandleSetWeenieDesc` · 00452030 · legions 004531b0 — needs port: interface handle set weenie desc; no citation in crates/
 
 ### GunChatExtraInfo
-- [ ] `GunChatExtraInfo::PackIntoBlob` · 004520f0 · legions 00453230 — ac2-net GunChatExtraInfo
+- [x] `GunChatExtraInfo::PackIntoBlob` · 004520f0 · legions 00453230 — implemented: cited at crates/ac2-net/src/protocol/turbine_chat.rs:94
 
 ### gmCWInterface
-- [ ] `gmCWInterface::ProcessText_Done` · 004521b0 · legions 004532f0 — ac2-weenie ChatState::process_text resets the told/heard walks (CPlayer 0x43/0xDF)
+- [x] `gmCWInterface::ProcessText_Done` · 004521b0 · legions 004532f0 — implemented: cited at crates/ac2-weenie/src/shell/handlers.rs:109
 - [~] `gmCWInterface::RequestGUN_FriendAdd` · 004521e0 · legions 00453320 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 - [~] `gmCWInterface::RequestGUN_FriendDelete` · 00452250 · legions 00453390 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 - [~] `gmCWInterface::RequestGUN_GetFriendsList` · 004522c0 · legions 00453400 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
@@ -1142,7 +1142,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmCWInterface::RequestGUN_CallCreate` · 00452480 · legions 004535d2 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 
 ### GunChatExtraInfo
-- [ ] `GunChatExtraInfo::GunChatExtraInfo` · 00452580 · legions 00453690 — ac2-net GunChatExtraInfo::new: version 1, flags; the meta letters (RetrieveMetaLetters) are left empty
+- [-] `GunChatExtraInfo::GunChatExtraInfo` · 00452580 · legions 00453690 — constructor of plain data: Rust struct init replaces it
 - [-] `GunChatExtraInfo::~GunChatExtraInfo` · 00452660 · legions 00453770 — destructor: Rust Drop replaces it
 
 ### gmCWInterface
@@ -1177,14 +1177,14 @@ Legend and workflow: [README](README.md).
 - [~] `gmCWInterface::GUNEvent_HearFromRoom` · 00453320 · legions 00454430 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 
 ### GunChatExtraInfo
-- [ ] `GunChatExtraInfo::StreamPack` · 004534e0 · legions 004545f0 — ac2-net GunChatExtraInfo
+- [-] `GunChatExtraInfo::StreamPack` · 004534e0 · legions 004545f0 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 
 ### (free functions)
 - [-] `STREAMPACK` · 00453560 · legions 005e6f90 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 - [-] `STREAMPACK_PACKOBJ` · 004535f0 · legions 00454670 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 
 ### gmCWInterface
-- [ ] `gmCWInterface::HandleAlias` · 00453670 · legions 004546f0 — ac2-weenie shell::expand_aliases over the options profile's m_aliasTable (ChatState::login_options)
+- [x] `gmCWInterface::HandleAlias` · 00453670 · legions 004546f0 — implemented: cited at crates/ac2-weenie/src/shell/mod.rs:230
 
 ### PList<PStringBase<unsigned_short>_>
 - [-] `PList<PStringBase<unsigned_short>_>::Pack` · 004537f0 · legions 00454870 — STL/container internals: a Rust collection replaces it
@@ -1195,7 +1195,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::ExpandText` · 004539e0 · legions 00454a60 — needs port: interface expand text; no citation in crates/
 - [-] `gmCWInterface::Result_GetFriendsList` · 00453b90 — admin 7148 only: Legions 7160 has no Result_GetFriendsList wrapper and no IFun 0xB40042; the list arrives in GUNEvent_FriendStart
 - [x] `gmCWInterface::GUNEvent_FriendStart` · 00453bd0 · legions 00454c50 — ac2-client friends.rs gun_friend_event (list and status to the page through take_friend_events; the script IFuns run first); ac2-ui friends_panel.rs; tests friends_script_7160, friends_page_7160
-- [ ] `gmCWInterface::Result_GetIgnoredList` · 00453c10 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
+- [x] `gmCWInterface::Result_GetIgnoredList` · 00453c10 — implemented: cited at crates/ac2-weenie/src/shell/state.rs:191
 
 ### `anonymous-namespace'::YesNoDialogAwakener
 - [x] ``anonymous-namespace'::YesNoDialogAwakener::OnTrigger` · 00453de0 · legions 00454e60 — no timer: the question is held by GameplayDialogs popups until its answer (the awakener's keep-alive trigger has no Rust counterpart)
@@ -1307,32 +1307,32 @@ Legend and workflow: [README](README.md).
 - [-] `CFactory::MakeCEventQueue` · 004991b0 · legions 004916c0 — engine factory: Rust builds the subsystems directly
 - [-] `CFactory::MakeGlobalEventHandler` · 004991d0 · legions 004916e0 — engine factory: Rust builds the subsystems directly
 
-## `portal/client/src/events/ceventqueue.cpp.c` (0/15)
+## `portal/client/src/events/ceventqueue.cpp.c` (9/15)
 
 ### CEventQueue
-- [ ] `CEventQueue::CEventQueue` · 00493f60 · legions 0048c730
-- [ ] `CEventQueue::ProcessVisualOrderedEvent` · 00493f80 · legions 0048c750
-- [ ] `CEventQueue::DispatchEvent` · 00494010 · legions 0048c7e0 — every opcode routed; quality, interpreter and admin events kept as raw bodies
-- [ ] `CEventQueue::PostEvent` · 004946a0 · legions 0048ce70
+- [-] `CEventQueue::CEventQueue` · 00493f60 · legions 0048c730 — constructor of plain data: Rust struct init replaces it
+- [x] `CEventQueue::ProcessVisualOrderedEvent` · 00493f80 · legions 0048c750 — implemented: cited at crates/ac2-weenie/src/world.rs:271
+- [x] `CEventQueue::DispatchEvent` · 00494010 · legions 0048c7e0 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:3
+- [x] `CEventQueue::PostEvent` · 004946a0 · legions 0048ce70 — implemented: cited at crates/ac2-net/src/protocol/mod.rs:3
 
 ### InstanceIDWithStamp
-- [ ] `InstanceIDWithStamp::StreamPack` · 004946d0 · legions 0048cea0
+- [-] `InstanceIDWithStamp::StreamPack` · 004946d0 · legions 0048cea0 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 
 ### CEventQueue
-- [ ] `CEventQueue::ProcessOrderedNetBlob` · 00494720 · legions 0048cef0
+- [x] `CEventQueue::ProcessOrderedNetBlob` · 00494720 · legions 0048cef0 — implemented: cited at crates/ac2-weenie/src/world.rs:248
 
 ### NIList<NetBlob_*>
 - [-] `NIList<NetBlob_*>::AddToTail` · 004947c0 · legions 0048cf90 — STL/container internals: a Rust collection replaces it
 
 ### CEventQueue
-- [ ] `CEventQueue::QueueEvent` · 00494810 · legions 0048cfe0
-- [ ] `CEventQueue::ConsiderQueueingEvent` · 00494890 · legions 0048d060
-- [ ] `CEventQueue::DestroyEventQueues` · 00494960 · legions 0048d130
+- [ ] `CEventQueue::QueueEvent` · 00494810 · legions 0048cfe0 — needs port: cevent queue::queue event; no citation in crates/
+- [x] `CEventQueue::ConsiderQueueingEvent` · 00494890 · legions 0048d060 — implemented: cited at crates/ac2-weenie/src/world.rs:4
+- [x] `CEventQueue::DestroyEventQueues` · 00494960 · legions 0048d130 — implemented: cited at crates/ac2-weenie/src/world.rs:143
 - [-] `CEventQueue::~CEventQueue` · 004949f0 · legions 0048d1c0 — destructor: Rust Drop replaces it
-- [ ] `CEventQueue::ProcessNetBlob` · 00494a00 · legions 0048d1d0
-- [ ] `CEventQueue::FlushQueue` · 00494a70 · legions 0048d240
-- [ ] `CEventQueue::FinishEnteringWorld` · 00494b00 · legions 0048d2d0
-- [ ] `CEventQueue::UseTime` · 00494b10 · legions 0048d2e0
+- [x] `CEventQueue::ProcessNetBlob` · 00494a00 · legions 0048d1d0 — implemented: cited at crates/ac2-weenie/src/world.rs:235
+- [ ] `CEventQueue::FlushQueue` · 00494a70 · legions 0048d240 — needs port: cevent queue::flush queue; no citation in crates/
+- [x] `CEventQueue::FinishEnteringWorld` · 00494b00 · legions 0048d2d0 — implemented: cited at crates/ac2-weenie/src/world.rs:378
+- [x] `CEventQueue::UseTime` · 00494b10 · legions 0048d2e0 — implemented: cited at crates/ac2-weenie/src/world.rs:194
 
 ## `portal/client/src/events/ecm_admin.cpp.c` (0/5)
 
@@ -1340,82 +1340,82 @@ Legend and workflow: [README](README.md).
 - [-] `benchScope::benchScope` · 00493150 — constructor of plain data: Rust struct init replaces it
 
 ### ECM_Admin
-- [ ] `ECM_Admin::RecvEvt_AccountBooted` · 00493190 · legions 0048bc20
-- [ ] `ECM_Admin::RecvEvt_DisplayStringInfo` · 00493200 · legions 0048bc90
-- [ ] `ECM_Admin::RecvEvt_WorldName` · 004932b0 · legions 0048bd40
+- [-] `ECM_Admin::RecvEvt_AccountBooted` · 00493190 · legions 0048bc20 — admin/debug/logging tooling: not in the client
+- [-] `ECM_Admin::RecvEvt_DisplayStringInfo` · 00493200 · legions 0048bc90 — admin/debug/logging tooling: not in the client
+- [-] `ECM_Admin::RecvEvt_WorldName` · 004932b0 · legions 0048bd40 — admin/debug/logging tooling: not in the client
 - [-] `ECM_Admin::SendNotice_DisplayAdminStringInfo` · 00493320 — admin/debug/logging tooling: not in the client
 
-## `portal/client/src/events/ecm_interp.cpp.c` (0/4)
+## `portal/client/src/events/ecm_interp.cpp.c` (4/4)
 
 ### ECM_Interp
-- [ ] `ECM_Interp::RecvEvt_InterpCEvent_Broadcast` · 00498d60 · legions 00491380
-- [ ] `ECM_Interp::RecvEvt_InterpCEvent_Cell` · 00498e20 · legions 00491270
-- [ ] `ECM_Interp::SendEvt_InterpSEvent` · 00498f30 · legions 00491440
-- [ ] `ECM_Interp::SendEvt_InterpSEventEncrypt` · 00498fe0 · legions 004914f0
+- [x] `ECM_Interp::RecvEvt_InterpCEvent_Broadcast` · 00498d60 · legions 00491380 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:60
+- [x] `ECM_Interp::RecvEvt_InterpCEvent_Cell` · 00498e20 · legions 00491270 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:62
+- [x] `ECM_Interp::SendEvt_InterpSEvent` · 00498f30 · legions 00491440 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:58
+- [x] `ECM_Interp::SendEvt_InterpSEventEncrypt` · 00498fe0 · legions 004914f0 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:66
 
-## `portal/client/src/events/ecm_login.cpp.c` (0/21)
+## `portal/client/src/events/ecm_login.cpp.c` (8/21)
 
 ### ECM_Login
 - [~] `ECM_Login::RecvEvt_CharExitGame` · 004933b0 · legions 0048be00 — ac2-weenie session.rs ServerEvent::CharExitGame leaves the world and emits SessionEvent::LeftWorld (logoff_7160, logout_hud_7160); the notice fan-out FUN_0048c150 is not named or ported
-- [ ] `ECM_Login::RecvEvt_CharacterDeletion` · 004933c0 · legions 0048be10
-- [ ] `ECM_Login::RecvEvt_CharacterError` · 00493410 · legions 0048be60
-- [ ] `ECM_Login::RecvEvt_PlayerDesc` · 00493460 · legions 0048beb0
-- [ ] `ECM_Login::SendEvt_ClientSceneRenderingComplete` · 00493500 · legions 0048bf50
-- [ ] `ECM_Login::RecvEvt_CharGenVerification` · 00493520 · legions 0048bf70 — ac2-net ServerEvent::CharGenVerification decode; ac2-weenie SessionEvent::CharGenVerification
+- [x] `ECM_Login::RecvEvt_CharacterDeletion` · 004933c0 · legions 0048be10 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:17
+- [ ] `ECM_Login::RecvEvt_CharacterError` · 00493410 · legions 0048be60 — needs port: citation only in a test; port and cite in the client code
+- [x] `ECM_Login::RecvEvt_PlayerDesc` · 00493460 · legions 0048beb0 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:31
+- [x] `ECM_Login::SendEvt_ClientSceneRenderingComplete` · 00493500 · legions 0048bf50 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:35
+- [x] `ECM_Login::RecvEvt_CharGenVerification` · 00493520 · legions 0048bf70 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:29
 
 ### CharacterSet
 - [-] `CharacterSet::~CharacterSet` · 00493680 · legions 0048c0d0 — destructor: Rust Drop replaces it
 
 ### ECM_Login
 - [ ] `ECM_Login::SendNotice_CharExitGame` · 00493700 — needs port: notice CharExitGame to the UI/client; no citation in crates/
-- [ ] `ECM_Login::SendNotice_CharGenVerification` · 00493780 — ac2-weenie: the session event is the notice; ac2-client pregame.rs pregame_event hands it to the UI
+- [ ] `ECM_Login::SendNotice_CharGenVerification` · 00493780 — needs port: notice CharGenVerification to the UI/client; no citation in crates/
 - [ ] `ECM_Login::SendNotice_CharacterDeletion` · 00493810 — needs port: notice CharacterDeletion to the UI/client; no citation in crates/
 - [ ] `ECM_Login::SendNotice_CharacterError` · 004938a0 · legions 0048c230 — needs port: notice CharacterError to the UI/client; no citation in crates/
 - [ ] `ECM_Login::SendNotice_CharacterSet` · 00493930 — needs port: notice CharacterSet to the UI/client; no citation in crates/
-- [ ] `ECM_Login::SendNotice_LoginFinished` · 004939b0
-- [ ] `ECM_Login::SendNotice_ServerDied` · 00493a30 — SessionEvent::ServerDied, before Disconnected
+- [x] `ECM_Login::SendNotice_LoginFinished` · 004939b0 — implemented: cited at crates/ac2-weenie/src/session.rs:130
+- [x] `ECM_Login::SendNotice_ServerDied` · 00493a30 — implemented: cited at crates/ac2-net/src/net_connections.rs:177
 - [ ] `ECM_Login::SendNotice_WorldName` · 00493ab0 — needs port: notice WorldName to the UI/client; no citation in crates/
-- [ ] `ECM_Login::RecvEvt_CharacterSet` · 00493b30 · legions 0048c380
+- [x] `ECM_Login::RecvEvt_CharacterSet` · 00493b30 · legions 0048c380 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:25
 
 ### MinimalCharacterSet
 - [-] `MinimalCharacterSet::~MinimalCharacterSet` · 00493bd0 · legions 0048c420 — destructor: Rust Drop replaces it
-- [ ] `MinimalCharacterSet::StreamPack` · 00493c50 · legions 0048c4a0
+- [-] `MinimalCharacterSet::StreamPack` · 00493c50 · legions 0048c4a0 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 
 ### (free functions)
 - [-] `STREAMPACK` · 00493cb0 · legions 0064e070 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 
 ### ECM_Login
-- [ ] `ECM_Login::RecvEvt_MinCharSet` · 00493d30 · legions 0048c500
+- [x] `ECM_Login::RecvEvt_MinCharSet` · 00493d30 · legions 0048c500 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:33
 
 ### PSmartArray<PStringBase<unsigned_short>_>
-- [ ] `PSmartArray<PStringBase<unsigned_short>_>::StreamPack` · 00493de0
+- [-] `PSmartArray<PStringBase<unsigned_short>_>::StreamPack` · 00493de0 — STL/container internals: a Rust collection replaces it
 
-## `portal/client/src/events/ecm_physics.cpp.c` (23/59)
+## `portal/client/src/events/ecm_physics.cpp.c` (37/59)
 
 ### TargetPosition
 - [-] `TargetPosition::TargetPosition` · 00494c30 · legions 0048d400 — constructor of plain data: Rust struct init replaces it
 
 ### ECM_Physics
 - [x] `ECM_Physics::RecvEvt_AddTargetedImpulse` · 00494cb0 · legions 0048d480 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
-- [ ] `ECM_Physics::RecvEvt_AddTerrainModifier` · 00494e30 · legions 0048d600
-- [ ] `ECM_Physics::RecvEvt_ClearTerrainModifiers` · 00494f30 · legions 0048d700
+- [x] `ECM_Physics::RecvEvt_AddTerrainModifier` · 00494e30 · legions 0048d600 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:126
+- [ ] `ECM_Physics::RecvEvt_ClearTerrainModifiers` · 00494f30 · legions 0048d700 — needs port: server event ClearTerrainModifiers (decode and handler); no citation in crates/
 - [x] `ECM_Physics::RecvEvt_Contain` · 00494fb0 · legions 0048d780 — ac2-weenie ObjectTable::apply_contain (position stamp newer); double world_objects.rs answer_pickup sends CONTAIN; test ac2-client/tests/world_objects_7160.rs a_ground_item_used_is_taken_into_the_main_pack
-- [ ] `ECM_Physics::RecvEvt_CreatePlayer` · 00495060 · legions 0048d830
-- [ ] `ECM_Physics::RecvEvt_DeParent` · 00495100 · legions 0048d8d0
-- [ ] `ECM_Physics::RecvEvt_DestroyObject` · 004951f0 · legions 0048d9c0
+- [x] `ECM_Physics::RecvEvt_CreatePlayer` · 00495060 · legions 0048d830 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:95
+- [ ] `ECM_Physics::RecvEvt_DeParent` · 00495100 · legions 0048d8d0 — needs port: server event DeParent (decode and handler); no citation in crates/
+- [x] `ECM_Physics::RecvEvt_DestroyObject` · 004951f0 · legions 0048d9c0 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:139
 - [x] `ECM_Physics::RecvEvt_DoFX` · 00495260 · legions 0048da30 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 - [x] `ECM_Physics::RecvEvt_DoFXScript` · 00495360 · legions 0048db30 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 - [x] `ECM_Physics::RecvEvt_DoMode` · 00495420 · legions 0048dbf0 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to; door_lever_7160: a door's DoMode transitions (opening, closing) and a lever's DoBehavior flip (with its FX sound) play from the DAT setups' behaviour tables
 - [x] `ECM_Physics::RecvEvt_DoSlider` · 004954e0 · legions 0048dcb0 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
-- [ ] `ECM_Physics::RecvEvt_DoStory` · 00495620 · legions 0048ddf0
+- [x] `ECM_Physics::RecvEvt_DoStory` · 00495620 · legions 0048ddf0 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:130
 - [~] `ECM_Physics::RecvEvt_DoTargettedFX` · 00495710 · legions 0048dee0 — sound branch only: the target is ignored (FXManager::DoTargettedFX sound path = untargeted DoFX); the targeted visual part is not drawn
-- [ ] `ECM_Physics::RecvEvt_InitializeMissile` · 00495850 · legions 0048e020
-- [ ] `ECM_Physics::RecvEvt_LeaveWorld` · 00495a00 · legions 0048e1d0
-- [ ] `ECM_Physics::RecvEvt_LookAt` · 00495ac0 · legions 0048e290
-- [ ] `ECM_Physics::RecvEvt_LookAtDir` · 00495b80 · legions 0048e350
-- [ ] `ECM_Physics::RecvEvt_Parent` · 00495c80 · legions 0048e450
-- [ ] `ECM_Physics::RecvEvt_Position` · 00495da0 · legions 0048e570
-- [ ] `ECM_Physics::RecvEvt_PositionCell` · 00495ea0 · legions 0048e670
+- [x] `ECM_Physics::RecvEvt_InitializeMissile` · 00495850 · legions 0048e020 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:133
+- [ ] `ECM_Physics::RecvEvt_LeaveWorld` · 00495a00 · legions 0048e1d0 — needs port: server event LeaveWorld (decode and handler); no citation in crates/
+- [x] `ECM_Physics::RecvEvt_LookAt` · 00495ac0 · legions 0048e290 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:115
+- [x] `ECM_Physics::RecvEvt_LookAtDir` · 00495b80 · legions 0048e350 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:147
+- [ ] `ECM_Physics::RecvEvt_Parent` · 00495c80 · legions 0048e450 — needs port: server event Parent (decode and handler); no citation in crates/
+- [x] `ECM_Physics::RecvEvt_Position` · 00495da0 · legions 0048e570 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:103
+- [ ] `ECM_Physics::RecvEvt_PositionCell` · 00495ea0 · legions 0048e670 — needs port: server event PositionCell (decode and handler); no citation in crates/
 - [x] `ECM_Physics::RecvEvt_SetAccelerationScale` · 00495fa0 · legions 0048e770 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 - [x] `ECM_Physics::RecvEvt_SetGlobalModifier` · 00496060 · legions 0048e830 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 - [x] `ECM_Physics::RecvEvt_SetHoverHeight` · 00496120 · legions 0048e8f0 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
@@ -1428,18 +1428,18 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Physics::RecvEvt_StopFX` · 00496620 · legions 0048edf0 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 - [x] `ECM_Physics::RecvEvt_StopLayer` · 004966e0 · legions 0048eeb0 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 - [x] `ECM_Physics::RecvEvt_StopMoveToCancelsBehaviors` · 004967a0 · legions 0048ef70 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
-- [ ] `ECM_Physics::RecvEvt_UpdateVisualDesc` · 00496820 · legions 0048eff0
-- [ ] `ECM_Physics::SendEvt_CForceCreate` · 00496910 · legions 0048f0e0
-- [ ] `ECM_Physics::SendEvt_CLookAt` · 00496980 · legions 0048f150
-- [ ] `ECM_Physics::SendEvt_CLookAtDir` · 004969f0 · legions 0048f1c0
-- [ ] `ECM_Physics::SendEvt_CPosition` · 00496a90 · legions 0048f260
+- [ ] `ECM_Physics::RecvEvt_UpdateVisualDesc` · 00496820 · legions 0048eff0 — needs port: server event UpdateVisualDesc (decode and handler); no citation in crates/
+- [x] `ECM_Physics::SendEvt_CForceCreate` · 00496910 · legions 0048f0e0 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:108
+- [x] `ECM_Physics::SendEvt_CLookAt` · 00496980 · legions 0048f150 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:143
+- [x] `ECM_Physics::SendEvt_CLookAtDir` · 004969f0 · legions 0048f1c0 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:145
+- [x] `ECM_Physics::SendEvt_CPosition` · 00496a90 · legions 0048f260 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:106
 - [x] `ECM_Physics::RecvEvt_AddImpulse` · 00496b00 · legions 0048f2d0 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 
 ### TargetPosition
-- [ ] `TargetPosition::StreamPack` · 00496c10
+- [-] `TargetPosition::StreamPack` · 00496c10 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 
 ### ECM_Physics
-- [ ] `ECM_Physics::RecvEvt_DoFX_Private` · 00496cb0 · legions 0048f480
+- [x] `ECM_Physics::RecvEvt_DoFX_Private` · 00496cb0 · legions 0048f480 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:151
 - [ ] `ECM_Physics::SendNotice_BeingDeleted` · 00496d60 — needs port: notice BeingDeleted to the UI/client; no citation in crates/
 - [ ] `ECM_Physics::SendNotice_CreateObject` · 00496de0 — needs port: notice CreateObject to the UI/client; no citation in crates/
 - [ ] `ECM_Physics::SendNotice_CreatePlayerObject` · 00496e70 — needs port: notice CreatePlayerObject to the UI/client; no citation in crates/
@@ -1448,14 +1448,14 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Physics::SendNotice_ModeUpdate` · 00497010 — needs port: notice ModeUpdate to the UI/client; no citation in crates/
 - [ ] `ECM_Physics::SendNotice_NextFrameDrawn` · 00497090 — needs port: notice NextFrameDrawn to the UI/client; no citation in crates/
 - [ ] `ECM_Physics::SendNotice_PlayerReadyToEnterWorld` · 00497110 — needs port: notice PlayerReadyToEnterWorld to the UI/client; no citation in crates/
-- [ ] `ECM_Physics::SendNotice_PlayerTeleportStart` · 00497190 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+- [x] `ECM_Physics::SendNotice_PlayerTeleportStart` · 00497190 — implemented: cited at crates/ac2-client/src/client_teleport.rs:10
 - [ ] `ECM_Physics::SendNotice_SetPlayerID` · 00497210 — needs port: notice SetPlayerID to the UI/client; no citation in crates/
 - [ ] `ECM_Physics::SendNotice_SetRegionID` · 004972a0 — needs port: notice SetRegionID to the UI/client; no citation in crates/
 
 ### PList<Position>
 - [-] `PList<Position>::Pack` · 004974c0 · legions 0048f9d0 — STL/container internals: a Rust collection replaces it
 - [-] `PList<Position>::GetPackSize` · 00497510 — STL/container internals: a Rust collection replaces it
-- [ ] `PList<Position>::UnPack` · 00497550 · legions 0048fa74
+- [-] `PList<Position>::UnPack` · 00497550 · legions 0048fa74 — STL/container internals: a Rust collection replaces it
 
 ### ListNode<Position>
 - [-] `ListNode<Position>::ListNode<Position>` · 004976a0 · legions 0048fbb0 — STL/container internals: a Rust collection replaces it
@@ -1489,7 +1489,7 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Qualities::RecvEvt_UpdateString_Private` · 00498af0 · legions 00491000 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
 - [x] `ECM_Qualities::RecvEvt_UpdateString_Visual` · 00498c00 · legions 00491110 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
 
-## `portal/client/src/events/globaleventhandler.cpp.c` (3/21)
+## `portal/client/src/events/globaleventhandler.cpp.c` (4/21)
 
 ### GlobalEventHandler
 - [-] `GlobalEventHandler::GetGlobalEventHandler` · 00492be0 · legions 0048b590 — singleton accessor: Rust owns the handler directly
@@ -1498,10 +1498,10 @@ Legend and workflow: [README](README.md).
 - [ ] `GlobalEventHandler::RecvEvt_CharacterSet` · 00492c20 · legions 0048b5d0 — needs port: server event CharacterSet (decode and handler); no citation in crates/
 - [ ] `GlobalEventHandler::RecvEvt_CharacterDeletion` · 00492c40 · legions 0048b5f0 — needs port: server event CharacterDeletion (decode and handler); no citation in crates/
 - [ ] `GlobalEventHandler::RecvEvt_CharacterError` · 00492c60 · legions 0048b610 — needs port: server event CharacterError (decode and handler); no citation in crates/
-- [ ] `GlobalEventHandler::RecvEvt_CharGenVerification` · 00492c90 · legions 0048b640 — forwards to the notice; the session event carries it to the screens (pregame.rs)
-- [ ] `GlobalEventHandler::RecvEvt_CreatePlayer` · 00492cb0 · legions 0048b660
-- [ ] `GlobalEventHandler::RecvEvt_CreateObject` · 00492ce0 · legions 0048b690
-- [ ] `GlobalEventHandler::RecvEvt_DestroyObject` · 00492d20 · legions 0048b6d0
+- [ ] `GlobalEventHandler::RecvEvt_CharGenVerification` · 00492c90 · legions 0048b640 — needs port: server event CharGenVerification (decode and handler); no citation in crates/
+- [x] `GlobalEventHandler::RecvEvt_CreatePlayer` · 00492cb0 · legions 0048b660 — implemented: cited at crates/ac2-weenie/src/world.rs:377
+- [ ] `GlobalEventHandler::RecvEvt_CreateObject` · 00492ce0 · legions 0048b690 — needs port: server event CreateObject (decode and handler); no citation in crates/
+- [ ] `GlobalEventHandler::RecvEvt_DestroyObject` · 00492d20 · legions 0048b6d0 — needs port: server event DestroyObject (decode and handler); no citation in crates/
 - [x] `GlobalEventHandler::RecvEvt_DisplayStringInfo` · 00492d40 · legions 0048b6f0 — implemented: cited at crates/ac2-weenie/src/session.rs:166
 - [x] `GlobalEventHandler::RecvEvt_WorldName` · 00492d90 · legions 0048b740 — implemented: cited at crates/ac2-net/src/protocol/string_info.rs:140
 
@@ -1529,12 +1529,12 @@ Legend and workflow: [README](README.md).
 ### NoticeHandler
 - [-] `NoticeHandler::~NoticeHandler` · 00492bb0 · legions 0048b560 — destructor: Rust Drop replaces it
 
-## `portal/client/src/weenie/interp/glue/cefundispatcher.cpp.c` (0/1)
+## `portal/client/src/weenie/interp/glue/cefundispatcher.cpp.c` (1/1)
 
 ### CEFunDispatcher
-- [ ] `CEFunDispatcher::GetEFunAddress` · 0049fec0 · legions 00496f40 — ac2-script glue: id table + pure-glue registry; engine glue unbound
+- [x] `CEFunDispatcher::GetEFunAddress` · 0049fec0 · legions 00496f40 — implemented: cited at crates/ac2-script/src/vm/efun.rs:3
 
-## `portal/client/src/weenie/interp/glue/cnativefactory.cpp.c` (2/268)
+## `portal/client/src/weenie/interp/glue/cnativefactory.cpp.c` (4/268)
 
 ### PFileParser
 - [-] `PFileParser::PFileParser` · 004a5eb0 · legions 0049cf30 — constructor of plain data: Rust struct init replaces it
@@ -1567,7 +1567,7 @@ Legend and workflow: [README](README.md).
 - [-] `DetectionProfile::DetectionProfile` · 004a61a0 · legions 0049d220 — constructor of plain data: Rust struct init replaces it
 
 ### LOSParameters
-- [ ] `LOSParameters::LOSParameters` · 004a6220 · legions 0049d2a0 — ac2-physics los (Terrain::los_check)
+- [-] `LOSParameters::LOSParameters` · 004a6220 · legions 0049d2a0 — constructor of plain data: Rust struct init replaces it
 
 ### BaseMultiMapIter<unsigned_long,unsigned_long,13970>
 - [-] `BaseMultiMapIter<unsigned_long,unsigned_long,13970>::BaseMultiMapIter<unsigned_long,unsigned_long,13970>` · 004a62f0 · legions 0049d370 — STL/container internals: a Rust collection replaces it
@@ -1777,10 +1777,10 @@ Legend and workflow: [README](README.md).
 - [-] `BaseListIter<unsigned_long,11>::Pack` · 004a95f0 · legions 004a0470 — STL/container internals: a Rust collection replaces it
 
 ### RandomSelectionTable<unsigned_long>
-- [ ] `RandomSelectionTable<unsigned_long>::StreamPack` · 004a9640 · legions 004a0640 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+- [-] `RandomSelectionTable<unsigned_long>::StreamPack` · 004a9640 · legions 004a0640 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 
 ### RandomSelectionTable<unsigned_long>::ElementStruct
-- [ ] `RandomSelectionTable<unsigned_long>::ElementStruct::StreamPack` · 004a9760 · legions 004a0760 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+- [-] `RandomSelectionTable<unsigned_long>::ElementStruct::StreamPack` · 004a9760 · legions 004a0760 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 
 ### BaseHashSetIter<unsigned_long,7>
 - [-] `BaseHashSetIter<unsigned_long,7>::Sync` · 004a97c0 · legions 004a07c0 — STL/container internals: a Rust collection replaces it
@@ -1804,10 +1804,10 @@ Legend and workflow: [README](README.md).
 - [-] `PSmartArray<Season>::StreamPack` · 004a9af0 · legions 004a0a20 — STL/container internals: a Rust collection replaces it
 
 ### PSmartArray<PropertyGroup>
-- [ ] `PSmartArray<PropertyGroup>::StreamPack` · 004a9b90 · legions 004a0b60 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+- [-] `PSmartArray<PropertyGroup>::StreamPack` · 004a9b90 · legions 004a0b60 — STL/container internals: a Rust collection replaces it
 
 ### PSmartArray<BaseProperty>
-- [ ] `PSmartArray<BaseProperty>::StreamPack` · 004a9c30 · legions 004a0c00 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+- [-] `PSmartArray<BaseProperty>::StreamPack` · 004a9c30 · legions 004a0c00 — STL/container internals: a Rust collection replaces it
 
 ### CNativeFactory
 - [-] `CNativeFactory::GetReferences` · 004a9cd0 · legions 004a0d40 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
@@ -1969,7 +1969,7 @@ Legend and workflow: [README](README.md).
 
 ### CNativeFactory
 - [-] `CNativeFactory::UpdateReferences` · 004acef0 · legions 004a4040 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
-- [ ] `CNativeFactory::PackNativeObject` · 004ad1d0 · legions 004a4320 — ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
+- [x] `CNativeFactory::PackNativeObject` · 004ad1d0 · legions 004a4320 — implemented: cited at crates/ac2-net/src/protocol/native/mod.rs:4
 
 ### PHashTable<unsigned_long,float>
 - [-] `PHashTable<unsigned_long,float>::PHashTable<unsigned_long,float>` · 004ad780 · legions 004a48d0 — STL/container internals: a Rust collection replaces it
@@ -2192,7 +2192,7 @@ Legend and workflow: [README](README.md).
 - [-] `BaseMultiHash<unsigned_long,unsigned_long,20>::Pack` · 004b1ce0 · legions 004a8460 — STL/container internals: a Rust collection replaces it
 
 ### BaseMultiHash<unsigned_long,unsigned_long,4>
-- [ ] `BaseMultiHash<unsigned_long,unsigned_long,4>::UnPack` · 004b1da0 · legions 004a8f90 — ac2-script reference/native unpack
+- [-] `BaseMultiHash<unsigned_long,unsigned_long,4>::UnPack` · 004b1da0 · legions 004a8f90 — STL/container internals: a Rust collection replaces it
 
 ### CNativeFactory
 - [-] `CNativeFactory::DeleteNativeObject` · 004b1e80 · legions 004a9070 — copy / delete of plain native data: Rust clone and Drop replace it
@@ -2242,7 +2242,7 @@ Legend and workflow: [README](README.md).
 ### CNativeFactory
 - [-] `CNativeFactory::CopyNativeObject` · 004b28f0 · legions 004a9ae0 — copy / delete of plain native data: Rust clone and Drop replace it
 - [x] `CNativeFactory::NewNativeObject` · 004b3980 · legions 004aab70 — implemented: cited at crates/ac2-script/src/native/mod.rs:257
-- [ ] `CNativeFactory::UnPackNativeObject` · 004b4720 · legions 004ab910 — ac2-script native::unpack: the native types Legions WStates hold
+- [x] `CNativeFactory::UnPackNativeObject` · 004b4720 · legions 004ab910 — implemented: cited at crates/ac2-script/src/native/mod.rs:5
 
 ## `portal/client/src/weenie/interp/glue/gcwallocator.cpp.c` (0/1)
 
@@ -2252,8 +2252,8 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/weenie/interp/glue/gcwbookkeeper.cpp.c` (0/2)
 
 ### gCWBookKeeper
-- [ ] `gCWBookKeeper::CallEFun_AddObjectToBeDestroyed` · 004bc7e0 — book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
-- [ ] `gCWBookKeeper::CallEFun_RemoveObjectToBeDestroyed` · 004bc850 — book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
+- [ ] `gCWBookKeeper::CallEFun_AddObjectToBeDestroyed` · 004bc7e0 — needs port: script efun add object to be destroyed on the book keeper; no citation in crates/
+- [ ] `gCWBookKeeper::CallEFun_RemoveObjectToBeDestroyed` · 004bc850 — needs port: script efun remove object to be destroyed on the book keeper; no citation in crates/
 
 ## `portal/client/src/weenie/interp/glue/gcwdistributor.cpp.c` (1/3)
 
@@ -2262,7 +2262,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWDistributor::CallEFun_GetMyPackageID` · 004bc700 — needs port: script efun get my package id on the distributor; no citation in crates/
 - [ ] `gCWDistributor::CallEFun_GetProcessID` · 004bc770 — needs port: script efun get process id on the distributor; no citation in crates/
 
-## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (1/32)
+## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (5/32)
 
 ### gCWInterface
 - [ ] `gCWInterface::Resume_Sleep` · 004bb120 · legions 004b0340 — needs port: resume continuation of latent sleep (the script waits and resumes here); no citation in crates/
@@ -2272,13 +2272,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWInterface::CallEFun_AddShellCmdByStringID` · 004bb3f0 — needs port: script efun add shell cmd by string id on the interface; no citation in crates/
 - [ ] `gCWInterface::CallEFun_AddShellHelp` · 004bb480 — needs port: script efun add shell help on the interface; no citation in crates/
 - [ ] `gCWInterface::CallEFun_AddShellHelpByStringID` · 004bb500 — needs port: script efun add shell help by string id on the interface; no citation in crates/
-- [ ] `gCWInterface::CallEFun_GetExternalWeenieObject` · 004bb580 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [ ] `gCWInterface::CallEFun_GetInternalWeenieObject` · 004bb600 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [ ] `gCWInterface::CallEFun_GetExternalWeenieObject` · 004bb580 — needs port: script efun get external weenie object on the interface; no citation in crates/
+- [ ] `gCWInterface::CallEFun_GetInternalWeenieObject` · 004bb600 — needs port: script efun get internal weenie object on the interface; no citation in crates/
 - [ ] `gCWInterface::CallEFun_InqStringInfoValue` · 004bb680 — needs port: script efun inq string info value on the interface; no citation in crates/
-- [ ] `gCWInterface::CallEFun_IsThePlayer` · 004bb7a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWInterface::CallEFun_ProcessText` · 004bb810 — efun 0x7F0052: the line goes to the chat shell (ac2-script host/interface.rs, Vm::shell_lines; ac2-client scripts_io.rs runs it)
-- [ ] `gCWInterface::CallEFun_SendServerEvt` · 004bb890 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
-- [ ] `gCWInterface::CallEFun_SendServerEvtEncrypt` · 004bb910 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [ ] `gCWInterface::CallEFun_IsThePlayer` · 004bb7a0 — needs port: script efun is the player on the interface; no citation in crates/
+- [x] `gCWInterface::CallEFun_ProcessText` · 004bb810 — implemented: cited at crates/ac2-script/src/host/interface.rs:226
+- [x] `gCWInterface::CallEFun_SendServerEvt` · 004bb890 — implemented: cited at crates/ac2-script/src/host/glue.rs:139
+- [ ] `gCWInterface::CallEFun_SendServerEvtEncrypt` · 004bb910 — needs port: script efun send server evt encrypt on the interface; no citation in crates/
 - [ ] `gCWInterface::CallEFun_GetMyPosition` · 004bb990 — needs port: script efun get my position on the interface; no citation in crates/
 - [ ] `gCWInterface::CallIFun_ApplyProperties` · 004bba90 · legions 004b09b0 — needs port: script IFun apply properties on the client interface; no citation in crates/
 - [ ] `gCWInterface::CallIFun_DisplayStringInfo` · 004bbb80 · legions 004b0aa0 — needs port: script IFun display string info on the client interface; no citation in crates/
@@ -2292,8 +2292,8 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWInterface::CallIFun_HandleEnterWorld` · 004bc150 · legions 004b1040 — needs port: script IFun handle enter world on the client interface; no citation in crates/
 - [ ] `gCWInterface::CallIFun_HandleLeaveWorld` · 004bc1e0 · legions 004b10d0 — needs port: script IFun handle leave world on the client interface; no citation in crates/
 - [ ] `gCWInterface::CallIFun_HandlePostLeaveWorld` · 004bc270 · legions 004b1160 — needs port: script IFun handle post leave world on the client interface; no citation in crates/
-- [ ] `gCWInterface::CallIFun_HandleTeleportEnd` · 004bc300 · legions 004b11f0 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
-- [ ] `gCWInterface::CallIFun_HandleTeleportStart` · 004bc3b0 · legions 004b12a0 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+- [x] `gCWInterface::CallIFun_HandleTeleportEnd` · 004bc300 · legions 004b11f0 — implemented: cited at crates/ac2-client/src/client_teleport.rs:29
+- [x] `gCWInterface::CallIFun_HandleTeleportStart` · 004bc3b0 · legions 004b12a0 — implemented: cited at crates/ac2-client/src/client_teleport.rs:12
 - [ ] `gCWInterface::Resume_InqStringInfoValue` · 004bc440 · legions 004b1330 — needs port: resume continuation of latent inq string info value (the script waits and resumes here); no citation in crates/
 - [x] `gCWInterface::CallIFun_OnStatChanged` · 004bc510 · legions 004b1400 — implemented: cited at crates/ac2-weenie/src/session.rs:82
 - [ ] `gCWInterface::CallIFun_PreloadWSLSingletons` · 004bc600 · legions 004b14f0 — needs port: script IFun preload wslsingletons on the client interface; no citation in crates/
@@ -2481,7 +2481,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCWRepository::CallEFun_InqStringW` · 004b7f00 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_InqTimestamp` · 004b7fa0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 
-## `portal/shared/src/weenie/allocator/wallocator.cpp.c` (1/38)
+## `portal/shared/src/weenie/allocator/wallocator.cpp.c` (2/38)
 
 ### DBFile2IDTable
 - [ ] `DBFile2IDTable::Get` · 0052cad0 · legions 00511050 — needs port: dbfile2 idtable::get; no citation in crates/
@@ -2546,7 +2546,7 @@ Legend and workflow: [README](README.md).
 - [-] `FrameDebugInfo::StreamPack` · 0052db50 · legions 00511ff0 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 
 ### Resolver
-- [ ] `Resolver::ProcessByteStream` · 0052dbb0 · legions 00512050 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+- [x] `Resolver::ProcessByteStream` · 0052dbb0 · legions 00512050 — implemented: cited at crates/ac2-script/src/vm/program.rs:1
 - [ ] `Resolver::BuildReverseMap` · 0052dc80 · legions 00512120 — needs port: script VM build reverse map (Resolver); no citation in crates/
 
 ### IntrusiveHashIterator<PStringBase<char>,HashTableData<PStringBase<char>,unsigned_long>_*>
@@ -2555,14 +2555,14 @@ Legend and workflow: [README](README.md).
 ### CWAllocator
 - [ ] `CWAllocator::Init` · 0052dd70 · legions 00512210 — needs port: weenie allocator init; no citation in crates/
 
-## `portal/shared/src/weenie/distributor/wdistributor.cpp.c` (1/13)
+## `portal/shared/src/weenie/distributor/wdistributor.cpp.c` (5/13)
 
 ### CWDistributor
-- [ ] `CWDistributor::Construct` · 0052de20 · legions 005122c0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [-] `CWDistributor::Construct` · 0052de20 · legions 005122c0 — singleton constructor: Rust builds the object directly
 - [-] `CWDistributor::~CWDistributor` · 0052dee0 · legions 00512380 — destructor: Rust Drop replaces it
 - [ ] `CWDistributor::GetContextState` · 0052df00 · legions 005123a0 — needs port: script VM get context state (CWDistributor); no citation in crates/
 - [-] `CWDistributor::HandleCrash` · 0052df20 — crash reporting: admin/debug tooling
-- [ ] `CWDistributor::GetInstanceReference` · 0052df80 · legions 005123c0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [x] `CWDistributor::GetInstanceReference` · 0052df80 · legions 005123c0 — implemented: cited at crates/ac2-script/src/host/mod.rs:221
 - [ ] `CWDistributor::GetMyPackageID` · 0052df90 · legions 005123d0 — needs port: script VM get my package id (CWDistributor); no citation in crates/
 - [ ] `CWDistributor::GetProcessID` · 0052dfa0 · legions 005123e0 — needs port: script VM get process id (CWDistributor); no citation in crates/
 
@@ -2571,12 +2571,12 @@ Legend and workflow: [README](README.md).
 
 ### CWDistributor
 - [-] `CWDistributor::CWDistributor` · 0052e010 · legions 005123f0 — constructor of plain data: Rust struct init replaces it
-- [ ] `CWDistributor::ResumeContext` · 0052e080 · legions 00512460 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
-- [ ] `CWDistributor::ResumeContext` · 0052e130 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
-- [ ] `CWDistributor::DispatchInterpMsg` · 0052e150 · legions 005124d0 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+- [x] `CWDistributor::ResumeContext` · 0052e080 · legions 00512460 — implemented: cited at crates/ac2-script/src/host/mod.rs:258
+- [x] `CWDistributor::ResumeContext` · 0052e130 — implemented: cited at crates/ac2-script/src/host/mod.rs:258
+- [x] `CWDistributor::DispatchInterpMsg` · 0052e150 · legions 005124d0 — implemented: cited at crates/ac2-script/src/host/mod.rs:2
 - [x] `CWDistributor::RecvEvt_InterpCEvent_Private` · 0052e250 · legions 00512590 — implemented: cited at crates/ac2-net/src/protocol/server_event.rs:59
 
-## `portal/shared/src/weenie/interface/winterface.cpp.c` (4/52)
+## `portal/shared/src/weenie/interface/winterface.cpp.c` (11/52)
 
 ### CWInterface
 - [-] `CWInterface::CWInterface` · 0052e280 · legions 005125c0 — constructor of plain data: Rust struct init replaces it
@@ -2587,19 +2587,19 @@ Legend and workflow: [README](README.md).
 - [ ] `CWInterface::HandleEnterWorld` · 0052e410 · legions 00512750 — needs port: interface handle enter world; no citation in crates/
 - [ ] `CWInterface::HandleLeaveWorld` · 0052e440 · legions 00512780 — needs port: interface handle leave world; no citation in crates/
 - [ ] `CWInterface::HandlePostLeaveWorld` · 0052e470 · legions 005127b0 — needs port: interface handle post leave world; no citation in crates/
-- [ ] `CWInterface::HandleTeleportStart` · 0052e490 · legions 005127d0 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
-- [ ] `CWInterface::HandleTeleportEnd` · 0052e4a0 · legions 005127e0 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+- [x] `CWInterface::HandleTeleportStart` · 0052e490 · legions 005127d0 — implemented: cited at crates/ac2-client/src/client_teleport.rs:12
+- [x] `CWInterface::HandleTeleportEnd` · 0052e4a0 · legions 005127e0 — implemented: cited at crates/ac2-client/src/client_teleport.rs:17
 - [ ] `CWInterface::HandleCharacterSessionStart` · 0052e4c0 · legions 00512800 — needs port: interface handle character session start; no citation in crates/
 - [ ] `CWInterface::HandleCharacterSessionEnd` · 0052e520 · legions 00512860 — needs port: interface handle character session end; no citation in crates/
 - [ ] `CWInterface::ApplyProperties` · 0052e530 · legions 00512870 — needs port: interface apply properties; no citation in crates/
 - [x] `CWInterface::SendServerEvt` · 0052e570 · legions 005128b0 — implemented: cited at crates/ac2-net/src/protocol/gameplay/mod.rs:5
 - [ ] `CWInterface::SendServerEvtEncrypt` · 0052e590 · legions 005128d0 — needs port: interface send server evt encrypt; no citation in crates/
-- [ ] `CWInterface::GetInternalWeenieObject` · 0052e5b0 · legions 005128f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CWInterface::GetInternalWeenieObject` · 0052e5b0 · legions 005128f0 — implemented: cited at crates/ac2-script/src/host/interface.rs:277
 - [x] `CWInterface::IsPlayer` · 0052e5e0 · legions 00512920 — implemented: cited at crates/ac2-weenie/src/objects.rs:83
 - [x] `CWInterface::IsCreature` · 0052e600 · legions 00512940 — implemented: cited at crates/ac2-weenie/src/session/gameplay.rs:21
-- [ ] `CWInterface::IsThePlayer` · 0052e620 · legions 00512960 — ac2-script host::interface
+- [x] `CWInterface::IsThePlayer` · 0052e620 · legions 00512960 — implemented: cited at crates/ac2-script/src/host/interface.rs:266
 - [x] `CWInterface::OnStatChanged` · 0052e660 · legions 005129a0 — ac2-client stat_changed: OnStatChanged (IFun 0x7F0044: table, quality) on the object's process once the VM has it (CPlayer 0x85: vitals, XP bar, vitae, skill panel); the session's stand-ins otherwise
-- [ ] `CWInterface::RecvEvt_PlayerDesc` · 0052e6a0 · legions 005129e0
+- [x] `CWInterface::RecvEvt_PlayerDesc` · 0052e6a0 · legions 005129e0 — implemented: cited at crates/ac2-net/src/protocol/qualities.rs:2
 - [ ] `CWInterface::HandleIntersectionDone` · 0052e6c0 · legions 00512a00 — needs port: interface handle intersection done; no citation in crates/
 - [ ] `CWInterface::InqDetectionProfile` · 0052e6e0 · legions 00512a20 — needs port: interface inq detection profile; no citation in crates/
 - [ ] `CWInterface::HandleCollision` · 0052e700 · legions 00512a40 — needs port: interface handle collision; no citation in crates/
@@ -2607,8 +2607,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CWInterface::HandleReleaseDone` · 0052e750 · legions 00512a90 — needs port: interface handle release done; no citation in crates/
 - [ ] `CWInterface::HandleSliderDone` · 0052e770 · legions 00512ab0 — needs port: interface handle slider done; no citation in crates/
 - [ ] `CWInterface::HandleModeDone` · 0052e790 · legions 00512ad0 — needs port: interface handle mode done; no citation in crates/
-- [ ] `CWInterface::InqPrevHistoryItem` · 0052e7b0 · legions 00512af0 — ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)
-- [ ] `CWInterface::InqNextHistoryItem` · 0052e7c0 · legions 00512b00 — ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)
+- [ ] `CWInterface::InqPrevHistoryItem` · 0052e7b0 · legions 00512af0 — needs port: interface inq prev history item; no citation in crates/
+- [ ] `CWInterface::InqNextHistoryItem` · 0052e7c0 · legions 00512b00 — needs port: interface inq next history item; no citation in crates/
 - [ ] `CWInterface::DisplayText` · 0052e7d0 · legions 00512b10 — needs port: interface display text; no citation in crates/
 - [ ] `CWInterface::DisplayStringInfo` · 0052e7f0 · legions 00512b30 — needs port: interface display string info; no citation in crates/
 - [ ] `CWInterface::PreloadWSLSingletons` · 0052e810 · legions 00512b50 — needs port: interface preload wslsingletons; no citation in crates/
@@ -2635,15 +2635,15 @@ Legend and workflow: [README](README.md).
 - [-] `HashTable<PStringBase<unsigned_short>,FunctionID>::~HashTable<PStringBase<unsigned_short>,FunctionID>` · 0052ed30 · legions 00512f40 — STL/container internals: a Rust collection replaces it
 
 ### CWInterface
-- [ ] `CWInterface::ProcessText` · 0052ee50 · legions 00513060 — ac2-weenie ChatState::process_text: command history, aliases, the shell, ProcessText_Done; CPlayer 0xDB/0x131/0x112/0xC5/0x5E/0xCF/0x94/0x103/0xE4/0x14C natively, other commands as SessionEvent::ShellCommand
+- [ ] `CWInterface::ProcessText` · 0052ee50 · legions 00513060 — needs port: citation only in a test; port and cite in the client code
 - [ ] `CWInterface::HandleCmdArgs` · 0052ef20 · legions 00513130 — needs port: interface handle cmd args; no citation in crates/
 - [ ] `CWInterface::ResumeCallback` · 0052f070 · legions 00513280 — needs port: interface resume callback; no citation in crates/
 - [ ] `CWInterface::Sleep` · 0052f100 — needs port: interface sleep; no citation in crates/
 - [ ] `CWInterface::DoCmdInterp` · 0052f1f0 — needs port: interface do cmd interp; no citation in crates/
 - [ ] `CWInterface::DoHelpInterp` · 0052f300 — needs port: interface do help interp; no citation in crates/
-- [ ] `CWInterface::AddShellCmd` · 0052f430 · legions 005135f0 — ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
+- [x] `CWInterface::AddShellCmd` · 0052f430 · legions 005135f0 — implemented: cited at crates/ac2-weenie/src/shell/mod.rs:160
 - [ ] `CWInterface::AddShellHelp` · 0052f6e0 · legions 005138a0 — needs port: interface add shell help; no citation in crates/
-- [ ] `CWInterface::AddShellCmdByStringID` · 0052f990 · legions 00513b50 — ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
+- [x] `CWInterface::AddShellCmdByStringID` · 0052f990 · legions 00513b50 — implemented: cited at crates/ac2-client/src/chat_commands.rs:3
 - [ ] `CWInterface::AddShellHelpByStringID` · 0052fa10 · legions 00513bd0 — needs port: interface add shell help by string id; no citation in crates/
 
 ## `portal/shared/src/weenie/interp/dbresolver.cpp.c` (0/4)
@@ -2663,7 +2663,7 @@ Legend and workflow: [README](README.md).
 ### WInterpAsserts
 - [-] `WInterpAsserts::GetContextObject` · 006b8070 — admin/debug/logging tooling: not in the client
 
-## `portal/shared/src/weenie/interp/wlib.cpp.c` (0/8)
+## `portal/shared/src/weenie/interp/wlib.cpp.c` (1/8)
 
 ### WLib
 - [-] `WLib::WLib` · 006b7790 · legions 0064efb0 — constructor of plain data: Rust struct init replaces it
@@ -2673,16 +2673,16 @@ Legend and workflow: [README](README.md).
 - [-] `WLib::Allocate` · 006b7840 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 - [-] `WLib::ReleaseRefs` · 006b7850 · legions 0064f070 — teardown and reference release: Rust Drop replaces it
 - [-] `WLib::Clear` · 006b78a0 · legions 0064f0c0 — teardown and reference release: Rust Drop replaces it
-- [ ] `WLib::UnPack` · 006b78f0 — ac2-script WLib/WState/ByteStream decode
+- [x] `WLib::UnPack` · 006b78f0 — implemented: cited at crates/ac2-script/src/wlib.rs:31
 
-## `portal/shared/src/weenie/interp/wstate.cpp.c` (1/16)
+## `portal/shared/src/weenie/interp/wstate.cpp.c` (3/16)
 
 ### WState
 - [-] `WState::Destroy` · 006b79e0 — teardown and reference release: Rust Drop replaces it
-- [ ] `WState::GetStateByType` · 006b79f0 · legions 0064f210 — ac2-script wstate DID formulas / ByteStream::package_id
+- [x] `WState::GetStateByType` · 006b79f0 · legions 0064f210 — implemented: cited at crates/ac2-script/src/wstate.rs:28
 - [-] `WState::GetPackSize` · 006b7a30 · legions 0064f250 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 - [ ] `WState::Pack` · 006b7a50 · legions 0064f270 — needs port: script VM pack (WState); no citation in crates/
-- [ ] `WState::UnPack` · 006b7aa0 · legions 0064f2c0 — ac2-script WLib/WState/ByteStream decode
+- [x] `WState::UnPack` · 006b7aa0 · legions 0064f2c0 — implemented: cited at crates/ac2-script/src/wstate.rs:4
 - [-] `WState::WState` · 006b7b00 · legions 0064f320 — constructor of plain data: Rust struct init replaces it
 - [-] `WState::GetDBOType` · 006b7b50 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 - [-] `WState::GetPackSize` · 006b7b70 — inline copy of 006b7a30
@@ -2699,13 +2699,13 @@ Legend and workflow: [README](README.md).
 - [ ] `WState::SaveStateByID` · 006b7da0 · legions 0064f5c0 — needs port: script VM save state by id (WState); no citation in crates/
 - [ ] `WState::SaveStateByType` · 006b7ea0 · legions 0064f6c0 — needs port: script VM save state by type (WState); no citation in crates/
 
-## `portal/shared/src/weenie/repository/wrepository.cpp.c` (58/101)
+## `portal/shared/src/weenie/repository/wrepository.cpp.c` (60/101)
 
 ### CWRepository
-- [ ] `CWRepository::Construct` · 00530e70 · legions 00514e10 — qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
+- [-] `CWRepository::Construct` · 00530e70 · legions 00514e10 — singleton constructor: Rust builds the object directly
 - [-] `CWRepository::~CWRepository` · 00530f10 · legions 00514eb0 — destructor: Rust Drop replaces it
-- [ ] `CWRepository::SetWeenieDesc` · 00530f40 · legions 00514ee0 — qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
-- [ ] `CWRepository::SetQualities` · 00530f70 · legions 00514f10
+- [x] `CWRepository::SetWeenieDesc` · 00530f40 · legions 00514ee0 — implemented: cited at crates/ac2-weenie/src/qualities.rs:39
+- [x] `CWRepository::SetQualities` · 00530f70 · legions 00514f10 — implemented: cited at crates/ac2-weenie/src/session.rs:127
 - [ ] `CWRepository::HandleEnterWorld` · 00530f90 · legions 00514f30 — needs port: weenie repository handle enter world; no citation in crates/
 - [ ] `CWRepository::HandleLeaveWorld` · 00530fa0 · legions 00514f40 — needs port: weenie repository handle leave world; no citation in crates/
 - [ ] `CWRepository::InqWeenieDescription` · 00530fb0 — needs port: weenie repository inq weenie description; no citation in crates/
@@ -2818,13 +2818,13 @@ Legend and workflow: [README](README.md).
 - [-] `WLogSystem::GetFileLog` · 007333c0 · legions 006af870 — admin/debug/logging tooling: not in the client
 - [-] `WLogSystem::GetPrintLog` · 007333d0 · legions 006af880 — admin/debug/logging tooling: not in the client
 
-## `portal/shared/src/weenie/wbookie/wbookkeeper.cpp.c` (0/5)
+## `portal/shared/src/weenie/wbookie/wbookkeeper.cpp.c` (1/5)
 
 ### CWBookKeeper
 - [-] `CWBookKeeper::CWBookKeeper` · 0052dd90 · legions 00512230 — constructor of plain data: Rust struct init replaces it
-- [ ] `CWBookKeeper::CSendToTurbineRoomByID` · 0052ddb0 · legions 00512250 — ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
-- [ ] `CWBookKeeper::AddObjectToBeDestroyed` · 0052ddf0 · legions 00512290 — book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
-- [ ] `CWBookKeeper::RemoveObjectToBeDestroyed` · 0052de00 · legions 005122a0 — book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
+- [x] `CWBookKeeper::CSendToTurbineRoomByID` · 0052ddb0 · legions 00512250 — implemented: cited at crates/ac2-weenie/src/session/gameplay.rs:159
+- [ ] `CWBookKeeper::AddObjectToBeDestroyed` · 0052ddf0 · legions 00512290 — needs port: cwbook keeper::add object to be destroyed; no citation in crates/
+- [ ] `CWBookKeeper::RemoveObjectToBeDestroyed` · 0052de00 · legions 005122a0 — needs port: cwbook keeper::remove object to be destroyed; no citation in crates/
 - [-] `CWBookKeeper::~CWBookKeeper` · 0052de10 · legions 005122b0 — destructor: Rust Drop replaces it
 
 ## `portal/shared/src/weenie/weenieobject.cpp.c` (1/9)
@@ -2844,7 +2844,7 @@ Legend and workflow: [README](README.md).
 - [-] `CWeenieObject::~CWeenieObject` · 0052fd40 · legions 00513e90 — destructor: Rust Drop replaces it
 - [-] `CWeenieObject::UnRegisterAllNoticeHandlers` · 0052fd70 · legions 00513ec0 — notice-handler registry: Rust dispatches notices by enum, no handler list
 
-## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (10/91)
+## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (11/91)
 
 ### CWPhysicsObject
 - [-] `CWPhysicsObject::CWPhysicsObject` · 0052fe30 · legions 00513f80 — constructor of plain data: Rust struct init replaces it
@@ -2869,7 +2869,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWPhysicsObject::ApplyAdditiveVisualDesc` · 005300f0 · legions 005141f0 — needs port: physics object apply additive visual desc; no citation in crates/
 - [ ] `CWPhysicsObject::ApplySubtractiveVisualDesc` · 00530110 · legions 00514210 — needs port: physics object apply subtractive visual desc; no citation in crates/
 - [ ] `CWPhysicsObject::ApplyVisualDescToPhysicsObj` · 00530130 · legions 00514230 — needs port: physics object apply visual desc to physics obj; no citation in crates/
-- [ ] `CWPhysicsObject::RecvEvt_UpdateVisualDesc` · 00530150 · legions 00514250 — ac2-weenie ObjectTable::apply_action
+- [x] `CWPhysicsObject::RecvEvt_UpdateVisualDesc` · 00530150 · legions 00514250 — implemented: cited at crates/ac2-weenie/src/objects.rs:213
 - [ ] `CWPhysicsObject::ForceVisualDesc` · 00530190 · legions 00514290 — needs port: physics object force visual desc; no citation in crates/
 - [x] `CWPhysicsObject::DoFX` · 005301b0 · legions 005142b0 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 - [x] `CWPhysicsObject::StopFX` · 005301d0 · legions 005142d0 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests

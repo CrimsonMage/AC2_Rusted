@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 462 done, 86 partial, 799 to do, 777 skipped.
+2124 retail functions: 462 done, 86 partial, 798 to do, 778 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1315,7 +1315,7 @@ Legend and workflow: [README](README.md).
 - [-] `_STL::map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>::operator[]` · 00508360 · legions 004f6490 — STL/MSVC or archive template helper; Rust collections replace it
 
 ### (free functions)
-- [ ] `STREAMPACK_STL` · 005083f0 · legions 004f6520
+- [-] `STREAMPACK_STL` · 005083f0 · legions 004f6520 — STL/MSVC or archive template helper; Rust collections replace it
 
 ### FXManager
 - [-] `FXManager::~FXManager` · 00508660 · legions 004f6790 — C++ constructor/destructor; Rust constructor and Drop replace it

@@ -289,7 +289,7 @@ Legend and workflow: [README](README.md).
 ### PerlinNoise
 - [x] `PerlinNoise::Init` · 0062b040 · legions 005e4f60 — ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
 - [x] `PerlinNoise::Noise` · 0062b0f0 · legions 005e5010 — ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
-- [ ] `PerlinNoise::fBm1` · 0062b180 · legions 005e50a0
+- [ ] `PerlinNoise::fBm1` · 0062b180 · legions 005e50a0 — needs port: PerlinNoise::fBm1 for FRACTAL waveforms (not reproduced)
 
 ## `portal/shared/src/geometry/plane.cpp.c` (2/16)
 

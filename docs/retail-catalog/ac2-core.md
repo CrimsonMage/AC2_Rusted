@@ -1,6 +1,6 @@
 # ac2-core: Core runtime: ids, strings, timers, errors, serialization helpers
 
-589 retail functions: 21 done, 4 partial, 12 to do, 552 skipped.
+589 retail functions: 22 done, 4 partial, 10 to do, 553 skipped.
 Legend and workflow: [README](README.md).
 
 ## `core/src/debug/crashcleaners.cpp.c` (0/3)
@@ -989,12 +989,12 @@ Legend and workflow: [README](README.md).
 - [-] `ProjectSettings::InitFromIni` · 0066c300 · legions 00616c00 — project setup (admin tools)
 - [-] `ProjectSettings::InitFromRegistry` · 0066c360 · legions 00616c40 — project setup (admin tools)
 
-## `portal/shared/src/stringtoken/stringtoken.cpp.c` (2/4)
+## `portal/shared/src/stringtoken/stringtoken.cpp.c` (3/4)
 
 ### (free functions)
 - [x] `Tokenize` · 0065a4a0 · legions 00608e10 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [ ] `Tokenize` · 0065a510 · legions 00608e80
-- [ ] `Tokenize` · 0065a580 · legions 00608ef0
+- [x] `Tokenize` · 0065a510 · legions 00608e80 — crates/ac2-script/src/glue/wpstring.rs tokenize_wide (Tokenize(wchar_t *))
+- [-] `Tokenize` · 0065a580 · legions 00608ef0 — PString iterators and string-conversion/split helpers (Rust str/String replaces; PStringBase wrapper)
 - [x] `Tokenize` · 0065a5a0 · legions 00608f10
 
 ## `portal/shared/src/timestamper/tsrecv.cpp.c` (5/7)

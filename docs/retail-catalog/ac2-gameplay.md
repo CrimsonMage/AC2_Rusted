@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 198 done, 33 partial, 54 to do, 214 skipped.
+499 retail functions: 198 done, 33 partial, 53 to do, 215 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [-] `ConversationAction::~ConversationAction` · 006bb670 · legions 00650fa0 — destructor of plain data
 - [-] `ConversationAction::FromFileNode` · 006bb6f0 — text source format (admin tools)
 - [-] `ConversationAction::ToFileNode` · 006bb8a0 — text source format (admin tools)
-- [ ] `ConversationAction::StreamPack` · 006bb930 · legions 00651040 — not ported: no crate owns conversations yet (ac2-gameplay is later). Audit: cell.dat holds 261 ConversationTree DIDs (0x60xxFFFF/0x60xxFFFE, though the DB type says portal); 255 are 1468-byte filler, 6 real records use a header the StreamPack layout does not match; no client talk or response path traced
+- [ ] `ConversationAction::StreamPack` · 006bb930 · legions 00651040 — needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
 
 ## `portal/shared/src/conversation/conversationdecision.cpp.c` (0/10)
 
@@ -482,7 +482,7 @@ Legend and workflow: [README](README.md).
 - [-] `ConversationDecision::FromFileNode_Decision` · 006bbba0 — ConversationDecision text source parser (admin authoring form), not a client path
 - [-] `ConversationDecision::FromFileNode_Response` · 006bbf50 — ConversationDecision text source parser (admin authoring form), not a client path
 - [-] `ConversationDecision::ToFileNode` · 006bc0d0 — text source format (admin tools)
-- [ ] `ConversationDecision::StreamPack` · 006bc290 · legions 00651230 — not ported: no crate owns conversations yet (ac2-gameplay is later). Audit: cell.dat holds 261 ConversationTree DIDs (0x60xxFFFF/0x60xxFFFE, though the DB type says portal); 255 are 1468-byte filler, 6 real records use a header the StreamPack layout does not match; no client talk or response path traced
+- [ ] `ConversationDecision::StreamPack` · 006bc290 · legions 00651230 — needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
 
 ## `portal/shared/src/conversation/conversationnode.cpp.c` (0/6)
 
@@ -492,7 +492,7 @@ Legend and workflow: [README](README.md).
 - [-] `ConversationNode::ConversationNode` · 006bb340 · legions 00650e10 — constructor of plain data
 - [-] `ConversationNode::~ConversationNode` · 006bb3a0 · legions 00650e70 — destructor of plain data
 - [-] `ConversationNode::ToFileNode` · 006bb410 — text source format (admin tools)
-- [ ] `ConversationNode::StreamPack` · 006bb5b0 · legions 00650ee0 — not ported: no crate owns conversations yet (ac2-gameplay is later). Audit: cell.dat holds 261 ConversationTree DIDs (0x60xxFFFF/0x60xxFFFE, though the DB type says portal); 255 are 1468-byte filler, 6 real records use a header the StreamPack layout does not match; no client talk or response path traced
+- [ ] `ConversationNode::StreamPack` · 006bb5b0 · legions 00650ee0 — needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
 
 ## `portal/shared/src/conversation/conversationtree.cpp.c` (0/18)
 
@@ -522,10 +522,10 @@ Legend and workflow: [README](README.md).
 - [-] `_STL::_Rb_tree<PStringBase<unsigned_short>,_STL::pair<PStringBase<unsigned_short>_const_,ConversationNode>,_STL::_Select1st<_STL::pair<PStringBase<unsigned_short>_const_,ConversationNode>_>,_STL::less<PStringBase<unsigned_short>_>,_STL::allocator<_STL::pair<PStringBase<unsigned_short>_const_,ConversationNode>_>_>::operator=` · 006ba700 · legions 00650800 — assignment or comparison of plain data (operator=, ==, <)
 
 ### (free functions)
-- [ ] `STREAMPACK_STL` · 006baa40 · legions 00650b40
+- [-] `STREAMPACK_STL` · 006baa40 · legions 00650b40 — STL streampack helper; Rust serialisation replaces it
 
 ### ConversationTree
-- [ ] `ConversationTree::StreamPack` · 006bacb0 — not ported: no crate owns conversations yet (ac2-gameplay is later). Audit: cell.dat holds 261 ConversationTree DIDs (0x60xxFFFF/0x60xxFFFE, though the DB type says portal); 255 are 1468-byte filler, 6 real records use a header the StreamPack layout does not match; no client talk or response path traced
+- [ ] `ConversationTree::StreamPack` · 006bacb0 — needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
 - [-] `ConversationTree::CopyInto` · 006bacf0 — copy of plain data (Clone)
 
 ### _STL::map<PStringBase<unsigned_short>,ConversationNode,_STL::less<PStringBase<unsigned_short>_>,_STL::allocator<_STL::pair<PStringBase<unsigned_short>_const_,ConversationNode>_>_>

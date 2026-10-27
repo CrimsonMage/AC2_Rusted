@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 127 done, 13 partial, 179 to do, 314 skipped.
+633 retail functions: 127 done, 13 partial, 178 to do, 315 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -446,7 +446,7 @@ Legend and workflow: [README](README.md).
 - [x] `EnumMapper::GetAllEnumVals` · 00662040 · legions 00610560 — ac2-script data/glue::enums
 
 ### (free functions)
-- [ ] `STREAMPACK_STL` · 00662120 · legions 00610640
+- [-] `STREAMPACK_STL` · 00662120 · legions 00610640 — skip: STL/container internal (iterator, tree, comparator); Rust collections
 
 ### EnumMapper
 - [-] `EnumMapper::Destroy` · 00662330 · legions 00610850 — skip: constructor/destructor of plain data; Rust struct init and Drop

@@ -162,7 +162,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmGamePlayUI::RecvNotice_NextFrameDrawn` · 004079b0 — OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
 - [-] `gmGamePlayUI::RecvNotice_BeingDeleted` · 004079c0 — admin 7148 only: unregisters a deleted weenie's notice handlers; Legions 7160 has no match and the port has no weenie notice handlers to unregister
 - [x] `gmGamePlayUI::MakePleaseWaitDialog` · 004079e0 · legions 004076f0 — ac2-ui game_dialogs.rs end_session raises it (ID_Wait_PleaseWait, wait type); ac2-client hud_game_dialogs.rs game_dialog_logout runs it on the logout key; logout_hud_7160 and the game_dialogs unit tests
-- [ ] `gmGamePlayUI::MakeResurrectDialog` · 00407a40 · legions 00407750 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
+- [ ] `gmGamePlayUI::MakeResurrectDialog` · 00407a40 · legions 00407750 — needs port (check): gmGamePlayUI::MakeResurrectDialog behaviour; implemented area ac2-ui hud.rs but uncited
 
 ### PlayingSoundContext
 - [x] `PlayingSoundContext::Stop` · 00407b80 · legions 004078b0 — ac2-audio/ac2-client: 3D emitters and FX sounds
@@ -782,7 +782,7 @@ Legend and workflow: [README](README.md).
 - [~] `FellowshipHelper::RemoveAllFellows` · 0042feb0 · legions 0042fc70 — map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
 - [~] `FellowshipHelper::RecvNotice_UpdateFellowCellID` · 0042ff90 — map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
 - [x] `FellowshipHelper::RecvNotice_ClearFellow` · 00430060 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-- [ ] `FellowshipHelper::RecvNotice_ReloadGameplayOptions` · 00430080
+- [ ] `FellowshipHelper::RecvNotice_ReloadGameplayOptions` · 00430080 — needs port (check): FellowshipHelper::RecvNotice_ReloadGameplayOptions behaviour; implemented area ac2-ui fellowship.rs but uncited
 - [x] `FellowshipHelper::~FellowshipHelper` · 00430180 · legions 0042ff40 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [~] `FellowshipHelper::AddFellow` · 00430210 · legions 0042ffd0 — map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
 - [x] `FellowshipHelper::AddAllFellows` · 00430390 · legions 00430150 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -1973,9 +1973,9 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/util/dialog/resurrectdialog.cpp.c` (0/3)
 
 ### ResurrectDialog
-- [ ] `ResurrectDialog::ListenToMessage` · 0042d3f0 · legions 0042d1c0 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
-- [ ] `ResurrectDialog::SetText` · 0042d420 · legions 0042d1f0 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
-- [ ] `ResurrectDialog::ResurrectDialog` · 0042d440 · legions 0042d210 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
+- [ ] `ResurrectDialog::ListenToMessage` · 0042d3f0 · legions 0042d1c0 — needs port (check): ResurrectDialog::ListenToMessage behaviour; implemented area ac2-ui dialog.rs but uncited
+- [ ] `ResurrectDialog::SetText` · 0042d420 · legions 0042d1f0 — needs port (check): ResurrectDialog::SetText behaviour; implemented area ac2-ui dialog.rs but uncited
+- [ ] `ResurrectDialog::ResurrectDialog` · 0042d440 · legions 0042d210 — needs port (check): ResurrectDialog::ResurrectDialog lifecycle (create/teardown: listeners, children, surfaces); ac2-ui dialog.rs
 
 ## `ac2/client/src/ui/util/dialog/timeddialog.cpp.c` (0/5)
 

@@ -8,10 +8,10 @@ key	status	note
 004017e0	-	engine factory / singleton allocator: Rust builds and owns these directly
 00401810	-	engine factory: Rust builds the subsystems directly
 00401830	-	engine factory: Rust builds the subsystems directly
-00401850	_	NoticeHandler base: an empty virtual; the screens are the handlers (ac2-ui pregame ui.rs char_gen_verification)
+00401850	_	needs port: notice handler::recv notice char gen verification; no citation in crates/
 00401860	_	needs port: notice handler::recv notice display admin string info; no citation in crates/
 00401870	-	admin/debug/logging tooling: not in the client
-00401880	_	ac2-weenie SessionEvent::Characters / OnlineSession::characters (the latest set; CharacterChoice::Wait stops there for the selection screen)
+00401880	_	needs port: notice handler::recv notice character set; no citation in crates/
 00401890	-	engine factory: Rust builds the subsystems directly
 004018b0	-	engine factory: Rust builds the subsystems directly
 004018d0	-	engine factory: Rust builds the subsystems directly
@@ -155,7 +155,7 @@ key	status	note
 004079b0	x	OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
 004079c0	-	admin 7148 only: unregisters a deleted weenie's notice handlers; Legions 7160 has no match and the port has no weenie notice handlers to unregister
 004079e0	x	ac2-ui game_dialogs.rs end_session raises it (ID_Wait_PleaseWait, wait type); ac2-client hud_game_dialogs.rs game_dialog_logout runs it on the logout key; logout_hud_7160 and the game_dialogs unit tests
-00407a40	_	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
+00407a40	_	needs port (check): gmGamePlayUI::MakeResurrectDialog behaviour; implemented area ac2-ui hud.rs but uncited
 00407b80	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 00407bf0	x	ac2-ui gameplay_story.rs GameplayStory::player_teleport_start / portal_space (the gate: Exit iff weenie and client ready, else Enter; the teleport start clears _clientReady); ac2-client client_teleport.rs portal_call; gameplay_story_tests (the teleport and leave tests), portal_7160 (the teleport places and exits)
 00407c30	x	ac2-ui gameplay_story.rs GameplayStory::player_teleport_start / portal_space (the gate: Exit iff weenie and client ready, else Enter; the teleport start clears _clientReady); ac2-client client_teleport.rs portal_call; gameplay_story_tests (the teleport and leave tests), portal_7160 (the teleport places and exits)
@@ -736,9 +736,9 @@ key	status	note
 0042d330	x	ac2-ui dialog.rs
 0042d350	x	ac2-ui dialog.rs
 0042d3c0	x	ac2-ui dialog.rs
-0042d3f0	_	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
-0042d420	_	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
-0042d440	_	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
+0042d3f0	_	needs port (check): ResurrectDialog::ListenToMessage behaviour; implemented area ac2-ui dialog.rs but uncited
+0042d420	_	needs port (check): ResurrectDialog::SetText behaviour; implemented area ac2-ui dialog.rs but uncited
+0042d440	_	needs port (check): ResurrectDialog::ResurrectDialog lifecycle (create/teardown: listeners, children, surfaces); ac2-ui dialog.rs
 0042d4e0	x	ac2-ui dialog.rs
 0042d500	x	ac2-ui dialog.rs
 0042d560	x	ac2-ui dialog.rs
@@ -806,7 +806,7 @@ key	status	note
 0042feb0	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
 0042ff90	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
 00430060	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-00430080	_	
+00430080	_	needs port (check): FellowshipHelper::RecvNotice_ReloadGameplayOptions behaviour; implemented area ac2-ui fellowship.rs but uncited
 00430180	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 00430210	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
 00430390	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -1466,7 +1466,7 @@ key	status	note
 004507d0	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 00450800	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 00450830	~	ItemStats::capacity: int 280 default 12; the EffectSystem pass is not applied
-00450860	_	ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
+00450860	_	needs port: interface get available experience; no citation in crates/
 004508a0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 004508d0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 00450900	x	ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
@@ -1508,7 +1508,7 @@ key	status	note
 00450ff0	_	needs port: interface register commands; no citation in crates/
 00451010	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 00451030	x	implemented: cited at crates/ac2-ui/src/death.rs:12
-00451050	_	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
+00451050	x	implemented: cited at crates/ac2-ui/src/external_container.rs:6
 00451090	x	client shortcut_info (scripts_queries.rs, IFun 0xB4006D); icon in ui_sources ShortcutSource::icon; shortcut_drag_7160 and view tests
 004510d0	x	client set_shortcut (scripts_queries.rs, IFun 0xB4006F); shortcut_drag_7160 asserts the SetShortcut bytes (ShortcutInfo native, slot)
 00451110	~	read from GetGameplayOptions' profile (scripts_queries.rs shortcut_array, progress_7160), not IFun 0xB40070 itself
@@ -1560,10 +1560,10 @@ key	status	note
 004518e0	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
 00451910	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 00451930	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
-00451960	_	ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
-00451990	_	ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
-004519c0	_	ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
-004519f0	_	ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
+00451960	_	needs port: interface inq next retell history item; no citation in crates/
+00451990	_	needs port: interface inq prev retell history item; no citation in crates/
+004519c0	_	needs port: interface inq next reply history item; no citation in crates/
+004519f0	_	needs port: interface inq prev reply history item; no citation in crates/
 00451a20	~	client ui_quests.rs Client::inq_quest_list (IFun 0xB4008E, list as IFunArg::Filled: the out list is approximated, not run against a live login)
 00451a60	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 00451aa0	x	implemented: cited at crates/ac2-ui/src/gameplay_story.rs:9
@@ -1601,8 +1601,8 @@ key	status	note
 00451fb0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00451ff0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 00452030	_	needs port: interface handle set weenie desc; no citation in crates/
-004520f0	_	ac2-net GunChatExtraInfo
-004521b0	_	ac2-weenie ChatState::process_text resets the told/heard walks (CPlayer 0x43/0xDF)
+004520f0	x	implemented: cited at crates/ac2-net/src/protocol/turbine_chat.rs:94
+004521b0	x	implemented: cited at crates/ac2-weenie/src/shell/handlers.rs:109
 004521e0	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 00452250	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 004522c0	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
@@ -1610,7 +1610,7 @@ key	status	note
 004523a0	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 00452410	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 00452480	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-00452580	_	ac2-net GunChatExtraInfo::new: version 1, flags; the meta letters (RetrieveMetaLetters) are left empty
+00452580	-	constructor of plain data: Rust struct init replaces it
 00452660	-	destructor: Rust Drop replaces it
 00452710	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 004527c0	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
@@ -1627,17 +1627,17 @@ key	status	note
 00452f50	-	STL/container internals: a Rust collection replaces it
 004530f0	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 00453320	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-004534e0	_	ac2-net GunChatExtraInfo
+004534e0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 00453560	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 004535f0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
-00453670	_	ac2-weenie shell::expand_aliases over the options profile's m_aliasTable (ChatState::login_options)
+00453670	x	implemented: cited at crates/ac2-weenie/src/shell/mod.rs:230
 004537f0	-	STL/container internals: a Rust collection replaces it
 00453840	-	STL/container internals: a Rust collection replaces it
 00453880	-	STL/container internals: a Rust collection replaces it
 004539e0	_	needs port: interface expand text; no citation in crates/
 00453b90	-	admin 7148 only: Legions 7160 has no Result_GetFriendsList wrapper and no IFun 0xB40042; the list arrives in GUNEvent_FriendStart
 00453bd0	x	ac2-client friends.rs gun_friend_event (list and status to the page through take_friend_events; the script IFuns run first); ac2-ui friends_panel.rs; tests friends_script_7160, friends_page_7160
-00453c10	_	ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
+00453c10	x	implemented: cited at crates/ac2-weenie/src/shell/state.rs:191
 00453de0	x	no timer: the question is held by GameplayDialogs popups until its answer (the awakener's keep-alive trigger has no Rust counterpart)
 00453e30	x	ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
 00453ed0	_	needs port: weenie allocator create; no citation in crates/
@@ -1647,16 +1647,16 @@ key	status	note
 00454010	_	needs port: weenie allocator allocate efun dispatcher; no citation in crates/
 00454030	_	needs port: weenie allocator allocate native factory; no citation in crates/
 00454060	x	implemented: cited at crates/ac2-script/src/bytestream/mod.rs:93
-00454080	_	ac2-script vm (VM/ReferenceTable/Resolver)
+00454080	x	implemented: cited at crates/ac2-script/src/vm/refs.rs:121
 004540e0	-	admin/debug/logging tooling: not in the client
 00454140	-	admin/debug/logging tooling: not in the client
 00454220	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 00454250	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 004542a0	-	operator= / copy of plain data: Rust value semantics replace it
 004542d0	-	constructor of plain data: Rust struct init replaces it
-00454300	_	ac2-script vm (VM/ReferenceTable/Resolver)
+00454300	x	implemented: cited at crates/ac2-script/src/vm/mod.rs:392
 00454350	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
-00454440	_	ac2-script vm (VM/ReferenceTable/Resolver)
+00454440	x	implemented: cited at crates/ac2-script/src/vm/context.rs:58
 004544b0	x	ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
 00454870	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 00454890	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
@@ -1675,7 +1675,7 @@ key	status	note
 00454eb0	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 00454f30	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 00455000	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
-00455060	_	ac2-script vm (VM/ReferenceTable/Resolver)
+00455060	x	implemented: cited at crates/ac2-script/src/vm/program.rs:8
 004550b0	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 00455130	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 004551b0	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
@@ -1683,13 +1683,13 @@ key	status	note
 00455270	x	implemented: cited at crates/ac2-script/src/vm/context.rs:112
 004552c0	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 00455340	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
-004553f0	_	ac2-script vm (VM/ReferenceTable/Resolver)
-00455460	_	ac2-script vm (VM/ReferenceTable/Resolver)
+004553f0	x	implemented: cited at crates/ac2-script/src/vm/mod.rs:330
+00455460	x	implemented: cited at crates/ac2-net/src/protocol/gameplay/trade.rs:6
 004554d0	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 00455600	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
-00455740	_	ac2-script vm (VM/ReferenceTable/Resolver)
-004557b0	_	ac2-script vm (VM/ReferenceTable/Resolver)
-004558a0	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+00455740	x	implemented: cited at crates/ac2-script/src/host/ifun.rs:3
+004557b0	x	implemented: cited at crates/ac2-script/src/vm/mod.rs:418
+004558a0	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 004558f0	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 004559c0	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 00455ae0	x	lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
@@ -1701,7 +1701,7 @@ key	status	note
 00456000	-	STL/container internals: a Rust collection replaces it
 00456020	-	STL/container internals: a Rust collection replaces it
 00456190	x	ac2-script vm::refs (reserved bit on every new entry)
-00456270	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+00456270	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 00456330	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 00456440	-	STL/container internals: a Rust collection replaces it
 00456490	-	STL/container internals: a Rust collection replaces it
@@ -1709,31 +1709,31 @@ key	status	note
 004564d0	-	STL/container internals: a Rust collection replaces it
 00456520	-	STL/container internals: a Rust collection replaces it
 00456550	x	ac2-script vm::refs (reserved bit on every new entry)
-004565c0	_	ac2-script vm (VM/ReferenceTable/Resolver)
+004565c0	x	implemented: cited at crates/ac2-script/src/vm/refs.rs:149
 00456690	-	STL/container internals: a Rust collection replaces it
 004566d0	-	STL/container internals: a Rust collection replaces it
 00456710	-	STL/container internals: a Rust collection replaces it
 00456770	-	STL/container internals: a Rust collection replaces it
-004567b0	_	ac2-script reference/native unpack
+004567b0	-	STL/container internals: a Rust collection replaces it
 004567c0	-	STL/container internals: a Rust collection replaces it
 00456860	-	STL/container internals: a Rust collection replaces it
 00456900	-	STL/container internals: a Rust collection replaces it
 004569a0	-	STL/container internals: a Rust collection replaces it
 00456a40	-	STL/container internals: a Rust collection replaces it
-00456ae0	_	ac2-script glue::options / examination (Legions layout and efun switch)
-00456b80	_	net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
+00456ae0	-	STL/container internals: a Rust collection replaces it
+00456b80	-	STL/container internals: a Rust collection replaces it
 00456c20	-	STL/container internals: a Rust collection replaces it
 00456e10	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 00456f30	-	STL/container internals: a Rust collection replaces it
-00457120	_	ac2-script PackedReference::unpack: decode only, no reference table insert yet
-00457330	_	ac2-script PackedReference::unpack: decode only, no reference table insert yet
+00457120	x	implemented: cited at crates/ac2-net/src/protocol/pack.rs:6
+00457330	_	needs port: packed reference decode only; the reference-table insert is missing (ac2-script refs)
 00457460	-	STL/container internals: a Rust collection replaces it
 004574a0	-	STL/container internals: a Rust collection replaces it
 004574d0	-	STL/container internals: a Rust collection replaces it
 00457510	-	STL/container internals: a Rust collection replaces it
-00457540	_	ac2-script vm (VM/ReferenceTable/Resolver)
-00457610	_	ac2-script vm (VM/ReferenceTable/Resolver)
-004576d0	_	ac2-script vm (VM/ReferenceTable/Resolver)
+00457540	x	implemented: cited at crates/ac2-script/src/vm/mod.rs:378
+00457610	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
+004576d0	x	implemented: cited at crates/ac2-script/src/vm/mod.rs:352
 00457730	x	ac2-client gameplay.rs Command::AcceptTrade: the IFun on the player's VM script (CPlayer's CWInterface graph packed by stub 0x45 -> 0x35); stand-in only without a VM (empty reference)
 004577c0	_	needs port: script IFun accept vassal on the client interface; no citation in crates/
 00457850	x	ui_examination.rs add_effect_data: IFun 0xB40123 with context, order, id and the profile; the script's own Add* efuns other than AddEffectID stay unbound
@@ -1760,13 +1760,13 @@ key	status	note
 004589d0	_	needs port: script IFun do fellowship recruit accept on the client interface; no citation in crates/
 00458a60	_	needs port: script IFun do fellowship recruit decline on the client interface; no citation in crates/
 00458b10	~	answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
-00458bf0	_	IFun 0xB400C0 run by client_story.rs for each DoStory damage hook; Do3DDamage raised on the VM with HIT 0x40000008 (combat_7160)
+00458bf0	x	implemented: cited at crates/ac2-client/src/scripts_queries.rs:19
 00458dd0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00458ec0	~	ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 00458fe0	~	ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 00459140	~	ac2-weenie session/inventory.rs equip_item: InvEquipDesc.equip byte-exact (inventory_7160); client EquipItem (inventory_items_7160). Script checks not mirrored
-00459240	_	net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
-00459340	_	net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
+00459240	_	needs port: script IFun gunevent friend start on the client interface; no citation in crates/
+00459340	_	needs port: script IFun gunevent friend status on the client interface; no citation in crates/
 00459420	_	needs port: script IFun gunevent hear from room on the client interface; no citation in crates/
 004595a0	_	needs port: script IFun gunhandle reauthentication on the client interface; no citation in crates/
 00459630	_	needs port: script IFun get accept allegiance request on the client interface; no citation in crates/
@@ -1783,7 +1783,7 @@ key	status	note
 0045a0a0	_	needs port: script IFun get durability level on the client interface; no citation in crates/
 0045a140	_	needs port: script IFun get fxand behavior information from wsl on the client interface; no citation in crates/
 0045a310	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
-0045a4b0	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045a4b0	_	needs port: script IFun get gameplay options on the client interface; no citation in crates/
 0045a620	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045a6c0	_	needs port: script IFun get icon id on the client interface; no citation in crates/
 0045a760	_	needs port: script IFun get last selection on the client interface; no citation in crates/
@@ -1839,7 +1839,7 @@ key	status	note
 0045db70	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 0045dd60	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 0045dfc0	x	lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
-0045e180	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+0045e180	_	needs port: script IFun inq root panel from race on the client interface; no citation in crates/
 0045e2c0	~	read from GetGameplayOptions' profile (scripts_queries.rs shortcut_array, progress_7160), not IFun 0xB40070 itself
 0045e450	x	client shortcut_info (scripts_queries.rs, IFun 0xB4006D); icon in ui_sources ShortcutSource::icon; shortcut_drag_7160 and view tests
 0045e660	~	answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
@@ -1947,13 +1947,13 @@ key	status	note
 00463c00	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 00463c90	x	ac2-client Command::UseSelection runs IFun 0xB40006 on the player's script when the VM owns it (CPlayer 0x79 -> CUsageSystem 0x9: the targeting pointer, the usage list, then WM_Usage 0x22); butchery_7160 asserts it. The session's use_selection stand-in stays for a client without scripts
 00463d30	x	client use_shortcut (scripts_queries.rs, IFun 0xB40007); skill and text shortcuts run on the VM; vitals_7160 use_shortcut
-00463df0	_	ac2-script glue: id table + pure-glue registry; engine glue unbound
+00463df0	x	implemented: cited at crates/ac2-script/src/vm/efun.rs:4
 00465f30	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 00465f60	_	needs port: gm cnative factory::is equal; no citation in crates/
 00465fc0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 00465fe0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 00466000	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
-004661d0	_	ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
+004661d0	x	implemented: cited at crates/ac2-net/src/protocol/native/mod.rs:4
 004663b0	_	needs port: gm cnative factory::get check sums; no citation in crates/
 004663d0	_	needs port: gm cnative factory::validate check sums; no citation in crates/
 00466400	-	STL/container internals: a Rust collection replaces it
@@ -1963,7 +1963,7 @@ key	status	note
 00466c10	_	needs port: gm cnative factory::new native object; no citation in crates/
 00467040	-	destructor: Rust Drop replaces it
 00467100	-	destructor: Rust Drop replaces it
-00467160	_	ac2-script native::unpack: the native types Legions WStates hold
+00467160	_	needs port: gm cnative factory::un pack native object; no citation in crates/
 00467370	-	copy / delete of plain native data: Rust clone and Drop replace it
 004677e0	-	copy / delete of plain native data: Rust clone and Drop replace it
 00467a50	x	ac2-script store round trip (store_script_7160): ViewStore with a StoreView's sales, UpdateStore after it, the ConfirmPurchase notice of PurchaseItem, LeaveStore in the shop body's prologue
@@ -1979,13 +1979,13 @@ key	status	note
 00467e20	-	STL/container internals: a Rust collection replaces it
 00467ec0	x	lead: WM_Store 0x52 -> CPlayer 0x1F3 -> CStoreSystem 0xF (vendor, StoreGroup DID 0x3858, AAHash store DID -> size): closes store/consignment/catalog, sets the shopper's group (CShopperContext 0x2), lists the group's StoreTemplates (build 0x117914) and raises it; ac2-net StoreCatalog; consignment_script_7160 view_catalog asserts the shops and sizes.
 00467f60	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-00467fb0	_	net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
+00467fb0	_	needs port: script notice GUNResult_FriendStatus raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 00468010	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-00468060	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004680b0	_	net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
-00468150	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468210	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
-00468250	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+00468060	_	needs port: script notice LocalStatus raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+004680b0	-	STL/container internals: a Rust collection replaces it
+00468150	_	needs port: script notice GUNResult_GetFriendsList raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00468210	_	needs port: script efun get player id on the object maintenance; no citation in crates/
+00468250	_	needs port: script efun get player weenie object reference on the object maintenance; no citation in crates/
 00468280	-	admin dump-to-string / dump debug output: not in the client
 004682c0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 00468320	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
@@ -2002,10 +2002,10 @@ key	status	note
 00468750	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 004687b0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 00468810	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
-00468870	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468870	_	needs port: script notice SetTargetingPointer raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 004688c0	x	ac2-script host/notices.rs entry 0x00920002 'oiiwwi' (argument order checked against the glue's stack slots)
-00468940	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468970	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+00468940	_	needs port: script notice OpenExaminationPanel raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00468970	_	needs port: script notice PortalSpace raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 004689a0	~	ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 00468a10	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
 00468a50	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
@@ -2016,47 +2016,47 @@ key	status	note
 00468bf0	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
 00468c70	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
 00468cb0	~	BeRevoked efun: raised on the VM only through forwarder 0x48 (CPlayer 0x10F), not exercised on the VM yet
-00468d20	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468d20	_	needs port: script notice ReloadShortcuts raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 00468d60	_	needs port: script notice RemoveRecipe raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-00468db0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468e00	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468db0	_	needs port: script notice UpdateQuests raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00468e00	_	needs port: script notice UpdateStoryQuests raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 00468e50	~	ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
-00468ec0	_	IFun 0xB400C0 run by client_story.rs for each DoStory damage hook; Do3DDamage raised on the VM with HIT 0x40000008 (combat_7160)
-00468f10	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468f70	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468fb0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469030	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469090	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004690e0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469130	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469180	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004691c0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469210	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469280	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004692e0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469330	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469390	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004693e0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469430	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469480	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004694e0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469530	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469580	_	ac2-script host notices -> ac2_weenie::GameplayNotice
-004695d0	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+00468ec0	_	needs port: script notice Do3DDamage raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00468f10	_	needs port: script notice ContainerStateUpdate raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00468f70	_	needs port: script notice ItemUpdate raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00468fb0	_	needs port: script notice UpdateContainer raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469030	_	needs port: script notice UpdateInventory raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469090	_	needs port: script notice GhostMoneyBag raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+004690e0	_	needs port: script notice UpdateMoney raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469130	_	needs port: script notice ClearFellow raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469180	_	needs port: script notice ClearFellowship raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+004691c0	_	needs port: script notice ExpireRecruitment raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469210	_	needs port: script notice RequestRecruitment raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469280	_	needs port: script notice UpdateFellow raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+004692e0	_	needs port: script notice UpdateFellowCellID raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469330	_	needs port: script notice UpdateFellowHealth raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469390	_	needs port: script notice UpdateFellowLevel raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+004693e0	_	needs port: script notice UpdateFellowMaxHealth raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469430	_	needs port: script notice UpdateFellowMaxVigor raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469480	_	needs port: script notice UpdateFellowVigor raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+004694e0	_	needs port: script notice UpdateFellowship raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469530	_	needs port: script notice UpdateLeader raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469580	_	needs port: script notice ExaminationRequestChanged raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+004695d0	_	needs port: script notice UpdateExaminationProfile raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 00469620	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 004696a0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 004696f0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 00469740	~	net: bound; no wlib function calls efun 0x00880004 (scanned the Legions wlib's CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN sites), so no WM_Craft answer reaches it
 00469790	x	craft_script_7160. Forwarders (wlib): WM_Craft 0x19 (the registry) -> CPlayer 0xC3, 0x1B (recipe learned by DID) -> CPlayer 0x105, 0x1A/0x37 (recipe records) -> CPlayer 0x61/0x1C5 and 0x27/0x34 (skill records) -> CPlayer 0x1AE/0x1C4 each raise it; the double sends 0x1A after a craft. 0x18 -> CPlayer 0xF9 calls efun 0x8F0003 (unbound) and is not driven.
 004697d0	x	lead: WM_Craft 0x27/0x34 -> CPlayer 0x1AE/0x1C4 set a CraftSkillRecord, then this notice with the skill's adaptor and UpdateCraftPanel; craft_script_7160 updates_change_only_known_records asserts it.
-00469820	_	ac2-script host notices -> ac2_weenie::GameplayNotice
-00469870	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004698c0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469900	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
-00469950	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
+00469820	_	needs port: script notice DisplayStringInfo raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469870	_	needs port: script notice DoAssistedTell raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+004698c0	_	needs port: script notice ReloadChatSettings raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469900	_	needs port: script notice EndSpecialAttack raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469950	_	needs port: script notice RequestSpecialAttack raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 004699a0	-	no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
-004699f0	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
-00469a40	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
+004699f0	_	needs port: script notice ToggleSpecialAttack raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+00469a40	_	needs port: script notice UpdateAttackState raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 00469a90	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00469b10	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
 00469b80	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
@@ -2081,12 +2081,12 @@ key	status	note
 0046a160	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 0046a1b0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 0046a200	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-0046a260	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-0046a2d0	_	ac2-script host notices -> ac2_weenie::GameplayNotice
-0046a340	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-0046a390	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-0046a3f0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-0046a440	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a260	_	needs port: script notice UpdateVitae raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+0046a2d0	_	needs port: script notice UpdateVital raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+0046a340	_	needs port: script notice Patron_SwearDone raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+0046a390	_	needs port: script notice RequestVassal raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+0046a3f0	_	needs port: script notice UpdateAllegianceProfile raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+0046a440	_	needs port: script notice Vassal_SwearDone raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 0046a490	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0046a4f0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0046a550	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
@@ -2943,10 +2943,10 @@ key	status	note
 00492c20	_	needs port: server event CharacterSet (decode and handler); no citation in crates/
 00492c40	_	needs port: server event CharacterDeletion (decode and handler); no citation in crates/
 00492c60	_	needs port: server event CharacterError (decode and handler); no citation in crates/
-00492c90	_	forwards to the notice; the session event carries it to the screens (pregame.rs)
-00492cb0	_	
-00492ce0	_	
-00492d20	_	
+00492c90	_	needs port: server event CharGenVerification (decode and handler); no citation in crates/
+00492cb0	x	implemented: cited at crates/ac2-weenie/src/world.rs:377
+00492ce0	_	needs port: server event CreateObject (decode and handler); no citation in crates/
+00492d20	_	needs port: server event DestroyObject (decode and handler); no citation in crates/
 00492d40	x	implemented: cited at crates/ac2-weenie/src/session.rs:166
 00492d90	x	implemented: cited at crates/ac2-net/src/protocol/string_info.rs:140
 00492db0	-	STL/container internals: a Rust collection replaces it
@@ -2959,67 +2959,67 @@ key	status	note
 00493090	-	notice-handler registry: Rust dispatches notices by enum, no handler list
 004930e0	-	notice-handler registry: Rust dispatches notices by enum, no handler list
 00493150	-	constructor of plain data: Rust struct init replaces it
-00493190	_	
-00493200	_	
-004932b0	_	
+00493190	-	admin/debug/logging tooling: not in the client
+00493200	-	admin/debug/logging tooling: not in the client
+004932b0	-	admin/debug/logging tooling: not in the client
 00493320	-	admin/debug/logging tooling: not in the client
 004933b0	~	ac2-weenie session.rs ServerEvent::CharExitGame leaves the world and emits SessionEvent::LeftWorld (logoff_7160, logout_hud_7160); the notice fan-out FUN_0048c150 is not named or ported
-004933c0	_	
-00493410	_	
-00493460	_	
-00493500	_	
-00493520	_	ac2-net ServerEvent::CharGenVerification decode; ac2-weenie SessionEvent::CharGenVerification
+004933c0	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:17
+00493410	_	needs port: citation only in a test; port and cite in the client code
+00493460	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:31
+00493500	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:35
+00493520	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:29
 00493680	-	destructor: Rust Drop replaces it
 00493700	_	needs port: notice CharExitGame to the UI/client; no citation in crates/
-00493780	_	ac2-weenie: the session event is the notice; ac2-client pregame.rs pregame_event hands it to the UI
+00493780	_	needs port: notice CharGenVerification to the UI/client; no citation in crates/
 00493810	_	needs port: notice CharacterDeletion to the UI/client; no citation in crates/
 004938a0	_	needs port: notice CharacterError to the UI/client; no citation in crates/
 00493930	_	needs port: notice CharacterSet to the UI/client; no citation in crates/
-004939b0	_	
-00493a30	_	SessionEvent::ServerDied, before Disconnected
+004939b0	x	implemented: cited at crates/ac2-weenie/src/session.rs:130
+00493a30	x	implemented: cited at crates/ac2-net/src/net_connections.rs:177
 00493ab0	_	needs port: notice WorldName to the UI/client; no citation in crates/
-00493b30	_	
+00493b30	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:25
 00493bd0	-	destructor: Rust Drop replaces it
-00493c50	_	
+00493c50	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 00493cb0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
-00493d30	_	
-00493de0	_	
-00493f60	_	
-00493f80	_	
-00494010	_	every opcode routed; quality, interpreter and admin events kept as raw bodies
-004946a0	_	
-004946d0	_	
-00494720	_	
+00493d30	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:33
+00493de0	-	STL/container internals: a Rust collection replaces it
+00493f60	-	constructor of plain data: Rust struct init replaces it
+00493f80	x	implemented: cited at crates/ac2-weenie/src/world.rs:271
+00494010	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:3
+004946a0	x	implemented: cited at crates/ac2-net/src/protocol/mod.rs:3
+004946d0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
+00494720	x	implemented: cited at crates/ac2-weenie/src/world.rs:248
 004947c0	-	STL/container internals: a Rust collection replaces it
-00494810	_	
-00494890	_	
-00494960	_	
+00494810	_	needs port: cevent queue::queue event; no citation in crates/
+00494890	x	implemented: cited at crates/ac2-weenie/src/world.rs:4
+00494960	x	implemented: cited at crates/ac2-weenie/src/world.rs:143
 004949f0	-	destructor: Rust Drop replaces it
-00494a00	_	
-00494a70	_	
-00494b00	_	
-00494b10	_	
+00494a00	x	implemented: cited at crates/ac2-weenie/src/world.rs:235
+00494a70	_	needs port: cevent queue::flush queue; no citation in crates/
+00494b00	x	implemented: cited at crates/ac2-weenie/src/world.rs:378
+00494b10	x	implemented: cited at crates/ac2-weenie/src/world.rs:194
 00494c30	-	constructor of plain data: Rust struct init replaces it
 00494cb0	x	ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
-00494e30	_	
-00494f30	_	
+00494e30	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:126
+00494f30	_	needs port: server event ClearTerrainModifiers (decode and handler); no citation in crates/
 00494fb0	x	ac2-weenie ObjectTable::apply_contain (position stamp newer); double world_objects.rs answer_pickup sends CONTAIN; test ac2-client/tests/world_objects_7160.rs a_ground_item_used_is_taken_into_the_main_pack
-00495060	_	
-00495100	_	
-004951f0	_	
+00495060	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:95
+00495100	_	needs port: server event DeParent (decode and handler); no citation in crates/
+004951f0	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:139
 00495260	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 00495360	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 00495420	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to; door_lever_7160: a door's DoMode transitions (opening, closing) and a lever's DoBehavior flip (with its FX sound) play from the DAT setups' behaviour tables
 004954e0	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
-00495620	_	
+00495620	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:130
 00495710	~	sound branch only: the target is ignored (FXManager::DoTargettedFX sound path = untargeted DoFX); the targeted visual part is not drawn
-00495850	_	
-00495a00	_	
-00495ac0	_	
-00495b80	_	
-00495c80	_	
-00495da0	_	
-00495ea0	_	
+00495850	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:133
+00495a00	_	needs port: server event LeaveWorld (decode and handler); no citation in crates/
+00495ac0	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:115
+00495b80	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:147
+00495c80	_	needs port: server event Parent (decode and handler); no citation in crates/
+00495da0	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:103
+00495ea0	_	needs port: server event PositionCell (decode and handler); no citation in crates/
 00495fa0	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 00496060	x	ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 00496120	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
@@ -3032,14 +3032,14 @@ key	status	note
 00496620	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 004966e0	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 004967a0	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
-00496820	_	
-00496910	_	
-00496980	_	
-004969f0	_	
-00496a90	_	
+00496820	_	needs port: server event UpdateVisualDesc (decode and handler); no citation in crates/
+00496910	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:108
+00496980	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:143
+004969f0	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:145
+00496a90	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:106
 00496b00	x	ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
-00496c10	_	
-00496cb0	_	
+00496c10	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
+00496cb0	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:151
 00496d60	_	needs port: notice BeingDeleted to the UI/client; no citation in crates/
 00496de0	_	needs port: notice CreateObject to the UI/client; no citation in crates/
 00496e70	_	needs port: notice CreatePlayerObject to the UI/client; no citation in crates/
@@ -3048,12 +3048,12 @@ key	status	note
 00497010	_	needs port: notice ModeUpdate to the UI/client; no citation in crates/
 00497090	_	needs port: notice NextFrameDrawn to the UI/client; no citation in crates/
 00497110	_	needs port: notice PlayerReadyToEnterWorld to the UI/client; no citation in crates/
-00497190	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+00497190	x	implemented: cited at crates/ac2-client/src/client_teleport.rs:10
 00497210	_	needs port: notice SetPlayerID to the UI/client; no citation in crates/
 004972a0	_	needs port: notice SetRegionID to the UI/client; no citation in crates/
 004974c0	-	STL/container internals: a Rust collection replaces it
 00497510	-	STL/container internals: a Rust collection replaces it
-00497550	_	
+00497550	-	STL/container internals: a Rust collection replaces it
 004976a0	-	STL/container internals: a Rust collection replaces it
 00497750	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 004978c0	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
@@ -3078,10 +3078,10 @@ key	status	note
 004989e0	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
 00498af0	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
 00498c00	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
-00498d60	_	
-00498e20	_	
-00498f30	_	
-00498fe0	_	
+00498d60	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:60
+00498e20	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:62
+00498f30	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:58
+00498fe0	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:66
 00499090	-	engine factory / singleton allocator: Rust builds and owns these directly
 004990b0	-	engine factory: Rust builds the subsystems directly
 004990d0	-	engine factory: Rust builds the subsystems directly
@@ -3215,7 +3215,7 @@ key	status	note
 0049fa10	x	ac2-physics los (Terrain::los_check)
 0049fa40	x	BSPLEAF::UnPack - BSP 'LEAF'/'NODE' tag decoder, ac2-assets ac2_physics_mesh.rs
 0049fb00	-	text source format
-0049fec0	_	ac2-script glue: id table + pure-glue registry; engine glue unbound
+0049fec0	x	implemented: cited at crates/ac2-script/src/vm/efun.rs:3
 004a5eb0	-	constructor of plain data: Rust struct init replaces it
 004a5f00	_	needs port: cnative factory::get check sums; no citation in crates/
 004a5f20	_	needs port: cnative factory::validate check sums; no citation in crates/
@@ -3228,7 +3228,7 @@ key	status	note
 004a6110	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 004a6170	-	constructor of plain data: Rust struct init replaces it
 004a61a0	-	constructor of plain data: Rust struct init replaces it
-004a6220	_	ac2-physics los (Terrain::los_check)
+004a6220	-	constructor of plain data: Rust struct init replaces it
 004a62f0	-	STL/container internals: a Rust collection replaces it
 004a6320	-	STL/container internals: a Rust collection replaces it
 004a6350	-	STL/container internals: a Rust collection replaces it
@@ -3300,8 +3300,8 @@ key	status	note
 004a9560	-	STL/container internals: a Rust collection replaces it
 004a95a0	-	STL/container internals: a Rust collection replaces it
 004a95f0	-	STL/container internals: a Rust collection replaces it
-004a9640	_	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
-004a9760	_	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+004a9640	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
+004a9760	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 004a97c0	-	STL/container internals: a Rust collection replaces it
 004a9870	-	STL/container internals: a Rust collection replaces it
 004a9920	-	STL/container internals: a Rust collection replaces it
@@ -3309,8 +3309,8 @@ key	status	note
 004a99b0	-	STL/container internals: a Rust collection replaces it
 004a9a50	-	STL/container internals: a Rust collection replaces it
 004a9af0	-	STL/container internals: a Rust collection replaces it
-004a9b90	_	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
-004a9c30	_	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+004a9b90	-	STL/container internals: a Rust collection replaces it
+004a9c30	-	STL/container internals: a Rust collection replaces it
 004a9cd0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 004a9f90	_	needs port: cnative factory::validate glue version; no citation in crates/
 004aa120	-	STL/container internals: a Rust collection replaces it
@@ -3374,7 +3374,7 @@ key	status	note
 004acb30	-	STL/container internals: a Rust collection replaces it
 004ace10	-	constructor of plain data: Rust struct init replaces it
 004acef0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
-004ad1d0	_	ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
+004ad1d0	x	implemented: cited at crates/ac2-net/src/protocol/native/mod.rs:4
 004ad780	-	STL/container internals: a Rust collection replaces it
 004ad7c0	-	STL/container internals: a Rust collection replaces it
 004ad840	-	STL/container internals: a Rust collection replaces it
@@ -3461,7 +3461,7 @@ key	status	note
 004b1c20	-	STL/container internals: a Rust collection replaces it
 004b1c70	-	STL/container internals: a Rust collection replaces it
 004b1ce0	-	STL/container internals: a Rust collection replaces it
-004b1da0	_	ac2-script reference/native unpack
+004b1da0	-	STL/container internals: a Rust collection replaces it
 004b1e80	-	copy / delete of plain native data: Rust clone and Drop replace it
 004b2300	-	STL/container internals: a Rust collection replaces it
 004b2350	-	STL/container internals: a Rust collection replaces it
@@ -3483,7 +3483,7 @@ key	status	note
 004b28b0	-	STL/container internals: a Rust collection replaces it
 004b28f0	-	copy / delete of plain native data: Rust clone and Drop replace it
 004b3980	x	implemented: cited at crates/ac2-script/src/native/mod.rs:257
-004b4720	_	ac2-script native::unpack: the native types Legions WStates hold
+004b4720	x	implemented: cited at crates/ac2-script/src/native/mod.rs:5
 004b4ba0	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
 004b4c50	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 004b4cf0	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
@@ -3666,13 +3666,13 @@ key	status	note
 004bb3f0	_	needs port: script efun add shell cmd by string id on the interface; no citation in crates/
 004bb480	_	needs port: script efun add shell help on the interface; no citation in crates/
 004bb500	_	needs port: script efun add shell help by string id on the interface; no citation in crates/
-004bb580	_	ac2-script glue::options / examination (Legions layout and efun switch)
-004bb600	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004bb580	_	needs port: script efun get external weenie object on the interface; no citation in crates/
+004bb600	_	needs port: script efun get internal weenie object on the interface; no citation in crates/
 004bb680	_	needs port: script efun inq string info value on the interface; no citation in crates/
-004bb7a0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004bb810	_	efun 0x7F0052: the line goes to the chat shell (ac2-script host/interface.rs, Vm::shell_lines; ac2-client scripts_io.rs runs it)
-004bb890	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
-004bb910	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+004bb7a0	_	needs port: script efun is the player on the interface; no citation in crates/
+004bb810	x	implemented: cited at crates/ac2-script/src/host/interface.rs:226
+004bb890	x	implemented: cited at crates/ac2-script/src/host/glue.rs:139
+004bb910	_	needs port: script efun send server evt encrypt on the interface; no citation in crates/
 004bb990	_	needs port: script efun get my position on the interface; no citation in crates/
 004bba90	_	needs port: script IFun apply properties on the client interface; no citation in crates/
 004bbb80	_	needs port: script IFun display string info on the client interface; no citation in crates/
@@ -3686,16 +3686,16 @@ key	status	note
 004bc150	_	needs port: script IFun handle enter world on the client interface; no citation in crates/
 004bc1e0	_	needs port: script IFun handle leave world on the client interface; no citation in crates/
 004bc270	_	needs port: script IFun handle post leave world on the client interface; no citation in crates/
-004bc300	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
-004bc3b0	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+004bc300	x	implemented: cited at crates/ac2-client/src/client_teleport.rs:29
+004bc3b0	x	implemented: cited at crates/ac2-client/src/client_teleport.rs:12
 004bc440	_	needs port: resume continuation of latent inq string info value (the script waits and resumes here); no citation in crates/
 004bc510	x	implemented: cited at crates/ac2-weenie/src/session.rs:82
 004bc600	_	needs port: script IFun preload wslsingletons on the client interface; no citation in crates/
 004bc690	x	lead: ac2-script host/glue.rs get_entity_did: the DID the weenie was made with (CWDistributor::m_initData.m_did, +0x14), tag 4; null this crashes; host tests.
 004bc700	_	needs port: script efun get my package id on the distributor; no citation in crates/
 004bc770	_	needs port: script efun get process id on the distributor; no citation in crates/
-004bc7e0	_	book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
-004bc850	_	book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
+004bc7e0	_	needs port: script efun add object to be destroyed on the book keeper; no citation in crates/
+004bc850	_	needs port: script efun remove object to be destroyed on the book keeper; no citation in crates/
 004bc8c0	_	needs port: script efun reset shell on the allocator; no citation in crates/
 004bc8d0	-	admin VM monitor and logger
 004bc970	-	admin VM monitor and logger
@@ -5468,7 +5468,7 @@ key	status	note
 00507db0	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 00507df0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 00508360	-	STL/MSVC or archive template helper; Rust collections replace it
-005083f0	_	
+005083f0	-	STL/MSVC or archive template helper; Rust collections replace it
 00508660	-	C++ constructor/destructor; Rust constructor and Drop replace it
 00508750	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 005087c0	_	needs port: FX manager effect
@@ -6102,27 +6102,27 @@ key	status	note
 0052da70	-	constructor of plain data: Rust struct init replaces it
 0052dab0	-	STL/container internals: a Rust collection replaces it
 0052db50	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
-0052dbb0	_	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+0052dbb0	x	implemented: cited at crates/ac2-script/src/vm/program.rs:1
 0052dc80	_	needs port: script VM build reverse map (Resolver); no citation in crates/
 0052dd40	-	STL/container internals: a Rust collection replaces it
 0052dd70	_	needs port: weenie allocator init; no citation in crates/
 0052dd90	-	constructor of plain data: Rust struct init replaces it
-0052ddb0	_	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
-0052ddf0	_	book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
-0052de00	_	book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
+0052ddb0	x	implemented: cited at crates/ac2-weenie/src/session/gameplay.rs:159
+0052ddf0	_	needs port: cwbook keeper::add object to be destroyed; no citation in crates/
+0052de00	_	needs port: cwbook keeper::remove object to be destroyed; no citation in crates/
 0052de10	-	destructor: Rust Drop replaces it
-0052de20	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+0052de20	-	singleton constructor: Rust builds the object directly
 0052dee0	-	destructor: Rust Drop replaces it
 0052df00	_	needs port: script VM get context state (CWDistributor); no citation in crates/
 0052df20	-	crash reporting: admin/debug tooling
-0052df80	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+0052df80	x	implemented: cited at crates/ac2-script/src/host/mod.rs:221
 0052df90	_	needs port: script VM get my package id (CWDistributor); no citation in crates/
 0052dfa0	_	needs port: script VM get process id (CWDistributor); no citation in crates/
 0052dfb0	-	destructor: Rust Drop replaces it
 0052e010	-	constructor of plain data: Rust struct init replaces it
-0052e080	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
-0052e130	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
-0052e150	_	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
+0052e080	x	implemented: cited at crates/ac2-script/src/host/mod.rs:258
+0052e130	x	implemented: cited at crates/ac2-script/src/host/mod.rs:258
+0052e150	x	implemented: cited at crates/ac2-script/src/host/mod.rs:2
 0052e250	x	implemented: cited at crates/ac2-net/src/protocol/server_event.rs:59
 0052e280	-	constructor of plain data: Rust struct init replaces it
 0052e2b0	-	destructor: Rust Drop replaces it
@@ -6132,19 +6132,19 @@ key	status	note
 0052e410	_	needs port: interface handle enter world; no citation in crates/
 0052e440	_	needs port: interface handle leave world; no citation in crates/
 0052e470	_	needs port: interface handle post leave world; no citation in crates/
-0052e490	_	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
-0052e4a0	_	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+0052e490	x	implemented: cited at crates/ac2-client/src/client_teleport.rs:12
+0052e4a0	x	implemented: cited at crates/ac2-client/src/client_teleport.rs:17
 0052e4c0	_	needs port: interface handle character session start; no citation in crates/
 0052e520	_	needs port: interface handle character session end; no citation in crates/
 0052e530	_	needs port: interface apply properties; no citation in crates/
 0052e570	x	implemented: cited at crates/ac2-net/src/protocol/gameplay/mod.rs:5
 0052e590	_	needs port: interface send server evt encrypt; no citation in crates/
-0052e5b0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+0052e5b0	x	implemented: cited at crates/ac2-script/src/host/interface.rs:277
 0052e5e0	x	implemented: cited at crates/ac2-weenie/src/objects.rs:83
 0052e600	x	implemented: cited at crates/ac2-weenie/src/session/gameplay.rs:21
-0052e620	_	ac2-script host::interface
+0052e620	x	implemented: cited at crates/ac2-script/src/host/interface.rs:266
 0052e660	x	ac2-client stat_changed: OnStatChanged (IFun 0x7F0044: table, quality) on the object's process once the VM has it (CPlayer 0x85: vitals, XP bar, vitae, skill panel); the session's stand-ins otherwise
-0052e6a0	_	
+0052e6a0	x	implemented: cited at crates/ac2-net/src/protocol/qualities.rs:2
 0052e6c0	_	needs port: interface handle intersection done; no citation in crates/
 0052e6e0	_	needs port: interface inq detection profile; no citation in crates/
 0052e700	_	needs port: interface handle collision; no citation in crates/
@@ -6152,8 +6152,8 @@ key	status	note
 0052e750	_	needs port: interface handle release done; no citation in crates/
 0052e770	_	needs port: interface handle slider done; no citation in crates/
 0052e790	_	needs port: interface handle mode done; no citation in crates/
-0052e7b0	_	ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)
-0052e7c0	_	ac2-weenie OnlineSession::chat_history(ChatHistory::Command, prev)
+0052e7b0	_	needs port: interface inq prev history item; no citation in crates/
+0052e7c0	_	needs port: interface inq next history item; no citation in crates/
 0052e7d0	_	needs port: interface display text; no citation in crates/
 0052e7f0	_	needs port: interface display string info; no citation in crates/
 0052e810	_	needs port: interface preload wslsingletons; no citation in crates/
@@ -6166,15 +6166,15 @@ key	status	note
 0052eb10	_	needs port: `anonymous-namespace'::inq string info value async cache callback::on context finished; no citation in crates/
 0052eb80	_	needs port: interface get output files path; no citation in crates/
 0052ed30	-	STL/container internals: a Rust collection replaces it
-0052ee50	_	ac2-weenie ChatState::process_text: command history, aliases, the shell, ProcessText_Done; CPlayer 0xDB/0x131/0x112/0xC5/0x5E/0xCF/0x94/0x103/0xE4/0x14C natively, other commands as SessionEvent::ShellCommand
+0052ee50	_	needs port: citation only in a test; port and cite in the client code
 0052ef20	_	needs port: interface handle cmd args; no citation in crates/
 0052f070	_	needs port: interface resume callback; no citation in crates/
 0052f100	_	needs port: interface sleep; no citation in crates/
 0052f1f0	_	needs port: interface do cmd interp; no citation in crates/
 0052f300	_	needs port: interface do help interp; no citation in crates/
-0052f430	_	ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
+0052f430	x	implemented: cited at crates/ac2-weenie/src/shell/mod.rs:160
 0052f6e0	_	needs port: interface add shell help; no citation in crates/
-0052f990	_	ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
+0052f990	x	implemented: cited at crates/ac2-client/src/chat_commands.rs:3
 0052fa10	_	needs port: interface add shell help by string id; no citation in crates/
 0052fa90	x	implemented: cited at crates/ac2-physics/src/body.rs:218
 0052fab0	_	needs port: cweenie object::object being destructed; no citation in crates/
@@ -6207,7 +6207,7 @@ key	status	note
 005300f0	_	needs port: physics object apply additive visual desc; no citation in crates/
 00530110	_	needs port: physics object apply subtractive visual desc; no citation in crates/
 00530130	_	needs port: physics object apply visual desc to physics obj; no citation in crates/
-00530150	_	ac2-weenie ObjectTable::apply_action
+00530150	x	implemented: cited at crates/ac2-weenie/src/objects.rs:213
 00530190	_	needs port: physics object force visual desc; no citation in crates/
 005301b0	x	ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 005301d0	x	ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
@@ -6276,10 +6276,10 @@ key	status	note
 00530da0	_	needs port: physics object add impulse; no citation in crates/
 00530de0	_	needs port: physics object add impulse local; no citation in crates/
 00530e20	_	needs port: physics object inq cyl sphere; no citation in crates/
-00530e70	_	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
+00530e70	-	singleton constructor: Rust builds the object directly
 00530f10	-	destructor: Rust Drop replaces it
-00530f40	_	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
-00530f70	_	
+00530f40	x	implemented: cited at crates/ac2-weenie/src/qualities.rs:39
+00530f70	x	implemented: cited at crates/ac2-weenie/src/session.rs:127
 00530f90	_	needs port: weenie repository handle enter world; no citation in crates/
 00530fa0	_	needs port: weenie repository handle leave world; no citation in crates/
 00530fb0	_	needs port: weenie repository inq weenie description; no citation in crates/
@@ -11230,7 +11230,7 @@ key	status	note
 0062ae10	x	
 0062b040	x	ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
 0062b0f0	x	ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
-0062b180	_	
+0062b180	_	needs port: PerlinNoise::fBm1 for FRACTAL waveforms (not reproduced)
 0062b360	-	CPU feature detection: Rust uses compile-time SIMD
 0062b380	x	ac2-assets ac2_mesh.rs (VertexFormatInfo::GenerateOffsets stride)
 0062b640	_	needs port: path system
@@ -12102,8 +12102,8 @@ key	status	note
 0065a300	x	ac2-db string_meta_lex
 0065a310	x	ac2-db string_meta_lex
 0065a4a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-0065a510	_	
-0065a580	_	
+0065a510	x	crates/ac2-script/src/glue/wpstring.rs tokenize_wide (Tokenize(wchar_t *))
+0065a580	-	PString iterators and string-conversion/split helpers (Rust str/String replaces; PStringBase wrapper)
 0065a5a0	x	
 0065a5c0	_	needs port: TabooTable::CreateCheckString (chat filter)
 0065a650	_	needs port: TabooTable::StringMatchesFilter (chat filter)
@@ -12236,7 +12236,7 @@ key	status	note
 00661bf0	-	skip: STL/container internal (iterator, tree, comparator); Rust collections
 00661f30	x	ac2-script data/glue::enums
 00662040	x	ac2-script data/glue::enums
-00662120	_	
+00662120	-	skip: STL/container internal (iterator, tree, comparator); Rust collections
 00662330	-	skip: constructor/destructor of plain data; Rust struct init and Drop
 00662490	x	ac2-script data/glue::enums
 00662590	x	ac2-script data/glue::enums
@@ -13634,12 +13634,12 @@ key	status	note
 006b7840	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 006b7850	-	teardown and reference release: Rust Drop replaces it
 006b78a0	-	teardown and reference release: Rust Drop replaces it
-006b78f0	_	ac2-script WLib/WState/ByteStream decode
+006b78f0	x	implemented: cited at crates/ac2-script/src/wlib.rs:31
 006b79e0	-	teardown and reference release: Rust Drop replaces it
-006b79f0	_	ac2-script wstate DID formulas / ByteStream::package_id
+006b79f0	x	implemented: cited at crates/ac2-script/src/wstate.rs:28
 006b7a30	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 006b7a50	_	needs port: script VM pack (WState); no citation in crates/
-006b7aa0	_	ac2-script WLib/WState/ByteStream decode
+006b7aa0	x	implemented: cited at crates/ac2-script/src/wstate.rs:4
 006b7b00	-	constructor of plain data: Rust struct init replaces it
 006b7b50	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 006b7b80	_	needs port: script VM pack (WState); no citation in crates/
@@ -13682,18 +13682,18 @@ key	status	note
 006ba330	-	destructor of plain data
 006ba400	-	retail DBO or table allocation; Rust owns values directly
 006ba700	-	assignment or comparison of plain data (operator=, ==, <)
-006baa40	_	
-006bacb0	_	not ported: no crate owns conversations yet (ac2-gameplay is later). Audit: cell.dat holds 261 ConversationTree DIDs (0x60xxFFFF/0x60xxFFFE, though the DB type says portal); 255 are 1468-byte filler, 6 real records use a header the StreamPack layout does not match; no client talk or response path traced
+006baa40	-	STL streampack helper; Rust serialisation replaces it
+006bacb0	_	needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
 006bacf0	-	copy of plain data (Clone)
 006bad10	-	assignment or comparison of plain data (operator=, ==, <)
 006bafb0	-	teardown or reset of plain data
 006bb340	-	constructor of plain data
 006bb3a0	-	destructor of plain data
-006bb5b0	_	not ported: no crate owns conversations yet (ac2-gameplay is later). Audit: cell.dat holds 261 ConversationTree DIDs (0x60xxFFFF/0x60xxFFFE, though the DB type says portal); 255 are 1468-byte filler, 6 real records use a header the StreamPack layout does not match; no client talk or response path traced
+006bb5b0	_	needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
 006bb610	-	constructor of plain data
 006bb640	-	constructor of plain data
 006bb670	-	destructor of plain data
-006bb930	_	not ported: no crate owns conversations yet (ac2-gameplay is later). Audit: cell.dat holds 261 ConversationTree DIDs (0x60xxFFFF/0x60xxFFFE, though the DB type says portal); 255 are 1468-byte filler, 6 real records use a header the StreamPack layout does not match; no client talk or response path traced
+006bb930	_	needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
 006bb980	_	needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
 006bb990	-	constructor of plain data
 006bb9d0	-	constructor of plain data
@@ -13702,7 +13702,7 @@ key	status	note
 006bbb40	-	destructor of plain data
 006bbba0	-	ConversationDecision text source parser (admin authoring form), not a client path
 006bbf50	-	ConversationDecision text source parser (admin authoring form), not a client path
-006bc290	_	not ported: no crate owns conversations yet (ac2-gameplay is later). Audit: cell.dat holds 261 ConversationTree DIDs (0x60xxFFFF/0x60xxFFFE, though the DB type says portal); 255 are 1468-byte filler, 6 real records use a header the StreamPack layout does not match; no client talk or response path traced
+006bc290	_	needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
 006bc300	_	needs port (check): IIDUtils CreateUI/CreateTemporary/CreateStatic and camera parent/target ids; ac2-net iid.rs has verify/type but no citation of these
 006bc340	_	needs port (check): IIDUtils CreateUI/CreateTemporary/CreateStatic and camera parent/target ids; ac2-net iid.rs has verify/type but no citation of these
 006bc380	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
@@ -14222,7 +14222,7 @@ key	status	note
 006dbbd0	x	ac2-script reference/native unpack
 006dbd50	_	needs port: wlib package reference binding (HeapObject)
 006dbdd0	x	vm/refs.rs fn update_references (HeapObject::UpdateReferences)
-006dbe00	_	
+006dbe00	_	needs port: VM CreateProcessA (process creation)
 006dbe30	_	needs port: VM CreateProcessA (process creation)
 006dbe60	_	needs port: VM::CopyNativeObject (native object copy)
 006dbe80	_	needs port (check): implemented as glue/vm_glue.rs is_derived_from but uncited
@@ -14335,7 +14335,7 @@ key	status	note
 006e16d0	-	C++ destructor (Rust drop replaces it)
 006e1700	x	ac2-script WLib/WState/ByteStream decode
 006e17f0	-	C++ destructor (Rust drop replaces it)
-006e1830	_	
+006e1830	_	needs port: VM process table UnRegisterProcess
 006e1860	_	needs port: VM process table GetProcess
 006e1880	-	WSL debugger query or dump (process, reference and perf tables)
 006e18b0	-	C++ constructor of plain data or a container (Rust struct init)
@@ -14734,7 +14734,7 @@ key	status	note
 00723110	_	needs port (check): RealClient ctor, dtor and KeepUIAlive (UI kept alive during loads); client.rs and loader.rs uncited
 00723160	_	needs port (check): RealClient ctor, dtor and KeepUIAlive (UI kept alive during loads); client.rs and loader.rs uncited
 00723260	-	constructor of plain data: Rust struct init replaces it
-00723280	_	
+00723280	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:4
 007232c0	-	constructor of plain data: Rust struct init replaces it
 007232d0	-	singleton accessor: Rust owns the handler directly
 007232e0	x	implemented: cited at crates/ac2-ui/src/dialog.rs:10
@@ -14749,15 +14749,15 @@ key	status	note
 00723800	_	needs port: notice HandleDragFrom to the UI/client; no citation in crates/
 007238a0	x	implemented: cited at crates/ac2-ui/src/money_bag.rs:4
 00723980	_	needs port: notice Logoff to the UI/client; no citation in crates/
-00723a10	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00723aa0	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
+00723a10	x	implemented: cited at crates/ac2-ui/src/consignment.rs:63
+00723aa0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:257
 00723b30	x	implemented: cited at crates/ac2-client/src/hud_view.rs:374
 00723bc0	x	implemented: cited at crates/ac2-ui/src/statusbar.rs:25
 00723c50	x	implemented: cited at crates/ac2-ui/src/window_locations.rs:272
 00723ce0	x	implemented: cited at crates/ac2-ui/src/stack.rs:6
 00723d80	x	implemented: cited at crates/ac2-ui/src/gameplay_story.rs:42
 00723e10	x	implemented: cited at crates/ac2-ui/src/story.rs:11
-00723f00	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00723f00	x	implemented: cited at crates/ac2-weenie/src/notice.rs:131
 00724000	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
 007240b0	-	No gCM_Store efun and no WLib path reaches it (not script-raised).
 00724150	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
@@ -14799,18 +14799,18 @@ key	status	note
 00725810	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 007258a0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00725950	x	PlayerVitals.vitae; reached through CPlayer 0x127 on the VM, tested with the double's vitae qualities
-007259f0	_	ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
-00725ab0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00725b40	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00725bd0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00725cc0	_	ac2-weenie GameplayNotice::DisplayStringInfo (chat lines from the CCommunicationSystem stand-in)
-00725d50	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00725de0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+007259f0	x	implemented: cited at crates/ac2-ui/src/vitals.rs:23
+00725ab0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:125
+00725b40	x	implemented: cited at crates/ac2-ui/src/story_quests.rs:6
+00725bd0	x	implemented: cited at crates/ac2-ui/src/story_quests.rs:34
+00725cc0	x	implemented: cited at crates/ac2-net/src/protocol/gameplay/mod.rs:149
+00725d50	x	implemented: cited at crates/ac2-weenie/src/notice.rs:211
+00725de0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:213
 00725e70	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-00725f00	_	net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
+00725f00	x	implemented: cited at crates/ac2-weenie/src/notice.rs:280
 00725fb0	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-00726040	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-007260d0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00726040	x	implemented: cited at crates/ac2-weenie/src/notice.rs:275
+007260d0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:277
 007261c0	~	ac2-ui selection_notices.rs set_targeting_pointer and ac2-client target_select.rs take the pointer when the player's VM raises it; without the VM, ac2-weenie usage.rs use_item sends the use with its target directly (no multi-item collection; usage_7160 test)
 00726250	~	ac2-script host/notices.rs (oiiwwi) and notices_typed.rs UseBook -> GameplayNotice::UseBook -> ac2-client hud_book.rs; the handler list fan-out is the frame's event list
 00726310	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
@@ -14822,46 +14822,46 @@ key	status	note
 007266b0	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
 00726770	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
 00726800	~	raised by CPlayer's WM_Trade forwarders on the VM (fids 0x46/0x4E/0x53/0x50/0x51/0x52/0x44/0x56 in package 0x215, ac2-net gameplay/trade.rs); Offered/Opened/Registered/Accepted/Closed/Reset/Cleared/Declined verified on the VM, Revoked not
-007268b0	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+007268b0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:81
 00726940	_	needs port: notice RemoveRecipe to the UI/client; no citation in crates/
-007269d0	_	
-00726b80	_	IFun 0xB400C0 run by client_story.rs for each DoStory damage hook; Do3DDamage raised on the VM with HIT 0x40000008 (combat_7160)
-00726c10	_	ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
-00726cb0	_	ac2-weenie GameplayNotice::ContainerStateUpdate / ItemUpdate raised by the InventoryState stand-in (CInventorySystem 0xF/0x1B, CItem 0x3)
-00726d40	_	ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
-00726e10	_	ac2-weenie GameplayNotice::UpdateContainer / UpdateInventory raised by the InventoryState stand-in
-00726ec0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00726f50	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00726fe0	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-00727070	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-00727100	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-00727190	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-00727240	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-007272e0	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-00727380	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-00727430	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-007274d0	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-00727570	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-00727610	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-007276c0	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-00727750	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-007277e0	_	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
-00727870	_	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+007269d0	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:93
+00726b80	x	implemented: cited at crates/ac2-weenie/src/notice.rs:314
+00726c10	x	implemented: cited at crates/ac2-weenie/src/notice.rs:55
+00726cb0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:57
+00726d40	x	implemented: cited at crates/ac2-weenie/src/notice.rs:47
+00726e10	x	implemented: cited at crates/ac2-weenie/src/notice.rs:60
+00726ec0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:137
+00726f50	x	implemented: cited at crates/ac2-weenie/src/notice.rs:135
+00726fe0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:90
+00727070	x	implemented: cited at crates/ac2-weenie/src/notice.rs:92
+00727100	x	implemented: cited at crates/ac2-weenie/src/notice.rs:114
+00727190	x	implemented: cited at crates/ac2-weenie/src/notice.rs:108
+00727240	x	implemented: cited at crates/ac2-weenie/src/notice.rs:88
+007272e0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:106
+00727380	x	implemented: cited at crates/ac2-weenie/src/notice.rs:96
+00727430	x	implemented: cited at crates/ac2-weenie/src/notice.rs:104
+007274d0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:100
+00727570	x	implemented: cited at crates/ac2-weenie/src/notice.rs:102
+00727610	x	implemented: cited at crates/ac2-weenie/src/notice.rs:98
+007276c0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:86
+00727750	x	implemented: cited at crates/ac2-weenie/src/notice.rs:94
+007277e0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:28
+00727870	x	implemented: cited at crates/ac2-weenie/src/notice.rs:30
 00727900	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 007279d0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 00727a60	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 00727af0	~	net: bound; no wlib function calls efun 0x00880004 (scanned the Legions wlib's CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN sites), so no WM_Craft answer reaches it
 00727b90	x	craft_script_7160. Forwarders (wlib): WM_Craft 0x19 (the registry) -> CPlayer 0xC3, 0x1B (recipe learned by DID) -> CPlayer 0x105, 0x1A/0x37 (recipe records) -> CPlayer 0x61/0x1C5 and 0x27/0x34 (skill records) -> CPlayer 0x1AE/0x1C4 each raise it; the double sends 0x1A after a craft. 0x18 -> CPlayer 0xF9 calls efun 0x8F0003 (unbound) and is not driven.
 00727c20	x	lead: WM_Craft 0x27/0x34 -> CPlayer 0x1AE/0x1C4 set a CraftSkillRecord, then this notice with the skill's adaptor and UpdateCraftPanel; craft_script_7160 updates_change_only_known_records asserts it.
-00727cb0	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
-00727d40	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
+00727cb0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:207
+00727d40	x	implemented: cited at crates/ac2-net/src/protocol/gameplay/combat.rs:4
 00727dd0	-	no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
-00727e60	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
-00727ef0	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
-00727f80	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-00728020	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-007280c0	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
-00728150	_	ac2-weenie GameplayNotice variant + Social/Progress state (adaptor shapes); raised by the script VM's glue, not by a stand-in
+00727e60	x	implemented: cited at crates/ac2-weenie/src/notice.rs:209
+00727ef0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:19
+00727f80	x	implemented: cited at crates/ac2-weenie/src/notice.rs:120
+00728020	x	implemented: cited at crates/ac2-weenie/src/notice.rs:118
+007280c0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:116
+00728150	x	implemented: cited at crates/ac2-weenie/src/notice.rs:122
 007281f0	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 00728220	_	needs port (check): GUN chat receive (HearUser); Rust room chat is protocol/turbine_chat.rs, confirm same path
 00728240	-	ctor/dtor/operator= of plain data or container: Rust owns the state

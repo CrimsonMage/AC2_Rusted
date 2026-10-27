@@ -3576,7 +3576,7 @@ Legend and workflow: [README](README.md).
 
 ### ProcessTable
 - [-] `ProcessTable::~ProcessTable` · 006e17f0 — C++ destructor (Rust drop replaces it)
-- [ ] `ProcessTable::UnRegisterProcess` · 006e1830 · legions 00668660
+- [ ] `ProcessTable::UnRegisterProcess` · 006e1830 · legions 00668660 — needs port: VM process table UnRegisterProcess
 - [ ] `ProcessTable::GetProcess` · 006e1860 · legions 00668640 — needs port: VM process table GetProcess
 - [-] `ProcessTable::QueryProcess` · 006e1880 · legions 00668690 — WSL debugger query or dump (process, reference and perf tables)
 - [-] `ProcessTable::ProcessTable` · 006e18b0 · legions 006686c0 — C++ constructor of plain data or a container (Rust struct init)
@@ -3632,7 +3632,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/vm.cpp.c` (13/66)
 
 ### VM
-- [ ] `VM::CreateProcessA` · 006dbe00 · legions 006652b0
+- [ ] `VM::CreateProcessA` · 006dbe00 · legions 006652b0 — needs port: VM CreateProcessA (process creation)
 - [ ] `VM::CreateProcessA` · 006dbe30 · legions 006652e0 — needs port: VM CreateProcessA (process creation)
 - [ ] `VM::CopyNativeObject` · 006dbe60 · legions 00665310 — needs port: VM::CopyNativeObject (native object copy)
 - [ ] `VM::IsDerivedFrom` · 006dbe80 · legions 00665330 — needs port (check): implemented as glue/vm_glue.rs is_derived_from but uncited
