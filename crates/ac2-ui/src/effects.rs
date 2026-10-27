@@ -165,7 +165,7 @@ impl EffectsUi {
                         tree.delete_element(removed);
                     }
                 }
-            } else if eid == Some(self.selected_effect) && self.selected_effect != 0 {
+            } else if eid == Some(self.selected_effect) {
                 self.selected_element = Some(item);
                 if let Some(field) = tree.child_recursive(item, id("IconField")) {
                     tree.set_bool(field, id("Selected"), true);

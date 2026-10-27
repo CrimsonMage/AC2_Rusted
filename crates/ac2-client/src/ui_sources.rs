@@ -465,7 +465,7 @@ impl ClientPlayer<'_> {
                     V::Bool(b) => text(
                         a,
                         self.ui_string(
-                            if *b {
+                            if *b != 0 {
                                 "ID_Examination_True"
                             } else {
                                 "ID_Examination_False"
