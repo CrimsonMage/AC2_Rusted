@@ -98,6 +98,7 @@ impl ClientNet {
                     {
                         self.set_connection_state(id, ConnectionState::DisconnectSent);
                     }
+                    self.link_heartbeat(id, clock.local_time);
                     let ack = self
                         .receivers
                         .get_mut(&id)
@@ -137,6 +138,31 @@ impl ClientNet {
                 }
             }
         }
+    }
+
+    /// The world's part of `ClientNet::ProcessConnection`: every two seconds the world receiver
+    /// closes the link snapshot (its round trip, the time since it last got data, the time since
+    /// the last snapshot), averages it, tells the link-status plugins (`NotifyPluginsOfHeartbeat`)
+    /// and starts a new interval.
+    fn link_heartbeat(&mut self, id: u16, local_time: f64) {
+        if id != self.world_rec {
+            return;
+        }
+        let Some(r) = self.receivers.get_mut(&id) else {
+            return;
+        };
+        if local_time - r.last_heartbeat < 2.0 {
+            return;
+        }
+        r.last_heartbeat = local_time;
+        let mut snap = self.link_current;
+        snap.round_trip = r.round_trip;
+        snap.since_last_data = (local_time - r.last_got_data) as f32;
+        snap.duration = (local_time - self.link.local_time_of_snapshot()) as f32;
+        self.link.add_snapshot(&snap, local_time);
+        self.link_current = Default::default();
+        // `NotifyPluginsOfHeartbeat` runs once per frame at most, so one heartbeat is held.
+        self.link_heartbeat = Some(Box::new(self.link.clone()));
     }
 
     /// `ClientNet::RemoveConnection`.

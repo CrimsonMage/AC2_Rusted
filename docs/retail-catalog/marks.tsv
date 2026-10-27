@@ -869,7 +869,7 @@ key	status	note
 0044d3d0	~	ac2-ui net_status.rs: the graph history ring is kept (on_heartbeat / history); the blit into the render surface and GraphTool drawing are not ported
 0044d720	x	ac2-ui net_status.rs: ring resized to the graph width in push_column (AddNElements); destructor is Rust drop
 0044d750	x	ac2-ui net_status.rs: ring resized to the graph width in push_column (AddNElements); destructor is Rust drop
-0044d800	~	ac2-ui net_status.rs NetStatusUi::on_heartbeat: tooltip, graph column and state (thresholds from the field). Partial: no LinkSample feed (client keeps no link averages), and the bandwidth tooltip is joined on a second line rather than one StringInfo; ID var precision not recovered
+0044d800	~	ac2-ui net_status.rs NetStatusUi::on_heartbeat with LinkSample::from_link (ac2-net LinkAverages). Partial: no client status-bar host calls it yet (IndicatorsUi is unused), and the bandwidth tooltip is joined on a second line rather than one StringInfo
 0044da90	~	ac2-ui net_status.rs: not ported, the draw_done message's DrawBandwidthGraph (drawing not ported)
 0044dab0	~	ac2-ui net_status.rs NetStatusUi::create: NetStatusField lookup and good/bad/ugly thresholds. Not: the CWeenieObject notice registrations (0x46d, 0x417) and the CLinkStatusPlugin registration
 0044dc80	x	ac2-ui meter.rs
@@ -2089,10 +2089,13 @@ key	status	note
 004c59b0	x	
 004c5a40	x	ReceiverData::m_SeqIDsWeNAKed as a BTreeMap: same key order for GetNaks, same add/remove results
 004c5b80	x	
+004c5b90	x	ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
 004c5c80	x	
 004c5d20	x	
 004c5d60	x	
 004c5db0	x	
+004c5de0	~	ac2-net: the link counters are in ClientNet::AddToPerfCounter; the SharedNet per-net counters (bad packets, header counts, paks) are not kept
+004c5ed0	x	ac2-net net.rs: the link counters (bytes sent and received, packets sent, received and retransmitted); the NAK counter is never fired in Legions 7160
 004c5f90	x	
 004c5fd0	x	
 004c60c0	x	
@@ -2104,6 +2107,7 @@ key	status	note
 004c6980	x	SessionKey::generate + ServerPublicKey: Base-provider 40-bit RC4 with 11-byte zero salt; key-container fallback (InitCliCrypto) not needed
 004c6bd0	x	
 004c6d80	~	Net_LoginConnectionError / Net_WorldConnectionError surface as NetEvent::ConnectionError; no plugin list
+004c6dd0	~	ac2-net net_connections.rs link_heartbeat holds one averaged copy for ac2-weenie SessionEvent::LinkHeartbeat; no plugin list (Add/RemoveLinkStatusPlugin not ported)
 004c6e10	x	
 004c6e60	x	
 004c6ee0	x	
@@ -2130,7 +2134,7 @@ key	status	note
 004c8240	x	
 004c82c0	x	
 004c8420	x	
-004c8430	~	heartbeat link-status snapshots not kept
+004c8430	x	ac2-net net_connections.rs process_connections: the 2 s world heartbeat closes the link snapshot and emits SessionEvent::LinkHeartbeat (ac2-weenie session.rs)
 004c8a50	x	
 004c8b40	~	ac2-net resolve_server: host cut at ',' then ':', htons(port), GetSinAddr; interface binding elsewhere
 004c9050	~	connection sequence from real time and SIMPLEBLOB session-key export; no address/interface parsing
@@ -2144,6 +2148,16 @@ key	status	note
 004c9d40	x	ac2-net ClientEvent::CharGenResult (queue 8) / ac2-weenie OnlineSession::create_character; CharGenData::Save capture in ac2-client
 004c9e00	x	
 004c9e70	x	
+004c9f80	x	ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
+004c9ff0	x	ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
+004ca060	x	ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
+004ca0e0	x	ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
+004ca150	x	ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
+004ca190	x	ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
+004ca1c0	x	ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
+004ca2a0	x	ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
+004ca2b0	~	ac2-net net_connections.rs link_heartbeat holds one averaged copy for ac2-weenie SessionEvent::LinkHeartbeat; no plugin list (Add/RemoveLinkStatusPlugin not ported)
+004ca2e0	~	ac2-net net_connections.rs link_heartbeat holds one averaged copy for ac2-weenie SessionEvent::LinkHeartbeat; no plugin list (Add/RemoveLinkStatusPlugin not ported)
 004ca310	x	
 004ca320	x	
 004ca340	x	

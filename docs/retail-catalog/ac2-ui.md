@@ -976,7 +976,7 @@ Legend and workflow: [README](README.md).
 
 ### gmNetStatusUI
 - [x] `gmNetStatusUI::~gmNetStatusUI` · 0044d750 · legions 0044e920 — ac2-ui net_status.rs: ring resized to the graph width in push_column (AddNElements); destructor is Rust drop
-- [~] `gmNetStatusUI::OnHeartbeat` · 0044d800 · legions 0044e9d0 — ac2-ui net_status.rs NetStatusUi::on_heartbeat: tooltip, graph column and state (thresholds from the field). Partial: no LinkSample feed (client keeps no link averages), and the bandwidth tooltip is joined on a second line rather than one StringInfo; ID var precision not recovered
+- [~] `gmNetStatusUI::OnHeartbeat` · 0044d800 · legions 0044e9d0 — ac2-ui net_status.rs NetStatusUi::on_heartbeat with LinkSample::from_link (ac2-net LinkAverages). Partial: no client status-bar host calls it yet (IndicatorsUi is unused), and the bandwidth tooltip is joined on a second line rather than one StringInfo
 - [~] `gmNetStatusUI::ListenToMessage` · 0044da90 · legions 0044ec60 — ac2-ui net_status.rs: not ported, the draw_done message's DrawBandwidthGraph (drawing not ported)
 - [~] `gmNetStatusUI::gmNetStatusUI` · 0044dab0 · legions 0044ec80 — ac2-ui net_status.rs NetStatusUi::create: NetStatusField lookup and good/bad/ugly thresholds. Not: the CWeenieObject notice registrations (0x46d, 0x417) and the CLinkStatusPlugin registration
 

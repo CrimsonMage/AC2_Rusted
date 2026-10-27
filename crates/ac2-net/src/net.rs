@@ -16,6 +16,7 @@ use crate::controller::{Clock, PacketController};
 use crate::flow::{standalone, Destination};
 use crate::handshake::Logon;
 use crate::header::{flags, PacketHeader, HEADER_LEN};
+use crate::link_status::{LinkAverages, LinkSnapshot};
 use crate::optional::{Connect, NetErrorId, OptionalHeader};
 use crate::packet::{split_packet, InboundPacket, MAX_DATAGRAM};
 use crate::receiver::{ConnectionState, Receiver};
@@ -100,6 +101,13 @@ pub struct ClientNet {
     last_did_use_time: f64,
     out: Vec<(SocketAddr, Vec<u8>)>,
     events: Vec<NetEvent>,
+    /// `m_CurrentLinkStatus`: the counters of the heartbeat interval in progress.
+    link_current: LinkSnapshot,
+    /// `m_LinkStatusAverages`.
+    link: LinkAverages,
+    /// The averages of the last world heartbeat not yet taken
+    /// ([`ClientNet::take_link_heartbeat`]).
+    link_heartbeat: Option<Box<LinkAverages>>,
     /// `hSessionKey_`: encrypts queue 6-8 blobs (`Proto_UI::SendBlob`).
     pub(crate) session_key: Option<SessionKey>,
 }
@@ -135,6 +143,9 @@ impl ClientNet {
             last_did_use_time: 0.0,
             out: Vec::new(),
             events: Vec::new(),
+            link_current: LinkSnapshot::default(),
+            link: LinkAverages::default(),
+            link_heartbeat: None,
             session_key: logon.crypto.as_ref().map(|c| c.key.clone()),
         }
     }
@@ -200,6 +211,13 @@ impl ClientNet {
     /// `ClientNet::SendBuff`: nothing leaves once the logoff went out.
     fn send(&mut self, to: SocketAddr, datagram: Vec<u8>) {
         if !self.log_off_sent {
+            // `SharedNet::SendBuff` (`BytesSentCounter`) and `SharedNet::SendPacket`
+            // (`PacketsSentCounter`).
+            self.link_current.bytes_sent = self
+                .link_current
+                .bytes_sent
+                .wrapping_add(datagram.len() as u32);
+            self.link_current.packets_sent = self.link_current.packets_sent.wrapping_add(1);
             self.out.push((to, datagram));
         }
     }
@@ -208,10 +226,15 @@ impl ClientNet {
     fn flush(&mut self) {
         let clock = self.clock();
         let mut sent = Vec::new();
-        self.controller
-            .use_time(clock, &mut self.receivers, |id, to, datagram| {
-                sent.push((id, to, datagram))
-            });
+        let retransmitted =
+            self.controller
+                .use_time(clock, &mut self.receivers, |id, to, datagram| {
+                    sent.push((id, to, datagram))
+                });
+        self.link_current.packets_retransmitted = self
+            .link_current
+            .packets_retransmitted
+            .wrapping_add(retransmitted as u16);
         for (id, to, datagram) in sent {
             if let Some(addr) = self.receivers.get(&id).map(|r| r.addr) {
                 self.send(destination(addr, to), datagram);
@@ -255,6 +278,11 @@ impl ClientNet {
 
     /// `SharedNet::ReadNextPacket` and `ClientNet::ProcessPacket`.
     fn process_datagram(&mut self, from: SocketAddr, bytes: &[u8]) {
+        // `SharedNet::ReadNextPacket`: every datagram read counts (`BytesReceivedCounter`).
+        self.link_current.bytes_received = self
+            .link_current
+            .bytes_received
+            .wrapping_add(bytes.len() as u32);
         if bytes.len() < HEADER_LEN || bytes.len() > MAX_DATAGRAM + HEADER_LEN {
             return;
         }
@@ -284,7 +312,15 @@ impl ClientNet {
         }
         let connected = self.receivers.contains_key(&id);
         let packet = match split_packet(bytes, checksum, connected) {
-            Ok(packet) => packet,
+            Ok(packet) => {
+                // `SharedNet::SplitPacketData`: a valid packet with optional headers or data
+                // counts as received (`OptionalHeaders*` and `DataOnlyPacketsReceivedCounter`).
+                if !packet.optional.is_empty() || !packet.fragments.is_empty() {
+                    self.link_current.packets_received =
+                        self.link_current.packets_received.wrapping_add(1);
+                }
+                packet
+            }
             Err(_) => {
                 // A damaged sequenced packet is NAKed again under the same key.
                 if let (Some(receiver), Some(key)) = (self.receivers.get_mut(&id), key) {
@@ -406,10 +442,17 @@ impl ClientNet {
                     local_time,
                 );
             }
+            // `ClientNet::ProcessOptionalHeader`: `((float)now - (float)echo) - (float)holding`
+            // in double (the only rounding is the `float` store of `RoundTripLatency_`); the
+            // world's is also averaged (`CLinkStatusAverages::OnPingResponse`).
             OptionalHeader::EchoResponse { echo, holding } => {
+                let round_trip = ((f64::from(local_time as f32) - f64::from(*echo))
+                    - f64::from(*holding)) as f32;
                 if let Some(r) = self.receivers.get_mut(&id) {
-                    r.round_trip = ((f64::from(local_time as f32) - f64::from(*echo))
-                        - f64::from(*holding)) as f32;
+                    r.round_trip = round_trip;
+                }
+                if id == self.world_rec {
+                    self.link.on_ping_response(round_trip);
                 }
             }
             OptionalHeader::NetErrorDisconnect(reason) => {
@@ -566,6 +609,12 @@ impl ClientNet {
         let datagram = standalone(OptionalHeader::ConnectAck(r.cookie), r.net_id, r.iteration);
         let to = destination(r.addr, Destination::PeerPortPlusOne);
         self.send(to, datagram);
+    }
+
+    /// The link averages of the last world heartbeat (`ClientNet::NotifyPluginsOfHeartbeat`),
+    /// once: the status indicator takes them.
+    pub fn take_link_heartbeat(&mut self) -> Option<Box<LinkAverages>> {
+        self.link_heartbeat.take()
     }
 
     /// Datagrams queued outside a frame (the logoff).

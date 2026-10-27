@@ -104,6 +104,9 @@ pub(crate) struct FlowQueue {
     compiled_empty: usize,
     sent: SentPacketStore,
     pub packets_sent: u32,
+    /// Resent reliable packets not yet counted into the link snapshot
+    /// (`ClientFlowQueue::TransmitAcks`'s `RetransmitsSentCounter`).
+    pub retransmitted: u32,
     /// Headers and blobs ever queued, so a caller can tell a flush queued more.
     enqueued: u64,
 }
@@ -125,6 +128,7 @@ impl FlowQueue {
             compiled_empty: 0,
             sent: SentPacketStore::default(),
             packets_sent: 0,
+            retransmitted: 0,
             enqueued: 0,
         }
     }
@@ -315,6 +319,7 @@ impl FlowQueue {
             header.size = packet.size as u16;
             out.push((Destination::Peer, packet.datagram(header)));
             self.packets_sent += 1;
+            self.retransmitted += 1;
         }
     }
 

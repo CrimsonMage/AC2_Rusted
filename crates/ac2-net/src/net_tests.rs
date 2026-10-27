@@ -530,3 +530,41 @@ fn client_key(sequence: u32) -> u32 {
 
 #[path = "net_disconnect_tests.rs"]
 mod disconnect;
+
+#[test]
+fn the_world_heartbeat_averages_the_link_every_two_seconds() {
+    let (mut net, mut server) = logged_on();
+    let before = net.link_current.bytes_received;
+    // An echo request (12.5) arrives at 1.0; the server answers the client's echo (sent at
+    // local time 1.0) at 2.0 after holding it for 0.25: a round trip of 0.75.
+    let request = server.reliable(1, OptionalHeader::EchoRequest(12.5));
+    let response = server.reliable(
+        1,
+        OptionalHeader::EchoResponse {
+            echo: 1.0,
+            holding: 0.25,
+        },
+    );
+    let received = (request.len() + response.len()) as u32;
+    net.use_time(1.0, REAL, vec![(addr(SERVER), request)]);
+    assert!(net.take_link_heartbeat().is_none());
+    net.use_time(2.0, REAL, vec![(addr(SERVER), response)]);
+    // One second short of the two-second heartbeat: nothing yet.
+    assert!(net.take_link_heartbeat().is_none());
+    assert_eq!(net.connection_state(SLOT), Some(ConnectionState::Connected));
+    net.use_time(2.25, REAL, vec![]);
+    let links = net
+        .take_link_heartbeat()
+        .expect("the heartbeat fires two seconds after the connect");
+    assert!(net.take_link_heartbeat().is_none());
+    // `ClientNet::ProcessConnection`: the snapshot holds the interval's counters, the world's
+    // round trip, the time since data (2.25 - 2.0) and the duration (the first snapshot).
+    assert_eq!(links.snapshot.round_trip, 0.75);
+    assert_eq!(links.snapshot.since_last_data, 0.25);
+    assert_eq!(links.snapshot.duration, 2.25);
+    assert_eq!(links.snapshot.bytes_received, before + received);
+    assert_eq!(links.mean_round_trip(), 0.75);
+    assert_eq!(links.local_time_of_snapshot(), 2.25);
+    // The next interval starts from zero counters.
+    assert_eq!(net.link_current.bytes_received, 0);
+}

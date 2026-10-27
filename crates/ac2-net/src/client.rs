@@ -170,6 +170,12 @@ impl NetClient {
         self.pending.drain(..).collect()
     }
 
+    /// The link averages of the last world heartbeat, once (see
+    /// [`ClientNet::take_link_heartbeat`]).
+    pub fn take_link_heartbeat(&mut self) -> Option<Box<crate::LinkAverages>> {
+        self.net.take_link_heartbeat()
+    }
+
     /// Pumps frames until an event arrives or `timeout` passes.
     pub fn next_event(&mut self, timeout: Duration) -> Option<NetEvent> {
         let deadline = self.elapsed() + timeout.as_secs_f64();

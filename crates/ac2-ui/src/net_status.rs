@@ -6,10 +6,13 @@
 //! (`stateless`, `good`, `bad` or `ugly`). The thresholds are the field's `good`, `bad` and `ugly`
 //! float attributes.
 //!
+//! The session emits each world heartbeat (`SessionEvent::LinkHeartbeat`, the `ac2_net`
+//! averages). The status bar host turns it into a [`LinkSample`] with
+//! [`LinkSample::from_link`] and calls [`NetStatusUi::on_heartbeat`]; no client host exists yet.
 //! Not modelled yet: the bandwidth graph's drawing (`gmNetStatusUI::DrawBandwidthGraph` blits the
 //! history into a render surface) and the latency-graph option (`RecvNotice_ReloadOptions`).
-//! No code feeds [`LinkSample`]s yet: the client keeps no link averages (`Receiver`'s
-//! `round_trip` and `bytes_received` are never updated), so the field stays `stateless`.
+
+use ac2_net::LinkAverages;
 
 use crate::element::UiTree;
 use crate::fellow_info::FellowStrings;
@@ -26,19 +29,35 @@ fn id(name: &str) -> u32 {
 const TOOLTIP: &str = "ID_Indicator_TT_NetStatus";
 const TOOLTIP_BANDWIDTH: &str = "ID_Indicator_TT_NetStatusBW";
 
-/// What `CLinkStatusAverages` reports at a heartbeat.
+/// What `gmNetStatusUI::OnHeartbeat` reads from `CLinkStatusAverages`.
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub struct LinkSample {
     /// The mean round trip, in seconds (`m_RoundTripDelays`; 0 with no samples).
-    pub round_trip: f32,
+    pub round_trip: f64,
     /// `GetAveragePacketLoss`, as a fraction.
-    pub packet_loss: f32,
+    pub packet_loss: f64,
     /// Bytes received over the last snapshot, per second.
     pub bytes_in_per_second: f32,
-    /// Bytes sent over the last snapshot, per second.
+    /// Bytes sent over the last snapshot, whole bytes per second (`(long)` in retail).
     pub bytes_out_per_second: f32,
     /// `CLinkStatusSnapshot::TimeSinceLastGotData`, in seconds.
     pub since_last_data: f32,
+}
+
+impl LinkSample {
+    /// `gmNetStatusUI::OnHeartbeat`'s reads: the rates are the last snapshot's counters over its
+    /// duration, in `float` (`1.0 / SnapshotDuration`, then the products).
+    pub fn from_link(links: &LinkAverages) -> Self {
+        let snap = links.snapshot;
+        let per_second = 1.0f32 / snap.duration;
+        Self {
+            round_trip: links.mean_round_trip(),
+            packet_loss: links.packet_loss(),
+            bytes_in_per_second: snap.bytes_received as f32 * per_second,
+            bytes_out_per_second: (snap.bytes_sent as f32 * per_second).trunc(),
+            since_last_data: snap.since_last_data,
+        }
+    }
 }
 
 /// `gmNetStatusUI::GraphHistoryColumn`: one heartbeat's bytes sent and received.
@@ -113,11 +132,12 @@ impl NetStatusUi {
             value,
             precision: 0,
         };
+        let loss = (sample.packet_loss * 100.0) as f32;
         let latency = strings.render(
             id(TOOLTIP),
             &[
-                (id("latency"), float(f64::from(sample.round_trip) * 1000.0)),
-                (id("loss"), float(f64::from(sample.packet_loss) * 100.0)),
+                (id("latency"), float(sample.round_trip * 1000.0)),
+                (id("loss"), float(f64::from(loss))),
             ],
         );
         let bandwidth = strings.render(
@@ -176,5 +196,45 @@ impl NetStatusUi {
         }
         self.history[self.offset] = column;
         self.offset = (self.offset + 1) % width;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use ac2_net::{LinkAverages, LinkSnapshot};
+
+    use super::LinkSample;
+
+    /// `gmNetStatusUI::OnHeartbeat`'s reads over a heartbeat: the rates are the snapshot's bytes
+    /// over its duration (the first sample counts one second only in the averages, not here).
+    #[test]
+    fn a_heartbeat_reads_the_last_snapshot_as_rates() {
+        let mut links = LinkAverages::default();
+        links.add_snapshot(
+            &LinkSnapshot {
+                duration: 2.0,
+                bytes_received: 1000,
+                bytes_sent: 501,
+                since_last_data: 0.25,
+                ..Default::default()
+            },
+            10.0,
+        );
+        let sample = LinkSample::from_link(&links);
+        assert_eq!(sample.bytes_in_per_second, 500.0);
+        // (long)(501 / 2.0) truncates to 250.
+        assert_eq!(sample.bytes_out_per_second, 250.0);
+        assert_eq!(sample.since_last_data, 0.25);
+        assert_eq!(sample.round_trip, 0.0);
+        assert_eq!(sample.packet_loss, 0.0);
+    }
+
+    #[test]
+    fn the_round_trip_is_the_mean_of_the_world_pings() {
+        let mut links = LinkAverages::default();
+        links.on_ping_response(0.25);
+        links.on_ping_response(0.75);
+        let sample = LinkSample::from_link(&links);
+        assert!((sample.round_trip - 0.5).abs() < 1e-6);
     }
 }

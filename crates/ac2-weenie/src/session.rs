@@ -182,6 +182,9 @@ pub enum SessionEvent {
     ServerDied,
     /// The session ended.
     Disconnected(String),
+    /// A world heartbeat's link averages (`gmNetStatusUI::OnHeartbeat` via
+    /// `ClientNet::NotifyPluginsOfHeartbeat`), once per two seconds.
+    LinkHeartbeat(Box<ac2_net::LinkAverages>),
     /// A notice the player's scripts raised (`CM_*::SendNotice_*`) for the UI.
     Notice(GameplayNotice),
     /// A chat command the port does not run natively ([`crate::ShellAction::Command`]).
@@ -325,6 +328,9 @@ impl OnlineSession {
     pub fn net_use_time(&mut self) {
         let events = self.client.poll();
         self.net_events.extend(events);
+        if let Some(links) = self.client.take_link_heartbeat() {
+            self.pending.push(SessionEvent::LinkHeartbeat(links));
+        }
     }
 
     /// `CEventQueue::UseTime` and the logon and DDD queues: dispatch what the network received.

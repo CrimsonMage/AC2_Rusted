@@ -56,6 +56,8 @@ pub(crate) struct Receiver {
     pub last_got_data: f64,
     /// `RoundTripLatency_`.
     pub round_trip: f32,
+    /// `localtimeLastHeartbeat_`: when the last link heartbeat was taken.
+    pub last_heartbeat: f64,
 }
 
 impl Receiver {
@@ -89,6 +91,7 @@ impl Receiver {
             last_sent_handshake: 0.0,
             last_got_data: local_time,
             round_trip: 0.0,
+            last_heartbeat: local_time,
         }
     }
 

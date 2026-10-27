@@ -161,8 +161,9 @@ impl PacketController {
         clock: Clock,
         receivers: &mut BTreeMap<u16, Receiver>,
         mut sink: impl FnMut(u16, Destination, Vec<u8>),
-    ) {
+    ) -> u32 {
         self.check_flow_timers(clock.cur_time);
+        let mut retransmitted = 0;
         while let Some(id) = self.queued.pop() {
             if id == 0 {
                 break;
@@ -192,6 +193,7 @@ impl PacketController {
             for (to, datagram) in recipient.flow.empty(&mut ctx) {
                 sink(id, to, datagram);
             }
+            retransmitted += std::mem::take(&mut recipient.flow.retransmitted);
             if ctx.disconnect_sent {
                 recipient.state = ConnectionState::DisconnectSent;
             }
@@ -204,6 +206,7 @@ impl PacketController {
                 self.enqueue_recip(id);
             }
         }
+        retransmitted
     }
 }
 

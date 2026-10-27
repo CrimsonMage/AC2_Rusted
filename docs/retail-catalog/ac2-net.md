@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 218 done, 16 partial, 322 to do, 0 skipped.
+556 retail functions: 229 done, 19 partial, 308 to do, 0 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -385,7 +385,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Indicator::~Indicator` · 004ce980 · legions 004c2ef0
 - [x] `Indicator::CheckInPacket` · 004ce9d0 · legions 004c2f40
 
-## `portal/client/src/clinet/clientnet.cpp.c` (56/83)
+## `portal/client/src/clinet/clientnet.cpp.c` (59/83)
 
 ### CQuickTimer
 - [ ] `CQuickTimer::Expired` · 004c52b0 · legions 004b9670
@@ -425,17 +425,17 @@ Legend and workflow: [README](README.md).
 - [x] `CEchoResponseHeader::UpdateTimeSensitivePayload` · 004c5b80
 
 ### CLinkStatusAverages
-- [ ] `CLinkStatusAverages::CLinkStatusAverages` · 004c5b90 · legions 004b9f50
+- [x] `CLinkStatusAverages::CLinkStatusAverages` · 004c5b90 · legions 004b9f50 — ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
 
 ### SharedNet
 - [x] `SharedNet::ReadNextPacket` · 004c5c80 · legions 004ba040
 - [x] `SharedNet::HandlePak` · 004c5d20 · legions 004ba0e0
 - [x] `SharedNet::HandleNak` · 004c5d60 · legions 004ba120
 - [x] `SharedNet::SetNakState` · 004c5db0 · legions 004ba170
-- [ ] `SharedNet::AddToPerfCounter` · 004c5de0 · legions 004ba1a0
+- [~] `SharedNet::AddToPerfCounter` · 004c5de0 · legions 004ba1a0 — ac2-net: the link counters are in ClientNet::AddToPerfCounter; the SharedNet per-net counters (bad packets, header counts, paks) are not kept
 
 ### ClientNet
-- [ ] `ClientNet::AddToPerfCounter` · 004c5ed0 · legions 004ba290
+- [x] `ClientNet::AddToPerfCounter` · 004c5ed0 · legions 004ba290 — ac2-net net.rs: the link counters (bytes sent and received, packets sent, received and retransmitted); the NAK counter is never fired in Legions 7160
 
 ### TimeStampUtils
 - [x] `TimeStampUtils::OverflowCompare` · 004c5fd0 · legions 004ba390
@@ -461,7 +461,7 @@ Legend and workflow: [README](README.md).
 - [x] `ClientNet::InitCrypto` · 004c6980 · legions 004badc0 — SessionKey::generate + ServerPublicKey: Base-provider 40-bit RC4 with 11-byte zero salt; key-container fallback (InitCliCrypto) not needed
 - [x] `ClientNet::VerifyHeader` · 004c6bd0 · legions 004bb010
 - [~] `ClientNet::NotifyPluginsOfStatusChange` · 004c6d80 · legions 004bb1c0 — Net_LoginConnectionError / Net_WorldConnectionError surface as NetEvent::ConnectionError; no plugin list
-- [ ] `ClientNet::NotifyPluginsOfHeartbeat` · 004c6dd0 · legions 004bb210
+- [~] `ClientNet::NotifyPluginsOfHeartbeat` · 004c6dd0 · legions 004bb210 — ac2-net net_connections.rs link_heartbeat holds one averaged copy for ac2-weenie SessionEvent::LinkHeartbeat; no plugin list (Add/RemoveLinkStatusPlugin not ported)
 
 ### COnePrimHeader<134217728,16,CFlowStruct>
 - [x] `COnePrimHeader<134217728,16,CFlowStruct>::CreateFromData` · 004c6e10 · legions 004bb250
@@ -516,7 +516,7 @@ Legend and workflow: [README](README.md).
 - [x] `ClientNet::RemoveConnection` · 004c8240 · legions 004bc700
 - [x] `ClientNet::SendLoginRequest` · 004c82c0 · legions 004bc780
 - [x] `ClientNet::ProcessConnections` · 004c8420 · legions 004bc8e0
-- [~] `ClientNet::ProcessConnection` · 004c8430 · legions 004bc8f0 — heartbeat link-status snapshots not kept
+- [x] `ClientNet::ProcessConnection` · 004c8430 · legions 004bc8f0 — ac2-net net_connections.rs process_connections: the 2 s world heartbeat closes the link snapshot and emits SessionEvent::LinkHeartbeat (ac2-weenie session.rs)
 - [ ] `ClientNet::~ClientNet` · 004c8950 · legions 004bcea0
 - [x] `ClientNet::LogonUseTime` · 004c8a50 · legions 004bcfa0
 - [~] `ClientNet::InitAddresses` · 004c8b40 · legions 004bd090 — ac2-net resolve_server: host cut at ',' then ':', htons(port), GetSinAddr; interface binding elsewhere
@@ -534,29 +534,29 @@ Legend and workflow: [README](README.md).
 ### ClientNet
 - [ ] `ClientNet::ClientNet` · 004c9a70 · legions 004be060
 
-## `portal/client/src/clinet/linkstatus.cpp.c` (0/10)
+## `portal/client/src/clinet/linkstatus.cpp.c` (8/10)
 
 ### CLinkStatusAverages::CAverager<float,4>
-- [ ] `CLinkStatusAverages::CAverager<float,4>::AddSample` · 004c9f80 · legions 004be560
+- [x] `CLinkStatusAverages::CAverager<float,4>::AddSample` · 004c9f80 · legions 004be560 — ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
 
 ### CLinkStatusAverages::CAverager<unsigned_short,40>
-- [ ] `CLinkStatusAverages::CAverager<unsigned_short,40>::AddSample` · 004c9ff0 · legions 004be5d0
+- [x] `CLinkStatusAverages::CAverager<unsigned_short,40>::AddSample` · 004c9ff0 · legions 004be5d0 — ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
 
 ### CLinkStatusAverages::CAverager<unsigned_long,2>
-- [ ] `CLinkStatusAverages::CAverager<unsigned_long,2>::AddSample` · 004ca060 · legions 004be640
+- [x] `CLinkStatusAverages::CAverager<unsigned_long,2>::AddSample` · 004ca060 · legions 004be640 — ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
 
 ### CLinkStatusAverages::CAverager<double,2>
-- [ ] `CLinkStatusAverages::CAverager<double,2>::AddSample` · 004ca0e0 · legions 004be6c0
+- [x] `CLinkStatusAverages::CAverager<double,2>::AddSample` · 004ca0e0 · legions 004be6c0 — ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
 
 ### CLinkStatusAverages
-- [ ] `CLinkStatusAverages::GetAveragePacketLoss` · 004ca150 · legions 004be730
-- [ ] `CLinkStatusAverages::GetAverageBytesPerSecondReceived` · 004ca190 · legions 004be770
-- [ ] `CLinkStatusAverages::AddSnapshot` · 004ca1c0 · legions 004be7a0
-- [ ] `CLinkStatusAverages::OnPingResponse` · 004ca2a0 · legions 004be880
+- [x] `CLinkStatusAverages::GetAveragePacketLoss` · 004ca150 · legions 004be730 — ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
+- [x] `CLinkStatusAverages::GetAverageBytesPerSecondReceived` · 004ca190 · legions 004be770 — ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
+- [x] `CLinkStatusAverages::AddSnapshot` · 004ca1c0 · legions 004be7a0 — ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
+- [x] `CLinkStatusAverages::OnPingResponse` · 004ca2a0 · legions 004be880 — ac2-net link_status.rs (LinkAverages, Averager, RoundTripAverager): the averages, packet loss and bytes per second; AddSnapshot fed by net_connections.rs link_heartbeat
 
 ### (free functions)
-- [ ] `RemoveLinkStatusPlugin` · 004ca2b0 · legions 004be890
-- [ ] `AddLinkStatusPlugin` · 004ca2e0 · legions 004be8c0
+- [~] `RemoveLinkStatusPlugin` · 004ca2b0 · legions 004be890 — ac2-net net_connections.rs link_heartbeat holds one averaged copy for ac2-weenie SessionEvent::LinkHeartbeat; no plugin list (Add/RemoveLinkStatusPlugin not ported)
+- [~] `AddLinkStatusPlugin` · 004ca2e0 · legions 004be8c0 — ac2-net net_connections.rs link_heartbeat holds one averaged copy for ac2-weenie SessionEvent::LinkHeartbeat; no plugin list (Add/RemoveLinkStatusPlugin not ported)
 
 ## `portal/client/src/clinet/pui.cpp.c` (7/8)
 
