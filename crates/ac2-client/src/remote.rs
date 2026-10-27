@@ -14,8 +14,8 @@ use std::sync::Arc;
 
 use ac2_net::protocol::ServerPosition;
 use ac2_physics::{
-    CellSource, Frame, Heading, LookTarget, PhysicsBody, Position, Quaternion, SetPositionError,
-    Terrain, Vector,
+    CellSource, Frame, Heading, LookTarget, ObjectShape, PhysicsBody, Position, Quaternion,
+    SetPositionError, StaticObject, Terrain, Vector,
 };
 use ac2_weenie::{OnlineSession, RemoteObject};
 
@@ -54,6 +54,46 @@ pub(crate) struct Remote {
     active: bool,
     /// `CPhysicsObj::m_fPlayerDistance`.
     player_distance: f32,
+    /// The Setup's collision shape and total scale, once the body exists (`CPartArray` of the
+    /// visual); `None` when the Setup has no physics shape.
+    object: Option<(Arc<ObjectShape>, Vector)>,
+    /// The body's entry in the world's object lists (`CObjCell::AddObject`), while it is in the
+    /// world with a shape.
+    shadow: Option<u32>,
+    /// An FX object: ethereal to every mover (`FXManager::DoCreateObjectFX`).
+    ethereal: bool,
+}
+
+/// `CPhysicsObj::add_to_cells` / `remove_from_cells` and `CObjCell::AddObject` /
+/// `RemoveObject` for one remote: while the object is in the world with a body and a shape, its
+/// entry in the world's object lists is at its body's position; otherwise it is not listed.
+fn sync_shadow(remote: &mut Remote, terrain: &mut Terrain) {
+    let wanted = match (&remote.body, &remote.object, remote.in_world) {
+        (Some(body), Some((shape, scale)), true) => {
+            Some((body.position(), Arc::clone(shape), *scale, body.is_mobile()))
+        }
+        _ => None,
+    };
+    match (wanted, remote.shadow) {
+        (Some((position, shape, scale, mobile)), None) => {
+            let mut object = StaticObject::dynamic(position, scale, shape, mobile);
+            object.set_ethereal(remote.ethereal);
+            let id = terrain.insert_object(object);
+            remote.shadow = Some(id);
+            if let Some(body) = remote.body.as_mut() {
+                body.set_world_id(Some(id));
+            }
+        }
+        (Some((position, ..)), Some(id)) => terrain.move_object(id, position),
+        (None, Some(id)) => {
+            terrain.remove_object(id);
+            remote.shadow = None;
+            if let Some(body) = remote.body.as_mut() {
+                body.set_world_id(None);
+            }
+        }
+        (None, None) => {}
+    }
 }
 
 impl Remote {
@@ -85,6 +125,9 @@ impl Remote {
         self.lost_cell
     }
 }
+
+/// `FXManager::DoCreateObjectFX`'s `CollisionParameters` bit for an FX object.
+const FX_OBJECT_COLLISION_BIT: u32 = 0x10;
 
 /// The received position as a `Position`: the pack's heading on an upright frame
 /// (`PositionOffset::ToPosition`, `Frame::set_heading`).
@@ -131,7 +174,7 @@ pub(crate) struct Remotes {
 /// What the remote objects need from the client on each call.
 pub(crate) struct Context<'a> {
     pub session: &'a mut OnlineSession,
-    pub terrain: &'a Terrain,
+    pub terrain: &'a mut Terrain,
     /// The player's position (`CPhysics::GetObjectA(player_id)->GetPosition`).
     pub player: Option<Position>,
 }
@@ -185,6 +228,9 @@ impl Remotes {
                 lost_cell: None,
                 active: true,
                 player_distance: 0.0,
+                object: None,
+                shadow: None,
+                ethereal: false,
             },
         );
         self.try_create(id, cx);
@@ -228,6 +274,12 @@ impl Remotes {
         let start = remote.stored.unwrap_or_default();
         let mut body = PhysicsBody::new(start, data.shape, data.motion);
         body.set_radius(data.radius);
+        remote.object = data.object.clone();
+        if remote.ethereal {
+            // `FXManager::DoCreateObjectFX`: `CollisionParameters::SetBit(0x10)` and the ETHEREAL
+            // physics type, which the object's list entry carries (`sync_shadow`).
+            body.collision_mut().set_bit(FX_OBJECT_COLLISION_BIT);
+        }
         if let Some(animation) = data.animation {
             body.set_animation(animation);
         }
@@ -479,11 +531,22 @@ impl Remotes {
         }
     }
 
-    /// `CObjectMaint::DestroyObjectInternal` removed the object.
-    pub(crate) fn removed(&mut self, id: u64) {
+    /// `CObjectMaint::DestroyObjectInternal` removed the object: its entry leaves the world's
+    /// object lists.
+    pub(crate) fn removed(&mut self, id: u64, terrain: &mut Terrain) {
         self.remove_from_lost_cell(id);
-        self.objects.remove(&id);
+        if let Some(shadow) = self.objects.remove(&id).and_then(|r| r.shadow) {
+            terrain.remove_object(shadow);
+        }
         self.local.remove(&id);
+    }
+
+    /// Every remote's entry in the world's object lists is brought up to date (after the
+    /// session's events and the FX objects' changes).
+    pub(crate) fn sync_shadows(&mut self, terrain: &mut Terrain) {
+        for remote in self.objects.values_mut() {
+            sync_shadow(remote, terrain);
+        }
     }
 
     /// `CObjectMaint::CreateTemporaryObject`: an object the client makes (an FX's), of `visual`
@@ -507,6 +570,9 @@ impl Remotes {
                 lost_cell: None,
                 active: true,
                 player_distance: 0.0,
+                object: None,
+                shadow: None,
+                ethereal: true,
             },
         );
         self.local.insert(id);
@@ -573,15 +639,15 @@ impl Remotes {
     /// `CPhysics::UpdateAllPhysics` for the objects: each one in the world and in physics range
     /// runs the quantum.
     /// `cur_time` is the server clock the positions were stamped on.
-    pub(crate) fn step_quantum(&mut self, terrain: &Terrain, cur_time: f64) {
+    pub(crate) fn step_quantum(&mut self, terrain: &mut Terrain, cur_time: f64) {
         for remote in self.objects.values_mut() {
-            if !remote.in_world || !remote.active {
-                continue;
+            if remote.in_world && remote.active {
+                if let Some(body) = &mut remote.body {
+                    body.set_time(cur_time);
+                    body.step_quantum(terrain);
+                }
             }
-            if let Some(body) = &mut remote.body {
-                body.set_time(cur_time);
-                body.step_quantum(terrain);
-            }
+            sync_shadow(remote, terrain);
         }
     }
 
@@ -645,8 +711,13 @@ impl Remotes {
         self.bodies.get(&visual)?.as_ref().ok()
     }
 
-    /// Leaving the world: every object goes.
-    pub(crate) fn clear(&mut self) {
+    /// Leaving the world: every object goes, and its entry with it.
+    pub(crate) fn clear(&mut self, terrain: &mut Terrain) {
+        for remote in self.objects.values() {
+            if let Some(shadow) = remote.shadow {
+                terrain.remove_object(shadow);
+            }
+        }
         self.objects.clear();
         self.lost_cells.clear();
     }

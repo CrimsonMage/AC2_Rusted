@@ -706,6 +706,7 @@ impl Client {
             for event in &events {
                 self.apply(event)?;
             }
+            self.remotes.sync_shadows(&mut self.terrain);
             // `CPhysics::UpdatePhysics` on `Timer::local_time`.
             let quanta = self.physics_clock.advance(now);
             let cur_time = self.session.cur_time();
@@ -727,7 +728,7 @@ impl Client {
                     }
                 }
                 // `CPhysics::UpdateAllPhysics`: the other objects.
-                self.remotes.step_quantum(&self.terrain, cur_time);
+                self.remotes.step_quantum(&mut self.terrain, cur_time);
             }
             // `CPhysicsObj::ReportCollisions` for the player: its script hears each impact.
             if let Some(id) = self.player.as_ref().map(|p| p.id) {
@@ -836,7 +837,7 @@ impl Client {
             SessionEvent::LeftWorld | SessionEvent::Disconnected(_) => {
                 self.player = None;
                 self.camera.reset();
-                self.remotes.clear();
+                self.remotes.clear(&mut self.terrain);
                 self.cells
                     .update_visible_cells(0, false, &mut self.terrain, &mut self.loader);
                 self.cells.take_changes();

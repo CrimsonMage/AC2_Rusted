@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 use ac2_core::{CellId, DataId};
 use ac2_db::ResourceStore;
-use ac2_physics::{BodyShape, Terrain};
+use ac2_physics::{load_object_scale, load_object_shape, BodyShape, ObjectShape, Terrain, Vector};
 use ac2_world::{Ac2MotionInterpDesc, Ac2WorldSource, GameClock};
 
 pub use ac2_smartbox::HUMAN_MOTION_INTERP_DESC;
@@ -26,6 +26,9 @@ pub struct BodyData {
     pub fx_sounds: Option<Arc<crate::FxSoundData>>,
     /// Its FX particle systems per FX id (the same table), when it has any.
     pub fx_particles: Option<Arc<ac2_assets::Ac2VisualFxParticles>>,
+    /// Its collision shape as a world object (`CPartArray`'s physics BSPs, cylinders and spheres)
+    /// and its root scale, when it has any: the object other movers collide with.
+    pub object: Option<(Arc<ObjectShape>, Vector)>,
 }
 
 /// The world data the client reads, shared with its loader threads.
@@ -172,11 +175,19 @@ pub(crate) fn load_body_data(
     // `ICPhysicsObj::makeObject`: an `EntityDesc` (an FX node's object) draws its template's visual.
     let visual = ac2_assets::resolve_ac2_entity_visual(store, visual).map_err(|e| e.to_string())?;
     let body = ac2_smartbox::load_body_data(store, visual)?;
+    let object = match load_object_shape(store, visual).map_err(|e| e.to_string())? {
+        Some(shape) => Some((
+            Arc::new(shape),
+            load_object_scale(store, visual).map_err(|e| e.to_string())?,
+        )),
+        None => None,
+    };
     Ok(BodyData {
         shape: body.shape,
         motion: body.motion,
         radius: body.radius,
         animation: body.animation,
+        object,
         fx_sounds: load_fx_sounds(store, visual)?,
         fx_particles: ac2_assets::resolve_ac2_visual_fx_particles(store, visual)
             .map_err(|e| e.to_string())?

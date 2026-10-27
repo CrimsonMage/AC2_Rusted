@@ -25,7 +25,7 @@ impl Client {
             &mut self.remotes,
             Context {
                 session: &mut self.session,
-                terrain: &self.terrain,
+                terrain: &mut self.terrain,
                 player,
             },
         )
@@ -186,7 +186,7 @@ impl Client {
             }
             // `CPhysicsObj::RecvEvt_Contain`: out of the world, into the inventory.
             SessionEvent::ObjectContained(id) => remotes.action(*id, &mut cx),
-            SessionEvent::ObjectRemoved(id) => remotes.removed(*id),
+            SessionEvent::ObjectRemoved(id) => remotes.removed(*id, cx.terrain),
             _ => {}
         }
         // The player's body takes its motion events too, and only it moves to (`RecvEvt_MoveTo`;

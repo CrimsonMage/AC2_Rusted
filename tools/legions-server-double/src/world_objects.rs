@@ -13,7 +13,7 @@ use ac2_net::protocol::{
     InstanceIdWithStamp, Opcode, QualityUpdate, QualityValue, ScriptMessage, UsageDesc,
 };
 
-use crate::objects::{object_event_bytes, weenie_object_bytes, ObjectSpawn};
+use crate::objects::{create_object_bytes, object_event_bytes, weenie_object_bytes, ObjectSpawn};
 use crate::State;
 
 /// The door, the lever and the ground item (type byte 0x80: dynamic objects, as the chest's are).
@@ -46,6 +46,11 @@ const OPEN_QUALITY: u32 = 702;
 /// their own, so a pull does not change the mode.
 pub const LEVER_FLIP: u32 = 0x4100_0086;
 
+/// A creature standing in the player's path: a plain `CreateObject` (no script) of a visual the
+/// test world gives a cylinder for its collision shape. It does not move.
+pub const BLOCKING_CREATURE: u64 = 0x8000_0000_0000_0A07;
+pub const BLOCKING_CREATURE_VISUAL: u32 = 0x1F00_0A07;
+
 /// The position stamp the ground item was created with (`CreateObject`'s first stamp).
 const CREATED_STAMP: u16 = 1;
 
@@ -76,6 +81,21 @@ impl State {
         // quality is 0.
         self.send_mode(DOOR, DOOR_SHUT, Opcode::SET_MODE);
         self.send_open_quality(false);
+    }
+
+    /// `CreateObject` for the blocking creature at `origin` (`CObjectMaint::RecvNotice_CreateObject`).
+    pub fn spawn_blocking_creature(&mut self, origin: [f32; 3]) {
+        let object = ObjectSpawn {
+            id: BLOCKING_CREATURE,
+            instance: 1,
+            visual: BLOCKING_CREATURE_VISUAL,
+            cell: self.spawn.cell,
+            origin,
+            rotation: [1.0, 0.0, 0.0, 0.0],
+            stamps: [CREATED_STAMP, 0, 0, 0],
+            name: "Creature",
+        };
+        self.send_event(&create_object_bytes(&object));
     }
 
     /// A physics mode event for `object` (`CPhysicsObj::RecvEvt_SetMode` or `RecvEvt_DoMode`).

@@ -139,7 +139,7 @@ impl Client {
             };
             let mut cx = Context {
                 session: &mut self.session,
-                terrain: &self.terrain,
+                terrain: &mut self.terrain,
                 player,
             };
             self.remotes
@@ -147,7 +147,7 @@ impl Client {
         }
         for id in self.fx_objects.step(now) {
             if self.remotes.is_local(id) {
-                self.remotes.removed(id);
+                self.remotes.removed(id, &mut self.terrain);
             }
         }
         self.request_remote_bodies();

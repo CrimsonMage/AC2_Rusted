@@ -18,7 +18,7 @@ use ac2_physics::{
 };
 use ac2_weenie::{CharacterChoice, OnlineConfig};
 use ac2_world::{Ac2MotionInterpDesc, Ac2MotionValues};
-use legions_server_double::{addr, SERVER};
+use legions_server_double::{addr, BLOCKING_CREATURE_VISUAL, SERVER};
 
 pub const BLOCK: u32 = 0x7F7F_0000;
 /// Land cell (3, 3) of block 0x7F7F (`LandDefs::lcoord_to_gid`).
@@ -27,6 +27,8 @@ pub const GROUND: f32 = 50.0;
 /// The pillar: 2 m radius at (70, 76).
 pub const PILLAR: [f32; 2] = [70.0, 76.0];
 pub const PILLAR_RADIUS: f32 = 2.0;
+/// The blocking creature's cylinder radius (`BLOCKING_CREATURE`).
+pub const CREATURE_RADIUS: f32 = 0.5;
 pub const STEP: f64 = 1.0 / 64.0;
 
 /// Synthetic locomotion: 4 m/s forward, 10 m/s^2 acceleration, gravity on.
@@ -142,10 +144,25 @@ impl WorldData for Synthetic {
         Ok(true)
     }
 
-    fn body(&self, _visual: Option<u32>) -> Result<BodyData, String> {
+    fn body(&self, visual: Option<u32>) -> Result<BodyData, String> {
+        // The blocking creature's visual has a cylinder for its collision shape; the other
+        // visuals have none (they do not stop the player).
+        let object = (visual == Some(BLOCKING_CREATURE_VISUAL)).then(|| {
+            let shape = ObjectShape::new(
+                Vec::new(),
+                vec![CylSphere {
+                    low: Vector::ZERO,
+                    height: 3.0,
+                    radius: CREATURE_RADIUS,
+                }],
+                Vec::new(),
+            );
+            (Arc::new(shape), Vector::new(1.0, 1.0, 1.0))
+        });
         Ok(BodyData {
             fx_sounds: None,
             fx_particles: None,
+            object,
             shape: BodyShape {
                 spheres: vec![
                     Sphere::new(Vector::new(0.0, 0.0, 0.4), 0.4),
