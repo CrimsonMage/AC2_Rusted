@@ -5,11 +5,19 @@
 //! [`crate::DialogFactory`]; this keeps the contexts the gameplay UI keeps for them
 //! (`_waitContext`, `_messageContexts`).
 //!
-//! Not modelled: the please-wait dialog that `EndSession` shows while the character logs off (it
-//! is raised by `EndSession(requested)`, which no HUD control reaches yet), and the flow's
-//! `QueueUIMode` (character selection) that a cancelled wait sends the player to.
+//! The logout: the logout key (`LOGOUT_KEY`, Shift+Escape, action `0x4100000e`) asks for the end
+//! of the session (`ListenToMessage`'s `_doEndSession`); the next UI loop runs `EndSession(1)`,
+//! which closes the death dialog, raises the please-wait dialog and marks the session ended
+//! (`_requestedEndSession`). The caller uploads the game options and sends `LogOffCharacter`.
+//!
+//! Not modelled: `EndSession`'s story UI close, its notice-handler unregistering, `CleanupChildren`
+//! (the HUD stays up until the server's `CharExitGame` moves the app on), `CWAllocator::ResetShell`
+//! and the gameplay UI's `Show(1)` after a death dialog. The flow's `QueueUIMode` (character
+//! selection) that a cancelled wait sends the player to is [`GameplayDialogs::recv_close_wait_dialog`]'s
+//! caller's business.
 
 use crate::chat_window::TEXT_TYPE_ERROR;
+use crate::death::DeathPanel;
 use crate::dialog::{DialogFactory, DIALOG_MESSAGE, DIALOG_WAIT};
 use crate::element::UiTree;
 use crate::token::tokenize;
@@ -18,11 +26,18 @@ use crate::ui_string::{UiString, UiStrings};
 /// The chat text type of `SetErrorMsg`'s line (`TEXT_TYPE_ERROR`, as the chat's error type).
 pub const ERROR_TEXT_TYPE: u32 = TEXT_TYPE_ERROR;
 
-/// `gmGamePlayUI`'s wait and message contexts (`_waitContext`, `_messageContexts`, 0 for none).
+/// `LOGOUT_KEY` (Shift+Escape in the shift key map): the UI action `gmGamePlayUI::ListenToMessage`
+/// ends the session on.
+pub const LOGOUT_ACTION: u32 = 0x4100_000E;
+
+/// `gmGamePlayUI`'s wait and message contexts (`_waitContext`, `_messageContexts`, 0 for none),
+/// and its logout state (`_doEndSession`, `_requestedEndSession`).
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct GameplayDialogs {
     wait_context: u32,
     message_contexts: Vec<u32>,
+    do_end_session: bool,
+    requested_end_session: bool,
 }
 
 impl GameplayDialogs {
@@ -89,6 +104,54 @@ impl GameplayDialogs {
             self.message_contexts.remove(at);
         }
     }
+
+    /// `gmGamePlayUI::_requestedEndSession`: the session's end has been asked for.
+    pub fn end_session_requested(&self) -> bool {
+        self.requested_end_session
+    }
+
+    /// `gmGamePlayUI::ListenToMessage` for the global key press `0x4100000e` (`LOGOUT_KEY`):
+    /// `_doEndSession` is set, and the next UI loop ends the session.
+    pub fn logout_key(&mut self) {
+        self.do_end_session = true;
+    }
+
+    /// `gmGamePlayUI::ListenToMessage` for the global loop (`0xffff0005`): a pending logout that
+    /// was not yet answered runs `EndSession(1)`. Returns whether it ran (see
+    /// [`GameplayDialogs::end_session`]).
+    pub fn end_session_loop(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        strings: &dyn UiStrings,
+        death: &mut DeathPanel,
+    ) -> bool {
+        if self.requested_end_session || !self.do_end_session {
+            return false;
+        }
+        self.do_end_session = false;
+        self.end_session(tree, dialogs, strings, death)
+    }
+
+    /// `gmGamePlayUI::EndSession(requested = 1)`: the death dialog closes, the please-wait dialog
+    /// is raised (`MakePleaseWaitDialog`) and the session is marked ended. Returns whether it ran
+    /// (it runs once); the caller then sends `UploadGameOptions` and `LogOffCharacter`
+    /// (`Proto_UI::LogOffCharacter`), in that order.
+    pub fn end_session(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        strings: &dyn UiStrings,
+        death: &mut DeathPanel,
+    ) -> bool {
+        if self.requested_end_session {
+            return false;
+        }
+        death.close(tree, dialogs);
+        self.make_please_wait(tree, dialogs, strings);
+        self.requested_end_session = true;
+        true
+    }
 }
 
 #[cfg(test)]
@@ -145,5 +208,48 @@ mod tests {
     #[test]
     fn the_error_line_is_the_chat_error_type() {
         assert_eq!(ERROR_TEXT_TYPE, 0x1);
+    }
+
+    #[test]
+    fn the_logout_key_ends_the_session_once_on_the_next_loop() {
+        let mut tree = UiTree::new(1024, 768);
+        let mut dialogs = DialogFactory::new(None);
+        let mut game = GameplayDialogs::default();
+        let mut death = DeathPanel::default();
+        assert_eq!(LOGOUT_ACTION, 0x4100_000E);
+        assert!(!game.end_session_loop(&mut tree, &mut dialogs, &Text, &mut death));
+        assert!(!game.end_session_requested());
+
+        game.logout_key();
+        assert!(!game.end_session_requested(), "the key only asks");
+        assert!(game.end_session_loop(&mut tree, &mut dialogs, &Text, &mut death));
+        assert!(game.end_session_requested());
+        let wait = game.wait_context();
+        assert_ne!(wait, 0);
+        assert_eq!(dialogs.shown(), Some((wait, DIALOG_WAIT)));
+
+        // Ended once: a second key or loop asks nothing more.
+        game.logout_key();
+        assert!(!game.end_session_loop(&mut tree, &mut dialogs, &Text, &mut death));
+        assert!(!game.end_session(&mut tree, &mut dialogs, &Text, &mut death));
+        assert_eq!(game.wait_context(), wait);
+    }
+
+    #[test]
+    fn ending_the_session_closes_the_death_dialog_first() {
+        let mut tree = UiTree::new(1024, 768);
+        let mut dialogs = DialogFactory::new(None);
+        let mut game = GameplayDialogs::default();
+        let mut death = DeathPanel::default();
+        death.notice(&mut tree, &mut dialogs, &Text, true);
+        let died = death.context();
+        assert_ne!(died, 0);
+        assert_eq!(dialogs.shown().map(|(context, _)| context), Some(died));
+
+        assert!(game.end_session(&mut tree, &mut dialogs, &Text, &mut death));
+        assert_eq!(death.context(), 0);
+        let wait = game.wait_context();
+        assert_ne!(wait, died);
+        assert_eq!(dialogs.shown(), Some((wait, DIALOG_WAIT)));
     }
 }

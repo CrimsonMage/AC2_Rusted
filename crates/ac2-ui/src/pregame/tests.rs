@@ -716,3 +716,24 @@ pub(super) fn clear_all_undo_restore_and_quit_ask_first() {
     ui.use_time(0.2);
     assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
 }
+
+/// The UI reopened after a session ended goes straight to character selection with the list the
+/// session kept (no intro, no data patch).
+#[test]
+pub(super) fn a_resumed_ui_lists_the_kept_set_at_character_selection() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    ui.resume_at_character_selection(set());
+    ui.use_time(0.0);
+    assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
+    let list = find(&ui, "CharacterListBox");
+    let texts: Vec<_> = ui
+        .tree()
+        .list_items(list)
+        .to_vec()
+        .iter()
+        .map(|&i| ui.tree().get(i).unwrap().text().unwrap())
+        .collect();
+    assert_eq!(texts, ["Alpha", "Beta"]);
+}

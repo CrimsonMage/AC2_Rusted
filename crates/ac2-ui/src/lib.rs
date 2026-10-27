@@ -151,7 +151,7 @@ pub use external_container::{ExternalContainerRequest, ExternalContainerUi};
 pub use fellow_info::{vital_text, Fellow, FellowStrings};
 pub use fellow_rows::FellowNotice;
 pub use fellowship::{FellowshipData, FellowshipRequest, FellowshipSource, FellowshipUi};
-pub use game_dialogs::{GameplayDialogs, ERROR_TEXT_TYPE};
+pub use game_dialogs::{GameplayDialogs, ERROR_TEXT_TYPE, LOGOUT_ACTION};
 pub use hud::{
     build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
     LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,

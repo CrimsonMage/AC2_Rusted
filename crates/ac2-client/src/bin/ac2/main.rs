@@ -57,6 +57,36 @@ const LOAD_BUDGET: Duration = Duration::from_millis(4);
 /// `WHEEL_DELTA`: one notch.
 const WHEEL_DELTA: f32 = 120.0;
 
+/// The script library and script data character generation runs over (`ScriptCharGen`'s host is
+/// consumed by its view, so each pregame view builds its own).
+struct ChargenSource {
+    program: Arc<ac2_script::vm::Program>,
+    data: ac2_script::data::DatScriptData,
+}
+
+/// A pregame view with its character generation host, and the `--chargen` capture.
+fn new_pregame_view(
+    store: &Arc<ac2_db::ResourceStore>,
+    world: &Arc<ac2_world::Ac2WorldSource>,
+    chargen: &ChargenSource,
+    capture: Option<&std::path::Path>,
+    gpu: &Gpu,
+    format: wgpu::TextureFormat,
+    size: (u32, u32),
+) -> PregameView {
+    let host = ac2_script::host::ScriptHost::new(
+        Arc::clone(&chargen.program),
+        Box::new(chargen.data.clone()),
+    );
+    let mut view =
+        PregameView::new(Arc::clone(store), gpu, format, size).with_scenes(Arc::clone(world));
+    view.set_char_gen_system(Box::new(ac2_client::ScriptCharGen::new(host)));
+    view.set_capture(ac2_client::CharGenCapture::new(
+        capture.map(std::path::Path::to_path_buf),
+    ));
+    view
+}
+
 /// Everything the program owns once the window exists.
 struct State {
     window: Arc<Window>,
@@ -73,6 +103,9 @@ struct State {
     /// `gmSelectionUI` and the commands its finished selections send next frame.
     selection: SelectionUi,
     commands: Vec<Command>,
+    /// The character left the world (`CharExitGame`): the world gives way to character selection
+    /// after this frame.
+    leave_world: bool,
     /// Client time origin (`Timer::cur_time` for the interpreter, materials and input stamps).
     started: Instant,
     grabbed: bool,
@@ -87,8 +120,9 @@ struct App {
     store: Arc<ac2_db::ResourceStore>,
     /// Whether the pregame screens show (no start character).
     pregame: bool,
-    /// Character generation's `CharacterGenSystem`, handed to the pregame screens.
-    chargen: Option<ac2_client::ScriptCharGen>,
+    /// The script library and script data character generation's `CharacterGenSystem` runs over:
+    /// each pregame view gets a host of its own over them.
+    chargen: ChargenSource,
     /// The `--chargen` capture file (`CharGenData`), made into the pregame view's capture.
     chargen_file: Option<std::path::PathBuf>,
     /// `width` / `height` (`Client+0x60` / `Client+100`): the initial window size, when given.
@@ -167,9 +201,38 @@ impl App {
             return;
         };
         self.world_frame(event_loop, &mut view);
-        if let Some(state) = self.state.as_mut() {
+        if self.state.as_ref().is_some_and(|s| s.leave_world) {
+            self.back_to_character_selection();
+        } else if let Some(state) = self.state.as_mut() {
             state.view = Some(view);
         }
+    }
+
+    /// `UIFlow::QueueUIMode(characterselection)` after the session ended: the world and its HUD
+    /// go, and the pregame screens open at character selection with the character set the
+    /// session kept (`gmCharacterSelectionUI`, the list `UIPersistantData` holds).
+    fn back_to_character_selection(&mut self) {
+        let resume = self.client.session().characters().cloned();
+        let Some(state) = self.state.as_mut() else {
+            return;
+        };
+        state.leave_world = false;
+        state.commands.clear();
+        state.selection = SelectionUi::default();
+        state.sync_mouse_look(false);
+        let mut view = new_pregame_view(
+            &self.store,
+            &self.world,
+            &self.chargen,
+            self.chargen_file.as_deref(),
+            &state.gpu,
+            state.format,
+            (state.config.width, state.config.height),
+        );
+        if let Some(set) = resume {
+            view = view.resume_at_character_selection(set);
+        }
+        state.pregame = Some(view);
     }
 
     /// One frame in the world.
@@ -229,8 +292,12 @@ impl App {
                 SessionEvent::ShellCommand { text, .. } => {
                     eprintln!("ac2: chat command not ported: {text}");
                 }
+                SessionEvent::LeftWorld => state.leave_world = true,
                 _ => {}
             }
+        }
+        if state.leave_world {
+            return;
         }
         for notice in self.client.take_notices() {
             if notice == ac2_client::Notice::ConnectionLost {
@@ -327,18 +394,15 @@ impl ApplicationHandler for App {
         surface.configure(&gpu.device, &config);
         let depth = depth_view(&gpu.device, &config);
         let pregame = self.pregame.then(|| {
-            let mut view = PregameView::new(
-                Arc::clone(&self.store),
+            new_pregame_view(
+                &self.store,
+                &self.world,
+                &self.chargen,
+                self.chargen_file.as_deref(),
                 &gpu,
                 format,
                 (config.width, config.height),
             )
-            .with_scenes(Arc::clone(&self.world));
-            if let Some(chargen) = self.chargen.take() {
-                view.set_char_gen_system(Box::new(chargen));
-            }
-            view.set_capture(ac2_client::CharGenCapture::new(self.chargen_file.clone()));
-            view
         });
         self.state = Some(State {
             window,
@@ -351,6 +415,7 @@ impl ApplicationHandler for App {
             pregame,
             selection: SelectionUi::default(),
             commands: Vec::new(),
+            leave_world: false,
             controls: {
                 // The HUD's tree takes the UI actions (mouse over panels, the world's wheel).
                 let mut controls = self.controls.take().expect("controls");
@@ -523,11 +588,8 @@ fn run(args: Args) -> Result<(), String> {
     script_data.set_cache_only(true);
     // Character generation asks the `CharacterGenSystem` singleton on a host of its own over
     // the same resident data.
-    let chargen = ac2_client::ScriptCharGen::new(ac2_script::host::ScriptHost::new(
-        Arc::clone(&program),
-        Box::new(script_data.clone()),
-    ));
-    let host = ac2_script::host::ScriptHost::new(program, Box::new(script_data));
+    let script_data_for_chargen = script_data.clone();
+    let host = ac2_script::host::ScriptHost::new(Arc::clone(&program), Box::new(script_data));
     client.attach_scripts(host, ac2_client::SCRIPT_VM_FUNCTIONS);
     // `SoundManager`: the speakers, or silence without an output device.
     client.attach_audio(ac2_client::sound_manager(Arc::clone(&store), speakers()));
@@ -541,7 +603,10 @@ fn run(args: Args) -> Result<(), String> {
         state: None,
         store,
         pregame: args.character.is_none(),
-        chargen: Some(chargen),
+        chargen: ChargenSource {
+            program: Arc::clone(&program),
+            data: script_data_for_chargen,
+        },
         chargen_file: args.chargen.as_deref().map(ac2_prefs::paths::config_file),
         // `Client+0x60` / `+100` start at 0x400 x 0x300; either argument alone keeps the other.
         window_size: (args.width.is_some() || args.height.is_some()).then(|| {

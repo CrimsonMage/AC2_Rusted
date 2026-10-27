@@ -137,8 +137,9 @@ impl DeathPanel {
         self.context = dialogs.make_dialog(tree, text, kind, true);
     }
 
-    /// `DialogFactory::CloseDialog` on the dialog up, if one is.
-    fn close(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory) {
+    /// `DialogFactory::CloseDialog` on the dialog up, if one is (`gmGamePlayUI::EndSession` closes
+    /// the death dialog this way too).
+    pub fn close(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory) {
         if self.context != 0 {
             dialogs.close_dialog(tree, self.context);
             self.context = 0;

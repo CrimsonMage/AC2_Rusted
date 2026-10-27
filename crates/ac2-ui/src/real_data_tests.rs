@@ -397,3 +397,21 @@ fn the_skill_panel_tabs_make_their_pages_and_open_one_at_a_time() {
     assert_eq!(open_tabs(&tree), vec![combat]);
     assert!(tree.get(combat_page).unwrap().visible);
 }
+
+/// The logout key: the shift key map binds Escape (DIK 0x01, semantic `0x81000400 | 0x01`) to
+/// the action `gmGamePlayUI::ListenToMessage` ends the session on.
+#[test]
+fn the_shift_map_binds_escape_to_the_logout_action() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ResourceStore::new(dataset);
+    let shift = load_key_map(&store, KEYMAP_SHIFT).unwrap().unwrap();
+    let escape = shift
+        .mappings
+        .iter()
+        .find(|m| m.semantic == 0x8100_0401)
+        .expect("Escape is bound in the shift map");
+    eprintln!("shift Escape -> {:08x} ({})", escape.action, escape.name);
+    assert_eq!(escape.action, LOGOUT_ACTION);
+}

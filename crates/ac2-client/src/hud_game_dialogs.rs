@@ -4,7 +4,10 @@
 //! offer and make the death dialog again ([`ac2_ui::DeathPanel`]). The panel is kept by the HUD
 //! as `game_dialogs`.
 
-use ac2_ui::{DeathPanel, DialogFactory, DialogOutcome, GameplayDialogs, OfferAnswer, UiTree};
+use ac2_ui::{
+    DeathPanel, DialogFactory, DialogOutcome, GameplayDialogs, OfferAnswer, UiMessage, UiStrings,
+    UiTree,
+};
 use ac2_weenie::{GameplayNotice, SessionEvent};
 
 use crate::gameplay::Command;
@@ -27,6 +30,38 @@ pub(crate) fn game_dialog_notices(
             let text = player.render_info(text);
             game.display_message(tree, dialogs, &text, *topmost);
         }
+    }
+}
+
+/// `gmGamePlayUI::ListenToMessage` for the frame's messages: the logout key (`LOGOUT_KEY`,
+/// global key press `0x4100000e`) asks for the end of the session on the next loop.
+pub(crate) fn game_dialog_message(game: &mut GameplayDialogs, message: &UiMessage) {
+    if message.element.is_none()
+        && message.message == ac2_ui::GLOBAL_KEY_PRESS
+        && message.data as u32 == ac2_ui::LOGOUT_ACTION
+    {
+        game.logout_key();
+    }
+}
+
+/// `gmGamePlayUI::ListenToMessage` for the global loop: a pending logout runs `EndSession(1)`,
+/// which closes the death dialog and raises the please-wait dialog. Then the game options go up
+/// (`gmCWInterface::UploadGameOptions`) and the character logs off (`Proto_UI::LogOffCharacter`),
+/// in that order.
+pub(crate) fn game_dialog_logout(
+    game: &mut GameplayDialogs,
+    death: &mut DeathPanel,
+    tree: &mut UiTree,
+    dialogs: &mut Option<DialogFactory>,
+    strings: &dyn UiStrings,
+    commands: &mut Vec<Command>,
+) {
+    let Some(dialogs) = dialogs.as_mut() else {
+        return;
+    };
+    if game.end_session_loop(tree, dialogs, strings, death) {
+        commands.push(Command::UploadGameOptions);
+        commands.push(Command::LogOffCharacter);
     }
 }
 

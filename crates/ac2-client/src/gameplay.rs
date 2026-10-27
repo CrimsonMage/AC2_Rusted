@@ -53,6 +53,8 @@ pub enum Command {
     },
     /// `gmCWInterface::UseSelection`: use the selected object.
     UseSelection,
+    /// `Proto_UI::LogOffCharacter` (`gmGamePlayUI::EndSession`): the character leaves the world.
+    LogOffCharacter,
     /// `gmCWInterface::MoveItem`: move `quantity` of `item` from slot `from_slot` of `from` to
     /// slot `target_slot` (-1: anywhere) of `target`; a drop targets the world, a give another
     /// creature, a split less than the whole stack.
@@ -469,6 +471,10 @@ impl Client {
                     } else {
                         self.session.use_selection()
                     }
+                }
+                Command::LogOffCharacter => {
+                    self.session.log_off_character();
+                    Vec::new()
                 }
                 Command::MoveItem {
                     item,

@@ -14,6 +14,7 @@ use std::sync::Arc;
 
 use ac2_db::{ResourceResult, ResourceStore};
 use ac2_gpu::{Gpu, ScenePresenter, UiLayer, UiOverlay};
+use ac2_net::protocol::CharacterSet;
 use ac2_ui::pregame::{CharGenSystem, PregameAssets, PregameUi};
 use ac2_ui::UiMessage;
 use ac2_weenie::{OnlineSession, SessionEvent};
@@ -47,6 +48,8 @@ pub struct PregameView {
     dirty: bool,
     /// `CharGenData`: the creation capture (`--chargen`).
     capture: CharGenCapture,
+    /// The character set a session that ended kept: the UI starts at character selection with it.
+    resume: Option<CharacterSet>,
 }
 
 impl PregameView {
@@ -82,7 +85,15 @@ impl PregameView {
             scale,
             dirty: false,
             capture: CharGenCapture::default(),
+            resume: None,
         }
+    }
+
+    /// Starts at character selection with the set the session kept, instead of the intro
+    /// (the screens after `gmGamePlayUI::EndSession` and `UIFlow::QueueUIMode`).
+    pub fn resume_at_character_selection(mut self, set: CharacterSet) -> Self {
+        self.resume = Some(set);
+        self
     }
 
     /// The viewports' 3D scenes, their models read through `world`.
@@ -220,6 +231,9 @@ impl PregameView {
                         self.scale.display.0 as i32,
                         self.scale.display.1 as i32,
                     );
+                    if let Some(set) = self.resume.take() {
+                        ui.resume_at_character_selection(set);
+                    }
                     if let Some(system) = self.system.take() {
                         ui.set_char_gen_system(system);
                     }

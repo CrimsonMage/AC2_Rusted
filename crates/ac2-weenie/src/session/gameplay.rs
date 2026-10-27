@@ -214,6 +214,15 @@ impl OnlineSession {
         self.send(ac2_net::protocol::ClientEvent::DeleteCharacter { account, character });
     }
 
+    /// `gmGamePlayUI::EndSession` -> `Proto_UI::LogOffCharacter` (the player's id, queue 4): the
+    /// character leaves the world and the connection stays for the character list. The server
+    /// answers `CharExitGame` ([`SessionEvent::LeftWorld`]). Nothing is sent without a player.
+    pub fn log_off_character(&mut self) {
+        if let Some(character) = self.world.player() {
+            self.send(ac2_net::protocol::ClientEvent::LogOffCharacter { character });
+        }
+    }
+
     /// `CCombatSystem` 0x1 as far as the client knows it: another object whose weenie is a
     /// creature (`CWInterface::IsCreature`). Retail also asks `CCombatSystem` 0x5 and the
     /// weenie type system.

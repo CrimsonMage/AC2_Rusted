@@ -17,7 +17,9 @@ use crate::gameplay::Command;
 use crate::hud_character::character_commands;
 use crate::hud_chat_options::{chat_options_commands, ui_chat_settings};
 use crate::hud_death::{death_answers, death_notices};
-use crate::hud_game_dialogs::{game_dialog_answers, game_dialog_notices};
+use crate::hud_game_dialogs::{
+    game_dialog_answers, game_dialog_logout, game_dialog_message, game_dialog_notices,
+};
 use crate::hud_status::StatusBar;
 use crate::hud_view::HudView;
 use crate::ui_sources::{shortcut_to_info, ClientPlayer};
@@ -646,6 +648,7 @@ impl HudView {
                     &mut most,
                 );
             }
+            game_dialog_message(game_dialogs, message);
             if let Some(dialogs) = dialogs.as_mut() {
                 dialogs.message(tree, message);
             }
@@ -659,6 +662,7 @@ impl HudView {
         }
         death_notices(death, tree, dialogs, &player, events);
         game_dialog_notices(game_dialogs, tree, dialogs, &player, events);
+        game_dialog_logout(game_dialogs, death, tree, dialogs, &player, &mut commands);
         if let Some(dialogs) = dialogs.as_mut() {
             let outcomes = dialogs.take_outcomes();
             death_answers(death, &outcomes, &mut commands);
