@@ -150,7 +150,7 @@ fn room_chat_goes_through_the_chat_client_and_comes_back() {
         })
         .collect();
     assert_eq!(
-        notices,
+        notices[..2],
         [
             &GameplayNotice::SendToRoomResult {
                 context: 1,
@@ -163,6 +163,18 @@ fn room_chat_goes_through_the_chat_client_and_comes_back() {
                 extra: Some(GunChatExtraInfo::new(4, String::new())),
             },
         ]
+    );
+    // The line the player's script shows: room 0x10 has no channel, fellowship or allegiance
+    // here, so it is the standard window's `[speaker] text`.
+    assert_eq!(
+        lines(&events),
+        [(
+            8,
+            StringInfo {
+                literal: Some("[Explorer] Hi all".into()),
+                ..StringInfo::default()
+            }
+        )]
     );
     // Byte for byte: `CChatEvent` around `IChatClientImpl::SendNetPacket`'s packet: the
     // header (binary request, method 2, target type 1), then the payload: context 1, method 2

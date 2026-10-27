@@ -4,13 +4,25 @@ key	status	note
 00401b20	x	
 00401b30	x	
 00401b80	x	
+00401be0	x	Legions body is empty / returns 0: the DVD client has no room-by-name result or per-frame chat work; rooms are set by server calls (shell/state.rs)
+00401bf0	x	Legions returns E_NOINTERFACE: the port has no COM interface query
+00401c50	x	ac2-weenie OnlineSession::send_to_room; the Legions vtable stub is empty (room sends go through gmChatInterfaceProvider::OnSendToRoom)
+00401c60	x	Legions body is empty / returns 0: the DVD client has no room-by-name result or per-frame chat work; rooms are set by server calls (shell/state.rs)
 00401e30	~	no TurbineGun (GUN) step
 00401e70	x	
 00401f90	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00401fc0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
+004021d0	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
+00402240	~	admin-only forwarder of the async result; Legions answers through the chat response (CCliSendToRoomResult::HandleSendToRoomResult -> GameplayNotice::SendToRoomResult)
+00402940	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
+00402d00	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
+00402d70	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
+00402d90	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
+00402e40	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 00403030	x	
 00403d30	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
 00404100	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
+00404190	x	the session is the chat provider (ac2-weenie OnlineSession send_to_room / receive_chat over ac2-net turbine_chat)
 004042f0	x	
 00404e10	~	ac2-net Credential::from_ticket (empty -> Account, else Password); GUN ticket handler path elsewhere
 00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
@@ -6219,6 +6231,7 @@ key	status	note
 0071fc00	x	ac2-client chargen_data.rs CharGenCapture::new (the --chargen file; relative names under the AC2 config directory)
 0071fc50	~	queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
 007218f0	~	ac2 bin cmdline.rs: account (lowercased), host, port, width, height, glsticketdirect, glsticket (flag, or FILE), rodat; other args not ported
+00722600	~	Legions: a vtable slot, no direct caller in the DVD client. The port has the Turbine chat service on the game connection from logon (no chatclient.dll load, no AC2ClientChatManager)
 00722f20	~	headless frame order in ac2-client Client::use_time; no render, sound, UI, triggers or DB cache step
 00723280	_	
 00723410	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)

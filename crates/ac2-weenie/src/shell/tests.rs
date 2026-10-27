@@ -384,3 +384,33 @@ fn histories_follow_the_lines_tells_and_teller_names() {
     assert_eq!(s.history(Retell, true).as_deref(), Some("Oak"));
     assert_eq!(s.history(Reply, false), None);
 }
+
+#[test]
+fn heard_room_chat_shows_in_the_window_of_its_room() {
+    use crate::shell::lines::{KIND_FELLOWSHIP, KIND_INFO};
+    use ac2_net::protocol::GunChatExtraInfo;
+    let mut s = state();
+    let t = tables();
+    let fellowship = PackedReference {
+        ids: vec![1],
+        entries: vec![heap_entry(0x1F0, vec![0, 0, 0, 0x77, 0], None)],
+    };
+    let call = ScriptCall::new(0x820C_002B, vec![PackValue::Reference(fellowship)]).unwrap();
+    s.server_call(&call, &t);
+    let flagged = GunChatExtraInfo::new(0, String::new());
+    let (kind, line) = s.hear_from_room(0x77, "Ann", "hi", Some(&flagged));
+    assert_eq!(kind, KIND_FELLOWSHIP);
+    assert_eq!(line.literal.as_deref(), Some("[Ann] hi"));
+    let plain = GunChatExtraInfo {
+        misc_flags: 1,
+        ..flagged
+    };
+    let (_, line) = s.hear_from_room(0x77, "Ann", "hi", Some(&plain));
+    assert_eq!(line.literal.as_deref(), Some("hi"));
+    // A room the player has no window for: the standard window, and the prefix.
+    let (kind, line) = s.hear_from_room(0x55, "Bo", "yo", None);
+    assert_eq!(
+        (kind, line.literal.as_deref()),
+        (KIND_INFO, Some("[Bo] yo"))
+    );
+}

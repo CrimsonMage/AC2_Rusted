@@ -2,7 +2,7 @@
 //! check, the reply name), the server calls that set the rooms, and the GUN service's
 //! squelch-list results.
 
-use ac2_net::protocol::{NativeObject, PackValue, ScriptCall, StringInfo};
+use ac2_net::protocol::{GunChatExtraInfo, NativeObject, PackValue, ScriptCall, StringInfo};
 
 use super::super::lines::*;
 use super::{heap, root, ChatState, CHANNEL_DATA_PACKAGE, FELLOWSHIP_PACKAGE};
@@ -40,6 +40,35 @@ impl ChatState {
             self.reply = Some(name.clone());
             self.heard.add(name);
         }
+    }
+
+    /// The chat window and line for room chat the player hears (`gmCWInterface::
+    /// GUNEvent_HearFromRoom`, then the player's script `CPlayer` 0x9B, which is not mirrored).
+    /// The window is the room's channel (`CPlayer` slot 31), the fellowship or the allegiance;
+    /// a room the player has no channel for shows in the standard window. The line is
+    /// `[speaker] text`, without the `[speaker]` when the sender's misc word is 1 (the flag test
+    /// `GunChatExtraInfo` reads at `info + 8`); the exact script wording is not verified.
+    pub fn hear_from_room(
+        &self,
+        room: u32,
+        speaker: &str,
+        text: &str,
+        extra: Option<&GunChatExtraInfo>,
+    ) -> (u32, StringInfo) {
+        let kind = if let Some((channel, _)) = self.channels.iter().find(|(_, r)| *r == room) {
+            *channel
+        } else if self.fellowship_room == Some(room) {
+            KIND_FELLOWSHIP
+        } else if self.allegiance_room != 0 && self.allegiance_room == room {
+            KIND_ALLEGIANCE
+        } else {
+            KIND_INFO
+        };
+        let line = match extra {
+            Some(info) if info.misc_flags == 1 => text.to_owned(),
+            _ => format!("[{speaker}] {text}"),
+        };
+        (kind, literal(&line))
     }
 
     /// The server calls that set the rooms; other calls are not the chat state's.

@@ -179,12 +179,22 @@ impl OnlineSession {
     /// `IChatClientImpl::OnNetworkData` for queue-4 chat data.
     pub(super) fn receive_chat(&mut self, data: Vec<u8>) -> Vec<SessionEvent> {
         let notice = match ChatMessage::decode(&data) {
-            Ok(ChatMessage::RoomChat(chat)) => GameplayNotice::HearFromRoom {
-                room: chat.room,
-                speaker: chat.speaker,
-                text: chat.text,
-                extra: GunChatExtraInfo::decode(&chat.extra).ok(),
-            },
+            Ok(ChatMessage::RoomChat(chat)) => {
+                let extra = GunChatExtraInfo::decode(&chat.extra).ok();
+                let (kind, text) =
+                    self.chat
+                        .hear_from_room(chat.room, &chat.speaker, &chat.text, extra.as_ref());
+                let heard = GameplayNotice::HearFromRoom {
+                    room: chat.room,
+                    speaker: chat.speaker,
+                    text: chat.text,
+                    extra,
+                };
+                return vec![
+                    SessionEvent::Notice(heard),
+                    SessionEvent::Notice(GameplayNotice::DisplayStringInfo { kind, text }),
+                ];
+            }
             Ok(ChatMessage::Response(response)) => GameplayNotice::SendToRoomResult {
                 context: response.context,
                 result: response.result,

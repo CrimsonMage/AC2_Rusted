@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 101 done, 31 partial, 182 to do, 40 skipped.
+354 retail functions: 106 done, 33 partial, 169 to do, 46 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -33,7 +33,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [ ] `WinMain` · 004013a0 · legions 00401370
 
-## `ac2/client/src/main/gmclient.cpp.c` (6/92)
+## `ac2/client/src/main/gmclient.cpp.c` (11/92)
 
 ### PackObj
 - [ ] `PackObj::ALIGN_PTR` · 00401a60 · legions 00401980
@@ -49,16 +49,16 @@ Legend and workflow: [README](README.md).
 - [ ] `ArgumentParser::OnCommandLineEvaluationDone` · 00401bd0 · legions 00401af0
 
 ### Turbine::Client::ChatInterfaceProvider
-- [ ] `Turbine::Client::ChatInterfaceProvider::UseTime` · 00401be0 · legions 00401b00
-- [ ] `Turbine::Client::ChatInterfaceProvider::QueryInterface` · 00401bf0 · legions 00401b10
+- [x] `Turbine::Client::ChatInterfaceProvider::UseTime` · 00401be0 · legions 00401b00 — Legions body is empty / returns 0: the DVD client has no room-by-name result or per-frame chat work; rooms are set by server calls (shell/state.rs)
+- [x] `Turbine::Client::ChatInterfaceProvider::QueryInterface` · 00401bf0 · legions 00401b10 — Legions returns E_NOINTERFACE: the port has no COM interface query
 
 ### gmNoticeHandler
 - [ ] `gmNoticeHandler::RecvNotice_Patron_SwearDone` · 00401c30 · legions 00401b70
 - [ ] `gmNoticeHandler::RecvNotice_AddMarker` · 00401c40
 
 ### Turbine::Client::ChatInterfaceProvider
-- [ ] `Turbine::Client::ChatInterfaceProvider::OnSendToRoom` · 00401c50 · legions 00401b90
-- [ ] `Turbine::Client::ChatInterfaceProvider::OnEnterRoomByNameResult` · 00401c60 · legions 00401bc0
+- [x] `Turbine::Client::ChatInterfaceProvider::OnSendToRoom` · 00401c50 · legions 00401b90 — ac2-weenie OnlineSession::send_to_room; the Legions vtable stub is empty (room sends go through gmChatInterfaceProvider::OnSendToRoom)
+- [x] `Turbine::Client::ChatInterfaceProvider::OnEnterRoomByNameResult` · 00401c60 · legions 00401bc0 — Legions body is empty / returns 0: the DVD client has no room-by-name result or per-frame chat work; rooms are set by server calls (shell/state.rs)
 
 ### gmNoticeHandler
 - [ ] `gmNoticeHandler::RecvNotice_GUNResult_FriendStatus` · 00401c70
@@ -106,8 +106,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CTBullet::IncEventsHandled` · 004021a0 · legions 00402140
 
 ### gmClient::gmChatInterfaceProvider
-- [ ] `gmClient::gmChatInterfaceProvider::~gmChatInterfaceProvider` · 004021d0 · legions 00402170
-- [ ] `gmClient::gmChatInterfaceProvider::OnSendToRoomByIDResult` · 00402240
+- [-] `gmClient::gmChatInterfaceProvider::~gmChatInterfaceProvider` · 004021d0 · legions 00402170 — COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
+- [~] `gmClient::gmChatInterfaceProvider::OnSendToRoomByIDResult` · 00402240 — admin-only forwarder of the async result; Legions answers through the chat response (CCliSendToRoomResult::HandleSendToRoomResult -> GameplayNotice::SendToRoomResult)
 
 ### PStringBase<unsigned_short>
 - [ ] `PStringBase<unsigned_short>::operator=` · 00402380 · legions 00402300
@@ -130,21 +130,21 @@ Legend and workflow: [README](README.md).
 - [ ] `Turbine::Client::SetWorldName` · 004028f0 · legions 00402840
 
 ### CCliChatEvent
-- [ ] `CCliChatEvent::CCliChatEvent` · 00402940 · legions 00402890
+- [-] `CCliChatEvent::CCliChatEvent` · 00402940 · legions 00402890 — COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 
 ### gmClient
 - [ ] `gmClient::RecvNotice_GunAuthenticated` · 004029d0
 - [ ] `gmClient::AuthenticateWithGUN` · 00402ae0 · legions 00402a30
 
 ### RefCountIUnknown<gmClient::gmChatInterfaceProvider>
-- [ ] `RefCountIUnknown<gmClient::gmChatInterfaceProvider>::RefCountIUnknown<gmClient::gmChatInterfaceProvider>` · 00402d00 · legions 00402c50
-- [ ] `RefCountIUnknown<gmClient::gmChatInterfaceProvider>::AddRef` · 00402d70 · legions 00402cc0
-- [ ] `RefCountIUnknown<gmClient::gmChatInterfaceProvider>::Release` · 00402d90 · legions 00402ce0
+- [-] `RefCountIUnknown<gmClient::gmChatInterfaceProvider>::RefCountIUnknown<gmClient::gmChatInterfaceProvider>` · 00402d00 · legions 00402c50 — COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
+- [-] `RefCountIUnknown<gmClient::gmChatInterfaceProvider>::AddRef` · 00402d70 · legions 00402cc0 — COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
+- [-] `RefCountIUnknown<gmClient::gmChatInterfaceProvider>::Release` · 00402d90 · legions 00402ce0 — COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 - [-] `RefCountIUnknown<gmClient::gmChatInterfaceProvider>::AddRef` · 00402dd0 — inline copy of 00402d70
 - [-] `RefCountIUnknown<gmClient::gmChatInterfaceProvider>::Release` · 00402de0 — inline copy of 00402d90
 - [-] `RefCountIUnknown<gmClient::gmChatInterfaceProvider>::AddRef` · 00402df0 — inline copy of 00402d70
 - [-] `RefCountIUnknown<gmClient::gmChatInterfaceProvider>::Release` · 00402e00 — inline copy of 00402d90
-- [ ] `RefCountIUnknown<gmClient::gmChatInterfaceProvider>::~RefCountIUnknown<gmClient::gmChatInterfaceProvider>` · 00402e40 · legions 00402d90
+- [-] `RefCountIUnknown<gmClient::gmChatInterfaceProvider>::~RefCountIUnknown<gmClient::gmChatInterfaceProvider>` · 00402e40 · legions 00402d90 — COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 
 ### PStringBase<unsigned_short>
 - [ ] `PStringBase<unsigned_short>::operator+` · 00402ef0 · legions 00402e60
@@ -177,7 +177,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmClient::gmChatInterfaceProvider::OnSendToRoom` · 00404100 · legions 00404050 — ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 
 ### gmClient
-- [ ] `gmClient::CreateChatInterfaceProvider` · 00404190 · legions 004040e0
+- [x] `gmClient::CreateChatInterfaceProvider` · 00404190 · legions 004040e0 — the session is the chat provider (ac2-weenie OnlineSession send_to_room / receive_chat over ac2-net turbine_chat)
 
 ### PStringBase<char>
 - [x] `PStringBase<char>::Pack` · 004042f0 · legions 00404240
@@ -338,7 +338,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Turbine::Client::Disconnect` · 00720450 · legions 006a0c40
 - [ ] `Turbine::Client::BuildCommandLineArgs` · 007205d0 · legions 006a0db0
 - [~] `Turbine::Client::EvaluateCommandLineArg` · 007218f0 · legions 006a1eb0 — ac2 bin cmdline.rs: account (lowercased), host, port, width, height, glsticketdirect, glsticket (flag, or FILE), rodat; other args not ported
-- [ ] `Turbine::Client::StartupTurbineChat` · 00722600 · legions 006a2a30
+- [~] `Turbine::Client::StartupTurbineChat` · 00722600 · legions 006a2a30 — Legions: a vtable slot, no direct caller in the DVD client. The port has the Turbine chat service on the game connection from logon (no chatclient.dll load, no AC2ClientChatManager)
 - [ ] `Turbine::Client::Client` · 00722720 · legions 006a2b30
 - [ ] `Turbine::Client::GetLanguage` · 00722900 · legions 006a2d10
 - [ ] `Turbine::Client::AppendOutputText` · 00722a20 · legions 006a2e10

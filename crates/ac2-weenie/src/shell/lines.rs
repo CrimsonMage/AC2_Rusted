@@ -13,6 +13,9 @@ pub(super) const KIND_ERROR: u32 = 1;
 pub(super) const KIND_CHAT_SERVER: u32 = 4;
 pub(super) const KIND_INFO: u32 = 8;
 pub(super) const KIND_TELL_ERROR: u32 = 33;
+/// The fellowship and allegiance chat windows (`TEXT_TYPE_FELLOWSHIP`, `TEXT_TYPE_ALLEGIANCE`).
+pub(super) const KIND_FELLOWSHIP: u32 = 0x1_0000;
+pub(super) const KIND_ALLEGIANCE: u32 = 0x2_0000;
 
 /// String table enums.
 pub(super) const TABLE_COMMUNICATION: u32 = crate::tables::TABLE_ENUM_COMMUNICATION;
