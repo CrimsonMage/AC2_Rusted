@@ -155,3 +155,53 @@ fn the_fellowship_page_lists_the_members_leader_first() {
     assert_eq!(tree.get(page).unwrap().state(), tokenize("nofellowship"));
     assert!(panel.rows(tree).is_empty());
 }
+
+#[test]
+fn the_looting_drop_down_holds_five_methods_and_create_sends_the_chosen_one() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let panel = hud.fellowship.as_mut().expect("the fellowship page");
+    let tree = &mut hud.tree;
+    let page = tree
+        .roots()
+        .iter()
+        .find_map(|&r| tree.child_recursive(r, tokenize("FellowshipPage")))
+        .unwrap();
+    // `InitLootingMenu`: five methods, method 1 selected.
+    let menu = tree
+        .child_recursive(page, tokenize("LootingMethodMenu"))
+        .unwrap();
+    assert_eq!(tree.menu_items(menu).len(), 5);
+    assert_eq!(tree.menu_selected_index(menu), Some(1));
+
+    // The drop-down's choice is not a request of its own: the page's Create carries it.
+    tree.menu_set_selected_index(menu, Some(3));
+    for message in tree.take_messages() {
+        panel.message(tree, &message);
+    }
+    assert!(panel.take_requests().is_empty());
+
+    let name = tree
+        .child_recursive(page, tokenize("NoFellowshipNameEntryText"))
+        .unwrap();
+    tree.set_text(name, "Wanderers");
+    let create = tokenize("FellowshipCreateButton");
+    let release = UiMessage {
+        element_id: create,
+        element: tree.child_recursive(page, create),
+        message: MSG_BUTTON_RELEASE_ON,
+        ..UiMessage::default()
+    };
+    panel.message(tree, &release);
+    let requests = panel.take_requests();
+    assert!(
+        matches!(
+            requests.as_slice(),
+            [FellowshipRequest::Create { name, looting: 3, .. }] if name == "Wanderers"
+        ),
+        "{requests:?}"
+    );
+}

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1007 done, 356 partial, 805 to do, 79 skipped.
+2247 retail functions: 1008 done, 355 partial, 805 to do, 79 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -1550,10 +1550,10 @@ Legend and workflow: [README](README.md).
 - [x] `gmAllegianceUI::Update` · 0043d790 · legions 0043dfe0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 - [x] `gmAllegianceUI::RecvNotice_UpdateAllegianceProfile` · 0043dcb0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/toolbar/social/gmfellowshipui.cpp.c` (15/17)
+## `ac2/client/src/ui/gameplay/toolbar/social/gmfellowshipui.cpp.c` (16/17)
 
 ### gmFellowshipUI
-- [~] `gmFellowshipUI::InitLootingMenu` · 0043bde0 · legions 0043c630 — UIElement_Menu is ported (ac2-ui menu.rs) but the looting drop-down is not wired: Create still sends the default looting method 1
+- [~] `gmFellowshipUI::InitLootingMenu` · 0043bde0 · legions 0043c630 — ac2-ui fellowship.rs: LootingMethodMenu filled with the five ID_Fellowship_LootMethod names (table 0x41000018), method 1 selected; item tooltips (ID_Fellowship_TT_LootMethod*) not set
 - [x] `gmFellowshipUI::HandleRecruitButton` · 0043bea0 · legions 0043c6f0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::HandleDismissButton` · 0043bef0 · legions 0043c740 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::SetLeaderState` · 0043bf40 · legions 0043c790 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -1563,7 +1563,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmFellowshipUI::RecvNotice_ExpireRecruitment` · 0043c0c0 · legions 0043c910 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::RecvNotice_UpdateLeader` · 0043c0e0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::~gmFellowshipUI` · 0043c130 · legions 0043c980 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-- [~] `gmFellowshipUI::HandleCreateButton` · 0043c1d0 · legions 0043ca20 — UIElement_Menu is ported (ac2-ui menu.rs) but the looting drop-down is not wired: Create still sends the default looting method 1
+- [x] `gmFellowshipUI::HandleCreateButton` · 0043c1d0 · legions 0043ca20 — ac2-ui fellowship.rs: Create sends the entered name, the XP toggle and the looting menu's selected index (client test social_7160 asserts WM_Fellowship bytes for looting 3)
 - [x] `gmFellowshipUI::SetFellowshipState` · 0043c280 · legions 0043cad0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::RecvNotice_UpdateFellowship` · 0043c3c0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::ListenToMessage` · 0043c4e0 · legions 0043cd30 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs

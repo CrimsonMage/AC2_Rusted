@@ -771,7 +771,7 @@ key	status	note
 0043b8d0	x	ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 0043ba00	x	ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 0043bb90	x	ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
-0043bde0	~	UIElement_Menu is ported (ac2-ui menu.rs) but the looting drop-down is not wired: Create still sends the default looting method 1
+0043bde0	~	ac2-ui fellowship.rs: LootingMethodMenu filled with the five ID_Fellowship_LootMethod names (table 0x41000018), method 1 selected; item tooltips (ID_Fellowship_TT_LootMethod*) not set
 0043bea0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043bef0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043bf40	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -781,7 +781,7 @@ key	status	note
 0043c0c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043c0e0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043c130	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-0043c1d0	~	UIElement_Menu is ported (ac2-ui menu.rs) but the looting drop-down is not wired: Create still sends the default looting method 1
+0043c1d0	x	ac2-ui fellowship.rs: Create sends the entered name, the XP toggle and the looting menu's selected index (client test social_7160 asserts WM_Fellowship bytes for looting 3)
 0043c280	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043c3c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043c4c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs

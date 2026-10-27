@@ -224,3 +224,39 @@ fn social_actions_go_out_and_the_fellowship_comes_back() {
         [GameplayNotice::UpdateAttackState(true)]
     );
 }
+
+/// The looting method the drop-down chose goes out with Create: the `DoFellowshipCreate` call
+/// packs it as the second int (`WM_Fellowship` 0x22), byte for byte, with no server needed.
+#[test]
+fn the_chosen_looting_method_goes_out_with_create_byte_for_byte() {
+    let create = SocialRequest::FellowshipCreate {
+        name: "Wanderers".into(),
+        social: 0,
+        looting: 3,
+    };
+    let call = create.call(ac2_weenie::SocialContext::default());
+    assert_eq!(call.arguments[..2], [PackValue::Int(3), PackValue::Int(0)]);
+    let (queue, bytes) = call.to_event().encode();
+    assert_eq!(queue, 3);
+    let mut expected = Vec::new();
+    for w in [
+        0x0001_0053u32,
+        0x820C_001B,
+        (bytes.len() - 12) as u32,
+        1,
+        3,
+        1,
+        0,
+        5,
+        1,
+        1,
+    ] {
+        expected.extend(w.to_le_bytes());
+    }
+    for w in [0x4400_0100u32, 0, 0xFFFF_0076] {
+        expected.extend(w.to_le_bytes());
+    }
+    ac2_net::pack_wide_string(&mut expected, 0, "Wanderers");
+    expected.extend(0u32.to_le_bytes());
+    assert_eq!(bytes, expected);
+}

@@ -8,9 +8,14 @@
 //! The panel turns the player's buttons and clicks into [`FellowshipRequest`]s; the client runs
 //! them (`gmCWInterface::DoFellowship*`, `SetSelection`, `DoAssistedTell`).
 //!
-//! Not modelled yet: the looting drop-down (`menu.rs` ports `UIElement_Menu`, but it is not
-//! wired here; Create sends retail's default, method 1), tooltips and the map markers (`SendNotice_AddMarker` / `RemoveMarker` /
-//! `ClearMarkers`). The radar's mini panel is `mini_fellow.rs`.
+//! The looting drop-down (`LootingMethodMenu`, a `UIElement_Menu`) is filled with the five
+//! methods when the page is made and cleared (`gmFellowshipUI::InitLootingMenu`), with method 1
+//! selected. Retail's ListenToMessage takes no choice from it: the chosen method goes out with
+//! Create (`HandleCreateButton` reads the selected index).
+//!
+//! Not modelled yet: the looting items' tooltips (`ID_Fellowship_TT_LootMethod*`), the map markers
+//! (`SendNotice_AddMarker` / `RemoveMarker` / `ClearMarkers`). The radar's mini panel is
+//! `mini_fellow.rs`.
 
 use crate::dialog::{DialogFactory, DIALOG_CONFIRMATION};
 use crate::element::UiTree;
@@ -85,6 +90,19 @@ pub struct FellowshipUi {
 
 const LOOTING_FIELD_STATES: [&str; 5] = ["method0", "method1", "method2", "method3", "method4"];
 
+/// `gmFellowshipUI::InitLootingMenu`'s item names (`ID_Fellowship_LootMethod0..4`), in the order
+/// the menu holds them; the selected index is the looting method.
+const LOOTING_METHODS: [&str; 5] = [
+    "ID_Fellowship_LootMethod0",
+    "ID_Fellowship_LootMethod1",
+    "ID_Fellowship_LootMethod2",
+    "ID_Fellowship_LootMethod3",
+    "ID_Fellowship_LootMethod4",
+];
+
+/// The looting drop-down's default selection (`InitLootingMenu`: `SetSelectedIndex(1)`).
+const DEFAULT_LOOTING_INDEX: usize = 1;
+
 impl FellowshipUi {
     /// `gmFellowshipUI::gmFellowshipUI`: the page (`IUIManager` lookup of `FellowshipPage`),
     /// the looting menu, then `SetNoFellowshipState`.
@@ -123,7 +141,8 @@ impl FellowshipUi {
         self.page.and_then(|p| tree.child_recursive(p, id(name)))
     }
 
-    /// `gmFellowshipUI::SetNoFellowshipState`.
+    /// `gmFellowshipUI::SetNoFellowshipState`: the page, the name cleared, and the looting menu
+    /// made again (`InitLootingMenu`).
     fn set_no_fellowship_state(&mut self, tree: &mut UiTree) {
         let Some(page) = self.page else {
             return;
@@ -131,7 +150,34 @@ impl FellowshipUi {
         tree.set_state(page, id("nofellowship"));
         if let Some(text) = self.page_child(tree, "FellowshipNameText") {
             tree.set_text(text, "");
+            self.init_looting_menu(tree);
         }
+    }
+
+    /// `gmFellowshipUI::InitLootingMenu`: the menu flushed, each method's item inserted in order and
+    /// set `selectable` (the attribute the decompile's token names, not traced), and method 1
+    /// selected.
+    fn init_looting_menu(&self, tree: &mut UiTree) {
+        let Some(menu) = self.page_child(tree, "LootingMethodMenu") else {
+            return;
+        };
+        tree.menu_flush(menu);
+        for (index, name) in LOOTING_METHODS.iter().enumerate() {
+            let item = tree.menu_insert_string(menu, self.layout.string_table, id(name), index);
+            let Some(item) = item else {
+                return;
+            };
+            tree.set_bool(item, id("selectable"), true);
+        }
+        tree.menu_set_selected_index(menu, Some(DEFAULT_LOOTING_INDEX));
+        tree.menu_drop_selection_messages(menu);
+    }
+
+    /// The looting method the drop-down has selected (`GetSelectedIndex`: -1 for none).
+    fn looting_method(&self, tree: &UiTree) -> i32 {
+        self.page_child(tree, "LootingMethodMenu")
+            .and_then(|menu| tree.menu_selected_index(menu))
+            .map_or(-1, |index| index as i32)
     }
 
     /// `gmFellowshipUI::SetFellowshipState`: the page in `fellowship`, the name, the XP
@@ -329,7 +375,7 @@ impl FellowshipUi {
     }
 
     /// `gmFellowshipUI::HandleCreateButton`: the entered name; retail passes "shared" as the XP
-    /// toggle not highlighted.
+    /// toggle not highlighted, and the looting drop-down's selected index.
     fn create_request(&self, tree: &UiTree) -> Option<FellowshipRequest> {
         self.page?;
         let name = self.page_child(tree, "NoFellowshipNameEntryText")?;
@@ -338,7 +384,7 @@ impl FellowshipUi {
         Some(FellowshipRequest::Create {
             name,
             social: !tree.bool_attribute(toggle, BUTTON_HIGHLIGHTED),
-            looting: 1,
+            looting: self.looting_method(tree),
         })
     }
 }
