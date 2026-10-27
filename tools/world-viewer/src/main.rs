@@ -4,15 +4,20 @@
 //! ```text
 //! world-viewer [--dat-dir DIR] [--block 7F7F] [--radius 2] [--fly]
 //! world-viewer ... --snapshot out.png [--model N] [--walk SECONDS] [--speed N] [--warm-up SECONDS] [--at X,Y] [--fly]
+//! world-viewer ... --bench N [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
 //! ```
 //! `--snapshot` renders one headless frame: the player model N of the race table walks forward
 //! for SECONDS (default 4) and is seen from the player camera (`--fly`: the terrain alone).
+//! `--bench N` runs the same headless scene (no snapshot file needed) and then times N more
+//! frames of update, prepare and render, each waiting for the GPU, and prints one `bench` line
+//! (frame p50, p95 and max, the per-step p50s, peak RSS and the typed cache's bytes and entries).
 //! The player walks the world with collision (`ac2-physics`) under the player camera
 //! (`ac2-smartbox`); an egui panel swaps the race and sex, teleports and speeds the player up.
 //! Walk: W/S, A/D turn, Q/E strafe, Space jump, hold the right button to look, wheel to zoom,
 //! V first person, Home resets the camera. Fly (Tab): drag with the left button to look, WASD,
 //! Space/C up and down, Shift fast. `[` and `]` step the time of day, F1 hides the panel.
 
+mod bench;
 mod fly;
 mod frame;
 mod gui;
@@ -41,6 +46,8 @@ struct Args {
     block: (u8, u8),
     radius: i32,
     snapshot: Option<PathBuf>,
+    /// Timed frames after the warm-up (0: no bench).
+    bench: u32,
     fly: bool,
     model: usize,
     walk_seconds: f32,
@@ -61,6 +68,7 @@ fn parse_args() -> Result<Args, String> {
         block: (0x7F, 0x7F),
         radius: 2,
         snapshot: None,
+        bench: 0,
         fly: false,
         model: 0,
         walk_seconds: 4.0,
@@ -81,6 +89,7 @@ fn parse_args() -> Result<Args, String> {
             }
             "--radius" => args.radius = value()?.parse().map_err(|e| format!("--radius: {e}"))?,
             "--snapshot" => args.snapshot = Some(value()?.into()),
+            "--bench" => args.bench = value()?.parse().map_err(|e| format!("--bench: {e}"))?,
             "--fly" => args.fly = true,
             "--model" => args.model = value()?.parse().map_err(|e| format!("--model: {e}"))?,
             "--walk" => {
@@ -125,31 +134,30 @@ fn main() {
         Ok(models) => (models, None),
         Err(error) => (Vec::new(), Some(error)),
     };
-    match &args.snapshot {
-        Some(path) => snapshot(world, store, &models, &args, path),
-        None => {
-            let (x, y) = args.at.unwrap_or_else(|| {
-                let half = world.block_size() / 2.0;
-                (half, half)
-            });
-            let fly = start_camera(&world, args.block);
-            let time_of_day = args.time.unwrap_or_else(|| daytime(&world));
-            window::run(window::Setup {
-                world,
-                store,
-                models,
-                models_error,
-                landing: walk::Landing {
-                    block: args.block,
-                    x,
-                    y,
-                },
-                radius: args.radius,
-                fly_first: args.fly,
-                fly,
-                time_of_day,
-            });
-        }
+    if args.snapshot.is_some() || args.bench > 0 {
+        snapshot(world, store, &models, &args);
+    } else {
+        let (x, y) = args.at.unwrap_or_else(|| {
+            let half = world.block_size() / 2.0;
+            (half, half)
+        });
+        let fly = start_camera(&world, args.block);
+        let time_of_day = args.time.unwrap_or_else(|| daytime(&world));
+        window::run(window::Setup {
+            world,
+            store,
+            models,
+            models_error,
+            landing: walk::Landing {
+                block: args.block,
+                x,
+                y,
+            },
+            radius: args.radius,
+            fly_first: args.fly,
+            fly,
+            time_of_day,
+        });
     }
 }
 
@@ -194,12 +202,13 @@ fn daytime(world: &Ac2WorldSource) -> f64 {
         .unwrap_or(0.0)
 }
 
+/// The headless frame: walks the player, renders it (and writes `--snapshot`'s PNG), and with
+/// `--bench` times the frames after it.
 fn snapshot(
     world: Arc<Ac2WorldSource>,
     store: Arc<ResourceStore>,
     models: &[races::PlayerModel],
     args: &Args,
-    path: &PathBuf,
 ) {
     let (width, height) = (1280, 720);
     let gpu = Gpu::headless().expect("GPU adapter");
@@ -213,7 +222,7 @@ fn snapshot(
     let model = models.get(args.model).filter(|_| !args.fly);
     let fly = start_camera(&world, args.block);
     let time_of_day = args.time.unwrap_or_else(|| daytime(&world));
-    let mut walk = walk::Walk::new(&world, store, 0.0);
+    let mut walk = walk::Walk::new(&world, Arc::clone(&store), 0.0);
     let mode = if model.is_some() {
         panel::Mode::Walk
     } else {
@@ -256,6 +265,18 @@ fn snapshot(
     }
     view.prepare(&gpu, &frame, width as f32 / height as f32, 0.0);
     let target = FrameTarget::new(&gpu.device, width, height);
+    if args.bench > 0 {
+        let report = bench::run(
+            &mut view,
+            &gpu,
+            &store,
+            &frame,
+            &target,
+            width as f32 / height as f32,
+            args.bench,
+        );
+        println!("{}", report.line());
+    }
     view.render(&gpu, &target.color_view, &target.depth_view, true);
     // The control panel over it, as the window draws it.
     let mut gui = gui::Gui::headless(&gpu, COLOR_FORMAT);
@@ -284,6 +305,9 @@ fn snapshot(
             },
         );
     });
+    let Some(path) = &args.snapshot else {
+        return;
+    };
     let rgba = target.read_rgba(&gpu.device, &gpu.queue);
     let file = std::fs::File::create(path).expect("snapshot file");
     let mut encoder = png::Encoder::new(std::io::BufWriter::new(file), width, height);

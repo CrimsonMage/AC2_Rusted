@@ -546,6 +546,8 @@ impl ApplicationHandler for App {
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
         if matches!(event, WindowEvent::RedrawRequested) {
+            #[cfg(feature = "profiling")]
+            puffin::GlobalProfiler::lock().new_frame();
             self.frame(event_loop);
             return;
         }
@@ -659,6 +661,15 @@ impl ApplicationHandler for App {
 fn run(args: Args) -> Result<(), String> {
     // `Turbine::Client::IsAlreadyRunning`: a second client stops here; the lock lasts for the run.
     let _instance = instance::claim()?;
+    // The puffin viewer connects here for the run (`--features profiling`; the scopes are off
+    // otherwise).
+    #[cfg(feature = "profiling")]
+    let _profiling_server = {
+        puffin::set_scopes_on(true);
+        let server = puffin_http::Server::new("127.0.0.1:8585").map_err(|e| e.to_string())?;
+        eprintln!("profiling: puffin server on 127.0.0.1:8585");
+        server
+    };
     // `Turbine::Client::SetLanguage` -> `CLCache::SetLanguageInternal`: the language's local DAT
     // (its string tables) replaces the English one the mount opens by default.
     let mut dat_options = ac2_dat::DatOpenOptions::new(&args.dat_dir);

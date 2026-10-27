@@ -175,6 +175,7 @@ impl ClientView {
     /// time, models for objects not yet requested; then takes the loads that finished within
     /// `budget` and uploads them.
     pub fn update(&mut self, gpu: &Gpu, frame: &ClientFrame, budget: Duration) {
+        profile_scope!("view.update");
         if let Some(cell) = frame.cell_id {
             self.scene.set_center(block_of(cell));
         }
@@ -274,6 +275,7 @@ impl ClientView {
 
     /// Lays out the frame; `false` while there is no camera (before world entry).
     pub fn prepare(&mut self, gpu: &Gpu, frame: &ClientFrame, aspect: f32, time: f64) -> bool {
+        profile_scope!("view.prepare");
         self.world_drawn = frame.portal.world_drawn();
         self.fader.update(gpu, &frame.portal);
         let Some(camera) = self.camera(frame) else {
@@ -853,6 +855,7 @@ impl ClientView {
         depth: &wgpu::TextureView,
         world: bool,
     ) {
+        profile_scope!("view.render");
         let (overlay, roots) = self.hud.layers_for_scenes();
         let draw_world: &dyn Fn(&mut wgpu::RenderPass<'_>) = &|pass| self.renderer.draw(pass);
         crate::ui_scene::render_with_scenes(

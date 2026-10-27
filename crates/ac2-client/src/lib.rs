@@ -6,6 +6,17 @@
 //! (`CellManager`), the player camera (`CameraManager`), and a plain-data [`ClientFrame`] per
 //! frame for a renderer.
 
+/// A CPU profiling scope for the frame's steps. With the `profiling` feature it is a puffin scope
+/// that lasts to the end of the enclosing block; without it, it compiles to nothing. Scopes stay
+/// inside this crate: the `cfg` is evaluated where the macro expands.
+#[macro_export]
+macro_rules! profile_scope {
+    ($name:expr) => {
+        #[cfg(feature = "profiling")]
+        puffin::profile_scope!($name);
+    };
+}
+
 mod appearance;
 mod audio;
 mod chargen;

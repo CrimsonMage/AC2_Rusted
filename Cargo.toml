@@ -28,3 +28,11 @@ opt-level = 3
 lto = "fat"
 codegen-units = 1
 panic = "abort"
+debug = "line-tables-only"
+
+# Profiling builds (`cargo build --profile profiling --features profiling`): the release code with
+# thin LTO, so a build is quicker, and line tables for the puffin scopes and perf samples.
+[profile.profiling]
+inherits = "release"
+lto = "thin"
+debug = "line-tables-only"

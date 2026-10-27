@@ -17,6 +17,9 @@ default = ["window"]
 window = ["dep:ac2-gpu", "dep:winit", "dep:wgpu", "ac2-audio/output"]
 # Element lookups for the HUD drag tests (`view::probe`); never in the shipped client.
 test-support = []
+# Opt-in CPU scopes (`profile_scope!`) and a puffin server on 127.0.0.1:8585 for the `ac2` program;
+# never in the shipped default build.
+profiling = ["dep:puffin", "dep:puffin_http"]
 
 [[bin]]
 name = "ac2"
@@ -45,6 +48,9 @@ winit = { version = "0.30", optional = true }
 wgpu = { version = "30.0.1", default-features = false, optional = true }
 image = { version = "0.25", default-features = false, features = ["jpeg"] }
 arboard = "3.7"
+# `puffin` 0.20 with its matching `puffin_http` 0.17 (which depends on puffin 0.20).
+puffin = { version = "0.20", optional = true }
+puffin_http = { version = "0.17", optional = true }
 
 [dev-dependencies]
 ac2-client = { path = ".", features = ["test-support"] }

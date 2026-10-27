@@ -348,19 +348,46 @@ impl Client {
 
     /// One client frame (see the module docs); returns the session's events.
     pub fn use_time(&mut self, input: &FrameInput) -> Result<Vec<SessionEvent>, String> {
-        self.session.net_use_time();
-        self.db_cache()?;
-        self.input_handlers(input);
-        let commanded = self.commands(&input.commands);
-        self.movement(input);
-        let mut events = self.smart_box()?;
+        {
+            profile_scope!("net_use_time");
+            self.session.net_use_time();
+        }
+        {
+            profile_scope!("db_cache");
+            self.db_cache()?;
+        }
+        {
+            profile_scope!("input_handlers");
+            self.input_handlers(input);
+        }
+        let commanded = {
+            profile_scope!("commands");
+            self.commands(&input.commands)
+        };
+        {
+            profile_scope!("movement");
+            self.movement(input);
+        }
+        let mut events = {
+            profile_scope!("smart_box");
+            self.smart_box()?
+        };
         events.extend(commanded);
-        let mut dispatched = self.session.dispatch_events();
-        for event in &dispatched {
-            self.apply(event)?;
+        let mut dispatched = {
+            profile_scope!("dispatch_events");
+            self.session.dispatch_events()
+        };
+        {
+            profile_scope!("apply");
+            for event in &dispatched {
+                self.apply(event)?;
+            }
         }
         self.apply_stories(&dispatched);
-        self.run_scripts(&mut dispatched);
+        {
+            profile_scope!("run_scripts");
+            self.run_scripts(&mut dispatched);
+        }
         events.extend(dispatched);
         // The script notices of this frame reach the story slot (`CM_Quest`, `CM_UI`).
         let mut story = self.apply_story_notices(&events);
@@ -371,10 +398,16 @@ impl Client {
         {
             self.story_session_end();
         }
-        story.extend(self.story_frame());
+        {
+            profile_scope!("story_frame");
+            story.extend(self.story_frame());
+        }
         story.append(&mut self.story_outbox);
         events.extend(story);
-        let produced = self.radar_use_time(&events);
+        let produced = {
+            profile_scope!("radar_use_time");
+            self.radar_use_time(&events)
+        };
         events.extend(produced);
         self.notices_seen(&events);
         self.portal_notices(&events);
