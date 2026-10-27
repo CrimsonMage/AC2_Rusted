@@ -109,6 +109,8 @@ pub mod ntype {
         MULTI_HASHES.iter().chain(&MULTI_MAPS).any(|&h| h + 1 == t)
     }
     pub const EXAMINATION_REQUEST: u32 = 0x9A;
+    /// `ExaminationProfile` (`ExaminationProfile::StreamPack`): the effect expansions' out list.
+    pub const EXAMINATION_PROFILE: u32 = 0x99;
     pub const GAMEPLAY_OPTIONS_PROFILE: u32 = 0x9B;
     pub const SHORTCUT_INFO: u32 = 0xAC;
     pub const RGBA_COLOR: u32 = 0x64;
@@ -327,6 +329,9 @@ impl NativeObject {
             }
             ntype::EFFECT_UI_NODE => NativeObject::Wire(Box::new(
                 ac2_net::protocol::NativeObject::EffectUiNode(Box::default()),
+            )),
+            ntype::EXAMINATION_PROFILE => NativeObject::Wire(Box::new(
+                ac2_net::protocol::NativeObject::ExaminationProfile(Default::default()),
             )),
             ntype::GAMEPLAY_OPTIONS_PROFILE => NativeObject::GameplayOptions(Box::default()),
             ntype::UI_SHOP => NativeObject::Shop(Box::default()),

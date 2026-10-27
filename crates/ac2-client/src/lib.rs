@@ -114,6 +114,7 @@ mod tables;
 #[cfg(feature = "window")]
 mod target_select;
 #[cfg(feature = "window")]
+mod ui_examination;
 mod ui_images;
 #[cfg(feature = "window")]
 mod ui_inventory;

@@ -206,6 +206,8 @@ impl HudView {
         // Legions passes the panel's filter word (+0xB8; its filter tabs are not modelled).
         if let Some(panel) = examination.as_mut() {
             panel.follow_field(tree);
+            // The countdown rows' `TimeDisplay::ListenToMessage` on the global loop.
+            panel.global_loop(tree, player, frame.server_time);
             for call in panel.take_calls() {
                 commands.push(match call {
                     ac2_ui::ExaminationCall::Start => Command::StartExamination(0),

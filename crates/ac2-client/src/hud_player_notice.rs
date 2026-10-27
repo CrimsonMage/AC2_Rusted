@@ -161,8 +161,13 @@ impl HudView {
             match notice {
                 GameplayNotice::UpdateExaminationProfile(profile) => {
                     if let Some(panel) = examination.as_mut() {
-                        let items = player.examination_items(profile);
-                        panel.update_profile(tree, &items);
+                        // `ProcessEffectIDNode`: the effect nodes ask the player's script first.
+                        let expanded = player
+                            .client
+                            .borrow_mut()
+                            .expand_examination_effects(profile);
+                        let items = player.examination_items(&expanded);
+                        panel.update_profile(tree, player, frame.server_time, &items);
                     }
                 }
                 GameplayNotice::ExaminationRequestChanged(request) => {

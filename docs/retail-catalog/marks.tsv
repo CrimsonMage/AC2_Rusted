@@ -642,13 +642,15 @@ key	status	note
 00430820	~	ac2-ui: no per-object notice registration in Rust; the mini panel lives with the HUD and is rebuilt with it
 00430840	x	ac2-ui examination.rs + ac2-client ui_sources
 004309a0	x	ac2-ui examination.rs + ac2-client ui_sources
-00430a50	~	no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+00430a00	x	ac2-ui examination.rs start_rows: the list flushed, the countdown timers and the row cursor cleared (Update and the destructor use it the same way)
+00430a50	~	ac2-client ui_examination.rs: each effect node asks the script (IFun 0xB40123 with context, order, id and an empty profile) and is replaced by the nodes it fills; argument order is from the glue, not checked against a live script. Icon layers and filter tabs not modelled
+00430ad0	-	C++ destructor: the Rust drop and the tree own the rows, timers and notice handlers
 00430b60	x	ac2-ui examination.rs + ac2-client ui_sources
-00430c00	~	no TimeDisplay, icon layers, effect expansion, Legions filter tabs
-00430c80	~	no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+00430c00	x	ac2-ui examination.rs shown_changed/follow_field: Update then StartExamination when shown, StopExamination then the empty row when hidden (the filter tabs are not part of Show)
+00430c80	~	ac2-ui examination.rs message: the button, close and the shown state; Legions filter-tab clicks (mask in the request word) not modelled; help (KeyStone) skipped
 00430d80	x	ac2-ui examination.rs + ac2-client ui_sources
-00430db0	~	no TimeDisplay, icon layers, effect expansion, Legions filter tabs
-004312e0	~	no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+00430db0	~	countdowns tick (QuestTimeDisplay, global loop); effect nodes expanded by the client. Icon descriptions show their first layer only (SetIconDesc layers not drawn)
+004312e0	~	field, list, timers and the hidden start; Legions filter tabs (four mask tabs, +0xB8 filter word) not modelled
 00431410	x	ac2-ui examination.rs + ac2-client ui_sources
 004314c0	x	ac2-script glue::position (ported beside the gPosition glue)
 00431550	x	ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
@@ -921,9 +923,10 @@ key	status	note
 00441d20	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 00441db0	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 00441e50	x	ac2-ui drag.rs DragCheck::ItemDrop on each paper doll slot (InitSlots): only an item
+00441e90	-	admin-only mount flag (sets the paper doll token count); no Legions 7160 counterpart
 00441ea0	x	step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 00441f10	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
-00441fd0	~	the avatar follows the frame's appearance each frame (remade on change); the mode calls on the physobj (vtbl 0x110 / 0x114) are not modelled
+00441fd0	~	the avatar follows the frame appearance (remade on change); Legions also calls the physobj with mode 0x38d1b717 (vtbl 0x110) and 0xe0000000/0x3f1a36e2 (vtbl 0x114), and the portrait placement (gmShopConsignmentUI::UpdatePortraitPosition): not modelled
 00442030	x	step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 004420e0	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 00442100	x	step 2: slot lookup by element (the slots are the containers the layout names); DDCB is is_item_copy
@@ -934,7 +937,7 @@ key	status	note
 00442580	-	C++ destructors: the Rust state drops
 00442870	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 00442890	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
-00442900	~	durability refresh runs on the frame's item changes; the object-creation notice handler is not registered
+00442900	-	no Legions 7160 counterpart; the durability meter refreshes from the frame item list (AddItem, RecvNotice_ItemUpdate paths)
 004429e0	x	step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 00442af0	x	step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 00442c70	x	step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it

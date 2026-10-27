@@ -7,20 +7,29 @@
 //! indent (`DoBreak`), images and icons, breaks, tabs of 16 pixels, and countdowns; the row is as
 //! tall as its content.
 //!
-//! The client turns the wire profile into [`ExaminationNode`]s, rendering each value's text the
-//! way `MakeString` builds it, and expands effect nodes (`ProcessEffectIDNode`).
+//! The client turns the wire profile into [`ExaminationItem`]s, rendering each value's text the
+//! way `MakeString` builds it, and expands effect nodes first (`ProcessEffectIDNode`, in the
+//! client, which asks the player's script).
 //!
-//! Not modelled yet: the countdowns' ticking text (`TimeDisplay`, shown empty at its width), icon
-//! descriptions drawn as layered icons (`SetIconDesc`: the first layer is shown), an image's own
-//! size before it loads (the template's size is used), and text that arrives later
-//! (`download_done`).
+//! A countdown is a `TimeDisplay` (`Init` with the seconds left; `ListenToMessage` on the global
+//! loop rewrites the words, see [`crate::journal_time`]); the panel passes it the global loop each
+//! frame through [`ExaminationUi::global_loop`]. The countdown's thresholds are a day and a minute
+//! (1 and 60, as `TimeDisplay::Init` is called); the month threshold is 1 as the journal sets it.
+//!
+//! Not modelled yet: icon descriptions drawn as layered icons (`SetIconDesc`: the first layer is
+//! shown, as the item icons do), an image's own size before it loads (the template's size is
+//! used), text that arrives later (`download_done`), and the Legions filter tabs: the panel's
+//! filter word (the request's third word, `+0xB8` in the panel) is kept at its default and not
+//! changed by tab clicks.
 
 use std::sync::Arc;
 
 use crate::element::UiTree;
+use crate::journal_time::QuestTimeDisplay;
 use crate::layout::LayoutDesc;
 use crate::mouse::UiMessage;
 use crate::token::tokenize;
+use crate::ui_string::UiStrings;
 
 /// One laid-out item of a profile (`ExaminationDataNode` by type).
 #[derive(Debug, Clone, PartialEq)]
@@ -57,7 +66,7 @@ fn id(name: &str) -> u32 {
     tokenize(name)
 }
 
-/// `gmExaminationUI`'s state.
+/// `gmExaminationUI`'s state. `timers` are the countdown rows' `TimeDisplay`s (`m_timeArray`).
 #[derive(Debug, Clone)]
 pub struct ExaminationUi {
     layout: Arc<LayoutDesc>,
@@ -70,7 +79,18 @@ pub struct ExaminationUi {
     next_y: i32,
     tab_level: i32,
     row: Option<usize>,
+    timers: Vec<QuestTimeDisplay>,
     calls: Vec<ExaminationCall>,
+}
+
+/// `TimeDisplay::Init`'s thresholds for a countdown row: months (1), days (1), minutes (60).
+const COUNTDOWN_THRESHOLDS: (i64, i64, i64) = (1, 1, 60);
+
+/// The clock a profile is laid out at: the strings the countdowns render with, and `now`.
+#[derive(Clone, Copy)]
+struct Clock<'a> {
+    strings: &'a dyn UiStrings,
+    now: f64,
 }
 
 impl ExaminationUi {
@@ -90,6 +110,7 @@ impl ExaminationUi {
             next_y: 0,
             tab_level: 0,
             row: None,
+            timers: Vec::new(),
             calls: Vec::new(),
         };
         ui.update(tree, 0);
@@ -137,14 +158,25 @@ impl ExaminationUi {
         }
     }
 
+    /// `gmExaminationUI::CleanupArray` and the list's flush (`Update`): the rows and the
+    /// countdowns go, and the layout starts again.
     fn start_rows(&mut self, tree: &mut UiTree) {
         if let Some(list) = self.list {
             tree.list_flush(list);
         }
+        self.timers.clear();
         self.cur = (0, 0);
         self.next_y = 0;
         self.tab_level = 0;
         self.row = None;
+    }
+
+    /// The countdowns' global loop (`TimeDisplay::ListenToMessage`): each rewrites its words
+    /// when its next change is due.
+    pub fn global_loop(&mut self, tree: &mut UiTree, strings: &dyn UiStrings, now: f64) {
+        for timer in &mut self.timers {
+            timer.global_loop(tree, strings, now);
+        }
     }
 
     fn template(&self, tree: &mut UiTree, element: u32) -> Option<usize> {
@@ -189,11 +221,18 @@ impl ExaminationUi {
             .map_or(0, |e| e.rect.width())
     }
 
-    /// `RecvNotice_UpdateExaminationProfile`.
-    pub fn update_profile(&mut self, tree: &mut UiTree, items: &[ExaminationItem]) {
+    /// `RecvNotice_UpdateExaminationProfile`: the profile's items laid out at `now`.
+    pub fn update_profile(
+        &mut self,
+        tree: &mut UiTree,
+        strings: &dyn UiStrings,
+        now: f64,
+        items: &[ExaminationItem],
+    ) {
         self.start_rows(tree);
+        let clock = Clock { strings, now };
         for item in items {
-            self.process_node(tree, item);
+            self.process_node(tree, clock, item);
         }
         let (Some(list), Some(row)) = (self.list, self.row.take()) else {
             return;
@@ -238,7 +277,7 @@ impl ExaminationUi {
     }
 
     /// `gmExaminationUI::ProcessNode`.
-    fn process_node(&mut self, tree: &mut UiTree, item: &ExaminationItem) {
+    fn process_node(&mut self, tree: &mut UiTree, clock: Clock<'_>, item: &ExaminationItem) {
         let Some(row) = self.current_row(tree) else {
             return;
         };
@@ -291,7 +330,10 @@ impl ExaminationUi {
                 self.cur.0 += count * 16;
                 self.tab_level += count;
             }
-            ExaminationItem::Countdown { appearance, .. } => {
+            ExaminationItem::Countdown {
+                appearance,
+                seconds,
+            } => {
                 let Some(element) = self.text_element(tree, *appearance) else {
                     return;
                 };
@@ -303,6 +345,16 @@ impl ExaminationUi {
                     width = width.min(self.row_width(tree) - self.cur.0);
                 }
                 self.place(tree, row, element, (width, 16));
+                // `TimeDisplay::Init` on the element: the seconds left from now.
+                let timer = QuestTimeDisplay::init(
+                    tree,
+                    clock.strings,
+                    element,
+                    clock.now + seconds,
+                    COUNTDOWN_THRESHOLDS,
+                    clock.now,
+                );
+                self.timers.push(timer);
                 self.grow_next_y(tree, element);
             }
         }

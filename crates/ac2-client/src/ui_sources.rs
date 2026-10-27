@@ -412,8 +412,7 @@ impl ClientPlayer<'_> {
     }
 
     /// `gmExaminationUI::MakeString` and `ProcessNode`'s cases: a wire profile as the panel's
-    /// items. Effect nodes (`ProcessEffectIDNode`: `AddEffectDataToProfileByEID`) are not
-    /// expanded.
+    /// items. Effect nodes are expanded before this (`ui_examination`); one left is skipped.
     pub(crate) fn examination_items(
         &self,
         profile: &ac2_net::protocol::ExaminationProfile,

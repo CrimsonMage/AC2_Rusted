@@ -40,6 +40,8 @@ mod drag;
 mod effects;
 mod element;
 mod examination;
+#[cfg(test)]
+mod examination_tests;
 mod external_container;
 mod fellow_info;
 mod fellow_rows;

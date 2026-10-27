@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1052 done, 353 partial, 734 to do, 108 skipped.
+2247 retail functions: 1054 done, 351 partial, 731 to do, 111 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -1016,7 +1016,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmChatUI::Show` · 00435b80 · legions 00436410
 - [~] `gmChatUI::ListenToMessage` · 00435bc0 · legions 00436450 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
-## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (6/14)
+## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (8/14)
 
 ### gmExaminationUI
 - [x] `gmExaminationUI::RecvNotice_OpenExaminationPanel` · 00430810 — ac2-ui toolbar.rs
@@ -1027,15 +1027,15 @@ Legend and workflow: [README](README.md).
 ### gmExaminationUI
 - [x] `gmExaminationUI::MakeString` · 00430840 · legions 00430690 — ac2-ui examination.rs + ac2-client ui_sources
 - [x] `gmExaminationUI::DoBreak` · 004309a0 · legions 004307f0 — ac2-ui examination.rs + ac2-client ui_sources
-- [ ] `gmExaminationUI::CleanupArray` · 00430a00 · legions 00430850
-- [~] `gmExaminationUI::ProcessEffectIDNode` · 00430a50 · legions 004308e0 — no TimeDisplay, icon layers, effect expansion, Legions filter tabs
-- [ ] `gmExaminationUI::~gmExaminationUI` · 00430ad0 · legions 004317b0
+- [x] `gmExaminationUI::CleanupArray` · 00430a00 · legions 00430850 — ac2-ui examination.rs start_rows: the list flushed, the countdown timers and the row cursor cleared (Update and the destructor use it the same way)
+- [~] `gmExaminationUI::ProcessEffectIDNode` · 00430a50 · legions 004308e0 — ac2-client ui_examination.rs: each effect node asks the script (IFun 0xB40123 with context, order, id and an empty profile) and is replaced by the nodes it fills; argument order is from the glue, not checked against a live script. Icon layers and filter tabs not modelled
+- [-] `gmExaminationUI::~gmExaminationUI` · 00430ad0 · legions 004317b0 — C++ destructor: the Rust drop and the tree own the rows, timers and notice handlers
 - [x] `gmExaminationUI::Update` · 00430b60 · legions 004312c0 — ac2-ui examination.rs + ac2-client ui_sources
-- [~] `gmExaminationUI::Show` · 00430c00 · legions 00431880 — no TimeDisplay, icon layers, effect expansion, Legions filter tabs
-- [~] `gmExaminationUI::ListenToMessage` · 00430c80 — no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+- [x] `gmExaminationUI::Show` · 00430c00 · legions 00431880 — ac2-ui examination.rs shown_changed/follow_field: Update then StartExamination when shown, StopExamination then the empty row when hidden (the filter tabs are not part of Show)
+- [~] `gmExaminationUI::ListenToMessage` · 00430c80 — ac2-ui examination.rs message: the button, close and the shown state; Legions filter-tab clicks (mask in the request word) not modelled; help (KeyStone) skipped
 - [x] `gmExaminationUI::RecvNotice_ExaminationRequestChanged` · 00430d80 — ac2-ui examination.rs + ac2-client ui_sources
-- [~] `gmExaminationUI::ProcessNode` · 00430db0 · legions 00430ae0 — no TimeDisplay, icon layers, effect expansion, Legions filter tabs
-- [~] `gmExaminationUI::gmExaminationUI` · 004312e0 — no TimeDisplay, icon layers, effect expansion, Legions filter tabs
+- [~] `gmExaminationUI::ProcessNode` · 00430db0 · legions 00430ae0 — countdowns tick (QuestTimeDisplay, global loop); effect nodes expanded by the client. Icon descriptions show their first layer only (SetIconDesc layers not drawn)
+- [~] `gmExaminationUI::gmExaminationUI` · 004312e0 — field, list, timers and the hidden start; Legions filter tabs (four mask tabs, +0xB8 filter word) not modelled
 - [x] `gmExaminationUI::RecvNotice_UpdateExaminationProfile` · 00431410 — ac2-ui examination.rs + ac2-client ui_sources
 
 ## `ac2/client/src/ui/gameplay/toolbar/gmnavigationui.cpp.c` (22/37)
@@ -1269,10 +1269,10 @@ Legend and workflow: [README](README.md).
 - [x] `gmPaperDollUI_DDCB` · 00441e50 — ac2-ui drag.rs DragCheck::ItemDrop on each paper doll slot (InitSlots): only an item
 
 ### gmPaperDollUI
-- [ ] `gmPaperDollUI::RecvNotice_UpdateMountState` · 00441e90
+- [-] `gmPaperDollUI::RecvNotice_UpdateMountState` · 00441e90 — admin-only mount flag (sets the paper doll token count); no Legions 7160 counterpart
 - [x] `gmPaperDollUI::SetDurabilityTooltip` · 00441ea0 · legions 004427f0 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 - [x] `gmPaperDollUI::InitPaperDoll` · 00441f10 · legions 00442860 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
-- [~] `gmPaperDollUI::UpdatePaperDoll` · 00441fd0 · legions 00442920 — the avatar follows the frame's appearance each frame (remade on change); the mode calls on the physobj (vtbl 0x110 / 0x114) are not modelled
+- [~] `gmPaperDollUI::UpdatePaperDoll` · 00441fd0 · legions 00442920 — the avatar follows the frame appearance (remade on change); Legions also calls the physobj with mode 0x38d1b717 (vtbl 0x110) and 0xe0000000/0x3f1a36e2 (vtbl 0x114), and the portrait placement (gmShopConsignmentUI::UpdatePortraitPosition): not modelled
 - [x] `gmPaperDollUI::UpdateDurabilityMeter` · 00442030 · legions 00442980 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 - [x] `gmPaperDollUI::RecvNotice_LocalVisualDescUpdate` · 004420e0 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 - [x] `gmPaperDollUI::TokenToInvLoc` · 00442100 · legions 00442a50 — step 2: slot lookup by element (the slots are the containers the layout names); DDCB is is_item_copy
@@ -1283,7 +1283,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmPaperDollUI::~gmPaperDollUI` · 00442580 · legions 00442ed0 — C++ destructors: the Rust state drops
 - [x] `gmPaperDollUI::ListenToMessage` · 00442870 · legions 004431c0 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 - [x] `gmPaperDollUI::ListenToMessage` · 00442890 · legions 004431e0 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
-- [~] `gmPaperDollUI::RecvNotice_CreateObject` · 00442900 — durability refresh runs on the frame's item changes; the object-creation notice handler is not registered
+- [-] `gmPaperDollUI::RecvNotice_CreateObject` · 00442900 — no Legions 7160 counterpart; the durability meter refreshes from the frame item list (AddItem, RecvNotice_ItemUpdate paths)
 - [x] `gmPaperDollUI::RecvNotice_ItemUpdate` · 004429e0 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 - [x] `gmPaperDollUI::AddItem` · 00442af0 · legions 00443440 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 - [x] `gmPaperDollUI::RemoveItem` · 00442c70 · legions 004435c0 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
