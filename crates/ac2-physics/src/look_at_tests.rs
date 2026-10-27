@@ -32,8 +32,10 @@ fn target(x: f32, y: f32) -> Option<LookTarget> {
 
 #[test]
 fn a_new_look_turns_on_and_ramps_from_zero() {
-    let mut look = LookAtManager::default();
-    look.parent = ME;
+    let mut look = LookAtManager {
+        parent: ME,
+        ..LookAtManager::default()
+    };
     look.look_at(OTHER, LOOK_RAMP, 0.4);
     assert!(look.is_on);
     assert_eq!(look.target, OTHER);
@@ -45,8 +47,10 @@ fn a_new_look_turns_on_and_ramps_from_zero() {
 
 #[test]
 fn looking_at_the_body_itself_does_not_start_a_look() {
-    let mut look = LookAtManager::default();
-    look.parent = ME;
+    let mut look = LookAtManager {
+        parent: ME,
+        ..LookAtManager::default()
+    };
     look.look_at(ME, LOOK_RAMP, 0.0);
     assert!(!look.is_on);
     assert_eq!(look.target, 0);
@@ -54,8 +58,10 @@ fn looking_at_the_body_itself_does_not_start_a_look() {
 
 #[test]
 fn release_ramps_the_weight_out() {
-    let mut look = LookAtManager::default();
-    look.parent = ME;
+    let mut look = LookAtManager {
+        parent: ME,
+        ..LookAtManager::default()
+    };
     look.look_at(OTHER, LOOK_RAMP, 0.0);
     look.release(0.5);
     assert_eq!(look.target, 0);
@@ -68,8 +74,10 @@ fn release_ramps_the_weight_out() {
 
 #[test]
 fn the_weight_follows_the_ramp_in() {
-    let mut look = LookAtManager::default();
-    look.parent = ME;
+    let mut look = LookAtManager {
+        parent: ME,
+        ..LookAtManager::default()
+    };
     look.look_at(OTHER, LOOK_RAMP, 0.0);
     look.update(0.25, &me(true), target(0.0, 10.0));
     assert!(
@@ -77,13 +85,18 @@ fn the_weight_follows_the_ramp_in() {
         "a quarter of the ramp is half weight"
     );
     look.update(0.25, &me(true), target(0.0, 10.0));
-    assert!((look.weight - 1.0).abs() < 1e-6, "the ramp ends at full weight");
+    assert!(
+        (look.weight - 1.0).abs() < 1e-6,
+        "the ramp ends at full weight"
+    );
 }
 
 #[test]
 fn the_head_aims_at_a_target_off_to_one_side() {
-    let mut look = LookAtManager::default();
-    look.parent = ME;
+    let mut look = LookAtManager {
+        parent: ME,
+        ..LookAtManager::default()
+    };
     look.look_at(OTHER, LOOK_RAMP, 0.0);
     // One quantum of 0.5 s reaches full weight (`time` = ramp, weight = q * weight_vel).
     let moves = look.update(0.5, &me(false), target(0.0, 10.0));
@@ -96,12 +109,18 @@ fn the_head_aims_at_a_target_off_to_one_side() {
 
 #[test]
 fn a_target_ahead_on_the_x_axis_gives_the_retail_bearing() {
-    let mut look = LookAtManager::default();
-    look.parent = ME;
+    let mut look = LookAtManager {
+        parent: ME,
+        ..LookAtManager::default()
+    };
     look.look_at(OTHER, LOOK_RAMP, 0.0);
     let moves = look.update(0.5, &me(false), target(10.0, 0.0));
     let expected = -std::f32::consts::FRAC_PI_2;
-    assert!((moves[0].value - expected).abs() < 1e-5, "{}", moves[0].value);
+    assert!(
+        (moves[0].value - expected).abs() < 1e-5,
+        "{}",
+        moves[0].value
+    );
 }
 
 #[test]
@@ -138,8 +157,10 @@ fn a_head_direction_without_a_target_runs_for_half_a_second() {
 
 #[test]
 fn a_player_stops_looking_after_two_seconds_of_disinterest() {
-    let mut look = LookAtManager::default();
-    look.parent = ME;
+    let mut look = LookAtManager {
+        parent: ME,
+        ..LookAtManager::default()
+    };
     look.look_at(OTHER, LOOK_RAMP, 0.0);
     // A target behind the player (local y below zero) is disinterest.
     for _ in 0..40 {
@@ -151,8 +172,10 @@ fn a_player_stops_looking_after_two_seconds_of_disinterest() {
 
 #[test]
 fn a_target_in_front_keeps_the_look() {
-    let mut look = LookAtManager::default();
-    look.parent = ME;
+    let mut look = LookAtManager {
+        parent: ME,
+        ..LookAtManager::default()
+    };
     look.look_at(OTHER, LOOK_RAMP, 0.0);
     for _ in 0..40 {
         look.update(0.1, &me(true), target(0.0, 10.0));
@@ -163,8 +186,10 @@ fn a_target_in_front_keeps_the_look() {
 
 #[test]
 fn look_at_dir_leaves_the_target_alone() {
-    let mut look = LookAtManager::default();
-    look.parent = ME;
+    let mut look = LookAtManager {
+        parent: ME,
+        ..LookAtManager::default()
+    };
     look.look_at(OTHER, LOOK_RAMP, 0.0);
     look.look_at_dir();
     assert_eq!(look.period, 1.0, "a held target keeps its period");

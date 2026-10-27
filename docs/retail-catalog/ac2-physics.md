@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 385 done, 88 partial, 1589 to do, 62 skipped.
+2124 retail functions: 394 done, 88 partial, 1580 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -1481,14 +1481,14 @@ Legend and workflow: [README](README.md).
 - [ ] `ICPhysicsObj::IncrementGlobalPhysicsTimeStamp` · 005095a0 · legions 004f75f0
 - [ ] `ICPhysicsObj::ICPhysicsObj` · 005095b0 · legions 004f7600
 
-## `portal/shared/src/physobj/lookat/lookatmanager.cpp.c` (0/6)
+## `portal/shared/src/physobj/lookat/lookatmanager.cpp.c` (5/6)
 
 ### LookAtManager
-- [ ] `LookAtManager::Release` · 004fd6f0 · legions 004efee0
-- [ ] `LookAtManager::LookAtDir` · 004fd750 · legions 004eff40
-- [ ] `LookAtManager::LookAt` · 004fd780 · legions 004eff70
-- [ ] `LookAtManager::LookAtManager` · 004fd870 · legions 004f0060
-- [ ] `LookAtManager::LookAtLogic` · 004fd930 · legions 004f0120
+- [x] `LookAtManager::Release` · 004fd6f0 · legions 004efee0 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
+- [x] `LookAtManager::LookAtDir` · 004fd750 · legions 004eff40 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
+- [x] `LookAtManager::LookAt` · 004fd780 · legions 004eff70 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
+- [x] `LookAtManager::LookAtManager` · 004fd870 · legions 004f0060 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
+- [x] `LookAtManager::LookAtLogic` · 004fd930 · legions 004f0120 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 - [ ] `LookAtManager::Update` · 004fdb70 · legions 004f0360
 
 ## `portal/shared/src/physobj/minterp/constraintmanager.cpp.c` (6/6)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (118/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (122/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2194,8 +2194,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::RecvEvt_ClearTerrainModifiers` · 004de270
 - [x] `CPhysicsObj::RecvEvt_AddTargetedImpulse` · 004de280 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 - [x] `CPhysicsObj::RecvEvt_DoFXScript` · 004de2b0 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
-- [ ] `CPhysicsObj::RecvEvt_LookAt` · 004de2e0
-- [ ] `CPhysicsObj::RecvEvt_LookAtDir` · 004de300
+- [x] `CPhysicsObj::RecvEvt_LookAt` · 004de2e0 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
+- [x] `CPhysicsObj::RecvEvt_LookAtDir` · 004de300 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 - [x] `CPhysicsObj::RecvEvt_StopBehavior` · 004de320 — ac2-client motion.rs
 - [x] `CPhysicsObj::RecvEvt_StopLayer` · 004de330 — ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
 - [x] `CPhysicsObj::RecvEvt_StopMoveToCancelsBehaviors` · 004de340 — ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
@@ -2440,7 +2440,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::LookAtSelection` · 004e25b0 · legions 004d5000
 - [ ] `CPhysicsObj::SetLookAtSelection` · 004e2630 · legions 004d5080
 - [ ] `CPhysicsObj::StopAllCameraFX` · 004e2650
-- [ ] `CPhysicsObj::LookAtDir` · 004e2670 · legions 004d50c0
+- [x] `CPhysicsObj::LookAtDir` · 004e2670 · legions 004d50c0 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 - [ ] `CPhysicsObj::SetParentObject` · 004e26c0
 - [ ] `CPhysicsObj::SetTargetObject` · 004e26f0
 - [ ] `CPhysicsObj::SetFreeCamera` · 004e2720
@@ -2601,7 +2601,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::SetVDescScale` · 004e8ae0
 - [ ] `CPhysicsObj::SetChildrenOpacity` · 004e8b00 · legions 004db4e0
 - [ ] `CPhysicsObj::DoSliderOnChild` · 004e8b60 · legions 004db540
-- [ ] `CPhysicsObj::LookAt` · 004e8bc0
+- [x] `CPhysicsObj::LookAt` · 004e8bc0 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 - [ ] `CPhysicsObj::DoStory` · 004e8d10 · legions 004db6f0
 - [ ] `CPhysicsObj::GetLocalVisualDesc` · 004e8d50
 - [ ] `CPhysicsObj::RecvEvt_InitializeMissile` · 004e8d80 · legions 004db760

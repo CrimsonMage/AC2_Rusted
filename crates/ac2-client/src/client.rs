@@ -733,14 +733,20 @@ impl Client {
             // `LookAtManager::Update` reads the look target's position and size each step.
             let mut looks = HashMap::new();
             self.remotes.look_targets(&mut looks);
-            if let Some(player) = self.player.as_ref().and_then(|p| Some((p.id, p.body.as_ref()?))) {
+            if let Some(player) = self
+                .player
+                .as_ref()
+                .and_then(|p| Some((p.id, p.body.as_ref()?)))
+            {
                 looks.insert(player.0, crate::remote::look_snapshot(&player.1.physics));
             }
             if let Some(body) = self.player.as_mut().and_then(|p| p.body.as_mut()) {
                 body.physics.resolve_fx_scripts(|id| scripts.get(id));
                 body.physics.set_wind(wind);
                 body.physics.set_look_snapshot(
-                    body.physics.look_target().and_then(|t| looks.get(&t).copied()),
+                    body.physics
+                        .look_target()
+                        .and_then(|t| looks.get(&t).copied()),
                 );
                 body.physics.update_animation(step, now, &mut self.random);
             }

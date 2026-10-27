@@ -6,8 +6,8 @@
 use crate::anim_rep::AnimRep;
 use crate::fpu::{ld, st, F_EPSILON};
 use crate::frame::Frame;
-use crate::look_at::{LookAtManager, LookTarget};
 use crate::heading::Heading;
+use crate::look_at::{LookAtManager, LookTarget};
 use crate::motion_interp::{
     MotionContext, MotionInterp, ELEMENT_AIR, ELEMENT_GROUND, ELEMENT_SEA_FLOOR,
     ELEMENT_WALK_ON_AIR, ELEMENT_WATER,

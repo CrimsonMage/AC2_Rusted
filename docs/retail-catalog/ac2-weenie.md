@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 571 done, 174 partial, 1136 to do, 23 skipped.
+1904 retail functions: 573 done, 174 partial, 1134 to do, 23 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -2298,7 +2298,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWInterface::CallIFun_OnStatChanged` · 004bc510 · legions 004b1400
 - [ ] `gCWInterface::CallIFun_PreloadWSLSingletons` · 004bc600 · legions 004b14f0
 
-## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (8/85)
+## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (9/85)
 
 ### gCWPhysicsObject
 - [ ] `gCWPhysicsObject::CallEFun_DoStory` · 004b8050
@@ -2344,7 +2344,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWPhysicsObject::CallEFun_IsOutside` · 004b95b0
 - [ ] `gCWPhysicsObject::CallEFun_IsUndetectable` · 004b9620
 - [ ] `gCWPhysicsObject::CallEFun_LocalToGlobal` · 004b9690
-- [ ] `gCWPhysicsObject::CallEFun_LookAt` · 004b9720
+- [x] `gCWPhysicsObject::CallEFun_LookAt` · 004b9720 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 - [ ] `gCWPhysicsObject::CallEFun_MissileFireOnly` · 004b97a0
 - [ ] `gCWPhysicsObject::CallEFun_MissileInitPlaceAndFire` · 004b9810
 - [ ] `gCWPhysicsObject::CallEFun_MissileInitialize` · 004b98a0
@@ -2844,7 +2844,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWeenieObject::~CWeenieObject` · 0052fd40 · legions 00513e90
 - [ ] `CWeenieObject::UnRegisterAllNoticeHandlers` · 0052fd70 · legions 00513ec0
 
-## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (8/91)
+## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (9/91)
 
 ### CWPhysicsObject
 - [ ] `CWPhysicsObject::CWPhysicsObject` · 0052fe30 · legions 00513f80
@@ -2887,7 +2887,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWPhysicsObject::StopMoveToCancelsBehaviors` · 00530570 · legions 00514510
 - [ ] `CWPhysicsObject::StopAllWeenieBehaviors` · 00530590 · legions 00514530
 - [ ] `CWPhysicsObject::LookAtSelection` · 005305b0 · legions 00514550
-- [ ] `CWPhysicsObject::LookAt` · 005305e0 · legions 00514580
+- [x] `CWPhysicsObject::LookAt` · 005305e0 · legions 00514580 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 - [ ] `CWPhysicsObject::AddTargetedImpulse` · 00530610 · legions 005145b0
 - [ ] `CWPhysicsObject::GetElement` · 00530650 · legions 005145f0
 - [ ] `CWPhysicsObject::GetDesiredMode` · 00530670 · legions 00514610

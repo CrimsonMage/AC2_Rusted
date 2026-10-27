@@ -3,7 +3,7 @@
 
 use crate::look_at::{LookSelf, LOOK_RAMP};
 
-use super::PhysicsObj;
+use crate::physics_obj::PhysicsObj;
 
 impl PhysicsObj {
     /// `CPhysicsObj::LookAt(target)`: the body looks at `target`; a target that is the body

@@ -113,9 +113,10 @@ impl LookAtManager {
 
     /// `LookAtManager::LookAt(target, ramp)`: a new target starts the look (and turns it on);
     /// `previous_yaw` is the yaw slider's value at that moment. A target equal to the body
-    /// itself, or already being looked at, only keeps the look on.
+    /// itself is no look (`CPhysicsObj::LookAt` releases instead); a target already being
+    /// looked at keeps the look on without restarting its ramp.
     pub fn look_at(&mut self, target: u64, ramp: f32, previous_yaw: f32) {
-        if target == 0 {
+        if target == 0 || target == self.parent {
             return;
         }
         self.is_on = true;

@@ -413,3 +413,44 @@ fn the_drawn_pose_blends_from_the_previous_refresh_to_the_current() {
         &after
     ));
 }
+
+/// `CPhysicsObj::LookAt` then `LookAtManager::Update`: a body turns its head to a target 10 units
+/// off its +x side, the yaw slider settling on the bearing `LookAtLogic` computes (`atan2(y, x)`
+/// less pi/2, so -pi/2 here), and the look names the target until it is released.
+#[test]
+fn look_at_turns_the_head_toward_the_target() {
+    use crate::look_at::LOOK_YAW_SLIDER;
+    use crate::LookTarget;
+    let mut body = remote_body();
+    let target_id = 0x77;
+    body.look_at(target_id, 1);
+    assert_eq!(body.look_target(), Some(target_id));
+    let mut at = body.position();
+    at.frame.origin = crate::vector::Vector::new(
+        at.frame.origin.x + 10.0,
+        at.frame.origin.y,
+        at.frame.origin.z,
+    );
+    body.set_look_snapshot(Some(LookTarget {
+        position: at,
+        height: 1.0,
+        mobile: false,
+    }));
+    let mut now = 1.0;
+    for _ in 0..8 {
+        now += 0.5;
+        body.update_animation(0.5, now, &mut Random::default());
+    }
+    let yaw = body.slider_desired_value(LOOK_YAW_SLIDER);
+    assert!(
+        (yaw + std::f32::consts::FRAC_PI_2).abs() < 1e-3,
+        "the head turns to the target: {yaw}"
+    );
+    assert_eq!(body.look_target(), Some(target_id), "the look holds");
+    body.look_at(0, 1);
+    assert_eq!(
+        body.look_target(),
+        None,
+        "an empty target releases the look"
+    );
+}
