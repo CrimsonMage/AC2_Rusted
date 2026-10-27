@@ -63,7 +63,9 @@ key	status	note
 00409be0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00409e00	x	
 0040a1f0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
+0040a790	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 0040a810	~	ac2-ui game_dialogs.rs logout_key (0x4100000e); ac2-client hud_view.rs gameplay_keys (0x41000008/09/0B child keys while Shown) and gameplay_show_key (0x4100000C); 0x4100000D UseSelection and 0xffff0007 save locations not here
+0040a960	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 0040aad0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 0040ab10	x	ac2-ui pregame/avatar_modification.rs
 0040ab70	x	ac2-ui pregame/avatar_modification.rs
@@ -1225,6 +1227,8 @@ key	status	note
 004514e0	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
 00451510	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 00451530	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
+00451560	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
+00451580	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 004515c0	x	ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile)
 004515e0	x	ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile)
 00451610	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
@@ -1246,6 +1250,7 @@ key	status	note
 00451a20	~	client ui_quests.rs Client::inq_quest_list (IFun 0xB4008E, list as IFunArg::Filled: the out list is approximated, not run against a live login)
 00451a60	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 00451ac0	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
+00451b00	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 00451b20	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 00451b50	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 00451b70	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
@@ -1387,6 +1392,7 @@ key	status	note
 0045e660	~	answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 0045e7f0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 0045e9c0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+0045eb90	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 0045ed00	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 0045eea0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 0045ef60	x	the worn test: true for an item the player has equipped, false for pack, side-pack and unknown items (inventory_items_7160); the money bag drop callback is admin-only
@@ -1448,6 +1454,7 @@ key	status	note
 00462db0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00462e60	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00462fc0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00463070	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 00463390	~	no native caller in the call graph (the VM glue raises it); ac2-client hud_player.rs shows EndSpecialAttack notices; IFun 0xB400C2 not called from native
 00463440	-	no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 00463580	x	ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
@@ -1455,6 +1462,7 @@ key	status	note
 00463810	~	ac2-weenie session/inventory.rs transmute_all: InvTransmuteAllDesc (client test transmute_all_asks_the_server_to_transmute_the_container). The double clears the container without resending its lists, so the frame refresh is the server's; checks (CInventorySystem 0x1F) not mirrored
 004638e0	~	ac2-weenie session/inventory.rs unequip_item: InvEquipDesc.unequip byte-exact (inventory_7160); client UnequipItem (inventory_items_7160). Script checks not mirrored
 00463b70	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
+00463c00	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 00463c90	x	ac2-client Command::UseSelection runs IFun 0xB40006 on the player's script when the VM owns it (CPlayer 0x79 -> CUsageSystem 0x9: the targeting pointer, the usage list, then WM_Usage 0x22); butchery_7160 asserts it. The session's use_selection stand-in stays for a client without scripts
 00463d30	x	client use_shortcut (scripts_queries.rs, IFun 0xB40007); skill and text shortcuts run on the VM; vitals_7160 use_shortcut
 00463df0	_	ac2-script glue: id table + pure-glue registry; engine glue unbound
@@ -5784,6 +5792,7 @@ key	status	note
 006da7b0	x	
 006da8b0	x	
 006dad20	x	ac2-script glue::options / examination (Legions layout and efun switch)
+006dad30	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 006daf40	x	ac2-script glue::options / examination (Legions layout and efun switch)
 006daf80	~	ac2-script native::options (ShortcutInfo keeps its packed datum only; unversioned profiles upgrade before packing; inner UI tables copied as is)
 006dafd0	x	ac2-script glue::options / examination (Legions layout and efun switch)

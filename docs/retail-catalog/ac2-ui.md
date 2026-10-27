@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 952 done, 355 partial, 871 to do, 69 skipped.
+2247 retail functions: 954 done, 355 partial, 869 to do, 69 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -152,7 +152,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700 — ac2-ui: the panel hears every object's notices (no per-object registration)
 - [x] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0 — ac2-ui external_container.rs
 
-## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (18/58)
+## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (20/58)
 
 ### gmGamePlayUI
 - [~] `gmGamePlayUI::Show` · 00407910 · legions 00407620 — ac2-client hud_view.rs set_gameplay_shown (m_shown, 0x4100000C via gameplay_show_key with the wait/death/story/logout guard); cascades only to the status bar, radar and toolbar bar; the other children's Show (selection, stack, trade, panels) not modelled; gameplay_keys_7160 (the_hud_key_hides...)
@@ -254,9 +254,9 @@ Legend and workflow: [README](README.md).
 - [ ] `GameplayOptionsProfile::~GameplayOptionsProfile` · 0040a590 · legions 0040a410
 
 ### gmGamePlayUI
-- [ ] `gmGamePlayUI::RecvNotice_SaveLocationsChanged` · 0040a790
+- [x] `gmGamePlayUI::RecvNotice_SaveLocationsChanged` · 0040a790 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 - [~] `gmGamePlayUI::ListenToMessage` · 0040a810 · legions 0040a6d0 — ac2-ui game_dialogs.rs logout_key (0x4100000e); ac2-client hud_view.rs gameplay_keys (0x41000008/09/0B child keys while Shown) and gameplay_show_key (0x4100000C); 0x4100000D UseSelection and 0xffff0007 save locations not here
-- [ ] `gmGamePlayUI::RecvNotice_ReloadOptions` · 0040a960
+- [x] `gmGamePlayUI::RecvNotice_ReloadOptions` · 0040a960 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 
 ## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (19/39)
 

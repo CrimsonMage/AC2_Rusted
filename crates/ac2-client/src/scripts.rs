@@ -74,6 +74,11 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_SET_DAMAGE_TEXT_RANGE_OTHER,
     IFUN_SET_SHORTCUT_HEIGHT,
     IFUN_UPLOAD_GAME_OPTIONS,
+    // The window locations (`gmCWInterface::SetUISaveLocations`, `InqUISaveLocations`,
+    // `UploadUISettings`).
+    IFUN_SET_UI_SAVE_LOCATIONS,
+    IFUN_INQ_UI_SAVE_LOCATIONS,
+    IFUN_UPLOAD_UI_SETTINGS,
     // The chat options page's setters and the upload (`gmChatOptionsUI::Apply`).
     IFUN_SET_CHAT_WINDOW_FILTER,
     IFUN_SET_CHAT_FONT_SIZE,
@@ -341,6 +346,14 @@ pub const IFUN_SET_SHOW_PET_UI: u32 = 0x00B4_014B;
 pub const IFUN_SET_RADAR_MASK: u32 = 0x00B4_007F;
 pub const IFUN_SET_DAMAGE_TEXT_RANGE_OTHER: u32 = 0x00B4_0079;
 pub const IFUN_SET_SHORTCUT_HEIGHT: u32 = 0x00B4_0142;
+/// `ggmCWInterface::CallIFun_SetUISaveLocations(UISaveLocations)` (Legions 0x00463CC0): the
+/// saved locations go into the player's profile.
+pub const IFUN_SET_UI_SAVE_LOCATIONS: u32 = 0x00B4_007B;
+/// `ggmCWInterface::CallIFun_InqUISaveLocations(UISaveLocations out)` (Legions 0x0045F7E0).
+pub const IFUN_INQ_UI_SAVE_LOCATIONS: u32 = 0x00B4_007C;
+/// `ggmCWInterface::CallIFun_UploadUISettings` (Legions 0x00464870): the profile to the server
+/// (`WM_Player` 0x32, `UploadUISettings`).
+pub const IFUN_UPLOAD_UI_SETTINGS: u32 = 0x00B4_00DB;
 /// `gmCWInterface::UploadGameOptions` (`ggmCWInterface::CallIFun_UploadGameOptions`: the script
 /// sends the profile, `WM_Player` 0x1D).
 pub const IFUN_UPLOAD_GAME_OPTIONS: u32 = 0x00B4_0093;
@@ -713,8 +726,18 @@ impl Client {
                 other => other.as_native().cloned().map(IFunArg::Native),
             })
             .collect();
+        self.script_ifun_args(function, &args)
+    }
+
+    /// [`Client::script_ifun`] with the arguments given directly, native objects included (a
+    /// native the client makes, as `gmCWInterface::SetUISaveLocations` passes its save).
+    pub(crate) fn script_ifun_args(
+        &mut self,
+        function: u32,
+        args: &[IFunArg],
+    ) -> Vec<SessionEvent> {
         let mut out = Vec::new();
-        if let Err(error) = self.ifun_into(function, &args, &mut out) {
+        if let Err(error) = self.ifun_into(function, args, &mut out) {
             if let Some(scripts) = self.scripts.as_mut() {
                 scripts.problems.push(error);
             }

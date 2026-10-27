@@ -8,6 +8,7 @@
 
 use ac2_net::protocol::{ExaminationRequest, SelectionInfo};
 use ac2_script::host::{IFunArg, OutValue};
+use ac2_ui::SavedWindow;
 use ac2_weenie::{SessionEvent, NO_SELECTION};
 
 use crate::client::Client;
@@ -212,6 +213,9 @@ pub enum Command {
     SetChatOption(ac2_ui::ChatOptionSetting),
     /// `gmCWInterface::UploadChatOptions`: the chat options to the server.
     UploadChatOptions,
+    /// `gmGamePlayUI::RecvNotice_SaveLocationsChanged`: the windows' locations are saved on the
+    /// player (`SetUISaveLocations`) and uploaded (`UploadUISettings`).
+    SaveWindowLocations(Vec<SavedWindow>),
     /// `gmCWInterface::SetShowObjectNames` (`gm3DTextUI::ToggleNames`).
     SetShowObjectNames(bool),
     /// `gmCWInterface::SetShortcut`: the shortcut into slot `index` of the bar.
@@ -514,6 +518,7 @@ impl Client {
                         Vec::new()
                     }
                 }
+                Command::SaveWindowLocations(saved) => self.save_window_locations(saved),
                 Command::UploadChatOptions => {
                     let ifun = crate::scripts::IFUN_UPLOAD_CHAT_OPTIONS;
                     if self.scripts_own(ifun) {

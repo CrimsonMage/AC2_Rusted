@@ -26,8 +26,8 @@ pub use hash_table::{
 };
 pub use multi::{MultiNode, ScriptMultiHash, ScriptMultiMap, STL_PRIMES};
 pub use options::{
-    assign_ui_locations, bits as option_bits, word_assign, word_get, word_set, AliasTable,
-    GameplayOptions,
+    add_ui_location, assign_ui_locations, bits as option_bits, word_assign, word_get, word_set,
+    AliasTable, GameplayOptions,
 };
 pub use shortcut::Shortcut;
 pub use string_info::{GetStringError, StringInfo, StringVar, StringVarValue};

@@ -132,6 +132,10 @@ impl HudView {
         let Some((tree, _)) = hud else {
             return commands;
         };
+        // `gmGamePlayUI::RecvNotice_SaveLocationsChanged`: a window moved since the last frame.
+        if tree.take_locations_changed() {
+            commands.push(Command::SaveWindowLocations(tree.inq_locations()));
+        }
         // `gmChatOptionsUI`'s Apply sent the reload notice; its values refresh on the options'
         // reload (`RecvNotice_ReloadOptions`), as the page's Refresh does.
         let applied = chat_options.as_mut().is_some_and(|page| page.take_reload());
@@ -164,6 +168,13 @@ impl HudView {
                 .iter()
                 .any(|n| n.name == "CM_Character::SendNotice_ReloadOptions");
         let show_radar_coords = reload_radar.then(|| client.show_radar_coords());
+        // `gmGamePlayUI::RecvNotice_ReloadOptions` (and the refresh at login, `ListenToMessage`
+        // 0xffff0007): the player's saved window locations apply to the windows.
+        if reload_radar {
+            if let Ok(saved) = client.saved_window_locations() {
+                tree.apply_locations(&saved);
+            }
+        }
         // `gmCharacterUI::RecvNotice_ReloadOptions`: the page's values as the profile has them.
         let reload_page = reload_radar
             || events

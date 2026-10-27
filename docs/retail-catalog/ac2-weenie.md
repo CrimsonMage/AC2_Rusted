@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 304 done, 150 partial, 1437 to do, 13 skipped.
+1904 retail functions: 310 done, 150 partial, 1431 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (88/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (91/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -754,7 +754,7 @@ Legend and workflow: [README](README.md).
 - [~] `ggmCWInterface::CallIFun_InqSimpleInvByLocTable` · 0045e660 · legions 0045f2b0 — answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 - [~] `ggmCWInterface::CallIFun_InqSkillLevelByEnum` · 0045e7f0 · legions 0045f440 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [~] `ggmCWInterface::CallIFun_InqSkillTimeLeft` · 0045e9c0 · legions 0045f610 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-- [ ] `ggmCWInterface::CallIFun_InqUISaveLocations` · 0045eb90 · legions 0045f7e0
+- [x] `ggmCWInterface::CallIFun_InqUISaveLocations` · 0045eb90 · legions 0045f7e0 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 - [x] `ggmCWInterface::CallIFun_IsCraftSkillRaiseable` · 0045ed00 · legions 0045f950 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [ ] `ggmCWInterface::CallIFun_IsFellowshipMember` · 0045edc0 · legions 0045fa10
 - [~] `ggmCWInterface::CallIFun_IsHeroSkillByEnum` · 0045eea0 · legions 0045faf0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
@@ -837,7 +837,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_SetShowPetUI` · 00462e60 · legions 00463ab0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [ ] `ggmCWInterface::CallIFun_SetShowRadarCoords` · 00462f10 · legions 00463b60
 - [x] `ggmCWInterface::CallIFun_SetShowShortcutNumbers` · 00462fc0 · legions 00463c10 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
-- [ ] `ggmCWInterface::CallIFun_SetUISaveLocations` · 00463070 · legions 00463cc0
+- [x] `ggmCWInterface::CallIFun_SetUISaveLocations` · 00463070 · legions 00463cc0 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 - [ ] `ggmCWInterface::CallIFun_SetWhichShortcutSet` · 00463150 · legions 00463da0
 - [ ] `ggmCWInterface::CallIFun_SetWindowOpacity` · 00463200 · legions 00463e50
 - [ ] `ggmCWInterface::CallIFun_ShouldAutoTarget` · 004632f0 · legions 00463f40
@@ -853,7 +853,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_UpdateOpen` · 004639e0 · legions 00464650
 - [ ] `ggmCWInterface::CallIFun_UploadChatOptions` · 00463ae0 · legions 00464750
 - [x] `ggmCWInterface::CallIFun_UploadGameOptions` · 00463b70 · legions 004647e0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
-- [ ] `ggmCWInterface::CallIFun_UploadUISettings` · 00463c00 · legions 00464870
+- [x] `ggmCWInterface::CallIFun_UploadUISettings` · 00463c00 · legions 00464870 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 - [x] `ggmCWInterface::CallIFun_UseSelection` · 00463c90 · legions 00464900 — ac2-client Command::UseSelection runs IFun 0xB40006 on the player's script when the VM owns it (CPlayer 0x79 -> CUsageSystem 0x9: the targeting pointer, the usage list, then WM_Usage 0x22); butchery_7160 asserts it. The session's use_selection stand-in stays for a client without scripts
 - [x] `ggmCWInterface::CallIFun_UseShortcut` · 00463d30 · legions 004649a0 — client use_shortcut (scripts_queries.rs, IFun 0xB40007); skill and text shortcuts run on the VM; vitals_7160 use_shortcut
 
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (137/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (140/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -1064,8 +1064,8 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::GetShowFellowsOnMap` · 004514e0 · legions 00452620 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
 - [x] `gmCWInterface::SetShowPetUI` · 00451510 · legions 00452650 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 - [x] `gmCWInterface::GetShowPetUI` · 00451530 · legions 00452670 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
-- [ ] `gmCWInterface::SetUISaveLocations` · 00451560 · legions 00452290
-- [ ] `gmCWInterface::InqUISaveLocations` · 00451580 · legions 004526c0
+- [x] `gmCWInterface::SetUISaveLocations` · 00451560 · legions 00452290 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
+- [x] `gmCWInterface::InqUISaveLocations` · 00451580 · legions 004526c0 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 - [x] `gmCWInterface::SetShowRadarCoords` · 004515c0 · legions 00452700 — ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile)
 - [x] `gmCWInterface::GetShowRadarCoords` · 004515e0 · legions 00452720 — ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile)
 - [x] `gmCWInterface::SetShowObjectNames` · 00451610 · legions 00452750 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
@@ -1095,7 +1095,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::HandlePlayScenesDone` · 00451aa0 · legions 00452c20
 - [x] `gmCWInterface::UploadGameOptions` · 00451ac0 · legions 00452c40 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 - [ ] `gmCWInterface::UploadChatOptions` · 00451ae0 · legions 00452c60
-- [ ] `gmCWInterface::UploadUISettings` · 00451b00 · legions 00452c80
+- [x] `gmCWInterface::UploadUISettings` · 00451b00 · legions 00452c80 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 - [x] `gmCWInterface::DoFellowshipCreate` · 00451b20 · legions 00452ca0 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 - [x] `gmCWInterface::DoFellowshipDisband` · 00451b50 · legions 00452cd0 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 - [x] `gmCWInterface::DoFellowshipLeave` · 00451b70 · legions 00452cf0 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)

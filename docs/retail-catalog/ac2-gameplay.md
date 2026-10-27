@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 150 done, 18 partial, 319 to do, 12 skipped.
+499 retail functions: 151 done, 18 partial, 318 to do, 12 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -768,7 +768,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UILocationData::UILocationData` · 006da940 · legions 00663d80
 - [ ] `UILocationData::UILocationData` · 006da970 · legions 00663db0
 
-## `portal/shared/src/gameplay/uisavelocations.cpp.c` (3/8)
+## `portal/shared/src/gameplay/uisavelocations.cpp.c` (4/8)
 
 ### HashTable<unsigned_long,UILocationData>
 - [ ] `HashTable<unsigned_long,UILocationData>::operator=` · 006daa70 · legions 00663ee0
@@ -776,7 +776,7 @@ Legend and workflow: [README](README.md).
 ### UISaveLocations
 - [ ] `UISaveLocations::InqUILocationData` · 006dab60 · legions 00663fd0
 - [x] `UISaveLocations::Clear` · 006dad20 · legions 00664190 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [ ] `UISaveLocations::AddLocation` · 006dad30 · legions 006641a0
+- [x] `UISaveLocations::AddLocation` · 006dad30 · legions 006641a0 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 
 ### HashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>
 - [ ] `HashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>::operator=` · 006dae20 · legions 00664290

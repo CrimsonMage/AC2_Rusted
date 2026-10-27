@@ -15,6 +15,8 @@ pub mod chat_text;
 mod client;
 mod client_ambient;
 mod client_audio;
+mod client_locations;
+pub use client_locations::{saved_windows, ui_save_locations};
 mod client_options;
 mod client_prefs;
 use ac2_smartbox::{camera, cells, scene};

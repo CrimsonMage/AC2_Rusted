@@ -128,6 +128,8 @@ impl UiTree {
             }
             self.set_visible(root, location.shown);
         }
+        self.moved = true;
+        self.changed = true;
         true
     }
 

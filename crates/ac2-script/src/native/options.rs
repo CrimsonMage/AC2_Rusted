@@ -514,6 +514,54 @@ pub fn assign_ui_locations(dst: &mut UiSaveLocations, src: &UiSaveLocations) {
     dst.layouts = buckets.into_iter().flatten().collect();
 }
 
+/// `UISaveLocations::AddLocation(layout, element, location)`: the layout's window table (a copy of
+/// the layout's table when it exists, re-added in its order) gets the window (`HashTable::add`, a
+/// duplicate fails), then the layout's table is set in the layouts' table (a new layout at the
+/// head of its bucket). `false` when the window is already there (retail's `AddLocation` fails).
+/// Both tables hold [`DEFAULT_BUCKETS`] buckets, as `IntrusiveHashTable(0x20)` makes them.
+pub fn add_ui_location(
+    dst: &mut UiSaveLocations,
+    layout: u32,
+    element: u32,
+    location: net::UiLocation,
+) -> bool {
+    let inner_index = bucket_size_index(DEFAULT_BUCKETS) as u8;
+    let inner_n = BUCKET_SIZES[usize::from(inner_index)];
+    let mut windows: Vec<Vec<(u32, net::UiLocation)>> = vec![Vec::new(); inner_n as usize];
+    let existing = dst.layouts.iter().position(|l| l.0 == layout);
+    if let Some(at) = existing {
+        // `HashTable::operator=`: each window of the layout's table, in its order, re-added at
+        // its bucket's head.
+        for &(key, value) in &dst.layouts[at].2 {
+            windows[(key % inner_n) as usize].insert(0, (key, value));
+        }
+    }
+    let bucket = (element % inner_n) as usize;
+    if windows[bucket].iter().any(|w| w.0 == element) {
+        return false;
+    }
+    windows[bucket].insert(0, (element, location));
+    let table: Vec<(u32, net::UiLocation)> = windows.into_iter().flatten().collect();
+    match existing {
+        Some(at) => dst.layouts[at].2 = table,
+        None => {
+            let n = BUCKET_SIZES[usize::from(dst.bucket_index).min(BUCKET_SIZES.len() - 1)];
+            let head = (layout % n) as usize;
+            let mut buckets: Vec<Vec<(u32, u8, Vec<(u32, net::UiLocation)>)>> =
+                vec![Vec::new(); n as usize];
+            for old in dst.layouts.drain(..) {
+                let b = (old.0 % n) as usize;
+                buckets[b].push(old);
+            }
+            // A new layout is added at its bucket's head, ahead of the chain's other layouts.
+            buckets[head].insert(0, (layout, inner_index, table));
+            // The chains were kept head first, so their flattening keeps the chain order.
+            dst.layouts = buckets.into_iter().flatten().collect();
+        }
+    }
+    true
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -575,5 +623,42 @@ mod tests {
         assert_eq!(order, ["x", "y"]);
         assert_eq!(b.find(&w("y")), Some(&w("2")[..]));
         assert!(b.erase(&w("y")) && !b.erase(&w("y")));
+    }
+
+    /// `UISaveLocations::AddLocation` in its bucket order: a new layout heads its bucket, a window
+    /// heads its layout's bucket, a duplicate window fails, and a layout keeps its place.
+    #[test]
+    fn add_location_keeps_the_bucket_order_of_the_tables() {
+        let loc = |x: f32| net::UiLocation {
+            x0: x,
+            y0: 0.0,
+            x1: 1.0,
+            y1: 1.0,
+            shown: 1,
+        };
+        let mut ui = UiSaveLocations {
+            bucket_index: bucket_size_index(DEFAULT_BUCKETS) as u8,
+            layouts: Vec::new(),
+        };
+        assert!(add_ui_location(&mut ui, 1, 5, loc(0.1)));
+        assert!(
+            !add_ui_location(&mut ui, 1, 5, loc(0.2)),
+            "a duplicate window fails"
+        );
+        // 52 shares element 5's bucket (47 buckets): it heads the bucket.
+        assert!(add_ui_location(&mut ui, 1, 52, loc(0.3)));
+        assert_eq!(
+            ui.layouts[0].2.iter().map(|w| w.0).collect::<Vec<_>>(),
+            [52, 5]
+        );
+        // Layouts 2 and 49 share a bucket: 49 heads it, after layout 1's bucket.
+        assert!(add_ui_location(&mut ui, 2, 7, loc(0.4)));
+        assert!(add_ui_location(&mut ui, 49, 7, loc(0.5)));
+        let keys: Vec<u32> = ui.layouts.iter().map(|l| l.0).collect();
+        assert_eq!(keys, [1, 49, 2]);
+        // A later window of layout 1 keeps layout 1's place.
+        assert!(add_ui_location(&mut ui, 1, 9, loc(0.6)));
+        assert_eq!(ui.layouts[0].0, 1);
+        assert_eq!(ui.layouts[0].2.len(), 3);
     }
 }
