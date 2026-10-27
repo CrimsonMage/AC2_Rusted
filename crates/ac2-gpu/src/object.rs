@@ -5,7 +5,7 @@
 //! `CPhysicsPart::m_mObject`, and parts with matrix weights blend their vertices by their group's
 //! deform matrices (`SceneTool::SetMatrixStack`), read from a per-frame storage buffer.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::ops::Range;
 use std::sync::Arc;
 
@@ -20,6 +20,7 @@ use wgpu::util::DeviceExt;
 use crate::object_draw::{
     bone_storage, draw_storage, draw_uniform, mark_sky, set_point_lights, DrawUniform, SkyRole,
 };
+use crate::object_pipelines::PipelineCompiler;
 use crate::object_state::{
     pipeline_key, sampler_key, sky_depth, sky_veil, PipelineKey, SamplerKey, DRAW_STRIDE,
 };
@@ -152,6 +153,8 @@ pub fn sky_backdrop(instances: &[ObjectInstance<'_>]) -> Option<usize> {
 #[derive(Clone, Copy)]
 struct QueuedDraw {
     key: PipelineKey,
+    /// The instance waits for a pipeline still compiling, so none of its draws record.
+    deferred: bool,
     offset: u32,
     instance: usize,
     part: usize,
@@ -202,13 +205,13 @@ pub struct DrawGroup<'a> {
 }
 
 pub struct ObjectRenderer {
-    format: wgpu::TextureFormat,
-    /// Shader modules by program index: 0 is the stage cascade, then one per distinct
-    /// translated pixel shader.
-    modules: Vec<wgpu::ShaderModule>,
+    /// Shader module indices by translated pixel shader: 0 is the stage cascade, then one per
+    /// distinct program, compiled with the pipelines on the compiler's worker.
     program_ids: HashMap<String, u32>,
-    layout: wgpu::PipelineLayout,
-    pipelines: HashMap<PipelineKey, wgpu::RenderPipeline>,
+    pipelines: PipelineCompiler,
+    /// Whether `prepare` leaves out an instance whose pipelines are still compiling (the
+    /// running client) rather than waiting for them (headless renders and tests).
+    stream_pipelines: bool,
     frame_buffer: wgpu::Buffer,
     frame_group: wgpu::BindGroup,
     frame_layout: wgpu::BindGroupLayout,
@@ -355,12 +358,11 @@ impl ObjectRenderer {
         });
         let (draw_buffer, draw_group) = draw_storage(device, &draw_layout, DRAW_STRIDE * 64);
         let (bone_buffer, bone_group) = bone_storage(device, &bone_layout, BONE_BYTES * 64);
+        let pipelines = PipelineCompiler::new(gpu, &layout, format, module);
         Self {
-            format,
-            modules: vec![module],
             program_ids: HashMap::new(),
-            layout,
-            pipelines: HashMap::new(),
+            pipelines,
+            stream_pipelines: false,
             frame_buffer,
             frame_group,
             frame_layout,
@@ -460,7 +462,7 @@ impl ObjectRenderer {
                     .into_iter()
                     .map(|pass| GpuPass {
                         textures: self.stage_group(gpu, &pass, load),
-                        program: self.program_id(gpu, &pass),
+                        program: self.program_id(&pass),
                         pass,
                     })
                     .collect();
@@ -563,7 +565,7 @@ impl ObjectRenderer {
     }
 
     /// The module index for a pass's pixel shader, translating and compiling it on first use.
-    fn program_id(&mut self, gpu: &Gpu, pass: &LayerPass) -> u32 {
+    fn program_id(&mut self, pass: &LayerPass) -> u32 {
         let Some(program) = &pass.pixel_program else {
             return 0;
         };
@@ -571,8 +573,8 @@ impl ObjectRenderer {
         if let Some(id) = self.program_ids.get(&source) {
             return *id;
         }
-        let id = self.modules.len() as u32;
-        self.modules.push(object_module(&gpu.device, &source));
+        let id = self.program_ids.len() as u32 + 1;
+        self.pipelines.add_module(id, source.clone());
         self.program_ids.insert(source, id);
         id
     }
@@ -709,6 +711,7 @@ impl ObjectRenderer {
                             }
                             let draw = QueuedDraw {
                                 key,
+                                deferred: false,
                                 offset: 0,
                                 instance: instance_index,
                                 part: part_index,
@@ -760,14 +763,15 @@ impl ObjectRenderer {
                 [offset as usize..offset as usize + std::mem::size_of::<DrawUniform>()]
                 .copy_from_slice(bytemuck::bytes_of(uniform));
             let mut draw = *draw;
-            let key = draw.key;
-            if !self.pipelines.contains_key(&key) {
-                let module = &self.modules[key.program as usize];
-                let pipeline = key.create(&gpu.device, &self.layout, module, self.format);
-                self.pipelines.insert(key, pipeline);
-            }
+            self.pipelines.request(draw.key);
             draw.offset = offset as u32;
             self.queue.push(draw);
+        }
+        self.pipelines.collect();
+        if self.stream_pipelines {
+            self.defer_unready_instances();
+        } else {
+            self.pipelines.wait_all();
         }
         gpu.queue
             .write_buffer(&self.draw_buffer, 0, &self.scratch_bytes);
@@ -785,6 +789,38 @@ impl ObjectRenderer {
                 bytemuck::cast_slice(&self.scratch_bones),
             );
         }
+    }
+
+    /// Leaves out every instance of the frame with a draw whose pipeline is not compiled yet, so
+    /// a model appears whole once its pipelines are in (a frame or two after its upload).
+    fn defer_unready_instances(&mut self) {
+        let mut waiting = HashSet::new();
+        for (group, range) in self.groups.iter().enumerate() {
+            for draw in &self.queue[range.clone()] {
+                if !self.pipelines.is_ready(&draw.key) {
+                    waiting.insert((group, draw.instance));
+                }
+            }
+        }
+        if waiting.is_empty() {
+            return;
+        }
+        for (group, range) in self.groups.iter().enumerate() {
+            for draw in &mut self.queue[range.clone()] {
+                draw.deferred = waiting.contains(&(group, draw.instance));
+            }
+        }
+    }
+
+    /// Leave out (instead of waiting for) instances whose pipelines are still compiling: the
+    /// running client, which must not stall a frame on a driver compile.
+    pub fn set_stream_pipelines(&mut self, stream: bool) {
+        self.stream_pipelines = stream;
+    }
+
+    /// Whether pipelines are still compiling (a headless render waits for this).
+    pub fn pipelines_busy(&self) -> bool {
+        self.pipelines.busy()
     }
 
     fn write_frame(
@@ -857,8 +893,11 @@ impl ObjectRenderer {
             else {
                 continue;
             };
+            if draw.deferred {
+                continue;
+            }
             if current != Some(draw.key) {
-                pass.set_pipeline(&self.pipelines[&draw.key]);
+                pass.set_pipeline(self.pipelines.pipeline(&draw.key));
                 current = Some(draw.key);
             }
             let batch = &part.batches[draw.batch];
@@ -903,7 +942,7 @@ fn frame_group(
     })
 }
 
-fn object_module(device: &wgpu::Device, shade: &str) -> wgpu::ShaderModule {
+pub(crate) fn object_module(device: &wgpu::Device, shade: &str) -> wgpu::ShaderModule {
     let source = format!(
         "{}\n{}\n{}\n{}",
         include_str!("shading.wgsl"),

@@ -1,4 +1,5 @@
-#![forbid(unsafe_code)]
+// One `unsafe` call, `Gpu::load_pipeline_cache`, is allowed where it is made.
+#![deny(unsafe_code)]
 
 //! A small wgpu backend for `ac2-render`, modelled on AC2's own D3D pipeline: textures uploaded
 //! once per `RenderTexture`, a near-landscape pass whose layers blend the way
@@ -8,6 +9,7 @@
 mod frame;
 mod object;
 mod object_draw;
+mod object_pipelines;
 mod object_state;
 mod pixel_program;
 mod scene;
@@ -38,6 +40,9 @@ pub struct Gpu {
     pub queue: wgpu::Queue,
     pub adapter: wgpu::Adapter,
     pub instance: wgpu::Instance,
+    /// The driver's compiled pipelines, kept across runs (`load_pipeline_cache`), when the
+    /// device supports it (Vulkan).
+    pipeline_cache: Option<wgpu::PipelineCache>,
 }
 
 #[derive(Debug)]
@@ -73,9 +78,11 @@ impl Gpu {
                 })
                 .await
                 .map_err(GpuError::NoAdapter)?;
+            let required_features = adapter.features() & wgpu::Features::PIPELINE_CACHE;
             let (device, queue) = adapter
                 .request_device(&wgpu::DeviceDescriptor {
                     label: Some("ac2-gpu"),
+                    required_features,
                     ..Default::default()
                 })
                 .await
@@ -85,8 +92,66 @@ impl Gpu {
                 queue,
                 adapter,
                 instance,
+                pipeline_cache: None,
             })
         })
+    }
+
+    /// The pipeline cache new pipelines compile through, once loaded.
+    pub fn pipeline_cache(&self) -> Option<&wgpu::PipelineCache> {
+        self.pipeline_cache.as_ref()
+    }
+
+    /// The cache file for this adapter and driver in `dir`, when the device keeps a cache.
+    fn pipeline_cache_file(&self, dir: &std::path::Path) -> Option<std::path::PathBuf> {
+        if !self
+            .device
+            .features()
+            .contains(wgpu::Features::PIPELINE_CACHE)
+        {
+            return None;
+        }
+        let key = wgpu::util::pipeline_cache_key(&self.adapter.get_info())?;
+        Some(dir.join(key))
+    }
+
+    /// Starts the device's pipeline cache from `dir`'s file for this adapter (empty when there is
+    /// none, or when the driver rejects it). Call before the renderers are made, so their
+    /// pipelines compile through it.
+    #[allow(unsafe_code)]
+    pub fn load_pipeline_cache(&mut self, dir: &std::path::Path) {
+        let Some(file) = self.pipeline_cache_file(dir) else {
+            return;
+        };
+        let data = std::fs::read(&file).ok();
+        // SAFETY: `data` is only what `save_pipeline_cache` wrote from `PipelineCache::get_data`,
+        // in a file named by `pipeline_cache_key` for this adapter; wgpu checks the header (its
+        // version, the adapter and a checksum) and with `fallback` starts empty on a mismatch.
+        let cache = unsafe {
+            self.device
+                .create_pipeline_cache(&wgpu::PipelineCacheDescriptor {
+                    label: Some("ac2 pipelines"),
+                    data: data.as_deref(),
+                    fallback: true,
+                })
+        };
+        self.pipeline_cache = Some(cache);
+    }
+
+    /// Writes the pipeline cache to `dir` for the next run (through a temporary file, so a
+    /// crash mid-write leaves the old one).
+    pub fn save_pipeline_cache(&self, dir: &std::path::Path) -> std::io::Result<()> {
+        let (Some(cache), Some(file)) = (&self.pipeline_cache, self.pipeline_cache_file(dir))
+        else {
+            return Ok(());
+        };
+        let Some(data) = cache.get_data() else {
+            return Ok(());
+        };
+        std::fs::create_dir_all(dir)?;
+        let temporary = file.with_extension("tmp");
+        std::fs::write(&temporary, data)?;
+        std::fs::rename(temporary, file)
     }
 
     /// An offscreen device on the default backends.

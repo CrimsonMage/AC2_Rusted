@@ -66,6 +66,12 @@ pub struct SceneRenderer {
 }
 
 impl SceneRenderer {
+    /// Leave out objects whose pipelines are still compiling instead of waiting for them
+    /// (`ObjectRenderer::set_stream_pipelines`).
+    pub fn set_stream_pipelines(&mut self, stream: bool) {
+        self.objects.set_stream_pipelines(stream);
+    }
+
     /// The renderers of a scene drawn into an [`crate::HdrTarget`] (`HDR_FORMAT`).
     pub fn new(gpu: &Gpu) -> Self {
         let mut terrain = TerrainRenderer::new(gpu, HDR_FORMAT);

@@ -511,7 +511,21 @@ impl App {
     }
 }
 
+/// Where the driver's compiled pipelines are kept between runs.
+fn pipeline_cache_dir() -> PathBuf {
+    ac2_prefs::paths::config_dir().join("pipeline-cache")
+}
+
 impl ApplicationHandler for App {
+    /// Keeps the pipelines compiled this run for the next one.
+    fn exiting(&mut self, _: &ActiveEventLoop) {
+        if let Some(state) = &self.state {
+            if let Err(error) = state.gpu.save_pipeline_cache(&pipeline_cache_dir()) {
+                eprintln!("ac2: pipeline cache not saved: {error}");
+            }
+        }
+    }
+
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         if self.state.is_some() {
             return;
@@ -523,7 +537,9 @@ impl ApplicationHandler for App {
         let window = Arc::new(event_loop.create_window(attributes).expect("window"));
         let instance = wgpu::Instance::default();
         let surface = instance.create_surface(window.clone()).expect("surface");
-        let gpu = Gpu::new(Some(&surface), instance).expect("GPU adapter");
+        let mut gpu = Gpu::new(Some(&surface), instance).expect("GPU adapter");
+        // The driver's compiled pipelines from the last run, before any renderer is made.
+        gpu.load_pipeline_cache(&pipeline_cache_dir());
         let caps = surface.get_capabilities(&gpu.adapter);
         // Gamma-space output like the retail D3D back buffer.
         let format = caps

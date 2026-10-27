@@ -58,6 +58,7 @@ impl PipelineKey {
         layout: &wgpu::PipelineLayout,
         module: &wgpu::ShaderModule,
         format: wgpu::TextureFormat,
+        cache: Option<&wgpu::PipelineCache>,
     ) -> wgpu::RenderPipeline {
         // `SetSourceBlend`: ALPHABLENDENABLE unless the blend is ONE, ZERO.
         let blending = !(self.source_blend == blend::ONE && self.dest_blend == blend::ZERO);
@@ -123,7 +124,7 @@ impl PipelineKey {
             }),
             multisample: Default::default(),
             multiview_mask: None,
-            cache: None,
+            cache,
         })
     }
 }

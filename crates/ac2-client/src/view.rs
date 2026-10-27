@@ -214,6 +214,12 @@ impl ClientView {
         );
     }
 
+    /// Objects appear once their pipelines are compiled rather than stalling the frame that first
+    /// shows them (the running client; headless renders wait instead).
+    pub fn set_stream_pipelines(&mut self, stream: bool) {
+        self.renderer.set_stream_pipelines(stream);
+    }
+
     /// Waits for every outstanding load (headless snapshots).
     pub fn settle(&mut self, gpu: &Gpu, frame: &ClientFrame, aspect: f32) {
         self.hud.settle(gpu);

@@ -100,6 +100,7 @@ impl App {
                 (state.config.width, state.config.height),
             );
             view.set_scene_options(self.scene_options);
+            view.set_stream_pipelines(true);
             state.view = Some(view);
             state.pregame = None;
             return;
