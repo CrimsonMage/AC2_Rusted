@@ -896,6 +896,10 @@ impl ObjectRenderer {
         );
         pass.set_bind_group(3, &self.bone_group, &[]);
         let mut current: Option<PipelineKey> = None;
+        // The part whose buffers and the texture group last bound: consecutive draws of one part
+        // (its batches and layers, or the same model placed again) keep them bound.
+        let mut bound_part: Option<*const GpuPart> = None;
+        let mut bound_textures: Option<*const wgpu::BindGroup> = None;
         for draw in &self.queue[range.clone()] {
             let Some(part) = instances
                 .get(draw.instance)
@@ -912,9 +916,16 @@ impl ObjectRenderer {
             }
             let batch = &part.batches[draw.batch];
             pass.set_bind_group(1, &self.draw_group, &[draw.offset]);
-            pass.set_bind_group(2, &batch.passes[draw.layer].textures, &[]);
-            pass.set_vertex_buffer(0, part.vertices.slice(..));
-            pass.set_index_buffer(part.indices.slice(..), wgpu::IndexFormat::Uint32);
+            let textures = &batch.passes[draw.layer].textures;
+            if bound_textures != Some(std::ptr::from_ref(textures)) {
+                pass.set_bind_group(2, textures, &[]);
+                bound_textures = Some(std::ptr::from_ref(textures));
+            }
+            if bound_part != Some(std::ptr::from_ref(part)) {
+                pass.set_vertex_buffer(0, part.vertices.slice(..));
+                pass.set_index_buffer(part.indices.slice(..), wgpu::IndexFormat::Uint32);
+                bound_part = Some(std::ptr::from_ref(part));
+            }
             pass.draw_indexed(batch.range.clone(), 0, 0..1);
         }
     }
