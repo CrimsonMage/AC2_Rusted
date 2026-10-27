@@ -1,10 +1,12 @@
 //! The player's window positions, kept per character. Retail moved a window only by its drag bar
 //! and saved only the windows that save their location (`save_loc`) to the server
 //! (`UIMainFramework::InqLocations`, `gmCWInterface::SetUISaveLocations`). Here, by the window
-//! exception in `AGENTS.md`, every HUD window (not the fixed chrome) keeps its place on this
-//! machine too: [`UiTree::window_positions`] lists every window's corners in clip space, the
-//! client writes them when a drag ends, and [`UiTree::set_window_positions`] applies them at login
-//! and to a window when it is made (`UIMainFramework::ApplyLocations` for each root).
+//! exception in `AGENTS.md`, every HUD window keeps its place on this machine too, the radar, bars
+//! and toolbar included: [`UiTree::window_positions`] lists every window's corners in clip space,
+//! the client writes them when a drag ends, and [`UiTree::set_window_positions`] applies them at
+//! login and to a window when it is made (`UIMainFramework::ApplyLocations` for each root).
+//! The overlay roots are not windows: the world's targeting and name plates, damage text, and the
+//! full-display backdrops ([`UiTree::set_overlay_root`]).
 //!
 //! The file is a line per window, `window <layout> <element> <x0> <y0> <x1> <y1>`, the ids in hex
 //! and the corners as clip-space floats (round-trip exact). A `#` line is a comment.
@@ -71,26 +73,26 @@ pub fn parse(text: &str) -> Result<Vec<WindowPosition>, String> {
 }
 
 impl UiTree {
-    /// Whether `index` is a window the player moves and whose place is kept: a root that is not
-    /// part of the fixed chrome.
+    /// Whether `index` is a window the player moves and whose place is kept: a root that is not an
+    /// overlay and does not cover the whole display.
     pub(crate) fn is_window_root(&self, index: usize) -> bool {
-        self.roots.contains(&index) && !self.el(index).fixed
+        self.roots.contains(&index) && !self.el(index).overlay && !self.covers_display(index)
     }
 
-    /// Marks `index` as a root of the fixed HUD chrome (the bars, the radar, the world's overlays):
-    /// it does not move by Alt + drag and its place is not kept.
-    pub fn set_fixed_root(&mut self, index: usize) {
-        self.el_mut(index).fixed = true;
+    /// Whether the root's box covers the whole display (a full-screen backdrop, never a window).
+    fn covers_display(&self, index: usize) -> bool {
+        let (width, height) = self.display;
+        let b = self.screen_box(index);
+        b.x0 <= 0 && b.y0 <= 0 && b.x1 >= width - 1 && b.y1 >= height - 1
     }
 
-    /// Marks every root made so far as fixed chrome (the HUD's own roots, before its windows).
-    pub fn fix_current_roots(&mut self) {
-        for root in self.roots.clone() {
-            self.set_fixed_root(root);
-        }
+    /// Marks `index` as an overlay root: a world overlay, a transient, or a part that moves with
+    /// another window. It does not move by Alt + drag and its place is not kept.
+    pub fn set_overlay_root(&mut self, index: usize) {
+        self.el_mut(index).overlay = true;
     }
 
-    /// Every window's place (the windows that are not chrome), in clip space.
+    /// Every window's place (the roots that are windows), in clip space.
     pub fn window_positions(&self) -> Vec<WindowPosition> {
         let (width, height) = self.display;
         self.roots

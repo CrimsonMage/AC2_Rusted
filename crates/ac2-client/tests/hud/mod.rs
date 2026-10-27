@@ -7,6 +7,7 @@
 #![cfg(feature = "window")]
 
 use std::cell::RefCell;
+use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::{Duration, Instant};
@@ -49,6 +50,12 @@ impl Rig {
     /// The player in the world with the script attached and the HUD built (its panels hidden).
     /// `None` without `AC2_DAT_DIR` or a GPU adapter.
     pub fn new() -> Option<Self> {
+        Self::new_in(None)
+    }
+
+    /// As [`Rig::new`], with the player's window position files in `positions` (a fresh login
+    /// reads the files there; `None` is the player's AC2 directory).
+    pub fn new_in(positions: Option<PathBuf>) -> Option<Self> {
         let dataset = ac2_dat::test_support::env_dataset()?;
         let tables_dataset = Arc::clone(&dataset);
         // A test that panicked while holding the slot leaves it poisoned; the slot guards no data.
@@ -90,6 +97,7 @@ impl Rig {
         session.set_string_tables(ac2_client::string_table_ids(&script_data));
         let dat_world = dat_world.with_script_data(script_data.clone());
         let mut client = Client::new(session, Arc::new(dat_world));
+        client.set_window_positions_dir(positions);
         let wlib =
             ac2_script::load_wlib(&store, ac2_core::DataId::new(ac2_script::LEGIONS_WLIB_DID))
                 .unwrap()

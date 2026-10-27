@@ -111,11 +111,16 @@ fn alt_drag_moves_a_window_without_a_drag_bar() {
     tree.update_mouse();
     let top = tree.mouse_top().expect("something under the pointer");
     assert_eq!(tree.root_of(top), root, "the press lands on the window");
+    // Toward the middle of the display, so the move is not clamped at an edge.
+    let by = (
+        if start.x0 < 300 { 40 } else { -40 },
+        if start.y0 < 300 { 30 } else { -30 },
+    );
     left_press(tree, at);
-    pointer_to(tree, (at.0 + 40, at.1 + 30));
+    pointer_to(tree, (at.0 + by.0, at.1 + by.1));
     left_release(tree);
     let moved = tree.screen_box(root);
-    assert_eq!((moved.x0 - start.x0, moved.y0 - start.y0), (40, 30));
+    assert_eq!((moved.x0 - start.x0, moved.y0 - start.y0), by);
     assert!(tree.take_positions_changed(), "the drag ended with a move");
     assert!(!tree.take_positions_changed(), "taken once");
 }
@@ -187,7 +192,7 @@ fn a_resized_display_keeps_the_window_on_screen() {
 }
 
 #[test]
-fn saved_positions_apply_to_the_windows_of_a_fresh_hud_and_skip_the_chrome() {
+fn saved_positions_apply_to_the_windows_of_a_fresh_hud_and_skip_the_overlays() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
@@ -198,9 +203,15 @@ fn saved_positions_apply_to_the_windows_of_a_fresh_hud_and_skip_the_chrome() {
     assert!(
         saved
             .iter()
-            .all(|p| p.element != crate::tokenize("RadarField")),
-        "the chrome keeps no place"
+            .any(|p| p.element == crate::tokenize("RadarField")),
+        "the radar keeps its place"
     );
+    for overlay in ["TargettingReticle", "HeadingField", "NameTextTemplate"] {
+        assert!(
+            saved.iter().all(|p| p.element != crate::tokenize(overlay)),
+            "{overlay} is an overlay and keeps no place"
+        );
+    }
     let mut second = load(&store);
     let target = saved[0];
     let root = second
@@ -219,4 +230,39 @@ fn saved_positions_apply_to_the_windows_of_a_fresh_hud_and_skip_the_chrome() {
         assert!((a.x0 - b.x0).abs() < 1e-3, "{a:?} {b:?}");
         assert!((a.y0 - b.y0).abs() < 1e-3, "{a:?} {b:?}");
     }
+}
+
+#[test]
+fn alt_drag_moves_the_radar_as_a_window() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = load(&store);
+    let tree = &mut hud.tree;
+    let radar = tree
+        .roots()
+        .iter()
+        .copied()
+        .find(|&r| {
+            tree.get(r)
+                .is_some_and(|e| e.id() == crate::tokenize("RadarField"))
+        })
+        .expect("the radar is a root");
+    let start = tree.screen_box(radar);
+    // A press at the radar's centre: the radar is the window under the pointer.
+    let at = ((start.x0 + start.x1) / 2, (start.y0 + start.y1) / 2);
+    tree.set_alt(true);
+    pointer_to(tree, at);
+    tree.update_mouse();
+    left_press(tree, at);
+    pointer_to(tree, (at.0 - 30, at.1 + 20));
+    left_release(tree);
+    let moved = tree.screen_box(radar);
+    assert_eq!((moved.x0 - start.x0, moved.y0 - start.y0), (-30, 20));
+    assert!(tree.take_positions_changed(), "the radar's place is kept");
+    let saved = tree.window_positions();
+    assert!(saved
+        .iter()
+        .any(|p| p.element == crate::tokenize("RadarField")));
 }

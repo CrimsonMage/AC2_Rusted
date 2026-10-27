@@ -24,6 +24,17 @@ fn test_dir(name: &str) -> PathBuf {
     ))
 }
 
+/// The radar's root (`RadarField`), a window of the gameplay HUD since the window exception covers
+/// the chrome too.
+fn radar_root(tree: &UiTree) -> usize {
+    let id = ac2_ui::tokenize("RadarField");
+    tree.roots()
+        .iter()
+        .copied()
+        .find(|&r| tree.get(r).is_some_and(|e| e.id() == id))
+        .expect("the radar is a root")
+}
+
 /// The first visible save_loc window: its root and its screen box.
 fn shown_window(tree: &UiTree) -> (usize, ac2_ui::UiBox, u32) {
     let saved = tree.inq_locations();
@@ -89,7 +100,6 @@ fn alt_drag(rig: &mut Rig, root: usize, scale: f32, by: (i32, i32)) {
 }
 
 #[test]
-#[ignore = "the radar's chrome element covers the chat window and is re-placed each frame, so the rig cannot press on the window; the Alt-drag logic is covered by the ac2-ui window_positions_tests"]
 fn an_alt_drag_keeps_a_window_where_it_was_left_and_still_uploads_its_locations() {
     let Some(mut rig) = Rig::new() else {
         return;
@@ -138,7 +148,6 @@ fn an_alt_drag_keeps_a_window_where_it_was_left_and_still_uploads_its_locations(
 }
 
 #[test]
-#[ignore = "same rig limit: the chat window cannot be pressed under the radar chrome (see an_alt_drag_keeps...)"]
 fn an_alt_drag_moves_a_window_by_ui_pixels_at_a_scaled_window() {
     let Some(mut rig) = Rig::new() else {
         return;
@@ -158,6 +167,75 @@ fn an_alt_drag_moves_a_window_by_ui_pixels_at_a_scaled_window() {
     assert!(
         (dx - 100).abs() <= 1 && (dy - 80).abs() <= 1,
         "moved {dx},{dy}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn an_alt_drag_moves_the_radar_and_its_place_is_kept() {
+    let Some(mut rig) = Rig::new() else {
+        return;
+    };
+    let dir = test_dir("radar");
+    rig.client.set_window_positions_dir(Some(dir.clone()));
+    rig.wait("the HUD", |r| r.view.shortcut_slots() > 0);
+    let root = radar_root(rig.view.hud_tree().unwrap());
+    let start = rig.view.hud_tree().unwrap().screen_box(root);
+    // Toward the middle of the display, so the move stays on it.
+    let by = (
+        if start.x0 < 300 { 40 } else { -40 },
+        if start.y0 < 300 { 30 } else { -30 },
+    );
+    alt_drag(&mut rig, root, 1.0, by);
+    let moved = rig.view.hud_tree().unwrap().screen_box(root);
+    let (dx, dy) = (moved.x0 - start.x0, moved.y0 - start.y0);
+    assert!(
+        (dx - by.0).abs() <= 1 && (dy - by.1).abs() <= 1,
+        "moved {dx},{dy}"
+    );
+    let player = rig.client.frame().player.expect("the player").id;
+    let kept = rig.client.local_window_positions(player).unwrap();
+    assert!(
+        kept.iter()
+            .any(|p| p.element == ac2_ui::tokenize("RadarField")),
+        "the radar's place is in the player's file"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_fresh_login_puts_a_moved_window_back_where_it_was_left() {
+    let dir = test_dir("login");
+    // The first session moves the radar and ends; its place is in the player's file.
+    let left = {
+        let Some(mut rig) = Rig::new_in(Some(dir.clone())) else {
+            return;
+        };
+        rig.wait("the HUD", |r| r.view.shortcut_slots() > 0);
+        let root = radar_root(rig.view.hud_tree().unwrap());
+        let start = rig.view.hud_tree().unwrap().screen_box(root);
+        let by = (
+            if start.x0 < 300 { 40 } else { -40 },
+            if start.y0 < 300 { 30 } else { -30 },
+        );
+        alt_drag(&mut rig, root, 1.0, by);
+        rig.view.hud_tree().unwrap().screen_box(root)
+    };
+    // A fresh login (a new client over the same character's file) opens the radar there.
+    let Some(mut rig) = Rig::new_in(Some(dir.clone())) else {
+        let _ = std::fs::remove_dir_all(&dir);
+        return;
+    };
+    rig.wait("the HUD", |r| r.view.shortcut_slots() > 0);
+    let again = rig
+        .view
+        .hud_tree()
+        .unwrap()
+        .screen_box(radar_root(rig.view.hud_tree().unwrap()));
+    assert_eq!(
+        (again.x0, again.y0),
+        (left.x0, left.y0),
+        "the radar opens where it was left"
     );
     let _ = std::fs::remove_dir_all(&dir);
 }

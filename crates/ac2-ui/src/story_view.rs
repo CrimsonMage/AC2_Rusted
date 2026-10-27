@@ -69,6 +69,8 @@ impl StoryView {
     /// lacks the background or a field.
     pub fn create(tree: &mut UiTree, gameplay: &Arc<LayoutDesc>) -> Option<Self> {
         let background = tree.create_root(Arc::clone(gameplay), tokenize(BACKGROUND))?;
+        // The story's backdrop covers the display: it is not a window.
+        tree.set_overlay_root(background);
         tree.set_visible(background, false);
         let mut fields = Vec::with_capacity(2);
         for (name, frame) in FIELD_NAMES.iter().zip(FRAME_STATES) {

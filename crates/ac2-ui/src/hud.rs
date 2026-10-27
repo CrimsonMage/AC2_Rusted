@@ -218,6 +218,11 @@ pub fn build_gameplay_hud(
             continue;
         };
         let root = tree.create_root(Arc::clone(layout), tokenize(name));
+        // The heading ring follows the radar's field each frame (`RadarUi::update`), so it moves
+        // with the radar and is not a window of its own.
+        if let (Some(root), "HeadingField") = (root, name) {
+            tree.set_overlay_root(root);
+        }
         if let (Some(root), "ToolbarField") = (root, name) {
             // `gmToolbarUI::gmToolbarUI` hides the dismount and consignment buttons until a
             // mount or a sale needs them.
@@ -228,10 +233,6 @@ pub fn build_gameplay_hud(
             }
         }
     }
-    // The roots so far are the HUD's chrome: the radar and heading, the selection field, the
-    // status bar and the toolbar's side panels. Their places are not kept, and Alt + drag does not
-    // move them. The windows made later (the chat, the panels, the dialogs) are.
-    tree.fix_current_roots();
     // `gmToolbarUI::SetupChildren`: the shortcut bar first, then the chat.
     let toolbar_field = tree.roots().iter().copied().find(|&r| {
         tree.get(r)

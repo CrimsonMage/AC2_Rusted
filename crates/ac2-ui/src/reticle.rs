@@ -132,7 +132,13 @@ impl Reticle {
     /// `gm3DTextUI::InitReticle`: four reticle corners, the off-screen indicator, the name and
     /// the meters from the gameplay layout, all hidden.
     pub fn create(tree: &mut UiTree, layout: &Arc<LayoutDesc>) -> Option<Self> {
-        let mut root = |name: &str| tree.create_root(Arc::clone(layout), tokenize(name));
+        // The targeting reticle, its off-screen arrow and the selection's name and meters are the
+        // world's overlays over the 3D view, not windows: they are made as overlay roots.
+        let mut root = |name: &str| {
+            let index = tree.create_root(Arc::clone(layout), tokenize(name))?;
+            tree.set_overlay_root(index);
+            Some(index)
+        };
         let corners = [
             root("TargettingReticle")?,
             root("TargettingReticle")?,

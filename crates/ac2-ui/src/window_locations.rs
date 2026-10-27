@@ -165,25 +165,46 @@ impl UiTree {
         }
     }
 
-    /// The window exception (`AGENTS.md`): with Alt held, a left press on the topmost element under
-    /// the pointer, when that element belongs to a HUD window that is not chrome, moves that window,
-    /// drag bar or not. It is decided before the press is offered to the elements, because a
-    /// full-screen chrome root under the window would otherwise take the press first. Retail moved
-    /// a window only by its drag bar (`UIElement_Dragbar::MouseDown`). Returns whether the press was
-    /// taken for a move.
+    /// The window exception (`AGENTS.md`): with Alt held, a left press on a window (the topmost
+    /// window root under the pointer, see `window_under_pointer`) moves that window, drag
+    /// bar or not. It is decided before the press is offered to the elements, so no control under
+    /// the window takes it. Retail moved a window only by its drag bar
+    /// (`UIElement_Dragbar::MouseDown`). Returns whether the press was taken for a move.
     pub(crate) fn alt_move_mouse_down(&mut self, action: u32) -> bool {
         if action != UI_LEFT_BUTTON || !self.alt {
             return false;
         }
-        let Some(top) = self.mouse_top else {
+        let Some(root) = self.window_under_pointer() else {
             return false;
         };
-        let root = self.root_of(top);
-        if !self.is_window_root(root) || self.is_transient_root(root) {
-            return false;
-        }
         self.start_movement(root);
         true
+    }
+
+    /// The window the pointer is on: the root of the element under the pointer when that is a
+    /// window, else the topmost window root whose box holds the pointer (the roots are listed
+    /// topmost first, so an overlay or a transient above a window is skipped).
+    fn window_under_pointer(&self) -> Option<usize> {
+        // The element under the pointer decides when its window is a window (what is drawn there).
+        if let Some(top) = self.mouse_top {
+            let root = self.root_of(top);
+            if self.is_window_root(root) && !self.is_transient_root(root) {
+                return Some(root);
+            }
+        }
+        // Otherwise (an overlay or a transient is the top element, or nothing is): the topmost
+        // window whose box holds the pointer, so the window under an overlay is the target.
+        let (px, py) = self.pointer;
+        self.roots.iter().copied().find(|&root| {
+            if !self.is_window_root(root) || self.is_transient_root(root) {
+                return false;
+            }
+            if !self.el(root).visible {
+                return false;
+            }
+            let b = self.screen_box(root);
+            (b.x0..=b.x1).contains(&px) && (b.y0..=b.y1).contains(&py)
+        })
     }
 
     /// The Alt key's state (`GetKeyState(VK_MENU)`), set from the frame's modifiers.

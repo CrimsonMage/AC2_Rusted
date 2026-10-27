@@ -122,12 +122,12 @@ impl HudView {
         out
     }
 
-    /// The shortcut bar's slots.
     /// The gameplay HUD's element tree, once it is built.
     pub(crate) fn tree(&self) -> Option<&ac2_ui::UiTree> {
         self.hud.as_ref().map(|(tree, _)| tree)
     }
 
+    /// The shortcut bar's slots.
     pub(crate) fn shortcut_slots(&self) -> usize {
         let (Some((tree, _)), Some(bar)) = (&self.hud, &self.shortcuts) else {
             return 0;

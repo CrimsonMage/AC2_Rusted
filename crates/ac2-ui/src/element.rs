@@ -146,9 +146,11 @@ pub struct UiElement {
     pub(crate) tooltip: Option<String>,
     latest_update: u32,
     created_by_layout: bool,
-    /// A root of the fixed HUD chrome (the bars, the radar, the world's overlays): it does not
-    /// move by Alt + drag and is not saved as a window position ([`UiTree::set_fixed_root`]).
-    pub(crate) fixed: bool,
+    /// A root that is not a window the player moves: a world overlay (the targeting reticle, name
+    /// plates, damage text), a full-display backdrop, or a part that moves with another window
+    /// (the radar's heading ring, the doll's 3D viewport). It does not move by Alt + drag and is not
+    /// saved as a window position ([`UiTree::set_overlay_root`]).
+    pub(crate) overlay: bool,
 }
 
 impl UiElement {
@@ -494,7 +496,7 @@ impl UiTree {
             tooltip: None,
             latest_update: self.update_count,
             created_by_layout: false,
-            fixed: false,
+            overlay: false,
         });
         if is_meter {
             self.meter_create(index);

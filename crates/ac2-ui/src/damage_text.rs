@@ -98,7 +98,7 @@ impl DamageTexts {
             return false;
         };
         // A damage number is the world's overlay, not a window.
-        tree.set_fixed_root(root);
+        tree.set_overlay_root(root);
         for (channel, value) in CHANNELS.iter().zip(text.color) {
             tree.set_float(root, tokenize(&format!("font_color_{channel}")), value);
         }

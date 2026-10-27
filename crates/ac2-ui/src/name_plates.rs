@@ -124,7 +124,7 @@ impl NamePlates {
             return;
         };
         // A name is the world's overlay, not a window.
-        tree.set_fixed_root(root);
+        tree.set_overlay_root(root);
         tree.el_mut(root)
             .attributes
             .insert(id("ObjectID"), AttributeValue::InstanceId(look.id));

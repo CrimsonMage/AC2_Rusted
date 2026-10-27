@@ -138,10 +138,6 @@ impl ShortcutUi {
     /// attack buttons.
     pub fn create(tree: &mut UiTree, layout: &Arc<LayoutDesc>, toolbar_field: usize) -> Self {
         let field = tree.create_root(Arc::clone(layout), id("ShortcutField"));
-        // The shortcut bar is the toolbar's chrome.
-        if let Some(field) = field {
-            tree.set_fixed_root(field);
-        }
         let ui = Self {
             layout: Arc::clone(layout),
             field,
