@@ -53,6 +53,34 @@ single process.
 A repeat of the first scenario gave p50 0.834 ms and an identical cache size (22631582 bytes,
 11900 entries), so the medians vary by about 2 percent between runs.
 
+## Crowd
+
+`--crowd N` (`tools/world-viewer/src/crowd.rs`) adds N idle objects to the headless scene: a
+square grid 3 m apart centred on the player, cycling through the race table's models (every race,
+male and female), each at the terrain height under it and a fixed heading. They are remote objects
+in the frame, in the default bind pose (no animation), so they measure per-object draw and prepare
+cost. `--crowd` works with `--snapshot` and `--bench`; the bench times frames after the models have
+loaded (`settle`).
+
+Measured 2026-10-27 at commit `1d1ab40` plus the `--crowd` change (this commit), `profiling`
+profile, the three runs back to back. The machine's load average was 9 to 10 from other sessions,
+so these medians run above the Results table; compare the three rows with each other only. Repeating
+`--crowd 0` on the same machine gave p50 1.368 and 1.383 ms.
+
+| Scenario | Bench line |
+|---|---|
+| `--walk 4 --bench 300 --crowd 0` | `bench frames=300 p50_ms=1.322 p95_ms=1.620 max_ms=6.085 update_p50_ms=0.145 prepare_p50_ms=0.277 render_p50_ms=0.892 peak_rss_kib=240380 cache_bytes=22631582 cache_entries=11900` |
+| `--walk 4 --bench 300 --crowd 100` | `bench frames=300 p50_ms=4.421 p95_ms=4.709 max_ms=8.404 update_p50_ms=0.283 prepare_p50_ms=1.616 render_p50_ms=2.526 peak_rss_kib=281304 cache_bytes=31031398 cache_entries=12290` |
+| `--walk 4 --bench 300 --crowd 400` | `bench frames=300 p50_ms=8.089 p95_ms=8.872 max_ms=16.446 update_p50_ms=0.234 prepare_p50_ms=3.502 render_p50_ms=4.313 peak_rss_kib=296080 cache_bytes=31031398 cache_entries=12290` |
+
+The 100 and 400 runs cache the same bytes and entries: the 400 objects reuse the models the 100
+already loaded. From 100 to 400 objects, frame p50 grows by 3.7 ms (about 1.2 ms per 100 objects;
+prepare +1.9 ms, render +1.8 ms).
+
+Snapshot `--snapshot /tmp/crowd-100.png --walk 4 --crowd 100` shows the crowd: the race models stand
+in their bind pose (arms out) on the terrain in a grid around the player, several races and both
+sexes visible, the player in the middle.
+
 ## Known gaps
 
 - The long-walk scenario did not travel far. The walker ended near its start (origin

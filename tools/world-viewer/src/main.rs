@@ -5,6 +5,7 @@
 //! world-viewer [--dat-dir DIR] [--block 7F7F] [--radius 2] [--fly]
 //! world-viewer ... --snapshot out.png [--model N] [--walk SECONDS] [--speed N] [--warm-up SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --bench N [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
+//! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! ```
 //! `--snapshot` renders one headless frame: the player model N of the race table walks forward
 //! for SECONDS (default 4) and is seen from the player camera (`--fly`: the terrain alone).
@@ -12,7 +13,8 @@
 //! frames of update, prepare and render, each waiting for the GPU, and prints one `bench` line
 //! (frame p50, p95 and max, the per-step p50s, peak RSS, the typed cache's bytes and entries, and
 //! the texture bytes uploaded). `--rgba-textures` decodes DXT textures to RGBA8 even where the
-//! GPU samples BC blocks, to compare the two.
+//! GPU samples BC blocks, to compare the two. `--crowd N` adds N idle race and sex models on a
+//! grid around the player to both (a busy scene).
 //! The player walks the world with collision (`ac2-physics`) under the player camera
 //! (`ac2-smartbox`); an egui panel swaps the race and sex, teleports and speeds the player up.
 //! Walk: W/S, A/D turn, Q/E strafe, Space jump, hold the right button to look, wheel to zoom,
@@ -20,6 +22,7 @@
 //! Space/C up and down, Shift fast. `[` and `]` step the time of day, F1 hides the panel.
 
 mod bench;
+mod crowd;
 mod fly;
 mod frame;
 mod gui;
@@ -62,6 +65,8 @@ struct Args {
     /// Server seconds to show (default: the day's brightest daylight); other days bring their
     /// own weather.
     time: Option<f64>,
+    /// Idle models placed around the player in the headless scene (0: none).
+    crowd: u32,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -81,6 +86,7 @@ fn parse_args() -> Result<Args, String> {
         warm_up: 3,
         at: None,
         time: None,
+        crowd: 0,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -111,6 +117,7 @@ fn parse_args() -> Result<Args, String> {
                 ));
             }
             "--time" => args.time = Some(value()?.parse().map_err(|e| format!("--time: {e}"))?),
+            "--crowd" => args.crowd = value()?.parse().map_err(|e| format!("--crowd: {e}"))?,
             "--warm-up" => {
                 args.warm_up = value()?.parse().map_err(|e| format!("--warm-up: {e}"))?;
             }
@@ -119,6 +126,9 @@ fn parse_args() -> Result<Args, String> {
     }
     if args.dat_dir.as_os_str().is_empty() {
         return Err("set AC2_DAT_DIR or pass --dat-dir".into());
+    }
+    if args.crowd > 0 && args.snapshot.is_none() && args.bench == 0 {
+        return Err("--crowd needs --snapshot or --bench".into());
     }
     Ok(args)
 }
@@ -257,7 +267,17 @@ fn snapshot(
             println!("walk: {status:?}");
         }
     }
-    let frame = frame::client_frame(mode, &walk, &fly, model.map(|m| m.visual), time_of_day);
+    let mut frame = frame::client_frame(mode, &walk, &fly, model.map(|m| m.visual), time_of_day);
+    if args.crowd > 0 {
+        let Some(player) = frame.player.as_ref() else {
+            eprintln!("world-viewer: --crowd needs the player (drop --fly)");
+            std::process::exit(2);
+        };
+        frame.objects = crowd::objects(models, args.crowd, player, |origin| {
+            walk.ground_height(player.cell, origin)
+        });
+        println!("crowd: {} objects", frame.objects.len());
+    }
     view.update(&gpu, &frame, std::time::Duration::from_millis(4));
     view.settle(&gpu, &frame, width as f32 / height as f32);
     // The scene's particle systems run on the wall clock: let them emit before the frame is

@@ -209,6 +209,14 @@ impl Walk {
         })
     }
 
+    /// The terrain height under `origin` (relative to `cell`'s landblock), `None` off resident
+    /// terrain. `origin[2]` only sets the query's start: the height is the terrain polygon's.
+    pub fn ground_height(&self, cell: u32, origin: [f32; 3]) -> Option<f32> {
+        let [x, y, z] = origin;
+        let position = Position::new(cell, Frame::new(Vector::new(x, y, z), Quaternion::IDENTITY));
+        self.terrain.terrain_height(&position)
+    }
+
     /// The resident landblocks (`xxyy0000`), as the frame lists them.
     pub fn resident_blocks(&self) -> Vec<u32> {
         self.cells.resident().collect()
