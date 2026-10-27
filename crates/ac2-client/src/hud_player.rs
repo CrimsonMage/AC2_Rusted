@@ -51,6 +51,8 @@ pub(crate) struct PassOut {
     pub(crate) commands: Vec<Command>,
     pub(crate) open_examination: bool,
     pub(crate) tells: Vec<String>,
+    /// The help topics the panels asked to open (`KeyStone::OpenHelp` tokens), in order.
+    pub(crate) help: Vec<u32>,
 }
 
 impl PassOut {
@@ -58,6 +60,7 @@ impl PassOut {
         self.commands.extend(pass.commands);
         self.open_examination |= pass.open_examination;
         self.tells.extend(pass.tells);
+        self.help.extend(pass.help);
     }
 }
 
@@ -113,6 +116,7 @@ impl HudView {
         out.append(self.pick_pass(&player, frame, events, doll_pick));
         out.append(self.notice_pass(&player, frame, events, reloads.radar));
         out.append(self.message_pass(&player, frame, &messages));
+        self.help_pass(&messages);
         out.append(self.tick_pass(&player, frame, events));
         let HudView { hud, dirty, .. } = self;
         if let Some((tree, _)) = hud {
@@ -122,6 +126,9 @@ impl HudView {
         }
         if out.open_examination {
             self.open_examination();
+        }
+        for token in std::mem::take(&mut out.help) {
+            self.open_help(token);
         }
         // `FellowshipHelper::ListenToMessage`: a member's name into the chat line.
         for name in out.tells {

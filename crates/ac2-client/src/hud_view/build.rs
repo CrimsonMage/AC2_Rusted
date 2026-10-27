@@ -9,6 +9,15 @@ use ac2_ui::{ChatSettings, GameplayHud};
 
 use super::{Built, HudView};
 
+/// The help pages from the content directory `AC2_CONTENT_DIR` names (the DVD's
+/// `ProgramFiles/Content`). `None` without the variable.
+fn help_pages(store: &ac2_db::ResourceStore) -> ac2_db::ResourceResult<Option<ac2_ui::HelpPages>> {
+    match std::env::var_os("AC2_CONTENT_DIR") {
+        Some(dir) => ac2_ui::load_help_pages(store, std::path::Path::new(&dir)),
+        None => Ok(None),
+    }
+}
+
 impl HudView {
     pub(crate) fn new(
         store: Arc<ResourceStore>,
@@ -57,6 +66,9 @@ impl HudView {
                                 nav.set_detail_map(std::sync::Arc::new(map));
                             }
                         }
+                        // `KeyStone::OpenHelp`'s pages: the content directory's KSML files, read here
+                        // so the window never reads a file on the frame thread.
+                        hud.help_pages = help_pages(&store)?;
                         let images = ac2_ui::load_ui_images(&store, &hud.tree)?;
                         Ok((hud, images))
                     });
@@ -118,6 +130,8 @@ impl HudView {
             navigation: None,
             overview: None,
             book: None,
+            help: None,
+            help_pages: None,
             story: None,
             money: None,
             items_3d: None,
@@ -190,6 +204,8 @@ impl HudView {
                     new_sale,
                     consignment,
                     book,
+                    help,
+                    help_pages,
                     story,
                 },
                 images,
@@ -251,6 +267,8 @@ impl HudView {
                 self.navigation = navigation;
                 self.overview = overview;
                 self.book = book;
+                self.help = help;
+                self.help_pages = help_pages;
                 self.story = story;
                 self.dirty = true;
             }

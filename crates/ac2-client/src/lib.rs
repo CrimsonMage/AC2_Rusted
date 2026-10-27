@@ -74,6 +74,7 @@ mod hud_craft;
 #[cfg(feature = "window")]
 mod hud_death;
 mod hud_game_dialogs;
+mod hud_help;
 #[cfg(feature = "window")]
 mod hud_ingredient;
 #[cfg(feature = "window")]

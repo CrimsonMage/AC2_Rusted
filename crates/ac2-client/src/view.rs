@@ -732,6 +732,21 @@ impl ClientView {
         self.hud.element_text(name)
     }
 
+    /// The screen box of the HUD's element `name` (the first one with that name).
+    pub fn element_box(&self, name: &str) -> Option<ac2_ui::UiBox> {
+        self.hud.element_box(name)
+    }
+
+    /// The help window's text, while it shows (`KeyStone::OpenHelp`).
+    pub fn help_window_text(&self) -> Option<String> {
+        self.hud.help_window_text()
+    }
+
+    /// The screen box of the help window's element `name`.
+    pub fn help_element_box(&self, name: &str) -> Option<ac2_ui::UiBox> {
+        self.hud.help_element_box(name)
+    }
+
     /// The secure trade panel: whether it shows, the player's offers and the partner's.
     pub fn trade(&self) -> Option<(bool, Vec<u64>, Vec<u64>)> {
         let panel = self.hud.secure_trade.as_ref()?;

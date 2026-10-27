@@ -2,11 +2,12 @@
 //! player's script when a book is used) shows the book, and the panel's messages turn its pages.
 //! The page label is rendered from the UI string table through the player.
 //!
-//! The help button (`KeyStone::OpenHelp`) and the copy button (`Device::SendStringToClipboard`)
-//! have no counterpart in the client yet: their requests are dropped here.
+//! The help button (`KeyStone::OpenHelp(ID_Help_Book)`) opens the help window; the copy button
+//! (`Device::SendStringToClipboard`) has no counterpart in the client yet and is dropped here.
 
 use std::cell::RefCell;
 
+use ac2_ui::BookRequest;
 use ac2_weenie::{GameplayNotice, SessionEvent};
 
 use crate::client::Client;
@@ -56,9 +57,15 @@ impl HudView {
                 book.recv_use_book(tree, &player, *show_controls, *mode, title, text, *image);
             }
         }
+        let mut help = Vec::new();
         for message in &messages {
-            // The help and copy requests have no client counterpart yet (see the module doc).
-            let _ = book.message(tree, &player, message);
+            // The copy request has no client counterpart yet (see the module doc).
+            if let Some(BookRequest::OpenHelp) = book.message(tree, &player, message) {
+                help.push(ac2_ui::tokenize("ID_Help_Book"));
+            }
+        }
+        for token in help {
+            self.open_help(token);
         }
     }
 }

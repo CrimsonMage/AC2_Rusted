@@ -21,6 +21,32 @@ impl HudView {
         tree.get(element)?.text()
     }
 
+    /// The screen box of the first element named `name` (`IUIManager` lookup).
+    pub(crate) fn element_box(&self, name: &str) -> Option<ac2_ui::UiBox> {
+        let (tree, _) = self.hud.as_ref()?;
+        let id = ac2_ui::tokenize(name);
+        let element = tree
+            .roots()
+            .iter()
+            .find_map(|&r| tree.child_recursive(r, id))?;
+        Some(tree.screen_box(element))
+    }
+
+    /// The help window's text, while it shows (`KeyStone::OpenHelp`).
+    pub(crate) fn help_window_text(&self) -> Option<String> {
+        self.help
+            .as_ref()
+            .filter(|help| help.is_shown())
+            .map(ac2_ui::HelpWindow::text)
+    }
+
+    /// The screen box of the help window's element `name` (its own, not the book's).
+    pub(crate) fn help_element_box(&self, name: &str) -> Option<ac2_ui::UiBox> {
+        let (tree, _) = self.hud.as_ref()?;
+        let element = self.help.as_ref()?.element(tree, name)?;
+        Some(tree.screen_box(element))
+    }
+
     /// The net indicator's tooltip and state (`gmNetStatusUI`'s field), once a heartbeat has
     /// set them.
     pub(crate) fn net_indicator(&self) -> Option<(String, u32)> {

@@ -87,7 +87,10 @@ fn every_gap_and_skip_row_says_why() {
     }
     let skips = audit().iter().filter(|r| r.4 == Status::Skip).count();
     let gaps = audit().iter().filter(|r| r.4 == Status::Gap).count();
-    assert_eq!(gaps, 1, "KeyStone");
+    assert_eq!(
+        gaps, 0,
+        "every key action is handled or skipped (KeyStone is handled)"
+    );
     assert_eq!(
         skips, 8,
         "admin-only keys: sound, benchmark, debug HUD, groove, exam tabs"

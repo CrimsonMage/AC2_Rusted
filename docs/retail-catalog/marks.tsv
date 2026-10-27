@@ -3746,7 +3746,7 @@ key	status	note
 004be270	-	KeyStone COM help-plugin host (Windows COM, help window); not ported
 004be2b0	-	KeyStone COM help-plugin host (Windows COM, help window); not ported
 004be300	-	KeyStone COM help-plugin host (Windows COM, help window); not ported
-004be3b0	~	ac2-ui help.rs resolves the token to its KSML page; ac2-ui help_view.rs is the viewer model (wrapped styled text, radio tabs, iframes, page/frame loads with tickets, scroll and wheel), tests in help_view_tests.rs. Not drawn yet and the 14 callers are not wired (help buttons still drop OpenHelp in ac2-client)
+004be3b0	x	ac2-ui help.rs resolves the page, help_view.rs lays it out, help_window.rs draws it in a second Book root (book frame, text area, slider, close); ac2-client hud_help.rs opens it from the 12 panel help buttons (HELP_BUTTONS), the book and social requests, and the key stone key 0x400000BB (ShowKeyStone); pages preloaded from AC2_CONTENT_DIR. Bold/italic/underline drawn plain (one book font). Tests: help_window_tests.rs (real data), help_window_hud_7160.rs (rig)
 004be4c0	-	KeyStone COM help-plugin host (Windows COM, help window); not ported
 004be550	-	KeyStone COM help-plugin host (Windows COM, help window); not ported
 004be5e0	-	GUN XML protocol parser (Gaming Zone; CParseXml), not used on the community login path

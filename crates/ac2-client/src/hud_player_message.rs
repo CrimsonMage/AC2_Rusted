@@ -66,6 +66,7 @@ impl HudView {
         };
         let mut commands = Vec::new();
         let mut open_examination = false;
+        let mut help = Vec::new();
         // `gmQuestsUI::Show` when the toolbar's Quest child changed, then
         // `gmJournalQuestsUI::ListenToMessage` on the global loop: the pages laid out, and the
         // time displays counted down.
@@ -149,8 +150,10 @@ impl HudView {
                 crate::hud_friends::friends_message(panel, tree, message, target, &mut commands);
             }
             if let Some(panel) = social.as_mut() {
-                // The help page is not modelled: the panel's `OpenHelp` is dropped.
-                let _ = panel.message(tree, message);
+                // `gmSocialUI::ListenToMessage` (`SocialHelpButton`): `KeyStone::OpenHelp`.
+                if let Some(ac2_ui::SocialAction::OpenHelp(token)) = panel.message(tree, message) {
+                    help.push(token);
+                }
             }
             if let (Some(page), Some(dialogs)) = (assistance.as_mut(), dialogs.as_mut()) {
                 crate::hud_assistance::assistance_message(page, tree, dialogs, player, message);
@@ -361,6 +364,7 @@ impl HudView {
         PassOut {
             commands,
             open_examination,
+            help,
             ..PassOut::default()
         }
     }

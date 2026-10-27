@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 229 done, 21 partial, 82 to do, 224 skipped.
+556 retail functions: 230 done, 20 partial, 82 to do, 224 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -219,7 +219,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AC2ClientChatManager::Init` · 0072f580 · legions 006ace30 — needs port (check): Turbine chat manager init and chat client lookup; implemented as ac2-script host/gun.rs ChatServices flags (cited only there)
 - [-] `AC2ClientChatManager::IncludeFileInWatsonUpload` · 0072f700 · legions 006acfa0 — Watson crash-upload hook (crash reporting)
 
-## `portal/client/src/ckeystone/ckeystone.cpp.c` (0/22)
+## `portal/client/src/ckeystone/ckeystone.cpp.c` (1/22)
 
 ### KeyStone
 - [-] `KeyStone::HasFailedToLoadMSXML4` · 004bdec0 · legions 004b21e0 — MSXML4 load check (Windows COM, KeyStone); not ported
@@ -241,7 +241,7 @@ Legend and workflow: [README](README.md).
 - [-] `KeyStone::OpenPluginManager` · 004be270 · legions 004b2590 — KeyStone COM help-plugin host (Windows COM, help window); not ported
 - [-] `KeyStone::Release` · 004be2b0 · legions 004b25d0 — KeyStone COM help-plugin host (Windows COM, help window); not ported
 - [-] `KeyStone::Cleanup` · 004be300 · legions 004b2620 — KeyStone COM help-plugin host (Windows COM, help window); not ported
-- [~] `KeyStone::OpenHelp` · 004be3b0 · legions 004b26d0 — ac2-ui help.rs resolves the token to its KSML page; ac2-ui help_view.rs is the viewer model (wrapped styled text, radio tabs, iframes, page/frame loads with tickets, scroll and wheel), tests in help_view_tests.rs. Not drawn yet and the 14 callers are not wired (help buttons still drop OpenHelp in ac2-client)
+- [x] `KeyStone::OpenHelp` · 004be3b0 · legions 004b26d0 — ac2-ui help.rs resolves the page, help_view.rs lays it out, help_window.rs draws it in a second Book root (book frame, text area, slider, close); ac2-client hud_help.rs opens it from the 12 panel help buttons (HELP_BUTTONS), the book and social requests, and the key stone key 0x400000BB (ShowKeyStone); pages preloaded from AC2_CONTENT_DIR. Bold/italic/underline drawn plain (one book font). Tests: help_window_tests.rs (real data), help_window_hud_7160.rs (rig)
 - [-] `KeyStone::IsHelpOpen` · 004be4c0 · legions 004b27e0 — KeyStone COM help-plugin host (Windows COM, help window); not ported
 - [-] `KeyStone::IsPluginManagerOpen` · 004be550 · legions 004b2870 — KeyStone COM help-plugin host (Windows COM, help window); not ported
 

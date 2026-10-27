@@ -273,6 +273,7 @@ impl HudView {
             commands,
             open_examination,
             tells,
+            help: Vec::new(),
         }
     }
 }

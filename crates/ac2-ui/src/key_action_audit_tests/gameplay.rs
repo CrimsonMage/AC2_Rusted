@@ -646,7 +646,7 @@ pub(super) const ROWS: &[Row] = &[
         0x4000_00BB,
         "KEYSTONE_PANEL_KEY",
         "gmToolbarUI::ListenToMessage -> ShowKeyStone (KeyStone help)",
-        "none yet: KeyStone help is not ported",
-        Status::Gap,
+        "ac2-client hud_help.rs toggle_keystone (the help window, ac2_ui::help_window)",
+        Status::Handled,
     ),
 ];
