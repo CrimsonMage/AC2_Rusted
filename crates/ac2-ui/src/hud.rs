@@ -26,6 +26,7 @@ use crate::catalog::CatalogUi;
 use crate::character::CharacterUi;
 use crate::chat::{ChatStrings, ChatUi, CHAT_STRING_TABLE, REPLY_STRING_TABLE, STRING_TABLE_GROUP};
 use crate::chat_options::ChatOptionsUi;
+use crate::client_options_page::PREF_LABEL_TABLE;
 use crate::compose::UiPixels;
 use crate::consignment::ConsignmentUi;
 use crate::craft::CraftUi;
@@ -96,6 +97,10 @@ pub fn load_layout_by_enum(
 #[derive(Debug, Clone)]
 pub struct GameplayHud {
     pub tree: UiTree,
+    /// The UI string table's DID (`UI_TABLE`), which the option pages' questions come from.
+    pub ui_table: Option<u32>,
+    /// The DID of the preferences' label table (enum `0x40000008`), for the options page's rows.
+    pub pref_table: Option<u32>,
     /// `gm3DTextUI`'s targeting reticle and name plates.
     pub reticle: Option<Reticle>,
     pub names: Option<NamePlates>,
@@ -310,6 +315,7 @@ pub fn build_gameplay_hud(
         .as_ref()
         .map(SecureTradeUi::create);
     let ui_table = ac2_assets::ac2_enum_did(store, STRING_TABLE_GROUP, UI_TABLE)?;
+    let pref_table = ac2_assets::ac2_enum_did(store, STRING_TABLE_GROUP, PREF_LABEL_TABLE)?;
     let character = match (&layouts[&LAYOUT_TOOLBAR], ui_table) {
         (Some(toolbar), Some(table)) => {
             CharacterUi::create(&mut tree, toolbar, &*text_data, table.raw())
@@ -346,6 +352,8 @@ pub fn build_gameplay_hud(
     text_data.freeze();
     Ok(GameplayHud {
         tree,
+        ui_table: ui_table.map(|table| table.raw()),
+        pref_table: pref_table.map(|table| table.raw()),
         reticle,
         names,
         damage,

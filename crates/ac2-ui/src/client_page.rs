@@ -121,8 +121,8 @@ impl ClientPage {
         }
     }
 
-    /// `gmClientUI::VerifyRenderOptions`: the graphics change is asked about (a timed dialog,
-    /// `DIALOG_TIMED`), once while it is open.
+    /// `gmClientUI::VerifyRenderOptions`: the display (Rendering section) change is asked about
+    /// (a timed dialog, `DIALOG_TIMED`), once while it is open.
     pub fn verify_render_options(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory) {
         if self.context_render == 0 {
             self.context_render = dialogs.make_dialog(tree, &self.text.render, DIALOG_TIMED, false);
@@ -152,7 +152,7 @@ impl ClientPage {
         ]
     }
 
-    /// The page's end after an Apply: a graphics change that needs verifying asks for it, and the
+    /// The page's end after an Apply: a display change that needs verifying asks for it, and the
     /// buttons are then updated (`gmClientUI::Apply`'s `VerifyRenderOptions` or the save, then
     /// `UpdateButtons`). Returns whether the verification was asked.
     pub fn after_apply(

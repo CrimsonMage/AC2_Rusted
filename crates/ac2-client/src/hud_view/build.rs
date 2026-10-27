@@ -101,6 +101,7 @@ impl HudView {
             secure_trade: None,
             character: None,
             chat_options: None,
+            options: Default::default(),
             shop: None,
             catalog: None,
             new_sale: None,
@@ -173,6 +174,8 @@ impl HudView {
                     secure_trade,
                     character,
                     chat_options,
+                    ui_table,
+                    pref_table,
                     navigation,
                     overview,
                     shop,
@@ -232,6 +235,7 @@ impl HudView {
                 self.secure_trade = secure_trade;
                 self.character = character;
                 self.chat_options = chat_options;
+                self.options.set_tables(ui_table, pref_table);
                 self.shop = shop;
                 self.catalog = catalog;
                 self.new_sale = new_sale;

@@ -7,7 +7,7 @@
 //! The defaults and ranges are the ones the function sets (`SetRange` and `SetDefault`); the bank
 //! does not clamp a value to its range (retail's setters do not either).
 
-use ac2_prefs::{NameTable, Pref, PreferenceBank};
+use ac2_prefs::{NameTable, Pref, PreferenceBank, Value};
 
 /// The camera's sections.
 pub const CAMERA_SECTION: u32 = 0x4000_0008;
@@ -16,6 +16,51 @@ pub const CAMERA_SECTION_D: u32 = 0x4000_000D;
 
 /// The owner the bank records for the camera's keys.
 pub const OWNER: &str = "CameraManager";
+
+/// The keys [`values`] reads: the default distance (`Camera_Distance`), the tilt (`Camera_Tilt`),
+/// the rotate speed (`Camera_Rotate_Speed`), the mouse-look sensitivity and Y inversion
+/// (`Input_Mouse_Look_Sensitivity`, `Input_Invert_Y`), the third-person steering and the
+/// align-to-slope flag.
+const DISTANCE: u32 = 0x4000_002A;
+const TILT: u32 = 0x4000_0054;
+const ROTATE_SPEED: u32 = 0x4000_002D;
+const MOUSE_SENSITIVITY: u32 = 0x4000_0025;
+const INVERT_Y: u32 = 0x4000_0026;
+const STEER_PLAYER: u32 = 0x4000_006B;
+const ALIGN_TO_SLOPE: u32 = 0x4000_005A;
+
+/// The camera's preference values, as the bank holds them.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CameraValues {
+    pub distance: f32,
+    pub tilt: f32,
+    pub rotate_speed: f32,
+    pub mouse_sensitivity: f32,
+    pub invert_y: bool,
+    pub steer_player: bool,
+    pub align_to_slope: bool,
+}
+
+/// The camera's values in `bank` (a missing key keeps the camera's constructor default).
+pub fn values(bank: &PreferenceBank) -> CameraValues {
+    let float = |key: u32, default: f32| match bank.find(key).map(|p| &p.value) {
+        Some(Value::Float(v)) => *v,
+        _ => default,
+    };
+    let flag = |key: u32, default: bool| match bank.find(key).map(|p| &p.value) {
+        Some(Value::Bool(v)) => *v,
+        _ => default,
+    };
+    CameraValues {
+        distance: float(DISTANCE, 4.5),
+        tilt: float(TILT, 0.25),
+        rotate_speed: float(ROTATE_SPEED, 1.0),
+        mouse_sensitivity: float(MOUSE_SENSITIVITY, 1.0),
+        invert_y: flag(INVERT_Y, false),
+        steer_player: flag(STEER_PLAYER, true),
+        align_to_slope: flag(ALIGN_TO_SLOPE, true),
+    }
+}
 
 /// Registers the camera preferences in `bank`, in the order `SetupPrefs` creates them, and links
 /// them to the camera manager. Returns how many were registered.

@@ -14,36 +14,20 @@ use std::cell::RefCell;
 
 use ac2_net::protocol::ExaminationRequest;
 use ac2_script::host::ScriptNotice;
-use ac2_ui::{ChatSettings, PROFILE_LATENCY_INDICATOR_GRAPH};
+use ac2_ui::PROFILE_LATENCY_INDICATOR_GRAPH;
 use ac2_weenie::{GameplayNotice, SessionEvent};
 
 use crate::client::Client;
 use crate::frame::ClientFrame;
 use crate::gameplay::Command;
-use crate::hud_character::character_commands;
-use crate::hud_chat_options::ui_chat_settings;
+use crate::hud_character::{character_commands, options_settings};
+use crate::hud_chat_options::chat_settings;
 use crate::hud_status::StatusBar;
 use crate::hud_view::HudView;
 use crate::ui_sources::ClientPlayer;
 
 /// The player's race (int 290, `UpdatePaperDollPosition`).
 const RACE: u32 = 0x122;
-
-/// The player's chat options as the chat windows and the chat options page take them.
-fn chat_settings(client: &mut Client) -> Option<ChatSettings> {
-    Some(ui_chat_settings(&client.chat_settings().ok()?))
-}
-
-/// The options profile as the options page reads it (`gmCWInterface::Get*`).
-fn options_settings(client: &mut Client) -> Option<ac2_ui::OptionsSettings> {
-    let p = client.gameplay_options().ok()?;
-    Some(ac2_ui::OptionsSettings {
-        bits: p.bit_field,
-        radar_mask: p.radar_mask,
-        shortcut_height: p.shortcut_height,
-        damage_text_range_other: p.damage_text_range_other,
-    })
-}
 
 /// `SetSelection(INVALID_IID)` (or the item), `SetExaminationRequest`.
 pub(crate) fn examine(kind: u32, data: u32, item: u64, commands: &mut Vec<Command>) {

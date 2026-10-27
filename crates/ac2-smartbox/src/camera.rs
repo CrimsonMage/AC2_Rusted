@@ -8,6 +8,7 @@
 
 use ac2_physics::{Heading, Position, Vector};
 
+use crate::prefs::CameraValues;
 use crate::targeting::TargetingModule;
 
 /// Loads a `float` onto the x87 stack.
@@ -550,6 +551,19 @@ impl CameraManager {
         let s = self.start_shoulder;
         let lerp = |target: f32, start: f32| st((ld(target) - ld(start)) * time + ld(start));
         self.current_shoulder = Vector::new(lerp(t.x, s.x), lerp(t.y, s.y), lerp(t.z, s.z));
+    }
+
+    /// The camera's preference values, as the bank holds them (`CameraManager::HandleApply` and
+    /// the handlers of the keys [`crate::prefs`] registers). The distance and the tilt are the
+    /// defaults the camera returns to at its next reset (`SetDefaults`), not the live camera.
+    pub fn apply_prefs(&mut self, values: &CameraValues) {
+        self.prefs_distance = values.distance;
+        self.prefs_pitch = values.tilt;
+        self.rotate_scale = values.rotate_speed;
+        self.mouse_sensitivity = values.mouse_sensitivity;
+        self.invert_y = values.invert_y;
+        self.third_person_steers = values.steer_player;
+        self.align_to_slope = values.align_to_slope;
     }
 
     /// `CameraManager::UseTime`'s field of view: 65 plus the camera effects' sum (none run).

@@ -40,6 +40,7 @@ impl HudView {
             mini_fellow,
             money,
             names,
+            options,
             new_sale,
             now,
             paper_doll,
@@ -54,6 +55,7 @@ impl HudView {
             social,
             stack,
             toolbar,
+            toolbar_layout,
             vitae,
             vitals,
             ..
@@ -74,6 +76,12 @@ impl HudView {
             panel.story_global_loop(tree, player, || {
                 player.client.borrow_mut().inq_act_info_list()
             });
+        }
+        // `gmClientUI`'s widgets, once the HUD and the preferences are there.
+        options.make(&player.client.borrow(), tree, toolbar_layout.as_ref());
+        // `TimedDialog`'s countdown: a question run out answers no.
+        if let Some(dialogs) = dialogs.as_mut() {
+            dialogs.tick(tree, *now);
         }
         for message in messages {
             // `gmSelectionUI::ListenToMessage`: a target key selects (the cycling keys).
@@ -101,6 +109,9 @@ impl HudView {
             if let (Some(page), Some(dialogs)) = (chat_options.as_mut(), dialogs.as_mut()) {
                 page.message(tree, dialogs, message);
                 chat_options_commands(page, &mut commands);
+            }
+            if let Some(dialogs) = dialogs.as_mut() {
+                options.message(&mut player.client.borrow_mut(), tree, dialogs, message);
             }
             if let Some(skills) = skills.as_mut() {
                 skills.message(tree, player, message);

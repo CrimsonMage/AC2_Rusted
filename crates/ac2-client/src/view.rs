@@ -137,6 +137,12 @@ impl ClientView {
         self.scene.set_options(options);
     }
 
+    /// What the options pages' applies changed that the window or the scene must take: the scene's
+    /// options and the fullscreen state (the frame's owner applies them).
+    pub fn take_options_effects(&mut self) -> Vec<crate::hud_options::OptionsEffect> {
+        self.hud.options.take_effects()
+    }
+
     /// The target changed size.
     pub fn resize(&mut self, width: u32, height: u32) {
         self.hud.resize(width, height);

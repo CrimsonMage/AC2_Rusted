@@ -42,6 +42,7 @@ impl HudView {
             game_dialogs,
             money,
             new_sale,
+            options,
             pets,
             secure_trade,
             shop,
@@ -126,6 +127,9 @@ impl HudView {
                 page.dialog_outcomes(tree, dialogs, &outcomes);
                 chat_options_commands(page, &mut commands);
             }
+            // The client page's questions and its requests (`gmClientUI::Apply`, Recall, Default).
+            options.outcomes(tree, dialogs, &outcomes);
+            options.run(&mut player.client.borrow_mut(), tree, dialogs);
         }
         // `gmSecureTradeUI`'s calls on the player (`gmCWInterface::*Trade*`).
         if let Some(panel) = secure_trade.as_mut() {

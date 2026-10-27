@@ -26,10 +26,10 @@ pub const SECTIONS: [u32; 7] = [
     0x4000_000E,
     0x4000_000C,
 ];
-/// The graphics section, whose change asks for the render verification.
-const RENDER_SECTION: u32 = 0x4000_0004;
-/// The display section: submitted to its handlers (the device), not applied by the page.
-const DEVICE_SECTION: u32 = 0x4000_000B;
+/// The display (Rendering) section: `gmClientUI::Apply`'s `_indexRendering` expander. Its change
+/// asks for the render verification, and the section is submitted to the device's handlers, not
+/// applied by the page (only a verified change applies it).
+const DISPLAY_SECTION: u32 = 0x4000_000B;
 
 /// What an apply did: the keys it applied, whether the render verification is asked, and the save
 /// it started (none while the verification is asked).
@@ -129,19 +129,16 @@ impl OptionsWindow {
 impl ClientPrefs {
     /// `gmClientUI::Changed`: a value differs from the one last applied, in one of the sections.
     pub fn options_changed(&self) -> bool {
-        SECTIONS
-            .iter()
-            .any(|&section| !self.bank().submit(section).is_empty())
+        std::iter::once(DISPLAY_SECTION)
+            .chain(SECTIONS)
+            .any(|section| !self.bank().submit(section).is_empty())
     }
 
-    /// `gmClientUI::Apply`: the render section's change is noted, the device is submitted, then
-    /// every section is applied in [`SECTIONS`] order. The file is saved on a worker thread unless
-    /// the render section changed.
+    /// `gmClientUI::Apply`: the display section's change is noted (it is submitted to the device,
+    /// which this port has no handler for), then every other section is applied in [`SECTIONS`]
+    /// order. The file is saved on a worker thread unless the display section changed.
     pub fn options_apply(&mut self) -> ApplyOutcome {
-        let verify_render = !self.bank().submit(RENDER_SECTION).is_empty();
-        // `PreferenceBank::Submit(0x4000000B)`: the device's handlers are told of its changes;
-        // this port's device has no handler, so the keys are only read.
-        let _ = self.bank().submit(DEVICE_SECTION);
+        let verify_render = !self.bank().submit(DISPLAY_SECTION).is_empty();
         let mut keys = Vec::new();
         for section in SECTIONS {
             keys.extend(self.bank_mut().apply(section));
@@ -182,11 +179,11 @@ impl ClientPrefs {
         for action in actions {
             match action {
                 PageAction::RecallDisplay => {
-                    self.bank_mut().recall(DEVICE_SECTION);
+                    self.bank_mut().recall(DISPLAY_SECTION);
                     out.saves.push(self.save());
                 }
                 PageAction::SynchronizeDisplay => {
-                    out.keys.extend(self.bank_mut().apply(DEVICE_SECTION));
+                    out.keys.extend(self.bank_mut().apply(DISPLAY_SECTION));
                     out.saves.push(self.save());
                 }
                 PageAction::Recall => self.options_recall(),

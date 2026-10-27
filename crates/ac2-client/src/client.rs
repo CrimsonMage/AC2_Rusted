@@ -182,6 +182,8 @@ pub struct Client {
     /// Whether mouse look may be on: a story holding the slot turns it off
     /// (`CM_UI::SendNotice_UpdateCanMouseLook`).
     pub(crate) mouse_look_allowed: bool,
+    /// The client's preferences (`Preferences.ini`): the bank the options pages write, and the file.
+    pub(crate) prefs: Option<crate::client_prefs::ClientPrefs>,
 }
 
 fn physics_position(cell: u32, origin: [f32; 3], rotation: [f32; 4]) -> Position {
@@ -252,6 +254,7 @@ impl Client {
             story_queue: Vec::new(),
             story_outbox: Vec::new(),
             mouse_look_allowed: true,
+            prefs: None,
         }
     }
 
@@ -265,6 +268,32 @@ impl Client {
 
     pub fn camera(&self) -> &CameraManager {
         &self.camera
+    }
+
+    /// Gives the client its preferences, read before the frame loop; the options pages write them.
+    pub fn attach_prefs(&mut self, prefs: crate::client_prefs::ClientPrefs) {
+        self.prefs = Some(prefs);
+    }
+
+    pub fn prefs(&self) -> Option<&crate::client_prefs::ClientPrefs> {
+        self.prefs.as_ref()
+    }
+
+    pub fn prefs_mut(&mut self) -> Option<&mut crate::client_prefs::ClientPrefs> {
+        self.prefs.as_mut()
+    }
+
+    /// The applied preferences as the live client reads them: the sound manager's volumes
+    /// (`SoundManager::HandleApply`) and the camera's values (`CameraManager::HandleApply`). Returns
+    /// the scene's graphics options for the view (`WorldScene::set_options`).
+    pub fn apply_live_preferences(&mut self) -> Option<ac2_render::prefs::SceneOptions> {
+        let prefs = self.prefs.take()?;
+        self.apply_sound_preferences(prefs.bank());
+        self.camera
+            .apply_prefs(&ac2_smartbox::prefs::values(prefs.bank()));
+        let scene = prefs.scene_options();
+        self.prefs = Some(prefs);
+        Some(scene)
     }
 
     /// Whether drawn poses blend between the last two bone refreshes (on by default). Off draws

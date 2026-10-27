@@ -27,6 +27,7 @@ mod chat_options_table;
 #[cfg(test)]
 mod chat_options_tests;
 mod chat_window;
+mod client_options_page;
 mod client_page;
 mod compose;
 mod controls;
@@ -179,6 +180,7 @@ pub use chat::{
 };
 pub use chat_options::{ChatOptionRequest, ChatOptionSetting, ChatOptionsUi};
 pub use chat_window::{chat_window_id, ChatMessageInfo, CHAT_TEXT_TYPES};
+pub use client_options_page::{ClientOptionsUi, ClientRequest};
 pub use client_page::{
     ButtonStates, ClientPage, ClientPageText, PageAction, RENDERING_SECTION, SECTION_ORDER,
 };

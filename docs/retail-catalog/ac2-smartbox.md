@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 82 done, 31 partial, 147 to do, 2 skipped.
+262 retail functions: 82 done, 32 partial, 146 to do, 2 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -221,7 +221,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CameraManager::SetCameraAnimTarget` · 005750f0 · legions 00544fc0
 - [ ] `CameraManager::SetCameraAnimParent` · 00575150 · legions 00545020
 - [ ] `CameraManager::FakeTransition` · 005751b0 · legions 00546710
-- [~] `CameraManager::SetupPrefs` · 005751c0 · legions 00545090 — ac2-smartbox prefs::register: fourteen camera keys in sections 0x40000008, 0x4000000E, 0x4000000D with their ranges and defaults, linked to CameraManager; the camera does not yet read the values
+- [~] `CameraManager::SetupPrefs` · 005751c0 · legions 00545090 — ac2-smartbox prefs.rs values + camera.rs apply_prefs: default distance and tilt (taken at the camera's next reset, not live), rotate speed, mouse-look sensitivity, Invert_Y, Steer_Player, Align_To_Slope; zoom speed, transition time, auto distance and camera height are registered but not read
 - [ ] `CameraManager::StopAllCameraFX` · 00575a20
 
 ### CameraFxTrack
@@ -233,7 +233,7 @@ Legend and workflow: [README](README.md).
 - [~] `CameraManager::SetTargetObject` · 00575b40 · legions 00545a10 — the player target only
 - [ ] `CameraManager::GetInterpViewerOffset` · 00575bc0 · legions 00545a90
 - [x] `CameraManager::CalcShoulderOffset` · 00575c00 · legions 00545ad0
-- [ ] `CameraManager::HandleApply` · 00575ee0 · legions 00545db0
+- [~] `CameraManager::HandleApply` · 00575ee0 · legions 00545db0 — ac2-smartbox prefs.rs values + camera.rs apply_prefs: default distance and tilt (taken at the camera's next reset, not live), rotate speed, mouse-look sensitivity, Invert_Y, Steer_Player, Align_To_Slope; zoom speed, transition time, auto distance and camera height are registered but not read
 - [ ] `CameraManager::DoCameraFX` · 00575f20 · legions 00545df0
 - [~] `CameraManager::UpdateCamera` · 005760f0 · legions 00545fb0 — no dynamic first-person head-bone camera, no camera effects
 - [ ] `CameraManager::LookAtSelf` · 005767a0 · legions 00546660

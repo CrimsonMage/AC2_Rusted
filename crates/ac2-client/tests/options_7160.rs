@@ -8,6 +8,9 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use ac2_audio::prefs::{DISABLE_SOUND, FX_VOLUME};
+
+/// `ID_Rendering_FullScreen`, the display section's key.
+const FULL_SCREEN: u32 = 0x4000_0003;
 use ac2_audio::{Channel, NullSink, SoundManager};
 use ac2_client::{ClientPrefs, Close, OptionsWindow};
 use ac2_ui::{ClientPage, ClientPageText, DialogFactory, PageAction, UiTree};
@@ -136,11 +139,19 @@ fn a_render_change_asks_for_verification_and_does_not_save() {
     let dir = temp_dir("render");
     let path = dir.join("Preferences.ini");
     let mut prefs = ClientPrefs::load(path.clone(), Arc::clone(&store)).expect("load");
+    // The display section (Rendering) is the one whose change asks for the verification.
+    // The player flips FullScreen (its default is not assumed).
+    let on = prefs
+        .bank()
+        .find(FULL_SCREEN)
+        .expect("registered")
+        .value
+        .clone();
     prefs
         .bank_mut()
-        .find_mut(0x4000_0043)
-        .expect("the landscape draw distance is registered")
-        .set_choice(4);
+        .find_mut(FULL_SCREEN)
+        .expect("FullScreen is registered")
+        .set_bool(on != ac2_prefs::Value::Bool(true));
     let outcome = prefs.options_apply();
     assert!(outcome.verify_render);
     assert!(
@@ -184,8 +195,23 @@ fn a_render_verification_answered_no_recalls_the_display_and_saves_once() {
         .find_mut(0x4000_0043)
         .expect("the landscape draw distance is registered")
         .set_choice(4);
+    // The player flips FullScreen (its default is not assumed).
+    let on = prefs
+        .bank()
+        .find(FULL_SCREEN)
+        .expect("registered")
+        .value
+        .clone();
+    prefs
+        .bank_mut()
+        .find_mut(FULL_SCREEN)
+        .expect("FullScreen is registered")
+        .set_bool(on != ac2_prefs::Value::Bool(true));
     let outcome = prefs.options_apply();
     assert!(outcome.verify_render);
+    // The graphics section applied at once; the display waits for the answer.
+    assert!(outcome.keys.contains(&0x4000_0043));
+    assert!(!outcome.keys.contains(&FULL_SCREEN));
     // The page asks the question (a timed dialog) and the player answers no.
     let mut tree = UiTree::new(1024, 768);
     let mut dialogs = DialogFactory::new(None);
@@ -263,11 +289,14 @@ fn the_scene_takes_the_draw_and_frill_distances_the_page_sets() {
         .find_mut(0x4000_0044)
         .expect("LandscapeFrillDistance")
         .set_choice(1);
+    // The graphics section applies at once: only the Rendering section asks for verification.
     let outcome = prefs.options_apply();
     assert!(
-        outcome.verify_render,
-        "a graphics change asks for verification"
+        !outcome.verify_render,
+        "a graphics change needs no verification"
     );
+    assert!(outcome.keys.contains(&0x4000_0044));
+    outcome.wait_saved().expect("saved");
     let options = prefs.scene_options();
     assert_eq!(options.far_radius, 0);
     assert!(options.frill.short_distance);

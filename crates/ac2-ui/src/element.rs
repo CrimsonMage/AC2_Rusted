@@ -305,6 +305,11 @@ impl UiTree {
     }
 
     /// The fonts and strings text elements made from now on draw from.
+    /// The text data the tree reads its strings and fonts through (`UIElement::GetTextData`).
+    pub fn text_data(&self) -> Option<Arc<dyn UiTextData>> {
+        self.text_data.clone()
+    }
+
     pub fn set_text_data(&mut self, data: Arc<dyn UiTextData>) {
         self.text_data = Some(data);
     }

@@ -315,6 +315,19 @@ impl App {
         let script_notices = self.client.take_script_notices();
         let asked = view.frameworks(&mut self.client, &frame, &events, &script_notices);
         state.commands.extend(asked);
+        // The options pages' applies: the scene's options, and the window's fullscreen state (set
+        // only by a verified display change).
+        for effect in view.take_options_effects() {
+            match effect {
+                ac2_client::OptionsEffect::Scene(options) => {
+                    view.set_scene_options(options);
+                    self.scene_options = options;
+                }
+                ac2_client::OptionsEffect::Fullscreen(on) => state
+                    .window
+                    .set_fullscreen(on.then_some(winit::window::Fullscreen::Borderless(None))),
+            }
+        }
         // The selection render: the object under the pointer, selected (or the selection
         // cleared) by `gmSelectionUI::Finish3DSelection`.
         if state.selection.wants_pick() {
@@ -596,14 +609,16 @@ fn run(args: Args) -> Result<(), String> {
     client.attach_scripts(host, ac2_client::SCRIPT_VM_FUNCTIONS);
     // `SoundManager`: the speakers, or silence without an output device.
     client.attach_audio(ac2_client::sound_manager(Arc::clone(&store), speakers()));
+    let scene_options = prefs.scene_options();
     client.apply_sound_preferences(prefs.bank());
+    client.attach_prefs(prefs);
     let event_loop = EventLoop::new().map_err(|e| e.to_string())?;
     let mut app = App {
         client,
         world,
         controls: Some(controls),
         radius: args.radius,
-        scene_options: prefs.scene_options(),
+        scene_options,
         state: None,
         store,
         pregame: args.character.is_none(),

@@ -7,7 +7,13 @@ use ac2_ui::ChatOptionRequest;
 #[cfg(feature = "window")]
 use ac2_ui::ChatOptionsUi;
 
+use crate::client::Client;
 use crate::gameplay::Command;
+
+/// The player's chat settings as the chat windows and the chat options page take them.
+pub(crate) fn chat_settings(client: &mut Client) -> Option<ac2_ui::ChatSettings> {
+    Some(ui_chat_settings(&client.chat_settings().ok()?))
+}
 
 /// The player's chat settings (`gmCWInterface::GetGameplayOptions`'s chat part) as the UI takes
 /// them: the window filters, the font sizes and colours, the popup flags and each window's text

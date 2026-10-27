@@ -95,6 +95,8 @@ pub(crate) struct HudView {
     pub(crate) character: Option<ac2_ui::CharacterUi>,
     /// `gmChatOptionsUI`, the chat options page (its requests wait in the page).
     pub(crate) chat_options: Option<ac2_ui::ChatOptionsUi>,
+    /// `gmClientUI`, the client options page, and the effects its applies left.
+    pub(crate) options: crate::hud_options::OptionsPages,
     /// `gmShopUI`, the vendor's panel (its requests wait in the panel).
     pub(crate) shop: Option<ac2_ui::ShopUi>,
     /// `gmShopCatalogUI`, the storekeeper's catalog (its requests wait in the panel).

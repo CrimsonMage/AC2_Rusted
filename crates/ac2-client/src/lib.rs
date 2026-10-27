@@ -28,6 +28,8 @@ mod client_teleport;
 pub use client_options::{ApplyOutcome, Close, OptionsWindow, PageOutcome};
 pub use client_prefs::{ClientPrefs, DatNames};
 pub use client_radar::add_map_note;
+pub use hud_options::OptionsEffect;
+pub use pref_labels::pref_label;
 mod consignment;
 mod controls;
 mod craft;
@@ -52,6 +54,7 @@ mod hud_ingredient;
 mod hud_items_3d;
 #[cfg(feature = "window")]
 mod hud_navigation;
+mod hud_options;
 mod hud_pets;
 #[cfg(feature = "window")]
 mod hud_player;
@@ -74,6 +77,7 @@ mod loader;
 mod motion;
 #[cfg(feature = "window")]
 mod paper_doll_scene;
+mod pref_labels;
 mod pregame;
 #[cfg(feature = "window")]
 pub mod pregame_scene;

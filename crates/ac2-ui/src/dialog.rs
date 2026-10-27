@@ -13,7 +13,10 @@
 //! (`ResurrectField`, `TextField`) closes on `ResurrectButton` (`SendNotice_CloseResurrectDialog`).
 //! The notices come back as [`DialogOutcome`]s.
 //!
-//! Not modelled yet: the timed dialog (`0x40000005`), which makes nothing here.
+//! A `TimedDialog` (`TimedField`, `TextField`, `YesButton`, `NoButton`) counts down from fifteen
+//! seconds (`TimedDialog::SetDelay(0xf)`) and shows the seconds left after its text; its yes or no
+//! sends the confirmation, and running out sends a no. The countdown runs in
+//! [`DialogFactory::tick`], which the caller runs once a frame with the frame's clock.
 
 use std::collections::VecDeque;
 use std::sync::Arc;
@@ -22,6 +25,9 @@ use crate::element::UiTree;
 use crate::layout::LayoutDesc;
 use crate::mouse::UiMessage;
 use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON};
+
+/// `TimedDialog::SetDelay(0xf)`: the seconds a timed dialog waits for its answer.
+pub const TIMED_DELAY: f64 = 15.0;
 
 /// `DialogFactory::MakeDialog` types.
 pub const DIALOG_CONFIRMATION: u32 = 0x4000_0001;
@@ -51,11 +57,14 @@ struct DialogInfo {
     context: u32,
 }
 
-/// The shown dialog: its info and root element (`_curInfo.pointer`).
+/// The shown dialog: its info and root element (`_curInfo.pointer`), and a timed dialog's clock:
+/// the time it expires and the seconds the text last showed.
 #[derive(Debug, Clone)]
 struct Shown {
     info: DialogInfo,
     root: Option<usize>,
+    expires: Option<f64>,
+    seconds: i64,
 }
 
 /// `DialogFactory`'s state (`_globalContext`, `_curInfo`, `_dialogQueue`).
@@ -121,6 +130,39 @@ impl DialogFactory {
         }
     }
 
+    /// The timed dialog's clock (`TimedDialog::ListenToMessage` on the global tick): the countdown
+    /// starts on the first tick, its text shows the seconds left, and at the end the dialog
+    /// answers no. Other dialogs do nothing here.
+    pub fn tick(&mut self, tree: &mut UiTree, now: f64) {
+        let Some(shown) = self.shown.as_mut() else {
+            return;
+        };
+        if shown.info.kind != DIALOG_TIMED {
+            return;
+        }
+        let expires = *shown.expires.get_or_insert(now + TIMED_DELAY);
+        if now >= expires {
+            let context = shown.info.context;
+            self.outcomes.push(DialogOutcome::Confirmation {
+                context,
+                yes: false,
+            });
+            self.close_dialog(tree, context);
+            return;
+        }
+        let seconds = (expires - now).ceil() as i64;
+        if seconds != shown.seconds {
+            shown.seconds = seconds;
+            let text = format!("{} ({seconds})", shown.info.text);
+            if let Some(text_element) = shown
+                .root
+                .and_then(|root| tree.child_recursive(root, tokenize("QuestionText")))
+            {
+                tree.set_text(text_element, &text);
+            }
+        }
+    }
+
     /// `DialogFactory::DialogDone`.
     fn dialog_done(&mut self, tree: &mut UiTree) {
         let Some(shown) = self.shown.take() else {
@@ -141,8 +183,15 @@ impl DialogFactory {
             DIALOG_WAIT => ("WaitField", "TextField"),
             DIALOG_MESSAGE => ("MessageField", "TextField"),
             DIALOG_RESURRECT => ("ResurrectField", "TextField"),
+            // The timed question has no element of its own in the port: it uses the confirmation's.
+            DIALOG_TIMED => ("ConfirmationField", "QuestionText"),
             _ => {
-                return Shown { info, root: None };
+                return Shown {
+                    info,
+                    root: None,
+                    expires: None,
+                    seconds: 0,
+                };
             }
         };
         let root = self
@@ -154,7 +203,12 @@ impl DialogFactory {
                 tree.set_text(text_element, &info.text);
             }
         }
-        Shown { info, root }
+        Shown {
+            info,
+            root,
+            expires: None,
+            seconds: 0,
+        }
     }
 
     /// The shown dialog's context and type.
@@ -188,7 +242,7 @@ impl DialogFactory {
         }
         let context = shown.info.context;
         let outcome = match shown.info.kind {
-            DIALOG_CONFIRMATION => {
+            DIALOG_CONFIRMATION | DIALOG_TIMED => {
                 let yes = message.element_id == tokenize("YesButton");
                 Some(DialogOutcome::Confirmation { context, yes })
             }
