@@ -170,6 +170,12 @@ impl MotionInterp {
         self.hover_height = height;
     }
 
+    /// `CMotionInterp::SetGlobalModifier` (`mGlobalMod`), from
+    /// `ECM_Physics::RecvEvt_SetGlobalModifier`: the motion table's lookups key on it.
+    pub fn set_global_modifier(&mut self, id: u32) {
+        self.global_mod = id;
+    }
+
     /// `CMotionInterp::ResetHoverHeight` (`mHoverHeight = -1`).
     pub fn reset_hover_height(&mut self) {
         self.hover_height = -1.0;

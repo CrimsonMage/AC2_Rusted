@@ -509,6 +509,12 @@ impl PhysicsBody {
         self.object.motion.set_hover_height(height);
     }
 
+    /// `ECM_Physics::RecvEvt_SetGlobalModifier` -> `CPhysicsObj::SetGlobalModifier` ->
+    /// `CMotionInterp::SetGlobalModifier`: the motion table lookups key on `id`.
+    pub fn set_global_modifier(&mut self, id: u32) {
+        self.object.motion.set_global_modifier(id);
+    }
+
     /// `CPhysicsObj::ResetHoverHeight`: the motion table's hover height again.
     pub fn reset_hover_height(&mut self) {
         self.object.motion.reset_hover_height();

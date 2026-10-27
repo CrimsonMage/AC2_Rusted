@@ -186,6 +186,7 @@ pub(crate) fn apply(body: &mut PhysicsBody, action: &ObjectAction) -> bool {
         ObjectAction::SetAccelerationScale(scale) => body.set_acceleration_scale(*scale),
         ObjectAction::SetJumpScale(scale) => body.set_jump_scale(*scale),
         ObjectAction::SetHoverHeight(height) => body.set_hover_height(*height),
+        ObjectAction::SetGlobalModifier(id) => body.set_global_modifier(*id),
         ObjectAction::DoFxScript(id) => body.do_fx_script(*id),
         ObjectAction::DoFx { fx, scalar } => {
             body.do_fx(*fx, *scalar);
@@ -206,7 +207,11 @@ pub(crate) fn apply(body: &mut PhysicsBody, action: &ObjectAction) -> bool {
 /// [`apply`] with the position a targeted impulse pushes from: the target's position
 /// (`CPhysicsObj::AddTargetedImpulse` takes `CPhysics::GetObjectA(target)`). `None` (the target
 /// is not in the world, or it is the body itself) leaves the body alone.
-pub(crate) fn apply_from(body: &mut PhysicsBody, action: &ObjectAction, source: Option<Position>) -> bool {
+pub(crate) fn apply_from(
+    body: &mut PhysicsBody,
+    action: &ObjectAction,
+    source: Option<Position>,
+) -> bool {
     if let (
         ObjectAction::AddTargetedImpulse {
             magnitude,

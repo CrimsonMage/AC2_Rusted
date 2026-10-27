@@ -1,5 +1,5 @@
 use super::*;
-use crate::test_support::{desc, walking_values, RecordingRep};
+use crate::test_support::{desc, desc_with_global, walking_values, RecordingRep};
 
 fn ground_context(local_velocity: Vector) -> MotionContext {
     MotionContext {
@@ -213,4 +213,30 @@ fn turn_to_spins_the_short_way_and_clamps_on_arrival() {
     interp.turn_to(Heading::from_degrees(0.0));
     let clamp = interp.calculate_omega_acceleration(&ground_context(Vector::ZERO));
     assert_eq!((clamp.omega_z, clamp.heading), (0.0, None));
+}
+
+/// `CMotionInterp::SetGlobalModifier`: the motion values lookup keys on `mGlobalMod`, so the
+/// global modifier's values replace the default ones once it is set.
+#[test]
+fn a_global_modifier_selects_its_motion_values() {
+    let default = walking_values();
+    let global = Ac2MotionValues {
+        forward_acceleration: 2.0,
+        ..walking_values()
+    };
+    let mut interp = MotionInterp::new(Some(desc_with_global(&default, 7, &global)));
+    assert_eq!(
+        interp.motion_values(ELEMENT_GROUND).forward_acceleration,
+        10.0
+    );
+    interp.set_global_modifier(7);
+    assert_eq!(
+        interp.motion_values(ELEMENT_GROUND).forward_acceleration,
+        2.0
+    );
+    interp.set_global_modifier(0);
+    assert_eq!(
+        interp.motion_values(ELEMENT_GROUND).forward_acceleration,
+        10.0
+    );
 }
