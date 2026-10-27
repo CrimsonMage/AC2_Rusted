@@ -65,28 +65,44 @@ impl WeenieQualities {
     }
 
     /// One quality changed in `from` (a `CWRepository::RecvEvt_Update*` for `quality` of `table`,
-    /// the codes of [`QualityValue::table`]): the same value here, everything else (what the
-    /// scripts wrote) left as it is. The weenie description is copied whole, as the update may
-    /// have set one of its fields.
+    /// the codes of [`QualityValue::table`]): the value `from` holds for it, written here through
+    /// [`WeenieQualities::set`] so a description field lands in the description and a table
+    /// quality in its table, as the update did there. Everything else (what the scripts wrote
+    /// since) is left as it is; the description is not copied whole.
     pub fn copy_quality(&mut self, from: &WeenieQualities, table: u32, quality: u32) {
-        self.weenie.clone_from(&from.weenie);
-        fn copy<T: Clone>(to: &mut BTreeMap<u32, T>, from: &BTreeMap<u32, T>, quality: u32) {
-            if let Some(value) = from.get(&quality) {
-                to.insert(quality, value.clone());
-            }
-        }
-        match table {
-            1 => copy(&mut self.bools, &from.bools, quality),
-            2 => copy(&mut self.dids, &from.dids, quality),
-            3 => copy(&mut self.floats, &from.floats, quality),
-            4 => copy(&mut self.ints, &from.ints, quality),
-            5 => copy(&mut self.iids, &from.iids, quality),
-            6 => copy(&mut self.positions, &from.positions, quality),
-            7 => copy(&mut self.strings, &from.strings, quality),
-            8 => copy(&mut self.timestamps, &from.timestamps, quality),
-            10 => copy(&mut self.string_infos, &from.string_infos, quality),
-            12 => copy(&mut self.long_ints, &from.long_ints, quality),
-            _ => {}
+        let value = match table {
+            1 => from.inq_bool(quality).map(QualityValue::Bool),
+            2 => from.inq_data_id(quality).map(QualityValue::DataId),
+            3 => from.inq_float(quality).map(QualityValue::Float),
+            4 => from.inq_int(quality).map(QualityValue::Int),
+            5 => from.inq_instance_id(quality).map(QualityValue::InstanceId),
+            6 => from
+                .positions
+                .get(&quality)
+                .copied()
+                .map(QualityValue::Position),
+            7 => from
+                .strings
+                .get(&quality)
+                .cloned()
+                .map(QualityValue::String),
+            8 => from
+                .timestamps
+                .get(&quality)
+                .copied()
+                .map(QualityValue::Timestamp),
+            10 => from
+                .inq_string_info(quality)
+                .map(|s| QualityValue::StringInfo(Box::new(s))),
+            12 => from
+                .long_ints
+                .get(&quality)
+                .copied()
+                .map(QualityValue::LongInt),
+            _ => None,
+        };
+        if let Some(value) = value {
+            self.set(quality, &value);
         }
     }
 
@@ -335,5 +351,26 @@ mod tests {
         assert_eq!(q.ints.get(&0x1_0106), Some(&2));
         assert_eq!(q.long_ints.get(&4), Some(&-1));
         assert_eq!(q.weenie.as_ref().unwrap().data_mask, 0);
+    }
+
+    /// `CWRepository::RecvEvt_UpdateInt_Private` on the scripts' copy: the server's update for
+    /// one quality lands there, and what the scripts wrote since (a description field the
+    /// VM adjusted) stays.
+    #[test]
+    fn copy_quality_takes_one_quality_and_keeps_what_the_scripts_wrote() {
+        let mut scripts = WeenieQualities::default();
+        scripts.set(0x106, &QualityValue::Int(3)); // a script's quantity
+        let mut server = WeenieQualities::default();
+        server.set(0x102, &QualityValue::Int(7)); // health, from the server
+        server.set(0x26B, &QualityValue::Int(9)); // durability, from the server
+        scripts.copy_quality(&server, 4, 0x102);
+        assert_eq!(scripts.inq_int(0x102), Some(7));
+        assert_eq!(scripts.inq_int(0x106), Some(3));
+        assert_eq!(scripts.inq_int(0x26B), None);
+        // A description field the server set goes into the description on this side too.
+        scripts.copy_quality(&server, 4, 0x26B);
+        assert_eq!(scripts.inq_int(0x26B), Some(9));
+        assert_eq!(scripts.weenie.as_ref().unwrap().quantity, Some(3));
+        assert!(!scripts.ints.contains_key(&0x26B));
     }
 }

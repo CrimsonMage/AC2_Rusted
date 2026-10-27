@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 391 done, 149 partial, 1345 to do, 19 skipped.
+1904 retail functions: 520 done, 183 partial, 1178 to do, 23 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -40,19 +40,19 @@ Legend and workflow: [README](README.md).
 - [x] `CM_Character::SendNotice_AddMarker` · 007248b0 · legions 006a4270 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [~] `CM_Character::SendNotice_AddPet` · 00724970 · legions 006a42e0 — ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
 - [x] `CM_Character::SendNotice_ChangeRadarLook` · 00724a30 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-- [ ] `CM_Character::SendNotice_ChangeRadarShowCoordsPreference` · 00724ac0
+- [-] `CM_Character::SendNotice_ChangeRadarShowCoordsPreference` · 00724ac0 — no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
 - [x] `CM_Character::SendNotice_ClearMarkers` · 00724b50 · legions 006a43e0 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [ ] `CM_Character::SendNotice_DisplayMessage` · 00724be0 · legions 006a4430 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [~] `CM_Character::SendNotice_PetIsUnderAttack` · 00724c70 — ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
 - [ ] `CM_Character::SendNotice_PulseMissed` · 00724d00 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Character::SendNotice_ReloadGameplayOptions` · 00724d90
+- [-] `CM_Character::SendNotice_ReloadGameplayOptions` · 00724d90 — no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
 - [ ] `CM_Character::SendNotice_ReloadOptions` · 00724e20 — ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
 - [x] `CM_Character::SendNotice_RemoveMarker` · 00724eb0 · legions 006a45e0 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [~] `CM_Character::SendNotice_RemovePet` · 00724f50 — ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
 - [ ] `CM_Character::SendNotice_ResurrectionRequestedByOther` · 00724fe0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Character::SendNotice_Select` · 00725070
+- [-] `CM_Character::SendNotice_Select` · 00725070 — no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
 - [ ] `CM_Character::SendNotice_SelectionChanged` · 00725100 — ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
-- [ ] `CM_Character::SendNotice_SetShortcutHeight` · 00725190
+- [-] `CM_Character::SendNotice_SetShortcutHeight` · 00725190 — no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
 - [x] `CM_Character::SendNotice_UpdateDeathState` · 00725220 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [ ] `CM_Character::SendNotice_UpdateEffect` · 007252b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 - [ ] `CM_Character::SendNotice_UpdateFactionStatus` · 00725340 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
@@ -1465,29 +1465,29 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Physics::RecvEvt_ReleaseBehavior` · 004978c0 · legions 0048fdd0 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 - [x] `ECM_Physics::RecvEvt_DoBehavior` · 00497a00 · legions 0048ff10 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 
-## `portal/client/src/events/ecm_qualities.cpp.c` (0/20)
+## `portal/client/src/events/ecm_qualities.cpp.c` (20/20)
 
 ### ECM_Qualities
-- [ ] `ECM_Qualities::RecvEvt_UpdateBool_Private` · 00497af0 · legions 00490000
-- [ ] `ECM_Qualities::RecvEvt_UpdateBool_Visual` · 00497ba0 · legions 004900b0
-- [ ] `ECM_Qualities::RecvEvt_UpdateDataID_Private` · 00497c90 · legions 004901a0
-- [ ] `ECM_Qualities::RecvEvt_UpdateDataID_Visual` · 00497d40 · legions 00490250
-- [ ] `ECM_Qualities::RecvEvt_UpdateFloat_Private` · 00497e30 · legions 00490340
-- [ ] `ECM_Qualities::RecvEvt_UpdateFloat_Visual` · 00497ef0 · legions 00490400
-- [ ] `ECM_Qualities::RecvEvt_UpdateInstanceID_Private` · 00497ff0 · legions 00490500
-- [ ] `ECM_Qualities::RecvEvt_UpdateInstanceID_Visual` · 004980b0 · legions 004905c0
-- [ ] `ECM_Qualities::RecvEvt_UpdateInt_Private` · 004981b0 · legions 004906c0
-- [ ] `ECM_Qualities::RecvEvt_UpdateInt_Visual` · 00498260 · legions 00490770
-- [ ] `ECM_Qualities::RecvEvt_UpdateLongInt_Private` · 00498350 · legions 00490860
-- [ ] `ECM_Qualities::RecvEvt_UpdateLongInt_Visual` · 00498410 · legions 00490920
-- [ ] `ECM_Qualities::RecvEvt_UpdatePosition_Private` · 00498510 · legions 00490a20
-- [ ] `ECM_Qualities::RecvEvt_UpdatePosition_Visual` · 00498600 · legions 00490b10
-- [ ] `ECM_Qualities::RecvEvt_UpdateStringInfo_Private` · 00498740 · legions 00490c50
-- [ ] `ECM_Qualities::RecvEvt_UpdateStringInfo_Visual` · 00498800 · legions 00490d10
-- [ ] `ECM_Qualities::RecvEvt_UpdateTimestamp_Private` · 00498910 · legions 00490e20
-- [ ] `ECM_Qualities::RecvEvt_UpdateTimestamp_Visual` · 004989e0 · legions 00490ef0
-- [ ] `ECM_Qualities::RecvEvt_UpdateString_Private` · 00498af0 · legions 00491000
-- [ ] `ECM_Qualities::RecvEvt_UpdateString_Visual` · 00498c00 · legions 00491110
+- [x] `ECM_Qualities::RecvEvt_UpdateBool_Private` · 00497af0 · legions 00490000 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateBool_Visual` · 00497ba0 · legions 004900b0 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateDataID_Private` · 00497c90 · legions 004901a0 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateDataID_Visual` · 00497d40 · legions 00490250 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateFloat_Private` · 00497e30 · legions 00490340 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateFloat_Visual` · 00497ef0 · legions 00490400 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateInstanceID_Private` · 00497ff0 · legions 00490500 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateInstanceID_Visual` · 004980b0 · legions 004905c0 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateInt_Private` · 004981b0 · legions 004906c0 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateInt_Visual` · 00498260 · legions 00490770 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateLongInt_Private` · 00498350 · legions 00490860 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateLongInt_Visual` · 00498410 · legions 00490920 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdatePosition_Private` · 00498510 · legions 00490a20 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdatePosition_Visual` · 00498600 · legions 00490b10 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateStringInfo_Private` · 00498740 · legions 00490c50 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateStringInfo_Visual` · 00498800 · legions 00490d10 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateTimestamp_Private` · 00498910 · legions 00490e20 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateTimestamp_Visual` · 004989e0 · legions 00490ef0 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateString_Private` · 00498af0 · legions 00491000 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+- [x] `ECM_Qualities::RecvEvt_UpdateString_Visual` · 00498c00 · legions 00491110 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
 
 ## `portal/client/src/events/globaleventhandler.cpp.c` (0/21)
 
@@ -2387,70 +2387,70 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWPhysicsObject::CallEFun_PerformLOS` · 004baff0
 - [ ] `gCWPhysicsObject::Resume_ReleaseBehavior` · 004bb090 · legions 004b02b0
 
-## `portal/client/src/weenie/interp/glue/gcwrepository.cpp.c` (0/90)
+## `portal/client/src/weenie/interp/glue/gcwrepository.cpp.c` (55/90)
 
 ### gCWRepository
-- [ ] `gCWRepository::CallEFun_AdjAndTruncateFloat` · 004b4ba0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_AdjAndTruncateInt` · 004b4c50 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_AdjAndTruncateLongInt` · 004b4cf0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_AdjFloat` · 004b4dd0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_AdjInt` · 004b4e60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_AdjLongInt` · 004b4ee0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_DoesBoolExist` · 004b4f90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_DoesDataIDExist` · 004b5010 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_DoesFloatExist` · 004b5090 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_DoesInstanceIDExist` · 004b5110 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_DoesIntExist` · 004b5190 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_DoesLongIntExist` · 004b5210 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_DoesPackageIDExist` · 004b5290 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_DoesPositionExist` · 004b5310 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_DoesStringExist` · 004b5390 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_DoesStringInfoExist` · 004b5410 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_DoesTimestampExist` · 004b5490 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [~] `gCWRepository::CallEFun_AdjAndTruncateFloat` · 004b4ba0 — ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+- [~] `gCWRepository::CallEFun_AdjAndTruncateInt` · 004b4c50 — ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+- [~] `gCWRepository::CallEFun_AdjAndTruncateLongInt` · 004b4cf0 — ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+- [~] `gCWRepository::CallEFun_AdjFloat` · 004b4dd0 — ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+- [~] `gCWRepository::CallEFun_AdjInt` · 004b4e60 — ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+- [~] `gCWRepository::CallEFun_AdjLongInt` · 004b4ee0 — ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+- [x] `gCWRepository::CallEFun_DoesBoolExist` · 004b4f90 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_DoesDataIDExist` · 004b5010 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_DoesFloatExist` · 004b5090 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_DoesInstanceIDExist` · 004b5110 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_DoesIntExist` · 004b5190 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_DoesLongIntExist` · 004b5210 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_DoesPackageIDExist` · 004b5290 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_DoesPositionExist` · 004b5310 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_DoesStringExist` · 004b5390 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_DoesStringInfoExist` · 004b5410 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_DoesTimestampExist` · 004b5490 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [ ] `gCWRepository::CallEFun_EdgeSlides` · 004b5510
-- [ ] `gCWRepository::CallEFun_GetBool` · 004b5580 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetDataID` · 004b5600 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetFloat` · 004b5680 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetID` · 004b5700 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetInstanceID` · 004b5770 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetInt` · 004b5810 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetLongInt` · 004b5890 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetPackageID` · 004b5920 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetRawBool` · 004b59a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetRawDataID` · 004b5a20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetRawFloat` · 004b5aa0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetRawInstanceID` · 004b5b20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetRawInt` · 004b5bc0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetRawLongInt` · 004b5c40 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetRawPackageID` · 004b5cd0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [x] `gCWRepository::CallEFun_GetBool` · 004b5580 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetDataID` · 004b5600 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetFloat` · 004b5680 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetID` · 004b5700 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetInstanceID` · 004b5770 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetInt` · 004b5810 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetLongInt` · 004b5890 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetPackageID` · 004b5920 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetRawBool` · 004b59a0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetRawDataID` · 004b5a20 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetRawFloat` · 004b5aa0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetRawInstanceID` · 004b5b20 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetRawInt` · 004b5bc0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetRawLongInt` · 004b5c40 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetRawPackageID` · 004b5cd0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [ ] `gCWRepository::CallEFun_GetScale` · 004b5d50
-- [ ] `gCWRepository::CallEFun_GetTimestamp` · 004b5dc0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [x] `gCWRepository::CallEFun_GetTimestamp` · 004b5dc0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [ ] `gCWRepository::CallEFun_LoadDataIDW` · 004b5e60
-- [ ] `gCWRepository::CallEFun_RemoveBool` · 004b5ee0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_RemoveDataID` · 004b5f60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_RemoveFloat` · 004b5fe0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_RemoveInstanceID` · 004b6060 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_RemoveInt` · 004b60e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_RemoveLongInt` · 004b6160 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_RemovePackageID` · 004b61e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_RemovePosition` · 004b6260 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_RemoveString` · 004b62e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_RemoveStringInfo` · 004b6360 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_RemoveTimestamp` · 004b63e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_SetBool` · 004b6460 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_SetDataID` · 004b64e0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [~] `gCWRepository::CallEFun_RemoveBool` · 004b5ee0 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+- [~] `gCWRepository::CallEFun_RemoveDataID` · 004b5f60 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+- [~] `gCWRepository::CallEFun_RemoveFloat` · 004b5fe0 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+- [~] `gCWRepository::CallEFun_RemoveInstanceID` · 004b6060 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+- [~] `gCWRepository::CallEFun_RemoveInt` · 004b60e0 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+- [~] `gCWRepository::CallEFun_RemoveLongInt` · 004b6160 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+- [~] `gCWRepository::CallEFun_RemovePackageID` · 004b61e0 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+- [~] `gCWRepository::CallEFun_RemovePosition` · 004b6260 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+- [~] `gCWRepository::CallEFun_RemoveString` · 004b62e0 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+- [~] `gCWRepository::CallEFun_RemoveStringInfo` · 004b6360 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+- [~] `gCWRepository::CallEFun_RemoveTimestamp` · 004b63e0 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+- [x] `gCWRepository::CallEFun_SetBool` · 004b6460 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_SetDataID` · 004b64e0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [ ] `gCWRepository::CallEFun_SetEdgeSlides` · 004b6560
 - [ ] `gCWRepository::CallEFun_SetEtherealType` · 004b65e0
-- [ ] `gCWRepository::CallEFun_SetFloat` · 004b6670 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_SetInstanceID` · 004b66f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_SetInt` · 004b6770 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_SetLongInt` · 004b67f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_SetPackageID` · 004b6870 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_SetPosition` · 004b68f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [x] `gCWRepository::CallEFun_SetFloat` · 004b6670 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_SetInstanceID` · 004b66f0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_SetInt` · 004b6770 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_SetLongInt` · 004b67f0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_SetPackageID` · 004b6870 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_SetPosition` · 004b68f0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [ ] `gCWRepository::CallEFun_SetScale` · 004b6970
-- [ ] `gCWRepository::CallEFun_SetStringInfo` · 004b69f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_SetStringW` · 004b6a70 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_SetTimestamp` · 004b6af0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [x] `gCWRepository::CallEFun_SetStringInfo` · 004b69f0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_SetStringW` · 004b6a70 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_SetTimestamp` · 004b6af0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [ ] `gCWRepository::CallEFun_DumpBoolsToString` · 004b6b90
 - [ ] `gCWRepository::CallEFun_DumpDIDsToString` · 004b6c50
 - [ ] `gCWRepository::CallEFun_DumpFloatsToString` · 004b6d10
@@ -2462,24 +2462,24 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWRepository::CallEFun_DumpStringsToString` · 004b7190
 - [ ] `gCWRepository::CallEFun_DumpTSsToString` · 004b7250
 - [ ] `gCWRepository::CallEFun_DumpWeenieDescW` · 004b7310
-- [ ] `gCWRepository::CallEFun_GetPosition` · 004b73d0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetRawPosition` · 004b7480 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetRawStringInfo` · 004b7530 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetRawStringW` · 004b75f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetStringInfo` · 004b76c0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_GetStringW` · 004b7780 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_InqBool` · 004b7850 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_InqDataID` · 004b7900 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [x] `gCWRepository::CallEFun_GetPosition` · 004b73d0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetRawPosition` · 004b7480 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetRawStringInfo` · 004b7530 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetRawStringW` · 004b75f0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetStringInfo` · 004b76c0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_GetStringW` · 004b7780 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_InqBool` · 004b7850 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_InqDataID` · 004b7900 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [ ] `gCWRepository::CallEFun_InqEtherealType` · 004b79b0 · legions 004adb10
-- [ ] `gCWRepository::CallEFun_InqFloat` · 004b7a50 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_InqInstanceID` · 004b7b00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_InqInt` · 004b7bb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_InqLongInt` · 004b7c60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_InqPackageID` · 004b7d10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_InqPosition` · 004b7dc0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_InqStringInfo` · 004b7e60 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_InqStringW` · 004b7f00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCWRepository::CallEFun_InqTimestamp` · 004b7fa0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [x] `gCWRepository::CallEFun_InqFloat` · 004b7a50 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_InqInstanceID` · 004b7b00 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_InqInt` · 004b7bb0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_InqLongInt` · 004b7c60 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_InqPackageID` · 004b7d10 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_InqPosition` · 004b7dc0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_InqStringInfo` · 004b7e60 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_InqStringW` · 004b7f00 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+- [x] `gCWRepository::CallEFun_InqTimestamp` · 004b7fa0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 
 ## `portal/shared/src/weenie/allocator/wallocator.cpp.c` (0/38)
 
@@ -2699,7 +2699,7 @@ Legend and workflow: [README](README.md).
 - [ ] `WState::SaveStateByID` · 006b7da0 · legions 0064f5c0
 - [ ] `WState::SaveStateByType` · 006b7ea0 · legions 0064f6c0
 
-## `portal/shared/src/weenie/repository/wrepository.cpp.c` (0/101)
+## `portal/shared/src/weenie/repository/wrepository.cpp.c` (54/101)
 
 ### CWRepository
 - [ ] `CWRepository::Construct` · 00530e70 · legions 00514e10 — qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
@@ -2709,73 +2709,73 @@ Legend and workflow: [README](README.md).
 - [ ] `CWRepository::HandleEnterWorld` · 00530f90 · legions 00514f30
 - [ ] `CWRepository::HandleLeaveWorld` · 00530fa0 · legions 00514f40
 - [ ] `CWRepository::InqWeenieDescription` · 00530fb0
-- [ ] `CWRepository::InqInt` · 00530fd0 · legions 00514f70 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::InqLongInt` · 00530ff0 · legions 00514f90 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::InqBool` · 00531010 · legions 00514fb0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::InqFloat` · 00531030 · legions 00514fd0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::InqStringW` · 00531050 · legions 00514ff0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::InqDataID` · 00531070 · legions 00515010 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::InqInstanceID` · 00531090 · legions 00515030 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::InqPosition` · 005310b0 · legions 00515050 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::InqTimestamp` · 005310d0 · legions 00515070 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::InqPackageID` · 005310f0 · legions 00515090 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::InqStringInfo` · 00531110 · legions 005150b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::GetInt` · 00531130 · legions 005150d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::GetBool` · 00531160 · legions 00515100 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::GetFloat` · 00531190 · legions 00515130 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::GetDataID` · 005311c0 · legions 00515160 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::GetInstanceID` · 005311f0 · legions 00515190 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::GetTimestamp` · 00531250 · legions 005151f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::GetStringInfo` · 00531280 · legions 00515290 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::GetPackageID` · 005312f0 · legions 00515220 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::GetLongInt` · 00531320 · legions 00515250 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::DoesIntExist` · 00531360 · legions 00515300 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::DoesLongIntExist` · 00531380 · legions 00515320 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::DoesBoolExist` · 005313a0 · legions 00515340 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::DoesFloatExist` · 005313c0 · legions 00515360 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::DoesDataIDExist` · 005313e0 · legions 00515380 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::DoesInstanceIDExist` · 00531400 · legions 005153a0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::DoesPositionExist` · 00531420 · legions 005153c0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::DoesTimestampExist` · 00531490 · legions 00515430 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::DoesStringInfoExist` · 005314b0 · legions 00515450 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::DoesPackageIDExist` · 005314f0 · legions 00515490 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::SetInt` · 00531510 · legions 005154b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::SetLongInt` · 00531540 · legions 005154e0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::SetBool` · 00531570 · legions 00515510 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::SetFloat` · 005315a0 · legions 00515540 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::SetDataID` · 005315d0 · legions 00515570 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::SetInstanceID` · 00531600 · legions 005155a0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::SetPosition` · 00531630 · legions 005155d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::SetTimestamp` · 00531660 · legions 00515600 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::SetPackageID` · 00531690 · legions 00515630 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::SetStringInfo` · 005316c0 · legions 00515660 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::RemoveInt` · 005316f0 · legions 00515690 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::RemoveLongInt` · 00531710 · legions 005156b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::RemoveBool` · 00531730 · legions 005156d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::RemoveFloat` · 00531750 · legions 005156f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::RemoveString` · 00531770 · legions 00515710 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::RemoveDataID` · 00531790 · legions 00515730 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::RemoveInstanceID` · 005317b0 · legions 00515750 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::RemovePosition` · 005317d0 · legions 00515770 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::RemoveTimestamp` · 005317f0 · legions 00515790 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::RemoveStringInfo` · 00531810 · legions 005157b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::RemovePackageID` · 00531830 · legions 005157d0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::AdjInt` · 00531850 · legions 005157f0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::AdjAndTruncateInt` · 00531880 · legions 00515820 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::AdjLongInt` · 005318c0 · legions 00515860 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::AdjAndTruncateLongInt` · 00531910 · legions 005158b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::AdjFloat` · 00531970 · legions 00515910 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::AdjAndTruncateFloat` · 005319b0 · legions 00515950 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::RecvEvt_UpdateInt_Private` · 005319f0 · legions 00515990
-- [ ] `CWRepository::RecvEvt_UpdateLongInt_Private` · 00531a30 · legions 005159d0
-- [ ] `CWRepository::RecvEvt_UpdateBool_Private` · 00531a70 · legions 00515a10
-- [ ] `CWRepository::RecvEvt_UpdateFloat_Private` · 00531ab0 · legions 00515a50
-- [ ] `CWRepository::RecvEvt_UpdateTimestamp_Private` · 00531af0 · legions 00515a90
-- [ ] `CWRepository::RecvEvt_UpdateString_Private` · 00531b30 · legions 00515ad0
-- [ ] `CWRepository::RecvEvt_UpdateDataID_Private` · 00531b70 · legions 00515b10
-- [ ] `CWRepository::RecvEvt_UpdateInstanceID_Private` · 00531bb0 · legions 00515b50
-- [ ] `CWRepository::RecvEvt_UpdatePosition_Private` · 00531bf0 · legions 00515b90
-- [ ] `CWRepository::RecvEvt_UpdateStringInfo_Private` · 00531c30 · legions 00515bd0
+- [x] `CWRepository::InqInt` · 00530fd0 · legions 00514f70 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::InqLongInt` · 00530ff0 · legions 00514f90 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::InqBool` · 00531010 · legions 00514fb0 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::InqFloat` · 00531030 · legions 00514fd0 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::InqStringW` · 00531050 · legions 00514ff0 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::InqDataID` · 00531070 · legions 00515010 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::InqInstanceID` · 00531090 · legions 00515030 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::InqPosition` · 005310b0 · legions 00515050 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::InqTimestamp` · 005310d0 · legions 00515070 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::InqPackageID` · 005310f0 · legions 00515090 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::InqStringInfo` · 00531110 · legions 005150b0 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::GetInt` · 00531130 · legions 005150d0 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::GetBool` · 00531160 · legions 00515100 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::GetFloat` · 00531190 · legions 00515130 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::GetDataID` · 005311c0 · legions 00515160 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::GetInstanceID` · 005311f0 · legions 00515190 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::GetTimestamp` · 00531250 · legions 005151f0 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::GetStringInfo` · 00531280 · legions 00515290 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::GetPackageID` · 005312f0 · legions 00515220 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::GetLongInt` · 00531320 · legions 00515250 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::DoesIntExist` · 00531360 · legions 00515300 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::DoesLongIntExist` · 00531380 · legions 00515320 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::DoesBoolExist` · 005313a0 · legions 00515340 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::DoesFloatExist` · 005313c0 · legions 00515360 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::DoesDataIDExist` · 005313e0 · legions 00515380 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::DoesInstanceIDExist` · 00531400 · legions 005153a0 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::DoesPositionExist` · 00531420 · legions 005153c0 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::DoesTimestampExist` · 00531490 · legions 00515430 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::DoesStringInfoExist` · 005314b0 · legions 00515450 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::DoesPackageIDExist` · 005314f0 · legions 00515490 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::SetInt` · 00531510 · legions 005154b0 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::SetLongInt` · 00531540 · legions 005154e0 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::SetBool` · 00531570 · legions 00515510 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::SetFloat` · 005315a0 · legions 00515540 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::SetDataID` · 005315d0 · legions 00515570 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::SetInstanceID` · 00531600 · legions 005155a0 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::SetPosition` · 00531630 · legions 005155d0 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::SetTimestamp` · 00531660 · legions 00515600 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::SetPackageID` · 00531690 · legions 00515630 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::SetStringInfo` · 005316c0 · legions 00515660 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [~] `CWRepository::RemoveInt` · 005316f0 · legions 00515690 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::RemoveLongInt` · 00531710 · legions 005156b0 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::RemoveBool` · 00531730 · legions 005156d0 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::RemoveFloat` · 00531750 · legions 005156f0 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::RemoveString` · 00531770 · legions 00515710 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::RemoveDataID` · 00531790 · legions 00515730 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::RemoveInstanceID` · 005317b0 · legions 00515750 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::RemovePosition` · 005317d0 · legions 00515770 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::RemoveTimestamp` · 005317f0 · legions 00515790 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::RemoveStringInfo` · 00531810 · legions 005157b0 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::RemovePackageID` · 00531830 · legions 005157d0 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::AdjInt` · 00531850 · legions 005157f0 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::AdjAndTruncateInt` · 00531880 · legions 00515820 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::AdjLongInt` · 005318c0 · legions 00515860 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::AdjAndTruncateLongInt` · 00531910 · legions 005158b0 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::AdjFloat` · 00531970 · legions 00515910 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [~] `CWRepository::AdjAndTruncateFloat` · 005319b0 · legions 00515950 — glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+- [x] `CWRepository::RecvEvt_UpdateInt_Private` · 005319f0 · legions 00515990 — ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+- [x] `CWRepository::RecvEvt_UpdateLongInt_Private` · 00531a30 · legions 005159d0 — ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+- [x] `CWRepository::RecvEvt_UpdateBool_Private` · 00531a70 · legions 00515a10 — ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+- [x] `CWRepository::RecvEvt_UpdateFloat_Private` · 00531ab0 · legions 00515a50 — ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+- [x] `CWRepository::RecvEvt_UpdateTimestamp_Private` · 00531af0 · legions 00515a90 — ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+- [x] `CWRepository::RecvEvt_UpdateString_Private` · 00531b30 · legions 00515ad0 — ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+- [x] `CWRepository::RecvEvt_UpdateDataID_Private` · 00531b70 · legions 00515b10 — ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+- [x] `CWRepository::RecvEvt_UpdateInstanceID_Private` · 00531bb0 · legions 00515b50 — ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+- [x] `CWRepository::RecvEvt_UpdatePosition_Private` · 00531bf0 · legions 00515b90 — ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+- [x] `CWRepository::RecvEvt_UpdateStringInfo_Private` · 00531c30 · legions 00515bd0 — ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
 - [ ] `CWRepository::CWRepository` · 00531c70 · legions 00515c10
 - [ ] `CWRepository::GetPhysObjID` · 00531ce0 · legions 00515c80
 - [ ] `CWRepository::GetScale` · 00531d10 · legions 00515cb0
@@ -2785,10 +2785,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CWRepository::SetEdgeSlides` · 00531e30 · legions 00515dd0
 - [ ] `CWRepository::SetEtherealType` · 00531e60 · legions 00515e00
 - [ ] `CWRepository::GatherPhysicsState` · 00531ed0 · legions 00515e70
-- [ ] `CWRepository::GetStringW` · 00531fc0 · legions 00516020 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::GetRawPosition` · 00532050 · legions 00515f60 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::DoesStringExist` · 00532110 · legions 005160b0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CWRepository::SetStringW` · 00532170 · legions 00516110 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [x] `CWRepository::GetStringW` · 00531fc0 · legions 00516020 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::GetRawPosition` · 00532050 · legions 00515f60 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::DoesStringExist` · 00532110 · legions 005160b0 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+- [x] `CWRepository::SetStringW` · 00532170 · legions 00516110 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
 - [ ] `CWRepository::LoadDataIDW` · 00532200 · legions 005161a0
 - [ ] `CWRepository::BuildPhysObjProfile` · 00532290 · legions 00516230
 - [ ] `CWRepository::DumpWeenieDesc` · 00532380 · legions 00516320

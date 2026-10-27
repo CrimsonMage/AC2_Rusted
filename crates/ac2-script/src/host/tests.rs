@@ -456,6 +456,38 @@ fn repository_efuns_write_the_weenie_qualities() {
     assert_eq!(q.ints.get(&0x14), Some(&12));
 }
 
+/// `CBaseQualities::SetInt` / `AdjInt` on a description field (`IsInWeenieDesc`, stype
+/// 0x106 quantity): the value goes into the weenie description, which `InqInt` reads first.
+/// A script that adjusts a stack's quantity or a durability sees the new value, not the
+/// description's old one.
+#[test]
+fn repository_efuns_write_description_fields_into_the_description() {
+    use ac2_net::protocol::WeenieDesc;
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let this = host.vm_mut().new_wstring(Vec::new());
+    host.vm_mut().owners.insert(this, 0x5000_0002);
+    let quantity = WeenieDesc {
+        quantity: Some(1),
+        data_mask: 0x800,
+        ..WeenieDesc::default()
+    };
+    host.set_qualities(
+        0x5000_0002,
+        ac2_weenie::WeenieQualities::from_weenie_desc(quantity),
+    );
+    // SetInt(0x106, 3), then AdjInt(0x106, 2, 0): 3 + 2.
+    run_efun(host.vm_mut(), 0x0081_0006, &[0x106, 3], this);
+    let q = host.qualities(0x5000_0002).unwrap();
+    assert_eq!(q.inq_int(0x106), Some(3));
+    assert_eq!(q.weenie.as_ref().and_then(|w| w.quantity), Some(3));
+    assert!(!q.ints.contains_key(&0x106));
+    run_efun(host.vm_mut(), 0x0081_0009, &[0x106, 2, 0], this);
+    let q = host.qualities(0x5000_0002).unwrap();
+    assert_eq!(q.inq_int(0x106), Some(5));
+    assert!(!q.ints.contains_key(&0x106));
+}
+
 /// A new native packs the reserved-reference bit retail's `ReservedRefTable::AddReference`
 /// sets (0x04000000 on `CreateNativeObject`'s 0x40000100): exact bytes of a packed wpstring.
 #[test]

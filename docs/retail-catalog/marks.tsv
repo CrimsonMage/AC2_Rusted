@@ -2209,26 +2209,26 @@ key	status	note
 00497750	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 004978c0	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 00497a00	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
-00497af0	_	
-00497ba0	_	
-00497c90	_	
-00497d40	_	
-00497e30	_	
-00497ef0	_	
-00497ff0	_	
-004980b0	_	
-004981b0	_	
-00498260	_	
-00498350	_	
-00498410	_	
-00498510	_	
-00498600	_	
-00498740	_	
-00498800	_	
-00498910	_	
-004989e0	_	
-00498af0	_	
-00498c00	_	
+00497af0	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00497ba0	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00497c90	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00497d40	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00497e30	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00497ef0	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00497ff0	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+004980b0	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+004981b0	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00498260	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00498350	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00498410	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00498510	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00498600	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00498740	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00498800	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00498910	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+004989e0	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00498af0	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
+00498c00	x	ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
 00498d60	_	
 00498e20	_	
 00498f30	_	
@@ -2307,78 +2307,78 @@ key	status	note
 004ad1d0	_	ac2-net protocol::NativeObject pack+unpack: every native type the Legions WStates hold (all 39,748 graphs round-trip byte-exact) plus ShortcutInfo, UISaveLocations, SelectionInfo, Examination*, the adaptors; iterators and other engine types not ported
 004b1da0	_	ac2-script reference/native unpack
 004b4720	_	ac2-script native::unpack: the native types Legions WStates hold
-004b4ba0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b4c50	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b4cf0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b4dd0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b4e60	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b4ee0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b4f90	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5010	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5090	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5110	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5190	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5210	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5290	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5310	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5390	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5410	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5490	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5580	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5600	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5680	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5700	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5770	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5810	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5890	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5920	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b59a0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5a20	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5aa0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5b20	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5bc0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5c40	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5cd0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5dc0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5ee0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5f60	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b5fe0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b6060	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b60e0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b6160	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b61e0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b6260	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b62e0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b6360	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b63e0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b6460	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b64e0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b6670	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b66f0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b6770	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b67f0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b6870	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b68f0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b69f0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b6a70	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b6af0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b73d0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b7480	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b7530	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b75f0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b76c0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b7780	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b7850	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b7900	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b7a50	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b7b00	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b7bb0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b7c60	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b7d10	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b7dc0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b7e60	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b7f00	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-004b7fa0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b4ba0	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+004b4c50	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+004b4cf0	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+004b4dd0	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+004b4e60	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+004b4ee0	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+004b4f90	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5010	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5090	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5110	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5190	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5210	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5290	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5310	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5390	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5410	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5490	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5580	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5600	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5680	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5700	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5770	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5810	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5890	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5920	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b59a0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5a20	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5aa0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5b20	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5bc0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5c40	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5cd0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5dc0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b5ee0	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+004b5f60	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+004b5fe0	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+004b6060	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+004b60e0	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+004b6160	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+004b61e0	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+004b6260	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+004b62e0	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+004b6360	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+004b63e0	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+004b6460	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b64e0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b6670	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b66f0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b6770	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b67f0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b6870	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b68f0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b69f0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b6a70	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b6af0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b73d0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b7480	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b7530	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b75f0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b76c0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b7780	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b7850	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b7900	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b7a50	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b7b00	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b7bb0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b7c60	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b7d10	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b7dc0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b7e60	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b7f00	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
+004b7fa0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b80b0	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 004b8110	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 004b8170	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
@@ -3021,22 +3021,54 @@ key	status	note
 00518dc0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 005192f0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 00519a60	x	
+00519ba0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 00519c10	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+00519c70	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+00519ce0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+00519d50	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 00519dc0	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+00519e20	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 00519e90	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+00519ef0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+00519f70	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+00519fe0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 0051a050	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+0051a0b0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 0051a130	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+0051a1a0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a210	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a2d0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a340	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 0051a3c0	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+0051a430	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a4a0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a650	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a670	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a690	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a6b0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a6d0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a6f0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a710	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a730	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a7c0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a8b0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a8f0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 0051ad30	x	
-0051af80	x	
-0051b270	x	
-0051b2f0	x	
-0051b540	x	
-0051b5c0	x	
-0051b640	x	
-0051b6c0	x	
-0051b740	x	
-0051b7c0	x	
+0051adb0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051ae70	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051af80	x	ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
+0051b000	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051b110	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051b270	x	ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
+0051b2f0	x	ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
+0051b370	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051b430	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051b540	x	ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
+0051b5c0	x	ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
+0051b640	x	ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
+0051b6c0	x	ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
+0051b740	x	ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
+0051b7c0	x	ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
 0051b930	x	ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 0051bfb0	x	ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 0051c4e0	x	ac2-world region/detail_map.rs: DBObj header, _blockMapDID, PSmartArray<CDetailMapRow>
@@ -3122,77 +3154,77 @@ key	status	note
 00530e70	_	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
 00530f40	_	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
 00530f70	_	
-00530fd0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00530ff0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531010	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531030	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531050	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531070	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531090	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005310b0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005310d0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005310f0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531110	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531130	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531160	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531190	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005311c0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005311f0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531250	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531280	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005312f0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531320	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531360	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531380	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005313a0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005313c0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005313e0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531400	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531420	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531490	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005314b0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005314f0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531510	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531540	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531570	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005315a0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005315d0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531600	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531630	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531660	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531690	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005316c0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005316f0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531710	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531730	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531750	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531770	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531790	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005317b0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005317d0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005317f0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531810	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531830	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531850	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531880	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005318c0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531910	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00531970	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005319b0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-005319f0	_	
-00531a30	_	
-00531a70	_	
-00531ab0	_	
-00531af0	_	
-00531b30	_	
-00531b70	_	
-00531bb0	_	
-00531bf0	_	
-00531c30	_	
-00531fc0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00532050	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00532110	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00532170	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00530fd0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00530ff0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531010	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531030	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531050	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531070	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531090	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005310b0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005310d0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005310f0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531110	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531130	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531160	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531190	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005311c0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005311f0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531250	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531280	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005312f0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531320	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531360	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531380	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005313a0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005313c0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005313e0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531400	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531420	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531490	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005314b0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005314f0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531510	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531540	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531570	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005315a0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005315d0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531600	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531630	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531660	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00531690	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005316c0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+005316f0	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+00531710	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+00531730	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+00531750	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+00531770	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+00531790	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+005317b0	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+005317d0	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+005317f0	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+00531810	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+00531830	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+00531850	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+00531880	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+005318c0	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+00531910	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+00531970	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+005319b0	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+005319f0	x	ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+00531a30	x	ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+00531a70	x	ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+00531ab0	x	ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+00531af0	x	ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+00531b30	x	ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+00531b70	x	ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+00531bb0	x	ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+00531bf0	x	ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+00531c30	x	ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
+00531fc0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00532050	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00532110	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
+00532170	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
 00535e20	~	ac2-render prefs::register_device: five display flags (section 0x4000000B); DisplayResolution (0x40000047, a float-free enum whose default comes from the device's display modes at run time) is not registered
 00536af0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536b30	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
@@ -6162,15 +6194,19 @@ key	status	note
 007248b0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00724970	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
 00724a30	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
+00724ac0	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
 00724b50	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00724be0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00724c70	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
 00724d00	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724d90	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
 00724e20	_	ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
 00724eb0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00724f50	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
 00724fe0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725070	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
 00725100	_	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+00725190	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
 00725220	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 007252b0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00725340	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host

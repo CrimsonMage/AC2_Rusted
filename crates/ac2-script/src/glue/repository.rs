@@ -9,6 +9,7 @@
 
 use std::collections::BTreeMap;
 
+use ac2_net::protocol::QualityValue;
 use ac2_weenie::WeenieQualities;
 
 use super::lists::{write_out, Kind};
@@ -119,23 +120,31 @@ fn get_value(q: &WeenieQualities, k: K, id: u32) -> Option<V> {
     }
 }
 
+/// `CWRepository::Set*` -> `CBaseQualities::Set*`: a quality below `0x10000` that is a
+/// description field (`IsInWeenieDesc`) is written into the description, where `Inq*` reads
+/// it first; anything else into its table ([`WeenieQualities::set`]). Package ids have no
+/// [`QualityValue`] and keep their table.
 fn set_value(q: &mut WeenieQualities, k: K, id: u32, v: &V) -> bool {
-    match (k, v) {
-        (K::Int, V::Word(x)) => _ = q.ints.insert(id, *x as u32 as i32),
-        (K::Bool, V::Word(x)) => _ = q.bools.insert(id, *x as u32 as i32),
-        (K::Float, V::Word(x)) => _ = q.floats.insert(id, f32::from_bits(*x as u32)),
-        (K::DataId, V::Word(x)) => _ = q.dids.insert(id, *x as u32),
-        (K::PackageId, V::Word(x)) => _ = q.package_ids.insert(id, *x as u32),
-        (K::LongInt, V::Word(x)) => _ = q.long_ints.insert(id, *x as i64),
-        (K::InstanceId, V::Word(x)) => _ = q.iids.insert(id, *x),
-        (K::Timestamp, V::Word(x)) => _ = q.timestamps.insert(id, f64::from_bits(*x)),
-        (K::String, V::Native(NativeObject::WString(s))) => _ = q.strings.insert(id, narrow(s)),
-        (K::Position, V::Native(NativeObject::Position(p))) => _ = q.positions.insert(id, *p),
+    let value = match (k, v) {
+        (K::Int, V::Word(x)) => QualityValue::Int(*x as u32 as i32),
+        (K::Bool, V::Word(x)) => QualityValue::Bool(*x as u32 as i32),
+        (K::Float, V::Word(x)) => QualityValue::Float(f32::from_bits(*x as u32)),
+        (K::DataId, V::Word(x)) => QualityValue::DataId(*x as u32),
+        (K::LongInt, V::Word(x)) => QualityValue::LongInt(*x as i64),
+        (K::InstanceId, V::Word(x)) => QualityValue::InstanceId(*x),
+        (K::Timestamp, V::Word(x)) => QualityValue::Timestamp(f64::from_bits(*x)),
+        (K::PackageId, V::Word(x)) => {
+            _ = q.package_ids.insert(id, *x as u32);
+            return true;
+        }
+        (K::String, V::Native(NativeObject::WString(s))) => QualityValue::String(narrow(s)),
+        (K::Position, V::Native(NativeObject::Position(p))) => QualityValue::Position(*p),
         (K::StringInfo, V::Native(NativeObject::StringInfo(s))) => {
-            _ = q.string_infos.insert(id, string_info_to_net(s))
+            QualityValue::StringInfo(Box::new(string_info_to_net(s)))
         }
         _ => return false,
-    }
+    };
+    q.set(id, &value);
     true
 }
 
