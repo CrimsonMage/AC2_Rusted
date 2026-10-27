@@ -861,7 +861,7 @@ Legend and workflow: [README](README.md).
 - [x] `AppearanceInfo::StreamPack` · 0064a5b0
 - [-] `AppearanceInfo::GetAppliedAppKeyIter` · 0064a5e0 · legions 005f9c90 — container iterator begin (AppliedAppKey); Rust iterators
 - [-] `AppearanceInfo::GetAppliedAppKeyEnd` · 0064a610 · legions 005f9cc0 — container iterator end (AppliedAppKey); Rust iterators
-- [x] `AppearanceInfo::AugmentAtomCollection` · 0064a630 · legions 005f9ce0 — ac2-render object/appearance.rs augment_atoms
+- [x] `AppearanceInfo::AugmentAtomCollection` · 0064a630 · legions 005f9ce0 — ac2-assets ac2_drawn_groups.rs augment_atoms (moved from ac2-render)
 - [x] `AppearanceInfo::RemoveAppearanceKey` · 0064a730 · legions 005f9dd0 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [x] `AppearanceInfo::HasAppliedAppKey` · 0064a760 · legions 005f9e00 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [-] `AppearanceInfo::operator=` · 0064a7c0 · legions 005f9e60 — operator of plain data or container; Rust value semantics / derived PartialEq

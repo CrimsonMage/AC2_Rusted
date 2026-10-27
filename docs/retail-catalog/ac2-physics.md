@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 486 done, 106 partial, 754 to do, 778 skipped.
+2124 retail functions: 487 done, 106 partial, 753 to do, 778 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1278,7 +1278,7 @@ Legend and workflow: [README](README.md).
 - [-] `_STL::pair<unsigned_long_const_,FXState>::~pair<unsigned_long_const_,FXState>` · 00505ce0 · legions 004f3fb0 — STL/MSVC or archive template helper; Rust collections replace it
 
 ### FXManager
-- [~] `FXManager::FireParticleFX` · 00505dd0 · legions 004f3ff0 — scene/particles.rs fired(): posed bone (now found through the part groups by name, CPartGroup::FindBoneType) or holding transform, bone offset only without a bone, water-plane node stands on the cell water surface (ParticleAnchor.water_z, read at start in client_audio). Not done: the static world sources' rest placement (ac2_visual_particles placement) still searches the root Setup only; a bone no group has leaves an attached system unplaced
+- [~] `FXManager::FireParticleFX` · 00505dd0 · legions 004f3ff0 — scene/particles.rs fired(): posed bone found through the part groups by name, holding transform, bone offset without a bone, water-plane node stands on the cell water surface (ParticleAnchor.water_z, read at start in client_audio). Static world sources place through the same part-group search (ac2-assets placement)
 - [x] `FXManager::SoundIsLooping` · 005060e0 · legions 004f4300 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [x] `FXManager::ParticleIsLooping` · 00506190 · legions 004f43b0 — ac2-assets Ac2ParticleSystemDesc::is_looping, flagged per PSDesc on the loader thread (ac2_visual_particles.rs looping_flags)
 - [ ] `FXManager::SoundIsDefaultChannelMusic` · 005061f0 · legions 004f4410 — needs port: FX manager effect
@@ -1988,7 +1988,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [x] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
-## `portal/shared/src/physobj/partarray.cpp.c` (18/72)
+## `portal/shared/src/physobj/partarray.cpp.c` (19/72)
 
 ### CPartArray
 - [-] `CPartArray::SetOwnerID` · 004edfc0 · legions 004e0930 — render plumbing
@@ -2029,7 +2029,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPartArray::RemoveMaterialModifiers` · 004eea40 · legions 004e13a0 — render plumbing
 - [-] `CPartArray::CacheAnimations` · 004eea70 · legions 004e13d0 — render plumbing
 - [ ] `CPartArray::HasHoldingLocation` · 004eea80 · legions 004e13e0 — needs port: cite-only physics-object method
-- [ ] `CPartArray::FindBoneType` · 004eeaa0 · legions 004e1400 — ObjectSkeleton::named_bones (ac2-render object/skeleton.rs): every part group's bones by name in CPartGroup::FindBoneType order (own bones, then each child group's search), the first match wins; scene/particles.rs attaches a bone node to it (Bones::named). Real-data test object/fx_bone_tests.rs
+- [x] `CPartArray::FindBoneType` · 004eeaa0 · legions 004e1400 — ac2-assets ac2_drawn_groups.rs rest_named_bones (the same search as ObjectSkeleton::named_bones; cross-checked against it in ac2-render fx_bone_tests)
 - [x] `CPartArray::FindMatrixForBoneType` · 004eeac0 · legions 004e1420 — ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 - [x] `CPartArray::CalculateBoneIndexAndOffset` · 004eeb10 · legions 004e1470 — ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 - [ ] `CPartArray::InitInternal` · 004eec30 · legions 004e1590 — needs port: cite-only physics-object method
@@ -2039,7 +2039,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPartArray::DestroyParticleSystem` · 004eedd0 · legions 004e1730 — CPartArray::DestroyParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
 - [ ] `CPartArray::SetSetupID` · 004eee60 · legions 004e17c0 — needs port (check): cited only loosely (a comment, not the function's body); verify and cite, or port
 - [ ] `CPartArray::GetBoundingSphere` · 004eef20 · legions 004e1860 — needs port: cite-only physics-object method
-- [~] `CPartArray::QueueParticleSystems` · 004eef90 · legions 004e18d0 — a bone-anchored node the visual lacks starts no system (filtered at resolve in ac2-assets); attached() unplaced case unreachable from data
+- [~] `CPartArray::QueueParticleSystems` · 004eef90 · legions 004e18d0 — ac2-render scene/particles.rs attached(): offset x posed bone, holding transform x posed bone, removed rotation; ac2-assets attaches() drops a bone-anchored node no part group has, and placement() takes the bone from the part-group search (rest_named_bones)
 - [ ] `CPartArray::TraceRayThroughParts` · 004ef290 · legions 004e1bd0 — needs port: cite-only physics-object method
 - [-] `CPartArray::SetPartGroupData` · 004ef8f0 · legions 004e2230 — render plumbing
 
@@ -2858,7 +2858,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::CreateStreakEffect` · 004f2190 · legions 004e4a90 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::CreateParticleRepulsor` · 004f21a0 · legions 004e4aa0 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::CreateParticleSystem` · 004f21b0 · legions 004e4ab0 — PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
-- [~] `PHYSICSOBJREP::CreateParticleSystem` · 004f22c0 · legions 004e4bc0 — bone overload: FindBoneType failing starts no system (ac2-assets ac2_visual_particles attaches, root Setup only for now; part-group search follows)
+- [~] `PHYSICSOBJREP::CreateParticleSystem` · 004f22c0 · legions 004e4bc0 — bone overload: FindBoneType over the part groups; a missing bone starts no system (ac2-assets attaches)
 - [ ] `PHYSICSOBJREP::DestroyParticleSystem` · 004f2410 · legions 004e4d10 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::UpdateMovement` · 004f2420 · legions 004e4d20 — needs port: cite-only physics-object method
 - [~] `PHYSICSOBJREP::UpdateSliderTracker` · 004f2440 · legions 004e4d40 — ac2-physics anim_rep update_sliders: wind slider 0x4000000B to windmag over 1 s; colour/opacity read back; FXScript tracker separate

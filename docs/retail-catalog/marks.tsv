@@ -5014,7 +5014,7 @@ key	status	note
 004eea40	-	render plumbing
 004eea70	-	render plumbing
 004eea80	_	needs port: cite-only physics-object method
-004eeaa0	_	ObjectSkeleton::named_bones (ac2-render object/skeleton.rs): every part group's bones by name in CPartGroup::FindBoneType order (own bones, then each child group's search), the first match wins; scene/particles.rs attaches a bone node to it (Bones::named). Real-data test object/fx_bone_tests.rs
+004eeaa0	x	ac2-assets ac2_drawn_groups.rs rest_named_bones (the same search as ObjectSkeleton::named_bones; cross-checked against it in ac2-render fx_bone_tests)
 004eeac0	x	ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 004eeb10	x	ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 004eec30	_	needs port: cite-only physics-object method
@@ -5024,7 +5024,7 @@ key	status	note
 004eedd0	x	CPartArray::DestroyParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
 004eee60	_	needs port (check): cited only loosely (a comment, not the function's body); verify and cite, or port
 004eef20	_	needs port: cite-only physics-object method
-004eef90	~	a bone-anchored node the visual lacks starts no system (filtered at resolve in ac2-assets); attached() unplaced case unreachable from data
+004eef90	~	ac2-render scene/particles.rs attached(): offset x posed bone, holding transform x posed bone, removed rotation; ac2-assets attaches() drops a bone-anchored node no part group has, and placement() takes the bone from the part-group search (rest_named_bones)
 004ef290	_	needs port: cite-only physics-object method
 004ef8f0	-	render plumbing
 004ef920	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
@@ -5159,7 +5159,7 @@ key	status	note
 004f2190	_	needs port: cite-only physics-object method
 004f21a0	_	needs port: cite-only physics-object method
 004f21b0	x	PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
-004f22c0	~	bone overload: FindBoneType failing starts no system (ac2-assets ac2_visual_particles attaches, root Setup only for now; part-group search follows)
+004f22c0	~	bone overload: FindBoneType over the part groups; a missing bone starts no system (ac2-assets attaches)
 004f2410	_	needs port: cite-only physics-object method
 004f2420	_	needs port: cite-only physics-object method
 004f2440	~	ac2-physics anim_rep update_sliders: wind slider 0x4000000B to windmag over 1 s; colour/opacity read back; FXScript tracker separate
@@ -5447,7 +5447,7 @@ key	status	note
 00505c30	_	needs port: FX manager effect
 00505ca0	x	ac2-anim fxscript.rs load_ac2_fx_script (the 0x57 DBO read)
 00505ce0	-	STL/MSVC or archive template helper; Rust collections replace it
-00505dd0	~	scene/particles.rs fired(): posed bone (now found through the part groups by name, CPartGroup::FindBoneType) or holding transform, bone offset only without a bone, water-plane node stands on the cell water surface (ParticleAnchor.water_z, read at start in client_audio). Not done: the static world sources' rest placement (ac2_visual_particles placement) still searches the root Setup only; a bone no group has leaves an attached system unplaced
+00505dd0	~	scene/particles.rs fired(): posed bone found through the part groups by name, holding transform, bone offset without a bone, water-plane node stands on the cell water surface (ParticleAnchor.water_z, read at start in client_audio). Static world sources place through the same part-group search (ac2-assets placement)
 005060e0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 00506190	x	ac2-assets Ac2ParticleSystemDesc::is_looping, flagged per PSDesc on the loader thread (ac2_visual_particles.rs looping_flags)
 005061f0	_	needs port: FX manager effect
@@ -11772,7 +11772,7 @@ key	status	note
 0064a5b0	x	
 0064a5e0	-	container iterator begin (AppliedAppKey); Rust iterators
 0064a610	-	container iterator end (AppliedAppKey); Rust iterators
-0064a630	x	ac2-render object/appearance.rs augment_atoms
+0064a630	x	ac2-assets ac2_drawn_groups.rs augment_atoms (moved from ac2-render)
 0064a730	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0064a760	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0064a7c0	-	operator of plain data or container; Rust value semantics / derived PartialEq

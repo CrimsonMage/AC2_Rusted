@@ -11,12 +11,15 @@
 //! own (`PartGroupDataDesc::AugmentAtomCollection` over its `AppearanceInfo` hash, each applied
 //! key with a scalar other than -1 through `AppearanceTable::GetAtoms`).
 
-use ac2_assets::{
+use ac2_anim::{Ac2Setup, Ac2Transform};
+use ac2_core::DataId;
+use ac2_db::{CachedResource, ResourceResult, ResourceStore};
+use ac2_math::Vec3;
+
+use crate::{
     ac2_appearance_atoms, Ac2Atoms, Ac2TotalGroup, Ac2TotalVisualDesc, Ac2VisualDesc,
     GLOBAL_PART_GROUP,
 };
-use ac2_core::DataId;
-use ac2_db::{ResourceResult, ResourceStore};
 
 const SETUP_PREFIX: u32 = 0x0400_0000;
 const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;
@@ -192,4 +195,98 @@ pub fn resolve_drawn_groups(
         Some(total) => drawn_groups(store, &total),
         None => Ok(None),
     }
+}
+
+/// Every part group's bones at rest, by name, in `CPartGroup::FindBoneType`'s search order: a
+/// group's own bones, then each child group's search in turn (`ObjectSkeleton::named_bones` at the
+/// rest pose). A bone is its model-space transform in its group, scale stripped as
+/// `CPartArray::m_boneMatrices` carry none, taken through the group's matrix: the connection
+/// point's offset in the parent's bone, then the parent's matrix (`CPartGroup::SetParentOffset`,
+/// `CPartGroup::RefreshMatrices`). Empty when the visual draws no groups.
+pub fn rest_named_bones(
+    store: &ResourceStore,
+    visual: DataId,
+) -> ResourceResult<Vec<(u32, Ac2Transform)>> {
+    let Some(groups) = resolve_drawn_groups(store, visual, None)? else {
+        return Ok(Vec::new());
+    };
+    let mut setups: Vec<CachedResource<Ac2Setup>> = Vec::with_capacity(groups.len());
+    for group in &groups {
+        let Some(setup) = crate::ac2_visual_particles::load::<Ac2Setup>(store, group.setup)? else {
+            return Ok(Vec::new());
+        };
+        setups.push(setup);
+    }
+    // Parents come before their children (`drawn_groups` walks down the tree).
+    let mut matrices: Vec<Ac2Transform> = Vec::with_capacity(groups.len());
+    let mut bones: Vec<Vec<Ac2Transform>> = Vec::with_capacity(groups.len());
+    for (index, setup) in setups.iter().enumerate() {
+        bones.push(setup.world_pose(&default_locals(setup)));
+        let matrix = match groups[index].parent {
+            None => Ac2Transform::IDENTITY,
+            Some((parent, connection)) => {
+                let (Some(parent_setup), Some(parent_matrix)) =
+                    (setups.get(parent), matrices.get(parent).copied())
+                else {
+                    return Ok(Vec::new());
+                };
+                match parent_setup
+                    .connection_point(connection)
+                    .filter(|point| point.bone < parent_setup.bones.len())
+                {
+                    Some(point) => {
+                        parent_matrix.compose(&bones[parent][point.bone].compose(&point.transform))
+                    }
+                    None => parent_matrix,
+                }
+            }
+        };
+        matrices.push(matrix);
+    }
+    let mut found = Vec::new();
+    if !groups.is_empty() {
+        collect_named(&groups, &setups, &bones, &matrices, 0, &mut found);
+    }
+    Ok(found)
+}
+
+/// `CPartGroup::FindBoneType`'s walk: the group's own bones, then each child group's walk, in
+/// group order.
+fn collect_named(
+    groups: &[DrawnGroup],
+    setups: &[CachedResource<Ac2Setup>],
+    bones: &[Vec<Ac2Transform>],
+    matrices: &[Ac2Transform],
+    group: usize,
+    found: &mut Vec<(u32, Ac2Transform)>,
+) {
+    for (index, bone) in setups[group].bones.iter().enumerate() {
+        found.push((bone.name, matrices[group].compose(&bones[group][index])));
+    }
+    for child in group + 1..groups.len() {
+        if groups[child]
+            .parent
+            .is_some_and(|(parent, _)| parent == group)
+        {
+            collect_named(groups, setups, bones, matrices, child, found);
+        }
+    }
+}
+
+/// Each bone's transform in placement frame 0 (`SkeletonGroup::new`), scale stripped; identity
+/// where the frame lacks the bone.
+fn default_locals(setup: &Ac2Setup) -> Vec<Ac2Transform> {
+    let frame = setup.placements.iter().find(|frame| frame.kind == 0);
+    (0..setup.bones.len())
+        .map(|index| {
+            let local = frame
+                .and_then(|frame| frame.bones.get(index))
+                .copied()
+                .unwrap_or(Ac2Transform::IDENTITY);
+            Ac2Transform {
+                scale: Vec3::ONE,
+                ..local
+            }
+        })
+        .collect()
 }

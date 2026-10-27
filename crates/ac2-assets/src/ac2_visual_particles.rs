@@ -15,6 +15,7 @@ use ac2_db::{
 };
 use ac2_math::{Quat, Vec3};
 
+use crate::ac2_drawn_groups::rest_named_bones;
 use crate::ac2_fx::{Ac2FxLight, Ac2FxObject, Ac2FxParticleNode, Ac2FxTable};
 use crate::ac2_visual_desc::Ac2VisualDesc;
 use ac2_anim::{Ac2Setup, Ac2Transform};
@@ -130,16 +131,17 @@ pub fn resolve_ac2_visual_particles(
         .as_ref()
         .map(|setup| setup.rest_pose())
         .unwrap_or_default();
+    let named = rest_named_bones(store, visual)?;
     // Startup systems are the particle nodes; a light-only node starts none.
     let mut attachments = Vec::new();
     for node in nodes
         .into_iter()
         .filter(|node| !node.particle_descs.is_empty())
-        .filter(|node| attaches(setup.as_deref(), node))
+        .filter(|node| attaches(&named, node))
     {
         let looping = looping_flags(store, &node.particle_descs)?;
         attachments.push(Ac2ParticleAttachment {
-            placement: placement(setup.as_deref(), &rest, &node),
+            placement: placement(setup.as_deref(), &rest, &named, &node),
             anchor: anchor(setup.as_deref(), &node),
             remove_rotation: node.remove_rotation,
             particle_descs: node.particle_descs,
@@ -181,26 +183,25 @@ fn collect_table_nodes(
 }
 
 /// Whether a node starts a system at all. `PHYSICSOBJREP::CreateParticleSystem` finds its bone
-/// first and returns zero when there is none, so a bone-anchored node whose bone the Setup lacks
-/// starts nothing. A fire-and-forget node is not filtered: `FXManager::FireParticleFX` places it
-/// where its object stands. The bone is looked up in the root Setup only for now.
-pub(crate) fn attaches(setup: Option<&Ac2Setup>, node: &Ac2FxParticleNode) -> bool {
+/// first (`CPartGroup::FindBoneType`) and returns zero when no part group has it, so a
+/// bone-anchored node whose bone the visual lacks starts nothing. A fire-and-forget node is not
+/// filtered: `FXManager::FireParticleFX` places it where its object stands.
+pub(crate) fn attaches(named: &[(u32, Ac2Transform)], node: &Ac2FxParticleNode) -> bool {
     if node.fire_and_forget || node.holding_location != 0 || node.bone_name == 0 {
         return true;
     }
-    match setup {
-        Some(setup) => setup.bones.iter().any(|bone| bone.name == node.bone_name),
-        None => true,
-    }
+    named.iter().any(|(name, _)| *name == node.bone_name)
 }
 
 /// `PHYSICSOBJREP::CreateParticleSystem` and `CPartArray::QueueParticleSystems`: a holding point
 /// places the system at its location transform on its bone (the bone offset is unused there); a
-/// bone name offsets the system in that bone's rest pose; otherwise the offset is object-local.
-/// `m_remove_rotation` keeps only the composed translation.
+/// bone name offsets the system in that bone's rest pose, found through the part groups by name
+/// (`named`, see [`rest_named_bones`]); otherwise the offset is object-local. `m_remove_rotation`
+/// keeps only the composed translation.
 pub(crate) fn placement(
     setup: Option<&Ac2Setup>,
     rest: &[Ac2Transform],
+    named: &[(u32, Ac2Transform)],
     node: &Ac2FxParticleNode,
 ) -> Ac2Transform {
     let offset = Ac2Transform {
@@ -216,11 +217,10 @@ pub(crate) fn placement(
             .map_or(Ac2Transform::IDENTITY, |point| {
                 bone(point.bone).compose(&point.transform)
             }),
-        Some(setup) if node.bone_name != 0 => setup
-            .bones
+        Some(_) if node.bone_name != 0 => named
             .iter()
-            .position(|candidate| candidate.name == node.bone_name)
-            .map_or(offset, |index| bone(index).compose(&offset)),
+            .find(|(name, _)| *name == node.bone_name)
+            .map_or(offset, |(_, bone)| bone.compose(&offset)),
         _ => offset,
     };
     if node.remove_rotation {
@@ -285,24 +285,13 @@ mod tests {
 
     use super::*;
     use crate::ac2_fx::Ac2FxObject;
-    use ac2_anim::Ac2Bone;
 
-    fn setup_with_bones(names: &[u32]) -> Ac2Setup {
-        Ac2Setup {
-            meshes: Arc::from([]),
-            bones: names
-                .iter()
-                .map(|name| Ac2Bone {
-                    parent: None,
-                    name: *name,
-                })
-                .collect(),
-            placements: Arc::from([]),
-            holding_points: Arc::from([]),
-            connection_points: Arc::from([]),
-            bounds_min: Vec3::ZERO,
-            bounds_max: Vec3::ZERO,
-        }
+    /// The named bones of a visual whose part groups have bones called `names`.
+    fn named(names: &[u32]) -> Vec<(u32, Ac2Transform)> {
+        names
+            .iter()
+            .map(|name| (*name, Ac2Transform::IDENTITY))
+            .collect()
     }
 
     fn node(bone_name: u32) -> Ac2FxParticleNode {
@@ -320,26 +309,47 @@ mod tests {
     }
 
     /// `CPartGroup::FindBoneType` finds no bone, so `CreateParticleSystem` starts nothing; a
-    /// node whose bone the Setup has, or that names no bone, still starts its system.
+    /// node whose bone some group has, or that names no bone, still starts its system.
     #[test]
-    fn a_node_whose_bone_the_setup_lacks_starts_no_system() {
-        let setup = setup_with_bones(&[5]);
-        assert!(!attaches(Some(&setup), &node(7)));
-        assert!(attaches(Some(&setup), &node(5)));
-        assert!(attaches(Some(&setup), &node(0)));
-        assert!(attaches(None, &node(7)), "no Setup, nothing to search");
+    fn a_node_whose_bone_no_part_group_has_starts_no_system() {
+        let bones = named(&[5]);
+        assert!(!attaches(&bones, &node(7)));
+        assert!(attaches(&bones, &node(5)));
+        assert!(attaches(&bones, &node(0)));
+        assert!(!attaches(&[], &node(7)), "no part group, nothing to search");
     }
 
     /// `FXManager::FireParticleFX` places a fire-and-forget system without its bone, and a
     /// holding-point node never reads the bone name.
     #[test]
     fn fire_and_forget_and_holding_nodes_are_not_filtered_by_their_bone() {
-        let setup = setup_with_bones(&[5]);
+        let bones = named(&[5]);
         let mut fired = node(7);
         fired.fire_and_forget = true;
-        assert!(attaches(Some(&setup), &fired));
+        assert!(attaches(&bones, &fired));
         let mut holding = node(7);
         holding.holding_location = 3;
-        assert!(attaches(Some(&setup), &holding));
+        assert!(attaches(&bones, &holding));
+    }
+
+    /// `CPartArray::QueueParticleSystems` takes the bone's matrix times the node's offset, so the
+    /// placement is the found bone's rest transform with the offset composed in it.
+    #[test]
+    fn placement_composes_the_offset_in_the_found_bone() {
+        let setup = Ac2Setup {
+            meshes: Arc::from([]),
+            bones: Arc::from([]),
+            placements: Arc::from([]),
+            holding_points: Arc::from([]),
+            connection_points: Arc::from([]),
+            bounds_min: Vec3::ZERO,
+            bounds_max: Vec3::ZERO,
+        };
+        let mut bone = named(&[5]);
+        bone[0].1.offset = Vec3::new(0.0, 0.0, 2.0);
+        let mut n = node(5);
+        n.bone_offset = Vec3::new(1.0, 0.0, 0.0);
+        let placed = placement(Some(&setup), &[], &bone, &n);
+        assert_eq!(placed.offset, Vec3::new(1.0, 0.0, 2.0));
     }
 }

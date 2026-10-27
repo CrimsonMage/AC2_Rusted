@@ -6,7 +6,8 @@ use std::sync::Arc;
 
 use ac2_anim::{Ac2Setup, Ac2Transform};
 use ac2_assets::{
-    load_ac2_material_with_atoms, Ac2Atoms, Ac2MaterialLayer, Ac2Mesh, Ac2VisualDesc,
+    load_ac2_material_with_atoms, resolve_drawn_groups, Ac2Atoms, Ac2MaterialLayer, Ac2Mesh,
+    Ac2VisualDesc,
 };
 use ac2_core::DataId;
 use ac2_dat::DatFileKind;
@@ -15,7 +16,6 @@ use ac2_db::{
 };
 use ac2_math::Mat4;
 
-use super::appearance::resolve_drawn_groups;
 use super::pass::{layer_drawn, layer_pass, LayerPass, RenderSettings};
 use super::pixel_shader::{parse_pixel_shader, PixelProgram};
 use super::skeleton::{ObjectSkeleton, SkeletonGroup};
@@ -234,7 +234,7 @@ pub fn load_object_model(
 }
 
 /// Loads what an object draws: the part groups of its total `VisualDesc` (`visual`'s DAT chain,
-/// or `local`'s parent chain with `local` on top; `appearance::resolve_drawn_groups`), each Setup
+/// or `local`'s parent chain with `local` on top; `ac2_assets::resolve_drawn_groups`), each Setup
 /// mesh at its default placement after the group's mesh replacements
 /// (`CPartArray::ApplyMeshReplacement`), its materials under the group's material atoms
 /// (`CPartArray::ApplyMaterialModifier`), with the layers `settings` draws. `None` when a group

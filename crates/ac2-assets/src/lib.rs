@@ -7,6 +7,7 @@ mod ac2_appearance;
 mod ac2_cell_surface;
 #[cfg(test)]
 mod ac2_cell_surface_tests;
+mod ac2_drawn_groups;
 mod ac2_entity;
 mod ac2_fx;
 mod ac2_light_source;
@@ -76,6 +77,9 @@ pub use ac2_appearance::{
     Ac2OpacityAtom, Ac2PartGroupAtom,
 };
 pub use ac2_cell_surface::decode_ac2_cell_surfaces;
+pub use ac2_drawn_groups::{
+    drawn_groups, resolve_drawn_groups, rest_named_bones, total_visual_desc, DrawnGroup,
+};
 pub use ac2_entity::{read_ac2_entity_desc, Ac2EntityDesc};
 pub use ac2_fx::Ac2FxSoundNode;
 pub use ac2_fx::{Ac2FxLight, Ac2FxObject, Ac2FxTable};

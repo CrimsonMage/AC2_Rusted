@@ -2,7 +2,6 @@
 //! selection and `RenderDeviceD3D::SetupState` per layer, the vertex program `fragment.dll` links
 //! for it, and the outdoor sun and ambient it is lit by.
 
-mod appearance;
 mod cell;
 #[cfg(test)]
 mod fx_bone_tests;
@@ -19,7 +18,7 @@ mod skeleton_tests;
 mod texture_matrix;
 mod water;
 
-pub use appearance::{drawn_groups, resolve_drawn_groups, total_visual_desc, DrawnGroup};
+pub use ac2_assets::{drawn_groups, resolve_drawn_groups, total_visual_desc, DrawnGroup};
 pub use cell::{bake_cell_colors, load_cell_model, CellLighting};
 pub use lights::{ObjectEnvironment, ObjectLights, SunLight};
 pub use model::{

@@ -12,6 +12,7 @@ use ac2_core::DataId;
 use ac2_dat::DatFileKind;
 use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
 
+use crate::ac2_drawn_groups::rest_named_bones;
 use crate::ac2_fx::{Ac2FxParticleNode, Ac2FxTable};
 use crate::ac2_visual_desc::Ac2VisualDesc;
 use crate::ac2_visual_particles::{
@@ -145,19 +146,20 @@ pub fn resolve_ac2_visual_fx_particles(
         .as_ref()
         .map(|setup| setup.rest_pose())
         .unwrap_or_default();
+    let named = rest_named_bones(store, visual)?;
     let mut entries = HashMap::new();
     for (id, list) in nodes.into_iter().filter(|(_, list)| !list.is_empty()) {
         let mut attachments = Vec::with_capacity(list.len());
         for node in list {
             // A node whose bone the visual lacks starts no system but keeps its light.
-            let particle_descs = if attaches(setup.as_deref(), &node) {
+            let particle_descs = if attaches(&named, &node) {
                 node.particle_descs.clone()
             } else {
                 Arc::from([])
             };
             let looping = looping_flags(store, &particle_descs)?;
             attachments.push(Ac2ParticleAttachment {
-                placement: placement(setup.as_deref(), &rest, &node),
+                placement: placement(setup.as_deref(), &rest, &named, &node),
                 anchor: anchor(setup.as_deref(), &node),
                 remove_rotation: node.remove_rotation,
                 particle_descs,
