@@ -78,6 +78,7 @@ impl HudView {
             allegiance: None,
             fellowship: None,
             mini_fellow: None,
+            pets: None,
             quests: None,
             vitals: None,
             effects: None,
@@ -148,6 +149,7 @@ impl HudView {
                     allegiance,
                     fellowship,
                     mut mini_fellow,
+                    mut pets,
                     quests,
                     vitals,
                     effects,
@@ -181,7 +183,12 @@ impl HudView {
                 if let Some(mini) = mini_fellow.as_mut() {
                     mini.location_applied(&mut tree);
                 }
+                // `gmPetUI`: shown with the HUD; its state follows the pets listed.
+                if let Some(pets) = pets.as_mut() {
+                    pets.show(&mut tree, true);
+                }
                 self.mini_fellow = mini_fellow;
+                self.pets = pets;
                 self.hud = Some((tree, images));
                 self.reticle = reticle;
                 self.names = names;

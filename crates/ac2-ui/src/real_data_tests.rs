@@ -155,10 +155,10 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
     let tree = build_gameplay_hud(&store_arc, 1024, 768).unwrap().tree;
     // The HUD roots, gm3DTextUI's seven reticle objects, the shortcut bar, gmChatUI's four
     // windows, the hidden fields of gmStackUI and gmExternalContainerUI, gmOverviewMapUI's
-    // hidden OverviewMap and gmMiniFellowUI's hidden FellowMiniPanel.
+    // hidden OverviewMap, gmMiniFellowUI's hidden FellowMiniPanel and gmPetUI's hidden PetPanel.
     assert_eq!(
         tree.roots().len(),
-        GAMEPLAY_ROOTS.len() + 7 + 1 + 4 + 2 + 1 + 1
+        GAMEPLAY_ROOTS.len() + 7 + 1 + 4 + 2 + 1 + 1 + 1
     );
     // The radar sits where the layout authored it; the toolbar is centred on the bottom edge.
     let radar = root(&tree, "RadarField");

@@ -48,6 +48,7 @@ mod hud_ingredient;
 mod hud_items_3d;
 #[cfg(feature = "window")]
 mod hud_navigation;
+mod hud_pets;
 #[cfg(feature = "window")]
 mod hud_player;
 mod hud_shop;

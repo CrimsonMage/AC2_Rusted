@@ -212,6 +212,20 @@ key	status	note
 00418210	~	ac2-ui ingredient.rs message and ingredient_slots.rs message: the spinner buttons, auto-populate, the craft button, a drop on the list, an object dragged out of its slot. Not: the close button (its element name is not in the layout the decompile names), the typed spinner entry
 004185d0	~	ac2-ui ingredient_slots.rs add_done: a successful add puts the object in its slot (icon from the object's item display, draggable); a failure frees the slot; a new spinner value follows. Not: the object's notice registration and the icon desc (the item display's icon only)
 00418780	x	ac2-ui ingredient.rs execute_done: the slots go out of pending; no error and no charges closes the panel; charges show ID_Craft_Charges (a named string id) with the value
+004188d0	~	ac2-ui pets.rs show: the framework's shown state; the HUD shows it at build. The option-driven show (GetShowPetUI) is set by set_show_pet_ui, not yet wired from the options page
+00418920	x	ac2-ui pets.rs next_mode / previous_mode: the ModeTable of admin 7148's static initializer (_E554); the table is in the admin tree only, not the Legions decompile
+00418950	x	ac2-ui pets.rs next_mode / previous_mode: the ModeTable of admin 7148's static initializer (_E554); the table is in the admin tree only, not the Legions decompile
+00418cb0	x	ac2-ui pets.rs update_state: the PetPanel state (pets / nopets), the four buttons ghosted, the root drawn only with a pet listed and the UI on; tests in pets_tests.rs
+00419130	~	Legions 7160 routes no RemovePet here (slot 0x6c is a no-op stub), so the row stays; the typed notice is parsed in ac2-script
+00419430	-	C++ destructor: the Rust drop and the HUD's tree own the panel's elements
+00419580	x	ac2-ui pets.rs tick: the five-second pass, each row's wanted mode sent (PetAction::Mode -> Command::PetMode), the unsafe pet back to safe
+00419730	x	ac2-ui pets.rs pet_under_attack: the Name state unsafe and the attack time; HUD routes PetIsUnderAttack (ac2-client hud_pets.rs)
+00419810	x	ac2-ui pets.rs tick: the refresh message's five-second gate (the HUD calls it each frame, ac2-client hud_player.rs)
+00419840	~	ac2-ui pets.rs step_mode: the row's wanted mode and its text; the row's server mode is not changed (UpdatePetMode is a no-op in Legions)
+004199d0	~	ac2-ui pets.rs add_pet: the row, name and mode, listed once; the pet's icon image (AddImageToState) is not set; the HUD routes AddPet (ac2-client hud_pets.rs)
+00419b70	~	Legions 7160 routes no UpdatePetMode here (gmNoticeHandler slot 0x70 is a no-op stub); not ported as a notice, the typed notice is parsed in ac2-script
+00419c20	~	ac2-ui pets.rs message: the buttons (attack on the selection, return, heal, buff), the arrows, and a row press selecting its pet; the name edit (RequestSetPetName from the text) is not ported (the command is, see the CallIFun rows)
+0041a040	~	ac2-ui pets.rs create: the PetPanel root, its list and UpdateState; the notice registration is the HUD's dispatch (ac2-client hud_pets.rs)
 0041b250	~	ac2-ui shop.rs recv_leave_store: closes via show(false); the vtable call in the decompile is untraced
 0041cc80	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 0041ccb0	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
@@ -1044,6 +1058,12 @@ key	status	note
 00450340	x	ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 00450360	x	ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 00450390	~	Command::DisplaySaleReminders sends IFun 0xB4013D (scripts.rs); the stub sends nothing with a shopper open, and the sale reminder notice (gmToolbarUI::RecvNotice_ShowSaleReminder) is not shown
+004503b0	x	ac2-client Command::PetAttack / PetBuff / PetHeal / PetReturn / PetMode / PetRename run the IFun on the VM (gameplay.rs, scripts.rs IFUN_REQUEST_PET_*); tests/pets_7160.rs asserts the packed calls
+004503d0	x	ac2-client Command::PetAttack / PetBuff / PetHeal / PetReturn / PetMode / PetRename run the IFun on the VM (gameplay.rs, scripts.rs IFUN_REQUEST_PET_*); tests/pets_7160.rs asserts the packed calls
+004503f0	x	ac2-client Command::PetAttack / PetBuff / PetHeal / PetReturn / PetMode / PetRename run the IFun on the VM (gameplay.rs, scripts.rs IFUN_REQUEST_PET_*); tests/pets_7160.rs asserts the packed calls
+00450410	x	ac2-client Command::PetAttack / PetBuff / PetHeal / PetReturn / PetMode / PetRename run the IFun on the VM (gameplay.rs, scripts.rs IFUN_REQUEST_PET_*); tests/pets_7160.rs asserts the packed calls
+00450430	x	ac2-client Command::PetAttack / PetBuff / PetHeal / PetReturn / PetMode / PetRename run the IFun on the VM (gameplay.rs, scripts.rs IFUN_REQUEST_PET_*); tests/pets_7160.rs asserts the packed calls
+00450460	x	ac2-client Command::PetAttack / PetBuff / PetHeal / PetReturn / PetMode / PetRename run the IFun on the VM (gameplay.rs, scripts.rs IFUN_REQUEST_PET_*); tests/pets_7160.rs asserts the packed calls
 00450490	~	ac2-weenie session/inventory.rs move_item: InvMoveDesc / ReorganizeContents byte-exact (inventory_7160, chest_7160); client Command::MoveItem (item_drag_7160, inventory_items_7160). Script checks and optimistic updates not mirrored
 004504f0	~	ac2-weenie session/inventory.rs equip_item: InvEquipDesc.equip byte-exact (inventory_7160); client EquipItem (inventory_items_7160). Script checks not mirrored
 00450530	~	ac2-weenie session/inventory.rs unequip_item: InvEquipDesc.unequip byte-exact (inventory_7160); client UnequipItem (inventory_items_7160). Script checks not mirrored
@@ -1306,6 +1326,11 @@ key	status	note
 00460220	x	ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 004602b0	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 00460340	x	ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
+004603d0	x	ac2-client scripts.rs IFUN_REQUEST_PET_* (0xB40144-0xB40149) on the VM; the argument order follows the glue's pushes; tests/pets_7160.rs
+004604a0	x	ac2-client scripts.rs IFUN_REQUEST_PET_* (0xB40144-0xB40149) on the VM; the argument order follows the glue's pushes; tests/pets_7160.rs
+00460530	x	ac2-client scripts.rs IFUN_REQUEST_PET_* (0xB40144-0xB40149) on the VM; the argument order follows the glue's pushes; tests/pets_7160.rs
+004605c0	x	ac2-client scripts.rs IFUN_REQUEST_PET_* (0xB40144-0xB40149) on the VM; the argument order follows the glue's pushes; tests/pets_7160.rs
+004606c0	x	ac2-client scripts.rs IFUN_REQUEST_PET_* (0xB40144-0xB40149) on the VM; the argument order follows the glue's pushes; tests/pets_7160.rs
 00460750	x	ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 004607e0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00460890	x	ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
@@ -1313,6 +1338,7 @@ key	status	note
 00460a60	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 00460af0	x	ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 00460ba0	~	lead: the VM's sell body needs the storekeeper's shopper with a StoreGroup (set by ViewCatalog, WM_Store 0x52; without one it refuses with message 0xAFD1, consignment_script_7160). With the catalog open it runs on to gCWDistributor::GetEntityDID (bound) and then gCWPhysicsObject::CallEFun_GetLocalVisualDesc (0x800059, unbound: needs the item's VisualDesc native), so the RequestSell stub's bytes are not reached yet.
+00460cc0	x	ac2-client scripts.rs IFUN_REQUEST_PET_* (0xB40144-0xB40149) on the VM; the argument order follows the glue's pushes; tests/pets_7160.rs
 00460df0	x	ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
 00460ea0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 00460f50	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
@@ -1439,15 +1465,15 @@ key	status	note
 004699f0	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 00469a40	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 00469a90	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00469b10	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469b10	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
 00469b80	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00469bc0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00469c10	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469c60	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469c60	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
 00469cb0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469d00	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469d40	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00469d90	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469d90	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
 00469de0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469e30	_	ac2-script host notices -> ac2_weenie::GameplayNotice
 00469e80	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
@@ -1455,8 +1481,8 @@ key	status	note
 00469f10	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00469f60	_	ac2-script host notices -> ac2_weenie::GameplayNotice
 00469fd0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-0046a020	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-0046a070	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+0046a020	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
+0046a070	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
 0046a0d0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 0046a110	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 0046a160	_	ac2-script host notices -> ac2_weenie::GameplayNotice
@@ -5895,15 +5921,15 @@ key	status	note
 00724700	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
 007247f0	x	lead: WM_Store 0x52 -> CPlayer 0x1F3 -> CStoreSystem 0xF (vendor, StoreGroup DID 0x3858, AAHash store DID -> size): closes store/consignment/catalog, sets the shopper's group (CShopperContext 0x2), lists the group's StoreTemplates (build 0x117914) and raises it; ac2-net StoreCatalog; consignment_script_7160 view_catalog asserts the shops and sizes.
 007248b0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00724970	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724970	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
 00724a30	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00724b50	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00724be0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00724c70	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724c70	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
 00724d00	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00724e20	_	ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
 00724eb0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00724f50	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724f50	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
 00724fe0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00725100	_	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
 00725220	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
@@ -5911,8 +5937,8 @@ key	status	note
 00725340	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 007253d0	_	ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
 00725490	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00725520	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-007255c0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00725520	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
+007255c0	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
 00725660	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 007256f0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
 00725780	_	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)

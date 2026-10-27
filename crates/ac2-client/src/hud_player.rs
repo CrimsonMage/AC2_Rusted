@@ -91,6 +91,7 @@ impl HudView {
             dirty,
             fellowship,
             mini_fellow,
+            pets,
             quests,
             allegiance,
             vitals,
@@ -345,6 +346,9 @@ impl HudView {
                     notice,
                 );
             }
+            if let Some(panel) = pets.as_mut() {
+                crate::hud_pets::pet_notice(panel, tree, &player, frame.server_time, notice);
+            }
             if let Some(panel) = quests.as_mut() {
                 crate::ui_quests::quest_notice(panel, tree, &player, notice);
             }
@@ -507,6 +511,11 @@ impl HudView {
             }
             if let Some(panel) = mini_fellow.as_mut() {
                 panel.message(tree, message);
+            }
+            if let Some(panel) = pets.as_mut() {
+                let selection = frame.selection.as_ref().map(|s| s.id);
+                let actions = panel.message(tree, message, selection);
+                crate::hud_pets::pet_commands(actions, &mut commands);
             }
             if let Some(panel) = quests.as_mut() {
                 panel.journal_mut().message(tree, message);
@@ -736,6 +745,11 @@ impl HudView {
                     R::Close => Command::CloseTrade,
                 });
             }
+        }
+        // `gmPetUI::ListenToMessage` on the refresh message: each pass asks for the rows' wanted modes.
+        if let Some(panel) = pets.as_mut() {
+            let actions = panel.tick(tree, frame.server_time);
+            crate::hud_pets::pet_commands(actions, &mut commands);
         }
         // `gmShopUI`'s global loop, its stack dialog's calls, its calls on the player and the
         // purchase messages for the chat (`CM_Character::SendNotice_DisplayMessage`).

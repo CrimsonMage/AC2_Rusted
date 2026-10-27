@@ -41,6 +41,7 @@ use crate::mini_fellow::MiniFellowUi;
 use crate::name_plates::NamePlates;
 use crate::navigation::NavigationUi;
 use crate::overview_map::OverviewMapUi;
+use crate::pets::PetUi;
 use crate::quests_panel::QuestsUi;
 use crate::radar::RadarUi;
 use crate::reticle::Reticle;
@@ -113,6 +114,8 @@ pub struct GameplayHud {
     pub fellowship: Option<FellowshipUi>,
     /// `gmMiniFellowUI`, the fellowship mini panel (hidden until its button is pressed).
     pub mini_fellow: Option<MiniFellowUi>,
+    /// `gmPetUI`: the pet panel.
+    pub pets: Option<PetUi>,
     /// `gmQuestsUI`, the Quest panel: its journal over `UnderwayPage` and `FinishedPage`.
     pub quests: Option<QuestsUi>,
     /// The toolbar layout, for the frameworks made once the player is in the world
@@ -215,6 +218,10 @@ pub fn build_gameplay_hud(
     let mini_fellow = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()
         .map(|gameplay| MiniFellowUi::create(&mut tree, gameplay));
+    // `gmGamePlayUI::SetupChildren` makes the pet panel with the mini panel.
+    let pets = layouts[&LAYOUT_GAMEPLAY]
+        .as_ref()
+        .map(|gameplay| PetUi::create(&mut tree, gameplay));
     let chat = match &layouts[&LAYOUT_TOOLBAR] {
         Some(toolbar) => Some(ChatUi::create(&mut tree, toolbar, chat_strings(store)?)),
         None => None,
@@ -315,6 +322,7 @@ pub fn build_gameplay_hud(
         allegiance,
         fellowship,
         mini_fellow,
+        pets,
         quests,
         vitals,
         effects,

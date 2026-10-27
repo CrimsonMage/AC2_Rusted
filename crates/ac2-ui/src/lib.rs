@@ -202,6 +202,7 @@ pub use navigation_map::MapFrame;
 pub use net_status::{LinkSample, NetStatusUi};
 pub use overview_map::OverviewMapUi;
 pub use paper_doll::{mesh_type_to_inv_loc, PaperDollUi};
+pub use pets::{next_mode, previous_mode, PetAction, PetUi, PET_MODES};
 pub use pk_status::PkStatusUi;
 pub use radar::{RadarDot, RadarRequest, RadarUi, RadarView};
 pub use reticle::{Reticle, ReticleOutcome, ReticleTarget};
@@ -283,6 +284,9 @@ mod name_plates_tests;
 mod navigation_tests;
 #[cfg(test)]
 mod paper_doll_tests;
+mod pets;
+#[cfg(test)]
+mod pets_tests;
 #[cfg(test)]
 mod quests_panel_tests;
 #[cfg(test)]

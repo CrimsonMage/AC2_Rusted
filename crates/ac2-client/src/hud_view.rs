@@ -47,6 +47,8 @@ pub(crate) struct HudView {
     pub(crate) fellowship: Option<ac2_ui::FellowshipUi>,
     /// `gmMiniFellowUI`: the fellowship mini panel on the HUD.
     pub(crate) mini_fellow: Option<ac2_ui::MiniFellowUi>,
+    /// `gmPetUI`: the pet panel on the HUD.
+    pub(crate) pets: Option<ac2_ui::PetUi>,
     /// `gmQuestsUI`: the Quest panel and its quest journal.
     pub(crate) quests: Option<ac2_ui::QuestsUi>,
     pub(crate) vitals: Option<ac2_ui::VitalsUi>,

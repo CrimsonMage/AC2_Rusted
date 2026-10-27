@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 889 done, 316 partial, 979 to do, 63 skipped.
+2247 retail functions: 895 done, 323 partial, 965 to do, 64 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -333,30 +333,30 @@ Legend and workflow: [README](README.md).
 - [~] `gmOverviewMapUI::ListenToMessage` · 0043e2c0 · legions 0043eb10 — ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
 - [~] `gmOverviewMapUI::gmOverviewMapUI` · 0043e300 · legions 0043eb70 — ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
 
-## `ac2/client/src/ui/gameplay/gmpetui.cpp.c` (0/18)
+## `ac2/client/src/ui/gameplay/gmpetui.cpp.c` (6/18)
 
 ### gmPetUI
-- [ ] `gmPetUI::Show` · 004188d0 · legions 00418690
-- [ ] `gmPetUI::GetNextMode` · 00418920 · legions 004186e0
-- [ ] `gmPetUI::GetPreviousMode` · 00418950 · legions 00418710
+- [~] `gmPetUI::Show` · 004188d0 · legions 00418690 — ac2-ui pets.rs show: the framework's shown state; the HUD shows it at build. The option-driven show (GetShowPetUI) is set by set_show_pet_ui, not yet wired from the options page
+- [x] `gmPetUI::GetNextMode` · 00418920 · legions 004186e0 — ac2-ui pets.rs next_mode / previous_mode: the ModeTable of admin 7148's static initializer (_E554); the table is in the admin tree only, not the Legions decompile
+- [x] `gmPetUI::GetPreviousMode` · 00418950 · legions 00418710 — ac2-ui pets.rs next_mode / previous_mode: the ModeTable of admin 7148's static initializer (_E554); the table is in the admin tree only, not the Legions decompile
 
 ### _STL::_Node_Alloc_Lock<1,0>
 - [ ] `_STL::_Node_Alloc_Lock<1,0>::~_Node_Alloc_Lock<1,0>` · 004189c0 · legions 00418780
 
 ### gmPetUI
-- [ ] `gmPetUI::UpdateState` · 00418cb0 · legions 00418a70
+- [x] `gmPetUI::UpdateState` · 00418cb0 · legions 00418a70 — ac2-ui pets.rs update_state: the PetPanel state (pets / nopets), the four buttons ghosted, the root drawn only with a pet listed and the UI on; tests in pets_tests.rs
 - [ ] `gmPetUI::RecvNotice_ReloadGameplayOptions` · 00418e20
-- [ ] `gmPetUI::RecvNotice_RemovePet` · 00419130
+- [~] `gmPetUI::RecvNotice_RemovePet` · 00419130 — Legions 7160 routes no RemovePet here (slot 0x6c is a no-op stub), so the row stays; the typed notice is parsed in ac2-script
 - [ ] `gmPetUI::RecvNotice_SelectionChanged` · 004191d0
-- [ ] `gmPetUI::~gmPetUI` · 00419430 · legions 00419270
-- [ ] `gmPetUI::Refresh` · 00419580 · legions 004193c0
-- [ ] `gmPetUI::RecvNotice_PetIsUnderAttack` · 00419730
-- [ ] `gmPetUI::ListenToMessage` · 00419810 · legions 00419650
-- [ ] `gmPetUI::RequestSetPetMode` · 00419840 · legions 00419680
-- [ ] `gmPetUI::RecvNotice_AddPet` · 004199d0
-- [ ] `gmPetUI::RecvNotice_UpdatePetMode` · 00419b70 · legions 004199b0
-- [ ] `gmPetUI::ListenToMessage` · 00419c20 · legions 00419a60
-- [ ] `gmPetUI::gmPetUI` · 0041a040 · legions 00419e80
+- [-] `gmPetUI::~gmPetUI` · 00419430 · legions 00419270 — C++ destructor: the Rust drop and the HUD's tree own the panel's elements
+- [x] `gmPetUI::Refresh` · 00419580 · legions 004193c0 — ac2-ui pets.rs tick: the five-second pass, each row's wanted mode sent (PetAction::Mode -> Command::PetMode), the unsafe pet back to safe
+- [x] `gmPetUI::RecvNotice_PetIsUnderAttack` · 00419730 — ac2-ui pets.rs pet_under_attack: the Name state unsafe and the attack time; HUD routes PetIsUnderAttack (ac2-client hud_pets.rs)
+- [x] `gmPetUI::ListenToMessage` · 00419810 · legions 00419650 — ac2-ui pets.rs tick: the refresh message's five-second gate (the HUD calls it each frame, ac2-client hud_player.rs)
+- [~] `gmPetUI::RequestSetPetMode` · 00419840 · legions 00419680 — ac2-ui pets.rs step_mode: the row's wanted mode and its text; the row's server mode is not changed (UpdatePetMode is a no-op in Legions)
+- [~] `gmPetUI::RecvNotice_AddPet` · 004199d0 — ac2-ui pets.rs add_pet: the row, name and mode, listed once; the pet's icon image (AddImageToState) is not set; the HUD routes AddPet (ac2-client hud_pets.rs)
+- [~] `gmPetUI::RecvNotice_UpdatePetMode` · 00419b70 · legions 004199b0 — Legions 7160 routes no UpdatePetMode here (gmNoticeHandler slot 0x70 is a no-op stub); not ported as a notice, the typed notice is parsed in ac2-script
+- [~] `gmPetUI::ListenToMessage` · 00419c20 · legions 00419a60 — ac2-ui pets.rs message: the buttons (attack on the selection, return, heal, buff), the arrows, and a row press selecting its pet; the name edit (RequestSetPetName from the text) is not ported (the command is, see the CallIFun rows)
+- [~] `gmPetUI::gmPetUI` · 0041a040 · legions 00419e80 — ac2-ui pets.rs create: the PetPanel root, its list and UpdateState; the notice registration is the HUD's dispatch (ac2-client hud_pets.rs)
 - [ ] `gmPetUI::RecvNotice_UpdatePetName` · 0041a3a0
 
 ## `ac2/client/src/ui/gameplay/gmradarui.cpp.c` (26/35)
