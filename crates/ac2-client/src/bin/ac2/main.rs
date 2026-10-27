@@ -203,6 +203,32 @@ impl State {
     }
 }
 
+/// `gmClient::RecvNotice_WorldName`: the window title carries the world's name, a modern stand-in
+/// for the HUD's display. Retail reads the name through the efun
+/// `gTurbineGunUtils::CallEFun_GetWorldName`, which the script VM does not bind yet.
+fn world_title(info: &ac2_net::protocol::StringInfo) -> Option<String> {
+    info.literal
+        .as_deref()
+        .filter(|name| !name.is_empty())
+        .map(|name| format!("Asheron's Call 2 - {name}"))
+}
+
+fn show_world_name(window: &Window, info: &ac2_net::protocol::StringInfo) {
+    match world_title(info) {
+        Some(title) => window.set_title(&title),
+        None => eprintln!("ac2: world name is not a literal; the title keeps its default"),
+    }
+}
+
+/// The world names among a frame's session events (they arrive before character selection too).
+pub(crate) fn show_world_names(window: &Window, events: &[SessionEvent]) {
+    for event in events {
+        if let SessionEvent::WorldName(info) = event {
+            show_world_name(window, info);
+        }
+    }
+}
+
 /// The speakers, or silence when there is no output device.
 fn speakers() -> Box<dyn ac2_audio::SoundSink> {
     match ac2_audio::SpeakerSink::open() {
@@ -333,6 +359,7 @@ impl App {
                 return;
             }
         };
+        show_world_names(&state.window, &events);
         for saved in screenshot::finished(&mut state.screenshots) {
             match saved {
                 Ok(path) => {
@@ -727,5 +754,21 @@ fn main() {
     if let Err(message) = result {
         eprintln!("ac2: {message}");
         std::process::exit(1);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::world_title;
+    use ac2_net::protocol::StringInfo;
+
+    #[test]
+    fn the_title_carries_a_literal_world_name() {
+        assert_eq!(
+            world_title(&StringInfo::literal("Darktide")),
+            Some("Asheron's Call 2 - Darktide".to_owned())
+        );
+        assert_eq!(world_title(&StringInfo::literal("")), None);
+        assert_eq!(world_title(&StringInfo::default()), None);
     }
 }

@@ -125,9 +125,9 @@ Legend and workflow: [README](README.md).
 - [x] `Turbine::Client::GetHostName` · 00402860 · legions 004027b0 — Args (account, host, port, width, height) and Args::server_address, the window size
 - [x] `Turbine::Client::GetPort` · 00402870 · legions 004027c0 — Args (account, host, port, width, height) and Args::server_address, the window size
 - [x] `Turbine::Client::SetPortA` · 00402880 · legions 004027d0 — Args (account, host, port, width, height) and Args::server_address, the window size
-- [~] `Turbine::Client::GetWorldName` · 00402890 · legions 004027e0 — Turbine::Client world name (+0x70): kept with the session event only; see RecvNotice_WorldName
+- [~] `Turbine::Client::GetWorldName` · 00402890 · legions 004027e0 — read through TurbineGunUtils::GetWorldName by the efun gTurbineGunUtils::CallEFun_GetWorldName (not bound in the VM); the window title shows the name instead
 - [ ] `Turbine::Client::SetHostName` · 004028a0 · legions 004027f0
-- [~] `Turbine::Client::SetWorldName` · 004028f0 · legions 00402840 — stored by the world name path only; not shown
+- [~] `Turbine::Client::SetWorldName` · 004028f0 · legions 00402840 — the virtual slot +0x70 gmClient calls (Turbine::Client vtable 0x9c60a0) is this setter; the world-name path reaches the window title (bin/ac2 show_world_name)
 
 ### CCliChatEvent
 - [-] `CCliChatEvent::CCliChatEvent` · 00402940 · legions 00402890 — COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
@@ -170,7 +170,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmClient::OnCommandLineEvaluationDone` · 00403b60 · legions 00403ad0
 - [ ] `gmClient::RegisterForGunEvents` · 00403c10 · legions 00403b80
 - [~] `gmClient::InitKeymap` · 00403d30 · legions 00403c80 — ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
-- [~] `gmClient::RecvNotice_WorldName` · 00403ff0 · legions 00403f40 — world name arrives as SessionEvent::WorldName; the UI slot retail calls (Turbine::Client vtable +0x70) is not identified, so it is not shown
+- [~] `gmClient::RecvNotice_WorldName` · 00403ff0 · legions 00403f40 — bin/ac2 main.rs show_world_name: the window title carries the literal world name (modern stand-in); retail's HUD reads it via efun gTurbineGunUtils::CallEFun_GetWorldName, not bound in the VM
 - [ ] `gmClient::RecvNotice_GunReconnected` · 00404080
 
 ### gmClient::gmChatInterfaceProvider

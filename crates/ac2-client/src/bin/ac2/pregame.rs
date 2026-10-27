@@ -12,7 +12,7 @@ use ac2_client::FrameInput;
 use ac2_gpu::render_to;
 use winit::event_loop::ActiveEventLoop;
 
-use super::App;
+use super::{show_world_names, App};
 
 impl App {
     /// One frame before the world.
@@ -45,6 +45,7 @@ impl App {
                 return;
             }
         };
+        show_world_names(&state.window, &events);
         let notices = self.client.take_notices();
         match &mut state.pregame {
             Some(pregame) => {

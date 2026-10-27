@@ -25,8 +25,8 @@ key	status	note
 00402860	x	Args (account, host, port, width, height) and Args::server_address, the window size
 00402870	x	Args (account, host, port, width, height) and Args::server_address, the window size
 00402880	x	Args (account, host, port, width, height) and Args::server_address, the window size
-00402890	~	Turbine::Client world name (+0x70): kept with the session event only; see RecvNotice_WorldName
-004028f0	~	stored by the world name path only; not shown
+00402890	~	read through TurbineGunUtils::GetWorldName by the efun gTurbineGunUtils::CallEFun_GetWorldName (not bound in the VM); the window title shows the name instead
+004028f0	~	the virtual slot +0x70 gmClient calls (Turbine::Client vtable 0x9c60a0) is this setter; the world-name path reaches the window title (bin/ac2 show_world_name)
 00402940	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 00402d00	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 00402d70	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
@@ -34,7 +34,7 @@ key	status	note
 00402e40	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 00403030	x	
 00403d30	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
-00403ff0	~	world name arrives as SessionEvent::WorldName; the UI slot retail calls (Turbine::Client vtable +0x70) is not identified, so it is not shown
+00403ff0	~	bin/ac2 main.rs show_world_name: the window title carries the literal world name (modern stand-in); retail's HUD reads it via efun gTurbineGunUtils::CallEFun_GetWorldName, not bound in the VM
 00404100	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 00404190	x	the session is the chat provider (ac2-weenie OnlineSession send_to_room / receive_chat over ac2-net turbine_chat)
 004042f0	x	
